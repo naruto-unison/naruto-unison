@@ -1,0 +1,40 @@
+$newline never
+\<!doctype html>
+\<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+\<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+\<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+\<!--[if gt IE 8]><!-->
+<html class="no-js" lang="en"> <!--<![endif]-->
+  <head>
+    <meta charset="UTF-8">
+
+    <title>#{pageTitle pc}
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+    ^{pageHead pc}
+
+  <script>
+    function reveal() { document.body.style.display="block"; }
+
+  <body onload=reveal()>
+    ^{pageBody pc}
+
+    $maybe analytics <- appAnalytics $ appSettings master
+      <script>
+        if(!window.location.href.match(/localhost/)){
+            (function(wi,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+            ga('create', '#{analytics}', 'auto');
+            ga('send', 'pageview');
+        }
+
+    <script>
+      var csrfHeaderName="#{TE.decodeUtf8 $ CI.foldedCase defaultCsrfHeaderName}";var csrfCookieName="#{TE.decodeUtf8 defaultCsrfCookieName}";var csrfToken=Cookies.get(csrfCookieName);if(csrfToken){$.ajaxPrefilter(function(options,originalOptions,jqXHR){if(!options.crossDomain){jqXHR.setRequestHeader(csrfHeaderName,csrfToken);}});}

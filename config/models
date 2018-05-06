@@ -1,0 +1,20 @@
+User json
+    ident      Text
+    UniqueUser ident
+    password   Text      Maybe
+    verkey     Text      Maybe
+    verified   Bool
+    privilege  Privilege
+    name       Text
+    UniqueName name
+    avatar     Text
+    background Text      Maybe
+    xp         Int
+    wins       Int
+    losses     Int
+    streak     Int
+    clan       Text      Maybe
+    team       [Text]    Maybe
+    muted      Bool
+    flipped    Bool default=false
+    deriving Typeable

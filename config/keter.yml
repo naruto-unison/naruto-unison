@@ -1,0 +1,49 @@
+user-edited: true
+
+stanzas:
+
+  - type: webapp
+    exec: ../dist/bin/naruto-unison
+
+    args:
+
+    hosts:
+      - apophaniac.ddns.net
+      - 10.0.0.59
+      - localhost
+    port: 443
+    ssl:  true
+
+    requires-secure: true
+
+    # Uncomment to turn on directory listings.
+    # directory-listing: true
+
+  # Redirect plain domain name to www.
+  # - type: redirect
+
+  #  hosts:
+  #    - scaffold-template.com
+  #  actions:
+  #    - host: www.scaffold-template.com
+        # secure: false
+        # port: 80
+
+    # Uncomment to switch to a non-permanent redirect.
+    # status: 303
+
+# Use the following to automatically copy your bundle upon creation via `yesod
+# keter`. Uses `scp` internally, so you can set it to a remote destination
+copy-to: apophaniac@10.0.0.59:/opt/keter/incoming/
+
+# You can pass arguments to `scp` used above. This example limits bandwidth to
+# 1024 Kbit/s and uses port 2222 instead of the default 22
+# copy-to-args:
+#   - "-l 1024"
+#   - "-P 2222"
+
+# If you would like to have Keter automatically create a PostgreSQL database
+# and set appropriate environment variables for it to be discovered, uncomment
+# the following line.
+plugins:
+  postgres: true

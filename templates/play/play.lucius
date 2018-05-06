@@ -1,0 +1,972 @@
+#contents {
+  height: 100%; 
+  width: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+}
+em {
+  color: #600;
+}
+#volume {
+  width: 15px;
+  height: 15px;
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  z-index: 2;
+}
+
+.player {
+  height: 100%;
+}
+
+.cancel {
+  border: 1px solid #e00;
+}
+
+#registerForm, #loginForm {
+  margin-top: 8px;
+}
+
+.userForm {
+  text-align: center;
+  padding-right: 8px;
+}
+.userForm div {
+  margin-top: 4px;
+}
+.userForm input {
+  width: 100%;
+}
+
+#bg {
+  position: absolute;
+  z-index: -2;
+  object-position: center;
+  object-fit: cover;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background: url('/img/bg/silhouette.jpg') no-repeat center center !important;
+  overflow: hidden;
+}
+.controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+}
+
+.nextSkill, .prevSkill {
+  font-size: 15px;
+  position: absolute;
+  bottom: 5px;
+  color: #000;
+  -webkit-text-stroke: 1px rgba(255,255,255,0.75);
+  text-shadow: 0 0 1px rgba(255,255,255,0.75);
+}
+.nextSkill:hover, .prevSkill:hover {
+  color: #0099ff;
+}
+.nextSkill { right: 5px }
+.prevSkill { left: 5px }
+.nextSkill::after { content: '▶' }
+.prevSkill::after { content: '◀' }
+
+#charSelect .chakra {
+  margin-left: 7px;
+  margin-right: -5px;
+}
+
+#charSelect .skilldesc .chakra, #bardesc .chakra {
+  margin-left: 0.2em;
+  margin-right: 0;
+  font-size: 0.75em;
+}
+
+.minor {
+  margin-left: 0.4em;
+  font-size: 0.8em;
+  vertical-align: top;
+}
+
+.skilldesc .minor, #playbar .minor {
+  font-size: 1em;
+  font-style: unset;
+}
+
+#charSelect > div {
+  margin: 0 50px;
+}
+#charSelect {
+  max-width: 942px;
+  position: relative;
+  margin: auto;
+  height: 100%;
+}
+
+#searching {
+  border-radius: 100%;
+  width: 160px;
+  height: 160px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  margin: -130px auto auto;
+  border: 3px solid #000;
+  overflow: hidden;
+}
+#searching img {
+  width: 180px;
+  margin-left: -10px;
+  margin-top: -10px;
+}
+
+#charSelect > #msg {
+  display: none;
+  border: 2px solid #000;
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 13em;
+  margin: auto;
+  text-align: center;
+  padding: 5px;
+  text-transform: uppercase;
+  top: 186px;
+}
+
+#charSelect > #privatePopup {
+  width: 201px;
+  margin: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 186px;
+  border: 2px solid #000;
+  display: none;
+  text-align: center;
+}
+
+#privatePopup input {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+#privatePopup div {
+  width: 50%;
+  display: inline-block;
+  margin: 0 -2px;
+  box-sizing: border-box;
+}
+
+#charPreview, #accountSettings {
+  box-sizing: border-box;
+  border: 1px solid #000;
+  position: absolute;
+  bottom: 275px;
+  font-family: Verdana, sans-serif;
+  font-size: 12px;
+  padding: 5px 10px;
+  max-width: 100%;
+}
+.queueing #charSelect {
+  filter: saturate(0.15);
+  pointer-events: none;
+}
+.queueing #charPreview, .queueing #accountSettings {
+  display: none;
+}
+#accountSettings span {
+  width: 11em;
+  display: inline-block;
+  font-weight: bold;
+}
+#accountSettings input {
+  width: 15em;
+}
+#accountSettings #flipped {
+  width: inherit;
+}
+#accountSettings p {
+  margin: 0.5em 0;
+}
+#accountSettings span#userfail {
+  display: none;
+  color: #e00;
+  width: inherit;
+}
+.error {
+    color: #e00;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background-color: rgba(255,255,255,0.5);
+    /*padding: 0.5em 0.25em;*/
+    border: 1px solid #fff;
+
+}
+#avatars {
+  height: 209px;
+  overflow: scroll;
+  border: 2px solid #000;
+  border-left: none;
+  border-right: none;
+  padding-left: 1px;
+  text-align: center;
+}
+#avatars img {
+  width: 45px;
+  height: 45px;
+  border: 2px solid #000;
+  margin: -2px -1px 4px -1px;
+}
+#charPreview .char {
+  height: 50px;
+  width: 50px;
+}
+.skillPreview {
+  float: left;
+  position: relative;
+}
+#charName {
+  font-size: 18px;
+  font-weight: bold;
+}
+#charDesc {
+  min-height: 40px;
+}
+#charPreview .skillname {
+  font-size: 14px;
+  font-weight: bold;
+}
+#charPreview .skilldesc {
+  min-height: 43px;
+  margin-left: 61px;
+  margin-bottom: 1px;
+}
+#charPreview #charIcon {
+  width: 60px;
+  height: 60px;
+  float: right;
+}
+.skilldesc:last-child {
+  margin-bottom: -20px;
+}
+
+.characterButtons {
+  text-align: center;
+  position: absolute;
+  bottom: 50px;
+  height: 202px;
+  padding: 5px;
+  padding-top: 3px;
+  border: 4px solid #e00;
+  left: 0;
+  right: 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+#charScroll {
+  height: 100%;
+  text-align: center;
+  overflow: hidden;
+}
+
+.teamContainer {
+  position: absolute;
+  right: 0;
+  top: 50px;
+  text-align: right;
+  width: 538px;
+}
+
+.playButtons {
+  position: absolute;
+  left: -4px;
+  top: 45px;
+  width: 190px;
+  height: 125px;
+  bottom: 2px;
+  z-index: 20; /* Yeah, yeah, I know. */
+}
+
+.playButton, #updateButton, #logoutButton {
+  margin: 3px;
+  padding: 3px;
+  border: 2px solid #999;
+  color: #666;
+  text-transform: uppercase;
+  font-size: 15px;
+  text-align: center;
+  font-family: Trebuchet MS, sans-serif;
+}
+#updateButton, #logoutButton {
+  width: 6em;
+  margin-top: 0.5em;
+}
+#updateButton { margin-left: 0; float: left; }
+#logoutButton { margin-right: 0; float: right; }
+.playButton.click, #updateButton.click, #logoutButton.click {
+  border: 2px solid #e11;
+  color: #000 !important;
+}
+a.playButton {
+  display: block;
+  text-decoration: none;
+}
+a.playButton.click {
+  border-color: #000;
+}
+.playButton.click:hover, #updateButton.click:hover, #logoutButton.click:hover {
+  border: 2px solid #0099ff !important;
+}
+
+#teamButtons {
+  padding-top: 19px;
+  height: 83px;
+  width: 256px;
+}
+#teamButtons .char {
+  margin: 0 4px 0 6px;
+}
+
+#underTeam, #userbox {
+  border: 2px solid #000;
+}
+
+#underTeam {
+  height: 10px;
+  width: 259px;
+  border-right: 0;
+  margin-left: 4px;
+  position: relative;
+  z-index: 10;
+}
+#userbox {
+  width: 251px;
+  height: 105px;
+  padding: 5px 10px 5px 10px;
+  line-height: 1.15;
+  margin-left: -2px;
+  text-align: left;
+  text-transform: uppercase;
+  font-size: 15px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+.userimg {
+  border: 1px solid #000;
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+}
+
+#prevPage, #nextPage {
+  position: absolute;
+  font-family: Georgia, serif;
+  top: 65px;
+  font-size: 60px;
+  color: #e00;
+  font-weight: bold;
+}
+
+.wraparound {
+  color: #fff !important;
+}
+
+#prevPage  { left: -50px }
+#nextPage { right: -50px }
+
+#prevPage::after  { content: "<" }
+#nextPage::after { content: ">" }
+
+.disabled {
+  filter: grayscale(0.8);
+}
+
+.char.disabled {
+  outline: 1px solid #555 !important;
+}
+
+.characterButtons .char {
+  margin: 4px;
+  width: 60px;
+  height: 60px;
+}
+.characterButtons .char:hover {
+  outline: 2px solid #0099ff;
+}
+
+.characterButtons img {
+  width: 60px;
+}
+
+#teamButtons img {
+  width: 75px;
+  height: 75px;
+  outline: 2px solid #000;
+}
+
+#teamButtons .char.click:hover {
+  outline: 2px solid #ff0000;
+}
+
+.char {
+  display: inline-block;
+  outline: 1px solid #000;
+  margin: 5px;
+}
+#top {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+.account {
+  display: inline-block;
+  vertical-align: top;
+  width: 9em;
+  text-transform: uppercase;
+  margin: 0.2em;
+}
+.avatarcont {
+  display: inline-block;
+  vertical-align: top;
+}
+.accountName {
+  font-size: 1.2em;
+}
+.avatar {
+  border: 2px solid #333;
+  width: 75px;
+}
+#account0cont {
+  text-align: right;
+}
+#account1cont {
+  text-align: left;
+}
+.accountcont {
+  width: 285px;
+  position: absolute;
+}
+#account1cont {
+  right: 0;
+}
+#playbar {
+  text-align: left;
+  font-size: 13px;
+  padding: 5px;
+  line-height: 1.22;
+  border: 2px solid #444;
+  left: 290px;
+  position: absolute;
+  right: 290px;
+}
+#playbar img {
+  float: left;
+}
+.barlabel {
+  font-weight: bold;
+  float: left;
+  margin-right: 5px;
+  width: 4.9em;
+}
+#barname {
+  font-weight: bold;
+  font-size: 16px;
+}
+#bardesc {
+  margin-top: 3px;
+  margin-bottom: 3px;
+  line-height: initial;
+}
+#bareffects {
+  font-weight: bold;
+}
+.player {
+  position: absolute;
+  top: 200px;
+  width: 383px;
+  transition: 0.5s all;
+}
+.playerchar {
+  margin-bottom: 15px;
+}
+.chariconcont {
+  display: inline-block;
+  z-index: 5;
+  position: relative;
+}
+.chariconcont.highlighted {
+  background: #0f0;
+}
+.chariconcont.highlighted.nohighlight {
+  background: rgb(170, 0, 0);
+}
+.charicon {
+  border: 2px solid #111;
+  width: 75px;
+  height: 75px;
+}
+.highlighted .charicon {
+  border-color: rgb(19, 112, 19);
+  opacity: 0.75;
+}
+.highlighted.nohighlight .charicon {
+  border-color: rgb(119, 1, 1);
+}
+.charicon.click {
+  border-color: #fff !important;
+}
+.charmoves {
+  display: inline-block;
+  vertical-align: top;
+}
+.charmove {
+  border: 1px solid #fff;
+  width: 62px;
+  height: 62px;
+  margin: 0 6px;
+  display: inline-block;
+  position: relative;
+  transition: 0.2s filter;
+}
+.charmove img {
+  width: 100%;
+  height: 100%;
+}
+.charmove.noclick,
+#player1 .charmove,
+.unable .charmove,
+.stunned .charmove,
+.unable.charmove,
+.oncd,
+.noChakra
+{
+  filter: saturate(0.15);
+  border-color: #000 !important;
+}
+.unable .charicon,
+.stunned .charicon,
+.dead .charicon
+{
+  filter: saturate(0.15);
+}
+.cd {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  color: #fff;
+  text-align: center;
+  margin-top: -1em;
+  font-size: 3em;
+  -webkit-text-stroke: 2px rgba(0, 0, 0, 0.8);
+}
+#player0 {
+  left: 25px;
+  text-align: left;
+}
+#player1 {
+  right: 25px;
+  text-align: right;
+}
+#player1 .charicon {
+  transform: rotateY(180deg);
+}
+.charhealthbar {
+  height: 8px;
+  margin-top: -12px;
+  background: #111;
+  border: 2px solid #111;
+  width: 297px;
+  position: relative;
+}
+#player1.noflip .charhealthbar {
+  margin-right: 77px;
+  margin-left: auto;
+}
+#player0 .charhealthbar, #player1.flip .charhealthbar {
+  margin-left: 77px;
+  margin-right: auto;
+}
+.charhealth, .chardefense, .charbarrier {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  background: #0a0;
+  transition: all 1s;
+}
+.charhealth {
+  background: #0a0;
+}
+.chardefense, .charbarrier {
+  width: 0;
+  border: 2px solid #000;
+  margin: -2px 0;
+  background: #08b;
+  transition: 0.1s border;
+}
+.chardefense {
+  background: #08b;
+}
+.charbarrier {
+  background: #e00;
+}
+#player1.noflip .chardefense, #player1.noflip .charbarrier {
+  border-right: none;
+}
+#player0 .chardefense, #player0 .charbarrier, 
+#player1.flip .chardefense, #player1.flip .charbarrier {
+  border-left: none;
+}
+.exposed .chardefense {
+  background: #999;
+}
+.chardefense:hover {
+  transition: none;
+  border-color: #00a;
+}
+.charbarrier:hover {
+  transition: none;
+  border-color: #a00;
+}
+.charhealthtext {
+  z-index: 2;
+  font-size: 9px;
+  color: #fff;
+  position: absolute;
+  top: -2px;
+  transition: all 1s;
+  left: 0;
+  right: 0;
+  margin: 0 -2em;
+}
+#player1 .charhealthtext.noflip {
+  right: 100%;
+}
+#player0 .charhealthext, #player1.flip .charhealthtext {
+  left: 100%;
+}
+#player1.noflip .charhealth {
+  right: 0;
+}
+#player0 .charhealth, #player1.flip .charhealth {
+  left: 0;
+}
+#playqueuecont {
+  position: absolute;
+  top: 199px;
+  text-align: center;
+  margin: auto;
+  width: 245px;
+  left: 0;
+  right: 0;
+}
+#playqueue {
+  height: 81px;
+}
+#playqueue .act {
+  position: relative;
+  border: 1px solid #fff;
+  margin: 2px;
+  display: inline-block;
+}
+.actcost {
+  position: absolute;
+  left: 1px;
+  bottom: -4px;
+}
+#ready {
+  /*background: #161616;*/
+  color: #eee;
+  width: 238px;
+  margin: auto;
+  margin-top: 3px;
+  border: 1px solid #000;
+  padding: 3px 0;
+  position: relative;
+}
+#ready::before {
+  content: "WAITING"
+}
+#ready.click::before {
+  content: "READY";
+}
+#ready.noChakra::before {
+  content: "CHOOSE CHAKRA";
+}
+#ready.noclick::before {
+  content: "WAITING" !important;
+}
+.charmove.click:hover, .chakra.click:hover, #avatars img:hover {
+  border-color: #0099ff;
+}
+.toggled img {
+  border-color: #fff !important;
+}
+.toggled img:hover, .chakra.click:hover, #avatars img:hover, .charicon.click:hover {
+  border-color: #0099ff !important;
+}
+#avatars img.chosen {
+  border-color: #e11;
+}
+#ready.click:hover {
+  border-color: #fff;
+}
+#ready.noChakra:hover {
+  border-color: #000 !important;
+}
+svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: -1;
+  background: #161616;
+}
+
+#playchakra {
+  position: absolute;
+  top: 330px;
+  text-align: left;
+  color: #222;
+  line-height: 1.1em;
+  display: block;
+  left: 1.7em;
+  right: 0;
+  width: 7.96em;
+  margin: auto;
+  font-family: Verdana, sans-serif;
+  font-size: 1.3em;
+  pointer-events: none;
+  padding-left: -27px;
+}
+.act:hover {
+  border: 1px solid #e00 !important;
+}
+#playchakra a {
+  color: #000;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: all;
+}
+.randbar a {
+  opacity: 0;
+  pointer-events: none !important;
+}
+#playchakra a.click {
+  color: #fff;
+}
+.userForm a, #playchakra a.click:hover {
+  color: #00a;
+}
+.userForm a:hover {
+  color: #000;
+}
+.randT {
+  font-weight: bold;
+  color: #000;
+  max-width: 0.84em;
+  margin-left: 0.2em;
+  margin-right: 0.2em;
+}
+.negrand {
+  color: #a00;
+  margin-left: -0.4em;
+}
+#playchakra a {
+  margin: 0.15em;
+}
+#playchakra a.more {
+  margin-left: -0.45em;
+}
+#playchakra a.less {
+  margin-right: 0.55em;
+}
+#playchakra .chakra {
+  margin-right: 0.4em;
+}
+.actcost .chakra {
+  margin-bottom: 3px;
+  margin-left: 1px;
+}
+#playchakra span {
+  font-family: 'Trebuchet MS', monospace;
+  display: inline-block;
+  width: 1.6em;
+}
+.chakra.click {
+  pointer-events: all;
+  border-color: #fff;
+}
+.chakraButton {
+  -webkit-user-select: none;
+  user-select: none;
+  text-transform: uppercase;
+  font-size: 20px;
+  text-align: center;
+  font-family: Trebuchet MS, sans-serif;
+  margin-left: -26px;
+  margin-top: 6px;
+  pointer-events: all;
+  opacity: 0.5;
+}
+.chakraButton.click {
+  opacity: 1;
+}
+.chakraButton.click:hover {
+  color: #00a;
+}
+
+.statuses, .channels {
+  font-family: Verdana, sans-serif;
+  height: 52px;
+  color: #eee;
+  margin: -1px;
+}
+.statuses {
+  margin-top: 2px;
+}
+.channels {
+  margin-bottom: 2px;
+}
+.status {
+  display: inline-grid; /* mysteries like this course in magic rivers throughout the universe */
+  text-align: center;
+  margin: 1px;
+}
+.statusBorder {
+  border: 1px solid #000;
+}
+.status img {
+  width: 30px;
+  height: 30px;
+}
+.tag .statusBorder {
+  border-color: #666;
+}
+.status.tag img {
+  filter: saturate(0.15);
+}
+.remove .statusBorder, .action .statusBorder {
+  border-color: #00a;
+}
+.status.reflected img {
+  filter: saturate(0.15);
+}
+.reflected .statusBorder {
+  color: #000;
+}
+#playbar .remove {
+  color: #00a;
+}
+#playbar .trap {
+  color: #e00;
+}
+.trap .statusBorder, .control .statusBorder {
+  border-color: #a00;
+}
+.fade {
+  opacity: 0.5;
+}
+.statusDur {
+  margin: 1px;
+}
+.progressbar-text {
+  color: #fff !important;
+  font-size: 4em;
+  font-family: Courier New, monospace;
+  transition: all 1s;
+  left: 32% !important;
+  top: 5% !important;
+}
+
+#endgame {
+  position: absolute;
+  top: 242px;
+  text-align: center;
+  margin: auto;
+  left: 0;
+  right: 0;
+}
+#endgamemsg {
+  font-size: 6em;
+  font-family: Helvetica, sans-serif;
+  color: #fff;
+  -webkit-text-stroke: 2px #000;
+  text-shadow: 0 0 5px #000;
+  text-transform: uppercase;
+
+}
+
+@media (max-width: 1065px) {
+  #player1 .charmove {
+    display: none;
+  }
+  #player1 .charhealthbar {
+    margin-right: 0 !important;
+    width: 75px;
+    z-index: 10;
+  }
+  #player1 {
+    width: 200px;
+  }
+  #playqueuecont, #playchakra {
+    top: 635px;
+  }
+  #playqueuecont {
+    margin: 0 0 0 25px !important;
+  }
+  #playchakra {
+    left: 100px;
+  }
+  #endgame {
+    top: 678px;
+  }
+  #playbar {
+    left: 100px;
+    right: 100px;
+  }
+  .accountcont {
+    width: 100px;
+  }
+  .account {
+    display: none;
+  }
+  .accountRank {
+    display: none;
+  }
+  .status div {
+    display: none;
+  }
+  .statuses, .channels {
+    height: 34px;
+  }
+  .playerchar {
+    margin-bottom: 3px;
+  }
+  .player {
+    top: 125px;
+  }
+}
+
+#return {
+  width: 5em;
+  margin: auto;
+  font-size: 1.3em;
+  border: 2px solid #e11;
+}

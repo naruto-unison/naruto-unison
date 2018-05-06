@@ -1,0 +1,4 @@
+$if isMuted muser
+  <div #volume .click.muted>
+$else
+  <div #volume .click>

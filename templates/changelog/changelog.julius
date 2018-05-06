@@ -1,0 +1,76 @@
+const chars = #{toJSON cs}
+
+const cTypes = [ "blood", "gen", "nin", "tai", "rand" ]
+const tcTypes = [ "blood", "gen", "nin", "tai" ]
+
+shorten = txt => txt.replace(/ \(\d+\)/g, '')
+                    .replace(/[- :()']/g,'')
+                    .replace(/ō/g,'o')
+                    .replace(/ū/g,'u')
+                    
+hide = el => el.hide() // A taste of home...
+half = n => (n + 1) / 2 >> 0
+
+getSkill = (char, label) => {
+  for (skills of char.characterSkills) for (skill of skills) if (skill.label === label) return skill
+}
+
+const hidden = [ "All"
+               , "Affliction"
+               , "NonAffliction"
+               , "NonMental"
+               , "Nonstacking"
+               , "Multi"
+               , "Extending"
+               , "Hidden"
+               , "Shifted"
+               , "Unshifted"
+               , "Direct"
+               , "BaseTrap"
+               , "NonMental"
+               , "Bloodline"
+               , "Genjutsu"
+               , "Ninjutsu"
+               , "Taijutsu"
+               , "Random"
+               , "Necromancy"
+               , "Single" 
+               ]
+filterClasses = a => a.filter(el => !hidden.includes(el))
+
+let curr
+$(() => {
+    const tooltip = $("#tooltip")
+    $(".skill").find("a").each((i, el) => {
+        const src = $(el)
+        const usr = chars[src.data("name")]
+        if (!usr) return
+        const skill = getSkill(usr, src.text())
+        if (!skill) return
+        src.mouseover(ev => {
+            if (tooltip.css("display") !== "none" && cur === src) return
+            cur = src
+            tooltip.stop()
+            $("#skillIcon").attr("src", `/img/ninja/${shorten(name)}/${shorten(skill.label)}.jpg`)
+            $("#skillName").text(skill.label).append([].concat(
+              ...cTypes.map(cType => Array.from(Array(skill.cost[cType]))
+              .map(()=> $(`<div class="chakra ${cType}"></div>`) ))
+            )).append($('<br/><div class="skillClasses">' +
+              [skill.channel.tag].concat(filterClasses(skill.classes)).join(", ") +
+              '</div>'))
+            const desc = $("#skillDesc").html(skill.desc.replace(/\[/g,"<i>").replace(/\]/g,"</i>"))
+            const charges = skill.charges
+            if (charges === 1)
+                desc.append(` <span class="minor">1 charge.</span>`)
+            else if (charges > 1)
+                desc.append(` <span class="minor">${charges} charges.</span>`)
+            desc.append(` <span class="minor">CD: ${skill.cd}</span>`)
+            tooltip
+              .stop()
+              .css("left", ev.pageX)
+              .css("top", Math.max(src.get()[0].offsetTop + 20, ev.pageY))
+              .fadeIn(100)
+              .show()
+        }).mouseleave(() => $("#tooltip").fadeOut(100))
+    })
+})

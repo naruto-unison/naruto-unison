@@ -1,0 +1,17 @@
+-- By default this file is used by `parseRoutesFile` in Foundation.hs
+-- Syntax for this file here: https://www.yesodweb.com/book/routing-and-handlers
+
+/auth   AuthR   Auth   getAuth
+
+/favicon.ico FaviconR GET
+/robots.txt RobotsR GET
+
+/admin                                        TestR          GET
+/api/mute/#Bool                               MuteR          GET
+/api/update/#Text/#Bool/#Text/#Text           UpdateR        GET
+/api/practicequeue/*[Text]                    PracticeQueueR GET
+/api/practiceact/#Chakras/#Chakras            PracticeWaitR  GET
+/api/practiceact/#Chakras/#Chakras/*[ActPath] PracticeActR   GET
+/                                             PlayR          GET
+/changelog                                    ChangelogR     GET
+/                                             StaticR        Static appStatic
