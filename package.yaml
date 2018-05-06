@@ -1,0 +1,130 @@
+name:    naruto-unison
+version: "0.0.0"
+
+# Database setup:
+# ﻿CREATE UNIQUE INDEX lowercase ON public."user"
+#      (UPPER(name))
+
+default-extensions:
+- LambdaCase
+- MonadComprehensions
+- MultiWayIf
+- NamedFieldPuns
+- OverloadedStrings
+- ParallelListComp
+- RecordWildCards
+- TupleSections
+- UnicodeSyntax
+- ViewPatterns
+
+dependencies:
+
+# Due to a bug in GHC 8.0.1, we block its usage
+# See: https://ghc.haskell.org/trac/ghc/ticket/12130
+- base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
+
+- yesod
+- yesod-core
+- yesod-auth
+- yesod-static
+- yesod-form
+- classy-prelude
+- classy-prelude-conduit
+- classy-prelude-yesod
+- bytestring 
+- text 
+- persistent 
+- persistent-postgresql
+- persistent-template
+- template-haskell
+- shakespeare
+- hjsmin
+- monad-control
+- wai-extra
+- yaml
+- http-client-tls
+- http-conduit
+- directory
+- warp
+- data-default
+- aeson
+- conduit
+- monad-logger
+- fast-logger
+- wai-logger
+- file-embed
+- safe
+- unordered-containers
+- containers
+- vector
+- time
+- case-insensitive
+- wai
+- foreign-store
+
+- base-unicode-symbols
+- blaze-html
+- hashable
+- lifted-base
+- mime-mail
+- monad-loops
+- random
+- random-shuffle
+- resourcet
+- stm
+- stm-containers
+- time
+- yesod-websockets
+
+# The library contains all of our application code. The executable
+# defined below is just a thin wrapper.
+library:
+  source-dirs: src
+  when:
+  - condition: (flag(dev)) || (flag(library-only))
+    then:
+      ghc-options:
+      - -Wall
+      - -fwarn-tabs
+      - -O0
+      - -fwarn-incomplete-patterns
+      - -fwarn-incomplete-uni-patterns
+      - -fno-warn-orphans
+      - -fno-warn-type-defaults
+      # - +RTS -xc
+      cpp-options: -DDEVELOPMENT
+    else:
+      ghc-options:
+      - -Wall
+      - -fwarn-tabs
+      - -O2
+      - -fwarn-incomplete-patterns
+      - -fwarn-incomplete-uni-patterns
+      - -fno-warn-orphans
+      - -fno-warn-type-defaults
+
+# Runnable executable for our application
+executables:
+  naruto-unison:
+    main: main.hs
+    source-dirs: app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - naruto-unison
+    when:
+    - condition: flag(library-only)
+      buildable: false
+
+# Define flags used by "yesod devel" to make compilation faster
+flags:
+  library-only:
+    description: Build for use with "yesod devel"
+    manual: false
+    default: false
+  dev:
+    description: Turn on development settings, like auto-reload templates.
+    manual: false
+    default: false
