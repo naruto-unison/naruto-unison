@@ -1,5 +1,5 @@
 name:    naruto-unison
-version: "0.0.0"
+version: "0.0.1"
 
 # Database setup:
 # ﻿CREATE UNIQUE INDEX lowercase ON public."user"
