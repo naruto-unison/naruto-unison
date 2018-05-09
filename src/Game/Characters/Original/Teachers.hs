@@ -2,7 +2,6 @@
 
 module Game.Characters.Original.Teachers (teacherCs) where
 
-import Core.Unicode
 import Game.Functions
 import Game.Game
 import Game.Structure

@@ -2,7 +2,6 @@
 
 module Game.Characters.Shippuden.Adults (adultCsS) where
 
-import Core.Unicode
 import Game.Functions
 import Game.Game
 import Game.Structure

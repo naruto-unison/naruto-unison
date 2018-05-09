@@ -7,8 +7,8 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
-{-# OPTIONS_HADDOCK hide           #-}
 
+-- | Yesod foundation. Implemented in 'Application'.
 module Foundation where
 
 import qualified Data.CaseInsensitive    as CI
@@ -39,11 +39,11 @@ import Core.NoFoundation
 import Game.Structure
 import Game.JSON ()
 
-data GameInfo = GameInfo { gameVsWho     ∷ !(Key User)
-                         , gameVsUser    ∷ !User
-                         , gamePar       ∷ !Player
-                         , gameLeft      ∷ !Int
-                         , gameGame      ∷ !Game
+data GameInfo = GameInfo { gameVsWho     ∷ Key User
+                         , gameVsUser    ∷ User
+                         , gamePar       ∷ Player
+                         , gameLeft      ∷ Int
+                         , gameGame      ∷ Game
                          }
 instance ToJSON GameInfo where
     toJSON GameInfo {..} = object

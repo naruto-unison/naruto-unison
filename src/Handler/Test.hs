@@ -1,8 +1,8 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE QuasiQuotes #-}
 
+-- | Test interface for 'gameSocket'.
 module Handler.Test (getTestR) where
 
 import Yesod
@@ -11,7 +11,7 @@ import Yesod.WebSockets
 import Core.Import
 import Handler.Play
 
-
+-- | Provides a simple JavaScript interface for 'gameSocket'.
 getTestR :: Handler Html
 getTestR = do
   webSockets gameSocket

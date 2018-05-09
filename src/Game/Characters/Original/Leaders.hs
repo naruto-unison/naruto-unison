@@ -2,7 +2,6 @@
 
 module Game.Characters.Original.Leaders (leaderCs) where
 
-import Core.Unicode
 import Game.Functions
 import Game.Game
 import Game.Structure

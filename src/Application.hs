@@ -2,8 +2,8 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE ViewPatterns          #-}
-{-# OPTIONS_HADDOCK hide           #-}
 
+-- | Yesod-provided implementation of 'Foundation'.
 module Application
     ( getApplicationDev
     , appMain

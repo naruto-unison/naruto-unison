@@ -3,14 +3,28 @@
 
 
 @package naruto-unison
-@version 0.0.0
+@version 0.0.1
+
+
+-- | Persistent fields.
+module Core.Fields
+data Privilege
+Normal :: Privilege
+Moderator :: Privilege
+Admin :: Privilege
+instance Database.Persist.Class.PersistField.PersistField Core.Fields.Privilege
+instance Database.Persist.Sql.Class.PersistFieldSql Core.Fields.Privilege
+instance Data.Aeson.Types.ToJSON.ToJSON Core.Fields.Privilege
+instance Data.Aeson.Types.FromJSON.FromJSON Core.Fields.Privilege
+instance GHC.Generics.Generic Core.Fields.Privilege
+instance GHC.Read.Read Core.Fields.Privilege
+instance GHC.Show.Show Core.Fields.Privilege
+instance GHC.Classes.Eq Core.Fields.Privilege
+instance GHC.Enum.Enum Core.Fields.Privilege
 
 
 -- | Settings are centralized, as much as possible, into this file. This
---   includes database connection settings, static file locations, etc. In
---   addition, you can configure a number of different aspects of Yesod by
---   overriding methods in the Yesod typeclass. That instance is declared
---   in the Foundation.hs file.
+--   includes database connection settings, static file locations, etc.
 module Core.Settings
 
 -- | Runtime settings to configure this application. These settings can be
@@ -25,7 +39,7 @@ AppSettings :: String -> PostgresConf -> Maybe Text -> HostPreference -> Int -> 
 -- | Configuration settings for accessing the database.
 [appDatabaseConf] :: AppSettings -> PostgresConf
 
--- | Base for all generated URLs. If <tt>Nothing</tt>, determined from the
+-- | Base for all generated URLs. If <a>Nothing</a>, determined from the
 --   request headers.
 [appRoot] :: AppSettings -> Maybe Text
 
@@ -103,15 +117,11 @@ instance Data.Aeson.Types.FromJSON.FromJSON Core.Settings.AppSettings
 -- | Various unicode synonyms for basic functions.
 module Core.Unicode
 
--- | <a>$</a> with right-fixity 1
-(§) :: (a -> b) -> a -> b
-infixr 2 §
-
--- | <a>.</a> with right-fixity 7
+-- | <a>.</a>
 (∘) :: (b -> g) -> (a -> b) -> a -> g
 infixr 7 ∘
 
--- | A subtraction symbol that respects sections, like <a>subtract</a>.
+-- | <a>subtract</a> allowing for sections
 (—) :: Num a => a -> a -> a
 
 -- | <a>quot</a>
@@ -128,10 +138,16 @@ infix 6 ⩀
 
 -- | <a>append</a>
 (☩) :: Text -> Text -> Text
+
+-- | <a>&lt;|</a>
 (◁) :: a -> Seq a -> Seq a
 infixr 5 ◁
+
+-- | <a>|&gt;</a>
 (▷) :: Seq a -> a -> Seq a
 infixl 5 ▷
+
+-- | <a>&gt;&lt;</a>
 (◇) :: Seq a -> Seq a -> Seq a
 infixr 5 ◇
 
@@ -143,35 +159,174 @@ infix 4 ∈
 (∉) :: (Foldable a, Eq b) => b -> a b -> Bool
 infix 4 ∉
 
--- | <tt>errorEmptyList</tt>
+-- | <a>empty</a>
 ø :: Seq a
+
+
+-- | Yesod models from config/models.
+module Core.Model
+data User
+User :: !Text -> !(Maybe Text) -> !(Maybe Text) -> !Bool -> !Privilege -> !Text -> !Text -> !(Maybe Text) -> !Int -> !Int -> !Int -> !Int -> !(Maybe Text) -> !(Maybe [Text]) -> !Bool -> !Bool -> User
+[userIdent] :: User -> !Text
+[userPassword] :: User -> !(Maybe Text)
+[userVerkey] :: User -> !(Maybe Text)
+[userVerified] :: User -> !Bool
+[userPrivilege] :: User -> !Privilege
+[userName] :: User -> !Text
+[userAvatar] :: User -> !Text
+[userBackground] :: User -> !(Maybe Text)
+[userXp] :: User -> !Int
+[userWins] :: User -> !Int
+[userLosses] :: User -> !Int
+[userStreak] :: User -> !Int
+[userClan] :: User -> !(Maybe Text)
+[userTeam] :: User -> !(Maybe [Text])
+[userMuted] :: User -> !Bool
+[userFlipped] :: User -> !Bool
+type UserId = Key User
+migrateAll :: Migration
+instance Data.Aeson.Types.FromJSON.FromJSON (Database.Persist.Class.PersistEntity.Key Core.Model.User)
+instance Data.Aeson.Types.ToJSON.ToJSON (Database.Persist.Class.PersistEntity.Key Core.Model.User)
+instance Database.Persist.Sql.Class.PersistFieldSql (Database.Persist.Class.PersistEntity.Key Core.Model.User)
+instance Database.Persist.Class.PersistField.PersistField (Database.Persist.Class.PersistEntity.Key Core.Model.User)
+instance Web.Internal.HttpApiData.FromHttpApiData (Database.Persist.Class.PersistEntity.Key Core.Model.User)
+instance Web.Internal.HttpApiData.ToHttpApiData (Database.Persist.Class.PersistEntity.Key Core.Model.User)
+instance Web.PathPieces.PathPiece (Database.Persist.Class.PersistEntity.Key Core.Model.User)
+instance GHC.Classes.Ord (Database.Persist.Class.PersistEntity.Key Core.Model.User)
+instance GHC.Classes.Eq (Database.Persist.Class.PersistEntity.Key Core.Model.User)
+instance GHC.Read.Read (Database.Persist.Class.PersistEntity.Key Core.Model.User)
+instance GHC.Show.Show (Database.Persist.Class.PersistEntity.Key Core.Model.User)
+instance Database.Persist.Class.PersistField.PersistField Core.Model.User
+instance Database.Persist.Sql.Class.PersistFieldSql Core.Model.User
+instance Database.Persist.Class.PersistEntity.PersistEntity Core.Model.User
+instance Database.Persist.Class.PersistStore.ToBackendKey Database.Persist.Sql.Types.Internal.SqlBackend Core.Model.User
+instance Data.Aeson.Types.ToJSON.ToJSON Core.Model.User
+instance Data.Aeson.Types.FromJSON.FromJSON Core.Model.User
+instance Data.Aeson.Types.ToJSON.ToJSON (Database.Persist.Class.PersistEntity.Entity Core.Model.User)
+instance Data.Aeson.Types.FromJSON.FromJSON (Database.Persist.Class.PersistEntity.Entity Core.Model.User)
+instance Data.Hashable.Class.Hashable (Database.Persist.Class.PersistEntity.Key Core.Model.User)
+instance Web.PathPieces.PathPiece Data.Time.Clock.Internal.UTCTime.UTCTime
+
+
+-- | Miscellaneous simple functions.
+module Calculus
+absmin :: (Ord a, Num a) => a -> a -> a
+
+-- | If <tt>False</tt>, turns a <a>Maybe</a> into <a>Nothing</a>.
+($?) :: Bool -> Maybe a -> Maybe a
+
+-- | Equality by applying a function to both arguments. Goes well with
+--   <a>f2all</a>, e.g. <tt>f2all [eqs recordFieldA, recordFieldB]</tt>.
+eqs :: Eq b => (a -> b) -> a -> a -> Bool
+
+-- | Applies two arguments to a list of functions that accept two
+--   arguments.
+f2 :: a -> b -> [a -> b -> c] -> [c]
+
+-- | <a>and</a> <a>f2</a>. Goes well with <a>f2all</a>, e.g. <tt>f2all [eqs
+--   recordFieldA, recordFieldB]</tt>.
+f2all :: [a -> a -> Bool] -> a -> a -> Bool
+
+-- | <tt>Text</tt> <a>init</a> that returns <tt>""</tt> if given
+--   <tt>""</tt>.
+tInit :: Text -> Text
+
+-- | <tt>Text</tt> <a>tail</a> that returns <tt>""</tt> if given
+--   <tt>""</tt>.
+tTail :: Text -> Text
+
+-- | Second argument if <a>True</a>, otherwise <a>id</a>.
+doIf :: Bool -> (a -> a) -> a -> a
+
+-- | <a>doIf</a>
+(?) :: Bool -> (a -> a) -> (a -> a)
+infixr 8 ?
+
+-- | <a>fst</a> if <a>True</a>, <a>snd</a> if <a>False</a>.
+out2 :: Bool -> ((a, a) -> a)
+
+-- | Sets first if <a>True</a>, second if <a>False</a>.
+in2 :: Bool -> b -> (b, b) -> (b, b)
+
+-- | Applies a function to first if <a>True</a>, second if <a>False</a>.
+do2 :: Bool -> (a -> a) -> (a, a) -> (a, a)
+
+-- | Applies a function to both.
+both :: (a -> b) -> (a, a) -> (b, b)
+
+-- | <tt><a>map</a> . <a>both</a></tt>.
+map2 :: (a -> b) -> [(a, a)] -> [(b, b)]
+
+-- | List contains duplicates.
+duplic :: Eq a => [a] -> Bool
+
+-- | <pre>
+--   <a>pack</a> . <a>show</a>
+--   </pre>
+tshow :: Show a => a -> Text
+
+-- | <a>Seq</a> concatenation.
+seqConcat :: Foldable a => a (Seq b) -> Seq b
+
+-- | <pre>
+--   <a>seqConcat</a> . <a>&lt;$&gt;</a>
+--   </pre>
+seqMap :: (a -> Seq b) -> Seq a -> Seq b
+
+-- | <a>Seq</a> equivalent of <a>catMaybes</a>.
+seqMaybes :: Seq (Maybe a) -> Seq a
+
+-- | Extracts a <a>Just</a> in a monad. Returns the error message argument
+--   if given <a>Nothing</a>.
+tryJust :: Monad m => m a -> Maybe a -> m a
+
+-- | Deletes first element that matches a predicate.
+deleteOne :: (a -> Bool) -> [a] -> [a]
+
+-- | Chooses an element of a list at random.
+pick :: StdGen -> [a] -> (a, StdGen)
+
+-- | <a>Nothing</a> if given an empty list, otherwise <a>Just</a>
+--   <a>pick</a>.
+safePick :: StdGen -> [a] -> (Maybe a, StdGen)
+
+-- | Left equivalent of <a>unfoldr</a> that ends when it reaches a
+--   <a>Nothing</a>.
+unfoldl :: (a -> Maybe (a, a)) -> a -> [a]
 
 
 -- | Data structures for gameplay.
 module Game.Structure
-half :: Int -> Int
-sync :: Int -> Int
-teamSize :: Int
-gameSize :: Int
-gameIndices :: [Int]
 
--- | The type signature of game actions. Processed into <a>Game</a> →
---   <a>Game</a>.
-type Transform = (Skill -> Slot -> Slot -> Game -> Slot -> Game)
+-- | A single action of a <a>Ninja</a>.
+data Act
+Act :: Slot -> Either Int Skill -> Slot -> Act
 
--- | The type signature of <a>Trap</a> actions.
-type TrapTransform = (Int -> Slot -> Game -> Game)
+-- | User index in <a>gameNinjas</a> (0-5)
+[actC] :: Act -> Slot
 
--- | A type that decreases every turn.
-class TurnBased a
-getDur :: TurnBased a => a -> Int
-setDur :: TurnBased a => Int -> a -> a
-decrTurn :: TurnBased a => a -> Maybe a
-class Labeled a
-getL :: Labeled a => a -> Text
-getSrc :: Labeled a => a -> Slot
-lEq :: Labeled a => a -> a -> Bool
-lMatch :: Labeled a => Text -> Slot -> a -> Bool
+-- | Skill by index in <a>nCharacter</a> <a>characterSkills</a> (0-3)
+[actS] :: Act -> Either Int Skill
+
+-- | Target index in <a>gameNinjas</a> (0-5)
+[actT] :: Act -> Slot
+
+-- | Builds an <a>Act</a> out of basic types. Used for <a>PathPiece</a>.
+data ActPath
+ActPath :: Int -> Int -> Int -> ActPath
+
+-- | <a>actC</a>
+[actPathC] :: ActPath -> Int
+
+-- | Left <a>actS</a>
+[actPathS] :: ActPath -> Int
+
+-- | <a>actT</a>
+[actPathT] :: ActPath -> Int
+actFromPath :: ActPath -> Act
+
+-- | Actions of AI in training mode.
+botActs :: [Act]
 data Affected
 Applied :: Affected
 Channeled :: Affected
@@ -183,6 +338,82 @@ Redirected :: Affected
 Reflected :: Affected
 Swapped :: Affected
 Trapped :: Affected
+
+-- | Collection of all chakra types.
+data Chakras
+Chakras :: Int -> Int -> Int -> Int -> Int -> Chakras
+
+-- | Bloodline
+[blood] :: Chakras -> Int
+
+-- | Genjutsu
+[gen] :: Chakras -> Int
+
+-- | Ninjutsu
+[nin] :: Chakras -> Int
+
+-- | Taijutsu
+[tai] :: Chakras -> Int
+
+-- | Random
+[rand] :: Chakras -> Int
+
+-- | <pre>
+--   Chakras 0 0 0 0 0
+--   </pre>
+χØ :: Chakras
+
+-- | Types of chakra in <a>Chakras</a>.
+data ChakraType
+
+-- | Bloodline
+Blood :: ChakraType
+
+-- | Genjutsu
+Gen :: ChakraType
+
+-- | Ninjutsu
+Nin :: ChakraType
+
+-- | Taijutsu
+Tai :: ChakraType
+
+-- | Random
+Rand :: ChakraType
+
+-- | An <a>Act</a> channeled over multiple turns.
+data Channel
+Channel :: Slot -> Skill -> Slot -> Channeling -> Channel
+[channelRoot] :: Channel -> Slot
+[channelSkill] :: Channel -> Skill
+[channelT] :: Channel -> Slot
+[channelDur] :: Channel -> Channeling
+
+-- | Types of channeling for <a>Skill</a>s.
+data Channeling
+Instant :: Channeling
+Passive :: Channeling
+Action :: Int -> Channeling
+Control :: Int -> Channeling
+Ongoing :: Int -> Channeling
+
+-- | Indicates that a channeled <a>Skill</a> will affect a <a>Ninja</a>
+--   next turn.
+data ChannelTag
+ChannelTag :: Slot -> Slot -> Skill -> Bool -> Int -> ChannelTag
+[tagRoot] :: ChannelTag -> Slot
+[tagSrc] :: ChannelTag -> Slot
+[tagSkill] :: ChannelTag -> Skill
+[tagGhost] :: ChannelTag -> Bool
+[tagDur] :: ChannelTag -> Int
+
+-- | An out-of-game character.
+data Character
+Character :: Text -> Text -> [[Skill]] -> [(Trigger, Ninja -> Int -> Ninja)] -> Character
+[characterName] :: Character -> Text
+[characterBio] :: Character -> Text
+[characterSkills] :: Character -> [[Skill]]
+[characterHooks] :: Character -> [(Trigger, Ninja -> Int -> Ninja)]
 
 -- | Qualifiers of <a>Skill</a>s and <a>Status</a>es.
 data Class
@@ -220,43 +451,65 @@ Genjutsu :: Class
 Ninjutsu :: Class
 Taijutsu :: Class
 Random :: Class
+
+-- | Enumerated list.
 allClasses :: [Class]
 
--- | A <a>Skill</a> obtained from a different character.
-data Copied
-Copied :: !Skill -> !Int -> Copied
-[copiedSkill] :: Copied -> !Skill
-[copiedDur] :: Copied -> !Int
+-- | Applies an effect after several turns.
+data Delay
+Delay :: Slot -> Skill -> (Game -> Game) -> Int -> Delay
+[delayC] :: Delay -> Slot
+[delaySkill] :: Delay -> Skill
+[delayEf] :: Delay -> Game -> Game
+[delayDur] :: Delay -> Int
+
+-- | Destructible barrier.
+data Barrier
+Barrier :: Int -> Slot -> Text -> (Game -> Game) -> (Int -> Game -> Game) -> Int -> Barrier
+[barrierAmount] :: Barrier -> Int
+[barrierSrc] :: Barrier -> Slot
+[barrierL] :: Barrier -> Text
+[barrierWhile] :: Barrier -> Game -> Game
+[barrierDone] :: Barrier -> Int -> Game -> Game
+[barrierDur] :: Barrier -> Int
+
+-- | Destructible defense.
+data Defense
+Defense :: Int -> Slot -> Text -> Int -> Defense
+[defenseAmount] :: Defense -> Int
+[defenseSrc] :: Defense -> Slot
+[defenseL] :: Defense -> Text
+[defenseDur] :: Defense -> Int
 
 -- | Effects of <a>Status</a>es.
 data Effect
 
 -- | Deals damage every turn
-Afflict :: !Int -> Effect
+Afflict :: Int -> Effect
 
 -- | Cannot be countered or reflected
 AntiCounter :: Effect
 
 -- | Adds to damage received
-Bleed :: !Class -> !Int -> Effect
+Bleed :: Class -> Int -> Effect
 
 -- | Adds to healing <a>Skill</a>s
-Bless :: !Int -> Effect
+Bless :: Int -> Effect
 
 -- | Treats source as <a>Immune</a>
 Block :: Effect
 
 -- | Scales effects from allies
-Boost :: !Int -> Effect
+Boost :: Int -> Effect
 
 -- | Adds to destructible defense <a>Skill</a>
-Build :: !Int -> Effect
+Build :: Int -> Effect
 
 -- | Counters the first <a>Skill</a>s
-Counter :: !Class -> Effect
+Counter :: Class -> Effect
 
 -- | <a>Counter</a>s without being removed
-CounterAll :: !Class -> Effect
+CounterAll :: Class -> Effect
 
 -- | <a>Immune</a> to everyone but source
 Duel :: Effect
@@ -268,7 +521,7 @@ Endure :: Effect
 Enrage :: Effect
 
 -- | <a>Skill</a>s cost an additional random chakra
-Exhaust :: !Class -> Effect
+Exhaust :: Class -> Effect
 
 -- | Cannot reduce damage or be <a>Immune</a>
 Expose :: Effect
@@ -277,10 +530,10 @@ Expose :: Effect
 Focus :: Effect
 
 -- | Heals every turn
-Heal :: !Int -> Effect
+Heal :: Int -> Effect
 
 -- | Invulnerable to enemy <a>Skill</a>s
-Immune :: !Class -> Effect
+Immune :: Class -> Effect
 
 -- | Immune to internal damage
 ImmuneSelf :: Effect
@@ -289,16 +542,16 @@ ImmuneSelf :: Effect
 Isolate :: Effect
 
 -- | Increases damage and healing from source
-Link :: !Int -> Effect
+Link :: Int -> Effect
 
 -- | Prevents effects from being applied
-Nullify :: !Effect -> Effect
+Nullify :: Effect -> Effect
 
 -- | <a>Counter</a> and trigger a <a>Skill</a>
-Parry :: !Class -> !Int -> Effect
+Parry :: Class -> Int -> Effect
 
 -- | <a>Parry</a>s without being removed
-ParryAll :: !Class -> !Int -> Effect
+ParryAll :: Class -> Int -> Effect
 
 -- | Damage skills turn into piercing
 Pierce :: Effect
@@ -307,13 +560,13 @@ Pierce :: Effect
 Plague :: Effect
 
 -- | Reduces damage by a flat amount
-Reduce :: !Class -> !Int -> Effect
+Reduce :: Class -> Int -> Effect
 
 -- | Shares harmful skills with source
 Reapply :: Effect
 
 -- | Transfers harmful <a>Skill</a>s
-Redirect :: !Class -> Effect
+Redirect :: Class -> Effect
 
 -- | Reflects the first <a>Skill</a>
 Reflect :: Effect
@@ -328,7 +581,7 @@ Restrict :: Effect
 Reveal :: Effect
 
 -- | Scales damage dealt
-Scale :: !Class -> !Rational -> Effect
+Scale :: Class -> Rational -> Effect
 
 -- | Immune to friendly <a>Skill</a>s
 Seal :: Effect
@@ -340,22 +593,22 @@ Share :: Effect
 Silence :: Effect
 
 -- | Saves a snapshot of the current state
-Snapshot :: !Ninja -> Effect
+Snapshot :: Ninja -> Effect
 
 -- | Increases cooldowns
-Snare :: !Int -> Effect
+Snare :: Int -> Effect
 
 -- | Negates next skill and increases CD
-SnareTrap :: !Class -> !Int -> Effect
+SnareTrap :: Class -> Int -> Effect
 
 -- | Adds to all damage dealt
-Strengthen :: !Class -> !Int -> Effect
+Strengthen :: Class -> Int -> Effect
 
 -- | Unable to use <a>Skill</a>s
-Stun :: !Class -> Effect
+Stun :: Class -> Effect
 
 -- | Target swaps enemies and allies
-Swap :: !Class -> Effect
+Swap :: Class -> Effect
 
 -- | Forced to attack the source
 Taunt :: Effect
@@ -367,25 +620,207 @@ Uncounter :: Effect
 Unexhaust :: Effect
 
 -- | Reduces damage reduction <a>Skill</a>s
-Unreduce :: !Int -> Effect
+Unreduce :: Int -> Effect
 
 -- | Reduces damage by a fraction
-Ward :: !Class -> !Rational -> Effect
+Ward :: Class -> Rational -> Effect
 
 -- | Lessens damage dealt | Copies a skill into source's skill slot
-Weaken :: !Class -> !Int -> Effect
-Copy :: !Int -> !Class -> !Int -> !Bool -> Effect
-[copyDuration] :: Effect -> !Int
-[copyClass] :: Effect -> !Class
+Weaken :: Class -> Int -> Effect
+Copy :: Int -> Class -> Int -> Bool -> Effect
+[copyDuration] :: Effect -> Int
+[copyClass] :: Effect -> Class
 
--- | skill slot of source to copy into
-[copyTo] :: Effect -> !Int
+-- | Skill index of source to copy into
+[copyTo] :: Effect -> Int
 
--- | includes non-harmful <a>Skill</a>s
-[copyNonHarm] :: Effect -> !Bool
+-- | Include non-harmful <a>Skill</a>s
+[copyNonHarm] :: Effect -> Bool
 helpful :: Effect -> Bool
+
+-- | Effect cannot be removed.
 sticky :: Effect -> Bool
+
+-- | Scales the power of an effect.
 boost :: Int -> Effect -> Effect
+
+-- | The type signature of game actions. Processed into <tt><a>Game</a> →
+--   <a>Game</a></tt>.
+type Transform = Skill  Skill -> Slot  Source (Src) -> Slot  Actor  (C) -> Game  Before -> Slot  Target (T) -> Game  After
+
+-- | The type signature of <a>changes</a>.
+type SkillTransform = (Ninja -> Skill -> Skill)
+
+-- | The type signature of <a>Trap</a> actions.
+type TrapTransform = Int  Amount (optional argument for traps) -> Slot  Source (optional argument for traps) -> Game  Before -> Game  After
+
+-- | Game state.
+data Game
+Game :: (Key User, Key User) -> Seq Ninja -> (Chakras, Chakras) -> [Delay] -> (Int, Int) -> (Int, Int) -> Seq (Game -> Game) -> Player -> Maybe Victor -> Game
+[gamePlayers] :: Game -> (Key User, Key User)
+[gameNinjas] :: Game -> Seq Ninja
+
+-- | Starts at <tt>('χØ', 'χØ')</tt>.
+[gameChakra] :: Game -> (Chakras, Chakras)
+
+-- | Starts at <tt>[]</tt>.
+[gameDelays] :: Game -> [Delay]
+
+-- | Starts at <tt>(0, 0)</tt>. Resets every turn to <tt>(0, 0)</tt>.
+[gameDrain] :: Game -> (Int, Int)
+
+-- | Starts at <tt>(0, 0)</tt>. Resets every turn to <tt>(0, 0)</tt>.
+[gameSteal] :: Game -> (Int, Int)
+
+-- | Starts at <a>empty</a>.
+[gameTraps] :: Game -> Seq (Game -> Game)
+
+-- | Starts at <a>PlayerA</a>.
+[gamePlaying] :: Game -> Player
+
+-- | Starts at <a>Nothing</a>.
+[gameVictor] :: Game -> Maybe Victor
+
+-- | Constructs a <a>Game</a> with starting values.
+newGame :: [Character] -> Key User -> Key User -> Game
+gameNinja :: Slot -> Game -> Ninja
+setNinja :: Slot -> Ninja -> Game -> Game
+fn :: Slot -> (Ninja -> Ninja) -> Game -> Game
+class Labeled a
+getL :: Labeled a => a -> Text
+getSrc :: Labeled a => a -> Slot
+lEq :: Labeled a => a -> a -> Bool
+lMatch :: Labeled a => Text -> Slot -> a -> Bool
+
+-- | In-game character, indexed between 0 and 5.
+data Ninja
+Ninja :: Slot -> Character -> Int -> Seq (Seq Int) -> Seq Int -> Seq [Variant] -> Seq (Maybe Copied) -> [Defense] -> [Barrier] -> [Status] -> [Channel] -> [Channel] -> (Seq Trap) -> [Face] -> [Skill] -> [ChannelTag] -> (Maybe Skill) -> Ninja
+
+-- | <a>gameNinjas</a> index (0-5)
+[nId] :: Ninja -> Slot
+[nCharacter] :: Ninja -> Character
+
+-- | Starts at <tt>100</tt>
+[nHealth] :: Ninja -> Int
+
+-- | Starts at <a>empty</a>
+[nCooldowns] :: Ninja -> Seq (Seq Int)
+
+-- | Starts at 4 <tt>0</tt>s
+[nCharges] :: Ninja -> Seq Int
+
+-- | Starts at 4 <tt>0</tt>s
+[nVariants] :: Ninja -> Seq [Variant]
+
+-- | Starts at 4 <a>Nothing</a>s
+[nCopied] :: Ninja -> Seq (Maybe Copied)
+
+-- | Starts at <tt>[]</tt>
+[nDefense] :: Ninja -> [Defense]
+
+-- | Starts at <tt>[]</tt>
+[nBarrier] :: Ninja -> [Barrier]
+
+-- | Starts at <tt>[]</tt>
+[nStatuses] :: Ninja -> [Status]
+
+-- | Starts at <tt>[]</tt>
+[nChannels] :: Ninja -> [Channel]
+
+-- | Starts at <tt>[]</tt>
+[newChans] :: Ninja -> [Channel]
+
+-- | Starts at <a>empty</a>
+[nTraps] :: Ninja -> (Seq Trap)
+
+-- | Starts at <tt>[]</tt>
+[nFace] :: Ninja -> [Face]
+
+-- | Starts at <tt>[]</tt>
+[nParrying] :: Ninja -> [Skill]
+
+-- | Starts at <tt>[]</tt>
+[nTags] :: Ninja -> [ChannelTag]
+
+-- | Starts at <a>Nothing</a>
+[nLastSkill] :: Ninja -> (Maybe Skill)
+
+-- | Changes the character icon of a <a>Ninja</a>.
+data Face
+Face :: Text -> Slot -> Int -> Face
+[faceIcon] :: Face -> Text
+[faceSrc] :: Face -> Slot
+[faceDur] :: Face -> Int
+
+-- | Constructs a <a>Ninja</a> with starting values from a character and an
+--   index.
+newNinja :: Character -> Slot -> Ninja
+
+-- | Factory resets a <a>Ninja</a> to its starting values.
+ninjaReset :: Ninja -> Ninja
+adjustCd :: Int -> Int -> (Int -> Int) -> Seq (Seq Int) -> Seq (Seq Int)
+insertCd :: Int -> Int -> Int -> Seq (Seq Int) -> Seq (Seq Int)
+
+-- | Player vs. opponent.
+data Player
+PlayerA :: Player
+PlayerB :: Player
+data Victor
+VictorA :: Victor
+VictorB :: Victor
+Tie :: Victor
+
+-- | A move that a <a>Character</a> can perform.
+data Skill
+Skill :: Text -> Text -> Requirement -> [Class] -> Chakras -> Int -> Bool -> Int -> Channeling -> [(Target, Transform)] -> [(Target, Transform)] -> [(Target, Transform)] -> Copying -> Bool -> (Ninja -> Skill -> Skill) -> Skill
+
+-- | Name
+[label] :: Skill -> Text
+
+-- | Description
+[desc] :: Skill -> Text
+
+-- | Defaults to <a>Usable</a>
+[require] :: Skill -> Requirement
+
+-- | Defaults to <tt>[]</tt>
+[classes] :: Skill -> [Class]
+
+-- | Defaults to <a>empty</a>
+[cost] :: Skill -> Chakras
+
+-- | Defaults to <tt>0</tt>
+[cd] :: Skill -> Int
+
+-- | Defaults to <tt>False</tt>
+[varicd] :: Skill -> Bool
+
+-- | Defaults to <tt>0</tt>
+[charges] :: Skill -> Int
+
+-- | Defaults to <a>Instant</a>
+[channel] :: Skill -> Channeling
+
+-- | Defaults to <tt>[]</tt>
+[start] :: Skill -> [(Target, Transform)]
+
+-- | Defaults to <tt>[]</tt>
+[effects] :: Skill -> [(Target, Transform)]
+
+-- | Defaults to <tt>[]</tt>
+[disrupt] :: Skill -> [(Target, Transform)]
+
+-- | Defaults to <a>NotCopied</a>
+[copying] :: Skill -> Copying
+
+-- | Defaults to <tt>False</tt>
+[skPic] :: Skill -> Bool
+
+-- | Defaults to <a>id</a>
+[changes] :: Skill -> Ninja -> Skill -> Skill
+
+-- | Default values of a <a>Skill</a>. Used as a <a>Skill</a> constructor.
+newSkill :: Skill
 
 -- | Target destinations of <a>Skill</a>s.
 data Target
@@ -393,7 +828,7 @@ data Target
 -- | User of <a>Skill</a>
 Self :: Target
 
--- | Chosen ally
+-- | Specific ally
 Ally :: Target
 
 -- | All allies
@@ -402,13 +837,13 @@ Allies :: Target
 -- | Random ally
 RAlly :: Target
 
--- | Chosen ally excluding <a>Self</a>
+-- | Specific ally excluding <a>Self</a>
 XAlly :: Target
 
 -- | <a>Allies</a> excluding <a>Self</a>
 XAllies :: Target
 
--- | Chosen enemy
+-- | Specific enemy
 Enemy :: Target
 
 -- | All enemies
@@ -423,308 +858,124 @@ XEnemies :: Target
 -- | All <a>Ninja</a>s
 Everyone :: Target
 
--- | Specific ninja index (0-6)
-Specific :: !Slot -> Target
-four0s :: Seq Int
-
--- | In-game character, indexed between 0 and 5.
-data Ninja
-Ninja :: !Slot -> !Character -> !Int -> !(Seq (Seq Int)) -> !(Seq Int) -> !(Seq [Variant]) -> !(Seq (Maybe Copied)) -> ![Defense] -> ![Barrier] -> ![Status] -> ![Channel] -> ![Channel] -> !(Seq Trap) -> ![Face] -> ![Skill] -> ![ChannelTag] -> !(Maybe Skill) -> Ninja
-
--- | <a>gameNinja</a> index
-[nId] :: Ninja -> !Slot
-[nCharacter] :: Ninja -> !Character
-
--- | starts at 100
-[nHealth] :: Ninja -> !Int
-
--- | starts at <a>empty</a>
-[nCooldowns] :: Ninja -> !(Seq (Seq Int))
-
--- | starts at 4 0s
-[nCharges] :: Ninja -> !(Seq Int)
-
--- | starts at 4 0s
-[nVariants] :: Ninja -> !(Seq [Variant])
-
--- | starts at 4 Nothings
-[nCopied] :: Ninja -> !(Seq (Maybe Copied))
-[nDefense] :: Ninja -> ![Defense]
-[nBarrier] :: Ninja -> ![Barrier]
-[nStatuses] :: Ninja -> ![Status]
-[nChannels] :: Ninja -> ![Channel]
-[newChans] :: Ninja -> ![Channel]
-[nTraps] :: Ninja -> !(Seq Trap)
-[nFace] :: Ninja -> ![Face]
-[nParrying] :: Ninja -> ![Skill]
-[nTags] :: Ninja -> ![ChannelTag]
-[nLastSkill] :: Ninja -> !(Maybe Skill)
-
--- | Constructs a <a>Ninja</a> with starting values from an index and
---   character name.
-newNinja :: Character -> Slot -> Ninja
-
--- | Factory resets a <a>Ninja</a> to its default values from
---   <a>newNinja</a>
-ninjaReset :: Ninja -> Ninja
-insertCd :: Int -> Int -> Int -> Seq (Seq Int) -> Seq (Seq Int)
-adjustCd :: Int -> Int -> (Int -> Int) -> Seq (Seq Int) -> Seq (Seq Int)
-data Face
-Face :: !Text -> !Slot -> !Int -> Face
-[faceIcon] :: Face -> !Text
-[faceSrc] :: Face -> !Slot
-[faceDur] :: Face -> !Int
-
--- | Game state.
-data Game
-Game :: !(Key User, Key User) -> Seq Ninja -> !(Chakras, Chakras) -> ![Delay] -> !(Int, Int) -> !(Int, Int) -> Seq (Game -> Game) -> !UTCTime -> !Player -> !(Maybe Victor) -> Game
-[gamePlayers] :: Game -> !(Key User, Key User)
-[gameNinjas] :: Game -> Seq Ninja
-[gameChakra] :: Game -> !(Chakras, Chakras)
-[gameDelays] :: Game -> ![Delay]
-
--- | resets each turn to (0, 0)
-[gameDrain] :: Game -> !(Int, Int)
-
--- | resets each turn to (0, 0)
-[gameSteal] :: Game -> !(Int, Int)
-[gameTraps] :: Game -> Seq (Game -> Game)
-[gameTime] :: Game -> !UTCTime
-
--- | starts at <a>PlayerA</a>
-[gamePlaying] :: Game -> !Player
-[gameVictor] :: Game -> !(Maybe Victor)
-
--- | Constructs a <a>Game</a> with starting values from a time, teams, and
---   <a>User</a>s.
-newGame :: UTCTime -> [Character] -> Key User -> Key User -> Game
-setTime :: UTCTime -> Game -> Game
-gameNinja :: Slot -> Game -> Ninja
-setNinja :: Slot -> Ninja -> Game -> Game
-fn :: Slot -> (Ninja -> Ninja) -> Game -> Game
-
--- | A move that a <a>Character</a> can perform.
-data Skill
-Skill :: !Text -> !Text -> !Requirement -> ![Class] -> !Chakras -> !Int -> !Bool -> !Int -> !Channeling -> ![(Target, Transform)] -> ![(Target, Transform)] -> ![(Target, Transform)] -> !Copying -> !Bool -> !(Ninja -> Skill -> Skill) -> Skill
-[label] :: Skill -> !Text
-[desc] :: Skill -> !Text
-
--- | defaults to <a>Usable</a>
-[require] :: Skill -> !Requirement
-[classes] :: Skill -> ![Class]
-
--- | defaults to <a>empty</a>
-[cost] :: Skill -> !Chakras
-
--- | defaults to 0
-[cd] :: Skill -> !Int
-
--- | defaults to False
-[varicd] :: Skill -> !Bool
-
--- | defaults to 0
-[charges] :: Skill -> !Int
-
--- | defaults to <a>Instant</a>
-[channel] :: Skill -> !Channeling
-[start] :: Skill -> ![(Target, Transform)]
-[effects] :: Skill -> ![(Target, Transform)]
-[disrupt] :: Skill -> ![(Target, Transform)]
-
--- | defaults to <a>NotCopied</a>
-[copying] :: Skill -> !Copying
-
--- | defaults to False
-[skPic] :: Skill -> !Bool
-
--- | defaults to <a>id</a>
-[changes] :: Skill -> !(Ninja -> Skill -> Skill)
-
--- | Default values of a <a>Skill</a>. Used with record updates as a
---   <a>Skill</a> constructor.
-newSkill :: Skill
+-- | Specific ninja index in <a>gameNinjas</a> (0-5)
+Specific :: Slot -> Target
 data Requirement
 Usable :: Requirement
 Unusable :: Requirement
 HasI :: Int -> Text -> Requirement
 HasU :: Text -> Requirement
 
--- | An out-of-game character.
-data Character
-Character :: !Text -> !Text -> ![[Skill]] -> ![(Trigger, Ninja -> Int -> Ninja)] -> Character
-[characterName] :: Character -> !Text
-[characterBio] :: Character -> !Text
-[characterSkills] :: Character -> ![[Skill]]
-[characterHooks] :: Character -> ![(Trigger, Ninja -> Int -> Ninja)]
-data ChannelTag
-ChannelTag :: !Slot -> !Slot -> !Skill -> !Bool -> !Int -> ChannelTag
-[tagRoot] :: ChannelTag -> !Slot
-[tagSrc] :: ChannelTag -> !Slot
-[tagSkill] :: ChannelTag -> !Skill
-[tagGhost] :: ChannelTag -> !Bool
-[tagDur] :: ChannelTag -> !Int
-
--- | A single action of a <a>Ninja</a>.
-data Act
-Act :: !Slot -> !(Either Int Skill) -> !Slot -> Act
-
--- | self index (0-5)
-[actC] :: Act -> !Slot
-
--- | skill index (0-3) or <a>Skill</a>
-[actS] :: Act -> !(Either Int Skill)
-
--- | target index (-1-5)
-[actT] :: Act -> !Slot
-data ActPath
-ActPath :: !Int -> !Int -> !Int -> ActPath
-
--- | to <a>actC</a>
-[actPathC] :: ActPath -> !Int
-
--- | to Left <a>actS</a>
-[actPathS] :: ActPath -> !Int
-
--- | to <a>actT</a>
-[actPathT] :: ActPath -> !Int
-actFromPath :: ActPath -> Act
-
--- | Collection of all five chakras.
-data Chakras
-Chakras :: !Int -> !Int -> !Int -> !Int -> !Int -> Chakras
-[blood] :: Chakras -> !Int
-[gen] :: Chakras -> !Int
-[nin] :: Chakras -> !Int
-[tai] :: Chakras -> !Int
-[rand] :: Chakras -> !Int
-χØ :: Chakras
-
--- | Types of chakra in <a>Chakras</a>.
-data ChakraType
-Blood :: ChakraType
-Gen :: ChakraType
-Nin :: ChakraType
-Tai :: ChakraType
-Rand :: ChakraType
-
--- | An <a>Act</a> channeled over multiple turns.
-data Channel
-Channel :: !Slot -> !Skill -> !Slot -> !Channeling -> Channel
-[channelRoot] :: Channel -> !Slot
-[channelSkill] :: Channel -> !Skill
-[channelT] :: Channel -> !Slot
-[channelDur] :: Channel -> !Channeling
-
--- | Types of channeling for <a>Skill</a>s.
-data Channeling
-Instant :: Channeling
-Passive :: Channeling
-Action :: !Int -> Channeling
-Control :: !Int -> Channeling
-Ongoing :: !Int -> Channeling
-isAction :: Channeling -> Bool
-isControl :: Channeling -> Bool
-isOngoing :: Channeling -> Bool
-
--- | Destructible defense.
-data Defense
-Defense :: !Int -> !Slot -> !Text -> !Int -> Defense
-[defenseAmount] :: Defense -> !Int
-[defenseSrc] :: Defense -> !Slot
-[defenseL] :: Defense -> !Text
-[defenseDur] :: Defense -> !Int
-
--- | Destructible barrier.
-data Barrier
-Barrier :: !Int -> !Slot -> !Text -> !(Game -> Game) -> !(Int -> Game -> Game) -> !Int -> Barrier
-[barrierAmount] :: Barrier -> !Int
-[barrierSrc] :: Barrier -> !Slot
-[barrierL] :: Barrier -> !Text
-[barrierWhile] :: Barrier -> !(Game -> Game)
-[barrierDone] :: Barrier -> !(Int -> Game -> Game)
-[barrierDur] :: Barrier -> !Int
-
--- | Applies a <a>Transform</a> after several turns.
-data Delay
-Delay :: !Slot -> !Skill -> !(Game -> Game) -> !Int -> Delay
-[delayC] :: Delay -> !Slot
-[delaySkill] :: Delay -> !Skill
-[delayEf] :: Delay -> !(Game -> Game)
-[delayDur] :: Delay -> !Int
+-- | A <a>Skill</a> copied from a different character.
+data Copied
+Copied :: Skill -> Int -> Copied
+[copiedSkill] :: Copied -> Skill
+[copiedDur] :: Copied -> Int
 data Slot
 allied :: Slot -> Slot -> Bool
 allies :: Slot -> Game -> [Ninja]
 alliesP :: Player -> Seq Ninja -> [Ninja]
 alliedP :: Player -> Slot -> Bool
 enemies :: Slot -> Game -> [Ninja]
+
+-- | <tt>[0 .. gameSize - 1]</tt>.
 enemiesP :: Player -> Seq Ninja -> [Ninja]
 spar :: Slot -> Int
+teamSize :: Int
+gameSize :: Int
+allSlots :: [Slot]
+allySlots :: Slot -> [Slot]
+enemySlots :: Slot -> [Slot]
+opponentSlots :: Player -> [Slot]
+
+-- | Obtains the first or second in a pair by parity.
+bySlot :: Slot -> (a -> a) -> (a, a) -> (a, a)
+
+-- | Inverse of <a>outSlot</a>.
+outSlot :: Slot -> (a, a) -> a
+
+-- | Partition by parity.
+outSlot' :: Slot -> (a, a) -> a
+
+-- | Translates a <a>Target</a> into a list of <a>Ninja</a>s.
+choose :: (Maybe Slot, Maybe Slot) -> Target -> Slot -> Slot -> [Slot]
+
+-- | All targets that a <a>Skill</a> from a a specific <a>Ninja</a>
+--   affects.
+skillTargets :: Skill -> Slot -> [Slot]
 
 -- | A status effect affecting a <a>Ninja</a>.
 data Status
-Status :: !Text -> !Slot -> !Slot -> !Slot -> !Skill -> ![Effect] -> ![Class] -> ![(Bomb, Transform)] -> !Int -> !Int -> Status
-[statusL] :: Status -> !Text
-[statusRoot] :: Status -> !Slot
-[statusSrc] :: Status -> !Slot
-[statusC] :: Status -> !Slot
-[statusSkill] :: Status -> !Skill
-[statusEfs] :: Status -> ![Effect]
-[statusClasses] :: Status -> ![Class]
-[statusBombs] :: Status -> ![(Bomb, Transform)]
-[statusMaxDur] :: Status -> !Int
-[statusDur] :: Status -> !Int
+Status :: Text -> Slot -> Slot -> Slot -> Skill -> [Effect] -> [Class] -> [(Bomb, Transform)] -> Int -> Int -> Status
+
+-- | Label.
+[statusL] :: Status -> Text
+
+-- | Owner of the <a>statusSkill</a>
+[statusRoot] :: Status -> Slot
+
+-- | Original user
+[statusSrc] :: Status -> Slot
+
+-- | Direct user (e.g. if reflected)
+[statusC] :: Status -> Slot
+[statusSkill] :: Status -> Skill
+[statusEfs] :: Status -> [Effect]
+[statusClasses] :: Status -> [Class]
+[statusBombs] :: Status -> [(Bomb, Transform)]
+[statusMaxDur] :: Status -> Int
+[statusDur] :: Status -> Int
 
 -- | Applies <a>Transform</a>s when a <a>Status</a> ends.
 data Bomb
 
--- | Applied with both <a>Expire</a> and <a>Remove</a>.
+-- | Applied with both <a>Expire</a> and <a>Remove</a>
 Done :: Bomb
 
 -- | Applied when a <a>Status</a> reaches the end of its duration.
 Expire :: Bomb
 
--- | Applied when a <a>Status</a> is removed prematurely.
+-- | Applied when a <a>Status</a> is removed prematurely
 Remove :: Bomb
 data Copying
+
+-- | No cooldown or chakra cost.
 Shallow :: Slot -> Int -> Copying
+
+-- | Cooldown and chakra cost.
 Deep :: Slot -> Int -> Copying
 NotCopied :: Copying
-
--- | Player vs. opponent.
-data Player
-PlayerA :: Player
-PlayerB :: Player
 
 -- | A trap which gets triggered when a <a>Ninja</a> meets the conditions
 --   of a <a>Trigger</a>.
 data Trap
-Trap :: !TrapType -> !Trigger -> !Text -> !Text -> !Slot -> !TrapTransform -> ![Class] -> !Int -> !Int -> Trap
-[trapType] :: Trap -> !TrapType
-[trapTrigger] :: Trap -> !Trigger
-[trapL] :: Trap -> !Text
-[trapDesc] :: Trap -> !Text
-[trapSrc] :: Trap -> !Slot
-[trapEf] :: Trap -> !TrapTransform
-[trapClasses] :: Trap -> ![Class]
-[trapTrack] :: Trap -> !Int
-[trapDur] :: Trap -> !Int
+Trap :: TrapType -> Trigger -> Text -> Text -> Slot -> TrapTransform -> [Class] -> Int -> Int -> Trap
+[trapType] :: Trap -> TrapType
+[trapTrigger] :: Trap -> Trigger
+[trapL] :: Trap -> Text
+[trapDesc] :: Trap -> Text
+[trapSrc] :: Trap -> Slot
+[trapEf] :: Trap -> TrapTransform
+[trapClasses] :: Trap -> [Class]
+[trapTrack] :: Trap -> Int
+[trapDur] :: Trap -> Int
 data TrapType
 TrapTo :: TrapType
 TrapFrom :: TrapType
 TrapPer :: TrapType
 
--- | Conditions on a <a>Ninja</a> to spring a <a>Trap</a>.
+-- | Conditions to activate a <a>Trap</a>.
 data Trigger
-OnAction :: !Class -> Trigger
-OnBreak :: !Text -> Trigger
+OnAction :: Class -> Trigger
+OnBreak :: Text -> Trigger
 OnChakra :: Trigger
-OnCounter :: !Class -> Trigger
+OnCounter :: Class -> Trigger
 OnCounterAll :: Trigger
 OnDamage :: Trigger
-OnDamaged :: !Class -> Trigger
+OnDamaged :: Class -> Trigger
 OnDeath :: Trigger
 OnHarm :: Trigger
-OnHarmed :: !Class -> Trigger
+OnHarmed :: Class -> Trigger
 OnHealed :: Trigger
 PerHealed :: Trigger
 OnHelped :: Trigger
@@ -732,32 +983,33 @@ OnImmune :: Trigger
 OnReflectAll :: Trigger
 OnRes :: Trigger
 OnStun :: Trigger
-OnStunned :: !Class -> Trigger
+OnStunned :: Class -> Trigger
 PerDamaged :: Trigger
 TrackDamage :: Trigger
 TrackDamaged :: Trigger
+
+-- | Typeclass for structures that expire after a set number of turns.
+class TurnBased a
+
+-- | Number of turns before expiration. If ≤ 0, never expires.
+getDur :: TurnBased a => a -> Int
+
+-- | Updates the remaining number of turns after a turn has passed.
+setDur :: TurnBased a => Int -> a -> a
+decrTurn :: TurnBased a => a -> Maybe a
+sync :: Int -> Int
 data Variant
-Variant :: !Int -> !Bool -> !Text -> !Int -> Variant
-[variantV] :: Variant -> !Int
-[variantVCD] :: Variant -> !Bool
-[variantL] :: Variant -> !Text
-[variantDur] :: Variant -> !Int
+Variant :: Int -> Bool -> Text -> Int -> Variant
+
+-- | Index in <a>characterSkills</a>
+[variantV] :: Variant -> Int
+
+-- | Uses a different cooldown than the baseline <a>Skill</a>
+[variantVCD] :: Variant -> Bool
+[variantL] :: Variant -> Text
+[variantDur] :: Variant -> Int
 variantCD :: Variant -> Int
 noVariant :: Variant
-data Victor
-VictorA :: Victor
-VictorB :: Victor
-Tie :: Victor
-allSlots :: [Slot]
-allySlots :: Slot -> [Slot]
-enemySlots :: Slot -> [Slot]
-opponentSlots :: Player -> [Slot]
-bySlot :: Slot -> (a -> a) -> (a, a) -> (a, a)
-outSlot :: Slot -> (a, a) -> a
-outSlot' :: Slot -> (a, a) -> a
-choose :: (Maybe Slot, Maybe Slot) -> Target -> Slot -> Slot -> [Slot]
-skillTargets :: Skill -> Slot -> [Slot]
-botActs :: [Act]
 instance GHC.Classes.Eq Game.Structure.Act
 instance Data.Aeson.Types.ToJSON.ToJSON Game.Structure.Barrier
 instance GHC.Generics.Generic Game.Structure.Barrier
@@ -875,426 +1127,724 @@ instance GHC.Classes.Eq (a -> b)
 instance Data.Aeson.Types.ToJSON.ToJSON (a -> b)
 
 
--- | Functions for manipulating data structures in <a>Game.Structure</a>.
+-- | Functions for manipulating data in <a>Game.Structure</a>.
+--   
+--   <tt><a>Text</a> -&gt; <a>Slot</a></tt> arguments check for
+--   <a>lMatch</a>.
 module Game.Functions
 
 -- | Adds 1 to positives, subtracts 1 from negatives, and leaves 0s
 --   unchanged.
 incr :: Int -> Int
-byPar :: Int -> (a2 -> a2) -> (a2, a2) -> (a2, a2)
+
+-- | Applies a function to the first in a pair if odd or the second if
+--   even.
+byPar :: Int -> (a -> a) -> (a, a) -> (a, a)
+
+-- | Flips <a>PlayerA</a> and <a>PlayerB</a>.
 opponent :: Player -> Player
+
+-- | Scales an amount by health lost, in specified intervals.
 lost :: Int -> Int -> Int -> Int
 illegal :: Player -> Act -> Bool
-copyDur :: Copying -> Int -> Int
-copyRoot :: Copying -> Slot -> Slot
-cp :: Skill -> Slot -> Slot
-statusMatch :: Text -> Slot -> Status -> Bool
-numStacks :: Text -> Slot -> Ninja -> Int
-numActive :: Text -> Ninja -> Int
-matchRequire :: Requirement -> Slot -> Ninja -> Bool
-targetable :: Skill -> Ninja -> Ninja -> Ninja -> Bool
-(••) :: (Ninja -> Skill -> Skill) -> (Ninja -> Skill -> Skill) -> Ninja -> Skill -> Skill
-infixl 1 ••
-changeWith :: Text -> (Ninja -> Skill -> Skill) -> Ninja -> Skill -> Skill
-addClass :: Class -> Ninja -> Skill -> Skill
-costPer :: Text -> [ChakraType] -> Ninja -> Skill -> Skill
-setCost :: [ChakraType] -> Ninja -> Skill -> Skill
-targetAll :: Ninja -> Skill -> Skill
-swapSkill :: Status -> Skill -> Skill
-alter :: (Seq Ninja -> Seq Ninja) -> Game -> Game
-isAlive :: Ninja -> Bool
-living :: Game -> [Slot]
-alives :: Player -> Seq Ninja -> [Ninja]
-playerTeam :: Player -> Game -> [Ninja]
-dead :: Player -> Game -> Bool
-healthBound :: Int -> Int -> Int
-minHealth :: Ninja -> Int
-getCds :: Ninja -> Seq Int
+
+-- | Addition.
+(+~) :: Chakras -> Chakras -> Chakras
+infixl 6 +~
+
+-- | Subtraction.
+(-~) :: Chakras -> Chakras -> Chakras
+infixl 6 -~
+getGameChakra :: Player -> Game -> Chakras
+setGameChakra :: Player -> Chakras -> Game -> Game
+lack :: Chakras -> Bool
+χ :: [ChakraType] -> Chakras
+unχ :: Chakras -> [ChakraType]
+
+-- | Adds 1 chakra per living <a>Ninja</a> on the team of a <a>Player</a>.
+χGain :: Player -> [ChakraType] -> Seq Ninja -> Chakras -> Chakras
+
+-- | Sum of components.
+χTotal :: Chakras -> Int
 fromChannel :: Ninja -> Channel -> Act
-channelSkill :: Channel -> Skill
 isChanneling :: Text -> Ninja -> Bool
 hasDefense :: Text -> Slot -> Ninja -> Bool
+
+-- | Modifies <a>Effect</a>s when they are first added to a <a>Ninja</a>.
+filterEffects :: Ninja -> [Effect] -> [Effect]
+
+-- | <a>Boost</a> sum.
+getBoost :: Slot -> Ninja -> Int
+
+-- | <a>Bleed</a> sum.
+getBleed :: [Class] -> Ninja -> Int
+
+-- | <a>Bless</a> sum.
+getBless :: Ninja -> Int
+
+-- | <a>Build</a> sum.
+getBuild :: Ninja -> Int
+
+-- | <a>Immune</a>s.
+getImmune :: Ninja -> [Class]
+
+-- | <a>Link</a> sum.
+getLink :: Slot -> Ninja -> Int
+
+-- | <a>Afflict</a> sum minus <a>Heal</a> sum.
+getNet :: Player -> Game -> Ninja -> Int
+
+-- | <a>Reduce</a> sum.
+getReduce :: [Class] -> Ninja -> Int
+
+-- | <a>Scale</a> product.
+getScale :: [Class] -> Ninja -> Rational
+
+-- | <a>Share</a>s.
+getShare :: Ninja -> [Slot]
+
+-- | <a>Snare</a> sum.
+getSnare :: Ninja -> Int
+
+-- | <a>Strengthen</a> sum.
+getStrengthen :: [Class] -> Ninja -> Int
+
+-- | <a>Stun</a>s.
+getStun :: Ninja -> [Class]
+
+-- | <a>Ward</a> product.
+getWard :: [Class] -> Ninja -> Rational
+
+-- | <a>Weaken</a> sum.
+getWeaken :: [Class] -> Ninja -> Int
+
+-- | Transforms all <a>gameNinjas</a>.
+alter :: (Seq Ninja -> Seq Ninja) -> Game -> Game
+getCds :: Ninja -> Seq Int
+alives :: Player -> Seq Ninja -> [Ninja]
+
+-- | The entire team of a <a>Player</a> is dead, in which case they lose.
+dead :: Player -> Game -> Bool
+
+-- | Restricts <a>nHealth</a> within a range.
+healthBound :: Int -> Int -> Int
+isAlive :: Ninja -> Bool
+
+-- | 1 if the <a>Ninja</a> is affected by <a>Endure</a>, otherwise 0.
+minHealth :: Ninja -> Int
+getPlayer :: Key User -> Game -> Maybe Player
+getVs :: Key User -> Game -> Maybe (Key User)
+
+-- | If a <a>Game</a> is over and <a>gameVictor</a> is unset, sets it to
+--   <a>VictorA</a>, <a>VictorB</a>, or <a>Tie</a>.
+yieldVictor :: Game -> Game
+
+-- | Adds <a>Bloodline</a>, <a>Genjutsu</a>, <a>Ninjutsu</a>,
+--   <a>Taijutsu</a>, and <a>Random</a> to the <a>classes</a> of a
+--   <a>Skill</a> if they are included in its <a>cost</a>.
+chakraClasses :: Skill -> Skill
+
+-- | Replaces an empty string with a <a>label</a>.
+defaultL :: Text -> Skill -> Text
+
+-- | Maximum duration of an effect. Effects from <a>Copied</a>
+--   <a>Skill</a>s must not last longer than the <a>copyDuration</a>.
+copyDur :: Copying -> Int -> Int
+
+-- | <a>Skill</a> owner. Determines the folder location of the icon image.
+copyRoot :: Skill -> Slot -> Slot
+getSkill :: Ninja -> Either Int Skill -> Skill
+
+-- | Simplified <a>getSkill</a> that ignores <a>Copied</a> <a>Skill</a>s
+--   and does not check if the skill is <a>usable</a>.
+getSkill' :: Ninja -> Int -> Int -> Skill
+getSkills :: Ninja -> [Skill]
+
+-- | Composition.
+(••) :: SkillTransform -> SkillTransform -> SkillTransform
+infixl 1 ••
+addClass :: Class -> SkillTransform
+
+-- | Applies a <a>SkillTransform</a> if <a>hasOwn</a>.
+changeWith :: Text -> SkillTransform -> SkillTransform
+
+-- | Increases <a>cost</a> per <a>numActive</a>.
+costPer :: Text -> [ChakraType] -> SkillTransform
+
+-- | Turns AoE effects into single-target effects.
+restrict :: SkillTransform
+setCost :: [ChakraType] -> SkillTransform
+
+-- | Affects enemies instead of allies and allies instead of enemies.
+swapSkill :: Status -> Skill -> Skill
+
+-- | Turns single-target effects into AoE effects.
+targetAll :: SkillTransform
+matchRequire :: Requirement -> Slot -> Ninja -> Bool
 has :: Text -> Slot -> Ninja -> Bool
 hasOwn :: Text -> Ninja -> Bool
-hasTrap :: Text -> Slot -> Ninja -> Bool
 is :: Effect -> Ninja -> Bool
 is' :: (Class -> Effect) -> Ninja -> Bool
-nEfs :: Ninja -> [Effect]
-nStats :: Ninja -> [Status]
-filterEffects :: Ninja -> [Effect] -> [Effect]
-cures :: Status -> Bool
-purges :: Status -> Bool
-doPurge :: Status -> Status
+numActive :: Text -> Ninja -> Int
+numStacks :: Text -> Slot -> Ninja -> Int
+classTrs :: Bool -> (Class -> Trigger) -> [Class] -> Ninja -> Seq TrapTransform
+getPerTraps :: Bool -> Trigger -> Int -> Ninja -> Seq (Game -> Game)
+getTrackTraps :: Bool -> Trigger -> Ninja -> Seq (Game -> Game)
+getTraps :: Bool -> Trigger -> Ninja -> Seq TrapTransform
+
+-- | Trigger a <a>Copy</a>. Returns (<a>statusSrc</a>, <a>statusL</a>,
+--   <a>copyTo</a>, <a>copyDuration</a>).
+copy :: [Class] -> Ninja -> Bool -> [(Slot, Text, Int, Int)]
 
 -- | Trigger a <a>Counter</a>.
 counter :: [Class] -> Ninja -> Ninja -> Maybe Ninja
-triggerCopy :: [Class] -> Ninja -> Bool -> [(Slot, Text, Int, Int)]
 
 -- | Trigger a <a>Parry</a>.
 parry :: Skill -> Ninja -> Maybe (Ninja, Slot, Int)
-redirect :: [Class] -> Ninja -> Maybe Slot
+
+-- | Trigger a <a>Reapply</a>.
 reapply :: [Class] -> Ninja -> Maybe Slot
+
+-- | Trigger a <a>Redirect</a>.
+redirect :: [Class] -> Ninja -> Maybe Slot
 
 -- | Trigger a <a>Reflect</a>.
 reflect :: [Class] -> Ninja -> Ninja -> Maybe Ninja
 
 -- | Trigger a <a>SnareTrap</a>.
---   
---   Trigger a <a>Parry</a>.
 snareTrap :: Skill -> Ninja -> Maybe (Ninja, Int)
-getTargets :: Effect -> Ninja -> [Slot]
-getShare :: Ninja -> [Slot]
-getBless :: Ninja -> Int
-getBleed :: [Class] -> Ninja -> Int
-getBoost :: Slot -> Ninja -> Int
-getBuild :: Ninja -> Int
-getImmune :: Ninja -> [Class]
-getLink :: Slot -> Ninja -> Int
-getReduce :: [Class] -> Ninja -> Int
-getWard :: [Class] -> Ninja -> Rational
-getScale :: [Class] -> Ninja -> Rational
-getSnare :: Ninja -> Int
-getStrengthen :: [Class] -> Ninja -> Int
-getWeaken :: [Class] -> Ninja -> Int
-getStun :: Ninja -> [Class]
-getSwap :: [Class] -> Ninja -> Maybe Status
-getNet :: Player -> Game -> Ninja -> Int
-getGameChakra :: Player -> Game -> Chakras
-setGameChakra :: Player -> Chakras -> Game -> Game
-(+~) :: Chakras -> Chakras -> Chakras
-infixl 6 +~
-(-~) :: Chakras -> Chakras -> Chakras
-infixl 6 -~
-lack :: Chakras -> Bool
-chakraTotal :: Chakras -> Int
-χ :: [ChakraType] -> Chakras
-gainChakra :: Player -> [Int] -> Seq Ninja -> Chakras -> Chakras
-addChakra :: Int -> Chakras -> Int -> Chakras
-listChakra :: Chakras -> [Int]
-getSkill :: Ninja -> Either Int Skill -> Skill
-getSkill' :: Ninja -> Int -> Int -> Skill
-getSkills :: Ninja -> [Skill]
-classTrs :: Bool -> (Class -> Trigger) -> [Class] -> Ninja -> Seq TrapTransform
-getTraps :: Bool -> Trigger -> Ninja -> Seq TrapTransform
-getPerTraps :: Bool -> Trigger -> Int -> Ninja -> Seq (Game -> Game)
-getTrackTraps :: Bool -> Trigger -> Ninja -> Seq (Game -> Game)
-getPlayer :: Key User -> Game -> Maybe Player
-getVs :: Key User -> Game -> Maybe (Key User)
-yieldVictor :: Game -> Game
 
--- | In-game character, indexed between 0 and 5.
-data Ninja
-Ninja :: !Slot -> !Character -> !Int -> !(Seq (Seq Int)) -> !(Seq Int) -> !(Seq [Variant]) -> !(Seq (Maybe Copied)) -> ![Defense] -> ![Barrier] -> ![Status] -> ![Channel] -> ![Channel] -> !(Seq Trap) -> ![Face] -> ![Skill] -> ![ChannelTag] -> !(Maybe Skill) -> Ninja
-
--- | <a>gameNinja</a> index
-[nId] :: Ninja -> !Slot
-[nCharacter] :: Ninja -> !Character
-
--- | starts at 100
-[nHealth] :: Ninja -> !Int
-
--- | starts at <a>empty</a>
-[nCooldowns] :: Ninja -> !(Seq (Seq Int))
-
--- | starts at 4 0s
-[nCharges] :: Ninja -> !(Seq Int)
-
--- | starts at 4 0s
-[nVariants] :: Ninja -> !(Seq [Variant])
-
--- | starts at 4 Nothings
-[nCopied] :: Ninja -> !(Seq (Maybe Copied))
-[nDefense] :: Ninja -> ![Defense]
-[nBarrier] :: Ninja -> ![Barrier]
-[nStatuses] :: Ninja -> ![Status]
-[nChannels] :: Ninja -> ![Channel]
-[newChans] :: Ninja -> ![Channel]
-[nTraps] :: Ninja -> !(Seq Trap)
-[nFace] :: Ninja -> ![Face]
-[nParrying] :: Ninja -> ![Skill]
-[nTags] :: Ninja -> ![ChannelTag]
-[nLastSkill] :: Ninja -> !(Maybe Skill)
-
--- | Game state.
-data Game
-Game :: !(Key User, Key User) -> Seq Ninja -> !(Chakras, Chakras) -> ![Delay] -> !(Int, Int) -> !(Int, Int) -> Seq (Game -> Game) -> !UTCTime -> !Player -> !(Maybe Victor) -> Game
-[gamePlayers] :: Game -> !(Key User, Key User)
-[gameNinjas] :: Game -> Seq Ninja
-[gameChakra] :: Game -> !(Chakras, Chakras)
-[gameDelays] :: Game -> ![Delay]
-
--- | resets each turn to (0, 0)
-[gameDrain] :: Game -> !(Int, Int)
-
--- | resets each turn to (0, 0)
-[gameSteal] :: Game -> !(Int, Int)
-[gameTraps] :: Game -> Seq (Game -> Game)
-[gameTime] :: Game -> !UTCTime
-
--- | starts at <a>PlayerA</a>
-[gamePlaying] :: Game -> !Player
-[gameVictor] :: Game -> !(Maybe Victor)
-
--- | An out-of-game character.
-data Character
-Character :: !Text -> !Text -> ![[Skill]] -> ![(Trigger, Ninja -> Int -> Ninja)] -> Character
-[characterName] :: Character -> !Text
-[characterBio] :: Character -> !Text
-[characterSkills] :: Character -> ![[Skill]]
-[characterHooks] :: Character -> ![(Trigger, Ninja -> Int -> Ninja)]
-
--- | A move that a <a>Character</a> can perform.
-data Skill
-Skill :: !Text -> !Text -> !Requirement -> ![Class] -> !Chakras -> !Int -> !Bool -> !Int -> !Channeling -> ![(Target, Transform)] -> ![(Target, Transform)] -> ![(Target, Transform)] -> !Copying -> !Bool -> !(Ninja -> Skill -> Skill) -> Skill
-[label] :: Skill -> !Text
-[desc] :: Skill -> !Text
-
--- | defaults to <a>Usable</a>
-[require] :: Skill -> !Requirement
-[classes] :: Skill -> ![Class]
-
--- | defaults to <a>empty</a>
-[cost] :: Skill -> !Chakras
-
--- | defaults to 0
-[cd] :: Skill -> !Int
-
--- | defaults to False
-[varicd] :: Skill -> !Bool
-
--- | defaults to 0
-[charges] :: Skill -> !Int
-
--- | defaults to <a>Instant</a>
-[channel] :: Skill -> !Channeling
-[start] :: Skill -> ![(Target, Transform)]
-[effects] :: Skill -> ![(Target, Transform)]
-[disrupt] :: Skill -> ![(Target, Transform)]
-
--- | defaults to <a>NotCopied</a>
-[copying] :: Skill -> !Copying
-
--- | defaults to False
-[skPic] :: Skill -> !Bool
-
--- | defaults to <a>id</a>
-[changes] :: Skill -> !(Ninja -> Skill -> Skill)
+-- | Trigger a <a>Swap</a>.
+swap :: [Class] -> Ninja -> Maybe Status
+targetable :: Skill -> Ninja -> Ninja -> Ninja -> Bool
+usable :: Ninja -> Maybe Int -> Skill -> Skill
 
 
--- | A collection of <a>Ninja</a> → <a>Ninja</a> transformations.
+-- | A collection of <tt><a>Ninja</a> → <a>Ninja</a></tt> transformations.
 module Game.Ninja
 addStatus :: Status -> Ninja -> Ninja
 addStacks :: Int -> Text -> Int -> Skill -> Slot -> Slot -> Ninja -> Ninja
+
+-- | Passes the user's <a>nId</a> to <a>addStacks</a>.
 addOwnStacks :: Int -> Text -> Int -> Int -> Ninja -> Int -> Ninja
+
+-- | Adds to an element in <a>nCooldowns</a>.
 alterCd :: Int -> Int -> Int -> Ninja -> Ninja
+
+-- | Subtracts from <a>nHealth</a>.
 attack :: Int -> Ninja -> Ninja
+
+-- | Deletes matching <a>Channel</a>s in <a>nChannels</a>.
 cancelChannel :: Text -> Ninja -> Ninja
+
+-- | Deletes matching <a>Status</a>es in <a>nStatuses</a>.
 clear :: Text -> Slot -> Ninja -> Ninja
+
+-- | Deletes matching <a>Trap</a>s in <a>nTraps</a>.
 clearTrap :: Text -> Slot -> Ninja -> Ninja
+
+-- | Removes harmful effects. Does not work if the target has
+--   <a>Plague</a>.
 cure :: (Effect -> Bool) -> Ninja -> Ninja
-cure' :: (Effect -> Bool) -> Ninja -> Status -> Maybe Status
+
+-- | Cures <a>Bane</a> <a>Status</a>es.
 cureBane :: Ninja -> Ninja
 decrStats :: Ninja -> Ninja
+
+-- | Applies <a>decrTurn</a> to all of a <a>Ninja</a>s <a>TurnBased</a>
+--   elements.
 decr :: Ninja -> Ninja
-hasten :: Int -> Text -> Slot -> Ninja -> Ninja
 kill :: Bool -> Ninja -> Ninja
-prolong' :: Int -> Text -> Slot -> Status -> Maybe Status
+
+-- | Decreases the duration of matching <a>Status</a>es.
+hasten :: Int -> Text -> Slot -> Ninja -> Ninja
+
+-- | Extends the duration of matching <a>Status</a>es.
 prolong :: Int -> Text -> Slot -> Ninja -> Ninja
+
+-- | Extends the duration of a single <a>Status</a>.
+prolong' :: Int -> Text -> Slot -> Status -> Maybe Status
+
+-- | Removes all friendly effects.
 purge :: Ninja -> Ninja
-purgeAll :: Ninja -> Ninja
+
+-- | Resets the duration of matching <a>Status</a>es to their
+--   <a>statusMaxDur</a>.
 refresh :: Text -> Slot -> Ninja -> Ninja
+
+-- | Deletes one matching <a>Status</a>.
 removeStack :: Text -> Ninja -> Ninja
+
+-- | Replicates <a>removeStack</a>.
 removeStacks :: Text -> Int -> Slot -> Ninja -> Ninja
+
+-- | Removes matching self-applied <a>Status</a>es.
 removeOwn :: Text -> Ninja -> Int -> Ninja
+
+-- | Sets an element in <a>nCooldowns</a> to 0.
 reset :: Int -> Int -> Ninja -> Ninja
+
+-- | Sets <a>nCooldowns</a> to <a>empty</a>.
 resetAll :: Ninja -> Ninja
+
+-- | Resets <a>nCharges</a> to four <tt>0</tt>s.
 resetCharges :: Ninja -> Ninja
+
+-- | Removes <a>nHealth</a> down to a minimum.
 sacrifice :: Int -> Int -> Ninja -> Ninja
 setHealth :: Int -> Ninja -> Ninja
+
+-- | Removes <a>OnCounter</a> <a>Trap</a>s.
 unCounter :: Ninja -> Ninja
+
+-- | Resets matching <a>nVariants</a>.
 unVariant :: Text -> Ninja -> Ninja
+
+-- | Updates an element in <a>nCooldowns</a>. If <a>True</a>, also
+--   increments <a>nCharges</a>.
 updateCd :: Bool -> Int -> Skill -> Int -> Ninja -> Ninja
 
+
+-- | <a>ToJSON</a> instances that require functions from <a>Functions</a>.
 module Game.JSON
 instance Data.Aeson.Types.ToJSON.ToJSON Game.Structure.Ninja
 instance Data.Aeson.Types.ToJSON.ToJSON Game.Structure.Game
 
 
--- | A collection of <a>Transform</a>s and other <a>Game</a> → <a>Game</a>
---   transformations.
+-- | <a>Game</a> handling, primarily through <a>Transform</a>s.
+--   
+--   If a status Transform ends in an apostrophe, it uses a custom display
+--   name. If a trap Transform ends in an apostrophe, it is hidden from
+--   both players.
+--   
+--   A common pattern in higher-order Transforms is <tt>(Int -&gt;
+--   Transform) -&gt; Int</tt>. This modifies the amount passed to a
+--   Transform that requires an amount, such as <a>damage</a> (how much?)
+--   or <a>applyDur</a> (how long?). <tt>(Int -&gt; Transform)</tt> is the
+--   function, and the following <tt>Int</tt> is the base amount.
+--   
+--   For example, <tt>withI "Example Status" 25 damage 50</tt> results in
+--   "damage 50, and an additional 25 if the user has Example Status." This
+--   way, <tt>withI "Example Status" 25</tt> looks like an adverb applied
+--   to <tt>damage 50</tt>, even though <tt>damage</tt> and <tt>50</tt> are
+--   actually two separate arguments of <tt>withI</tt>.
 module Game.Game
-setFace :: Int -> Transform
+
+-- | Hides the opponent's team information and <a>Invisible</a> data.
+censor :: Player -> Game -> Game
+
+-- | Kills all <a>Ninja</a>s of a <a>Player</a>, ending the game.
+forfeit :: Player -> Game -> Game
+
+-- | Performs a single <a>Act</a>. If Right, this is a new action, in which
+--   case random targets are chosen by <a>StdGen</a>. If Left, this is a
+--   continuation of some previous action, in which case its random targets
+--   carry over from the previous action.
+act :: [Affected] -> Game -> (Act, Either (Slot, Slot) StdGen) -> Game
+
+-- | The game engine's main function. Performs <a>Act</a>s and
+--   <a>Channel</a>s; applies effects from <a>Bomb</a>s, <a>Barrier</a>s,
+--   <a>Delay</a>s, and <a>Trap</a>s; decrements all <a>TurnBased</a> data;
+--   adds <a>ChannelTag</a>s; and resolves <a>Chakras</a> for the next
+--   turn.
+runTurn :: Player -> [Act] -> StdGen -> Game -> Game
+
+-- | Uses random integers to give a <a>Player</a> chakras at the start of
+--   their turn.
+updateChakra :: Player -> [Int] -> Game -> Game
+
+-- | <a>$</a>
+(§) :: (a -> b) -> a -> b
+infixr 2 §
+
+-- | Function composition.
+(•) :: Transform -> Transform -> Transform
+infixl 1 •
+
+-- | Same as '•', but with higher fixity.
+(°) :: Transform -> Transform -> Transform
+infixl 3 °
+
+-- | Directly applies an effect to the original source without checking
+--   anything (invulnerability, requirements, etc.)
+self :: Transform -> Transform
+
+-- | Directly applies an effect to all allies of the original source
+--   without checking anything (invulnerability, requirements, etc.)
+alliedTeam :: Transform -> Transform
+
+-- | Directly applies an effect to all enemies of the original source
+--   without checking anything (invulnerability, requirements, etc.)
+enemyTeam :: Transform -> Transform
+
+-- | Directly applies an effect to all characters without checking anything
+--   (invulnerability, requirements, etc.)
+everyone :: Transform -> Transform
+
+-- | User <a>isChanneling</a>
+ifChan :: Text -> Transform -> Transform
+
+-- | User <a>nHealth</a> is within a range
+ifHealthI :: Int -> Int -> Transform -> Transform
+
+-- | Target <a>nHealth</a> is within a range
+ifHealthU :: Int -> Int -> Transform -> Transform
+
+-- | User <a>has</a>
+ifI :: Text -> Transform -> Transform
+
+-- | Target <a>has</a>
+ifU :: Text -> Transform -> Transform
+
+-- | <a>not</a> <a>ifI</a>
+ifnotI :: Text -> Transform -> Transform
+
+-- | <a>not</a> <a>ifU</a>
+ifnotU :: Text -> Transform -> Transform
+
+-- | User <a>numStacks</a> exceeds a threshold
+ifStacks :: Text -> Int -> Transform -> Transform
+
+-- | <a>not</a> <a>ifStacks</a>
+ifnotStacks :: Text -> Int -> Transform -> Transform
+
+-- | Kills and performs a <a>Transform</a> if the target is killed. Has no
+--   effect if the target is invulnerable, has <a>Endure</a>, etc.
+killThen :: Transform -> Transform
+
+-- | User <a>numStacks</a>
+perI :: Text -> Int -> (Int -> Transform) -> Int -> Transform
+
+-- | User <a>numStacks</a> divided by a denominator
+perI' :: Text -> Int -> Int -> (Int -> Transform) -> Int -> Transform
+
+-- | Target <a>numStacks</a>
+perU :: Text -> Int -> (Int -> Transform) -> Int -> Transform
+
+-- | User <a>nHealth</a>
+perHealthI :: (Int -> Int) -> (Int -> Transform) -> Transform
+
+-- | Target <a>nHealth</a>
+perHealthU :: (Int -> Int) -> (Int -> Transform) -> Transform
+
+-- | Number of enemies matching <a>has</a>
+perAffected :: Text -> Int -> (Int -> Transform) -> Int -> Transform
+
+-- | Sum of user's matching <a>Defense</a>
+perDef :: Text -> (Int -> Transform) -> Int -> Transform
+
+-- | Number of helpful <a>Status</a>es and <a>Defense</a>s on the user that
+--   they did not cause themselves.
+perHelpful :: Int -> (Int -> Transform) -> Int -> Transform
+
+-- | User <a>has</a>
+withI :: Text -> Int -> (Int -> Transform) -> Int -> Transform
+
+-- | Target <a>has</a>
+withU :: Text -> Int -> (Int -> Transform) -> Int -> Transform
+
+-- | Target is <a>Immune</a> to any <a>Class</a>
+withInvulnU :: Int -> (Int -> Transform) -> Int -> Transform
+
+-- | User <a>isChanneling</a>
+withChan :: Text -> Int -> (Int -> Transform) -> Int -> Transform
+
+-- | Adds a <a>Delay</a>.
+delay :: Int -> Transform -> Transform
+
+-- | Factory resets a <a>Ninja</a> with <a>ninjaReset</a>.
+factory :: Transform
+
+-- | Adds a <a>Variant</a>.
+vary :: Int -> Int -> Int -> Transform
+vary' :: Int -> Int -> Transform
+
+-- | <a>id</a>.
 wait :: Transform
+
+-- | <a>const</a> <a>wait</a>.
 wait' :: a -> Transform
+drain :: Int -> Transform
+gain :: [ChakraType] -> Transform
+steal :: Int -> Transform
+interrupt :: Transform
+prolongChannel :: Int -> Text -> Transform
+
+-- | Damage that cannot be reduced and penetrates <a>Barrier</a> and
+--   <a>Defense</a>.
+afflict :: Int -> Transform
+
+-- | Ordinary damage.
+damage :: Int -> Transform
+
+-- | Kills the target if their <a>nHealth</a> goes below a threshold.
+execute :: (Int -> Transform) -> Int -> Transform
+
+-- | Damage that cannot be reduced.
+pierce :: Int -> Transform
+
+-- | Adds to <a>nHealth</a>.
+heal :: Int -> Transform
+
+-- | Steals <a>nHealth</a> from the target.
+leech :: Int -> (Int -> Transform) -> Transform
+
+-- | Restores a percentage of <a>nHealth</a>.
+restore :: Int -> Transform
+
+-- | Removes health from the user.
+sacrifice :: Int -> Int -> Transform
+copyAll :: Int -> Transform
+
+-- | Copies the target's <a>nLastSkill</a>.
+copyLast :: Int -> Int -> Transform
+
+-- | Copies the user's <a>Skill</a>s onto the target.
+teach :: Int -> (Slot -> Int -> Copying) -> Int -> Transform
+
+-- | Copies a user's <a>Skill</a> onto the target.
+teachOne :: Int -> Int -> (Slot -> Int -> Copying) -> Int -> Transform
+
+-- | Adds to preexisting <a>Defense</a>.
+addDefense :: Text -> Int -> Transform
+
+-- | Creates a <a>Barrier</a>.
+bar :: Int -> (Int -> Transform) -> Transform -> Int -> Transform
+
+-- | Creates a <a>Defense</a>.
+defend :: Int -> Int -> Transform
+defend' :: Text -> Int -> Int -> Transform
+
+-- | Removes the user's <a>Barrier</a> and the target's <a>Defense</a>.
+demolish :: Transform
+
+-- | Damage that only affects destructibles, not health.
+demolish' :: Int -> Transform
+
+-- | <a>alterCd</a>
+alterCd :: Int -> Int -> Int -> Transform
+
+-- | <a>cancelChannel</a>
+cancelChannel :: Text -> Transform
+
+-- | <a>cure</a>
+cure :: (Effect -> Bool) -> Transform
+cureAll :: Transform
+
+-- | <a>cureBane</a>
+cureBane :: Transform
+cureStun :: Transform
+
+-- | <a>kill</a>
+kill :: Transform
+
+-- | <a>kill'</a>
+kill' :: Transform
+
+-- | <a>purge</a>
+purge :: Transform
+
+-- | <a>refresh</a>
+refresh :: Text -> Transform
+
+-- | <a>clear</a>
+remove :: Text -> Transform
+
+-- | <a>removeStack</a>
+removeStack :: Text -> Transform
+
+-- | <a>removeStacks</a>
+removeStacks :: Text -> Int -> Transform
+
+-- | <a>reset</a>
+reset :: Int -> Int -> Transform
+
+-- | <a>resetAll</a>
+resetAll :: Transform
+
+-- | <a>resetCharges</a>
+resetCharges :: Transform
+
+-- | <a>setHealth</a>
+setHealth :: Int -> Transform
+addStack :: Transform
+addStacks :: Text -> Int -> Transform
+addStacks' :: Int -> Text -> Int -> Transform
+
+-- | Adds a <a>Status</a> to the target.
 apply :: Int -> [Effect] -> Transform
 apply' :: Text -> Int -> [Effect] -> Transform
-applyWith :: [Class] -> Int -> [Effect] -> Transform
-applyWith' :: [Class] -> Text -> Int -> [Effect] -> Transform
-applyX :: Int -> (Int -> Effect) -> Int -> Transform
 applyDur :: [Effect] -> Int -> Transform
 applyDur' :: Text -> [Effect] -> Int -> Transform
-prolong :: Int -> Text -> Transform
-prolongChannel :: Int -> Text -> Transform
-hasten :: Int -> Text -> Transform
-refresh :: Text -> Transform
+applyX :: Int -> (Int -> Effect) -> Int -> Transform
+bomb :: Int -> [Effect] -> [(Bomb, Transform)] -> Transform
+bomb' :: Text -> Int -> [Effect] -> [(Bomb, Transform)] -> Transform
+bombWith :: [Class] -> Int -> [Effect] -> [(Bomb, Transform)] -> Transform
+flag :: Transform
+flag' :: Text -> Transform
 tag :: Int -> Transform
 tag' :: Text -> Int -> Transform
 hide :: Int -> [Effect] -> Transform
 hide' :: Text -> Int -> [Effect] -> Transform
-flag :: Transform
-flag' :: Text -> Transform
-bomb :: Int -> [Effect] -> [(Bomb, Transform)] -> Transform
-bomb' :: Text -> Int -> [Effect] -> [(Bomb, Transform)] -> Transform
-bombWith :: [Class] -> Int -> [Effect] -> [(Bomb, Transform)] -> Transform
-bombWith' :: [Class] -> Text -> Int -> [Effect] -> [(Bomb, Transform)] -> Transform
 snapshot :: Int -> Transform
-remove :: Text -> Transform
-cureStun :: Transform
-cureBane :: Transform
-cure :: (Effect -> Bool) -> Transform
-cureAll :: Transform
-purgeAll :: Transform
-purge :: Transform
-addStack :: Transform
-addStacks :: Text -> Int -> Transform
-addStacks' :: Int -> Text -> Int -> Transform
-removeStack :: Text -> Transform
-removeStacks :: Text -> Int -> Transform
-setHealth :: Int -> Transform
-heal :: Int -> Transform
-restore :: Int -> Transform
-copyLast :: Int -> Int -> Transform
-copyAll :: Int -> Transform
-teach :: Int -> (Slot -> Int -> Copying) -> Int -> Transform
-teachOne :: Int -> Int -> (Slot -> Int -> Copying) -> Int -> Transform
-sacrifice :: Int -> Int -> Transform
-afflict :: Int -> Transform
-pierce :: Int -> Transform
-damage :: Int -> Transform
-execute :: (Int -> Transform) -> Int -> Transform
-leech :: Int -> (Int -> Transform) -> Transform
-kill :: Transform
-kill' :: Transform
-killThen :: Transform -> Transform
-defend :: Int -> Int -> Transform
-defend' :: Text -> Int -> Int -> Transform
-addDefense :: Text -> Int -> Transform
-demolish :: Transform
-demolish' :: Int -> Transform
-commandeer :: Transform
-bar :: Int -> (Int -> Transform) -> Transform -> Int -> Transform
-factory :: Transform
-resetAll :: Transform
-reset :: Int -> Int -> Transform
-alterCd :: Int -> Int -> Int -> Transform
-resetCharges :: Transform
-interrupt :: Transform
-delay :: Int -> Transform -> Transform
-trapWith :: TrapType -> [Class] -> Int -> Trigger -> Transform -> Transform
-trap :: Int -> Trigger -> Transform -> Transform
-trap' :: Int -> Trigger -> Transform -> Transform
-trapFrom :: Int -> Trigger -> Transform -> Transform
-trapFrom' :: Int -> Trigger -> Transform -> Transform
-trapPer :: Int -> Trigger -> (Int -> Transform) -> Transform
-trapPer' :: Int -> Trigger -> (Int -> Transform) -> Transform
+
+-- | <a>hasten</a>.
+hasten :: Int -> Text -> Transform
+
+-- | <a>prolong</a>.
+prolong :: Int -> Text -> Transform
+
+-- | Adds a <a>Face</a> with a duration.
+setFace :: Int -> Transform
+
+-- | Applies an <a>OnBreak</a> trap for the <a>Skill</a> used.
 onBreak :: Transform -> Transform
 removeTrap :: Text -> Transform
-gain :: [ChakraType] -> Transform
-drain :: Int -> Transform
-steal :: Int -> Transform
-cancelChannel :: Text -> Transform
-vary :: Int -> Int -> Int -> Transform
-vary' :: Int -> Int -> Transform
 
--- | Directly applies an effect to the original source without going
---   through <a>wrapEffect</a>.
-self :: Transform -> Transform
+-- | Adds a <a>TrapTo</a> <a>Trap</a>.
+trap :: Int -> Trigger -> Transform -> Transform
+trap' :: Int -> Trigger -> Transform -> Transform
 
--- | Directly applies an effect to all allies of the original source
---   without going through <a>wrapEffect</a>.
-alliedTeam :: Transform -> Transform
+-- | Adds a <a>TrapFrom</a> <a>Trap</a>.
+trapFrom :: Int -> Trigger -> Transform -> Transform
+trapFrom' :: Int -> Trigger -> Transform -> Transform
 
--- | Directly applies an effect to all enemies of the original source
---   without going through <a>wrapEffect</a>.
-enemyTeam :: Transform -> Transform
-
--- | Directly applies an effect to all characters without going through
---   <a>wrapEffect</a>.
-everyone :: Transform -> Transform
-(°) :: Transform -> Transform -> Transform
-infixl 3 °
-(•) :: Transform -> Transform -> Transform
-infixl 1 •
-ifI :: Text -> Transform -> Transform
-ifU :: Text -> Transform -> Transform
-ifnotI :: Text -> Transform -> Transform
-ifnotU :: Text -> Transform -> Transform
-ifChan :: Text -> Transform -> Transform
-ifHealthI :: Int -> Int -> Transform -> Transform
-ifHealthU :: Int -> Int -> Transform -> Transform
-ifStacks :: Text -> Int -> Transform -> Transform
-ifnotStacks :: Text -> Int -> Transform -> Transform
-ifDef :: Text -> Transform -> Transform
-withInvulnU :: Int -> (Int -> Transform) -> Int -> Transform
-withI :: Text -> Int -> (Int -> Transform) -> Int -> Transform
-withU :: Text -> Int -> (Int -> Transform) -> Int -> Transform
-withChan :: Text -> Int -> (Int -> Transform) -> Int -> Transform
-perI :: Text -> Int -> (Int -> Transform) -> Int -> Transform
-perI' :: Text -> Int -> Int -> (Int -> Transform) -> Int -> Transform
-perU :: Text -> Int -> (Int -> Transform) -> Int -> Transform
-perHealthI :: (Int -> Int) -> (Int -> Transform) -> Transform
-perHealthU :: (Int -> Int) -> (Int -> Transform) -> Transform
-perDef :: Text -> (Int -> Transform) -> Int -> Transform
-perHelpful :: Int -> (Int -> Transform) -> Int -> Transform
-perAffected :: Text -> Int -> (Int -> Transform) -> Int -> Transform
-updateChakra :: Player -> [Int] -> Game -> Game
-runTurn :: Player -> [Act] -> StdGen -> Game -> Game
-forfeit :: Player -> Game -> Game
-
--- | Hide private information and <a>Invisible</a>s from opponent.
-censor :: Player -> Game -> Game
+-- | Adds a <a>TrapPer</a> <a>Trap</a>.
+trapPer :: Int -> Trigger -> (Int -> Transform) -> Transform
+trapPer' :: Int -> Trigger -> (Int -> Transform) -> Transform
+trapWith :: TrapType -> [Class] -> Int -> Trigger -> Transform -> Transform
 invuln :: Text -> Text -> [Class] -> [Skill]
 invuln' :: Text -> Text -> [Class] -> [Transform] -> [Skill]
-act :: [Affected] -> Game -> (Act, Either (Slot, Slot) StdGen) -> Game
+
+-- | Steals all of the target's beneficial effects.
+commandeer :: Transform
 kabuto :: Transform
 instance GHC.Classes.Eq Game.Game.Attack
 
 
--- | All <a>Character</a>s.
+-- | Collection of all <a>Character</a>s.
 module Game.Characters
 
--- | Character database as map with character names as keys.
+-- | Database of <a>Character</a>s using <a>characterName</a>s as keys.
 cs :: HashMap Text Character
 
--- | Characer database as list.
+-- | Ordered database of <a>Character</a>s.
 cs' :: [Character]
 
 
--- | Handles API routes related to gameplay.
+-- | Yesod foundation. Implemented in <a>Application</a>.
+module Foundation
+data GameInfo
+GameInfo :: Key User -> User -> Player -> Int -> Game -> GameInfo
+[gameVsWho] :: GameInfo -> Key User
+[gameVsUser] :: GameInfo -> User
+[gamePar] :: GameInfo -> Player
+[gameLeft] :: GameInfo -> Int
+[gameGame] :: GameInfo -> Game
+data GameMessage
+Enact :: Game -> GameMessage
+data QueueMessage
+Announce :: (Key User) -> User -> [Character] -> QueueMessage
+Respond :: (Key User) -> (TChan GameMessage) -> (TChan GameMessage) -> GameInfo -> QueueMessage
+
+-- | The foundation datatype for your application. This can be a good place
+--   to keep settings and values requiring initialization before your
+--   application starts running, such as database connections. Every
+--   handler will have access to the data present here.
+data App
+App :: AppSettings -> Static -> ConnectionPool -> Manager -> Logger -> Map (Key User) Game -> TChan QueueMessage -> App
+[appSettings] :: App -> AppSettings
+[appStatic] :: App -> Static
+[appConnPool] :: App -> ConnectionPool
+[appHttpManager] :: App -> Manager
+[appLogger] :: App -> Logger
+[appPractice] :: App -> Map (Key User) Game
+[appQueue] :: App -> TChan QueueMessage
+data MenuItem
+MenuItem :: Text -> Route App -> Bool -> MenuItem
+[menuItemLabel] :: MenuItem -> Text
+[menuItemRoute] :: MenuItem -> Route App
+[menuItemAccessCallback] :: MenuItem -> Bool
+data MenuTypes
+NavbarLeft :: MenuItem -> MenuTypes
+NavbarRight :: MenuItem -> MenuTypes
+type Handler = HandlerFor App
+type Widget = WidgetFor App ()
+resourcesApp :: [ResourceTree String]
+
+-- | A convenient synonym for database access functions.
+type DB a = forall (m :: * -> *). (MonadIO m) => ReaderT SqlBackend m a
+newUser :: Text -> Maybe Text -> User
+isAuthenticated :: Handler AuthResult
+unsafeHandler :: App -> Handler a -> IO a
+instance GHC.Read.Read (Yesod.Routes.Class.Route Foundation.App)
+instance GHC.Classes.Eq (Yesod.Routes.Class.Route Foundation.App)
+instance GHC.Show.Show (Yesod.Routes.Class.Route Foundation.App)
+instance Yesod.Core.Class.Yesod.Yesod Foundation.App
+instance Yesod.Persist.Core.YesodPersistRunner Foundation.App
+instance Yesod.Routes.Class.ParseRoute Foundation.App
+instance Yesod.Routes.Class.RenderRoute Foundation.App
+instance Yesod.Routes.Class.RouteAttrs Foundation.App
+instance Yesod.Core.Class.Breadcrumbs.YesodBreadcrumbs Foundation.App
+instance Yesod.Persist.Core.YesodPersist Foundation.App
+instance Yesod.Auth.YesodAuth Foundation.App
+instance Yesod.Auth.YesodAuthPersist Foundation.App
+instance Text.Shakespeare.I18N.RenderMessage Foundation.App Yesod.Form.Types.FormMessage
+instance Network.HTTP.Client.Types.HasHttpManager Foundation.App
+instance Yesod.Auth.Email.YesodAuthEmail Foundation.App
+instance Data.Aeson.Types.ToJSON.ToJSON Foundation.GameInfo
+
+
+-- | These handlers embed files in the executable at compile time to avoid
+--   runtime dependencies and improve efficiency.
+module Handler.Embed
+getFaviconR :: Handler TypedContent
+getRobotsR :: Handler TypedContent
+
+
+-- | Handles API routes and WebSockets related to gameplay.
 module Handler.Play
 gameSocket :: WebSocketsT Handler ()
+getPracticeActR :: Chakras -> Chakras -> [ActPath] -> Handler Value
 
 -- | Joins the practice-match queue with a given team. Requires
 --   authentication.
 getPracticeQueueR :: [Text] -> Handler Value
-getPracticeActR :: Chakras -> Chakras -> [ActPath] -> Handler Value
 
 -- | Wrapper for <a>getPracticeActR</a> with no actions.
 getPracticeWaitR :: Chakras -> Chakras -> Handler Value
 
 
--- | Handles routes related to the gameplay client.
+-- | Interface for the PureScript game client.
 module Handler.PlayPage
+getChangelogR :: Handler Html
 
 -- | Renders the gameplay client.
 getPlayR :: Handler Html
 
--- | Updates a user's profile.
-getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
-getChangelogR :: Handler Html
-
 -- | Updates a user's muted status.
 getMuteR :: Bool -> Handler Value
 
+-- | Updates a user's profile.
+getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
+
+
+-- | Test interface for <a>gameSocket</a>.
 module Handler.Test
+
+-- | Provides a simple JavaScript interface for <a>gameSocket</a>.
 getTestR :: Handler Html
+
+
+-- | Yesod-provided implementation of <tt>Foundation</tt>.
+module Application
+getApplicationDev :: IO (Settings, Application)
+appMain :: IO ()
+develMain :: IO ()
+makeFoundation :: AppSettings -> IO App
+makeLogWare :: App -> IO Middleware
+getApplicationRepl :: IO (Int, App, Application)
+shutdownApp :: App -> IO ()
+handler :: Handler a -> IO a
+db :: ReaderT SqlBackend (HandlerFor App) a -> IO a
+instance Yesod.Core.Class.Dispatch.YesodDispatch Foundation.App

@@ -6,8 +6,8 @@
 {-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
-{-# OPTIONS_HADDOCK hide                #-}
 
+-- | Yesod models from config/models.
 module Core.Model where
 
 import Data.Hashable
@@ -16,7 +16,6 @@ import Database.Persist.Quasi
 import Database.Persist.Postgresql (fromSqlKey)
 import ClassyPrelude.Yesod
 import Data.Aeson (decodeStrict, encode)
---import Data.Text.Encoding
 
 import Core.Fields
 import Core.Unicode

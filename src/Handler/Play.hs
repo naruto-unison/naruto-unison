@@ -1,8 +1,8 @@
--- | Handles API routes related to gameplay.
+-- | Handles API routes and WebSockets related to gameplay.
 module Handler.Play
-  ( gameSocket
-  , getPracticeQueueR, getPracticeActR, getPracticeWaitR
-  ) where
+    ( gameSocket
+    , getPracticeActR, getPracticeQueueR, getPracticeWaitR
+    ) where
 
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Text           as T
@@ -20,7 +20,6 @@ import Data.List
 import Data.Maybe
 import Data.Ix                (inRange)
 import Data.Text              (Text)
-import Data.Time.Clock
 import Database.Persist.Postgresql
 import System.Random
 import Yesod
@@ -70,11 +69,10 @@ getPracticeQueueR team
       app        ← getYesod
       (who, _)   ← requireAuthPair
       runDB $ update who [ UserTeam =. Just (reverse team) ]
-      now        ← liftIO getCurrentTime
       chakRns    ← randomRs (0, 3) <$> liftIO newStdGen
       let game   = updateChakra PlayerA (take teamSize chakRns)
-                 $ newGame now ns who who
-      liftIO ∘ atomically ∘ M.insert game who $ (appPractice app)
+                 $ newGame ns who who
+      liftIO ∘ atomically ∘ M.insert game who $ appPractice app
       returnJson $ GameInfo who bot PlayerA 0 game
   where oppTeam = ["Naruto Uzumaki", "Tenten", "Sakura Haruno"]
         ns      = map (cs !) $ concat $ transpose [team, oppTeam]
@@ -122,27 +120,25 @@ gameSocket = do
         readQueueChan ← (liftIO ∘ atomically) $ do
           writeTChan writeQueueChan $ Announce who user team
           dupTChan writeQueueChan
-        (gameInfo, writeChan, readChan) ← untilJust ∘ liftIO $ do
-          now ← getCurrentTime
-          atomically $ do
-            msg ← readTChan readQueueChan
-            case msg of
-              Respond mWho writeChan readChan gameInfo | mWho ≡ who → 
-                  return $ Just (gameInfo, writeChan, readChan)
-              Announce vsWho vsUser vsTeam → do
-                let game = updateChakra PlayerA (take teamSize chakRns)
-                         $ newGame now (concat $ transpose [team, vsTeam])
-                           vsWho who
-                writeChan ← newTChan
-                readChan ← newTChan
-                writeTChan writeQueueChan ∘ Respond vsWho readChan writeChan
-                  ∘ GameInfo who user PlayerB 1 $ censor PlayerB game
-                return $ Just
-                  ( GameInfo vsWho vsUser PlayerA 0 $ censor PlayerA game
-                  , writeChan
-                  , readChan
-                  )
-              _ → return Nothing
+        (gameInfo, writeChan, readChan) ← untilJust ∘ liftIO ∘ atomically $ do
+          msg ← readTChan readQueueChan
+          case msg of
+            Respond mWho writeChan readChan gameInfo | mWho ≡ who → 
+                return $ Just (gameInfo, writeChan, readChan)
+            Announce vsWho vsUser vsTeam → do
+              let game = updateChakra PlayerA (take teamSize chakRns)
+                        $ newGame (concat $ transpose [team, vsTeam])
+                          vsWho who
+              writeChan ← newTChan
+              readChan ← newTChan
+              writeTChan writeQueueChan ∘ Respond vsWho readChan writeChan
+                ∘ GameInfo who user PlayerB 1 $ censor PlayerB game
+              return $ Just
+                ( GameInfo vsWho vsUser PlayerA 0 $ censor PlayerA game
+                , writeChan
+                , readChan
+                )
+            _ → return Nothing
         sendJson gameInfo
         let player = gamePar gameInfo
         when (player ≡ PlayerA) ∘ tryEnact writeChan player $ gameGame gameInfo
@@ -178,9 +174,9 @@ enact player stdGen game actChakra exchangeChakra actions
   | any (illegal player) actions       = Left "Character out of range"
   | otherwise = Right ∘ runTurn player actions stdGen
               $ setGameChakra player chakra { rand = randTotal } game
-  where allS = lefts $ map actS actions
-        randTotal = chakraTotal actChakra - 5 * chakraTotal exchangeChakra
-        chakra = getGameChakra player game +~ exchangeChakra -~ actChakra
+  where allS      = lefts $ map actS actions
+        randTotal = χTotal actChakra - 5 * χTotal exchangeChakra
+        chakra    = getGameChakra player game +~ exchangeChakra -~ actChakra
 
 -- | Wrapper for 'getPracticeActR' with no actions.
 getPracticeWaitR ∷ Chakras → Chakras → Handler Value

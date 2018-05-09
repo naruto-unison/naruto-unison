@@ -19,8 +19,6 @@ default-extensions:
 
 dependencies:
 
-# Due to a bug in GHC 8.0.1, we block its usage
-# See: https://ghc.haskell.org/trac/ghc/ticket/12130
 - base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
 
 - yesod
@@ -76,8 +74,6 @@ dependencies:
 - time
 - yesod-websockets
 
-# The library contains all of our application code. The executable
-# defined below is just a thin wrapper.
 library:
   source-dirs: src
   when:
@@ -103,7 +99,6 @@ library:
       - -fno-warn-orphans
       - -fno-warn-type-defaults
 
-# Runnable executable for our application
 executables:
   naruto-unison:
     main: main.hs
@@ -118,7 +113,6 @@ executables:
     - condition: flag(library-only)
       buildable: false
 
-# Define flags used by "yesod devel" to make compilation faster
 flags:
   library-only:
     description: Build for use with "yesod devel"

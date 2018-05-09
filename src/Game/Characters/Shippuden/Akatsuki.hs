@@ -726,7 +726,7 @@ akatsukiCsS =
       ] 
     , [ newSkill
         { label   = "Missile Salvo"
-        , desc    = "Pain launches a cluster of missiles at an enemy, dealing 10 damage to them for 2 turns and removing the most recent skill used on them by an ally. Once used, this skill becomes [Head Cannon][r][r]."
+        , desc    = "Pain launches a cluster of missiles at an enemy, dealing 10 damage to them for 2 turns and removing the effects of helpful skills from them. Once used, this skill becomes [Head Cannon][r][r]."
         , classes = [Physical, Ranged]
         , cost    = χ [Rand, Rand]
         , cd      = 3

@@ -2,7 +2,6 @@
 
 module Game.Characters.Shippuden.Family (familyCsS) where
 
-import Core.Unicode
 import Game.Functions
 import Game.Game
 import Game.Structure

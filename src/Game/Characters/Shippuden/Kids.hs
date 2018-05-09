@@ -2,7 +2,6 @@
 
 module Game.Characters.Shippuden.Kids (kidCsS) where
 
-import Core.Unicode
 import Game.Functions
 import Game.Game
 import Game.Structure

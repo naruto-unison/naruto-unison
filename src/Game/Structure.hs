@@ -1,39 +1,52 @@
-{-# LANGUAGE DeriveGeneric, DeriveAnyClass, FlexibleInstances #-}
+{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 -- | Data structures for gameplay.
 module Game.Structure
-  ( half, sync
-  , teamSize, gameSize, gameIndices
-  , Transform, TrapTransform
-  , TurnBased(..), decrTurn
-  , Labeled(..), lEq, lMatch
-  , Affected(..)
-  , Class(..), allClasses
-  , Copied(..)
-  , Effect(..), helpful, sticky, boost
-  , Target(..)
-  , four0s
-  , Ninja(..), newNinja, ninjaReset, insertCd, adjustCd
-  , Face(..)
-  , Game(..), newGame, setTime, gameNinja, setNinja, fn
-  , Skill(..), newSkill, Requirement(..)
-  , Character(..)
-  , ChannelTag(..)
-  , Act(..), ActPath(..), actFromPath
-  , Chakras(..), χØ, ChakraType(..)
-  , Channel(..), Channeling(..), isAction, isControl, isOngoing
-  , Defense(..), Barrier(..)
-  , Delay(..)
-  , Slot, allied, allies, alliesP, alliedP, enemies, enemiesP, spar
-  , Status(..), Bomb(..), Copying(..)
-  , Player(..)
-  , Trap(..), TrapType(..), Trigger(..)
-  , Variant(..), variantCD, noVariant
-  , Victor(..)
-  , allSlots, allySlots, enemySlots, opponentSlots
-  , bySlot, outSlot, outSlot', choose, skillTargets
-  , botActs
-  ) where
+    ( 
+    -- * Act
+      Act(..), ActPath(..), actFromPath, botActs, Affected(..)
+    -- * Chakras
+    , Chakras(..), χØ, ChakraType(..)
+    -- * Channel
+    , Channel(..), Channeling(..), ChannelTag(..)
+    -- * Character
+    , Character(..)
+    -- * Class
+    , Class(..), allClasses
+    -- * Delay
+    , Delay(..)
+    -- * Destructible
+    , Barrier(..), Defense(..)
+    -- * Effect
+    , Effect(..), helpful, sticky, boost
+    -- * Function types
+    , Transform, SkillTransform, TrapTransform
+    -- * Game
+    , Game(..), newGame, gameNinja, setNinja, fn
+    -- * Labeled
+    , Labeled(..), lEq, lMatch
+    -- * Ninja
+    , Ninja(..), Face(..), newNinja, ninjaReset, adjustCd, insertCd
+    -- * Player
+    , Player(..), Victor(..)
+    -- * Skill
+    , Skill(..), newSkill, Target(..), Requirement(..), Copied(..)
+    -- * Slot
+    , Slot, allied, allies, alliesP, alliedP, enemies, enemiesP, spar
+    , teamSize, gameSize
+    , allSlots, allySlots, enemySlots, opponentSlots
+    , bySlot, outSlot, outSlot', choose, skillTargets
+    -- * Status
+    , Status(..), Bomb(..), Copying(..)
+    -- * Trap
+    , Trap(..), TrapType(..), Trigger(..)
+    -- * TurnBased
+    , TurnBased(..), decrTurn, sync
+    -- * Variant
+    , Variant(..), variantCD, noVariant
+    ) where
   
 import qualified Data.Sequence as S
 import qualified Data.Text as T
@@ -46,49 +59,56 @@ import Data.Maybe      (maybeToList)
 import Data.Sequence   (adjust', fromList, index, Seq, update)
 import Data.Text       (splitOn, Text)
 import Data.Text.Read
-import Data.Time.Clock
 import Yesod           (PathPiece, toPathPiece, fromPathPiece)
 
 import Calculus
 import Core.Model
 import Core.Unicode
 
-teamSize ∷ Int -- ^ Each player controls 3 'Ninja's.
+-- Each player controls 3 'Ninja's.
+teamSize ∷ Int
 teamSize = 3
-gameSize ∷ Int -- ^ There are 6 total 'Ninja's in a game.
+-- There are 6 total 'Ninja's in a game (@teamSize * 2).
+gameSize ∷ Int
 gameSize = teamSize * 2 
-gameIndices ∷ [Int]
-gameIndices = [0..gameSize-1]
 
-half ∷ Int → Int -- ^ Converts from per-player sub-turns to total turns.
-half = uncurry (+) ∘ (`quotRem` 2) ∘ abs 
-
-sync ∷ Int → Int -- ^ Converts from total turns to per-player sub-turns.
+-- Converts from turns to sub-turns.
+-- Each turn consists of two sub-turns, one for each player.
+sync ∷ Int → Int 
 sync n
   | n ≥ 0     = 2 * n
   | otherwise = (-2) * n - 1
 
--- | The type signature of game actions. Processed into 'Game' → 'Game'.
-type Transform = ( Skill -- Skill
-                 → Slot  -- Source (Src)
-                 → Slot  -- Actor  (C)
-                 → Game  -- Before
-                 → Slot  -- Target (T)
-                 → Game  -- After
-                 )
+-- | The type signature of game actions. Processed into @'Game' → 'Game'@.
+type Transform = Skill -- ^ Skill
+               → Slot  -- ^ Source (Src)
+               → Slot  -- ^ Actor  (C)
+               → Game  -- ^ Before
+               → Slot  -- ^ Target (T)
+               → Game  -- ^ After
+                 
+
+-- | The type signature of 'changes'.
+type SkillTransform = (Ninja → Skill → Skill)
 
 -- | The type signature of 'Trap' actions.
-type TrapTransform = ( Int  -- Amount (optional argument for traps)
-                      → Slot -- Source (optional argument for traps)
-                      → Game -- Before
-                      → Game -- After
-                      )
+type TrapTransform = Int  -- ^ Amount (optional argument for traps)
+                   → Slot -- ^ Source (optional argument for traps)
+                   → Game -- ^ Before
+                   → Game -- ^ After
+                     
 
--- | A type that decreases every turn.
+-- | Typeclass for structures that expire after a set number of turns.
 class TurnBased a where
+    -- | Number of turns before expiration. If ≤ 0, never expires.
     getDur ∷ a → Int     
+    -- | Updates the remaining number of turns after a turn has passed.
     setDur ∷ Int → a → a  
 
+-- If @'getDur' ≤ 0, has no effect.
+-- If @'getDur' == 1, deletes the structure; 
+-- it has reached the end of its duration.
+-- Otherwise, decreases the remaining duration by 1.
 decrTurn ∷ TurnBased a ⇒ a → Maybe a
 decrTurn a
   | dur ≡ 0   = Just a
@@ -96,13 +116,22 @@ decrTurn a
   | otherwise = Just $ setDur (dur - 1) a
   where dur = getDur a
 
+-- Typeclass for data structures that have a label 
+-- and originate from a specific 'Ninja'. 
+-- This is important because two different 'Ninja's might have 'Skill's with
+-- the same label, so both label and origin must match in order for a structure
+-- to count as theirs.
 class Labeled a where
+    -- Label
     getL   ∷ a → Text
+    -- 'Ninja' user
     getSrc ∷ a → Slot
 
+-- Equality.
 lEq ∷ Labeled a ⇒ a → a → Bool
 lEq a b = getL a ≡ getL b ∧ getSrc a ≡ getSrc b
 
+-- Matching.
 lMatch ∷ Labeled a ⇒ Text → Slot → a → Bool
 lMatch l src a = getL a ≡ l ∧ getSrc a ≡ src
 
@@ -150,77 +179,78 @@ data Class = Invisible
            | Random
            deriving (Enum, Eq, Show, Bounded)
 
+instance ToJSON Class where 
+    toJSON = toJSON ∘ cJson
+      where cJson InvisibleTraps = cJson Invisible
+            cJson a              = show a
+
 show' ∷ Class → String
 show' NonMental       = "Non-mental"
 show' NonAffliction   = "Non-affliction"
 show' InvisibleTraps  = show Invisible
 show' a               = show a
 
-cJson ∷ Class → String
-cJson InvisibleTraps  = cJson Invisible
-cJson a               = show a
-
 lower ∷ String → String
 lower = T.unpack ∘ T.toLower ∘ T.pack
 
-instance ToJSON Class where toJSON = toJSON ∘ cJson
-allClasses ∷ [Class] -- ^ Enumerated list of 'Class'es
+-- | Enumerated list.
+allClasses ∷ [Class]
 allClasses = [minBound .. maxBound]
 
 -- | Effects of 'Status'es.
-data Effect = Afflict    !Int        -- ^ Deals damage every turn
-            | AntiCounter            -- ^ Cannot be countered or reflected
-            | Bleed      !Class !Int -- ^ Adds to damage received
-            | Bless      !Int        -- ^ Adds to healing 'Skill's
-            | Block                  -- ^ Treats source as 'Immune'
-            | Boost      !Int        -- ^ Scales effects from allies
-            | Build      !Int        -- ^ Adds to destructible defense 'Skill'
-            | Counter    !Class      -- ^ Counters the first 'Skill's
-            | CounterAll !Class      -- ^ 'Counter's without being removed
-            | Duel                   -- ^ 'Immune' to everyone but source
-            | Endure                 -- ^ Health cannot go below 1
-            | Enrage                 -- ^ Ignore status effects
-            | Exhaust    !Class      -- ^ 'Skill's cost an additional random chakra
-            | Expose                 -- ^ Cannot reduce damage or be 'Immune'
-            | Focus                  -- ^ Immune to 'Stun's
-            | Heal       !Int        -- ^ Heals every turn
-            | Immune     !Class      -- ^ Invulnerable to enemy 'Skill's
-            | ImmuneSelf             -- ^ Immune to internal damage
-            | Isolate                -- ^ Unable to affect others
-            | Link       !Int        -- ^ Increases damage and healing from source
-            | Nullify    !Effect     -- ^ Prevents effects from being applied
-            | Parry      !Class !Int -- ^ 'Counter' and trigger a 'Skill'
-            | ParryAll   !Class !Int -- ^ 'Parry's without being removed
-            | Pierce                 -- ^ Damage skills turn into piercing
-            | Plague                 -- ^ Immune to healing and curing
-            | Reduce     !Class !Int -- ^ Reduces damage by a flat amount
-            | Reapply                -- ^ Shares harmful skills with source
-            | Redirect   !Class      -- ^ Transfers harmful 'Skill's
-            | Reflect                -- ^ Reflects the first 'Skill'
-            | ReflectAll             -- ^ 'Reflect' without being removed
-            | Restrict               -- ^ Forces AoE attacks to be single-target
-            | Reveal                 -- ^ Makes 'Invisible' effects visible
-            | Scale      !Class !Rational -- ^ Scales damage dealt
-            | Seal                   -- ^ Immune to friendly 'Skill's
-            | Share                  -- ^ Shares all harmful non-damage effects
-            | Silence                -- ^ Unable to cause non-damage effects
-            | Snapshot   !Ninja      -- ^ Saves a snapshot of the current state
-            | Snare      !Int        -- ^ Increases cooldowns
-            | SnareTrap  !Class !Int -- ^ Negates next skill and increases CD
-            | Strengthen !Class !Int -- ^ Adds to all damage dealt
-            | Stun       !Class      -- ^ Unable to use 'Skill's
-            | Swap       !Class      -- ^ Target swaps enemies and allies
-            | Taunt                  -- ^ Forced to attack the source
-            | Uncounter              -- ^ Cannot counter or reflect
-            | Unexhaust              -- ^ Decreases chakra costs by 1 random  
-            | Unreduce   !Int        -- ^ Reduces damage reduction 'Skill's
-            | Ward       !Class !Rational -- ^ Reduces damage by a fraction
-            | Weaken     !Class !Int -- ^ Lessens damage dealt
+data Effect = Afflict    Int           -- ^ Deals damage every turn
+            | AntiCounter              -- ^ Cannot be countered or reflected
+            | Bleed      Class Int      -- ^ Adds to damage received
+            | Bless      Int            -- ^ Adds to healing 'Skill's
+            | Block                     -- ^ Treats source as 'Immune'
+            | Boost      Int            -- ^ Scales effects from allies
+            | Build      Int            -- ^ Adds to destructible defense 'Skill'
+            | Counter    Class          -- ^ Counters the first 'Skill's
+            | CounterAll Class          -- ^ 'Counter's without being removed
+            | Duel                      -- ^ 'Immune' to everyone but source
+            | Endure                    -- ^ Health cannot go below 1
+            | Enrage                    -- ^ Ignore status effects
+            | Exhaust    Class          -- ^ 'Skill's cost an additional random chakra
+            | Expose                    -- ^ Cannot reduce damage or be 'Immune'
+            | Focus                     -- ^ Immune to 'Stun's
+            | Heal       Int            -- ^ Heals every turn
+            | Immune     Class          -- ^ Invulnerable to enemy 'Skill's
+            | ImmuneSelf                -- ^ Immune to internal damage
+            | Isolate                   -- ^ Unable to affect others
+            | Link       Int            -- ^ Increases damage and healing from source
+            | Nullify    Effect         -- ^ Prevents effects from being applied
+            | Parry      Class Int      -- ^ 'Counter' and trigger a 'Skill'
+            | ParryAll   Class Int      -- ^ 'Parry's without being removed
+            | Pierce                    -- ^ Damage skills turn into piercing
+            | Plague                    -- ^ Immune to healing and curing
+            | Reduce     Class Int      -- ^ Reduces damage by a flat amount
+            | Reapply                   -- ^ Shares harmful skills with source
+            | Redirect   Class          -- ^ Transfers harmful 'Skill's
+            | Reflect                   -- ^ Reflects the first 'Skill'
+            | ReflectAll                -- ^ 'Reflect' without being removed
+            | Restrict                  -- ^ Forces AoE attacks to be single-target
+            | Reveal                    -- ^ Makes 'Invisible' effects visible
+            | Scale      Class Rational -- ^ Scales damage dealt
+            | Seal                      -- ^ Immune to friendly 'Skill's
+            | Share                     -- ^ Shares all harmful non-damage effects
+            | Silence                   -- ^ Unable to cause non-damage effects
+            | Snapshot   Ninja          -- ^ Saves a snapshot of the current state
+            | Snare      Int            -- ^ Increases cooldowns
+            | SnareTrap  Class Int      -- ^ Negates next skill and increases CD
+            | Strengthen Class Int      -- ^ Adds to all damage dealt
+            | Stun       Class          -- ^ Unable to use 'Skill's
+            | Swap       Class          -- ^ Target swaps enemies and allies
+            | Taunt                     -- ^ Forced to attack the source
+            | Uncounter                 -- ^ Cannot counter or reflect
+            | Unexhaust                 -- ^ Decreases chakra costs by 1 random  
+            | Unreduce   Int            -- ^ Reduces damage reduction 'Skill's
+            | Ward       Class Rational -- ^ Reduces damage by a fraction
+            | Weaken     Class Int      -- ^ Lessens damage dealt
             -- | Copies a skill into source's skill slot
-            | Copy { copyDuration ∷ !Int 
-                   , copyClass    ∷ !Class
-                   , copyTo       ∷ !Int   -- ^ skill slot of source to copy into
-                   , copyNonHarm  ∷ !Bool  -- ^ includes non-harmful 'Skill's
+            | Copy { copyDuration ∷ Int 
+                   , copyClass    ∷ Class
+                   , copyTo       ∷ Int   -- ^ Skill index of source to copy into
+                   , copyNonHarm  ∷ Bool  -- ^ Include non-harmful 'Skill's
                    }
             deriving (Eq)
 
@@ -356,9 +386,10 @@ helpful Unexhaust        = True
 helpful (Ward _ _)       = True
 helpful (Weaken _ _)     = False
 
+-- | Effect cannot be removed.
 sticky ∷ Effect → Bool
 sticky Block            = True
-sticky (Copy _ _ _ _)   = True
+sticky Copy{..}         = True
 sticky (Counter All)    = True
 sticky (Counter _)      = True
 sticky (CounterAll All) = True
@@ -379,6 +410,7 @@ sticky (Snapshot _)     = True
 sticky (Swap _)         = True
 sticky _                = False
 
+-- | Scales the power of an effect.
 boost ∷ Int → Effect → Effect
 boost b (Afflict      a) = Afflict      $ a * b
 boost b (Bleed      c a) = Bleed      c $ a * b
@@ -388,7 +420,7 @@ boost b (Reduce     c a) = Reduce     c $ a * b
 boost b (Snare        a) = Snare        $ a * b
 boost b (Strengthen c a) = Strengthen c $ a * b
 boost b (Unreduce     a) = Unreduce     $ a * b
-boost b (Ward       c a) = Ward       c $ a * (toRational b)
+boost b (Ward       c a) = Ward       c $ a * toRational b
 boost b (Weaken     c a) = Weaken     c $ a * b
 boost _ ef = ef
 
@@ -396,13 +428,17 @@ four0s ∷ Seq Int -- ^ [0, 0, 0, 0]
 four0s = S.replicate 4 0
 
 -- | A single action of a 'Ninja'.
-data Act = Act { actC ∷ !Slot               -- ^ self index (0-5)
-               , actS ∷ !(Either Int Skill) -- ^ skill index (0-3) or 'Skill'
-               , actT ∷ !Slot               -- ^ target index (-1-5)
+data Act = Act { actC ∷ Slot               
+               -- ^ User index in 'gameNinjas' (0-5)
+               , actS ∷ Either Int Skill
+               -- ^ Skill by index in 'nCharacter' 'characterSkills' (0-3)
+               , actT ∷ Slot               
+               -- ^ Target index in 'gameNinjas' (0-5)
                } deriving (Eq)
-data ActPath = ActPath { actPathC ∷ !Int -- ^ to 'actC'
-                       , actPathS ∷ !Int -- ^ to Left 'actS'
-                       , actPathT ∷ !Int -- ^ to 'actT'
+-- | Builds an 'Act' out of basic types. Used for 'PathPiece'.
+data ActPath = ActPath { actPathC ∷ Int -- ^ 'actC'
+                       , actPathS ∷ Int -- ^ Left 'actS'
+                       , actPathT ∷ Int -- ^ 'actT'
                        } deriving (Eq, Show, Read)
 instance PathPiece ActPath where
   toPathPiece ActPath{..} = T.pack ∘ intercalate "," 
@@ -422,11 +458,12 @@ instance PathPiece ActPath where
 actFromPath ∷ ActPath → Act
 actFromPath ActPath{..} = Act (Slot actPathC) (Left actPathS) (Slot actPathT)
 
+-- Keeps track of what caused an action.
 data Affected = Applied
               | Channeled
               | Countered
-              | Delayed
-              | Disrupted
+              | Delayed 
+              | Disrupted 
               | Parrying
               | Redirected
               | Reflected
@@ -435,12 +472,12 @@ data Affected = Applied
               deriving (Enum, Show, Eq)
 
 -- | Destructible barrier.
-data Barrier = Barrier { barrierAmount ∷ !Int
-                       , barrierSrc    ∷ !Slot
-                       , barrierL      ∷ !Text
-                       , barrierWhile  ∷ !(Game → Game)
-                       , barrierDone   ∷ !(Int → Game → Game)
-                       , barrierDur    ∷ !Int
+data Barrier = Barrier { barrierAmount ∷ Int
+                       , barrierSrc    ∷ Slot
+                       , barrierL      ∷ Text
+                       , barrierWhile  ∷ Game → Game
+                       , barrierDone   ∷ Int → Game → Game
+                       , barrierDur    ∷ Int
                        } deriving (Eq, Generic, ToJSON)
 instance TurnBased Barrier where 
     getDur     = barrierDur
@@ -449,12 +486,12 @@ instance Labeled Barrier where
     getL   = barrierL
     getSrc = barrierSrc
 
--- | Collection of all five chakras.
-data Chakras = Chakras { blood ∷ !Int
-                       , gen   ∷ !Int
-                       , nin   ∷ !Int
-                       , tai   ∷ !Int
-                       , rand  ∷ !Int
+-- | Collection of all chakra types.
+data Chakras = Chakras { blood ∷ Int -- ^ Bloodline
+                       , gen   ∷ Int -- ^ Genjutsu
+                       , nin   ∷ Int -- ^ Ninjutsu
+                       , tai   ∷ Int -- ^ Taijutsu
+                       , rand  ∷ Int -- ^ Random
                        } deriving (Eq, Show, Read, Generic, ToJSON)
 instance PathPiece Chakras where
   toPathPiece a     = T.pack $ show a
@@ -471,17 +508,23 @@ instance PathPiece Chakras where
               (t',_) ← decimal t
               return $ Chakras b' g' n' t' 0
 
+-- | @Chakras 0 0 0 0 0@
 χØ ∷ Chakras
 χØ = Chakras 0 0 0 0 0
 
 -- | Types of chakra in 'Chakras'.
-data ChakraType = Blood | Gen | Nin | Tai | Rand deriving (Enum, Eq, Show)
+data ChakraType = Blood -- ^ Bloodline
+                | Gen   -- ^ Genjutsu
+                | Nin   -- ^ Ninjutsu
+                | Tai   -- ^ Taijutsu
+                | Rand  -- ^ Random
+                deriving (Enum, Eq, Show)
 
 -- | An 'Act' channeled over multiple turns.
-data Channel = Channel { channelRoot  ∷ !Slot
-                       , channelSkill ∷ !Skill
-                       , channelT     ∷ !Slot
-                       , channelDur   ∷ !Channeling
+data Channel = Channel { channelRoot  ∷ Slot
+                       , channelSkill ∷ Skill
+                       , channelT     ∷ Slot
+                       , channelDur   ∷ Channeling
                        } deriving (Eq, Generic, ToJSON)
 instance TurnBased Channel where 
     getDur     = getDur ∘ channelDur
@@ -490,9 +533,9 @@ instance TurnBased Channel where
 -- | Types of channeling for 'Skill's.
 data Channeling = Instant
                 | Passive
-                | Action  !Int
-                | Control !Int
-                | Ongoing !Int
+                | Action  Int
+                | Control Int
+                | Ongoing Int
                 deriving (Eq, Show, Generic, ToJSON)
 instance TurnBased Channeling where
     getDur Instant       = 0
@@ -506,21 +549,12 @@ instance TurnBased Channeling where
     setDur d (Control _) = Control d
     setDur d (Ongoing _) = Ongoing d
 
-isAction  ∷ Channeling → Bool
-isAction (Action _)   = True
-isAction _            = False
-isControl ∷ Channeling → Bool
-isControl (Control _) = True
-isControl _           = False
-isOngoing ∷ Channeling → Bool
-isOngoing (Ongoing _) = True
-isOngoing _           = False
-
-data ChannelTag = ChannelTag { tagRoot    ∷ !Slot
-                             , tagSrc     ∷ !Slot 
-                             , tagSkill   ∷ !Skill
-                             , tagGhost   ∷ !Bool
-                             , tagDur     ∷ !Int
+-- | Indicates that a channeled 'Skill' will affect a 'Ninja' next turn.
+data ChannelTag = ChannelTag { tagRoot    ∷ Slot
+                             , tagSrc     ∷ Slot 
+                             , tagSkill   ∷ Skill
+                             , tagGhost   ∷ Bool
+                             , tagDur     ∷ Int
                              } deriving (Eq, Generic, ToJSON)
 instance TurnBased ChannelTag where 
     getDur     = tagDur
@@ -530,17 +564,17 @@ instance Labeled ChannelTag where
     getSrc = tagRoot
 
 -- | An out-of-game character.
-data Character = Character { characterName   ∷ !Text
-                           , characterBio    ∷ !Text
-                           , characterSkills ∷ ![[Skill]]
-                           , characterHooks  ∷ ![(Trigger, Ninja → Int → Ninja)]
+data Character = Character { characterName   ∷ Text
+                           , characterBio    ∷ Text
+                           , characterSkills ∷ [[Skill]]
+                           , characterHooks  ∷ [(Trigger, Ninja → Int → Ninja)]
                            } deriving (Generic, ToJSON)
 instance Eq Character where
   a == b = characterName a ≡ characterName b
 
--- | A 'Skill' obtained from a different character.
-data Copied = Copied { copiedSkill ∷ !Skill
-                     , copiedDur   ∷ !Int
+-- | A 'Skill' copied from a different character.
+data Copied = Copied { copiedSkill ∷ Skill
+                     , copiedDur   ∷ Int
                      } deriving (Eq)
 instance TurnBased Copied where 
     getDur     = copiedDur
@@ -554,13 +588,16 @@ instance TurnBased Copied where
 instance ToJSON Copied where
     toJSON = toJSON ∘ copiedSkill
 
-data Copying = Shallow Slot Int | Deep Slot Int | NotCopied deriving (Eq, Generic, ToJSON)
+data Copying = Shallow Slot Int -- ^ No cooldown or chakra cost.
+             | Deep Slot Int    -- ^ Cooldown and chakra cost.
+             | NotCopied
+             deriving (Eq, Generic, ToJSON)
 
 -- | Destructible defense.
-data Defense = Defense { defenseAmount ∷ !Int
-                       , defenseSrc    ∷ !Slot
-                       , defenseL      ∷ !Text
-                       , defenseDur    ∷ !Int
+data Defense = Defense { defenseAmount ∷ Int
+                       , defenseSrc    ∷ Slot
+                       , defenseL      ∷ Text
+                       , defenseDur    ∷ Int
                        } deriving (Eq, Generic, ToJSON)
 instance TurnBased Defense where 
     getDur     = defenseDur
@@ -568,11 +605,12 @@ instance TurnBased Defense where
 instance Labeled Defense where 
     getL   = defenseL
     getSrc = defenseSrc
--- | Applies a 'Transform' after several turns.
-data Delay = Delay { delayC     ∷ !Slot
-                   , delaySkill ∷ !Skill
-                   , delayEf    ∷ !(Game → Game)
-                   , delayDur   ∷ !Int
+
+-- | Applies an effect after several turns.
+data Delay = Delay { delayC     ∷ Slot
+                   , delaySkill ∷ Skill
+                   , delayEf    ∷ Game → Game
+                   , delayDur   ∷ Int
                    } deriving (Eq)
 instance TurnBased Delay where 
     getDur     = delayDur
@@ -581,69 +619,74 @@ instance Labeled Delay where
     getL   = label ∘ delaySkill
     getSrc = delayC
 
-data Face = Face { faceIcon ∷ !Text
-                 , faceSrc  ∷ !Slot
-                 , faceDur  ∷ !Int
+-- | Changes the character icon of a 'Ninja'.
+data Face = Face { faceIcon ∷ Text
+                 , faceSrc  ∷ Slot
+                 , faceDur  ∷ Int
                  } deriving (Eq, Generic, ToJSON)
 instance TurnBased Face where 
     getDur     = faceDur
     setDur d a = a { faceDur = d }
 
 -- | Game state.
-data Game = Game { gamePlayers ∷ !(Key User, Key User)
-                 , gameNinjas  ∷ Seq Ninja -- I'm like 20% sure about this
-                 , gameChakra  ∷ !(Chakras, Chakras)
-                 , gameDelays  ∷ ![Delay]
-                 , gameDrain   ∷ !(Int, Int) -- ^ resets each turn to (0, 0)
-                 , gameSteal   ∷ !(Int, Int) -- ^ resets each turn to (0, 0)
-                 , gameTraps   ∷ Seq (Game → Game) -- 15% for this one
-                 , gameTime    ∷ !UTCTime
-                 , gamePlaying ∷ !Player    -- ^ starts at 'PlayerA'
-                 , gameVictor  ∷ !(Maybe Victor)
+data Game = Game { gamePlayers ∷ (Key User, Key User)
+                 , gameNinjas  ∷ Seq Ninja 
+                 , gameChakra  ∷ (Chakras, Chakras)
+                 -- ^ Starts at @('χØ', 'χØ')@.
+                 , gameDelays  ∷ [Delay]
+                 -- ^ Starts at @[]@.
+                 , gameDrain   ∷ (Int, Int)
+                 -- ^ Starts at @(0, 0)@. Resets every turn to @(0, 0)@.
+                 , gameSteal   ∷ (Int, Int)
+                 -- ^ Starts at @(0, 0)@. Resets every turn to @(0, 0)@.
+                 , gameTraps   ∷ Seq (Game → Game)
+                 -- ^ Starts at 'S.empty'.
+                 , gamePlaying ∷ Player 
+                 -- ^ Starts at 'PlayerA'.
+                 , gameVictor  ∷ Maybe Victor
+                 -- ^ Starts at 'Nothing'.
                  } deriving (Eq)
+-- Obtains the 'Ninja' in a 'Slot'.
 gameNinja ∷ Slot → Game → Ninja
 gameNinja (Slot i) Game{..} = gameNinjas `index` i
+-- Updates the 'Ninja' in a 'Slot'.
 setNinja ∷ Slot → Ninja → Game → Game
 setNinja (Slot i) n game@Game{..} = game { gameNinjas = update i n gameNinjas }
+-- Adjusts the 'Ninja' in a 'Slot'.
 fn ∷ Slot → (Ninja → Ninja) → Game → Game
 fn (Slot i) f game@Game{..} = game { gameNinjas = adjust' f i gameNinjas }
 
-
-setTime ∷ UTCTime → Game → Game
-setTime gameTime game = game { gameTime }
-
--- | Constructs a 'Game' with starting values from a time, teams, and 'User's.
-newGame ∷ UTCTime → [Character] → Key User → Key User → Game
-newGame t ns a b = Game { gamePlayers = (a, b)
-                        , gameNinjas  = fromList $ zipWith newNinja ns allSlots
-                        , gameChakra  = (χØ, χØ)
-                        , gameDelays  = []
-                        , gameDrain   = (0, 0)
-                        , gameSteal   = (0, 0)
-                        , gameTraps   = ø
-                        , gameTime    = t
-                        , gamePlaying = PlayerA
-                        , gameVictor  = Nothing
-                        }
+-- | Constructs a 'Game' with starting values.
+newGame ∷ [Character] → Key User → Key User → Game
+newGame ns a b = Game { gamePlayers = (a, b)
+                      , gameNinjas  = fromList $ zipWith newNinja ns allSlots
+                      , gameChakra  = (χØ, χØ)
+                      , gameDelays  = []
+                      , gameDrain   = (0, 0)
+                      , gameSteal   = (0, 0)
+                      , gameTraps   = ø
+                      , gamePlaying = PlayerA
+                      , gameVictor  = Nothing
+                      }
 
 -- | In-game character, indexed between 0 and 5.
-data Ninja = Ninja { nId        ∷ !Slot                 -- ^ 'gameNinja' index
-                   , nCharacter ∷ !Character
-                   , nHealth    ∷ !Int                  -- ^ starts at 100
-                   , nCooldowns ∷ !(Seq (Seq Int))      -- ^ starts at 'S.empty'
-                   , nCharges   ∷ !(Seq Int)            -- ^ starts at 4 0s
-                   , nVariants  ∷ !(Seq [Variant])      -- ^ starts at 4 0s
-                   , nCopied    ∷ !(Seq (Maybe Copied)) -- ^ starts at 4 Nothings
-                   , nDefense   ∷ ![Defense]      
-                   , nBarrier   ∷ ![Barrier]
-                   , nStatuses  ∷ ![Status]       
-                   , nChannels  ∷ ![Channel]
-                   , newChans   ∷ ![Channel]
-                   , nTraps     ∷ !(Seq Trap)
-                   , nFace      ∷ ![Face]
-                   , nParrying  ∷ ![Skill]
-                   , nTags      ∷ ![ChannelTag]
-                   , nLastSkill ∷ !(Maybe Skill)
+data Ninja = Ninja { nId        ∷ Slot               -- ^ 'gameNinjas' index (0-5)
+                   , nCharacter ∷ Character
+                   , nHealth    ∷ Int                -- ^ Starts at @100@
+                   , nCooldowns ∷ Seq (Seq Int)      -- ^ Starts at 'S.empty'
+                   , nCharges   ∷ Seq Int            -- ^ Starts at 4 @0@s
+                   , nVariants  ∷ Seq [Variant]      -- ^ Starts at 4 @0@s
+                   , nCopied    ∷ Seq (Maybe Copied) -- ^ Starts at 4 'Nothing's
+                   , nDefense   ∷ [Defense]          -- ^ Starts at @[]@
+                   , nBarrier   ∷ [Barrier]          -- ^ Starts at @[]@
+                   , nStatuses  ∷ [Status]           -- ^ Starts at @[]@
+                   , nChannels  ∷ [Channel]          -- ^ Starts at @[]@
+                   , newChans   ∷ [Channel]          -- ^ Starts at @[]@
+                   , nTraps     ∷ (Seq Trap)         -- ^ Starts at 'S.empty'
+                   , nFace      ∷ [Face]             -- ^ Starts at @[]@
+                   , nParrying  ∷ [Skill]            -- ^ Starts at @[]@
+                   , nTags      ∷ [ChannelTag]       -- ^ Starts at @[]@
+                   , nLastSkill ∷ (Maybe Skill)      -- ^ Starts at 'Nothing'
                    } deriving (Eq)
 
 insertCd' ∷ Int → Int → Seq Int → Seq Int
@@ -652,7 +695,11 @@ insertCd' v toCd cds
   | otherwise = (cds ◇ S.replicate (v - len) 0) ▷ toCd
   where len = length cds
 
-insertCd ∷ Int → Int → Int → Seq (Seq Int) → Seq (Seq Int)
+insertCd ∷ Int -- ^ 'Skill' index (0-3).
+         → Int -- ^ 'Variant' index in 'characterSkills' of 'nCharacter'.
+         → Int -- ^ New cooldown.
+         → Seq (Seq Int)
+         → Seq (Seq Int)
 insertCd s v toCd cds
   | len > s   = adjust' (insertCd' v toCd) s cds
   | otherwise = (cds ◇ S.replicate (s - len) (S.singleton 0)) 
@@ -665,15 +712,17 @@ adjustCd' v f cds
   | otherwise = (cds ◇ S.replicate (v - len) 0) ▷ f 0
   where len = length cds
 
-adjustCd ∷ Int → Int → (Int → Int) → Seq (Seq Int) → Seq (Seq Int)
+adjustCd ∷ Int -- ^ 'Skill' index (0-3).
+         → Int -- ^ 'Variant' index in 'characterSkills' of 'nCharacter'.
+         → (Int → Int) -- ^ Adjustment function.
+         → Seq (Seq Int) → Seq (Seq Int)
 adjustCd s v f cds
   | len > s   = adjust' (adjustCd' v f) s cds
   | otherwise = (cds ◇ S.replicate (s - len) (S.singleton 0)) 
               ▷ adjustCd' v f ø
   where len = length cds
 
-
--- | Constructs a 'Ninja' with starting values from an index and character name.
+-- | Constructs a 'Ninja' with starting values from a character and an index.
 newNinja ∷ Character → Slot → Ninja
 newNinja c nId = Ninja { nId        = nId
                        , nHealth    = 100
@@ -694,7 +743,7 @@ newNinja c nId = Ninja { nId        = nId
                        , nLastSkill = Nothing
                        }
 
--- | Factory resets a 'Ninja' to its default values from 'newNinja'
+-- | Factory resets a 'Ninja' to its starting values.
 ninjaReset ∷ Ninja → Ninja
 ninjaReset Ninja{..} = newNinja nCharacter nId
 
@@ -711,26 +760,26 @@ data Requirement = Usable
                  deriving (Eq, Generic, ToJSON)
 
 -- | A move that a 'Character' can perform.
-data Skill = Skill  { label   ∷ !Text
-                    , desc    ∷ !Text
-                    , require ∷ !Requirement   -- ^ defaults to 'Usable'
-                    , classes ∷ ![Class]
-                    , cost    ∷ !Chakras       -- ^ defaults to 'S.empty'
-                    , cd      ∷ !Int           -- ^ defaults to 0
-                    , varicd  ∷ !Bool          -- ^ defaults to False
-                    , charges ∷ !Int           -- ^ defaults to 0
-                    , channel ∷ !Channeling    -- ^ defaults to 'Instant'
-                    , start   ∷ ![(Target, Transform)]
-                    , effects ∷ ![(Target, Transform)]
-                    , disrupt ∷ ![(Target, Transform)]
-                    , copying ∷ !Copying       -- ^ defaults to 'NotCopied'
-                    , skPic   ∷ !Bool          -- ^ defaults to False
-                    , changes ∷ !(Ninja → Skill → Skill) -- ^ defaults to 'id'
+data Skill = Skill  { label   ∷ Text -- ^ Name
+                    , desc    ∷ Text -- ^ Description
+                    , require ∷ Requirement   -- ^ Defaults to 'Usable'
+                    , classes ∷ [Class]       -- ^ Defaults to @[]@
+                    , cost    ∷ Chakras       -- ^ Defaults to 'S.empty'
+                    , cd      ∷ Int           -- ^ Defaults to @0@
+                    , varicd  ∷ Bool          -- ^ Defaults to @False@
+                    , charges ∷ Int           -- ^ Defaults to @0@
+                    , channel ∷ Channeling    -- ^ Defaults to 'Instant'
+                    , start   ∷ [(Target, Transform)] -- ^ Defaults to @[]@
+                    , effects ∷ [(Target, Transform)] -- ^ Defaults to @[]@
+                    , disrupt ∷ [(Target, Transform)] -- ^ Defaults to @[]@
+                    , copying ∷ Copying       -- ^ Defaults to 'NotCopied'
+                    , skPic   ∷ Bool          -- ^ Defaults to @False@
+                    , changes ∷ Ninja → Skill → Skill -- ^ Defaults to 'id'
                     } deriving (Generic, ToJSON)
 instance Eq Skill where
     (==) = f2all [eqs label, eqs desc]
 
--- | Default values of a 'Skill'. Used with record updates as a 'Skill' constructor.
+-- | Default values of a 'Skill'. Used as a 'Skill' constructor.
 newSkill ∷ Skill
 newSkill = Skill { label   = "Unnamed"
                  , desc    = ""
@@ -750,22 +799,22 @@ newSkill = Skill { label   = "Unnamed"
                  }
 
 -- | Applies 'Transform's when a 'Status' ends.
-data Bomb = Done   -- ^ Applied with both 'Expire' and 'Remove'.
-          | Expire -- ^ Applied when a 'Status' reaches the end of its duration. 
-          | Remove -- ^ Applied when a 'Status' is removed prematurely.
+data Bomb = Done   -- ^ Applied with both 'Expire' and 'Remove'
+          | Expire -- ^ Applied when a 'Status' reaches the end of its duration.
+          | Remove -- ^ Applied when a 'Status' is removed prematurely
           deriving (Enum, Eq, Show, Generic, ToJSON)
 
 -- | A status effect affecting a 'Ninja'.
-data Status = Status { statusL       ∷ !Text
-                     , statusRoot    ∷ !Slot
-                     , statusSrc     ∷ !Slot
-                     , statusC       ∷ !Slot
-                     , statusSkill   ∷ !Skill
-                     , statusEfs     ∷ ![Effect]
-                     , statusClasses ∷ ![Class]
-                     , statusBombs   ∷ ![(Bomb, Transform)]
-                     , statusMaxDur  ∷ !Int
-                     , statusDur     ∷ !Int
+data Status = Status { statusL       ∷ Text -- ^ Label.
+                     , statusRoot    ∷ Slot -- ^ Owner of the 'statusSkill'
+                     , statusSrc     ∷ Slot -- ^ Original user
+                     , statusC       ∷ Slot -- ^ Direct user (e.g. if reflected)
+                     , statusSkill   ∷ Skill
+                     , statusEfs     ∷ [Effect]
+                     , statusClasses ∷ [Class]
+                     , statusBombs   ∷ [(Bomb, Transform)]
+                     , statusMaxDur  ∷ Int
+                     , statusDur     ∷ Int
                      } deriving (Generic, ToJSON)
 instance Eq Status where
   (==) = f2all 
@@ -778,32 +827,32 @@ instance Labeled Status where
     getSrc = statusSrc
 
 -- | Target destinations of 'Skill's.
-data Target = Self           -- ^ User of 'Skill'
-            | Ally           -- ^ Chosen ally
-            | Allies         -- ^ All allies
-            | RAlly          -- ^ Random ally
-            | XAlly          -- ^ Chosen ally excluding 'Self'
-            | XAllies        -- ^ 'Allies' excluding 'Self'
-            | Enemy          -- ^ Chosen enemy
-            | Enemies        -- ^ All enemies
-            | REnemy         -- ^ Random enemy
-            | XEnemies       -- ^ Enemies excluding 'Enemy'
-            | Everyone       -- ^ All 'Ninja's
-            | Specific !Slot -- ^ Specific ninja index (0-6)
+data Target = Self          -- ^ User of 'Skill'
+            | Ally          -- ^ Specific ally
+            | Allies        -- ^ All allies
+            | RAlly         -- ^ Random ally
+            | XAlly         -- ^ Specific ally excluding 'Self'
+            | XAllies       -- ^ 'Allies' excluding 'Self'
+            | Enemy         -- ^ Specific enemy
+            | Enemies       -- ^ All enemies
+            | REnemy        -- ^ Random enemy
+            | XEnemies      -- ^ Enemies excluding 'Enemy'
+            | Everyone      -- ^ All 'Ninja's
+            | Specific Slot -- ^ Specific ninja index in 'gameNinjas' (0-5)
             deriving (Eq, Generic, ToJSON)
 
 data TrapType = TrapTo | TrapFrom | TrapPer deriving (Enum, Eq, Generic, ToJSON)
 
 -- | A trap which gets triggered when a 'Ninja' meets the conditions of a 'Trigger'.
-data Trap = Trap { trapType    ∷ !TrapType
-                 , trapTrigger ∷ !Trigger
-                 , trapL       ∷ !Text
-                 , trapDesc    ∷ !Text
-                 , trapSrc     ∷ !Slot
-                 , trapEf      ∷ !TrapTransform
-                 , trapClasses ∷ ![Class]
-                 , trapTrack   ∷ !Int
-                 , trapDur     ∷ !Int
+data Trap = Trap { trapType    ∷ TrapType
+                 , trapTrigger ∷ Trigger
+                 , trapL       ∷ Text
+                 , trapDesc    ∷ Text
+                 , trapSrc     ∷ Slot
+                 , trapEf      ∷ TrapTransform
+                 , trapClasses ∷ [Class]
+                 , trapTrack   ∷ Int
+                 , trapDur     ∷ Int
                  } deriving (Generic, ToJSON)
 instance Eq Trap where
     (==) = f2all 
@@ -815,17 +864,17 @@ instance Labeled Trap where
     getL   = trapL
     getSrc = trapSrc
 
--- | Conditions on a 'Ninja' to spring a 'Trap'.
-data Trigger = OnAction     !Class
-             | OnBreak      !Text
+-- | Conditions to activate a 'Trap'.
+data Trigger = OnAction     Class
+             | OnBreak      Text
              | OnChakra
-             | OnCounter    !Class
+             | OnCounter    Class
              | OnCounterAll
              | OnDamage
-             | OnDamaged    !Class
+             | OnDamaged    Class
              | OnDeath
              | OnHarm    
-             | OnHarmed     !Class
+             | OnHarmed     Class
              | OnHealed
              | PerHealed
              | OnHelped
@@ -833,7 +882,7 @@ data Trigger = OnAction     !Class
              | OnReflectAll
              | OnRes
              | OnStun
-             | OnStunned    !Class
+             | OnStunned    Class
              | PerDamaged
              | TrackDamage
              | TrackDamaged
@@ -868,10 +917,10 @@ instance Show Trigger where
     show TrackDamage     = show OnDamage
     show TrackDamaged    = show PerDamaged
 
-data Variant = Variant { variantV   ∷ !Int
-                       , variantVCD ∷ !Bool
-                       , variantL   ∷ !Text
-                       , variantDur ∷ !Int
+data Variant = Variant { variantV   ∷ Int -- ^ Index in 'characterSkills'
+                       , variantVCD ∷ Bool -- ^ Uses a different cooldown than the baseline 'Skill'
+                       , variantL   ∷ Text
+                       , variantDur ∷ Int
                        } deriving (Eq, Show, Generic, ToJSON)
 instance TurnBased Variant where getDur        = variantDur
                                  setDur a vari = vari { variantDur = a }
@@ -883,26 +932,32 @@ variantCD Variant{..}
 noVariant ∷ Variant
 noVariant = Variant 0 False "" 0
 
--- * Ninja Slots
+-- * Slots
 
+-- ^ @Int@ newtype for indices in 'gameNinjas'.
 newtype Slot = Slot Int deriving (Eq)
 instance ToJSON Slot where
   toJSON (Slot i) = toJSON i
 
+-- ^ Parity (modulo 2).
 par ∷ Int → Int -- ^ ٪ 2
 par = (٪ 2)
 
+-- ^ Applies a function to the first or second in a pair by parity.
 bySlot ∷ Slot → (a → a) → (a, a) → (a, a)
 bySlot (Slot a) = do2 $ even a
+-- ^ Obtains the first or second in a pair by parity.
 outSlot ∷ Slot → (a, a) → a
 outSlot (Slot a) = out2 $ even a
+-- ^ Inverse of 'outSlot'.
 outSlot' ∷ Slot → (a, a) → a
 outSlot' (Slot a) = out2 $ odd a
 
+-- ^ Partition by parity.
 spar ∷ Slot → Int
 spar (Slot a) = a ٪ 2
 
-allied' ∷ Int → Int → Bool -- ^ if both are on the same team
+allied' ∷ Int → Int → Bool
 allied' a b = even a ≡ even b
 allied ∷ Slot → Slot → Bool
 allied (Slot a) (Slot b) = allied' a b
@@ -922,11 +977,12 @@ enemies (Slot p) = enemies' p ∘ gameNinjas
 enemiesP ∷ Player → Seq Ninja → [Ninja]
 enemiesP = enemies' ∘ fromEnum
 
+-- ^ @[0 .. gameSize - 1]@.
 allSlots ∷ [Slot]
-allSlots = map Slot $ [ 0 .. gameSize - 1]
+allSlots = map Slot [ 0 .. gameSize - 1]
 
 allySlots' ∷ Int → [Slot]
-allySlots' a = map Slot $ [ a',  2 + a' .. gameSize - 1]
+allySlots' a = map Slot [ a',  2 + a' .. gameSize - 1]
   where a' = a ٪ 2
 allySlots ∷ Slot → [Slot]
 allySlots (Slot a) = allySlots' a
@@ -939,20 +995,22 @@ enemySlots (Slot a) = enemySlots' a
 opponentSlots ∷ Player → [Slot]
 opponentSlots = enemySlots' ∘ fromEnum
 
-evens ∷ [a] → [a] -- ^ selects every other element from list
+-- | Selects every other element from a @List@.
+evens ∷ [a] → [a]
 evens [x]      = [x]
 evens (x:_:xs) = x : evens xs
 evens []       = []
 
+-- | Second argument if both arguments have the same parity, otherwise @[]@.
 ifPar ∷ Int → Int → [Int]
 ifPar c t = [t | c ≤ gameSize ∧ t ≤ gameSize ∧ allied' c t]
 
+-- | Translates a 'Target' into a list of 'Ninja's.
 choose ∷ (Maybe Slot, Maybe Slot) → Target → Slot → Slot → [Slot]
 choose (a, e) targ (Slot c) (Slot t) = map Slot $ choose' (ms a, ms e) targ c t
   where ms (Just (Slot s)) = Just s
         ms Nothing         = Nothing
 
--- | Translates a 'Target' into a list of 'Ninja's.
 choose' ∷ (Maybe Int, Maybe Int) → Target → Int → Int → [Int]
 choose' _      Self     c _ = [c]
 choose' _      Ally     c t = ifPar c t
@@ -967,13 +1025,14 @@ choose' _      XAllies  c _ = delete c [par c, 2 + par c .. gameSize - 1]
 choose' _      XEnemies c t = delete t [1 - par c, 3 - par c .. gameSize-1]
 choose' _ (Specific (Slot a)) _ _ = [a]
 
-
+-- | Actions of AI in training mode.
 botActs ∷ [Act]
 botActs = [ Act (Slot 3) (Left 1) (Slot 2)
           , Act (Slot 5) (Left 1) (Slot 5) 
           , Act (Slot 1) (Left 3) (Slot 1)
           ]
 
+-- | All targets that a 'Skill' from a a specific 'Ninja' affects.
 skillTargets ∷ Skill → Slot → [Slot]
 skillTargets Skill{..} c = filter target $ map Slot [0 .. gameSize - 1]
   where ts = map fst $ start ⧺ effects ⧺ disrupt

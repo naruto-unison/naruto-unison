@@ -130,7 +130,7 @@ flashbackCs =
         , classes = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
         , cost    = χ [Blood, Gen]
         , cd      = 4
-        , effects = [(Enemy, purgeAll • apply 2 [Stun All, Immune All, Seal])]
+        , effects = [(Enemy, purge • apply 2 [Stun All, Immune All, Seal])]
         }
       ]
     , invuln "Adamantine Covering Chains" "Kushina" [Chakra]

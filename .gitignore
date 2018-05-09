@@ -25,5 +25,5 @@ cabal.config
 *.code-workspace
 *.pulp-cache/
 output/
-scripts/
-static/
+/x/
+/static/

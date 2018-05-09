@@ -1,8 +1,6 @@
 {-# LANGUAGE CPP         #-}
 {-# OPTIONS_HADDOCK hide #-}
-module Core.NoFoundation
-  ( module Import
-  ) where
+module Core.NoFoundation (module Import) where
 
 import Core.Unicode          as Import
 import Core.Model            as Import

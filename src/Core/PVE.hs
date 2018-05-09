@@ -1,8 +1,10 @@
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE DeriveGeneric, DeriveAnyClass, FlexibleInstances #-}
-{-# OPTIONS_HADDOCK hide     #-}
+{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# OPTIONS_HADDOCK hide       #-}
 
-module Core.PVE where
+module Core.PvE where
 
 import GHC.Generics
 import Data.Aeson

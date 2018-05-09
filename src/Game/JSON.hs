@@ -1,3 +1,4 @@
+-- | 'ToJSON' instances that require functions from 'Game.Functions'.
 module Game.JSON () where 
 
 import qualified Data.Sequence as S
@@ -61,7 +62,7 @@ instance ToJSON Game where
         , "gameVictor"  .= gameVictor
         , "gameTargets" .= gameTargets
         ] 
-      where ns = toList gameNinjas 
+      where ns          = toList gameNinjas 
             gameTargets = do
               n ← ns
               return $ do

@@ -3,9 +3,6 @@
 {-# LANGUAGE TemplateHaskell   #-}
 -- | Settings are centralized, as much as possible, into this file. This
 -- includes database connection settings, static file locations, etc.
--- In addition, you can configure a number of different aspects of Yesod
--- by overriding methods in the Yesod typeclass. That instance is
--- declared in the Foundation.hs file.
 module Core.Settings where
 
 import qualified Control.Exception as Exception
@@ -30,7 +27,7 @@ data AppSettings = AppSettings
     , appDatabaseConf           ∷ PostgresConf
     -- ^ Configuration settings for accessing the database.
     , appRoot                   ∷ Maybe Text
-    -- ^ Base for all generated URLs. If @Nothing@, determined
+    -- ^ Base for all generated URLs. If 'Nothing', determined
     -- from the request headers.
     , appHost                   ∷ HostPreference
     -- ^ Host/interface the server should bind to.

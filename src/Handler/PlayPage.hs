@@ -3,13 +3,13 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE QuasiQuotes #-}
 
--- | Handles routes related to the gameplay client.
+-- | Interface for the PureScript game client.
 module Handler.PlayPage
-  ( getPlayR
-  , getUpdateR
-  , getChangelogR
-  , getMuteR
-  ) where
+    ( getChangelogR
+    , getPlayR
+    , getMuteR
+    , getUpdateR
+    ) where
 
 import qualified Data.Text           as T
 import qualified Data.HashMap.Strict as M
@@ -22,8 +22,8 @@ import Yesod.WebSockets
 
 import Calculus
 import Core.Import
+import Game.Structure
 import Game.Characters
-import Game.Functions
 import Handler.Play (gameSocket)
 {-
 shorten ∷ Text → Text
@@ -118,23 +118,23 @@ changelog logType name characterType = [shamlet|
 <ul>
   $forall skills <- maybe [] (take 4 ∘ characterSkills) (M.lookup tagName cs)
     <li>
-      $forall skill <- separateSkills skills
+      $forall skill <- separate skills
         <span .skill>
           <a data-name=#{tagName}>#{label skill}
 |]
-  where separateSkills = nubBy $ eqs label
-        tagName   = tag characterType
-        tag O     = name
-        tag R     = name ☩ " (R)"
-        tag S     = name ☩ " (S)"
-        display O = [shamlet|#{name}|]
-        display R = [shamlet|#{name}
-<a .minor>ℝ|]
-        display S = [shamlet|#{name}
-<a .minor>𝕊|]
+  where separate      = nubBy $ eqs label
+        tagName       = tag characterType
+        tag O         = name
+        tag R         = name ☩ " (R)"
+        tag S         = name ☩ " (S)"
         change Added  = "Character added:"  ∷ Text
         change New    = "New character:"    ∷ Text
         change Rework = "Character rework:" ∷ Text
+        display O     = [shamlet|#{name}|]
+        display R     = [shamlet|#{name}
+<a .minor>ℝ|]
+        display S     = [shamlet|#{name}
+<a .minor>𝕊|]
 
 s ∷ Html
 s = [shamlet|<a .minor>𝕊|]

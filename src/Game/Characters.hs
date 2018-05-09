@@ -1,4 +1,4 @@
--- | All 'Character's.
+-- | Collection of all 'Character's.
 module Game.Characters (cs, cs') where
 
 import Data.HashMap.Strict (fromList, HashMap)
@@ -26,17 +26,23 @@ import Game.Characters.Shippuden.Versions
 
 import Game.Characters.Reanimated
 
--- | Character database as map with character names as keys.
+-- | Database of 'Character's using 'characterName's as keys.
 cs ∷ HashMap Text Character
 cs = fromList $ map (\c → (characterName c, c)) cs'
 
-doSkill ∷ Skill → Skill
-doSkill skill@Skill{..} = skill { classes = g classes }
-  where g         = nub ∘ (All :) ∘ unRemove ∘ nonMental
-        unRemove  = classify Unremovable $ channel ≠ Instant ∨ Multi ∈ classes
-        nonMental = classify NonMental   $ Mental ∉ classes
-        classify cla True  = (cla :)
-        classify _   False = id
+-- | Ordered database of 'Character's.
+cs' ∷ [Character]
+cs' = map addClasses
+    $ kidCs ⧺ examCs ⧺ teacherCs ⧺ organizationCs ⧺ leaderCs ⧺ versionCs 
+    ⧺ flashbackCs ⧺ map (mark "S") s ⧺ map (mark "R") reanimatedCsS
+  where 
+  s = kidCsS ⧺ adultCsS ⧺ familyCsS ⧺ organizationCsS ⧺ akatsukiCsS ⧺ versionCsS
+
+mark ∷ Text → Character → Character
+mark m c = c { characterName = characterName c ☩ " (" ☩ m ☩ ")" }
+
+addClasses ∷ Character → Character
+addClasses c@Character{..} = c { characterSkills = map doSkills characterSkills }
 
 doSkills ∷ [Skill] → [Skill]
 doSkills []               = []
@@ -47,16 +53,11 @@ doSkills (skill : skills) = doSkill skill : map (doSkill ∘ v) skills
                      ∨ (label skill ∉ [label skill', tInit (label skill)])
             }
 
-addClasses ∷ Character → Character
-addClasses c@Character{..} = c { characterSkills = map doSkills characterSkills }
+doSkill ∷ Skill → Skill
+doSkill skill@Skill{..} = skill { classes = g classes }
+  where g         = nub ∘ (All :) ∘ unRemove ∘ nonMental
+        unRemove  = classify Unremovable $ channel ≠ Instant ∨ Multi ∈ classes
+        nonMental = classify NonMental   $ Mental ∉ classes
+        classify cla True  = (cla :)
+        classify _   False = id
 
-mark ∷ Text → Character → Character
-mark m c = c { characterName = characterName c ☩ " (" ☩ m ☩ ")" }
-
--- | Characer database as list.
-cs' ∷ [Character]
-cs' = map addClasses
-    $ kidCs ⧺ examCs ⧺ teacherCs ⧺ organizationCs ⧺ leaderCs ⧺ versionCs 
-    ⧺ flashbackCs ⧺ map (mark "S") s ⧺ map (mark "R") reanimatedCsS
-  where 
-  s = kidCsS ⧺ adultCsS ⧺ familyCsS ⧺ organizationCsS ⧺ akatsukiCsS ⧺ versionCsS
