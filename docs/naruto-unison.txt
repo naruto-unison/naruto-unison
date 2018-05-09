@@ -535,7 +535,7 @@ Heal :: Int -> Effect
 -- | Invulnerable to enemy <a>Skill</a>s
 Immune :: Class -> Effect
 
--- | Immune to internal damage
+-- | Immune to self-caused damage
 ImmuneSelf :: Effect
 
 -- | Unable to affect others
@@ -550,7 +550,7 @@ Nullify :: Effect -> Effect
 -- | <a>Counter</a> and trigger a <a>Skill</a>
 Parry :: Class -> Int -> Effect
 
--- | <a>Parry</a>s without being removed
+-- | <a>Parry</a> repeatedly
 ParryAll :: Class -> Int -> Effect
 
 -- | Damage skills turn into piercing
@@ -571,7 +571,7 @@ Redirect :: Class -> Effect
 -- | Reflects the first <a>Skill</a>
 Reflect :: Effect
 
--- | <a>Reflect</a> without being removed
+-- | <a>Reflect</a> repeatedly
 ReflectAll :: Effect
 
 -- | Forces AoE attacks to be single-target
@@ -598,7 +598,7 @@ Snapshot :: Ninja -> Effect
 -- | Increases cooldowns
 Snare :: Int -> Effect
 
--- | Negates next skill and increases CD
+-- | Negates next skill and increases cooldown
 SnareTrap :: Class -> Int -> Effect
 
 -- | Adds to all damage dealt
@@ -622,11 +622,13 @@ Unexhaust :: Effect
 -- | Reduces damage reduction <a>Skill</a>s
 Unreduce :: Int -> Effect
 
--- | Reduces damage by a fraction
+-- | Reduces damage received by a fraction
 Ward :: Class -> Rational -> Effect
 
--- | Lessens damage dealt | Copies a skill into source's skill slot
+-- | Lessens damage dealt
 Weaken :: Class -> Int -> Effect
+
+-- | Copies a skill into source's skill slot
 Copy :: Int -> Class -> Int -> Bool -> Effect
 [copyDuration] :: Effect -> Int
 [copyClass] :: Effect -> Class
@@ -660,7 +662,8 @@ Game :: (Key User, Key User) -> Seq Ninja -> (Chakras, Chakras) -> [Delay] -> (I
 [gamePlayers] :: Game -> (Key User, Key User)
 [gameNinjas] :: Game -> Seq Ninja
 
--- | Starts at <tt>('χØ', 'χØ')</tt>.
+-- | Starts at <tt>(<a>Chakras</a> 0 0 0 0 0, <a>Chakras</a> 0 0 0 0
+--   0)</tt>.
 [gameChakra] :: Game -> (Chakras, Chakras)
 
 -- | Starts at <tt>[]</tt>.
@@ -1592,7 +1595,7 @@ leech :: Int -> (Int -> Transform) -> Transform
 -- | Restores a percentage of <a>nHealth</a>.
 restore :: Int -> Transform
 
--- | Removes health from the user.
+-- | Removes <a>nHealth</a> from the user.
 sacrifice :: Int -> Int -> Transform
 copyAll :: Int -> Transform
 

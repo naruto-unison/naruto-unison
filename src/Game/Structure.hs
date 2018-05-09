@@ -215,19 +215,19 @@ data Effect = Afflict    Int           -- ^ Deals damage every turn
             | Focus                     -- ^ Immune to 'Stun's
             | Heal       Int            -- ^ Heals every turn
             | Immune     Class          -- ^ Invulnerable to enemy 'Skill's
-            | ImmuneSelf                -- ^ Immune to internal damage
+            | ImmuneSelf                -- ^ Immune to self-caused damage
             | Isolate                   -- ^ Unable to affect others
             | Link       Int            -- ^ Increases damage and healing from source
             | Nullify    Effect         -- ^ Prevents effects from being applied
             | Parry      Class Int      -- ^ 'Counter' and trigger a 'Skill'
-            | ParryAll   Class Int      -- ^ 'Parry's without being removed
+            | ParryAll   Class Int      -- ^ 'Parry' repeatedly
             | Pierce                    -- ^ Damage skills turn into piercing
             | Plague                    -- ^ Immune to healing and curing
             | Reduce     Class Int      -- ^ Reduces damage by a flat amount
             | Reapply                   -- ^ Shares harmful skills with source
             | Redirect   Class          -- ^ Transfers harmful 'Skill's
             | Reflect                   -- ^ Reflects the first 'Skill'
-            | ReflectAll                -- ^ 'Reflect' without being removed
+            | ReflectAll                -- ^ 'Reflect' repeatedly
             | Restrict                  -- ^ Forces AoE attacks to be single-target
             | Reveal                    -- ^ Makes 'Invisible' effects visible
             | Scale      Class Rational -- ^ Scales damage dealt
@@ -236,7 +236,7 @@ data Effect = Afflict    Int           -- ^ Deals damage every turn
             | Silence                   -- ^ Unable to cause non-damage effects
             | Snapshot   Ninja          -- ^ Saves a snapshot of the current state
             | Snare      Int            -- ^ Increases cooldowns
-            | SnareTrap  Class Int      -- ^ Negates next skill and increases CD
+            | SnareTrap  Class Int      -- ^ Negates next skill and increases cooldown
             | Strengthen Class Int      -- ^ Adds to all damage dealt
             | Stun       Class          -- ^ Unable to use 'Skill's
             | Swap       Class          -- ^ Target swaps enemies and allies
@@ -244,8 +244,9 @@ data Effect = Afflict    Int           -- ^ Deals damage every turn
             | Uncounter                 -- ^ Cannot counter or reflect
             | Unexhaust                 -- ^ Decreases chakra costs by 1 random  
             | Unreduce   Int            -- ^ Reduces damage reduction 'Skill's
-            | Ward       Class Rational -- ^ Reduces damage by a fraction
+            | Ward       Class Rational -- ^ Reduces damage received by a fraction
             | Weaken     Class Int      -- ^ Lessens damage dealt
+
             -- | Copies a skill into source's skill slot
             | Copy { copyDuration ∷ Int 
                    , copyClass    ∷ Class
@@ -632,7 +633,7 @@ instance TurnBased Face where
 data Game = Game { gamePlayers ∷ (Key User, Key User)
                  , gameNinjas  ∷ Seq Ninja 
                  , gameChakra  ∷ (Chakras, Chakras)
-                 -- ^ Starts at @('χØ', 'χØ')@.
+                 -- ^ Starts at @('Chakras' 0 0 0 0 0, 'Chakras' 0 0 0 0 0)@.
                  , gameDelays  ∷ [Delay]
                  -- ^ Starts at @[]@.
                  , gameDrain   ∷ (Int, Int)

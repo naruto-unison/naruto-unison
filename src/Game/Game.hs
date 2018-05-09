@@ -1045,7 +1045,7 @@ restore percent _ src _ game t
                 $ tHealth + getBoost src nt * percent * (100 - tHealth) ÷ 100
                 + getBless (gameNinja src game)
 
--- | Removes health from the user.
+-- | Removes 'nHealth' from the user.
 sacrifice ∷ Int → Int → Transform
 sacrifice minhp hp _ c _ game t 
   | c ≡ t ∧ is ImmuneSelf (gameNinja t game) = game

@@ -1,4 +1,5 @@
 Bash utility scripts.
 
-hd: Generate Haddock documentation
-ps: Build PureScript frontend
+**hd:** Generate Haddock documentation with Hackage links
+
+**ps:** Build PureScript frontend
