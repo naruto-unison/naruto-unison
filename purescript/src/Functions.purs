@@ -91,7 +91,7 @@ lacks (Chakras {blood, gen, nin, tai, rand})
     = blood < 0 ∨ gen < 0 ∨ nin < 0 ∨ tai < 0 ∨ rand < 0
 
 living ∷ Int → Game → Int
-living p (Game {gameNinjas}) = sum ∘ map health $ gameNinjas
+living p (Game {gameNinjas}) = sum $ health ↤ gameNinjas
   where health (Ninja {nId, nHealth}) = if par nId ≡ p then min 1 nHealth else 0
 
 removable ∷ Boolean → Effect → Boolean
@@ -99,8 +99,8 @@ removable onAlly (Effect {effectSticky, effectHelpful})
     = not effectSticky ∧ onAlly ≠ effectHelpful
 
 shorten ∷ String → String
-shorten = T.fromCharArray ∘ map shorten' 
-        ∘ filter (_ ∉ [' ','-',':','(',')','®','∘','/','?', '\'']) 
+shorten = T.fromCharArray ∘ shorten' 
+        ↤∘ filter (_ ∉ [' ','-',':','(',')','®','∘','/','?', '\'']) 
         ∘ T.toCharArray
   where shorten' 'ō' = 'o'
         shorten' 'Ō' = 'O'
@@ -133,11 +133,11 @@ skillTarget' ∷ Int → Skill → Array Int
 skillTarget' c (Skill {start, effects})
      = if enemy ∧ ally  then allSlots
   else if enemy ∧ xally then delete c allSlots
-  else if enemy         then map (_ + 1 - par c) teamSlots 
-  else if ally          then map (_ + par c)     teamSlots 
-  else if xally         then delete c $ map (_ + par c) teamSlots
+  else if enemy         then (_ + 1 - par c) ↤ teamSlots 
+  else if ally          then (_ + par c)     ↤ teamSlots 
+  else if xally         then delete c $ (_ + par c) ↤ teamSlots
   else                       [c]
-  where targets = map fst $ start ⧺ effects
+  where targets = fst ↤ (start ⧺ effects)
         enemy   = Enemy ∈ targets
         ally    = Ally  ∈ targets
         xally   = XAlly ∈ targets
@@ -210,6 +210,6 @@ mergeSkills ∷ Character → Ninja → Character
 mergeSkills (Character c@{characterSkills}) (Ninja {nSkills}) 
     = Character c { characterSkills = zipWith f characterSkills nSkills }
   where 
-    f cSkills nSkill = map f' cSkills
+    f cSkills nSkill = f' ↤ cSkills
       where f' cSkill | lMatch cSkill nSkill = nSkill
                       | otherwise            = cSkill

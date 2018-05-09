@@ -16,5 +16,4 @@ User json
     clan       Text      Maybe
     team       [Text]    Maybe
     muted      Bool
-    flipped    Bool default=false
     deriving Typeable

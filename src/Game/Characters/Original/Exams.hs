@@ -83,7 +83,7 @@ examCs =
                     , (Self,  remove "Umbrella" • vary 0 0 0)
                     ]
         , changes = \n skill@Skill{..} → skill 
-              { cost = cost -~ χØ { rand = numActive "Umbrella" n } }
+              { cost = cost -~ ø { rand = numActive "Umbrella" n } }
         }
       ]
     , invuln "Umbrella Shield" "Shigure" [Physical]

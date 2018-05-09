@@ -95,7 +95,7 @@ affordable (Chakras χ) (Chakras del) = χrate < χSum χ'
                      }
 
 canExchange ∷ Chakras → Boolean
-canExchange χ = any (affordable χ) $ map χf
+canExchange χ = any (affordable χ) $ χf ↤
                 [_{ blood = 1 }, _{ gen = 1 }, _{ nin = 1 }, _{ tai = 1 }]
 
 component ∷ ∀ m. Boolean → GameInfo 
@@ -148,12 +148,12 @@ component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
             ]
           ]
         ]
-      , H.div [_i "player0", _c "player"]        $ map (hNinja true)  nsI
-      , H.div [_i "player1", _c "player noflip"] $ map (hNinja false) nsU
+      , H.div [_i "player0", _c "player"] $ hNinja true  ↤ nsI
+      , H.div [_i "player1", _c "player"] $ hNinja false ↤ nsU
       ] ⧺ case gameVictor of 
         Nothing → 
           [ H.div [_i "playchakra"] 
-          $ map (hChakra turn exchange χNet) pairedChakras 
+          $ (hChakra turn exchange χNet ↤ pairedChakras)
           ⧺ [ hRands (χSum χNet) χrand 
             , H.div 
               (mClick "exchange" "chakraButton" exchangeable $ ExchangeBegin) 
@@ -163,7 +163,7 @@ component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
               [H.text "Reset"]
             ]
           , H.div [_i "playqueuecont"]
-            [ H.div [_i "playqueue"] $ map (hAct cs) acts
+            [ H.div [_i "playqueue"] $ hAct cs ↤ acts
             , H.div (_i "ready" : readyMeta) []
             ]
           ]
@@ -177,12 +177,12 @@ component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
     where
       who@(User account)  = fromMaybe vs user
       turn                = gamePlaying ≡ par
-      χNet@(Chakras net)  = exchanged +~ foldl (-~) chakras (map actCost acts)
+      χNet@(Chakras net)  = exchanged +~ foldl (-~) chakras (actCost ↤ acts)
       χrand               = χSum randoms + net.rand - χrate * χSum exchanged
       freeRands           = χSum χNet + χrand
       free                = Chakras net { rand = freeRands }
       exchangeable        = freeRands ≥ 5 ∧ canExchange χNet ∧ turn
-      acted               = map actC_ acts
+      acted               = actC_ ↤ acts
       readyMeta           | not turn  = [_c "noclick"]
                           | χrand ≠ 0 = [_c "noChakra"]
                           | otherwise = [ _c "click"
@@ -206,21 +206,21 @@ component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
       ~> ComponentDSL State ChildQuery Output (Aff (Effects m1))
   eval (QueryPlay query next) = (_ ≫ next) case query of
       Enact Add act → do
-        HH.liftEff $ sound SFXApplySkill
+        sound SFXApplySkill
         HH.modify \state@{acts} → untoggle state { acts = acts `snoc` act }
       Enact Delete act → do
-        HH.liftEff $ sound SFXCancel
+        sound SFXCancel
         HH.modify \state@{acts} → untoggle state { acts = delete act acts }
       ExchangeBegin → do
-        HH.liftEff $ sound SFXTarget
+        sound SFXTarget
         HH.modify \state → state{ exchange = not state.exchange }
       ExchangeConclude χ → do
-        HH.liftEff $ sound SFXClick
+        sound SFXClick
         HH.modify \state@{exchanged} → state { exchanged = exchanged +~ χ 
                                              , exchange  = false
                                              }
       ExchangeReset → do
-        HH.liftEff $ sound SFXCancel
+        sound SFXCancel
         HH.modify \state@{game, par} → state { chakras   = getChakra game par
                                              , randoms   = χØ
                                              , exchanged = χØ
@@ -231,10 +231,10 @@ component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
           Just victor → do
             {par}      ← HH.get
             let winner = victor ≡ par
-            HH.liftEff ∘ sound $ if winner then SFXWin else SFXLose
+            sound $ if winner then SFXWin else SFXLose
             HH.raise $ Finish winner
           Nothing → do
-            HH.liftEff $ sound SFXStartTurn
+            sound SFXStartTurn
             {par: oldPar, game: oldGame} ← HH.get
             HH.liftEff $ if g.gamePlaying ≡ oldPar 
                         then progress wait 1 0
@@ -245,10 +245,9 @@ component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
                                            , exchanged = χØ
                                            , acts      = []
                                            } 
-            when (living oldPar oldGame > living oldPar game) 
-              ∘ HH.liftEff $ sound SFXDeath
+            when (living oldPar oldGame > living oldPar game) $ sound SFXDeath
       Ready false url → do
-        HH.liftEff $ sound SFXNextTurn
+        sound SFXNextTurn
         HH.raise ∘ ActMsg $ SocketMsg url
       Ready true url → do
         HH.modify $ untoggle ∘ _{ exchange = false, exchanged = χØ }
@@ -265,7 +264,7 @@ component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
             HH.liftEff $ progress practiceWait 0 1
             HH.liftAff $ delay practiceWait
             HH.liftEff $ progress (Milliseconds 0.0) 1 1
-            HH.liftEff $ sound SFXStartTurn
+            sound SFXStartTurn
             HH.modify \state@{par} → state { game      = b
                                            , chakras   = getChakra b par
                                            , randoms   = χØ
@@ -273,18 +272,17 @@ component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
                                            , acts      = []
                                            , exchange  = false
                                            } 
-            when (living oldPar oldGame > living oldPar b) 
-              ∘ HH.liftEff $ sound SFXDeath
+            when (living oldPar oldGame > living oldPar b) $ sound SFXDeath
           Left error →
             HH.modify _{ error = error }
           Right _ →
             HH.modify _{ error = "Unknown error" }
       Spend χs → do
-        HH.liftEff $ sound SFXClick
+        sound SFXClick
         HH.modify \state@{randoms, chakras} → 
             state { randoms = randoms +~ χs, chakras = chakras -~ χs }
       Toggle skill → do
-        HH.liftEff $ sound SFXTarget
+        sound SFXTarget
         HH.modify \state@{toggled} → if toggled ≡ Just skill 
                                      then state { toggled = Nothing }
                                      else state { toggled = Just skill }
@@ -304,8 +302,8 @@ _label l = H.div [_c "barlabel"] [H.text l]
 
 enactUrl ∷ Chakras → Chakras → Array Act → String
 enactUrl rand trade acts = intercalate "/" $ χList ⧺ actList
-  where χList   = map (intercalate "," ∘ map show ∘ χList') [rand, trade]
-        actList = map (intercalate "," ∘ map show ∘ actList') acts
+  where χList   = intercalate "," ∘ show ↤∘ χList' ↤ [rand, trade]
+        actList = intercalate "," ∘ show ↤∘ actList' ↤ acts
         χList' (Chakras {blood, gen, nin, tai}) = [blood, gen, nin, tai]
         actList' (Act {actC, actS, actT}) = [actC, actS, actT]
 
@@ -321,7 +319,7 @@ hChakra turn exchange χs (ChakraPair chakra spend amount random) = H.div_ $
       [H.text "—"]
     , H.div [_c   "chakra rand"]  []
     , _span $ show random
-    ]
+]
   where meta | exchange  = mClick "" ("chakra " ⧺ chakra) (affordable χs spend) 
                          $ ExchangeConclude spend
              | otherwise = [_c $ "chakra " ⧺ chakra]
@@ -371,10 +369,10 @@ hCharacter cs acted toggle highlighted χs turn onTeam
     hp        = show nHealth ⧺ "%"
     live els  | nHealth > 0 = els
               | otherwise   = []
-    hChannels = live ∘ map (hChannel cs) $ reverse nChannels
+    hChannels = live $ hChannel cs ↤ reverse nChannels
     hDefenses = live $ hDefense nId anchor nHealth 
                 (reverse nBarrier) (reverse nDefense)
-    hInfos    = live ∘ map (hInfo onTeam nId cs) ∘ onTeam ? reverse $ infos n
+    hInfos    = live ∘ hInfo onTeam nId cs ↤∘ onTeam ? reverse $ infos n
     active    = onTeam ∧ turn ∧ nHealth > 0 ∧ nId ∉ acted
     classes   = intercalate " " 
               $ catMaybes [ Just                        "chariconcont" 
@@ -383,7 +381,7 @@ hCharacter cs acted toggle highlighted χs turn onTeam
                           ] 
     mainMeta  = catMaybes [ Just $ _c classes 
                           , Just ∘ hover $ ViewCharacter character
-                          , E.onClick ∘ input ∘ Enact Add ∘ retarget <$> toggle
+                          , E.onClick ∘ input ∘ Enact Add ∘ retarget ↤ toggle
                           ]
     mainBar   = not onTeam ? reverse $
       [ H.div mainMeta
@@ -533,7 +531,7 @@ view cs (ViewInfo removes {classes, desc, effects, name, root, src})
       , _label "Source: ", H.div_ [H.text $ characterName_ (getC cs src)]
       ] ⧺ viewClasses true        classes ⧺ 
       [ H.div [_i "bardesc"]    $ parseDesc desc
-      , H.div [_i "bareffects"] $ map (viewEffect removes) effects
+      , H.div [_i "bareffects"] $ viewEffect removes ↤ effects
       ]
   where 
         name' | "Shifted" ∈ classes = H.span [_c "reflected"] 
@@ -563,11 +561,11 @@ view cs (ViewSkill nId _ skill@(Skill {cd, charges, classes, cost, desc, label})
           skills ← find (any (lMatch skill)) characterSkills
           i ← findIndex (lMatch skill) skills
           pure $ catMaybes
-            [ vPrev skills i <#> \v → H.a 
+            [ vPrev skills i ↦ \v → H.a 
               [ _c "prevSkill click"
               , E.onClick ∘ input ∘ View $ ViewSkill nId [] v
               ] []
-            , vNext skills i <#> \v → H.a 
+            , vNext skills i ↦ \v → H.a 
               [ _c "nextSkill click"
               , E.onClick ∘ input ∘ View $ ViewSkill nId [] v
               ] []

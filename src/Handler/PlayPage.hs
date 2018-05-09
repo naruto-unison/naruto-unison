@@ -25,7 +25,7 @@ import Core.Import
 import Game.Structure
 import Game.Characters
 import Handler.Play (gameSocket)
-{-
+
 shorten ∷ Text → Text
 shorten = T.map shorten' ∘ T.filter (∉ filterOut)
   where filterOut    = " -:()®'/?" ∷ String
@@ -37,27 +37,20 @@ shorten = T.map shorten' ∘ T.filter (∉ filterOut)
         shorten'  a  =  a
 
 charAvatars ∷ Character → [Text]
-charAvatars char = (root ☩ "icon.jpg")
-                 : map (((root ☩) ∘ ( ☩ ".jpg")) ∘ shorten ∘ label ∘ head)
+charAvatars char = (root ⧺ "icon.jpg")
+                 : map (((root ⧺) ∘ (⧺ ".jpg")) ↤ shorten ∘ label ∘ head)
                        (take 4 $ characterSkills char)
-  where root = "/img/ninja/" ☩ shorten (characterName char) ☩ "/"
+  where root = "/img/ninja/" ⧺ shorten (characterName char) ⧺ "/"
 
 avatars ∷ [Text]
-avatars = map ("/img/icon/" ☩)
+avatars = map ("/img/icon/" ⧺)
             [ "default.jpg"
             , "gaaraofthefunk.jpg"
             , "ninjainfocards.jpg"
             , "kabugrin.jpg"
             ]
-       ⧺ concatMap charAvatars cs'
+       ⧺ catMap charAvatars cs'
 
-maybeBg ∷ Maybe User → Maybe Text
-maybeBg = (≫= userBackground)
-
-onTeam ∷ Text → Maybe User → Bool --
-onTeam chara = maybe False $ maybe False (chara ∈) ∘ userTeam
-
--}
 isMuted ∷ Maybe User → Bool
 isMuted = maybe False userMuted
 
@@ -69,8 +62,8 @@ getPlayR = do
     let (_, muser) = case ma of
           Just (Entity who user) → (Just who, Just user)
           Nothing                → (Nothing, Nothing)
-    let team          = maybe [] (mapMaybe (`M.lookup` cs)) $ userTeam =≪ muser
-    let bg = fromMaybe "/img/bg/valley2.jpg" $ userBackground =≪ muser
+    let team          = maybe [] (mapMaybe (`M.lookup` cs)) $ muser ≫= userTeam
+    let bg = fromMaybe "/img/bg/valley2.jpg" $ muser ≫= userBackground
     defaultLayout $ do
         setTitle "Naruto Unison"
         addStylesheetRemote "/css/embeds.css"
@@ -84,8 +77,8 @@ legalChars ∷ String
 legalChars = ['0'..'9'] ⧺ ['a'..'z'] ⧺ ['A'..'z']
 
 -- | Updates a user's profile.
-getUpdateR ∷ Text → Bool → Text → Text → Handler Value
-getUpdateR updateName updateFlipped updateBackground updateAvatar
+getUpdateR ∷ Text → Text → Text → Handler Value
+getUpdateR updateName updateBackground updateAvatar
   | "/img/icon/" ≠ T.take 10 updateAvatar = invalidArgs ["Invalid avatar"]
   | T.any (∉ legalChars) updateName = invalidArgs ["Invalid name"]
   | otherwise = do
@@ -93,7 +86,6 @@ getUpdateR updateName updateFlipped updateBackground updateAvatar
     user ← runDB $ updateGet accId [ UserName       =. updateName
                                    , UserBackground =. updateBackground''
                                    , UserAvatar     =. updateAvatar
-                                   , UserFlipped    =. updateFlipped
                                    ]     
     returnJson user
   where updateBackground'  = tTail updateBackground
@@ -125,8 +117,8 @@ changelog logType name characterType = [shamlet|
   where separate      = nubBy $ eqs label
         tagName       = tag characterType
         tag O         = name
-        tag R         = name ☩ " (R)"
-        tag S         = name ☩ " (S)"
+        tag R         = name ⧺ " (R)"
+        tag S         = name ⧺ " (S)"
         change Added  = "Character added:"  ∷ Text
         change New    = "New character:"    ∷ Text
         change Rework = "Character rework:" ∷ Text

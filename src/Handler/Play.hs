@@ -53,7 +53,6 @@ bot = User { userIdent      = ""
            , userClan       = Nothing
            , userTeam       = Nothing
            , userMuted      = False
-           , userFlipped    = False
            }
 
 -- * HANDLERS
@@ -69,13 +68,13 @@ getPracticeQueueR team
       app        ← getYesod
       (who, _)   ← requireAuthPair
       runDB $ update who [ UserTeam =. Just (reverse team) ]
-      chakRns    ← randomRs (0, 3) <$> liftIO newStdGen
+      chakRns    ← randomRs (0, 3) ↤ liftIO newStdGen
       let game   = updateChakra PlayerA (take teamSize chakRns)
                  $ newGame ns who who
       liftIO ∘ atomically ∘ M.insert game who $ appPractice app
       returnJson $ GameInfo who bot PlayerA 0 game
   where oppTeam = ["Naruto Uzumaki", "Tenten", "Sakura Haruno"]
-        ns      = map (cs !) $ concat $ transpose [team, oppTeam]
+        ns      = (cs !) ↤∘ cat $ transpose [team, oppTeam]
 
 formTeam ∷ [Text] → Maybe [Character]
 formTeam team@[a, b, c]
@@ -109,13 +108,13 @@ gameSocket = do
     sendTextData ("Hello" ∷ ByteString)
     app         ← getYesod
     (who, user) ← requireAuthPair
-    teamNames   ← T.split (≡'/') <$> receiveData
+    teamNames   ← T.split (≡'/') ↤ receiveData
     case formTeam teamNames of
       Nothing   → sendTextData ("Invalid team" ∷ ByteString)
       Just team → do
         flip runSqlPool (appConnPool app) 
           $ update who [UserTeam =. Just (reverse teamNames)]
-        chakRns ← randomRs (0, 3) <$> liftIO newStdGen
+        chakRns ← randomRs (0, 3) ↤ liftIO newStdGen
         let writeQueueChan = appQueue app
         readQueueChan ← (liftIO ∘ atomically) $ do
           writeTChan writeQueueChan $ Announce who user team
@@ -127,7 +126,7 @@ gameSocket = do
                 return $ Just (gameInfo, writeChan, readChan)
             Announce vsWho vsUser vsTeam → do
               let game = updateChakra PlayerA (take teamSize chakRns)
-                        $ newGame (concat $ transpose [team, vsTeam])
+                        $ newGame (cat $ transpose [team, vsTeam])
                           vsWho who
               writeChan ← newTChan
               readChan ← newTChan
@@ -168,15 +167,15 @@ gameSocket = do
 enact ∷ Player → StdGen → Game → Chakras → Chakras → [Act] → Either Text Game
 enact player stdGen game actChakra exchangeChakra actions
   | not ∘ null $ drop teamSize actions = Left "Too many actions"
-  | duplic $ map actC actions          = Left "Duplicate actors"
+  | duplic $ actC ↤ actions            = Left "Duplicate actors"
   | any (not ∘ inRange (0, 3)) allS    = Left "Action out of range"
   | randTotal < 0 ∨ lack chakra        = Left "Insufficient chakra"
   | any (illegal player) actions       = Left "Character out of range"
   | otherwise = Right ∘ runTurn player actions stdGen
               $ setGameChakra player chakra { rand = randTotal } game
-  where allS      = lefts $ map actS actions
+  where allS      = lefts $ actS ↤ actions
         randTotal = χTotal actChakra - 5 * χTotal exchangeChakra
-        chakra    = getGameChakra player game +~ exchangeChakra -~ actChakra
+        chakra    = getGameChakra player game ⧺ exchangeChakra -~ actChakra
 
 -- | Wrapper for 'getPracticeActR' with no actions.
 getPracticeWaitR ∷ Chakras → Chakras → Handler Value
@@ -196,8 +195,8 @@ getPracticeActR actChakra exchangeChakra actPaths = do
           Left errorMsg → invalidArgs [errorMsg] -- !FAILS!
           Right game'A  → do
             let game'B = runTurn PlayerB botActs stdGen
-                       $ setGameChakra PlayerB χØ 
+                       $ setGameChakra PlayerB ø 
                          { rand = 3, nin = 2, gen = 2, blood = 1 } game'A
             liftIO ∘ atomically $ M.insert game'B who practiceMap
             returnJson [censor PlayerA game'A, censor PlayerA game'B]
-  where actions = map actFromPath actPaths  
+  where actions = actFromPath ↤ actPaths  

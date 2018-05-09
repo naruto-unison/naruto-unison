@@ -8,7 +8,7 @@ module Game.Structure
     -- * Act
       Act(..), ActPath(..), actFromPath, botActs, Affected(..)
     -- * Chakras
-    , Chakras(..), χØ, ChakraType(..)
+    , Chakras(..), ChakraType(..)
     -- * Channel
     , Channel(..), Channeling(..), ChannelTag(..)
     -- * Character
@@ -51,7 +51,7 @@ module Game.Structure
 import qualified Data.Sequence as S
 import qualified Data.Text as T
 
-import GHC.Generics
+import Control.Monad
 import Data.Aeson
 import Data.Foldable
 import Data.List
@@ -59,6 +59,7 @@ import Data.Maybe      (maybeToList)
 import Data.Sequence   (adjust', fromList, index, Seq, update)
 import Data.Text       (splitOn, Text)
 import Data.Text.Read
+import GHC.Generics
 import Yesod           (PathPiece, toPathPiece, fromPathPiece)
 
 import Calculus
@@ -443,7 +444,7 @@ data ActPath = ActPath { actPathC ∷ Int -- ^ 'actC'
                        } deriving (Eq, Show, Read)
 instance PathPiece ActPath where
   toPathPiece ActPath{..} = T.pack ∘ intercalate "," 
-                          $ map show [actPathC, actPathS, actPathT]
+                          $ show ↤ [actPathC, actPathS, actPathT]
   fromPathPiece raw   = case pieces of
       [c, s, t] → case makeAct c s t of
                        Right act → Just act
@@ -494,6 +495,10 @@ data Chakras = Chakras { blood ∷ Int -- ^ Bloodline
                        , tai   ∷ Int -- ^ Taijutsu
                        , rand  ∷ Int -- ^ Random
                        } deriving (Eq, Show, Read, Generic, ToJSON)
+instance Monoid Chakras where
+  mempty = Chakras 0 0 0 0 0
+  mappend (Chakras b g n t r) (Chakras b' g' n' t' r') 
+    = Chakras (b + b') (g + g') (n + n') (t + t') (r + r')
 instance PathPiece Chakras where
   toPathPiece a     = T.pack $ show a
   fromPathPiece raw = case pieces of
@@ -508,10 +513,6 @@ instance PathPiece Chakras where
               (n',_) ← decimal n
               (t',_) ← decimal t
               return $ Chakras b' g' n' t' 0
-
--- | @Chakras 0 0 0 0 0@
-χØ ∷ Chakras
-χØ = Chakras 0 0 0 0 0
 
 -- | Types of chakra in 'Chakras'.
 data ChakraType = Blood -- ^ Bloodline
@@ -661,7 +662,7 @@ fn (Slot i) f game@Game{..} = game { gameNinjas = adjust' f i gameNinjas }
 newGame ∷ [Character] → Key User → Key User → Game
 newGame ns a b = Game { gamePlayers = (a, b)
                       , gameNinjas  = fromList $ zipWith newNinja ns allSlots
-                      , gameChakra  = (χØ, χØ)
+                      , gameChakra  = (ø, ø)
                       , gameDelays  = []
                       , gameDrain   = (0, 0)
                       , gameSteal   = (0, 0)
@@ -693,7 +694,7 @@ data Ninja = Ninja { nId        ∷ Slot               -- ^ 'gameNinjas' index (
 insertCd' ∷ Int → Int → Seq Int → Seq Int
 insertCd' v toCd cds
   | len > v   = update v toCd cds
-  | otherwise = (cds ◇ S.replicate (v - len) 0) ▷ toCd
+  | otherwise = (cds ⧺ S.replicate (v - len) 0) ▷ toCd
   where len = length cds
 
 insertCd ∷ Int -- ^ 'Skill' index (0-3).
@@ -703,14 +704,14 @@ insertCd ∷ Int -- ^ 'Skill' index (0-3).
          → Seq (Seq Int)
 insertCd s v toCd cds
   | len > s   = adjust' (insertCd' v toCd) s cds
-  | otherwise = (cds ◇ S.replicate (s - len) (S.singleton 0)) 
+  | otherwise = (cds ⧺ S.replicate (s - len) (S.singleton 0)) 
               ▷ insertCd' v toCd ø
   where len = length cds
 
 adjustCd' ∷ Int → (Int → Int) → Seq Int → Seq Int
 adjustCd' v f cds
   | len > v   =  adjust' f v cds
-  | otherwise = (cds ◇ S.replicate (v - len) 0) ▷ f 0
+  | otherwise = (cds ⧺ S.replicate (v - len) 0) ▷ f 0
   where len = length cds
 
 adjustCd ∷ Int -- ^ 'Skill' index (0-3).
@@ -719,7 +720,7 @@ adjustCd ∷ Int -- ^ 'Skill' index (0-3).
          → Seq (Seq Int) → Seq (Seq Int)
 adjustCd s v f cds
   | len > s   = adjust' (adjustCd' v f) s cds
-  | otherwise = (cds ◇ S.replicate (s - len) (S.singleton 0)) 
+  | otherwise = (cds ⧺ S.replicate (s - len) (S.singleton 0)) 
               ▷ adjustCd' v f ø
   where len = length cds
 
@@ -778,7 +779,7 @@ data Skill = Skill  { label   ∷ Text -- ^ Name
                     , changes ∷ Ninja → Skill → Skill -- ^ Defaults to 'id'
                     } deriving (Generic, ToJSON)
 instance Eq Skill where
-    (==) = f2all [eqs label, eqs desc]
+    (==) = andOn [eqs label, eqs desc]
 
 -- | Default values of a 'Skill'. Used as a 'Skill' constructor.
 newSkill ∷ Skill
@@ -786,7 +787,7 @@ newSkill = Skill { label   = "Unnamed"
                  , desc    = ""
                  , require = Usable
                  , classes = []
-                 , cost    = χØ
+                 , cost    = ø
                  , cd      = 0
                  , varicd  = False
                  , charges = 0
@@ -818,7 +819,7 @@ data Status = Status { statusL       ∷ Text -- ^ Label.
                      , statusDur     ∷ Int
                      } deriving (Generic, ToJSON)
 instance Eq Status where
-  (==) = f2all 
+  (==) = andOn 
          [eqs statusL, eqs statusSrc, eqs statusMaxDur, eqs statusClasses]
 instance TurnBased Status where 
     getDur     = statusDur
@@ -856,7 +857,7 @@ data Trap = Trap { trapType    ∷ TrapType
                  , trapDur     ∷ Int
                  } deriving (Generic, ToJSON)
 instance Eq Trap where
-    (==) = f2all 
+    (==) = andOn 
            [eqs trapType, eqs trapTrigger, eqs trapL, eqs trapSrc, eqs trapDur]
 instance TurnBased Trap where 
     getDur     = trapDur
@@ -980,15 +981,15 @@ enemiesP = enemies' ∘ fromEnum
 
 -- ^ @[0 .. gameSize - 1]@.
 allSlots ∷ [Slot]
-allSlots = map Slot [ 0 .. gameSize - 1]
+allSlots = Slot ↤ [ 0 .. gameSize - 1]
 
 allySlots' ∷ Int → [Slot]
-allySlots' a = map Slot [ a',  2 + a' .. gameSize - 1]
+allySlots' a = Slot ↤ [ a',  2 + a' .. gameSize - 1]
   where a' = a ٪ 2
 allySlots ∷ Slot → [Slot]
 allySlots (Slot a) = allySlots' a
 enemySlots' ∷ Int → [Slot]
-enemySlots' a = map Slot $ [1 - a', 3 - a' .. gameSize - 1]
+enemySlots' a = Slot ↤ [1 - a', 3 - a' .. gameSize - 1]
   where a' = a ٪ 2
 enemySlots ∷ Slot → [Slot]
 enemySlots (Slot a) = enemySlots' a
@@ -1004,11 +1005,11 @@ evens []       = []
 
 -- | Second argument if both arguments have the same parity, otherwise @[]@.
 ifPar ∷ Int → Int → [Int]
-ifPar c t = [t | c ≤ gameSize ∧ t ≤ gameSize ∧ allied' c t]
+ifPar c t = [ t | c ≤ gameSize, t ≤ gameSize, allied' c t ]
 
 -- | Translates a 'Target' into a list of 'Ninja's.
 choose ∷ (Maybe Slot, Maybe Slot) → Target → Slot → Slot → [Slot]
-choose (a, e) targ (Slot c) (Slot t) = map Slot $ choose' (ms a, ms e) targ c t
+choose (a, e) targ (Slot c) (Slot t) = Slot ↤ choose' (ms a, ms e) targ c t
   where ms (Just (Slot s)) = Just s
         ms Nothing         = Nothing
 
@@ -1035,8 +1036,8 @@ botActs = [ Act (Slot 3) (Left 1) (Slot 2)
 
 -- | All targets that a 'Skill' from a a specific 'Ninja' affects.
 skillTargets ∷ Skill → Slot → [Slot]
-skillTargets Skill{..} c = filter target $ map Slot [0 .. gameSize - 1]
-  where ts = map fst $ start ⧺ effects ⧺ disrupt
+skillTargets Skill{..} c = mfilter target $ Slot ↤ [0 .. gameSize - 1]
+  where ts = fst ↤ (start ⧺ effects ⧺ disrupt)
         harm = [Enemy, Enemies, REnemy, XEnemies] ⩀ ts
         target t | Everyone ∈ ts = True
                  | not $ allied c t = harm

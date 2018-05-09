@@ -189,9 +189,6 @@ body {
 #accountSettings input {
   width: 15em;
 }
-#accountSettings #flipped {
-  width: inherit;
-}
 #accountSettings p {
   margin: 0.5em 0;
 }
@@ -590,11 +587,11 @@ a.playButton.click {
   width: 297px;
   position: relative;
 }
-#player1.noflip .charhealthbar {
+#player1 .charhealthbar {
   margin-right: 77px;
   margin-left: auto;
 }
-#player0 .charhealthbar, #player1.flip .charhealthbar {
+#player0 .charhealthbar {
   margin-left: 77px;
   margin-right: auto;
 }
@@ -622,11 +619,10 @@ a.playButton.click {
 .charbarrier {
   background: #e00;
 }
-#player1.noflip .chardefense, #player1.noflip .charbarrier {
+#player1 .chardefense, #player1 .charbarrier {
   border-right: none;
 }
-#player0 .chardefense, #player0 .charbarrier, 
-#player1.flip .chardefense, #player1.flip .charbarrier {
+#player0 .chardefense, #player0 .charbarrier {
   border-left: none;
 }
 .exposed .chardefense {
@@ -651,16 +647,16 @@ a.playButton.click {
   right: 0;
   margin: 0 -2em;
 }
-#player1 .charhealthtext.noflip {
+#player1 .charhealthtext {
   right: 100%;
 }
-#player0 .charhealthext, #player1.flip .charhealthtext {
+#player0 .charhealthext {
   left: 100%;
 }
-#player1.noflip .charhealth {
+#player1 .charhealth {
   right: 0;
 }
-#player0 .charhealth, #player1.flip .charhealth {
+#player0 .charhealth {
   left: 0;
 }
 #playqueuecont {

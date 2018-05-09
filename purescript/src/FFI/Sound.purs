@@ -2,9 +2,13 @@ module FFI.Sound (AUDIO, Sound(..), register, sound) where
 
 import Prelude
 
-import Control.Monad.Eff     (Eff, kind Effect)
-import Data.Generic.Rep      (class Generic)
-import Data.Generic.Rep.Show (genericShow)
+import Control.Monad.Eff       (Eff, kind Effect)
+import Control.Monad.Eff.Class (class MonadEff)
+import Data.Generic.Rep        (class Generic)
+import Data.Generic.Rep.Show   (genericShow)
+import Halogen                 (liftEff)
+
+import Operators
 
 foreign import data AUDIO ∷ Effect
 
@@ -24,9 +28,11 @@ derive instance genericSound ∷ Generic Sound _
 instance showSound ∷ Show Sound where 
   show = genericShow
 
-foreign import sfxPlay ∷ ∀ e. (Sound → String) → Sound → Eff (audio ∷ AUDIO | e) Unit
-sound ∷ ∀ e. Sound → Eff (audio ∷ AUDIO | e) Unit
-sound = sfxPlay show
+foreign import sfxPlay ∷ ∀ e. (Sound → String) → Sound 
+                       → Eff (audio ∷ AUDIO | e) Unit
+
+sound ∷ ∀ a e. MonadEff (audio :: AUDIO | e) a ⇒ Sound → a Unit
+sound = liftEff ∘ sfxPlay show
 
 foreign import sfxRegister ∷ ∀ e. (Sound → String) → Array Sound → Eff (e) Unit
 register ∷ ∀ e. Eff (e) Unit

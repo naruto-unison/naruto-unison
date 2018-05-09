@@ -15,10 +15,11 @@ import Control.Monad.Aff (Aff)
 import Data.Array 
 import Data.Maybe 
 import Data.String       (joinWith)
+import DOM.Event.Types   (MouseEvent)
 import Halogen           (Component, ComponentDSL, ComponentHTML)
 import Halogen.HTML      (HTML, img)
 
-import FFI.Import        (cs', user, userTeam)
+import FFI.Import        (avatars, cs', user, userTeam)
 import FFI.Sound         (AUDIO, Sound(..), sound)
 
 import Operators
@@ -34,16 +35,21 @@ type State = { queueing   ∷ Boolean
              , showLogin  ∷ Boolean
              , index      ∷ Int
              , cols       ∷ Int
-             , previewing ∷ Maybe Character
+             , previewing ∷ Previewing
              , team       ∷ Array Character
              , variants   ∷ Array Int
+             , avatar     ∷ Maybe String
              }
 
 pageSize ∷ Int
 pageSize = 36
 
-input :: ∀ a. SelectQuery → a → Maybe (ChildQuery Unit)
-input a = E.input_ $ (QuerySelect a)
+click ∷ ∀ a. SelectQuery → P.IProp (onClick ∷ MouseEvent | a) (ChildQuery Unit)
+click a = E.onClick ∘ E.input_ $ (QuerySelect a)
+
+preview ∷ ∀ a. Character 
+        → P.IProp (onMouseEnter ∷ MouseEvent | a) (ChildQuery Unit)
+preview = E.onMouseEnter ∘ E.input_ ∘ QuerySelect ∘ Preview ∘ PreviewCharacter
 
 component ∷ ∀ m. Component HTML ChildQuery Unit Selection (Aff (Effects m))
 component =
@@ -60,49 +66,40 @@ component =
                  , showLogin:  true
                  , index:      0 
                  , cols:       11
-                 , previewing: Nothing
+                 , previewing: NoPreview
                  , team:       userTeam
                  , variants:   [0,0,0,0]
+                 , avatar:     Nothing
                  }
  
   render :: State -> ComponentHTML ChildQuery
   render {previewing, index, showLogin, team, variants} =
-      H.div [_i "charSelect"] $ userBox showLogin team ⧺ catMaybes
-        [ previewing <#> \character@
-          (Character {characterName, characterBio, characterSkills}) → 
-              H.div [_i "charPreview", _c "parchment"]
-              $ [img [_i "charIcon", _c "char", cIcon character "icon"]
-                , H.div [_i "charName"] [ H.text characterName ]
-                , H.div [_i "charDesc"] [ H.text characterBio ]
-                ] 
-              ⧺ concat 
-                (zip3 (previewSkill character) (0..3) characterSkills variants)
-        , Just $ H.div [_c "characterButtons parchment"] 
+      H.div [_i "charSelect"] 
+        $ userBox showLogin team 
+        ⧺ previewBox variants previewing
+        [ H.div [_c "characterButtons parchment"] 
           [ H.div 
             [ _i "prevPage" 
             , _c ∘ atMin ? ("wraparound " ⧺ _) $ "click"
-            , E.onClick (input $ Scroll back)
+            , click $ Scroll back
             ] []
           , H.div 
             [ _i "nextPage" 
             , _c ∘ atMax ? ("wraparound " ⧺ _) $ "click"
-            , E.onClick (input $ Scroll forward)
+            , click $ Scroll forward
             ] []
-          , H.div [_i "charScroll"] $ displays <#> \c → 
+          , H.div [_i "charScroll"] $ displays ↦ \c → 
               if c ∈ team then 
-                H.div [_c "char disabled"]
-                [H.img [cIcon c "icon", E.onMouseEnter (input $ Preview c)]]
+                H.div [_c "char disabled"] 
+                [H.img [cIcon c "icon", preview c]]
               else if length team < 3 then
                 H.div [_c "char click"]
-                [H.img $ catMaybes
-                  [ Just $ cIcon c "icon"
-                  , Just ∘ E.onMouseEnter ∘ input $ Preview c
-                  , isJust user ?? E.onClick (input $ Team Add c)
-                  ]
+                [ H.img 
+                  [cIcon c "icon", preview c, click $ Team Add c]
                 ]
               else
                 H.div [_c "char click"]
-                [H.img[cIcon c "icon", E.onMouseEnter (input $ Preview c)]] 
+                [H.img [cIcon c "icon", preview c]] 
           ]
         ]
     where pageAction = if showLogin then "login" else "register"
@@ -122,24 +119,60 @@ component =
     SwitchLogin →
       HH.modify \state@{showLogin} → state { showLogin = not showLogin }
     Scroll a → do
-      HH.liftEff $ sound SFXScroll
+      sound SFXScroll
       HH.modify _{ index = a }
-    Preview character → 
-      HH.modify _{ previewing = Just character, variants = [0,0,0,0] }
+    Preview previewing → 
+      HH.modify _{ previewing = previewing, variants = [0,0,0,0] }
     Vary slot i → do
-      HH.liftEff $ sound SFXClick
+      sound SFXClick
       HH.modify \state@{variants} → state 
         { variants = updateAt' slot i variants }
     Team Add character → do
-      HH.liftEff $ sound SFXClick
+      sound SFXClick
       HH.modify \state@{team} → state { team = character : team }
     Team Delete character → do
-      HH.liftEff $ sound SFXCancel
+      sound SFXCancel
       HH.modify \state@{team} → state { team = delete character team }
     Enqueue queueType → do
+      sound SFXApplySkill
       {team: team} ← HH.get
       HH.raise $ Queued queueType team
+    ChooseAvatar avatar → do
+      sound SFXClick
   eval (QueryPlay _ next) = pure next
+
+previewBox ∷ ∀ a. Array Int → Previewing
+           → Array (HTML a (ChildQuery Unit)) → Array (HTML a (ChildQuery Unit))
+previewBox _ NoPreview = id
+previewBox _ PreviewUser = case user of 
+  Nothing → id
+  Just (User {name, background}) → cons $
+    H.div [_i "charPreview", _c "parchment"]
+    [ H.h1_ $ _txt "Account Settings"
+    , H.p_ 
+      [ _span "Name"
+      , H.input [P.type_ P.InputText, P.name "name", P.value name]
+      ]
+    , H.p_
+      [ _span "Background" 
+      , H.input 
+        [ P.type_ P.InputText
+        , P.name "background"
+        , P.value $ fromMaybe "" background
+        ]
+      ]
+    , H.p_ [_span "Avatars"]
+    , H.div [_i "avatars"] $ avatars ↦ \avatar → H.img [_src avatar]
+    ]
+previewBox variants (PreviewCharacter
+  character@Character {characterName, characterBio, characterSkills}) = cons ∘
+  H.div [_i "charPreview", _c "parchment"]
+  $ [img [_i "charIcon", _c "char", cIcon character "icon"]
+    , H.div [_i "charName"] [ H.text characterName ]
+    , H.div [_i "charDesc"] [ H.text characterBio ]
+    ] 
+  ⧺ concat 
+    (zip3 (previewSkill character) (0..3) characterSkills variants)
 
 previewSkill ∷ ∀ a. Character → Int → Array Skill → Int 
              → Array (HTML a (ChildQuery Unit))
@@ -148,10 +181,8 @@ previewSkill character slot skills i = case skills !! i of
   Just (Skill {label, cost, charges, classes, desc, cd}) → 
       [ H.div [_c "skillPreview"] $ catMaybes
         [ Just $ img [_c "char", cIcon character label]
-        , vPrev <#> \v → 
-          H.a [_c "prevSkill click", E.onClick ∘ input $ Vary slot v] []
-        , vNext <#> \v →
-          H.a [_c "nextSkill click", E.onClick ∘ input ∘ Vary slot $ v + i] []
+        , vPrev ↦ \v → H.a [_c "prevSkill click", click $ Vary slot v][]
+        , vNext ↦ \v → H.a [_c "nextSkill click", click ∘ Vary slot $ v + i][]
         ]
       , H.div [_c "skillname"]
         $ H.text label
@@ -177,13 +208,13 @@ userBox showLogin team = case user of
   Just user@(User {avatar, name, clan, wins, losses, streak}) →
     [ H.div [_c "playButtons"] $
       [ H.div 
-        [_i "queue", _c playButton, E.onClick (input $ Enqueue Quick)]
+        [_i "queue", _c playButton, click $ Enqueue Quick]
         [ H.text "Start Quick Match" ]
       , H.div 
-        [_i "practicequeue", _c playButton, E.onClick (input $ Enqueue Practice)]
+        [_i "practicequeue", _c playButton, click $ Enqueue Practice]
         [ H.text "Start Practice Match"]
       , H.div 
-        [_i "private", _c playButton, E.onClick (input $ Enqueue Private)]
+        [_i "private", _c playButton, click $ Enqueue Private]
         [ H.text "Start Private Match" ]
       , _a "mainsite" "playButton parchment click" "/changelog" "Changelog"
       ]
@@ -207,14 +238,9 @@ userBox showLogin team = case user of
         , H.text $ show wins ⧺ " - " ⧺ show (wins + losses) 
                  ⧺ " (+" ⧺ show streak ⧺ ")"
         ] 
-      , H.div [_i "teamButtons"] $ team <#> \c →
+      , H.div [_i "teamButtons"] $ team ↦ \c →
           H.div [_c "char click"]
-            [ H.img 
-              [ cIcon c "icon"
-              , E.onMouseEnter (input $ Preview c)
-              , E.onClick      (input $ Team Delete c)
-              ]
-            ]
+            [H.img [cIcon c "icon", preview c, click $ Team Delete c]]
       , H.div [_i "underTeam", _c "parchment"] []
       ]
     ] 
@@ -256,14 +282,14 @@ userBox showLogin team = case user of
                   [H.text "Log in"]
                 , H.a 
                   [ _c          "click"
-                  , E.onClick   (input SwitchLogin)
+                  , click       SwitchLogin
                   ]
                   [H.text "Register"]
                 ]
               else
               [ H.a 
                 [ _c            "click"
-                , E.onClick     (input SwitchLogin)
+                , click         SwitchLogin
                 ]
                 [H.text "Log in"]
               , H.button 
@@ -275,7 +301,11 @@ userBox showLogin team = case user of
             ]
           ]
         ]
-      , H.div [_i "teamButtons"] []
+      , H.div [_i "teamButtons"] $ team ↦ \c →
+          H.div [_c "char click"]
+            [ H.img 
+              [cIcon c "icon", preview c, click $ Team Delete c]
+            ]
       , H.div [_i "underTeam", _c "parchment"] []
       ]
     ]  

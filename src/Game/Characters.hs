@@ -28,21 +28,21 @@ import Game.Characters.Reanimated
 
 -- | Database of 'Character's using 'characterName's as keys.
 cs ∷ HashMap Text Character
-cs = fromList $ map (\c → (characterName c, c)) cs'
+cs = fromList $ cs' ↦ \c → (characterName c, c)
 
 -- | Ordered database of 'Character's.
 cs' ∷ [Character]
-cs' = map addClasses
+cs' = (addClasses ↤)
     $ kidCs ⧺ examCs ⧺ teacherCs ⧺ organizationCs ⧺ leaderCs ⧺ versionCs 
-    ⧺ flashbackCs ⧺ map (mark "S") s ⧺ map (mark "R") reanimatedCsS
-  where 
+    ⧺ flashbackCs ⧺ mark "S" ↤ s ⧺ mark "R" ↤ reanimatedCsS
+  where
   s = kidCsS ⧺ adultCsS ⧺ familyCsS ⧺ organizationCsS ⧺ akatsukiCsS ⧺ versionCsS
 
 mark ∷ Text → Character → Character
-mark m c = c { characterName = characterName c ☩ " (" ☩ m ☩ ")" }
+mark m c = c { characterName = characterName c ⧺ " (" ⧺ m ⧺ ")" }
 
 addClasses ∷ Character → Character
-addClasses c@Character{..} = c { characterSkills = map doSkills characterSkills }
+addClasses c@Character{..} = c { characterSkills = doSkills ↤ characterSkills }
 
 doSkills ∷ [Skill] → [Skill]
 doSkills []               = []

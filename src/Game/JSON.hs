@@ -1,11 +1,10 @@
 -- | 'ToJSON' instances that require functions from 'Game.Functions'.
 module Game.JSON () where 
 
-import qualified Data.Sequence as S
-
-import GHC.List      (errorEmptyList)
+import Control.Monad
 import Data.Foldable
 import Data.List
+import GHC.List      (errorEmptyList)
 import Yesod         ((.=), ToJSON, toJSON, object)
 
 import Calculus
@@ -18,17 +17,17 @@ reduceStatus ∷ [Status] → Status
 reduceStatus []              = errorEmptyList "reduceStatus"
 reduceStatus [statuses]      = statuses
 reduceStatus (st : statuses) = st { statusL = f $ statusL st }
-  where f = (☩ (" (" ☩ tshow (1 + length statuses) ☩ ")"))
+  where f = (⧺ (" (" ⧺ tshow (1 + length statuses) ⧺ ")"))
 
 groupStatuses ∷ Status → Status → Bool
-groupStatuses = f2all [eqs statusSrc, eqs statusC, eqs statusL, eqs statusDur]
+groupStatuses = andOn [eqs statusSrc, eqs statusC, eqs statusL, eqs statusDur]
 
 reduceStatuses ∷ Ninja → [Status]
 reduceStatuses Ninja{..} = uncurry (⧺) ∘ partition ((nId ≠) ∘ statusSrc)
                          ∘ uncurry (⧺)
-                         ∘ do2 True (map reduceStatus ∘ groupBy groupStatuses)
+                         ∘ do2 True (reduceStatus ↤∘ groupBy groupStatuses)
                          ∘ partition ((Multi ∈) ∘ statusClasses)
-                         $ filter ((Hidden ∉) ∘ statusClasses) nStatuses
+                         $ mfilter ((Hidden ∉) ∘ statusClasses) nStatuses
 
 instance ToJSON Ninja where
     toJSON n@Ninja{..} = object
@@ -43,11 +42,11 @@ instance ToJSON Ninja where
         , "nParrying"  .= nParrying
         , "nVariants"  .= nVariants
         , "nTags"      .= nTags
-        , "nTraps"     .= S.filter ((Hidden ∉) ∘ trapClasses) nTraps
+        , "nTraps"     .= mfilter ((Hidden ∉) ∘ trapClasses) nTraps
         , "nName"      .= characterName nCharacter
         , "nStatuses"  .= reduceStatuses n
         , "nCooldowns" .= getCds n
-        , "nSkills"    .= map usable' (getSkills n)
+        , "nSkills"    .= (usable' ↤ getSkills n)
         ]
       where usable' skill@Skill{..} = skill { require = fulfill require }
             fulfill req@(HasI _ _) | matchRequire req nId n = Usable
@@ -67,5 +66,5 @@ instance ToJSON Game where
               n ← ns
               return $ do
                 skill ← getSkills n
-                return ∘ (skillTargets skill (nId n) ∩) ∘ map nId 
-                        $ filter (targetable skill n n) ns
+                return $ (skillTargets skill (nId n) ∩) 
+                         [ nId | nt@Ninja {..} ← ns, targetable skill n n nt ]

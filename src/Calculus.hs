@@ -3,14 +3,11 @@
 -- | Miscellaneous simple functions.
 module Calculus where
 
-import qualified Data.Sequence as S
 import qualified Data.Text     as T
 
 import Data.Function
 import Data.List
-import Data.Maybe
-import Data.Sequence (Seq)
-import Data.Text     (pack, Text)
+import Data.Text     (Text, pack)
 import System.Random
 
 import Core.Unicode
@@ -26,18 +23,14 @@ False $? _ = Nothing
 True  $? a = a
 
 -- | Equality by applying a function to both arguments.
--- Goes well with 'f2all', e.g. @f2all [eqs recordFieldA,  recordFieldB]@.
+-- Goes well with 'andOn', e.g. @andOn [eqs recordFieldA,  recordFieldB]@.
 eqs ∷ Eq b ⇒ (a → b) → a → a → Bool
 eqs = on (≡)
 
--- | Applies two arguments to a list of functions that accept two arguments.
-f2 ∷ a → b → [a → b → c] → [c]
-f2 a b = map $ ($ b) ∘ ($ a)
-
--- | 'and' 'f2'. 
--- Goes well with 'f2all', e.g. @f2all [eqs recordFieldA,  recordFieldB]@.
-f2all ∷ [a → a → Bool] → a → a → Bool
-f2all f a b = and $ f2 a b f
+-- | Apply the same two arguments to a list of functions and 'and' the result.
+-- Goes well with 'eq', e.g. @andOn [eqs recordFieldA,  recordFieldB]@.
+andOn ∷ (Foldable a, Functor a) ⇒ a (b → b → Bool) → b → b → Bool
+andOn fs a b = and $ (($ b) ∘ ($ a)) ↤ fs
 
 -- | @Text@ 'T.init' that returns @""@ if given @""@.
 tInit ∷ Text → Text
@@ -79,10 +72,6 @@ do2 False f (a, b) = (a, f b)
 both ∷ (a → b) → (a, a) → (b, b)
 both f (a, b) = (f a, f b)
 
--- | @'map' . 'both'@.
-map2 ∷ (a → b) → [(a, a)] → [(b, b)]
-map2 = map ∘ both
-
 -- | List contains duplicates.
 duplic ∷ Eq a ⇒ [a] → Bool
 duplic a = nub a ≠ a
@@ -91,17 +80,20 @@ duplic a = nub a ≠ a
 tshow ∷ Show a ⇒ a → Text
 tshow = pack ∘ show
 
--- | 'Seq' concatenation.
-seqConcat ∷ Foldable a ⇒ a (Seq b) → Seq b
-seqConcat = foldl' (◇) ø
+-- | Generalized 'concat'.
+cat ∷ (Foldable a, Monoid b) ⇒ a b → b
+cat = foldr mappend mempty
 
--- | @'seqConcat' . '<$>'@
-seqMap ∷ (a → Seq b) → Seq a → Seq b
-seqMap f = seqConcat ∘ (f <$>)
+-- | Generalized 'concatMap'.
+catMap ∷ (Functor a, Foldable a, Monoid b) ⇒ (c → b) → a c → b
+catMap f = cat ∘ (f ↤)
 
--- | 'Seq' equivalent of 'catMaybes'.
-seqMaybes ∷ Seq (Maybe a) → Seq a
-seqMaybes = (fromJust <$>) ∘ S.filter isJust
+-- | Generalized 'catMaybes'.
+
+catJusts ∷ Monad m ⇒ m (Maybe a) → m a
+catJusts xs = do
+    Just x ← xs
+    return x
 
 -- | Extracts a 'Just' in a monad.
 -- Returns the error message argument if given 'Nothing'.

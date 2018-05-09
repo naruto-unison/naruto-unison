@@ -9,7 +9,7 @@ module Game.Functions
     , lost
     , illegal
     -- * 'Chakras'
-    , (+~), (-~), getGameChakra, setGameChakra, lack, χ, unχ, χGain, χTotal
+    , (-~), getGameChakra, setGameChakra, lack, χ, unχ, χGain, χTotal
     -- * 'Channel'
     , fromChannel, isChanneling
     -- * 'Defense'
@@ -92,22 +92,15 @@ illegal p = (fromEnum p ≠) ∘ spar ∘ actC
 
 -- * CHAKRAS
 
--- | Addition.
-infixl 6 +~
-(+~) ∷ Chakras → Chakras → Chakras
-(Chakras b g n t r) +~ (Chakras b' g' n' t' r')
-    = Chakras (b + b') (g + g') (n + n') (t + t') (r + r')
-
--- | Subtraction.
-infixl 6 -~
-(-~) ∷ Chakras → Chakras → Chakras
-(Chakras b g n t r) -~ (Chakras b' g' n' t' r')
-    = Chakras (b - b') (g - g') (n - n') (t - t') (r - r')
-
 -- | Product.
 infixl 7 *~
 (*~) ∷ Chakras → Int → Chakras
 (Chakras b g n t r) *~ a = Chakras (b * a) (g * a) (n * a) (t * a) (r * a)
+
+-- | Subtraction.
+infixl 6 -~
+(-~) ∷ Chakras → Chakras → Chakras
+(-~) a = (a ⧺) ∘ (*~ (-1))
 
 getGameChakra ∷ Player → Game → Chakras
 getGameChakra player = out2 (PlayerA ≡ player) ∘ gameChakra
@@ -119,8 +112,8 @@ setGameChakra player chakra game@Game{..} = game
 lack ∷ Chakras → Bool
 lack (Chakras b g n t r) = b < 0 ∨ g < 0 ∨ n < 0 ∨ t < 0 ∨ r < 0
 
-χ ∷ [ChakraType] → Chakras
-χ = foldl' (+~) χØ ∘ map toChak
+χ ∷ (Foldable a, Functor a) ⇒ a ChakraType → Chakras
+χ = catMap toChak
   where toChak Blood = Chakras 1 0 0 0 0
         toChak Gen   = Chakras 0 1 0 0 0
         toChak Nin   = Chakras 0 0 1 0 0
@@ -135,7 +128,7 @@ unχ (Chakras b g n t _) = replicate b Blood
 
 -- | Adds 1 chakra per living 'Ninja' on the team of a 'Player'.
 χGain ∷ Player → [ChakraType] → Seq Ninja → Chakras → Chakras
-χGain player gain ns = (+~ χ (take (numAlive player ns) gain))
+χGain player gain ns = (⧺ χ (take (numAlive player ns) gain))
 
 -- | Sum of components.
 χTotal ∷ Chakras → Int
@@ -157,8 +150,8 @@ hasDefense l c = any (lMatch l c) ∘ nDefense
 -- ** EFFECTS
 
 -- | Modifies 'Effect's when they are first added to a 'Ninja'.
-filterEffects ∷ Ninja → [Effect] → [Effect]
-filterEffects n = map adjustEffect ∘ filter keepEffects
+filterEffects ∷ MonadPlus m ⇒ Ninja → m Effect → m Effect
+filterEffects n = adjustEffect ↤∘ mfilter keepEffects
   where adjustEffect (Reduce cla a) = Reduce cla (a - getUnreduce n)
         adjustEffect f              = f
         keepEffects (Immune _)      = not $ is Expose n
@@ -167,90 +160,94 @@ filterEffects n = map adjustEffect ∘ filter keepEffects
 -- ** REDUCING EFFECTS
 
 getTargets ∷ Effect → Ninja → [Slot]
-getTargets ef n = [statusC st | st ← nStats n, ef ∈ statusEfs st]
+getTargets ef n = [statusC | Status{..} ← nStats n, ef ∈ statusEfs ]
 
 -- | 'Share's.
 getShare ∷ Ninja → [Slot]
-getShare n@Ninja{..} = filter (nId ≠) ∘ map statusC 
-                     ∘ filter ((Share ∈) ∘ statusEfs) $ nStats n
+getShare n@Ninja{..} = [ statusC | Status{..} ← nStats n
+                                 , nId ≠ statusC
+                                 , Share ∈ statusEfs 
+                                 ]
 
 -- LIST COMPREHENSIONS, MOTHERFUCKERS
 -- | 'Bleed' sum.
 getBleed             ∷ [Class] → Ninja → Int
-getBleed clas n      = sum [bleed  | Bleed cla bleed    ← nEfs n, cla ∈ clas]
+getBleed clas n      = sum [ bleed  | Bleed cla bleed    ← nEfs n, cla ∈ clas ]
 -- | 'Bless' sum.
 getBless             ∷ Ninja → Int
-getBless n           = sum [bless  | Bless bless        ← nEfs n]
+getBless n           = sum [ bless  | Bless bless        ← nEfs n ]
 -- | 'Build' sum.
 getBuild             ∷ Ninja → Int
-getBuild n           = sum [build  | Build build        ← nEfs n]
+getBuild n           = sum [ build  | Build build        ← nEfs n ]
 -- | 'Immune's.
 getImmune            ∷ Ninja → [Class]
-getImmune n          =     [clas   | Immune clas        ← nEfs n]
+getImmune n          =     [ clas   | Immune clas        ← nEfs n ]
 -- | 'Snare' sum.
 getSnare             ∷ Ninja → Int
-getSnare n           = sum [snare  | Snare snare        ← nEfs n]
+getSnare n           = sum [ snare  | Snare snare        ← nEfs n ]
 -- | 'Stun's.
 getStun              ∷ Ninja → [Class]
-getStun n            =     [cla    | Stun cla           ← nEfs n]
+getStun n            =     [ cla    | Stun cla           ← nEfs n ]
 -- | 'Unreduce' sum.
 getUnreduce          ∷ Ninja → Int
-getUnreduce n        = sum [unred  | Unreduce unred     ← nEfs n]
+getUnreduce n        = sum [ unred  | Unreduce unred     ← nEfs n ]
 -- | 'Strengthen' sum.
 getStrengthen        ∷ [Class] → Ninja → Int
-getStrengthen clas n = sum [str    | Strengthen cla str ← nEfs n, cla ∈ clas]
+getStrengthen clas n = sum [ str    | Strengthen cla str ← nEfs n, cla ∈ clas ]
 -- | 'Weaken' sum.
 getWeaken            ∷ [Class] → Ninja → Int
-getWeaken clas n     = sum [weak   | Weaken cla weak    ← nEfs n, cla ∈ clas]
+getWeaken clas n     = sum [ weak   | Weaken cla weak    ← nEfs n, cla ∈ clas ]
 -- | 'Link' sum.
 getLink              ∷ Slot → Ninja → Int
-getLink c n          = sum [link   | Link link          ← nEfs']
-  where nEfs' = concatMap statusEfs $ filter ((c ≡) ∘ statusC) $ nStats n
+getLink c n          = sum [ link   | Link link          ← nEfs' ]
+  where nEfs' = cat [ statusEfs | Status{..} ← nStats n, statusC ≡ c ]
 
 -- | 'Boost' sum.
 getBoost             ∷ Slot → Ninja → Int
-getBoost c Ninja{..}
+getBoost c n@Ninja{..}
   | c ≡ nId   = 1
-  | otherwise = product $ 1 : [boo | Boost boo ← nEfs']
-  where nEfs' = concatMap statusEfs $ filter ((c ≡) ∘ statusC) nStatuses
+  | otherwise = product $ 1 : [ boo | Boost boo ← nEfs' ]
+  where nEfs' = cat [ statusEfs | Status{..} ← nStats n, statusC ≡ c ]
 
 -- | 'Exhaust' sum.
 getExhaust ∷ [Class] → Ninja → Chakras
-getExhaust classes n = χØ { rand = length ∘ filter fx $ nEfs n }
-  where fx (Exhaust cla) = cla ∈ classes
-        fx _             = False
+getExhaust classes n = ø { rand = length xs }
+  where xs = [ cla | Exhaust cla ← nEfs n, cla ∈ classes ]
 
 -- | 'Reduce' sum.
 getReduce ∷ [Class] → Ninja → Int
-getReduce [Affliction] n = sum [reduce | Reduce Affliction reduce ← nEfs n]
-getReduce clas         n = sum [reduce | Reduce cla reduce ← nEfs n, cla ∈ clas]
+getReduce [Affliction] n = sum [ reduce | Reduce Affliction reduce ← nEfs n ]
+getReduce clas n = sum [ reduce | Reduce cla reduce ← nEfs n, cla ∈ clas ]
 
 prod ∷ [Rational] → Rational
 prod = product ∘ (1 :)
 
 -- | 'Scale' product.
 getScale ∷ [Class] → Ninja → Rational
-getScale clas n = prod
-  [scale | Scale cla scale ← nEfs n, cla ∈ clas, scale ≥ 1 ∨ Affliction ∉ clas]
+getScale clas n = prod [ scale | Scale cla scale ← nEfs n
+                               , cla ∈ clas
+                               , scale ≥ 1 ∨ Affliction ∉ clas 
+                               ]
 
 -- | 'Ward' product.
 getWard ∷ [Class] → Ninja → Rational
-getWard [Affliction] n = prod [1 - ward | Ward Affliction ward ← nEfs n]
-getWard clas         n = prod [1 - ward | Ward cla ward ← nEfs n, cla ∈ clas]
+getWard [Affliction] n = prod [ 1 - ward | Ward Affliction ward ← nEfs n ]
+getWard clas         n = prod [ 1 - ward | Ward cla ward ← nEfs n, cla ∈ clas ]
 
 -- | 'Afflict' sum minus 'Heal' sum.
 getNet ∷ Player → Game → Ninja → Int
 getNet player game n = getAfflict player game n - getHeal player game n
 -- | 'Afflict' sum.
 getAfflict ∷ Player → Game → Ninja → Int
-getAfflict player game n@Ninja{..} = sum ∘ map (afflict1 player game nId) 
-                                   ∘ is ImmuneSelf n 
-                                   ? filter ((≠ nId) ∘ statusSrc) 
-                                   $ nStats n
+getAfflict player game n@Ninja{..} = sum
+    [ afflict1 player game nId st | st@Status{..} ← nStats n 
+                                  , not (is ImmuneSelf n) ∨ statusSrc ≠ nId
+                                  ]
+
 -- | 'Heal' sum.
 getHeal ∷ Player → Game → Ninja → Int
 getHeal player game n@Ninja{..}
-  | not $ is Plague n = sum ∘ map (heal1 player game n) $ nStats n
+  | not $ is Plague n = sum $ heal1 player game n ↤ nStats n
   | otherwise         = 0
 
 afflict1 ∷ Player → Game → Slot → Status → Int
@@ -285,7 +282,7 @@ getCd = (fromMaybe 0 ∘) ∘ S.lookup ∘ variantCD
 
 getCds ∷ Ninja → Seq Int
 getCds Ninja{..} = S.zipWith copyCd nCopied 
-                 $ S.zipWith getCd (head <$> nVariants) nCooldowns
+                 $ S.zipWith getCd (head ↤ nVariants) nCooldowns
   where isShallow (Shallow _ _) = True
         isShallow _             = False
         copyCd copied cooldown  = case copied of
@@ -295,7 +292,7 @@ getCds Ninja{..} = S.zipWith copyCd nCopied
 -- ** LIFE AND DEATH
 
 alives ∷ Player → Seq Ninja → [Ninja]
-alives = (filter isAlive ∘) ∘ alliesP
+alives = (mfilter isAlive ∘) ∘ alliesP
 
 -- | The entire team of a 'Player' is dead, in which case they lose.
 dead ∷ Player → Game → Bool
@@ -384,7 +381,7 @@ copyRoot = cp ∘ copying
 -- ** MODIFICATION
 
 getSkills ∷ Ninja → [Skill]
-getSkills n = map (getSkill n ∘ Left) [0..3]
+getSkills n = (getSkill n ∘ Left) ↤ [0..3]
 
 getSkill ∷ Ninja → Either Int Skill → Skill
 getSkill n      (Right skill) = usable n Nothing skill
@@ -414,7 +411,7 @@ addClass cla _ skill@Skill{..} = skill { classes = cla : classes }
 
 changeSkill ∷ SkillTransform
 changeSkill n skill = skill' 
-    { cost = getExhaust (classes skill') n +~ cost skill' }
+    { cost = getExhaust (classes skill') n ⧺ cost skill' }
   where skill' = chakraClasses $ changes skill n skill
 
 -- | Applies a 'SkillTransform' if 'hasOwn'.
@@ -424,9 +421,9 @@ changeWith l f n@Ninja{..}
   | otherwise                       = id
 
 -- | Increases 'cost' per 'numActive'.
-costPer ∷ Text → [ChakraType] → SkillTransform
+costPer ∷ (Foldable a, Functor a) ⇒ Text → a ChakraType → SkillTransform
 costPer l chaks n skill@Skill{..} = skill 
-    { cost = cost +~ χ chaks *~ numActive l n }
+    { cost = cost ⧺ χ chaks *~ numActive l n }
 
 -- | Turns AoE effects into single-target effects.
 restrict ∷ SkillTransform
@@ -445,21 +442,21 @@ restrict n skill@Skill{..}
 -- | Turns single-target effects into AoE effects.
 targetAll ∷ SkillTransform
 targetAll _ skill@Skill{..} = skill
-  { start = map f start, effects = map f effects, disrupt = map f disrupt }
+  { start = f ↤ start, effects = f ↤ effects, disrupt = f ↤ disrupt }
   where f (targ, ef) = (f' targ, ef)
         f' Enemy     = Enemies
         f' Ally      = Allies
         f' XAlly     = XAllies
         f' a         = a
 
-setCost ∷ [ChakraType] → SkillTransform
+setCost ∷ (Foldable a, Functor a) ⇒ a ChakraType → SkillTransform
 setCost chaks _ skill = skill { cost = χ chaks }
 
 -- | Affects enemies instead of allies and allies instead of enemies.
 swapSkill ∷ Status → Skill → Skill
-swapSkill Status{..} skill@Skill{..} = skill { effects = map f' effects 
-                                             , start   = map f' start
-                                             , disrupt = map f' disrupt
+swapSkill Status{..} skill@Skill{..} = skill { effects = f' ↤ effects 
+                                             , start   = f' ↤ start
+                                             , disrupt = f' ↤ disrupt
                                              }
   where f' (a, b)      = (f a, b)
         f Self         = Self
@@ -509,8 +506,8 @@ usable ∷ Ninja
        → Maybe Int -- ^ Index in 'characterSkills'
        → Skill → Skill
 usable n@Ninja{..} s skill@Skill{..}
-  | charges > 0 ∧ maybe False (≥ charges) ((nCharges !?) =≪ s) = unusable
-  | maybe False (>0) $ (getCds n !?) =≪ s = unusable
+  | charges > 0 ∧ maybe False (≥ charges) (s ≫= (nCharges !?)) = unusable
+  | maybe False (>0) $ s ≫= (getCds n !?) = unusable
   | is Focus n                            = skill'
   | isNothing s ∧ noInterrupt channel     = skill'
   | classes ⩀ getStun n                   = unusable
@@ -543,16 +540,16 @@ matchRequire (HasI i l) t n@Ninja{..}
 -- ** MODIFICATION
 
 nEfs ∷ Ninja → [Effect]
-nEfs = concatMap statusEfs ∘ nStats
+nEfs = catMap statusEfs ∘ nStats
 
 nStats ∷ Ninja → [Status]
-nStats n@Ninja{..} = map (getStat n) nStatuses
+nStats n@Ninja{..} = getStat n ↤ nStatuses
 
 getStat ∷ Ninja → Status → Status
-getStat n@Ninja{..} st = st' { statusEfs = bst ∘ filter keep $ statusEfs st' }
-  where st'  = rawStat n st
+getStat n@Ninja{..} st = st' { statusEfs = bst }
+  where bst  = boost (getBoost (statusSrc st) n) ↤∘ mfilter keep $ statusEfs st'
+        st'  = rawStat n st
         efs  = concatMap (statusEfs ∘ rawStat n) nStatuses
-        bst  = map (boost $ getBoost (statusSrc st) n)
         keep Enrage       = True
         keep Seal         = True
         keep (Stun _)     = Focus ∉ efs
@@ -568,11 +565,11 @@ getStat n@Ninja{..} st = st' { statusEfs = bst ∘ filter keep $ statusEfs st' }
 rawStat ∷ Ninja → Status → Status
 rawStat n@Ninja{..} st
   | fromSelf n st = st
-  | Enrage ∈ efs  = st { statusEfs = filter enraged         $ statusEfs st }
-  | Seal   ∈ efs  = st { statusEfs = filter (not ∘ helpful) $ statusEfs st }
+  | Enrage ∈ efs  = st { statusEfs = enraged }
+  | Seal   ∈ efs  = st { statusEfs = mfilter (not ∘ helpful) $ statusEfs st }
   | otherwise     = st
-  where efs = concatMap statusEfs nStatuses
-        enraged ef = helpful ef ∨ sticky ef ∨ isCost ef
+  where efs = catMap statusEfs nStatuses
+        enraged = [ ef | ef ← statusEfs st, helpful ef ∨ sticky ef ∨ isCost ef ]
 
 -- | 'Exhaust' and 'Unexhaust' are not canceled by immunity.
 isCost ∷ Effect → Bool
@@ -603,7 +600,7 @@ is ∷ Effect → Ninja → Bool
 is ef = (ef ∈) ∘ nEfs
 
 is' ∷ (Class → Effect) → Ninja → Bool
-is' efs = (map efs allClasses ⩀) ∘ nEfs
+is' efs = ((efs ↤ allClasses) ⩀) ∘ nEfs
 
 numActive ∷ Text → Ninja → Int
 numActive l n@Ninja{..}
@@ -613,33 +610,36 @@ numActive l n@Ninja{..}
   where stacks = numStacks l nId n
 
 numStacks ∷ Text → Slot → Ninja → Int
-numStacks l src = length ∘ filter (lMatch l src) ∘ nStatuses
+numStacks l src Ninja{..} = length ∘ mfilter (lMatch l src) $ nStatuses
 
 -- * TRAPS
 
-classTrs ∷ Bool → (Class → Trigger) → [Class] → Ninja → Seq TrapTransform
+classTrs ∷ (Foldable a, Functor a)
+         ⇒ Bool → (Class → Trigger) → a Class → Ninja → Seq TrapTransform
 classTrs False _  _       _     = ø
-classTrs True  tr classes n = seqConcat $ map classTrigger classes
+classTrs True  tr classes n = catMap classTrigger classes
     where classTrigger cla = getTraps True (tr cla) n
    
 getPerTraps ∷ Bool → Trigger → Int → Ninja → Seq (Game → Game)
 getPerTraps False _  _      _         = ø
-getPerTraps True  tr amount Ninja{..} = traps ◇ hooks
-  where traps = trapEf' <$> S.filter ((tr ≡) ∘ trapTrigger) nTraps
-        hooks = S.fromList ∘ map (hookEf ∘ snd) ∘ filter ((tr ≡) ∘ fst) 
-              $ characterHooks nCharacter
-        trapEf' Trap{..} = trapEf trapTrack nId
-        hookEf f = fn nId $ (flip f) amount
+getPerTraps True  tr amount Ninja{..} = traps ⧺ hooks
+  where traps = [ trapEf trapTrack nId | Trap{..} ← nTraps, trapTrigger ≡ tr ]
+        hooks = S.fromList 
+                [ fn nId $ flip f amount | (p, f) ← characterHooks nCharacter
+                                         , tr ≡ p 
+                                         ]
 
 getTrackTraps ∷ Bool → Trigger → Ninja → Seq (Game → Game)
 getTrackTraps False _ _ = ø
-getTrackTraps True tr Ninja{..} = trapEf' <$> S.filter match nTraps
-  where trapEf' Trap{..} = trapEf trapTrack nId
-        match Trap{..} = trapTrigger ≡ tr ∧ trapDur ≤ 2 ∧ trapTrack > 0
+getTrackTraps True tr Ninja{..} = [ trapEf trapTrack nId | Trap{..} ← nTraps
+                                                         , trapTrigger ≡ tr
+                                                         , trapDur ≤ 2 
+                                                         , trapTrack > 0 
+                                                         ]
 
 getTraps ∷ Bool → Trigger → Ninja → Seq TrapTransform
 getTraps False _ _ = ø
-getTraps True tr Ninja{..} = trapEf <$> S.filter ((tr ≡) ∘ trapTrigger) nTraps
+getTraps True tr Ninja{..} = [ trapEf | Trap{..} ← nTraps, trapTrigger ≡ tr ]
    
 -- * TRIGGERING EFFECTS
 
@@ -655,7 +655,7 @@ getOne matches n@Ninja{..} = do
             return (n { nStatuses = stats'Del }, a, match)
 
 getOne' ∷ (Effect → Bool) → Ninja → Maybe Ninja
-getOne' = (fst3 <$>) ∘ getOne
+getOne' = fst3 ↤∘ getOne
   where fst3 (Just (n, _, _)) = Just n
         fst3 _                = Nothing
 
@@ -663,12 +663,12 @@ getOne' = (fst3 <$>) ∘ getOne
 -- Returns ('statusSrc', 'statusL', 'copyTo', 'copyDuration').
 copy ∷ [Class] → Ninja → Bool → [(Slot, Text, Int, Int)]
 copy classes Ninja{..} harm = mapMaybe ifCopy allStatuses
-  where allStatuses = filter (any matches ∘ statusEfs) nStatuses
+  where allStatuses = mfilter (any matches ∘ statusEfs) nStatuses
         matches (Copy _ cla _ noharm) = (harm ∨ noharm) ∧ cla ∈ classes
         matches _                     = False
-        ifCopy Status{..} = case find matches statusEfs of
-            Just Copy{..} → Just (statusSrc, statusL, copyTo, copyDuration)
-            _             → Nothing
+        ifCopy Status{..} = [ (statusSrc, statusL, copyTo, copyDuration) 
+                                | Copy{..} ← find matches statusEfs 
+                            ]
 
 -- | Trigger a 'Counter'.
 counter ∷ [Class] → Ninja → Ninja → Maybe Ninja
@@ -689,9 +689,8 @@ counter classes n nt
 parry ∷ Skill → Ninja → Maybe (Ninja, Slot, Int)
 parry skill@Skill{..} n@Ninja{..} = case parried of
     Just wasParried → return wasParried
-    Nothing → case getOne matchesOne n of
-            Just (n'', Parry _ a, st) → Just (n'', statusC st, a)
-            _                        → Nothing
+    Nothing → 
+        [ (n'', statusC st, a) | (n'', Parry _ a, st) ← getOne matchesOne n ]
     where n' = n { nParrying = skill : nParrying }
           matchesAll (ParryAll Uncounterable _) = True
           matchesAll (ParryAll cla _) = cla ∈ classes ∧ Uncounterable ∉ classes
@@ -708,13 +707,13 @@ parry skill@Skill{..} n@Ninja{..} = case parried of
 reapply ∷ [Class] → Ninja → Maybe Slot
 reapply classes Ninja{..}
   | Unreflectable ∈ classes = Nothing
-  | otherwise = statusC <$> find ((Reapply ∈) ∘ statusEfs) nStatuses
+  | otherwise = statusC ↤ find ((Reapply ∈) ∘ statusEfs) nStatuses
 
 -- | Trigger a 'Redirect'.
 redirect ∷ [Class] → Ninja → Maybe Slot
 redirect classes Ninja{..}
   | Unreflectable ∈ classes = Nothing
-  | otherwise = statusC <$> find (any match ∘ statusEfs) nStatuses
+  | otherwise = statusC ↤ find (any match ∘ statusEfs) nStatuses
   where match (Redirect cla) = cla ∈ classes
         match _              = False
 
@@ -728,11 +727,10 @@ reflect clas n nt
 
 -- | Trigger a 'SnareTrap'.
 snareTrap ∷ Skill → Ninja → Maybe (Ninja, Int)
-snareTrap Skill{..} n@Ninja{..} = case getOne matchesOne n of
-    Just (n', SnareTrap _ a, _) → Just (n', a)
-    _                           → Nothing
-    where matchesOne (SnareTrap cla _) = cla ∈ classes
-          matchesOne _                 = False
+snareTrap Skill{..} n@Ninja{..} 
+    = [ (n', a) | (n', SnareTrap _ a, _) ← getOne matchesOne n ]
+  where matchesOne (SnareTrap cla _) = cla ∈ classes
+        matchesOne _                 = False
 
 -- | Trigger a 'Swap'.
 swap ∷ [Class] → Ninja → Maybe Status

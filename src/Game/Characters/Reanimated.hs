@@ -175,7 +175,7 @@ reanimatedCsS =
                               ∘ addStacks' (-1) "Human Path")
                     ]
         , changes = \n skill → skill 
-            { desc = "Nagato restores " ☩ tshow (numActive "Human Path" n) ☩ " health and deals " ☩ tshow (numActive "Human Path" n) ☩ " piercing damage to an enemy. If the target deals any damage next turn, the damage and healing of this skill will be set to the damage they dealt for 1 turn and its cost will remain increased." }
+            { desc = "Nagato restores " ⧺ tshow (numActive "Human Path" n) ⧺ " health and deals " ⧺ tshow (numActive "Human Path" n) ⧺ " piercing damage to an enemy. If the target deals any damage next turn, the damage and healing of this skill will be set to the damage they dealt for 1 turn and its cost will remain increased." }
         }
       ]
     , [ newSkill

@@ -83,16 +83,16 @@ component =
   eval ∷ Query ~> ParentDSL State Query ChildQuery ChildSlot SocketMsg (Aff (Effects m))
   eval = case _ of
       HandleQueue (Select.Queued Practice team) next → do
-        let teamList = intercalate "/" ∘ reverse $ map characterName_ team
+        let teamList = intercalate "/" ∘ reverse $ characterName_ ↤ team
         {response} ← HH.liftAff $ AX.get ("/api/practicequeue/" ⧺ teamList)
         HH.modify _{ gameInfo = decodeJson response, stage = Practicing }
         HH.liftEff $ progress (Milliseconds 0.0) 1 1
-        HH.liftEff $ sound SFXStartFirst
+        sound SFXStartFirst
         pure next
       HandleQueue (Select.Queued Quick team) next → do
-        let teamList = intercalate "/" ∘ reverse $ map characterName_ team
+        let teamList = intercalate "/" ∘ reverse $ characterName_ ↤ team
         HH.modify _{ stage = Queueing }
-        HH.liftEff $ sound SFXApplySkill
+        sound SFXApplySkill
         HH.raise $ SocketMsg teamList
         pure next
       HandleQueue _ next →
@@ -115,7 +115,7 @@ component =
               Left _ → pure next
               Right (GameInfo {gamePar}) → do
                 HH.liftEff $ progress turnTime (1 - gamePar) gamePar
-                HH.liftEff $ sound SFXStartFirst
+                sound SFXStartFirst
                 pure next
           Playing → do
             case jsonParser msg ≫= decodeJson of

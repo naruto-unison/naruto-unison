@@ -906,7 +906,7 @@ akatsukiCsS =
         , effects = [(Self, prolongChannel 2 "Summoning: Gedo Statue"
                           • hide' "dragon" 0 []
                           • ifnotStacks "gedo" 3 § hide' "gedo" 0 [])]
-        , changes = changeWith "Phantom Dragon" $ \_ skill → skill { cost = χØ }
+        , changes = changeWith "Phantom Dragon" $ \_ skill → skill { cost = ø }
         }
       ] 
     , [ newSkill

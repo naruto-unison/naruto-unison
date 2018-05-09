@@ -1,4 +1,4 @@
-module FFI.Import (bg, cs, cs', hostname, user, userTeam) where
+module FFI.Import (avatars, bg, cs, cs', hostname, user, userTeam) where
 
 import Prelude
 
@@ -11,6 +11,7 @@ import Data.StrMap                 (StrMap)
 
 import Structure (Character, User)
 
+foreign import avatars  ∷ Array String
 foreign import bg       ∷ String
 foreign import cs       ∷ StrMap Character
 foreign import cs'      ∷ Array Character

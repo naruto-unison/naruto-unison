@@ -51,16 +51,16 @@ instance ToJSON GameInfo where
         , "par"             .= gamePar
         , "game"            .= gameGame
         , "left"            .= gameLeft
-        , "userTeam"        .= map (characterName ∘ nCharacter) 
-                                   (alliesP gamePar $ gameNinjas gameGame)
-        , "opponentTeam"    .= map (characterName ∘ nCharacter) 
-                                   (enemiesP gamePar $ gameNinjas gameGame)
+        , "userTeam"        .= team alliesP
+        , "opponentTeam"    .= team enemiesP
         , "gameVsUser"      .= gameVsUser
         , "gamePar"         .= gamePar
         , "gameLeft"        .= gameLeft
         , "gameGame"        .= gameGame
-        , "gameCharacters"  .= (nCharacter <$> gameNinjas gameGame)
+        , "gameCharacters"  .= (nCharacter ↤ gameNinjas gameGame)
         ]
+      where team f = (characterName ∘ nCharacter) 
+                   ↤ f gamePar (gameNinjas gameGame)
 
 data GameMessage = Enact Game
 
@@ -108,7 +108,7 @@ instance Yesod App where
             Just root → root
 
     makeSessionBackend ∷ App → IO (Maybe SessionBackend)
-    makeSessionBackend _ = Just <$> defaultClientSessionBackend
+    makeSessionBackend _ = Just ↤ defaultClientSessionBackend
         120    -- timeout in minutes
         "config/client_session_key.aes"
 
@@ -213,7 +213,6 @@ newUser ident verkey = User { userIdent      = ident
                             , userClan       = Nothing
                             , userTeam       = Nothing
                             , userMuted      = False
-                            , userFlipped    = False
                             }
 
 instance YesodAuth App where
@@ -230,7 +229,7 @@ instance YesodAuth App where
         x <- getBy $ UniqueUser ident
         case x of
             Just (Entity uid _) → return $ Authenticated uid
-            Nothing → Authenticated <$> insert (newUser ident Nothing)
+            Nothing → Authenticated ↤ insert (newUser ident Nothing)
       where ident = credsIdent creds
     authPlugins app = authEmail
                     : extraAuthPlugins
@@ -299,18 +298,16 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
     setVerifyKey uid key = liftHandler ∘ runDB $ update uid [UserVerkey =. Just key]
     verifyAccount uid = liftHandler ∘ runDB $ do
         mu ← get uid
-        case mu of
-            Nothing → return Nothing
-            Just _ → do
+        case mu of 
+          Nothing → return Nothing
+          Just _  → do
                 update uid [UserVerified =. True]
                 return $ Just uid
     getPassword = liftHandler ∘ runDB ∘ fmap (join ∘ fmap userPassword) ∘ get
     setPassword uid pass = liftHandler ∘ runDB $ update uid [UserPassword =. Just pass]
     getEmailCreds email = liftHandler ∘ runDB $ do
         mu ← getBy ∘ UniqueUser $ toLower email
-        case mu of
-            Nothing → return Nothing
-            Just (Entity uid u) → return $ Just EmailCreds
+        return $ mu ↦ \(Entity uid u) → EmailCreds
                 { emailCredsId = uid
                 , emailCredsAuthId = Just uid
                 , emailCredsStatus = isJust $ userPassword u

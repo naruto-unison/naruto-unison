@@ -5,13 +5,14 @@ module Component.Common
   , QueueType(..)
   , SelectQuery(..)
   , PlayQuery(..)
+  , Previewing(..)
   , SocketMsg(..)
   , Viewable(..)
   , hCost
   , parseDesc
   , charName
   , cIcon
-  , _a, _b, _c, _i, _span, _src, _style, _minor
+  , _a, _b, _c, _i, _span, _src, _style, _txt, _minor
   ) where
 
 import Prelude
@@ -39,10 +40,11 @@ data ChildQuery a = QuerySelect SelectQuery a
 
 data SelectQuery = SwitchLogin                    
                  | Scroll Int               
-                 | Preview Character  
+                 | Preview Previewing  
                  | Team ArrayOp Character 
                  | Enqueue QueueType  
-                 | Vary Int Int             
+                 | Vary Int Int        
+                 | ChooseAvatar String     
   
 data ArrayOp = Add | Delete
 
@@ -58,7 +60,10 @@ data PlayQuery = Enact ArrayOp Act
                | Toggle Act
                | Unhighlight
                | View Viewable
-               
+             
+data Previewing = NoPreview 
+                | PreviewUser
+                | PreviewCharacter Character  
 
 data Viewable = ViewBarrier   Barrier
               | ViewCharacter Character
@@ -68,7 +73,7 @@ data Viewable = ViewBarrier   Barrier
               | ViewUser      User
 
 hCost ∷ ∀ a b. Chakras → Array (HTML a b)
-hCost = map hCost' ∘ unχ
+hCost = hCost' ↤∘ unχ
   where hCost' s = H.div [_c $ "chakra " ⧺ s] []
 
 parseDesc ∷ ∀ a b. String → Array (HTML a b)
@@ -110,7 +115,7 @@ charName ∷ ∀ a b. Character → Array (HTML a b)
 charName (Character {characterName}) = charName' before after
   where {before, after} = sillySplit (Pattern " (") characterName
 
-type Icon = ∀ a b. String → IProp ( src ∷ String | b ) a
+type Icon = ∀ a b. String → IProp (src ∷ String | b) a
 
 cIcon ∷ Character → Icon
 cIcon (Character {characterName}) = memoize $ \a → P.src 
@@ -119,23 +124,27 @@ cIcon (Character {characterName}) = memoize $ \a → P.src
   where shorten' = shorten ∘ takeWhile ('(' ≠ _)
   
 
-_i   ∷ ∀ a b. String → IProp ( id ∷ String | b ) a 
+_i   ∷ ∀ a b. String → IProp (id ∷ String | b) a 
 _i   = P.id_
-_c   ∷ ∀ a b. String → IProp ( class ∷ String | b ) a
+_c   ∷ ∀ a b. String → IProp (class ∷ String | b) a
 _c   = P.class_ ∘ ClassName
-_src ∷ ∀ a b. String → IProp ( src ∷ String | b ) a
+_src ∷ ∀ a b. String → IProp (src ∷ String | b) a
 _src = P.src
-_style ∷ ∀ a b. String → IProp ( style ∷ String | b ) a
+_style ∷ ∀ a b. String → IProp (style ∷ String | b) a
 _style = P.attr (H.AttrName "style")
 
+_txt ∷ ∀ a b. String → Array (HTML a b)
+_txt = (_ : []) ∘ H.text
+
 _a ∷ ∀ a b. String → String → String → String → HTML a b
-_a id' class' href' text' = H.a [_i id', _c class', P.href href'] [H.text text']
+_a id' class' href' = H.a [_i id', _c class', P.href href'] ∘ _txt
 
 _b ∷ ∀ a b. String → HTML a b
-_b text' = H.b_ [H.text text']
+_b = H.b_ ∘ _txt
 
 _span ∷ ∀ a b. String → HTML a b
-_span text' = H.span_ [H.text text']
+_span = H.span_ ∘ _txt
+
 
 _minor ∷ ∀ a b. String → HTML a b
-_minor text' = H.span [_c "minor"] [H.text text']
+_minor = H.span [_c "minor"] ∘ _txt

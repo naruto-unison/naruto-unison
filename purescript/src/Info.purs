@@ -22,9 +22,8 @@ type Info = { name    ∷ String
 
 infos ∷ Ninja → Array Info
 infos (Ninja {nStatuses, nTraps}) = statuses' ⧺ traps
-  where statuses  = map infoStatus nStatuses
-        traps     = map concatInfo ∘ map reduce ∘ groupBy eqInfo 
-                  $ map infoTrap nTraps
+  where statuses  = infoStatus ↤ nStatuses
+        traps     = concatInfo ↤ reduce ↤ groupBy eqInfo (infoTrap ↤ nTraps)
         statuses' = filter (not ∘ any eqInfo traps) statuses
         reduce ts@(t :| ts') = case find (eqInfo t) statuses of
             Just match → match :| t : ts'
