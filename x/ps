@@ -1,0 +1,3 @@
+cd purescript
+pulp build -- --stash --censor-codes=ImplicitImport
+pulp browserify --optimise --skip-compile --to ../templates/play/ps.julius
