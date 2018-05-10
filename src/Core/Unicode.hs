@@ -1,16 +1,21 @@
 -- | Various unicode synonyms for basic functions.
 module Core.Unicode
     ( module Import
-    , (↦), (↤), (∈), (∉), (▷), (⧺), (◁), (⩀), (÷), (∘), (↤∘), (٪), (—), ø
+    , (↦), (↤), (∈), (∉), (◁), (▷), (⧺), (⩀), (÷), (∘), (↤∘), (٪), (—), ø
     ) where
 
+import Prelude
 import Prelude.Unicode       as Import hiding ((¬), (÷), (∘), (∈), (∉), (⧺)) 
 import Control.Monad.Unicode as Import
 import Data.List.Unicode     as Import hiding ((∈), (∉), (⧺))
 
-import Data.Monoid   (Monoid, (<>), mempty)
-import Data.List     (intersect)
-import Data.Sequence (Seq, (|>), (<|))
+import qualified Data.List.NonEmpty as L
+import qualified Data.Sequence      as S
+
+import Data.Monoid        (Monoid, (<>), mempty)
+import Data.List          (intersect)
+import Data.List.NonEmpty (NonEmpty(..))
+import Data.Sequence (Seq)
 
 -- | 'elem'
 infix 4 ∈
@@ -24,17 +29,22 @@ infix 4 ∉
 (∉) = notElem
 {-# INLINE (∉) #-}
 
+class Pend a where
+  infixl 5 ◁
+  (◁) ∷ b → a b → a b
+  infixr 5 ▷
+  (▷) ∷ a b → b → a b
 -- | '|>'
-infixl 5 ▷
-(▷) ∷ Seq a → a → Seq a
-(▷) = (|>)
-{-# INLINE (▷) #-}
 
--- | '<|'
-infixr 5 ◁
-(◁) ∷ a → Seq a → Seq a
-(◁) = (<|)
-{-# INLINE (◁) #-}
+instance Pend [] where
+  (◁) = (:)
+  a ▷ b = a ⧺ [b]
+instance Pend NonEmpty where
+  (◁) = (L.<|)
+  (x:|xs) ▷ x' = x :| xs ▷ x'
+instance Pend Seq where
+  (◁) = (S.<|)
+  (▷) = (S.|>)
 
 infixr 5 ⧺
 (⧺) ∷ Monoid m ⇒ m → m → m

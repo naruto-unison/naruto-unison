@@ -1,8 +1,9 @@
+{-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide #-}
 
 module Game.Characters.Shippuden.Organizations (organizationCsS) where
 
-import Core.Unicode
+import Preludesque
 import Game.Functions
 import Game.Game
 import Game.Structure

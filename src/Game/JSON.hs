@@ -1,22 +1,18 @@
 -- | 'ToJSON' instances that require functions from 'Game.Functions'.
 module Game.JSON () where 
 
+import Preludesque
+
 import Control.Monad
-import Data.Foldable
-import Data.List
-import GHC.List      (errorEmptyList)
 import Yesod         ((.=), ToJSON, toJSON, object)
 
 import Calculus
-import Core.Unicode
 import Game.Structure
 import Game.Functions
 
--- | List must be non-empty.
-reduceStatus ∷ [Status] → Status
-reduceStatus []              = errorEmptyList "reduceStatus"
-reduceStatus [statuses]      = statuses
-reduceStatus (st : statuses) = st { statusL = f $ statusL st }
+reduceStatus ∷ NonEmpty Status → Status
+reduceStatus (statuses:|[]) = statuses
+reduceStatus (st:|statuses) = st { statusL = f $ statusL st }
   where f = (⧺ (" (" ⧺ tshow (1 + length statuses) ⧺ ")"))
 
 groupStatuses ∷ Status → Status → Bool

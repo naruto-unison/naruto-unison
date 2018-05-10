@@ -6,6 +6,7 @@
 -- | Persistent fields.
 module Core.Fields where
 
+import Preludesque
 import GHC.Generics
 import Data.Aeson
 import ClassyPrelude.Yesod (derivePersistField)

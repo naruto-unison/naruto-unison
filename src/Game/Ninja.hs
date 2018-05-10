@@ -1,16 +1,15 @@
 -- | A collection of @'Ninja' → 'Ninja'@ transformations.
 module Game.Ninja where
 
+import Preludesque
+
 import qualified Data.Sequence as S
 
 import Control.Monad
-import Data.List
-import Data.Maybe
 import Data.Sequence (adjust', index)
 import Data.Text     (Text)
 
 import Calculus
-import Core.Unicode
 import Game.Structure
 import Game.Functions
 
@@ -103,17 +102,20 @@ decr n@Ninja{..} = case findMatch nStatuses of
               , nChannels  = mapMaybe decrTurn newChans 
                            ⧺ mapMaybe decrTurn nChannels
               , nTags      = mapMaybe decrTurn nTags
+              , nTraps     = mapMaybe decrTurn nTraps    
               , newChans   = []
-              , nTraps     = catJusts $ decrTurn        ↤ nTraps    
-              , nVariants  = mapMaybe   decrTurn        ↤ nVariants 
+              , nVariants  = decrTurn'                  ↤ nVariants 
               , nCopied    =        (≫= decrTurn)       ↤ nCopied 
               , nCooldowns = ((max 0 ∘ subtract 1) ↤) ↤ nCooldowns 
               , nParrying  = []
               }
-  where findMatch          = find match ∘ reverse ∘ catMap statusEfs 
+  where findMatch          = find match ∘ reverse ∘ concatMap statusEfs 
                            ∘ mfilter ((≤ 2) ∘ statusDur)
         match (Snapshot _) = True
         match _            = False
+        decrTurn' xs = case mapMaybe decrTurn $ toList xs of
+                          x:xs' → x :| xs'
+                          []    → noVariant :| []
 
 kill ∷ Bool -- ^ Can be prevented by 'Endure'
      → Ninja 
@@ -208,9 +210,9 @@ unCounter n@Ninja{..} = n
 -- | Resets matching 'nVariants'.
 unVariant ∷ Text → Ninja → Ninja
 unVariant l n@Ninja{..} = n { nVariants = f ↤ nVariants }
-  where f = ensure ∘ mfilter ((l ≠) ∘ variantL)
-        ensure [] = [noVariant]
-        ensure a  = a
+  where f = ensure ∘ mfilter ((l ≠) ∘ variantL) ∘ toList
+        ensure []     = noVariant :| []
+        ensure (x:xs) = x :| xs
 
 -- | Updates an element in 'nCooldowns'. If 'True', also increments 'nCharges'.
 updateCd ∷ Bool → Int → Skill → Int → Ninja → Ninja

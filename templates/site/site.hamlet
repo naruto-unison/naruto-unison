@@ -1,0 +1,24 @@
+<!-- Page Contents -->
+
+<div #changelog>
+  ^{chang}
+
+$if (mcurrentRoute ∈ [Just PlayR])
+    ^{widget}
+$else
+    <a href=/ #banner>
+      <img src=/img/logo.png>
+        <span>Naruto Unison</span></div>
+    <div .breadcrumb>
+        <ul >
+            $forall bc <- parents
+                <li>
+                    <a href="@{fst bc}">#{snd bc}
+            <li .active>#{title}
+    $maybe msg <- mmsg
+      <div .container.alert.alert-info #message>#{msg}
+
+    <div .container>
+        <div .row>
+            <div .col-md-12>
+                ^{widget}

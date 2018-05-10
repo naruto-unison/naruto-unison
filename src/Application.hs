@@ -18,6 +18,8 @@ module Application
     , db
     ) where
 
+import Preludesque
+
 import qualified STMContainers.Map   as M
 
 import Control.Concurrent.STM.TChan         (newTChanIO)

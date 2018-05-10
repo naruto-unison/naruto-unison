@@ -1,8 +1,9 @@
+{-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide #-}
 
 module Game.Characters.Shippuden.Versions (versionCsS) where
 
-import Core.Unicode
+import Preludesque
 import Game.Functions
 import Game.Game
 import Game.Structure
@@ -102,10 +103,10 @@ versionCsS =
         , effects = [(Self, tag 1)]
         }
       ]
-    , concat [invuln "Chakra Skin" "Naruto" [ Chakra] 
-             , invuln "Hide" "Naruto" [Mental]
-             , invuln "Block" "Kurama" [Physical]
-             ]
+     , [ invuln1 "Chakra Skin" "Naruto" [Chakra]
+       , invuln1 "Hide" "Naruto" [Mental]
+       , invuln1 "Block" "Kurama" [Physical]
+       ]
     ] []
   , Character
     "Curse Mark Sasuke"

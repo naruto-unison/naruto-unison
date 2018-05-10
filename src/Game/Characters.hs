@@ -1,12 +1,12 @@
 -- | Collection of all 'Character's.
 module Game.Characters (cs, cs') where
 
+import Preludesque
+
 import Data.HashMap.Strict (fromList, HashMap)
-import Data.List
 import Data.Text           (Text)
 
 import Calculus
-import Core.Unicode
 import Game.Structure
 
 import Game.Characters.Original.Exams
@@ -44,13 +44,11 @@ mark m c = c { characterName = characterName c ⧺ " (" ⧺ m ⧺ ")" }
 addClasses ∷ Character → Character
 addClasses c@Character{..} = c { characterSkills = doSkills ↤ characterSkills }
 
-doSkills ∷ [Skill] → [Skill]
-doSkills []               = []
-doSkills [skill]          = [doSkill skill]
-doSkills (skill : skills) = doSkill skill : map (doSkill ∘ v) skills
+doSkills ∷ NonEmpty Skill → NonEmpty Skill
+doSkills (x:|xs) = doSkill x :| (doSkill ∘ v) ↤ xs
   where v skill' = skill' 
-            { varicd = varicd skill' ∨ cd skill ≠ cd skill' 
-                     ∨ (label skill ∉ [label skill', tInit (label skill)])
+            { varicd = varicd skill' ∨ cd x ≠ cd skill' 
+                     ∨ (label x ∉ [label skill', tInit (label x)])
             }
 
 doSkill ∷ Skill → Skill

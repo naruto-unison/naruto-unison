@@ -12,25 +12,24 @@ import Halogen.HTML            as H
 import Halogen.HTML.Events     as E
 import Halogen.HTML.Properties as P
 
-import Data.Argonaut.Generic.Aeson (decodeJson)
-import Data.Argonaut.Parser        (jsonParser)
 import Control.Monad.Aff           (Aff)
 import Data.Array 
-import Data.Either
 import Data.Maybe 
 import Data.String                 (joinWith)
 import Data.StrMap                 (lookup)
 import DOM                         (DOM)
 import DOM.Event.Types             (MouseEvent)
+import Global                      (encodeURIComponent)
 import Halogen.HTML                (HTML, img)
 import Network.HTTP.Affjax         (AJAX)
+import Network.HTTP.StatusCode     (StatusCode(..))
 import Halogen                     ( Component, ComponentDSL, ComponentHTML
                                    , get, liftAff, liftEff, modify, raise
                                    )
 
-import FFI.Form                    (getForm)
-import FFI.Import                  (avatars, cs', getPageSize, user, userTeam)
-import FFI.Sound                   (AUDIO, Sound(..), sound)
+import FFI.Form   (getForm)
+import FFI.Import (avatars, cs', getPageSize, reload, user, userTeam)
+import FFI.Sound  (AUDIO, Sound(..), sound)
 
 import Operators
 import Structure
@@ -56,7 +55,7 @@ type State = { queueing   ∷ Boolean
              , variants   ∷ Array Int
              , avatar     ∷ Maybe String
              , pageSize   ∷ Int
-             , updateFail ∷ Array String
+             , updateFail ∷ Boolean
              }
 
 click ∷ ∀ a. SelectQuery → P.IProp (onClick ∷ MouseEvent | a) (ChildQuery Unit)
@@ -85,7 +84,7 @@ component = Halogen.component
                  , variants:   [0,0,0,0]
                  , avatar:     avatar_ ↤ user
                  , pageSize:   36
-                 , updateFail: []
+                 , updateFail: false
                  }
  
   render ∷ State → ComponentHTML ChildQuery
@@ -160,15 +159,15 @@ component = Halogen.component
               form       ← mform
               background ← lookup "background" form
               name       ← lookup "name"       form
-              pure $ "api/update/" ⧺ name ⧺ "/b" ⧺ background ⧺ "/" ⧺ avatar'
+              pure $ "api/update/" ⧺ name ⧺ "/b" ⧺ background ⧺ "/" 
+                   ⧺ encodeURIComponent avatar'
         case murl of
           Nothing → 
-            modify _{ updateFail = [ "Malformed URL" ] }
+            modify _{ updateFail = true }
           Just url → do
-            {response} ← liftAff $ AX.get url
-            case jsonParser response ≫= decodeJson of
-              Left _ → modify id
-              Right (JSONFail {errors}) → modify _{ updateFail = errors }
+            {status} ∷ AX.AffjaxResponse String ← liftAff $ AX.get url
+            if status ≡ StatusCode 200 then liftEff reload 
+                                       else modify _{ updateFail = true }
     where index' a pageSize index
             | a ≡ 1 ∧ index + pageSize ≥ csSize = 0
             | a ≡ 1            = index + pageSize
@@ -185,10 +184,10 @@ previewBox { avatar, updateFail
            } = cons $
   H.form [_i settingsId, _c "parchment"]
   [ H.h1_ $ _txt "Account Settings"
-  , H.p_ 
-    [ _span "Name"
-    , H.input [P.type_ P.InputText, P.name "name", P.value name]
-    , H.span [_i "userfail"] $ map (H.text ∘ (_ ⧺ ". ")) updateFail
+  , H.p_ $ catMaybes
+    [ Just $ _span "Name"
+    , Just $ H.input [P.type_ P.InputText, P.name "name", P.value name]
+    , updateFail ?? H.span [_i "userfail"] [H.text "Username already taken!"]
     ]
   , H.p_
     [ _span "Background" 

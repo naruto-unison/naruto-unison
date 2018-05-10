@@ -193,9 +193,9 @@ body {
   margin: 0.5em 0;
 }
 #accountSettings span#userfail {
-  display: none;
   color: #e00;
   width: inherit;
+  margin-left: 0.5em;
 }
 .error {
     color: #e00;

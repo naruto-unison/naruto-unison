@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide #-}
 
 module Game.Characters.Shippuden.Family (familyCsS) where

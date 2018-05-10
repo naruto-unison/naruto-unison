@@ -1,7 +1,9 @@
+{-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide #-}
 
 module Game.Characters.Shippuden.Kids (kidCsS) where
 
+import Preludesque
 import Game.Functions
 import Game.Game
 import Game.Structure

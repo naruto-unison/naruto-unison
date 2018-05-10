@@ -6,6 +6,7 @@
 
 module Core.PvE where
 
+import Preludesque
 import GHC.Generics
 import Data.Aeson
 import ClassyPrelude.Yesod (derivePersistField)

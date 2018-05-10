@@ -4,6 +4,8 @@ module Handler.Play
     , getPracticeActR, getPracticeQueueR, getPracticeWaitR
     ) where
 
+import Preludesque
+
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Text           as T
 import qualified STMContainers.Map   as M
@@ -16,8 +18,6 @@ import Data.Aeson.Encoding
 import Data.ByteString.Lazy   (ByteString)
 import Data.Either
 import Data.HashMap.Strict    ((!))
-import Data.List
-import Data.Maybe
 import Data.Ix                (inRange)
 import Data.Text              (Text)
 import Database.Persist.Postgresql
@@ -74,7 +74,7 @@ getPracticeQueueR team
       liftIO ∘ atomically ∘ M.insert game who $ appPractice app
       returnJson $ GameInfo who bot PlayerA 0 game
   where oppTeam = ["Naruto Uzumaki", "Tenten", "Sakura Haruno"]
-        ns      = (cs !) ↤∘ cat $ transpose [team, oppTeam]
+        ns      = (cs !) ↤∘ concat $ transpose [team, oppTeam]
 
 formTeam ∷ [Text] → Maybe [Character]
 formTeam team@[a, b, c]
@@ -126,7 +126,7 @@ gameSocket = do
                 return $ Just (gameInfo, writeChan, readChan)
             Announce vsWho vsUser vsTeam → do
               let game = updateChakra PlayerA (take teamSize chakRns)
-                        $ newGame (cat $ transpose [team, vsTeam])
+                        $ newGame (concat $ transpose [team, vsTeam])
                           vsWho who
               writeChan ← newTChan
               readChan ← newTChan

@@ -5,6 +5,8 @@
 -- | Test interface for 'gameSocket'.
 module Handler.Test (getTestR) where
 
+import Preludesque
+
 import Yesod
 import Yesod.WebSockets
 

@@ -11,11 +11,12 @@ module Handler.PlayPage
     , getUpdateR
     ) where
 
+import Preludesque
+
+import qualified Data.List.NonEmpty  as L
 import qualified Data.Text           as T
 import qualified Data.HashMap.Strict as M
 
-import Data.Maybe
-import Data.List
 import Data.Text  (Text)
 import Text.Hamlet
 import Yesod.WebSockets
@@ -38,18 +39,18 @@ shorten = T.map shorten' ∘ T.filter (∉ filterOut)
 
 charAvatars ∷ Character → [Text]
 charAvatars char = (root ⧺ "icon.jpg")
-                 : map (((root ⧺) ∘ (⧺ ".jpg")) ↤ shorten ∘ label ∘ head)
-                       (take 4 $ characterSkills char)
+                 : (((root ⧺) ∘ (⧺ ".jpg")) ↤ shorten ∘ label ∘ head)
+                    ↤ L.take 4 (characterSkills char)
   where root = "/img/ninja/" ⧺ shorten (characterName char) ⧺ "/"
 
 avatars ∷ [Text]
-avatars = map ("/img/icon/" ⧺)
-            [ "default.jpg"
-            , "gaaraofthefunk.jpg"
-            , "ninjainfocards.jpg"
-            , "kabugrin.jpg"
-            ]
-       ⧺ catMap charAvatars cs'
+avatars = ("/img/icon/" ⧺)
+        ↤ [ "default.jpg"
+          , "gaaraofthefunk.jpg"
+          , "ninjainfocards.jpg"
+          , "kabugrin.jpg"
+          ]
+       ⧺ concatMap charAvatars cs'
 
 isMuted ∷ Maybe User → Bool
 isMuted = maybe False userMuted
@@ -105,20 +106,22 @@ data LogType = Added | New | Rework
 data CharacterType = O | R | S
 
 changelog ∷ LogType → Text → CharacterType → Html
-changelog logType name characterType = [shamlet|
+changelog logType name characterType = case M.lookup tagName cs of
+    Nothing → [shamlet|Error: character #{tagName} not found!|]
+    Just Character{..} → [shamlet|
 #{change logType} #{display characterType}
 <ul>
-  $forall skills <- maybe [] (take 4 ∘ characterSkills) (M.lookup tagName cs)
+  $forall skills <- L.take 4 characterSkills
     <li>
       $forall skill <- separate skills
         <span .skill>
           <a data-name=#{tagName}>#{label skill}
 |]
-  where separate      = nubBy $ eqs label
-        tagName       = tag characterType
+  where separate      = nubBy (eqs label) ∘ toList
         tag O         = name
         tag R         = name ⧺ " (R)"
         tag S         = name ⧺ " (S)"
+        tagName       = tag characterType
         change Added  = "Character added:"  ∷ Text
         change New    = "New character:"    ∷ Text
         change Rework = "Character rework:" ∷ Text

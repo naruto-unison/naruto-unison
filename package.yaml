@@ -10,6 +10,7 @@ default-extensions:
 - MonadComprehensions
 - MultiWayIf
 - NamedFieldPuns
+- NoImplicitPrelude
 - OverloadedStrings
 - ParallelListComp
 - RecordWildCards

@@ -2,7 +2,6 @@
 {-# OPTIONS_HADDOCK hide #-}
 module Core.NoFoundation (module Import) where
 
-import Core.Unicode          as Import
 import Core.Model            as Import
 import Core.Settings         as Import
 import Yesod.Auth            as Import

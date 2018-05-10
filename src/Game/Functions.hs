@@ -47,18 +47,16 @@ module Game.Functions
     , targetable, usable
     ) where
 
+import Preludesque
+
 import qualified Data.Sequence as S
 
 import Control.Monad
-import Data.Foldable
-import Data.Maybe
-import Data.List
 import Data.Sequence  (Seq, (!?))
 import Data.Text      (Text)
 
 import Calculus
 import Core.Model
-import Core.Unicode
 import Game.Structure
 
 -- * ARITHMETIC
@@ -112,8 +110,8 @@ setGameChakra player chakra game@Game{..} = game
 lack ∷ Chakras → Bool
 lack (Chakras b g n t r) = b < 0 ∨ g < 0 ∨ n < 0 ∨ t < 0 ∨ r < 0
 
-χ ∷ (Foldable a, Functor a) ⇒ a ChakraType → Chakras
-χ = catMap toChak
+χ ∷ [ChakraType] → Chakras
+χ = concatMap toChak
   where toChak Blood = Chakras 1 0 0 0 0
         toChak Gen   = Chakras 0 1 0 0 0
         toChak Nin   = Chakras 0 0 1 0 0
@@ -200,14 +198,14 @@ getWeaken clas n     = sum [ weak   | Weaken cla weak    ← nEfs n, cla ∈ cla
 -- | 'Link' sum.
 getLink              ∷ Slot → Ninja → Int
 getLink c n          = sum [ link   | Link link          ← nEfs' ]
-  where nEfs' = cat [ statusEfs | Status{..} ← nStats n, statusC ≡ c ]
+  where nEfs' = concat [ statusEfs | Status{..} ← nStats n, statusC ≡ c ]
 
 -- | 'Boost' sum.
 getBoost             ∷ Slot → Ninja → Int
 getBoost c n@Ninja{..}
   | c ≡ nId   = 1
   | otherwise = product $ 1 : [ boo | Boost boo ← nEfs' ]
-  where nEfs' = cat [ statusEfs | Status{..} ← nStats n, statusC ≡ c ]
+  where nEfs' = concat [ statusEfs | Status{..} ← nStats n, statusC ≡ c ]
 
 -- | 'Exhaust' sum.
 getExhaust ∷ [Class] → Ninja → Chakras
@@ -421,7 +419,7 @@ changeWith l f n@Ninja{..}
   | otherwise                       = id
 
 -- | Increases 'cost' per 'numActive'.
-costPer ∷ (Foldable a, Functor a) ⇒ Text → a ChakraType → SkillTransform
+costPer ∷ Text → [ChakraType] → SkillTransform
 costPer l chaks n skill@Skill{..} = skill 
     { cost = cost ⧺ χ chaks *~ numActive l n }
 
@@ -449,7 +447,7 @@ targetAll _ skill@Skill{..} = skill
         f' XAlly     = XAllies
         f' a         = a
 
-setCost ∷ (Foldable a, Functor a) ⇒ a ChakraType → SkillTransform
+setCost ∷ [ChakraType] → SkillTransform
 setCost chaks _ skill = skill { cost = χ chaks }
 
 -- | Affects enemies instead of allies and allies instead of enemies.
@@ -540,7 +538,7 @@ matchRequire (HasI i l) t n@Ninja{..}
 -- ** MODIFICATION
 
 nEfs ∷ Ninja → [Effect]
-nEfs = catMap statusEfs ∘ nStats
+nEfs = concatMap statusEfs ∘ nStats
 
 nStats ∷ Ninja → [Status]
 nStats n@Ninja{..} = getStat n ↤ nStatuses
@@ -568,7 +566,7 @@ rawStat n@Ninja{..} st
   | Enrage ∈ efs  = st { statusEfs = enraged }
   | Seal   ∈ efs  = st { statusEfs = mfilter (not ∘ helpful) $ statusEfs st }
   | otherwise     = st
-  where efs = catMap statusEfs nStatuses
+  where efs = concatMap statusEfs nStatuses
         enraged = [ ef | ef ← statusEfs st, helpful ef ∨ sticky ef ∨ isCost ef ]
 
 -- | 'Exhaust' and 'Unexhaust' are not canceled by immunity.
@@ -617,7 +615,7 @@ numStacks l src Ninja{..} = length ∘ mfilter (lMatch l src) $ nStatuses
 classTrs ∷ (Foldable a, Functor a)
          ⇒ Bool → (Class → Trigger) → a Class → Ninja → Seq TrapTransform
 classTrs False _  _       _     = ø
-classTrs True  tr classes n = catMap classTrigger classes
+classTrs True  tr classes n = concatMap classTrigger classes
     where classTrigger cla = getTraps True (tr cla) n
    
 getPerTraps ∷ Bool → Trigger → Int → Ninja → Seq (Game → Game)

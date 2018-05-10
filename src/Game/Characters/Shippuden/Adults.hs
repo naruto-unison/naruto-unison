@@ -1,7 +1,9 @@
+{-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide #-}
 
 module Game.Characters.Shippuden.Adults (adultCsS) where
 
+import Preludesque
 import Game.Functions
 import Game.Game
 import Game.Structure

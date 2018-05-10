@@ -1,8 +1,9 @@
+{-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide #-}
 
 module Game.Characters.Original.Organizations (organizationCs) where
 
-import Core.Unicode
+import Preludesque
 import Game.Functions
 import Game.Game
 import Game.Structure

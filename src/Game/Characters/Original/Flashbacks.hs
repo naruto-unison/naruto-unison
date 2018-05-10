@@ -1,8 +1,9 @@
+{-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide #-}
 
 module Game.Characters.Original.Flashbacks (flashbackCs) where
 
-import Core.Unicode
+import Preludesque
 import Game.Functions
 import Game.Game
 import Game.Structure

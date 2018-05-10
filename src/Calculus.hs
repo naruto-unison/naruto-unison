@@ -5,12 +5,12 @@ module Calculus where
 
 import qualified Data.Text     as T
 
+import Preludesque hiding ((!!))
+import Data.List ((!!))
+import Data.List.NonEmpty ((<|))
 import Data.Function
-import Data.List
 import Data.Text     (Text, pack)
 import System.Random
-
-import Core.Unicode
 
 absmin ∷ (Ord a, Num a) ⇒ a → a → a
 absmin a b
@@ -80,21 +80,6 @@ duplic a = nub a ≠ a
 tshow ∷ Show a ⇒ a → Text
 tshow = pack ∘ show
 
--- | Generalized 'concat'.
-cat ∷ (Foldable a, Monoid b) ⇒ a b → b
-cat = foldr mappend mempty
-
--- | Generalized 'concatMap'.
-catMap ∷ (Functor a, Foldable a, Monoid b) ⇒ (c → b) → a c → b
-catMap f = cat ∘ (f ↤)
-
--- | Generalized 'catMaybes'.
-
-catJusts ∷ Monad m ⇒ m (Maybe a) → m a
-catJusts xs = do
-    Just x ← xs
-    return x
-
 -- | Extracts a 'Just' in a monad.
 -- Returns the error message argument if given 'Nothing'.
 tryJust ∷ Monad m ⇒ m a → Maybe a → m a
@@ -106,19 +91,13 @@ deleteOne predicate xs = before ⧺ drop 1 after
   where (before, after) = break predicate xs
 
 -- | Chooses an element of a list at random.
-pick ∷ StdGen → [a] → (a, StdGen)
-pick stdGen xs = (xs !! i, stdGen')
-  where (i, stdGen') = randomR (0, length xs - 1) stdGen
-
--- | 'Nothing' if given an empty list, otherwise 'Just' 'pick'.
-safePick ∷ StdGen → [a] → (Maybe a, StdGen)
-safePick stdGen [] = (Nothing, stdGen)
-safePick stdGen xs = (Just $ xs !! i, stdGen')
+pick ∷ StdGen → [a] → (Maybe a, StdGen)
+pick stdGen [] = (Nothing, stdGen)
+pick stdGen xs = (Just $ xs !! i, stdGen')
   where (i, stdGen') = randomR (0, length xs - 1) stdGen
 
 -- | Left equivalent of 'unfoldr' that ends when it reaches a 'Nothing'.
 {-# INLINE unfoldl #-} 
-unfoldl ∷ (a → Maybe (a, a)) → a → [a] 
-unfoldl f b0 = case f b0 of
-                  Just (a, b) → b : unfoldl f a
-                  Nothing     → []
+unfoldl ∷ (a → (a, a)) → a → NonEmpty a
+unfoldl f b0 = b <| unfoldl f a
+  where (a, b) = f b0

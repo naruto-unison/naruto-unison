@@ -11,6 +11,8 @@
 -- | Yesod foundation. Implemented in 'Application'.
 module Foundation where
 
+import Preludesque
+
 import qualified Data.CaseInsensitive    as CI
 import qualified Data.Text.Encoding      as TE
 import qualified Data.Text.Lazy.Encoding
@@ -19,7 +21,6 @@ import qualified Yesod.Core.Unsafe       as Unsafe
 import Control.Monad                 (join)
 import Control.Monad.Logger          (LogSource)
 import Control.Concurrent.STM
-import Data.Maybe
 import Data.Text                     (Text, toLower)
 import Database.Persist.Sql          (ConnectionPool, runSqlPool)
 import Network.Mail.Mime
@@ -62,7 +63,7 @@ instance ToJSON GameInfo where
       where team f = (characterName ∘ nCharacter) 
                    ↤ f gamePar (gameNinjas gameGame)
 
-data GameMessage = Enact Game
+newtype GameMessage = Enact Game
 
 data QueueMessage = Announce (Key User) User [Character]
                   | Respond  (Key User) (TChan GameMessage) (TChan GameMessage) GameInfo
@@ -102,10 +103,8 @@ type DB a = forall (m ∷ * → *).
    
 instance Yesod App where
     approot ∷ Approot App
-    approot = ApprootRequest $ \app req →
-        case appRoot $ appSettings app of
-            Nothing → getApprootText guessApproot app req
-            Just root → root
+    approot = ApprootRequest $ \app@App{..} req →
+        fromMaybe (getApprootText guessApproot app req) ∘ appRoot $ appSettings
 
     makeSessionBackend ∷ App → IO (Maybe SessionBackend)
     makeSessionBackend _ = Just ↤ defaultClientSessionBackend
@@ -119,7 +118,6 @@ instance Yesod App where
     defaultLayout widget = do
         master ← getYesod
         mmsg ← getMessage
-
         --muser ← maybeAuthPair
         mcurrentRoute ← getCurrentRoute
 

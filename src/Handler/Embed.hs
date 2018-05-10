@@ -5,6 +5,7 @@
 -- | These handlers embed files in the executable at compile time to avoid runtime dependencies and improve efficiency.
 module Handler.Embed where
 
+import Preludesque
 import Core.Import
 import Data.FileEmbed (embedFile)
 

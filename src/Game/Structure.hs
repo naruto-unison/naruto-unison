@@ -48,14 +48,13 @@ module Game.Structure
     , Variant(..), variantCD, noVariant
     ) where
   
+import Preludesque
+
 import qualified Data.Sequence as S
 import qualified Data.Text as T
 
 import Control.Monad
 import Data.Aeson
-import Data.Foldable
-import Data.List
-import Data.Maybe      (maybeToList)
 import Data.Sequence   (adjust', fromList, index, Seq, update)
 import Data.Text       (splitOn, Text)
 import Data.Text.Read
@@ -64,7 +63,6 @@ import Yesod           (PathPiece, toPathPiece, fromPathPiece)
 
 import Calculus
 import Core.Model
-import Core.Unicode
 
 -- Each player controls 3 'Ninja's.
 teamSize ∷ Int
@@ -568,7 +566,7 @@ instance Labeled ChannelTag where
 -- | An out-of-game character.
 data Character = Character { characterName   ∷ Text
                            , characterBio    ∷ Text
-                           , characterSkills ∷ [[Skill]]
+                           , characterSkills ∷ NonEmpty (NonEmpty Skill)
                            , characterHooks  ∷ [(Trigger, Ninja → Int → Ninja)]
                            } deriving (Generic, ToJSON)
 instance Eq Character where
@@ -672,23 +670,23 @@ newGame ns a b = Game { gamePlayers = (a, b)
                       }
 
 -- | In-game character, indexed between 0 and 5.
-data Ninja = Ninja { nId        ∷ Slot               -- ^ 'gameNinjas' index (0-5)
+data Ninja = Ninja { nId        ∷ Slot                   -- ^ 'gameNinjas' index (0-5)
                    , nCharacter ∷ Character
-                   , nHealth    ∷ Int                -- ^ Starts at @100@
-                   , nCooldowns ∷ Seq (Seq Int)      -- ^ Starts at 'S.empty'
-                   , nCharges   ∷ Seq Int            -- ^ Starts at 4 @0@s
-                   , nVariants  ∷ Seq [Variant]      -- ^ Starts at 4 @0@s
-                   , nCopied    ∷ Seq (Maybe Copied) -- ^ Starts at 4 'Nothing's
-                   , nDefense   ∷ [Defense]          -- ^ Starts at @[]@
-                   , nBarrier   ∷ [Barrier]          -- ^ Starts at @[]@
-                   , nStatuses  ∷ [Status]           -- ^ Starts at @[]@
-                   , nChannels  ∷ [Channel]          -- ^ Starts at @[]@
-                   , newChans   ∷ [Channel]          -- ^ Starts at @[]@
-                   , nTraps     ∷ (Seq Trap)         -- ^ Starts at 'S.empty'
-                   , nFace      ∷ [Face]             -- ^ Starts at @[]@
-                   , nParrying  ∷ [Skill]            -- ^ Starts at @[]@
-                   , nTags      ∷ [ChannelTag]       -- ^ Starts at @[]@
-                   , nLastSkill ∷ (Maybe Skill)      -- ^ Starts at 'Nothing'
+                   , nHealth    ∷ Int                    -- ^ Starts at @100@
+                   , nCooldowns ∷ Seq (Seq Int)          -- ^ Starts at 'S.empty'
+                   , nCharges   ∷ Seq Int                -- ^ Starts at 4 @0@s
+                   , nVariants  ∷ Seq (NonEmpty Variant) -- ^ Starts at 4 @0@s
+                   , nCopied    ∷ Seq (Maybe Copied)     -- ^ Starts at 4 'Nothing's
+                   , nDefense   ∷ [Defense]              -- ^ Starts at @[]@
+                   , nBarrier   ∷ [Barrier]              -- ^ Starts at @[]@
+                   , nStatuses  ∷ [Status]               -- ^ Starts at @[]@
+                   , nChannels  ∷ [Channel]              -- ^ Starts at @[]@
+                   , newChans   ∷ [Channel]              -- ^ Starts at @[]@
+                   , nTraps     ∷ Seq Trap               -- ^ Starts at 'S.empty'
+                   , nFace      ∷ [Face]                 -- ^ Starts at @[]@
+                   , nParrying  ∷ [Skill]                -- ^ Starts at @[]@
+                   , nTags      ∷ [ChannelTag]           -- ^ Starts at @[]@
+                   , nLastSkill ∷ Maybe Skill            -- ^ Starts at 'Nothing'
                    } deriving (Eq)
 
 insertCd' ∷ Int → Int → Seq Int → Seq Int
@@ -734,7 +732,7 @@ newNinja c nId = Ninja { nId        = nId
                        , nStatuses  = []
                        , nCharges   = four0s
                        , nCooldowns = ø
-                       , nVariants  = S.replicate 4 [noVariant]
+                       , nVariants  = S.replicate 4 (noVariant:|[])
                        , nCopied    = S.replicate 4 Nothing
                        , nChannels  = []
                        , newChans   = []

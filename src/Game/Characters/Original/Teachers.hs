@@ -1,7 +1,9 @@
+{-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide #-}
 
 module Game.Characters.Original.Teachers (teacherCs) where
 
+import Preludesque
 import Game.Functions
 import Game.Game
 import Game.Structure

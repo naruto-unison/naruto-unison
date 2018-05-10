@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedLists #-}
+
 -- | 'Game' handling, primarily through 'Transform's.
 --
 -- If a status Transform ends in an apostrophe, it uses a custom display name.
@@ -61,10 +63,12 @@ module Game.Game
     , onBreak, removeTrap
     , trap, trap', trapFrom, trapFrom', trapPer, trapPer', trapWith
     -- * Invulnerability
-    , invuln, invuln'
+    , invuln, invuln1, invuln'
     -- * Specialized
     , commandeer, kabuto
     ) where
+
+import Preludesque
 
 import qualified Data.Sequence as S
 import qualified Data.Text     as T
@@ -72,17 +76,13 @@ import qualified Game.Ninja    as N
 
 import Control.Monad
 import Data.Either
-import Data.Foldable
 import Data.Function         ((&))
-import Data.List
-import Data.Maybe
 import Data.Sequence         (Seq, adjust', update)
 import Data.Text             (Text)
 import System.Random
 import System.Random.Shuffle 
 
 import Calculus
-import Core.Unicode
 import Game.Structure
 import Game.Functions
 
@@ -141,9 +141,9 @@ forfeitN player n@Ninja{..}
 -- and resolves 'Chakras' for the next turn.
 runTurn ∷ Player → [Act] → StdGen → Game → Game
 runTurn player actions stdGen game = yieldVictor game'Full
-  where rs'        = unfoldl (Just ∘ split) stdGen
-        rs         = drop 2 rs'
-        game'Acts  = foldl' (act []) game $ zip actions (Right ↤ rs)
+  where rs         = unfoldl split stdGen
+        rs'        = toList rs
+        game'Acts  = foldl' (act []) game ∘ zip actions $ Right ↤ rs'
         chans      = getAllChannels player game'Acts
         game'Chan  = doDeaths
                    ∘ doDelays
@@ -152,7 +152,7 @@ runTurn player actions stdGen game = yieldVictor game'Full
                    ∘ doBarriers player
                    ∘ doBombs Remove game
                    ∘ decrStats
-                   ∘ foldl' (act []) game'Acts $ zip chans (Right ↤ rs)
+                   ∘ foldl' (act []) game'Acts ∘ zip chans $ Right ↤ rs'
         decrDelays = mfilter ((0 ≠) ∘ getDur) ∘ mapMaybe decrTurn ∘ gameDelays
         game'End   = doBombs Done game
                    ∘ doBombs Expire game'Chan
@@ -171,11 +171,11 @@ runTurn player actions stdGen game = yieldVictor game'Full
         game'Futur = censor vs game'Clear
         chansNext  = getAllChannels vs game'Futur
         game'Ghost = foldl' (act []) game'Futur
-                   $ zip chansNext $ Right ↤ drop (teamSize * 2) rs
+                   $ zip chansNext $ Right ↤ drop (teamSize * 2) rs'
         game'Full  = addTags game'Clear game'Ghost
         getChannels n = fromChannel n ↤∘ mfilter ((1 ≠) ∘ getDur) 
                       $ nChannels n
-        getAllChannels p Game{..} = catMap getChannels (alives p gameNinjas)
+        getAllChannels p Game{..} = concatMap getChannels (alives p gameNinjas)
         decr g@Game{..} = g { gameNinjas = N.decr ↤ gameNinjas }
         decrStats g@Game{..} = g { gameNinjas = N.decrStats ↤ gameNinjas }
         
@@ -185,7 +185,7 @@ doDelays game@Game{..} = foldl' (flip delayEf) game
 
 doBombs ∷ Bomb → Game → Game → Game
 doBombs bombType game game' = foldl' (&) game' efs
-  where efs = cat $ S.zipWith boom (gameNinjas game) (gameNinjas game')
+  where efs = concat $ S.zipWith boom (gameNinjas game) (gameNinjas game')
         boom n n' = doBomb bombType (nId n) ↤ nStatuses n ∖ nStatuses n'
 
 doBomb ∷ Bomb → Slot → Status → Game → Game
@@ -197,7 +197,7 @@ doBomb bombType t Status{..} game = foldl' detonate game statusBombs
 
 doBarriers ∷ Player → Game → Game
 doBarriers player game@Game{..} = foldl' doBarrier game barriers
-  where barriers = catMap (head ↤∘ groupBy lEq ∘ nBarrier) gameNinjas
+  where barriers = concatMap (head ↤∘ groupBy lEq ∘ nBarrier) gameNinjas
         doBarrier game' Barrier{..}
           | barrierDur ≡ 1            = barrierDone barrierAmount game'
           | alliedP player barrierSrc = barrierWhile game'
@@ -369,7 +369,7 @@ trigger affected Skill{..} c game game'Pre
                 ⧺ getTraps (was Immune (n', n)) OnImmune n'
                 ⧺ getTraps harmful              OnHarm   n'
                 ⧺ classTrs (game'Pre ≠ game)    OnAction classes n' 
-        trapsN  = cat
+        trapsN  = concat
                 $ getTraps True OnHelped          ↤ helped
                 ⧺ getTraps True OnHealed          ↤ healed
                 ⧺ getTraps True (OnStunned Multi) ↤ stunned
@@ -399,7 +399,7 @@ getTurnTraps player n n'
 turnTrigger ∷ Player → Game → Game → Game
 turnTrigger player game game' = game'Track
   where gameNinjas' = S.zipWith trackTurn (gameNinjas game) (gameNinjas game')
-        trapsAll    = cat $ S.zipWith (getTurnTraps player) 
+        trapsAll    = concat $ S.zipWith (getTurnTraps player) 
                       (gameNinjas game) gameNinjas'
         game'Track  = game' { gameNinjas = gameNinjas'
                             , gameTraps  = trapsAll ⧺ gameTraps game'
@@ -458,16 +458,17 @@ doEffects affected skill@Skill{..} src c t rando game
     ∘ zipWith (doEffect affected skill src c t) (splitRands rando)
     $ (Channeled ∉ affected) ? (start ⧺) $ effects
   where splitRands a@(Left _)     = repeat a
-        splitRands (Right stdGen) = Right ↤ unfoldl (Just ∘ split) stdGen
+        splitRands (Right stdGen) = Right ↤ toList (unfoldl split stdGen)
 
 doEffect ∷ [Affected] → Skill → Slot→ Slot → Slot → Either (Slot, Slot) StdGen 
          → (Target, Transform) → Game → Game
 doEffect affected skill' src c t rando (target, f) game
-  | Countered ∉ affected                                             = done
-  | Parrying ∈ affected ∧ target ≡ Ally                              = game
-  | Parrying ∉ affected ∧ target ∈ [Self, Allies, Enemies, Everyone] = game
-  | otherwise                                                        = done       
-  where skill | target ≡ Self = skill' { classes = Unshifted : classes skill' }
+  | Countered ∉ affected                  = done
+  | Parrying ∈ affected ∧ target ≡ Ally   = game
+  | Parrying ∉ affected ∧ target ∈ anyone = game
+  | otherwise                             = done       
+  where anyone = [Self, Allies, Enemies, Everyone] ∷ [Target]
+        skill | target ≡ Self = skill' { classes = Unshifted : classes skill' }
               | otherwise     = skill'
         done = foldl' (wrapEffect affected f skill src c) game
              $ choose (rAlly, rEnemy) target c t   
@@ -479,8 +480,8 @@ chooseRands _ _              _        _ (Left a)        = both Just a
 chooseRands n skill@Skill{..} Game{..} c (Right stdGen) = (rAlly, rEnemy) 
   where targets = nId ↤∘ mfilter (targetable skill n n) $ toList gameNinjas
         (livingAllies, livingEnemies) = partition (allied c) targets
-        (rAlly, stdGen')              = safePick stdGen livingAllies
-        (rEnemy, _)                   = safePick stdGen' livingEnemies
+        (rAlly, stdGen')              = pick stdGen livingAllies
+        (rEnemy, _)                   = pick stdGen' livingEnemies
 
 wrapEffect ∷ [Affected] → Transform → Transform
 wrapEffect affected f skill@Skill{..} src c game t
@@ -869,9 +870,9 @@ vary dur s variantV skill _ _ game t = case copying skill of
         variantL   | channel skill ≡ Instant = ""
                    | otherwise               = label skill
         n'         | variantDur ≤ 0 = n 
-                       { nVariants = update s [Variant{..}]    $ nVariants n }
+                       { nVariants = update s [Variant{..}]     $ nVariants n }
                    | otherwise      = n
-                       { nVariants = adjust' (Variant{..} :) s $ nVariants n }
+                       { nVariants = adjust' (Variant{..} ◁) s $ nVariants n }
 
 vary' ∷ Int → Int → Transform
 vary' s v skill@Skill{..} src c
@@ -1354,19 +1355,24 @@ trapWith trapType clas dur tr f = trapFull trapType clas dur tr (const f)
 
 -- * INVULNERABILITY SKILL
 
-invuln' ∷ Text → Text → [Class] → [Transform] → [Skill]
-invuln' label desc classes effects = (: [])
+invuln1' ∷ Text → Text → [Class] → [Transform] → Skill
+invuln1' label desc classes effects = 
     newSkill { label   = label
              , desc    = desc
              , classes = classes
              , cd      = 4
              , cost    = χ [Rand]
-             , effects = (Self, apply 1 [Immune All]) : map (Self, ) effects
+             , effects = (Self, apply 1 [Immune All]) : (Self, ) ↤ effects
              } 
+invuln' ∷ Text → Text → [Class] → [Transform] → NonEmpty Skill
+invuln' label desc classes effects = invuln1' label desc classes effects :| []
 
-invuln ∷ Text → Text → [Class] → [Skill]
-invuln label name classes = invuln' label desc classes []
+invuln1 ∷ Text → Text → [Class] → Skill
+invuln1 label name classes = invuln1' label desc classes []
   where desc = name ⧺ " becomes invulnerable for 1 turn."
+
+invuln ∷ Text → Text → [Class] → NonEmpty Skill
+invuln label name classes = invuln1 label name classes :| []
 
 -- * SPECIALIZED
 
@@ -1398,12 +1404,15 @@ commandeer _ _ c game t = setNinja t nt' $ setNinja c n' game
         lose ef = helpful ef ∧ not (sticky ef)
 
 kabuto' ∷ Skill → Ninja → Ninja
-kabuto' skill n@Ninja{..} = 
+kabuto' skill@Skill{..} n@Ninja{..} = 
     n { nStatuses = newmode : mfilter (not ∘ getMode) nStatuses 
-      , nVariants = S.fromList $ (:[]) ↤ [var', var, var, var]
-      , nChannels = init nChannels ⧺ [swaps $ last nChannels]
+      , nVariants = S.fromList $ (:|[]) ↤ [var', var, var, var]
+      , nChannels = toList $ init nChannels' ▷ swaps (last nChannels')
       }
-  where sage       = " Sage"
+  where nChannels' = case nChannels of
+                       x:xs → x :| xs
+                       []   → Channel nId skill nId channel :| []
+        sage       = " Sage"
         sLen       = T.length sage
         (mode, m)  = advance ∘ maybe "" (T.dropEnd sLen ∘ statusL) 
                    $ find getMode nStatuses

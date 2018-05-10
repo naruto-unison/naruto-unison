@@ -1,10 +1,12 @@
+{-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide #-}
 
 module Game.Characters.Reanimated (reanimatedCsS) where
 
+import Preludesque
+
 import qualified Game.Ninja as N
 
-import Core.Unicode
 import Calculus
 import Game.Functions
 import Game.Game
