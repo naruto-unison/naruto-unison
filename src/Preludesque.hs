@@ -1,5 +1,6 @@
 {-# OPTIONS_HADDOCK hide #-}
 
+-- | Replaces Prelude's partial functions with 'Data.List.NonEmpty'.
 module Preludesque (module Import, concat, concatMap, catMaybes, mapMaybe) where
 
 import Core.Unicode       as Import
@@ -21,4 +22,4 @@ catMaybes xs = do
     return x
 
 mapMaybe ∷ Monad m ⇒ (a → Maybe b) → m a → m b
-mapMaybe f xs = [ x | Just x ← f ↤ xs ]
+mapMaybe f xs = catMaybes $ f ↤ xs

@@ -6,23 +6,6 @@
 @version 0.0.1
 
 
--- | Persistent fields.
-module Core.Fields
-data Privilege
-Normal :: Privilege
-Moderator :: Privilege
-Admin :: Privilege
-instance Database.Persist.Class.PersistField.PersistField Core.Fields.Privilege
-instance Database.Persist.Sql.Class.PersistFieldSql Core.Fields.Privilege
-instance Data.Aeson.Types.ToJSON.ToJSON Core.Fields.Privilege
-instance Data.Aeson.Types.FromJSON.FromJSON Core.Fields.Privilege
-instance GHC.Generics.Generic Core.Fields.Privilege
-instance GHC.Read.Read Core.Fields.Privilege
-instance GHC.Show.Show Core.Fields.Privilege
-instance GHC.Classes.Eq Core.Fields.Privilege
-instance GHC.Enum.Enum Core.Fields.Privilege
-
-
 -- | Settings are centralized, as much as possible, into this file. This
 --   includes database connection settings, static file locations, etc.
 module Core.Settings
@@ -117,39 +100,15 @@ instance Data.Aeson.Types.FromJSON.FromJSON Core.Settings.AppSettings
 -- | Various unicode synonyms for basic functions.
 module Core.Unicode
 
--- | <a>.</a>
-(∘) :: (b -> g) -> (a -> b) -> a -> g
-infixr 7 ∘
+-- | <pre>
+--   <a>reverse</a> . <a>&lt;$&gt;</a>
+--   </pre>
+(↦) :: Functor f => f a -> (a -> b) -> f b
+infixl 6 ↦
 
--- | <a>subtract</a> allowing for sections
-(—) :: Num a => a -> a -> a
-
--- | <a>quot</a>
-(÷) :: Integral a => a -> a -> a
-infixl 7 ÷
-
--- | <a>mod</a>
-(٪) :: Integral a => a -> a -> a
-infix 7 ٪
-
--- | <a>not</a> . <a>null</a> . <a>intersect</a>
-(⩀) :: Eq a => [a] -> [a] -> Bool
-infix 6 ⩀
-
--- | <a>append</a>
-(☩) :: Text -> Text -> Text
-
--- | <a>&lt;|</a>
-(◁) :: a -> Seq a -> Seq a
-infixr 5 ◁
-
--- | <a>|&gt;</a>
-(▷) :: Seq a -> a -> Seq a
-infixl 5 ▷
-
--- | <a>&gt;&lt;</a>
-(◇) :: Seq a -> Seq a -> Seq a
-infixr 5 ◇
+-- | <a>&lt;$&gt;</a>
+(↤) :: Functor f => (a -> b) -> f a -> f b
+infixl 6 ↤
 
 -- | <a>elem</a>
 (∈) :: (Foldable a, Eq b) => b -> a b -> Bool
@@ -158,15 +117,62 @@ infix 4 ∈
 -- | <a>notElem</a>
 (∉) :: (Foldable a, Eq b) => b -> a b -> Bool
 infix 4 ∉
+(◁) :: Pend a => b -> a b -> a b
+infixl 5 ◁
+(▷) :: Pend a => a b -> b -> a b
+infixr 5 ▷
+(⧺) :: Monoid m => m -> m -> m
+infixr 5 ⧺
 
--- | <a>empty</a>
-ø :: Seq a
+-- | <a>not</a> . <a>null</a> . <a>intersect</a>
+(⩀) :: Eq a => [a] -> [a] -> Bool
+infix 6 ⩀
+
+-- | <a>quot</a>
+(÷) :: Integral a => a -> a -> a
+infixl 7 ÷
+
+-- | <a>.</a>
+(∘) :: (b -> g) -> (a -> b) -> a -> g
+infixr 7 ∘
+(↤∘) :: Functor f => (a -> b) -> (c -> f a) -> c -> f b
+infixr 7 ↤∘
+
+-- | <a>mod</a>
+(٪) :: Integral a => a -> a -> a
+infix 7 ٪
+
+-- | <a>subtract</a> allowing for sections
+(—) :: Num a => a -> a -> a
+
+-- | <a>mempty</a>
+ø :: Monoid a => a
+instance Core.Unicode.Pend []
+instance Core.Unicode.Pend Data.List.NonEmpty.NonEmpty
+instance Core.Unicode.Pend Data.Sequence.Internal.Seq
+
+
+-- | Persistent fields.
+module Core.Fields
+data Privilege
+Normal :: Privilege
+Moderator :: Privilege
+Admin :: Privilege
+instance Database.Persist.Class.PersistField.PersistField Core.Fields.Privilege
+instance Database.Persist.Sql.Class.PersistFieldSql Core.Fields.Privilege
+instance Data.Aeson.Types.ToJSON.ToJSON Core.Fields.Privilege
+instance Data.Aeson.Types.FromJSON.FromJSON Core.Fields.Privilege
+instance GHC.Generics.Generic Core.Fields.Privilege
+instance GHC.Read.Read Core.Fields.Privilege
+instance GHC.Show.Show Core.Fields.Privilege
+instance GHC.Classes.Eq Core.Fields.Privilege
+instance GHC.Enum.Enum Core.Fields.Privilege
 
 
 -- | Yesod models from config/models.
 module Core.Model
 data User
-User :: !Text -> !(Maybe Text) -> !(Maybe Text) -> !Bool -> !Privilege -> !Text -> !Text -> !(Maybe Text) -> !Int -> !Int -> !Int -> !Int -> !(Maybe Text) -> !(Maybe [Text]) -> !Bool -> !Bool -> User
+User :: !Text -> !(Maybe Text) -> !(Maybe Text) -> !Bool -> !Privilege -> !Text -> !Text -> !(Maybe Text) -> !Int -> !Int -> !Int -> !Int -> !(Maybe Text) -> !(Maybe [Text]) -> !Bool -> User
 [userIdent] :: User -> !Text
 [userPassword] :: User -> !(Maybe Text)
 [userVerkey] :: User -> !(Maybe Text)
@@ -182,7 +188,6 @@ User :: !Text -> !(Maybe Text) -> !(Maybe Text) -> !Bool -> !Privilege -> !Text 
 [userClan] :: User -> !(Maybe Text)
 [userTeam] :: User -> !(Maybe [Text])
 [userMuted] :: User -> !Bool
-[userFlipped] :: User -> !Bool
 type UserId = Key User
 migrateAll :: Migration
 instance Data.Aeson.Types.FromJSON.FromJSON (Database.Persist.Class.PersistEntity.Key Core.Model.User)
@@ -216,16 +221,13 @@ absmin :: (Ord a, Num a) => a -> a -> a
 ($?) :: Bool -> Maybe a -> Maybe a
 
 -- | Equality by applying a function to both arguments. Goes well with
---   <a>f2all</a>, e.g. <tt>f2all [eqs recordFieldA, recordFieldB]</tt>.
+--   <a>andOn</a>, e.g. <tt>andOn [eqs recordFieldA, recordFieldB]</tt>.
 eqs :: Eq b => (a -> b) -> a -> a -> Bool
 
--- | Applies two arguments to a list of functions that accept two
---   arguments.
-f2 :: a -> b -> [a -> b -> c] -> [c]
-
--- | <a>and</a> <a>f2</a>. Goes well with <a>f2all</a>, e.g. <tt>f2all [eqs
---   recordFieldA, recordFieldB]</tt>.
-f2all :: [a -> a -> Bool] -> a -> a -> Bool
+-- | Apply the same two arguments to a list of functions and <a>and</a> the
+--   result. Goes well with <tt>eq</tt>, e.g. <tt>andOn [eqs recordFieldA,
+--   recordFieldB]</tt>.
+andOn :: (Foldable a, Functor a) => a (b -> b -> Bool) -> b -> b -> Bool
 
 -- | <tt>Text</tt> <a>init</a> that returns <tt>""</tt> if given
 --   <tt>""</tt>.
@@ -254,9 +256,6 @@ do2 :: Bool -> (a -> a) -> (a, a) -> (a, a)
 -- | Applies a function to both.
 both :: (a -> b) -> (a, a) -> (b, b)
 
--- | <tt><a>map</a> . <a>both</a></tt>.
-map2 :: (a -> b) -> [(a, a)] -> [(b, b)]
-
 -- | List contains duplicates.
 duplic :: Eq a => [a] -> Bool
 
@@ -264,17 +263,6 @@ duplic :: Eq a => [a] -> Bool
 --   <a>pack</a> . <a>show</a>
 --   </pre>
 tshow :: Show a => a -> Text
-
--- | <a>Seq</a> concatenation.
-seqConcat :: Foldable a => a (Seq b) -> Seq b
-
--- | <pre>
---   <a>seqConcat</a> . <a>&lt;$&gt;</a>
---   </pre>
-seqMap :: (a -> Seq b) -> Seq a -> Seq b
-
--- | <a>Seq</a> equivalent of <a>catMaybes</a>.
-seqMaybes :: Seq (Maybe a) -> Seq a
 
 -- | Extracts a <a>Just</a> in a monad. Returns the error message argument
 --   if given <a>Nothing</a>.
@@ -284,15 +272,11 @@ tryJust :: Monad m => m a -> Maybe a -> m a
 deleteOne :: (a -> Bool) -> [a] -> [a]
 
 -- | Chooses an element of a list at random.
-pick :: StdGen -> [a] -> (a, StdGen)
-
--- | <a>Nothing</a> if given an empty list, otherwise <a>Just</a>
---   <a>pick</a>.
-safePick :: StdGen -> [a] -> (Maybe a, StdGen)
+pick :: StdGen -> [a] -> (Maybe a, StdGen)
 
 -- | Left equivalent of <a>unfoldr</a> that ends when it reaches a
 --   <a>Nothing</a>.
-unfoldl :: (a -> Maybe (a, a)) -> a -> [a]
+unfoldl :: (a -> (a, a)) -> a -> NonEmpty a
 
 
 -- | Data structures for gameplay.
@@ -358,11 +342,6 @@ Chakras :: Int -> Int -> Int -> Int -> Int -> Chakras
 -- | Random
 [rand] :: Chakras -> Int
 
--- | <pre>
---   Chakras 0 0 0 0 0
---   </pre>
-χØ :: Chakras
-
 -- | Types of chakra in <a>Chakras</a>.
 data ChakraType
 
@@ -409,10 +388,10 @@ ChannelTag :: Slot -> Slot -> Skill -> Bool -> Int -> ChannelTag
 
 -- | An out-of-game character.
 data Character
-Character :: Text -> Text -> [[Skill]] -> [(Trigger, Ninja -> Int -> Ninja)] -> Character
+Character :: Text -> Text -> NonEmpty (NonEmpty Skill) -> [(Trigger, Ninja -> Int -> Ninja)] -> Character
 [characterName] :: Character -> Text
 [characterBio] :: Character -> Text
-[characterSkills] :: Character -> [[Skill]]
+[characterSkills] :: Character -> NonEmpty (NonEmpty Skill)
 [characterHooks] :: Character -> [(Trigger, Ninja -> Int -> Ninja)]
 
 -- | Qualifiers of <a>Skill</a>s and <a>Status</a>es.
@@ -697,7 +676,7 @@ lMatch :: Labeled a => Text -> Slot -> a -> Bool
 
 -- | In-game character, indexed between 0 and 5.
 data Ninja
-Ninja :: Slot -> Character -> Int -> Seq (Seq Int) -> Seq Int -> Seq [Variant] -> Seq (Maybe Copied) -> [Defense] -> [Barrier] -> [Status] -> [Channel] -> [Channel] -> (Seq Trap) -> [Face] -> [Skill] -> [ChannelTag] -> (Maybe Skill) -> Ninja
+Ninja :: Slot -> Character -> Int -> Seq (Seq Int) -> Seq Int -> Seq (NonEmpty Variant) -> Seq (Maybe Copied) -> [Defense] -> [Barrier] -> [Status] -> [Channel] -> [Channel] -> Seq Trap -> [Face] -> [Skill] -> [ChannelTag] -> Maybe Skill -> Ninja
 
 -- | <a>gameNinjas</a> index (0-5)
 [nId] :: Ninja -> Slot
@@ -713,7 +692,7 @@ Ninja :: Slot -> Character -> Int -> Seq (Seq Int) -> Seq Int -> Seq [Variant] -
 [nCharges] :: Ninja -> Seq Int
 
 -- | Starts at 4 <tt>0</tt>s
-[nVariants] :: Ninja -> Seq [Variant]
+[nVariants] :: Ninja -> Seq (NonEmpty Variant)
 
 -- | Starts at 4 <a>Nothing</a>s
 [nCopied] :: Ninja -> Seq (Maybe Copied)
@@ -734,7 +713,7 @@ Ninja :: Slot -> Character -> Int -> Seq (Seq Int) -> Seq Int -> Seq [Variant] -
 [newChans] :: Ninja -> [Channel]
 
 -- | Starts at <a>empty</a>
-[nTraps] :: Ninja -> (Seq Trap)
+[nTraps] :: Ninja -> Seq Trap
 
 -- | Starts at <tt>[]</tt>
 [nFace] :: Ninja -> [Face]
@@ -746,7 +725,7 @@ Ninja :: Slot -> Character -> Int -> Seq (Seq Int) -> Seq Int -> Seq [Variant] -
 [nTags] :: Ninja -> [ChannelTag]
 
 -- | Starts at <a>Nothing</a>
-[nLastSkill] :: Ninja -> (Maybe Skill)
+[nLastSkill] :: Ninja -> Maybe Skill
 
 -- | Changes the character icon of a <a>Ninja</a>.
 data Face
@@ -1123,6 +1102,7 @@ instance GHC.Show.Show Game.Structure.Trigger
 instance Data.Aeson.Types.ToJSON.ToJSON Game.Structure.Victor
 instance Data.Aeson.Types.ToJSON.ToJSON Game.Structure.Player
 instance Game.Structure.TurnBased Game.Structure.Channeling
+instance GHC.Base.Monoid Game.Structure.Chakras
 instance Web.PathPieces.PathPiece Game.Structure.Chakras
 instance Web.PathPieces.PathPiece Game.Structure.ActPath
 instance Data.Aeson.Types.ToJSON.ToJSON Game.Structure.Class
@@ -1151,10 +1131,6 @@ opponent :: Player -> Player
 lost :: Int -> Int -> Int -> Int
 illegal :: Player -> Act -> Bool
 
--- | Addition.
-(+~) :: Chakras -> Chakras -> Chakras
-infixl 6 +~
-
 -- | Subtraction.
 (-~) :: Chakras -> Chakras -> Chakras
 infixl 6 -~
@@ -1174,7 +1150,7 @@ isChanneling :: Text -> Ninja -> Bool
 hasDefense :: Text -> Slot -> Ninja -> Bool
 
 -- | Modifies <a>Effect</a>s when they are first added to a <a>Ninja</a>.
-filterEffects :: Ninja -> [Effect] -> [Effect]
+filterEffects :: MonadPlus m => Ninja -> m Effect -> m Effect
 
 -- | <a>Boost</a> sum.
 getBoost :: Slot -> Ninja -> Int
@@ -1290,7 +1266,7 @@ is :: Effect -> Ninja -> Bool
 is' :: (Class -> Effect) -> Ninja -> Bool
 numActive :: Text -> Ninja -> Int
 numStacks :: Text -> Slot -> Ninja -> Int
-classTrs :: Bool -> (Class -> Trigger) -> [Class] -> Ninja -> Seq TrapTransform
+classTrs :: (Foldable a, Functor a) => Bool -> (Class -> Trigger) -> a Class -> Ninja -> Seq TrapTransform
 getPerTraps :: Bool -> Trigger -> Int -> Ninja -> Seq (Game -> Game)
 getTrackTraps :: Bool -> Trigger -> Ninja -> Seq (Game -> Game)
 getTraps :: Bool -> Trigger -> Ninja -> Seq TrapTransform
@@ -1412,6 +1388,76 @@ updateCd :: Bool -> Int -> Skill -> Int -> Ninja -> Ninja
 module Game.JSON
 instance Data.Aeson.Types.ToJSON.ToJSON Game.Structure.Ninja
 instance Data.Aeson.Types.ToJSON.ToJSON Game.Structure.Game
+
+
+-- | Yesod foundation. Implemented in <a>Application</a>.
+module Foundation
+data GameInfo
+GameInfo :: Key User -> User -> Player -> Int -> Game -> GameInfo
+[gameVsWho] :: GameInfo -> Key User
+[gameVsUser] :: GameInfo -> User
+[gamePar] :: GameInfo -> Player
+[gameLeft] :: GameInfo -> Int
+[gameGame] :: GameInfo -> Game
+newtype GameMessage
+Enact :: Game -> GameMessage
+data QueueMessage
+Announce :: (Key User) -> User -> [Character] -> QueueMessage
+Respond :: (Key User) -> (TChan GameMessage) -> (TChan GameMessage) -> GameInfo -> QueueMessage
+
+-- | The foundation datatype for your application. This can be a good place
+--   to keep settings and values requiring initialization before your
+--   application starts running, such as database connections. Every
+--   handler will have access to the data present here.
+data App
+App :: AppSettings -> Static -> ConnectionPool -> Manager -> Logger -> Map (Key User) Game -> TChan QueueMessage -> App
+[appSettings] :: App -> AppSettings
+[appStatic] :: App -> Static
+[appConnPool] :: App -> ConnectionPool
+[appHttpManager] :: App -> Manager
+[appLogger] :: App -> Logger
+[appPractice] :: App -> Map (Key User) Game
+[appQueue] :: App -> TChan QueueMessage
+data MenuItem
+MenuItem :: Text -> Route App -> Bool -> MenuItem
+[menuItemLabel] :: MenuItem -> Text
+[menuItemRoute] :: MenuItem -> Route App
+[menuItemAccessCallback] :: MenuItem -> Bool
+data MenuTypes
+NavbarLeft :: MenuItem -> MenuTypes
+NavbarRight :: MenuItem -> MenuTypes
+type Handler = HandlerFor App
+type Widget = WidgetFor App ()
+resourcesApp :: [ResourceTree String]
+
+-- | A convenient synonym for database access functions.
+type DB a = forall (m :: * -> *). (MonadIO m) => ReaderT SqlBackend m a
+newUser :: Text -> Maybe Text -> User
+isAuthenticated :: Handler AuthResult
+unsafeHandler :: App -> Handler a -> IO a
+instance GHC.Read.Read (Yesod.Routes.Class.Route Foundation.App)
+instance GHC.Classes.Eq (Yesod.Routes.Class.Route Foundation.App)
+instance GHC.Show.Show (Yesod.Routes.Class.Route Foundation.App)
+instance Yesod.Core.Class.Yesod.Yesod Foundation.App
+instance Yesod.Persist.Core.YesodPersistRunner Foundation.App
+instance Yesod.Routes.Class.ParseRoute Foundation.App
+instance Yesod.Routes.Class.RenderRoute Foundation.App
+instance Yesod.Routes.Class.RouteAttrs Foundation.App
+instance Yesod.Core.Class.Breadcrumbs.YesodBreadcrumbs Foundation.App
+instance Yesod.Persist.Core.YesodPersist Foundation.App
+instance Yesod.Auth.YesodAuth Foundation.App
+instance Yesod.Auth.YesodAuthPersist Foundation.App
+instance Text.Shakespeare.I18N.RenderMessage Foundation.App Yesod.Form.Types.FormMessage
+instance Network.HTTP.Client.Types.HasHttpManager Foundation.App
+instance Yesod.Auth.Email.YesodAuthEmail Foundation.App
+instance Data.Aeson.Types.ToJSON.ToJSON Foundation.GameInfo
+
+
+-- | These handlers embed files in the executable at compile time to avoid
+--   runtime dependencies and improve efficiency.
+module Handler.Embed
+getFaviconR :: Handler TypedContent
+getRobotsR :: Handler TypedContent
 
 
 -- | <a>Game</a> handling, primarily through <a>Transform</a>s.
@@ -1716,8 +1762,9 @@ trapFrom' :: Int -> Trigger -> Transform -> Transform
 trapPer :: Int -> Trigger -> (Int -> Transform) -> Transform
 trapPer' :: Int -> Trigger -> (Int -> Transform) -> Transform
 trapWith :: TrapType -> [Class] -> Int -> Trigger -> Transform -> Transform
-invuln :: Text -> Text -> [Class] -> [Skill]
-invuln' :: Text -> Text -> [Class] -> [Transform] -> [Skill]
+invuln :: Text -> Text -> [Class] -> NonEmpty Skill
+invuln1 :: Text -> Text -> [Class] -> Skill
+invuln' :: Text -> Text -> [Class] -> [Transform] -> NonEmpty Skill
 
 -- | Steals all of the target's beneficial effects.
 commandeer :: Transform
@@ -1735,76 +1782,6 @@ cs :: HashMap Text Character
 cs' :: [Character]
 
 
--- | Yesod foundation. Implemented in <a>Application</a>.
-module Foundation
-data GameInfo
-GameInfo :: Key User -> User -> Player -> Int -> Game -> GameInfo
-[gameVsWho] :: GameInfo -> Key User
-[gameVsUser] :: GameInfo -> User
-[gamePar] :: GameInfo -> Player
-[gameLeft] :: GameInfo -> Int
-[gameGame] :: GameInfo -> Game
-data GameMessage
-Enact :: Game -> GameMessage
-data QueueMessage
-Announce :: (Key User) -> User -> [Character] -> QueueMessage
-Respond :: (Key User) -> (TChan GameMessage) -> (TChan GameMessage) -> GameInfo -> QueueMessage
-
--- | The foundation datatype for your application. This can be a good place
---   to keep settings and values requiring initialization before your
---   application starts running, such as database connections. Every
---   handler will have access to the data present here.
-data App
-App :: AppSettings -> Static -> ConnectionPool -> Manager -> Logger -> Map (Key User) Game -> TChan QueueMessage -> App
-[appSettings] :: App -> AppSettings
-[appStatic] :: App -> Static
-[appConnPool] :: App -> ConnectionPool
-[appHttpManager] :: App -> Manager
-[appLogger] :: App -> Logger
-[appPractice] :: App -> Map (Key User) Game
-[appQueue] :: App -> TChan QueueMessage
-data MenuItem
-MenuItem :: Text -> Route App -> Bool -> MenuItem
-[menuItemLabel] :: MenuItem -> Text
-[menuItemRoute] :: MenuItem -> Route App
-[menuItemAccessCallback] :: MenuItem -> Bool
-data MenuTypes
-NavbarLeft :: MenuItem -> MenuTypes
-NavbarRight :: MenuItem -> MenuTypes
-type Handler = HandlerFor App
-type Widget = WidgetFor App ()
-resourcesApp :: [ResourceTree String]
-
--- | A convenient synonym for database access functions.
-type DB a = forall (m :: * -> *). (MonadIO m) => ReaderT SqlBackend m a
-newUser :: Text -> Maybe Text -> User
-isAuthenticated :: Handler AuthResult
-unsafeHandler :: App -> Handler a -> IO a
-instance GHC.Read.Read (Yesod.Routes.Class.Route Foundation.App)
-instance GHC.Classes.Eq (Yesod.Routes.Class.Route Foundation.App)
-instance GHC.Show.Show (Yesod.Routes.Class.Route Foundation.App)
-instance Yesod.Core.Class.Yesod.Yesod Foundation.App
-instance Yesod.Persist.Core.YesodPersistRunner Foundation.App
-instance Yesod.Routes.Class.ParseRoute Foundation.App
-instance Yesod.Routes.Class.RenderRoute Foundation.App
-instance Yesod.Routes.Class.RouteAttrs Foundation.App
-instance Yesod.Core.Class.Breadcrumbs.YesodBreadcrumbs Foundation.App
-instance Yesod.Persist.Core.YesodPersist Foundation.App
-instance Yesod.Auth.YesodAuth Foundation.App
-instance Yesod.Auth.YesodAuthPersist Foundation.App
-instance Text.Shakespeare.I18N.RenderMessage Foundation.App Yesod.Form.Types.FormMessage
-instance Network.HTTP.Client.Types.HasHttpManager Foundation.App
-instance Yesod.Auth.Email.YesodAuthEmail Foundation.App
-instance Data.Aeson.Types.ToJSON.ToJSON Foundation.GameInfo
-
-
--- | These handlers embed files in the executable at compile time to avoid
---   runtime dependencies and improve efficiency.
-module Handler.Embed
-getFaviconR :: Handler TypedContent
-getRobotsR :: Handler TypedContent
-
-
 -- | Handles API routes and WebSockets related to gameplay.
 module Handler.Play
 gameSocket :: WebSocketsT Handler ()
@@ -1818,6 +1795,13 @@ getPracticeQueueR :: [Text] -> Handler Value
 getPracticeWaitR :: Chakras -> Chakras -> Handler Value
 
 
+-- | Test interface for <a>gameSocket</a>.
+module Handler.Test
+
+-- | Provides a simple JavaScript interface for <a>gameSocket</a>.
+getTestR :: Handler Html
+
+
 -- | Interface for the PureScript game client.
 module Handler.PlayPage
 getChangelogR :: Handler Html
@@ -1829,14 +1813,7 @@ getPlayR :: Handler Html
 getMuteR :: Bool -> Handler Value
 
 -- | Updates a user's profile.
-getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
-
-
--- | Test interface for <a>gameSocket</a>.
-module Handler.Test
-
--- | Provides a simple JavaScript interface for <a>gameSocket</a>.
-getTestR :: Handler Html
+getUpdateR :: Text -> Text -> Text -> Handler Value
 
 
 -- | Yesod-provided implementation of <tt>Foundation</tt>.
