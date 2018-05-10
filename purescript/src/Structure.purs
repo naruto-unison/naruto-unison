@@ -241,6 +241,9 @@ newtype User = User { name       ∷ String
                     }
 derive instance genericUser ∷ Generic User
 
+avatar_ ∷ User → String
+avatar_ (User {avatar}) = avatar
+
 newtype Variant = Variant { variantV   ∷ Int 
                           , variantVCD ∷ Boolean
                           , variantL   ∷ String

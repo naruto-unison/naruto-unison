@@ -3,7 +3,7 @@ module Component.Play (Output(..), component) where
 import Prelude
 
 import Network.HTTP.Affjax     as AX
-import Halogen                 as HH
+import Halogen                 as Halogen
 import Halogen.HTML            as H
 import Halogen.HTML.Events     as E
 import Halogen.HTML.Properties as P
@@ -13,13 +13,16 @@ import Data.Array
 import Data.Either
 import Data.Maybe 
 import Data.Time.Duration  (Milliseconds(..))
+import DOM                 (DOM)
 import DOM.Event.Types     (MouseEvent)
-import Halogen             (Component, ComponentDSL, ComponentHTML)
+import Halogen             ( Component, ComponentDSL, ComponentHTML
+                           , get, modify, liftAff, liftEff, raise
+                           )
 import Halogen.HTML        (HTML)
 import Network.HTTP.Affjax (AJAX)
 
 import FFI.Import          (user)
-import FFI.Progress        (ANIMATION, progress)
+import FFI.Progress        (progress)
 import FFI.Sound           (AUDIO, Sound(..), sound)
 
 import Operators 
@@ -39,7 +42,7 @@ getC cs nId = fromMaybe unknown $ cs !! nId
 
 type HTMLQ a = HTML a (ChildQuery Unit)
 
-type Effects e = (animation ∷ ANIMATION, ajax ∷ AJAX, audio ∷ AUDIO | e)
+type Effects e = (ajax ∷ AJAX, audio ∷ AUDIO, dom ∷ DOM | e)
 
 data Output = ActMsg SocketMsg | Finish Boolean
 
@@ -100,8 +103,8 @@ canExchange χ = any (affordable χ) $ χf ↤
 
 component ∷ ∀ m. Boolean → GameInfo 
           → Component HTML ChildQuery Unit Output (Aff (Effects m))
-component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
-  HH.component
+component practice0 (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
+  Halogen.component
     { initialState: const initialState
     , render
     , eval
@@ -109,7 +112,7 @@ component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
     }
   where
   initialState ∷ State
-  initialState = { practice:   practice
+  initialState = { practice:   practice0
                  , par:        gamePar
                  , vs:         gameVsUser
                  , characters: gameCharacters
@@ -207,21 +210,21 @@ component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
   eval (QueryPlay query next) = (_ ≫ next) case query of
       Enact Add act → do
         sound SFXApplySkill
-        HH.modify \state@{acts} → untoggle state { acts = acts `snoc` act }
+        modify \state@{acts} → untoggle state { acts = acts `snoc` act }
       Enact Delete act → do
         sound SFXCancel
-        HH.modify \state@{acts} → untoggle state { acts = delete act acts }
+        modify \state@{acts} → untoggle state { acts = delete act acts }
       ExchangeBegin → do
         sound SFXTarget
-        HH.modify \state → state{ exchange = not state.exchange }
+        modify \state → state{ exchange = not state.exchange }
       ExchangeConclude χ → do
         sound SFXClick
-        HH.modify \state@{exchanged} → state { exchanged = exchanged +~ χ 
+        modify \state@{exchanged} → state { exchanged = exchanged +~ χ 
                                              , exchange  = false
                                              }
       ExchangeReset → do
         sound SFXCancel
-        HH.modify \state@{game, par} → state { chakras   = getChakra game par
+        modify \state@{game, par} → state { chakras   = getChakra game par
                                              , randoms   = χØ
                                              , exchanged = χØ
                                              , exchange  = false 
@@ -229,17 +232,17 @@ component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
       ReceiveGame game@(Game g) → do
         case g.gameVictor of
           Just victor → do
-            {par}      ← HH.get
+            {par}      ← get
             let winner = victor ≡ par
             sound $ if winner then SFXWin else SFXLose
-            HH.raise $ Finish winner
+            raise $ Finish winner
           Nothing → do
             sound SFXStartTurn
-            {par: oldPar, game: oldGame} ← HH.get
-            HH.liftEff $ if g.gamePlaying ≡ oldPar 
+            {par: oldPar, game: oldGame} ← get
+            liftEff $ if g.gamePlaying ≡ oldPar 
                         then progress wait 1 0
                         else progress wait 0 1
-            HH.modify \state@{par} → state { game      = game
+            modify \state@{par} → state { game      = game
                                            , chakras   = getChakra game par 
                                            , randoms   = χØ
                                            , exchanged = χØ
@@ -248,24 +251,24 @@ component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
             when (living oldPar oldGame > living oldPar game) $ sound SFXDeath
       Ready false url → do
         sound SFXNextTurn
-        HH.raise ∘ ActMsg $ SocketMsg url
+        raise ∘ ActMsg $ SocketMsg url
       Ready true url → do
-        HH.modify $ untoggle ∘ _{ exchange = false, exchanged = χØ }
-        {response} ← HH.liftAff ∘ AX.get $ "/api/practiceact/" ⧺ url    
+        modify $ untoggle ∘ _{ exchange = false, exchanged = χØ }
+        {response} ← liftAff ∘ AX.get $ "/api/practiceact/" ⧺ url    
         case decodeGames $ response of
           Right [a,b] → do
-            {par: oldPar, game: oldGame} ← HH.get
-            HH.modify \state@{par} → state { game      = a
+            {par: oldPar, game: oldGame} ← get
+            modify \state@{par} → state { game      = a
                                            , chakras   = getChakra a par 
                                            , randoms   = χØ
                                            , exchanged = χØ
                                            , acts      = []
                                            } 
-            HH.liftEff $ progress practiceWait 0 1
-            HH.liftAff $ delay practiceWait
-            HH.liftEff $ progress (Milliseconds 0.0) 1 1
+            liftEff $ progress practiceWait 0 1
+            liftAff $ delay practiceWait
+            liftEff $ progress (Milliseconds 0.0) 1 1
             sound SFXStartTurn
-            HH.modify \state@{par} → state { game      = b
+            modify \state@{par} → state { game      = b
                                            , chakras   = getChakra b par
                                            , randoms   = χØ
                                            , exchanged = χØ
@@ -274,24 +277,24 @@ component practice (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
                                            } 
             when (living oldPar oldGame > living oldPar b) $ sound SFXDeath
           Left error →
-            HH.modify _{ error = error }
+            modify _{ error = error }
           Right _ →
-            HH.modify _{ error = "Unknown error" }
+            modify _{ error = "Unknown error" }
       Spend χs → do
         sound SFXClick
-        HH.modify \state@{randoms, chakras} → 
+        modify \state@{randoms, chakras} → 
             state { randoms = randoms +~ χs, chakras = chakras -~ χs }
       Toggle skill → do
         sound SFXTarget
-        HH.modify \state@{toggled} → if toggled ≡ Just skill 
+        modify \state@{toggled} → if toggled ≡ Just skill 
                                      then state { toggled = Nothing }
                                      else state { toggled = Just skill }
       View viewing@(ViewSkill _ ts _) →
-        HH.modify _{ viewing = viewing, highlight = ts }
+        modify _{ viewing = viewing, highlight = ts }
       View viewing → 
-        HH.modify _{ viewing = viewing }
+        modify _{ viewing = viewing }
       Unhighlight → 
-        HH.modify _{ highlight = [] }
+        modify _{ highlight = [] }
     where untoggle     = _{ toggled = Nothing }
           wait         = Milliseconds 60000.0
           practiceWait = Milliseconds 1500.0
@@ -385,14 +388,14 @@ hCharacter cs acted toggle highlighted χs turn onTeam
                           ]
     mainBar   = not onTeam ? reverse $
       [ H.div mainMeta
-        [H.img [_c "charicon", faceIcon]]
+        [H.img [_c "charicon", faceIcon']]
       , H.div [_c "charmoves"] 
         ∘ zip4 (hSkill nId χs active cs) (0..3) ts nSkills 
         ∘ (nHealth > 0) ? (nCooldowns ⧺ _) $ [0, 0, 0, 0]
       ]
     anchor    | onTeam    = "left: "
               | otherwise = "right: "
-    faceIcon = case head nFace of
+    faceIcon' = case head nFace of
         Nothing → cIcon character "icon"
         Just (Face {faceSrc, faceIcon}) → 
           cIcon (getC cs faceSrc) $ "icon" ⧺ faceIcon

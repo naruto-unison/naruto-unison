@@ -1,19 +1,20 @@
 module Component.Common 
-  ( ArrayOp(..)
-  , ChildQuery(..)
-  , Icon
-  , QueueType(..)
-  , SelectQuery(..)
-  , PlayQuery(..)
-  , Previewing(..)
-  , SocketMsg(..)
-  , Viewable(..)
-  , hCost
-  , parseDesc
-  , charName
-  , cIcon
-  , _a, _b, _c, _i, _span, _src, _style, _txt, _minor
-  ) where
+    ( ArrayOp(..)
+    , ChildQuery(..)
+    , Icon
+    , QueueType(..)
+    , SelectQuery(..)
+    , PlayQuery(..)
+    , Previewing(..)
+    , SocketMsg(..)
+    , Viewable(..)
+    , JSONFail(..)
+    , hCost
+    , parseDesc
+    , charName
+    , cIcon
+    , _a, _b, _c, _i, _span, _src, _style, _txt, _minor
+    ) where
 
 import Prelude
 
@@ -22,6 +23,7 @@ import Halogen.HTML.Properties as P
 
 import Data.Array              ((:))
 import Data.Function.Memoize   (memoize)
+import Data.Generic            (class Generic)
 import Data.Maybe              
 import Data.String 
 import Halogen                 (HTML)
@@ -32,6 +34,11 @@ import Operators
 import Structure 
 import Functions
 import Info      
+
+newtype JSONFail = JSONFail { message ∷ String 
+                            , errors  ∷ Array String
+                            }
+derive instance genericJSONFail ∷ Generic JSONFail
 
 newtype SocketMsg = SocketMsg String
 
@@ -44,7 +51,8 @@ data SelectQuery = SwitchLogin
                  | Team ArrayOp Character 
                  | Enqueue QueueType  
                  | Vary Int Int        
-                 | ChooseAvatar String     
+                 | ChooseAvatar String
+                 | TryUpdate
   
 data ArrayOp = Add | Delete
 
@@ -61,9 +69,7 @@ data PlayQuery = Enact ArrayOp Act
                | Unhighlight
                | View Viewable
              
-data Previewing = NoPreview 
-                | PreviewUser
-                | PreviewCharacter Character  
+data Previewing = NoPreview | PreviewUser User | PreviewChar Character  
 
 data Viewable = ViewBarrier   Barrier
               | ViewCharacter Character

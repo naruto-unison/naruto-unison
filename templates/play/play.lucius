@@ -97,7 +97,7 @@ body {
   font-style: unset;
 }
 
-#charSelect > div {
+#charSelect > div, #charSelect > form {
   margin: 0 50px;
 }
 #charSelect {
@@ -220,7 +220,7 @@ body {
   width: 45px;
   height: 45px;
   border: 2px solid #000;
-  margin: -2px -1px 4px -1px;
+  margin: -2px 1px 4px 1px;
 }
 #charPreview .char {
   height: 50px;
@@ -709,6 +709,10 @@ a.playButton.click {
 }
 .toggled img {
   border-color: #fff !important;
+}
+#avatars img.noclick {
+  border-color: #0099ff !important;
+  filter: saturate(0.15);
 }
 .toggled img:hover, .chakra.click:hover, #avatars img:hover, .charicon.click:hover {
   border-color: #0099ff !important;

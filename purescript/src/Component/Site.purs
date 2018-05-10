@@ -1,44 +1,47 @@
 module Component.Site 
-  ( Effects
-  , Query(..)
-  , Stage(..)
-  , component
-  , module Component.Common
-  ) where
+    ( Effects
+    , Query(..)
+    , Stage(..)
+    , component
+    , module Component.Common
+    ) where
 
 import Prelude
 
 import Component.CharacterSelect as Select
 import Component.Play            as Play
-import Halogen                   as HH
+import Halogen                   as Halogen
 import Halogen.HTML              as H
 import Halogen.HTML.Events       as E
 import Network.HTTP.Affjax       as AX
 
-import Data.Argonaut.Generic.Aeson (decodeJson)
 import Control.Monad.Aff           (Aff)
+import Data.Argonaut.Generic.Aeson (decodeJson)
 import Data.Argonaut.Parser        (jsonParser)
 import Data.Array                  ((:), intercalate, reverse)
 import Data.Either         
 import Data.Maybe          
 import Data.Time.Duration          (Milliseconds(..))
-import Halogen                     (Component, ParentDSL, ParentHTML)
+import DOM                         (DOM)
+import Halogen                     ( Component, ParentDSL, ParentHTML
+                                   , get, liftAff, liftEff, modify, query, raise
+                                   )
 import Halogen.HTML                (HTML)
 import Network.HTTP.Affjax         (AJAX)
 
 import FFI.Import                  (bg)
-import FFI.Progress                (ANIMATION, progress)
+import FFI.Progress                (progress)
 import FFI.Sound                   (AUDIO, Sound(..), sound)
 
 import Operators
 import Structure           
 import Component.Common    
 
-type Effects e = (animation ∷ ANIMATION, ajax ∷ AJAX, audio ∷ AUDIO | e)
+type Effects e = (ajax ∷ AJAX, audio ∷ AUDIO, dom ∷ DOM | e)
 
-data Query a = HandleQueue Select.Selection a 
-             | HandleGame  Play.Output      a
-             | ReceiveMsg  SocketMsg        a
+data Query a = HandleQueue Select.Output a 
+             | HandleGame  Play.Output   a
+             | ReceiveMsg  SocketMsg     a
 
 data ChildSlot = SelectSlot | PlaySlot
 derive instance eqChildSlot  ∷ Eq ChildSlot
@@ -52,8 +55,7 @@ type State = { stage    ∷ Stage
              }
 
 component ∷ ∀ m. Component HTML Query Unit SocketMsg (Aff (Effects m))
-component =
-  HH.parentComponent
+component = Halogen.parentComponent
     { initialState: const initialState
     , render
     , eval
@@ -84,44 +86,47 @@ component =
   eval = case _ of
       HandleQueue (Select.Queued Practice team) next → do
         let teamList = intercalate "/" ∘ reverse $ characterName_ ↤ team
-        {response} ← HH.liftAff $ AX.get ("/api/practicequeue/" ⧺ teamList)
-        HH.modify _{ gameInfo = decodeJson response, stage = Practicing }
-        HH.liftEff $ progress (Milliseconds 0.0) 1 1
+        {response} ← liftAff $ AX.get ("/api/practicequeue/" ⧺ teamList)
+        modify _{ gameInfo = decodeJson response, stage = Practicing }
+        liftEff $ progress (Milliseconds 0.0) 1 1
         sound SFXStartFirst
         pure next
       HandleQueue (Select.Queued Quick team) next → do
         let teamList = intercalate "/" ∘ reverse $ characterName_ ↤ team
-        HH.modify _{ stage = Queueing }
+        modify _{ stage = Queueing }
         sound SFXApplySkill
-        HH.raise $ SocketMsg teamList
+        raise $ SocketMsg teamList
+        pure next
+      HandleQueue (Select.UpdateMsg msg) next → do
+        raise msg
         pure next
       HandleQueue _ next →
         pure next
       HandleGame (Play.Finish _) next → do
-        HH.modify _{ gameInfo = Left "", stage = Waiting }
+        modify _{ gameInfo = Left "", stage = Waiting }
         pure next
       HandleGame (Play.ActMsg msg) next → do
-        HH.raise msg
+        raise msg
         pure next
       ReceiveMsg (SocketMsg msg) next → do
-        {stage} ← HH.get
+        {stage} ← get
         case stage of
           Queueing → do
             let result = jsonParser msg ≫= decodeJson
-            HH.modify _{ gameInfo = result
+            modify _{ gameInfo = result
                        , stage    = Playing 
                        }
             case result of
               Left _ → pure next
               Right (GameInfo {gamePar}) → do
-                HH.liftEff $ progress turnTime (1 - gamePar) gamePar
+                liftEff $ progress turnTime (1 - gamePar) gamePar
                 sound SFXStartFirst
                 pure next
           Playing → do
             case jsonParser msg ≫= decodeJson of
               Left _ → pure next
               Right (game ∷ Game) → do
-                _ ← HH.query PlaySlot (QueryPlay (ReceiveGame game) next)
+                _ ← query PlaySlot (QueryPlay (ReceiveGame game) next)
                 pure next
           _ → pure next 
 

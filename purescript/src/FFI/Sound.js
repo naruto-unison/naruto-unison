@@ -21,12 +21,12 @@ exports["sfxRegister"] = function (show) {
       }
       createjs.Sound.registerSounds(sounds.map(show).map(function(file) {
         return {src: file + ".ogg", id: file}
-      }), "audio/") // TODO
+      }), "audio/")
     }
   }
 }
 
-exports["sfxPlay"] = function (show) {
+exports["sound_"] = function (show) {
   return function(sound) {
     return function() {
       if (vol && vol.className !== "click muted")

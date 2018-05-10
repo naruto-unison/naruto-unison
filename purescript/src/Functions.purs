@@ -1,16 +1,16 @@
 module Functions 
-  ( modifyAt', updateAt'
-  , allied
-  , unχ, χf, χNeg, χSum, χAdd, (+~), χMinus, (-~), lacks
-  , filterClasses
-  , living
-  , removable
-  , shorten
-  , skillDur, skillIcon, skillRoot, skillTarget
-  , zip3, zip4
-  , userXP, userLevel, userRank
-  , lMatch, mergeSkills
-  ) where
+    ( modifyAt', updateAt'
+    , allied
+    , unχ, χf, χNeg, χSum, χAdd, (+~), χMinus, (-~), lacks
+    , filterClasses
+    , living
+    , removable
+    , shorten
+    , skillDur, skillIcon, skillRoot, skillTarget
+    , zip3, zip4
+    , userXP, userLevel, userRank
+    , lMatch, mergeSkills
+    ) where
 
 import Prelude
 

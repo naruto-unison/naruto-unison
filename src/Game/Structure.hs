@@ -8,7 +8,7 @@ module Game.Structure
     -- * Act
       Act(..), ActPath(..), actFromPath, botActs, Affected(..)
     -- * Chakras
-    , Chakras(..), ChakraType(..)
+    , Chakras(..), ChakraType (..)
     -- * Channel
     , Channel(..), Channeling(..), ChannelTag(..)
     -- * Character

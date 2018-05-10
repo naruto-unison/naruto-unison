@@ -28,11 +28,11 @@ derive instance genericSound ∷ Generic Sound _
 instance showSound ∷ Show Sound where 
   show = genericShow
 
-foreign import sfxPlay ∷ ∀ e. (Sound → String) → Sound 
+foreign import sound_ ∷ ∀ e. (Sound → String) → Sound 
                        → Eff (audio ∷ AUDIO | e) Unit
 
 sound ∷ ∀ a e. MonadEff (audio :: AUDIO | e) a ⇒ Sound → a Unit
-sound = liftEff ∘ sfxPlay show
+sound = liftEff ∘ sound_ show
 
 foreign import sfxRegister ∷ ∀ e. (Sound → String) → Array Sound → Eff (e) Unit
 register ∷ ∀ e. Eff (e) Unit
