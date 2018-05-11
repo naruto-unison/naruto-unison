@@ -14,4 +14,5 @@
 /api/practiceact/#Chakras/#Chakras/*[ActPath] PracticeActR   GET
 /                                             PlayR          GET
 /changelog                                    ChangelogR     GET
+/home                                         HomeR          GET
 /                                             StaticR        Static appStatic

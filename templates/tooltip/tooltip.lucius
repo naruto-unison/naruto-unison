@@ -1,0 +1,36 @@
+.skill {
+    display: inline-block;
+    padding: 4px;
+    margin: -4px;
+}
+.name:hover, .skill:hover, .minor:hover {
+  text-decoration: none !important;
+}
+
+#tooltip {
+  position: absolute;
+  background: rgba(255,255,255,0.9);
+  width: 350px;
+  font-size: 13px;
+  padding: 4px 6px;
+  box-shadow: 0px 0px 5px rgba(0,0,0,0.4);
+  border: 1px solid rgba(0,0,0,0.5);
+  display: none;
+  margin-left: -50px;
+  pointer-events: none;
+  border-radius: 3px;
+}
+#skillName {
+  font-weight: bold;
+}
+a.minor {
+    font-size: 10px;
+    margin-left: -0.25em;
+    margin-right: -2px;
+    vertical-align: top;
+    font-style: initial;
+}
+.skillClasses {
+  font-style: italic;
+  margin-left: 0 !important;
+}

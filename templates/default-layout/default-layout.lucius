@@ -8,7 +8,7 @@ html, body {
 body {
   font-family: Trebuchet MS, sans-serif;
   background-size: cover !important;
-  background: url('/img/bg/narusasu.jpg') no-repeat center center;
+  background: #040309 url('/img/bg/hokage.png') no-repeat center bottom;
   background-attachment: fixed;
   display: none;
 }
@@ -16,7 +16,7 @@ body {
   width: 53%;
 }
 .breadcrumb {
-  margin: 6px auto -2px auto;
+  margin: 0 auto -2px auto;
 }
 .breadcrumb ul {
   margin: 0;
@@ -25,6 +25,7 @@ body {
 .breadcrumb li {
   display: inline-block;
   color: #fff;
+  text-shadow: 0 0 2px #000;
 }
 .breadcrumb li:first-child::before {
   content: none;
@@ -32,11 +33,6 @@ body {
 .breadcrumb li::before {
   content: "> ";
 }
-.breadcrumb li a {
-  color: #00aaff;
-  text-decoration: none;
-}
-
 .container {
   box-sizing: border-box;
   background: #fff;
@@ -45,20 +41,32 @@ body {
   font-size: 14px;
   padding: 5px 30px;
 }
+.container::after {
+  content: "";
+  display: block;
+  clear: both;
+}
 .row.alert {
   padding: 10px 30px;
   color: #e00;
 }
+#bannerbg {
+  padding-top: 1em;
+  margin-bottom: -5px;
+  padding-bottom: 5px;
+}
 #banner {
-  padding: 0 30px;
-  display: block;
   height: 58px;
-  margin: auto auto -14px;
+  margin: auto auto;
   font-size: 35px;
   color: #44aaff;
   text-decoration: none;
   text-transform: uppercase;
   text-shadow: 0 0 3px #000;
+  text-align: center;
+  display: block;
+  padding-left: 0;
+  padding-right: 50px;
 }
 #banner img {
   width: 50px;
@@ -66,15 +74,13 @@ body {
   margin-right: 6px;
   margin-left: 1px;
 }
-#banner span {
-  padding-top: 4px;
-}
 .container ul {
-  margin-top: 0;
-  padding-left: 1em;
+  margin: 0;
+  padding: 0;
 }
 .container ul ul {
-    padding-bottom: 0.2em;
+  padding-left: 1.5em;
+  padding-bottom: 0.2em;
 }
 .container li {
   margin-top: 0.3em;
@@ -82,11 +88,18 @@ body {
 h1 {
   margin: 0.1em 0;
 }
-h3 {
+h3, h4 {
   margin-top: 0.5em;
-  margin-bottom: 0;
+  margin-bottom: 0.3em;
 }
+h3 { font-size: 1.25em; }
+h4 { font-size: 1.15em; }
 
+.char {
+  display: inline-block;
+  outline: 1px solid #000;
+  margin: 5px;
+}
 .chakra {
   display: inline-block;
   height: 0.6em;
@@ -114,4 +127,12 @@ h3 {
 .minor {
   font-style: italic;
   color: #606060;
+}
+
+a, a.minor {
+  color: #00aaff;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
 }

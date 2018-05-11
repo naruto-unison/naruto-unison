@@ -1,21 +1,24 @@
 <!-- Page Contents -->
 
-$if (mcurrentRoute ∈ [Just PlayR])
-    ^{widget}
+$if (mcurrentRoute ≡ Just PlayR)
+  ^{widget}
 $else
-    <a href=/ #banner>
+  <div #bannerbg>
+    <a #banner href=/>
       <img src=/img/logo.png>
-        <span>Naruto Unison</span></div>
+        <span>Naruto Unison
     <div .breadcrumb>
-        <ul >
-            $forall bc <- parents
-                <li>
-                    <a href="@{fst bc}">#{snd bc}
-            <li .active>#{title}
+      <ul>
+        $forall bc <- parents
+          <li>
+            <a href="@{fst bc}">#{snd bc}
+        <li .active>#{title}
     $maybe msg <- mmsg
       <div .container.alert.alert-info #message>#{msg}
 
+  $if (mcurrentRoute ≡ Just HomeR)
+    ^{widget}
+  $else
     <div .container>
-        <div .row>
-            <div .col-md-12>
-                ^{widget}
+      <div .row>
+        ^{widget}

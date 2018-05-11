@@ -250,7 +250,8 @@ userBox ∷ ∀ a. Boolean → Array Character → Array (HTML a (ChildQuery Uni
 userBox showLogin team = case user of
   Just u@(User {avatar, name, clan, wins, losses, streak}) →
     [ H.div [_c "playButtons"] $
-      [ H.div 
+      [ _a "mainsite" "playButton parchment click" "/home" "Main Site"
+      , H.div 
         [_i "queue", _c playButton, click $ Enqueue Quick]
         [H.text "Start Quick Match"]
       , H.div 
@@ -259,7 +260,6 @@ userBox showLogin team = case user of
       , H.div 
         [_i "private", _c playButton, click $ Enqueue Private]
         [H.text "Start Private Match"]
-      , _a "mainsite" "playButton parchment click" "/changelog" "Changelog"
       ]
     , H.div [_c "teamContainer"]
       [ H.div [_i "userbox", _c "parchment loggedin", preview $ PreviewUser u]
@@ -291,7 +291,7 @@ userBox showLogin team = case user of
     ] 
   Nothing → 
     [ H.div [_c "playButtons"] 
-      [_a "mainsite" "playButton parchment click" "/changelog" "Changelog"]
+      [_a "mainsite" "playButton parchment click" "/home" "Main Site"]
     , H.div [_c "teamContainer"]
       [ H.div [_i "userbox", _c "parchment"] 
         [ H.form 

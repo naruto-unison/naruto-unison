@@ -41,7 +41,7 @@ import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
 
 import Core.Import
 import Handler.Embed
-import Handler.PlayPage
+import Handler.Site
 import Handler.Play
 import Handler.Test
 

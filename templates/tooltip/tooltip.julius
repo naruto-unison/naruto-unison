@@ -38,10 +38,36 @@ const hidden = [ "All"
                ]
 filterClasses = a => a.filter(el => !hidden.includes(el))
 
-let curr
+let cur
+
+hoverChar = (i, el) => {
+  const tooltip = $("#tooltip")
+  const src = $(el)
+  const usr = chars[src.data("name")]
+  const offset = el.src ? 55 : 20
+  if (!usr) return
+  src.mouseover(ev => {
+      if (tooltip.css("display") !== "none" && cur === src) return
+      cur = src
+      tooltip.stop()
+      $("#skillIcon").attr("src", `/img/ninja/${shorten(name)}/icon.jpg`)
+      $("#skillName").text(usr.characterName)
+      $("#skillDesc").text(usr.characterBio)
+      tooltip
+        .stop()
+        .css("left", ev.pageX)
+        .css("top", Math.max(src.get()[0].offsetTop + offset, ev.pageY))
+        .fadeIn(100)
+        .show()
+  }).mouseleave(() => $("#tooltip").fadeOut(100))
+}
+
 $(() => {
     const tooltip = $("#tooltip")
-    $(".skill").find("a").each((i, el) => {
+    $("a.name").each(hoverChar)
+    $("li").find(".minor").each(hoverChar)
+    $(".head").each(hoverChar)
+    $(".skill").each((i, el) => {
         const src = $(el)
         const usr = chars[src.data("name")]
         if (!usr) return

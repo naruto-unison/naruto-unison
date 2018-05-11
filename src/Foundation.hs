@@ -179,8 +179,8 @@ instance Yesod App where
     makeLogger = return ∘ appLogger
 
 instance YesodBreadcrumbs App where
-  breadcrumb (AuthR _) = return ("Login", Just PlayR)
-  breadcrumb ChangelogR = return ("Changelog", Just PlayR)
+  breadcrumb (AuthR _) = return ("Login", Just HomeR)
+  breadcrumb ChangelogR = return ("Changelog", Just HomeR)
   breadcrumb  _ = return ("Home", Nothing)
 
 -- How to run database actions.

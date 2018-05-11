@@ -1,98 +1,86 @@
 <h3>May 2
-<li>
+<ul>
   #{changelog Rework "Rasa" R}
-<li>
   #{changelog Rework "Mū" R}
 <h3>May 1
-<li>
+<ul>
   #{changelog Rework "Gengetsu Hōzuki" R}
 <h3>April 25
-<li>
+<ul>
   #{changelog Rework "Jinpachi Munashi" R}
 <h3>April 24
-<li>
-  Action skills in progress have blue borders
-<li>
-  Control skills in progress have red borders
-<li>
-  If a character will be affected by a non-new skill next turn, a desaturated icon displays the skill above the character next to their own skills in progress
-<li>
-  If a skill's effect will expire at the end of the current turn, its icon is desaturated
-<li>
-  If destructible defense will expire at the end of the current turn, its bar is desaturated
-<li>
+<ul>
+  <li>
+    Action skills in progress have blue borders
+  <li>
+    Control skills in progress have red borders
+  <li>
+    If a character will be affected by a non-new skill next turn, a desaturated icon displays the skill above the character next to their own skills in progress
+  <li>
+    If a skill's effect will expire at the end of the current turn, its icon is desaturated
+  <li>
+    If destructible defense will expire at the end of the current turn, its bar is desaturated
   #{changelog Rework "Haku" R}
-<li>
   #{changelog Rework "Kushimaru Kuriarare" R}
 <h3>April 19
-<li>
+<ul>
   #{changelog Rework "Hidan" S}
 <h3>April 18
-<li>
+<ul>
   #{changelog New "Nagato" S}
-<li>
   #{changelog New "Nagato" R}
 <h3>April 17
-<li>
+<ul>
   #{changelog Rework "Fū Yamanaka" S}
 <h3>April 15
-<li>
+<ul>
   #{changelog Added "Aoba Yamashiro" S}
 <h3>April 15
-<li>
+<ul>
   #{changelog Rework "Ameyuri Ringo" R}
 <h3>April 14
-<li>
+<ul>
   #{changelog New "Konohamaru Sarutobi" O}
-<li>
   #{changelog Rework "Naruto Uzumaki" O}
 <h3>April 13
-<li>
-  Added destructible barrier, which absorbs an amount of damage dealt by a character
-<li>
+<ul>
+  <li>
+    Added destructible barrier, which absorbs an amount of damage dealt by a character
   #{changelog New "Deva Path Pain" S}
 <h3>April 12
-<li>
-  Effects from reflected skills are colored black
-<li>
+<ul>
+  <li>
+    Effects from reflected skills are colored black
   #{changelog New "Hanzō" R}
-<li>
   #{changelog Rework "Zetsu" S}
 <h3>April 10
-<li>
-  Removable effects are colored blue
+<ul>
+  <li>
+    Removable effects are colored blue
 <h3>April 9
-<li>
+<ul>
   #{changelog New "Mei Terumi" S}
-<li>
   #{changelog Rework "Danzō Shimura" S}
-<li>
   #{changelog New "Asura Path Pain" S}
 <h3>April 8
-<li>
+<ul>
   #{changelog New "Eight-Gates Guy" S}
-<li> 
   #{changelog New "Ōnoki" S}
-<li>
   #{changelog Rework "Tobi" S}
 <h3>April 5
-<li>
+<ul>
   #{changelog New "Sage Mode Kabuto" S}
 <h3>April 4
-<li>
+<ul>
   #{changelog New "Human Path Pain" S}
-<li>
   #{changelog New"Mangekyō Sasuke" S}
 <h3>April 3
 <ul>
   <li>
     <i>Invisible</i> effects are semi-transparent
-  <li>
-    #{changelog Rework "Nine-Tailed Naruto" S}
-  <li>
-    #{changelog New "Preta Path Pain" S}
-  <li>
-    #{changelog New "Naraka Path Pain" S}
+  #{changelog Rework "Nine-Tailed Naruto" S}
+  #{changelog New "Preta Path Pain" S}
+  #{changelog New "Naraka Path Pain" S}
 <h3>April 1
 <ul>
   <li>
@@ -107,45 +95,32 @@
     The <i>Unique</i> class has been subdivided into <i>Unique</i>, <i>Unique Equipment</i>, and <i>Kekkai Genkai</i>; no gameplay difference, it just seemed silly to have dozens of Sharingan abilities all labeled 'Unique'
   <li>
     The <i>Soulbound</i> class has been added to all skills that end when their user dies
-  <li>
-    #{changelog Rework "Kisame Hoshigaki" S}
-  <li>
-    #{changelog New "Masked Man" S}
-  <li>
-    #{changelog New "Curse Mark Sasuke" S}
-  <li>
-    #{changelog New "Animal Path Pain" S}
+  #{changelog Rework "Kisame Hoshigaki" S}
+  #{changelog New "Masked Man" S}
+  #{changelog New "Curse Mark Sasuke" S}
+  #{changelog New "Animal Path Pain" S}
 <h3>March 28
 <ul>
-  <li>
-    #{changelog Rework "Kankurō" S}
-  <li>
-    #{changelog Rework "Temari" S}
+  #{changelog Rework "Kankurō" S}
+  #{changelog Rework "Temari" S}
 <h3>March 27
 <ul>
-  <li>
-    #{changelog Rework "Ino Yamanaka" S}
-  <li>
-    #{changelog Rework "Deidara" S}
-  <li>
-    #{changelog Rework "Chiyo" S}
+  #{changelog Rework "Ino Yamanaka" S}
+  #{changelog Rework "Deidara" S}
+  #{changelog Rework "Chiyo" S}
 <h3>March 25
 <ul>
-  <li>
-    #{changelog Rework "Chōji Akimichi" O}
+  #{changelog Rework "Chōji Akimichi" O}
   <li>
     Shukaku Gaara's face icon changes upon completing
     #{"Shukaku Gaara" ! "Sand Transformation"}
 <h3>March 24
 <ul>
-  <li>
-    #{changelog New "Kazekage Puppeteer Sasori" S}
-  <li>
-    #{changelog New "Hiruko Sasori" S}
+  #{changelog New "Kazekage Puppeteer Sasori" S}
+  #{changelog New "Hiruko Sasori" S}
 <h3>March 23
 <ul>
-  <li>
-    #{changelog New "True Form Sasori" S}
+  #{changelog New "True Form Sasori" S}
   <li>
     The <i>Affliction</i> class has been renamed to <i>Bane</i>
     in order to avoid confusion with affliction damage.
@@ -174,7 +149,3 @@
     Orochimaru's #{"Orochimaru" ! "Major Summoning: Manda"},
     Hiruzen's #{ "Hiruzen Sarutobi" ! "Major Summoning: Enma"}, and
     Choji#{s}'s #{ "Choji Akimichi" ! "Butterfly Mode"}.
-<div #tooltip>
-  <div #skillIcon>
-  <div #skillName>
-  <div #skillDesc>

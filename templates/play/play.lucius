@@ -4,6 +4,9 @@
   -webkit-user-select: none;
   user-select: none;
 }
+a:hover {
+  text-decoration: none !important;
+}
 em {
   color: #600;
 }
@@ -414,11 +417,6 @@ a.playButton.click {
   outline: 2px solid #ff0000;
 }
 
-.char {
-  display: inline-block;
-  outline: 1px solid #000;
-  margin: 5px;
-}
 #top {
   position: absolute;
   top: 10px;

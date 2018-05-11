@@ -1,0 +1,4 @@
+<div #tooltip>
+  <div #skillIcon>
+  <div #skillName>
+  <div #skillDesc>
