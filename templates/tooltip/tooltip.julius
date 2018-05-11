@@ -44,7 +44,7 @@ hoverChar = (i, el) => {
   const tooltip = $("#tooltip")
   const src = $(el)
   const usr = chars[src.data("name")]
-  const offset = el.src ? 55 : 20
+  const offset = el.height + 5
   if (!usr) return
   src.mouseover(ev => {
       if (tooltip.css("display") !== "none" && cur === src) return

@@ -1,3 +1,4 @@
+$newline never
 $if isMuted muser
   <div #volume .click.muted>
 $else

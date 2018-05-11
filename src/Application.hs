@@ -43,7 +43,8 @@ import Core.Import
 import Handler.Embed
 import Handler.Site
 import Handler.Play
-import Handler.Test
+import Handler.Admin
+import Handler.Forum
 
 mkYesodDispatch "App" resourcesApp
 

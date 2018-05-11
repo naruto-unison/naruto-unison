@@ -14,7 +14,6 @@ module Handler.Site
 
 import Preludesque
 
-import qualified Data.List.NonEmpty  as L
 import qualified Data.Text           as T
 import qualified Data.HashMap.Strict as M
 
@@ -28,20 +27,10 @@ import Game.Structure
 import Game.Characters
 import Handler.Play (gameSocket)
 
-shorten ∷ Text → Text
-shorten = T.map shorten' ∘ T.filter (∉ filterOut)
-  where filterOut    = " -:()®'/?" ∷ String
-        shorten' 'ō' = 'o'
-        shorten' 'Ō' = 'O'
-        shorten' 'ū' = 'u'
-        shorten' 'Ū' = 'U'
-        shorten' 'ä' = 'a'
-        shorten'  a  =  a
-
 charAvatars ∷ Character → [Text]
 charAvatars char = (root ⧺ "icon.jpg")
                  : (((root ⧺) ∘ (⧺ ".jpg")) ↤ shorten ∘ label ∘ head)
-                    ↤ L.take 4 (characterSkills char)
+                    ↤ take' 4 (characterSkills char)
   where root = "/img/ninja/" ⧺ shorten (characterName char) ⧺ "/"
 
 avatars ∷ [Text]
@@ -78,12 +67,15 @@ getChangelog ∷ Bool → LogType → Text → CharacterType → Html
 getChangelog longlabel logType name characterType = case M.lookup tagName cs of
     Nothing → [shamlet|Error: character #{tagName} not found!|]
     Just Character{..} → [shamlet|
-<img data-name=#{tagName} .char.head src="/img/ninja/#{shorten(tagName)}/icon.jpg">
+$if not longlabel
+  <img data-name=#{tagName} .char.head src="/img/ninja/#{shorten(tagName)}/icon.jpg">
 <li>
   #{change logType} 
   <a .name data-name=#{tagName}>#{display characterType}
   <ul>
-    $forall skills <- L.take 4 characterSkills
+    $if longlabel
+      <img data-name=#{tagName} .char.head src="/img/ninja/#{shorten(tagName)}/icon.jpg">
+    $forall skills <- take' 4 characterSkills
       <li>
         $forall skill <- separate skills
           <a .skill data-name=#{tagName}>#{label skill}

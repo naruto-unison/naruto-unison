@@ -14,7 +14,7 @@ module Game.Structure
     -- * Character
     , Character(..)
     -- * Class
-    , Class(..), allClasses
+    , Class(..)
     -- * Delay
     , Delay(..)
     -- * Destructible
@@ -191,10 +191,6 @@ show' a               = show a
 
 lower ∷ String → String
 lower = T.unpack ∘ T.toLower ∘ T.pack
-
--- | Enumerated list.
-allClasses ∷ [Class]
-allClasses = [minBound .. maxBound]
 
 -- | Effects of 'Status'es.
 data Effect = Afflict    Int           -- ^ Deals damage every turn

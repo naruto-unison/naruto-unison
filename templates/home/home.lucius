@@ -3,7 +3,6 @@ body, #contents {
 }
 .char {
   height: 50px;
-  vertical-align: bottom;
   float: right;
 }
 .skill {

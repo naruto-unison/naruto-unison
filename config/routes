@@ -15,4 +15,7 @@
 /                                             PlayR          GET
 /changelog                                    ChangelogR     GET
 /home                                         HomeR          GET
+/user/#UserId                                 ProfileR       GET
+/forums                                       ForumsR        GET
+/forum/#ForumBoard                            BoardR         GET
 /                                             StaticR        Static appStatic

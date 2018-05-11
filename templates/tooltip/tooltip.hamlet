@@ -1,3 +1,4 @@
+$newline never
 <div #tooltip>
   <div #skillIcon>
   <div #skillName>

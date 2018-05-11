@@ -598,7 +598,7 @@ is ∷ Effect → Ninja → Bool
 is ef = (ef ∈) ∘ nEfs
 
 is' ∷ (Class → Effect) → Ninja → Bool
-is' efs = ((efs ↤ allClasses) ⩀) ∘ nEfs
+is' efs = ((efs ↤ enums) ⩀) ∘ nEfs
 
 numActive ∷ Text → Ninja → Int
 numActive l n@Ninja{..}

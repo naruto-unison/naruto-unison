@@ -171,7 +171,7 @@ runTurn player actions stdGen game = yieldVictor game'Full
         game'Futur = censor vs game'Clear
         chansNext  = getAllChannels vs game'Futur
         game'Ghost = foldl' (act []) game'Futur
-                   $ zip chansNext $ Right ↤ drop (teamSize * 2) rs'
+                   $ zip chansNext $ Right ↤ drop' (teamSize * 2) rs  
         game'Full  = addTags game'Clear game'Ghost
         getChannels n = fromChannel n ↤∘ mfilter ((1 ≠) ∘ getDur) 
                       $ nChannels n

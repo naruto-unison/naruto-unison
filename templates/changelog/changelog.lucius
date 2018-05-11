@@ -1,12 +1,15 @@
 .char {
-  float: right;
-  vertical-align: bottom;
-  margin-top: 0 !important;
+  float: left;
+  margin: 1px 0px 0px -19px !important;
+}
+.skill:after {
+  content: " |";
+  color: #666;
+}
+.skill:last-child:after {
+  content: none;
 }
 
-.skill::after {
-  content: " |";
-}
-.skill:last-child::after {
-  content: none;
+li li {
+  margin-left: 5.5em;
 }

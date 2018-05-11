@@ -2,8 +2,8 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE QuasiQuotes #-}
 
--- | Test interface for 'gameSocket'.
-module Handler.Test (getTestR) where
+-- | Behind-the-scenes utility pages. Requires sufficient 'Privilege'.
+module Handler.Admin (getTestR) where
 
 import Preludesque
 
@@ -13,9 +13,16 @@ import Yesod.WebSockets
 import Core.Import
 import Handler.Play
 
+-- | Fails if not logged in or 'userPrivilege' is lower than the argument.
+authorize ∷ Privilege → Handler ()
+authorize privilege = do
+  (_, user) ← requireAuthPair
+  when (userPrivilege user < privilege) notAuthenticated
+
 -- | Provides a simple JavaScript interface for 'gameSocket'.
 getTestR :: Handler Html
 getTestR = do
+  authorize Moderator
   webSockets gameSocket
   defaultLayout $ do
     setTitle "Socket Test"

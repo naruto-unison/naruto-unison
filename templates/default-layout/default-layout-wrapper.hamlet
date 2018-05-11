@@ -18,10 +18,7 @@ $newline never
 
     ^{pageHead pc}
 
-  <script>
-    function reveal() { document.body.style.display="block"; }
-
-  <body onload=reveal()>
+  <body>
     ^{pageBody pc}
 
     $maybe analytics <- appAnalytics $ appSettings master

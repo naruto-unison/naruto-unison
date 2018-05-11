@@ -1,0 +1,35 @@
+p {
+  margin-top: 0;
+  margin-bottom: 0.25em;
+}
+.char {
+  width: 50px;
+}
+.char.avatar {
+  margin: 0;
+  width: initial;
+  outline-width: 2px;
+}
+.leftbar {
+  text-align: center;
+  margin-right: 1em;
+}
+.clearfix {
+  float: left;
+}
+.team {
+  margin-top: 3px;
+}
+.team img {
+  display: inline-block;
+  margin: 0;
+  width: 26px;
+  outline-color: #333 !important;
+}
+.team img:first-child {
+  margin-right: -1px;
+}
+p.label {
+  font-weight: initial;
+  text-decoration: underline;
+}

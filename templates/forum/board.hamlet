@@ -1,0 +1,3 @@
+$newline never
+<h2>#{boardName board}
+<p>#{boardDesc board}

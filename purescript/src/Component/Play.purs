@@ -301,7 +301,7 @@ component practice0 (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
   eval (QuerySelect _ next) = pure next
 
 _label ∷ ∀ a b. String → HTML a b
-_label l = H.div [_c "barlabel"] [H.text l]
+_label l = H.div [_c "label"] [H.text l]
 
 enactUrl ∷ Chakras → Chakras → Array Act → String
 enactUrl rand trade acts = intercalate "/" $ χList ⧺ actList

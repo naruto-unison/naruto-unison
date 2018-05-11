@@ -200,9 +200,9 @@ userXP (User {xp}) = xp / 1000
 
 userRank ∷ User → String
 userRank (User {privilege, xp})
-  | privilege ≡ Admin ∨ privilege ≡ Moderator = "Staff"
-  | otherwise = fromMaybe "Hokage" $ ranks !! (xp / 5000)
-
+  | privilege ≡ Normal = fromMaybe "Hokage" $ ranks !! (xp / 5000)
+  | otherwise          = show privilege 
+  
 lMatch ∷ Skill → Skill → Boolean
 lMatch (Skill {label: a}) (Skill {label: b}) = a ≡ b
 

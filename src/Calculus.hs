@@ -27,6 +27,10 @@ True  $? a = a
 eqs ∷ Eq b ⇒ (a → b) → a → a → Bool
 eqs = on (≡)
 
+-- | Lists all members of an 'Enum' from 'minBound' to 'maxBound'.
+enums ∷ (Bounded a, Enum a) ⇒ [a]
+enums = [minBound .. maxBound]
+
 -- | Apply the same two arguments to a list of functions and 'and' the result.
 -- Goes well with 'eq', e.g. @andOn [eqs recordFieldA,  recordFieldB]@.
 andOn ∷ (Foldable a, Functor a) ⇒ a (b → b → Bool) → b → b → Bool
@@ -79,6 +83,17 @@ duplic a = nub a ≠ a
 -- | @'pack' . 'show'@
 tshow ∷ Show a ⇒ a → Text
 tshow = pack ∘ show
+
+-- | Removes spaces and special characters.
+shorten ∷ Text → Text
+shorten = T.map shorten' ∘ T.filter (∉ filterOut)
+  where filterOut    = " -:()®'/?" ∷ String
+        shorten' 'ō' = 'o'
+        shorten' 'Ō' = 'O'
+        shorten' 'ū' = 'u'
+        shorten' 'Ū' = 'U'
+        shorten' 'ä' = 'a'
+        shorten'  a  =  a
 
 -- | Extracts a 'Just' in a monad.
 -- Returns the error message argument if given 'Nothing'.

@@ -97,6 +97,7 @@ data MenuTypes
 -- type Widget = WidgetT App IO ()
 mkYesodData "App" $(parseRoutesFileNoCheck "config/routes") 
 
+
 -- | A convenient synonym for database access functions.
 type DB a = forall (m ∷ * → *).
     (MonadIO m) ⇒ ReaderT SqlBackend m a
@@ -145,7 +146,8 @@ instance Yesod App where
         ∷ Route App  -- ^ The route the user is visiting.
         → Bool       -- ^ Whether or not this is a "write" request.
         → Handler AuthResult
-    isAuthorized _ _ = return Authorized
+    isAuthorized TestR _ = isAuthenticated
+    isAuthorized _     _ = return Authorized
 
     -- Creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
@@ -181,6 +183,9 @@ instance Yesod App where
 instance YesodBreadcrumbs App where
   breadcrumb (AuthR _) = return ("Login", Just HomeR)
   breadcrumb ChangelogR = return ("Changelog", Just HomeR)
+  breadcrumb ForumsR = return ("Forums", Just HomeR)
+  breadcrumb (BoardR board) = return ("Forum: " ⧺ boardName board, Just ForumsR)
+  breadcrumb (ProfileR _) = return ("User Profile", Just ForumsR)
   breadcrumb  _ = return ("Home", Nothing)
 
 -- How to run database actions.

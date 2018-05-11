@@ -1,11 +1,10 @@
+$newline never
 <!-- Page Contents -->
 
 <div #contents .container>
   <div #forums>
     <h2>Recent Activity
-    <a .refer href=#>Go to forums
-    <p>
-      (The link doesn't do anything right now because I haven't built the forums yet.)
+    <a .refer href=@{ForumsR}>Go to forums
   <div #changelog>
     <h2>Recent Changes
     <a .refer href=@{ChangelogR}>View full changelog

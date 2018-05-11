@@ -5,12 +5,19 @@ html, body {
   width: 100%;
   height: 100%;
 }
+.label {
+  font-weight: bold;
+}
+span.label {
+  float: left;
+  margin-right: 5px;
+  min-width: 4.9em;
+}
 body {
   font-family: Trebuchet MS, sans-serif;
   background-size: cover !important;
   background: #040309 url('/img/bg/hokage.png') no-repeat center bottom;
   background-attachment: fixed;
-  display: none;
 }
 .breadcrumb, .container, #banner {
   width: 53%;
@@ -27,11 +34,12 @@ body {
   color: #fff;
   text-shadow: 0 0 2px #000;
 }
-.breadcrumb li:first-child::before {
+.breadcrumb li:first-child:before {
   content: none;
 }
-.breadcrumb li::before {
-  content: "> ";
+.breadcrumb li:before {
+  content: " > ";
+  white-space: pre;
 }
 .container {
   box-sizing: border-box;
@@ -39,12 +47,14 @@ body {
   border: 2px solid #333;
   margin: 5px auto auto;
   font-size: 14px;
-  padding: 5px 30px;
+  padding: 15px 30px;
 }
-.container::after {
-  content: "";
-  display: block;
-  clear: both;
+.container:before, .container:after {
+    content: " "; 
+    display: table;
+}
+.container:after {
+    clear: both;
 }
 .row.alert {
   padding: 10px 30px;
@@ -99,7 +109,9 @@ h4 { font-size: 1.15em; }
   display: inline-block;
   outline: 1px solid #000;
   margin: 5px;
+  vertical-align: top;
 }
+
 .chakra {
   display: inline-block;
   height: 0.6em;
@@ -136,3 +148,6 @@ a, a.minor {
 a:hover {
   text-decoration: underline;
 }
+
+.Admin     { color: #fcb01c; border-color: #fcb01c; outline-color: #fcb01c; }
+.Moderator { color: #ed3cef; border-color: #ed3cef; outline-color: #ed3cef; }

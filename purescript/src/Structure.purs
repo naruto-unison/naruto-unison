@@ -5,7 +5,7 @@ import Prelude
 import Data.Argonaut.Core          (Json)
 import Data.Argonaut.Generic.Aeson (decodeJson)
 import Data.Either                 (Either)   
-import Data.Generic                (class Generic)
+import Data.Generic                (class Generic, gShow)
 import Data.Maybe                  (Maybe)
 import Data.Tuple                  (Tuple)
 
@@ -228,6 +228,7 @@ derive instance genericTrapType ∷ Generic TrapType
 data Privilege = Normal | Moderator | Admin
 derive instance genericPrivilege ∷ Generic Privilege
 derive instance eqPrivilege ∷ Eq Privilege
+instance showPrivilege ∷ Show Privilege where show = gShow
 
 newtype User = User { name       ∷ String
                     , avatar     ∷ String

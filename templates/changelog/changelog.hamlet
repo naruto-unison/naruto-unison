@@ -1,3 +1,4 @@
+$newline never
 <h3>May 2
 <ul>
   #{changelog Rework "Rasa" R}
