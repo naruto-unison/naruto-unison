@@ -41,20 +41,19 @@ body {
   content: " > ";
   white-space: pre;
 }
+#content {
+  width: 53%;
+}
 .container {
   box-sizing: border-box;
   background: #fff;
   border: 2px solid #333;
   margin: 5px auto auto;
   font-size: 14px;
-  padding: 15px 30px;
+  display: flex;
 }
-.container:before, .container:after {
-    content: " "; 
-    display: table;
-}
-.container:after {
-    clear: both;
+.row {
+  padding: 0 2.5em;
 }
 .row.alert {
   padding: 10px 30px;
@@ -97,6 +96,10 @@ body {
 }
 h1 {
   margin: 0.1em 0;
+}
+h2 {
+  margin-bottom: 0.5em;
+  text-transform: uppercase;
 }
 h3, h4 {
   margin-top: 0.5em;

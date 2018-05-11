@@ -1,4 +1,4 @@
-body, #contents {
+body, #content {
   background: #1b4e66 !important;
 }
 .char {
@@ -17,29 +17,24 @@ body, #contents {
 #banner {
   text-align: center;
 }
-#contents {
-  width: 100%;
+#content {
+  width: 100% !important;
   border-left: none;
   border-right: none;
   border-bottom: none;
   padding: 0;
 }
-#contents > div {
-  padding-top: 1.5em;
+#content > div {
   box-sizing: border-box;
 }
 #main {
   width: 53%;
-  margin: auto;
   text-align: left;
   background: #fff;
   border-top: none;
   border-bottom: none;
   border-width: 1px;
   box-shadow: 0px 0px 10px rgba(0,0,0,0.25);
-}
-#main > h2:first-child {
-  margin-top: 0;
 }
 #changelog, #forums {
   color: #fff;
@@ -52,17 +47,14 @@ body, #contents {
   margin-bottom: 6px;
 }
 #changelog h2, #forums h2 {
-  margin-top: 0;
   margin-bottom: 0.2em;
 }
 #changelog { 
-  float: left;
   padding-left: 3em; 
   padding-right: 1em;
   padding-bottom: 6em;
 }
 #forums { 
-  float: right;
   padding-left: 1em;
   padding-right: 3em; 
 }

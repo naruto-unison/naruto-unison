@@ -14,9 +14,6 @@ p {
   text-align: center;
   margin-right: 1em;
 }
-.clearfix {
-  float: left;
-}
 .team {
   margin-top: 3px;
 }

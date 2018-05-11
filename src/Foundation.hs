@@ -97,7 +97,6 @@ data MenuTypes
 -- type Widget = WidgetT App IO ()
 mkYesodData "App" $(parseRoutesFileNoCheck "config/routes") 
 
-
 -- | A convenient synonym for database access functions.
 type DB a = forall (m ∷ * → *).
     (MonadIO m) ⇒ ReaderT SqlBackend m a
@@ -185,7 +184,7 @@ instance YesodBreadcrumbs App where
   breadcrumb ChangelogR = return ("Changelog", Just HomeR)
   breadcrumb ForumsR = return ("Forums", Just HomeR)
   breadcrumb (BoardR board) = return ("Forum: " ⧺ boardName board, Just ForumsR)
-  breadcrumb (ProfileR _) = return ("User Profile", Just ForumsR)
+  breadcrumb (ProfileR _) = return ("User Profile", Just HomeR)
   breadcrumb  _ = return ("Home", Nothing)
 
 -- How to run database actions.

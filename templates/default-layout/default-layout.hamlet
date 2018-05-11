@@ -17,9 +17,5 @@ $else
     $maybe msg <- mmsg
       <div .container.alert.alert-info #message>#{msg}
 
-  $if (mcurrentRoute ≡ Just HomeR)
+  <div #content .container>
     ^{widget}
-  $else
-    <div .container>
-      <div .row>
-        ^{widget}

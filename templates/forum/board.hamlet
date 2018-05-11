@@ -1,3 +1,4 @@
 $newline never
-<h2>#{boardName board}
-<p>#{boardDesc board}
+<div .row>
+  <h2>#{boardName board}
+  <p>#{boardDesc board}

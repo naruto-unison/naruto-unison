@@ -35,12 +35,17 @@ data ForumCategory = Official
                    | General
                    deriving (Enum, Bounded, Eq, Show, Read)
                    
+                -- Official
 data ForumBoard = NewsAndAnnouncements
                 | ForumInfo
-
-                | BugReports
-                | TechnicalSupport
+                -- Community
+                | IntroduceYourself
+                -- Feedback
+                | BugReports       
+                | TechnicalSupport 
                 | Suggestions
+                -- General
+                | OffTopic
                 deriving (Enum, Ord, Bounded, Eq, Show, Read)
 derivePersistField "ForumBoard"
 instance PathPiece ForumBoard where
@@ -49,16 +54,20 @@ instance PathPiece ForumBoard where
 
 category ∷ ForumBoard → ForumCategory
 category NewsAndAnnouncements = Official
-category ForumInfo = Official
-category BugReports = Feedback
-category TechnicalSupport = Feedback
-category Suggestions = Feedback
+category ForumInfo            = Official
+category IntroduceYourself    = Community
+category BugReports           = Feedback
+category TechnicalSupport     = Feedback
+category Suggestions          = Feedback
+category OffTopic             = General
 
 boardName ∷ ForumBoard → Text
 boardName NewsAndAnnouncements = "News and Announcements"
-boardName ForumInfo = "Forum Info"
-boardName BugReports = "Bug Reports"
-boardName TechnicalSupport = "Technical Support"
+boardName ForumInfo            = "Forum Info"
+boardName IntroduceYourself    = "Introduce Yourself"
+boardName BugReports           = "Bug Reports"
+boardName TechnicalSupport     = "Technical Support"
+boardName OffTopic             = "Off Topic"
 boardName a = pack $ show a
 
 boardDesc ∷ ForumBoard → Text

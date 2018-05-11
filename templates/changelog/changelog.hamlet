@@ -1,152 +1,154 @@
 $newline never
-<h3>May 2
-<ul>
-  #{changelog Rework "Rasa" R}
-  #{changelog Rework "Mū" R}
-<h3>May 1
-<ul>
-  #{changelog Rework "Gengetsu Hōzuki" R}
-<h3>April 25
-<ul>
-  #{changelog Rework "Jinpachi Munashi" R}
-<h3>April 24
-<ul>
-  <li>
-    Action skills in progress have blue borders
-  <li>
-    Control skills in progress have red borders
-  <li>
-    If a character will be affected by a non-new skill next turn, a desaturated icon displays the skill above the character next to their own skills in progress
-  <li>
-    If a skill's effect will expire at the end of the current turn, its icon is desaturated
-  <li>
-    If destructible defense will expire at the end of the current turn, its bar is desaturated
-  #{changelog Rework "Haku" R}
-  #{changelog Rework "Kushimaru Kuriarare" R}
-<h3>April 19
-<ul>
-  #{changelog Rework "Hidan" S}
-<h3>April 18
-<ul>
-  #{changelog New "Nagato" S}
-  #{changelog New "Nagato" R}
-<h3>April 17
-<ul>
-  #{changelog Rework "Fū Yamanaka" S}
-<h3>April 15
-<ul>
-  #{changelog Added "Aoba Yamashiro" S}
-<h3>April 15
-<ul>
-  #{changelog Rework "Ameyuri Ringo" R}
-<h3>April 14
-<ul>
-  #{changelog New "Konohamaru Sarutobi" O}
-  #{changelog Rework "Naruto Uzumaki" O}
-<h3>April 13
-<ul>
-  <li>
-    Added destructible barrier, which absorbs an amount of damage dealt by a character
-  #{changelog New "Deva Path Pain" S}
-<h3>April 12
-<ul>
-  <li>
-    Effects from reflected skills are colored black
-  #{changelog New "Hanzō" R}
-  #{changelog Rework "Zetsu" S}
-<h3>April 10
-<ul>
-  <li>
-    Removable effects are colored blue
-<h3>April 9
-<ul>
-  #{changelog New "Mei Terumi" S}
-  #{changelog Rework "Danzō Shimura" S}
-  #{changelog New "Asura Path Pain" S}
-<h3>April 8
-<ul>
-  #{changelog New "Eight-Gates Guy" S}
-  #{changelog New "Ōnoki" S}
-  #{changelog Rework "Tobi" S}
-<h3>April 5
-<ul>
-  #{changelog New "Sage Mode Kabuto" S}
-<h3>April 4
-<ul>
-  #{changelog New "Human Path Pain" S}
-  #{changelog New"Mangekyō Sasuke" S}
-<h3>April 3
-<ul>
-  <li>
-    <i>Invisible</i> effects are semi-transparent
-  #{changelog Rework "Nine-Tailed Naruto" S}
-  #{changelog New "Preta Path Pain" S}
-  #{changelog New "Naraka Path Pain" S}
-<h3>April 1
-<ul>
-  <li>
-    Mousing over a skill highlights targets that it can affect in green, or in red if the skill itself isn't usable (e.g. on cooldown, not enough chakra, stunned)
-<h3>March 31
-<ul>
-  <li>
-    <i>Ongoing</i> skills can have a duration; this has been applied to weather-affecting skills and summoning skills
-  <li>
-    The <i>Bane</i> class has been added to lingering effects from poison and burns
-  <li>
-    The <i>Unique</i> class has been subdivided into <i>Unique</i>, <i>Unique Equipment</i>, and <i>Kekkai Genkai</i>; no gameplay difference, it just seemed silly to have dozens of Sharingan abilities all labeled 'Unique'
-  <li>
-    The <i>Soulbound</i> class has been added to all skills that end when their user dies
-  #{changelog Rework "Kisame Hoshigaki" S}
-  #{changelog New "Masked Man" S}
-  #{changelog New "Curse Mark Sasuke" S}
-  #{changelog New "Animal Path Pain" S}
-<h3>March 28
-<ul>
-  #{changelog Rework "Kankurō" S}
-  #{changelog Rework "Temari" S}
-<h3>March 27
-<ul>
-  #{changelog Rework "Ino Yamanaka" S}
-  #{changelog Rework "Deidara" S}
-  #{changelog Rework "Chiyo" S}
-<h3>March 25
-<ul>
-  #{changelog Rework "Chōji Akimichi" O}
-  <li>
-    Shukaku Gaara's face icon changes upon completing
-    #{"Shukaku Gaara" ! "Sand Transformation"}
-<h3>March 24
-<ul>
-  #{changelog New "Kazekage Puppeteer Sasori" S}
-  #{changelog New "Hiruko Sasori" S}
-<h3>March 23
-<ul>
-  #{changelog New "True Form Sasori" S}
-  <li>
-    The <i>Affliction</i> class has been renamed to <i>Bane</i>
-    in order to avoid confusion with affliction damage.
-    Most <i>Affliction</i> effects deal affliction damage, 
-    and most skills that deal affliction damage over time are classified as <i>Affliction</i>,
-    but the relationship is not one-to-one. For example: Shino#{s}'s 
-    #{"Shino Aburame (S)" ! "Gigantic Beetle Infestation"}.
-    In the future, other skills may be additionally classified as <i>Bane</i>;
-    this would make skills that cure all <i>Bane</i> effects more useful
-    and improve consistency.
-<h3>March 21
-<ul>
-  <li>Added a changelog
-  <li>Several classes have been added for clarity
-    <ul><i>Invisible</i>: Cannot be seen by the enemy team
-    <ul><i>Unremovable</i>: Effects cannot be cured or removed in any way
-    <ul><i>Bypassing</i>: Bypasses invulnerability
-    <ul><i>Soulbound:</i> Effects end when the user dies
-  <li>
-    In addition to <i>Instant</i>, <i>Action</i>, and <i>Control</i>, there is a new type of duration
-    called <i>Ongoing</i>. <i>Ongoing</i> skills are permanent,
-    perform an action every turn even if their user is stunned or otherwise disabled,
-    and end when their user dies. Examples:
-    Tsunade's #{"Tsunade" ! "Major Summoning: Katsuyu"}, 
-    Jiraiya's #{"Jiraiya" ! "Major Summoning: Gamabunta"},
-    Orochimaru's #{"Orochimaru" ! "Major Summoning: Manda"},
-    Hiruzen's #{ "Hiruzen Sarutobi" ! "Major Summoning: Enma"}, and
-    Choji#{s}'s #{ "Choji Akimichi" ! "Butterfly Mode"}.
+
+<div .row>
+  <h3>May 2
+  <ul>
+    #{changelog Rework "Rasa" R}
+    #{changelog Rework "Mū" R}
+  <h3>May 1
+  <ul>
+    #{changelog Rework "Gengetsu Hōzuki" R}
+  <h3>April 25
+  <ul>
+    #{changelog Rework "Jinpachi Munashi" R}
+  <h3>April 24
+  <ul>
+    <li>
+      Action skills in progress have blue borders
+    <li>
+      Control skills in progress have red borders
+    <li>
+      If a character will be affected by a non-new skill next turn, a desaturated icon displays the skill above the character next to their own skills in progress
+    <li>
+      If a skill's effect will expire at the end of the current turn, its icon is desaturated
+    <li>
+      If destructible defense will expire at the end of the current turn, its bar is desaturated
+    #{changelog Rework "Haku" R}
+    #{changelog Rework "Kushimaru Kuriarare" R}
+  <h3>April 19
+  <ul>
+    #{changelog Rework "Hidan" S}
+  <h3>April 18
+  <ul>
+    #{changelog New "Nagato" S}
+    #{changelog New "Nagato" R}
+  <h3>April 17
+  <ul>
+    #{changelog Rework "Fū Yamanaka" S}
+  <h3>April 15
+  <ul>
+    #{changelog Added "Aoba Yamashiro" S}
+  <h3>April 15
+  <ul>
+    #{changelog Rework "Ameyuri Ringo" R}
+  <h3>April 14
+  <ul>
+    #{changelog New "Konohamaru Sarutobi" O}
+    #{changelog Rework "Naruto Uzumaki" O}
+  <h3>April 13
+  <ul>
+    <li>
+      Added destructible barrier, which absorbs an amount of damage dealt by a character
+    #{changelog New "Deva Path Pain" S}
+  <h3>April 12
+  <ul>
+    <li>
+      Effects from reflected skills are colored black
+    #{changelog New "Hanzō" R}
+    #{changelog Rework "Zetsu" S}
+  <h3>April 10
+  <ul>
+    <li>
+      Removable effects are colored blue
+  <h3>April 9
+  <ul>
+    #{changelog New "Mei Terumi" S}
+    #{changelog Rework "Danzō Shimura" S}
+    #{changelog New "Asura Path Pain" S}
+  <h3>April 8
+  <ul>
+    #{changelog New "Eight-Gates Guy" S}
+    #{changelog New "Ōnoki" S}
+    #{changelog Rework "Tobi" S}
+  <h3>April 5
+  <ul>
+    #{changelog New "Sage Mode Kabuto" S}
+  <h3>April 4
+  <ul>
+    #{changelog New "Human Path Pain" S}
+    #{changelog New"Mangekyō Sasuke" S}
+  <h3>April 3
+  <ul>
+    <li>
+      <i>Invisible</i> effects are semi-transparent
+    #{changelog Rework "Nine-Tailed Naruto" S}
+    #{changelog New "Preta Path Pain" S}
+    #{changelog New "Naraka Path Pain" S}
+  <h3>April 1
+  <ul>
+    <li>
+      Mousing over a skill highlights targets that it can affect in green, or in red if the skill itself isn't usable (e.g. on cooldown, not enough chakra, stunned)
+  <h3>March 31
+  <ul>
+    <li>
+      <i>Ongoing</i> skills can have a duration; this has been applied to weather-affecting skills and summoning skills
+    <li>
+      The <i>Bane</i> class has been added to lingering effects from poison and burns
+    <li>
+      The <i>Unique</i> class has been subdivided into <i>Unique</i>, <i>Unique Equipment</i>, and <i>Kekkai Genkai</i>; no gameplay difference, it just seemed silly to have dozens of Sharingan abilities all labeled 'Unique'
+    <li>
+      The <i>Soulbound</i> class has been added to all skills that end when their user dies
+    #{changelog Rework "Kisame Hoshigaki" S}
+    #{changelog New "Masked Man" S}
+    #{changelog New "Curse Mark Sasuke" S}
+    #{changelog New "Animal Path Pain" S}
+  <h3>March 28
+  <ul>
+    #{changelog Rework "Kankurō" S}
+    #{changelog Rework "Temari" S}
+  <h3>March 27
+  <ul>
+    #{changelog Rework "Ino Yamanaka" S}
+    #{changelog Rework "Deidara" S}
+    #{changelog Rework "Chiyo" S}
+  <h3>March 25
+  <ul>
+    #{changelog Rework "Chōji Akimichi" O}
+    <li>
+      Shukaku Gaara's face icon changes upon completing
+      #{"Shukaku Gaara" ! "Sand Transformation"}
+  <h3>March 24
+  <ul>
+    #{changelog New "Kazekage Puppeteer Sasori" S}
+    #{changelog New "Hiruko Sasori" S}
+  <h3>March 23
+  <ul>
+    #{changelog New "True Form Sasori" S}
+    <li>
+      The <i>Affliction</i> class has been renamed to <i>Bane</i>
+      in order to avoid confusion with affliction damage.
+      Most <i>Affliction</i> effects deal affliction damage, 
+      and most skills that deal affliction damage over time are classified as <i>Affliction</i>,
+      but the relationship is not one-to-one. For example: Shino#{s}'s 
+      #{"Shino Aburame (S)" ! "Gigantic Beetle Infestation"}.
+      In the future, other skills may be additionally classified as <i>Bane</i>;
+      this would make skills that cure all <i>Bane</i> effects more useful
+      and improve consistency.
+  <h3>March 21
+  <ul>
+    <li>Added a changelog
+    <li>Several classes have been added for clarity
+      <ul><i>Invisible</i>: Cannot be seen by the enemy team
+      <ul><i>Unremovable</i>: Effects cannot be cured or removed in any way
+      <ul><i>Bypassing</i>: Bypasses invulnerability
+      <ul><i>Soulbound:</i> Effects end when the user dies
+    <li>
+      In addition to <i>Instant</i>, <i>Action</i>, and <i>Control</i>, there is a new type of duration
+      called <i>Ongoing</i>. <i>Ongoing</i> skills are permanent,
+      perform an action every turn even if their user is stunned or otherwise disabled,
+      and end when their user dies. Examples:
+      Tsunade's #{"Tsunade" ! "Major Summoning: Katsuyu"}, 
+      Jiraiya's #{"Jiraiya" ! "Major Summoning: Gamabunta"},
+      Orochimaru's #{"Orochimaru" ! "Major Summoning: Manda"},
+      Hiruzen's #{ "Hiruzen Sarutobi" ! "Major Summoning: Enma"}, and
+      Choji#{s}'s #{ "Choji Akimichi" ! "Butterfly Mode"}.

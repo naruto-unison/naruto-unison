@@ -1,7 +1,8 @@
 $newline never
-$forall category <- enums
-  <h1>#{show category}
-  $forall board <- getBoards category
-    <h2>
-      <a href=@{BoardR board}>#{boardName board}
-    <p>#{boardDesc board}
+<div .row>
+  $forall category <- enums
+    <h1>#{show category}
+    $forall board <- getBoards category
+      <h2>
+        <a href=@{BoardR board}>#{boardName board}
+      <p>#{boardDesc board}
