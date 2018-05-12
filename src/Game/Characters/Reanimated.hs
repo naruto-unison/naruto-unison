@@ -471,10 +471,10 @@ reanimatedCsS =
         , cost    = χ [Nin, Rand]
         , cd      = 3
         , effects = [ (Enemy, perHealthU id (\hp → bomb 2 [Duel, Taunt] 
-                             [(Done, setHealth hp)])
+                             [(Done, setHealth hp)]) 0
                             • setHealth 30
                             • self § perHealthU id (\hp → bomb 2 [Duel, Taunt] 
-                             [(Done, setHealth hp)])
+                             [(Done, setHealth hp)]) 0
                             • self § setHealth 30)]
         }
       ]

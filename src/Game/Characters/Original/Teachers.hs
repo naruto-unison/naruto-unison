@@ -18,7 +18,7 @@ teacherCs =
         , desc    = "Iruka throws a shuriken at an enemy, dealing 20 damage plus 10 per 25 health Iruka has lost."
         , classes = [Physical, Ranged]
         , cost    = χ [Tai]
-        , effects = [(Enemy, damage 20 • perHealthI (lost 25 10) damage)]
+        , effects = [(Enemy, perHealthI (lost 25 10) damage 20)]
         }
       ]
     , [ newSkill
@@ -71,7 +71,7 @@ teacherCs =
         , classes = [Physical, Ranged]
         , cost    = χ [Tai, Rand]
         , charges = 2
-        , effects = [ (Enemy, perHealthU (lost 20 10) damage
+        , effects = [ (Enemy, perHealthU (lost 20 10) damage 10
                             • withI "Genjutsu Ambush Tactics" 30 damage 10)
                     ]
         }

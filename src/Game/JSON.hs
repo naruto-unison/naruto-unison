@@ -23,7 +23,7 @@ reduceStatuses Ninja{..} = uncurry (⧺) ∘ partition ((nId ≠) ∘ statusSrc)
                          ∘ uncurry (⧺)
                          ∘ do2 True (reduceStatus ↤∘ groupBy groupStatuses)
                          ∘ partition ((Multi ∈) ∘ statusClasses)
-                         $ mfilter ((Hidden ∉) ∘ statusClasses) nStatuses
+                         $ filter ((Hidden ∉) ∘ statusClasses) nStatuses
 
 instance ToJSON Ninja where
     toJSON n@Ninja{..} = object
@@ -38,7 +38,7 @@ instance ToJSON Ninja where
         , "nParrying"  .= nParrying
         , "nVariants"  .= nVariants
         , "nTags"      .= nTags
-        , "nTraps"     .= mfilter ((Hidden ∉) ∘ trapClasses) nTraps
+        , "nTraps"     .= filter ((Hidden ∉) ∘ trapClasses) nTraps
         , "nName"      .= characterName nCharacter
         , "nStatuses"  .= reduceStatuses n
         , "nCooldowns" .= getCds n

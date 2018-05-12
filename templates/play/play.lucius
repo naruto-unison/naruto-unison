@@ -490,7 +490,7 @@ a.playButton {
   width: 383px;
   transition: 0.5s all;
 }
-.skillClasses {
+#game .skillClasses {
   display: block !important;
   font-size: 1em !important;
 }

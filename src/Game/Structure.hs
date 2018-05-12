@@ -53,7 +53,6 @@ import Preludesque
 import qualified Data.Sequence as S
 import qualified Data.Text as T
 
-import Control.Monad
 import Data.Aeson
 import Data.Sequence   (adjust', fromList, index, Seq, update)
 import Data.Text       (splitOn, Text)
@@ -1030,7 +1029,7 @@ botActs = [ Act (Slot 3) (Left 1) (Slot 2)
 
 -- | All targets that a 'Skill' from a a specific 'Ninja' affects.
 skillTargets ∷ Skill → Slot → [Slot]
-skillTargets Skill{..} c = mfilter target $ Slot ↤ [0 .. gameSize - 1]
+skillTargets Skill{..} c = filter target $ Slot ↤ [0 .. gameSize - 1]
   where ts = fst ↤ (start ⧺ effects ⧺ disrupt)
         harm = [Enemy, Enemies, REnemy, XEnemies] ⩀ ts
         target t | Everyone ∈ ts = True

@@ -5,7 +5,6 @@ import Preludesque
 
 import qualified Data.Sequence as S
 
-import Control.Monad
 import Data.Sequence (adjust', index)
 import Data.Text     (Text)
 
@@ -16,9 +15,9 @@ import Game.Functions
 -- Applies a 'Status'. Deletes older matching 'Statuses' if 'Nonstacking'.
 addStatus ∷ Status → Ninja → Ninja
 addStatus st n@Ninja{..} = n { nStatuses = st' : f nStatuses }
-  where f       = (Nonstacking ∈ statusClasses st') ? mfilter (not ∘ lEq st)
+  where f       = (Nonstacking ∈ statusClasses st') ? filter (not ∘ lEq st)
         st'     = st { statusClasses = statusF $ statusClasses st }
-        statusF | null $ statusBombs st = mfilter (InvisibleTraps ≠)
+        statusF | null $ statusBombs st = filter (InvisibleTraps ≠)
                 | otherwise             = map invis
         invis InvisibleTraps = Invisible
         invis a              = a
@@ -50,17 +49,17 @@ attack hp n@Ninja{..} = n { nHealth = healthBound (minHealth n) $ nHealth - hp }
 -- | Deletes matching 'Channel's in 'nChannels'.
 cancelChannel ∷ Text → Ninja → Ninja
 cancelChannel l n@Ninja{..} = n 
-    { nChannels = mfilter ((l ≠) ∘ label ∘ channelSkill) nChannels }  
+    { nChannels = filter ((l ≠) ∘ label ∘ channelSkill) nChannels }  
 
 -- | Deletes matching 'Status'es in 'nStatuses'.
 clear ∷ Text → Slot → Ninja → Ninja
 clear l src n@Ninja{..} = n 
-    { nStatuses = mfilter (not ∘ lMatch l src) nStatuses }
+    { nStatuses = filter (not ∘ lMatch l src) nStatuses }
 
 -- | Deletes matching 'Trap's in 'nTraps'.
 clearTrap ∷ Text → Slot → Ninja → Ninja
 clearTrap l src n@Ninja{..} = n 
-    { nTraps = mfilter (not ∘ lMatch l src) nTraps }
+    { nTraps = filter (not ∘ lMatch l src) nTraps }
 
 -- | Removes harmful effects. Does not work if the target has 'Plague'.
 cure ∷ (Effect → Bool) → Ninja → Ninja
@@ -71,7 +70,7 @@ cure match n@Ninja{..} = n { nStatuses = mapMaybe cure' nStatuses }
           | Unremovable ∈ statusClasses = Just status
           | is Plague n = Just status
           | not $ any keep statusEfs = Nothing
-          | otherwise = Just status { statusEfs = mfilter keep statusEfs }
+          | otherwise = Just status { statusEfs = filter keep statusEfs }
         keep Reveal = True
         keep a      = helpful a ∨ not (match a)
 
@@ -79,7 +78,7 @@ cure match n@Ninja{..} = n { nStatuses = mapMaybe cure' nStatuses }
 cureBane ∷ Ninja → Ninja
 cureBane n@Ninja{..}
   | is Plague n = n
-  | otherwise   = cure cured n { nStatuses = mfilter uncured nStatuses }
+  | otherwise   = cure cured n { nStatuses = filter uncured nStatuses }
   where cured (Afflict _)  = True
         cured _            = False
         uncured Status{..} = Bane ∉ statusClasses ∨ nId ≡ statusSrc
@@ -110,7 +109,7 @@ decr n@Ninja{..} = case findMatch nStatuses of
               , nParrying  = []
               }
   where findMatch          = find match ∘ reverse ∘ concatMap statusEfs 
-                           ∘ mfilter ((≤ 2) ∘ statusDur)
+                           ∘ filter ((≤ 2) ∘ statusDur)
         match (Snapshot _) = True
         match _            = False
         decrTurn' xs = case mapMaybe decrTurn $ toList xs of
@@ -156,7 +155,7 @@ purge n@Ninja{..}
   where canPurge ef = helpful ef ∨ not (sticky ef)
         doPurge st@Status{..}
           | Unremovable ∉ statusClasses ∧ any canPurge statusEfs = st
-              { statusEfs = mfilter canPurge statusEfs }
+              { statusEfs = filter canPurge statusEfs }
           | otherwise = st
 
 -- | Resets the duration of matching 'Status'es to their 'statusMaxDur'.
@@ -173,7 +172,7 @@ removeStack l n@Ninja{..} = n
 -- | Replicates 'removeStack'.
 removeStacks ∷ Text → Int → Slot → Ninja → Ninja
 removeStacks l i src n@Ninja{..} = n { nStatuses = nStatuses ∖ stacks }
-  where stacks = take i $ mfilter (lMatch l src) nStatuses
+  where stacks = take i $ filter (lMatch l src) nStatuses
 
 -- | Removes matching self-applied 'Status'es.
 removeOwn ∷ Text → Ninja → Int → Ninja
@@ -210,7 +209,7 @@ unCounter n@Ninja{..} = n
 -- | Resets matching 'nVariants'.
 unVariant ∷ Text → Ninja → Ninja
 unVariant l n@Ninja{..} = n { nVariants = f ↤ nVariants }
-  where f = ensure ∘ mfilter ((l ≠) ∘ variantL) ∘ toList
+  where f = ensure ∘ filter ((l ≠) ∘ variantL) ∘ toList
         ensure []     = noVariant :| []
         ensure (x:xs) = x :| xs
 

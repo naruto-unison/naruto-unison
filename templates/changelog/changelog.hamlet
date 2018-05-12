@@ -1,6 +1,9 @@
 $newline never
 
 <section>
+  <h3>May 12
+  <ul>
+    #{changelog Added "Rock Lee" S}
   <h3>May 2
   <ul>
     #{changelog Rework "Rasa" R}

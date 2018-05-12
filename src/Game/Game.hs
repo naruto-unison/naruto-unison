@@ -32,7 +32,8 @@ module Game.Game
     , ifChan, ifHealthI, ifHealthU, ifI, ifU, ifnotI, ifnotU
     , ifStacks, ifnotStacks, killThen
     -- ** Scaling
-    , perI, perI', perU, perHealthI, perHealthU, perAffected, perDef, perHelpful
+    , perAffected, perDead, perDef, perHelpful
+    , perI, perI', perU, perHealthI, perHealthU
     , withI, withU, withInvulnU, withChan
     -- * 'Transform's
     , delay, factory, vary, vary', wait, wait'
@@ -74,7 +75,6 @@ import qualified Data.Sequence as S
 import qualified Data.Text     as T
 import qualified Game.Ninja    as N
 
-import Control.Monad
 import Data.Either
 import Data.Function         ((&))
 import Data.Sequence         (Seq, adjust', update)
@@ -104,7 +104,7 @@ censorNinja game player n@Ninja{..}
       { nCooldowns = ø
       , nCharges   = ø
       , nVariants  = S.replicate 4 [noVariant]
-      , nChannels  = mfilter ( (not ∘ ([Invisible, InvisibleTraps] ⩀)) 
+      , nChannels  = filter ( (not ∘ ([Invisible, InvisibleTraps] ⩀)) 
                              ∘ classes ∘ channelSkill
                              ) nChannels
       , nLastSkill = Nothing
@@ -153,7 +153,7 @@ runTurn player actions stdGen game = yieldVictor game'Full
                    ∘ doBombs Remove game
                    ∘ decrStats
                    ∘ foldl' (act []) game'Acts ∘ zip chans $ Right ↤ rs'
-        decrDelays = mfilter ((0 ≠) ∘ getDur) ∘ mapMaybe decrTurn ∘ gameDelays
+        decrDelays = filter ((0 ≠) ∘ getDur) ∘ mapMaybe decrTurn ∘ gameDelays
         game'End   = doBombs Done game
                    ∘ doBombs Expire game'Chan
                    $ decr game'Chan { gameDelays = decrDelays game'Chan }
@@ -173,7 +173,7 @@ runTurn player actions stdGen game = yieldVictor game'Full
         game'Ghost = foldl' (act []) game'Futur
                    $ zip chansNext $ Right ↤ drop' (teamSize * 2) rs  
         game'Full  = addTags game'Clear game'Ghost
-        getChannels n = fromChannel n ↤∘ mfilter ((1 ≠) ∘ getDur) 
+        getChannels n = fromChannel n ↤∘ filter ((1 ≠) ∘ getDur) 
                       $ nChannels n
         getAllChannels p Game{..} = concatMap getChannels (alives p gameNinjas)
         decr g@Game{..} = g { gameNinjas = N.decr ↤ gameNinjas }
@@ -181,7 +181,7 @@ runTurn player actions stdGen game = yieldVictor game'Full
         
 doDelays ∷ Game → Game
 doDelays game@Game{..} = foldl' (flip delayEf) game 
-                       $ mfilter ((≤ 1) ∘ delayDur) gameDelays
+                       $ filter ((≤ 1) ∘ delayDur) gameDelays
 
 doBombs ∷ Bomb → Game → Game → Game
 doBombs bombType game game' = foldl' (&) game' efs
@@ -425,10 +425,10 @@ checkDeath game t
   where nt    = gameNinja t game
         resN nt' = nt' 
             { nHealth = 1
-            , nTraps = mfilter ((OnRes ≠) ∘ trapTrigger) $ nTraps nt'
+            , nTraps = filter ((OnRes ≠) ∘ trapTrigger) $ nTraps nt'
             }
         dieN nt' = nt' 
-            { nTraps = mfilter ((OnDeath ≠) ∘ trapTrigger) $ nTraps nt' }
+            { nTraps = filter ((OnDeath ≠) ∘ trapTrigger) $ nTraps nt' }
         res   = getTraps (not $ is Plague nt) OnRes nt
         nStatuses' n = 
             [ st | st@Status{..} ← nStatuses n 
@@ -439,11 +439,11 @@ checkDeath game t
                     ]
         unr n = n { nStatuses = nStatuses' n
                   , nTraps    = nTraps' n
-                  , nChannels = mfilter ((t ≠) ∘ channelT) $ nChannels n
+                  , nChannels = filter ((t ≠) ∘ channelT) $ nChannels n
                   }
 
 broken ∷ Ninja → Ninja → (Ninja, Seq TrapTransform)
-broken n n' = ( n' { nTraps = mfilter ((∉ broke) ∘ trapTrigger) $ nTraps n' }
+broken n n' = ( n' { nTraps = filter ((∉ broke) ∘ trapTrigger) $ nTraps n' }
               , [ trapEf | Trap{..} ← nTraps n', trapTrigger ∈ broke ]   
               )
   where broke = OnBreak ↤ nub (defenseL ↤ nDefense n) 
@@ -478,7 +478,7 @@ chooseRands ∷ Ninja → Skill → Game → Slot → Either (Slot, Slot) StdGen
             → (Maybe Slot, Maybe Slot)
 chooseRands _ _              _        _ (Left a)        = both Just a 
 chooseRands n skill@Skill{..} Game{..} c (Right stdGen) = (rAlly, rEnemy) 
-  where targets = nId ↤∘ mfilter (targetable skill n n) $ toList gameNinjas
+  where targets = nId ↤∘ filter (targetable skill n n) $ toList gameNinjas
         (livingAllies, livingEnemies) = partition (allied c) targets
         (rAlly, stdGen')              = pick stdGen livingAllies
         (rEnemy, _)                   = pick stdGen' livingEnemies
@@ -721,20 +721,20 @@ perU l amount f base skill src c game t
   where total = base + amount * numStacks l src (gameNinja t game)
 
 -- | User 'nHealth'
-perHealthI ∷ (Int → Int) → (Int → Transform) → Transform
-perHealthI ofhp f skill src c game 
-    = f (ofhp ∘ nHealth $ gameNinja src game) skill src c game
+perHealthI ∷ (Int → Int) → (Int → Transform) → Int → Transform
+perHealthI ofhp f base skill src c game 
+    = f ((base +) ∘ ofhp ∘ nHealth $ gameNinja src game) skill src c game
 
 -- | Target 'nHealth'
-perHealthU ∷ (Int → Int) → (Int → Transform) → Transform
-perHealthU ofhp f skill src c game t
-    = f (ofhp ∘ nHealth $ gameNinja t game) skill src c game t
+perHealthU ∷ (Int → Int) → (Int → Transform) → Int → Transform
+perHealthU ofhp f base skill src c game t
+    = f ((base +) ∘ ofhp ∘ nHealth $ gameNinja t game) skill src c game t
 
 -- | Number of enemies matching 'has'
 perAffected ∷ Text → Int → (Int → Transform) → Int → Transform
 perAffected l amt f base skill src c game@Game{..} 
     = f (base + amt * count) skill src c game
-  where count = length $ mfilter (has l src) gameNinjas
+  where count = length $ filter (has l src) gameNinjas
 
 -- | Sum of user's matching 'Defense' 
 perDef ∷ Text → (Int → Transform) → Int → Transform
@@ -761,6 +761,15 @@ perHelpful amt f base skill src c game = f (base + amt * count) skill src c game
                                 , allied nId defenseSrc
                                 ]
   
+-- | Number of dead allies.
+perDead ∷ Int → (Int → Transform) → Int → Transform
+perDead amt f base skill src c game@Game{..} 
+    = f (base + amt * count) skill src c game
+  where count = length [ nId | Ninja{..} ← gameNinjas
+                             , nId ≠ c, allied nId c
+                             , nHealth > 0
+                             ]
+
 -- * TRANSFORMS
 
 -- ** LIFTED
@@ -915,8 +924,8 @@ interrupt _ _ _ game t
   | is Enrage nt = game
   | otherwise    = doDisrupts nt' disr $ setNinja t nt' game
   where nt   = gameNinja t game
-        disr = mfilter disrupted $ nChannels nt
-        nt'  = nt { nChannels = mfilter (not ∘ disrupted) $ nChannels nt }
+        disr = filter disrupted $ nChannels nt
+        nt'  = nt { nChannels = filter (not ∘ disrupted) $ nChannels nt }
         disrupted Channel {channelDur = (Control _)} = True
         disrupted Channel {channelDur = (Action _)}  = True
         disrupted _                                  = False
@@ -940,7 +949,7 @@ disruptAll t fs game c
   | otherwise  = doDisrupts n disr 
                $ setNinja c n { nChannels = nChannels n ∖ disr } game
   where n      = gameNinja c game
-        disr   = mfilter disrupted $ nChannels n
+        disr   = filter disrupted $ nChannels n
         immune = any (∈ fs) ∘ Immune ↤∘ classes
         disrupted Channel{..} = case channelDur of
             Control _ → t ≡ channelT ∧ immune channelSkill
@@ -1134,7 +1143,7 @@ bar dur done during barrierAmount' skill@Skill{..} barrierSrc c game t
         barrierDur     = copyDur copying $ sync dur
         barr           = Barrier{..}
         single         = Single ∈ classes ∧ any (lEq barr) (nBarrier nt)
-        barrier        = (Nonstacking ∈ classes) ? mfilter (not ∘ lEq barr)
+        barrier        = (Nonstacking ∈ classes) ? filter (not ∘ lEq barr)
                        $ nBarrier nt
         barrierWhile g = wrapEffect [Channeled, Trapped] 
                          during skill barrierSrc c g t
@@ -1156,7 +1165,7 @@ defend' l dur defenseAmount' skill@Skill{..} defenseSrc c game t
         defenseDur    = copyDur copying ∘ incr $ sync dur
         def           = Defense{..}
         single        = Single ∈ classes ∧ any (lEq def) (nDefense nt)
-        defense       = (Nonstacking ∈ classes) ? mfilter (not ∘ lEq def)
+        defense       = (Nonstacking ∈ classes) ? filter (not ∘ lEq def)
                       $ nDefense nt
 
 -- | Creates a 'Defense'.
@@ -1212,15 +1221,15 @@ applyFull clas bounced statusBombs' l dur fs statusSkill@Skill{copying} statusSr
         selfApplied   = statusSrc ≡ statusC ∧ statusC ≡ t
         extending     = N.prolong' statusDur l statusRoot
         nt'Extend     = nt { nStatuses = mapMaybe extending $ nStatuses nt}
-        statusEfs     = bounced ? mfilter (not ∘ isDmg) 
-                      ∘ is Silence n ? mfilter isDmg 
+        statusEfs     = bounced ? filter (not ∘ isDmg) 
+                      ∘ is Silence n ? filter isDmg 
                       $ filterEffects nt fs
         statusClasses = nub
                       ∘ any bind fs ? (Soulbound :)
                       ∘ (selfApplied ∧ any (not ∘ helpful) fs) ? (Unremovable :)
                       $ clas ⧺ classes statusSkill
         disrupted     | is Enrage nt ∨ is Focus nt = []
-                      | otherwise                  = mfilter disr $ nChannels nt
+                      | otherwise                  = filter disr $ nChannels nt
         disruptCtrl = [ ch | ch@Channel {channelDur = (Control _)} ← disrupted ]
         nt'           = nt { nChannels = nChannels nt ∖ disruptCtrl }
         game'Disr     = doDisrupts nt' disrupted $ setNinja t nt' game
@@ -1394,18 +1403,18 @@ commandeer _ _ c game t = setNinja t nt' $ setNinja c n' game
           | null statusEfs              = Just st
           | not $ any lose statusEfs    = Just st
           | all lose statusEfs          = Nothing
-          | otherwise = Just st { statusEfs = mfilter (not ∘ lose) statusEfs }
+          | otherwise = Just st { statusEfs = filter (not ∘ lose) statusEfs }
         gainHelpful st@Status{..}
           | Unremovable ∈ statusClasses = Nothing
           | null statusEfs              = Nothing
           | not $ any lose statusEfs    = Nothing
           | all lose statusEfs          = Just st
-          | otherwise = Just st { statusEfs = mfilter lose statusEfs }
+          | otherwise = Just st { statusEfs = filter lose statusEfs }
         lose ef = helpful ef ∧ not (sticky ef)
 
 kabuto' ∷ Skill → Ninja → Ninja
 kabuto' skill@Skill{..} n@Ninja{..} = 
-    n { nStatuses = newmode : mfilter (not ∘ getMode) nStatuses 
+    n { nStatuses = newmode : filter (not ∘ getMode) nStatuses 
       , nVariants = S.fromList $ (:|[]) ↤ [var', var, var, var]
       , nChannels = toList $ init nChannels' ▷ swaps (last nChannels')
       }

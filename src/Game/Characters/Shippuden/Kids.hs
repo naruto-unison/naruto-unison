@@ -492,7 +492,6 @@ kidCsS =
       ]
     , invuln "Hide" "Ino" [Mental]
     ] []
-  {- TODO: Rock Lee: per dead ally
   , Character
     "Rock Lee"
     "Lee's years of training with Gai have taught him not only new abilities, but what it truly means to fight. His strength grows as his allies fall, determined to honor them by finishing their battle."
@@ -502,11 +501,34 @@ kidCsS =
         , classes = [Physical, Melee]
         , cost    = χ [Tai]
         , cd      = 0
-        , effects = []
+        , effects = [(Enemy, perDead 10 damage 15 
+                           • perDead 1 (applyDur [Weaken All 15]) 2)]
         }
       ]
-    ] 
-    -}
+    , [ newSkill
+        { label  = "Leaf Hurricane" 
+        , desc   = "Lee whirls and builds up momentum, dealing 20 damage to an enemy and gaining 10 points of damage reduction for 1 turn. Deals 10 additional damage and grants 10 additional points of damage reduction if used last turn. Deals 10 additional damage per dead ally."
+        , classes = [Physical, Melee]
+        , cost    = χ [Tai]
+        , effects = [ (Enemy, withI "Leaf Great Whirlwind" 10
+                             (perDead 10 damage) 20)
+                    , (Self, withI "Leaf Great Whirlwind" 10 
+                             (applyX 1 $ Reduce All) 10)
+                    ]
+        }
+      ]
+    , [ newSkill
+        { label   = "Full Power of Youth"
+        , desc    = "Fighting for his beliefs in the face of adversity, Lee kicks an enemy into the air and slams them back down to earth with such force that light explodes around them. Deals 20 damage, 20 additional damage per dead ally, and 20 additional damage per 30 health Lee has lost."
+        , classes = [Physical, Melee]
+        , cost    = χ [Rand, Rand]
+        , cd      = 2
+        , effects = [(Enemy, perDead 20 
+                            (perHealthI (lost 30 20) damage) 20)]
+        }
+      ]
+    , invuln "Dodge" "Lee" [Physical]
+    ] []
   , Character
     "Tenten"
     "Now a chūnin, Tenten's arsenal has expanded to a prodigious stockpile of some of the most powerful weapons in existence, including the legendary fan of the Sage of the Six Paths. Taking any excuse to show off the size and variety of her collection, she has assembled multiple item sets to switch out at a moment's notice."

@@ -149,7 +149,7 @@ hasDefense l c = any (lMatch l c) ∘ nDefense
 
 -- | Modifies 'Effect's when they are first added to a 'Ninja'.
 filterEffects ∷ MonadPlus m ⇒ Ninja → m Effect → m Effect
-filterEffects n = adjustEffect ↤∘ mfilter keepEffects
+filterEffects n = adjustEffect ↤∘ filter keepEffects
   where adjustEffect (Reduce cla a) = Reduce cla (a - getUnreduce n)
         adjustEffect f              = f
         keepEffects (Immune _)      = not $ is Expose n
@@ -290,7 +290,7 @@ getCds Ninja{..} = S.zipWith copyCd nCopied
 -- ** LIFE AND DEATH
 
 alives ∷ Player → Seq Ninja → [Ninja]
-alives = (mfilter isAlive ∘) ∘ alliesP
+alives = (filter isAlive ∘) ∘ alliesP
 
 -- | The entire team of a 'Player' is dead, in which case they lose.
 dead ∷ Player → Game → Bool
@@ -545,7 +545,7 @@ nStats n@Ninja{..} = getStat n ↤ nStatuses
 
 getStat ∷ Ninja → Status → Status
 getStat n@Ninja{..} st = st' { statusEfs = bst }
-  where bst  = boost (getBoost (statusSrc st) n) ↤∘ mfilter keep $ statusEfs st'
+  where bst  = boost (getBoost (statusSrc st) n) ↤∘ filter keep $ statusEfs st'
         st'  = rawStat n st
         efs  = concatMap (statusEfs ∘ rawStat n) nStatuses
         keep Enrage       = True
@@ -564,7 +564,7 @@ rawStat ∷ Ninja → Status → Status
 rawStat n@Ninja{..} st
   | fromSelf n st = st
   | Enrage ∈ efs  = st { statusEfs = enraged }
-  | Seal   ∈ efs  = st { statusEfs = mfilter (not ∘ helpful) $ statusEfs st }
+  | Seal   ∈ efs  = st { statusEfs = filter (not ∘ helpful) $ statusEfs st }
   | otherwise     = st
   where efs = concatMap statusEfs nStatuses
         enraged = [ ef | ef ← statusEfs st, helpful ef ∨ sticky ef ∨ isCost ef ]
@@ -608,7 +608,7 @@ numActive l n@Ninja{..}
   where stacks = numStacks l nId n
 
 numStacks ∷ Text → Slot → Ninja → Int
-numStacks l src Ninja{..} = length ∘ mfilter (lMatch l src) $ nStatuses
+numStacks l src Ninja{..} = length ∘ filter (lMatch l src) $ nStatuses
 
 -- * TRAPS
 
@@ -661,7 +661,7 @@ getOne' = fst3 ↤∘ getOne
 -- Returns ('statusSrc', 'statusL', 'copyTo', 'copyDuration').
 copy ∷ [Class] → Ninja → Bool → [(Slot, Text, Int, Int)]
 copy classes Ninja{..} harm = mapMaybe ifCopy allStatuses
-  where allStatuses = mfilter (any matches ∘ statusEfs) nStatuses
+  where allStatuses = filter (any matches ∘ statusEfs) nStatuses
         matches (Copy _ cla _ noharm) = (harm ∨ noharm) ∧ cla ∈ classes
         matches _                     = False
         ifCopy Status{..} = [ (statusSrc, statusL, copyTo, copyDuration) 

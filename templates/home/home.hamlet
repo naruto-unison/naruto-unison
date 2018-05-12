@@ -4,6 +4,9 @@ $newline never
 <aside #changelog>
   <h2>Recent Changes
   <a .refer href=@{ChangelogR}>View full changelog
+  <h4>May 12
+  <ul>
+    #{changelog Added "Rock Lee" S}
   <h4>May 2
   <ul>
     #{changelog Rework "Rasa" R}
