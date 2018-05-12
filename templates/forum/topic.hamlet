@@ -1,0 +1,24 @@
+$newline never
+<section>
+  <h2>#{topicTitle}
+  <table>
+    $forall Post{postTime, postBody, postAuthor = User{userAvatar, userName}} <- topicPosts
+      <tr>
+        <td>
+          <img .char src=#{userAvatar}>
+          <a href=@{ProfileR userName}>
+        <tr>
+          <td>
+            <header>
+              <h4>
+                <a>#{topicTitle}
+              <div>
+                by 
+                <a href=@{ProfileR userName}>
+                  #{userName}
+              <div>
+                #{show postTime}
+          <td>
+            $forall paragraph <- postBody 
+              <p>
+                #{paragraph}

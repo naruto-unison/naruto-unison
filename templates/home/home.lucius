@@ -1,9 +1,13 @@
+body {
+  padding: 0 !important;
+}
 body, #content {
   background: #1b4e66 !important;
 }
 .char {
-  height: 50px;
+  width: 50px;
   float: right;
+  margin: 1px 0px 0px -19px !important;
 }
 .skill {
   display: block;
@@ -18,35 +22,36 @@ body, #content {
   text-align: center;
 }
 #content {
-  width: 100% !important;
+  max-width: 1500px !important;
   border-left: none;
   border-right: none;
   border-bottom: none;
   padding: 0;
 }
-#content > div {
-  box-sizing: border-box;
-}
-#main {
-  width: 53%;
+#content > section {
   text-align: left;
   background: #fff;
   border-top: none;
   border-bottom: none;
   border-width: 1px;
   box-shadow: 0px 0px 10px rgba(0,0,0,0.25);
+  box-sizing: border-box;
+  flex: 0 1 800px;
 }
-#changelog, #forums {
+#content > aside {
   color: #fff;
-  width: 23.5%;
+  flex: 1 0 230px;
 }
-#changelog ul, #forums ul {
+#content > aside ul {
   font-size: 0.95em;
 }
-#changelog > ul > li {
+#content > aside ul ul {
+  padding-left: 1em;
+}
+#content > aside > ul > li {
   margin-bottom: 6px;
 }
-#changelog h2, #forums h2 {
+#content > aside h2 {
   margin-bottom: 0.2em;
 }
 #changelog { 

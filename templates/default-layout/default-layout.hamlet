@@ -4,18 +4,18 @@ $newline never
 $if (mcurrentRoute ≡ Just PlayR)
   ^{widget}
 $else
-  <div #bannerbg>
+  <header #bannerbg>
     <a #banner href=/>
       <img src=/img/logo.png>
         <span>Naruto Unison
-    <div .breadcrumb>
+    <nav .breadcrumb>
       <ul>
         $forall bc <- parents
           <li>
             <a href="@{fst bc}">#{snd bc}
         <li .active>#{title}
     $maybe msg <- mmsg
-      <div .container.alert.alert-info #message>#{msg}
+      <aside .container.alert.alert-info #message>#{msg}
 
   <div #content .container>
     ^{widget}

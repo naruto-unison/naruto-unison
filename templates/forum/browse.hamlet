@@ -1,8 +1,22 @@
 $newline never
-<div .row>
-  $forall category <- enums
-    <h1>#{show category}
-    $forall board <- getBoards category
-      <h2>
-        <a href=@{BoardR board}>#{boardName board}
-      <p>#{boardDesc board}
+<section>
+  <section>
+    <table>
+      $forall category <- enums
+        <tr .heading>
+          <td>
+            <h2>#{show category}
+          <td>
+            Topics
+          <td>
+            Latest
+        $forall board <- getBoards category
+          <tr>
+            <td>
+              <h3>
+                <a href=@{BoardR board}>#{boardName board}
+              <div>#{boardDesc board}
+            <td>
+              0
+            <td>
+              --

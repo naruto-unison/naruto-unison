@@ -18,9 +18,11 @@ body {
   background-size: cover !important;
   background: #040309 url('/img/bg/hokage.png') no-repeat center bottom;
   background-attachment: fixed;
+  padding: 0 2.5em;
+  box-sizing: border-box;   
 }
-.breadcrumb, .container, #banner {
-  width: 53%;
+.breadcrumb, #content, #banner {
+  max-width: 800px;
 }
 .breadcrumb {
   margin: 0 auto -2px auto;
@@ -42,20 +44,59 @@ body {
   white-space: pre;
 }
 #content {
-  width: 53%;
+  position: relative;
 }
 .container {
-  box-sizing: border-box;
   background: #fff;
   border: 2px solid #333;
   margin: 5px auto auto;
   font-size: 14px;
   display: flex;
+  padding-bottom: 1em;
+} 
+.container > section {
+  flex-grow: 1;
+  padding: 0 2.5em 1em;
 }
-.row {
-  padding: 0 2.5em;
+table {
+  width: 100%;
+  text-align: center;
+  margin: -3px;
 }
-.row.alert {
+table h2 {
+  margin-bottom: 0;
+}
+table h3 {
+  margin: 0.25em 0em 0.1em;
+}
+td {
+  min-width: 3.5em;
+}
+td:first-child {
+  text-align: left;
+  width: 100%;
+}
+.heading {
+  vertical-align: baseline;
+  text-transform: uppercase;
+}
+.heading h3 a {
+  font-weight: normal;
+  margin-left: 3em;
+}
+.heading td {
+  display: none;
+  color: #666;
+}
+.heading td:first-child {
+  color: inherit;
+  display: table-cell;
+}
+.heading:first-child td {
+  display: table-cell;
+}
+
+.alert {
   padding: 10px 30px;
   color: #e00;
 }
@@ -94,17 +135,15 @@ body {
 .container li {
   margin-top: 0.3em;
 }
-h1 {
-  margin: 0.1em 0;
-}
-h2 {
-  margin-bottom: 0.5em;
+h1, h2 {
   text-transform: uppercase;
 }
 h3, h4 {
   margin-top: 0.5em;
   margin-bottom: 0.3em;
 }
+h1 { margin: 0.1em 0 }
+h2 { margin-bottom: 0.5em; }
 h3 { font-size: 1.25em; }
 h4 { font-size: 1.15em; }
 
@@ -136,6 +175,7 @@ h4 { font-size: 1.15em; }
   font-weight: normal;
   font-size: 12px;
   display: inline;
+  margin: 0;
   margin-left: 10px;
   color: #606060;
 }

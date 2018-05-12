@@ -5,9 +5,10 @@
 
 -- | Interface for the PureScript game client.
 module Handler.Forum
-    ( getForumsR
+    ( getProfileR
+    , getForumsR
     , getBoardR
-    , getProfileR
+    , getTopicR
     ) where
 
 import Preludesque
@@ -18,6 +19,10 @@ import Text.Blaze.Html
 import Calculus
 import Core.Import
 import Game.Characters (cs)
+
+topicDesc ∷ Topic → Text
+topicDesc Topic{topicPosts = Post{postBody = x:_}:_} = x
+topicDesc _ = ""
 
 userRanks ∷ [Text]
 userRanks = [ "Academy Student"
@@ -39,6 +44,16 @@ userRank User{..}
   | otherwise              = maybe "Hokage" fst ∘ uncons $ drop level userRanks
   where level = userXp ÷ 5000
 
+getProfileR ∷ Text → Handler Html
+getProfileR name = do
+    muser                  ← runDB $ selectFirst [UserName ==. name] []
+    Entity _ user@User{..} ← tryJust notFound muser
+    let (level, xp)        = quotRem userXp 5000
+    defaultLayout $ do
+        setTitle $ toHtml userName
+        $(widgetFile "tooltip/tooltip")
+        $(widgetFile "forum/profile")
+
 -- | Renders the forums.
 getForumsR ∷ Handler Html
 getForumsR = defaultLayout $ do
@@ -47,16 +62,15 @@ getForumsR = defaultLayout $ do
 
 -- | Renders a 'ForumBoard'.
 getBoardR ∷ ForumBoard → Handler Html
-getBoardR board = defaultLayout $ do
-    setTitle ∘ toHtml $ boardName board
-    $(widgetFile "forum/board")
-
-getProfileR ∷ Key User → Handler Html
-getProfileR who = do
-    user@User{..} ← runDB $ get404 who
-    let (level, xp) = quotRem userXp 5000
+getBoardR board = do
+    topics ← runDB $ selectList [TopicBoard ==. board] []
     defaultLayout $ do
-        setTitle ∘ toHtml $ "User: " ⧺ userName
-        $(widgetFile "tooltip/tooltip")
-        $(widgetFile "forum/profile")
+      setTitle ∘ toHtml $ boardName board
+      $(widgetFile "forum/board")
 
+getTopicR ∷ TopicId → Handler Html
+getTopicR topicId = do
+    Topic{..} ← runDB $ get404 topicId
+    defaultLayout $ do
+      setTitle $ toHtml topicTitle
+      $(widgetFile "forum/topic")

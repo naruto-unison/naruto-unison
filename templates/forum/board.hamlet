@@ -1,4 +1,31 @@
 $newline never
-<div .row>
-  <h2>#{boardName board}
-  <p>#{boardDesc board}
+<section>
+  <header>
+    <h2>#{boardName board}
+    <p>#{boardDesc board}
+  <table>
+    <tr .heading>
+      <td>
+        <h3>
+          Topic
+          <a>
+            +New
+      <td>
+        Posts
+      <td>
+        Latest
+      $forall Entity topicId topic@Topic{topicTitle, topicAuthor = User{userName}, topicPosts} <- topics
+        <tr>
+          <td>
+            <header>
+              <h4>
+                <a href=@{TopicR topicId}>#{topicTitle}
+              <div>
+                by 
+                <a href=@{ProfileR userName}>
+                  #{userName}
+            <div>#{topicDesc topic}
+          <td>
+            #{length topicPosts}
+          <td>
+            --

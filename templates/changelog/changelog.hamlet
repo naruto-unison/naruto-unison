@@ -1,6 +1,6 @@
 $newline never
 
-<div .row>
+<section>
   <h3>May 2
   <ul>
     #{changelog Rework "Rasa" R}

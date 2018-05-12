@@ -19,8 +19,9 @@
   margin-left: -50px;
   pointer-events: none;
   border-radius: 3px;
+  color: #000;
 }
-#skillName {
+#tooltip header {
   font-weight: bold;
 }
 a.minor {
@@ -30,7 +31,7 @@ a.minor {
     vertical-align: top;
     font-style: initial;
 }
-.skillClasses {
+#tooltip .skillClasses {
   font-style: italic;
   margin-left: 0 !important;
 }

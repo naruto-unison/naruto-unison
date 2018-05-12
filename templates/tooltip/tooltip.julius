@@ -15,6 +15,8 @@ getSkill = (char, label) => {
   for (skills of char.characterSkills) for (skill of skills) if (skill.label === label) return skill
 }
 
+const offset = 5
+
 const hidden = [ "All"
                , "Affliction"
                , "NonAffliction"
@@ -44,19 +46,17 @@ hoverChar = (i, el) => {
   const tooltip = $("#tooltip")
   const src = $(el)
   const usr = chars[src.data("name")]
-  const offset = el.height + 5
   if (!usr) return
   src.mouseover(ev => {
       if (tooltip.css("display") !== "none" && cur === src) return
-      cur = src
+      cur = el
       tooltip.stop()
-      $("#skillIcon").attr("src", `/img/ninja/${shorten(name)}/icon.jpg`)
-      $("#skillName").text(usr.characterName)
-      $("#skillDesc").text(usr.characterBio)
+      tooltip.find("header").text(usr.characterName)
+      tooltip.find("article").text(usr.characterBio)
       tooltip
         .stop()
         .css("left", ev.pageX)
-        .css("top", Math.max(src.get()[0].offsetTop + offset, ev.pageY))
+        .css("top", el.clientHeight + el.offsetTop + offset)
         .fadeIn(100)
         .show()
   }).mouseleave(() => $("#tooltip").fadeOut(100))
@@ -77,14 +77,13 @@ $(() => {
             if (tooltip.css("display") !== "none" && cur === src) return
             cur = src
             tooltip.stop()
-            $("#skillIcon").attr("src", `/img/ninja/${shorten(name)}/${shorten(skill.label)}.jpg`)
-            $("#skillName").text(skill.label).append([].concat(
+            tooltip.find("header").text(skill.label).append([].concat(
               ...cTypes.map(cType => Array.from(Array(skill.cost[cType]))
-              .map(()=> $(`<div class="chakra ${cType}"></div>`) ))
-            )).append($('<br/><div class="skillClasses">' +
+              .map(()=> $(`<div class=" chakra ${cType}"></div>`) ))
+            )).append($('<br/><p class="skillClasses">' +
               [skill.channel.tag].concat(filterClasses(skill.classes)).join(", ") +
               '</div>'))
-            const desc = $("#skillDesc").html(skill.desc.replace(/\[/g,"<i>").replace(/\]/g,"</i>"))
+            desc = tooltip.find("article").html(skill.desc.replace(/\[/g,"<i>").replace(/\]/g,"</i>"))
             const charges = skill.charges
             if (charges === 1)
                 desc.append(` <span class="minor">1 charge.</span>`)
@@ -94,7 +93,7 @@ $(() => {
             tooltip
               .stop()
               .css("left", ev.pageX)
-              .css("top", Math.max(src.get()[0].offsetTop + 20, ev.pageY))
+              .css("top", el.clientHeight + el.offsetTop + offset)
               .fadeIn(100)
               .show()
         }).mouseleave(() => $("#tooltip").fadeOut(100))

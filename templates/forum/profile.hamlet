@@ -1,11 +1,11 @@
 $newline never
-<div .row>
+<section>
   <img .char.avatar.#{userRank user} src=#{userAvatar}>
   $maybe team <- userTeam
     <div .team>
       $forall name <- team
         <img .char.head data-name=#{name} src="/img/ninja/#{shorten(name)}/icon.jpg">
-<div .row>
+<section>
   <h3>#{userName}
   <p>
     <span .label>Rank

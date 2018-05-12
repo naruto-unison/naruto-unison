@@ -184,7 +184,7 @@ instance YesodBreadcrumbs App where
   breadcrumb ChangelogR = return ("Changelog", Just HomeR)
   breadcrumb ForumsR = return ("Forums", Just HomeR)
   breadcrumb (BoardR board) = return ("Forum: " ⧺ boardName board, Just ForumsR)
-  breadcrumb (ProfileR _) = return ("User Profile", Just HomeR)
+  breadcrumb (ProfileR name) = return ("User: " ⧺ name, Just HomeR)
   breadcrumb  _ = return ("Home", Nothing)
 
 -- How to run database actions.

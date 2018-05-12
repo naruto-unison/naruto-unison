@@ -89,16 +89,16 @@ component = Halogen.component
  
   render ∷ State → ComponentHTML ChildQuery
   render st@{avatar, previewing, index, pageSize, showLogin, team, variants} =
-      H.div [_i "charSelect"] 
+      H.section [_i "charSelect"] 
         $ userBox showLogin team 
         ⧺ previewBox st
-        [ H.div [_c "characterButtons parchment"] 
-          [ H.div 
+        [ H.section [_i "characterButtons", _c "parchment"] 
+          [ H.aside 
             [ _i "prevPage" 
             , _c ∘ atMin ? ("wraparound " ⧺ _) $ "click"
             , click $ Scroll (-1)
             ] []
-          , H.div 
+          , H.aside 
             [ _i "nextPage" 
             , _c ∘ atMax ? ("wraparound " ⧺ _) $ "click"
             , click $ Scroll 1
@@ -182,57 +182,60 @@ previewBox {previewing: NoPreview} = id
 previewBox { avatar, updateFail
            , previewing: PreviewUser (User {name, background})
            } = cons $
-  H.form [_i settingsId, _c "parchment"]
-  [ H.h1_ $ _txt "Account Settings"
-  , H.p_ $ catMaybes
-    [ Just $ _span "Name"
-    , Just $ H.input [P.type_ P.InputText, P.name "name", P.value name]
-    , updateFail ?? H.span [_i "userfail"] [H.text "Username already taken!"]
-    ]
-  , H.p_
-    [ _span "Background" 
-    , H.input 
-      [ P.type_ P.InputText
-      , P.name "background"
-      , P.value $ fromMaybe "" background
+  H.article [_c "parchment"]
+  [ H.form [_i settingsId]
+    [ H.h1_ $ _txt "Account Settings"
+    , H.p_ $ catMaybes
+      [ Just $ _span "Name"
+      , Just $ H.input [P.type_ P.InputText, P.name "name", P.value name]
+      , updateFail ?? H.span [_i "userfail"] [H.text "Username already taken!"]
       ]
+    , H.p_
+      [ _span "Background" 
+      , H.input 
+        [ P.type_ P.InputText
+        , P.name "background"
+        , P.value $ fromMaybe "" background
+        ]
+      ]
+    , H.p_ [_span "Avatars"]
+    , H.section [_i "avatars"] $ avatars ↦ \avatar' → H.img
+        if Just avatar' ≡ avatar
+        then [_src avatar', _c "noclick"]
+        else [_src avatar', _c "click", click $ ChooseAvatar avatar']
+    , H.div [_i "updateButton", _c "click", click TryUpdate] $ _txt "Update"
+    , H.a [P.href "auth/logout"] 
+      [H.div [_i "logoutButton", _c "click"] $ _txt "Log out"]
     ]
-  , H.p_ [_span "Avatars"]
-  , H.div [_i "avatars"] $ avatars ↦ \avatar' → H.img
-      if Just avatar' ≡ avatar
-      then [_src avatar', _c "noclick"]
-      else [_src avatar', _c "click", click $ ChooseAvatar avatar']
-  , H.div [_i "updateButton", _c "click", click TryUpdate] $ _txt "Update"
-  , H.a [P.href "auth/logout"] 
-    [H.div [_i "logoutButton", _c "click"] $ _txt "Log out"]
   ]
 previewBox { variants, previewing: PreviewChar character@Character 
                          {characterName, characterBio, characterSkills}
            } = cons ∘
-  H.div [_i "charPreview", _c "parchment"]
-  $ [img [_i "charIcon", _c "char", cIcon character "icon"]
-    , H.div [_i "charName"] [ H.text characterName ]
-    , H.div [_i "charDesc"] [ H.text characterBio ]
+  H.article [_c "parchment"]
+  $ [ H.header_ 
+      [ img [_c "char", cIcon character "icon"] 
+      , H.text characterName
+      ]
+    , H.p_ [ H.text characterBio ]
     ] 
-  ⧺ concat 
-    (zip3 (previewSkill character) (0..3) characterSkills variants)
+  ⧺ zip3 (previewSkill character) (0..3) characterSkills variants
 
 previewSkill ∷ ∀ a. Character → Int → Array Skill → Int 
-             → Array (HTML a (ChildQuery Unit))
+             → HTML a (ChildQuery Unit)
 previewSkill character slot skills i = case skills !! i of
-  Nothing → []
-  Just (Skill {label, cost, charges, classes, desc, cd}) → 
-      [ H.div [_c "skillPreview"] $ catMaybes
+  Nothing → H.section_ []
+  Just (Skill {label, cost, charges, classes, desc, cd}) → H.section_
+      [ H.aside_ $ catMaybes
         [ Just $ img [_c "char", cIcon character label]
         , vPrev ↦ \v → H.a [_c "prevSkill click", click $ Vary slot v][]
         , vNext ↦ \v → H.a [_c "nextSkill click", click ∘ Vary slot $ v + i][]
         ]
-      , H.div [_c "skillname"]
+      , H.header_
         $ H.text label
         : hCost cost `snoc`                 
           H.div [_c "skillClasses"]
           [ H.text ∘ joinWith ", " $ filterClasses false classes ]
-      , H.div [_c "skilldesc"] 
+      , H.p_
         $ parseDesc desc ⧺ catMaybes
           [ charges > 1 ?? _minor (show charges ⧺ " charges.")
           , charges ≡ 1 ?? _minor (show charges ⧺ " charge.")
@@ -249,20 +252,20 @@ previewSkill character slot skills i = case skills !! i of
 userBox ∷ ∀ a. Boolean → Array Character → Array (HTML a (ChildQuery Unit))
 userBox showLogin team = case user of
   Just u@(User {avatar, name, clan, wins, losses, streak}) →
-    [ H.div [_c "playButtons"] $
-      [ _a "mainsite" "playButton parchment click" "/home" "Main Site"
-      , H.div 
+    [ H.nav [_c "playButtons"] $
+      [ _a "mainsite" "playButton parchment click blacked" "/home" "Main Site"
+      , H.a 
         [_i "queue", _c playButton, click $ Enqueue Quick]
         [H.text "Start Quick Match"]
-      , H.div 
+      , H.a 
         [_i "practicequeue", _c playButton, click $ Enqueue Practice]
         [H.text "Start Practice Match"]
-      , H.div 
+      , H.a 
         [_i "private", _c playButton, click $ Enqueue Private]
         [H.text "Start Private Match"]
       ]
-    , H.div [_c "teamContainer"]
-      [ H.div [_i "userbox", _c "parchment loggedin", preview $ PreviewUser u]
+    , H.section [_i "teamContainer"]
+      [ H.div [_c "parchment loggedin", preview $ PreviewUser u]
         [ img [_c "userimg char", _src avatar]
         , _b       name
         , H.br_
@@ -290,10 +293,10 @@ userBox showLogin team = case user of
       ]
     ] 
   Nothing → 
-    [ H.div [_c "playButtons"] 
-      [_a "mainsite" "playButton parchment click" "/home" "Main Site"]
-    , H.div [_c "teamContainer"]
-      [ H.div [_i "userbox", _c "parchment"] 
+    [ H.nav [_c "playButtons"] 
+      [_a "mainsite" "playButton parchment click blacked" "/home" "Main Site"]
+    , H.section [_i "teamContainer"]
+      [ H.div [_c "parchment"] 
         [ H.form 
           [ _i $ if showLogin then "loginForm" else "registerForm"
           , _c "userForm"

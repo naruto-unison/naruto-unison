@@ -79,7 +79,7 @@ component = Halogen.parentComponent
       , H.slot SelectSlot Select.component unit (E.input HandleQueue)
       ]
     where contents | stage ≡ Queueing = H.div [_i "contents", _c "queueing"] 
-                                      ∘ (H.div [_i "searching"] 
+                                      ∘ (H.aside [_i "searching"] 
                                         [H.img [_src "/img/spin.gif"]]:_)
                    | otherwise        = H.div [_i "contents"]
   eval ∷ Query ~> ParentDSL State Query ChildQuery ChildSlot SocketMsg (Aff (Effects m))

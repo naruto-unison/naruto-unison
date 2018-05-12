@@ -17,3 +17,15 @@ User json
     team       [Text]    Maybe
     muted      Bool
     deriving Typeable
+
+Post
+    author User
+    time   UTCTime
+    body   [Text]
+
+Topic
+    board  ForumBoard
+    title  Text
+    author User
+    staff  Bool
+    posts  [Post]
