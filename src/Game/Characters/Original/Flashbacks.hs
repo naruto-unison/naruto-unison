@@ -116,13 +116,12 @@ flashbackCs =
     , [ newSkill
         { label   = "Life Link"
         , desc    = "Kushina binds her life-force to that of an enemy. For 4 turns, if either dies, the other will die as well. Effect cannot be avoided, prevented, or removed."
-        , classes = [Mental, Ranged, Unremovable, Uncounterable, Unreflectable]
+        , classes = [Mental, Ranged, Bypassing, Unremovable, Uncounterable, Unreflectable, Direct]
         , cost    = χ [Gen, Rand]
         , cd      = 5
-        , effects = [ (Enemy, tag 4 • trap 5 OnDeath § self kill)
-                    , (Self,  trap' 5 OnDeath ∘ everyone 
-                              § ifU "Life Link" kill')
-                    ]
+        , effects = [(Enemy, tag 4 • trap 4 OnDeath § self kill
+                           • self ∘ trap 4 OnDeath ∘ everyone 
+                             § ifU "Life Link" kill')]
         }
       ]
     , [ newSkill
@@ -186,17 +185,20 @@ flashbackCs =
     [ [ newSkill
         { label   = "Space-Time Marking"
         , desc    = "Minato opportunistically marks targets to use as teleport destinations for avoiding attacks. Next turn, allies and enemies who do not use a skill will be marked by this skill for 4 turns. Minato gains 5 points of damage reduction for each marked target. This skill stacks."
-        , classes = [Physical, Ranged, Invisible, Bypassing]
+        , classes = [Physical, Ranged, InvisibleTraps]
         , cost    = χ [Blood]
         , cd      = 1
-        , effects = [ (XAllies, delay 0 ∘ trap' 1 (OnAction All) 
-                                § remove "Marking Targets"
-                              • bomb' "Marking Targets" 1 [] [(Expire, tag 3)]
+        , effects = [ (XAllies, delay 0 ∘ trap 1 (OnAction All) 
+                                § remove "Space-Time Marking"
+                              • bomb 1 [] 
+                                [(Expire, apply' "Space-Time Marking " 3 []
+                                        • self § hide 4 [Reduce All 5])]
                       )
-                    , (Enemies, trap' (-1) (OnAction All) 
-                                § remove "Marking Targets"
-                              • bomb' "Marking Targets" (-1) []
-                                [(Expire, tag (-4))])
+                    , (Enemies, trap (-1) (OnAction All) 
+                                § remove "Space-Time Marking"
+                              • bomb (-1) []
+                                [(Expire, apply' "Space-Time Marking " (-4) []
+                                        • self § hide 4 [Reduce All 5])])
                     ]
         }
       ]
@@ -215,14 +217,14 @@ flashbackCs =
         , classes = [Chakra, Melee, Bypassing]
         , cost    = χ [Blood, Rand]
         , effects = [ (Enemy, damage 20)
-                    , (Enemies, perU "Space-Time Marking" 20 damage 0)
+                    , (Enemies, perU "Space-Time Marking " 20 damage 0)
                     ]
         }
     ]
     , invuln' "Round-Robin Raijen" 
               "Minato and allies affected by [Space-Time Marking] becomes invulnerable for 1 turn." 
             [Chakra] 
-            [alliedTeam § apply 1 [Immune All]]
+            [alliedTeam ∘ ifU "Space-Time Marking " § apply 1 [Immune All]]
     ] []
   , Character
     "Young Kakashi"
@@ -263,50 +265,6 @@ flashbackCs =
     , invuln "Parry" "Kakashi" [Physical]
     ] []
   , Character
-    "Obito Uchiha"
-    "A member of Team Minato, Obito is treated as a nobody despite his Uchiha heritage. He dreams of becoming Hokage so that people will finally acknowledge him. Accustomed to helping from the sidelines, if he falls in battle, he will lend his strength to his allies."
-    [ [ newSkill
-        { label   = "Piercing Stab"
-        , desc    = "Spotting an opening in his enemy's defense, Obito stabs them to deal 15 piercing damage. Deals 10 additional damage during [Sharingan]."
-        , classes = [Physical, Melee]
-        , cost    = χ [Rand]
-        , effects = [(Enemy, withI "Sharingan" 10 pierce 15)]
-        }
-      ]
-    , [ newSkill
-        { label   = "Grand Fireball"
-        , desc    = "Obito breathes searing fire on an enemy, dealing 15 affliction damage for 2 turns. During [Sharingan], this skill deals the full 30 affliction damage instantly and has no cooldown."
-        , classes = [Bane, Ranged]
-        , cost    = χ [Nin]
-        , cd      = 1
-        , effects = [(Enemy, apply 2 [Afflict 15])]
-        }
-      , newSkill
-        { label   = "Grand Fireball"
-        , desc    = "Obito breathes searing fire on an enemy, dealing 15 affliction damage for 2 turns. During [Sharingan], this skill deals the full 30 affliction damage instantly and has no cooldown."
-        , classes = [Bane, Ranged]
-        , cost    = χ [Nin]
-        , varicd  = True
-        , effects = [(Enemy, afflict 30)]
-        }
-      ]
-    , [ newSkill
-        { label   = "Sharingan"
-        , desc    = "Obito targets an ally. For 4 turns, Obito gains 15 points of damage reduction, and if Obito dies, the ally will gain 5 points of damage reduction and deal 5 additional non-affliction damage."
-        , classes = [Mental, Unremovable]
-        , cost    = χ [Rand]
-        , cd      = 4
-        , effects = [ (XAlly, tag 4)
-                    , (Self,  apply 4 [Reduce All 15]
-                            • trap' 4 OnDeath ∘ everyone ∘ ifU "Sharingan" 
-                              § apply' "Borrowed Sharingan" 0
-                                [Reduce All 5, Strengthen NonAffliction 5])
-                    ]
-        }
-      ]
-    , invuln "Flee" "Obito" [Physical]
-    ] []
-  , Character
       "Rin Nohara"
       "A chūnin on Team Minato, Rin is a quiet but strong-willed medical-nin. Her priority is always healing her teammates, though she can also defend herself with traps if necessary."
       [ [ newSkill
@@ -338,6 +296,50 @@ flashbackCs =
         }
       ]
     , invuln "Flee" "Rin" [Physical]
+    ] []
+  , Character
+    "Obito Uchiha"
+    "A member of Team Minato, Obito is treated as a nobody despite his Uchiha heritage. He dreams of becoming Hokage so that people will finally acknowledge him. Accustomed to helping from the sidelines, if he falls in battle, he will lend his strength to his allies."
+    [ [ newSkill
+        { label   = "Piercing Stab"
+        , desc    = "Spotting an opening in his enemy's defense, Obito stabs them to deal 15 piercing damage. Deals 10 additional damage during [Sharingan]."
+        , classes = [Physical, Melee]
+        , cost    = χ [Rand]
+        , effects = [(Enemy, withI "Sharingan" 10 pierce 15)]
+        }
+      ]
+    , [ newSkill
+        { label   = "Grand Fireball"
+        , desc    = "Obito breathes searing fire on an enemy, dealing 15 affliction damage for 2 turns. During [Sharingan], this skill deals the full 30 affliction damage instantly and has no cooldown."
+        , classes = [Bane, Ranged]
+        , cost    = χ [Nin]
+        , cd      = 1
+        , effects = [(Enemy, apply 2 [Afflict 15])]
+        }
+      , newSkill
+        { label   = "Grand Fireball"
+        , desc    = "Obito breathes searing fire on an enemy, dealing 15 affliction damage for 2 turns. During [Sharingan], this skill deals the full 30 affliction damage instantly and has no cooldown."
+        , classes = [Bane, Ranged]
+        , cost    = χ [Nin]
+        , varicd  = True
+        , effects = [(Enemy, afflict 30)]
+        }
+      ]
+    , [ newSkill
+        { label   = "Sharingan"
+        , desc    = "Obito targets an ally. For 4 turns, Obito gains 15 points of damage reduction, and if Obito dies, the ally will gain 5 points of damage reduction and deal 5 additional non-affliction damage."
+        , classes = [Mental, Unremovable, Bypassing]
+        , cost    = χ [Rand]
+        , cd      = 4
+        , effects = [ (XAlly, tag 4)
+                    , (Self,  apply 4 [Reduce All 15]
+                            • trap 4 OnDeath ∘ everyone ∘ ifU "Sharingan" 
+                              § apply' "Borrowed Sharingan" 0
+                                [Reduce All 5, Strengthen NonAffliction 5])
+                    ]
+        }
+      ]
+    , invuln "Flee" "Obito" [Physical]
     ] []
   , Character
     "Corrupted Obito"
@@ -380,5 +382,45 @@ flashbackCs =
         , effects = [(Enemy, tag 1)]
         }
       ]
+    ] []
+  , Character
+    "Masked Man"
+    "As the Nine-Tailed Beast rampages across the Hidden Leaf Village, a mysterious masked man appears and tries to bend it to his will. The legendary beast demolishes house after house and does the same to the defenses of its enemies."
+    [ [ newSkill
+        { label   = "Kamui Chain Combo"
+        , desc    = "The masked man snares an enemy in sealing chains and phases through them, becoming invulnerable to damage and ignoring harmful effects other than chakra cost changes for 1 turn."
+        , classes = [Chakra, Melee]
+        , cost    = χ [Tai]
+        , cd      = 2
+        , effects = [ (Self,  apply 1 [Immune All])
+                    , (Enemy, tag 1)
+                    ]
+        }
+      ]
+    , [ newSkill
+        { label   = "Kamui Banishment"
+        , desc    = "The masked man uses a rare space-time technique to warp an enemy to his pocket dimension, dealing 20 piercing damage and making them immune to effects from their allies for 1 turn. While active, the target can only target the masked man or themselves. Deals 20 additional damage and lasts an additional turn if the target is affected by [Kamui Chain Combo]."
+        , classes = [Chakra, Melee, Unreflectable]
+        , cost    = χ [Gen]
+        , cd      = 1
+        , effects = [(Enemy, withU "Kamui Chain Combo" 20 pierce 20 
+                           • withU "Kamui Chain Combo" 1 
+                             (applyDur [Seal, Taunt]) 1)]
+        }
+      ]
+    , [ newSkill
+        { label   = "Major Summoning: Kurama"
+        , desc    = "The masked man summons the Nine-Tailed Beast to the battlefield to wreak havoc, demolishing the enemy team's destructible defenses and his destructible barrier. For 3 turns, it deals 25 damage to a random enemy. While active, the masked man and his allies ignore harmful non-damage effects other than chakra cost changes."
+        , classes = [Chakra, Melee, Summon, Bypassing]
+        , cost    = χ [Blood, Gen, Tai]
+        , cd      = 5
+        , channel = Ongoing 3
+        , start   = [(Enemies, demolish)]
+        , effects = [ (REnemy, damage 25) 
+                    , (Allies, apply 1 [Focus])
+                    ]
+        }
+      ]
+    , invuln "Teleportation" "The masked man" [Chakra]
     ] []
   ]

@@ -14,5 +14,4 @@ exports["getPageSize"]  = function() {
            )
 }
 exports["avatars"]      = avatars;
-exports["cs"]           = cs;
 exports["cs'"]          = cs$prime;

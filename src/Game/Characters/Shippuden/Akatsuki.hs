@@ -67,8 +67,8 @@ akatsukiCsS =
         , classes = [Chakra, Ranged, Bypassing, Invisible]
         , cost    = χ [Blood, Nin]
         , cd      = 4
-        , effects = [ (Enemy, trap' 1 (OnCounter Chakra) flag
-                            • trap' 1 (OnCounter Mental) flag
+        , effects = [ (Enemy, trap 1 (OnCounter Chakra) flag
+                            • trap 1 (OnCounter Mental) flag
                             • delay (-1) 
                               § withU "Super Shark Bomb" 20 damage 30)
                     ]
@@ -406,8 +406,7 @@ akatsukiCsS =
         , cost    = χ [Rand, Rand]
         , channel = Action 2
         , cd      = 3
-        , start   = [(Self, defend 2 20
-                          • onBreak § cancelChannel "Poison Blade Assault")]
+        , start   = [(Self, defend 2 20 • onBreak')]
         , effects = [(Enemy, damage 10 • afflict 10)]
         }
       ]
@@ -418,7 +417,7 @@ akatsukiCsS =
         , classes = [Physical, Melee, Unreflectable]
         , cost    = χ [Rand]
         , cd      = 3
-        , effects = [ (Enemies, trap' 1 OnHarm § remove "Thousand Arms"
+        , effects = [ (Enemies, trap (-1) OnHarm § remove "Thousand Arms"
                               • bomb (-1) []
                                 [(Expire, apply' "Pinned" (-1) [Expose])])
                     , (Self, vary 1 1 2)
@@ -720,9 +719,8 @@ akatsukiCsS =
         , classes = [Physical, Melee]
         , cost    = χ [Tai, Rand]
         , cd      = 2
-        , effects = [(Enemy, pierce 15 • apply 0 [ Afflict 10]
-                            • trap' 0 OnHelped § remove "Metal Blade")
-                    ]
+        , effects = [(Enemy, pierce 15 • apply 0 [Afflict 10]
+                           • trap 0 OnHelped § remove "Metal Blade")]
         }
       ] 
     , [ newSkill
@@ -943,46 +941,6 @@ akatsukiCsS =
         }
       ]
     , invuln "Rinnegan Foresight" "Nagato" [Mental]
-    ] []
-  , Character
-    "Masked Man"
-    "As the Nine-Tailed Beast rampages across the Hidden Leaf Village, a mysterious masked man appears and tries to bend it to his will. The legendary beast demolishes house after house and does the same to the defenses of its enemies."
-    [ [ newSkill
-        { label   = "Kamui Chain Combo"
-        , desc    = "The masked man snares an enemy in sealing chains and phases through them, becoming invulnerable to damage and ignoring harmful effects other than chakra cost changes for 1 turn."
-        , classes = [Chakra, Melee]
-        , cost    = χ [Tai]
-        , cd      = 2
-        , effects = [ (Self,  apply 1 [Immune All])
-                    , (Enemy, tag 1)
-                    ]
-        }
-      ]
-    , [ newSkill
-        { label   = "Kamui Banishment"
-        , desc    = "The masked man uses a rare space-time technique to warp an enemy to his pocket dimension, dealing 20 piercing damage and making them immune to effects from their allies for 1 turn. While active, the target can only target the masked man or themselves. Deals 20 additional damage and lasts an additional turn if the target is affected by [Kamui Chain Combo]."
-        , classes = [Chakra, Melee, Unreflectable]
-        , cost    = χ [Gen]
-        , cd      = 1
-        , effects = [(Enemy, withU "Kamui Chain Combo" 20 pierce 20 
-                           • withU "Kamui Chain Combo" 1 
-                             (applyDur [Seal, Taunt]) 1)]
-        }
-      ]
-    , [ newSkill
-        { label   = "Major Summoning: Kurama"
-        , desc    = "The masked man summons the Nine-Tailed Beast to the battlefield to wreak havoc, demolishing the enemy team's destructible defenses and his destructible barrier. For 3 turns, it deals 25 damage to a random enemy. While active, the masked man and his allies ignore harmful non-damage effects other than chakra cost changes."
-        , classes = [Chakra, Melee, Summon, Bypassing]
-        , cost    = χ [Blood, Gen, Tai]
-        , cd      = 5
-        , channel = Ongoing 3
-        , start   = [(Enemies, demolish)]
-        , effects = [ (REnemy, damage 25) 
-                    , (Allies, apply 1 [Focus])
-                    ]
-        }
-      ]
-    , invuln "Teleportation" "The masked man" [Chakra]
     ] []
   , Character
     "Tobi"

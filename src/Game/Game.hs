@@ -61,7 +61,7 @@ module Game.Game
     -- *** Modification
     , hasten, prolong, setFace
     -- ** 'Trap'
-    , onBreak, removeTrap
+    , onBreak, onBreak', selfBreak, removeTrap
     , trap, trap', trapFrom, trapFrom', trapPer, trapPer', trapWith
     -- * Invulnerability
     , invuln, invuln1, invuln'
@@ -289,7 +289,8 @@ act affected' game'Swap (Act c s t, rando)
         game'Cd     = updateCd hascharge 0 skill c s game
         affected    = isRight s ? (Channeled :) $ affected'Swap
         game'F      = doEffects affected skill c c t rando game'Cd
-        game'       = trigger affected skill c game'Cd
+        game'       = alter (↦ \nt → nt { nTargeted = False })
+                    ∘ trigger affected skill c game'Cd
                     ∘ isLeft s ? addChannels (channel skill) c skill t
                     $ game'F
         notChan (Left _)   = False
@@ -334,7 +335,7 @@ trigger ∷ [Affected] → Skill → Slot
 trigger affected Skill{..} c game game'Pre
   | Channeled ∈ affected = game'
   | not (null counttr)   = fn c N.unCounter game { gameNinjas = ns'Cp }
-  | otherwise            = game'Tr
+  | otherwise            = game'F
   where n       = gameNinja c game
         n'Pre   = gameNinja c game'Pre
         dmgTot  = sum $ S.zipWith healthLost 
@@ -342,7 +343,6 @@ trigger affected Skill{..} c game game'Pre
         n'      = n'Pre { nTraps = updatePer ↤ nTraps n'Pre }
         game'   = setNinja c n' game'Pre
         ns'Cp   = S.zipWith cop (gameNinjas game) (gameNinjas game')
-        dmgTr   = getTrackTraps True TrackDamage n'
         als     = S.fromList 
                   [ (a, a') | a ← allies c game | a' ← allies c game' ]
         ens     = S.fromList 
@@ -362,12 +362,26 @@ trigger affected Skill{..} c game game'Pre
         dmgEns  = [ nt' | (nt, nt') ← allNs, nHealth nt > nHealth nt' ]
         damaged = [ nt' | (nt, nt') ← allNs, nHealth nt > nHealth nt' ]
         stunned = [ nt' | (nt, nt') ← ens, is' Stun nt', not $ is' Stun nt ]
+        n'Taunt = case harmed of
+                    [Ninja{nId}] → case  getTaunting n' of
+                      Just (dur, st@Status{..}) → 
+                        let st' = Status statusL statusSrc nId nId
+                                 statusSkill [Taunt] statusClasses [] 
+                                 (sync dur) (sync dur)
+                        in n' { nStatuses = st' : delete st (nStatuses n')} 
+                      Nothing         → n'
+                    _                 → n'
+        game'T  = setNinja c n'Taunt game' 
+        trapsF  = concat
+                $ getTrapsFrom OnDamage n' ↤ damaged
+                ⧺ getTrapsFrom OnStun   n' ↤ stunned 
+                ⧺ getTrapsFrom OnHarm   n' ↤ harmed 
         trapsC  = counttr
-                ⧺ getTraps chakraF              OnChakra n'
-                ⧺ getTraps (not $ null dmgEns)  OnDamage n'
-                ⧺ getTraps (not $ null stunned) OnStun   n'
-                ⧺ getTraps (was Immune (n', n)) OnImmune n'
-                ⧺ getTraps harmful              OnHarm   n'
+                ⧺ getTrapsTo chakraF              OnChakra n'
+                ⧺ getTrapsTo (not $ null dmgEns)  OnDamage n'
+                ⧺ getTrapsTo (not $ null stunned) OnStun   n'
+                ⧺ getTrapsTo (was Immune (n', n)) OnImmune n'
+                ⧺ getTrapsTo harmful              OnHarm   n'
                 ⧺ classTrs (game'Pre ≠ game)    OnAction classes n' 
         trapsN  = concat
                 $ getTraps True OnHelped          ↤ helped
@@ -376,9 +390,12 @@ trigger affected Skill{..} c game game'Pre
                 ⧺ classTrs True OnHarmed classes  ↤ harmed
                 ⧺ classTrs True OnDamaged classes ↤ damaged
                 ⧺ onStunned                       ↤ stunned
+        trapsP  = getTrackTraps True TrackDamage n'
+                ⧺ getPerTraps (not $ null dmgEns) PerDamage dmgTot n'
         game'Tr = entrap c trapsN
-                $ entrap c trapsC game' 
-                  { gameTraps = gameTraps game' ⧺ dmgTr }
+                $ entrap c trapsC game'T 
+                  { gameTraps = gameTraps game'T ⧺ trapsP }
+        game'F  = foldl (&) game'Tr trapsF
         onStunned nt = classTrs True OnStunned (getStun nt) nt
         cop t t' = t { nCopied = nCopied t' }
         was ef (nt, nt') = is' ef nt' ∧ not (is' ef nt)
@@ -485,9 +502,13 @@ chooseRands n skill@Skill{..} Game{..} c (Right stdGen) = (rAlly, rEnemy)
 
 wrapEffect ∷ [Affected] → Transform → Transform
 wrapEffect affected f skill@Skill{..} src c game t
-  | [Applied, Trapped] ⩀ affected     = game'Do
-  | not $ targetable skill' nSrc n nt = game
-  | skill ∈ nParrying nt              = game
+  | gameMock game                     = game'Do
+  | Direct ∈ classes                  = game'Do
+  | Applied ∈ affected                = game'Do
+  | classes ⩀ getInvincible nt        = game'T
+  | Trapped ∈ affected                = game'Do
+  | not $ targetable skill' nSrc n nt = game'T
+  | skill ∈ nParrying nt              = game'T
   | not new                           = game'Do
   | is Uncounter nt                   = game'Post
   | otherwise = case allow Redirected $? redirect classes nt of
@@ -508,19 +529,22 @@ wrapEffect affected f skill@Skill{..} src c game t
               Just nt' → setNinja t nt' game'Mimic
               Nothing  → let (nt', p) = broken nt (gameNinja t game'Post) in
                          entrap c p $ setNinja t nt' game'Post
-  where skill' | Countered ∈ affected = skill { classes = Bypassing : classes }
+  where nt         = gameNinja t game
+        nt'T       | new       = nt { nTargeted = True }  
+                   | otherwise = nt
+        game'T     = setNinja t nt'T game
+        skill' | Countered ∈ affected = skill { classes = Bypassing : classes }
                | otherwise            = skill
         new        = not $ [Applied, Channeled, Delayed, Trapped] ⩀ affected
         cTag       = ChannelTag (copyRoot skill src) src skill False 3
-        nt'Start   = gameNinja t game
-        (nt, setn) | t ≡ src ∨ Instant ≡ channel     = (nt'Start, False)
-                   | [Applied, Disrupted] ⩀ affected = (nt'Start, False)
-                   | not $ isChanneling label n      = (nt'Start, False)
+        (nt'C, fc) | t ≡ src ∨ Instant ≡ channel     = (nt'T, False)
+                   | [Applied, Disrupted] ⩀ affected = (nt'T, False)
+                   | not $ isChanneling label n      = (nt'T, False)
                    | otherwise = 
-                        (nt'Start { nTags = cTag : nTags nt'Start }, True)
-        game'Tag   = setn ? setNinja t nt $ game
-        n          = gameNinja c game
-        nSrc       = gameNinja src game
+                        (nt'T { nTags = cTag : nTags nt'T }, True)
+        game'Tag   = fc ? setNinja t nt'C $ game'T
+        n          = gameNinja c game'T
+        nSrc       = gameNinja src game'T
         noharm     = allied c t ∧ allied src t
         harm       = not noharm
         shifted    = [Redirected, Reflected, Swapped] ⩀ affected 
@@ -550,7 +574,6 @@ wrapEffect affected f skill@Skill{..} src c game t
         onlyDmg nx nx' = nx { nHealth   = min (nHealth nx') (nHealth nx) 
                             , nStatuses = nStatuses nx'
                             }
-
 -- * HIGHER-ORDER
 
 -- ** COMPOSITION
@@ -604,58 +627,67 @@ everyone f skill src c game _ =
 
 -- | User 'has'
 ifI ∷ Text → Transform → Transform
-ifI l f skill src c game t
+ifI l f skill src c game@Game{..} t
+  | gameMock                       = f skill src c game t
   | has l src n ∨ isChanneling l n = f skill src c game t
   | otherwise                      = game
   where n = gameNinja src game
 
 -- | 'not' 'ifI'
 ifnotI ∷ Text → Transform → Transform
-ifnotI l f skill src c game t
+ifnotI l f skill src c game@Game{..} t
+  | gameMock                             = f skill src c game t
   | not $ has l src n ∨ isChanneling l n = f skill src c game t
   | otherwise                            = game
   where n = gameNinja src game
 
 -- | Target 'has'
 ifU ∷ Text → Transform → Transform
-ifU l f skill src c game t
+ifU l f skill src c game@Game{..} t
+  | gameMock                     = f skill src c game t
   | has l src $ gameNinja t game = f skill src c game t
   | otherwise                    = game
 
 -- | 'not' 'ifU'
 ifnotU ∷ Text → Transform → Transform
-ifnotU l f skill src c game t
+ifnotU l f skill src c game@Game{..} t
+  | gameMock                           = f skill src c game t
   | not ∘ has l src $ gameNinja t game = f skill src c game t
   | otherwise                          = game
 
 -- | User 'numStacks' exceeds a threshold
 ifStacks ∷ Text → Int → Transform → Transform
-ifStacks l i f skill src c game t
+ifStacks l i f skill src c game@Game{..} t
+  | gameMock                                 = f skill src c game t
   | numStacks l src (gameNinja src game) ≥ i = f skill src c game t
   | otherwise                                = game
 
 -- | 'not' 'ifStacks'
 ifnotStacks ∷ Text → Int → Transform → Transform
-ifnotStacks l i f skill src c game t
+ifnotStacks l i f skill src c game@Game{..} t
+  | gameMock                                 = f skill src c game t
   | numStacks l src (gameNinja src game) < i = f skill src c game t
-  | otherwise                               = game
+  | otherwise                                = game
 
 -- | User 'isChanneling'
 ifChan ∷ Text → Transform → Transform
-ifChan l f skill src c game t
+ifChan l f skill src c game@Game{..} t
+  | gameMock                            = f skill src c game t
   | isChanneling l $ gameNinja src game = f skill src c game t
   | otherwise                           = game
 
 -- | User 'nHealth' is within a range
 ifHealthI ∷ Int → Int → Transform → Transform
-ifHealthI minHp maxHp f skill src c game t
+ifHealthI minHp maxHp f skill src c game@Game{..} t
+  | gameMock                = f skill src c game t
   | hp ≥ minHp ∧ hp ≤ maxHp = f skill src c game t
   | otherwise               = game
   where hp = nHealth $ gameNinja c game
 
 -- | Target 'nHealth' is within a range
 ifHealthU ∷ Int → Int → Transform → Transform
-ifHealthU minHp maxHp f skill src c game t
+ifHealthU minHp maxHp f skill src c game@Game{..} t
+  | gameMock                = f skill src c game t
   | hp ≥ minHp ∧ hp ≤ maxHp = f skill src c game t
   | otherwise               = game
   where hp = nHealth $ gameNinja t game
@@ -663,7 +695,8 @@ ifHealthU minHp maxHp f skill src c game t
 -- | Kills and performs a 'Transform' if the target is killed.
 -- Has no effect if the target is invulnerable, has 'Endure', etc.
 killThen ∷ Transform → Transform
-killThen f skill src c game t
+killThen f skill src c game@Game{..} t
+  | gameMock                          = wrapEffect [] f skill src c game' t
   | not ∘ isAlive $ gameNinja t game' = wrapEffect [] f skill src c game' t
   | otherwise                         = game'
   where game' = kill skill src c game t
@@ -672,7 +705,7 @@ killThen f skill src c game t
 
 -- | User 'has'
 withI ∷ Text → Int → (Int → Transform) → Int → Transform
-withI l amount f base skill src c game t
+withI l amount f base skill src c game@Game{..} t
   | total ≡ 0 = game
   | otherwise = f total skill src c game t
   where total = has l src (gameNinja src game) ? (amount +) $ base
@@ -767,7 +800,7 @@ perDead amt f base skill src c game@Game{..}
     = f (base + amt * count) skill src c game
   where count = length [ nId | Ninja{..} ← gameNinjas
                              , nId ≠ c, allied nId c
-                             , nHealth > 0
+                             , nHealth ≡ 0
                              ]
 
 -- * TRANSFORMS
@@ -855,9 +888,10 @@ setHealth = r ∘ N.setHealth
 
 -- | Adds a 'Delay'.
 delay ∷ Int → Transform → Transform
-delay dur' f' skill@Skill{..} src c game t
+delay dur' f' skill@Skill{..} src c game@Game{..} t
+    | gameMock     = wrapEffect [Delayed] f' skill src c game t
     | past copying = game
-    | otherwise    = game { gameDelays = Delay c skill f dur : gameDelays game }
+    | otherwise    = game { gameDelays = Delay c skill f dur : gameDelays }
   where dur      = incr $ sync dur'
         f game' = wrapEffect [Delayed] f' skill src c game' t
         past (Shallow _ d) = dur > d
@@ -950,7 +984,7 @@ disruptAll t fs game c
                $ setNinja c n { nChannels = nChannels n ∖ disr } game
   where n      = gameNinja c game
         disr   = filter disrupted $ nChannels n
-        immune = any (∈ fs) ∘ Immune ↤∘ classes
+        immune = any (\cla → [Immune cla, Invincible cla] ⩀ fs) ∘ classes
         disrupted Channel{..} = case channelDur of
             Control _ → t ≡ channelT ∧ immune channelSkill
             _         → False
@@ -974,6 +1008,7 @@ data Attack = AttackAfflict
 attack ∷ Attack → Int → Transform
 attack _   0  _ _  _     game _ = game
 attack atk hp Skill{..} src c game t
+  | classes' ⩀ getInvincible nt     = game
   | not direct ∧ is (Stun class') n = game
   | hp'tSt ≤ 0                      = game
   | atk ≡ AttackAfflict             = tr $ fn t (N.attack hp'tSt) game
@@ -1216,7 +1251,7 @@ applyFull clas bounced statusBombs' l dur fs statusSkill@Skill{copying} statusSr
                       | otherwise                   = []
         statusL       = defaultL l statusSkill
         isSingle      = statusL ≡ label statusSkill ∧ Single ∈ clas
-        n             = gameNinja statusSrc game
+        n             = gameNinja statusSrc game 
         nt            = gameNinja t game
         selfApplied   = statusSrc ≡ statusC ∧ statusC ≡ t
         extending     = N.prolong' statusDur l statusRoot
@@ -1319,6 +1354,15 @@ onBreak f skill@Skill{..} src c game t
   | not $ hasDefense label src $ gameNinja t game = game
   | otherwise = trap' 0 (OnBreak label) f skill src c game t
 
+-- | Default 'onBreak': remove 'Status'es and 'Channel's that match 'label'.
+onBreak' ∷ Transform
+onBreak' skill@Skill{..} = onBreak (remove label • cancelChannel label) skill
+
+-- | 'onBreak' with 'self'
+selfBreak ∷ Transform
+selfBreak skill@Skill{..} 
+    = onBreak (self $ remove label • cancelChannel label) skill
+
 removeTrap ∷ Text → Transform
 removeTrap l skill src = rt ∘ N.clearTrap l $ copyRoot skill src
 
@@ -1326,7 +1370,7 @@ trapFull ∷ TrapType → [Class] → Int → Trigger → (Int → Transform) �
 trapFull trapType clas dur trapTrigger f skill@Skill{..} trapSrc' _ game t
 --  | trapSrc' ≠ c    = game TODO: Should reflecting not cause traps?
   | p ∈ nTraps nt = game
-  | otherwise       = setNinja t nt' game
+  | otherwise     = setNinja t nt' game
   where trapDur      = copyDur copying ∘ incr $ sync dur
         trapL        = label
         nt           = gameNinja t game

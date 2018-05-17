@@ -155,7 +155,7 @@ versionCsS =
         , classes = [Chakra, Single, Multi]
         , cost    = χ [Blood]
         , cd      = 4
-        , effects = [(Self, apply 3 [ Bleed All (-15)] 
+        , effects = [(Self, apply 3 [Reduce Affliction 15] 
                           • vary 3 1 2 • vary 3 2 1 • setFace 3 )]
         }
       ]
@@ -166,7 +166,7 @@ versionCsS =
         , cost    = χ [Nin, Rand]
         , cd      = 2
         , effects = [ (Enemy, pierce 20 • apply 1 [Stun Melee])
-                    , (Self,  trap' 1 (OnDamaged Physical) 
+                    , (Self,  trap (-1) (OnDamaged Physical) 
                               § remove "Chidori Burst"
                             • bomb (-1) [Reduce Physical 15]
                               [(Expire, vary 1 1 1 • reset 1 0)]
@@ -180,7 +180,7 @@ versionCsS =
         , cost    = χ [Nin]
         , cd      = 2
         , effects = [ (Enemy, pierce 20 • apply 1 [Stun All])
-                    , (Self,  trap' 1 (OnDamaged Physical) 
+                    , (Self,  trap (-1) (OnDamaged Physical) 
                               § remove "Chidori Burst"
                             • bomb (-1) [Reduce Physical 15]
                               [(Expire, vary 1 1 1 • reset 1 0)] 
@@ -212,7 +212,7 @@ versionCsS =
         , classes = [Bane, Chakra, Ranged, Multi, Unreflectable]
         , cost    = χ [Blood]
         , cd      = 1
-        , effects = [(Enemy, trap' 4 OnImmune § removeTrap "Amaterasu"
+        , effects = [(Enemy, trap 4 OnImmune § removeTrap "Amaterasu"
                                               ° remove "Amaterasu"
                            • perI "Amaterasu" 5 
                              (\i → bomb 4 [Afflict i] 
@@ -255,8 +255,7 @@ versionCsS =
         , classes = [Physical]
         , cost    = χ [Blood, Rand]
         , cd      = 4
-        , effects = [(Self, defend 3 50 • onBreak § remove "Mother's Embrace"
-                          • apply 3 [Enrage])]
+        , effects = [(Self, defend 3 50 • onBreak' • apply 3 [Enrage])]
         }
       ]
     , [ newSkill
@@ -371,7 +370,7 @@ versionCsS =
         , desc    = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, [Transfusion] and [White Extreme Attack] are recharged."
         , classes = [Physical, Ranged, Unreflectable]
         , cost    = χ [Rand]
-        , effects = [ (Self,    trap' 1 OnDamage § resetCharges
+        , effects = [ (Self,    trap' (-1) OnDamage § resetCharges
                               • enemyTeam § apply 1 [Restrict])
                     , (Enemies, damage 10)
                     ]
@@ -381,7 +380,7 @@ versionCsS =
         , desc    = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, [Transfusion] and [White Extreme Attack] are recharged."
         , classes = [Physical, Ranged, Unreflectable]
         , cost    = χ [Blood]
-        , effects = [ (Self,    trap' 1 OnDamage § resetCharges
+        , effects = [ (Self,    trap' (-1) OnDamage § resetCharges
                               • enemyTeam § apply 1 [Restrict])
                     , (Enemies, damage 10)
                     ]
@@ -391,7 +390,7 @@ versionCsS =
         , desc    = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, [Transfusion] and [White Extreme Attack] are recharged."
         , classes = [Physical, Ranged, Unreflectable]
         , cost    = χ [Gen]
-        , effects = [ (Self,    trap' 1 OnDamage § resetCharges
+        , effects = [ (Self,    trap' (-1) OnDamage § resetCharges
                               • enemyTeam § apply 1 [Restrict])
                     , (Enemies, damage 10)
                     ]
@@ -401,7 +400,7 @@ versionCsS =
         , desc    = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, [Transfusion] and [White Extreme Attack] are recharged."
         , classes = [Physical, Ranged, Unreflectable]
         , cost    = χ [Nin]
-        , effects = [ (Self,    trap' 1 OnDamage § resetCharges
+        , effects = [ (Self,    trap' (-1) OnDamage § resetCharges
                               • enemyTeam § apply 1 [Restrict])
                     , (Enemies, damage 10)
                     ]
@@ -411,7 +410,7 @@ versionCsS =
         , desc    = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, [Transfusion] and [White Extreme Attack] are recharged."
         , classes = [Physical, Ranged, Unreflectable]
         , cost    = χ [Tai]
-        , effects = [ (Self,    trap' 1 OnDamage § resetCharges
+        , effects = [ (Self,    trap' (-1) OnDamage § resetCharges
                               • enemyTeam § apply 1 [Restrict])
                     , (Enemies, damage 10)
                     ]
@@ -558,5 +557,63 @@ versionCsS =
         }
       ]
     , invuln "Dodge" "Guy" [Physical]
+    ] []
+  , Character
+    "Susano'o Itachi"
+    "Plagued by a lethal disease that saps his strength, Itachi has been forced to go on the defensive. Out of other options, he now plays his trump card: the legendary armor Susano'o, created by the power of the mangekyō sharingan."
+    [ [ newSkill
+        { label   = "Skeletal Susano'o"
+        , desc    = "A bare skeleton, the first layer of Susano'o, forms around Itachi. All damage he receives—including piercing and affliction—is permanently reduced by 5. Each turn for the next 3 turns, Itachi gains 5 points of destructible defense. After 3 turns, this skill becomes [Armored Susano'o][b][b]."
+        , classes = [Chakra, Unremovable]
+        , cost    = χ [Rand]
+        , charges = 1
+        , channel = Ongoing 3
+        , start   = [(Self, apply 0 [Reduce Affliction 5] 
+                          • delay (-3) § vary 0 0 1
+                          • hide' "susan" 0 [])]
+        , effects = [(Self, defend 0 5)]
+        }
+      , newSkill
+        { label   = "Armored Susano'o"
+        , desc    = "Using the full power of his mangekyō sharingan, Itachi causes ethereal muscles and skin to knit across the skeleton of Susano'o, providing 40 points of destructible defense for 2 turns. While he has destructible defense from this skill, he ignores stuns, the costs of his skills are decreased by 1 random chakra, and he is immune to affliction damage. All damage he receives—including piercing and affliction—is permanently reduced by 10, non-stacking."
+        , classes = [Chakra, Unremovable, Nonstacking]
+        , cost    = χ [Blood, Blood]
+        , cd      = 4
+        , effects = [(Self, apply' "Armored Susano'o " 0 [Reduce Affliction 10] 
+                          • defend 2 40 • onBreak'
+                          • apply 2 [Focus, Immune Affliction, Unexhaust])]
+        }
+      ]
+    , [ newSkill
+        { label   = "Totsuka Blade"
+        , desc    = "Itachi slashes an enemy with an ethereal liquid blade, dealing 25 affliction damage."
+        , require = HasI 1 "susan"
+        , classes = [Chakra, Melee, Bypassing, Uncounterable, Unreflectable]
+        , cost    = χ [Gen, Rand]
+        , effects = [(Enemy, perU "Hangover" 5 afflict 25 • tag 1)]
+        }
+      ]
+    , [ newSkill
+        { label   = "Sealing Jar of Drunken Dreams"
+        , desc    = "Itachi seals an enemy within the ethereal sake jar from which the Totsuka Blade is formed, removing a random chakra from them. For 1 turn, they are stunned and immune to effects from allies. The target permanently takes 5 additional damage from Totsuka Blade. Can only be used on a target who was affected by [Totsuka Blade] last turn."
+        , require = HasU "Totsuka Blade"
+        , classes = [Chakra, Ranged, Multi]
+        , cost    = χ [Blood, Rand]
+        , effects = [(Enemy, drain 1 • apply 1 [Stun All, Seal] 
+                                     • apply' "Sealed" 0 [])]
+        }
+      ]
+    , [ newSkill
+        { label   = "Yata Mirror"
+        , desc    = "Itachi becomes invincible for 1 turn. While active, every harmful skill used on him deals 10 damage to its user and causes Itachi to gain 10 destructible defense."
+        , require = HasI 1 "susan"
+        , classes = [Chakra, Invisible, Unremovable]
+        , cost    = χ [Gen]
+        , cd      = 3
+        , effects = [(Self, apply 1 [Invincible All, Enrage] 
+                          • trapFrom 1 (OnHarmed All) 
+                            § damage 10 ° self (defend 0 10))]
+        }
+      ]
     ] []
   ]

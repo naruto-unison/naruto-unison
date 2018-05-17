@@ -117,10 +117,10 @@ examCs =
     , [ newSkill
         { label   = "Temple of Nirvana"
         , desc    = "Illusory white feathers descend upon the battlefield and lull the enemy team to sleep. Unless an enemy uses a skill next turn, they will be stunned for 1 turn and receive 10 additional damage from physical and chakra skills."
-        , classes = [Mental, Ranged]
+        , classes = [Mental, Ranged, Invisible]
         , cost    = χ [Gen]
         , cd      = 2
-        , effects = [(Enemies, trap' (-1) (OnAction All) 
+        , effects = [(Enemies, trap (-1) (OnAction All) 
                                § remove "Temple of Nirvana Trap" 
                              • bomb' "Temple of Nirvana Trap" (-1) []
                                [(Expire, apply 1 [ Stun All

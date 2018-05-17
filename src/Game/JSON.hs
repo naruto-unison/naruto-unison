@@ -3,7 +3,6 @@ module Game.JSON () where
 
 import Preludesque
 
-import Control.Monad
 import Yesod         ((.=), ToJSON, toJSON, object)
 
 import Calculus
@@ -29,19 +28,21 @@ instance ToJSON Ninja where
     toJSON n@Ninja{..} = object
         [ "nId"        .= nId
         , "nHealth"    .= nHealth
+        , "nName"      .= characterName nCharacter
         , "nDefense"   .= nDefense
         , "nBarrier"   .= nBarrier
-        , "nChannels"  .= nChannels
-        , "nCharges"   .= nCharges
-        , "nFace"      .= nFace
-        , "nCopied"    .= nCopied
-        , "nParrying"  .= nParrying
-        , "nVariants"  .= nVariants
-        , "nTags"      .= nTags
-        , "nTraps"     .= filter ((Hidden ∉) ∘ trapClasses) nTraps
-        , "nName"      .= characterName nCharacter
         , "nStatuses"  .= reduceStatuses n
+        , "nCharges"   .= nCharges
         , "nCooldowns" .= getCds n
+        , "nVariants"  .= nVariants
+        , "nCopied"    .= nCopied
+        , "nChannels"  .= nChannels
+        , "nTraps"     .= filter ((Hidden ∉) ∘ trapClasses) nTraps
+        , "nFace"      .= nFace
+        , "nParrying"  .= nParrying
+        , "nTags"      .= nTags
+        , "nLastSkill" .= nLastSkill
+        , "nTargeted"  .= nTargeted
         , "nSkills"    .= (usable' ↤ getSkills n)
         ]
       where usable' skill@Skill{..} = skill { require = fulfill require }
@@ -57,10 +58,11 @@ instance ToJSON Game where
         , "gameVictor"  .= gameVictor
         , "gameTargets" .= gameTargets
         ] 
-      where ns          = toList gameNinjas 
-            gameTargets = do
-              n ← ns
+      where ns              = toList gameNinjas 
+            gameTargets     = do
+              n ← toList gameNinjas
               return $ do
-                skill ← getSkills n
+                skill@Skill{..} ← getSkills n
                 return $ (skillTargets skill (nId n) ∩) 
                          [ nId | nt@Ninja {..} ← ns, targetable skill n n nt ]
+            

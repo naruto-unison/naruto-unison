@@ -1,4 +1,3 @@
-$newline never
 <section>
   <img .char.avatar.#{userRank user} src=#{userAvatar}>
   $maybe team <- userTeam

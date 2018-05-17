@@ -64,7 +64,6 @@ dependencies:
 - base-unicode-symbols
 - blaze-html
 - hashable
-- lifted-base
 - mime-mail
 - monad-loops
 - random
@@ -73,6 +72,7 @@ dependencies:
 - stm
 - stm-containers
 - time
+- unliftio
 - yesod-websockets
 
 library:
@@ -82,6 +82,7 @@ library:
     then:
       ghc-options:
       - -Wall
+      - -Wincomplete-uni-patterns
       - -fwarn-tabs
       - -O0
       - -fwarn-incomplete-patterns
@@ -93,6 +94,7 @@ library:
     else:
       ghc-options:
       - -Wall
+      - -Wincomplete-uni-patterns
       - -fwarn-tabs
       - -O2
       - -fwarn-incomplete-patterns

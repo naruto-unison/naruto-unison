@@ -14,6 +14,7 @@ import Data.Yaml                   (decodeEither')
 import Database.Persist.Postgresql (PostgresConf)
 import Language.Haskell.TH.Syntax  (Exp, Name, Q)
 import Network.Wai.Handler.Warp    (HostPreference)
+import Text.Hamlet           
 import Yesod.Default.Config2       (applyEnvValue, configSettingsYml)
 import Yesod.Default.Util          
 
@@ -95,7 +96,8 @@ instance FromJSON AppSettings where
 -- https://github.com/yesodweb/yesod/wiki/Overriding-widgetFile
 widgetFileSettings ∷ WidgetFileSettings
 widgetFileSettings = def
-
+  { wfsHamletSettings = defaultHamletSettings 
+                        { hamletNewlines = NewlinesText } }
 -- | How static files should be combined.
 combineSettings ∷ CombineSettings
 combineSettings = def

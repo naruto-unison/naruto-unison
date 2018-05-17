@@ -24,7 +24,7 @@ module Game.Structure
     -- * Function types
     , Transform, SkillTransform, TrapTransform
     -- * Game
-    , Game(..), newGame, gameNinja, setNinja, fn
+    , Game(..), newGame, gameNinja, setNinja, fn, mockSlot
     -- * Labeled
     , Labeled(..), lEq, lMatch
     -- * Ninja
@@ -160,6 +160,7 @@ data Class = Invisible
            | Necromancy
            -- Fake (Hidden)
            | All
+           | Healing
            | Hidden
            | Affliction
            | NonAffliction
@@ -210,6 +211,7 @@ data Effect = Afflict    Int           -- ^ Deals damage every turn
             | Heal       Int            -- ^ Heals every turn
             | Immune     Class          -- ^ Invulnerable to enemy 'Skill's
             | ImmuneSelf                -- ^ Immune to self-caused damage
+            | Invincible Class          -- ^ Like 'Immune', but targetable
             | Isolate                   -- ^ Unable to affect others
             | Link       Int            -- ^ Increases damage and healing from source
             | Nullify    Effect         -- ^ Prevents effects from being applied
@@ -235,6 +237,7 @@ data Effect = Afflict    Int           -- ^ Deals damage every turn
             | Stun       Class          -- ^ Unable to use 'Skill's
             | Swap       Class          -- ^ Target swaps enemies and allies
             | Taunt                     -- ^ Forced to attack the source
+            | Taunting   Int            -- ^ Forced to attack their next target
             | Uncounter                 -- ^ Cannot counter or reflect
             | Unexhaust                 -- ^ Decreases chakra costs by 1 random  
             | Unreduce   Int            -- ^ Reduces damage reduction 'Skill's
@@ -278,6 +281,7 @@ instance Show Effect where
     show (Heal a) = "Gains " ⧺ show a ⧺ " health each turn."
     show (Immune clas) = "Invulnerable to " ⧺ low clas ⧺ " skills."
     show ImmuneSelf = "Immune to self-damage."
+    show (Invincible clas) = "Harmful " ⧺ low clas ⧺ " skills have no effect."
     show Isolate = "Unable to affect others."
     show (Link a) = "Receives " ⧺ show a ⧺ " additional damage from the source of this effect."
     show (Nullify _) = "Protected from certain effects."
@@ -288,9 +292,12 @@ instance Show Effect where
     show Pierce = "Non-affliction skills deal piercing damage."
     show Plague = "Cannot be healed or cured."
     show Reapply = "Harmful skills received are also reflected to the source of this effect."
+    show (Reduce Affliction a)
+      | a ≥ 0     = "Reduces all damage received—including piering and affliction—by " ⧺ show a ⧺ "."
+      | otherwise = "Increases all damage received—including piering and affliction—by " ⧺ show a ⧺ "."
     show (Reduce clas a) 
-        | a ≥ 0     = "Reduces " ⧺ low clas ⧺ " damage received by " ⧺ show a ⧺ ". Does not affect piercing or affliction damage."
-        | otherwise = "Increases " ⧺ low clas ⧺ " damage received by " ⧺ show (-a) ⧺ ". Does not affect piercing or affliction damage."
+      | a ≥ 0     = "Reduces " ⧺ low clas ⧺ " damage received by " ⧺ show a ⧺ ". Does not affect piercing or affliction damage."
+      | otherwise = "Increases " ⧺ low clas ⧺ " damage received by " ⧺ show (-a) ⧺ ". Does not affect piercing or affliction damage."
     show (Redirect clas) = "Redirects " ⧺ low clas  ⧺ " harmful skills to the source of this effect."
     show Reflect = "Reflects the first harmful non-mental skill."
     show ReflectAll = "Reflects all non-mental skills."
@@ -303,8 +310,8 @@ instance Show Effect where
     show Share = "If a harmful non-damage effect is received, it is also applied to the source of this effect."
     show Silence = "Unable to cause non-damage effects."
     show (Snare a)
-        | a ≥ 0 = "Cooldowns increased by " ⧺ show a ⧺ "."
-        | otherwise = "Cooldowns decreased by " ⧺ show (-a) ⧺ "."
+      | a ≥ 0 = "Cooldowns increased by " ⧺ show a ⧺ "."
+      | otherwise = "Cooldowns decreased by " ⧺ show (-a) ⧺ "."
     show (SnareTrap _ _) = "Next skill used will be negated and go on a longer cooldown."
     show (Snapshot _) = "Will be restored to an earlier state when this effect ends."
     show (Strengthen clas a) = show' clas ⧺ " damaging skills deal " ⧺ show a ⧺ " additional damage."
@@ -313,6 +320,7 @@ instance Show Effect where
     show (Stun clas) = "Unable to use " ⧺ low clas ⧺ " skills."
     show (Swap clas) = "Next " ⧺ low clas ⧺ " skill will target allies instead of enemies and enemies instead of allies."
     show Taunt = "Forced to target the source of this effect."
+    show (Taunting a) = "Will be forced to target the next enemy they use a skill on for " ⧺ show a ⧺ " turns."
     show Uncounter = "Unable to benefit from counters or reflects."
     show Unexhaust = "All skills cost 1 fewer random chakra."
     show (Unreduce a) = "Damage reduction skills reduce " ⧺ show a ⧺ " fewer damage."
@@ -348,6 +356,7 @@ helpful Focus            = True
 helpful (Heal _)         = True
 helpful (Immune _)       = True
 helpful ImmuneSelf       = True
+helpful (Invincible _)   = True
 helpful Isolate          = False
 helpful (Link _)         = False
 helpful (Nullify _)      = False
@@ -375,6 +384,7 @@ helpful (Strengthen _ _) = True
 helpful (Stun _)         = False
 helpful (Swap _)         = False
 helpful Taunt            = False
+helpful (Taunting _)     = False
 helpful (Unreduce _)     = False
 helpful Uncounter        = False
 helpful Unexhaust        = True
@@ -391,6 +401,7 @@ sticky (CounterAll All) = True
 sticky (CounterAll _)   = True
 sticky Enrage           = True
 sticky (Immune _)       = True
+sticky (Invincible _)   = True
 sticky (Parry All _)    = True
 sticky (Parry _ _)      = True
 sticky (ParryAll All _) = True
@@ -429,7 +440,7 @@ data Act = Act { actC ∷ Slot
                -- ^ Skill by index in 'nCharacter' 'characterSkills' (0-3)
                , actT ∷ Slot               
                -- ^ Target index in 'gameNinjas' (0-5)
-               } deriving (Eq)
+               } deriving (Eq, Generic, ToJSON) -- TODO!!!
 -- | Builds an 'Act' out of basic types. Used for 'PathPiece'.
 data ActPath = ActPath { actPathC ∷ Int -- ^ 'actC'
                        , actPathS ∷ Int -- ^ Left 'actS'
@@ -453,12 +464,12 @@ instance PathPiece ActPath where
 actFromPath ∷ ActPath → Act
 actFromPath ActPath{..} = Act (Slot actPathC) (Left actPathS) (Slot actPathT)
 
--- Keeps track of what caused an action.
+-- | Keeps track of what caused an action.
 data Affected = Applied
               | Channeled
               | Countered
               | Delayed 
-              | Disrupted 
+              | Disrupted
               | Parrying
               | Redirected
               | Reflected
@@ -562,7 +573,7 @@ instance Labeled ChannelTag where
 data Character = Character { characterName   ∷ Text
                            , characterBio    ∷ Text
                            , characterSkills ∷ NonEmpty (NonEmpty Skill)
-                           , characterHooks  ∷ [(Trigger, Ninja → Int → Ninja)]
+                           , characterHooks  ∷ [(Trigger, Int → Ninja → Ninja)]
                            } deriving (Generic, ToJSON)
 instance Eq Character where
   a == b = characterName a ≡ characterName b
@@ -640,6 +651,9 @@ data Game = Game { gamePlayers ∷ (Key User, Key User)
                  -- ^ Starts at 'PlayerA'.
                  , gameVictor  ∷ Maybe Victor
                  -- ^ Starts at 'Nothing'.
+                 , gameMock    ∷ Bool
+                 -- ^ If True, this is a fake game used for testing purposes 
+                 -- and all conditional statements always return True.
                  } deriving (Eq)
 -- Obtains the 'Ninja' in a 'Slot'.
 gameNinja ∷ Slot → Game → Ninja
@@ -662,9 +676,13 @@ newGame ns a b = Game { gamePlayers = (a, b)
                       , gameTraps   = ø
                       , gamePlaying = PlayerA
                       , gameVictor  = Nothing
+                      , gameMock    = False
                       }
 
--- | In-game character, indexed between 0 and 5.
+mockSlot ∷ Slot
+mockSlot = Slot 0
+
+-- | In-game character, indexed between 0 and   e5.
 data Ninja = Ninja { nId        ∷ Slot                   -- ^ 'gameNinjas' index (0-5)
                    , nCharacter ∷ Character
                    , nHealth    ∷ Int                    -- ^ Starts at @100@
@@ -682,6 +700,7 @@ data Ninja = Ninja { nId        ∷ Slot                   -- ^ 'gameNinjas' ind
                    , nParrying  ∷ [Skill]                -- ^ Starts at @[]@
                    , nTags      ∷ [ChannelTag]           -- ^ Starts at @[]@
                    , nLastSkill ∷ Maybe Skill            -- ^ Starts at 'Nothing'
+                   , nTargeted  ∷ Bool                   -- ^ False every 'Act'
                    } deriving (Eq)
 
 insertCd' ∷ Int → Int → Seq Int → Seq Int
@@ -736,6 +755,7 @@ newNinja c nId = Ninja { nId        = nId
                        , nParrying  = []
                        , nTags      = []
                        , nLastSkill = Nothing
+                       , nTargeted  = False
                        }
 
 -- | Factory resets a 'Ninja' to its starting values.
@@ -878,6 +898,7 @@ data Trigger = OnAction     Class
              | OnRes
              | OnStun
              | OnStunned    Class
+             | PerDamage
              | PerDamaged
              | TrackDamage
              | TrackDamaged
@@ -907,6 +928,7 @@ instance Show Trigger where
     show OnRes           = "Trigger: Reach 0 health"
     show OnStun          = "Trigger: Apply a stun"
     show (OnStunned _)   = "Trigger: Stunned"
+    show PerDamage       = show OnDamage
     show PerDamaged      = show (OnDamaged All)
     show PerHealed       = show OnHealed
     show TrackDamage     = show OnDamage

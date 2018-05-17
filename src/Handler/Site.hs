@@ -25,7 +25,7 @@ import Game.Characters
 usr ! l = [shamlet| $newline never
 <a .skill data-usr=#{usr}>#{l}|]
 
-data LogType = Added | New | Rework
+data LogType = Added | New | Rework | Change
 data CharacterType = O | R | S
 
 logLabel ∷ Bool → LogType → Text
@@ -35,6 +35,8 @@ logLabel True  New    = "New character:"
 logLabel False New    = "New:"
 logLabel True  Rework = "Character rework:"
 logLabel False Rework = "Rework:"
+logLabel True  Change = "Character update:"
+logLabel False Change = "Update:"
 
 getChangelog ∷ Bool → LogType → Text → CharacterType → Html
 getChangelog longlabel logType name characterType = case M.lookup tagName cs of

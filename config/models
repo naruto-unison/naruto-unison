@@ -16,6 +16,7 @@ User json
     clan       Text      Maybe
     team       [Text]    Maybe
     muted      Bool
+    condense   Bool
     deriving Typeable
 
 Post

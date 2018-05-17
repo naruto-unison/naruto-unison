@@ -215,6 +215,7 @@ newUser ident verkey = User { userIdent      = ident
                             , userClan       = Nothing
                             , userTeam       = Nothing
                             , userMuted      = False
+                            , userCondense   = False
                             }
 
 instance YesodAuth App where

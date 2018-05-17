@@ -22,6 +22,7 @@ import Data.Array                  ((:), intercalate, reverse)
 import Data.Either         
 import Data.Maybe          
 import Data.Time.Duration          (Milliseconds(..))
+import Data.UUID
 import DOM                         (DOM)
 import Halogen                     ( Component, ParentDSL, ParentHTML
                                    , get, liftAff, liftEff, modify, query, raise
@@ -39,9 +40,10 @@ import Component.Common
 
 type Effects e = (ajax ∷ AJAX, audio ∷ AUDIO, dom ∷ DOM | e)
 
-data Query a = HandleQueue Select.Output a 
-             | HandleGame  Play.Output   a
-             | ReceiveMsg  SocketMsg     a
+data Query a = HandleQueue Select.Output      a 
+             | HandleGame  Play.Output        a
+             | ReceiveMsg  SocketMsg     UUID a
+             | EndTurn     UUID               a
 
 data ChildSlot = SelectSlot | PlaySlot
 derive instance eqChildSlot  ∷ Eq ChildSlot
@@ -52,6 +54,7 @@ derive instance eqStage ∷ Eq Stage
 
 type State = { stage    ∷ Stage
              , gameInfo ∷ Either String GameInfo
+             , turn     ∷ Maybe UUID
              }
 
 component ∷ ∀ m. Component HTML Query Unit SocketMsg (Aff (Effects m))
@@ -65,6 +68,7 @@ component = Halogen.parentComponent
   initialState ∷ State
   initialState = { stage:    Waiting
                  , gameInfo: Left ""
+                 , turn:     Nothing
                  }
 
   render ∷ State → ParentHTML Query ChildQuery ChildSlot (Aff (Effects m))
@@ -85,14 +89,14 @@ component = Halogen.parentComponent
   eval ∷ Query ~> ParentDSL State Query ChildQuery ChildSlot SocketMsg (Aff (Effects m))
   eval = case _ of
       HandleQueue (Select.Queued Practice team) next → do
-        let teamList = intercalate "/" ∘ reverse $ characterName_ ↤ team
+        let teamList = intercalate "/" ∘ reverse $ _characterName ↤ team
         {response} ← liftAff $ AX.get ("/api/practicequeue/" ⧺ teamList)
         modify _{ gameInfo = decodeJson response, stage = Practicing }
         liftEff $ progress (Milliseconds 0.0) 1 1
         sound SFXStartFirst
         pure next
       HandleQueue (Select.Queued Quick team) next → do
-        let teamList = intercalate "/" ∘ reverse $ characterName_ ↤ team
+        let teamList = intercalate "/" ∘ reverse $ _characterName ↤ team
         modify _{ stage = Queueing }
         sound SFXApplySkill
         raise $ SocketMsg teamList
@@ -103,32 +107,35 @@ component = Halogen.parentComponent
       HandleQueue _ next →
         pure next
       HandleGame (Play.Finish _) next → do
-        modify _{ gameInfo = Left "", stage = Waiting }
+        modify _{ gameInfo = Left "", turn = Nothing, stage = Waiting }
         pure next
       HandleGame (Play.ActMsg msg) next → do
+        modify _{ turn = Nothing }
         raise msg
         pure next
-      ReceiveMsg (SocketMsg msg) next → do
+      ReceiveMsg (SocketMsg msg) uuid next → do
         {stage} ← get
         case stage of
           Queueing → do
             let result = jsonParser msg ≫= decodeJson
             modify _{ gameInfo = result
-                       , stage    = Playing 
-                       }
+                    , stage    = Playing 
+                    }
             case result of
               Left _ → pure next
               Right (GameInfo {gamePar}) → do
-                liftEff $ progress turnTime (1 - gamePar) gamePar
+                liftEff $ progress (Milliseconds 60000.0) (1 - gamePar) gamePar
                 sound SFXStartFirst
                 pure next
           Playing → do
+            modify _{ turn = Just uuid }
             case jsonParser msg ≫= decodeJson of
               Left _ → pure next
               Right (game ∷ Game) → do
-                _ ← query PlaySlot (QueryPlay (ReceiveGame game) next)
+                _ ← query PlaySlot $ QueryPlay (ReceiveGame game) next
                 pure next
-          _ → pure next 
-
-turnTime ∷ Milliseconds
-turnTime = Milliseconds 60000.0
+          _ → pure next  
+      EndTurn uuid next → do
+        {turn} ← get
+        when (turn ≡ Just uuid) ∘ raise $ SocketMsg "0,0,0,0/0,0,0,0"
+        pure next

@@ -78,7 +78,7 @@ kidCsS =
         , desc   = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures them of baneful effects. Spends a Seal if available to have no cooldown and cost 1 random chakra."
         , classes = [Chakra]
         , cost    = χ [Nin]
-        , cd      = 2
+        , cd      = 1
         , effects = [(XAlly, cureBane • restore 50)]
         }
       , newSkill
@@ -129,9 +129,8 @@ kidCsS =
         , classes = [Physical, Ranged]
         , cost    = χ [Tai]
         , cd      = 1
-        , effects = [ (Enemy, withI "Lightning Flash" 5 damage 20
-                            • trap (-1) (OnAction Ranged) § pierce 10)
-                    ]
+        , effects = [(Enemy, withI "Lightning Flash" 5 damage 20
+                           • trap (-1) (OnAction Ranged) § pierce 10)]
         }
       ]
     , [ newSkill
@@ -287,23 +286,23 @@ kidCsS =
     , [ newSkill
         { label   = "Gentle Step Twin Lion Fists"
         , desc    = "Hinata creates two lions out of chakra. The next 2 times an enemy uses a harmful skill, a chakra lion will attack them, dealing 30 damage and removing a random chakra. Creates a third lion during [Eight Trigrams Sixty-Four Palms]. Cannot be used while active. Ends if Hinata dies."
-        , classes = [Chakra, Melee, Soulbound, Single]
+        , classes = [Chakra, Melee, Bypassing, Soulbound, Single]
         , cost    = χ [Blood, Nin]
         , effects = [ (Self,    addStacks "Chakra Lion" 2
                               • ifI "Eight Trigrams Sixty-Four Palms" 
-                              § addStacks "Chakra Lion" 1)
+                                § addStacks "Chakra Lion" 1)
                     , (Enemies, trap' 0 OnHarm 
-                              § (self § removeStack "Chakra Lion")
-                              ° (ifI "Chakra Lion" § drain 1 • damage 30)
-                              ° (ifnotI "Chakra Lion"
-                              § removeTrap "Gentle Step Twin Lion Fists"))
+                                $ self § removeStack "Chakra Lion"
+                                • ifI "Chakra Lion" § drain 1 ° damage 30
+                                • ifnotI "Chakra Lion"
+                                  § removeTrap "Gentle Step Twin Lion Fists")
                     ]
         }
       ]
     , [ newSkill
         { label   = "Eight Trigrams Sixty-Four Palms"
         , desc    = "For 4 turns, each time an enemy affected by [Pressure Point Strike] uses a harmful skill, Hinata's next [Pressure Point Strike] will last an additional turn on them."
-        , classes = [Physical, Melee]
+        , classes = [Physical, Melee, Bypassing]
         , cost    = χ [Rand]
         , effects = [ (Self,    tag 4)
                     , (Enemies, trap 4 OnHarm § addStack)
@@ -345,7 +344,7 @@ kidCsS =
                           • delay (-1) § trap' (-4) OnHarm
                             (ifnotI "What a Drag" § apply 1 [Immune All])
                           • trap' 4 (OnDamaged NonAffliction) 
-                            (tag' "What a Drag" 1))]
+                            § tag' "What a Drag" 1)]
         }
       , newSkill
         { label   = "Final Explosion"
@@ -467,7 +466,7 @@ kidCsS =
         , classes = [Mental, Ranged, Invisible, Unreflectable, Unremovable]
         , cost    = χ [Gen]
         , cd      = 1
-        , effects = [(Enemy, trap' (-1) (OnCounter Uncounterable) wait
+        , effects = [(Enemy, trap (-1) (OnCounter Uncounterable) wait
                            • bomb (-1) [Copy 1 All 0 False] 
                              [(Done, damage 15)])]
         }
@@ -749,9 +748,9 @@ kidCsS =
           , classes = [Physical, Single, Soulbound, Unremovable, Unreflectable]
           , cost    = χ [Rand, Rand, Rand]
           , cd      = 5
-          , effects = [ (Self,    defend 0 40) 
-                      , (XAllies, apply 0 [Redirect All]
-                                • onBreak § remove "Salamander Shield")
+          , effects = [ (Self,    defend 0 40 • onBreak 
+                                ∘ everyone § remove "Salamander Shield")
+                      , (XAllies, apply 0 [Redirect All])
                       ]
           }
         ]

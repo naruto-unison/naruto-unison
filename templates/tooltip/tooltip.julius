@@ -56,7 +56,7 @@ hoverChar = (i, el) => {
       tooltip
         .stop()
         .css("left", ev.pageX)
-        .css("top", el.clientHeight + el.offsetTop + offset)
+        .css("top", el.clientHeight + el.offsetTop + offset + 5)
         .fadeIn(100)
         .show()
   }).mouseleave(() => $("#tooltip").fadeOut(100))
@@ -83,13 +83,13 @@ $(() => {
             )).append($('<br/><p class="skillClasses">' +
               [skill.channel.tag].concat(filterClasses(skill.classes)).join(", ") +
               '</div>'))
-            desc = tooltip.find("article").html(skill.desc.replace(/\[/g,"<i>").replace(/\]/g,"</i>"))
+            desc = tooltip.find("article").html(skill.desc.replace(/\[.\]/g,"").replace(/\[/g,"<i>").replace(/\]/g,"</i>"))
             const charges = skill.charges
             if (charges === 1)
-                desc.append(` <span class="minor">1 charge.</span>`)
+                desc.append(` <span class="extra">1 charge.</span>`)
             else if (charges > 1)
-                desc.append(` <span class="minor">${charges} charges.</span>`)
-            desc.append(` <span class="minor">CD: ${skill.cd}</span>`)
+                desc.append(` <span class="extra">${charges} charges.</span>`)
+            desc.append(` <span class="extra">CD: ${skill.cd}</span>`)
             tooltip
               .stop()
               .css("left", ev.pageX)

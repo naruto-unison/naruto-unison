@@ -179,8 +179,17 @@ h4 { font-size: 1.15em; }
 .minor {
   font-style: italic;
   color: #606060;
+  margin-left: -0.3em;
+  font-size: 0.75em;
+  vertical-align: top;
 }
-
+.extra {
+  color: #606060;
+  margin-left: 0.4em;
+}
+article .minor {
+    margin-left: 0;
+}
 a, a.minor {
   color: #00aaff;
   text-decoration: none;

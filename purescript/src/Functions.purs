@@ -1,5 +1,6 @@
 module Functions 
-    ( modifyAt', updateAt'
+    ( eqs, groupBy', shortName
+    , modifyAt', updateAt'
     , allied
     , unχ, χf, χNeg, χSum, χAdd, (+~), χMinus, (-~), lacks
     , filterClasses
@@ -7,7 +8,7 @@ module Functions
     , removable
     , shorten
     , skillDur, skillIcon, skillRoot, skillTarget
-    , zip3, zip4
+    , zip3, zip4, zip5
     , userXP, userLevel, userRank
     , lMatch, mergeSkills
     ) where
@@ -20,10 +21,35 @@ import Data.Array
 import Data.Foldable         (sum)
 import Data.Function.Memoize (memoize)
 import Data.Maybe
+import Data.NonEmpty         (NonEmpty, (:|))
+import Data.String           (Pattern(..))
 import Data.Tuple            (fst)
 
 import Operators
 import Structure
+
+eqs ∷ ∀ a b. Eq b ⇒ (a → b) → a → a → Boolean
+eqs f a b = f a ≡ f b
+
+groupBy' ∷ ∀ a. (a → a → Boolean) → Array a → Array (NonEmpty Array a)
+groupBy' pred xs' = case uncons xs' of
+  Nothing → []
+  Just {head: x, tail: xs} → (x :| filter (pred x) xs) 
+                           : (groupBy' pred $ filter (not ∘ pred x) xs)
+
+shortName ∷ Character → String
+shortName (Character {characterName, characterSkills}) = case characterName of
+  "Tobi (S)"      → "Obito"
+  "Masked Man"    → "Obito"
+  "Nagato (S)"    → "Pain"
+  "Nagato (R)"    → "Pain"
+  "Shukaku Gaara" → "Gaara"
+  _  → fromMaybe (strip characterName) $ do
+      skills       ← characterSkills !! 3
+      Skill {desc} ← head skills
+      pure $ strip desc
+  where strip a = T.takeWhile (_ ≠ ' ') ∘ fromMaybe a 
+                $ T.stripPrefix (Pattern "The ") a
 
 modifyAt' ∷ ∀ a. Int → (a → a) → Array a → Array a
 modifyAt' i f xs = fromMaybe xs $ modifyAt i f xs
@@ -34,6 +60,8 @@ zip3 :: ∀ a b c d. (a → b → c → d) → Array a → Array b → Array c �
 zip3 f as bs cs = zipWith ($) (zipWith f as bs) cs
 zip4 ∷ ∀ a b c d e. (a → b → c → d → e) → Array a → Array b → Array c → Array d → Array e
 zip4 f as bs cs ds = zipWith ($) (zip3 f as bs cs) ds
+zip5 ∷ ∀ a b c d e f. (a → b → c → d → e → f) → Array a → Array b → Array c → Array d → Array e → Array f
+zip5 f as bs cs ds es = zipWith ($) (zip4 f as bs cs ds) es
 
 par ∷ Int → Int
 par = (_ % 2)
@@ -130,13 +158,13 @@ skillRoot (Skill {copying}) nId = case copying of
     Deep a    _ → a
 
 skillTarget' ∷ Int → Skill → Array Int
-skillTarget' c (Skill {start, effects})
-     = if enemy ∧ ally  then allSlots
-  else if enemy ∧ xally then delete c allSlots
-  else if enemy         then (_ + 1 - par c) ↤ teamSlots 
-  else if ally          then (_ + par c)     ↤ teamSlots 
-  else if xally         then delete c $ (_ + par c) ↤ teamSlots
-  else                       [c]
+skillTarget' c (Skill {start, effects}) = case otherwise of
+ _| enemy ∧ ally  → allSlots
+ _| enemy ∧ xally → delete c allSlots
+ _| enemy         → (_ + 1 - par c) ↤ teamSlots
+ _| ally          → (_ + par c) ↤ teamSlots
+ _| xally         → delete c $ (_ + par c) ↤ teamSlots
+ _| otherwise     → [c]
   where targets = fst ↤ (start ⧺ effects)
         enemy   = Enemy ∈ targets
         ally    = Ally  ∈ targets
@@ -173,6 +201,7 @@ filterClasses' hideMore = (_ ∖ filtered)
                         , "Unshifted"
                         , "Direct" 
                         , "BaseTrap"
+                        , "Healing"
                         ]
 
 filterClasses ∷ Boolean → Array String → Array String

@@ -185,7 +185,7 @@ component practice0 (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
       freeRands           = χSum χNet + χrand
       free                = Chakras net { rand = freeRands }
       exchangeable        = freeRands ≥ 5 ∧ canExchange χNet ∧ turn
-      acted               = actC_ ↤ acts
+      acted               = _actC ↤ acts
       readyMeta           | not turn  = [_c "noclick"]
                           | χrand ≠ 0 = [_c "noChakra"]
                           | otherwise = [ _c "click"
@@ -240,14 +240,14 @@ component practice0 (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
             sound SFXStartTurn
             {par: oldPar, game: oldGame} ← get
             liftEff $ if g.gamePlaying ≡ oldPar 
-                        then progress wait 1 0
-                        else progress wait 0 1
+                        then wait 1 0
+                        else wait 0 1
             modify \state@{par} → state { game      = game
-                                           , chakras   = getChakra game par 
-                                           , randoms   = χØ
-                                           , exchanged = χØ
-                                           , acts      = []
-                                           } 
+                                        , chakras   = getChakra game par 
+                                        , randoms   = χØ
+                                        , exchanged = χØ
+                                        , acts      = []
+                                        } 
             when (living oldPar oldGame > living oldPar game) $ sound SFXDeath
       Ready false url → do
         sound SFXNextTurn
@@ -259,11 +259,11 @@ component practice0 (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
           Right [a,b] → do
             {par: oldPar, game: oldGame} ← get
             modify \state@{par} → state { game      = a
-                                           , chakras   = getChakra a par 
-                                           , randoms   = χØ
-                                           , exchanged = χØ
-                                           , acts      = []
-                                           } 
+                                        , chakras   = getChakra a par 
+                                        , randoms   = χØ
+                                        , exchanged = χØ
+                                        , acts      = []
+                                        } 
             liftEff $ progress practiceWait 0 1
             liftAff $ delay practiceWait
             liftEff $ progress (Milliseconds 0.0) 1 1
@@ -289,19 +289,19 @@ component practice0 (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
         modify \state@{toggled} → if toggled ≡ Just skill 
                                      then state { toggled = Nothing }
                                      else state { toggled = Just skill }
-      View viewing@(ViewSkill _ ts _) →
+      View viewing@(ViewSkill _ ts _ _) →
         modify _{ viewing = viewing, highlight = ts }
       View viewing → 
         modify _{ viewing = viewing }
       Unhighlight → 
         modify _{ highlight = [] }
     where untoggle     = _{ toggled = Nothing }
-          wait         = Milliseconds 60000.0
+          wait         = progress $ Milliseconds 60000.0
           practiceWait = Milliseconds 1500.0
   eval (QuerySelect _ next) = pure next
 
-_label ∷ ∀ a b. String → HTML a b
-_label l = H.span [_c "label"] [H.text l]
+_l ∷ ∀ a b. String → HTML a b
+_l l = H.span [_c "label"] [H.text l]
 
 enactUrl ∷ Chakras → Chakras → Array Act → String
 enactUrl rand trade acts = intercalate "/" $ χList ⧺ actList
@@ -340,7 +340,7 @@ hRands amount random = H.div [_c "randbar"]
 hAct ∷ ∀ a. Array Character → Act → HTMLQ a
 hAct cs act@(Act {actSkill, actC}) = H.div 
     [_c "act click", E.onClick ∘ input $ Enact Delete act]
-    [ H.img $ [cIcon (getC cs $ skillRoot actSkill actC) $ label_ actSkill]
+    [ H.img $ [cIcon (getC cs $ skillRoot actSkill actC) $ _label actSkill]
     , H.div [_c "actcost"] ∘ hCost $ actCost act
     ]
 
@@ -354,7 +354,7 @@ hCharacter ∷ ∀ a. Array Character → Array Int → Maybe Act → Array Int 
            → Boolean → Boolean → Zipped → HTMLQ a
 hCharacter cs acted toggle highlighted χs turn onTeam 
   (Zipped character n@(Ninja 
-    {nBarrier, nChannels, nCooldowns, nDefense, nFace, nHealth, nId, nSkills}) 
+    {nBarrier, nChannels, nCharges, nCooldowns, nDefense, nFace, nHealth, nId, nSkills}) 
     ts)
     = (if nHealth ≡ 0 then H.section [_c "dead"] else H.section_)
       $ H.aside [_c "channels"] hChannels 
@@ -387,7 +387,7 @@ hCharacter cs acted toggle highlighted χs turn onTeam
       [ H.section mainMeta
         [H.img [_c "charicon", faceIcon']]
       , H.div [_c "charmoves"]
-        ∘ zip4 (hSkill nId χs active cs) (0..3) ts nSkills 
+        ∘ zip5 (hSkill nId χs active cs) (0..3) ts (nCharges ⧺ [0,0,0,0]) nSkills 
         ∘ (nHealth > 0) ? (nCooldowns ⧺ _) $ [0, 0, 0, 0]
       ]
     anchor    | onTeam    = "left: "
@@ -405,11 +405,11 @@ sync dur = H.text ∘ show $ (dur + 1) / 2
 hChannel ∷ ∀ a. Array Character → Channel → HTMLQ a
 hChannel cs (Channel {channelDur, channelRoot, channelSkill}) = H.div
     [ _c    $ classF channelDur "status"
-    , hover $ ViewSkill channelRoot [] channelSkill
+    , hover $ ViewSkill channelRoot [] 0 channelSkill
     ]
     [ H.span_ if dur ≡ 0 then [] else [sync dur]
     , H.div_
-      [H.img [cIcon (getC cs channelRoot) $ label_ channelSkill]]
+      [H.img [cIcon (getC cs channelRoot) $ _label channelSkill]]
     ]
   where dur                = channelingDur channelDur
         classF (Action _)  = ("action "  ⧺ _)
@@ -438,34 +438,40 @@ hDefense nId anchor track barriers defenses = case uncons defenses of
         ]
         [] : hDefense nId anchor (track + defenseAmount) barriers tail
  
-cant ∷ ∀ a. Int → Skill → Array (HTMLQ a) → HTMLQ a
-cant nId skill within = H.div
+cant ∷ ∀ a. Int → Int → Skill → Array (HTMLQ a) → HTMLQ a
+cant nId charge skill within = H.div
   [ _c "charmove noclick"
-  , hover $ ViewSkill nId [] skill
+  , hover $ ViewSkill nId [] charge skill
   , E.onMouseLeave $ input Unhighlight
   ]
   within
 
 hSkill ∷ ∀ a. Int → Chakras → Boolean → Array Character → Int → Array Int
-       → Skill → Int → HTMLQ a
-hSkill nId χs active cs sI ts skill@(Skill {cost, label, require}) cd
-  | cd > 0 = cant nId skill
-      [ H.img [cIcon (getC cs $ skillRoot skill nId) label]
-      , H.span_ [H.text ∘ show ∘ max 1 $ cd / 2]
-      ]
-  | not active ∨ require ≡ Unusable ∨ lacks (χs -~ cost) ∨ null ts 
-      = cant nId skill [H.img [cIcon (getC cs $ skillRoot skill nId) label]]
-  | otherwise = H.div 
-      [ _c "charmove click"
-      , hover $ ViewSkill nId ts skill
-      , E.onMouseLeave $ input Unhighlight
-      , E.onClick $ input action
-      ]
-      [H.img [cIcon (getC cs $ skillRoot skill nId) label]]
+       → Int → Skill → Int → HTMLQ a
+hSkill nId χs active cs sI ts charge skill@(Skill {cost, label, require}) cd
+    = case otherwise of
+ _| cd > 0 → cant
+              [ H.img [cIcon (getC cs $ skillRoot skill nId) label]
+              , H.span_ [H.text ∘ show ∘ max 1 $ cd / 2]
+              ]
+ _| not active ∨ require ≡ Unusable ∨ lacks (χs -~ cost) ∨ null ts 
+            → cant 
+              [H.img [cIcon (getC cs $ skillRoot skill nId) label]]
+ _| otherwise → H.div 
+              [ _c "charmove click"
+              , hover $ ViewSkill nId ts charge skill
+              , E.onMouseLeave $ input Unhighlight
+              , E.onClick $ input action
+              ]
+              [H.img [cIcon (getC cs $ skillRoot skill nId) label]]
   where act = Act { actC: nId, actS: sI, actT: nId, actSkill: skill, actTs: ts }
         action | skillTarget nId skill ≡ [nId] = Enact Add act
                | otherwise                     = Toggle act
-
+        cant = H.div
+              [ _c "charmove noclick"
+              , hover $ ViewSkill nId [] charge skill
+              , E.onMouseLeave $ input Unhighlight
+              ]
 fromAlly ∷ Int → Info → Boolean
 fromAlly c {root, src} = allied c root ∧ allied c src
 
@@ -476,25 +482,26 @@ hInfo team nId cs info@{classes, dur, effects,ghost,  name, root, trap} = H.div
       [H.img [cIcon (getC cs root) name]]
     , H.p_ $ if dur ≡ 0 then [] else [sync dur]
     ]
-  where classes' = catMaybes [ Just                       "status" 
-                             , trap                    ?? "trap"
-                             , ghost ∨ dur ≡ 1         ?? "tag"
-                             , any removes effects     ?? "remove"
-                             , ("Shifted" ∈ classes)   ?? "reflected"
-                             , ("Invisible" ∈ classes) ?? "fade"
-                             ]
+  where classes' = catMaybes 
+                     [ Just                       "status" 
+                     , trap                    ?? "trap"
+                     , ghost ∨ dur ≡ 1         ?? "tag"
+                     , ("Shifted" ∈ classes)   ?? "reflected"
+                     , ("Invisible" ∈ classes) ?? "fade"
+                     , "Unremovable" ∉ classes ∧ any removes effects ?? "remove"
+                     ]
         removes | fromAlly nId info = const false
                 | otherwise         = removable team
 
-viewBar ∷ ∀ a b. Character → String → Int → Int → Array (HTML a b)
+viewBar ∷ ∀ a. Character → String → Int → Int → Array (HTMLQ a)
 viewBar src l amount dur
     = [ H.div_
         [ H.aside_               [H.img [_c "char", cIcon src l]]
         , H.div_
           [ H.header_            [H.text l]
-          , _label "Amount: ",   H.div_ [H.text $ show amount]
-          , _label "Duration: ", H.div_ [sync dur]
-          , _label "Source: ",   H.div_ [H.text $ characterName_ src]
+          , _l "Amount: ",   H.div_ [H.text $ show amount]
+          , _l "Duration: ", H.div_ [sync dur]
+          , _l "Source: ",   H.div_ (charName src)
           ]
         ]
       ]
@@ -504,11 +511,11 @@ viewClasses hideMore classes = H.p [_c "skillClasses"]
   [H.text ∘ intercalate ", " $ filterClasses hideMore classes]
 
 viewEffect ∷ ∀ a b. (Effect → Boolean) → Effect → HTML a b
-viewEffect removes effect@(Effect {effectTrap})
-  | effectTrap     = H.div [_c "trap"]   $ descEffect effect
-  | removes effect = H.div [_c "remove"] $ descEffect effect
-  | otherwise      = H.div_              $ descEffect effect
-
+viewEffect removes effect@(Effect {effectTrap}) = case otherwise of 
+ _| effectTrap     → H.div [_c "trap"] des
+ _| removes effect → H.div [_c "remove"] des
+ _| otherwise      → H.div_ des
+  where des = descEffect effect
 descEffect ∷ ∀ a b. Effect → Array (HTML a b)
 descEffect (Effect {effectDesc}) = [H.text $ "- " ⧺ effectDesc]
 
@@ -524,20 +531,21 @@ view cs (ViewCharacter c@(Character {characterName, characterBio})) =
     [ H.div_
       [ H.aside_ [H.img [_c "char",    cIcon c "icon"]]
       , H.div_
-        [ H.header_ [H.text characterName]
+        [ H.header_ $ charName c
         , H.p_ [H.text characterBio]
         ]
       ]
     ]
 
-view cs (ViewInfo removes {classes, desc, effects, name, root, src})
+view cs (ViewInfo removes {classes, desc, dur, effects, name, root, src})
     = [ H.div_
-        [ H.aside_          [H.img [_c "char", cIcon (getC cs root) "icon"]]
+        [ H.aside_           [H.img [_c "char", cIcon (getC cs root) "icon"]]
         , H.div_
-          [ H.header_          [name']
-          , viewClasses true   classes
-          , _label "Source: ", H.div_ [H.text $ characterName_ (getC cs src)]
-          , H.section_       $ viewEffect removes ↤ effects
+          [ H.header_        [name']
+          , viewClasses true classes
+          , _l "Source: ",   H.div_ ∘ charName $ getC cs src
+          , _l "Duration: ", H.div_ [sync dur]
+          , H.section_     $ viewEffect removes ↤ effects
           ]
         ]
       , H.p_             $ parseDesc desc
@@ -547,7 +555,7 @@ view cs (ViewInfo removes {classes, desc, effects, name, root, src})
                                       [H.text $ name ⧺ " (Reflected)"]
               | otherwise           = H.span_ [H.text $ name]
 
-view cs (ViewSkill nId _ skill@(Skill {cd, charges, classes, cost, desc, label}))
+view cs (ViewSkill nId _ charge skill@(Skill {cd, charges, classes, cost, desc, label}))
     = [ H.div_
         [ H.aside_
           $ H.img [_c "char", cIcon (getC cs $ skillRoot skill nId) label]
@@ -555,20 +563,22 @@ view cs (ViewSkill nId _ skill@(Skill {cd, charges, classes, cost, desc, label})
         , H.div_
           [ H.header_               [H.text label]
           , viewClasses false       classes
-          , _label "Cost: ",        H.div_ cost'
-          , _label "Duration: ",    H.div_ [H.text $ skillDur skill]
+          , _l "Cost: ",        H.div_ cost'
+          , _l "Duration: ",    H.div_ [H.text $ skillDur skill]
+          , _l "Cooldown: ",    H.div_ [H.text $ show cd]
           ]
         ]
-      , H.p_ $ parseDesc desc ⧺ catMaybes
-        [ charges > 1 ?? _minor (show charges ⧺ " charges.")
-        , charges ≡ 1 ?? _minor (show charges ⧺ " charge.")
-        ]
+      , H.p_ ∘ charged $ parseDesc desc
       ]
-  where cd'   | cd ≡ 0    = "None"
-              | otherwise = show cd
-        cost' = cost'' cost
-        cost'' χs | χs ≡ χØ   = [H.text "Free"]
-                  | otherwise = hCost χs    
+  where cd'         | cd ≡ 0    = "None"
+                    | otherwise = show cd
+        cost'       = cost'' cost
+        cost'' χs   | χs ≡ χØ   = [H.text "Free"]
+                    | otherwise = hCost χs    
+        charged     | charges ≡ 0          = id
+                    | charges - charge ≡ 1 = (_ `snoc` _extra "1 charge.")
+                    | otherwise            =
+                      (_ `snoc` _extra (show (charges - charge) ⧺ " charges."))
         varyButtons = fromMaybe [] do
           Character {characterSkills} ← cs !! skillRoot skill nId
           skills ← find (any (lMatch skill)) characterSkills
@@ -576,11 +586,11 @@ view cs (ViewSkill nId _ skill@(Skill {cd, charges, classes, cost, desc, label})
           pure $ catMaybes
             [ vPrev skills i ↦ \v → H.a 
               [ _c "prevSkill click"
-              , E.onClick ∘ input ∘ View $ ViewSkill nId [] v
+              , E.onClick ∘ input ∘ View $ ViewSkill nId [] charge v
               ] []
             , vNext skills i ↦ \v → H.a 
               [ _c "nextSkill click"
-              , E.onClick ∘ input ∘ View $ ViewSkill nId [] v
+              , E.onClick ∘ input ∘ View $ ViewSkill nId [] charge v
               ] []
             ] 
 
@@ -590,8 +600,8 @@ view cs (ViewUser user@(User {avatar, clan, name})) =
       , H.div_
         [ H.header_                [H.text name]
         , H.div_                   [H.text $ userRank user]
-        , _label "Clan: ",  H.div_ [H.text $ fromMaybe "Clanless" clan]
-        , _label "Level: ", H.div_ [H.text ∘ show $ userLevel user]
+        , _l "Clan: ",  H.div_ [H.text $ fromMaybe "Clanless" clan]
+        , _l "Level: ", H.div_ [H.text ∘ show $ userLevel user]
         ]
       ]
     ]

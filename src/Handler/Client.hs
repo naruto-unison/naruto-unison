@@ -49,13 +49,14 @@ legalChars = ['0'..'9'] ⧺ ['a'..'z'] ⧺ ['A'..'z']
 -- * HANDLERS
 
 -- | Updates a user's profile.
-getUpdateR ∷ Text → Text → Text → Handler Value
-getUpdateR updateName updateBackground updateAvatar
+getUpdateR ∷ Text → Bool → Text → Text → Handler Value
+getUpdateR updateName updateCondense updateBackground updateAvatar
   | "/img/icon/" ≠ T.take 10 updateAvatar = invalidArgs ["Invalid avatar"]
   | T.any (∉ legalChars) updateName = invalidArgs ["Invalid name"]
   | otherwise = do
     (accId, _) ← requireAuthPair
     user ← runDB $ updateGet accId [ UserName       =. updateName
+                                   , UserCondense   =. updateCondense
                                    , UserBackground =. updateBackground''
                                    , UserAvatar     =. updateAvatar
                                    ]     

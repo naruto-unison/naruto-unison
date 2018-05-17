@@ -77,7 +77,7 @@ organizationCsS =
     , [ newSkill
         { label   = "Ink Mist"
         , desc    = "Streams of ink coil in the air around Sai and his allies for 3 turns, obscuring them from enemies and allowing Sai to draw three-dimensionally. If someone on Sai's team is stunned, they become invulnerable for 1 turn. If their chakra is removed or stolen, they gain a random chakra. If an ally receives new non-affliction damage, Sai's damage increases by 10 for 1 turn."
-        , classes = [Mental, Multi]
+        , classes = [Mental, Multi, Bypassing]
         , cost    = χ [Rand, Rand]
         , effects = [ (Enemies, trap 3 OnChakra ∘ self § gain [Rand])
                     , (Allies, trap 3 (OnStunned Multi) § apply 1 [Immune All] 
@@ -210,7 +210,7 @@ organizationCsS =
         , cost    = χ [Blood, Gen, Gen]
         , cd      = 9
         , effects = [(Enemy, apply 2 [Copy 2 All 2 True]
-                           • trap' 2 (OnCounter Uncounterable) 
+                           • trap 2 (OnCounter Uncounterable) 
                              § remove "Kotoamatsukami"
                              ° apply' "Kotoamatsukami Stun" 2 [Stun All])]
         }

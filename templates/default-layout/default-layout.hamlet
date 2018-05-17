@@ -1,4 +1,3 @@
-$newline never
 <!-- Page Contents -->
 
 $if (mcurrentRoute ≡ Just PlayR)

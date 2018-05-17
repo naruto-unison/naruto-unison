@@ -53,6 +53,7 @@ bot = User { userIdent      = ""
            , userClan       = Nothing
            , userTeam       = Nothing
            , userMuted      = False
+           , userCondense   = False
            }
 
 -- * HANDLERS
@@ -109,13 +110,16 @@ gameSocket = do
     app         ← getYesod
     (who, user) ← requireAuthPair
     teamNames   ← T.split (≡'/') ↤ receiveData
+
     case formTeam teamNames of
       Nothing   → sendTextData ("Invalid team" ∷ ByteString)
       Just team → do
         flip runSqlPool (appConnPool app) 
           $ update who [UserTeam =. Just (reverse teamNames)]
-        chakRns ← randomRs (0, 3) ↤ liftIO newStdGen
-        let writeQueueChan = appQueue app
+        (chakRn, stdGen) ← randomR (0,3) ↤ liftIO newStdGen
+        let play           = if fst $ random stdGen then PlayerA else PlayerB
+            opp            = opponent play
+            writeQueueChan = appQueue app
         readQueueChan ← (liftIO ∘ atomically) $ do
           writeTChan writeQueueChan $ Announce who user team
           dupTChan writeQueueChan
@@ -125,15 +129,17 @@ gameSocket = do
             Respond mWho writeChan readChan gameInfo | mWho ≡ who → 
                 return $ Just (gameInfo, writeChan, readChan)
             Announce vsWho vsUser vsTeam → do
-              let game = updateChakra PlayerA (take teamSize chakRns)
-                        $ newGame (concat $ transpose [team, vsTeam])
-                          vsWho who
+              let game' | play ≡ PlayerA = newGame 
+                          (concat $ transpose [team, vsTeam]) vsWho who
+                        | otherwise = newGame 
+                          (concat $ transpose [vsTeam, team]) who vsWho
+              let game  = updateChakra PlayerA (take teamSize [chakRn]) game'
               writeChan ← newTChan
               readChan ← newTChan
               writeTChan writeQueueChan ∘ Respond vsWho readChan writeChan
-                ∘ GameInfo who user PlayerB 1 $ censor PlayerB game
+                ∘ GameInfo who user opp 1 $ censor opp game
               return $ Just
-                ( GameInfo vsWho vsUser PlayerA 0 $ censor PlayerA game
+                ( GameInfo vsWho vsUser play 0 $ censor play game
                 , writeChan
                 , readChan
                 )
@@ -153,7 +159,6 @@ gameSocket = do
         sendJson $ censor player completedGame
   where tryEnact gameChan player game = do
           enactText ← receiveData
-          sendJson enactText
           case formEnact $ T.split (≡'/') enactText of
             Nothing → sendTextData ("Invalid acts" ∷ ByteString)
             Just (actChakra, exchangeChakra, actions) → do

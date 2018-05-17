@@ -3,5 +3,4 @@ const bg       = #{toJSON bg};
 const userTeam = #{toJSON team};
 const user     = #{toJSON muser};
 const avatars  = #{toJSON avatars};
-const cs       = #{toJSON cs};
 const cs$prime = #{toJSON cs'};

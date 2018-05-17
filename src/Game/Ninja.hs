@@ -14,7 +14,9 @@ import Game.Functions
 
 -- Applies a 'Status'. Deletes older matching 'Statuses' if 'Nonstacking'.
 addStatus ∷ Status → Ninja → Ninja
-addStatus st n@Ninja{..} = n { nStatuses = st' : f nStatuses }
+addStatus st n@Ninja{..}
+  | Single ∈ statusClasses st ∧ has (statusL st) (statusSrc st) n = n
+  | otherwise = n { nStatuses = st' : f nStatuses }
   where f       = (Nonstacking ∈ statusClasses st') ? filter (not ∘ lEq st)
         st'     = st { statusClasses = statusF $ statusClasses st }
         statusF | null $ statusBombs st = filter (InvisibleTraps ≠)
@@ -31,8 +33,8 @@ addStacks dur' l i skill@Skill{..} src c n@Ninja{..} = n
         root   = copyRoot skill src
 
 -- | Passes the user's 'nId' to 'addStacks'.
-addOwnStacks ∷ Int → Text → Int → Int → Ninja → Int → Ninja
-addOwnStacks dur' l s v n@Ninja{..} i = addStacks dur' l i skill nId nId n
+addOwnStacks ∷ Int → Text → Int → Int → Int → Ninja → Ninja
+addOwnStacks dur' l s v i n@Ninja{..} = addStacks dur' l i skill nId nId n
   where skill = characterSkills nCharacter !! s !! v
 
 -- | Adds to an element in 'nCooldowns'.
@@ -93,7 +95,7 @@ decrStats n@Ninja{..} = n { nStatuses = expire ↤ nStatuses }
 -- | Applies 'decrTurn' to all of a 'Ninja's 'TurnBased' elements.
 decr ∷ Ninja → Ninja
 decr n@Ninja{..} = case findMatch nStatuses of
-        Just (Snapshot n') → n'
+        Just (Snapshot n') → decr n' -- TODO
         _ → n { nDefense   = mapMaybe decrTurn nDefense 
               , nStatuses  = mapMaybe decrTurn nStatuses
               , nBarrier   = mapMaybe decrTurn nBarrier
@@ -175,8 +177,8 @@ removeStacks l i src n@Ninja{..} = n { nStatuses = nStatuses ∖ stacks }
   where stacks = take i $ filter (lMatch l src) nStatuses
 
 -- | Removes matching self-applied 'Status'es.
-removeOwn ∷ Text → Ninja → Int → Ninja
-removeOwn l n@Ninja{..} _ = clear l nId n
+removeOwn ∷ Text → Int → Ninja → Ninja
+removeOwn l _ n@Ninja{..} = clear l nId n
 
 -- | Sets an element in 'nCooldowns' to 0.
 reset ∷ Int -- ^ Skill index (0-3)

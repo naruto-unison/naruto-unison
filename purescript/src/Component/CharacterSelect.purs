@@ -13,8 +13,9 @@ import Halogen.HTML.Events     as E
 import Halogen.HTML.Properties as P
 
 import Control.Monad.Aff           (Aff)
-import Data.Array 
+import Data.Array           hiding (head)
 import Data.Maybe 
+import Data.NonEmpty               ((:|), head)
 import Data.String                 (joinWith)
 import Data.StrMap                 (lookup)
 import DOM                         (DOM)
@@ -28,7 +29,7 @@ import Halogen                     ( Component, ComponentDSL, ComponentHTML
                                    )
 
 import FFI.Form   (getForm)
-import FFI.Import (avatars, cs', getPageSize, reload, user, userTeam)
+import FFI.Import (avatars, cs', getPageSize, groupCs, groupCs', reload, user, userTeam)
 import FFI.Sound  (AUDIO, Sound(..), sound)
 
 import Operators
@@ -36,8 +37,15 @@ import Structure
 import Functions
 import Component.Common 
 
+condensed ∷ Boolean
+condensed = case user of
+    Nothing                → false
+    Just (User {condense}) → condense
+
 csSize ∷ Int
-csSize = length cs'
+csSize
+  | condensed = length groupCs'
+  | otherwise = length cs'
 
 settingsId ∷ String
 settingsId = "accountSettings"
@@ -50,6 +58,7 @@ type State = { queueing   ∷ Boolean
              , showLogin  ∷ Boolean
              , index      ∷ Int
              , cols       ∷ Int
+             , toggled    ∷ Maybe Character
              , previewing ∷ Previewing
              , team       ∷ Array Character
              , variants   ∷ Array Int
@@ -59,7 +68,7 @@ type State = { queueing   ∷ Boolean
              }
 
 click ∷ ∀ a. SelectQuery → P.IProp (onClick ∷ MouseEvent | a) (ChildQuery Unit)
-click a = E.onClick ∘ E.input_ $ (QuerySelect a)
+click a = E.onClick ∘ E.input_ $ QuerySelect a
 
 preview ∷ ∀ a. Previewing 
         → P.IProp (onMouseEnter ∷ MouseEvent | a) (ChildQuery Unit)
@@ -79,16 +88,18 @@ component = Halogen.component
                  , showLogin:  true
                  , index:      0 
                  , cols:       11
-                 , previewing: maybe NoPreview PreviewUser user
+                 , toggled:    Nothing
+                 , previewing: NoPreview
                  , team:       userTeam
                  , variants:   [0,0,0,0]
-                 , avatar:     avatar_ ↤ user
+                 , avatar:     _avatar ↤ user
                  , pageSize:   36
                  , updateFail: false
                  }
  
   render ∷ State → ComponentHTML ChildQuery
-  render st@{avatar, previewing, index, pageSize, showLogin, team, variants} =
+  render st@
+    {avatar, previewing, index, pageSize, showLogin, team, toggled, variants} =
       H.section [_i "charSelect"] 
         $ userBox showLogin team 
         ⧺ previewBox st
@@ -103,25 +114,26 @@ component = Halogen.component
             , _c ∘ atMax ? ("wraparound " ⧺ _) $ "click"
             , click $ Scroll 1
             ] []
-          , H.div [_i "charScroll"] $ displays ↦ \c → 
-              if c ∈ team then 
-                H.div [_c "char disabled"] 
-                [H.img [cIcon c "icon", preview $ PreviewChar c]]
-              else if length team < 3 then
-                H.div [_c "char click"]
-                [ H.img 
-                  [cIcon c "icon", preview $ PreviewChar c, click $ Team Add c]
-                ]
-              else
-                H.div [_c "char click"]
-                [H.img [cIcon c "icon", preview $ PreviewChar c]] 
+          , H.div [ _i "charScroll"
+                  , E.onMouseEnter ∘ E.input_ $ QuerySelect Untoggle
+                  ] $ displays ↦ \c → 
+                      H.div [_c $ cClass c]
+                      [ H.img [cIcon c "icon"
+                      , preview $ PreviewChar c
+                      , click $ Team Add c]
+                      ]
           ]
         ]
-    where displays   = drop (index) cs'
+    where displays   | condensed = head ↤ drop (index) groupCs'
+                     | otherwise = drop (index) cs'
           playButton = (length team ≡ 3) ? ("click " ⧺ _) 
                      $ "playButton parchment"
           atMin      = index ≡ 0
           atMax      = index + pageSize ≥ csSize
+          cClass c   | c ∈ team         = "char disabled"
+                     | Just c ≡ toggled = "char click selected"
+                     | isJust toggled   = "char"
+                     | otherwise        = "char click"
   eval ∷ ChildQuery ~> ComponentDSL State ChildQuery Output (Aff (Effects m))
   eval (QuerySelect query next) = (_ ≫ next) $ case query of
       SwitchLogin →
@@ -132,14 +144,25 @@ component = Halogen.component
         modify \state@{index} → 
           state { index = index' a pageSize index, pageSize = pageSize }
       Preview previewing → 
-        modify _{ previewing = previewing, variants = [0,0,0,0] }
+        modify \state@{toggled} → 
+          if isJust toggled then state 
+          else state { previewing = previewing, variants = [0,0,0,0] }
       Vary slot i → do
         sound SFXClick
         modify \state@{variants} → state 
           { variants = updateAt' slot i variants }
       Team Add character → do
-        sound SFXClick
-        modify \state@{team} → state { team = character : team }
+        {team, toggled} ← get
+        liftEff $ sound SFXClick
+        case otherwise of
+          _| character ∈ team         → modify _{ toggled = Nothing }
+          _| toggled ≠ Just character → modify _{ toggled = Just character }
+          _| length team < 3          → modify _{ toggled = Nothing 
+                                                , team = character : team
+                                                }
+          _| otherwise                → modify _{ toggled = Nothing }
+      Untoggle → do
+        modify _{ toggled = Nothing }
       Team Delete character → do
         sound SFXCancel
         modify \state@{team} → state { team = delete character team }
@@ -157,10 +180,11 @@ component = Halogen.component
         let murl = do
               avatar'    ← avatar
               form       ← mform
+              condense   ← lookup "condense"   form
               background ← lookup "background" form
               name       ← lookup "name"       form
-              pure $ "api/update/" ⧺ name ⧺ "/b" ⧺ background ⧺ "/" 
-                   ⧺ encodeURIComponent avatar'
+              pure $ "api/update/" ⧺ name ⧺ "/" ⧺ condense
+                   ⧺ "/b" ⧺ background ⧺ "/" ⧺ encodeURIComponent avatar'
         case murl of
           Nothing → 
             modify _{ updateFail = true }
@@ -198,6 +222,14 @@ previewBox { avatar, updateFail
         , P.value $ fromMaybe "" background
         ]
       ]
+    , H.p_
+      [ H.input
+        [ P.type_ P.InputCheckbox
+        , P.name "condense"
+        , P.checked condensed
+        ]
+      , _span "Show only the first version of each character in the selection grid"
+      ]
     , H.p_ [_span "Avatars"]
     , H.section [_i "avatars"] $ avatars ↦ \avatar' → H.img
         if Just avatar' ≡ avatar
@@ -208,14 +240,32 @@ previewBox { avatar, updateFail
       [H.div [_i "logoutButton", _c "click"] $ _txt "Log out"]
     ]
   ]
-previewBox { variants, previewing: PreviewChar character@Character 
-                         {characterName, characterBio, characterSkills}
+previewBox { variants, team, previewing: PreviewChar character@Character 
+                         {characterBio, characterName, characterSkills}
            } = cons ∘
   H.article [_c "parchment"]
-  $ [ H.header_ 
-      [ img [_c "char", cIcon character "icon"] 
-      , H.text characterName
-      ]
+  $ [ H.aside_ 
+      $ case lookup (shortName character) groupCs of
+            Just (_:|[]) → []
+            Just cs      
+              → reverse $ fromFoldable cs ↦ \c → H.img 
+              $ if c ∈ team then
+                  [ _c ∘ (_characterName c ≡ characterName) ? ("on " ⧺ _) 
+                      $ "noclick disabled char"
+                  , cIcon c "icon"
+                  , preview $ PreviewChar c
+                  ]
+                else 
+                  [ _c ∘ (_characterName c ≡ characterName) ? ("on " ⧺ _) 
+                      $ "click char"
+                  , cIcon c "icon"
+                  , preview $ PreviewChar c
+                  , click $ Team Add c
+                  ]
+            _ → []
+    , H.header_ 
+      $ img [_c "char", cIcon character "icon"] 
+      : charName character
     , H.p_ [ H.text characterBio ]
     ] 
   ⧺ zip3 (previewSkill character) (0..3) characterSkills variants
@@ -237,9 +287,9 @@ previewSkill character slot skills i = case skills !! i of
           [ H.text ∘ joinWith ", " $ filterClasses false classes ]
       , H.p_
         $ parseDesc desc ⧺ catMaybes
-          [ charges > 1 ?? _minor (show charges ⧺ " charges.")
-          , charges ≡ 1 ?? _minor (show charges ⧺ " charge.")
-          , cd > 0      ?? _minor ("CD: " ⧺ show cd)
+          [ charges > 1 ?? _extra (show charges ⧺ " charges.")
+          , charges ≡ 1 ?? _extra (show charges ⧺ " charge.")
+          , cd > 0      ?? _extra ("CD: " ⧺ show cd)
           ]
       ]
   where vPrev = do

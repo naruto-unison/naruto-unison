@@ -81,6 +81,7 @@ kidCs =
         , desc    = "Using basic healing techniques, Sakura restores 25 health to herself or an ally."
         , classes = [Chakra]
         , cost    =  χ [Nin]
+        , cd      = 1
         , effects = [(Ally, heal 25)]
         }
       ]
@@ -559,7 +560,7 @@ kidCs =
         , cd      = 2
         , channel = Control 2
         , start   = [(Self, vary' 0 1)]
-        , effects = [(Enemy, apply 1 [Expose, Immune NonMental])]
+        , effects = [(Enemy, apply 1 [Expose, Stun NonMental])]
         }
       , newSkill
         { label   = "Sand Burial"

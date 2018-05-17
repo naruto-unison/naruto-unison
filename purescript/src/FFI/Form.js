@@ -11,7 +11,7 @@ exports["getForm_"] = function(just) {
         var fields = {};
         for (var i = 0; i < form.length; i++) {
           var el = form[i];
-          fields[el.name] = encodeURIComponent(el.value);
+          fields[el.name] = (el.type === "checkbox") ? (el.checked ? "True" : "False") : encodeURIComponent(el.value);
         }
         return just(fields);
       }

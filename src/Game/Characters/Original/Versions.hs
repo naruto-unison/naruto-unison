@@ -150,7 +150,7 @@ versionCs =
         , classes = [Physical, Melee, Single]
         , cost    = χ [Blood]
         , channel = Ongoing 0
-        , start   = [(Enemy, trap' 0 (OnCounter All) ∘ self 
+        , start   = [(Enemy, trap 0 (OnCounter All) ∘ self 
                              § cancelChannel "Monstrous Sand Arm")]
         , effects = [(Enemy, afflict 10)]
         }
@@ -210,7 +210,7 @@ versionCs =
         , cost    = χ [Nin]
         , start   = [(Self, vary' 1 1)]
         , effects = [ (Enemies, apply 1 [Exhaust NonMental] 
-                              • trap' 1 (OnAction NonMental) 
+                              • trap 1 (OnAction NonMental) 
                                 § remove "Sand Burial Prison")
                     , (Self,    tag' "Giant Sand Burial" 1)
                     ]

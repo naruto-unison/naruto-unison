@@ -33,13 +33,12 @@ teacherCs =
     , [ newSkill
         { label   = "Capture and Arrest"
         , desc    = "Iruka traps an enemy in an area filled with his paper bombs. If the target uses a new harmful skill during their next turn, they will receive 40 damage, and physical and chakra skills will deal 25 additional damage to them for 1 turn."
-        , classes = [Chakra, Ranged, Bypassing]
+        , classes = [Chakra, Ranged]
         , cost    = χ [Nin]
         , cd      = 2
-        , effects = [ (Enemy, trap 1 OnHarm 
-                              § damage 40 
-                              ° apply 1 [Bleed Physical 25, Bleed Chakra 25])
-                    ]
+        , effects = [(Enemy, trap 1 OnHarm 
+                             § damage 40 
+                             ° apply 1 [Bleed Physical 25, Bleed Chakra 25])]
         }
       ]
     , invuln "Parry" "Iruka" [Physical]
@@ -82,7 +81,7 @@ teacherCs =
         , classes = [Mental, InvisibleTraps]
         , cost    = χ [Gen]
         , cd      = 1
-        , effects = [(Self, trap' (-1) (OnDamaged All) 
+        , effects = [(Self, trap (-1) (OnDamaged All) 
                             § remove "Ambush Preparation"
                           • bomb' "Ambush Preparation" (-1) [] 
                             [(Expire, self § vary 1 0 1 
@@ -298,7 +297,7 @@ teacherCs =
       ]
     , [ newSkill
         { label   = "Self-Sacrifice"
-        , desc    = "Asuma continually protects one ally. All harmful skills used on the target will be reflected to Asuma. Can be used again with no chakra cost to cancel the effect."
+        , desc    = "Asuma continually protects one ally. All harmful skills used on the target will be reflected to Asuma. This skill can be used again with no chakra cost to cancel its effect."
         , classes = [Physical, Melee, Soulbound, Unreflectable]
         , cost    = χ [Rand]
         , effects = [ (XAlly, apply 0 [Redirect All])
@@ -372,8 +371,7 @@ teacherCs =
         , classes = [Physical]
         , cost    = χ [Rand, Rand]
         , cd      = 6
-        , effects = [(Ally, defend 4 50 • apply 4 [Enrage] 
-                          • onBreak § remove "Flak Jacket")]
+        , effects = [(Ally, defend 4 50 • apply 4 [Enrage] • onBreak')]
         }
       ]
     , invuln "Teleport" "Baki" [Chakra]

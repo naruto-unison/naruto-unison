@@ -13,7 +13,7 @@ module Component.Common
     , parseDesc
     , charName
     , cIcon
-    , _a, _b, _c, _i, _span, _src, _style, _txt, _minor
+    , _a, _b, _c, _i, _span, _src, _style, _txt, _extra, _minor
     ) where
 
 import Prelude
@@ -48,12 +48,13 @@ data ChildQuery a = QuerySelect SelectQuery a
 data SelectQuery = SwitchLogin                    
                  | Scroll Int               
                  | Preview Previewing  
+                 | Untoggle
                  | Team ArrayOp Character 
                  | Enqueue QueueType  
                  | Vary Int Int        
                  | ChooseAvatar String
                  | TryUpdate
-  
+
 data ArrayOp = Add | Delete
 
 data QueueType = Quick | Practice | Private
@@ -75,7 +76,7 @@ data Viewable = ViewBarrier   Barrier
               | ViewCharacter Character
               | ViewDefense   Defense
               | ViewInfo      (Effect → Boolean) Info
-              | ViewSkill     Int (Array Int) Skill
+              | ViewSkill     Int (Array Int) Int Skill
               | ViewUser      User
 
 hCost ∷ ∀ a b. Chakras → Array (HTML a b)
@@ -151,6 +152,8 @@ _b = H.b_ ∘ _txt
 _span ∷ ∀ a b. String → HTML a b
 _span = H.span_ ∘ _txt
 
+_extra ∷ ∀ a b. String → HTML a b
+_extra = H.span [_c "extra"] ∘ _txt
 
 _minor ∷ ∀ a b. String → HTML a b
 _minor = H.span [_c "minor"] ∘ _txt

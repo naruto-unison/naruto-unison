@@ -24,13 +24,6 @@
 #tooltip header {
   font-weight: bold;
 }
-a.minor {
-    font-size: 10px;
-    margin-left: -0.25em;
-    margin-right: -2px;
-    vertical-align: top;
-    font-style: initial;
-}
 #tooltip .skillClasses {
   font-style: italic;
   margin-left: 0 !important;

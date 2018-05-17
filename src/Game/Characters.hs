@@ -4,6 +4,7 @@ module Game.Characters (cs, cs') where
 import Preludesque
 
 import Data.HashMap.Strict (fromList, HashMap)
+import Data.List.NonEmpty  (NonEmpty(..))
 import Data.Text           (Text)
 
 import Calculus
@@ -54,8 +55,27 @@ doSkills (x:|xs) = doSkill x :| (doSkill ∘ v) ↤ xs
 doSkill ∷ Skill → Skill
 doSkill skill@Skill{..} = skill { classes = g classes }
   where g         = nub ∘ (All :) ∘ unRemove ∘ nonMental
+                  -- ∘ any (not ∘ null ∘ nTraps) gameNinjas ? (Trapping :)
+                  -- ∘ any ((> 50) ∘ nHealth)    gameNinjas ? (Healing :)
+        --Game{..}  = mockSkill skill
         unRemove  = classify Unremovable $ channel ≠ Instant ∨ Multi ∈ classes
         nonMental = classify NonMental   $ Mental ∉ classes
         classify cla True  = (cla :)
         classify _   False = id
 
+{-
+mockSkill ∷ Skill → Game
+mockSkill skill@Skill{..} = foldl mock mockGame $ snd ↤ (start ⧺ effects)
+  where mock g f = f skill mockSlot mockSlot g mockSlot
+
+-- | Used in testing.
+mockGame ∷ Game
+mockGame = mocked { gameMock   = True 
+                  , gameNinjas = gameNinjas mocked ↦ \n → n { nHealth = 50 }
+                  }
+  where mocked = newGame (replicate 6 mockCharacter) mockPlayer mockPlayer
+        mockCharacter = Character "" "" ((newSkill:|[]):|[]) []
+        mockPlayer    = fromJust $ case keyFromValues [PersistInt64 0] of
+            Right key → Just key
+            _         → Nothing
+-}

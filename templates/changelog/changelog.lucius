@@ -2,7 +2,7 @@
   float: left;
   margin: 1px 0px 0px -19px !important;
 }
-.skill:after {
+li li .skill:after {
   content: " |";
   color: #666;
 }

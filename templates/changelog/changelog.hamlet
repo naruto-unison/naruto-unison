@@ -1,9 +1,22 @@
-$newline never
+$newline always
 
 <section>
+  <h3>May 16
+  <ul>
+    #{changelog New "Jirōbō" R}
+  <h3>May 15
+  <ul>
+    #{changelog Rework "Itachi Uchiha" R}
+    #{changelog Added "Susano'o Itachi" S}
+  <h3>May 14
+  <ul>
+    #{changelog Rework "Zabuza Momochi" R}
+    #{changelog Rework "Fuguki Suikazan" R}
   <h3>May 12
   <ul>
     #{changelog Added "Rock Lee" S}
+  <ul>
+    Multiple versions of the same character can be grouped together
   <h3>May 2
   <ul>
     #{changelog Rework "Rasa" R}

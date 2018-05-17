@@ -60,7 +60,7 @@ getTestR = do
 
         conn.onmessage = function(e) {
             var p = document.createElement("p");
-            p.appendChild(document.createTextNode(e.data.substr(0, 20) + "\n\n"));
+            p.appendChild(document.createTextNode(e.data.substr(0, 100) + "\n\n"));
             output.appendChild(p);
         };
 

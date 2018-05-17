@@ -11,7 +11,7 @@ import DOM.Websocket.WebSocket          as WS
 import Halogen                          as H
 import Halogen.Aff                      as HA
 
-import Control.Monad.Aff           (Aff)
+import Control.Monad.Aff           (Aff, delay, launchAff_)
 import Control.Monad.Aff.AVar      (AVAR)
 import Control.Monad.Eff           (Eff)
 import Control.Monad.Eff.Class     (liftEff)
@@ -22,6 +22,8 @@ import Data.Either                 (Either(..), either)
 import Data.Foldable               (for_)
 import Data.Foreign                (F, Foreign, toForeign, readString)
 import Data.Maybe                  (Maybe(..))
+import Data.Time.Duration          (Milliseconds(..))
+import Data.UUID 
 import DOM                         (DOM)
 import Halogen.VDom.Driver         (runUI)
 
@@ -51,10 +53,15 @@ wsProducer socket = CRA.produce \emit →
 -- A consumer coroutine that takes the `query` function from our component IO
 -- record and sends `AddMessage` queries in when it receives inputs from the
 -- producer.
-wsConsumer ∷ ∀ e. (Site.Query ~> Aff (HA.HalogenEffects e))
-           → CR.Consumer String (Aff (HA.HalogenEffects e)) Unit
+wsConsumer ∷ ∀ e. (Site.Query ~> Aff (HA.HalogenEffects (uuid ∷ GENUUID | e)))
+           → CR.Consumer String (Aff (HA.HalogenEffects (uuid ∷ GENUUID | e))) 
+             Unit
 wsConsumer query = CR.consumer \msg -> do
-  query $ H.action $ Site.ReceiveMsg (Site.SocketMsg msg)
+  uuid ← liftEff genUUID
+  query ∘ H.action $ Site.ReceiveMsg (Site.SocketMsg msg) uuid
+  liftEff ∘ launchAff_ $ do
+    delay $ Milliseconds 60000.0
+    query ∘ H.action $ Site.EndTurn uuid
   pure Nothing
 
 -- A consumer coroutine that takes output messages from our component IO
@@ -65,7 +72,7 @@ wsSender socket = CR.consumer \(Site.SocketMsg msg) → do
   liftEff $ WS.sendString socket msg
   pure Nothing
 
-main ∷ Eff (HA.HalogenEffects (Site.Effects (dom ∷ DOM))) Unit
+main ∷ Eff (HA.HalogenEffects (Site.Effects (dom ∷ DOM, uuid ∷ GENUUID))) Unit
 main = do
   register
   socket ← WS.create (WS.URL hostname) []

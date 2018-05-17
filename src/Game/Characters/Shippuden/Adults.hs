@@ -107,21 +107,40 @@ adultCsS =
       ]
     , invuln "Dodge" "Asuma" [Physical]
     ] []
-
-    {-
-Character
+{-
+  , Character
     "Might Guy"
     "Over the past few years, Guy has learned restraint. By gradually opening his Gates in sequence, he avoids the risk of burning out before the battle is won."
     [ [ newSkill
         { label   = "Nunchaku"
-        , desc    = "Using his signature Twin Fangs weapons, Gai deals 10 damage to an enemy for 3 turns. While active, if an enemy uses a harmful physical skill on him, he will deal 10 damage to them."
+        , desc    = "Using his signature Twin Fangs weapons, Guy deals 10 damage to an enemy for 3 turns. While active, if an enemy uses a harmful physical skill on him, he will deal 10 damage to them. Deals 5 additional damage on the first turn per stack of [Single Gate Release]."
         , classes = [Physical, Melee]
         , cost    = χ [Tai]
         , channel = Action 3
-        , effects = [()]
+        , start   = [ (Enemy, perI "Single Gate Release" 5 damage 10) ]
+        , effects = [ (Self,  trapFrom 1 (OnHarmed Physical) $ damage 10)
+                    , (Enemy, ifnotI "first" § damage 10)
+                    ]
         }
-      ] TODO physical skill on him → he deals 10 damage. parryish? thorns? 
-    ]-}
+      ] 
+    , [ newSkill
+        { label   = "Fiery Kick"
+        , desc    = "Guy slams his leg into an enemy, dealing 35 damage and weakening their damage by 20 for 1 turn. Deals 5 additional damage per stack of [Single Gate Release]."
+        , classes = [Physical, Melee]
+        , cost    = χ [Blood, Tai]
+        , effects = [(Enemy, perI "Single Gate Release" 5 damage 35 
+                           • apply 1 [Weaken All 20])]
+        }
+      ]
+    , [ newSkill
+        { label   = "Single Gate Release"
+        , desc    = "Guy opens one of his internal Gates, losing 5 health and gaining 5 points of permanent damage reduction. "
+        , classes = [Mental, Unremovable]
+        , effects = [(Self, sacrifice 0 5 • apply 0 [Reduce All 5])]
+        }
+      ]
+    , invuln "Block" "Guy" [Physical]
+    ] []-}
   , Character
     "Tsunade"
     "Tsunade is the fifth Hokage. Knowing the Hidden Leaf Village's fate depends on her, she holds nothing back. Even if one of her allies is on the verge of dying, she can keep them alive long enough for her healing to get them back on their feet."

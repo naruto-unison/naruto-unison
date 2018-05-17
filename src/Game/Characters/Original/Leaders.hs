@@ -25,12 +25,12 @@ leaderCs =
     , [ newSkill
         { label   = "Summoning: Toad Mouth Trap"
         , desc    = "Jiraiya summons the esophagus of a humongous toad around the battlefield for 2 turns. Within the esophagus, enemies cannot reduce damage or become invulnerable, and each member of Jiraiya's team becomes invulnerable for 1 turn if they are damaged by a new non-affliction skill."
-        , classes = [Chakra, Ranged, Summon]
+        , classes = [Chakra, Ranged, Summon, Bypassing]
         , cost    = χ [Gen]
         , cd      = 3
         , channel = Ongoing 2
-        , start   = [(Allies, trap 2 (OnDamaged NonAffliction) 
-                              § apply 1 [Immune All])]
+        , start   = [(Allies,  trap 2 (OnDamaged NonAffliction) 
+                                       § apply 1 [Immune All])]
         , effects = [(Enemies, apply 1 [Expose])]
         }
       ]

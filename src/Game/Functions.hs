@@ -17,9 +17,9 @@ module Game.Functions
     -- * 'Effect'
     , filterEffects
     -- ** Reduction of all 'Effect's on a 'Ninja'
-    , getBoost, getBleed, getBless, getBuild, getImmune, getLink, getNet
-    , getReduce, getScale, getShare, getSnare, getStrengthen, getStun, getWard
-    , getWeaken
+    , getBoost, getBleed, getBless, getBuild, getImmune, getInvincible, getLink
+    , getNet, getReduce, getScale, getShare, getSnare, getStrengthen, getStun
+    , getTaunting, getWard, getWeaken
     -- * 'Ninja'
     , alter, getCds
     -- ** Life and death
@@ -40,7 +40,7 @@ module Game.Functions
     -- * 'Status'
     , has, hasOwn, is, is', numActive, numStacks
     -- * 'Trap'
-    , classTrs, getPerTraps, getTrackTraps, getTraps
+    , classTrs, getPerTraps, getTrackTraps, getTraps, getTrapsFrom, getTrapsTo
     -- * Triggering 'Effect's
     , copy, counter, parry, reapply, redirect, reflect, snareTrap, swap
     -- * Usability
@@ -180,6 +180,9 @@ getBuild n           = sum [ build  | Build build        ← nEfs n ]
 -- | 'Immune's.
 getImmune            ∷ Ninja → [Class]
 getImmune n          =     [ clas   | Immune clas        ← nEfs n ]
+-- | 'Invincible's.
+getInvincible        ∷ Ninja → [Class]
+getInvincible n      =     [ clas   | Invincible clas    ← nEfs n ]
 -- | 'Snare' sum.
 getSnare             ∷ Ninja → Int
 getSnare n           = sum [ snare  | Snare snare        ← nEfs n ]
@@ -232,6 +235,11 @@ getWard ∷ [Class] → Ninja → Rational
 getWard [Affliction] n = prod [ 1 - ward | Ward Affliction ward ← nEfs n ]
 getWard clas         n = prod [ 1 - ward | Ward cla ward ← nEfs n, cla ∈ clas ]
 
+-- | Duration of most recent 'Taunting'.
+getTaunting          ∷ Ninja → Maybe (Int, Status)
+getTaunting n        = listToMaybe  
+    [(a, status) | status@Status{..} ← nStats n, Taunting a ← statusEfs]
+
 -- | 'Afflict' sum minus 'Heal' sum.
 getNet ∷ Player → Game → Ninja → Int
 getNet player game n = getAfflict player game n - getHeal player game n
@@ -240,6 +248,7 @@ getAfflict ∷ Player → Game → Ninja → Int
 getAfflict player game n@Ninja{..} = sum
     [ afflict1 player game nId st | st@Status{..} ← nStats n 
                                   , not (is ImmuneSelf n) ∨ statusSrc ≠ nId
+                                  , not $ [All, Affliction] ⩀ getInvincible n
                                   ]
 
 -- | 'Heal' sum.
@@ -511,9 +520,10 @@ usable n@Ninja{..} s skill@Skill{..}
   | classes ⩀ getStun n                   = unusable
   | isNothing s                           = skill'
   | Single ∉ classes                      = skill'
-  | has label nId n                       = unusable
   | isChanneling label n                  = unusable
+  | has label nId n                       = unusable
   | hasDefense label nId n                = unusable
+  | hasTrap label nId n                   = unusable
   | otherwise                             = skill'
   where unusable    = skill { require = Unusable }
         skill'      = skill { require = check require }
@@ -623,9 +633,9 @@ getPerTraps False _  _      _         = ø
 getPerTraps True  tr amount Ninja{..} = traps ⧺ hooks
   where traps = [ trapEf trapTrack nId | Trap{..} ← nTraps, trapTrigger ≡ tr ]
         hooks = S.fromList 
-                [ fn nId $ flip f amount | (p, f) ← characterHooks nCharacter
-                                         , tr ≡ p 
-                                         ]
+                [ fn nId $ f amount | (p, f) ← characterHooks nCharacter
+                                    , tr ≡ p 
+                                    ]
 
 getTrackTraps ∷ Bool → Trigger → Ninja → Seq (Game → Game)
 getTrackTraps False _ _ = ø
@@ -636,8 +646,21 @@ getTrackTraps True tr Ninja{..} = [ trapEf trapTrack nId | Trap{..} ← nTraps
                                                          ]
 
 getTraps ∷ Bool → Trigger → Ninja → Seq TrapTransform
-getTraps False _ _ = ø
+getTraps False _ _         = ø
 getTraps True tr Ninja{..} = [ trapEf | Trap{..} ← nTraps, trapTrigger ≡ tr ]
+
+getTrapsTo ∷ Bool → Trigger → Ninja → Seq TrapTransform
+getTrapsTo False _ _         = ø
+getTrapsTo True tr Ninja{..} = [ trapEf | Trap{..} ← nTraps
+                                        , trapTrigger ≡ tr 
+                                        , trapType ≠ TrapFrom
+                                        ]
+
+getTrapsFrom ∷ Trigger → Ninja → Ninja → Seq (Game → Game)
+getTrapsFrom tr Ninja{nTraps} Ninja{nId} = [ trapEf 0 nId | Trap{..} ← nTraps
+                                                          , trapTrigger ≡ tr 
+                                                          , trapType ≡ TrapFrom
+                                                          ]
    
 -- * TRIGGERING EFFECTS
 

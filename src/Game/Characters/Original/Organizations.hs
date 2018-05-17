@@ -92,7 +92,7 @@ organizationCs =
     ] []
   , Character
     "Zabuza Momochi"
-    "One of the Seven Swordsmen of the Mist, Zabuza is a rogue operative who specializes in silent assassination. Wielding the legendary huge broadsword Kubikiribōchō, he uses concealing mist to catch his enemies off-guard, bypassing their defenses."
+    "One of the Seven Swordsmen of the Mist, Zabuza is a rogue operative who specializes in silent assassination. Wielding Kubikiribōchō, the legendary executioner's broadsword, he uses concealing mist to catch his enemies off-guard, bypassing their defenses."
     [ [ newSkill
         { label   = "Soundless Murder"
         , desc    = "Zabuza emerges from mist behind an enemy's defenses to deal 30 piercing damage to them. Deals 15 additional damage and bypasses invulnerability during [Hidden Mist]."
@@ -127,48 +127,11 @@ organizationCs =
     , invuln "Water Clone" "Zabuza" [Chakra]
     ] []
   , Character
-    "Kisame Hoshigaki"
-    "One of the Seven Swordsmen of the Mist, Kisame is an S-Rank rogue ninja who has joined Akatsuki. Wielding the legendary sentient sword Samehada, Kisame disables his enemies while his eternally hungry sword eats their chakra."
-    [ [ newSkill
-        { label   = "Samehada Slash"
-        , desc    = "Kisame slashes an enemy with the legendary sword Samehada, dealing 20 damage and stunning their chakra and mental skills for 1 turn."
-        , classes = [Physical, Melee]
-        , cost    = χ [Tai]
-        , cd      = 1
-        , effects = [ (Enemy, damage 20 
-                            • apply 1 [Stun Chakra, Stun Mental]) 
-                    ]
-        }
-      ]
-    , [ newSkill
-        { label   = "Samehada Shred"
-        , desc    = "Kisame unwraps Samehada and shreds an enemy. For 2 turns, he deals 15 damage to the target and steals a random chakra."
-        , classes = [Physical, Melee]
-        , cost    = χ [Tai, Nin]
-        , cd      = 2
-        , channel = Action 2
-        , effects = [(Enemy, steal 1 • damage 15)]
-        }
-      ]
-    , [ newSkill
-        { label   = "Super Shark Bomb"
-        , desc    = "Kisame shoots a stream of compressed water at an enemy, dealing 20 damage, stunning their physical skills for 1 turn, and negating their affliction damage for 1 turn."
-        , classes = [Physical, Ranged]
-        , cost    = χ [Nin]
-        , cd      = 1
-        , effects = [ (Enemy, damage 20 
-                            • apply 1 [Stun Physical, Stun Affliction])
-                    ]
-        }
-      ]
-    , invuln "Scale Shield" "Kisame" [Physical]
-    ] []
-  , Character
     "Itachi Uchiha"
     "A master of Sharingan techniques, Itachi is an S-Rank rogue operative who has joined Akatsuki. His power comes at a steep price: using his Sharingan causes him to gradually go blind. He intends to make the most of whatever time he has left."
     [ [ newSkill
         { label   = "Mangekyō Sharingan"
-        , desc    = "Itachi becomes invulnerable but loses 15 health each turn. While active, the cooldowns and chakra costs of his other skills are doubled. Can be used again with no chakra cost to cancel the effect."
+        , desc    = "Itachi becomes invulnerable but loses 15 health each turn. While active, the cooldowns and chakra costs of his other skills are doubled. This skill can be used again with no chakra cost to cancel its effect."
         , classes = [Mental, Unremovable]
         , cost    = χ [Blood]
         , effects = [(Self, apply 0 [ Immune All, Afflict 15]
@@ -224,6 +187,43 @@ organizationCs =
     , invuln "Sharingan Foresight" "Itachi" [Mental]
     ] []
   , Character
+    "Kisame Hoshigaki"
+    "One of the Seven Swordsmen of the Mist, Kisame is an S-Rank rogue ninja who has joined Akatsuki. Wielding the legendary sentient sword Samehada, Kisame disables his enemies while his eternally hungry sword eats their chakra."
+    [ [ newSkill
+        { label   = "Samehada Slash"
+        , desc    = "Kisame slashes an enemy with the legendary sword Samehada, dealing 20 damage and stunning their chakra and mental skills for 1 turn."
+        , classes = [Physical, Melee]
+        , cost    = χ [Tai]
+        , cd      = 1
+        , effects = [ (Enemy, damage 20 
+                            • apply 1 [Stun Chakra, Stun Mental]) 
+                    ]
+        }
+      ]
+    , [ newSkill
+        { label   = "Samehada Shred"
+        , desc    = "Kisame unwraps Samehada and shreds an enemy. For 2 turns, he deals 15 damage to the target and steals a random chakra."
+        , classes = [Physical, Melee]
+        , cost    = χ [Tai, Nin]
+        , cd      = 2
+        , channel = Action 2
+        , effects = [(Enemy, steal 1 • damage 15)]
+        }
+      ]
+    , [ newSkill
+        { label   = "Super Shark Bomb"
+        , desc    = "Kisame shoots a stream of compressed water at an enemy, dealing 20 damage, stunning their physical skills for 1 turn, and negating their affliction damage for 1 turn."
+        , classes = [Physical, Ranged]
+        , cost    = χ [Nin]
+        , cd      = 1
+        , effects = [ (Enemy, damage 20 
+                            • apply 1 [Stun Physical, Stun Affliction])
+                    ]
+        }
+      ]
+    , invuln "Scale Shield" "Kisame" [Physical]
+    ] []
+  , Character
     "Jirōbō"
     "A member of the Sound Five, Jirōbō hides his arrogance and hot temper beneath a calm facade. His immense strength and earth-rending attacks lay waste to all who stand against him."
     [ [ newSkill
@@ -254,7 +254,7 @@ organizationCs =
         , cd      = 6
         , channel = Ongoing 3
         , start   = [ (Allies, defend 3 35 )
-                    , (Self,   onBreak § cancelChannel "Earth Dome Prison")
+                    , (Self,   onBreak')
                     ]
         , effects = [(REnemy, steal 1)]
         }
@@ -350,14 +350,13 @@ organizationCs =
         , cost    = χ [Blood, Blood]
         , effects = [ (Enemy, trap' 0 OnDeath ∘ self § remove "Demon Parasite"
                             • bomb 0 [Afflict 20]
-                              [(Done, self § remove "Demon Parasite")])
-                    , (Self,  bomb 0 [Reduce All 15]
-                              [(Done, everyone § remove "Demon Parasite")])
-                    ]
+                              [(Done, self § remove "Demon Parasite")]
+                            • self § bomb 0 [Reduce All 15]
+                              [(Done, everyone § remove "Demon Parasite")]) ]
         }
       ]
     , [ newSkill
-        { label   = "Unite"
+        { label   = "Regeneration"
         , desc    = "Ukon merges with Sakon, restoring 30 health and ending [Demon Parasite]."
         , classes = [Physical]
         , cost    = χ [Rand, Rand]

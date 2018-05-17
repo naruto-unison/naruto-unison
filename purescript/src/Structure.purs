@@ -22,8 +22,8 @@ newtype Act = Act { actC     ∷ Int
                   }
 instance eqAct ∷ Eq Act where
   eq (Act a) (Act b) = a.actC ≡ b.actC ∧ a.actS ≡ b.actS ∧ a.actT ≡ b.actT
-actC_ ∷ Act → Int
-actC_ (Act {actC}) = actC
+_actC ∷ Act → Int
+_actC (Act {actC}) = actC
 actCost ∷ Act → Chakras
 actCost (Act {actSkill: Skill {cost}}) = cost
 
@@ -85,8 +85,8 @@ newtype Character = Character { characterName   ∷ String
 derive instance genericCharacter ∷ Generic Character
 instance eqCharacter ∷ Eq Character where
   eq (Character a) (Character b) = eq a.characterName b.characterName
-characterName_ ∷ Character → String
-characterName_ (Character {characterName}) = characterName
+_characterName ∷ Character → String
+_characterName (Character {characterName}) = characterName
 
 newtype Copied = Copied { copiedSkill ∷ Skill 
                         , copiedDur   ∷ Int
@@ -139,19 +139,21 @@ decodeGames = decodeJson
 
 newtype Ninja = Ninja { nId        ∷ Slot
                       , nHealth    ∷ Int
+                      , nName      ∷ String
                       , nDefense   ∷ Array Defense
                       , nBarrier   ∷ Array Barrier
-                      , nChannels  ∷ Array Channel
-                      , nCharges   ∷ Array Int
-                      , nFace      ∷ Array Face
-                      , nCopied    ∷ Array (Maybe Copied)
-                      , nParrying  ∷ Array Skill
-                      , nVariants  ∷ Array (Array Variant)
-                      , nTags      ∷ Array ChannelTag
-                      , nTraps     ∷ Array Trap
-                      , nName      ∷ String
                       , nStatuses  ∷ Array Status
+                      , nCharges   ∷ Array Int
                       , nCooldowns ∷ Array Int
+                      , nVariants  ∷ Array (Array Variant)
+                      , nCopied    ∷ Array (Maybe Copied)
+                      , nChannels  ∷ Array Channel
+                      , nTraps     ∷ Array Trap
+                      , nFace      ∷ Array Face
+                      , nParrying  ∷ Array Skill
+                      , nTags      ∷ Array ChannelTag
+                      , nLastSkill ∷ Maybe Skill
+                      , nTargeted  ∷ Boolean
                       , nSkills    ∷ Array Skill
                       }
 derive instance genericNinja ∷ Generic Ninja
@@ -179,8 +181,8 @@ newtype Skill = Skill { label   ∷ String
                       , skPic   ∷ Boolean
                       }
 derive instance genericSkill ∷ Generic Skill
-label_ ∷ Skill → String
-label_ (Skill {label}) = label
+_label ∷ Skill → String
+_label (Skill {label}) = label
 
 type Slot = Int
 
@@ -241,11 +243,12 @@ newtype User = User { name       ∷ String
                     , streak     ∷ Int
                     , background ∷ Maybe String
                     , privilege  ∷ Privilege
+                    , condense   ∷ Boolean
                     }
 derive instance genericUser ∷ Generic User
 
-avatar_ ∷ User → String
-avatar_ (User {avatar}) = avatar
+_avatar ∷ User → String
+_avatar (User {avatar}) = avatar
 
 newtype Variant = Variant { variantV   ∷ Int 
                           , variantVCD ∷ Boolean

@@ -2,7 +2,7 @@
   height: 100%;
   -webkit-user-select: none;
   user-select: none;
-  margin: 0 50px;
+  margin: 0 2.5em;
   box-sizing: border-box;
 }
 a:hover {
@@ -11,7 +11,7 @@ a:hover {
 em {
   color: #600;
 }
-#game p {
+p {
   margin: 0;
 }
 #volume {
@@ -47,7 +47,7 @@ em {
 }
 
 #bg {
-  margin: 0 -50px;
+  margin: 0 -5em;
   position: absolute;
   z-index: -2;
   object-position: center;
@@ -78,7 +78,7 @@ body {
 .nextSkill:hover, .prevSkill:hover {
   color: #0099ff;
 }
-#game .nextSkill, .prevSkill {
+#game .nextSkill, #game .prevSkill {
   bottom: 0;
 }
 .nextSkill { right: 5px }
@@ -95,12 +95,6 @@ body {
   margin-left: 0.2em;
   margin-right: 0;
   font-size: 0.75em;
-}
-
-.minor {
-  margin-left: 0.4em;
-  font-size: 0.8em;
-  vertical-align: top;
 }
 
 #charSelect {
@@ -121,6 +115,7 @@ body {
   margin: -130px auto auto;
   border: 3px solid #000;
   overflow: hidden;
+  z-index: 10;
 }
 #searching img {
   width: 180px;
@@ -181,7 +176,7 @@ body {
   min-height: 40px;
 }
 .queueing #charSelect {
-  filter: saturate(0.15);
+  filter: grayscale(0.8);
   pointer-events: none;
 }
 #charSelect.queueing > article {
@@ -191,11 +186,14 @@ body {
   padding: 0.5em 1.3em;
 }
 #accountSettings span {
-  width: 11em;
+  min-width: 11em;
   display: inline-block;
   font-weight: bold;
 }
 #accountSettings input {
+  margin-right: 0.5em;
+}
+#accountSettings input[type="text"] {
   width: 15em;
 }
 #accountSettings p {
@@ -233,6 +231,21 @@ body {
 #charSelect > article .char {
   height: 50px;
   width: 50px;
+}
+#charSelect > article > aside {
+    width: 75px;
+    position: absolute;
+    bottom: -3px;
+    left: -65px;
+}
+#charSelect > article > aside .char {
+    outline-color: #fff;
+    outline-width: 1px !important;
+}
+#charSelect > article > aside .char.on {
+  outline: 2px #0099ff !important;
+  outline-width: 2px !important;
+  outline-style: solid !important;
 }
 #charSelect > article > header {
   font-size: 18px;
@@ -388,7 +401,7 @@ a.playButton {
 #nextPage:after { content: ">" }
 
 .disabled {
-  filter: grayscale(0.8);
+  filter: grayscale(0.8) !important;
 }
 
 .char.disabled {
@@ -399,9 +412,16 @@ a.playButton {
   margin: 4px;
   width: 60px;
   height: 60px;
+  outline-color: #888;
+  filter: grayscale(0.3);
 }
-#characterButtons .char:hover {
-  outline: 2px solid #0099ff;
+#characterButtons .char.click {
+  outline-color: #000;
+  filter: none;
+}
+#characterButtons .selected, #characterButtons .char.click:hover, #charSelect > article > aside .char:hover {
+  outline: 2px solid #0099ff !important;
+  filter: none;
 }
 
 #characterButtons img {
@@ -493,6 +513,7 @@ a.playButton {
 #game .skillClasses {
   display: block !important;
   font-size: 1em !important;
+  margin-left: 0 !important;
 }
 .player > section {
   margin-bottom: 15px;
@@ -513,11 +534,11 @@ a.playButton {
   width: 75px;
   height: 75px;
 }
-.highlighted .player > section > section img {
+.player > section > section.highlighted img {
   border-color: rgb(19, 112, 19);
   opacity: 0.75;
 }
-.highlighted.nohighlight .player > section > section img {
+.player > section > section.highlighted.nohighlight img {
   border-color: rgb(119, 1, 1);
 }
 .player > section > section img.click {
@@ -546,16 +567,16 @@ a.playButton {
 .stunned .charmove,
 .unable.charmove,
 .oncd,
-.noChakra
+.noChakra,
+.dead img
 {
-  filter: saturate(0.15);
+  filter: grayscale(0.8);
   border-color: #000 !important;
 }
 .unable .player > section > section img,
-.stunned .player > section > section img,
-.dead .player > section > section img
+.stunned .player > section > section img
 {
-  filter: saturate(0.15);
+  filter: grayscale(0.8);
 }
 .player > section > div > div > span {
   display: block;
@@ -710,7 +731,7 @@ a.playButton {
 }
 #avatars img.noclick {
   border-color: #0099ff !important;
-  filter: saturate(0.15);
+  filter: grayscale(0.8);
 }
 .toggled img:hover, .chakra.click:hover, #avatars img:hover, .player > section > section.click:hover {
   border-color: #0099ff !important;
@@ -857,13 +878,13 @@ svg {
   border-color: #666;
 }
 .status.tag img {
-  filter: saturate(0.15);
+  filter: grayscale(0.8);
 }
 .remove div, .action div {
   border-color: #00a;
 }
 .status.reflected img {
-  filter: saturate(0.15);
+  filter: grayscale(0.8);
 }
 .reflected div {
   color: #000;
