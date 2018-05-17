@@ -83,7 +83,7 @@ teacherCs =
         , cd      = 1
         , effects = [(Self, trap (-1) (OnDamaged All) 
                             § remove "Ambush Preparation"
-                          • bomb' "Ambush Preparation" (-1) [] 
+                          • bombWith' [Hidden] "Ambush Preparation" (-1) [] 
                             [(Expire, self § vary 1 0 1 
                                            ° apply (-1) [Immune All])])]
         }

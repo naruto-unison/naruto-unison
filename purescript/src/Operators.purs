@@ -21,11 +21,16 @@ infix  5 difference      as ∖
 infixr 5 append          as ⧺
 infixr 6 intersect       as ∩
 infixr 7 mod             as %
+infixr 7 unzeroMod       as %%
 infixl 7 mapFlipped      as ↦
 infixl 8 map             as ↤
 infixr 9 doIf            as ?
 infixr 9 compose         as ∘
 infixr 9 multimap        as ↤∘
+
+unzeroMod ∷ ∀ a. EuclideanRing a ⇒ Eq a ⇒ a → a → a
+unzeroMod a b = if modded ≡ zero then b else modded
+  where modded = a % b
 
 doIf ∷ ∀ a. Boolean → (a → a) → (a → a)
 doIf true  = id

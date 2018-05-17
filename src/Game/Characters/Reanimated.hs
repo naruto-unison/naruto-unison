@@ -739,7 +739,10 @@ reanimatedCsS =
         , classes = [Mental, Ranged, Multi]
         , cost    = χ [Nin]
         , cd      = 4
-        , effects = [(Self, apply (-1) [ParryAll All 4])]
+        , effects = [(Self, apply (-1) [ParryAll All 
+                            $ steal 1 
+                            • self § heal 10 ° apply 1 [] 
+                                   ° ifStacks "Preta Path" 2 (vary 1 2 1)])]
         }
       ]  
     , [ newSkill
@@ -785,16 +788,6 @@ reanimatedCsS =
           , require = if | hasOwn "Rinnegan" n ∨ hasOwn "Rinnegan Heal" n → Usable
                          | otherwise → Unusable
           } 
-        }
-      ]
-    , [ newSkill 
-        { label   = "Preta Path"
-        , desc    = "Nagato absorbs attacks against him, countering all enemy skills next turn. Each countered skill restores 10 health to Nagato and steals a random chakra from its user."
-        , classes = [Mental, Ranged, Multi]
-        , effects = [ (Enemy, steal 1)
-                    , (Self,  heal 10 • apply 1 [] 
-                            • ifStacks "Preta Path" 2 § vary 1 2 1) 
-                    ]
         }
       ]
     ] 

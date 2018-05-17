@@ -19,8 +19,13 @@ akatsukiCsS =
         , classes = [Chakra, Ranged, Single, Unreflectable]
         , cost    = χ [Nin]
         , channel = Ongoing 0
-        , start   = [(Self, apply 0 [ Parry All 4] 
-                          • addStacks "Hundred Hungry Sharks" 10)]
+        , start   = [(Self, addStacks "Hundred Hungry Sharks" 10
+                          • trapFrom' 0 (OnHarmed All) §
+                            ( enemyTeam § hide' "ignored" 0 []
+                            • remove "ignored" • tag 0 
+                            • trap' 0 OnDeath ∘ everyone § remove "ignored"
+                            • self § removeTrap "Thousand Hungry Sharks"
+                            ))]
         , effects = [ (Enemies, ifnotU "ignored" 
                               $ withChan "Exploding Water Shockwave" 5 pierce 5
                               • self § removeStack "Hundred Hungry Sharks") 
@@ -75,21 +80,6 @@ akatsukiCsS =
         }
       ]
     , invuln "Scale Shield" "Kisame" [Physical]
-    , [ newSkill
-        { label   = "Thousand Hungry Sharks"
-        , classes = [Chakra, Ranged]
-        , effects = [ (XEnemies, hide' "ignored" 0 [])
-                    , (Enemy,    tag 0
-                               • trap' 0 OnDeath ∘ everyone § remove "ignored")
-                    ]
-        }
-      ]
-    , [ newSkill
-        { label   = "Shark Bomb"
-        , classes = [Chakra, Ranged, Multi]
-        , effects = [(Self, addStack)]
-        }
-      ]
     ] []
   , Character
     "Deidara"
@@ -571,7 +561,12 @@ akatsukiCsS =
         , cost    = χ [Blood, Rand ]
         , channel = Ongoing 0
         , start   = [ (Enemies, tag 2)
-                    , (Allies,  apply 0 [Parry Uncounterable 4])
+                    , (Allies,  apply 0 [Parry Uncounterable 
+                              $ ifnotU "already" 
+                                § prolong 2 "Summoning: Giant Multi-Headed Dog"
+                              • flag' "already"
+                              • alliedTeam ∘ delay (-1) 
+                                § remove "Summoning: Giant Multi-Headed Dog"])
                     ]
         , effects = [ (Enemies, ifU "Summoning: Giant Multi-Headed Dog" 
                                 § pierce 10
@@ -583,17 +578,6 @@ akatsukiCsS =
         }
       ]
     , invuln "Summoning: Giant Chameleon" "Pain" [Physical, Summon]
-    , [ newSkill 
-        { label   = "Summoning: Giant Multi-Headed Dog"
-        , classes = [Physical, Melee, Summon]
-        , effects = [ (Allies, delay (-1) 
-                             § remove "Summoning: Giant Multi-Headed Dog") 
-                    , (Enemy,  ifnotU "already" 
-                             § prolong 2 "Summoning: Giant Multi-Headed Dog"
-                             • flag' "already")
-                    ]
-        }
-      ]
     ] []
   , Character
     "Preta Path Pain"
@@ -810,7 +794,7 @@ akatsukiCsS =
                     ]
         }
       ]
-    , invuln "Flee" "Asura" [Physical]
+    , invuln "Flee" "Pain" [Physical]
     ] []
   , Character
     "Deva Path Pain"
@@ -821,7 +805,7 @@ akatsukiCsS =
         , classes = [Chakra, Ranged, Invisible, Unreflectable]
         , cost    = χ [Gen]
         , channel = Passive
-        , start   = [ (Ally, apply 1 [Parry All 4]) 
+        , start   = [ (Ally, apply 1 [Parry All $ damage 20]) 
                     , (Self, tag' "Tidal Force" 1)
                     ]
         , effects = [(Self, ifnotI "pull" § vary 0 0 2
@@ -834,7 +818,7 @@ akatsukiCsS =
         , desc    = "Pain targets himself or an ally. The first harmful skill used on them next turn will be countered, and the person countered will receive 20 damage. This skill will become [Universal Pull] next turn."
         , classes = [Chakra, Ranged, Invisible, Unreflectable]
         , cost    = χ [Gen]
-        , effects = [ (Ally, apply 1 [Parry All 4]) 
+        , effects = [ (Ally, apply 1 [Parry All $ damage 20]) 
                     , (Self, tag' "Tidal Force" 1)
                     ]
         }
@@ -845,7 +829,7 @@ akatsukiCsS =
         , cost    = χ [Gen]
         , effects = [ (Enemy, interrupt • apply 1 [Taunt])
                     , (Self,  ifI "Tidal Force"
-                            § apply' "Almighty Push" 1 [Parry All 4])
+                            § apply' "Almighty Push" 1 [Parry All $ damage 20])
                     ]
         }
       ]
@@ -873,12 +857,6 @@ akatsukiCsS =
         }
       ]
     , invuln "Rinnegan Foresight" "Pain" [Mental]
-    , [ newSkill
-        { label   = "Almighty Push"
-        , classes = [Chakra, Ranged]
-        , effects = [(Enemy, damage 20)]
-        }
-      ]
     ] []
   , Character
     "Nagato"
@@ -951,7 +929,8 @@ akatsukiCsS =
         , classes = [Mental, Invisible, Single]
         , cost    = χ [Blood]
         , cd      = 4
-        , effects = [(Self, apply 0 [Parry All 4])]
+        , effects = [(Self, apply 0 [Parry All 
+                            $ self § tag' "Kamui" 2 • vary (-2) 0 1])]
         }
       , newSkill
         { label   = "Kamui"
@@ -983,12 +962,5 @@ akatsukiCsS =
         }
       ]
     , invuln "Phase" "Tobi" [Chakra]
-    , [ newSkill
-        { label   = "Sharingan"
-        , desc    = "Tobi analyzes the battlefield to gain the upper hand. The first time a harmful skill is used on him within 3 turns, its effects will be nullified and this skill will become [Kamui][g][r] for 2 turns."
-        , classes = [Mental, Invisible]
-        , effects = [(Self, tag' "Kamui" 2 • vary (-2) 0 1)]
-        }
-      ]
     ] []
   ]

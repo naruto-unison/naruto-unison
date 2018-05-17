@@ -14,10 +14,10 @@ import Data.Maybe         as Import hiding (catMaybes, mapMaybe)
 import Control.Monad (MonadPlus, mfilter, mzero)
 import qualified Data.List.NonEmpty as L
 
-concat ∷ (Foldable a, Monoid b) ⇒ a b → b
+concat ∷ Foldable a ⇒ Monoid b ⇒ a b → b
 concat = foldr mappend mempty
 
-concatMap ∷ (Functor a, Foldable a, Monoid b) ⇒ (c → b) → a c → b
+concatMap ∷ Functor a ⇒ Foldable a ⇒ Monoid b ⇒ (c → b) → a c → b
 concatMap f = concat ∘ (f ↤)
 
 catMaybes ∷ MonadPlus m ⇒ m (Maybe a) → m a

@@ -142,7 +142,14 @@ component = Halogen.component
         sound SFXScroll
         pageSize ← liftEff getPageSize
         modify \state@{index} → 
-          state { index = index' a pageSize index, pageSize = pageSize }
+        let index' = case otherwise of
+              _| a ≡ 1 ∧ index + pageSize ≥ csSize → 0
+              _| a ≡ 1            → index + pageSize
+              _| index ≡ 0        → csSize - csSize %% pageSize
+              _| index < pageSize → 0
+              _| otherwise        → index - pageSize
+          in
+          state { index = index', pageSize = pageSize }
       Preview previewing → 
         modify \state@{toggled} → 
           if isJust toggled then state 
@@ -192,12 +199,6 @@ component = Halogen.component
             {status} ∷ AX.AffjaxResponse String ← liftAff $ AX.get url
             if status ≡ StatusCode 200 then liftEff reload 
                                        else modify _{ updateFail = true }
-    where index' a pageSize index
-            | a ≡ 1 ∧ index + pageSize ≥ csSize = 0
-            | a ≡ 1            = index + pageSize
-            | index ≡ 0        = csSize - csSize % pageSize
-            | index < pageSize = 0
-            | otherwise        = index - pageSize
   eval (QueryPlay _ next) = pure next
 
 previewBox ∷ ∀ a. State

@@ -193,56 +193,56 @@ lower ∷ String → String
 lower = T.unpack ∘ T.toLower ∘ T.pack
 
 -- | Effects of 'Status'es.
-data Effect = Afflict    Int           -- ^ Deals damage every turn
-            | AntiCounter              -- ^ Cannot be countered or reflected
-            | Bleed      Class Int      -- ^ Adds to damage received
-            | Bless      Int            -- ^ Adds to healing 'Skill's
-            | Block                     -- ^ Treats source as 'Immune'
-            | Boost      Int            -- ^ Scales effects from allies
-            | Build      Int            -- ^ Adds to destructible defense 'Skill'
-            | Counter    Class          -- ^ Counters the first 'Skill's
-            | CounterAll Class          -- ^ 'Counter's without being removed
-            | Duel                      -- ^ 'Immune' to everyone but source
-            | Endure                    -- ^ Health cannot go below 1
-            | Enrage                    -- ^ Ignore status effects
-            | Exhaust    Class          -- ^ 'Skill's cost an additional random chakra
-            | Expose                    -- ^ Cannot reduce damage or be 'Immune'
-            | Focus                     -- ^ Immune to 'Stun's
-            | Heal       Int            -- ^ Heals every turn
-            | Immune     Class          -- ^ Invulnerable to enemy 'Skill's
-            | ImmuneSelf                -- ^ Immune to self-caused damage
-            | Invincible Class          -- ^ Like 'Immune', but targetable
-            | Isolate                   -- ^ Unable to affect others
-            | Link       Int            -- ^ Increases damage and healing from source
-            | Nullify    Effect         -- ^ Prevents effects from being applied
-            | Parry      Class Int      -- ^ 'Counter' and trigger a 'Skill'
-            | ParryAll   Class Int      -- ^ 'Parry' repeatedly
-            | Pierce                    -- ^ Damage skills turn into piercing
-            | Plague                    -- ^ Immune to healing and curing
-            | Reduce     Class Int      -- ^ Reduces damage by a flat amount
-            | Reapply                   -- ^ Shares harmful skills with source
-            | Redirect   Class          -- ^ Transfers harmful 'Skill's
-            | Reflect                   -- ^ Reflects the first 'Skill'
-            | ReflectAll                -- ^ 'Reflect' repeatedly
-            | Restrict                  -- ^ Forces AoE attacks to be single-target
-            | Reveal                    -- ^ Makes 'Invisible' effects visible
-            | Scale      Class Rational -- ^ Scales damage dealt
-            | Seal                      -- ^ Immune to friendly 'Skill's
-            | Share                     -- ^ Shares all harmful non-damage effects
-            | Silence                   -- ^ Unable to cause non-damage effects
-            | Snapshot   Ninja          -- ^ Saves a snapshot of the current state
-            | Snare      Int            -- ^ Increases cooldowns
-            | SnareTrap  Class Int      -- ^ Negates next skill and increases cooldown
-            | Strengthen Class Int      -- ^ Adds to all damage dealt
-            | Stun       Class          -- ^ Unable to use 'Skill's
-            | Swap       Class          -- ^ Target swaps enemies and allies
-            | Taunt                     -- ^ Forced to attack the source
-            | Taunting   Int            -- ^ Forced to attack their next target
-            | Uncounter                 -- ^ Cannot counter or reflect
-            | Unexhaust                 -- ^ Decreases chakra costs by 1 random  
-            | Unreduce   Int            -- ^ Reduces damage reduction 'Skill's
-            | Ward       Class Rational -- ^ Reduces damage received by a fraction
-            | Weaken     Class Int      -- ^ Lessens damage dealt
+data Effect = Afflict    Int             -- ^ Deals damage every turn
+            | AntiCounter                -- ^ Cannot be countered or reflected
+            | Bleed      Class Int       -- ^ Adds to damage received
+            | Bless      Int             -- ^ Adds to healing 'Skill's
+            | Block                      -- ^ Treats source as 'Immune'
+            | Boost      Int             -- ^ Scales effects from allies
+            | Build      Int             -- ^ Adds to destructible defense 'Skill'
+            | Counter    Class           -- ^ Counters the first 'Skill's
+            | CounterAll Class           -- ^ 'Counter's without being removed
+            | Duel                       -- ^ 'Immune' to everyone but source
+            | Endure                     -- ^ Health cannot go below 1
+            | Enrage                     -- ^ Ignore status effects
+            | Exhaust    Class           -- ^ 'Skill's cost an additional random chakra
+            | Expose                     -- ^ Cannot reduce damage or be 'Immune'
+            | Focus                      -- ^ Immune to 'Stun's
+            | Heal       Int             -- ^ Heals every turn
+            | Immune     Class           -- ^ Invulnerable to enemy 'Skill's
+            | ImmuneSelf                 -- ^ Immune to self-caused damage
+            | Invincible Class           -- ^ Like 'Immune', but targetable
+            | Isolate                    -- ^ Unable to affect others
+            | Link       Int             -- ^ Increases damage and healing from source
+            | Nullify    Effect          -- ^ Prevents effects from being applied
+            | Parry      Class Transform -- ^ 'Counter' and trigger an effect
+            | ParryAll   Class Transform -- ^ 'Parry' repeatedly
+            | Pierce                     -- ^ Damage skills turn into piercing
+            | Plague                     -- ^ Immune to healing and curing
+            | Reduce     Class Int       -- ^ Reduces damage by a flat amount
+            | Reapply                    -- ^ Shares harmful skills with source
+            | Redirect   Class           -- ^ Transfers harmful 'Skill's
+            | Reflect                    -- ^ Reflects the first 'Skill'
+            | ReflectAll                 -- ^ 'Reflect' repeatedly
+            | Restrict                   -- ^ Forces AoE attacks to be single-target
+            | Reveal                     -- ^ Makes 'Invisible' effects visible
+            | Scale      Class Rational  -- ^ Scales damage dealt
+            | Seal                       -- ^ Immune to friendly 'Skill's
+            | Share                      -- ^ Shares all harmful non-damage effects
+            | Silence                    -- ^ Unable to cause non-damage effects
+            | Snapshot   Ninja           -- ^ Saves a snapshot of the current state
+            | Snare      Int             -- ^ Increases cooldowns
+            | SnareTrap  Class Int       -- ^ Negates next skill and increases cooldown
+            | Strengthen Class Int       -- ^ Adds to all damage dealt
+            | Stun       Class           -- ^ Unable to use 'Skill's
+            | Swap       Class           -- ^ Target swaps enemies and allies
+            | Taunt                      -- ^ Forced to attack the source
+            | Taunting   Int             -- ^ Forced to attack their next target
+            | Uncounter                  -- ^ Cannot counter or reflect
+            | Unexhaust                  -- ^ Decreases chakra costs by 1 random  
+            | Unreduce   Int             -- ^ Reduces damage reduction 'Skill's
+            | Ward       Class Rational  -- ^ Reduces damage received by a fraction
+            | Weaken     Class Int       -- ^ Lessens damage dealt
 
             -- | Copies a skill into source's skill slot
             | Copy { copyDuration ∷ Int 
@@ -581,7 +581,7 @@ instance Eq Character where
 -- | A 'Skill' copied from a different character.
 data Copied = Copied { copiedSkill ∷ Skill
                      , copiedDur   ∷ Int
-                     } deriving (Eq)
+                     } deriving (Eq, Generic, ToJSON)
 instance TurnBased Copied where 
     getDur     = copiedDur
     setDur d a@Copied{..} = a { copiedDur = d
@@ -590,9 +590,6 @@ instance TurnBased Copied where
         where f (Shallow b _) = copiedSkill { copying = Shallow b d }
               f (Deep    b _) = copiedSkill { copying = Deep    b d }
               f NotCopied     = copiedSkill
-
-instance ToJSON Copied where
-    toJSON = toJSON ∘ copiedSkill
 
 data Copying = Shallow Slot Int -- ^ No cooldown or chakra cost.
              | Deep Slot Int    -- ^ Cooldown and chakra cost.

@@ -119,24 +119,17 @@ organizationCsS =
       , [ newSkill
           { label   = "Mind Transfer Puppet Curse"
           , desc    = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy that uses a new harmful physical or chakra skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Effects from Fū's usage of their skills are canceled when Fū's skills revert."
-          , classes = [Mental, Invisible, Unreflectable]
+          , classes = [Mental, InvisibleTraps, Unreflectable]
           , cost    = χ [Gen]
           , cd      = 3
-          , effects = [(Ally, apply 2 [Parry Physical 4, Parry Chakra 4])]
+          , effects = let f = copyAll 4 • tag (-4) 
+                            • teach 4 Shallow 4 • teachOne 4 3 Deep 5
+                            • self § resetAll ° bomb (-4) [] [(Done, resetAll)]
+                      in [(Ally, applyWith [Invisible] 2 
+                                 [Parry Physical f, Parry Chakra f])]
           }
         ]
       , invuln "Dodge" "Fū" [Physical]
-      , [ newSkill
-          { label   = "Mind Transfer Puppet Curse"
-          , desc    = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy that uses a new harmful physical or chakra skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns."
-          , classes = [Mental, Unremovable]
-          , effects = [ (Enemy, copyAll 4 • tag (-4)
-                              • teach 4 Shallow 5 • teachOne 4 3 Deep 6) 
-                      , (Self, resetAll • bomb (-4) [] [(Done, resetAll)])
-                      ]
-
-          }
-        ]
       , [ newSkill
           { label   = "Puppet Curse: Attack"
           , desc    = "Trapped in a puppet, little can be done but flail about and hope to hit someone! Deals 15 damage to an enemy."

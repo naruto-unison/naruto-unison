@@ -54,8 +54,8 @@ module Game.Game
     , reset, resetAll, resetCharges, setHealth
     -- ** 'Status'
     , addStack, addStacks, addStacks'
-    , apply, apply', applyDur, applyDur', applyX
-    , bomb, bomb', bombWith
+    , apply, apply', applyDur, applyDur', applyX, applyWith
+    , bomb, bomb', bombWith, bombWith'
     , flag, flag', tag, tag', hide, hide'
     , snapshot
     -- *** Modification
@@ -104,9 +104,8 @@ censorNinja game player n@Ninja{..}
       { nCooldowns = ø
       , nCharges   = ø
       , nVariants  = S.replicate 4 [noVariant]
-      , nChannels  = filter ( (not ∘ ([Invisible, InvisibleTraps] ⩀)) 
-                             ∘ classes ∘ channelSkill
-                             ) nChannels
+      , nChannels  = filter ((not ∘ (Invisible ∈)) ∘ classes ∘ channelSkill) 
+                     nChannels
       , nLastSkill = Nothing
       }
   where n' = n { nStatuses = mapMaybe mst nStatuses
@@ -116,7 +115,7 @@ censorNinja game player n@Ninja{..}
                                    ∨ is Reveal (gameNinja trapSrc game)
                                    ]
                }
-        mst st@Status{..} | alliedP player statusC                   = Just st
+        mst st@Status{..} | alliedP player statusSrc                 = Just st
                           | Invisible ∈ statusClasses 
                           ∧ not (is Reveal $ gameNinja statusC game) = Nothing
                           | statusEfs ≡ []                           = Just st
@@ -518,10 +517,9 @@ wrapEffect affected f skill@Skill{..} src c game t
         Just redir → wrapEffect (Redirected : affected) 
                      f skill src (tOrC redir) game'Shift redir 
         Nothing    → case allow Countered $? parry skill nt of
-          Just (nt', pSrc, a) → actParry' (Act pSrc (Left a) pSrc, rando)
-                              ∘ actParry  (Act pSrc (Left a) c,    rando)
-                              ∘ actParry  (Act pSrc (Left a) t,    rando)
-                              $ setNinja t nt' game'Mimic
+          Just (nt', Status{..}, f') → wrapEffect (Trapped : affected) f' 
+                                       statusSkill statusSrc statusSrc 
+                                       (setNinja t nt' game'Mimic) c
           Nothing → case allow Reflected $? reflect classes n nt of
             Just nt'  → wrapEffect (Reflected : affected) f skill src t 
                         (setNinja t nt' game'Mimic) c
@@ -560,9 +558,6 @@ wrapEffect affected f skill@Skill{..} src c game t
                                        (gameNinjas game'Do)
         game'Post  | is Silence nSrc = game'Mimic { gameNinjas = onlyDmgNs }
                    | otherwise       = game'Do
-        rando      = Left (c, t)
-        actParry   = flip $ act (Countered : affected)
-        actParry'  = flip $ act (Countered : Parrying : affected)
         allow aff  = harm ∧ not (is AntiCounter n) ∧ aff ∉ affected
         tOrC redir | allied redir t = c
                    | otherwise      = t
@@ -1111,7 +1106,7 @@ sacrifice minhp hp _ c _ game t
 -- ** COPYING
 
 copyAll ∷ Int → Transform
-copyAll dur _ _ c game t = fn c copier game
+copyAll dur _ src _ game t = fn src copier game
   where nt    = gameNinja t game
         dur'  = sync  ∘ (dur < 0) ? (+1) $ dur
         cpDur = sync dur - 1
@@ -1236,7 +1231,8 @@ setFace dur skill@Skill{..} src c game t
 
 applyFull ∷ [Class] → Bool → [(Bomb, Transform)] → Text → Int → [Effect] 
           → Transform
-applyFull clas bounced statusBombs' l dur fs statusSkill@Skill{copying} statusSrc statusC game t
+applyFull clas bounced statusBombs' l dur fs statusSkill@Skill{copying} 
+          statusSrc statusC game t
   | null fs ∧ Shifted ∈ clas             = game
   | already ∧ (bounced ∨ isSingle)       = game
   | already ∧ Extending ∈ statusClasses  = setNinja t nt'Extend game
@@ -1285,6 +1281,8 @@ applyWith' ∷ [Class] → Text → Int → [Effect] → Transform
 applyWith' classes = applyFull classes False []
 apply' ∷ Text → Int → [Effect] → Transform
 apply' = applyWith' []
+applyWith ∷ [Class] → Int → [Effect] → Transform
+applyWith classes = applyWith' classes ""
 -- | Adds a 'Status' to the target.
 apply ∷ Int → [Effect] → Transform
 apply = apply' ""

@@ -51,6 +51,7 @@ import Preludesque
 
 import qualified Data.Sequence as S
 
+import Control.Applicative ((<|>)) -- TODO
 import Control.Monad
 import Data.Sequence  (Seq, (!?))
 import Data.Text      (Text)
@@ -695,34 +696,31 @@ copy classes Ninja{..} harm = mapMaybe ifCopy allStatuses
 counter ∷ [Class] → Ninja → Ninja → Maybe Ninja
 counter classes n nt
   | nocounter = Just nt
-  | isJust $ find (any matchesAll ∘ statusEfs) $ nStatuses nt = Just nt
-  | otherwise = getOne' matchesOne nt
+  | isJust $ find (any matchAll ∘ statusEfs) $ nStatuses nt = Just nt
+  | otherwise = getOne' matchOne nt
   where nocounter = Uncounterable ∉ classes 
                   ∧ any ((OnCounterAll ≡) ∘ trapTrigger) (nTraps n)
-        matchesAll (CounterAll Uncounterable) = True
-        matchesAll (CounterAll cla) = cla ∈ classes ∧ Uncounterable ∉ classes
-        matchesAll _ = False
-        matchesOne (Counter Uncounterable) = True
-        matchesOne (Counter cla) = cla ∈ classes ∧ Uncounterable ∉ classes
-        matchesOne _ = False
+        matchAll (CounterAll Uncounterable) = True
+        matchAll (CounterAll cla) = cla ∈ classes ∧ Uncounterable ∉ classes
+        matchAll _ = False
+        matchOne (Counter Uncounterable) = True
+        matchOne (Counter cla) = cla ∈ classes ∧ Uncounterable ∉ classes
+        matchOne _ = False
         
 -- | Trigger a 'Parry'.
-parry ∷ Skill → Ninja → Maybe (Ninja, Slot, Int)
-parry skill@Skill{..} n@Ninja{..} = case parried of
-    Just wasParried → return wasParried
-    Nothing → 
-        [ (n'', statusC st, a) | (n'', Parry _ a, st) ← getOne matchesOne n ]
+parry ∷ Skill → Ninja → Maybe (Ninja, Status, Transform)
+parry skill@Skill{..} n@Ninja{..} = do
+    st@Status{..} ← find (any matchAll ∘ statusEfs) nStatuses
+    ParryAll _ a ← find matchAll statusEfs
+    return (n', st, a)
+  <|> [(n'', st, a) | (n'', Parry _ a, st@Status{..}) ← getOne matchOne n]
     where n' = n { nParrying = skill : nParrying }
-          matchesAll (ParryAll Uncounterable _) = True
-          matchesAll (ParryAll cla _) = cla ∈ classes ∧ Uncounterable ∉ classes
-          matchesAll _ = False
-          matchesOne (Parry Uncounterable _) = True
-          matchesOne (Parry cla _) = cla ∈ classes ∧ Uncounterable ∉ classes
-          matchesOne _ = False
-          parried = do
-              status         ← find (any matchesAll ∘ statusEfs) nStatuses
-              (ParryAll _ a) ← find matchesAll $ statusEfs status
-              return (n', statusC status, a)
+          matchAll (ParryAll Uncounterable _) = True
+          matchAll (ParryAll cla _) = cla ∈ classes ∧ Uncounterable ∉ classes
+          matchAll _ = False
+          matchOne (Parry Uncounterable _) = True
+          matchOne (Parry cla _) = cla ∈ classes ∧ Uncounterable ∉ classes
+          matchOne _ = False
 
 -- | Trigger a 'Reapply'.
 reapply ∷ [Class] → Ninja → Maybe Slot
@@ -749,9 +747,9 @@ reflect clas n nt
 -- | Trigger a 'SnareTrap'.
 snareTrap ∷ Skill → Ninja → Maybe (Ninja, Int)
 snareTrap Skill{..} n@Ninja{..} 
-    = [ (n', a) | (n', SnareTrap _ a, _) ← getOne matchesOne n ]
-  where matchesOne (SnareTrap cla _) = cla ∈ classes
-        matchesOne _                 = False
+    = [ (n', a) | (n', SnareTrap _ a, _) ← getOne matchOne n ]
+  where matchOne (SnareTrap cla _) = cla ∈ classes
+        matchOne _                 = False
 
 -- | Trigger a 'Swap'.
 swap ∷ [Class] → Ninja → Maybe Status

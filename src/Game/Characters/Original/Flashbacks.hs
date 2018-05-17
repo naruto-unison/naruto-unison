@@ -87,18 +87,12 @@ flashbackCs =
         , classes = [Physical, Melee, Single, Invisible, Unreflectable]
         , cost    = χ [Blood]
         , cd      = 2
-        , effects = [ (XAlly, apply 0 [Parry NonMental 4]) 
-                    , (Enemy, trap 0 (OnCounter NonMental) § damage 10 )
+        , effects = [ (XAlly, apply 0 [Parry NonMental $ damage 10])
+                    , (Enemy, trap 0 (OnCounter NonMental) § damage 10)
                     ]
         }
       ]
     , invuln "Block" "Chōza" [Physical]
-    , [ newSkill
-        { label   = "Partial Expansion"
-        , classes = [Physical, Melee, Single]
-        , effects = [(Enemy, damage 10)]
-        }
-      ]
     ] []
   , Character
     "Kushina Uzumaki"
@@ -190,13 +184,13 @@ flashbackCs =
         , cd      = 1
         , effects = [ (XAllies, delay 0 ∘ trap 1 (OnAction All) 
                                 § remove "Space-Time Marking"
-                              • bomb 1 [] 
+                              • bombWith [Invisible] 1 [] 
                                 [(Expire, apply' "Space-Time Marking " 3 []
                                         • self § hide 4 [Reduce All 5])]
                       )
                     , (Enemies, trap (-1) (OnAction All) 
                                 § remove "Space-Time Marking"
-                              • bomb (-1) []
+                              • bombWith [Invisible] (-1) []
                                 [(Expire, apply' "Space-Time Marking " (-4) []
                                         • self § hide 4 [Reduce All 5])])
                     ]
@@ -362,7 +356,7 @@ flashbackCs =
         , classes = [Chakra, Invisible, Single]
         , cost    = χ [Gen]
         , cd      = 2
-        , effects = [(Self, apply 0 [Parry NonMental 4])]
+        , effects = [(Self, apply 0 [Parry NonMental $ tag 1])]
         }
       ]
     , [ newSkill
@@ -376,12 +370,6 @@ flashbackCs =
         }
       ]
     , invuln "Hide" "Obito" [Mental]
-    , [ newSkill 
-        { label   = "Mangekyō Sharingan"
-        , classes = [Chakra]
-        , effects = [(Enemy, tag 1)]
-        }
-      ]
     ] []
   , Character
     "Masked Man"

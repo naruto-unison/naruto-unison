@@ -17,12 +17,8 @@ addStatus ∷ Status → Ninja → Ninja
 addStatus st n@Ninja{..}
   | Single ∈ statusClasses st ∧ has (statusL st) (statusSrc st) n = n
   | otherwise = n { nStatuses = st' : f nStatuses }
-  where f       = (Nonstacking ∈ statusClasses st') ? filter (not ∘ lEq st)
-        st'     = st { statusClasses = statusF $ statusClasses st }
-        statusF | null $ statusBombs st = filter (InvisibleTraps ≠)
-                | otherwise             = map invis
-        invis InvisibleTraps = Invisible
-        invis a              = a
+  where f   = (Nonstacking ∈ statusClasses st') ? filter (not ∘ lEq st)
+        st' = st { statusClasses = filter (InvisibleTraps ≠) $ statusClasses st }
 
 -- Replicates 'addStatus'.
 addStacks ∷ Int → Text → Int → Skill → Slot → Slot → Ninja → Ninja

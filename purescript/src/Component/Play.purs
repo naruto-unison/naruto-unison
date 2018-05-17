@@ -437,14 +437,6 @@ hDefense nId anchor track barriers defenses = case uncons defenses of
         , hover $ ViewDefense d
         ]
         [] : hDefense nId anchor (track + defenseAmount) barriers tail
- 
-cant ∷ ∀ a. Int → Int → Skill → Array (HTMLQ a) → HTMLQ a
-cant nId charge skill within = H.div
-  [ _c "charmove noclick"
-  , hover $ ViewSkill nId [] charge skill
-  , E.onMouseLeave $ input Unhighlight
-  ]
-  within
 
 hSkill ∷ ∀ a. Int → Chakras → Boolean → Array Character → Int → Array Int
        → Int → Skill → Int → HTMLQ a

@@ -112,7 +112,9 @@ versionCs =
         , classes = [Physical, Melee, Unreflectable]
         , cost    = χ [Rand]
         , cd      = 2
-        , effects = [(Ally, apply 1 [Parry Physical 0])]
+        , effects = [(Ally, apply 1 [Parry Physical 
+                            $ self § addStacks "Unpredictable Assault" 1
+                            • perI "Unpredictable Assault" 5 damage 20])]
         }
       ]
     , [ newSkill

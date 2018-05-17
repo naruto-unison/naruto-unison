@@ -12,7 +12,7 @@ import Data.Function
 import Data.Text     (Text, pack)
 import System.Random
 
-absmin ∷ (Ord a, Num a) ⇒ a → a → a
+absmin ∷ Ord a ⇒ Num a ⇒ a → a → a
 absmin a b
   | b ≡ 0 ∨ abs a ≤ abs b = a
   | otherwise             = b
@@ -28,12 +28,12 @@ eqs ∷ Eq b ⇒ (a → b) → a → a → Bool
 eqs = on (≡)
 
 -- | Lists all members of an 'Enum' from 'minBound' to 'maxBound'.
-enums ∷ (Bounded a, Enum a) ⇒ [a]
+enums ∷ Bounded a ⇒ Enum a ⇒ [a]
 enums = [minBound .. maxBound]
 
 -- | Apply the same two arguments to a list of functions and 'and' the result.
 -- Goes well with 'eq', e.g. @andOn [eqs recordFieldA,  recordFieldB]@.
-andOn ∷ (Foldable a, Functor a) ⇒ a (b → b → Bool) → b → b → Bool
+andOn ∷ Foldable a ⇒ Functor a ⇒ a (b → b → Bool) → b → b → Bool
 andOn fs a b = and $ (($ b) ∘ ($ a)) ↤ fs
 
 -- | @Text@ 'T.init' that returns @""@ if given @""@.

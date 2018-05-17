@@ -36,7 +36,7 @@ kidCsS =
         , classes = [Physical, Invisible]
         , cost    = χ [Rand]
         , cd      = 2
-        , effects = [(Self, apply 1 [Parry All 4] • vary 1 0 1)]
+        , effects = [(Self, apply 1 [Parry All $ tag 1] • vary 1 0 1)]
         }
       ]
     , [ newSkill
@@ -50,12 +50,6 @@ kidCsS =
         }
       ]
     , invuln "Shadow Clone Save" "Naruto" [Chakra]
-    , [ newSkill
-        { label   = "Multi Shadow Clone"
-        , classes = [Physical]
-        , effects = [(Enemy, tag 1)]
-        }
-      ]
     ] []
   , Character
     "Sakura Haruno"
@@ -236,7 +230,11 @@ kidCsS =
         , cd      = 2
         , effects = [ (Self, bomb' "Barricaded" (-1) [] 
                              [(Expire, self § gain [Blood])])
-                    , (Ally, apply 1 [Parry All 4])
+                    , (Ally, apply 1 [Parry All 
+                             $ perU "Gigantic Beetle Infestation" 25 damage 25
+                             • remove "Gigantic Beetle Infestation"
+                             • remove "Chakra Leech"
+                             • self § remove "Barricaded"])
                     ]
         }
       ]
@@ -253,17 +251,6 @@ kidCsS =
         }
       ]
     , invuln "Insect Cocoon" "Shino" [Physical]
-    , [ newSkill
-        { label   = "Insect Barricade"
-        , classes = [Melee]
-        , effects = [ (Enemy, perU "Gigantic Beetle Infestation" 25 damage 25
-                            • remove "Gigantic Beetle Infestation"
-                            • remove "Chakra Leech")
-                    , (Ally,  remove "Insect Barricade")
-                    , (Self,  remove "Barricaded")
-                    ]
-        }
-      ]
     ] []
   , Character
     "Hinata Hyūga"
@@ -627,7 +614,7 @@ kidCsS =
         , classes = [Physical, Mental, Invisible]
         , cost    = χ [Blood]
         , effects = [ (Enemies, apply 2 [Expose]) 
-                    , (Self,    apply 1 [Parry All 4])
+                    , (Self,    apply 1 [Parry All $ self § vary 1 2 1])
                     ]
         }
       , newSkill
@@ -641,12 +628,6 @@ kidCsS =
         }
       ]
     , invuln "Byakugan Foresight" "Neji" [Mental]
-    , [ newSkill
-        { label   = "Eight Trigrams Sixty-Four Palms"
-        , classes = [Physical, Mental]
-        , effects = [(Self, vary 1 2 1)]
-        } 
-      ]
     ] []
   , Character
     "Kazekage Gaara"
@@ -674,7 +655,10 @@ kidCsS =
         , classes = [Physical, Invisible, Unreflectable]
         , cost    = χ [Rand]
         , cd      = 2
-        , effects = [(Allies, apply 1 [Parry All 4])]
+        , effects = [(Allies, apply 1 [Parry All 
+                              $ tag 1 
+                              • alliedTeam § defend 0 15 
+                              ° delay (-1) (remove "Concealed Sand Picture")])]
         }
       ]
     , [ newSkill
@@ -688,15 +672,6 @@ kidCsS =
         }
       ]
     , invuln "Levitating Sand Shield" "Gaara" [Physical]
-    , [ newSkill
-        { label   = "Concealed Sand Picture"
-        , classes = [Physical]
-        , effects = [ (Enemy, tag 1)
-                    , (Allies, defend 0 15 
-                             • delay (-1) § remove "Concealed Sand Picture")
-                    ]
-        }
-      ]
     ] []
     , Character
       "Kankurō"
@@ -727,7 +702,7 @@ kidCsS =
           , cost    = χ [Rand]
           , cd      = 5
           , effects = [ (Self,  vary 0 1 1)
-                      , (Enemy, bomb 5 [] 
+                      , (Enemy, bombWith [Invisible] 5 [] 
                                 [(Done, apply' "Kuroari Ambush" 1
                                         [Stun All, Seal, Duel])]) 
                       ]

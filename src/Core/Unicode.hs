@@ -19,13 +19,13 @@ import Data.Sequence (Seq)
 
 -- | 'elem'
 infix 4 ∈
-(∈) ∷ (Foldable a, Eq b) ⇒ b → a b → Bool
+(∈) ∷ Foldable a ⇒ Eq b ⇒ b → a b → Bool
 (∈) = elem
 {-# INLINE (∈) #-}
 
 -- | 'notElem'
 infix 4 ∉
-(∉) ∷ (Foldable a, Eq b) ⇒ b → a b → Bool
+(∉) ∷ Foldable a ⇒ Eq b ⇒ b → a b → Bool
 (∉) = notElem
 {-# INLINE (∉) #-}
 
