@@ -3,12 +3,12 @@
 
 module Game.Characters.Shippuden.Versions (versionCsS) where
 
-import Preludesque
+import StandardLibrary
 import Game.Functions
 import Game.Game
 import Game.Structure
 
-versionCsS ∷ [Character]
+versionCsS :: [Character]
 versionCsS =
   [ Character
     "Nine-Tailed Naruto"
@@ -128,8 +128,8 @@ versionCsS =
         , effects = [ (Enemy,  withI "Sharingan" 10 (execute pierce) 20 
                              • apply 1 [Weaken All 10])
                     , (REnemy, ifI "executed" § withI "Sharingan" 1 
-                               (\i → trapWith TrapTo [Invisible] 
-                                     i OnReflectAll wait) 1)
+                               (\i -> trapWith TrapTo [Invisible] 
+                                     i OnReflectAll identity) 1)
                     ]
         }
       ]
@@ -140,7 +140,7 @@ versionCsS =
         , cost    = χ [Gen]
         , cd      = 4
         , effects = [(Enemy, withI "Sharingan" 1 
-                             (\i → trap i OnReflectAll wait) 1)]
+                             (\i -> trap i OnReflectAll identity) 1)]
         , changes = changeWith "Sharingan" $ setCost [Gen, Gen]
         }
       ]
@@ -215,7 +215,7 @@ versionCsS =
         , effects = [(Enemy, trap 4 OnImmune § removeTrap "Amaterasu"
                                               ° remove "Amaterasu"
                            • perI "Amaterasu" 5 
-                             (\i → bomb 4 [Afflict i] 
+                             (\i -> bomb 4 [Afflict i] 
                                    [(Remove, self § addStack)]) 
                              5)]
         }
@@ -227,7 +227,7 @@ versionCsS =
         , effects = [(Enemy, withI "Yasaka Beads" 20 
                             (perI "Amaterasu" 5 afflict) 10
                            • trap (-1) (OnAction All) § afflict 10
-                           • trap 1 OnHealed ∘ self § tag 1)]
+                           • trap 1 OnHealed . self § tag 1)]
         }
       ]
     , invuln' "Mangekyō Foresight" 
@@ -292,7 +292,7 @@ versionCsS =
         , channel = Control 1
         , start   = [ (Self,  hide' "dna" 1 []
                             • everyone § ifU "DNA Transmission Shadow" kill')
-                    , (XAlly, delay (-1) ∘ ifI "dna" 
+                    , (XAlly, delay (-1) . ifI "dna" 
                             $ factory
                             • apply 0 [Share]
                             • apply 1 [Stun All]
@@ -308,7 +308,7 @@ versionCsS =
         , channel = Control 1
         , start   = [ (Self,  hide' "dna" 1 []
                             • everyone § ifU "DNA Transmission Shadow" kill')
-                    , (XAlly, delay (-1) ∘ ifI "dna" 
+                    , (XAlly, delay (-1) . ifI "dna" 
                             $ factory
                             • apply 0 [Share]
                             • apply 1 [Stun All]
@@ -324,7 +324,7 @@ versionCsS =
         , channel = Control 1
         , start   = [ (Self,  hide' "dna" 1 []
                             • everyone § ifU "DNA Transmission Shadow" kill')
-                    , (XAlly, delay (-1) ∘ ifI "dna" 
+                    , (XAlly, delay (-1) . ifI "dna" 
                             $ factory
                             • apply 0 [Share]
                             • apply 1 [Stun All]
@@ -340,7 +340,7 @@ versionCsS =
         , channel = Control 1
         , start   = [ (Self,  hide' "dna" 1 []
                             • everyone § ifU "DNA Transmission Shadow" kill')
-                    , (XAlly, delay (-1) ∘ ifI "dna" 
+                    , (XAlly, delay (-1) . ifI "dna" 
                             $ factory
                             • apply 0 [Share]
                             • apply 1 [Stun All]
@@ -356,7 +356,7 @@ versionCsS =
         , channel = Control 1
         , start   = [ (Self,  hide' "dna" 1 []
                             • everyone § ifU "DNA Transmission Shadow" kill')
-                    , (XAlly, delay (-1) ∘ ifI "dna" 
+                    , (XAlly, delay (-1) . ifI "dna" 
                             $ factory
                             • apply 0 [Share]
                             • apply 1 [Stun All]

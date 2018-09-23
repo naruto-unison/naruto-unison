@@ -3,12 +3,12 @@
 
 module Game.Characters.Shippuden.Adults (adultCsS) where
 
-import Preludesque
+import StandardLibrary
 import Game.Functions
 import Game.Game
 import Game.Structure
 
-adultCsS ∷ [Character]
+adultCsS :: [Character]
 adultCsS =
   [ Character
     "Kakashi Hatake"

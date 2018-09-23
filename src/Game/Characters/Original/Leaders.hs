@@ -7,7 +7,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-leaderCs ∷ [Character]
+leaderCs :: [Character]
 leaderCs =
   [ Character
     "Jiraiya"

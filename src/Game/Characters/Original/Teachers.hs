@@ -3,12 +3,12 @@
 
 module Game.Characters.Original.Teachers (teacherCs) where
 
-import Preludesque
+import StandardLibrary
 import Game.Functions
 import Game.Game
 import Game.Structure
 
-teacherCs ∷ [Character]
+teacherCs :: [Character]
 teacherCs =
   [ Character
     "Iruka Umino"
@@ -266,7 +266,7 @@ teacherCs =
                     , (Allies,  apply 1 [Reduce All 15])
                     , (Self,    remove "Sharpen Blades")
                     ]
-        , changes = \n skill@Skill{..} → skill
+        , changes = \n skill@Skill{..} -> skill
               { channel = Action 
                         $ getDur channel + numActive "Sharpen Blades" n
               }

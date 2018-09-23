@@ -3,12 +3,12 @@
 
 module Game.Characters.Shippuden.Kids (kidCsS) where
 
-import Preludesque
+import StandardLibrary
 import Game.Functions
 import Game.Game
 import Game.Structure
 
-kidCsS ∷ [Character]
+kidCsS :: [Character]
 kidCsS =
   [ Character
     "Naruto Uzumaki"
@@ -453,7 +453,7 @@ kidCsS =
         , classes = [Mental, Ranged, Invisible, Unreflectable, Unremovable]
         , cost    = χ [Gen]
         , cd      = 1
-        , effects = [(Enemy, trap (-1) (OnCounter Uncounterable) wait
+        , effects = [(Enemy, trap (-1) (OnCounter Uncounterable) identity
                            • bomb (-1) [Copy 1 All 0 False] 
                              [(Done, damage 15)])]
         }
@@ -644,7 +644,7 @@ kidCsS =
                              ° pierce 20
                            • ifnotU "Concealed Sand Picture"
                              § withU "Clinging Sand" 1 
-                               (\i → bomb i [Stun NonMental] 
+                               (\i -> bomb i [Stun NonMental] 
                                      [(Expire, pierce 20)]
                                ) 1)]
         }
@@ -724,7 +724,7 @@ kidCsS =
           , cost    = χ [Rand, Rand, Rand]
           , cd      = 5
           , effects = [ (Self,    defend 0 40 • onBreak 
-                                ∘ everyone § remove "Salamander Shield")
+                                . everyone § remove "Salamander Shield")
                       , (XAllies, apply 0 [Redirect All])
                       ]
           }
@@ -803,7 +803,7 @@ kidCsS =
         , effects = [(Enemy, afflict 20 
                            • ifI "Summoning: Clone Serpent" § interrrupt
                            • perI "Summoning: Clone Serpent" 5
-                             (\i → apply' "Summoning: Clone Serpent" 3 
+                             (\i -> apply' "Summoning: Clone Serpent" 3 
                                    [Afflict i, Plague, Expose]) 
                              0
                            • bomb (-2) [] [(Expire, )])]

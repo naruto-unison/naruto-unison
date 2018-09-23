@@ -6,15 +6,15 @@
 
 module Core.PvE where
 
-import Preludesque
-import GHC.Generics
-import Data.Aeson
-import ClassyPrelude.Yesod (derivePersistField)
+import StandardLibrary
+import GHC.Generics ()
+import Data.Aeson ()
 
 -- * USER FIELDS
 
 data Threshold = Above Int | Below Int | Equals Int
                  deriving (Eq, Show, Read, Generic, FromJSON, ToJSON)
+
 derivePersistField "Threshold"
 
 data Character = PC String | NPC String

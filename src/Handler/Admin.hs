@@ -5,18 +5,17 @@
 -- | Behind-the-scenes utility pages. Requires sufficient 'Privilege'.
 module Handler.Admin (getTestR) where
 
-import Preludesque
+import StandardLibrary
 
-import Yesod
-import Yesod.WebSockets
+import Yesod.WebSockets (webSockets)
 
 import Core.Import
 import Handler.Play
 
 -- | Fails if not logged in or 'userPrivilege' is lower than the argument.
-authorize ∷ Privilege → Handler ()
+authorize :: Privilege -> Handler ()
 authorize privilege = do
-  (_, user) ← requireAuthPair
+  (_, user) <- requireAuthPair
   when (userPrivilege user < privilege) notAuthenticated
 
 -- | Provides a simple JavaScript interface for 'gameSocket'.

@@ -3,12 +3,12 @@
 
 module Game.Characters.Original.Exams (examCs) where
 
-import Preludesque
+import StandardLibrary
 import Game.Functions
 import Game.Game
 import Game.Structure
 
-examCs ∷ [Character]
+examCs :: [Character]
 examCs =
   [ Character
     "Hanabi Hyūga"
@@ -83,8 +83,8 @@ examCs =
         , effects = [ (Enemy, perI "Umbrella" 15 damage 0)
                     , (Self,  remove "Umbrella" • vary 0 0 0)
                     ]
-        , changes = \n skill@Skill{..} → skill 
-              { cost = cost -~ ø { rand = numActive "Umbrella" n } }
+        , changes = \n skill@Skill{..} -> skill 
+              { cost = cost - 0{ rand = numActive "Umbrella" n } }
         }
       ]
     , invuln "Umbrella Shield" "Shigure" [Physical]
@@ -284,7 +284,7 @@ examCs =
         , classes = [Chakra, Melee]
         , cost    = χ [Tai, Rand]
         , effects = [ (Enemy, ifI "Chakra Focus" § steal 1
-                            • apply 2 [ Weaken All 5] • leech 20 § self ∘ heal)
+                            • apply 2 [ Weaken All 5] • leech 20 § self . heal)
                     , (Self, apply 2 [Strengthen All 5])
                     ]
         }
@@ -297,7 +297,7 @@ examCs =
         , cd      = 3
         , channel = Action 3
         , effects = [ (Enemy, ifI "Chakra Focus" § steal 1 
-                            • apply 1 [Weaken All 5] • leech 15 § self ∘ heal)
+                            • apply 1 [Weaken All 5] • leech 15 § self . heal)
                     , (Self,  apply 1 [Strengthen All 5])
                     ]
         }

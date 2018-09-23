@@ -1,6 +1,6 @@
 <!-- Page Contents -->
 
-$if (mcurrentRoute ≡ Just PlayR)
+$if (mcurrentRoute == Just PlayR)
   ^{widget}
 $else
   <header #bannerbg>

@@ -6,6 +6,8 @@ version: "0.0.1"
 #      (UPPER(name))
 
 default-extensions:
+- ExplicitForAll
+- FlexibleContexts
 - LambdaCase
 - MonadComprehensions
 - MultiWayIf
@@ -14,13 +16,15 @@ default-extensions:
 - OverloadedStrings
 - ParallelListComp
 - RecordWildCards
+- ScopedTypeVariables
 - TupleSections
-- UnicodeSyntax
+- TypeFamilies
 - ViewPatterns
+- UnicodeSyntax
 
 dependencies:
 
-- base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
+- base # >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
 
 - yesod
 - yesod-core
@@ -66,6 +70,7 @@ dependencies:
 - hashable
 - mime-mail
 - monad-loops
+- preludeplus
 - random
 - random-shuffle
 - resourcet

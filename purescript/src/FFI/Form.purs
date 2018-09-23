@@ -1,12 +1,9 @@
 module FFI.Form (getForm) where
 
-import Control.Monad.Eff       (Eff)
-import Data.Maybe              (Maybe(..))
-import Data.StrMap             (StrMap)
-import DOM                     (DOM)
+import StandardLibrary
 
-foreign import getForm_ ∷ ∀ a e. (StrMap String → a) → a → String 
-                        → Eff (dom ∷ DOM | e) a
+foreign import getForm_ :: ∀ a. (Map String String -> a) -> a -> String 
+                        -> Effect a
 
-getForm ∷ ∀ e. String → Eff (dom ∷ DOM | e) (Maybe (StrMap String))
+getForm :: String -> Effect (Maybe (Map String String))
 getForm = getForm_ Just Nothing

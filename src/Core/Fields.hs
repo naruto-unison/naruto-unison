@@ -13,46 +13,47 @@ module Core.Fields
     , boardName, boardDesc
     ) where
 
-import Preludesque
-import GHC.Generics
-
-import ClassyPrelude.Yesod (PathPiece(..), derivePersistField)
-import Data.Aeson
-import Data.Text  (Text, pack, unpack)
+import StandardLibrary
 import Text.Read
 
 import Calculus
 
-data Privilege = Normal 
-               | Moderator 
-               | Admin 
-  deriving (Enum, Ord, Bounded, Eq, Show, Read, Generic, FromJSON, ToJSON)
+data Privilege 
+    = Normal 
+    | Moderator 
+    | Admin 
+  deriving (Enum, Ord, Bounded, Eq, Show, Read, Generic, FromJSON)
+instance ToJSON Privilege where
+    toJSON = tagJson
 derivePersistField "Privilege"
 
-data ForumCategory = Official
-                   | Community
-                   | Feedback
-                   | General
-                   deriving (Enum, Bounded, Eq, Show, Read)
+data ForumCategory 
+    = Official
+    | Community
+    | Feedback
+    | General
+    deriving (Enum, Bounded, Eq, Show, Read)
                    
-                -- Official
-data ForumBoard = NewsAndAnnouncements
-                | ForumInfo
-                -- Community
-                | IntroduceYourself
-                -- Feedback
-                | BugReports       
-                | TechnicalSupport 
-                | Suggestions
-                -- General
-                | OffTopic
-                deriving (Enum, Ord, Bounded, Eq, Show, Read)
+
+data ForumBoard 
+    -- Official
+    = NewsAndAnnouncements
+    | ForumInfo
+    -- Community
+    | IntroduceYourself
+    -- Feedback
+    | BugReports       
+    | TechnicalSupport 
+    | Suggestions
+    -- General
+    | OffTopic
+    deriving (Enum, Ord, Bounded, Eq, Show, Read)
 derivePersistField "ForumBoard"
 instance PathPiece ForumBoard where
-  toPathPiece = pack ∘ show
-  fromPathPiece = readMaybe ∘ unpack
+  toPathPiece = pack . show
+  fromPathPiece = readMaybe . unpack
 
-category ∷ ForumBoard → ForumCategory
+category :: ForumBoard -> ForumCategory
 category NewsAndAnnouncements = Official
 category ForumInfo            = Official
 category IntroduceYourself    = Community
@@ -61,7 +62,7 @@ category TechnicalSupport     = Feedback
 category Suggestions          = Feedback
 category OffTopic             = General
 
-boardName ∷ ForumBoard → Text
+boardName :: ForumBoard -> Text
 boardName NewsAndAnnouncements = "News and Announcements"
 boardName ForumInfo            = "Forum Info"
 boardName IntroduceYourself    = "Introduce Yourself"
@@ -70,8 +71,8 @@ boardName TechnicalSupport     = "Technical Support"
 boardName OffTopic             = "Off Topic"
 boardName a = pack $ show a
 
-boardDesc ∷ ForumBoard → Text
-boardDesc = ("Sample description for " ⧺) ∘ (⧺ ".") ∘ boardName
+boardDesc :: ForumBoard -> Text
+boardDesc = ("Sample description for " ++) . (++ ".") . boardName
 
-getBoards ∷ ForumCategory → [ForumBoard]
-getBoards cat = filter ((cat ≡) ∘ category) enums
+getBoards :: ForumCategory -> [ForumBoard]
+getBoards cat = filter ((cat ==) . category) enums

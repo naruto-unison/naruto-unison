@@ -23,7 +23,7 @@
   <p>
     <span .label>Level
     <div .level>
-      <div .levelBg style="width: #{xp ÷ 5000}%;">
+      <div .levelBg style="width: #{quot xp 5000}%;">
       <div .levelText>
         #{level}
   <p>

@@ -3,7 +3,7 @@
 
 module Game.Characters.Original.Kids (kidCs) where
 
-import Preludesque
+import StandardLibrary
 
 import qualified Game.Ninja as N
 
@@ -11,7 +11,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure 
 
-kidCs ∷ [Character]
+kidCs :: [Character]
 kidCs =
   [ Character
     "Naruto Uzumaki"
@@ -374,7 +374,7 @@ kidCs =
         , effects = [(Enemy, damage 45 • ifHealthU 0 20 kill)]
         }
       ]
-    , invuln "Block" "Choji" [Physical] ▷  
+    , invuln "Block" "Choji" [Physical] |>
         newSkill { label   = "Block"
                  , desc    = "Chōji becomes invulnerable for 1 turn. While active, Chōji does not take damage from [Chili Pill]." 
                  , classes = [Physical]
@@ -569,7 +569,7 @@ kidCs =
         , classes = [Physical, Ranged]
         , cost    = χ [Nin, Nin]
         , effects = [(Enemies, killThen 
-                             ∘ self § cancelChannel "Sand Coffin" ° vary 0 0 0)]
+                             . self § cancelChannel "Sand Coffin" ° vary 0 0 0)]
         }
       ]
     , [ newSkill

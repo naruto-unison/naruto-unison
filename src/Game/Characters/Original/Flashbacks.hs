@@ -3,12 +3,12 @@
 
 module Game.Characters.Original.Flashbacks (flashbackCs) where
 
-import Preludesque
+import StandardLibrary
 import Game.Functions
 import Game.Game
 import Game.Structure
 
-flashbackCs ∷ [Character]
+flashbackCs :: [Character]
 flashbackCs =
   [ Character
     "Konohamaru Sarutobi"
@@ -20,7 +20,7 @@ flashbackCs =
         , cost    = χ [Rand]
         , cd      = 4
         , effects = [(Self, vary 3 0 1 • tag 3
-                          • alliedTeam ∘ self § hide 3 [Boost 2])]
+                          • alliedTeam . self § hide 3 [Boost 2])]
         }
       , newSkill 
         { label   = "Unsexy Technique"
@@ -114,7 +114,7 @@ flashbackCs =
         , cost    = χ [Gen, Rand]
         , cd      = 5
         , effects = [(Enemy, tag 4 • trap 4 OnDeath § self kill
-                           • self ∘ trap 4 OnDeath ∘ everyone 
+                           • self . trap 4 OnDeath . everyone 
                              § ifU "Life Link" kill')]
         }
       ]
@@ -182,7 +182,7 @@ flashbackCs =
         , classes = [Physical, Ranged, InvisibleTraps]
         , cost    = χ [Blood]
         , cd      = 1
-        , effects = [ (XAllies, delay 0 ∘ trap 1 (OnAction All) 
+        , effects = [ (XAllies, delay 0 . trap 1 (OnAction All) 
                                 § remove "Space-Time Marking"
                               • bombWith [Invisible] 1 [] 
                                 [(Expire, apply' "Space-Time Marking " 3 []
@@ -218,7 +218,7 @@ flashbackCs =
     , invuln' "Round-Robin Raijen" 
               "Minato and allies affected by [Space-Time Marking] becomes invulnerable for 1 turn." 
             [Chakra] 
-            [alliedTeam ∘ ifU "Space-Time Marking " § apply 1 [Immune All]]
+            [alliedTeam . ifU "Space-Time Marking " § apply 1 [Immune All]]
     ] []
   , Character
     "Young Kakashi"
@@ -250,9 +250,9 @@ flashbackCs =
         , desc    = "Kakashi anticipates an opponent's moves for 2 turns. If they use a skill that removes or steals chakra, Kakashi gains a random chakra. If they use a skill that stuns, Kakashi's skills will stun next turn. If they use a skill that damages, Kakashi's damage will be increased by 10 during the next turn."
         , classes = [Mental, Ranged, InvisibleTraps]
         , cd      = 1
-        , effects = [(Enemy, trap 1 OnChakra ∘ self § gain [Rand]
-                           • trap 1 OnStun   ∘ self § gain [Rand]
-                           • trap 1 OnDamage ∘ self 
+        , effects = [(Enemy, trap 1 OnChakra . self § gain [Rand]
+                           • trap 1 OnStun   . self § gain [Rand]
+                           • trap 1 OnDamage . self 
                              § apply 1 [Strengthen All 10])]
         }
       ]
@@ -327,7 +327,7 @@ flashbackCs =
         , cd      = 4
         , effects = [ (XAlly, tag 4)
                     , (Self,  apply 4 [Reduce All 15]
-                            • trap 4 OnDeath ∘ everyone ∘ ifU "Sharingan" 
+                            • trap 4 OnDeath . everyone . ifU "Sharingan" 
                               § apply' "Borrowed Sharingan" 0
                                 [Reduce All 5, Strengthen NonAffliction 5])
                     ]

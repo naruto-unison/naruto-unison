@@ -7,7 +7,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-familyCsS ∷ [Character]
+familyCsS :: [Character]
 familyCsS =
   [ Character
     "Chiyo"

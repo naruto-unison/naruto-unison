@@ -1,7 +1,6 @@
 // module FFI.Import
 
 "use strict";
-
 exports["bg"]           = bg;
 exports["userTeam"]     = userTeam;
 exports["user'"]        = user;

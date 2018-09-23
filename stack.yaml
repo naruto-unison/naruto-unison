@@ -15,7 +15,7 @@
 # resolver:
 #  name: custom-snapshot
 #  location: "./custom-snapshot.yaml"
-resolver: lts-11.2
+resolver: lts-12.10
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -41,6 +41,8 @@ packages:
 # (e.g., acme-missiles-0.3)
 # extra-deps: [containers-0.5.10.2] # Because lookup and adjust' are way, way better
 
+extra-deps:
+ - preludeplus-0.1.0.3
 # Override default flag values for local packages and extra-deps
 # flags: {}
 

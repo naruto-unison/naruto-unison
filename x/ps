@@ -1,3 +1,2 @@
 cd purescript
-pulp build -- --stash --censor-codes=ImplicitImport,HidingImport
-pulp browserify --optimise --skip-compile --to ../templates/play/ps.julius
+npm run build

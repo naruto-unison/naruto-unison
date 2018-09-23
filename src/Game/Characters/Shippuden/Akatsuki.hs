@@ -3,12 +3,12 @@
 
 module Game.Characters.Shippuden.Akatsuki (akatsukiCsS) where
 
-import Preludesque
+import StandardLibrary
 import Game.Functions
 import Game.Game
 import Game.Structure
 
-akatsukiCsS ∷ [Character]
+akatsukiCsS :: [Character]
 akatsukiCsS = 
   [ Character
     "Kisame Hoshigaki"
@@ -23,7 +23,7 @@ akatsukiCsS =
                           • trapFrom' 0 (OnHarmed All) §
                             ( enemyTeam § hide' "ignored" 0 []
                             • remove "ignored" • tag 0 
-                            • trap' 0 OnDeath ∘ everyone § remove "ignored"
+                            • trap' 0 OnDeath . everyone § remove "ignored"
                             • self § removeTrap "Thousand Hungry Sharks"
                             ))]
         , effects = [ (Enemies, ifnotU "ignored" 
@@ -350,7 +350,7 @@ akatsukiCsS =
                     , (Enemies, delay (-1) 
                                 § ifI "needles at the ready" 
                                   § apply 2 [Afflict 15]
-                              • trap (-1) (OnAction All) ∘ self 
+                              • trap (-1) (OnAction All) . self 
                                 § hide' "needles at the ready" 1 [])
                     ]
         }
@@ -428,7 +428,9 @@ akatsukiCsS =
       ]
     , invuln "Chakra Barrier" "Sasori" [Chakra]
     ] []
-  , Character
+  , let unjet = cancelChannel "Flamethrower Jets" 
+              • everyone § remove "Flame Blast" ° remove "Flamethrower Jets" in
+    Character
     "True Form Sasori"
     "Having invented and perfected the art of human puppetry, Sasori accomplished its ultimate act: transforming himself into a living puppet. His immortal core now resides in an unnaturally youthful simulacrum filled to the brim with tools of slaughter, each of which he switches out for another as soon as he uses it."
     [ [ newSkill
@@ -436,10 +438,8 @@ akatsukiCsS =
         , desc    = "Sasori hooks an enemy with the poison-soaked steel ropes inside his body and pulls himself to them, dealing 5 affliction damage for 3 turns. After use, this skill becomes [Impale][t]. Next turn, the target can only target Sasori or themselves."
         , classes = [Bane, Ranged, Unreflectable]
         , cost    = χ [Rand]
-        , effects = [(Enemy,    apply 3 [Afflict 5] • apply 1 [ Taunt]) 
-                    , (Self,     cancelChannel "Flamethrower Jets" • vary 0 0 1
-                               • everyone § remove "Flame Blast" 
-                                          ° remove "Flamethrower Jets")
+        , effects = [ (Enemy, apply 3 [Afflict 5] • apply 1 [Taunt]) 
+                    , (Self, unjet • vary 0 0 1)
                     ]
         }
       , newSkill
@@ -447,9 +447,7 @@ akatsukiCsS =
         , desc    = "Sasori stabs an enemy with a poison-soaked blade, dealing 15 piercing damage immediately and 5 affliction damage for 2 turns. If the target is affected by [Poisonous Chain Skewer], they become affected by [Complex Toxin], which stuns them after 2 turns. Once used, this skill becomes [Poisonous Chain Skewer]."
         , classes = [Bane, Physical, Melee]
         , cost    = χ [Tai]
-        , effects = [ (Self,  cancelChannel "Flamethrower Jets" • vary 0 0 0
-                            • everyone § remove "Flame Blast" 
-                                      ° remove "Flamethrower Jets")
+        , effects = [ (Self,  unjet • vary 0 0 0)
                     , (Enemy, pierce 15 • apply 2 [Afflict 5] 
                             • ifU "Poisonous Chain Skewer" 
                               § bomb' "Complex Toxin" 2 [] 
@@ -474,10 +472,8 @@ akatsukiCsS =
         , desc    = "Sasori shoots a high-pressure jet of water at an enemy, dealing 20 piercing damage. Deals 10 additional damage if the target is affected by [Flamethrower Jets]. Ends [Flamethrower Jets]. Once used, this skill becomes [Flamethrower Jets]."
         , classes = [Physical, Ranged]
         , cost    = χ [Nin]
-        , effects = [ (Enemy,   withU "Flamethrower Jets" 10 pierce 20) 
-                    , (Self,    cancelChannel "Flamethrower Jets" • vary 0 1 0
-                              • everyone § remove "Flame Blast" 
-                                         ° remove "Flamethrower Jets")
+        , effects = [ (Enemy, withU "Flamethrower Jets" 10 pierce 20) 
+                    , (Self,  unjet • vary 0 1 0)
                     ]
         }
       ]
@@ -487,10 +483,8 @@ akatsukiCsS =
         , classes = [Physical, Single]
         , cost    = χ [Tai, Rand, Rand]
         , cd      = 5
-        , effects = [ (Self,    cancelChannel "Flamethrower Jets" • vary 0 2 1
-                              • defend 0 50 • onBreak § vary 0 2 0
-                              • everyone § remove "Flame Blast" 
-                                         ° remove "Flamethrower Jets")
+        , effects = [ (Self,    unjet • vary 0 2 1
+                              • defend 0 50 • onBreak § vary 0 2 0)
                     , (XAllies, defend 0 25) 
                     ]
         }
@@ -502,9 +496,7 @@ akatsukiCsS =
         , effects = [ (Enemy, damage 30 
                             • bomb' "Complex Toxin" 2 [] 
                                     [(Expire, apply 1 [Stun All])]) 
-                    , (Self,    cancelChannel "Flamethrower Jets"
-                              • everyone § remove "Flame Blast" 
-                                         ° remove "Flamethrower Jets")
+                    , (Self,  unjet)
                     ]
         }
       ]
@@ -565,7 +557,7 @@ akatsukiCsS =
                               $ ifnotU "already" 
                                 § prolong 2 "Summoning: Giant Multi-Headed Dog"
                               • flag' "already"
-                              • alliedTeam ∘ delay (-1) 
+                              • alliedTeam . delay (-1) 
                                 § remove "Summoning: Giant Multi-Headed Dog"])
                     ]
         , effects = [ (Enemies, ifU "Summoning: Giant Multi-Headed Dog" 
@@ -647,9 +639,9 @@ akatsukiCsS =
         , cost    = χ [Gen, Rand]
         , cd      = 1
         , effects = [ (Enemy, ifnotU "Choke Hold" § leech 20 
-                              § self ∘ addDefense "Summoning: King of Hell"
+                              § self . addDefense "Summoning: King of Hell"
                             • ifU "Choke Hold"    § leech 40 
-                              § self ∘ addDefense "Summoning: King of Hell") 
+                              § self . addDefense "Summoning: King of Hell") 
                     ]
         }
       ]
@@ -675,7 +667,7 @@ akatsukiCsS =
         , cost    = χ [Gen, Rand]
         , cd      = 2
         , effects = [(Enemy, steal 1 • apply 1 [ Reveal] 
-                            • leech 20 § self ∘ heal)
+                            • leech 20 § self . heal)
                     ]
         }
       ]
@@ -687,7 +679,7 @@ akatsukiCsS =
         , cost    = χ [Gen, Tai]
         , cd      = 2
         , effects = [(Enemy, steal 1 • apply 1 [ Stun All, Reveal] 
-                            • leech 30 § self ∘ heal
+                            • leech 30 § self . heal
                             • ifHealthU 0 30 kill)
                     ]
         }
@@ -840,7 +832,7 @@ akatsukiCsS =
         , cost    = χ [Tai]
         , cd      = 1
         , effects = [(Enemy, pierce 15
-                           • bar 0 wait' 
+                           • bar 0 identity' 
                              ( ifU "receive" § apply 1 [Stun All] ° flag' "recd" 
                              • remove "receive"
                              • ifnotU "recd" § hide' "receive" 1 []
@@ -883,7 +875,7 @@ akatsukiCsS =
         , effects = [(Self, prolongChannel 2 "Summoning: Gedo Statue"
                           • hide' "dragon" 0 []
                           • ifnotStacks "gedo" 3 § hide' "gedo" 0 [])]
-        , changes = changeWith "Phantom Dragon" $ \_ skill → skill { cost = ø }
+        , changes = changeWith "Phantom Dragon" $ \_ skill -> skill { cost = 0 }
         }
       ] 
     , [ newSkill
@@ -948,7 +940,7 @@ akatsukiCsS =
         , desc    = "Tobi teleports behind an enemy and deals 20 piercing damage to them. Deals 20 additional damage if the target is affected by [Kamui]."
         , classes = [Chakra, Melee]
         , cost    = χ [Gen]
-        , effects = [(Enemy, ifnotU "Kamui" ∘ everyone § remove "Kamui"
+        , effects = [(Enemy, ifnotU "Kamui" . everyone § remove "Kamui"
                            • withU "Kamui" 20 pierce 20)]
         }
       ]

@@ -3,7 +3,7 @@
 
 module Game.Characters.Reanimated (reanimatedCsS) where
 
-import Preludesque
+import StandardLibrary
 
 import qualified Game.Ninja as N
 
@@ -12,7 +12,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-reanimatedCsS ∷ [Character]
+reanimatedCsS :: [Character]
 reanimatedCsS = 
   [ Character
     "Hashirama Senju"
@@ -147,7 +147,7 @@ reanimatedCsS =
                            • ifI "Major Summoning: Ibuse" 
                              § afflict 10 ° apply 1 [Stun All])]
         , changes = changeWith "Major Summoning: Ibuse" 
-                  $ \_ skill → skill { skPic = True }
+                  $ \_ skill -> skill { skPic = True }
         }
       ]
     , [ newSkill
@@ -157,8 +157,8 @@ reanimatedCsS =
         , cost    = χ [Blood]
         , effects = [(Self, trapFrom (-1) (OnHarmed NonMental) 
                           $ apply 0 [Afflict 20]
-                          • ifnotI "Ibuse" ∘ self § apply 0 [Afflict 20]
-                          • ifI "Ibuse" ∘ self 
+                          • ifnotI "Ibuse" . self § apply 0 [Afflict 20]
+                          • ifI "Ibuse" . self 
                             § remove "Major Summoning: Ibuse"
                             ° vary 0 0 0 ° alterCd 0 0 (-2)
                             ° cancelChannel "Poison Fog")]
@@ -197,10 +197,10 @@ reanimatedCsS =
         , classes = [Chakra, Ranged, Bypassing, Unremovable]
         , cost    = χ [Nin, Rand]
         , cd      = 3
-        , effects = [ (Enemy, perHealthU id (\hp → bomb 2 [Duel, Taunt] 
+        , effects = [ (Enemy, perHealthU id (\hp -> bomb 2 [Duel, Taunt] 
                              [(Done, setHealth hp)]) 0
                             • setHealth 30
-                            • self § perHealthU id (\hp → bomb 2 [Duel, Taunt] 
+                            • self § perHealthU id (\hp -> bomb 2 [Duel, Taunt] 
                                                    [(Done, setHealth hp)]) 0
                                    ° setHealth 30)]
         }
@@ -271,10 +271,10 @@ reanimatedCsS =
         , cost    = χ [Nin]
         , charges = 1
         , effects = [ (XAllies, trap 0 OnDeath 
-                              ∘ self § apply 0 [Reduce Affliction 10])
+                              . self § apply 0 [Reduce Affliction 10])
                     , (Self, hide' "finger" 0 [] • perDead 1 
-                             (\i → let f = (apply 0 [Reduce Affliction 10] •) in
-                                   ((i > 0) ? f) ∘ ((i > 1) ? f) $ wait) 0)
+                             (\i -> let f = (apply 0 [Reduce Affliction 10] •) in
+                                   ((i > 0) ? f) . ((i > 1) ? f) $ identity) 0)
                     ]
         }
       ]
@@ -296,11 +296,11 @@ reanimatedCsS =
         , effects = [ (Self,  trap' (-1) OnDamage § alterCd 1 0 (-1))
                     , (Enemy, perI "finger" 5 damage 20 
                             • ifU "Piercing Four-Fingered"
-                            ∘ ifnotU "Aftershocks"
+                            . ifnotU "Aftershocks"
                               § apply 1 [Stun All] ° tag' "Aftershocks" 4
                             )
                     ]
-        , changes = \n skill → skill { desc = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing " ⧺ tshow (20 + 5 * numActive "finger" n) ⧺ " damage. If this skill deals damage, the cooldown of [Strongest Shield] decreases by an additional turn."}
+        , changes = \n skill -> skill { desc = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing " ++ tshow (20 + 5 * numActive "finger" n) ++ " damage. If this skill deals damage, the cooldown of [Strongest Shield] decreases by an additional turn."}
         }
       ]
     , invuln "Dodge" "A" [Physical]
@@ -316,7 +316,7 @@ reanimatedCsS =
         , cd      = 1
         , effects = [(Enemies, damage 10 
                              • withU "Gold Dust Waterfall" 10 
-                               (bar 0 wait' § apply 1 [Exhaust All]) 10)]
+                               (bar 0 identity' § apply 1 [Exhaust All]) 10)]
         }
       ]
     , [ newSkill
@@ -325,7 +325,7 @@ reanimatedCsS =
         , classes = [Physical, Ranged]
         , cost    = χ [Nin, Nin]
         , cd      = 2
-        , effects = [(Enemy, damage 35 • bar 0 wait' wait 30 • tag 1)]
+        , effects = [(Enemy, damage 35 • bar 0 identity' identity 30 • tag 1)]
         }
       ]
     , [ newSkill
@@ -336,7 +336,7 @@ reanimatedCsS =
         , cd      = 2
         , effects = [(Enemy, trap 1 (OnCounter All) 
                              § withU "Gold Dust Waterfall" 20 
-                               (bar 0 wait' wait) 20)]
+                               (bar 0 identity' identity) 20)]
         }
       ]
     , invuln "Gold Dust Shield" "Rasa" [Physical]
@@ -352,7 +352,7 @@ reanimatedCsS =
           , cost    = χ [Rand]
           , cd      = 3
           , effects = [(Enemy, everyone § remove "Rivalry"
-                             • trap (-1) OnCounterAll § apply 0 [Taunt])]
+                             • trap (-1) (OnCounter All) § apply 0 [Taunt])]
           }
         ]
       , [ newSkill
@@ -361,7 +361,7 @@ reanimatedCsS =
           , classes = [Physical, Ranged]
           , cost    = χ [Tai, Rand]
           , effects = [ (Enemy, damage 30 
-                              • ifnotU "Rivalry" ∘ everyone § remove "Rivalry") 
+                              • ifnotU "Rivalry" . everyone § remove "Rivalry") 
                       , (Self,  apply' "Scattered Rock" 0 [])
                       ]
           , changes = changeWith "Earth Dome Prison" $ setCost [Tai]
@@ -374,7 +374,7 @@ reanimatedCsS =
           , cost    = χ [Nin, Rand]
           , effects = [(Enemy, ifnotU "Rivalry" § afflict 20 
                                                 ° everyone (remove "Rivalry")
-                             • ifU    "Rivalry" § leech 20 (self ∘ heal)
+                             • ifU    "Rivalry" § leech 20 (self . heal)
                              • self § tag 1)]
           }
         ]
@@ -385,12 +385,12 @@ reanimatedCsS =
           , classes = [Summon]
           , cost    = χ [Rand, Rand]
           , cd      = 4
-          , effects = [(Self, everyone § remove "Rivalry" 
-                                       ° apply' "Rivalry" 2 [Taunt]                                        
+          , effects = [(Self, enemyTeam § remove "Rivalry" 
+                                        ° apply' "Rivalry" 2 [Taunt]                                        
                             • removeStacks "Scattered Rock" 2
                             • defend 2 35
                             • trapFrom 2 (OnHarmed All) 
-                              § leech 20 (self ∘ heal)
+                              § leech 20 (self . heal)
                               ° self (tag' "Earth Dome Prison" 1)
                             • onBreak
                               ( everyone § remove "Rivalry"
@@ -408,14 +408,14 @@ reanimatedCsS =
         , classes = [Physical, Ranged]
         , cost    = χ [Blood]
         , effects = [(Enemies, pierce 10 
-                             • trapPer (-1) TrackDamaged § \i → 
-                               if | i ≥ 50    → apply 1 [Stun All]
-                                  | otherwise → wait)]
-        , changes = changeWith "Crystal Ice Mirrors" $ \_ skill → skill
+                             • trapPer (-1) TrackDamaged § \i -> 
+                               if | i >= 50    -> apply 1 [Stun All]
+                                  | otherwise -> identity)]
+        , changes = changeWith "Crystal Ice Mirrors" $ \_ skill -> skill
           { effects = [(Enemy, pierce 30
-                             • trapPer (-1) TrackDamaged § \i → 
-                               if | i ≥ 50    → apply 1 [Stun All]
-                                  | otherwise → wait)] }
+                             • trapPer (-1) TrackDamaged § \i -> 
+                               if | i >= 50    -> apply 1 [Stun All]
+                                  | otherwise -> identity)] }
         }
       ]
     , [ newSkill
@@ -441,11 +441,11 @@ reanimatedCsS =
       ]
     , invuln "Ice Dome" "Haku" [Chakra]
     ] 
-    [(PerDamaged, \i n@Ninja{..} → 
+    [(PerDamaged, \i n@Ninja{..} -> 
         let a = isChanneling "Crystal Ice Mirrors" n 
-              ∧ not (hasDefense "Crystal Ice Mirrors" nId n) in
-        if | a → n { nDefense = Defense i nId "Crystal Ice Mirrors" 0 : nDefense }
-           | otherwise → n
+              && not (hasDefense "Crystal Ice Mirrors" nId n) in
+        if | a -> n { nDefense = Defense i nId "Crystal Ice Mirrors" 0 : nDefense }
+           | otherwise -> n
     )]
   , Character
     "Zabuza Momochi"
@@ -469,7 +469,7 @@ reanimatedCsS =
         , classes = [Physical, Melee]
         , cost    = χ [Blood]
         , cd      = 1
-        , effects = [ (Enemy, leech 10 § self ∘ heal)
+        , effects = [ (Enemy, leech 10 § self . heal)
                     , (Self,  defend 0 10 • prolongChannel 1 "Demon Shroud")
                     ]
         }
@@ -497,7 +497,7 @@ reanimatedCsS =
         , effects = [(Enemies, apply' "Electricity" 2 []
                              • ifnotU "electrocuted"
                                § ( trap' 0 (OnAction All) 
-                                 ∘ ifU "Electricity"
+                                 . ifU "Electricity"
                                    $ refresh "Electricity" 
                                    • everyone § ifU "Electricity" (afflict 5)
                                  )
@@ -515,7 +515,7 @@ reanimatedCsS =
                              $ apply' "Electricity" 1 []
                              • ifnotU "electrocuted"
                                § ( trap' 0 (OnAction All) 
-                                 ∘ ifU "Electricity"
+                                 . ifU "Electricity"
                                    $ refresh "Electricity" 
                                    • everyone § ifU "Electricity" (afflict 5)
                                  )
@@ -635,7 +635,7 @@ reanimatedCsS =
                             [(Done, remove "Chakra Weave")]
                           • trap' 4 (OnDamaged All) § hide' "hair" (-1) [])]
         , effects = [(Self, trap 1 OnDamage § apply 0 [Reduce All 5]
-                          • delay (-1) ∘ ifnotI "hair" § heal 10)]
+                          • delay (-1) . ifnotI "hair" § heal 10)]
         }
       ]
     , [ newSkill
@@ -713,9 +713,9 @@ reanimatedCsS =
         , cost    = χ [Gen]
         , effects = [ (Self,  heal 15) 
                     , (Enemy, pierce 20 
-                            • trap 1 OnDamage ∘ self § vary 1 0 1
+                            • trap 1 OnDamage . self § vary 1 0 1
                             • trapPer (-1) TrackDamage § self
-                              ∘ addStacks' (-1) "Human Path")
+                              . addStacks' (-1) "Human Path")
                     ]
         }
       , newSkill
@@ -725,12 +725,12 @@ reanimatedCsS =
         , cost    = χ [Gen, Rand]
         , effects = [ (Self,  perI "Human Path" 1 heal 0) 
                     , (Enemy, perI "Human Path" 1 pierce 0
-                            • trap 1 OnDamage ∘ self § vary 1 0 1
+                            • trap 1 OnDamage . self § vary 1 0 1
                             • trapPer (-1) TrackDamage § self
-                              ∘ addStacks' (-1) "Human Path")
+                              . addStacks' (-1) "Human Path")
                     ]
-        , changes = \n skill → skill 
-            { desc = "Nagato restores " ⧺ tshow (numActive "Human Path" n) ⧺ " health and deals " ⧺ tshow (numActive "Human Path" n) ⧺ " piercing damage to an enemy. If the target deals any damage next turn, the damage and healing of this skill will be set to the damage they dealt for 1 turn and its cost will remain increased." }
+        , changes = \n skill -> skill 
+            { desc = "Nagato restores " ++ tshow (numActive "Human Path" n) ++ " health and deals " ++ tshow (numActive "Human Path" n) ++ " piercing damage to an enemy. If the target deals any damage next turn, the damage and healing of this skill will be set to the damage they dealt for 1 turn and its cost will remain increased." }
         }
       ]
     , [ newSkill
@@ -779,20 +779,20 @@ reanimatedCsS =
         , desc    = "Whenever Nagato deals damage to an enemy, he can use this skill the following turn to damage an enemy for half his damage total from that turn. Whenever Nagato is healed, he can use this skill the following turn to heal himself or an ally for half the amount of health he regained during that turn."
         , classes = [Mental, Multi]
         , cd      = 2
-        , changes = \n skill@Skill{..} → skill 
+        , changes = \n skill@Skill{..} -> skill 
           { effects = (hasOwn "Rinnegan" n 
                     ? ((Enemy, perI "Rinnegan" 1 damage 0):)) 
-                    ∘ (hasOwn "Rinnegan Heal" n 
+                    . (hasOwn "Rinnegan Heal" n 
                     ? ((XAlly, perI "Rinnegan Heal" 1 heal 0):)) 
                     $ [] 
-          , require = if | hasOwn "Rinnegan" n ∨ hasOwn "Rinnegan Heal" n → Usable
-                         | otherwise → Unusable
+          , require = if | hasOwn "Rinnegan" n || hasOwn "Rinnegan Heal" n -> Usable
+                         | otherwise -> Unusable
           } 
         }
       ]
     ] 
-    [ (PerDamage, N.addOwnStacks 1 "Rinnegan"      3 0 ∘ (÷ 2))
-    , (PerHealed, N.addOwnStacks 1 "Rinnegan Heal" 3 0 ∘ (÷ 2))
+    [ (PerDamage, N.addOwnStacks 1 "Rinnegan"      3 0 . (+ 2))
+    , (PerHealed, N.addOwnStacks 1 "Rinnegan Heal" 3 0 . (+ 2))
     ]
   ]
 

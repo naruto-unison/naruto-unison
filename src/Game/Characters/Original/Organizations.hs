@@ -3,12 +3,12 @@
 
 module Game.Characters.Original.Organizations (organizationCs) where
 
-import Preludesque
+import StandardLibrary
 import Game.Functions
 import Game.Game
 import Game.Structure
 
-organizationCs ∷ [Character]
+organizationCs :: [Character]
 organizationCs =
   [ Character
     "Demon Brothers"
@@ -348,7 +348,7 @@ organizationCs =
         , desc    = "Sakon deals 20 affliction damage to an enemy and gains 15 points of damage reduction until the target dies. Cannot be used while active."
         , classes = [Bane, Unreflectable, Unremovable, Single]
         , cost    = χ [Blood, Blood]
-        , effects = [ (Enemy, trap' 0 OnDeath ∘ self § remove "Demon Parasite"
+        , effects = [ (Enemy, trap' 0 OnDeath . self § remove "Demon Parasite"
                             • bomb 0 [Afflict 20]
                               [(Done, self § remove "Demon Parasite")]
                             • self § bomb 0 [Reduce All 15]

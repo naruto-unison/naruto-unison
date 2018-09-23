@@ -1,16 +1,7 @@
-module FFI.Sound (AUDIO, Sound(..), register, sound) where
+module FFI.Sound (Sound(..), register, sound) where
 
-import Prelude
-
-import Control.Monad.Eff       (Eff, kind Effect)
-import Control.Monad.Eff.Class (class MonadEff)
-import Data.Generic.Rep        (class Generic)
-import Data.Generic.Rep.Show   (genericShow)
-import Halogen                 (liftEff)
-
-import Operators
-
-foreign import data AUDIO ∷ Effect
+import StandardLibrary
+import Generic as G
 
 data Sound = SFXApplySkill
            | SFXCancel
@@ -24,18 +15,17 @@ data Sound = SFXApplySkill
            | SFXStartSecond
            | SFXTarget
            | SFXWin
-derive instance genericSound ∷ Generic Sound _
-instance showSound ∷ Show Sound where 
-  show = genericShow
+derive instance genericSound :: G.Generic Sound _
+instance showSound :: Show Sound where 
+  show = G.genericShow
 
-foreign import sound_ ∷ ∀ e. (Sound → String) → Sound 
-                       → Eff (audio ∷ AUDIO | e) Unit
+foreign import sound_ :: (Sound -> String) -> Sound -> Effect Unit
 
-sound ∷ ∀ a e. MonadEff (audio :: AUDIO | e) a ⇒ Sound → a Unit
-sound = liftEff ∘ sound_ show
+sound :: ∀ m. MonadEffect m => Sound -> m Unit
+sound = liftEffect <<< sound_ show
 
-foreign import sfxRegister ∷ ∀ e. (Sound → String) → Array Sound → Eff (e) Unit
-register ∷ ∀ e. Eff (e) Unit
+foreign import sfxRegister :: (Sound -> String) -> Array Sound -> Effect Unit
+register :: Effect Unit
 register = sfxRegister show [ SFXApplySkill
                             , SFXCancel
                             , SFXClick

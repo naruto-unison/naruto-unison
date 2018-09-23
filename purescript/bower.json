@@ -1,16 +1,43 @@
-{
-  "name": "purescript-naruto-unison",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "output"
-  ],
-  "dependencies": {
-    "purescript-prelude": "^3.3.0",
-    "purescript-console": "^3.0.0"
-  },
-  "devDependencies": {
-    "purescript-psci-support": "^3.0.0"
+{ "name": "naruto-unison"
+, "license": "BSD-3-Clause"
+, "repository": 
+  { "type": "git" 
+  , "url": "https://github.com/jnbooth/naruto-unison.git"
+  }
+, "ignore": 
+    [ "**/.*"
+    , "node_modules"
+    , "bower_components"
+    , "output"
+    ]
+, "dependencies": 
+    { "purescript-prelude": "^4.1.0"
+    , "purescript-console": "^4.1.0"
+    , "purescript-halogen": "^4.0.0"
+    , "purescript-effect": "^2.0.0"
+
+    , "purescript-affjax": "^7.0.0"
+    , "purescript-aff-coroutines": "^7.0.0"
+    , "purescript-argonaut": "^4.0.1"
+    , "purescript-argonaut-generic": "^2.0.0"
+    , "purescript-arrays": "^5.0.0"
+    , "purescript-foreign-generic": "^7.0.0"
+    , "purescript-generics-rep": "^6.0.0"
+    , "purescript-globals": "^4.0.0"
+    , "purescript-maybe": "^4.0.0"
+    , "purescript-memoize": "^5.0.0"
+    , "purescript-nonempty": "^5.0.0"
+    , "purescript-profunctor": "^4.0.0"
+    , "purescript-routing": "^8.0.0"
+    , "purescript-strings": "^4.0.0"
+    , "purescript-web-events": "^1.0.0"
+    , "purescript-web-socket": "^1.0.0"
+    , "purescript-web-uievents": "^1.0.0"
+    , "purescript-uuid": "^5.0.0"
+    , "purescript-simple-json": "latest"
+  }
+, "devDependencies": 
+  { "purescript-psci-support": "^4.0.0" 
+  , "purescript-test-unit": "latest"
   }
 }

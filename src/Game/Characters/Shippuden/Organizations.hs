@@ -3,12 +3,12 @@
 
 module Game.Characters.Shippuden.Organizations (organizationCsS) where
 
-import Preludesque
+import StandardLibrary
 import Game.Functions
 import Game.Game
 import Game.Structure
 
-organizationCsS ∷ [Character]
+organizationCsS :: [Character]
 organizationCsS = 
   [ Character
     "Aoba Yamashiro"
@@ -79,9 +79,9 @@ organizationCsS =
         , desc    = "Streams of ink coil in the air around Sai and his allies for 3 turns, obscuring them from enemies and allowing Sai to draw three-dimensionally. If someone on Sai's team is stunned, they become invulnerable for 1 turn. If their chakra is removed or stolen, they gain a random chakra. If an ally receives new non-affliction damage, Sai's damage increases by 10 for 1 turn."
         , classes = [Mental, Multi, Bypassing]
         , cost    = χ [Rand, Rand]
-        , effects = [ (Enemies, trap 3 OnChakra ∘ self § gain [Rand])
+        , effects = [ (Enemies, trap 3 OnChakra . self § gain [Rand])
                     , (Allies, trap 3 (OnStunned Multi) § apply 1 [Immune All] 
-                             • trap 3 (OnDamaged NonAffliction) ∘ self 
+                             • trap 3 (OnDamaged NonAffliction) . self 
                                § apply 1 [Strengthen All 10])
                     , (Self,   vary 3 1 1)
                     ]
