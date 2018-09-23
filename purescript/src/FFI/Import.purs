@@ -60,7 +60,7 @@ makeShortName (Character c) = case c.characterName of
     "Nagato (S)"    -> "Pain"
     "Nagato (R)"    -> "Pain"
     "Shukaku Gaara" -> "Gaara"
-    _  -> fromMaybe (strip c.characterName) $ do
+    _  -> fromMaybe' (\_ -> strip c.characterName) $ do
         skills       <- c.characterSkills !! 3
         Skill {desc} <- head skills
         pure $ strip desc
