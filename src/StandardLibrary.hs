@@ -15,7 +15,7 @@ import Data.List.NonEmpty (NonEmpty(..), (!!), group, groupBy, head, tail, last,
 import Data.Function ((&))
 import Data.HashMap.Strict (HashMap)
 import Data.Sequence ((!?))
-import ClassyPrelude.Yesod hiding (Status, addClass, delete, deleteBy, group, groupBy, (\\), head, tail, last, init, concatMap, catMaybes, (<|), redirect, mapMaybe)
+import ClassyPrelude.Yesod hiding (Status, addClass, delete, deleteBy, group, groupBy, (\\), head, tail, last, init, concatMap, catMaybes, (<|), mapMaybe)
 
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Sequence      as Seq

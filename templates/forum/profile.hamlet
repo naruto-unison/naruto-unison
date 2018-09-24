@@ -1,5 +1,5 @@
 <section>
-  <img .char.avatar.#{userRank user} src=#{userAvatar}>
+  <img .char.avatar src=#{userAvatar}>
   $maybe team <- userTeam
     <div .team>
       $forall name <- team

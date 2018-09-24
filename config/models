@@ -1,4 +1,4 @@
-User json
+User
     ident      Text
     UniqueUser ident
     password   Text      Maybe
@@ -20,13 +20,17 @@ User json
     deriving Typeable
 
 Post
-    author User
+    author UserId
     time   UTCTime
     body   [Text]
+    topic  TopicId
+    deriving Eq
 
 Topic
     board  ForumBoard
-    title  Text
-    author User
+    author UserId
     staff  Bool
-    posts  [Post]
+    title  Text
+    posts  Int
+    time   UTCTime
+    latest UserId

@@ -521,7 +521,7 @@ instance Num Chakras where
         x' = fromInteger x
 
 instance PathPiece Chakras where
-  toPathPiece a     = pack $ show a
+  toPathPiece       = tshow
   fromPathPiece raw = case pieces of
       [b, g, n, t] -> case makeChakras b g n t of
                        Right chakras -> Just chakras

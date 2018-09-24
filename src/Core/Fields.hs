@@ -9,8 +9,7 @@ module Core.Fields
     -- * Forums
     , ForumCategory(..)
     , ForumBoard(..)
-    , getBoards
-    , boardName, boardDesc
+    , boardName, boardDesc, boardCategory
     ) where
 
 import StandardLibrary
@@ -50,17 +49,17 @@ data ForumBoard
     deriving (Enum, Ord, Bounded, Eq, Show, Read)
 derivePersistField "ForumBoard"
 instance PathPiece ForumBoard where
-  toPathPiece = pack . show
+  toPathPiece = tshow
   fromPathPiece = readMaybe . unpack
 
-category :: ForumBoard -> ForumCategory
-category NewsAndAnnouncements = Official
-category ForumInfo            = Official
-category IntroduceYourself    = Community
-category BugReports           = Feedback
-category TechnicalSupport     = Feedback
-category Suggestions          = Feedback
-category OffTopic             = General
+boardCategory :: ForumBoard -> ForumCategory
+boardCategory NewsAndAnnouncements = Official
+boardCategory ForumInfo            = Official
+boardCategory IntroduceYourself    = Community
+boardCategory BugReports           = Feedback
+boardCategory TechnicalSupport     = Feedback
+boardCategory Suggestions          = Feedback
+boardCategory OffTopic             = General
 
 boardName :: ForumBoard -> Text
 boardName NewsAndAnnouncements = "News and Announcements"
@@ -69,10 +68,7 @@ boardName IntroduceYourself    = "Introduce Yourself"
 boardName BugReports           = "Bug Reports"
 boardName TechnicalSupport     = "Technical Support"
 boardName OffTopic             = "Off Topic"
-boardName a = pack $ show a
+boardName a = tshow a
 
 boardDesc :: ForumBoard -> Text
 boardDesc = ("Sample description for " ++) . (++ ".") . boardName
-
-getBoards :: ForumCategory -> [ForumBoard]
-getBoards cat = filter ((cat ==) . category) enums

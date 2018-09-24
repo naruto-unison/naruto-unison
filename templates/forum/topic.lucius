@@ -1,0 +1,48 @@
+.container > section:last-child {
+    margin-bottom: -2em;
+}
+.full {
+    padding: 1em;
+}
+.full textarea {
+    max-height: 10em;
+}
+.time {
+    font-size: 0.9em;
+    display: block;
+    color: #606060;
+}
+.container, article {
+    background-color: #eee !important;
+}
+article {
+    display: flex;
+    border: 1px solid #d3d3d3;
+    margin: 0 -2.5em -1px -2.5em;
+}
+article section {
+    padding: 5px;
+}
+
+article p:first-child {
+    margin-top: 0.1em;
+}
+
+aside {
+    width: 100px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin-right: 10px;
+    box-shadow: 3px 0px 5px #ddd;
+    border-right: 1px solid #ccc;
+}
+
+aside .char {
+    margin: 5px auto;
+}
+
+aside img {
+    width: 60px;
+}

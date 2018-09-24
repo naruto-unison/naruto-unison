@@ -1,0 +1,5 @@
+td:last-child, th:last-child {
+    min-width: 9em;
+    text-align: left;
+    padding-left: 1em;
+}

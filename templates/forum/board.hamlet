@@ -3,28 +3,29 @@
     <h2>#{boardName board}
     <p>#{boardDesc board}
   <table>
-    <tr .heading>
-      <td>
-        <h3>
-          Topic
-          <a>
-            +New
-      <td>
-        Posts
-      <td>
-        Latest
-      $forall Entity topicId topic@Topic{topicTitle, topicAuthor = User{userName}, topicPosts} <- topics
+    <thead>
+      <tr>
+        <th>
+          <h3>
+            Topic
+            <a href=@{NewTopicR board}>+New
+        <th>
+          Posts
+        <th>
+          Latest Post
+    <tbody>
+      $forall topic@Cite{..} <- topics
         <tr>
           <td>
             <header>
               <h4>
-                <a href=@{TopicR topicId}>#{topicTitle}
+                ^{topiclink topic}
               <div>
                 by 
-                <a href=@{ProfileR userName}>
-                  #{userName}
-            <div>#{topicDesc topic}
+                ^{userlink citeAuthor}
           <td>
-            #{length topicPosts}
+            #{topicPosts citeVal}
           <td>
-            --
+            ^{userlink citeLatest}
+            at
+            ^{timestamp $ topicTime citeVal}

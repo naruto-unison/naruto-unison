@@ -7,6 +7,7 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE ConstraintKinds #-}
 
 -- | Yesod foundation. Implemented in 'Application'.
 module Foundation where
@@ -94,7 +95,7 @@ data MenuTypes
 -- Generates the following type synonyms:
 -- type Handler = HandlerT App IO
 -- type Widget = WidgetT App IO ()
-mkYesodData "App" $(parseRoutesFileNoCheck "config/routes") 
+mkYesodData "App" $(parseRoutesFileNoCheck "config/routes")
 
 -- | A convenient synonym for database access functions.
 type DB a = forall (m :: * -> *).
@@ -180,9 +181,13 @@ instance YesodBreadcrumbs App where
   breadcrumb (AuthR _) = return ("Login", Just HomeR)
   breadcrumb ChangelogR = return ("Changelog", Just HomeR)
   breadcrumb ForumsR = return ("Forums", Just HomeR)
-  breadcrumb (BoardR board) = return ("Forum: " ++ boardName board, Just ForumsR)
-  breadcrumb (ProfileR name) = return ("User: " ++ name, Just HomeR)
-  breadcrumb  _ = return ("Home", Nothing)
+  breadcrumb (BoardR board) = return (boardName board, Just ForumsR)
+  breadcrumb (ProfileR name) = return (name, Just HomeR)
+  breadcrumb (NewTopicR board) = return ("New Topic", Just $ BoardR board)
+  breadcrumb (TopicR topic) = do
+      Topic{..} <- runDB $ get404 topic
+      return (topicTitle, Just $ BoardR topicBoard)
+  breadcrumb _ = return ("Home", Nothing)
 
 -- How to run database actions.
 instance YesodPersist App where
@@ -195,6 +200,11 @@ instance YesodPersist App where
 instance YesodPersistRunner App where
     getDBRunner :: Handler (DBRunner App, Handler ())
     getDBRunner = defaultGetDBRunner appConnPool
+
+type AppPersistEntity a = ( PersistEntity a
+                          , PersistRecordBackend a 
+                            (BaseBackend (YesodPersistBackend App))
+                          )
 
 newUser :: Text -> Maybe Text -> User
 newUser ident verkey = User { userIdent      = ident

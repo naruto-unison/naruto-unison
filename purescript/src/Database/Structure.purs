@@ -227,18 +227,19 @@ newtype Status = Status { statusL       :: String
                         , statusDur     :: Int
                         }
 
-data Target = Self
-            | Ally   
-            | Allies 
-            | RAlly  
-            | XAlly  
-            | XAllies 
-            | Enemy   
-            | Enemies 
-            | REnemy  
-            | XEnemies 
-            | Everyone 
-            | Specific Slot
+data Target 
+    = Self
+    | Ally   
+    | Allies 
+    | RAlly  
+    | XAlly  
+    | XAllies 
+    | Enemy   
+    | Enemies 
+    | REnemy  
+    | XEnemies 
+    | Everyone 
+    | Specific Slot
 
 newtype Trap = Trap { trapType    :: TrapType
                     , trapTrigger :: String

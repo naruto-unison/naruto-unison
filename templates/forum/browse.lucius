@@ -1,0 +1,18 @@
+td:first-child, th:first-child {
+    width: 25em !important; /* oh whatever */
+}
+td {
+    vertical-align: bottom;
+    padding-bottom: 1em;
+    position: relative;
+    bottom: 1em;
+}
+td:last-child div:last-child {
+    color: #606060;
+}
+td:first-child, th:first-child, td:last-child, th:last-child {
+    min-width: 9em;
+    text-align: left;
+    padding-left: 1em;
+    position: initial;
+}

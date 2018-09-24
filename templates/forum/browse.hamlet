@@ -2,20 +2,21 @@
   <section>
     <table>
       $forall category <- enums
-        <tr .heading>
-          <td>
+        <tr>
+          <th>
             <h2>#{show category}
-          <td>
+          <th>
             Topics
-          <td>
-            Latest
-        $forall board <- getBoards category
+          <th>
+            Latest Post
+        $forall BoardIndex board size latest <- boards category
           <tr>
             <td>
               <h3>
                 <a href=@{BoardR board}>#{boardName board}
               <div>#{boardDesc board}
             <td>
-              0
+              #{size}
             <td>
-              --
+              $maybe topic <- latest
+                ^{citelink topic}

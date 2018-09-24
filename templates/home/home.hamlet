@@ -52,3 +52,6 @@
 <aside #forums>
   <h2>Recent Activity
   <a .refer href=@{ForumsR}>Go to forums
+    $forall cite@Cite{..} <- topics
+      <p>
+        ^{citelink cite}

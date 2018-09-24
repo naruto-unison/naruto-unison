@@ -42,7 +42,7 @@ module Game.Functions
     -- * 'Trap'
     , classTrs, getPerTraps, getTrackTraps, getTraps, getTrapsFrom, getTrapsTo
     -- * Triggering 'Effect's
-    , copy, counter, parry, reapply, redirect, reflect, snareTrap, triggerSwap
+    , copy, counter, parry, reapply, redir, reflect, snareTrap, triggerSwap
     -- * Usability
     , targetable, usable
     ) where
@@ -753,8 +753,8 @@ reapply classes Ninja{..}
   | otherwise = statusC <$> find ((Reapply `elem`) . statusEfs) nStatuses
 
 -- | Trigger a 'Redirect'.
-redirect :: [Class] -> Ninja -> Maybe Slot
-redirect classes Ninja{..}
+redir :: [Class] -> Ninja -> Maybe Slot
+redir classes Ninja{..}
   | Unreflectable `elem` classes = Nothing
   | otherwise = statusC <$> find (any match . statusEfs) nStatuses
   where 

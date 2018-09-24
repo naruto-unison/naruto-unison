@@ -17,7 +17,7 @@ p {
   padding: 0 0 1em !important;
 }
 .team {
-  margin-top: 3px;
+  margin-top: 2px;
   width: 77px;
   display: flex;
   margin-left: 1px;

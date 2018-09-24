@@ -1,23 +1,17 @@
 <section>
-  <h2>#{topicTitle}
-  <table>
-    $forall Post{postTime, postBody, postAuthor = User{userAvatar, userName}} <- topicPosts
-      <tr>
-        <td>
-          <img .char src=#{userAvatar}>
-          <a href=@{ProfileR userName}>
-        <tr>
-          <td>
-            <header>
-              <h4>
-                <a>#{topicTitle}
-              <div>
-                by 
-                <a href=@{ProfileR userName}>
-                  #{userName}
-              <div>
-                #{show postTime}
-          <td>
-            $forall paragraph <- postBody 
-              <p>
-                #{paragraph}
+    <h2>#{topicTitle}
+  $forall Cite{citeVal = Post{..}, citeAuthor} <- posts
+    <article>
+      <aside>
+        <img .char src=#{userAvatar citeAuthor}>
+        ^{userlink citeAuthor}
+        ^{timestamp postTime}
+      <section>
+        $forall paragraph <- postBody
+          <p>
+            #{paragraph}
+  <article>
+    <aside>
+    <form .full method=post action=@{TopicR topicId} enctype=#{enctype} autocomplete=off>
+        ^{widget}
+        <button>Reply

@@ -527,12 +527,12 @@ wrapEffect affected f skill@Skill{..} src c game t
   | skill `elem` nParrying nt              = game'T
   | not new                           = game'Do
   | is Uncounter nt                   = game'Post
-  | otherwise = case allow Redirected $? redirect classes nt of
-      Just redir -> wrapEffect (Redirected : affected) 
-                   f skill src (tOrC redir) game'Mimic redir
+  | otherwise = case allow Redirected $? redir classes nt of
+      Just red -> wrapEffect (Redirected : affected) 
+                  f skill src (tOrC red) game'Mimic red
       Nothing    -> case allow Redirected $? reapply classes nt of
-        Just redir -> wrapEffect (Redirected : affected) 
-                     f skill src (tOrC redir) game'Shift redir 
+        Just red -> wrapEffect (Redirected : affected) 
+                    f skill src (tOrC red) game'Shift red
         Nothing    -> case allow Countered $? parry skill nt of
           Just (nt', Status{..}, f') -> wrapEffect (Trapped : affected) f' 
                                        statusSkill statusSrc statusSrc 
@@ -580,9 +580,9 @@ wrapEffect affected f skill@Skill{..} src c game t
       | is Silence nSrc = game'Mimic { gameNinjas = onlyDmgNs }
       | otherwise       = game'Do
     allow aff  = harm && not (is AntiCounter n) && aff `notElem` affected
-    tOrC redir 
-      | allied redir t = c
-      | otherwise      = t
+    tOrC red
+      | allied red t = c
+      | otherwise    = t
     setLast n' = n' { nLastSkill = Just skill }
     game'Mimic 
       | new       = fn c setLast . 

@@ -2,6 +2,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE QuasiQuotes #-}
+{-# OPTIONS_GHC -fno-warn-unused-matches #-}
 
 -- | Interface for the PureScript game client.
 module Handler.Site
@@ -13,6 +14,8 @@ import StandardLibrary
 
 import qualified Data.List.NonEmpty  as NonEmpty
 import qualified Data.HashMap.Strict as Map
+
+import qualified Handler.Forum as Forum
 
 import Calculus
 import Core.Import
@@ -82,9 +85,12 @@ getChangelogR = defaultLayout $ do
 
 -- | Renders the main site.
 getHomeR :: Handler Html
-getHomeR = defaultLayout $ do
-    setTitle "Naruto Unison"
-    $(widgetFile "tooltip/tooltip")
-    $(widgetFile "home/home")
+getHomeR = do
+    topics   <- Forum.selectWithAuthors [] [Desc TopicTime, LimitTo 10]
+    citelink <- liftIO Forum.makeCitelink
+    defaultLayout $ do
+        setTitle "Naruto Unison"
+        $(widgetFile "tooltip/tooltip")
+        $(widgetFile "home/home")
   where 
     changelog = getChangelog False

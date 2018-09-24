@@ -6,7 +6,7 @@ $else
   <header #bannerbg>
     <a #banner href=/>
       <img src=/img/logo.png>
-        <span>Naruto Unison
+      <img src=/img/header.png>
     <nav .breadcrumb>
       <ul>
         $forall bc <- parents

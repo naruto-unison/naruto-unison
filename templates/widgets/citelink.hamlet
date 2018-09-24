@@ -1,0 +1,7 @@
+<div>
+  ^{topiclink cite}
+<div>
+  by
+  ^{userlink citeLatest}
+  at
+  ^{timestamp $ topicTime citeVal}
