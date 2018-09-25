@@ -111,6 +111,21 @@ adultCsS =
       ]
     , invuln "Dodge" "Asuma" [Physical]
     ] []
+  {-
+  , Character
+    "Zaji"
+    "A chūnin from the Hidden Leaf Village, Zaji loves to boast about his strength and combat prowess. He doesn't actually have either, but he's a decent sensor. By warning his team of incoming attacks, he can protect them from both light and heavy damage."
+    [ [ newSkill
+        { label   = "Chakra Sense"
+        , desc    = "Zaji extends his senses over the battlefield and detects incoming attacks. For 2 turns, attacks that deal 25 baseline damage or lower will not injure Zaji or his allies."
+        , classes = [Mental]
+        , cost    = χ [Rand]
+        , cd      = 2
+        , effects = [(Allies, apply 2 [Threshold 25])]
+        }
+      ]
+    ] []
+  -}
 {-
   , Character
     "Might Guy"

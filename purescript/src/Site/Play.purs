@@ -56,7 +56,7 @@ data ChakraPair = ChakraPair String Chakras Int Int
 data Zipped = Zipped Character Ninja (Array (Array Int))
 
 input :: ∀ a. PlayQuery -> a -> Maybe (ChildQuery Unit)
-input a = E.input_ $ (QueryPlay a)
+input = E.input_ <<< QueryPlay
 
 mClick :: ∀ e. String -> String -> Boolean -> PlayQuery -> Array 
          (P.IProp (id :: String, "class" :: String, onClick :: MouseEvent | e) 
@@ -324,15 +324,15 @@ renderRands amount random = H.div [_c "randbar"]
     ]
 
 renderAct :: ∀ a. Array Character -> Act -> HTMLQ a
-renderAct cs a'@(Act a) = H.div 
-    [_c "act click", E.onClick <<< input $ Enact Delete a']
-    [ H.img $ [cIcon (getC cs $ skillRoot a.actSkill a.actC) $ show a.actSkill]
-    , H.div [_c "actcost"] <<< hCost $ actCost a'
+renderAct cs x'@(Act x) = H.div 
+    [_c "act click", E.onClick <<< input $ Enact Delete x']
+    [ H.img $ [cIcon (getC cs $ skillRoot x.actSkill x.actC) $ show x.actSkill]
+    , H.div [_c "actcost"] <<< hCost $ actCost x'
     ]
 
 actToggles :: Maybe Act -> Array Int
 actToggles Nothing = []
-actToggles (Just (Act a)) = a.actTs `intersect` skillTarget a.actC a.actSkill
+actToggles (Just (Act x)) = x.actTs `intersect` skillTarget x.actC x.actSkill
 
 renderCharacter :: ∀ a. Array Character -> Array Int -> Maybe Act -> Array Int 
                 -> Chakras -> Boolean -> Boolean -> Zipped -> HTMLQ a

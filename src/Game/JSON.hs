@@ -32,7 +32,7 @@ instance ToJSON Ninja where
         fulfill req@HasI{}
           | matchRequire req nId n = Usable
           | otherwise              = Unusable
-        fulfill a = a
+        fulfill x = x
 
 instance ToJSON Game where
     toJSON Game{..}  = object

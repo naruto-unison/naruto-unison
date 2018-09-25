@@ -126,7 +126,7 @@ class Labeled a where
 
 -- Equality.
 lEq :: ∀ a. Labeled a => a -> a -> Bool
-lEq a b = getL a == getL b && getSrc a == getSrc b
+lEq x y = getL x == getL y && getSrc x == getSrc y
 
 -- Matching.
 lMatch :: ∀ a. Labeled a => Text -> Slot -> a -> Bool
@@ -241,6 +241,7 @@ data Effect
     | Swap       Class           -- ^ Target swaps enemies and allies
     | Taunt                      -- ^ Forced to attack the source
     | Taunting   Int             -- ^ Forced to attack their next target
+    | Threshold  Int             -- ^ Invulnerable to baseline damage below a threhold
     | Throttle (Class -> Effect) Int -- ^ Applying an effect lasts fewer turns
     | Uncounter                  -- ^ Cannot counter or reflect
     | Unexhaust                  -- ^ Decreases chakra costs by 1 random  
@@ -259,17 +260,17 @@ low :: Class -> String
 low = lower . show'
 
 instance Show Effect where
-    show (Afflict a) = "Receives " ++ show a ++ " affliction damage each turn."
+    show (Afflict x) = "Receives " ++ show x ++ " affliction damage each turn."
     show AntiCounter = "Cannot be countered or reflected."
-    show (Bleed clas a)
-      | a >= 0 = show a ++ " additional damage taken from " ++ low clas ++ " skills."
-      | otherwise = "Reduces all " ++ low clas ++  " damage received by " ++ show (-a) ++ "."
-    show (Bless a) = "Healing skills heal an additional " ++ show a ++ " health."
+    show (Bleed clas x)
+      | x >= 0 = show x ++ " additional damage taken from " ++ low clas ++ " skills."
+      | otherwise = "Reduces all " ++ low clas ++  " damage received by " ++ show (-x) ++ "."
+    show (Bless x) = "Healing skills heal an additional " ++ show x ++ " health."
     show Block = "Unable to affect the source of this effect."
-    show (Boost a) = "Active effects from allies are " ++ show a ++ " times as powerful." 
-    show (Build a)
-      | a >= 0     = "Destructible skills provide " ++ show a ++ " additional points of defense."
-      | otherwise =  "Destructible skills provide " ++ show (-a) ++ " fewer points of defense."
+    show (Boost x) = "Active effects from allies are " ++ show x ++ " times as powerful." 
+    show (Build x)
+      | x >= 0     = "Destructible skills provide " ++ show x ++ " additional points of defense."
+      | otherwise =  "Destructible skills provide " ++ show (-x) ++ " fewer points of defense."
     show (Copy _ clas _ _) = show' clas ++ " skills will be temporarily acquired by the source of this effect."
     show (Counter All)  = "Counters the first skill."
     show (Counter clas) = "Counters the first " ++ low clas ++ "skill."
@@ -280,13 +281,13 @@ instance Show Effect where
     show Enrage = "Ignores harmful status effects other than chakra cost changes."
     show (Exhaust clas) = show' clas ++ " skills cost 1 additional random chakra."
     show Expose = "Unable to reduce damage or become invulnerable."
-    show (Heal a) = "Gains " ++ show a ++ " health each turn."
+    show (Heal x) = "Gains " ++ show x ++ " health each turn."
     show (Ignore _) = "Ignores certain effects."
     show (Immune clas) = "Invulnerable to " ++ low clas ++ " skills."
     show ImmuneSelf = "Immune to self-damage."
     show (Invincible clas) = "Harmful " ++ low clas ++ " skills have no effect."
     show Isolate = "Unable to affect others."
-    show (Link a) = "Receives " ++ show a ++ " additional damage from the source of this effect."
+    show (Link x) = "Receives " ++ show x ++ " additional damage from the source of this effect."
     show (Parry All _) = "Counters the first skill."
     show (Parry clas _) = "Counters the first " ++ low clas ++ " skill." 
     show (ParryAll All _) = "Counters all skill."
@@ -294,57 +295,58 @@ instance Show Effect where
     show Pierce = "Non-affliction skills deal piercing damage."
     show Plague = "Cannot be healed or cured."
     show Reapply = "Harmful skills received are also reflected to the source of this effect."
-    show (Reduce Affliction a)
-      | a >= 0     = "Reduces all damage received—including piering and affliction—by " ++ show a ++ "."
-      | otherwise = "Increases all damage received—including piering and affliction—by " ++ show a ++ "."
-    show (Reduce clas a) 
-      | a >= 0     = "Reduces " ++ low clas ++ " damage received by " ++ show a ++ ". Does not affect piercing or affliction damage."
-      | otherwise = "Increases " ++ low clas ++ " damage received by " ++ show (-a) ++ ". Does not affect piercing or affliction damage."
+    show (Reduce Affliction x)
+      | x >= 0     = "Reduces all damage received—including piering and affliction—by " ++ show x ++ "."
+      | otherwise = "Increases all damage received—including piering and affliction—by " ++ show x ++ "."
+    show (Reduce clas x) 
+      | x >= 0     = "Reduces " ++ low clas ++ " damage received by " ++ show x ++ ". Does not affect piercing or affliction damage."
+      | otherwise = "Increases " ++ low clas ++ " damage received by " ++ show (-x) ++ ". Does not affect piercing or affliction damage."
     show (Redirect clas) = "Redirects " ++ low clas  ++ " harmful skills to the source of this effect."
     show Reflect = "Reflects the first harmful non-mental skill."
     show ReflectAll = "Reflects all non-mental skills."
     show Reveal = "Reveals invisible skills to the enemy team. This effect cannot be removed."
     show Restrict = "Skills that normally affect all opponents must be targeted."
-    show (Scale clas a)
-      | a >= 1 = show' clas ++ " damage multiplied by " ++ show a ++ "."
-      | otherwise = show' clas ++ " damage multiplied by " ++ show a ++ ". Does not affect affliction damage."
+    show (Scale clas x)
+      | x >= 1 = show' clas ++ " damage multiplied by " ++ show x ++ "."
+      | otherwise = show' clas ++ " damage multiplied by " ++ show x ++ ". Does not affect affliction damage."
     show Seal = "Immune to effects from allies."
     show Share = "If a harmful non-damage effect is received, it is also applied to the source of this effect."
     show Silence = "Unable to cause non-damage effects."
-    show (Snare a)
-      | a >= 0 = "Cooldowns increased by " ++ show a ++ "."
-      | otherwise = "Cooldowns decreased by " ++ show (-a) ++ "."
+    show (Snare x)
+      | x >= 0 = "Cooldowns increased by " ++ show x ++ "."
+      | otherwise = "Cooldowns decreased by " ++ show (-x) ++ "."
     show (SnareTrap _ _) = "Next skill used will be negated and go on a longer cooldown."
     show (Snapshot _) = "Will be restored to an earlier state when this effect ends."
-    show (Strengthen clas a) = show' clas ++ " damaging skills deal " ++ show a ++ " additional damage."
+    show (Strengthen clas x) = show' clas ++ " damaging skills deal " ++ show x ++ " additional damage."
     show (Stun Affliction) = "Unable to deal affliction damage."
     show (Stun NonAffliction) = "Unable to deal non-affliction damage."
     show (Stun clas) = "Unable to use " ++ low clas ++ " skills."
     show (Swap clas) = "Next " ++ low clas ++ " skill will target allies instead of enemies and enemies instead of allies."
     show Taunt = "Forced to target the source of this effect."
-    show (Taunting a) = "Will be forced to target the next enemy they use a skill on for " ++ show a ++ " turns."
-    show (Throttle _ a) = "Skills will apply " ++ show a ++ " fewer turns of certain effects."
+    show (Taunting x) = "Will be forced to target the next enemy they use a skill on for " ++ show x ++ " turns."
+    show (Threshold x) = "Uninjured by attacks that deal " ++ show x ++ " baseline damage or lower."
+    show (Throttle _ x) = "Skills will apply " ++ show x ++ " fewer turns of certain effects."
     show Uncounter = "Unable to benefit from counters or reflects."
     show Unexhaust = "All skills cost 1 fewer random chakra."
-    show (Unreduce a) = "Damage reduction skills reduce " ++ show a ++ " fewer damage."
-    show (Ward clas a) = "Reduces " ++ low clas ++ " damage received by " ++ show (100 * a) ++ ". Does not affect piercing or affliction damage."
-    show (Weaken clas a) = show' clas ++ " skills deal " ++ show a ++ " fewer damage. Does not affect affliction damage."
+    show (Unreduce x) = "Damage reduction skills reduce " ++ show x ++ " fewer damage."
+    show (Ward clas x) = "Reduces " ++ low clas ++ " damage received by " ++ show (100 * x) ++ ". Does not affect piercing or affliction damage."
+    show (Weaken clas x) = show' clas ++ " skills deal " ++ show x ++ " fewer damage. Does not affect affliction damage."
 instance ToJSON Effect where 
-    toJSON a = object
-      [ "effectDesc"    .= tshow a 
-      , "effectHelpful" .= helpful a
-      , "effectSticky"  .= sticky a 
+    toJSON x = object
+      [ "effectDesc"    .= tshow x 
+      , "effectHelpful" .= helpful x
+      , "effectSticky"  .= sticky x 
       , "effectTrap"    .= False
       ]
 
 helpful :: Effect -> Bool
 helpful Afflict{}    = False
 helpful AntiCounter  = True
-helpful (Bleed _ a)  = a < 0
+helpful (Bleed _ x)  = x < 0
 helpful Bless{}      = True
 helpful Block        = False
 helpful Boost{}      = True
-helpful (Build a)    = a > 0
+helpful (Build x)    = x > 0
 helpful Copy{}       = False
 helpful Counter{}    = True
 helpful CounterAll{} = True
@@ -365,23 +367,24 @@ helpful ParryAll {}  = True
 helpful Pierce       = True
 helpful Plague       = False
 helpful Reapply      = False
-helpful (Reduce _ a) = a > 0
+helpful (Reduce _ x) = x > 0
 helpful Redirect{}   = True
 helpful Reflect      = True
 helpful ReflectAll   = True
 helpful Restrict     = False
 helpful Reveal       = False
-helpful (Scale _ a)  = a >= 1
+helpful (Scale _ x)  = x >= 1
 helpful Seal         = False
 helpful Share        = False
 helpful Silence      = False
 helpful Snapshot{}   = True
-helpful (Snare a)    = a < 0
+helpful (Snare x)    = x < 0
 helpful SnareTrap{}  = False
 helpful Strengthen{} = True
 helpful Stun{}       = False
 helpful Swap{}       = False
 helpful Taunt        = False
+helpful Threshold{}  = True
 helpful Throttle{}   = False
 helpful Taunting{}   = False
 helpful Unreduce{}   = False
@@ -413,16 +416,16 @@ sticky _            = False
 
 -- | Scales the power of an effect.
 boost :: Int -> Effect -> Effect
-boost b (Afflict      a) = Afflict      $ a * b
-boost b (Bleed      c a) = Bleed      c $ a * b
-boost b (Build        a) = Build        $ a * b
-boost b (Heal         a) = Heal         $ a * b
-boost b (Reduce     c a) = Reduce     c $ a * b
-boost b (Snare        a) = Snare        $ a * b
-boost b (Strengthen c a) = Strengthen c $ a * b
-boost b (Unreduce     a) = Unreduce     $ a * b
-boost b (Ward       c a) = Ward       c $ a * toRational b
-boost b (Weaken     c a) = Weaken     c $ a * b
+boost b (Afflict      x) = Afflict      $ x * b
+boost b (Bleed      c x) = Bleed      c $ x * b
+boost b (Build        x) = Build        $ x * b
+boost b (Heal         x) = Heal         $ x * b
+boost b (Reduce     c x) = Reduce     c $ x * b
+boost b (Snare        x) = Snare        $ x * b
+boost b (Strengthen c x) = Strengthen c $ x * b
+boost b (Unreduce     x) = Unreduce     $ x * b
+boost b (Ward       c x) = Ward       c $ x * toRational b
+boost b (Weaken     c x) = Weaken     c $ x * b
 boost _ ef = ef
 
 four0s :: Seq Int -- ^ [0, 0, 0, 0]
@@ -482,7 +485,7 @@ data Barrier = Barrier { barrierAmount :: Int
                        } deriving (Eq, Generic, ToJSON)
 instance TurnBased Barrier where 
     getDur     = barrierDur
-    setDur d a = a { barrierDur = d }
+    setDur d x = x { barrierDur = d }
 instance Labeled Barrier where 
     getL   = barrierL
     getSrc = barrierSrc
@@ -547,7 +550,7 @@ data Channel = Channel { channelRoot  :: Slot
                        } deriving (Eq, Generic, ToJSON)
 instance TurnBased Channel where 
     getDur     = getDur . channelDur
-    setDur d a = a { channelDur = setDur d $ channelDur a }
+    setDur d x = x { channelDur = setDur d $ channelDur x }
 
 -- | Types of channeling for 'Skill's.
 data Channeling = Instant
@@ -577,7 +580,7 @@ data ChannelTag = ChannelTag { tagRoot    :: Slot
                              } deriving (Eq, Generic, ToJSON)
 instance TurnBased ChannelTag where 
     getDur     = tagDur
-    setDur d a = a { tagDur = d }
+    setDur d x = x { tagDur = d }
 instance Labeled ChannelTag where
     getL   = label . tagSkill
     getSrc = tagRoot
@@ -589,7 +592,7 @@ data Character = Character { characterName   :: Text
                            , characterHooks  :: [(Trigger, Int -> Ninja -> Ninja)]
                            } deriving (Generic, ToJSON)
 instance Eq Character where
-  a == b = characterName a == characterName b
+  x == y = characterName x == characterName y
 
 -- | A 'Skill' copied from a different character.
 data Copied = Copied { copiedSkill :: Skill
@@ -597,7 +600,7 @@ data Copied = Copied { copiedSkill :: Skill
                      } deriving (Eq, Generic, ToJSON)
 instance TurnBased Copied where 
     getDur     = copiedDur
-    setDur d a@Copied{..} = a { copiedDur = d
+    setDur d x@Copied{..} = x { copiedDur = d
                               , copiedSkill = f $ copying copiedSkill 
                               }
         where 
@@ -619,7 +622,7 @@ data Defense = Defense { defenseAmount :: Int
                        } deriving (Eq, Generic, ToJSON)
 instance TurnBased Defense where 
     getDur     = defenseDur
-    setDur d a = a { defenseDur = d }
+    setDur d x = x { defenseDur = d }
 instance Labeled Defense where 
     getL   = defenseL
     getSrc = defenseSrc
@@ -632,7 +635,7 @@ data Delay = Delay { delayC     :: Slot
                    } deriving (Eq)
 instance TurnBased Delay where 
     getDur     = delayDur
-    setDur d a = a { delayDur = d }
+    setDur d x = x { delayDur = d }
 instance Labeled Delay where 
     getL   = label . delaySkill
     getSrc = delayC
@@ -644,7 +647,7 @@ data Face = Face { faceIcon :: Text
                  } deriving (Eq, Generic, ToJSON)
 instance TurnBased Face where 
     getDur     = faceDur
-    setDur d a = a { faceDur = d }
+    setDur d x = x { faceDur = d }
 
 -- | Game state.
 data Game = Game { gamePlayers :: (Key User, Key User)
@@ -877,7 +880,7 @@ instance Eq Status where
           [eqs statusL, eqs statusSrc, eqs statusMaxDur, eqs statusClasses]
 instance TurnBased Status where 
     getDur     = statusDur
-    setDur d a = a { statusDur = d }
+    setDur d x = x { statusDur = d }
 instance Labeled Status where
     getL   = statusL
     getSrc = statusSrc
@@ -920,7 +923,7 @@ instance Eq Trap where
            [eqs trapType, eqs trapTrigger, eqs trapL, eqs trapSrc, eqs trapDur]
 instance TurnBased Trap where 
     getDur     = trapDur
-    setDur d a = a { trapDur = d }
+    setDur d x = x { trapDur = d }
 instance Labeled Trap where
     getL   = trapL
     getSrc = trapSrc
@@ -993,7 +996,7 @@ data Variant = Variant { variantV    :: Int -- ^ Index in 'characterSkills'
                        } deriving (Eq, Show, Generic, ToJSON)
 instance TurnBased Variant where 
     getDur        = variantDur
-    setDur a vari = vari { variantDur = a }
+    setDur x vari = vari { variantDur = x }
 variantCD :: Variant -> Int
 variantCD Variant{..}
   | variantVCD = variantV
@@ -1015,22 +1018,22 @@ par = (`mod` 2)
 
 -- ^ Applies a function to the first or second in a pair by parity.
 bySlot :: ∀ a. Slot -> (a -> a) -> (a, a) -> (a, a)
-bySlot (Slot a) = do2 $ even a
+bySlot (Slot x) = do2 $ even x
 -- ^ Obtains the first or second in a pair by parity.
 outSlot :: ∀ a. Slot -> (a, a) -> a
-outSlot (Slot a) = out2 $ even a
+outSlot (Slot x) = out2 $ even x
 -- ^ Inverse of 'outSlot'.
 outSlot' :: ∀ a. Slot -> (a, a) -> a
-outSlot' (Slot a) = out2 $ odd a
+outSlot' (Slot x) = out2 $ odd x
 
 -- ^ Partition by parity.
 spar :: Slot -> Int
-spar (Slot a) = a `mod` 2
+spar (Slot x) = x `mod` 2
 
 allied' :: Int -> Int -> Bool
-allied' a b = even a == even b
+allied' x y = even x == even y
 allied :: Slot -> Slot -> Bool
-allied (Slot a) (Slot b) = allied' a b
+allied (Slot x) (Slot y) = allied' x y
 alliedP :: Player -> Slot -> Bool
 alliedP p (Slot nId) = allied' (fromEnum p) nId
 
@@ -1052,17 +1055,17 @@ allSlots :: [Slot]
 allSlots = Slot <$> [ 0 .. gameSize - 1]
 
 allySlots' :: Int -> [Slot]
-allySlots' a = Slot <$> [ a',  2 + a' .. gameSize - 1]
+allySlots' x = Slot <$> [ x',  2 + x' .. gameSize - 1]
   where 
-    a' = a `mod` 2
+    x' = x `mod` 2
 allySlots :: Slot -> [Slot]
-allySlots (Slot a) = allySlots' a
+allySlots (Slot x) = allySlots' x
 enemySlots' :: Int -> [Slot]
-enemySlots' a = Slot <$> [1 - a', 3 - a' .. gameSize - 1]
+enemySlots' x = Slot <$> [1 - x', 3 - x' .. gameSize - 1]
   where 
-    a' = a `mod` 2
+    x' = x `mod` 2
 enemySlots :: Slot -> [Slot]
-enemySlots (Slot a) = enemySlots' a
+enemySlots (Slot x) = enemySlots' x
 
 opponentSlots :: Player -> [Slot]
 opponentSlots = enemySlots' . fromEnum
@@ -1096,7 +1099,7 @@ choose' (_, r) REnemy   _ _ = maybeToList r
 choose' _      Everyone _ _ = [0 .. gameSize - 1]
 choose' _      XAllies  c _ = delete c [par c, 2 + par c .. gameSize - 1]  
 choose' _      XEnemies c t = delete t [1 - par c, 3 - par c .. gameSize-1]
-choose' _ (Specific (Slot a)) _ _ = [a]
+choose' _ (Specific (Slot x)) _ _ = [x]
 
 -- | Actions of AI in training mode.
 botActs :: [Act]

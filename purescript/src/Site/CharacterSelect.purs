@@ -57,7 +57,7 @@ type State = { queueing   :: Boolean
 
 click :: ∀ a. SelectQuery 
       -> P.IProp (onClick :: MouseEvent | a) (ChildQuery Unit)
-click a = E.onClick <<< E.input_ $ QuerySelect a
+click = E.onClick <<< E.input_ <<< QuerySelect
 
 preview :: ∀ a. Previewing 
         -> P.IProp (onMouseEnter :: MouseEvent | a) (ChildQuery Unit)

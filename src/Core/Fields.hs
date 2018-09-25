@@ -68,7 +68,7 @@ boardName IntroduceYourself    = "Introduce Yourself"
 boardName BugReports           = "Bug Reports"
 boardName TechnicalSupport     = "Technical Support"
 boardName OffTopic             = "Off Topic"
-boardName a = tshow a
+boardName x = tshow x
 
 boardDesc :: ForumBoard -> Text
 boardDesc = ("Sample description for " ++) . (++ ".") . boardName

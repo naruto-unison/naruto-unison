@@ -89,21 +89,21 @@ parseDesc = memoize parseBefore'
       where 
         {before, after} = splitBy (Pattern "[") str
         parseBefore "" "" = []
-        parseBefore "" b  = parseAfter' b
-        parseBefore a ""  = [H.text a]
-        parseBefore a b   = H.text a : parseAfter' b
-        parseAfter' b     = parseAfter before (String.drop 1 after)
+        parseBefore "" y  = parseAfter' y
+        parseBefore x ""  = [H.text x]
+        parseBefore x y   = H.text x : parseAfter' y
+        parseAfter' y     = parseAfter before (String.drop 1 after)
           where 
-            {before, after} = splitBy (Pattern "]") b
+            {before, after} = splitBy (Pattern "]") y
         parseAfter "" ""  = []
-        parseAfter "" b   = parseAfter' b
-        parseAfter b ""  = [H.text b]
-        parseAfter "b" b = H.div [_c "chakra blood"] [] : parseBefore' b
-        parseAfter "g" b = H.div [_c "chakra gen"]   [] : parseBefore' b
-        parseAfter "n" b = H.div [_c "chakra nin"]   [] : parseBefore' b
-        parseAfter "t" b = H.div [_c "chakra tai"]   [] : parseBefore' b
-        parseAfter "r" b = H.div [_c "chakra rand"]  [] : parseBefore' b
-        parseAfter a b   = H.em_ [H.text a] : parseBefore' b
+        parseAfter "" y   = parseAfter' y
+        parseAfter x ""  = [H.text x]
+        parseAfter "b" y = H.div [_c "chakra blood"] [] : parseBefore' y
+        parseAfter "g" y = H.div [_c "chakra gen"]   [] : parseBefore' y
+        parseAfter "n" y = H.div [_c "chakra nin"]   [] : parseBefore' y
+        parseAfter "t" y = H.div [_c "chakra tai"]   [] : parseBefore' y
+        parseAfter "r" y = H.div [_c "chakra rand"]  [] : parseBefore' y
+        parseAfter x y   = H.em_ [H.text x] : parseBefore' y
 
 splitBy :: Pattern -> String -> { before :: String, after :: String }
 splitBy p s = fromMaybe { before: s, after: ""} do
@@ -114,7 +114,7 @@ charName :: ∀ a b. Character -> Array (HTML a b)
 charName = go <<< sillySplit (Pattern " (") <<< show
   where
     sillySplit p s = case String.split p s of
-        [a, b] -> { before: a, after: b  }
+        [x, y] -> { before: x, after: y  }
         _      -> { before: s, after: "" }
     go {before, after} = case after of
         "R)" -> [ H.text before, _minor "ℝ" ]
@@ -124,9 +124,9 @@ charName = go <<< sillySplit (Pattern " (") <<< show
 cIcon :: ∀ a b. Character -> (String -> IProp (src :: String | b) a)
 cIcon = memoize go <<< show 
   where 
-    go characterName a = P.src $
+    go characterName x = P.src $
                          "/img/ninja/" <> shorten characterName <> "/" 
-                         <> shorten' a <> ".jpg"
+                         <> shorten' x <> ".jpg"
     shorten' = shorten <<< 
                String.takeWhile (_ /= String.codePointFromChar '(')
   

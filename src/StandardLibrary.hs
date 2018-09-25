@@ -52,7 +52,7 @@ class Pend a where
     (|>) :: ∀ b. a b -> b -> a b
 instance Pend [] where
     (<|) = (:)
-    a |> b = a <> [b]
+    x |> y = x <> [y]
 instance Pend NonEmpty where
     (<|) = (NonEmpty.<|)
     (x:|xs) |> x' = x :| xs |> x'

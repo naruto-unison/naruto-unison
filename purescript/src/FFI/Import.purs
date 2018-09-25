@@ -48,7 +48,7 @@ groupCs = Map.fromFoldable $ makeKey <$> groupCs'
 user :: Maybe User
 user = parseUser =<< toMaybe user'
   where 
-    parseUser a = case runExcept (G.decode a) of
+    parseUser x = case runExcept (G.decode x) of
                       Right u   -> Just u
                       Left err  -> Nothing
 
@@ -64,8 +64,8 @@ makeShortName (Character c) = case c.characterName of
         Skill {desc} <- head skills
         pure $ strip desc
   where
-    strip a = String.takeWhile (_ /= String.codePointFromChar ' ') $
-                  maybeDo (String.stripPrefix $ Pattern "The") a
+    strip = String.takeWhile (_ /= String.codePointFromChar ' ') <<<
+            maybeDo (String.stripPrefix $ Pattern "The")
 
 shortNames :: Map Character String
 shortNames = Map.fromFoldable $ (identity &&& makeShortName) <$> cs'

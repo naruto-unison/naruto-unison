@@ -91,8 +91,8 @@ consAfter :: ∀ a. a -> Array a -> Array a
 consAfter = flip snoc
 
 unzeroMod :: ∀ a. EuclideanRing a => Eq a => a -> a -> a
-unzeroMod a b = if modded == zero then b else modded
-  where modded = a `mod` b
+unzeroMod x y = if modded == zero then y else modded
+  where modded = x `mod` y
 
 -- | ```
 -- | doIf true  = identity

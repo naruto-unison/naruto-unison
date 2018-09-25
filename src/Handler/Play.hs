@@ -7,9 +7,9 @@ module Handler.Play
 import StandardLibrary
 
 import qualified Data.Aeson.Encoding         as Encoding
-import qualified Data.HashMap.Strict         as HM
+import qualified Data.HashMap.Strict         as Map
 import qualified Data.Text                   as Text
-import qualified STMContainers.Map           as M
+import qualified STMContainers.Map           as STMMap
 import qualified Database.Persist.Postgresql as SQL
 import qualified System.Random               as Random
 import qualified Yesod.WebSockets            as Socket
@@ -60,7 +60,7 @@ getPracticeQueueR :: [Text] -> Handler Value
 getPracticeQueueR team
   | null (drop 2 team) || not (null (drop 3 team)) = 
         invalidArgs ["Wrong number of characters"]
-  | any (not . (`HM.member` cs)) team = invalidArgs ["Unknown character(s)"]
+  | any (not . (`Map.member` cs)) team = invalidArgs ["Unknown character(s)"]
   | otherwise = do
       app        <- getYesod
       (who, _)   <- requireAuthPair
@@ -68,7 +68,7 @@ getPracticeQueueR team
       chakRns    <- Random.randomRs (0, 3) <$> liftIO Random.newStdGen
       let game   = updateChakra PlayerA (take teamSize chakRns) $
                    newGame ns who who
-      liftIO . atomically . M.insert game who $ appPractice app
+      liftIO . atomically . STMMap.insert game who $ appPractice app
       returnJson $ GameInfo who bot PlayerA 0 game
   where 
     oppTeam = ["Naruto Uzumaki", "Tenten", "Sakura Haruno"]
@@ -77,9 +77,9 @@ getPracticeQueueR team
 formTeam :: [Text] -> Maybe [Character]
 formTeam team@[a, b, c]
   | duplic team = Nothing
-  | otherwise   = [[a', b', c'] | a' <- HM.lookup a cs
-                                , b' <- HM.lookup b cs
-                                , c' <- HM.lookup c cs
+  | otherwise   = [[a', b', c'] | a' <- Map.lookup a cs
+                                , b' <- Map.lookup b cs
+                                , c' <- Map.lookup c cs
                                 ]
 formTeam _ = Nothing
 
@@ -194,7 +194,7 @@ getPracticeActR actChakra exchangeChakra actPaths = do
     app      <- getYesod
     (who, _) <- requireAuthPair -- !FAILS!
     let practiceMap = appPractice app
-    mGame    <- liftIO . atomically $ M.lookup who practiceMap -- !FAILS
+    mGame    <- liftIO . atomically $ STMMap.lookup who practiceMap -- !FAILS
     case mGame of 
       Nothing   -> notFound
       Just game -> do
@@ -205,7 +205,7 @@ getPracticeActR actChakra exchangeChakra actPaths = do
             let game'B = runTurn PlayerB botActs stdGen $
                          setGameChakra PlayerB
                          0{ rand = 3, nin = 2, gen = 2, blood = 1 } game'A
-            liftIO . atomically $ M.insert game'B who practiceMap
+            liftIO . atomically $ STMMap.insert game'B who practiceMap
             returnJson [censor PlayerA game'A, censor PlayerA game'B]
   where 
     actions = actFromPath <$> actPaths  

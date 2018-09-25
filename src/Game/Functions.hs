@@ -19,7 +19,8 @@ module Game.Functions
     -- ** Reduction of all 'Effect's on a 'Ninja'
     , getBoost, getBleed, getBless, getBuild, getImmune, getIgnore
     , getInvincible, getLink, getNet, getReduce, getScale, getShare, getSnare
-    , getStrengthen, getStun, getTaunting, getThrottle, getWard, getWeaken
+    , getStrengthen, getStun, getTaunting, getThreshold, getThrottle, getWard
+    , getWeaken
     -- * 'Ninja'
     , alter, getCds
     -- ** Life and death
@@ -143,7 +144,7 @@ filterEffects :: ∀ f.
               => Ninja -> f Effect -> f Effect
 filterEffects n = map adjustEffect . filter keepEffects
   where 
-    adjustEffect (Reduce cla a) = Reduce cla (a - getUnreduce n)
+    adjustEffect (Reduce cla x) = Reduce cla (x - getUnreduce n)
     adjustEffect f              = f
     keepEffects Immune{}        = not $ is Expose n
     keepEffects _               = True
@@ -205,6 +206,9 @@ getUnreduce n = sum [ x | Unreduce x <- nEfs n ]
 -- | 'Strengthen' sum.
 getStrengthen :: [Class] -> Ninja -> Int
 getStrengthen clas n = sum [ x | Strengthen cla x <- nEfs n, cla `elem` clas ]
+-- | 'Threshold' max.
+getThreshold :: Ninja -> Int
+getThreshold n = maximumEx $ 0 :| [x | Threshold x <- nEfs n ]
 -- | 'Weaken' sum.
 getWeaken :: [Class] -> Ninja -> Int
 getWeaken clas n = sum [ x | Weaken cla x <- nEfs n, cla `elem` clas ]
@@ -502,7 +506,7 @@ swapSkill Status{..} skill@Skill{..} = skill { effects = f' <$> effects
                                              , disrupt = f' <$> disrupt
                                              }
   where 
-    f' (a, b)      = (f a, b)
+    f' (x, y)      = (f x, y)
     f Self         = Self
     f Ally         = Specific statusSrc
     f XAlly        = Specific statusSrc
@@ -514,7 +518,7 @@ swapSkill Status{..} skill@Skill{..} = skill { effects = f' <$> effects
     f Enemies      = Allies
     f XEnemies     = XAllies
     f Everyone     = Everyone
-    f (Specific a) = Specific a
+    f (Specific x) = Specific x
 
 -- ** USABILITY
 
@@ -568,7 +572,7 @@ usable n@Ninja{..} s skill@Skill{..}
     isUsable req@HasI{}
       | isNothing s || matchRequire req nId n = Usable
       | otherwise                            = Unusable
-    isUsable a = a
+    isUsable x = x
 
 -- ** REQUIREMENTS
 

@@ -282,8 +282,8 @@ reanimatedCsS =
         , effects = [ (XAllies, trap 0 OnDeath 
                               . self § apply 0 [Reduce Affliction 10])
                     , (Self, hide' "finger" 0 [] • perDead 1 
-                             (\i -> let f = (apply 0 [Reduce Affliction 10] •) in
-                                   ((i > 0) ? f) . ((i > 1) ? f) $ identity) 0)
+                        (\i -> let f = (apply 0 [Reduce Affliction 10] •) 
+                               in ((i > 0) ? f) . ((i > 1) ? f) $ identity) 0)
                     ]
         }
       ]
@@ -451,10 +451,10 @@ reanimatedCsS =
     , invuln "Ice Dome" "Haku" [Chakra]
     ] 
     [(PerDamaged, \i n@Ninja{..} -> 
-        let a = isChanneling "Crystal Ice Mirrors" n 
-              && not (hasDefense "Crystal Ice Mirrors" nId n) in
-        if | a -> n { nDefense = Defense i nId "Crystal Ice Mirrors" 0 : nDefense }
-           | otherwise -> n
+        if | hasDefense "Crystal Ice Mirrors" nId n     -> n
+           | not $ isChanneling "Crystal Ice Mirrors" n -> n
+           | otherwise                                  ->
+              n { nDefense = Defense i nId "Crystal Ice Mirrors" 0 : nDefense }
     )]
   , Character
     "Zabuza Momochi"

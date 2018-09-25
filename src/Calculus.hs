@@ -15,14 +15,14 @@ tagJson x = object ["tag" .= show x]
 
 absmin :: ∀ a. (Ord a, Num a) => a -> a -> a
 absmin _ 0 = 0
-absmin a b
-  | abs a <= abs b = a
-  | otherwise      = b
+absmin x y
+  | abs x <= abs y = x
+  | otherwise      = y
 
 -- | If @False@, turns a 'Maybe' into 'Nothing'.
 ($?) :: ∀ a. Bool -> Maybe a -> Maybe a
 False $? _ = Nothing
-True  $? a = a
+True  $? x = x
 
 -- | Equality by applying a function to both arguments.
 -- Goes well with 'andOn', e.g. @andOn [eqs recordFieldA,  recordFieldB]@.
@@ -36,7 +36,7 @@ enums = [minBound .. maxBound]
 -- | Apply the same two arguments to a list of functions and 'and' the result.
 -- Goes well with 'eq', e.g. @andOn [eqs recordFieldA,  recordFieldB]@.
 andOn :: ∀ f a. (Foldable f, Functor f) => f (a -> a -> Bool) -> a -> a -> Bool 
-andOn fs a b = and $ ($ b) . ($ a) <$> fs
+andOn fs x y = and $ ($ y) . ($ x) <$> fs
 
 -- | @Text@ 'T.init' that returns @""@ if given @""@.
 tInit :: Text -> Text
@@ -66,21 +66,21 @@ out2 False = snd
 
 -- | Sets first if 'True', second if 'False'.
 in2 :: ∀ a. Bool -> a -> (a, a) -> (a, a)
-in2 True  a (_, b) = (a, b)
-in2 False b (a, _) = (a, b)
+in2 True  x (_, y) = (x, y)
+in2 False y (x, _) = (x, y)
 
 -- | Applies a function to first if 'True', second if 'False'.
 do2 :: ∀ a. Bool -> (a -> a) -> (a, a) -> (a, a)
-do2 True  f (a, b) = (f a, b)
-do2 False f (a, b) = (a, f b)
+do2 True  f (x, y) = (f x, y)
+do2 False f (x, y) = (x, f y)
 
 -- | Applies a function to both.
 both :: ∀ a b. (a -> b) -> (a, a) -> (b, b)
-both f (a, b) = (f a, f b)
+both f (x, y) = (f x, f y)
 
 -- | List contains duplicates.
 duplic :: ∀ a. Eq a => [a] -> Bool
-duplic a = nub a /= a
+duplic x = nub x /= x
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text
@@ -103,8 +103,8 @@ pick stdGen xs = (Just $ xs List.!! i, stdGen')
 -- | Left equivalent of 'unfoldr' that ends when it reaches a 'Nothing'.
 {-# INLINE unfoldl #-} 
 unfoldl :: ∀ a. (a -> (a, a)) -> a -> NonEmpty a
-unfoldl f b0 = b <| unfoldl f a
-  where (a, b) = f b0
+unfoldl f b0 = y <| unfoldl f x
+  where (x, y) = f b0
 
 -- | True if any elements are shared by both collections.
 intersects :: ∀ o. (MonoFoldable o, Eq (Element o)) => o -> o -> Bool

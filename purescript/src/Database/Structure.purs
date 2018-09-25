@@ -108,9 +108,9 @@ data Channeling = Instant
 channelingDur :: Channeling -> Int
 channelingDur Instant     = 1
 channelingDur Passive     = 1
-channelingDur (Action a)  = a
-channelingDur (Control a) = a
-channelingDur (Ongoing a) = a
+channelingDur (Action x)  = x
+channelingDur (Control x) = x
+channelingDur (Ongoing x) = x
 
 newtype ChannelTag = ChannelTag { tagRoot  :: Slot
                                 , tagSrc   :: Slot

@@ -14,7 +14,7 @@ teamSlots :: Array Int
 teamSlots = filter ((0 == _) <<< par) allSlots
 
 allied :: Slot -> Slot -> Boolean
-allied a b = par a == par b
+allied x y = par x == par y
 
 unχ :: Chakras -> Array String
 unχ (Chakras x) = replicate x.blood "blood"

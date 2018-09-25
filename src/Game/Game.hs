@@ -144,8 +144,10 @@ runTurn player actions stdGen game = yieldVictor game'Full
   where 
     rs         = unfoldl Random.split stdGen
     rs'        = toList rs
+    -- The game after running player-submitted actions.
     game'Acts  = foldl' (act []) game . zip actions $ Right <$> rs'
     chans      = getAllChannels player game'Acts
+    -- The game after running channeled actions and processing triggers
     game'Chan  = doDeaths .
                  doDelays .
                  doTraps .
@@ -156,24 +158,33 @@ runTurn player actions stdGen game = yieldVictor game'Full
                  turnTrigger player .
                  foldl' (act []) game'Acts . zip chans $ Right <$> rs'
     decrDelays = filter ((0 /=) . getDur) . mapMaybe decrTurn . gameDelays
+    -- The game after concluding the turn and decreasing turn-based effects.
     game'End   = doBombs Done game .
                  doBombs Expire game'Chan $
                  decr game'Chan { gameDelays = decrDelays game'Chan }
     vs         = opponent player
+    -- The game at the start of the next turn.
     game'Next  = updateChakra vs 
                  (take teamSize . Random.randomRs (0, 3) $ head rs) .
                  doDrain (rs !! 1) .
                  doDeaths .
                  doAfflicts player $
                  game'End { gamePlaying = vs }
+    -- A simplified version of the game used as a forecast for upcoming effects.
     game'Clear = game'Next { gameDrain = (0, 0)
                            , gameSteal = (0, 0)
                            , gameTraps = mempty
                            }
+    -- A censored version of the predicted game state. 
+    -- This prevents the forecast from revealing hidden effects to the user.
     game'Futur = censor vs game'Clear
     chansNext  = getAllChannels vs game'Futur
+    -- Hypothetical game state in the following turn if no actions occur.
     game'Ghost = foldl' (act []) game'Futur $
                  zip chansNext $ Right <$> NonEmpty.drop (teamSize * 2) rs  
+    -- Copies tags from the foreecast into the game.
+    -- Tags indicate which Ninjas will be affected by particular Channeled 
+    -- skills in the following round.
     game'Full  = addTags game'Clear game'Ghost
     getChannels n = map (fromChannel n) . filter ((1 /=) . getDur) $
                     nChannels n
@@ -289,6 +300,7 @@ act affected' game'Swap (Act c s t, rando)
     f           = bySlot c (— cost skill)
     n           = gameNinja c game'Swap
     skill'      = getSkill n s
+    -- The game after performing a swap, if there is one.
     (skill, affected'Swap, game) = case triggerSwap (classes skill') n of
         Just swapped -> ( swapSkill swapped skill'
                         , Swapped : affected'
@@ -297,8 +309,10 @@ act affected' game'Swap (Act c s t, rando)
         Nothing   -> (skill', affected', game'Swap)
     oldChakra   = outSlot c $ gameChakra game
     hascharge   = charges skill > 0
+    -- The game with cooldowns updated.
     game'Cd     = updateCd hascharge 0 skill c s game
     affected    = Either.isRight s ? (Channeled :) $ affected'Swap
+    -- The game after running the act.
     game'F      = doEffects affected skill c c t rando game'Cd
     game'       = trigger affected skill c game'Cd .
                   Either.isLeft s ? addChannels (channel skill) c skill t $
@@ -346,13 +360,14 @@ trigger affected Skill{..} c game game'Pre
   | Channeled `elem` affected = game'
   | not (null counttr)   = entrap c counttr $
                            fn c N.unCounter game { gameNinjas = ns'Cp }
-  | otherwise            = game'F
+  | otherwise            = game'Tr
   where 
     n       = gameNinja c game
     n'Pre   = gameNinja c game'Pre
     dmgTot  = sum $ 
               Seq.zipWith healthLost (gameNinjas game) (gameNinjas game'Pre)
     n'      = n'Pre { nTraps = updatePer <$> nTraps n'Pre }
+    -- Game with user's damage/healing tracking updated.
     game'   = setNinja c n' game'Pre
     ns'Cp   = Seq.zipWith cop (gameNinjas game) (gameNinjas game')
     als     = Seq.fromList [ (a, a') | a  <- allies  c game 
@@ -385,12 +400,13 @@ trigger affected Skill{..} c game game'Pre
                             (sync dur) (sync dur)
                   in n'Acted { nStatuses = st' : delete st (nStatuses n')} 
                 _                 -> n'Acted
-    game'T  = setNinja c n'Taunt game' 
-    trapsF  = join $ join
-              [ getTrapsFrom OnDamage n' <$> damaged
-              , getTrapsFrom OnStun   n' <$> stunned
-              , getTrapsFrom OnHarm   n' <$> harmed
-              ] :: Seq (Game -> Game)
+    -- Game with user's flags and taunts updated.
+    game'Fl = setNinja c n'Taunt game' 
+    -- The following traps are applied in order.
+    -- 1) Per-damage traps.
+    trapsP  = getTrackTraps True TrackDamage n'
+            ++ getPerTraps (not $ null dmgEns) PerDamage dmgTot n'
+    -- 2) TrapTos on the user.
     trapsC  = join
               [ counttr
               , getTrapsTo chakraF              OnChakra   n'
@@ -400,7 +416,8 @@ trigger affected Skill{..} c game game'Pre
               , getTrapsTo harmful              OnHarm     n'
               , classTrs (game'Pre /= game)     OnAction   classes n'
               ]
-    trapsN  = join $ join
+    -- 3) Traps on targets.
+    trapsT  = join $ join
               [ getTraps True OnHelped          <$> helped
               , getTraps True OnHealed          <$> healed
               , getTraps True (OnStunned Multi) <$> stunned
@@ -408,11 +425,17 @@ trigger affected Skill{..} c game game'Pre
               , classTrs True OnDamaged classes <$> damaged
               , onStunned                       <$> stunned
               ]
-    trapsP  = getTrackTraps True TrackDamage n'
-            ++ getPerTraps (not $ null dmgEns) PerDamage dmgTot n'
-    game'Tr = entrap c trapsN $
-              entrap c trapsC game'T { gameTraps = gameTraps game'T ++ trapsP }
-    game'F  = foldl' (&) game'Tr trapsF
+    -- 4) TrapFroms on the user.
+    trapsF  = join $ join
+              [ getTrapsFrom OnDamage n' <$> damaged
+              , getTrapsFrom OnStun   n' <$> stunned
+              , getTrapsFrom OnHarm   n' <$> harmed
+              ] :: Seq (Game -> Game)
+    -- Game with Traps applied.
+    game'Tr = flip (foldl' (&)) trapsF . -- 4
+              entrap c trapsT $ -- 3
+              entrap c trapsC -- 2
+              game'Fl { gameTraps = gameTraps game'Fl ++ trapsP } -- 1
     onStunned nt = classTrs True OnStunned (getStun nt) nt
     cop t t' = t { nCopied = nCopied t' }
     was ef (nt, nt') = is' ef nt' && not (is' ef nt)
@@ -579,6 +602,7 @@ wrapEffect affected f skill@Skill{..} src c game t
       | [Applied, Disrupted] `intersects` affected = (nt'T, False)
       | not $ isChanneling label n                 = (nt'T, False)
       | otherwise = (nt'T { nTags = cTag : nTags nt'T }, True)
+    -- Game with channeled actions tagged, if this is a channeled action.
     game'Tag   = fc ? setNinja t nt'C $ game'T
     n          = gameNinja c game'T
     nSrc       = gameNinja src game'T
@@ -1090,14 +1114,15 @@ data Attack
 
 attack :: Attack -> Int -> Transform
 attack _   0  _ _  _     game _ = game
-attack atk hp Skill{..} src c game t
+attack atk dmg Skill{..} src c game t
   | classes' `intersects` getInvincible nt = game
+  | dmg < getThreshold nt             = game
   | not direct && is (Stun class') n = game
-  | hp'tSt <= 0                      = game
-  | atk == AttackAfflict             = tr $ fn t (N.attack hp'tSt) game
-  | atk == Demolish || hp'Def <= 0   = tr $ setNinja t nt'Def game'
-  | hp'Def == 0                      = game'
-  | otherwise = tr $ setNinja t (N.attack hp'Def nt'Def) game'
+  | dmg'tSt <= 0                      = game
+  | atk == AttackAfflict             = tr $ fn t (N.attack dmg'tSt) game
+  | atk == Demolish || dmg'Def <= 0   = tr $ setNinja t nt'Def game'
+  | dmg'Def == 0                      = game'
+  | otherwise = tr $ setNinja t (N.attack dmg'Def nt'Def) game'
   where 
     direct   = Direct `elem` classes
     n        = gameNinja c game
@@ -1106,32 +1131,34 @@ attack atk hp Skill{..} src c game t
         AttackAfflict -> Affliction
         _             -> NonAffliction
     classes' = class' : classes
-    hp'cSt   
-      | direct    = toRational hp
+    -- Damage modified by user's Statuses
+    dmg'cSt   
+      | direct    = toRational dmg
       | otherwise = (getScale classes' n *) . toRational $
-                    hp + getLink src nt + getStrengthen classes' n 
+                    dmg + getLink src nt + getStrengthen classes' n 
     reduces  = atk == AttackDamage && not (is Pierce n) && not (is Expose nt)
     reduced  = (— toRational (getReduce classes' nt)) .
                (* getWard classes' nt)
-    hp'tSt   = truncate .
+    -- Damage modified by target's Statuses
+    dmg'tSt   = truncate .
                 (— toRational (getReduce [Affliction] nt)) .
                 reduces ? reduced .
                 (* getWard [Affliction] nt) .
                 (atk /= AttackAfflict && not direct) ? 
                 (— toRational (getWeaken classes' n)) $
-                hp'cSt + toRational (getBleed classes' nt)
+                dmg'cSt + toRational (getBleed classes' nt)
     damaged = case atk of
-        AttackAfflict -> hp'tSt > 0
-        _             -> hp'Def > 0
+        AttackAfflict -> dmg'tSt > 0
+        _             -> dmg'Def > 0
     tr       = damaged ? entrap c (getTraps True (OnDamaged class') nt)
     game'    
       | direct    = game
       | otherwise = setNinja c n { nBarrier = barrier' } game
     nt'Def   = nt { nDefense = defense' }
-    (hp'Bar, barrier') = absorbBarrier hp'tSt (nBarrier n)
-    (hp'Def, defense') 
-      | direct    = absorbDefense hp'tSt (nDefense nt)
-      | otherwise = absorbDefense hp'Bar (nDefense nt)
+    (dmg'Bar, barrier') = absorbBarrier dmg'tSt (nBarrier n)
+    (dmg'Def, defense') 
+      | direct    = absorbDefense dmg'tSt (nDefense nt)
+      | otherwise = absorbDefense dmg'Bar (nDefense nt)
 
 absorbDefense :: Int -> [Defense] -> (Int, [Defense])
 absorbDefense hp (d@Defense{..} : defs)
@@ -1389,7 +1416,7 @@ applyFull clas bounced statusBombs' l unthrottled fs statusSkill@Skill{copying}
     disr Channel{..} = any (`elem` statusEfs) $ Stun <$> classes channelSkill
     bind Redirect{}   = True
     bind _            = False
-    isDmg (Afflict a) = a > 0
+    isDmg (Afflict x) = x > 0
     isDmg _           = False
 
 applyWith' :: [Class] -> Text -> Int -> [Effect] -> Transform
