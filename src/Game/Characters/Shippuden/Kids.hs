@@ -154,7 +154,7 @@ kidCsS =
         , cd      = 4
         , channel = Action 4
         , start   = [(Self, vary "Man-Beast Clone" "Three-Headed Wolf")]
-        , effects = [(Self, apply 1 [Focus, Reduce All 15])]
+        , effects = [(Self, apply 1 [Ignore Stun, Reduce All 15])]
         }
       , newSkill
         { label   = "Three-Headed Wolf"
@@ -165,7 +165,7 @@ kidCsS =
         , effects = [ (Self, cancelChannel "Man-Beast Clone" 
                            • vary' 3 "Man-Beast Clone" "Giant Rotating Fang"
                            • remove "Man-Beast Clone" 
-                           • apply 3 [Focus, Reduce All 30])
+                           • apply 3 [Ignore Stun, Reduce All 30])
                     ]
         }
       , newSkill

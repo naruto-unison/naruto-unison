@@ -40,7 +40,7 @@ examCs =
         , classes = [Mental]
         , cost    = χ [Rand]
         , cd      = 4
-        , effects = [(Self, apply 2 [Endure, Focus, Strengthen All 5])]
+        , effects = [(Self, apply 2 [Endure, Ignore Stun, Strengthen All 5])]
         }
       ]
     , invuln "Byakugan Foresight" "Hanabi" [Mental]

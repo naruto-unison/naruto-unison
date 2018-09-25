@@ -231,7 +231,7 @@ reanimatedCsS =
         , classes = [Chakra]
         , cost    = χ [Nin]
         , cd      = 4
-        , effects = [(Self, apply 2 [Focus, Ward All 0.5] 
+        , effects = [(Self, apply 2 [Ignore Stun, Ward All 0.5] 
                           • trap 2 OnRes § setHealth 15 
                                          ° remove      "Fragmentation"
                                          ° removeTrap "Fragmentation")]
@@ -466,7 +466,8 @@ reanimatedCsS =
         , cost    = χ [Blood, Rand]
         , cd      = 4
         , channel = Action 2
-        , effects = [ (Self,   apply' "Demon Shroud " 1 [Reduce All 10, Focus]) 
+        , effects = [ (Self,   apply' "Demon Shroud " 1 
+                               [Reduce All 10, Ignore Stun]) 
                     , (REnemy, pierce 30 • tag' "Executioner's Butchering" 1)
                     ]
         }

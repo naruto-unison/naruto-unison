@@ -889,8 +889,8 @@ cureBane = r N.cureBane
 cureStun :: Transform
 cureStun = cure cured
   where 
-    cured (Stun _) = True
-    cured _        = False
+    cured Stun{} = True
+    cured _      = False
 
 -- | 'N.kill'
 kill :: Transform
@@ -1038,9 +1038,9 @@ interrupt _ _ _ game t
     nt   = gameNinja t game
     disr = filter disrupted $ nChannels nt
     nt'  = nt { nChannels = filter (not . disrupted) $ nChannels nt }
-    disrupted Channel {channelDur = (Control _)} = True
-    disrupted Channel {channelDur = (Action _)}  = True
-    disrupted _                                  = False
+    disrupted Channel {channelDur = Control{}} = True
+    disrupted Channel {channelDur = Action{}}  = True
+    disrupted _                                = False
 
 doDisrupt :: Ninja -> Game -> Channel -> Game
 doDisrupt Ninja{..} game Channel{..} = foldl' (flip f) game disr
@@ -1341,12 +1341,12 @@ applyFull :: [Class] -> Bool -> [(Bomb, Transform)] -> Text -> Int -> [Effect]
 applyFull clas bounced statusBombs' l unthrottled fs statusSkill@Skill{copying} 
           statusSrc statusC game t
   | not (null fs) && unthrottled /= 0 && dur == 0 = game
-  | null fs && Shifted `elem` clas             = game
-  | already && (bounced || isSingle)           = game
-  | already && Extending `elem` statusClasses  = setNinja t nt'Extend game
-  | not (null fs) && null statusEfs            = game
-  | not bounced                                = game'Bounce
-  | otherwise                                  = game'Stat
+  | null fs && Shifted `elem` clas                = game
+  | already && (bounced || isSingle)              = game
+  | already && Extending `elem` statusClasses     = setNinja t nt'Extend game
+  | not (null fs) && null statusEfs               = game
+  | not bounced                                   = game'Bounce
+  | otherwise                                     = game'Stat
   where 
     dur      
       | Direct `elem` clas = unthrottled
@@ -1374,9 +1374,9 @@ applyFull clas bounced statusBombs' l unthrottled fs statusSkill@Skill{copying}
                     (selfApplied && any (not . helpful) fs) ? (Unremovable :) $
                     clas ++ classes statusSkill
     disrupted     
-      | is Enrage nt || is Focus nt = []
-      | otherwise                   = filter disr $ nChannels nt
-    disruptCtrl = [ ch | ch@Channel {channelDur = (Control _)} <- disrupted ]
+      | is Enrage nt || Stun All `elem` getIgnore nt = []
+      | otherwise = filter disr $ nChannels nt
+    disruptCtrl   = [ ch | ch@Channel {channelDur = Control{}} <- disrupted ]
     nt'           = nt { nChannels = nChannels nt \\ disruptCtrl }
     game'Disr     = doDisrupts nt' disrupted $ setNinja t nt' game
     game'Interr   = foldl' (disruptAll t statusEfs) game'Disr allSlots
@@ -1387,7 +1387,7 @@ applyFull clas bounced statusBombs' l unthrottled fs statusSkill@Skill{copying}
     bounce        = applyFull [] True statusBombs l dur fs statusSkill 
                     statusSrc statusC
     disr Channel{..} = any (`elem` statusEfs) $ Stun <$> classes channelSkill
-    bind (Redirect _) = True
+    bind Redirect{}   = True
     bind _            = False
     isDmg (Afflict a) = a > 0
     isDmg _           = False

@@ -80,7 +80,7 @@ cureBane n@Ninja{..}
   | is Plague n = n
   | otherwise   = cure cured n { nStatuses = filter uncured nStatuses }
   where 
-    cured (Afflict _)  = True
+    cured Afflict{}    = True
     cured _            = False
     uncured Status{..} = Bane `notElem` statusClasses || nId == statusSrc
 
@@ -115,8 +115,8 @@ decr n@Ninja{..} = case findMatch nStatuses of
   where 
     findMatch          = find match . reverse . concatMap statusEfs .
                          filter ((<= 2) . statusDur)
-    match (Snapshot _) = True
-    match _            = False
+    match Snapshot{} = True
+    match _          = False
     decrTurn' xs = case mapMaybe decrTurn $ toList xs of
         x:xs' -> x :| xs'
         []    -> noVariant :| []
@@ -248,8 +248,8 @@ updateCd False a Skill{..} s n@Ninja{..}
    | cd == 0         = n
    | otherwise      = n { nCooldowns = insertCd s vari cd' nCooldowns }
   where 
-    cd'                  = sync $ cd + 1 + getSnare n + a
-    vari                 = variantCD . head $ nVariants `Seq.index` s
-    copied NotCopied     = False
-    copied (Shallow _ _) = True
-    copied (Deep _ _)    = False
+    cd'              = sync $ cd + 1 + getSnare n + a
+    vari             = variantCD . head $ nVariants `Seq.index` s
+    copied NotCopied = False
+    copied Shallow{} = True
+    copied Deep{}    = False

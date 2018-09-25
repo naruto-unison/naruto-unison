@@ -313,7 +313,7 @@ kidCs =
         , cd      = 1
         , channel = Action 2
         , effects = [ (Enemy, damage 10 • pierce 5)
-                    , (Self,  apply 1 [Focus, Reduce All 15])
+                    , (Self,  apply 1 [Ignore Stun, Reduce All 15])
                     ]
         }
       , newSkill
@@ -341,7 +341,7 @@ kidCs =
         , classes = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , cost    = χ [Rand, Rand]
         , effects = [ (XAllies, apply' "Protected" 0 [Reduce All 15])
-                    , (Self, sacrifice 1 10 • apply 0 [Focus, Afflict 15]
+                    , (Self, sacrifice 1 10 • apply 0 [Ignore Stun, Afflict 15]
                            • loadout 3 • setFace 0)
                     ]
         }
@@ -358,7 +358,7 @@ kidCs =
         , desc    = "Chōji eats the third Akimichi pill and gains so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns."
         , classes = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , effects = [ (XAllies, apply' "Protected" 0 [Reduce All 15])
-                    , (Self, apply 0 [Focus, Afflict 15]
+                    , (Self, apply 0 [Ignore Stun, Afflict 15]
                            • loadout 3 • vary "Block" "Block" • setFace 0)
                     ]
         }

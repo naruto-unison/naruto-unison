@@ -400,7 +400,7 @@ flashbackCs =
         , channel = Ongoing 3
         , start   = [(Enemies, demolish)]
         , effects = [ (REnemy, damage 25) 
-                    , (Allies, apply 1 [Focus])
+                    , (Allies, apply 1 [Ignore Stun])
                     ]
         }
       ]

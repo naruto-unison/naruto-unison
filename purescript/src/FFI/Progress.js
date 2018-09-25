@@ -12,7 +12,13 @@ exports["progress"] = function (duration) {
           prog = new ProgressBar.Line("#ready",
             { color: '#0099ff'
             , fill: '#111'
-          })
+          })        
+        if (from < to) {
+          prog.path.setAttribute('stroke','#555')
+        }
+        else {
+          prog.path.setAttribute('stroke','#0099ff')
+        }
         prog.set(from)
         if (duration > 0)
           prog.animate(to, { duration: duration })

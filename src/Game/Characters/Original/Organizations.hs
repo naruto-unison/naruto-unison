@@ -74,7 +74,7 @@ organizationCs =
         , cost    = χ [Nin]
         , cd      = 1
         , effects = [ (Enemy, apply 1 [Stun All])
-                    , (XAlly, cureStun • apply 1 [Focus])
+                    , (XAlly, cureStun • apply 1 [Ignore Stun])
                     ]
         , changes = changeWith "Crystal Ice Mirrors" targetAll
         }

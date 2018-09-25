@@ -29,7 +29,7 @@ instance ToJSON Ninja where
         ]
       where 
         usable' skill@Skill{..} = skill { require = fulfill require }
-        fulfill req@(HasI _ _) 
+        fulfill req@HasI{}
           | matchRequire req nId n = Usable
           | otherwise              = Unusable
         fulfill a = a
@@ -43,8 +43,9 @@ instance ToJSON Game where
         , "gameTargets" .= gameTargets
         ] 
       where 
-        ns              = toList gameNinjas 
-        gameTargets     = do
+        ns          = toList gameNinjas 
+        gameTargets :: [[[Slot]]]
+        gameTargets = do
             n <- toList gameNinjas
             return $ do
                 skill@Skill{..} <- getSkills n

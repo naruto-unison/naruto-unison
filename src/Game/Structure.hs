@@ -193,6 +193,8 @@ show' a               = show a
 lower :: String -> String
 lower = unpack . Text.toLower . pack
 
+
+
 -- | Effects of 'Status'es.
 data Effect 
     = Afflict    Int             -- ^ Deals damage every turn
@@ -206,17 +208,16 @@ data Effect
     | CounterAll Class           -- ^ 'Counter's without being removed
     | Duel                       -- ^ 'Immune' to everyone but source
     | Endure                     -- ^ Health cannot go below 1
-    | Enrage                     -- ^ Ignore status effects
+    | Enrage                     -- ^ Ignore all harmful status effects
     | Exhaust    Class           -- ^ 'Skill's cost an additional random chakra
     | Expose                     -- ^ Cannot reduce damage or be 'Immune'
-    | Focus                      -- ^ Immune to 'Stun's
     | Heal       Int             -- ^ Heals every turn
+    | Ignore  (Class -> Effect)  -- ^ Immune to certain effects
     | Immune     Class           -- ^ Invulnerable to enemy 'Skill's
     | ImmuneSelf                 -- ^ Immune to self-caused damage
     | Invincible Class           -- ^ Like 'Immune', but targetable
     | Isolate                    -- ^ Unable to affect others
     | Link       Int             -- ^ Increases damage and healing from source
-    | Nullify    Effect          -- ^ Prevents effects from being applied
     | Parry      Class Transform -- ^ 'Counter' and trigger an effect
     | ParryAll   Class Transform -- ^ 'Parry' repeatedly
     | Pierce                     -- ^ Damage skills turn into piercing
@@ -229,7 +230,7 @@ data Effect
     | Restrict                   -- ^ Forces AoE attacks to be single-target
     | Reveal                     -- ^ Makes 'Invisible' effects visible
     | Scale      Class Rational  -- ^ Scales damage dealt
-    | Seal                       -- ^ Immune to friendly 'Skill's
+    | Seal                       -- ^ Ignore all friendly 'Skill's
     | Share                      -- ^ Shares all harmful non-damage effects
     | Silence                    -- ^ Unable to cause non-damage effects
     | Snapshot   Ninja           -- ^ Saves a snapshot of the current state
@@ -279,14 +280,13 @@ instance Show Effect where
     show Enrage = "Ignores harmful status effects other than chakra cost changes."
     show (Exhaust clas) = show' clas ++ " skills cost 1 additional random chakra."
     show Expose = "Unable to reduce damage or become invulnerable."
-    show Focus = "Immune to stuns."
     show (Heal a) = "Gains " ++ show a ++ " health each turn."
+    show (Ignore _) = "Ignores certain effects."
     show (Immune clas) = "Invulnerable to " ++ low clas ++ " skills."
     show ImmuneSelf = "Immune to self-damage."
     show (Invincible clas) = "Harmful " ++ low clas ++ " skills have no effect."
     show Isolate = "Unable to affect others."
     show (Link a) = "Receives " ++ show a ++ " additional damage from the source of this effect."
-    show (Nullify _) = "Protected from certain effects."
     show (Parry All _) = "Counters the first skill."
     show (Parry clas _) = "Counters the first " ++ low clas ++ " skill." 
     show (ParryAll All _) = "Counters all skill."
@@ -338,87 +338,78 @@ instance ToJSON Effect where
       ]
 
 helpful :: Effect -> Bool
-helpful (Afflict _)      = False
-helpful AntiCounter      = True
-helpful (Bleed _ a)      = a < 0
-helpful (Bless _)        = True
-helpful Block            = False
-helpful (Boost _)        = True
-helpful (Build a)        = a > 0
-helpful (Copy _ _ _ _)   = False
-helpful (Counter All)    = True
-helpful (Counter _)      = True
-helpful (CounterAll All) = True
-helpful (CounterAll _)   = True
-helpful Duel             = True
-helpful Endure           = True
-helpful Enrage           = True
-helpful (Exhaust _)      = False
-helpful Expose           = False
-helpful Focus            = True
-helpful (Heal _)         = True
-helpful (Immune _)       = True
-helpful ImmuneSelf       = True
-helpful (Invincible _)   = True
-helpful Isolate          = False
-helpful (Link _)         = False
-helpful (Nullify _)      = False
-helpful (Parry All _)    = False
-helpful (Parry _ _)      = True
-helpful (ParryAll All _) = True
-helpful (ParryAll _ _)   = True
-helpful Pierce           = True
-helpful Plague           = False
-helpful Reapply          = False
-helpful (Reduce _ a)     = a > 0
-helpful (Redirect _)     = True
-helpful Reflect          = True
-helpful ReflectAll       = True
-helpful Restrict         = False
-helpful Reveal           = False
-helpful (Scale _ a)      = a >= 1
-helpful Seal             = False
-helpful Share            = False
-helpful Silence          = False
-helpful (Snapshot _)     = True
-helpful (Snare a)        = a < 0
-helpful (SnareTrap _ _)  = False
-helpful (Strengthen _ _) = True
-helpful (Stun _)         = False
-helpful (Swap _)         = False
-helpful Taunt            = False
-helpful (Throttle _ _)   = False
-helpful (Taunting _)     = False
-helpful (Unreduce _)     = False
-helpful Uncounter        = False
-helpful Unexhaust        = True
-helpful (Ward _ _)       = True
-helpful (Weaken _ _)     = False
+helpful Afflict{}    = False
+helpful AntiCounter  = True
+helpful (Bleed _ a)  = a < 0
+helpful Bless{}      = True
+helpful Block        = False
+helpful Boost{}      = True
+helpful (Build a)    = a > 0
+helpful Copy{}       = False
+helpful Counter{}    = True
+helpful CounterAll{} = True
+helpful Duel         = True
+helpful Endure       = True
+helpful Enrage       = True
+helpful Exhaust{}    = False
+helpful Expose       = False
+helpful Heal{}       = True
+helpful Immune{}     = True
+helpful ImmuneSelf   = True
+helpful Ignore{}     = True
+helpful Invincible{} = True
+helpful Isolate      = False
+helpful Link{}       = False
+helpful Parry{}      = True
+helpful ParryAll {}  = True
+helpful Pierce       = True
+helpful Plague       = False
+helpful Reapply      = False
+helpful (Reduce _ a) = a > 0
+helpful Redirect{}   = True
+helpful Reflect      = True
+helpful ReflectAll   = True
+helpful Restrict     = False
+helpful Reveal       = False
+helpful (Scale _ a)  = a >= 1
+helpful Seal         = False
+helpful Share        = False
+helpful Silence      = False
+helpful Snapshot{}   = True
+helpful (Snare a)    = a < 0
+helpful SnareTrap{}  = False
+helpful Strengthen{} = True
+helpful Stun{}       = False
+helpful Swap{}       = False
+helpful Taunt        = False
+helpful Throttle{}   = False
+helpful Taunting{}   = False
+helpful Unreduce{}   = False
+helpful Uncounter    = False
+helpful Unexhaust    = True
+helpful Ward{}       = True
+helpful Weaken{}     = False
 
 -- | Effect cannot be removed.
 sticky :: Effect -> Bool
-sticky Block            = True
-sticky Copy{..}         = True
-sticky (Counter All)    = True
-sticky (Counter _)      = True
-sticky (CounterAll All) = True
-sticky (CounterAll _)   = True
-sticky Enrage           = True
-sticky (Immune _)       = True
-sticky (Invincible _)   = True
-sticky (Parry All _)    = True
-sticky (Parry _ _)      = True
-sticky (ParryAll All _) = True
-sticky (ParryAll _ _)   = True
-sticky (Redirect _)     = True
-sticky Reapply          = True
-sticky Reflect          = True
-sticky ReflectAll       = True
-sticky Restrict         = True
-sticky Reveal           = True
-sticky (Snapshot _)     = True
-sticky (Swap _)         = True
-sticky _                = False
+sticky Block        = True
+sticky Copy{}       = True
+sticky Counter{}    = True
+sticky CounterAll{} = True
+sticky Enrage       = True
+sticky Immune{}     = True
+sticky Invincible{} = True
+sticky Parry{}      = True
+sticky ParryAll{}   = True
+sticky Redirect{}   = True
+sticky Reapply      = True
+sticky Reflect      = True
+sticky ReflectAll   = True
+sticky Restrict     = True
+sticky Reveal       = True
+sticky Snapshot{}   = True
+sticky Swap{}       = True
+sticky _            = False
 
 -- | Scales the power of an effect.
 boost :: Int -> Effect -> Effect
@@ -459,13 +450,11 @@ instance PathPiece ActPath where
                        Left  _   -> Nothing
       _         -> Nothing
     where 
-      pieces    = Text.splitOn "," raw
-      makeAct c s t = do
-          (c',_) <- Read.decimal c
-          (s',_) <- Read.decimal s
-          (t',_) <- Read.decimal t
-          return $ ActPath c' s' t'
-
+      pieces        = Text.splitOn "," raw
+      makeAct c s t = [ActPath c' s' t' | (c',_) <- Read.decimal c
+                                        , (s',_) <- Read.decimal s
+                                        , (t',_) <- Read.decimal t
+                                        ]
 actFromPath :: ActPath -> Act
 actFromPath ActPath{..} = Act (Slot actPathC) (Left actPathS) (Slot actPathT)
 
@@ -535,12 +524,11 @@ instance PathPiece Chakras where
       _         -> Nothing
     where 
       pieces    = Text.splitOn "," raw
-      makeChakras b g n t = do
-          (b',_) <- Read.decimal b
-          (g',_) <- Read.decimal g
-          (n',_) <- Read.decimal n
-          (t',_) <- Read.decimal t
-          return $ Chakras b' g' n' t' 0
+      makeChakras b g n t = [Chakras b' g' n' t' 0 | (b',_) <- Read.decimal b
+                                                   , (g',_) <- Read.decimal g
+                                                   , (n',_) <- Read.decimal n
+                                                   , (t',_) <- Read.decimal t
+                                                   ]
 
 -- | Types of chakra in 'Chakras'.
 data ChakraType 
@@ -569,16 +557,16 @@ data Channeling = Instant
                 | Ongoing Int
                 deriving (Eq, Show, Generic, ToJSON)
 instance TurnBased Channeling where
-    getDur Instant       = 0
-    getDur Passive       = 0
-    getDur (Action d)    = d
-    getDur (Control d)   = d
-    getDur (Ongoing d)   = d
-    setDur _ Instant     = Instant
-    setDur _ Passive     = Passive
-    setDur d (Action _)  = Action d
-    setDur d (Control _) = Control d
-    setDur d (Ongoing _) = Ongoing d
+    getDur Instant     = 0
+    getDur Passive     = 0
+    getDur (Action d)  = d
+    getDur (Control d) = d
+    getDur (Ongoing d) = d
+    setDur _ Instant   = Instant
+    setDur _ Passive   = Passive
+    setDur d Action{}  = Action d
+    setDur d Control{} = Control d
+    setDur d Ongoing{} = Ongoing d
 
 -- | Indicates that a channeled 'Skill' will affect a 'Ninja' next turn.
 data ChannelTag = ChannelTag { tagRoot    :: Slot

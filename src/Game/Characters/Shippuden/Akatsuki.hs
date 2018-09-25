@@ -361,13 +361,13 @@ akatsukiCsS =
       ]
     , [ newSkill
         { label   = "Defensive Puppeteering"
-        , desc    = "Hiruko swings his tail about to knock back enemies, gaining 10 destructible defense and restoring 10 health for 2 turns. While active, new skills cannot prevent Hiruko from reducing damage or becoming invulnerable."
+        , desc    = "Hiruko swings his tail about to knock back enemies, gaining 10 destructible defense and restoring 10 health for 2 turns. While active, Sasori ignores effects that prevent him from reducing damage or becoming invulnerable."
         , classes = [Physical]
         , cost    = χ [Rand, Rand]
         , channel = Control 2
         , cd      = 3
         , effects = [ (Self, defend 1 10 • heal 10 
-                           • apply 1 [Nullify Expose])]
+                           • apply 1 [Ignore $ const Expose])]
         }
       ]
     , invuln "Tail Block" "Sasori" [Physical]
@@ -667,8 +667,7 @@ akatsukiCsS =
         , desc    = "Pain invades the mind of an enemy, dealing 15 damage. Reveals invisible effects from the target and the target's cooldowns for 1 turn."
         , classes = [Mental, Melee, Unreflectable]
         , cost    = χ [Rand]
-        , effects = [(Enemy, damage 15 • apply 1 [ Reveal])
-                    ]
+        , effects = [(Enemy, damage 15 • apply 1 [ Reveal])]
         }
       ]
     , [ newSkill

@@ -93,7 +93,7 @@ familyCsS =
         }
       , newSkill
         { label   = "Sensory Radar: Collate"
-        , desc    = "Inoichi compiles all the information he has gathered and makes the most of it. For every stack of [Sensory Radar], he gains a random chakra. Ends [Sensory Radar]."
+        , desc    = "Inoichi compiles all the information he has gathered and puts it to use. For every stack of [Sensory Radar], he gains a random chakra. Ends [Sensory Radar]."
         , classes = [Mental, Ranged]
         , cost    = χ [Rand]
         , effects = [ (Enemies, removeTrap "Sensory Radar")

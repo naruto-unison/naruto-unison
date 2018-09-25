@@ -17,9 +17,9 @@ module Game.Functions
     -- * 'Effect'
     , filterEffects
     -- ** Reduction of all 'Effect's on a 'Ninja'
-    , getBoost, getBleed, getBless, getBuild, getImmune, getInvincible, getLink
-    , getNet, getReduce, getScale, getShare, getSnare, getStrengthen, getStun
-    , getTaunting, getThrottle, getWard, getWeaken
+    , getBoost, getBleed, getBless, getBuild, getImmune, getIgnore
+    , getInvincible, getLink, getNet, getReduce, getScale, getShare, getSnare
+    , getStrengthen, getStun, getTaunting, getThrottle, getWard, getWeaken
     -- * 'Ninja'
     , alter, getCds
     -- ** Life and death
@@ -145,7 +145,7 @@ filterEffects n = map adjustEffect . filter keepEffects
   where 
     adjustEffect (Reduce cla a) = Reduce cla (a - getUnreduce n)
     adjustEffect f              = f
-    keepEffects (Immune _)      = not $ is Expose n
+    keepEffects Immune{}        = not $ is Expose n
     keepEffects _               = True
 
 -- ** REDUCING EFFECTS
@@ -173,6 +173,12 @@ getBless n = sum [ x | Bless x <- nEfs n ]
 -- | 'Build' sum.
 getBuild :: Ninja -> Int
 getBuild n = sum [ x | Build x <- nEfs n ]
+-- | 'Ignore's.
+getIgnore :: Ninja -> [Effect]
+getIgnore n = [ f cla | cla        <- enums
+                      , Status{..} <- nStats n
+                      , Ignore f   <- statusEfs
+                      ]
 -- | 'Immune's.
 getImmune :: Ninja -> [Class]
 getImmune n = [ x | Immune x <- nEfs n ]
@@ -188,9 +194,9 @@ getSnare n = sum [ x | Snare x <- nEfs n ]
 -- | 'Stun's.
 getStun :: Ninja -> [Class]
 getStun n = [ x | Stun x <- nEfs n ]
--- | 'Throttle' sum.ad
+-- | 'Throttle' sum.
 getThrottle :: [Effect] -> Ninja -> Int
-getThrottle efs n = sum [ x | Throttle ef x <- nEfs n, throttled ef ]
+getThrottle efs n = sum [ x | Throttle f x <- nEfs n, throttled f ]
   where
     throttled = intersects efs . flip map enums
 -- | 'Unreduce' sum.
@@ -295,8 +301,8 @@ getCds :: Ninja -> Seq Int
 getCds Ninja{..} = Seq.zipWith copyCd nCopied $
                    Seq.zipWith getCd (head <$> nVariants) nCooldowns
   where 
-    isShallow (Shallow _ _) = True
-    isShallow _             = False
+    isShallow Shallow{} = True
+    isShallow _         = False
     copyCd (Just copied) 
         | isShallow . copying $ copiedSkill copied = const 0
     copyCd _ = id
@@ -537,9 +543,9 @@ targetable Skill{..} nSrc n nt
     notIn a xs = not (null xs) && a `notElem` xs
 
 noInterrupt :: Channeling -> Bool
-noInterrupt Passive     = True
-noInterrupt (Ongoing _) = True
-noInterrupt _           = False
+noInterrupt Passive   = True
+noInterrupt Ongoing{} = True
+noInterrupt _         = False
 
 usable :: Ninja 
        -> Maybe Int -- ^ Index in 'characterSkills'
@@ -547,7 +553,6 @@ usable :: Ninja
 usable n@Ninja{..} s skill@Skill{..}
   | charges > 0 && maybe False (>= charges) (s >>= (nCharges !?)) = unusable
   | maybe False (>0) $ s >>= (getCds n !?) = unusable
-  | is Focus n                             = skill'
   | isNothing s && noInterrupt channel     = skill'
   | classes `intersects` getStun n         = unusable
   | isNothing s                            = skill'
@@ -558,9 +563,9 @@ usable n@Ninja{..} s skill@Skill{..}
   | hasTrap label nId n                    = unusable
   | otherwise                              = skill'
   where 
-    unusable    = skill { require = Unusable }
-    skill'      = skill { require = isUsable require }
-    isUsable req@(HasI _ _) 
+    unusable = skill { require = Unusable }
+    skill'   = skill { require = isUsable require }
+    isUsable req@HasI{}
       | isNothing s || matchRequire req nId n = Usable
       | otherwise                            = Unusable
     isUsable a = a
@@ -603,7 +608,12 @@ deleteStats i predic xs = case find predic xs of
                delete x xs
 
 nEfs :: Ninja -> [Effect]
-nEfs Ninja{..} = [ ef | st <- nStatuses, ef <- statusEfs $ unfoldStat st ]
+nEfs n@Ninja{..} = [ ef | st <- nStatuses
+                        , ef <- statusEfs $ unfoldStat st 
+                        , ef `notElem` ignore
+                        ]
+  where
+    ignore = getIgnore n
 
 nStats :: Ninja -> [Status]
 nStats n@Ninja{..} = unfoldStat . getStat n <$> nStatuses
@@ -614,16 +624,15 @@ getStat n@Ninja{..} st = st' { statusEfs = bst }
     bst  = map (boost (getBoost (statusSrc st) n)) . filter keep $ statusEfs st'
     st'  = rawStat n st
     efs  = concatMap (statusEfs . rawStat n) nStatuses
-    keep Enrage       = True
-    keep Seal         = True
-    keep (Stun _)     = Focus `notElem` efs
-    keep (Immune _)   = Expose `notElem` efs
-    keep (Reduce _ _) = Expose `notElem` efs
+    keep Enrage   = True
+    keep Seal     = True
+    keep Immune{} = Expose `notElem` efs
+    keep Reduce{} = Expose `notElem` efs
     keep ef 
       | fromSelf n st = True
-      | Enrage `elem` efs  = helpful ef || sticky ef || isCost ef
-      | Seal   `elem` efs  = not $ helpful ef
-      | otherwise     = ef `notElem` [ nul | Nullify nul <- efs]
+      | Enrage `elem` efs = helpful ef || sticky ef || isCost ef
+      | Seal   `elem` efs = not $ helpful ef
+      | otherwise = ef `notElem` [ f cla | Ignore f <- efs, cla <- enums ]
 
 -- | Used by 'getStat' to prevent recursion 
 -- when checking for 'Enrage' and 'Seal'.
@@ -632,16 +641,16 @@ rawStat n@Ninja{..} st
   | fromSelf n st = st
   | Enrage `elem` efs = st { statusEfs = enraged }
   | Seal   `elem` efs = st { statusEfs = filter (not . helpful) $ statusEfs st }
-  | otherwise     = st
+  | otherwise         = st
   where 
     efs     = concatMap statusEfs nStatuses
     enraged = [ ef | ef <- statusEfs st, helpful ef || sticky ef || isCost ef ]
 
 -- | 'Exhaust' and 'Unexhaust' are not canceled by immunity.
 isCost :: Effect -> Bool
-isCost (Exhaust _) = True
-isCost Unexhaust   = True
-isCost _           = False
+isCost Exhaust{} = True
+isCost Unexhaust = True
+isCost _         = False
 
 fromSelf :: Ninja -> Status -> Bool
 fromSelf Ninja{..} Status{..} = statusSrc == nId || statusC == nId
@@ -778,11 +787,11 @@ counter classes n nt
         
 -- | Trigger a 'Parry'.
 parry :: Skill -> Ninja -> Maybe (Ninja, Status, Transform)
-parry skill@Skill{..} n@Ninja{..} = do
-      st@Status{..} <- find (any matchN . statusEfs) nStatuses
-      ParryAll _ a <- find matchN statusEfs
-      return (n', st, a)
-    <|> [(n'', st, a) | (n'', Parry _ a, st@Status{..}) <- getOne match n]
+parry skill@Skill{..} n@Ninja{..} = 
+    [(n', st, a) | st@Status{..} <- find (any matchN . statusEfs) nStatuses
+                 , ParryAll _ a  <- find matchN statusEfs 
+                 ] <|>
+    [(n'', st, a) | (n'', Parry _ a, st@Status{..}) <- getOne match n]
   where
     n' = n { nParrying = skill : nParrying }
     matchN (ParryAll Uncounterable _) = True

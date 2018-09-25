@@ -77,11 +77,10 @@ getPracticeQueueR team
 formTeam :: [Text] -> Maybe [Character]
 formTeam team@[a, b, c]
   | duplic team = Nothing
-  | otherwise   = do
-      a' <- HM.lookup a cs
-      b' <- HM.lookup b cs
-      c' <- HM.lookup c cs
-      return [a', b', c']
+  | otherwise   = [[a', b', c'] | a' <- HM.lookup a cs
+                                , b' <- HM.lookup b cs
+                                , c' <- HM.lookup c cs
+                                ]
 formTeam _ = Nothing
 
 formEnact :: [Text] -> Maybe (Chakras, Chakras, [Act])

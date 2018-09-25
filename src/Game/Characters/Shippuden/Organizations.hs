@@ -31,7 +31,7 @@ organizationCsS =
         , cost    = χ [Rand]
         , effects = [(XAlly, trap 3 OnRes 
                            $ resetAll • setHealth 5 • teach 1 Deep 2 • setFace 1
-                           • bomb (-1) [Immune All, Seal, Enrage, Focus] 
+                           • bomb (-1) [Immune All, Seal, Enrage, Ignore Stun] 
                              [(Done, kill')])]
         }
       ]
