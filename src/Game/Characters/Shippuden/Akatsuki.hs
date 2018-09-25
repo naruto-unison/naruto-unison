@@ -55,7 +55,8 @@ akatsukiCsS =
         , cost    = χ [Rand, Rand]
         , cd      = 4
         , channel = Ongoing 3
-        , start   = [(Self, setFace 3 • vary' 1 1)]
+        , start   = [(Self, setFace 3 
+                          • vary "Exploding Water Shockwave" "Shark Dance")]
         , effects = [(Enemies, apply 1 [Snare 1])]
         }
       , newSkill
@@ -90,7 +91,7 @@ akatsukiCsS =
         , classes = [Chakra, Ranged, Nonstacking]
         , cost    = χ [Rand]
         , effects = [(Enemy, damage 15 • apply 4 [ Weaken All 5])
-                    , (Self,  vary 0 0 1)
+                    , (Self,  vary "C1: Bird Bomb" "C3: Megaton Sculpture")
                     ]
         }
       , newSkill
@@ -99,7 +100,7 @@ akatsukiCsS =
         , classes = [Chakra, Ranged, Nonstacking]
         , cost    = χ [Nin, Rand]
         , effects = [(Enemies, damage 20 • apply 4 [ Weaken All 5])
-                    , (Self,    vary 0 0 0)
+                    , (Self,    vary "C1: Bird Bomb" "")
                     ]
         }
       , newSkill
@@ -117,7 +118,9 @@ akatsukiCsS =
         , classes = [Chakra, Ranged]
         , cost    = χ [Nin, Rand]
         , cd      = 4
-        , effects = [(Self, defend 3 35 • vary 3 0 2 • vary 3 1 1)]
+        , effects = [(Self, defend 3 35 
+                          • vary' 3 "C1: Bird Bomb" "C2: Dragon Missile" 
+                          • vary' 3 "C2: Clay Dragon" "C2: Minefield")]
         }
       , newSkill
         { label   = "C2: Minefield"
@@ -137,7 +140,7 @@ akatsukiCsS =
         , classes = [Bane, Chakra, Ranged, Uncounterable, Unremovable, Unreflectable]
         , cost    = χ [Blood, Nin]
         , effects = [ (Enemy, apply 0 [Afflict 10, Weaken All 5]) 
-                    , (Self,  vary 0 2 1)
+                    , (Self,  vary "C4: Karura" "C0: Ultimate Art")
                     ]
         }
       , newSkill
@@ -157,46 +160,47 @@ akatsukiCsS =
     "An S-Rank rogue ninja from the Hidden Hotspring Village, Hidan joined Akatsuki to learn the secrets of its members. He belongs to a cult that worships Jashin, a bloodthirsty and murderous god who blesses him with immortality. With no need to fear death, he binds his soul to his enemies and tortures himself endlessly."
     [ [ newSkill
         { label   = "Jashin Sigil"
-        , desc    = "Hidan prepares for his ritual by drawing an insignia on the ground in blood. Once used, this skill becomes [First Blood][r]. Cannot be used while active."
+        , require = HasI (-1) "Jashin Sigil"
+        , desc    = "Hidan prepares for his ritual by drawing an insignia on the ground in blood. Once used, this skill becomes [First Blood][r]."
         , classes = [Physical, Single, Unremovable, Uncounterable, Unreflectable]
-        , effects = [(Self, tag 0 • vary 0 0 1)]
+        , effects = [(Self, tag 0 • vary "Jashin Sigil" "First Blood")]
         }
       , newSkill
         { label   = "First Blood"
-        , desc    = "Searching for a victim to join him in his ritual of death, Hidan deals 5 damage to an opponent and marks them for 2 turns. For 2 turns, this skill becomes [Blood Curse][g]."
+        , desc    = "Searching for a victim to join him in his ritual of death, Hidan deals 5 damage to an opponent and marks them for 2 turns. For 2 turns, this skill becomes [Blood Curse Ritual][g]."
         , classes = [Physical, Unreflectable, Unremovable]
         , cost    = χ [Rand]
-        , effects = [(Enemy, damage 5 • tag 2 • self § vary 2 0 2)]
+        , effects = [(Enemy, damage 5 • tag 2 
+                           • self § vary' 2 "Jashin Sigil" "Blood Curse")]
         }
       , newSkill
         { label   = "Blood Curse Ritual"
-        , desc    = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, harmful skills used on Hidan and the target are also reflected to each other and this skill becomes [Death Blow][t][g]. Hidan ignores harmful non-damage effects other than chakra cost changes, but the effects are still reflected to the Linked target."
+        , desc    = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, harmful skills used on Hidan and the target are also reflected to each other and this skill becomes [Death Blow][t][g]. Hidan ignores harmful non-damage effects other than chakra cost changes, but any effects are still reflected to the Linked target. Damage that Hidan deals to himself while Linked to a living target heals him instead."
         , require = HasU "First Blood"
         , classes = [Soulbound, Uncounterable, Unreflectable, Unremovable]
         , cost    = χ [Gen]
         , effects = [ (Self, perI "jashin" 1 (applyDur' "Prayer" [Endure]) 1 
                            • hide' "jashin" 0 []) 
-                    , (Enemies, apply' "Blood Curse" 3 [ Reapply] 
+                    , (Enemies, apply' "Blood Curse" 3 [Reapply] 
+                              • trap 3 OnDeath . self § remove "bloodlink"
                               • self 
-                                § bomb' "Blood Curse" 3 [Enrage, Reapply] 
+                                § hide' "bloodlink" 3 []
+                                ° bomb' "Blood Curse" 3 [Enrage, Reapply] 
                                   [(Done, remove "Jashin Sigil" 
-                                        • vary 0 0 0 • vary 0 1 0)]
-                                ° vary 3 0 3 ° vary 3 0 4 ° vary 3 1 1)]
+                                        • remove "bloodlink"
+                                        • vary "Jashin Sigil" "")])
+                    ]
         }
       , newSkill
         { label   = "Death Blow"
         , desc    = "Hidan impales himself through his chest, dealing 50 piercing damage to himself."
         , classes = [Physical, Melee]
         , cost    = χ [Gen, Tai]
-        , effects = [(Self, sacrifice 0 50)]
-        }
-      , newSkill
-        { label   = "Death Blow"
-        , desc    = "Hidan impales himself through his chest, dealing 50 piercing damage to himself."
-        , classes = [Physical, Melee]
-        , cost    = χ [Gen, Tai]
-        , effects = [(Self, heal 50 
-                          • enemyTeam § ifU "Blood Curse" (pierce 50))]
+        , effects = [ (Self, ifnotI "bloodlink" § sacrifice 0 50
+                           • ifI "bloodlink" 
+                             § heal 50
+                             ° enemyTeam (ifU "Blood Curse" § pierce 50)
+                             ) ]
         }
       ]
     , [ newSkill
@@ -205,17 +209,10 @@ akatsukiCsS =
         , classes = [Physical, Melee]
         , cost    = χ [Tai, Rand]
         , cd      = 1
-        , effects = [(Self, sacrifice 0 35 • apply 1 [Stun All])]
-        }
-      , newSkill
-        { label   = "Self-Mutilation"
-        , desc    = "Hidan tears a gash in his stomach with his scythe, dealing 35 piercing damage to himself and stunning himself for 1 turn."
-        , classes = [Physical, Melee]
-        , cost    = χ [Tai, Rand]
-        , cd      = 1
-        , effects = [ (Self, heal 35 • enemyTeam § ifU "Blood Curse" 
-                             (pierce 35 • apply 1 [Stun All])) 
-                    ]
+        , effects = [(Self, apply 1 [Stun All]
+                          • ifnotI "bloodlink" § sacrifice 0 35
+                          • ifI "bloodlink" 
+                          § heal 50 ° enemyTeam (ifU "Blood Curse" § pierce 35))]
         }
       ]
     , [ newSkill
@@ -240,7 +237,9 @@ akatsukiCsS =
         , classes = [Chakra]
         , channel = Ongoing 0
         , start   = [(Self, cancelChannel "Black Zetsu" • setFace 0
-                          • vary 0 0 1 • vary 0 1 2 • vary 0 2 2)]
+                          • vary "White Zetsu" "Black Zetsu"
+                          • vary "Black Zetsu" "White Army"
+                          • vary "Doppelgänger / Body Coating" "Doppelgänger")]
         , effects = [(Self, defend 0 5)]
         }
       , newSkill
@@ -249,11 +248,13 @@ akatsukiCsS =
         , classes = [Chakra]
         , channel = Ongoing 0
         , start   = [(Self, cancelChannel "White Zetsu" • setFace 0
-                          • vary 0 0 0 • vary 0 1 1 • vary 0 2 1)]
+                          • vary "White Zetsu" ""
+                          • vary "Black Zetsu" "Underground Roots"
+                          • vary "Doppelgänger / Body Coating" "Body Coating")]
         , effects = [(Self, ifnotI "chakra" § gain [ Rand]
-                           • ifI "chakra" § flag' "was chakra"
-                           • remove "chakra"
-                           • ifI "was chakra" § hide' "chakra" 1 [])
+                          • ifI "chakra" § flag' "was chakra"
+                          • remove "chakra"
+                          • ifI "was chakra" § hide' "chakra" 1 [])
                     ]
         }
       ]
@@ -263,7 +264,9 @@ akatsukiCsS =
         , classes = [Chakra]
         , channel = Ongoing 0
         , start   = [(Self, cancelChannel "White Zetsu" • setFace 0
-                          • vary 0 0 0 • vary 0 1 1 • vary 0 2 1)]
+                          • vary "White Zetsu" ""
+                          • vary "Black Zetsu" "Underground Roots"
+                          • vary "Doppelgänger / Body Coating" "Body Coating")]
         , effects = [(Self, ifnotI "chakra" § gain [ Rand]
                            • ifI "chakra" § flag' "was chakra"
                            • remove "chakra"
@@ -327,7 +330,8 @@ akatsukiCsS =
         , cost    = χ [Rand]
         , effects = [ (Enemy, damage 10
                             • apply (-1) [Stun NonMental, Bleed All 10])
-                    , (Self,  vary 0 0 1)
+                    , (Self,  vary "Scorpion Tail Constriction" 
+                                   "Scorpion Tail Strike")
                     ]
         }
       , newSkill
@@ -402,15 +406,15 @@ akatsukiCsS =
       ]
     , [ newSkill
         { label   = "Thousand Arms"
-        , desc    = "Countless concealed arms lash out from Sasori's Kazekage puppet and flail wildly for 1 turn, pinning down anyone they catch. Enemies who do not use harmful skills next turn will be pinned for 1 turn, unable to reduce damage or become invulnerable. While active, this skill becomes [Poison Gas Release][r][r]."
+        , desc    = "Countless concealed arms lash out from Sasori's Kazekage puppet and flail wildly for 1 turn, pinning down anyone they catch. Enemies who do not use harmful skills next turn will be pinned for 1 turn, unable to reduce damage or become invulnerable. While active, this skill becomes [Poison Gas][r][r]."
         , require = HasI 1 "Iron Sand"
         , classes = [Physical, Melee, Unreflectable]
         , cost    = χ [Rand]
         , cd      = 3
-        , effects = [ (Enemies, trap (-1) OnHarm § remove "Thousand Arms"
-                              • bomb (-1) []
-                                [(Expire, apply' "Pinned" (-1) [Expose])])
-                    , (Self, vary 1 1 2)
+        , channel = Control 1
+        , effects = [ (Enemies, trap (-1) OnHarm 
+                              § apply' "Pinned" (-1) [Expose])
+                    , (Self, vary "Thousand Arms" "Poison Gas")
                     ]
         }
       , newSkill
@@ -429,17 +433,17 @@ akatsukiCsS =
     , invuln "Chakra Barrier" "Sasori" [Chakra]
     ] []
   , let unjet = cancelChannel "Flamethrower Jets" 
-              • everyone § remove "Flame Blast" ° remove "Flamethrower Jets" in
-    Character
+              • everyone § remove "Flame Blast" ° remove "Flamethrower Jets"
+    in Character
     "True Form Sasori"
     "Having invented and perfected the art of human puppetry, Sasori accomplished its ultimate act: transforming himself into a living puppet. His immortal core now resides in an unnaturally youthful simulacrum filled to the brim with tools of slaughter, each of which he switches out for another as soon as he uses it."
     [ [ newSkill
         { label   = "Poisonous Chain Skewer"
-        , desc    = "Sasori hooks an enemy with the poison-soaked steel ropes inside his body and pulls himself to them, dealing 5 affliction damage for 3 turns. After use, this skill becomes [Impale][t]. Next turn, the target can only target Sasori or themselves."
+        , desc    = "Sasori hooks an enemy with the poison-soaked steel ropes inside his body and pulls himself to them, dealing 5 affliction damage for 3 turns. Next turn, the target can only target Sasori or themselves. Once used, this skill becomes [Impale][t]."
         , classes = [Bane, Ranged, Unreflectable]
         , cost    = χ [Rand]
         , effects = [ (Enemy, apply 3 [Afflict 5] • apply 1 [Taunt]) 
-                    , (Self, unjet • vary 0 0 1)
+                    , (Self, unjet • vary "Poisonous Chain Skewer" "Impale")
                     ]
         }
       , newSkill
@@ -447,7 +451,7 @@ akatsukiCsS =
         , desc    = "Sasori stabs an enemy with a poison-soaked blade, dealing 15 piercing damage immediately and 5 affliction damage for 2 turns. If the target is affected by [Poisonous Chain Skewer], they become affected by [Complex Toxin], which stuns them after 2 turns. Once used, this skill becomes [Poisonous Chain Skewer]."
         , classes = [Bane, Physical, Melee]
         , cost    = χ [Tai]
-        , effects = [ (Self,  unjet • vary 0 0 0)
+        , effects = [ (Self,  unjet • vary "Poisonous Chain Skewer" "")
                     , (Enemy, pierce 15 • apply 2 [Afflict 5] 
                             • ifU "Poisonous Chain Skewer" 
                               § bomb' "Complex Toxin" 2 [] 
@@ -464,7 +468,8 @@ akatsukiCsS =
         , cd      = 3
         , effects = [ (Enemy, afflict 10 • tag 1 
                             • self § apply' "Flame Blast" 1 [Duel])
-                    , (Self,  apply 1 [Enrage] • vary 0 1 1)
+                    , (Self,  apply 1 [Enrage] 
+                            • vary "Flamethrower Jets" "Cutting Water Jets")
                     ]
         }
       , newSkill
@@ -473,7 +478,7 @@ akatsukiCsS =
         , classes = [Physical, Ranged]
         , cost    = χ [Nin]
         , effects = [ (Enemy, withU "Flamethrower Jets" 10 pierce 20) 
-                    , (Self,  unjet • vary 0 1 0)
+                    , (Self,  unjet • vary "Flamethrower Jets" "")
                     ]
         }
       ]
@@ -483,8 +488,12 @@ akatsukiCsS =
         , classes = [Physical, Single]
         , cost    = χ [Tai, Rand, Rand]
         , cd      = 5
-        , effects = [ (Self,    unjet • vary 0 2 1
-                              • defend 0 50 • onBreak § vary 0 2 0)
+        , effects = [ (Self,    unjet 
+                              • vary "Performance of a Hundred Puppets"
+                                     "Barrage of a Hundred Puppets"
+                              • defend 0 50 
+                              • onBreak 
+                                § vary "Performance of a Hundred Puppets" "")
                     , (XAllies, defend 0 25) 
                     ]
         }
@@ -518,7 +527,8 @@ akatsukiCsS =
                               [(Expire, apply' "Giant Centipede Stun" 1 
                                         [Stun All])]
                       )
-                    , (Self,  vary 0 0 1)
+                    , (Self,  vary "Summoning: Giant Centipede" 
+                                   "Summoning: Giant Crustacean")
                     ]
         , effects = [(Enemy, afflict 15)]
         }
@@ -529,7 +539,7 @@ akatsukiCsS =
         , cost    = χ [Rand, Rand]
         , cd      = 2
         , channel = Ongoing 2
-        , start   = [(Self, vary 0 0 0)] 
+        , start   = [(Self, vary "Summoning: Giant Centipede" "")] 
         , effects = [(Enemies, afflict 10 • apply 1 [ Exhaust All])
                     , (Allies,  apply 1 [Reduce All 10])
                     ]
@@ -612,7 +622,9 @@ akatsukiCsS =
         , classes = [Mental, Summon]
         , cost    = χ [Rand]
         , cd      = 1
-        , effects = [(Self, vary 0 0 1 • defend 0 20 • onBreak § vary 0 0 0)]
+        , effects = [(Self, vary "Summoning: King of Hell" "Energy Transfer"
+                          • defend 0 20 
+                          • onBreak § vary "Summoning: King of Hell" "")]
         }
       , newSkill
         { label   = "Energy Transfer"
@@ -686,7 +698,8 @@ akatsukiCsS =
       ]
     , invuln "Rinnegan Foresight" "Pain" [Mental]
     ] []
-  , Character
+  , let missile kind = vary' 1 "Guided Missile" $ kind ++ " Missile"
+    in Character
     "Asura Path Pain"
     "Having taken over the body of a wandering puppeteer, Pain now acts through it as one of his Six Paths. Asura Path's body is heavily augmented with ballistic and mechanical weaponry."
     [ [ newSkill 
@@ -707,7 +720,7 @@ akatsukiCsS =
         , cd      = 3
         , channel = Action 2
         , start   = [ (Enemy, purge) 
-                    , (Self,  vary 0 1 1)
+                    , (Self,  vary' 0 "Missile Salvo" "Head Cannon")
                     ]
         , effects = [(Enemy, damage 10)]
         }
@@ -718,7 +731,7 @@ akatsukiCsS =
         , cost    = χ [Rand, Rand]
         , cd      = 1
         , effects = [ (Enemies, pierce 20) 
-                    , (Self,    vary 0 1 0)
+                    , (Self,    vary "Missile Salvo" "")
                     ]
         }
       ]
@@ -730,10 +743,14 @@ akatsukiCsS =
         , start   = [ (Self, hide' "missile" 1 []) 
                     , (Enemy, tag 4)
                     ]
-        , effects = [(Self, ifI "missile"   § flag' "was missile"   ° vary 1 2 1
-                          • ifI "bloodline" § flag' "was bloodline" ° vary 1 2 2
-                          • ifI "genjutsu"  § flag' "was genjutsu"  ° vary 1 2 3
-                          • ifI "ninjutsu"  § flag' "was ninjutsu"  ° vary 1 2 4
+        , effects = [(Self, ifI "missile"   § flag' "was missile"
+                                            ° missile "Bloodline"
+                          • ifI "bloodline" § flag' "was bloodline" 
+                                            ° missile "Genjutsu"
+                          • ifI "genjutsu"  § flag' "was genjutsu" 
+                                            ° missile "Ninjutsu"
+                          • ifI "ninjutsu"  § flag' "was ninjutsu" 
+                                            ° missile "Taijutsu"
                           • remove "missile"
                           • remove "Bloodline" • remove "Genjutsu"
                           • remove "Ninjutsu"  • remove "Taijutsu"
@@ -749,7 +766,7 @@ akatsukiCsS =
         , cost    = χ [Blood]
         , effects = [ (Enemies, ifU "Guided Missile" § damage 25) 
                     , (REnemy,  damage 25)
-                    , (Self,    cancelChannel "Guided Missile" • vary 0 2 0
+                    , (Self,    cancelChannel "Guided Missile" 
                               • everyone § remove "Guided Missile")
                     ]
         }
@@ -760,7 +777,7 @@ akatsukiCsS =
         , cost    = χ [Gen]
         , effects = [ (Enemies, ifU "Guided Missile" 
                               § damage 25 ° apply 2 [Expose])
-                    , (Self,    cancelChannel "Guided Missile" • vary 0 2 0
+                    , (Self,    cancelChannel "Guided Missile"
                               • everyone § remove "Guided Missile")
                     ]
         }
@@ -771,7 +788,7 @@ akatsukiCsS =
         , cost    = χ [Nin]
         , effects = [ (Enemies, ifU "Guided Missile" 
                               § damage 25 ° apply 1 [Stun All])
-                    , (Self,    cancelChannel "Guided Missile" • vary 0 2 0
+                    , (Self,    cancelChannel "Guided Missile"
                               • everyone § remove "Guided Missile")
                     ]
         }
@@ -781,7 +798,7 @@ akatsukiCsS =
         , classes = [Physical, Ranged, Bypassing]
         , cost    = χ [Tai]
         , effects = [ (Enemies, ifU "Guided Missile" § pierce 30)
-                    , (Self,    cancelChannel "Guided Missile" • vary 0 2 0
+                    , (Self,    cancelChannel "Guided Missile"
                               • everyone § remove "Guided Missile")
                     ]
         }
@@ -800,8 +817,11 @@ akatsukiCsS =
         , start   = [ (Ally, apply 1 [Parry All $ damage 20]) 
                     , (Self, tag' "Tidal Force" 1)
                     ]
-        , effects = [(Self, ifnotI "pull" § vary 0 0 2
-                          • ifI    "pull" § vary 0 0 1 ° flag' "pulled"
+        , effects = [(Self, ifnotI "pull" 
+                            § vary "Almighty Push" "Universal Pull"
+                          • ifI    "pull" 
+                            § vary "Almighty Push" "Almighty Push" 
+                            ° flag' "pulled"
                           • remove "pull"
                           • ifnotI "pulled" § hide' "pull" 1 [])]
         }
@@ -861,7 +881,8 @@ akatsukiCsS =
         , cd      = 4
         , channel = Control (-4)
         , start   = [(Self, remove "gedo" • remove "dragon")]
-        , effects = [(Self, vary 1 0 1 • vary 1 1 1
+        , effects = [(Self, vary' 1 "Summoning: Gedo Statue" "Control"
+                          • vary' 1 "Phantom Dragon" "Phantom Dragon"
                           • perI "dragon" 1 (addStacks' 1 "Control") 0
                           • perI "gedo" 5 (applyX 1 $ Reduce All) 10)]
         , disrupt = [(Self, remove "Summoning: Gedo Statue" • remove "Control")]
@@ -922,7 +943,8 @@ akatsukiCsS =
         , cost    = χ [Blood]
         , cd      = 4
         , effects = [(Self, apply 0 [Parry All 
-                            $ self § tag' "Kamui" 2 • vary (-2) 0 1])]
+                            $ self § tag' "Kamui" 2 
+                            • vary' (-2) "Sharingan" "Kamui"])]
         }
       , newSkill
         { label   = "Kamui"

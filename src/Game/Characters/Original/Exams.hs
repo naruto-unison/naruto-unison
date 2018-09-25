@@ -52,14 +52,15 @@ examCs =
         { label   = "Umbrella Toss"
         , desc    = "Shigure tosses his umbrellas upward, gaining four Umbrellas. While Shigure has Umbrellas, this skill becomes [Umbrella Gathering]."
         , classes = [Physical]
-        , effects = [(Self, addStacks "Umbrella" 4 • vary 0 0 1)]
+        , effects = [(Self, addStacks "Umbrella" 4 
+                          • vary "Umbrella Toss" "Umbrella Gathering")]
         }
       , newSkill
         { label   = "Umbrella Gathering"
         , desc    = "Shigure builds a wall of overlapping umbrellas in front of him. Spends all Umbrellas to provide 10 points of damage reduction per Umbrella for 1 turn."
         , classes = [Physical]
         , effects = [(Self, perI "Umbrella" 10 (applyX 1 § Reduce All) 0
-                          • remove "Umbrella" • vary 0 0 0)]
+                          • remove "Umbrella" • vary "Umbrella Toss" "")]
         }
       ]
     , [ newSkill
@@ -70,7 +71,7 @@ examCs =
         , cost    = χ [Rand]
         , effects = [ (Enemies, damage 15)
                     , (Self,    removeStack "Umbrella" 
-                              • ifnotI "Umbrella" § vary 0 0 0)
+                              • ifnotI "Umbrella" § vary "Umbrella Toss" "")
                     ]
         }
       ]
@@ -81,7 +82,7 @@ examCs =
         , cost    = χ [Rand, Rand, Rand, Rand]
         , classes = [Physical, Ranged]
         , effects = [ (Enemy, perI "Umbrella" 15 damage 0)
-                    , (Self,  remove "Umbrella" • vary 0 0 0)
+                    , (Self,  remove "Umbrella" • vary "Umbrella Toss" "")
                     ]
         , changes = \n skill@Skill{..} -> skill 
               { cost = cost - 0{ rand = numActive "Umbrella" n } }
@@ -120,13 +121,11 @@ examCs =
         , classes = [Mental, Ranged, Invisible]
         , cost    = χ [Gen]
         , cd      = 2
-        , effects = [(Enemies, trap (-1) (OnAction All) 
-                               § remove "Temple of Nirvana Trap" 
-                             • bomb' "Temple of Nirvana Trap" (-1) []
-                               [(Expire, apply 1 [ Stun All
-                                                 , Bleed Physical 10
-                                                 , Bleed Chakra 10 
-                                                 ])])]
+        , effects = [(Enemies, trap (-1) OnNoAction
+                               § apply 1 [ Stun All
+                                         , Bleed Physical 10
+                                         , Bleed Chakra 10 
+                                         ])]
         }
       ]
     , invuln "Dead Soul Technique" "Kabuto" [Chakra]

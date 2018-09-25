@@ -56,7 +56,11 @@ reanimatedCsS =
         , classes = [Physical, Ranged]
         , cost    = χ [Blood, Blood]
         , effects = [ (Enemies, apply 2 [Snare 1, Exhaust NonMental])
-                    , (Self,    tag 2 • vary 2 0 1 • vary 2 2 1)
+                    , (Self,    tag 2 
+                              • vary' 2 "Tree Wave Destruction" 
+                                        "Tree Wave Destruction"
+                              • vary' 2 "Deep Forest Creation"
+                                        "Deep Forest Flourishing")
                     ]
         }
       , newSkill
@@ -114,14 +118,14 @@ reanimatedCsS =
         , effects = [ (Self, ifnotI "Venom Sac" 
                              § hide' "Ibuse" 0 [Ward Affliction 0.5] 
                              ° addStacks "Major Summoning: Ibuse" 30
-                             ° vary 0 0 1
+                             ° vary "Major Summoning: Ibuse" "Poison Fog"
                              ° (trapPer' 0 PerDamaged
                                 § removeStacks "Major Summoning: Ibuse")
                              ° trap' 0 (OnDamaged All)
                                (ifnotI "Major Summoning: Ibuse" 
                                 § remove "Ibuse"
                                 ° removeTrap "Ibuse"
-                                ° vary 0 0 0
+                                ° vary "Major Summoning: Ibuse" ""
                                 ° cancelChannel "Poison Fog")
                            • ifI "Venom Sac" § remove "Venom Sac" 
                                              ° alterCd 0 0 (-2))
@@ -160,7 +164,8 @@ reanimatedCsS =
                           • ifnotI "Ibuse" . self § apply 0 [Afflict 20]
                           • ifI "Ibuse" . self 
                             § remove "Major Summoning: Ibuse"
-                            ° vary 0 0 0 ° alterCd 0 0 (-2)
+                            ° vary "Major Summoning: Ibuse" ""
+                            ° alterCd 0 0 (-2)
                             ° cancelChannel "Poison Fog")]
         }
       ]
@@ -253,7 +258,9 @@ reanimatedCsS =
         , classes = [Chakra, Melee, Bypassing]
         , cost    = χ [Nin]
         , effects = [ (Allies, trapFrom 0 (OnHarmed All) § tag 1)
-                    , (Self,   hide' "finger" 0 [] • vary 0 0 1)
+                    , (Self,   hide' "finger" 0 [] 
+                             • vary "Piercing Four-Fingered" 
+                                    "Three-Fingered Assault")
                     ]
         }
       , newSkill
@@ -262,7 +269,9 @@ reanimatedCsS =
         , classes = [Chakra, Melee, Bypassing]
         , cost    = χ [Nin]
         , effects = [(Self, trap 0 (OnDamaged All) § alterCd 1 0 (-1) 
-                          • hide' "finger" 0 [] • vary 0 0 2)]
+                          • hide' "finger" 0 [] 
+                          • vary "Piercing Four-Fingered" 
+                                 "One-Fingered Assault")]
         }
       , newSkill
         { label   = "One-Fingered Assault" 
@@ -626,7 +635,7 @@ reanimatedCsS =
       ]
     , [ newSkill
         { label   = "Chakra Weave"
-        , desc    = "Fuguki weaves strands of chakra into his hair to defend himself. During each of the next 4 turns, if he does not take any damage, he regains 10 health. Every time he damages an opponent with a new skill, he gains 5 points of damage reduction that end when this skill ends."
+        , desc    = "Fuguki weaves strands of chakra into his hair to defend himself. During each of the next 4 turns, if he does not take any damage, he regains 10 health. Each time he damages an opponent with a new skill, he gains 5 points of damage reduction that end when this skill ends."
         , classes = [Chakra]
         , cost    = χ [Nin]
         , cd      = 5
@@ -660,7 +669,7 @@ reanimatedCsS =
         , classes = [Bane, Physical, Ranged]
         , cost    = χ [Rand]
         , effects = [ (Enemy, pierce 10 • apply 2 [Afflict 5]) 
-                    , (Self,  vary 1 0 1)
+                    , (Self,  vary' 1 "Phoenix Flower" "Phoenix Flower")
                     ]
         }
       , newSkill
@@ -670,7 +679,7 @@ reanimatedCsS =
         , cost    = χ [Rand, Rand]
         , cd      = 1
         , effects = [ (Enemies, pierce 10 • apply 2 [Afflict 5]) 
-                    , (Self,    vary 1 0 1)
+                    , (Self,    vary' 1 "Phoenix Flower" "Phoenix Flower")
                     ]
         }
       ]
@@ -680,7 +689,8 @@ reanimatedCsS =
         , classes = [Chakra, Invisible]
         , cost    = χ [Blood]
         , cd      = 1
-        , effects = [(Self, apply 1 [Reduce Affliction 15] • vary 1 1 1)]
+        , effects = [(Self, apply 1 [Reduce Affliction 15] 
+                          • vary' 1 "Susano'o" "Totsuka Blade")]
         }
       , newSkill
         { label   = "Totsuka Blade"
@@ -688,7 +698,8 @@ reanimatedCsS =
         , classes = [Chakra, Invisible]
         , cost    = χ [Gen]
         , effects = [ (Enemy, pierce 20)
-                    , (Self,  apply 1 [Reduce Affliction 15] • vary 1 1 1)
+                    , (Self,  apply 1 [Reduce Affliction 15] 
+                            • vary' 1 "Susano'o" "Totsuka Blade")
                     ]
         }
       ]
@@ -713,7 +724,8 @@ reanimatedCsS =
         , cost    = χ [Gen]
         , effects = [ (Self,  heal 15) 
                     , (Enemy, pierce 20 
-                            • trap 1 OnDamage . self § vary 1 0 1
+                            • trap 1 OnDamage . self 
+                              § vary' 1 "Human Path" "Human Path"
                             • trapPer (-1) TrackDamage § self
                               . addStacks' (-1) "Human Path")
                     ]
@@ -725,7 +737,8 @@ reanimatedCsS =
         , cost    = χ [Gen, Rand]
         , effects = [ (Self,  perI "Human Path" 1 heal 0) 
                     , (Enemy, perI "Human Path" 1 pierce 0
-                            • trap 1 OnDamage . self § vary 1 0 1
+                            • trap 1 OnDamage . self 
+                              § vary' 1 "Human Path" "Human Path"
                             • trapPer (-1) TrackDamage § self
                               . addStacks' (-1) "Human Path")
                     ]
@@ -742,7 +755,8 @@ reanimatedCsS =
         , effects = [(Self, apply (-1) [ParryAll All 
                             $ steal 1 
                             • self § heal 10 ° apply 1 [] 
-                                   ° ifStacks "Preta Path" 2 (vary 1 2 1)])]
+                                   ° ifStacks "Preta Path" 2 
+                                     (vary' 1 "Naraka Path" "Naraka Path")])]
         }
       ]  
     , [ newSkill

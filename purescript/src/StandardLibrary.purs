@@ -3,6 +3,7 @@
 module StandardLibrary
   ( module Prelude
   , module Control.Monad.Except
+  , module Control.MonadZero
   , module Data.Array
   , module Data.Array.NonEmpty
   , module Data.Either
@@ -39,6 +40,7 @@ module StandardLibrary
 import Prelude
 
 import Control.Monad.Except (runExcept)
+import Control.MonadZero (guard)
 import Data.Array ((:), catMaybes, cons, delete, difference, drop, dropWhile, filter, head, index, init, intersect, last, mapMaybe, nub, nubBy, nubEq, nubByEq, partition, range, replicate, reverse, snoc, sort, sortBy, sortWith, span, tail, take, takeEnd, takeWhile, uncons, union, unionBy, unzip, zip, zipWith, (!!), (..), (\\))
 import Data.Either (Either(Left, Right), choose, either, hush, isLeft, isRight)
 import Data.Array.NonEmpty (NonEmptyArray)

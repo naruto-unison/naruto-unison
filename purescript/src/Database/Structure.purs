@@ -185,7 +185,6 @@ newtype Ninja = Ninja { nId        :: Slot
                       , nParrying  :: Array Skill
                       , nTags      :: Array ChannelTag
                       , nLastSkill :: Maybe Skill
-                      , nTargeted  :: Boolean
                       , nSkills    :: Array Skill
                       }
 

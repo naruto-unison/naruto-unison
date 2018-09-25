@@ -47,6 +47,50 @@ organizationCsS =
     , invuln "Crow Barrier" "Aoba" [Chakra]
     ] []
   , Character
+    "Ibiki Morino"
+    "A sadistic jōnin who specializes in extracting information, Ibiki commands the Hidden Leaf Village's Torture and Interrogation Force. Pain is his preferred method of communication, and his preferred approach to battle is ensuring all options available to his enemies will lead to their defeat."
+    [ [ newSkill
+        { label   = "Biding His Time"
+        , desc    = "Provides 10 points of permanent damage reduction to Ibiki. Each time a damaging skill is used on Ibiki, he will gain a stack of [Payback]. Once used, this skill becomes [Payback][r]."
+        , classes = [Mental, Melee]
+        , cost    = χ [Rand]
+        , effects = [ (Self, apply 0 [Reduce All 10] 
+                           • vary "Biding His Time" "Payback"
+                           • trap 0 (OnDamaged All) § addStacks "Payback" 1) ]
+        }
+     , newSkill
+        { label   = "Payback"
+        , desc    = "Deals 15 damage to an enemy. Spends all stacks of [Payback] to deal 5 additional damage per stack."
+        , classes = [Mental, Melee]
+        , cost    = χ [Rand]
+        , effects = [ (Enemy, perI "Payback" 5 damage 15) 
+                    , (Self, remove "Payback" • vary "Biding His Time" "")
+                    ]
+        }
+      ]
+    , [ newSkill
+        { label   = "Summoning: Iron Maiden"
+        , desc    = "Ibiki traps an enemy in a spike-filled iron coffin shaped like a cat. For 3 turns, each time the target uses a harmfull skill, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
+        , classes = [Physical, Melee, Summon]
+        , cost    = χ [Nin, Rand]
+        , effects = [ (Enemy, trap 3 OnHarm § pierce 25) 
+                    , (Self,  defend 0 30)
+                    ]
+        }
+      ]
+    , [ newSkill
+        { label   = "Summoning: Torture Chamber"
+        , desc    = "Ibiki traps an enemy in a cage of chains and gears. For 3 turns, each time the target does not use a skill, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
+        , classes = [Physical, Melee, Summon]
+        , cost    = χ [Nin, Rand]
+        , effects = [ (Enemy, trap 3 OnNoAction § pierce 25) 
+                    , (Self,  defend 0 30)
+                    ]
+        }
+      ]
+    , invuln "Dodge" "Ibiki" [Physical]
+    ] []
+  , Character
     "Sai"
     "An operative of the Hidden Leaf Village's elite Root division, Sai is quietly expressive and artistic. He uses a set of brushes with chakra-infused ink to give life to his illustrations, which usually take the form of powerful black-and-white beasts." 
     [ [ newSkill
@@ -83,7 +127,8 @@ organizationCsS =
                     , (Allies, trap 3 (OnStunned Multi) § apply 1 [Immune All] 
                              • trap 3 (OnDamaged NonAffliction) . self 
                                § apply 1 [Strengthen All 10])
-                    , (Self,   vary 3 1 1)
+                    , (Self,   vary' 3 "Super Beast Scroll: Snake" 
+                                       "Super Beast Scroll: Bird")
                     ]
         }
       ]
@@ -157,15 +202,16 @@ organizationCsS =
         , classes = [Mental]
         , cost    = χ [Blood]
         , channel = Ongoing 0
-        , start   = [(Self, addStacks "Sharingan" 10 • vary' 0 1)]
+        , start   = [(Self, addStacks "Sharingan" 10 
+                          • vary "Izanagi" "Izanagi")]
         , effects = [(Self, ifnotI "paused" 
                             $ removeStack "Sharingan"
                             • ifnotI "Sharingan"
                               § cancelChannel "Izanagi"
-                              ° vary 0 0 2
+                              ° vary "Izanagi" "Reverse Tetragram Sealing"
                               ° trap' 1 OnRes 
                                 ( cancelChannel "Izanagi"
-                                • vary 0 0 2
+                                • vary "Izanagi" "Reverse Tetragram Sealing"
                                 • perI "Sharingan" 10 setHealth 0
                                 • remove "Sharingan"
                                 ))]

@@ -1,6 +1,6 @@
 {-# OPTIONS_HADDOCK hide #-}
 -- | Abandon hope, all ye who enter here.
-module Game.BlackMagic () where
+module Core.BlackMagic () where
 
 import Prelude
 import Yesod (ToJSON, toJSON)

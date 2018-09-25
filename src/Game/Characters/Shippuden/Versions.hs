@@ -10,15 +10,16 @@ import Game.Structure
 
 versionCsS :: [Character]
 versionCsS =
-  [ Character
+  [ let loadout = varyLoadout 1 0 0 True
+    in Character
     "Nine-Tailed Naruto"
     "Rage has triggered the beast within Naruto to emerge. As his hatred grows, so does the nine-tailed beast's power. If left unchecked, Kurama may break free of his seal, and Naruto himself will cease to exist."
     [ [ newSkill
         { label   = "Four-Tailed Transformation"
         , desc    = "Naruto's rage takes over. He loses 5 health down to a minimum of 1 and gains 10 points of damage reduction and 10 permanent destructible defense. He permanently ignores all healing. His other skills become usable, and will increase in strength as his transformation progresses through further stages. Once used, this skill becomes [Six-Tailed Transformation][b][r]."
         , classes = [Chakra, Unremovable]
-        , effects = [(Self, sacrifice 1 5 • defend 0 10 • vary 0 0 1
-                          • apply 0 [Reduce All 10, Plague] • setFace 0)]
+        , effects = [(Self, sacrifice 1 5 • defend 0 10 • loadout 0 • setFace 0
+                          • apply 0 [Reduce All 10, Plague])]
         }
       , newSkill
         { label   = "Six-Tailed Transformation"
@@ -26,8 +27,7 @@ versionCsS =
         , classes = [Chakra, Unremovable]
         , cost    = χ [Blood, Rand]
         , effects = [(Self, remove "Four-Tailed Transformation"
-                          • sacrifice 1 10 • defend 0 20 • setFace 0
-                          • vary 0 0 2 • vary 0 1 1 • vary 0 2 1 • vary 0 3 1
+                          • sacrifice 1 10 • defend 0 20 • loadout 1 • setFace 0 
                           • apply 0 [Reduce All 20, Plague, Seal, Enrage])]
         }
       , newSkill
@@ -36,8 +36,7 @@ versionCsS =
         , classes = [Chakra, Unremovable]
         , cost    = χ [Blood, Blood]
         , effects = [(Self, remove "Six-Tailed Transformation"
-                          • sacrifice 1 15 • defend 0 30 • setFace 0
-                          • vary 0 0 3 • vary 0 1 2 • vary 0 2 2 • vary 0 3 2
+                          • sacrifice 1 15 • defend 0 30 • loadout 2 • setFace 0
                           • apply 0 [Reduce All 30, Plague, Seal, Enrage])
                     ]
         }
@@ -156,7 +155,9 @@ versionCsS =
         , cost    = χ [Blood]
         , cd      = 4
         , effects = [(Self, apply 3 [Reduce Affliction 15] 
-                          • vary 3 1 2 • vary 3 2 1 • setFace 3 )]
+                          • vary' 3 "Chidori" "Blazing Arrow"
+                          • vary' 3 "Amaterasu" "Yasaka Beads"
+                          • setFace 3 )]
         }
       ]
     , [ newSkill
@@ -165,27 +166,14 @@ versionCsS =
         , classes = [Chakra, Melee]
         , cost    = χ [Nin, Rand]
         , cd      = 2
-        , effects = [ (Enemy, pierce 20 • apply 1 [Stun Melee])
-                    , (Self,  trap (-1) (OnDamaged Physical) 
-                              § remove "Chidori Burst"
-                            • bomb (-1) [Reduce Physical 15]
-                              [(Expire, vary 1 1 1 • reset 1 0)]
-                      )
-                    ]
-        }
-      , newSkill
-        { label   = "Chidori"
-        , desc    = "Sasuke hurls lightning energy at an enemy, dealing 20 piercing damage and stunning their melee skills for 1 turn. Next turn, Sasuke gains 15 points of physical damage reduction. If no new physical skills are used on Sasuke by the end of the turn, the cost of this skill becomes 1 ninjutsu chakra and its cooldown resets. During [Susano'o], this skill becomes [Blazing Arrow][b][r]."
-        , classes = [Chakra, Melee]
-        , cost    = χ [Nin]
-        , cd      = 2
         , effects = [ (Enemy, pierce 20 • apply 1 [Stun All])
                     , (Self,  trap (-1) (OnDamaged Physical) 
-                              § remove "Chidori Burst"
+                              § remove "Chidori"
                             • bomb (-1) [Reduce Physical 15]
-                              [(Expire, vary 1 1 1 • reset 1 0)] 
+                              [(Expire, hide 1 [] • reset "Chidori" "")] 
                       )
                     ]
+        , changes = changeWith "Chidori" $ setCost [Nin]
         }
       , newSkill
         { label   = "Blazing Arrow"
@@ -202,7 +190,8 @@ versionCsS =
                     ]
         , disrupt = [ (Enemy, perI "Blazing Arrow" 15 damage 0)
                     , (Self,  remove "Blazing Arrow"
-                            • cancelChannel "Blazing Arrow" • reset 1 2)
+                            • cancelChannel "Blazing Arrow" 
+                            • reset "Chidori" "Blazing Arrow")
                     ]
         }
       ]
@@ -569,7 +558,8 @@ versionCsS =
         , charges = 1
         , channel = Ongoing 3
         , start   = [(Self, apply 0 [Reduce Affliction 5] 
-                          • delay (-3) § vary 0 0 1
+                          • delay (-3) § vary' 0 "Skeletal Susano'o" 
+                                                 "Armored Susano'o"
                           • hide' "susan" 0 [])]
         , effects = [(Self, defend 0 5)]
         }

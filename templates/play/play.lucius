@@ -423,6 +423,10 @@ a.playButton {
     outline: 2px solid #0099ff !important;
     filter: none;
 }
+#characterButtons .selected, #characterButtons .char.click.selected:hover {
+    outline: 2px solid #ff0000 !important;
+    filter: none;
+}
 
 #characterButtons img {
     width: 60px;

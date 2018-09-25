@@ -19,7 +19,7 @@ organizationCs =
         , classes = [Physical, Melee]
         , cost    = χ [Tai]
         , effects = [ (Enemy, apply 1 [Stun NonMental])
-                    , (Self,  vary 1 0 1)
+                    , (Self,  vary' 1 "Chain Wrap" "Chain Shred")
                     ]
         }
       , newSkill
@@ -30,7 +30,7 @@ organizationCs =
         , cost    = χ [Tai]
         , effects = [(Enemies, pierce 45
                              • apply' "Chain Wrap" 1 [Stun NonMental]
-                             • self § vary 1 0 1)]
+                             • self § vary' 1 "Chain Wrap" "Chain Shred")]
         }
       ]
     , [ newSkill
@@ -135,7 +135,9 @@ organizationCs =
         , classes = [Mental, Unremovable]
         , cost    = χ [Blood]
         , effects = [(Self, apply 0 [ Immune All, Afflict 15]
-                           • vary 0 0 1 • vary 0 1 1 • vary 0 2 1)]
+                           • vary "Mangekyō Sharingan" "Mangekyō Sharingan"
+                           • vary "Amaterasu"          "Amaterasu"
+                           • vary "Tsukuyomi"          "Tsukuyomi")]
         }
       , newSkill
         { label   = "Mangekyō Sharingan"
@@ -143,7 +145,9 @@ organizationCs =
         , classes = [Mental]
         , varicd  = True
         , effects = [(Self, remove "Mangekyō Sharingan" 
-                          • vary 0 0 0 • vary 0 1 0 • vary 0 2 0)]
+                          • vary "Mangekyō Sharingan" ""
+                          • vary "Amaterasu"          ""
+                          • vary "Tsukuyomi"          "")]
         }
       ]
     , [ newSkill

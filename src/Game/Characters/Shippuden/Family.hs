@@ -42,9 +42,10 @@ familyCsS =
         , cost    = χ [Rand, Rand]
         , cd      = 5
         , channel = Action 0
-        , start   = [(Self, defend 0 50 • vary' 0 1 • vary' 1 1
-                          • onBreak § cancelChannel "Ten Puppets Collection"
-                                    ° vary 0 0 0 ° vary 0 1 0)]
+        , start   = [(Self, defend 0 50 
+                          • vary "Assault Blade" "Three Treasure Suction Crush"
+                          • vary "Ten Puppets Collection" "Lion Roar Sealing"
+                          • onBreak § cancelChannel "Ten Puppets Collection")]
         , effects = [(REnemy, damage 10)]
         }
       , newSkill
@@ -86,8 +87,7 @@ familyCsS =
         , desc    = "Inoichi steps back and focuses on the tide of battle. Each time an enemy uses a harmful skill, Inoichi will recover 10 health and gain a stack of [Sensory Radar]. While active, this skill becomes [Sensory Radar: Collate][r]."
         , classes = [Mental, Ranged, Multi]
         , cost    = χ [Nin]
-        , cd      = 0
-        , effects = [ (Self, vary' 1 1)
+        , effects = [ (Self, vary "Sensory Radar" "Sensory Radar: Collate")
                     , (Enemies, trap 0 OnHarm . self § heal 10 ° addStack)
                     ]
         }
@@ -96,9 +96,8 @@ familyCsS =
         , desc    = "Inoichi compiles all the information he has gathered and makes the most of it. For every stack of [Sensory Radar], he gains a random chakra. Ends [Sensory Radar]."
         , classes = [Mental, Ranged]
         , cost    = χ [Rand]
-        , cd      = 0
         , effects = [ (Enemies, removeTrap "Sensory Radar")
-                    , (Self,    vary 0 1 0 
+                    , (Self,    vary "Sensory Radar" ""
                               • perI "Sensory Radar" 0 
                                 (gain . flip replicate Rand) 1
                               • remove "Sensory Radar")

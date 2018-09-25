@@ -134,13 +134,13 @@ comp practice0 (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
           ]
         ]
       ]
-    , H.section [_i "player0", _c "player"] $ hNinja true  <$> nsI
-    , H.section [_i "player1", _c "player"] $ hNinja false <$> nsU
+    , H.section [_i "player0", _c "player"] $ renderNinja true  <$> nsI
+    , H.section [_i "player1", _c "player"] $ renderNinja false <$> nsU
     ] <> case g.gameVictor of 
       Nothing -> 
         [ H.section [_i "playchakra"] $
-          (hChakra turn st.exchange χNet <$> pairedChakras)
-        <> [ hRands (χSum χNet) χrand 
+          (renderChakra turn st.exchange χNet <$> pairedChakras)
+        <> [ renderRands (χSum χNet) χrand 
           , H.div 
             (mClick "exchange" "chakraButton" exchangeable $ ExchangeBegin) 
             [H.text "Exchange"]
@@ -150,7 +150,7 @@ comp practice0 (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
             ) [H.text "Reset"]
           ]
         , H.section [_i "playqueuecont"]
-          [ H.div [_i "playqueue"] $ hAct cs <$> st.acts
+          [ H.div [_i "playqueue"] $ renderAct cs <$> st.acts
           , H.div (_i "ready" : readyMeta) []
           ]
         ]
@@ -179,7 +179,7 @@ comp practice0 (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
                          enactUrl st.randoms st.exchanged st.acts  
                        ]
       cs             = zipWith mergeSkills st.characters g.gameNinjas
-      hNinja         = hCharacter cs acted st.toggled st.highlight free turn
+      renderNinja    = renderCharacter cs acted st.toggled st.highlight free turn
       pairedChakras  = [ pair "blood" _.blood $ χf _{ blood = 1 }
                        , pair "gen"   _.gen   $ χf _{ gen   = 1 }
                        , pair "nin"   _.nin   $ χf _{ nin   = 1 }
@@ -279,7 +279,7 @@ comp practice0 (GameInfo {gameGame, gamePar, gameVsUser, gameCharacters}) =
         modify_ _{ highlight = [] }
     where 
       untoggle     = _{ toggled = Nothing }
-      identity         = progress $ Milliseconds 60000.0
+      identity     = progress $ Milliseconds 60000.0
       practiceWait = Milliseconds 1500.0
   eval (QuerySelect _ next) = pure next
 
@@ -294,8 +294,8 @@ enactUrl rand trade acts = intercalate "/" $ χList <> actList
     χList' (Chakras {blood, gen, nin, tai}) = [blood, gen, nin, tai]
     actList' (Act {actC, actS, actT}) = [actC, actS, actT]
 
-hChakra :: ∀ a. Boolean -> Boolean -> Chakras -> ChakraPair -> HTMLQ a
-hChakra turn exchange χs (ChakraPair chakra spend amount random) = H.div_ $
+renderChakra :: ∀ a. Boolean -> Boolean -> Chakras -> ChakraPair -> HTMLQ a
+renderChakra turn exchange χs (ChakraPair chakra spend amount random) = H.div_ $
     [ H.div meta []
     , _span $ show amount
     , H.a 
@@ -313,8 +313,8 @@ hChakra turn exchange χs (ChakraPair chakra spend amount random) = H.div_ $
                     ExchangeConclude spend
       | otherwise = [_c $ "chakra " <> chakra]
              
-hRands :: ∀ a. Int -> Int -> HTMLQ a
-hRands amount random = H.div [_c "randbar"]
+renderRands :: ∀ a. Int -> Int -> HTMLQ a
+renderRands amount random = H.div [_c "randbar"]
     [ H.span [_c "randT"] [H.text "T"]
     , _span $ show amount
     , H.a [_c "more noclick"] [H.text "+"]
@@ -323,8 +323,8 @@ hRands amount random = H.div [_c "randbar"]
     , H.span (if random < 0 then [_c "negrand"] else []) [H.text $ show random]
     ]
 
-hAct :: ∀ a. Array Character -> Act -> HTMLQ a
-hAct cs a'@(Act a) = H.div 
+renderAct :: ∀ a. Array Character -> Act -> HTMLQ a
+renderAct cs a'@(Act a) = H.div 
     [_c "act click", E.onClick <<< input $ Enact Delete a']
     [ H.img $ [cIcon (getC cs $ skillRoot a.actSkill a.actC) $ show a.actSkill]
     , H.div [_c "actcost"] <<< hCost $ actCost a'
@@ -332,11 +332,11 @@ hAct cs a'@(Act a) = H.div
 
 actToggles :: Maybe Act -> Array Int
 actToggles Nothing = []
-actToggles (Just (Act a)) = a.actTs `union` skillTarget a.actC a.actSkill
+actToggles (Just (Act a)) = a.actTs `intersect` skillTarget a.actC a.actSkill
 
-hCharacter :: ∀ a. Array Character -> Array Int -> Maybe Act -> Array Int -> Chakras 
-           -> Boolean -> Boolean -> Zipped -> HTMLQ a
-hCharacter cs acted toggle highlighted χs turn onTeam 
+renderCharacter :: ∀ a. Array Character -> Array Int -> Maybe Act -> Array Int 
+                -> Chakras -> Boolean -> Boolean -> Zipped -> HTMLQ a
+renderCharacter cs acted toggle highlighted χs turn onTeam 
   (Zipped character n'@(Ninja n) ts) =
     (if n.nHealth == 0 then H.section [_c "dead"] else H.section_) $
       H.aside [_c "channels"] hChannels : mainBar <>
@@ -352,10 +352,10 @@ hCharacter cs acted toggle highlighted χs turn onTeam
     live els  
       | n.nHealth > 0 = els
       | otherwise   = []
-    hChannels = live $ hChannel cs <$> reverse n.nChannels
-    hDefenses = live $ hDefense n.nId anchor n.nHealth 
+    hChannels = live $ renderChannel cs <$> reverse n.nChannels
+    hDefenses = live $ renderDefense n.nId anchor n.nHealth 
                 (reverse n.nBarrier) (reverse n.nDefense)
-    hInfos    = live <<< map (hInfo onTeam n.nId cs) <<< 
+    hInfos    = live <<< map (renderInfo onTeam n.nId cs) <<< 
                 onTeam ? reverse $ infos n'
     active    = onTeam && turn && n.nHealth > 0 && n.nId `notElem` acted
     classes   = catMaybes [ n.nId `elem` highlighted       ?? " highlighted"
@@ -363,14 +363,14 @@ hCharacter cs acted toggle highlighted χs turn onTeam
                           ] 
     mainMeta  = catMaybes [ not (null classes) ?? _c (intercalate " " classes)
                           , Just <<< hover $ ViewCharacter character
-                          , E.onClick <<< input <<< Enact Add <<< retarget 
-                            <$> toggle
+                          , E.onClick <<< input <<< Enact Add <<< retarget <$>
+                            (guard (n.nId `elem` actToggles toggle) *> toggle)
                           ]
     mainBar   = not onTeam ? reverse $
                 [ H.section mainMeta
                   [H.img [_c "charicon", faceIcon']]
                 , H.div [_c "charmoves"]
-                  <<< zip5 (hSkill n.nId χs active cs) (0..3) ts 
+                  <<< zip5 (renderSkill n.nId χs active cs) (0..3) ts 
                       (n.nCharges <> [0,0,0,0]) n.nSkills 
                   <<< (n.nHealth > 0) ? (n.nCooldowns <> _) $ [0, 0, 0, 0]
                 ]
@@ -386,8 +386,8 @@ sync :: ∀ a b. Int -> HTML a b
 sync 0   = H.text "Permanent"
 sync dur = H.text <<< show $ (dur + 1) / 2
 
-hChannel :: ∀ a. Array Character -> Channel -> HTMLQ a
-hChannel cs (Channel ch) = H.div
+renderChannel :: ∀ a. Array Character -> Channel -> HTMLQ a
+renderChannel cs (Channel ch) = H.div
     [ _c    $ classF ch.channelDur "status"
     , hover $ ViewSkill ch.channelRoot [] 0 ch.channelSkill
     ]
@@ -401,32 +401,32 @@ hChannel cs (Channel ch) = H.div
     classF (Control _) = ("control " <> _)
     classF _           = identity
        
-hBarrier :: ∀ a. Int -> String -> Int -> Array Barrier 
+renderBarrier :: ∀ a. Int -> String -> Int -> Array Barrier 
          -> Array (HTMLQ a)
-hBarrier nId anchor track barriers = case uncons barriers of
+renderBarrier nId anchor track barriers = case uncons barriers of
     Nothing                           -> []
     Just {head: b'@(Barrier b), tail} -> H.div 
         [ _c "charbarrier"
         , _style $ 
           anchor <> show track <> "%; width: " <> show b.barrierAmount <> "%"
         , hover $ ViewBarrier b'
-        ] [] : hBarrier nId anchor (track + b.barrierAmount) tail
+        ] [] : renderBarrier nId anchor (track + b.barrierAmount) tail
  
-hDefense :: ∀ a. Int -> String -> Int -> Array Barrier -> Array Defense
+renderDefense :: ∀ a. Int -> String -> Int -> Array Barrier -> Array Defense
          -> Array (HTMLQ a)
-hDefense nId anchor track barriers defenses = case uncons defenses of
-    Nothing -> hBarrier nId anchor track barriers
+renderDefense nId anchor track barriers defenses = case uncons defenses of
+    Nothing -> renderBarrier nId anchor track barriers
     Just {head: d'@(Defense d), tail} -> H.div 
         [ _c "chardefense"
         , _style $ 
           anchor <> show track <> "%; width: " <> show d.defenseAmount <> "%"
         , hover $ ViewDefense d'
         ]
-        [] : hDefense nId anchor (track + d.defenseAmount) barriers tail
+        [] : renderDefense nId anchor (track + d.defenseAmount) barriers tail
 
-hSkill :: ∀ a. Int -> Chakras -> Boolean -> Array Character -> Int -> Array Int
-       -> Int -> Skill -> Int -> HTMLQ a
-hSkill nId χs active cs sI ts charge s'@(Skill s) cd
+renderSkill :: ∀ a. Int -> Chakras -> Boolean -> Array Character -> Int 
+            -> Array Int -> Int -> Skill -> Int -> HTMLQ a
+renderSkill nId χs active cs sI ts charge s'@(Skill s) cd
     = case unit of
  _| cd > 0 -> cant
               [ H.img [cIcon (getC cs $ skillRoot s' nId) s.label]
@@ -456,8 +456,8 @@ hSkill nId χs active cs sI ts charge s'@(Skill s) cd
 fromAlly :: Int -> Info -> Boolean
 fromAlly c info = allied c info.root && allied c info.src
 
-hInfo :: ∀ a. Boolean -> Int -> Array Character -> Info -> HTMLQ a
-hInfo team nId cs info = H.div
+renderInfo :: ∀ a. Boolean -> Int -> Array Character -> Info -> HTMLQ a
+renderInfo team nId cs info = H.div
     [_c $ intercalate " " classes', hover $ ViewInfo removes info]
     [ H.div_ <<< (info.count > 1) ? consAfter (_span $ show info.count) $
       [H.img [cIcon (getC cs info.root) info.name]]

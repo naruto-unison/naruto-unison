@@ -43,7 +43,7 @@ kidCs =
       ]
     , [ newSkill
         { label   = "Shadow Clones"
-        , desc    = "Naruto creates 6 Shadow Clones who hide him and fight in his place. Each shadow clone provides 5 points of damage reduction. Every time an enemy uses a skill on Naruto, a shadow clone deals 5 damage to them and disappears. Every time Naruto loses a shadow clone by using a skill, the shadow clone deals 5 damage to a random enemy. Cannot be used while Naruto has shadow clones remaining."
+        , desc    = "Naruto creates 6 Shadow Clones who hide him and fight in his place. Each shadow clone provides 5 points of damage reduction. Each time an enemy uses a skill on Naruto, a shadow clone deals 5 damage to them and disappears. Each time Naruto loses a shadow clone by using a skill, the shadow clone deals 5 damage to a random enemy. Cannot be used while Naruto has shadow clones remaining."
         , require = HasI (-1) "Shadow Clone"
         , classes = [Chakra, Unremovable, BaseTrap]
         , cost    = χ [Rand]
@@ -260,7 +260,8 @@ kidCs =
       ]
     , invuln "Hide" "Shikamaru" [Mental]
     ] []
-  , Character
+  , let loadout = varyLoadout 0 0 0 False
+    in Character
     "Chōji Akimichi"
     "A genin from Team 10, Chōji is a voracious eater and loyal friend. His clan's special pills immensely magnify his innate strength and unlock different abilities, but the toll they take on his body can kill him if he pushes himself too far."
     [ [ newSkill 
@@ -268,8 +269,7 @@ kidCs =
         , desc    = "Chōji eats the mildest Akimichi pill, losing 5 health down to a minimum of 1 and gaining the strength he needs to protect his friends. While alive, he provides 5 points of damage reduction to his allies."
         , classes = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , effects = [ (XAllies, apply' "Protected" 0 [Reduce All 5])
-                    , (Self,    sacrifice 1 5 
-                              • vary 0 0 1 • vary 0 1 1 • vary 0 2 1)
+                    , (Self,    sacrifice 1 5 • loadout 1)
                     ]
         }
       , newSkill
@@ -302,8 +302,7 @@ kidCs =
         , classes = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , cost    = χ [Rand]
         , effects = [ (XAllies, apply' "Protected" 0 [Reduce All 10])
-                    , (Self,    sacrifice 1 15 
-                              • vary 0 0 2 • vary 0 1 2  • vary 0 2 2)
+                    , (Self,    sacrifice 1 15 • loadout 2)
                     ]
         }
       , newSkill
@@ -343,8 +342,7 @@ kidCs =
         , cost    = χ [Rand, Rand]
         , effects = [ (XAllies, apply' "Protected" 0 [Reduce All 15])
                     , (Self, sacrifice 1 10 • apply 0 [Focus, Afflict 15]
-                           • vary 0 0 3 • vary 0 1 3 • vary 0 2 3 • vary 0 3 1
-                           • setFace 0)
+                           • loadout 3 • setFace 0)
                     ]
         }
       , newSkill
@@ -352,8 +350,7 @@ kidCs =
         , desc    = "Chōji eats the second Akimichi pill, losing 5 health down to a minimum of 1 and unlocking huge reserves of chakra. While alive, he provides 10 points of damage reduction to his allies."
         , classes = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , effects = [ (XAllies, apply' "Protected" 0 [Reduce All 10])
-                    , (Self, sacrifice 1 5 
-                           • vary 0 0 2 • vary 0 1 2 • vary 0 2 2)
+                    , (Self, sacrifice 1 5 • loadout 2)
                     ]
         }
       , newSkill
@@ -361,8 +358,8 @@ kidCs =
         , desc    = "Chōji eats the third Akimichi pill and gains so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns."
         , classes = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , effects = [ (XAllies, apply' "Protected" 0 [Reduce All 15])
-                    , (Self, apply 0 [Focus, Afflict 15] • setFace 0
-                           • vary 0 0 3 • vary 0 1 3 • vary 0 2 3 • vary 0 3 1)
+                    , (Self, apply 0 [Focus, Afflict 15]
+                           • loadout 3 • vary "Block" "Block" • setFace 0)
                     ]
         }
       , newSkill
@@ -404,7 +401,7 @@ kidCs =
         , cost    = χ [Gen, Gen]
         , cd      = 3
         , channel = Control 4
-        , start   = [(Self, vary' 1 1)]
+        , start   = [(Self, vary "Mind Transfer" "Art of the Valentine")]
         , effects = [(Enemy, apply 1 [Stun All, Expose])]
         }
       , newSkill
@@ -456,7 +453,7 @@ kidCs =
         , cost    = χ [Tai]
         , cd      = 4
         , effects = [(Self, cureAll • apply 2 [Immune All] • sacrifice 1 50
-                          • vary 2 2 1)]
+                          • vary' 2 "Fifth Gate Opening" "Final Lotus")]
         }
       , newSkill
         { label   = "Final Lotus"
@@ -559,7 +556,7 @@ kidCs =
         , cost    = χ [Nin, Rand]
         , cd      = 2
         , channel = Control 2
-        , start   = [(Self, vary' 0 1)]
+        , start   = [(Self, vary "Sand Coffin" "Sand Burial")]
         , effects = [(Enemy, apply 1 [Expose, Stun NonMental])]
         }
       , newSkill
@@ -569,7 +566,7 @@ kidCs =
         , classes = [Physical, Ranged]
         , cost    = χ [Nin, Nin]
         , effects = [(Enemies, killThen 
-                             . self § cancelChannel "Sand Coffin" ° vary 0 0 0)]
+                             . self § cancelChannel "Sand Coffin" ° heal 10)]
         }
       ]
     , [ newSkill

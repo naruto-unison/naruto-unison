@@ -15,13 +15,10 @@ addStatus st n@Ninja{..}
   | otherwise = n { nStatuses = nStatuses' }
   where 
     st' = st { statusClasses = filter (InvisibleTraps /=) $ statusClasses st }
-    addCount x = x { statusCount = statusCount x + statusCount st }
-    nStatuses'
+    nStatuses' 
       | Nonstacking `elem` statusClasses st = 
-          st' : filter (not . lEq st') nStatuses
-      | otherwise = case find (== st') nStatuses of
-          Nothing    -> st' : nStatuses
-          Just match -> addCount match : delete match nStatuses
+                    st' : filter (not . lEq st') nStatuses
+      | otherwise = st': nStatuses
 
 -- Replicates 'addStatus'.
 addStacks :: Int -> Text -> Int -> Skill -> Slot -> Slot -> Ninja -> Ninja
@@ -50,7 +47,7 @@ attack hp n@Ninja{..} = n { nHealth = healthBound (minHealth n) $ nHealth - hp }
 
 -- | Deletes matching 'Channel's in 'nChannels'.
 cancelChannel :: Text -> Ninja -> Ninja
-cancelChannel l n@Ninja{..} = n 
+cancelChannel l n@Ninja{..} = unVariant l $ n 
     { nChannels = filter ((l /=) . label . channelSkill) nChannels }  
 
 -- | Deletes matching 'Status'es in 'nStatuses'.
@@ -101,7 +98,7 @@ decr :: Ninja -> Ninja
 decr n@Ninja{..} = case findMatch nStatuses of
         Just (Snapshot n') -> decr n' -- TODO
         _ -> n { nDefense   = mapMaybe decrTurn nDefense 
-              , nStatuses  = mapMaybe decrTurn nStatuses
+              , nStatuses  = foldStats $ mapMaybe decrTurn nStatuses
               , nBarrier   = mapMaybe decrTurn nBarrier
               , nFace      = mapMaybe decrTurn nFace     
               , nChannels  = mapMaybe decrTurn newChans 
@@ -113,6 +110,7 @@ decr n@Ninja{..} = case findMatch nStatuses of
               , nCopied    =        (>>= decrTurn)       <$> nCopied 
               , nCooldowns = ((max 0 . subtract 1) <$>) <$> nCooldowns 
               , nParrying  = []
+              , nFlags     = mempty
               }
   where 
     findMatch          = find match . reverse . concatMap statusEfs .
@@ -122,6 +120,9 @@ decr n@Ninja{..} = case findMatch nStatuses of
     decrTurn' xs = case mapMaybe decrTurn $ toList xs of
         x:xs' -> x :| xs'
         []    -> noVariant :| []
+    foldStats = map foldStat . group . sort
+    foldStat   (x:|[]) = x
+    foldStat xs@(x:|_) = x { statusCount = sum $ statusCount <$> xs }
 
 kill :: Bool -- ^ Can be prevented by 'Endure'
      -> Ninja 
@@ -192,10 +193,18 @@ removeOwn :: Text -> Int -> Ninja -> Ninja
 removeOwn l _ n@Ninja{..} = clear l nId n
 
 -- | Sets an element in 'nCooldowns' to 0.
-reset :: Int -- ^ Skill index (0-3)
-      -> Int -- ^ 'Variant' index in 'characterSkills' of 'nCharacter'
+unsafeReset :: Int -- ^ Skill index (0-3)
+            -> Int -- ^ 'Variant' index in 'characterSkills' of 'nCharacter'
+            -> Ninja -> Ninja
+unsafeReset s v n@Ninja{..} = n { nCooldowns = insertCd s v 0 nCooldowns }
+
+-- | Ssets an element in 'nCooldowns' to 0.
+reset :: Text -- ^ 'label' of the base 'Skill'
+      -> Text -- ^ 'label' of the variant to search for
       -> Ninja -> Ninja
-reset s v n@Ninja{..} = n { nCooldowns = insertCd s v 0 nCooldowns }
+reset l v n = safe n l v n
+  where
+    safe = skillSafe id unsafeReset
 
 -- | Sets 'nCooldowns' to 'S.empty'.
 resetAll :: Ninja -> Ninja
@@ -223,8 +232,9 @@ unCounter n@Ninja{..} = n
 -- | Resets matching 'nVariants'.
 unVariant :: Text -> Ninja -> Ninja
 unVariant l n@Ninja{..} = n { nVariants = f <$> nVariants }
-  where 
-    f = ensure . filter ((l /=) . variantL) . toList
+  where
+    keep Variant{..} = not variantFrom || variantL /= l
+    f = ensure . filter keep . toList -- TODO
     ensure []     = noVariant :| []
     ensure (x:xs) = x :| xs
 

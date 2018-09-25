@@ -36,7 +36,7 @@ module Game.Game
     , perI, perI', perU, perHealthI, perHealthU
     , withI, withU, withInvulnU, withChan
     -- * 'Transform's
-    , delay, factory, vary, vary', identity, identity'
+    , delay, factory, vary, vary', varyLoadout, identity, identity'
     -- ** 'Chakras'
     , drain, gain, steal
     -- ** 'Channel'
@@ -74,6 +74,7 @@ import StandardLibrary
 import qualified Data.Either           as Either
 import qualified Data.List.NonEmpty    as NonEmpty
 import qualified Data.Sequence         as Seq
+import qualified Data.HashSet          as Set
 import qualified Data.Text             as Text
 import qualified System.Random         as Random
 import qualified System.Random.Shuffle as Shuffle
@@ -148,10 +149,11 @@ runTurn player actions stdGen game = yieldVictor game'Full
     game'Chan  = doDeaths .
                  doDelays .
                  doTraps .
-                 turnTrigger player game .
+                 turnPerTrigger player game .
                  doBarriers player .
                  doBombs Remove game .
                  decrStats .
+                 turnTrigger player .
                  foldl' (act []) game'Acts . zip chans $ Right <$> rs'
     decrDelays = filter ((0 /=) . getDur) . mapMaybe decrTurn . gameDelays
     game'End   = doBombs Done game .
@@ -200,7 +202,7 @@ doBomb bombType t Status{..} game = foldl' detonate game statusBombs
 doBarriers :: Player -> Game -> Game
 doBarriers player game@Game{..} = foldl' doBarrier game barriers
   where 
-    barriers = concatMap (map head . groupBy lEq . nBarrier) gameNinjas
+    barriers = concatMap (map head . groupBy lEq . sort . nBarrier) gameNinjas
     doBarrier game' Barrier{..}
       | barrierDur == 1           = barrierDone barrierAmount game'
       | alliedP player barrierSrc = barrierWhile game'
@@ -298,8 +300,7 @@ act affected' game'Swap (Act c s t, rando)
     game'Cd     = updateCd hascharge 0 skill c s game
     affected    = Either.isRight s ? (Channeled :) $ affected'Swap
     game'F      = doEffects affected skill c c t rando game'Cd
-    game'       = alter (<&> \nt -> nt { nTargeted = False }) .
-                  trigger affected skill c game'Cd .
+    game'       = trigger affected skill c game'Cd .
                   Either.isLeft s ? addChannels (channel skill) c skill t $
                   game'F
     notChan (Left _)   = False
@@ -319,7 +320,7 @@ addChannels chan    channelC channelSkill@Skill{..} channelT
   where 
     addChans n@Ninja{..} = n { newChans = Channel{..} : newChans }
     channelRoot          = copyRoot channelSkill channelC
-    dur                  = copyDur copying . sync $ getDur chan
+    dur                  = copyDur copying . (+1) . sync $ getDur chan
     channelDur           = setDur dur chan
 
 updateCd :: Bool -> Int -> Skill -> Slot -> Either Int Skill -> Game -> Game
@@ -349,12 +350,17 @@ trigger affected Skill{..} c game game'Pre
   where 
     n       = gameNinja c game
     n'Pre   = gameNinja c game'Pre
-    dmgTot  = sum $ Seq.zipWith healthLost (gameNinjas game) (gameNinjas game'Pre)
+    dmgTot  = sum $ 
+              Seq.zipWith healthLost (gameNinjas game) (gameNinjas game'Pre)
     n'      = n'Pre { nTraps = updatePer <$> nTraps n'Pre }
     game'   = setNinja c n' game'Pre
     ns'Cp   = Seq.zipWith cop (gameNinjas game) (gameNinjas game')
-    als     = Seq.fromList [ (a, a') | a <- allies  c game | a' <- allies  c game' ]
-    ens     = Seq.fromList [ (a, a') | a <- enemies c game | a' <- enemies c game' ]
+    als     = Seq.fromList [ (a, a') | a  <- allies  c game 
+                                     | a' <- allies  c game' 
+                                     ]
+    ens     = Seq.fromList [ (a, a') | a  <- enemies c game 
+                                     | a' <- enemies c game' 
+                                     ]
     allNs   = [ (nt, nt') | nt  <- gameNinjas game,  nId nt  /= c 
                           | nt' <- gameNinjas game', nId nt' /= c
                           ]
@@ -369,15 +375,16 @@ trigger affected Skill{..} c game game'Pre
     dmgEns  = [ nt' | (nt, nt') <- allNs, nHealth nt > nHealth nt' ]
     damaged = [ nt' | (nt, nt') <- allNs, nHealth nt > nHealth nt' ]
     stunned = [ nt' | (nt, nt') <- ens, is' Stun nt', not $ is' Stun nt ]
-    n'Taunt = case harmed of
-                [Ninja{nId}] -> case getTaunting n' of
-                  Just (dur, st@Status{..}) -> 
-                    let st' = Status 1 statusL statusSrc nId nId
-                              statusSkill [Taunt] statusClasses [] 
-                              (sync dur) (sync dur)
-                    in n' { nStatuses = st' : delete st (nStatuses n')} 
-                  Nothing         -> n'
-                _                 -> n'
+    addFlags = (game'Pre /= game) ? Set.insert Acted . 
+               harmful ? Set.insert Harmed
+    n'Acted = n' { nFlags = addFlags $ nFlags n' }
+    n'Taunt = case ( harmed, getTaunting n' ) of
+                ( [Ninja{nId}], Just (dur, st@Status{..}) ) -> 
+                  let st' = Status 1 statusL statusSrc nId nId
+                            statusSkill [Taunt] statusClasses [] 
+                            (sync dur) (sync dur)
+                  in n'Acted { nStatuses = st' : delete st (nStatuses n')} 
+                _                 -> n'Acted
     game'T  = setNinja c n'Taunt game' 
     trapsF  = join $ join
               [ getTrapsFrom OnDamage n' <$> damaged
@@ -386,12 +393,12 @@ trigger affected Skill{..} c game game'Pre
               ] :: Seq (Game -> Game)
     trapsC  = join
               [ counttr
-              , getTrapsTo chakraF              OnChakra n'
-              , getTrapsTo (not $ null dmgEns)  OnDamage n'
-              , getTrapsTo (not $ null stunned) OnStun   n'
-              , getTrapsTo (was Immune (n', n)) OnImmune n'
-              , getTrapsTo harmful              OnHarm   n'
-              , classTrs (game'Pre /= game)      OnAction classes n' 
+              , getTrapsTo chakraF              OnChakra   n'
+              , getTrapsTo (not $ null dmgEns)  OnDamage   n'
+              , getTrapsTo (not $ null stunned) OnStun     n'
+              , getTrapsTo (was Immune (n', n)) OnImmune   n'
+              , getTrapsTo harmful              OnHarm     n'
+              , classTrs (game'Pre /= game)     OnAction   classes n'
               ]
     trapsN  = join $ join
               [ getTraps True OnHelped          <$> helped
@@ -416,23 +423,34 @@ trigger affected Skill{..} c game game'Pre
 healthLost :: Ninja -> Ninja -> Int
 healthLost n n' = max 0 $ nHealth n - nHealth n'
 
-getTurnTraps :: Player -> Ninja -> Ninja -> Seq (Game -> Game)
-getTurnTraps player n n'
-  | hp < 0 && alliedP player (nId n')       = getPerTraps True PerHealed (-hp) n'
-  | hp > 0 && not (alliedP player $ nId n') = getPerTraps True PerDamaged hp n'
-  | otherwise                              = mempty
+getTurnPerTraps :: Player -> Ninja -> Ninja -> Seq (Game -> Game)
+getTurnPerTraps player n n'
+  | hp < 0 && alliedP player nid       = getPerTraps True PerHealed (-hp) n'
+  | hp > 0 && not (alliedP player nid) = getPerTraps True PerDamaged hp n'
+  | otherwise                          = mempty
   where 
+    nid = nId n'
     hp = nHealth n - nHealth n'
 
-turnTrigger :: Player -> Game -> Game -> Game
-turnTrigger player game game' = game'Track
+turnPerTrigger :: Player -> Game -> Game -> Game
+turnPerTrigger player game game' = game'Track
   where 
     gameNinjas' = Seq.zipWith trackTurn (gameNinjas game) (gameNinjas game')
     trapsAll    = concat $
-                  Seq.zipWith (getTurnTraps player) (gameNinjas game) gameNinjas'
+                  Seq.zipWith (getTurnPerTraps player) (gameNinjas game) gameNinjas'
     game'Track  = game' { gameNinjas = gameNinjas'
                         , gameTraps  = trapsAll ++ gameTraps game'
                         }
+
+turnTrigger :: Player -> Game -> Game
+turnTrigger player game@Game{..} = game { gameTraps = trapsAll ++ gameTraps }
+  where 
+    trapsAll = gameNinjas >>= getTurnTraps
+    getTurnTraps n@Ninja{..}
+      | not $ alliedP player nId = mempty
+      | otherwise = (\t -> t 0 nId)
+                    <$> getTrapsTo (Acted `notElem` nFlags) OnNoAction n
+                     ++ getTrapsTo (Harmed `notElem` nFlags) OnNoHarm n
 
 trackTurn :: Ninja -> Ninja -> Ninja
 trackTurn n n' = n' { nTraps = updatePer <$> nTraps n' }
@@ -548,7 +566,7 @@ wrapEffect affected f skill@Skill{..} src c game t
   where 
     nt         = gameNinja t game
     nt'T
-      | new       = nt { nTargeted = True }  
+      | new       = nt { nFlags = Set.insert Targeted $ nFlags nt }  
       | otherwise = nt
     game'T     = setNinja t nt'T game
     skill' 
@@ -713,12 +731,12 @@ ifHealthU minHp maxHp f skill src c game@Game{..} t
   where 
     hp = nHealth $ gameNinja t game
 
--- | Kills and performs a 'Transform' if the target is killed.
+-- | Kills and performs a 'Transform' on the user if the target is killed.
 -- Has no effect if the target is invulnerable, has 'Endure', etc.
 killThen :: Transform -> Transform
 killThen f skill src c game@Game{..} t
-  | gameMock                          = wrapEffect [] f skill src c game' t
-  | not . isAlive $ gameNinja t game' = wrapEffect [] f skill src c game' t
+  | gameMock                          = wrapEffect [] f skill src c game' src
+  | not . isAlive $ gameNinja t game' = wrapEffect [] f skill src c game' src
   | otherwise                         = game'
   where 
     game' = kill skill src c game t
@@ -902,8 +920,8 @@ removeStacks :: Text -> Int -> Transform
 removeStacks l i _ = rt . N.removeStacks l i
 
 -- | 'N.reset'
-reset :: Int -> Int -> Transform
-reset s = r . N.reset s
+reset :: Text -> Text -> Transform
+reset l = r . N.reset l
 
 -- | 'N.resetAll'
 resetAll :: Transform
@@ -936,9 +954,25 @@ delay dur' f' skill@Skill{..} src c game@Game{..} t
 factory :: Transform
 factory = r ninjaReset
 
--- | Adds a 'Variant'.
-vary :: Int -> Int -> Int -> Transform
-vary dur s variantV skill _ _ game t = case copying skill of
+varyFull :: Bool -> Int -> Text -> Text -> Transform
+varyFull from dur l variant skill src c game t =
+    safe (gameNinja t game) l variant skill src c game t
+  where
+    safe = skillSafe identity (unsafeVary from dur)
+
+-- | Adds a 'Variant' with a different duration as its originating 'Skill'.
+vary' :: Int -> Text -> Text -> Transform
+vary' = varyFull False
+
+-- | Adds a 'Variant' that lasts as long as the skill.
+vary :: Text -> Text -> Transform
+vary l variant skill@Skill{..} = case getDur channel of
+    1   -> const $ const const
+    dur -> varyFull True dur l variant skill
+
+-- | Adds a 'Variant' by index.
+unsafeVary :: Bool -> Int -> Int -> Int -> Transform
+unsafeVary variantFrom dur s variantV skill _ _ game t = case copying skill of
     Shallow _ _ -> game
     _           -> setNinja t n' game 
   where 
@@ -954,13 +988,18 @@ vary dur s variantV skill _ _ game t = case copying skill of
       | otherwise = 
         n { nVariants = Seq.adjust' (Variant{..} <|) s $ nVariants n }
 
-vary' :: Int -> Int -> Transform
-vary' s v skill@Skill{..} src c
-  | dur == 1  = const
-  | dur == 0  = vary 0 s v skill src c
-  | otherwise = vary (dur - 1) s v skill src c
-  where 
-    dur = getDur channel
+-- | Used for 'Character's who swap between different sets of skills, 
+-- such as Chōji and Tenten (S).
+varyLoadout :: Int  -- ^ Base offset added to the first 'Variant' slot
+            -> Int  -- ^ Base offset added to the second 'Variant' slot
+            -> Int  -- ^ Base offset added to the third 'Variant' slot
+            -> Bool -- ^ Whether to affect the fourth 'Variant' slot at all
+            -> Int  -- ^ Counter added to all 'Variant' slots 
+            -> Transform -- ^ Recalculates the 'Variant's of a target 'Ninja'
+varyLoadout a b c d i = d ? (• unsafeVary False 0 3 i)
+                      $ unsafeVary False 0 0 (i + a) 
+                      • unsafeVary False 0 1 (i + b)
+                      • unsafeVary False 0 2 (i + c)
 
 -- | 'id'.
 identity :: Transform
@@ -1007,7 +1046,7 @@ doDisrupt :: Ninja -> Game -> Channel -> Game
 doDisrupt Ninja{..} game Channel{..} = foldl' (flip f) game disr
   where 
     l    = label channelSkill
-    disr = (Self,  r $ N.unVariant l)
+    disr =  (Self,  r $ N.unVariant l)
           : (Enemy, remove l) 
           : disrupt channelSkill
     f    = doEffect [Channeled, Disrupted]
@@ -1553,8 +1592,8 @@ kabuto' skill@Skill{..} n@Ninja{..} =
     sLen       = length sage
     (mode, m)  = advance . maybe "" (dropEnd sLen . statusL) $
                  find getMode nStatuses
-    var        = Variant m False "" 0
-    var'       = Variant (m + 1) False "" 0
+    var        = Variant m False "" False 0
+    var'       = Variant (m + 1) False "" False 0
     ml         = mode ++ sage
     newmode    = Status 1 ml nId nId nId skill [] [Hidden, Unremovable] [] 0 0
     getMode st = statusSrc st == nId && sage == Text.takeEnd sLen (statusL st) 

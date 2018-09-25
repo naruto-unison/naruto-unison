@@ -41,7 +41,7 @@ leaderCs =
         , cost    = χ [Blood, Gen, Tai]
         , channel = Ongoing 0
         , start   = [ (Enemies, afflict 25 • apply 0 [Bleed Affliction 5])
-                    , (Self,    vary 0 2 1)
+                    , (Self, vary "Major Summoning: Gamabunta" "Toad Oil Bomb")
                     ]
         }
       , newSkill
@@ -83,7 +83,7 @@ leaderCs =
         , cost    = χ [Blood, Gen, Nin]
         , channel = Ongoing 0
         , start   = [ (Allies, heal 40)
-                    , (Self,   vary 0 2 1)
+                    , (Self,   vary "Major Summoning: Katsuyu" "Slug Division")
                     ]
         , effects = [(Allies, heal 5)]
         }
@@ -126,7 +126,7 @@ leaderCs =
         , cost    = χ [Blood, Nin, Tai]
         , channel = Ongoing 0
         , start   = [ (Enemy, damage 45)
-                    , (Self, vary 0 2 1)
+                    , (Self, vary "Major Summoning: Manda" "Paralyzing Bite")
                     ]
         , effects = [(Self, gain [Rand])]
         }
@@ -172,7 +172,7 @@ leaderCs =
         , channel = Ongoing 0
         , start   = [ (Allies, apply 1 [Immune All, Endure]
                              • apply 0 [Reduce All 5])
-                    , (Self,   vary 0 2 1)
+                    , (Self,   vary "Major Summoning: Enma" "Adamantine Prison")
                     ]
         }
       , newSkill

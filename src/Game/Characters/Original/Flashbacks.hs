@@ -19,7 +19,7 @@ flashbackCs =
         , classes = [Mental]
         , cost    = χ [Rand]
         , cd      = 4
-        , effects = [(Self, vary 3 0 1 • tag 3
+        , effects = [(Self, vary' 3 "Refocus" "Unsexy Technique" • tag 3
                           • alliedTeam . self § hide 3 [Boost 2])]
         }
       , newSkill 
@@ -182,17 +182,12 @@ flashbackCs =
         , classes = [Physical, Ranged, InvisibleTraps]
         , cost    = χ [Blood]
         , cd      = 1
-        , effects = [ (XAllies, delay 0 . trap 1 (OnAction All) 
-                                § remove "Space-Time Marking"
-                              • bombWith [Invisible] 1 [] 
-                                [(Expire, apply' "Space-Time Marking " 3 []
-                                        • self § hide 4 [Reduce All 5])]
-                      )
-                    , (Enemies, trap (-1) (OnAction All) 
-                                § remove "Space-Time Marking"
-                              • bombWith [Invisible] (-1) []
-                                [(Expire, apply' "Space-Time Marking " (-4) []
-                                        • self § hide 4 [Reduce All 5])])
+        , effects = [ (XAllies, delay 0 . trap 1 OnNoAction
+                                $ apply' "Space-Time Marking " 3 []
+                                • self § hide 4 [Reduce All 5])
+                    , (Enemies, trap (-1) OnNoAction 
+                                $ apply' "Space-Time Marking " (-4) []
+                                • self § hide 4 [Reduce All 5])
                     ]
         }
       ]

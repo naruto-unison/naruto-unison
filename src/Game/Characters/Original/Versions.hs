@@ -124,7 +124,8 @@ versionCs =
         , cost    = χ [Rand, Rand]
         , channel = Action 3
         , cd      = 3
-        , start   = [(Self, vary' 0 1)]
+        , start   = [(Self, vary "Unpredictable Assault" 
+                                 "Unpredictable Assault")]
         , effects = [ (Enemy, damage 15)
                     , (Self,  apply 1 [Enrage])
                     ]
@@ -175,7 +176,10 @@ versionCs =
         , channel = Action 5
         , start   = [(Self, bombWith [Hidden] (-5) []
                         [(Expire, tag' "Tailed Beast Form" 0
-                                • setFace 0 • vary 0 1 1 • vary 0 2 1)])]        
+                                • setFace 0 
+                                • vary' 0 "Montrous Sand Arm" "Wind Bullet"
+                                • vary' 0 "Sand Transformation" 
+                                          "Shukaku Full Release")])]        
         , effects = [(Self, defend 0 10 • heal 2)] 
         , disrupt = [(Self, remove "Sand Transformation")]   
         }
@@ -210,7 +214,8 @@ versionCs =
         , desc    = "Gaara traps all enemies in a sinking pit of sand, increasing the costs of their non-mental skills by 1 random chakra for 1 turn. If an enemy uses a non-mental skill, they are freed from [Sand Burial Prison]. While active, this skill becomes [Giant Sand Burial][n][n]."
         , classes = [Physical, Ranged, Unreflectable]
         , cost    = χ [Nin]
-        , start   = [(Self, vary' 1 1)]
+        , channel = Control 1
+        , start   = [(Self, vary "Sand Burial Prison" "Giant Sand Burial")]
         , effects = [ (Enemies, apply 1 [Exhaust NonMental] 
                               • trap 1 (OnAction NonMental) 
                                 § remove "Sand Burial Prison")
@@ -223,7 +228,7 @@ versionCs =
         , classes = [Physical, Ranged, Unreflectable]
         , cost    = χ [Nin, Nin]
         , effects = [ (Enemies, ifU "Sand Burial Prison" § demolish ° pierce 40)
-                    , (Self,    vary 0 1 0)
+                    , (Self,    cancelChannel "Sand Burial Prison")
                     ]
         }
       ]

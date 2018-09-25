@@ -20,7 +20,8 @@ adultCsS =
         , cost    = χ [Nin, Rand]
         , effects = [ (Enemy, trap' 1 (OnDamaged All) § apply 1 [Stun All]
                             • pierce 25)
-                    , (Self,  vary 1 0 1)
+                    , (Self,  vary' 1 "Lightning Beast Fang" 
+                                      "Lightning Blade Finisher")
                     ]
         }
       , newSkill
@@ -64,7 +65,8 @@ adultCsS =
         , classes = [Physical, Melee, Summon]
         , cost    = χ [Blood, Rand]
         , effects = [ (Enemy, damage 25)
-                    , (Self,  defend 0 40 • vary 0 1 1) 
+                    , (Self,  defend 0 40 
+                            • vary' 1 "Thousand Hand Strike" "Kannon Strike") 
                     ]
         }
       , newSkill
@@ -73,7 +75,8 @@ adultCsS =
         , classes = [Physical, Melee, Nonstacking]
         , cost    = χ [Rand]
         , effects = [ (Enemy, damage 20)
-                    , (Self, tag' "Overheating" 2 • vary 0 1 1)
+                    , (Self, tag' "Overheating" 2 
+                           • vary' 1 "Thousand Hand Strike" "Kannon Strike")
                     ]
         }
       ]
@@ -83,7 +86,7 @@ adultCsS =
         , classes = [Bane, Ranged, Multi, Unreflectable]
         , cost    = χ [Gen, Rand]
         , channel = Action 0
-        , start   = [(Self, vary' 1 1)] 
+        , start   = [(Self, vary "Burning Ash" "Burning Ash: Ignite")] 
         , effects = [(Enemies, apply 0 [Snare 1])]
         }
       , newSkill
@@ -92,7 +95,8 @@ adultCsS =
         , classes = [Ranged, Bypassing, Uncounterable, Unreflectable]
         , cost    = χ [Blood]
         , effects = [ (Enemies,  perU "Burning Ash" 10 afflict 0) 
-                    , (Self,     vary' 1 0 • everyone § remove "Burning Ash")
+                    , (Self,     cancelChannel "Burning Ash" 
+                               • everyone § remove "Burning Ash")
                     ]
         }
       ]
@@ -153,7 +157,7 @@ adultCsS =
                             • withI "Strength of One Hundred Seal" 20 pierce 20)
                     , (Allies, ifU "Healing Wave" § apply 1 [Endure])
                     , (Self,   remove "Strength of One Hundred Seal"
-                             • vary 0 2 0)
+                             • vary "Strength of One Hundred Seal" "")
                     ]
         }
       ]
@@ -169,7 +173,7 @@ adultCsS =
                             • ifI "Strength of One Hundred Seal"
                               § apply (-3) [Heal 10])
                     , (Self,  remove "Strength of One Hundred Seal"
-                            • vary 0 2 0)
+                            • vary "Strength of One Hundred Seal" "")
                     ]
         }
       ]
@@ -179,7 +183,9 @@ adultCsS =
         , classes = [Chakra]
         , cost    = χ [Rand]
         , cd      = 3
-        , effects = [(Self, heal 25 • tag 0 • vary 0 2 1)]
+        , effects = [(Self, heal 25 • tag 0 
+                          • vary "Strength of One Hundred Seal" 
+                                 "Strength of One Hundred Seal")]
         }
       , newSkill
         { label   = "Strength of One Hundred Seal"
@@ -187,7 +193,8 @@ adultCsS =
         , classes = [Chakra]
         , cost    = χ [Rand]
         , cd      = 3
-        , effects = [(Self, heal 50 • gain [Rand, Rand] • vary 0 2 0
+        , effects = [(Self, heal 50 • gain [Rand, Rand] 
+                          • vary "Strength of One Hundred Seal" ""
                           • remove "Strength of One Hundred Seal")]
         }
       ]

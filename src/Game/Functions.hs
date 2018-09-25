@@ -27,7 +27,7 @@ module Game.Functions
     -- * 'Player'
     , getPlayer, getVs, yieldVictor
     -- * 'Skill'
-    , chakraClasses, defaultL
+    , chakraClasses, defaultL, skillSafe
     -- ** 'Copied'
     , copyDur, copyRoot
     -- ** Modification
@@ -49,7 +49,9 @@ module Game.Functions
 
 import StandardLibrary
 
+import qualified Data.List     as List
 import qualified Data.Sequence as Seq
+import qualified Data.Text     as Text
 
 import Calculus
 import Core.Model
@@ -373,6 +375,24 @@ chakraClasses skill@Skill{..} = skill { classes = f classes }
 defaultL :: Text -> Skill -> Text
 defaultL "" Skill{..} = label
 defaultL l  _         = l
+
+-- | Converts a function that uses raw 'Int's as indices in a
+-- 'Character''s `[[Skill]]` list into one that searches by name. 
+-- Passing an empty string for the second argument will select the base (0) 
+-- 'Skill' in the lists. Otherwise, the root skill will not be considered.
+-- This means that if a skill has a variant with the same name as it, "Skill" ""
+-- selects the base variant, while "Skill" "Skill" selects
+-- the identically-named variant.
+skillSafe :: ∀ a. a -> (Int -> Int -> a) -> Ninja -> Text -> Text -> a
+skillSafe a f Ninja{nCharacter = Character{..}} l variant = fromMaybe a $ do
+    s <- List.findIndex (any $ match l) $ toList characterSkills
+    v <- case variant of
+            "" -> pure 0
+            _  -> let (_ :| skills) = characterSkills !! s
+                  in (+1) <$> List.findIndex (match variant) skills
+    pure $ f s v
+  where
+    match x = (== Text.toCaseFold x) . Text.toCaseFold . label
 
 -- ** COPIED SKILLS
 
@@ -706,7 +726,7 @@ getTrapsFrom tr Ninja{nTraps} Ninja{nId} = [ trapEf 0 nId | Trap{..} <- nTraps
                                                           , trapTrigger == tr 
                                                           , trapType == TrapFrom
                                                           ]
-   
+
 -- * TRIGGERING EFFECTS
 
 -- | Obtains an 'Effect' and delete its 'Status' from its owner.

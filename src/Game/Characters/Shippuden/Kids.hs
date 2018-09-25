@@ -36,7 +36,8 @@ kidCsS =
         , classes = [Physical, Invisible]
         , cost    = χ [Rand]
         , cd      = 2
-        , effects = [(Self, apply 1 [Parry All $ tag 1] • vary 1 0 1)]
+        , effects = [(Self, apply 1 [Parry All $ tag 1] 
+                          • vary' 1 "Giant Rasengan" "Giant Rasengan")]
         }
       ]
     , [ newSkill
@@ -51,7 +52,10 @@ kidCsS =
       ]
     , invuln "Shadow Clone Save" "Naruto" [Chakra]
     ] []
-  , Character
+  , let spendSeal = removeStack "Seal" 
+                  • ifnotI "Seal" § vary "Mystical Palm Healing" ""
+                                  ° vary "Strength of One Hundred Seal" "" 
+    in Character
     "Sakura Haruno"
     "Sakura's years of training under Tsunade have provided her with an intricate understanding of healing and the human body. Now a chūnin, she has learned how to store her chakra in concentrated points and then unleash it in empowering waves."
     [ [ newSkill
@@ -62,8 +66,7 @@ kidCsS =
         , effects = [ (XEnemies, ifI "Seal"    § damage 10)
                     , (Enemy,    ifnotI "Seal" § damage 25
                                • ifI "Seal"    § damage 35)
-                    , (Self,     removeStack "Seal" 
-                               • ifnotI "Seal" § vary 0 1 0 ° vary 0 2 0)
+                    , (Self,     spendSeal)
                     ]
         }
       ]
@@ -82,8 +85,7 @@ kidCsS =
         , cost    = χ [Rand]
         , varicd  = True
         , effects = [ (XAlly, cureBane • restore 50)
-                    , (Self,  removeStack "Seal" 
-                            • ifnotI "Seal" § vary 0 1 0 ° vary 0 2 0)
+                    , (Self,  spendSeal)
                     ]
         }
       ]
@@ -92,14 +94,15 @@ kidCsS =
         , desc    = "Sakura stores up chakra in a point on her forehead, gaining 3 Seals. Sakura's skills spend Seals to become empowered. While active, this skill becomes [Seal Release]."
         , classes = [Chakra]
         , cost    = χ [Rand]
-        , effects = [(Self, addStacks "Seal" 3 • vary 0 1 1 • vary 0 2 1)]
+        , effects = [(Self, addStacks "Seal" 3 
+                          • vary "Mystical Palm Healing" "Mystical Palm Healing"
+                          • vary "Strength of One Hundred Seal" "Seal Release")]
         }
       , newSkill
         { label   = "Seal Release"
         , desc    = "Spends a Seal to restore 25 health to Sakura and cure her of enemy effects."
         , classes = [Chakra]
-        , effects = [(Self, cureAll • heal 25 • removeStack "Seal" 
-                          • ifnotI "Seal" § vary 0 1 0 ° vary 0 2 0)]
+        , effects = [(Self, cureAll • heal 25 • spendSeal)]
         }
       ]
       , invuln "Dodge" "Sakura" [Physical]
@@ -150,7 +153,7 @@ kidCsS =
         , cost    = χ [Rand]
         , cd      = 4
         , channel = Action 4
-        , start   = [(Self, vary' 0 1)]
+        , start   = [(Self, vary "Man-Beast Clone" "Three-Headed Wolf")]
         , effects = [(Self, apply 1 [Focus, Reduce All 15])]
         }
       , newSkill
@@ -159,7 +162,8 @@ kidCsS =
         , classes = [Physical]
         , cost    = χ [Blood, Blood]
         , cd      = 5
-        , effects = [ (Self, cancelChannel "Man-Beast Clone" • vary 3 0 2
+        , effects = [ (Self, cancelChannel "Man-Beast Clone" 
+                           • vary' 3 "Man-Beast Clone" "Giant Rotating Fang"
                            • remove "Man-Beast Clone" 
                            • apply 3 [Focus, Reduce All 30])
                     ]
@@ -207,7 +211,7 @@ kidCsS =
         , cost    = χ [Blood, Rand]
         , channel = Action 3
         , cd      = 2
-        , start   = [ (Self,  vary' 0 1) 
+        , start   = [ (Self,  vary "Insect Swarm" "Chakra Leech") 
                     , (Enemy, perU "Chakra Leech" 1 
                               (addStacks' (-3) "Chakra Leech ") 0
                             • remove "Chakra Leech")
@@ -307,8 +311,8 @@ kidCsS =
         , classes = [Chakra, Ranged]
         , cost    = χ [Gen, Rand]
         , cd      = 1
-        , effects = [(Enemy, damage 35 • apply 1 [Stun NonMental]
-                           • self § vary 1 0 1)]
+        , effects = [(Enemy, damage 35 • apply 1 [Stun NonMental] • self 
+                             § vary' 1 "Shadow Sewing" "Shadow Sewing: Hold")]
         }
       , newSkill
         { label   = "Shadow Sewing: Hold"
@@ -317,8 +321,8 @@ kidCsS =
         , classes = [Chakra, Ranged]
         , cost    = χ [Gen]
         , effects = [(Enemies, damage 20
-                             • apply' "Shadow Sewing" 1 [Stun NonMental]
-                             • self § vary 1 0 1)]
+                             • apply' "Shadow Sewing" 1 [Stun NonMental] • self 
+                             § vary' 1 "Shadow Sewing" "Shadow Sewing: Hold")]
         }
       ]
     , [ newSkill
@@ -327,7 +331,8 @@ kidCsS =
         , classes = [Physical]
         , cost    = χ [Tai]
         , cd      = 5
-        , effects = [(Self, tag 4 • vary 4 1 1
+        , effects = [(Self, tag 4 
+                          • vary' 4 "Long-Range Tactics" "Final Explosion"
                           • delay (-1) § trap' (-4) OnHarm
                             (ifnotI "What a Drag" § apply 1 [Immune All])
                           • trap' 4 (OnDamaged NonAffliction) 
@@ -413,7 +418,9 @@ kidCsS =
         , start   = [(Self, hide' "calories" 0 [ Exhaust All]
                           • hide' "calories" 0 [Exhaust All]
                           • hide' "calories" 0 [Exhaust All]
-                          • vary 0 0 1 • vary 0 1 1 • vary 0 2 1 • vary 0 3 1)]
+                          • vary "Butterfly Bombing" "Butterfly Bombing"
+                          • vary "Spiky Human Boulder" "Spiky Human Boulder"
+                          • vary "Butterfly Mode" "Super-Slam")]
         , effects = [(Self, removeStack "calories")]
         }
       , newSkill
@@ -486,7 +493,6 @@ kidCsS =
         , desc    = "Lee plants his back on the ground and uses his entire body as a spring to kick an enemy with such power that they are launched into the air, dealing 15 damage and lowering the target's non-affliction damage by 15 for 2 turns. Deals 10 additional damage per dead ally. Effect lasts 1 additional turn per dead ally."
         , classes = [Physical, Melee]
         , cost    = χ [Tai]
-        , cd      = 0
         , effects = [(Enemy, perDead 10 damage 15 
                            • perDead 1 (applyDur [Weaken All 15]) 2)]
         }
@@ -515,7 +521,8 @@ kidCsS =
       ]
     , invuln "Dodge" "Lee" [Physical]
     ] []
-  , Character
+  , let loadout = varyLoadout 0 0 0 False
+    in Character
     "Tenten"
     "Now a chūnin, Tenten's arsenal has expanded to a prodigious stockpile of some of the most powerful weapons in existence, including the legendary fan of the Sage of the Six Paths. Taking any excuse to show off the size and variety of her collection, she has assembled multiple item sets to switch out at a moment's notice."
     [ [ newSkill
@@ -572,19 +579,19 @@ kidCsS =
         { label   = "Switch Loadout"
         , desc    = "Scrolling through her scrolls to the next item set, Tenten gains 5 permanent destructible defense and replaces her other skills. Tenten has 3 item sets."
         , classes = [Physical]
-        , effects = [(Self, defend 0 5 • vary 0 0 1 • vary 0 1 1 • vary 0 2 1)]
+        , effects = [(Self, defend 0 5 • loadout 1)]
         }
       , newSkill
         { label   = "Switch Loadout"
         , desc    = "Scrolling through her scrolls to the next item set, Tenten gains 5 permanent destructible defense and replaces her other skills. Tenten has 3 item sets."
         , classes = [Physical]
-        , effects = [(Self, defend 0 5 • vary 0 0 2 • vary 0 1 2 • vary 0 2 2)]
+        , effects = [(Self, defend 0 5 • loadout 2)]
         }
       , newSkill
         { label   = "Switch Loadout"
         , desc    = "Scrolling through her scrolls to the next item set, Tenten gains 5 permanent destructible defense and replaces her other skills. Tenten has 3 item sets."
         , classes = [Physical]
-        , effects = [(Self, defend 0 5 • vary 0 0 0 • vary 0 1 0 • vary 0 2 0)]
+        , effects = [(Self, defend 0 5 • loadout 0)]
         }
       ]
     , invuln "Dodge" "Tenten" [Physical]
@@ -614,7 +621,9 @@ kidCsS =
         , classes = [Physical, Mental, Invisible]
         , cost    = χ [Blood]
         , effects = [ (Enemies, apply 2 [Expose]) 
-                    , (Self,    apply 1 [Parry All $ self § vary 1 2 1])
+                    , (Self,    apply 1 [Parry All $ self 
+                                  § vary' 1 "Eight Trigrams Sixty-Four Palms" 
+                                            "Pressure Point Strike"])
                     ]
         }
       , newSkill
@@ -623,7 +632,8 @@ kidCsS =
         , classes = [Physical, Melee]
         , cost    = χ [Rand]
         , effects = [ (Enemy, drain 1 • damage 5) 
-                    , (Self,  vary 1 2 1)
+                    , (Self,  vary' 1 "Eight Trigrams Sixty-Four Palms" 
+                                      "Pressure Point Strike")
                     ]
         }
       ]
@@ -683,7 +693,7 @@ kidCsS =
           , cost    = χ [Rand, Rand]
           , cd      = 2
           , channel = Action 3
-          , start   = [(Self, vary' 0 1)]
+          , start   = [(Self, vary "Sasori Surrogate" "Hidden Coil Strike")]
           , effects = [(Enemy, damage 15)]
           }
         , newSkill
@@ -701,7 +711,7 @@ kidCsS =
           , classes = [Physical, Ranged, Nonstacking, InvisibleTraps, Bypassing, Unreflectable, Unremovable]
           , cost    = χ [Rand]
           , cd      = 5
-          , effects = [ (Self,  vary 0 1 1)
+          , effects = [ (Self,  vary "Kuroari Trap" "Iron Maiden")
                       , (Enemy, bombWith [Invisible] 5 [] 
                                 [(Done, apply' "Kuroari Ambush" 1
                                         [Stun All, Seal, Duel])]) 
@@ -713,7 +723,7 @@ kidCsS =
           , classes = [Physical, Ranged, Uncounterable, Unreflectable]
           , cost    = χ [Rand, Rand]
           , effects = [ (Enemy, withU "Kuroari Ambush" 40 pierce 20) 
-                      , (Self,  vary 0 1 0)
+                      , (Self,  vary "Kuroari Trap" "")
                       ]
           }
         ]

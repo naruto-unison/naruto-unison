@@ -29,7 +29,7 @@ module Game.Structure
     -- * Labeled
     , Labeled(..), lEq, lMatch
     -- * Ninja
-    , Ninja(..), Face(..), newNinja, ninjaReset, adjustCd, insertCd
+    , Ninja(..), Face(..), Flag(..), newNinja, ninjaReset, adjustCd, insertCd
     -- * Player
     , Player(..), Victor(..)
     -- * Skill
@@ -59,7 +59,7 @@ import qualified Data.Text      as Text
 
 import Calculus
 import Core.Model
-import Game.BlackMagic ()
+import Core.BlackMagic ()
 
 -- Each player controls 3 'Ninja's.
 teamSize :: Int
@@ -497,6 +497,8 @@ instance TurnBased Barrier where
 instance Labeled Barrier where 
     getL   = barrierL
     getSrc = barrierSrc
+instance Ord Barrier where
+    compare = comparing getL
 
 -- | Collection of all chakra types.
 data Chakras = Chakras { blood :: Int -- ^ Bloodline
@@ -707,7 +709,15 @@ newGame ns a b = Game { gamePlayers = (a, b)
 mockSlot :: Slot
 mockSlot = Slot 0
 
--- | In-game character, indexed between 0 and   e5.
+data Flag 
+    = Acted
+    | Harmed
+    | Targeted
+    deriving (Show, Eq, Ord, Bounded, Enum)
+instance Hashable Flag where
+    hashWithSalt x = hashWithSalt x . fromEnum
+
+-- | In-game character, indexed between 0 and 5.
 data Ninja = Ninja { nId        :: Slot           -- ^ 'gameNinjas' index (0-5)
                    , nCharacter :: Character
                    , nHealth    :: Int                    -- ^ `Starts at` @100@
@@ -725,8 +735,15 @@ data Ninja = Ninja { nId        :: Slot           -- ^ 'gameNinjas' index (0-5)
                    , nParrying  :: [Skill]                -- ^ Starts empty
                    , nTags      :: [ChannelTag]           -- ^ Starts empty
                    , nLastSkill :: Maybe Skill            -- ^ Starts at 'Nothing'
-                   , nTargeted  :: Bool                   -- ^ False every 'Act'
-                   } deriving (Eq)
+                   , nFlags     :: HashSet Flag           -- ^ Empty each turn
+                   }
+instance Eq Ninja where
+    -- | Omitted: nParrying, nTags, nLastSkill, nFlags
+    (==) = andOn [ eqs nId, eqs nCharacter, eqs nHealth, eqs nCooldowns
+                 , eqs nCharges, eqs nVariants, eqs nCopied, eqs nDefense
+                 , eqs nBarrier, eqs nStatuses, eqs nChannels, eqs newChans
+                 , eqs nTraps, eqs nFace
+                 ]
 
 insertCd' :: Int -> Int -> Seq Int -> Seq Int
 insertCd' v toCd cds
@@ -784,7 +801,7 @@ newNinja c nId = Ninja { nId        = nId
                        , nParrying  = []
                        , nTags      = []
                        , nLastSkill = Nothing
-                       , nTargeted  = False
+                       , nFlags     = mempty
                        }
 
 -- | Factory resets a 'Ninja' to its starting values.
@@ -868,14 +885,16 @@ data Status = Status { statusCount   :: Int  -- ^ Starts at 1
                      , statusDur     :: Int
                      } deriving (Generic, ToJSON)
 instance Eq Status where
-  (==) = andOn 
-         [eqs statusL, eqs statusSrc, eqs statusMaxDur, eqs statusClasses]
+    (==) = andOn 
+          [eqs statusL, eqs statusSrc, eqs statusMaxDur, eqs statusClasses]
 instance TurnBased Status where 
     getDur     = statusDur
     setDur d a = a { statusDur = d }
 instance Labeled Status where
     getL   = statusL
     getSrc = statusSrc
+instance Ord Status where
+    compare = comparing getL
 
 -- | Target destinations of 'Skill's.
 data Target 
@@ -921,6 +940,7 @@ instance Labeled Trap where
 -- | Conditions to activate a 'Trap'.
 data Trigger 
     = OnAction Class
+    | OnNoAction
     | OnBreak Text
     | OnChakra
     | OnCounter Class
@@ -929,6 +949,7 @@ data Trigger
     | OnDamaged Class
     | OnDeath
     | OnHarm    
+    | OnNoHarm
     | OnHarmed Class
     | OnHealed
     | PerHealed
@@ -964,6 +985,8 @@ instance Show Trigger where
     show OnHealed        = "Trigger: Receive healing"
     show OnHelped        = "Trigger: Be affected by a new skill from an ally"
     show OnImmune        = "Trigger: Become invulnerable"
+    show OnNoAction      = "Trigger: Do not use a new skill"
+    show OnNoHarm        = "Trigger: Do not use a new harmful skill"
     show OnReflectAll    = "All skills are reflected."
     show OnRes           = "Trigger: Reach 0 health"
     show OnStun          = "Trigger: Apply a stun"
@@ -974,10 +997,11 @@ instance Show Trigger where
     show TrackDamage     = show OnDamage
     show TrackDamaged    = show PerDamaged
 
-data Variant = Variant { variantV   :: Int -- ^ Index in 'characterSkills'
-                       , variantVCD :: Bool -- ^ Uses a different cooldown than the baseline 'Skill'
-                       , variantL   :: Text
-                       , variantDur :: Int
+data Variant = Variant { variantV    :: Int -- ^ Index in 'characterSkills'
+                       , variantVCD  :: Bool -- ^ Uses a different cooldown than the baseline 'Skill'
+                       , variantL    :: Text
+                       , variantFrom :: Bool -- ^ Duration is based on a 'Skill'
+                       , variantDur  :: Int
                        } deriving (Eq, Show, Generic, ToJSON)
 instance TurnBased Variant where 
     getDur        = variantDur
@@ -988,7 +1012,7 @@ variantCD Variant{..}
   | otherwise  = 0
 
 noVariant :: Variant
-noVariant = Variant 0 False "" 0
+noVariant = Variant 0 False "" False 0
 
 -- * Slots
 

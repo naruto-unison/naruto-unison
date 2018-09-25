@@ -84,8 +84,9 @@ teacherCs =
         , effects = [(Self, trap (-1) (OnDamaged All) 
                             § remove "Ambush Preparation"
                           • bombWith' [Hidden] "Ambush Preparation" (-1) [] 
-                            [(Expire, self § vary 1 0 1 
-                                           ° apply (-1) [Immune All])])]
+                            [(Expire, self 
+                                      § vary' 1 "Kunai Assault" "Kunai Assault" 
+                                      ° apply (-1) [Immune All])])]
         }
       ]
     , invuln "Dodge" "Mizuki" [Physical]
@@ -130,8 +131,10 @@ teacherCs =
         { label   = "Dual Pin"
         , desc    = "Anko pins herself to an enemy by stabbing a kunai through her hand, dealing 5 damage and preventing the target from reducing damage or becoming invulnerable for 1 turn."
         , classes = [Physical, Melee]
+        , channel = Control 1
         , effects = [ (Enemy, damage 5 • apply 1 [Expose])
-                    , (Self,  vary 1 1 1 • tag' "Twin Snake Sacrifice" 1)
+                    , (Self,  vary "Dragon Flame" "Twin Snake Sacrifice"
+                            • tag' "Twin Snake Sacrifice" 1)
                     ]
         }
       ]
@@ -234,11 +237,11 @@ teacherCs =
         , cost    = χ [Gen, Gen]
         , cd      = 4
         , channel = Control 2
-        , start   = [(Self, vary' 2 1)]
+        , start   = [(Self, vary "Demonic Illusion: Sylvan Fetters" 
+                                 "Sylvan Fetters Attack")]
         , effects = [ (Enemy, apply 1 [Stun All])
                     , (Self,  addStacks "Illusion" 1)
                     ]
-        , disrupt = [(Self, vary 0 2 0)]
         }
       , newSkill
         { label   = "Sylvan Fetters Attack"
@@ -261,7 +264,8 @@ teacherCs =
         , cost    = χ [Nin, Tai]
         , cd      = 2
         , channel = Action 2
-        , start   = [(Self, vary' 0 1 • vary' 1 1)]
+        , start   = [(Self, vary "Flying Swallow" "Finishing Blow" 
+                          • vary "Sharpen Blades" "Flying Kick")]
         , effects = [ (Enemies, damage 15)
                     , (Allies,  apply 1 [Reduce All 15])
                     , (Self,    remove "Sharpen Blades")
@@ -301,7 +305,7 @@ teacherCs =
         , classes = [Physical, Melee, Soulbound, Unreflectable]
         , cost    = χ [Rand]
         , effects = [ (XAlly, apply 0 [Redirect All])
-                    , (Self,  vary 0 2 1)
+                    , (Self,  vary "Self-Sacrifice" "Self-Sacrifice")
                     ]
         }
       , newSkill
@@ -309,7 +313,8 @@ teacherCs =
         , desc    = "Ends the effect of [Self-Sacrifice]."
         , classes = [Physical, Melee, Unreflectable]
         , varicd  = True
-        , effects = [(Self, vary 0 2 0 • everyone § remove "Self-Sacrifice")]
+        , effects = [(Self, vary "Self-Sacrifice" "" 
+                          • everyone § remove "Self-Sacrifice")]
         }
       ]
     , invuln "Parry" "Asuma" [Physical]

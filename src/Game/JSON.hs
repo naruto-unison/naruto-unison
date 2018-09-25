@@ -25,7 +25,6 @@ instance ToJSON Ninja where
         , "nParrying"  .= nParrying
         , "nTags"      .= nTags
         , "nLastSkill" .= nLastSkill
-        , "nTargeted"  .= nTargeted
         , "nSkills"    .= (usable' <$> getSkills n)
         ]
       where 
