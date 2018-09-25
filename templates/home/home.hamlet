@@ -3,6 +3,9 @@
 <aside #changelog>
   <h2>Recent Changes
   <a .refer href=@{ChangelogR}>View full changelog
+  <h4>September 24
+  <ul>
+    #{changelog Added "Inoichi Yamanaka" S}
   <h4>May 16
   <ul>
     #{changelog New "Jirōbō" R}

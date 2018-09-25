@@ -1,6 +1,16 @@
 module Site.Play (Message(..), comp) where
 
 import StandardLibrary
+import Effect.Aff              as Aff
+import Data.Array              as Array
+import Halogen.HTML.Events     as E
+import Halogen.HTML            as H
+import Halogen.HTML.Properties as P
+
+import Data.Time.Duration (Milliseconds(..))
+import Halogen (Component, ComponentDSL, ComponentHTML, component, get, modify_, raise)
+import Halogen.HTML (HTML)
+import Web.UIEvent.MouseEvent (MouseEvent)
 
 import Database.Functions
 import Database.Info
@@ -10,15 +20,6 @@ import FFI.Progress
 import FFI.Sound
 import Site.Common
 
-import Data.Array as Array
-import Data.Time.Duration (Milliseconds(..))
-import Effect.Aff as Aff
-import Halogen (Component, ComponentDSL, ComponentHTML, component, get, modify_, raise)
-import Halogen.HTML (HTML)
-import Halogen.HTML as H
-import Halogen.HTML.Events as E
-import Halogen.HTML.Properties as P
-import Web.UIEvent.MouseEvent (MouseEvent)
 
 unknown :: Character
 unknown = Character { characterName:   "unknown"
@@ -458,7 +459,7 @@ fromAlly c info = allied c info.root && allied c info.src
 hInfo :: ∀ a. Boolean -> Int -> Array Character -> Info -> HTMLQ a
 hInfo team nId cs info = H.div
     [_c $ intercalate " " classes', hover $ ViewInfo removes info]
-    [ H.div_
+    [ H.div_ <<< (info.count > 1) ? consAfter (_span $ show info.count) $
       [H.img [cIcon (getC cs info.root) info.name]]
     , H.p_ $ if info.dur == 0 then [] else [sync info.dur]
     ]

@@ -94,16 +94,6 @@ shorten = omap shorten' . filter (`notElem` filterOut)
     shorten' 'ä' = 'a'
     shorten'  a  =  a
 
--- | Extracts a 'Just' in a monad.
--- Returns the error message argument if given 'Nothing'.
-attemptJust :: ∀ m a. Monad m => m a -> Maybe a -> m a
-attemptJust ifNothing = maybe ifNothing return
-
--- | Deletes first element that matches a predicate.
-deleteOne :: ∀ a. (a -> Bool) -> [a] -> [a]
-deleteOne predicate xs = before ++ drop 1 after
-  where (before, after) = break predicate xs
-
 -- | Chooses an element of a list at random.
 pick :: ∀ a. Random.StdGen -> [a] -> (Maybe a, Random.StdGen)
 pick stdGen [] = (Nothing, stdGen)
@@ -116,5 +106,6 @@ unfoldl :: ∀ a. (a -> (a, a)) -> a -> NonEmpty a
 unfoldl f b0 = b <| unfoldl f a
   where (a, b) = f b0
 
+-- | True if any elements are shared by both collections.
 intersects :: ∀ o. (MonoFoldable o, Eq (Element o)) => o -> o -> Bool
 intersects x = any (`elem` x)

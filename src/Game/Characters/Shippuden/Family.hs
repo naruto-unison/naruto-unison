@@ -3,6 +3,8 @@
 
 module Game.Characters.Shippuden.Family (familyCsS) where
 
+import StandardLibrary
+
 import Game.Functions
 import Game.Game
 import Game.Structure
@@ -65,5 +67,55 @@ familyCsS =
         }
       ]
     , invuln "Chakra Barrier" "Chiyo" [Chakra]
+    ] []
+  , Character
+    "Inoichi Yamanaka"
+    "A jōnin from the Hidden Leaf Village and Ino's father, Inoichi can solve practically any dilemma with his analytical perspective. Under his watchful gaze, every move made by his enemies only adds to his strength."
+    [ [ newSkill
+        { label   = "Psycho Mind Transmission"
+        , desc    = "Inoichi invades the mind of an enemy, dealing 20 damage to them for 2 turns. While active, the target cannot use counter or reflect skills."
+        , classes = [Mental, Melee, Uncounterable, Unreflectable]
+        , cost    = χ [Nin]
+        , cd      = 1
+        , channel = Control 2
+        , effects = [(Enemy, damage 20 • apply 1 [Uncounter])]
+        }
+      ]
+    , [ newSkill
+        { label   = "Sensory Radar"
+        , desc    = "Inoichi steps back and focuses on the tide of battle. Each time an enemy uses a harmful skill, Inoichi will recover 10 health and gain a stack of [Sensory Radar]. While active, this skill becomes [Sensory Radar: Collate][r]."
+        , classes = [Mental, Ranged, Multi]
+        , cost    = χ [Nin]
+        , cd      = 0
+        , effects = [ (Self, vary' 1 1)
+                    , (Enemies, trap 0 OnHarm . self § heal 10 ° addStack)
+                    ]
+        }
+      , newSkill
+        { label   = "Sensory Radar: Collate"
+        , desc    = "Inoichi compiles all the information he has gathered and makes the most of it. For every stack of [Sensory Radar], he gains a random chakra. Ends [Sensory Radar]."
+        , classes = [Mental, Ranged]
+        , cost    = χ [Rand]
+        , cd      = 0
+        , effects = [ (Enemies, removeTrap "Sensory Radar")
+                    , (Self,    vary 0 1 0 
+                              • perI "Sensory Radar" 0 
+                                (gain . flip replicate Rand) 1
+                              • remove "Sensory Radar")
+                    ]
+        }
+      ]
+    , [ newSkill
+        { label   = "Mental Invasion"
+        , desc    = "Inoichi preys on an enemy's weaknesses. For 4 turns, all invulnerability skills used by the target will have their duration reduced by 1 turn. While active, anyone who uses a harmful mental skill on the target will become invulnerable for 1 turn."
+        , classes = [Mental, Ranged]
+        , cost    = χ [ Rand ]
+        , cd      = 4
+        , effects = [(Enemy, apply 4 [Throttle Immune 1]
+                           • trapFrom 4 (OnHarmed Mental) 
+                             § apply 1 [Immune All])]
+        }
+      ]
+    , invuln "Mobile Barrier" "Inoichi" [Mental]
     ] []
   ]

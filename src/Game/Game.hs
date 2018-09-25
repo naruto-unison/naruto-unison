@@ -289,9 +289,9 @@ act affected' game'Swap (Act c s t, rando)
     skill'      = getSkill n s
     (skill, affected'Swap, game) = case triggerSwap (classes skill') n of
         Just swapped -> ( swapSkill swapped skill'
-                       , Swapped : affected'
-                       , swapGame swapped
-                       )
+                        , Swapped : affected'
+                        , swapGame swapped
+                        )
         Nothing   -> (skill', affected', game'Swap)
     oldChakra   = outSlot c $ gameChakra game
     hascharge   = charges skill > 0
@@ -303,7 +303,8 @@ act affected' game'Swap (Act c s t, rando)
                   Either.isLeft s ? addChannels (channel skill) c skill t $
                   game'F
     notChan (Left _)   = False
-    notChan (Right s') = Channeled `elem` affected && not (isChanneling (label s') n)
+    notChan (Right s') = Channeled `elem` affected 
+                         && not (isChanneling (label s') n)
     swapGame swapped = setNinja c n { nStatuses = delete swapped $ nStatuses n } 
                        game'Swap
     safeSnare sn (Left s') 
@@ -371,7 +372,7 @@ trigger affected Skill{..} c game game'Pre
     n'Taunt = case harmed of
                 [Ninja{nId}] -> case getTaunting n' of
                   Just (dur, st@Status{..}) -> 
-                    let st' = Status statusL statusSrc nId nId
+                    let st' = Status 1 statusL statusSrc nId nId
                               statusSkill [Taunt] statusClasses [] 
                               (sync dur) (sync dur)
                     in n' { nStatuses = st' : delete st (nStatuses n')} 
@@ -521,7 +522,7 @@ wrapEffect affected f skill@Skill{..} src c game t
   | gameMock game                     = game'Do
   | Direct `elem` classes                  = game'Do
   | Applied `elem` affected                = game'Do
-  | classes `intersects` getInvincible nt        = game'T
+  | classes `intersects` getInvincible nt  = game'T
   | Trapped `elem` affected                = game'Do
   | not $ targetable skill' nSrc n nt = game'T
   | skill `elem` nParrying nt              = game'T
@@ -814,10 +815,10 @@ perHelpful amt f base skill src c game = f (base + amt * total) skill src c game
     Ninja{..} = gameNinja src game
     total      = length stats + length defs
     stats = nubBy lEq [ st | st@Status{..} <- nStatuses
-                          , any helpful statusEfs
-                          , nId /= statusSrc
-                          , allied nId statusSrc
-                          , Hidden `notElem` statusClasses
+                           , any helpful statusEfs
+                           , nId /= statusSrc
+                           , allied nId statusSrc
+                           , Hidden `notElem` statusClasses
                           ]
     defs  = nubBy lEq [ d | d@Defense{..} <- nDefense 
                           , nId /= defenseSrc
@@ -1298,8 +1299,9 @@ setFace dur skill@Skill{..} src c game t = case copying of
 
 applyFull :: [Class] -> Bool -> [(Bomb, Transform)] -> Text -> Int -> [Effect] 
           -> Transform
-applyFull clas bounced statusBombs' l dur fs statusSkill@Skill{copying} 
+applyFull clas bounced statusBombs' l unthrottled fs statusSkill@Skill{copying} 
           statusSrc statusC game t
+  | not (null fs) && unthrottled /= 0 && dur == 0 = game
   | null fs && Shifted `elem` clas             = game
   | already && (bounced || isSingle)           = game
   | already && Extending `elem` statusClasses  = setNinja t nt'Extend game
@@ -1307,6 +1309,10 @@ applyFull clas bounced statusBombs' l dur fs statusSkill@Skill{copying}
   | not bounced                                = game'Bounce
   | otherwise                                  = game'Stat
   where 
+    dur      
+      | Direct `elem` clas = unthrottled
+      | otherwise          = unthrottled - getThrottle fs n * signum unthrottled
+    statusCount   = 1
     statusRoot    = copyRoot statusSkill statusSrc
     statusDur     = copyDur copying . incr $ sync dur
     statusMaxDur  = statusDur
@@ -1413,8 +1419,8 @@ snapshot dur' skill@Skill{..} src c = r' $ \n@Ninja{..} ->
     N.addStatus (status n) n
   where 
     dur      = copyDur copying . incr $ sync dur'
-    status n = Status label src src c skill [Snapshot n] 
-                (Unremovable : classes) [] dur dur
+    status n = Status 1 label src src c skill [Snapshot n] 
+                (Unremovable : Nonstacking : classes) [] dur dur
 
 -- ** TRAPS
 
@@ -1550,7 +1556,7 @@ kabuto' skill@Skill{..} n@Ninja{..} =
     var        = Variant m False "" 0
     var'       = Variant (m + 1) False "" 0
     ml         = mode ++ sage
-    newmode    = Status ml nId nId nId skill [] [Hidden, Unremovable] [] 0 0
+    newmode    = Status 1 ml nId nId nId skill [] [Hidden, Unremovable] [] 0 0
     getMode st = statusSrc st == nId && sage == Text.takeEnd sLen (statusL st) 
     advance "Bloodline" = ("Genjutsu" , 2)
     advance "Genjutsu"  = ("Ninjutsu" , 3)

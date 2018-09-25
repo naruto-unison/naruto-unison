@@ -363,7 +363,7 @@ akatsukiCsS =
         , channel = Control 2
         , cd      = 3
         , effects = [ (Self, defend 1 10 • heal 10 
-                           • apply 1 [Nullify Expose ])]
+                           • apply 1 [Nullify Expose])]
         }
       ]
     , invuln "Tail Block" "Sasori" [Physical]
@@ -875,7 +875,7 @@ akatsukiCsS =
         , effects = [(Self, prolongChannel 2 "Summoning: Gedo Statue"
                           • hide' "dragon" 0 []
                           • ifnotStacks "gedo" 3 § hide' "gedo" 0 [])]
-        , changes = changeWith "Phantom Dragon" $ \_ skill -> skill { cost = 0 }
+        , changes = changeWith "Phantom Dragon" $ setCost []
         }
       ] 
     , [ newSkill

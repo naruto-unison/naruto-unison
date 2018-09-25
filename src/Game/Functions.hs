@@ -19,7 +19,7 @@ module Game.Functions
     -- ** Reduction of all 'Effect's on a 'Ninja'
     , getBoost, getBleed, getBless, getBuild, getImmune, getInvincible, getLink
     , getNet, getReduce, getScale, getShare, getSnare, getStrengthen, getStun
-    , getTaunting, getWard, getWeaken
+    , getTaunting, getThrottle, getWard, getWeaken
     -- * 'Ninja'
     , alter, getCds
     -- ** Life and death
@@ -38,7 +38,7 @@ module Game.Functions
     -- ** 'Requirement'
     , matchRequire
     -- * 'Status'
-    , has, hasOwn, is, is', numActive, numStacks
+    , has, hasOwn, is, is', numActive, numStacks, deleteStats
     -- * 'Trap'
     , classTrs, getPerTraps, getTrackTraps, getTraps, getTrapsFrom, getTrapsTo
     -- * Triggering 'Effect's
@@ -186,6 +186,11 @@ getSnare n = sum [ x | Snare x <- nEfs n ]
 -- | 'Stun's.
 getStun :: Ninja -> [Class]
 getStun n = [ x | Stun x <- nEfs n ]
+-- | 'Throttle' sum.ad
+getThrottle :: [Effect] -> Ninja -> Int
+getThrottle efs n = sum [ x | Throttle ef x <- nEfs n, throttled ef ]
+  where
+    throttled = intersects efs . flip map enums
 -- | 'Unreduce' sum.
 getUnreduce :: Ninja -> Int
 getUnreduce n = sum [ x | Unreduce x <- nEfs n ]
@@ -555,11 +560,33 @@ matchRequire (HasI i l) t n@Ninja{..}
 
 -- ** MODIFICATION
 
+-- | Replicates all 'statusEfs' of a 'Status' by its 'statusCount'.
+unfoldStat :: Status -> Status
+unfoldStat status@Status{..} = 
+        status { statusEfs = statusEfs >>= replicate statusCount }
+
+-- | Decreases 'statusCount' by 1 and deletes if now 0.
+deleteStat :: Status -> [Status] -> [Status]
+deleteStat x@Status{..} xs
+  | statusCount == 1 = xs'
+  | otherwise        = x' : xs'
+  where 
+    x'  = x { statusCount = statusCount - 1 }
+    xs' = delete x xs
+
+-- | Decreases the 'statusCount' of a matching 'Status' by some number
+-- | and deletes if now 0.
+deleteStats :: Int -> (Status -> Bool) -> [Status] -> [Status]
+deleteStats i predic xs = case find predic xs of
+    Nothing -> xs
+    Just x  -> (statusCount x > i) ? (x { statusCount = statusCount x - i } :) $
+               delete x xs
+
 nEfs :: Ninja -> [Effect]
-nEfs = concatMap statusEfs . nStats
+nEfs Ninja{..} = [ ef | st <- nStatuses, ef <- statusEfs $ unfoldStat st ]
 
 nStats :: Ninja -> [Status]
-nStats n@Ninja{..} = getStat n <$> nStatuses
+nStats n@Ninja{..} = unfoldStat . getStat n <$> nStatuses
 
 getStat :: Ninja -> Status -> Status
 getStat n@Ninja{..} st = st' { statusEfs = bst }
@@ -634,7 +661,8 @@ numActive l n@Ninja{..}
     stacks = numStacks l nId n
 
 numStacks :: Text -> Slot -> Ninja -> Int
-numStacks l src Ninja{..} = length . filter (lMatch l src) $ nStatuses
+numStacks l src Ninja{..} = sum . map statusCount . filter (lMatch l src) $ 
+                            nStatuses
 
 -- * TRAPS
 
@@ -684,8 +712,8 @@ getTrapsFrom tr Ninja{nTraps} Ninja{nId} = [ trapEf 0 nId | Trap{..} <- nTraps
 -- | Obtains an 'Effect' and delete its 'Status' from its owner.
 getOne :: (Effect -> Bool) -> Ninja -> Maybe (Ninja, Effect, Status)
 getOne matches n@Ninja{..} = do
-    match         <- find (any matches . statusEfs) nStatuses
-    let stats'Del = delete match nStatuses
+    match        <- find (any matches . statusEfs) nStatuses
+    let stats'Del = deleteStat match nStatuses
     case statusEfs match of
         [a] -> return (n { nStatuses = stats'Del }, a, match)
         efs -> do

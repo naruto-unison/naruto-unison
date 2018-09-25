@@ -5,7 +5,6 @@ import StandardLibrary
 
 import qualified Data.Sequence as Seq
 
-import Calculus
 import Game.Structure
 import Game.Functions
 
@@ -13,18 +12,23 @@ import Game.Functions
 addStatus :: Status -> Ninja -> Ninja
 addStatus st n@Ninja{..}
   | Single `elem` statusClasses st && has (statusL st) (statusSrc st) n = n
-  | otherwise = n { nStatuses = st' : f nStatuses }
+  | otherwise = n { nStatuses = nStatuses' }
   where 
-    f   = (Nonstacking `elem` statusClasses st') ? filter (not . lEq st)
     st' = st { statusClasses = filter (InvisibleTraps /=) $ statusClasses st }
+    addCount x = x { statusCount = statusCount x + statusCount st }
+    nStatuses'
+      | Nonstacking `elem` statusClasses st = 
+          st' : filter (not . lEq st') nStatuses
+      | otherwise = case find (== st') nStatuses of
+          Nothing    -> st' : nStatuses
+          Just match -> addCount match : delete match nStatuses
 
 -- Replicates 'addStatus'.
 addStacks :: Int -> Text -> Int -> Skill -> Slot -> Slot -> Ninja -> Ninja
-addStacks dur' l i skill@Skill{..} src c n@Ninja{..} = n 
-    { nStatuses = replicate i status ++ nStatuses }
+addStacks dur' l i skill@Skill{..} src c = addStatus $ 
+    Status i l root src c skill [] (Unremovable : classes) [] dur dur
   where 
     dur    = copyDur copying . incr $ sync dur'
-    status = Status l root src c skill [] (Unremovable : classes) [] dur dur
     root   = copyRoot skill src
 
 -- | Passes the user's 'nId' to 'addStacks'.
@@ -126,7 +130,7 @@ kill endurable n@Ninja{..}
   | endurable = n { nHealth = minHealth n }
   | otherwise = n { nHealth = 0, nStatuses = preventRes : nStatuses }
   where 
-    preventRes = Status "dead" nId nId nId newSkill [Plague] [] [] (-1) (-1)
+    preventRes = Status 1 "dead" nId nId nId newSkill [Plague] [] [] (-1) (-1)
 
 -- | Decreases the duration of matching 'Status'es.
 hasten :: Int -> Text -> Slot -> Ninja -> Ninja
@@ -175,14 +179,13 @@ refresh l src n@Ninja{..} = n { nStatuses = f <$> nStatuses }
 
 -- | Deletes one matching 'Status'.
 removeStack :: Text -> Ninja -> Ninja
-removeStack l n@Ninja{..} = n 
-    { nStatuses = deleteOne (lMatch l nId) nStatuses }
+removeStack l n@Ninja{..} = 
+    n { nStatuses = deleteStats 1 (lMatch l nId) nStatuses }
 
 -- | Replicates 'removeStack'.
 removeStacks :: Text -> Int -> Slot -> Ninja -> Ninja
-removeStacks l i src n@Ninja{..} = n { nStatuses = nStatuses \\ stacks }
-  where 
-    stacks = take i $ filter (lMatch l src) nStatuses
+removeStacks l i src n@Ninja{..} =
+    n { nStatuses = deleteStats i (lMatch l src) nStatuses }
 
 -- | Removes matching self-applied 'Status'es.
 removeOwn :: Text -> Int -> Ninja -> Ninja

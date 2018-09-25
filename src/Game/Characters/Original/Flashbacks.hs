@@ -12,7 +12,7 @@ flashbackCs :: [Character]
 flashbackCs =
   [ Character
     "Konohamaru Sarutobi"
-    "The overly bold grandson of the third Hokage, Konohamaru has a knack for getting into trouble and requiring others to bail him out. His usefulness in battle depends entirely on how willing his teammates are to babysit him."
+    "The overly bold grandson of the third Hokage, Konohamaru has a knack for getting into trouble and requiring others to bail him out. His usefulness in battle depends on how willing his teammates are to babysit him."
     [ [ newSkill
         { label   = "Refocus"
         , desc    = "Konohamaru tries his best to concentrate on the fight. For 3 turns, effects from his allies on him are twice as powerful. While active, this skill becomes [Unsexy Technique][n]."
@@ -43,7 +43,7 @@ flashbackCs =
       ]
     , [ newSkill
         { label   = "Throw a Shuriken"
-        , desc    = "Konohamaru flings a shuriken almost too big for his hand at an enemy, dealing 10 damage and 10 additional damage per skill affecting Konohamaru from his allies."
+        , desc    = "Konohamaru flings a shuriken almost too big for his hands at an enemy, dealing 10 damage and 10 additional damage per skill affecting Konohamaru from his allies."
         , classes = [Physical, Ranged]
         , cost    = χ [Tai]
         , effects = [(Enemy, perHelpful 10 damage 10)]
@@ -131,7 +131,7 @@ flashbackCs =
     ] []
   , Character
     "Minato Namikaze"
-    "Known as the Yellow Flash for his incredible speed and mastery of space-time techniques, Minato is a jōnin squad leader from the Hidden Leaf Village who will one day become Naruto's father. He fights using unique kunai that allow him to teleport arround the battlefield."
+    "Known as the Yellow Flash for his incredible speed and mastery of space-time techniques, Naruto's father is a jōnin squad leader from the Hidden Leaf Village. Minato fights using unique kunai that allow him to teleport arround the battlefield."
     [ [ newSkill
         { label   = "Flying Raijen"
         , desc    = "Minato teleports to a target, becoming invulnerable for 1 turn. If he teleports to an enemy, he deals 30 damage. If he teleports to an ally, the ally becomes invulnerable for 1 turn."

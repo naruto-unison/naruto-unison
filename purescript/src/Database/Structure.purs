@@ -215,7 +215,8 @@ instance _showSkill_ :: Show Skill where
 
 type Slot = Int
 
-newtype Status = Status { statusL       :: String 
+newtype Status = Status { statusCount   :: Int
+                        , statusL       :: String 
                         , statusRoot    :: Slot
                         , statusSrc     :: Slot
                         , statusC       :: Slot

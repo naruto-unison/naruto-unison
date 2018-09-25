@@ -19,15 +19,15 @@ import Data.String             as String
 
 import Affjax.StatusCode (StatusCode(..))
 import Web.UIEvent.MouseEvent (MouseEvent)
+import Halogen (Component, ComponentDSL, ComponentHTML, component, get, modify_, raise)
+import Halogen.HTML (HTML)
 
 import Database.Structure
 import Database.Functions
 import Site.Common
-import FFI.Form
 import FFI.Import
 import FFI.Sound
-import Halogen.HTML (HTML)
-import Halogen (Component, ComponentDSL, ComponentHTML, component, get, modify_, raise)
+import FFI.Form
 
 condensed :: Boolean
 condensed = maybe false (_.condense <<< unwrap) user

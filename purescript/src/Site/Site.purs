@@ -11,6 +11,8 @@ import Halogen.HTML          as H
 
 import Data.Time.Duration (Milliseconds(..))
 import Data.UUID (UUID)
+import Halogen.HTML (HTML)
+import Halogen (Component, ParentHTML, ParentDSL, parentComponent, get, modify_, raise, query)
 
 import Site.CharacterSelect as Select
 import Site.Play as Play
@@ -20,8 +22,6 @@ import Site.Common
 import FFI.Import
 import FFI.Progress
 import FFI.Sound
-import Halogen.HTML (HTML)
-import Halogen (Component, ParentHTML, ParentDSL, parentComponent, get, modify_, raise, query)
 
 data Query a = HandleQueue Select.Message a 
              | HandleGame Play.Message a

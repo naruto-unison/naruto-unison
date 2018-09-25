@@ -525,7 +525,7 @@ reanimatedCsS =
       ]
     , [ newSkill
         { label   = "Thunder Gate"
-        , desc    = "With the twin blades of Kiba plunged into the ground, Ameyuri calls down lightning from the sky to incinerate the battlefield around an enemy, dealing 30 piercing damage to them. Deals 10 additional damage per enemy affected by Electricity. Removes 1 turn of Electricity from all enemies."
+        , desc    = "With the twin blades of Baki plunged into the ground, Ameyuri calls down lightning from the sky to incinerate the battlefield around an enemy, dealing 30 piercing damage to them. Deals 10 additional damage per enemy affected by Electricity. Removes 1 turn of Electricity from all enemies."
         , classes = [Chakra, Ranged]
         , cost    = χ [Nin, Nin]
         , cd      = 4

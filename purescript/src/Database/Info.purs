@@ -13,14 +13,20 @@ type Info = { name    :: String
             , effects :: Array SkillEffect
             , trap    :: Boolean
             , ghost   :: Boolean
+            , count   :: Int
             }
 
 infos :: Ninja -> Array Info
-infos (Ninja n) = statuses' <> traps
-  where statuses  = infoStatus <$> n.nStatuses
+infos (Ninja n) = organize <<< partition (eq n.nId <<< _.src) $ 
+                  statuses' <> traps
+  where organize {yes, no} = no <> yes
+        statuses  = infoStatus <$> n.nStatuses
         traps     = concatInfo <$> reduce <$> groupBy' eqInfo 
                     (infoTrap <$> n.nTraps)
-        statuses' = filter (not <<< any eqInfo traps) statuses
+        statuses' = filter (not <<< any eqInfo traps) statuses >>= unfoldStat
+        unfoldStat st
+          | st.count == 0 || "Multi" `elem` st.classes = [st]
+          | otherwise = replicate st.count st { count = 1 }
         reduce ts@(t :| ts') = case find (eqInfo t) statuses of
             Just match -> match :| t : ts'
             Nothing    -> ts
@@ -39,6 +45,7 @@ concatInfo (x :| xs) =
     , effects: xs' >>= _.effects
     , trap:    any (_.trap) xs'
     , ghost:   all _.ghost xs'
+    , count:   sum $ _.count <$> xs'
     }
   where xs' = x : xs
 
@@ -53,6 +60,7 @@ infoChannel (Channel ch@{channelSkill: Skill s}) =
     , effects: []
     , trap:    false
     , ghost:   false
+    , count:   1
     }
 
 infoChannelTag :: ChannelTag -> Info
@@ -66,6 +74,7 @@ infoChannelTag (ChannelTag ct@{tagSkill: Skill s}) =
     , effects: []
     , trap:    false
     , ghost:   true
+    , count:   1
     }
 
 infoStatus :: Status -> Info
@@ -79,6 +88,7 @@ infoStatus (Status st@{statusSkill: Skill s}) =
     , effects: st.statusEfs
     , trap:    false
     , ghost:   false
+    , count:   st.statusCount
     }
       
 infoTrap :: Trap -> Info
@@ -92,6 +102,7 @@ infoTrap (Trap t) =
     , effects: [toEf]
     , trap:    true
     , ghost:   false
+    , count:   1
     }
   where 
     toEf = SkillEffect { effectDesc:    t.trapTrigger

@@ -251,7 +251,7 @@ examCs =
         , classes = [Chakra, Ranged]
         , cost    = χ [Rand, Rand]
         , effects = [(Enemies, damage 15)]
-        , changes = changeWith "Exploding Kunai" $ setCost [Rand]
+        , changes = changeWith "Fog Clone" $ setCost [Rand]
         }
       ]
     , [ newSkill

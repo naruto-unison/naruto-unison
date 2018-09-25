@@ -94,7 +94,7 @@ newPostForm postTopic postAuthor postTime = makePost . toBody
 getProfileR :: Text -> Handler Html
 getProfileR name = do
     muser                  <- runDB $ selectFirst [UserName ==. name] []
-    Entity _ user@User{..} <- attemptJust notFound muser
+    Entity _ user@User{..} <- maybe notFound return muser
     let (level, xp)         = quotRem userXp 5000
     defaultLayout $ do
         setTitle . toHtml $ "User: " ++ userName

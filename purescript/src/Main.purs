@@ -5,22 +5,22 @@ import StandardLibrary
 import Effect.Aff                    as Aff
 import Control.Coroutine             as CR
 import Control.Coroutine.Aff         as CRA
+import Foreign                       as Foreign
+import Halogen.VDom.Driver           as Driver
 import Web.Event.EventTarget         as EET
-import Web.Socket.Event.EventTypes   as WSET
-import Web.Socket.Event.MessageEvent as ME
-import Web.Socket.WebSocket          as WS
 import Halogen                       as H
 import Halogen.Aff                   as HA
+import Web.Socket.Event.MessageEvent as ME
+import Data.UUID                     as UUID
+import Web.Socket.WebSocket          as WS
+import Web.Socket.Event.EventTypes   as WSET
 
-import Foreign                     (F, Foreign, unsafeToForeign, readString)
-import Data.Time.Duration          (Milliseconds(..))
-import Data.UUID 
-import Halogen.VDom.Driver         (runUI)
+import Data.Time.Duration (Milliseconds(..))
 
 import Site as Site
 
-import FFI.Import (hostname)
-import FFI.Sound  (register)
+import FFI.Import
+import FFI.Sound
 
 -- A producer coroutine that emits messages that arrive from the websocket.
 wsProducer :: WS.WebSocket -> CR.Producer String Aff Unit
@@ -34,18 +34,18 @@ wsProducer socket = CRA.produce \emitter -> do
   where
   listener emitter = EET.eventListener \ev -> 
       for_ (ME.fromEvent ev) \msgEvent ->
-      for_ (readHelper readString (ME.data_ msgEvent)) $ 
+      for_ (readHelper Foreign.readString (ME.data_ msgEvent)) $ 
           CRA.emit emitter
-  readHelper :: forall a b. (Foreign -> F a) -> b -> Maybe a
+  readHelper :: forall a b. (Foreign -> Foreign.F a) -> b -> Maybe a
   readHelper read = either (const Nothing) 
-                    Just <<< runExcept <<< read <<< unsafeToForeign
+                    Just <<< runExcept <<< read <<< Foreign.unsafeToForeign
 
 -- A consumer coroutine that takes the `query` function from our component IO
 -- record and sends `AddMessage` queries in when it receives inputs from the
 -- producer.
 wsConsumer :: (Site.Query ~> Aff) -> CR.Consumer String Aff Unit
 wsConsumer query = CR.consumer \msg -> do
-    uuid <- liftEffect genUUID
+    uuid <- liftEffect UUID.genUUID
     query <<< H.action $ Site.ReceiveMsg (Site.SocketMsg msg) uuid
     liftEffect <<< Aff.launchAff_ $ do
         Aff.delay $ Milliseconds 60000.0
@@ -65,6 +65,6 @@ main = do
     socket <- WS.create hostname []
     HA.runHalogenAff do
         body <- HA.awaitBody
-        io <- runUI Site.component unit body
+        io <- Driver.runUI Site.component unit body
         io.subscribe $ wsSender socket
         CR.runProcess (wsProducer socket CR.$$ wsConsumer io.query)

@@ -19,6 +19,7 @@ module StandardLibrary
   , module Effect.Aff
   , module Effect.Class
   , module Effect.Aff.Class
+  , module Foreign
 
   , (?), doIf
   , (??), justIf
@@ -42,6 +43,7 @@ import Data.Array ((:), catMaybes, cons, delete, difference, drop, dropWhile, fi
 import Data.Either (Either(Left, Right), choose, either, hush, isLeft, isRight)
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Foldable (class Foldable, all, and, any, elem, find, fold, foldl, foldr, for_, intercalate, length, maximum, maximumBy, minimum, minimumBy, notElem, null, oneOf, oneOfMap, or, product, sequence_, sum, traverse_)
+import Foreign (Foreign)
 import Data.Function (on)
 import Data.Maybe (Maybe(Just,Nothing), maybe, fromMaybe, fromMaybe', isJust, isNothing)
 import Data.Map (Map)

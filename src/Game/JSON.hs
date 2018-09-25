@@ -4,25 +4,8 @@ module Game.JSON () where
 import StandardLibrary
 import qualified Data.List as List
 
-import Calculus
 import Game.Structure
 import Game.Functions
-
-reduceStatus :: NonEmpty Status -> Status
-reduceStatus (statuses:|[]) = statuses
-reduceStatus (st:|statuses) = st { statusL = f $ statusL st }
-  where 
-    f = (++ (" (" ++ tshow (1 + length statuses) ++ ")"))
-
-groupStatuses :: Status -> Status -> Bool
-groupStatuses = andOn [eqs statusSrc, eqs statusC, eqs statusL, eqs statusDur]
-
-reduceStatuses :: Ninja -> [Status]
-reduceStatuses Ninja{..} = 
-    uncurry (++) . partition ((nId /=) . statusSrc) . uncurry (++) .
-    do2 True (map reduceStatus . groupBy groupStatuses) .
-    partition ((Multi `elem`) . statusClasses) $
-    filter ((Hidden `notElem`) . statusClasses) nStatuses
 
 instance ToJSON Ninja where
     toJSON n@Ninja{..} = object
@@ -31,7 +14,7 @@ instance ToJSON Ninja where
         , "nName"      .= characterName nCharacter
         , "nDefense"   .= nDefense
         , "nBarrier"   .= nBarrier
-        , "nStatuses"  .= reduceStatuses n
+        , "nStatuses"  .= filter ((Hidden `notElem`) . statusClasses) nStatuses
         , "nCharges"   .= nCharges
         , "nCooldowns" .= getCds n
         , "nVariants"  .= nVariants

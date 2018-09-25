@@ -59,6 +59,7 @@ import qualified Data.Text      as Text
 
 import Calculus
 import Core.Model
+import Game.BlackMagic ()
 
 -- Each player controls 3 'Ninja's.
 teamSize :: Int
@@ -239,6 +240,7 @@ data Effect
     | Swap       Class           -- ^ Target swaps enemies and allies
     | Taunt                      -- ^ Forced to attack the source
     | Taunting   Int             -- ^ Forced to attack their next target
+    | Throttle (Class -> Effect) Int -- ^ Applying an effect lasts fewer turns
     | Uncounter                  -- ^ Cannot counter or reflect
     | Unexhaust                  -- ^ Decreases chakra costs by 1 random  
     | Unreduce   Int             -- ^ Reduces damage reduction 'Skill's
@@ -321,6 +323,7 @@ instance Show Effect where
     show (Swap clas) = "Next " ++ low clas ++ " skill will target allies instead of enemies and enemies instead of allies."
     show Taunt = "Forced to target the source of this effect."
     show (Taunting a) = "Will be forced to target the next enemy they use a skill on for " ++ show a ++ " turns."
+    show (Throttle _ a) = "Skills will apply " ++ show a ++ " fewer turns of certain effects."
     show Uncounter = "Unable to benefit from counters or reflects."
     show Unexhaust = "All skills cost 1 fewer random chakra."
     show (Unreduce a) = "Damage reduction skills reduce " ++ show a ++ " fewer damage."
@@ -384,6 +387,7 @@ helpful (Strengthen _ _) = True
 helpful (Stun _)         = False
 helpful (Swap _)         = False
 helpful Taunt            = False
+helpful (Throttle _ _)   = False
 helpful (Taunting _)     = False
 helpful (Unreduce _)     = False
 helpful Uncounter        = False
@@ -851,7 +855,8 @@ instance ToJSON Bomb where
     toJSON = tagJson
 
 -- | A status effect affecting a 'Ninja'.
-data Status = Status { statusL       :: Text -- ^ Label.
+data Status = Status { statusCount   :: Int  -- ^ Starts at 1
+                     , statusL       :: Text -- ^ Label
                      , statusRoot    :: Slot -- ^ Owner of the 'statusSkill'
                      , statusSrc     :: Slot -- ^ Original user
                      , statusC       :: Slot -- ^ Direct user (e.g. if reflected)
@@ -1101,9 +1106,3 @@ skillTargets Skill{..} c = filter target $ Slot <$> [0 .. gameSize - 1]
       | [Ally, Allies, RAlly] `intersects` ts = True
       | c == t = not harm
       | otherwise = False
-
--- * Function ignoring for derives
-instance Eq (a -> b) where 
-    (==) = const $ const True
-instance ToJSON (a -> b) where 
-    toJSON = const $ toJSON (Nothing :: Maybe Bool)

@@ -14,11 +14,10 @@ module FFI.Import
     ) where
 
 import StandardLibrary
-import Generic as G
-import Data.Map as Map
+import Generic     as G
+import Data.Map    as Map
 import Data.String as String
 
-import Foreign (Foreign)
 import Data.Nullable (Nullable, toMaybe)
 import Data.Profunctor.Strong ((&&&))
 

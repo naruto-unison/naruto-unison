@@ -1,13 +1,16 @@
 $newline always
 
 <section>
+  <h3>September 24
+  <ul>
+    #{changelog Added "Inoichi Yamanaka" S}
   <h3>May 16
   <ul>
     #{changelog New "Jirōbō" R}
   <h3>May 15
   <ul>
     #{changelog Rework "Itachi Uchiha" R}
-    #{changelog Added "Susano'o Itachi" S}
+    #{changelog New "Susano'o Itachi" S}
   <h3>May 14
   <ul>
     #{changelog Rework "Zabuza Momochi" R}
@@ -143,10 +146,8 @@ $newline always
     <li>
       The <i>Affliction</i> class has been renamed to <i>Bane</i>
       in order to avoid confusion with affliction damage.
-      Most <i>Affliction</i> effects deal affliction damage, 
-      and most skills that deal affliction damage over time are classified as <i>Affliction</i>,
-      but the relationship is not one-to-one. For example: Shino#{s}'s 
-      #{"Shino Aburame (S)" ! "Gigantic Beetle Infestation"}.
+      For example, Shino#{s}'s 
+      #{"Shino Aburame (S)" ! "Gigantic Beetle Infestation"}, which does not deal any affliction damage, was a skill classified as <i>Affliction</i>.
       In the future, other skills may be additionally classified as <i>Bane</i>;
       this would make skills that cure all <i>Bane</i> effects more useful
       and improve consistency.
@@ -163,8 +164,8 @@ $newline always
       called <i>Ongoing</i>. <i>Ongoing</i> skills are permanent,
       perform an action every turn even if their user is stunned or otherwise disabled,
       and end when their user dies. Examples:
+      Choji#{s}'s #{ "Choji Akimichi" ! "Butterfly Mode"},
       Tsunade's #{"Tsunade" ! "Major Summoning: Katsuyu"}, 
       Jiraiya's #{"Jiraiya" ! "Major Summoning: Gamabunta"},
       Orochimaru's #{"Orochimaru" ! "Major Summoning: Manda"},
-      Hiruzen's #{ "Hiruzen Sarutobi" ! "Major Summoning: Enma"}, and
-      Choji#{s}'s #{ "Choji Akimichi" ! "Butterfly Mode"}.
+      and Hiruzen's #{ "Hiruzen Sarutobi" ! "Major Summoning: Enma"}.
