@@ -36,6 +36,7 @@ module Game.Functions
     -- *** 'changes'
     , (••)
     , addClass, changeWith, costPer, restrict, setCost, swapSkill, targetAll
+    , targetOnly
     -- ** 'Requirement'
     , matchRequire
     -- * 'Status'
@@ -146,7 +147,7 @@ filterEffects n = map adjustEffect . filter keepEffects
   where 
     adjustEffect (Reduce cla x) = Reduce cla (x - getUnreduce n)
     adjustEffect f              = f
-    keepEffects Immune{}        = not $ is Expose n
+    keepEffects Invulnerable{}        = not $ is Expose n
     keepEffects _               = True
 
 -- ** REDUCING EFFECTS
@@ -180,9 +181,9 @@ getIgnore n = [ f cla | cla        <- enums
                       , Status{..} <- nStats n
                       , Ignore f   <- statusEfs
                       ]
--- | 'Immune's.
+-- | 'Invulnerable's.
 getImmune :: Ninja -> [Class]
-getImmune n = [ x | Immune x <- nEfs n ]
+getImmune n = [ x | Invulnerable x <- nEfs n ]
 -- | 'Invincible's.
 getInvincible :: Ninja -> [Class]
 getInvincible n = [ x | Invincible x <- nEfs n ]
@@ -313,7 +314,7 @@ getCds Ninja{..} = Seq.zipWith copyCd nCopied $
 
 -- ** LIFE AND DEATH
 
-alives :: Player -> Seq Ninja -> [Ninja]
+alives :: ∀ o. Mono o Ninja => Player -> o -> [Ninja]
 alives = (filter isAlive .) . alliesP
 
 -- | The entire team of a 'Player' is dead, in which case they lose.
@@ -335,7 +336,7 @@ minHealth n
   | is Endure n = 1
   | otherwise   = 0
 
-numAlive :: Player -> Seq Ninja -> Int
+numAlive :: ∀ o. Mono o Ninja => Player -> o -> Int
 numAlive = (length .) . alives
 
 playerTeam :: Player -> Game -> [Ninja]
@@ -470,55 +471,55 @@ costPer :: Text -> [ChakraType] -> SkillTransform
 costPer l chaks n skill@Skill{..} = skill 
     { cost = cost + χ chaks * fromInteger (toInteger $ numActive l n) }
 
+changeEffects :: ([(Target, Transform)] -> [(Target, Transform)])
+              -> Skill -> Skill
+changeEffects f skill@Skill{..} = 
+    skill { effects = f effects, start = f start, disrupt = f disrupt } 
+
 -- | Turns AoE effects into single-target effects.
 restrict :: SkillTransform
-restrict n skill@Skill{..}
-  | is Restrict n = skill { effects = mapMaybe f effects 
-                          , start   = mapMaybe f start
-                          , disrupt = mapMaybe f disrupt
-                          }
-  | otherwise     = skill
+restrict n = is Restrict n ? changeEffects (mapMaybe go)
   where 
-    f (XEnemies, _)  = Nothing
-    f (REnemy,   _)  = Nothing
-    f (Everyone, ef) = Just (Allies, ef)
-    f (Enemies, ef)  = Just (Enemy, ef)
-    f a              = Just a
+    go (XEnemies, _)  = Nothing
+    go (REnemy,   _)  = Nothing
+    go (Everyone, ef) = Just (Allies, ef)
+    go (Enemies, ef)  = Just (Enemy, ef)
+    go x              = Just x
 
 -- | Turns single-target effects into AoE effects.
 targetAll :: SkillTransform
-targetAll _ skill@Skill{..} = skill
-  { start = f <$> start, effects = f <$> effects, disrupt = f <$> disrupt }
-  where 
-    f (targ, ef) = (f' targ, ef)
-    f' Enemy     = Enemies
-    f' Ally      = Allies
-    f' XAlly     = XAllies
-    f' a         = a
+targetAll = const . changeEffects $ map go
+  where
+    go (targ, ef) = (go' targ, ef)
+    go' Enemy     = Enemies
+    go' Ally      = Allies
+    go' XAlly     = XAllies
+    go' x         = x
+
+-- | Restricts skill effects to a specified list of 'Target's.
+targetOnly :: ∀ o. Mono o Target => o -> SkillTransform
+targetOnly xs = const . changeEffects $ filter ((`elem` xs) . fst)
 
 setCost :: [ChakraType] -> SkillTransform
 setCost chaks _ skill = skill { cost = χ chaks }
 
 -- | Affects enemies instead of allies and allies instead of enemies.
 swapSkill :: Status -> Skill -> Skill
-swapSkill Status{..} skill@Skill{..} = skill { effects = f' <$> effects 
-                                             , start   = f' <$> start
-                                             , disrupt = f' <$> disrupt
-                                             }
+swapSkill Status{..} = changeEffects $ map go
   where 
-    f' (x, y)      = (f x, y)
-    f Self         = Self
-    f Ally         = Specific statusSrc
-    f XAlly        = Specific statusSrc
-    f RAlly        = REnemy
-    f Allies       = Enemies
-    f XAllies      = Enemies
-    f Enemy        = Self
-    f REnemy       = RAlly
-    f Enemies      = Allies
-    f XEnemies     = XAllies
-    f Everyone     = Everyone
-    f (Specific x) = Specific x
+    go (x, y)      = (go' x, y)
+    go' Self         = Self
+    go' Ally         = Specific statusSrc
+    go' XAlly        = Specific statusSrc
+    go' RAlly        = REnemy
+    go' Allies       = Enemies
+    go' XAllies      = Enemies
+    go' Enemy        = Self
+    go' REnemy       = RAlly
+    go' Enemies      = Allies
+    go' XEnemies     = XAllies
+    go' Everyone     = Everyone
+    go' (Specific x) = Specific x
 
 -- ** USABILITY
 
@@ -630,7 +631,7 @@ getStat n@Ninja{..} st = st' { statusEfs = bst }
     efs  = concatMap (statusEfs . rawStat n) nStatuses
     keep Enrage   = True
     keep Seal     = True
-    keep Immune{} = Expose `notElem` efs
+    keep Invulnerable{} = Expose `notElem` efs
     keep Reduce{} = Expose `notElem` efs
     keep ef 
       | fromSelf n st = True

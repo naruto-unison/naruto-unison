@@ -1,9 +1,10 @@
 -- | Collection of all 'Character's.
-module Game.Characters (cs, cs') where
+module Game.Characters (cs, cs', reanimatedBy) where
 
 import StandardLibrary
 
 import qualified Data.HashMap.Strict as Map
+import qualified Data.Text           as Text
 
 import Calculus
 import Game.Structure
@@ -37,7 +38,6 @@ cs' = addClasses
   where
     s = kidCsS ++ adultCsS ++ familyCsS ++ organizationCsS ++ akatsukiCsS 
       ++ versionCsS
-    mark m c = c { characterName = characterName c ++ " (" ++ m ++ ")" }
 
 addClasses :: Character -> Character
 addClasses c@Character{..} = c { characterSkills = doSkills <$> characterSkills }
@@ -53,7 +53,20 @@ doSkill skill@Skill{..} = skill { classes = go classes }
   where
     go = nub . (All :) . (Mental `notElem` classes ? (NonMental :))
     --Game{..}  = mockSkill skill
-    
+
+mark :: Text -> Character -> Character
+mark markAs c = c { characterName = characterName c ++ " (" ++ markAs ++ ")" }
+
+reanimatedBy :: Character -> [Character]
+reanimatedBy c = filter match reanimated
+  where
+    reanimated = addClasses . mark "R" <$> reanimatedCsS
+    userIs     = (`Text.isInfixOf` characterName c)
+    match 
+      | userIs "Kabuto"     = Text.isInfixOf "by Kabuto" . characterBio
+      | userIs "Orochimaru" = Text.isInfixOf "By Orochimaru" . characterBio
+      | otherwise           = const True
+
 {-
 mockSkill :: Skill -> Game
 mockSkill skill@Skill{..} = foldl mock mockGame $ snd <$> (start ++ effects)

@@ -358,9 +358,9 @@ trigger :: [Affected] -> Skill -> Slot
         -> Game
 trigger affected Skill{..} c game game'Pre
   | Channeled `elem` affected = game'
-  | not (null counttr)   = entrap c counttr $
-                           fN c N.unCounter game { gameNinjas = ns'Cp }
-  | otherwise            = game'Tr
+  | not (null counttr)        = entrap c counttr $
+                                fN c N.unCounter game { gameNinjas = ns'Cp }
+  | otherwise                 = game'Tr
   where 
     n       = gameNinja c game
     n'Pre   = gameNinja c game'Pre
@@ -412,7 +412,7 @@ trigger affected Skill{..} c game game'Pre
               , getTrapsTo chakraF              OnChakra   n'
               , getTrapsTo (not $ null dmgEns)  OnDamage   n'
               , getTrapsTo (not $ null stunned) OnStun     n'
-              , getTrapsTo (was Immune (n', n)) OnImmune   n'
+              , getTrapsTo (was Invulnerable (n', n)) OnImmune   n'
               , getTrapsTo harmful              OnHarm     n'
               , classTrs (game'Pre /= game)     OnAction   classes n'
               ]
@@ -533,10 +533,10 @@ doEffect :: [Affected] -> Skill -> Slot-> Slot -> Slot
          -> Either (Slot, Slot) Random.StdGen -> (Target, Transform) 
          -> Game -> Game
 doEffect affected skill' src c t rando (target, f) game
-  | Countered `notElem` affected                  = done
-  | Parrying `elem` affected && target == Ally   = game
+  | Countered `notElem` affected                        = done
+  | Parrying `elem` affected && target == Ally          = game
   | Parrying `notElem` affected && target `elem` anyone = game
-  | otherwise                             = done       
+  | otherwise                                           = done       
   where
     anyone = [Self, Allies, Enemies, Everyone] :: [Target]
     skill = case target of
@@ -558,15 +558,15 @@ chooseRands n skill@Skill{..} Game{..} c (Right stdGen) = (rAlly, rEnemy)
 
 wrapEffect :: [Affected] -> Transform -> Transform
 wrapEffect affected f skill@Skill{..} src c game t
-  | gameMock game                     = game'Do
+  | gameMock game                          = game'Do
   | Direct `elem` classes                  = game'Do
   | Applied `elem` affected                = game'Do
   | classes `intersects` getInvincible nt  = game'T
   | Trapped `elem` affected                = game'Do
-  | not $ targetable skill' nSrc n nt = game'T
+  | not $ targetable skill' nSrc n nt      = game'T
   | skill `elem` nParrying nt              = game'T
-  | not new                           = game'Do
-  | is Uncounter nt                   = game'Post
+  | not new                                = game'Do
+  | is Uncounter nt                        = game'Post
   | otherwise = case allow Redirected $? redir classes nt of
       Just red -> wrapEffect (Redirected : affected) 
                   f skill src (tOrC red) game'Mimic red
@@ -685,18 +685,18 @@ everyone f skill src c game _ =
 -- | User 'has'
 ifI :: Text -> Transform -> Transform
 ifI l f skill src c game@Game{..} t
-  | gameMock                       = f skill src c game t
+  | gameMock                        = f skill src c game t
   | has l src n || isChanneling l n = f skill src c game t
-  | otherwise                      = game
+  | otherwise                       = game
   where
     n = gameNinja src game
 
 -- | 'not' 'ifI'
 ifnotI :: Text -> Transform -> Transform
 ifnotI l f skill src c game@Game{..} t
-  | gameMock                             = f skill src c game t
+  | gameMock                              = f skill src c game t
   | not $ has l src n || isChanneling l n = f skill src c game t
-  | otherwise                            = game
+  | otherwise                             = game
   where 
     n = gameNinja src game
 
@@ -717,9 +717,9 @@ ifnotU l f skill src c game@Game{..} t
 -- | User 'numStacks' exceeds a threshold
 ifStacks :: Text -> Int -> Transform -> Transform
 ifStacks l i f skill src c game@Game{..} t
-  | gameMock                                 = f skill src c game t
+  | gameMock                                  = f skill src c game t
   | numStacks l src (gameNinja src game) >= i = f skill src c game t
-  | otherwise                                = game
+  | otherwise                                 = game
 
 -- | 'not' 'ifStacks'
 ifnotStacks :: Text -> Int -> Transform -> Transform
@@ -781,7 +781,7 @@ withU l amount f base skill src c game t
   where 
     total = (has l src (gameNinja t game) ? (+ amount)) base
 
--- | Target is 'Immune' to any 'Class'
+-- | Target is 'Invulnerable' to any 'Class'
 withInvulnU :: Int -> (Int -> Transform) -> Int -> Transform
 withInvulnU amount f base skill src c game t
   | total == 0 = game
@@ -1074,8 +1074,7 @@ doDisrupt Ninja{..} game Channel{..} = foldl' (flip f) game disr
     f    = doEffect [Channeled, Disrupted]
             channelSkill nId nId channelT (Left (channelT, channelT))
 
-doDisrupts :: ∀ o. (MonoFoldable o, Element o ~ Channel)
-           => Ninja -> o -> Game -> Game
+doDisrupts :: ∀ o. Mono o Channel => Ninja -> o -> Game -> Game
 doDisrupts n chans game = foldl' (doDisrupt n) game chans
 
 disruptAll :: Slot -> [Effect] -> Game -> Slot -> Game
@@ -1087,7 +1086,8 @@ disruptAll t fs game c
   where 
     n      = gameNinja c game
     disr   = filter disrupted $ nChannels n
-    immune = any (\cla -> [Immune cla, Invincible cla] `intersects` fs) . classes
+    immune = any (\cla -> [Invulnerable cla, Invincible cla] `intersects` fs) . 
+             classes
     disrupted Channel{..} = case channelDur of
         Control _ -> t == channelT && immune channelSkill
         _         -> False
@@ -1566,7 +1566,7 @@ invuln1' label desc classes effects =
              , classes = classes
              , cd      = 4
              , cost    = χ [Rand]
-             , effects = (Self, apply 1 [Immune All]) : ((Self, ) <$> effects)
+             , effects = (Self, apply 1 [Invulnerable All]) : ((Self, ) <$> effects)
              }
 invuln' :: Text -> Text -> [Class] -> [Transform] -> NonEmpty Skill
 invuln' label desc classes effects = invuln1' label desc classes effects :| []

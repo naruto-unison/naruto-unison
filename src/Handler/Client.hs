@@ -12,8 +12,7 @@ module Handler.Client
 
 import StandardLibrary
 
-import qualified Data.List.NonEmpty  as NonEmpty
-import qualified Data.HashMap.Strict as Map
+import qualified Data.List.NonEmpty as NonEmpty
 
 import Yesod.WebSockets (webSockets)
 
@@ -81,7 +80,7 @@ getPlayR = do
     let (_, muser) = case ma of
           Just (Entity who user) -> (Just who, Just user)
           Nothing                -> (Nothing, Nothing)
-    let team = maybe [] (mapMaybe (`Map.lookup` cs)) $ muser >>= userTeam
+    let team = maybe [] (mapMaybe (`lookup` cs)) $ muser >>= userTeam
     let bg   = fromMaybe "/img/bg/valley2.jpg" $ muser >>= userBackground
     defaultLayout $ do
         setTitle "Naruto Unison"

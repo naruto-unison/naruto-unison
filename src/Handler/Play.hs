@@ -7,7 +7,6 @@ module Handler.Play
 import StandardLibrary
 
 import qualified Data.Aeson.Encoding         as Encoding
-import qualified Data.HashMap.Strict         as Map
 import qualified Data.Text                   as Text
 import qualified STMContainers.Map           as STMMap
 import qualified Database.Persist.Postgresql as SQL
@@ -60,7 +59,7 @@ getPracticeQueueR :: [Text] -> Handler Value
 getPracticeQueueR team
   | null (drop 2 team) || not (null (drop 3 team)) = 
         invalidArgs ["Wrong number of characters"]
-  | any (not . (`Map.member` cs)) team = invalidArgs ["Unknown character(s)"]
+  | any (not . (`member` cs)) team = invalidArgs ["Unknown character(s)"]
   | otherwise = do
       app        <- getYesod
       (who, _)   <- requireAuthPair
@@ -77,9 +76,9 @@ getPracticeQueueR team
 formTeam :: [Text] -> Maybe [Character]
 formTeam team@[a, b, c]
   | duplic team = Nothing
-  | otherwise   = [[a', b', c'] | a' <- Map.lookup a cs
-                                , b' <- Map.lookup b cs
-                                , c' <- Map.lookup c cs
+  | otherwise   = [[a', b', c'] | a' <- lookup a cs
+                                , b' <- lookup b cs
+                                , c' <- lookup c cs
                                 ]
 formTeam _ = Nothing
 

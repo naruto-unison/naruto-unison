@@ -97,7 +97,7 @@ decrStats n@Ninja{..} = n { nStatuses = expire <$> nStatuses }
 decr :: Ninja -> Ninja
 decr n@Ninja{..} = case findMatch nStatuses of
         Just (Snapshot n') -> decr n' -- TODO
-        _ -> n { nDefense   = mapMaybe decrTurn nDefense 
+        _ -> n { nDefense  = mapMaybe decrTurn nDefense 
               , nStatuses  = foldStats $ mapMaybe decrTurn nStatuses
               , nBarrier   = mapMaybe decrTurn nBarrier
               , nFace      = mapMaybe decrTurn nFace     

@@ -13,7 +13,6 @@ module Handler.Site
 import StandardLibrary
 
 import qualified Data.List.NonEmpty  as NonEmpty
-import qualified Data.HashMap.Strict as Map
 
 import qualified Handler.Forum as Forum
 
@@ -40,7 +39,7 @@ logLabel True  Change = "Character update:"
 logLabel False Change = "Update:"
 
 getChangelog :: Bool -> LogType -> Text -> CharacterType -> Html
-getChangelog long logType name characterType = case Map.lookup tagName cs of
+getChangelog long logType name characterType = case lookup tagName cs of
     Nothing -> [shamlet|Error: character #{tagName} not found!|]
     Just Character{..} -> [shamlet|
 $if not long
