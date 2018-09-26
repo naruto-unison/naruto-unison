@@ -16,7 +16,7 @@ akatsukiCsS =
     [ [ newSkill
         { label   = "Thousand Hungry Sharks"
         , desc    = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Each turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage to each enemy during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
-        , classes = [Chakra, Ranged, Single, Unreflectable]
+        , classes = [Chakra, Ranged, Single, Unreflectable, Resource]
         , cost    = χ [Nin]
         , channel = Ongoing 0
         , start   = [(Self, addStacks "Hundred Hungry Sharks" 10
@@ -378,7 +378,7 @@ akatsukiCsS =
     [ [ newSkill
         { label   = "Kazekage Puppet Summoning" 
         , desc    = "Sasori summons his most prized puppet, gaining 15 destructible defense and enabling his other skills. Once used, this skill becomes [Iron Sand: World Order][b][n]. Each turn, Sasori gains a stack of Iron Sand."
-        , classes = [Physical, Multi]
+        , classes = [Physical]
         , channel = Ongoing 0
         , start   = [(Self, defend 0 15)]
         , effects = [(Self, apply' "Iron Sand" 0 [])]
@@ -875,7 +875,7 @@ akatsukiCsS =
     [ [ newSkill
         { label   = "Summoning: Gedo Statue"
         , desc    = "Nagato summons the empty vessel of the ten-tailed beast, which provides 10 points of damage reduction to him for 3 turns. While active, Nagato can use his other skills and this skill becomes [Control][r]."
-        , classes = [Mental, Summon, Unremovable, Multi]
+        , classes = [Mental, Summon, Unremovable]
         , cost    = χ [Blood]
         , cd      = 4
         , channel = Control (-4)
@@ -889,7 +889,7 @@ akatsukiCsS =
       , newSkill
         { label   = "Control"
         , desc    = "Nagato attempts to maintain control over the Gedo statue for a little longer, prolonging [Summoning: Gedo Statue] for 2 additional turns. Until it ends, [Summoning: Gedo Statue] provides 5 additional points of damage reduction up to a maximum of 25 and [Phantom Dragon] deals 5 additional damage. This skill has no chakra cost if [Phantom Dragon] was used last turn."
-        , classes = [Mental, Multi]
+        , classes = [Mental]
         , cost    = χ [Rand]
         , cd      = 1
         , effects = [(Self, prolongChannel 2 "Summoning: Gedo Statue"

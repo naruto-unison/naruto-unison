@@ -40,7 +40,7 @@ reanimatedCsS =
       ]
     , [ newSkill
         { label   = "Tree Strangulation"
-        , desc    = "Hashirama encases an enemy in growing trees, dealing 25 damage and stunning their physical and chakra skills for 1 turn. Stuns all skills during [Deep Forest Creation]."
+        , desc    = "A tree sprouts from the ground and snares an enemy in its branches, dealing 25 damage and stunning their physical and chakra skills for 1 turn. Stuns all skills during [Deep Forest Creation]."
         , classes = [Physical, Ranged]
         , cost    = χ [Blood, Rand]
         , effects = [ (Enemy, damage 25
@@ -52,7 +52,7 @@ reanimatedCsS =
       ]
     , [ newSkill
         { label   = "Deep Forest Creation"
-        , desc    = "Hashirama transforms the battlefield into a forest. For 2 turns, enemy cooldowns are increased by 1 and the cost of enemy non-mental skills is increased by 1 random chakra. While active, this skill becomes [Deep Forest Flourishing][b][b]."
+        , desc    = "The battlefield transforms into a forest. For 2 turns, enemy cooldowns are increased by 1 and the cost of enemy non-mental skills is increased by 1 random chakra. While active, this skill becomes [Deep Forest Flourishing][b][b]."
         , classes = [Physical, Ranged]
         , cost    = χ [Blood, Blood]
         , effects = [ (Enemies, apply 2 [Snare 1, Exhaust NonMental])
@@ -78,7 +78,7 @@ reanimatedCsS =
     "Reanimated by Orochimaru, Hashirama was the second Hokage. His water-manipulating skills flood the battlefield, impairing and harming the enemy team."
     [ [ newSkill
         { label   = "Water Prison"
-        , desc    = "Tobirama encases an enemy in water, dealing 15 damage and making them immune to effects from allies for 1 turn."
+        , desc    = "Water surrounds an enemy, dealing 15 damage and making them immune to effects from allies for 1 turn."
         , classes = [Physical, Ranged]
         , cost    = χ [Nin]
         , effects = [(Enemy, withChan "Water Shockwave" 15 damage 15 
@@ -87,7 +87,7 @@ reanimatedCsS =
       ]
     , [ newSkill
         { label   = "Water Shockwave"
-        , desc    = "Tobirama summons a giant wave of water that assaults the enemy team for 3 turns, dealing 15 damage, negating their affliction damage, and increasing the damage of [Water Prison] by 15."
+        , desc    = "A giant wave of water floods the enemy team for 3 turns, dealing 15 damage, negating their affliction damage, and increasing the damage of [Water Prison] by 15."
         , classes = [Physical, Ranged]
         , cost    = χ [Gen, Nin]
         , cd      = 3
@@ -101,7 +101,7 @@ reanimatedCsS =
         , classes = [Mental]
         , cost    = χ [Gen]
         , cd      = 3
-        , effects = [(Allies, apply 1 [Immune All])]
+        , effects = [(Allies, apply 1 [Immune Physical, Immune Mental])]
         }
       ]
     , invuln "Water Wall" "Tobirama" [Physical]
@@ -111,8 +111,8 @@ reanimatedCsS =
     "Reanimated by Kabuto, Hanzō the Salamander was the leader of Amegakure. In combination with his unrivaled combat prowess, the lethal venom sac implanted in his body makes him a feared legend throughout the world."
     [ [ newSkill
         { label   = "Major Summoning: Ibuse"
-        , desc    = "Hanzō summons his fabled salamander to the battlefield, which starts out with 30 health. All damage to Hanzō is split between him and Ibuse. While active, this skill becomes [Poison Fog][b][b]."
-        , classes = [Chakra, Summon, Unreflectable, Unremovable, Multi]
+        , desc    = "Hanzō summons his fabled salamander to the battlefield. Ibuse starts with 30 health and redirects half of all damage against Hanzō to itself until it dies. While active, this skill becomes [Poison Fog][b][b]."
+        , classes = [Chakra, Summon, Unreflectable, Unremovable]
         , cost    =  χ [Rand, Rand, Rand]
         , cd      = 6
         , effects = [ (Self, ifnotI "Venom Sac" 
@@ -187,7 +187,7 @@ reanimatedCsS =
       ]
     , [ newSkill
         { label   = "Water Pistol"
-        , desc    = "Gengetsu fires a droplet of water like a bullet at an enemy, dealing 10 piercing damage and killing them if their health drops to 10 or lower. Deals 10 additional damage and bypasses invulnerability during [Major Summoning: Giant Clam]."
+        , desc    = "Gengetsu fires a drop of water like a bullet at an enemy, dealing 10 piercing damage and killing them if their health drops to 10 or lower. Deals 10 additional damage and bypasses invulnerability during [Major Summoning: Giant Clam]."
         , classes = [Chakra, Ranged]
         , cost    = χ [Rand]
         , effects = [(Enemy, withI "Major Summoning: Giant Clam" 10 pierce 10 
@@ -217,7 +217,7 @@ reanimatedCsS =
     "Reanimated by Kabuto, Mū was the second Tsuchikage of the Hidden Rock Village. Unfailingly polite, he intends to ensure that his village benefits from the war. By manipulating matter at the atomic level, he disintegrates the defenses of his enemies."
     [ [ newSkill
         { label   = "Particle Beam"
-        , desc    = "Mū blasts an enemy with a ray of high-energy atomic particles, dealing 25 piercing damage. Deals 10 additional damage if the target is invulnerable. Deals 5 fewer damage and costs 1 ninjutsu chakra during [Fragmentation]."
+        , desc    = "A ray of high-energy atomic particles blasts an enemy, dealing 25 piercing damage. Deals 10 additional damage if the target is invulnerable. Deals 5 fewer damage and costs 1 ninjutsu chakra during [Fragmentation]."
         , classes = [Chakra, Ranged, Bypassing]
         , cost    = χ [Nin, Rand]
         , effects = [(Enemy, withInvulnU 10 
@@ -239,7 +239,7 @@ reanimatedCsS =
       ]
     , [ newSkill
         { label   = "Atomic Dismantling"
-        , desc    = "Mū shatters the atomic bonds within an enemy, dealing 40 piercing damage and demolishing their destructible defense and his destructible barrier. Deals 5 fewer damage and costs 1 ninjutsu chakra and 1 random chakra during [Fragmentation]."
+        , desc    = "The atomic bonds within an enemy shatter, dealing 40 piercing damage and demolishing their destructible defense and his destructible barrier. Deals 5 fewer damage and costs 1 ninjutsu chakra and 1 random chakra during [Fragmentation]."
         , classes = [Chakra, Ranged, Bypassing]
         , cost    = χ [Nin, Rand, Rand]
         , cd      = 1
@@ -289,8 +289,8 @@ reanimatedCsS =
       ]
     , [ newSkill
         { label   = "Strongest Shield"
-        , desc    = "A shrugs off injuries that would overwhelm any other fighter, regaining all health he lost from damage in the past 2 turns and healing himself for the same amount. For 2 turns, his health cannot drop below 1 and all damage against him—including piercing and affliction—is reduced by 20."
-        , classes = [Chakra, Multi]
+        , desc    = "Shrugging off injuries that would overwhelm any other fighter, A regains all health he lost from damage in the past 2 turns and heals himself for the same amount. For 2 turns, his health cannot drop below 1 and all damage against him—including piercing and affliction—is reduced by 20."
+        , classes = [Chakra]
         , cost    = χ [Blood]
         , cd      = 8
         , effects = [(Self, perI "Cracks in the Shield" 1 heal 0
@@ -319,7 +319,7 @@ reanimatedCsS =
     "Reanimated by Kabuto, Rasa was the fourth Kazekage of the Hidden Sand Village and the father of the Sand Siblings. Cold and calculating, Rasa buries his enemies beneath crushingly heavy gold dust that they must fight their way out of to survive."
     [ [ newSkill
         { label   = "Magnet Technique"
-        , desc    = "Rasa floods the enemy team with waves of gold, dealing 10 damage to them and applying 10 permanent destructible barrier to each. The skills of enemies who have destructible barrier from this skill cost an additional random chakra."
+        , desc    = "Waves of gold flood the enemy team, dealing 10 damage to them and applying 10 permanent destructible barrier to each. The skills of enemies who have destructible barrier from this skill cost an additional random chakra."
         , classes = [Physical, Ranged]
         , cost    = χ [Nin]
         , cd      = 1
@@ -440,7 +440,7 @@ reanimatedCsS =
       ]
     , [ newSkill
         { label   = "Crystal Ice Mirrors"
-        , desc    = "Haku fills the battlefield with disorienting crystalline mirrors, gaining 20 permanent destructible defense. For 3 turns, if Haku loses all destructible defense from this skill, he will gain destructible defense equal to how much health he lost during the same turn. Cannot be used while Haku still has destructible defense from this skill."
+        , desc    = "Disorienting crystalline mirrors form all around the battlefield, providing 20 permanent destructible defense to Haku. For 3 turns, if Haku loses all destructible defense from this skill, he will gain destructible defense equal to how much health he lost during the same turn. Cannot be used while Haku still has destructible defense from this skill."
         , classes = [Chakra, Single]
         , cost    = χ [Blood, Nin]
         , cd      = 6
@@ -474,7 +474,7 @@ reanimatedCsS =
       ]
     , [ newSkill
         { label   = "Blood Harvest"
-        , desc    = "Zabuza's sword drinks up the blood it has spilled and uses the iron to reinforce itself, draining 10 health from a target affected by [Executioner's Butchering] to provide 10 permanent destructible defense. Extends the duration of [Demon Shroud] by 1 turn if active."
+        , desc    = "Kubikiribōchō drinks up the blood it has spilled and uses the iron to reinforce itself, draining 10 health from a target affected by [Executioner's Butchering] to provide 10 permanent destructible defense. Extends the duration of [Demon Shroud] by 1 turn if active."
         , require = HasU "Executioner's Butchering"
         , classes = [Physical, Melee]
         , cost    = χ [Blood]
@@ -500,7 +500,7 @@ reanimatedCsS =
     "Reanimated by Kabuto, Ameyuri was one of the Seven Swordsmen of the Mist. Wielding Baki, the legendary twin lightning blades, Ameyuri cuts down her enemies using paralyzing electricity."
     [ [ newSkill
         { label   = "Lightning Fang"
-        , desc    = "Ameyuri sends cascading bolts of lightning across the battlefield, applying 2 turns of Electricity to all enemies. Whenever someone affected by Electricity uses a skill, Electricity on them is refreshed to its maximum duration, and everyone affected by Electricity receives 5 affliction damage that bypasses invulnerability. Reapplying Electricity extends its duration instead of stacking."
+        , desc    = "Bolts of lightning cascade across the battlefield, applying 2 turns of Electricity to all enemies. Whenever someone affected by Electricity uses a skill, Electricity on them is refreshed to its maximum duration, and everyone affected by Electricity receives 5 affliction damage that bypasses invulnerability. Reapplying Electricity extends its duration instead of stacking."
         , classes = [Bane, Chakra, Ranged, Extending]
         , cost    = χ [Nin, Rand]
         , cd      = 4
@@ -550,7 +550,7 @@ reanimatedCsS =
     "Reanimated by Kabuto, Kushimaru was one of the Seven Swordsmen of the Mist. Wielding Nuibari, the legendary razor-wire longsword, Kushimaru stitches together his enemies to prevent them from acting."
     [ [ newSkill
         { label   = "Needle and Thread"
-        , desc    = "Kushimaru skewers an enemy with Nuibari, dealing 20 piercing damage and marking them for 1 turn. During [Stitching Spider], this skill deals 5 additional damage and also targets all other enemies affected by [Stitching Spider]."
+        , desc    = "Nuibari skewers an enemy, dealing 20 piercing damage and marking them for 1 turn. During [Stitching Spider], this skill deals 5 additional damage and also targets all other enemies affected by [Stitching Spider]."
         , classes = [Physical, Melee]
         , cost    = χ [Tai]
         , effects = [ (Enemy,    withI "Stitching Spider" 5 pierce 20 • tag 1) 
@@ -721,7 +721,7 @@ reanimatedCsS =
     [ [ newSkill
         { label   = "Human Path"
         , desc    = "Nagato restores 15 health and deals 20 piercing damage to an enemy. If the target deals any damage next turn, the damage and healing of this skill will be set to the damage they dealt for 1 turn and its cost will increase by 1 random chakra."
-        , classes = [Mental, Melee, Multi]
+        , classes = [Mental, Melee]
         , cost    = χ [Gen]
         , effects = [ (Self,  heal 15) 
                     , (Enemy, pierce 20 
@@ -734,7 +734,7 @@ reanimatedCsS =
       , newSkill
         { label   = "Human Path"
         , desc    = "Nagato restores 15 health and deals 20 piercing damage to an enemy. If the target deals any damage next turn, the damage and healing of this skill will be set to the damage they dealt for 1 turn and its cost will remain increased."
-        , classes = [Mental, Melee, Multi]
+        , classes = [Mental, Melee]
         , cost    = χ [Gen, Rand]
         , effects = [ (Self,  perI "Human Path" 1 heal 0) 
                     , (Enemy, perI "Human Path" 1 pierce 0
@@ -750,7 +750,7 @@ reanimatedCsS =
     , [ newSkill
         { label   = "Preta Path"
         , desc    = "Nagato absorbs attacks against him, countering all enemy skills next turn. Each countered skill restores 10 health to Nagato and steals a random chakra from its user."
-        , classes = [Mental, Ranged, Multi]
+        , classes = [Mental, Ranged]
         , cost    = χ [Nin]
         , cd      = 4
         , effects = [(Self, apply (-1) [ParryAll All 
@@ -792,7 +792,7 @@ reanimatedCsS =
     , [ newSkill
         { label   = "Rinnegan"
         , desc    = "Whenever Nagato deals damage to an enemy, he can use this skill the following turn to damage an enemy for half his damage total from that turn. Whenever Nagato is healed, he can use this skill the following turn to heal himself or an ally for half the amount of health he regained during that turn."
-        , classes = [Mental, Multi]
+        , classes = [Mental]
         , cd      = 2
         , changes = \n skill@Skill{..} -> skill 
           { effects = (hasOwn "Rinnegan" n 

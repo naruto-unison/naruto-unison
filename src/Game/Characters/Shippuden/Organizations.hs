@@ -15,7 +15,7 @@ organizationCsS =
     "A jōnin from the Hidden Leaf Village assigned to hunt down Akatsuki members, Aoba maintains a reserved and impassive demeanor in public that quickly disappears among friends. He uses his significant genjutsu prowess to summon numerous crows and spread his consciousness among them, controlling all of their actions simultaneously."
     [ [ newSkill
         { label   = "Scattering Crow Swarm"
-        , desc    = "Aoba summons a flock of self-duplicating crows that swarm the enemy team for 4 turns, dealing 5 damage each turn and providing 5 points of damage reduction to Aoba and his allies."
+        , desc    = "A flock of self-duplicating crows swarms the enemy team for 4 turns, dealing 5 damage each turn and providing 5 points of damage reduction to Aoba and his allies."
         , classes = [Mental, Ranged, Summon]
         , cost    = χ [Gen]
         , channel = Ongoing 4
@@ -26,7 +26,7 @@ organizationCsS =
       ]
     , [ newSkill
         { label   = "Revenge of the Murder"
-        , desc    = "If the target ally's health reaches 0 within 3 turns, their health will be set to 5, their skills will all be replaced by [Converging Murder], and they will become completely immune to all skills. At the end of their next turn, they will die."
+        , desc    = "If the target ally's health reaches 0 within 3 turns, their health will be set to 5, all their skills will be replaced by [Converging Murder], and they will become completely immune to all skills. At the end of their next turn, they will die."
         , classes = [Mental, Ranged, Invisible, Uncounterable, Unreflectable, Unremovable]
         , cost    = χ [Rand]
         , effects = [(XAlly, trap 3 OnRes 
@@ -70,7 +70,7 @@ organizationCsS =
       ]
     , [ newSkill
         { label   = "Summoning: Iron Maiden"
-        , desc    = "Ibiki traps an enemy in a spike-filled iron coffin shaped like a cat. For 3 turns, each time the target uses a harmfull skill, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
+        , desc    = "A spike-filled iron coffin shaped like a cat imprisons an enemy. For 3 turns, each time the target uses a harmfull skill, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
         , classes = [Physical, Melee, Summon]
         , cost    = χ [Nin, Rand]
         , effects = [ (Enemy, trap 3 OnHarm § pierce 25) 
@@ -80,7 +80,7 @@ organizationCsS =
       ]
     , [ newSkill
         { label   = "Summoning: Torture Chamber"
-        , desc    = "Ibiki traps an enemy in a cage of chains and gears. For 3 turns, each time the target does not use a skill, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
+        , desc    = "A cage of chains and gears surrounds an enemy. For 3 turns, each time the target does not use a skill, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
         , classes = [Physical, Melee, Summon]
         , cost    = χ [Nin, Rand]
         , effects = [ (Enemy, trap 3 OnNoAction § pierce 25) 
@@ -89,6 +89,37 @@ organizationCsS =
         }
       ]
     , invuln "Dodge" "Ibiki" [Physical]
+    ] []
+  , Character
+    "Yūgao Uzuki"
+    "An operative of the Hidden Leaf Village, Yūgao is dedicated and thorough. Having grown close to Hayate, Yūgao combines his expert sword techniques with her sealing abilities."
+    [ [ newSkill
+        { label   = "Moonlight Night"
+        , desc    = "Light flashes off Yūgao's sword as she spins it in a circle, surrounding herself with disorienting afterimages, then strikes at an enemy to deal 50 damage."
+        , classes = [Physical, Melee]
+        , cost    = χ [Gen, Tai]
+        , cd      = 1
+        , effects = [ (Enemy, perI "Moon Haze" 25 damage 50)
+                    , (Self,  remove "Moon Haze")
+                    ]
+        }
+      ]
+    , [ newSkill
+        { label   = "Moon Haze"
+        , desc    = "The light of the moon empowers Yūgao, providing 20 destructible defense for 1 turn and adding 25 damage to her next [Moonlight Night]."
+        , classes = [Physical]
+        , cost    = χ [Tai]
+        , effects = [(Self, defend 1 20 • addStack)]
+        }
+      ]
+    , [ newSkill
+        { label   = "Sealing Technique"
+        , desc    = "Yūgao places a powerful and thorough seal on an enemy. For 2 turns, they do not benefit from damage reduction, destructible defense, invulnerability, counters, or reflects."
+        , cd      = 1
+        , effects = [(Enemy, apply 2 [Expose, Uncounter, Undefend])]
+        }
+      ]
+    , invuln "Yūgao" "Parry" [Physical]
     ] []
   , Character
     "Sai"
@@ -121,10 +152,10 @@ organizationCsS =
     , [ newSkill
         { label   = "Ink Mist"
         , desc    = "Streams of ink coil in the air around Sai and his allies for 3 turns, obscuring them from enemies and allowing Sai to draw three-dimensionally. If someone on Sai's team is stunned, they become invulnerable for 1 turn. If their chakra is removed or stolen, they gain a random chakra. If an ally receives new non-affliction damage, Sai's damage increases by 10 for 1 turn."
-        , classes = [Mental, Multi, Bypassing]
+        , classes = [Mental, Bypassing]
         , cost    = χ [Rand, Rand]
         , effects = [ (Enemies, trap 3 OnChakra . self § gain [Rand])
-                    , (Allies, trap 3 (OnStunned Multi) § apply 1 [Immune All] 
+                    , (Allies, trap 3 OnStunned § apply 1 [Immune All] 
                              • trap 3 (OnDamaged NonAffliction) . self 
                                § apply 1 [Strengthen All 10])
                     , (Self,   vary' 3 "Super Beast Scroll: Snake" 
@@ -199,7 +230,7 @@ organizationCsS =
     [ [ newSkill
         { label   = "Izanagi"
         , desc    = "Danzō gains 10 Sharingan and loses 1 each turn. If his health reaches 0, he regains 10 health per Sharingan and loses all Sharingan. When he has no Sharingan remaining, this skill becomes [Reverse Tetragram Sealing][r][r][r]."
-        , classes = [Mental]
+        , classes = [Mental, Resource]
         , cost    = χ [Blood]
         , channel = Ongoing 0
         , start   = [(Self, addStacks "Sharingan" 10 

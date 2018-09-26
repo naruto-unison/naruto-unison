@@ -92,7 +92,7 @@ kidCsS =
     , [ newSkill
         { label   = "Strength of One Hundred Seal"
         , desc    = "Sakura stores up chakra in a point on her forehead, gaining 3 Seals. Sakura's skills spend Seals to become empowered. While active, this skill becomes [Seal Release]."
-        , classes = [Chakra]
+        , classes = [Chakra, Resource]
         , cost    = χ [Rand]
         , effects = [(Self, addStacks "Seal" 3 
                           • vary "Mystical Palm Healing" "Mystical Palm Healing"
@@ -191,7 +191,7 @@ kidCsS =
     , [ newSkill
         { label   = "Fang Over Fang"
         , desc    = "Kiba launches attack after attack on an enemy, dealing 40 damage to them and permanently lowering their non-affliction damage by 10. Deals 10 additional damage during [Man-Beast Clone]. Deals 20 additional damage during [Three-Headed Wolf]."
-        , classes = [Physical, Melee, Multi]
+        , classes = [Physical, Melee]
         , cost    = χ [Blood, Tai]
         , cd      = 1
         , effects = [(Enemy, apply 0 [Weaken All 10] 
@@ -207,7 +207,7 @@ kidCsS =
     [ [ newSkill
         { label    = "Insect Swarm"
         , desc     = "Shino sends a wave of insects at an enemy, dealing 15 affliction damage to them for 3 turns and making them immune to effects from allies. While active, this skill becomes [Chakra Leech]."
-        , classes = [Ranged, Multi]
+        , classes = [Ranged]
         , cost    = χ [Blood, Rand]
         , channel = Action 3
         , cd      = 2
@@ -277,7 +277,7 @@ kidCsS =
     , [ newSkill
         { label   = "Gentle Step Twin Lion Fists"
         , desc    = "Hinata creates two lions out of chakra. The next 2 times an enemy uses a harmful skill, a chakra lion will attack them, dealing 30 damage and removing a random chakra. Creates a third lion during [Eight Trigrams Sixty-Four Palms]. Cannot be used while active. Ends if Hinata dies."
-        , classes = [Chakra, Melee, Bypassing, Soulbound, Single]
+        , classes = [Chakra, Melee, Bypassing, Soulbound, Single, Resource]
         , cost    = χ [Blood, Nin]
         , effects = [ (Self,    addStacks "Chakra Lion" 2
                               • ifI "Eight Trigrams Sixty-Four Palms" 

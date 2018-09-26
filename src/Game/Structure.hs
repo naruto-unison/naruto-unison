@@ -25,7 +25,7 @@ module Game.Structure
     -- * Function types
     , Transform, SkillTransform, TrapTransform
     -- * Game
-    , Game(..), newGame, gameNinja, setNinja, fn, mockSlot
+    , Game(..), newGame, gameNinja, setNinja, fN, mockSlot
     -- * Labeled
     , Labeled(..), lEq, lMatch
     -- * Ninja
@@ -150,7 +150,6 @@ data Class
     -- Limits
     | Nonstacking
     | Single
-    | Multi
     | Extending
     -- Prevention
     | Bypassing
@@ -165,6 +164,7 @@ data Class
     | Affliction
     | NonAffliction
     | NonMental
+    | Resource -- ^ Display stacks separately
     | Shifted
     | Unshifted
     | Direct
@@ -243,6 +243,7 @@ data Effect
     | Taunting   Int             -- ^ Forced to attack their next target
     | Threshold  Int             -- ^ Invulnerable to baseline damage below a threhold
     | Throttle (Class -> Effect) Int -- ^ Applying an effect lasts fewer turns
+    | Undefend                   -- ^ Does not benefit from destructible defense
     | Uncounter                  -- ^ Cannot counter or reflect
     | Unexhaust                  -- ^ Decreases chakra costs by 1 random  
     | Unreduce   Int             -- ^ Reduces damage reduction 'Skill's
@@ -276,6 +277,7 @@ instance Show Effect where
     show (Counter clas) = "Counters the first " ++ low clas ++ "skill."
     show (CounterAll All) = "Counters all skills."
     show (CounterAll clas) = "Counters all " ++ low clas ++ "skills."
+    show Undefend = "Unable to benefit from destructible defense"
     show Duel = "Invulnerable to everyone but the source of this effect."
     show Endure = "Health cannot go below 1."
     show Enrage = "Ignores harmful status effects other than chakra cost changes."
@@ -387,9 +389,10 @@ helpful Taunt        = False
 helpful Threshold{}  = True
 helpful Throttle{}   = False
 helpful Taunting{}   = False
-helpful Unreduce{}   = False
 helpful Uncounter    = False
+helpful Undefend     = False
 helpful Unexhaust    = True
+helpful Unreduce{}   = False
 helpful Ward{}       = True
 helpful Weaken{}     = False
 
@@ -678,8 +681,8 @@ setNinja :: Slot -> Ninja -> Game -> Game
 setNinja (Slot i) n game@Game{..} = 
     game { gameNinjas = Seq.update i n gameNinjas }
 -- Adjusts the 'Ninja' in a 'Slot'.
-fn :: Slot -> (Ninja -> Ninja) -> Game -> Game
-fn (Slot i) f game@Game{..} = 
+fN :: Slot -> (Ninja -> Ninja) -> Game -> Game
+fN (Slot i) f game@Game{..} = 
     game { gameNinjas = Seq.adjust' f i gameNinjas }
 
 -- | Constructs a 'Game' with starting values.
@@ -949,7 +952,7 @@ data Trigger
     | OnReflectAll
     | OnRes
     | OnStun
-    | OnStunned Class
+    | OnStunned
     | PerDamage
     | PerDamaged
     | TrackDamage
@@ -981,7 +984,7 @@ instance Show Trigger where
     show OnReflectAll    = "All skills are reflected."
     show OnRes           = "Trigger: Reach 0 health"
     show OnStun          = "Trigger: Apply a stun"
-    show (OnStunned _)   = "Trigger: Stunned"
+    show OnStunned       = "Trigger: Stunned"
     show PerDamage       = show OnDamage
     show PerDamaged      = show (OnDamaged All)
     show PerHealed       = show OnHealed

@@ -51,7 +51,7 @@ examCs =
     [ [ newSkill
         { label   = "Umbrella Toss"
         , desc    = "Shigure tosses his umbrellas upward, gaining four Umbrellas. While Shigure has Umbrellas, this skill becomes [Umbrella Gathering]."
-        , classes = [Physical]
+        , classes = [Physical, Resource]
         , effects = [(Self, addStacks "Umbrella" 4 
                           • vary "Umbrella Toss" "Umbrella Gathering")]
         }
@@ -145,7 +145,7 @@ examCs =
     , [ newSkill
         { label   = "Sound Manipulation"
         , desc    = "Dosu bombards an enemy with sound waves, dealing 10 damage. The target permanently receives 5 additional damage from non-affliction skills and their damage is weakened by 5. Deals 10 additional damage if [Resonating Echo Drill] was used on the target last turn. Deals 10 additional damage during [Echo Speaker Tuning]."
-        , classes = [Mental, Ranged, Multi]
+        , classes = [Mental, Ranged]
         , cost    = χ [Gen]
         , cd      = 1
         , effects = [(Enemy, withI "Echo Speaker Tuning" 10

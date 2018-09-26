@@ -112,7 +112,7 @@ versionCsS =
     "After training under Orochimaru for years, Sasuke has become a rogue ninja with complete control over his curse mark. With unlimited access to his strength and chakra, Sasuke empowers his abilities with dark energy and can even fly."
     [ [ newSkill
         { label   = "Sharingan"
-        , desc    = "Sasuke infuses his Sharingan with the dark energy of his curse mark, gaining 10 points of damage reduction for 3 turns. While active, Sasuke ignores non-damage harmful effects other than chakra cost changes."
+        , desc    = "The dark energy of Sasuke's curse mark infuses his Sharingan, providing 10 points of damage reduction for 3 turns. While active, Sasuke ignores non-damage harmful effects other than chakra cost changes."
         , classes = [Mental, Unremovable]
         , cost    = χ [Blood]
         , cd      = 3
@@ -151,7 +151,7 @@ versionCsS =
     [ [ newSkill
         { label   = "Susano'o"
         , desc    = "Using the mangekyō sharingan's signature ability, Sasuke creates a colossus of chakra around himself. For 3 turns, all damage to Sasuke—including piercing and affliction—is reduced by 15 points."
-        , classes = [Chakra, Single, Multi]
+        , classes = [Chakra, Single]
         , cost    = χ [Blood]
         , cd      = 4
         , effects = [(Self, apply 3 [Reduce Affliction 15] 
@@ -178,7 +178,7 @@ versionCsS =
       , newSkill
         { label   = "Blazing Arrow"
         , desc    = "Sasuke forges three arrows out of flame and shoots them one after another at an enemy, dealing 15 damage for 3 turns. If this skill is stunned, Sasuke deals the remaining damage instantly and the cooldown of this skill resets."
-        , classes = [Chakra, Ranged]
+        , classes = [Chakra, Ranged, Resource]
         , cost    = χ [Blood, Rand]
         , cd      = 3
         , channel = Action 3
@@ -197,8 +197,8 @@ versionCsS =
       ]
     , [ newSkill
         { label   = "Amaterasu"
-        , desc    = "Sasuke sets fire to an enemy, dealing 5 affliction damage to them for 4 turns. If the target becomes invulnerable, they are cured of the effect. During [Susano'o], this skill becomes [Yasaka Beads][n]. Each time an enemy is cured of [Amaterasu], the damage of [Amaterasu] and [Yasaka Beads] permanently increases by 5."
-        , classes = [Bane, Chakra, Ranged, Multi, Unreflectable]
+        , desc    = "Sasuke ignites an enemy, dealing 5 affliction damage to them for 4 turns. If the target becomes invulnerable, they are cured of the effect. During [Susano'o], this skill becomes [Yasaka Beads][n]. Each time an enemy is cured of [Amaterasu], the damage of [Amaterasu] and [Yasaka Beads] permanently increases by 5."
+        , classes = [Bane, Chakra, Ranged, Unreflectable]
         , cost    = χ [Blood]
         , cd      = 1
         , effects = [(Enemy, trap 4 OnImmune § removeTrap "Amaterasu"
@@ -249,7 +249,7 @@ versionCsS =
       ]
     , [ newSkill
         { label   = "Sand Mausoleum Seal"
-        , desc    = "Gaara covers his enemies with layers of sand and shapes a giant pyramid around them, dealing 15 damage to all enemies for 3 turns and increasing the costs of their skills by 1 random chakra. Each turn, deals 5 additional damage to each enemy per Sand Bomb on them and removes all Sand Bombs."
+        , desc    = "Dense layers of sand entomb Gaara's enemies in a giant pyramid, dealing 15 damage to all enemies for 3 turns and increasing the costs of their skills by 1 random chakra. Each turn, deals 5 additional damage to each enemy per Sand Bomb on them and removes all Sand Bombs."
         , classes = [Physical, Ranged]
         , cost    = χ [Blood, Nin, Rand]
         , cd      = 4
@@ -275,7 +275,7 @@ versionCsS =
         }
       , newSkill
         { label   = "DNA Transmission Shadow"
-        , desc    = "Kabuto focuses all his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
+        , desc    = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
         , classes = [Chakra, Necromancy, Unremovable, Unreflectable]
         , cost    = χ [Rand, Rand, Rand]
         , channel = Control 1
@@ -291,7 +291,7 @@ versionCsS =
         }
       , newSkill
         { label   = "DNA Transmission Shadow"
-        , desc    = "Kabuto focuses all his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
+        , desc    = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
         , classes = [Chakra, Necromancy, Unremovable, Unreflectable]
         , cost    = χ [Blood, Blood, Blood]
         , channel = Control 1
@@ -307,7 +307,7 @@ versionCsS =
         }
       , newSkill
         { label   = "DNA Transmission Shadow"
-        , desc    = "Kabuto focuses all his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
+        , desc    = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
         , classes = [Chakra, Necromancy, Unremovable, Unreflectable]
         , cost    = χ [Gen, Gen, Gen]
         , channel = Control 1
@@ -323,7 +323,7 @@ versionCsS =
         }
       , newSkill
         { label   = "DNA Transmission Shadow"
-        , desc    = "Kabuto focuses all his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
+        , desc    = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
         , classes = [Chakra, Necromancy, Unremovable, Unreflectable]
         , cost    = χ [Nin, Nin, Nin]
         , channel = Control 1
@@ -339,7 +339,7 @@ versionCsS =
         }
       , newSkill
         { label   = "DNA Transmission Shadow"
-        , desc    = "Kabuto focuses all his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
+        , desc    = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
         , classes = [Chakra, Necromancy, Unremovable, Unreflectable]
         , cost    = χ [Tai, Tai, Tai]
         , channel = Control 1
@@ -453,7 +453,7 @@ versionCsS =
       ]
     , [ newSkill
         { label   = "White Extreme Attack"
-        , desc    = "Kabuto shutters the brille over his eyes and shoots a chakra dragon from his mouth, which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 random chakra."
+        , desc    = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 random chakra."
         , classes = [Chakra, Ranged]
         , cd      = 3
         , charges = 1
@@ -464,7 +464,7 @@ versionCsS =
         }
       , newSkill
         { label   = "White Extreme Attack"
-        , desc    = "Kabuto shutters the brille over his eyes and shoots a chakra dragon from his mouth, which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 bloodline chakra."
+        , desc    = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 bloodline chakra."
         , classes = [Chakra, Ranged]
         , cd      = 3
         , charges = 1
@@ -475,7 +475,7 @@ versionCsS =
         }
       , newSkill
         { label   = "White Extreme Attack"
-        , desc    = "Kabuto shutters the brille over his eyes and shoots a chakra dragon from his mouth, which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 genjutsu chakra."
+        , desc    = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 genjutsu chakra."
         , classes = [Chakra, Ranged]
         , cd      = 3
         , charges = 1
@@ -486,7 +486,7 @@ versionCsS =
         }
       , newSkill
         { label   = "White Extreme Attack"
-        , desc    = "Kabuto shutters the brille over his eyes and shoots a chakra dragon from his mouth, which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 ninjutsu chakra."
+        , desc    = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 ninjutsu chakra."
         , classes = [Chakra, Ranged]
         , cd      = 3
         , charges = 1
@@ -497,7 +497,7 @@ versionCsS =
         }
       , newSkill
         { label   = "White Extreme Attack"
-        , desc    = "Kabuto shutters the brille over his eyes and shoots a chakra dragon from his mouth, which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 taijutsu chakra."
+        , desc    = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 taijutsu chakra."
         , classes = [Chakra, Ranged]
         , cd      = 3
         , charges = 1
@@ -514,7 +514,7 @@ versionCsS =
     [ [ newSkill
         { label   = "Evening Elephant"
         , desc    = "Using a devastating sequence of punches, Guy deals 20 damage to an enemy. For 1 turn, they are immune to effects from allies and their nonmental skills are stunned. Guy loses 20 health down to a minimum of 1. Each time this skill is used, it permanently deals 20 additional damage and costs an additional random chakra."
-        , classes = [Physical, Melee, Uncounterable, Unreflectable, Multi]
+        , classes = [Physical, Melee, Uncounterable, Unreflectable]
         , cost    = χ [Tai]
         , effects = [ (Enemy, perI "Evening Elephant" 20 damage 20
                             • apply 1 [Seal, Stun NonMental])
@@ -535,7 +535,7 @@ versionCsS =
     , [ newSkill
         { label   = "Night Guy"
         , desc    = "As his blood evaporates into mist around him, Guy warps time and space to instantly attack an enemy, dealing 50 piercing damage. For 2 turns, the target is immune to effects from allies, their damage is weakened by 5, and Guy cannot be healed. Guy loses 30 health down to a minimum of 1. Each time this skill is used, it permanently deals 25 additional damage and costs an additional taijutsu chakra."
-        , classes = [Physical, Melee, Bypassing, Uncounterable, Unreflectable, Multi]
+        , classes = [Physical, Melee, Bypassing, Uncounterable, Unreflectable]
         , cost    = χ [Tai, Tai]
         , cd      = 2
         , effects = [ (Enemy, perI "Night Guy" 25 pierce 50 
@@ -588,7 +588,7 @@ versionCsS =
         { label   = "Sealing Jar of Drunken Dreams"
         , desc    = "Itachi seals an enemy within the ethereal sake jar from which the Totsuka Blade is formed, removing a random chakra from them. For 1 turn, they are stunned and immune to effects from allies. The target permanently takes 5 additional damage from Totsuka Blade. Can only be used on a target who was affected by [Totsuka Blade] last turn."
         , require = HasU "Totsuka Blade"
-        , classes = [Chakra, Ranged, Multi]
+        , classes = [Chakra, Ranged]
         , cost    = χ [Blood, Rand]
         , effects = [(Enemy, drain 1 • apply 1 [Stun All, Seal] 
                                      • apply' "Sealed" 0 [])]

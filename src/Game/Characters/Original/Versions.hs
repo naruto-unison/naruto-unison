@@ -90,7 +90,7 @@ versionCs =
     [ [ newSkill
         { label   = "Unpredictable Assault"
         , desc    = "Lee lashes out drunkenly, dealing 20 damage to a random enemy and permanently increasing the damage of this skill by 5. During [Drunken Fist], targets a specific enemy and deals 5 additional damage."
-        , classes = [Physical, Melee, Uncounterable, Multi]
+        , classes = [Physical, Melee, Uncounterable]
         , cost    = χ [Tai]
         , effects = [ (Self,   addStack)
                     , (REnemy, perI "Unpredictable Assault" 5 damage 20)
@@ -99,7 +99,7 @@ versionCs =
       , newSkill
         { label   = "Unpredictable Assault"
         , desc    = "Lee lashes out drunkenly, dealing 20 damage to a random enemy and permanently increasing the damage of this skill by 5. During [Drunken Fist], targets a specific enemy and deals 5 additional damage."
-        , classes = [Physical, Melee, Uncounterable, Multi]
+        , classes = [Physical, Melee, Uncounterable]
         , cost    = χ [Tai]
         , effects = [ (Self, addStack)
                     , (Enemy, perI "Unpredictable Assault" 5 damage 25)

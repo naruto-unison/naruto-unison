@@ -130,7 +130,7 @@ hiddenClasses =
     , "NonAffliction" 
     , "NonMental"
     , "Nonstacking" 
-    , "Multi"
+    , "Resource"
     , "Extending" 
     , "Hidden"
     , "Shifted" 

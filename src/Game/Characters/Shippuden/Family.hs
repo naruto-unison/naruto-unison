@@ -85,7 +85,7 @@ familyCsS =
     , [ newSkill
         { label   = "Sensory Radar"
         , desc    = "Inoichi steps back and focuses on the tide of battle. Each time an enemy uses a harmful skill, Inoichi will recover 10 health and gain a stack of [Sensory Radar]. While active, this skill becomes [Sensory Radar: Collate][r]."
-        , classes = [Mental, Ranged, Multi]
+        , classes = [Mental, Ranged]
         , cost    = χ [Nin]
         , effects = [ (Self, vary "Sensory Radar" "Sensory Radar: Collate")
                     , (Enemies, trap 0 OnHarm . self § heal 10 ° addStack)

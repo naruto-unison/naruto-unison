@@ -100,7 +100,7 @@ flashbackCs =
     [ [ newSkill
         { label   = "Double Tetragram Seal"
         , desc    = "Kushina seals away an enemy's power, dealing 15 piercing damage, stunning them for 1 turn, removing 1 chakra, and permanently weakening their damage by 5."
-        , classes = [Chakra, Ranged, Multi]
+        , classes = [Chakra, Ranged]
         , cost    = χ [Gen, Rand]
         , cd      = 1
         , effects = [(Enemy, drain 1 • damage 15
@@ -336,7 +336,7 @@ flashbackCs =
     [ [ newSkill
         { label   = "Cutting Sprigs"
         , desc    = "Obito impales an enemy with a wooden skewer, dealing 20 piercing damage and permanently increasing the damage of this skill on the target by 5. Deals twice as much damage if the target is affected by [Murderous Resolve]."
-        , classes = [Physical, Melee, Multi]
+        , classes = [Physical, Melee]
         , cost    = χ [Blood]
         , effects = [(Enemy, ifnotU "Murderous Resolve" 
                              § perU "Cutting Sprigs" 5 pierce 20

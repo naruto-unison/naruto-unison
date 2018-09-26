@@ -311,11 +311,11 @@ act affected' game'Swap (Act c s t, rando)
     hascharge   = charges skill > 0
     -- The game with cooldowns updated.
     game'Cd     = updateCd hascharge 0 skill c s game
-    affected    = Either.isRight s ? (Channeled :) $ affected'Swap
+    affected    = (Either.isRight s ? (Channeled :)) affected'Swap
     -- The game after running the act.
     game'F      = doEffects affected skill c c t rando game'Cd
     game'       = trigger affected skill c game'Cd .
-                  Either.isLeft s ? addChannels (channel skill) c skill t $
+                  (Either.isLeft s ? addChannels (channel skill) c skill t) $
                   game'F
     notChan (Left _)   = False
     notChan (Right s') = Channeled `elem` affected 
@@ -330,7 +330,7 @@ addChannels :: Channeling -> Slot -> Skill -> Slot -> Game -> Game
 addChannels Instant _        _                      _ = id
 addChannels chan    channelC channelSkill@Skill{..} channelT 
   | dur == 1 || dur == 2 = id
-  | otherwise            = fn channelC addChans
+  | otherwise            = fN channelC addChans
   where 
     addChans n@Ninja{..} = n { newChans = Channel{..} : newChans }
     channelRoot          = copyRoot channelSkill channelC
@@ -338,7 +338,7 @@ addChannels chan    channelC channelSkill@Skill{..} channelT
     channelDur           = setDur dur chan
 
 updateCd :: Bool -> Int -> Skill -> Slot -> Either Int Skill -> Game -> Game
-updateCd charge a skill c (Left s) = fn c $ N.updateCd charge a skill s
+updateCd charge a skill c (Left s) = fN c $ N.updateCd charge a skill s
 updateCd _      _ _     _ _        = id
 
 -- | Adds a 'Trap' to 'gameTraps'.
@@ -359,7 +359,7 @@ trigger :: [Affected] -> Skill -> Slot
 trigger affected Skill{..} c game game'Pre
   | Channeled `elem` affected = game'
   | not (null counttr)   = entrap c counttr $
-                           fn c N.unCounter game { gameNinjas = ns'Cp }
+                           fN c N.unCounter game { gameNinjas = ns'Cp }
   | otherwise            = game'Tr
   where 
     n       = gameNinja c game
@@ -390,8 +390,8 @@ trigger affected Skill{..} c game game'Pre
     dmgEns  = [ nt' | (nt, nt') <- allNs, nHealth nt > nHealth nt' ]
     damaged = [ nt' | (nt, nt') <- allNs, nHealth nt > nHealth nt' ]
     stunned = [ nt' | (nt, nt') <- ens, is' Stun nt', not $ is' Stun nt ]
-    addFlags = (game'Pre /= game) ? Set.insert Acted . 
-               harmful ? Set.insert Harmed
+    addFlags = (game'Pre /= game ? Set.insert Acted) . 
+               (harmful ? Set.insert Harmed)
     n'Acted = n' { nFlags = addFlags $ nFlags n' }
     n'Taunt = case ( harmed, getTaunting n' ) of
                 ( [Ninja{nId}], Just (dur, st@Status{..}) ) -> 
@@ -420,10 +420,9 @@ trigger affected Skill{..} c game game'Pre
     trapsT  = join $ join
               [ getTraps True OnHelped          <$> helped
               , getTraps True OnHealed          <$> healed
-              , getTraps True (OnStunned Multi) <$> stunned
+              , getTraps True OnStunned         <$> stunned
               , classTrs True OnHarmed classes  <$> harmed
               , classTrs True OnDamaged classes <$> damaged
-              , onStunned                       <$> stunned
               ]
     -- 4) TrapFroms on the user.
     trapsF  = join $ join
@@ -436,7 +435,6 @@ trigger affected Skill{..} c game game'Pre
               entrap c trapsT $ -- 3
               entrap c trapsC -- 2
               game'Fl { gameTraps = gameTraps game'Fl ++ trapsP } -- 1
-    onStunned nt = classTrs True OnStunned (getStun nt) nt
     cop t t' = t { nCopied = nCopied t' }
     was ef (nt, nt') = is' ef nt' && not (is' ef nt)
     updatePer p@Trap{..} = case trapTrigger of
@@ -490,9 +488,9 @@ trackTurn n n' = n' { nTraps = updatePer <$> nTraps n' }
 checkDeath :: Game -> Slot -> Game
 checkDeath game t
   | nHealth nt > 0 = game
-  | not $ null res = entrap' t res $ fn t resN game
+  | not $ null res = entrap' t res $ fN t resN game
   | otherwise      = alter (map unr) .
-                     entrap' t (getTraps True OnDeath nt) $ fn t dieN game
+                     entrap' t (getTraps True OnDeath nt) $ fN t dieN game
   where 
     nt       = gameNinja t game
     resN nt' = nt' { nHealth = 1
@@ -526,7 +524,7 @@ doEffects :: [Affected] -> Skill -> Slot -> Slot -> Slot
 doEffects affected skill@Skill{..} src c t rando game =
     foldl' (&) game .
     zipWith (doEffect affected skill src c t) (splitRands rando) $
-    (Channeled `notElem` affected) ? (start ++) $ effects
+    (Channeled `notElem` affected ? (start ++)) effects
   where 
     splitRands a@(Left _)     = repeat a
     splitRands (Right stdGen) = Right <$> toList (unfoldl Random.split stdGen)
@@ -603,16 +601,16 @@ wrapEffect affected f skill@Skill{..} src c game t
       | not $ isChanneling label n                 = (nt'T, False)
       | otherwise = (nt'T { nTags = cTag : nTags nt'T }, True)
     -- Game with channeled actions tagged, if this is a channeled action.
-    game'Tag   = fc ? setNinja t nt'C $ game'T
+    game'Tag   = (fc ? setNinja t nt'C) game'T
     n          = gameNinja c game'T
     nSrc       = gameNinja src game'T
     noharm     = allied c t && allied src t
     harm       = not noharm
     shifted    = [Redirected, Reflected, Swapped] `intersects` affected 
-    addClasses = (shifted && not ([Unshifted, Shifted] `intersects` classes)) ?
-                    (Shifted :) .
-                 (Trapped `elem` affected && BaseTrap `notElem` classes) ?
-                    (Direct :)
+    addClasses = (shifted && not ([Unshifted, Shifted] `intersects` classes) ?
+                    (Shifted :)) .
+                 (Trapped `elem` affected && BaseTrap `notElem` classes ?
+                    (Direct :))
     game'Shift = wrapEffect (Redirected : affected) f skill 
                   { classes = Unshifted : classes } src c game'Mimic t
     skill'Do   = skill { classes = addClasses classes }
@@ -628,7 +626,7 @@ wrapEffect affected f skill@Skill{..} src c game t
       | otherwise    = t
     setLast n' = n' { nLastSkill = Just skill }
     game'Mimic 
-      | new       = fn c setLast . 
+      | new       = fN c setLast . 
                     foldl' (doCopy True Shallow c skill) game'Tag $ 
                     copy classes n harm
       | otherwise = game'Tag
@@ -773,7 +771,7 @@ withI l amount f base skill src c game@Game{..} t
   | total == 0 = game
   | otherwise  = f total skill src c game t
   where 
-    total = has l src (gameNinja src game) ? (amount +) $ base
+    total = (has l src (gameNinja src game) ? (amount +)) base
 
 -- | Target 'has'
 withU :: Text -> Int -> (Int -> Transform) -> Int -> Transform
@@ -781,7 +779,7 @@ withU l amount f base skill src c game t
   | total == 0 = game
   | otherwise  = f total skill src c game t
   where 
-    total = has l src (gameNinja t game) ? (+ amount) $ base
+    total = (has l src (gameNinja t game) ? (+ amount)) base
 
 -- | Target is 'Immune' to any 'Class'
 withInvulnU :: Int -> (Int -> Transform) -> Int -> Transform
@@ -789,7 +787,7 @@ withInvulnU amount f base skill src c game t
   | total == 0 = game
   | otherwise  = f total skill src c game t
   where 
-    total = (not . null . getImmune $ gameNinja t game) ? (amount +) $ base
+    total = ((not . null . getImmune $ gameNinja t game) ? (amount +)) base
 
 -- | User 'isChanneling'
 withChan :: Text -> Int -> (Int -> Transform) -> Int -> Transform
@@ -797,7 +795,7 @@ withChan l amount f base skill src c game t
   | total == 0 = game
   | otherwise  = f total skill src c game t
   where 
-    total = isChanneling l (gameNinja src game) ? (+ amount) $ base
+    total = (isChanneling l (gameNinja src game) ? (+ amount)) base
 
 -- | User 'numStacks'
 perI :: Text -> Int -> (Int -> Transform) -> Int -> Transform
@@ -883,7 +881,7 @@ perDead amt f base skill src c game@Game{..} =
 
 -- | Applies a 'Ninja' transformation to the target.
 r' :: (Ninja -> Ninja) -> ( Game -> Slot -> Game)
-r' f game t = fn t f game
+r' f game t = fN t f game
 
 rt :: (Ninja -> Ninja) -> Slot -> Game -> Slot -> Game
 rt = const . r'
@@ -1020,7 +1018,7 @@ varyLoadout :: Int  -- ^ Base offset added to the first 'Variant' slot
             -> Bool -- ^ Whether to affect the fourth 'Variant' slot at all
             -> Int  -- ^ Counter added to all 'Variant' slots 
             -> Transform -- ^ Recalculates the 'Variant's of a target 'Ninja'
-varyLoadout a b c d i = d ? (• unsafeVary False 0 3 i)
+varyLoadout a b c d i = (d ? (• unsafeVary False 0 3 i))
                       $ unsafeVary False 0 0 (i + a) 
                       • unsafeVary False 0 1 (i + b)
                       • unsafeVary False 0 2 (i + c)
@@ -1117,9 +1115,9 @@ attack _   0  _ _  _     game _ = game
 attack atk dmg Skill{..} src c game t
   | classes' `intersects` getInvincible nt = game
   | dmg < getThreshold nt             = game
-  | not direct && is (Stun class') n = game
+  | not direct && is (Stun class') n  = game
   | dmg'tSt <= 0                      = game
-  | atk == AttackAfflict             = tr $ fn t (N.attack dmg'tSt) game
+  | atk == AttackAfflict              = tr $ fN t (N.attack dmg'tSt) game
   | atk == Demolish || dmg'Def <= 0   = tr $ setNinja t nt'Def game'
   | dmg'Def == 0                      = game'
   | otherwise = tr $ setNinja t (N.attack dmg'Def nt'Def) game'
@@ -1136,29 +1134,33 @@ attack atk dmg Skill{..} src c game t
       | direct    = toRational dmg
       | otherwise = (getScale classes' n *) . toRational $
                     dmg + getLink src nt + getStrengthen classes' n 
-    reduces  = atk == AttackDamage && not (is Pierce n) && not (is Expose nt)
-    reduced  = (— toRational (getReduce classes' nt)) .
+    reduce   = atk == AttackDamage && not (is Pierce n) && not (is Expose nt) ?
+               (— toRational (getReduce classes' nt)) .
                (* getWard classes' nt)
+    weaken   = atk /= AttackAfflict && not direct ? 
+               (— toRational (getWeaken classes' n))
     -- Damage modified by target's Statuses
     dmg'tSt   = truncate .
-                (— toRational (getReduce [Affliction] nt)) .
-                reduces ? reduced .
+                (— toRational (getReduce [Affliction] nt)) . 
+                reduce .
                 (* getWard [Affliction] nt) .
-                (atk /= AttackAfflict && not direct) ? 
-                (— toRational (getWeaken classes' n)) $
+                weaken $
                 dmg'cSt + toRational (getBleed classes' nt)
     damaged = case atk of
         AttackAfflict -> dmg'tSt > 0
         _             -> dmg'Def > 0
-    tr       = damaged ? entrap c (getTraps True (OnDamaged class') nt)
+    tr      = damaged ? entrap c (getTraps True (OnDamaged class') nt)
     game'    
       | direct    = game
       | otherwise = setNinja c n { nBarrier = barrier' } game
     nt'Def   = nt { nDefense = defense' }
     (dmg'Bar, barrier') = absorbBarrier dmg'tSt (nBarrier n)
+    handleDefense
+      | is Undefend nt = (,)
+      | otherwise      = absorbDefense
     (dmg'Def, defense') 
-      | direct    = absorbDefense dmg'tSt (nDefense nt)
-      | otherwise = absorbDefense dmg'Bar (nDefense nt)
+      | direct    = handleDefense dmg'tSt (nDefense nt)
+      | otherwise = handleDefense dmg'Bar (nDefense nt)
 
 absorbDefense :: Int -> [Defense] -> (Int, [Defense])
 absorbDefense hp (d@Defense{..} : defs)
@@ -1231,10 +1233,10 @@ sacrifice minhp hp _ c _ game t
 -- ** COPYING
 
 copyAll :: Int -> Transform
-copyAll dur _ src _ game t = fn src copier game
+copyAll dur _ src _ game t = fN src copier game
   where 
     nt    = gameNinja t game
-    dur'  = sync  . (dur < 0) ? (+1) $ dur
+    dur'  = sync  . (dur < 0 ? (+1)) $ dur
     cpDur = sync dur - 1
     copier n = n { nCopied = Seq.fromList $ cp <$> getSkills nt }
     cp skill = Just $
@@ -1249,9 +1251,9 @@ copyLast dur s Skill{..} _ c game t = case nLastSkill $ gameNinja t game of
 doCopy :: Bool -> (Slot -> Int -> Copying) -> Slot -> Skill -> Game 
        -> (Slot, Text, Int, Int) -> Game
 doCopy clear' cop src skill game (c, l, s, dur) = 
-    clear' ? alter (N.clear l c <$>) $ fn c copier game
+    (clear' ? alter (N.clear l c <$>)) $ fN c copier game
   where 
-    copied   = Just . Copied skill' . sync . (dur < 0) ? (+1) $ dur
+    copied   = Just . Copied skill' . sync . (dur < 0 ? (+1)) $ dur
     skill'   = skill { cost    = 0
                       , cd      = 0
                       , copying = cop src (sync dur - 1)
@@ -1260,11 +1262,11 @@ doCopy clear' cop src skill game (c, l, s, dur) =
 
 -- | Copies the user's 'Skill's onto the target.
 teach :: Int -> (Slot -> Int -> Copying) -> Int -> Transform
-teach dur cop s _ src _ game t = fn t copier game
+teach dur cop s _ src _ game t = fN t copier game
   where 
     skill    = getSkill (gameNinja src game) (Left s)
     skill'   = skill { copying = cop src (sync dur - 1) }
-    copied   = Just . Copied skill' . sync . (dur < 0 ) ? (+1) $ dur
+    copied   = Just . Copied skill' . sync . (dur < 0 ? (+1)) $ dur
     copier n = n { nCopied = Seq.replicate 4 copied }
 
 -- | Copies a user's 'Skill' onto the target.
@@ -1273,7 +1275,7 @@ teachOne dur s' cop s _ src _ game = r' copier game
   where 
     skill    = getSkill (gameNinja src game) (Left s)
     skill'   = skill { copying = cop src (sync dur - 1) }
-    copied   = Just . Copied skill' . sync . (dur < 0 ) ? (+1) $ dur
+    copied   = Just . Copied skill' . sync . (dur < 0 ? (+1)) $ dur
     copier n = n { nCopied = Seq.update s' copied $ nCopied n }
   
 -- ** DESTRUCTIBLE
@@ -1303,7 +1305,7 @@ bar dur done during barrierAmount' skill@Skill{..} barrierSrc c game t
     barrierDur     = copyDur copying $ sync dur
     barr           = Barrier{..}
     single         = Single `elem` classes && any (lEq barr) (nBarrier nt)
-    barrier        = (Nonstacking `elem` classes) ? filter (not . lEq barr) $
+    barrier        = (Nonstacking `elem` classes ? filter (not . lEq barr)) $
                      nBarrier nt
     barrierWhile g = wrapEffect [Channeled, Trapped] 
                       during skill barrierSrc c g t
@@ -1326,8 +1328,7 @@ defend' l dur defenseAmount' skill@Skill{..} defenseSrc c game t
     defenseDur    = copyDur copying . incr $ sync dur
     defense       = Defense{..}
     single        = Single `elem` classes && any (lEq defense) (nDefense nt)
-    defenses      = (Nonstacking `elem` classes) ? 
-                    filter (not . lEq defense) $
+    defenses      = (Nonstacking `elem` classes ? filter (not . lEq defense)) $
                     nDefense nt
 
 -- | Creates a 'Defense'.
@@ -1336,7 +1337,7 @@ defend = defend' ""
 
 -- | Removes the user's 'Barrier' and the target's 'Defense'.
 demolish :: Transform
-demolish _ _ c game@Game{..} t = fn c unBarrier $ fn t unDefense game
+demolish _ _ c game@Game{..} t = fN c unBarrier $ fN t unDefense game
     where 
       unDefense n = n { nDefense = [] }
       unBarrier n = n { nBarrier = [] }
@@ -1393,12 +1394,16 @@ applyFull clas bounced statusBombs' l unthrottled fs statusSkill@Skill{copying}
     selfApplied   = statusSrc == statusC && statusC == t
     extending     = N.prolong' statusDur l statusRoot
     nt'Extend     = nt { nStatuses = mapMaybe extending $ nStatuses nt}
-    statusEfs     = bounced ? filter (not . isDmg) . 
-                    is Silence n ? filter isDmg $ 
+    statusEfs     = (bounced ? filter (not . isDmg)) . 
+                    (is Silence n ? filter isDmg) $ 
                     filterEffects nt fs
-    statusClasses = nub .
-                    any bind fs ? (Soulbound :) .
-                    (selfApplied && any (not . helpful) fs) ? (Unremovable :) $
+    unremovable   = (selfApplied && any (not . helpful) fs)
+                    || unthrottled == 0
+                    || channel statusSkill /= Instant && unthrottled == 1
+                    || null fs && Bane `notElem` classes statusSkill
+    statusClasses = delete Resource . nub .
+                    (any bind fs ? (Soulbound :)) .
+                    (unremovable ? (Unremovable :)) $
                     clas ++ classes statusSkill
     disrupted     
       | is Enrage nt || Stun All `elem` getIgnore nt = []
@@ -1407,7 +1412,7 @@ applyFull clas bounced statusBombs' l unthrottled fs statusSkill@Skill{copying}
     nt'           = nt { nChannels = nChannels nt \\ disruptCtrl }
     game'Disr     = doDisrupts nt' disrupted $ setNinja t nt' game
     game'Interr   = foldl' (disruptAll t statusEfs) game'Disr allSlots
-    game'Stat     = fn t (N.addStatus Status{..}) game'Interr
+    game'Stat     = fN t (N.addStatus Status{..}) game'Interr
     game'Bounce   
       | selfApplied = game'Stat
       | otherwise   = foldl' bounce game'Stat . delete statusSrc $ getShare nt

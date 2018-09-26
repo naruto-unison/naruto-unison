@@ -25,7 +25,7 @@ infos (Ninja n) = organize <<< partition (eq n.nId <<< _.src) $
                     (infoTrap <$> n.nTraps)
         statuses' = filter (not <<< any eqInfo traps) statuses >>= unfoldStat
         unfoldStat st
-          | st.count == 0 || "Multi" `elem` st.classes = [st]
+          | st.count <= 1 || "Resource" `notElem` st.classes = [st]
           | otherwise = replicate st.count st { count = 1 }
         reduce ts@(t :| ts') = case find (eqInfo t) statuses of
             Just match -> match :| t : ts'

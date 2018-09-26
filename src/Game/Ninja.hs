@@ -247,7 +247,7 @@ updateCd False a Skill{..} s n@Ninja{..}
    | copied copying = n
    | cd == 0         = n
    | otherwise      = n { nCooldowns = insertCd s vari cd' nCooldowns }
-  where 
+  where
     cd'              = sync $ cd + 1 + getSnare n + a
     vari             = variantCD . head $ nVariants `Seq.index` s
     copied NotCopied = False

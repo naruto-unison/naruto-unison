@@ -375,11 +375,11 @@ chakraClasses :: Skill -> Skill
 chakraClasses skill@Skill{..} = skill { classes = f classes }
   where 
     Chakras b g n t r = cost
-    f = (b > 0) ? (Bloodline :) .
-        (g > 0) ? (Genjutsu  :) .
-        (n > 0) ? (Ninjutsu  :) .
-        (t > 0) ? (Taijutsu  :) .
-        (r > 0) ? (Random    :)
+    f = (b > 0 ? (Bloodline :)) .
+        (g > 0 ? (Genjutsu  :)) .
+        (n > 0 ? (Ninjutsu  :)) .
+        (t > 0 ? (Taijutsu  :)) .
+        (r > 0 ? (Random    :))
 
 -- | Replaces an empty string with a 'label'.
 defaultL :: Text -> Skill -> Text
@@ -608,7 +608,7 @@ deleteStat x@Status{..} xs
 deleteStats :: Int -> (Status -> Bool) -> [Status] -> [Status]
 deleteStats i predic xs = case find predic xs of
     Nothing -> xs
-    Just x  -> (statusCount x > i) ? (x { statusCount = statusCount x - i } :) $
+    Just x  -> (statusCount x > i ? (x { statusCount = statusCount x - i } :)) $
                delete x xs
 
 nEfs :: Ninja -> [Effect]
@@ -713,7 +713,7 @@ getPerTraps True  tr amount Ninja{..} = traps ++ hooks
   where 
     traps = [ trapEf trapTrack nId | Trap{..} <- nTraps, trapTrigger == tr ]
     hooks = Seq.fromList 
-            [ fn nId $ f amount | (p, f) <- characterHooks nCharacter, tr == p ]
+            [ fN nId $ f amount | (p, f) <- characterHooks nCharacter, tr == p ]
 
 getTrackTraps :: Bool -> Trigger -> Ninja -> Seq (Game -> Game)
 getTrackTraps False _ _ = mempty

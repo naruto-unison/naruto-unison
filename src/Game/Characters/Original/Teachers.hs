@@ -173,7 +173,7 @@ teacherCs =
     [ [ newSkill
         { label   = "Secret Sword"
         , desc    = "Hayate leaps and attacks an enemy from above, dealing 15 damage. Permanently increases Hayate's damage by 5."
-        , classes = [Physical, Melee, Multi]
+        , classes = [Physical, Melee]
         , cost    = χ [Tai]
         , effects = [ (Enemy, damage 15)
                     , (Self,  apply 0 [Strengthen All 5])

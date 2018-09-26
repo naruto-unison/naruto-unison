@@ -54,7 +54,7 @@ doIf True  f = f
 doIf False _ = id
 
 -- | 'doIf'
-infixr 9 ?
+infixr 0 ?
 (?) :: ∀ a. Bool -> (a -> a) -> (a -> a)
 True  ? f = f
 False ? _ = id

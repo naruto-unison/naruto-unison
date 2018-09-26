@@ -51,8 +51,7 @@ doSkills (x:|xs) = doSkill x :| (doSkill . vari <$> xs)
 doSkill :: Skill -> Skill
 doSkill skill@Skill{..} = skill { classes = go classes }
   where 
-    unRemove  = (channel /= Instant || Multi `elem` classes) ? (Unremovable :)
-    nonMental = (Mental `notElem` classes) ? (NonMental :)
+    nonMental = Mental `notElem` classes ? (NonMental :)
     go        = nub . (All :) . unRemove . nonMental
                -- . any (not . null . nTraps) gameNinjas ? (Trapping :)
                -- . any ((> 50) . nHealth)    gameNinjas ? (Healing :)

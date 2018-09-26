@@ -83,7 +83,7 @@ adultCsS =
     , [ newSkill
         { label   = "Burning Ash"
         , desc    = "Asuma continually exhales a cloud of combustible ash upon his enemies, increasing the cooldowns of their skills by 1 turn. While active, this skill becomes [Burning Ash: Ignite][b]."
-        , classes = [Bane, Ranged, Multi, Unreflectable]
+        , classes = [Bane, Ranged, Unreflectable]
         , cost    = χ [Gen, Rand]
         , channel = Action 0
         , start   = [(Self, vary "Burning Ash" "Burning Ash: Ignite")] 
