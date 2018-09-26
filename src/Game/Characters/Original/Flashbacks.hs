@@ -67,7 +67,7 @@ flashbackCs =
       ]
     , [ newSkill
         { label   = "Human Boulder"
-        , desc    = "Chōza transforms into a rolling juggernaut. For 3 turns, he deals 15 damage to an enemy and grants 10 destructible defense to himself and his allies for 1 turn. Each turn, if the target is affected by [Chain Bind], it lasts an additional turn on them."
+        , desc    = "Chōza transforms into a rolling juggernaut. For 3 turns, he deals 15 damage to an enemy and provides 10 destructible defense to himself and his allies for 1 turn. Each turn, if the target is affected by [Chain Bind], it lasts an additional turn on them."
         , classes = [Physical, Melee]
         , cost    = χ [Blood, Rand]
         , cd      = 3
@@ -96,7 +96,7 @@ flashbackCs =
     ] []
   , Character
     "Kushina Uzumaki"
-    "Known as the Red-Hot Habanero for her fierce temper and fiery hair, Naruto's mother possesses exceptional chakra necessary to become the nine-tailed fox's jinchūriki. Kushina specializes in unique sealing techniques that bind and incapacitate her enemies."
+    "Known as the Red-Hot Habanero for her fiery hair and fierce temper, Naruto's mother possesses exceptional chakra necessary to become the nine-tailed fox's jinchūriki. Kushina specializes in unique sealing techniques that bind and incapacitate her enemies."
     [ [ newSkill
         { label   = "Double Tetragram Seal"
         , desc    = "Kushina seals away an enemy's power, dealing 15 piercing damage, stunning them for 1 turn, removing 1 chakra, and permanently weakening their damage by 5."
@@ -120,7 +120,7 @@ flashbackCs =
       ]
     , [ newSkill
         { label   = "Adamantine Sealing Chains"
-        , desc    = "Kushina seals an enemy within a cage of chain-shaped chakra, removing the effects of helpful skills from them and stunning them for 2 turns. While active, the target is immune to effects from allies and invulnerable."
+        , desc    = "A cage of chain-shaped chakra seals an enemy, removing the effects of helpful skills from them and stunning them for 2 turns. While active, the target is immune to effects from allies and invulnerable."
         , classes = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
         , cost    = χ [Blood, Gen]
         , cd      = 4
@@ -152,7 +152,7 @@ flashbackCs =
       ]
     , [ newSkill
         { label   = "Wide Area Sensing"
-        , desc    = "Minato expands his senses to cover the battlefield, preventing enemies from reducing damage or becoming invulnerable for 2 turns. Each turn, Minato gains a random chakra."
+        , desc    = "Minato's senses expand to cover the battlefield, preventing enemies from reducing damage or becoming invulnerable for 2 turns. Each turn, Minato gains a random chakra."
         , classes = [Chakra, Ranged]
         , cost    = χ [Nin]
         , cd      = 3
@@ -193,7 +193,7 @@ flashbackCs =
       ]
     , [ newSkill
         { label   = "Teleportation Barrier"
-        , desc    = "Minato warps the space around himself or an ally. The first harmful skill used on the target next turn will be reflected."
+        , desc    = "Space warps around Minato or one of his allies. The first harmful skill used on the target next turn will be reflected."
         , classes = [Chakra, Ranged, Unreflectable]
         , cost    = χ [Gen]
         , cd      = 3
@@ -258,7 +258,7 @@ flashbackCs =
       "A chūnin on Team Minato, Rin is a quiet but strong-willed medical-nin. Her priority is always healing her teammates, though she can also defend herself with traps if necessary."
       [ [ newSkill
         { label   = "Pit Trap"
-        , desc    = "Rin traps an enemy for 1 turn, gaining 15 points of damage reduction. At the end of their turn, the target takes 15 piercing damage. If they used a skill that turn, they take 15 additional damage."
+        , desc    = "An enemy falls into a pit and is trapped there for 1 turn. At the end of their turn, the target takes 15 piercing damage. If they used a skill that turn, they take 15 additional damage. While active, Rin gains 15 points of damage reduction."
         , classes = [Invisible, Bypassing]
         , cost    = χ [Gen]
         , effects = [(Self,  apply 1 [Reduce All 15])
@@ -335,7 +335,7 @@ flashbackCs =
     "After being rescued from the brink of death by Madara, Obito has hurried back to the Hidden Leaf Village only to witness Kakashi stab Rin through the heart. With his sanity shattered by trauma and his Mangekyō Sharingan awakened, he wields the wood-shaping abilities of his Zetsu armor to rampage through the senseless hell his life has become."
     [ [ newSkill
         { label   = "Cutting Sprigs"
-        , desc    = "Obito impales an enemy with a wooden skewer, dealing 20 piercing damage and permanently increasing the damage of this skill on the target by 5. Deals twice as much damage if the target is affected by [Murderous Resolve]."
+        , desc    = "A wooden skewer impales an enemy, dealing 20 piercing damage and permanently increasing the damage of this skill on the target by 5. Deals twice as much damage if the target is affected by [Murderous Resolve]."
         , classes = [Physical, Melee]
         , cost    = χ [Blood]
         , effects = [(Enemy, ifnotU "Murderous Resolve" 
@@ -393,7 +393,7 @@ flashbackCs =
       ]
     , [ newSkill
         { label   = "Major Summoning: Kurama"
-        , desc    = "The masked man summons the Nine-Tailed Beast to the battlefield to wreak havoc, demolishing the enemy team's destructible defenses and his destructible barrier. For 3 turns, it deals 25 damage to a random enemy. While active, the masked man and his allies ignore harmful non-damage effects other than chakra cost changes."
+        , desc    = "The masked man summons the Nine-Tailed Beast to the battlefield to wreak havoc, demolishing the enemy team's destructible defenses and his own destructible barrier. For 3 turns, it deals 25 damage to a random enemy. While active, the masked man and his allies ignore harmful non-damage effects other than chakra cost changes."
         , classes = [Chakra, Melee, Summon, Bypassing]
         , cost    = χ [Blood, Gen, Tai]
         , cd      = 5

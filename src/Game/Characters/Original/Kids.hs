@@ -167,7 +167,7 @@ kidCs =
     "A genin from Team 8, Shino is reserved and tactical. He directs the insects living within his body to leech chakra from his enemies and protect his teammates."
     [ [ newSkill
         { label   = "Chakra Leech"
-        , desc    = "Shino directs his chakra-draining bugs to attack an enemy, dealing 20 affliction damage and stealing 1 chakra. Deals 5 additional damage per target's stack of [Parasite]."
+        , desc    = "Chakra-draining bugs attack an enemy, dealing 20 affliction damage and stealing 1 chakra. Deals 5 additional damage per target's stack of [Parasite]."
         , classes = [Bane, Ranged]
         , cost    = χ [Blood, Rand]
         , cd      = 1
@@ -185,7 +185,7 @@ kidCs =
       ]
     , [ newSkill
         { label   = "Wall of Insects"
-        , desc    = "Shino deploys a massive swarm of insects that grant 20 permanent destructible defense to his team."
+        , desc    = "A massive swarm of insects surrounds Shino's team, providing 20 permanent destructible defense to them."
         , classes = [Physical]
         , cost    = χ [Blood, Rand]
         , cd      = 3
@@ -209,7 +209,7 @@ kidCs =
       ]
     , [ newSkill
         { label   = "Eight Trigrams Sixty-Four Palms"
-        , desc    = "Hinata deals 15 damage to all enemies and grants 10 destructible defense for 1 turn to her team. Deals 5 additional damage to all enemies during [Byakugan]."
+        , desc    = "Hinata deals 15 damage to all enemies and provides 10 destructible defense to her team for 1 turn. Deals 5 additional damage to all enemies during [Byakugan]."
         , classes = [Chakra, Melee]
         , cost    = χ [Nin, Rand]
         , effects = [ (Enemies, withI "Byakugan" 5 damage 15)
@@ -240,7 +240,7 @@ kidCs =
       ]
     , [ newSkill
         { label   = "Shadow Strangle"
-        , desc    = "Shikamaru chokes all enemies, dealing 15 damage and preventing them from reducing damage or becoming invulnerable for 1 turn. Enemies affected by [Meditate] are exposed for 2 turns."
+        , desc    = "Shadow tendrils choke Shikamaru's enemies, dealing 15 damage and preventing them from reducing damage or becoming invulnerable for 1 turn. Enemies affected by [Meditate] are exposed for 2 turns."
         , classes = [Chakra, Ranged]
         , cost    = χ [Gen]
         , cd      = 1
@@ -499,7 +499,7 @@ kidCs =
       ]
     , [ newSkill
         { label   = "Rising Twin Dragons"
-        , desc    = "Tenten deploys summoning scrolls that conceal her in a cloud of smoke, rendering her invulnerable to physical and chakra skills for 1 turn. The scrolls aid her the next time she uses one of her other skills. If she uses [Unsealing Technique], it adds an additional stack of [Unsealing Technique]. If she uses [Rising Dragon Control], the duration of its effect is increased by 1 turn."
+        , desc    = "Summoning scrolls conceal Tenten in a cloud of smoke, rendering her invulnerable to physical and chakra skills for 1 turn. The scrolls aid her the next time she uses one of her other skills. If she uses [Unsealing Technique], it adds an additional stack of [Unsealing Technique]. If she uses [Rising Dragon Control], the duration of its effect is increased by 1 turn."
         , classes = [Physical]
         , cost    = χ [Rand]
         , cd      = 1
@@ -551,7 +551,7 @@ kidCs =
     "The youngest of the sand siblings, Gaara is the unstable jinchūriki of Shukaku, the one-tailed beast. With its aid, Gaara manipulates the sand in his gourd to crush his enemies. The shell of sand around his body makes him invulnerable to all but the strongest of blows."
     [ [ newSkill
         { label   = "Sand Coffin"
-        , desc    = "Gaara surrounds an enemy with sand, stunning their non-mental skills for 2 turns. While active, the enemy cannot reduce damage or become invulnerable and this skill becomes [Sand Burial][n][n]."
+        , desc    = "Sand surrounds an enemy, stunning their non-mental skills for 2 turns. While active, the enemy cannot reduce damage or become invulnerable and this skill becomes [Sand Burial][n][n]."
         , classes = [Physical, Ranged]
         , cost    = χ [Nin, Rand]
         , cd      = 2
@@ -594,7 +594,7 @@ kidCs =
     "One of the three sand siblings, Kankurō is a master puppeteer. His strategically-placed poison bombs pierce through enemy defenses. In order to harm him, his enemies will have to go through his army of puppets first."
     [ [ newSkill
         { label   = "Iron Maiden"
-        , desc    = "Kankurō uses two of his puppets to trap and stab an enemy, dealing 30 piercing damage. Deals 5 additional damage if used within 4 turns of [Puppet Technique]."
+        , desc    = "Two of Kankurō's puppets trap and stab an enemy, dealing 30 piercing damage. Deals 5 additional damage if used within 4 turns of [Puppet Technique]."
         , classes = [Physical, Ranged]
         , cost    = χ [Rand, Rand]
         , effects = [(Enemy, withI "Puppet Technique" 5 pierce 30)]

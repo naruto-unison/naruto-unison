@@ -24,7 +24,7 @@ leaderCs =
       ]
     , [ newSkill
         { label   = "Summoning: Toad Mouth Trap"
-        , desc    = "Jiraiya summons the esophagus of a humongous toad around the battlefield for 2 turns. Within the esophagus, enemies cannot reduce damage or become invulnerable, and each member of Jiraiya's team becomes invulnerable for 1 turn if they are damaged by a new non-affliction skill."
+        , desc    = "The esophagus of a humongous toad swallows the battlefield for 2 turns. Within the esophagus, enemies cannot reduce damage or become invulnerable, and each member of Jiraiya's team becomes invulnerable for 1 turn if they are damaged by a new non-affliction skill."
         , classes = [Chakra, Ranged, Summon, Bypassing]
         , cost    = χ [Gen]
         , cd      = 3
@@ -103,7 +103,7 @@ leaderCs =
     "One of three legendary sannin, Orochimaru intends to learn every technique in existence. Driven by an insatiable hunger for power, he employs various methods to increase his chakra, even if he has to harm his allies in the process."
     [ [ newSkill
         { label   = "Kusanagi"
-        , desc    = "Orochimaru strikes swiftly, demolishing an enemy's destructible defense and his destructible barrier, then dealing 25 piercing damage to the target."
+        , desc    = "Striking swiftly, Oroochimaru demolishes an enemy's destructible defense and his own destructible barrier before dealing 25 piercing damage to the target."
         , classes = [Physical, Melee]
         , cost    = χ [Tai, Rand]
         , effects = [(Enemy, demolish • pierce 25)]

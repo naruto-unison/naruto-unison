@@ -105,7 +105,7 @@ teacherCs =
       ]
     , [ newSkill
         { label   = "Summoning: Ninja Hounds"
-        , desc    = "Kakashi summons Ninja Hounds to bite an enemy, stunning the target's non-mental skills for 1 turn."
+        , desc    = "A pack of giant dogs bite at an enemy, stunning the target's non-mental skills for 1 turn."
         , classes = [Physical, Ranged, Summon]
         , cost    = χ [Nin, Rand]
         , cd      = 2
@@ -140,7 +140,7 @@ teacherCs =
       ]
     , [ newSkill
         { label   = "Dragon Flame"
-        , desc    = "Anko scorches the battlefield with fire, dealing 10 affliction damage to all enemies for 2 turns. All of Anko's damage is increased by 5 against targets affected by [Dragon Flame]. During [Dual Pin], this skill becomes [Twin Snake Sacrifice][n][n]."
+        , desc    = "Fire scorches the battlefield, dealing 10 affliction damage to all enemies for 2 turns. All of Anko's damage is increased by 5 against targets affected by [Dragon Flame]. During [Dual Pin], this skill becomes [Twin Snake Sacrifice][n][n]."
         , classes = [Bane, Ranged]
         , cost    = χ [Nin]
         , cd      = 2
@@ -159,7 +159,7 @@ teacherCs =
       ]
     , [ newSkill
         { label   = "Striking Shadow Snakes"
-        , desc    = "Anko releases numerous snakes that attack an enemy, dealing 20 damage instantly and 5 affliction damage each turn for 3 turns."
+        , desc    = "Numerous snakes attack an enemy, dealing 20 damage instantly and 5 affliction damage each turn for 3 turns."
         , classes = [Physical, Melee]
         , cost    = χ [Nin, Rand]
         , effects = [(Enemy, damage 20 • apply 3 [Afflict 5])]
@@ -364,7 +364,7 @@ teacherCs =
       ]
     , [ newSkill
         { label   = "Wind Sword"
-        , desc    = "Baki conjures a maelstrom of stabbing wind that deals 40 piercing damage to an enemy."
+        , desc    = "A maelstrom of stabbing wind deals 40 piercing damage to an enemy."
         , classes = [Physical, Ranged]
         , cost    = χ [Gen, Nin]
         , effects = [(Enemy, pierce 40)]

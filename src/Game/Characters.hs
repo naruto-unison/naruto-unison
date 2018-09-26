@@ -50,11 +50,8 @@ doSkills (x:|xs) = doSkill x :| (doSkill . vari <$> xs)
     
 doSkill :: Skill -> Skill
 doSkill skill@Skill{..} = skill { classes = go classes }
-  where 
-    nonMental = Mental `notElem` classes ? (NonMental :)
-    go        = nub . (All :) . unRemove . nonMental
-               -- . any (not . null . nTraps) gameNinjas ? (Trapping :)
-               -- . any ((> 50) . nHealth)    gameNinjas ? (Healing :)
+  where
+    go = nub . (All :) . (Mental `notElem` classes ? (NonMental :))
     --Game{..}  = mockSkill skill
     
 {-

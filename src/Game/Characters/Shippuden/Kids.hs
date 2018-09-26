@@ -132,7 +132,7 @@ kidCsS =
       ]
     , [ newSkill
         { label   = "Kirin"
-        , desc    = "Sasuke calls down a pillar of lightning from the sky upon an enemy, dealing 40 piercing damage. If [Lightning Flash] was used last turn, this skill bypasses invulnerability and deals 40 affliction damage instead."
+        , desc    = "A pillar of lightning strikes an enemy, dealing 40 piercing damage. If [Lightning Flash] was used last turn, this skill bypasses invulnerability and deals 40 affliction damage instead."
         , classes = [Chakra, Ranged]
         , cost    = χ [Nin, Nin]
         , cd      = 3
@@ -206,7 +206,7 @@ kidCsS =
     "Shino's years of practice with his loyal bugs have deepened his connection with them. Having attained the rank of chūnin, Shino has learned to breed his insects to favor specific traits. His advanced parasites accumulate invisibly in targets before bursting out all at once."
     [ [ newSkill
         { label    = "Insect Swarm"
-        , desc     = "Shino sends a wave of insects at an enemy, dealing 15 affliction damage to them for 3 turns and making them immune to effects from allies. While active, this skill becomes [Chakra Leech]."
+        , desc     = "A wave of insects attack an enemy, dealing 15 affliction damage to them for 3 turns and making them immune to effects from allies. While active, this skill becomes [Chakra Leech]."
         , classes = [Ranged]
         , cost    = χ [Blood, Rand]
         , channel = Action 3
@@ -244,7 +244,7 @@ kidCsS =
       ]
     , [ newSkill
         { label   = "Gigantic Beetle Infestation"
-        , desc    = "Shino infects an enemy with a small bug. In 3 turns, the bug will burst out, dealing 25 damage and activating all other copies of this skill on the target."
+        , desc    = "A small parasitic bug infects an enemy. In 3 turns, the bug will burst out, dealing 25 damage and activating all other copies of this skill on the target."
         , classes = [Bane, Melee, Invisible]
         , cost    = χ [Blood]
         , effects = [(Enemy, bomb 3 []
@@ -261,7 +261,7 @@ kidCsS =
     "With the Chūnin Exam behind her and Naruto's words deep in her heart, Hinata has grown and become stronger. Now that she has mastered the Hyūga clan tactics, she can give life to powerful chakra lions and hinder the chakra paths of her enemies."
     [ [ newSkill
         { label   = "Pressure Point Strike"
-        , desc    = "Hinata closes an enemy's pressure point, dealing 10 damage to them and increasing the costs of their skills by 1 random for 1 turn. Deals 10 additional damage during [Eight Trigrams Sixty-Four Palms]."
+        , desc    = "Hinata blocks an enemy's pressure point, dealing 10 damage to them and increasing the costs of their skills by 1 random for 1 turn. Deals 10 additional damage during [Eight Trigrams Sixty-Four Palms]."
         , classes = [Physical, Melee]
         , cost    = χ [Rand]
         , cd      = 4
@@ -307,7 +307,7 @@ kidCsS =
     "Once known for his laziniess, Shikamaru has worked tirelessly to become a leader. With years of experience, his plans have become even more convoluted and intricate."
     [ [ newSkill
         { label   = "Shadow Sewing"
-        , desc    = "Shikamaru wraps an enemy in delicate tendrils of shadow, dealing 35 damage and stunning their non-mental skills for 1 turn. While active, this skill becomes [Shadow Sewing: Hold][g]."
+        , desc    = "Delicate tendrils of shadow wrap around an enemy, dealing 35 damage and stunning their non-mental skills for 1 turn. While active, this skill becomes [Shadow Sewing: Hold][g]."
         , classes = [Chakra, Ranged]
         , cost    = χ [Gen, Rand]
         , cd      = 1
@@ -418,9 +418,10 @@ kidCsS =
         , start   = [(Self, hide' "calories" 0 [ Exhaust All]
                           • hide' "calories" 0 [Exhaust All]
                           • hide' "calories" 0 [Exhaust All]
-                          • vary "Butterfly Bombing" "Butterfly Bombing"
+                          • vary "Butterfly Bombing"   "Butterfly Bombing"
                           • vary "Spiky Human Boulder" "Spiky Human Boulder"
-                          • vary "Butterfly Mode" "Super-Slam")]
+                          • vary "Butterfly Mode"      "Super-Slam"
+                          • vary "Block"               "Block")]
         , effects = [(Self, removeStack "calories")]
         }
       , newSkill
@@ -499,7 +500,7 @@ kidCsS =
       ]
     , [ newSkill
         { label  = "Leaf Hurricane" 
-        , desc   = "Lee whirls and builds up momentum, dealing 20 damage to an enemy and gaining 10 points of damage reduction for 1 turn. Deals 10 additional damage and grants 10 additional points of damage reduction if used last turn. Deals 10 additional damage per dead ally."
+        , desc   = "Lee whirls and builds up momentum, dealing 20 damage to an enemy and gaining 10 points of damage reduction for 1 turn. Deals 10 additional damage and provides 10 additional points of damage reduction if used last turn. Deals 10 additional damage per dead ally."
         , classes = [Physical, Melee]
         , cost    = χ [Tai]
         , effects = [ (Enemy, withI "Leaf Great Whirlwind" 10
@@ -560,7 +561,7 @@ kidCsS =
         }
       , newSkill
         { label   = "Segmented Iron Dome"
-        , desc    = "Tenten somehow produces a massive metal dome from a very small scroll, providing 25 permanent destructible defense to her and her allies."
+        , desc    = "Tenten produces a massive metal dome from a very small scroll, providing 25 permanent destructible defense to her and her allies."
         , classes = [Physical]
         , cost    = χ [Nin, Rand]
         , cd      = 1
@@ -609,7 +610,7 @@ kidCsS =
       ]
     , [ newSkill
         { label   = "Eight Trigrams Hazan Strike"
-        , desc    = "Neji unleashes a giant wave of chakra at an enemy, demolishing their destructible defense and his destructible barrier, then dealing 45 damage."
+        , desc    = "Neji unleashes a giant wave of chakra at an enemy, demolishing their destructible defense and his own destructible barrier, then dealing 45 damage."
         , classes = [Chakra, Ranged]
         , cost    = χ [Blood, Tai]
         , effects = [(Enemy, demolish • damage 45)]
@@ -661,7 +662,7 @@ kidCsS =
       ]
     , [ newSkill
         { label   = "Third Eye"
-        , desc    = "Gaara surrounds himself and his allies with a hidden layer of sensing sand. Next turn, the first harmful skill used on his team will be countered and provide its target with 15 permanent destructible defense."
+        , desc    = "A hidden layer of sensing sand surrounds Gaara and his allies. Next turn, the first harmful skill used on his team will be countered and provide its target with 15 permanent destructible defense."
         , classes = [Physical, Invisible, Unreflectable]
         , cost    = χ [Rand]
         , cd      = 2
@@ -673,7 +674,7 @@ kidCsS =
       ]
     , [ newSkill
         { label   = "Sand Prison"
-        , desc    = "Gaara traps and crushes an enemy inside constricting ropes of sand that tighten into an airtight prison, dealing 30 damage. For 2 turns, the target is immune to effects from allies and cannot reduce damage or become invulnerable. Deals 20 additional damage if the target was countered by [Concealed Sand Picture] last turn."
+        , desc    = "Crushing ropes of sand constrict into an airtight prison around an enemy, dealing 30 damage to them. For 2 turns, the target is immune to effects from allies and cannot reduce damage or become invulnerable. Deals 20 additional damage if the target was countered by [Concealed Sand Picture] last turn."
         , classes = [Physical, Ranged]
         , cost    = χ [Blood, Nin]
         , cd      = 4
@@ -729,7 +730,7 @@ kidCsS =
         ]
       , [ newSkill
           { label   = "Salamander Shield"
-          , desc    = "Kankurō's Sanshōuo puppet shields him and his allies, providing Kankuro with 40 permanent destructible defense. While Kankurō has destructible defense from this skill, damage against his allies is reflected to him. Cannot be used while active."
+          , desc    = "Kankurō's Sanshōuo puppet shields him and his allies, providing 40 permanent destructible defense to Kankurō. While Kankurō has destructible defense from this skill, damage against his allies is reflected to him. Cannot be used while active."
           , classes = [Physical, Single, Soulbound, Unremovable, Unreflectable]
           , cost    = χ [Rand, Rand, Rand]
           , cd      = 5
@@ -758,7 +759,7 @@ kidCsS =
       ]
     , [ newSkill
         { label   = "Sea Dragon"
-        , desc    = "Temari calls down a giant tornado for 4 turns, dealing 5 piercing damage to all enemies each turn. While active, non-affliction damage from Temari's team always pierces."
+        , desc    = "A giant tornado sweeps across the battlefield for 4 turns, dealing 5 piercing damage to all enemies each turn. While active, non-affliction damage from Temari's team always pierces."
         , classes = [Physical, Ranged]
         , cost    = χ [Nin, Nin]
         , cd      = 5
@@ -770,7 +771,7 @@ kidCsS =
       ]
     , [ newSkill
         { label   = "Gust Blade"
-        , desc    = "Temari sends slicing blades of wind at an enemy, demolishing their destructible defense and her destructible barrier, then dealing 35 damage to them. Targets all enemies during [Sea Dragon]."
+        , desc    = "Temari sends slicing blades of wind at an enemy, demolishing their destructible defense and her own destructible barrier, then dealing 35 damage to them. Targets all enemies during [Sea Dragon]."
         , classes = [Physical, Ranged]
         , cost    = χ [Blood, Nin]
         , cd      = 2
@@ -826,7 +827,7 @@ kidCsS =
     "The grandson of the Third Hokage, Konohamaru has spent his youth working hard to pursue his dream of one day following in his grandfather's steps. No longer a bumbling student, Konohamaru has become remarkably skillful as a genin. Agile and fast, he can rush in to save an ally on the brink of defeat."
     [ [ newSkill
         { label   = "Rasengan"
-        , desc    = "Konohamaru focuses on an enemy and takes his time to prepare his Rasengan. Next turn, it will deal 25 damage to the target and an additional 15 if they used a skill."
+        , desc    = "Focusing on an enemy, Konohamaru takes his time to prepare his Rasengan. Next turn, it will deal 25 damage to the target and an additional 15 if they used a skill."
         , classes = [Chakra, Melee, Invisible]
         , cost    = χ [Rand]
         , cd      = 1
@@ -845,7 +846,7 @@ kidCsS =
       ]
     , [ newSkill
         { label   = "Quick Recovery"
-        , desc    = "Konohamaru rushes to an ally's rescue in the nick of time. The first time that the target's health reaches 0 next turn, they regain 15 health."
+        , desc    = "In the nick of time, Konohamaru rushes to an ally's rescue. The first time the target's health reaches 0 next turn, they will regain 15 health."
         , classes = [Physical, Invisible]
         , cost    = χ [Rand]
         , cd      = 1

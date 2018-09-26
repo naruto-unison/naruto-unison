@@ -115,6 +115,8 @@ organizationCsS =
     , [ newSkill
         { label   = "Sealing Technique"
         , desc    = "Yūgao places a powerful and thorough seal on an enemy. For 2 turns, they do not benefit from damage reduction, destructible defense, invulnerability, counters, or reflects."
+        , classes = [Bypassing, Uncounterable, Unreflectable]
+        , cost    = χ [Gen]
         , cd      = 1
         , effects = [(Enemy, apply 2 [Expose, Uncounter, Undefend])]
         }
@@ -256,7 +258,7 @@ organizationCsS =
         }
       , newSkill
         { label   = "Reverse Tetragram Sealing"
-        , desc    = "Kills Danzō and make all enemies immune to effects from each other for 3 turns. In 3 turns, enemies who are not invulnerable are killed."
+        , desc    = "Kills Danzō and makes all enemies immune to effects from each other for 3 turns. In 3 turns, enemies who are not invulnerable die."
         , classes = [Mental, Bypassing, Unremovable]
         , cost    = χ [Rand, Rand, Rand]
         , effects = [ (Enemies, delay (-3) kill)

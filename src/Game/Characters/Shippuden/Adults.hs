@@ -194,7 +194,7 @@ adultCsS =
       ]
     , [ newSkill
         { label   = "Strength of One Hundred Seal"
-        , desc    = "Tsunade activates her chakra-storing Seal, restoring 25 health and empowering her next skill. Spends a Seal if available to instead restore 50 health to Tsunade and grant 2 random chakra."
+        , desc    = "Tsunade activates her chakra-storing Seal, restoring 25 health and empowering her next skill. Spends a Seal if available to instead restore 50 health to Tsunade and gain 2 random chakra."
         , classes = [Chakra]
         , cost    = χ [Rand]
         , cd      = 3
@@ -204,7 +204,7 @@ adultCsS =
         }
       , newSkill
         { label   = "Strength of One Hundred Seal"
-        , desc    = "Tsunade activates her chakra-storing Seal, restoring 25 health and empowering her next skill. Spends a Seal if available to instead restore 50 health to Tsunade and grant 2 random chakra."
+        , desc    = "Tsunade activates her chakra-storing Seal, restoring 25 health and empowering her next skill. Spends a Seal if available to instead restore 50 health to Tsunade and gain 2 random chakra."
         , classes = [Chakra]
         , cost    = χ [Rand]
         , cd      = 3
@@ -220,7 +220,7 @@ adultCsS =
     "The third Tsuchikage of the Hidden Rock Village, Onoki is the oldest and most stubborn Kage. His remarkable ability to control matter on an atomic scale rapidly grows in strength until it can wipe out a foe in a single attack."
     [ [ newSkill
         { label   = "Earth Golem"
-        , desc    = "Ōnoki pulls up a golem of rock from the ground, which provides 10 permanent destructible defense to his team and deals 10 damage to all enemies."
+        , desc    = "A golem of rock emerges from the ground, providing 10 permanent destructible defense to his team and dealing 10 damage to all enemies."
         , classes = [Chakra, Physical, Melee]
         , cost    = χ [Nin]
         , cd      = 1
@@ -240,7 +240,7 @@ adultCsS =
       ]
     , [ newSkill
         { label   = "Atomic Dismantling"
-        , desc    = "Ōnoki shatters the atomic bonds within an enemy, dealing 20 piercing damage and permanently increasing the damage of this skill by 10."
+        , desc    = "The atomic bonds within an enemy shatter, dealing 20 piercing damage to them and permanently increasing the damage of this skill by 10."
         , classes = [Chakra, Ranged]
         , cost    = χ [Nin]
         , effects = [ (Enemy, perI "Atomic Dismantling" 10 pierce 20) 
@@ -264,7 +264,7 @@ adultCsS =
       ]
     , [ newSkill
         { label   = "Water Bomb"
-        , desc    = "Mei floods the battlefield, dealing 20 piercing damage to all enemies and preventing them from reducing damage or becoming invulnerable for 1 turn."
+        , desc    = "Water floods the battlefield, dealing 20 piercing damage to all enemies and preventing them from reducing damage or becoming invulnerable for 1 turn."
         , classes = [Chakra, Ranged]
         , cost    = χ [Nin, Rand]
         , cd      = 1

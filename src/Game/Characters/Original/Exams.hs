@@ -144,7 +144,7 @@ examCs =
       ]
     , [ newSkill
         { label   = "Sound Manipulation"
-        , desc    = "Dosu bombards an enemy with sound waves, dealing 10 damage. The target permanently receives 5 additional damage from non-affliction skills and their damage is weakened by 5. Deals 10 additional damage if [Resonating Echo Drill] was used on the target last turn. Deals 10 additional damage during [Echo Speaker Tuning]."
+        , desc    = "Sound waves bombard an enemy, dealing 10 damage. The target permanently receives 5 additional damage from non-affliction skills and their damage is weakened by 5. Deals 10 additional damage if [Resonating Echo Drill] was used on the target last turn. Deals 10 additional damage during [Echo Speaker Tuning]."
         , classes = [Mental, Ranged]
         , cost    = χ [Gen]
         , cd      = 1
@@ -255,7 +255,7 @@ examCs =
       ]
     , [ newSkill
         { label   = "Underground Move"
-        , desc    = "Emerging from the ground behind an enemy, Oboro deals 20 damage  to them and stuns their physical and mental skills for 1 turn. Targets all enemies and costs 1 genjutsu chakra during [Fog Clone]."
+        , desc    = "Emerging from the ground behind an enemy, Oboro deals 20 damage to them and stuns their physical and mental skills for 1 turn. Targets all enemies and costs 1 genjutsu chakra during [Fog Clone]."
         , classes = [Physical, Melee]
         , cost    = χ [Gen, Rand]
         , effects = [(Enemy, damage 20 • apply 1 [Stun Physical, Stun Mental])]
@@ -264,7 +264,7 @@ examCs =
       ]
     , [ newSkill
         { label   = "Fog Clone"
-        , desc    = "Oboro surrounds himself with illusions, providing him with 30 destructible defense and invulnerability to physical and mental skills for 3 turns."
+        , desc    = "Oboro surrounds himself with illusions, gaining 30 destructible defense and invulnerability to physical and mental skills for 3 turns."
         , classes = [Mental]
         , cost    = χ [Gen, Rand]
         , cd      = 4
@@ -337,7 +337,7 @@ examCs =
       ]
     , [ newSkill
         { label   = "Tighten Joints"
-        , desc    = "By stiffening his joints, Misums gains 15 non-stacking permanent destructible defense. If an enemy is affected by [Soft Physique Modification], they take 20 damage and are stunned for 1 turn."
+        , desc    = "By stiffening his joints, Misumi gains 15 non-stacking permanent destructible defense. If an enemy is affected by [Soft Physique Modification], they take 20 damage and are stunned for 1 turn."
         , classes = [Physical, Melee, Nonstacking]
         , cost    = χ [Rand]
         , effects = [ (Self, defend 0 15)

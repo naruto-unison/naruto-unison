@@ -65,7 +65,7 @@ reanimatedCsS =
         }
       , newSkill
         { label   = "Deep Forest Flourishing"
-        , desc    = "Grants Hashirama's team 30 permanent destructible defense and resets their cooldowns."
+        , desc    = "Provides 30 permanent desteructible defense to Hashirama's team and resets their cooldowns."
         , classes = [Physical, Ranged]
         , cost    = χ [Blood, Blood]
         , effects = [(Allies, defend 0 30 • resetAll)]
@@ -239,7 +239,7 @@ reanimatedCsS =
       ]
     , [ newSkill
         { label   = "Atomic Dismantling"
-        , desc    = "The atomic bonds within an enemy shatter, dealing 40 piercing damage and demolishing their destructible defense and his destructible barrier. Deals 5 fewer damage and costs 1 ninjutsu chakra and 1 random chakra during [Fragmentation]."
+        , desc    = "The atomic bonds within an enemy shatter, dealing 40 piercing damage and demolishing their destructible defense and his own destructible barrier. Deals 5 fewer damage and costs 1 ninjutsu chakra and 1 random chakra during [Fragmentation]."
         , classes = [Chakra, Ranged, Bypassing]
         , cost    = χ [Nin, Rand, Rand]
         , cd      = 1

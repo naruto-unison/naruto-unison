@@ -16,7 +16,7 @@ familyCsS =
     "A widely-respected puppeteer and former leader of the Hidden Sand Village's Puppet Brigade, Elder Chiyo has a lifetime of combat experience. Her numerous puppets sow chaos among her enemies and shield her from harm, allowing her to use her other skills with impunity. If one of her allies is close to death, she can sacrifice her own life to restore theirs."
     [ [ newSkill
         { label   = "Assault Blade"
-        , desc    = "Chiyo lashes out with hovering kunai, dealing 15 piercing damage to a targeted enemy and a random enemy. During [Ten Puppets Collection], this skill becomes [Three Treasure Suction Crush][r][r]."
+        , desc    = "Hovering kunai deal 15 piercing damage to a targeted enemy and a random enemy. During [Ten Puppets Collection], this skill becomes [Three Treasure Suction Crush][r][r]."
         , classes = [Chakra, Ranged]
         , cost    = χ [Rand]
         , cd      = 1
@@ -26,7 +26,7 @@ familyCsS =
         }
       , newSkill
         { label   = "Three Treasure Suction Crush"
-        , desc    = "Chiyo deploys three puppets in a triangle formation. The puppets create a vacuum hurricane which sucks in an enemy, dealing 30 damage to them and stunning their non-mental skills for 1 turn. Deals affliction damage if the target is affected by [Lion Sealing]."
+        , desc    = "Three puppets in a triangle formation create a vacuum hurricane which sucks in an enemy, dealing 30 damage to them and stunning their non-mental skills for 1 turn. Deals affliction damage if the target is affected by [Lion Sealing]."
         , classes = [Chakra, Ranged]
         , cost    = χ [Rand, Rand]
         , cd      = 1

@@ -65,7 +65,7 @@ versionCs =
       ]
     , [ newSkill
         { label   = "Dark Void"
-        , desc    = "Sasuke engulfs an enemy in corrupt chakra, stunning them for 2 turns. While active, the target is immune to effects from allies and invulnerable. At the end of the 2 turns, the enemy receives 55 damage. Costs 2 random chakra during [Curse Mark]."
+        , desc    = "Corrupt chakra engulfs an enemy, stunning them for 2 turns. While active, the target is immune to effects from allies and invulnerable. At the end of the 2 turns, the enemy receives 55 damage. Costs 2 random chakra during [Curse Mark]."
         , classes = [Chakra, Ranged]
         , cost    = χ [Nin, Nin, Rand]
         , cd      = 5
@@ -199,7 +199,7 @@ versionCs =
     "Following his fateful encounter with Naruto, Gaara has become a kind and loyal friend. The sand that was once an extension of his fear and rage has become a versatile tool for shaping the battlefield."
     [ [ newSkill
         { label   = "Sand Shower"
-        , desc    = "A stream of sand flows around Gaara toward an enemy, providing him with 35 destructible defense and dealing 15 damage to the target for 3 turns."
+        , desc    = "A stream of sand flows around Gaara toward an enemy, providing 35 destructible defense to him and dealing 15 damage to the target for 3 turns."
         , classes = [Physical, Ranged]
         , cost    = χ [Rand, Rand]
         , cd      = 3
@@ -234,7 +234,7 @@ versionCs =
       ]
     , [ newSkill
         { label   = "Sand Tsunami"
-        , desc    = "Gaara fills the battlefield with massive waves of sand. For 4 turns, all enemies take 15 damage, their destructible skills are weakened by 10, and the destructible skills of Gaara's team are increased by 10. If an enemy uses a skill with negative destructible defense, their target is damaged for its amount. If they use a skill with negative destructible barrier, they are damaged for its amount."
+        , desc    = "Massive waves of sand flood the battlefield. For 4 turns, all enemies take 15 damage, their destructible skills are weakened by 10, and the destructible skills of Gaara's team are increased by 10. If an enemy uses a skill with negative destructible defense, their target is damaged for its amount. If they use a skill with negative destructible barrier, they are damaged for its amount."
         , classes = [Physical, Ranged]
         , cost    = χ [Nin, Nin]
         , cd      = 4

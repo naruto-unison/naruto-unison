@@ -50,7 +50,7 @@ akatsukiCsS =
       ]
     , [ newSkill
         { label   = "Exploding Water Shockwave"
-        , desc    = "Kisame creates a giant orb of water that fills the entire battlefield and merges with his legendary sword, becoming a shark for 3 turns. While active, enemy cooldowns are increased by 1 and this skill becomes [Shark Dance][t]."
+        , desc    = "As a giant orb of water fills the entire battlefield, Kisame merges with Samehada and transforms into a shark for 3 turns. While active, enemy cooldowns are increased by 1 and this skill becomes [Shark Dance][t]."
         , classes = [Chakra, Ranged]
         , cost    = χ [Rand, Rand]
         , cd      = 4
@@ -136,7 +136,7 @@ akatsukiCsS =
       ]
     , [ newSkill
         { label   = "C4: Karura"
-        , desc    = "Deidara releases a cloud of microscopic bombs that enter an enemy's bloodstream and repeatedly detonate, dealing 10 affliction damage to the target each turn for the rest of the game and weakening their non-affliction damage by 5. Once used, this skill becomes [C0: Ultimate Art][b][n][n]."
+        , desc    = "A cloud of microscopic bombs enter an enemy's bloodstream and repeatedly detonate, dealing 10 affliction damage to the target each turn for the rest of the game and weakening their non-affliction damage by 5. Once used, this skill becomes [C0: Ultimate Art][b][n][n]."
         , classes = [Bane, Chakra, Ranged, Uncounterable, Unremovable, Unreflectable]
         , cost    = χ [Blood, Nin]
         , effects = [ (Enemy, apply 0 [Afflict 10, Weaken All 5]) 
@@ -484,7 +484,7 @@ akatsukiCsS =
       ]
     , [ newSkill
         { label   = "Performance of a Hundred Puppets"
-        , desc    = "Proving his reputation as the greatest puppeteer in history, Sasori takes control of 100 puppets, each acting as pure extensions of his will. Sasori gains 50 permanent destructible defense and grants 25 permanent destructible defense to his allies. As long as Sasori has destructible defense from this skill, this skill becomes [Barrage of a Hundred Puppets][r][r]."
+        , desc    = "Proving his reputation as the greatest puppeteer in history, Sasori takes control of 100 puppets, each acting as pure extensions of his will. Sasori gains 50 permanent destructible defense and provides 25 permanent destructible defense to his allies. As long as Sasori has destructible defense from this skill, this skill becomes [Barrage of a Hundred Puppets][r][r]."
         , classes = [Physical, Single]
         , cost    = χ [Tai, Rand, Rand]
         , cd      = 5

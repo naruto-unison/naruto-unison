@@ -35,7 +35,7 @@ organizationCs =
       ]
     , [ newSkill
         { label   = "Bladed Gauntlet"
-        , desc    = "Gōu and Meizu attack an enemy with their gauntlets, dealing 30 damage. Deals 10 additional damage if the target is affected by [Chain Wrap]."
+        , desc    = "Gōzu and Meizu attack an enemy with their gauntlets, dealing 30 damage. Deals 10 additional damage if the target is affected by [Chain Wrap]."
         , classes = [Physical, Melee]
         , cost    = χ [Rand, Rand]
         , effects = [(Enemy, withU "Chain Wrap" 10 damage 30)]
@@ -104,7 +104,7 @@ organizationCs =
       ]
     , [ newSkill
         { label   = "Water Dragon"
-        , desc    = "Zabuza shapes a torrent of water into a giant dragon that assaults all enemies, dealing 10 damage. Its ferocious attacks knocks back targets for 1 turn, stunning their physical skills and negating their affliction damage."
+        , desc    = "A torrent of water shaped like a giant dragon attacks all enemies, dealing 10 damage. Its ferocious attacks knocks back targets for 1 turn, stunning their physical skills and negating their affliction damage."
         , classes = [Chakra, Ranged]
         , cost    = χ [Nin]
         , cd      = 3
@@ -115,7 +115,7 @@ organizationCs =
       ]
     , [ newSkill
         { label   = "Hidden Mist"
-        , desc    = "Zabuza fills the battlefield with mist for 2 turns, gaining 5 points of damage reduction and increasing the cost of enemy physical and mental skills by 1 random chakra."
+        , desc    = "Mist covers the battlefield for 2 turns, providing 5 points of damage reduction to Zabuza and increasing the cost of enemy physical and mental skills by 1 random chakra."
         , classes = [Chakra, Ranged]
         , cost    = χ [Gen]
         , cd      = 3
@@ -134,7 +134,7 @@ organizationCs =
         , desc    = "Itachi becomes invulnerable but loses 15 health each turn. While active, the cooldowns and chakra costs of his other skills are doubled. This skill can be used again with no chakra cost to cancel its effect."
         , classes = [Mental, Unremovable]
         , cost    = χ [Blood]
-        , effects = [(Self, apply 0 [ Immune All, Afflict 15]
+        , effects = [(Self, apply 0 [Immune All, Afflict 15]
                            • vary "Mangekyō Sharingan" "Mangekyō Sharingan"
                            • vary "Amaterasu"          "Amaterasu"
                            • vary "Tsukuyomi"          "Tsukuyomi")]
@@ -401,7 +401,7 @@ organizationCs =
       ]
     , [ newSkill
         { label   = "Bracken Dance"
-        , desc    = "Kimimaro creates a forest of sharp bones, dealing 30 damage to all enemies and reducing all enemy non-mental damage by 20 for 1 turn. Kimimaro loses 15 health and another 15 health at the end of his next turn."
+        , desc    = "A forest of razor-sharp bones erupts from the ground, dealing 30 damage to all enemies and reducing all enemy non-mental damage by 20 for 1 turn. Kimimaro loses 15 health and another 15 health at the end of his next turn."
         , classes = [Physical, Ranged, Unremovable]
         , cost    = χ [Blood, Rand, Rand]
         , cd      = 2
