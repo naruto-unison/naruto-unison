@@ -30,7 +30,7 @@ leaderCs =
         , cd      = 3
         , channel = Ongoing 2
         , start   = [(Allies,  trap 2 (OnDamaged NonAffliction) 
-                                       § apply 1 [Immune All])]
+                                       § apply 1 [Invulnerable All])]
         , effects = [(Enemies, apply 1 [Expose])]
         }
       ]
@@ -170,7 +170,7 @@ leaderCs =
         , classes = [Physical, Melee, Summon, Unreflectable, Unremovable]
         , cost    = χ [Gen, Nin, Tai]
         , channel = Ongoing 0
-        , start   = [ (Allies, apply 1 [Immune All, Endure]
+        , start   = [ (Allies, apply 1 [Invulnerable All, Endure]
                              • apply 0 [Reduce All 5])
                     , (Self,   vary "Major Summoning: Enma" "Adamantine Prison")
                     ]

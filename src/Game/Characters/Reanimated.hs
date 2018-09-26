@@ -65,7 +65,7 @@ reanimatedCsS =
         }
       , newSkill
         { label   = "Deep Forest Flourishing"
-        , desc    = "Provides 30 permanent desteructible defense to Hashirama's team and resets their cooldowns."
+        , desc    = "Provides 30 permanent destructible defense to Hashirama's team and resets their cooldowns."
         , classes = [Physical, Ranged]
         , cost    = χ [Blood, Blood]
         , effects = [(Allies, defend 0 30 • resetAll)]
@@ -101,7 +101,8 @@ reanimatedCsS =
         , classes = [Mental]
         , cost    = χ [Gen]
         , cd      = 3
-        , effects = [(Allies, apply 1 [Immune Physical, Immune Mental])]
+        , effects = [(Allies, apply 1 
+                              [Invulnerable Physical, Invulnerable Mental])]
         }
       ]
     , invuln "Water Wall" "Tobirama" [Physical]

@@ -201,27 +201,27 @@ data Effect
     | AntiCounter                -- ^ Cannot be countered or reflected
     | Bleed      Class Int       -- ^ Adds to damage received
     | Bless      Int             -- ^ Adds to healing 'Skill's
-    | Block                      -- ^ Treats source as 'Immune'
+    | Block                      -- ^ Treats source as 'Invulnerable'
     | Boost      Int             -- ^ Scales effects from allies
     | Build      Int             -- ^ Adds to destructible defense 'Skill'
     | Counter    Class           -- ^ Counters the first 'Skill's
     | CounterAll Class           -- ^ 'Counter's without being removed
-    | Duel                       -- ^ 'Immune' to everyone but source
+    | Duel                       -- ^ 'Invulnerable' to everyone but source
     | Endure                     -- ^ Health cannot go below 1
     | Enrage                     -- ^ Ignore all harmful status effects
     | Exhaust    Class           -- ^ 'Skill's cost an additional random chakra
-    | Expose                     -- ^ Cannot reduce damage or be 'Immune'
+    | Expose                     -- ^ Cannot reduce damage or be 'Invulnerable'
     | Heal       Int             -- ^ Heals every turn
-    | Ignore  (Class -> Effect)  -- ^ Immune to certain effects
-    | Immune     Class           -- ^ Invulnerable to enemy 'Skill's
-    | ImmuneSelf                 -- ^ Immune to self-caused damage
-    | Invincible Class           -- ^ Like 'Immune', but targetable
+    | Ignore  (Class -> Effect)  -- ^ Invulnerable to certain effects
+    | Invulnerable     Class           -- ^ Invulnerable to enemy 'Skill's
+    | ImmuneSelf                 -- ^ Invulnerable to self-caused damage
+    | Invincible Class           -- ^ Like 'Invulnerable', but targetable
     | Isolate                    -- ^ Unable to affect others
     | Link       Int             -- ^ Increases damage and healing from source
     | Parry      Class Transform -- ^ 'Counter' and trigger an effect
     | ParryAll   Class Transform -- ^ 'Parry' repeatedly
     | Pierce                     -- ^ Damage skills turn into piercing
-    | Plague                     -- ^ Immune to healing and curing
+    | Plague                     -- ^ Invulnerable to healing and curing
     | Reduce     Class Int       -- ^ Reduces damage by a flat amount
     | Reapply                    -- ^ Shares harmful skills with source
     | Redirect   Class           -- ^ Transfers harmful 'Skill's
@@ -285,8 +285,8 @@ instance Show Effect where
     show Expose = "Unable to reduce damage or become invulnerable."
     show (Heal x) = "Gains " ++ show x ++ " health each turn."
     show (Ignore _) = "Ignores certain effects."
-    show (Immune clas) = "Invulnerable to " ++ low clas ++ " skills."
-    show ImmuneSelf = "Immune to self-damage."
+    show (Invulnerable clas) = "Invulnerable to " ++ low clas ++ " skills."
+    show ImmuneSelf = "Invulnerable to self-damage."
     show (Invincible clas) = "Harmful " ++ low clas ++ " skills have no effect."
     show Isolate = "Unable to affect others."
     show (Link x) = "Receives " ++ show x ++ " additional damage from the source of this effect."
@@ -311,7 +311,7 @@ instance Show Effect where
     show (Scale clas x)
       | x >= 1 = show' clas ++ " damage multiplied by " ++ show x ++ "."
       | otherwise = show' clas ++ " damage multiplied by " ++ show x ++ ". Does not affect affliction damage."
-    show Seal = "Immune to effects from allies."
+    show Seal = "Invulnerable to effects from allies."
     show Share = "If a harmful non-damage effect is received, it is also applied to the source of this effect."
     show Silence = "Unable to cause non-damage effects."
     show (Snare x)
@@ -358,7 +358,7 @@ helpful Enrage       = True
 helpful Exhaust{}    = False
 helpful Expose       = False
 helpful Heal{}       = True
-helpful Immune{}     = True
+helpful Invulnerable{}     = True
 helpful ImmuneSelf   = True
 helpful Ignore{}     = True
 helpful Invincible{} = True
@@ -403,7 +403,7 @@ sticky Copy{}       = True
 sticky Counter{}    = True
 sticky CounterAll{} = True
 sticky Enrage       = True
-sticky Immune{}     = True
+sticky Invulnerable{}     = True
 sticky Invincible{} = True
 sticky Parry{}      = True
 sticky ParryAll{}   = True
@@ -1040,17 +1040,17 @@ allied (Slot x) (Slot y) = allied' x y
 alliedP :: Player -> Slot -> Bool
 alliedP p (Slot nId) = allied' (fromEnum p) nId
 
-allies' :: Int -> Seq Ninja -> [Ninja]
+allies' :: ∀ o. Mono o Ninja => Int -> o -> [Ninja]
 allies' p = evens . drop (par p) . toList
 allies :: Slot -> Game -> [Ninja]
 allies (Slot p) = allies' p . gameNinjas
-alliesP :: Player -> Seq Ninja -> [Ninja]
+alliesP :: ∀ o. Mono o Ninja => Player -> o -> [Ninja]
 alliesP = allies' . fromEnum
-enemies' :: Int -> Seq Ninja -> [Ninja]
+enemies' :: ∀ o. Mono o Ninja => Int -> o -> [Ninja]
 enemies' p = evens . drop (1 - par p) . toList
 enemies :: Slot -> Game -> [Ninja]
 enemies (Slot p) = enemies' p . gameNinjas
-enemiesP :: Player -> Seq Ninja -> [Ninja]
+enemiesP :: ∀ o. Mono o Ninja => Player -> o -> [Ninja]
 enemiesP = enemies' . fromEnum
 
 -- ^ @[0 .. gameSize - 1]@.

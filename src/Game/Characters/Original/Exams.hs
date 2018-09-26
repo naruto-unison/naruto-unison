@@ -172,7 +172,7 @@ examCs =
         , desc    = "Sanity-shattering soundwaves deal 15 damage to an enemy. If [Shadow Senbon] was used last turn, Kin becomes invulnerable for 1 turn. If [Unnerving Bells] was used last turn, deals 25 additional damage."
         , classes = [Mental, Ranged]
         , cost    = χ [Rand]
-        , effects = [(Self,  ifI "Shadow Senbon" § apply 1 [ Immune All]
+        , effects = [(Self,  ifI "Shadow Senbon" § apply 1 [Invulnerable All]
                             • tag 1)
                     , (Enemy, withI "Unnerving Bells" 25 damage 15)
                     ]
@@ -268,8 +268,8 @@ examCs =
         , classes = [Mental]
         , cost    = χ [Gen, Rand]
         , cd      = 4
-        , effects = [(Self, defend 3 30 
-                          • apply 3 [Immune Mental, Immune Physical])]
+        , effects = [(Self, defend 3 30 • apply 3 
+                            [Invulnerable Mental, Invulnerable Physical])]
         }
       ]
     , invuln "Hide" "Oboro" [Mental]

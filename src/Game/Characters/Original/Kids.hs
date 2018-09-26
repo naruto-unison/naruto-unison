@@ -377,7 +377,7 @@ kidCs =
                  , classes = [Physical]
                  , cd      = 4
                  , cost    = χ [Rand]
-                 , effects = [(Self, apply 1 [Immune All, ImmuneSelf])]
+                 , effects = [(Self, apply 1 [Invulnerable All, ImmuneSelf])]
                  , skPic   = True
                  } 
     ] []
@@ -452,7 +452,8 @@ kidCs =
         , classes = [Mental]
         , cost    = χ [Tai]
         , cd      = 4
-        , effects = [(Self, cureAll • apply 2 [Immune All] • sacrifice 1 50
+        , effects = [(Self, cureAll • apply 2 [Invulnerable All] 
+                          • sacrifice 1 50
                           • vary' 2 "Fifth Gate Opening" "Final Lotus")]
         }
       , newSkill
@@ -504,9 +505,8 @@ kidCs =
         , cost    = χ [Rand]
         , cd      = 1
         , effects = [(Self, tag 0 
-                          • apply' "Twin Dragons Defense" 1 [ Immune Physical
-                                                            , Immune Chakra 
-                                                            ])]
+                          • apply' "Twin Dragons Defense" 1 
+                            [Invulnerable Physical, Invulnerable Chakra])]
         }
       ]
     , invuln "Spiked Boulder Shield" "Tenten" [Physical]
@@ -530,7 +530,7 @@ kidCs =
         , classes = [Chakra, Melee]
         , cost    = χ [Blood]
         , cd      = 1
-        , effects = [ (Self,    apply 1 [Immune All])
+        , effects = [ (Self,    apply 1 [Invulnerable All])
                     , (Enemies, damage 15)
                     ]
         }
@@ -629,7 +629,7 @@ kidCs =
         , classes = [Physical, Ranged]
         , cost    = χ [Nin]
         , effects = [ (Enemy, damage 20)
-                    , (Self,  apply 1 [Immune NonMental])
+                    , (Self,  apply 1 [Invulnerable NonMental])
                     ]
         }
       ]
@@ -648,7 +648,7 @@ kidCs =
         , classes = [Physical, Ranged]
         , cost    = χ [Nin, Nin]
         , cd      = 5
-        , effects = [ (Allies,  apply 1 [Immune All])
+        , effects = [ (Allies,  apply 1 [Invulnerable All])
                     , (Enemies, apply 2 [Weaken All 15])
                     ]
         }

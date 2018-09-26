@@ -110,11 +110,52 @@ familyCsS =
         , classes = [Mental, Ranged]
         , cost    = χ [ Rand ]
         , cd      = 4
-        , effects = [(Enemy, apply 4 [Throttle Immune 1]
+        , effects = [(Enemy, apply 4 [Throttle Invulnerable 1]
                            • trapFrom 4 (OnHarmed Mental) 
-                             § apply 1 [Immune All])]
+                             § apply 1 [Invulnerable All])]
         }
       ]
     , invuln "Mobile Barrier" "Inoichi" [Mental]
+    ] []
+  , Character 
+    "Hiashi Hyūga"
+    "TODO"
+    [ [ newSkill
+        { label   = "Master Gentle Fist"
+        , desc    = "Hiashi slams an enemy, dealing 20 damage and removing 1 random chakra. TODO Next turn, he repeats the attack on a random enemy."
+        , classes = [Physical, Melee]
+        , cost    = χ [Tai, Rand]
+        , cd      = 2
+        , start   = [ (Self, flag) 
+                    , (Enemy, damage 20 • drain 1)
+                    ]
+        , effects = [(REnemy, ifnotI "Master Gentle Fist" 
+                            § damage 20 ° drain 1)]
+        }
+      ]
+    , [ newSkill
+        { label   = "Master Revolving Heaven"
+        , desc    = "Hiashi spins toward an enemy, becoming invulnerable for 2 turns and dealing 15 damage to the target and 10 to all other enemies each turn."
+        , classes = [Chakra, Melee]
+        , cost    = χ [Blood, Rand]
+        , cd      = 3
+        , channel = Action 2
+        , start   = [ (Self,     apply 1 [Invulnerable All]) 
+                    , (Enemy,    damage 15)
+                    , (XEnemies, damage 10)
+                    ]
+        }
+      ]
+    , [ newSkill
+        { label   = "Eight Trigrams Vacuum Wall Palm"
+        , desc    = "Hiashi prepares to blast an enemy's attack back. The first harmful skill used on him or his allies next turn will be reflected."
+        , classes = [Chakra, Melee]
+        , cost    = χ [Blood]
+        , cd      = 3
+        , effects = [(Enemies, trap (-1) OnReflectAll . everyone 
+                             § removeTrap "Eight Trigrams Vacuum Wall Palm")]
+        }
+      ]
+    , invuln "Byakugan Foresight" "Hiashi" [Mental]
     ] []
   ]

@@ -31,7 +31,7 @@ organizationCsS =
         , cost    = χ [Rand]
         , effects = [(XAlly, trap 3 OnRes 
                            $ resetAll • setHealth 5 • teach 1 Deep 2 • setFace 1
-                           • bomb (-1) [Immune All, Seal, Enrage, Ignore Stun] 
+                           • bomb (-1) [Invulnerable All, Seal, Enrage, Ignore Stun] 
                              [(Done, kill')])]
         }
       ]
@@ -157,7 +157,7 @@ organizationCsS =
         , classes = [Mental, Bypassing]
         , cost    = χ [Rand, Rand]
         , effects = [ (Enemies, trap 3 OnChakra . self § gain [Rand])
-                    , (Allies, trap 3 OnStunned § apply 1 [Immune All] 
+                    , (Allies, trap 3 OnStunned § apply 1 [Invulnerable All] 
                              • trap 3 (OnDamaged NonAffliction) . self 
                                § apply 1 [Strengthen All 10])
                     , (Self,   vary' 3 "Super Beast Scroll: Snake" 
@@ -222,10 +222,26 @@ organizationCsS =
           , classes = [Physical, Melee]
           , cost    = χ [Rand]
           , cd      = 4
-          , effects = [(Self, apply 1 [Immune All])]
+          , effects = [(Self, apply 1 [Invulnerable All])]
           }
         ]
       ] []
+  , Character
+    "Torune Aburame"
+    "TODO"
+    [ [ newSkill
+        { label   = "Armor of Venom"
+        , desc    = "Torune applies a Venom Beetle to an enemy and gains 15 permanent destructible defense. The enemy that destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from it, this skill costs 1 random chakra but does not provide any destructible defense."
+        , classes = [Bane]
+        , cost    = χ [Blood]
+        , cd      = 0
+        , effects = [ (Enemy, addStacks "Venom Beetle" 1)
+                    , (Self,  defend 0 15)
+                    ]
+        --, changes = changeWith
+        }
+      ] 
+    ] []
   , Character
     "Danzō Shimura"
     "The founder and leader of the Hidden Leaf Village's elite Root division, Danzō has had a hand in almost every important global event since he came to power. His numerous implanted Sharingans allow him to repeatedly cheat death."

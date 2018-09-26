@@ -334,7 +334,7 @@ kidCsS =
         , effects = [(Self, tag 4 
                           • vary' 4 "Long-Range Tactics" "Final Explosion"
                           • delay (-1) § trap' (-4) OnHarm
-                            (ifnotI "What a Drag" § apply 1 [Immune All])
+                            (ifnotI "What a Drag" § apply 1 [Invulnerable All])
                           • trap' 4 (OnDamaged NonAffliction) 
                             § tag' "What a Drag" 1)]
         }
@@ -441,14 +441,14 @@ kidCsS =
         , classes = [Physical]
         , cd      = 4
         , cost    = χ [Rand, Rand]
-        , effects = [(Self, apply 1 [Immune All])]
+        , effects = [(Self, apply 1 [Invulnerable All])]
         }
       , newSkill 
         { label   = "Block"
         , desc    = "Chōji becomes invulnerable for 1 turn."
         , classes = [Physical]
         , cd      = 4
-        , effects = [(Self, apply 1 [Immune All])]
+        , effects = [(Self, apply 1 [Invulnerable All])]
         }
       ]
     ] []
@@ -557,7 +557,7 @@ kidCsS =
         , desc    = "Tenten whirls a long chain whip around her team, making them invulnerable to physical skills for 1 turn."
         , classes = [Physical]
         , cost    = χ [Rand]  
-        , effects = [(Allies, apply 1 [Immune Physical])]
+        , effects = [(Allies, apply 1 [Invulnerable Physical])]
         }
       , newSkill
         { label   = "Segmented Iron Dome"

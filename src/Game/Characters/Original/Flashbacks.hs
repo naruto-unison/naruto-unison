@@ -124,7 +124,8 @@ flashbackCs =
         , classes = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
         , cost    = χ [Blood, Gen]
         , cd      = 4
-        , effects = [(Enemy, purge • apply 2 [Stun All, Immune All, Seal])]
+        , effects = [(Enemy, purge 
+                           • apply 2 [Stun All, Invulnerable All, Seal])]
         }
       ]
     , invuln "Adamantine Covering Chains" "Kushina" [Chakra]
@@ -137,14 +138,15 @@ flashbackCs =
         , desc    = "Minato teleports to a target, becoming invulnerable for 1 turn. If he teleports to an enemy, he deals 30 damage. If he teleports to an ally, the ally becomes invulnerable for 1 turn."
         , classes = [Physical, Melee, Bypassing]
         , cost    = χ [Gen, Rand]
-        , effects = [ (Self,    apply 1 [Immune All])
-                    , (XAlly,   apply 1 [Immune All]
+        , effects = [ (Self,    apply 1 [Invulnerable All])
+                    , (XAlly,   apply 1 [Invulnerable All]
                               • ifI "Space-Time Marking" 
                                 § tag' "Space-Time Marking" 1)
                     , (Enemy,   damage 30
                               • ifI "Space-Time Marking"
                                 § tag' "Space-Time Marking" 1)
-                    , (XAllies, ifU "Space-Time Marking" § apply 1 [Immune All])
+                    , (XAllies, ifU "Space-Time Marking" 
+                                § apply 1 [Invulnerable All])
                     , (Enemies, ifU "Space-Time Marking" § damage 30)
 
                     ]
@@ -211,9 +213,10 @@ flashbackCs =
         }
     ]
     , invuln' "Round-Robin Raijen" 
-              "Minato and allies affected by [Space-Time Marking] becomes invulnerable for 1 turn." 
+              "Minato and allies affected by [Space-Time Marking] become invulnerable for 1 turn." 
             [Chakra] 
-            [alliedTeam . ifU "Space-Time Marking " § apply 1 [Immune All]]
+            [alliedTeam . ifU "Space-Time Marking " 
+                          § apply 1 [Invulnerable All]]
     ] []
   , Character
     "Young Kakashi"
@@ -375,7 +378,7 @@ flashbackCs =
         , classes = [Chakra, Melee]
         , cost    = χ [Tai]
         , cd      = 2
-        , effects = [ (Self,  apply 1 [Immune All])
+        , effects = [ (Self,  apply 1 [Invulnerable All])
                     , (Enemy, tag 1)
                     ]
         }

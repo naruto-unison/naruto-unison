@@ -572,7 +572,7 @@ versionCsS =
         , effects = [(Self, apply' "Armored Susano'o " 0 [Reduce Affliction 10] 
                           • defend 2 40 • onBreak'
                           • apply 2 
-                            [Ignore Stun, Immune Affliction, Unexhaust])]
+                            [Ignore Stun, Invulnerable Affliction, Unexhaust])]
         }
       ]
     , [ newSkill

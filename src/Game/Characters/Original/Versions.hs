@@ -69,7 +69,7 @@ versionCs =
         , classes = [Chakra, Ranged]
         , cost    = χ [Nin, Nin, Rand]
         , cd      = 5
-        , effects = [(Enemy, bomb 2 [Stun All, Immune All, Seal]
+        , effects = [(Enemy, bomb 2 [Stun All, Invulnerable All, Seal]
                              [(Expire, damage 55)])]
         , changes = changeWith "Curse Mark" $ setCost [Rand, Rand]
         }
@@ -79,7 +79,7 @@ versionCs =
         , desc    = "Sasuke taps into the power of Orochimaru's curse mark, becoming invulnerable to all skills for 1 turn and losing 20 health."
         , cost    = χ [Blood]
         , cd      = 1
-        , effects = [(Self, apply 1 [Immune All])]
+        , effects = [(Self, apply 1 [Invulnerable All])]
         }
       ]
     , invuln "Sharingan Foresight" "Sasuke" [Mental]

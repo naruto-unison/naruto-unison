@@ -85,7 +85,7 @@ organizationCs =
         , classes = [Chakra]
         , cost    = χ [Blood, Nin]
         , cd      = 6
-        , effects = [(Self, apply 3 [Immune All])]
+        , effects = [(Self, apply 3 [Invulnerable All])]
         }
       ]
     , invuln "Parry" "Haku" [Physical]
@@ -134,7 +134,7 @@ organizationCs =
         , desc    = "Itachi becomes invulnerable but loses 15 health each turn. While active, the cooldowns and chakra costs of his other skills are doubled. This skill can be used again with no chakra cost to cancel its effect."
         , classes = [Mental, Unremovable]
         , cost    = χ [Blood]
-        , effects = [(Self, apply 0 [Immune All, Afflict 15]
+        , effects = [(Self, apply 0 [Invulnerable All, Afflict 15]
                            • vary "Mangekyō Sharingan" "Mangekyō Sharingan"
                            • vary "Amaterasu"          "Amaterasu"
                            • vary "Tsukuyomi"          "Tsukuyomi")]

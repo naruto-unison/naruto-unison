@@ -552,7 +552,7 @@ akatsukiCsS =
         , cost    = χ [Nin, Blood]
         , cd      = 4
         , channel = Ongoing 2
-        , start   = [(Ally, defend 0 20 • apply 1 [Immune All])]
+        , start   = [(Ally, defend 0 20 • apply 1 [Invulnerable All])]
         }
       ]
     , [ newSkill 
@@ -864,7 +864,8 @@ akatsukiCsS =
         , classes = [Physical, Ranged]
         , cost    = χ [Blood, Gen, Tai]
         , cd      = 3
-        , effects = [(Enemy, bar 3 damage (apply 1 [Immune All, Seal]) 80)]
+        , effects = [(Enemy, bar 3 damage 
+                             (apply 1 [Invulnerable All, Seal]) 80)]
         }
       ]
     , invuln "Rinnegan Foresight" "Pain" [Mental]

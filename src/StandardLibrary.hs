@@ -1,3 +1,5 @@
+{-# LANGUAGE ConstraintKinds #-}
+
 module StandardLibrary 
   ( module Data.Function
   , module Data.List
@@ -5,6 +7,7 @@ module StandardLibrary
   , module Data.HashMap.Strict
   , module Data.Sequence
   , module ClassyPrelude.Yesod
+  , Mono
   , concatMap, catMaybes, mapMaybe
   , (—)
   , Pend, (<|), (|>)
@@ -19,6 +22,9 @@ import ClassyPrelude.Yesod hiding (Status, addClass, delete, deleteBy, group, gr
 
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Sequence      as Seq
+
+-- | A 'MonoFoldable' containing a certain 'Element'.
+type Mono o a = (MonoFoldable o, a ~ Element o)
 
 -- | 'asum' . 'fmap'
 concatMap :: ∀ l f a b. (Alternative l, Foldable f, Functor f) 

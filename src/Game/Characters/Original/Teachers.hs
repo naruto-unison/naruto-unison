@@ -27,7 +27,7 @@ teacherCs =
         , classes = [Physical]
         , cost    = χ [Rand]
         , cd      = 1
-        , effects = [(XAlly, apply 1 [Immune All])]
+        , effects = [(XAlly, apply 1 [Invulnerable All])]
         }
       ]
     , [ newSkill
@@ -86,7 +86,7 @@ teacherCs =
                           • bombWith' [Hidden] "Ambush Preparation" (-1) [] 
                             [(Expire, self 
                                       § vary' 1 "Kunai Assault" "Kunai Assault" 
-                                      ° apply (-1) [Immune All])])]
+                                      ° apply (-1) [Invulnerable All])])]
         }
       ]
     , invuln "Dodge" "Mizuki" [Physical]
@@ -337,7 +337,7 @@ teacherCs =
         , classes = [Mental]
         , cost    = χ [Tai]
         , cd      = 4
-        , effects = [(Self, apply 2 [Immune All] • sacrifice 1 40)]
+        , effects = [(Self, apply 2 [Invulnerable All] • sacrifice 1 40)]
         }
       ]
     , [ newSkill

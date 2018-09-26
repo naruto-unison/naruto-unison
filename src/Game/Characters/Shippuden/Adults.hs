@@ -38,7 +38,7 @@ adultCsS =
         , classes = [Chakra, Ranged, Bypassing]
         , cost    = χ [Blood, Gen]
         , effects = [ (Enemy, pierce 45) 
-                    , (XAlly, cureAll • apply 1 [Immune All])
+                    , (XAlly, cureAll • apply 1 [Invulnerable All])
                     ]
         }
       ]
