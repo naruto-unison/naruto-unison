@@ -40,7 +40,8 @@ examCs =
         , classes = [Mental]
         , cost    = χ [Rand]
         , cd      = 4
-        , effects = [(Self, apply 2 [Endure, Ignore Stun, Strengthen All 5])]
+        , effects = [(Self, apply 2 
+                            [Endure, Ignore Stun, Strengthen All Flat 5])]
         }
       ]
     , invuln "Byakugan Foresight" "Hanabi" [Mental]
@@ -59,7 +60,7 @@ examCs =
         { label   = "Umbrella Gathering"
         , desc    = "Shigure builds a wall of overlapping umbrellas in front of him. Spends all Umbrellas to provide 10 points of damage reduction per Umbrella for 1 turn."
         , classes = [Physical]
-        , effects = [(Self, perI "Umbrella" 10 (applyX 1 § Reduce All) 0
+        , effects = [(Self, perI "Umbrella" 10 (applyX 1 § Reduce All Flat) 0
                           • remove "Umbrella" • vary "Umbrella Toss" "")]
         }
       ]
@@ -95,12 +96,12 @@ examCs =
     "Orochimaru's close assistant and confidant, Kabuto is a brilliant and enigmatic genin. He uses his medical expertise to weaken and expose his opponents."
     [ [ newSkill
         { label   = "Chakra Scalpel"
-        , desc    = "Kabuto slices an enemy with a medical scalpel made of chakra, dealing 20 piercing damage. For 1 turn, the target's skills cost an additional random chakra and they receive 5 additional damage from physical and chakra damaging skills."
+        , desc    = "Kabuto slices an enemy with a medical scalpel made of chakra, dealing 20 piercing damage. For 1 turn, the target's skills cost 1 additional random chakra and they receive 5 additional damage from physical and chakra damaging skills."
         , classes = [Bane, Chakra, Melee]
         , cost    = χ [Nin]
         , effects = [(Enemy, pierce 20 • apply 1 [ Exhaust All
-                                                 , Bleed Physical 5
-                                                 , Bleed Chakra 5
+                                                 , Bleed Physical Flat 5
+                                                 , Bleed Chakra Flat 5
                                                  ])]
         }
       ]
@@ -123,8 +124,8 @@ examCs =
         , cd      = 2
         , effects = [(Enemies, trap (-1) OnNoAction
                                § apply 1 [ Stun All
-                                         , Bleed Physical 10
-                                         , Bleed Chakra 10 
+                                         , Bleed Physical Flat 10
+                                         , Bleed Chakra Flat 10 
                                          ])]
         }
       ]
@@ -150,7 +151,8 @@ examCs =
         , cd      = 1
         , effects = [(Enemy, withI "Echo Speaker Tuning" 10
                             (withU "Echoing Sound" 10 damage) 10
-                           • apply 0 [Bleed NonAffliction 5, Weaken All 5])]
+                           • apply 0 
+                             [Bleed NonAffliction Flat 5, Weaken All Flat 5])]
         }
       ]
     , [ newSkill
@@ -193,16 +195,16 @@ examCs =
       ]
     , [ newSkill
         { label   = "Unnerving Bells"
-        , desc    = "A cacophony of bell tones saps the strength of an enemy, removing 1 chakra. If [Bell Ring Illusion] was used last turn, the target takes 15 more damage from chakra skills for 1 turn. If [Shadow Senbon] was used last turn, the target takes 15 more damage from physical skills for 1 turn."
+        , desc    = "A cacophony of bell tones saps the strength of an enemy, removing 1 random chakra. If [Bell Ring Illusion] was used last turn, the target takes 15 more damage from chakra skills for 1 turn. If [Shadow Senbon] was used last turn, the target takes 15 more damage from physical skills for 1 turn."
         , classes = [Mental, Ranged]
         , cost    = χ [Gen]
         , cd      = 2
         , effects = [ (Self,  tag 1)
                     , (Enemy, drain 1
                             • ifI "Bell Ring Illusion" 
-                              § apply 1 [Bleed Chakra 15]
+                              § apply 1 [Bleed Chakra Flat 15]
                             • ifI "Shadow Senbon"
-                              § apply 1 [Bleed Physical 15])
+                              § apply 1 [Bleed Physical Flat 15])
                     ]
         }
       ]
@@ -283,8 +285,9 @@ examCs =
         , classes = [Chakra, Melee]
         , cost    = χ [Tai, Rand]
         , effects = [ (Enemy, ifI "Chakra Focus" § steal 1
-                            • apply 2 [ Weaken All 5] • leech 20 § self . heal)
-                    , (Self, apply 2 [Strengthen All 5])
+                            • apply 2 [ Weaken All Flat 5] 
+                            • leech 20 § self . heal)
+                    , (Self, apply 2 [Strengthen All Flat 5])
                     ]
         }
       ]
@@ -296,8 +299,9 @@ examCs =
         , cd      = 3
         , channel = Action 3
         , effects = [ (Enemy, ifI "Chakra Focus" § steal 1 
-                            • apply 1 [Weaken All 5] • leech 15 § self . heal)
-                    , (Self,  apply 1 [Strengthen All 5])
+                            • apply 1 [Weaken All Flat 5] 
+                            • leech 15 § self . heal)
+                    , (Self,  apply 1 [Strengthen All Flat 5])
                     ]
         }
       ]
@@ -320,7 +324,7 @@ examCs =
         , desc    = "Misumi latches on to a target with his startlingly loose joints, providing 15 points of damage reduction for 1 turn to an ally or 15 damage to an enemy."
         , classes = [Physical, Melee, Bypassing]
         , cost    = χ [Rand]
-        , effects = [ (XAlly, apply 1 [Reduce All 15])
+        , effects = [ (XAlly, apply 1 [Reduce All Flat 15])
                     , (Enemy, damage 15)
                     ]
         }

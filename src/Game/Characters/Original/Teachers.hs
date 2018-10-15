@@ -38,7 +38,9 @@ teacherCs =
         , cd      = 2
         , effects = [(Enemy, trap 1 OnHarm 
                              § damage 40 
-                             ° apply 1 [Bleed Physical 25, Bleed Chakra 25])]
+                             ° apply 1 [ Bleed Physical Flat 25
+                                       , Bleed Chakra Flat 25
+                                       ])]
         }
       ]
     , invuln "Parry" "Iruka" [Physical]
@@ -176,7 +178,7 @@ teacherCs =
         , classes = [Physical, Melee]
         , cost    = χ [Tai]
         , effects = [ (Enemy, damage 15)
-                    , (Self,  apply 0 [Strengthen All 5])
+                    , (Self,  apply 0 [Strengthen All Flat 5])
                     ]
         }
       ]
@@ -197,10 +199,10 @@ teacherCs =
         , classes = [Mental, Unremovable]
         , cost    = χ [Gen]
         , cd      = 3
-        , effects = [(Self, apply 3 [Strengthen All 10] 
-                           • apply 1 [Reduce All 25]
-                           • delay (-1) § apply 1 [Reduce All 15]
-                           • delay (-2) § apply 1 [Reduce All 5])]
+        , effects = [(Self, apply 3 [Strengthen All Flat 10] 
+                           • apply 1 [Reduce All Flat 25]
+                           • delay (-1) § apply 1 [Reduce All Flat 15]
+                           • delay (-2) § apply 1 [Reduce All Flat 5])]
         }
       ]
     , invuln "Dodge" "Hayate" [Physical]
@@ -215,7 +217,7 @@ teacherCs =
         , cost    = χ [Gen]
         , cd      = 2
         , effects = [ (Enemy, damage 10 • apply 2  
-                              [Weaken All 10, Exhaust All, Expose])
+                              [Weaken All Flat 10, Exhaust All, Expose])
                     , (Self,  addStacks "Illusion" 1)
                     ]
         }
@@ -267,7 +269,7 @@ teacherCs =
         , start   = [(Self, vary "Flying Swallow" "Finishing Blow" 
                           • vary "Sharpen Blades" "Flying Kick")]
         , effects = [ (Enemies, damage 15)
-                    , (Allies,  apply 1 [Reduce All 15])
+                    , (Allies,  apply 1 [Reduce All Flat 15])
                     , (Self,    remove "Sharpen Blades")
                     ]
         , changes = \n skill@Skill{..} -> skill

@@ -1,4 +1,3 @@
-
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE DeriveAnyClass    #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -21,7 +20,7 @@ module Game.Structure
     -- * Destructible
     , Barrier(..), Defense(..)
     -- * Effect
-    , Effect(..), helpful, sticky, boost
+    , Effect(..), Amount(..), helpful, sticky, boost
     -- * Function types
     , Transform, SkillTransform, TrapTransform
     -- * Game
@@ -159,6 +158,7 @@ data Class
     | Necromancy
     -- Fake (Hidden)
     | All
+    | Harmful
     | Healing
     | Hidden
     | Affliction
@@ -193,84 +193,85 @@ show' a               = show a
 lower :: String -> String
 lower = unpack . Text.toLower . pack
 
-
+data Amount = Flat | Percent deriving (Eq)
 
 -- | Effects of 'Status'es.
 data Effect 
-    = Afflict    Int             -- ^ Deals damage every turn
-    | AntiCounter                -- ^ Cannot be countered or reflected
-    | Bleed      Class Int       -- ^ Adds to damage received
-    | Bless      Int             -- ^ Adds to healing 'Skill's
-    | Block                      -- ^ Treats source as 'Invulnerable'
-    | Boost      Int             -- ^ Scales effects from allies
-    | Build      Int             -- ^ Adds to destructible defense 'Skill'
-    | Counter    Class           -- ^ Counters the first 'Skill's
-    | CounterAll Class           -- ^ 'Counter's without being removed
-    | Duel                       -- ^ 'Invulnerable' to everyone but source
-    | Endure                     -- ^ Health cannot go below 1
-    | Enrage                     -- ^ Ignore all harmful status effects
-    | Exhaust    Class           -- ^ 'Skill's cost an additional random chakra
-    | Expose                     -- ^ Cannot reduce damage or be 'Invulnerable'
-    | Heal       Int             -- ^ Heals every turn
-    | Ignore  (Class -> Effect)  -- ^ Invulnerable to certain effects
-    | Invulnerable     Class           -- ^ Invulnerable to enemy 'Skill's
-    | ImmuneSelf                 -- ^ Invulnerable to self-caused damage
-    | Invincible Class           -- ^ Like 'Invulnerable', but targetable
-    | Isolate                    -- ^ Unable to affect others
-    | Link       Int             -- ^ Increases damage and healing from source
-    | Parry      Class Transform -- ^ 'Counter' and trigger an effect
-    | ParryAll   Class Transform -- ^ 'Parry' repeatedly
-    | Pierce                     -- ^ Damage skills turn into piercing
-    | Plague                     -- ^ Invulnerable to healing and curing
-    | Reduce     Class Int       -- ^ Reduces damage by a flat amount
-    | Reapply                    -- ^ Shares harmful skills with source
-    | Redirect   Class           -- ^ Transfers harmful 'Skill's
-    | Reflect                    -- ^ Reflects the first 'Skill'
-    | ReflectAll                 -- ^ 'Reflect' repeatedly
-    | Restrict                   -- ^ Forces AoE attacks to be single-target
-    | Reveal                     -- ^ Makes 'Invisible' effects visible
-    | Scale      Class Rational  -- ^ Scales damage dealt
-    | Seal                       -- ^ Ignore all friendly 'Skill's
-    | Share                      -- ^ Shares all harmful non-damage effects
-    | Silence                    -- ^ Unable to cause non-damage effects
-    | Snapshot   Ninja           -- ^ Saves a snapshot of the current state
-    | Snare      Int             -- ^ Increases cooldowns
-    | SnareTrap  Class Int       -- ^ Negates next skill and increases cooldown
-    | Strengthen Class Int       -- ^ Adds to all damage dealt
-    | Stun       Class           -- ^ Unable to use 'Skill's
-    | Swap       Class           -- ^ Target swaps enemies and allies
-    | Taunt                      -- ^ Forced to attack the source
-    | Taunting   Int             -- ^ Forced to attack their next target
-    | Threshold  Int             -- ^ Invulnerable to baseline damage below a threhold
+    = Afflict      Int               -- ^ Deals damage every turn
+    | AntiCounter                    -- ^ Cannot be countered or reflected
+    | Bleed        Class Amount Int  -- ^ Adds to damage received
+    | Bless        Int               -- ^ Adds to healing 'Skill's
+    | Block                          -- ^ Treats source as 'Invulnerable'
+    | Boost        Int               -- ^ Scales effects from allies
+    | Build        Int               -- ^ Adds to destructible defense 'Skill'
+    | Counter      Class             -- ^ Counters the first 'Skill's
+    | CounterAll   Class             -- ^ 'Counter's without being removed
+    | Duel                           -- ^ 'Invulnerable' to everyone but source
+    | Endure                         -- ^ Health cannot go below 1
+    | Enrage                         -- ^ Ignore all harmful status effects
+    | Exhaust      Class             -- ^ 'Skill's cost 1 additional random chakra
+    | Expose                         -- ^ Cannot reduce damage or be 'Invulnerable'
+    | Heal         Int               -- ^ Heals every turn
+    | Ignore       (Class -> Effect) -- ^ Invulnerable to certain effects
+    | Invulnerable Class             -- ^ Invulnerable to enemy 'Skill's
+    | ImmuneSelf                     -- ^ Invulnerable to self-caused damage
+    | Invincible   Class             -- ^ Like 'Invulnerable', but targetable
+    | Isolate                        -- ^ Unable to affect others
+    | Link         Int               -- ^ Increases damage and healing from source
+    | Parry        Class Transform   -- ^ 'Counter' and trigger an effect
+    | ParryAll     Class Transform   -- ^ 'Parry' repeatedly
+    | Pierce                         -- ^ Damage skills turn into piercing
+    | Plague                         -- ^ Invulnerable to healing and curing
+    | Reduce       Class Amount Int  -- ^ Reduces damage by an amount
+    | Reapply                        -- ^ Shares harmful skills with source
+    | Redirect     Class             -- ^ Transfers harmful 'Skill's
+    | Reflect                        -- ^ Reflects the first 'Skill'
+    | ReflectAll                     -- ^ 'Reflect' repeatedly
+    | Restrict                       -- ^ Forces AoE attacks to be single-target
+    | Reveal                         -- ^ Makes 'Invisible' effects visible
+    | Seal                           -- ^ Ignore all friendly 'Skill's
+    | Share                          -- ^ Shares all harmful non-damage effects
+    | Silence                        -- ^ Unable to cause non-damage effects
+    | Snapshot     Ninja             -- ^ Saves a snapshot of the current state
+    | Snare        Int               -- ^ Increases cooldowns
+    | SnareTrap    Class Int         -- ^ Negates next skill and increases cooldown
+    | Strengthen   Class Amount Int  -- ^ Adds to all damage dealt
+    | Stun         Class             -- ^ Unable to use 'Skill's
+    | Swap         Class             -- ^ Target swaps enemies and allies
+    | Taunt                          -- ^ Forced to attack the source
+    | Taunting     Int               -- ^ Forced to attack their next target
+    | Threshold    Int               -- ^ Invulnerable to baseline damage below a threhold
     | Throttle (Class -> Effect) Int -- ^ Applying an effect lasts fewer turns
-    | Undefend                   -- ^ Does not benefit from destructible defense
-    | Uncounter                  -- ^ Cannot counter or reflect
-    | Unexhaust                  -- ^ Decreases chakra costs by 1 random  
-    | Unreduce   Int             -- ^ Reduces damage reduction 'Skill's
-    | Ward       Class Rational  -- ^ Reduces damage received by a fraction
-    | Weaken     Class Int       -- ^ Lessens damage dealt
+    | Undefend                       -- ^ Does not benefit from destructible defense
+    | Uncounter                      -- ^ Cannot counter or reflect
+    | Unexhaust                      -- ^ Decreases chakra costs by 1 random  
+    | Unreduce     Int               -- ^ Reduces damage reduction 'Skill's
+    | Weaken       Class Amount Int  -- ^ Lessens damage dealt
     -- | Copies a skill into source's skill slot
     | Copy { copyDuration :: Int 
-            , copyClass    :: Class
-            , copyTo       :: Int   -- ^ Skill index of source to copy into
-            , copyNonHarm  :: Bool  -- ^ Include non-harmful 'Skill's
-            }
+           , copyClass    :: Class
+           , copyTo       :: Int   -- ^ Skill index of source to copy into
+           , copyNonHarm  :: Bool  -- ^ Include non-harmful 'Skill's
+           }
     deriving (Eq)
 
 low :: Class -> String
 low = lower . show'
+showAmt :: Amount -> Int -> String
+showAmt Flat    = show
+showAmt Percent = (++ "%") . show
 
 instance Show Effect where
     show (Afflict x) = "Receives " ++ show x ++ " affliction damage each turn."
     show AntiCounter = "Cannot be countered or reflected."
-    show (Bleed clas x)
-      | x >= 0 = show x ++ " additional damage taken from " ++ low clas ++ " skills."
-      | otherwise = "Reduces all " ++ low clas ++  " damage received by " ++ show (-x) ++ "."
-    show (Bless x) = "Healing skills heal an additional " ++ show x ++ " health."
+    show (Bleed clas amt x)
+      | x >= 0    =  showAmt amt x ++ " additional damage taken from " ++ low clas ++ " skills."
+      | otherwise = "Reduces all " ++ low clas ++  " damage received by " ++ showAmt amt (-x) ++ "."
+    show (Bless x) = "Healing skills heal 1 additional " ++ show x ++ " health."
     show Block = "Unable to affect the source of this effect."
     show (Boost x) = "Active effects from allies are " ++ show x ++ " times as powerful." 
     show (Build x)
-      | x >= 0     = "Destructible skills provide " ++ show x ++ " additional points of defense."
+      | x >= 0    = "Destructible skills provide " ++ show x ++ " additional points of defense."
       | otherwise =  "Destructible skills provide " ++ show (-x) ++ " fewer points of defense."
     show (Copy _ clas _ _) = show' clas ++ " skills will be temporarily acquired by the source of this effect."
     show (Counter All)  = "Counters the first skill."
@@ -297,29 +298,26 @@ instance Show Effect where
     show Pierce = "Non-affliction skills deal piercing damage."
     show Plague = "Cannot be healed or cured."
     show Reapply = "Harmful skills received are also reflected to the source of this effect."
-    show (Reduce Affliction x)
-      | x >= 0     = "Reduces all damage received—including piering and affliction—by " ++ show x ++ "."
-      | otherwise = "Increases all damage received—including piering and affliction—by " ++ show x ++ "."
-    show (Reduce clas x) 
-      | x >= 0     = "Reduces " ++ low clas ++ " damage received by " ++ show x ++ ". Does not affect piercing or affliction damage."
-      | otherwise = "Increases " ++ low clas ++ " damage received by " ++ show (-x) ++ ". Does not affect piercing or affliction damage."
+    show (Reduce Affliction amt x)
+      | x >= 0    = "Reduces all damage received—including piering and affliction—by " ++ showAmt amt x ++ "."
+      | otherwise = "Increases all damage received—including piering and affliction—by " ++ showAmt amt x ++ "."
+    show (Reduce clas amt x) 
+      | x >= 0    = "Reduces " ++ low clas ++ " damage received by " ++ showAmt amt x ++ ". Does not affect piercing or affliction damage."
+      | otherwise = "Increases " ++ low clas ++ " damage received by " ++ showAmt amt (-x) ++ ". Does not affect piercing or affliction damage."
     show (Redirect clas) = "Redirects " ++ low clas  ++ " harmful skills to the source of this effect."
     show Reflect = "Reflects the first harmful non-mental skill."
     show ReflectAll = "Reflects all non-mental skills."
     show Reveal = "Reveals invisible skills to the enemy team. This effect cannot be removed."
     show Restrict = "Skills that normally affect all opponents must be targeted."
-    show (Scale clas x)
-      | x >= 1 = show' clas ++ " damage multiplied by " ++ show x ++ "."
-      | otherwise = show' clas ++ " damage multiplied by " ++ show x ++ ". Does not affect affliction damage."
     show Seal = "Invulnerable to effects from allies."
     show Share = "If a harmful non-damage effect is received, it is also applied to the source of this effect."
     show Silence = "Unable to cause non-damage effects."
     show (Snare x)
-      | x >= 0 = "Cooldowns increased by " ++ show x ++ "."
+      | x >= 0    = "Cooldowns increased by " ++ show x ++ "."
       | otherwise = "Cooldowns decreased by " ++ show (-x) ++ "."
     show (SnareTrap _ _) = "Next skill used will be negated and go on a longer cooldown."
     show (Snapshot _) = "Will be restored to an earlier state when this effect ends."
-    show (Strengthen clas x) = show' clas ++ " damaging skills deal " ++ show x ++ " additional damage."
+    show (Strengthen clas amt x) = show' clas ++ " damaging skills deal " ++ showAmt amt x ++ " additional damage."
     show (Stun Affliction) = "Unable to deal affliction damage."
     show (Stun NonAffliction) = "Unable to deal non-affliction damage."
     show (Stun clas) = "Unable to use " ++ low clas ++ " skills."
@@ -331,8 +329,7 @@ instance Show Effect where
     show Uncounter = "Unable to benefit from counters or reflects."
     show Unexhaust = "All skills cost 1 fewer random chakra."
     show (Unreduce x) = "Damage reduction skills reduce " ++ show x ++ " fewer damage."
-    show (Ward clas x) = "Reduces " ++ low clas ++ " damage received by " ++ show (100 * x) ++ ". Does not affect piercing or affliction damage."
-    show (Weaken clas x) = show' clas ++ " skills deal " ++ show x ++ " fewer damage. Does not affect affliction damage."
+    show (Weaken clas amt x) = show' clas ++ " skills deal " ++ showAmt amt x ++ " fewer damage. Does not affect affliction damage."
 instance ToJSON Effect where 
     toJSON x = object
       [ "effectDesc"    .= tshow x 
@@ -342,93 +339,91 @@ instance ToJSON Effect where
       ]
 
 helpful :: Effect -> Bool
-helpful Afflict{}    = False
-helpful AntiCounter  = True
-helpful (Bleed _ x)  = x < 0
-helpful Bless{}      = True
-helpful Block        = False
-helpful Boost{}      = True
-helpful (Build x)    = x > 0
-helpful Copy{}       = False
-helpful Counter{}    = True
-helpful CounterAll{} = True
-helpful Duel         = True
-helpful Endure       = True
-helpful Enrage       = True
-helpful Exhaust{}    = False
-helpful Expose       = False
-helpful Heal{}       = True
-helpful Invulnerable{}     = True
-helpful ImmuneSelf   = True
-helpful Ignore{}     = True
-helpful Invincible{} = True
-helpful Isolate      = False
-helpful Link{}       = False
-helpful Parry{}      = True
-helpful ParryAll {}  = True
-helpful Pierce       = True
-helpful Plague       = False
-helpful Reapply      = False
-helpful (Reduce _ x) = x > 0
-helpful Redirect{}   = True
-helpful Reflect      = True
-helpful ReflectAll   = True
-helpful Restrict     = False
-helpful Reveal       = False
-helpful (Scale _ x)  = x >= 1
-helpful Seal         = False
-helpful Share        = False
-helpful Silence      = False
-helpful Snapshot{}   = True
-helpful (Snare x)    = x < 0
-helpful SnareTrap{}  = False
-helpful Strengthen{} = True
-helpful Stun{}       = False
-helpful Swap{}       = False
-helpful Taunt        = False
-helpful Threshold{}  = True
-helpful Throttle{}   = False
-helpful Taunting{}   = False
-helpful Uncounter    = False
-helpful Undefend     = False
-helpful Unexhaust    = True
-helpful Unreduce{}   = False
-helpful Ward{}       = True
-helpful Weaken{}     = False
+helpful Afflict{}      = False
+helpful AntiCounter    = True
+helpful (Bleed _ _ x)  = x < 0
+helpful Bless{}        = True
+helpful Block          = False
+helpful Boost{}        = True
+helpful (Build x)      = x >= 0
+helpful Copy{}         = False
+helpful Counter{}      = True
+helpful CounterAll{}   = True
+helpful Duel           = True
+helpful Endure         = True
+helpful Enrage         = True
+helpful Exhaust{}      = False
+helpful Expose         = False
+helpful Heal{}         = True
+helpful Invulnerable{} = True
+helpful ImmuneSelf     = True
+helpful Ignore{}       = True
+helpful Invincible{}   = True
+helpful Isolate        = False
+helpful Link{}         = False
+helpful Parry{}        = True
+helpful ParryAll {}    = True
+helpful Pierce         = True
+helpful Plague         = False
+helpful Reapply        = False
+helpful (Reduce _ _ x) = x >= 0
+helpful Redirect{}     = True
+helpful Reflect        = True
+helpful ReflectAll     = True
+helpful Restrict       = False
+helpful Reveal         = False
+helpful Seal           = False
+helpful Share          = False
+helpful Silence        = False
+helpful Snapshot{}     = True
+helpful (Snare x)      = x < 0
+helpful SnareTrap{}    = False
+helpful Strengthen{}   = True
+helpful Stun{}         = False
+helpful Swap{}         = False
+helpful Taunt          = False
+helpful Threshold{}    = True
+helpful Throttle{}     = False
+helpful Taunting{}     = False
+helpful Uncounter      = False
+helpful Undefend       = False
+helpful Unexhaust      = True
+helpful Unreduce{}     = False
+helpful Weaken{}       = False
 
 -- | Effect cannot be removed.
 sticky :: Effect -> Bool
-sticky Block        = True
-sticky Copy{}       = True
-sticky Counter{}    = True
-sticky CounterAll{} = True
-sticky Enrage       = True
-sticky Invulnerable{}     = True
-sticky Invincible{} = True
-sticky Parry{}      = True
-sticky ParryAll{}   = True
-sticky Redirect{}   = True
-sticky Reapply      = True
-sticky Reflect      = True
-sticky ReflectAll   = True
-sticky Restrict     = True
-sticky Reveal       = True
-sticky Snapshot{}   = True
-sticky Swap{}       = True
-sticky _            = False
+sticky Block          = True
+sticky Copy{}         = True
+sticky Counter{}      = True
+sticky CounterAll{}   = True
+sticky Enrage         = True
+sticky Invulnerable{} = True
+sticky Invincible{}   = True
+sticky Parry{}        = True
+sticky ParryAll{}     = True
+sticky Redirect{}     = True
+sticky Reapply        = True
+sticky Reflect        = True
+sticky ReflectAll     = True
+sticky Restrict       = True
+sticky Reveal         = True
+sticky Snapshot{}     = True
+sticky Swap{}         = True
+sticky _              = False
+
 
 -- | Scales the power of an effect.
 boost :: Int -> Effect -> Effect
-boost b (Afflict      x) = Afflict      $ x * b
-boost b (Bleed      c x) = Bleed      c $ x * b
-boost b (Build        x) = Build        $ x * b
-boost b (Heal         x) = Heal         $ x * b
-boost b (Reduce     c x) = Reduce     c $ x * b
-boost b (Snare        x) = Snare        $ x * b
-boost b (Strengthen c x) = Strengthen c $ x * b
-boost b (Unreduce     x) = Unreduce     $ x * b
-boost b (Ward       c x) = Ward       c $ x * toRational b
-boost b (Weaken     c x) = Weaken     c $ x * b
+boost b (Afflict  x) = Afflict  $ x * b
+boost b (Build    x) = Build    $ x * b
+boost b (Heal     x) = Heal     $ x * b
+boost b (Snare    x) = Snare    $ x * b
+boost b (Unreduce x) = Unreduce $ x * b
+boost b (Bleed      c Flat x) = Bleed      c Flat $ x * b
+boost b (Reduce     c Flat x) = Reduce     c Flat $ x * b
+boost b (Strengthen c Flat x) = Strengthen c Flat $ x * b
+boost b (Weaken     c Flat x) = Weaken     c Flat $ x * b
 boost _ ef = ef
 
 four0s :: Seq Int -- ^ [0, 0, 0, 0]

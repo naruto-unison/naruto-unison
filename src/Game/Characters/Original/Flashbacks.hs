@@ -53,22 +53,22 @@ flashbackCs =
     ] []
   , Character 
     "Hiashi Hyūga"
-    "A jōnin from the Hidden Leaf Village and father to Hinata and Hanabi, Hiashi "
+    "A jōnin from the Hidden Leaf Village and father to Hinata and Hanabi, Hiashi does not tolerate weakness or failure. All of the Hyūga clan's secret techniques have been passed down to him, and he wields them with unmatched expertise."
     [ [ newSkill
         { label   = "Gentle Fist"
-        , desc    = "Hiashi slams an enemy, dealing 20 damage and removing 1 random chakra. TODO Next turn, he repeats the attack on a random enemy."
+        , desc    = "Hiashi slams an enemy, dealing 20 damage and removing 1 random chakra. Next turn, he repeats the attack on a random enemy."
         , classes = [Physical, Melee]
         , cost    = χ [Tai, Rand]
         , cd      = 2
         , start   = [ (Self, flag) 
-                    , (Enemy, damage 20 • drain 1)
+                    , (Enemy, drain 1 • damage 20)
                     ]
         , effects = [(REnemy, ifnotI "Gentle Fist" 
                             § damage 20 ° drain 1)]
         }
       ]
     , [ newSkill
-        { label   = "Revolving Heaven"
+        { label   = "Eight Trigrams Palm Rotation"
         , desc    = "Hiashi spins toward an enemy, becoming invulnerable for 2 turns and dealing 15 damage to the target and 10 to all other enemies each turn."
         , classes = [Chakra, Melee]
         , cost    = χ [Blood, Rand]
@@ -81,13 +81,13 @@ flashbackCs =
         }
       ]
     , [ newSkill
-        { label   = "Eight Trigrams Palm Rotation"
+        { label   = "Eight Trigrams Air Palm Wall"
         , desc    = "Hiashi prepares to blast an enemy's attack back. The first harmful skill used on him or his allies next turn will be reflected."
         , classes = [Chakra, Melee]
         , cost    = χ [Blood]
         , cd      = 3
         , effects = [(Enemies, trap (-1) OnReflectAll . everyone 
-                             § removeTrap "Eight Trigrams Palm Rotation")]
+                             § removeTrap "Eight Trigrams Air Palm Wall")]
         }
       ]
     , invuln "Byakugan Foresight" "Hiashi" [Mental]
@@ -101,14 +101,15 @@ flashbackCs =
         , classes = [Physical, Melee]
         , cost    = χ [Rand]
         , effects = [ (Enemy,  damage 5
-                             • apply 1 [Weaken Physical 10, Weaken Chakra 10])
+                             • apply 1 
+                               [Weaken Physical Flat 10, Weaken Chakra Flat 10])
                     , (Allies, defend 0 5)
                     ]
         }
       ]
     , [ newSkill
         { label   = "Human Boulder"
-        , desc    = "Chōza transforms into a rolling juggernaut. For 3 turns, he deals 15 damage to an enemy and provides 10 destructible defense to himself and his allies for 1 turn. Each turn, if the target is affected by [Chain Bind], it lasts an additional turn on them."
+        , desc    = "Chōza transforms into a rolling juggernaut. For 3 turns, he deals 15 damage to an enemy and provides 10 destructible defense to himself and his allies for 1 turn. Each turn, if the target is affected by [Chain Bind], it lasts 1 additional turn on them."
         , classes = [Physical, Melee]
         , cost    = χ [Blood, Rand]
         , cd      = 3
@@ -116,9 +117,10 @@ flashbackCs =
         , effects = [ (Allies, defend 1 10)
                     , (Enemy,  damage 15
                              • ifU "Chain Bind" 
-                               § apply' "Chain Bind" 1 [ Weaken Physical 10
-                                                       , Weaken Chakra 10
-                                                       ])
+                               § apply' "Chain Bind" 1 
+                                 [ Weaken Physical Flat 10
+                                 , Weaken Chakra Flat 10
+                                 ])
                     ]
         }
       ] 
@@ -174,14 +176,14 @@ flashbackCs =
         { label   = "Mental Invasion"
         , desc    = "Inoichi preys on an enemy's weaknesses. For 4 turns, all invulnerability skills used by the target will have their duration reduced by 1 turn. While active, anyone who uses a harmful mental skill on the target will become invulnerable for 1 turn."
         , classes = [Mental, Ranged]
-        , cost    = χ [ Rand ]
+        , cost    = χ [Rand]
         , cd      = 4
         , effects = [(Enemy, apply 4 [Throttle Invulnerable 1]
                            • trapFrom 4 (OnHarmed Mental) 
                              § apply 1 [Invulnerable All])]
         }
       ]
-    , invuln "Mobile Barrier" "Inoichi" [Mental]
+    , invuln "Mobile Barrier" "Inoichi" [Chakra]
     ] []
   , Character
     "Kushina Uzumaki"
@@ -193,7 +195,8 @@ flashbackCs =
         , cost    = χ [Gen, Rand]
         , cd      = 1
         , effects = [(Enemy, drain 1 • damage 15
-                            • apply 1 [Stun All] • apply 0 [Weaken All 5])]
+                            • apply 1 [Stun All] 
+                            • apply 0 [Weaken All Flat 5])]
         }
       ]
     , [ newSkill
@@ -242,7 +245,7 @@ flashbackCs =
         }
       ]
     , [ newSkill
-        { label   = "Wide Area Sensing"
+        { label   = "Sensory Technique"
         , desc    = "Minato's senses expand to cover the battlefield, preventing enemies from reducing damage or becoming invulnerable for 2 turns. Each turn, Minato gains a random chakra."
         , classes = [Chakra, Ranged]
         , cost    = χ [Nin]
@@ -275,10 +278,10 @@ flashbackCs =
         , cd      = 1
         , effects = [ (XAllies, delay 0 . trap 1 OnNoAction
                                 $ apply' "Space-Time Marking " 3 []
-                                • self § hide 4 [Reduce All 5])
+                                • self § hide 4 [Reduce All Flat 5])
                     , (Enemies, trap (-1) OnNoAction 
                                 $ apply' "Space-Time Marking " (-4) []
-                                • self § hide 4 [Reduce All 5])
+                                • self § hide 4 [Reduce All Flat 5])
                     ]
         }
       ]
@@ -307,6 +310,50 @@ flashbackCs =
             [alliedTeam . ifU "Space-Time Marking " 
                           § apply 1 [Invulnerable All]]
     ] []
+  , let kannon = changeWith "Veritable 1000-Armed Kannon" $ \_ skill -> 
+                 skill { channel = Action 3, cost = χ [Blood] }
+    in Character
+    "Hashirama Senju"
+    "The founder and first Hokage of the Hidden Leaf Village, Hashirama is headstrong and enthusiastic. He believes with all his heart that communities should behave as families, taking care of each other and protecting their children from the cruelties of war. Due to a unique genetic mutation, Hashirama is able shape wood into defensive barriers and constructs."
+    [ [ newSkill
+        { label   = "Wooden Dragon"
+        , desc    = "A vampiric dragon made of wood drains chakra from Hashirama's enemies, making him invulnerable to chakra skills for 2 turns. While active, Hashirama steals 1 random chakra from his enemies each turn."
+        , classes = [Chakra, Melee]
+        , cost    = χ [Blood, Rand]
+        , cd      = 2
+        , channel = Action 2
+        , effects = [ (Self,   apply 1 [Invulnerable Chakra]) 
+                    , (REnemy, steal 1)
+                    ]
+        , changes = kannon
+        }
+      ]
+    , [ newSkill
+        { label   = "Wood Golem"
+        , desc    = "A giant humanoid statue attacks an enemy for 2 turns, dealing 20 damage each turn. While active, Hashirama is invulnerable to physical skills."
+        , classes = [Physical, Melee]
+        , cost    = χ [Blood, Rand]
+        , cd      = 2
+        , channel = Action 2
+        , effects = [ (Enemy, damage 20) 
+                    , (Self,  apply 1 [Invulnerable Physical])
+                    ]
+        , changes = kannon
+        }
+      ]
+    , [ newSkill
+        { label   = "Veritable 1000-Armed Kannon"
+        , desc    = "A titanic many-handed Buddha statue looms over the battlefield, providing 30 permanent destructible defense to Hashirama and his allies. For the next 3 turns, [Wooden Dragon] and [Wood Golem] cost 1 fewer random chakra and last 1 additional turn."
+        , classes = [Physical]
+        , cost    = χ [Blood, Blood]
+        , cd      = 2
+        , effects = [ (Allies, defend 0 30)
+                    , (Self,   tag 3)
+                    ]
+        }
+      ]
+    , invuln "Foresight" "Hashirama" [Mental]
+    ] []
   , Character
     "Young Kakashi"
     "A member of Team Minato, Kakashi is the thirteen-year-old son of the legendary White Fang. His early ninjutsu and borrowed sharingan make him the equal of any adult he faces."
@@ -315,9 +362,9 @@ flashbackCs =
         , desc    = "Kakashi deals 20 piercing damage to an enemy with his sword. For 1 turn, the target's non-affliction damage is weakened by 5 and Kakashi's damage is increased by 5."
         , classes = [Physical, Melee]
         , cost    = χ [Tai]
-        , effects = [ (Enemy, damage 20 • apply 1 [Weaken All 5]
+        , effects = [ (Enemy, damage 20 • apply 1 [Weaken All Flat 5]
                             • ifI "Sharingan Stun" § apply 1 [Stun All])
-                    , (Self,  apply 1 [Strengthen All 5])
+                    , (Self,  apply 1 [Strengthen All Flat 5])
                     ]
         }
       ]
@@ -326,9 +373,9 @@ flashbackCs =
         , desc    = "Using an early form of his signature technique, Kakashi deals 20 piercing damage to one enemy. For 1 turn, the target's non-affliction damage is weakened by 5 and Kakashi's damage is increased by 5."
         , classes = [Chakra, Melee]
         , cost    = χ [Nin]
-        , effects = [ (Enemy, damage 20 • apply 1 [Weaken All 5]
+        , effects = [ (Enemy, damage 20 • apply 1 [Weaken All Flat 5]
                             • ifI "Sharingan Stun" § apply 1 [Stun All])
-                    , (Self,  apply 1 [Strengthen All 5])
+                    , (Self,  apply 1 [Strengthen All Flat 5])
                     ]
         }
       ]
@@ -340,7 +387,7 @@ flashbackCs =
         , effects = [(Enemy, trap 1 OnChakra . self § gain [Rand]
                            • trap 1 OnStun   . self § gain [Rand]
                            • trap 1 OnDamage . self 
-                             § apply 1 [Strengthen All 10])]
+                             § apply 1 [Strengthen All Flat 10])]
         }
       ]
     , invuln "Parry" "Kakashi" [Physical]
@@ -353,7 +400,7 @@ flashbackCs =
         , desc    = "An enemy falls into a pit and is trapped there for 1 turn. At the end of their turn, the target takes 15 piercing damage. If they used a skill that turn, they take 15 additional damage. While active, Rin gains 15 points of damage reduction."
         , classes = [Invisible, Bypassing]
         , cost    = χ [Gen]
-        , effects = [(Self,  apply 1 [Reduce All 15])
+        , effects = [(Self,  apply 1 [Reduce All Flat 15])
                     , (Enemy, trap (-1) (OnAction All) flag
                             • delay (-1) § withU "Pit Trap" 15 pierce 15)
                     ]
@@ -413,10 +460,12 @@ flashbackCs =
         , cost    = χ [Rand]
         , cd      = 4
         , effects = [ (XAlly, tag 4)
-                    , (Self,  apply 4 [Reduce All 15]
+                    , (Self,  apply 4 [Reduce All Flat 15]
                             • trap 4 OnDeath . everyone . ifU "Sharingan" 
                               § apply' "Borrowed Sharingan" 0
-                                [Reduce All 5, Strengthen NonAffliction 5])
+                                [ Reduce All Flat 5
+                                , Strengthen NonAffliction Flat 5
+                                ])
                     ]
         }
       ]
@@ -453,7 +502,7 @@ flashbackCs =
         , classes = [Mental, Ranged]
         , cost    = χ [Rand, Rand]
         , cd      = 5
-        , effects = [(Enemy, apply 4 [Expose, Weaken All 5])]
+        , effects = [(Enemy, apply 4 [Expose, Weaken All Flat 5])]
         }
       ]
     , invuln "Hide" "Obito" [Mental]
@@ -474,7 +523,7 @@ flashbackCs =
       ]
     , [ newSkill
         { label   = "Kamui Banishment"
-        , desc    = "The masked man uses a rare space-time technique to warp an enemy to his pocket dimension, dealing 20 piercing damage and making them immune to effects from their allies for 1 turn. While active, the target can only target the masked man or themselves. Deals 20 additional damage and lasts an additional turn if the target is affected by [Kamui Chain Combo]."
+        , desc    = "The masked man uses a rare space-time technique to warp an enemy to his pocket dimension, dealing 20 piercing damage and making them immune to effects from their allies for 1 turn. While active, the target can only target the masked man or themselves. Deals 20 additional damage and lasts 1 additional turn if the target is affected by [Kamui Chain Combo]."
         , classes = [Chakra, Melee, Unreflectable]
         , cost    = χ [Gen]
         , cd      = 1

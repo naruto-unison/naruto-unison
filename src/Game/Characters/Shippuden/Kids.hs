@@ -47,7 +47,7 @@ kidCsS =
         , cost    = χ [Rand, Rand]
         , cd      = 3
         , effects = [(Self, cureAll • gain [ Nin, Tai] 
-                          • apply 1 [Reduce All 10])]
+                          • apply 1 [Reduce All Flat 10])]
         }
       ]
     , invuln "Shadow Clone Save" "Naruto" [Chakra]
@@ -154,7 +154,7 @@ kidCsS =
         , cd      = 4
         , channel = Action 4
         , start   = [(Self, vary "Man-Beast Clone" "Three-Headed Wolf")]
-        , effects = [(Self, apply 1 [Ignore Stun, Reduce All 15])]
+        , effects = [(Self, apply 1 [Ignore Stun, Reduce All Flat 15])]
         }
       , newSkill
         { label   = "Three-Headed Wolf"
@@ -165,7 +165,7 @@ kidCsS =
         , effects = [ (Self, cancelChannel "Man-Beast Clone" 
                            • vary' 3 "Man-Beast Clone" "Giant Rotating Fang"
                            • remove "Man-Beast Clone" 
-                           • apply 3 [Ignore Stun, Reduce All 30])
+                           • apply 3 [Ignore Stun, Reduce All Flat 30])
                     ]
         }
       , newSkill
@@ -194,7 +194,7 @@ kidCsS =
         , classes = [Physical, Melee]
         , cost    = χ [Blood, Tai]
         , cd      = 1
-        , effects = [(Enemy, apply 0 [Weaken All 10] 
+        , effects = [(Enemy, apply 0 [Weaken All Flat 10] 
                            • withI "Man-Beast Clone" 10
                             (withI "Three-Headed Wolf" 20 damage) 40)]
         }
@@ -292,7 +292,7 @@ kidCsS =
       ]
     , [ newSkill
         { label   = "Eight Trigrams Sixty-Four Palms"
-        , desc    = "For 4 turns, each time an enemy affected by [Pressure Point Strike] uses a harmful skill, Hinata's next [Pressure Point Strike] will last an additional turn on them."
+        , desc    = "For 4 turns, each time an enemy affected by [Pressure Point Strike] uses a harmful skill, Hinata's next [Pressure Point Strike] will last 1 additional turn on them."
         , classes = [Physical, Melee, Bypassing]
         , cost    = χ [Rand]
         , effects = [ (Self,    tag 4)
@@ -495,7 +495,7 @@ kidCsS =
         , classes = [Physical, Melee]
         , cost    = χ [Tai]
         , effects = [(Enemy, perDead 10 damage 15 
-                           • perDead 1 (applyDur [Weaken All 15]) 2)]
+                           • perDead 1 (applyDur [Weaken All Flat 15]) 2)]
         }
       ]
     , [ newSkill
@@ -506,7 +506,7 @@ kidCsS =
         , effects = [ (Enemy, withI "Leaf Great Whirlwind" 10
                              (perDead 10 damage) 20)
                     , (Self, withI "Leaf Great Whirlwind" 10 
-                             (applyX 1 $ Reduce All) 10)
+                             (applyX 1 $ Reduce All Flat) 10)
                     ]
         }
       ]
@@ -645,7 +645,7 @@ kidCsS =
     "Gaara's years of soul-searching have made him a powerful force for good, ready to assume the title of Kazekage. No longer concerned with destroying others, he devotes himself to protecting his friends and the Hidden Sand Village."
     [ [ newSkill
         { label   = "Partial Sand Coffin"
-        , desc    = "Gaara keeps an enemy away from his allies by encasing one of the target's limbs in sand, stunning their non-mental skills for 1 turn and dealing 20 piercing damage when the effect ends. If they were countered by [Concealed Sand Picture] last turn, all of their skills are stunned and the damage is inflicted immediately. If the target has been affected by this skill before, the stun lasts an additional turn."
+        , desc    = "Gaara keeps an enemy away from his allies by encasing one of the target's limbs in sand, stunning their non-mental skills for 1 turn and dealing 20 piercing damage when the effect ends. If they were countered by [Concealed Sand Picture] last turn, all of their skills are stunned and the damage is inflicted immediately. If the target has been affected by this skill before, the stun lasts 1 additional turn."
         , classes = [Physical, Ranged, Unremovable]
         , cost    = χ [Nin]
         , cd      = 1

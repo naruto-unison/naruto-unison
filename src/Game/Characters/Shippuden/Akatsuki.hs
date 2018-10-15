@@ -90,7 +90,7 @@ akatsukiCsS =
         , desc    = "Deidara hurls a clay bird at an enemy that explodes into shrapnel on impact, dealing 15 damage to the target and weakening their non-affliction damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C3: Megaton Sculpture][n][r]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
         , classes = [Chakra, Ranged, Nonstacking]
         , cost    = χ [Rand]
-        , effects = [(Enemy, damage 15 • apply 4 [ Weaken All 5])
+        , effects = [(Enemy, damage 15 • apply 4 [ Weaken All Flat 5])
                     , (Self,  vary "C1: Bird Bomb" "C3: Megaton Sculpture")
                     ]
         }
@@ -99,7 +99,7 @@ akatsukiCsS =
         , desc    = "Deidara drops a large explosive on the enemy team, dealing 20 damage to them and weakening their non-affliction damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C1: Bird Bomb]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
         , classes = [Chakra, Ranged, Nonstacking]
         , cost    = χ [Nin, Rand]
-        , effects = [(Enemies, damage 20 • apply 4 [ Weaken All 5])
+        , effects = [(Enemies, damage 20 • apply 4 [ Weaken All Flat 5])
                     , (Self,    vary "C1: Bird Bomb" "")
                     ]
         }
@@ -109,7 +109,7 @@ akatsukiCsS =
         , classes = [Chakra, Ranged, Bypassing, Nonstacking]
         , cost    = χ [Rand]
         , cd      = 1
-        , effects = [(Enemy, damage 30 • apply 4 [Weaken All 5])]
+        , effects = [(Enemy, damage 30 • apply 4 [Weaken All Flat 5])]
         }
       ]
     , [ newSkill
@@ -131,7 +131,7 @@ akatsukiCsS =
         , effects = [(Enemy, trap (-2) (OnAction NonMental)
                              § removeTrap "C2: Minefield"
                              ° damage 10
-                             ° apply 4 [Weaken All 5])]
+                             ° apply 4 [Weaken All Flat 5])]
         }
       ]
     , [ newSkill
@@ -139,7 +139,7 @@ akatsukiCsS =
         , desc    = "A cloud of microscopic bombs enter an enemy's bloodstream and repeatedly detonate, dealing 10 affliction damage to the target each turn for the rest of the game and weakening their non-affliction damage by 5. Once used, this skill becomes [C0: Ultimate Art][b][n][n]."
         , classes = [Bane, Chakra, Ranged, Uncounterable, Unremovable, Unreflectable]
         , cost    = χ [Blood, Nin]
-        , effects = [ (Enemy, apply 0 [Afflict 10, Weaken All 5]) 
+        , effects = [ (Enemy, apply 0 [Afflict 10, Weaken All Flat 5]) 
                     , (Self,  vary "C4: Karura" "C0: Ultimate Art")
                     ]
         }
@@ -217,7 +217,7 @@ akatsukiCsS =
       ]
     , [ newSkill
         { label   = "Prayer"
-        , desc    = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for 1 turn. Each time this skill is used, it costs an additional random chakra and its effect lasts an additional turn. Cannot be used while active."
+        , desc    = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for 1 turn. Each time this skill is used, it costs 1 additional random chakra and its effect lasts 1 additional turn. Cannot be used while active."
         , classes = [Mental, Single, Uncounterable, Unreflectable, Unremovable]
         , cost    = χ [Rand]
         , effects = [(Self, perI "jashin" 1 (applyDur [Endure]) 1 
@@ -280,7 +280,7 @@ akatsukiCsS =
         , cost    = χ [Blood, Rand]
         , cd      = 2
         , channel = Action 2
-        , effects = [(Enemy, damage 20 • apply 1 [Scale All 0.5])]
+        , effects = [(Enemy, damage 20 • apply 1 [Weaken All Percent 50])]
         }
       , newSkill
         { label   = "White Army"
@@ -329,7 +329,7 @@ akatsukiCsS =
         , classes = [Bane, Physical, Ranged]
         , cost    = χ [Rand]
         , effects = [ (Enemy, damage 10
-                            • apply (-1) [Stun NonMental, Bleed All 10])
+                            • apply (-1) [Stun NonMental, Bleed All Flat 10])
                     , (Self,  vary "Scorpion Tail Constriction" 
                                    "Scorpion Tail Strike")
                     ]
@@ -541,7 +541,7 @@ akatsukiCsS =
         , channel = Ongoing 2
         , start   = [(Self, vary "Summoning: Giant Centipede" "")] 
         , effects = [(Enemies, afflict 10 • apply 1 [ Exhaust All])
-                    , (Allies,  apply 1 [Reduce All 10])
+                    , (Allies,  apply 1 [Reduce All Flat 10])
                     ]
         }
       ]
@@ -885,7 +885,7 @@ akatsukiCsS =
         , effects = [(Self, vary' 1 "Summoning: Gedo Statue" "Control"
                           • vary' 1 "Phantom Dragon" "Phantom Dragon"
                           • perI "dragon" 1 (addStacks' 1 "Control") 0
-                          • perI "gedo" 5 (applyX 1 $ Reduce All) 10)]
+                          • perI "gedo" 5 (applyX 1 $ Reduce All Flat) 10)]
         , disrupt = [(Self, remove "Summoning: Gedo Statue" • remove "Control")]
         }
       , newSkill

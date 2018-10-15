@@ -19,7 +19,7 @@ versionCsS =
         , desc    = "Naruto's rage takes over. He loses 5 health down to a minimum of 1 and gains 10 points of damage reduction and 10 permanent destructible defense. He permanently ignores all healing. His other skills become usable, and will increase in strength as his transformation progresses through further stages. Once used, this skill becomes [Six-Tailed Transformation][b][r]."
         , classes = [Chakra, Unremovable]
         , effects = [(Self, sacrifice 1 5 • defend 0 10 • loadout 0 • setFace 0
-                          • apply 0 [Reduce All 10, Plague])]
+                          • apply 0 [Reduce All Flat 10, Plague])]
         }
       , newSkill
         { label   = "Six-Tailed Transformation"
@@ -28,7 +28,7 @@ versionCsS =
         , cost    = χ [Blood, Rand]
         , effects = [(Self, remove "Four-Tailed Transformation"
                           • sacrifice 1 10 • defend 0 20 • loadout 1 • setFace 0 
-                          • apply 0 [Reduce All 20, Plague, Seal, Enrage])]
+                          • apply 0 [Reduce All Flat 20, Plague, Seal, Enrage])]
         }
       , newSkill
         { label   = "Nine-Tailed Transformation"
@@ -37,7 +37,7 @@ versionCsS =
         , cost    = χ [Blood, Blood]
         , effects = [(Self, remove "Six-Tailed Transformation"
                           • sacrifice 1 15 • defend 0 30 • loadout 2 • setFace 0
-                          • apply 0 [Reduce All 30, Plague, Seal, Enrage])
+                          • apply 0 [Reduce All Flat 30, Plague, Seal, Enrage])
                     ]
         }
       , newSkill
@@ -46,7 +46,7 @@ versionCsS =
         , classes = [Bane, Chakra, Ranged, Bypassing]
         , cost    = χ [Nin]
         , cd      = 1
-        , effects = [(Enemies, afflict 20 • apply 1 [Weaken All 10])]
+        , effects = [(Enemies, afflict 20 • apply 1 [Weaken All Flat 10])]
         }
       ]
     , [ newSkill
@@ -83,7 +83,7 @@ versionCsS =
         , require = HasI 1 "Four-Tailed Transformation"
         , classes = [Melee, Bypassing]
         , cost    = χ [Blood]
-        , effects = [(Enemy, afflict 20 • apply 1 [Weaken All 5])]
+        , effects = [(Enemy, afflict 20 • apply 1 [Weaken All Flat 5])]
         }
       , newSkill
         { label   = "Clasp"
@@ -116,7 +116,7 @@ versionCsS =
         , classes = [Mental, Unremovable]
         , cost    = χ [Blood]
         , cd      = 3
-        , effects = [(Self, apply 3 [Reduce All 10, Enrage])]
+        , effects = [(Self, apply 3 [Reduce All Flat 10, Enrage])]
         }
       ]
     , [ newSkill
@@ -125,7 +125,7 @@ versionCsS =
         , classes = [Chakra, Melee, Bypassing]
         , cost    = χ [Nin]
         , effects = [ (Enemy,  withI "Sharingan" 10 (execute pierce) 20 
-                             • apply 1 [Weaken All 10])
+                             • apply 1 [Weaken All Flat 10])
                     , (REnemy, ifI "executed" § withI "Sharingan" 1 
                                (\i -> trapWith TrapTo [Invisible] 
                                      i OnReflectAll identity) 1)
@@ -134,7 +134,7 @@ versionCsS =
       ]
     , [ newSkill
         { label   = "Sharingan Genjutsu"
-        , desc    = "Sasuke traps an enemy in an illusion that makes them believe they got the upper hand. For 1 turn, any skill that the target uses on Sasuke or his allies is reflected back to them. Lasts an additional turn and costs two genjutsu chakra during [Sharingan]."
+        , desc    = "Sasuke traps an enemy in an illusion that makes them believe they got the upper hand. For 1 turn, any skill that the target uses on Sasuke or his allies is reflected back to them. Lasts 1 additional turn and costs two genjutsu chakra during [Sharingan]."
         , classes = [Mental, Ranged, Invisible]
         , cost    = χ [Gen]
         , cd      = 4
@@ -154,7 +154,7 @@ versionCsS =
         , classes = [Chakra, Single]
         , cost    = χ [Blood]
         , cd      = 4
-        , effects = [(Self, apply 3 [Reduce Affliction 15] 
+        , effects = [(Self, apply 3 [Reduce Affliction Flat 15] 
                           • vary' 3 "Chidori" "Blazing Arrow"
                           • vary' 3 "Amaterasu" "Yasaka Beads"
                           • setFace 3 )]
@@ -169,7 +169,7 @@ versionCsS =
         , effects = [ (Enemy, pierce 20 • apply 1 [Stun All])
                     , (Self,  trap (-1) (OnDamaged Physical) 
                               § remove "Chidori"
-                            • bomb (-1) [Reduce Physical 15]
+                            • bomb (-1) [Reduce Physical Flat 15]
                               [(Expire, hide 1 [] • reset "Chidori" "")] 
                       )
                     ]
@@ -513,7 +513,7 @@ versionCsS =
     "With the fate of the world at stake, Guy has opened all eight Gates and is holding nothing back. The effort will surely kill him, but while he lives, his strength outmatches even the legendary Madara Uchiha."
     [ [ newSkill
         { label   = "Evening Elephant"
-        , desc    = "Using a devastating sequence of punches, Guy deals 20 damage to an enemy. For 1 turn, they are immune to effects from allies and their nonmental skills are stunned. Guy loses 20 health down to a minimum of 1. Each time this skill is used, it permanently deals 20 additional damage and costs an additional random chakra."
+        , desc    = "Using a devastating sequence of punches, Guy deals 20 damage to an enemy. For 1 turn, they are immune to effects from allies and their nonmental skills are stunned. Guy loses 20 health down to a minimum of 1. Each time this skill is used, it permanently deals 20 additional damage and costs 1 additional random chakra."
         , classes = [Physical, Melee, Uncounterable, Unreflectable]
         , cost    = χ [Tai]
         , effects = [ (Enemy, perI "Evening Elephant" 20 damage 20
@@ -529,17 +529,18 @@ versionCsS =
         , classes = [Physical, Unremovable]
         , cost    = χ [Tai]
         , cd      = 2
-        , effects = [(Self, sacrifice 1 10 • apply 1 [Enrage, Scale All 2])]
+        , effects = [(Self, sacrifice 1 10 
+                          • apply 1 [Enrage, Strengthen All Percent 200])]
         }
       ]
     , [ newSkill
         { label   = "Night Guy"
-        , desc    = "As his blood evaporates into mist around him, Guy warps time and space to instantly attack an enemy, dealing 50 piercing damage. For 2 turns, the target is immune to effects from allies, their damage is weakened by 5, and Guy cannot be healed. Guy loses 30 health down to a minimum of 1. Each time this skill is used, it permanently deals 25 additional damage and costs an additional taijutsu chakra."
+        , desc    = "As his blood evaporates into mist around him, Guy warps time and space to instantly attack an enemy, dealing 50 piercing damage. For 2 turns, the target is immune to effects from allies, their damage is weakened by 5, and Guy cannot be healed. Guy loses 30 health down to a minimum of 1. Each time this skill is used, it permanently deals 25 additional damage and costs 1 additional taijutsu chakra."
         , classes = [Physical, Melee, Bypassing, Uncounterable, Unreflectable]
         , cost    = χ [Tai, Tai]
         , cd      = 2
         , effects = [ (Enemy, perI "Night Guy" 25 pierce 50 
-                            • apply 2 [Seal, Weaken All 5])
+                            • apply 2 [Seal, Weaken All Flat 5])
                     , (Self,  sacrifice 1 30 • addStack • apply 2 [Plague])
                     ]
         , changes = costPer "Night Guy" [Tai]   
@@ -557,7 +558,7 @@ versionCsS =
         , cost    = χ [Rand]
         , charges = 1
         , channel = Ongoing 3
-        , start   = [(Self, apply 0 [Reduce Affliction 5] 
+        , start   = [(Self, apply 0 [Reduce Affliction Flat 5] 
                           • delay (-3) § vary' 0 "Skeletal Susano'o" 
                                                  "Armored Susano'o"
                           • hide' "susan" 0 [])]
@@ -569,7 +570,8 @@ versionCsS =
         , classes = [Chakra, Unremovable, Nonstacking]
         , cost    = χ [Blood, Blood]
         , cd      = 4
-        , effects = [(Self, apply' "Armored Susano'o " 0 [Reduce Affliction 10] 
+        , effects = [(Self, apply' "Armored Susano'o " 0 
+                            [Reduce Affliction Flat 10] 
                           • defend 2 40 • onBreak'
                           • apply 2 
                             [Ignore Stun, Invulnerable Affliction, Unexhaust])]

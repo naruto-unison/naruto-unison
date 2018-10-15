@@ -131,6 +131,7 @@ hiddenClasses =
     , "Necromancy" 
 
     , "All"
+    , "Harmful"
     , "Affliction"
     , "NonAffliction" 
     , "NonMental"

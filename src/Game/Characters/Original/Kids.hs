@@ -52,12 +52,12 @@ kidCs =
                             § ifI "Shadow Clone" § damage 5
                             ° self (removeStack "Shadow Clone")
                             ° ifnotI "Shadow Clone" (removeTrap "Shadow Clones")
-                          • apply' "Shadow Clone" 0 [Reduce All 5]
-                          • apply' "Shadow Clone" 0 [Reduce All 5]
-                          • apply' "Shadow Clone" 0 [Reduce All 5]
-                          • apply' "Shadow Clone" 0 [Reduce All 5]
-                          • apply' "Shadow Clone" 0 [Reduce All 5]
-                          • apply' "Shadow Clone" 0 [Reduce All 5])]
+                          • apply' "Shadow Clone" 0 [Reduce All Flat 5]
+                          • apply' "Shadow Clone" 0 [Reduce All Flat 5]
+                          • apply' "Shadow Clone" 0 [Reduce All Flat 5]
+                          • apply' "Shadow Clone" 0 [Reduce All Flat 5]
+                          • apply' "Shadow Clone" 0 [Reduce All Flat 5]
+                          • apply' "Shadow Clone" 0 [Reduce All Flat 5])]
         }
       ]
     , invuln' "Sexy Technique" 
@@ -91,7 +91,7 @@ kidCs =
         , classes = [Mental]
         , cost    = χ [Rand]
         , cd      = 4
-        , effects = [(Self, apply 4 [Enrage, Reduce All 10])]
+        , effects = [(Self, apply 4 [Enrage, Reduce All Flat 10])]
         }
       ]
     , invuln "Substitution Technique" "Sakura" [Chakra]
@@ -122,7 +122,7 @@ kidCs =
         , classes = [Mental, Ranged, Soulbound, Unremovable]
         , cost    = χ [Rand]
         , cd      = 4
-        , effects = [ (Self,  apply 4 [Reduce All 10])
+        , effects = [ (Self,  apply 4 [Reduce All Flat 10])
                     , (Enemy, apply 4 [Expose])
                     ]
         }
@@ -149,7 +149,7 @@ kidCs =
         , cd      = 3 
         , channel = Action 3
         , effects = [ (Enemies, damage 15)
-                    , (Self,    apply 1 [Reduce All 15])
+                    , (Self,    apply 1 [Reduce All Flat 15])
                     ]
         }
       ]
@@ -180,7 +180,7 @@ kidCs =
         , classes = [Bane, Physical, Ranged]
         , cost    = χ [Rand]
         , cd      = 1
-        , effects = [(Enemy, apply 4 [Weaken All 5])]
+        , effects = [(Enemy, apply 4 [Weaken All Flat 5])]
         }
       ]
     , [ newSkill
@@ -223,7 +223,7 @@ kidCs =
         , classes = [Mental]
         , cost    = χ [Rand]
         , cd      = 4
-        , effects = [(Self, apply 4 [Reduce All 15])]
+        , effects = [(Self, apply 4 [Reduce All Flat 15])]
         }
       ]
     , invuln "Block" "Hinata" [Physical]
@@ -268,7 +268,7 @@ kidCs =
         { label   = "Spinach Pill"
         , desc    = "Chōji eats the mildest Akimichi pill, losing 5 health down to a minimum of 1 and gaining the strength he needs to protect his friends. While alive, he provides 5 points of damage reduction to his allies."
         , classes = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
-        , effects = [ (XAllies, apply' "Protected" 0 [Reduce All 5])
+        , effects = [ (XAllies, apply' "Protected" 0 [Reduce All Flat 5])
                     , (Self,    sacrifice 1 5 • loadout 1)
                     ]
         }
@@ -278,7 +278,7 @@ kidCs =
         , classes = [Physical, Melee]
         , cost    = χ [Tai]
         , cd      = 1
-        , effects = [(Enemy, damage 20 • apply 1 [Weaken All 20])]
+        , effects = [(Enemy, damage 20 • apply 1 [Weaken All Flat 20])]
         }
       , newSkill
         { label    = "Partial Expansion"
@@ -301,7 +301,7 @@ kidCs =
         , desc    = "Chōji eats the first two Akimichi pills in one go, losing 15 health down to a minimum of 1 and unlocking huge reserves of chakra in addition to immense physical strength. While alive, he provides 10 points of damage reduction to his allies."
         , classes = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , cost    = χ [Rand]
-        , effects = [ (XAllies, apply' "Protected" 0 [Reduce All 10])
+        , effects = [ (XAllies, apply' "Protected" 0 [Reduce All Flat 10])
                     , (Self,    sacrifice 1 15 • loadout 2)
                     ]
         }
@@ -313,7 +313,7 @@ kidCs =
         , cd      = 1
         , channel = Action 2
         , effects = [ (Enemy, damage 10 • pierce 5)
-                    , (Self,  apply 1 [Ignore Stun, Reduce All 15])
+                    , (Self,  apply 1 [Ignore Stun, Reduce All Flat 15])
                     ]
         }
       , newSkill
@@ -340,7 +340,7 @@ kidCs =
         , desc    = "Chōji swallows all three Akimichi pills, losing 10 health down to a minimum of 1 and gaining so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns."
         , classes = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , cost    = χ [Rand, Rand]
-        , effects = [ (XAllies, apply' "Protected" 0 [Reduce All 15])
+        , effects = [ (XAllies, apply' "Protected" 0 [Reduce All Flat 15])
                     , (Self, sacrifice 1 10 • apply 0 [Ignore Stun, Afflict 15]
                            • loadout 3 • setFace 0)
                     ]
@@ -349,7 +349,7 @@ kidCs =
         { label   = "Curry Pill"
         , desc    = "Chōji eats the second Akimichi pill, losing 5 health down to a minimum of 1 and unlocking huge reserves of chakra. While alive, he provides 10 points of damage reduction to his allies."
         , classes = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
-        , effects = [ (XAllies, apply' "Protected" 0 [Reduce All 10])
+        , effects = [ (XAllies, apply' "Protected" 0 [Reduce All Flat 10])
                     , (Self, sacrifice 1 5 • loadout 2)
                     ]
         }
@@ -357,7 +357,7 @@ kidCs =
         { label   = "Chili Pill"
         , desc    = "Chōji eats the third Akimichi pill and gains so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns."
         , classes = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
-        , effects = [ (XAllies, apply' "Protected" 0 [Reduce All 15])
+        , effects = [ (XAllies, apply' "Protected" 0 [Reduce All Flat 15])
                     , (Self, apply 0 [Ignore Stun, Afflict 15]
                            • loadout 3 • vary "Block" "Block" • setFace 0)
                     ]
@@ -433,7 +433,7 @@ kidCs =
         , cost    = χ [Tai]
         , channel = Action 3
         , effects = [ (Enemy, withI "Fifth Gate Opening" 15 damage 10 • tag 1)
-                    , (Self,  apply 1 [Reduce All 1 ])
+                    , (Self,  apply 1 [Reduce All Flat 1 ])
                     ]
         }
       ]
@@ -489,10 +489,10 @@ kidCs =
         , effects = [ (Enemies, perI "Unsealing Technique" 10 damage 5
                               • ifnotI "Rising Twin Dragons" 
                                 § perI "Unsealing Technique" 10
-                                 (applyX 1 (Weaken NonMental)) 5
+                                 (applyX 1 $ Weaken NonMental Flat) 5
                               • ifI "Rising Twin Dragons" 
                                 § perI "Unsealing Technique" 10
-                                 (applyX 2 (Weaken NonMental)) 5)
+                                 (applyX 2 $ Weaken NonMental Flat) 5)
                     , (Self,    remove "Unsealing Technique"
                               • remove "Rising Twin Dragons")
                     ]
@@ -500,7 +500,7 @@ kidCs =
       ]
     , [ newSkill
         { label   = "Rising Twin Dragons"
-        , desc    = "Summoning scrolls conceal Tenten in a cloud of smoke, rendering her invulnerable to physical and chakra skills for 1 turn. The scrolls aid her the next time she uses one of her other skills. If she uses [Unsealing Technique], it adds an additional stack of [Unsealing Technique]. If she uses [Rising Dragon Control], the duration of its effect is increased by 1 turn."
+        , desc    = "Summoning scrolls conceal Tenten in a cloud of smoke, rendering her invulnerable to physical and chakra skills for 1 turn. The scrolls aid her the next time she uses one of her other skills. If she uses [Unsealing Technique], it adds 1 additional stack of [Unsealing Technique]. If she uses [Rising Dragon Control], the duration of its effect is increased by 1 turn."
         , classes = [Physical]
         , cost    = χ [Rand]
         , cd      = 1
@@ -521,7 +521,7 @@ kidCs =
         , cost    = χ [Tai, Rand]
         , cd      = 1
         , channel = Action 2
-        , effects = [(Enemy, damage 25 • apply 1 [Weaken All 5])]
+        , effects = [(Enemy, damage 25 • apply 1 [Weaken All Flat 5])]
         }
       ]
     , [ newSkill
@@ -649,7 +649,7 @@ kidCs =
         , cost    = χ [Nin, Nin]
         , cd      = 5
         , effects = [ (Allies,  apply 1 [Invulnerable All])
-                    , (Enemies, apply 2 [Weaken All 15])
+                    , (Enemies, apply 2 [Weaken All Flat 15])
                     ]
         }
       ]

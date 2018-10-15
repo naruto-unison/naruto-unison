@@ -814,7 +814,7 @@ perI' l amount denom f base skill src c game t
     total = base + amount * numStacks l src (gameNinja src game) `quot` denom
 
 -- | Target 'numStacks'
-perU :: Text -> Int -> (Int -> Transform) -> Int -> Transform
+perU ::  Text -> Int -> (Int -> Transform) -> Int -> Transform
 perU l amount f base skill src c game t
   | total == 0 = game
   | otherwise  = f total skill src c game t
@@ -1132,20 +1132,28 @@ attack atk dmg Skill{..} src c game t
     -- Damage modified by user's Statuses
     dmg'cSt   
       | direct    = toRational dmg
-      | otherwise = (getScale classes' n *) . toRational $
-                    dmg + getLink src nt + getStrengthen classes' n 
-    reduce   = atk == AttackDamage && not (is Pierce n) && not (is Expose nt) ?
-               (— toRational (getReduce classes' nt)) .
-               (* getWard classes' nt)
-    weaken   = atk /= AttackAfflict && not direct ? 
-               (— toRational (getWeaken classes' n))
+      | otherwise = (* getStrengthen classes' n Percent) .
+                    (+ getStrengthen classes' n Flat) .
+                    toRational $ dmg + getLink src nt
+    reduceAfflic = getReduce [Affliction] nt
+    reduce
+      | atk /= AttackDamage || is Pierce n || is Expose nt = const 0
+      | otherwise = getReduce classes' nt
+    weaken
+      | atk == AttackAfflict || direct = const 0
+      | otherwise = getWeaken classes' n
+    bleed = getBleed classes' nt
     -- Damage modified by target's Statuses
     dmg'tSt   = truncate .
-                (— toRational (getReduce [Affliction] nt)) . 
-                reduce .
-                (* getWard [Affliction] nt) .
-                weaken $
-                dmg'cSt + toRational (getBleed classes' nt)
+                (— reduceAfflic Flat) .
+                (— reduce Flat) .
+                (— weaken Flat) .
+                (+ bleed Flat) .
+                (* reduceAfflic Percent) .
+                (* reduce Percent) .
+                (* weaken Percent) .
+                (* bleed Percent) .
+                toRational $ dmg'cSt
     damaged = case atk of
         AttackAfflict -> dmg'tSt > 0
         _             -> dmg'Def > 0
@@ -1378,7 +1386,10 @@ applyFull clas bounced statusBombs' l unthrottled fs statusSkill@Skill{copying}
   where 
     dur      
       | Direct `elem` clas = unthrottled
-      | otherwise          = unthrottled - getThrottle fs n * signum unthrottled
+      | unthrottled >= 0   = min 0 $
+                             unthrottled - getThrottle fs n
+      | otherwise          = max 0 $
+                             unthrottled + getThrottle fs n
     statusCount   = 1
     statusRoot    = copyRoot statusSkill statusSrc
     statusDur     = copyDur copying . incr $ sync dur
@@ -1442,7 +1453,7 @@ applyDur' :: Text -> [Effect] -> Int -> Transform
 applyDur' l = flip (apply' l)
 
 -- 'apply' with a scaled amount.
-applyX :: Int -> (Int -> Effect) -> Int -> Transform
+applyX :: ∀ a. Num a => Int -> (a -> Effect) -> a -> Transform
 applyX dur constructor i = apply dur [constructor i]
 
 addStacks' :: Int -> Text -> Int -> Transform
@@ -1516,8 +1527,17 @@ trapFull trapType clas dur trapTrigger f skill@Skill{..} trapSrc' _ game t
   | p `elem` nTraps nt = game
   | otherwise     = setNinja t nt' game
   where 
-    trapDur      = copyDur copying . incr $ sync dur
+    throttled = case trapTrigger of
+        OnCounter c  -> [Counter c]
+        OnCounterAll -> [CounterAll All]
+        OnReflectAll -> [ReflectAll]
+        _            -> []
+    throttle
+      | dur >= 0  = dur - getThrottle throttled n
+      | otherwise = dur + getThrottle throttled n
+    trapDur      = copyDur copying . incr $ sync throttle
     trapL        = label
+    n            = gameNinja trapSrc' game
     nt           = gameNinja t game
     trapSrc      = copyRoot skill trapSrc'
     trapClasses  = nub $ clas ++ (invis <$> classes)

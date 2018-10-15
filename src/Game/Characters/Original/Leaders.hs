@@ -40,7 +40,7 @@ leaderCs =
         , classes = [Ranged, Summon, Unreflectable, Unremovable]
         , cost    = χ [Blood, Gen, Tai]
         , channel = Ongoing 0
-        , start   = [ (Enemies, afflict 25 • apply 0 [Bleed Affliction 5])
+        , start   = [ (Enemies, afflict 25 • apply 0 [Bleed Affliction Flat 5])
                     , (Self, vary "Major Summoning: Gamabunta" "Toad Oil Bomb")
                     ]
         }
@@ -143,14 +143,14 @@ leaderCs =
     ] []
   , Character
     "Hiruzen Sarutobi"
-    "Called the God of Shinobi, Hiruzen is the third Hokage. During his prime, he was considered the strongest ninja in history. His trump card ability brings certain doom to both Hiruzen and his enemy."
+    "Called the Supreme Shinobi, Hiruzen is the third Hokage. During his prime, he was considered the strongest ninja in history. His trump card ability brings certain doom to both Hiruzen and his enemy."
     [ [ newSkill
         { label   = "Dragon Flame Bomb"
         , desc    = "Hiruzen engulfs an enemy in flame, dealing 30 affliction damage and causing them to receive 10 additional damage from affliction skills for 1 turn."
         , classes = [Bane, Ranged]
         , cost    = χ [Nin, Rand]
         , effects = [ (Enemy, afflict 30
-                            • apply 1 [Bleed Affliction 10])
+                            • apply 1 [Bleed Affliction Flat 10])
                     ]
         }
       ]
@@ -171,7 +171,7 @@ leaderCs =
         , cost    = χ [Gen, Nin, Tai]
         , channel = Ongoing 0
         , start   = [ (Allies, apply 1 [Invulnerable All, Endure]
-                             • apply 0 [Reduce All 5])
+                             • apply 0 [Reduce All Flat 5])
                     , (Self,   vary "Major Summoning: Enma" "Adamantine Prison")
                     ]
         }

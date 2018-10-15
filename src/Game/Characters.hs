@@ -54,7 +54,12 @@ doSkills (x:|xs) = doSkill x :| (doSkill . vari <$> xs)
 doSkill :: Skill -> Skill
 doSkill skill@Skill{..} = skill { classes = go classes }
   where
-    go = nub . (All :) . (Mental `notElem` classes ? (NonMental :))
+    go   = nub . 
+           (All :) . 
+           (Mental `notElem` classes ? (NonMental :)) .
+           (harm ? (Harmful :))
+    harm = [Enemy, Enemies, REnemy, XEnemies] `intersects` ts
+    ts   = fst <$> (start ++ effects ++ disrupt)
     --Game{..}  = mockSkill skill
 
 reanimatedBy :: Character -> [Character]

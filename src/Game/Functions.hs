@@ -18,9 +18,8 @@ module Game.Functions
     , filterEffects
     -- ** Reduction of all 'Effect's on a 'Ninja'
     , getBoost, getBleed, getBless, getBuild, getImmune, getIgnore
-    , getInvincible, getLink, getNet, getReduce, getScale, getShare, getSnare
-    , getStrengthen, getStun, getTaunting, getThreshold, getThrottle, getWard
-    , getWeaken
+    , getInvincible, getLink, getNet, getReduce, getShare, getSnare
+    , getStrengthen, getStun, getTaunting, getThreshold, getThrottle, getWeaken
     -- * 'Ninja'
     , alter, getCds
     -- ** Life and death
@@ -145,10 +144,10 @@ filterEffects :: ∀ f.
               => Ninja -> f Effect -> f Effect
 filterEffects n = map adjustEffect . filter keepEffects
   where 
-    adjustEffect (Reduce cla x) = Reduce cla (x - getUnreduce n)
-    adjustEffect f              = f
-    keepEffects Invulnerable{}        = not $ is Expose n
-    keepEffects _               = True
+    adjustEffect (Reduce cla Flat x) = Reduce cla Flat $ x - getUnreduce n
+    adjustEffect f                   = f
+    keepEffects Invulnerable{} = not $ is Expose n
+    keepEffects _              = True
 
 -- ** REDUCING EFFECTS
 
@@ -165,16 +164,32 @@ getShare n@Ninja{..} = [ statusC | Status{..} <- nStats n
 cEfs :: Slot -> Ninja -> [Effect]
 cEfs c n = [ ef | Status{..} <- nStats n, statusC == c, ef <- statusEfs ]
 
+amount :: [(Amount, Int)] -> Amount -> Rational
+amount xs Percent = product . (1 :) . map ((/ 100) . toRational . snd) $
+                    filter ((== Percent) . fst) xs
+amount xs Flat    = toRational . sum . map snd $ 
+                    filter ((== Flat) . fst) xs
+
 -- LIST COMPREHENSIONS, MOTHERFUCKERS
 -- | 'Bleed' sum.
-getBleed :: [Class] -> Ninja -> Int
-getBleed clas n = sum [ x | Bleed cla x <- nEfs n, cla `elem` clas ]
+getBleed :: [Class] -> Ninja -> Amount -> Rational
+getBleed clas n = 
+    amount [ (amt, x) | Bleed cla amt x <- nEfs n , cla `elem` clas ]
 -- | 'Bless' sum.
 getBless :: Ninja -> Int
 getBless n = sum [ x | Bless x <- nEfs n ]
+-- | 'Boost' sum.
+getBoost :: Slot -> Ninja -> Int
+getBoost c n@Ninja{..}
+  | c == nId   = 1
+  | otherwise = product $ 1 : [ x | Boost x <- cEfs c n ]
 -- | 'Build' sum.
 getBuild :: Ninja -> Int
 getBuild n = sum [ x | Build x <- nEfs n ]
+-- | 'Exhaust' sum.
+getExhaust :: [Class] -> Ninja -> Chakras
+getExhaust classes n = 
+    0{ rand = length [ x | Exhaust x <- nEfs n, x `elem` classes ] }
 -- | 'Ignore's.
 getIgnore :: Ninja -> [Effect]
 getIgnore n = [ f cla | cla        <- enums
@@ -190,12 +205,32 @@ getInvincible n = [ x | Invincible x <- nEfs n ]
 -- | 'Link' sum.
 getLink :: Slot -> Ninja -> Int
 getLink c n = sum [ x | Link x <- cEfs c n ]
+-- | 'Reduce' sum.
+getReduce :: [Class] -> Ninja -> Amount -> Rational
+getReduce [Affliction] n = 
+    amount [ (amt, x) | Reduce Affliction amt x <- nEfs n ]
+getReduce clas n = 
+    amount [ (amt, x) | Reduce cla amt x <- nEfs n
+                      , cla `elem` clas 
+                      , cla /= Affliction
+                      ]
 -- | 'Snare' sum.
 getSnare :: Ninja -> Int
 getSnare n = sum [ x | Snare x <- nEfs n ]
+-- | 'Strengthen' sum.
+getStrengthen :: [Class] -> Ninja -> Amount -> Rational
+getStrengthen clas n = 
+    amount [ (amt, x) | Strengthen cla amt x <- nEfs n, cla `elem` clas ]
 -- | 'Stun's.
 getStun :: Ninja -> [Class]
 getStun n = [ x | Stun x <- nEfs n ]
+-- | Duration of most recent 'Taunting'.
+getTaunting :: Ninja -> Maybe (Int, Status)
+getTaunting n = listToMaybe 
+    [ (a, status) | status@Status{..} <- nStats n, Taunting a <- statusEfs ]
+-- | 'Threshold' max.
+getThreshold :: Ninja -> Int
+getThreshold n = maximumEx $ 0 :| [x | Threshold x <- nEfs n ]
 -- | 'Throttle' sum.
 getThrottle :: [Effect] -> Ninja -> Int
 getThrottle efs n = sum [ x | Throttle f x <- nEfs n, throttled f ]
@@ -204,52 +239,11 @@ getThrottle efs n = sum [ x | Throttle f x <- nEfs n, throttled f ]
 -- | 'Unreduce' sum.
 getUnreduce :: Ninja -> Int
 getUnreduce n = sum [ x | Unreduce x <- nEfs n ]
--- | 'Strengthen' sum.
-getStrengthen :: [Class] -> Ninja -> Int
-getStrengthen clas n = sum [ x | Strengthen cla x <- nEfs n, cla `elem` clas ]
--- | 'Threshold' max.
-getThreshold :: Ninja -> Int
-getThreshold n = maximumEx $ 0 :| [x | Threshold x <- nEfs n ]
 -- | 'Weaken' sum.
-getWeaken :: [Class] -> Ninja -> Int
-getWeaken clas n = sum [ x | Weaken cla x <- nEfs n, cla `elem` clas ]
+getWeaken :: [Class] -> Ninja -> Amount -> Rational
+getWeaken clas n = 
+    amount [ (amt, x) | Weaken cla amt x <- nEfs n, cla `elem` clas ]
 
--- | 'Boost' sum.
-getBoost :: Slot -> Ninja -> Int
-getBoost c n@Ninja{..}
-  | c == nId   = 1
-  | otherwise = product $ 1 : [ x | Boost x <- cEfs c n ]
-
--- | 'Exhaust' sum.
-getExhaust :: [Class] -> Ninja -> Chakras
-getExhaust classes n = 0{ rand = length xs }
-  where 
-    xs = [ x | Exhaust x <- nEfs n, x `elem` classes ]
-
--- | 'Reduce' sum.
-getReduce :: [Class] -> Ninja -> Int
-getReduce [Affliction] n = sum [ x | Reduce Affliction x <- nEfs n ]
-getReduce clas n = sum [ x | Reduce cla x <- nEfs n, cla `elem` clas ]
-
-prod :: [Rational] -> Rational
-prod = product . (1 :)
-
--- | 'Scale' product.
-getScale :: [Class] -> Ninja -> Rational
-getScale clas n = prod [ x | Scale cla x <- nEfs n
-                           , cla `elem` clas
-                           , x >= 1 || Affliction `notElem` clas 
-                           ]
-
--- | 'Ward' product.
-getWard :: [Class] -> Ninja -> Rational
-getWard [Affliction] n = prod [ 1 - x | Ward Affliction x <- nEfs n ]
-getWard clas         n = prod [ 1 - x | Ward cla x <- nEfs n, cla `elem` clas ]
-
--- | Duration of most recent 'Taunting'.
-getTaunting :: Ninja -> Maybe (Int, Status)
-getTaunting n = listToMaybe 
-    [ (a, status) | status@Status{..} <- nStats n, Taunting a <- statusEfs ]
 
 -- | 'Afflict' sum minus 'Heal' sum.
 getNet :: Player -> Game -> Ninja -> Int
@@ -262,7 +256,6 @@ getAfflict player game n@Ninja{..} = sum
                                   , not $ [All, Affliction] 
                                           `intersects` getInvincible n
                                   ]
-
 -- | 'Heal' sum.
 getHeal :: Player -> Game -> Ninja -> Int
 getHeal player game n@Ninja{..}
@@ -271,19 +264,25 @@ getHeal player game n@Ninja{..}
 
 afflict1 :: Player -> Game -> Slot -> Status -> Int
 afflict1 player game t Status{..}
-  | summed /= 0 && alliedP player statusSrc = summed + ext
+  | summed /= 0 && alliedP player statusSrc = truncate $ scale * (summed + ext)
   | otherwise                             = 0
   where 
     nt     = gameNinja t game
     n      = gameNinja statusSrc game
-    summed = sum [afflict | Afflict afflict <- statusEfs]
+    summed = toRational $ sum [afflict | Afflict afflict <- statusEfs]
     ext 
       | t == statusSrc         = 0
-      | not $ isAlive n        = getBleed [Affliction, All] nt
+      | not $ isAlive n        = getBleed [Affliction, All] nt Flat
       | is (Stun Affliction) n = 0
-      | otherwise              = getStrengthen [Affliction, All] n
-                                 + getBleed      [Affliction, All] nt
-                                 + getLink       statusSrc         nt
+      | otherwise              = toRational (getLink statusSrc nt)
+                               + getStrengthen [Affliction, All] n  Flat
+                               + getBleed      [Affliction, All] nt Flat
+    scale 
+      | t == statusSrc         = 0
+      | not $ isAlive n        = getBleed [Affliction, All] nt Percent
+      | is (Stun Affliction) n = 0
+      | otherwise              = getStrengthen [Affliction, All] n  Percent
+                               * getBleed      [Affliction, All] nt Percent
 
 heal1 :: Player -> Game -> Ninja -> Status -> Int
 heal1 player game n Status{..}
@@ -709,12 +708,12 @@ classTrs True  tr classes n = asum $ fmap classTrigger classes
       classTrigger cla = getTraps True (tr cla) n
    
 getPerTraps :: Bool -> Trigger -> Int -> Ninja -> Seq (Game -> Game)
-getPerTraps False _  _      _         = mempty
-getPerTraps True  tr amount Ninja{..} = traps ++ hooks
+getPerTraps False _  _      _      = mempty
+getPerTraps True  tr amt Ninja{..} = traps ++ hooks
   where 
     traps = [ trapEf trapTrack nId | Trap{..} <- nTraps, trapTrigger == tr ]
     hooks = Seq.fromList 
-            [ fN nId $ f amount | (p, f) <- characterHooks nCharacter, tr == p ]
+            [ fN nId $ f amt | (p, f) <- characterHooks nCharacter, tr == p ]
 
 getTrackTraps :: Bool -> Trigger -> Ninja -> Seq (Game -> Game)
 getTrackTraps False _ _ = mempty

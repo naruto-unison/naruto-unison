@@ -20,7 +20,7 @@ organizationCs =
         , cost    = χ [Gen]
         , channel = Ongoing 4
         , start   = [(Self, enemyTeam § apply (-4) []
-                          • alliedTeam § apply (-4) [Reduce All 5])]
+                          • alliedTeam § apply (-4) [Reduce All Flat 5])]
         , effects = [(Enemies, damage 5)]
         }
       ]
@@ -54,7 +54,7 @@ organizationCs =
         , desc    = "Provides 10 points of permanent damage reduction to Ibiki. Each time a damaging skill is used on Ibiki, he will gain a stack of [Payback]. Once used, this skill becomes [Payback][r]."
         , classes = [Mental, Melee]
         , cost    = χ [Rand]
-        , effects = [ (Self, apply 0 [Reduce All 10] 
+        , effects = [ (Self, apply 0 [Reduce All Flat 10] 
                            • vary "Biding His Time" "Payback"
                            • trap 0 (OnDamaged All) § addStacks "Payback" 1) ]
         }
@@ -232,7 +232,7 @@ organizationCs =
         , classes = [Chakra, Ranged]
         , cost    = χ [Gen]
         , cd      = 3
-        , effects = [ (Self,    apply 2 [ Reduce All 5])
+        , effects = [ (Self,    apply 2 [ Reduce All Flat 5])
                     , (Enemies, apply 2 [Exhaust Physical, Exhaust Mental])
                     ]
         }
@@ -398,7 +398,7 @@ organizationCs =
         , cd      = 4
         , channel = Ongoing 5
         , effects = [(Enemies, damage 10 • apply 1 [ Snare 1]) 
-                    , (Self,    apply 1 [Reduce All 10])
+                    , (Self,    apply 1 [Reduce All Flat 10])
                     ]
         }
       ]
@@ -424,7 +424,7 @@ organizationCs =
         , cd      = 1
         , channel = Ongoing 2
         , effects = [ (Enemies, damage 15) 
-                    , (Self,    apply 1 [Reduce All 10])
+                    , (Self,    apply 1 [Reduce All Flat 10])
                     ]
         }
       ]
@@ -468,7 +468,7 @@ organizationCs =
         , effects = [ (Enemy, trap' 0 OnDeath . self § remove "Demon Parasite"
                             • bomb 0 [Afflict 20]
                               [(Done, self § remove "Demon Parasite")]
-                            • self § bomb 0 [Reduce All 15]
+                            • self § bomb 0 [Reduce All Flat 15]
                               [(Done, everyone § remove "Demon Parasite")]) ]
         }
       ]
@@ -518,7 +518,7 @@ organizationCs =
         , classes = [Physical, Ranged, Unremovable]
         , cost    = χ [Blood, Rand, Rand]
         , cd      = 2
-        , effects = [(Enemies, damage 30 • apply 1 [ Weaken NonMental 20])
+        , effects = [(Enemies, damage 30 • apply 1 [ Weaken NonMental Flat 20])
                     , (Self,    apply (-2) [Afflict 15])
                     ]
         }

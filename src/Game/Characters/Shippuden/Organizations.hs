@@ -46,7 +46,7 @@ organizationCsS =
         , effects = [ (Enemies, trap 3 OnChakra . self § gain [Rand])
                     , (Allies, trap 3 OnStunned § apply 1 [Invulnerable All] 
                              • trap 3 (OnDamaged NonAffliction) . self 
-                               § apply 1 [Strengthen All 10])
+                               § apply 1 [Strengthen All Flat 10])
                     , (Self,   vary' 3 "Super Beast Scroll: Snake" 
                                        "Super Beast Scroll: Bird")
                     ]
@@ -83,7 +83,7 @@ organizationCsS =
         ]
       , [ newSkill
           { label   = "Mind Transfer Puppet Curse"
-          , desc    = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy that uses a new harmful physical or chakra skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Effects from Fū's usage of their skills are canceled when Fū's skills revert."
+          , desc    = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a new harmful physical or chakra skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Effects from Fū's usage of their skills are canceled when Fū's skills revert."
           , classes = [Mental, InvisibleTraps, Unreflectable]
           , cost    = χ [Gen]
           , cd      = 3
@@ -115,9 +115,9 @@ organizationCsS =
       ] []
   , Character
     "Torune Aburame"
-    "TODO"
+    "An operative of the Hidden Leaf Village's elite Root division, Torune was born with rare venom-resistant antibodies that allow him to carry the Aburame clan's most dangerous species of beetle. The venom beetles cover his skin like armor, protecting him and infesting anyone who dares to touch him."
     [ [ newSkill
-        { label   = "Armor of Venom"
+        { label   = "Nano-Sized Venom Beetles"
         , desc    = "Torune applies a Venom Beetle to an enemy, dealing 5 affliction damage for 5 turns, and gains 15 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 1 random chakra but does not provide any destructible defense."
         , classes = [Bane, Melee]
         , cost    = χ [Blood]
@@ -126,7 +126,7 @@ organizationCsS =
                     , (Self,  defend 0 15
                            •  onBreak § addStacks "Venom Beetle" 1)
                     ]
-        , changes = changeWith "Armor of Venom" $ 
+        , changes = changeWith "Nano-Sized Venom Beetles" $ 
                     setCost [Rand] •• targetOnly [Enemy]
         }
       ]

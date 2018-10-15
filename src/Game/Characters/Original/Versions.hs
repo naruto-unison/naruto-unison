@@ -45,7 +45,7 @@ versionCs =
         , cost    = χ [Blood, Rand]
         , cd      = 5
         , channel = Action 5
-        , effects = [(Self, heal 15 • apply 1 [Reduce All 10])]
+        , effects = [(Self, heal 15 • apply 1 [Reduce All Flat 10])]
         }
       ]
     , invuln "Dodge" "Naruto" [Physical]
@@ -59,7 +59,7 @@ versionCs =
         , classes = [Chakra, Melee]
         , cost    = χ [Nin, Nin]
         , cd      = 1
-        , effects = [(Enemy, pierce 45 • apply 2 [Weaken All 20])]
+        , effects = [(Enemy, pierce 45 • apply 2 [Weaken All Flat 20])]
         , changes = changeWith "Curse Mark" $ setCost [Rand]
         }
       ]
@@ -189,7 +189,7 @@ versionCs =
         , classes = [Mental, Unremovable]
         , cost    = χ [Blood]
         , cd      = 1
-        , effects = [(Self, apply 1 [Scale All 2])]
+        , effects = [(Self, apply 1 [Strengthen All Percent 200])]
         }
       ]
     , invuln "Thick Sand Coat" "Shukaku" [Physical]

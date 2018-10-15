@@ -117,7 +117,7 @@ reanimatedCs =
         , cost    =  χ [Rand, Rand, Rand]
         , cd      = 6
         , effects = [ (Self, ifnotI "Venom Sac" 
-                             § hide' "Ibuse" 0 [Ward Affliction 0.5] 
+                             § hide' "Ibuse" 0 [Reduce Affliction Percent 50] 
                              ° addStacks "Major Summoning: Ibuse" 30
                              ° vary "Major Summoning: Ibuse" "Poison Fog"
                              ° (trapPer' 0 PerDamaged
@@ -232,7 +232,7 @@ reanimatedCs =
         , classes = [Chakra]
         , cost    = χ [Nin]
         , cd      = 4
-        , effects = [(Self, apply 2 [Ignore Stun, Ward All 0.5] 
+        , effects = [(Self, apply 2 [Ignore Stun, Reduce Affliction Percent 50] 
                           • trap 2 OnRes § setHealth 15 
                                          ° remove      "Fragmentation"
                                          ° removeTrap "Fragmentation")]
@@ -266,7 +266,7 @@ reanimatedCs =
         }
       , newSkill
         { label   = "Three-Fingered Assault"
-        , desc    = "A switches to his three-fingered style, increasing the damage of [Lightning Straight] by 5. For the rest of the game, on any turn that A is damaged by an enemy, the cooldown of [Strongest Shield] will decrease by an additional turn. Once used, this skill becomes [One-Fingered Assault][n]."
+        , desc    = "A switches to his three-fingered style, increasing the damage of [Lightning Straight] by 5. For the rest of the game, on any turn that A is damaged by an enemy, the cooldown of [Strongest Shield] will decrease by 1 additional turn. Once used, this skill becomes [One-Fingered Assault][n]."
         , classes = [Chakra, Melee, Bypassing]
         , cost    = χ [Nin]
         , effects = [(Self, trap 0 (OnDamaged All) § alterCd 1 0 (-1) 
@@ -281,9 +281,9 @@ reanimatedCs =
         , cost    = χ [Nin]
         , charges = 1
         , effects = [ (XAllies, trap 0 OnDeath 
-                              . self § apply 0 [Reduce Affliction 10])
+                              . self § apply 0 [Reduce Affliction Flat 10])
                     , (Self, hide' "finger" 0 [] • perDead 1 
-                        (\i -> let f = (apply 0 [Reduce Affliction 10] •) 
+                        (\i -> let f = (apply 0 [Reduce Affliction Flat 10] •) 
                                in ((i > 0) ? f) . ((i > 1) ? f) $ identity) 0)
                     ]
         }
@@ -295,12 +295,12 @@ reanimatedCs =
         , cost    = χ [Blood]
         , cd      = 8
         , effects = [(Self, perI "Cracks in the Shield" 1 heal 0
-                          • apply 2 [Endure, Reduce Affliction 20])]
+                          • apply 2 [Endure, Reduce Affliction Flat 20])]
         }
       ]
     , [ newSkill
         { label   = "Lightning Straight"
-        , desc    = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing 20 damage. If this skill deals damage, the cooldown of [Strongest Shield] decreases by an additional turn."
+        , desc    = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing 20 damage. If this skill deals damage, the cooldown of [Strongest Shield] decreases by 1 additional turn."
         , classes = [Physical, Melee]
         , cost    = χ [Tai]
         , effects = [ (Self,  trap' (-1) OnDamage § alterCd 1 0 (-1))
@@ -310,7 +310,7 @@ reanimatedCs =
                               § apply 1 [Stun All] ° tag' "Aftershocks" 4
                             )
                     ]
-        , changes = \n skill -> skill { desc = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing " ++ tshow (20 + 5 * numActive "finger" n) ++ " damage. If this skill deals damage, the cooldown of [Strongest Shield] decreases by an additional turn."}
+        , changes = \n skill -> skill { desc = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing " ++ tshow (20 + 5 * numActive "finger" n) ++ " damage. If this skill deals damage, the cooldown of [Strongest Shield] decreases by 1 additional turn."}
         }
       ]
     , invuln "Dodge" "A" [Physical]
@@ -320,7 +320,7 @@ reanimatedCs =
     "Reanimated by Kabuto, Rasa was the fourth Kazekage of the Hidden Sand Village and the father of the Sand Siblings. Cold and calculating, Rasa buries his enemies beneath crushingly heavy gold dust that they must fight their way out of to survive."
     [ [ newSkill
         { label   = "Magnet Technique"
-        , desc    = "Waves of gold flood the enemy team, dealing 10 damage to them and applying 10 permanent destructible barrier to each. The skills of enemies who have destructible barrier from this skill cost an additional random chakra."
+        , desc    = "Waves of gold flood the enemy team, dealing 10 damage to them and applying 10 permanent destructible barrier to each. The skills of enemies who have destructible barrier from this skill cost 1 additional random chakra."
         , classes = [Physical, Ranged]
         , cost    = χ [Nin]
         , cd      = 1
@@ -468,7 +468,7 @@ reanimatedCs =
         , cd      = 4
         , channel = Action 2
         , effects = [ (Self,   apply' "Demon Shroud " 1 
-                               [Reduce All 10, Ignore Stun]) 
+                               [Reduce All Flat 10, Ignore Stun]) 
                     , (REnemy, pierce 30 • tag' "Executioner's Butchering" 1)
                     ]
         }
@@ -600,7 +600,7 @@ reanimatedCs =
         { label   = "Shibuki Bomb Reload"
         , desc    = "Adding it to his sword, Jinpachi gains 1 Paper Bomb. Each Paper Bomb provides 5 points of damage reduction."
         , classes = [Physical]
-        , effects = [(Self, apply' "Paper Bomb" 0 [Reduce All 5])]
+        , effects = [(Self, apply' "Paper Bomb" 0 [Reduce All Flat 5])]
         }
       ]
     , [ newSkill
@@ -645,7 +645,7 @@ reanimatedCs =
         , start   = [(Self, bombWith [Hidden] 4 [] 
                             [(Done, remove "Chakra Weave")]
                           • trap' 4 (OnDamaged All) § hide' "hair" (-1) [])]
-        , effects = [(Self, trap 1 OnDamage § apply 0 [Reduce All 5]
+        , effects = [(Self, trap 1 OnDamage § apply 0 [Reduce All Flat 5]
                           • delay (-1) . ifnotI "hair" § heal 10)]
         }
       ]
@@ -691,7 +691,7 @@ reanimatedCs =
         , classes = [Chakra, Invisible]
         , cost    = χ [Blood]
         , cd      = 1
-        , effects = [(Self, apply 1 [Reduce Affliction 15] 
+        , effects = [(Self, apply 1 [Reduce Affliction Flat 15] 
                           • vary' 1 "Susano'o" "Totsuka Blade")]
         }
       , newSkill
@@ -700,7 +700,7 @@ reanimatedCs =
         , classes = [Chakra, Invisible]
         , cost    = χ [Gen]
         , effects = [ (Enemy, pierce 20)
-                    , (Self,  apply 1 [Reduce Affliction 15] 
+                    , (Self,  apply 1 [Reduce Affliction Flat 15] 
                             • vary' 1 "Susano'o" "Totsuka Blade")
                     ]
         }
