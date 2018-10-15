@@ -33,6 +33,10 @@ import Game.Characters
 
 -- micro = 1000000
 
+-- | `concat` . `transpose`
+vs :: ∀ a. [a] -> [a] -> [a]
+x `vs` y = concat $ transpose [x, y]
+
 bot :: User
 bot = User { userIdent      = ""
            , userPassword   = Nothing
@@ -66,12 +70,12 @@ getPracticeQueueR team
       runDB $ update who [ UserTeam =. Just (reverse team) ]
       chakRns    <- Random.randomRs (0, 3) <$> liftIO Random.newStdGen
       let game   = updateChakra PlayerA (take teamSize chakRns) $
-                   newGame ns who who
+                   newGame who who ns
       liftIO . atomically . STMMap.insert game who $ appPractice app
       returnJson $ GameInfo who bot PlayerA 0 game
   where 
     oppTeam = ["Naruto Uzumaki", "Tenten", "Sakura Haruno"]
-    ns      = map (cs !) . concat $ transpose [team, oppTeam]
+    ns      = map (cs !) $ team `vs` oppTeam
 
 formTeam :: [Text] -> Maybe [Character]
 formTeam team@[a, b, c]
@@ -127,12 +131,8 @@ gameSocket = do
             Announce vsWho vsUser vsTeam -> do
               let game = updateChakra PlayerA (take teamSize [chakRn]) $
                          case play of
-                             PlayerA -> newGame 
-                                        (concat $ transpose [team, vsTeam]) 
-                                        vsWho who
-                             _       -> newGame 
-                                        (concat $ transpose [vsTeam, team]) 
-                                        who vsWho
+                             PlayerA -> newGame vsWho who $ team   `vs` vsTeam
+                             _       -> newGame who vsWho $ vsTeam `vs` team
               writer <- newTChan
               reader <- newTChan
               writeTChan writeQueueChan . Respond vsWho reader writer .

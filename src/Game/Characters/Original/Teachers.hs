@@ -8,7 +8,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-teacherCs :: [Character]
+teacherCs :: [Group -> Character]
 teacherCs =
   [ Character
     "Iruka Umino"

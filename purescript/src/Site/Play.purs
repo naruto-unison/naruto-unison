@@ -25,6 +25,7 @@ unknown :: Character
 unknown = Character { characterName:   "unknown"
                     , characterBio:    ""
                     , characterSkills: []
+                    , characterGroup:  Original
                     }
 
 getC :: Array Character -> Int -> Character
@@ -59,8 +60,8 @@ input :: ∀ a. PlayQuery -> a -> Maybe (ChildQuery Unit)
 input = E.input_ <<< QueryPlay
 
 mClick :: ∀ e. String -> String -> Boolean -> PlayQuery -> Array 
-         (P.IProp (id :: String, "class" :: String, onClick :: MouseEvent | e) 
-         (ChildQuery Unit))
+          (P.IProp (id :: String, "class" :: String, onClick :: MouseEvent | e) 
+          (ChildQuery Unit))
 mClick i c false _ = [_i i, _c $ c <> " noclick"]
 mClick i c true  f = [_i i, _c $ c <> " click", E.onClick $ input f]
 
@@ -356,7 +357,7 @@ renderCharacter cs acted toggle highlighted χs turn onTeam
     hDefenses = live $ renderDefense n.nId anchor n.nHealth 
                 (reverse n.nBarrier) (reverse n.nDefense)
     hInfos    = live <<< map (renderInfo onTeam n.nId cs) <<< 
-                onTeam ? reverse $ infos n'
+                (onTeam ? reverse) $ infos n'
     active    = onTeam && turn && n.nHealth > 0 && n.nId `notElem` acted
     classes   = catMaybes [ n.nId `elem` highlighted       ?? " highlighted"
                           , n.nId `elem` actToggles toggle ?? " toggled skill"
@@ -366,13 +367,13 @@ renderCharacter cs acted toggle highlighted χs turn onTeam
                           , E.onClick <<< input <<< Enact Add <<< retarget <$>
                             (guard (n.nId `elem` actToggles toggle) *> toggle)
                           ]
-    mainBar   = not onTeam ? reverse $
+    mainBar   = (not onTeam ? reverse)
                 [ H.section mainMeta
                   [H.img [_c "charicon", faceIcon']]
                 , H.div [_c "charmoves"]
                   <<< zip5 (renderSkill n.nId χs active cs) (0..3) ts 
                       (n.nCharges <> [0,0,0,0]) n.nSkills 
-                  <<< (n.nHealth > 0) ? (n.nCooldowns <> _) $ [0, 0, 0, 0]
+                    $ (n.nHealth > 0 ? (n.nCooldowns <> _)) [0, 0, 0, 0]
                 ]
     anchor    
       | onTeam    = "left: "
@@ -426,23 +427,27 @@ renderDefense nId anchor track barriers defenses = case uncons defenses of
 
 renderSkill :: ∀ a. Int -> Chakras -> Boolean -> Array Character -> Int 
             -> Array Int -> Int -> Skill -> Int -> HTMLQ a
-renderSkill nId χs active cs sI ts charge s'@(Skill s) cd
-    = case unit of
- _| cd > 0 -> cant
-              [ H.img [cIcon (getC cs $ skillRoot s' nId) s.label]
-              , H.span_ [H.text <<< show <<< max 1 $ cd / 2]
-              ]
- _| not active || s.require == Unusable || lacks (χs - s.cost) || null ts 
-            -> cant 
-              [H.img [cIcon (getC cs $ skillRoot s' nId) s.label]]
- _| otherwise -> H.div 
-              [ _c "charmove click"
-              , hover $ ViewSkill nId ts charge s'
-              , E.onMouseLeave $ input Unhighlight
-              , E.onClick $ input action
-              ]
-              [H.img [cIcon (getC cs $ skillRoot s' nId) s.label]]
-  where 
+renderSkill nId χs active cs sI ts charge s'@(Skill s) cd = go
+  where
+    -- Since PureScript doesn't yet support where-binding across guard patterns
+    go 
+      | cd > 0 = 
+          cant
+          [ H.img [cIcon (getC cs $ skillRoot s' nId) s.label]
+          , H.span_ [H.text <<< show <<< max 1 $ cd / 2]
+          ]
+      | not active || s.require == Unusable || lacks (χs - s.cost) || null ts =
+          cant 
+          [H.img [cIcon (getC cs $ skillRoot s' nId) s.label]]
+      | otherwise = 
+          H.div 
+          [ _c "charmove click"
+          , hover $ ViewSkill nId ts charge s'
+          , E.onMouseLeave $ input Unhighlight
+          , E.onClick $ input action
+          ]
+          [H.img [cIcon (getC cs $ skillRoot s' nId) s.label]]
+  -- where
     act = Act { actC: nId, actS: sI, actT: nId, actSkill: s', actTs: ts }
     action 
       | skillTarget nId s' == [nId] = Enact Add act
@@ -459,7 +464,7 @@ fromAlly c info = allied c info.root && allied c info.src
 renderInfo :: ∀ a. Boolean -> Int -> Array Character -> Info -> HTMLQ a
 renderInfo team nId cs info = H.div
     [_c $ intercalate " " classes', hover $ ViewInfo removes info]
-    [ H.div_ <<< (info.count > 1) ? consAfter (_span $ show info.count) $
+    [ H.div_ $ (info.count > 1 ? consAfter (_span $ show info.count))
       [H.img [cIcon (getC cs info.root) info.name]]
     , H.p_ $ if info.dur == 0 then [] else [sync info.dur]
     ]
@@ -495,11 +500,14 @@ viewClasses hideMore classes = H.p [_c "skillClasses"]
   [ H.text <<< intercalate ", " $ filterClasses hideMore classes ]
 
 viewEffect :: ∀ a b. (SkillEffect -> Boolean) -> SkillEffect -> HTML a b
-viewEffect removes ef'@(SkillEffect ef) = case unit of 
- _| ef.effectTrap  -> H.div [_c "trap"] des
- _| removes ef'    -> H.div [_c "remove"] des
- _| otherwise      -> H.div_ des
-  where 
+viewEffect removes ef'@(SkillEffect ef) = go
+  where
+    -- Since PureScript doesn't yet support where-binding across guard patterns
+    go 
+      | ef.effectTrap  = H.div [_c "trap"] des
+      | removes ef'    = H.div [_c "remove"] des
+      | otherwise      = H.div_ des 
+  -- where
     des = descEffect ef'
 descEffect :: ∀ a b. SkillEffect -> Array (HTML a b)
 descEffect (SkillEffect ef) = [H.text $ "- " <> ef.effectDesc]

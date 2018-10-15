@@ -10,9 +10,6 @@ import qualified Data.Text     as Text
 import StandardLibrary hiding (and)
 import Data.Foldable (and)
 
-tagJson :: ∀ a. Show a => a -> Value
-tagJson x = object ["tag" .= show x]
-
 absmin :: ∀ a. (Ord a, Num a) => a -> a -> a
 absmin _ 0 = 0
 absmin x y
@@ -101,6 +98,7 @@ pick stdGen xs = (Just $ xs List.!! i, stdGen')
   where (i, stdGen') = Random.randomR (0, length xs - 1) stdGen
 
 -- | Left equivalent of 'unfoldr' that ends when it reaches a 'Nothing'.
+-- Used with `Random.split`.
 {-# INLINE unfoldl #-} 
 unfoldl :: ∀ a. (a -> (a, a)) -> a -> NonEmpty a
 unfoldl f b0 = y <| unfoldl f x

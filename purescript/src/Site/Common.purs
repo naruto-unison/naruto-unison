@@ -2,11 +2,8 @@ module Site.Common where
 
 import StandardLibrary
 import Affjax                  as Affjax
-import Foreign                 as Foreign
 import Generic                 as G
 import Halogen.HTML            as H
-import Data.List               as List
-import Data.List.Types         as ListTypes
 import Foreign.JSON            as JSON
 import Halogen.HTML.Properties as P
 import Affjax.ResponseFormat   as ResponseFormat
@@ -15,6 +12,7 @@ import Data.String             as String
 import Halogen.HTML (HTML, ClassName(..))
 import Halogen.HTML.Properties (IProp)
 
+import FFI.Import
 import Database.Structure
 import Database.Functions
 import Database.Info 
@@ -66,16 +64,15 @@ data Viewable = ViewBarrier   Barrier
               | ViewUser      User
 
 unJson :: ∀ a. G.Decode a => String -> Either String a
-unJson = mapLeft show <<< runExcept <<< JSON.decodeJSONWith (G.decode)
+unJson = mapLeft showForeignErrors <<< runExcept <<< 
+         JSON.decodeJSONWith (G.decode)
 
 getJson :: ∀ a. G.Decode a => String -> Aff (Either String a)
 getJson url = do
     {body} <- Affjax.get ResponseFormat.string url
     pure $ mapLeft Affjax.printResponseFormatError body 
-       >>= mapLeft showErrors <<< runExcept <<< JSON.decodeJSONWith (G.decode)
-  where
-    showErrors = String.joinWith "\n" <<< map Foreign.renderForeignError <<< 
-                 List.toUnfoldable <<< ListTypes.toList
+       >>= mapLeft showForeignErrors <<< runExcept <<< 
+           JSON.decodeJSONWith (G.decode)
 
 
 hCost :: ∀ a b. Chakras -> Array (HTML a b)
@@ -111,15 +108,10 @@ splitBy p s = fromMaybe { before: s, after: ""} do
     pure $ String.splitAt i s
 
 charName :: ∀ a b. Character -> Array (HTML a b)
-charName = go <<< sillySplit (Pattern " (") <<< show
-  where
-    sillySplit p s = case String.split p s of
-        [x, y] -> { before: x, after: y  }
-        _      -> { before: s, after: "" }
-    go {before, after} = case after of
-        "R)" -> [ H.text before, _minor "ℝ" ]
-        "S)" -> [ H.text before, _minor "𝕊" ]
-        _    -> [ H.text before ]
+charName (Character c) = case c.characterGroup of
+    Original   -> [H.text c.characterName]
+    Shippuden  -> [H.text c.characterName, _minor "𝕊"]
+    Reanimated -> [H.text c.characterName, _minor "ℝ"]
 
 cIcon :: ∀ a b. Character -> (String -> IProp (src :: String | b) a)
 cIcon = memoize go <<< show 

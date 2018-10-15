@@ -11,7 +11,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure 
 
-kidCs :: [Character]
+kidCs :: [Group -> Character]
 kidCs =
   [ Character
     "Naruto Uzumaki"

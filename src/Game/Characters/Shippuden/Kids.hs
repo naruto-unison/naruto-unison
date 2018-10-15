@@ -8,7 +8,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-kidCsS :: [Character]
+kidCsS :: [Group -> Character]
 kidCsS =
   [ Character
     "Naruto Uzumaki"
@@ -734,8 +734,7 @@ kidCsS =
           , classes = [Physical, Single, Soulbound, Unremovable, Unreflectable]
           , cost    = χ [Rand, Rand, Rand]
           , cd      = 5
-          , effects = [ (Self,    defend 0 40 • onBreak 
-                                . everyone § remove "Salamander Shield")
+          , effects = [ (Self,    defend 0 40 • onBreak')
                       , (XAllies, apply 0 [Redirect All])
                       ]
           }

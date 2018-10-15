@@ -26,18 +26,21 @@ import Game.Characters.Shippuden.Versions
 
 import Game.Characters.Reanimated
 
--- | Database of 'Character's using 'characterName's as keys.
+-- | Database of 'Character's using 'characterName's + 'Group's as keys.
 cs :: HashMap Text Character
-cs = Map.fromList $ cs' <&> \c -> (characterName c, c)
+cs = Map.fromList $ (tshow &&& id) <$> cs'
 
 -- | Ordered database of 'Character's.
 cs' :: [Character]
-cs' = addClasses 
-    <$> kidCs ++ examCs ++ teacherCs ++ organizationCs ++ leaderCs ++ versionCs 
-    ++ flashbackCs ++ (mark "S" <$> s) ++ (mark "R" <$> reanimatedCsS)
+cs' = addClasses <$> original ++ shippuden ++ reanimated
   where
-    s = kidCsS ++ adultCsS ++ familyCsS ++ organizationCsS ++ akatsukiCsS 
-      ++ versionCsS
+    original   = ($ Original) 
+                 <$> kidCs ++ examCs ++ teacherCs ++ organizationCs ++ leaderCs 
+                  ++ versionCs ++ flashbackCs
+    shippuden  = ($ Shippuden)
+                 <$> kidCsS ++ adultCsS ++ familyCsS ++ organizationCsS 
+                  ++ akatsukiCsS ++ versionCsS
+    reanimated = ($ Reanimated) <$> reanimatedCs
 
 addClasses :: Character -> Character
 addClasses c@Character{..} = c { characterSkills = doSkills <$> characterSkills }
@@ -54,13 +57,10 @@ doSkill skill@Skill{..} = skill { classes = go classes }
     go = nub . (All :) . (Mental `notElem` classes ? (NonMental :))
     --Game{..}  = mockSkill skill
 
-mark :: Text -> Character -> Character
-mark markAs c = c { characterName = characterName c ++ " (" ++ markAs ++ ")" }
-
 reanimatedBy :: Character -> [Character]
 reanimatedBy c = filter match reanimated
   where
-    reanimated = addClasses . mark "R" <$> reanimatedCsS
+    reanimated = addClasses . ($ Reanimated) <$> reanimatedCs
     userIs     = (`Text.isInfixOf` characterName c)
     match 
       | userIs "Kabuto"     = Text.isInfixOf "by Kabuto" . characterBio
@@ -79,7 +79,7 @@ mockGame = mocked { gameMock   = True
                   , gameNinjas = gameNinjas mocked <&> \n -> n { nHealth = 50 }
                   }
   where 
-    mocked = newGame (replicate 6 mockCharacter) mockPlayer mockPlayer
+    mocked = newGame mockPlayer mockPlayer $ replicate 6 mockCharacter
     mockCharacter = Character "" "" ((newSkill:|[]):|[]) []
     mockPlayer    = fromJust $ case keyFromValues [PersistInt64 0] of
         Right key -> Just key

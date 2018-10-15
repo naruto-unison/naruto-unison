@@ -26,17 +26,18 @@ charAvatars :: Character -> [Text]
 charAvatars char = toFile <$> "icon" : skills
   where 
     skills      = label . head <$> NonEmpty.take 4 (characterSkills char)
-    toFile path = "/img/ninja/" ++ shorten (characterName char) ++ "/" 
+    toFile path = "/img/ninja/" ++ shorten (tshow char) ++ "/" 
                   ++ shorten path ++ ".jpg"
 
 avatars :: [Text]
-avatars = ("/img/icon/" ++)
-        <$> [ "default.jpg"
-          , "gaaraofthefunk.jpg"
-          , "ninjainfocards.jpg"
-          , "kabugrin.jpg"
-          ]
-       ++ concatMap charAvatars cs'
+avatars = (("/img/icon/" ++) <$> icons) ++ concatMap charAvatars cs'
+  where
+    icons = 
+        [ "default.jpg"
+        , "gaaraofthefunk.jpg"
+        , "ninjainfocards.jpg"
+        , "kabugrin.jpg"
+        ]
 
 isMuted :: Maybe User -> Bool
 isMuted = maybe False userMuted
@@ -80,8 +81,8 @@ getPlayR = do
     let (_, muser) = case ma of
           Just (Entity who user) -> (Just who, Just user)
           Nothing                -> (Nothing, Nothing)
-    let team = maybe [] (mapMaybe (`lookup` cs)) $ muser >>= userTeam
-    let bg   = fromMaybe "/img/bg/valley2.jpg" $ muser >>= userBackground
+        team = maybe [] (mapMaybe (`lookup` cs)) $ muser >>= userTeam
+        bg   = fromMaybe "/img/bg/valley2.jpg" $ muser >>= userBackground
     defaultLayout $ do
         setTitle "Naruto Unison"
         addStylesheetRemote "/css/embeds.css"

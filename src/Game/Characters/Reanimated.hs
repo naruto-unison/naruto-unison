@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide #-}
 
-module Game.Characters.Reanimated (reanimatedCsS) where
+module Game.Characters.Reanimated (reanimatedCs) where
 
 import StandardLibrary
 
@@ -12,8 +12,8 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-reanimatedCsS :: [Character]
-reanimatedCsS = 
+reanimatedCs :: [Group -> Character]
+reanimatedCs = 
   [ Character
     "Hashirama Senju"
     "Reanimated by Orochimaru, Hashirama was the founder of the Hidden Leaf Village and its first Hokage. His unique ability to manipulate wood allows him give life to trees, which protect his allies and impair his enemies."
@@ -183,7 +183,7 @@ reanimatedCsS =
         , channel = Ongoing 4
         , cd      = 5
         , effects = [ (RAlly, apply 1 [Reflect]) 
-                    , (RAlly, defend 1 80 • selfBreak)]
+                    , (RAlly, defend 1 80 • onBreak')]
         }
       ]
     , [ newSkill
@@ -402,10 +402,10 @@ reanimatedCsS =
                             • trapFrom 2 (OnHarmed All) 
                               § leech 20 (self . heal)
                               ° self (tag' "Earth Dome Prison" 1)
-                            • onBreak
-                              ( everyone § remove "Rivalry"
-                              • removeTrap "Summoning: Earth Prison Golem"
-                              ))]
+                            • onBreak . everyone 
+                              § remove "Rivalry"
+                              ° removeTrap "Summoning: Earth Prison Golem"
+                              )]
           }
         ]
       ] []

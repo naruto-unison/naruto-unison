@@ -11,13 +11,19 @@ module FFI.Import
     , userTeam
     , reload
     , shortName
+    , showForeignErrors
     ) where
 
 import StandardLibrary
-import Generic     as G
-import Data.Map    as Map
-import Data.String as String
+import Foreign         as Foreign
+import Generic         as G
+import Data.List       as List
+import Data.List.Types as ListTypes
+import Data.Map        as Map
+import Partial.Unsafe  as Partial
+import Data.String     as String
 
+import Data.List.NonEmpty (NonEmptyList)
 import Data.Nullable (Nullable, toMaybe)
 import Data.Profunctor.Strong ((&&&))
 
@@ -25,17 +31,28 @@ import Database.Structure
 
 foreign import avatars     :: Array String
 foreign import bg          :: String
-foreign import cs'         :: Array Character
-foreign import userTeam    :: Array Character
-foreign import user'       :: Nullable Foreign
+foreign import fCs'        :: Array Foreign
+foreign import fUserTeam   :: Array Foreign
+foreign import fUser       :: Nullable Foreign
 foreign import hostname    :: String
 foreign import reload      :: Effect Unit
 foreign import getPageSize :: Effect Int
 
+
+cs' :: Array Character
+cs' = unsafeImport <$> fCs'
+
+userTeam :: Array Character
+userTeam = unsafeImport <$> fUserTeam
+
 cs :: Map String Character
 cs = Map.fromFoldable $ makeKey <$> cs'
   where 
-    makeKey c@Character{characterName} = Tuple characterName c
+    makeKey c'@(Character c) = flip Tuple c' $ 
+                               c.characterName <> case c.characterGroup of
+                                   Original   -> ""
+                                   Shippuden  -> " (R)"
+                                   Reanimated -> " (S)"
 
 groupCs' :: Array (NonEmpty Array Character)
 groupCs' = groupBy (eq `on` shortName) cs'
@@ -46,7 +63,7 @@ groupCs = Map.fromFoldable $ makeKey <$> groupCs'
     makeKey xs@(x :| _) = Tuple (shortName x) xs
 
 user :: Maybe User
-user = parseUser =<< toMaybe user'
+user = parseUser =<< toMaybe fUser
   where 
     parseUser x = case runExcept (G.decode x) of
                       Right u   -> Just u
@@ -54,10 +71,9 @@ user = parseUser =<< toMaybe user'
 
 makeShortName :: Character -> String
 makeShortName (Character c) = case c.characterName of
-    "Tobi (S)"      -> "Obito"
+    "Tobi"          -> "Obito"
     "Masked Man"    -> "Obito"
-    "Nagato (S)"    -> "Pain"
-    "Nagato (R)"    -> "Pain"
+    "Nagato"        -> "Pain"
     "Shukaku Gaara" -> "Gaara"
     _  -> fromMaybe' (\_ -> strip c.characterName) $ do
         skills       <- c.characterSkills !! 3
@@ -72,3 +88,12 @@ shortNames = Map.fromFoldable $ (identity &&& makeShortName) <$> cs'
 
 shortName :: Character -> String
 shortName c = fromMaybe' (\_ -> makeShortName c) $ Map.lookup c shortNames
+
+unsafeImport :: ∀ a. G.Decode a => Foreign -> a
+unsafeImport x = case runExcept (G.decode x) of
+    Right u -> u
+    Left err -> Partial.unsafeCrashWith $ showForeignErrors err
+
+showForeignErrors :: NonEmptyList Foreign.ForeignError -> String
+showForeignErrors = String.joinWith "\n" <<< map Foreign.renderForeignError <<< 
+                    List.toUnfoldable <<< ListTypes.toList

@@ -8,7 +8,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-akatsukiCsS :: [Character]
+akatsukiCsS :: [Group -> Character]
 akatsukiCsS = 
   [ Character
     "Kisame Hoshigaki"
@@ -492,7 +492,7 @@ akatsukiCsS =
                               • vary "Performance of a Hundred Puppets"
                                      "Barrage of a Hundred Puppets"
                               • defend 0 50 
-                              • onBreak 
+                              • onBreak . self
                                 § vary "Performance of a Hundred Puppets" "")
                     , (XAllies, defend 0 25) 
                     ]
@@ -624,7 +624,7 @@ akatsukiCsS =
         , cd      = 1
         , effects = [(Self, vary "Summoning: King of Hell" "Energy Transfer"
                           • defend 0 20 
-                          • onBreak § vary "Summoning: King of Hell" "")]
+                          • onBreak . self § vary "Summoning: King of Hell" "")]
         }
       , newSkill
         { label   = "Energy Transfer"
@@ -689,9 +689,10 @@ akatsukiCsS =
         , classes = [Mental, Melee, Unreflectable]
         , cost    = χ [Gen, Tai]
         , cd      = 2
-        , effects = [(Enemy, steal 1 • apply 1 [ Stun All, Reveal] 
+        , effects = [(Enemy,  apply 1 [ Stun All, Reveal] 
                             • leech 30 § self . heal
-                            • ifHealthU 0 30 kill)
+                            • ifHealthU 0 30 kill
+                            • steal 1)
                     ]
         }
       ]

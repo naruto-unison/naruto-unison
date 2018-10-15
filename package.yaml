@@ -17,6 +17,7 @@ default-extensions:
 - ParallelListComp
 - RecordWildCards
 - ScopedTypeVariables
+- StrictData
 - TupleSections
 - TypeFamilies
 - ViewPatterns

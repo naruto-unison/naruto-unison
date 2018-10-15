@@ -13,7 +13,7 @@ module Game.Structure
     -- * Channel
     , Channel(..), Channeling(..), ChannelTag(..)
     -- * Character
-    , Character(..)
+    , Character(..), Group(..)
     -- * Class
     , Class(..)
     -- * Delay
@@ -593,9 +593,15 @@ data Character = Character { characterName   :: Text
                            , characterBio    :: Text
                            , characterSkills :: NonEmpty (NonEmpty Skill)
                            , characterHooks  :: [(Trigger, Int -> Ninja -> Ninja)]
+                           , characterGroup  :: Group
                            } deriving (Generic, ToJSON)
 instance Eq Character where
-  x == y = characterName x == characterName y
+    (==) = andOn [eqs characterName, eqs characterGroup]
+
+instance Show Character where
+    show (Character name _ _ _ Original)   = Text.unpack name
+    show (Character name _ _ _ Shippuden)  = Text.unpack name ++ " (S)"
+    show (Character name _ _ _ Reanimated) = Text.unpack name ++ " (R)"
 
 -- | A 'Skill' copied from a different character.
 data Copied = Copied { copiedSkill :: Skill
@@ -652,6 +658,14 @@ instance TurnBased Face where
     getDur     = faceDur
     setDur d x = x { faceDur = d }
 
+data Flag 
+    = Acted
+    | Harmed
+    | Targeted
+    deriving (Show, Eq, Ord, Bounded, Enum)
+instance Hashable Flag where
+    hashWithSalt x = hashWithSalt x . fromEnum
+
 -- | Game state.
 data Game = Game { gamePlayers :: (Key User, Key User)
                  , gameNinjas  :: Seq Ninja 
@@ -686,8 +700,8 @@ fN (Slot i) f game@Game{..} =
     game { gameNinjas = Seq.adjust' f i gameNinjas }
 
 -- | Constructs a 'Game' with starting values.
-newGame :: [Character] -> Key User -> Key User -> Game
-newGame ns a b = Game { gamePlayers = (a, b)
+newGame :: Key User -> Key User -> [Character] -> Game
+newGame a b ns = Game { gamePlayers = (a, b)
                       , gameNinjas  = Seq.fromList $ 
                                       zipWith newNinja ns allSlots
                       , gameChakra  = (0, 0)
@@ -703,13 +717,12 @@ newGame ns a b = Game { gamePlayers = (a, b)
 mockSlot :: Slot
 mockSlot = Slot 0
 
-data Flag 
-    = Acted
-    | Harmed
-    | Targeted
-    deriving (Show, Eq, Ord, Bounded, Enum)
-instance Hashable Flag where
-    hashWithSalt x = hashWithSalt x . fromEnum
+-- | 'Original', 'Shippuden', or 'Reanimated'.
+data Group 
+    = Original 
+    | Shippuden 
+    | Reanimated 
+    deriving (Show, Eq, Ord, Bounded, Enum, Generic, ToJSON)
 
 -- | In-game character, indexed between 0 and 5.
 data Ninja = Ninja { nId        :: Slot           -- ^ 'gameNinjas' index (0-5)
@@ -861,9 +874,7 @@ data Bomb
     = Done   -- ^ Applied with both 'Expire' and 'Remove'
     | Expire -- ^ Applied when a 'Status' reaches the end of its duration.
     | Remove -- ^ Applied when a 'Status' is removed prematurely
-    deriving (Enum, Eq, Show, Generic)
-instance ToJSON Bomb where
-    toJSON = tagJson
+    deriving (Enum, Eq, Show, Generic, ToJSON)
 
 -- | A status effect affecting a 'Ninja'.
 data Status = Status { statusCount   :: Int  -- ^ Starts at 1
@@ -906,9 +917,11 @@ data Target
     | Specific Slot -- ^ Specific ninja index in 'gameNinjas' (0-5)
     deriving (Eq, Generic, ToJSON)
 
-data TrapType = TrapTo | TrapFrom | TrapPer deriving (Enum, Eq, Generic, Show)
-instance ToJSON TrapType where
-    toJSON = tagJson
+data TrapType 
+    = TrapTo 
+    | TrapFrom 
+    | TrapPer 
+    deriving (Enum, Eq, Generic, Show, ToJSON)
 
 -- | A trap which gets triggered when a 'Ninja' meets the conditions of a 'Trigger'.
 data Trap = Trap { trapType    :: TrapType

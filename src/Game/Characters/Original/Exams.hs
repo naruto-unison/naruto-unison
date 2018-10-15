@@ -8,7 +8,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-examCs :: [Character]
+examCs :: [Group -> Character]
 examCs =
   [ Character
     "Hanabi Hyūga"

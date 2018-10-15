@@ -97,7 +97,7 @@ component = parentComponent
       HandleGame (Play.ActMsg msg) a -> a <$ do
           modify_ _{ turn = Nothing }
           raise msg
-      ReceiveMsg (SocketMsg msg) uuid a -> do
+      ReceiveMsg (SocketMsg msg) uuid a -> do 
           {stage} <- get
           case stage of
               Queueing -> do

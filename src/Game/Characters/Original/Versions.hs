@@ -8,7 +8,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-versionCs :: [Character]
+versionCs :: [Group -> Character]
 versionCs =
   [ Character
     "One-Tailed Naruto"

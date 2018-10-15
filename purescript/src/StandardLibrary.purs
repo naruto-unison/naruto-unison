@@ -67,7 +67,7 @@ import Data.Array as Array
 import Data.Array.NonEmpty as NonEmptyArray
 
 infix 0 justIf as ??
-infixr 9 doIf  as ?
+infixr 0 doIf  as ?
 
 mapLeft :: ∀ a b c. (a -> c) -> Either a b -> Either c b
 mapLeft f (Left x)  = Left (f x)

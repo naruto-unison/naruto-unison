@@ -60,7 +60,7 @@ instance ToJSON GameInfo where
         , "gameCharacters"  .= (nCharacter <$> gameNinjas gameGame)
         ]
       where 
-        team f = characterName . nCharacter <$> f gamePar (gameNinjas gameGame)
+        team f = show . nCharacter <$> f gamePar (gameNinjas gameGame)
 
 newtype GameMessage = Enact Game
 

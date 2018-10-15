@@ -8,7 +8,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-adultCsS :: [Character]
+adultCsS :: [Group -> Character]
 adultCsS =
   [ Character
     "Kakashi Hatake"

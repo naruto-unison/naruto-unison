@@ -497,7 +497,7 @@ targetAll = const . changeEffects $ map go
     go' x         = x
 
 -- | Restricts skill effects to a specified list of 'Target's.
-targetOnly :: ∀ o. Mono o Target => o -> SkillTransform
+targetOnly :: [Target] -> SkillTransform
 targetOnly xs = const . changeEffects $ filter ((`elem` xs) . fst)
 
 setCost :: [ChakraType] -> SkillTransform

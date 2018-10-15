@@ -8,9 +8,122 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-organizationCs :: [Character]
+organizationCs :: [Group -> Character]
 organizationCs =
   [ Character
+    "Aoba Yamashiro"
+    "A jōnin from the Hidden Leaf Village assigned to hunt down Akatsuki members, Aoba maintains a reserved and impassive demeanor in public that quickly disappears among friends. He uses his significant genjutsu prowess to summon numerous crows and spread his consciousness among them, controlling all of their actions simultaneously."
+    [ [ newSkill
+        { label   = "Scattering Crow Swarm"
+        , desc    = "A flock of self-duplicating crows swarms the enemy team for 4 turns, dealing 5 damage each turn and providing 5 points of damage reduction to Aoba and his allies."
+        , classes = [Mental, Ranged, Summon]
+        , cost    = χ [Gen]
+        , channel = Ongoing 4
+        , start   = [(Self, enemyTeam § apply (-4) []
+                          • alliedTeam § apply (-4) [Reduce All 5])]
+        , effects = [(Enemies, damage 5)]
+        }
+      ]
+    , [ newSkill
+        { label   = "Revenge of the Murder"
+        , desc    = "If the target ally's health reaches 0 within 3 turns, their health will be set to 5, all their skills will be replaced by [Converging Murder], and they will become completely immune to all skills. At the end of their next turn, they will die."
+        , classes = [Mental, Ranged, Invisible, Uncounterable, Unreflectable, Unremovable]
+        , cost    = χ [Rand]
+        , effects = [(XAlly, trap 3 OnRes 
+                           $ resetAll • setHealth 5 • teach 1 Deep 2 • setFace 1
+                           • bomb (-1) [Invulnerable All, Seal, Enrage, Ignore Stun] 
+                             [(Done, kill')])]
+        }
+      ]
+    , [ newSkill
+        { label   = "Converging Murder"
+        , desc    = "Aoba directs all of his crows at an enemy, dealing 45 damage to them. Deals 5 additional damage for each stack of [Scattering Crow Swarm] on the target."
+        , classes = [Mental, Ranged]
+        , cost    = χ [Gen, Gen]
+        , cd      = 1
+        , effects = [(Enemy, perU "Scattering Crow Swarm" 5 damage 45)]
+        } 
+      ]
+    , invuln "Crow Barrier" "Aoba" [Chakra]
+    ] []
+  , Character
+    "Ibiki Morino"
+    "A sadistic jōnin who specializes in extracting information, Ibiki commands the Hidden Leaf Village's Torture and Interrogation Force. Pain is his preferred method of communication, and his preferred approach to battle is ensuring all options available to his enemies will lead to their defeat."
+    [ [ newSkill
+        { label   = "Biding His Time"
+        , desc    = "Provides 10 points of permanent damage reduction to Ibiki. Each time a damaging skill is used on Ibiki, he will gain a stack of [Payback]. Once used, this skill becomes [Payback][r]."
+        , classes = [Mental, Melee]
+        , cost    = χ [Rand]
+        , effects = [ (Self, apply 0 [Reduce All 10] 
+                           • vary "Biding His Time" "Payback"
+                           • trap 0 (OnDamaged All) § addStacks "Payback" 1) ]
+        }
+     , newSkill
+        { label   = "Payback"
+        , desc    = "Deals 15 damage to an enemy. Spends all stacks of [Payback] to deal 5 additional damage per stack."
+        , classes = [Mental, Melee]
+        , cost    = χ [Rand]
+        , effects = [ (Enemy, perI "Payback" 5 damage 15) 
+                    , (Self, remove "Payback" • vary "Biding His Time" "")
+                    ]
+        }
+      ]
+    , [ newSkill
+        { label   = "Summoning: Iron Maiden"
+        , desc    = "A spike-filled iron coffin shaped like a cat imprisons an enemy. For 3 turns, each time the target uses a harmfull skill, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
+        , classes = [Physical, Melee, Summon]
+        , cost    = χ [Nin, Rand]
+        , effects = [ (Enemy, trap 3 OnHarm § pierce 25) 
+                    , (Self,  defend 0 30)
+                    ]
+        }
+      ]
+    , [ newSkill
+        { label   = "Summoning: Torture Chamber"
+        , desc    = "A cage of chains and gears surrounds an enemy. For 3 turns, each time the target does not use a skill, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
+        , classes = [Physical, Melee, Summon]
+        , cost    = χ [Nin, Rand]
+        , effects = [ (Enemy, trap 3 OnNoAction § pierce 25) 
+                    , (Self,  defend 0 30)
+                    ]
+        }
+      ]
+    , invuln "Dodge" "Ibiki" [Physical]
+    ] []
+  , Character
+    "Yūgao Uzuki"
+    "An operative of the Hidden Leaf Village, Yūgao is dedicated and thorough. Having grown close to Hayate, Yūgao combines his expert sword techniques with her sealing abilities."
+    [ [ newSkill
+        { label   = "Moonlight Night"
+        , desc    = "Light flashes off Yūgao's sword as she spins it in a circle, surrounding herself with disorienting afterimages, then strikes at an enemy to deal 50 damage."
+        , classes = [Physical, Melee]
+        , cost    = χ [Gen, Tai]
+        , cd      = 1
+        , effects = [ (Enemy, perI "Moon Haze" 25 damage 50)
+                    , (Self,  remove "Moon Haze")
+                    ]
+        }
+      ]
+    , [ newSkill
+        { label   = "Moon Haze"
+        , desc    = "The light of the moon empowers Yūgao, providing 20 destructible defense for 1 turn and adding 25 damage to her next [Moonlight Night]."
+        , classes = [Physical]
+        , cost    = χ [Tai]
+        , effects = [(Self, defend 1 20 • addStack)]
+        }
+      ]
+    , [ newSkill
+        { label   = "Sealing Technique"
+        , desc    = "Yūgao places a powerful and thorough seal on an enemy. For 2 turns, they do not benefit from damage reduction, destructible defense, invulnerability, counters, or reflects."
+        , classes = [Bypassing, Uncounterable, Unreflectable]
+        , cost    = χ [Gen]
+        , cd      = 1
+        , effects = [(Enemy, apply 2 [Expose, Uncounter, Undefend])]
+        }
+      ]
+    , invuln "Yūgao" "Parry" [Physical]
+    ] []
+  , Character
     "Demon Brothers"
     "A pair of rogue chūnin from the Hidden Mist Village, the Demon Brothers are Zabuza's professional assassins. Armed with chain weapons, Gōzu and Meizu gang up on an enemy, disable them, and dispose of them in short order."
     [ [ newSkill

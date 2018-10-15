@@ -11,7 +11,6 @@ instance ToJSON Ninja where
     toJSON n@Ninja{..} = object
         [ "nId"        .= nId
         , "nHealth"    .= nHealth
-        , "nName"      .= characterName nCharacter
         , "nDefense"   .= nDefense
         , "nBarrier"   .= nBarrier
         , "nStatuses"  .= filter ((Hidden `notElem`) . statusClasses) nStatuses

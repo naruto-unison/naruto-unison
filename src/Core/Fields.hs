@@ -15,15 +15,12 @@ module Core.Fields
 import StandardLibrary
 import Text.Read
 
-import Calculus
 
 data Privilege 
     = Normal 
     | Moderator 
     | Admin 
-  deriving (Enum, Ord, Bounded, Eq, Show, Read, Generic, FromJSON)
-instance ToJSON Privilege where
-    toJSON = tagJson
+  deriving (Enum, Ord, Bounded, Eq, Show, Read, Generic, FromJSON, ToJSON)
 derivePersistField "Privilege"
 
 data ForumCategory 

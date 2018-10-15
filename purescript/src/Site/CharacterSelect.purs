@@ -94,12 +94,12 @@ comp = component
         [ H.section [_i "characterButtons", _c "parchment"] 
           [ H.aside 
             [ _i "prevPage" 
-            , _c <<< atMin ? ("wraparound " <> _) $ "click"
+            , _c $ (atMin ? ("wraparound " <> _)) "click"
             , click $ Scroll (-1)
             ] []
           , H.aside 
             [ _i "nextPage" 
-            , _c <<< atMax ? ("wraparound " <> _) $ "click"
+            , _c $ (atMax ? ("wraparound " <> _)) "click"
             , click $ Scroll 1
             ] []
           , H.div 
@@ -119,7 +119,7 @@ comp = component
       displays   
         | condensed = NonEmpty.head <$> drop (st.index) groupCs'
         | otherwise = drop (st.index) cs'
-      playButton = (length st.team == 3) ? ("click " <> _) $ 
+      playButton = (length st.team == 3 ? ("click " <> _)) 
                    "playButton parchment"
       atMin      = st.index == 0
       atMax      = st.index + st.pageSize >= csSize
@@ -204,8 +204,8 @@ previewBox p@{previewing: PreviewUser (User u)} = cons $
   H.article [_c "parchment"]
   [ H.form [_i settingsId]
     [ H.h1_ [ H.text "Account Settings" ]
-    , H.p_ $ p.updateFail ? consAfter 
-      (H.span [_i "userfail"] [H.text "Username already taken!"]) $
+    , H.p_ $ (p.updateFail ? consAfter $
+      H.span [_i "userfail"] [H.text "Username already taken!"]) $
       [ _span "Name"
       , H.input [P.type_ P.InputText, P.name "name", P.value u.name]
       ]
@@ -245,12 +245,12 @@ previewBox p@{previewing: PreviewChar c'@Character c} = cons <<<
               H.img $
               if x `elem` p.team 
               then 
-                [ _c <<< (x == c') ? ("on " <> _) $ "noclick disabled char"
+                [ _c $ (x == c' ? ("on " <> _)) "noclick disabled char"
                 , cIcon x "icon"
                 , preview $ PreviewChar x
                 ]
               else 
-                [ _c <<< (x == c') ? ("on " <> _) $ "click char"
+                [ _c $ (x == c' ? ("on " <> _)) "click char"
                 , cIcon x "icon"
                 , preview $ PreviewChar x
                 , click $ Team Add x
@@ -398,5 +398,4 @@ userBox showLogin team = case user of
       , H.div [_i "underTeam", _c "parchment"] []
       ]
     ]  
-  where playButton = (length team == 3) ? ("click " <> _) $ 
-                     "playButton parchment" 
+  where playButton = (length team == 3 ? ("click " <> _)) "playButton parchment" 

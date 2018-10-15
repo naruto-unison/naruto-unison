@@ -8,7 +8,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-versionCsS :: [Character]
+versionCsS :: [Group -> Character]
 versionCsS =
   [ let loadout = varyLoadout 1 0 0 True
     in Character

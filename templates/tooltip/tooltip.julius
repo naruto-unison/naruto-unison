@@ -3,13 +3,13 @@ const chars = #{toJSON cs}
 const cTypes = [ "blood", "gen", "nin", "tai", "rand" ]
 const tcTypes = [ "blood", "gen", "nin", "tai" ]
 
-shorten = txt => txt.replace(/ \(\d+\)/g, '')
-                    .replace(/[- :()']/g,'')
-                    .replace(/ō/g,'o')
-                    .replace(/ū/g,'u')
+shorten = x => x.replace(/ \(\d+\)/g, '')
+                .replace(/[- :()']/g,'')
+                .replace(/ō/g,'o')
+                .replace(/ū/g,'u')
                     
-hide = el => el.hide() // A taste of home...
-half = n => (n + 1) / 2 >> 0
+hide = x => x.hide() // A taste of home...
+half = x => (x + 1) / 2 >> 0
 
 getSkill = (char, label) => {
   for (skills of char.characterSkills) for (skill of skills) if (skill.label === label) return skill
@@ -38,7 +38,15 @@ const hidden = [ "All"
                , "Necromancy"
                , "Single" 
                ]
-filterClasses = a => a.filter(el => !hidden.includes(el))
+filterClasses = x => x.filter(y => !hidden.includes(y))
+
+showChar = x => {
+  if (x.characterGroup === "Shippuden") 
+       { return x.characterName + " (S)" }
+  else if (x.characterGroup === "Reanimated") 
+       { return x.characterName + " (R)" }
+  else { return x.characterName }
+}
 
 let cur
 
@@ -51,7 +59,7 @@ hoverChar = (i, el) => {
       if (tooltip.css("display") !== "none" && cur === src) return
       cur = el
       tooltip.stop()
-      tooltip.find("header").text(usr.characterName)
+      tooltip.find("header").text(showChar(usr))
       tooltip.find("article").text(usr.characterBio)
       tooltip
         .stop()

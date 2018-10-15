@@ -77,21 +77,26 @@ skillRoot (Skill s) nId = case s.copying of
 skillTarget :: Int -> Skill -> Array Int
 skillTarget = memoize go
   where
-    go c (Skill s) = case unit of
-        _| enemy && ally  -> allSlots
-        _| enemy && xally -> delete c allSlots
-        _| enemy         -> (_ + 1 - par c) <$> teamSlots
-        _| ally          -> (_ + par c) <$> teamSlots
-        _| xally         -> delete c $ (_ + par c) <$> teamSlots
-        _| otherwise     -> [c]
-      where targets = untuple <$> (s.start <> s.effects)
-            enemy   = Enemy `elem` targets
-            ally    = Ally  `elem` targets
-            xally   = XAlly `elem` targets
+    go c (Skill s) = go'
+      where 
+        -- Since PureScript doesn't yet support where-binding across 
+        -- guard patterns
+        go' 
+          | enemy && ally  = allSlots
+          | enemy && xally = delete c allSlots
+          | enemy          = (_ + 1 - par c) <$> teamSlots
+          | ally           = (_ + par c) <$> teamSlots
+          | xally          = delete c $ (_ + par c) <$> teamSlots
+          | otherwise      = [c]
+      -- where
+        targets = untuple <$> (s.start <> s.effects)
+        enemy   = Enemy `elem` targets
+        ally    = Ally  `elem` targets
+        xally   = XAlly `elem` targets
 
 filterClasses :: Boolean -> Array String -> Array String
 filterClasses = memoize \hideMore -> 
-    (_ \\ hideMore ? (moreHidden <> _) $ hiddenClasses)
+    (_ \\ (hideMore ? (moreHidden <> _)) hiddenClasses)
 
 userLevel :: User -> Int
 userLevel (User u) = u.xp / 1000

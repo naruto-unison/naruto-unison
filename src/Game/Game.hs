@@ -61,7 +61,7 @@ module Game.Game
     -- *** Modification
     , hasten, prolong, setFace
     -- ** 'Trap'
-    , onBreak, onBreak', selfBreak, removeTrap
+    , onBreak, onBreak', removeTrap
     , trap, trap', trapFrom, trapFrom', trapPer, trapPer', trapWith
     -- * Invulnerability
     , invuln, invuln1, invuln'
@@ -182,7 +182,7 @@ runTurn player actions stdGen game = yieldVictor game'Full
     -- Hypothetical game state in the following turn if no actions occur.
     game'Ghost = foldl' (act []) game'Futur $
                  zip chansNext $ Right <$> NonEmpty.drop (teamSize * 2) rs  
-    -- Copies tags from the foreecast into the game.
+    -- Copies tags from the forecast into the game.
     -- Tags indicate which Ninjas will be affected by particular Channeled 
     -- skills in the following round.
     game'Full  = addTags game'Clear game'Ghost
@@ -1499,16 +1499,12 @@ snapshot dur' skill@Skill{..} src c = r' $ \n@Ninja{..} ->
 onBreak :: Transform -> Transform
 onBreak f skill@Skill{..} src c game t
   | not $ hasDefense label src $ gameNinja t game = game
-  | otherwise = trap' 0 (OnBreak label) f skill src c game t
+  | otherwise = trapFrom' 0 (OnBreak label) f skill src c game t
 
 -- | Default 'onBreak': remove 'Status'es and 'Channel's that match 'label'.
 onBreak' :: Transform
-onBreak' skill@Skill{..} = onBreak (remove label • cancelChannel label) skill
-
--- | 'onBreak' with 'self'
-selfBreak :: Transform
-selfBreak skill@Skill{..} =
-    onBreak (self $ remove label • cancelChannel label) skill
+onBreak' skill@Skill{..} = 
+    onBreak (everyone (remove label) • self (cancelChannel label)) skill
 
 removeTrap :: Text -> Transform
 removeTrap l skill src = rt . N.clearTrap l $ copyRoot skill src

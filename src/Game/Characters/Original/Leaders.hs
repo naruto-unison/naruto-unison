@@ -7,7 +7,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-leaderCs :: [Character]
+leaderCs :: [Group -> Character]
 leaderCs =
   [ Character
     "Jiraiya"
@@ -143,7 +143,7 @@ leaderCs =
     ] []
   , Character
     "Hiruzen Sarutobi"
-    "Called the God of Shinobi, Hashirama is the third Hokage. During his prime, he was considered the strongest ninja in history. His trump card ability brings certain doom to both Hiruzen and his enemy."
+    "Called the God of Shinobi, Hiruzen is the third Hokage. During his prime, he was considered the strongest ninja in history. His trump card ability brings certain doom to both Hiruzen and his enemy."
     [ [ newSkill
         { label   = "Dragon Flame Bomb"
         , desc    = "Hiruzen engulfs an enemy in flame, dealing 30 affliction damage and causing them to receive 10 additional damage from affliction skills for 1 turn."

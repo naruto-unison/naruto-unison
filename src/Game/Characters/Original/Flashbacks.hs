@@ -8,7 +8,7 @@ import Game.Functions
 import Game.Game
 import Game.Structure
 
-flashbackCs :: [Character]
+flashbackCs :: [Group -> Character]
 flashbackCs =
   [ Character
     "Konohamaru Sarutobi"
@@ -50,6 +50,47 @@ flashbackCs =
         }
       ]
     , invuln "Hide?" "Konohamaru" [Mental]
+    ] []
+  , Character 
+    "Hiashi Hyūga"
+    "A jōnin from the Hidden Leaf Village and father to Hinata and Hanabi, Hiashi "
+    [ [ newSkill
+        { label   = "Gentle Fist"
+        , desc    = "Hiashi slams an enemy, dealing 20 damage and removing 1 random chakra. TODO Next turn, he repeats the attack on a random enemy."
+        , classes = [Physical, Melee]
+        , cost    = χ [Tai, Rand]
+        , cd      = 2
+        , start   = [ (Self, flag) 
+                    , (Enemy, damage 20 • drain 1)
+                    ]
+        , effects = [(REnemy, ifnotI "Gentle Fist" 
+                            § damage 20 ° drain 1)]
+        }
+      ]
+    , [ newSkill
+        { label   = "Revolving Heaven"
+        , desc    = "Hiashi spins toward an enemy, becoming invulnerable for 2 turns and dealing 15 damage to the target and 10 to all other enemies each turn."
+        , classes = [Chakra, Melee]
+        , cost    = χ [Blood, Rand]
+        , cd      = 3
+        , channel = Action 2
+        , start   = [ (Self,     apply 1 [Invulnerable All]) 
+                    , (Enemy,    damage 15)
+                    , (XEnemies, damage 10)
+                    ]
+        }
+      ]
+    , [ newSkill
+        { label   = "Eight Trigrams Palm Rotation"
+        , desc    = "Hiashi prepares to blast an enemy's attack back. The first harmful skill used on him or his allies next turn will be reflected."
+        , classes = [Chakra, Melee]
+        , cost    = χ [Blood]
+        , cd      = 3
+        , effects = [(Enemies, trap (-1) OnReflectAll . everyone 
+                             § removeTrap "Eight Trigrams Palm Rotation")]
+        }
+      ]
+    , invuln "Byakugan Foresight" "Hiashi" [Mental]
     ] []
   , Character
     "Chōza Akimichi"
@@ -93,6 +134,54 @@ flashbackCs =
         }
       ]
     , invuln "Block" "Chōza" [Physical]
+    ] []
+  , Character
+    "Inoichi Yamanaka"
+    "A jōnin from the Hidden Leaf Village and Ino's father, Inoichi can solve practically any dilemma with his analytical perspective. Under his watchful gaze, every move made by his enemies only adds to his strength."
+    [ [ newSkill
+        { label   = "Psycho Mind Transmission"
+        , desc    = "Inoichi invades the mind of an enemy, dealing 20 damage to them for 2 turns. While active, the target cannot use counter or reflect skills."
+        , classes = [Mental, Melee, Uncounterable, Unreflectable]
+        , cost    = χ [Nin]
+        , cd      = 1
+        , channel = Control 2
+        , effects = [(Enemy, damage 20 • apply 1 [Uncounter])]
+        }
+      ]
+    , [ newSkill
+        { label   = "Sensory Radar"
+        , desc    = "Inoichi steps back and focuses on the tide of battle. Each time an enemy uses a harmful skill, Inoichi will recover 10 health and gain a stack of [Sensory Radar]. While active, this skill becomes [Sensory Radar: Collate][r]."
+        , classes = [Mental, Ranged]
+        , cost    = χ [Nin]
+        , effects = [ (Self, vary "Sensory Radar" "Sensory Radar: Collate")
+                    , (Enemies, trap 0 OnHarm . self § heal 10 ° addStack)
+                    ]
+        }
+      , newSkill
+        { label   = "Sensory Radar: Collate"
+        , desc    = "Inoichi compiles all the information he has gathered and puts it to use. For every stack of [Sensory Radar], he gains a random chakra. Ends [Sensory Radar]."
+        , classes = [Mental, Ranged]
+        , cost    = χ [Rand]
+        , effects = [ (Enemies, removeTrap "Sensory Radar")
+                    , (Self,    vary "Sensory Radar" ""
+                              • perI "Sensory Radar" 0 
+                                (gain . flip replicate Rand) 1
+                              • remove "Sensory Radar")
+                    ]
+        }
+      ]
+    , [ newSkill
+        { label   = "Mental Invasion"
+        , desc    = "Inoichi preys on an enemy's weaknesses. For 4 turns, all invulnerability skills used by the target will have their duration reduced by 1 turn. While active, anyone who uses a harmful mental skill on the target will become invulnerable for 1 turn."
+        , classes = [Mental, Ranged]
+        , cost    = χ [ Rand ]
+        , cd      = 4
+        , effects = [(Enemy, apply 4 [Throttle Invulnerable 1]
+                           • trapFrom 4 (OnHarmed Mental) 
+                             § apply 1 [Invulnerable All])]
+        }
+      ]
+    , invuln "Mobile Barrier" "Inoichi" [Mental]
     ] []
   , Character
     "Kushina Uzumaki"
