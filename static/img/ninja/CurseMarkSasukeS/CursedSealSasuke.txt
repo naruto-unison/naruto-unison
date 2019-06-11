@@ -1,0 +1,25 @@
+Cursed Seal Sasuke (S)
+
+Skill 1 Cursed Seal Sharingan
+
+Sasuke combines the powerful nature chakra of the cursed seal with his Sharigan to gain incredible perception. For the next 3 turns Sasuke gains 10 points of damage reduction and ignores all non-damage harmful effects besides chakra cost changes. During this time 'Flying Chidori' and 'Sharingan Genjutsu' is improved.
+
+Cost: 1 blood 1 random Cooldown: 4 Classes: Mental, Instant, Unique
+
+Skill 2 Flying Chidori
+
+Sasuke pierces an enemy from the skies dealing 20 piercing damage to them and reducing their non-affliction damage by 10 for 1 turn. During 'Cursed Seal Sharingan' this skill deals 15 additional damage and ignores invulnerability.
+
+Cost: 1 nin Cooldown: None Classes: Chakra, Melee, Instant, Unique
+
+Skill 3 Sharingan Genjutsu:
+
+Sasuke tricks one enemy into believing they got the upper hand by placing them into a genjutsu, for 1 turn any new harmful skill that opponent uses on Cursed Seal Sasuke or his allies will be reflected onto themselves. This skill is invisible. During 'Cursed Seal Sharingan' this skill lasts 1 additional turn.
+
+Cost: 1 gen Cooldown: 4 Classes: Mental, Instant, Unique, Ranged
+
+Skill 4: Snake Coil Retreat
+
+Invulnerable.
+
+Cost: 1 random Cooldown: 4 Classes: Physical, Instant
