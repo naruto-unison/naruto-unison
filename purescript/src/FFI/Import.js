@@ -13,5 +13,6 @@ exports["getPageSize"]  = function() {
            * (charScroll.clientWidth  / (charScroll.children[0].clientWidth  + 8) | 0)
            );
 }
-exports["avatars"]      = avatars;
-exports["fCs'"]         = cs$prime;
+exports["avatars"]        = avatars;
+exports["fChars"]         = chars;
+exports["csrf"]           = Cookies.get("XSRF-TOKEN");

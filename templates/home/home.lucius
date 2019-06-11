@@ -54,12 +54,12 @@ body, #content {
 #content > aside h2 {
   margin-bottom: 0.2em;
 }
-#changelog { 
-  padding-left: 3em; 
+#changelog {
+  padding-left: 3em;
   padding-right: 1em;
   padding-bottom: 6em;
 }
-#forums { 
+#forums {
   padding-left: 1em;
-  padding-right: 3em; 
+  padding-right: 3em;
 }

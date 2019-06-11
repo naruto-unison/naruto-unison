@@ -1,32 +1,24 @@
-name:    naruto-unison
-version: "0.0.1"
-
-# Database setup:
-# ﻿CREATE UNIQUE INDEX lowercase ON public."user"
-#      (UPPER(name))
-
-default-extensions:
-- ExplicitForAll
-- FlexibleContexts
-- LambdaCase
-- MonadComprehensions
-- MultiWayIf
-- NamedFieldPuns
-- NoImplicitPrelude
-- OverloadedStrings
-- ParallelListComp
-- RecordWildCards
-- ScopedTypeVariables
-- StrictData
-- TupleSections
-- TypeFamilies
-- ViewPatterns
-- UnicodeSyntax
+name:       naruto-unison
+version:    0.1.0.0
+github:     "githubuser/naruto-unison"
+license:    BSD3
+author:     "Author name here"
+maintainer: "example@example.com"
+copyright:  "2019 Author name here"
 
 dependencies:
+- mtl
+- mwc-random
+- transformers
+- stm-containers
+- yesod-websockets
 
-- base # >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
+- blaze-html
+- blaze-markup
+- mime-mail
+- monad-loops
 
+- base
 - yesod
 - yesod-core
 - yesod-auth
@@ -35,9 +27,9 @@ dependencies:
 - classy-prelude
 - classy-prelude-conduit
 - classy-prelude-yesod
-- bytestring 
-- text 
-- persistent 
+- bytestring
+- text
+- persistent
 - persistent-postgresql
 - persistent-template
 - template-haskell
@@ -66,21 +58,8 @@ dependencies:
 - wai
 - foreign-store
 
-- base-unicode-symbols
-- blaze-html
-- hashable
-- mime-mail
-- monad-loops
-- preludeplus
-- random
-- random-shuffle
-- resourcet
-- stm
-- stm-containers
-- time
-- unliftio
-- yesod-websockets
-
+# The library contains all of our application code. The executable
+# defined below is just a thin wrapper.
 library:
   source-dirs: src
   when:
@@ -89,25 +68,35 @@ library:
       ghc-options:
       - -Wall
       - -Wincomplete-uni-patterns
+      - -Wcompat
+      - -Wincomplete-record-updates
+      - -Wredundant-constraints
+      - -Wpartial-type-signatures
       - -fwarn-tabs
-      - -O0
       - -fwarn-incomplete-patterns
       - -fwarn-incomplete-uni-patterns
-      - -fno-warn-orphans
       - -fno-warn-type-defaults
-      # - +RTS -xc
+      - -funbox-small-strict-fields
+      #- -fno-warn-unused-binds
+      - -O0
       cpp-options: -DDEVELOPMENT
     else:
       ghc-options:
       - -Wall
       - -Wincomplete-uni-patterns
+      - -Wcompat
+      - -Wincomplete-record-updates
+      - -Wredundant-constraints
+      - -Wpartial-type-signatures
       - -fwarn-tabs
-      - -O2
       - -fwarn-incomplete-patterns
       - -fwarn-incomplete-uni-patterns
-      - -fno-warn-orphans
       - -fno-warn-type-defaults
+      - -funbox-small-strict-fields
+      #- -fno-warn-unused-binds
+      - -O2
 
+# Runnable executable for our application
 executables:
   naruto-unison:
     main: main.hs
@@ -122,6 +111,7 @@ executables:
     - condition: flag(library-only)
       buildable: false
 
+# Define flags used by "yesod devel" to make compilation faster
 flags:
   library-only:
     description: Build for use with "yesod devel"
@@ -131,3 +121,54 @@ flags:
     description: Turn on development settings, like auto-reload templates.
     manual: false
     default: false
+
+default-extensions:
+# Package-specific
+- NoImplicitPrelude
+# Removing artificial limitations
+- ConstraintKinds
+- EmptyCase
+- FlexibleContexts
+- FlexibleInstances
+- InstanceSigs
+- MultiParamTypeClasses
+# Syntactic sugar
+- LambdaCase
+- MultiWayIf
+- NamedFieldPuns
+- RecordWildCards
+- ParallelListComp
+- TupleSections
+- UnicodeSyntax
+- ViewPatterns
+- MonadComprehensions
+- BlockArguments
+# More powerful types
+- TypeFamilies
+# More powerful deriving
+- DeriveFoldable
+- DeriveFunctor
+- DeriveGeneric
+- DeriveLift
+- DeriveTraversable
+- DerivingStrategies
+- GeneralizedNewtypeDeriving
+- StandaloneDeriving
+- ScopedTypeVariables
+# Unlikely to be used, but no drawbacks
+- BangPatterns
+- DefaultSignatures
+- KindSignatures
+- PartialTypeSignatures
+- PatternSynonyms
+- RankNTypes
+- TypeApplications
+- TypeOperators
+# Literals
+- BinaryLiterals
+- NegativeLiterals
+- NumDecimals
+# Unfortunate necessities
+- OverloadedStrings
+# Here Be Dragons
+- StrictData

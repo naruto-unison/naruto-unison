@@ -1,22 +1,25 @@
 module FFI.Sound (Sound(..), register, sound) where
 
-import StandardLibrary
+import Prelude
+import Effect (Effect)
+import Effect.Class (class MonadEffect, liftEffect)
 import Generic as G
 
-data Sound = SFXApplySkill
-           | SFXCancel
-           | SFXClick
-           | SFXDeath
-           | SFXLose
-           | SFXNextTurn
-           | SFXScroll
-           | SFXStartFirst
-           | SFXStartTurn
-           | SFXStartSecond
-           | SFXTarget
-           | SFXWin
+data Sound
+    = SFXApplySkill
+    | SFXCancel
+    | SFXClick
+    | SFXDeath
+    | SFXLose
+    | SFXNextTurn
+    | SFXScroll
+    | SFXStartFirst
+    | SFXStartTurn
+    | SFXStartSecond
+    | SFXTarget
+    | SFXWin
 derive instance genericSound :: G.Generic Sound _
-instance showSound :: Show Sound where 
+instance showSound :: Show Sound where
   show = G.genericShow
 
 foreign import sound_ :: (Sound -> String) -> Sound -> Effect Unit

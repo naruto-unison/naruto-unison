@@ -20,7 +20,7 @@
   <body>
     ^{pageBody pc}
 
-    $maybe analytics <- appAnalytics $ appSettings master
+    $maybe analytics <- AppSettings.analytics $ settings master
       <script>
         if(!window.location.href.match(/localhost/)){
             (function(wi,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -33,4 +33,4 @@
         }
 
     <script>
-      var csrfHeaderName="#{TE.decodeUtf8 $ CI.foldedCase defaultCsrfHeaderName}";var csrfCookieName="#{TE.decodeUtf8 defaultCsrfCookieName}";var csrfToken=Cookies.get(csrfCookieName);if(csrfToken){$.ajaxPrefilter(function(options,originalOptions,jqXHR){if(!options.crossDomain){jqXHR.setRequestHeader(csrfHeaderName,csrfToken);}});}
+      var csrfHeaderName="#{TextEncoding.decodeUtf8 $ CaseInsensitive.foldedCase defaultCsrfHeaderName}";var csrfCookieName="#{TextEncoding.decodeUtf8 defaultCsrfCookieName}";var csrfToken=Cookies.get(csrfCookieName);if(csrfToken){$.ajaxPrefilter(function(options,originalOptions,jqXHR){if(!options.crossDomain){jqXHR.setRequestHeader(csrfHeaderName,csrfToken);}});}

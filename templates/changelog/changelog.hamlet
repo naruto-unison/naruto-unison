@@ -3,33 +3,33 @@ $newline always
 <section>
   <h3>September 24
   <ul>
-    #{changelog Added "Inoichi Yamanaka" S}
+    #{changelog Added "Inoichi Yamanaka" Shippuden}
   <h3>May 16
   <ul>
-    #{changelog New "Jirōbō" R}
+    #{changelog New "Jirōbō" Reanimated}
   <h3>May 15
   <ul>
-    #{changelog Rework "Itachi Uchiha" R}
-    #{changelog New "Susano'o Itachi" S}
+    #{changelog Rework "Itachi Uchiha" Reanimated}
+    #{changelog New "Susano'o Itachi" Shippuden}
   <h3>May 14
   <ul>
-    #{changelog Rework "Zabuza Momochi" R}
-    #{changelog Rework "Fuguki Suikazan" R}
+    #{changelog Rework "Zabuza Momochi" Reanimated}
+    #{changelog Rework "Fuguki Suikazan" Reanimated}
   <h3>May 12
   <ul>
-    #{changelog Added "Rock Lee" S}
+    #{changelog Added "Rock Lee" Shippuden}
   <ul>
     Multiple versions of the same character can be grouped together
   <h3>May 2
   <ul>
-    #{changelog Rework "Rasa" R}
-    #{changelog Rework "Mū" R}
+    #{changelog Rework "Rasa" Reanimated}
+    #{changelog Rework "Mū" Reanimated}
   <h3>May 1
   <ul>
-    #{changelog Rework "Gengetsu Hōzuki" R}
+    #{changelog Rework "Gengetsu Hōzuki" Reanimated}
   <h3>April 25
   <ul>
-    #{changelog Rework "Jinpachi Munashi" R}
+    #{changelog Rework "Jinpachi Munashi" Reanimated}
   <h3>April 24
   <ul>
     <li>
@@ -42,67 +42,67 @@ $newline always
       If a skill's effect will expire at the end of the current turn, its icon is desaturated
     <li>
       If destructible defense will expire at the end of the current turn, its bar is desaturated
-    #{changelog Rework "Haku" R}
-    #{changelog Rework "Kushimaru Kuriarare" R}
+    #{changelog Rework "Haku" Reanimated}
+    #{changelog Rework "Kushimaru Kuriarare" Reanimated}
   <h3>April 19
   <ul>
-    #{changelog Rework "Hidan" S}
+    #{changelog Rework "Hidan" Shippuden}
   <h3>April 18
   <ul>
-    #{changelog New "Nagato" S}
-    #{changelog New "Nagato" R}
+    #{changelog New "Nagato" Shippuden}
+    #{changelog New "Nagato" Reanimated}
   <h3>April 17
   <ul>
-    #{changelog Rework "Fū Yamanaka" S}
+    #{changelog Rework "Fū Yamanaka" Shippuden}
   <h3>April 15
   <ul>
-    #{changelog Added "Aoba Yamashiro" S}
+    #{changelog Added "Aoba Yamashiro" Shippuden}
   <h3>April 15
   <ul>
-    #{changelog Rework "Ameyuri Ringo" R}
+    #{changelog Rework "Ameyuri Ringo" Reanimated}
   <h3>April 14
   <ul>
-    #{changelog New "Konohamaru Sarutobi" O}
-    #{changelog Rework "Naruto Uzumaki" O}
+    #{changelog New "Konohamaru Sarutobi" Original}
+    #{changelog Rework "Naruto Uzumaki" Original}
   <h3>April 13
   <ul>
     <li>
       Added destructible barrier, which absorbs an amount of damage dealt by a character
-    #{changelog New "Deva Path Pain" S}
+    #{changelog New "Deva Path Pain" Shippuden}
   <h3>April 12
   <ul>
     <li>
       Effects from reflected skills are colored black
-    #{changelog New "Hanzō" R}
-    #{changelog Rework "Zetsu" S}
+    #{changelog New "Hanzō" Reanimated}
+    #{changelog Rework "Zetsu" Shippuden}
   <h3>April 10
   <ul>
     <li>
       Removable effects are colored blue
   <h3>April 9
   <ul>
-    #{changelog New "Mei Terumi" S}
-    #{changelog Rework "Danzō Shimura" S}
-    #{changelog New "Asura Path Pain" S}
+    #{changelog New "Mei Terumi" Shippuden}
+    #{changelog Rework "Danzō Shimura" Shippuden}
+    #{changelog New "Asura Path Pain" Shippuden}
   <h3>April 8
   <ul>
-    #{changelog New "Eight-Gates Guy" S}
-    #{changelog New "Ōnoki" S}
-    #{changelog Rework "Tobi" S}
+    #{changelog New "Eight-Gates Guy" Shippuden}
+    #{changelog New "Ōnoki" Shippuden}
+    #{changelog Rework "Tobi" Shippuden}
   <h3>April 5
   <ul>
-    #{changelog New "Sage Mode Kabuto" S}
+    #{changelog New "Sage Mode Kabuto" Shippuden}
   <h3>April 4
   <ul>
-    #{changelog New "Human Path Pain" S}
-    #{changelog New"Mangekyō Sasuke" S}
+    #{changelog New "Human Path Pain" Shippuden}
+    #{changelog New"Mangekyō Sasuke" Shippuden}
   <h3>April 3
   <ul>
     <li>
       <i>Invisible</i> effects are semi-transparent
-    #{changelog Rework "Nine-Tailed Naruto" S}
-    #{changelog New "Preta Path Pain" S}
-    #{changelog New "Naraka Path Pain" S}
+    #{changelog Rework "Nine-Tailed Naruto" Shippuden}
+    #{changelog New "Preta Path Pain" Shippuden}
+    #{changelog New "Naraka Path Pain" Shippuden}
   <h3>April 1
   <ul>
     <li>
@@ -117,36 +117,36 @@ $newline always
       The <i>Unique</i> class has been subdivided into <i>Unique</i>, <i>Unique Equipment</i>, and <i>Kekkai Genkai</i>; no gameplay difference, it just seemed silly to have dozens of Sharingan abilities all labeled 'Unique'
     <li>
       The <i>Soulbound</i> class has been added to all skills that end when their user dies
-    #{changelog Rework "Kisame Hoshigaki" S}
-    #{changelog New "Masked Man" S}
-    #{changelog New "Curse Mark Sasuke" S}
-    #{changelog New "Animal Path Pain" S}
+    #{changelog Rework "Kisame Hoshigaki" Shippuden}
+    #{changelog New "Masked Man" Shippuden}
+    #{changelog New "Curse Mark Sasuke" Shippuden}
+    #{changelog New "Animal Path Pain" Shippuden}
   <h3>March 28
   <ul>
-    #{changelog Rework "Kankurō" S}
-    #{changelog Rework "Temari" S}
+    #{changelog Rework "Kankurō" Shippuden}
+    #{changelog Rework "Temari" Shippuden}
   <h3>March 27
   <ul>
-    #{changelog Rework "Ino Yamanaka" S}
-    #{changelog Rework "Deidara" S}
-    #{changelog Rework "Chiyo" S}
+    #{changelog Rework "Ino Yamanaka" Shippuden}
+    #{changelog Rework "Deidara" Shippuden}
+    #{changelog Rework "Chiyo" Shippuden}
   <h3>March 25
   <ul>
-    #{changelog Rework "Chōji Akimichi" O}
+    #{changelog Rework "Chōji Akimichi" Original}
     <li>
       Shukaku Gaara's face icon changes upon completing
       #{"Shukaku Gaara" ! "Sand Transformation"}
   <h3>March 24
   <ul>
-    #{changelog New "Kazekage Puppeteer Sasori" S}
-    #{changelog New "Hiruko Sasori" S}
+    #{changelog New "Kazekage Puppeteer Sasori" Shippuden}
+    #{changelog New "Hiruko Sasori" Shippuden}
   <h3>March 23
   <ul>
-    #{changelog New "True Form Sasori" S}
+    #{changelog New "True Form Sasori" Shippuden}
     <li>
       The <i>Affliction</i> class has been renamed to <i>Bane</i>
       in order to avoid confusion with affliction damage.
-      For example, Shino#{s}'s 
+      For example, Shino#{Shippuden}'s
       #{"Shino Aburame (S)" ! "Gigantic Beetle Infestation"}, which does not deal any affliction damage, was a skill classified as <i>Affliction</i>.
       In the future, other skills may be additionally classified as <i>Bane</i>;
       this would make skills that cure all <i>Bane</i> effects more useful
@@ -164,8 +164,8 @@ $newline always
       called <i>Ongoing</i>. <i>Ongoing</i> skills are permanent,
       perform an action every turn even if their user is stunned or otherwise disabled,
       and end when their user dies. Examples:
-      Choji#{s}'s #{ "Choji Akimichi" ! "Butterfly Mode"},
-      Tsunade's #{"Tsunade" ! "Major Summoning: Katsuyu"}, 
+      Choji#{Shippuden}'s #{ "Choji Akimichi" ! "Butterfly Mode"},
+      Tsunade's #{"Tsunade" ! "Major Summoning: Katsuyu"},
       Jiraiya's #{"Jiraiya" ! "Major Summoning: Gamabunta"},
       Orochimaru's #{"Orochimaru" ! "Major Summoning: Manda"},
       and Hiruzen's #{ "Hiruzen Sarutobi" ! "Major Summoning: Enma"}.

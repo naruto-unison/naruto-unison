@@ -1,7 +1,7 @@
 <section>
   <section>
     <table>
-      $forall category <- enums
+      $forall category <- enumerate
         <tr>
           <th>
             <h2>#{show category}

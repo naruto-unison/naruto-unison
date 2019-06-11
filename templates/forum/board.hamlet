@@ -21,7 +21,7 @@
               <h4>
                 ^{topiclink topic}
               <div>
-                by 
+                by
                 ^{userlink citeAuthor}
           <td>
             #{topicPosts citeVal}

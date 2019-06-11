@@ -19,7 +19,7 @@ body {
     background: #040309 url('/img/bg/hokage.png') no-repeat center bottom;
     background-attachment: fixed;
     padding: 0 2.5em;
-    box-sizing: border-box;   
+    box-sizing: border-box;
 }
 .breadcrumb, #content, #banner, #message {
     max-width: 800px;
@@ -51,7 +51,7 @@ body {
     font-size: 14px;
     display: flex;
     padding-bottom: 1em;
-} 
+}
 .container > section, container > p {
     flex-grow: 1;
     padding: 0 2.5em 1em;
@@ -164,8 +164,8 @@ h4 { font-size: 1.15em; }
   margin-left: 3px;
 }
 #charSelect .chakra {
-  margin-left: 7px;
-  margin-right: -5px;
+    margin-left: 3px;
+    margin-right: 1px;
 }
 .chakra.blood { background-color:#f0000a; }
 .chakra.gen   { background-color:#ffffff; }
@@ -193,7 +193,7 @@ h4 { font-size: 1.15em; }
   margin-left: 0.4em;
 }
 article .minor {
-    margin-left: 0;
+    margin-left: 1px;
 }
 a, a.minor {
   color: #0099ff;
@@ -231,7 +231,11 @@ textarea {
 }
 
 #content > form {
-    padding: 10px auto;
+    padding: 10px;
+    margin: auto;
+}
+#content {
+    padding: 0 10px;
 }
 .full {
     flex-grow: 1;

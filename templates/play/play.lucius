@@ -86,11 +86,6 @@ body {
 .nextSkill:after { content: '▶' }
 .prevSkill:after { content: '◀' }
 
-#charSelect .chakra {
-    margin-left: 7px;
-    margin-right: -5px;
-}
-
 #charSelect .chakra, #top .chakra {
     margin-left: 0.2em;
     margin-right: 0;
@@ -211,11 +206,11 @@ body {
     left: 10px;
     background-color: rgba(255,255,255,0.5);
     border: 1px solid #fff;
-    
+
 }
 #avatars {
     height: 209px;
-    overflow: scroll;
+    overflow-y: scroll;
     border: 2px solid #000;
     border-left: none;
     border-right: none;
@@ -266,7 +261,7 @@ body {
 }
 #charSelect > article > section > aside {
     float: left;
-    position: relative; 
+    position: relative;
 }
 
 #characterButtons {
@@ -298,9 +293,9 @@ body {
 
 .playButtons {
     position: absolute;
-    left: -4px;
+    left: -3px;
     top: 45px;
-    width: 190px;
+    width: 195px;
     height: 125px;
     bottom: 2px;
     z-index: 20; /* Yeah, yeah, I know. */
@@ -368,7 +363,7 @@ a.playButton {
     line-height: 1.15;
     margin-left: -2px;
     text-align: left;
-    text-transform: uppercase;
+    /* text-transform: uppercase; */
     font-size: 15px;
     position: absolute;
     right: 0;
@@ -452,13 +447,13 @@ a.playButton {
 #top > section > section {
     display: inline-block;
     vertical-align: top;
-    width: 9em;
+    width: 10em;
     text-transform: uppercase;
     margin: 0.2em;
 }
 #top > section aside {
     display: inline-block;
-    vertical-align: top;  
+    vertical-align: top;
 }
 #top > section header {
     font-size: 1.2em;
@@ -939,7 +934,7 @@ svg {
     -webkit-text-stroke: 2px #000;
     text-shadow: 0 0 5px #000;
     text-transform: uppercase;
-    
+
 }
 
 @media (max-width: 1065px) {

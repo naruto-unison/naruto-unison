@@ -15,11 +15,11 @@
   <p>
     <span .label>Joined
     $# TODO
-    -- 
+    --
   <p>
-    <span .label>Online 
+    <span .label>Online
     $# TODO
-    -- 
+    --
   <p>
     <span .label>Level
     <div .level>
@@ -39,6 +39,6 @@
     <span .label>Streak
     #{userStreak}
   <p>
-    <span .label>Highest 
+    <span .label>Highest
     $# TODO
-    #{userStreak} 
+    #{userStreak}

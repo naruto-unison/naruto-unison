@@ -13,7 +13,14 @@ exports["getForm_"] = function(just) {
           var el = form[i];
           fields[el.name] = (el.type === "checkbox") ? (el.checked ? "True" : "False") : encodeURIComponent(el.value);
         }
-        return just(fields);
+        return just(function(name) {
+          var field = fields[name];
+          if (field === undefined) {
+            return nothing;
+          } else {
+            return just(field);
+          }
+        });
       }
     }
   }

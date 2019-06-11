@@ -6,7 +6,7 @@ p {
   width: 50px;
 }
 .char.avatar {
-  margin: 1em 0 0 2px;  
+  margin: 1em 0 0 2px;
   width: initial;
   outline-width: 2px;
 }
@@ -34,4 +34,4 @@ p.label {
   flex-grow: 0;
   padding: 0;
   padding-left: 1em;
-} 
+}

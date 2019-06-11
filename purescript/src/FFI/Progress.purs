@@ -1,6 +1,7 @@
 module FFI.Progress (progress) where
 
-import StandardLibrary
+import Prelude
+import Effect (Effect)
 
 import Data.Time.Duration (Milliseconds)
 

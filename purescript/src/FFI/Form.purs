@@ -1,9 +1,16 @@
 module FFI.Form (getForm) where
 
-import StandardLibrary
+import Prelude ((<<<), map)
+import Data.Maybe (Maybe(..))
+import Effect (Effect)
 
-foreign import getForm_ :: ∀ a. (Map String String -> a) -> a -> String 
+foreign import getForm_ :: ∀ a. ((String -> Maybe String) -> a) -> a -> String
                         -> Effect a
 
-getForm :: String -> Effect (Maybe (Map String String))
-getForm = getForm_ Just Nothing
+getForm :: String -> Effect (Maybe Form)
+getForm = map (map makeForm) <<< getForm_ Just Nothing
+
+type Form = { lookup :: String -> Maybe String }
+
+makeForm :: (String -> Maybe String) -> Form
+makeForm lookup = { lookup }

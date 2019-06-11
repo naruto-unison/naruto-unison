@@ -1,26 +1,34 @@
 module Main (main) where
 
-import StandardLibrary
+import Prelude
 
-import Effect.Aff                    as Aff
-import Control.Coroutine             as CR
-import Control.Coroutine.Aff         as CRA
-import Foreign                       as Foreign
-import Halogen.VDom.Driver           as Driver
-import Web.Event.EventTarget         as EET
-import Halogen                       as H
-import Halogen.Aff                   as HA
+import Control.Monad.Except (runExcept)
+import Control.Coroutine as CR
+import Control.Coroutine.Aff as CRA
+import Data.Either (either)
+import Data.Foldable (for_)
+import Data.Maybe (Maybe(..))
+import Data.UUID as UUID
+import Effect (Effect)
+import Effect.Aff as Aff
+import Effect.Aff (Aff)
+import Effect.Class (liftEffect)
+import Foreign as Foreign
+import Foreign (Foreign)
+import Halogen as H
+import Halogen.Aff as HA
+import Halogen.VDom.Driver as Driver
+import Web.Event.EventTarget as EET
 import Web.Socket.Event.MessageEvent as ME
-import Data.UUID                     as UUID
-import Web.Socket.WebSocket          as WS
-import Web.Socket.Event.EventTypes   as WSET
+import Web.Socket.WebSocket as WS
+import Web.Socket.Event.EventTypes as WSET
 
 import Data.Time.Duration (Milliseconds(..))
 
 import Site as Site
 
-import FFI.Import
-import FFI.Sound
+import FFI.Import (hostname)
+import FFI.Sound (register)
 
 -- A producer coroutine that emits messages that arrive from the websocket.
 wsProducer :: WS.WebSocket -> CR.Producer String Aff Unit
@@ -32,12 +40,12 @@ wsProducer socket = CRA.produce \emitter -> do
         false
         (WS.toEventTarget socket)
   where
-  listener emitter = EET.eventListener \ev -> 
+  listener emitter = EET.eventListener \ev ->
       for_ (ME.fromEvent ev) \msgEvent ->
-      for_ (readHelper Foreign.readString (ME.data_ msgEvent)) $ 
+      for_ (readHelper Foreign.readString (ME.data_ msgEvent)) $
           CRA.emit emitter
   readHelper :: forall a b. (Foreign -> Foreign.F a) -> b -> Maybe a
-  readHelper read = either (const Nothing) 
+  readHelper read = either (const Nothing)
                     Just <<< runExcept <<< read <<< Foreign.unsafeToForeign
 
 -- A consumer coroutine that takes the `query` function from our component IO

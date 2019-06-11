@@ -1,99 +1,84 @@
-module FFI.Import 
+module FFI.Import
     ( avatars
     , bg
-    , cs
-    , cs'
+    , chars
     , getPageSize
-    , groupCs
-    , groupCs'
     , hostname
     , user
     , userTeam
     , reload
-    , shortName
-    , showForeignErrors
+    , getJson
+    , unJson
+    , csrf
     ) where
 
-import StandardLibrary
-import Foreign         as Foreign
-import Generic         as G
-import Data.List       as List
+import Prelude
+import Affjax as Affjax
+import Affjax.ResponseFormat as ResponseFormat
+import Control.Monad.Except (runExcept)
+import Data.String as String
+import Effect (Effect)
+import Effect.Aff (Aff)
+import Foreign as Foreign
+import Foreign (Foreign)
+import Foreign.JSON as JSON
+import Data.Either (Either(..))
+import Data.List as List
 import Data.List.Types as ListTypes
-import Data.Map        as Map
-import Partial.Unsafe  as Partial
-import Data.String     as String
+import Data.Maybe (Maybe(..))
+import Generic as G
+import Partial.Unsafe as Partial
 
 import Data.List.NonEmpty (NonEmptyList)
 import Data.Nullable (Nullable, toMaybe)
-import Data.Profunctor.Strong ((&&&))
 
-import Database.Structure
+import Model.Character (Character)
+import Model.User (User)
 
-foreign import avatars     :: Array String
-foreign import bg          :: String
-foreign import fCs'        :: Array Foreign
-foreign import fUserTeam   :: Array Foreign
-foreign import fUser       :: Nullable Foreign
-foreign import hostname    :: String
-foreign import reload      :: Effect Unit
-foreign import getPageSize :: Effect Int
+foreign import avatars        :: Array String
+foreign import bg             :: String
+foreign import fChars         :: Array Foreign
+foreign import fUserTeam      :: Array Foreign
+foreign import fUser          :: Nullable Foreign
+foreign import hostname       :: String
+foreign import reload         :: Effect Unit
+foreign import getPageSize    :: Effect Int
+foreign import csrf           :: String
 
-
-cs' :: Array Character
-cs' = unsafeImport <$> fCs'
+chars :: Array Character
+chars = unsafeImport <$> fChars
 
 userTeam :: Array Character
 userTeam = unsafeImport <$> fUserTeam
 
-cs :: Map String Character
-cs = Map.fromFoldable $ makeKey <$> cs'
-  where 
-    makeKey c'@(Character c) = flip Tuple c' $ 
-                               c.characterName <> case c.characterGroup of
-                                   Original   -> ""
-                                   Shippuden  -> " (R)"
-                                   Reanimated -> " (S)"
-
-groupCs' :: Array (NonEmpty Array Character)
-groupCs' = groupBy (eq `on` shortName) cs'
-
-groupCs :: Map String (NonEmpty Array Character)
-groupCs = Map.fromFoldable $ makeKey <$> groupCs'
-  where 
-    makeKey xs@(x :| _) = Tuple (shortName x) xs
-
 user :: Maybe User
 user = parseUser =<< toMaybe fUser
-  where 
+  where
     parseUser x = case runExcept (G.decode x) of
                       Right u   -> Just u
                       Left err  -> Nothing
 
-makeShortName :: Character -> String
-makeShortName (Character c) = case c.characterName of
-    "Tobi"          -> "Obito"
-    "Masked Man"    -> "Obito"
-    "Nagato"        -> "Pain"
-    "Shukaku Gaara" -> "Gaara"
-    _  -> fromMaybe' (\_ -> strip c.characterName) $ do
-        skills       <- c.characterSkills !! 3
-        Skill {desc} <- head skills
-        pure $ strip desc
-  where
-    strip = String.takeWhile (_ /= String.codePointFromChar ' ') <<<
-            maybeDo (String.stripPrefix $ Pattern "The")
-
-shortNames :: Map Character String
-shortNames = Map.fromFoldable $ (identity &&& makeShortName) <$> cs'
-
-shortName :: Character -> String
-shortName c = fromMaybe' (\_ -> makeShortName c) $ Map.lookup c shortNames
-
 unsafeImport :: ∀ a. G.Decode a => Foreign -> a
 unsafeImport x = case runExcept (G.decode x) of
-    Right u -> u
+    Right u  -> u
     Left err -> Partial.unsafeCrashWith $ showForeignErrors err
 
 showForeignErrors :: NonEmptyList Foreign.ForeignError -> String
-showForeignErrors = String.joinWith "\n" <<< map Foreign.renderForeignError <<< 
+showForeignErrors = String.joinWith "\n" <<<
+                    (Foreign.renderForeignError <$> _) <<<
                     List.toUnfoldable <<< ListTypes.toList
+
+mapLeft :: ∀ a b c. (a -> c) -> Either a b -> Either c b
+mapLeft f (Left x)  = Left (f x)
+mapLeft _ (Right x) = Right x
+
+unJson :: ∀ a. G.Decode a => String -> Either String a
+unJson = mapLeft showForeignErrors <<< runExcept <<<
+         JSON.decodeJSONWith (G.decode)
+
+getJson :: ∀ a. G.Decode a => String -> Aff (Either String a)
+getJson url = do
+    {body} <- Affjax.get ResponseFormat.string url
+    pure $ mapLeft Affjax.printResponseFormatError body
+       >>= mapLeft showForeignErrors <<< runExcept <<<
+           JSON.decodeJSONWith (G.decode)

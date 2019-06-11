@@ -1,10 +1,8 @@
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE DeriveAnyClass    #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE DeriveAnyClass  #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 -- | Fields for persistent data structures in 'Core.Model'.
-module Core.Fields 
+module Core.Fields
     ( Privilege(..)
     -- * Forums
     , ForumCategory(..)
@@ -12,34 +10,34 @@ module Core.Fields
     , boardName, boardDesc, boardCategory
     ) where
 
-import StandardLibrary
+import ClassyPrelude.Yesod
 import Text.Read
 
 
-data Privilege 
-    = Normal 
-    | Moderator 
-    | Admin 
+data Privilege
+    = Normal
+    | Moderator
+    | Admin
   deriving (Enum, Ord, Bounded, Eq, Show, Read, Generic, FromJSON, ToJSON)
 derivePersistField "Privilege"
 
-data ForumCategory 
+data ForumCategory
     = Official
     | Community
     | Feedback
     | General
     deriving (Enum, Bounded, Eq, Show, Read)
-                   
 
-data ForumBoard 
+
+data ForumBoard
     -- Official
     = NewsAndAnnouncements
     | ForumInfo
     -- Community
     | IntroduceYourself
     -- Feedback
-    | BugReports       
-    | TechnicalSupport 
+    | BugReports
+    | TechnicalSupport
     | Suggestions
     -- General
     | OffTopic

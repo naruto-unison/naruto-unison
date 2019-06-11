@@ -8,11 +8,11 @@ exports["progress"] = function (duration) {
   return function(from) {
     return function(to) {
       return function() {
-        if (!prog) 
+        if (!prog)
           prog = new ProgressBar.Line("#ready",
             { color: '#0099ff'
             , fill: '#111'
-          })        
+          })
         if (from < to) {
           prog.path.setAttribute('stroke','#555')
         }

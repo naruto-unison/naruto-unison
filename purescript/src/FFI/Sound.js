@@ -11,7 +11,7 @@ exports["sfxRegister"] = function (show) {
       vol.onclick = function () {
         var muted = this.className === "click muted"
         this.className = muted ? "click unmuted" : "click muted"
-        if (muted) 
+        if (muted)
           createjs.Sound.play("SFXClick")
         if (user) {
           var xmlhttp = new XMLHttpRequest();

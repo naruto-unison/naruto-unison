@@ -1,4 +1,4 @@
-const chars = #{toJSON cs}
+const chars = #{toJSON Characters.map}
 
 const cTypes = [ "blood", "gen", "nin", "tai", "rand" ]
 const tcTypes = [ "blood", "gen", "nin", "tai" ]
@@ -7,12 +7,12 @@ shorten = x => x.replace(/ \(\d+\)/g, '')
                 .replace(/[- :()']/g,'')
                 .replace(/ō/g,'o')
                 .replace(/ū/g,'u')
-                    
+
 hide = x => x.hide() // A taste of home...
 half = x => (x + 1) / 2 >> 0
 
-getSkill = (char, label) => {
-  for (skills of char.characterSkills) for (skill of skills) if (skill.label === label) return skill
+getSkill = (char, name) => {
+  for (skills of char.skills) for (skill of skills) if (skill.name === name) return skill
 }
 
 const offset = 5
@@ -36,16 +36,16 @@ const hidden = [ "All"
                , "Taijutsu"
                , "Random"
                , "Necromancy"
-               , "Single" 
+               , "Single"
                ]
 filterClasses = x => x.filter(y => !hidden.includes(y))
 
 showChar = x => {
-  if (x.characterGroup === "Shippuden") 
-       { return x.characterName + " (S)" }
-  else if (x.characterGroup === "Reanimated") 
-       { return x.characterName + " (R)" }
-  else { return x.characterName }
+  switch (x.category) {
+    case "Shippuden":  return x.name + " (S)";
+    case "Reanimated": return x.name + " (R)";
+    default:           return x.name;
+  }
 }
 
 let cur
@@ -60,7 +60,7 @@ hoverChar = (i, el) => {
       cur = el
       tooltip.stop()
       tooltip.find("header").text(showChar(usr))
-      tooltip.find("article").text(usr.characterBio)
+      tooltip.find("article").text(usr.bio)
       tooltip
         .stop()
         .css("left", ev.pageX)
@@ -85,7 +85,7 @@ $(() => {
             if (tooltip.css("display") !== "none" && cur === src) return
             cur = src
             tooltip.stop()
-            tooltip.find("header").text(skill.label).append([].concat(
+            tooltip.find("header").text(skill.name).append([].concat(
               ...cTypes.map(cType => Array.from(Array(skill.cost[cType]))
               .map(()=> $(`<div class=" chakra ${cType}"></div>`) ))
             )).append($('<br/><p class="skillClasses">' +
@@ -97,7 +97,7 @@ $(() => {
                 desc.append(` <span class="extra">1 charge.</span>`)
             else if (charges > 1)
                 desc.append(` <span class="extra">${charges} charges.</span>`)
-            desc.append(` <span class="extra">CD: ${skill.cd}</span>`)
+            desc.append(` <span class="extra">CD: ${skill.cooldown}</span>`)
             tooltip
               .stop()
               .css("left", ev.pageX)

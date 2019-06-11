@@ -1,9 +1,5 @@
-{-# LANGUAGE TemplateHaskell       #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies          #-}
-{-# LANGUAGE ViewPatterns          #-}
-
--- | Yesod-provided implementation of 'Foundation'.
+{-# LANGUAGE TemplateHaskell      #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
     ( getApplicationDev
     , appMain
@@ -18,119 +14,148 @@ module Application
     , db
     ) where
 
-import StandardLibrary
+import ClassyPrelude.Yesod hiding (static)
+import qualified Control.Monad.Logger as Logger
+import qualified Database.Persist.Postgresql as Sql
+import qualified Language.Haskell.TH.Syntax as TH
+import qualified Network.HTTP.Client.TLS as TLS
+import           Network.Wai (Middleware)
+import qualified Network.Wai.Handler.Warp as Warp
+import qualified Network.Wai.Middleware.RequestLogger as RequestLogger
+import           Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource(..), OutputFormat(..))
+import qualified StmContainers.Map as StmMap
+import qualified System.Log.FastLogger as FastLogger
+import qualified Yesod.Static as Static
+import qualified Yesod.Auth as Auth
+import qualified Yesod.Core.Types as YesodTypes
+import qualified Yesod.Default.Config2 as DefaultConfig
 
-import qualified System.Log.FastLogger                as FastLogger
-import qualified Control.Monad.Logger                 as Logger
-import qualified STMContainers.Map                    as STMMap
-import qualified Database.Persist.Postgresql          as SQL
-import qualified Language.Haskell.TH.Syntax           as Syntax
-import qualified Network.Wai.Handler.Warp             as Warp
-import qualified Network.Wai                          as Wai
-import qualified Network.Wai.Middleware.RequestLogger as WaiLogger
 
-import Network.Wai.Middleware.RequestLogger (IPAddrSource (..), OutputFormat (..))
+import qualified Core.App as App
+import           Core.App (App(..), Handler, Route(..))
+import qualified Core.AppSettings as AppSettings
+import           Core.AppSettings (AppSettings)
+import qualified Core.Settings as Settings
+import qualified Core.Model as Model
 
-import Core.Import
-import Handler.Embed
-import Handler.Play
-import Handler.Client
-import Handler.Site
 import Handler.Admin
+import Handler.Client
+import Handler.Embed
 import Handler.Forum
+import Handler.Play
+import Handler.Site
 
-mkYesodDispatch "App" resourcesApp
+mkYesodDispatch "App" App.resourcesApp
 
 makeFoundation :: AppSettings -> IO App
-makeFoundation appSettings = do
-    appHttpManager <- newManager
-    appLogger  <- FastLogger.newStdoutLoggerSet FastLogger.defaultBufSize
-                  >>= makeYesodLogger
-    appStatic  <-
-        (if appMutableStatic appSettings then staticDevel else static)
-        (appStaticDir appSettings)
-    appQueue    <- newTChanIO
-    appPractice <- STMMap.newIO
+makeFoundation settings = do
+    httpManager <- TLS.getGlobalManager
+    logger      <- FastLogger.newStdoutLoggerSet FastLogger.defaultBufSize >>=
+                   DefaultConfig.makeYesodLogger
+    static      <- staticMode $ AppSettings.staticDir settings
+    queue       <- newTChanIO
+    practice    <- StmMap.newIO
 
-    let mkFoundation appConnPool = App {..}
+    -- We need a log function to create a connection pool. We need a connection
+    -- pool to create our foundation. And we need our foundation to get a
+    -- logging function. To get out of this loop, we initially create a
+    -- temporary foundation without a real connection pool, get a log function
+    -- from there, and then create the real foundation.
+    let mkFoundation connPool = App {..}
         tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
-        logFunc = messageLoggerSource tempFoundation appLogger
+        logFunc = messageLoggerSource tempFoundation logger
 
-    pool <- flip Logger.runLoggingT logFunc $ SQL.createPostgresqlPool
-        (SQL.pgConnStr  $ appDatabaseConf appSettings)
-        (SQL.pgPoolSize $ appDatabaseConf appSettings)
+    pool <- flip Logger.runLoggingT logFunc $ Sql.createPostgresqlPool
+        (Sql.pgConnStr  $ AppSettings.databaseConf settings)
+        (Sql.pgPoolSize $ AppSettings.databaseConf settings)
 
-    Logger.runLoggingT (SQL.runSqlPool (runMigration migrateAll) pool) logFunc
+    Logger.runLoggingT
+        (Sql.runSqlPool (runMigration Model.migrateAll) pool) logFunc
 
     return $ mkFoundation pool
+  where
+    staticMode
+      | AppSettings.mutableStatic settings = Static.staticDevel
+      | otherwise                          = Static.static
 
+-- | Convert foundation to a WAI Application by calling @toWaiAppPlain@ and
+-- applying some additional middlewares.
 makeApplication :: App -> IO Application
 makeApplication foundation = do
     logWare <- makeLogWare foundation
     appPlain <- toWaiAppPlain foundation
     return $ logWare $ defaultMiddlewaresNoLogging appPlain
 
-makeLogWare :: App -> IO Wai.Middleware
+makeLogWare :: App -> IO Middleware
 makeLogWare foundation =
-    WaiLogger.mkRequestLogger def
-        { WaiLogger.outputFormat =
-            if appDetailedRequestLogging $ appSettings foundation
+    RequestLogger.mkRequestLogger def
+        { RequestLogger.outputFormat =
+            if AppSettings.detailedRequestLogging $ App.settings foundation
                 then Detailed True
-                else Apache
-                        (if appIpFromHeader $ appSettings foundation
+                else Apache $
+                        if AppSettings.ipFromHeader $ App.settings foundation
                             then FromFallback
-                            else FromSocket)
-        , WaiLogger.destination = 
-            WaiLogger.Logger $ loggerSet $ appLogger foundation
+                            else FromSocket
+        , RequestLogger.destination =
+            Logger . YesodTypes.loggerSet $ App.logger foundation
         }
 
 warpSettings :: App -> Warp.Settings
 warpSettings foundation =
-    Warp.setPort (appPort $ appSettings foundation) $
-    Warp.setHost (appHost $ appSettings foundation) $
-    Warp.setOnException (\_req e ->
+      Warp.setPort (AppSettings.port $ App.settings foundation)
+    $ Warp.setHost (AppSettings.host $ App.settings foundation)
+    $ Warp.setOnException (\_req e ->
         when (Warp.defaultShouldDisplayException e) $ messageLoggerSource
             foundation
-            (appLogger foundation)
-            $(Syntax.qLocation >>= Logger.liftLoc)
+            (App.logger foundation)
+            $(TH.qLocation >>= Logger.liftLoc)
             "yesod"
             LevelError
             (FastLogger.toLogStr $ "Exception from Warp: " ++ show e))
       Warp.defaultSettings
 
+-- | Warp settings and WAI Application for `yesod devel`.
 getApplicationDev :: IO (Warp.Settings, Application)
 getApplicationDev = do
-    settings <- loadYamlSettings [configSettingsYml] [] useEnv
+    settings <- getAppSettings
     foundation <- makeFoundation settings
-    wsettings <- getDevSettings $ warpSettings foundation
+    wsettings <- DefaultConfig.getDevSettings $ warpSettings foundation
     app <- makeApplication foundation
     return (wsettings, app)
 
 getAppSettings :: IO AppSettings
-getAppSettings = loadYamlSettings [configSettingsYml] [] useEnv
+getAppSettings = DefaultConfig.loadYamlSettings
+                 [DefaultConfig.configSettingsYml] [] DefaultConfig.useEnv
 
+-- | Main function for use by `yesod devel`
 develMain :: IO ()
-develMain = develMainHelper getApplicationDev
+develMain = DefaultConfig.develMainHelper getApplicationDev
 
+-- | The @main@ function for an executable running the site.
 appMain :: IO ()
 appMain = do
-    settings <- loadYamlSettingsArgs
-        [configSettingsYmlValue]
-        useEnv
+    settings <- DefaultConfig.loadYamlSettingsArgs
+        -- fall back to compile-time values, set to [] to require values at runtime
+        [Settings.configSettingsYmlValue]
+
+        -- allow environment variables to override
+        DefaultConfig.useEnv
+
     foundation <- makeFoundation settings
-    app <- makeApplication foundation
+    app        <- makeApplication foundation
     Warp.runSettings (warpSettings foundation) app
 
 
 --------------------------------------------------------------
 -- Functions for DevelMain.hs (a way to run the app from GHCi)
 --------------------------------------------------------------
+
 getApplicationRepl :: IO (Int, App, Application)
 getApplicationRepl = do
-    settings <- getAppSettings
+    settings   <- getAppSettings
     foundation <- makeFoundation settings
-    wsettings <- getDevSettings $ warpSettings foundation
-    app1 <- makeApplication foundation
+    wsettings  <- DefaultConfig.getDevSettings $ warpSettings foundation
+    app1       <- makeApplication foundation
     return (Warp.getPort wsettings, foundation, app1)
 
 shutdownApp :: App -> IO ()
@@ -141,8 +166,10 @@ shutdownApp _ = return ()
 -- Functions for use in development with GHCi
 ---------------------------------------------
 
-handler :: ∀ a. Handler a -> IO a
-handler h = getAppSettings >>= makeFoundation >>= flip unsafeHandler h
+-- | Run a handler
+handler :: Handler a -> IO a
+handler h = getAppSettings >>= makeFoundation >>= flip App.unsafeHandler h
 
-db :: ∀ a. ReaderT SqlBackend (HandlerFor App) a -> IO a
+-- | Run DB queries
+db :: ReaderT SqlBackend Handler a -> IO a
 db = handler . runDB
