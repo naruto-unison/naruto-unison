@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveAnyClass  #-}
 {-# LANGUAGE TemplateHaskell #-}
 
--- | Fields for persistent data structures in 'Core.Model'.
+-- | Fields for persistent types in 'Core.Model'.
 module Core.Fields
     ( Privilege(..)
     -- * Forums
@@ -12,7 +12,6 @@ module Core.Fields
 
 import ClassyPrelude.Yesod
 import Text.Read
-
 
 data Privilege
     = Normal

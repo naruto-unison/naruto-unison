@@ -26,17 +26,17 @@ usable :: Ninja
        -> Maybe Int -- ^ Index in 'Character.skills'
        -> Skill -> Skill
 usable n s sk
-  | Skill.charges sk > 0 && uncharged                     = unusable
-  | maybe False (>0) $ s >>= (Cooldown.active n !?)       = unusable
-  | isNothing s && Channel.noInterrupt (Skill.channel sk) = sk'
-  | Skill.classes sk `intersects` Effects.stun n          = unusable
-  | isNothing s                                           = sk'
-  | Single ∉ Skill.classes sk                             = sk'
-  | Ninja.isChanneling (Skill.name sk) n                  = unusable
-  | Ninja.has (Skill.name sk) (Ninja.slot n) n            = unusable
-  | Ninja.hasDefense (Skill.name sk) (Ninja.slot n) n     = unusable
-  | Ninja.hasTrap (Skill.name sk) (Ninja.slot n) n        = unusable
-  | otherwise                                             = sk'
+  | Skill.charges sk > 0 && uncharged                    = unusable
+  | maybe False (>0) $ s >>= (Cooldown.active n !?)      = unusable
+  | isNothing s && Channel.ignoreStun (Skill.channel sk) = sk'
+  | Skill.classes sk `intersects` Effects.stun n         = unusable
+  | isNothing s                                          = sk'
+  | Single ∉ Skill.classes sk                            = sk'
+  | Ninja.isChanneling (Skill.name sk) n                 = unusable
+  | Ninja.has (Skill.name sk) (Ninja.slot n) n           = unusable
+  | Ninja.hasDefense (Skill.name sk) (Ninja.slot n) n    = unusable
+  | Ninja.hasTrap (Skill.name sk) (Ninja.slot n) n       = unusable
+  | otherwise                                            = sk'
   where
     uncharged = maybe False (>= Skill.charges sk) $
                 s >>= (Ninja.charges n !?)
@@ -59,23 +59,22 @@ succeed (HasI i name) t n
   | i < 0     = t /= Ninja.slot n || Ninja.numActive name n < (-i)
   | otherwise = True
 
-targetable :: Skill -> Ninja -> Ninja -> Ninja -> Bool
-targetable skill nSrc n nt
-  | not $ succeed (Skill.require skill) source nt                = False
-  | not (Ninja.alive nt) && Necromancy ∉ classes                 = False
-  | Ninja.alive nt && source /= target && Necromancy ∈ classes   = False
-  | Bypassing ∈ classes                                          = True
-  | harm && (classes `intersects` Effects.immune nt)             = False
-  | source /= target && not harm && Ninja.is Seal nt             = False
-  | user /= target && (Ninja.is Isolate n || dueling || taunted) = False
-  | target ∈ Effects.targets Block n                             = False
-  | otherwise                                                    = True
+targetable :: Skill -> Ninja -> Ninja -> Bool
+targetable skill n nt
+  | not $ succeed (Skill.require skill) user nt              = False
+  | not (Ninja.alive nt) && Necromancy ∉ classes             = False
+  | Ninja.alive nt && user /= target && Necromancy ∈ classes = False
+  | Bypassing ∈ classes                                      = True
+  | harm && (classes `intersects` Effects.immune nt)         = False
+  | user /= target && not harm && Ninja.is Seal nt           = False
+  | user /= target && (dueling || taunted)                   = False
+  | target ∈ Effects.block  n                                = False
+  | otherwise                                                = True
   where
     classes = Skill.classes skill
-    source  = Ninja.slot nSrc
     user    = Ninja.slot n
     target  = Ninja.slot nt
-    harm    = not $ Parity.allied user target && Parity.allied source target
-    dueling = notIn user $ Effects.targets Duel nt
-    taunted = notIn target $ Effects.targets Taunt n
+    harm    = not $ Parity.allied user target && Parity.allied user target
+    dueling = notIn user $ Effects.duel nt
+    taunted = notIn target $ Effects.taunt n
     notIn a xs = not (null xs) && a ∉ xs

@@ -36,20 +36,20 @@ data Requirement
     | HasI Int String
     | HasU String
 
-newtype Skill = Skill { name     :: String
-                      , desc     :: String
-                      , require  :: Requirement
-                      , classes  :: Array Class
-                      , cost     :: Chakras
-                      , cooldown :: Int
-                      , varicd   :: Boolean
-                      , charges  :: Int
-                      , channel  :: Channeling
-                      , start    :: Array (Untuple Target)
-                      , effects  :: Array (Untuple Target)
-                      , disrupt  :: Array (Untuple Target)
-                      , copying  :: Copying
-                      , pic      :: Boolean
+newtype Skill = Skill { name      :: String
+                      , desc      :: String
+                      , require   :: Requirement
+                      , classes   :: Array Class
+                      , cost      :: Chakras
+                      , cooldown  :: Int
+                      , varicd    :: Boolean
+                      , charges   :: Int
+                      , channel   :: Channeling
+                      , start     :: Array (Untuple Target)
+                      , effects   :: Array (Untuple Target)
+                      , interrupt :: Array (Untuple Target)
+                      , copying   :: Copying
+                      , pic       :: Boolean
                       }
 instance _showSkill_ :: Show Skill where
     show (Skill s) = s.name

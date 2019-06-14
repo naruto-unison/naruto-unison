@@ -1,7 +1,7 @@
+-- | Processing of 'Effect's that change an action as it occurs.
 module Engine.Trigger
   ( counter
   , parry
-  , reapply
   , redirect
   , reflect
   , replace
@@ -10,16 +10,19 @@ module Engine.Trigger
   , swap
   ) where
 
-import ClassyPrelude.Yesod hiding (Status, redirect, replace, swap)
+import ClassyPrelude.Yesod hiding (Status, redirect, replace, share, swap)
+import qualified Data.Sequence as Seq
 
 import           Core.Util ((∈), (∉), intersects)
 import qualified Class.Play as P
 import           Class.Play (GameT, Play)
 import           Class.Random (RandomT)
 import           Model.Class (Class(..))
+import           Model.Duration (Duration)
 import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
 import qualified Model.Channel as Channel
+import qualified Model.Context as Context
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja)
 import           Model.Slot (Slot)
@@ -28,37 +31,46 @@ import           Model.Skill (Skill)
 import qualified Model.Status as Status
 import           Model.Status (Status)
 import qualified Model.Trap as Trap
-import           Model.Trap (Trigger(..))
+import           Model.Trap (Trap, Trigger(..))
 import qualified Engine.Traps as Traps
 
 -- | Trigger a 'Replace'.
--- Returns ('Status.source', 'Status.name', 'Effects.replaceTo', 'Effects.replaceDuration').
-replace :: [Class] -> Ninja -> Bool -> [(Slot, Text, Int, Int)]
+-- Returns ('Status.user', 'Status.name', 'Effects.replaceTo', 'Effects.replaceDuration').
+replace :: [Class] -> Ninja -> Bool -> [(Slot, Text, Int, Duration)]
 replace classes n harm = mapMaybe ifCopy allStatuses
   where
     allStatuses = filter (any matches . Status.effects) $ Ninja.statuses n
     matches (Replace _ cla _ noharm) = (harm || noharm) && cla ∈ classes
     matches _                        = False
-    ifCopy st = [(Status.source st, Status.name st, to, dur)
+    ifCopy st = [(Status.user st, Status.name st, to, dur)
                   | Replace dur _ to _ <- find matches $ Status.effects st]
 
 -- | Trigger a 'Counter'.
-counter :: [Class] -> Ninja -> Ninja -> Maybe Ninja
-counter classes n nt
-  | nocounter = Just nt
-  | isJust . find (any matchN . Status.effects) $ Ninja.statuses nt = Just nt
-  | otherwise = Ninja.drop match nt
+counter :: [Class] -> Ninja -> Ninja -> Maybe (Ninja, Ninja, Maybe Trap)
+counter classes n nt = 
+    do
+        guard $ Uncounterable ∉ classes
+        trap <- find ((OnCounterAll ==) . Trap.trigger) $ Ninja.traps n
+        return (n, nt, Just trap)
+    <|> do
+        guard . any (any counterAll . Status.effects) $ Ninja.statuses nt
+        return (n, nt, Nothing)
+    <|> do
+        i <- Seq.findIndexL (onCounter . Trap.trigger) $ Ninja.traps n
+        let n' = n { Ninja.traps = Seq.deleteAt i $ Ninja.traps n }
+        return (n', nt, Seq.lookup i $ Ninja.traps n)
+    <|> do
+        nt' <- Ninja.drop counterOne nt
+        return (n, nt', Nothing)
   where
-    nocounter = Uncounterable ∉ classes
-                && any ((OnCounterAll ==) . Trap.trigger) (Ninja.traps n)
-    matchN (CounterAll Uncounterable) = True
-    matchN (CounterAll cla)           = cla ∈ classes
-                                        && Uncounterable ∉ classes
-    matchN _                          = False
-    match (Counter Uncounterable)     = True
-    match (Counter cla)               = cla ∈ classes
-                                        && Uncounterable ∉ classes
-    match _ = False
+    matchClass cla              = cla == Uncounterable 
+                                  || cla ∈ classes && Uncounterable ∉ classes
+    counterAll (CounterAll cla) = matchClass cla
+    counterAll _                = False
+    onCounter (OnCounter cla)   = matchClass cla
+    onCounter _                 = False
+    counterOne (Counter cla)    = matchClass cla
+    counterOne _                = False
 
 -- | Trigger a 'Parry'.
 parry :: Skill -> Ninja -> Maybe (Ninja, Status, Play ())
@@ -96,19 +108,13 @@ snareTrap skill n = [(n', a) | (n', SnareTrap _ a, _) <- Ninja.take match n]
 reflectable :: ([Effect] -> Bool) -> [Class] -> Ninja -> Maybe Status
 reflectable matches classes
   | Unreflectable ∈ classes = const Nothing
-  | otherwise                    = find (matches . Status.effects) .
-                                   Ninja.statuses
+  | otherwise               = find (matches . Status.effects) . Ninja.statuses
 
--- | Trigger a 'Reapply'.
-reapply :: [Class] -> Ninja -> Maybe Slot
-reapply classes = (Status.user <$>) . reflectable (Reapply ∈) classes
 
 -- | Trigger a 'Redirect'.
 redirect :: [Class] -> Ninja -> Maybe Slot
-redirect classes = (Status.user <$>) . reflectable (any match) classes
-  where
-    match (Redirect cla) = cla ∈ classes
-    match _              = False
+redirect classes n = listToMaybe [slot | Redirect cla slot <- Ninja.effects n
+                                       , cla ∈ classes || cla == Uncounterable]
 
 -- | Trigger a 'Swap'.
 swap :: [Class] -> Ninja -> Maybe Status
@@ -126,8 +132,8 @@ death :: ∀ m. (GameT m, RandomT m) => Slot -> m ()
 death slot = do
     game   <- P.game
     let n   = Game.ninja slot game
-        res = Traps.get (not $ Ninja.is Plague n) OnRes n
-        die = Traps.get True OnDeath n
+        res = Traps.get slot (not $ Ninja.is Plague n) OnRes n
+        die = Traps.get slot True OnDeath n
     if | Ninja.health n > 0 -> return ()
        | not $ null res     -> do
             P.modify $ Game.adjust slot \nt ->
@@ -135,21 +141,22 @@ death slot = do
                    , Ninja.traps  = filter ((OnRes /=) . Trap.trigger) $
                                     Ninja.traps nt
                    }
-            Traps.direct slot res
+            trigger res
        | otherwise -> do
             P.modify $ Game.adjust slot \nt ->
                 nt { Ninja.traps = filter ((OnDeath /=) . Trap.trigger) $
                                   Ninja.traps nt }
-            Traps.direct slot die
+            trigger die
             P.modify . Game.alter $ (unres <$>)
   where
+    trigger = traverse_ $ P.launch . first \ctx -> ctx { Context.user = slot }
     unres n = n
         { Ninja.statuses = [st | st <- Ninja.statuses n
-                               , slot /= Status.source st
+                               , slot /= Status.user st
                                  && slot /= Status.user st
                                  || Soulbound ∉ Status.classes st]
         , Ninja.traps    = [trap | trap <- Ninja.traps n
-                                 , slot /= Trap.source trap
+                                 , slot /= Trap.user trap
                                    || Soulbound ∉ Trap.classes trap]
         , Ninja.channels = filter ((slot /=) . Channel.target) $
                            Ninja.channels n

@@ -13,8 +13,7 @@ class TurnBased a where
     setDur :: Int -> a -> a
 
 -- If @'getDur' <= 0, has no effect.
--- If @'getDur' == 1, deletes the structure;
--- it has reached the end of its duration.
+-- If @'getDur' == 1, deletes the structure; it has expired.
 -- Otherwise, decreases the remaining duration by 1.
 decr :: ∀ a. TurnBased a => a -> Maybe a
 decr a

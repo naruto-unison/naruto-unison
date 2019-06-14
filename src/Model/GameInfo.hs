@@ -58,13 +58,13 @@ censorNinja game player n
     filt = (not . (Invisible ∈)) . Skill.classes . Channel.skill
     n'   = n { Ninja.statuses = mapMaybe mst $ Ninja.statuses n
              , Ninja.traps    = [ trap | trap <- Ninja.traps n
-                                , Parity.allied player (Trap.source trap)
+                                , Parity.allied player (Trap.user trap)
                                   || Invisible ∉ Trap.classes trap
-                                  || revealed (Trap.source trap) ]
+                                  || revealed (Trap.user trap) ]
              }
     revealed slot = Ninja.is Reveal $ Game.ninja slot game
     mst st
-      | Parity.allied player $ Status.source st = Just st
+      | Parity.allied player $ Status.user st = Just st
       | Invisible ∈ Status.classes st
         && not (revealed $ Status.user st) = Nothing
       | otherwise = case Status.effects st of

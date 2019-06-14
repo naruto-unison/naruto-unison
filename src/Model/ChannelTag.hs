@@ -11,9 +11,9 @@ import           Model.Skill (Skill)
 import           Model.Slot (Slot)
 
 new :: Skill -> Slot -> ChannelTag
-new skill source = ChannelTag { root   = Copy.root skill source
-                              , source
-                              , skill
-                              , ghost  = False
-                              , dur    = 3
-                              }
+new skill user = ChannelTag { source   = Copy.source skill user
+                            , user
+                            , skill
+                            , ghost  = False
+                            , dur    = 3
+                            }

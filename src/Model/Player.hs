@@ -9,7 +9,7 @@ import ClassyPrelude.Yesod hiding (even)
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
 
-data Player = A | B deriving (Enum, Show, Eq)
+data Player = A | B deriving (Bounded, Enum, Show, Eq)
 instance ToJSON Player where
     toJSON = toJSON . fromEnum
 

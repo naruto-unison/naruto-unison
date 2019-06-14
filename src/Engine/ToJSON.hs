@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveAnyClass       #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# OPTIONS_HADDOCK hide          #-}
 
 module Engine.ToJSON () where
 
@@ -115,14 +116,15 @@ instance ToJSON Game where
                 skill <- Adjust.skills n
                 return $ (List.intersect . skillTargets skill $ Ninja.slot n)
                          [Ninja.slot nt | nt <- ns
-                                        , Requirement.targetable skill n n nt
+                                        , Requirement.targetable skill n nt
                                         ]
 
 -- | All targets that a 'Skill' from a a specific 'Ninja' affects.
 skillTargets :: Skill -> Slot -> [Slot]
 skillTargets skill c = filter target Slot.all
   where
-    ts = fst <$> Skill.start skill ++ Skill.effects skill ++ Skill.disrupt skill
+    ts = fst <$> 
+         Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill
     harm = [Enemy, Enemies, REnemy, XEnemies] `intersects` ts
     target t
       | Everyone ∈ ts = True

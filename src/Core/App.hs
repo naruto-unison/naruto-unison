@@ -2,11 +2,20 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE NoStrictData    #-}
 
-module Core.App where
+-- | Yesod app instance. @stack new@ was used to generate boilerplate.
+module Core.App
+  ( App(..)
+  , Handler, Widget
+  , Route(..)
+  , AppPersistEntity
+  , unsafeHandler
+  , resourcesApp
+  ) where
 
 import ClassyPrelude.Yesod hiding (static)
 import           Control.Monad.Logger (LogSource)
 import qualified Data.CaseInsensitive as CaseInsensitive
+import           Data.Cache (Cache)
 import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Lazy.Encoding as LazyEncoding
 import qualified Database.Persist.Sql as Sql
@@ -15,7 +24,6 @@ import qualified Text.Blaze.Html.Renderer.Utf8 as Blaze
 import           Text.Hamlet (hamletFile)
 import qualified Text.Jasmine as Jasmine
 import           Text.Shakespeare.Text (stext)
-import qualified StmContainers.Map as StmMap
 import qualified Yesod.Auth as Auth
 import           Yesod.Auth (Auth, YesodAuth(..), YesodAuthPersist, AuthenticationResult(..), AuthPlugin)
 import qualified Yesod.Auth.Email as AuthEmail
@@ -23,9 +31,8 @@ import           Yesod.Auth.Email (YesodAuthEmail(..))
 import           Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import qualified Yesod.Default.Util as YesodUtil
--- TODO: Dummy does not respect settings.
 -- Used only when in "auth-dummy-login" setting is enabled.
---import qualified Yesod.Auth.Dummy as Dummy
+import qualified Yesod.Auth.Dummy as Dummy
 
 import           Core.Fields (ForumBoard, Privilege(..), boardName)
 import qualified Core.Message as Message
@@ -37,35 +44,32 @@ import           Model.Act (Act)
 import           Model.Chakra (Chakras)
 import           Model.Game (Game)
 
+-- | App environment.
 data App = App
-    { settings    :: AppSettings
-    , static      :: Static
-    , connPool    :: Sql.ConnectionPool
-    , httpManager :: Manager
-    , logger      :: Logger
-    , practice    :: StmMap.Map (Key User) Game
+    { settings    :: AppSettings 
+      -- ^ Settings loaded from a local file.
+    , static      :: Static 
+      -- ^ Server for static files.
+    , connPool    :: Sql.ConnectionPool 
+      -- ^ Database connection.
+    , httpManager :: Manager 
+      -- ^ Web request manager.
+    , logger      :: Logger 
+      -- ^ See https://www.yesodweb.com/blog/2014/01/new-fast-logger
+    , practice    :: Cache (Key User) Game
+      -- ^ Saved state of Practice Games. Games expire after one hour or as soon
+      -- as they yield a victor.
+      -- All other games are stored in their websocket threads.
     , queue       :: TChan Message.Queue
+      -- ^ Broadcast channel for users to queue and be matched with each other.
     }
-
-data MenuItem = MenuItem
-    { menuItemLabel :: Text
-    , menuItemRoute :: Route App
-    , menuItemAccessCallback :: Bool
-    }
-
-data MenuTypes
-    = NavbarLeft MenuItem
-    | NavbarRight MenuItem
 
 -- Generates the following type synonyms:
 -- type Handler = HandlerT App IO
 -- type Widget = WidgetT App IO ()
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
-type Form x = Html -> MForm (HandlerFor App) (FormResult x, Widget)
-
-type DB a = ∀ (m :: * -> *). MonadIO m => ReaderT SqlBackend m a
-
+-- | The set of constraints for persisted types.
 type AppPersistEntity a = ( PersistEntity a
                           , PersistRecordBackend a
                             (BaseBackend (YesodPersistBackend App))
@@ -111,8 +115,8 @@ instance Yesod App where
         :: Route App  -- ^ The route the user is visiting.
         -> Bool       -- ^ Whether or not this is a "write" request.
         -> Handler AuthResult
-    --isAuthorized TestR _ = isAuthenticated
-    --isAuthorized PlayR _ = isAuthenticated
+    isAuthorized TestR _ = isAuthenticated
+    -- isAuthorized PlayR _ = isAuthenticated
     -- Routes not requiring authentication.
     isAuthorized _     _ = return Authorized
 
@@ -207,15 +211,11 @@ instance YesodAuth App where
       where
         ident = Auth.credsIdent creds
     authPlugins :: App -> [AuthPlugin App]
-    authPlugins = const [AuthEmail.authEmail]
-    {-
-    authPlugins :: App -> [AuthPlugin App]
     authPlugins app = AuthEmail.authEmail : extraAuthPlugins
         -- Enable authDummy login if enabled.
         where
           extraAuthPlugins =
               [Dummy.authDummy | AppSettings.authDummyLogin $ settings app]
-              -}
 
 isAuthenticated :: Handler AuthResult
 isAuthenticated = do

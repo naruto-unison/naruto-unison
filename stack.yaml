@@ -41,6 +41,7 @@ extra-deps:
 - stm-containers-1.1.0.4
 - stm-hamt-1.2.0.3
 - primitive-extras-0.7.1.1
+- elm-bridge-0.5.1
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

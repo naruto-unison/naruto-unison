@@ -3,7 +3,10 @@
 {-# LANGUAGE TypeFamilies          #-}
 
 -- | These handlers embed files in the executable at compile time to avoid runtime dependencies and improve efficiency.
-module Handler.Embed where
+module Handler.Embed
+  ( getFaviconR
+  , getRobotsR
+  ) where
 
 import ClassyPrelude.Yesod
 import qualified Data.FileEmbed as FileEmbed

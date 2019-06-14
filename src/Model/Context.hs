@@ -10,12 +10,9 @@ import qualified Model.Status as Status
 
 fromStatus :: Status -> Context
 fromStatus st = Context { skill  = Status.skill st
-                        , source = Status.source st
-                        , user   = Status.source st
-                        , target = Status.source st
+                        , user   = Status.user st
+                        , target = Status.user st
                         }
 
 reflect :: Context -> Context
-reflect ctx = ctx { user   = target ctx
-                  , target = user ctx
-                  }
+reflect ctx = ctx { target = user ctx }

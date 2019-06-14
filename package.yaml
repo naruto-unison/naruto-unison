@@ -7,16 +7,18 @@ maintainer: "example@example.com"
 copyright:  "2019 Author name here"
 
 dependencies:
+- blaze-html
+- blaze-markup
+- cache
+- clock
+- mime-mail
+- monad-loops
 - mtl
 - mwc-random
 - transformers
-- stm-containers
 - yesod-websockets
 
-- blaze-html
-- blaze-markup
-- mime-mail
-- monad-loops
+- elm-bridge
 
 - base
 - yesod
@@ -100,6 +102,18 @@ library:
 executables:
   naruto-unison:
     main: main.hs
+    source-dirs: app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - naruto-unison
+    when:
+    - condition: flag(library-only)
+      buildable: false
+  naruto-unison-elm:
+    main: elm.hs
     source-dirs: app
     ghc-options:
     - -threaded

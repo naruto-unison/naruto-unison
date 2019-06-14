@@ -16,21 +16,21 @@ type Transform = (Ninja -> Skill -> Skill)
 
 -- | Default values of a 'Skill'. Used as a 'Skill' constructor.
 new :: Skill
-new = Skill { name     = "Unnamed"
-            , desc     = ""
-            , require  = Usable
-            , classes  = []
-            , cost     = 0
-            , cooldown = 0
-            , varicd   = False
-            , charges  = 0
-            , channel  = Instant
-            , start    = []
-            , effects  = []
-            , disrupt  = []
-            , changes  = const id
-            , copying  = NotCopied
-            , pic      = False
+new = Skill { name      = "Unnamed"
+            , desc      = ""
+            , require   = Usable
+            , classes   = []
+            , cost      = 0
+            , cooldown  = 0
+            , varicd    = False
+            , charges   = 0
+            , channel   = Instant
+            , start     = []
+            , effects   = []
+            , interrupt = []
+            , changes   = const id
+            , copying   = NotCopied
+            , pic       = False
             }
 
 -- | Adds 'Bloodline', 'Genjutsu', 'Ninjutsu', 'Taijutsu', and 'Random'

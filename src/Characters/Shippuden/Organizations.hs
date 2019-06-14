@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedLists #-}
-{-# OPTIONS_HADDOCK hide #-}
+{-# OPTIONS_HADDOCK hide     #-}
 
 module Characters.Shippuden.Organizations (cs) where
 

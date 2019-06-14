@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedLists #-}
-{-# OPTIONS_HADDOCK hide #-}
+{-# OPTIONS_HADDOCK hide     #-}
 
 module Characters.Shippuden.Akatsuki (cs) where
 
@@ -234,11 +234,13 @@ cs =
                 apply' "Prayer" (1 + stacks) [Endure]
                 hide' "jashin" 0 []
           ,  p Enemies do
-                apply' "Blood Curse" 3 [Reapply]
+                userSlot   <- user slot
+                targetSlot <- target slot
+                apply' "Blood Curse" 3 [Share userSlot]
                 trap 3 OnDeath $ self $ remove "bloodlink"
                 self do
                     hide' "bloodlink" 3 []
-                    bomb' "Blood Curse" 3 [Enrage, Reapply]
+                    bomb' "Blood Curse" 3 [Enrage, Share targetSlot]
                         [ p Done do
                               remove "Jashin Sigil"
                               remove "bloodlink"
@@ -556,7 +558,8 @@ cs =
         , Skill.effects   =
           [ p Enemy do
                 apply 3 [Afflict 5]
-                apply 1 [Taunt]
+                userSlot <- user slot
+                apply 1 [Taunt userSlot]
           , p Self do
                 vary "Poisonous Chain Skewer" "Impale"
                 cancelChannel "Flamethrower Jets"
@@ -597,7 +600,8 @@ cs =
           [ p Enemy do
                 afflict 10
                 tag 1
-                self $ apply' "Flame Blast" 1 [Duel]
+                userSlot <- user slot
+                self $ apply' "Flame Blast" 1 [Duel userSlot]
           , p Self do
                 apply 1 [Enrage]
                 vary "Flamethrower Jets" "Cutting Water Jets"
@@ -1032,7 +1036,8 @@ cs =
         , Skill.effects   =
           [ p Enemy do
                 interrupt
-                apply 1 [Taunt]
+                userSlot <- user slot
+                apply 1 [Taunt userSlot]
           , p Self $ whenM (userHas "Tidal Force") $
                 apply' "Almighty Push" 1 [Parry All $ Play $ damage 20]
           ]
@@ -1092,7 +1097,7 @@ cs =
                 gedoStacks   <- userStacks "gedo"
                 apply 1 [Reduce All Flat (10 + 5 * gedoStacks)]
           ]
-        , Skill.disrupt   =
+        , Skill.interrupt =
           [ p Self do
                 remove "Summoning: Gedo Statue"
                 remove "Control"
@@ -1179,10 +1184,12 @@ cs =
         , Skill.effects   =
           [ p XAlly do
                 cureAll
-                apply 3 [Duel, Isolate]
+                userSlot <- user slot
+                apply 3 [Duel userSlot]
           , p Enemy do
                 pierce 20
-                apply 3 [Duel, Isolate, Expose]
+                userSlot <- user slot
+                apply 3 [Duel userSlot, Expose]
           ]
         }
       ]

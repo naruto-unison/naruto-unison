@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedLists #-}
-{-# OPTIONS_HADDOCK hide #-}
+{-# OPTIONS_HADDOCK hide     #-}
 
 module Characters.Reanimated (cs) where
 
@@ -237,12 +237,16 @@ cs =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Enemy do
+                userSlot     <- user slot
+                targetSlot   <- target slot
                 userHealth   <- user health
                 targetHealth <- target health
-                bomb 2 [Duel, Taunt] [ p Done $ setHealth targetHealth ]
+                bomb 2 [Duel userSlot, Taunt userSlot] 
+                       [ p Done $ setHealth targetHealth ]
                 setHealth 30
                 self do
-                    bomb 2 [Duel, Taunt] [ p Done $ setHealth userHealth ]
+                    bomb 2 [Duel targetSlot, Taunt targetSlot] 
+                           [ p Done $ setHealth userHealth ]
                     setHealth 30
           ]
         }
@@ -436,7 +440,8 @@ cs =
           , Skill.effects   =
             [ p Enemy do
                   everyone $ remove "Rivalry"
-                  trap (-1) (OnCounter All) $ apply 0 [Taunt]
+                  userSlot <- user slot
+                  trap (-1) (OnCounter All) $ apply 0 [Taunt userSlot]
             ]
           }
         ]
@@ -479,9 +484,10 @@ cs =
           , Skill.cooldown  = 4
           , Skill.effects   =
             [ p Self do
+                  userSlot <- user slot
                   enemies do
                       remove "Rivalry"
-                      apply' "Rivalry" 2 [Taunt]
+                      apply' "Rivalry" 2 [Taunt userSlot]
                   removeStacks "Scattered Rock" 2
                   defend 2 35
                   trapFrom 2 (OnHarmed All) do
@@ -760,7 +766,11 @@ cs =
         , Skill.cost      = k [Nin]
         , Skill.cooldown  = 1
         , Skill.channel   = Action 2
-        , Skill.start     = [ p Enemy $ apply 2 [Taunting 2 ] ]
+        , Skill.start     = 
+          [ p Enemy $ trapFrom 2 OnHarm do
+              targetSlot <- target slot
+              apply 2 [Taunt targetSlot]
+          ]
         , Skill.effects   =
           [ p Enemy $ pierce 15 ]
         , Skill.changes   = changeWith "Chakra Weave" $ setCost [Rand]

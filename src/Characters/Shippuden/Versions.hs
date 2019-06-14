@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedLists #-}
-{-# OPTIONS_HADDOCK hide #-}
+{-# OPTIONS_HADDOCK hide     #-}
 
 module Characters.Shippuden.Versions (cs) where
 
@@ -252,7 +252,7 @@ cs =
         [ p Enemy $ damage 15
         , p Self $ removeStack "Blazing Arrow"
         ]
-        , Skill.disrupt   =
+        , Skill.interrupt  =
           [ p Enemy do
                 stacks <- userStacks "Blazing Arrow"
                 damage (15 * stacks)
@@ -379,7 +379,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
-        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
+        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = k [Rand, Rand, Rand]
         , Skill.channel   = Control 1
@@ -389,16 +389,14 @@ cs =
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
           , p XAlly $ delay (-1) $ whenM (userHas "dna") do
                 factory
-                apply 0 [Share]
                 apply 1 [Stun All]
-                self $ hide' "Transmission" 0 [Share]
           ]
-        , Skill.disrupt   =
+        , Skill.interrupt  =
           [ p Self $ remove "dna" ]
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
-        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
+        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = k [Blood, Blood, Blood]
         , Skill.channel   = Control 1
@@ -408,16 +406,14 @@ cs =
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
           , p XAlly $ delay (-1) $ whenM (userHas "dna") do
                 factory
-                apply 0 [Share]
                 apply 1 [Stun All]
-                self $ hide' "Transmission" 0 [Share]
           ]
-        , Skill.disrupt   =
+        , Skill.interrupt  =
           [ p Self $ remove "dna" ]
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
-        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
+        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = k [Gen, Gen, Gen]
         , Skill.channel   = Control 1
@@ -427,16 +423,14 @@ cs =
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
           , p XAlly $ delay (-1) $ whenM (userHas "dna") do
                 factory
-                apply 0 [Share]
                 apply 1 [Stun All]
-                self $ hide' "Transmission" 0 [Share]
           ]
-        , Skill.disrupt   =
+        , Skill.interrupt  =
           [ p Self $ remove "dna" ]
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
-        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
+        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = k [Nin, Nin, Nin]
         , Skill.channel   = Control 1
@@ -446,16 +440,14 @@ cs =
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
           , p XAlly $ delay (-1) $ whenM (userHas "dna") do
                 factory
-                apply 0 [Share]
                 apply 1 [Stun All]
-                self $ hide' "Transmission" 0 [Share]
           ]
-        , Skill.disrupt   =
+        , Skill.interrupt  =
           [ p Self $ remove "dna" ]
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
-        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. The clone remains connected to him, and harmful non-damage effects on one are also applied to the other. Using this skill again destroys the current clone."
+        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = k [Tai, Tai, Tai]
         , Skill.channel   = Control 1
@@ -465,11 +457,9 @@ cs =
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
           , p XAlly $ delay (-1) $ whenM (userHas "dna") do
                 factory
-                apply 0 [Share]
                 apply 1 [Stun All]
-                self $ hide' "Transmission" 0 [Share]
           ]
-        , Skill.disrupt   =
+        , Skill.interrupt  =
           [ p Self $ remove "dna" ]
         }
       ]

@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedLists #-}
-{-# OPTIONS_HADDOCK hide #-}
+{-# OPTIONS_HADDOCK hide     #-}
 
 module Characters.Shippuden.Kids (cs) where
 
@@ -866,7 +866,8 @@ cs =
           , Skill.effects   =
             [ p Enemy do
                   pierce 10
-                  apply 1 [Taunt]
+                  userSlot <- user slot
+                  apply 1 [Taunt userSlot]
                   remove "Kuroari Trap"
             ]
           }
@@ -878,9 +879,12 @@ cs =
           , Skill.cost      = k [Rand]
           , Skill.cooldown  = 5
           , Skill.effects   =
-            [ p Self $  vary "Kuroari Trap" "Iron Maiden"
+            [ p Self  $ vary "Kuroari Trap" "Iron Maiden"
             , p Enemy $ bombWith [Invisible] 5 []
-                  [ p Done $ apply' "Kuroari Ambush" 1 [Stun All, Seal, Duel] ]
+                  [ p Done do
+                      userSlot <- user slot
+                      apply' "Kuroari Ambush" 1 [Stun All, Seal, Duel userSlot] 
+                  ]
             ]
           }
         , Skill.new
@@ -906,7 +910,9 @@ cs =
             [ p Self do
                   defend 0 40
                   onBreak'
-            , p XAllies $ apply 0 [Redirect All]
+            , p XAllies do
+                  userSlot <- user slot
+                  apply 0 [Redirect All userSlot]
             ]
           }
         ]

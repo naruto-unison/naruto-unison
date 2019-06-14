@@ -1,3 +1,4 @@
+-- | 'Game.chakra' processing.
 module Engine.Chakras
   ( random
   , remove
@@ -17,11 +18,13 @@ import qualified Data.Vector as Vec
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 
--- ** CHAKRA`
-
+-- | Randomly picks a 'Chakra' of any kind except 'Rand'.
 random :: ∀ m. RandomT m => m Chakra
 random = toEnum <$> R.random (fromEnum Blood) (fromEnum Tai)
 
+-- | Removes some number of 'Chakra's from the target's team. 
+-- 'Chakra's are chosen randomly from the available pool of 'Game.chakra'.
+-- Removed 'Chakra's are collected into a 'Chakras' object and returned.
 remove :: ∀ m. (PlayT m, RandomT m) => Int -> m Chakras
 remove amount
   | amount <= 0 = return 0
@@ -32,6 +35,8 @@ remove amount
     P.modify $ Game.adjustChakra target (— removed)
     return removed
 
+-- | Adds as many random 'Chakra's as the number of living 'Ninja's on the
+-- player's team to the player's 'Game.chakra'.
 gain :: ∀ m. (GameT m, RandomT m) => m ()
 gain = do
     player <- P.player

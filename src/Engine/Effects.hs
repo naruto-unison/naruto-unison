@@ -1,11 +1,13 @@
-
+-- | Calculated totals of 'Effect's on 'Ninja's.
 module Engine.Effects
   ( bleed
   , bless
+  , block
   , boost
   , build
+  , duel
   , exhaust
-  , link
+  , hp
   , ignore
   , immune
   , invincible
@@ -16,25 +18,20 @@ module Engine.Effects
   , stun
   , threshold
   , throttle
-  , targets
-  , taunting
+  , taunt
   , unreduce
   , weaken
-
-  , hp
   ) where
 
 import ClassyPrelude.Yesod hiding (Status, link, share)
-import Data.List.NonEmpty (NonEmpty(..))
+import           Data.List.NonEmpty (NonEmpty(..))
 
-import           Core.Util ((∈), (∉), enumerate, intersects)
+import           Core.Util ((∈), enumerate, intersects)
 import qualified Class.Parity as Parity
 import           Model.Chakra (Chakras(..))
 import           Model.Class (Class(..))
 import qualified Model.Game as Game
 import           Model.Game (Game)
-import           Model.Internal (ignore)
-import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja)
@@ -43,53 +40,57 @@ import           Model.Slot (Slot)
 import qualified Model.Status as Status
 import           Model.Status (Status)
 
+-- | Adds 'Flat' amounts and multiplies by 'Percent' amounts.
 total :: [(Amount, Int)] -> Amount -> Rational
-total xs Percent = product . (1 :) . map ((/ 100) . toRational . snd) $
-                   filter ((== Percent) . fst) xs
 total xs Flat    = toRational . sum . map snd $
                    filter ((== Flat) . fst) xs
-
--- | 'Exhaust' and 'Unexhaust' are not canceled by immunity.
-noImmunity :: Effect -> Bool
-noImmunity Exhaust{} = True
-noImmunity Unexhaust = True
-noImmunity _         = False
+total xs Percent = product . (1 :) . map ((/ 100) . toRational . snd) $
+                   filter ((== Percent) . fst) xs
 
 -- | 'Bleed' sum.
 bleed :: [Class] -> Ninja -> Amount -> Rational
 bleed classes n =
     total [(amt, x) | Bleed cla amt x <- Ninja.effects n, cla ∈ classes]
 
+-- | 'Block' collection.
+block :: Ninja -> [Slot]
+block n = [Status.user st | st <- Ninja.statuses n, Block ∈ Status.effects st ]
+
 -- | 'Bless' sum.
 bless :: Ninja -> Int
 bless n = sum [x | Bless x <- Ninja.effects n]
 
--- | 'Boost' sum from someone.
+-- | 'Boost' sum from a user.
 boost :: Slot -> Ninja -> Int
 boost user n
-  | user == Ninja.slot n = 1
-  | otherwise = product $ 1 : [x | Boost x <- Ninja.effectsFrom user n]
+  | user == Ninja.slot n                    = 1
+  | not . Parity.allied user $ Ninja.slot n = 1
+  | otherwise = product $ 1 : [x | Boost x <- Ninja.effects n]
 
 -- | 'Build' sum.
 build :: Ninja -> Int
 build n = sum [x | Build x <- Ninja.effects n]
+
+-- | 'Duel' collection.
+duel :: Ninja -> [Slot]
+duel n = [slot | Duel slot <- Ninja.effects n, slot /= Ninja.slot n]
 
 -- | 'Exhaust' sum.
 exhaust :: [Class] -> Ninja -> Chakras
 exhaust classes n =
     0 { rand = length [x | Exhaust x <- Ninja.effects n, x ∈ classes] }
 
--- | 'Invulnerable's.
+-- | 'Ignore' collection.
+ignore :: Ninja -> [Effect]
+ignore n = [ef cla | Ignore ef <- Ninja.effects n, cla <- enumerate]
+
+-- | 'Invulnerable' collection.
 immune :: Ninja -> [Class]
 immune n = [x | Invulnerable x <- Ninja.effects n]
 
--- | 'Invincible's.
+-- | 'Invincible' collection.
 invincible :: Ninja -> [Class]
 invincible (Ninja.effects -> efs) = [x | Invincible x <- efs]
-
--- | 'Link' sum from someone.
-link :: Slot -> Ninja -> Int
-link user n = sum [x | Link x <- Ninja.effectsFrom user n]
 
 -- | 'Reduce' sum.
 reduce :: [Class] -> Ninja -> Amount -> Rational
@@ -100,11 +101,9 @@ reduce classes n =
                     , cla ∈ classes
                     , cla /= Affliction]
 
--- | 'Share's.
+-- | 'Share' collection.
 share :: Ninja -> [Slot]
-share n = [Status.user st | st <- modStatuses n
-                          , Ninja.slot n /= Status.user st
-                          , Share ∈ Status.effects st]
+share n = [slot | Share slot <- Ninja.effects n, slot /= Ninja.slot n]
 
 -- | 'Snare' sum.
 snare :: Ninja -> Int
@@ -115,19 +114,13 @@ strengthen :: [Class] -> Ninja -> Amount -> Rational
 strengthen classes n =
     total [(amt, x) | Strengthen cla amt x <- Ninja.effects n, cla ∈ classes]
 
--- | 'Stun's.
+-- | 'Stun' collection.
 stun :: Ninja -> [Class]
 stun n = [x | Stun x <- Ninja.effects n]
 
--- | Available targets.
-targets :: Effect -> Ninja -> [Slot]
-targets ef n = [Status.user st | st <- modStatuses n , ef ∈ Status.effects st]
-
--- | Duration of most recent 'Taunting'.
-taunting :: Ninja -> Maybe (Int, Status)
-taunting n =
-    listToMaybe [(a, st) | st <- Ninja.statuses n
-                         , Taunting a <- Status.effects st]
+-- | 'Taunt' collection.
+taunt :: Ninja -> [Slot]
+taunt n = [slot | Taunt slot <- Ninja.effects n, slot /= Ninja.slot n]
 
 -- | 'Threshold' max.
 threshold :: Ninja -> Int
@@ -148,40 +141,6 @@ weaken :: [Class] -> Ninja -> Amount -> Rational
 weaken classes n =
   total [(amt, x) | Weaken cla amt x <- Ninja.effects n, cla ∈ classes]
 
--- | Used by 'modStatus' to prevent recursion
--- when checking for 'Enrage' and 'Seal'.
-rawStat :: Ninja -> Status -> Status
-rawStat n st
-  | Ninja.fromSelf n st = st
-  | Enrage ∈ efs   = st { Status.effects = enraged }
-  | Seal   ∈ efs   = st { Status.effects = unhelpful }
-  | otherwise      = st
-  where
-    efs       = concatMap Status.effects $ Ninja.statuses n
-    unhelpful = filter (not . Effect.helpful) $ Status.effects st
-    enraged   = [ef | ef <- Status.effects st
-                    , Effect.helpful ef || Effect.sticky ef || noImmunity ef]
-
-modStatus :: Ninja -> Status -> Status
-modStatus n st = st' { Status.effects = boostedEfs }
-  where
-    boostedEfs    = (sourceBoost <$>) . filter keep $ Status.effects st'
-    sourceBoost   = Effect.boosted $ boost (Status.source st) n
-    st'           = rawStat n st
-    efs           = concatMap (Status.effects . rawStat n) $ Ninja.statuses n
-    keep Enrage   = True
-    keep Seal     = True
-    keep Reduce{} = Expose ∉ efs
-    keep Invulnerable{} = Expose ∉ efs
-    keep ef
-      | Ninja.fromSelf n st = True
-      | Enrage ∈ efs = Effect.helpful ef || Effect.sticky ef || noImmunity ef
-      | Seal   ∈ efs = not $ Effect.helpful ef
-      | otherwise    = ef ∉ [f cla | Ignore f <- efs, cla <- enumerate]
-
-modStatuses :: Ninja -> [Status]
-modStatuses n = Status.unfold . modStatus n <$> Ninja.statuses n
-
 -- | 'Afflict' sum minus 'Heal' sum.
 hp :: Player -> Ninja -> Game -> Int
 hp player n game =  afflict player game n - heal player game n
@@ -190,45 +149,47 @@ hp player n game =  afflict player game n - heal player game n
 heal :: Player -> Game -> Ninja -> Int
 heal player game n
   | Ninja.is Plague n = 0
-  | otherwise         = sum $ heal1 player game n <$> modStatuses n
+  | otherwise         = sum $ heal1 player game n <$> Ninja.statuses n
 
+-- | Calculates the total 'Heal' of a single 'Status'.
 heal1 :: Player -> Game -> Ninja -> Status -> Int
 heal1 player game n st
-  | summed /= 0 && Parity.allied player source =
-      boost source n * summed + bless (Game.ninja source game)
+  | user /= Ninja.slot n && Ninja.is Seal n  = 0
+  | summed /= 0 && Parity.allied player user =
+      boost user n * summed + bless (Game.ninja user game)
   | otherwise = 0
   where
-    source = Status.source st
+    user = Status.user st
     summed = sum [hp' | Heal hp' <- Status.effects st]
 
 -- | 'Afflict' sum.
 afflict :: Player -> Game -> Ninja -> Int
 afflict player game n = sum
-    [aff st | st <- modStatuses n
-            , not (Ninja.is ImmuneSelf n) || Status.source st /= Ninja.slot n
+    [aff st | st <- Ninja.statuses n
+            , not (Ninja.is ImmuneSelf n) || Status.user st /= Ninja.slot n
             , not $ [All, Affliction] `intersects` invincible n]
   where
     aff = afflict1 player game $ Ninja.slot n
 
+-- | Calculates the total 'Afflict' of a single 'Status'.
 afflict1 :: Player -> Game -> Slot -> Status -> Int
 afflict1 player game t st
-  | summed /= 0 && Parity.allied player source =
+  | summed /= 0 && Parity.allied player user =
       truncate $ scale * (summed + ext)
   | otherwise = 0
   where
-    source = Status.source st
+    user   = Status.user st
     nt     = Game.ninja t game
-    n      = Game.ninja source game
+    n      = Game.ninja user game
     summed = toRational $ sum [hp' | Afflict hp' <- Status.effects st]
     ext
-      | t == source                  = 0
+      | t == user                  = 0
       | not $ Ninja.alive n          = bleed [Affliction, All] nt Flat
       | Ninja.is (Stun Affliction) n = 0
-      | otherwise                    = toRational (link source nt)
-                                     + strengthen [Affliction, All] n  Flat
+      | otherwise                    = strengthen [Affliction, All] n  Flat
                                      + bleed      [Affliction, All] nt Flat
     scale
-      | t == source                  = 0
+      | t == user                  = 0
       | not $ Ninja.alive n          = bleed [Affliction, All] nt Percent
       | Ninja.is (Stun Affliction) n = 0
       | otherwise                    = strengthen [Affliction, All] n  Percent

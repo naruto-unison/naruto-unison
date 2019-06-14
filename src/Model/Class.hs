@@ -39,8 +39,6 @@ data Class
     | NonAffliction
     | NonMental
     | Resource -- ^ Display stacks separately
-    | Shifted
-    | Unshifted
     | Direct
     | TrapAttack
     -- Chakra (Hidden)
@@ -49,7 +47,7 @@ data Class
     | Ninjutsu
     | Taijutsu
     | Random
-    deriving (Enum, Eq, Bounded, Generic, ToJSON)
+    deriving (Eq, Ord, Enum, Bounded, Generic, ToJSON)
 
 instance Show Class where
     show Invisible      = "Invisible"
@@ -78,8 +76,6 @@ instance Show Class where
     show NonAffliction  = "Non-affliction"
     show NonMental      = "Non-mental"
     show Resource       = "Resource"
-    show Shifted        = "Shifted"
-    show Unshifted      = "Unshifted"
     show Direct         = "Direct"
     show TrapAttack     = "Traps are treated as basic attacks"
     show Bloodline      = "Bloodline"

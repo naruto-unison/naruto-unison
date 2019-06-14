@@ -1,4 +1,4 @@
-{-# LANGUAGE ImpredicativeTypes #-}
+{-# LANGUAGE ImpredicativeTypes   #-}
 module Characters.Base
   ( module Import
   , p, k
@@ -87,42 +87,42 @@ bonusIf amount condition = do
     return if succeed then amount else 0
 
 user :: ∀ m a. PlayT m => (Ninja -> a) -> m a
-user f = f <$> P.nSource
+user f = f <$> P.nUser
 
 target :: ∀ m a. PlayT m => (Ninja -> a) -> m a
 target f = f <$> P.nTarget
 
 userHas :: ∀ m. PlayT m => Text -> m Bool
-userHas name = Ninja.hasOwn name <$> P.nSource
+userHas name = Ninja.hasOwn name <$> P.nUser
 
 targetHas :: ∀ m. PlayT m => Text -> m Bool
-targetHas name = Ninja.has name <$> P.source <*> P.nTarget
+targetHas name = Ninja.has name <$> P.user <*> P.nTarget
 
 userStacks :: ∀ m. PlayT m => Text -> m Int
-userStacks name = Ninja.numStacks name <$> P.source <*> P.nSource
+userStacks name = Ninja.numStacks name <$> P.user <*> P.nUser
 
 targetStacks :: ∀ m. PlayT m => Text -> m Int
-targetStacks name = Ninja.numStacks name <$> P.source <*> P.nTarget
+targetStacks name = Ninja.numStacks name <$> P.user <*> P.nTarget
 
 userDefense :: ∀ m. PlayT m => Text -> m Int
-userDefense name = defense <$> P.nSource
+userDefense name = defense <$> P.nUser
   where
     defense n = Ninja.defenseAmount name (slot n) n
 
 channeling :: ∀ m. PlayT m => Text -> m Bool
-channeling name = Ninja.isChanneling name <$> P.nSource
+channeling name = Ninja.isChanneling name <$> P.nUser
 
 immune :: Ninja -> Bool
 immune = not . null . Effects.immune
 
+filterOthers :: ∀ m. PlayT m => (Ninja -> Bool) -> m Int
+filterOthers match = do
+    notUser   <- (/=) <$> P.user
+    let filt t = notUser (Ninja.slot t) && match t
+    length . filter filt . Game.ninjas <$> P.game
+
 numAffected :: ∀ m. PlayT m => Text -> m Int
-numAffected name = do
-    source <- P.source
-    let match n = slot n /= source && Ninja.has name source n
-    length . filter match . Game.ninjas <$> P.game
+numAffected name = filterOthers =<< Ninja.has name <$> P.user
 
 numDeadAllies :: ∀ m. PlayT m => m Int
-numDeadAllies = do
-    source <- P.source
-    let match n = slot n /= source && not (alive n)
-    length . filter match . Game.ninjas <$> P.game
+numDeadAllies = filterOthers $ not . alive

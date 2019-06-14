@@ -16,6 +16,7 @@ module Application
 
 import ClassyPrelude.Yesod hiding (static)
 import qualified Control.Monad.Logger as Logger
+import qualified Data.Cache as Cache
 import qualified Database.Persist.Postgresql as Sql
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Network.HTTP.Client.TLS as TLS
@@ -23,7 +24,7 @@ import           Network.Wai (Middleware)
 import qualified Network.Wai.Handler.Warp as Warp
 import qualified Network.Wai.Middleware.RequestLogger as RequestLogger
 import           Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource(..), OutputFormat(..))
-import qualified StmContainers.Map as StmMap
+import           System.Clock (TimeSpec(..))
 import qualified System.Log.FastLogger as FastLogger
 import qualified Yesod.Static as Static
 import qualified Yesod.Auth as Auth
@@ -54,7 +55,7 @@ makeFoundation settings = do
                    DefaultConfig.makeYesodLogger
     static      <- staticMode $ AppSettings.staticDir settings
     queue       <- newTChanIO
-    practice    <- StmMap.newIO
+    practice    <- Cache.newCache . Just $ TimeSpec 3600 0
 
     -- We need a log function to create a connection pool. We need a connection
     -- pool to create our foundation. And we need our foundation to get a

@@ -11,7 +11,7 @@ import qualified Data.Text.Read as Read
 
 import Class.Parity (Parity)
 
-newtype Slot = Slot Int deriving (Eq, Show, Read, ToJSON, Parity)
+newtype Slot = Slot Int deriving (Eq, Ord, Show, Read, ToJSON, Parity)
 
 {-# INLINE toInt #-}
 toInt :: Slot -> Int

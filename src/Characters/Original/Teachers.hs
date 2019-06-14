@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedLists #-}
-{-# OPTIONS_HADDOCK hide #-}
+{-# OPTIONS_HADDOCK hide     #-}
 
 module Characters.Original.Teachers (cs) where
 
@@ -153,7 +153,8 @@ cs =
         , Skill.channel   = Control 1
         , Skill.effects   =
           [ p Enemy do
-                damage 5
+                bonus <- 5 `bonusIf` targetHas "Dragon Flame"
+                damage (5 + bonus)
                 apply 1 [Expose]
           , p Self do
                 vary "Dragon Flame" "Twin Snake Sacrifice"
@@ -168,7 +169,7 @@ cs =
         , Skill.cost      = k [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemies $ apply 2 [Link 5, Afflict 10 ] ]
+          [ p Enemies $ apply 2 [Afflict 10] ]
         }
       , Skill.new
         { Skill.name      = "Twin Snake Sacrifice"
@@ -189,7 +190,8 @@ cs =
         , Skill.cost      = k [Nin, Rand]
         , Skill.effects   =
           [ p Enemy do
-                damage 20
+                bonus <- 5 `bonusIf` targetHas "Dragon Flame"
+                damage (20 + bonus)
                 apply 3 [Afflict 5]
           ]
         }
@@ -356,7 +358,9 @@ cs =
         , Skill.classes   = [Physical, Melee, Soulbound, Unreflectable]
         , Skill.cost      = k [Rand]
         , Skill.effects   =
-          [ p XAlly $ apply 0 [Redirect All]
+          [ p XAlly do
+                userSlot <- user slot
+                apply 0 [Redirect All userSlot]
           , p Self  $ vary "Self-Sacrifice" "Self-Sacrifice"
           ]
         }

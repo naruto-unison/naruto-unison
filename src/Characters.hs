@@ -74,7 +74,7 @@ doSkills (x:|xs) = doSkill x :| (doSkill . vari <$> xs)
     diff skill = Skill.name x ∉ [Skill.name skill, textInit $ Skill.name x]
 
 doSkill :: Skill -> Skill
-doSkill skill = skill { Skill.classes = List.nub$ added ++ Skill.classes skill }
+doSkill skill = skill { Skill.classes = List.nub $ added ++ Skill.classes skill }
   where
     added = fst <$> filter snd
             [ (All, True)
@@ -83,7 +83,7 @@ doSkill skill = skill { Skill.classes = List.nub$ added ++ Skill.classes skill }
             ]
     harm = [Enemy, Enemies, REnemy, XEnemies] `intersects` ts
     ts   = fst <$>
-           (Skill.start skill ++ Skill.effects skill ++ Skill.disrupt skill)
+           (Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill)
     --Game{..}  = mockSkill skill
 {-}
 reanimatedBy :: Character -> [Character]

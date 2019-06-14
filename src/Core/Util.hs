@@ -1,8 +1,22 @@
-module Core.Util where
+-- Helper functions.
+module Core.Util
+  ( (—), (∈), (∉)
+  , intersects
+  , duplic
+  , enumerate
+  , equaling
+  , mapMaybe
+  , shorten
+  , textInit, textTail
+  ) where
 
-import ClassyPrelude.Yesod hiding ((<|))
+import ClassyPrelude.Yesod hiding ((<|), mapMaybe)
 import qualified Data.List as List
 import qualified Data.Text as Text
+
+-- | '-' allowing for sections.
+(—) :: ∀ a. Num a => a -> a -> a
+(—) = (-)
 
 -- | 'elem'.
 (∈) :: ∀ o. MonoFoldable o => Eq (Element o) => Element o -> o -> Bool
@@ -12,16 +26,11 @@ import qualified Data.Text as Text
 (∉) :: ∀ o. MonoFoldable o => Eq (Element o) => Element o -> o -> Bool
 (∉) = notElem
 
--- | '-' allowing for sections.
-(—) :: ∀ a. Num a => a -> a -> a
-(—) = (-)
-
--- | Finds the value with lesser magnitude.
-absmin :: ∀ a. (Ord a, Num a) => a -> a -> a
-absmin _ 0 = 0
-absmin x y
-  | abs x <= abs y = x
-  | otherwise = y
+-- | True if any elements are shared by both collections.
+intersects :: ∀ a b. 
+    (MonoFoldable a, MonoFoldable b, Element a ~ Element b, Eq (Element a)) 
+    => a -> b -> Bool
+intersects x = any (∈ x)
 
 -- | True if a list contains multiple identical values.
 duplic :: ∀ a. Eq a => [a] -> Bool
@@ -34,17 +43,6 @@ enumerate = [minBound .. maxBound]
 -- | Equality with a projecting function. Analogous to 'comparing'.
 equaling :: ∀ a b. Eq b => (a -> b) -> a -> a -> Bool
 equaling f x y = f x == f y
-
--- | Adds 1 to positives, subtracts 1 from negatives, and leaves 0s unchanged.
-incr :: Int -> Int
-incr x
-  | x < 0     = x - 1
-  | x > 0     = x + 1
-  | otherwise = x
-
--- | True if any elements are shared by both collections.
-intersects :: ∀ o. (MonoFoldable o, Eq (Element o)) => o -> o -> Bool
-intersects x = any (∈ x)
 
 mapMaybe :: ∀ (f :: * -> *) a b.
             ( IsSequence (f (Maybe b))
@@ -66,18 +64,12 @@ shorten = omap f . filter (∉ bans)
     f 'ä' = 'a'
     f a = a
 
--- Converts from turns to sub-turns.
--- Each turn consists of two sub-turns, one for each player.
-sync :: Int -> Int
-sync n
-  | n >= 0    = 2 * n
-  | otherwise = -2 * n - 1
-
--- | @Text@ 'T.init' that returns @""@ if given @""@.
+-- | 'Text.init' that returns @""@ if given @""@ instead of crashing.
 textInit :: Text -> Text
 textInit "" = ""
 textInit a  = Text.init a
 
+-- | 'Text.tail' that returns @""@ if given @""@ instead of crashing.
 textTail :: Text -> Text
 textTail "" = ""
 textTail x  = Text.tail x

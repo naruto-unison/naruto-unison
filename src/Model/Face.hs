@@ -10,7 +10,7 @@ import Model.Slot (Slot)
 
 -- | Changes the character icon of a 'Ninja'.
 data Face = Face { icon   :: Text
-                 , source :: Slot
+                 , user :: Slot
                  , dur    :: Int
                  } deriving (Eq, Generic, ToJSON)
 instance TurnBased Face where

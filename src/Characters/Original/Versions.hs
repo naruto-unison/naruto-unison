@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedLists #-}
-{-# OPTIONS_HADDOCK hide #-}
+{-# OPTIONS_HADDOCK hide     #-}
 
 module Characters.Original.Versions (cs) where
 
@@ -215,7 +215,7 @@ cs =
                 defend 0 10
                 heal 2
           ]
-        , Skill.disrupt   =
+        , Skill.interrupt =
           [ p Self $ remove "Sand Transformation" ]
         }
       , Skill.new

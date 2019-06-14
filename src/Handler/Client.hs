@@ -98,4 +98,6 @@ getPlayR = do
         $(widgetFile "include/soundjs.min")
         $(widgetFile "include/normalize")
         $(widgetFile "play/play")
+        -- $(widgetFile "play/elm")
+        -- $(widgetFile "play/elminit")
         $(widgetFile "play/ps")

@@ -4,6 +4,7 @@ module Model.Effect
   , Effect(..)
   , helpful
   , sticky
+  , bypassEnrage
   , boosted
   ) where
 
@@ -16,12 +17,12 @@ helpful Afflict{}      = False
 helpful AntiCounter    = True
 helpful (Bleed _ _ x)  = x < 0
 helpful Bless{}        = True
-helpful Block          = False
+helpful Block{}        = False
 helpful Boost{}        = True
 helpful (Build x)      = x >= 0
 helpful Counter{}      = True
 helpful CounterAll{}   = True
-helpful Duel           = True
+helpful Duel{}         = True
 helpful Endure         = True
 helpful Enrage         = True
 helpful Exhaust{}      = False
@@ -31,13 +32,10 @@ helpful Invulnerable{} = True
 helpful ImmuneSelf     = True
 helpful Ignore{}       = True
 helpful Invincible{}   = True
-helpful Isolate        = False
-helpful Link{}         = False
 helpful Parry{}        = True
 helpful ParryAll {}    = True
 helpful Pierce         = True
 helpful Plague         = False
-helpful Reapply        = False
 helpful (Reduce _ _ x) = x >= 0
 helpful Redirect{}     = True
 helpful Reflect        = True
@@ -46,7 +44,7 @@ helpful Replace{}      = False
 helpful Restrict       = False
 helpful Reveal         = False
 helpful Seal           = False
-helpful Share          = False
+helpful Share{}        = False
 helpful Silence        = False
 helpful Snapshot{}     = True
 helpful (Snare x)      = x < 0
@@ -54,10 +52,9 @@ helpful SnareTrap{}    = False
 helpful Strengthen{}   = True
 helpful Stun{}         = False
 helpful Swap{}         = False
-helpful Taunt          = False
+helpful Taunt{}        = False
 helpful Threshold{}    = True
 helpful Throttle{}     = False
-helpful Taunting{}     = False
 helpful Uncounter      = False
 helpful Undefend       = False
 helpful Unexhaust      = True
@@ -66,7 +63,7 @@ helpful Weaken{}       = False
 
 -- | Effect cannot be removed.
 sticky :: Effect -> Bool
-sticky Block          = True
+sticky Block{}        = True
 sticky Counter{}      = True
 sticky CounterAll{}   = True
 sticky Enrage         = True
@@ -75,15 +72,15 @@ sticky Invincible{}   = True
 sticky Parry{}        = True
 sticky ParryAll{}     = True
 sticky Redirect{}     = True
-sticky Reapply        = True
-sticky Replace{}         = True
+sticky Replace{}      = True
 sticky Reflect        = True
 sticky ReflectAll     = True
 sticky Restrict       = True
 sticky Reveal         = True
+sticky Share{}        = True
 sticky Snapshot{}     = True
 sticky Swap{}         = True
-sticky _ = False
+sticky _              = False
 
 -- | Scales the power of an effect.
 boosted :: Int -> Effect -> Effect
@@ -97,3 +94,9 @@ boosted b (Reduce     c Flat x) = Reduce     c Flat $ x * b
 boosted b (Strengthen c Flat x) = Strengthen c Flat $ x * b
 boosted b (Weaken     c Flat x) = Weaken     c Flat $ x * b
 boosted _ ef = ef
+
+-- | Not canceled by 'Enrage'.
+bypassEnrage :: Effect -> Bool
+bypassEnrage Exhaust{} = True
+bypassEnrage Unexhaust = True
+bypassEnrage ef        = helpful ef || sticky ef

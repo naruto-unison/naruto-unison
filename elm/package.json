@@ -1,0 +1,29 @@
+{
+  "name": "naruto-unison",
+  "version": "1.0.0",
+  "description": "Naruto Unison",
+  "main": "naruto-unison-elm.js",
+  "scripts": {
+    "build": "set -e; rimraf elm-stuff; elm make src/Main.elm --output=naruto-unison-elm.js --optimize",
+    "publish": "uglifyjs naruto-unison-elm.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' | uglifyjs --mangle --output=../templates/play/elm.julius",
+    "dev": "set -e; npm run build; cd publish; (sleep 2; opener http://localhost:8000/200.html) & elm reactor",
+    "scrape": "set -e; cd scraper; rimraf elm-stuff; elm make scraper.elm --output=scraper.js; (sleep 2; opener http://localhost:8000/scraper.html) & elm reactor"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jnbooth/chaldeas.git"
+  },
+  "author": "joshua.n.booth@gmail.com",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/jnbooth/chaldeas/issues"
+  },
+  "homepage": "https://github.com/jnbooth/chaldeas#readme",
+  "devDependencies": {
+    "elm": "^0.19.0-bugfix2",
+    "opener": "^1.5.1",
+    "rimraf": "^2.6.2",
+    "surge": "^0.20.1",
+    "uglify-js": "^3.4.9"
+  }
+}

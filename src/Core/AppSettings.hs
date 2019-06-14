@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP          #-}
 {-# LANGUAGE NoStrictData #-}
-module Core.AppSettings where
+-- | Settings loaded from @config/settings.yml@.
+module Core.AppSettings (AppSettings(..)) where
 
 import           ClassyPrelude.Yesod
 import qualified Data.Aeson as Aeson

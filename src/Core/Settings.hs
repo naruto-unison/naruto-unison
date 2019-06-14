@@ -1,11 +1,10 @@
 {-# LANGUAGE CPP               #-}
 {-# LANGUAGE TemplateHaskell   #-}
--- | Settings are centralized, as much as possible, into this file. This
--- includes database connection settings, static file locations, etc.
--- In addition, you can configure a number of different aspects of Yesod
--- by overriding methods in the Yesod typeclass. That instance is
--- declared in the Foundation.hs file.
-module Core.Settings where
+-- | Yesod settings.
+module Core.Settings
+  ( configSettingsYmlValue
+  , widgetFile
+  ) where
 
 import           ClassyPrelude.Yesod
 import qualified Control.Exception as Exception
@@ -29,10 +28,6 @@ import           Core.AppSettings (AppSettings)
 -- https://github.com/yesodweb/yesod/wiki/Overriding-widgetFile
 widgetFileSettings :: WidgetFileSettings
 widgetFileSettings = def
-
--- | How static files should be combined.
-combineSettings :: CombineSettings
-combineSettings = def
 
 -- The rest of this file contains settings which rarely need changing by a
 -- user.
@@ -61,6 +56,11 @@ compileTimeAppSettings =
   where
     json = DefaultConfig.applyEnvValue False mempty configSettingsYmlValue
 
+{-
+-- | How static files should be combined.
+combineSettings :: CombineSettings
+combineSettings = def
+
 -- The following two functions can be used to combine multiple CSS or JS files
 -- at compile time to decrease the number of http requests.
 -- Sample usage (inside a Widget):
@@ -76,3 +76,5 @@ combineScripts :: TH.Name -> [Route Static] -> TH.Q TH.Exp
 combineScripts = combineScripts'
     (AppSettings.skipCombining compileTimeAppSettings)
     combineSettings
+
+-}

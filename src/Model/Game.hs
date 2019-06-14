@@ -4,7 +4,9 @@ module Model.Game
   , adjust
   , alter
   , getChakra, setChakra, adjustChakra, gainChakra
-  , yieldVictor
+  , yieldVictor, forfeit
+  , zipNinjasWith
+  , addTraps
   ) where
 
 import ClassyPrelude.Yesod
@@ -12,7 +14,8 @@ import qualified Data.Sequence as Seq
 
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
-import           Model.Internal (Game(..))
+import           Core.Util (enumerate)
+import           Model.Internal (Game(..), SavedPlay)
 import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra, Chakras)
 import           Model.Character (Character)
@@ -45,10 +48,6 @@ alter f game = game { ninjas = f $ ninjas game }
 adjust :: Slot -> (Ninja -> Ninja) -> Game -> Game
 adjust i f game = game { ninjas = Seq.adjust' f (Slot.toInt i) $ ninjas game }
 
--- | The entire team of a 'Player' is dead, resulting in defeat.
-dead :: Player -> Game -> Bool
-dead player = not . any (Ninja.playing player) . ninjas
-
 -- | Adds 1 random chakra per living 'Ninja' on the team of a 'Player'.
 gainChakra :: Player -> [Chakra] -> Game -> Game
 gainChakra player gain game = adjustChakra player (+ Chakra.collect living) game
@@ -72,7 +71,25 @@ adjustChakra _ f game = game { chakra = second f $ chakra game }
 yieldVictor :: Game -> Game
 yieldVictor game
   | not . null $ victor game = game
-  | otherwise                = game
-      { victor = fst <$> filter snd [ (Player.A, dead Player.B game)
-                                    , (Player.B, dead Player.A game)
-                                    ] }
+  | otherwise = game { victor = filter (dead game . Player.opponent) enumerate }
+
+forfeit :: Player -> Game -> Game
+forfeit player game
+  | not . null $ victor game = game
+  | otherwise                = game { victor = [Player.opponent player]
+                                    , ninjas = f <$> ninjas game
+                                    }
+  where
+    f n
+      | Parity.allied player $ Ninja.slot n = n { Ninja.health = 0 }
+      | otherwise                           = n
+
+-- | The entire team of a 'Player' is dead, resulting in defeat.
+dead :: Game -> Player -> Bool
+dead game player = not . any (Ninja.playing player) $ ninjas game
+
+zipNinjasWith :: ∀ a. (Ninja -> Ninja -> a) -> Game -> Game -> Seq a
+zipNinjasWith f game game' = zipWith f (ninjas game) (ninjas game')
+
+addTraps :: Seq SavedPlay -> Game -> Game
+addTraps trs game = game { traps = trs ++ traps game }

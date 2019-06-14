@@ -46,9 +46,7 @@ doBomb bomb target st = traverse_ detonate $ Status.bombs st
       | otherwise     = return ()
 
 doBombs :: ∀ m. (GameT m, RandomT m) => Bomb -> Game -> m ()
-doBombs bomb game = do
-    ninjas <- Game.ninjas <$> P.game
-    sequence_ . concat $ zipWith comp (Game.ninjas game) ninjas
+doBombs bomb game = P.game >>= sequence_ . concat . Game.zipNinjasWith comp game
   where
     comp n n' = doBomb bomb (Ninja.slot n) <$>
                 Ninja.statuses n \\ Ninja.statuses n'
@@ -62,7 +60,7 @@ doBarriers = do
     collect = (head <$>) . groupBy Labeled.eq . sort . Ninja.barrier
     doBarrier p b
       | Barrier.dur b == 1 = P.launch . Barrier.finish b $ Barrier.amount b
-      | Parity.allied p $ Barrier.source b = P.launch $ Barrier.while b
+      | Parity.allied p $ Barrier.user b = P.launch $ Barrier.while b
       | otherwise = return ()
 
 doTraps :: ∀ m. (GameT m, RandomT m) => m ()

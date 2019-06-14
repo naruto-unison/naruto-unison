@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedLists #-}
-{-# OPTIONS_HADDOCK hide #-}
+{-# OPTIONS_HADDOCK hide     #-}
 
 module Characters.Original.Flashbacks (cs) where
 
@@ -149,7 +149,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Partial Expansion"
-        , Skill.desc      = "If used on an enemy, the next harmful non-mental skill they use will be countered. If used on an ally, the next harmful non-mental skill used on them wil be countered. The person countered will receive 10 damage, bypassing invulnerability."
+        , Skill.desc      = "If used on an enemy, the next harmful non-mental skill they use will be countered. If used on an ally, the next harmful non-mental skill used on them will be countered. The person countered will receive 10 damage, bypassing invulnerability."
         , Skill.classes   = [Physical, Melee, Single, Invisible, Unreflectable]
         , Skill.cost      = k [Blood]
         , Skill.cooldown  = 2
@@ -602,7 +602,7 @@ cs =
     ] []
   , Character
     "Masked Man"
-    "As the Nine-Tailed Beast rampages across the Hidden Leaf Village, a mysterious masked man appears and tries to bend it to his will. The legendary beast demolishes house after house and does the same to the defenses of its enemies."
+    "As the Nine-Tailed Beast rampages across the Hidden Leaf Village, a mysterious masked man appears and tries to bend it to his will. The legendary beast demolishes house after house, laying waste to the defenses of its enemies."
     [ [ Skill.new
         { Skill.name      = "Kamui Chain Combo"
         , Skill.desc      = "The masked man snares an enemy in sealing chains and phases through them, becoming invulnerable to damage and ignoring harmful effects other than chakra cost changes for 1 turn."
@@ -625,7 +625,8 @@ cs =
           [ p Enemy do
                 bonus <- 2 `bonusIf` targetHas "Kamui Chain Combo"
                 pierce (20 * bonus)
-                apply (1 * bonus) [Seal, Taunt]
+                userSlot <- user slot
+                apply (1 * bonus) [Seal, Taunt userSlot]
           ]
         }
       ]

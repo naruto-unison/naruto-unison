@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedLists #-}
-{-# OPTIONS_HADDOCK hide #-}
+{-# OPTIONS_HADDOCK hide     #-}
 
 module Characters.Original.Exams (cs) where
 
@@ -402,7 +402,8 @@ cs =
         , Skill.effects   =
           [ p Enemy do
                 apply 2 [Expose]
-                self $ hide 2 [Redirect NonMental]
+                userSlot <- user slot
+                self $ hide 2 [Redirect NonMental userSlot]
           ]
         }
       ]

@@ -8,11 +8,11 @@ import ClassyPrelude.Yesod
 
 import           Control.Monad.Loops (untilJust)
 import qualified Data.Aeson.Encoding as Encoding
+import qualified Data.Cache as Cache
 import           Data.Ix (inRange)
 import           Data.HashMap.Strict ((!))
 import qualified Data.List as List
 import qualified Data.Text as Text
-import qualified StmContainers.Map as StmMap
 import qualified Database.Persist.Postgresql as Sql
 import qualified System.Random.MWC as Random
 import qualified Yesod.Auth as Auth
@@ -84,7 +84,9 @@ getPracticeQueueR team
       runReaderT Chakras.gain wrapper
       game     <- Wrapper.game wrapper
       practice <- getsYesod App.practice
-      liftIO . atomically $ StmMap.insert game who practice
+      liftIO do
+          Cache.purgeExpired practice -- TODO: Move to a recurring timer?
+          Cache.insert practice who game
       returnJson GameInfo.GameInfo { vsWho  = who
                                    , vsUser = bot
                                    , player = Player.A
@@ -175,15 +177,19 @@ gameSocket = do
         flip runReaderT wrapper do
             when (player == Player.A) $ tryEnact player writer
             completedGame <- untilJust do
-              msg  <- liftIO . atomically $ readTChan reader
-              game <- case msg of
-                Message.Enact game -> do
-                  lift . sendJson $ GameInfo.censor player game
-                  return game
-              if not . null $ Game.victor game then return $ Just game else do
-                  P.modify $ const game
-                  tryEnact player writer
-                  return Nothing
+                msg  <- liftIO . atomically $ readTChan reader
+                case msg of
+                    Message.Forfeit -> do
+                        P.modify . Game.forfeit $ Player.opponent player
+                        Just <$> P.game
+                    Message.Enact game -> do
+                        if not . null $ Game.victor game then 
+                            return $ Just game 
+                        else do
+                            lift . sendJson $ GameInfo.censor player game
+                            P.modify $ const game
+                            tryEnact player writer
+                            return Nothing
             lift . sendJson $ GameInfo.censor player completedGame
 
 tryEnact :: Player -> TChan Message.Game
@@ -201,8 +207,8 @@ tryEnact player writer = do
                     lift . sendJson $ GameInfo.censor player game
                     liftIO . atomically . writeTChan writer $ Message.Enact game
 
-enact :: ∀ m. (GameT m, RandomT m)
-      => Chakras -> Chakras -> [Act] -> m (Either Text ())
+enact :: ∀ m. (GameT m, RandomT m) => Chakras -> Chakras -> [Act] 
+      -> m (Either Text ())
 enact actChakra exchangeChakra actions = do
     player     <- P.player
     gameChakra <- Game.getChakra player <$> P.game
@@ -227,10 +233,9 @@ getPracticeWaitR actChakra xChakra = getPracticeActR actChakra xChakra []
 
 getPracticeActR :: Chakras -> Chakras -> [Act] -> Handler Value
 getPracticeActR actChakra exchangeChakra actions = do
-    app      <- getYesod
     (who, _) <- Auth.requireAuthPair -- !FAILS!
-    let practiceMap = App.practice app
-    mGame    <- liftIO . atomically $ StmMap.lookup who practiceMap -- !FAILS
+    practice <- getsYesod App.practice
+    mGame    <- liftIO $ Cache.lookup practice who -- !FAILS
     case mGame of
         Nothing   -> notFound
         Just game -> do
@@ -247,6 +252,9 @@ getPracticeActR actChakra exchangeChakra actions = do
                         }
                     Turn.run [] -- TODO
                     game'B <- P.game
-                    liftIO . atomically $ StmMap.insert game'B who practiceMap
+                    liftIO if (null $ Game.victor game'B) then
+                        Cache.insert practice who game'B
+                    else
+                        Cache.delete practice who
                     lift . returnJson $
                         GameInfo.censor Player.A <$> [game'A, game'B]

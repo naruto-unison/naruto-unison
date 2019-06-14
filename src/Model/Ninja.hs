@@ -5,7 +5,6 @@ module Model.Ninja
   , alive, minHealth, healthLost
   , adjustHealth, setHealth, sacrifice
   , fromSelf
-  , effects, effectsFrom
   , is, isAny, isChanneling
   , has, hasOwn, hasDefense, hasStatus, hasTrap
   , numActive, numStacks, numHelpful, defenseAmount
@@ -19,7 +18,6 @@ module Model.Ninja
   , cure
   , cureBane
   , kill
-  , hasten
   , prolong, prolong'
   , purge
   , refresh
@@ -35,16 +33,17 @@ import qualified Data.List as List
 import           Data.List.NonEmpty ((!!), NonEmpty(..), group, init, last)
 import qualified Data.Text as Text
 
-import           Core.Util ((—), (∈), (∉), enumerate, incr, intersects, mapMaybe, sync)
+import           Core.Util ((—), (∈), (∉), enumerate, intersects, mapMaybe)
 import qualified Class.Classed as Classed
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
 import qualified Class.Labeled as Labeled
 import qualified Class.TurnBased as TurnBased
-import           Model.Internal (Ninja(..), Flag(..), ignore)
+import           Model.Internal (Ninja(..), Flag(..))
 import qualified Model.Channel as Channel
 import qualified Model.Character as Character
 import qualified Model.Defense as Defense
+import           Model.Duration (Duration, incr, sync)
 import qualified Model.Effect as Effect
 import           Model.Effect (Effect(..))
 import           Model.Class (Class(..))
@@ -60,7 +59,7 @@ import qualified Model.Variant as Variant
 
 -- | Constructs a 'Ninja' with starting values from a character and an index.
 new :: Character -> Slot -> Ninja
-new c slot = Ninja { slot       = slot
+new c slot = Ninja { slot      = slot
                    , health    = 100
                    , character = c
                    , defense   = []
@@ -77,6 +76,7 @@ new c slot = Ninja { slot       = slot
                    , parrying  = []
                    , tags      = []
                    , lastSkill = Nothing
+                   , effects   = mempty
                    , flags     = mempty
                    }
 
@@ -91,17 +91,7 @@ playing :: ∀ a. Parity a => a -> Ninja -> Bool
 playing p n = alive n && Parity.allied p n
 
 fromSelf :: Ninja -> Status -> Bool
-fromSelf n st = Status.source st == slot n || Status.user st == slot n
-
-effects :: Ninja -> [Effect]
-effects n = [ef | st <- statuses n
-                , ef <- Status.effects $ Status.unfold st
-                , ef ∉ ignore n]
-
-effectsFrom :: Slot -> Ninja -> [Effect]
-effectsFrom user n = [ef | st <- statuses n
-                         , Status.user st == user
-                         , ef <- Status.effects st]
+fromSelf n st = Status.user st == slot n || Status.user st == slot n
 
 is :: Effect -> Ninja -> Bool
 is ef = (ef ∈) . effects
@@ -115,36 +105,25 @@ isChanneling name = any ((name ==) . Skill.name . Channel.skill) . channels
 has :: Text -> Slot -> Ninja -> Bool
 has statusName statusSource = any match . statuses
   where
-    match st = Status.name st == statusName
-               && ( statusSource == Status.source st
-                 || statusSource == Status.user st
-                 || statusSource == Status.root st
-                  )
-               && ( Unshifted ∈ Status.classes st
-                 || Shifted ∉ Status.classes st
-                  )
+    match st = Status.name st == statusName && statusSource == Status.source st
 
 hasStatus :: Status -> Ninja -> Bool
-hasStatus st = has (Status.name st) (Status.source st)
+hasStatus st = has (Status.name st) (Status.user st)
 
 hasDefense :: Text -> Slot -> Ninja -> Bool
-hasDefense name source = any (Labeled.match name source) . defense
+hasDefense name user = any (Labeled.match name user) . defense
 
 defenseAmount :: Text -> Slot -> Ninja -> Int
-defenseAmount name source n =
+defenseAmount name user n =
     sum [ Defense.amount d | d <- defense n
-                           , Defense.source d == source
+                           , Defense.user d == user
                            , Defense.name d == name
                            ]
 
 hasTrap :: Text -> Slot -> Ninja -> Bool
-hasTrap name source = any match . traps
+hasTrap name user = any match . traps
     where
-      match trap =
-          Trap.name trap == name && Trap.source trap == source
-          && ( Unshifted ∈ Trap.classes trap
-            || Shifted ∉ Trap.classes trap
-             )
+      match trap = Trap.name trap == name && Trap.user trap == user
 
 hasOwn :: Text -> Ninja -> Bool
 hasOwn name n = has name (slot n) n
@@ -160,8 +139,8 @@ numActive name n
     stacks = numStacks name (slot n) n
 
 numStacks :: Text -> Slot -> Ninja -> Int
-numStacks name source n = sum . (Status.amount <$>) .
-                          filter (Labeled.match name source) $
+numStacks name user n = sum . (Status.amount <$>) .
+                          filter (Labeled.match name user) $
                           statuses n
 
 numHelpful :: Ninja -> Int
@@ -169,13 +148,13 @@ numHelpful n = length stats + length defs
   where
     stats = List.nubBy Labeled.eq [ st | st <- statuses n
                                   , any Effect.helpful $ Status.effects st
-                                  , slot n /= Status.source st
-                                  , Parity.allied (slot n) $ Status.source st
+                                  , slot n /= Status.user st
+                                  , Parity.allied (slot n) $ Status.user st
                                   , Hidden ∉ Status.classes st
                                   ]
     defs  = List.nubBy Labeled.eq [ d | d <- defense n
-                                  , slot n /= Defense.source d
-                                  , Parity.allied (slot n) $ Defense.source d
+                                  , slot n /= Defense.user d
+                                  , Parity.allied (slot n) $ Defense.user d
                                   ]
 
 -- | 1 if the 'Ninja' is affected by 'Endure', otherwise 0.
@@ -194,18 +173,16 @@ sacrifice :: Int -> Int -> Ninja -> Ninja
 sacrifice minhp hp = adjustHealth $ max minhp . (— hp)
 
 healthLost :: Ninja -> Ninja -> Int
-healthLost n n' = max 0 $ health n - health n'
+healthLost n n' = max 0 $ health n' - health n
 
 -- | Obtains an 'Effect' and removes its 'Status' from its owner.
 take :: (Effect -> Bool) -> Ninja -> Maybe (Ninja, Effect, Status)
 take matcher n = do
     match <- find (any matcher . Status.effects) $ statuses n
-    let removed = Status.remove match $ statuses n
-    case Status.effects match of
-        [a] -> return (n { statuses = removed }, a, match)
-        efs -> do
-            a <- find matcher efs
-            return (n { statuses = removed }, a, match)
+    a     <- case Status.effects match of
+        [x] -> Just x
+        xs  -> find matcher xs
+    return (n { statuses = Status.remove match $ statuses n }, a, match)
 
 drop :: (Effect -> Bool) -> Ninja -> Maybe Ninja
 drop = map fst3 . take
@@ -222,7 +199,7 @@ decrStats :: Ninja -> Ninja
 decrStats n = n { statuses = expire <$> statuses n }
   where
     expire st
-      | Status.dur st == 1 = st { Status.effects = [] }
+      | Status.dur st == 1 = st { Status.effects = mempty }
       | otherwise          = st
 
 -- | Applies 'TurnBased.decr' to all of a 'Ninja's 'TurnBased' elements.
@@ -244,8 +221,8 @@ decr n = case findMatch $ statuses n of
            , flags     = mempty
            }
   where
-    findMatch          = find match . reverse . concatMap Status.effects .
-                         filter ((<= 2) . Status.dur)
+    findMatch          = find match . reverse . toList . 
+                         concatMap Status.effects . filter ((<= 2) . Status.dur)
     match Snapshot{}   = True
     match _            = False
     foldStats          = (foldStat <$>) . group . sort
@@ -261,21 +238,20 @@ addStatus st n = n { statuses = Classed.nonStack st' st' $ statuses n }
     st' = st { Status.classes = filter (InvisibleTraps /=) $ Status.classes st }
 
 -- | Passes the user's 'nId' to 'addStacks'.
-addOwnStacks :: Int -> Text -> Int -> Int -> Int -> Ninja -> Ninja
+addOwnStacks :: Duration -> Text -> Int -> Int -> Int -> Ninja -> Ninja
 addOwnStacks dur name s v i n =
     addStatus st { Status.name    = name
                  , Status.classes = Unremovable : Status.classes st
                  , Status.amount  = i
                  } n
   where
-    st    = Status.new (slot n) (incr $ sync dur) $
-            Character.skills (character n) !! s !! v
+    st    = Status.new (slot n) dur $ Character.skills (character n) !! s !! v
 
-addOwnDefense :: Int -> Text -> Int -> Ninja -> Ninja
+addOwnDefense :: Duration -> Text -> Int -> Ninja -> Ninja
 addOwnDefense dur name i n = n { defense = d : defense n }
   where
     d = Defense.Defense { Defense.amount = i
-                        , Defense.source = slot n
+                        , Defense.user = slot n
                         , Defense.name   = name
                         , Defense.dur    = incr $ sync dur
                         }
@@ -288,14 +264,14 @@ clearDefense n = n { defense = [] }
 
 -- | Deletes matching 'Status'es in 'nStatuses'.
 clear :: Text -> Slot -> Ninja -> Ninja
-clear name source n = n { statuses = filter keep $ statuses n }
+clear name user n = n { statuses = filter keep $ statuses n }
   where
-    keep = not . Labeled.match name source
+    keep = not . Labeled.match name user
 
 -- | Deletes matching 'Trap's in 'nTraps'.
 clearTrap :: Text -> Slot -> Ninja -> Ninja
-clearTrap name source n =
-    n { traps = filter (not . Labeled.match name source) $ traps n }
+clearTrap name user n =
+    n { traps = filter (not . Labeled.match name user) $ traps n }
 
 -- | Resets matching 'variants'.
 clearVariants :: Text -> Ninja -> Ninja
@@ -320,11 +296,11 @@ cure match n = n { statuses = mapMaybe cure' $ statuses n }
     keep Reveal = True
     keep a      = Effect.helpful a || not (match a)
     cure' st
-      | Status.source st == slot n     = Just st
-      | null $ Status.effects st             = Just st
-      | Unremovable ∈ Status.classes st = Just st
-      | is Plague n                    = Just st
-      | not $ any keep $ Status.effects st   = Nothing
+      | Status.user st == slot n           = Just st
+      | null $ Status.effects st           = Just st
+      | Unremovable ∈ Status.classes st    = Just st
+      | is Plague n                        = Just st
+      | not $ any keep $ Status.effects st = Nothing
       | otherwise = Just st { Status.effects = filter keep $ Status.effects st }
 
 -- | Cures 'Bane' 'Status'es.
@@ -336,7 +312,7 @@ cureBane n
     cured Afflict{} = True
     cured _         = False
     keep st         = Bane ∉ Status.classes st
-                      || slot n == Status.source st
+                      || slot n == Status.user st
 
 kill :: Bool -- ^ Can be prevented by 'Endure'
      -> Ninja
@@ -349,10 +325,6 @@ kill endurable n
   where
     dead = Status.dead $ slot n
 
--- | Decreases the duration of matching 'Status'es.
-hasten :: Int -> Text -> Slot -> Ninja -> Ninja
-hasten dur = prolong (-dur)
-
 prolong :: Int -> Text -> Slot -> Ninja -> Ninja
 -- | Extends the duration of matching 'Status'es.
 prolong dur name src n =
@@ -360,9 +332,9 @@ prolong dur name src n =
 
 -- | Extends the duration of a single 'Status'.
 prolong' :: Int -> Text -> Slot -> Status -> Maybe Status
-prolong' dur name source st
+prolong' dur name user st
   | Status.dur st == 0                 = Just st
-  | not $ Labeled.match name source st = Just st
+  | not $ Labeled.match name user st = Just st
   | statusDur' <= 0                    = Nothing
   | otherwise                          = Just st
       { Status.dur    = statusDur'
@@ -376,7 +348,7 @@ prolong' dur name source st
         | dur < 0                         = dur + 1
         | otherwise                       = dur - 1
 
--- | Removes all friendly effects.
+-- | Removes all helpful effects.
 purge :: Ninja -> Ninja
 purge n
   | is Enrage n = n
@@ -389,10 +361,10 @@ purge n
 
 -- | Resets the duration of matching 'Status'es to their 'statusMaxDur'.
 refresh :: Text -> Slot -> Ninja -> Ninja
-refresh name source n = n { statuses = f <$> statuses n }
+refresh name user n = n { statuses = f <$> statuses n }
   where
     f st
-      | Labeled.match name source st = st { Status.dur = Status.maxDur st }
+      | Labeled.match name user st = st { Status.dur = Status.maxDur st }
       | otherwise                    = st
 
 -- | Deletes one matching 'Status'.
@@ -403,9 +375,9 @@ removeStack name n = n { statuses = f $ statuses n }
 
 -- | Replicates 'removeStack'.
 removeStacks :: Text -> Int -> Slot -> Ninja -> Ninja
-removeStacks name i source n = n { statuses = f $ statuses n }
+removeStacks name i user n = n { statuses = f $ statuses n }
   where
-    f = Status.removeMatch i $ Labeled.match name source
+    f = Status.removeMatch i $ Labeled.match name user
 
 -- | Resets 'nCharges' to four @0@s.
 resetCharges :: Ninja -> Ninja
@@ -426,13 +398,13 @@ kabuto skill n =
       , channels = toList (init nChannels') ++ [swaps (last nChannels')]
       }
   where
-    nId       = slot n
+    nSlot      = slot n
     nChannels' = case channels n of
                     x:xs -> x :| xs
                     []   -> Channel.Channel
-                                { Channel.root   = nId
+                                { Channel.source = nSlot
                                 , Channel.skill  = skill
-                                , Channel.target = nId
+                                , Channel.target = nSlot
                                 , Channel.dur    = Skill.channel skill
                                 } :| []
     sage       = " Sage"
@@ -449,9 +421,8 @@ kabuto skill n =
     ml         = mode ++ sage
     newmode    = Status.Status { Status.amount  = 1
                                , Status.name    = ml
-                               , Status.root    = nId
-                               , Status.source  = nId
-                               , Status.user    = nId
+                               , Status.source  = nSlot
+                               , Status.user    = nSlot
                                , Status.skill   = skill
                                , Status.effects = []
                                , Status.classes = [Hidden, Unremovable]
@@ -459,7 +430,7 @@ kabuto skill n =
                                , Status.maxDur  = 0
                                , Status.dur     = 0
                                }
-    getMode st = Status.source st == nId
+    getMode st = Status.user st == nSlot
                  && sage == Text.takeEnd sLen (Status.name st)
     advance "Bloodline" = ("Genjutsu" , 2)
     advance "Genjutsu"  = ("Ninjutsu" , 3)

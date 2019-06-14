@@ -22,3 +22,6 @@ cabal.sandbox.config
 naruto-unison.cabal
 
 \.dir-locals\.el
+
+elm-stuff/
+node_modules/
