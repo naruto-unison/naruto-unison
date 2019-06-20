@@ -27,8 +27,8 @@ import qualified Data.Text as Text
 (∉) = notElem
 
 -- | True if any elements are shared by both collections.
-intersects :: ∀ a b. 
-    (MonoFoldable a, MonoFoldable b, Element a ~ Element b, Eq (Element a)) 
+intersects :: ∀ a b.
+    (MonoFoldable a, MonoFoldable b, Element a ~ Element b, Eq (Element a))
     => a -> b -> Bool
 intersects x = any (∈ x)
 

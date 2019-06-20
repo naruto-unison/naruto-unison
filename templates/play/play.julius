@@ -1,6 +1,103 @@
 "use strict";
-const bg       = #{toJSON bg};
-const userTeam = #{toJSON team};
-const user     = #{toJSON muser};
-const avatars  = #{toJSON avatars};
-const chars    = #{toJSON Characters.list};
+let prog
+let vol
+let conn
+
+const nullary = x => {
+  if (x === null || typeof x !== "object") return
+
+  for (k in x) nullary(x[k])
+
+  if (x.tag !== undefined && x.contents === undefined)
+    x.contents = []
+
+  return x
+}
+
+const user = #{toJSON muser}
+
+const app = Elm.Main.init({
+  flags: {
+    url:        document.URL,
+    bg:         #{toJSON bg},
+    userTeam:   nullary(#{toJSON team}),
+    user:       user,
+    avatars:    #{toJSON avatars},
+    characters: nullary(#{toJSON Characters.list}),
+    csrf:       Cookies.get("XSRF-TOKEN")
+  }
+})
+app.ports.sounds.subscribe(sounds => {
+      vol = document.createElement("div")
+      vol.id = "volume"
+      document.body.appendChild(vol)
+      vol.className = #{vol}
+      vol.onclick = function() {
+        const muted = this.className === "click muted"
+        this.className = muted ? "click unmuted" : "click muted"
+        if (muted)
+          createjs.Sound.play("SFXClick")
+        if (user) {
+          const xmlhttp = new XMLHttpRequest()
+          xmlhttp.open("GET", "/api/mute/" + (muted ? "False" : "True"), true)
+          xmlhttp.send()
+        }
+      }
+      createjs.Sound.registerSounds(
+        sounds.map(function(file) { return {src: file + ".ogg", id: file } }),
+        "audio/"
+      )
+})
+app.ports.sound.subscribe(sound => {
+  if (vol && vol.className !== "click muted")
+        createjs.Sound.play(sound)
+})
+
+let queuedProgress
+const progress = args => {
+  const duration = args[0];
+  const from     = args[1];
+  const to       = args[2];
+  if (prog === undefined)
+    return queuedProgress = args
+
+  if (from < to)
+    prog.path.setAttribute('stroke','#555')
+  else
+    prog.path.setAttribute('stroke','#0099ff')
+  prog.set(from)
+  if (duration > 0)
+    prog.animate(to, { duration: duration })
+}
+app.ports.progress.subscribe(progress)
+
+const barOpts = { color: '#0099ff', fill: '#111' }
+const observer = new MutationObserver(mutations => {
+  for (mutation of mutations)
+    if (mutation.addedNodes)
+      for (addedNode of mutation.addedNodes.values())
+        if (addedNode.id === "game") {
+          prog = new ProgressBar.Line("#ready", barOpts)
+          if (queuedProgress !== undefined) {
+            progress(queuedProgress)
+            queuedProgress = undefined
+          }
+        }
+})
+observer.observe(document.getElementById("contents"), { childList: true })
+
+
+app.ports.websocketSend.subscribe(msg => {
+    if (conn !== undefined && conn.readyState !== 1) {
+      conn.close()
+      conn = undefined
+    }
+    if (conn === undefined) {
+        conn = new WebSocket(document.URL.replace(/^http/g, "ws"))
+        conn.onopen = x => conn.send(msg)
+        conn.onmessage = x => app.ports.websocketReceive.send(x.data)
+    } else {
+      conn.send(msg)
+    }
+
+})

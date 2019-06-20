@@ -38,55 +38,55 @@ data Context = Context { skill   :: Skill
                        , target  :: Slot
                        } deriving (Eq)
 
-type PlayConstraint a = ∀ m. (RandomT m, PlayT m) => m a
+type PlayConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
 newtype Play a = Play (PlayConstraint a)
 instance Eq (Play a) where
     (==) = const $ const True
 
 type SavedPlay = (Context, Play ())
 
-class Monad m => RandomT m where
+class Monad m => MonadRandom m where
     random  :: ∀ a. Random.Variate a => a -> a -> m a
     shuffle :: ∀ v a. Vector v a => v a -> m (v a)
 
-class Monad m => GameT m where
+class Monad m => MonadGame m where
     game        :: m Game
     modify      :: (Game -> Game) -> m ()
 
-class GameT m => PlayT m where
+class MonadGame m => MonadPlay m where
     context :: m Context
     with    :: ∀ a. (Context -> Context) -> m a -> m a
 
-instance GameT m => GameT (ReaderT Context m) where
+instance MonadGame m => MonadGame (ReaderT Context m) where
     game   = lift game
     modify = lift . modify
-instance GameT m => PlayT (ReaderT Context m) where
+instance MonadGame m => MonadPlay (ReaderT Context m) where
     context = ask
     with    = local
 
-instance RandomT m => RandomT (MaybeT m) where
+instance MonadRandom m => MonadRandom (MaybeT m) where
     random a = lift . random a
     shuffle  = lift . shuffle
-instance GameT m => GameT (MaybeT m) where
+instance MonadGame m => MonadGame (MaybeT m) where
     game    = lift game
     modify  = lift . modify
-instance PlayT m => PlayT (MaybeT m) where
+instance MonadPlay m => MonadPlay (MaybeT m) where
     context = lift context
     with f  = mapMaybeT $ with f
-instance RandomT m => RandomT (ReaderT Context m) where
+instance MonadRandom m => MonadRandom (ReaderT Context m) where
     random a = lift . random a
     shuffle  = lift . shuffle
-instance RandomT m => RandomT (WebSocketsT m) where
+instance MonadRandom m => MonadRandom (WebSocketsT m) where
     random a = lift . random a
     shuffle  = lift . shuffle
-instance GameT m => GameT (WebSocketsT m) where
+instance MonadGame m => MonadGame (WebSocketsT m) where
     game    = lift game
     modify  = lift . modify
-instance PlayT m => PlayT (WebSocketsT m) where
+instance MonadPlay m => MonadPlay (WebSocketsT m) where
     context = lift context
     with f  = mapReaderT $ with f
 
-instance GameT (StateT Game Identity) where
+instance MonadGame (StateT Game Identity) where
     game   = get
     modify = modify'
 
@@ -94,13 +94,13 @@ data Wrapper = Wrapper { gameRef :: IORef Game
                        , rand    :: Random.GenIO
                        }
 
-instance MonadIO m => RandomT (ReaderT Wrapper m) where
+instance MonadIO m => MonadRandom (ReaderT Wrapper m) where
     random a b = asks (rand :: Wrapper -> Random.GenIO)
                  >>= liftIO . Random.uniformR (a, b)
     shuffle xs = asks (rand :: Wrapper -> Random.GenIO)
                  >>= liftIO . Random.uniformShuffle xs
 
-instance MonadIO m => GameT (ReaderT Wrapper m) where
+instance MonadIO m => MonadGame (ReaderT Wrapper m) where
     game     = asks gameRef >>= readIORef
     modify f = asks gameRef >>= flip modifyIORef' f
 
@@ -290,8 +290,6 @@ data Game = Game { ninjas  :: Seq Ninja
                  -- ^ Starts at @('Chakras' 0 0 0 0 0, 'Chakras' 0 0 0 0 0)@
                  , delays  :: [Delay]
                  -- ^ Starts at @(0, 0)@. Resets every turn to @(0, 0)@
-                 , traps   :: Seq SavedPlay
-                 -- ^ Starts empty
                  , playing :: Player
                  -- ^ Starts at 'Player.A'
                  , victor  :: [Player]
@@ -532,7 +530,7 @@ data Copy = Copy { skill :: Skill
 
 instance Classed Copy where
     classes = Classed.classes . (skill :: Copy -> Skill)
-          
+
 instance TurnBased Copy where
     getDur = dur
     setDur d x@Copy{skill} = x { dur   = d

@@ -9,8 +9,8 @@ import ClassyPrelude.Yesod
 import Model.Slot (Slot)
 
 -- Class for types with names and 'Ninja' sources.
--- This is important because two different 'Ninja's might have 'Skill's 
--- with the same name, so both name and origin must match in order for a 
+-- This is important because two different 'Ninja's might have 'Skill's
+-- with the same name, so both name and origin must match in order for a
 -- structure to count as theirs.
 class Labeled a where
     -- | Label

@@ -25,7 +25,7 @@ import qualified Model.Variant as Variant
 import qualified Engine.Effects as Effects
 import qualified Engine.SkillTransform as SkillTransform
 
--- | Cooldowns of the currently active 'Skill's in all four slots of 
+-- | Cooldowns of the currently active 'Skill's in all four slots of
 -- 'Ninja.variants'.
 active :: Ninja -> Seq Int
 active n = zipWith copyCd (Ninja.copies n) .
@@ -89,7 +89,7 @@ insert s v toCd cds
   where
     len = length cds
 
--- | Updates an element in 'Ninja.cooldowns'. 
+-- | Updates an element in 'Ninja.cooldowns'.
 -- If 'True', also increments 'Ninja.charges'.
 update :: Bool -> Int -> Skill -> Int -> Ninja -> Ninja
 update True a skill s n =

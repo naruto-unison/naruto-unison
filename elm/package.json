@@ -4,8 +4,10 @@
   "description": "Naruto Unison",
   "main": "naruto-unison-elm.js",
   "scripts": {
-    "build": "set -e; rimraf elm-stuff; elm make src/Main.elm --output=naruto-unison-elm.js --optimize",
-    "publish": "uglifyjs naruto-unison-elm.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' | uglifyjs --mangle --output=../templates/play/elm.julius",
+    "build": "set -e; rimraf elm-stuff; elm make src/Main.elm --output=elm-stuff/naruto-unison-elm.js --optimize",
+    "publish": "set -e; uglifyjs elm-stuff/naruto-unison-elm.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' | uglifyjs --mangle --output=../templates/play/elm.julius; rimraf elm-stuff",
+    "install": "set -e; npm run build; npm run publish",
+    "unmangled": "set -e; rimraf elm-stuff; elm make src/Main.elm --output=naruto-unison-elm.js; mv naruto-unison-elm.js ../templates/play/elm.julius",
     "dev": "set -e; npm run build; cd publish; (sleep 2; opener http://localhost:8000/200.html) & elm reactor",
     "scrape": "set -e; cd scraper; rimraf elm-stuff; elm make scraper.elm --output=scraper.js; (sleep 2; opener http://localhost:8000/scraper.html) & elm reactor"
   },

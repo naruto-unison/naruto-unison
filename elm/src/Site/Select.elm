@@ -1,61 +1,559 @@
 module Site.Select exposing (Model, Msg(..), component)
 
+import Browser.Dom        as Dom
 import Browser.Navigation as Navigation
-import Html as H exposing (Html)
-
-import Flags exposing (Flags)
-import Site.Component exposing (Component)
-import Sound exposing (Sound(..))
-{-
+import Dict
+import Html               as H exposing (Html)
+import Html.Events        as E
+import Html.Attributes    as A
 import Html.Keyed         as Keyed
-import Browser.Navigation as Navigation
-import Html.Lazy exposing (lazy3)
+import Http
+import Json.Decode exposing (Value)
+import List.Extra         as List
+import List.Nonempty      as Nonempty exposing (Nonempty(..))
+import Maybe.Extra        as Maybe
+import Task exposing (Task)
+import Tuple exposing (first, second)
+import Url
 
-import Html.Events     as E
-import Html.Attributes as P
+import Game.Game exposing (rank)
+import Import.Flags exposing (Characters, Flags, characterName)
+import Import.Model as Model exposing (Character, GameInfo, Skill, User)
+import Ports exposing (Ports)
+import Site.Render as Render exposing (icon)
+import Sound exposing (Sound)
+import Util exposing (ListChange(..), elem, pure, showErr)
 
-import StandardLibrary       exposing (..)
-import Database.CraftEssence exposing (..)
-import Database.Skill        exposing (..)
-import Persist.Flags         exposing (..)
-import Persist.Preferences   exposing (..)
-import Printing              exposing (..)
-import Site.Algebra          exposing (..)
-import Site.Common           exposing (..)
-import Site.Filtering        exposing (..)
-import Site.Rendering        exposing (..)
-import Site.Update           exposing (..)
-import Sorting               exposing (..)
+for : List a -> (a -> b) -> List b
+for xs f = List.map f xs
 
-import Class.ToImage as ToImage
+wraparound : Bool -> Int -> List a -> List a
+wraparound wrapping i xs =
+  let
+    (before, after) = List.splitAt i xs
+  in
+    if wrapping then after else after ++ before
 
-import Site.CraftEssence.Filters exposing (..)
-import Site.CraftEssence.Sorting exposing (..)
--}
-type alias Model =
-    { index : Int
+type Previewing
+    = NoPreview
+    | PreviewUser User
+    | PreviewChar Character
+
+type alias Form =
+    { name       : String
+    , background : String
+    , condense   : Bool
+    , avatar     : String
     }
 
-type Msg
-    = Scroll Int
-    | Quick
+type FormUpdate
+    = Name String
+    | Background String
+    | Condense Bool
+    | Avatar String
+
+updateForm : FormUpdate -> Form -> Form
+updateForm msg form = case msg of
+    Name x       -> { form | name = x }
+    Background x -> { form | background = x }
+    Condense x   -> { form | condense = x }
+    Avatar x     -> { form | avatar = x }
+
+formUrl : Form -> String
+formUrl form = "api/update/" ++ form.name ++ "/"
+               ++ (if form.condense then "True" else "False")
+               ++ "/b" ++ form.background ++ "/"
+               ++ Url.percentEncode form.avatar
+
+type alias Model =
+    { error      : Maybe String
+    , queued     : Bool
+    , url        : String
+    , team       : List Character
+    , user       : Maybe User
+    , avatars    : List String
+    , chars      : Characters
+    , csrf       : String
+    , queueing   : Bool
+    , showLogin  : Bool
+    , index      : Int
+    , cols       : Int
+    , toggled    : Maybe Character
+    , previewing : Previewing
+    , variants   : List Int
+    , pageSize   : Int
+    , form       : Form
+    }
+
+type Queue
+    = Quick
     | Practice
     | Private
+
+type Msg
+    = Fail String
+    | Page Int
+    | Scroll Int
+    | Vary Int Int
+    | SwitchLogin
+    | TryUpdate
+    | Enqueue Queue
+    | Preview Previewing
+    | Team ListChange Character
+    | Untoggle
+    | UpdateForm FormUpdate
+    | ReceiveUpdate (Result Http.Error ())
+    | ReceiveGame (Result Http.Error GameInfo)
     | DoNothing
 
-component : (Sound -> Cmd Msg) -> (Int -> Cmd Msg) -> Component Model Msg
-component sound = always <|
+component ports =
   let
     init : Flags -> Model
     init flags =
-        { index = 0 }
+        { error      = Nothing
+        , queued     = False
+        , url        = flags.url
+        , team       = flags.userTeam
+        , user       = flags.user
+        , chars      = flags.characters
+        , avatars    = flags.avatars
+        , csrf       = flags.csrf
+        , queueing   = False
+        , showLogin  = True
+        , index      = 0
+        , cols       = 11
+        , toggled    = Nothing
+        , previewing = NoPreview
+        , variants   = [0, 0, 0, 0]
+        , pageSize   = 36
+        , form       = case flags.user of
+            Nothing   ->
+                { name       = ""
+                , background = ""
+                , condense   = False
+                , avatar     = ""
+                }
+            Just user ->
+                { name = user.name
+                , background = Maybe.withDefault "" user.background
+                , condense   = user.condense
+                , avatar     = user.avatar
+                }
+        }
 
     view : Model -> Html Msg
-    view st = H.span [] [H.text "Select"]
+    view st =
+      let
+        wrapping = st.index + st.pageSize >= size st
+        displays =
+            if condense st then
+                List.map Nonempty.head <|
+                    wraparound wrapping st.index st.chars.groupList
+            else
+                wraparound wrapping st.index st.chars.list
+        charClass char = -- god I wish this language had pattern guards
+            if char |> elem st.team then
+                "char disabled"
+            else case st.toggled of
+                Nothing      -> "char click"
+                Just toggled ->
+                    if toggled == char then
+                        "char click selected"
+                    else
+                        "char"
+      in
+        H.section [A.id "charSelect"] <|
+        userBox st.user st.csrf st.showLogin st.team ++
+        previewBox st ::
+        [ H.section [A.id "characterButtons", A.class "parchment"]
+          [ H.aside
+            [ A.id "prevPage"
+            , A.classList [("click", True), ("wraparound", st.index == 0)]
+            , E.onClick <| Page (-1)
+            ] []
+          , H.aside
+            [ A.id "nextPage"
+            , A.classList [("click", True), ("wraparound", wrapping)]
+            , E.onClick <| Page 1
+            ] []
+          , Keyed.node "div"
+            [ A.id "charScroll"
+            , E.onMouseOver Untoggle
+            ] <| for displays <| \char ->
+                (characterName char, H.div [A.class <| charClass char]
+                [ icon char "icon"
+                  [ E.onMouseOver << Preview <| PreviewChar char
+                  , E.onClick <| Team Add char
+                  ]
+                ])
+          ]
+        ]
+
+    withSound : Sound -> Model -> (Model, Cmd Msg)
+    withSound sound st = (st, ports.sound sound)
 
     update : Msg -> Model -> (Model, Cmd Msg)
     update msg st = case msg of
-        DoNothing -> (st, Cmd.none)
-        _         -> (st, Cmd.none)
+        DoNothing    -> pure st
+        Fail x       -> pure { st | error = Just x }
+        SwitchLogin  -> pure { st | showLogin = not st.showLogin }
+        Untoggle     -> pure { st | toggled = Nothing }
+        Page x       -> (st, scroll x)
+        UpdateForm x -> withSound Sound.Click
+            { st | form = updateForm x st.form }
+        Scroll x     -> withSound Sound.Scroll <|
+          let
+            index = x + st.index
+          in
+            if index < 0 then
+              let
+                rem = size st |> remainderBy (-x)
+              in
+                { st | index = if rem == 0 then 0 else size st - rem }
+            else if index >= size st then
+                { st | index = 0 }
+            else
+                { st | index = x + st.index }
+        Preview x    -> pure <|
+            if Maybe.isJust st.toggled then
+                st
+            else
+                { st | previewing = x, variants = [0,0,0,0] }
+        Vary slot i -> withSound Sound.Click
+            { st | variants = List.updateAt slot (always i) st.variants }
+        Team Add char -> withSound Sound.Click <|
+              if char |> elem st.team then
+                  { st | toggled = Nothing }
+              else if st.toggled /= Just char then
+                  { st | toggled = Just char }
+              else if List.length st.team < 3 then
+                  { st | toggled = Nothing, team = char :: st.team }
+              else
+                  { st | toggled = Nothing }
+        Team Delete char -> withSound Sound.Cancel
+            { st | team = List.remove char st.team }
+        TryUpdate   ->
+            ( st
+            , Http.get
+                 { url    = st.url ++ formUrl st.form
+                 , expect = Http.expectWhatever ReceiveUpdate
+                 }
+            )
+        ReceiveUpdate (Ok ()) -> (st, Navigation.reload)
+        ReceiveUpdate (Err (Http.BadStatus code)) ->
+          let
+            error = case code of
+                500 -> "Username already taken"
+                400 -> "Name can only contain letters and numbers"
+                _   -> "Error: Code " ++ String.fromInt code
+          in
+            pure { st | error = Just error }
+        ReceiveUpdate (Err err) -> pure { st | error = Just <| showErr err }
+        Enqueue Practice      ->
+          let
+            team = (++) (st.url ++ "api/practicequeue/") << String.join "/"
+                   <| List.map characterName st.team
+          in
+            ( st
+            , Http.get
+                 { url    = team
+                 , expect = Http.expectJson ReceiveGame Model.jsonDecGameInfo
+                 }
+            )
+        ReceiveGame _   -> pure st
+        Enqueue Private -> pure st
+        Enqueue Quick   ->
+          ( { st | queued = True }
+          , ports.websocket << String.join "/" <| List.map characterName st.team
+          )
+
   in
     { init = init, view = view, update = update }
+
+condense : Model -> Bool
+condense = Maybe.withDefault False << Maybe.map .condense << .user
+
+size : Model -> Int
+size st =
+    if condense st then
+        List.length st.chars.groupList
+    else
+        List.length st.chars.list
+
+userBox : Maybe User -> String -> Bool -> List Character -> List (Html Msg)
+userBox mUser csrf showLogin team =
+    let playClasses = A.classList
+                      [ ("click", List.length team == 3)
+                      , ("playButton", True)
+                      , ("parchment",  True)
+                      ]
+        preview    = E.onClick << Preview
+    in case mUser of
+        Just user ->
+          [ H.nav [A.class "playButtons"]
+            [ H.a
+              [ A.id    "mainsite"
+              , A.class "playButton parchment click blacked"
+              , A.href  "/home"
+              ] [H.text "Main Site"]
+            , H.a [playClasses, E.onClick <| Enqueue Quick]
+              [H.text "Start Quick Match"]
+            , H.a [playClasses, E.onClick <| Enqueue Practice]
+              [H.text "Start Practice Match"]
+            , H.a [playClasses, E.onClick <| Enqueue Private]
+              [H.text "Start Quick Match"]
+            ]
+          , H.section [A.id "teamContainer"]
+            [ H.div
+              [ A.class "parchment loggedin"
+              , E.onMouseOver << Preview <| PreviewUser user
+              ]
+              [ H.img [A.class "userimg char", A.src user.avatar] []
+              , H.strong [] [H.text user.name]
+              , H.br [] []
+              , H.text <| rank user
+              , H.br [] []
+              , H.strong [] [H.text "Clan: "]
+              , H.text <| Maybe.withDefault "Clanless" user.clan
+              , H.br [] []
+              , H.strong [] [H.text "Level: "]
+              , H.text <| String.fromInt (user.xp // 1000) ++ " ("
+                       ++ String.fromInt (user.xp |> remainderBy 1000) ++ " XP)"
+              , H.br [] []
+              , H.strong [] [H.text "Ladder Rank: "]
+              , H.text "None"
+              , H.br [] []
+              , H.strong [] [H.text "Record: "]
+              , H.text <| String.fromInt user.wins ++ " - "
+                ++ String.fromInt (user.wins + user.losses)
+                ++ " (+" ++ String.fromInt user.streak ++ ")"
+              ]
+            , H.div [A.id "teamButtons"] << for team <| \char ->
+                H.div [A.class "char click"]
+                [ icon char "icon"
+                  [ E.onMouseOver << Preview <| PreviewChar char
+                  , E.onClick <| Team Delete char
+                  ]
+                ]
+            , H.div [A.id "underTeam", A.class "parchment"] []
+            ]
+          ]
+        Nothing ->
+          [ H.nav [A.class "playButtons"]
+            [ H.a
+              [ A.id    "mainsite"
+              , A.class "playButton parchment click blacked"
+              , A.href  "/home"
+              ] [H.text "Main Site"]
+            ]
+          , H.section [A.id "teamContainer"]
+            [ H.div [A.class "parchment"]
+              [ H.form
+                [ A.id <| if showLogin then "loginForm" else "registerForm"
+                , A.class "userForm"
+                , A.method "POST"
+                , A.action <| "/auth/page/email/"
+                              ++ if showLogin then "login" else "register"
+                ] << List.map second <| List.filter first
+                  [ ( True, H.input
+                      [ A.type_         "hidden"
+                      , A.name          "_token"
+                      , A.value         csrf
+                      ] []
+                    )
+                  , ( True, H.div []
+                      [ H.input
+                        [ A.class       "email"
+                        , A.name        "email"
+                        , A.type_       "email"
+                        , A.required    True
+                        -- , A.autofocus   True
+                        , A.placeholder "Email"
+                        ] []
+                      ]
+                    )
+                  , ( showLogin, H.div []
+                      [ H.input
+                        [ A.class       "password"
+                        , A.name        "password"
+                        , A.type_       "password"
+                        , A.required    True
+                        , A.placeholder "Password"
+                        ] []
+                      ]
+                    )
+                  , ( showLogin, H.div [A.class "controls"]
+                      [ H.button
+                        [ A.class       "playButton click"
+                        , A.type_       "submit"
+                        ] [H.text "Log in"]
+                      , H.a
+                        [ A.class       "click"
+                        , E.onClick     SwitchLogin
+                        ] [H.text "Register"]
+                      ]
+                    )
+                  , ( not showLogin, H.div [A.class "controls"]
+                      [ H.a
+                        [ A.class       "click"
+                        , E.onClick     SwitchLogin
+                        ] [H.text "Log in"]
+                      , H.button
+                        [ A.class       "playButton click"
+                        , A.type_       "submit"
+                        ] [H.text "Register"]
+                      ]
+                    )
+                  ]
+              ]
+            , H.div [A.id "teamButtons"] << for team <| \char ->
+                H.div [A.class "char click"]
+                [ icon char "icon"
+                  [ E.onMouseOver << Preview <| PreviewChar char
+                  , E.onClick <| Team Delete char
+                  ]
+                ]
+            , H.div [A.id "underTeam", A.class "parchment"] []
+            ]
+          ]
+
+failWarning : Maybe String -> List (Html msg) -> List (Html msg)
+failWarning x xs = case x of
+    Nothing      -> xs
+    Just warning -> xs ++ [H.span [A.id "userfail"] [H.text warning]]
+
+viewInput : String -> String -> String -> (String -> msg) -> Html msg
+viewInput t p v toMsg =
+  H.input [ A.type_ t, A.placeholder p, A.value v, E.onInput toMsg ] []
+
+previewBox : Model -> Html Msg
+previewBox st = case st.previewing of
+    NoPreview ->
+      H.article [A.class "parchment", A.style "display" "none"] []
+    PreviewUser user ->
+      H.article [A.class "parchment"]
+      [ H.form [A.id "accountSettings"]
+        [ H.p [] <| failWarning st.error
+          [ H.span [] [H.text "Name"]
+          , H.input
+            [ A.type_ "text"
+            , A.name "name"
+            , A.value st.form.name
+            , E.onInput <| UpdateForm << Name
+            ] []
+          ]
+        , H.p []
+          [ H.span [] [H.text "Background"]
+          , H.input
+            [ A.type_ "text"
+            , A.name "background"
+            , A.value st.form.background
+            , E.onInput <| UpdateForm << Background
+            ] []
+          ]
+        , H.p []
+          [ H.input
+            [ A.type_   "checkbox"
+            , A.name    "condense"
+            , A.checked st.form.condense
+            , E.onInput <| UpdateForm << Condense << (==) "on"
+            ] []
+          , H.span []
+            [H.text "Show only the first version of each character in the selection grid"]
+          ]
+        , H.p [] [H.span [] [H.text "Avatars"]]
+        , H.section [A.id "avatars"] << for st.avatars <| \avatar ->
+            if st.form.avatar == avatar then
+                H.img
+                [ A.src avatar
+                , A.class "noclick"
+                ] []
+            else
+                H.img
+                [ A.src avatar
+                , A.class "click"
+                , E.onClick << UpdateForm <| Avatar avatar
+                ] []
+        , H.div [A.id "updateButton", A.class "click", E.onClick TryUpdate]
+          [H.text "Update"]
+        , H.a [A.href "auth/logout"]
+          [ H.div [A.id "logoutButton", A.class "click"] [H.text "Log out"] ]
+        ]
+      ]
+    PreviewChar char ->
+        H.article [A.class "parchment"] <|
+        [ H.aside [] <| if not <| condense st then [] else
+          case Dict.get (st.chars.shortName char) st.chars.groupDict of
+            Nothing              -> []
+            Just (Nonempty _ []) -> []
+            Just (Nonempty x xs) -> for (x :: xs) <| \char_ ->
+                icon char_ "icon" <|
+                  if char |> elem st.team then
+                    [ A.classList
+                      [("on", char == char_), ("noclick disabled char", True)]
+                    , E.onMouseOver << Preview <| PreviewChar char_
+                    ]
+                  else
+                    [ A.classList
+                      [("on", char == char_), ("click char", True)]
+                    , E.onMouseOver << Preview <| PreviewChar char_
+                    , E.onClick <| Team Add char_
+                    ]
+        , H.header [] <| icon char "icon" [A.class "char"] :: Render.name char
+        , H.p [] [H.text char.bio]
+        ] ++
+        List.map3 (previewSkill char) (List.range 0 3) char.skills st.variants
+
+previewSkill : Character -> Int -> List Skill -> Int -> Html Msg
+previewSkill char slot skills i = case List.getAt i skills of
+    Nothing -> H.section [] []
+    Just skill ->
+      let
+        findDifferent xs x = List.findIndices (\y -> y.name /= x.name) xs
+        vPrev = List.getAt i skills
+                |> Maybe.andThen
+                   (List.last << findDifferent (List.take i skills))
+                >> Maybe.map (\v -> H.a [ A.class "prevSkill click"
+                                        , E.onClick <| Vary slot v
+                                        ] [])
+        vNext = List.getAt i skills
+                |> Maybe.andThen
+                   (List.head << findDifferent (List.drop i skills))
+                >> Maybe.map (\v -> H.a [ A.class "nextSkill click"
+                                        , E.onClick << Vary slot <| v + i
+                                        ] [])
+      in
+        H.section []
+        [ H.aside [] <| Maybe.values
+          [ Just <| icon char skill.name [A.class "char"]
+          , vPrev
+          , vNext
+          ]
+        , H.header [] <| H.text skill.name :: Render.chakras skill.cost ++
+          [ H.div [A.class "skillClasses"]
+            [H.text << String.join ", " <| skill.classes]
+          ]
+        , H.p [] << (++) (Render.desc skill.desc) << List.map
+          (H.span [A.class "extra"] << List.singleton << H.text << second) <|
+          List.filter first
+          [ (skill.charges > 1,  String.fromInt skill.charges ++ " charges.")
+          , (skill.charges == 1, String.fromInt skill.charges ++ " charge.")
+          , (skill.cooldown > 0, "CD: " ++ String.fromInt skill.cooldown)
+          ]
+        ]
+
+calcSize : Dom.Viewport -> Int
+calcSize dom =
+    floor (dom.viewport.width / 68) * floor (dom.viewport.height / 64)
+
+scrollTask : Int -> Task Dom.Error Int
+scrollTask signum =
+    Dom.getViewportOf "charScroll" |> Task.map ((*) signum << calcSize)
+
+scrollCase : Result Dom.Error Int -> Msg
+scrollCase x = case x of
+    Ok val               -> Scroll val
+    Err (Dom.NotFound e) -> Fail <| "Not found: " ++ e
+
+scroll : Int -> Cmd Msg
+scroll = Task.attempt scrollCase << scrollTask

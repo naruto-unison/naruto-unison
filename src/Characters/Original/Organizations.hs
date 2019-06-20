@@ -150,7 +150,7 @@ cs =
           [ p Enemy $ apply 2 [Expose, Uncounter, Undefend] ]
         }
       ]
-    , [ invuln "Yūgao" "Parry" [Physical] ]
+    , [ invuln "Parry" "Yūgao" [Physical] ]
     ] []
   , Character
     "Demon Brothers"

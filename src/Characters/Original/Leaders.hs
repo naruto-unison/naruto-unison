@@ -121,7 +121,7 @@ cs =
     "One of three legendary sannin, Orochimaru intends to learn every technique in existence. Driven by an insatiable hunger for power, he employs various methods to increase his chakra, even if he has to harm his allies in the process."
     [ [ Skill.new
         { Skill.name      = "Kusanagi"
-        , Skill.desc      = "Striking swiftly, Orochimaru demolishes an enemy's destructible defense and his own destructible barrier before dealing 25 piercing damage to the target."
+        , Skill.desc      = "Striking swiftly, Orochimaru demolishes an enemy's destructible defense and his own destructible barrier, then deals 25 piercing damage to the target."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = k [Tai, Rand]
         , Skill.effects   =

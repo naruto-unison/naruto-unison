@@ -2,6 +2,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# OPTIONS_HADDOCK hide          #-}
 
+-- | Imported by "Model.Act" and "Model.GameInfo".
 module Engine.ToJSON () where
 
 import ClassyPrelude.Yesod hiding (Status)
@@ -9,10 +10,13 @@ import qualified Data.List as List
 
 import           Core.Util ((∈), (∉), intersects)
 import qualified Class.Parity as Parity
+import           Model.Chakra (Chakras(..))
 import           Model.Class (Class(..))
 import qualified Model.Effect as Effect
+import           Model.Face (Face(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
+import           Model.Player (Player(..))
 import qualified Model.Requirement as Requirement
 import qualified Model.Skill as Skill
 import qualified Model.Slot as Slot
@@ -33,6 +37,8 @@ deriving instance Generic Bomb
 deriving instance ToJSON Bomb
 deriving instance Generic Category
 deriving instance ToJSON Category
+deriving instance Generic Chakras
+deriving instance ToJSON Chakras
 deriving instance Generic Channel
 deriving instance ToJSON Channel
 deriving instance Generic Channeling
@@ -41,6 +47,8 @@ deriving instance Generic ChannelTag
 deriving instance ToJSON ChannelTag
 deriving instance Generic Character
 deriving instance ToJSON Character
+deriving instance Generic Class
+deriving instance ToJSON Class
 deriving instance Generic Context
 deriving instance ToJSON Context
 deriving instance Generic Copy
@@ -51,6 +59,10 @@ deriving instance Generic Defense
 deriving instance ToJSON Defense
 deriving instance Generic Direction
 deriving instance ToJSON Direction
+deriving instance Generic Player
+deriving instance Generic Face
+deriving instance ToJSON Face
+deriving instance ToJSON Player
 deriving instance Generic Requirement
 deriving instance ToJSON Requirement
 deriving instance Generic Skill
@@ -123,7 +135,7 @@ instance ToJSON Game where
 skillTargets :: Skill -> Slot -> [Slot]
 skillTargets skill c = filter target Slot.all
   where
-    ts = fst <$> 
+    ts = fst <$>
          Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill
     harm = [Enemy, Enemies, REnemy, XEnemies] `intersects` ts
     target t

@@ -6,11 +6,16 @@ module Model.Effect
   , sticky
   , bypassEnrage
   , boosted
+  , identity
   ) where
 
 import ClassyPrelude.Yesod
 
 import Model.Internal (Amount(..), Effect(..))
+
+identity :: ∀ a. Num a => Amount -> a
+identity Flat    = 0
+identity Percent = 1
 
 helpful :: Effect -> Bool
 helpful Afflict{}      = False

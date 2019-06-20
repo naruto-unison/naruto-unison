@@ -241,11 +241,11 @@ cs =
                 targetSlot   <- target slot
                 userHealth   <- user health
                 targetHealth <- target health
-                bomb 2 [Duel userSlot, Taunt userSlot] 
+                bomb 2 [Duel userSlot, Taunt userSlot]
                        [ p Done $ setHealth targetHealth ]
                 setHealth 30
                 self do
-                    bomb 2 [Duel targetSlot, Taunt targetSlot] 
+                    bomb 2 [Duel targetSlot, Taunt targetSlot]
                            [ p Done $ setHealth userHealth ]
                     setHealth 30
           ]
@@ -766,7 +766,7 @@ cs =
         , Skill.cost      = k [Nin]
         , Skill.cooldown  = 1
         , Skill.channel   = Action 2
-        , Skill.start     = 
+        , Skill.start     =
           [ p Enemy $ trapFrom 2 OnHarm do
               targetSlot <- target slot
               apply 2 [Taunt targetSlot]

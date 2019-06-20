@@ -10,8 +10,6 @@ import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
 
 data Player = A | B deriving (Bounded, Enum, Show, Eq)
-instance ToJSON Player where
-    toJSON = toJSON . fromEnum
 
 instance Parity Player where
     even A = True

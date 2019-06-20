@@ -112,7 +112,7 @@ executables:
     when:
     - condition: flag(library-only)
       buildable: false
-  naruto-unison-elm:
+  elm:
     main: elm.hs
     source-dirs: app
     ghc-options:

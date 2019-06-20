@@ -27,6 +27,7 @@ body, #content {
   border-right: none;
   border-bottom: none;
   padding: 0;
+  display: flex;
 }
 #content > section {
   text-align: left;

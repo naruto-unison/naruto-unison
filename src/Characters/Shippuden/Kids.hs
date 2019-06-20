@@ -883,7 +883,7 @@ cs =
             , p Enemy $ bombWith [Invisible] 5 []
                   [ p Done do
                       userSlot <- user slot
-                      apply' "Kuroari Ambush" 1 [Stun All, Seal, Duel userSlot] 
+                      apply' "Kuroari Ambush" 1 [Stun All, Seal, Duel userSlot]
                   ]
             ]
           }

@@ -221,7 +221,7 @@ decr n = case findMatch $ statuses n of
            , flags     = mempty
            }
   where
-    findMatch          = find match . reverse . toList . 
+    findMatch          = find match . reverse . toList .
                          concatMap Status.effects . filter ((<= 2) . Status.dur)
     match Snapshot{}   = True
     match _            = False

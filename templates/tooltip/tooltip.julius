@@ -1,22 +1,19 @@
 const chars = #{toJSON Characters.map}
 
-const cTypes = [ "blood", "gen", "nin", "tai", "rand" ]
+const cTypes  = [ "blood", "gen", "nin", "tai", "rand" ]
 const tcTypes = [ "blood", "gen", "nin", "tai" ]
 
-shorten = x => x.replace(/ \(\d+\)/g, '')
-                .replace(/[- :()']/g,'')
-                .replace(/ō/g,'o')
-                .replace(/ū/g,'u')
+const shorten = x => x.replace(/ \(\d+\)/g, '')
+                      .replace(/[- :()']/g,'')
+                      .replace(/ō/g,'o')
+                      .replace(/ū/g,'u')
 
-hide = x => x.hide() // A taste of home...
-half = x => (x + 1) / 2 >> 0
+const hide = x => x.hide() // A taste of home...
+const half = x => (x + 1) / 2 >> 0
 
-getSkill = (char, name) => {
-  for (skills of char.skills) for (skill of skills) if (skill.name === name) return skill
-}
+const getSkill = (char, name) => char.skills.flat().filter(x => x.name == name)[0]
 
 const offset = 5
-
 const hidden = [ "All"
                , "Affliction"
                , "NonAffliction"
@@ -38,9 +35,9 @@ const hidden = [ "All"
                , "Necromancy"
                , "Single"
                ]
-filterClasses = x => x.filter(y => !hidden.includes(y))
+const filterClasses = x => x.filter(y => !hidden.includes(y))
 
-showChar = x => {
+const showChar = x => {
   switch (x.category) {
     case "Shippuden":  return x.name + " (S)";
     case "Reanimated": return x.name + " (R)";
@@ -50,11 +47,11 @@ showChar = x => {
 
 let cur
 
-hoverChar = (i, el) => {
+const hoverChar = (i, el) => {
   const tooltip = $("#tooltip")
   const src = $(el)
   const usr = chars[src.data("name")]
-  if (!usr) return
+  if (usr === undefined) return
   src.mouseover(ev => {
       if (tooltip.css("display") !== "none" && cur === src) return
       cur = el
@@ -78,9 +75,9 @@ $(() => {
     $(".skill").each((i, el) => {
         const src = $(el)
         const usr = chars[src.data("name")]
-        if (!usr) return
+        if (usr === undefined) return
         const skill = getSkill(usr, src.text())
-        if (!skill) return
+        if (skill === undefined) return
         src.mouseover(ev => {
             if (tooltip.css("display") !== "none" && cur === src) return
             cur = src

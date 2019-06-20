@@ -9,9 +9,9 @@ import ClassyPrelude.Yesod
 
 import           Core.Util ((—))
 import qualified Class.Play as P
-import           Class.Play (GameT, PlayT)
+import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Random as R
-import           Class.Random (RandomT)
+import           Class.Random (MonadRandom)
 import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra(..), Chakras)
 import qualified Data.Vector as Vec
@@ -19,13 +19,13 @@ import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 
 -- | Randomly picks a 'Chakra' of any kind except 'Rand'.
-random :: ∀ m. RandomT m => m Chakra
+random :: ∀ m. MonadRandom m => m Chakra
 random = toEnum <$> R.random (fromEnum Blood) (fromEnum Tai)
 
--- | Removes some number of 'Chakra's from the target's team. 
+-- | Removes some number of 'Chakra's from the target's team.
 -- 'Chakra's are chosen randomly from the available pool of 'Game.chakra'.
 -- Removed 'Chakra's are collected into a 'Chakras' object and returned.
-remove :: ∀ m. (PlayT m, RandomT m) => Int -> m Chakras
+remove :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m Chakras
 remove amount
   | amount <= 0 = return 0
   | otherwise   = do
@@ -37,7 +37,7 @@ remove amount
 
 -- | Adds as many random 'Chakra's as the number of living 'Ninja's on the
 -- player's team to the player's 'Game.chakra'.
-gain :: ∀ m. (GameT m, RandomT m) => m ()
+gain :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 gain = do
     player <- P.player
     living <- length . filter (Ninja.playing player) . Game.ninjas <$> P.game

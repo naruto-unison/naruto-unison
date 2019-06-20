@@ -1,134 +1,140 @@
 module Site.Application exposing (app)
 
 import Browser exposing (Document, UrlRequest)
-import Browser.Navigation as Navigation
 import Browser.Dom        as Dom
 import Html               as H exposing (Html)
-import Html.Attributes    as P
-import Json.Decode        as Json
-import Json.Encode exposing (Value)
+import Html.Attributes    as A
+import Json.Decode        as D exposing (Value)
+import Process
+import Task
 import Url exposing (Url)
 
-import Flags
-import Sound exposing (Sound(..))
-import Site.Component exposing (Component)
+import Import.Flags as Flags exposing (Flags)
+import Import.Model as Model exposing (GameInfo)
+import Ports exposing (Ports)
 import Site.Play as Play
 import Site.Select as Select
-{-
-import List.Extra         as List
-import Browser.Navigation as Navigation
-
-import Date
-import Dict    exposing (Dict)
-import Task
-import Time
-
-import StandardLibrary     exposing (..)
-import Persist.Flags       exposing (..)
-import Persist.Preferences exposing (..)
-import Printing            exposing (..)
-import Site.Algebra        exposing (..)
-
-import Site.CraftEssence.Component as CraftEssences
-import Site.Servant.Component      as Servants
-import Site.Team.Component         as Teams
--}
-
-{-| The page currently being shown. -}
-type Viewing = Select | Play
+import Sound exposing (Sound(..))
+import Util exposing (pure, showErr)
 
 type alias Model =
     { error       : Maybe String
-    , navKey      : Navigation.Key
-    , viewing     : Viewing
+    , flags       : Flags
     , selectModel : Select.Model
-    , playModel   : Play.Model
+    , playModel   : Maybe Play.Model
     }
 
 type Msg
-    = RequestUrl UrlRequest
-    | ChangeUrl  Url
-    | SelectMsg  Select.Msg
-    | PlayMsg    Play.Msg
-    | OnError    (Result Dom.Error ())
+    = SelectMsg Select.Msg
+    | PlayMsg   Play.Msg
+    | Receive   String
+    | OnError   (Result Dom.Error ())
 
 printError : Dom.Error -> String
 printError a = case a of
   Dom.NotFound id -> "Element #" ++ id ++ " not found!"
 
-app sound progress =
+app websocket ports =
   let
-    child constr un = constr (Cmd.map un << sound) (Cmd.map un << progress)
-
-    selectChild : Component Select.Model Select.Msg
-    selectChild = child Select.component <| \a -> case a of
+    select = Select.component << Ports.map ports <| \a -> case a of
       SelectMsg x -> x
       _           -> Select.DoNothing
 
-    playChild : Component Play.Model Play.Msg
-    playChild = child Play.component <| \a -> case a of
+    play = Play.component << Ports.map ports <| \a -> case a of
       PlayMsg x -> x
       _         -> Play.DoNothing
 
-    init : Value -> Url -> Navigation.Key -> (Model, Cmd Msg)
-    init val url key =
+    init : Value -> (Model, Cmd Msg)
+    init val =
       let
-        (error, flags) =
-          case Json.decodeValue Flags.decode val of
-            Ok ok   -> (Nothing, ok)
-            Err err ->
-              (Just <| Json.errorToString err
-              , { characters = []
-                , user       = Nothing
-                }
-              )
-        st = { error       = error
-             , navKey      = key
-             , viewing     = Select
-             , selectModel = selectChild.init flags
-             , playModel   = playChild.init flags
+        (flags, error) = case D.decodeValue Flags.decode val of
+            Ok ok   -> (ok, Nothing)
+            Err err -> (Flags.failure, Just <| D.errorToString err)
+        st = { flags       = flags
+             , error       = error
+             , selectModel = select.init flags
+             , playModel   = Nothing
              }
       in
-        (st, Cmd.none)
+        (st, ports.sounds Sound.enum)
 
     view : Model -> Document Msg
     view st =
       let
         showError = case st.error of
-          Nothing -> identity
-          Just err -> (::) <| H.div [P.id "error"] [H.text err]
+          Nothing  -> identity
+          Just err -> (::) <| H.div [A.class "error"] [H.text err]
+        contents =
+            if st.selectModel.queued then
+                H.div [A.id "contents", A.class "queueing"] <<
+                (::)
+                (H.aside [A.id "searching"] [H.img [A.src "/img/spin.gif"] []])
+            else
+                H.div [A.id "contents"]
       in
-        Document "Naruto Unison" << showError <| case st.viewing of
-          Select ->
-            [ H.map SelectMsg <| selectChild.view st.selectModel ]
-          Play ->
-            [ H.map PlayMsg <| playChild.view st.playModel ]
+        Document "Naruto Unison" << List.singleton << contents << showError <|
+        case st.playModel of
+            Just model ->
+                [ H.img [A.id "bg", A.src st.flags.bg] []
+                , H.map PlayMsg <| play.view model
+                ]
+            Nothing   ->
+                [ H.map SelectMsg <| select.view st.selectModel ]
 
     update : Msg -> Model -> (Model, Cmd Msg)
     update parentMsg st = case parentMsg of
-      OnError (Ok _)    -> (st, Cmd.none)
-      OnError (Err err) -> ({ st | error = Just <| printError err }, Cmd.none)
-      RequestUrl urlRequest -> case urlRequest of
-        Browser.Internal url  ->
-            (st, Navigation.pushUrl st.navKey <| Url.toString url)
-        Browser.External href -> 
-            (st, Navigation.load href)
-      ChangeUrl {path} -> (st, Cmd.none)
+      OnError (Ok _)    -> pure st
+      OnError (Err err) -> pure { st | error = Just <| printError err }
+      SelectMsg (Select.ReceiveGame (Ok x)) ->
+        let
+          selectModel = st.selectModel
+        in
+          ( { st
+            | playModel = Just <| play.init st.flags True x
+            , selectModel = { selectModel | queued = False }
+            }
+          , Cmd.batch [ports.sound Sound.StartFirst, ports.progress 0 1 1]
+          )
+      SelectMsg (Select.ReceiveGame (Err err)) ->
+          pure { st | error = Just <| showErr err }
       SelectMsg msg ->
           let
-            (model, cmd) = selectChild.update msg st.selectModel
+            (model, cmd) = select.update msg st.selectModel
           in
             ({ st | selectModel = model }, Cmd.map SelectMsg cmd)
-      PlayMsg msg ->
-          let
-            (model, cmd) = playChild.update msg st.playModel
-          in
-            ({ st | playModel = model }, Cmd.map PlayMsg cmd)
+      PlayMsg msg -> case Maybe.map (play.update msg) <| st.playModel of
+          Nothing           -> pure st
+          Just (model, cmd) ->
+              ({ st | playModel = Just model }, Cmd.map PlayMsg cmd)
+      Receive json -> case D.decodeString Model.jsonDecGameInfo json of
+                Err err -> pure { st | error = Just <| D.errorToString err }
+                Ok info ->
+                  let
+                    selectModel = st.selectModel
+                    firstPlayer = info.player == info.game.playing
+                    progress    = if firstPlayer then 0 else 1
+                  in
+                    ( { st
+                      | playModel = Just <| play.init st.flags False info
+                      , selectModel = { selectModel | queued = False }
+                      }
+                    , Cmd.batch
+                      [ ports.progress 60000 (1 - progress) progress
+                      , ports.sound <|
+                            if firstPlayer then
+                                Sound.StartFirst
+                            else
+                                Sound.StartSecond
+                      ]
+                    )
+
+    subscriptions : Model -> Sub Msg
+    subscriptions st = case st.playModel of
+        Nothing -> websocket Receive
+        Just _  -> websocket <| (PlayMsg << Play.Receive)
   in
     { init          = init
     , view          = view
     , update        = update
-    , subscriptions = always Sub.none
-    , onUrlRequest  = RequestUrl
-    , onUrlChange   = ChangeUrl
+    , subscriptions = subscriptions
     }

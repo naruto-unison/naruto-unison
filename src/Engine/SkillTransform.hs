@@ -48,7 +48,7 @@ safe a f n sName vName = fromMaybe a do
     match x = (== toCaseFold x) . toCaseFold . Skill.name
     skills  = Character.skills $ Ninja.character n
 
--- | Combines two 'Skill.Transform's. 
+-- | Combines two 'Skill.Transform's.
 also :: Skill.Transform -> Skill.Transform -> Skill.Transform
 (f `also` g) n skill = g n $ f n skill
 
@@ -66,7 +66,7 @@ addClass cla _ skill = skill { Skill.classes = cla : Skill.classes skill }
 setCost :: [Chakra] -> Skill.Transform
 setCost chaks _ skill = skill { Skill.cost = Chakra.collect chaks }
 
--- | Multiplies 'Chakra's by 'Ninja.numActive' and adds the total to 
+-- | Multiplies 'Chakra's by 'Ninja.numActive' and adds the total to
 -- 'Skill.cost'.
 costPer :: Text -> [Chakra] -> Skill.Transform
 costPer name chaks n skill = skill { Skill.cost = Skill.cost skill + added }
@@ -92,7 +92,7 @@ extendWith name i n skill = skill { Skill.channel = TurnBased.setDur dur chan }
     added = i * Ninja.numActive name n
     dur   = TurnBased.getDur chan + added
 
--- | Applies a transformation to 'Skill.effects', 'Skill.start', and 
+-- | Applies a transformation to 'Skill.effects', 'Skill.start', and
 -- 'Skill.interrupt'.
 changeEffects :: ([(Target, Play ())] -> [(Target, Play ())])
               -> Skill -> Skill
@@ -110,7 +110,7 @@ change n sk =
       | Ninja.is Restrict n = restrict n
       | otherwise           = id
     sk' = mRestrict . Skill.chakraClasses $ Skill.changes sk n sk
-    
+
 -- | Turns AoE effects into single-target effects.
 restrict :: Skill.Transform
 restrict = const . changeEffects $ mapMaybe f

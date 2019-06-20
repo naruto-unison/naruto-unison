@@ -6,7 +6,6 @@ module Model.Game
   , getChakra, setChakra, adjustChakra, gainChakra
   , yieldVictor, forfeit
   , zipNinjasWith
-  , addTraps
   ) where
 
 import ClassyPrelude.Yesod
@@ -15,7 +14,7 @@ import qualified Data.Sequence as Seq
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
 import           Core.Util (enumerate)
-import           Model.Internal (Game(..), SavedPlay)
+import           Model.Internal (Game(..))
 import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra, Chakras)
 import           Model.Character (Character)
@@ -30,7 +29,6 @@ new :: [Character] -> Game
 new ns = Game { ninjas  = fromList $ zipWith Ninja.new ns Slot.all
               , chakra  = (0, 0)
               , delays  = []
-              , traps   = mempty
               , playing = Player.A
               , victor  = []
               }
@@ -90,6 +88,3 @@ dead game player = not . any (Ninja.playing player) $ ninjas game
 
 zipNinjasWith :: ∀ a. (Ninja -> Ninja -> a) -> Game -> Game -> Seq a
 zipNinjasWith f game game' = zipWith f (ninjas game) (ninjas game')
-
-addTraps :: Seq SavedPlay -> Game -> Game
-addTraps trs game = game { traps = trs ++ traps game }

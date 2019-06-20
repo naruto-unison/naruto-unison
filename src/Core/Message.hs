@@ -1,5 +1,5 @@
 {-# LANGUAGE NoStrictData #-}
--- | Messages passed between users through 
+-- | Messages passed between users through
 -- 'Control.Concurrent.STM.TChan.TChan's.
 module Core.Message
   ( Game(..)
@@ -14,7 +14,7 @@ import qualified Model.Game as Game
 import           Model.GameInfo (GameInfo)
 
 -- | Messages between the two players of a game.
-data Game 
+data Game
     = Enact Game.Game
     | Forfeit
 

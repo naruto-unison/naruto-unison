@@ -11,7 +11,7 @@ html, body {
 span.label {
     float: left;
     margin-right: 5px;
-    min-width: 4.9em;
+    min-width: 6em;
 }
 body {
     font-family: Trebuchet MS, sans-serif;
@@ -49,7 +49,6 @@ body {
     border: 2px solid #333;
     margin: 5px auto auto;
     font-size: 14px;
-    display: flex;
     padding-bottom: 1em;
 }
 .container > section, container > p {

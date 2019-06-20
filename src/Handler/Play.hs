@@ -21,8 +21,8 @@ import           Yesod.WebSockets (WebSocketsT)
 
 
 import qualified Class.Play as P
-import           Class.Play (GameT)
-import           Class.Random (RandomT)
+import           Class.Play (MonadGame)
+import           Class.Random (MonadRandom)
 import qualified Core.App as App
 import           Core.App (Handler)
 import           Core.Util (duplic)
@@ -121,7 +121,6 @@ sendJson = WebSockets.sendTextData .
 
 gameSocket :: WebSocketsT Handler ()
 gameSocket = do
-    WebSockets.sendTextData ("Hello" :: ByteString)
     app         <- getYesod
     (who, user) <- Auth.requireAuthPair
     teamNames   <- Text.split (=='/') <$> WebSockets.receiveData
@@ -183,8 +182,8 @@ gameSocket = do
                         P.modify . Game.forfeit $ Player.opponent player
                         Just <$> P.game
                     Message.Enact game -> do
-                        if not . null $ Game.victor game then 
-                            return $ Just game 
+                        if not . null $ Game.victor game then
+                            return $ Just game
                         else do
                             lift . sendJson $ GameInfo.censor player game
                             P.modify $ const game
@@ -207,7 +206,7 @@ tryEnact player writer = do
                     lift . sendJson $ GameInfo.censor player game
                     liftIO . atomically . writeTChan writer $ Message.Enact game
 
-enact :: ∀ m. (GameT m, RandomT m) => Chakras -> Chakras -> [Act] 
+enact :: ∀ m. (MonadGame m, MonadRandom m) => Chakras -> Chakras -> [Act]
       -> m (Either Text ())
 enact actChakra exchangeChakra actions = do
     player     <- P.player

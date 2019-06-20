@@ -3,11 +3,13 @@
 {-# OPTIONS_GHC -fno-warn-orphans  #-} -- Used once at the bottom of the file.
 {-# OPTIONS_HADDOCK hide           #-}
 module ElmDefs where
+import           Elm.Derive
 
 import ClassyPrelude.Yesod hiding (Status, Vector, get)
 import           Control.Monad.Reader (local, mapReaderT)
 import           Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import           Control.Monad.Trans.State.Strict (StateT, get, modify')
+import qualified Data.Aeson as Aeson
 import           Data.List.NonEmpty (NonEmpty(..))
 import           Data.Vector.Generic (Vector)
 import qualified System.Random.MWC as Random
@@ -15,7 +17,7 @@ import qualified System.Random.MWC.Distributions as Random
 import           Text.Blaze (ToMarkup(..))
 import           Yesod.WebSockets (WebSocketsT)
 
-import           Core.Util (enumerate, equaling)
+import           Core.Util (equaling)
 import qualified Class.Classed as Classed
 import           Class.Classed (Classed)
 import qualified Class.Parity as Parity
@@ -30,62 +32,102 @@ import           Model.Face (Face(..))
 import           Model.Player (Player)
 import           Model.Slot (Slot)
 
-data Amount = Flat | Percent deriving (Eq)
+opts :: Options
+opts = defaultOptions { sumEncoding = Aeson.defaultTaggedObject }
+
+data Effect = Effect
+    { desc    :: Text
+    , helpful :: Bool
+    , sticky  :: Bool
+    , trap    :: Bool
+    }
+
+data Ninja = Ninja
+    { slot      :: Slot
+    , health    :: Int
+    , defense   :: [Defense]
+    , barrier   :: [Barrier]
+    , statuses  :: [Status]
+    , charges   :: Seq Int
+    , cooldowns :: Seq Int
+    , variants  :: Seq (NonEmpty Variant)
+    , copies    :: Seq (Maybe Copy)
+    , channels  :: [Channel]
+    , traps     :: Seq Trap
+    , face      :: [Face]
+    , parrying :: [Skill]
+    , tags :: [ChannelTag]
+    , lastSkill :: Maybe Skill
+    , skills :: [Skill]
+    }
+instance Eq Ninja where
+    (==) = equaling \Ninja{..} -> (slot, health, cooldowns, charges)
+instance Parity Ninja where
+    even = Parity.even . slot
+
+data Game = Game { chakra  :: (Chakras, Chakras)
+                 , ninjas  :: Seq Ninja
+                 , playing :: Player
+                 , victor  :: [Player]
+                 , targets :: [[[Slot]]]
+                 } deriving (Eq)
+
+data Amount = Flat | Percent deriving (Eq, Ord)
 
 data Context = Context { skill   :: Skill
                        , user    :: Slot
                        , target  :: Slot
                        } deriving (Eq)
 
-type PlayConstraint a = ∀ m. (RandomT m, PlayT m) => m a
+type PlayConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
 newtype Play a = Play (PlayConstraint a)
 instance Eq (Play a) where
     (==) = const $ const True
 
 type SavedPlay = (Context, Maybe Bool)
 
-class Monad m => RandomT m where
+class Monad m => MonadRandom m where
     random  :: ∀ a. Random.Variate a => a -> a -> m a
     shuffle :: ∀ v a. Vector v a => v a -> m (v a)
 
-class Monad m => GameT m where
+class Monad m => MonadGame m where
     game        :: m Game
     modify      :: (Game -> Game) -> m ()
 
-class GameT m => PlayT m where
+class MonadGame m => MonadPlay m where
     context :: m Context
     with    :: ∀ a. (Context -> Context) -> m a -> m a
 
-instance GameT m => GameT (ReaderT Context m) where
+instance MonadGame m => MonadGame (ReaderT Context m) where
     game   = lift game
     modify = lift . modify
-instance GameT m => PlayT (ReaderT Context m) where
+instance MonadGame m => MonadPlay (ReaderT Context m) where
     context = ask
     with    = local
 
-instance RandomT m => RandomT (MaybeT m) where
+instance MonadRandom m => MonadRandom (MaybeT m) where
     random a = lift . random a
     shuffle  = lift . shuffle
-instance GameT m => GameT (MaybeT m) where
+instance MonadGame m => MonadGame (MaybeT m) where
     game    = lift game
     modify  = lift . modify
-instance PlayT m => PlayT (MaybeT m) where
+instance MonadPlay m => MonadPlay (MaybeT m) where
     context = lift context
     with f  = mapMaybeT $ with f
-instance RandomT m => RandomT (ReaderT Context m) where
+instance MonadRandom m => MonadRandom (ReaderT Context m) where
     random a = lift . random a
     shuffle  = lift . shuffle
-instance RandomT m => RandomT (WebSocketsT m) where
+instance MonadRandom m => MonadRandom (WebSocketsT m) where
     random a = lift . random a
     shuffle  = lift . shuffle
-instance GameT m => GameT (WebSocketsT m) where
+instance MonadGame m => MonadGame (WebSocketsT m) where
     game    = lift game
     modify  = lift . modify
-instance PlayT m => PlayT (WebSocketsT m) where
+instance MonadPlay m => MonadPlay (WebSocketsT m) where
     context = lift context
     with f  = mapReaderT $ with f
 
-instance GameT (StateT Game Identity) where
+instance MonadGame (StateT Game Identity) where
     game   = get
     modify = modify'
 
@@ -93,167 +135,15 @@ data Wrapper = Wrapper { gameRef :: IORef Game
                        , rand    :: Random.GenIO
                        }
 
-instance MonadIO m => RandomT (ReaderT Wrapper m) where
+instance MonadIO m => MonadRandom (ReaderT Wrapper m) where
     random a b = asks (rand :: Wrapper -> Random.GenIO)
                  >>= liftIO . Random.uniformR (a, b)
     shuffle xs = asks (rand :: Wrapper -> Random.GenIO)
                  >>= liftIO . Random.uniformShuffle xs
 
-instance MonadIO m => GameT (ReaderT Wrapper m) where
+instance MonadIO m => MonadGame (ReaderT Wrapper m) where
     game     = asks gameRef >>= readIORef
     modify f = asks gameRef >>= flip modifyIORef' f
-
--- | Effects of 'Status'es.
-data Effect
-    = Afflict      Int               -- ^ Deals damage every turn
-    | AntiCounter                    -- ^ Cannot be countered or reflected
-    | Bleed        Class Amount Int  -- ^ Adds to damage received
-    | Bless        Int               -- ^ Adds to healing 'Skill's
-    | Block                          -- ^ Treats user as 'Invulnerable'
-    | Boost        Int               -- ^ Scales effects from allies
-    | Build        Int               -- ^ Adds to destructible defense 'Skill'
-    | Counter      Class             -- ^ Counters the first 'Skill's
-    | CounterAll   Class             -- ^ 'Counter's without being removed
-    | Duel                           -- ^ 'Invulnerable' to everyone but user
-    | Endure                         -- ^ Health cannot go below 1
-    | Enrage                         -- ^ Ignore all harmful status effects
-    | Exhaust      Class             -- ^ 'Skill's cost 1 additional random chakra
-    | Expose                         -- ^ Cannot reduce damage or be 'Invulnerable'
-    | Heal         Int               -- ^ Heals every turn
-    | Ignore        -- ^ Invulnerable to certain effects
-    | Invulnerable Class             -- ^ Invulnerable to enemy 'Skill's
-    | ImmuneSelf                     -- ^ Invulnerable to self-caused damage
-    | Invincible   Class             -- ^ Like 'Invulnerable', but targetable
-    | Link         Int               -- ^ Increases damage and healing from user
-    | Parry        Class (Maybe Bool)   -- ^ 'Counter' and trigger an effect
-    | ParryAll     Class (Maybe Bool)   -- ^ 'Parry' repeatedly
-    | Pierce                         -- ^ Damage skills turn into piercing
-    | Plague                         -- ^ Invulnerable to healing and curing
-    | Reduce       Class Amount Int  -- ^ Reduces damage by an amount
-    | Reapply                        -- ^ Shares harmful skills with user
-    | Redirect     Class             -- ^ Transfers harmful 'Skill's
-    | Reflect                        -- ^ Reflects the first 'Skill'
-    | ReflectAll                     -- ^ 'Reflect' repeatedly
-    | Restrict                       -- ^ Forces AoE attacks to be single-target
-    | Reveal                         -- ^ Makes 'Invisible' effects visible
-    | Seal                           -- ^ Ignore all friendly 'Skill's
-    | Share                          -- ^ Shares all harmful non-damage effects
-    | Silence                        -- ^ Unable to cause non-damage effects
-    | Snapshot     Ninja             -- ^ Saves a snapshot of the current state
-    | Snare        Int               -- ^ Increases cooldowns
-    | SnareTrap    Class Int         -- ^ Negates next skill and increases cooldown
-    | Strengthen   Class Amount Int  -- ^ Adds to all damage dealt
-    | Stun         Class             -- ^ Unable to use 'Skill's
-    | Swap         Class             -- ^ Target swaps enemies and allies
-    | Taunt                          -- ^ Forced to attack the user
-    | Taunting     Duration          -- ^ Forced to attack their next target
-    | Threshold    Int               -- ^ Invulnerable to baseline damage below a threhold
-    | Throttle Int -- ^ Applying an effect lasts fewer turns
-    | Undefend                       -- ^ Does not benefit from destructible defense
-    | Uncounter                      -- ^ Cannot counter or reflect
-    | Unexhaust                      -- ^ Decreases chakra costs by 1 random
-    | Unreduce     Int               -- ^ Reduces damage reduction 'Skill's
-    | Weaken       Class Amount Int  -- ^ Lessens damage dealt
-    -- | Copies a skill into user's skill slot
-    | Replace { replaceDuration :: Duration
-              , replaceClass    :: Class
-              , replaceTo       :: Int   -- ^ Skill index of user to copy into
-              , replaceNonHarm  :: Bool  -- ^ Include non-harmful 'Skill's
-              } deriving (Eq)
-instance Classed Effect where
-    classes (Bleed cla _ _)      = [cla]
-    classes (Counter cla)        = [cla]
-    classes (CounterAll cla)     = [cla]
-    classes (Exhaust cla)        = [cla]
-    classes (Invulnerable cla)   = [cla]
-    classes (Invincible cla)     = [cla]
-    classes (Parry cla _)        = [cla]
-    classes (ParryAll cla _)     = [cla]
-    classes (Reduce cla _ _)     = [cla]
-    classes (Redirect cla)       = [cla]
-    classes (SnareTrap cla _)    = [cla]
-    classes (Strengthen cla _ _) = [cla]
-    classes (Stun cla)           = [cla]
-    classes (Swap cla)           = [cla]
-    classes (Weaken cla _ _)     = [cla]
-    classes (Replace _ cla _ _)  = [cla]
-    classes _                    = []
-
-low :: ∀ a. Show a => a -> String
-low = toLower . show
-
-showAmt :: Amount -> Int -> String
-showAmt Flat    = show
-showAmt Percent = (++ "%") . show
-
-instance Show Effect where
-    show (Afflict x) = "Receives " ++ show x ++ " affliction damage each turn."
-    show AntiCounter = "Cannot be countered or reflected."
-    show (Bleed classes amt x)
-      | x >= 0    =  showAmt amt x ++ " additional damage taken from " ++ low classes ++ " skills."
-      | otherwise = "Reduces all " ++ low classes ++  " damage received by " ++ showAmt amt (-x) ++ "."
-    show (Bless x) = "Healing skills heal 1 additional " ++ show x ++ " health."
-    show Block = "Unable to affect the user of this effect."
-    show (Boost x) = "Active effects from allies are " ++ show x ++ " times as powerful."
-    show (Build x)
-      | x >= 0    = "Destructible skills provide " ++ show x ++ " additional points of defense."
-      | otherwise =  "Destructible skills provide " ++ show (-x) ++ " fewer points of defense."
-    show (Counter All)  = "Counters the first skill."
-    show (Counter classes) = "Counters the first " ++ low classes ++ "skill."
-    show (CounterAll All) = "Counters all skills."
-    show (CounterAll classes) = "Counters all " ++ low classes ++ "skills."
-    show Undefend = "Unable to benefit from destructible defense"
-    show Duel = "Invulnerable to everyone but the user of this effect."
-    show Endure = "Health cannot go below 1."
-    show Enrage = "Ignores harmful status effects other than chakra cost changes."
-    show (Exhaust classes) = show classes ++ " skills cost 1 additional random chakra."
-    show Expose = "Unable to reduce damage or become invulnerable."
-    show (Heal x) = "Gains " ++ show x ++ " health each turn."
-    show Ignore = "Ignores certain effects."
-    show (Invulnerable classes) = "Invulnerable to " ++ low classes ++ " skills."
-    show ImmuneSelf = "Invulnerable to self-damage."
-    show (Invincible classes) = "Harmful " ++ low classes ++ " skills have no effect."
-    show (Link x) = "Receives " ++ show x ++ " additional damage from the user of this effect."
-    show (Parry All _) = "Counters the first skill."
-    show (Parry classes _) = "Counters the first " ++ low classes ++ " skill."
-    show (ParryAll All _) = "Counters all skill."
-    show (ParryAll classes _) = "Counters all " ++ low classes ++ " skills."
-    show Pierce = "Non-affliction skills deal piercing damage."
-    show Plague = "Cannot be healed or cured."
-    show Reapply = "Harmful skills received are also reflected to the user of this effect."
-    show (Reduce Affliction amt x)
-      | x >= 0    = "Reduces all damage received—including piercing and affliction—by " ++ showAmt amt x ++ "."
-      | otherwise = "Increases all damage received—including piercing and affliction—by " ++ showAmt amt x ++ "."
-    show (Reduce classes amt x)
-      | x >= 0    = "Reduces " ++ low classes ++ " damage received by " ++ showAmt amt x ++ ". Does not affect piercing or affliction damage."
-      | otherwise = "Increases " ++ low classes ++ " damage received by " ++ showAmt amt (-x) ++ ". Does not affect piercing or affliction damage."
-    show (Redirect classes) = "Redirects " ++ low classes  ++ " harmful skills to the user of this effect."
-    show Reflect = "Reflects the first harmful non-mental skill."
-    show ReflectAll = "Reflects all non-mental skills."
-    show (Replace _ classes _ _) = show classes ++ " skills will be temporarily acquired by the user of this effect."
-    show Reveal = "Reveals invisible skills to the enemy team. This effect cannot be removed."
-    show Restrict = "SkillTransform that normally affect all opponents must be targeted."
-    show Seal = "Invulnerable to effects from allies."
-    show Share = "If a harmful non-damage effect is received, it is also applied to the user of this effect."
-    show Silence = "Unable to cause non-damage effects."
-    show (Snare x)
-      | x >= 0    = "Cooldowns increased by " ++ show x ++ "."
-      | otherwise = "Cooldowns decreased by " ++ show (-x) ++ "."
-    show (SnareTrap _ _) = "Next skill used will be negated and go on a longer cooldown."
-    show (Snapshot _) = "Will be restored to an earlier state when this effect ends."
-    show (Strengthen classes amt x) = show classes ++ " damaging skills deal " ++ showAmt amt x ++ " additional damage."
-    show (Stun Affliction) = "Unable to deal affliction damage."
-    show (Stun NonAffliction) = "Unable to deal non-affliction damage."
-    show (Stun classes) = "Unable to use " ++ low classes ++ " skills."
-    show (Swap classes) = "Next " ++ low classes ++ " skill will target allies instead of enemies and enemies instead of allies."
-    show Taunt = "Forced to target the user of this effect."
-    show (Taunting x) = "Will be forced to target the next enemy they use a skill on for " ++ show x ++ " turns."
-    show (Threshold x) = "Uninjured by attacks that deal " ++ show x ++ " baseline damage or lower."
-    show (Throttle x) = "SkillTransform will apply " ++ show x ++ " fewer turns of certain effects."
-    show Uncounter = "Unable to benefit from counters or reflects."
-    show Unexhaust = "All skills cost 1 fewer random chakra."
-    show (Unreduce x) = "Damage reduction skills reduce " ++ show x ++ " fewer damage."
-    show (Weaken classes amt x) = show classes ++ " skills deal " ++ showAmt amt x ++ " fewer damage. Does not affect affliction damage."
 
 data Flag
     = Acted
@@ -262,45 +152,6 @@ data Flag
     deriving (Show, Eq, Ord, Bounded, Enum)
 instance Hashable Flag where
     hashWithSalt x = hashWithSalt x . fromEnum
-
--- | In-game character, indexed between 0 and 5.
-data Ninja = Ninja { slot      :: Slot           -- ^ 'gameNinjas' index (0-5)
-                   , character :: Character
-                   , health    :: Int                    -- ^ `Starts at` @100@
-                   , cooldowns :: Seq (Seq Int)          -- ^ Starts empty
-                   , charges   :: Seq Int                -- ^ Starts at 4 @0@s
-                   , variants  :: Seq (NonEmpty Variant) -- ^ Starts at 4 @0@s
-                   , copies    :: Seq (Maybe Copy)     -- ^ Starts at 4 'Nothing's
-                   , defense   :: [Defense]              -- ^ Starts empty
-                   , barrier   :: [Barrier]              -- ^ Starts empty
-                   , statuses  :: [Status]               -- ^ Starts empty
-                   , channels  :: [Channel]              -- ^ Starts empty
-                   , newChans  :: [Channel]              -- ^ Starts empty
-                   , traps     :: Seq Trap               -- ^ Starts empty
-                   , face      :: [Face]                 -- ^ Starts empty
-                   , parrying  :: [Skill]                -- ^ Starts empty
-                   , tags      :: [ChannelTag]           -- ^ Starts empty
-                   , lastSkill :: Maybe Skill            -- ^ Starts at 'Nothing'
-                   , flags     :: HashSet Flag           -- ^ Empty each turn
-                   }
-instance Eq Ninja where
-    (==) = equaling \Ninja{..} -> (slot, health, cooldowns, charges)
-instance Parity Ninja where
-    even = Parity.even . slot
-
--- | Game state.
-data Game = Game { ninjas  :: Seq Ninja
-                 , chakra  :: (Chakras, Chakras)
-                 -- ^ Starts at @('Chakras' 0 0 0 0 0, 'Chakras' 0 0 0 0 0)@
-                 , delays  :: [Delay]
-                 -- ^ Starts at @(0, 0)@. Resets every turn to @(0, 0)@
-                 , traps   :: Seq SavedPlay
-                 -- ^ Starts empty
-                 , playing :: Player
-                 -- ^ Starts at 'Player.A'
-                 , victor  :: [Player]
-                 -- ^ Starts empty
-                 } deriving (Eq)
 
 data Requirement
     = Usable
@@ -475,7 +326,7 @@ data Trigger
     | PerDamaged
     | TrackDamage
     | TrackDamaged
-    deriving (Eq)
+    deriving (Eq, Show)
 
 instance Classed Trigger where
     classes (OnAction cla)  = [cla]
@@ -483,37 +334,6 @@ instance Classed Trigger where
     classes (OnDamaged cla) = [cla]
     classes (OnHarmed cla)  = [cla]
     classes _               = []
-
-instance Show Trigger where
-    show (OnAction  All) = "Trigger: Use any skill"
-    show (OnAction  cla) = "Trigger: Use " ++ low cla ++ " skills"
-    show (OnBreak   name)   = "Trigger: Lose all destructible defense from '" ++ unpack name ++ "'"
-    show OnChakra        = "Trigger: Steal or remove chakra"
-    show (OnCounter All) = "Next harmful skill is countered."
-    show (OnCounter Uncounterable) = "Next skill is negated."
-    show (OnCounter cla) = "Next harmful " ++ low cla ++ " skill is countered."
-    show OnCounterAll    = "All skills are countered."
-    show OnDamage        = "Trigger: Deal damage"
-    show (OnDamaged All) = "Trigger: Receive damage"
-    show (OnDamaged cla) = "Trigger: Receive " ++ low cla ++ " damage"
-    show OnDeath         = "Trigger: Die"
-    show OnHarm          = "Trigger: Use harmful skill"
-    show (OnHarmed All)  = "Trigger: Be affected by a new harmful skill"
-    show (OnHarmed cla)  = "Trigger: Be affected by a new " ++ low cla ++ " harmful skill"
-    show OnHealed        = "Trigger: Receive healing"
-    show OnHelped        = "Trigger: Be affected by a new skill from an ally"
-    show OnImmune        = "Trigger: Become invulnerable"
-    show OnNoAction      = "Trigger: Do not use a new skill"
-    show OnNoHarm        = "Trigger: Do not use a new harmful skill"
-    show OnReflectAll    = "All skills are reflected."
-    show OnRes           = "Trigger: Reach 0 health"
-    show OnStun          = "Trigger: Apply a stun"
-    show OnStunned       = "Trigger: Stunned"
-    show PerDamage       = show OnDamage
-    show PerDamaged      = show (OnDamaged All)
-    show PerHealed       = show OnHealed
-    show TrackDamage     = show OnDamage
-    show TrackDamaged    = show PerDamaged
 
 data Variant = Variant { variant   :: Int -- ^ Index in 'characterSkills'
                        , ownCd     :: Bool -- ^ Uses a different cooldown than the baseline 'Skill'
@@ -532,7 +352,7 @@ data Copy = Copy { skill :: Skill
 
 instance Classed Copy where
     classes = Classed.classes . (skill :: Copy -> Skill)
-          
+
 instance TurnBased Copy where
     getDur = dur
     setDur d x@Copy{skill} = x { dur   = d
@@ -552,6 +372,7 @@ data Copying
 -- | Applies an effect after several turns.
 data Delay = Delay { user   :: Slot
                    , skill  :: Skill
+                   , effect :: SavedPlay
                    , dur    :: Int
                    } deriving (Eq)
 

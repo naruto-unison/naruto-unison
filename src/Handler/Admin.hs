@@ -50,24 +50,20 @@ getTestR = do
         }
     |]
     toWidget [julius|
-        var url = document.URL,
-            output = document.getElementById("output"),
-            form = document.getElementById("form"),
-            input = document.getElementById("input"),
-            conn;
+        const output = document.getElementById("output")
+        const form   = document.getElementById("form")
+        const input  = document.getElementById("input")
+        const conn   = new WebSocket(document.URL.replace(/^http/g, "ws"))
 
-        url = url.replace("http:", "ws:").replace("https:", "wss:");
-        conn = new WebSocket(url);
+        conn.onmessage = e => {
+            const p = document.createElement("p")
+            p.appendChild(document.createTextNode(e.data.substr(0, 100) + "\n\n"))
+            output.appendChild(p)
+        }
 
-        conn.onmessage = function(e) {
-            var p = document.createElement("p");
-            p.appendChild(document.createTextNode(e.data.substr(0, 100) + "\n\n"));
-            output.appendChild(p);
-        };
-
-        form.addEventListener("submit", function(e){
-            conn.send(input.value);
-            input.value = "";
-            e.preventDefault();
-        });
+        form.addEventListener("submit", e => {
+            conn.send(input.value)
+            input.value = ""
+            e.preventDefault()
+        })
 |]

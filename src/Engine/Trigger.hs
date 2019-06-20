@@ -15,8 +15,8 @@ import qualified Data.Sequence as Seq
 
 import           Core.Util ((∈), (∉), intersects)
 import qualified Class.Play as P
-import           Class.Play (GameT, Play)
-import           Class.Random (RandomT)
+import           Class.Play (MonadGame, Play)
+import           Class.Random (MonadRandom)
 import           Model.Class (Class(..))
 import           Model.Duration (Duration)
 import           Model.Effect (Effect(..))
@@ -47,7 +47,7 @@ replace classes n harm = mapMaybe ifCopy allStatuses
 
 -- | Trigger a 'Counter'.
 counter :: [Class] -> Ninja -> Ninja -> Maybe (Ninja, Ninja, Maybe Trap)
-counter classes n nt = 
+counter classes n nt =
     do
         guard $ Uncounterable ∉ classes
         trap <- find ((OnCounterAll ==) . Trap.trigger) $ Ninja.traps n
@@ -63,7 +63,7 @@ counter classes n nt =
         nt' <- Ninja.drop counterOne nt
         return (n, nt', Nothing)
   where
-    matchClass cla              = cla == Uncounterable 
+    matchClass cla              = cla == Uncounterable
                                   || cla ∈ classes && Uncounterable ∉ classes
     counterAll (CounterAll cla) = matchClass cla
     counterAll _                = False
@@ -128,7 +128,7 @@ swap classes = reflectable (any match) classes
 -- they are either resurrected by triggering 'OnRes'
 -- or they die and trigger 'OnDeath'.
 -- If they die, their 'Soulbound' effects are canceled.
-death :: ∀ m. (GameT m, RandomT m) => Slot -> m ()
+death :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> m ()
 death slot = do
     game   <- P.game
     let n   = Game.ninja slot game

@@ -9,8 +9,8 @@ module Action.Chakra
 import ClassyPrelude.Yesod
 
 import qualified Class.Play as P
-import           Class.Play (PlayT)
-import           Class.Random (RandomT)
+import           Class.Play (MonadPlay)
+import           Class.Random (MonadRandom)
 import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra(..))
 import           Model.Effect (Effect(..))
@@ -20,9 +20,9 @@ import qualified Engine.Chakras as Chakras
 
 -- ** CHAKRA
 
--- | Adds 'Chakra's to the 'Game.chakra' of the user's team. 
+-- | Adds 'Chakra's to the 'Game.chakra' of the user's team.
 -- 'Rand's are replaced by other Chakra types selected by 'Chakras.random'.
-gain :: ∀ m. (PlayT m, RandomT m) => [Chakra] -> m ()
+gain :: ∀ m. (MonadPlay m, MonadRandom m) => [Chakra] -> m ()
 gain [] = return ()
 gain chakras = do
     target   <- P.target
@@ -35,14 +35,14 @@ gain chakras = do
 
 -- | Removes some number of 'Chakra's from the 'Game.chakra' of the target's
 -- team. 'Chakra's are selected at random by 'Chakras.remove'.
-deplete :: ∀ m. (PlayT m, RandomT m) => Int -> m ()
+deplete :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 deplete amount = unlessM (Ninja.is Enrage <$> P.nTarget) .
     void $ Chakras.remove amount
 
 -- | Transfers some number of 'Chakra's from the 'Game.chakra' of the target's
--- team to the 'Game.chakra' of the user's team. 'Chakra's are selected at 
+-- team to the 'Game.chakra' of the user's team. 'Chakra's are selected at
 -- random by 'Chakras.remove'.
-absorb :: ∀ m. (PlayT m, RandomT m) => Int -> m ()
+absorb :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 absorb amount = unlessM (Ninja.is Enrage <$> P.nTarget) do
     user    <- P.user
     chakras <- Chakras.remove amount
@@ -50,7 +50,7 @@ absorb amount = unlessM (Ninja.is Enrage <$> P.nTarget) do
 
 -- | Cycles Kabuto Yakushi's chakra mode through the four types of 'Chakra'.
 -- Uses 'Ninja.kabuto' internally.
-kabuto :: ∀ m. PlayT m => m ()
+kabuto :: ∀ m. MonadPlay m => m ()
 kabuto = do
     skill  <- P.skill
     target <- P.target

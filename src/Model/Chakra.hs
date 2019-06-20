@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
 module Model.Chakra
   ( Chakra(..)
   , Chakras(..)
@@ -22,7 +21,7 @@ data Chakras = Chakras { blood :: Int -- ^ Bloodline
                        , nin   :: Int -- ^ Ninjutsu
                        , tai   :: Int -- ^ Taijutsu
                        , rand  :: Int -- ^ Random
-                       } deriving (Eq, Show, Read, Generic, ToJSON)
+                       } deriving (Eq, Show, Read)
 
 instance PathPiece Chakras where
   toPathPiece Chakras{..} = intercalate "," $ tshow <$> [blood, gen, nin, tai]

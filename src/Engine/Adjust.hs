@@ -35,13 +35,13 @@ skill' n s v = SkillTransform.change n $ cSkills !! s !! v
 -- and 'Skill.require'ments.
 skill :: Either Int Skill -> Ninja -> Skill
 skill (Right sk) n = Requirement.usable n Nothing sk
-skill (Left s)   n = Requirement.usable n (Just s) . 
-                     maybe (skill' n s v) Copy.skill . join . Seq.lookup s $ 
+skill (Left s)   n = Requirement.usable n (Just s) .
+                     maybe (skill' n s v) Copy.skill . join . Seq.lookup s $
                      Ninja.copies n
     where
       v
         | s > 3     = 0
-        | otherwise = maybe 0 (Variant.variant . head) . Seq.lookup s $ 
+        | otherwise = maybe 0 (Variant.variant . head) . Seq.lookup s $
                       Ninja.variants n
 
 -- | All four skill slots of a 'Ninja' modified by 'skill'.
@@ -78,7 +78,7 @@ effects n = n { Ninja.effects = baseStatuses >>= processEffects }
       | otherwise = [ef cla | Ignore ef <- baseEffects, cla <- enumerate]
     boostAmount
       | sealed    = 1
-      | otherwise = product $ 1 : [x | Boost x <- baseEffects] 
+      | otherwise = product $ 1 : [x | Boost x <- baseEffects]
     filtered filt = filter (\ef -> filt ef && ef ∉ ignores) . Status.effects
     processEffects st
       | Ninja.fromSelf n st = Status.effects st

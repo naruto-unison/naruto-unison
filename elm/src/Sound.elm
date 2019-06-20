@@ -1,30 +1,46 @@
-module Sound exposing (Sound(..), showSound)
+module Sound exposing (Sound(..), enum, show)
 
 type Sound
-    = SFXApplySkill
-    | SFXCancel
-    | SFXClick
-    | SFXDeath
-    | SFXLose
-    | SFXNextTurn
-    | SFXScroll
-    | SFXStartFirst
-    | SFXStartTurn
-    | SFXStartSecond
-    | SFXTarget
-    | SFXWin
+    = ApplySkill
+    | Cancel
+    | Click
+    | Death
+    | Lose
+    | NextTurn
+    | Scroll
+    | StartFirst
+    | StartTurn
+    | StartSecond
+    | Target
+    | Win
 
-showSound : Sound -> String
-showSound x = case x of
-    SFXApplySkill  -> "SFXApplySkill"
-    SFXCancel      -> "SFXCancel"
-    SFXClick       -> "SFXClick"
-    SFXDeath       -> "SFXDeath"
-    SFXLose        -> "SFXLose"
-    SFXNextTurn    -> "SFXNextTurn"
-    SFXScroll      -> "SFXScroll"
-    SFXStartFirst  -> "SFXStartFirst"
-    SFXStartTurn   -> "SFXStartTurn"
-    SFXStartSecond -> "SFXStartSecond"
-    SFXTarget      -> "SFXTarget"
-    SFXWin         -> "SFXWin"
+enum : List Sound
+enum =
+    [ ApplySkill
+    , Cancel
+    , Click
+    , Death
+    , Lose
+    , NextTurn
+    , Scroll
+    , StartFirst
+    , StartTurn
+    , StartSecond
+    , Target
+    , Win
+    ]
+
+show : Sound -> String
+show x = case x of
+    ApplySkill  -> "ApplySkill"
+    Cancel      -> "Cancel"
+    Click       -> "Click"
+    Death       -> "Death"
+    Lose        -> "Lose"
+    NextTurn    -> "NextTurn"
+    Scroll      -> "Scroll"
+    StartFirst  -> "StartFirst"
+    StartTurn   -> "StartTurn"
+    StartSecond -> "StartSecond"
+    Target      -> "Target"
+    Win         -> "Win"

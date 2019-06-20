@@ -25,8 +25,8 @@ import qualified Data.List as List
 
 import           Core.Util ((∈), (∉))
 import qualified Class.Play as P
-import           Class.Play (Play(..), PlayT)
-import           Class.Random (RandomT)
+import           Class.Play (Play(..), MonadPlay)
+import           Class.Random (MonadRandom)
 import qualified Model.Channel as Channel
 import           Model.Channel (Channeling(..))
 import           Model.Class (Class(..))
@@ -47,12 +47,12 @@ import qualified Action.Channel as ActionChannel
 
 -- | Refreshes the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'
 -- to 'Status.maxDur'. Uses 'Ninja.refresh' internally.
-refresh :: ∀ m. PlayT m => Text -> m ()
+refresh :: ∀ m. MonadPlay m => Text -> m ()
 refresh = P.fromSource . Ninja.refresh
 
 -- | Increases the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
 -- Uses 'Ninja.prolong' internally.
-prolong :: ∀ m. PlayT m => Turns -> Text -> m ()
+prolong :: ∀ m. MonadPlay m => Turns -> Text -> m ()
 prolong (Duration -> dur) name = do
     user    <- P.user
     copying <- Skill.copying <$> P.skill
@@ -60,13 +60,13 @@ prolong (Duration -> dur) name = do
 
 -- | Reduces the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
 -- Uses 'Ninja.prolong' internally.
-hasten :: ∀ m. PlayT m => Turns -> Text -> m ()
-hasten (Duration -> dur) name = 
+hasten :: ∀ m. MonadPlay m => Turns -> Text -> m ()
+hasten (Duration -> dur) name =
     P.user >>= P.toTarget . Ninja.prolong (negate $ sync dur) name
 
--- | Adds a 'Face' to the 'Ninja.face' of a 'Ninja', changing their in-game 
+-- | Adds a 'Face' to the 'Ninja.face' of a 'Ninja', changing their in-game
 -- icon.
-setFace :: ∀ m. PlayT m => Turns -> m ()
+setFace :: ∀ m. MonadPlay m => Turns -> m ()
 setFace (Duration -> dur) = do
     skill <- P.skill
     let copying = Skill.copying skill
@@ -81,33 +81,33 @@ setFace (Duration -> dur) = do
         _ -> return ()
 
 -- | Adds a 'Status' to 'Ninja.statuses'.
-apply :: ∀ m. (PlayT m, RandomT m) => Turns -> [Effect] -> m ()
+apply :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> [Effect] -> m ()
 apply = apply' ""
 -- | 'apply' with a 'Status.name'.
-apply' :: ∀ m. (PlayT m, RandomT m) => Text -> Turns -> [Effect] -> m ()
+apply' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> [Effect] -> m ()
 apply' = applyWith' []
 -- | 'apply' with extra 'Status.classes'.
-applyWith :: ∀ m. (PlayT m, RandomT m) => [Class] -> Turns -> [Effect] 
+applyWith :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Turns -> [Effect]
           -> m ()
 applyWith classes = applyWith' classes ""
 -- | 'applyWith' with a 'Status.name'.
-applyWith' :: ∀ m. (PlayT m, RandomT m) => [Class] -> Text -> Turns 
+applyWith' :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Text -> Turns
            -> [Effect] -> m ()
 applyWith' classes = applyFull classes False []
 
 -- | Adds a simple 'Status' with no 'Status.effects' or 'Status.dur' to
 -- 'Ninja.statuses'. Stacks are unremovable.
-addStack :: ∀ m. PlayT m => m ()
+addStack :: ∀ m. MonadPlay m => m ()
 addStack = do
     name <- Skill.name <$> P.skill
     addStacks name 1
 
 -- | 'addStack' with a 'Status.name' and 'Status.amount'.
-addStacks :: ∀ m. PlayT m => Text -> Int -> m ()
+addStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
 addStacks = addStacks' 0
 
 -- | 'addStack' with a 'Status.dur', 'Status.name', and 'Status.amount'.
-addStacks' :: ∀ m. PlayT m => Turns -> Text -> Int -> m ()
+addStacks' :: ∀ m. MonadPlay m => Turns -> Text -> Int -> m ()
 addStacks' _    _ 0   = return ()
 addStacks' (Duration -> dur) name i = do
     skill  <- P.skill
@@ -122,61 +122,61 @@ addStacks' (Duration -> dur) name i = do
            }
 
 -- | Adds a hidden 'Status' with no effects that immediately expires.
-flag :: ∀ m. (PlayT m, RandomT m) => m ()
+flag :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 flag = flag' ""
 -- | 'flag' with a 'Status.name'.
-flag' :: ∀ m. (PlayT m, RandomT m) => Text -> m ()
+flag' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> m ()
 flag' name = applyWith' [Hidden, Unremovable, Nonstacking] name (-1) []
 
 -- | Applies a 'Status' with no effects, used as a marker for other 'Skill's.
-tag :: ∀ m. (PlayT m, RandomT m) => Turns -> m ()
+tag :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> m ()
 tag = tag' ""
 -- | 'tag' with a 'Status.name'.
-tag' :: ∀ m. (PlayT m, RandomT m) => Text -> Turns -> m ()
+tag' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> m ()
 tag' name dur = applyWith' [Unremovable, Nonstacking] name dur []
 
 -- | Applies a 'Hidden' and 'Unremovable' 'Status'.
-hide :: ∀ m. (PlayT m, RandomT m) => Turns -> [Effect] -> m ()
+hide :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> [Effect] -> m ()
 hide = hide' ""
 -- | 'hide' with a 'Status.name'.
-hide' :: ∀ m. (PlayT m, RandomT m) => Text -> Turns -> [Effect] -> m ()
+hide' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> [Effect] -> m ()
 hide' = applyWith' [Unremovable, Hidden]
 
 -- Adds a 'Status' with 'Status.bombs' to 'Ninja.statuses'.
--- Bombs apply an effect when the 'Status' ends. If the 'Bomb' type is 
+-- Bombs apply an effect when the 'Status' ends. If the 'Bomb' type is
 -- 'Status.Expire', the bomb activates when the 'Status' naturally reaches the
 -- end of its 'Status.dur'. If the 'Bomb' type is 'Status.Remove', the bomb
 -- activates when the 'Status' is removd before naturally reaching the end of
 -- its 'Status.dur'. If the 'Bomb' type is 'Status.Done', the bomb activates
 -- in both situations.
-bomb :: ∀ m. (PlayT m, RandomT m) => Turns -> [Effect] -> [(Bomb, Play ())] 
+bomb :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> [Effect] -> [(Bomb, Play ())]
      -> m ()
 bomb = bomb' ""
 -- | 'bomb' with a 'Status.name'.
-bomb' :: ∀ m. (PlayT m, RandomT m) => Text -> Turns -> [Effect] 
+bomb' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> [Effect]
       -> [(Bomb, Play ())] -> m ()
 bomb' = bombWith' []
 -- | 'bomb' with extra 'Status.classes'.
-bombWith :: ∀ m. (PlayT m, RandomT m) => [Class] -> Turns -> [Effect] 
+bombWith :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Turns -> [Effect]
          -> [(Bomb, Play ())] -> m ()
 bombWith classes = bombWith' classes ""
 -- | 'bombWith' with a 'Status.name'.
-bombWith' :: ∀ m. (PlayT m, RandomT m) => [Class] -> Text -> Turns 
+bombWith' :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Text -> Turns
           -> [Effect] -> [(Bomb, Play ())] -> m ()
 bombWith' classes name dur fs bombs =
     applyFull classes False bombs name dur fs
 
 -- | Status engine.
-applyFull :: ∀ m. (PlayT m, RandomT m) => [Class] -> Bool -> [(Bomb, Play ())] 
+applyFull :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Bool -> [(Bomb, Play ())]
           -> Text -> Turns -> [Effect] -> m ()
-applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs = 
+applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
     void $ runMaybeT do
         skill       <- P.skill
         user        <- P.user
         target      <- P.target
         nUser       <- P.nUser
         nTarget     <- P.nTarget
-        dur         <- MaybeT . return $ Duration.throttle 
+        dur         <- MaybeT . return $ Duration.throttle
                        (Effects.throttle fs nUser) unthrottled
         let already  = Ninja.has name user nTarget
             isSingle = name == Skill.name skill && Single ∈ classes
@@ -230,24 +230,24 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
     isDmg (Afflict x) = x > 0
     isDmg _           = False
 
--- | Removes non-'Effect.helpful' effects in 'Ninja.statuses' that match a 
+-- | Removes non-'Effect.helpful' effects in 'Ninja.statuses' that match a
 -- predicate. Uses 'Ninja.cure' internally.
-cure :: ∀ m. PlayT m => (Effect -> Bool) -> m ()
+cure :: ∀ m. MonadPlay m => (Effect -> Bool) -> m ()
 cure match = P.toTarget $ Ninja.cure match
 
 -- | Removes all non-'Effect.helpful' 'effects in 'Ninja.statuses'.
 -- Uses 'Ninja.cure' internally.
-cureAll :: ∀ m. PlayT m => m ()
+cureAll :: ∀ m. MonadPlay m => m ()
 cureAll = cure $ const True
 
 -- | Removes all 'Ninja.statuses' with 'Bane' in their 'Status.classes'.
 -- Uses 'Ninja.cureBane' internally.
-cureBane :: ∀ m. PlayT m => m ()
+cureBane :: ∀ m. MonadPlay m => m ()
 cureBane = P.toTarget Ninja.cureBane
 
 -- | Cures all 'Stun' effects from 'Ninja.statuses'.
 -- Uses 'Ninja.cure' internally.
-cureStun :: ∀ m. PlayT m => m ()
+cureStun :: ∀ m. MonadPlay m => m ()
 cureStun = cure cured
   where
     cured Stun{} = True
@@ -255,28 +255,28 @@ cureStun = cure cured
 
 -- | Cures all 'Effect.helpful' effects from 'Ninja.statuses'.
 -- Uses 'Ninja.purge' internally.
-purge :: ∀ m. PlayT m => m ()
+purge :: ∀ m. MonadPlay m => m ()
 purge = P.toTarget Ninja.purge
 
--- | Removes all 'Status'es with matching 'Status.name' and whose 
+-- | Removes all 'Status'es with matching 'Status.name' and whose
 -- 'Status.user' is the one performing the action.
 -- Uses 'Ninja.clear' internally.
-remove :: ∀ m. PlayT m => Text -> m ()
+remove :: ∀ m. MonadPlay m => Text -> m ()
 remove = P.fromSource . Ninja.clear
 
 -- | Decreases the 'Status.amount' of a 'Status' with matching 'Status.name' by
 -- 1, removing it if it reaches 0. Uses 'Ninja.removeStack' internally.
-removeStack :: ∀ m. PlayT m => Text -> m ()
+removeStack :: ∀ m. MonadPlay m => Text -> m ()
 removeStack = P.toTarget . Ninja.removeStack
 
 -- | Decreases the 'Status.amount' of a 'Status' with matching 'Status.name' and
 -- whose 'Status.user is the one performing the action by some amount,
 -- removing it if it reaches 0. Uses 'Ninja.removeStack' internally.
-removeStacks :: ∀ m. PlayT m => Text -> Int -> m ()
+removeStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
 removeStacks name = P.fromSource . Ninja.removeStacks name
 
 -- | Saves the target's state to their 'Ninja.statuses' in a 'Snapshot'.
-snapshot :: ∀ m.PlayT m => Duration -> m ()
+snapshot :: ∀ m.MonadPlay m => Duration -> m ()
 snapshot dur = do
     skill   <- P.skill
     user    <- P.user
@@ -290,7 +290,7 @@ snapshot dur = do
            }
 
 -- | Steals all of the target's 'Effect.helpful' 'Effect's.
-commandeer :: ∀ m. PlayT m => m ()
+commandeer :: ∀ m. MonadPlay m => m ()
 commandeer = do
     user    <- P.user
     target  <- P.target

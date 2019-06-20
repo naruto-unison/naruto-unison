@@ -90,6 +90,10 @@ getPlayR = do
         team = maybe [] (mapMaybe (`lookup` Characters.map)) $
                muser >>= userTeam
         bg   = fromMaybe "/img/bg/valley2.jpg" $ muser >>= userBackground
+        vol :: Text
+        vol
+          | isMuted muser = "click muted"
+          | otherwise     = "click"
     setCsrfCookie
     defaultLayout do
         setTitle "Naruto Unison"
@@ -97,7 +101,5 @@ getPlayR = do
         $(widgetFile "include/progressbar.min")
         $(widgetFile "include/soundjs.min")
         $(widgetFile "include/normalize")
+        $(widgetFile "play/elm")
         $(widgetFile "play/play")
-        -- $(widgetFile "play/elm")
-        -- $(widgetFile "play/elminit")
-        $(widgetFile "play/ps")

@@ -1,0 +1,10 @@
+"use strict";
+
+var prog;
+var vol;
+
+const bg       = #{toJSON bg};
+const userTeam = [];
+const user     = #{toJSON muser};
+const avatars  = #{toJSON avatars};
+const chars    = [];

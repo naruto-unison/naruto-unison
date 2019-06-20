@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
 module Model.Class
   ( Class(..)
   ) where
@@ -47,7 +46,7 @@ data Class
     | Ninjutsu
     | Taijutsu
     | Random
-    deriving (Eq, Ord, Enum, Bounded, Generic, ToJSON)
+    deriving (Eq, Ord, Enum, Bounded)
 
 instance Show Class where
     show Invisible      = "Invisible"

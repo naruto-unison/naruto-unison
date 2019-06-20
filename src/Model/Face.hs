@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
 module Model.Face
   ( Face(..)
   ) where
@@ -12,7 +11,7 @@ import Model.Slot (Slot)
 data Face = Face { icon   :: Text
                  , user :: Slot
                  , dur    :: Int
-                 } deriving (Eq, Generic, ToJSON)
+                 } deriving (Eq)
 instance TurnBased Face where
     getDur     = dur
     setDur d x = x { dur = d }

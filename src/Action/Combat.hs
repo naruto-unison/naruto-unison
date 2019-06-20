@@ -1,5 +1,5 @@
 {-# LANGUAGE ImpredicativeTypes    #-}
--- | Actions that characters can use to affect 
+-- | Actions that characters can use to affect
 -- 'Ninja.health', 'Ninja.barrier', and 'Ninja.defense'.
 module Action.Combat
   ( -- * Attacking
@@ -24,7 +24,7 @@ import           Core.Util ((—), (∈), intersects)
 import qualified Class.Classed as Classed
 import qualified Class.Labeled as Labeled
 import qualified Class.Play as P
-import           Class.Play (Play(..), PlayConstraint, PlayT)
+import           Class.Play (Play(..), PlayConstraint, MonadPlay)
 import qualified Model.Attack as Attack
 import           Model.Attack (Attack)
 import qualified Model.Barrier as Barrier
@@ -35,6 +35,7 @@ import qualified Model.Copy as Copy
 import qualified Model.Defense as Defense
 import           Model.Defense (Defense)
 import           Model.Duration (Duration(..), Turns, incr, sync)
+import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
@@ -57,32 +58,32 @@ absorbDefense hp (x:xs)
   | Defense.amount x <= hp = absorbDefense (hp - Defense.amount x) xs
   | otherwise = (0, x { Defense.amount = Defense.amount x - hp } : xs)
 
--- | Deals damage that ignores 'Reduce' effects, 'Ninja.barrier', 
+-- | Deals damage that ignores 'Reduce' effects, 'Ninja.barrier',
 -- and 'Ninja.defense'.
-afflict :: ∀ m. PlayT m => Int -> m ()
+afflict :: ∀ m. MonadPlay m => Int -> m ()
 afflict = attack Attack.Afflict
 -- | Deals damage that ignores 'Reduce' effects.
-pierce :: ∀ m. PlayT m => Int -> m ()
+pierce :: ∀ m. MonadPlay m => Int -> m ()
 pierce = attack Attack.Pierce
 -- | Deals damage.
-damage :: ∀ m. PlayT m => Int -> m ()
+damage :: ∀ m. MonadPlay m => Int -> m ()
 damage = attack Attack.Damage
 -- | Deals damage to the user's 'Ninja.barrier' and the target's 'Ninja.defense'
 -- without affecting the target's 'Ninja.health'.
-demolish :: ∀ m. PlayT m => Int -> m ()
+demolish :: ∀ m. MonadPlay m => Int -> m ()
 demolish = attack Attack.Demolish
--- | Removes all 'Ninja.barrier' from the user and 'Ninja.defense' from the 
+-- | Removes all 'Ninja.barrier' from the user and 'Ninja.defense' from the
 -- target.
-demolishAll :: ∀ m. PlayT m => m ()
+demolishAll :: ∀ m. MonadPlay m => m ()
 demolishAll = do
     user   <- P.user
     target <- P.target
     P.modify $ Game.adjust user Ninja.clearBarrier
     P.modify $ Game.adjust target Ninja.clearDefense
 
--- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce', 
+-- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce',
 -- 'Attack.Damage', or 'Attack.Demolish' attack.
-attack :: ∀ m. PlayT m => Attack -> Int -> m ()
+attack :: ∀ m. MonadPlay m => Attack -> Int -> m ()
 attack _ 0 = return ()
 attack atk dmg = void $ runMaybeT do
     skill      <- P.skill
@@ -99,15 +100,15 @@ attack atk dmg = void $ runMaybeT do
                         (+ Effects.strengthen classes nUser Flat) $
                         toRational dmg
         reduceAfflic = Effects.reduce [Affliction] nTarget
-        reduce
-          | atk /= Attack.Damage    = const 0
-          | Ninja.is Pierce nUser   = const 0
-          | Ninja.is Expose nTarget = const 0
-          | otherwise               = Effects.reduce classes nTarget
-        weaken
-          | atk == Attack.Afflict = const 0
-          | direct                = const 0
-          | otherwise             = Effects.weaken classes nUser
+        reduce amount
+          | atk /= Attack.Damage    = Effect.identity amount
+          | Ninja.is Pierce nUser   = Effect.identity amount
+          | Ninja.is Expose nTarget = Effect.identity amount
+          | otherwise               = Effects.reduce classes nTarget amount
+        weaken amount
+          | atk == Attack.Afflict = Effect.identity amount
+          | direct                = Effect.identity amount
+          | otherwise             = Effects.weaken classes nUser amount
         bleed = Effects.bleed classes nTarget
         -- | Damage modified by the target's 'Effect's.
         dmg'Target = truncate .
@@ -153,7 +154,7 @@ attack atk dmg = void $ runMaybeT do
 -- of a 'Ninja'. All attacks except for 'afflict' attacks must damage and
 -- destroy the target's 'Ninja.defense' before they can damage the target.
 -- Destructible defense can be temporary or permanent.
-defend :: ∀ m. PlayT m => Turns -> Int -> m ()
+defend :: ∀ m. MonadPlay m => Turns -> Int -> m ()
 defend (Duration -> dur) amount = do
     skill      <- P.skill
     user       <- P.user
@@ -174,9 +175,9 @@ defend (Duration -> dur) amount = do
         n { Ninja.defense = Classed.nonStack skill defense $ Ninja.defense n }
 
 -- | Adds an amount to a 'Defense' that the target already has.
--- If the target does not have any 'Ninja.defense' with a matching 
+-- If the target does not have any 'Ninja.defense' with a matching
 -- 'Defense.name', nothing happens.
-addDefense :: ∀ m. PlayT m => Text -> Int -> m ()
+addDefense :: ∀ m. MonadPlay m => Text -> Int -> m ()
 addDefense name amount = do
     user    <- P.user
     target  <- P.user
@@ -193,14 +194,14 @@ addDefense name amount = do
 -- of a 'Ninja'. All attacks except for 'afflict' attacks must damage and
 -- destroy the user's 'Ninja.barrier' before they can damage the target.
 -- Destructible barrier can be temporary or permanent.
-barrier :: ∀ m. PlayT m => Turns -> Int -> m ()
+barrier :: ∀ m. MonadPlay m => Turns -> Int -> m ()
 barrier dur = barrierDoes dur (const $ return ()) (return ())
 
--- | Adds a 'Barrier' with an effect that occurs when its duration 
--- 'Barrier.finish'es, which is passed as an argument the 'Barrier.amount' of 
+-- | Adds a 'Barrier' with an effect that occurs when its duration
+-- 'Barrier.finish'es, which is passed as an argument the 'Barrier.amount' of
 -- barrier remaining, and an effect that occurs each turn 'Barrier.while' it
 -- exists.
-barrierDoes :: ∀ m. PlayT m => Turns -> (Int -> PlayConstraint ())
+barrierDoes :: ∀ m. MonadPlay m => Turns -> (Int -> PlayConstraint ())
             -> PlayConstraint () -> Int -> m ()
 barrierDoes (Duration -> dur) finish while amount = do
     context    <- P.context
@@ -227,20 +228,20 @@ barrierDoes (Duration -> dur) finish while amount = do
 
 -- | Kills the target. The target can survive if it has the 'Endure' effect.
 -- Uses 'Ninja.kill' internally.
-kill :: ∀ m. PlayT m => m ()
+kill :: ∀ m. MonadPlay m => m ()
 kill = P.toTarget $ Ninja.kill True
 
 -- | Kills the target. The target cannot survive by any means.
 -- Uses 'Ninja.kill' internally.
-killHard :: ∀ m. PlayT m => m ()
+killHard :: ∀ m. MonadPlay m => m ()
 killHard = P.toTarget $ Ninja.kill False
 
 -- | Adjusts 'Ninja.health'. Uses 'Ninja.setHealth' internally.
-setHealth :: ∀ m. PlayT m => Int -> m ()
+setHealth :: ∀ m. MonadPlay m => Int -> m ()
 setHealth = P.toTarget . Ninja.setHealth
 
 -- | Adds a flat amount of 'Ninja.health'.
-heal :: ∀ m. PlayT m => Int -> m ()
+heal :: ∀ m. MonadPlay m => Int -> m ()
 heal hp = do
     nTarget <- P.nTarget
     unless (Ninja.is Plague nTarget) do
@@ -251,7 +252,7 @@ heal hp = do
         P.modify . Game.adjust target $ Ninja.adjustHealth (+ hp')
 
 -- | Restores a percentage of missing 'Ninja.health'.
-restore :: ∀ m. PlayT m => Int -> m ()
+restore :: ∀ m. MonadPlay m => Int -> m ()
 restore percent = do
     nTarget <- P.nTarget
     unless (Ninja.is Plague nTarget) do
@@ -264,9 +265,9 @@ restore percent = do
         P.modify . Game.adjust target $ Ninja.adjustHealth (+ hp')
 
 -- | Damages the target and passes the amount of damage dealt to another action.
--- Typically paired with @'self' . 'heal'@ to effectively drain the target's 
+-- Typically paired with @'self' . 'heal'@ to effectively drain the target's
 -- 'Ninja.health' into that of the user.
-leech :: ∀ m. PlayT m => Int -> (Int -> m ()) -> m ()
+leech :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
 leech hp f = do
     target   <- P.target
     hpBefore <- Ninja.health <$> P.nTarget
@@ -277,7 +278,7 @@ leech hp f = do
 -- | Sacrifices some amount of the target's 'Ninja.health' down to a minimum.
 -- If the target is the user and has the 'ImmuneSelf' effect, nothing happens.
 -- Uses 'Ninja.sacrifice' internally.
-sacrifice :: ∀ m. PlayT m 
+sacrifice :: ∀ m. MonadPlay m
           => Int  -- ^ Minimum 'Ninja.health'.
           -> Int  -- ^ Amount of 'Ninja.health' to sacrifice.
           -> m ()
@@ -289,5 +290,5 @@ sacrifice minhp hp = do
         P.modify . Game.adjust target $ Ninja.sacrifice minhp hp
 
 -- | Resets a 'Ninja' to their initial state. Uses 'Ninja.reset' internally.
-factory :: ∀ m. PlayT m => m ()
+factory :: ∀ m. MonadPlay m => m ()
 factory = P.toTarget Ninja.factory

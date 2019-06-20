@@ -2,8 +2,7 @@
 module Engine.Traps
   ( track
     -- Performing 'Trap's
-  , runTurn, runPer
-  , entrap
+  , runTurn
     -- Collecting 'Trap's
   , get, getClassed, getTo, getTracked, getPer
   , broken
@@ -16,7 +15,8 @@ import           Data.List ((\\))
 import           Core.Util ((∈), (∉))
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
-import           Class.Play (GameT, SavedPlay)
+import           Class.Play (MonadGame, SavedPlay)
+import           Class.Random (MonadRandom)
 import qualified Model.Character as Character
 import           Model.Class (Class(..))
 import qualified Model.Context as Context
@@ -32,7 +32,7 @@ import           Model.Trap (Trigger(..))
 
 get :: Slot -> Bool -> Trigger -> Ninja -> Seq SavedPlay
 get _    False _       = const mempty
-get user True  trigger = (savedPlay <$>) . 
+get user True  trigger = (savedPlay <$>) .
                          filter ((trigger ==) . Trap.trigger) . Ninja.traps
   where
     withTarget ctx = ctx { Context.target = user }
@@ -42,7 +42,7 @@ get user True  trigger = (savedPlay <$>) .
       where
         play = Trap.effect trap $ Trap.tracker trap
 
-getClassed :: Seq Class -> Slot -> Bool -> (Class -> Trigger) -> Ninja 
+getClassed :: Seq Class -> Slot -> Bool -> (Class -> Trigger) -> Ninja
            -> Seq SavedPlay
 getClassed _       _    False _       _ = mempty
 getClassed classes user True  trigger n = do
@@ -60,7 +60,7 @@ getTo xs trigger n
               x <- xs
               let retarget ctx = ctx { Context.target = Ninja.slot x}
               return . first retarget . Trap.effect trap $ Trap.tracker trap
-          _ -> 
+          _ ->
               return . Trap.effect trap $ Trap.tracker trap
 
 
@@ -68,11 +68,11 @@ track :: Trigger -> Int -> Ninja -> Ninja
 track trigger amount n = n { Ninja.traps = tracked <$> Ninja.traps n }
   where
     tracked trap
-      | Trap.trigger trap == trigger = 
+      | Trap.trigger trap == trigger =
           trap { Trap.tracker = amount + Trap.tracker trap }
       | otherwise = trap
 
--- | 'OnBreak' effects of 
+-- | 'OnBreak' effects of
 broken :: Ninja -> Ninja -> (Ninja, Seq SavedPlay)
 broken n n' =
     ( n' { Ninja.traps = filter ((∉ broke) . Trap.trigger) traps }
@@ -94,15 +94,6 @@ getHooks True  tr amt n = [Game.adjust (Ninja.slot n) $ f amt
                               | (p, f) <- Character.hooks $ Ninja.character n
                               , tr == p]
 
-getTurnPer :: Player -> Ninja -> Ninja -> Seq SavedPlay
-getTurnPer player n n'
-  | hp < 0 && Parity.allied player user       = getPer True PerHealed (-hp) n'
-  | hp > 0 && not (Parity.allied player user) = getPer True PerDamaged hp n'
-  | otherwise                                 = mempty
-  where
-    user = Ninja.slot n'
-    hp   = Ninja.health n - Ninja.health n'
-
 getTurnHooks :: Player -> Ninja -> Ninja -> Seq (Game -> Game)
 getTurnHooks player n n'
   | hp < 0 && Parity.allied player user       = getHooks True PerHealed (-hp) n'
@@ -120,8 +111,17 @@ getTracked True tr n =
                                           , Trap.dur trap <= 2
                                           , Trap.tracker trap > 0]
 
-getTurn :: Player -> Ninja -> Seq SavedPlay
-getTurn player n
+getTurnPer :: Player -> Ninja -> Ninja -> Seq SavedPlay
+getTurnPer player n n'
+  | hp < 0 && Parity.allied player user       = getPer True PerHealed (-hp) n'
+  | hp > 0 && not (Parity.allied player user) = getPer True PerDamaged hp n'
+  | otherwise                                 = mempty
+  where
+    user = Ninja.slot n'
+    hp   = Ninja.health n - Ninja.health n'
+
+getTurnNot :: Player -> Ninja -> Seq SavedPlay
+getTurnNot player n
   | Parity.allied player user = get user (Acted ∉ flags)  OnNoAction n
                              ++ get user (Harmed ∉ flags) OnNoHarm   n
   | otherwise = mempty
@@ -129,28 +129,25 @@ getTurn player n
     user     = Ninja.slot n
     flags    = Ninja.flags n
 
+getTurn :: Game -> Game -> Seq SavedPlay
+getTurn game game' = concat $
+    Game.zipNinjasWith (getTurnPer player) game game'
+    ++ (getTurnNot player <$> Game.ninjas game')
+  where
+    player = Game.playing game
+
 trackDamaged :: Ninja -> Ninja -> Ninja
 trackDamaged n n' = track TrackDamaged (Ninja.healthLost n n') n'
 
-runPer :: ∀ m. GameT m => Game -> m ()
-runPer game = do
+runTurn :: ∀ m. (MonadGame m, MonadRandom m) => Game -> m ()
+runTurn game = do
     player <- P.player
     P.modify $ processPer player game
+    traps <- getTurn game <$> P.game
+    traverse_ P.launch traps
 
 processPer :: Player -> Game -> Game -> Game
-processPer player game game' = 
-    foldl' (flip ($)) game'' { Game.traps  = traps ++ Game.traps game' } hooks
-  where
-    game'' = game' { Game.ninjas = Game.zipNinjasWith trackDamaged game game' }
-    traps  = concat $ Game.zipNinjasWith (getTurnPer player) game game''
-    hooks  = concat $ Game.zipNinjasWith (getTurnHooks player) game game''
-
-runTurn :: Player -> Game -> Game
-runTurn player game = game
-    { Game.traps = (Game.ninjas game >>= getTurn player) ++ Game.traps game }
-
-entrap :: Slot -> Seq SavedPlay -> Game -> Game
-entrap user trapped game = game
-    { Game.traps = Game.traps game ++ (first resrc <$> trapped) }
-  where
-    resrc ctx = ctx { Context.user = user }
+processPer player game game' =
+    foldl' (flip ($))
+    game' { Game.ninjas = Game.zipNinjasWith trackDamaged game game' } .
+    concat $ Game.zipNinjasWith (getTurnHooks player) game game'

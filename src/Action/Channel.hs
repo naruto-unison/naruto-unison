@@ -10,8 +10,8 @@ import ClassyPrelude.Yesod hiding ((\\))
 
 import           Core.Util ((∈))
 import qualified Class.Play as P
-import           Class.Play (PlayT)
-import           Class.Random (RandomT)
+import           Class.Play (MonadPlay)
+import           Class.Random (MonadRandom)
 import qualified Class.TurnBased as TurnBased
 import qualified Model.Channel as Channel
 import           Model.Channel (Channel)
@@ -30,12 +30,12 @@ import           Engine.Execute (Affected(..))
 
 -- | Cancels 'Ninja.channels' with a matching 'Channel.name'.
 -- Uses 'Ninja.cancelChannel' internally.
-cancelChannel :: ∀ m. PlayT m => Text -> m ()
+cancelChannel :: ∀ m. MonadPlay m => Text -> m ()
 cancelChannel = P.toTarget . Ninja.cancelChannel
 
 -- | Interrupts all 'interruptible' 'Ninja.channels'.
 -- Triggers 'onInterrupts' for affected 'Channel's.
-interrupt :: ∀ m. (PlayT m, RandomT m) => m ()
+interrupt :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 interrupt = unlessM (Ninja.is Enrage <$> P.nTarget) do
     target  <- P.target
     onInterrupts Channel.interruptible
@@ -46,14 +46,14 @@ interrupt = unlessM (Ninja.is Enrage <$> P.nTarget) do
 
 -- | Triggers 'Skill.interrupt' effects of all 'Ninja.channels' that match a
 -- predicate.
-onInterrupts :: ∀ m. (PlayT m, RandomT m) => (Channel -> Bool) -> m ()
+onInterrupts :: ∀ m. (MonadPlay m, MonadRandom m) => (Channel -> Bool) -> m ()
 onInterrupts interrupting = do
     nTarget <- P.nTarget
     unless (Ninja.is Enrage nTarget || Stun All ∈ Effects.ignore nTarget) .
         traverse_ onInterrupt . filter interrupting $ Ninja.channels nTarget
 
 -- | Triggers 'Skill.interrupt' effects of a 'Channel'.
-onInterrupt :: ∀ m. (PlayT m, RandomT m) => Channel -> m ()
+onInterrupt :: ∀ m. (MonadPlay m, MonadRandom m) => Channel -> m ()
 onInterrupt chan = do
     target <- P.target
     let ctx = Context.Context { Context.skill  = Channel.skill chan
@@ -69,7 +69,7 @@ onInterrupt chan = do
          : (second P.play <$> Skill.interrupt (Channel.skill chan))
 
 -- | Increases the duration of 'Ninja.channels' with a matching 'Channel.name'.
-prolongChannel :: ∀ m. PlayT m => Turns -> Text -> m ()
+prolongChannel :: ∀ m. MonadPlay m => Turns -> Text -> m ()
 prolongChannel (Duration -> dur) name = P.toTarget \n ->
     n { Ninja.channels = f <$> Ninja.channels n }
   where

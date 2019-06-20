@@ -46,15 +46,15 @@ import           Model.Game (Game)
 
 -- | App environment.
 data App = App
-    { settings    :: AppSettings 
+    { settings    :: AppSettings
       -- ^ Settings loaded from a local file.
-    , static      :: Static 
+    , static      :: Static
       -- ^ Server for static files.
-    , connPool    :: Sql.ConnectionPool 
+    , connPool    :: Sql.ConnectionPool
       -- ^ Database connection.
-    , httpManager :: Manager 
+    , httpManager :: Manager
       -- ^ Web request manager.
-    , logger      :: Logger 
+    , logger      :: Logger
       -- ^ See https://www.yesodweb.com/blog/2014/01/new-fast-logger
     , practice    :: Cache (Key User) Game
       -- ^ Saved state of Practice Games. Games expire after one hour or as soon
@@ -115,7 +115,7 @@ instance Yesod App where
         :: Route App  -- ^ The route the user is visiting.
         -> Bool       -- ^ Whether or not this is a "write" request.
         -> Handler AuthResult
-    isAuthorized TestR _ = isAuthenticated
+    isAuthorized TestR _ = isAuthenticated Moderator
     -- isAuthorized PlayR _ = isAuthenticated
     -- Routes not requiring authentication.
     isAuthorized _     _ = return Authorized
@@ -194,9 +194,9 @@ instance YesodAuth App where
     type AuthId App = UserId
 
     loginDest :: App -> Route App
-    loginDest _ = HomeR
+    loginDest _ = PlayR
     logoutDest :: App -> Route App
-    logoutDest _ = HomeR
+    logoutDest _ = PlayR
     -- Override the above two destinations when a Referer: header is present
     redirectToReferer :: App -> Bool
     redirectToReferer _ = True
@@ -217,12 +217,13 @@ instance YesodAuth App where
           extraAuthPlugins =
               [Dummy.authDummy | AppSettings.authDummyLogin $ settings app]
 
-isAuthenticated :: Handler AuthResult
-isAuthenticated = do
-    muid <- maybeAuthId
-    return $ case muid of
+isAuthenticated :: Privilege -> Handler AuthResult
+isAuthenticated level = do
+    muser <- Auth.maybeAuth
+    return $ case muser of
+        Just (Entity _ user) | userPrivilege user >= level -> Authorized
+        Just _  -> Unauthorized "You do not have access to this page"
         Nothing -> Unauthorized "You must login to access this page"
-        Just _ -> Authorized
 
 instance YesodAuthPersist App
 
