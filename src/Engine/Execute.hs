@@ -271,17 +271,20 @@ act affected' a = do
             Left _   -> True
             Right s' -> channed || Ninja.isChanneling (Skill.name s') nUser
 
-    when valid . P.withContext (ctx skill) $ case Trigger.snareTrap skill nUser of
-      Just (n', sn) -> P.modify . Game.setNinja user $ case s of
-          Left s' | s' <= 3 -> Cooldown.update charge sn skill s' n'
-          _                 -> n'
-      Nothing -> do
-          unless channed . P.modify $ Game.adjustChakra user (— cost)
-          P.modify $ Cooldown.updateGame charge skill user s
-          game' <- P.game
-          effects affected
-          when (isLeft s) addChannels
-          trigger affected game'
+    when valid $ P.withContext (ctx skill) do
+        case Trigger.snareTrap skill nUser of
+            Just (n', sn) -> P.modify . Game.setNinja user $ case s of
+                Left s' | s' <= 3 -> Cooldown.update charge sn skill s' n'
+                _                 -> n'
+            Nothing -> do
+                unless channed . P.modify $ Game.adjustChakra user (— cost)
+                P.modify $ Cooldown.updateGame charge skill user s
+                game' <- P.game
+                effects affected
+                when (isLeft s) addChannels
+                trigger affected game'
+        P.modify $ Game.adjust user \n ->
+            n { Ninja.flags = Set.insert Acted $ Ninja.flags n }
   where
     s       = Act.skill a
     user    = Act.user a
@@ -329,11 +332,8 @@ trigger affected gameBefore = void $ runMaybeT do
             stunned = filterOn enemies \n n' -> Ninja.isAny Stun n'
                                                 && not (Ninja.isAny Stun n)
             getClassed  = Traps.getClassed classes user
-            flagHarmed
-              | null harmed = id
-              | otherwise   = Set.insert Harmed
-        P.modify $ Game.adjust user \n ->
-            n { Ninja.flags = flagHarmed . Set.insert Acted $ Ninja.flags n }
+        when (not $ null harmed) . P.modify $ Game.adjust user \n ->
+            n { Ninja.flags = Set.insert Harmed $ Ninja.flags n }
         traverse_ (traverse_ P.launch) -- cheaper than a 'join'
             [ getClassed     True    OnAction      nUser
             , Traps.get user chakra  OnChakra      nUser

@@ -1,4 +1,4 @@
---  https://github.com/agrafix/elm-bridge/blob/master/src/Elm/Derive.hs 
+--  https://github.com/agrafix/elm-bridge/blob/master/src/Elm/Derive.hs
 -- with a modified 'compileType' to omit fields that cannot be handled instead
 -- of crashing.
 {-# LANGUAGE CPP #-}
@@ -80,7 +80,7 @@ compileType :: Type -> Maybe (Q Exp)
 compileType ty =
     case ty of
       ListT -> Just [|ETyCon (ETCon "List")|]
-      TupleT 0 -> Nothing
+      TupleT 0 -> Just [|ETyCon (ETCon "()")|]
       TupleT i -> Just [|ETyTuple i|]
       VarT name ->
           let n = nameBase name
@@ -94,7 +94,7 @@ compileType ty =
       ConT name ->
           let n = nameBase name
           in Just [|ETyCon (ETCon n)|]
-      _ -> Nothing --fail $ "Unsupported type: " ++ show ty
+      _ -> Nothing
 
 optSumType :: SumEncoding -> Q Exp
 optSumType se =
@@ -144,7 +144,7 @@ deriveAlias isNewtype opts name vars conFields =
       fields = listE $ mapMaybe mkField conFields
       omitNothing = A.omitNothingFields opts
       mkField :: VarStrictType -> Maybe (Q Exp)
-      mkField (fname, _, ftype) = 
+      mkField (fname, _, ftype) =
           (<$> compileType ftype) $ \fldType -> [|(fldName, $fldType)|]
         where
           fldName = A.fieldLabelModifier opts $ nameBase fname
@@ -168,7 +168,7 @@ deriveSum opts name vars constrs =
                 in [|STC b n (Anonymous $tyArgs)|]
             RecC name' args ->
                 let (b, n) = modifyName name'
-                    tyArgs = listE $ mapMaybe (\(nm, _, ty) -> 
+                    tyArgs = listE $ mapMaybe (\(nm, _, ty) ->
                         (<$> compileType ty) $ \fldType ->
                         let nm' = A.fieldLabelModifier opts $ nameBase nm
                         in [|(nm', $(fldType))|]) args

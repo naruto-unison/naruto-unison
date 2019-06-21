@@ -151,7 +151,7 @@ numStacks name user n = sum . (Status.amount <$>) .
                         filter (Labeled.match name user) $
                         statuses n
 
--- | Counts all 'Effect.helpful' 'statuses' from allies. 
+-- | Counts all 'Effect.helpful' 'statuses' from allies.
 -- Does not include self-applied 'Status'es.
 numHelpful :: Ninja -> Int
 numHelpful n = length stats + length defs
@@ -206,7 +206,7 @@ drop = map fst3 . take
     fst3 (Just (n, _, _)) = Just n
     fst3 Nothing          = Nothing
 
--- | While concluding 'Engine.Turn.run', prevents refreshed 'Status'es from 
+-- | While concluding 'Engine.Turn.run', prevents refreshed 'Status'es from
 -- having doubled effects due to there being both an old and new version.
 decrStats :: Ninja -> Ninja
 decrStats n = n { statuses = expire <$> statuses n }

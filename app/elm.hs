@@ -1,6 +1,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 import Prelude
+import Data.Sequence (Seq)
+import Data.List.NonEmpty (NonEmpty)
+
 import Data.Proxy
 import Elm.Module
 import Elm.TyRep
@@ -22,16 +25,45 @@ import           Model.Face (Face(..))
 import           Model.Player (Player(..))
 import           Model.Slot (Slot)
 import           Core.Fields (Privilege(..))
+import           Core.Util (equaling)
 
-import Model.Internal hiding (Effect(..))
+import Model.Internal hiding (Effect(..), Ninja(..), Game(..))
 
-data Effect = Effect 
-    { desc    :: Text 
-    , helpful :: Bool 
-    , sticky  :: Bool 
-    , trap    :: Bool 
-    } 
- 
+data Ninja = Ninja
+    { slot      :: Slot
+    , health    :: Int
+    , defense   :: [Defense]
+    , barrier   :: [Barrier]
+    , statuses  :: [Status]
+    , charges   :: Seq Int
+    , cooldowns :: Seq Int
+    , variants  :: Seq (NonEmpty Variant)
+    , copies    :: Seq (Maybe Copy)
+    , channels  :: [Channel]
+    , traps     :: Seq Trap
+    , face      :: [Face]
+    , parrying :: [Skill]
+    , tags :: [ChannelTag]
+    , lastSkill :: Maybe Skill
+    , skills :: [Skill]
+    }
+instance Eq Ninja where
+    (==) = equaling \Ninja{..} -> (slot, health, cooldowns, charges)
+
+data Game = Game { chakra  :: (Chakras, Chakras)
+                 , ninjas  :: Seq Ninja
+                 , playing :: Player
+                 , victor  :: [Player]
+                 , targets :: [[[Slot]]]
+                 } deriving (Eq)
+
+data Effect = Effect
+    { desc    :: Text
+    , helpful :: Bool
+    , sticky  :: Bool
+    , trap    :: Bool
+    }
+
 data User = User { name       :: Text
                  , avatar     :: Text
                  , clan       :: Maybe Text
@@ -50,6 +82,9 @@ data GameInfo = GameInfo { opponent   :: User
                          , player     :: Player
                          }
 
+alterations :: ETypeDef -> ETypeDef
+alterations = recAlterType typeAlterations
+
 typeAlterations :: EType -> EType
 typeAlterations t = case t of
     ETyCon (ETCon "Seq")      -> ETyCon (ETCon "List")
@@ -58,10 +93,18 @@ typeAlterations t = case t of
     ETyCon (ETCon "Class")    -> ETyCon (ETCon "String")
     ETyCon (ETCon "Duration") -> ETyCon (ETCon "Int")
     ETyCon (ETCon "Trigger")  -> ETyCon (ETCon "String")
+    ETyCon (ETCon "Play")     -> ETyCon (ETCon "Maybe")
+    ETyCon (ETCon "()")       -> ETyCon (ETCon "Unit") -- See elmUnitHandlers
     _                         -> defaultTypeAlterations t
 
-alterations :: ETypeDef -> ETypeDef
-alterations = recAlterType typeAlterations
+
+-- | Aeson encodes () as a zero-length array.
+elmUnitHandlers :: String
+elmUnitHandlers = "type alias Unit = ()\n\
+\jsonDecUnit : Json.Decode.Decoder ( () )\n\
+\jsonDecUnit = Json.Decode.succeed ()\n\
+\jsonEncUnit : () -> Value\n\
+\jsonEncUnit = always <| Json.Encode.list (always Json.Encode.null) []"
 
 deriveElmDef defaultOptions ''User
 deriveElmDef defaultOptions ''Privilege
@@ -76,11 +119,9 @@ deriveElmDef defaultOptions ''Character
 deriveElmDef defaultOptions ''Copy
 deriveElmDef defaultOptions ''Copying
 deriveElmDef defaultOptions ''Defense
-deriveElmDef defaultOptions ''Delay
 deriveElmDef defaultOptions ''Direction
 deriveElmDef defaultOptions ''Effect
 deriveElmDef defaultOptions ''Face
-deriveElmDef defaultOptions ''Flag
 deriveElmDef defaultOptions ''Game
 deriveElmDef defaultOptions ''GameInfo
 deriveElmDef defaultOptions ''Ninja
@@ -103,21 +144,18 @@ main =
 \import Dict exposing (Dict)\n\
 \import Set exposing (Set)\n\
 \\n\
-\import Import.Decode exposing (decodeSumTaggedObject)\n\
-\\n\
-\" ++
+\import Import.Decode exposing (decodeSumTaggedObject)\n\n"
+    ++ elmUnitHandlers ++ "\n\n" ++
     makeModuleContentWithAlterations alterations
     [ DefineElm (Proxy :: Proxy User)
     , DefineElm (Proxy :: Proxy Privilege)
     , DefineElm (Proxy :: Proxy Character)
     , DefineElm (Proxy :: Proxy Category)
     , DefineElm (Proxy :: Proxy Game)
-    , DefineElm (Proxy :: Proxy Delay)
     , DefineElm (Proxy :: Proxy GameInfo)
     , DefineElm (Proxy :: Proxy Chakras)
     , DefineElm (Proxy :: Proxy Player)
     , DefineElm (Proxy :: Proxy Ninja)
-    , DefineElm (Proxy :: Proxy Flag)
     , DefineElm (Proxy :: Proxy Skill)
     , DefineElm (Proxy :: Proxy Requirement)
     , DefineElm (Proxy :: Proxy Target)

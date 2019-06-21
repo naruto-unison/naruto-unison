@@ -680,7 +680,7 @@ cs =
         , Skill.cooldown  = 2
         , Skill.channel   = Control 2
         , Skill.start     =
-          [ p Self $ vary "Sand Coffin" "Sand Burial"]
+          [ p Self $ vary "Sand Coffin" "Sand Burial" ]
         , Skill.effects   =
           [ p Enemy $ apply 1 [Expose, Stun NonMental] ]
         }
@@ -705,7 +705,7 @@ cs =
         , Skill.effects   =
           [ p Self do
                 apply 0 [Enrage]
-                trap 0 (OnDamaged NonAffliction) do
+                trap' 0 (OnDamaged NonAffliction) do
                     remove "Sand Clone"
                     removeTrap "Sand Clone"
           ]

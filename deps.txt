@@ -43,4 +43,4 @@
 - yesod-form == 1.6.4
 - yesod-static == 1.6.0.1
 - yesod-websockets == 0.3.0.1
-- 
+-

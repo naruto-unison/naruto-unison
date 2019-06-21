@@ -79,7 +79,7 @@ getTo xs trigger n
           _ ->
               return . Trap.effect trap $ Trap.tracker trap
 
--- | Adds a value to 'Trap.tracker' of 'Ninja.traps' with a certain 'Trigger'. 
+-- | Adds a value to 'Trap.tracker' of 'Ninja.traps' with a certain 'Trigger'.
 track :: Trigger -> Int -> Ninja -> Ninja
 track trigger amount n = n { Ninja.traps = tracked <$> Ninja.traps n }
   where

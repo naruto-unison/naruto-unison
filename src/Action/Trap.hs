@@ -54,7 +54,7 @@ trapPer' :: ∀ m. MonadPlay m => Turns -> Trigger -> (Int -> PlayConstraint ())
 trapPer' = trapFull Trap.Per [Hidden]
 
 -- | Adds an 'OnBreak' 'Trap.Trap' for the used 'Skill.Skill' to 'Ninja.traps'.
--- 'OnBreak' traps are triggered when a 'Defense.Defense' with the same 
+-- 'OnBreak' traps are triggered when a 'Defense.Defense' with the same
 -- 'Defense.name' is broken.
 onBreak :: ∀ m. MonadPlay m => PlayConstraint () -> m ()
 onBreak f = do
@@ -64,7 +64,7 @@ onBreak f = do
     when (Ninja.hasDefense name user nTarget) $
         trapFrom' 0 (OnBreak name) f
 
--- | Default 'onBreak': remove 'Model.Status.Status'es and 
+-- | Default 'onBreak': remove 'Model.Status.Status'es and
 -- 'Model.Channel.Channel's that match 'Defense.name'. This is useful for '
 -- Defense.Defense's that apply an effect or empower some action while active.
 onBreak' :: ∀ m. MonadPlay m => m ()

@@ -290,7 +290,7 @@ sacrifice minhp hp = do
     unless (user == target && Ninja.is ImmuneSelf nTarget) .
         P.modify . Game.adjust target $ Ninja.sacrifice minhp hp
 
--- | Resets a 'Ninja.Ninja' to their initial state. 
+-- | Resets a 'Ninja.Ninja' to their initial state.
 -- Uses 'Ninja.reset' internally.
 factory :: ∀ m. MonadPlay m => m ()
 factory = P.toTarget Ninja.factory

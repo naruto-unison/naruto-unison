@@ -33,9 +33,9 @@ import           Engine.Execute (Affected(..))
 import qualified Engine.Traps as Traps
 import qualified Engine.Trigger as Trigger
 
--- | The game engine's main function. 
+-- | The game engine's main function.
 -- Performs 'Act's and 'Model.Channel.Channel's;
--- applies effects from 'Bomb's, 'Barrier.Barrier's, 'Delay.Delay's, and 
+-- applies effects from 'Bomb's, 'Barrier.Barrier's, 'Delay.Delay's, and
 -- 'Model.Trap.Trap's;
 -- decrements all 'TurnBased.TurnBased' data;
 -- and resolves 'Model.Chakra.Chakras' for the next turn.
@@ -107,7 +107,7 @@ doBarriers = do
 doDeaths :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 doDeaths = traverse_ Trigger.death Slot.all
 
--- | Executes 'Model.Effect.Afflict' and 'Model.Effect.Heal' 
+-- | Executes 'Model.Effect.Afflict' and 'Model.Effect.Heal'
 -- 'Model.Effect.Effect's.
 doHpOverTime :: ∀ m. MonadGame m => Slot -> m ()
 doHpOverTime slot = do

@@ -65,7 +65,7 @@ hasten :: ∀ m. MonadPlay m => Turns -> Text -> m ()
 hasten (Duration -> dur) name =
     P.user >>= P.toTarget . Ninja.prolong (negate $ sync dur) name
 
--- | Adds a 'Face.Face' to the 'Ninja.face' of a 'Ninja.Ninja', changing their 
+-- | Adds a 'Face.Face' to the 'Ninja.face' of a 'Ninja.Ninja', changing their
 -- in-game icon.
 setFace :: ∀ m. MonadPlay m => Turns -> m ()
 setFace (Duration -> dur) = do
@@ -129,7 +129,7 @@ flag = flag' ""
 flag' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> m ()
 flag' name = applyWith' [Hidden, Unremovable, Nonstacking] name (-1) []
 
--- | Applies a 'Status.Status' with no effects, used as a marker for other 
+-- | Applies a 'Status.Status' with no effects, used as a marker for other
 -- 'Skill.Skill's.
 tag :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> m ()
 tag = tag' ""

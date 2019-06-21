@@ -53,7 +53,7 @@ resetAll = P.toTarget Cooldown.resetAll
 resetCharges :: ∀ m. MonadPlay m => m ()
 resetCharges = P.toTarget Ninja.resetCharges
 
--- | Adds a 'Variant.Variant' to 'Ninja.variants' with a 'Variant.dur' that 
+-- | Adds a 'Variant.Variant' to 'Ninja.variants' with a 'Variant.dur' that
 -- depends on the 'Skill.dur' of the 'Skill.Skill' that performs the action.
 -- If the 'Skill.Skill' is interrupted, the 'Variant.Variant' immediately ends.
 vary :: ∀ m. MonadPlay m
@@ -72,14 +72,14 @@ vary' :: ∀ m. MonadPlay m
       -> m ()
 vary' = varyFull False . Duration
 
--- | Adds a 'Variant.Variant' to 'Ninja.variants' by base 'Skill.name' and 
+-- | Adds a 'Variant.Variant' to 'Ninja.variants' by base 'Skill.name' and
 -- variant 'Skill.name'.
 varyFull :: ∀ m. MonadPlay m => Bool -> Duration -> Text -> Text -> m ()
 varyFull from dur name variant = do
     nUser <- P.nUser
     SkillTransform.safe (return ()) (unsafeVary from dur) nUser name variant
 
--- | Adds a 'Variant.Variant' to 'Ninja.variants' by skill and variant index 
+-- | Adds a 'Variant.Variant' to 'Ninja.variants' by skill and variant index
 -- within 'Character.skills'.
 unsafeVary :: ∀ m. MonadPlay m => Bool -> Duration -> Int -> Int -> m ()
 unsafeVary fromSkill dur s v = do
@@ -168,7 +168,7 @@ copyLast (Duration -> dur) s = do
             Execute.copy False Copy.Shallow target lastSkill
             (user, Skill.name skill, s, dur)
 
--- | Copies a 'Skill.Skill' from the user into all four of the target's 
+-- | Copies a 'Skill.Skill' from the user into all four of the target's
 -- 'Ninja.copies' skill slots.
 teach :: ∀ m. MonadPlay m
       => Turns -- ^ 'Copy.dur'.
@@ -177,7 +177,7 @@ teach :: ∀ m. MonadPlay m
       -> m ()
 teach = teacher $ const . replicate 4
 
--- | Copies a 'Skill.Skill' from the user into a specific skill slot of the 
+-- | Copies a 'Skill.Skill' from the user into a specific skill slot of the
 -- target's 'Ninja.copies'.
 teachOne :: ∀ m. MonadPlay m
          => Turns -- ^ 'Copy.dur'.

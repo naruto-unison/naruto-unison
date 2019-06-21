@@ -1,4 +1,4 @@
--- DO NOT EXPOSE ANY FUNCTION THAT COULD BE USED TO CONSTRUCT OR ALTER A SLOT. 
+-- DO NOT EXPOSE ANY FUNCTION THAT COULD BE USED TO CONSTRUCT OR ALTER A SLOT.
 -- It must be guaranteed that all Slots wrap numbers in the range [0, gameSize).
 module Model.Slot
   ( Slot, toInt, read
