@@ -5,13 +5,15 @@
 {-# LANGUAGE NoBangPatterns              #-}
 {-# OPTIONS_GHC -fno-warn-unused-matches #-}
 
--- | Interface for the PureScript game client.
+-- | Miscellaneous website handlers.
 module Handler.Site
   ( getChangelogR
   , getHomeR
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude hiding (Handler)
+import Yesod
+
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.List as List
 
@@ -24,6 +26,27 @@ import           Model.Character (Category(..))
 import qualified Model.Skill as Skill
 import qualified Characters
 import qualified Handler.Forum as Forum
+
+-- | Renders the changelog.
+getChangelogR :: Handler Html
+getChangelogR = defaultLayout do
+    setTitle "Naruto Unison: Changelog"
+    $(widgetFile "tooltip/tooltip")
+    $(widgetFile "changelog/changelog")
+  where
+    changelog = getChangelog True
+
+-- | Renders the homepage of the website.
+getHomeR :: Handler Html
+getHomeR = do
+    topics   <- Forum.selectWithAuthors [] [Desc TopicTime, LimitTo 10]
+    citelink <- liftIO Forum.makeCitelink
+    defaultLayout do
+        setTitle "Naruto Unison"
+        $(widgetFile "tooltip/tooltip")
+        $(widgetFile "home/home")
+  where
+    changelog = getChangelog False
 
 (!) :: Text -> Text -> Html
 usr ! l = [shamlet| $newline never
@@ -71,26 +94,3 @@ $if not long
 <a .minor data-name=#{tagName}>ℝ|]
     display Shippuden     = [shamlet|#{name}
 <a .minor data-name=#{tagName}>𝕊|]
-
--- * HANDLERS
-
--- | Renders the changelog.
-getChangelogR :: Handler Html
-getChangelogR = defaultLayout do
-    setTitle "Naruto Unison: Changelog"
-    $(widgetFile "tooltip/tooltip")
-    $(widgetFile "changelog/changelog")
-  where
-    changelog = getChangelog True
-
--- | Renders the main site.
-getHomeR :: Handler Html
-getHomeR = do
-    topics   <- Forum.selectWithAuthors [] [Desc TopicTime, LimitTo 10]
-    citelink <- liftIO Forum.makeCitelink
-    defaultLayout do
-        setTitle "Naruto Unison"
-        $(widgetFile "tooltip/tooltip")
-        $(widgetFile "home/home")
-  where
-    changelog = getChangelog False

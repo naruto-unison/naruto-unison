@@ -1,4 +1,5 @@
-{-# LANGUAGE ImpredicativeTypes   #-}
+{-# LANGUAGE ImpredicativeTypes #-}
+{-# OPTIONS_HADDOCK hide        #-}
 module Characters.Base
   ( module Import
   , p, k
@@ -11,7 +12,7 @@ module Characters.Base
   , bonusIf, numAffected, numDeadAllies
   ) where
 
-import ClassyPrelude.Yesod as Import hiding (addClass, swap)
+import ClassyPrelude as Import hiding (swap)
 import Class.Play as Import (Play(..))
 import Model.Character as Import (Character(..), Category)
 import Model.Chakra as Import (Chakra(..), Chakras)

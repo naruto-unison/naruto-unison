@@ -5,7 +5,9 @@
 -- | Types generated from @config/models.persistentmodels@.
 module Core.Model where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
+import Yesod
+
 import qualified Database.Persist.Quasi as Quasi
 import qualified Database.Persist.Postgresql as Sql
 

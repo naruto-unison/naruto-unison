@@ -1,12 +1,12 @@
 {-# LANGUAGE TemplateHaskell #-}
-import Elm.Derive
-import Elm.Module
-import Elm.TyRep
 
 import Prelude
 import Data.Proxy
+import Elm.Module
+import Elm.TyRep
 
-import ElmDefs
+import ElmDerive
+
 import qualified Class.Classed as Classed
 import           Class.Classed (Classed)
 import qualified Class.Parity as Parity
@@ -23,6 +23,15 @@ import           Model.Player (Player(..))
 import           Model.Slot (Slot)
 import           Core.Fields (Privilege(..))
 
+import Model.Internal hiding (Effect(..))
+
+data Effect = Effect 
+    { desc    :: Text 
+    , helpful :: Bool 
+    , sticky  :: Bool 
+    , trap    :: Bool 
+    } 
+ 
 data User = User { name       :: Text
                  , avatar     :: Text
                  , clan       :: Maybe Text
@@ -36,7 +45,6 @@ data User = User { name       :: Text
                  }
 
 data GameInfo = GameInfo { opponent   :: User
-                         , left       :: Int
                          , game       :: Game
                          , characters :: [Character]
                          , player     :: Player
@@ -55,38 +63,39 @@ typeAlterations t = case t of
 alterations :: ETypeDef -> ETypeDef
 alterations = recAlterType typeAlterations
 
-deriveElmDef opts ''User
-deriveElmDef opts ''Privilege
-deriveElmDef opts ''Barrier
-deriveElmDef opts ''Bomb
-deriveElmDef opts ''Category
-deriveElmDef opts ''Channel
-deriveElmDef opts ''Channeling
-deriveElmDef opts ''Chakras
-deriveElmDef opts ''ChannelTag
-deriveElmDef opts ''Character
-deriveElmDef opts ''Context
-deriveElmDef opts ''Copy
-deriveElmDef opts ''Copying
-deriveElmDef opts ''Defense
-deriveElmDef opts ''Direction
-deriveElmDef opts ''Effect
-deriveElmDef opts ''Face
-deriveElmDef opts ''Game
-deriveElmDef opts ''GameInfo
-deriveElmDef opts ''Ninja
-deriveElmDef opts ''Player
-deriveElmDef opts ''Requirement
-deriveElmDef opts ''Skill
-deriveElmDef opts ''Status
-deriveElmDef opts ''Target
-deriveElmDef opts ''Trap
-deriveElmDef opts ''Variant
+deriveElmDef defaultOptions ''User
+deriveElmDef defaultOptions ''Privilege
+deriveElmDef defaultOptions ''Barrier
+deriveElmDef defaultOptions ''Bomb
+deriveElmDef defaultOptions ''Category
+deriveElmDef defaultOptions ''Channel
+deriveElmDef defaultOptions ''Channeling
+deriveElmDef defaultOptions ''Chakras
+deriveElmDef defaultOptions ''ChannelTag
+deriveElmDef defaultOptions ''Character
+deriveElmDef defaultOptions ''Copy
+deriveElmDef defaultOptions ''Copying
+deriveElmDef defaultOptions ''Defense
+deriveElmDef defaultOptions ''Delay
+deriveElmDef defaultOptions ''Direction
+deriveElmDef defaultOptions ''Effect
+deriveElmDef defaultOptions ''Face
+deriveElmDef defaultOptions ''Flag
+deriveElmDef defaultOptions ''Game
+deriveElmDef defaultOptions ''GameInfo
+deriveElmDef defaultOptions ''Ninja
+deriveElmDef defaultOptions ''Player
+deriveElmDef defaultOptions ''Requirement
+deriveElmDef defaultOptions ''Skill
+deriveElmDef defaultOptions ''Status
+deriveElmDef defaultOptions ''Target
+deriveElmDef defaultOptions ''Trap
+deriveElmDef defaultOptions ''Variant
 
 main :: IO ()
 main =
-    writeFile "elm/src/Model.elm" $
-    "module Model exposing (..)\n\
+    writeFile "elm/src/Import/Model.elm" $
+    "module Import.Model exposing (..)\n\
 \\n\
 \import Json.Decode\n\
 \import Json.Encode exposing (Value)\n\
@@ -94,7 +103,7 @@ main =
 \import Dict exposing (Dict)\n\
 \import Set exposing (Set)\n\
 \\n\
-\import Decode exposing (decodeSumTaggedObject)\n\
+\import Import.Decode exposing (decodeSumTaggedObject)\n\
 \\n\
 \" ++
     makeModuleContentWithAlterations alterations
@@ -102,12 +111,13 @@ main =
     , DefineElm (Proxy :: Proxy Privilege)
     , DefineElm (Proxy :: Proxy Character)
     , DefineElm (Proxy :: Proxy Category)
-    , DefineElm (Proxy :: Proxy Context)
     , DefineElm (Proxy :: Proxy Game)
+    , DefineElm (Proxy :: Proxy Delay)
     , DefineElm (Proxy :: Proxy GameInfo)
     , DefineElm (Proxy :: Proxy Chakras)
     , DefineElm (Proxy :: Proxy Player)
     , DefineElm (Proxy :: Proxy Ninja)
+    , DefineElm (Proxy :: Proxy Flag)
     , DefineElm (Proxy :: Proxy Skill)
     , DefineElm (Proxy :: Proxy Requirement)
     , DefineElm (Proxy :: Proxy Target)

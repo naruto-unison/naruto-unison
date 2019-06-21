@@ -4,7 +4,8 @@ module Model.Wrapper
   , game
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
+
 import qualified System.Random.MWC as Random
 
 import           Model.Internal (Wrapper(..))

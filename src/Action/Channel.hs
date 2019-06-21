@@ -6,7 +6,7 @@ module Action.Channel
   , onInterrupts
   ) where
 
-import ClassyPrelude.Yesod hiding ((\\))
+import ClassyPrelude hiding ((\\))
 
 import           Core.Util ((∈))
 import qualified Class.Play as P
@@ -33,7 +33,7 @@ import           Engine.Execute (Affected(..))
 cancelChannel :: ∀ m. MonadPlay m => Text -> m ()
 cancelChannel = P.toTarget . Ninja.cancelChannel
 
--- | Interrupts all 'interruptible' 'Ninja.channels'.
+-- | Interrupts all 'Channel.interruptible' 'Ninja.channels'.
 -- Triggers 'onInterrupts' for affected 'Channel's.
 interrupt :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 interrupt = unlessM (Ninja.is Enrage <$> P.nTarget) do

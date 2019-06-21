@@ -5,7 +5,9 @@
 -- | Imported by "Model.Act" and "Model.GameInfo".
 module Engine.ToJSON () where
 
-import ClassyPrelude.Yesod hiding (Status)
+import ClassyPrelude
+
+import           Data.Aeson ((.=), ToJSON(..), object)
 import qualified Data.List as List
 
 import           Core.Util ((∈), (∉), intersects)

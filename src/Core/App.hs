@@ -12,13 +12,17 @@ module Core.App
   , resourcesApp
   ) where
 
-import ClassyPrelude.Yesod hiding (static)
+import ClassyPrelude hiding (Handler)
+import Yesod
+
 import           Control.Monad.Logger (LogSource)
 import qualified Data.CaseInsensitive as CaseInsensitive
 import           Data.Cache (Cache)
 import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Lazy.Encoding as LazyEncoding
 import qualified Database.Persist.Sql as Sql
+import           Database.Persist.Sql (ConnectionPool, SqlBackend, SqlPersistT)
+import           Network.HTTP.Client.Conduit (HasHttpManager(..), Manager)
 import qualified Network.Mail.Mime as Mail
 import qualified Text.Blaze.Html.Renderer.Utf8 as Blaze
 import           Text.Hamlet (hamletFile)
@@ -26,13 +30,14 @@ import qualified Text.Jasmine as Jasmine
 import           Text.Shakespeare.Text (stext)
 import qualified Yesod.Auth as Auth
 import           Yesod.Auth (Auth, YesodAuth(..), YesodAuthPersist, AuthenticationResult(..), AuthPlugin)
+import qualified Yesod.Auth.Dummy as Dummy
 import qualified Yesod.Auth.Email as AuthEmail
 import           Yesod.Auth.Email (YesodAuthEmail(..))
 import           Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import qualified Yesod.Default.Util as YesodUtil
 -- Used only when in "auth-dummy-login" setting is enabled.
-import qualified Yesod.Auth.Dummy as Dummy
+import           Yesod.Static hiding (static)
 
 import           Core.Fields (ForumBoard, Privilege(..), boardName)
 import qualified Core.Message as Message
@@ -50,7 +55,7 @@ data App = App
       -- ^ Settings loaded from a local file.
     , static      :: Static
       -- ^ Server for static files.
-    , connPool    :: Sql.ConnectionPool
+    , connPool    :: ConnectionPool
       -- ^ Database connection.
     , httpManager :: Manager
       -- ^ Web request manager.
@@ -94,7 +99,6 @@ instance Yesod App where
         master <- getYesod
         mmsg <- getMessage
 
-        --muser <- Auth.maybeAuthPair TODO
         mcurrentRoute <- getCurrentRoute
 
         (title, parents) <- breadcrumbs
@@ -116,7 +120,7 @@ instance Yesod App where
         -> Bool       -- ^ Whether or not this is a "write" request.
         -> Handler AuthResult
     isAuthorized TestR _ = isAuthenticated Moderator
-    -- isAuthorized PlayR _ = isAuthenticated
+    -- isAuthorized PlayR _ = isAuthenticated Normal
     -- Routes not requiring authentication.
     isAuthorized _     _ = return Authorized
 

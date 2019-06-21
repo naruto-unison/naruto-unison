@@ -6,7 +6,7 @@ module Model.Copy
   ) where
 import Model.Internal (Copy(..), Copying(..))
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
 
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
@@ -20,7 +20,7 @@ absmin x y
   | otherwise = y
 
 -- | Maximum duration of an effect.
--- Effects from 'Copy' 'Skill's must not last longer than the 'copyDuration'.
+-- Effects from 'Copy' 'Skill's must not last longer than the 'Copy' 'dur'.
 maxDur :: Copying -> Int -> Int
 maxDur (Shallow _ d) = absmin d
 maxDur (Deep    _ d) = absmin d

@@ -6,7 +6,7 @@ module Action.Chakra
   , kabuto
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
 
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)

@@ -6,10 +6,11 @@ module Core.Settings
   , widgetFile
   ) where
 
-import           ClassyPrelude.Yesod
+import           ClassyPrelude
 import qualified Control.Exception as Exception
 import qualified Data.Aeson as Aeson
-import           Data.Aeson (Result(..))
+import           Data.Aeson (Result(..), Value)
+import           Data.Default (def)
 import qualified Data.FileEmbed as FileEmbed
 import qualified Data.Yaml as Yaml
 import qualified Language.Haskell.TH.Syntax as TH

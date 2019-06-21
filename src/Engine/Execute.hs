@@ -1,4 +1,4 @@
--- | Action processing. The heart of the game engine.
+-- | Action processing. The core of the game engine.
 module Engine.Execute
   ( wrap
   , Affected(..)
@@ -7,7 +7,8 @@ module Engine.Execute
   , copy
   ) where
 
-import ClassyPrelude.Yesod hiding ((<|), redirect)
+import ClassyPrelude hiding ((<|))
+
 import           Control.Monad.Trans.Maybe (runMaybeT)
 import           Data.Either (isLeft)
 import qualified Data.HashSet as Set
@@ -66,10 +67,10 @@ data Affected
     | Trapped
     deriving (Enum, Show, Eq)
 
--- | Adds a 'Copy' to 'Ninja.copies'.
-copy :: Bool -- ^ Whether or not to call 'Ninja.clear' on matching 'Status'es.
+-- | Adds a 'Copy.Copy' to 'Ninja.copies'.
+copy :: Bool -- ^ Whether or not to call 'Ninja.clear' on matching 'Status.Status'es.
      -> (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.
-     -> Slot -- ^ 'Game.ninjas' index of the 'Ninja' user of the action.
+     -> Slot -- ^ 'Game.ninjas' index of the 'Ninja.Ninja' user of the action.
      -> Skill -- ^ The 'Skill' to copy.
      -> (Slot, Text, Int, Duration) -- ^ Output of 'Trigger.replace'.
       -> Game -> Game
@@ -127,7 +128,7 @@ wrap affected f = void $ runMaybeT do
     when new do
         copies <- flip (Trigger.replace classes) harm <$> P.nUser
         traverse_ (P.modify . copy True Copy.Shallow user skill) copies
-        P.modify . Game.adjust user $ Ninja.setLast skill
+        P.modify $ Game.adjust user \n -> n { Ninja.lastSkill = Just skill }
     mimicked <- P.game
 
     if exit /= Completed then do
@@ -249,7 +250,7 @@ addChannels = do
             n { Ninja.newChans = chan' : Ninja.newChans n }
 
 -- | Performs an action, passing its effects to 'wrap' and activating any
--- corresponding 'Trap's once it occurs.
+-- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadRandom m) => [Affected] -> Act -> m ()
 act affected' a = do
     P.modify $ Game.alter (Adjust.effects <$>)
@@ -293,7 +294,7 @@ act affected' a = do
 invincEffects :: [Effect]
 invincEffects = (Invulnerable <$> enumerate) ++ (Invincible <$> enumerate)
 
--- | After an action takes place, activates any corresponding 'Trap's.
+-- | After an action takes place, activates any corresponding 'Trap.Trap's.
 trigger :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> Game -> m ()
 trigger affected gameBefore = void $ runMaybeT do
     user  <- P.user

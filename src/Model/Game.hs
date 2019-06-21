@@ -8,7 +8,8 @@ module Model.Game
   , zipNinjasWith
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
+
 import qualified Data.Sequence as Seq
 
 import qualified Class.Parity as Parity

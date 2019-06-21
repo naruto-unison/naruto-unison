@@ -3,7 +3,7 @@ module Model.ChannelTag
   , new
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
 
 import           Model.Internal (ChannelTag(..))
 import qualified Model.Copy as Copy

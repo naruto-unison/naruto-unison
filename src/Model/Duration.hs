@@ -6,7 +6,9 @@ module Model.Duration
   , Turns
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
+
+import Data.Aeson (ToJSON)
 
 type Turns = Int
 newtype Duration = Duration Turns deriving (Eq, ToJSON, Ord, Show, Num)

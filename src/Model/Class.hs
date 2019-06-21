@@ -1,10 +1,8 @@
-module Model.Class
-  ( Class(..)
-  ) where
+module Model.Class (Class(..)) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
 
--- | Qualifiers of 'Skill's and 'Status'es.
+-- | Qualifiers of 'Model.Skill.Skill's and 'Model.Status.Status'es.
 data Class
     = Invisible
     | InvisibleTraps

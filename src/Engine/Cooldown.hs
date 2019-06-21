@@ -7,7 +7,8 @@ module Engine.Cooldown
   , reset, resetAll
   ) where
 
-import ClassyPrelude.Yesod hiding (head, insert, update)
+import ClassyPrelude hiding (head)
+
 import           Data.List.NonEmpty (head)
 import qualified Data.Sequence as Seq
 import           Data.Sequence ((|>))
@@ -49,7 +50,7 @@ adjust' v f cds
 
 -- Safely adjusts 'Ninja.cooldowns' by appending to it if incomplete.
 adjust :: Int -- ^ 'Skill' index (0-3).
-       -> Int -- ^ 'Variant' index in 'characterSkills' of 'nCharacter'.
+       -> Int -- ^ 'Variant.Variant' index in 'Character.skills' of 'Ninja.character'.
        -> (Int -> Int) -- ^ Adjustment function.
        -> Seq (Seq Int) -> Seq (Seq Int)
 adjust s v f cds
@@ -59,9 +60,9 @@ adjust s v f cds
   where
     len = length cds
 
--- | Adds to an element in 'cooldowns'.
+-- | Adds to an element in 'Ninja.cooldowns'.
 alter :: Int -- ^ Skill index (0-3)
-      -> Int -- ^ 'Variant' index in 'characterSkills' of 'nCharacter'
+      -> Int -- ^ 'Variant.Variant' index in 'Character.skills' of 'Ninja.character'.
       -> Int -- ^ Amount added
       -> Ninja -> Ninja
 alter s v cd n = n { Ninja.cooldowns = adjust s v (+ cd) $ Ninja.cooldowns n }
@@ -78,7 +79,7 @@ insert' v toCd cds
 -- | Safely inserts an element into 'Ninja.cooldowns' by appending to it if
 -- incomplete.
 insert :: Int -- ^ 'Skill' index (0-3).
-       -> Int -- ^ 'Variant' index in 'characterSkills' of 'nCharacter'.
+       -> Int -- ^ 'Variant.Variant' index in 'Character.skills' of 'Ninja.character'.
        -> Int -- ^ New cooldown.
        -> Seq (Seq Int)
        -> Seq (Seq Int)

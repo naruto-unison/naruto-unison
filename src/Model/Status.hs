@@ -6,7 +6,8 @@ module Model.Status
   , unfold
   ) where
 
-import ClassyPrelude.Yesod hiding (Status, delete)
+import ClassyPrelude hiding (delete)
+
 import qualified Data.List as List
 
 import           Model.Internal (Bomb(..), Effect(..), Status(..))
@@ -32,6 +33,7 @@ new user dur skill =
   where
     dur' = Copy.maxDur (Skill.copying skill) . incr $ sync dur
 
+-- | Applies 'Plague' to prevent healing or resurrecting dead targets.
 dead :: Slot -> Status
 dead slot = Status { amount  = 1
                    , name    = "dead"
@@ -62,5 +64,6 @@ removeMatch i predic xs = case find predic xs of
     Nothing -> xs
     Just x  -> decr i x xs
 
+-- | Replicates 'effects' by 'amount' so that they can be summed.
 unfold :: Status -> Status
 unfold st = st { amount = 1, effects = effects st >>= replicate (amount st) }

@@ -4,18 +4,18 @@ module Class.Labeled
   , match
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
 
 import Model.Slot (Slot)
 
--- Class for types with names and 'Ninja' sources.
--- This is important because two different 'Ninja's might have 'Skill's
--- with the same name, so both name and origin must match in order for a
--- structure to count as theirs.
+-- Class for types with names and 'Model.Ninja.Ninja' sources.
+-- This is important because two different 'Model.Ninja.Ninja's might have 
+-- 'Model.Skill.Skill's with the same name, so both name and origin must match 
+-- in order for a structure to count as theirs.
 class Labeled a where
     -- | Label
     name  :: a -> Text
-    -- | 'Ninja' user
+    -- | 'Model.Ninja.Ninja' user
     user :: a -> Slot
 
 -- Equality.

@@ -4,7 +4,7 @@
 {-# LANGUAGE QuasiQuotes                 #-}
 {-# OPTIONS_GHC -fno-warn-unused-matches #-}
 
--- | Interface for the PureScript game client.
+-- | User forum handler.
 module Handler.Forum
     ( getProfileR
     , getForumsR
@@ -16,7 +16,9 @@ module Handler.Forum
     , selectWithAuthors, makeCitelink
     ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude hiding (Handler)
+import Yesod
+
 import qualified Data.Time.Format as Format
 import qualified Data.Time.LocalTime as LocalTime
 import qualified Data.Text as Text
@@ -28,72 +30,7 @@ import           Core.Fields (ForumBoard, ForumCategory(..), Privilege(..), boar
 import           Core.Model (Cite(..), EntityField(..), HasAuthor(..), Post(..), Topic(..), TopicId, User(..), UserId)
 import           Core.Settings (widgetFile)
 import qualified Characters
-
-staffTag :: Char
-staffTag = '*'
-
-userRanks :: [Text]
-userRanks = [ "Academy Student"
-            , "Genin"
-            , "Chūnin"
-            , "Missing-Nin"
-            , "Anbu"
-            , "Jōnin"
-            , "Sannin"
-            , "Jinchūriki"
-            , "Akatsuki"
-            , "Kage"
-            , "Hokage"
-            ]
-
-selectWithAuthors :: ∀ a. (HasAuthor a, AppPersistEntity a)
-                  => [Filter a] -> [SelectOpt a] -> Handler [Cite a]
-selectWithAuthors selectors opts = runDB (selectList selectors opts) >>=
-                                   traverse go
-  where
-    go (Entity citeKey citeVal) = runDB do
-        citeAuthor <- get404 author
-        citeLatest <- if | author == latest -> return citeAuthor
-                         | otherwise        -> get404 latest
-        return Cite{..}
-      where
-        author = getAuthor citeVal
-        latest = getLatest citeVal
-
-userRank :: User -> Text
-userRank User{..} = case userPrivilege of
-    Normal -> maybe "Hokage" fst . uncons $ drop level userRanks
-    _      -> tshow userPrivilege
-  where
-    level = userXp `quot` 5000
-
-data NewTopic = NewTopic Topic (TopicId -> Post)
-
-toBody :: Textarea -> [Text]
-toBody = Text.splitOn "\n" . unTextarea
-
-newTopicForm :: User -> ForumBoard -> UserId -> UTCTime
-             -> AForm Handler NewTopic
-newTopicForm User{..} topicBoard postAuthor postTime = makeNewTopic
-    <$> areq textField "Title" Nothing
-    <*> areq textareaField "Post" Nothing
-  where
-    topicAuthor = postAuthor
-    topicLatest = postAuthor
-    topicTime   = postTime
-    topicStaff  = userPrivilege /= Normal
-    topicPosts  = 1
-    makeNewTopic rawTitle area = NewTopic Topic{..} \postTopic -> Post{..}
-      where
-        topicTitle = filter (/= staffTag) rawTitle
-        postBody = toBody area
-
-newPostForm :: TopicId -> UserId -> UTCTime -> AForm Handler Post
-newPostForm postTopic postAuthor postTime = makePost . toBody
-    <$> areq textareaField "" Nothing
-  where
-    makePost postBody = Post{..}
-
+-- | Renders a 'User' profile.
 getProfileR :: Text -> Handler Html
 getProfileR name = do
     muser                  <- runDB $ selectFirst [UserName ==. name] []
@@ -131,6 +68,7 @@ getBoardR board = do
         setTitle . toHtml $ "Forum: " ++ boardName board
         $(widgetFile "forum/board")
 
+-- | Renders a 'Topic'.
 getTopicR :: TopicId -> Handler Html
 getTopicR topicId = do
     (who, _)  <- Auth.requireAuthPair
@@ -145,6 +83,7 @@ getTopicR topicId = do
         setTitle . toHtml $ "Topic: " ++ topicTitle
         $(widgetFile "forum/topic")
 
+-- | Adds to a 'Topic'.
 postTopicR :: TopicId -> Handler Html
 postTopicR topicId = do
     (who, _)  <- Auth.requireAuthPair
@@ -167,6 +106,7 @@ postTopicR topicId = do
         setTitle . toHtml $ "Topic: " ++ topicTitle
         $(widgetFile "forum/topic")
 
+-- | Renders a page for creating a new 'Topic'.
 getNewTopicR :: ForumBoard -> Handler Html
 getNewTopicR board = do
     (who, user) <- Auth.requireAuthPair
@@ -177,6 +117,7 @@ getNewTopicR board = do
         setTitle "New Topic"
         $(widgetFile "forum/new")
 
+-- | Creates a new 'Topic'.
 postNewTopicR :: ForumBoard -> Handler Html
 postNewTopicR board = do
     (who, user) <- Auth.requireAuthPair
@@ -193,22 +134,91 @@ postNewTopicR board = do
             setTitle "New Topic"
             $(widgetFile "forum/new")
 
+-- | Appended to titles of posts and threads by staff.
+staffTag :: Char
+staffTag = '*'
+
+userRanks :: [Text]
+userRanks = [ "Academy Student"
+            , "Genin"
+            , "Chūnin"
+            , "Missing-Nin"
+            , "Anbu"
+            , "Jōnin"
+            , "Sannin"
+            , "Jinchūriki"
+            , "Akatsuki"
+            , "Kage"
+            , "Hokage"
+            ]
+
+-- | Fills out author information from the database.
+selectWithAuthors :: ∀ a. (HasAuthor a, AppPersistEntity a)
+                  => [Filter a] -> [SelectOpt a] -> Handler [Cite a]
+selectWithAuthors selectors opts = runDB (selectList selectors opts) >>=
+                                   traverse go
+  where
+    go (Entity citeKey citeVal) = runDB do
+        citeAuthor <- get404 author
+        citeLatest <- if | author == latest -> return citeAuthor
+                         | otherwise        -> get404 latest
+        return Cite{..}
+      where
+        author = getAuthor citeVal
+        latest = getLatest citeVal
+
+-- | Displays a user's rank, or their 'Privilege' level if higher than 'Normal'.
+userRank :: User -> Text
+userRank User{..} = case userPrivilege of
+    Normal -> maybe "Hokage" fst . uncons $ drop level userRanks
+    _      -> tshow userPrivilege
+  where
+    level = userXp `quot` 5000
+
+data NewTopic = NewTopic Topic (TopicId -> Post)
+
+toBody :: Textarea -> [Text]
+toBody = Text.splitOn "\n" . unTextarea
+
+newTopicForm :: User -> ForumBoard -> UserId -> UTCTime
+             -> AForm Handler NewTopic
+newTopicForm User{..} topicBoard postAuthor postTime = makeNewTopic
+    <$> areq textField "Title" Nothing
+    <*> areq textareaField "Post" Nothing
+  where
+    topicAuthor = postAuthor
+    topicLatest = postAuthor
+    topicTime   = postTime
+    topicStaff  = userPrivilege /= Normal
+    topicPosts  = 1
+    makeNewTopic rawTitle area = NewTopic Topic{..} \postTopic -> Post{..}
+      where
+        topicTitle = filter (/= staffTag) rawTitle
+        postBody = toBody area
+
+newPostForm :: TopicId -> UserId -> UTCTime -> AForm Handler Post
+newPostForm postTopic postAuthor postTime = makePost . toBody
+    <$> areq textareaField "" Nothing
+  where
+    makePost postBody = Post{..}
+
+
 userlink :: User -> Widget
 userlink User{..} = $(widgetFile "widgets/userlink")
 
 topiclink :: Cite Topic -> Widget
 topiclink Cite{..} = $(widgetFile "widgets/topiclink")
 
+makeCitelink :: IO (Cite Topic -> Widget)
+makeCitelink = do
+    timestamp <- makeTimestamp
+    return \cite@Cite{..} -> $(widgetFile "widgets/citelink")
+
 makeTimestamp :: IO (UTCTime -> Widget)
 makeTimestamp = do
     time   <- getCurrentTime
     zone   <- LocalTime.getCurrentTimeZone
     return . pureTimestamp zone $ utctDay time
-
-makeCitelink :: IO (Cite Topic -> Widget)
-makeCitelink = do
-    timestamp <- makeTimestamp
-    return \cite@Cite{..} -> $(widgetFile "widgets/citelink")
 
 pureTimestamp :: LocalTime.TimeZone -> Day -> UTCTime -> Widget
 pureTimestamp zone today unzoned = $(widgetFile "widgets/timestamp")

@@ -4,7 +4,8 @@ module Handler.Play
     , getPracticeActR, getPracticeQueueR, getPracticeWaitR
     ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude hiding (Handler)
+import Yesod
 
 import           Control.Monad.Loops (untilJust)
 import qualified Data.Aeson.Encoding as Encoding
@@ -45,7 +46,7 @@ import qualified Model.Wrapper as Wrapper
 import           Model.Wrapper (Wrapper)
 import qualified Characters
 
--- | `concat` . `transpose`
+-- | 'concat' . 'List.transpose'
 vs :: ∀ a. [a] -> [a] -> [a]
 x `vs` y = concat $ List.transpose [x, y]
 
@@ -90,12 +91,45 @@ getPracticeQueueR team
       returnJson GameInfo.GameInfo { vsWho  = who
                                    , vsUser = bot
                                    , player = Player.A
-                                   , left   = 0
                                    , game   = game
                                    }
   where
     oppTeam = ["Naruto Uzumaki", "Tenten", "Sakura Haruno"]
     ns      = map (Characters.map !) $ team `vs` oppTeam
+
+-- | Wrapper for 'getPracticeActR' with no actions.
+getPracticeWaitR :: Chakras -> Chakras -> Handler Value
+getPracticeWaitR actChakra xChakra = getPracticeActR actChakra xChakra []
+
+-- | Handles a turn for a practice game. Practice games are not limited by time
+-- and use GET requests instead of WebSockets.
+getPracticeActR :: Chakras -> Chakras -> [Act] -> Handler Value
+getPracticeActR actChakra exchangeChakra actions = do
+    (who, _) <- Auth.requireAuthPair -- !FAILS!
+    practice <- getsYesod App.practice
+    mGame    <- liftIO $ Cache.lookup practice who -- !FAILS
+    case mGame of
+        Nothing   -> notFound
+        Just game -> do
+          wrapper <- Wrapper.new game
+          flip runReaderT wrapper do
+              res <- enact actChakra exchangeChakra actions
+              case res of
+                Left errorMsg -> invalidArgs [errorMsg] -- !FAILS!
+                Right ()      -> do
+                    game'A <- P.game
+                    P.modify \g -> g
+                        { Game.chakra  = (fst $ Game.chakra g, 100)
+                        , Game.playing = Player.B
+                        }
+                    Turn.run [] -- TODO
+                    game'B <- P.game
+                    liftIO if (null $ Game.victor game'B) then
+                        Cache.insert practice who game'B
+                    else
+                        Cache.delete practice who
+                    lift . returnJson $
+                        GameInfo.censor Player.A <$> [game'A, game'B]
 
 formTeam :: [Text] -> Maybe [Character]
 formTeam team@[a, b, c]
@@ -119,6 +153,7 @@ sendJson :: ∀ a. ToJSON a => a -> WebSocketsT Handler ()
 sendJson = WebSockets.sendTextData .
            Encoding.encodingToLazyByteString . toEncoding
 
+-- | Sends messages through 'TChan's in 'App.App'.
 gameSocket :: WebSocketsT Handler ()
 gameSocket = do
     app         <- getYesod
@@ -158,14 +193,12 @@ gameSocket = do
                             { GameInfo.vsWho  = who
                             , GameInfo.vsUser = user
                             , GameInfo.player = Player.opponent randPlayer
-                            , GameInfo.left   = 1
                             , GameInfo.game   = game
                             }
                     let info = GameInfo.GameInfo
                             { GameInfo.vsWho = vsWho
                             , GameInfo.vsUser = vsUser
                             , GameInfo.player = randPlayer
-                            , GameInfo.left   = 0
                             , GameInfo.game   = game
                             }
                     return $ Just (info, writer, reader)
@@ -191,6 +224,7 @@ gameSocket = do
                             return Nothing
             lift . sendJson $ GameInfo.censor player completedGame
 
+-- | Wraps @enact@ with error handling.
 tryEnact :: Player -> TChan Message.Game
          -> ReaderT Wrapper (WebSocketsT Handler) ()
 tryEnact player writer = do
@@ -206,6 +240,7 @@ tryEnact player writer = do
                     lift . sendJson $ GameInfo.censor player game
                     liftIO . atomically . writeTChan writer $ Message.Enact game
 
+-- | Processes a user's actions and passes them to 'Turn.run'.
 enact :: ∀ m. (MonadGame m, MonadRandom m) => Chakras -> Chakras -> [Act]
       -> m (Either Text ())
 enact actChakra exchangeChakra actions = do
@@ -225,35 +260,3 @@ enact actChakra exchangeChakra actions = do
     skills = lefts $ Act.skill <$> actions
     randTotal = Chakra.total actChakra - 5 * Chakra.total exchangeChakra
     err = return . Left
-
--- | Wrapper for 'getPracticeActR' with no actions.
-getPracticeWaitR :: Chakras -> Chakras -> Handler Value
-getPracticeWaitR actChakra xChakra = getPracticeActR actChakra xChakra []
-
-getPracticeActR :: Chakras -> Chakras -> [Act] -> Handler Value
-getPracticeActR actChakra exchangeChakra actions = do
-    (who, _) <- Auth.requireAuthPair -- !FAILS!
-    practice <- getsYesod App.practice
-    mGame    <- liftIO $ Cache.lookup practice who -- !FAILS
-    case mGame of
-        Nothing   -> notFound
-        Just game -> do
-          wrapper <- Wrapper.new game
-          flip runReaderT wrapper do
-              res <- enact actChakra exchangeChakra actions
-              case res of
-                Left errorMsg -> invalidArgs [errorMsg] -- !FAILS!
-                Right ()      -> do
-                    game'A <- P.game
-                    P.modify \g -> g
-                        { Game.chakra  = (fst $ Game.chakra g, 100)
-                        , Game.playing = Player.B
-                        }
-                    Turn.run [] -- TODO
-                    game'B <- P.game
-                    liftIO if (null $ Game.victor game'B) then
-                        Cache.insert practice who game'B
-                    else
-                        Cache.delete practice who
-                    lift . returnJson $
-                        GameInfo.censor Player.A <$> [game'A, game'B]

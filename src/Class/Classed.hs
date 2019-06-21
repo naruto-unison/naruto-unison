@@ -3,7 +3,7 @@ module Class.Classed
   , nonStack
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
 
 import           Core.Util ((∈))
 import qualified Class.Labeled as Labeled

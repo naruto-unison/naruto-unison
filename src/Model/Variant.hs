@@ -4,7 +4,8 @@ module Model.Variant
   , none
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
+
 import Model.Internal (Variant(..))
 
 cooldown :: Variant -> Int

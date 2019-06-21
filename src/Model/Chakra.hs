@@ -8,10 +8,12 @@ module Model.Chakra
   , fromChakras
   ) where
 
-import ClassyPrelude.Yesod hiding (get, map, sum, zip)
+import ClassyPrelude hiding (map, sum, zip)
+import Prelude (sum)
+
 import qualified Data.Text as Text
 import qualified Data.Text.Read as Read
-import Prelude (sum)
+import           Yesod.Core.Dispatch (PathPiece(..))
 
 import Model.Class (Class(..))
 

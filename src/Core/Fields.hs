@@ -10,7 +10,9 @@ module Core.Fields
     , boardName, boardDesc, boardCategory
     ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
+import Yesod
+
 import Text.Read
 
 data Privilege

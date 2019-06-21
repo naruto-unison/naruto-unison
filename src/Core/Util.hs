@@ -10,7 +10,8 @@ module Core.Util
   , textInit, textTail
   ) where
 
-import ClassyPrelude.Yesod hiding ((<|), mapMaybe)
+import ClassyPrelude hiding ((<|), mapMaybe)
+
 import qualified Data.List as List
 import qualified Data.Text as Text
 

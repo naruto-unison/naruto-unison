@@ -14,10 +14,14 @@ module Application
     , db
     ) where
 
-import ClassyPrelude.Yesod hiding (static)
+import ClassyPrelude hiding (Handler)
+import Yesod
+
 import qualified Control.Monad.Logger as Logger
 import qualified Data.Cache as Cache
+import           Data.Default (def)
 import qualified Database.Persist.Postgresql as Sql
+import           Database.Persist.Postgresql (SqlBackend)
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Network.HTTP.Client.TLS as TLS
 import           Network.Wai (Middleware)
@@ -71,7 +75,7 @@ makeFoundation settings = do
         (Sql.pgPoolSize $ AppSettings.databaseConf settings)
 
     Logger.runLoggingT
-        (Sql.runSqlPool (runMigration Model.migrateAll) pool) logFunc
+        (Sql.runSqlPool (Sql.runMigration Model.migrateAll) pool) logFunc
 
     return $ mkFoundation pool
   where

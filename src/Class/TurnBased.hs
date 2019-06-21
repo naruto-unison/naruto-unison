@@ -3,7 +3,7 @@ module Class.TurnBased
   , decr
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
 
 -- | Typeclass for structures that expire after a set number of turns.
 class TurnBased a where

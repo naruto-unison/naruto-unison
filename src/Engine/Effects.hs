@@ -23,8 +23,9 @@ module Engine.Effects
   , weaken
   ) where
 
-import ClassyPrelude.Yesod hiding (Status, link, share)
-import           Data.List.NonEmpty (NonEmpty(..))
+import ClassyPrelude hiding (link)
+
+import Data.List.NonEmpty (NonEmpty(..))
 
 import           Core.Util ((∈), enumerate, intersects)
 import qualified Class.Parity as Parity
@@ -151,7 +152,7 @@ heal player game n
   | Ninja.is Plague n = 0
   | otherwise         = sum $ heal1 player game n <$> Ninja.statuses n
 
--- | Calculates the total 'Heal' of a single 'Status'.
+-- | Calculates the total 'Heal' of a single 'Status.Status'.
 heal1 :: Player -> Game -> Ninja -> Status -> Int
 heal1 player game n st
   | user /= Ninja.slot n && Ninja.is Seal n  = 0
@@ -171,7 +172,7 @@ afflict player game n = sum
   where
     aff = afflict1 player game $ Ninja.slot n
 
--- | Calculates the total 'Afflict' of a single 'Status'.
+-- | Calculates the total 'Afflict' of a single 'Status.Status'.
 afflict1 :: Player -> Game -> Slot -> Status -> Int
 afflict1 player game t st
   | summed /= 0 && Parity.allied player user =

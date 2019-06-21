@@ -6,9 +6,9 @@ module Core.Message
   , Queue(..)
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
 
-import           Core.Model (User)
+import           Core.Model (Key, User)
 import           Model.Character (Character)
 import qualified Model.Game as Game
 import           Model.GameInfo (GameInfo)

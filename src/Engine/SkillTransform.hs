@@ -9,7 +9,8 @@ module Engine.SkillTransform
   , safe
   ) where
 
-import ClassyPrelude.Yesod hiding (Status, addClass, swap)
+import ClassyPrelude hiding (swap)
+
 import qualified Data.List as List
 import           Data.List.NonEmpty (NonEmpty(..), (!!))
 
@@ -30,7 +31,7 @@ import           Model.Status (Status)
 import qualified Engine.Effects as Effects
 
 -- | Converts a function that uses raw 'Int's as indices in a
--- 'Character''s `[[Skill]]` list into one that searches by name.
+-- 'Character.Character''s `[[Skill]]` list into one that searches by name.
 -- Passing an empty string for the second argument will select the base (0)
 -- 'Skill' in the lists. Otherwise, the root skill will not be considered.
 -- This means that if a skill has a variant with the same name as it, ""

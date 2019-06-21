@@ -4,7 +4,7 @@ module Class.Random
   , choose
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
 import Data.List ((!!))
 
 import Model.Internal (MonadRandom(..))

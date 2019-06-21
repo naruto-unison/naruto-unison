@@ -2,28 +2,19 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE QuasiQuotes #-}
 
--- | Behind-the-scenes utility pages. Requires sufficient 'Privilege'.
+-- | Behind-the-scenes utility pages. Require sufficient 'Core.Field.Privilege'.
+-- Privilege levels are handled in "Core.App".
 module Handler.Admin (getTestR) where
 
-import ClassyPrelude.Yesod
-import qualified Yesod.Auth as Auth
-import           Yesod.WebSockets (webSockets)
+import Yesod
+import Yesod.WebSockets (webSockets)
 
 import Core.App (Handler)
-import Core.Fields (Privilege(..))
-import Core.Model (User(..))
 import Handler.Play (gameSocket)
-
--- | Fails if not logged in or 'userPrivilege' is lower than the argument.
-authorize :: Privilege -> Handler ()
-authorize privilege = do
-  (_, user) <- Auth.requireAuthPair
-  when (userPrivilege user < privilege) notAuthenticated
 
 -- | Provides a simple JavaScript interface for 'gameSocket'.
 getTestR :: Handler Html
 getTestR = do
-  authorize Moderator
   webSockets gameSocket
   defaultLayout do
     setTitle "Socket Test"

@@ -10,7 +10,8 @@ module Engine.Trigger
   , swap
   ) where
 
-import ClassyPrelude.Yesod hiding (Status, redirect, replace, share, swap)
+import ClassyPrelude hiding (swap)
+
 import qualified Data.Sequence as Seq
 
 import           Core.Util ((∈), (∉), intersects)
@@ -124,7 +125,7 @@ swap classes = reflectable (any match) classes
     match _          = False
 
 
--- | If the 'nHealth' of a 'Ninja' reaches 0,
+-- | If the 'Ninja.health' of a 'Ninja' reaches 0,
 -- they are either resurrected by triggering 'OnRes'
 -- or they die and trigger 'OnDeath'.
 -- If they die, their 'Soulbound' effects are canceled.

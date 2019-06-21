@@ -5,7 +5,7 @@ module Model.Skill
   , defaultName
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
 
 import           Model.Internal (Skill(..), Requirement(..), Target(..), Copying(..), Ninja)
 import           Model.Channel (Channeling(..))
@@ -14,7 +14,7 @@ import qualified Model.Chakra as Chakra
 -- | The type signature of 'changes'.
 type Transform = (Ninja -> Skill -> Skill)
 
--- | Default values of a 'Skill'. Used as a 'Skill' constructor.
+-- | Default values.
 new :: Skill
 new = Skill { name      = "Unnamed"
             , desc      = ""
@@ -33,7 +33,8 @@ new = Skill { name      = "Unnamed"
             , pic       = False
             }
 
--- | Adds 'Bloodline', 'Genjutsu', 'Ninjutsu', 'Taijutsu', and 'Random'
+-- | Adds 'Model.Class.Bloodline', 'Model.Class.Genjutsu', 
+-- 'Model.Class.Ninjutsu', 'Model.Class.Taijutsu', and 'Model.Class.Random'
 -- to the 'classes' of a 'Skill' if they are included in its 'cost'.
 chakraClasses :: Skill -> Skill
 chakraClasses skill =

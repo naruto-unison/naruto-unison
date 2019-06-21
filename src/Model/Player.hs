@@ -4,7 +4,7 @@ module Model.Player
   , from
   ) where
 
-import ClassyPrelude.Yesod hiding (even)
+import ClassyPrelude hiding (even)
 
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)

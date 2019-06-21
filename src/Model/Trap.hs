@@ -5,7 +5,8 @@ module Model.Trap
   , Transform
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
+
 import Model.Internal (Trap(..), Trigger(..), Direction(..), Game)
 import Model.Slot (Slot)
 

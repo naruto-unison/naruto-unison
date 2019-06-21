@@ -5,7 +5,8 @@ module Engine.Adjust
   , effects
   ) where
 
-import ClassyPrelude.Yesod hiding (head)
+import ClassyPrelude hiding (head)
+
 import           Data.List.NonEmpty ((!!), head)
 import qualified Data.Sequence as Seq
 
@@ -81,10 +82,10 @@ effects n = n { Ninja.effects = baseStatuses >>= processEffects }
       | otherwise = product $ 1 : [x | Boost x <- baseEffects]
     filtered filt = filter (\ef -> filt ef && ef ∉ ignores) . Status.effects
     processEffects st
-      | Ninja.fromSelf n st = Status.effects st
-      | enraged             = boost <$> filtered Effect.bypassEnrage st
-      | sealed              = boost <$> filtered (not . Effect.helpful) st
-      | otherwise           = boost <$> filtered (const True) st
+      | Status.user st == Ninja.slot n = Status.effects st
+      | enraged   = boost <$> filtered Effect.bypassEnrage st
+      | sealed    = boost <$> filtered (not . Effect.helpful) st
+      | otherwise = boost <$> filtered (const True) st
       where
         boost
           | Parity.allied nSlot $ Status.user st = Effect.boosted boostAmount

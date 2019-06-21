@@ -2,7 +2,7 @@ module Model.Attack
   ( Attack(..)
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
 
 data Attack
     = Afflict

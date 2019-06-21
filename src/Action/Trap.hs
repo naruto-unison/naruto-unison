@@ -1,11 +1,12 @@
--- | Actions that characters can use to affect 'Trap's.
+-- | Actions that characters can use to affect 'Trap.Trap's.
 module Action.Trap
   ( trap, trap', trapFrom, trapFrom', trapPer, trapPer', trapWith
   , onBreak, onBreak'
   , removeTrap
   , delay
   ) where
-import ClassyPrelude.Yesod
+import ClassyPrelude
+
 import qualified Data.List as List
 import           Data.Sequence ((|>))
 
@@ -28,21 +29,21 @@ import qualified Engine.Effects as Effects
 import qualified Engine.Execute as Execute
 import           Engine.Execute (Affected(..))
 
--- | Adds a 'Trap' to 'Ninja.traps' that targets the person it was used on.
+-- | Adds a 'Trap.Trap' to 'Ninja.traps' that targets the person it was used on.
 trap :: ∀ m. MonadPlay m => Turns -> Trigger -> PlayConstraint () -> m ()
 trap = trapWith Trap.To []
 -- | 'Hidden' 'trap'.
 trap' :: ∀ m. MonadPlay m => Turns -> Trigger -> PlayConstraint () -> m ()
 trap' = trapWith Trap.To [Hidden]
 
--- | Adds a 'Trap' to 'Ninja.traps' that targets the person who triggers it.
+-- | Adds a 'Trap.Trap' to 'Ninja.traps' that targets the person who triggers it.
 trapFrom :: ∀ m. MonadPlay m => Turns -> Trigger -> PlayConstraint () -> m ()
 trapFrom = trapWith Trap.From []
 -- | 'Hidden' 'trapFrom'.
 trapFrom' :: ∀ m. MonadPlay m => Turns -> Trigger -> PlayConstraint () -> m ()
 trapFrom' = trapWith Trap.From [Hidden]
 
--- | Adds a 'Trap' to 'Ninja.traps' with an effect that depends on a number
+-- | Adds a 'Trap.Trap' to 'Ninja.traps' with an effect that depends on a number
 -- accumulated while the trap is in play and tracked with its 'Trap.tracker'.
 trapPer  :: ∀ m. MonadPlay m => Turns -> Trigger -> (Int -> PlayConstraint ())
          -> m ()
@@ -52,9 +53,9 @@ trapPer' :: ∀ m. MonadPlay m => Turns -> Trigger -> (Int -> PlayConstraint ())
          -> m ()
 trapPer' = trapFull Trap.Per [Hidden]
 
--- | Adds an 'OnBreak' 'Trap' for the 'Skill' used to 'Ninja.traps'.
--- 'OnBreak' traps are triggered when a 'Defense' with the same 'Defense.name'
--- is broken.
+-- | Adds an 'OnBreak' 'Trap.Trap' for the used 'Skill.Skill' to 'Ninja.traps'.
+-- 'OnBreak' traps are triggered when a 'Defense.Defense' with the same 
+-- 'Defense.name' is broken.
 onBreak :: ∀ m. MonadPlay m => PlayConstraint () -> m ()
 onBreak f = do
     name    <- Skill.name <$> P.skill
@@ -63,9 +64,9 @@ onBreak f = do
     when (Ninja.hasDefense name user nTarget) $
         trapFrom' 0 (OnBreak name) f
 
--- | Default 'onBreak': remove 'Status'es and 'Channel's that match
--- 'Defense.name'. This is useful for 'Defense's that apply an effect or empower
--- some action while active.
+-- | Default 'onBreak': remove 'Model.Status.Status'es and 
+-- 'Model.Channel.Channel's that match 'Defense.name'. This is useful for '
+-- Defense.Defense's that apply an effect or empower some action while active.
 onBreak' :: ∀ m. MonadPlay m => m ()
 onBreak' = do
     user <- P.user
@@ -75,7 +76,7 @@ onBreak' = do
             Game.alter (Ninja.clear name user <$>) .
             Game.adjust user (Ninja.cancelChannel name)
 
--- | Adds a 'Trap' to 'Ninja.traps'.
+-- | Adds a 'Trap.Trap' to 'Ninja.traps'.
 trapWith :: ∀ m. MonadPlay m => Trap.Direction -> [Class] -> Turns -> Trigger
          -> PlayConstraint () -> m ()
 trapWith trapType clas dur tr f = trapFull trapType clas dur tr (const f)
@@ -131,7 +132,7 @@ delay (Duration -> dur) f = do
         del   = Delay.Delay
                 { Delay.skill  = skill
                 , Delay.user   = user
-                , Delay.effect = (context, Play $ Execute.wrap [Delayed] f)
+                , Delay.effect = const (context, Play $ Execute.wrap [Delayed] f)
                 , Delay.dur    = dur'
                 }
     unless (past $ Skill.copying skill) $ P.modify \game ->

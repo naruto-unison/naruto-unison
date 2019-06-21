@@ -8,7 +8,9 @@ module Handler.Embed
   , getRobotsR
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude hiding (Handler)
+import Yesod
+
 import qualified Data.FileEmbed as FileEmbed
 
 import Core.App (Handler)

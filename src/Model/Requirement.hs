@@ -5,7 +5,8 @@ module Model.Requirement
   , succeed
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
+
 import Data.Sequence ((!?))
 
 import           Core.Util ((∈), (∉), intersects)
@@ -22,8 +23,9 @@ import           Model.Slot (Slot)
 import qualified Engine.Cooldown as Cooldown
 import qualified Engine.Effects as Effects
 
+-- | Processes 'Skill.require'.
 usable :: Ninja
-       -> Maybe Int -- ^ Index in 'Character.skills'
+       -> Maybe Int -- ^ Index in 'Character.skills'.
        -> Skill -> Skill
 usable n s sk
   | Skill.charges sk > 0 && uncharged                    = unusable
@@ -48,6 +50,7 @@ usable n s sk
       | otherwise                    = Unusable
     isUsable x = x
 
+-- | Checks whether a user passes the 'Skill.require' of a 'Skill'.
 succeed :: Requirement -> Slot -> Ninja -> Bool
 succeed Usable      _ _ = True
 succeed Unusable    _ _ = False
@@ -59,7 +62,11 @@ succeed (HasI i name) t n
   | i < 0     = t /= Ninja.slot n || Ninja.numActive name n < (-i)
   | otherwise = True
 
-targetable :: Skill -> Ninja -> Ninja -> Bool
+-- | Checks whether a 'Skill' can be used on a target.
+targetable :: Skill -- ^ 'Skill' to check.
+           -> Ninja -- ^ User.
+           -> Ninja -- ^ Target.
+           -> Bool
 targetable skill n nt
   | not $ succeed (Skill.require skill) user nt              = False
   | not (Ninja.alive nt) && Necromancy ∉ classes             = False

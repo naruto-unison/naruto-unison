@@ -9,7 +9,7 @@ module Model.Effect
   , identity
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
 
 import Model.Internal (Amount(..), Effect(..))
 

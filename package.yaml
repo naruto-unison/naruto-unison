@@ -1,10 +1,9 @@
 name:       naruto-unison
 version:    0.1.0.0
-github:     "githubuser/naruto-unison"
+github:     "naruto-user/naruto-unison"
 license:    BSD3
-author:     "Author name here"
-maintainer: "example@example.com"
-copyright:  "2019 Author name here"
+author:     "Naruto Unison"
+maintainer: "joshua.n.booth@gmail.com"
 
 dependencies:
 - blaze-html
@@ -19,6 +18,7 @@ dependencies:
 - yesod-websockets
 
 - elm-bridge
+- foreign-store
 
 - base
 - yesod
@@ -27,8 +27,6 @@ dependencies:
 - yesod-static
 - yesod-form
 - classy-prelude
-- classy-prelude-conduit
-- classy-prelude-yesod
 - bytestring
 - text
 - persistent
@@ -37,31 +35,24 @@ dependencies:
 - template-haskell
 - shakespeare
 - hjsmin
-- monad-control
 - wai-extra
 - yaml
 - http-client-tls
 - http-conduit
-- directory
 - warp
 - data-default
 - aeson
-- conduit
 - monad-logger
 - fast-logger
 - wai-logger
 - file-embed
-- safe
 - unordered-containers
 - containers
 - vector
 - time
 - case-insensitive
 - wai
-- foreign-store
 
-# The library contains all of our application code. The executable
-# defined below is just a thin wrapper.
 library:
   source-dirs: src
   when:
@@ -79,7 +70,6 @@ library:
       - -fwarn-incomplete-uni-patterns
       - -fno-warn-type-defaults
       - -funbox-small-strict-fields
-      #- -fno-warn-unused-binds
       - -O0
       cpp-options: -DDEVELOPMENT
     else:
@@ -95,7 +85,6 @@ library:
       - -fwarn-incomplete-uni-patterns
       - -fno-warn-type-defaults
       - -funbox-small-strict-fields
-      #- -fno-warn-unused-binds
       - -O2
 
 # Runnable executable for our application

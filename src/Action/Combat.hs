@@ -16,7 +16,8 @@ module Action.Combat
   , factory
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
+
 import           Control.Monad.Trans.Maybe (runMaybeT)
 import qualified Data.List as List
 
@@ -78,8 +79,8 @@ demolishAll :: ∀ m. MonadPlay m => m ()
 demolishAll = do
     user   <- P.user
     target <- P.target
-    P.modify $ Game.adjust user Ninja.clearBarrier
-    P.modify $ Game.adjust target Ninja.clearDefense
+    P.modify $ Game.adjust user \n -> n { Ninja.barrier = [] }
+    P.modify $ Game.adjust target \n -> n { Ninja.defense = [] }
 
 -- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce',
 -- 'Attack.Damage', or 'Attack.Demolish' attack.
@@ -124,7 +125,7 @@ attack atk dmg = void $ runMaybeT do
         (dmg'Barrier, barr) = absorbBarrier dmg'Target $ Ninja.barrier nUser
         handleDefense
           | Ninja.is Undefend nTarget = (,)
-          | otherwise            = absorbDefense
+          | otherwise                 = absorbDefense
         (dmg'Def, defense)
           | direct    = handleDefense dmg'Target $ Ninja.defense nTarget
           | otherwise = handleDefense dmg'Barrier $ Ninja.defense nTarget
@@ -151,7 +152,7 @@ attack atk dmg = void $ runMaybeT do
 
 -- | Adds new destructible 'Defense'.
 -- Destructible defense acts as an extra bar in front of the 'Ninja.health'
--- of a 'Ninja'. All attacks except for 'afflict' attacks must damage and
+-- of a 'Ninja.Ninja'. All attacks except for 'afflict' attacks must damage and
 -- destroy the target's 'Ninja.defense' before they can damage the target.
 -- Destructible defense can be temporary or permanent.
 defend :: ∀ m. MonadPlay m => Turns -> Int -> m ()
@@ -191,7 +192,7 @@ addDefense name amount = do
 
 -- | Adds new destructible 'Barrier'.
 -- Destructible barrier acts as an extra bar in front of the 'Ninja.health'
--- of a 'Ninja'. All attacks except for 'afflict' attacks must damage and
+-- of a 'Ninja.Ninja'. All attacks except for 'afflict' attacks must damage and
 -- destroy the user's 'Ninja.barrier' before they can damage the target.
 -- Destructible barrier can be temporary or permanent.
 barrier :: ∀ m. MonadPlay m => Turns -> Int -> m ()
@@ -217,7 +218,7 @@ barrierDoes (Duration -> dur) finish while amount = do
             { Barrier.amount = amount'
             , Barrier.user = user
             , Barrier.name   = Skill.name skill
-            , Barrier.while  = (context, Play $ Execute.wrap [Channeled, Trapped] while)
+            , Barrier.while  = const (context, Play $ Execute.wrap [Channeled, Trapped] while)
             , Barrier.finish = finish'
             , Barrier.dur    = dur'
             }
@@ -265,7 +266,7 @@ restore percent = do
         P.modify . Game.adjust target $ Ninja.adjustHealth (+ hp')
 
 -- | Damages the target and passes the amount of damage dealt to another action.
--- Typically paired with @'self' . 'heal'@ to effectively drain the target's
+-- Typically paired with @self . 'heal'@ to effectively drain the target's
 -- 'Ninja.health' into that of the user.
 leech :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
 leech hp f = do
@@ -289,6 +290,7 @@ sacrifice minhp hp = do
     unless (user == target && Ninja.is ImmuneSelf nTarget) .
         P.modify . Game.adjust target $ Ninja.sacrifice minhp hp
 
--- | Resets a 'Ninja' to their initial state. Uses 'Ninja.reset' internally.
+-- | Resets a 'Ninja.Ninja' to their initial state. 
+-- Uses 'Ninja.reset' internally.
 factory :: ∀ m. MonadPlay m => m ()
 factory = P.toTarget Ninja.factory

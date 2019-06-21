@@ -3,7 +3,8 @@ module Characters
   , list
   ) where
 
-import ClassyPrelude.Yesod hiding (map)
+import ClassyPrelude hiding (map)
+
 import qualified Data.HashMap.Strict as HashMap
 import           Data.HashMap.Strict (HashMap)
 import qualified Data.List as List

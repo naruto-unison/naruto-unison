@@ -1,10 +1,10 @@
-module Engine.Turn
-  ( run
-  ) where
+-- | Turn execution. The surface of the game engine.
+module Engine.Turn (run) where
 
-import ClassyPrelude.Yesod hiding (Status, (\\), groupBy, drop, head)
-import           Data.List ((\\))
-import           Data.List.NonEmpty (groupBy, head)
+import ClassyPrelude hiding ((\\), groupBy, drop, head)
+
+import Data.List ((\\))
+import Data.List.NonEmpty (groupBy, head)
 
 import           Core.Util ((—))
 import qualified Class.Labeled as Labeled
@@ -33,54 +33,12 @@ import           Engine.Execute (Affected(..))
 import qualified Engine.Traps as Traps
 import qualified Engine.Trigger as Trigger
 
-doDelays :: ∀ m. (MonadGame m, MonadRandom m) => m ()
-doDelays = filter ((<= 1) . Delay.dur) . Game.delays <$> P.game >>=
-           traverse_ (P.launch . Delay.effect)
-
-doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
-doBomb bomb target st = traverse_ detonate $ Status.bombs st
-  where
-    ctx = (Context.fromStatus st) { Context.target = target }
-    detonate (bomb', f)
-      | bomb == bomb' = P.withContext ctx . Execute.wrap [Trapped] $ P.play f
-      | otherwise     = return ()
-
-doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Game -> m ()
-doBombs bomb game = P.game >>= sequence_ . concat . Game.zipNinjasWith comp game
-  where
-    comp n n' = doBomb bomb (Ninja.slot n) <$>
-                Ninja.statuses n \\ Ninja.statuses n'
-
-doBarriers :: ∀ m. (MonadGame m, MonadRandom m) => m ()
-doBarriers = do
-    player <- P.player
-    ninjas <- Game.ninjas <$> P.game
-    traverse_ (doBarrier player) $ concatMap collect ninjas
-  where
-    collect = (head <$>) . groupBy Labeled.eq . sort . Ninja.barrier
-    doBarrier p b
-      | Barrier.dur b == 1 = P.launch . Barrier.finish b $ Barrier.amount b
-      | Parity.allied p $ Barrier.user b = P.launch $ Barrier.while b
-      | otherwise = return ()
-
-doDeaths :: ∀ m. (MonadGame m, MonadRandom m) => m ()
-doDeaths = traverse_ Trigger.death Slot.all
-
-doHpOverTime :: ∀ m. MonadGame m => Slot -> m ()
-doHpOverTime slot = do
-    player <- P.player
-    n      <- Game.ninja slot <$> P.game
-    hp     <- Effects.hp player n <$> P.game
-    when (Ninja.alive n) . P.modify . Game.adjust slot $
-        Ninja.adjustHealth (— hp)
-
-doHpsOverTime :: ∀ m. MonadGame m => m ()
-doHpsOverTime = traverse_ doHpOverTime Slot.all
-
--- | The game engine's main function. Performs 'Act's and 'Channel's;
--- applies effects from 'Bomb's, 'Barrier's, 'Delay's, and 'Trap's;
--- decrements all 'TurnBased' data; adds 'ChannelTag's;
--- and resolves 'Chakras' for the next turn.
+-- | The game engine's main function. 
+-- Performs 'Act's and 'Model.Channel.Channel's;
+-- applies effects from 'Bomb's, 'Barrier.Barrier's, 'Delay.Delay's, and 
+-- 'Model.Trap.Trap's;
+-- decrements all 'TurnBased.TurnBased' data;
+-- and resolves 'Model.Chakra.Chakras' for the next turn.
 run :: ∀ m. (MonadGame m, MonadRandom m) => [Act] -> m ()
 run actions = do
     initial     <- P.game
@@ -110,3 +68,54 @@ run actions = do
                     filter ((1 /=) . TurnBased.getDur) $
                     Ninja.channels n
     decrDelays = filter ((0 /=) . Delay.dur) . mapMaybe TurnBased.decr
+
+-- | Runs 'Game.delays'.
+doDelays :: ∀ m. (MonadGame m, MonadRandom m) => m ()
+doDelays = filter ((<= 1) . Delay.dur) . Game.delays <$> P.game >>=
+           traverse_ (P.launch . ($ ()) . Delay.effect)
+
+-- | Executes 'Status.bombs' of a 'Status'.
+doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
+doBomb bomb target st = traverse_ detonate $ Status.bombs st
+  where
+    ctx = (Context.fromStatus st) { Context.target = target }
+    detonate (bomb', f)
+      | bomb == bomb' = P.withContext ctx . Execute.wrap [Trapped] $ P.play f
+      | otherwise     = return ()
+
+-- | Executes 'Status.bombs' of all 'Status'es that were removed.
+doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Game -> m ()
+doBombs bomb game = P.game >>= sequence_ . concat . Game.zipNinjasWith comp game
+  where
+    comp n n' = doBomb bomb (Ninja.slot n) <$>
+                Ninja.statuses n \\ Ninja.statuses n'
+
+-- | Executes 'Barrier.while' and 'Barrier.finish' effects.
+doBarriers :: ∀ m. (MonadGame m, MonadRandom m) => m ()
+doBarriers = do
+    player <- P.player
+    ninjas <- Game.ninjas <$> P.game
+    traverse_ (doBarrier player) $ concatMap collect ninjas
+  where
+    collect = (head <$>) . groupBy Labeled.eq . sort . Ninja.barrier
+    doBarrier p b
+      | Barrier.dur b == 1 = P.launch . Barrier.finish b $ Barrier.amount b
+      | Parity.allied p $ Barrier.user b = P.launch $ Barrier.while b ()
+      | otherwise = return ()
+
+-- | Executes 'Trigger.death'.
+doDeaths :: ∀ m. (MonadGame m, MonadRandom m) => m ()
+doDeaths = traverse_ Trigger.death Slot.all
+
+-- | Executes 'Model.Effect.Afflict' and 'Model.Effect.Heal' 
+-- 'Model.Effect.Effect's.
+doHpOverTime :: ∀ m. MonadGame m => Slot -> m ()
+doHpOverTime slot = do
+    player <- P.player
+    n      <- Game.ninja slot <$> P.game
+    hp     <- Effects.hp player n <$> P.game
+    when (Ninja.alive n) . P.modify . Game.adjust slot $
+        Ninja.adjustHealth (— hp)
+
+doHpsOverTime :: ∀ m. MonadGame m => m ()
+doHpsOverTime = traverse_ doHpOverTime Slot.all

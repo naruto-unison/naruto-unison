@@ -3,13 +3,15 @@ module Model.GameInfo
   , censor
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
+
+import           Data.Aeson ((.=), ToJSON(..), object)
 import qualified Data.List as List
 import           Data.List.NonEmpty (NonEmpty(..))
 
 import           Core.Util ((∈), (∉))
 import qualified Class.Parity as Parity
-import           Core.Model (User)
+import           Core.Model (Key, User)
 import qualified Model.Channel as Channel
 import           Model.Class (Class(..))
 import           Model.Effect (Effect(..))
@@ -27,7 +29,6 @@ import           Engine.ToJSON ()
 
 data GameInfo = GameInfo { vsWho  :: Key User
                          , vsUser :: User
-                         , left   :: Int
                          , game   :: Game
                          , player :: Player
                          }
@@ -35,13 +36,18 @@ data GameInfo = GameInfo { vsWho  :: Key User
 instance ToJSON GameInfo where
     toJSON GameInfo{..} = object
         [ "opponent"   .= vsUser
-        , "left"       .= left
         , "game"       .= censor player game
         , "player"     .= player
         , "characters" .= characters
         ]
       where
         characters = Ninja.character <$> Game.ninjas game
+
+censor :: Player -> Game -> Game
+censor player = censorPlayer player . Game.setChakra (Player.opponent player) 0
+
+censorPlayer :: Player -> Game -> Game
+censorPlayer player game = Game.alter (censorNinja game player <$>) game
 
 censorNinja :: Game -> Player -> Ninja -> Ninja
 censorNinja game player n
@@ -72,9 +78,3 @@ censorNinja game player n
           [Reveal] -> Nothing
           _        -> Just st
               { Status.effects = List.delete Reveal $ Status.effects st }
-
-censorPlayer :: Player -> Game -> Game
-censorPlayer player game = Game.alter (censorNinja game player <$>) game
-
-censor :: Player -> Game -> Game
-censor player = censorPlayer player . Game.setChakra (Player.opponent player) 0

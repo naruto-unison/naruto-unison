@@ -5,7 +5,7 @@ module Engine.Chakras
   , gain
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
 
 import           Core.Util ((—))
 import qualified Class.Play as P
@@ -35,7 +35,7 @@ remove amount
     P.modify $ Game.adjustChakra target (— removed)
     return removed
 
--- | Adds as many random 'Chakra's as the number of living 'Ninja's on the
+-- | Adds as many random 'Chakra's as the number of living 'Ninja.Ninja's on the
 -- player's team to the player's 'Game.chakra'.
 gain :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 gain = do

@@ -5,10 +5,13 @@ module Model.Act
   , illegal
   ) where
 
-import ClassyPrelude.Yesod
+import ClassyPrelude
+
+import           Data.Aeson (ToJSON)
 import qualified Data.Text as Text
 import qualified Data.Text.Read as Read
 import           Text.Read (Read(..))
+import           Yesod.Core.Dispatch (PathPiece(..))
 
 import qualified Model.Channel as Channel
 import           Model.Channel (Channel)
@@ -23,11 +26,11 @@ import           Engine.ToJSON ()
 
 -- | A single action of a 'Ninja'.
 data Act = Act { user   :: Slot
-               -- ^ User index in 'gameNinjas' (0-5)
+               -- ^ User index in 'Model.Game.ninjas' (0-5)
                , skill  :: Either Int Skill
-               -- ^ Skill by index in 'nCharacter' 'characterSkills' (0-3)
+               -- ^ Skill by index in 'Character.skills' of 'Ninja.character' (0-3)
                , target :: Slot
-               -- ^ Target index in 'gameNinjas' (0-5)
+               -- ^ Target index in 'Model.Game.ninjas' (0-5)
                } deriving (Eq, Generic, ToJSON)
 instance Show Act where
     show = show . fromAct

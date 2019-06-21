@@ -1,10 +1,11 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE ImpredicativeTypes    #-}
 {-# OPTIONS_GHC -fno-warn-orphans  #-}
-{-# OPTIONS_HADDOCK hide           #-}
+{-# OPTIONS_HADDOCK hide, not-home #-}
 module Model.Internal where
 
-import ClassyPrelude.Yesod hiding (Status, Vector, get)
+import ClassyPrelude hiding (Vector)
+
 import           Control.Monad.Reader (local, mapReaderT)
 import           Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import           Control.Monad.Trans.State.Strict (StateT, get, modify')
@@ -259,7 +260,7 @@ instance Hashable Flag where
     hashWithSalt x = hashWithSalt x . fromEnum
 
 -- | In-game character, indexed between 0 and 5.
-data Ninja = Ninja { slot      :: Slot           -- ^ 'gameNinjas' index (0-5)
+data Ninja = Ninja { slot      :: Slot           -- ^ 'Model.Game.Ninjas' index (0-5)
                    , character :: Character
                    , health    :: Int                    -- ^ `Starts at` @100@
                    , cooldowns :: Seq (Seq Int)          -- ^ Starts empty
@@ -316,7 +317,7 @@ data Target
     | REnemy        -- ^ Random enemy
     | XEnemies      -- ^ Enemies excluding 'Enemy'
     | Everyone      -- ^ All 'Ninja's
-    | Specific Slot -- ^ Specific ninja index in 'gameNinjas' (0-5)
+    | Specific Slot -- ^ Specific ninja index in 'ninjas' (0-5)
     deriving (Eq)
 
 -- | A move that a 'Character' can perform.
@@ -345,7 +346,7 @@ instance Classed Skill where
 data Barrier = Barrier { amount :: Int
                        , user   :: Slot
                        , name   :: Text
-                       , while  :: SavedPlay
+                       , while  :: () -> SavedPlay
                        , finish :: Int -> SavedPlay
                        , dur    :: Int
                        } deriving (Eq)
@@ -371,7 +372,7 @@ instance Labeled Defense where
     name   = name
     user = user
 
--- | An 'Act' channeled over multiple turns.
+-- | An 'Model.Act.Act' channeled over multiple turns.
 data Channel = Channel { source :: Slot
                        , skill  :: Skill
                        , target :: Slot
@@ -513,7 +514,7 @@ instance Show Trigger where
     show TrackDamage     = show OnDamage
     show TrackDamaged    = show PerDamaged
 
-data Variant = Variant { variant   :: Int -- ^ Index in 'characterSkills'
+data Variant = Variant { variant   :: Int -- ^ Index in 'skills'
                        , ownCd     :: Bool -- ^ Uses a different cooldown than the baseline 'Skill'
                        , name      :: Text
                        , fromSkill :: Bool -- ^ Duration is based on a 'Skill'
@@ -550,7 +551,7 @@ data Copying
 -- | Applies an effect after several turns.
 data Delay = Delay { user   :: Slot
                    , skill  :: Skill
-                   , effect :: SavedPlay
+                   , effect :: () -> SavedPlay
                    , dur    :: Int
                    } deriving (Eq)
 
@@ -565,7 +566,7 @@ instance Labeled Delay where
     name   = (name :: Skill -> Text) . (skill :: Delay -> Skill)
     user = user
 
--- | Applies 'Transform's when a 'Status' ends.
+-- | Applies actions when a 'Status' ends.
 data Bomb
     = Done   -- ^ Applied with both 'Expire' and 'Remove'
     | Expire -- ^ Applied when a 'Status' reaches the end of its duration.

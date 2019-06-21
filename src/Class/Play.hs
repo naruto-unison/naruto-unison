@@ -18,7 +18,7 @@ module Class.Play
   , toTarget, fromSource
   ) where
 
-import ClassyPrelude.Yesod hiding (Vector)
+import ClassyPrelude hiding (Vector)
 
 import           Class.Random (MonadRandom)
 import           Model.Internal (MonadGame(..), Play(..), PlayConstraint, MonadPlay(..), SavedPlay)

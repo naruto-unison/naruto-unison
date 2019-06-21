@@ -5,7 +5,7 @@ module Class.Parity
   , split
   ) where
 
-import ClassyPrelude.Yesod hiding (even)
+import ClassyPrelude hiding (even)
 import qualified Prelude
 
 -- Types that are either even or odd.

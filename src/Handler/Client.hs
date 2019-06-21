@@ -3,14 +3,16 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE QuasiQuotes #-}
 
--- | Interface for the PureScript game client.
+-- | Interface for the Elm game client.
 module Handler.Client
     ( getPlayR
     , getMuteR
     , getUpdateR
     ) where
 
-import ClassyPrelude.Yesod hiding (head)
+import ClassyPrelude hiding (Handler, head)
+import Yesod
+
 import qualified Data.List.NonEmpty as NonEmpty
 import           Data.List.NonEmpty (head)
 import qualified Yesod.Auth as Auth
@@ -25,31 +27,6 @@ import           Model.Character (Character)
 import qualified Model.Skill as Skill
 import           Handler.Play (gameSocket)
 import qualified Characters
-
-charAvatars :: Character -> [Text]
-charAvatars char = toFile <$> "icon" : skills
-  where
-    skills      = Skill.name . head <$> NonEmpty.take 4 (Character.skills char)
-    toFile path = "/img/ninja/" ++ shorten (tshow char) ++ "/"
-                  ++ shorten path ++ ".jpg"
-
-avatars :: [Text]
-avatars = (("/img/icon/" ++) <$> icons) ++ concatMap charAvatars Characters.list
-  where
-    icons =
-        [ "default.jpg"
-        , "gaaraofthefunk.jpg"
-        , "ninjainfocards.jpg"
-        , "kabugrin.jpg"
-        ]
-
-isMuted :: Maybe User -> Bool
-isMuted = maybe False userMuted
-
-legalChars :: String
-legalChars = ['0'..'9'] ++ ['a'..'z'] ++ ['A'..'z']
-
--- * HANDLERS
 
 -- | Updates a user's profile.
 getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
@@ -103,3 +80,26 @@ getPlayR = do
         $(widgetFile "include/normalize")
         $(widgetFile "play/elm")
         $(widgetFile "play/play")
+
+charAvatars :: Character -> [Text]
+charAvatars char = toFile <$> "icon" : skills
+  where
+    skills      = Skill.name . head <$> NonEmpty.take 4 (Character.skills char)
+    toFile path = "/img/ninja/" ++ shorten (tshow char) ++ "/"
+                  ++ shorten path ++ ".jpg"
+
+avatars :: [Text]
+avatars = (("/img/icon/" ++) <$> icons) ++ concatMap charAvatars Characters.list
+  where
+    icons =
+        [ "default.jpg"
+        , "gaaraofthefunk.jpg"
+        , "ninjainfocards.jpg"
+        , "kabugrin.jpg"
+        ]
+
+isMuted :: Maybe User -> Bool
+isMuted = maybe False userMuted
+
+legalChars :: String
+legalChars = ['0'..'9'] ++ ['a'..'z'] ++ ['A'..'z']
