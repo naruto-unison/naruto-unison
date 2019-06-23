@@ -154,12 +154,6 @@ getTurn game game' = concat $
   where
     player = Game.playing game
 
--- | Update 'TrackDamaged'.
-trackDamaged :: Ninja -- ^ Old.
-             -> Ninja -- ^ New.
-             -> Ninja
-trackDamaged n n' = track TrackDamaged (Ninja.healthLost n n') n'
-
 -- | Processes and runs all 'Trap.Trap's at the end of a turn.
 runTurn :: ∀ m. (MonadGame m, MonadRandom m) => Game -> m ()
 runTurn game = do
@@ -171,6 +165,5 @@ runTurn game = do
 -- | Processes per-turn 'Trap.Trap's at the end of a turn.
 processPer :: Player -> Game -> Game -> Game
 processPer player game game' =
-    foldl' (flip ($))
-    game' { Game.ninjas = Game.zipNinjasWith trackDamaged game game' } .
-    concat $ Game.zipNinjasWith (getTurnHooks player) game game'
+    foldl' (flip ($)) game' . concat $
+    Game.zipNinjasWith (getTurnHooks player) game game'

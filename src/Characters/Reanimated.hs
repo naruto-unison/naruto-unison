@@ -511,14 +511,14 @@ cs =
         , Skill.effects   =
           [ p Enemies do
                 pierce 10
-                trapPer (-1) TrackDamaged \i ->
+                trapPer (-1) PerDamaged \i ->
                     when (i >= 50) $ apply 1 [Stun All]
           ]
         , Skill.changes   = changeWith "Crystal Ice Mirrors" \_ skill -> skill
               { Skill.effects =
                 [ p Enemy do
                       pierce 30
-                      trapPer (-1) TrackDamaged \i ->
+                      trapPer (-1) PerDamaged \i ->
                           when (i >= 50) $ apply 1 [Stun All] ]
               }
         }
@@ -937,11 +937,11 @@ cs =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p XAlly do
-              trapPer (-2) TrackDamage heal
+              trapPer (-2) PerDamage heal
               trap (-2) OnDamage $ remove "Naraka Path"
               bomb (-2) [] [ p Expire $ apply 2 [Unexhaust] ]
           , p Enemy do
-                trapPer (-2) TrackDamage damage
+                trapPer (-2) PerDamage damage
                 trap (-2) OnDamage $ remove "Naraka Path"
                 bomb (-2) [] [ p Expire $ apply 2 [Exhaust All] ]
           ]
@@ -954,11 +954,11 @@ cs =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p XAllies do
-                trapPer (-2) TrackDamage heal
+                trapPer (-2) PerDamage heal
                 trap (-2) OnDamage $ remove "Naraka Path"
                 bomb (-2) [] [ p Expire $ apply 2 [Unexhaust] ]
           , p Enemies do
-                trapPer (-2) TrackDamage damage
+                trapPer (-2) PerDamage damage
                 trap (-2) OnDamage $ remove "Naraka Path"
                 bomb (-2) [] [ p Expire $ apply 2 [Exhaust All] ]
           ]

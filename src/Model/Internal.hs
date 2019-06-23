@@ -463,8 +463,6 @@ data Trigger
     | PerDamage
     | PerHealed
     | PerDamaged
-    | TrackDamage
-    | TrackDamaged
     deriving (Eq, Ord)
 
 instance Classed Trigger where
@@ -501,8 +499,6 @@ instance Show Trigger where
     show PerDamage       = show OnDamage
     show PerDamaged      = show (OnDamaged All)
     show PerHealed       = show OnHealed
-    show TrackDamage     = show OnDamage
-    show TrackDamaged    = show PerDamaged
 
 data Variant = Variant { variant   :: Int -- ^ Index in 'skills'
                        , ownCd     :: Bool -- ^ Uses a different cooldown than the baseline 'Skill'
