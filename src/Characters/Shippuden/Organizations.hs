@@ -44,7 +44,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Ink Mist"
-        , Skill.desc      = "Streams of ink coil in the air around Sai and his allies for 3 turns, obscuring them from enemies and allowing Sai to draw three-dimensionally. If someone on Sai's team is stunned, they become invulnerable for 1 turn. If their chakra is removed or stolen, they gain 1 random chakra. If an ally receives new non-affliction damage, Sai's damage increases by 10 for 1 turn."
+        , Skill.desc      = "Streams of ink coil in the air around Sai and his allies for 3 turns, obscuring them from enemies and allowing Sai to draw three-dimensionally. If an enemy uses a skill to stun someone on Sai's team, their target becomes invulnerable for 1 turn. If an enemy uses a skill that depletes or absorbs chakra, Sai's team gains 1 random chakra. If an enemy uses a skill that deals non-affliction damage to someone on Sai's team, Sai's damage increases by 10 for 1 turn."
         , Skill.classes   = [Mental, Bypassing]
         , Skill.cost      = k [Rand, Rand]
         , Skill.effects   =
@@ -97,7 +97,7 @@ cs =
         ]
       , [ Skill.new
           { Skill.name      = "Mind Transfer Puppet Curse"
-          , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a new harmful physical or chakra skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Effects from Fū's usage of their skills are canceled when Fū's skills revert."
+          , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a harmful physical or chakra skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Effects from Fū's usage of their skills are canceled when Fū's skills revert."
           , Skill.classes   = [Mental, InvisibleTraps, Unreflectable]
           , Skill.cost      = k [Gen]
           , Skill.cooldown  = 3

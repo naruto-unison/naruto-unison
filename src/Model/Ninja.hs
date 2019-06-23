@@ -1,6 +1,5 @@
 module Model.Ninja
   ( Ninja(..), new, factory
-  , Flag(..)
   , playing
   , alive, minHealth, healthLost
   , adjustHealth, setHealth, sacrifice
@@ -38,7 +37,7 @@ import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
 import qualified Class.Labeled as Labeled
 import qualified Class.TurnBased as TurnBased
-import           Model.Internal (Ninja(..), Flag(..))
+import           Model.Internal (Ninja(..))
 import qualified Model.Channel as Channel
 import qualified Model.Character as Character
 import qualified Model.Defense as Defense
@@ -76,7 +75,7 @@ new c slot = Ninja { slot      = slot
                    , tags      = []
                    , lastSkill = Nothing
                    , effects   = mempty
-                   , flags     = mempty
+                   , triggers  = mempty
                    }
 
 -- | Factory resets a 'Ninja' to its starting values.
@@ -231,7 +230,8 @@ decr n = case findMatch $ statuses n of
            , copies    = (>>= TurnBased.decr) <$> copies n
            , cooldowns = ((max 0 . subtract 1) <$>) <$> cooldowns n
            , parrying  = mempty
-           , flags     = mempty
+           , effects   = []
+           , triggers  = singleton OnNoAction
            }
   where
     findMatch          = find match . reverse . toList .

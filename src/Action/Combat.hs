@@ -18,14 +18,13 @@ module Action.Combat
 
 import ClassyPrelude
 
-import           Control.Monad.Trans.Maybe (runMaybeT)
-import qualified Data.List as List
+import Control.Monad.Trans.Maybe (runMaybeT)
 
 import           Core.Util ((—), (∈), intersects)
 import qualified Class.Classed as Classed
 import qualified Class.Labeled as Labeled
 import qualified Class.Play as P
-import           Class.Play (Play(..), PlayConstraint, MonadPlay)
+import           Class.Play (MonadPlay, Play(..), PlayConstraint, SavedPlay)
 import qualified Model.Attack as Attack
 import           Model.Attack (Attack)
 import qualified Model.Barrier as Barrier
@@ -41,9 +40,11 @@ import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
+import           Model.Trap (Trigger(..))
 import qualified Engine.Effects as Effects
 import qualified Engine.Execute as Execute
 import           Engine.Execute (Affected(..))
+import qualified Engine.Traps as Traps
 
 -- | Reduces incoming damage by depleting the user's 'Ninja.barrier'.
 absorbBarrier :: Int -> [Barrier] -> (Int, [Barrier])
@@ -85,7 +86,7 @@ demolishAll = do
 -- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce',
 -- 'Attack.Damage', or 'Attack.Demolish' attack.
 attack :: ∀ m. MonadPlay m => Attack -> Int -> m ()
-attack _ 0 = return ()
+attack _   0   = return ()
 attack atk dmg = void $ runMaybeT do
     skill      <- P.skill
     user       <- P.user
@@ -135,7 +136,7 @@ attack atk dmg = void $ runMaybeT do
                || not direct && Ninja.is (Stun atkClass) nUser
                || dmg'Target <= 0
 
-    if atk == Attack.Afflict then
+    if atk == Attack.Afflict then do
         P.modify . Game.adjust target $ Ninja.adjustHealth (— dmg'Target)
     else do
         unless direct .
@@ -145,6 +146,15 @@ attack atk dmg = void $ runMaybeT do
         else if dmg'Def == 0 then return () else
             P.modify . Game.adjust target $ Ninja.adjustHealth (— dmg'Def) .
                 \n -> n { Ninja.defense = defense }
+
+    damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
+    when (damaged > 0) do
+        P.trigger user [OnDamage]
+        P.trigger target $ OnDamaged <$> classes
+        P.modify . Game.adjust target $ Traps.track PerDamaged damaged
+        whenM P.new .
+            P.modify . Game.adjust user $ Traps.track PerDamage damaged
+
   where
     atkClass = case atk of
         Attack.Afflict -> Affliction
@@ -170,8 +180,10 @@ defend (Duration -> dur) amount = do
                       , Defense.dur    = Copy.maxDur (Skill.copying skill) .
                                          incr $ sync dur
                       }
-    if amount' < 0 then
+    if amount' < 0 then do
         damage (-amount')
+        damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
+        P.modify . Game.adjust target $ Traps.track PerDamaged damaged
     else when (amount' > 0) . P.modify $ Game.adjust target \n ->
         n { Ninja.defense = Classed.nonStack skill defense $ Ninja.defense n }
 
@@ -188,7 +200,7 @@ addDefense name amount = do
         Just defense -> P.modify $ Game.adjust target \n ->
             n { Ninja.defense =
                     defense { Defense.amount = Defense.amount defense + amount }
-                    : List.deleteBy Labeled.eq defense (Ninja.defense n) }
+                    : deleteBy Labeled.eq defense (Ninja.defense n) }
 
 -- | Adds new destructible 'Barrier'.
 -- Destructible barrier acts as an extra bar in front of the 'Ninja.health'
@@ -211,19 +223,26 @@ barrierDoes (Duration -> dur) finish while amount = do
         user  = Context.user context
         target  = Context.target context
         dur'    = Copy.maxDur (Skill.copying skill) $ sync dur
+        save :: PlayConstraint () -> SavedPlay
+        save f  = (context { Context.new = False }, Play f)
         finish' amt
-          | dur' < sync dur = (context, Play $ return ())
-          | otherwise       = (context, Play $ Execute.wrap [Trapped] (finish amt))
+          | dur' < sync dur = save $ return ()
+          | otherwise       = save $ Execute.wrap [Trapped] (finish amt)
         barr = Barrier.Barrier
             { Barrier.amount = amount'
             , Barrier.user = user
             , Barrier.name   = Skill.name skill
-            , Barrier.while  = const (context, Play $ Execute.wrap [Channeled, Trapped] while)
+            , Barrier.while  = \() -> save $ Execute.wrap [Trapped] while
             , Barrier.finish = finish'
             , Barrier.dur    = dur'
             }
-    if amount' < 0 then
-        P.with Context.reflect $ damage (-amount')
+    if amount' < 0 then do
+        P.with Context.reflect do
+            target' <- P.target
+            nTarget <- P.nTarget
+            damage (-amount')
+            damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
+            P.modify . Game.adjust target' $ Traps.track PerDamaged damaged
     else when (amount' > 0) . P.modify $ Game.adjust target \n ->
         n { Ninja.barrier = Classed.nonStack skill barr $ Ninja.barrier n }
 
@@ -251,6 +270,14 @@ heal hp = do
         nUser  <- P.nUser
         let hp'  = Effects.boost user nTarget * hp + Effects.bless nUser
         P.modify . Game.adjust target $ Ninja.adjustHealth (+ hp')
+        healed <- (— Ninja.health) . Ninja.health <$> P.nTarget
+        if healed > 0 then do
+            P.trigger target [OnHealed]
+            P.modify . Game.adjust target $ Traps.track PerHealed healed
+        else if healed < 0 then
+            P.modify . Game.adjust target $ Traps.track PerDamaged (-healed)
+        else
+            return ()
 
 -- | Restores a percentage of missing 'Ninja.health'.
 restore :: ∀ m. MonadPlay m => Int -> m ()
@@ -264,17 +291,33 @@ restore percent = do
                    * (100 - Ninja.health nTarget) `quot` 100
                    + Effects.bless nUser
         P.modify . Game.adjust target $ Ninja.adjustHealth (+ hp')
+        healed <- (— Ninja.health) . Ninja.health <$> P.nTarget
+        if healed > 0 then do
+            P.trigger target [OnHealed]
+            P.modify . Game.adjust target $ Traps.track PerHealed healed
+        else if healed < 0 then
+            P.modify . Game.adjust target $ Traps.track PerDamaged (-healed)
+        else
+            return ()
 
 -- | Damages the target and passes the amount of damage dealt to another action.
 -- Typically paired with @self . 'heal'@ to effectively drain the target's
 -- 'Ninja.health' into that of the user.
 leech :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
 leech hp f = do
+    user     <- P.user
     target   <- P.target
+    classes  <- Skill.classes <$> P.skill
     hpBefore <- Ninja.health <$> P.nTarget
     P.modify . Game.adjust target $ Ninja.adjustHealth (— hp)
-    hpAfter  <- Ninja.health <$> P.nTarget
-    f $ hpBefore - hpAfter
+    damaged <- (hpBefore -) . Ninja.health <$> P.nTarget
+    when (damaged > 0) do
+        f damaged
+        P.trigger user [OnDamage]
+        P.trigger target $ OnDamaged <$> classes
+        P.modify . Game.adjust target $ Traps.track PerDamaged damaged
+        whenM P.new .
+            P.modify . Game.adjust user $ Traps.track PerDamage damaged
 
 -- | Sacrifices some amount of the target's 'Ninja.health' down to a minimum.
 -- If the target is the user and has the 'ImmuneSelf' effect, nothing happens.

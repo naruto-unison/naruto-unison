@@ -11,6 +11,7 @@ module Core.Fields
     ) where
 
 import ClassyPrelude
+
 import Yesod
 
 import Text.Read

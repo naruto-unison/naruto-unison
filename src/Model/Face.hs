@@ -1,6 +1,4 @@
-module Model.Face
-  ( Face(..)
-  ) where
+module Model.Face (Face(..)) where
 
 import ClassyPrelude
 

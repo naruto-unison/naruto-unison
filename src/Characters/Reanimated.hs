@@ -778,7 +778,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Chakra Weave"
-        , Skill.desc      = "Fuguki weaves strands of chakra into his hair to defend himself. During each of the next 4 turns, if he does not take any damage, he regains 10 health. Each time he damages an opponent with a new skill, he gains 5 points of damage reduction that end when this skill ends."
+        , Skill.desc      = "Fuguki weaves strands of chakra into his hair to defend himself. During each of the next 4 turns, if he does not take any damage, he regains 10 health. Each time he uses a skill that damages an opponent, he gains 5 points of damage reduction that end when this skill ends."
         , Skill.classes   = [Chakra]
         , Skill.cost      = k [Nin]
         , Skill.cooldown  = 5
@@ -890,7 +890,7 @@ cs =
           , p Enemy do
                 pierce 20
                 trap 1 OnDamage $ self $ vary' 1 "Human Path" "Human Path"
-                trapPer (-1) TrackDamage $ self . addStacks' (-1) "Human Path"
+                trapPer (-1) PerDamage $ self . addStacks' (-1) "Human Path"
           ]
         }
       , Skill.new
@@ -906,7 +906,7 @@ cs =
                 stacks <- userStacks "Human Path"
                 pierce stacks
                 trap 1 OnDamage $ self $ vary' 1 "Human Path" "Human Path"
-                trapPer (-1) TrackDamage $ self . addStacks' (-1) "Human Path"
+                trapPer (-1) PerDamage $ self . addStacks' (-1) "Human Path"
             ]
         , Skill.changes   = \n skill -> skill
             { Skill.desc = "Nagato restores " ++ tshow (numActive "Human Path" n) ++ " health and deals " ++ tshow (numActive "Human Path" n) ++ " piercing damage to an enemy. If the target deals any damage next turn, the damage and healing of this skill will be set to the damage they dealt for 1 turn and its cost will remain increased." }

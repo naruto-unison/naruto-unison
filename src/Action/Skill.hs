@@ -9,10 +9,10 @@ module Action.Skill
   , vary, vary', varyLoadout, varyNext
   ) where
 
-import ClassyPrelude hiding ((<|))
+import ClassyPrelude
 
 import qualified Data.List as List
-import           Data.List.NonEmpty ((<|), NonEmpty(..))
+import           Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Sequence as Seq
 
 import qualified Class.Play as P
@@ -100,7 +100,7 @@ unsafeVary fromSkill dur s v = do
                 }
             adjust
               | dur' <= 0 = Seq.update s $ variant :| []
-              | otherwise = Seq.adjust' (variant <|) s
+              | otherwise = Seq.adjust' (cons variant) s
         P.modify $ Game.adjust target \n ->
             n { Ninja.variants = adjust $ Ninja.variants n }
   where

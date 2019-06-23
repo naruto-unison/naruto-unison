@@ -47,7 +47,7 @@ cs =
         { Skill.name      = "Shadow Clones"
         , Skill.desc      = "Naruto creates 6 Shadow Clones who hide him and fight in his place. Each shadow clone provides 5 points of damage reduction. Each time an enemy uses a skill on Naruto, a shadow clone deals 5 damage to them and disappears. Each time Naruto loses a shadow clone by using a skill, the shadow clone deals 5 damage to a random enemy. Cannot be used while Naruto has shadow clones remaining."
         , Skill.require   = HasI (-1) "Shadow Clone"
-        , Skill.classes   = [Chakra, Unremovable, TrapAttack]
+        , Skill.classes   = [Chakra, Unremovable]
         , Skill.cost      = k [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
@@ -699,7 +699,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Sand Clone"
-        , Skill.desc      = "Gaara creates a clone of sand that mimics him and provides defense. Until Gaara receives new non-affliction damage from an enemy, he ignores harmful non-damage effects other than chakra cost changes. Cannot be used while active."
+        , Skill.desc      = "Gaara creates a clone of sand that mimics him and provides defense. Until an enemy uses a skill that deals non-affliction damage to him, Gaara ignores harmful non-damage effects other than chakra cost changes. Cannot be used while active."
         , Skill.classes   = [Physical, Single, Unremovable]
         , Skill.cooldown  = 2
         , Skill.effects   =

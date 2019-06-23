@@ -20,7 +20,6 @@ import qualified Yesod.Auth as Auth
 import qualified Yesod.WebSockets as WebSockets
 import           Yesod.WebSockets (WebSocketsT)
 
-
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
 import           Class.Random (MonadRandom)

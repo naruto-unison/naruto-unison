@@ -411,7 +411,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Long-Range Tactics"
-        , Skill.desc      = "Shikamaru goes long. For 4 turns, each time Shikamaru uses a new harmful skill, if he did not receive new non-affliction damage last turn, he will become invulnerable for 1 turn. While active, this skill becomes [Final Explosion][r][r]."
+        , Skill.desc      = "Shikamaru goes long. For 4 turns, each time Shikamaru uses a harmful skill, if no enemy used a skill last turn that dealt non-affliction damage to him, he will become invulnerable for 1 turn. While active, this skill becomes [Final Explosion][r][r]."
         , Skill.classes   = [Physical]
         , Skill.cost      = k [Tai]
         , Skill.cooldown  = 5
@@ -426,7 +426,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Final Explosion"
-        , Skill.desc      = "Deals 100 damage to an enemy affected by [Shadow Sewing] or [Expert Analysis]. Cannot be used if Shikamaru received new non-affliction damage last turn."
+        , Skill.desc      = "Deals 100 damage to an enemy affected by [Shadow Sewing] or [Expert Analysis]. Cannot be used if an enemy used a skill that dealt non-affliction damage to Shikamaru last turn."
         , Skill.require   = HasI (-1) "What a Drag"
         , Skill.classes   = [Physical]
         , Skill.cost      = k [Tai]
@@ -796,7 +796,7 @@ cs =
     "Gaara's years of soul-searching have made him a powerful force for good, ready to assume the title of Kazekage. No longer concerned with destroying others, he devotes himself to protecting his friends and the Hidden Sand Village."
     [ [ Skill.new
         { Skill.name      = "Partial Sand Coffin"
-        , Skill.desc      = "Gaara keeps an enemy away from his allies by encasing one of the target's limbs in sand, stunning their non-mental skills for 1 turn and dealing 20 piercing damage when the effect ends. If they were countered by [Third Eye] last turn, all of their skills are stunned and the damage is inflicted immediately. If the target has been affected by this skill before, the stun lasts 1 additional turn."
+        , Skill.desc      = "Gaara keeps an enemy away from his allies by encasing one of the target's limbs in sand, stunning their non-mental skills for 1 turn and dealing 20 piercing damage when the effect ends. If they were countered by [Third Eye] last turn, all of their skills are stunned and the damage is dealt immediately. If the target has been affected by this skill before, the stun lasts 1 additional turn."
         , Skill.classes   = [Physical, Ranged, Unremovable]
         , Skill.cost      = k [Nin]
         , Skill.cooldown  = 1
@@ -1026,7 +1026,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Agile Backflip"
-        , Skill.desc      = "Konohamaru uses his agility to counter the next new non-mental skill used on him. Each time this skill is used, its cost increases by 1 random. Cannot be used while active."
+        , Skill.desc      = "Konohamaru uses his agility to counter the next non-mental skill used on him. Each time this skill is used, its cost increases by 1 random. Cannot be used while active."
         , Skill.classes   = [Physical, Invisible, Single]
         , Skill.cost      = k [Rand]
         , Skill.effects   =

@@ -6,7 +6,8 @@ module Core.Settings
   , widgetFile
   ) where
 
-import           ClassyPrelude
+import ClassyPrelude
+
 import qualified Control.Exception as Exception
 import qualified Data.Aeson as Aeson
 import           Data.Aeson (Result(..), Value)

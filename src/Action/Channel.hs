@@ -6,7 +6,7 @@ module Action.Channel
   , onInterrupts
   ) where
 
-import ClassyPrelude hiding ((\\))
+import ClassyPrelude
 
 import           Core.Util ((∈))
 import qualified Class.Play as P
@@ -54,19 +54,18 @@ onInterrupts interrupting = do
 
 -- | Triggers 'Skill.interrupt' effects of a 'Channel'.
 onInterrupt :: ∀ m. (MonadPlay m, MonadRandom m) => Channel -> m ()
-onInterrupt chan = do
-    target <- P.target
-    let ctx = Context.Context { Context.skill  = Channel.skill chan
-                              , Context.user   = target
-                              , Context.target = Channel.target chan
-                              }
-    P.with (const ctx) $
+onInterrupt chan = P.with chanContext $
         traverse_ (Execute.effect [Channeled, Interrupted]) disr
   where
     name = Skill.name $ Channel.skill chan
     disr = (Self,  P.toTarget $ Ninja.clearVariants name)
          : (Enemy, P.fromSource $ Ninja.clear name)
          : (second P.play <$> Skill.interrupt (Channel.skill chan))
+    chanContext ctx = Context.Context { Context.skill  = Channel.skill chan
+                                      , Context.user   = Context.target ctx
+                                      , Context.target = Channel.target chan
+                                      , Context.new    = False
+                                      }
 
 -- | Increases the duration of 'Ninja.channels' with a matching 'Channel.name'.
 prolongChannel :: ∀ m. MonadPlay m => Turns -> Text -> m ()

@@ -3,7 +3,8 @@
 -- | Settings loaded from @config/settings.yml@.
 module Core.AppSettings (AppSettings(..)) where
 
-import           ClassyPrelude
+import ClassyPrelude
+
 import qualified Data.Aeson as Aeson
 import           Data.Aeson ((.!=), (.:), (.:?), FromJSON)
 import           Database.Persist.Postgresql (PostgresConf)

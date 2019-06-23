@@ -25,7 +25,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Summoning: Toad Mouth Trap"
-        , Skill.desc      = "The esophagus of a humongous toad swallows the battlefield for 2 turns. Within the esophagus, enemies cannot reduce damage or become invulnerable, and each member of Jiraiya's team becomes invulnerable for 1 turn if they are damaged by a new non-affliction skill."
+        , Skill.desc      = "The esophagus of a humongous toad swallows the battlefield for 2 turns. Within the esophagus, enemies cannot reduce damage or become invulnerable, and each member of Jiraiya's team becomes invulnerable for 1 turn if an enemy uses a skill that deals non-affliction damage to them."
         , Skill.classes   = [Chakra, Ranged, Summon, Bypassing]
         , Skill.cost      = k [Gen]
         , Skill.cooldown  = 3

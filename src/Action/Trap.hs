@@ -7,8 +7,7 @@ module Action.Trap
   ) where
 import ClassyPrelude
 
-import qualified Data.List as List
-import           Data.Sequence ((|>))
+import Data.List (nub)
 
 import           Core.Util ((∈))
 import qualified Class.Play as P
@@ -73,7 +72,7 @@ onBreak' = do
     name <- Skill.name <$> P.skill
     onBreak do
         P.modify $
-            Game.alter (Ninja.clear name user <$>) .
+            Game.alter (Ninja.clear name user) .
             Game.adjust user (Ninja.cancelChannel name)
 
 -- | Adds a 'Trap.Trap' to 'Ninja.traps'.
@@ -96,6 +95,7 @@ trapFull direction classes (Duration -> dur) trigger f = do
                                     , Context.target = case direction of
                                           Trap.From -> user
                                           _         -> target
+                                    , Context.new    = False
                                     }
         newTrap  = Trap.Trap
             { Trap.trigger   = trigger
@@ -104,15 +104,14 @@ trapFull direction classes (Duration -> dur) trigger f = do
             , Trap.desc      = Skill.desc skill
             , Trap.user      = trapUser
             , Trap.effect    = \i -> (ctx, Play $ Execute.wrap [Trapped] $ f i)
-            , Trap.classes   = List.nub $
-                               classes ++ (invis <$> Skill.classes skill)
+            , Trap.classes   = nub $ classes ++ (invis <$> Skill.classes skill)
             , Trap.tracker   = 0
             , Trap.dur       = Copy.maxDur (Skill.copying skill) . incr .
                                (+ 2 * Effects.throttle throttled nUser) $
                                sync dur
             }
     unless (newTrap ∈ Ninja.traps nTarget) . P.modify . Game.adjust target $
-        \n -> n { Ninja.traps = Ninja.traps n |> newTrap }
+        \n -> n { Ninja.traps = Ninja.traps n `snoc` newTrap }
   where
     throttled = case trigger of
         OnCounter c  -> [Counter c]
@@ -132,7 +131,7 @@ delay (Duration -> dur) f = do
         del   = Delay.Delay
                 { Delay.skill  = skill
                 , Delay.user   = user
-                , Delay.effect = const (context, Play $ Execute.wrap [Delayed] f)
+                , Delay.effect = \() -> (context, Play $ Execute.wrap [Delayed] f)
                 , Delay.dur    = dur'
                 }
     unless (past $ Skill.copying skill) $ P.modify \game ->

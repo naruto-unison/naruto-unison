@@ -4,7 +4,7 @@ module Engine.Traps
     -- Performing 'Trap.Trap's
   , runTurn
     -- Collecting 'Trap.Trap's
-  , get, getClassed, getTo, getTracked, getPer
+  , get, getOf, getTracked, getPer
   , broken
   ) where
 
@@ -19,65 +19,36 @@ import qualified Class.Play as P
 import           Class.Play (MonadGame, SavedPlay)
 import           Class.Random (MonadRandom)
 import qualified Model.Character as Character
-import           Model.Class (Class(..))
 import qualified Model.Context as Context
 import qualified Model.Defense as Defense
 import qualified Model.Game as Game
 import           Model.Game (Game)
 import qualified Model.Ninja as Ninja
-import           Model.Ninja (Ninja, Flag(..))
+import           Model.Ninja (Ninja)
 import           Model.Player (Player)
 import           Model.Slot (Slot)
 import qualified Model.Trap as Trap
-import           Model.Trap (Trigger(..))
+import           Model.Trap (Trap, Trigger(..))
 
--- | Conditionally returns all 'Ninja.traps' with a given 'Trigger'.
-get :: Slot -- ^ User who triggered traps.
-    -> Bool -- ^ If 'False', returns 'mempty' instead.
-    -> Trigger -- ^ Filter.
-    -> Ninja -- ^ 'Ninja.traps' owner.
-    -> Seq SavedPlay
-get _    False _       = const mempty
-get user True  trigger = (savedPlay <$>) .
-                         filter ((trigger ==) . Trap.trigger) . Ninja.traps
+savedPlay :: Slot -> Trap -> SavedPlay
+savedPlay user trap
+  | Trap.direction trap == Trap.From = first withTarget play
+  | otherwise                        = play
   where
-    withTarget ctx = ctx { Context.target = user }
-    savedPlay trap
-      | Trap.direction trap == Trap.From = first withTarget play
-      | otherwise                        = play
-      where
-        play = Trap.effect trap $ Trap.tracker trap
+      withTarget ctx = ctx { Context.target = user }
+      play           = Trap.effect trap $ Trap.tracker trap
 
--- | 'get' with a 'Trigger' that takes a 'Class' as an argument, like 'OnDamaged'.
-getClassed :: Seq Class -- ^ Classes to apply to the 'Trigger'.
-           -> Slot -- ^ User who triggered traps.
-           -> Bool -- ^ If 'False', returns 'mempty' instead.
-           -> (Class -> Trigger) -- ^ Filter.
-           -> Ninja -- ^ 'Ninja.traps' owner.
-           -> Seq SavedPlay
-getClassed _       _    False _       _ = mempty
-getClassed classes user True  trigger n = do
-    cla <- classes
-    get user True (trigger cla) n
-
--- | Conditionally returns all 'Ninja.traps' on a list of targets,
--- applying 'Trap.To' to the targets and 'Trap.From' to the user.
-getTo :: Seq Ninja -- ^ Targets.
-      -> Trigger -- ^ Filter.
-      -> Ninja -- ^ User.
+getOf :: (MonoFoldable o, Element o ~ Trigger) => Slot -> o -> Ninja
       -> Seq SavedPlay
-getTo xs trigger n
-  | null xs   = mempty
-  | otherwise = do
-      trap <- Ninja.traps n
-      guard $ Trap.trigger trap == trigger
-      case Trap.direction trap of
-          Trap.From -> do
-              x <- xs
-              let retarget ctx = ctx {Context.target = Ninja.slot x}
-              return . first retarget . Trap.effect trap $ Trap.tracker trap
-          _ ->
-              return . Trap.effect trap $ Trap.tracker trap
+getOf user triggers n = savedPlay user <$>
+                        filter (match . Trap.trigger) (Ninja.traps n)
+  where
+    match trigger = trigger ∈ Ninja.triggers n && trigger ∈ triggers
+
+get :: Slot -> Ninja -> Seq SavedPlay
+get user n = savedPlay user <$>
+                      filter ((∈ Ninja.triggers n) . Trap.trigger)
+                      (Ninja.traps n)
 
 -- | Adds a value to 'Trap.tracker' of 'Ninja.traps' with a certain 'Trigger'.
 track :: Trigger -> Int -> Ninja -> Ninja
@@ -89,17 +60,20 @@ track trigger amount n = n { Ninja.traps = tracked <$> Ninja.traps n }
       | otherwise = trap
 
 -- | 'OnBreak' effects of 'Ninja.defense' removed during a turn.
-broken :: Ninja -- ^ Old.
-       -> Ninja -- ^ New.
-       -> (Ninja, Seq SavedPlay)
-broken n n' =
-    ( n' { Ninja.traps = filter ((∉ broke) . Trap.trigger) traps }
-    , [Trap.effect trap 0 | trap <- traps, Trap.trigger trap ∈ broke]
-    )
+brokenOne :: Ninja -- ^ Old.
+          -> Ninja -- ^ New.
+          -> Ninja
+brokenOne n n' =
+    n' { Ninja.traps    = filter ((∉ triggers) . Trap.trigger) $ Ninja.traps n'
+       , Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n') triggers
+       }
   where
-    traps = Ninja.traps n'
-    broke = OnBreak <$> List.nub (Defense.name <$> Ninja.defense n)
-                     \\ List.nub (Defense.name <$> Ninja.defense n')
+    triggers = OnBreak <$> List.nub (Defense.name <$> Ninja.defense n)
+                        \\ List.nub (Defense.name <$> Ninja.defense n')
+
+broken :: Game -> Game -> Game
+broken game game' =
+    game' { Game.ninjas = Game.zipNinjasWith brokenOne game game' }
 
 -- | Conditionally returns 'Trap.Trap's that accept a numeric value.
 getPer :: Bool -- ^ If 'False', returns 'mempty' instead.
@@ -160,17 +134,15 @@ getTurnPer player n n'
     user = Ninja.slot n'
     hp   = Ninja.health n - Ninja.health n'
 
--- | Returns 'OnNoAction' and 'OnNoHarm' 'Trap.Trap's based on 'Ninja.flags'.
+-- | Returns 'OnNoAction' 'Trap.Trap's.
 getTurnNot :: Player -- ^ Player during the current turn.
            -> Ninja -- ^ 'Ninja.flags' owner.
            -> Seq SavedPlay
 getTurnNot player n
-  | Parity.allied player user = get user (Acted ∉ flags)  OnNoAction n
-                             ++ get user (Harmed ∉ flags) OnNoHarm   n
-  | otherwise = mempty
+  | Parity.allied player user = getOf user [OnNoAction] n
+  | otherwise                 = mempty
   where
-    user     = Ninja.slot n
-    flags    = Ninja.flags n
+    user = Ninja.slot n
 
 -- | Applies per-turn traps at the end of a turn.
 getTurn :: Game -- ^ Old.

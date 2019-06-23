@@ -47,7 +47,7 @@ censor :: Player -> Game -> Game
 censor player = censorPlayer player . Game.setChakra (Player.opponent player) 0
 
 censorPlayer :: Player -> Game -> Game
-censorPlayer player game = Game.alter (censorNinja game player <$>) game
+censorPlayer player game = Game.alter (censorNinja game player) game
 
 censorNinja :: Game -> Player -> Ninja -> Ninja
 censorNinja game player n

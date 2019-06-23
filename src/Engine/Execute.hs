@@ -11,11 +11,10 @@ import ClassyPrelude hiding ((<|))
 
 import           Control.Monad.Trans.Maybe (runMaybeT)
 import           Data.Either (isLeft)
-import qualified Data.HashSet as Set
 import qualified Data.List as List
 import qualified Data.Sequence as Seq
 
-import           Core.Util ((—), (∈), (∉), enumerate, intersects)
+import           Core.Util ((—), (∈), (∉), intersects)
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
@@ -37,7 +36,6 @@ import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
 import           Model.Game (Game)
 import qualified Model.Ninja as Ninja
-import           Model.Ninja (Flag(..))
 import qualified Model.Requirement as Requirement
 import           Model.Requirement (Requirement(..))
 import qualified Model.Skill as Skill
@@ -75,7 +73,7 @@ copy :: Bool -- ^ Whether or not to call 'Ninja.clear' on matching 'Status.Statu
      -> (Slot, Text, Int, Duration) -- ^ Output of 'Trigger.replace'.
       -> Game -> Game
 copy clear cop target skill (user, name, s, dur) game
-  | clear     = Game.alter (Ninja.clear name target <$>) adjusted
+  | clear     = Game.alter (Ninja.clear name target) adjusted
   | otherwise = adjusted
   where
     adjusted = Game.adjust target copier game
@@ -112,12 +110,10 @@ wrap affected f = void $ runMaybeT do
                       | Ninja.is Uncounter nTarget     -> Mimicked
                       | otherwise                      -> Completed
 
-    when new . P.modify $ Game.adjust target \n ->
-        n { Ninja.flags = Set.insert Targeted $ Ninja.flags n }
+    -- P.flag target Flag.Targeted
     guard $ exit /= Flagged
 
-    unless ( target == user
-          || Skill.channel skill == Instant
+    unless ( Skill.channel skill == Instant
           || Interrupted ∈ affected
           || not (Ninja.isChanneling (Skill.name skill) nUser)
            ) . P.modify $ Game.adjust target \n ->
@@ -142,9 +138,6 @@ wrap affected f = void $ runMaybeT do
     else lift . fromMaybe
         do
             f
-            (nTarget', traps) <- Traps.broken nTarget <$> P.nTarget
-            P.modify $ Game.setNinja target nTarget'
-            traverse_ P.launch traps
             when (allow Reflected) . P.withTargets (Effects.share nTarget) $
                 wrap (Reflected : affected) f
         $ do
@@ -174,6 +167,7 @@ wrap affected f = void $ runMaybeT do
             return do
                 P.modify $ Game.setNinja target nt
                 P.with Context.reflect $ wrap (Reflected : affected) f
+    P.modify $ Traps.broken game
   where
     new = not $ [Channeled, Delayed, Trapped] `intersects` affected
     bypass skill
@@ -181,8 +175,11 @@ wrap affected f = void $ runMaybeT do
           skill { Skill.classes = Bypassing : Skill.classes skill }
       | otherwise = skill
     withDirect skill
-      | Trapped ∈ affected && TrapAttack ∉ Skill.classes skill =
-          P.withSkill skill { Skill.classes = Direct : Skill.classes skill }
+      | [Channeled, Interrupted, Trapped] `intersects` affected =
+          P.with \ctx -> ctx
+              { Context.skill =
+                  skill { Skill.classes = Direct : Skill.classes skill }
+              }
       | otherwise = id
     onlyDmg n n' =
         n { Ninja.health   = min (Ninja.health n) (Ninja.health n')
@@ -214,13 +211,30 @@ chooseTarget XEnemies = List.delete <$> P.target <*> chooseTarget Enemies
 chooseTarget REnemy   = maybeToList <$> (chooseTarget Enemies >>= R.choose)
 chooseTarget Everyone = return Slot.all
 
--- | Handles a single effect tuple in a 'Skill'. Uses 'wrap' internally.
-effect :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> (Target, m ()) -> m ()
+-- | Directs an effect tuple in a 'Skill' to a target. Uses 'wrap' internally.
+targetEffect :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> m () -> m ()
+targetEffect affected f = do
+    user   <- P.user
+    target <- P.user
+    if user == target then
+        f
+    else if Parity.allied user target then do
+        wrap affected f
+        P.trigger target [OnHelped]
+    else do
+        wrap affected f
+        P.trigger user [OnHarm]
+        P.trigger target =<< (OnHarmed <$>) . Skill.classes <$> P.skill
+
+
+-- | Handles a single effect tuple in a 'Skill'. Uses 'targetEffect' internally.
+effect :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> (Target, m ())
+       -> m ()
 effect affected (target, f)  = do
       skill   <- P.skill
       targets <- chooseTarget target
       let localize t ctx = ctx { Context.skill = skill, Context.target = t }
-      traverse_ (flip P.with (wrap affected f) . localize) targets
+      traverse_ (flip P.with (targetEffect affected f) . localize) targets
 
 -- | Handles all effects of a 'Skill'. Uses 'wrap' internally.
 effects :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> m ()
@@ -251,9 +265,9 @@ addChannels = do
 
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
-act :: ∀ m. (MonadGame m, MonadRandom m) => [Affected] -> Act -> m ()
-act affected' a = do
-    P.modify $ Game.alter (Adjust.effects <$>)
+act :: ∀ m. (MonadGame m, MonadRandom m) => Bool -> Act -> m ()
+act new a = do
+    P.modify $ Game.alter Adjust.effects
     game      <- P.game
     let nUser  = Game.ninja user game
         skill' = Adjust.skill s nUser
@@ -261,39 +275,38 @@ act affected' a = do
         Just swapped -> do
             P.modify $ Game.setNinja user nUser
                 { Ninja.statuses = List.delete swapped $ Ninja.statuses nUser }
-            return (Swapped : affected', SkillTransform.swap swapped skill')
-        Nothing -> return (affected', skill')
+            return ([Swapped], SkillTransform.swap swapped skill')
+        Nothing -> return ([], skill')
     let charge = Skill.charges skill > 0
         cost   = Skill.cost skill
         usable = not $ Skill.require skill == Unusable
                     || Chakra.lack (Game.getChakra user game - cost)
-        valid  = Ninja.alive nUser && (channed || usable) && case s of
+        valid  = Ninja.alive nUser && (not new || usable) && case s of
             Left _   -> True
-            Right s' -> channed || Ninja.isChanneling (Skill.name s') nUser
+            Right s' -> not new || Ninja.isChanneling (Skill.name s') nUser
 
     when valid $ P.withContext (ctx skill) do
+        P.trigger user $ OnAction <$> Skill.classes skill
         case Trigger.snareTrap skill nUser of
             Just (n', sn) -> P.modify . Game.setNinja user $ case s of
                 Left s' | s' <= 3 -> Cooldown.update charge sn skill s' n'
                 _                 -> n'
             Nothing -> do
-                unless channed . P.modify $ Game.adjustChakra user (— cost)
+                when new . P.modify $ Game.adjustChakra user (— cost)
                 P.modify $ Cooldown.updateGame charge skill user s
-                game' <- P.game
                 effects affected
                 when (isLeft s) addChannels
-                trigger affected game'
-        P.modify $ Game.adjust user \n ->
-            n { Ninja.flags = Set.insert Acted $ Ninja.flags n }
+        traverse_ P.launch $ Traps.get user =<< Game.ninjas game
+        P.modify $ Game.alter \n -> n { Ninja.triggers = mempty }
   where
     s       = Act.skill a
     user    = Act.user a
-    channed = Channeled ∈ affected'
     ctx skill = Context.Context { Context.skill  = skill
                                 , Context.user   = user
                                 , Context.target = Act.target a
+                                , Context.new    = new
                                 }
-
+{-
 invincEffects :: [Effect]
 invincEffects = (Invulnerable <$> enumerate) ++ (Invincible <$> enumerate)
 
@@ -302,54 +315,24 @@ trigger :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> Game -> m ()
 trigger affected gameBefore = void $ runMaybeT do
     user  <- P.user
     total <- sum . Game.zipNinjasWith Ninja.healthLost gameBefore <$> P.game
-    P.modify . Game.adjust user $ Traps.track PerDamage total
+    P.modify . Game.adjust user $ Traps.t_rack PerDamage total
     guard $ null affected
 
     classes     <- fromList . Skill.classes <$> P.skill
-    let nUser    = Traps.track PerDamage total $ Game.ninja user gameBefore
-        counters = Traps.get user True (OnCounter Uncounterable) nUser
-                   ++ Traps.getClassed classes user
-                      (Harmful ∈ classes && Uncounterable ∉ classes)
-                      OnCounter nUser
+    let nUser    = Traps.t_rack PerDamage total $ Game.ninja user gameBefore
+        counters = Traps.g_et user True (OnCounter Uncounterable) nUser
+                   ++ do
+                      guard $ Harmful ∈ classes && Uncounterable ∉ classes
+                      cla <- classes
+                      Traps.g_et user True (OnCounter cla) nUser
     if not $ null counters || affectedBy [Reflected, Trapped] then do
         updatedCopies <- Game.zipNinjasWith updateCopies gameBefore <$> P.game
         P.modify $ const gameBefore { Game.ninjas = updatedCopies }
         traverse_ P.launch counters
-    else do
-        guard . (gameBefore /=) =<< P.game
-        nPairs     <- zip (Game.ninjas gameBefore) . Game.ninjas <$> P.game
-        chakra     <- (Game.chakra gameBefore /=) . Game.chakra <$> P.game
-        isImmune   <- (invincEffects `intersects`) . Ninja.effects <$> P.nUser
-        let immuned = isImmune
-                      && not (invincEffects `intersects` Ninja.effects nUser)
-            (allies, enemies)
-              | Parity.even user = Parity.split nPairs
-              | otherwise        = swap $ Parity.split nPairs
-            harmed  = filterOn enemies (/=)
-            helped  = filterOn allies (/=)
-            damaged = filterOn enemies \n n' -> Ninja.health n' < Ninja.health n
-            healed  = filterOn allies  \n n' -> Ninja.health n' > Ninja.health n
-            stunned = filterOn enemies \n n' -> Ninja.isAny Stun n'
-                                                && not (Ninja.isAny Stun n)
-            getClassed  = Traps.getClassed classes user
-        when (not $ null harmed) . P.modify $ Game.adjust user \n ->
-            n { Ninja.flags = Set.insert Harmed $ Ninja.flags n }
-        traverse_ (traverse_ P.launch) -- cheaper than a 'join'
-            [ getClassed     True    OnAction      nUser
-            , Traps.get user chakra  OnChakra      nUser
-            , Traps.get user immuned OnImmune      nUser
-            , Traps.getTo    harmed  OnHarm        nUser
-            , Traps.getTo    damaged OnDamage      nUser
-            , Traps.getTo    stunned OnStun        nUser
-            , getClassed     True    OnHarmed  =<< harmed
-            , Traps.get user True    OnHelped  =<< helped
-            , getClassed     True    OnDamaged =<< damaged
-            , Traps.get user True    OnHealed  =<< healed
-            , Traps.get user True    OnStunned =<< stunned
-            ]
   where
     affectedBy = (`intersects` affected)
     -- Ensures new 'Ninja.copies' are preserved even if an 'OnCounter'
     -- nullifies the rest of the action.
     updateCopies n n' = n { Ninja.copies = Ninja.copies n' }
     filterOn xs f     = snd <$> filter (uncurry f) xs
+-}

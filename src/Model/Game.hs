@@ -41,8 +41,8 @@ setNinja :: Slot -> Ninja -> Game -> Game
 setNinja slot n game =
     game { ninjas = Seq.update (Slot.toInt slot) n $ ninjas game }
 
-alter :: (Seq Ninja -> Seq Ninja) -> Game -> Game
-alter f game = game { ninjas = f $ ninjas game }
+alter :: (Ninja -> Ninja) -> Game -> Game
+alter f game = game { ninjas = f <$> ninjas game }
 
 adjust :: Slot -> (Ninja -> Ninja) -> Game -> Game
 adjust i f game = game { ninjas = Seq.adjust' f (Slot.toInt i) $ ninjas game }

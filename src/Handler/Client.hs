@@ -19,7 +19,7 @@ import qualified Yesod.Auth as Auth
 import           Yesod.WebSockets (webSockets)
 
 import           Core.App (Handler)
-import           Core.Util ((∉), shorten, textTail)
+import           Core.Util ((∉), shorten)
 import           Core.Model (EntityField(..), User(..))
 import           Core.Settings (widgetFile)
 import qualified Model.Character as Character
@@ -44,7 +44,7 @@ getUpdateR updateName updateCondense updateBackground updateAvatar
                                    ]
     returnJson user
   where
-    updateBackground'  = textTail updateBackground
+    updateBackground'  = fromMaybe "" $ tailMay updateBackground
     updateBackground''
       | null updateBackground' = Nothing
       | otherwise              = Just updateBackground'

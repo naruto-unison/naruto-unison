@@ -37,7 +37,6 @@ data Class
     | NonMental
     | Resource -- ^ Display stacks separately
     | Direct
-    | TrapAttack
     -- Chakra (Hidden)
     | Bloodline
     | Genjutsu
@@ -74,7 +73,6 @@ instance Show Class where
     show NonMental      = "Non-mental"
     show Resource       = "Resource"
     show Direct         = "Direct"
-    show TrapAttack     = "Traps are treated as basic attacks"
     show Bloodline      = "Bloodline"
     show Genjutsu       = "Genjutsu"
     show Ninjutsu       = "Ninjutsu"

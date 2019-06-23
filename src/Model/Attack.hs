@@ -1,6 +1,4 @@
-module Model.Attack
-  ( Attack(..)
-  ) where
+module Model.Attack (Attack(..)) where
 
 import ClassyPrelude
 

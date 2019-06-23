@@ -8,14 +8,18 @@ module Class.Play
     -- ** From monad
   , skill
   , user, target
+  , new
     -- ** From game
   , nUser, nTarget
   , player
   -- * Transformation
+  , old
   , withContext
-  , withSkill, withTarget, withTargets
+  , withTarget, withTargets
   -- * Lifting
   , toTarget, fromSource
+  -- * Other
+  , trigger
   ) where
 
 import ClassyPrelude hiding (Vector)
@@ -25,10 +29,12 @@ import           Model.Internal (MonadGame(..), Play(..), PlayConstraint, MonadP
 import qualified Model.Context as Context
 import           Model.Context (Context)
 import qualified Model.Game as Game
+import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja)
 import           Model.Player (Player)
 import           Model.Skill (Skill)
 import           Model.Slot (Slot)
+import           Model.Trap (Trigger)
 
 -- | Unwraps a 'Play' object, revealing its inner monadic function.
 -- While wrapped in the 'Play' newtype, game functions may be passed around
@@ -58,6 +64,12 @@ user = Context.user <$> context
 target :: ∀ m. MonadPlay m => m Slot
 target = Context.target <$> context
 
+-- | When new actions are used, they can trigger traps and counters.
+-- All other actions, such as channeled actions past the first turn, delays,
+-- and effects of traps, cannot.
+new :: ∀ m. MonadPlay m => m Bool
+new = Context.new <$> context
+
 -- | The 'Game.ninja' indexed by 'user'.
 nUser :: ∀ m. MonadPlay m => m Ninja
 nUser = Game.ninja <$> user <*> game
@@ -70,9 +82,11 @@ nTarget = Game.ninja <$> target <*> game
 player :: ∀ m. MonadGame m => m Player
 player = Game.playing <$> game
 
--- | Runs an action in a localized state where 'skill' is replaced.
-withSkill :: ∀ m a. MonadPlay m => Skill -> m a -> m a
-withSkill x = with \ctx -> ctx { Context.skill = x }
+-- | Runs an action in a localized state where 'Context.new' is 'False'.
+old :: ∀ m a. MonadPlay m => m a -> m a
+old f = do
+    isNew <- new
+    if isNew then with (\ctx -> ctx { Context.new = False }) f else f
 
 -- | Runs an action in a localized state where 'target' is replaced.
 withTarget :: ∀ m a. MonadPlay m => Slot -> m a -> m a
@@ -93,3 +107,11 @@ fromSource f = do
     t   <- target
     src <- user
     modify . Game.adjust t $ f src
+
+-- | Adds a 'Flag' if 'Context.user' is not 'Context.target' and 'Context.new' is True.
+trigger :: ∀ m o. (MonadPlay m, MonoFoldable o, Element o ~ Trigger)
+        => Slot -> o -> m ()
+trigger i xs = whenM (valid <$> context) . modify $ Game.adjust i \n ->
+    n { Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n) xs }
+  where
+    valid ctx = Context.new ctx && Context.user ctx /= Context.target ctx

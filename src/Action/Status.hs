@@ -21,10 +21,10 @@ module Action.Status
 
 import ClassyPrelude
 
-import           Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
-import qualified Data.List as List
+import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
+import Data.List (nub)
 
-import           Core.Util ((∈), (∉))
+import           Core.Util ((∈), (∉), enumerate, intersects)
 import qualified Class.Play as P
 import           Class.Play (Play(..), MonadPlay)
 import           Class.Random (MonadRandom)
@@ -42,6 +42,7 @@ import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
 import qualified Model.Status as Status
 import           Model.Status (Bomb)
+import           Model.Trap (Trigger(..))
 import qualified Engine.Adjust as Adjust
 import qualified Engine.Effects as Effects
 import qualified Action.Channel as ActionChannel
@@ -168,9 +169,14 @@ bombWith' :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Text -> Turns
 bombWith' classes name dur fs bombs =
     applyFull classes False bombs name dur fs
 
+immuneEffects :: [Effect]
+immuneEffects = (Invulnerable <$> enumerate) ++ (Invincible <$> enumerate)
+stunEffects :: [Effect]
+stunEffects = Stun <$> enumerate
+
 -- | Status engine.
-applyFull :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Bool -> [(Bomb, Play ())]
-          -> Text -> Turns -> [Effect] -> m ()
+applyFull :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Bool
+          -> [(Bomb, Play ())] -> Text -> Turns -> [Effect] -> m ()
 applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
     void $ runMaybeT do
         skill       <- P.skill
@@ -191,7 +197,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                        [ (Soulbound,   any bind fs)
                        , (Unremovable, noremove)
                        ]
-            classes' = List.delete Resource . List.nub $
+            classes' = delete Resource . nub $
                        extra ++ classes ++ Skill.classes skill
             silenced = Ninja.is Silence nUser
             filt
@@ -204,7 +210,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                   { Status.name    = Skill.defaultName name skill
                   , Status.user    = user
                   , Status.effects = filt $ Adjust.apply nTarget fs
-                  , Status.classes = List.delete Resource . List.nub $
+                  , Status.classes = delete Resource . nub $
                                      extra ++ classes ++ Skill.classes skill
                   , Status.bombs   = guard (Status.dur newSt <= incr (sync dur))
                                      >> bombs
@@ -217,14 +223,23 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                 n { Ninja.statuses = prolong' $ Ninja.statuses n }
         else do
             guard $ null fs || not (null $ Status.effects st)
-            P.modify . Game.adjust target $ Ninja.addStatus st
+            let
+              onImmune n
+                | Status.effects st `intersects` immuneEffects =
+                    n { Ninja.triggers = insertSet OnImmune $ Ninja.triggers n }
+                | otherwise = n
+            P.modify . Game.adjust target $ onImmune . Ninja.addStatus st
+            when (Status.effects st `intersects` stunEffects) do
+                P.trigger user OnStun
+                P.trigger target OnStunned
+
             lift . ActionChannel.onInterrupts $ any (∈ Status.effects st) .
                    (Stun <$>) . Skill.classes . Channel.skill
             when (bounced && not self) do
                 let bounce t = P.withTarget t $
                                applyFull [] True (Status.bombs st) name
                                turns fs
-                lift . traverse_ bounce . List.delete user $
+                lift . traverse_ bounce . delete user $
                        Effects.share nTarget
   where
     bind Redirect{}   = True

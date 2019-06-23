@@ -7,24 +7,22 @@ module Core.Util
   , equaling
   , mapMaybe
   , shorten
-  , textInit, textTail
   ) where
 
 import ClassyPrelude hiding ((<|), mapMaybe)
 
-import qualified Data.List as List
-import qualified Data.Text as Text
+import Data.List (nub)
 
 -- | '-' allowing for sections.
 (—) :: ∀ a. Num a => a -> a -> a
 (—) = (-)
 
 -- | 'elem'.
-(∈) :: ∀ o. MonoFoldable o => Eq (Element o) => Element o -> o -> Bool
+(∈) :: ∀ o. (MonoFoldable o, Eq (Element o)) => Element o -> o -> Bool
 (∈) = elem
 
 -- | 'notElem'.
-(∉) :: ∀ o. MonoFoldable o => Eq (Element o) => Element o -> o -> Bool
+(∉) :: ∀ o. (MonoFoldable o, Eq (Element o)) => Element o -> o -> Bool
 (∉) = notElem
 
 -- | True if any elements are shared by both collections.
@@ -35,7 +33,7 @@ intersects x = any (∈ x)
 
 -- | True if a list contains multiple identical values.
 duplic :: ∀ a. Eq a => [a] -> Bool
-duplic x = List.nub x /= x
+duplic x = nub x /= x
 
 -- | Lists all members of an 'Enum' from 'minBound' to 'maxBound'.
 enumerate :: ∀ a. (Bounded a, Enum a) => [a]
@@ -64,13 +62,3 @@ shorten = omap f . filter (∉ bans)
     f 'Ū' = 'U'
     f 'ä' = 'a'
     f a = a
-
--- | 'Text.init' that returns @""@ if given @""@ instead of crashing.
-textInit :: Text -> Text
-textInit "" = ""
-textInit a  = Text.init a
-
--- | 'Text.tail' that returns @""@ if given @""@ instead of crashing.
-textTail :: Text -> Text
-textTail "" = ""
-textTail x  = Text.tail x

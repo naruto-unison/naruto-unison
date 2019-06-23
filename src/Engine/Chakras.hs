@@ -7,6 +7,8 @@ module Engine.Chakras
 
 import ClassyPrelude
 
+import qualified Data.Vector as Vec
+
 import           Core.Util ((—))
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
@@ -14,9 +16,9 @@ import qualified Class.Random as R
 import           Class.Random (MonadRandom)
 import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra(..), Chakras)
-import qualified Data.Vector as Vec
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
+import           Model.Trap (Trigger(..))
 
 -- | Randomly picks a 'Chakra' of any kind except 'Rand'.
 random :: ∀ m. MonadRandom m => m Chakra
@@ -29,10 +31,12 @@ remove :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m Chakras
 remove amount
   | amount <= 0 = return 0
   | otherwise   = do
-    target <- P.target
+    user    <- P.user
+    target  <- P.target
     chakras <- Chakra.fromChakras . Game.getChakra target <$> P.game
     removed <- Chakra.collect . Vec.take amount <$> R.shuffle chakras
     P.modify $ Game.adjustChakra target (— removed)
+    P.trigger user [OnChakra]
     return removed
 
 -- | Adds as many random 'Chakra's as the number of living 'Ninja.Ninja's on the

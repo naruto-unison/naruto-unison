@@ -111,7 +111,6 @@ reflectable matches classes
   | Unreflectable ∈ classes = const Nothing
   | otherwise               = find (matches . Status.effects) . Ninja.statuses
 
-
 -- | Trigger a 'Redirect'.
 redirect :: [Class] -> Ninja -> Maybe Slot
 redirect classes n = listToMaybe [slot | Redirect cla slot <- Ninja.effects n
@@ -133,8 +132,10 @@ death :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> m ()
 death slot = do
     game   <- P.game
     let n   = Game.ninja slot game
-        res = Traps.get slot (not $ Ninja.is Plague n) OnRes n
-        die = Traps.get slot True OnDeath n
+        die = Traps.getOf slot [OnDeath] n
+        res
+          | Ninja.is Plague n = mempty
+          | otherwise         = Traps.getOf slot [OnRes] n
     if | Ninja.health n > 0 -> return ()
        | not $ null res     -> do
             P.modify $ Game.adjust slot \nt ->
@@ -148,7 +149,7 @@ death slot = do
                 nt { Ninja.traps = filter ((OnDeath /=) . Trap.trigger) $
                                   Ninja.traps nt }
             trigger die
-            P.modify . Game.alter $ (unres <$>)
+            P.modify $ Game.alter unres
   where
     trigger = traverse_ $ P.launch . first \ctx -> ctx { Context.user = slot }
     unres n = n

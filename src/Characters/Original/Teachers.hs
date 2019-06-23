@@ -36,7 +36,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Capture and Arrest"
-        , Skill.desc      = "Iruka traps an enemy in an area filled with his paper bombs. If the target uses a new harmful skill during their next turn, they will receive 40 damage, and physical and chakra skills will deal 25 additional damage to them for 1 turn."
+        , Skill.desc      = "Iruka traps an enemy in an area filled with his paper bombs. If the target uses a skill on Iruka or his allies during their next turn, they will receive 40 damage, and physical and chakra skills will deal 25 additional damage to them for 1 turn."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = k [Nin]
         , Skill.cooldown  = 2
@@ -88,7 +88,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Genjutsu Ambush Tactics"
-        , Skill.desc      = "Mizuki lurks in the shadows. If he does not take any new damage next turn, he becomes invulnerable for 1 turn and his other skills are empowered."
+        , Skill.desc      = "Mizuki lurks in the shadows. If no enemy uses a skill that deals damage to him, he becomes invulnerable for 1 turn and his other skills are empowered."
         , Skill.classes   = [Mental, InvisibleTraps]
         , Skill.cost      = k [Gen]
         , Skill.cooldown  = 1

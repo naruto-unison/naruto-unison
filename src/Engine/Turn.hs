@@ -44,19 +44,19 @@ run actions = do
     initial     <- P.game
     player      <- Game.playing <$> P.game
     let opponent = Player.opponent player
-    traverse_ (Execute.act []) actions
+    traverse_ (Execute.act True) actions
     channels <- concatMap getChannels . filter (Ninja.playing player) .
                 Game.ninjas <$> P.game
-    traverse_ (Execute.act [Channeled]) channels
+    traverse_ (Execute.act False) channels
     Traps.runTurn initial
     doBombs Remove initial
-    P.modify $ Game.alter (Ninja.decrStats <$>)
+    P.modify $ Game.alter Ninja.decrStats
     doBarriers
     doDelays
     doDeaths
     P.modify \game -> game { Game.delays = decrDelays $ Game.delays game }
     expired <- P.game
-    P.modify $ Game.alter (Ninja.decr <$>)
+    P.modify $ Game.alter Ninja.decr
     doBombs Expire expired
     doBombs Done initial
     doHpsOverTime

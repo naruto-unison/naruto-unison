@@ -8,8 +8,8 @@ import ClassyPrelude
 
 import qualified System.Random.MWC as Random
 
-import           Model.Internal (Wrapper(..))
-import           Model.Game (Game)
+import Model.Internal (Wrapper(..))
+import Model.Game (Game)
 
 game :: ∀ m. MonadIO m => Wrapper -> m Game
 game = readIORef . gameRef

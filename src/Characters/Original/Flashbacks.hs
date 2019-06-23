@@ -241,7 +241,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Life Link"
         , Skill.desc      = "Kushina binds her life-force to that of an enemy. For 4 turns, if either dies, the other will die as well. Effect cannot be avoided, prevented, or removed."
-        , Skill.classes   = [Mental, Ranged, Bypassing, Unremovable, Uncounterable, Unreflectable, Direct]
+        , Skill.classes   = [Mental, Ranged, Bypassing, Unremovable, Uncounterable, Unreflectable]
         , Skill.cost      = k [Gen, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
@@ -452,7 +452,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Sharingan"
-        , Skill.desc      = "Kakashi anticipates an opponent's moves for 2 turns. If they use a skill that removes or steals chakra, Kakashi gains 1 random chakra. If they use a skill that stuns, Kakashi's skills will stun next turn. If they use a skill that damages, Kakashi's damage will be increased by 10 during the next turn."
+        , Skill.desc      = "Kakashi anticipates an opponent's moves for 2 turns. If they use a skill that depletes or absorbs chakra, Kakashi gains 1 random chakra. If they use a skill that stuns, Kakashi's skills will stun next turn. If they use a skill that damages, Kakashi's damage will be increased by 10 during the next turn."
         , Skill.classes   = [Mental, Ranged, InvisibleTraps]
         , Skill.cooldown  = 1
         , Skill.effects   =

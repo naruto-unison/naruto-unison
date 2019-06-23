@@ -29,7 +29,6 @@ gain chakras = do
     rand     <- replicateM (length rands) Chakras.random
     let total = Chakra.collect $ rand ++ nonrands
     P.modify $ Game.adjustChakra target (+ total)
-    return ()
   where
     (rands, nonrands) = partition (== Rand) chakras
 

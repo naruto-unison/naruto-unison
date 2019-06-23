@@ -1,16 +1,12 @@
-module Characters
-  ( map
-  , list
-  ) where
+module Characters (map, list) where
 
 import ClassyPrelude hiding (map)
 
-import qualified Data.HashMap.Strict as HashMap
-import           Data.HashMap.Strict (HashMap)
-import qualified Data.List as List
-import           Data.List.NonEmpty (NonEmpty(..))
+import Data.HashMap.Strict (HashMap)
+import Data.List (nub)
+import Data.List.NonEmpty (NonEmpty(..))
 
-import           Core.Util ((∉), intersects, textInit)
+import           Core.Util ((∉), intersects)
 import qualified Model.Character as Character
 import           Model.Character (Character, Category(..))
 import           Model.Class (Class(..))
@@ -60,7 +56,7 @@ list :: [Character]
 list = addClasses <$> original ++ shippuden ++ reanimated
 
 map :: HashMap Text Character
-map = HashMap.fromList $ (\c -> (tshow c, c)) <$> list
+map = mapFromList $ (\c -> (tshow c, c)) <$> list
 
 addClasses :: Character -> Character
 addClasses char = char { Character.skills = doSkills <$> Character.skills char }
@@ -72,10 +68,11 @@ doSkills (x:|xs) = doSkill x :| (doSkill . vari <$> xs)
                   { Skill.varicd = Skill.varicd skill
                                    || Skill.cooldown x /= Skill.cooldown skill
                                    || diff skill }
-    diff skill = Skill.name x ∉ [Skill.name skill, textInit $ Skill.name x]
+    diff skill = Skill.name x ∉
+                 [Skill.name skill, fromMaybe "" . initMay $ Skill.name x]
 
 doSkill :: Skill -> Skill
-doSkill skill = skill { Skill.classes = List.nub $ added ++ Skill.classes skill }
+doSkill skill = skill { Skill.classes = nub $ added ++ Skill.classes skill }
   where
     added = fst <$> filter snd
             [ (All, True)

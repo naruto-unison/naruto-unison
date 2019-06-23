@@ -10,7 +10,6 @@ import           Control.Monad.Reader (local, mapReaderT)
 import           Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import           Control.Monad.Trans.State.Strict (StateT, get, modify')
 import           Data.List.NonEmpty (NonEmpty(..))
-import           Data.HashSet (HashSet)
 import           Data.Vector.Generic (Vector)
 import qualified System.Random.MWC as Random
 import qualified System.Random.MWC.Distributions as Random
@@ -37,6 +36,7 @@ data Amount = Flat | Percent deriving (Eq, Ord)
 data Context = Context { skill   :: Skill
                        , user    :: Slot
                        , target  :: Slot
+                       , new     :: Bool
                        } deriving (Eq)
 
 type PlayConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
@@ -251,14 +251,6 @@ instance Show Effect where
     show (Unreduce x) = "Damage reduction skills reduce " ++ show x ++ " fewer damage."
     show (Weaken classes amt x) = show classes ++ " skills deal " ++ showAmt amt x ++ " fewer damage. Does not affect affliction damage."
 
-data Flag
-    = Acted
-    | Harmed
-    | Targeted
-    deriving (Show, Eq, Ord, Bounded, Enum)
-instance Hashable Flag where
-    hashWithSalt x = hashWithSalt x . fromEnum
-
 -- | In-game character, indexed between 0 and 5.
 data Ninja = Ninja { slot      :: Slot           -- ^ 'Model.Game.Ninjas' index (0-5)
                    , character :: Character
@@ -278,7 +270,7 @@ data Ninja = Ninja { slot      :: Slot           -- ^ 'Model.Game.Ninjas' index 
                    , tags      :: [ChannelTag]           -- ^ Starts empty
                    , lastSkill :: Maybe Skill            -- ^ Starts at 'Nothing'
                    , effects   :: [Effect]               -- ^ Empty each turn
-                   , flags     :: HashSet Flag           -- ^ Empty each turn
+                   , triggers  :: Set Trigger            -- ^ Empty each turn
                    }
 instance Eq Ninja where
     (==) = equaling \Ninja{..} -> (slot, health, cooldowns, charges)
@@ -460,10 +452,8 @@ data Trigger
     | OnDamaged Class
     | OnDeath
     | OnHarm
-    | OnNoHarm
     | OnHarmed Class
     | OnHealed
-    | PerHealed
     | OnHelped
     | OnImmune
     | OnReflectAll
@@ -471,10 +461,11 @@ data Trigger
     | OnStun
     | OnStunned
     | PerDamage
+    | PerHealed
     | PerDamaged
     | TrackDamage
     | TrackDamaged
-    deriving (Eq)
+    deriving (Eq, Ord)
 
 instance Classed Trigger where
     classes (OnAction cla)  = [cla]
@@ -503,7 +494,6 @@ instance Show Trigger where
     show OnHelped        = "Trigger: Be affected by a new skill from an ally"
     show OnImmune        = "Trigger: Become invulnerable"
     show OnNoAction      = "Trigger: Do not use a new skill"
-    show OnNoHarm        = "Trigger: Do not use a new harmful skill"
     show OnReflectAll    = "All skills are reflected."
     show OnRes           = "Trigger: Reach 0 health"
     show OnStun          = "Trigger: Apply a stun"
