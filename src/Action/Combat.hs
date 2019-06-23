@@ -270,7 +270,7 @@ heal hp = do
         nUser  <- P.nUser
         let hp'  = Effects.boost user nTarget * hp + Effects.bless nUser
         P.modify . Game.adjust target $ Ninja.adjustHealth (+ hp')
-        healed <- (— Ninja.health) . Ninja.health <$> P.nTarget
+        healed <- (— Ninja.health nTarget) . Ninja.health <$> P.nTarget
         if healed > 0 then do
             P.trigger target [OnHealed]
             P.modify . Game.adjust target $ Traps.track PerHealed healed
@@ -291,7 +291,7 @@ restore percent = do
                    * (100 - Ninja.health nTarget) `quot` 100
                    + Effects.bless nUser
         P.modify . Game.adjust target $ Ninja.adjustHealth (+ hp')
-        healed <- (— Ninja.health) . Ninja.health <$> P.nTarget
+        healed <- (— Ninja.health nTarget) . Ninja.health <$> P.nTarget
         if healed > 0 then do
             P.trigger target [OnHealed]
             P.modify . Game.adjust target $ Traps.track PerHealed healed

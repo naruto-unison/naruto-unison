@@ -230,8 +230,8 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                 | otherwise = n
             P.modify . Game.adjust target $ onImmune . Ninja.addStatus st
             when (Status.effects st `intersects` stunEffects) do
-                P.trigger user OnStun
-                P.trigger target OnStunned
+                P.trigger user [OnStun]
+                P.trigger target [OnStunned]
 
             lift . ActionChannel.onInterrupts $ any (∈ Status.effects st) .
                    (Stun <$>) . Skill.classes . Channel.skill
