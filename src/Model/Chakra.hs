@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass        #-}
+
 module Model.Chakra
   ( Chakra(..)
   , Chakras(..)
@@ -11,6 +13,7 @@ module Model.Chakra
 import ClassyPrelude hiding (map, sum, zip)
 import Prelude (sum)
 
+import           Data.Aeson (ToJSON)
 import qualified Data.Text as Text
 import qualified Data.Text.Read as Read
 import           Yesod.Core.Dispatch (PathPiece(..))
@@ -23,7 +26,7 @@ data Chakras = Chakras { blood :: Int -- ^ Bloodline
                        , nin   :: Int -- ^ Ninjutsu
                        , tai   :: Int -- ^ Taijutsu
                        , rand  :: Int -- ^ Random
-                       } deriving (Eq, Show, Read)
+                       } deriving (Eq, Show, Read, Generic, ToJSON)
 
 instance PathPiece Chakras where
   toPathPiece Chakras{..} = intercalate "," $ tshow <$> [blood, gen, nin, tai]

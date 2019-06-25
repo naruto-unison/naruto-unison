@@ -213,7 +213,7 @@ cs =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Enemy do
-              apply 4 [Throttle Invulnerable 1]
+              apply 4 [Throttle 1 $ Any Invulnerable]
               trapFrom 4 (OnHarmed Mental) $ apply 1 [Invulnerable All]
           ]
         }
@@ -641,7 +641,7 @@ cs =
           [ p Enemies demolishAll ]
         , Skill.effects   =
           [ p REnemy $ damage 25
-          , p Allies $ apply 1 [Ignore Stun]
+          , p Allies $ apply 1 [Ignore $ Any Stun]
           ]
         }
       ]

@@ -22,7 +22,6 @@ import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
-import           Engine.ToJSON ()
 
 -- | A single action of a 'Ninja'.
 data Act = Act { user   :: Slot

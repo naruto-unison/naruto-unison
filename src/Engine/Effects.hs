@@ -27,12 +27,13 @@ import ClassyPrelude hiding (link)
 
 import Data.List.NonEmpty (NonEmpty(..))
 
-import           Core.Util ((∈), enumerate, intersects)
+import           Core.Util ((∈), intersects)
 import qualified Class.Parity as Parity
 import           Model.Chakra (Chakras(..))
 import           Model.Class (Class(..))
 import qualified Model.Game as Game
 import           Model.Game (Game)
+import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja)
@@ -83,7 +84,7 @@ exhaust classes n =
 
 -- | 'Ignore' collection.
 ignore :: Ninja -> [Effect]
-ignore n = [ef cla | Ignore ef <- Ninja.effects n, cla <- enumerate]
+ignore n = [ef | Ignore con <- Ninja.effects n, ef <- Effect.construct con]
 
 -- | 'Invulnerable' collection.
 immune :: Ninja -> [Class]
@@ -129,9 +130,9 @@ threshold n = maximumEx $ 0 :| [x | Threshold x <- Ninja.effects n]
 
 -- | 'Throttle' sum.
 throttle :: [Effect] -> Ninja -> Int
-throttle efs n = sum [x | Throttle f x <- Ninja.effects n, throttled f]
+throttle efs n = sum [x | Throttle x f <- Ninja.effects n, throttled f]
   where
-    throttled = (efs `intersects`) . (<$> enumerate)
+    throttled = (efs `intersects`) . Effect.construct
 
 -- | 'Unreduce' sum.
 unreduce :: Ninja -> Int

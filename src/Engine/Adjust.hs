@@ -10,7 +10,7 @@ import ClassyPrelude hiding (head)
 import           Data.List.NonEmpty ((!!), head)
 import qualified Data.Sequence as Seq
 
-import           Core.Util ((∈), (∉), enumerate)
+import           Core.Util ((∈), (∉))
 import qualified Class.Parity as Parity
 import qualified Model.Character as Character
 import qualified Model.Copy as Copy
@@ -71,12 +71,12 @@ effects n = n { Ninja.effects = baseStatuses >>= processEffects }
     enraged       = Enrage ∈ baseEffects
     sealed        = not enraged && Seal ∈ baseEffects
     ignores
-      | sealed    = [ef cla | status <- baseStatuses
-                            , Ignore ef <- Status.effects status
-                            , Status.user status == nSlot
-                            , cla <- enumerate
-                            ]
-      | otherwise = [ef cla | Ignore ef <- baseEffects, cla <- enumerate]
+      | sealed    = [ef | status <- baseStatuses
+                        , Status.user status == nSlot
+                        , Ignore con <- Status.effects status
+                        , ef <- Effect.construct con
+                        ]
+      | otherwise = [ef | Ignore con <- baseEffects, ef <- Effect.construct con]
     boostAmount
       | sealed    = 1
       | otherwise = product $ 1 : [x | Boost x <- baseEffects]

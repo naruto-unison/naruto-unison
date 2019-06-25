@@ -1,7 +1,7 @@
 {-# LANGUAGE EmptyDataDecls  #-}
 {-# LANGUAGE GADTs           #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE NoStrictData    #-}
+{-# LANGUAGE TemplateHaskell #-}
 -- | Types generated from @config/models.persistentmodels@.
 module Core.Model where
 

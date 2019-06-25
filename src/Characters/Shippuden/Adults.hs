@@ -373,11 +373,11 @@ cs =
           [ p Self $ apply 1 [Reduce All Percent 20]
           , p Enemies do
                 damage 10
-                apply 1 [ Throttle Stun 1
-                        , Throttle Counter 1
-                        , Throttle CounterAll 1
-                        , Throttle (const Reflect) 1
-                        , Throttle (const ReflectAll) 1
+                apply 1 [ Throttle 1 $ Any Stun
+                        , Throttle 1 $ Any Counter
+                        , Throttle 1 $ Any CounterAll
+                        , Throttle 1 $ Only Reflect
+                        , Throttle 1 $ Only ReflectAll
                         ]
           ]
         }

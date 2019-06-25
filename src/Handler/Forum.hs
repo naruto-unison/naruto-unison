@@ -1,7 +1,7 @@
-{-# LANGUAGE TemplateHaskell             #-}
 {-# LANGUAGE MultiParamTypeClasses       #-}
-{-# LANGUAGE TypeFamilies                #-}
 {-# LANGUAGE QuasiQuotes                 #-}
+{-# LANGUAGE TemplateHaskell             #-}
+{-# LANGUAGE TypeFamilies                #-}
 {-# OPTIONS_GHC -fno-warn-unused-matches #-}
 
 -- | User forum handler.

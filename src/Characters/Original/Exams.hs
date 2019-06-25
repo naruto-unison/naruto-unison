@@ -48,7 +48,9 @@ cs =
         , Skill.cost      = k [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self $ apply 2 [Endure, Ignore Stun, Strengthen All Flat 5] ]
+          [ p Self $ apply 2
+                     [Endure, Ignore $ Any Stun, Strengthen All Flat 5]
+          ]
         }
       ]
     , [ invuln "Byakugan Foresight" "Hanabi" [Mental] ]

@@ -37,7 +37,7 @@ cs =
                 setHealth 5
                 teach 1 Deep 2
                 setFace 1
-                bomb (-1) [Invulnerable All, Seal, Enrage, Ignore Stun]
+                bomb (-1) [Invulnerable All, Seal, Enrage, Ignore $ Any Stun]
                           [ p Done killHard ]
           ]
         }
@@ -231,7 +231,7 @@ cs =
           [ p Enemy $ apply 1 [Stun All]
           , p XAlly do
                 cureStun
-                apply 1 [Ignore Stun]
+                apply 1 [Ignore $ Any Stun]
           ]
         , Skill.changes   = changeWith "Crystal Ice Mirrors" targetAll
         }

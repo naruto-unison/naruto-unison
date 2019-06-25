@@ -1,6 +1,9 @@
+{-# LANGUAGE DeriveAnyClass        #-}
 module Model.Class (Class(..)) where
 
 import ClassyPrelude
+
+import Data.Aeson (ToJSON)
 
 -- | Qualifiers of 'Model.Skill.Skill's and 'Model.Status.Status'es.
 data Class
@@ -43,7 +46,7 @@ data Class
     | Ninjutsu
     | Taijutsu
     | Random
-    deriving (Eq, Ord, Enum, Bounded)
+    deriving (Eq, Ord, Enum, Bounded, Generic, ToJSON)
 
 instance Show Class where
     show Invisible      = "Invisible"

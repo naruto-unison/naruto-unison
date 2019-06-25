@@ -1,7 +1,9 @@
 
 module Model.Effect
   ( Amount(..)
+  , Constructor(..)
   , Effect(..)
+  , construct
   , helpful
   , sticky
   , bypassEnrage
@@ -11,81 +13,16 @@ module Model.Effect
 
 import ClassyPrelude
 
-import Model.Internal (Amount(..), Effect(..))
+import Core.Util (enumerate)
+import Model.Internal (Amount(..), Constructor(..), Effect(..), helpful, sticky)
+
+construct :: Constructor -> [Effect]
+construct (Only x) = [x]
+construct (Any x)  = x <$> enumerate
 
 identity :: ∀ a. Num a => Amount -> a
 identity Flat    = 0
 identity Percent = 1
-
-helpful :: Effect -> Bool
-helpful Afflict{}      = False
-helpful AntiCounter    = True
-helpful (Bleed _ _ x)  = x < 0
-helpful Bless{}        = True
-helpful Block{}        = False
-helpful Boost{}        = True
-helpful (Build x)      = x >= 0
-helpful Counter{}      = True
-helpful CounterAll{}   = True
-helpful Duel{}         = True
-helpful Endure         = True
-helpful Enrage         = True
-helpful Exhaust{}      = False
-helpful Expose         = False
-helpful Heal{}         = True
-helpful Invulnerable{} = True
-helpful ImmuneSelf     = True
-helpful Ignore{}       = True
-helpful Invincible{}   = True
-helpful Parry{}        = True
-helpful ParryAll {}    = True
-helpful Pierce         = True
-helpful Plague         = False
-helpful (Reduce _ _ x) = x >= 0
-helpful Redirect{}     = True
-helpful Reflect        = True
-helpful ReflectAll     = True
-helpful Replace{}      = False
-helpful Restrict       = False
-helpful Reveal         = False
-helpful Seal           = False
-helpful Share{}        = False
-helpful Silence        = False
-helpful Snapshot{}     = True
-helpful (Snare x)      = x < 0
-helpful SnareTrap{}    = False
-helpful Strengthen{}   = True
-helpful Stun{}         = False
-helpful Swap{}         = False
-helpful Taunt{}        = False
-helpful Threshold{}    = True
-helpful Throttle{}     = False
-helpful Uncounter      = False
-helpful Undefend       = False
-helpful Unexhaust      = True
-helpful Unreduce{}     = False
-helpful Weaken{}       = False
-
--- | Effect cannot be removed.
-sticky :: Effect -> Bool
-sticky Block{}        = True
-sticky Counter{}      = True
-sticky CounterAll{}   = True
-sticky Enrage         = True
-sticky Invulnerable{} = True
-sticky Invincible{}   = True
-sticky Parry{}        = True
-sticky ParryAll{}     = True
-sticky Redirect{}     = True
-sticky Replace{}      = True
-sticky Reflect        = True
-sticky ReflectAll     = True
-sticky Restrict       = True
-sticky Reveal         = True
-sticky Share{}        = True
-sticky Snapshot{}     = True
-sticky Swap{}         = True
-sticky _              = False
 
 -- | Scales the power of an effect.
 boosted :: Int -> Effect -> Effect

@@ -232,7 +232,7 @@ barrierDoes (Duration -> dur) finish while amount = do
             { Barrier.amount = amount'
             , Barrier.user = user
             , Barrier.name   = Skill.name skill
-            , Barrier.while  = \() -> save $ Execute.wrap [Trapped] while
+            , Barrier.while  = save $ Execute.wrap [Trapped] while
             , Barrier.finish = finish'
             , Barrier.dur    = dur'
             }

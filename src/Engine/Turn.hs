@@ -104,10 +104,11 @@ doBarriers = do
     ninjas <- Game.ninjas <$> P.game
     traverse_ (doBarrier player) $ concatMap collect ninjas
   where
-    collect = (head <$>) . groupBy Labeled.eq . sort . Ninja.barrier
+    collect = (head <$>) . groupBy Labeled.eq . sortWith Barrier.name .
+              Ninja.barrier
     doBarrier p b
       | Barrier.dur b == 1 = P.launch . Barrier.finish b $ Barrier.amount b
-      | Parity.allied p $ Barrier.user b = P.launch $ Barrier.while b ()
+      | Parity.allied p $ Barrier.user b = P.launch $ Barrier.while b
       | otherwise = return ()
 
 -- | Executes 'Trigger.death'.

@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass        #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE ImpredicativeTypes    #-}
 {-# OPTIONS_HADDOCK hide, not-home #-}
@@ -8,6 +9,7 @@ import ClassyPrelude hiding (Vector)
 import           Control.Monad.Reader (local, mapReaderT)
 import           Control.Monad.Trans.State.Strict (StateT, get, modify')
 import           Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
+import           Data.Aeson ((.=), ToJSON(..), object)
 import           Data.List.NonEmpty (NonEmpty(..))
 import           Data.Vector.Generic (Vector)
 import qualified System.Random.MWC as Random
@@ -15,8 +17,7 @@ import qualified System.Random.MWC.Distributions as Random
 import           Text.Blaze (ToMarkup(..))
 import           Yesod.WebSockets (WebSocketsT)
 
-import           Core.OrphanInstancesForArrowT ()
-import           Core.Util (equaling)
+import           Core.Util ((∈), enumerate, equaling)
 import qualified Class.Classed as Classed
 import           Class.Classed (Classed)
 import qualified Class.Parity as Parity
@@ -37,12 +38,14 @@ data Context = Context { skill   :: Skill
                        , user    :: Slot
                        , target  :: Slot
                        , new     :: Bool
-                       } deriving (Eq)
+                       } deriving (Eq, Generic, ToJSON)
 
 type PlayConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
 newtype Play a = Play (PlayConstraint a)
 instance Eq (Play a) where
     (==) = const $ const True
+instance ToJSON (Play a) where
+    toJSON = const $ toJSON (Nothing :: Maybe ())
 
 type SavedPlay = (Context, Play ())
 
@@ -110,6 +113,16 @@ instance MonadIO m => MonadGame (ReaderT Wrapper m) where
     game     = asks gameRef >>= readIORef
     modify f = asks gameRef >>= flip modifyIORef' f
 
+data Constructor
+    = Only Effect
+    | Any (Class -> Effect)
+
+instance Eq Constructor where
+    Only x == Only y = x == y
+    Any  x == Any  y = x All == y All
+    Any  x == Only y = y ∈ (x <$> enumerate)
+    Only x == Any  y = x ∈ (y <$> enumerate)
+
 -- | Effects of 'Status'es.
 data Effect
     = Afflict      Int               -- ^ Deals damage every turn
@@ -127,7 +140,7 @@ data Effect
     | Exhaust      Class             -- ^ 'Skill's cost 1 additional random chakra
     | Expose                         -- ^ Cannot reduce damage or be 'Invulnerable'
     | Heal         Int               -- ^ Heals every turn
-    | Ignore       (Class -> Effect) -- ^ Invulnerable to certain effects
+    | Ignore       Constructor       -- ^ Invulnerable to certain effects
     | Invulnerable Class             -- ^ Invulnerable to enemy 'Skill's
     | ImmuneSelf                     -- ^ Invulnerable to self-caused damage
     | Invincible   Class             -- ^ Like 'Invulnerable', but targetable
@@ -152,7 +165,7 @@ data Effect
     | Swap         Class             -- ^ Target's skills swap enemies and allies
     | Taunt        Slot              -- ^ Forced to attack a target
     | Threshold    Int               -- ^ Invulnerable to baseline damage below a threhold
-    | Throttle (Class -> Effect) Int -- ^ Applying an effect lasts fewer turns
+    | Throttle     Int Constructor   -- ^ Applying an effect lasts fewer turns
     | Undefend                       -- ^ Does not benefit from destructible defense
     | Uncounter                      -- ^ Cannot counter or reflect
     | Unexhaust                      -- ^ Decreases chakra costs by 1 random
@@ -182,6 +195,84 @@ instance Classed Effect where
     classes (Weaken cla _ _)     = [cla]
     classes (Replace _ cla _ _)  = [cla]
     classes _                    = []
+
+instance ToJSON Effect where
+    toJSON x = object
+      [ "desc"    .= tshow x
+      , "helpful" .= helpful x
+      , "sticky"  .= sticky x
+      , "trap"    .= False
+      ]
+
+helpful :: Effect -> Bool
+helpful Afflict{}      = False
+helpful AntiCounter    = True
+helpful (Bleed _ _ x)  = x < 0
+helpful Bless{}        = True
+helpful Block{}        = False
+helpful Boost{}        = True
+helpful (Build x)      = x >= 0
+helpful Counter{}      = True
+helpful CounterAll{}   = True
+helpful Duel{}         = True
+helpful Endure         = True
+helpful Enrage         = True
+helpful Exhaust{}      = False
+helpful Expose         = False
+helpful Heal{}         = True
+helpful Invulnerable{} = True
+helpful ImmuneSelf     = True
+helpful Ignore{}       = True
+helpful Invincible{}   = True
+helpful Parry{}        = True
+helpful ParryAll {}    = True
+helpful Pierce         = True
+helpful Plague         = False
+helpful (Reduce _ _ x) = x >= 0
+helpful Redirect{}     = True
+helpful Reflect        = True
+helpful ReflectAll     = True
+helpful Replace{}      = False
+helpful Restrict       = False
+helpful Reveal         = False
+helpful Seal           = False
+helpful Share{}        = False
+helpful Silence        = False
+helpful Snapshot{}     = True
+helpful (Snare x)      = x < 0
+helpful SnareTrap{}    = False
+helpful Strengthen{}   = True
+helpful Stun{}         = False
+helpful Swap{}         = False
+helpful Taunt{}        = False
+helpful Threshold{}    = True
+helpful Throttle{}     = False
+helpful Uncounter      = False
+helpful Undefend       = False
+helpful Unexhaust      = True
+helpful Unreduce{}     = False
+helpful Weaken{}       = False
+
+-- | Effect cannot be removed.
+sticky :: Effect -> Bool
+sticky Block{}        = True
+sticky Counter{}      = True
+sticky CounterAll{}   = True
+sticky Enrage         = True
+sticky Invulnerable{} = True
+sticky Invincible{}   = True
+sticky Parry{}        = True
+sticky ParryAll{}     = True
+sticky Redirect{}     = True
+sticky Replace{}      = True
+sticky Reflect        = True
+sticky ReflectAll     = True
+sticky Restrict       = True
+sticky Reveal         = True
+sticky Share{}        = True
+sticky Snapshot{}     = True
+sticky Swap{}         = True
+sticky _              = False
 
 low :: ∀ a. Show a => a -> String
 low = toLower . show
@@ -234,7 +325,7 @@ instance Show Effect where
     show ReflectAll = "Reflects all non-mental skills."
     show (Replace _ classes _ _) = show classes ++ " skills will be temporarily acquired by the user of this effect."
     show Reveal = "Reveals invisible skills to the enemy team. This effect cannot be removed."
-    show Restrict = "SkillTransform that normally affect all opponents must be targeted."
+    show Restrict = "Skills that normally affect all opponents must be targeted."
     show Seal = "Invulnerable to effects from allies."
     show (Share _) = "Harmful skills received are also reflected to another target."
     show Silence = "Unable to cause non-damage effects."
@@ -250,7 +341,7 @@ instance Show Effect where
     show (Swap classes) = "Next " ++ low classes ++ " skill will target allies instead of enemies and enemies instead of allies."
     show (Taunt _) = "Can only affect a specific target."
     show (Threshold x) = "Uninjured by attacks that deal " ++ show x ++ " baseline damage or lower."
-    show (Throttle _ x) = "SkillTransform will apply " ++ show x ++ " fewer turns of certain effects."
+    show (Throttle x _) = "Skills will apply " ++ show x ++ " fewer turns of certain effects."
     show Uncounter = "Unable to benefit from counters or reflects."
     show Unexhaust = "All skills cost 1 fewer random chakra."
     show (Unreduce x) = "Damage reduction skills reduce " ++ show x ++ " fewer damage."
@@ -292,14 +383,14 @@ data Game = Game { ninjas  :: Seq Ninja
                  -- ^ Starts at 'Player.A'
                  , victor  :: [Player]
                  -- ^ Starts empty
-                 } deriving (Eq)
+                 }
 
 data Requirement
     = Usable
     | Unusable
     | HasI Int Text
     | HasU Text
-    deriving (Eq)
+    deriving (Eq, Generic, ToJSON)
 
 -- | Target destinations of 'Skill's.
 data Target
@@ -315,7 +406,7 @@ data Target
     | XEnemies      -- ^ Enemies excluding 'Enemy'
     | Everyone      -- ^ All 'Ninja's
     | Specific Slot -- ^ Specific ninja index in 'ninjas' (0-5)
-    deriving (Eq)
+    deriving (Eq, Generic, ToJSON)
 
 -- | A move that a 'Character' can perform.
 data Skill = Skill { name      :: Text -- ^ Name
@@ -333,7 +424,24 @@ data Skill = Skill { name      :: Text -- ^ Name
                    , copying   :: Copying       -- ^ Defaults to 'NotCopied'
                    , pic       :: Bool          -- ^ Defaults to @False@
                    , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'
-                   }
+                   } deriving (Generic)
+instance ToJSON Skill where
+    toJSON Skill{..} = object
+        [ "name"      .= name
+        , "desc"      .= desc
+        , "require"   .= require
+        , "classes"   .= classes
+        , "cost"      .= cost
+        , "cooldown"  .= cooldown
+        , "varicd"    .= varicd
+        , "charges"   .= charges
+        , "channel"   .= channel
+        , "start"     .= start
+        , "effects"   .= effects
+        , "interrupt" .= interrupt
+        , "copying"   .= copying
+        , "pic"       .= pic
+        ]
 instance Eq Skill where
     (==) = equaling \Skill{..} -> (name, desc)
 instance Classed Skill where
@@ -343,15 +451,20 @@ instance Classed Skill where
 data Barrier = Barrier { amount :: Int
                        , user   :: Slot
                        , name   :: Text
-                       , while  :: () -> SavedPlay
+                       , while  :: SavedPlay
                        , finish :: Int -> SavedPlay
                        , dur    :: Int
-                       } deriving (Eq)
+                       } deriving (Generic)
+instance ToJSON Barrier where
+    toJSON Barrier{..} = object
+        [ "amount" .= amount
+        , "user"   .= user
+        , "name"   .= name
+        , "dur"    .= dur
+        ]
 instance TurnBased Barrier where
     getDur     = dur
     setDur d x = x { dur = d }
-instance Ord Barrier where
-    compare = comparing (name :: Barrier -> Text)
 instance Labeled Barrier where
     name   = name
     user = user
@@ -361,7 +474,7 @@ data Defense = Defense { amount :: Int
                        , user   :: Slot
                        , name   :: Text
                        , dur    :: Int
-                       } deriving (Eq)
+                       } deriving (Eq, Generic, ToJSON)
 instance TurnBased Defense where
     getDur     = dur
     setDur d x = x { dur = d }
@@ -374,7 +487,7 @@ data Channel = Channel { source :: Slot
                        , skill  :: Skill
                        , target :: Slot
                        , dur    :: Channeling
-                       } deriving (Eq)
+                       } deriving (Eq, Generic, ToJSON)
 
 instance Classed Channel where
     classes = Classed.classes . (skill :: Channel -> Skill)
@@ -389,7 +502,7 @@ data Channeling = Instant
                 | Action  Duration
                 | Control Duration
                 | Ongoing Duration
-                deriving (Eq, Show)
+                deriving (Eq, Show, Generic, ToJSON)
 instance TurnBased Channeling where
     getDur Instant     = 0
     getDur Passive     = 0
@@ -408,7 +521,7 @@ data ChannelTag = ChannelTag { source  :: Slot
                              , skill   :: Skill
                              , ghost   :: Bool
                              , dur     :: Int
-                             } deriving (Eq)
+                             } deriving (Eq, Generic, ToJSON)
 
 instance Classed ChannelTag where
     classes = Classed.classes . (skill :: ChannelTag -> Skill)
@@ -426,7 +539,7 @@ data Category
     = Original
     | Shippuden
     | Reanimated
-    deriving (Show, Eq, Ord, Bounded, Enum)
+    deriving (Show, Eq, Ord, Bounded, Enum, Generic, ToJSON)
 instance ToMarkup Category where
     toMarkup = toMarkup . show
 
@@ -436,7 +549,14 @@ data Character = Character { name     :: Text
                            , skills   :: NonEmpty (NonEmpty Skill)
                            , hooks    :: Seq (Trigger, Int -> Ninja -> Ninja)
                            , category :: Category
-                           }
+                           } deriving (Generic)
+instance ToJSON Character where
+    toJSON Character{..} = object
+        [ "name"     .= name
+        , "bio"      .= bio
+        , "skills"   .= skills
+        , "category" .= category
+        ]
 instance Eq Character where
     (==) = equaling \Character{..} -> (name, category)
 
@@ -468,7 +588,7 @@ data Trigger
     | PerDamage
     | PerHealed
     | PerDamaged
-    deriving (Eq, Ord)
+    deriving (Eq, Ord, Generic, ToJSON)
 
 instance Classed Trigger where
     classes (OnAction cla)  = [cla]
@@ -510,7 +630,7 @@ data Variant = Variant { variant   :: Int -- ^ Index in 'skills'
                        , name      :: Text
                        , fromSkill :: Bool -- ^ Duration is based on a 'Skill'
                        , dur       :: Int
-                       } deriving (Eq, Show)
+                       } deriving (Eq, Show, Generic, ToJSON)
 instance TurnBased Variant where
     getDur        = dur
     setDur x vari = vari { dur = x }
@@ -518,7 +638,7 @@ instance TurnBased Variant where
 -- | A 'Skill' copied from a different character.
 data Copy = Copy { skill :: Skill
                  , dur   :: Int
-                 } deriving (Eq)
+                 } deriving (Eq, Generic, ToJSON)
 
 instance Classed Copy where
     classes = Classed.classes . (skill :: Copy -> Skill)
@@ -537,14 +657,14 @@ data Copying
     = Shallow Slot Int -- ^ No cooldown or chakra cost.
     | Deep Slot Int    -- ^ Cooldown and chakra cost.
     | NotCopied
-    deriving (Eq)
+    deriving (Eq, Generic, ToJSON)
 
 -- | Applies an effect after several turns.
 data Delay = Delay { user   :: Slot
                    , skill  :: Skill
                    , effect :: () -> SavedPlay
                    , dur    :: Int
-                   } deriving (Eq)
+                   }
 
 instance Classed Delay where
     classes = Classed.classes . (skill :: Delay -> Skill)
@@ -562,7 +682,7 @@ data Bomb
     = Done   -- ^ Applied with both 'Expire' and 'Remove'
     | Expire -- ^ Applied when a 'Status' reaches the end of its duration.
     | Remove -- ^ Applied when a 'Status' is removed prematurely
-    deriving (Enum, Eq, Show)
+    deriving (Enum, Eq, Show, Generic, ToJSON)
 
 -- | A status effect affecting a 'Ninja'.
 data Status = Status { amount  :: Int  -- ^ Starts at 1
@@ -575,7 +695,7 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
                      , bombs   :: [(Bomb, Play ())]
                      , maxDur  :: Int
                      , dur     :: Int
-                     }
+                     } deriving (Generic, ToJSON)
 instance Eq Status where
     (==) = equaling \Status{..} -> (name, user, maxDur, classes)
 instance TurnBased Status where
@@ -593,7 +713,7 @@ data Direction
     = To
     | From
     | Per
-    deriving (Enum, Eq, Show)
+    deriving (Enum, Eq, Show, Generic, ToJSON)
 
 -- | A trap which gets triggered when a 'Ninja' meets the conditions of a 'Trigger'.
 data Trap = Trap { direction :: Direction
@@ -605,7 +725,18 @@ data Trap = Trap { direction :: Direction
                  , classes   :: [Class]
                  , tracker   :: Int
                  , dur       :: Int
-                 }
+                 } deriving (Generic)
+instance ToJSON Trap where
+    toJSON Trap{..} = object
+        [ "direction" .= direction
+        , "trigger"   .= trigger
+        , "name"      .= name
+        , "desc"      .= desc
+        , "user"      .= user
+        , "classes"   .= classes
+        , "tracker"   .= tracker
+        , "dur"       .= dur
+        ]
 instance Eq Trap where
     (==) = equaling \Trap{..} -> (direction, trigger, name, user, dur)
 instance TurnBased Trap where

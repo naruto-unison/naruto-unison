@@ -1,6 +1,6 @@
+{-# LANGUAGE NoStrictData    #-}
 {-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE NoStrictData    #-}
 
 -- | Yesod app instance. @stack new@ was used to generate boilerplate.
 module Core.App

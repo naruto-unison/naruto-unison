@@ -1,8 +1,8 @@
-{-# LANGUAGE TemplateHaskell             #-}
 {-# LANGUAGE MultiParamTypeClasses       #-}
-{-# LANGUAGE TypeFamilies                #-}
-{-# LANGUAGE QuasiQuotes                 #-}
 {-# LANGUAGE NoBangPatterns              #-}
+{-# LANGUAGE QuasiQuotes                 #-}
+{-# LANGUAGE TemplateHaskell             #-}
+{-# LANGUAGE TypeFamilies                #-}
 {-# OPTIONS_GHC -fno-warn-unused-matches #-}
 
 -- | Miscellaneous website handlers.

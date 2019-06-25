@@ -1,6 +1,9 @@
+{-# LANGUAGE DeriveAnyClass #-}
 module Model.Face (Face(..)) where
 
 import ClassyPrelude
+
+import Data.Aeson (ToJSON)
 
 import Class.TurnBased (TurnBased(..))
 import Model.Slot (Slot)
@@ -9,7 +12,7 @@ import Model.Slot (Slot)
 data Face = Face { icon :: Text
                  , user :: Slot
                  , dur  :: Int
-                 } deriving (Eq)
+                 } deriving (Eq, Generic, ToJSON)
 instance TurnBased Face where
     getDur     = dur
     setDur d x = x { dur = d }

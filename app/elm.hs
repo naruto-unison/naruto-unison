@@ -1,4 +1,5 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE TemplateHaskell       #-}
 
 import Prelude
 import Data.Sequence (Seq)
@@ -27,7 +28,7 @@ import           Model.Slot (Slot)
 import           Core.Fields (Privilege(..))
 import           Core.Util (equaling)
 
-import Model.Internal hiding (Effect(..), Ninja(..), Game(..))
+import Model.Internal hiding (Barrier(..), Effect(..), Ninja(..), Game(..))
 
 data Ninja = Ninja
     { slot      :: Slot
@@ -49,6 +50,12 @@ data Ninja = Ninja
     }
 instance Eq Ninja where
     (==) = equaling \Ninja{..} -> (slot, health, cooldowns, charges)
+
+data Barrier = Barrier { amount :: Int
+                       , user   :: Slot
+                       , name   :: Text
+                       , dur    :: Int
+                       }
 
 data Game = Game { chakra  :: (Chakras, Chakras)
                  , ninjas  :: Seq Ninja
@@ -87,15 +94,15 @@ alterations = recAlterType typeAlterations
 
 typeAlterations :: EType -> EType
 typeAlterations t = case t of
-    ETyCon (ETCon "Seq")      -> ETyCon (ETCon "List")
-    ETyCon (ETCon "NonEmpty") -> ETyCon (ETCon "List")
-    ETyCon (ETCon "Slot")     -> ETyCon (ETCon "Int")
-    ETyCon (ETCon "Class")    -> ETyCon (ETCon "String")
-    ETyCon (ETCon "Duration") -> ETyCon (ETCon "Int")
-    ETyCon (ETCon "Trigger")  -> ETyCon (ETCon "String")
-    ETyCon (ETCon "Play")     -> ETyCon (ETCon "Maybe")
-    ETyCon (ETCon "()")       -> ETyCon (ETCon "Unit") -- See elmUnitHandlers
-    _                         -> defaultTypeAlterations t
+    ETyCon (ETCon "Seq")       -> ETyCon (ETCon "List")
+    ETyCon (ETCon "NonEmpty")  -> ETyCon (ETCon "List")
+    ETyCon (ETCon "Slot")      -> ETyCon (ETCon "Int")
+    ETyCon (ETCon "Class")     -> ETyCon (ETCon "String")
+    ETyCon (ETCon "Duration")  -> ETyCon (ETCon "Int")
+    ETyCon (ETCon "Trigger")   -> ETyCon (ETCon "String")
+    ETyCon (ETCon "Play")      -> ETyCon (ETCon "Maybe")
+    ETyCon (ETCon "()")        -> ETyCon (ETCon "Unit") -- See elmUnitHandlers
+    _                          -> defaultTypeAlterations t
 
 
 -- | Aeson encodes () as a zero-length array.

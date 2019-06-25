@@ -200,7 +200,7 @@ cs =
         , Skill.start     =
           [ p Self $ vary "Man-Beast Clone" "Three-Headed Wolf"]
         , Skill.effects   =
-          [ p Self $ apply 1 [Ignore Stun, Reduce All Flat 15] ]
+          [ p Self $ apply 1 [Ignore $ Any Stun, Reduce All Flat 15] ]
         }
       , Skill.new
         { Skill.name      = "Three-Headed Wolf"
@@ -213,7 +213,7 @@ cs =
                 cancelChannel "Man-Beast Clone"
                 vary' 3 "Man-Beast Clone" "Giant Rotating Fang"
                 remove "Man-Beast Clone"
-                apply 3 [Ignore Stun, Reduce All Flat 30]
+                apply 3 [Ignore $ Any Stun, Reduce All Flat 30]
           ]
         }
       , Skill.new

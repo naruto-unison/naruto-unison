@@ -731,7 +731,7 @@ cs =
                 apply' "Armored Susano'o " 0 [Reduce Affliction Flat 10]
                 defend 2 40
                 onBreak'
-                apply 2 [Ignore Stun, Invulnerable Affliction, Unexhaust]
+                apply 2 [Ignore $ Any Stun, Invulnerable Affliction, Unexhaust]
           ]
         }
       ]

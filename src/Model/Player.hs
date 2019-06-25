@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 module Model.Player
   ( Player(..)
   , opponent
@@ -6,10 +7,12 @@ module Model.Player
 
 import ClassyPrelude hiding (even)
 
+import Data.Aeson (ToJSON)
+
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
 
-data Player = A | B deriving (Bounded, Enum, Show, Eq)
+data Player = A | B deriving (Bounded, Enum, Show, Eq, Generic, ToJSON)
 
 instance Parity Player where
     even A = True

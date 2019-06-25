@@ -467,7 +467,7 @@ cs =
           [ p Self do
                 defend 1 10
                 heal 10
-                apply 1 [Ignore $ const Expose]
+                apply 1 [Ignore $ Only Expose]
           ]
         }
       ]

@@ -278,7 +278,7 @@ cs =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Self do
-                apply 2 [Ignore Stun, Reduce Affliction Percent 50]
+                apply 2 [Ignore $ Any Stun, Reduce Affliction Percent 50]
                 trap 2 OnRes do
                     setHealth 15
                     remove      "Fragmentation"
@@ -564,7 +564,8 @@ cs =
         , Skill.cooldown  = 4
         , Skill.channel   = Action 2
         , Skill.effects   =
-          [ p Self $ apply' "Demon Shroud " 1 [Reduce All Flat 10, Ignore Stun]
+          [ p Self $ apply' "Demon Shroud " 1
+                [Reduce All Flat 10, Ignore $ Any Stun]
           , p REnemy do
                 pierce 30
                 tag' "Executioner's Butchering" 1

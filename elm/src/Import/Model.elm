@@ -59,12 +59,12 @@ jsonEncUser  val =
 
 
 type Privilege  =
-    Normal
-    | Moderator
-    | Admin
+    Normal 
+    | Moderator 
+    | Admin 
 
 jsonDecPrivilege : Json.Decode.Decoder ( Privilege )
-jsonDecPrivilege =
+jsonDecPrivilege = 
     let jsonDecDictPrivilege = Dict.fromList [("Normal", Normal), ("Moderator", Moderator), ("Admin", Admin)]
     in  decodeSumUnaries "Privilege" jsonDecDictPrivilege
 
@@ -104,12 +104,12 @@ jsonEncCharacter  val =
 
 
 type Category  =
-    Original
-    | Shippuden
-    | Reanimated
+    Original 
+    | Shippuden 
+    | Reanimated 
 
 jsonDecCategory : Json.Decode.Decoder ( Category )
-jsonDecCategory =
+jsonDecCategory = 
     let jsonDecDictCategory = Dict.fromList [("Original", Original), ("Shippuden", Shippuden), ("Reanimated", Reanimated)]
     in  decodeSumUnaries "Category" jsonDecDictCategory
 
@@ -207,11 +207,11 @@ jsonEncChakras  val =
 
 
 type Player  =
-    A
-    | B
+    A 
+    | B 
 
 jsonDecPlayer : Json.Decode.Decoder ( Player )
-jsonDecPlayer =
+jsonDecPlayer = 
     let jsonDecDictPlayer = Dict.fromList [("A", A), ("B", B)]
     in  decodeSumUnaries "Player" jsonDecDictPlayer
 
@@ -342,8 +342,8 @@ jsonEncSkill  val =
 
 
 type Requirement  =
-    Usable
-    | Unusable
+    Usable 
+    | Unusable 
     | HasI Int String
     | HasU String
 
@@ -370,17 +370,17 @@ jsonEncRequirement  val =
 
 
 type Target  =
-    Self
-    | Ally
-    | Allies
-    | RAlly
-    | XAlly
-    | XAllies
-    | Enemy
-    | Enemies
-    | REnemy
-    | XEnemies
-    | Everyone
+    Self 
+    | Ally 
+    | Allies 
+    | RAlly 
+    | XAlly 
+    | XAllies 
+    | Enemy 
+    | Enemies 
+    | REnemy 
+    | XEnemies 
+    | Everyone 
     | Specific Int
 
 jsonDecTarget : Json.Decode.Decoder ( Target )
@@ -477,8 +477,8 @@ jsonEncChannel  val =
 
 
 type Channeling  =
-    Instant
-    | Passive
+    Instant 
+    | Passive 
     | Action Int
     | Control Int
     | Ongoing Int
@@ -559,7 +559,7 @@ jsonEncCopy  val =
 type Copying  =
     Shallow Int Int
     | Deep Int Int
-    | NotCopied
+    | NotCopied 
 
 jsonDecCopying : Json.Decode.Decoder ( Copying )
 jsonDecCopying =
@@ -652,12 +652,12 @@ jsonEncStatus  val =
 
 
 type Bomb  =
-    Done
-    | Expire
-    | Remove
+    Done 
+    | Expire 
+    | Remove 
 
 jsonDecBomb : Json.Decode.Decoder ( Bomb )
-jsonDecBomb =
+jsonDecBomb = 
     let jsonDecDictBomb = Dict.fromList [("Done", Done), ("Expire", Expire), ("Remove", Remove)]
     in  decodeSumUnaries "Bomb" jsonDecDictBomb
 
@@ -784,12 +784,12 @@ jsonEncTrap  val =
 
 
 type Direction  =
-    To
-    | From
-    | Per
+    To 
+    | From 
+    | Per 
 
 jsonDecDirection : Json.Decode.Decoder ( Direction )
-jsonDecDirection =
+jsonDecDirection = 
     let jsonDecDictDirection = Dict.fromList [("To", To), ("From", From), ("Per", Per)]
     in  decodeSumUnaries "Direction" jsonDecDictDirection
 
