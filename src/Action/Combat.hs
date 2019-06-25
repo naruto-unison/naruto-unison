@@ -80,8 +80,8 @@ demolishAll :: ∀ m. MonadPlay m => m ()
 demolishAll = do
     user   <- P.user
     target <- P.target
-    P.modify $ Game.adjust user \n -> n { Ninja.barrier = [] }
-    P.modify $ Game.adjust target \n -> n { Ninja.defense = [] }
+    P.modify $ Game.adjust user   (\n -> n { Ninja.barrier = [] }) .
+               Game.adjust target (\n -> n { Ninja.defense = [] })
 
 -- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce',
 -- 'Attack.Damage', or 'Attack.Demolish' attack.

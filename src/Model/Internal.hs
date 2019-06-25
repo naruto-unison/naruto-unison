@@ -1,14 +1,13 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE ImpredicativeTypes    #-}
-{-# OPTIONS_GHC -fno-warn-orphans  #-}
 {-# OPTIONS_HADDOCK hide, not-home #-}
 module Model.Internal where
 
 import ClassyPrelude hiding (Vector)
 
 import           Control.Monad.Reader (local, mapReaderT)
-import           Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import           Control.Monad.Trans.State.Strict (StateT, get, modify')
+import           Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import           Data.List.NonEmpty (NonEmpty(..))
 import           Data.Vector.Generic (Vector)
 import qualified System.Random.MWC as Random
@@ -16,6 +15,7 @@ import qualified System.Random.MWC.Distributions as Random
 import           Text.Blaze (ToMarkup(..))
 import           Yesod.WebSockets (WebSocketsT)
 
+import           Core.OrphanInstancesForArrowT ()
 import           Core.Util (equaling)
 import qualified Class.Classed as Classed
 import           Class.Classed (Classed)
@@ -51,8 +51,8 @@ class Monad m => MonadRandom m where
     shuffle :: ∀ v a. Vector v a => v a -> m (v a)
 
 class Monad m => MonadGame m where
-    game        :: m Game
-    modify      :: (Game -> Game) -> m ()
+    game   :: m Game
+    modify :: (Game -> Game) -> m ()
 
 class MonadGame m => MonadPlay m where
     context :: m Context
@@ -64,6 +64,15 @@ instance MonadGame m => MonadGame (ReaderT Context m) where
 instance MonadGame m => MonadPlay (ReaderT Context m) where
     context = ask
     with    = local
+
+
+instance MonadGame (StateT Game Identity) where
+    game   = get
+    modify = modify'
+
+instance MonadRandom (StateT Game Identity) where
+    random x = return . const x
+    shuffle  = return . id
 
 instance MonadRandom m => MonadRandom (MaybeT m) where
     random a = lift . random a
@@ -86,10 +95,6 @@ instance MonadGame m => MonadGame (WebSocketsT m) where
 instance MonadPlay m => MonadPlay (WebSocketsT m) where
     context = lift context
     with f  = mapReaderT $ with f
-
-instance MonadGame (StateT Game Identity) where
-    game   = get
-    modify = modify'
 
 data Wrapper = Wrapper { gameRef :: IORef Game
                        , rand    :: Random.GenIO
@@ -611,7 +616,3 @@ instance Labeled Trap where
     user = user
 instance Classed Trap where
     classes = classes
-
--- Black magic
-instance Eq (a -> b) where
-    (==) = const $ const True

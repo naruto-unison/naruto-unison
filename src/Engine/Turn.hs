@@ -1,5 +1,5 @@
 -- | Turn execution. The surface of the game engine.
-module Engine.Turn (run) where
+module Engine.Turn (run, process) where
 
 import ClassyPrelude hiding ((\\), groupBy, drop, head)
 
@@ -39,15 +39,22 @@ import qualified Engine.Trigger as Trigger
 -- 'Model.Trap.Trap's;
 -- decrements all 'TurnBased.TurnBased' data;
 -- and resolves 'Model.Chakra.Chakras' for the next turn.
+-- Uses 'process' internally.
 run :: ∀ m. (MonadGame m, MonadRandom m) => [Act] -> m ()
-run actions = do
+run = process . traverse_ Execute.act
+
+-- | The underlying mechanism of 'run'.
+-- Performs posteffects such as 'Model.Channel.Channel's and 'Model.Trap.Trap's.
+-- Using 'run' is generally preferable to invoking this function directly.
+process :: ∀ m. (MonadGame m, MonadRandom m) => m () -> m ()
+process runner = do
     initial     <- P.game
     player      <- Game.playing <$> P.game
     let opponent = Player.opponent player
-    traverse_ (Execute.act True) actions
+    runner
     channels <- concatMap getChannels . filter (Ninja.playing player) .
                 Game.ninjas <$> P.game
-    traverse_ (Execute.act False) channels
+    traverse_ Execute.act channels
     Traps.runTurn initial
     doBombs Remove initial
     P.modify $ Game.alter Ninja.decrStats

@@ -10,6 +10,7 @@ import ClassyPrelude
 import           Data.Aeson ((.=), ToJSON(..), object)
 import qualified Data.List as List
 
+import           Core.OrphanInstancesForArrowT ()
 import           Core.Util ((∈), (∉), intersects)
 import qualified Class.Parity as Parity
 import           Model.Chakra (Chakras(..))
@@ -147,7 +148,3 @@ skillTargets skill c = filter target Slot.all
       | [Ally, Allies, RAlly] `intersects` ts = True
       | c == t = not harm
       | otherwise = False
-
--- Black magic
-instance ToJSON (a -> b) where
-    toJSON = const $ toJSON (Nothing :: Maybe ())

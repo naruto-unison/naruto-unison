@@ -34,8 +34,8 @@ cs =
         , Skill.cost      = k [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Self   $ removeStacks "Shadow Clone" 2
-          , p Enemy  do
+          [ p Self $ removeStacks "Shadow Clone" 2
+          , p Enemy do
                 damage 30
                 stacks <- userStacks "Shadow Clone"
                 apply (stacks `quot` 2) [Stun All]

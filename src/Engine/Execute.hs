@@ -3,7 +3,7 @@ module Engine.Execute
   ( wrap
   , Affected(..)
   , act
-  , effect
+  , effect, effects, addChannels
   , copy
   ) where
 
@@ -236,7 +236,7 @@ effect affected (target, f)  = do
       let localize t ctx = ctx { Context.skill = skill, Context.target = t }
       traverse_ (flip P.with (targetEffect affected f) . localize) targets
 
--- | Handles all effects of a 'Skill'. Uses 'wrap' internally.
+-- | Handles all effects of a 'Skill'. Uses 'effect' internally.
 effects :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> m ()
 effects affected = traverse_ (effect affected . second P.play) =<<
                    getEffects <$> P.skill
@@ -260,13 +260,13 @@ addChannels = do
                                 , Channel.dur    = TurnBased.setDur dur chan
                                 }
     unless (chan == Instant || dur == 1 || dur == 2) .
-        P.modify $ Game.adjust target \n ->
+        P.modify $ Game.adjust user \n ->
             n { Ninja.newChans = chan' : Ninja.newChans n }
 
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
-act :: ∀ m. (MonadGame m, MonadRandom m) => Bool -> Act -> m ()
-act new a = do
+act :: ∀ m. (MonadGame m, MonadRandom m) => Act -> m ()
+act a = do
     P.modify $ Game.alter Adjust.effects
     game      <- P.game
     let nUser  = Game.ninja user game
@@ -295,11 +295,12 @@ act new a = do
                 when new . P.modify $ Game.adjustChakra user (— cost)
                 P.modify $ Cooldown.updateGame charge skill user s
                 effects affected
-                when (isLeft s) addChannels
+                when new addChannels
         traverse_ P.launch $ Traps.get user =<< Game.ninjas game
         P.modify $ Game.alter \n -> n { Ninja.triggers = mempty }
   where
     s       = Act.skill a
+    new     = isLeft s
     user    = Act.user a
     ctx skill = Context.Context { Context.skill  = skill
                                 , Context.user   = user

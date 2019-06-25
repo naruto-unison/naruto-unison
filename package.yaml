@@ -112,6 +112,27 @@ executables:
     - condition: flag(library-only)
       buildable: false
 
+# Test suite
+tests:
+  yesod-test:
+    main: Spec.hs
+    source-dirs: test
+    dependencies:
+    - naruto-unison
+    - hspec
+    ghc-options:
+      - -Wall
+      - -Wincomplete-uni-patterns
+      - -Wcompat
+      - -Wincomplete-record-updates
+      - -Wredundant-constraints
+      - -Wpartial-type-signatures
+      - -fwarn-tabs
+      - -fwarn-incomplete-patterns
+      - -fwarn-incomplete-uni-patterns
+      - -fno-warn-type-defaults
+      - -funbox-small-strict-fields
+
 # Define flags used by "yesod devel" to make compilation faster
 flags:
   library-only:
