@@ -110,7 +110,6 @@ addStacks = addStacks' 0
 
 -- | 'addStack' with a 'Status.dur', 'Status.name', and 'Status.amount'.
 addStacks' :: ∀ m. MonadPlay m => Turns -> Text -> Int -> m ()
-addStacks' _    _ 0   = return ()
 addStacks' (Duration -> dur) name i = do
     skill  <- P.skill
     user   <- P.user
@@ -226,7 +225,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
             let
               onImmune n
                 | Status.effects st `intersects` immuneEffects =
-                    n { Ninja.triggers = insertSet OnImmune $ Ninja.triggers n }
+                    n { Ninja.triggers = OnImmune `insertSet` Ninja.triggers n }
                 | otherwise = n
             P.modify . Game.adjust target $ onImmune . Ninja.addStatus st
             when (Status.effects st `intersects` stunEffects) do
@@ -239,8 +238,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                 let bounce t = P.withTarget t $
                                applyFull [] True (Status.bombs st) name
                                turns fs
-                lift . traverse_ bounce . delete user $
-                       Effects.share nTarget
+                lift . traverse_ bounce . delete user $ Effects.share nTarget
   where
     bind Redirect{}   = True
     bind _            = False
@@ -290,7 +288,7 @@ removeStack = P.toTarget . Ninja.removeStack
 -- whose 'Status.user is the one performing the action by some amount,
 -- removing it if it reaches 0. Uses 'Ninja.removeStack' internally.
 removeStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
-removeStacks name = P.fromSource . Ninja.removeStacks name
+removeStacks name i = P.fromSource $ Ninja.removeStacks name i
 
 -- | Saves the target's state to their 'Ninja.statuses' in a 'Snapshot'.
 snapshot :: ∀ m. MonadPlay m => Duration -> m ()

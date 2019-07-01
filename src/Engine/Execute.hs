@@ -11,7 +11,6 @@ import ClassyPrelude hiding ((<|))
 
 import           Control.Monad.Trans.Maybe (runMaybeT)
 import           Data.Either (isLeft)
-import qualified Data.List as List
 import qualified Data.Sequence as Seq
 
 import           Core.Util ((—), (∈), (∉), intersects)
@@ -43,7 +42,6 @@ import           Model.Skill (Skill, Target(..))
 import qualified Model.Status as Status
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
-import qualified Model.Trap as Trap
 import           Model.Trap (Trigger(..))
 import qualified Engine.Adjust as Adjust
 import qualified Engine.Cooldown as Cooldown
@@ -63,7 +61,7 @@ data Affected
     | Reflected
     | Swapped
     | Trapped
-    deriving (Enum, Show, Eq)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 -- | Adds a 'Copy.Copy' to 'Ninja.copies'.
 copy :: Bool -- ^ Whether or not to call 'Ninja.clear' on matching 'Status.Status'es.
@@ -105,7 +103,7 @@ wrap affected f = void $ runMaybeT do
                       | invinc                         -> Flagged
                       | Trapped ∈ affected             -> Done
                       | not targeted                   -> Flagged
-                      | skill ∈ Ninja.parrying nTarget -> Flagged
+                      -- | skill ∈ Ninja.parrying nTarget -> Flagged
                       | not new                        -> Done
                       | Ninja.is Uncounter nTarget     -> Mimicked
                       | otherwise                      -> Completed
@@ -155,12 +153,10 @@ wrap affected f = void $ runMaybeT do
                               }) . wrap (Trapped : affected) $ P.play f'
         <|> do
             guard $ allow Trapped
-            (n, nt, mTrap) <- Trigger.counter classes nUser nTarget
+            (n, nt, mPlay) <- Trigger.counter classes nUser nTarget
             return do
                 P.modify $ Game.setNinja user n . Game.setNinja target nt
-                case mTrap of
-                    Nothing   -> return ()
-                    Just trap -> P.launch $ Trap.effect trap 0
+                maybe (return ()) P.launch mPlay
         <|> do
             guard $ allow Reflected
             nt <- Trigger.reflect classes nUser nTarget
@@ -197,7 +193,7 @@ chooseTarget Ally = do
     return [target | Parity.allied user target]
 chooseTarget Allies  = Slot.allies <$> P.user
 chooseTarget RAlly   = maybeToList <$> (chooseTarget Allies >>= R.choose)
-chooseTarget XAllies = List.delete <$> P.user <*> chooseTarget Allies
+chooseTarget XAllies = delete <$> P.user <*> chooseTarget Allies
 chooseTarget XAlly   = do
     user   <- P.user
     target <- P.target
@@ -207,7 +203,7 @@ chooseTarget Enemy = do
     target <- P.target
     return [target | not $ Parity.allied user target]
 chooseTarget Enemies  = Slot.enemies <$> P.user
-chooseTarget XEnemies = List.delete <$> P.target <*> chooseTarget Enemies
+chooseTarget XEnemies = delete <$> P.target <*> chooseTarget Enemies
 chooseTarget REnemy   = maybeToList <$> (chooseTarget Enemies >>= R.choose)
 chooseTarget Everyone = return Slot.all
 
@@ -274,7 +270,7 @@ act a = do
     (affected, skill) <- case Trigger.swap (Skill.classes skill') nUser of
         Just swapped -> do
             P.modify $ Game.setNinja user nUser
-                { Ninja.statuses = List.delete swapped $ Ninja.statuses nUser }
+                { Ninja.statuses = swapped `delete` Ninja.statuses nUser }
             return ([Swapped], SkillTransform.swap swapped skill')
         Nothing -> return ([], skill')
     let charge = Skill.charges skill > 0

@@ -114,6 +114,8 @@ wrap player f = do
 act :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 act = Turn.process . wrap Player.A $ Execute.effects []
 
+
+
 turns :: ∀ m. (MonadGame m, MonadRandom m) => Turns -> m ()
 turns (Duration -> i) = replicateM_ (sync i) $ Turn.run []
 

@@ -26,7 +26,6 @@ import           Model.Face (Face(..))
 import           Model.Player (Player(..))
 import           Model.Slot (Slot)
 import           Core.Fields (Privilege(..))
-import           Core.Util (equaling)
 
 import Model.Internal hiding (Barrier(..), Effect(..), Ninja(..), Game(..))
 
@@ -43,13 +42,10 @@ data Ninja = Ninja
     , channels  :: [Channel]
     , traps     :: Seq Trap
     , face      :: [Face]
-    , parrying :: [Skill]
-    , tags :: [ChannelTag]
+    , tags      :: [ChannelTag]
     , lastSkill :: Maybe Skill
-    , skills :: [Skill]
+    , skills    :: [Skill]
     }
-instance Eq Ninja where
-    (==) = equaling \Ninja{..} -> (slot, health, cooldowns, charges)
 
 data Barrier = Barrier { amount :: Int
                        , user   :: Slot
@@ -62,7 +58,7 @@ data Game = Game { chakra  :: (Chakras, Chakras)
                  , playing :: Player
                  , victor  :: [Player]
                  , targets :: [[[Slot]]]
-                 } deriving (Eq)
+                 }
 
 data Effect = Effect
     { desc    :: Text

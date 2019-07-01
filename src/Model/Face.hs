@@ -12,7 +12,7 @@ import Model.Slot (Slot)
 data Face = Face { icon :: Text
                  , user :: Slot
                  , dur  :: Int
-                 } deriving (Eq, Generic, ToJSON)
+                 } deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 instance TurnBased Face where
     getDur     = dur
     setDur d x = x { dur = d }

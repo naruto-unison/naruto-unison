@@ -12,7 +12,7 @@ import qualified Data.Aeson.Encoding as Encoding
 import qualified Data.Cache as Cache
 import           Data.Ix (inRange)
 import           Data.HashMap.Strict ((!))
-import qualified Data.List as List
+import           Data.List (transpose)
 import qualified Data.Text as Text
 import qualified Database.Persist.Postgresql as Sql
 import qualified System.Random.MWC as Random
@@ -45,9 +45,9 @@ import qualified Model.Wrapper as Wrapper
 import           Model.Wrapper (Wrapper)
 import qualified Characters
 
--- | 'concat' . 'List.transpose'
+-- | 'concat' . 'transpose'
 vs :: ∀ a. [a] -> [a] -> [a]
-x `vs` y = concat $ List.transpose [x, y]
+x `vs` y = concat $ transpose [x, y]
 
 bot :: User
 bot = User { userIdent      = ""

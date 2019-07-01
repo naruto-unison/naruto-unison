@@ -30,7 +30,13 @@ data Act = Act { user   :: Slot
                -- ^ Skill by index in 'Character.skills' of 'Ninja.character' (0-3)
                , target :: Slot
                -- ^ Target index in 'Model.Game.ninjas' (0-5)
-               } deriving (Eq, Generic, ToJSON)
+               } deriving (Generic, ToJSON)
+instance Eq Act where
+    x == y = user x == user y && target x == target y && skill x `eq` skill y
+      where
+        eq (Left x')  (Left y')  = x' == y'
+        eq (Right x') (Right y') = Skill.name x' == Skill.name y'
+        eq _         _         = False
 instance Show Act where
     show = show . fromAct
 instance Read Act where

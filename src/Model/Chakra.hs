@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveAnyClass        #-}
+{-# LANGUAGE DeriveAnyClass #-}
 
 module Model.Chakra
   ( Chakra(..)
@@ -10,7 +10,7 @@ module Model.Chakra
   , fromChakras
   ) where
 
-import ClassyPrelude hiding (map, sum, zip)
+import ClassyPrelude hiding (sum)
 import Prelude (sum)
 
 import           Data.Aeson (ToJSON)
@@ -43,20 +43,20 @@ instance PathPiece Chakras where
                                                    , (t',_) <- Read.decimal t
                                                    ]
 
-map :: (Int -> Int) -> Chakras -> Chakras
-map f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
+map1 :: (Int -> Int) -> Chakras -> Chakras
+map1 f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
 
-zip :: (Int -> Int -> Int) -> Chakras -> Chakras -> Chakras
-zip f (Chakras b g n t r) (Chakras b' g' n' t' r') =
+map2 :: (Int -> Int -> Int) -> Chakras -> Chakras -> Chakras
+map2 f (Chakras b g n t r) (Chakras b' g' n' t' r') =
     Chakras (f b b') (f g g') (f n n') (f t t') (f r r')
 
 instance Num Chakras where
-    (+) = zip (+)
-    (-) = zip (-)
-    (*) = zip (*)
-    negate = map negate
-    abs = map abs
-    signum = map signum
+    (+)    = map2 (+)
+    (-)    = map2 (-)
+    (*)    = map2 (*)
+    negate = map1 negate
+    abs    = map1 abs
+    signum = map1 signum
     fromInteger (fromInteger -> x) = Chakras x x x x x
 
 total :: Chakras -> Int
@@ -72,7 +72,7 @@ data Chakra
     | Nin
     | Tai
     | Rand
-    deriving (Bounded, Enum, Eq, Show)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 toChakras :: Chakra -> Chakras
 toChakras Blood = Chakras 1 0 0 0 0

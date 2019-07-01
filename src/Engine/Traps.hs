@@ -10,8 +10,7 @@ module Engine.Traps
 
 import ClassyPrelude hiding ((\\))
 
-import qualified Data.List as List
-import           Data.List ((\\))
+import           Data.List ((\\), nub)
 
 import           Core.Util ((∈), (∉))
 import qualified Class.Parity as Parity
@@ -68,8 +67,8 @@ brokenOne n n' =
        , Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n') triggers
        }
   where
-    triggers = OnBreak <$> List.nub (Defense.name <$> Ninja.defense n)
-                        \\ List.nub (Defense.name <$> Ninja.defense n')
+    triggers = OnBreak <$> nub (Defense.name <$> Ninja.defense n)
+                        \\ nub (Defense.name <$> Ninja.defense n')
 
 broken :: Game -> Game -> Game
 broken game game' =

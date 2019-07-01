@@ -14,11 +14,11 @@ module Handler.Site
 import ClassyPrelude hiding (Handler)
 import Yesod
 
+import           Data.List (nubBy)
 import qualified Data.List.NonEmpty as NonEmpty
-import qualified Data.List as List
 
 import           Core.App (Handler, Route(..))
-import           Core.Util (equaling, shorten)
+import           Core.Util (shorten)
 import           Core.Model (Cite(..), EntityField(..))
 import           Core.Settings (widgetFile)
 import qualified Model.Character as Character
@@ -83,7 +83,7 @@ $if not long
           <a .skill data-name=#{tagName}>#{Skill.name skill}
 |]
   where
-    separate       = List.nubBy (equaling Skill.name) . toList
+    separate       = nubBy ((==) `on` Skill.name) . toList
     tag Original   = name
     tag Reanimated = name ++ " (R)"
     tag Shippuden  = name ++ " (S)"

@@ -11,7 +11,7 @@ import ClassyPrelude
 import Data.Aeson (ToJSON)
 
 type Turns = Int
-newtype Duration = Duration Turns deriving (Eq, ToJSON, Ord, Show, Num)
+newtype Duration = Duration Turns deriving (Num, Eq, Ord, Show, Read, ToJSON)
 
 throttle :: Int -> Duration -> Maybe Duration
 throttle 0 dur = Just dur

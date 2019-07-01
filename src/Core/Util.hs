@@ -4,7 +4,6 @@ module Core.Util
   , intersects
   , duplic
   , enumerate
-  , equaling
   , mapMaybe
   , shorten
   ) where
@@ -14,35 +13,38 @@ import ClassyPrelude hiding ((<|), mapMaybe)
 import Data.List (nub)
 
 -- | '-' allowing for sections.
+{-# INLINE (—) #-}
 (—) :: ∀ a. Num a => a -> a -> a
 (—) = (-)
 
+{-# INLINE (∈) #-}
 -- | 'elem'.
 (∈) :: ∀ o. (MonoFoldable o, Eq (Element o)) => Element o -> o -> Bool
 (∈) = elem
 
+{-# INLINE (∉) #-}
 -- | 'notElem'.
 (∉) :: ∀ o. (MonoFoldable o, Eq (Element o)) => Element o -> o -> Bool
 (∉) = notElem
 
+{-# INLINE intersects #-}
 -- | True if any elements are shared by both collections.
 intersects :: ∀ a b.
     (MonoFoldable a, MonoFoldable b, Element a ~ Element b, Eq (Element a))
     => a -> b -> Bool
 intersects x = any (∈ x)
 
+{-# INLINE duplic #-}
 -- | True if a list contains multiple identical values.
 duplic :: ∀ a. Eq a => [a] -> Bool
 duplic x = nub x /= x
 
+{-# INLINE enumerate #-}
 -- | Lists all members of an 'Enum' from 'minBound' to 'maxBound'.
 enumerate :: ∀ a. (Bounded a, Enum a) => [a]
 enumerate = [minBound .. maxBound]
 
--- | Equality with a projecting function. Analogous to 'comparing'.
-equaling :: ∀ a b. Eq b => (a -> b) -> a -> a -> Bool
-equaling f x y = f x == f y
-
+{-# INLINE mapMaybe #-}
 mapMaybe :: ∀ (f :: * -> *) a b.
             ( IsSequence (f (Maybe b))
             , Functor f

@@ -16,7 +16,7 @@ import qualified Data.Sequence as Seq
 
 import           Core.Util ((∈), (∉), intersects)
 import qualified Class.Play as P
-import           Class.Play (MonadGame, Play)
+import           Class.Play (MonadGame, Play, SavedPlay)
 import           Class.Random (MonadRandom)
 import           Model.Class (Class(..))
 import           Model.Duration (Duration)
@@ -32,7 +32,7 @@ import           Model.Skill (Skill)
 import qualified Model.Status as Status
 import           Model.Status (Status)
 import qualified Model.Trap as Trap
-import           Model.Trap (Trap, Trigger(..))
+import           Model.Trap (Trigger(..))
 import qualified Engine.Traps as Traps
 
 -- | Trigger a 'Replace'.
@@ -47,23 +47,27 @@ replace classes n harm = mapMaybe ifCopy allStatuses
                   | Replace dur _ to _ <- find matches $ Status.effects st]
 
 -- | Trigger a 'Counter'.
-counter :: [Class] -> Ninja -> Ninja -> Maybe (Ninja, Ninja, Maybe Trap)
+counter :: [Class]
+        -> Ninja -- ^ User
+        -> Ninja -- ^ Target
+        -> Maybe (Ninja, Ninja, Maybe (SavedPlay)) -- ^ (User', target', effect)
 counter classes n nt =
     do
         guard $ Uncounterable ∉ classes
         trap <- find ((OnCounterAll ==) . Trap.trigger) $ Ninja.traps n
-        return (n, nt, Just trap)
+        return (n, nt, Just $ launchTrap trap)
     <|> do
         guard . any (any counterAll . Status.effects) $ Ninja.statuses nt
         return (n, nt, Nothing)
     <|> do
         i <- Seq.findIndexL (onCounter . Trap.trigger) $ Ninja.traps n
         let n' = n { Ninja.traps = Seq.deleteAt i $ Ninja.traps n }
-        return (n', nt, Seq.lookup i $ Ninja.traps n)
+        return (n', nt, launchTrap <$> Seq.lookup i (Ninja.traps n))
     <|> do
         nt' <- Ninja.drop counterOne nt
         return (n, nt', Nothing)
   where
+    launchTrap trap             = Trap.effect trap 0
     matchClass cla              = cla == Uncounterable
                                   || cla ∈ classes && Uncounterable ∉ classes
     counterAll (CounterAll cla) = matchClass cla
@@ -81,7 +85,7 @@ parry skill n =
     <|> [(n'', st, a) | (n'', Parry _ a, st) <- Ninja.take match n]
   where
     classes = Skill.classes skill
-    n'      = n { Ninja.parrying = skill : Ninja.parrying n }
+    n'      = n -- { Ninja.parrying = skill : Ninja.parrying n }
     matchN (ParryAll Uncounterable _) = True
     matchN (ParryAll cla _)           = cla ∈ classes
                                         && Uncounterable ∉ classes

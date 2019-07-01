@@ -7,8 +7,6 @@ import Test.Hspec
 import qualified Class.Play as P
 import qualified Model.Ninja as Ninja
 
-data Test = Test (Bool -> Int) Int deriving (Eq)
-
 spec :: Spec
 spec = parallel do
     describeCharacter "Naruto Uzumaki" \useOn -> do

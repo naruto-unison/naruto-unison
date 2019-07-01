@@ -20,7 +20,7 @@ data Privilege
     = Normal
     | Moderator
     | Admin
-  deriving (Enum, Ord, Bounded, Eq, Show, Read, Generic, FromJSON, ToJSON)
+  deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, FromJSON, ToJSON)
 derivePersistField "Privilege"
 
 data ForumCategory
@@ -28,7 +28,7 @@ data ForumCategory
     | Community
     | Feedback
     | General
-    deriving (Enum, Bounded, Eq, Show, Read)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 
 data ForumBoard
@@ -43,7 +43,7 @@ data ForumBoard
     | Suggestions
     -- General
     | OffTopic
-    deriving (Enum, Ord, Bounded, Eq, Show, Read)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read)
 derivePersistField "ForumBoard"
 instance PathPiece ForumBoard where
   toPathPiece = tshow

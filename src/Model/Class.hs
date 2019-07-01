@@ -46,7 +46,7 @@ data Class
     | Ninjutsu
     | Taijutsu
     | Random
-    deriving (Eq, Ord, Enum, Bounded, Generic, ToJSON)
+    deriving (Bounded, Enum, Eq, Ord, Generic, ToJSON)
 
 instance Show Class where
     show Invisible      = "Invisible"

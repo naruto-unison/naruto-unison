@@ -5,9 +5,9 @@ module Model.GameInfo
 
 import ClassyPrelude
 
-import           Data.Aeson ((.=), ToJSON(..), Value, object)
-import qualified Data.List as List
-import           Data.List.NonEmpty (NonEmpty(..))
+import Data.Aeson ((.=), ToJSON(..), Value, object)
+--import Data.List (intersect)
+import Data.List.NonEmpty (NonEmpty(..))
 
 import           Core.Util ((∈), (∉), intersects)
 import qualified Class.Parity as Parity
@@ -84,7 +84,7 @@ censorNinja game player n
           []       -> Just st
           [Reveal] -> Nothing
           _        -> Just st
-              { Status.effects = List.delete Reveal $ Status.effects st }
+              { Status.effects = Reveal `delete` Status.effects st }
 
 gameToJSON :: Game -> Value
 gameToJSON g = object
@@ -100,11 +100,13 @@ gameToJSON g = object
     targets = do
         n <- ns
         return do
-            skill <- Adjust.skills n
-            return $ (List.intersect . skillTargets skill $ Ninja.slot n)
-                      [Ninja.slot nt | nt <- ns
-                                    , Requirement.targetable skill n nt
-                                    ]
+            skill    <- Adjust.skills n
+            let targs = skillTargets skill $ Ninja.slot n
+            return do
+                nt   <- ns
+                let t = Ninja.slot nt
+                guard $ Requirement.targetable skill n nt && t ∈ targs
+                return t
 
 -- | All targets that a 'Skill' from a a specific 'Ninja' affects.
 skillTargets :: Skill -> Slot -> [Slot]
@@ -135,7 +137,7 @@ ninjaToJSON n = object
     , "channels"  .= Ninja.channels n
     , "traps"     .= filter ((Hidden ∉) . Trap.classes) (Ninja.traps n)
     , "face"      .= Ninja.face n
-    , "parrying"  .= Ninja.parrying n
+    --, "parrying"  .= Ninja.parrying n
     , "tags"      .= Ninja.tags n
     , "lastSkill" .= Ninja.lastSkill n
     , "skills"    .= (usable <$> Adjust.skills n)

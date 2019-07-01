@@ -43,14 +43,19 @@ import qualified Model.Status as Status
 import           Model.Status (Status)
 
 -- | Adds 'Flat' amounts and multiplies by 'Percent' amounts.
-total :: [(Amount, Int)] -> Amount -> Rational
-total xs Flat    = toRational . sum . map snd $
+total :: [(Amount, Int)] -> Amount -> Float
+total xs Flat    = fromIntegral . sum . map snd $
                    filter ((== Flat) . fst) xs
-total xs Percent = product . (1 :) . map ((/ 100) . toRational . snd) $
+total xs Percent = product . (1 :) . map ((/ 100) . fromIntegral . snd) $
                    filter ((== Percent) . fst) xs
 
+-- | 'total' for negative effects such as damage reduction.
+negativeTotal :: [(Amount, Int)] -> Amount -> Float
+negativeTotal xs Flat = total xs Flat
+negativeTotal xs Percent = total (second (1 -) <$> xs) Percent
+
 -- | 'Bleed' sum.
-bleed :: [Class] -> Ninja -> Amount -> Rational
+bleed :: [Class] -> Ninja -> Amount -> Float
 bleed classes n =
     total [(amt, x) | Bleed cla amt x <- Ninja.effects n, cla ∈ classes]
 
@@ -95,13 +100,13 @@ invincible :: Ninja -> [Class]
 invincible (Ninja.effects -> efs) = [x | Invincible x <- efs]
 
 -- | 'Reduce' sum.
-reduce :: [Class] -> Ninja -> Amount -> Rational
+reduce :: [Class] -> Ninja -> Amount -> Float
 reduce [Affliction] n =
-    total [(amt, x) | Reduce Affliction amt x <- Ninja.effects n]
+    negativeTotal [(amt, x) | Reduce Affliction amt x <- Ninja.effects n]
 reduce classes n =
-    total [(amt, x) | Reduce cla amt x <- Ninja.effects n
-                    , cla ∈ classes
-                    , cla /= Affliction]
+    negativeTotal [(amt, x) | Reduce cla amt x <- Ninja.effects n
+                            , cla ∈ classes
+                            , cla /= Affliction]
 
 -- | 'Share' collection.
 share :: Ninja -> [Slot]
@@ -112,7 +117,7 @@ snare :: Ninja -> Int
 snare n = sum [x | Snare x <- Ninja.effects n]
 
 -- | 'Strengthen' sum.
-strengthen :: [Class] -> Ninja -> Amount -> Rational
+strengthen :: [Class] -> Ninja -> Amount -> Float
 strengthen classes n =
     total [(amt, x) | Strengthen cla amt x <- Ninja.effects n, cla ∈ classes]
 
@@ -139,9 +144,9 @@ unreduce :: Ninja -> Int
 unreduce n = sum [x | Unreduce x <- Ninja.effects n]
 
 -- | 'Weaken' sum.
-weaken :: [Class] -> Ninja -> Amount -> Rational
+weaken :: [Class] -> Ninja -> Amount -> Float
 weaken classes n =
-  total [(amt, x) | Weaken cla amt x <- Ninja.effects n, cla ∈ classes]
+  negativeTotal [(amt, x) | Weaken cla amt x <- Ninja.effects n, cla ∈ classes]
 
 -- | 'Afflict' sum minus 'Heal' sum.
 hp :: Player -> Ninja -> Game -> Int
@@ -176,16 +181,15 @@ afflict player game n = sum
 -- | Calculates the total 'Afflict' of a single 'Status.Status'.
 afflict1 :: Player -> Game -> Slot -> Status -> Int
 afflict1 player game t st
-  | summed /= 0 && Parity.allied player user =
-      truncate $ scale * (summed + ext)
-  | otherwise = 0
+  | summed /= 0 && Parity.allied player user = truncate $ scale * (summed + ext)
+  | otherwise                                = 0
   where
     user   = Status.user st
     nt     = Game.ninja t game
     n      = Game.ninja user game
-    summed = toRational $ sum [hp' | Afflict hp' <- Status.effects st]
+    summed = fromIntegral $ sum [hp' | Afflict hp' <- Status.effects st]
     ext
-      | t == user                  = 0
+      | t == user                    = 0
       | not $ Ninja.alive n          = bleed [Affliction, All] nt Flat
       | Ninja.is (Stun Affliction) n = 0
       | otherwise                    = strengthen [Affliction, All] n  Flat

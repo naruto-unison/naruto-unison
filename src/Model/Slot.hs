@@ -1,58 +1,62 @@
 -- DO NOT EXPOSE ANY FUNCTION THAT COULD BE USED TO CONSTRUCT OR ALTER A SLOT.
--- It must be guaranteed that all Slots wrap numbers in the range [0, gameSize).
+-- It must be guaranteed that all Slots are within their 'Bounded' range.
 module Model.Slot
   ( Slot, toInt, read
-  , teamSize, gameSize
+  , teamSize
   , all, allies, enemies
-  , liftChoice
   ) where
 
 import ClassyPrelude hiding (all)
 
 import           Data.Aeson (ToJSON)
-import qualified Data.List as List
 import qualified Data.Text.Read as Read
 
+import qualified Class.Parity as Parity
 import Class.Parity (Parity)
 
+teamSize :: Int
+teamSize = 3
+
+maxVal :: Int
+maxVal = teamSize * 2 - 1
+
 -- | A 'Slot' represents an index in 'Model.Game.ninjas'.
--- It is hidden behind a newtype and cannot be constructed outside this module.
--- This prevents arithmetic manipulation and out-of-bounds errors.
--- It has the added advantage of making function signatures much more readable!
+-- It is hidden behind a newtype and cannot be constructed outside this module
+-- in order to prevent arithmetic manipulation and out-of-bounds errors.
+-- This has the added advantage of making function signatures more readable!
 newtype Slot = Slot Int deriving (Eq, Ord, Show, Read, ToJSON, Parity)
+
+instance Bounded Slot where
+    minBound = Slot 0
+    maxBound = Slot maxVal
 
 {-# INLINE toInt #-}
 toInt :: Slot -> Int
 toInt (Slot i) = i
 
-teamSize :: Int
-teamSize = 3
-gameSize :: Int
-gameSize = teamSize * 2
-
 all :: [Slot]
-all = Slot <$> [0 .. gameSize - 1]
+all = Slot <$> [0 .. maxVal]
 
--- | Values with the same parity. Bounded by @[0, 'gameSize')@.
-par :: Int -> [Int]
-par ((`rem` 2) -> i) = [i, i + 2 .. gameSize - 1]
+evens :: [Slot]
+evens = Slot <$> [0, 2 .. maxVal]
 
--- | Slots with the same parity. Bounded by @[0, 'gameSize')@.
+odds :: [Slot]
+odds = Slot <$> [1, 3 .. maxVal]
+
+-- | Slots with the same parity.
 allies :: Slot -> [Slot]
-allies (Slot i) = Slot <$> List.delete i (par i)
+allies x
+  | Parity.even x = x `delete` evens
+  | otherwise     = x `delete` odds
 
--- | Slots with opposite parity. Bounded by @[0, 'gameSize']@.
+-- | Slots with opposite parity.
 enemies :: Slot -> [Slot]
-enemies (Slot i) = Slot <$> par (i + 1)
-
--- | Translates a 'Model.Skill.Target' into a list of 'Model.Ninja.Ninja's.
-liftChoice :: (Int -> Int -> (Maybe Int, Maybe Int) -> [Int])
-       -> Slot -> Slot -> (Maybe Slot, Maybe Slot) -> [Slot]
-liftChoice f (Slot user) (Slot target) (ally, enemy) =
-    Slot <$> f user target (sLift ally, sLift enemy)
-  where
-    sLift (Just (Slot s)) = Just s
-    sLift Nothing         = Nothing
+enemies x
+  | Parity.even x = x `delete` odds
+  | otherwise     = x `delete` evens
 
 read :: Text -> Either String (Slot, Text)
-read = (first Slot <$>) . Read.decimal
+read s = case Read.decimal s of
+    Right (val, _)
+      | val < 0 || val > maxVal -> Left "input is out of range"
+    x                           -> first Slot <$> x

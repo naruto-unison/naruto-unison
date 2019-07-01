@@ -7,4 +7,4 @@ data Attack
     | Pierce
     | Damage
     | Demolish
-    deriving (Eq)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read)

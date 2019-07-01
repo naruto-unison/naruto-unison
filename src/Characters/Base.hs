@@ -33,8 +33,6 @@ import Action.Status as Import
 import Action.Trap as Import
 import Engine.SkillTransform as Import
 
-import qualified Data.List as List
-
 import qualified Class.Play as P
 import           Class.Play (PlayConstraint, MonadPlay)
 import qualified Model.Chakra as Chakra
@@ -67,7 +65,7 @@ self = P.with Context.reflect
 -- | Directly applies an effect to all other Ninjas, both living and dead,
 -- ignoring invulnerabilities and traps.
 everyone :: ∀ m. MonadPlay m => m () -> m ()
-everyone f = P.user >>= flip P.withTargets f . (`List.delete` Slot.all)
+everyone f = P.user >>= flip P.withTargets f . (`delete` Slot.all)
 
 -- | Directly applies an effect to all allies, both living and dead,
 -- ignoring invulnerabilities and traps.

@@ -11,8 +11,8 @@ module Engine.SkillTransform
 
 import ClassyPrelude hiding (swap)
 
-import qualified Data.List as List
-import           Data.List.NonEmpty (NonEmpty(..), (!!))
+import Data.List (findIndex)
+import Data.List.NonEmpty (NonEmpty(..), (!!))
 
 import           Core.Util ((∈))
 import           Class.Play (Play)
@@ -39,11 +39,11 @@ import qualified Engine.Effects as Effects
 -- the identically-named variant.
 safe :: ∀ a. a -> (Int -> Int -> a) -> Ninja -> Text -> Text -> a
 safe a f n sName vName = fromMaybe a do
-    s <- List.findIndex (any $ match sName) $ toList skills
+    s <- findIndex (any $ match sName) $ toList skills
     v <- case vName of
             "" -> return 0
             _  -> let (_:|xs) = skills !! s
-                  in (+1) <$> List.findIndex (match vName) xs
+                  in (+1) <$> findIndex (match vName) xs
     return $ f s v
   where
     match x = (== toCaseFold x) . toCaseFold . Skill.name
@@ -72,8 +72,7 @@ setCost chaks _ skill = skill { Skill.cost = Chakra.collect chaks }
 costPer :: Text -> [Chakra] -> Skill.Transform
 costPer name chaks n skill = skill { Skill.cost = Skill.cost skill + added }
   where
-    added = Chakra.collect chaks
-            * fromInteger (toInteger $ Ninja.numActive name n)
+    added = Chakra.collect chaks * fromIntegral (Ninja.numActive name n)
 
 -- | Multiplies 'Chakra's by 'Ninja.numActive' and subtracts the total from
 -- 'Skill.cost'.
@@ -81,8 +80,7 @@ reduceCostPer :: Text -> [Chakra] -> Skill.Transform
 reduceCostPer name chaks n skill =
     skill { Skill.cost = Skill.cost skill - added }
   where
-    added = Chakra.collect chaks
-            * fromInteger (toInteger $ Ninja.numActive name n)
+    added = Chakra.collect chaks * fromIntegral (Ninja.numActive name n)
 
 -- | Multiplies some number of turns by 'Ninja.numActive' and adds the total to
 -- 'Skill.channel'.

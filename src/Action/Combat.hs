@@ -39,6 +39,7 @@ import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
+import           Model.Ninja (Ninja)
 import qualified Model.Skill as Skill
 import           Model.Trap (Trigger(..))
 import qualified Engine.Effects as Effects
@@ -83,10 +84,44 @@ demolishAll = do
     P.modify $ Game.adjust user   (\n -> n { Ninja.barrier = [] }) .
                Game.adjust target (\n -> n { Ninja.defense = [] })
 
+-- | Damage formula.
+formula :: Attack -- ^ Attack type.
+        -> [Class] -- ^ 'Skill.classes'.
+        -> Ninja -- ^ User.
+        -> Ninja -- ^ Target.
+        -> Int -- ^ Base damage.
+        -> Int
+formula atk classes nUser nTarget dmg =
+    truncate $
+    fromIntegral dmg
+    * strengthen Percent
+    * bleed Percent
+    * reduceAfflic Percent
+    * reduce Percent
+    * weaken Percent
+    + strengthen Flat
+    + bleed Flat
+    - reduceAfflic Flat
+    - reduce Flat
+    - weaken Flat
+  where
+    direct  = Direct ∈ classes
+    strengthen
+      | direct    = Effect.identity
+      | otherwise = Effects.strengthen classes nUser
+    bleed         = Effects.bleed classes nTarget
+    reduceAfflic  = Effects.reduce [Affliction] nTarget
+    reduce
+      | atk /= Attack.Damage || Ninja.is Pierce nUser || Ninja.is Expose nTarget
+                  = Effect.identity
+      | otherwise = Effects.reduce classes nTarget
+    weaken
+      | atk == Attack.Afflict || direct = Effect.identity
+      | otherwise                       = Effects.weaken classes nUser
+
 -- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce',
 -- 'Attack.Damage', or 'Attack.Demolish' attack.
 attack :: ∀ m. MonadPlay m => Attack -> Int -> m ()
-attack _   0   = return ()
 attack atk dmg = void $ runMaybeT do
     skill      <- P.skill
     user       <- P.user
@@ -94,50 +129,23 @@ attack atk dmg = void $ runMaybeT do
     nUser      <- P.nUser
     nTarget    <- P.nTarget
     let classes = atkClass : Skill.classes skill
+        dmgCalc = formula atk classes nUser nTarget dmg
         direct  = Direct ∈ classes
-        -- | Damage modified by the user's 'Effect's.
-        dmg'User
-          | direct = toRational dmg
-          | otherwise = (* Effects.strengthen classes nUser Percent) .
-                        (+ Effects.strengthen classes nUser Flat) $
-                        toRational dmg
-        reduceAfflic = Effects.reduce [Affliction] nTarget
-        reduce amount
-          | atk /= Attack.Damage    = Effect.identity amount
-          | Ninja.is Pierce nUser   = Effect.identity amount
-          | Ninja.is Expose nTarget = Effect.identity amount
-          | otherwise               = Effects.reduce classes nTarget amount
-        weaken amount
-          | atk == Attack.Afflict = Effect.identity amount
-          | direct                = Effect.identity amount
-          | otherwise             = Effects.weaken classes nUser amount
-        bleed = Effects.bleed classes nTarget
-        -- | Damage modified by the target's 'Effect's.
-        dmg'Target = truncate .
-                    (— reduceAfflic Flat) .
-                    (— reduce Flat) .
-                    (— weaken Flat) .
-                    (+ bleed Flat) .
-                    (* reduceAfflic Percent) .
-                    (* reduce Percent) .
-                    (* weaken Percent) .
-                    (* bleed Percent) $
-                    toRational dmg'User
-        (dmg'Barrier, barr) = absorbBarrier dmg'Target $ Ninja.barrier nUser
+        (dmg'Barrier, barr) = absorbBarrier dmgCalc $ Ninja.barrier nUser
         handleDefense
           | Ninja.is Undefend nTarget = (,)
           | otherwise                 = absorbDefense
         (dmg'Def, defense)
-          | direct    = handleDefense dmg'Target $ Ninja.defense nTarget
+          | direct    = handleDefense dmgCalc $ Ninja.defense nTarget
           | otherwise = handleDefense dmg'Barrier $ Ninja.defense nTarget
 
     guard . not $ classes `intersects` Effects.invincible nTarget
                || dmg < Effects.threshold nTarget
                || not direct && Ninja.is (Stun atkClass) nUser
-               || dmg'Target <= 0
+               || dmgCalc <= 0
 
     if atk == Attack.Afflict then do
-        P.modify . Game.adjust target $ Ninja.adjustHealth (— dmg'Target)
+        P.modify . Game.adjust target $ Ninja.adjustHealth (— dmgCalc)
     else do
         unless direct .
             P.modify $ Game.adjust user \n -> n { Ninja.barrier = barr }

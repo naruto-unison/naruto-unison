@@ -11,7 +11,7 @@ module Action.Skill
 
 import ClassyPrelude
 
-import qualified Data.List as List
+import           Data.List (findIndex)
 import           Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Sequence as Seq
 
@@ -123,7 +123,7 @@ varyLoadout (a, b, c, affectsFourth) i = do
 varyNext :: ∀ m. MonadPlay m => Text -> m ()
 varyNext name = do
     target <- P.target
-    maybeS <- List.findIndex (any match) .
+    maybeS <- findIndex (any match) .
               toList . Character.skills . Ninja.character <$> P.nTarget
     case maybeS of
         Nothing -> return ()

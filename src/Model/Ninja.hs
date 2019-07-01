@@ -27,7 +27,7 @@ module Model.Ninja
 
 import ClassyPrelude hiding (drop, group, head, init, last, take, mapMaybe)
 
-import qualified Data.List as List
+import           Data.List (nubBy)
 import           Data.List.NonEmpty ((!!), NonEmpty(..), group, init, last)
 import qualified Data.Text as Text
 
@@ -68,14 +68,15 @@ new c slot = Ninja { slot      = slot
                    , variants  = replicate 4 $ Variant.none :| []
                    , copies    = replicate 4 Nothing
                    , channels  = []
-                   , newChans   = []
+                   , newChans  = []
                    , traps     = mempty
                    , face      = []
-                   , parrying  = []
+                   --, parrying  = []
                    , tags      = []
                    , lastSkill = Nothing
-                   , effects   = mempty
+                   , counters  = mempty
                    , triggers  = mempty
+                   , effects   = mempty
                    }
 
 -- | Factory resets a 'Ninja' to its starting values.
@@ -155,15 +156,15 @@ numStacks name user n = sum . (Status.amount <$>) .
 numHelpful :: Ninja -> Int
 numHelpful n = length stats + length defs
   where
-    stats = List.nubBy Labeled.eq [ st | st <- statuses n
+    stats = nubBy Labeled.eq [ st | st <- statuses n
                                   , any Effect.helpful $ Status.effects st
                                   , slot n /= Status.user st
                                   , Parity.allied (slot n) $ Status.user st
                                   , Hidden ∉ Status.classes st
                                   ]
-    defs  = List.nubBy Labeled.eq [ d | d <- defense n
-                                  , slot n /= Defense.user d
-                                  , Parity.allied (slot n) $ Defense.user d
+    defs  = nubBy Labeled.eq [ de | de <- defense n
+                                  , slot n /= Defense.user de
+                                  , Parity.allied (slot n) $ Defense.user de
                                   ]
 
 -- | @1@ if affected by 'Endure', otherwise @0@.
@@ -229,7 +230,7 @@ decr n = case findMatch $ statuses n of
            , variants  = turnDecr' <$> variants n
            , copies    = (>>= TurnBased.decr) <$> copies n
            , cooldowns = ((max 0 . subtract 1) <$>) <$> cooldowns n
-           , parrying  = mempty
+           --, parrying  = []
            , effects   = []
            , triggers  = singleton OnNoAction
            }

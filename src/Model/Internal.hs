@@ -17,7 +17,7 @@ import qualified System.Random.MWC.Distributions as Random
 import           Text.Blaze (ToMarkup(..))
 import           Yesod.WebSockets (WebSocketsT)
 
-import           Core.Util ((∈), enumerate, equaling)
+import           Core.Util ((∈), enumerate)
 import qualified Class.Classed as Classed
 import           Class.Classed (Classed)
 import qualified Class.Parity as Parity
@@ -32,13 +32,13 @@ import           Model.Face (Face(..))
 import           Model.Player (Player)
 import           Model.Slot (Slot)
 
-data Amount = Flat | Percent deriving (Eq, Ord)
+data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 data Context = Context { skill   :: Skill
                        , user    :: Slot
                        , target  :: Slot
                        , new     :: Bool
-                       } deriving (Eq, Generic, ToJSON)
+                       } deriving (Generic, ToJSON)
 
 type PlayConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
 newtype Play a = Play (PlayConstraint a)
@@ -50,7 +50,7 @@ instance ToJSON (Play a) where
 type SavedPlay = (Context, Play ())
 
 class Monad m => MonadRandom m where
-    random  :: ∀ a. Random.Variate a => a -> a -> m a
+    random  :: Int -> Int -> m Int
     shuffle :: ∀ v a. Vector v a => v a -> m (v a)
 
 class Monad m => MonadGame m where
@@ -362,14 +362,14 @@ data Ninja = Ninja { slot      :: Slot           -- ^ 'Model.Game.Ninjas' index 
                    , newChans  :: [Channel]              -- ^ Starts empty
                    , traps     :: Seq Trap               -- ^ Starts empty
                    , face      :: [Face]                 -- ^ Starts empty
-                   , parrying  :: [Skill]                -- ^ Starts empty
                    , tags      :: [ChannelTag]           -- ^ Starts empty
                    , lastSkill :: Maybe Skill            -- ^ Starts at 'Nothing'
-                   , effects   :: [Effect]               -- ^ Empty each turn
-                   , triggers  :: Set Trigger            -- ^ Empty each turn
+                   , triggers  :: Set Trigger            -- ^ Empty at the start of each turn
+                   , counters  :: [SavedPlay]            -- ^ Empty at the start of each turn
+                   , effects   :: [Effect]               -- ^ Empty at the start of each turn
                    }
 instance Eq Ninja where
-    (==) = equaling \Ninja{..} -> (slot, health, cooldowns, charges)
+    (==) = (==) `on` \Ninja{..} -> (slot, health, cooldowns, charges)
 instance Parity Ninja where
     even = Parity.even . slot
 
@@ -390,7 +390,7 @@ data Requirement
     | Unusable
     | HasI Int Text
     | HasU Text
-    deriving (Eq, Generic, ToJSON)
+    deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 
 -- | Target destinations of 'Skill's.
 data Target
@@ -406,7 +406,7 @@ data Target
     | XEnemies      -- ^ Enemies excluding 'Enemy'
     | Everyone      -- ^ All 'Ninja's
     | Specific Slot -- ^ Specific ninja index in 'ninjas' (0-5)
-    deriving (Eq, Generic, ToJSON)
+    deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 
 -- | A move that a 'Character' can perform.
 data Skill = Skill { name      :: Text -- ^ Name
@@ -442,8 +442,6 @@ instance ToJSON Skill where
         , "copying"   .= copying
         , "pic"       .= pic
         ]
-instance Eq Skill where
-    (==) = equaling \Skill{..} -> (name, desc)
 instance Classed Skill where
     classes = classes
 
@@ -474,7 +472,7 @@ data Defense = Defense { amount :: Int
                        , user   :: Slot
                        , name   :: Text
                        , dur    :: Int
-                       } deriving (Eq, Generic, ToJSON)
+                       } deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 instance TurnBased Defense where
     getDur     = dur
     setDur d x = x { dur = d }
@@ -487,7 +485,7 @@ data Channel = Channel { source :: Slot
                        , skill  :: Skill
                        , target :: Slot
                        , dur    :: Channeling
-                       } deriving (Eq, Generic, ToJSON)
+                       } deriving (Generic, ToJSON)
 
 instance Classed Channel where
     classes = Classed.classes . (skill :: Channel -> Skill)
@@ -497,12 +495,13 @@ instance TurnBased Channel where
     setDur d x = x { dur = setDur d $ (dur :: Channel -> Channeling) x }
 
 -- | Types of channeling for 'Skill's.
-data Channeling = Instant
-                | Passive
-                | Action  Duration
-                | Control Duration
-                | Ongoing Duration
-                deriving (Eq, Show, Generic, ToJSON)
+data Channeling
+    = Instant
+    | Passive
+    | Action  Duration
+    | Control Duration
+    | Ongoing Duration
+    deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 instance TurnBased Channeling where
     getDur Instant     = 0
     getDur Passive     = 0
@@ -521,7 +520,7 @@ data ChannelTag = ChannelTag { source  :: Slot
                              , skill   :: Skill
                              , ghost   :: Bool
                              , dur     :: Int
-                             } deriving (Eq, Generic, ToJSON)
+                             } deriving (Generic, ToJSON)
 
 instance Classed ChannelTag where
     classes = Classed.classes . (skill :: ChannelTag -> Skill)
@@ -539,7 +538,7 @@ data Category
     = Original
     | Shippuden
     | Reanimated
-    deriving (Show, Eq, Ord, Bounded, Enum, Generic, ToJSON)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
 instance ToMarkup Category where
     toMarkup = toMarkup . show
 
@@ -557,8 +556,6 @@ instance ToJSON Character where
         , "skills"   .= skills
         , "category" .= category
         ]
-instance Eq Character where
-    (==) = equaling \Character{..} -> (name, category)
 
 instance Show Character where
     show (Character name _ _ _ Original)   = unpack name
@@ -598,39 +595,39 @@ instance Classed Trigger where
     classes _               = []
 
 instance Show Trigger where
-    show (OnAction  All) = "Trigger: Use any skill"
-    show (OnAction  cla) = "Trigger: Use " ++ low cla ++ " skills"
-    show (OnBreak   name)   = "Trigger: Lose all destructible defense from '" ++ unpack name ++ "'"
-    show OnChakra        = "Trigger: Steal or remove chakra"
-    show (OnCounter All) = "Next harmful skill is countered."
+    show (OnAction  All)  = "Trigger: Use any skill"
+    show (OnAction  cla)  = "Trigger: Use " ++ low cla ++ " skills"
+    show (OnBreak   name) = "Trigger: Lose all destructible defense from '" ++ unpack name ++ "'"
+    show OnChakra         = "Trigger: Steal or remove chakra"
+    show (OnCounter All)  = "Next harmful skill is countered."
     show (OnCounter Uncounterable) = "Next skill is negated."
-    show (OnCounter cla) = "Next harmful " ++ low cla ++ " skill is countered."
-    show OnCounterAll    = "All skills are countered."
-    show OnDamage        = "Trigger: Deal damage"
-    show (OnDamaged All) = "Trigger: Receive damage"
-    show (OnDamaged cla) = "Trigger: Receive " ++ low cla ++ " damage"
-    show OnDeath         = "Trigger: Die"
-    show OnHarm          = "Trigger: Use harmful skill"
-    show (OnHarmed All)  = "Trigger: Be affected by a new harmful skill"
-    show (OnHarmed cla)  = "Trigger: Be affected by a new " ++ low cla ++ " harmful skill"
-    show OnHealed        = "Trigger: Receive healing"
-    show OnHelped        = "Trigger: Be affected by a new skill from an ally"
-    show OnImmune        = "Trigger: Become invulnerable"
-    show OnNoAction      = "Trigger: Do not use a new skill"
-    show OnReflectAll    = "All skills are reflected."
-    show OnRes           = "Trigger: Reach 0 health"
-    show OnStun          = "Trigger: Apply a stun"
-    show OnStunned       = "Trigger: Stunned"
-    show PerDamage       = show OnDamage
-    show PerDamaged      = show (OnDamaged All)
-    show PerHealed       = show OnHealed
+    show (OnCounter cla)  = "Next harmful " ++ low cla ++ " skill is countered."
+    show OnCounterAll     = "All skills are countered."
+    show OnDamage         = "Trigger: Deal damage"
+    show (OnDamaged All)  = "Trigger: Receive damage"
+    show (OnDamaged cla)  = "Trigger: Receive " ++ low cla ++ " damage"
+    show OnDeath          = "Trigger: Die"
+    show OnHarm           = "Trigger: Use harmful skill"
+    show (OnHarmed All)   = "Trigger: Be affected by a new harmful skill"
+    show (OnHarmed cla)   = "Trigger: Be affected by a new " ++ low cla ++ " harmful skill"
+    show OnHealed         = "Trigger: Receive healing"
+    show OnHelped         = "Trigger: Be affected by a new skill from an ally"
+    show OnImmune         = "Trigger: Become invulnerable"
+    show OnNoAction       = "Trigger: Do not use a new skill"
+    show OnReflectAll     = "All skills are reflected."
+    show OnRes            = "Trigger: Reach 0 health"
+    show OnStun           = "Trigger: Apply a stun"
+    show OnStunned        = "Trigger: Stunned"
+    show PerDamage        = show OnDamage
+    show PerDamaged       = show (OnDamaged All)
+    show PerHealed        = show OnHealed
 
 data Variant = Variant { variant   :: Int -- ^ Index in 'skills'
                        , ownCd     :: Bool -- ^ Uses a different cooldown than the baseline 'Skill'
                        , name      :: Text
                        , fromSkill :: Bool -- ^ Duration is based on a 'Skill'
                        , dur       :: Int
-                       } deriving (Eq, Show, Generic, ToJSON)
+                       } deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 instance TurnBased Variant where
     getDur        = dur
     setDur x vari = vari { dur = x }
@@ -638,7 +635,7 @@ instance TurnBased Variant where
 -- | A 'Skill' copied from a different character.
 data Copy = Copy { skill :: Skill
                  , dur   :: Int
-                 } deriving (Eq, Generic, ToJSON)
+                 } deriving (Generic, ToJSON)
 
 instance Classed Copy where
     classes = Classed.classes . (skill :: Copy -> Skill)
@@ -657,7 +654,7 @@ data Copying
     = Shallow Slot Int -- ^ No cooldown or chakra cost.
     | Deep Slot Int    -- ^ Cooldown and chakra cost.
     | NotCopied
-    deriving (Eq, Generic, ToJSON)
+    deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 
 -- | Applies an effect after several turns.
 data Delay = Delay { user   :: Slot
@@ -682,7 +679,7 @@ data Bomb
     = Done   -- ^ Applied with both 'Expire' and 'Remove'
     | Expire -- ^ Applied when a 'Status' reaches the end of its duration.
     | Remove -- ^ Applied when a 'Status' is removed prematurely
-    deriving (Enum, Eq, Show, Generic, ToJSON)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
 
 -- | A status effect affecting a 'Ninja'.
 data Status = Status { amount  :: Int  -- ^ Starts at 1
@@ -697,12 +694,12 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
                      , dur     :: Int
                      } deriving (Generic, ToJSON)
 instance Eq Status where
-    (==) = equaling \Status{..} -> (name, user, maxDur, classes)
+    (==) = (==) `on` \Status{..} -> (name, user, maxDur, classes)
+instance Ord Status where
+    compare = compare `on` (name :: Status -> Text)
 instance TurnBased Status where
     getDur     = dur
     setDur d x = x { dur = d }
-instance Ord Status where
-    compare = comparing (name :: Status -> Text)
 instance Labeled Status where
     name   = name
     user = user
@@ -713,7 +710,7 @@ data Direction
     = To
     | From
     | Per
-    deriving (Enum, Eq, Show, Generic, ToJSON)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
 
 -- | A trap which gets triggered when a 'Ninja' meets the conditions of a 'Trigger'.
 data Trap = Trap { direction :: Direction
@@ -738,7 +735,7 @@ instance ToJSON Trap where
         , "dur"       .= dur
         ]
 instance Eq Trap where
-    (==) = equaling \Trap{..} -> (direction, trigger, name, user, dur)
+    (==) = (==) `on` \Trap{..} -> (direction, trigger, name, user, dur)
 instance TurnBased Trap where
     getDur     = dur
     setDur d x = x { dur = d }

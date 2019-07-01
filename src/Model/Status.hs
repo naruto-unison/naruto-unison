@@ -6,9 +6,7 @@ module Model.Status
   , unfold
   ) where
 
-import ClassyPrelude hiding (delete)
-
-import qualified Data.List as List
+import ClassyPrelude
 
 import           Model.Internal (Bomb(..), Effect(..), Status(..))
 import qualified Model.Copy as Copy
@@ -50,8 +48,8 @@ dead slot = Status { amount  = 1
 -- | Decreases 'amount' and removes the 'Status' if the amount reaches 0.
 decr :: Int -> Status -> [Status] -> [Status]
 decr i x xs
-  | amount x > i = x { amount = amount x - i } : List.delete x xs
-  | otherwise  = List.delete x xs
+  | amount x > i = x { amount = amount x - i } : x `delete` xs
+  | otherwise    = x `delete` xs
 
 -- | Decreases 'amount' by 1 and removes the 'Status' if the amount reaches 0.
 remove :: Status -> [Status] -> [Status]
