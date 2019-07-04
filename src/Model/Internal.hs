@@ -34,85 +34,6 @@ import           Model.Slot (Slot)
 
 data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
-data Context = Context { skill   :: Skill
-                       , user    :: Slot
-                       , target  :: Slot
-                       , new     :: Bool
-                       } deriving (Generic, ToJSON)
-
-type PlayConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
-newtype Play a = Play (PlayConstraint a)
-instance Eq (Play a) where
-    (==) = const $ const True
-instance ToJSON (Play a) where
-    toJSON = const $ toJSON (Nothing :: Maybe ())
-
-type SavedPlay = (Context, Play ())
-
-class Monad m => MonadRandom m where
-    random  :: Int -> Int -> m Int
-    shuffle :: ∀ v a. Vector v a => v a -> m (v a)
-
-class Monad m => MonadGame m where
-    game   :: m Game
-    modify :: (Game -> Game) -> m ()
-
-class MonadGame m => MonadPlay m where
-    context :: m Context
-    with    :: ∀ a. (Context -> Context) -> m a -> m a
-
-instance MonadGame m => MonadGame (ReaderT Context m) where
-    game   = lift game
-    modify = lift . modify
-instance MonadGame m => MonadPlay (ReaderT Context m) where
-    context = ask
-    with    = local
-
-
-instance MonadGame (StateT Game Identity) where
-    game   = get
-    modify = modify'
-
-instance MonadRandom (StateT Game Identity) where
-    random x = return . const x
-    shuffle  = return . id
-
-instance MonadRandom m => MonadRandom (MaybeT m) where
-    random a = lift . random a
-    shuffle  = lift . shuffle
-instance MonadGame m => MonadGame (MaybeT m) where
-    game    = lift game
-    modify  = lift . modify
-instance MonadPlay m => MonadPlay (MaybeT m) where
-    context = lift context
-    with f  = mapMaybeT $ with f
-instance MonadRandom m => MonadRandom (ReaderT Context m) where
-    random a = lift . random a
-    shuffle  = lift . shuffle
-instance MonadRandom m => MonadRandom (WebSocketsT m) where
-    random a = lift . random a
-    shuffle  = lift . shuffle
-instance MonadGame m => MonadGame (WebSocketsT m) where
-    game    = lift game
-    modify  = lift . modify
-instance MonadPlay m => MonadPlay (WebSocketsT m) where
-    context = lift context
-    with f  = mapReaderT $ with f
-
-data Wrapper = Wrapper { gameRef :: IORef Game
-                       , rand    :: Random.GenIO
-                       }
-
-instance MonadIO m => MonadRandom (ReaderT Wrapper m) where
-    random a b = asks (rand :: Wrapper -> Random.GenIO)
-                 >>= liftIO . Random.uniformR (a, b)
-    shuffle xs = asks (rand :: Wrapper -> Random.GenIO)
-                 >>= liftIO . Random.uniformShuffle xs
-
-instance MonadIO m => MonadGame (ReaderT Wrapper m) where
-    game     = asks gameRef >>= readIORef
-    modify f = asks gameRef >>= flip modifyIORef' f
-
 data Constructor
     = Only Effect
     | Any (Class -> Effect)
@@ -495,7 +416,7 @@ instance TurnBased Channel where
     setDur d x = x { dur = setDur d $ (dur :: Channel -> Channeling) x }
 
 -- | Types of channeling for 'Skill's.
-data Channeling
+data Channeling 
     = Instant
     | Passive
     | Action  Duration
@@ -744,3 +665,77 @@ instance Labeled Trap where
     user = user
 instance Classed Trap where
     classes = classes
+
+
+
+data Context = Context { skill   :: Skill
+                       , user    :: Slot
+                       , target  :: Slot
+                       , new     :: Bool
+                       } deriving (Generic, ToJSON)
+
+class Monad m => MonadRandom m where 
+    random  :: Int -> Int -> m Int
+    shuffle :: ∀ v a. Vector v a => v a -> m (v a) 
+ 
+class Monad m => MonadGame m where 
+    game   :: m Game 
+    modify :: (Game -> Game) -> m () 
+ 
+class MonadGame m => MonadPlay m where 
+    context :: m Context 
+    with    :: ∀ a. (Context -> Context) -> m a -> m a 
+ 
+type PlayConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
+
+newtype Play a = Play (PlayConstraint a)
+instance Eq (Play a) where
+    (==) = const $ const True
+instance ToJSON (Play a) where
+    toJSON = const $ toJSON (Nothing :: Maybe ())
+
+type SavedPlay = (Context, Play ())
+
+
+
+instance MonadGame m => MonadPlay (ReaderT Context m) where 
+    context = ask 
+    with    = local 
+
+instance {-# OVERLAPPING #-}
+  MonadIO m => MonadGame (ReaderT (IORef Game) m) where
+    game     = ask >>= readIORef
+    modify f = ask >>= flip modifyIORef' f
+instance {-# OVERLAPPING #-} 
+  MonadIO m => MonadRandom (ReaderT (Random.Gen RealWorld) m) where
+    random a b = ask >>= liftIO . Random.uniformR (a, b) 
+    shuffle xs = ask >>= liftIO . Random.uniformShuffle xs 
+
+
+instance MonadGame (StateT Game Identity) where 
+    game   = get 
+    modify = modify' 
+ 
+instance MonadRandom (StateT Game Identity) where 
+    random x = return . const x 
+    shuffle  = return . id
+
+instance MonadRandom m => MonadRandom (MaybeT m) where 
+    random a = lift . random a 
+    shuffle  = lift . shuffle 
+instance MonadGame m => MonadGame (MaybeT m) where 
+    game    = lift game 
+    modify  = lift . modify 
+instance MonadPlay m => MonadPlay (MaybeT m) where 
+    context = lift context 
+    with f  = mapMaybeT $ with f 
+instance MonadRandom m => MonadRandom (ReaderT a m) where 
+    random a = lift . random a
+    shuffle  = lift . shuffle 
+instance MonadGame m => MonadGame (ReaderT a m) where
+    game    = lift game
+    modify  = lift . modify
+instance MonadPlay m => MonadPlay (WebSocketsT m) where 
+    context = lift context 
+    with f  = mapReaderT $ with f 
+ 
