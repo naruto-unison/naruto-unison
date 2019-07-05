@@ -8,9 +8,9 @@ module Engine.Traps
   , broken
   ) where
 
-import ClassyPrelude hiding ((\\))
+import ClassyPrelude hiding ((\\), toList)
 
-import           Data.List ((\\), nub)
+import Data.List ((\\), nub)
 
 import           Core.Util ((∈), (∉))
 import qualified Class.Parity as Parity
@@ -20,8 +20,6 @@ import           Class.Random (MonadRandom)
 import qualified Model.Character as Character
 import qualified Model.Context as Context
 import qualified Model.Defense as Defense
-import qualified Model.Game as Game
-import           Model.Game (Game)
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja)
 import           Model.Player (Player)
@@ -39,15 +37,15 @@ savedPlay user trap
 
 getOf :: (MonoFoldable o, Element o ~ Trigger) => Slot -> o -> Ninja
       -> Seq SavedPlay
-getOf user triggers n = savedPlay user <$>
-                        filter (match . Trap.trigger) (Ninja.traps n)
+getOf user triggers n =
+    savedPlay user <$> filter (match . Trap.trigger) (Ninja.traps n)
   where
     match trigger = trigger ∈ Ninja.triggers n && trigger ∈ triggers
 
 get :: Slot -> Ninja -> Seq SavedPlay
-get user n = savedPlay user <$>
-                      filter ((∈ Ninja.triggers n) . Trap.trigger)
-                      (Ninja.traps n)
+get user n =
+    savedPlay user
+    <$> filter ((∈ Ninja.triggers n) . Trap.trigger) (Ninja.traps n)
 
 -- | Adds a value to 'Trap.tracker' of 'Ninja.traps' with a certain 'Trigger'.
 track :: Trigger -> Int -> Ninja -> Ninja
@@ -59,20 +57,16 @@ track trigger amount n = n { Ninja.traps = tracked <$> Ninja.traps n }
       | otherwise = trap
 
 -- | 'OnBreak' effects of 'Ninja.defense' removed during a turn.
-brokenOne :: Ninja -- ^ Old.
-          -> Ninja -- ^ New.
-          -> Ninja
-brokenOne n n' =
+broken :: Ninja -- ^ Old.
+       -> Ninja -- ^ New.
+       -> Ninja
+broken n n' =
     n' { Ninja.traps    = filter ((∉ triggers) . Trap.trigger) $ Ninja.traps n'
        , Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n') triggers
        }
   where
     triggers = OnBreak <$> nub (Defense.name <$> Ninja.defense n)
                         \\ nub (Defense.name <$> Ninja.defense n')
-
-broken :: Game -> Game -> Game
-broken game game' =
-    game' { Game.ninjas = Game.zipNinjasWith brokenOne game game' }
 
 -- | Conditionally returns 'Trap.Trap's that accept a numeric value.
 getPer :: Bool -- ^ If 'False', returns 'mempty' instead.
@@ -89,9 +83,9 @@ getHooks :: Bool -- ^ If 'False', returns 'mempty' instead.
          -> Trigger -- ^ Filter.
          -> Int -- ^ Value to pass to 'Character.hooks' effects.
          -> Ninja -- ^ 'Character.hooks' owner.
-         -> Seq (Game -> Game)
+         -> Seq (Slot, Ninja -> Ninja)
 getHooks False _  _   _ = mempty
-getHooks True  tr amt n = [Game.adjust (Ninja.slot n) $ f amt
+getHooks True  tr amt n = [(Ninja.slot n, f amt)
                               | (p, f) <- Character.hooks $ Ninja.character n
                               , tr == p]
 
@@ -99,7 +93,7 @@ getHooks True  tr amt n = [Game.adjust (Ninja.slot n) $ f amt
 getTurnHooks :: Player -- ^ Player during the current turn.
              -> Ninja -- ^ Old.
              -> Ninja -- ^ New.
-             -> Seq (Game -> Game)
+             -> Seq (Slot, Ninja -> Ninja)
 getTurnHooks player n n'
   | hp < 0 && Parity.allied player user       = getHooks True PerHealed (-hp) n'
   | hp > 0 && not (Parity.allied player user) = getHooks True PerDamaged hp n'
@@ -143,26 +137,13 @@ getTurnNot player n
   where
     user = Ninja.slot n
 
--- | Applies per-turn traps at the end of a turn.
-getTurn :: Game -- ^ Old.
-        -> Game -- ^ New.
-        -> Seq SavedPlay
-getTurn game game' = concat $
-    Game.zipNinjasWith (getTurnPer player) game game'
-    ++ (getTurnNot player <$> Game.ninjas game')
-  where
-    player = Game.playing game
-
 -- | Processes and runs all 'Trap.Trap's at the end of a turn.
-runTurn :: ∀ m. (MonadGame m, MonadRandom m) => Game -> m ()
-runTurn game = do
+runTurn :: ∀ m. (MonadGame m, MonadRandom m) => Vector Ninja -> m ()
+runTurn ninjas = do
     player <- P.player
-    P.modify $ processPer player game
-    traps <- getTurn game <$> P.game
-    traverse_ P.launch traps
-
--- | Processes per-turn 'Trap.Trap's at the end of a turn.
-processPer :: Player -> Game -> Game -> Game
-processPer player game game' =
-    foldl' (flip ($)) game' . concat $
-    Game.zipNinjasWith (getTurnHooks player) game game'
+    ninjas' <- P.ninjas
+    traverses (uncurry P.modify) $ zipWith (getTurnHooks player) ninjas ninjas'
+    traverses P.launch $ zipWith (getTurnPer player) ninjas ninjas'
+    traverses P.launch $ getTurnNot player <$> ninjas'
+  where
+    traverses f = traverse_ $ traverse_ f

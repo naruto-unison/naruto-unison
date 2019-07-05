@@ -25,6 +25,7 @@ import Characters.Base as Import (self)
 import Control.Monad.Trans.State.Strict (StateT, evalStateT)
 import Test.Hspec (SpecWith, describe, it)
 
+import           Core.Util ((!!))
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
 import           Class.Random (MonadRandom)
@@ -72,7 +73,7 @@ useSkill char target skillName f =
                                     , Context.target = targetSlot
                                     , Context.new    = True
                                     }
-    targetSlot    = unsafeIndex Slot.all case target of
+    targetSlot    = (Slot.all !!) case target of
         Self       -> 0
         Ally       -> 2
         Allies     -> 2

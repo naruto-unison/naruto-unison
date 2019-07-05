@@ -20,7 +20,6 @@ import qualified Model.Context as Context
 import qualified Model.Copy as Copy
 import           Model.Duration (Duration(..), Turns, sync)
 import           Model.Effect (Effect(..))
-import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
 import           Model.Skill (Target(..))
@@ -36,10 +35,10 @@ cancelChannel = P.toTarget . Ninja.cancelChannel
 -- | Interrupts all 'Channel.interruptible' 'Ninja.channels'.
 -- Triggers 'onInterrupts' for affected 'Channel's.
 interrupt :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
-interrupt = unlessM (Ninja.is Enrage <$> P.nTarget) do
+interrupt = P.unsilenced do
     target  <- P.target
     onInterrupts Channel.interruptible
-    P.modify $ Game.adjust target cancelChannels
+    P.modify target cancelChannels
   where
     keep             = not . Channel.interruptible
     cancelChannels n = n { Ninja.channels = filter keep $ Ninja.channels n }

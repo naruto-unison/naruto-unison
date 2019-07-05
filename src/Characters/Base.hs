@@ -37,7 +37,6 @@ import qualified Class.Play as P
 import           Class.Play (PlayConstraint, MonadPlay)
 import qualified Model.Chakra as Chakra
 import qualified Model.Context as Context
-import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
@@ -65,17 +64,17 @@ self = P.with Context.reflect
 -- | Directly applies an effect to all other Ninjas, both living and dead,
 -- ignoring invulnerabilities and traps.
 everyone :: ∀ m. MonadPlay m => m () -> m ()
-everyone f = P.user >>= flip P.withTargets f . (`delete` Slot.all)
+everyone f = flip P.withTargets f . (`delete` Slot.all) =<< P.user
 
 -- | Directly applies an effect to all allies, both living and dead,
 -- ignoring invulnerabilities and traps.
 allies :: ∀ m. MonadPlay m => m () -> m ()
-allies f = P.user >>= flip P.withTargets f . Slot.allies
+allies f = flip P.withTargets f . Slot.allies =<< P.user
 
 -- | Directly applies an effect to all enemies, both living and dead,
 -- ignoring invulnerabilities and traps.
 enemies :: ∀ m. MonadPlay m => m () -> m ()
-enemies f = P.user >>= flip P.withTargets f . Slot.enemies
+enemies f = flip P.withTargets f . Slot.enemies =<< P.user
 
 baseVariant :: Text
 baseVariant = ""
@@ -116,9 +115,8 @@ immune = not . null . Effects.immune
 
 filterOthers :: ∀ m. MonadPlay m => (Ninja -> Bool) -> m Int
 filterOthers match = do
-    notUser   <- (/=) <$> P.user
-    let filt t = notUser (Ninja.slot t) && match t
-    length . filter filt . Game.ninjas <$> P.game
+    notUser <- (/=) <$> P.user
+    length . filter (\t -> notUser (Ninja.slot t) && match t) <$> P.ninjas
 
 numAffected :: ∀ m. MonadPlay m => Text -> m Int
 numAffected name = filterOthers =<< Ninja.has name <$> P.user

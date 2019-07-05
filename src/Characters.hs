@@ -80,8 +80,8 @@ doSkill skill = skill { Skill.classes = nub $ added ++ Skill.classes skill }
             , (Harmful,   harm)
             ]
     harm = [Enemy, Enemies, REnemy, XEnemies] `intersects` ts
-    ts   = fst <$>
-           (Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill)
+    ts   = fst
+           <$> Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill
     --Game{..}  = mockSkill skill
 {-}
 reanimatedBy :: Character -> [Character]

@@ -56,8 +56,8 @@ import           Model.Status (Status)
 import qualified Model.Variant as Variant
 
 -- | Constructs a 'Ninja' with starting values from a character and an index.
-new :: Character -> Slot -> Ninja
-new c slot = Ninja { slot      = slot
+new :: Slot -> Character -> Ninja
+new slot c = Ninja { slot      = slot
                    , health    = 100
                    , character = c
                    , defense   = []
@@ -81,7 +81,7 @@ new c slot = Ninja { slot      = slot
 
 -- | Factory resets a 'Ninja' to its starting values.
 factory :: Ninja -> Ninja
-factory n = new (character n) $ slot n
+factory n = new (slot n) $ character n
 
 alive :: Ninja -> Bool
 alive = (> 0) . health
@@ -94,7 +94,7 @@ is :: Effect -> Ninja -> Bool
 is ef = (ef ∈) . effects
 
 isAny :: (Class -> Effect) -> Ninja -> Bool
-isAny efs = ((efs <$> enumerate) `intersects`) . effects
+isAny efs = (enumerate efs `intersects`) . effects
 
 isChanneling :: Text -- ^ 'Skill.name'.
              -> Ninja -> Bool
@@ -374,9 +374,7 @@ prolong' dur name user st
 
 -- | Removes all helpful effects.
 purge :: Ninja -> Ninja
-purge n
-  | is Enrage n = n
-  | otherwise         = n { statuses = doPurge <$> statuses n }
+purge n = n { statuses = doPurge <$> statuses n }
   where
     canPurge ef = Effect.helpful ef || not (Effect.sticky ef)
     doPurge st

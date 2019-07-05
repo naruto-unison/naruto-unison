@@ -93,7 +93,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Inner Sakura"
-        , Skill.desc      = "Sakura's inner self surfaces and urges her on. For 4 turns, Sakura gains 10 points of damage reduction and ignores all non-damage effects other than chakra cost changes."
+        , Skill.desc      = "Sakura's inner self surfaces and urges her on. For 4 turns, Sakura gains 10 points of damage reduction and ignores status effects from enemies except chakra cost changes."
         , Skill.classes   = [Mental]
         , Skill.cost      = k [Rand]
         , Skill.cooldown  = 4
@@ -699,7 +699,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Sand Clone"
-        , Skill.desc      = "Gaara creates a clone of sand that mimics him and provides defense. Until an enemy uses a skill that deals non-affliction damage to him, Gaara ignores harmful non-damage effects other than chakra cost changes. Cannot be used while active."
+        , Skill.desc      = "Gaara creates a clone of sand that mimics him and provides defense. Until an enemy uses a skill that deals non-affliction damage to him, Gaara ignores status effects from enemies except chakra cost changes. Cannot be used while active."
         , Skill.classes   = [Physical, Single, Unremovable]
         , Skill.cooldown  = 2
         , Skill.effects   =

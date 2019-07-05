@@ -16,23 +16,30 @@ module Class.Play
   , old
   , withContext
   , withTarget, withTargets
+  , unsilenced
   -- * Lifting
   , toTarget, fromSource
   -- * Other
   , trigger
+  , zipWith
+  , yieldVictor, forfeit
   ) where
 
-import ClassyPrelude hiding (Vector)
+import ClassyPrelude hiding (zipWith)
 
+import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
 import           Model.Internal (MonadGame(..), Play(..), PlayConstraint, MonadPlay(..), SavedPlay)
 import qualified Model.Context as Context
 import           Model.Context (Context)
+import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja)
+import qualified Model.Player as Player
 import           Model.Player (Player)
 import           Model.Skill (Skill)
+import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
 import           Model.Trap (Trigger)
 
@@ -72,11 +79,11 @@ new = Context.new <$> context
 
 -- | The 'Game.ninja' indexed by 'user'.
 nUser :: ∀ m. MonadPlay m => m Ninja
-nUser = Game.ninja <$> user <*> game
+nUser = ninja =<< user
 
 -- | The 'Game.ninja' indexed by 'target'.
 nTarget :: ∀ m. MonadPlay m => m Ninja
-nTarget = Game.ninja <$> target <*> game
+nTarget = ninja =<< target
 
 -- | The 'Player' whose turn it is.
 player :: ∀ m. MonadGame m => m Player
@@ -96,9 +103,18 @@ withTarget x = with \ctx -> ctx { Context.target = x }
 withTargets :: ∀ m. MonadPlay m => [Slot] -> m () -> m ()
 withTargets xs f = traverse_ (`withTarget` f) xs
 
+-- | Forbid actions if the user is 'Silence'd.
+unsilenced :: ∀ m. MonadPlay m => m () -> m ()
+unsilenced f = do
+    ctx <- context
+    if Context.user ctx == Context.target ctx then
+        f
+    else
+        whenM (Ninja.is Silence <$> nUser) f
+
 -- | Applies a 'Ninja' transformation to the 'target'.
 toTarget :: ∀ m. MonadPlay m => (Ninja -> Ninja) -> m ()
-toTarget f = target >>= modify . flip Game.adjust f
+toTarget f = flip modify f =<< target
 
 -- | Applies a 'Ninja' transformation to the 'target', passing it the 'user'
 -- as an argument.
@@ -106,12 +122,38 @@ fromSource :: ∀ m. MonadPlay m => (Slot -> Ninja -> Ninja) -> m ()
 fromSource f = do
     t   <- target
     src <- user
-    modify . Game.adjust t $ f src
+    modify t $ f src
+
+zipWith :: ∀ m o. (MonadGame m, MonoFoldable o, Element o ~ Ninja)
+        => (Ninja -> Ninja -> Ninja) -> o -> m ()
+zipWith f = traverse_ (uncurry g) . zip Slot.all . toList
+  where
+    g i = modify i . f
 
 -- | Adds a 'Flag' if 'Context.user' is not 'Context.target' and 'Context.new' is True.
 trigger :: ∀ m o. (MonadPlay m, MonoFoldable o, Element o ~ Trigger)
         => Slot -> o -> m ()
-trigger i xs = whenM (valid <$> context) . modify $ Game.adjust i \n ->
+trigger i xs = whenM (valid <$> context) $ modify i \n ->
     n { Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n) xs }
   where
     valid ctx = Context.new ctx && Context.user ctx /= Context.target ctx
+
+yieldVictor :: ∀ m. MonadGame m => m ()
+yieldVictor = whenM (null . Game.victor <$> game) do
+    ns <- ninjas
+    alter \g -> g { Game.victor = mVictor ns }
+  where
+    mVictor ns = filter (dead ns . Player.opponent) [minBound..maxBound]
+
+-- | The entire team of a 'Player' is dead, resulting in defeat.
+dead :: Vector Ninja -> Player -> Bool
+dead ns p = not $ any (Ninja.playing p) ns
+
+forfeit :: ∀ m. MonadGame m => Player -> m ()
+forfeit p = whenM (null . Game.victor <$> game) do
+    modifyAll suicide
+    alter \g -> g { Game.victor = [Player.opponent p] }
+  where
+    suicide n
+      | Parity.allied p $ Ninja.slot n = n { Ninja.health = 0 }
+      | otherwise                      = n

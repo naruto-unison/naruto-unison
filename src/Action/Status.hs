@@ -37,7 +37,6 @@ import           Model.Duration (Duration(..), Turns, incr, sync)
 import qualified Model.Effect as Effect
 import           Model.Effect (Effect(..))
 import qualified Model.Face as Face
-import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
 import qualified Model.Status as Status
@@ -50,12 +49,12 @@ import qualified Action.Channel as ActionChannel
 -- | Refreshes the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'
 -- to 'Status.maxDur'. Uses 'Ninja.refresh' internally.
 refresh :: ∀ m. MonadPlay m => Text -> m ()
-refresh = P.fromSource . Ninja.refresh
+refresh = P.unsilenced . P.fromSource . Ninja.refresh
 
 -- | Increases the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
 -- Uses 'Ninja.prolong' internally.
 prolong :: ∀ m. MonadPlay m => Turns -> Text -> m ()
-prolong (Duration -> dur) name = do
+prolong (Duration -> dur) name = P.unsilenced do
     user    <- P.user
     copying <- Skill.copying <$> P.skill
     P.toTarget $ Ninja.prolong (Copy.maxDur copying $ sync dur) name user
@@ -64,7 +63,8 @@ prolong (Duration -> dur) name = do
 -- Uses 'Ninja.prolong' internally.
 hasten :: ∀ m. MonadPlay m => Turns -> Text -> m ()
 hasten (Duration -> dur) name =
-    P.user >>= P.toTarget . Ninja.prolong (negate $ sync dur) name
+    P.unsilenced . P.toTarget . Ninja.prolong (negate $ sync dur) name
+    =<< P.user
 
 -- | Adds a 'Face.Face' to the 'Ninja.face' of a 'Ninja.Ninja', changing their
 -- in-game icon.
@@ -95,7 +95,8 @@ applyWith classes = applyWith' classes ""
 -- | 'applyWith' with a 'Status.name'.
 applyWith' :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Text -> Turns
            -> [Effect] -> m ()
-applyWith' classes = applyFull classes False []
+applyWith' classes turns efs =
+    P.unsilenced . applyFull classes False [] turns efs
 
 -- | Adds a simple 'Status.Status' with no 'Status.effects' or 'Status.dur' to
 -- 'Ninja.statuses'. Stacks are unremovable.
@@ -115,7 +116,7 @@ addStacks' (Duration -> dur) name i = do
     user   <- P.user
     target <- P.target
     let st  = Status.new user dur skill
-    P.modify . Game.adjust target $ Ninja.addStatus
+    P.modify target $ Ninja.addStatus
         st { Status.name   = name
            , Status.amount = i
            , Status.user   = user
@@ -166,12 +167,12 @@ bombWith classes = bombWith' classes ""
 bombWith' :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Text -> Turns
           -> [Effect] -> [(Bomb, Play ())] -> m ()
 bombWith' classes name dur fs bombs =
-    applyFull classes False bombs name dur fs
+    P.unsilenced $ applyFull classes False bombs name dur fs
 
 immuneEffects :: [Effect]
-immuneEffects = (Invulnerable <$> enumerate) ++ (Invincible <$> enumerate)
+immuneEffects = enumerate Invulnerable ++ enumerate Invincible
 stunEffects :: [Effect]
-stunEffects = Stun <$> enumerate
+stunEffects = enumerate Stun
 
 -- | Status engine.
 applyFull :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Bool
@@ -218,7 +219,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                        Ninja.prolong' (Status.dur st) name (Status.source st)
         guard . not $ already && (bounced || isSingle)
         if already && Extending ∈ classes' then
-            P.modify $ Game.adjust target \n ->
+            P.modify target \n ->
                 n { Ninja.statuses = prolong' $ Ninja.statuses n }
         else do
             guard $ null fs || not (null $ Status.effects st)
@@ -227,7 +228,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                 | Status.effects st `intersects` immuneEffects =
                     n { Ninja.triggers = OnImmune `insertSet` Ninja.triggers n }
                 | otherwise = n
-            P.modify . Game.adjust target $ onImmune . Ninja.addStatus st
+            P.modify target $ onImmune . Ninja.addStatus st
             when (Status.effects st `intersects` stunEffects) do
                 P.trigger user [OnStun]
                 P.trigger target [OnStunned]
@@ -248,22 +249,22 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
 -- | Removes non-'Effect.helpful' effects in 'Ninja.statuses' that match a
 -- predicate. Uses 'Ninja.cure' internally.
 cure :: ∀ m. MonadPlay m => (Effect -> Bool) -> m ()
-cure match = P.toTarget $ Ninja.cure match
+cure match = P.unsilenced . P.toTarget $ Ninja.cure match
 
 -- | Removes all non-'Effect.helpful' 'effects in 'Ninja.statuses'.
 -- Uses 'Ninja.cure' internally.
 cureAll :: ∀ m. MonadPlay m => m ()
-cureAll = cure $ const True
+cureAll = P.unsilenced . cure $ const True
 
 -- | Removes all 'Ninja.statuses' with 'Bane' in their 'Status.classes'.
 -- Uses 'Ninja.cureBane' internally.
 cureBane :: ∀ m. MonadPlay m => m ()
-cureBane = P.toTarget Ninja.cureBane
+cureBane = P.unsilenced $ P.toTarget Ninja.cureBane
 
 -- | Cures all 'Stun' effects from 'Ninja.statuses'.
 -- Uses 'Ninja.cure' internally.
 cureStun :: ∀ m. MonadPlay m => m ()
-cureStun = cure cured
+cureStun = P.unsilenced $ cure cured
   where
     cured Stun{} = True
     cured _      = False
@@ -292,13 +293,13 @@ removeStacks name i = P.fromSource $ Ninja.removeStacks name i
 
 -- | Saves the target's state to their 'Ninja.statuses' in a 'Snapshot'.
 snapshot :: ∀ m. MonadPlay m => Duration -> m ()
-snapshot dur = do
+snapshot dur = P.unsilenced do
     skill   <- P.skill
     user    <- P.user
     target  <- P.target
     nTarget <- P.nTarget
     let st   = Status.new user dur skill
-    P.modify . Game.adjust target $ Ninja.addStatus
+    P.modify target $ Ninja.addStatus
         st { Status.user    = user
            , Status.effects = [Snapshot nTarget]
            , Status.classes = Nonstacking : Unremovable : Status.classes st
@@ -306,18 +307,18 @@ snapshot dur = do
 
 -- | Steals all of the target's 'Effect.helpful' 'Effect's.
 commandeer :: ∀ m. MonadPlay m => m ()
-commandeer = do
+commandeer = P.unsilenced do
     user    <- P.user
     target  <- P.target
     nUser   <- P.nUser
     nTarget <- P.nTarget
-    P.modify $ Game.adjust user \n ->
+    P.modify user \n ->
         n { Ninja.defense  = Ninja.defense nTarget ++ Ninja.defense n
           , Ninja.barrier  = []
           , Ninja.statuses = mapMaybe gainHelpful (Ninja.statuses nTarget)
                              ++ Ninja.statuses n
           }
-    P.modify $ Game.adjust target \n ->
+    P.modify target \n ->
         n { Ninja.defense  = []
           , Ninja.barrier  = Ninja.barrier nUser
           , Ninja.statuses = mapMaybe loseHelpful $ Ninja.statuses n

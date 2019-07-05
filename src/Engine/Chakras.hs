@@ -6,7 +6,7 @@ module Engine.Chakras
 
 import ClassyPrelude
 
-import qualified Data.Vector as Vec
+import qualified Data.Vector as Vector
 
 import           Core.Util ((—))
 import qualified Class.Play as P
@@ -15,7 +15,6 @@ import qualified Class.Random as R
 import           Class.Random (MonadRandom)
 import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra(..), Chakras)
-import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import           Model.Trap (Trigger(..))
@@ -26,15 +25,14 @@ import           Model.Trap (Trigger(..))
 remove :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m Chakras
 remove amount = do
     user    <- P.user
-    nTarget <- P.nTarget
     P.trigger user [OnChakra]
-    if amount <= 0 || Ninja.is Enrage nTarget then
+    if amount <= 0 then
         return 0
     else do
         target  <- P.target
         chakras <- Chakra.fromChakras . Game.getChakra target <$> P.game
-        removed <- Chakra.collect . Vec.take amount <$> R.shuffle chakras
-        P.modify $ Game.adjustChakra target (— removed)
+        removed <- Chakra.collect . Vector.take amount <$> R.shuffle chakras
+        P.alter $ Game.adjustChakra target (— removed)
         return removed
 
 -- | Adds as many random 'Chakra's as the number of living 'Ninja.Ninja's on the
@@ -42,6 +40,6 @@ remove amount = do
 gain :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 gain = do
     player <- P.player
-    living <- length . filter (Ninja.playing player) . Game.ninjas <$> P.game
+    living <- length . filter (Ninja.playing player) <$> P.ninjas
     randoms :: [Chakra] <- replicateM living R.enum
-    P.modify $ Game.adjustChakra player (+ Chakra.collect randoms)
+    P.alter $ Game.adjustChakra player (+ Chakra.collect randoms)

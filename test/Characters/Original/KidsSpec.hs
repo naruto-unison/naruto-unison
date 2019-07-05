@@ -11,8 +11,8 @@ spec :: Spec
 spec = parallel do
     describeCharacter "Naruto Uzumaki" \useOn -> do
         let maxClones      = 5
-            getClonesSpent = (maxClones -) . Ninja.numActive "Shadow Clone" <$>
-                             P.nUser
+            getClonesSpent = (maxClones -) . Ninja.numActive "Shadow Clone"
+                             <$> P.nUser
         useOn Enemy "Naruto Uzumaki Barrage" do
             self $ addStacks "Shadow Clone" maxClones
             act

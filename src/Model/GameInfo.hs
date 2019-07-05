@@ -1,17 +1,17 @@
 module Model.GameInfo
   ( GameInfo(..)
   , censor
+  , gameToJSON
   ) where
 
 import ClassyPrelude
 
-import Data.Aeson ((.=), ToJSON(..), Value, object)
---import Data.List (intersect)
-import Data.List.NonEmpty (NonEmpty(..))
+import           Data.Aeson ((.=), ToJSON(..), Value, object)
+import           Data.List.NonEmpty (NonEmpty(..))
 
-import           Core.Util ((∈), (∉), intersects)
-import qualified Class.Parity as Parity
 import           Core.Model (Key, User)
+import           Core.Util ((!!), (∈), (∉), intersects)
+import qualified Class.Parity as Parity
 import qualified Model.Channel as Channel
 import           Model.Class (Class(..))
 import           Model.Effect (Effect(..))
@@ -36,28 +36,27 @@ import qualified Engine.Cooldown as Cooldown
 data GameInfo = GameInfo { vsWho  :: Key User
                          , vsUser :: User
                          , game   :: Game
+                         , ninjas :: Vector Ninja
                          , player :: Player
                          }
 
 instance ToJSON GameInfo where
     toJSON GameInfo{..} = object
         [ "opponent"   .= vsUser
-        , "game"       .= censor player game
+        , "game"       .= gameJson
         , "player"     .= player
         , "characters" .= characters
         ]
       where
-        characters = Ninja.character <$> Game.ninjas game
+        gameJson   = gameToJSON player ninjas $
+                     Game.setChakra (Player.opponent player) 0 game
+        characters = Ninja.character <$> ninjas
 
-censor :: Player -> Game -> Value
-censor player = gameToJSON . censorPlayer player .
-                Game.setChakra (Player.opponent player) 0
+censor :: Player -> Vector Ninja -> Vector Value
+censor player ninjas = (ninjaToJSON . censorNinja player ninjas) <$> ninjas
 
-censorPlayer :: Player -> Game -> Game
-censorPlayer player game = Game.alter (censorNinja game player) game
-
-censorNinja :: Game -> Player -> Ninja -> Ninja
-censorNinja game player n
+censorNinja :: Player -> Vector Ninja -> Ninja -> Ninja
+censorNinja player ninjas n
   | Parity.allied player n = n'
   | Ninja.is Reveal n      = n'
   | otherwise              = n'
@@ -75,7 +74,7 @@ censorNinja game player n
                                   || Invisible ∉ Trap.classes trap
                                   || revealed (Trap.user trap) ]
              }
-    revealed slot = Ninja.is Reveal $ Game.ninja slot game
+    revealed slot = Ninja.is Reveal $ ninjas !! Slot.toInt slot
     mst st
       | Parity.allied player $ Status.user st = Just st
       | Invisible ∈ Status.classes st
@@ -86,16 +85,16 @@ censorNinja game player n
           _        -> Just st
               { Status.effects = Reveal `delete` Status.effects st }
 
-gameToJSON :: Game -> Value
-gameToJSON g = object
+gameToJSON :: Player -> Vector Ninja -> Game -> Value
+gameToJSON player ninjas g = object
     [ "chakra"  .= Game.chakra g
-    , "ninjas"  .= (ninjaToJSON <$> Game.ninjas g)
     , "playing" .= Game.playing g
     , "victor"  .= Game.victor g
+    , "ninjas"  .= censor player ninjas
     , "targets" .= targets
     ]
   where
-    ns = toList $ Game.ninjas g
+    ns = toList ninjas
     targets :: [[[Slot]]]
     targets = do
         n <- ns
@@ -112,8 +111,8 @@ gameToJSON g = object
 skillTargets :: Skill -> Slot -> [Slot]
 skillTargets skill c = filter target Slot.all
   where
-    ts = fst <$>
-         Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill
+    ts = fst
+         <$> Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill
     harm = [Enemy, Enemies, REnemy, XEnemies] `intersects` ts
     target t
       | Everyone ∈ ts = True

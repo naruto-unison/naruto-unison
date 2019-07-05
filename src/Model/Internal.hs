@@ -4,20 +4,30 @@
 {-# OPTIONS_HADDOCK hide, not-home #-}
 module Model.Internal where
 
-import ClassyPrelude hiding (Vector)
+import ClassyPrelude
 
 import           Control.Monad.Reader (local, mapReaderT)
-import           Control.Monad.Trans.State.Strict (StateT, get, modify')
+import           Control.Monad.ST (ST)
+import           Control.Monad.Trans.Accum (AccumT, mapAccumT)
+import           Control.Monad.Trans.Except (ExceptT, mapExceptT)
+import           Control.Monad.Trans.Identity (IdentityT, mapIdentityT)
+import           Control.Monad.Trans.Select (SelectT, mapSelectT)
+import           Control.Monad.Trans.State.Strict (StateT, gets, modify', mapStateT)
+import           Control.Monad.Trans.Writer (WriterT, mapWriterT)
 import           Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import           Data.Aeson ((.=), ToJSON(..), object)
 import           Data.List.NonEmpty (NonEmpty(..))
-import           Data.Vector.Generic (Vector)
+import           Data.STRef
+import qualified Data.Vector.Generic as Generic
+import qualified Data.Vector as Vector (freeze, unsafeUpd)
+import qualified Data.Vector.Mutable as Vector
+import           Data.Vector.Mutable (IOVector, STVector)
 import qualified System.Random.MWC as Random
 import qualified System.Random.MWC.Distributions as Random
 import           Text.Blaze (ToMarkup(..))
 import           Yesod.WebSockets (WebSocketsT)
 
-import           Core.Util ((∈), enumerate)
+import           Core.Util ((!!), (∈), Lift, enumerate)
 import qualified Class.Classed as Classed
 import           Class.Classed (Classed)
 import qualified Class.Parity as Parity
@@ -30,6 +40,7 @@ import           Model.Chakra (Chakras(..))
 import           Model.Duration (Duration, sync, unsync)
 import           Model.Face (Face(..))
 import           Model.Player (Player)
+import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
 
 data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show, Read)
@@ -41,8 +52,8 @@ data Constructor
 instance Eq Constructor where
     Only x == Only y = x == y
     Any  x == Any  y = x All == y All
-    Any  x == Only y = y ∈ (x <$> enumerate)
-    Only x == Any  y = x ∈ (y <$> enumerate)
+    Any  x == Only y = y ∈ enumerate x
+    Only x == Any  y = x ∈ enumerate y
 
 -- | Effects of 'Status'es.
 data Effect
@@ -93,11 +104,11 @@ data Effect
     | Unreduce     Int               -- ^ Reduces damage reduction 'Skill's
     | Weaken       Class Amount Int  -- ^ Lessens damage dealt
     -- | Copies a skill into user's skill slot
-    | Replace { replaceDuration :: Duration
-              , replaceClass    :: Class
-              , replaceTo       :: Int   -- ^ Skill index of user to copy into
-              , replaceNonHarm  :: Bool  -- ^ Include non-harmful 'Skill's
-              } deriving (Eq)
+    | Replace Duration
+              Class
+              Int   -- ^ Skill index of user to copy into
+              Bool  -- ^ Include non-harmful 'Skill's
+              deriving (Eq)
 instance Classed Effect where
     classes (Bleed cla _ _)      = [cla]
     classes (Counter cla)        = [cla]
@@ -221,7 +232,7 @@ instance Show Effect where
     show Undefend = "Unable to benefit from destructible defense"
     show (Duel _) = "Invulnerable to everyone but a specific target."
     show Endure = "Health cannot go below 1."
-    show Enrage = "Ignores harmful status effects other than chakra cost changes."
+    show Enrage = "Ignores status effects from enemies except chakra cost changes."
     show (Exhaust classes) = show classes ++ " skills cost 1 additional random chakra."
     show Expose = "Unable to reduce damage or become invulnerable."
     show (Heal x) = "Gains " ++ show x ++ " health each turn."
@@ -295,8 +306,7 @@ instance Parity Ninja where
     even = Parity.even . slot
 
 -- | Game state.
-data Game = Game { ninjas  :: Seq Ninja
-                 , chakra  :: (Chakras, Chakras)
+data Game = Game { chakra  :: (Chakras, Chakras)
                  -- ^ Starts at @('Chakras' 0 0 0 0 0, 'Chakras' 0 0 0 0 0)@
                  , delays  :: [Delay]
                  -- ^ Starts at @(0, 0)@. Resets every turn to @(0, 0)@
@@ -304,6 +314,7 @@ data Game = Game { ninjas  :: Seq Ninja
                  -- ^ Starts at 'Player.A'
                  , victor  :: [Player]
                  -- ^ Starts empty
+                 --, ninjas  :: IOVector Ninja
                  }
 
 data Requirement
@@ -416,7 +427,7 @@ instance TurnBased Channel where
     setDur d x = x { dur = setDur d $ (dur :: Channel -> Channeling) x }
 
 -- | Types of channeling for 'Skill's.
-data Channeling 
+data Channeling
     = Instant
     | Passive
     | Action  Duration
@@ -667,25 +678,55 @@ instance Classed Trap where
     classes = classes
 
 
-
 data Context = Context { skill   :: Skill
                        , user    :: Slot
                        , target  :: Slot
                        , new     :: Bool
                        } deriving (Generic, ToJSON)
 
-class Monad m => MonadRandom m where 
+class Monad m => MonadRandom m where
     random  :: Int -> Int -> m Int
-    shuffle :: ∀ v a. Vector v a => v a -> m (v a) 
- 
-class Monad m => MonadGame m where 
-    game   :: m Game 
-    modify :: (Game -> Game) -> m () 
- 
-class MonadGame m => MonadPlay m where 
-    context :: m Context 
-    with    :: ∀ a. (Context -> Context) -> m a -> m a 
- 
+    shuffle :: ∀ v a. Generic.Vector v a => v a -> m (v a)
+
+    default random  :: Lift MonadRandom m => Int -> Int -> m Int
+    random a = lift . random a
+    default shuffle :: Lift MonadRandom m => Generic.Vector v a => v a -> m (v a)
+    shuffle  = lift . shuffle
+
+class Monad m => MonadGame m where
+    game      :: m Game
+    alter     :: (Game -> Game) -> m ()
+    ninjas    :: m (Vector Ninja)
+    ninja     :: Slot -> m Ninja
+    write     :: Slot -> Ninja -> m ()
+    modify    :: Slot -> (Ninja -> Ninja) -> m ()
+    modifyAll :: (Ninja -> Ninja) -> m ()
+    modifyAll f = traverse_ (flip modify f) Slot.all
+
+    default game   :: Lift MonadGame m => m Game
+    game     = lift game
+    default alter  :: Lift MonadGame m => (Game -> Game) -> m ()
+    alter    = lift . alter
+    default ninjas :: Lift MonadGame m => m (Vector Ninja)
+    ninjas   = lift ninjas
+    default ninja  :: Lift MonadGame m => Slot -> m Ninja
+    ninja    = lift . ninja
+    default write  :: Lift MonadGame m => Slot -> Ninja -> m ()
+    write i  = lift . write i
+    default modify :: Lift MonadGame m => Slot -> (Ninja -> Ninja) -> m ()
+    modify i = lift . modify i
+
+class MonadGame m => MonadPlay m where
+    context :: m Context
+    with    :: ∀ a. (Context -> Context) -> m a -> m a
+
+    default context :: Lift MonadPlay m => m Context
+    context = lift context
+
+instance MonadGame m => MonadPlay (ReaderT Context m) where
+    context = ask
+    with    = local
+
 type PlayConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
 
 newtype Play a = Play (PlayConstraint a)
@@ -696,46 +737,97 @@ instance ToJSON (Play a) where
 
 type SavedPlay = (Context, Play ())
 
+data WrapperST s = WrapperST { stGame   :: STRef s Game
+                             , stNinjas :: STVector s Ninja
+                             }
 
+instance MonadGame (ReaderT (WrapperST s) (ST s)) where
+    game        = asks stGame   >>= lift . readSTRef
+    alter f     = asks stGame   >>= lift . flip modifySTRef' f
+    ninjas      = asks stNinjas >>= lift . Vector.freeze
+    ninja i     = asks stNinjas >>= lift . flip Vector.unsafeRead (Slot.toInt i)
+    write i x   = asks stNinjas >>= \xs ->
+                  Vector.unsafeWrite xs (Slot.toInt i) x
+    modify i f  = asks stNinjas >>= \xs ->
+                  Vector.unsafeModify xs f $ Slot.toInt i
 
-instance MonadGame m => MonadPlay (ReaderT Context m) where 
-    context = ask 
-    with    = local 
+data WrapperIO = WrapperIO { ioGame   :: IORef Game
+                           , ioNinjas :: IOVector Ninja
+                           }
 
-instance {-# OVERLAPPING #-}
-  MonadIO m => MonadGame (ReaderT (IORef Game) m) where
-    game     = ask >>= readIORef
-    modify f = ask >>= flip modifyIORef' f
-instance {-# OVERLAPPING #-} 
-  MonadIO m => MonadRandom (ReaderT (Random.Gen RealWorld) m) where
-    random a b = ask >>= liftIO . Random.uniformR (a, b) 
-    shuffle xs = ask >>= liftIO . Random.uniformShuffle xs 
+instance MonadIO m => MonadGame (ReaderT WrapperIO m) where
+    game       = asks ioGame   >>= liftIO . readIORef
+    alter f    = asks ioGame   >>= liftIO . flip modifyIORef' f
+    ninjas     = asks ioNinjas >>= liftIO . Vector.freeze
+    ninja i    = asks ioNinjas >>=
+                 liftIO . flip Vector.unsafeRead (Slot.toInt i)
+    write i x  = asks ioNinjas >>= \xs ->
+                 liftIO $ Vector.unsafeWrite xs (Slot.toInt i) x
+    modify i f = asks ioNinjas >>= \xs ->
+                 liftIO . Vector.modify xs f $ Slot.toInt i
 
+data WrapperPure = WrapperPure { pureGame   :: Game
+                               , pureNinjas :: Vector Ninja
+                               }
 
-instance MonadGame (StateT Game Identity) where 
-    game   = get 
-    modify = modify' 
- 
-instance MonadRandom (StateT Game Identity) where 
-    random x = return . const x 
+instance MonadGame (StateT WrapperPure Identity) where
+    game        = gets pureGame
+    alter f     = modify' \x -> x { pureGame = f $ pureGame x }
+    ninjas      = gets pureNinjas
+    ninja i     = (!! Slot.toInt i) <$> gets pureNinjas
+    write i x   = modify' \g -> g { pureNinjas = update $ pureNinjas g  }
+      where
+        update xs = Vector.unsafeUpd xs [(Slot.toInt i, x)]
+    modify i f  = modify' \g -> g { pureNinjas = modif $ pureNinjas g }
+      where
+        i'       = Slot.toInt i
+        modif xs = Vector.unsafeUpd xs [(i', f $ xs !! i')]
+    modifyAll f = modify' \g -> g { pureNinjas = f <$> pureNinjas g }
+instance MonadRandom (StateT WrapperPure Identity) where
+    random x = return . const x
     shuffle  = return . id
 
-instance MonadRandom m => MonadRandom (MaybeT m) where 
-    random a = lift . random a 
-    shuffle  = lift . shuffle 
-instance MonadGame m => MonadGame (MaybeT m) where 
-    game    = lift game 
-    modify  = lift . modify 
-instance MonadPlay m => MonadPlay (MaybeT m) where 
-    context = lift context 
-    with f  = mapMaybeT $ with f 
-instance MonadRandom m => MonadRandom (ReaderT a m) where 
-    random a = lift . random a
-    shuffle  = lift . shuffle 
-instance MonadGame m => MonadGame (ReaderT a m) where
-    game    = lift game
-    modify  = lift . modify
-instance MonadPlay m => MonadPlay (WebSocketsT m) where 
-    context = lift context 
-    with f  = mapReaderT $ with f 
- 
+instance MonadRandom (ReaderT (Random.Gen s) (ST s)) where
+    random a b = ask >>= lift . Random.uniformR (a, b)
+    shuffle xs = ask >>= lift . Random.uniformShuffle xs
+
+instance MonadIO m => MonadRandom (ReaderT (Random.Gen RealWorld) m) where
+    random a b = ask >>= liftIO . Random.uniformR (a, b)
+    shuffle xs = ask >>= liftIO . Random.uniformShuffle xs
+
+instance MonadRandom m => MonadRandom (ExceptT e m)
+instance MonadRandom m => MonadRandom (IdentityT m)
+instance MonadRandom m => MonadRandom (MaybeT m)
+instance MonadRandom m => MonadRandom (SelectT r m)
+instance MonadRandom m => MonadRandom (StateT r m)
+instance MonadRandom m => MonadRandom (ReaderT Context m)
+instance MonadRandom m => MonadRandom (WebSocketsT m)
+instance (MonadRandom m, Monoid w) => MonadRandom (WriterT w m)
+instance (MonadRandom m, Monoid w) => MonadRandom (AccumT w m)
+
+instance MonadGame m => MonadGame (ExceptT e m)
+instance MonadGame m => MonadGame (IdentityT m)
+instance MonadGame m => MonadGame (MaybeT m)
+instance MonadGame m => MonadGame (SelectT r m)
+instance MonadGame m => MonadGame (StateT r m)
+instance MonadGame m => MonadGame (ReaderT Context m)
+instance MonadGame m => MonadGame (WebSocketsT m)
+instance (MonadGame m, Monoid w) => MonadGame (WriterT w m)
+instance (MonadGame m, Monoid w) => MonadGame (AccumT w m)
+
+instance MonadPlay m => MonadPlay (ExceptT e m) where
+    with f = mapExceptT $ with f
+instance MonadPlay m => MonadPlay (IdentityT m) where
+    with f = mapIdentityT $ with f
+instance MonadPlay m => MonadPlay (MaybeT m) where
+    with f = mapMaybeT $ with f
+instance MonadPlay m => MonadPlay (SelectT r m) where
+    with f = mapSelectT $ with f
+instance MonadPlay m => MonadPlay (StateT r m) where
+    with f = mapStateT $ with f
+instance MonadPlay m => MonadPlay (WebSocketsT m) where
+    with f = mapReaderT $ with f
+instance (MonadPlay m, Monoid w) => MonadPlay (WriterT w m) where
+    with f = mapWriterT $ with f
+instance (MonadPlay m, Monoid w) => MonadPlay (AccumT w m) where
+    with f = mapAccumT $ with f

@@ -18,9 +18,9 @@ import           Data.List (nubBy)
 import qualified Data.List.NonEmpty as NonEmpty
 
 import           Core.App (Handler, Route(..))
-import           Core.Util (shorten)
 import           Core.Model (Cite(..), EntityField(..))
 import           Core.Settings (widgetFile)
+import           Core.Util (shorten)
 import qualified Model.Character as Character
 import           Model.Character (Category(..))
 import qualified Model.Skill as Skill

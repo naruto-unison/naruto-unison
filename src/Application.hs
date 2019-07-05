@@ -56,8 +56,8 @@ mkYesodDispatch "App" App.resourcesApp
 makeFoundation :: AppSettings -> IO App
 makeFoundation settings = do
     httpManager <- TLS.getGlobalManager
-    logger      <- FastLogger.newStdoutLoggerSet FastLogger.defaultBufSize >>=
-                   DefaultConfig.makeYesodLogger
+    logger      <- DefaultConfig.makeYesodLogger
+                   =<< FastLogger.newStdoutLoggerSet FastLogger.defaultBufSize
     static      <- staticMode $ AppSettings.staticDir settings
     queue       <- newTChanIO
     practice    <- Cache.newCache . Just $ TimeSpec 3600 0
@@ -114,7 +114,7 @@ warpSettings foundation =
         when (Warp.defaultShouldDisplayException e) $ messageLoggerSource
             foundation
             (App.logger foundation)
-            $(TH.qLocation >>= Logger.liftLoc)
+            $(Logger.liftLoc =<< TH.qLocation)
             "yesod"
             LevelError
             (FastLogger.toLogStr $ "Exception from Warp: " ++ show e))

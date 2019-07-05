@@ -142,7 +142,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Drunken Fist"
-        , Skill.desc      = "Lee assumes the Drunken Fist stance and deals 15 damage to an enemy for 3 turns, ignoring harmful non-damage effects other than chakra cost changes."
+        , Skill.desc      = "Lee assumes the Drunken Fist stance and deals 15 damage to an enemy for 3 turns, ignoring status effects from enemies except chakra cost changes."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = k [Rand, Rand]
         , Skill.channel   = Action 3

@@ -7,13 +7,14 @@ module Class.Random
 
 import ClassyPrelude
 
+import Core.Util ((!!))
 import Model.Internal (MonadRandom(..))
 
 -- | Randomly selects an element from a list.
 -- Returns 'Nothing' on an empty list.
 choose :: ∀ m a. MonadRandom m => [a] -> m (Maybe a)
 choose [] = return Nothing
-choose xs = Just . (xs `unsafeIndex`) <$> random 0 (length xs - 1)
+choose xs = Just . (xs !!) <$> random 0 (length xs - 1)
 
 -- | Randomly selects an element of an enumerated type.
 enum :: ∀ m a. (MonadRandom m, Bounded a, Enum a) => m a

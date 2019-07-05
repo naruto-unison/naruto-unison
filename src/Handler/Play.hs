@@ -20,27 +20,28 @@ import qualified Yesod.Auth as Auth
 import qualified Yesod.WebSockets as WebSockets
 import           Yesod.WebSockets (WebSocketsT)
 
-import qualified Class.Play as P
-import           Class.Play (MonadGame)
-import           Class.Random (MonadRandom)
 import qualified Core.App as App
 import           Core.App (Handler)
-import           Core.Util (duplic)
 import           Core.Fields (Privilege(..))
 import qualified Core.Message as Message
 import           Core.Model (EntityField(..), User(..))
+import qualified Core.Wrapper as Wrapper
+import           Core.Wrapper (IOWrapper)
+import           Core.Util (duplic)
+import qualified Class.Play as P
+import           Class.Play (MonadGame)
+import           Class.Random (MonadRandom)
 import qualified Model.Act as Act
 import           Model.Act (Act)
 import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakras)
 import           Model.Character (Character)
 import qualified Model.Game as Game
-import           Model.Game (Game)
 import qualified Model.GameInfo as GameInfo
+import qualified Model.Ninja as Ninja
 import qualified Model.Player as Player
 import           Model.Player (Player)
 import qualified Model.Slot as Slot
-import qualified Engine.Chakras as Chakras
 import qualified Engine.Turn as Turn
 import qualified Characters
 
@@ -79,23 +80,23 @@ getPracticeQueueR team
   | otherwise = do
       (who, _) <- Auth.requireAuthPair
       runDB $ update who [UserTeam =. Just (reverse team)]
-      random   <- liftIO Random.createSystemRandom
-      gameRef  <- newIORef $ Game.new ns
-      runReaderT (runReaderT Chakras.gain gameRef) random
-      game     <- readIORef gameRef
-      practice <- getsYesod App.practice
-      liftIO do
-          Cache.purgeExpired practice -- TODO: Move to a recurring timer?
-          Cache.insert practice who game
-      returnJson GameInfo.GameInfo { vsWho  = who
-                                   , vsUser = bot
-                                   , player = Player.A
-                                   , game   = game
-                                   }
+      liftIO Random.createSystemRandom >>= runReaderT do
+          game <- runReaderT Game.newWithChakras =<< ask
+          practice <- getsYesod App.practice
+          liftIO do
+              Cache.purgeExpired practice -- TODO: Move to a recurring timer?
+              Cache.insert practice who $ Wrapper.Wrapper game ninjas
+          returnJson GameInfo.GameInfo { vsWho  = who
+                                       , vsUser = bot
+                                       , player = Player.A
+                                       , game   = game
+                                       , ninjas = ninjas
+                                       }
   where
     oppTeam = ["Naruto Uzumaki", "Tenten", "Sakura Haruno"]
-    ns      = map (Characters.map !) $ team `vs` oppTeam
-
+    ninjas  = fromList . zipWith Ninja.new Slot.all . map (Characters.map !) $
+              team `vs` oppTeam
+ --zipWith Ninja.new Slot.all
 -- | Wrapper for 'getPracticeActR' with no actions.
 getPracticeWaitR :: Chakras -> Chakras -> Handler Value
 getPracticeWaitR actChakra xChakra = getPracticeActR actChakra xChakra []
@@ -111,27 +112,27 @@ getPracticeActR actChakra exchangeChakra actions = do
         Nothing   -> notFound
         Just game -> do
           random  <- liftIO Random.createSystemRandom
-          gameRef <- newIORef game
-          runReaderT (runReaderT (enactPractice who practice) gameRef) random
+          wrapper <- Wrapper.thawIO game
+          runReaderT (runReaderT (enactPractice who practice) wrapper) random
   where
     enactPractice who practice = do
         res <- enact actChakra exchangeChakra actions
         case res of
           Left errorMsg -> invalidArgs [errorMsg] -- !FAILS!
           Right ()      -> do
-              game'A <- P.game
-              P.modify \g -> g
+              game'A   <- Wrapper.freeze
+              P.alter \g -> g
                   { Game.chakra  = (fst $ Game.chakra g, 100)
                   , Game.playing = Player.B
                   }
               Turn.run [] -- TODO
-              game'B <- P.game
-              liftIO if (null $ Game.victor game'B) then
+              game'B <- Wrapper.freeze
+              liftIO if (null . Game.victor $ Wrapper.game game'B) then
                   Cache.insert practice who game'B
               else
                   Cache.delete practice who
               lift . returnJson $
-                  GameInfo.censor Player.A <$> [game'A, game'B]
+                  Wrapper.toJSON Player.A <$> [game'A, game'B]
 
 formTeam :: [Text] -> Maybe [Character]
 formTeam team@[a, b, c]
@@ -167,10 +168,9 @@ gameSocket = do
       Just team -> do
         flip Sql.runSqlPool (App.connPool app) $
             update who [UserTeam =. Just (reverse teamNames)]
-        random     <- liftIO Random.createSystemRandom
-        randPlayer <- (Player.from :: Bool -> Player) <$>
-                      liftIO (Random.uniform random)
-        flip runReaderT random do
+        liftIO Random.createSystemRandom >>= runReaderT do
+              randPlayer <- (Player.from :: Bool -> Player)
+                            <$> (ask >>= liftIO . Random.uniform)
               let writeQueueChan = App.queue app
               readQueueChan <- (liftIO . atomically) do
                   writeTChan writeQueueChan $ Message.Announce who user team
@@ -181,12 +181,10 @@ gameSocket = do
                   Message.Respond mWho writer reader info
                     | mWho == who -> return $ Just (info, writer, reader)
                   Message.Announce vsWho vsUser vsTeam -> do
-                      (gameRef :: IORef Game) <- newIORef $ Game.new
-                          case randPlayer of
+                      game <- Game.newWithChakras
+                      let ninjas = zipWith Ninja.new Slot.all case randPlayer of
                               Player.A -> team `vs` vsTeam
                               Player.B -> vsTeam `vs` team
-                      runReaderT Chakras.gain gameRef
-                      game <- readIORef gameRef
                       liftIO $ atomically do
                           writer <- newTChan
                           reader <- newTChan
@@ -197,53 +195,56 @@ gameSocket = do
                                   , GameInfo.vsUser = user
                                   , GameInfo.player = Player.opponent randPlayer
                                   , GameInfo.game   = game
+                                  , GameInfo.ninjas = fromList ninjas
                                   }
                           let info = GameInfo.GameInfo
                                   { GameInfo.vsWho = vsWho
                                   , GameInfo.vsUser = vsUser
                                   , GameInfo.player = randPlayer
                                   , GameInfo.game   = game
+                                  , GameInfo.ninjas = fromList ninjas
                                   }
                           return $ Just (info, writer, reader)
                   _ -> return Nothing
               lift $ sendJson info
               let player = GameInfo.player info
-              gameRef <- newIORef $ GameInfo.game info
-              flip runReaderT gameRef do
+              Wrapper.fromInfo info >>= runReaderT do
                   when (player == Player.A) $ tryEnact player writer
                   completedGame <- untilJust do
                       msg  <- liftIO . atomically $ readTChan reader
                       case msg of
                           Message.Forfeit -> do
-                              P.modify . Game.forfeit $ Player.opponent player
-                              Just <$> P.game
-                          Message.Enact game -> do
-                              if not . null $ Game.victor game then
-                                  return $ Just game
+                              P.forfeit $ Player.opponent player
+                              Just <$> Wrapper.freeze
+                          Message.Enact wrapper -> do
+                              if not . null . Game.victor $
+                                 Wrapper.game wrapper then
+                                  return $ Just wrapper
                               else do
-                                  lift . lift . sendJson $ 
-                                      GameInfo.censor player game
-                                  P.modify $ const game
+                                  lift . lift . sendJson $
+                                      Wrapper.toJSON player wrapper
+                                  Wrapper.replaceIO wrapper
                                   tryEnact player writer
                                   return Nothing
-                  lift . lift . sendJson $ GameInfo.censor player completedGame
+                  lift . lift . sendJson $ Wrapper.toJSON player completedGame
 
 -- | Wraps @enact@ with error handling.
 tryEnact :: Player -> TChan Message.Game
-         -> ReaderT (IORef Game) (ReaderT Random.GenIO (WebSocketsT Handler)) ()
+         -> ReaderT IOWrapper (ReaderT Random.GenIO (WebSocketsT Handler)) ()
 tryEnact player writer = do
     enactText <- lift $ lift WebSockets.receiveData
     case formEnact $ Text.split (=='/') enactText of
-        Nothing -> lift . lift $ 
+        Nothing -> lift . lift $
                    WebSockets.sendTextData ("Invalid acts" :: ByteString)
         Just (actChakra, exchangeChakra, actions) -> do
             res <- enact actChakra exchangeChakra actions
             case res of
                 Left errorMsg -> lift . lift $ WebSockets.sendTextData errorMsg
                 Right () -> do
-                    game <- P.game
-                    lift . lift . sendJson $ GameInfo.censor player game
-                    liftIO . atomically . writeTChan writer $ Message.Enact game
+                    wrapper <- Wrapper.freeze
+                    lift . lift . sendJson $ Wrapper.toJSON player wrapper
+                    liftIO . atomically . writeTChan writer $
+                        Message.Enact wrapper
 
 -- | Processes a user's actions and passes them to 'Turn.run'.
 enact :: ∀ m. (MonadGame m, MonadRandom m) => Chakras -> Chakras -> [Act]
@@ -258,8 +259,7 @@ enact actChakra exchangeChakra actions = do
        | randTotal < 0 || Chakra.lack chakra     -> err "Insufficient chakra"
        | any (Act.illegal player) actions        -> err "Character out of range"
        | otherwise                               -> Right <$> do
-            P.modify . Game.setChakra player $
-                chakra { Chakra.rand = randTotal }
+            P.alter . Game.setChakra player $ chakra { Chakra.rand = randTotal }
             Turn.run actions
   where
     skills = lefts $ Act.skill <$> actions

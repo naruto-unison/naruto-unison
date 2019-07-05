@@ -29,7 +29,7 @@ usable :: Ninja
        -> Skill -> Skill
 usable n s sk
   | Skill.charges sk > 0 && uncharged                    = unusable
-  | maybe False (>0) $ s >>= (Cooldown.active n !?)      = unusable
+  | maybe False (>0) $ (Cooldown.active n !?) =<< s      = unusable
   | isNothing s && Channel.ignoreStun (Skill.channel sk) = sk'
   | Skill.classes sk `intersects` Effects.stun n         = unusable
   | isNothing s                                          = sk'
@@ -41,7 +41,7 @@ usable n s sk
   | otherwise                                            = sk'
   where
     uncharged = maybe False (>= Skill.charges sk) $
-                s >>= (Ninja.charges n !?)
+                (Ninja.charges n !?) =<< s
     unusable  = sk { Skill.require = Unusable }
     sk'       = sk { Skill.require = isUsable $ Skill.require sk }
     isUsable req@HasI{}

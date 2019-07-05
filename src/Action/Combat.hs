@@ -37,7 +37,6 @@ import           Model.Defense (Defense)
 import           Model.Duration (Duration(..), Turns, incr, sync)
 import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
-import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja)
 import qualified Model.Skill as Skill
@@ -81,8 +80,8 @@ demolishAll :: ∀ m. MonadPlay m => m ()
 demolishAll = do
     user   <- P.user
     target <- P.target
-    P.modify $ Game.adjust user   (\n -> n { Ninja.barrier = [] }) .
-               Game.adjust target (\n -> n { Ninja.defense = [] })
+    P.modify user   \n -> n { Ninja.barrier = [] }
+    P.modify target \n -> n { Ninja.defense = [] }
 
 -- | Damage formula.
 formula :: Attack -- ^ Attack type.
@@ -145,23 +144,21 @@ attack atk dmg = void $ runMaybeT do
                || dmgCalc <= 0
 
     if atk == Attack.Afflict then do
-        P.modify . Game.adjust target $ Ninja.adjustHealth (— dmgCalc)
+        P.modify target $ Ninja.adjustHealth (— dmgCalc)
     else do
-        unless direct .
-            P.modify $ Game.adjust user \n -> n { Ninja.barrier = barr }
+        unless direct $ P.modify user \n -> n { Ninja.barrier = barr }
         if atk == Attack.Demolish || dmg'Def <= 0 then
-            P.modify $ Game.adjust target \n -> n { Ninja.defense = defense }
+            P.modify target \n -> n { Ninja.defense = defense }
         else if dmg'Def == 0 then return () else
-            P.modify . Game.adjust target $ Ninja.adjustHealth (— dmg'Def) .
+            P.modify target $ Ninja.adjustHealth (— dmg'Def) .
                 \n -> n { Ninja.defense = defense }
 
     damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
     when (damaged > 0) do
         P.trigger user [OnDamage]
         P.trigger target $ OnDamaged <$> classes
-        P.modify . Game.adjust target $ Traps.track PerDamaged damaged
-        whenM P.new .
-            P.modify . Game.adjust user $ Traps.track PerDamage damaged
+        P.modify target $ Traps.track PerDamaged damaged
+        whenM P.new . P.modify user $ Traps.track PerDamage damaged
 
   where
     atkClass = case atk of
@@ -174,7 +171,7 @@ attack atk dmg = void $ runMaybeT do
 -- destroy the target's 'Ninja.defense' before they can damage the target.
 -- Destructible defense can be temporary or permanent.
 defend :: ∀ m. MonadPlay m => Turns -> Int -> m ()
-defend (Duration -> dur) amount = do
+defend (Duration -> dur) amount = P.unsilenced do
     skill      <- P.skill
     user       <- P.user
     target     <- P.target
@@ -191,21 +188,21 @@ defend (Duration -> dur) amount = do
     if amount' < 0 then do
         damage (-amount')
         damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
-        P.modify . Game.adjust target $ Traps.track PerDamaged damaged
-    else when (amount' > 0) . P.modify $ Game.adjust target \n ->
+        P.modify target $ Traps.track PerDamaged damaged
+    else when (amount' > 0) $ P.modify target \n ->
         n { Ninja.defense = Classed.nonStack skill defense $ Ninja.defense n }
 
 -- | Adds an amount to a 'Defense' that the target already has.
 -- If the target does not have any 'Ninja.defense' with a matching
 -- 'Defense.name', nothing happens.
 addDefense :: ∀ m. MonadPlay m => Text -> Int -> m ()
-addDefense name amount = do
+addDefense name amount = P.unsilenced do
     user    <- P.user
     target  <- P.user
     nTarget <- P.nTarget
     case find (Labeled.match name user) $ Ninja.defense nTarget of
         Nothing      -> return ()
-        Just defense -> P.modify $ Game.adjust target \n ->
+        Just defense -> P.modify target \n ->
             n { Ninja.defense =
                     defense { Defense.amount = Defense.amount defense + amount }
                     : deleteBy Labeled.eq defense (Ninja.defense n) }
@@ -224,7 +221,7 @@ barrier dur = barrierDoes dur (const $ return ()) (return ())
 -- exists.
 barrierDoes :: ∀ m. MonadPlay m => Turns -> (Int -> PlayConstraint ())
             -> PlayConstraint () -> Int -> m ()
-barrierDoes (Duration -> dur) finish while amount = do
+barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
     context    <- P.context
     amount'    <- (amount +) . Effects.build <$> P.nUser
     let skill   = Context.skill context
@@ -250,8 +247,8 @@ barrierDoes (Duration -> dur) finish while amount = do
             nTarget <- P.nTarget
             damage (-amount')
             damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
-            P.modify . Game.adjust target' $ Traps.track PerDamaged damaged
-    else when (amount' > 0) . P.modify $ Game.adjust target \n ->
+            P.modify target' $ Traps.track PerDamaged damaged
+    else when (amount' > 0) $ P.modify target \n ->
         n { Ninja.barrier = Classed.nonStack skill barr $ Ninja.barrier n }
 
 -- | Kills the target. The target can survive if it has the 'Endure' effect.
@@ -270,26 +267,26 @@ setHealth = P.toTarget . Ninja.setHealth
 
 -- | Adds a flat amount of 'Ninja.health'.
 heal :: ∀ m. MonadPlay m => Int -> m ()
-heal hp = do
+heal hp = P.unsilenced do
     nTarget <- P.nTarget
     unless (Ninja.is Plague nTarget) do
         user   <- P.user
         target <- P.target
         nUser  <- P.nUser
         let hp'  = Effects.boost user nTarget * hp + Effects.bless nUser
-        P.modify . Game.adjust target $ Ninja.adjustHealth (+ hp')
+        P.modify target $ Ninja.adjustHealth (+ hp')
         healed <- (— Ninja.health nTarget) . Ninja.health <$> P.nTarget
         if healed > 0 then do
             P.trigger target [OnHealed]
-            P.modify . Game.adjust target $ Traps.track PerHealed healed
+            P.modify target $ Traps.track PerHealed healed
         else if healed < 0 then
-            P.modify . Game.adjust target $ Traps.track PerDamaged (-healed)
+            P.modify target $ Traps.track PerDamaged (-healed)
         else
             return ()
 
 -- | Restores a percentage of missing 'Ninja.health'.
 restore :: ∀ m. MonadPlay m => Int -> m ()
-restore percent = do
+restore percent = P.unsilenced do
     nTarget <- P.nTarget
     unless (Ninja.is Plague nTarget) do
         user   <- P.user
@@ -298,13 +295,13 @@ restore percent = do
         let hp'  = Effects.boost user nTarget * percent
                    * (100 - Ninja.health nTarget) `quot` 100
                    + Effects.bless nUser
-        P.modify . Game.adjust target $ Ninja.adjustHealth (+ hp')
+        P.modify target $ Ninja.adjustHealth (+ hp')
         healed <- (— Ninja.health nTarget) . Ninja.health <$> P.nTarget
         if healed > 0 then do
             P.trigger target [OnHealed]
-            P.modify . Game.adjust target $ Traps.track PerHealed healed
+            P.modify target $ Traps.track PerHealed healed
         else if healed < 0 then
-            P.modify . Game.adjust target $ Traps.track PerDamaged (-healed)
+            P.modify target $ Traps.track PerDamaged (-healed)
         else
             return ()
 
@@ -317,15 +314,15 @@ leech hp f = do
     target   <- P.target
     classes  <- Skill.classes <$> P.skill
     hpBefore <- Ninja.health <$> P.nTarget
-    P.modify . Game.adjust target $ Ninja.adjustHealth (— hp)
+    P.modify target $ Ninja.adjustHealth (— hp)
     damaged <- (hpBefore -) . Ninja.health <$> P.nTarget
     when (damaged > 0) do
         f damaged
         P.trigger user [OnDamage]
         P.trigger target $ OnDamaged <$> classes
-        P.modify . Game.adjust target $ Traps.track PerDamaged damaged
+        P.modify target $ Traps.track PerDamaged damaged
         whenM P.new .
-            P.modify . Game.adjust user $ Traps.track PerDamage damaged
+            P.modify user $ Traps.track PerDamage damaged
 
 -- | Sacrifices some amount of the target's 'Ninja.health' down to a minimum.
 -- If the target is the user and has the 'ImmuneSelf' effect, nothing happens.
@@ -339,7 +336,7 @@ sacrifice minhp hp = do
     target  <- P.target
     nTarget <- P.nTarget
     unless (user == target && Ninja.is ImmuneSelf nTarget) .
-        P.modify . Game.adjust target $ Ninja.sacrifice minhp hp
+        P.modify target $ Ninja.sacrifice minhp hp
 
 -- | Resets a 'Ninja.Ninja' to their initial state.
 -- Uses 'Ninja.reset' internally.

@@ -40,6 +40,7 @@ import qualified Yesod.Default.Util as YesodUtil
 import           Yesod.Static hiding (static)
 
 import           Core.Fields (ForumBoard, Privilege(..), boardName)
+import           Core.Wrapper (Wrapper)
 import qualified Core.Message as Message
 import           Core.Model (EntityField(..), Topic(..), TopicId, User(..), UserId, Unique(..))
 import qualified Core.AppSettings as AppSettings
@@ -47,7 +48,6 @@ import           Core.AppSettings (AppSettings)
 import           Core.Settings (widgetFile)
 import           Model.Act (Act)
 import           Model.Chakra (Chakras)
-import           Model.Game (Game)
 
 -- | App environment.
 data App = App
@@ -61,7 +61,7 @@ data App = App
       -- ^ Web request manager.
     , logger      :: Logger
       -- ^ See https://www.yesodweb.com/blog/2014/01/new-fast-logger
-    , practice    :: Cache (Key User) Game
+    , practice    :: Cache (Key User) Wrapper
       -- ^ Saved state of Practice Games. Games expire after one hour or as soon
       -- as they yield a victor.
       -- All other games are stored in their websocket threads.
@@ -224,7 +224,7 @@ instance YesodAuth App where
 isAuthenticated :: Privilege -> Handler AuthResult
 isAuthenticated level = do
     muser <- Auth.maybeAuth
-    return $ case muser of
+    return case muser of
         Just (Entity _ user)
           | userPrivilege user >= level -> Authorized
         Just _  -> Unauthorized "You do not have access to this page"

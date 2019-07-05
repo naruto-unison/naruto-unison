@@ -525,7 +525,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Acupuncture"
-        , Skill.desc      = "Haku alters the flow of energy in an enemy by sticking a needle into one of their vital points, disabling the non-damage effects of their skills for 2 turns. Bypasses invulnerability and targets all enemies during [Crystal Ice Mirrors]."
+        , Skill.desc      = "Haku alters the flow of energy in an enemy by sticking a needle into one of their vital points, disabling the non-damage effects of their skills on allies and enemies for 2 turns. Bypasses invulnerability and targets all enemies during [Crystal Ice Mirrors]."
         , Skill.classes   = [Physical, Ranged, Single]
         , Skill.cost      = k [Nin]
         , Skill.cooldown  = 2

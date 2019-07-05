@@ -8,14 +8,14 @@ module Core.Message
 
 import ClassyPrelude
 
-import           Core.Model (Key, User)
-import           Model.Character (Character)
-import qualified Model.Game as Game
-import           Model.GameInfo (GameInfo)
+import Core.Model (Key, User)
+import Core.Wrapper (Wrapper)
+import Model.Character (Character)
+import Model.GameInfo (GameInfo)
 
 -- | Messages between the two players of a game.
 data Game
-    = Enact Game.Game
+    = Enact Wrapper
     | Forfeit
 
 -- | Messages between all users queued for games.

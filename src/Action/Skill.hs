@@ -23,7 +23,6 @@ import qualified Model.Character as Character
 import qualified Model.Copy as Copy
 import           Model.Copy (Copy, Copying)
 import           Model.Duration (Duration(..), Turns, incr, sync)
-import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
 import           Model.Slot (Slot)
@@ -36,22 +35,22 @@ import qualified Engine.SkillTransform as SkillTransform
 -- | Changes the 'Skill.cooldown' of a 'Skill.Skill.'
 -- Uses 'Cooldown.alter' internally.
 alterCd :: ∀ m. MonadPlay m => Int -> Int -> Int -> m ()
-alterCd s v = P.toTarget . Cooldown.alter s v
+alterCd s v = P.unsilenced . P.toTarget . Cooldown.alter s v
 
 -- | Resets 'Ninja.cooldowns' with a matching 'Skill.name' of a 'Ninja.Ninja'.
 -- Uses 'Cooldown.reset' internally.
 reset :: ∀ m. MonadPlay m => Text -> Text -> m ()
-reset name = P.toTarget . Cooldown.reset name
+reset name = P.unsilenced . P.toTarget . Cooldown.reset name
 
 -- | Resets all 'Ninja.cooldowns' of a 'Ninja.Ninja'.
 -- Uses 'Cooldown.resetAll' internally.
 resetAll :: ∀ m. MonadPlay m => m ()
-resetAll = P.toTarget Cooldown.resetAll
+resetAll = P.unsilenced $ P.toTarget Cooldown.resetAll
 
 -- | Resets all 'Ninja.charges' of a 'Ninja.Ninja'.
 -- Uses 'Ninja.resetCharges' internally.
 resetCharges :: ∀ m. MonadPlay m => m ()
-resetCharges = P.toTarget Ninja.resetCharges
+resetCharges = P.unsilenced $ P.toTarget Ninja.resetCharges
 
 -- | Adds a 'Variant.Variant' to 'Ninja.variants' with a 'Variant.dur' that
 -- depends on the 'Skill.dur' of the 'Skill.Skill' that performs the action.
@@ -101,8 +100,7 @@ unsafeVary fromSkill dur s v = do
             adjust
               | dur' <= 0 = Seq.update s $ variant :| []
               | otherwise = Seq.adjust' (cons variant) s
-        P.modify $ Game.adjust target \n ->
-            n { Ninja.variants = adjust $ Ninja.variants n }
+        P.modify target \n -> n { Ninja.variants = adjust $ Ninja.variants n }
   where
     shallow Copy.Shallow{} = True
     shallow _              = False
@@ -127,7 +125,7 @@ varyNext name = do
               toList . Character.skills . Ninja.character <$> P.nTarget
     case maybeS of
         Nothing -> return ()
-        Just s  -> P.modify $ Game.adjust target \n ->
+        Just s  -> P.modify target \n ->
             n { Ninja.variants = Seq.adjust' adj s $ Ninja.variants n }
   where
     match = (== toCaseFold name) . toCaseFold . Skill.name
@@ -146,7 +144,7 @@ copyAll (Duration -> dur) = do
     let copy skill = Just $ Copy.Copy { Copy.dur   = dur'
                                       , Copy.skill = copying skill target
                                       }
-    P.modify $ Game.adjust user \n ->
+    P.modify user \n ->
         n { Ninja.copies = fromList $ copy <$> Adjust.skills nTarget }
   where
     synced = sync dur
@@ -164,9 +162,8 @@ copyLast (Duration -> dur) s = do
     mLastSkill <- Ninja.lastSkill <$> P.nTarget
     case mLastSkill of
         Nothing -> return ()
-        Just lastSkill -> P.modify $
-            Execute.copy False Copy.Shallow target lastSkill
-            (user, Skill.name skill, s, dur)
+        Just lastSkill -> Execute.copy False Copy.Shallow target lastSkill
+                          (user, Skill.name skill, s, dur)
 
 -- | Copies a 'Skill.Skill' from the user into all four of the target's
 -- 'Ninja.copies' skill slots.
@@ -204,8 +201,7 @@ teacher f (Duration -> dur) cop s = do
         copied = Just $ Copy.Copy { Copy.skill = skill
                                   , Copy.dur   = dur'
                                   }
-    P.modify $ Game.adjust target \n ->
-        n { Ninja.copies = f copied $ Ninja.copies n }
+    P.modify target \n -> n { Ninja.copies = f copied $ Ninja.copies n }
   where
     synced = sync dur
     dur'   = synced + synced `rem` 2

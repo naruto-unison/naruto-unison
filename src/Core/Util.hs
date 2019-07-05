@@ -1,48 +1,63 @@
 -- Helper functions.
 module Core.Util
-  ( (—), (∈), (∉)
+  ( (!!), (—), (∈), (∉)
+  , Lift
+  , enumerate
   , intersects
   , duplic
-  , enumerate
   , mapMaybe
   , shorten
   ) where
 
 import ClassyPrelude hiding ((<|), mapMaybe)
+import Control.Monad.Trans.Class (MonadTrans)
 
 import Data.List (nub)
 
+type family Car m :: (* -> *) -> * -> * where Car (t n) = t
+type family Cdr (m :: * -> *) :: * -> * where Cdr (t n) = n
+type Lift mtl m = (MonadTrans (Car m), mtl (Cdr m), m ~ Car m (Cdr m))
+
+{-# INLINE (!!) #-}
+infixl 9 !!
+-- | 'unsafeIndex'.
+(!!) :: ∀ o. IsSequence o => o -> Index o -> Element o
+(!!) = unsafeIndex
+
 -- | '-' allowing for sections.
 {-# INLINE (—) #-}
+infixl 6 —
 (—) :: ∀ a. Num a => a -> a -> a
 (—) = (-)
 
-{-# INLINE (∈) #-}
 -- | 'elem'.
+{-# INLINE (∈) #-}
+infix 4 ∈
 (∈) :: ∀ o. (MonoFoldable o, Eq (Element o)) => Element o -> o -> Bool
 (∈) = elem
 
-{-# INLINE (∉) #-}
 -- | 'notElem'.
+{-# INLINE (∉) #-}
+infix 4 ∉
 (∉) :: ∀ o. (MonoFoldable o, Eq (Element o)) => Element o -> o -> Bool
 (∉) = notElem
 
-{-# INLINE intersects #-}
+-- | Maps across an enum.
+{-# INLINE enumerate #-}
+enumerate :: ∀ a b. (Bounded a, Enum a) => (a -> b) -> [b]
+enumerate = (<$> [minBound..maxBound])
+
 -- | True if any elements are shared by both collections.
 intersects :: ∀ a b.
     (MonoFoldable a, MonoFoldable b, Element a ~ Element b, Eq (Element a))
     => a -> b -> Bool
 intersects x = any (∈ x)
+{-# INLINE intersects #-}
 
-{-# INLINE duplic #-}
 -- | True if a list contains multiple identical values.
+{-# INLINE duplic #-}
 duplic :: ∀ a. Eq a => [a] -> Bool
 duplic x = nub x /= x
-
-{-# INLINE enumerate #-}
--- | Lists all members of an 'Enum' from 'minBound' to 'maxBound'.
-enumerate :: ∀ a. (Bounded a, Enum a) => [a]
-enumerate = [minBound .. maxBound]
 
 {-# INLINE mapMaybe #-}
 mapMaybe :: ∀ (f :: * -> *) a b.

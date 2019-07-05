@@ -24,11 +24,11 @@ import qualified Data.Time.LocalTime as LocalTime
 import qualified Data.Text as Text
 import qualified Yesod.Auth as Auth
 
-import           Core.App (AppPersistEntity, Handler, Route(..), Widget)
-import           Core.Util (enumerate, shorten)
-import           Core.Fields (ForumBoard, ForumCategory(..), Privilege(..), boardCategory, boardDesc, boardName)
-import           Core.Model (Cite(..), EntityField(..), HasAuthor(..), Post(..), Topic(..), TopicId, User(..), UserId)
-import           Core.Settings (widgetFile)
+import Core.App (AppPersistEntity, Handler, Route(..), Widget)
+import Core.Fields (ForumBoard, ForumCategory(..), Privilege(..), boardCategory, boardDesc, boardName)
+import Core.Model (Cite(..), EntityField(..), HasAuthor(..), Post(..), Topic(..), TopicId, User(..), UserId)
+import Core.Settings (widgetFile)
+import Core.Util (shorten)
 import qualified Characters
 -- | Renders a 'User' profile.
 getProfileR :: Text -> Handler Html
@@ -49,12 +49,13 @@ inCategory category (BoardIndex x _ _) = category == boardCategory x
 getForumsR :: Handler Html
 getForumsR = do
     citelink <- liftIO makeCitelink
-    allBoards <- traverse indexBoard enumerate
+    allBoards <- traverse indexBoard [minBound..maxBound]
     let boards category = filter (inCategory category) allBoards
     defaultLayout do
         setTitle "Naruto Unison Forums"
         $(widgetFile "forum/browse")
   where
+    categories = [minBound..maxBound]
     indexBoard board = do
         posts <- selectWithAuthors [TopicBoard ==. board] [Desc TopicTime]
         pure $ BoardIndex board (length posts) (listToMaybe posts)
@@ -155,8 +156,8 @@ userRanks = [ "Academy Student"
 -- | Fills out author information from the database.
 selectWithAuthors :: ∀ a. (HasAuthor a, AppPersistEntity a)
                   => [Filter a] -> [SelectOpt a] -> Handler [Cite a]
-selectWithAuthors selectors opts = runDB (selectList selectors opts) >>=
-                                   traverse go
+selectWithAuthors selectors opts = runDB (selectList selectors opts)
+                                   >>= traverse go
   where
     go (Entity citeKey citeVal) = runDB do
         citeAuthor <- get404 author

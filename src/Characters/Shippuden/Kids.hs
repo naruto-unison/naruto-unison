@@ -455,7 +455,7 @@ cs =
     "Chōji's years of mastering his clan's techniques have ended the growing chūnin's dependence on Akimichi pills. Now that he can reshape his body at will without having to sacrifice his health, chakra costs are the only remaining limits on his physical power."
     [ [ Skill.new
         { Skill.name      = "Butterfly Bombing"
-        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring harmful non-damage effects other than chakra cost changes. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 random chakra."
+        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring status effects from enemies except chakra cost changes. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 random chakra."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = k [Tai, Rand, Rand]
         , Skill.effects   =
@@ -468,7 +468,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Butterfly Bombing"
-        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring harmful non-damage effects other than chakra cost changes. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 random chakra."
+        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring status effects from enemies except chakra cost changes. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 random chakra."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = k [Tai]
         , Skill.effects   =
@@ -581,7 +581,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Mind Transfer Clone"
-        , Skill.desc      = "Ino takes control of her allies, forcing them to fight on no matter their condition. For 2 turns, her allies ignore harmful non-damage effects other than chakra cost changes."
+        , Skill.desc      = "Ino takes control of her allies, forcing them to fight on no matter their condition. For 2 turns, her allies ignore status effects from enemies except chakra cost changes."
         , Skill.classes   = [Mental]
         , Skill.cost      = k [Gen]
         , Skill.cooldown  = 2

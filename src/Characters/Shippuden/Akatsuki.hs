@@ -224,7 +224,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Blood Curse Ritual"
-        , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, harmful skills used on Hidan and the target are also reflected to each other and this skill becomes [Death Blow][t][g]. Hidan ignores harmful non-damage effects other than chakra cost changes, but any effects are still reflected to the Linked target. Damage that Hidan deals to himself while Linked to a living target heals him instead."
+        , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, harmful skills used on Hidan and the target are also reflected to each other and this skill becomes [Death Blow][t][g]. Hidan ignores status effects from enemies except chakra cost changes, although his target does not. Damage that Hidan deals to himself while Linked to a living target heals him instead."
         , Skill.require   = HasU "First Blood"
         , Skill.classes   = [Soulbound, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = k [Gen]
@@ -591,7 +591,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Flamethrower Jets"
-        , Skill.desc      = "Using fuel stored in a sealing scroll, Sasori shoots flames at an enemy for 3 turns, dealing 10 affliction damage each turn. While active, Sasori ignores non-damage effects from the target other than chakra cost changes and is invulnerable to other enemies. If Sasori uses any skill, [Flamethrower Jets] is canceled. After use, this skill becomes [Cutting Water Jets][n]."
+        , Skill.desc      = "Using fuel stored in a sealing scroll, Sasori shoots flames at an enemy for 3 turns, dealing 10 affliction damage each turn. While active, Sasori is invulnerable to all other enemies and ignores status effects from enemies except chakra cost changes. If Sasori uses any skill, [Flamethrower Jets] is canceled. After use, this skill becomes [Cutting Water Jets][n]."
         , Skill.classes   = [Ranged, Unreflectable]
         , Skill.cost      = k [Nin, Rand]
         , Skill.channel   = Action 3

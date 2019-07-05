@@ -71,9 +71,8 @@ onBreak' = do
     user <- P.user
     name <- Skill.name <$> P.skill
     onBreak do
-        P.modify $
-            Game.alter (Ninja.clear name user) .
-            Game.adjust user (Ninja.cancelChannel name)
+        P.modify user $ Ninja.cancelChannel name
+        P.modifyAll $ Ninja.clear name user
 
 -- | Adds a 'Trap.Trap' to 'Ninja.traps'.
 trapWith :: ∀ m. MonadPlay m => Trap.Direction -> [Class] -> Turns -> Trigger
@@ -110,7 +109,7 @@ trapFull direction classes (Duration -> dur) trigger f = do
                                (+ 2 * Effects.throttle throttled nUser) $
                                sync dur
             }
-    unless (newTrap ∈ Ninja.traps nTarget) . P.modify . Game.adjust target $
+    unless (newTrap ∈ Ninja.traps nTarget) $ P.modify target
         \n -> n { Ninja.traps = Ninja.traps n `snoc` newTrap }
   where
     throttled = case trigger of
@@ -134,7 +133,7 @@ delay (Duration -> dur) f = do
                 , Delay.effect = \() -> (context, Play $ Execute.wrap [Delayed] f)
                 , Delay.dur    = dur'
                 }
-    unless (past $ Skill.copying skill) $ P.modify \game ->
+    unless (past $ Skill.copying skill) $ P.alter \game ->
         game { Game.delays = del : Game.delays game }
   where
     dur' = incr $ sync dur
@@ -149,5 +148,4 @@ removeTrap name = do
     skill  <- P.skill
     user   <- P.user
     target <- P.target
-    P.modify . Game.adjust target .
-        Ninja.clearTrap name $ Copy.source skill user
+    P.modify target . Ninja.clearTrap name $ Copy.source skill user

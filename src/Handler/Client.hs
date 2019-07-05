@@ -19,9 +19,9 @@ import qualified Yesod.Auth as Auth
 import           Yesod.WebSockets (webSockets)
 
 import           Core.App (Handler)
-import           Core.Util ((∉), shorten)
 import           Core.Model (EntityField(..), User(..))
 import           Core.Settings (widgetFile)
+import           Core.Util ((∉), shorten)
 import qualified Model.Character as Character
 import           Model.Character (Character)
 import qualified Model.Skill as Skill

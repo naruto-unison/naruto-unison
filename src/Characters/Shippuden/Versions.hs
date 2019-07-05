@@ -29,7 +29,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Six-Tailed Transformation"
-        , Skill.desc      = "Naruto's fury drives him to the brink of madness. He loses 10 health down to a minimum of 1 and gains 20 points of damage reduction and 20 permanent destructible defense. He permanently ignores all non-damage effects other than chakra cost changes and is immune to effects from his allies. The power of his other skills continues to grow. Once used, this skill becomes [Nine-Tailed Transformation][b][b]."
+        , Skill.desc      = "Naruto's fury drives him to the brink of madness. He loses 10 health down to a minimum of 1 and gains 20 points of damage reduction and 20 permanent destructible defense. He permanently ignores status effects from enemies except chakra cost changes and is immune to effects from his allies. The power of his other skills continues to grow. Once used, this skill becomes [Nine-Tailed Transformation][b][b]."
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.cost      = k [Blood, Rand]
         , Skill.effects   =
@@ -153,7 +153,7 @@ cs =
     "After training under Orochimaru for years, Sasuke has become a rogue ninja with complete control over his curse mark. With unlimited access to his strength and chakra, Sasuke empowers his abilities with dark energy and can even fly."
     [ [ Skill.new
         { Skill.name      = "Sharingan"
-        , Skill.desc      = "The dark energy of Sasuke's curse mark infuses his Sharingan, providing 10 points of damage reduction for 3 turns. While active, Sasuke ignores non-damage harmful effects other than chakra cost changes."
+        , Skill.desc      = "The dark energy of Sasuke's curse mark infuses his Sharingan, providing 10 points of damage reduction for 3 turns. While active, Sasuke ignores status effects from enemies except chakra cost changes."
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = k [Blood]
         , Skill.cooldown  = 3
@@ -336,7 +336,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Mother's Embrace"
-        , Skill.desc      = "The soul of Gaara's deceased mother protects him with a shield of sand, providing 40 destructible defense for 3 turns. As long as Gaara has destructible defense from this skill, he ignores harmful non-damage effects other than chakra cost changes."
+        , Skill.desc      = "The soul of Gaara's deceased mother protects him with a shield of sand, providing 40 destructible defense for 3 turns. As long as Gaara has destructible defense from this skill, he ignores status effects from enemies except chakra cost changes."
         , Skill.classes   = [Physical]
         , Skill.cost      = k [Blood, Rand]
         , Skill.cooldown  = 4
@@ -669,7 +669,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Battle Stance"
-        , Skill.desc      = "Next turn, Guy will deal double damage and ignore harmful non-damage effects other than chakra cost changes. Guy loses 10 health down to a minimum of 1."
+        , Skill.desc      = "Next turn, Guy will deal double damage and ignores status effects from enemies except chakra cost changes. Guy loses 10 health down to a minimum of 1."
         , Skill.classes   = [Physical, Unremovable]
         , Skill.cost      = k [Tai]
         , Skill.cooldown  = 2

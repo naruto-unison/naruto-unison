@@ -27,17 +27,16 @@ import ClassyPrelude hiding (link)
 
 import Data.List.NonEmpty (NonEmpty(..))
 
-import           Core.Util ((∈), intersects)
+import           Core.Util ((!!), (∈), intersects)
 import qualified Class.Parity as Parity
 import           Model.Chakra (Chakras(..))
 import           Model.Class (Class(..))
-import qualified Model.Game as Game
-import           Model.Game (Game)
 import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja)
 import           Model.Player (Player)
+import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
 import qualified Model.Status as Status
 import           Model.Status (Status)
@@ -149,44 +148,49 @@ weaken classes n =
   negativeTotal [(amt, x) | Weaken cla amt x <- Ninja.effects n, cla ∈ classes]
 
 -- | 'Afflict' sum minus 'Heal' sum.
-hp :: Player -> Ninja -> Game -> Int
-hp player n game =  afflict player game n - heal player game n
+hp :: ∀ o. (IsSequence o, Element o ~ Ninja, Index o ~ Int)
+   => Player -> Ninja -> o -> Int
+hp player n ninjas = afflict ninjas player n - heal ninjas player n
 
 -- | 'Heal' sum.
-heal :: Player -> Game -> Ninja -> Int
-heal player game n
+heal ::  ∀ o. (IsSequence o, Element o ~ Ninja, Index o ~ Int)
+     => o -> Player -> Ninja -> Int
+heal ninjas player n
   | Ninja.is Plague n = 0
-  | otherwise         = sum $ heal1 player game n <$> Ninja.statuses n
+  | otherwise         = sum $ heal1 ninjas player n <$> Ninja.statuses n
 
 -- | Calculates the total 'Heal' of a single 'Status.Status'.
-heal1 :: Player -> Game -> Ninja -> Status -> Int
-heal1 player game n st
+heal1 :: ∀ o. (IsSequence o, Element o ~ Ninja, Index o ~ Int)
+      => o -> Player -> Ninja -> Status -> Int
+heal1 ninjas player n st
   | user /= Ninja.slot n && Ninja.is Seal n  = 0
   | summed /= 0 && Parity.allied player user =
-      boost user n * summed + bless (Game.ninja user game)
+      boost user n * summed + bless (ninjas !! Slot.toInt user)
   | otherwise = 0
   where
     user = Status.user st
     summed = sum [hp' | Heal hp' <- Status.effects st]
 
 -- | 'Afflict' sum.
-afflict :: Player -> Game -> Ninja -> Int
-afflict player game n = sum
+afflict :: ∀ o. (IsSequence o, Element o ~ Ninja, Index o ~ Int)
+        => o -> Player -> Ninja -> Int
+afflict ninjas player n = sum
     [aff st | st <- Ninja.statuses n
             , not (Ninja.is ImmuneSelf n) || Status.user st /= Ninja.slot n
             , not $ [All, Affliction] `intersects` invincible n]
   where
-    aff = afflict1 player game $ Ninja.slot n
+    aff = afflict1 ninjas player $ Ninja.slot n
 
 -- | Calculates the total 'Afflict' of a single 'Status.Status'.
-afflict1 :: Player -> Game -> Slot -> Status -> Int
-afflict1 player game t st
+afflict1 :: ∀ o. (IsSequence o, Element o ~ Ninja, Index o ~ Int)
+         => o -> Player -> Slot -> Status -> Int
+afflict1 ninjas player t st
   | summed /= 0 && Parity.allied player user = truncate $ scale * (summed + ext)
   | otherwise                                = 0
   where
     user   = Status.user st
-    nt     = Game.ninja t game
-    n      = Game.ninja user game
+    nt     = ninjas !! Slot.toInt t
+    n      = ninjas !! Slot.toInt user
     summed = fromIntegral $ sum [hp' | Afflict hp' <- Status.effects st]
     ext
       | t == user                    = 0

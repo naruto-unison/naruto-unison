@@ -21,7 +21,6 @@ import           Class.Random (MonadRandom)
 import           Model.Class (Class(..))
 import           Model.Duration (Duration)
 import           Model.Effect (Effect(..))
-import qualified Model.Game as Game
 import qualified Model.Channel as Channel
 import qualified Model.Context as Context
 import qualified Model.Ninja as Ninja
@@ -134,26 +133,25 @@ swap classes = reflectable (any match) classes
 -- If they die, their 'Soulbound' effects are canceled.
 death :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> m ()
 death slot = do
-    game   <- P.game
-    let n   = Game.ninja slot game
-        die = Traps.getOf slot [OnDeath] n
+    n <- P.ninja slot
+    let die = Traps.getOf slot [OnDeath] n
         res
           | Ninja.is Plague n = mempty
           | otherwise         = Traps.getOf slot [OnRes] n
     if | Ninja.health n > 0 -> return ()
        | not $ null res     -> do
-            P.modify $ Game.adjust slot \nt ->
+            P.modify slot \nt ->
                 nt { Ninja.health = 1
                    , Ninja.traps  = filter ((OnRes /=) . Trap.trigger) $
                                     Ninja.traps nt
                    }
             trigger res
        | otherwise -> do
-            P.modify $ Game.adjust slot \nt ->
+            P.modify slot \nt ->
                 nt { Ninja.traps = filter ((OnDeath /=) . Trap.trigger) $
                                   Ninja.traps nt }
             trigger die
-            P.modify $ Game.alter unres
+            P.modifyAll unres
   where
     trigger = traverse_ $ P.launch . first \ctx -> ctx { Context.user = slot }
     unres n = n

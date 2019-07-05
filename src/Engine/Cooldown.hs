@@ -1,7 +1,7 @@
 -- 'Ninja.cooldowns' processing.
 module Engine.Cooldown
   ( active
-  , updateGame, update
+  , update, updateN
   , alter
   , insert
   , reset, resetAll
@@ -15,13 +15,10 @@ import           Data.Sequence ((|>))
 
 import qualified Model.Copy as Copy
 import           Model.Duration (sync)
-import qualified Model.Game as Game
-import           Model.Game (Game)
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja)
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
-import           Model.Slot (Slot)
 import qualified Model.Variant as Variant
 import qualified Engine.Effects as Effects
 import qualified Engine.SkillTransform as SkillTransform
@@ -108,10 +105,9 @@ update False a skill s n
     copied Copy.Deep{}    = False
 
 -- | 'update's a corresponding 'Ninja' when they use a new 'Skill'.
-updateGame :: Bool -> Skill -> Slot -> Either Int Skill -> Game -> Game
-updateGame _      _     _    (Right _) = id
-updateGame charge skill user (Left s)  =
-    Game.adjust user \n -> update charge (Effects.snare n) skill s n
+updateN :: Bool -> Skill -> Either Int Skill -> Ninja -> Ninja
+updateN _      _     (Right _) n = n
+updateN charge skill (Left s)  n = update charge (Effects.snare n) skill s n
 
 -- | Sets an element in 'Ninja.cooldowns' to 0 by indices.
 unsafeReset :: Int -- ^ Skill index (0-3).

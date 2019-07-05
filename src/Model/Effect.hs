@@ -18,7 +18,7 @@ import Model.Internal (Amount(..), Constructor(..), Effect(..), helpful, sticky)
 
 construct :: Constructor -> [Effect]
 construct (Only x) = [x]
-construct (Any x)  = x <$> enumerate
+construct (Any x)  = enumerate x
 
 identity :: ∀ a. Num a => Amount -> a
 identity Flat    = 0

@@ -33,7 +33,6 @@ import           Model.Copy (Copying)
 import           Model.Duration (Duration, incr, sync)
 import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
-import           Model.Game (Game)
 import qualified Model.Ninja as Ninja
 import qualified Model.Requirement as Requirement
 import           Model.Requirement (Requirement(..))
@@ -64,26 +63,25 @@ data Affected
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 -- | Adds a 'Copy.Copy' to 'Ninja.copies'.
-copy :: Bool -- ^ Whether or not to call 'Ninja.clear' on matching 'Status.Status'es.
+copy :: ∀ m. MonadPlay m
+     => Bool -- ^ Whether or not to call 'Ninja.clear' on matching 'Status.Status'es.
      -> (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.
-     -> Slot -- ^ 'Game.ninjas' index of the 'Ninja.Ninja' user of the action.
-     -> Skill -- ^ The 'Skill' to copy.
+     -> Slot -- ^ Target.
+     -> Skill -- ^ Skill.
      -> (Slot, Text, Int, Duration) -- ^ Output of 'Trigger.replace'.
-      -> Game -> Game
-copy clear cop target skill (user, name, s, dur) game
-  | clear     = Game.alter (Ninja.clear name target) adjusted
-  | otherwise = adjusted
+     -> m ()
+copy clear cop target skill (source, name, s, dur) = do
+    P.modify target \n -> n { Ninja.copies = copier $ Ninja.copies n }
+    when clear . P.modifyAll $ Ninja.clear name target
   where
-    adjusted = Game.adjust target copier game
-    copied   = Just . Copy.Copy skill' $ sync if dur < -1 then dur + 1 else dur
-    skill'   = skill
-               { Skill.cost     = 0
-               , Skill.cooldown = 0
-               , Skill.copying  = cop user $ sync dur - 1
-               }
-    copier n = n { Ninja.copies = Seq.update s copied $ Ninja.copies n }
+    skill' = skill { Skill.cost     = 0
+                   , Skill.cooldown = 0
+                   , Skill.copying  = cop source $ sync dur - 1
+                   }
+    copier = Seq.update s . Just . Copy.Copy skill' $
+             sync if dur < -1 then dur + 1 else dur
 
-data Exit = Flagged | Done | Mimicked | Completed deriving (Eq)
+data Exit = Flagged | Done | Completed deriving (Eq)
 -- | Processes an action before it can be applied to the game. This is where
 -- invincibility, usability, counters, reflects, etc. all come into play.
 -- If an action is applied directly instead of passing it to this function,
@@ -93,10 +91,10 @@ wrap affected f = void $ runMaybeT do
     skill       <- P.skill
     user        <- P.user
     target      <- P.target
-    game        <- P.game
-    let nUser    = Game.ninja user game
-        nTarget  = Game.ninja target game
-        classes  = Skill.classes skill
+    nUser       <- P.nUser
+    nTarget     <- P.nTarget
+    startNinjas <- P.ninjas
+    let classes  = Skill.classes skill
         targeted = Requirement.targetable (bypass skill) nUser nTarget
         invinc   = classes `intersects` Effects.invincible nTarget
         exit     = if | Direct ∈ classes               -> Done
@@ -105,7 +103,7 @@ wrap affected f = void $ runMaybeT do
                       | not targeted                   -> Flagged
                       -- | skill ∈ Ninja.parrying nTarget -> Flagged
                       | not new                        -> Done
-                      | Ninja.is Uncounter nTarget     -> Mimicked
+                      | Ninja.is Uncounter nTarget     -> Done
                       | otherwise                      -> Completed
 
     -- P.flag target Flag.Targeted
@@ -114,25 +112,18 @@ wrap affected f = void $ runMaybeT do
     unless ( Skill.channel skill == Instant
           || Interrupted ∈ affected
           || not (Ninja.isChanneling (Skill.name skill) nUser)
-           ) . P.modify $ Game.adjust target \n ->
+           ) $ P.modify target \n ->
               n { Ninja.tags = ChannelTag.new skill user : Ninja.tags n }
 
     let harm      = Harmful ∈ classes && not (Parity.allied user target)
         allow aff = harm && not (Ninja.is AntiCounter nUser) && aff ∉ affected
     when new do
         copies <- flip (Trigger.replace classes) harm <$> P.nUser
-        traverse_ (P.modify . copy True Copy.Shallow user skill) copies
-        P.modify $ Game.adjust user \n -> n { Ninja.lastSkill = Just skill }
-    mimicked <- P.game
+        traverse_ (copy True Copy.Shallow user skill) copies
+        P.modify user \n -> n { Ninja.lastSkill = Just skill }
 
-    if exit /= Completed then do
+    if exit == Done then
         lift $ withDirect skill f
-        guard $ exit /= Done
-
-        when (Ninja.is Silence nUser) do
-            onlyDmgNs <- Game.zipNinjasWith onlyDmg mimicked <$> P.game
-            P.modify . const $ mimicked { Game.ninjas = onlyDmgNs }
-
     else lift . fromMaybe
         do
             f
@@ -146,7 +137,7 @@ wrap affected f = void $ runMaybeT do
             guard $ allow Trapped
             (nt, st, f') <- Trigger.parry skill nTarget
             return do
-                P.modify $ Game.setNinja target nt
+                P.write target nt
                 P.with (\ctx -> ctx
                               { Context.user   = Status.user st
                               , Context.target = Context.user ctx
@@ -155,15 +146,16 @@ wrap affected f = void $ runMaybeT do
             guard $ allow Trapped
             (n, nt, mPlay) <- Trigger.counter classes nUser nTarget
             return do
-                P.modify $ Game.setNinja user n . Game.setNinja target nt
+                P.write user n
+                P.write target nt
                 maybe (return ()) P.launch mPlay
         <|> do
             guard $ allow Reflected
             nt <- Trigger.reflect classes nUser nTarget
             return do
-                P.modify $ Game.setNinja target nt
+                P.write target nt
                 P.with Context.reflect $ wrap (Reflected : affected) f
-    P.modify $ Traps.broken game
+    P.zipWith Traps.broken startNinjas
   where
     new = not $ [Channeled, Delayed, Trapped] `intersects` affected
     bypass skill
@@ -177,10 +169,6 @@ wrap affected f = void $ runMaybeT do
                   skill { Skill.classes = Direct : Skill.classes skill }
               }
       | otherwise = id
-    onlyDmg n n' =
-        n { Ninja.health   = min (Ninja.health n) (Ninja.health n')
-          , Ninja.statuses = Ninja.statuses n'
-          }
 
 -- | Transforms a 'Target' into 'Slot's. 'RAlly' and 'REnemy' targets are chosen
 -- at random.
@@ -234,8 +222,8 @@ effect affected (target, f)  = do
 
 -- | Handles all effects of a 'Skill'. Uses 'effect' internally.
 effects :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> m ()
-effects affected = traverse_ (effect affected . second P.play) =<<
-                   getEffects <$> P.skill
+effects affected = traverse_ (effect affected . second P.play)
+                   =<< getEffects <$> P.skill
   where
     getEffects skill
       | Channeled ∈ affected = Skill.effects skill
@@ -255,21 +243,20 @@ addChannels = do
                                 , Channel.target = target
                                 , Channel.dur    = TurnBased.setDur dur chan
                                 }
-    unless (chan == Instant || dur == 1 || dur == 2) .
-        P.modify $ Game.adjust user \n ->
-            n { Ninja.newChans = chan' : Ninja.newChans n }
+    unless (chan == Instant || dur == 1 || dur == 2) $
+        P.modify user \n -> n { Ninja.newChans = chan' : Ninja.newChans n }
 
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadRandom m) => Act -> m ()
 act a = do
-    P.modify $ Game.alter Adjust.effects
+    P.modifyAll Adjust.effects
+    nUser     <- P.ninja user
     game      <- P.game
-    let nUser  = Game.ninja user game
-        skill' = Adjust.skill s nUser
+    let skill' = Adjust.skill s nUser
     (affected, skill) <- case Trigger.swap (Skill.classes skill') nUser of
         Just swapped -> do
-            P.modify $ Game.setNinja user nUser
+            P.write user nUser
                 { Ninja.statuses = swapped `delete` Ninja.statuses nUser }
             return ([Swapped], SkillTransform.swap swapped skill')
         Nothing -> return ([], skill')
@@ -284,16 +271,16 @@ act a = do
     when valid $ P.withContext (ctx skill) do
         P.trigger user $ OnAction <$> Skill.classes skill
         case Trigger.snareTrap skill nUser of
-            Just (n', sn) -> P.modify . Game.setNinja user $ case s of
+            Just (n', sn) -> P.write user case s of
                 Left s' | s' <= 3 -> Cooldown.update charge sn skill s' n'
                 _                 -> n'
             Nothing -> do
-                when new . P.modify $ Game.adjustChakra user (— cost)
-                P.modify $ Cooldown.updateGame charge skill user s
+                when new . P.alter $ Game.adjustChakra user (— cost)
+                P.modify user $ Cooldown.updateN charge skill s
                 effects affected
                 when new addChannels
-        traverse_ P.launch $ Traps.get user =<< Game.ninjas game
-        P.modify $ Game.alter \n -> n { Ninja.triggers = mempty }
+        traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
+        P.modifyAll \n -> n { Ninja.triggers = mempty }
   where
     s       = Act.skill a
     new     = isLeft s
@@ -305,7 +292,7 @@ act a = do
                                 }
 {-
 invincEffects :: [Effect]
-invincEffects = (Invulnerable <$> enumerate) ++ (Invincible <$> enumerate)
+invincEffects = enumerate Invulnerable ++ enumerate Invincible
 
 -- | After an action takes place, activates any corresponding 'Trap.Trap's.
 trigger :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> Game -> m ()
