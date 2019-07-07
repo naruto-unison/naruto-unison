@@ -180,7 +180,7 @@ defend (Duration -> dur) amount = P.unsilenced do
     let amount' = Effects.boost user nTarget * amount + Effects.build nUser
         defense = Defense.Defense
                       { Defense.amount = amount'
-                      , Defense.user = user
+                      , Defense.user   = user
                       , Defense.name   = Skill.name skill
                       , Defense.dur    = Copy.maxDur (Skill.copying skill) .
                                          incr $ sync dur
@@ -200,12 +200,8 @@ addDefense name amount = P.unsilenced do
     user    <- P.user
     target  <- P.user
     nTarget <- P.nTarget
-    case find (Labeled.match name user) $ Ninja.defense nTarget of
-        Nothing      -> return ()
-        Just defense -> P.modify target \n ->
-            n { Ninja.defense =
-                    defense { Defense.amount = Defense.amount defense + amount }
-                    : deleteBy Labeled.eq defense (Ninja.defense n) }
+    maybe (return ()) (P.modify target . Ninja.addDefense amount) .
+        find (Labeled.match name user) $ Ninja.defense nTarget
 
 -- | Adds new destructible 'Barrier'.
 -- Destructible barrier acts as an extra bar in front of the 'Ninja.health'
@@ -225,7 +221,7 @@ barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
     context    <- P.context
     amount'    <- (amount +) . Effects.build <$> P.nUser
     let skill   = Context.skill context
-        user  = Context.user context
+        user    = Context.user context
         target  = Context.target context
         dur'    = Copy.maxDur (Skill.copying skill) $ sync dur
         save :: PlayConstraint () -> SavedPlay

@@ -25,7 +25,6 @@ import           Model.Act (Act)
 import qualified Model.Channel as Channel
 import           Model.Channel (Channeling(..))
 import qualified Model.Chakra as Chakra
-import qualified Model.ChannelTag as ChannelTag
 import           Model.Class (Class(..))
 import qualified Model.Context as Context
 import qualified Model.Copy as Copy
@@ -101,19 +100,12 @@ wrap affected f = void $ runMaybeT do
                       | invinc                         -> Flagged
                       | Trapped ∈ affected             -> Done
                       | not targeted                   -> Flagged
-                      -- | skill ∈ Ninja.parrying nTarget -> Flagged
                       | not new                        -> Done
                       | Ninja.is Uncounter nTarget     -> Done
                       | otherwise                      -> Completed
 
     -- P.flag target Flag.Targeted
     guard $ exit /= Flagged
-
-    unless ( Skill.channel skill == Instant
-          || Interrupted ∈ affected
-          || not (Ninja.isChanneling (Skill.name skill) nUser)
-           ) $ P.modify target \n ->
-              n { Ninja.tags = ChannelTag.new skill user : Ninja.tags n }
 
     let harm      = Harmful ∈ classes && not (Parity.allied user target)
         allow aff = harm && not (Ninja.is AntiCounter nUser) && aff ∉ affected
@@ -199,7 +191,7 @@ chooseTarget Everyone = return Slot.all
 targetEffect :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> m () -> m ()
 targetEffect affected f = do
     user   <- P.user
-    target <- P.user
+    target <- P.target
     if user == target then
         f
     else if Parity.allied user target then do
@@ -280,7 +272,7 @@ act a = do
                 effects affected
                 when new addChannels
         traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
-        P.modifyAll \n -> n { Ninja.triggers = mempty }
+        -- P.modifyAll \n -> n { Ninja.triggers = mempty } TODO
   where
     s       = Act.skill a
     new     = isLeft s

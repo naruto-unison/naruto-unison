@@ -1,4 +1,4 @@
-module Site.Select exposing (Model, Msg(..), component)
+module Site.Select exposing (Model, Msg(..), Stage(..), component)
 
 import Browser.Dom        as Dom
 import Browser.Navigation as Navigation
@@ -65,16 +65,17 @@ formUrl form = "api/update/" ++ form.name ++ "/"
                ++ "/b" ++ form.background ++ "/"
                ++ Url.percentEncode form.avatar
 
+type Stage = Browsing | Queued | Practicing
+
 type alias Model =
     { error      : Maybe String
-    , queued     : Bool
+    , stage      : Stage
     , url        : String
     , team       : List Character
     , user       : Maybe User
     , avatars    : List String
     , chars      : Characters
     , csrf       : String
-    , queueing   : Bool
     , showLogin  : Bool
     , index      : Int
     , cols       : Int
@@ -111,14 +112,13 @@ component ports =
     init : Flags -> Model
     init flags =
         { error      = Nothing
-        , queued     = False
+        , stage      = Browsing
         , url        = flags.url
         , team       = flags.userTeam
         , user       = flags.user
         , chars      = flags.characters
         , avatars    = flags.avatars
         , csrf       = flags.csrf
-        , queueing   = False
         , showLogin  = True
         , index      = 0
         , cols       = 11
@@ -143,51 +143,55 @@ component ports =
 
     view : Model -> Html Msg
     view st =
-      let
-        wrapping = st.index + st.pageSize >= size st
-        displays =
-            if condense st then
-                List.map Nonempty.head <|
-                    wraparound wrapping st.index st.chars.groupList
-            else
-                wraparound wrapping st.index st.chars.list
-        charClass char = -- god I wish this language had pattern guards
-            if char |> elem st.team then
-                "char disabled"
-            else case st.toggled of
-                Nothing      -> "char click"
-                Just toggled ->
-                    if toggled == char then
-                        "char click selected"
-                    else
-                        "char"
-      in
         H.section [A.id "charSelect"] <|
-        userBox st.user st.csrf st.showLogin st.team ++
-        previewBox st ::
-        [ H.section [A.id "characterButtons", A.class "parchment"]
-          [ H.aside
-            [ A.id "prevPage"
-            , A.classList [("click", True), ("wraparound", st.index == 0)]
-            , E.onClick <| Page (-1)
-            ] []
-          , H.aside
-            [ A.id "nextPage"
-            , A.classList [("click", True), ("wraparound", wrapping)]
-            , E.onClick <| Page 1
-            ] []
-          , Keyed.node "div"
-            [ A.id "charScroll"
-            , E.onMouseOver Untoggle
-            ] <| for displays <| \char ->
-                (characterName char, H.div [A.class <| charClass char]
-                [ icon char "icon"
-                  [ E.onMouseOver << Preview <| PreviewChar char
-                  , E.onClick <| Team Add char
+        userBox st.user st.csrf st.showLogin st.team ++ case st.stage of
+            Queued     -> []
+            Practicing -> []
+            Browsing   ->
+              let
+                wrapping = st.index + st.pageSize >= size st
+                displays =
+                    if condense st then
+                        List.map Nonempty.head <|
+                            wraparound wrapping st.index st.chars.groupList
+                    else
+                        wraparound wrapping st.index st.chars.list
+                charClass char = -- god I wish this language had pattern guards
+                    if char |> elem st.team then
+                        "char disabled"
+                    else case st.toggled of
+                        Nothing      -> "char click"
+                        Just toggled ->
+                            if toggled == char then
+                                "char click selected"
+                            else
+                                "char"
+              in
+                previewBox st ::
+                [ H.section [A.id "characterButtons", A.class "parchment"]
+                  [ H.aside
+                    [ A.id "prevPage"
+                    , A.classList
+                      [("click", True), ("wraparound", st.index == 0)]
+                    , E.onClick <| Page (-1)
+                    ] []
+                  , H.aside
+                    [ A.id "nextPage"
+                    , A.classList [("click", True), ("wraparound", wrapping)]
+                    , E.onClick <| Page 1
+                    ] []
+                  , Keyed.node "div"
+                    [ A.id "charScroll"
+                    , E.onMouseOver Untoggle
+                    ] <| for displays <| \char ->
+                        (characterName char, H.div [A.class <| charClass char]
+                        [ icon char "icon"
+                          [ E.onMouseOver << Preview <| PreviewChar char
+                          , E.onClick <| Team Add char
+                          ]
+                        ])
                   ]
-                ])
-          ]
-        ]
+                ]
 
     withSound : Sound -> Model -> (Model, Cmd Msg)
     withSound sound st = (st, ports.sound sound)
@@ -252,7 +256,7 @@ component ports =
         Enqueue Practice      ->
           let
             team = (++) (st.url ++ "api/practicequeue/") << String.join "/"
-                   <| List.map characterName st.team
+                   <| List.map characterName st.team ++ ["Naruto Uzumaki", "Sasuke Uchiha", "Sakura Haruno"]
           in
             ( st
             , Http.get
@@ -263,7 +267,7 @@ component ports =
         ReceiveGame _   -> pure st
         Enqueue Private -> pure st
         Enqueue Quick   ->
-          ( { st | queued = True }
+          ( { st | stage = Queued }
           , ports.websocket << String.join "/" <| List.map characterName st.team
           )
 
@@ -298,10 +302,10 @@ userBox mUser csrf showLogin team =
               ] [H.text "Main Site"]
             , H.a [playClasses, E.onClick <| Enqueue Quick]
               [H.text "Start Quick Match"]
+            , H.a [playClasses, E.onClick <| Enqueue Private]
+              [H.text "Start Private Match"]
             , H.a [playClasses, E.onClick <| Enqueue Practice]
               [H.text "Start Practice Match"]
-            , H.a [playClasses, E.onClick <| Enqueue Private]
-              [H.text "Start Quick Match"]
             ]
           , H.section [A.id "teamContainer"]
             [ H.div
@@ -328,13 +332,13 @@ userBox mUser csrf showLogin team =
                 ++ String.fromInt (user.wins + user.losses)
                 ++ " (+" ++ String.fromInt user.streak ++ ")"
               ]
-            , H.div [A.id "teamButtons"] << for team <| \char ->
-                H.div [A.class "char click"]
+            , Keyed.node "div" [A.id "teamButtons"] << for team <| \char ->
+                (characterName char, H.div [A.class "char click"]
                 [ icon char "icon"
                   [ E.onMouseOver << Preview <| PreviewChar char
                   , E.onClick <| Team Delete char
                   ]
-                ]
+                ])
             , H.div [A.id "underTeam", A.class "parchment"] []
             ]
           ]
@@ -482,12 +486,12 @@ previewBox st = case st.previewing of
       ]
     PreviewChar char ->
         H.article [A.class "parchment"] <|
-        [ H.aside [] <| if not <| condense st then [] else
+        [ Keyed.node "aside" [] <| if not <| condense st then [] else
           case Dict.get (st.chars.shortName char) st.chars.groupDict of
             Nothing              -> []
             Just (Nonempty _ []) -> []
             Just (Nonempty x xs) -> for (x :: xs) <| \char_ ->
-                icon char_ "icon" <|
+                (characterName char, icon char_ "icon" <|
                   if char |> elem st.team then
                     [ A.classList
                       [("on", char == char_), ("noclick disabled char", True)]
@@ -498,7 +502,7 @@ previewBox st = case st.previewing of
                       [("on", char == char_), ("click char", True)]
                     , E.onMouseOver << Preview <| PreviewChar char_
                     , E.onClick <| Team Add char_
-                    ]
+                    ])
         , H.header [] <| icon char "icon" [A.class "char"] :: Render.name char
         , H.p [] [H.text char.bio]
         ] ++

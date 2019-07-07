@@ -100,5 +100,6 @@ tidStoreNum :: Word32
 tidStoreNum = 1
 
 modifyStoredIORef :: Store (IORef a) -> (a -> IO a) -> IO ()
-modifyStoredIORef store f =
-    withStore store \ref -> writeIORef ref =<< f <$> readIORef ref
+modifyStoredIORef store f = withStore store \ref -> do
+    v <- readIORef ref
+    f v >>= writeIORef ref

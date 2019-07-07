@@ -3,7 +3,8 @@
 module Model.Slot
   ( Slot, toInt, read
   , teamSize
-  , all, allies, enemies
+  , all, allies, enemies, evens, odds
+  , random
   ) where
 
 import ClassyPrelude hiding (all)
@@ -12,7 +13,9 @@ import           Data.Aeson (ToJSON)
 import qualified Data.Text.Read as Read
 
 import qualified Class.Parity as Parity
-import Class.Parity (Parity)
+import           Class.Parity (Parity)
+import qualified Class.Random as R
+import           Class.Random (MonadRandom)
 
 teamSize :: Int
 teamSize = 3
@@ -60,3 +63,6 @@ read s = case Read.decimal s of
     Right (val, _)
       | val < 0 || val > maxVal -> Left "input is out of range"
     x                           -> first Slot <$> x
+
+random :: ∀ m. MonadRandom m => m Slot
+random = Slot <$> R.random 0 maxVal

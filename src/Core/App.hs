@@ -176,23 +176,25 @@ instance YesodPersistRunner App where
     getDBRunner = defaultGetDBRunner connPool
 
 newUser :: Text -> Maybe Text -> User
-newUser ident verkey = User { userIdent      = ident
-                            , userPassword   = Nothing
-                            , userVerkey     = verkey
-                            , userVerified   = False
-                            , userPrivilege  = Normal
-                            , userName       = ident
-                            , userAvatar     = "/img/icon/default.jpg"
-                            , userBackground = Nothing
-                            , userXp         = 0
-                            , userWins       = 0
-                            , userLosses     = 0
-                            , userStreak     = 0
-                            , userClan       = Nothing
-                            , userTeam       = Nothing
-                            , userMuted      = False
-                            , userCondense   = False
-                            }
+newUser ident verkey = User
+    { userIdent      = ident
+    , userPassword   = Nothing
+    , userVerkey     = verkey
+    , userVerified   = False
+    , userPrivilege  = Normal
+    , userName       = ident
+    , userAvatar     = "/img/icon/default.jpg"
+    , userBackground = Nothing
+    , userXp         = 0
+    , userWins       = 0
+    , userLosses     = 0
+    , userStreak     = 0
+    , userClan       = Nothing
+    , userTeam       = Nothing
+    , userPractice   = ["Naruto Uzumaki", "Sakura Haruno", "Sasuke Uchiha"]
+    , userMuted      = False
+    , userCondense   = False
+    }
 
 instance YesodAuth App where
     type AuthId App = UserId

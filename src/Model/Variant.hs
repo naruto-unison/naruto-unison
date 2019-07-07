@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 module Model.Variant
   ( Variant(..)
   , cooldown
@@ -6,7 +7,19 @@ module Model.Variant
 
 import ClassyPrelude
 
-import Model.Internal (Variant(..))
+import Data.Aeson (ToJSON)
+
+import Class.TurnBased (TurnBased(..))
+
+data Variant = Variant { variant   :: Int -- ^ Index in 'skills'
+                       , ownCd     :: Bool -- ^ Uses a different cooldown than the baseline 'Skill'
+                       , name      :: Text
+                       , fromSkill :: Bool -- ^ Duration is based on a 'Skill'
+                       , dur       :: Int
+                       } deriving (Eq, Ord, Show, Read, Generic, ToJSON)
+instance TurnBased Variant where
+    getDur        = dur
+    setDur x vari = vari { dur = x }
 
 cooldown :: Variant -> Int
 cooldown v

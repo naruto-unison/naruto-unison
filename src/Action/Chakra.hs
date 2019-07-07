@@ -19,16 +19,14 @@ import qualified Model.Ninja as Ninja
 import qualified Engine.Chakras as Chakras
 
 -- ** CHAKRA
-
 -- | Adds 'Chakra's to the 'Game.chakra' of the target's team.
 -- 'Rand's are replaced by other Chakra types selected by 'Chakras.random'.
 gain :: ∀ m. (MonadPlay m, MonadRandom m) => [Chakra] -> m ()
 gain [] = return ()
 gain chakras = P.unsilenced do
-    target   <- P.target
-    rand     <- replicateM (length rands) R.enum
-    let total = Chakra.collect $ rand ++ nonrands
-    P.alter $ Game.adjustChakra target (+ total)
+    target <- P.target
+    rand   <- replicateM (length rands) R.chakra
+    P.alter $ Game.adjustChakra target (+ Chakra.collect (rand ++ nonrands))
   where
     (rands, nonrands) = partition (== Rand) chakras
 

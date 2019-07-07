@@ -14,10 +14,6 @@ import Control.Monad.Trans.Class (MonadTrans)
 
 import Data.List (nub)
 
-type family Car m :: (* -> *) -> * -> * where Car (t n) = t
-type family Cdr (m :: * -> *) :: * -> * where Cdr (t n) = n
-type Lift mtl m = (MonadTrans (Car m), mtl (Cdr m), m ~ Car m (Cdr m))
-
 {-# INLINE (!!) #-}
 infixl 9 !!
 -- | 'unsafeIndex'.
@@ -79,3 +75,12 @@ shorten = omap f . filter (∉ bans)
     f 'Ū' = 'U'
     f 'ä' = 'a'
     f a = a
+
+-- | A metaconstraint for liftable functions.
+-- Useful for default signatures of MTL classes:
+-- > default myfunc :: Lift MyMonad m => m ()
+-- > myfunc = lift myfunc
+type Lift mtl m = (MonadTrans (Car m), mtl (Cdr m), m ~ Car m (Cdr m))
+-- Just don't worry about it
+type family Car m :: (* -> *) -> * -> * where Car (t n) = t
+type family Cdr (m :: * -> *) :: * -> * where Cdr (t n) = n

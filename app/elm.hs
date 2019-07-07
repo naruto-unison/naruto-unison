@@ -22,9 +22,11 @@ import qualified Data.Char as Char
 import           Data.Text as Text
 import           Model.Class (Class(..))
 import           Model.Chakra (Chakras(..))
+import           Model.Defense (Defense)
 import           Model.Face (Face(..))
 import           Model.Player (Player(..))
 import           Model.Slot (Slot)
+import           Model.Variant (Variant)
 import           Core.Fields (Privilege(..))
 
 import Model.Internal hiding (Barrier(..), Effect(..), Ninja(..), Game(..))
@@ -42,7 +44,6 @@ data Ninja = Ninja
     , channels  :: [Channel]
     , traps     :: Seq Trap
     , face      :: [Face]
-    , tags      :: [ChannelTag]
     , lastSkill :: Maybe Skill
     , skills    :: [Skill]
     }
@@ -117,7 +118,6 @@ deriveElmDef defaultOptions ''Category
 deriveElmDef defaultOptions ''Channel
 deriveElmDef defaultOptions ''Channeling
 deriveElmDef defaultOptions ''Chakras
-deriveElmDef defaultOptions ''ChannelTag
 deriveElmDef defaultOptions ''Character
 deriveElmDef defaultOptions ''Copy
 deriveElmDef defaultOptions ''Copying
@@ -165,7 +165,6 @@ main =
     , DefineElm (Proxy :: Proxy Variant)
     , DefineElm (Proxy :: Proxy Channel)
     , DefineElm (Proxy :: Proxy Channeling)
-    , DefineElm (Proxy :: Proxy ChannelTag)
     , DefineElm (Proxy :: Proxy Copy)
     , DefineElm (Proxy :: Proxy Copying)
     , DefineElm (Proxy :: Proxy Effect)

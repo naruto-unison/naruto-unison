@@ -556,11 +556,16 @@ renderView characters viewing = case viewing of
     ViewDetail removable x ->
       let
         source = Game.get characters x.source
+        count  =
+          if x.amount > 1 then
+              x.name ++ " (" ++ String.fromInt x.amount ++ ")"
+          else
+              x.name
         name   =
           if "Shifted" |> elem x.classes then
-              H.span [A.class "reflected"] [H.text <| x.name ++ " (Reflected)"]
+              H.span [A.class "reflected"] [H.text <| count ++ " (Reflected)"]
           else
-              H.span [] [H.text x.name]
+              H.span [] [H.text count]
       in
         [ H.div []
           [ H.aside [] [icon source "icon" [A.class "char"]]

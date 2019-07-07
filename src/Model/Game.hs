@@ -24,7 +24,7 @@ new = Game { chakra  = (0, 0)
 
 newWithChakras :: ∀ m. MonadRandom m => m Game
 newWithChakras = do
-    randoms :: [Chakra] <- replicateM 3 R.enum
+    randoms :: [Chakra] <- replicateM 3 R.chakra
     return $ adjustChakra Player.A (+ Chakra.collect randoms) new
 
 getChakra :: ∀ a. Parity a => a -> Game -> Chakras

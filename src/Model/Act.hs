@@ -3,6 +3,7 @@ module Model.Act
   ( Act(..)
   , fromChannel
   , illegal
+  , randoms
   ) where
 
 import ClassyPrelude
@@ -13,6 +14,8 @@ import qualified Data.Text.Read as Read
 import           Text.Read (Read(..))
 import           Yesod.Core.Dispatch (PathPiece(..))
 
+import qualified Class.Random as R
+import           Class.Random (MonadRandom)
 import qualified Model.Channel as Channel
 import           Model.Channel (Channel)
 import qualified Model.Ninja as Ninja
@@ -41,6 +44,12 @@ instance Show Act where
     show = show . fromAct
 instance Read Act where
     readPrec = toAct <$> readPrec
+
+random :: ∀ m. MonadRandom m => Slot -> m Act
+random user = Act user <$> (Left <$> R.random 0 3) <*> Slot.random
+
+randoms :: ∀ m. MonadRandom m => m [Act]
+randoms = traverse random Slot.odds
 
 -- A 'Player' attempts to control a 'Ninja' not on their team.
 illegal :: Player -> Act -> Bool

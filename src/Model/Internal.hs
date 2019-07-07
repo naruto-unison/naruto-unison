@@ -18,12 +18,9 @@ import           Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import           Data.Aeson ((.=), ToJSON(..), object)
 import           Data.List.NonEmpty (NonEmpty(..))
 import           Data.STRef
-import qualified Data.Vector.Generic as Generic
 import qualified Data.Vector as Vector (freeze, unsafeUpd)
 import qualified Data.Vector.Mutable as Vector
 import           Data.Vector.Mutable (IOVector, STVector)
-import qualified System.Random.MWC as Random
-import qualified System.Random.MWC.Distributions as Random
 import           Text.Blaze (ToMarkup(..))
 import           Yesod.WebSockets (WebSocketsT)
 
@@ -32,16 +29,20 @@ import qualified Class.Classed as Classed
 import           Class.Classed (Classed)
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
-import qualified Class.Labeled as Labeled
+import qualified Class.Labeled
 import           Class.Labeled (Labeled)
+import qualified Class.Random
+import           Class.Random (MonadRandom)
 import           Class.TurnBased (TurnBased(..))
 import           Model.Class (Class(..))
 import           Model.Chakra (Chakras(..))
+import           Model.Defense (Defense(..))
 import           Model.Duration (Duration, sync, unsync)
 import           Model.Face (Face(..))
 import           Model.Player (Player)
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
+import           Model.Variant (Variant(..))
 
 data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
@@ -294,7 +295,6 @@ data Ninja = Ninja { slot      :: Slot           -- ^ 'Model.Game.Ninjas' index 
                    , newChans  :: [Channel]              -- ^ Starts empty
                    , traps     :: Seq Trap               -- ^ Starts empty
                    , face      :: [Face]                 -- ^ Starts empty
-                   , tags      :: [ChannelTag]           -- ^ Starts empty
                    , lastSkill :: Maybe Skill            -- ^ Starts at 'Nothing'
                    , triggers  :: Set Trigger            -- ^ Empty at the start of each turn
                    , counters  :: [SavedPlay]            -- ^ Empty at the start of each turn
@@ -314,7 +314,6 @@ data Game = Game { chakra  :: (Chakras, Chakras)
                  -- ^ Starts at 'Player.A'
                  , victor  :: [Player]
                  -- ^ Starts empty
-                 --, ninjas  :: IOVector Ninja
                  }
 
 data Requirement
@@ -399,19 +398,6 @@ instance Labeled Barrier where
     name   = name
     user = user
 
--- | Destructible defense.
-data Defense = Defense { amount :: Int
-                       , user   :: Slot
-                       , name   :: Text
-                       , dur    :: Int
-                       } deriving (Eq, Ord, Show, Read, Generic, ToJSON)
-instance TurnBased Defense where
-    getDur     = dur
-    setDur d x = x { dur = d }
-instance Labeled Defense where
-    name   = name
-    user = user
-
 -- | An 'Model.Act.Act' channeled over multiple turns.
 data Channel = Channel { source :: Slot
                        , skill  :: Skill
@@ -445,25 +431,6 @@ instance TurnBased Channeling where
     setDur d Action{}  = Action $ unsync d
     setDur d Control{} = Control $ unsync d
     setDur d Ongoing{} = Ongoing $ unsync d
-
--- | Indicates that a channeled 'Skill' will affect a 'Ninja' next turn.
-data ChannelTag = ChannelTag { source  :: Slot
-                             , user    :: Slot
-                             , skill   :: Skill
-                             , ghost   :: Bool
-                             , dur     :: Int
-                             } deriving (Generic, ToJSON)
-
-instance Classed ChannelTag where
-    classes = Classed.classes . (skill :: ChannelTag -> Skill)
-
-instance TurnBased ChannelTag where
-    getDur     = dur
-    setDur d x = x { dur = d }
-
-instance Labeled ChannelTag where
-    name = (name :: Skill -> Text) . (skill :: ChannelTag -> Skill)
-    user = source
 
 -- | 'Original', 'Shippuden', or 'Reanimated'.
 data Category
@@ -517,7 +484,10 @@ data Trigger
     | PerDamage
     | PerHealed
     | PerDamaged
-    deriving (Eq, Ord, Generic, ToJSON)
+    deriving (Eq, Ord)
+
+instance ToJSON Trigger where
+    toJSON = toJSON . show
 
 instance Classed Trigger where
     classes (OnAction cla)  = [cla]
@@ -553,16 +523,6 @@ instance Show Trigger where
     show PerDamage        = show OnDamage
     show PerDamaged       = show (OnDamaged All)
     show PerHealed        = show OnHealed
-
-data Variant = Variant { variant   :: Int -- ^ Index in 'skills'
-                       , ownCd     :: Bool -- ^ Uses a different cooldown than the baseline 'Skill'
-                       , name      :: Text
-                       , fromSkill :: Bool -- ^ Duration is based on a 'Skill'
-                       , dur       :: Int
-                       } deriving (Eq, Ord, Show, Read, Generic, ToJSON)
-instance TurnBased Variant where
-    getDur        = dur
-    setDur x vari = vari { dur = x }
 
 -- | A 'Skill' copied from a different character.
 data Copy = Copy { skill :: Skill
@@ -684,14 +644,7 @@ data Context = Context { skill   :: Skill
                        , new     :: Bool
                        } deriving (Generic, ToJSON)
 
-class Monad m => MonadRandom m where
-    random  :: Int -> Int -> m Int
-    shuffle :: ∀ v a. Generic.Vector v a => v a -> m (v a)
-
-    default random  :: Lift MonadRandom m => Int -> Int -> m Int
-    random a = lift . random a
-    default shuffle :: Lift MonadRandom m => Generic.Vector v a => v a -> m (v a)
-    shuffle  = lift . shuffle
+instance MonadRandom m => MonadRandom (ReaderT Context m)
 
 class Monad m => MonadGame m where
     game      :: m Game
@@ -786,24 +739,6 @@ instance MonadGame (StateT WrapperPure Identity) where
 instance MonadRandom (StateT WrapperPure Identity) where
     random x = return . const x
     shuffle  = return . id
-
-instance MonadRandom (ReaderT (Random.Gen s) (ST s)) where
-    random a b = ask >>= lift . Random.uniformR (a, b)
-    shuffle xs = ask >>= lift . Random.uniformShuffle xs
-
-instance MonadIO m => MonadRandom (ReaderT (Random.Gen RealWorld) m) where
-    random a b = ask >>= liftIO . Random.uniformR (a, b)
-    shuffle xs = ask >>= liftIO . Random.uniformShuffle xs
-
-instance MonadRandom m => MonadRandom (ExceptT e m)
-instance MonadRandom m => MonadRandom (IdentityT m)
-instance MonadRandom m => MonadRandom (MaybeT m)
-instance MonadRandom m => MonadRandom (SelectT r m)
-instance MonadRandom m => MonadRandom (StateT r m)
-instance MonadRandom m => MonadRandom (ReaderT Context m)
-instance MonadRandom m => MonadRandom (WebSocketsT m)
-instance (MonadRandom m, Monoid w) => MonadRandom (WriterT w m)
-instance (MonadRandom m, Monoid w) => MonadRandom (AccumT w m)
 
 instance MonadGame m => MonadGame (ExceptT e m)
 instance MonadGame m => MonadGame (IdentityT m)

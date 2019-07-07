@@ -65,7 +65,7 @@ app websocket ports =
           Nothing  -> identity
           Just err -> (::) <| H.div [A.class "error"] [H.text err]
         contents =
-            if st.selectModel.queued then
+            if st.selectModel.stage == Select.Queued then
                 H.div [A.id "contents", A.class "queueing"] <<
                 (::)
                 (H.aside [A.id "searching"] [H.img [A.src "/img/spin.gif"] []])
@@ -91,7 +91,7 @@ app websocket ports =
         in
           ( { st
             | playModel = Just <| play.init st.flags True x
-            , selectModel = { selectModel | queued = False }
+            , selectModel = { selectModel | stage = Select.Browsing }
             }
           , Cmd.batch [ports.sound Sound.StartFirst, ports.progress 0 1 1]
           )
@@ -115,8 +115,8 @@ app websocket ports =
                     progress    = if firstPlayer then 0 else 1
                   in
                     ( { st
-                      | playModel = Just <| play.init st.flags False info
-                      , selectModel = { selectModel | queued = False }
+                      | playModel   = Just <| play.init st.flags False info
+                      , selectModel = { selectModel | stage = Select.Browsing }
                       }
                     , Cmd.batch
                       [ ports.progress 60000 (1 - progress) progress

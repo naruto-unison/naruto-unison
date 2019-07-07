@@ -15,10 +15,10 @@ module Model.Ninja
   , cure
   , cureBane
   , kill
-  , prolong, prolong'
+  , prolong, prolong', prolongChannel
   , purge
   , refresh
-  , addStatus, addOwnStacks, addOwnDefense
+  , addStatus, addOwnStacks, addOwnDefense, addDefense
   , removeStack, removeStacks
   , resetCharges
 
@@ -40,12 +40,14 @@ import qualified Class.TurnBased as TurnBased
 import           Model.Internal (Ninja(..))
 import qualified Model.Channel as Channel
 import qualified Model.Character as Character
+import           Model.Character (Character)
+import           Model.Class (Class(..))
 import qualified Model.Defense as Defense
+import           Model.Defense (Defense)
 import           Model.Duration (Duration, incr, sync)
 import qualified Model.Effect as Effect
 import           Model.Effect (Effect(..))
-import           Model.Class (Class(..))
-import           Model.Character (Character)
+import qualified Model.Copy as Copy
 import qualified Model.Trap as Trap
 import           Model.Trap (Trigger(..))
 import qualified Model.Skill as Skill
@@ -71,10 +73,8 @@ new slot c = Ninja { slot      = slot
                    , newChans  = []
                    , traps     = mempty
                    , face      = []
-                   --, parrying  = []
-                   , tags      = []
                    , lastSkill = Nothing
-                   , counters  = mempty
+                   , counters  = []
                    , triggers  = mempty
                    , effects   = mempty
                    }
@@ -224,13 +224,12 @@ decr n = case findMatch $ statuses n of
            , barrier   = mapMaybe TurnBased.decr $ barrier n
            , face      = mapMaybe TurnBased.decr $ face n
            , channels  = mapMaybe TurnBased.decr $ newChans n ++ channels n
-           , tags      = mapMaybe TurnBased.decr $ tags n
            , traps     = mapMaybe TurnBased.decr $ traps n
            , newChans  = mempty
            , variants  = turnDecr' <$> variants n
            , copies    = (>>= TurnBased.decr) <$> copies n
            , cooldowns = ((max 0 . subtract 1) <$>) <$> cooldowns n
-           --, parrying  = []
+           , counters  = []
            , effects   = []
            , triggers  = singleton OnNoAction
            }
@@ -276,6 +275,12 @@ addOwnDefense dur name i n = n { defense = d : defense n }
                         , Defense.name   = name
                         , Defense.dur    = incr $ sync dur
                         }
+
+addDefense :: Int -> Defense -> Ninja -> Ninja
+addDefense amount d n =
+    n { defense = added : deleteBy Labeled.eq added (defense n) }
+  where
+    added = d { Defense.amount = amount + Defense.amount d }
 
 -- | Deletes matching 'statuses'.
 clear :: Text -- ^ 'Status.name'.
@@ -371,6 +376,17 @@ prolong' dur name user st
         | odd (Status.dur st) == even dur = dur
         | dur < 0                         = dur + 1
         | otherwise                       = dur - 1
+
+prolongChannel :: Duration -> Text -> Ninja -> Ninja
+prolongChannel dur name n = n { channels = f <$> channels n }
+  where
+    f chan
+      | TurnBased.getDur chan <= 0              = chan
+      | Skill.name (Channel.skill chan) /= name = chan
+      | otherwise = flip TurnBased.setDur chan .
+                    Copy.maxDur (Skill.copying $ Channel.skill chan) $
+                    TurnBased.getDur chan + sync dur
+
 
 -- | Removes all helpful effects.
 purge :: Ninja -> Ninja

@@ -136,10 +136,9 @@ ninjaToJSON n = object
     , "channels"  .= Ninja.channels n
     , "traps"     .= filter ((Hidden ∉) . Trap.classes) (Ninja.traps n)
     , "face"      .= Ninja.face n
-    --, "parrying"  .= Ninja.parrying n
-    , "tags"      .= Ninja.tags n
     , "lastSkill" .= Ninja.lastSkill n
     , "skills"    .= (usable <$> Adjust.skills n)
+    , "triggers"  .= Ninja.triggers n
     ]
   where
     usable skill = skill { Skill.require = fulfill $ Skill.require skill }

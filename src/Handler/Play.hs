@@ -16,6 +16,7 @@ import           Data.List (transpose)
 import qualified Data.Text as Text
 import qualified Database.Persist.Postgresql as Sql
 import qualified System.Random.MWC as Random
+import qualified UnliftIO.Timeout as Timeout
 import qualified Yesod.Auth as Auth
 import qualified Yesod.WebSockets as WebSockets
 import           Yesod.WebSockets (WebSocketsT)
@@ -50,36 +51,36 @@ vs :: ∀ a. [a] -> [a] -> [a]
 x `vs` y = concat $ transpose [x, y]
 
 bot :: User
-bot = User { userIdent      = ""
-           , userPassword   = Nothing
-           , userName       = "Bot"
-           , userAvatar     = "/img/icon/bot.jpg"
-           , userVerkey     = Nothing
-           , userVerified   = True
-           , userPrivilege  = Normal
-           , userBackground = Nothing
-           , userXp         = 0
-           , userWins       = 0
-           , userLosses     = 0
-           , userStreak     = 0
-           , userClan       = Nothing
-           , userTeam       = Nothing
-           , userMuted      = False
-           , userCondense   = False
-           }
+bot = User
+    { userIdent      = ""
+    , userPassword   = Nothing
+    , userName       = "Bot"
+    , userAvatar     = "/img/icon/bot.jpg"
+    , userVerkey     = Nothing
+    , userVerified   = True
+    , userPrivilege  = Normal
+    , userBackground = Nothing
+    , userXp         = 0
+    , userWins       = 0
+    , userLosses     = 0
+    , userStreak     = 0
+    , userClan       = Nothing
+    , userTeam       = Nothing
+    , userPractice   = ["Naruto Uzumaki", "Sakura Haruno", "Sasuke Uchiha"]
+    , userMuted      = False
+    , userCondense   = False
+    }
 
 -- * HANDLERS
 
 -- | Joins the practice-match queue with a given team. Requires authentication.
 getPracticeQueueR :: [Text] -> Handler Value
-getPracticeQueueR team
-  | null (drop 2 team) || not (null (drop 3 team)) =
-        invalidArgs ["Wrong number of characters"]
-  | any (not . (`member` Characters.map)) team =
+getPracticeQueueR characters@[a1, b1, c1, a2, b2, c2]
+  | any (not . (`member` Characters.map)) characters =
         invalidArgs ["Unknown character(s)"]
   | otherwise = do
       (who, _) <- Auth.requireAuthPair
-      runDB $ update who [UserTeam =. Just (reverse team)]
+      runDB $ update who [UserTeam =. Just [a1, b1, c1]]
       liftIO Random.createSystemRandom >>= runReaderT do
           game <- runReaderT Game.newWithChakras =<< ask
           practice <- getsYesod App.practice
@@ -93,9 +94,9 @@ getPracticeQueueR team
                                        , ninjas = ninjas
                                        }
   where
-    oppTeam = ["Naruto Uzumaki", "Tenten", "Sakura Haruno"]
-    ninjas  = fromList . zipWith Ninja.new Slot.all . map (Characters.map !) $
-              team `vs` oppTeam
+    ninjas  = fromList . zipWith Ninja.new Slot.all $ map (Characters.map !)
+              [c1, a2, b1, b2, a1, c2]
+getPracticeQueueR _ = invalidArgs ["Wrong number of characters"]
  --zipWith Ninja.new Slot.all
 -- | Wrapper for 'getPracticeActR' with no actions.
 getPracticeWaitR :: Chakras -> Chakras -> Handler Value
@@ -125,7 +126,7 @@ getPracticeActR actChakra exchangeChakra actions = do
                   { Game.chakra  = (fst $ Game.chakra g, 100)
                   , Game.playing = Player.B
                   }
-              Turn.run [] -- TODO
+              Turn.run =<< Act.randoms
               game'B <- Wrapper.freeze
               liftIO if (null . Game.victor $ Wrapper.game game'B) then
                   Cache.insert practice who game'B
@@ -228,23 +229,30 @@ gameSocket = do
                                   return Nothing
                   lift . lift . sendJson $ Wrapper.toJSON player completedGame
 
+minuteInMicroSeconds :: Int
+minuteInMicroSeconds = 60000000
+
 -- | Wraps @enact@ with error handling.
 tryEnact :: Player -> TChan Message.Game
          -> ReaderT IOWrapper (ReaderT Random.GenIO (WebSocketsT Handler)) ()
 tryEnact player writer = do
-    enactText <- lift $ lift WebSockets.receiveData
-    case formEnact $ Text.split (=='/') enactText of
-        Nothing -> lift . lift $
-                   WebSockets.sendTextData ("Invalid acts" :: ByteString)
+    enactMessage <- lift . lift . Timeout.timeout minuteInMicroSeconds $
+                    Text.split (== '/') <$> WebSockets.receiveData
+
+    case formEnact =<< enactMessage of
+        Nothing -> do
+            Turn.run []
+            conclude
         Just (actChakra, exchangeChakra, actions) -> do
             res <- enact actChakra exchangeChakra actions
             case res of
                 Left errorMsg -> lift . lift $ WebSockets.sendTextData errorMsg
-                Right () -> do
-                    wrapper <- Wrapper.freeze
-                    lift . lift . sendJson $ Wrapper.toJSON player wrapper
-                    liftIO . atomically . writeTChan writer $
-                        Message.Enact wrapper
+                Right ()      -> conclude
+  where
+    conclude = do
+        wrapper <- Wrapper.freeze
+        lift . lift . sendJson $ Wrapper.toJSON player wrapper
+        liftIO . atomically . writeTChan writer $ Message.Enact wrapper
 
 -- | Processes a user's actions and passes them to 'Turn.run'.
 enact :: ∀ m. (MonadGame m, MonadRandom m) => Chakras -> Chakras -> [Act]

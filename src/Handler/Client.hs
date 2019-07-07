@@ -64,9 +64,11 @@ getPlayR = do
     let (_, muser) = case ma of
           Just (Entity who user) -> (Just who, Just user)
           Nothing                -> (Nothing, Nothing)
-        team = maybe [] (mapMaybe (`lookup` Characters.map)) $
-               muser >>= userTeam
-        bg   = fromMaybe "/img/bg/valley2.jpg" $ muser >>= userBackground
+        team     = maybe [] (mapMaybe (`lookup` Characters.map)) $
+                   muser >>= userTeam
+        practice = maybe [] (mapMaybe (`lookup` Characters.map) . userPractice)
+                   muser
+        bg       = fromMaybe "/img/bg/valley2.jpg" $ muser >>= userBackground
         vol :: Text
         vol
           | isMuted muser = "click muted"

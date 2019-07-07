@@ -368,7 +368,7 @@ cs =
     ] []
   , Character
     "Sage Mode Kabuto"
-    "Unable to find an identity of his own, Kabuto has spent his life taking on the traits of others. Years of research and experimenting upon himself have reached their conclusion, and now Kabuto prepares for his final metamorphosis."
+    "Unable to find an identity of his own, Kabuto has spent his life taking on the traits of others. Years of research and experiments upon himself have reached their conclusion, and now Kabuto prepares for his final metamorphosis."
     [ [ Skill.new
         { Skill.name      = "Sage Transformation"
         , Skill.desc      = "By synthesizing rare genetic traits from other bloodlines inside his body, Kabuto becomes attuned to the flow of natural energy. Each turn, the chakra costs and type of chakra gained from his other skills cycle through the different types of chakra. Once used, this skill becomes [DNA Transmission Shadow][r][r][r]."
@@ -587,7 +587,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "White Extreme Attack"
-        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 random chakras."
+        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth that explodes in a flash of light and stuns all allies and enemies for 1 turn. Kabuto gains 2 random chakras."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cooldown  = 3
         , Skill.charges   = 1
@@ -599,7 +599,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "White Extreme Attack"
-        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 bloodline chakras."
+        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth that explodes in a flash of light and stuns all allies and enemies for 1 turn. Kabuto gains 2 bloodline chakras."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cooldown  = 3
         , Skill.charges   = 1
@@ -611,7 +611,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "White Extreme Attack"
-        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 genjutsu chakras."
+        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth that explodes in a flash of light and stuns all allies and enemies for 1 turn. Kabuto gains 2 genjutsu chakras."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cooldown  = 3
         , Skill.charges   = 1
@@ -623,7 +623,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "White Extreme Attack"
-        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 ninjutsu chakras."
+        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth that explodes in a flash of light and stuns all allies and enemies for 1 turn. Kabuto gains 2 ninjutsu chakras."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cooldown  = 3
         , Skill.charges   = 1
@@ -635,7 +635,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "White Extreme Attack"
-        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth which explodes in a flash of light that stuns all allies and enemies for 1 turn. Kabuto gains 2 taijutsu chakras."
+        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth that explodes in a flash of light and stuns all allies and enemies for 1 turn. Kabuto gains 2 taijutsu chakras."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cooldown  = 3
         , Skill.charges   = 1

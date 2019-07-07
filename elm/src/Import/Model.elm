@@ -59,12 +59,12 @@ jsonEncUser  val =
 
 
 type Privilege  =
-    Normal 
-    | Moderator 
-    | Admin 
+    Normal
+    | Moderator
+    | Admin
 
 jsonDecPrivilege : Json.Decode.Decoder ( Privilege )
-jsonDecPrivilege = 
+jsonDecPrivilege =
     let jsonDecDictPrivilege = Dict.fromList [("Normal", Normal), ("Moderator", Moderator), ("Admin", Admin)]
     in  decodeSumUnaries "Privilege" jsonDecDictPrivilege
 
@@ -104,12 +104,12 @@ jsonEncCharacter  val =
 
 
 type Category  =
-    Original 
-    | Shippuden 
-    | Reanimated 
+    Original
+    | Shippuden
+    | Reanimated
 
 jsonDecCategory : Json.Decode.Decoder ( Category )
-jsonDecCategory = 
+jsonDecCategory =
     let jsonDecDictCategory = Dict.fromList [("Original", Original), ("Shippuden", Shippuden), ("Reanimated", Reanimated)]
     in  decodeSumUnaries "Category" jsonDecDictCategory
 
@@ -207,11 +207,11 @@ jsonEncChakras  val =
 
 
 type Player  =
-    A 
-    | B 
+    A
+    | B
 
 jsonDecPlayer : Json.Decode.Decoder ( Player )
-jsonDecPlayer = 
+jsonDecPlayer =
     let jsonDecDictPlayer = Dict.fromList [("A", A), ("B", B)]
     in  decodeSumUnaries "Player" jsonDecDictPlayer
 
@@ -236,15 +236,13 @@ type alias Ninja  =
    , channels: (List Channel)
    , traps: (List Trap)
    , face: (List Face)
-   , parrying: (List Skill)
-   , tags: (List ChannelTag)
    , lastSkill: (Maybe Skill)
    , skills: (List Skill)
    }
 
 jsonDecNinja : Json.Decode.Decoder ( Ninja )
 jsonDecNinja =
-   Json.Decode.succeed (\pslot phealth pdefense pbarrier pstatuses pcharges pcooldowns pvariants pcopies pchannels ptraps pface pparrying ptags plastSkill pskills -> {slot = pslot, health = phealth, defense = pdefense, barrier = pbarrier, statuses = pstatuses, charges = pcharges, cooldowns = pcooldowns, variants = pvariants, copies = pcopies, channels = pchannels, traps = ptraps, face = pface, parrying = pparrying, tags = ptags, lastSkill = plastSkill, skills = pskills})
+   Json.Decode.succeed (\pslot phealth pdefense pbarrier pstatuses pcharges pcooldowns pvariants pcopies pchannels ptraps pface plastSkill pskills -> {slot = pslot, health = phealth, defense = pdefense, barrier = pbarrier, statuses = pstatuses, charges = pcharges, cooldowns = pcooldowns, variants = pvariants, copies = pcopies, channels = pchannels, traps = ptraps, face = pface, lastSkill = plastSkill, skills = pskills})
    |> required "slot" (Json.Decode.int)
    |> required "health" (Json.Decode.int)
    |> required "defense" (Json.Decode.list (jsonDecDefense))
@@ -257,8 +255,6 @@ jsonDecNinja =
    |> required "channels" (Json.Decode.list (jsonDecChannel))
    |> required "traps" (Json.Decode.list (jsonDecTrap))
    |> required "face" (Json.Decode.list (jsonDecFace))
-   |> required "parrying" (Json.Decode.list (jsonDecSkill))
-   |> required "tags" (Json.Decode.list (jsonDecChannelTag))
    |> fnullable "lastSkill" (jsonDecSkill)
    |> required "skills" (Json.Decode.list (jsonDecSkill))
 
@@ -277,8 +273,6 @@ jsonEncNinja  val =
    , ("channels", (Json.Encode.list jsonEncChannel) val.channels)
    , ("traps", (Json.Encode.list jsonEncTrap) val.traps)
    , ("face", (Json.Encode.list jsonEncFace) val.face)
-   , ("parrying", (Json.Encode.list jsonEncSkill) val.parrying)
-   , ("tags", (Json.Encode.list jsonEncChannelTag) val.tags)
    , ("lastSkill", (maybeEncode (jsonEncSkill)) val.lastSkill)
    , ("skills", (Json.Encode.list jsonEncSkill) val.skills)
    ]
@@ -342,8 +336,8 @@ jsonEncSkill  val =
 
 
 type Requirement  =
-    Usable 
-    | Unusable 
+    Usable
+    | Unusable
     | HasI Int String
     | HasU String
 
@@ -370,17 +364,17 @@ jsonEncRequirement  val =
 
 
 type Target  =
-    Self 
-    | Ally 
-    | Allies 
-    | RAlly 
-    | XAlly 
-    | XAllies 
-    | Enemy 
-    | Enemies 
-    | REnemy 
-    | XEnemies 
-    | Everyone 
+    Self
+    | Ally
+    | Allies
+    | RAlly
+    | XAlly
+    | XAllies
+    | Enemy
+    | Enemies
+    | REnemy
+    | XEnemies
+    | Everyone
     | Specific Int
 
 jsonDecTarget : Json.Decode.Decoder ( Target )
@@ -477,8 +471,8 @@ jsonEncChannel  val =
 
 
 type Channeling  =
-    Instant 
-    | Passive 
+    Instant
+    | Passive
     | Action Int
     | Control Int
     | Ongoing Int
@@ -505,37 +499,6 @@ jsonEncChanneling  val =
                     Ongoing v1 -> ("Ongoing", encodeValue (Json.Encode.int v1))
     in encodeSumTaggedObject "tag" "contents" keyval val
 
-
-
-type alias ChannelTag  =
-   { source: Int
-   , user: Int
-   , skill: Skill
-   , ghost: Bool
-   , dur: Int
-   }
-
-jsonDecChannelTag : Json.Decode.Decoder ( ChannelTag )
-jsonDecChannelTag =
-   Json.Decode.succeed (\psource puser pskill pghost pdur -> {source = psource, user = puser, skill = pskill, ghost = pghost, dur = pdur})
-   |> required "source" (Json.Decode.int)
-   |> required "user" (Json.Decode.int)
-   |> required "skill" (jsonDecSkill)
-   |> required "ghost" (Json.Decode.bool)
-   |> required "dur" (Json.Decode.int)
-
-jsonEncChannelTag : ChannelTag -> Value
-jsonEncChannelTag  val =
-   Json.Encode.object
-   [ ("source", Json.Encode.int val.source)
-   , ("user", Json.Encode.int val.user)
-   , ("skill", jsonEncSkill val.skill)
-   , ("ghost", Json.Encode.bool val.ghost)
-   , ("dur", Json.Encode.int val.dur)
-   ]
-
-
-
 type alias Copy  =
    { skill: Skill
    , dur: Int
@@ -559,7 +522,7 @@ jsonEncCopy  val =
 type Copying  =
     Shallow Int Int
     | Deep Int Int
-    | NotCopied 
+    | NotCopied
 
 jsonDecCopying : Json.Decode.Decoder ( Copying )
 jsonDecCopying =
@@ -652,12 +615,12 @@ jsonEncStatus  val =
 
 
 type Bomb  =
-    Done 
-    | Expire 
-    | Remove 
+    Done
+    | Expire
+    | Remove
 
 jsonDecBomb : Json.Decode.Decoder ( Bomb )
-jsonDecBomb = 
+jsonDecBomb =
     let jsonDecDictBomb = Dict.fromList [("Done", Done), ("Expire", Expire), ("Remove", Remove)]
     in  decodeSumUnaries "Bomb" jsonDecDictBomb
 
@@ -784,12 +747,12 @@ jsonEncTrap  val =
 
 
 type Direction  =
-    To 
-    | From 
-    | Per 
+    To
+    | From
+    | Per
 
 jsonDecDirection : Json.Decode.Decoder ( Direction )
-jsonDecDirection = 
+jsonDecDirection =
     let jsonDecDictDirection = Dict.fromList [("To", To), ("From", From), ("Per", Per)]
     in  decodeSumUnaries "Direction" jsonDecDictDirection
 

@@ -8,7 +8,7 @@ import List.Extra as List
 import List.Nonempty as Nonempty exposing (Nonempty(..))
 
 import Game.Game as Game
-import Import.Model exposing (Channel, ChannelTag, Effect, Ninja, Status, Trap)
+import Import.Model exposing (Channel, Effect, Ninja, Status, Trap)
 import Util exposing (elem, groupBy)
 
 type alias Detail =
@@ -72,19 +72,6 @@ channel x =
     , effects = []
     , trap    = False
     , ghost   = False
-    , amount  = 1
-    }
-
-channelTag : ChannelTag -> Detail
-channelTag x =
-    { name    = x.skill.name
-    , desc    = x.skill.desc
-    , classes = x.skill.classes
-    , dur     = x.dur
-    , source  = x.source
-    , effects = []
-    , trap    = False
-    , ghost   = True
     , amount  = 1
     }
 

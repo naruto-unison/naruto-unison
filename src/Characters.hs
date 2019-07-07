@@ -75,7 +75,7 @@ doSkill :: Skill -> Skill
 doSkill skill = skill { Skill.classes = nub $ added ++ Skill.classes skill }
   where
     added = fst <$> filter snd
-            [ (All, True)
+            [ (All,       True)
             , (NonMental, Mental ∉ Skill.classes skill)
             , (Harmful,   harm)
             ]

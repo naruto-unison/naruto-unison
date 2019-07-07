@@ -46,7 +46,7 @@ rate : Int
 rate = 5
 
 total : Chakras -> Int
-total x = x.blood + x.gen + x.nin + x.tai
+total x = x.blood + x.gen + x.nin + x.tai + x.rand
 
 affordable : Chakras -> Chakras -> Bool
 affordable x y = rate < total { blood = if y.blood /= 0 then 0 else x.blood

@@ -15,6 +15,7 @@ User
     streak      Int
     clan        Text Maybe
     team        [Text] Maybe
+    practice    [Text]
     muted       Bool
     condense    Bool
     deriving Typeable
