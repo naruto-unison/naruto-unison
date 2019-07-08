@@ -4,6 +4,12 @@ The next generation of [Naruto Arena](naruto-arena.com), built from the ground u
 
 *Naruto* was created by Masashi Kishimoto, published by Pierrot Co., and licensed by Viz Media.
 
+![Character Select](static/img/screenshot/select.png)
+
+![Game](static/img/screenshot/game.png)
+
+![Changelog](static/img/screenshot/changelog.png)
+
 ## Installing
 
 1. Install [Stack](https://docs.haskellstack.org/en/stable/install_and_upgrade/), [PostgreSQL](https://www.postgresql.org/download/), and [NPM](https://www.npmjs.com/get-npm). Make sure all executables are added to your path.

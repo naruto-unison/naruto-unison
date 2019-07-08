@@ -460,7 +460,7 @@ previewBox st = case st.previewing of
             [ A.type_   "checkbox"
             , A.name    "condense"
             , A.checked st.form.condense
-            , E.onInput <| UpdateForm << Condense << (==) "on"
+            , E.onInput <| always << UpdateForm << Condense <| not st.form.condense
             ] []
           , H.span []
             [H.text "Show only the first version of each character in the selection grid"]

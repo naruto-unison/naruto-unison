@@ -110,7 +110,7 @@ unsilenced f = do
     if Context.user ctx == Context.target ctx then
         f
     else
-        whenM (Ninja.is Silence <$> nUser) f
+        unlessM (Ninja.is Silence <$> nUser) f
 
 -- | Applies a 'Ninja' transformation to the 'target'.
 toTarget :: ∀ m. MonadPlay m => (Ninja -> Ninja) -> m ()
