@@ -20,7 +20,7 @@ The next generation of [Naruto Arena](naruto-arena.com), built from the ground u
 
 3. In the root directory of the project, run `stack build`.
 
-4. Start up the PostgreSQL server,.
+4. Start up the PostgreSQL server.
 
 5. Create a new database and add it to the PostgreSQL [pg_hba.conf](https://www.postgresql.org/docs/9.1/auth-pg-hba-conf.html) file.
 
