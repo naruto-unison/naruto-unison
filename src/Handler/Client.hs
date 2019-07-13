@@ -31,7 +31,7 @@ import qualified Characters
 -- | Updates a user's profile.
 getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
 getUpdateR updateName updateCondense updateBackground updateAvatar
-  | "/img/icon/" /= take 10 updateAvatar =
+  | "/img/icon/" `isPrefixOf` updateAvatar =
       invalidArgs ["Invalid avatar"]
   | any (∉ legalChars) updateName        =
       invalidArgs ["Name can only contain letters and numbers"]
@@ -86,7 +86,7 @@ getPlayR = do
 charAvatars :: Character -> [Text]
 charAvatars char = toFile <$> "icon" : skills
   where
-    skills      = Skill.name . head <$> NonEmpty.take 4 (Character.skills char)
+    skills      = Skill.name . head <$> toList (Character.skills char)
     toFile path = "/img/ninja/" ++ shorten (tshow char) ++ "/"
                   ++ shorten path ++ ".jpg"
 

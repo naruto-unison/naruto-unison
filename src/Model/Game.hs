@@ -19,12 +19,11 @@ new = Game { chakra  = (0, 0)
            , delays  = []
            , playing = Player.A
            , victor  = []
-           -- , ninjas  = fromList $ zipWith Ninja.new ns Slot.all
            }
 
-newWithChakras :: ∀ m. MonadRandom m => m Game
-newWithChakras = do
-    randoms :: [Chakra] <- replicateM 3 R.chakra
+newWithChakras :: ∀ m. MonadRandom m => Int -> m Game
+newWithChakras numChakras = do
+    randoms :: [Chakra] <- replicateM numChakras R.chakra
     return $ adjustChakra Player.A (+ Chakra.collect randoms) new
 
 getChakra :: ∀ a. Parity a => a -> Game -> Chakras

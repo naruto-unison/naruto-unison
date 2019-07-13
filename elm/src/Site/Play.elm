@@ -54,6 +54,7 @@ type alias Model =
     , toggled    : Maybe Act
     , acts       : List Act
     , error      : String
+    , turn       : Int
     }
 
 type ExchangeMsg
@@ -71,7 +72,8 @@ type Msg
     | Toggle Act
     | Unhighlight
     | View Viewable
-    | DoNothing
+    | Timeout Int
+    | DoNothinge
 
 component ports =
   let
@@ -93,6 +95,7 @@ component ports =
         , toggled    = Nothing
         , acts       = []
         , error      = ""
+        , turn       = 0
         }
 
     view : Model -> Html Msg
@@ -101,13 +104,13 @@ component ports =
         characters  = List.map2 Game.merge st.characters st.game.ninjas
         costs       = Chakra.sum <| List.map (.cost << .skill) st.acts
         net         = Chakra.sum [st.exchanged, st.chakras, Chakra.negate costs]
-        turn        = st.player == st.game.playing
+        ownTurn     = st.player == st.game.playing
         rand        = Chakra.total st.randoms + net.rand
                       - Chakra.rate * Chakra.total st.exchanged
         free        = { net | rand = Chakra.total net + rand }
         acted       = List.map .user st.acts
         renderNinja = renderCharacter characters acted st.toggled st.highlight
-                      free turn
+                      free ownTurn
         pair name get chakra = ChakraPair name chakra (get net) (get st.randoms)
         chakraPairs = [ pair "blood" .blood { none | blood = 1 }
                       , pair "gen"   .gen   { none | gen   = 1 }
@@ -156,7 +159,7 @@ component ports =
                       :: clickIf condition "chakraButton" (Exchange msg)
                     ) [H.text text]
                 readyMeta =
-                    if not turn then
+                    if not ownTurn then
                         [A.id "ready", A.class "noclick"]
                     else if rand /= 0 then
                         [A.id "ready", A.class "noChakra"]
@@ -167,10 +170,10 @@ component ports =
                         ]
               in
                 [ H.section [A.id "playchakra"] <|
-                  List.map (renderChakra turn st.exchange net) chakraPairs ++
+                  List.map (renderChakra ownTurn st.exchange net) chakraPairs ++
                   [ Render.rands (Chakra.total net) rand
                   , chakraButton "Exchange" Begin <|
-                    free.rand >= 5 && Chakra.canExchange net && turn
+                    free.rand >= 5 && Chakra.canExchange net && ownTurn
                   , chakraButton "Reset" Reset <| st.exchanged /= Chakra.none
                   ]
                 , H.section [A.id "playqueuecont"]
@@ -233,6 +236,9 @@ component ports =
         case msg of
             View (ViewSkill _ targets _ _ as viewing) ->
                 pure { st | viewing = viewing, highlight = targets }
+            Timeout turn     ->
+                if turn == st.turn && not st.practice then
+                    (st, [ ports.websocket  ])
             View viewing     -> pure { st | viewing = viewing }
             DoNothing        -> pure st
             Unhighlight      -> pure { st | highlight = [] }
@@ -280,6 +286,8 @@ component ports =
                               ports.progress 60000 1 0
                           else
                               ports.progress 60000 0 1
+                        , Task.perform (always <| Timeout st.turn) 
+                            <| Process.sleep 60000 
                         ]
                     _        -> (st, ports.sound Sound.Death)
             Ready False url ->

@@ -75,11 +75,11 @@ data Chakra
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 toChakras :: Chakra -> Chakras
-toChakras Blood = Chakras 1 0 0 0 0
-toChakras Gen   = Chakras 0 1 0 0 0
-toChakras Nin   = Chakras 0 0 1 0 0
-toChakras Tai   = Chakras 0 0 0 1 0
-toChakras Rand  = Chakras 0 0 0 0 1
+toChakras Blood = 0 { blood = 1 }
+toChakras Gen   = 0 { gen   = 1 }
+toChakras Nin   = 0 { nin   = 1 }
+toChakras Tai   = 0 { tai   = 1 }
+toChakras Rand  = 0 { rand  = 1 }
 
 fromChakras :: ∀ m. (IsSequence m, Index m ~ Int, Element m ~ Chakra)
             => Chakras -> m

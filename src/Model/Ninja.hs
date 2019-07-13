@@ -65,10 +65,10 @@ new slot c = Ninja { slot      = slot
                    , defense   = []
                    , barrier   = []
                    , statuses  = []
-                   , charges   = replicate 4 0
+                   , charges   = replicate skillSize 0
                    , cooldowns = mempty
-                   , variants  = replicate 4 $ Variant.none :| []
-                   , copies    = replicate 4 Nothing
+                   , variants  = replicate skillSize $ Variant.none :| []
+                   , copies    = replicate skillSize Nothing
                    , channels  = []
                    , newChans  = []
                    , traps     = mempty
@@ -78,6 +78,8 @@ new slot c = Ninja { slot      = slot
                    , triggers  = mempty
                    , effects   = mempty
                    }
+  where
+    skillSize = length $ Character.skills c
 
 -- | Factory resets a 'Ninja' to its starting values.
 factory :: Ninja -> Ninja

@@ -38,7 +38,7 @@ cs =
           , p Enemy do
                 damage 30
                 stacks <- userStacks "Shadow Clone"
-                apply (stacks `quot` 2) [Stun All]
+                when (stacks >= 2) $ apply (stacks `quot` 2) [Stun All]
           , p REnemy $ damage 10
           ]
         }
@@ -305,7 +305,7 @@ cs =
       ]
     , [ invuln "Hide" "Shikamaru" [Mental] ]
     ] []
-  , let loadout = (0, 0, 0, False)
+  , let loadout = [0, 0, 0]
     in Character
     "Chōji Akimichi"
     "A genin from Team 10, Chōji is a voracious eater and loyal friend. His clan's special pills immensely magnify his innate strength and unlock different abilities, but the toll they take on his body can kill him if he pushes himself too far."

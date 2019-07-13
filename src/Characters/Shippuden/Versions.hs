@@ -10,7 +10,7 @@ import qualified Model.Trap as Trap
 
 cs :: [Category -> Character]
 cs =
-  [ let loadout = (1, 0, 0, True)
+  [ let loadout = [1, 0, 0, 0]
     in Character
     "Nine-Tailed Naruto"
     "Rage has triggered the beast within Naruto to emerge. As his hatred grows, so does the nine-tailed beast's power. If left unchecked, Kurama may break free of his seal, and Naruto himself will cease to exist."

@@ -77,7 +77,7 @@ $if not long
   <ul>
     $if long
       <img data-name=#{tagName} .char.head src="/img/ninja/#{shorten(tagName)}/icon.jpg">
-    $forall skills <- NonEmpty.take 4 $ Character.skills char
+    $forall skills <- Character.skills char
       <li>
         $forall skill <- separate skills
           <a .skill data-name=#{tagName}>#{Skill.name skill}

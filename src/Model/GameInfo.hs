@@ -62,7 +62,7 @@ censorNinja player ninjas n
   | otherwise              = n'
       { Ninja.cooldowns = mempty
       , Ninja.charges   = mempty
-      , Ninja.variants  = replicate 4 (Variant.none :| [])
+      , Ninja.variants  = const (Variant.none :| []) <$> Ninja.variants n
       , Ninja.channels  = filter filt $ Ninja.channels n
       , Ninja.lastSkill = Nothing
       }

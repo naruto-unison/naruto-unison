@@ -639,7 +639,7 @@ cs =
       ]
     , [ invuln "Dodge" "Lee" [Physical] ]
     ] []
-  , let loadout = (0, 0, 0, False)
+  , let loadout = [0, 0, 0]
     in Character
     "Tenten"
     "Now a chūnin, Tenten's arsenal has expanded to a prodigious stockpile of some of the most powerful weapons in existence, including the legendary fan of the Sage of the Six Paths. Taking any excuse to show off the size and variety of her collection, she has assembled multiple item sets to switch out at a moment's notice."

@@ -107,14 +107,12 @@ unsafeVary fromSkill dur s v = do
 
 -- | Adjusts all 'Ninja.variants' at once.
 varyLoadout :: ∀ m. MonadPlay m
-            => (Int, Int, Int, Bool) -- ^ 'Variant.Variant' offsets for first, second, and third slots, along with whether or not to affect the fourth slot.
+            => [Int]-- ^ 'Variant.Variant' offsets
             -> Int  -- ^ Counter added to all 'Variant.Variant' slots.
             -> m () -- ^ Recalculates every 'Variant.Variant' of a target 'Ninja.Ninja'.
-varyLoadout (a, b, c, affectsFourth) i = do
-    unsafeVary False 0 0 $ i + a
-    unsafeVary False 0 1 $ i + b
-    unsafeVary False 0 2 $ i + c
-    when affectsFourth $ unsafeVary False 0 3 i
+varyLoadout els i = traverse_ f $ zip [0..] els
+  where
+    f (slot, offset) = unsafeVary False 0 slot $ i + offset
 
 -- | Increments the 'Variant.variant' of a 'Ninja.variants' with matching
 -- 'Skill.name'.
@@ -165,14 +163,14 @@ copyLast (Duration -> dur) s = do
         Just lastSkill -> Execute.copy False Copy.Shallow target lastSkill
                           (user, Skill.name skill, s, dur)
 
--- | Copies a 'Skill.Skill' from the user into all four of the target's
+-- | Copies a 'Skill.Skill' from the user into all of the target's
 -- 'Ninja.copies' skill slots.
 teach :: ∀ m. MonadPlay m
       => Turns -- ^ 'Copy.dur'.
       -> (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.
       -> Int -- ^ User's skill slot of the 'Skill.Skill' to copy.
       -> m ()
-teach = teacher $ const . replicate 4
+teach = teacher $ map . const
 
 -- | Copies a 'Skill.Skill' from the user into a specific skill slot of the
 -- target's 'Ninja.copies'.

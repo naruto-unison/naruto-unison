@@ -236,10 +236,10 @@ minuteInMicroSeconds = 60000000
 tryEnact :: Player -> TChan Message.Game
          -> ReaderT IOWrapper (ReaderT Random.GenIO (WebSocketsT Handler)) ()
 tryEnact player writer = do
-    enactMessage <- lift . lift . Timeout.timeout minuteInMicroSeconds $
+    enactMessage <- lift . lift $ -- Timeout.timeout minuteInMicroSeconds $
                     Text.split (== '/') <$> WebSockets.receiveData
 
-    case formEnact =<< enactMessage of
+    case formEnact enactMessage of
         Nothing -> do
             Turn.run []
             conclude
@@ -263,13 +263,11 @@ enact actChakra exchangeChakra actions = do
     let chakra  = gameChakra + exchangeChakra - actChakra
     if | not . null $ drop Slot.teamSize actions -> err "Too many actions"
        | duplic $ Act.user <$> actions           -> err "Duplicate actors"
-       | any (not . inRange (0, 3)) skills       -> err "Action out of range"
        | randTotal < 0 || Chakra.lack chakra     -> err "Insufficient chakra"
        | any (Act.illegal player) actions        -> err "Character out of range"
        | otherwise                               -> Right <$> do
             P.alter . Game.setChakra player $ chakra { Chakra.rand = randTotal }
             Turn.run actions
   where
-    skills = lefts $ Act.skill <$> actions
     randTotal = Chakra.total actChakra - 5 * Chakra.total exchangeChakra
-    err = return . Left
+    err       = return . Left

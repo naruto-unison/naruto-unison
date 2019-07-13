@@ -40,10 +40,7 @@ skill (Left s)   n = Requirement.usable n (Just s) .
                      maybe (skill' n s v) Copy.skill . join . Seq.lookup s $
                      Ninja.copies n
     where
-      v
-        | s > 3     = 0
-        | otherwise = maybe 0 (Variant.variant . head) . Seq.lookup s $
-                      Ninja.variants n
+      v = maybe 0 (Variant.variant . head) . Seq.lookup s $ Ninja.variants n
 
 -- | All four skill slots of a 'Ninja' modified by 'skill'.
 skills :: Ninja -> [Skill]

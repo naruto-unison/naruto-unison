@@ -1,6 +1,6 @@
 # Naruto Unison
 
-The next generation of [Naruto Arena](naruto-arena.com), built from the ground up in Haskell and Elm.
+The next generation of Naruto Arena, built from the ground up in Haskell and Elm.
 
 *Naruto* was created by Masashi Kishimoto, published by Pierrot Co., and licensed by Viz Media.
 
@@ -31,3 +31,4 @@ The next generation of [Naruto Arena](naruto-arena.com), built from the ground u
 To use a development web server, run `stack exec -- yesod devel` in the root directory of the project.
 
 In order to run the server in production mode, which has significantly better performance, deploy it with [Keter](https://www.yesodweb.com/blog/2012/05/keter-app-deployment). It is recommended to use a standalone server for hosting the Keter bundle and PostgreSQL database.
+
