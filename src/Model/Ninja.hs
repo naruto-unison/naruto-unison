@@ -66,7 +66,7 @@ new slot c = Ninja { slot      = slot
                    , barrier   = []
                    , statuses  = []
                    , charges   = replicate skillSize 0
-                   , cooldowns = mempty
+                   , cooldowns = replicate skillSize mempty
                    , variants  = replicate skillSize $ Variant.none :| []
                    , copies    = replicate skillSize Nothing
                    , channels  = []

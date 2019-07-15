@@ -54,7 +54,6 @@ type alias Model =
     , toggled    : Maybe Act
     , acts       : List Act
     , error      : String
-    , turn       : Int
     }
 
 type ExchangeMsg
@@ -66,14 +65,13 @@ type Msg
     = Receive String
     | Enact ListChange Act
     | Exchange ExchangeMsg
-    | Ready Bool String
+    | Ready
     | ReceivePractice (Result Http.Error (List Game))
     | Spend Chakras
     | Toggle Act
     | Unhighlight
     | View Viewable
-    | Timeout Int
-    | DoNothinge
+    | DoNothing
 
 component ports =
   let
@@ -95,7 +93,6 @@ component ports =
         , toggled    = Nothing
         , acts       = []
         , error      = ""
-        , turn       = 0
         }
 
     view : Model -> Html Msg
@@ -166,7 +163,7 @@ component ports =
                     else
                         [ A.id "ready"
                         , A.class "click"
-                        , E.onClick << Ready st.practice <| enactUrl st
+                        , E.onClick Ready
                         ]
               in
                 [ H.section [A.id "playchakra"] <|
@@ -236,9 +233,6 @@ component ports =
         case msg of
             View (ViewSkill _ targets _ _ as viewing) ->
                 pure { st | viewing = viewing, highlight = targets }
-            Timeout turn     ->
-                if turn == st.turn && not st.practice then
-                    (st, [ ports.websocket  ])
             View viewing     -> pure { st | viewing = viewing }
             DoNothing        -> pure st
             Unhighlight      -> pure { st | highlight = [] }
@@ -279,32 +273,33 @@ component ports =
                     [victor] -> withSound
                         (if victor == st.player then Sound.Win else Sound.Lose)
                         st
-                    []       ->
-                        setGameAnd game st
+                    [] ->
+                        setGameAnd game st <|
                         [ ports.sound Sound.StartTurn
                         , if game.playing == st.player then
-                              ports.progress 60000 1 0
+                            ports.progress 60000 1 0
                           else
-                              ports.progress 60000 0 1
-                        , Task.perform (always <| Timeout st.turn) 
-                            <| Process.sleep 60000 
+                            ports.progress 60000 0 1
                         ]
-                    _        -> (st, ports.sound Sound.Death)
-            Ready False url ->
-                ( st
-                , Cmd.batch [ports.sound Sound.StartTurn, ports.websocket url]
-                )
-            Ready True url ->
-                ( { untoggled
-                  | exchange  = False
-                  , exchanged = Chakra.none
-                  }
-                  , Http.get
-                      { url    = st.url ++ "api/practiceact/" ++ url
-                      , expect = Http.expectJson ReceivePractice <|
-                                 D.list Model.jsonDecGame
+                    _ -> (st, ports.sound Sound.Death)
+            Ready ->
+                if st.practice then
+                    ( { untoggled
+                      | exchange  = False
+                      , exchanged = Chakra.none
                       }
-                )
+                      , Http.get
+                          { url    = st.url ++ "api/practiceact/" ++ enactUrl st
+                          , expect = Http.expectJson ReceivePractice <|
+                                    D.list Model.jsonDecGame
+                          }
+                    )
+                else
+                    ( st
+                    , Cmd.batch [ ports.sound Sound.StartTurn
+                                , ports.websocket <| enactUrl st
+                                ]
+                    )
             ReceivePractice (Ok([x, y])) ->
                 setGameAnd x st
                 [ ports.progress 1500 0 1

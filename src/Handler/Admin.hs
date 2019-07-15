@@ -7,15 +7,15 @@
 module Handler.Admin (getTestR) where
 
 import Yesod
-import Yesod.WebSockets (webSockets)
 
-import Core.App (Handler)
-import Handler.Play (gameSocket)
+import           Core.App (Handler)
+import qualified Class.Sockets as Sockets
+import           Handler.Play (gameSocket)
 
 -- | Provides a simple JavaScript interface for 'gameSocket'.
 getTestR :: Handler Html
 getTestR = do
-  webSockets gameSocket
+  Sockets.run gameSocket
   defaultLayout do
     setTitle "Socket Test"
     [whamlet|

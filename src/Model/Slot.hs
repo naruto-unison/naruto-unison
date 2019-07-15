@@ -27,15 +27,12 @@ maxVal = teamSize * 2 - 1
 -- It is hidden behind a newtype and cannot be constructed outside this module
 -- in order to prevent arithmetic manipulation and out-of-bounds errors.
 -- This has the added advantage of making function signatures more readable!
-newtype Slot = Slot Int deriving (Eq, Ord, Show, Read, ToJSON, Parity)
+newtype Slot = Slot { toInt :: Int }
+               deriving (Eq, Ord, Show, Read, ToJSON, Parity)
 
 instance Bounded Slot where
     minBound = Slot 0
     maxBound = Slot maxVal
-
-{-# INLINE toInt #-}
-toInt :: Slot -> Int
-toInt (Slot i) = i
 
 all :: [Slot]
 all = Slot <$> [0 .. maxVal]

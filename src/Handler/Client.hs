@@ -13,11 +13,10 @@ module Handler.Client
 import ClassyPrelude hiding (Handler, head)
 import Yesod
 
-import qualified Data.List.NonEmpty as NonEmpty
 import           Data.List.NonEmpty (head)
 import qualified Yesod.Auth as Auth
-import           Yesod.WebSockets (webSockets)
 
+import qualified Class.Sockets as Sockets
 import           Core.App (Handler)
 import           Core.Model (EntityField(..), User(..))
 import           Core.Settings (widgetFile)
@@ -59,7 +58,7 @@ getMuteR mute = do
 -- | Renders the gameplay client.
 getPlayR :: Handler Html
 getPlayR = do
-    webSockets gameSocket
+    Sockets.run gameSocket
     ma <- Auth.maybeAuth
     let (_, muser) = case ma of
           Just (Entity who user) -> (Just who, Just user)

@@ -21,4 +21,4 @@ data Game
 -- | Messages between all users queued for games.
 data Queue
     = Announce (Key User) User [Character]
-    | Respond  (Key User) (TChan Game) (TChan Game) GameInfo
+    | Respond  (Key User) (TBQueue Game) (TBQueue Game) GameInfo

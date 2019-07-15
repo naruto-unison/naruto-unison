@@ -8,9 +8,7 @@ import ClassyPrelude hiding (Handler)
 import Yesod
 
 import           Control.Monad.Loops (untilJust)
-import qualified Data.Aeson.Encoding as Encoding
 import qualified Data.Cache as Cache
-import           Data.Ix (inRange)
 import           Data.HashMap.Strict ((!))
 import           Data.List (transpose)
 import qualified Data.Text as Text
@@ -18,8 +16,6 @@ import qualified Database.Persist.Postgresql as Sql
 import qualified System.Random.MWC as Random
 import qualified UnliftIO.Timeout as Timeout
 import qualified Yesod.Auth as Auth
-import qualified Yesod.WebSockets as WebSockets
-import           Yesod.WebSockets (WebSocketsT)
 
 import qualified Core.App as App
 import           Core.App (Handler)
@@ -27,11 +23,12 @@ import           Core.Fields (Privilege(..))
 import qualified Core.Message as Message
 import           Core.Model (EntityField(..), User(..))
 import qualified Core.Wrapper as Wrapper
-import           Core.Wrapper (IOWrapper)
 import           Core.Util (duplic)
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
 import           Class.Random (MonadRandom)
+import qualified Class.Sockets as Sockets
+import           Class.Sockets (MonadSockets, SocketsT)
 import qualified Model.Act as Act
 import           Model.Act (Act)
 import qualified Model.Chakra as Chakra
@@ -119,7 +116,7 @@ getPracticeActR actChakra exchangeChakra actions = do
     enactPractice who practice = do
         res <- enact actChakra exchangeChakra actions
         case res of
-          Left errorMsg -> invalidArgs [errorMsg] -- !FAILS!
+          Left errorMsg -> invalidArgs [tshow errorMsg] -- !FAILS!
           Right ()      -> do
               game'A   <- Wrapper.freeze
               P.alter \g -> g
@@ -153,19 +150,15 @@ formEnact (actChakra:exchangeChakra:acts) = do
     return (actChakra', exchangeChakra', acts')
 formEnact _ = Nothing -- willywonka.gif
 
-sendJson :: ∀ a. ToJSON a => a -> WebSocketsT Handler ()
-sendJson = WebSockets.sendTextData .
-           Encoding.encodingToLazyByteString . toEncoding
-
 -- | Sends messages through 'TChan's in 'App.App'.
-gameSocket :: WebSocketsT Handler ()
+gameSocket :: SocketsT Handler ()
 gameSocket = do
-    app         <- getYesod
+    app         <- lift getYesod
     (who, user) <- Auth.requireAuthPair
-    teamNames   <- Text.split (=='/') <$> WebSockets.receiveData
+    teamNames   <- Text.split (=='/') <$> Sockets.receive
 
     case formTeam teamNames of
-      Nothing   -> WebSockets.sendTextData ("Invalid team" :: ByteString)
+      Nothing   -> Sockets.send "Invalid team"
       Just team -> do
         flip Sql.runSqlPool (App.connPool app) $
             update who [UserTeam =. Just (reverse teamNames)]
@@ -187,8 +180,8 @@ gameSocket = do
                               Player.A -> team `vs` vsTeam
                               Player.B -> vsTeam `vs` team
                       liftIO $ atomically do
-                          writer <- newTChan
-                          reader <- newTChan
+                          writer <- newTBQueue 8
+                          reader <- newTBQueue 8
                           writeTChan writeQueueChan $
                               Message.Respond vsWho reader writer
                               GameInfo.GameInfo
@@ -207,12 +200,12 @@ gameSocket = do
                                   }
                           return $ Just (info, writer, reader)
                   _ -> return Nothing
-              lift $ sendJson info
+              lift $ Sockets.sendJson info
               let player = GameInfo.player info
               Wrapper.fromInfo info >>= runReaderT do
                   when (player == Player.A) $ tryEnact player writer
                   completedGame <- untilJust do
-                      msg  <- liftIO . atomically $ readTChan reader
+                      msg  <- liftIO . atomically $ readTBQueue reader
                       case msg of
                           Message.Forfeit -> do
                               P.forfeit $ Player.opponent player
@@ -222,41 +215,39 @@ gameSocket = do
                                  Wrapper.game wrapper then
                                   return $ Just wrapper
                               else do
-                                  lift . lift . sendJson $
+                                  Sockets.clear
+                                  Sockets.sendJson $
                                       Wrapper.toJSON player wrapper
                                   Wrapper.replaceIO wrapper
                                   tryEnact player writer
                                   return Nothing
-                  lift . lift . sendJson $ Wrapper.toJSON player completedGame
-
-minuteInMicroSeconds :: Int
-minuteInMicroSeconds = 60000000
+                  Sockets.sendJson $ Wrapper.toJSON player completedGame
 
 -- | Wraps @enact@ with error handling.
-tryEnact :: Player -> TChan Message.Game
-         -> ReaderT IOWrapper (ReaderT Random.GenIO (WebSocketsT Handler)) ()
+tryEnact :: ∀ m. (MonadGame m, MonadRandom m, MonadSockets m, MonadUnliftIO m)
+         => Player -> TBQueue Message.Game -> m ()
 tryEnact player writer = do
-    enactMessage <- lift . lift $ -- Timeout.timeout minuteInMicroSeconds $
-                    Text.split (== '/') <$> WebSockets.receiveData
+    enactMessage <- Timeout.timeout 60000000 $ -- 1 minute
+                    Text.split (== '/') <$> Sockets.receive
 
-    case formEnact enactMessage of
+    case formEnact =<< enactMessage of
         Nothing -> do
             Turn.run []
             conclude
         Just (actChakra, exchangeChakra, actions) -> do
             res <- enact actChakra exchangeChakra actions
             case res of
-                Left errorMsg -> lift . lift $ WebSockets.sendTextData errorMsg
+                Left errorMsg -> Sockets.send errorMsg
                 Right ()      -> conclude
   where
     conclude = do
         wrapper <- Wrapper.freeze
-        lift . lift . sendJson $ Wrapper.toJSON player wrapper
-        liftIO . atomically . writeTChan writer $ Message.Enact wrapper
+        Sockets.sendJson $ Wrapper.toJSON player wrapper
+        atomically . writeTBQueue writer $ Message.Enact wrapper
 
 -- | Processes a user's actions and passes them to 'Turn.run'.
 enact :: ∀ m. (MonadGame m, MonadRandom m) => Chakras -> Chakras -> [Act]
-      -> m (Either Text ())
+      -> m (Either LByteString ())
 enact actChakra exchangeChakra actions = do
     player     <- P.player
     gameChakra <- Game.getChakra player <$> P.game

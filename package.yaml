@@ -32,6 +32,7 @@ dependencies:
 - persistent == 2.9.2
 - persistent-postgresql == 2.9.1
 - persistent-template == 2.5.4
+- resourcet == 1.2.2
 - shakespeare == 2.0.20
 - template-haskell == 2.14.0.0
 - text == 1.2.3.1
@@ -44,6 +45,7 @@ dependencies:
 - wai-extra == 3.0.26.1
 - wai-logger == 2.3.5
 - warp == 3.2.28
+- websockets == 0.12.5.3
 - yaml == 0.11.1.0
 - yesod == 1.6.0
 - yesod-auth == 1.6.7

@@ -45,6 +45,7 @@ data AppSettings = AppSettings
 
     , authDummyLogin         :: Bool
     -- ^ Indicate if auth dummy login should be enabled.
+
     }
 
 instance FromJSON AppSettings where
@@ -62,7 +63,7 @@ instance FromJSON AppSettings where
         port                   <- o .: "port"
         ipFromHeader           <- o .: "ip-from-header"
 
-        dev                       <- o .:? "development"   .!= defaultDev
+        dev                    <- o .:? "development"      .!= defaultDev
 
         detailedRequestLogging <- o .:? "detailed-logging" .!= dev
         shouldLogAll           <- o .:? "should-log-all"   .!= dev

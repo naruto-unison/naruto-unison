@@ -7,7 +7,7 @@ module Model.Requirement
 
 import ClassyPrelude
 
-import Data.Sequence ((!?))
+import Data.Vector ((!?))
 
 import           Core.Util ((∈), (∉), intersects)
 import qualified Class.Parity as Parity

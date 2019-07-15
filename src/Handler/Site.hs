@@ -15,7 +15,6 @@ import ClassyPrelude hiding (Handler)
 import Yesod
 
 import           Data.List (nubBy)
-import qualified Data.List.NonEmpty as NonEmpty
 
 import           Core.App (Handler, Route(..))
 import           Core.Model (Cite(..), EntityField(..))

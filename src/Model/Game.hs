@@ -13,6 +13,7 @@ import           Model.Internal (Game(..))
 import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra, Chakras)
 import qualified Model.Player as Player
+import qualified Model.Slot as Slot
 
 new :: Game
 new = Game { chakra  = (0, 0)
@@ -21,9 +22,9 @@ new = Game { chakra  = (0, 0)
            , victor  = []
            }
 
-newWithChakras :: ∀ m. MonadRandom m => Int -> m Game
-newWithChakras numChakras = do
-    randoms :: [Chakra] <- replicateM numChakras R.chakra
+newWithChakras :: ∀ m. MonadRandom m => m Game
+newWithChakras = do
+    randoms :: [Chakra] <- replicateM Slot.teamSize R.chakra
     return $ adjustChakra Player.A (+ Chakra.collect randoms) new
 
 getChakra :: ∀ a. Parity a => a -> Game -> Chakras

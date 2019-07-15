@@ -7,31 +7,25 @@ module Model.Internal where
 import ClassyPrelude
 
 import           Control.Monad.Reader (local, mapReaderT)
-import           Control.Monad.ST (ST)
 import           Control.Monad.Trans.Accum (AccumT, mapAccumT)
 import           Control.Monad.Trans.Except (ExceptT, mapExceptT)
 import           Control.Monad.Trans.Identity (IdentityT, mapIdentityT)
 import           Control.Monad.Trans.Select (SelectT, mapSelectT)
-import           Control.Monad.Trans.State.Strict (StateT, gets, modify', mapStateT)
+import           Control.Monad.Trans.State.Strict (StateT, mapStateT)
 import           Control.Monad.Trans.Writer (WriterT, mapWriterT)
 import           Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import           Data.Aeson ((.=), ToJSON(..), object)
 import           Data.List.NonEmpty (NonEmpty(..))
-import           Data.STRef
-import qualified Data.Vector as Vector (freeze, unsafeUpd)
-import qualified Data.Vector.Mutable as Vector
-import           Data.Vector.Mutable (IOVector, STVector)
 import           Text.Blaze (ToMarkup(..))
 import           Yesod.WebSockets (WebSocketsT)
 
-import           Core.Util ((!!), (∈), Lift, enumerate)
+import           Core.Util ((∈), Lift, enumerate)
 import qualified Class.Classed as Classed
 import           Class.Classed (Classed)
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
 import qualified Class.Labeled
 import           Class.Labeled (Labeled)
-import qualified Class.Random
 import           Class.Random (MonadRandom)
 import           Class.TurnBased (TurnBased(..))
 import           Model.Class (Class(..))
@@ -41,7 +35,7 @@ import           Model.Duration (Duration, sync, unsync)
 import           Model.Face (Face(..))
 import           Model.Player (Player)
 import qualified Model.Slot as Slot
-import           Model.Slot (Slot)
+import           Model.Slot (Slot(..))
 import           Model.Variant (Variant(..))
 
 data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show, Read)
@@ -284,10 +278,10 @@ instance Show Effect where
 data Ninja = Ninja { slot      :: Slot           -- ^ 'Model.Game.Ninjas' index (0-5)
                    , character :: Character
                    , health    :: Int                    -- ^ `Starts at` @100@
-                   , cooldowns :: Seq (Seq Int)          -- ^ Starts empty
-                   , charges   :: Seq Int                -- ^ Starts at 4 @0@s
-                   , variants  :: Seq (NonEmpty Variant) -- ^ Starts at 4 @0@s
-                   , copies    :: Seq (Maybe Copy)     -- ^ Starts at 4 'Nothing's
+                   , cooldowns :: Vector (Seq Int)       -- ^ Starts empty
+                   , charges   :: Vector Int             -- ^ Starts at @0@s
+                   , variants  :: Vector (NonEmpty Variant) -- ^ Starts at @0@s
+                   , copies    :: Vector (Maybe Copy)     -- ^ Starts at 'Nothing's
                    , defense   :: [Defense]              -- ^ Starts empty
                    , barrier   :: [Barrier]              -- ^ Starts empty
                    , statuses  :: [Status]               -- ^ Starts empty
@@ -689,56 +683,6 @@ instance ToJSON (Play a) where
     toJSON = const $ toJSON (Nothing :: Maybe ())
 
 type SavedPlay = (Context, Play ())
-
-data WrapperST s = WrapperST { stGame   :: STRef s Game
-                             , stNinjas :: STVector s Ninja
-                             }
-
-instance MonadGame (ReaderT (WrapperST s) (ST s)) where
-    game        = asks stGame   >>= lift . readSTRef
-    alter f     = asks stGame   >>= lift . flip modifySTRef' f
-    ninjas      = asks stNinjas >>= lift . Vector.freeze
-    ninja i     = asks stNinjas >>= lift . flip Vector.unsafeRead (Slot.toInt i)
-    write i x   = asks stNinjas >>= \xs ->
-                  Vector.unsafeWrite xs (Slot.toInt i) x
-    modify i f  = asks stNinjas >>= \xs ->
-                  Vector.unsafeModify xs f $ Slot.toInt i
-
-data WrapperIO = WrapperIO { ioGame   :: IORef Game
-                           , ioNinjas :: IOVector Ninja
-                           }
-
-instance MonadIO m => MonadGame (ReaderT WrapperIO m) where
-    game       = asks ioGame   >>= liftIO . readIORef
-    alter f    = asks ioGame   >>= liftIO . flip modifyIORef' f
-    ninjas     = asks ioNinjas >>= liftIO . Vector.freeze
-    ninja i    = asks ioNinjas >>=
-                 liftIO . flip Vector.unsafeRead (Slot.toInt i)
-    write i x  = asks ioNinjas >>= \xs ->
-                 liftIO $ Vector.unsafeWrite xs (Slot.toInt i) x
-    modify i f = asks ioNinjas >>= \xs ->
-                 liftIO . Vector.modify xs f $ Slot.toInt i
-
-data WrapperPure = WrapperPure { pureGame   :: Game
-                               , pureNinjas :: Vector Ninja
-                               }
-
-instance MonadGame (StateT WrapperPure Identity) where
-    game        = gets pureGame
-    alter f     = modify' \x -> x { pureGame = f $ pureGame x }
-    ninjas      = gets pureNinjas
-    ninja i     = (!! Slot.toInt i) <$> gets pureNinjas
-    write i x   = modify' \g -> g { pureNinjas = update $ pureNinjas g  }
-      where
-        update xs = Vector.unsafeUpd xs [(Slot.toInt i, x)]
-    modify i f  = modify' \g -> g { pureNinjas = modif $ pureNinjas g }
-      where
-        i'       = Slot.toInt i
-        modif xs = Vector.unsafeUpd xs [(i', f $ xs !! i')]
-    modifyAll f = modify' \g -> g { pureNinjas = f <$> pureNinjas g }
-instance MonadRandom (StateT WrapperPure Identity) where
-    random x = return . const x
-    shuffle  = return . id
 
 instance MonadGame m => MonadGame (ExceptT e m)
 instance MonadGame m => MonadGame (IdentityT m)

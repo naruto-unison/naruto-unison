@@ -11,11 +11,11 @@ import           Control.Monad.ST (ST)
 import           Control.Monad.Trans.State.Strict (StateT, gets, modify')
 import           Data.Aeson (Value)
 import           Data.STRef
-import qualified Data.Vector as Vector (freeze, thaw, unsafeUpd)
+import qualified Data.Vector as Vector (freeze, thaw)
 import qualified Data.Vector.Mutable as Vector
 import           Data.Vector.Mutable (IOVector, STVector)
 
-import           Core.Util ((!!))
+import           Core.Util ((!!), adjustVec, updateVec)
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
 import           Class.Random (MonadRandom(..))
@@ -84,13 +84,10 @@ instance MonadGame (StateT Wrapper Identity) where
     alter f     = modify' \x -> x { game = f $ game x }
     ninjas      = gets ninjas
     ninja i     = (!! Slot.toInt i) <$> gets ninjas
-    write i x   = modify' \g -> g { ninjas = update $ ninjas g  }
-      where
-        update xs = Vector.unsafeUpd xs [(Slot.toInt i, x)]
-    modify i f  = modify' \g -> g { ninjas = modif $ ninjas g }
-      where
-        i'       = Slot.toInt i
-        modif xs = Vector.unsafeUpd xs [(i', f $ xs !! i')]
+    write i x   = modify' \g ->
+        g { ninjas = updateVec (Slot.toInt i) x $ ninjas g }
+    modify i f  = modify' \g ->
+        g { ninjas = adjustVec f (Slot.toInt i) $ ninjas g }
     modifyAll f = modify' \g -> g { ninjas = f <$> ninjas g }
 instance MonadRandom (StateT Wrapper Identity) where
     random x = return . const x

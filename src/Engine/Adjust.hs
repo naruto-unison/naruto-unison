@@ -8,7 +8,7 @@ module Engine.Adjust
 import ClassyPrelude hiding (head)
 
 import           Data.List.NonEmpty ((!!), head)
-import qualified Data.Sequence as Seq
+import           Data.Vector ((!?))
 
 import           Core.Util ((∈), (∉))
 import qualified Class.Parity as Parity
@@ -37,10 +37,10 @@ skill' n s v = SkillTransform.change n $ cSkills !! s !! v
 skill :: Either Int Skill -> Ninja -> Skill
 skill (Right sk) n = Requirement.usable n Nothing sk
 skill (Left s)   n = Requirement.usable n (Just s) .
-                     maybe (skill' n s v) Copy.skill . join . Seq.lookup s $
+                     maybe (skill' n s v) Copy.skill . join . (!? s) $
                      Ninja.copies n
     where
-      v = maybe 0 (Variant.variant . head) . Seq.lookup s $ Ninja.variants n
+      v = maybe 0 (Variant.variant . head) . (!? s) $ Ninja.variants n
 
 -- | All four skill slots of a 'Ninja' modified by 'skill'.
 skills :: Ninja -> [Skill]

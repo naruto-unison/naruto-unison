@@ -13,6 +13,7 @@ import           Data.List.NonEmpty (head)
 import qualified Data.Sequence as Seq
 import           Data.Sequence ((|>))
 
+import           Core.Util ((!!), adjustVec)
 import qualified Model.Copy as Copy
 import           Model.Duration (sync)
 import qualified Model.Ninja as Ninja
@@ -25,17 +26,17 @@ import qualified Engine.SkillTransform as SkillTransform
 
 -- | Cooldowns of the currently active 'Skill's in all four slots of
 -- 'Ninja.variants'.
-active :: Ninja -> Seq Int
-active n = zipWith copyCd (Ninja.copies n) .
-           zipWith display (head <$> Ninja.variants n) $
-           Ninja.cooldowns n
+active :: Ninja -> Vector Int
+active n = [copyCd copy vari cd | copy <- Ninja.copies n
+                                | vari <- head <$> Ninja.variants n
+                                | cd   <- Ninja.cooldowns n
+                                ]
   where
-    display = (fromMaybe 0 .) . Seq.lookup . Variant.cooldown
     isShallow Copy.Shallow{} = True
     isShallow _              = False
-    copyCd (Just copied)
-        | isShallow . Skill.copying $ Copy.skill copied = const 0
-    copyCd _ = id
+    copyCd (Just copied) _ _
+        | isShallow . Skill.copying $ Copy.skill copied = 0
+    copyCd _ vari cd = fromMaybe 0 $ Seq.lookup (Variant.cooldown vari) cd
 
 -- Safely adjusts a row in 'Ninja.cooldowns' by appending to it if incomplete.
 adjust' :: Int -> (Int -> Int) -> Seq Int -> Seq Int
@@ -45,17 +46,15 @@ adjust' v f cds
   where
     len = length cds
 
--- Safely adjusts 'Ninja.cooldowns' by appending to it if incomplete.
+-- Safely adjusts 'Ninja.cooldowns'.
 adjust :: Int -- ^ 'Skill' index (0-3).
        -> Int -- ^ 'Variant.Variant' index in 'Character.skills' of 'Ninja.character'.
        -> (Int -> Int) -- ^ Adjustment function.
-       -> Seq (Seq Int) -> Seq (Seq Int)
+       -> Vector (Seq Int) -> Vector (Seq Int)
 adjust s v f cds
-  | len > s   = Seq.adjust' (adjust' v f) s cds
-  | otherwise = (cds ++ replicate (s - len) (singleton 0))
-                |> adjust' v f mempty
-  where
-    len = length cds
+  | s < 0           = cds
+  | s >= length cds = cds
+  | otherwise       = adjustVec (adjust' v f) s cds
 
 -- | Adds to an element in 'Ninja.cooldowns'.
 alter :: Int -- ^ Skill index (0-3)
@@ -64,42 +63,27 @@ alter :: Int -- ^ Skill index (0-3)
       -> Ninja -> Ninja
 alter s v cd n = n { Ninja.cooldowns = adjust s v (+ cd) $ Ninja.cooldowns n }
 
--- | Safely inserts an element into a row of 'Ninja.cooldowns' by appending to
--- it if incomplete.
-insert' :: Int -> Int -> Seq Int -> Seq Int
-insert' v toCd cds
-  | len > v   = Seq.update v toCd cds
-  | otherwise = (cds ++ replicate (v - len) 0) |> toCd
-  where
-    len = length cds
-
--- | Safely inserts an element into 'Ninja.cooldowns' by appending to it if
--- incomplete.
+-- | Safely inserts an element into 'Ninja.cooldowns'.
 insert :: Int -- ^ 'Skill' index (0-3).
        -> Int -- ^ 'Variant.Variant' index in 'Character.skills' of 'Ninja.character'.
        -> Int -- ^ New cooldown.
-       -> Seq (Seq Int)
-       -> Seq (Seq Int)
-insert s v toCd cds
-  | len > s   = Seq.adjust' (insert' v toCd) s cds
-  | otherwise = (cds ++ replicate (s - len) (singleton 0))
-                |> insert' v toCd mempty
-  where
-    len = length cds
+       -> Vector (Seq Int)
+       -> Vector (Seq Int)
+insert s v toCd = adjust s v $ const toCd
 
 -- | Updates an element in 'Ninja.cooldowns'.
 -- If 'True', also increments 'Ninja.charges'.
 update :: Bool -> Int -> Skill -> Int -> Ninja -> Ninja
 update True a skill s n =
     (update False a skill s n)
-    { Ninja.charges = Seq.adjust' (+ 1) s $ Ninja.charges n }
+    { Ninja.charges = adjustVec (+ 1) s $ Ninja.charges n }
 update False a skill s n
    | copied $ Skill.copying skill = n
    | Skill.cooldown skill == 0    = n
    | otherwise = n { Ninja.cooldowns = insert s vari cd' $ Ninja.cooldowns n }
   where
     cd'  = sync (Skill.cooldown skill) + 2 + 2 * a
-    vari = Variant.cooldown . head $ Ninja.variants n `Seq.index` s
+    vari = Variant.cooldown . head $ Ninja.variants n !! s
     copied Copy.NotCopied = False
     copied Copy.Shallow{} = True
     copied Copy.Deep{}    = False
