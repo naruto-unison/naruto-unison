@@ -17,8 +17,7 @@ import Data.List.NonEmpty (NonEmpty(..), (!!))
 import           Core.Util ((∈))
 import           Class.Play (Play)
 import           Class.TurnBased as TurnBased
-import qualified Model.Chakra as Chakra
-import           Model.Chakra (Chakra)
+import           Model.Chakra (Chakras)
 import qualified Model.Character as Character
 import           Model.Class (Class)
 import           Model.Effect (Effect(..))
@@ -64,23 +63,23 @@ addClass :: Class -> Skill.Transform
 addClass cla _ skill = skill { Skill.classes = cla : Skill.classes skill }
 
 -- | Replaces 'Skill.cost'.
-setCost :: [Chakra] -> Skill.Transform
-setCost chaks _ skill = skill { Skill.cost = Chakra.collect chaks }
+setCost :: Chakras -> Skill.Transform
+setCost chaks _ skill = skill { Skill.cost = chaks }
 
 -- | Multiplies 'Chakra's by 'Ninja.numActive' and adds the total to
 -- 'Skill.cost'.
-costPer :: Text -> [Chakra] -> Skill.Transform
+costPer :: Text -> Chakras -> Skill.Transform
 costPer name chaks n skill = skill { Skill.cost = Skill.cost skill + added }
   where
-    added = Chakra.collect chaks * fromIntegral (Ninja.numActive name n)
+    added = chaks * fromIntegral (Ninja.numActive name n)
 
 -- | Multiplies 'Chakra's by 'Ninja.numActive' and subtracts the total from
 -- 'Skill.cost'.
-reduceCostPer :: Text -> [Chakra] -> Skill.Transform
+reduceCostPer :: Text -> Chakras -> Skill.Transform
 reduceCostPer name chaks n skill =
     skill { Skill.cost = Skill.cost skill - added }
   where
-    added = Chakra.collect chaks * fromIntegral (Ninja.numActive name n)
+    added = chaks * fromIntegral (Ninja.numActive name n)
 
 -- | Multiplies some number of turns by 'Ninja.numActive' and adds the total to
 -- 'Skill.channel'.

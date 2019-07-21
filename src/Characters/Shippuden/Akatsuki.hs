@@ -16,7 +16,7 @@ cs =
         { Skill.name      = "Thousand Hungry Sharks"
         , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Each turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage to each enemy during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
         , Skill.classes   = [Chakra, Ranged, Single, Unreflectable, Resource]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
           [ p Self do
@@ -44,7 +44,7 @@ cs =
         { Skill.name      = "Man-Eating Sharks"
         , Skill.desc      = "Spends all stacks of [Hundred Hungry Sharks] to deal 5 piercing damage per stack to an enemy. Costs 1 random chakra during [Exploding Water Shockwave]."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.effects   =
           [ p Enemy do
                 stacks <- userStacks "Hundred Hungry Sharks"
@@ -62,7 +62,7 @@ cs =
         { Skill.name      = "Exploding Water Shockwave"
         , Skill.desc      = "As a giant orb of water fills the entire battlefield, Kisame merges with Samehada and transforms into a shark for 3 turns. While active, enemy cooldowns are increased by 1 and this skill becomes [Shark Dance][t]."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
         , Skill.channel   = Ongoing 3
         , Skill.start     =
@@ -76,7 +76,7 @@ cs =
         { Skill.name      = "Shark Dance"
         , Skill.desc      = "Deals 20 damage to an enemy and absorbs 1 random chakra."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Enemy do
                 absorb 1
@@ -88,7 +88,7 @@ cs =
         { Skill.name      = "Super Shark Bomb"
         , Skill.desc      = "Kisame traps an enemy for 1 turn. At the end of their turn, the target takes 30 damage. If they use a harmful chakra or mental skill while active, they will be countered and receive 20 additional damage."
         , Skill.classes   = [Chakra, Ranged, Bypassing, Invisible]
-        , Skill.cost      = k [Blood, Nin]
+        , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Enemy do
@@ -109,7 +109,7 @@ cs =
         { Skill.name      = "C1: Bird Bomb"
         , Skill.desc      = "Deidara hurls a clay bird at an enemy that explodes into shrapnel on impact, dealing 15 damage to the target and weakening their non-affliction damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C3: Megaton Sculpture][n][r]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
         , Skill.classes   = [Chakra, Ranged, Nonstacking]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemy do
                 damage 15
@@ -121,7 +121,7 @@ cs =
         { Skill.name      = "C3: Megaton Sculpture"
         , Skill.desc      = "Deidara drops a large explosive on the enemy team, dealing 20 damage to them and weakening their non-affliction damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C1: Bird Bomb]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
         , Skill.classes   = [Chakra, Ranged, Nonstacking]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ p Enemies do
                 damage 20
@@ -133,7 +133,7 @@ cs =
         { Skill.name      = "C2: Dragon Missile"
         , Skill.desc      = "Deidara's dragon fires a long-range bomb at an opponent, dealing 30 damage and weakening their non-affliction damage by 5 for 4 turns. Does not stack."
         , Skill.classes   = [Chakra, Ranged, Bypassing, Nonstacking]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -146,7 +146,7 @@ cs =
         { Skill.name      = "C2: Clay Dragon"
         , Skill.desc      = "Deidara sculpts a dragon out of clay and takes off, gaining 35 destructible defense for 3 turns. While active, this skill becomes [C2: Minefield][r]."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Self do
@@ -159,7 +159,7 @@ cs =
         { Skill.name      = "C2: Minefield"
         , Skill.desc      = "Deidara scatters mines that burrow into the ground around an enemy. The next time they use a non-mental skill within 2 turns, they will take 10 damage and their non-affliction damage will be weakened by 5 for 4 turns. Does not stack."
         , Skill.classes   = [Chakra, Ranged, InvisibleTraps, Nonstacking]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Enemy $ trap (-2) (OnAction NonMental) do
@@ -173,7 +173,7 @@ cs =
         { Skill.name      = "C4: Karura"
         , Skill.desc      = "A cloud of microscopic bombs enter an enemy's bloodstream and repeatedly detonate, dealing 10 affliction damage to the target each turn for the rest of the game and weakening their non-affliction damage by 5. Once used, this skill becomes [C0: Ultimate Art][b][n][n]."
         , Skill.classes   = [Bane, Chakra, Ranged, Uncounterable, Unremovable, Unreflectable]
-        , Skill.cost      = k [Blood, Nin]
+        , Skill.cost      = [Blood, Nin]
         , Skill.effects   =
           [ p Enemy $ apply 0 [Afflict 10, Weaken All Flat 5]
           , p Self  $ vary "C4: Karura" "C0: Ultimate Art"
@@ -183,7 +183,7 @@ cs =
         { Skill.name      = "C0: Ultimate Art"
         , Skill.desc      = "Deidara fills his veins with explosives and becomes art. If he his health is at or below 40, he deals 35 affliction damage to all enemies and dies."
         , Skill.classes   = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
-        , Skill.cost      = k [Blood, Nin, Nin]
+        , Skill.cost      = [Blood, Nin, Nin]
         , Skill.effects   =
           [ p Enemies do
                 hp <- user health
@@ -214,7 +214,7 @@ cs =
         { Skill.name      = "First Blood"
         , Skill.desc      = "Searching for a victim to join him in his ritual of death, Hidan deals 5 damage to an opponent and marks them for 2 turns. For 2 turns, this skill becomes [Blood Curse Ritual][g]."
         , Skill.classes   = [Physical, Unreflectable, Unremovable]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemy do
                 damage 5
@@ -227,7 +227,7 @@ cs =
         , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, harmful skills used on Hidan and the target are also reflected to each other and this skill becomes [Death Blow][t][g]. Hidan ignores status effects from enemies except chakra cost changes, although his target does not. Damage that Hidan deals to himself while Linked to a living target heals him instead."
         , Skill.require   = HasU "First Blood"
         , Skill.classes   = [Soulbound, Uncounterable, Unreflectable, Unremovable]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.effects   =
           [ p Self do
                 stacks <- userStacks "jashin"
@@ -252,7 +252,7 @@ cs =
         { Skill.name      = "Death Blow"
         , Skill.desc      = "Hidan impales himself through his chest, dealing 50 piercing damage to himself."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Gen, Tai]
+        , Skill.cost      = [Gen, Tai]
         , Skill.effects   =
           [ p Self do
                 has <- userHas "bloodlink"
@@ -268,7 +268,7 @@ cs =
         { Skill.name      = "Self-Mutilation"
         , Skill.desc      = "Hidan tears a gash in his stomach with his scythe, dealing 35 piercing damage to himself and stunning himself for 1 turn."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Self do
@@ -285,7 +285,7 @@ cs =
         { Skill.name      = "Prayer"
         , Skill.desc      = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for 1 turn. Each time this skill is used, it costs 1 additional random chakra and its effect lasts 1 additional turn. Cannot be used while active."
         , Skill.classes   = [Mental, Single, Uncounterable, Unreflectable, Unremovable]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Self do
                 stacks <- userStacks "jashin"
@@ -359,7 +359,7 @@ cs =
         { Skill.name      = "Underground Roots"
         , Skill.desc      = "Tree roots emerge from the ground and wrap around an enemy, dealing 20 damage for 2 turns. While active, the target's damage is weakened by half. As White Zetsu, this skill becomes [White Army][g]."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Blood, Rand]
+        , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2
         , Skill.channel   = Action 2
         , Skill.effects   =
@@ -372,7 +372,7 @@ cs =
         { Skill.name      = "White Army"
         , Skill.desc      = "Zetsu creates numerous clones of himself which deal 5 damage to all enemies for 5 turns. As Black Zetsu, this skill becomes [Underground Roots][b][r]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.channel   = Ongoing 5
         , Skill.effects   =
           [ p Enemies $ damage 5 ]
@@ -383,13 +383,13 @@ cs =
         , Skill.desc      = "Zetsu seizes an enemy and makes use of their abilities. As White Zetsu, this skill deals 20 damage, steals 1 random chakra, stuns their non-mental skill for 1 turn, and replaces itself with the last skill they used for 1 turn. As Black Zetsu, this skill causes the target's next reflectable non-unique skill to target allies instead of enemies and enemies instead of allies."
         , Skill.require   = Unusable
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         }
       , Skill.new
         { Skill.name      = "Body Coating"
         , Skill.desc      = "Zetsu melts and flows over an enemy, taking control of their body. The next skill they use will target allies instead of enemies and enemies instead of allies. Does not stack. As White Zetsu, this skill becomes [Doppelgänger][t][r]."
         , Skill.classes   = [Mental, Melee, Single, Invisible, Unreflectable]
-        , Skill.cost      = k [Blood, Gen]
+        , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Enemy $ apply 0 [Swap All] ]
@@ -398,7 +398,7 @@ cs =
         { Skill.name      = "Doppelgänger"
         , Skill.desc      = "Zetsu seizes an enemy and alters his chakra to match their own, dealing 20 damage, absorbing 1 random chakra, and stunning their non-mental skills for 1 turn. The last skill they used replaces this skill for 1 turn. Zetsu's copy of their skill has no chakra cost and ends when this skill reverts. As Black Zetsu, this skill becomes [Body Coating][b][g]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -418,7 +418,7 @@ cs =
         { Skill.name      = "Scorpion Tail Constriction"
         , Skill.desc      = "Sasori shifts Hiruko into offensive mode and seizes an enemy, dealing 10 damage and stunning their non-mental skills for 1 turn. The target receives 10 additional damage from skills for the rest of the turn. Once used, this skill becomes [Scorpion Tail Strike][t][r]."
         , Skill.classes   = [Bane, Physical, Ranged]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemy do
                 damage 10
@@ -430,7 +430,7 @@ cs =
         { Skill.name      = "Scorpion Tail Strike"
         , Skill.desc      = "Hiruko's poison-drenched tail stabs at an enemy, dealing 20 damage and 20 affliction damage. For 2 turns, the target's skills cost 2 additional random chakra."
         , Skill.classes   = [Bane, Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ p Enemy do
                 damage 20
@@ -443,7 +443,7 @@ cs =
         { Skill.name      = "Hidden Toxic Needles"
         , Skill.desc      = "Sasori shifts Hiruko into a defensive stance and takes aim at his enemies for 1 turn. If the enemy team uses any skills, they will receive 15 affliction damage for 2 turns. At the end of the turn, Sasori gains 20 permanent destructible defense."
         , Skill.classes   = [Bane, Physical, Ranged, Single, InvisibleTraps]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Self $ delay 1 $ defend 0 20
@@ -460,7 +460,7 @@ cs =
         { Skill.name      = "Defensive Puppeteering"
         , Skill.desc      = "Hiruko swings his tail about to knock back enemies, gaining 10 destructible defense and restoring 10 health for 2 turns. While active, Sasori ignores effects that prevent him from reducing damage or becoming invulnerable."
         , Skill.classes   = [Physical]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.channel   = Control 2
         , Skill.cooldown  = 3
         , Skill.effects   =
@@ -490,7 +490,7 @@ cs =
         { Skill.name      = "Iron Sand: World Order"
         , Skill.desc      = "Using the third Kazekage's magnetic abilities, Sasori shapes his Iron Sand into a massive tangle of branching iron spikes that looms overhead. As it comes crashing down on the battlefield, it deals 10 piercing damage to all enemies and 5 additional damage per stack of Iron Sand."
         , Skill.classes   = [Physical]
-        , Skill.cost      = k [Blood, Nin]
+        , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Enemies do
@@ -504,7 +504,7 @@ cs =
         , Skill.desc      = "Sasori directs the Kazekage puppet to single out an enemy and gains 20 destructible defense for 2 turns. While Sasori has destructible defense from this skill, he deals 10 damage and 10 affliction damage to the target."
         , Skill.require   = HasI 1 "Iron Sand"
         , Skill.classes   = [Bane, Physical, Melee]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.channel   = Action 2
         , Skill.cooldown  = 3
         , Skill.start     =
@@ -524,7 +524,7 @@ cs =
         , Skill.desc      = "Countless concealed arms lash out from Sasori's Kazekage puppet and flail wildly for 1 turn, pinning down anyone they catch. Enemies who do not use harmful skills next turn will be pinned for 1 turn, unable to reduce damage or become invulnerable. While active, this skill becomes [Poison Gas][r][r]."
         , Skill.require   = HasI 1 "Iron Sand"
         , Skill.classes   = [Physical, Melee, Unreflectable]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.channel   = Control 1
         , Skill.effects   =
@@ -536,7 +536,7 @@ cs =
         { Skill.name      = "Poison Gas"
         , Skill.desc      = "Sasori emits a cloud of poisonous gas, dealing 15 affliction damage to all enemies. Next turn, enemy cooldowns are increased by 1 and enemy chakra costs are increased by 1 random. Lasts 2 turns on targets pinned by [Thousand Arms]."
         , Skill.classes   = [Bane, Ranged]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ p Enemies do
                 afflict 15
@@ -554,7 +554,7 @@ cs =
         { Skill.name      = "Poisonous Chain Skewer"
         , Skill.desc      = "Sasori hooks an enemy with the poison-soaked steel ropes inside his body and pulls himself to them, dealing 5 affliction damage for 3 turns. Next turn, the target can only target Sasori or themselves. Once used, this skill becomes [Impale][t]."
         , Skill.classes   = [Bane, Ranged, Unreflectable]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemy do
                 apply 3 [Afflict 5]
@@ -572,7 +572,7 @@ cs =
         { Skill.name      = "Impale"
         , Skill.desc      = "Sasori stabs an enemy with a poison-soaked blade, dealing 15 piercing damage immediately and 5 affliction damage for 2 turns. If the target is affected by [Poisonous Chain Skewer], they become affected by [Complex Toxin], which stuns them after 2 turns. Once used, this skill becomes [Poisonous Chain Skewer]."
         , Skill.classes   = [Bane, Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Self do
                 vary "Poisonous Chain Skewer" baseVariant
@@ -593,7 +593,7 @@ cs =
         { Skill.name      = "Flamethrower Jets"
         , Skill.desc      = "Using fuel stored in a sealing scroll, Sasori shoots flames at an enemy for 3 turns, dealing 10 affliction damage each turn. While active, Sasori is invulnerable to all other enemies and ignores status effects from enemies except chakra cost changes. If Sasori uses any skill, [Flamethrower Jets] is canceled. After use, this skill becomes [Cutting Water Jets][n]."
         , Skill.classes   = [Ranged, Unreflectable]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.channel   = Action 3
         , Skill.cooldown  = 3
         , Skill.effects   =
@@ -611,7 +611,7 @@ cs =
         { Skill.name      = "Cutting Water Jets"
         , Skill.desc      = "Sasori shoots a high-pressure jet of water at an enemy, dealing 20 piercing damage. Deals 10 additional damage if the target is affected by [Flamethrower Jets]. Ends [Flamethrower Jets]. Once used, this skill becomes [Flamethrower Jets]."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.effects   =
           [ p Enemy do
                 bonus <- 10 `bonusIf` targetHas "Flamethrower Jets"
@@ -629,7 +629,7 @@ cs =
         { Skill.name      = "Performance of a Hundred Puppets"
         , Skill.desc      = "Proving his reputation as the greatest puppeteer in history, Sasori takes control of 100 puppets, each acting as pure extensions of his will. Sasori gains 50 permanent destructible defense and provides 25 permanent destructible defense to his allies. As long as Sasori has destructible defense from this skill, this skill becomes [Barrage of a Hundred Puppets][r][r]."
         , Skill.classes   = [Physical, Single]
-        , Skill.cost      = k [Tai, Rand, Rand]
+        , Skill.cost      = [Tai, Rand, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ p Self do
@@ -649,7 +649,7 @@ cs =
         { Skill.name      = "Barrage of a Hundred Puppets"
         , Skill.desc      = "Sasori commands his puppet army to attack an enemy, dealing 30 damage and applying [Complex Toxin] to the target, which stuns them after 2 turns."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ p Enemy do
                 damage 30
@@ -671,7 +671,7 @@ cs =
         { Skill.name      = "Summoning: Giant Centipede"
         , Skill.desc      = "Pain summons a huge centipede behind an enemy to ambush them. It deals 15 damage to them for 2 turns, and if the target does not use a skill during that time, they will be stunned for 1 turn. Once used, this skill becomes [Summoning: Giant Crustacean][r][r]."
         , Skill.classes   = [Physical, Melee, Summon]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.channel   = Ongoing 2
         , Skill.start     =
@@ -688,7 +688,7 @@ cs =
         { Skill.name      = "Summoning: Giant Crustacean"
         , Skill.desc      = "Pain summons a huge foaming lobster that sprays spittle over the battlefield. For 2 turns, all enemies take 10 affliction damage and their cooldowns are increased by 1 turn. While active, the lobster provides 10 points of damage reduction to Pain and her team. Once used, this skill becomes [Summoning: Giant Centipede][n]."
         , Skill.classes   = [Chakra, Ranged, Summon]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.channel   = Ongoing 2
         , Skill.start     =
@@ -705,7 +705,7 @@ cs =
         { Skill.name      = "Summoning: Giant Panda"
         , Skill.desc      = "Pain summons a huge panda that defends herself or an ally, providing 20 permanent destructible defense and making them invulnerable for 2 turns."
         , Skill.classes   = [Physical, Summon]
-        , Skill.cost      = k [Nin, Blood]
+        , Skill.cost      = [Nin, Blood]
         , Skill.cooldown  = 4
         , Skill.channel   = Ongoing 2
         , Skill.start     =
@@ -720,7 +720,7 @@ cs =
         , Skill.desc      = "Pain summons a huge Cerberus hound that deals 10 piercing damage to all enemies for 2 turns. The first enemy to use a harmful skill on Pain or her allies will extend the effect of this skill on them by 2 turns. Cannot be used while active."
         , Skill.require   = HasI (-1) "Summoning: Giant Multi-Headed Dog"
         , Skill.classes   = [Physical, Melee, Summon, Bypassing, Unreflectable]
-        , Skill.cost      = k [Blood, Rand ]
+        , Skill.cost      = [Blood, Rand ]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
           [ p Enemies $ tag 2
@@ -749,7 +749,7 @@ cs =
         { Skill.name      = "Chakra Shield"
         , Skill.desc      = "Pain creates a protective barrier around himself and his allies which reflects the next skill used on each."
         , Skill.classes   = [Chakra, Ranged, Invisible, Single, Unreflectable]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Allies $ apply 0 [Reflect] ]
@@ -759,7 +759,7 @@ cs =
         { Skill.name      = "Preta Drain"
         , Skill.desc      = "Pain absorbs an enemy's chakra, dealing 25 damage and absorbing 1 random chakra."
         , Skill.classes   = [Melee, Chakra]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -772,7 +772,7 @@ cs =
         { Skill.name      = "Ninjutsu Absorption"
         , Skill.desc      = "Pain nullifies an enemy's chakra, preventing them from using skills that cost bloodline or ninjutsu chakra for 1 turn."
         , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy $ apply 1 [Stun Bloodline, Stun Ninjutsu] ]
@@ -787,7 +787,7 @@ cs =
         { Skill.name      = "Summoning: King of Hell"
         , Skill.desc      = "Pain calls upon a timeless being tied to the power of the rinnegan which exists beyond life and death. The King of Hell provides 20 permanent destructible defense to Pain. While Pain has destructible defense from the King of Hell, this skill becomes [Energy Transfer][g]."
         , Skill.classes   = [Mental, Summon]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Self do
@@ -800,7 +800,7 @@ cs =
         { Skill.name      = "Energy Transfer"
         , Skill.desc      = "Pain restores health to himself or an ally equal to his remaining defense from [Summoning: King of Hell]."
         , Skill.classes   = [Mental]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Ally do
@@ -813,7 +813,7 @@ cs =
         { Skill.name      = "Choke Hold"
         , Skill.desc      = "Pain seizes an enemy by the throat, dealing 20 damage to them and stunning their non-mental skills for 1 turn."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -826,7 +826,7 @@ cs =
         { Skill.name      = "Judgment"
         , Skill.desc      = "Judging an enemy unworthy, the King of Hell absorbs 20 of their health. If Pain has destructible defense from [Summoning: King of Hell], the absorbed health is added to its destructible defense. Absorbs 20 additional health if the target is affected by [Choke Hold]."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -844,7 +844,7 @@ cs =
         { Skill.name      = "Mind Invasion"
         , Skill.desc      = "Pain invades the mind of an enemy, dealing 15 damage. Reveals invisible effects from the target and the target's cooldowns for 1 turn."
         , Skill.classes   = [Mental, Melee, Unreflectable]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemy do
                 damage 15
@@ -857,7 +857,7 @@ cs =
         , Skill.desc      = "Pain draws out the lifeforce of an enemy affected by [Mind Invasion], stealing 20 health and absorbing 1 random chakra. Reveals invisible effects from the target and the target's cooldowns for 1 turn."
         , Skill.require   = HasU "Mind Invasion"
         , Skill.classes   = [Mental, Melee, Unreflectable]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Enemy do
@@ -872,7 +872,7 @@ cs =
         , Skill.desc      = "Pain pulls out the soul of an enemy affected by [Mind Invasion], stealing 30 health. If their health reaches 30 or lower, they die; if not, he absorbs 1 random chakra from them and stuns them for 1 turn. Reveals invisible effects from the target and the target's cooldowns for 1 turn."
         , Skill.require   = HasU "Mind Invasion"
         , Skill.classes   = [Mental, Melee, Unreflectable]
-        , Skill.cost      = k [Gen, Tai]
+        , Skill.cost      = [Gen, Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Enemy do
@@ -892,7 +892,7 @@ cs =
         { Skill.name      = "Metal Blade"
         , Skill.desc      = "Pain attacks an enemy with a blade that unfolds from his body, dealing 15 piercing damage. The target takes 10 affliction damage each turn until one of their allies uses a skill on them."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Enemy do
@@ -906,7 +906,7 @@ cs =
         { Skill.name      = "Missile Salvo"
         , Skill.desc      = "Pain launches a cluster of missiles at an enemy, dealing 10 damage to them for 2 turns and removing the effects of helpful skills from them. Once used, this skill becomes [Head Cannon][r][r]."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.channel   = Action 2
         , Skill.start     =
@@ -919,7 +919,7 @@ cs =
         { Skill.name      = "Head Cannon"
         , Skill.desc      = "Pain's head opens up to reveal a cannon, which explodes and deals 20 piercing damage to all enemies. Once used, this skill becomes [Missile Salvo][r][r]."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemies $ pierce 20
@@ -943,7 +943,7 @@ cs =
         { Skill.name      = "Bloodline Missile"
         , Skill.desc      = "Deals 25 damage to the target of [Guided Missile] and 25 damage to a random enemy."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.effects   =
           [ p Enemies $ whenM (targetHas "Guided Missile") $ damage 25
           , p REnemy  $ damage 25
@@ -956,7 +956,7 @@ cs =
         { Skill.name      = "Genjutsu Missile"
         , Skill.desc      = "Deals 20 damage to the target of [Guided Missile] and prevents them from reducing damage or becoming invulnerable for 2 turns."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.effects   =
           [ p Enemies $ whenM (targetHas "Guided Missile") do
                 damage 25
@@ -970,7 +970,7 @@ cs =
         { Skill.name      = "Ninjutsu Missile"
         , Skill.desc      = "Deals 25 damage to the target of [Guided Missile] and stuns them for 1 turn."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.effects   =
           [ p Enemies $ whenM (targetHas "Guided Missile") do
                 damage 25
@@ -984,7 +984,7 @@ cs =
         { Skill.name      = "Taijutsu Missile"
         , Skill.desc      = "Deals 30 piercing damage to the target of [Guided Missile]."
         , Skill.classes   = [Physical, Ranged, Bypassing]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Enemies $ whenM (targetHas "Guided Missile") $ pierce 30
           ,  p Self do
@@ -1002,7 +1002,7 @@ cs =
         { Skill.name      = "Almighty Push"
         , Skill.desc      = "Pain targets himself or an ally. The first harmful skill used on them next turn will be countered, and the person countered will receive 20 damage. Once used, this skill alternates between [Universal Pull] and [Almighty Push] each turn. "
         , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.channel   = Passive
         , Skill.start     =
           [ p Ally $ apply 1 [Parry All $ Play $ damage 20]
@@ -1022,7 +1022,7 @@ cs =
         { Skill.name      = "Almighty Push"
         , Skill.desc      = "Pain targets himself or an ally. The first harmful skill used on them next turn will be countered, and the person countered will receive 20 damage. This skill will become [Universal Pull] next turn."
         , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.effects   =
           [ p Ally $ apply 1 [Parry All $ Play $ damage 20]
           , p Self $ tag' "Tidal Force" 1
@@ -1032,7 +1032,7 @@ cs =
         { Skill.name      = "Universal Pull"
         , Skill.desc      = "Pain manipulates gravity to pull an enemy toward him, ending their Action and Control skills in progress. Next turn, the target can only target Pain or themselves. If [Almighty Push] was used last turn, its effect is applied to Pain. This skill will become [Almighty Push] next turn."
         , Skill.classes   = [Chakra, Ranged, Unreflectable]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.effects   =
           [ p Enemy do
                 interrupt
@@ -1047,7 +1047,7 @@ cs =
         { Skill.name      = "Chakra Receiver"
         , Skill.desc      = "Pain pierces an enemy with a black rod that attunes them to his chakra, dealing 15 piercing damage and applying 15 permanent destructible barrier. Starting 1 turn from now, while the target has destructible barrier from this skill, they are stunned every other turn."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -1063,7 +1063,7 @@ cs =
         { Skill.name      = "Planetary Devastation"
         , Skill.desc      = "Pain creates a gravitational anchor that pulls in an enemy and accumulates a rough sphere of rock and debris around them, applying 80 destructible barrier for 3 turns. While the target has destructible barrier from this skill, they are immune to effects from allies and invulnerable. At the end of the 3 turns, the target will receive damage equal to the remaining destructible barrier from this skill."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Blood, Gen, Tai]
+        , Skill.cost      = [Blood, Gen, Tai]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Enemy $
@@ -1080,7 +1080,7 @@ cs =
         { Skill.name      = "Summoning: Gedo Statue"
         , Skill.desc      = "Nagato summons the empty vessel of the ten-tailed beast, which provides 10 points of damage reduction to him for 3 turns. While active, Nagato can use his other skills and this skill becomes [Control][r]."
         , Skill.classes   = [Mental, Summon, Unremovable]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
         , Skill.channel   = Control (-4)
         , Skill.start     =
@@ -1107,7 +1107,7 @@ cs =
         { Skill.name      = "Control"
         , Skill.desc      = "Nagato attempts to maintain control over the Gedo statue for a little longer, prolonging [Summoning: Gedo Statue] for 2 additional turns. Until it ends, [Summoning: Gedo Statue] provides 5 additional points of damage reduction up to a maximum of 25 and [Phantom Dragon] deals 5 additional damage. This skill has no chakra cost if [Phantom Dragon] was used last turn."
         , Skill.classes   = [Mental]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Self do
@@ -1123,7 +1123,7 @@ cs =
         { Skill.name      = "Phantom Dragon"
         , Skill.desc      = "Nagato summons a dragon to attack an enemy for 20 piercing damage. Costs 1 genjutsu chakra during [Summoning: Gedo Statue]."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
           [ p Enemy $ pierce 20
           , p Self  $ tag 1
@@ -1133,7 +1133,7 @@ cs =
         { Skill.name      = "Phantom Dragon"
         , Skill.desc      = "Nagato summons a dragon to attack an enemy for 20 piercing damage. During [Summoning: Gedo Statue], costs 1 genjutsu chakra and deals 5 additional damage per stack of [Control]."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.effects   =
           [ p Enemy do
                 stacks <- userStacks "dragon"
@@ -1147,7 +1147,7 @@ cs =
         , Skill.desc      = "Nagato draws on the strength of the Outer Path to infuse life into himself and his allies. During each of the next 3 turns, Nagato restores 15 health to his team, resets their cooldowns, and gains 1 random chakra. Requires [Summoning: Gedo Statue]."
         , Skill.require   = HasI 1 "Summoning: Gedo Statue"
         , Skill.classes   = [Mental]
-        , Skill.cost      = k [Blood, Gen, Nin]
+        , Skill.cost      = [Blood, Gen, Nin]
         , Skill.cooldown  = 6
         , Skill.channel   = Control 3
         , Skill.effects   =
@@ -1167,7 +1167,7 @@ cs =
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time a harmful skill is used on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
         , Skill.classes   = [Mental, Invisible, Single]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Self $ apply 0 [Parry All $ Play do
@@ -1179,7 +1179,7 @@ cs =
         { Skill.name      = "Kamui"
         , Skill.desc      = "Tobi banishes a target to his pocket dimension for 3 turns, preventing them from affecting or being affected by anyone else. If used on an ally, cures all harmful effects on them. If used on an enemy, deals 20 piercing damage and prevents them from reducing damage or becoming invulnerable. Ends if Tobi uses [Kamui Strike] on someone else."
         , Skill.classes   = [Chakra, Ranged, Single, Unreflectable]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p XAlly do
@@ -1197,7 +1197,7 @@ cs =
         { Skill.name      = "Kamui Strike"
         , Skill.desc      = "Tobi teleports behind an enemy and deals 20 piercing damage to them. Deals 20 additional damage if the target is affected by [Kamui]."
         , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.effects   =
           [ p Enemy do
                 has <- targetHas "Kamui"
@@ -1213,7 +1213,7 @@ cs =
         { Skill.name      = "Izanagi"
         , Skill.desc      = "Tobi sacrifices one of his eyes to take control of reality on a local scale. 2 turns from now, he will be restored to his current state."
         , Skill.classes   = [Mental, Invisible]
-        , Skill.cost      = k [Blood, Blood]
+        , Skill.cost      = [Blood, Blood]
         , Skill.charges   = 2
         , Skill.effects   =
           [ p Self $ snapshot 2 ]

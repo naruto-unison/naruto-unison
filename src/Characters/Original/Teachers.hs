@@ -16,7 +16,7 @@ cs =
         { Skill.name      = "Shuriken Throw"
         , Skill.desc      = "Iruka throws a shuriken at an enemy, dealing 20 damage plus 10 per 25 health Iruka has lost."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Enemy do
                 hp <- user health
@@ -28,7 +28,7 @@ cs =
         { Skill.name      = "Ally Shield"
         , Skill.desc      = "Using himself as a shield, Iruka makes an ally invulnerable for 1 turn."
         , Skill.classes   = [Physical]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p XAlly $ apply 1 [Invulnerable All] ]
@@ -38,7 +38,7 @@ cs =
         { Skill.name      = "Capture and Arrest"
         , Skill.desc      = "Iruka traps an enemy in an area filled with his paper bombs. If the target uses a skill on Iruka or his allies during their next turn, they will receive 40 damage, and physical and chakra skills will deal 25 additional damage to them for 1 turn."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Enemy $ trap 1 OnHarm do
@@ -56,7 +56,7 @@ cs =
         { Skill.name      = "Kunai Assault"
         , Skill.desc      = "Mizuki throws a series of kunai at an enemy, dealing 15 damage for 2 turns. Deals all 30 damage instantly during [Successful Ambush]."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.channel   = Action 2
         , Skill.effects   =
@@ -66,7 +66,7 @@ cs =
         { Skill.name      = "Kunai Assault"
         , Skill.desc      = "Mizuki throws a series of kunai at an enemy, dealing 15 damage for 2 turns. Deals all 30 damage instantly during [Successful Ambush]."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy $ damage 30 ]
@@ -76,7 +76,7 @@ cs =
         { Skill.name      = "Execution Shuriken"
         , Skill.desc      = "Mizuki throws one of his two giant shurikens at an enemy, dealing 10 damage plus 10 per 20 health the target has lost. Deals 30 additional damage during [Successful Ambush]."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.charges   = 2
         , Skill.effects   =
           [ p Enemy do
@@ -90,7 +90,7 @@ cs =
         { Skill.name      = "Genjutsu Ambush Tactics"
         , Skill.desc      = "Mizuki lurks in the shadows. If no enemy uses a skill that deals damage to him, he becomes invulnerable for 1 turn and his other skills are empowered."
         , Skill.classes   = [Mental, InvisibleTraps]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Self do
@@ -112,7 +112,7 @@ cs =
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Kakashi anticipates any attacks against him, copying them faster than their user. All harmful skills that target Kakashi next turn will be reflected."
         , Skill.classes   = [Chakra, Melee, Invisible]
-        , Skill.cost      = k [Nin, Tai]
+        , Skill.cost      = [Nin, Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Self $ apply 1 [ReflectAll] ]
@@ -122,7 +122,7 @@ cs =
         { Skill.name      = "Summoning: Ninja Hounds"
         , Skill.desc      = "A pack of giant dogs bite at an enemy, stunning the target's non-mental skills for 1 turn."
         , Skill.classes   = [Physical, Ranged, Summon]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Enemy $ apply 1 [Stun NonMental] ]
@@ -132,7 +132,7 @@ cs =
         { Skill.name      = "Lightning Blade"
         , Skill.desc      = "Kakashi devastates an enemy with a blast of lightning chakra, dealing 50 piercing damage. Instantly kills targets affected by [Summoning: Ninja Hounds]."
         , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = k [Nin, Tai]
+        , Skill.cost      = [Nin, Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -166,7 +166,7 @@ cs =
         { Skill.name      = "Dragon Flame"
         , Skill.desc      = "Fire scorches the battlefield, dealing 10 affliction damage to all enemies for 2 turns. All of Anko's damage is increased by 5 against targets affected by [Dragon Flame]. During [Dual Pin], this skill becomes [Twin Snake Sacrifice][n][n]."
         , Skill.classes   = [Bane, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Enemies $ apply 2 [Afflict 10] ]
@@ -176,7 +176,7 @@ cs =
         , Skill.desc      = "Kills Anko and the target of [Dual Pin]."
         , Skill.require   = HasU "Dual Pin"
         , Skill.classes   = [Melee]
-        , Skill.cost      = k [Nin, Nin]
+        , Skill.cost      = [Nin, Nin]
         , Skill.effects   =
           [ p Enemies $ kill
           , p Self    $ killHard
@@ -187,7 +187,7 @@ cs =
         { Skill.name      = "Striking Shadow Snakes"
         , Skill.desc      = "Numerous snakes attack an enemy, dealing 20 damage instantly and 5 affliction damage each turn for 3 turns."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ p Enemy do
                 bonus <- 5 `bonusIf` targetHas "Dragon Flame"
@@ -205,7 +205,7 @@ cs =
         { Skill.name      = "Secret Sword"
         , Skill.desc      = "Hayate leaps and attacks an enemy from above, dealing 15 damage. Permanently increases Hayate's damage by 5."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Enemy $ damage 15
           , p Self  $ apply 0 [Strengthen All Flat 5]
@@ -216,7 +216,7 @@ cs =
         { Skill.name      = "Crescent Moon Dance"
         , Skill.desc      = "Performing a genjutsu-aided triple sword strike, Hayate deals 30 damage to an enemy. Catching his opponents off guard, he also counters the first harmful skill used on him in the next turn."
         , Skill.classes   = [Mental, Melee]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy $ damage 30
@@ -228,7 +228,7 @@ cs =
         { Skill.name      = "Transparency Technique"
         , Skill.desc      = "Hayate melds into shadows, increasing his damage by 10 for 3 turns. Each turn, he gains 1 turn of damage reduction: 25 points on the first turn, 15 points on the second, and 5 points on the third."
         , Skill.classes   = [Mental, Unremovable]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Self do
@@ -248,7 +248,7 @@ cs =
         { Skill.name      = "Demonic Illusion: Entrap"
         , Skill.desc      = "Kurenai hinders an enemy with her genjutsu, dealing 10 damage. For 2 turns, the target's non-affliction damage is weakened by 10, the chakra costs of their skills is increased by 1 random chakra, and they cannot reduce damage or become invulnerable. Adds 5 destructible defense to Kurenai's next [Illusory Tree Meld]."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Enemy do
@@ -262,7 +262,7 @@ cs =
         { Skill.name      = "Illusory Tree Meld"
         , Skill.desc      = "Kurenai melds into an illusory tree, gaining 10 permanent destructible defense."
         , Skill.classes   = [Mental]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Self do
@@ -276,7 +276,7 @@ cs =
         { Skill.name      = "Demonic Illusion: Sylvan Fetters"
         , Skill.desc      = "Kurenai traps an enemy in a powerful genjutsu, stunning them for 2 turns. Adds 5 destructible defense to Kurenai's next [Illusory Tree Meld] each turn. While active, this skill becomes [Sylvan Fetters Attack][r]."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Gen, Gen]
+        , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 4
         , Skill.channel   = Control 2
         , Skill.start     =
@@ -293,7 +293,7 @@ cs =
         , Skill.desc      = "Deals 30 piercing damage to the target of [Demonic Illusion: Sylvan Fetters]."
         , Skill.require   = HasU "Demonic Illusion: Sylvan Fetters"
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemy $ pierce 30 ]
         }
@@ -307,7 +307,7 @@ cs =
         { Skill.name      = "Flying Swallow"
         , Skill.desc      = "Asuma carries out a series of chakra-enhanced knife attacks. For 2 turns, he deals 15 damage to all enemies and provides 15 points of damage reduction to his team. While active, this skill becomes [Finishing Blow][n][r] and [Sharpen Blades] becomes [Flying Kick][t][r]."
         , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
-        , Skill.cost      = k [Nin, Tai]
+        , Skill.cost      = [Nin, Tai]
         , Skill.cooldown  = 2
         , Skill.channel   = Action 2
         , Skill.start     =
@@ -326,7 +326,7 @@ cs =
         { Skill.name      = "Finishing Blow"
         , Skill.desc      = "Deals 35 damage to an enemy and stuns them for 1 turn."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -339,7 +339,7 @@ cs =
         { Skill.name      = "Sharpen Blades"
         , Skill.desc      = "Asuma sharpens his blades, increasing the duration of his next [Flying Swallow] by 1 additional turn."
         , Skill.classes   = [Physical]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Self addStack ]
         }
@@ -347,7 +347,7 @@ cs =
         { Skill.name      = "Flying Kick"
         , Skill.desc      = "Deals 35 damage to an enemy."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ p Enemy $ damage 35 ]
         }
@@ -356,7 +356,7 @@ cs =
         { Skill.name      = "Self-Sacrifice"
         , Skill.desc      = "Asuma continually protects one ally. All harmful skills used on the target will be reflected to Asuma. This skill can be used again with no chakra cost to cancel its effect."
         , Skill.classes   = [Physical, Melee, Soulbound, Unreflectable]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p XAlly do
                 userSlot <- user slot
@@ -385,7 +385,7 @@ cs =
         { Skill.name      = "Leaf Hurricane"
         , Skill.desc      = "Guy delivers a powerful spinning kick to an enemy, dealing 30 damage. Deals 30 additional damage and bypasses invulnerability during [Sixth Gate Opening]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ p Enemy do
                 bonus <- 30 `bonusIf` userHas "Sixth Gate Opening"
@@ -398,7 +398,7 @@ cs =
         { Skill.name      = "Sixth Gate Opening"
         , Skill.desc      = "Guy loses 40 health down to a minimum of 1 and becomes invulnerable for 2 turns."
         , Skill.classes   = [Mental]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Self do
@@ -411,7 +411,7 @@ cs =
         { Skill.name      = "Counter Punch"
         , Skill.desc      = "Guy singles out an enemy. If the target uses a harmful skill next turn, they will be countered and receive 30 damage."
         , Skill.classes   = [Physical, Melee, Invisible]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Enemy $ trap 1 (OnCounter All) $ damage 30 ]
@@ -426,7 +426,7 @@ cs =
         { Skill.name      = "Sudden Strike"
         , Skill.desc      = "Baki performs a blindingly fast attack concealed by decoy illusory trails, dealing 20 piercing damage to an enemy."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.effects   =
           [ p Enemy $ pierce 20 ]
         }
@@ -435,7 +435,7 @@ cs =
         { Skill.name      = "Wind Sword"
         , Skill.desc      = "A maelstrom of stabbing wind deals 40 piercing damage to an enemy."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Gen, Nin]
+        , Skill.cost      = [Gen, Nin]
         , Skill.effects   =
           [ p Enemy $ pierce 40 ]
         }
@@ -444,7 +444,7 @@ cs =
         { Skill.name      = "Flak Jacket"
         , Skill.desc      = "Using a top-of-the-line Hidden Sand Village flak jacket, Baki provides 50 destructible defense to himself or an ally. While the target has destructible defense from this skill, they ignore status effects from enemies except chakra cost changes."
         , Skill.classes   = [Physical]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6
         , Skill.effects   =
           [ p Ally do
@@ -463,7 +463,7 @@ cs =
         { Skill.name      = "Poison Needle Volley"
         , Skill.desc      = "Shizune shoots hidden needles at an enemy, dealing 15 damage."
         , Skill.classes   = [Bane, Physical, Ranged]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemy $ damage 15 ]
         }
@@ -472,7 +472,7 @@ cs =
         { Skill.name      = "Poison Fog"
         , Skill.desc      = "Shizune spews forth a toxic cloud to poison an enemy, causing them to receive 10 affliction damage for 3 turns. Cannot be used on an enemy already affected by [Poison Fog]."
         , Skill.classes   = [Bane, Ranged, Single]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy $ apply 3 [Afflict 10] ]
@@ -482,7 +482,7 @@ cs =
         { Skill.name      = "Regenerative Healing Technique"
         , Skill.desc      = "Using a notoriously difficult healing technique, Shizune restores 35 health to herself or an ally and cures them of enemy effects."
         , Skill.classes   = [Chakra]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p XAlly do

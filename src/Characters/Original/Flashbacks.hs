@@ -16,7 +16,7 @@ cs =
         { Skill.name      = "Refocus"
         , Skill.desc      = "Konohamaru tries his best to concentrate on the fight. For 3 turns, effects from his allies on him are twice as powerful. While active, this skill becomes [Unsexy Technique][n]."
         , Skill.classes   = [Mental]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Self do
@@ -29,7 +29,7 @@ cs =
         { Skill.name      = "Unsexy Technique"
         , Skill.desc      = "Konohamaru distracts an enemy with his modified version of the transformation technique he learned from Naruto. For 1 turn, the target is immune to effects from their allies and cannot reduce damage, become invulnerable, counter, or reflect."
         , Skill.classes   = [Chakra]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy $ apply 1 [Seal, Expose, Uncounter] ]
@@ -39,7 +39,7 @@ cs =
         { Skill.name      = "Throw a Fit"
         , Skill.desc      = "Konohamaru freaks out and punches wildly at an enemy, dealing 10 damage to them for 3 turns. Deals 5 additional damage per skill affecting Konohamaru from his allies."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.channel   = Action 3
         , Skill.effects   =
@@ -53,7 +53,7 @@ cs =
         { Skill.name      = "Throw a Shuriken"
         , Skill.desc      = "Konohamaru flings a shuriken almost too big for his hands at an enemy, dealing 10 damage and 10 additional damage per skill affecting Konohamaru from his allies."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Enemy do
               helpful <- user numHelpful
@@ -70,7 +70,7 @@ cs =
         { Skill.name      = "Gentle Fist"
         , Skill.desc      = "Hiashi slams an enemy, dealing 20 damage and depleting 1 random chakra. Next turn, he repeats the attack on a random enemy."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
         , Skill.start     =
           [ p Self $ flag
@@ -89,7 +89,7 @@ cs =
         { Skill.name      = "Eight Trigrams Palm Rotation"
         , Skill.desc      = "Hiashi spins toward an enemy, becoming invulnerable for 2 turns and dealing 15 damage to the target and 10 to all other enemies each turn."
         , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = k [Blood, Rand]
+        , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
         , Skill.channel   = Action 2
         , Skill.start     =
@@ -103,7 +103,7 @@ cs =
         { Skill.name      = "Eight Trigrams Air Palm Wall"
         , Skill.desc      = "Hiashi prepares to blast an enemy's attack back. The first harmful skill used on him or his allies next turn will be reflected."
         , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Enemies $ trap (-1) OnReflectAll $
@@ -120,7 +120,7 @@ cs =
         { Skill.name      = "Chain Bind"
         , Skill.desc      = "Chōza slows an enemy, dealing 5 damage and weakening their physical and chakra damage by 10 for 1 turn. Chōza's team gains 5 permanent destructible defense."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemy do
                 damage 5
@@ -133,7 +133,7 @@ cs =
         { Skill.name      = "Human Boulder"
         , Skill.desc      = "Chōza transforms into a rolling juggernaut. For 3 turns, he deals 15 damage to an enemy and provides 10 destructible defense to himself and his allies for 1 turn. Each turn, if the target is affected by [Chain Bind], it lasts 1 additional turn on them."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Blood, Rand]
+        , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
         , Skill.channel   = Action 3
         , Skill.effects   =
@@ -151,7 +151,7 @@ cs =
         { Skill.name      = "Partial Expansion"
         , Skill.desc      = "If used on an enemy, the next harmful non-mental skill they use will be countered. If used on an ally, the next harmful non-mental skill used on them will be countered. The person countered will receive 10 damage, bypassing invulnerability."
         , Skill.classes   = [Physical, Melee, Single, Invisible, Unreflectable]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p XAlly $ apply 0 [Parry NonMental $ Play $ damage 10]
@@ -168,7 +168,7 @@ cs =
         { Skill.name      = "Psycho Mind Transmission"
         , Skill.desc      = "Inoichi invades the mind of an enemy, dealing 20 damage to them for 2 turns. While active, the target cannot use counter or reflect skills."
         , Skill.classes   = [Mental, Melee, Uncounterable, Unreflectable]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.channel   = Control 2
         , Skill.effects   =
@@ -182,7 +182,7 @@ cs =
         { Skill.name      = "Sensory Radar"
         , Skill.desc      = "Inoichi steps back and focuses on the tide of battle. Each time an enemy uses a harmful skill, Inoichi will recover 10 health and gain a stack of [Sensory Radar]. While active, this skill becomes [Sensory Radar: Collate][r]."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.effects   =
           [ p Self $ vary "Sensory Radar" "Sensory Radar: Collate"
           , p Enemies $ trap 0 OnHarm $ self do
@@ -194,7 +194,7 @@ cs =
         { Skill.name      = "Sensory Radar: Collate"
         , Skill.desc      = "Inoichi compiles all the information he has gathered and puts it to use. For every stack of [Sensory Radar], he gains 1 random chakra. Ends [Sensory Radar]."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemies $ removeTrap "Sensory Radar"
           ,  p Self do
@@ -209,7 +209,7 @@ cs =
         { Skill.name      = "Mental Invasion"
         , Skill.desc      = "Inoichi preys on an enemy's weaknesses. For 4 turns, all invulnerability skills used by the target will have their duration reduced by 1 turn. While active, anyone who uses a harmful mental skill on the target will become invulnerable for 1 turn."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Enemy do
@@ -227,7 +227,7 @@ cs =
         { Skill.name      = "Double Tetragram Seal"
         , Skill.desc      = "Kushina seals away an enemy's power, dealing 15 piercing damage, stunning them for 1 turn, depleting 1 random chakra, and permanently weakening their damage by 5."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -242,7 +242,7 @@ cs =
         { Skill.name      = "Life Link"
         , Skill.desc      = "Kushina binds her life-force to that of an enemy. For 4 turns, if either dies, the other will die as well. Effect cannot be avoided, prevented, or removed."
         , Skill.classes   = [Mental, Ranged, Bypassing, Unremovable, Uncounterable, Unreflectable]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ p Enemy do
@@ -257,7 +257,7 @@ cs =
         { Skill.name      = "Adamantine Sealing Chains"
         , Skill.desc      = "A cage of chain-shaped chakra seals an enemy, removing the effects of helpful skills from them and stunning them for 2 turns. While active, the target is immune to effects from allies and invulnerable."
         , Skill.classes   = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
-        , Skill.cost      = k [Blood, Gen]
+        , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Enemy do
@@ -275,7 +275,7 @@ cs =
         { Skill.name      = "Flying Raijen"
         , Skill.desc      = "Minato teleports to a target, becoming invulnerable for 1 turn. If he teleports to an enemy, he deals 30 damage. If he teleports to an ally, the ally becomes invulnerable for 1 turn."
         , Skill.classes   = [Physical, Melee, Bypassing]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
         [ p Self $ apply 1 [Invulnerable All]
         , p XAllies $
@@ -295,7 +295,7 @@ cs =
         { Skill.name      = "Sensory Technique"
         , Skill.desc      = "Minato's senses expand to cover the battlefield, preventing enemies from reducing damage or becoming invulnerable for 2 turns. Each turn, Minato gains 1 random chakra."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 3
         , Skill.channel   = Control 2
         , Skill.effects   =
@@ -308,7 +308,7 @@ cs =
         { Skill.name      = "Space-Time Marking"
         , Skill.desc      = "For 3 turns, [Flying Raijen] marks its target for 1 turn. Using [Flying Raijen] causes marked allies to become invulnerable for 1 turn and deals 30 damage to marked enemies, bypassing invulnerability."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Gen, Nin]
+        , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 6
         , Skill.effects   =
           [ p Self $ tag 3 ]
@@ -323,7 +323,7 @@ cs =
         { Skill.name      = "Space-Time Marking"
         , Skill.desc      = "Minato opportunistically marks targets to use as teleport destinations for avoiding attacks. Next turn, allies and enemies who do not use a skill will be marked by this skill for 4 turns. Minato gains 5 points of damage reduction for each marked target. This skill stacks."
         , Skill.classes   = [Physical, Ranged, InvisibleTraps]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p XAllies $ delay 0 $ trap 1 OnNoAction do
@@ -339,7 +339,7 @@ cs =
         { Skill.name      = "Teleportation Barrier"
         , Skill.desc      = "Space warps around Minato or one of his allies. The first harmful skill used on the target next turn will be reflected."
         , Skill.classes   = [Chakra, Ranged, Unreflectable]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Ally $ apply 1 [Reflect] ]
@@ -349,7 +349,7 @@ cs =
         { Skill.name      = "Rasengan"
         , Skill.desc      = "Minato teleports behind an enemy and slams an orb of chakra into them, dealing 20 damage. In quick succession, he teleports between all enemies affected by [Space-Time Marking], dealing 20 damage for every stack of [Space-Time Marking] on them."
         , Skill.classes   = [Chakra, Melee, Bypassing]
-        , Skill.cost      = k [Blood, Rand]
+        , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ p Enemy $ damage 20
           , p Enemies do
@@ -373,7 +373,7 @@ cs =
       ]
     ] []
   , let kannon = changeWith "Veritable 1000-Armed Kannon" \_ skill ->
-                 skill { Skill.channel = Action 3, Skill.cost = k [Blood] }
+                 skill { Skill.channel = Action 3, Skill.cost = [Blood] }
     in Character
     "Hashirama Senju"
     "The founder and first Hokage of the Hidden Leaf Village, Hashirama is headstrong and enthusiastic. He believes with all his heart that communities should behave as families, taking care of each other and protecting their children from the cruelties of war. Due to a unique genetic mutation, Hashirama is able shape wood into defensive barriers and constructs."
@@ -381,7 +381,7 @@ cs =
         { Skill.name      = "Wooden Dragon"
         , Skill.desc      = "A vampiric dragon made of wood drains chakra from Hashirama's enemies, making him invulnerable to chakra skills for 2 turns. While active, Hashirama absorbs 1 random chakra from his enemies each turn."
         , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = k [Blood, Rand]
+        , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2
         , Skill.channel   = Action 2
         , Skill.effects   =
@@ -395,7 +395,7 @@ cs =
         { Skill.name      = "Wood Golem"
         , Skill.desc      = "A giant humanoid statue attacks an enemy for 2 turns, dealing 20 damage each turn. While active, Hashirama is invulnerable to physical skills."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Blood, Rand]
+        , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2
         , Skill.channel   = Action 2
         , Skill.effects   =
@@ -409,7 +409,7 @@ cs =
         { Skill.name      = "Veritable 1000-Armed Kannon"
         , Skill.desc      = "A titanic many-handed Buddha statue looms over the battlefield, providing 30 permanent destructible defense to Hashirama and his allies. For the next 3 turns, [Wooden Dragon] and [Wood Golem] cost 1 fewer random chakra and last 1 additional turn."
         , Skill.classes   = [Physical]
-        , Skill.cost      = k [Blood, Blood]
+        , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Allies $ defend 0 30
@@ -426,7 +426,7 @@ cs =
         { Skill.name      = "White Light Blade"
         , Skill.desc      = "Kakashi deals 20 piercing damage to an enemy with his sword. For 1 turn, the target's non-affliction damage is weakened by 5 and Kakashi's damage is increased by 5."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Enemy do
                 damage 20
@@ -440,7 +440,7 @@ cs =
         { Skill.name      = "Amateur Lightning Blade"
         , Skill.desc      = "Using an early form of his signature technique, Kakashi deals 20 piercing damage to one enemy. For 1 turn, the target's non-affliction damage is weakened by 5 and Kakashi's damage is increased by 5."
         , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.effects   =
           [ p Enemy do
                 damage 20
@@ -472,7 +472,7 @@ cs =
         { Skill.name      = "Pit Trap"
         , Skill.desc      = "An enemy falls into a pit and is trapped there for 1 turn. At the end of their turn, the target takes 15 piercing damage. If they used a skill that turn, they take 15 additional damage. While active, Rin gains 15 points of damage reduction."
         , Skill.classes   = [Invisible, Bypassing]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.effects   =
           [ p Self $ apply 1 [Reduce All Flat 15]
           , p Enemy do
@@ -487,7 +487,7 @@ cs =
         { Skill.name      = "Mystical Palm Healing"
         , Skill.desc      = "Rin restores 25 health to herself or an ally and cures the target of enemy effects."
         , Skill.classes   = [Chakra]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.effects   =
           [ p Ally do
                 cureAll
@@ -499,7 +499,7 @@ cs =
         { Skill.name      = "Medical Kit"
         , Skill.desc      = "Rin or one of her allies uses her medical kit for 3 turns, restoring 10 health each turn and strengthening their healing skills by 10 points."
         , Skill.classes   = [Physical, Unremovable]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Ally $ apply 3 [Bless 10, Heal 10] ]
@@ -514,7 +514,7 @@ cs =
         { Skill.name      = "Piercing Stab"
         , Skill.desc      = "Spotting an opening in his enemy's defense, Obito stabs them to deal 15 piercing damage. Deals 10 additional damage during [Sharingan]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemy do
                 bonus <- 10 `bonusIf` userHas "Sharingan"
@@ -526,7 +526,7 @@ cs =
         { Skill.name      = "Grand Fireball"
         , Skill.desc      = "Obito breathes searing fire on an enemy, dealing 15 affliction damage for 2 turns. During [Sharingan], this skill deals the full 30 affliction damage instantly and has no cooldown."
         , Skill.classes   = [Bane, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy $ apply 2 [Afflict 15] ]
@@ -535,7 +535,7 @@ cs =
         { Skill.name      = "Grand Fireball"
         , Skill.desc      = "Obito breathes searing fire on an enemy, dealing 15 affliction damage for 2 turns. During [Sharingan], this skill deals the full 30 affliction damage instantly and has no cooldown."
         , Skill.classes   = [Bane, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.varicd    = True
         , Skill.effects   =
           [ p Enemy $ afflict 30 ]
@@ -545,7 +545,7 @@ cs =
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Obito targets an ally. For 4 turns, Obito gains 15 points of damage reduction, and if Obito dies, the ally will gain 5 points of damage reduction and deal 5 additional non-affliction damage."
         , Skill.classes   = [Mental, Unremovable, Bypassing]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p XAlly $ tag 4
@@ -568,7 +568,7 @@ cs =
         { Skill.name      = "Cutting Sprigs"
         , Skill.desc      = "A wooden skewer impales an enemy, dealing 20 piercing damage and permanently increasing the damage of this skill on the target by 5. Deals twice as much damage if the target is affected by [Murderous Resolve]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.effects   =
           [ p Enemy do
                 bonus <- 2 `bonusIf` targetHas "Murderous Resolve"
@@ -581,7 +581,7 @@ cs =
         { Skill.name      = "Mangekyō Sharingan"
         , Skill.desc      = "Obito activates his trauma-awakened Mangekyō eye to counter the next non-mental skill used on him."
         , Skill.classes   = [Chakra, Invisible, Single]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Self $ apply 0 [Parry NonMental $ Play $ tag 1] ]
@@ -592,7 +592,7 @@ cs =
         , Skill.desc      = "Obito's mind snaps and fixates obsessively on an enemy who was countered by [Mangekyō Sharingan] last turn. For 4 turns, the target's damage is weakened by 5 and they are prevented from reducing damage or becoming invulnerable."
         , Skill.require   = HasU "Mangekyō Sharingan"
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ p Enemy $ apply 4 [Expose, Weaken All Flat 5] ]
@@ -607,7 +607,7 @@ cs =
         { Skill.name      = "Kamui Chain Combo"
         , Skill.desc      = "The masked man snares an enemy in sealing chains and phases through them, becoming invulnerable to damage and ignoring harmful effects other than chakra cost changes for 1 turn."
         , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Self  $ apply 1 [Invulnerable All]
@@ -619,7 +619,7 @@ cs =
         { Skill.name      = "Kamui Banishment"
         , Skill.desc      = "The masked man uses a rare space-time technique to warp an enemy to his pocket dimension, dealing 20 piercing damage and making them immune to effects from their allies for 1 turn. While active, the target can only target the masked man or themselves. Deals 20 additional damage and lasts 1 additional turn if the target is affected by [Kamui Chain Combo]."
         , Skill.classes   = [Chakra, Melee, Unreflectable]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -634,7 +634,7 @@ cs =
         { Skill.name      = "Major Summoning: Kurama"
         , Skill.desc      = "The masked man summons the Nine-Tailed Beast to the battlefield to wreak havoc, demolishing the enemy team's destructible defenses and his own destructible barrier. For 3 turns, it deals 25 damage to a random enemy. While active, the masked man and his allies ignore status effects from enemies except chakra cost changes."
         , Skill.classes   = [Chakra, Melee, Summon, Bypassing]
-        , Skill.cost      = k [Blood, Gen, Tai]
+        , Skill.cost      = [Blood, Gen, Tai]
         , Skill.cooldown  = 5
         , Skill.channel   = Ongoing 3
         , Skill.start     =

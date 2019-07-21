@@ -16,6 +16,7 @@ import Prelude (sum)
 import           Data.Aeson (ToJSON)
 import qualified Data.Text as Text
 import qualified Data.Text.Read as Read
+import           GHC.Exts (IsList(..))
 import           Yesod.Core.Dispatch (PathPiece(..))
 
 import Model.Class (Class(..))
@@ -27,6 +28,11 @@ data Chakras = Chakras { blood :: Int -- ^ Bloodline
                        , tai   :: Int -- ^ Taijutsu
                        , rand  :: Int -- ^ Random
                        } deriving (Eq, Show, Read, Generic, ToJSON)
+
+instance IsList Chakras where
+    type Item Chakras = Chakra
+    toList = fromChakras
+    fromList = collect
 
 instance PathPiece Chakras where
   toPathPiece Chakras{..} = intercalate "," $ tshow <$> [blood, gen, nin, tai]

@@ -16,7 +16,7 @@ cs =
         { Skill.name      = "Giant Flame Bomb"
         , Skill.desc      = "Jiraiya spits out a burst of fire, dealing 20 affliction damage to an enemy and 10 to the rest of their team."
         , Skill.classes   = [Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.effects   =
           [ p Enemy    $ damage 20
           , p XEnemies $ damage 10
@@ -27,7 +27,7 @@ cs =
         { Skill.name      = "Summoning: Toad Mouth Trap"
         , Skill.desc      = "The esophagus of a humongous toad swallows the battlefield for 2 turns. Within the esophagus, enemies cannot reduce damage or become invulnerable, and each member of Jiraiya's team becomes invulnerable for 1 turn if an enemy uses a skill that deals non-affliction damage to them."
         , Skill.classes   = [Chakra, Ranged, Summon, Bypassing]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.channel   = Ongoing 2
         , Skill.start     =
@@ -42,7 +42,7 @@ cs =
         { Skill.name      = "Major Summoning: Gamabunta"
         , Skill.desc      = "Jiraiya summons the great toad Gamabunta, who deals 25 affliction damage to all enemies. Once used, this skill permanently becomes [Toad Oil Bomb][n][r]. All enemies permanently receive 5 additional damage from affliction skills."
         , Skill.classes   = [Ranged, Summon, Unreflectable, Unremovable]
-        , Skill.cost      = k [Blood, Gen, Tai]
+        , Skill.cost      = [Blood, Gen, Tai]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
           [ p Enemies do
@@ -55,7 +55,7 @@ cs =
         { Skill.name      = "Toad Oil Bomb"
         , Skill.desc      = "Deals 15 affliction to all enemies for 2 turns."
         , Skill.classes   = [Bane, Chakra, Ranged]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemies $ apply 2 [Afflict 15] ]
@@ -70,7 +70,7 @@ cs =
         { Skill.name      = "Heavenly Kick of Pain"
         , Skill.desc      = "Tsunade performs an axe kick on an enemy, dealing 30 damage and stunning their physical and mental skills for 1 turn."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ p Enemy do
                 damage 30
@@ -82,7 +82,7 @@ cs =
         { Skill.name      = "Mitotic Regeneration"
         , Skill.desc      = "Tsunade unleashes the ultimate regeneration technique upon herself, regaining all lost health and curing herself of enemy effects."
         , Skill.classes   = [Chakra]
-        , Skill.cost      = k [Nin, Nin]
+        , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Self do
@@ -95,7 +95,7 @@ cs =
         { Skill.name      = "Major Summoning: Katsuyu"
         , Skill.desc      = "Tsunade summons the great slug Katsuyu, who heals her team for 40 health. Once used, this skill permanently becomes [Slug Division][n]. Each turn that Tsunade is alive, her team regains 5 health."
         , Skill.classes   = [Chakra, Summon, Unremovable, Unreflectable]
-        , Skill.cost      = k [Blood, Gen, Nin]
+        , Skill.cost      = [Blood, Gen, Nin]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
           [ p Allies $ heal 40
@@ -108,7 +108,7 @@ cs =
         { Skill.name      = "Slug Division"
         , Skill.desc      = "Provides 15 permanent destructible defense to Tsunade's team."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Allies $ defend 0 15 ]
@@ -123,7 +123,7 @@ cs =
         { Skill.name      = "Kusanagi"
         , Skill.desc      = "Striking swiftly, Orochimaru demolishes an enemy's destructible defense and his own destructible barrier, then deals 25 piercing damage to the target."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ p Enemy do
                 demolishAll
@@ -150,7 +150,7 @@ cs =
         { Skill.name      = "Major Summoning: Manda"
         , Skill.desc      = "Orochimaru summons the great serpent Manda, who deals 45 damage to an enemy. Once used, this skill permanently becomes [Paralyzing Bite][r][r]. Each turn that Orochimaru is alive, he gains 1 random chakra."
         , Skill.classes   = [Physical, Melee, Summon, Unreflectable]
-        , Skill.cost      = k [Blood, Nin, Tai]
+        , Skill.cost      = [Blood, Nin, Tai]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
           [ p Enemy $ damage 45
@@ -163,7 +163,7 @@ cs =
         { Skill.name      = "Paralyzing Bite"
         , Skill.desc      = "Stuns an enemy for 1 turn and deals 25 damage when the effect ends."
         , Skill.classes   = [Bane, Physical, Melee]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy $ bomb 1 [Stun All] [ p Expire $ damage 25 ] ]
@@ -178,7 +178,7 @@ cs =
         { Skill.name      = "Dragon Flame Bomb"
         , Skill.desc      = "Hiruzen engulfs an enemy in flame, dealing 30 affliction damage and causing them to receive 10 additional damage from affliction skills for 1 turn."
         , Skill.classes   = [Bane, Ranged]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ p Enemy do
                 afflict 30
@@ -190,7 +190,7 @@ cs =
         { Skill.name      = "Reaper Death Seal"
         , Skill.desc      = "Hiruzen unleashes the God of Death upon an enemy in exchange for his soul. Each turn, the God of Death deals 40 affliction damage to the target and 20 affliction damage to Hiruzen. Both are permanently stunned, and the target cannot reduce damage or become invulnerable. Hiruzen is permanently stunned. Ends when Hiruzen dies."
         , Skill.classes   = [Ranged, Unreflectable, Unremovable, Soulbound, Bypassing]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ p Enemy $ apply 0 [Afflict 40, Stun All, Expose]
           , p Self  $ apply 0 [Afflict 20, Stun All]
@@ -201,7 +201,7 @@ cs =
         { Skill.name      = "Major Summoning: Enma"
         , Skill.desc      = "Hiruzen summons the great monkey Enma, who makes his team invulnerable for 1 turn. Once used, this skill permanently becomes [Adamantine Prison][n]. As long as Hiruzen is alive, he provides 5 points of damage reduction to his team."
         , Skill.classes   = [Physical, Melee, Summon, Unreflectable, Unremovable]
-        , Skill.cost      = k [Gen, Nin, Tai]
+        , Skill.cost      = [Gen, Nin, Tai]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
           [ p Allies do
@@ -214,7 +214,7 @@ cs =
         { Skill.name      = "Adamantine Prison"
         , Skill.desc      = "Provides 15 permanent destructible defense to Hiruzen's team and prevents their health from dropping below 1 for 1 turn."
         , Skill.classes   = [Physical]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Allies do

@@ -16,7 +16,7 @@ cs =
         { Skill.name      = "Lightning Beast Fang"
         , Skill.desc      = "Kakashi creates a lightning hound out of his Lightning Blade, which deals 25 piercing damage to an enemy. If the target is damaged, they will be stunned for 1 turn. During the next turn, this skill becomes [Lightning Blade Finisher][n][r]."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ p Enemy do
                 trap' 1 (OnDamaged All) $ apply 1 [Stun All]
@@ -28,7 +28,7 @@ cs =
         { Skill.name      = "Lightning Blade Finisher"
         , Skill.desc      = "Deals 35 piercing damage to an enemy. Deals 15 additional damage if the target is affected by [Lightning Beast Fang]."
         , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ p Enemy do
               bonus <- 15 `bonusIf` targetHas "Lightning Beast Fang"
@@ -40,7 +40,7 @@ cs =
         { Skill.name      = "Kamui"
         , Skill.desc      = "If used on an enemy, deals 45 piercing damage to them, increases their cooldowns by 1 turn, and increases the costs of their skills by 1 random chakra. If used on an ally, cures them of enemy effects and makes them invulnerable for 1 turn."
         , Skill.classes   = [Chakra, Ranged, Bypassing]
-        , Skill.cost      = k [Blood, Gen]
+        , Skill.cost      = [Blood, Gen]
         , Skill.effects   =
           [ p Enemy $ pierce 45
           , p XAlly do
@@ -53,7 +53,7 @@ cs =
         { Skill.name      = "Team Tactics"
         , Skill.desc      = "For 3 turns, the cooldowns of Kakashi's allies are decreased by 1. While active, the first enemy skill used will replace this skill for 1 turn. Kakashi's copy of the skill has no chakra cost and ends when this skill reverts."
         , Skill.classes   = [Mental, Unreflectable]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p XAllies $ apply 3 [Snare (-1)]
@@ -71,7 +71,7 @@ cs =
         , Skill.desc      = "Asuma summons Kannon, the Fire Temple's patron spirit, which provides him with 40 permanent destructible defense and deals 25 damage to an enemy. Next turn, this skill becomes [Kannon Strike][r]. When [Kannon Strike] ends, this skill is disabled for 1 turn."
         , Skill.require   = HasI (-1) "Overheating"
         , Skill.classes   = [Physical, Melee, Summon]
-        , Skill.cost      = k [Blood, Rand]
+        , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ p Enemy $ damage 25
           , p Self do
@@ -83,7 +83,7 @@ cs =
         { Skill.name      = "Kannon Strike"
         , Skill.desc      = "Deals 20 damage to an enemy. This skill remains [Kannon Strike] for another turn."
         , Skill.classes   = [Physical, Melee, Nonstacking]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemy $ damage 20
           , p Self do
@@ -96,7 +96,7 @@ cs =
         { Skill.name      = "Burning Ash"
         , Skill.desc      = "Asuma continually exhales a cloud of combustible ash upon his enemies, increasing the cooldowns of their skills by 1 turn. While active, this skill becomes [Burning Ash: Ignite][b]."
         , Skill.classes   = [Bane, Ranged, Unreflectable]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.channel   = Action 0
         , Skill.start     =
           [ p Self $ vary "Burning Ash" "Burning Ash: Ignite"]
@@ -107,7 +107,7 @@ cs =
         { Skill.name      = "Burning Ash: Ignite"
         , Skill.desc      = "Asuma strikes a piece of flint between his teeth, producing a spark that sets fire to his piles of ash and burns them away. The fire deals 10 affliction damage to each enemy per stack of [Burning Ash] on them."
         , Skill.classes   = [Ranged, Bypassing, Uncounterable, Unreflectable]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.effects   =
           [ p Enemies do
                 stacks <- targetStacks "Burning Ash"
@@ -122,7 +122,7 @@ cs =
         { Skill.name      = "Decapitate"
         , Skill.desc      = "Bypassing invulnerability, Asuma mercilessly slaughters an enemy whose health is at or below 25."
         , Skill.classes   = [Physical, Melee, Bypassing, Uncounterable, Unreflectable]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -141,7 +141,7 @@ cs =
         { Skill.name      = "Chakra Sense"
         , Skill.desc      = "Zaji extends his senses over the battlefield and detects incoming attacks. For 2 turns, attacks that deal 25 baseline damage or lower will not injure Zaji or his allies."
         , Skill.classes   = [Mental]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   = [ p Allies $ apply 2 [Threshold 25 ] ]
         }
@@ -156,7 +156,7 @@ cs =
         { Skill.name      = "Nunchaku"
         , Skill.desc      = "Using his signature Twin Fangs weapons, Guy deals 10 damage to an enemy for 3 turns. While active, if an enemy uses a harmful physical skill on him, he will deal 10 damage to them. Deals 5 additional damage on the first turn per stack of [Single Gate Release]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.channel   = Action 3
         , Skill.start     = [ p Enemy $ perI "Single Gate Release" 5 damage 10 ]
         , Skill.effects   = [ p Self $  trapFrom 1 (OnHarmed Physical) $ damage 10
@@ -168,7 +168,7 @@ cs =
         { Skill.name      = "Fiery Kick"
         , Skill.desc      = "Guy slams his leg into an enemy, dealing 35 damage and weakening their damage by 20 for 1 turn. Deals 5 additional damage per stack of [Single Gate Release]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Blood, Tai]
+        , Skill.cost      = [Blood, Tai]
         , Skill.effects   = [ p Enemy $ perI "Single Gate Release" 5 damage 35
                            • apply 1 [Weaken All 20 ])]
         }
@@ -189,7 +189,7 @@ cs =
         { Skill.name      = "Binding Cloth"
         , Skill.desc      = "Maki deploys a roll of cloth from within a seal and wraps it around herself, gaining 50% damage reduction for 1 turn. If an enemy uses a skill on Maki, the cloth wraps around them, stunning their physical and melee skills for 1 turn."
         , Skill.classes   = [Physical, Ranged, Invisible]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Self do
@@ -202,7 +202,7 @@ cs =
         { Skill.name      = "Humidified Cloth"
         , Skill.desc      = "Maki soaks a strip of cloth in steam and lashes out with it, dealing 20 piercing damage to an enemy and stunning their harmful skills for 1 turn."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.effects   =
           [ p Enemy do
                 damage 20
@@ -214,7 +214,7 @@ cs =
         { Skill.name      = "Cloth Paralysis"
         , Skill.desc      = "Maki binds an enemy in rolls of cloth, stunning their chakra and ranged skills for 2 turns. While active, Melee skills deal 5 additional damage to the target."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Nin, Gen]
+        , Skill.cost      = [Nin, Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Enemy $ apply 2 [Stun Chakra, Stun Ranged, Bleed Melee Flat 5] ]
@@ -229,7 +229,7 @@ cs =
         { Skill.name      = "High-Speed Assault"
         , Skill.desc      = "Akatsuchi punches an enemy with all his might, dealing 25 damage. Costs 1 fewer random chakra during [Stone Golem]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.effects   = [ p Enemy $ damage 25 ]
         , Skill.changes   = changeWith "Stone Golem" $ setCost [Tai]
         }
@@ -238,7 +238,7 @@ cs =
         { Skill.name      = "Stone Golem"
         , Skill.desc      = "A golem of rock rampages across the battlefield, dealing 15 damage to all enemies for 2 turns and providing Akatsuki with 25% damage reduction."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
         , Skill.channel   = Action 2
         , Skill.effects   =
@@ -251,7 +251,7 @@ cs =
         { Skill.name      = "Chakra Devour"
         , Skill.desc      = "A stone golem attacks an enemy, dealing 15 damage and depleting 1 random chakra."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -269,7 +269,7 @@ cs =
         { Skill.name      = "Lava Quicklime"
         , Skill.desc      = "Kurotsuchi expels a mass of quicklime from her mouth, dealing 25 damage to an enemy and gaining 50% damage reduction for 1 turn."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -283,7 +283,7 @@ cs =
         { Skill.name      = "Water Trumpet"
         , Skill.desc      = "Kurotsuchi cups her hand to her mouth and expels a jet of water, dealing 20 damage to an enemy. If the target was damaged by Lava Quicklime last turn, their physical and chakra skills are stunned for 1 turn."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.effects   =
           [ p Enemy do
                 damage 20
@@ -296,7 +296,7 @@ cs =
         { Skill.name      = "Falling Earth Spears"
         , Skill.desc      = "Spikes of stone and mud erupt from the ground, dealing 15 damage to all enemies and making them immune to effects from each other."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Blood, Rand]
+        , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ p Enemies do
                 damage 15
@@ -313,7 +313,7 @@ cs =
         { Skill.name      = "Battlefield Trenches"
         , Skill.desc      = "By raising and lowering ground levels, Ittan alters the battlefield in his favor. For 2 turns, all enemies receive 20% more damage and Ittan gains 15 points of damage reduction."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Blood, Rand]
+        , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Self $ apply 2 [Reduce All Flat 15]
@@ -325,7 +325,7 @@ cs =
         { Skill.name      = "Mobile Core"
         , Skill.desc      = "Ittan disrupts the ground under an enemy, dealing 30 damage to them and weakening their damage by 10 for 1 turn."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ p Enemy do
                 damage 30
@@ -337,7 +337,7 @@ cs =
         { Skill.name      = "Earth Dome"
         , Skill.desc      = "A shield of rock protects Ittan and one of his allies, making them invulnerable to ranged skills for 1 turn."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Self $ apply 1 [Invulnerable Ranged]
@@ -354,7 +354,7 @@ cs =
         { Skill.name      = "Rock Fist"
         , Skill.desc      = "A massive stone hand punches an enemy, dealing 35 damage and preventing them from countering or reflecting skills for 1 turn."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -367,7 +367,7 @@ cs =
         { Skill.name      = "Erupt"
         , Skill.desc      = "A mountain bursts from the ground under Kitsuchi's enemies, dealing 10 damage to them and providing him with 20% damage reduction for 1 turn. For 1 turn, stuns, counters, and reflects applied by enemies will last 1 fewer turn."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Self $ apply 1 [Reduce All Percent 20]
@@ -386,7 +386,7 @@ cs =
         { Skill.name      = "Sandwiching Mountain"
         , Skill.desc      = "Two rock formations slam into an enemy from either side, dealing 45 damage to them and stunning their physical and mental skills for 2 turns."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Blood, Blood]
+        , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 2
         , Skill.channel   = Control 2
         , Skill.effects   =
@@ -405,7 +405,7 @@ cs =
         { Skill.name      = "Sensory Technique"
         , Skill.desc      = "C strikes a random enemy while detecting the flow of chakra, dealing 20 damage to them. Next turn, if an enemy uses a skill on C, he will become invulnerable for 1 turn."
         , Skill.classes   = [Mental, Nonstacking, Ranged]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p REnemy $ damage 20
@@ -417,7 +417,7 @@ cs =
         { Skill.name      = "Mystical Palm Healing"
         , Skill.desc      = "C restores 25 health to himself or an ally."
         , Skill.classes   = [Chakra]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.effects   =
           [ p Ally $ heal 25 ]
         }
@@ -426,7 +426,7 @@ cs =
         { Skill.name      = "Flash Pillar"
         , Skill.desc      = "A flash of lightning blinds and disorients an enemy, dealing 35 damage to them and making them immune to effects from allies."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -444,7 +444,7 @@ cs =
         { Skill.name      = "Burning Blade"
         , Skill.desc      = "Fire envelops Atsui's sword and surrounds him, providing 10 points of damage reduction to him for 3 turns. While active, any enemy who uses a skill on Atsui will receive 10 affliction damage."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Self do
@@ -457,7 +457,7 @@ cs =
         { Skill.name      = "Fire Wall"
         , Skill.desc      = "Fire erupts around Atsui's enemies. Next turn, any enemy who uses a skill will receive 10 affliction damage. Costs 1 fewer random chakra during [Burning Blade]."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemies $ trap 1 (OnAction All) $ afflict 10 ]
@@ -468,7 +468,7 @@ cs =
         { Skill.name      = "Flame Slice"
         , Skill.desc      = "Atsui slashes at an enemy with his fiery blade, sending an arc of flame in their direction that deals 25 piercing damage."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Enemy $ damage 25 ]
         }
@@ -482,7 +482,7 @@ cs =
         { Skill.name      = "Heaven Spear Kick"
         , Skill.desc      = "Tsunade spears an enemy with her foot, dealing 20 piercing damage to them. If an ally is affected by [Healing Wave], their health cannot drop below 1 next turn. Spends a Seal if available to deal 20 additional damage and demolish the target's destructible defense and Tsunade's destructible barrier."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Enemy do
                 has <- userHas "Strength of One Hundred Seal"
@@ -499,7 +499,7 @@ cs =
         { Skill.name      = "Healing Wave"
         , Skill.desc      = "Tsunade pours chakra into an ally, restoring 30 health to them immediately and 10 health each turn for 2 turns. Spends a Seal if available to restore 10 additional health immediately and last 3 turns."
         , Skill.classes   = [Chakra, Unremovable]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p XAlly do
@@ -516,7 +516,7 @@ cs =
         { Skill.name      = "Strength of One Hundred Seal"
         , Skill.desc      = "Tsunade activates her chakra-storing Seal, restoring 25 health and empowering her next skill. Spends a Seal if available to instead restore 50 health to Tsunade and gain 2 random chakra."
         , Skill.classes   = [Chakra]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Self do
@@ -530,7 +530,7 @@ cs =
         { Skill.name      = "Strength of One Hundred Seal"
         , Skill.desc      = "Tsunade activates her chakra-storing Seal, restoring 25 health and empowering her next skill. Spends a Seal if available to instead restore 50 health to Tsunade and gain 2 random chakra."
         , Skill.classes   = [Chakra]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Self do
@@ -550,7 +550,7 @@ cs =
         { Skill.name      = "Earth Golem"
         , Skill.desc      = "A golem of rock emerges from the ground, providing 10 permanent destructible defense to his team and dealing 10 damage to all enemies."
         , Skill.classes   = [Chakra, Physical, Melee]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Allies  $ defend 0 10
@@ -562,7 +562,7 @@ cs =
         { Skill.name      = "Lightened Boulder"
         , Skill.desc      = "Ōnoki negates the gravity of an ally, providing 10 points of damage reduction to them for 2 turns. While active, the target cannot be countered or reflected."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p XAlly $ apply 2 [Reduce All Flat 10, AntiCounter] ]
@@ -572,7 +572,7 @@ cs =
         { Skill.name      = "Atomic Dismantling"
         , Skill.desc      = "The atomic bonds within an enemy shatter, dealing 20 piercing damage to them and permanently increasing the damage of this skill by 10."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.effects   =
           [ p Enemy do
                 stacks <- userStacks "Atomic Dismantling"
@@ -590,7 +590,7 @@ cs =
         { Skill.name      = "Solid Fog"
         , Skill.desc      = "Mei exhales a cloud of acid mist, dealing 15 affliction damage to an enemy for 3 turns."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Enemy $ afflict 15 ]
@@ -600,7 +600,7 @@ cs =
         { Skill.name      = "Water Bomb"
         , Skill.desc      = "Water floods the battlefield, dealing 20 piercing damage to all enemies and preventing them from reducing damage or becoming invulnerable for 1 turn."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemies do
@@ -613,7 +613,7 @@ cs =
         { Skill.name      = "Lava Monster"
         , Skill.desc      = "Mei spits a stream of hot lava, dealing 10 affliction damage to all enemies and removing 20 destructible defense from them for 3 turns."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Blood, Rand]
+        , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
         , Skill.channel   = Action 3
         , Skill.effects   =

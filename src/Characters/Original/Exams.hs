@@ -16,7 +16,7 @@ cs =
         { Skill.name      = "Gentle Fist"
         , Skill.desc      = "With a series of blows, Hanabi deals 15 damage to an enemy for 2 turns. Each time they use a skill that depletes or absorbs chakra, their team will be depleted of 1 random chakra."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.channel   = Action 2
         , Skill.effects   =
@@ -30,7 +30,7 @@ cs =
         { Skill.name      = "Eight Trigrams Palm Rotation"
         , Skill.desc      = "Hanabi spins at an enemy, dealing 15 damage to them for 2 turns. If they use a skill that stuns, they will be stunned for 1 turn. Costs 1 random chakra during [Unyielding Tenacity]."
         , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.channel   = Action 2
         , Skill.effects   =
@@ -45,7 +45,7 @@ cs =
         { Skill.name      = "Unyielding Tenacity"
         , Skill.desc      = "Gritting her teeth, Hanabi fights to the bitter end. For 2 turns, her health cannot drop below 1, she ignores stuns, and her damage is increased by 5."
         , Skill.classes   = [Mental]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Self $ apply 2
@@ -86,7 +86,7 @@ cs =
         , Skill.desc      = "Shigure's umbrellas rain down needles, dealing 15 damage to all enemies. Uses up one Umbrella."
         , Skill.require   = HasI 1 "Umbrella"
         , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemies $ damage 15
           , p Self do
@@ -99,7 +99,7 @@ cs =
         { Skill.name      = "Senbon Barrage"
         , Skill.desc      = "Shigure hurls all of his needles at a single target, dealing 15 damage per Umbrella. Costs 1 fewer random chakra per Umbrella. Uses up all Umbrellas."
         , Skill.require   = HasI 1 "Umbrella"
-        , Skill.cost      = k [Rand, Rand, Rand, Rand]
+        , Skill.cost      = [Rand, Rand, Rand, Rand]
         , Skill.classes   = [Physical, Ranged]
         , Skill.effects   =
           [ p Enemy do
@@ -121,7 +121,7 @@ cs =
         { Skill.name      = "Chakra Scalpel"
         , Skill.desc      = "Kabuto slices an enemy with a medical scalpel made of chakra, dealing 20 piercing damage. For 1 turn, the target's skills cost 1 additional random chakra and they receive 5 additional damage from physical and chakra damaging skills."
         , Skill.classes   = [Bane, Chakra, Melee]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.effects   =
           [ p Enemy do
                 pierce 20
@@ -136,7 +136,7 @@ cs =
         { Skill.name      = "Pre-Healing Technique"
         , Skill.desc      = "Kabuto accelerates his cell growth in anticipation of attacks, restoring 15 health for 5 turns and curing himself of baneful effects."
         , Skill.classes   = [Chakra]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 5
         , Skill.channel   = Ongoing 5
         , Skill.start     =
@@ -149,7 +149,7 @@ cs =
         { Skill.name      = "Temple of Nirvana"
         , Skill.desc      = "Illusory white feathers descend upon the battlefield and lull the enemy team to sleep. Unless an enemy uses a skill next turn, they will be stunned for 1 turn and receive 10 additional damage from physical and chakra skills."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Enemies $ trap (-1) OnNoAction $
@@ -169,7 +169,7 @@ cs =
         { Skill.name      = "Resonating Echo Drill"
         , Skill.desc      = "Dosu attacks an enemy with his drill, dealing 20 damage and preventing them from reducing damage or becoming invulnerable for 2 turns. Deals 20 additional damage during [Echo Speaker Tuning]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Enemy do
                 bonus <- 20 `bonusIf` userHas "Echo Speaker Tuning"
@@ -183,7 +183,7 @@ cs =
         { Skill.name      = "Sound Manipulation"
         , Skill.desc      = "Sound waves bombard an enemy, dealing 10 damage. The target permanently receives 5 additional damage from non-affliction skills and their damage is weakened by 5. Deals 10 additional damage if [Resonating Echo Drill] was used on the target last turn. Deals 10 additional damage during [Echo Speaker Tuning]."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -198,7 +198,7 @@ cs =
         { Skill.name      = "Echo Speaker Tuning"
         , Skill.desc      = "Dosu fine-tunes his Echo Speaker to produce debilitating sound vibrations, empowering his other skills for 4 turns."
         , Skill.classes   = [Physical]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Self $ tag 4 ]
@@ -213,7 +213,7 @@ cs =
         { Skill.name      = "Bell Ring Illusion"
         , Skill.desc      = "Sanity-shattering soundwaves deal 15 damage to an enemy. If [Shadow Senbon] was used last turn, Kin becomes invulnerable for 1 turn. If [Unnerving Bells] was used last turn, deals 25 additional damage."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Self $ whenM (userHas "Shadow Senbon") do
                 apply 1 [Invulnerable All]
@@ -228,7 +228,7 @@ cs =
         { Skill.name      = "Shadow Senbon"
         , Skill.desc      = "Kin traps an enemy with her surgical needles, preventing them from reducing damage or becoming invulnerable for 2 turns. If [Bell Ring Illusion] was used last turn, deals 10 damage to the target. If [Unnerving Bells] was used last turn, the target is stunned for 1 turn."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Self   $ tag 1
@@ -243,7 +243,7 @@ cs =
         { Skill.name      = "Unnerving Bells"
         , Skill.desc      = "A cacophony of bell tones saps the strength of an enemy, depleting 1 random chakra. If [Bell Ring Illusion] was used last turn, the target takes 15 more damage from chakra skills for 1 turn. If [Shadow Senbon] was used last turn, the target takes 15 more damage from physical skills for 1 turn."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Self $  tag 1
@@ -265,7 +265,7 @@ cs =
         { Skill.name      = "Slicing Sound Wave"
         , Skill.desc      = "Zaku fires a blast of supersonic air at an enemy, dealing 25 damage and enabling the use of [Supersonic Slicing Wave] for 1 turn."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.effects   =
           [ p Enemy $ damage 25
           , p Self  $ tag 1
@@ -276,7 +276,7 @@ cs =
         { Skill.name      = "Wall of Air"
         , Skill.desc      = "An invisible barrier of air shields an ally, countering the first harmful non-mental skill used on them next turn."
         , Skill.classes   = [Physical, Invisible, Unreflectable]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p XAlly $ apply 1 [Counter NonMental] ]
@@ -287,7 +287,7 @@ cs =
         , Skill.desc      = "Zaku boosts his airwaves to terrifying volume, dealing 45 damage to all enemies. Requires [Slicing Sound Wave]."
         , Skill.require   = HasI 1 "Slicing Sound Wave"
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Blood, Rand, Rand]
+        , Skill.cost      = [Blood, Rand, Rand]
         , Skill.effects   =
           [ p Enemies $ damage 45]
         }
@@ -301,7 +301,7 @@ cs =
         { Skill.name      = "Exploding Kunai"
         , Skill.desc      = "Oboro throws a kunai attached to a paper bomb, dealing 15 damage to all enemies. Costs 1 random chakra during [Fog Clone]."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ p Enemies $ damage 15 ]
         , Skill.changes   = changeWith "Fog Clone" $ setCost [Rand]
@@ -311,7 +311,7 @@ cs =
         { Skill.name      = "Underground Move"
         , Skill.desc      = "Emerging from the ground behind an enemy, Oboro deals 20 damage to them and stuns their physical and mental skills for 1 turn. Targets all enemies and costs 1 genjutsu chakra during [Fog Clone]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
           [ p Enemy do
                 damage 20
@@ -325,7 +325,7 @@ cs =
         { Skill.name      = "Fog Clone"
         , Skill.desc      = "Oboro surrounds himself with illusions, gaining 30 destructible defense and invulnerability to physical and mental skills for 3 turns."
         , Skill.classes   = [Mental]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Self do
@@ -343,7 +343,7 @@ cs =
         { Skill.name      = "Energy Drain"
         , Skill.desc      = "Yoroi touches an enemy, stealing 20 health. For 2 turns, their damage is weakened by 5 and Yoroi's damage is increased by 5."
         , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ p Enemy do
                 whenM (userHas "Chakra Focus") $ absorb 1
@@ -357,7 +357,7 @@ cs =
         { Skill.name      = "Draining Assault"
         , Skill.desc      = "Yoroi charges at an enemy and repeatedly drains their energy, stealing 15 health from them for 3 turns. While active, their damage is weakened by 5 and Yoroi's damage is increased by 5."
         , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = k [Tai, Rand, Rand]
+        , Skill.cost      = [Tai, Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.channel   = Action 3
         , Skill.effects   =
@@ -373,7 +373,7 @@ cs =
         { Skill.name      = "Chakra Focus"
         , Skill.desc      = "Yoroi infuses his attacks with a field of chakra. For 2 turns, using a skill causes it to absorb 1 random chakra from the enemy team each turn of its action duration."
         , Skill.classes   = [Chakra]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Self $ tag 2 ]
@@ -388,7 +388,7 @@ cs =
         { Skill.name      = "Flexible Twisting Joints"
         , Skill.desc      = "Misumi latches on to a target with his startlingly loose joints, providing 15 points of damage reduction for 1 turn to an ally or 15 damage to an enemy."
         , Skill.classes   = [Physical, Melee, Bypassing]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p XAlly $ apply 1 [Reduce All Flat 15]
           , p Enemy $ damage 15
@@ -399,7 +399,7 @@ cs =
         { Skill.name      = "Soft Physique Modification"
         , Skill.desc      = "Misumi wraps around an enemy. For 2 turns, all harmful non-mental skills used on Misumi are reflected to that enemy. During this time, the target cannot reduce damage or become invulnerable."
         , Skill.classes   = [Physical, Melee, Soulbound, Uncounterable, Unreflectable]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Enemy do
@@ -413,7 +413,7 @@ cs =
         { Skill.name      = "Tighten Joints"
         , Skill.desc      = "By stiffening his joints, Misumi gains 15 non-stacking permanent destructible defense. If an enemy is affected by [Soft Physique Modification], they take 20 damage and are stunned for 1 turn."
         , Skill.classes   = [Physical, Melee, Nonstacking]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Self    $ defend 0 15
           , p Enemies $ whenM (targetHas "Soft Physique Modification") do

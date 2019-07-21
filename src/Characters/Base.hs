@@ -2,7 +2,7 @@
 {-# OPTIONS_HADDOCK hide        #-}
 module Characters.Base
   ( module Import
-  , p, k
+  , p
   , invuln
   , user, target, userHas, targetHas
   , userStacks, targetStacks, userDefense
@@ -35,7 +35,6 @@ import Engine.SkillTransform as Import
 
 import qualified Class.Play as P
 import           Class.Play (PlayConstraint, MonadPlay)
-import qualified Model.Chakra as Chakra
 import qualified Model.Context as Context
 import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
@@ -45,9 +44,6 @@ import qualified Engine.Effects as Effects
 
 p :: ∀ a b. a -> PlayConstraint b -> (a, Play b)
 p tar f = (tar, Play f)
-
-k :: [Chakra] -> Chakras
-k = Chakra.collect
 
 invuln :: Text -> Text -> [Class] -> Skill
 invuln skillName userName classes = Skill.new

@@ -16,7 +16,7 @@ cs =
         { Skill.name      = "Scattering Crow Swarm"
         , Skill.desc      = "A flock of self-duplicating crows swarms the enemy team for 4 turns, dealing 5 damage each turn and providing 5 points of damage reduction to Aoba and his allies."
         , Skill.classes   = [Mental, Ranged, Summon]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.channel   = Ongoing 4
         , Skill.start     =
           [ p Self do
@@ -30,7 +30,7 @@ cs =
         { Skill.name      = "Revenge of the Murder"
         , Skill.desc      = "If the target ally's health reaches 0 within 3 turns, their health will be set to 5, all their skills will be replaced by [Converging Murder], and they will become completely immune to all skills. At the end of their next turn, they will die."
         , Skill.classes   = [Mental, Ranged, Invisible, Uncounterable, Unreflectable, Unremovable]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p XAlly $ trap 3 OnRes do
                 resetAll
@@ -46,7 +46,7 @@ cs =
         { Skill.name      = "Converging Murder"
         , Skill.desc      = "Aoba directs all of his crows at an enemy, dealing 45 damage to them. Deals 5 additional damage for each stack of [Scattering Crow Swarm] on the target."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Gen, Gen]
+        , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -64,7 +64,7 @@ cs =
         { Skill.name      = "Biding Time"
         , Skill.desc      = "Provides 10 points of permanent damage reduction to Ibiki. Each time a damaging skill is used on Ibiki, he will gain a stack of [Payback]. Once used, this skill becomes [Payback][r]."
         , Skill.classes   = [Mental, Melee]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Self do
                 apply 0 [Reduce All Flat 10]
@@ -76,7 +76,7 @@ cs =
         { Skill.name      = "Payback"
         , Skill.desc      = "Deals 15 damage to an enemy. Spends all stacks of [Payback] to deal 5 additional damage per stack."
         , Skill.classes   = [Mental, Melee]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemy do
                 stacks <- userStacks "Payback"
@@ -91,7 +91,7 @@ cs =
         { Skill.name      = "Summoning: Iron Maiden"
         , Skill.desc      = "A spike-filled iron coffin shaped like a cat imprisons an enemy. For 3 turns, each time the target uses a harmfull skill, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
         , Skill.classes   = [Physical, Melee, Summon]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ p Enemy $ trap 3 OnHarm $ pierce 25
           , p Self  $ defend 0 30
@@ -102,7 +102,7 @@ cs =
         { Skill.name      = "Summoning: Torture Chamber"
         , Skill.desc      = "A cage of chains and gears surrounds an enemy. For 3 turns, each time the target does not use a skill, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
         , Skill.classes   = [Physical, Melee, Summon]
-        , Skill.cost      = k [Nin, Rand]
+        , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ p Enemy $ trap 3 OnNoAction $ pierce 25
           , p Self  $ defend 0 30
@@ -118,7 +118,7 @@ cs =
         { Skill.name      = "Moonlight Night"
         , Skill.desc      = "Light flashes off Yūgao's sword as she spins it in a circle, surrounding herself with disorienting afterimages, then strikes at an enemy to deal 50 damage."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Gen, Tai]
+        , Skill.cost      = [Gen, Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -132,7 +132,7 @@ cs =
         { Skill.name      = "Moon Haze"
         , Skill.desc      = "The light of the moon empowers Yūgao, providing 20 destructible defense for 1 turn and adding 25 damage to her next [Moonlight Night]."
         , Skill.classes   = [Physical]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Self do
                 defend 1 20
@@ -144,7 +144,7 @@ cs =
         { Skill.name      = "Sealing Technique"
         , Skill.desc      = "Yūgao places a powerful and thorough seal on an enemy. For 2 turns, they do not benefit from damage reduction, destructible defense, invulnerability, counters, or reflects."
         , Skill.classes   = [Bypassing, Uncounterable, Unreflectable]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy $ apply 2 [Expose, Uncounter, Undefend] ]
@@ -159,7 +159,7 @@ cs =
         { Skill.name      = "Chain Wrap"
         , Skill.desc      = "Gōzu throws his chains around an enemy, stunning their non-mental skills for 1 turn. The following turn, this skill becomes [Chain Shred][t]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Enemy $ apply 1 [Stun NonMental]
           , p Self  $ vary' 1 "Chain Wrap" "Chain Shred"
@@ -170,7 +170,7 @@ cs =
         , Skill.desc      = "Meizu tears his chains through the target of [Chain Wrap], dealing 45 piercing damage and reapplying [Chain Wrap], stunning the target's non-mental skills for 1 turn."
         , Skill.require   = HasU "Chain Wrap"
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Enemies do
                 pierce 45
@@ -183,7 +183,7 @@ cs =
         { Skill.name      = "Bladed Gauntlet"
         , Skill.desc      = "Gōzu and Meizu attack an enemy with their gauntlets, dealing 30 damage. Deals 10 additional damage if the target is affected by [Chain Wrap]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ p Enemy do
                 bonus <- 10 `bonusIf` targetHas "Chain Wrap"
@@ -195,7 +195,7 @@ cs =
         { Skill.name      = "Water Melding"
         , Skill.desc      = "The Demon Brothers hide in water and gather their strength, gaining 20 permanent destructible defense and a taijutsu chakra."
         , Skill.classes   = [Chakra]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Self do
@@ -215,7 +215,7 @@ cs =
         { Skill.name      = "Thousand Needles of Death"
         , Skill.desc      = "Haku flings numerous ice needles at an enemy, dealing 30 damage. Targets all enemies during [Crystal Ice Mirrors]."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Blood, Rand]
+        , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ p Enemy $ damage 30 ]
         , Skill.changes   = changeWith "Crystal Ice Mirrors" targetAll
@@ -225,7 +225,7 @@ cs =
         { Skill.name      = "Acupuncture"
         , Skill.desc      = "Haku sticks a needle into one of the target's vital points, altering the flow of energy through their body. If used on an enemy, the target is stunned for 1 turn. If used on an ally, all stun effects are removed and they ignore stuns for 1 turn. Targets all allies and enemies during [Crystal Ice Mirrors]."
         , Skill.classes   = [Physical, Ranged, Bypassing]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy $ apply 1 [Stun All]
@@ -240,7 +240,7 @@ cs =
         { Skill.name      = "Crystal Ice Mirrors"
         , Skill.desc      = "Haku fills the battlefield with disorienting crystalline mirrors, becoming invulnerable for 3 turns."
         , Skill.classes   = [Chakra]
-        , Skill.cost      = k [Blood, Nin]
+        , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 6
         , Skill.effects   =
           [ p Self $ apply 3 [Invulnerable All] ]
@@ -255,7 +255,7 @@ cs =
         { Skill.name      = "Soundless Murder"
         , Skill.desc      = "Zabuza emerges from mist behind an enemy's defenses to deal 30 piercing damage to them. Deals 15 additional damage and bypasses invulnerability during [Hidden Mist]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ p Enemy do
                 bonus <- 15 `bonusIf` userHas "Hidden Mist"
@@ -268,7 +268,7 @@ cs =
         { Skill.name      = "Water Dragon"
         , Skill.desc      = "A torrent of water shaped like a giant dragon attacks all enemies, dealing 10 damage. Its ferocious attacks knocks back targets for 1 turn, stunning their physical skills and negating their affliction damage."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Enemies do
@@ -281,7 +281,7 @@ cs =
         { Skill.name      = "Hidden Mist"
         , Skill.desc      = "Mist covers the battlefield for 2 turns, providing 5 points of damage reduction to Zabuza and increasing the cost of enemy physical and mental skills by 1 random chakra."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ p Self    $ apply 2 [Reduce All Flat 5]
@@ -298,7 +298,7 @@ cs =
         { Skill.name      = "Mangekyō Sharingan"
         , Skill.desc      = "Itachi becomes invulnerable but loses 15 health each turn. While active, the cooldowns and chakra costs of his other skills are doubled. This skill can be used again with no chakra cost to cancel its effect."
         , Skill.classes   = [Mental, Unremovable]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.effects   =
           [ p Self do
                 apply 0 [Invulnerable All, Afflict 15]
@@ -325,7 +325,7 @@ cs =
         { Skill.name      = "Amaterasu"
         , Skill.desc      = "Itachi sets an enemy on fire, dealing 15 affliction damage and 5 affliction damage each turn. Targets all enemies and deals double damage during [Mangekyō Sharingan]. Does not stack. Ends if Itachi dies."
         , Skill.classes   = [Bane, Ranged, Soulbound, Nonstacking, Unreflectable]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -337,7 +337,7 @@ cs =
         { Skill.name      = "Amaterasu"
         , Skill.desc      = "Itachi sets an enemy on fire, dealing 15 affliction damage and 5 affliction damage each turn. Targets all enemies and deals double damage during [Mangekyō Sharingan]. Does not stack. Ends if Itachi dies."
         , Skill.classes   = [Bane, Ranged, Soulbound, Nonstacking, Unreflectable]
-        , Skill.cost      = k [Nin, Nin]
+        , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Enemies do
@@ -350,7 +350,7 @@ cs =
         { Skill.name      = "Tsukuyomi"
         , Skill.desc      = "Itachi mentally tortures an enemy for what feels like an entire day in a matter of seconds, dealing 20 damage and stunning them for 1 turn. During [Mangekyō Sharingan], stuns the target for 3 turns—which is to say, 3 subjective days and nights."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Gen]
+        , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -362,7 +362,7 @@ cs =
         { Skill.name      = "Tsukuyomi"
         , Skill.desc      = "Itachi mentally tortures an enemy for what feels like an entire day in a matter of seconds, dealing 20 damage and stunning them for 1 turn. During [Mangekyō Sharingan], stuns the target for 3 turns—which is to say, 3 subjective days and nights."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Gen, Gen]
+        , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Enemy do
@@ -380,7 +380,7 @@ cs =
         { Skill.name      = "Samehada Slash"
         , Skill.desc      = "Kisame slashes an enemy with the legendary sword Samehada, dealing 20 damage and stunning their chakra and mental skills for 1 turn."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -393,7 +393,7 @@ cs =
         { Skill.name      = "Samehada Shred"
         , Skill.desc      = "Kisame unwraps Samehada and shreds an enemy. For 2 turns, he deals 15 damage to the target and absorbs 1 random chakra."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Nin]
+        , Skill.cost      = [Tai, Nin]
         , Skill.cooldown  = 2
         , Skill.channel   = Action 2
         , Skill.effects   =
@@ -407,7 +407,7 @@ cs =
         { Skill.name      = "Super Shark Bomb"
         , Skill.desc      = "Kisame shoots a stream of compressed water at an enemy, dealing 20 damage, stunning their physical skills for 1 turn, and negating their affliction damage for 1 turn."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Nin]
+        , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy do
@@ -425,7 +425,7 @@ cs =
         { Skill.name      = "Crushing Palm"
         , Skill.desc      = "Jirōbō delivers a ground-shaking punch to an enemy, dealing 30 damage. Deals 10 additional damage if [Sphere of Graves] was used last turn."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ p Self  $ tag 1
           , p Enemy do
@@ -438,7 +438,7 @@ cs =
         { Skill.name      = "Sphere of Graves"
         , Skill.desc      = "Jirōbō lifts the ground up and hurls it forward, dealing 20 damage to all enemies. Deals 10 additional damage if [Crushing Palm] was used last turn."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ p Self $ tag 1
           , p Enemies do
@@ -451,7 +451,7 @@ cs =
         { Skill.name      = "Earth Dome Prison"
         , Skill.desc      = "Jirōbō provides 35 destructible defense to his team for 3 turns. Every turn that Jirōbō has destructible defense from [Earth Dome Prison], he absorbs 1 random chakra from the enemy team."
         , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = k [Nin, Nin, Rand]
+        , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 6
         , Skill.channel   = Ongoing 3
         , Skill.start     =
@@ -471,7 +471,7 @@ cs =
         { Skill.name      = "Spider War Bow"
         , Skill.desc      = "Kidōmaru fires an enzymatic arrow from his mouth, dealing 50 piercing damage to an enemy."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = k [Blood, Nin]
+        , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ p Enemy $ pierce 50 ]
@@ -481,7 +481,7 @@ cs =
         { Skill.name      = "Summoning: Kyodaigumo"
         , Skill.desc      = "Kidōmaru summons a giant spider which creates endless swarms of small spiders. For 5 turns, all enemies take 10 damage, their cooldowns are increased by 1, and Kidōmaru gains 10 points of damage reduction."
         , Skill.classes   = [Physical, Ranged, Summon]
-        , Skill.cost      = k [Blood, Nin]
+        , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4
         , Skill.channel   = Ongoing 5
         , Skill.effects   =
@@ -496,7 +496,7 @@ cs =
         { Skill.name      = "Spiral Web"
         , Skill.desc      = "Kidōmaru weaves a protective web around himself or an ally which counters the first harmful physical skill used on the target."
         , Skill.classes   = [Physical, Invisible, Unreflectable]
-        , Skill.cost      = k [Blood]
+        , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Ally $ apply 0 [Counter Physical] ]
@@ -511,7 +511,7 @@ cs =
         { Skill.name      = "Summoning: Doki"
         , Skill.desc      = "Tayuya summons the Doki Demons, which deal 15 damage to all enemies for 2 turns and provide her with 10 points of damage reduction."
         , Skill.classes   = [Physical, Ranged, Summon]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.channel   = Ongoing 2
         , Skill.effects   =
@@ -525,7 +525,7 @@ cs =
         , Skill.desc      = "Illusory ghosts pour out of the Doki demons, dealing 10 affliction damage to an enemy and depleting 1 random chakra. Requires [Summoning: Doki]."
         , Skill.require   = HasI 1 "Summoning: Doki"
         , Skill.classes   = [Ranged]
-        , Skill.cost      = k [Rand]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ p Enemy do
                 deplete 1
@@ -537,7 +537,7 @@ cs =
         { Skill.name      = "Demon Flute"
         , Skill.desc      = "Playing a hypnotizing melody on her flute, Tayuya stuns all enemies' skills for 1 turn."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = k [Gen, Rand]
+        , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ p Enemies $ apply 1 [Stun All] ]
@@ -552,7 +552,7 @@ cs =
         { Skill.name      = "Demon Twin Attack"
         , Skill.desc      = "Acting in unison, Sakon and Ukon punch an enemy, dealing 40 damage. Deals 20 damage and costs 1 taijutsu chakra during [Demon Parasite]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = k [Tai, Rand]
+        , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ p Enemy do
                 bonus <- (-20) `bonusIf` userHas "Demon Parasite"
@@ -565,7 +565,7 @@ cs =
         { Skill.name      = "Demon Parasite"
         , Skill.desc      = "Sakon deals 20 affliction damage to an enemy and gains 15 points of damage reduction until the target dies. Cannot be used while active."
         , Skill.classes   = [Bane, Unreflectable, Unremovable, Single]
-        , Skill.cost      = k [Blood, Blood]
+        , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ p Enemy do
                 trap' 0 OnDeath $ self $ remove "Demon Parasite"
@@ -580,7 +580,7 @@ cs =
         { Skill.name      = "Regeneration"
         , Skill.desc      = "Ukon merges with Sakon, restoring 30 health and ending [Demon Parasite]."
         , Skill.classes   = [Physical]
-        , Skill.cost      = k [Rand, Rand]
+        , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Self do
@@ -607,7 +607,7 @@ cs =
         { Skill.name      = "Camellia Dance"
         , Skill.desc      = "Kimimaro wields his arm bones as swords, dealing 30 damage to an enemy. Kimimaro loses 5 health."
         , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
-        , Skill.cost      = k [Tai]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ p Enemy $ damage 30
           , p Self  $ sacrifice 0 5
@@ -619,7 +619,7 @@ cs =
         , Skill.desc      = "Kimimaro attacks an enemy with a long, sharp bone spear, dealing 40 damage and stunning them for a turn. Kimimaro loses 10 health."
         , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
         , Skill.cooldown  = 1
-        , Skill.cost      = k [Blood, Tai]
+        , Skill.cost      = [Blood, Tai]
         , Skill.effects   =
           [ p Enemy do
                 damage 40
@@ -632,7 +632,7 @@ cs =
         { Skill.name      = "Bracken Dance"
         , Skill.desc      = "A forest of razor-sharp bones erupts from the ground, dealing 30 damage to all enemies and reducing all enemy non-mental damage by 20 for 1 turn. Kimimaro loses 15 health and another 15 health at the end of his next turn."
         , Skill.classes   = [Physical, Ranged, Unremovable]
-        , Skill.cost      = k [Blood, Rand, Rand]
+        , Skill.cost      = [Blood, Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ p Enemies do
