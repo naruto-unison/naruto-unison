@@ -207,7 +207,7 @@ instance YesodAuth App where
     redirectToReferer :: App -> Bool
     redirectToReferer _ = True
 
-    authenticate :: ∀ m. (MonadHandler m, HandlerSite m ~ App)
+    authenticate :: ∀ m. (MonadHandler m, App ~ HandlerSite m)
                  => Auth.Creds App -> m (AuthenticationResult App)
     authenticate creds = liftHandler $ runDB do
         x <- getBy $ UniqueUser ident

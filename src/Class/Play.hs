@@ -124,14 +124,14 @@ fromSource f = do
     src <- user
     modify t $ f src
 
-zipWith :: ∀ m o. (MonadGame m, MonoFoldable o, Element o ~ Ninja)
+zipWith :: ∀ m o. (MonadGame m, MonoFoldable o, Ninja ~ Element o)
         => (Ninja -> Ninja -> Ninja) -> o -> m ()
 zipWith f = traverse_ (uncurry g) . zip Slot.all . toList
   where
     g i = modify i . f
 
 -- | Adds a 'Flag' if 'Context.user' is not 'Context.target' and 'Context.new' is True.
-trigger :: ∀ m o. (MonadPlay m, MonoFoldable o, Element o ~ Trigger)
+trigger :: ∀ m o. (MonadPlay m, MonoFoldable o, Trigger ~ Element o)
         => Slot -> o -> m ()
 trigger i xs = whenM (valid <$> context) $ modify i \n ->
     n { Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n) xs }

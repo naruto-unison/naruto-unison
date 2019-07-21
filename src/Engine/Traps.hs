@@ -35,7 +35,7 @@ savedPlay user trap
       withTarget ctx = ctx { Context.target = user }
       play           = Trap.effect trap $ Trap.tracker trap
 
-getOf :: (MonoFoldable o, Element o ~ Trigger) => Slot -> o -> Ninja
+getOf :: (MonoFoldable o, Trigger ~ Element o) => Slot -> o -> Ninja
       -> Seq SavedPlay
 getOf user triggers n =
     savedPlay user <$> filter (match . Trap.trigger) (Ninja.traps n)

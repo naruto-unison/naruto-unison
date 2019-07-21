@@ -62,14 +62,14 @@ newtype SocketsT m a =
     deriving (Functor, Applicative, Monad, MonadIO, MonadLogger, MonadResource)
 
 instance MonadTrans SocketsT where
-    {-# INLINE lift #-}
     lift = SocketsT . lift . lift
+    {-# INLINE lift #-}
 instance MonadUnliftIO m => MonadUnliftIO (SocketsT m) where
-  {-# INLINE askUnliftIO #-}
   askUnliftIO = SocketsT $ withUnliftIO \u ->
                 return (UnliftIO (unliftIO u . runSocketsT))
-  {-# INLINE withRunInIO #-}
+  {-# INLINE askUnliftIO #-}
   withRunInIO inner = SocketsT $ withRunInIO \f -> inner (f . runSocketsT)
+  {-# INLINE withRunInIO #-}
 
 instance MonadHandler m => MonadHandler (SocketsT m) where
     type HandlerSite (SocketsT m) = HandlerSite m

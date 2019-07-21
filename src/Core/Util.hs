@@ -63,7 +63,7 @@ duplic x = nub x /= x
 mapMaybe :: ∀ (f :: * -> *) a b.
             ( IsSequence (f (Maybe b))
             , Functor f
-            , Element (f (Maybe b)) ~ Maybe b
+            , Maybe b ~ Element (f (Maybe b))
             )
          => (a -> Maybe b) -> f a -> f b
 mapMaybe f = catMaybes . (f <$>)
