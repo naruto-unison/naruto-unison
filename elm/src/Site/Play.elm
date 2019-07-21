@@ -122,23 +122,23 @@ component ports =
             List.map3 Bundle characters st.game.ninjas st.game.targets
       in
         H.div [A.id "game"] <|
-        [ H.aside [A.class "error"] [H.text st.error]
+        [ H.div [A.class "error"] [H.text st.error]
         , H.section [A.id "top"]
           [ H.section
             [ A.id "account0"
             , E.onMouseOver << View <| ViewUser st.user
             ]
             [ H.section []
-              [ H.header [] [H.text st.user.name]
+              [ H.h1 [] [H.text st.user.name]
               , H.p [] [H.text <| Game.rank st.user]
               ]
-            , H.aside [] [H.img [A.class "charicon", A.src st.user.avatar] []]
+            , H.img [A.class "charicon", A.src st.user.avatar] []
             ]
           , H.article [A.class "parchment"] <| renderView characters st.viewing
           , H.section [A.id "account1", E.onMouseOver << View <| ViewUser st.vs]
-            [ H.aside [] [H.img [A.class "charicon", A.src st.vs.avatar] []]
+            [ H.img [A.class "charicon", A.src st.vs.avatar] []
             , H.section []
-              [ H.header[] [H.text st.vs.name]
+              [ H.h1 [] [H.text st.vs.name]
               , H.p [] [H.text <| Game.rank st.vs]
               ]
             ]
@@ -528,9 +528,9 @@ label name = H.span [A.class "label"] [H.text name]
 bar : Character -> String -> Int -> Int -> List (Html msg)
 bar source name amount dur =
   [ H.div []
-    [ H.aside [] [icon source name [A.class "char"]]
+    [ icon source name [A.class "char"]
     , H.div []
-      [ H.header [] [H.text name]
+      [ H.h1 [] [H.text name]
       , label "Amount: "
       , H.div [] [H.text <| String.fromInt amount]
       , label "Duration: "
@@ -549,9 +549,9 @@ renderView characters viewing = case viewing of
     ViewDefense x   -> bar (Game.get characters x.user) x.name x.amount x.dur
     ViewCharacter x ->
         [ H.div []
-          [ H.aside [] [icon x "icon" [A.class "char"]]
+          [ icon x "icon" [A.class "char"]
           , H.div []
-            [ H.header [] <| Render.name x
+            [ H.h1 [] <| Render.name x
             , H.p [] [H.text x.bio]
             ]
           ]
@@ -571,9 +571,9 @@ renderView characters viewing = case viewing of
               H.span [] [H.text count]
       in
         [ H.div []
-          [ H.aside [] [icon source "icon" [A.class "char"]]
+          [ icon source "icon" [A.class "char"]
           , H.div []
-            [ H.header [] [name]
+            [ H.h1 [] [name]
             , Render.classes True x.classes
             , label "Source: "
             , H.div [] <| Render.name source
@@ -639,11 +639,11 @@ renderView characters viewing = case viewing of
             )
       in
         [ H.div []
-          [ H.aside [] <|
+          [ H.div [] <|
             icon (Game.root characters x user) x.name [A.class "char"]
             :: Maybe.withDefault [] varyButtons
           , H.div []
-            [ H.header [] [H.text x.name]
+            [ H.h1 [] [H.text x.name]
             , Render.classes False x.classes
             , label "Cost: "
             , H.div [] cost
@@ -657,9 +657,9 @@ renderView characters viewing = case viewing of
         ]
     ViewUser x ->
         [ H.div []
-          [ H.aside [] [H.img [A.class "char", A.src x.avatar] []]
+          [ H.img [A.class "char", A.src x.avatar] []
           , H.div []
-            [ H.header [] [H.text x.name]
+            [ H.h1 [] [H.text x.name]
             , H.div [] [H.text <| Game.rank x]
             , label "Clan: "
             , H.div [] [H.text <| Maybe.withDefault "Clanless" x.clan]

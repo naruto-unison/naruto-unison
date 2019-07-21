@@ -1,4 +1,4 @@
-#contents {
+main {
     height: 100%;
     -webkit-user-select: none;
     user-select: none;
@@ -8,7 +8,7 @@
 a:hover {
     text-decoration: none !important;
 }
-em {
+i {
     color: #600;
 }
 p {
@@ -242,16 +242,16 @@ body {
     outline-width: 2px !important;
     outline-style: solid !important;
 }
-#charSelect > article > header {
+#charSelect > article > h1 {
     font-size: 18px;
     font-weight: bold;
 }
-#charSelect > article > header > img {
+#charSelect > article > h1 > img {
     width: 60px;
     height: 60px;
     float: right;
 }
-#charSelect > article > section > header {
+#charSelect > article > section > h1 {
     font-size: 14px;
     font-weight: bold;
 }
@@ -267,7 +267,7 @@ body {
 #characterButtons {
     text-align: center;
     position: absolute;
-    bottom: 50px;
+    bottom: 15px;
     height: 202px;
     padding: 5px;
     padding-top: 3px;
@@ -283,12 +283,17 @@ body {
     overflow: hidden;
 }
 
+#charSelect > header {
+    width: 100%;
+    margin-top: 15px;
+    display: flex;
+}
+
 #teamContainer {
-    position: absolute;
-    right: 0;
-    top: 50px;
+    width: 263px;
     text-align: right;
-    width: 538px;
+    display: flex;
+    flex-direction: column;
 }
 
 .playButtons {
@@ -341,33 +346,26 @@ a.playButton {
     margin: 0 4px 0 6px;
 }
 
-#teamContainer > div {
+#underTeam, #userBox {
     border: 2px solid #000;
-}
-#teamContainer > div#teamButtons {
-    border: none;
 }
 
 #teamContainer > #underTeam {
     height: 10px;
-    width: 259px;
     border-right: 0;
     margin-left: 4px;
     position: relative;
     z-index: 10;
 }
-#teamContainer > div:first-child {
+#userBox {
     width: 251px;
-    height: 105px;
     padding: 5px 10px 5px 10px;
     line-height: 1.15;
     margin-left: -2px;
     text-align: left;
     /* text-transform: uppercase; */
     font-size: 15px;
-    position: absolute;
-    right: 0;
-    bottom: 0;
+    position: relative;
 }
 .userimg {
     border: 1px solid #000;
@@ -455,7 +453,7 @@ a.playButton {
     display: inline-block;
     vertical-align: top;
 }
-#top > section header {
+#top > section h1 {
     font-size: 1.2em;
 }
 .avatar {
@@ -496,7 +494,7 @@ a.playButton {
 #top > article img {
     margin-bottom: 0;
 }
-#top > article header {
+#top > article h1 {
     font-weight: bold;
     font-size: 16px;
 }

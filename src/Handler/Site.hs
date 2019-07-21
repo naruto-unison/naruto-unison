@@ -90,6 +90,6 @@ $if not long
     change        = logLabel long
     display Original = [shamlet|#{name}|]
     display Reanimated     = [shamlet|#{name}
-<a .minor data-name=#{tagName}>ℝ|]
+<sup data-name=#{tagName}>ℝ|]
     display Shippuden     = [shamlet|#{name}
-<a .minor data-name=#{tagName}>𝕊|]
+<sup data-name=#{tagName}>𝕊|]

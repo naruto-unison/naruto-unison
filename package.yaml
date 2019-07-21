@@ -171,6 +171,7 @@ default-extensions:
 - ViewPatterns
 - MonadComprehensions
 - BlockArguments
+- MagicHash
 # More powerful types
 - TypeFamilies
 # More powerful deriving

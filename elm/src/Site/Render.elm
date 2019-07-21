@@ -73,8 +73,8 @@ simplify c = case c of
 name : Character -> List (Html msg)
 name char = case char.category of
     Original   -> [H.text char.name]
-    Shippuden  -> [H.text char.name, H.span [A.class "minor"] [H.text "𝕊"]]
-    Reanimated -> [H.text char.name, H.span [A.class "minor"] [H.text "ℝ"]]
+    Shippuden  -> [H.text char.name, H.sup [] [H.text "𝕊"]]
+    Reanimated -> [H.text char.name, H.sup [] [H.text "ℝ"]]
 
 duration : Int -> List (Html msg)
 duration x = case x of
@@ -154,7 +154,7 @@ parseChakra kind =
 
 parseName : Parser (Html msg)
 parseName =
-    Parser.succeed (H.em [] << List.singleton << H.text)
+    Parser.succeed (H.i [] << List.singleton << H.text)
     |. Parser.symbol "["
     |= Parser.getChompedString (Parser.chompWhile ((/=) ']'))
     |. Parser.symbol "]"

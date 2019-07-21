@@ -66,11 +66,11 @@ app websocket ports =
           Just err -> (::) <| H.div [A.class "error"] [H.text err]
         contents =
             if st.selectModel.stage == Select.Queued then
-                H.div [A.id "contents", A.class "queueing"] <<
+                H.main_ [A.class "queueing"] <<
                 (::)
-                (H.aside [A.id "searching"] [H.img [A.src "/img/spin.gif"] []])
+                (H.div [A.id "searching"] [H.img [A.src "/img/spin.gif"] []])
             else
-                H.div [A.id "contents"]
+                H.main_ []
       in
         Document "Naruto Unison" << List.singleton << contents << showError <|
         case st.playModel of

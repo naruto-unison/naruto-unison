@@ -70,7 +70,7 @@ const hoverChar = (i, el) => {
 $(() => {
     const tooltip = $("#tooltip")
     $("a.name").each(hoverChar)
-    $("li").find(".minor").each(hoverChar)
+    $("li").find("sup").each(hoverChar)
     $(".head").each(hoverChar)
     $(".skill").each((i, el) => {
         const src = $(el)

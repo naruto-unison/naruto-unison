@@ -3,7 +3,7 @@
     padding: 4px;
     margin: -4px;
 }
-.name:hover, .skill:hover, .minor:hover {
+.name:hover, .skill:hover, small:hover {
   text-decoration: none !important;
 }
 

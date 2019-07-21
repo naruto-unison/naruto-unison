@@ -1,3 +1,6 @@
+.space {
+    flex-grow: 1;
+}
 .message {
     display: none;
 }
@@ -180,7 +183,7 @@ h4 { font-size: 1.15em; }
   margin-left: 10px;
   color: #606060;
 }
-.minor {
+sup {
   font-style: italic;
   color: #606060;
   margin-left: -0.3em;
@@ -191,10 +194,10 @@ h4 { font-size: 1.15em; }
   color: #606060;
   margin-left: 0.4em;
 }
-article .minor {
+article sup {
     margin-left: 1px;
 }
-a, a.minor {
+a, a sup {
   color: #0099ff;
   text-decoration: none;
 }
