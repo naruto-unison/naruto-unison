@@ -106,7 +106,7 @@ effect removable x =
       else
         []
   in
-    H.div meta [H.text <| "- " ++ x.desc]
+    H.li meta [H.text x.desc]
 
 hidden : List String
 hidden =

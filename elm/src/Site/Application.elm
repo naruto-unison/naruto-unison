@@ -63,7 +63,7 @@ app websocket ports =
       let
         showError = case st.error of
           Nothing  -> identity
-          Just err -> (::) <| H.div [A.class "error"] [H.text err]
+          Just err -> (::) <| H.div [A.id "error"] [H.text err]
         contents =
             if st.selectModel.stage == Select.Queued then
                 H.main_ [A.class "queueing"] <<

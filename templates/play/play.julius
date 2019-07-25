@@ -83,7 +83,7 @@ const observer = new MutationObserver(mutations => {
           }
         }
 })
-observer.observe(document.getElementById("contents"), { childList: true })
+observer.observe(document.getElementsByTagName("main")[0], { childList: true })
 
 
 app.ports.websocketSend.subscribe(msg => {

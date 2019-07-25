@@ -8,6 +8,9 @@ main {
 a:hover {
     text-decoration: none !important;
 }
+body h1 {
+    text-transform: none;
+}
 i {
     color: #600;
 }
@@ -25,10 +28,6 @@ p {
 
 .player {
     height: 100%;
-}
-
-.cancel {
-    border: 1px solid #e00;
 }
 
 #registerForm, #loginForm {
@@ -60,7 +59,8 @@ body {
     background: url('/img/bg/silhouette.jpg') no-repeat center center !important;
     overflow: hidden;
 }
-.controls {
+
+#controls {
     position: absolute;
     left: 0;
     right: 0;
@@ -118,7 +118,7 @@ body {
     margin-top: -10px;
 }
 
-#charSelect > #msg {
+#msg {
     display: none;
     border: 2px solid #000;
     position: absolute;
@@ -132,7 +132,7 @@ body {
     top: 186px;
 }
 
-#charSelect > #privatePopup {
+#privatePopup {
     width: 201px;
     margin: auto;
     position: absolute;
@@ -166,6 +166,7 @@ body {
     font-size: 12px;
     padding: 5px 10px;
     width: 100%;
+    z-index: 1;
 }
 #charSelect > article > p {
     min-height: 40px;
@@ -174,13 +175,10 @@ body {
     filter: grayscale(0.8);
     pointer-events: none;
 }
-#charSelect.queueing > article {
-    display: none;
-}
 #accountSettings {
     padding: 0.5em 1.3em;
 }
-#accountSettings span {
+#accountSettings label {
     min-width: 11em;
     display: inline-block;
     font-weight: bold;
@@ -194,19 +192,18 @@ body {
 #accountSettings p {
     margin: 0.5em 0;
 }
-#accountSettings span#userfail {
+#userfail {
     color: #e00;
     width: inherit;
     margin-left: 0.5em;
 }
-.error {
+#error {
     color: #e00;
     position: absolute;
     bottom: 10px;
     left: 10px;
     background-color: rgba(255,255,255,0.5);
     border: 1px solid #fff;
-
 }
 #avatars {
     height: 209px;
@@ -227,12 +224,14 @@ body {
     height: 50px;
     width: 50px;
 }
+
 #charSelect > article > aside {
     width: 75px;
     position: absolute;
     bottom: -3px;
     left: -65px;
 }
+
 #charSelect > article > aside .char {
     outline-color: #fff;
     outline-width: 1px !important;
@@ -259,7 +258,7 @@ body {
     min-height: 43px;
     margin: 0.1em 0.1em 0 0.1em;
 }
-#charSelect > article > section > aside {
+#charSelect > article > section > div {
     float: left;
     position: relative;
 }
@@ -267,7 +266,7 @@ body {
 #characterButtons {
     text-align: center;
     position: absolute;
-    bottom: 15px;
+    bottom: 30px;
     height: 202px;
     padding: 5px;
     padding-top: 3px;
@@ -285,7 +284,7 @@ body {
 
 #charSelect > header {
     width: 100%;
-    margin-top: 15px;
+    padding-top: 15px;
     display: flex;
 }
 
@@ -296,14 +295,8 @@ body {
     flex-direction: column;
 }
 
-.playButtons {
-    position: absolute;
-    left: -3px;
-    top: 45px;
-    width: 195px;
-    height: 125px;
-    bottom: 2px;
-    z-index: 20; /* Yeah, yeah, I know. */
+#playButtons {
+    margin: -3px;
 }
 
 .playButton, #updateButton, #logoutButton {
@@ -346,16 +339,26 @@ a.playButton {
     margin: 0 4px 0 6px;
 }
 
+#teamButtons img {
+    width: 75px;
+    height: 75px;
+    outline: 2px solid #000;
+}
+
+#teamButtons .char.click:hover {
+    outline: 2px solid #ff0000;
+}
+
 #underTeam, #userBox {
     border: 2px solid #000;
 }
 
-#teamContainer > #underTeam {
+#underTeam {
     height: 10px;
     border-right: 0;
     margin-left: 4px;
     position: relative;
-    z-index: 10;
+    z-index: 1;
 }
 #userBox {
     width: 251px;
@@ -368,13 +371,13 @@ a.playButton {
     position: relative;
 }
 .userimg {
-    border: 1px solid #000;
+    border: 2px solid #000;
     position: absolute;
     right: 5px;
     bottom: 5px;
 }
 
-#characterButtons > aside {
+#characterButtons > nav {
     position: absolute;
     font-family: Georgia, serif;
     top: 65px;
@@ -425,16 +428,6 @@ a.playButton {
     width: 60px;
 }
 
-#teamButtons img {
-    width: 75px;
-    height: 75px;
-    outline: 2px solid #000;
-}
-
-#teamButtons .char.click:hover {
-    outline: 2px solid #ff0000;
-}
-
 #top {
     position: absolute;
     top: 10px;
@@ -481,12 +474,15 @@ a.playButton {
     position: absolute;
     right: 290px;
 }
-#top > article > div {
+#top > article > section {
     display: flex;
     margin-bottom: 0.25em;
 }
-#top > article > div > div {
+#top > article section {
     flex-grow: 1;
+}
+#top > article span {
+    display: block;
 }
 #top > article aside {
     position: relative;
@@ -498,7 +494,7 @@ a.playButton {
     font-weight: bold;
     font-size: 16px;
 }
-#top > article section {
+#top > article ul {
     font-weight: bold;
 }
 .player {
@@ -842,6 +838,13 @@ svg {
     margin-top: 6px;
     pointer-events: all;
     opacity: 0.5;
+    background: none;
+    border: none;
+    padding: 0;
+    width: 100%;
+}
+.chakraButton:hover {
+    background: none;
 }
 .chakraButton.click {
     opacity: 1;

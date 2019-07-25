@@ -185,12 +185,13 @@ component ports =
                     [ A.id "charScroll"
                     , E.onMouseOver Untoggle
                     ] <| for displays <| \char ->
-                        (characterName char, H.div [A.class <| charClass char]
-                        [ icon char "icon"
+                        ( characterName char
+                        , icon char "icon"
                           [ E.onMouseOver << Preview <| PreviewChar char
                           , E.onClick <| Team Add char
+                          , A.class <| charClass char
                           ]
-                        ])
+                        )
                   ]
                 ]
 
@@ -331,7 +332,7 @@ userBox mUser csrf showLogin team =
                 [ A.id "userBox", A.class "parchment loggedin"
                 , E.onMouseOver << Preview <| PreviewUser user
                 ]
-                [ H.img [A.class "userimg char", A.src user.avatar] []
+                [ H.img [A.class "userimg", A.src user.avatar] []
                 , H.strong [] [H.text user.name]
                 , H.br [] []
                 , H.text <| rank user
@@ -388,7 +389,7 @@ userBox mUser csrf showLogin team =
                           ] []
                         ]
                       )
-                    , ( showLogin, H.div [A.class "controls"]
+                    , ( showLogin, H.div [A.id "controls"]
                         [ H.button
                           [ A.class       "playButton click"
                           , A.type_       "submit"
@@ -399,7 +400,7 @@ userBox mUser csrf showLogin team =
                           ] [H.text "Register"]
                         ]
                       )
-                    , ( not showLogin, H.div [A.class "controls"]
+                    , ( not showLogin, H.div [A.id "controls"]
                         [ H.a
                           [ A.class       "click"
                           , E.onClick     SwitchLogin
@@ -419,12 +420,13 @@ userBox mUser csrf showLogin team =
       , H.section [A.id "teamContainer"]
         [ H.div [A.class "space"] []
         , Keyed.node "div" [A.id "teamButtons"] << for team <| \char ->
-            (characterName char, H.div [A.class "char click"]
-            [ icon char "icon"
-              [ E.onMouseOver << Preview <| PreviewChar char
+            ( characterName char
+            , icon char "icon"
+              [ A.class "char click"
+              , E.onMouseOver << Preview <| PreviewChar char
               , E.onClick <| Team Delete char
               ]
-            ])
+            )
         , H.div [A.id "underTeam", A.class "parchment"] []
         ]
       , box

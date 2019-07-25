@@ -5,6 +5,7 @@ import Html.Events     as E
 import Html.Attributes as A
 import Http
 import Json.Decode     as D
+import Html.Lazy exposing (..)
 import List.Extra      as List
 import Maybe.Extra     as Maybe
 import Process
@@ -122,7 +123,7 @@ component ports =
             List.map3 Bundle characters st.game.ninjas st.game.targets
       in
         H.div [A.id "game"] <|
-        [ H.div [A.class "error"] [H.text st.error]
+        [ H.div [A.id "error"] [H.text st.error]
         , H.section [A.id "top"]
           [ H.section
             [ A.id "account0"
@@ -134,7 +135,7 @@ component ports =
               ]
             , H.img [A.class "charicon", A.src st.user.avatar] []
             ]
-          , H.article [A.class "parchment"] <| renderView characters st.viewing
+          , lazy2 renderView characters st.viewing
           , H.section [A.id "account1", E.onMouseOver << View <| ViewUser st.vs]
             [ H.img [A.class "charicon", A.src st.vs.avatar] []
             , H.section []
@@ -151,7 +152,7 @@ component ports =
             [] ->
               let
                 chakraButton text msg condition =
-                    H.div
+                    H.button
                     ( A.id (String.toLower text)
                       :: clickIf condition "chakraButton" (Exchange msg)
                     ) [H.text text]
@@ -341,12 +342,13 @@ clickIf succeeds class command =
 renderChakra : Bool -> Bool -> Chakras -> ChakraPair -> Html Msg
 renderChakra turn exchange chakras (ChakraPair chakra spend amount random) =
   let
+    classes = "chakra " ++ chakra
     meta =
       if exchange then
-        clickIf (Chakra.affordable chakras spend) "chakra" <<
+        clickIf (Chakra.affordable chakras spend) classes <<
         Exchange <| Conclude spend
       else
-        [A.class <| "chakra " ++ chakra]
+        [A.class classes]
   in
     H.div []
     [ H.div meta []
@@ -379,8 +381,7 @@ renderChannel characters chan =
     , E.onMouseOver << View <| ViewSkill chan.source [] 0 chan.skill
     ]
     [ H.span [] << Render.duration <| Game.dur chan
-    , H.div []
-      [icon (Game.get characters chan.source) chan.skill.name []]
+    , icon (Game.get characters chan.source) chan.skill.name []
     ]
 
 renderBarrier : Int -> String -> Int -> List Barrier -> List (Html Msg)
@@ -527,30 +528,30 @@ label name = H.span [A.class "label"] [H.text name]
 
 bar : Character -> String -> Int -> Int -> List (Html msg)
 bar source name amount dur =
-  [ H.div []
+  [ H.section []
     [ icon source name [A.class "char"]
-    , H.div []
+    , H.section []
       [ H.h1 [] [H.text name]
       , label "Amount: "
-      , H.div [] [H.text <| String.fromInt amount]
+      , H.span [] [H.text <| String.fromInt amount]
       , label "Duration: "
-      , H.div [] <| case dur of
+      , H.span [] <| case dur of
             0 -> [H.text "Permanent"]
             _ -> Render.duration dur
       , label "Source: "
-      , H.div [] <| Render.name source
+      , H.span [] <| Render.name source
       ]
     ]
   ]
 
-renderView : List Character -> Viewable -> List (Html Msg)
-renderView characters viewing = case viewing of
+renderView : List Character -> Viewable -> Html Msg
+renderView characters viewing = H.article [A.class "parchment"] <| case viewing of
     ViewBarrier x   -> bar (Game.get characters x.user) x.name x.amount x.dur
     ViewDefense x   -> bar (Game.get characters x.user) x.name x.amount x.dur
     ViewCharacter x ->
-        [ H.div []
+        [ H.section []
           [ icon x "icon" [A.class "char"]
-          , H.div []
+          , H.section []
             [ H.h1 [] <| Render.name x
             , H.p [] [H.text x.bio]
             ]
@@ -570,20 +571,20 @@ renderView characters viewing = case viewing of
           else
               H.span [] [H.text count]
       in
-        [ H.div []
+        [ H.section []
           [ icon source "icon" [A.class "char"]
-          , H.div []
+          , H.section []
             [ H.h1 [] [name]
             , Render.classes True x.classes
             , label "Source: "
-            , H.div [] <| Render.name source
+            , H.span [] <| Render.name source
             , label "Duration: "
-            , H.div [] <| case x.dur of
+            , H.span [] <| case x.dur of
                   0 -> [H.text "Permanent"]
                   y -> Render.duration y
-            , H.section [] <| List.map (Render.effect removable) x.effects
             ]
           ]
+        , H.ul [] <| List.map (Render.effect removable) x.effects
         , H.p [] <| Render.desc x.desc
         ]
     ViewSkill user _ charge x ->
@@ -638,33 +639,33 @@ renderView characters viewing = case viewing of
               )
             )
       in
-        [ H.div []
+        [ H.section []
           [ H.div [] <|
             icon (Game.root characters x user) x.name [A.class "char"]
             :: Maybe.withDefault [] varyButtons
-          , H.div []
+          , H.section []
             [ H.h1 [] [H.text x.name]
             , Render.classes False x.classes
             , label "Cost: "
-            , H.div [] cost
+            , H.span [] cost
             , label "Duration: "
-            , H.div [] [H.text duration]
+            , H.span [] [H.text duration]
             , label "Cooldown: "
-            , H.div [] [H.text cooldown]
+            , H.span [] [H.text cooldown]
             ]
           ]
         , H.p [] <| Render.desc x.desc ++ charges
         ]
     ViewUser x ->
-        [ H.div []
+        [ H.section []
           [ H.img [A.class "char", A.src x.avatar] []
-          , H.div []
+          , H.section []
             [ H.h1 [] [H.text x.name]
-            , H.div [] [H.text <| Game.rank x]
+            , H.span [] [H.text <| Game.rank x]
             , label "Clan: "
-            , H.div [] [H.text <| Maybe.withDefault "Clanless" x.clan]
+            , H.span [] [H.text <| Maybe.withDefault "Clanless" x.clan]
             , label "Level: "
-            , H.div [] [H.text << String.fromInt <| x.xp // 1000]
+            , H.span [] [H.text << String.fromInt <| x.xp // 1000]
             ]
           ]
         ]
