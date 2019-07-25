@@ -156,7 +156,6 @@ h4 { font-size: 1.15em; }
   outline: 1px solid #000;
   margin: 5px;
   vertical-align: top;
-  height: 100%;
 }
 
 .chakra {

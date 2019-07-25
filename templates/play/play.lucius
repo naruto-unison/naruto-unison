@@ -487,12 +487,15 @@ a.playButton {
 #top > article aside {
     position: relative;
 }
-#top > article img {
+#top > article .char {
     margin-bottom: 0;
+    height: 75px;
+    width: 75px;
 }
 #top > article h1 {
     font-weight: bold;
     font-size: 16px;
+    margin-bottom: 0;
 }
 #top > article ul {
     font-weight: bold;
@@ -504,9 +507,9 @@ a.playButton {
     transition: 0.5s all;
 }
 #game .skillClasses {
-    display: block !important;
-    font-size: 1em !important;
-    margin-left: 0 !important;
+    display: block;
+    font-size: 1em;
+    margin-left: 0;
 }
 .player > section {
     margin-bottom: 15px;
