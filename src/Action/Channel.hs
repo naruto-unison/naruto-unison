@@ -55,7 +55,7 @@ onInterrupts match = traverse_ onInterrupt . getInterrupts match =<< P.nTarget
 -- | Triggers 'Skill.interrupt' effects of a 'Channel'.
 onInterrupt :: ∀ m. (MonadPlay m, MonadRandom m) => Channel -> m ()
 onInterrupt chan = P.with chanContext $
-        traverse_ (Execute.effect [Channeled, Interrupted]) disr
+        traverse_ (Execute.effect $ setFromList [Channeled, Interrupted]) disr
   where
     name = Skill.name $ Channel.skill chan
     disr = (Self,  P.toTarget $ Ninja.clearVariants name)

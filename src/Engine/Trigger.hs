@@ -18,7 +18,7 @@ import           Core.Util ((∈), (∉), intersects)
 import qualified Class.Play as P
 import           Class.Play (MonadGame, Play, SavedPlay)
 import           Class.Random (MonadRandom)
-import           Model.Class (Class(..))
+import           Model.Class (Class(..), ClassSet)
 import           Model.Duration (Duration)
 import           Model.Effect (Effect(..))
 import qualified Model.Channel as Channel
@@ -36,7 +36,7 @@ import qualified Engine.Traps as Traps
 
 -- | Trigger a 'Replace'.
 -- Returns ('Status.user', 'Status.name', 'Effects.replaceTo', 'Effects.replaceDuration').
-replace :: [Class] -> Ninja -> Bool -> [(Slot, Text, Int, Duration)]
+replace :: ClassSet -> Ninja -> Bool -> [(Slot, Text, Int, Duration)]
 replace classes n harm = mapMaybe ifCopy allStatuses
   where
     allStatuses = filter (any matches . Status.effects) $ Ninja.statuses n
@@ -46,7 +46,7 @@ replace classes n harm = mapMaybe ifCopy allStatuses
                   | Replace dur _ to _ <- find matches $ Status.effects st]
 
 -- | Trigger a 'Counter'.
-counter :: [Class]
+counter :: ClassSet
         -> Ninja -- ^ User
         -> Ninja -- ^ Target
         -> Maybe (Ninja, Ninja, Maybe (SavedPlay)) -- ^ (User', target', effect)
@@ -95,11 +95,11 @@ parry skill n =
     match _ = False
 
 -- | Trigger a 'Reflect'.
-reflect :: [Class] -> Ninja -> Ninja -> Maybe Ninja
+reflect :: ClassSet -> Ninja -> Ninja -> Maybe Ninja
 reflect classes n nt
-  | [Mental, Unreflectable] `intersects` classes                      = Nothing
+  | [Mental, Unreflectable] `intersects` classes              = Nothing
   | any ((ReflectAll ∈) . Status.effects) $ Ninja.statuses nt = Just nt
-  | any ((OnReflectAll ==) . Trap.trigger) $ Ninja.traps n         = Just nt
+  | any ((OnReflectAll ==) . Trap.trigger) $ Ninja.traps n    = Just nt
   | otherwise = Ninja.drop (Reflect ==) nt
 
 -- | Trigger a 'SnareTrap'.
@@ -109,18 +109,18 @@ snareTrap skill n = [(n', a) | (n', SnareTrap _ a, _) <- Ninja.take match n]
     match (SnareTrap cla _) = cla ∈ Skill.classes skill
     match _                 = False
 
-reflectable :: ([Effect] -> Bool) -> [Class] -> Ninja -> Maybe Status
+reflectable :: ([Effect] -> Bool) -> ClassSet -> Ninja -> Maybe Status
 reflectable matches classes
   | Unreflectable ∈ classes = const Nothing
   | otherwise               = find (matches . Status.effects) . Ninja.statuses
 
 -- | Trigger a 'Redirect'.
-redirect :: [Class] -> Ninja -> Maybe Slot
+redirect :: ClassSet -> Ninja -> Maybe Slot
 redirect classes n = listToMaybe [slot | Redirect cla slot <- Ninja.effects n
                                        , cla ∈ classes || cla == Uncounterable]
 
 -- | Trigger a 'Swap'.
-swap :: [Class] -> Ninja -> Maybe Status
+swap :: ClassSet -> Ninja -> Maybe Status
 swap classes = reflectable (any match) classes
   where
     match (Swap cla) = cla ∈ classes

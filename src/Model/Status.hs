@@ -39,7 +39,7 @@ dead slot = Status { amount  = 1
                    , user    = slot
                    , skill   = Skill.new
                    , effects = singleton Plague
-                   , classes = []
+                   , classes = mempty
                    , bombs   = []
                    , maxDur  = -1
                    , dur     = -1

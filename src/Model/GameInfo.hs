@@ -115,9 +115,9 @@ skillTargets skill c = filter target Slot.all
          <$> Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill
     harm = [Enemy, Enemies, REnemy, XEnemies] `intersects` ts
     target t
-      | Everyone ∈ ts = True
-      | not $ Parity.allied c t = harm
-      | [XAlly, XAllies] `intersects` ts = c /= t
+      | Everyone ∈ ts                         = True
+      | not $ Parity.allied c t               = harm
+      | [XAlly, XAllies] `intersects` ts      = c /= t
       | [Ally, Allies, RAlly] `intersects` ts = True
       | c == t = not harm
       | otherwise = False

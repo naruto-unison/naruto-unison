@@ -18,7 +18,7 @@ import Model.Character as Import (Character(..), Category)
 import Model.Chakra as Import (Chakra(..), Chakras)
 import Model.Channel as Import (Channeling(..))
 import Model.Copy as Import (Copying(..))
-import Model.Class as Import (Class(..))
+import Model.Class as Import (Class(..), ClassSet)
 import Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
 import Model.Ninja as Import (Ninja(health, slot), addOwnStacks, addOwnDefense, alive, hasDefense, hasOwn, isChanneling, numActive, numHelpful)
 import Model.Requirement as Import (Requirement(..))
@@ -45,7 +45,7 @@ import qualified Engine.Effects as Effects
 p :: ∀ a b. a -> PlayConstraint b -> (a, Play b)
 p tar f = (tar, Play f)
 
-invuln :: Text -> Text -> [Class] -> Skill
+invuln :: Text -> Text -> ClassSet -> Skill
 invuln skillName userName classes = Skill.new
     { Skill.name      = skillName
     , Skill.desc      = userName ++ " becomes invulnerable for 1 turn."

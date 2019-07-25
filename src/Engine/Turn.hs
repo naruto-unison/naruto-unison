@@ -88,7 +88,8 @@ doBomb bomb target st = traverse_ detonate $ Status.bombs st
   where
     ctx = (Context.fromStatus st) { Context.target = target }
     detonate (bomb', f)
-      | bomb == bomb' = P.withContext ctx . Execute.wrap [Trapped] $ P.play f
+      | bomb == bomb' = P.withContext ctx .
+                        Execute.wrap (singletonSet Trapped) $ P.play f
       | otherwise     = return ()
 
 -- | Executes 'Status.bombs' of all 'Status'es that were removed.

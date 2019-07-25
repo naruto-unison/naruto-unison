@@ -3,7 +3,6 @@ module Characters (map, list) where
 import ClassyPrelude hiding (map)
 
 import Data.HashMap.Strict (HashMap)
-import Data.List (nub)
 import Data.List.NonEmpty (NonEmpty(..))
 
 import           Core.Util ((∉), intersects)
@@ -72,9 +71,9 @@ doSkills (x:|xs) = doSkill x :| (doSkill . vari <$> xs)
                  [Skill.name skill, fromMaybe "" . initMay $ Skill.name x]
 
 doSkill :: Skill -> Skill
-doSkill skill = skill { Skill.classes = nub $ added ++ Skill.classes skill }
+doSkill skill = skill { Skill.classes = added ++ Skill.classes skill }
   where
-    added = fst <$> filter snd
+    added = setFromList $ fst <$> filter snd
             [ (All,       True)
             , (NonMental, Mental ∉ Skill.classes skill)
             , (Harmful,   harm)

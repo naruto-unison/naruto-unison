@@ -19,7 +19,7 @@ new :: Skill
 new = Skill { name      = "Unnamed"
             , desc      = ""
             , require   = Usable
-            , classes   = []
+            , classes   = mempty
             , cost      = 0
             , cooldown  = 0
             , varicd    = False

@@ -22,6 +22,7 @@ import           Yesod.Core.Dispatch (PathPiece(..))
 
 import qualified Class.Random as R
 import           Class.Random (MonadRandom)
+import           Model.Class (Class(..), ClassSet)
 
 -- | Collection of all chakra types.
 data Chakras = Chakras { blood :: Int -- ^ Bloodline
@@ -99,14 +100,14 @@ fromChakras (Chakras b g n t _) = replicate b Blood
 collect :: ∀ f. (Foldable f, Functor f) => f Chakra -> Chakras
 collect = sum . (toChakras <$>)
 
-
-classes :: Chakras -> [Class]
-classes (Chakras b g n t r) = fst <$> filter snd [ (Bloodline, b > 0)
-                                                 , (Genjutsu,  g > 0)
-                                                 , (Ninjutsu,  n > 0)
-                                                 , (Taijutsu,  t > 0)
-                                                 , (Random,    r > 0)
-                                                 ]
+classes :: Chakras -> ClassSet
+classes (Chakras b g n t r) = fromList $ fst <$> filter snd
+                              [ (Bloodline, b > 0)
+                              , (Genjutsu,  g > 0)
+                              , (Ninjutsu,  n > 0)
+                              , (Taijutsu,  t > 0)
+                              , (Random,    r > 0)
+                              ]
 
 -- | Randomly selects a 'Chakra'.
 random :: ∀ m. MonadRandom m => m Chakra

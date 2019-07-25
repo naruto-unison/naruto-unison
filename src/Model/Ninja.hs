@@ -96,7 +96,7 @@ is :: Effect -> Ninja -> Bool
 is ef = (ef ∈) . effects
 
 isAny :: (Class -> Effect) -> Ninja -> Bool
-isAny efs = (enumerate efs `intersects`) . effects
+isAny efs n = effects n `intersects` enumerate efs
 
 isChanneling :: Text -- ^ 'Skill.name'.
              -> Ninja -> Bool
@@ -250,7 +250,7 @@ decr n = case findMatch $ statuses n of
 addStatus :: Status -> Ninja -> Ninja
 addStatus st n = n { statuses = Classed.nonStack st' st' $ statuses n }
   where
-    st' = st { Status.classes = filter (InvisibleTraps /=) $ Status.classes st }
+    st' = st { Status.classes = deleteSet InvisibleTraps $ Status.classes st }
 
 addOwnStacks :: Duration -- ^ 'Status.dur'.
              -> Text -- ^ 'Status.name'.
@@ -260,7 +260,7 @@ addOwnStacks :: Duration -- ^ 'Status.dur'.
              -> Ninja -> Ninja
 addOwnStacks dur name s v i n =
     addStatus st { Status.name    = name
-                 , Status.classes = Unremovable : Status.classes st
+                 , Status.classes = insertSet Unremovable $ Status.classes st
                  , Status.amount  = i
                  } n
   where
@@ -472,7 +472,7 @@ kabuto skill n =
                                , Status.user    = nSlot
                                , Status.skill   = skill
                                , Status.effects = []
-                               , Status.classes = [Hidden, Unremovable]
+                               , Status.classes = setFromList [Hidden, Unremovable]
                                , Status.bombs   = []
                                , Status.maxDur  = 0
                                , Status.dur     = 0

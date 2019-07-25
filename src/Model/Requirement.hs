@@ -9,7 +9,7 @@ import ClassyPrelude
 
 import Data.Vector ((!?))
 
-import           Core.Util ((∈), (∉), intersects)
+import           Core.Util ((∈), (∉), intersectsSet)
 import qualified Class.Parity as Parity
 import           Model.Internal (Requirement(..))
 import qualified Model.Channel as Channel
@@ -29,9 +29,9 @@ usable :: Ninja
        -> Skill -> Skill
 usable n s sk
   | Skill.charges sk > 0 && uncharged                    = unusable
-  | maybe False (>0) $ (Cooldown.active n !?) =<< s      = unusable
+  | maybe False (> 0) $ (Cooldown.active n !?) =<< s     = unusable
   | isNothing s && Channel.ignoreStun (Skill.channel sk) = sk'
-  | Skill.classes sk `intersects` Effects.stun n         = unusable
+  | Skill.classes sk `intersectsSet` Effects.stun n      = unusable
   | isNothing s                                          = sk'
   | Single ∉ Skill.classes sk                            = sk'
   | Ninja.isChanneling (Skill.name sk) n                 = unusable
@@ -72,7 +72,7 @@ targetable skill n nt
   | not (Ninja.alive nt) && Necromancy ∉ classes             = False
   | Ninja.alive nt && user /= target && Necromancy ∈ classes = False
   | Bypassing ∈ classes                                      = True
-  | harm && (classes `intersects` Effects.immune nt)         = False
+  | harm && (classes `intersectsSet` Effects.immune nt)      = False
   | user /= target && not harm && Ninja.is Seal nt           = False
   | user /= target && (dueling || taunted)                   = False
   | target ∈ Effects.block  n                                = False

@@ -30,7 +30,7 @@ import Data.List.NonEmpty (NonEmpty(..))
 import           Core.Util ((!!), (∈), intersects)
 import qualified Class.Parity as Parity
 import           Model.Chakra (Chakras(..))
-import           Model.Class (Class(..))
+import           Model.Class (Class(..), ClassSet)
 import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Ninja as Ninja
@@ -54,7 +54,7 @@ negativeTotal xs Flat = total xs Flat
 negativeTotal xs Percent = total (second (1 -) <$> xs) Percent
 
 -- | 'Bleed' sum.
-bleed :: [Class] -> Ninja -> Amount -> Float
+bleed :: ClassSet -> Ninja -> Amount -> Float
 bleed classes n =
     total [(amt, x) | Bleed cla amt x <- Ninja.effects n, cla ∈ classes]
 
@@ -82,7 +82,7 @@ duel :: Ninja -> [Slot]
 duel n = [slot | Duel slot <- Ninja.effects n, slot /= Ninja.slot n]
 
 -- | 'Exhaust' sum.
-exhaust :: [Class] -> Ninja -> Chakras
+exhaust :: ClassSet -> Ninja -> Chakras
 exhaust classes n =
     0 { rand = length [x | Exhaust x <- Ninja.effects n, x ∈ classes] }
 
@@ -91,21 +91,22 @@ ignore :: Ninja -> [Effect]
 ignore n = [ef | Ignore con <- Ninja.effects n, ef <- Effect.construct con]
 
 -- | 'Invulnerable' collection.
-immune :: Ninja -> [Class]
-immune n = [x | Invulnerable x <- Ninja.effects n]
+immune :: Ninja -> ClassSet
+immune n = setFromList [x | Invulnerable x <- Ninja.effects n]
 
 -- | 'Invincible' collection.
-invincible :: Ninja -> [Class]
-invincible (Ninja.effects -> efs) = [x | Invincible x <- efs]
+invincible :: Ninja -> ClassSet
+invincible n = setFromList [x | Invincible x <- Ninja.effects n]
 
 -- | 'Reduce' sum.
-reduce :: [Class] -> Ninja -> Amount -> Float
-reduce [Affliction] n =
-    negativeTotal [(amt, x) | Reduce Affliction amt x <- Ninja.effects n]
-reduce classes n =
-    negativeTotal [(amt, x) | Reduce cla amt x <- Ninja.effects n
-                            , cla ∈ classes
-                            , cla /= Affliction]
+reduce :: ClassSet -> Ninja -> Amount -> Float
+reduce classes n
+    | classes == singletonSet Affliction =
+        negativeTotal [(amt, x) | Reduce Affliction amt x <- Ninja.effects n]
+    | otherwise =
+        negativeTotal [(amt, x) | Reduce cla amt x <- Ninja.effects n
+                                , cla ∈ classes
+                                , cla /= Affliction]
 
 -- | 'Share' collection.
 share :: Ninja -> [Slot]
@@ -116,13 +117,13 @@ snare :: Ninja -> Int
 snare n = sum [x | Snare x <- Ninja.effects n]
 
 -- | 'Strengthen' sum.
-strengthen :: [Class] -> Ninja -> Amount -> Float
+strengthen :: ClassSet -> Ninja -> Amount -> Float
 strengthen classes n =
     total [(amt, x) | Strengthen cla amt x <- Ninja.effects n, cla ∈ classes]
 
 -- | 'Stun' collection.
-stun :: Ninja -> [Class]
-stun n = [x | Stun x <- Ninja.effects n]
+stun :: Ninja -> ClassSet
+stun n = setFromList [x | Stun x <- Ninja.effects n]
 
 -- | 'Taunt' collection.
 taunt :: Ninja -> [Slot]
@@ -143,7 +144,7 @@ unreduce :: Ninja -> Int
 unreduce n = sum [x | Unreduce x <- Ninja.effects n]
 
 -- | 'Weaken' sum.
-weaken :: [Class] -> Ninja -> Amount -> Float
+weaken :: ClassSet -> Ninja -> Amount -> Float
 weaken classes n =
   negativeTotal [(amt, x) | Weaken cla amt x <- Ninja.effects n, cla ∈ classes]
 
@@ -192,16 +193,17 @@ afflict1 ninjas player t st
     nt     = ninjas !! Slot.toInt t
     n      = ninjas !! Slot.toInt user
     summed = fromIntegral $ sum [hp' | Afflict hp' <- Status.effects st]
+    classes = setFromList [Affliction, All]
     ext
       | t == user                    = 0
-      | not $ Ninja.alive n          = bleed [Affliction, All] nt Flat
+      | not $ Ninja.alive n          = bleed      classes nt Flat
       | Ninja.is (Stun Affliction) n = 0
-      | otherwise                    = strengthen [Affliction, All] n  Flat
-                                     + bleed      [Affliction, All] nt Flat
+      | otherwise                    = strengthen classes n  Flat
+                                     + bleed      classes nt Flat
     scale
-      | t == user                  = 0
-      | not $ Ninja.alive n          = bleed [Affliction, All] nt Percent
+      | t == user                    = 0
+      | not $ Ninja.alive n          = bleed      classes nt Percent
       | Ninja.is (Stun Affliction) n = 0
-      | otherwise                    = strengthen [Affliction, All] n  Percent
-                                     * bleed      [Affliction, All] nt Percent
+      | otherwise                    = strengthen classes n  Percent
+                                     * bleed      classes nt Percent
 

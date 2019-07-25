@@ -28,7 +28,7 @@ import qualified Class.Labeled
 import           Class.Labeled (Labeled)
 import           Class.Random (MonadRandom)
 import           Class.TurnBased (TurnBased(..))
-import           Model.Class (Class(..))
+import           Model.Class (Class(..), ClassSet)
 import           Model.Chakra (Chakras(..))
 import           Model.Defense (Defense(..))
 import           Model.Duration (Duration, sync, unsync)
@@ -105,23 +105,23 @@ data Effect
               Bool  -- ^ Include non-harmful 'Skill's
               deriving (Eq)
 instance Classed Effect where
-    classes (Bleed cla _ _)      = [cla]
-    classes (Counter cla)        = [cla]
-    classes (CounterAll cla)     = [cla]
-    classes (Exhaust cla)        = [cla]
-    classes (Invulnerable cla)   = [cla]
-    classes (Invincible cla)     = [cla]
-    classes (Parry cla _)        = [cla]
-    classes (ParryAll cla _)     = [cla]
-    classes (Reduce cla _ _)     = [cla]
-    classes (Redirect cla _)     = [cla]
-    classes (SnareTrap cla _)    = [cla]
-    classes (Strengthen cla _ _) = [cla]
-    classes (Stun cla)           = [cla]
-    classes (Swap cla)           = [cla]
-    classes (Weaken cla _ _)     = [cla]
-    classes (Replace _ cla _ _)  = [cla]
-    classes _                    = []
+    classes (Bleed cla _ _)      = singletonSet cla
+    classes (Counter cla)        = singletonSet cla
+    classes (CounterAll cla)     = singletonSet cla
+    classes (Exhaust cla)        = singletonSet cla
+    classes (Invulnerable cla)   = singletonSet cla
+    classes (Invincible cla)     = singletonSet cla
+    classes (Parry cla _)        = singletonSet cla
+    classes (ParryAll cla _)     = singletonSet cla
+    classes (Reduce cla _ _)     = singletonSet cla
+    classes (Redirect cla _)     = singletonSet cla
+    classes (SnareTrap cla _)    = singletonSet cla
+    classes (Strengthen cla _ _) = singletonSet cla
+    classes (Stun cla)           = singletonSet cla
+    classes (Swap cla)           = singletonSet cla
+    classes (Weaken cla _ _)     = singletonSet cla
+    classes (Replace _ cla _ _)  = singletonSet cla
+    classes _                    = mempty
 
 instance ToJSON Effect where
     toJSON x = object
@@ -337,8 +337,8 @@ data Target
 data Skill = Skill { name      :: Text -- ^ Name
                    , desc      :: Text -- ^ Description
                    , require   :: Requirement   -- ^ Defaults to 'Usable'
-                   , classes   :: [Class]       -- ^ Defaults to @[]@
-                   , cost      :: Chakras       -- ^ Defaults to 'S.empty'
+                   , classes   :: ClassSet      -- ^ Defaults to @mempty@
+                   , cost      :: Chakras       -- ^ Defaults to '[]'
                    , cooldown  :: Duration      -- ^ Defaults to @0@
                    , varicd    :: Bool          -- ^ Defaults to @False@
                    , charges   :: Int           -- ^ Defaults to @0@
@@ -484,11 +484,11 @@ instance ToJSON Trigger where
     toJSON = toJSON . show
 
 instance Classed Trigger where
-    classes (OnAction cla)  = [cla]
-    classes (OnCounter cla) = [cla]
-    classes (OnDamaged cla) = [cla]
-    classes (OnHarmed cla)  = [cla]
-    classes _               = []
+    classes (OnAction cla)  = singletonSet cla
+    classes (OnCounter cla) = singletonSet cla
+    classes (OnDamaged cla) = singletonSet cla
+    classes (OnHarmed cla)  = singletonSet cla
+    classes _               = mempty
 
 instance Show Trigger where
     show (OnAction  All)  = "Trigger: Use any skill"
@@ -574,7 +574,7 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
                      , user    :: Slot -- ^ User
                      , skill   :: Skill
                      , effects :: [Effect]
-                     , classes :: [Class]
+                     , classes :: ClassSet
                      , bombs   :: [(Bomb, Play ())]
                      , maxDur  :: Int
                      , dur     :: Int
@@ -605,7 +605,7 @@ data Trap = Trap { direction :: Direction
                  , desc      :: Text
                  , user      :: Slot
                  , effect    :: Int -> SavedPlay
-                 , classes   :: [Class]
+                 , classes   :: ClassSet
                  , tracker   :: Int
                  , dur       :: Int
                  } deriving (Generic)

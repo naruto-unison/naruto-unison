@@ -60,7 +60,8 @@ changeWith name f n
 
 -- | Adds a 'Class' to 'Skill.classes'.
 addClass :: Class -> Skill.Transform
-addClass cla _ skill = skill { Skill.classes = cla : Skill.classes skill }
+addClass cla _ skill =
+    skill { Skill.classes = insertSet cla $ Skill.classes skill }
 
 -- | Replaces 'Skill.cost'.
 setCost :: Chakras -> Skill.Transform

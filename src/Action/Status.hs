@@ -22,15 +22,14 @@ module Action.Status
 import ClassyPrelude
 
 import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
-import Data.List (nub)
 
-import           Core.Util ((∈), (∉), enumerate, intersects)
+import           Core.Util ((∈), (∉))
 import qualified Class.Play as P
 import           Class.Play (Play(..), MonadPlay)
 import           Class.Random (MonadRandom)
 import qualified Model.Channel as Channel
 import           Model.Channel (Channeling(..))
-import           Model.Class (Class(..))
+import           Model.Class (Class(..), ClassSet)
 import qualified Model.Copy as Copy
 import qualified Model.Duration as Duration
 import           Model.Duration (Duration(..), Turns, incr, sync)
@@ -87,13 +86,13 @@ apply :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> [Effect] -> m ()
 apply = apply' ""
 -- | 'apply' with a 'Status.name'.
 apply' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> [Effect] -> m ()
-apply' = applyWith' []
+apply' = applyWith' mempty
 -- | 'apply' with extra 'Status.classes'.
-applyWith :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Turns -> [Effect]
+applyWith :: ∀ m. (MonadPlay m, MonadRandom m) => ClassSet -> Turns -> [Effect]
           -> m ()
 applyWith classes = applyWith' classes ""
 -- | 'applyWith' with a 'Status.name'.
-applyWith' :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Text -> Turns
+applyWith' :: ∀ m. (MonadPlay m, MonadRandom m) => ClassSet -> Text -> Turns
            -> [Effect] -> m ()
 applyWith' classes turns efs =
     P.unsilenced . applyFull classes False [] turns efs
@@ -120,7 +119,7 @@ addStacks' (Duration -> dur) name i = do
         st { Status.name   = name
            , Status.amount = i
            , Status.user   = user
-           , Status.classes = Unremovable : Status.classes st
+           , Status.classes = insertSet Unremovable $ Status.classes st
            }
 
 -- | Adds a hidden 'Status.Status' with no effects that immediately expires.
@@ -128,22 +127,22 @@ flag :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 flag = flag' ""
 -- | 'flag' with a 'Status.name'.
 flag' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> m ()
-flag' name = applyWith' [Hidden, Unremovable, Nonstacking] name (-1) []
-
+flag' name =
+    applyWith' (setFromList [Hidden, Unremovable, Nonstacking]) name (-1) []
 -- | Applies a 'Status.Status' with no effects, used as a marker for other
 -- 'Skill.Skill's.
 tag :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> m ()
 tag = tag' ""
 -- | 'tag' with a 'Status.name'.
 tag' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> m ()
-tag' name dur = applyWith' [Unremovable, Nonstacking] name dur []
+tag' name dur = applyWith' (setFromList [Unremovable, Nonstacking]) name dur []
 
 -- | Applies a 'Hidden' and 'Unremovable' 'Status.Status'.
 hide :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> [Effect] -> m ()
 hide = hide' ""
 -- | 'hide' with a 'Status.name'.
 hide' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> [Effect] -> m ()
-hide' = applyWith' [Unremovable, Hidden]
+hide' = applyWith' $ setFromList [Unremovable, Hidden]
 
 -- Adds a 'Status.Status' with 'Status.bombs' to 'Ninja.statuses'.
 -- Bombs apply an effect when the 'Status.Status' ends. If the 'Bomb' type is
@@ -158,24 +157,19 @@ bomb = bomb' ""
 -- | 'bomb' with a 'Status.name'.
 bomb' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> [Effect]
       -> [(Bomb, Play ())] -> m ()
-bomb' = bombWith' []
+bomb' = bombWith' mempty
 -- | 'bomb' with extra 'Status.classes'.
-bombWith :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Turns -> [Effect]
+bombWith :: ∀ m. (MonadPlay m, MonadRandom m) => ClassSet -> Turns -> [Effect]
          -> [(Bomb, Play ())] -> m ()
 bombWith classes = bombWith' classes ""
 -- | 'bombWith' with a 'Status.name'.
-bombWith' :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Text -> Turns
+bombWith' :: ∀ m. (MonadPlay m, MonadRandom m) => ClassSet -> Text -> Turns
           -> [Effect] -> [(Bomb, Play ())] -> m ()
 bombWith' classes name dur fs bombs =
     P.unsilenced $ applyFull classes False bombs name dur fs
 
-immuneEffects :: [Effect]
-immuneEffects = enumerate Invulnerable ++ enumerate Invincible
-stunEffects :: [Effect]
-stunEffects = enumerate Stun
-
 -- | Status engine.
-applyFull :: ∀ m. (MonadPlay m, MonadRandom m) => [Class] -> Bool
+applyFull :: ∀ m. (MonadPlay m, MonadRandom m) => ClassSet -> Bool
           -> [(Bomb, Play ())] -> Text -> Turns -> [Effect] -> m ()
 applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
     void $ runMaybeT do
@@ -193,11 +187,11 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                        || turns == 0
                        || turns == 1 && Skill.channel skill /= Instant
                        || null fs && Bane ∉ Skill.classes skill
-            extra    = fst <$> filter snd
+            extra    = setFromList $ fst <$> filter snd
                        [ (Soulbound,   any bind fs)
                        , (Unremovable, noremove)
                        ]
-            classes' = delete Resource . nub $
+            classes' = deleteSet Resource $
                        extra ++ classes ++ Skill.classes skill
             silenced = Ninja.is Silence nUser
             filt
@@ -210,7 +204,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                   { Status.name    = Skill.defaultName name skill
                   , Status.user    = user
                   , Status.effects = filt $ Adjust.apply nTarget fs
-                  , Status.classes = delete Resource . nub $
+                  , Status.classes = deleteSet Resource $
                                      extra ++ classes ++ Skill.classes skill
                   , Status.bombs   = guard (Status.dur newSt <= incr (sync dur))
                                      >> bombs
@@ -225,19 +219,19 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
             guard $ null fs || not (null $ Status.effects st)
             let
               onImmune n
-                | Status.effects st `intersects` immuneEffects =
-                    n { Ninja.triggers = OnImmune `insertSet` Ninja.triggers n }
+                | any isImmune $ Status.effects st =
+                    n { Ninja.triggers = insertSet OnImmune $ Ninja.triggers n }
                 | otherwise = n
             P.modify target $ onImmune . Ninja.addStatus st
-            when (Status.effects st `intersects` stunEffects) do
+            when (any isStun $ Status.effects st) do
                 P.trigger user [OnStun]
                 P.trigger target [OnStunned]
 
             lift . ActionChannel.onInterrupts $ any (∈ Status.effects st) .
-                   (Stun <$>) . Skill.classes . Channel.skill
+                   (Stun <$>) . toList . Skill.classes . Channel.skill
             when (bounced && not self) do
                 let bounce t = P.withTarget t $
-                               applyFull [] True (Status.bombs st) name
+                               applyFull mempty True (Status.bombs st) name
                                turns fs
                 lift . traverse_ bounce . delete user $ Effects.share nTarget
   where
@@ -245,6 +239,11 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
     bind _            = False
     isDmg (Afflict x) = x > 0
     isDmg _           = False
+    isStun Stun{}     = True
+    isStun _          = False
+    isImmune Invulnerable{} = True
+    isImmune Invincible{}   = True
+    isImmune _              = False
 
 -- | Removes non-'Effect.helpful' effects in 'Ninja.statuses' that match a
 -- predicate. Uses 'Ninja.cure' internally.
@@ -302,7 +301,8 @@ snapshot dur = P.unsilenced do
     P.modify target $ Ninja.addStatus
         st { Status.user    = user
            , Status.effects = [Snapshot nTarget]
-           , Status.classes = Nonstacking : Unremovable : Status.classes st
+           , Status.classes = setFromList [Nonstacking, Unremovable]
+                              ++ Status.classes st
            }
 
 -- | Steals all of the target's 'Effect.helpful' 'Effect's.

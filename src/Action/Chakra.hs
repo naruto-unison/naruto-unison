@@ -10,7 +10,6 @@ import ClassyPrelude
 
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
-import qualified Class.Random as R
 import           Class.Random (MonadRandom)
 import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra(..))
@@ -25,7 +24,7 @@ gain :: ∀ m. (MonadPlay m, MonadRandom m) => [Chakra] -> m ()
 gain [] = return ()
 gain chakras = P.unsilenced do
     target <- P.target
-    rand   <- replicateM (length rands) R.chakra
+    rand   <- replicateM (length rands) Chakra.random
     P.alter $ Game.adjustChakra target (+ Chakra.collect (rand ++ nonrands))
   where
     (rands, nonrands) = partition (== Rand) chakras

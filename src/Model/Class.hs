@@ -1,9 +1,11 @@
 {-# LANGUAGE DeriveAnyClass        #-}
-module Model.Class (Class(..)) where
+module Model.Class (Class(..), ClassSet) where
 
 import ClassyPrelude
 
 import Data.Aeson (ToJSON)
+
+import Core.EnumSet (EnumSet)
 
 -- | Qualifiers of 'Model.Skill.Skill's and 'Model.Status.Status'es.
 data Class
@@ -47,6 +49,8 @@ data Class
     | Taijutsu
     | Random
     deriving (Bounded, Enum, Eq, Ord, Generic, ToJSON)
+
+type ClassSet = EnumSet Word64 Class
 
 instance Show Class where
     show Invisible      = "Invisible"

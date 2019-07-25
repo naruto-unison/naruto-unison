@@ -7,12 +7,10 @@ module Action.Trap
   ) where
 import ClassyPrelude
 
-import Data.List (nub)
-
 import           Core.Util ((∈))
 import qualified Class.Play as P
 import           Class.Play (Play(..), PlayConstraint, MonadPlay)
-import           Model.Class (Class(..))
+import           Model.Class (Class(..), ClassSet)
 import qualified Model.Context as Context
 import qualified Model.Delay as Delay
 import           Model.Duration (Duration(..), Turns, incr, sync)
@@ -30,27 +28,27 @@ import           Engine.Execute (Affected(..))
 
 -- | Adds a 'Trap.Trap' to 'Ninja.traps' that targets the person it was used on.
 trap :: ∀ m. MonadPlay m => Turns -> Trigger -> PlayConstraint () -> m ()
-trap = trapWith Trap.To []
+trap = trapWith Trap.To mempty
 -- | 'Hidden' 'trap'.
 trap' :: ∀ m. MonadPlay m => Turns -> Trigger -> PlayConstraint () -> m ()
-trap' = trapWith Trap.To [Hidden]
+trap' = trapWith Trap.To $ singletonSet Hidden
 
 -- | Adds a 'Trap.Trap' to 'Ninja.traps' that targets the person who triggers it.
 trapFrom :: ∀ m. MonadPlay m => Turns -> Trigger -> PlayConstraint () -> m ()
-trapFrom = trapWith Trap.From []
+trapFrom = trapWith Trap.From mempty
 -- | 'Hidden' 'trapFrom'.
 trapFrom' :: ∀ m. MonadPlay m => Turns -> Trigger -> PlayConstraint () -> m ()
-trapFrom' = trapWith Trap.From [Hidden]
+trapFrom' = trapWith Trap.From $ singletonSet Hidden
 
 -- | Adds a 'Trap.Trap' to 'Ninja.traps' with an effect that depends on a number
 -- accumulated while the trap is in play and tracked with its 'Trap.tracker'.
 trapPer  :: ∀ m. MonadPlay m => Turns -> Trigger -> (Int -> PlayConstraint ())
          -> m ()
-trapPer  = trapFull Trap.Per []
+trapPer  = trapFull Trap.Per mempty
 -- | 'Hidden' 'trapPer'.
 trapPer' :: ∀ m. MonadPlay m => Turns -> Trigger -> (Int -> PlayConstraint ())
          -> m ()
-trapPer' = trapFull Trap.Per [Hidden]
+trapPer' = trapFull Trap.Per $ singletonSet Hidden
 
 -- | Adds an 'OnBreak' 'Trap.Trap' for the used 'Skill.Skill' to 'Ninja.traps'.
 -- 'OnBreak' traps are triggered when a 'Defense.Defense' with the same
@@ -75,12 +73,12 @@ onBreak' = do
         P.modifyAll $ Ninja.clear name user
 
 -- | Adds a 'Trap.Trap' to 'Ninja.traps'.
-trapWith :: ∀ m. MonadPlay m => Trap.Direction -> [Class] -> Turns -> Trigger
+trapWith :: ∀ m. MonadPlay m => Trap.Direction -> ClassSet -> Turns -> Trigger
          -> PlayConstraint () -> m ()
 trapWith trapType clas dur tr f = trapFull trapType clas dur tr (const f)
 
 -- | Trap engine.
-trapFull :: ∀ m. MonadPlay m => Trap.Direction -> [Class] -> Turns
+trapFull :: ∀ m. MonadPlay m => Trap.Direction -> ClassSet -> Turns
          -> Trap.Trigger -> (Int -> PlayConstraint ()) -> m ()
 trapFull direction classes (Duration -> dur) trigger f = do
     skill   <- P.skill
@@ -102,8 +100,8 @@ trapFull direction classes (Duration -> dur) trigger f = do
             , Trap.name      = Skill.name skill
             , Trap.desc      = Skill.desc skill
             , Trap.user      = trapUser
-            , Trap.effect    = \i -> (ctx, Play $ Execute.wrap [Trapped] $ f i)
-            , Trap.classes   = nub $ classes ++ (invis <$> Skill.classes skill)
+            , Trap.effect    = \i -> (ctx, Play $ Execute.wrap (singletonSet Trapped) $ f i)
+            , Trap.classes   = classes ++ (invis `omap` Skill.classes skill)
             , Trap.tracker   = 0
             , Trap.dur       = Copy.maxDur (Skill.copying skill) . incr .
                                (+ 2 * Effects.throttle throttled nUser) $
@@ -130,7 +128,7 @@ delay (Duration -> dur) f = do
         del   = Delay.Delay
                 { Delay.skill  = skill
                 , Delay.user   = user
-                , Delay.effect = \() -> (context, Play $ Execute.wrap [Delayed] f)
+                , Delay.effect = \() -> (context, Play $ Execute.wrap (singletonSet Delayed) f)
                 , Delay.dur    = dur'
                 }
     unless (past $ Skill.copying skill) $ P.alter \game ->

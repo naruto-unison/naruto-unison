@@ -4,7 +4,7 @@ module Core.Util
   , Lift
   , adjustVec, updateVec
   , enumerate
-  , intersects
+  , intersects, intersectsSet
   , duplic
   , mapMaybe
   , shorten
@@ -16,7 +16,6 @@ import           Data.List (nub)
 import qualified Data.Vector as Vector
 import           Data.Vector ((//))
 import qualified Data.Vector.Mutable as MVector
-
 
 {-# INLINE (!!) #-}
 infixl 9 !!
@@ -51,8 +50,13 @@ enumerate = (<$> [minBound..maxBound])
 intersects :: ∀ a b.
     (MonoFoldable a, MonoFoldable b, Element a ~ Element b, Eq (Element a))
     => a -> b -> Bool
-intersects x = any (∈ x)
+intersects x y = any (∈ y) x
 {-# INLINE intersects #-}
+
+-- | True if any elements are shared by both collections.
+intersectsSet :: ∀ a. SetContainer a => a -> a -> Bool
+intersectsSet xs = not . null . intersection xs
+{-# INLINE intersectsSet #-}
 
 -- | True if a list contains multiple identical values.
 {-# INLINE duplic #-}

@@ -12,7 +12,8 @@ import ClassyPrelude hiding ((<|))
 import Control.Monad.Trans.Maybe (runMaybeT)
 import Data.Either (isLeft)
 
-import           Core.Util ((—), (∈), (∉), intersects, updateVec)
+import           Core.EnumSet (EnumSet)
+import           Core.Util ((—), (∈), (∉), intersectsSet, updateVec)
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
@@ -60,6 +61,11 @@ data Affected
     | Trapped
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
+type AffectedSet = EnumSet Word8 Affected
+
+oldSet :: AffectedSet
+oldSet = setFromList [Channeled, Delayed, Trapped]
+
 -- | Adds a 'Copy.Copy' to 'Ninja.copies'.
 copy :: ∀ m. MonadPlay m
      => Bool -- ^ Whether or not to call 'Ninja.clear' on matching 'Status.Status'es.
@@ -84,7 +90,7 @@ data Exit = Flagged | Done | Completed deriving (Eq)
 -- invincibility, usability, counters, reflects, etc. all come into play.
 -- If an action is applied directly instead of passing it to this function,
 -- its exact effects will occur and nothing else.
-wrap :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> m () -> m ()
+wrap :: ∀ m. (MonadPlay m, MonadRandom m) => AffectedSet -> m () -> m ()
 wrap affected f = void $ runMaybeT do
     skill       <- P.skill
     user        <- P.user
@@ -94,7 +100,7 @@ wrap affected f = void $ runMaybeT do
     startNinjas <- P.ninjas
     let classes  = Skill.classes skill
         targeted = Requirement.targetable (bypass skill) nUser nTarget
-        invinc   = classes `intersects` Effects.invincible nTarget
+        invinc   = classes `intersectsSet` Effects.invincible nTarget
         exit     = if | Direct ∈ classes               -> Done
                       | invinc                         -> Flagged
                       | Trapped ∈ affected             -> Done
@@ -119,20 +125,20 @@ wrap affected f = void $ runMaybeT do
         do
             f
             when (allow Reflected) . P.withTargets (Effects.share nTarget) $
-                wrap (Reflected : affected) f
+                wrap (insertSet Reflected affected) f
         $ do
             guard $ allow Redirected
             t <- Trigger.redirect classes nTarget
-            return . P.withTarget t $ wrap (Redirected : affected) f
+            return . P.withTarget t $ wrap (insertSet Redirected affected) f
         <|> do
             guard $ allow Trapped
             (nt, st, f') <- Trigger.parry skill nTarget
             return do
                 P.write target nt
                 P.with (\ctx -> ctx
-                              { Context.user   = Status.user st
-                              , Context.target = Context.user ctx
-                              }) . wrap (Trapped : affected) $ P.play f'
+                        { Context.user   = Status.user st
+                        , Context.target = Context.user ctx
+                        }) . wrap (insertSet Trapped affected) $ P.play f'
         <|> do
             guard $ allow Trapped
             (n, nt, mPlay) <- Trigger.counter classes nUser nTarget
@@ -145,21 +151,21 @@ wrap affected f = void $ runMaybeT do
             nt <- Trigger.reflect classes nUser nTarget
             return do
                 P.write target nt
-                P.with Context.reflect $ wrap (Reflected : affected) f
+                P.with Context.reflect $ wrap (insertSet Reflected affected) f
     P.zipWith Traps.broken startNinjas
   where
-    new = not $ [Channeled, Delayed, Trapped] `intersects` affected
+    new = not $ oldSet `intersectsSet` affected
     bypass skill
       | Trapped ∈ affected =
-          skill { Skill.classes = Bypassing : Skill.classes skill }
+          skill { Skill.classes = insertSet Bypassing $ Skill.classes skill }
       | otherwise = skill
     withDirect skill
-      | [Channeled, Interrupted, Trapped] `intersects` affected =
+      | new       = id
+      | otherwise =
           P.with \ctx -> ctx
-              { Context.skill =
-                  skill { Skill.classes = Direct : Skill.classes skill }
-              }
-      | otherwise = id
+            { Context.skill =
+                skill { Skill.classes = insertSet Direct $ Skill.classes skill }
+            }
 
 -- | Transforms a 'Target' into 'Slot's. 'RAlly' and 'REnemy' targets are chosen
 -- at random.
@@ -187,7 +193,7 @@ chooseTarget REnemy   = maybeToList <$> (chooseTarget Enemies >>= R.choose)
 chooseTarget Everyone = return Slot.all
 
 -- | Directs an effect tuple in a 'Skill' to a target. Uses 'wrap' internally.
-targetEffect :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> m () -> m ()
+targetEffect :: ∀ m. (MonadPlay m, MonadRandom m) => AffectedSet -> m () -> m ()
 targetEffect affected f = do
     user   <- P.user
     target <- P.target
@@ -199,11 +205,11 @@ targetEffect affected f = do
     else do
         wrap affected f
         P.trigger user [OnHarm]
-        P.trigger target =<< (OnHarmed <$>) . Skill.classes <$> P.skill
+        P.trigger target =<< (OnHarmed <$>) . toList . Skill.classes <$> P.skill
 
 
 -- | Handles a single effect tuple in a 'Skill'. Uses 'targetEffect' internally.
-effect :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> (Target, m ())
+effect :: ∀ m. (MonadPlay m, MonadRandom m) => AffectedSet -> (Target, m ())
        -> m ()
 effect affected (target, f)  = do
       skill   <- P.skill
@@ -212,7 +218,7 @@ effect affected (target, f)  = do
       traverse_ (flip P.with (targetEffect affected f) . localize) targets
 
 -- | Handles all effects of a 'Skill'. Uses 'effect' internally.
-effects :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> m ()
+effects :: ∀ m. (MonadPlay m, MonadRandom m) => AffectedSet -> m ()
 effects affected = traverse_ (effect affected . second P.play)
                    =<< getEffects <$> P.skill
   where
@@ -249,8 +255,8 @@ act a = do
         Just swapped -> do
             P.write user nUser
                 { Ninja.statuses = swapped `delete` Ninja.statuses nUser }
-            return ([Swapped], SkillTransform.swap swapped skill')
-        Nothing -> return ([], skill')
+            return (singletonSet Swapped, SkillTransform.swap swapped skill')
+        Nothing -> return (mempty, skill')
     let charge = Skill.charges skill > 0
         cost   = Skill.cost skill
         usable = not $ Skill.require skill == Unusable
@@ -260,7 +266,7 @@ act a = do
             Right s' -> not new || Ninja.isChanneling (Skill.name s') nUser
 
     when valid $ P.withContext (ctx skill) do
-        P.trigger user $ OnAction <$> Skill.classes skill
+        P.trigger user $ OnAction <$> toList (Skill.classes skill)
         case Trigger.snareTrap skill nUser of
             Just (n', sn) -> P.write user case s of
                 Left s' | s' <= 3 -> Cooldown.update charge sn skill s' n'
@@ -286,7 +292,7 @@ invincEffects :: [Effect]
 invincEffects = enumerate Invulnerable ++ enumerate Invincible
 
 -- | After an action takes place, activates any corresponding 'Trap.Trap's.
-trigger :: ∀ m. (MonadPlay m, MonadRandom m) => [Affected] -> Game -> m ()
+trigger :: ∀ m. (MonadPlay m, MonadRandom m) => AffectedSet -> Game -> m ()
 trigger affected gameBefore = void $ runMaybeT do
     user  <- P.user
     total <- sum . Game.zipNinjasWith Ninja.healthLost gameBefore <$> P.game

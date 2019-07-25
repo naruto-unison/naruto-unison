@@ -20,7 +20,7 @@ import ClassyPrelude
 
 import Control.Monad.Trans.Maybe (runMaybeT)
 
-import           Core.Util ((—), (∈), intersects)
+import           Core.Util ((—), (∈), intersectsSet)
 import qualified Class.Classed as Classed
 import qualified Class.Labeled as Labeled
 import qualified Class.Play as P
@@ -29,7 +29,7 @@ import qualified Model.Attack as Attack
 import           Model.Attack (Attack)
 import qualified Model.Barrier as Barrier
 import           Model.Barrier (Barrier)
-import           Model.Class (Class(..))
+import           Model.Class (Class(..), ClassSet)
 import qualified Model.Context as Context
 import qualified Model.Copy as Copy
 import qualified Model.Defense as Defense
@@ -85,7 +85,7 @@ demolishAll = do
 
 -- | Damage formula.
 formula :: Attack -- ^ Attack type.
-        -> [Class] -- ^ 'Skill.classes'.
+        -> ClassSet -- ^ 'Skill.classes'.
         -> Ninja -- ^ User.
         -> Ninja -- ^ Target.
         -> Int -- ^ Base damage.
@@ -109,7 +109,7 @@ formula atk classes nUser nTarget dmg =
       | direct    = Effect.identity
       | otherwise = Effects.strengthen classes nUser
     bleed         = Effects.bleed classes nTarget
-    reduceAfflic  = Effects.reduce [Affliction] nTarget
+    reduceAfflic  = Effects.reduce (singletonSet Affliction) nTarget
     reduce
       | atk /= Attack.Damage || Ninja.is Pierce nUser || Ninja.is Expose nTarget
                   = Effect.identity
@@ -127,7 +127,7 @@ attack atk dmg = void $ runMaybeT do
     target     <- P.target
     nUser      <- P.nUser
     nTarget    <- P.nTarget
-    let classes = atkClass : Skill.classes skill
+    let classes = insertSet atkClass $ Skill.classes skill
         dmgCalc = formula atk classes nUser nTarget dmg
         direct  = Direct ∈ classes
         (dmg'Barrier, barr) = absorbBarrier dmgCalc $ Ninja.barrier nUser
@@ -138,7 +138,7 @@ attack atk dmg = void $ runMaybeT do
           | direct    = handleDefense dmgCalc $ Ninja.defense nTarget
           | otherwise = handleDefense dmg'Barrier $ Ninja.defense nTarget
 
-    guard . not $ classes `intersects` Effects.invincible nTarget
+    guard . not $ classes `intersectsSet` Effects.invincible nTarget
                || dmg < Effects.threshold nTarget
                || not direct && Ninja.is (Stun atkClass) nUser
                || dmgCalc <= 0
@@ -156,7 +156,7 @@ attack atk dmg = void $ runMaybeT do
     damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
     when (damaged > 0) do
         P.trigger user [OnDamage]
-        P.trigger target $ OnDamaged <$> classes
+        P.trigger target $ OnDamaged <$> toList classes
         P.modify target $ Traps.track PerDamaged damaged
         whenM P.new . P.modify user $ Traps.track PerDamage damaged
 
@@ -228,12 +228,13 @@ barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
         save f  = (context { Context.new = False }, Play f)
         finish' amt
           | dur' < sync dur = save $ return ()
-          | otherwise       = save $ Execute.wrap [Trapped] (finish amt)
+          | otherwise       = save $
+                              Execute.wrap (singletonSet Trapped) (finish amt)
         barr = Barrier.Barrier
             { Barrier.amount = amount'
             , Barrier.user = user
             , Barrier.name   = Skill.name skill
-            , Barrier.while  = save $ Execute.wrap [Trapped] while
+            , Barrier.while  = save $ Execute.wrap (singletonSet Trapped) while
             , Barrier.finish = finish'
             , Barrier.dur    = dur'
             }
@@ -315,7 +316,7 @@ leech hp f = do
     when (damaged > 0) do
         f damaged
         P.trigger user [OnDamage]
-        P.trigger target $ OnDamaged <$> classes
+        P.trigger target $ OnDamaged <$> toList classes
         P.modify target $ Traps.track PerDamaged damaged
         whenM P.new .
             P.modify user $ Traps.track PerDamage damaged
