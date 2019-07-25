@@ -16,37 +16,40 @@ import Import.Model as Model exposing (Category(..), Character, User)
 import Util exposing (groupBy)
 
 type alias Flags =
-    { url:        String
-    , bg:         String
-    , userTeam:   List Character
-    , user:       Maybe User
-    , avatars:    List String
-    , characters: Characters
-    , csrf:       String
+    { url:          String
+    , bg:           String
+    , userTeam:     List Character
+    , userPractice: List Character
+    , user:         Maybe User
+    , avatars:      List String
+    , characters:   Characters
+    , csrf:         String
     }
 
 failure : Flags
 failure =
-    { url        = ""
-    , bg         = ""
-    , userTeam   = []
-    , user       = Nothing
-    , avatars    = []
-    , characters = makeCharacters []
-    , csrf       = ""
+    { url          = ""
+    , bg           = ""
+    , userTeam     = []
+    , userPractice = []
+    , user         = Nothing
+    , avatars      = []
+    , characters   = makeCharacters []
+    , csrf         = ""
     }
 
 decode : D.Decoder Flags
 decode =
-    D.map7 Flags
-    (D.field "url"        <| D.string)
-    (D.field "bg"         <| D.string)
-    (D.field "userTeam"   <| D.list Model.jsonDecCharacter)
-    (D.field "user"       <| D.maybe Model.jsonDecUser)
-    (D.field "avatars"    <| D.list D.string)
-    (D.field "characters" << D.map makeCharacters
-                          <| D.list Model.jsonDecCharacter)
-    (D.field "csrf"       <| D.string)
+    D.map8 Flags
+    (D.field "url"          <| D.string)
+    (D.field "bg"           <| D.string)
+    (D.field "userTeam"     <| D.list Model.jsonDecCharacter)
+    (D.field "userPractice" <| D.list Model.jsonDecCharacter)
+    (D.field "user"         <| D.maybe Model.jsonDecUser)
+    (D.field "avatars"      <| D.list D.string)
+    (D.field "characters"   << D.map makeCharacters
+                            <| D.list Model.jsonDecCharacter)
+    (D.field "csrf"         <| D.string)
 
 type alias Characters =
     { list       : List Character

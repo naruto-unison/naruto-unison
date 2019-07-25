@@ -63,7 +63,7 @@ bot = User
     , userStreak     = 0
     , userClan       = Nothing
     , userTeam       = Nothing
-    , userPractice   = ["Naruto Uzumaki", "Sakura Haruno", "Sasuke Uchiha"]
+    , userPractice   = []
     , userMuted      = False
     , userCondense   = False
     }
@@ -77,7 +77,9 @@ getPracticeQueueR characters@[a1, b1, c1, a2, b2, c2]
         invalidArgs ["Unknown character(s)"]
   | otherwise = do
       (who, _) <- Auth.requireAuthPair
-      runDB $ update who [UserTeam =. Just [a1, b1, c1]]
+      runDB $ update who [ UserTeam     =. Just [a1, b1, c1]
+                         , UserPractice =. [a2, b2, c2]
+                         ]
       liftIO Random.createSystemRandom >>= runReaderT do
           game <- runReaderT Game.newWithChakras =<< ask
           practice <- getsYesod App.practice

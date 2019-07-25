@@ -73,6 +73,7 @@ type alias Model =
     , stage      : Stage
     , url        : String
     , team       : List Character
+    , vs         : List Character
     , user       : Maybe User
     , avatars    : List String
     , chars      : Characters
@@ -100,8 +101,10 @@ type Msg
     | SwitchLogin
     | TryUpdate
     | Enqueue Queue
+    | SetStage Stage
     | Preview Previewing
     | Team ListChange Character
+    | Vs ListChange Character
     | Untoggle
     | UpdateForm FormUpdate
     | ReceiveUpdate (Result Http.Error ())
@@ -116,6 +119,7 @@ component ports =
         , stage      = Browsing
         , url        = flags.url
         , team       = flags.userTeam
+        , vs         = flags.userPractice
         , user       = flags.user
         , chars      = flags.characters
         , avatars    = flags.avatars
@@ -147,8 +151,7 @@ component ports =
         H.section [A.id "charSelect"] <|
         lazy4 userBox st.user st.csrf st.showLogin st.team :: case st.stage of
             Queued     -> []
-            Practicing -> []
-            Browsing   ->
+            _          ->
               let
                 wrapping = st.index + st.pageSize >= size st
                 displays =
@@ -158,7 +161,10 @@ component ports =
                     else
                         wraparound wrapping st.index st.chars.list
                 charClass char = -- god I wish this language had pattern guards
-                    if char |> elem st.team then
+                    if List.member char <| case st.stage of
+                      Practicing -> st.vs
+                      _          -> st.team
+                  then
                         "char disabled"
                     else case st.toggled of
                         Nothing      -> "char click"
@@ -167,9 +173,18 @@ component ports =
                                 "char click selected"
                             else
                                 "char"
+                (topModule, teamOp) = case st.stage of
+                    Browsing -> (previewBox st, Team)
+                    _        -> (vsBox st,      Vs)
               in
-                previewBox st ::
-                [ H.section [A.id "characterButtons", A.class "parchment"]
+                topModule ::
+                [ H.section
+                  [ A.id "characterButtons"
+                  , A.classList
+                    [ ("parchment", True)
+                    , ("full",      st.stage == Practicing)
+                    ]
+                  ]
                   [ H.nav
                     [ A.id "prevPage"
                     , A.classList
@@ -188,7 +203,7 @@ component ports =
                         ( characterName char
                         , icon char "icon"
                           [ E.onMouseOver << Preview <| PreviewChar char
-                          , E.onClick <| Team Add char
+                          , E.onClick <| teamOp Add char
                           , A.class <| charClass char
                           ]
                         )
@@ -238,6 +253,15 @@ component ports =
                   { st | toggled = Nothing }
         Team Delete char -> withSound Sound.Cancel
             { st | team = List.remove char st.team }
+        Vs Add char -> withSound Sound.Click <|
+            if char |> elem st.vs then
+                st
+            else if List.length st.vs < 3 then
+                { st | vs = st.vs ++ [char] }
+            else
+                st
+        Vs Delete char -> withSound Sound.Cancel
+            { st | vs = List.remove char st.vs }
         TryUpdate   ->
             ( st
             , Http.get
@@ -255,10 +279,10 @@ component ports =
           in
             pure { st | error = Just error }
         ReceiveUpdate (Err err) -> pure { st | error = Just <| showErr err }
-        Enqueue Practice      ->
+        Enqueue Practice       ->
           let
-            team = (++) (st.url ++ "api/practicequeue/") << String.join "/"
-                   <| List.map characterName st.team ++ ["Naruto Uzumaki", "Sasuke Uchiha", "Sakura Haruno"]
+            team = (++) (st.url ++ "api/practicequeue/") << String.join "/" <<
+                   List.map characterName <| st.team ++ st.vs
           in
             ( st
             , Http.get
@@ -267,11 +291,13 @@ component ports =
                  }
             )
         ReceiveGame _   -> pure st
+        SetStage stage  -> withSound Sound.Click { st | stage = stage }
         Enqueue Private -> pure st
         Enqueue Quick   ->
           ( { st | stage = Queued }
           , ports.websocket << String.join "/" <| List.map characterName st.team
           )
+
 
   in
     { init = init, view = view, update = update }
@@ -299,134 +325,136 @@ characterButtons st =
 
 userBox : Maybe User -> String -> Bool -> List Character -> Html Msg
 userBox mUser csrf showLogin team =
-    let playClasses = A.classList
-                      [ ("click", List.length team == 3)
-                      , ("playButton", True)
-                      , ("parchment",  True)
-                      ]
-        preview    = E.onClick << Preview
-        nav        = case mUser of
-            Just _ ->
-                [ H.a
-                  [ A.id    "mainsite"
-                  , A.class "playButton parchment click blacked"
-                  , A.href  "/home"
-                  ] [H.text "Main Site"]
-                , H.a [playClasses, E.onClick <| Enqueue Quick]
-                  [H.text "Start Quick Match"]
-                , H.a [playClasses, E.onClick <| Enqueue Private]
-                  [H.text "Start Private Match"]
-                , H.a [playClasses, E.onClick <| Enqueue Practice]
-                  [H.text "Start Practice Match"]
-                ]
-            Nothing ->
-                [ H.a
-                  [ A.id    "mainsite"
-                  , A.class "playButton parchment click blacked"
-                  , A.href  "/home"
-                  ] [H.text "Main Site"]
-                ]
-        box        = case mUser of
-            Just user ->
-                H.div
-                [ A.id "userBox", A.class "parchment loggedin"
-                , E.onMouseOver << Preview <| PreviewUser user
-                ]
-                [ H.img [A.class "userimg", A.src user.avatar] []
-                , H.strong [] [H.text user.name]
-                , H.br [] []
-                , H.text <| rank user
-                , H.br [] []
-                , H.strong [] [H.text "Clan: "]
-                , H.text <| Maybe.withDefault "Clanless" user.clan
-                , H.br [] []
-                , H.strong [] [H.text "Level: "]
-                , H.text <| String.fromInt (user.xp // 1000) ++ " ("
-                            ++ String.fromInt (user.xp |> remainderBy 1000)
-                            ++ " XP)"
-                , H.br [] []
-                , H.strong [] [H.text "Ladder Rank: "]
-                , H.text "None"
-                , H.br [] []
-                , H.strong [] [H.text "Record: "]
-                , H.text <| String.fromInt user.wins ++ " - "
-                  ++ String.fromInt (user.wins + user.losses)
-                  ++ " (+" ++ String.fromInt user.streak ++ ")"
-                ]
-            Nothing ->
-                H.div [A.id "userBox", A.class "parchment"]
-                [ H.form
-                  [ A.id <| if showLogin then "loginForm" else "registerForm"
-                  , A.class "userForm"
-                  , A.method "POST"
-                  , A.action <| "/auth/page/email/"
-                                ++ if showLogin then "login" else "register"
-                  ] << List.map second <| List.filter first
-                    [ ( True, H.input
-                        [ A.type_         "hidden"
-                        , A.name          "_token"
-                        , A.value         csrf
+    let
+      meta onClick =
+          if List.length team == 3 then
+              [A.class "parchment playButton click", E.onClick onClick]
+          else
+              [A.class "parchment playButton"]
+      preview    = E.onClick << Preview
+      nav        = case mUser of
+          Just _ ->
+              [ H.a
+                [ A.id    "mainsite"
+                , A.class "playButton parchment click blacked"
+                , A.href  "/home"
+                ] [H.text "Main Site"]
+              , H.a (meta <| Enqueue Quick)
+                [H.text "Start Quick Match"]
+              , H.a (meta <| Enqueue Private)
+                [H.text "Start Private Match"]
+              , H.a (meta <| SetStage Practicing)
+                [H.text "Start Practice Match"]
+              ]
+          Nothing ->
+              [ H.a
+                [ A.id    "mainsite"
+                , A.class "playButton parchment click blacked"
+                , A.href  "/home"
+                ] [H.text "Main Site"]
+              ]
+      box        = case mUser of
+          Just user ->
+              H.div
+              [ A.id "userBox", A.class "parchment loggedin"
+              , E.onMouseOver << Preview <| PreviewUser user
+              ]
+              [ H.img [A.class "userimg", A.src user.avatar] []
+              , H.strong [] [H.text user.name]
+              , H.br [] []
+              , H.text <| rank user
+              , H.br [] []
+              , H.strong [] [H.text "Clan: "]
+              , H.text <| Maybe.withDefault "Clanless" user.clan
+              , H.br [] []
+              , H.strong [] [H.text "Level: "]
+              , H.text <| String.fromInt (user.xp // 1000) ++ " ("
+                          ++ String.fromInt (user.xp |> remainderBy 1000)
+                          ++ " XP)"
+              , H.br [] []
+              , H.strong [] [H.text "Ladder Rank: "]
+              , H.text "None"
+              , H.br [] []
+              , H.strong [] [H.text "Record: "]
+              , H.text <| String.fromInt user.wins ++ " - "
+                ++ String.fromInt (user.wins + user.losses)
+                ++ " (+" ++ String.fromInt user.streak ++ ")"
+              ]
+          Nothing ->
+              H.div [A.id "userBox", A.class "parchment"]
+              [ H.form
+                [ A.id <| if showLogin then "loginForm" else "registerForm"
+                , A.class "userForm"
+                , A.method "POST"
+                , A.action <| "/auth/page/email/"
+                              ++ if showLogin then "login" else "register"
+                ] << List.map second <| List.filter first
+                  [ ( True, H.input
+                      [ A.type_         "hidden"
+                      , A.name          "_token"
+                      , A.value         csrf
+                      ] []
+                    )
+                  , ( True, H.div []
+                      [ H.input
+                        [ A.class       "email"
+                        , A.name        "email"
+                        , A.type_       "email"
+                        , A.required    True
+                        -- , A.autofocus   True
+                        , A.placeholder "Email"
                         ] []
-                      )
-                    , ( True, H.div []
-                        [ H.input
-                          [ A.class       "email"
-                          , A.name        "email"
-                          , A.type_       "email"
-                          , A.required    True
-                          -- , A.autofocus   True
-                          , A.placeholder "Email"
-                          ] []
-                        ]
-                      )
-                    , ( showLogin, H.div []
-                        [ H.input
-                          [ A.class       "password"
-                          , A.name        "password"
-                          , A.type_       "password"
-                          , A.required    True
-                          , A.placeholder "Password"
-                          ] []
-                        ]
-                      )
-                    , ( showLogin, H.div [A.id "controls"]
-                        [ H.button
-                          [ A.class       "playButton click"
-                          , A.type_       "submit"
-                          ] [H.text "Log in"]
-                        , H.a
-                          [ A.class       "click"
-                          , E.onClick     SwitchLogin
-                          ] [H.text "Register"]
-                        ]
-                      )
-                    , ( not showLogin, H.div [A.id "controls"]
-                        [ H.a
-                          [ A.class       "click"
-                          , E.onClick     SwitchLogin
-                          ] [H.text "Log in"]
-                        , H.button
-                          [ A.class       "playButton click"
-                          , A.type_       "submit"
-                          ] [H.text "Register"]
-                        ]
-                      )
-                    ]
-                ]
+                      ]
+                    )
+                  , ( showLogin, H.div []
+                      [ H.input
+                        [ A.class       "password"
+                        , A.name        "password"
+                        , A.type_       "password"
+                        , A.required    True
+                        , A.placeholder "Password"
+                        ] []
+                      ]
+                    )
+                  , ( showLogin, H.div [A.id "controls"]
+                      [ H.button
+                        [ A.class       "playButton click"
+                        , A.type_       "submit"
+                        ] [H.text "Log in"]
+                      , H.a
+                        [ A.class       "click"
+                        , E.onClick     SwitchLogin
+                        ] [H.text "Register"]
+                      ]
+                    )
+                  , ( not showLogin, H.div [A.id "controls"]
+                      [ H.a
+                        [ A.class       "click"
+                        , E.onClick     SwitchLogin
+                        ] [H.text "Log in"]
+                      , H.button
+                        [ A.class       "playButton click"
+                        , A.type_       "submit"
+                        ] [H.text "Register"]
+                      ]
+                    )
+                  ]
+              ]
     in
       H.header []
       [ H.nav [A.id "playButtons"] <| nav
       , H.div [A.class "space"] []
       , H.section [A.id "teamContainer"]
         [ H.div [A.class "space"] []
-        , Keyed.node "div" [A.id "teamButtons"] << for team <| \char ->
-            ( characterName char
-            , icon char "icon"
-              [ A.class "char click"
-              , E.onMouseOver << Preview <| PreviewChar char
-              , E.onClick <| Team Delete char
-              ]
-            )
+        , Keyed.node "div" [A.id "teamButtons", A.class "select"] <<
+          for team <| \char ->
+              ( characterName char
+              , icon char "icon"
+                [ A.class "char click"
+                , E.onMouseOver << Preview <| PreviewChar char
+                , E.onClick <| Team Delete char
+                ]
+              )
         , H.div [A.id "underTeam", A.class "parchment"] []
         ]
       , box
@@ -440,6 +468,35 @@ failWarning x xs = case x of
 viewInput : String -> String -> String -> (String -> msg) -> Html msg
 viewInput t p v toMsg =
   H.input [ A.type_ t, A.placeholder p, A.value v, E.onInput toMsg ] []
+
+vsBox : Model -> Html Msg
+vsBox st =
+  let
+    meta =
+        if List.length st.vs == 3 then
+            [ A.class "parchment playButton click"
+            , E.onClick <| Enqueue Practice
+            ]
+        else
+            [A.class "parchment playButton"]
+  in
+    H.section [A.id "vs", A.class "parchment"]
+    [ H.nav []
+      [ H.button meta [H.text "Ready"]
+      , H.button
+        [A.class "parchment playButton click", E.onClick <| SetStage Browsing]
+        [H.text "Cancel"]
+      ]
+    , H.span [] [H.text "VS: "]
+    , Keyed.node "div" [A.id "vsButtons", A.class "select"] <<
+      for st.vs <| \char ->
+          ( characterName char
+          , icon char "icon"
+            [ A.class "char click"
+            , E.onClick <| Vs Delete char
+            ]
+          )
+    ]
 
 previewBox : Model -> Html Msg
 previewBox st = case st.previewing of
@@ -471,7 +528,8 @@ previewBox st = case st.previewing of
             [ A.type_   "checkbox"
             , A.name    "condense"
             , A.checked st.form.condense
-            , E.onInput <| always << UpdateForm << Condense <| not st.form.condense
+            , E.onInput <| always <<
+              UpdateForm << Condense <| not st.form.condense
             ] []
           , H.label []
             [H.text "Show only the first version of each character in the selection grid"]
@@ -503,7 +561,10 @@ previewBox st = case st.previewing of
             Just (Nonempty _ []) -> []
             Just (Nonempty x xs) -> for (x :: xs) <| \char_ ->
                 (characterName char, icon char_ "icon" <|
-                  if char |> elem st.team then
+                  if List.member char <| case st.stage of
+                      Practicing -> st.vs
+                      _          -> st.team
+                  then
                     [ A.classList
                       [("on", char == char_), ("noclick disabled char", True)]
                     , E.onMouseOver << Preview <| PreviewChar char_

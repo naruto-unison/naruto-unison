@@ -41,8 +41,8 @@ instance PathPiece Chakras where
   toPathPiece Chakras{..} = intercalate "," $ tshow <$> [blood, gen, nin, tai]
   fromPathPiece raw = case pieces of
       [b, g, n, t] -> case makeChakras b g n t of
-                       Right chakras -> Just chakras
-                       Left  _       -> Nothing
+                          Right chakras -> Just chakras
+                          Left  _       -> Nothing
       _            -> Nothing
     where
       pieces              = Text.splitOn "," raw

@@ -32,7 +32,7 @@ getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
 getUpdateR updateName updateCondense updateBackground updateAvatar
   | "/img/icon/" `isPrefixOf` updateAvatar =
       invalidArgs ["Invalid avatar"]
-  | any (∉ legalChars) updateName        =
+  | any (∉ legalChars) updateName =
       invalidArgs ["Name can only contain letters and numbers"]
   | otherwise = do
     (accId, _) <- Auth.requireAuthPair
