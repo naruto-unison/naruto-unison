@@ -4,6 +4,8 @@ The next generation of Naruto Arena, built from the ground up in Haskell and Elm
 
 *Naruto* was created by Masashi Kishimoto, published by Pierrot Co., and licensed by Viz Media.
 
+Currently pre-alpha and in active development. Nothing is guaranteed to be stable or fully functional.
+
 ![Character Select](static/img/screenshot/select.png)
 
 ![Game](static/img/screenshot/game.png)
