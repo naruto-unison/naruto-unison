@@ -185,6 +185,7 @@ h4 { font-size: 1.15em; }
   color: #606060;
 }
 sup {
+  top: -0.5em;
   font-style: italic;
   color: #606060;
   margin-left: -0.3em;
