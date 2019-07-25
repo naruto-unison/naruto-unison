@@ -7,7 +7,6 @@ import ClassyPrelude
 
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
-import qualified Class.Random as R
 import           Class.Random (MonadRandom)
 import           Model.Internal (Game(..))
 import qualified Model.Chakra as Chakra
@@ -24,7 +23,7 @@ new = Game { chakra  = (0, 0)
 
 newWithChakras :: ∀ m. MonadRandom m => m Game
 newWithChakras = do
-    randoms :: [Chakra] <- replicateM Slot.teamSize R.chakra
+    randoms :: [Chakra] <- replicateM Slot.teamSize Chakra.random
     return $ adjustChakra Player.A (+ Chakra.collect randoms) new
 
 getChakra :: ∀ a. Parity a => a -> Game -> Chakras

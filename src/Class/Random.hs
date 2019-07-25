@@ -2,7 +2,6 @@
 module Class.Random
   ( MonadRandom(..)
   , choose
-  , chakra
   ) where
 
 import ClassyPrelude
@@ -21,7 +20,6 @@ import qualified System.Random.MWC.Distributions as Random
 import           Yesod.WebSockets (WebSocketsT)
 
 import Core.Util ((!!), Lift)
-import Model.Chakra (Chakra)
 
 class Monad m => MonadRandom m where
     random  :: Int -> Int -> m Int
@@ -54,8 +52,3 @@ instance (MonadRandom m, Monoid w) => MonadRandom (AccumT w m)
 choose :: ∀ m a. MonadRandom m => [a] -> m (Maybe a)
 choose [] = return Nothing
 choose xs = Just . (xs !!) <$> random 0 (length xs - 1)
-
--- | Randomly selects a 'Chakra'.
-chakra :: ∀ m. MonadRandom m => m Chakra
-chakra = toEnum <$> random (fromEnum (minBound :: Chakra))
-                           (fromEnum (maxBound :: Chakra) - 1)

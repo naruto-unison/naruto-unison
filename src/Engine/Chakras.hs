@@ -41,5 +41,5 @@ gain :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 gain = do
     player <- P.player
     living <- length . filter (Ninja.playing player) <$> P.ninjas
-    randoms :: [Chakra] <- replicateM living R.chakra
+    randoms :: [Chakra] <- replicateM living Chakra.random
     P.alter $ Game.adjustChakra player (+ Chakra.collect randoms)

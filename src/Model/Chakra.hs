@@ -8,9 +8,10 @@ module Model.Chakra
   , classes
   , lack
   , fromChakras
+  , random
   ) where
 
-import ClassyPrelude hiding (sum)
+import ClassyPrelude hiding (fromList, sum, toList)
 import Prelude (sum)
 
 import           Data.Aeson (ToJSON)
@@ -19,7 +20,8 @@ import qualified Data.Text.Read as Read
 import           GHC.Exts (IsList(..))
 import           Yesod.Core.Dispatch (PathPiece(..))
 
-import Model.Class (Class(..))
+import qualified Class.Random as R
+import           Class.Random (MonadRandom)
 
 -- | Collection of all chakra types.
 data Chakras = Chakras { blood :: Int -- ^ Bloodline
@@ -105,3 +107,8 @@ classes (Chakras b g n t r) = fst <$> filter snd [ (Bloodline, b > 0)
                                                  , (Taijutsu,  t > 0)
                                                  , (Random,    r > 0)
                                                  ]
+
+-- | Randomly selects a 'Chakra'.
+random :: ∀ m. MonadRandom m => m Chakra
+random = toEnum <$> R.random (fromEnum (minBound :: Chakra))
+                             (fromEnum (maxBound :: Chakra) - 1)
