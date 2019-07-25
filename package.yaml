@@ -71,7 +71,6 @@ library:
       - -fwarn-tabs
       - -fwarn-incomplete-patterns
       - -fwarn-incomplete-uni-patterns
-      - -fno-warn-type-defaults
       - -funbox-small-strict-fields
       - -O0
       cpp-options: -DDEVELOPMENT
@@ -87,7 +86,6 @@ library:
       - -fwarn-tabs
       - -fwarn-incomplete-patterns
       - -fwarn-incomplete-uni-patterns
-      - -fno-warn-type-defaults
       - -funbox-small-strict-fields
       - -O2
 
@@ -136,7 +134,6 @@ tests:
       - -fwarn-tabs
       - -fwarn-incomplete-patterns
       - -fwarn-incomplete-uni-patterns
-      - -fno-warn-type-defaults
       - -funbox-small-strict-fields
 
 # Define flags used by "yesod devel" to make compilation faster
