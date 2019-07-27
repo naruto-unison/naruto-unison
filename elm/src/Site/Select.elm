@@ -504,7 +504,7 @@ previewBox st = case st.previewing of
       H.article [A.class "parchment", A.style "display" "none"] []
     PreviewUser user ->
       H.article [A.class "parchment"]
-      [ H.form [A.id "accountSettings"]
+      [ H.div [A.id "accountSettings"]
         [ H.p [] <| failWarning st.error
           [ H.label [] [H.text "Name"]
           , H.input

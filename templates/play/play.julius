@@ -16,7 +16,7 @@ const nullary = x => {
 
 const app = Elm.Main.init({
   flags: {
-    url:          document.URL,
+    url:          document.location.origin + "/",
     bg:           #{toJSON bg},
     userTeam:     nullary(#{toJSON team}),
     userPractice: nullary(#{toJSON practice}),
