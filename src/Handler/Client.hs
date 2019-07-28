@@ -30,7 +30,7 @@ import qualified Characters
 -- | Updates a user's profile.
 getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
 getUpdateR updateName updateCondense updateBackground updateAvatar
-  | "/img/icon/" `isPrefixOf` updateAvatar =
+  | not $ "/img/icon/" `isPrefixOf` updateAvatar =
       invalidArgs ["Invalid avatar"]
   | any (∉ legalChars) updateName =
       invalidArgs ["Name can only contain letters and numbers"]

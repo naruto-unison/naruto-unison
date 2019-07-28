@@ -43,7 +43,7 @@ import qualified Model.Slot as Slot
 import qualified Engine.Turn as Turn
 import qualified Characters
 
--- | 'concat' . 'transpose'
+-- | @'concat' . 'transpose'@
 vs :: ∀ a. [a] -> [a] -> [a]
 x `vs` y = concat $ transpose [x, y]
 

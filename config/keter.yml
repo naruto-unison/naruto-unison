@@ -1,34 +1,29 @@
-user-edited: false
-
 stanzas:
-
   - type: webapp
-
     exec: ../dist/bin/naruto-unison
-
     args: []
 
     hosts:
       - localhost
-      - www.naruto-unison.com
 
-    requires-secure: true # force HTTPS
+    requires-secure: false # force redirect to https
 
-  - type: static-files
-    hosts:
-      - static.naruto-unison.com
-    root: ../static
+  # Static files.
+  # - type: static-files
+  #   hosts:
+  #     - static.naruto-unison.com
+  #   root: ../static
 
     # Uncomment to turn on directory listings.
     # directory-listing: true
 
   # Redirect plain domain name to www.
-  - type: redirect
+#   - type: redirect
 
-    hosts:
-      - naruto-unison.com
-    actions:
-      - host: www.naruto-unison.com
+#     hosts:
+#       - naruto-unison.com
+#     actions:
+#       - host: www.naruto-unison.com
         # secure: false
         # port: 80
 
@@ -37,7 +32,7 @@ stanzas:
 
 # Use the following to automatically copy your bundle upon creation via `yesod
 # keter`. Uses `scp` internally, so you can set it to a remote destination
-# copy-to: user@host:/opt/keter/incoming/
+#copy-to: naruto-unison.com:/opt/keter/incoming/
 
 # You can pass arguments to `scp` used above. This example limits bandwidth to
 # 1024 Kbit/s and uses port 2222 instead of the default 22

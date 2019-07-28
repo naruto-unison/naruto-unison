@@ -120,7 +120,7 @@ warpSettings foundation =
             (FastLogger.toLogStr $ "Exception from Warp: " ++ show e))
       Warp.defaultSettings
 
--- | Warp settings and WAI Application for `yesod devel`.
+-- | Warp settings and WAI Application for @yesod devel@.
 getApplicationDev :: IO (Warp.Settings, Application)
 getApplicationDev = do
     settings <- getAppSettings
@@ -133,7 +133,7 @@ getAppSettings :: IO AppSettings
 getAppSettings = DefaultConfig.loadYamlSettings
                  [DefaultConfig.configSettingsYml] [] DefaultConfig.useEnv
 
--- | Main function for use by `yesod devel`
+-- | Main function for use by @yesod devel@.
 develMain :: IO ()
 develMain = DefaultConfig.develMainHelper getApplicationDev
 

@@ -277,7 +277,7 @@ instance Show Effect where
 -- | In-game character, indexed between 0 and 5.
 data Ninja = Ninja { slot      :: Slot           -- ^ 'Model.Game.Ninjas' index (0-5)
                    , character :: Character
-                   , health    :: Int                    -- ^ `Starts at` @100@
+                   , health    :: Int                    -- ^ Starts at @100@
                    , cooldowns :: Vector (Seq Int)       -- ^ Starts empty
                    , charges   :: Vector Int             -- ^ Starts at @0@s
                    , variants  :: Vector (NonEmpty Variant) -- ^ Starts at @0@s

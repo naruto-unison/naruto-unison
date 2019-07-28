@@ -17,34 +17,34 @@ import qualified Data.Vector as Vector
 import           Data.Vector ((//))
 import qualified Data.Vector.Mutable as MVector
 
-{-# INLINE (!!) #-}
 infixl 9 !!
 -- | 'unsafeIndex'.
 (!!) :: ∀ o. IsSequence o => o -> Index o -> Element o
 (!!) = unsafeIndex
+{-# INLINE (!!) #-}
 
 -- | '-' allowing for sections.
-{-# INLINE (—) #-}
 infixl 6 —
 (—) :: ∀ a. Num a => a -> a -> a
 (—) = (-)
+{-# INLINE (—) #-}
 
 -- | 'elem'.
-{-# INLINE (∈) #-}
 infix 4 ∈
 (∈) :: ∀ o. (MonoFoldable o, Eq (Element o)) => Element o -> o -> Bool
 (∈) = elem
+{-# INLINE (∈) #-}
 
 -- | 'notElem'.
-{-# INLINE (∉) #-}
 infix 4 ∉
 (∉) :: ∀ o. (MonoFoldable o, Eq (Element o)) => Element o -> o -> Bool
 (∉) = notElem
+{-# INLINE (∉) #-}
 
 -- | Maps across an enum.
-{-# INLINE enumerate #-}
 enumerate :: ∀ a b. (Bounded a, Enum a) => (a -> b) -> [b]
 enumerate = (<$> [minBound..maxBound])
+{-# INLINE enumerate #-}
 
 -- | True if any elements are shared by both collections.
 intersects :: ∀ a b.
@@ -59,11 +59,10 @@ intersectsSet xs = not . null . intersection xs
 {-# INLINE intersectsSet #-}
 
 -- | True if a list contains multiple identical values.
-{-# INLINE duplic #-}
 duplic :: ∀ a. Eq a => [a] -> Bool
 duplic x = nub x /= x
+{-# INLINE duplic #-}
 
-{-# INLINE mapMaybe #-}
 mapMaybe :: ∀ (f :: * -> *) a b.
             ( IsSequence (f (Maybe b))
             , Functor f
@@ -71,6 +70,7 @@ mapMaybe :: ∀ (f :: * -> *) a b.
             )
          => (a -> Maybe b) -> f a -> f b
 mapMaybe f = catMaybes . (f <$>)
+{-# INLINE mapMaybe #-}
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text
@@ -84,11 +84,11 @@ shorten = omap f . filter (∉ bans)
     f 'ä' = 'a'
     f a = a
 
--- | In-place mutation of a vector at a given index using `Vector.modify`.
+-- | In-place mutation of a vector at a given index using 'Vector.modify'.
 adjustVec :: ∀ a. (a -> a) -> Int -> Vector a -> Vector a
 adjustVec f i = Vector.modify \xs -> MVector.modify xs f i
 
--- | In-place update of a vector at a given index using `//`.
+-- | In-place update of a vector at a given index using '//'.
 updateVec :: ∀ a. Int -> a -> Vector a -> Vector a
 updateVec i x xs = xs // [(i, x)]
 
