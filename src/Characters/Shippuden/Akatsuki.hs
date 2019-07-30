@@ -303,7 +303,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "White Zetsu"
         , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense each turn. Once used, this skill becomes [Black Zetu]."
-        , Skill.classes   = [Chakra]
+        , Skill.classes   = [Chakra, Single]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
           [ p Self do
@@ -319,7 +319,7 @@ cs =
       , Skill.new
         { Skill.name      = "Black Zetsu"
         , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [White Zetsu]."
-        , Skill.classes   = [Chakra]
+        , Skill.classes   = [Chakra, Single]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
           [ p Self do
@@ -339,7 +339,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Black Zetsu"
         , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [Underground Roots][b][r]. As White Zetsu, this skill becomes [White Army][g]."
-        , Skill.classes   = [Chakra]
+        , Skill.classes   = [Chakra, Single]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
           [ p Self do
@@ -1035,7 +1035,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ p Enemy do
-                interrupt
+                interrupt $ const True
                 userSlot <- user slot
                 apply 1 [Taunt userSlot]
           , p Self $ whenM (userHas "Tidal Force") $
