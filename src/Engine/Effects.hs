@@ -44,9 +44,9 @@ import           Model.Status (Status)
 -- | Adds 'Flat' amounts and multiplies by 'Percent' amounts.
 total :: [(Amount, Int)] -> Amount -> Float
 total xs Flat    = fromIntegral . sum . map snd $
-                   filter ((== Flat) . fst) xs
+                   filter ((Flat ==) . fst) xs
 total xs Percent = product . (1 :) . map ((/ 100) . fromIntegral . snd) $
-                   filter ((== Percent) . fst) xs
+                   filter ((Percent ==) . fst) xs
 
 -- | 'total' for negative effects such as damage reduction.
 negativeTotal :: [(Amount, Int)] -> Amount -> Float

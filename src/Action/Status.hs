@@ -23,7 +23,7 @@ import ClassyPrelude
 
 import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
 
-import           Core.Util ((∈), (∉))
+import           Core.Util ((∈), (∉), intersectsSet)
 import qualified Class.Play as P
 import           Class.Play (Play(..), MonadPlay)
 import           Class.Random (MonadRandom)
@@ -228,8 +228,11 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                 P.trigger user [OnStun]
                 P.trigger target [OnStunned]
 
-            lift . ActionChannel.onInterrupts $ any (∈ Status.effects st) .
-                   (Stun <$>) . toList . Skill.classes . Channel.skill
+            let stuns = setFromList [ x | stun@(Stun x) <- Status.effects st
+                                    , stun ∉ Effects.ignore nTarget
+                                    ]
+            lift . ActionChannel.interrupt $
+                (stuns `intersectsSet`) . Skill.classes . Channel.skill
             when (bounced && not self) do
                 let bounce t = P.withTarget t $
                                applyFull mempty True (Status.bombs st) name

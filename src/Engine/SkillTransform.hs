@@ -45,8 +45,8 @@ safe a f n sName vName = fromMaybe a do
                   in (+1) <$> findIndex (match vName) xs
     return $ f s v
   where
-    match x = (== toCaseFold x) . toCaseFold . Skill.name
     skills  = Character.skills $ Ninja.character n
+    match (toCaseFold -> x) = (x ==) . toCaseFold . Skill.name
 
 -- | Combines two 'Skill.Transform's.
 also :: Skill.Transform -> Skill.Transform -> Skill.Transform

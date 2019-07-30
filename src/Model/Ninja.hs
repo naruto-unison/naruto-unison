@@ -222,16 +222,17 @@ decr n = case findMatch $ statuses n of
            , statuses  = foldStats . mapMaybe TurnBased.decr $ statuses n
            , barrier   = mapMaybe TurnBased.decr $ barrier n
            , face      = mapMaybe TurnBased.decr $ face n
-           , channels  = mapMaybe TurnBased.decr $ newChans n ++ channels n
+           , channels  = decrChannels
            , traps     = mapMaybe TurnBased.decr $ traps n
            , newChans  = mempty
-           , variants  = turnDecr' <$> variants n
+           , variants  = variantsDecr <$> variants n
            , copies    = (>>= TurnBased.decr) <$> copies n
            , cooldowns = ((max 0 . subtract 1) <$>) <$> cooldowns n
            , counters  = []
            , triggers  = singleton OnNoAction
            }
   where
+    decrChannels       = mapMaybe TurnBased.decr $ newChans n ++ channels n
     findMatch          = find match . reverse . toList .
                          concatMap Status.effects . filter ((<= 2) . Status.dur)
     match Snapshot{}   = True
@@ -239,9 +240,14 @@ decr n = case findMatch $ statuses n of
     foldStats          = (foldStat <$>) . group . sort
     foldStat   (x:|[]) = x
     foldStat xs@(x:|_) = x { Status.amount = sum $ Status.amount <$> xs }
-    turnDecr' xs       = case mapMaybe TurnBased.decr $ toList xs of
+    variantsDecr xs    = case mapMaybe decrVariant $ toList xs of
         x:xs' -> x :| xs'
         []    -> Variant.none :| []
+    decrVariant x = case Variant.dur x of
+        Variant.FromSkill name
+          | any ((name ==) . Skill.name . Channel.skill) decrChannels -> Just x
+          | otherwise -> Nothing
+        _ -> TurnBased.decr x
 
 addStatus :: Status -> Ninja -> Ninja
 addStatus st n = n { statuses = Classed.nonStack st' st' $ statuses n }
@@ -300,7 +306,8 @@ clearVariants :: Text -- ^ 'Variant.name'.
               -> Ninja -> Ninja
 clearVariants name n = n { variants = f <$> variants n }
   where
-    keep v = not (Variant.fromSkill v) || Variant.name v /= name
+    keep Variant.Variant{ dur = Variant.FromSkill x } = x /= name
+    keep _ = True
     f = ensure . filter keep . toList -- TODO
     ensure []     = Variant.none :| []
     ensure (x:xs) = x :| xs
@@ -454,11 +461,9 @@ kabuto skill n =
     sLen       = length sage
     (mode, m)  = advance . maybe "" (dropEnd sLen . Status.name) .
                  find getMode $ statuses n
-    var        = Variant.Variant { Variant.variant   = m
-                                 , Variant.ownCd     = False
-                                 , Variant.name      = ""
-                                 , Variant.fromSkill = False
-                                 , Variant.dur       = 0
+    var        = Variant.Variant { Variant.variant = m
+                                 , Variant.ownCd   = False
+                                 , Variant.dur     = Variant.Duration 0
                                  }
     var'       = var { Variant.variant = m + 1 }
     ml         = mode ++ sage

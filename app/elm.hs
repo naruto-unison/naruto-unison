@@ -97,6 +97,8 @@ typeAlterations t = case t of
     ETyCon (ETCon "Class")     -> ETyCon (ETCon "String")
     ETyCon (ETCon "Duration")  -> ETyCon (ETCon "Int")
     ETyCon (ETCon "Trigger")   -> ETyCon (ETCon "String")
+    ETyCon (ETCon "Varying")   -> ETyCon (ETCon "Int")
+    ETyCon (ETCon "ClassSet")  -> ETyApp (ETyCon (ETCon "List")) (ETyCon (ETCon "String"))
     ETyCon (ETCon "Play")      -> ETyCon (ETCon "Maybe")
     ETyCon (ETCon "()")        -> ETyCon (ETCon "Unit") -- See elmUnitHandlers
     _                          -> defaultTypeAlterations t

@@ -706,7 +706,7 @@ cs =
         , Skill.effects   =
           [ p Enemies do
                 pierce 15
-                interrupt
+                interrupt $ const True
           ]
         }
       ]

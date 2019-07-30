@@ -418,18 +418,14 @@ jsonEncTarget  val =
 type alias Variant  =
    { variant: Int
    , ownCd: Bool
-   , name: String
-   , fromSkill: Bool
    , dur: Int
    }
 
 jsonDecVariant : Json.Decode.Decoder ( Variant )
 jsonDecVariant =
-   Json.Decode.succeed (\pvariant pownCd pname pfromSkill pdur -> {variant = pvariant, ownCd = pownCd, name = pname, fromSkill = pfromSkill, dur = pdur})
+   Json.Decode.succeed (\pvariant pownCd pdur -> {variant = pvariant, ownCd = pownCd, dur = pdur})
    |> required "variant" (Json.Decode.int)
    |> required "ownCd" (Json.Decode.bool)
-   |> required "name" (Json.Decode.string)
-   |> required "fromSkill" (Json.Decode.bool)
    |> required "dur" (Json.Decode.int)
 
 jsonEncVariant : Variant -> Value
@@ -437,8 +433,6 @@ jsonEncVariant  val =
    Json.Encode.object
    [ ("variant", Json.Encode.int val.variant)
    , ("ownCd", Json.Encode.bool val.ownCd)
-   , ("name", Json.Encode.string val.name)
-   , ("fromSkill", Json.Encode.bool val.fromSkill)
    , ("dur", Json.Encode.int val.dur)
    ]
 
@@ -498,6 +492,8 @@ jsonEncChanneling  val =
                     Control v1 -> ("Control", encodeValue (Json.Encode.int v1))
                     Ongoing v1 -> ("Ongoing", encodeValue (Json.Encode.int v1))
     in encodeSumTaggedObject "tag" "contents" keyval val
+
+
 
 type alias Copy  =
    { skill: Skill

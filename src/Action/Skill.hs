@@ -17,8 +17,8 @@ import           Data.List.NonEmpty (NonEmpty(..))
 import           Core.Util (adjustVec, updateVec)
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
+import qualified Class.TurnBased as TurnBased
 import qualified Model.Channel as Channel
-import           Model.Channel (Channeling(..))
 import qualified Model.Character as Character
 import qualified Model.Copy as Copy
 import           Model.Copy (Copy, Copying)
@@ -27,6 +27,7 @@ import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
 import           Model.Slot (Slot)
 import qualified Model.Variant as Variant
+import           Model.Variant (Varying)
 import qualified Engine.Adjust as Adjust
 import qualified Engine.Cooldown as Cooldown
 import qualified Engine.Execute as Execute
@@ -60,8 +61,9 @@ vary :: ∀ m. MonadPlay m
      -> Text -- ^ 'Skill.name' of variant skill.
      -> m ()
 vary name variant = do
-    dur <- Channel.turnDur . Skill.channel <$> P.skill
-    unless (dur == Duration (-1)) $ varyFull True dur name variant
+    skill <- P.skill
+    unless (Channel.turnDur (Skill.channel skill) == Duration (-1)) $
+        varyFull (Variant.FromSkill $ Skill.name skill) name variant
 
 -- | Adds a 'Variant.Variant' to 'Ninja.variants' with a fixed 'Variant.dur'.
 vary' :: ∀ m. MonadPlay m
@@ -69,37 +71,37 @@ vary' :: ∀ m. MonadPlay m
       -> Text -- ^ 'Skill.name' of root skill.
       -> Text -- ^ 'Skill.name' of variant skill.
       -> m ()
-vary' = varyFull False . Duration
+vary' (Duration -> dur) name variant = do
+    copying <- Skill.copying <$> P.skill
+    varyFull (Variant.Duration . Copy.maxDur copying . sync $ incr dur)
+             name variant
+
+-- Copy.maxDur copying . sync $ incr dur
 
 -- | Adds a 'Variant.Variant' to 'Ninja.variants' by base 'Skill.name' and
 -- variant 'Skill.name'.
-varyFull :: ∀ m. MonadPlay m => Bool -> Duration -> Text -> Text -> m ()
-varyFull from dur name variant = do
+varyFull :: ∀ m. MonadPlay m => Varying -> Text -> Text -> m ()
+varyFull dur name variant = do
     nUser <- P.nUser
-    SkillTransform.safe (return ()) (unsafeVary from dur) nUser name variant
+    SkillTransform.safe (return ()) (unsafeVary dur) nUser name variant
 
 -- | Adds a 'Variant.Variant' to 'Ninja.variants' by skill and variant index
 -- within 'Character.skills'.
-unsafeVary :: ∀ m. MonadPlay m => Bool -> Duration -> Int -> Int -> m ()
-unsafeVary fromSkill dur s v = do
+unsafeVary :: ∀ m. MonadPlay m => Varying -> Int -> Int -> m ()
+unsafeVary dur s v = do
     skill      <- P.skill
     nUser      <- P.nUser
     let copying = Skill.copying skill
     unless (shallow copying) do
         target     <- P.target
-        let dur'    = Copy.maxDur copying . sync $ incr dur
-            variant = Variant.Variant
+        let variant = Variant.Variant
                 { Variant.variant   = v
                 , Variant.ownCd     = Skill.varicd $ Adjust.skill' nUser s v
-                , Variant.name      = case Skill.channel skill of
-                    Instant -> ""
-                    _       -> Skill.name skill
-                , Variant.fromSkill = fromSkill
-                , Variant.dur       = dur'
+                , Variant.dur       = dur
                 }
             adjust
-              | dur' <= 0 = updateVec s $ variant :| []
-              | otherwise = adjustVec (cons variant) s
+              | TurnBased.getDur dur <= 0 = updateVec s $ variant :| []
+              | otherwise                 = adjustVec (cons variant) s
         P.modify target \n -> n { Ninja.variants = adjust $ Ninja.variants n }
   where
     shallow Copy.Shallow{} = True
@@ -112,7 +114,7 @@ varyLoadout :: ∀ m. MonadPlay m
             -> m () -- ^ Recalculates every 'Variant.Variant' of a target 'Ninja.Ninja'.
 varyLoadout els i = traverse_ f $ zip [0..] els
   where
-    f (slot, offset) = unsafeVary False 0 slot $ i + offset
+    f (slot, offset) = unsafeVary (Variant.Duration 0) slot $ i + offset
 
 -- | Increments the 'Variant.variant' of a 'Ninja.variants' with matching
 -- 'Skill.name'.
@@ -126,7 +128,8 @@ varyNext name = do
         Just s  -> P.modify target \n ->
             n { Ninja.variants = adjustVec adj s $ Ninja.variants n }
   where
-    match = (== toCaseFold name) . toCaseFold . Skill.name
+    caseFolded = toCaseFold name
+    match = (caseFolded ==) . toCaseFold . Skill.name
     adj vs@(x:|xs)
       | variant <= 0 = vs
       | otherwise    = x { Variant.variant = 1 + variant } :| xs

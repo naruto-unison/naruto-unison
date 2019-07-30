@@ -27,7 +27,7 @@ gain chakras = P.unsilenced do
     rand   <- replicateM (length rands) Chakra.random
     P.alter $ Game.adjustChakra target (+ Chakra.collect (rand ++ nonrands))
   where
-    (rands, nonrands) = partition (== Rand) chakras
+    (rands, nonrands) = partition (Rand ==) chakras
 
 -- | Removes some number of 'Chakra's from the 'Game.chakra' of the target's
 -- team. 'Chakra's are selected at random by 'Chakras.remove'.

@@ -230,7 +230,7 @@ tryEnact :: ∀ m. (MonadGame m, MonadRandom m, MonadSockets m, MonadUnliftIO m)
          => Player -> TBQueue Message.Game -> m ()
 tryEnact player writer = do
     enactMessage <- Timeout.timeout 60000000 $ -- 1 minute
-                    Text.split (== '/') <$> Sockets.receive
+                    Text.split ('/' ==) <$> Sockets.receive
 
     case formEnact =<< enactMessage of
         Nothing -> do
