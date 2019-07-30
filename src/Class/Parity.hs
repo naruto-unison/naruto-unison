@@ -8,7 +8,7 @@ module Class.Parity
 import ClassyPrelude hiding (even)
 import qualified Prelude
 
--- Types that are either even or odd.
+-- | Types that are either even or odd.
 class Parity a where
     even :: a -> Bool
     default even :: Integral a => a -> Bool

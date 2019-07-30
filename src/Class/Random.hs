@@ -21,8 +21,11 @@ import           Yesod.WebSockets (WebSocketsT)
 
 import Core.Util ((!!), Lift)
 
+-- | A monad capable of nondeterministic behavior.
 class Monad m => MonadRandom m where
+    -- | Selects an integer in an inclusive range.
     random  :: Int -> Int -> m Int
+    -- | Randomly shuffles elements in a list.
     shuffle :: ∀ v a. Generic.Vector v a => v a -> m (v a)
 
     default random  :: Lift MonadRandom m => Int -> Int -> m Int

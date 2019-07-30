@@ -25,7 +25,6 @@ import           Yesod.WebSockets (WebSocketsT, webSockets)
 
 import Core.Util (Lift)
 
-
 sendJson :: ∀ m a. (MonadSockets m, ToJSON a) => a -> m ()
 sendJson = send . Encoding.encodingToLazyByteString . toEncoding
 

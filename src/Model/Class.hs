@@ -61,7 +61,7 @@ instance Display Class where
     display = Vector.unsafeIndex displayCache . fromEnum
 
 textCache :: Vector Text
-textCache = Vector.generate (fromEnum (maxBound :: Class)) $ f . toEnum
+textCache = Vector.generate (1 + fromEnum (maxBound :: Class)) $ f . toEnum
   where
     f InvisibleTraps = f Invisible
     f Nonstacking    = "Non-stacking"
