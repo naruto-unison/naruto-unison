@@ -452,7 +452,7 @@ renderDetail team slot characters detail =
     ]
     [ H.div [] <| amount
       [icon (Game.get characters detail.source) detail.name []]
-    , H.p [] << Render.duration " " <| detail.dur
+    , H.p [] << Render.duration "\u{00A0}" <| detail.dur
     ]
 
 renderCharacter : List Character -> List Int -> Maybe Act -> List Int -> Chakras

@@ -78,9 +78,6 @@ body {
 .nextSkill:hover, .prevSkill:hover {
     color: #0099ff;
 }
-#game .nextSkill, #game .prevSkill {
-    bottom: 0;
-}
 .nextSkill { right: 5px }
 .prevSkill { left: 5px }
 .nextSkill:after { content: '▶' }
@@ -454,6 +451,9 @@ a.playButton {
     left: 0;
     right: 0;
     text-align: center;
+}
+#top > article > section > div {
+    position: relative;
 }
 #top > section > section {
     display: inline-block;
