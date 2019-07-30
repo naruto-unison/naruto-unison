@@ -81,7 +81,7 @@ targetable skill n nt
     classes = Skill.classes skill
     user    = Ninja.slot n
     target  = Ninja.slot nt
-    harm    = not $ Parity.allied user target && Parity.allied user target
+    harm    = not $ Parity.allied user target
     dueling = notIn user $ Effects.duel nt
     taunted = notIn target $ Effects.taunt n
     notIn a xs = not (null xs) && a ∉ xs

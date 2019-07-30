@@ -229,7 +229,6 @@ decr n = case findMatch $ statuses n of
            , copies    = (>>= TurnBased.decr) <$> copies n
            , cooldowns = ((max 0 . subtract 1) <$>) <$> cooldowns n
            , counters  = []
-           , effects   = []
            , triggers  = singleton OnNoAction
            }
   where

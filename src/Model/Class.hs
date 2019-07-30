@@ -50,7 +50,7 @@ data Class
     | Ninjutsu
     | Taijutsu
     | Random
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 type ClassSet = EnumSet Word64 Class
 

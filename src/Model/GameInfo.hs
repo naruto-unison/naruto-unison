@@ -113,14 +113,13 @@ skillTargets skill c = filter target Slot.all
   where
     ts = fst
          <$> Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill
-    harm = [Enemy, Enemies, REnemy, XEnemies] `intersects` ts
     target t
       | Everyone ∈ ts                         = True
-      | not $ Parity.allied c t               = harm
+      | not $ Parity.allied c t               = Harmful ∈ Skill.classes skill
       | [XAlly, XAllies] `intersects` ts      = c /= t
       | [Ally, Allies, RAlly] `intersects` ts = True
-      | c == t = not harm
-      | otherwise = False
+      | c == t                                = Harmful ∉ Skill.classes skill
+      | otherwise                             = False
 
 ninjaToJSON :: Ninja -> Value
 ninjaToJSON n = object
