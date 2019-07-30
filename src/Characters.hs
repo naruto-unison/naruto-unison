@@ -55,7 +55,7 @@ list :: [Character]
 list = addClasses <$> original ++ shippuden ++ reanimated
 
 map :: HashMap Text Character
-map = mapFromList $ (\c -> (tshow c, c)) <$> list
+map = mapFromList $ (\c -> (Character.format c, c)) <$> list
 
 addClasses :: Character -> Character
 addClasses char = char { Character.skills = doSkills <$> Character.skills char }

@@ -124,6 +124,8 @@ import Data.Aeson (ToJSON(..))
 import Data.Bits
 import GHC.Exts (IsList(Item))
 import Data.Monoid (Monoid(..))
+import Text.Read
+import Text.Show
 
 {--------------------------------------------------------------------
   Set type
@@ -131,7 +133,7 @@ import Data.Monoid (Monoid(..))
 
 -- | A set of values @a@ with representation @word@,
 -- implemented as bitwise operations.
-newtype EnumSet word a = EnumSet { toBits :: word } deriving (Eq)
+newtype EnumSet word a = EnumSet { toBits :: word } deriving (Eq, Ord)
 
 instance Bits w => Semigroup (EnumSet w a) where
     (<>) = union
@@ -150,6 +152,7 @@ instance (Bits w, Num w, Enum a) => IsList (EnumSet w a) where
 
 instance (Bits w, Num w, Enum a, ToJSON a) => ToJSON (EnumSet w a) where
     toJSON = toJSON . toList
+    {-# INLINE toJSON #-}
 
 type instance Element (EnumSet w a) = a
 
@@ -216,6 +219,22 @@ instance (Bits w, Num w, Eq a, Enum a) => IsSet (EnumSet w a) where
     setToList = toList
     {-# INLINE setToList #-}
 
+instance (Bits w, Num w, Enum x, Show x) => Show (EnumSet w x) where
+    showsPrec p xs = showParen (p > 10) $
+        showString "fromList " . shows (toList xs)
+
+instance (Bits w, Num w, Enum x, Read x) => Read (EnumSet w x) where
+    readPrec = parens $ prec 10 do
+        Ident "fromList" <- lexP
+        xs :: [x] <- readPrec
+        return (fromFoldable xs)
+    readListPrec = readListPrecDefault
+
+instance (Bits w, Bounded x, Enum x) => Bounded (EnumSet w x) where
+    minBound = empty
+    maxBound = EnumSet $ F.foldl' (flip $ (.|.) . bit) zeroBits
+               [0..fromEnum (maxBound :: x)]
+
 {--------------------------------------------------------------------
   Construction
 --------------------------------------------------------------------}
@@ -235,10 +254,7 @@ singleton = EnumSet . setBit zeroBits . fromEnum
 -- | /O(n)/. Create a set from a foldable data structure.
 fromFoldable :: ∀ f w a. (Foldable f, Bits w, Enum a)
              => f a -> EnumSet w a
-fromFoldable = EnumSet . F.foldl' f zeroBits
-  where
-    f z = setBit z . fromEnum
-    {-# INLINE f #-}
+fromFoldable = EnumSet . F.foldl' (flip $ (.|.) . bit . fromEnum) zeroBits
 
 {--------------------------------------------------------------------
   Insertion

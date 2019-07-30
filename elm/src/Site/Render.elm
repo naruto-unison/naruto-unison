@@ -110,7 +110,7 @@ effect removable x =
 
 hidden : List String
 hidden =
-    [ "NonMental"
+    [ "Non-mental"
     , "Bloodline"
     , "Genjutsu"
     , "Ninjutsu"
@@ -121,8 +121,7 @@ hidden =
     , "All"
     , "Harmful"
     , "Affliction"
-    , "NonAffliction"
-    , "NonMental"
+    , "Non-affliction"
     , "Nonstacking"
     , "Resource"
     , "Extending"
@@ -130,7 +129,6 @@ hidden =
     , "Shifted"
     , "Unshifted"
     , "Direct"
-    , "BaseTrap"
     , "Healing"
     ]
 

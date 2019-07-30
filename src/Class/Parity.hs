@@ -11,6 +11,8 @@ import qualified Prelude
 -- Types that are either even or odd.
 class Parity a where
     even :: a -> Bool
+    default even :: Integral a => a -> Bool
+    even = Prelude.even
 
 -- | Splits a sequence into alternating evens and odds, based on index.
 split :: ∀ o. (Monoid o, SemiSequence o) => o -> (o, o)
@@ -32,19 +34,11 @@ enemies _               = snd . split
 
 instance Parity Bool where
     even = id
-instance Parity Int where
-    even = Prelude.even
-instance Parity Int32 where
-    even = Prelude.even
-instance Parity Int64 where
-    even = Prelude.even
-instance Parity Integer where
-    even = Prelude.even
-instance Parity Word where
-    even = Prelude.even
-instance Parity Word8 where
-    even = Prelude.even
-instance Parity Word32 where
-    even = Prelude.even
-instance Parity Word64 where
-    even = Prelude.even
+instance Parity Int
+instance Parity Int32
+instance Parity Int64
+instance Parity Integer
+instance Parity Word
+instance Parity Word8
+instance Parity Word32
+instance Parity Word64

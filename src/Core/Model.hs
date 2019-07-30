@@ -17,7 +17,7 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"]
     $(persistFileWith Quasi.lowerCaseSettings "config/models.persistentmodels")
 
 instance Ord Post where
-    compare x y = compare (postTime x) (postTime y)
+    compare = comparing postTime
 
 instance Hashable (Key User) where
     hashWithSalt salt = hashWithSalt salt .

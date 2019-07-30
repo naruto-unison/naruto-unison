@@ -22,13 +22,14 @@ import           Yesod.WebSockets (WebSocketsT)
 import           Core.Util ((∈), Lift, enumerate)
 import qualified Class.Classed as Classed
 import           Class.Classed (Classed)
+import           Class.Display (Display(..))
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
 import qualified Class.Labeled
 import           Class.Labeled (Labeled)
 import           Class.Random (MonadRandom)
 import           Class.TurnBased (TurnBased(..))
-import           Model.Class (Class(..), ClassSet)
+import           Model.Class (Class(..), ClassSet, lower)
 import           Model.Chakra (Chakras(..))
 import           Model.Defense (Defense(..))
 import           Model.Duration (Duration, sync, unsync)
@@ -125,7 +126,7 @@ instance Classed Effect where
 
 instance ToJSON Effect where
     toJSON x = object
-      [ "desc"    .= tshow x
+      [ "desc"    .= builderToLazy (display x)
       , "helpful" .= helpful x
       , "sticky"  .= sticky x
       , "trap"    .= False
@@ -201,78 +202,75 @@ sticky Snapshot{}     = True
 sticky Swap{}         = True
 sticky _              = False
 
-low :: ∀ a. Show a => a -> String
-low = toLower . show
+displayAmt :: Amount -> Int -> TextBuilder
+displayAmt Flat    = display
+displayAmt Percent = (++ "%") . display
 
-showAmt :: Amount -> Int -> String
-showAmt Flat    = show
-showAmt Percent = (++ "%") . show
-
-instance Show Effect where
-    show (Afflict x) = "Receives " ++ show x ++ " affliction damage each turn."
-    show AntiCounter = "Cannot be countered or reflected."
-    show (Bleed classes amt x)
-      | x >= 0    =  showAmt amt x ++ " additional damage taken from " ++ low classes ++ " skills."
-      | otherwise = "Reduces all " ++ low classes ++  " damage received by " ++ showAmt amt (-x) ++ "."
-    show (Bless x) = "Healing skills heal 1 additional " ++ show x ++ " health."
-    show Block = "Unable to affect the source of this effect."
-    show (Boost x) = "Active effects from allies are " ++ show x ++ " times as powerful."
-    show (Build x)
-      | x >= 0    = "Destructible skills provide " ++ show x ++ " additional points of defense."
-      | otherwise =  "Destructible skills provide " ++ show (-x) ++ " fewer points of defense."
-    show (Counter All)  = "Counters the first skill."
-    show (Counter classes) = "Counters the first " ++ low classes ++ "skill."
-    show (CounterAll All) = "Counters all skills."
-    show (CounterAll classes) = "Counters all " ++ low classes ++ "skills."
-    show Undefend = "Unable to benefit from destructible defense"
-    show (Duel _) = "Invulnerable to everyone but a specific target."
-    show Endure = "Health cannot go below 1."
-    show Enrage = "Ignores status effects from enemies except chakra cost changes."
-    show (Exhaust classes) = show classes ++ " skills cost 1 additional random chakra."
-    show Expose = "Unable to reduce damage or become invulnerable."
-    show (Heal x) = "Gains " ++ show x ++ " health each turn."
-    show (Ignore _) = "Ignores certain effects."
-    show (Invulnerable classes) = "Invulnerable to " ++ low classes ++ " skills."
-    show ImmuneSelf = "Invulnerable to self-damage."
-    show (Invincible classes) = "Harmful " ++ low classes ++ " skills have no effect."
-    show (Parry All _) = "Counters the first skill."
-    show (Parry classes _) = "Counters the first " ++ low classes ++ " skill."
-    show (ParryAll All _) = "Counters all skill."
-    show (ParryAll classes _) = "Counters all " ++ low classes ++ " skills."
-    show Pierce = "Non-affliction skills deal piercing damage."
-    show Plague = "Cannot be healed or cured."
-    show (Reduce Affliction amt x)
-      | x >= 0    = "Reduces all damage received—including piercing and affliction—by " ++ showAmt amt x ++ "."
-      | otherwise = "Increases all damage received—including piercing and affliction—by " ++ showAmt amt x ++ "."
-    show (Reduce classes amt x)
-      | x >= 0    = "Reduces " ++ low classes ++ " damage received by " ++ showAmt amt x ++ ". Does not affect piercing or affliction damage."
-      | otherwise = "Increases " ++ low classes ++ " damage received by " ++ showAmt amt (-x) ++ ". Does not affect piercing or affliction damage."
-    show (Redirect classes _) = "Redirects " ++ low classes  ++ " harmful skills to a different target."
-    show Reflect = "Reflects the first harmful non-mental skill."
-    show ReflectAll = "Reflects all non-mental skills."
-    show (Replace _ classes _ _) = show classes ++ " skills will be temporarily acquired by the user of this effect."
-    show Reveal = "Reveals invisible skills to the enemy team. This effect cannot be removed."
-    show Restrict = "Skills that normally affect all opponents must be targeted."
-    show Seal = "Invulnerable to effects from allies."
-    show (Share _) = "Harmful skills received are also reflected to another target."
-    show Silence = "Unable to cause non-damage effects."
-    show (Snare x)
-      | x >= 0    = "Cooldowns increased by " ++ show x ++ "."
-      | otherwise = "Cooldowns decreased by " ++ show (-x) ++ "."
-    show (SnareTrap _ _) = "Next skill used will be negated and go on a longer cooldown."
-    show (Snapshot _) = "Will be restored to an earlier state when this effect ends."
-    show (Strengthen classes amt x) = show classes ++ " damaging skills deal " ++ showAmt amt x ++ " additional damage."
-    show (Stun Affliction) = "Unable to deal affliction damage."
-    show (Stun NonAffliction) = "Unable to deal non-affliction damage."
-    show (Stun classes) = "Unable to use " ++ low classes ++ " skills."
-    show (Swap classes) = "Next " ++ low classes ++ " skill will target allies instead of enemies and enemies instead of allies."
-    show (Taunt _) = "Can only affect a specific target."
-    show (Threshold x) = "Uninjured by attacks that deal " ++ show x ++ " baseline damage or lower."
-    show (Throttle x _) = "Skills will apply " ++ show x ++ " fewer turns of certain effects."
-    show Uncounter = "Unable to benefit from counters or reflects."
-    show Unexhaust = "All skills cost 1 fewer random chakra."
-    show (Unreduce x) = "Damage reduction skills reduce " ++ show x ++ " fewer damage."
-    show (Weaken classes amt x) = show classes ++ " skills deal " ++ showAmt amt x ++ " fewer damage. Does not affect affliction damage."
+instance Display Effect where
+    display (Afflict x) = "Receives " ++ display x ++ " affliction damage each turn."
+    display AntiCounter = "Cannot be countered or reflected."
+    display (Bleed cla amt x)
+      | x >= 0    =  displayAmt amt x ++ " additional damage taken from " ++ lower cla ++ " skills."
+      | otherwise = "Reduces all " ++ lower cla ++  " damage received by " ++ displayAmt amt (-x) ++ "."
+    display (Bless x) = "Healing skills heal 1 additional " ++ display x ++ " health."
+    display Block = "Unable to affect the source of this effect."
+    display (Boost x) = "Active effects from allies are " ++ display x ++ " times as powerful."
+    display (Build x)
+      | x >= 0    = "Destructible skills provide " ++ display x ++ " additional points of defense."
+      | otherwise =  "Destructible skills provide " ++ display (-x) ++ " fewer points of defense."
+    display (Counter All)  = "Counters the first skill."
+    display (Counter cla) = "Counters the first " ++ lower cla ++ "skill."
+    display (CounterAll All) = "Counters all skills."
+    display (CounterAll cla) = "Counters all " ++ lower cla ++ "skills."
+    display Undefend = "Unable to benefit from destructible defense"
+    display (Duel _) = "Invulnerable to everyone but a specific target."
+    display Endure = "Health cannot go below 1."
+    display Enrage = "Ignores status effects from enemies except chakra cost changes."
+    display (Exhaust cla) = display cla ++ " skills cost 1 additional random chakra."
+    display Expose = "Unable to reduce damage or become invulnerable."
+    display (Heal x) = "Gains " ++ display x ++ " health each turn."
+    display (Ignore _) = "Ignores certain effects."
+    display (Invulnerable cla) = "Invulnerable to " ++ lower cla ++ " skills."
+    display ImmuneSelf = "Invulnerable to self-damage."
+    display (Invincible cla) = "Harmful " ++ lower cla ++ " skills have no effect."
+    display (Parry All _) = "Counters the first skill."
+    display (Parry cla _) = "Counters the first " ++ lower cla ++ " skill."
+    display (ParryAll All _) = "Counters all skill."
+    display (ParryAll cla _) = "Counters all " ++ lower cla ++ " skills."
+    display Pierce = "Non-affliction skills deal piercing damage."
+    display Plague = "Cannot be healed or cured."
+    display (Reduce Affliction amt x)
+      | x >= 0    = "Reduces all damage received—including piercing and affliction—by " ++ displayAmt amt x ++ "."
+      | otherwise = "Increases all damage received—including piercing and affliction—by " ++ displayAmt amt x ++ "."
+    display (Reduce cla amt x)
+      | x >= 0    = "Reduces " ++ lower cla ++ " damage received by " ++ displayAmt amt x ++ ". Does not affect piercing or affliction damage."
+      | otherwise = "Increases " ++ lower cla ++ " damage received by " ++ displayAmt amt (-x) ++ ". Does not affect piercing or affliction damage."
+    display (Redirect cla _) = "Redirects " ++ lower cla  ++ " harmful skills to a different target."
+    display Reflect = "Reflects the first harmful non-mental skill."
+    display ReflectAll = "Reflects all non-mental skills."
+    display (Replace _ cla _ _) = display cla ++ " skills will be temporarily acquired by the user of this effect."
+    display Reveal = "Reveals invisible skills to the enemy team. This effect cannot be removed."
+    display Restrict = "Skills that normally affect all opponents must be targeted."
+    display Seal = "Invulnerable to effects from allies."
+    display (Share _) = "Harmful skills received are also reflected to another target."
+    display Silence = "Unable to cause non-damage effects."
+    display (Snare x)
+      | x >= 0    = "Cooldowns increased by " ++ display x ++ "."
+      | otherwise = "Cooldowns decreased by " ++ display (-x) ++ "."
+    display (SnareTrap _ _) = "Next skill used will be negated and go on a longer cooldown."
+    display (Snapshot _) = "Will be restored to an earlier state when this effect ends."
+    display (Strengthen cla amt x) = display cla ++ " damaging skills deal " ++ displayAmt amt x ++ " additional damage."
+    display (Stun Affliction) = "Unable to deal affliction damage."
+    display (Stun NonAffliction) = "Unable to deal non-affliction damage."
+    display (Stun cla) = "Unable to use " ++ lower cla ++ " skills."
+    display (Swap cla) = "Next " ++ lower cla ++ " skill will target allies instead of enemies and enemies instead of allies."
+    display (Taunt _) = "Can only affect a specific target."
+    display (Threshold x) = "Uninjured by attacks that deal " ++ display x ++ " baseline damage or lower."
+    display (Throttle x _) = "Skills will apply " ++ display x ++ " fewer turns of certain effects."
+    display Uncounter = "Unable to benefit from counters or reflects."
+    display Unexhaust = "All skills cost 1 fewer random chakra."
+    display (Unreduce x) = "Damage reduction skills reduce " ++ display x ++ " fewer damage."
+    display (Weaken cla amt x) = display cla ++ " skills deal " ++ displayAmt amt x ++ " fewer damage. Does not affect affliction damage."
 
 -- | In-game character, indexed between 0 and 5.
 data Ninja = Ninja { slot      :: Slot           -- ^ 'Model.Game.Ninjas' index (0-5)
@@ -450,11 +448,6 @@ instance ToJSON Character where
         , "category" .= category
         ]
 
-instance Show Character where
-    show (Character name _ _ _ Original)   = unpack name
-    show (Character name _ _ _ Shippuden)  = unpack name ++ " (S)"
-    show (Character name _ _ _ Reanimated) = unpack name ++ " (R)"
-
 -- | Conditions to activate a 'Trap'.
 data Trigger
     = OnAction Class
@@ -478,10 +471,10 @@ data Trigger
     | PerDamage
     | PerHealed
     | PerDamaged
-    deriving (Eq, Ord)
+    deriving (Eq, Ord, Show, Read)
 
 instance ToJSON Trigger where
-    toJSON = toJSON . show
+    toJSON = toJSON . builderToLazy . display
 
 instance Classed Trigger where
     classes (OnAction cla)  = singletonSet cla
@@ -490,33 +483,33 @@ instance Classed Trigger where
     classes (OnHarmed cla)  = singletonSet cla
     classes _               = mempty
 
-instance Show Trigger where
-    show (OnAction  All)  = "Trigger: Use any skill"
-    show (OnAction  cla)  = "Trigger: Use " ++ low cla ++ " skills"
-    show (OnBreak   name) = "Trigger: Lose all destructible defense from '" ++ unpack name ++ "'"
-    show OnChakra         = "Trigger: Steal or remove chakra"
-    show (OnCounter All)  = "Next harmful skill is countered."
-    show (OnCounter Uncounterable) = "Next skill is negated."
-    show (OnCounter cla)  = "Next harmful " ++ low cla ++ " skill is countered."
-    show OnCounterAll     = "All skills are countered."
-    show OnDamage         = "Trigger: Deal damage"
-    show (OnDamaged All)  = "Trigger: Receive damage"
-    show (OnDamaged cla)  = "Trigger: Receive " ++ low cla ++ " damage"
-    show OnDeath          = "Trigger: Die"
-    show OnHarm           = "Trigger: Use harmful skill"
-    show (OnHarmed All)   = "Trigger: Be affected by a new harmful skill"
-    show (OnHarmed cla)   = "Trigger: Be affected by a new " ++ low cla ++ " harmful skill"
-    show OnHealed         = "Trigger: Receive healing"
-    show OnHelped         = "Trigger: Be affected by a new skill from an ally"
-    show OnImmune         = "Trigger: Become invulnerable"
-    show OnNoAction       = "Trigger: Do not use a new skill"
-    show OnReflectAll     = "All skills are reflected."
-    show OnRes            = "Trigger: Reach 0 health"
-    show OnStun           = "Trigger: Apply a stun"
-    show OnStunned        = "Trigger: Stunned"
-    show PerDamage        = show OnDamage
-    show PerDamaged       = show (OnDamaged All)
-    show PerHealed        = show OnHealed
+instance Display Trigger where
+    display (OnAction  All)  = "Trigger: Use any skill"
+    display (OnAction  cla)  = "Trigger: Use " ++ lower cla ++ " skills"
+    display (OnBreak   name) = "Trigger: Lose all destructible defense from '" ++ display name ++ "'"
+    display OnChakra         = "Trigger: Steal or remove chakra"
+    display (OnCounter All)  = "Next harmful skill is countered."
+    display (OnCounter Uncounterable) = "Next skill is negated."
+    display (OnCounter cla)  = "Next harmful " ++ lower cla ++ " skill is countered."
+    display OnCounterAll     = "All skills are countered."
+    display OnDamage         = "Trigger: Deal damage"
+    display (OnDamaged All)  = "Trigger: Receive damage"
+    display (OnDamaged cla)  = "Trigger: Receive " ++ lower cla ++ " damage"
+    display OnDeath          = "Trigger: Die"
+    display OnHarm           = "Trigger: Use harmful skill"
+    display (OnHarmed All)   = "Trigger: Be affected by a new harmful skill"
+    display (OnHarmed cla)   = "Trigger: Be affected by a new " ++ lower cla ++ " harmful skill"
+    display OnHealed         = "Trigger: Receive healing"
+    display OnHelped         = "Trigger: Be affected by a new skill from an ally"
+    display OnImmune         = "Trigger: Become invulnerable"
+    display OnNoAction       = "Trigger: Do not use a new skill"
+    display OnReflectAll     = "All skills are reflected."
+    display OnRes            = "Trigger: Reach 0 health"
+    display OnStun           = "Trigger: Apply a stun"
+    display OnStunned        = "Trigger: Stunned"
+    display PerDamage        = display OnDamage
+    display PerDamaged       = display $ OnDamaged All
+    display PerHealed        = display OnHealed
 
 -- | A 'Skill' copied from a different character.
 data Copy = Copy { skill :: Skill
@@ -582,7 +575,7 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
 instance Eq Status where
     (==) = (==) `on` \Status{..} -> (name, user, maxDur, classes)
 instance Ord Status where
-    compare = compare `on` (name :: Status -> Text)
+    compare = comparing (name :: Status -> Text)
 instance TurnBased Status where
     getDur     = dur
     setDur d x = x { dur = d }
@@ -626,7 +619,7 @@ instance TurnBased Trap where
     getDur     = dur
     setDur d x = x { dur = d }
 instance Labeled Trap where
-    name   = name
+    name = name
     user = user
 instance Classed Trap where
     classes = classes

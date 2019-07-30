@@ -50,10 +50,13 @@ class Monad m => MonadSockets m where
     send    :: LByteString -> m ()
     default receive :: Lift MonadSockets m => m Text
     receive = lift receive
+    {-# INLINE receive #-}
     default clear :: Lift MonadSockets m => m ()
     clear = lift clear
+    {-# INLINE clear #-}
     default send :: Lift MonadSockets m => LByteString -> m ()
     send = lift . send
+    {-# INLINE send #-}
 
 -- | A 'WebSocketsT' wrapper to permit asynchronous listening and timing out
 -- receiveData requests without closing the socket.
@@ -75,14 +78,14 @@ instance MonadHandler m => MonadHandler (SocketsT m) where
     type HandlerSite (SocketsT m) = HandlerSite m
     type SubHandlerSite (SocketsT m) = SubHandlerSite m
     liftHandler = lift . liftHandler
+    {-# INLINE liftHandler #-}
     liftSubHandler = lift . liftSubHandler
+    {-# INLINE liftSubHandler #-}
 
 instance MonadIO m => MonadSockets (SocketsT m) where
     receive = SocketsT $ ask >>= takeMVar
     clear   = SocketsT $ ask >>= void . iterateUntil isNothing . tryTakeMVar
-    send x  = SocketsT do
-        conn <- lift ask
-        liftIO $ WebSockets.sendTextData conn x
+    send x  = SocketsT $ lift ask >>= liftIO . flip WebSockets.sendTextData x
 
 instance MonadSockets m => MonadSockets (ExceptT e m)
 instance MonadSockets m => MonadSockets (IdentityT m)

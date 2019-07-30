@@ -46,8 +46,8 @@ data ForumBoard
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 derivePersistField "ForumBoard"
 instance PathPiece ForumBoard where
-  toPathPiece = tshow
-  fromPathPiece = readMaybe . unpack
+    toPathPiece = tshow
+    fromPathPiece = readMaybe . unpack
 
 boardCategory :: ForumBoard -> ForumCategory
 boardCategory NewsAndAnnouncements = Official

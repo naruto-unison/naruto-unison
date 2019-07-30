@@ -1,10 +1,12 @@
-{-# LANGUAGE DeriveAnyClass        #-}
-module Model.Class (Class(..), ClassSet) where
+{-# LANGUAGE DeriveAnyClass #-}
+module Model.Class (Class(..), lower, ClassSet) where
 
 import ClassyPrelude
 
-import Data.Aeson (ToJSON)
+import           Data.Aeson (ToJSON(..))
+import qualified Data.Vector as Vector
 
+import Class.Display (Display(..))
 import Core.EnumSet (EnumSet)
 
 -- | Qualifiers of 'Model.Skill.Skill's and 'Model.Status.Status'es.
@@ -48,40 +50,30 @@ data Class
     | Ninjutsu
     | Taijutsu
     | Random
-    deriving (Bounded, Enum, Eq, Ord, Generic, ToJSON)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
 
 type ClassSet = EnumSet Word64 Class
 
-instance Show Class where
-    show Invisible      = "Invisible"
-    show InvisibleTraps = "Invisible"
-    show Soulbound      = "Soulbound"
-    show Bane           = "Bane"
-    show Summon         = "Summon"
-    show Melee          = "Melee"
-    show Ranged         = "Ranged"
-    show Chakra         = "Chakra"
-    show Physical       = "Physical"
-    show Mental         = "Mental"
-    show Nonstacking    = "Non-stacking"
-    show Single         = "Single"
-    show Extending      = "Extending"
-    show Bypassing      = "Bypassing"
-    show Uncounterable  = "Uncounterable"
-    show Unreflectable  = "Unreflectable"
-    show Unremovable    = "Unremovable"
-    show Necromancy     = "Necromancy"
-    show All            = "All"
-    show Harmful        = "Harmful"
-    show Healing        = "Healing"
-    show Hidden         = "Hidden"
-    show Affliction     = "Affliction"
-    show NonAffliction  = "Non-affliction"
-    show NonMental      = "Non-mental"
-    show Resource       = "Resource"
-    show Direct         = "Direct"
-    show Bloodline      = "Bloodline"
-    show Genjutsu       = "Genjutsu"
-    show Ninjutsu       = "Ninjutsu"
-    show Taijutsu       = "Taijutsu"
-    show Random         = "Random"
+instance ToJSON Class where
+    toJSON = toJSON . Vector.unsafeIndex textCache . fromEnum
+
+instance Display Class where
+    display = Vector.unsafeIndex displayCache . fromEnum
+
+textCache :: Vector Text
+textCache = Vector.generate (fromEnum (maxBound :: Class)) $ f . toEnum
+  where
+    f InvisibleTraps = f Invisible
+    f Nonstacking    = "Non-stacking"
+    f NonAffliction  = "Non-affliction"
+    f NonMental      = "Non-mental"
+    f x              = tshow x
+
+displayCache :: Vector TextBuilder
+displayCache = toBuilder <$> textCache
+
+lowerCache :: Vector TextBuilder
+lowerCache = toBuilder . toLower <$> textCache
+
+lower :: Class -> TextBuilder
+lower = Vector.unsafeIndex lowerCache . fromEnum

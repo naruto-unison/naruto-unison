@@ -86,7 +86,7 @@ charAvatars :: Character -> [Text]
 charAvatars char = toFile <$> "icon" : skills
   where
     skills      = Skill.name . head <$> toList (Character.skills char)
-    toFile path = "/img/ninja/" ++ shorten (tshow char) ++ "/"
+    toFile path = "/img/ninja/" ++ shorten (Character.format char) ++ "/"
                   ++ shorten path ++ ".jpg"
 
 avatars :: [Text]
