@@ -17,7 +17,7 @@ import qualified Model.Copy as Copy
 import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Ninja as Ninja
-import           Model.Ninja (Ninja)
+import           Model.Ninja (Ninja, is)
 import qualified Model.Requirement as Requirement
 import           Model.Skill (Skill)
 import qualified Model.Status as Status
@@ -54,7 +54,7 @@ apply n = map adjustEffect . filter keepEffects
   where
     adjustEffect (Reduce cla Flat x) = Reduce cla Flat $ x - Effects.unreduce n
     adjustEffect f                   = f
-    keepEffects Invulnerable{}       = not $ Ninja.is Expose n
+    keepEffects Invulnerable{}       = not $ n `is` Expose
     keepEffects _                    = True
 
 -- | Fills 'Ninja.effects' with the effects of 'Ninja.statuses', modified by

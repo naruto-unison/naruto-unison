@@ -3,7 +3,7 @@ module Model.Ninja
   , playing
   , alive, minHealth, healthLost
   , adjustHealth, setHealth, sacrifice
-  , is, isAny, isChanneling
+  , is, isChanneling
   , has, hasOwn, hasDefense, hasStatus, hasTrap
   , numActive, numStacks, numHelpful, defenseAmount
   , take, drop
@@ -31,7 +31,7 @@ import           Data.List (nubBy)
 import           Data.List.NonEmpty ((!!), NonEmpty(..), group, init, last)
 import qualified Data.Text as Text
 
-import           Core.Util ((—), (∈), (∉), enumerate, intersects, mapMaybe)
+import           Core.Util ((—), (∈), (∉), mapMaybe)
 import qualified Class.Classed as Classed
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
@@ -92,11 +92,8 @@ alive = (> 0) . health
 playing :: ∀ a. Parity a => a -> Ninja -> Bool
 playing p n = alive n && Parity.allied p n
 
-is :: Effect -> Ninja -> Bool
-is ef = (ef ∈) . effects
-
-isAny :: (Class -> Effect) -> Ninja -> Bool
-isAny efs n = effects n `intersects` enumerate efs
+is :: Ninja -> Effect -> Bool
+is n ef = ef ∈ effects n
 
 isChanneling :: Text -- ^ 'Skill.name'.
              -> Ninja -> Bool
@@ -172,8 +169,8 @@ numHelpful n = length stats + length defs
 -- | @1@ if affected by 'Endure', otherwise @0@.
 minHealth :: Ninja -> Int
 minHealth n
-  | is Endure n = 1
-  | otherwise   = 0
+  | n `is` Endure = 1
+  | otherwise     = 0
 
 -- | Modifies 'health', restricting the value within ['minHealth', 100].
 adjustHealth :: (Int -> Int) -> Ninja -> Ninja
@@ -326,15 +323,15 @@ cure match n = n { statuses = mapMaybe cure' $ statuses n }
       | Status.user st == slot n           = Just st
       | null $ Status.effects st           = Just st
       | Unremovable ∈ Status.classes st    = Just st
-      | is Plague n                        = Just st
+      | n `is` Plague                      = Just st
       | not $ any keep $ Status.effects st = Nothing
       | otherwise = Just st { Status.effects = filter keep $ Status.effects st }
 
 -- | Cures 'Bane' 'statuses'.
 cureBane :: Ninja -> Ninja
 cureBane n
-  | is Plague n = n
-  | otherwise = cure cured n { statuses = filter keep $ statuses n }
+  | n `is` Plague = n
+  | otherwise     = cure cured n { statuses = filter keep $ statuses n }
   where
     cured Afflict{} = True
     cured _         = False

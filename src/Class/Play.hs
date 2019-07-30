@@ -35,7 +35,7 @@ import           Model.Context (Context)
 import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
-import           Model.Ninja (Ninja)
+import           Model.Ninja (Ninja, is)
 import qualified Model.Player as Player
 import           Model.Player (Player)
 import           Model.Skill (Skill)
@@ -110,7 +110,7 @@ unsilenced f = do
     if Context.user ctx == Context.target ctx then
         f
     else
-        unlessM (Ninja.is Silence <$> nUser) f
+        unlessM ((`is` Silence) <$> nUser) f
 
 -- | Applies a 'Ninja' transformation to the 'target'.
 toTarget :: ∀ m. MonadPlay m => (Ninja -> Ninja) -> m ()

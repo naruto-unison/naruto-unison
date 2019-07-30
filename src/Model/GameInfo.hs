@@ -18,7 +18,7 @@ import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
 import           Model.Game (Game(..))
 import qualified Model.Ninja as Ninja
-import           Model.Ninja (Ninja)
+import           Model.Ninja (Ninja, is)
 import qualified Model.Requirement as Requirement
 import           Model.Requirement (Requirement(..))
 import qualified Model.Skill as Skill
@@ -58,7 +58,7 @@ censor player ninjas = (ninjaToJSON . censorNinja player ninjas) <$> ninjas
 censorNinja :: Player -> Vector Ninja -> Ninja -> Ninja
 censorNinja player ninjas n
   | Parity.allied player n = n'
-  | Ninja.is Reveal n      = n'
+  | n `is` Reveal          = n'
   | otherwise              = n'
       { Ninja.cooldowns = mempty
       , Ninja.charges   = mempty
@@ -74,7 +74,7 @@ censorNinja player ninjas n
                                   || Invisible ∉ Trap.classes trap
                                   || revealed (Trap.user trap) ]
              }
-    revealed slot = Ninja.is Reveal $ ninjas !! Slot.toInt slot
+    revealed slot = ninjas !! Slot.toInt slot `is` Reveal
     mst st
       | Parity.allied player $ Status.user st = Just st
       | Invisible ∈ Status.classes st

@@ -24,7 +24,7 @@ import           Model.Effect (Effect(..))
 import qualified Model.Channel as Channel
 import qualified Model.Context as Context
 import qualified Model.Ninja as Ninja
-import           Model.Ninja (Ninja)
+import           Model.Ninja (Ninja, is)
 import           Model.Slot (Slot)
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
@@ -136,8 +136,8 @@ death slot = do
     n <- P.ninja slot
     let die = Traps.getOf slot [OnDeath] n
         res
-          | Ninja.is Plague n = mempty
-          | otherwise         = Traps.getOf slot [OnRes] n
+          | n `is` Plague = mempty
+          | otherwise     = Traps.getOf slot [OnRes] n
     if | Ninja.health n > 0 -> return ()
        | not $ null res     -> do
             P.modify slot \nt ->

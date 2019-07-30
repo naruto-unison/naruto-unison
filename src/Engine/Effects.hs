@@ -34,7 +34,7 @@ import           Model.Class (Class(..), ClassSet)
 import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Ninja as Ninja
-import           Model.Ninja (Ninja)
+import           Model.Ninja (Ninja, is)
 import           Model.Player (Player)
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
@@ -157,14 +157,14 @@ hp player n ninjas = afflict ninjas player n - heal ninjas player n
 heal ::  ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
      => o -> Player -> Ninja -> Int
 heal ninjas player n
-  | Ninja.is Plague n = 0
-  | otherwise         = sum $ heal1 ninjas player n <$> Ninja.statuses n
+  | n `is` Plague = 0
+  | otherwise     = sum $ heal1 ninjas player n <$> Ninja.statuses n
 
 -- | Calculates the total 'Heal' of a single 'Status.Status'.
 heal1 :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
       => o -> Player -> Ninja -> Status -> Int
 heal1 ninjas player n st
-  | user /= Ninja.slot n && Ninja.is Seal n  = 0
+  | user /= Ninja.slot n && n `is` Seal = 0
   | summed /= 0 && Parity.allied player user =
       boost user n * summed + bless (ninjas !! Slot.toInt user)
   | otherwise = 0
@@ -177,7 +177,7 @@ afflict :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
         => o -> Player -> Ninja -> Int
 afflict ninjas player n = sum
     [aff st | st <- Ninja.statuses n
-            , not (Ninja.is ImmuneSelf n) || Status.user st /= Ninja.slot n
+            , not (n `is` ImmuneSelf) || Status.user st /= Ninja.slot n
             , not $ [All, Affliction] `intersects` invincible n]
   where
     aff = afflict1 ninjas player $ Ninja.slot n
@@ -195,15 +195,15 @@ afflict1 ninjas player t st
     summed = fromIntegral $ sum [hp' | Afflict hp' <- Status.effects st]
     classes = setFromList [Affliction, All]
     ext
-      | t == user                    = 0
-      | not $ Ninja.alive n          = bleed      classes nt Flat
-      | Ninja.is (Stun Affliction) n = 0
-      | otherwise                    = strengthen classes n  Flat
-                                     + bleed      classes nt Flat
+      | t == user              = 0
+      | not $ Ninja.alive n    = bleed      classes nt Flat
+      | n `is` Stun Affliction = 0
+      | otherwise              = strengthen classes n  Flat
+                                 + bleed    classes nt Flat
     scale
-      | t == user                    = 0
-      | not $ Ninja.alive n          = bleed      classes nt Percent
-      | Ninja.is (Stun Affliction) n = 0
-      | otherwise                    = strengthen classes n  Percent
-                                     * bleed      classes nt Percent
+      | t == user              = 0
+      | not $ Ninja.alive n    = bleed      classes nt Percent
+      | n `is` Stun Affliction = 0
+      | otherwise              = strengthen classes n  Percent
+                                 * bleed    classes nt Percent
 

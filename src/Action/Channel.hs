@@ -19,7 +19,7 @@ import qualified Model.Context as Context
 import           Model.Duration (Duration(..), Turns)
 import           Model.Effect (Effect(..))
 import qualified Model.Ninja as Ninja
-import           Model.Ninja (Ninja)
+import           Model.Ninja (Ninja, is)
 import qualified Model.Skill as Skill
 import           Model.Skill (Target(..))
 import qualified Engine.Effects as Effects
@@ -44,7 +44,7 @@ interrupt = P.unsilenced do
 
 getInterrupts :: (Channel -> Bool) -> Ninja -> [Channel]
 getInterrupts interrupting n
-  | Ninja.is Enrage n || Stun All ∈ Effects.ignore n = []
+  | n `is` Enrage || Stun All ∈ Effects.ignore n = []
   | otherwise = filter interrupting $ Ninja.channels n
 
 -- | Triggers 'Skill.interrupt' effects of all 'Ninja.channels' that match a

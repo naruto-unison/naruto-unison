@@ -22,7 +22,7 @@ import qualified Model.Character as Character
 import           Model.Class (Class)
 import           Model.Effect (Effect(..))
 import qualified Model.Ninja as Ninja
-import           Model.Ninja (Ninja)
+import           Model.Ninja (Ninja, is)
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill, Target(..))
 import qualified Model.Status as Status
@@ -106,8 +106,8 @@ change n sk =
     sk' { Skill.cost = Effects.exhaust (Skill.classes sk') n + Skill.cost sk' }
   where
     mRestrict
-      | Ninja.is Restrict n = restrict n
-      | otherwise           = id
+      | n `is` Restrict = restrict n
+      | otherwise       = id
     sk' = mRestrict . Skill.chakraClasses $ Skill.changes sk n sk
 
 -- | Turns AoE effects into single-target effects.

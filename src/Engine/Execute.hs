@@ -33,6 +33,7 @@ import           Model.Duration (Duration, incr, sync)
 import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
+import           Model.Ninja (is)
 import qualified Model.Requirement as Requirement
 import           Model.Requirement (Requirement(..))
 import qualified Model.Skill as Skill
@@ -101,19 +102,19 @@ wrap affected f = void $ runMaybeT do
     let classes  = Skill.classes skill
         targeted = Requirement.targetable (bypass skill) nUser nTarget
         invinc   = classes `intersectsSet` Effects.invincible nTarget
-        exit     = if | Direct ∈ classes               -> Done
-                      | invinc                         -> Flagged
-                      | Trapped ∈ affected             -> Done
-                      | not targeted                   -> Flagged
-                      | not new                        -> Done
-                      | Ninja.is Uncounter nTarget     -> Done
-                      | otherwise                      -> Completed
+        exit     = if | Direct ∈ classes       -> Done
+                      | invinc                 -> Flagged
+                      | Trapped ∈ affected     -> Done
+                      | not targeted           -> Flagged
+                      | not new                -> Done
+                      | nTarget `is` Uncounter -> Done
+                      | otherwise              -> Completed
 
     -- P.flag target Flag.Targeted
     guard $ exit /= Flagged
 
     let harm      = Harmful ∈ classes && not (Parity.allied user target)
-        allow aff = harm && not (Ninja.is AntiCounter nUser) && aff ∉ affected
+        allow aff = harm && not (nUser `is` AntiCounter) && aff ∉ affected
     when new do
         copies <- flip (Trigger.replace classes) harm <$> P.nUser
         traverse_ (copy True Copy.Shallow user skill) copies

@@ -16,7 +16,7 @@ import qualified Model.Channel as Channel
 import           Model.Class (Class(..))
 import           Model.Effect (Effect(..))
 import qualified Model.Ninja as Ninja
-import           Model.Ninja (Ninja)
+import           Model.Ninja (Ninja, is)
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
 import           Model.Slot (Slot)
@@ -73,7 +73,7 @@ targetable skill n nt
   | Ninja.alive nt && user /= target && Necromancy ∈ classes = False
   | Bypassing ∈ classes                                      = True
   | harm && (classes `intersectsSet` Effects.immune nt)      = False
-  | user /= target && not harm && Ninja.is Seal nt           = False
+  | user /= target && not harm && nt `is` Seal               = False
   | user /= target && (dueling || taunted)                   = False
   | target ∈ Effects.block  n                                = False
   | otherwise                                                = True

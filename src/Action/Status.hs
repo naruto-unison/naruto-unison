@@ -37,6 +37,7 @@ import qualified Model.Effect as Effect
 import           Model.Effect (Effect(..))
 import qualified Model.Face as Face
 import qualified Model.Ninja as Ninja
+import           Model.Ninja (is)
 import qualified Model.Skill as Skill
 import qualified Model.Status as Status
 import           Model.Status (Bomb)
@@ -193,7 +194,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                        ]
             classes' = deleteSet Resource $
                        extra ++ classes ++ Skill.classes skill
-            silenced = Ninja.is Silence nUser
+            silenced = nUser `is` Silence
             filt
               | silenced && bounced = const []
               | silenced            = filter isDmg

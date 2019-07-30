@@ -38,7 +38,7 @@ import           Model.Duration (Duration(..), Turns, incr, sync)
 import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Ninja as Ninja
-import           Model.Ninja (Ninja)
+import           Model.Ninja (Ninja, is)
 import qualified Model.Skill as Skill
 import           Model.Trap (Trigger(..))
 import qualified Engine.Effects as Effects
@@ -111,7 +111,7 @@ formula atk classes nUser nTarget dmg =
     bleed         = Effects.bleed classes nTarget
     reduceAfflic  = Effects.reduce (singletonSet Affliction) nTarget
     reduce
-      | atk /= Attack.Damage || Ninja.is Pierce nUser || Ninja.is Expose nTarget
+      | atk /= Attack.Damage || nUser `is` Pierce || nTarget `is` Expose
                   = Effect.identity
       | otherwise = Effects.reduce classes nTarget
     weaken
@@ -132,15 +132,15 @@ attack atk dmg = void $ runMaybeT do
         direct  = Direct ∈ classes
         (dmg'Barrier, barr) = absorbBarrier dmgCalc $ Ninja.barrier nUser
         handleDefense
-          | Ninja.is Undefend nTarget = (,)
-          | otherwise                 = absorbDefense
+          | nTarget `is` Undefend = (,)
+          | otherwise             = absorbDefense
         (dmg'Def, defense)
           | direct    = handleDefense dmgCalc $ Ninja.defense nTarget
           | otherwise = handleDefense dmg'Barrier $ Ninja.defense nTarget
 
     guard . not $ classes `intersectsSet` Effects.invincible nTarget
                || dmg < Effects.threshold nTarget
-               || not direct && Ninja.is (Stun atkClass) nUser
+               || not direct && nUser `is` Stun atkClass
                || dmgCalc <= 0
 
     if atk == Attack.Afflict then do
@@ -266,7 +266,7 @@ setHealth = P.toTarget . Ninja.setHealth
 heal :: ∀ m. MonadPlay m => Int -> m ()
 heal hp = P.unsilenced do
     nTarget <- P.nTarget
-    unless (Ninja.is Plague nTarget) do
+    unless (nTarget `is` Plague) do
         user   <- P.user
         target <- P.target
         nUser  <- P.nUser
@@ -285,7 +285,7 @@ heal hp = P.unsilenced do
 restore :: ∀ m. MonadPlay m => Int -> m ()
 restore percent = P.unsilenced do
     nTarget <- P.nTarget
-    unless (Ninja.is Plague nTarget) do
+    unless (nTarget `is` Plague) do
         user   <- P.user
         target <- P.target
         nUser  <- P.nUser
@@ -332,7 +332,7 @@ sacrifice minhp hp = do
     user    <- P.user
     target  <- P.target
     nTarget <- P.nTarget
-    unless (user == target && Ninja.is ImmuneSelf nTarget) .
+    unless (user == target && nTarget `is` ImmuneSelf) .
         P.modify target $ Ninja.sacrifice minhp hp
 
 -- | Resets a 'Ninja.Ninja' to their initial state.
