@@ -371,19 +371,6 @@ renderAct characters x =
     , H.div [A.class "actcost"] <| Render.chakras x.skill.cost
     ]
 
-renderChannel : List Character -> Channel -> Html Msg
-renderChannel characters chan =
-  let
-    dur = Game.dur chan
-  in
-    H.div
-    [ Render.class chan "status"
-    , E.onMouseOver << View <| ViewSkill chan.source [] 0 chan.skill
-    ]
-    [ H.span [] << Render.duration <| Game.dur chan
-    , icon (Game.get characters chan.source) chan.skill.name []
-    ]
-
 renderBarrier : Int -> String -> Int -> List Barrier -> List (Html Msg)
 renderBarrier slot anchor track barriers = case List.uncons barriers of
     Nothing      -> []
@@ -455,7 +442,7 @@ renderDetail team slot characters detail =
   in
     H.div
     [ E.onMouseOver << View <| ViewDetail removable detail
-    , A.classList [ ("status"   , True)
+    , A.classList [ ("detail"   , True)
                   , ("trap"     , detail.trap)
                   , ("tag"      , detail.ghost || detail.dur == 1)
                   , ("reflected", "Shifted" |> elem detail.classes)
@@ -465,21 +452,22 @@ renderDetail team slot characters detail =
     ]
     [ H.div [] <| amount
       [icon (Game.get characters detail.source) detail.name []]
-    , H.p [] <| Render.duration detail.dur
+    , H.p [] << Render.duration " " <| detail.dur
     ]
 
 renderCharacter : List Character -> List Int -> Maybe Act -> List Int -> Chakras
                -> Bool -> Bool -> Bundle -> Html Msg
 renderCharacter characters acted toggle highlighted chakras turn onTeam b =
   let
+    render   = renderDetail onTeam b.ninja.slot characters
     anchor   = if onTeam then "left" else "right"
     hp       = String.fromInt b.ninja.health ++ "%"
     live     = if b.ninja.health > 0 then identity else always []
-    channels = live << List.map (renderChannel characters) <|
+    channels = live << List.map (render << Detail.channel) <|
                List.reverse b.ninja.channels
     defenses = live <| renderDefense b.ninja.slot anchor b.ninja.health
                (List.reverse b.ninja.barrier) (List.reverse b.ninja.defense)
-    details  = live << List.map (renderDetail onTeam b.ninja.slot characters) <|
+    details  = live << List.map render <|
                if onTeam then
                   List.reverse <| Detail.get b.ninja
                else
@@ -535,9 +523,7 @@ bar source name amount dur =
       , label "Amount: "
       , H.span [] [H.text <| String.fromInt amount]
       , label "Duration: "
-      , H.span [] <| case dur of
-            0 -> [H.text "Permanent"]
-            _ -> Render.duration dur
+      , H.span [] << Render.duration "Permanent" <| dur
       , label "Source: "
       , H.span [] <| Render.name source
       ]
@@ -579,9 +565,7 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
             , label "Source: "
             , H.span [] <| Render.name source
             , label "Duration: "
-            , H.span [] <| case x.dur of
-                  0 -> [H.text "Permanent"]
-                  y -> Render.duration y
+            , H.span [] << Render.duration "Permanent" <| x.dur
             ]
           ]
         , H.ul [] <| List.map (Render.effect removable) x.effects

@@ -887,20 +887,26 @@ svg {
 .channels {
     margin-bottom: 2px;
 }
-.status {
-    display: inline-grid; /* mysteries like this course in magic rivers throughout the universe */
+.detail {
+    display: inline-flex;
     text-align: center;
     margin: 1px;
 }
-.status div {
+.channels .detail {
+    flex-direction: column-reverse;
+}
+.statuses .detail {
+    flex-direction: column;
+}
+.detail div {
     border: 1px solid #000;
     position: relative;
 }
-.status img {
+.detail img {
     width: 30px;
     height: 30px;
 }
-.status div span {
+.detail div span {
     position: absolute;
     right: 1px;
     bottom: 0;
@@ -908,13 +914,13 @@ svg {
 .tag div {
     border-color: #666;
 }
-.status.tag img {
+.detail.tag img {
     filter: grayscale(0.8);
 }
 .remove div, .action div {
     border-color: #00a;
 }
-.status.reflected img {
+.detail.reflected img {
     filter: grayscale(0.8);
 }
 .reflected div {
@@ -932,7 +938,7 @@ svg {
 .fade {
     opacity: 0.5;
 }
-.status span {
+.detail span {
     margin: 1px;
     display: block;
 }
@@ -999,9 +1005,6 @@ svg {
     }
     #top > section p {
         display: none;
-    }
-    .player > section > aside {
-        height: 34px;
     }
     .player > section {
         margin-bottom: 3px;

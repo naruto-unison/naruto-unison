@@ -8,10 +8,13 @@ module Model.Duration
 
 import ClassyPrelude
 
-import Data.Aeson (ToJSON)
+import Data.Aeson (ToJSON(..))
 
 type Turns = Int
-newtype Duration = Duration Turns deriving (Num, Eq, Ord, Show, Read, ToJSON)
+newtype Duration = Duration Turns deriving (Num, Eq, Ord, Show, Read)
+
+instance ToJSON Duration where
+    toJSON = toJSON . sync
 
 throttle :: Int -> Duration -> Maybe Duration
 throttle 0 dur = Just dur

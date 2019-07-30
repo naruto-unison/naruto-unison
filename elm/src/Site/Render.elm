@@ -76,9 +76,9 @@ name char = case char.category of
     Shippuden  -> [H.text char.name, H.sup [] [H.text "𝕊"]]
     Reanimated -> [H.text char.name, H.sup [] [H.text "ℝ"]]
 
-duration : Int -> List (Html msg)
-duration x = case x of
-    0 -> []
+duration : String -> Int -> List (Html msg)
+duration ifEmpty x = case x of
+    0 -> [H.text ifEmpty]
     _ -> [H.text << String.fromInt <| (x + 1) // 2]
 
 class : Channel -> String -> H.Attribute msg

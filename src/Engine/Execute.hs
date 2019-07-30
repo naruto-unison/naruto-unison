@@ -260,11 +260,9 @@ act a = do
         Nothing -> return (mempty, skill')
     let charge = Skill.charges skill > 0
         cost   = Skill.cost skill
-        usable = not $ Skill.require skill == Unusable
-                    || Chakra.lack (Game.getChakra user game - cost)
-        valid  = Ninja.alive nUser && (not new || usable) && case s of
-            Left _   -> True
-            Right s' -> not new || Ninja.isChanneling (Skill.name s') nUser
+        valid = Ninja.alive nUser
+                && Skill.require skill /= Unusable
+                && not (new && Chakra.lack (Game.getChakra user game - cost))
 
     when valid $ P.withContext (ctx skill) do
         P.trigger user $ OnAction <$> toList (Skill.classes skill)

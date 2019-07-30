@@ -2,6 +2,7 @@ module Game.Detail exposing
   ( Detail
   , allied
   , get
+  , channel
   )
 
 import List.Extra as List
