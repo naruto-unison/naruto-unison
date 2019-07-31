@@ -39,14 +39,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -}
 -- | Efficient sets over enumerations represented by bitwise operations.
--- For type @EnumSet A B@, @A@ should be a 'Word'-like type that implements
--- 'Bits' and 'Num', and @B@ should be a type that implements 'Eq' and 'Enum'
+-- For type @EnumSet W A@, @W@ should be a 'Word'-like type that implements
+-- 'Bits' and 'Num', and @A@ should be a type that implements 'Eq' and 'Enum'
 -- equivalently and is a bijection to 'Int'.
 --
--- @EnumSet A B@ will not store any @B@ with a 'fromEnum' less than 0 or greater
--- than the number of bits in @A@, so it is best for @B@ to be a type that
--- derives 'Eq' and 'Enum' and for @A@ to have at least as many bits as the
--- number of constructors of @B@.
+-- @EnumSet W A@ will not store any @A@ with a 'fromEnum' less than 0 or greater
+-- than the number of bits in @W@, so it is best for @A@ to be a type that
+-- derives 'Eq' and 'Enum' and for @W@ to have at least as many bits as the
+-- number of constructors of @A@.
 --
 -- Depending on the number of constructors, one of 'Data.Word.Word8',
 -- 'Data.Word.Word16', 'Data.Word.Word32', or 'Data.Word.Word64' is a good
@@ -255,6 +255,7 @@ singleton = EnumSet . setBit zeroBits . fromEnum
 fromFoldable :: ∀ f w a. (Foldable f, Bits w, Enum a)
              => f a -> EnumSet w a
 fromFoldable = EnumSet . F.foldl' (flip $ (.|.) . bit . fromEnum) zeroBits
+{-# INLINE fromFoldable #-}
 
 {--------------------------------------------------------------------
   Insertion
@@ -264,6 +265,7 @@ fromFoldable = EnumSet . F.foldl' (flip $ (.|.) . bit . fromEnum) zeroBits
 insert :: ∀ w a. (Bits w, Enum a)
        => a -> EnumSet w a -> EnumSet w a
 insert x (EnumSet w) = EnumSet . setBit w $ fromEnum x
+{-# INLINE insert #-}
 
 {--------------------------------------------------------------------
   Deletion
@@ -273,6 +275,7 @@ insert x (EnumSet w) = EnumSet . setBit w $ fromEnum x
 delete :: ∀ w a. (Bits w, Enum a)
        => a -> EnumSet w a -> EnumSet w a
 delete x (EnumSet w) = EnumSet . clearBit w $ fromEnum x
+{-# INLINE delete #-}
 
 {--------------------------------------------------------------------
   Query
@@ -282,27 +285,32 @@ delete x (EnumSet w) = EnumSet . clearBit w $ fromEnum x
 member :: ∀ w a. (Bits w, Enum a)
        => a -> EnumSet w a -> Bool
 member x (EnumSet w) = testBit w $ fromEnum x
+{-# INLINE member #-}
 
 -- | /O(1)/. Is the value not in the set?
 notMember :: ∀ w a. (Bits w, Enum a)
           => a -> EnumSet w a -> Bool
 notMember x = not . member x
+{-# INLINE notMember #-}
 
 -- | /O(1)/. Is this the empty set?
 null :: ∀ w a. Bits w
      => EnumSet w a -> Bool
 null (EnumSet w) = zeroBits == w
+{-# INLINE null #-}
 
 -- | /O(1)/. The number of elements in the set.
 size :: ∀ w a. (Bits w, Num w)
      => EnumSet w a -> Int
 size (EnumSet w) = countBits w
+{-# INLINE size #-}
 
 -- | /O(1)/. Is this a subset?
 -- @(s1 `isSubsetOf` s2)@ tells whether @s1@ is a subset of @s2@.
 isSubsetOf :: ∀ w a. (Bits w)
            => EnumSet w a -> EnumSet w a -> Bool
 isSubsetOf x y = x `union` y == y
+{-# INLINE isSubsetOf #-}
 
 {--------------------------------------------------------------------
   Combine
@@ -312,11 +320,13 @@ isSubsetOf x y = x `union` y == y
 union :: ∀ w a. Bits w
       => EnumSet w a -> EnumSet w a -> EnumSet w a
 union (EnumSet x) (EnumSet y) = EnumSet $ x .|. y
+{-# INLINE union #-}
 
 -- | /O(1)/. Difference between two sets.
 difference :: ∀ w a. Bits w
            => EnumSet w a -> EnumSet w a -> EnumSet w a
 difference (EnumSet x) (EnumSet y) = EnumSet $ (x .|. y) `xor` y
+{-# INLINE difference #-}
 
 -- | /O(1)/. See 'difference'.
 (\\) :: ∀ w a. Bits w
@@ -329,11 +339,13 @@ infixl 9 \\
 symmetricDifference :: ∀ w a. Bits w
                     => EnumSet w a -> EnumSet w a -> EnumSet w a
 symmetricDifference (EnumSet x) (EnumSet y) = EnumSet $ x `xor` y
+{-# INLINE symmetricDifference #-}
 
 -- | /O(1)/. The intersection of two sets.
 intersection :: ∀ w a. Bits w
              => EnumSet w a -> EnumSet w a -> EnumSet w a
 intersection (EnumSet x) (EnumSet y) = EnumSet $ x .&. y
+{-# INLINE intersection #-}
 
 {--------------------------------------------------------------------
   Filter
@@ -385,64 +397,57 @@ map f0 (EnumSet w) = EnumSet $ foldlBits' f 0 w
 -- | /O(n)/. Left fold.
 foldl :: ∀ w a c. (Bits w, Num w, Enum a)
       => (c -> a -> c) -> c -> EnumSet w a -> c
-foldl f z (EnumSet w) = foldlBits folder z w
-  where
-    folder h = f h . toEnum
-    {-# INLINE folder #-}
+foldl f z (EnumSet w) = foldlBits ((. toEnum) . f) z w
+{-# INLINE foldl #-}
 
 -- | /O(n)/. Left fold with strict accumulator.
 foldl' :: ∀ w a c. (Bits w, Num w, Enum a)
        => (c -> a -> c) -> c -> EnumSet w a -> c
-foldl' f z (EnumSet w) = foldlBits' folder z w
-  where
-    folder h = f h . toEnum
-    {-# INLINE folder #-}
+foldl' f z (EnumSet w) = foldlBits' ((. toEnum) . f) z w
+{-# INLINE foldl' #-}
 
 -- | /O(n)/. Right fold.
 foldr :: (Bits w, Num w, Enum a)
       => (a -> b -> b) -> b -> EnumSet w a -> b
 foldr f z (EnumSet w) = foldrBits (f . toEnum) z w
+{-# INLINE foldr #-}
 
 -- | /O(n)/. Right fold with strict accumulator.
 foldr' :: ∀ w a b. (Bits w, Num w,  Enum a)
        => (a -> b -> b) -> b -> EnumSet w a -> b
 foldr' f z (EnumSet w) = foldrBits' (f . toEnum) z w
+{-# INLINE foldr' #-}
 
 -- | /O(n)/. Left fold on non-empty sets.
 foldl1 :: ∀ w a. (Bits w, Num w, Enum a)
        => (a -> a -> a) -> EnumSet w a -> a
-foldl1 f (EnumSet w) = foldlBits folder (toEnum mininum) (clearBit w mininum)
-  where
-    mininum = lsb w
-    folder z = f z . toEnum
+foldl1 f = fold1Aux lsb $ foldlBits ((. toEnum) . f)
+{-# INLINE foldl1 #-}
 
 -- | /O(n)/. Left fold on non-empty sets with strict accumulator.
 foldl1' :: ∀ w a. (Bits w, Num w, Enum a)
         => (a -> a -> a) -> EnumSet w a -> a
-foldl1' f (EnumSet w) = foldlBits' folder (toEnum mininum) (clearBit w mininum)
-  where
-    mininum = lsb w
-    folder z = f z . toEnum
+foldl1' f = fold1Aux lsb $ foldlBits' ((.toEnum) . f)
+{-# INLINE foldl1' #-}
 
 -- | /O(n)/. Right fold on non-empty sets.
 foldr1 :: ∀ w a. (Bits w, Num w, Enum a)
        => (a -> a -> a) -> EnumSet w a -> a
-foldr1 f (EnumSet w) = foldrBits (f . toEnum) (toEnum maxi) (clearBit w maxi)
-    where
-      maxi = msb w
+foldr1 f = fold1Aux msb $ foldrBits (f . toEnum)
+{-# INLINE foldr1 #-}
 
 -- | /O(n)/. Right fold on non-empty sets with strict accumulator.
 foldr1' :: ∀ w a. (Bits w, Num w, Enum a)
         => (a -> a -> a) -> EnumSet w a -> a
-foldr1' f (EnumSet w) = foldrBits' (f . toEnum) (toEnum maxi) (clearBit w maxi)
-    where
-      maxi = msb w
+foldr1' f = fold1Aux msb $ foldrBits' (f . toEnum)
+{-# INLINE foldr1'  #-}
 
 -- | /O(n)/. Map each element of the structure to a monoid, and combine the
 -- results.
 foldMap :: ∀ m w a. (Monoid m, Bits w, Num w, Enum a)
         => (a -> m) -> EnumSet w a -> m
 foldMap f (EnumSet w) = foldrBits (mappend . f . toEnum) mempty w
+{-# INLINE foldMap #-}
 
 -- | /O(n)/. Check if all elements satisfy some predicate.
 all :: ∀ w a. (Bits w, Num w, Enum a)
@@ -475,43 +480,41 @@ any f (EnumSet w) = go 0
 minimum :: ∀ w a. (Bits w, Num w, Enum a)
         => EnumSet w a -> a
 minimum (EnumSet w) = toEnum $ lsb w
+{-# INLINE minimum #-}
 
 -- | /O(1)/. The maximal element of a non-empty set.
 maximum :: ∀ w a. (Bits w, Num w, Enum a)
         => EnumSet w a -> a
 maximum (EnumSet w) = toEnum $ msb w
+{-# INLINE maximum #-}
 
 -- | /O(1)/. Delete the minimal element.
 deleteMin :: ∀ w a. (Bits w, Num w)
           => EnumSet w a -> EnumSet w a
-deleteMin (EnumSet w)
-  | w == 0    = empty
-  | otherwise = EnumSet $ clearBit w $ lsb w
+deleteMin (EnumSet 0) = EnumSet 0
+deleteMin (EnumSet w) = EnumSet $ clearBit w $ lsb w
 
 -- | /O(1)/. Delete the maximal element.
 deleteMax :: ∀ w a. (Bits w, Num w)
           => EnumSet w a -> EnumSet w a
-deleteMax (EnumSet w)
-   | w == 0    = empty
-   | otherwise = EnumSet $ clearBit w $ msb w
+deleteMax (EnumSet 0) = EnumSet 0
+deleteMax (EnumSet w) = EnumSet $ clearBit w $ msb w
 
 -- | /O(1)/. Retrieves the minimal element of the set,
 -- and the set stripped of that element,
 -- or Nothing if passed an empty set.
 minView :: ∀ w a. (Bits w, Num w, Enum a)
         => EnumSet w a -> Maybe (a, EnumSet w a)
-minView (EnumSet w)
-  | w == 0    = Nothing
-  | otherwise = let i = lsb w in Just (toEnum i, EnumSet $ clearBit w i)
+minView (EnumSet 0) = Nothing
+minView (EnumSet w) = let i = lsb w in Just (toEnum i, EnumSet $ clearBit w i)
 
 -- | /O(1)/. Retrieves the maximal element of the set,
 -- and the set stripped of that element,
 -- or Nothing if passed an empty set.
 maxView :: ∀ w a. (Bits w, Num w, Enum a)
         => EnumSet w a -> Maybe (a, EnumSet w a)
-maxView (EnumSet w)
-  | w == 0    = Nothing
-  | otherwise = let i = msb w in Just (toEnum i, EnumSet $ clearBit w i)
+maxView (EnumSet 0) = Nothing
+maxView (EnumSet w) = let i = msb w in Just (toEnum i, EnumSet $ clearBit w i)
 
 {--------------------------------------------------------------------
   Conversion
@@ -527,7 +530,7 @@ toList (EnumSet w) = foldrBits ((:) . toEnum) [] w
   Debugging
 --------------------------------------------------------------------}
 
--- | Verify whether for some representation @EnumSet w a@, @w@ has sufficient
+-- | Verify that for some representation @EnumSet w a@, @w@ has sufficient
 -- bits to store @maxBound :: a@. The actual value of the argument is ignored.
 --
 -- This function does not verify that @minBound :: a >= 0@, nor that
@@ -552,10 +555,12 @@ bitcount a x = a `seq` bitcount (a+1) (x .&. (x - 1))
 -- From http://aggregate.org/MAGIC/
 -- by Henry Gordon Dietz at the University of Kentucky.
 lsb :: ∀ w. (Bits w, Num w) => w -> Int
+lsb 0 = error "empty EnumSet"
 lsb x = countBits $ (x - 1) .&. complement x
 {-# INLINE lsb #-}
 
 msb :: ∀ w. (Bits w, Num w) => w -> Int
+msb 0 = error "empty EnumSet"
 msb x0 = let
      x1 = x0 .|. (x0 `shiftR` 1)
      x2 = x1 .|. (x1 `shiftR` 2)
@@ -684,3 +689,10 @@ foldlBitsAux' f z i w = case (i `seq` w) .&. 0x0F of
   where
     a b = foldlBitsAux' f b (i + 4) (shiftR w 4)
     {-# INLINE a #-}
+
+fold1Aux :: (Bits w, Enum a)
+         => (w -> Int) -> (a -> w -> a) -> EnumSet w a -> a
+fold1Aux getBit f (EnumSet w) = f (toEnum gotBit) (clearBit w gotBit)
+  where
+    gotBit = getBit w
+{-# INLINE fold1Aux #-}
