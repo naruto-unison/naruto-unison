@@ -1,6 +1,5 @@
 {-# LANGUAGE DeriveAnyClass        #-}
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE ImpredicativeTypes    #-}
 {-# OPTIONS_HADDOCK hide, not-home #-}
 module Model.Internal where
 
@@ -540,7 +539,7 @@ data Copying
 -- | Applies an effect after several turns.
 data Delay = Delay { user   :: Slot
                    , skill  :: Skill
-                   , effect :: () -> SavedPlay
+                   , effect :: SavedPlay
                    , dur    :: Int
                    }
 
@@ -672,6 +671,7 @@ instance MonadGame m => MonadPlay (ReaderT Context m) where
 type PlayConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
 
 newtype Play a = Play (PlayConstraint a)
+
 instance Eq (Play a) where
     (==) = const $ const True
 instance ToJSON (Play a) where

@@ -1,4 +1,3 @@
-{-# LANGUAGE ImpredicativeTypes #-}
 -- | Actions that characters can use to affect 'Status.Status'es.
 module Action.Status
   ( -- * Applying statuses

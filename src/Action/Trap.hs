@@ -128,7 +128,7 @@ delay (Duration -> dur) f = do
         del   = Delay.Delay
                 { Delay.skill  = skill
                 , Delay.user   = user
-                , Delay.effect = \() -> (context, Play $ Execute.wrap (singletonSet Delayed) f)
+                , Delay.effect = (context, Play $ Execute.wrap (singletonSet Delayed) f)
                 , Delay.dur    = dur'
                 }
     unless (past $ Skill.copying skill) $ P.alter \game ->

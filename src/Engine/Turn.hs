@@ -80,7 +80,7 @@ process runner = do
 -- | Runs 'Game.delays'.
 doDelays :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 doDelays = filter ((<= 1) . Delay.dur) . Game.delays <$> P.game
-           >>= traverse_ (P.launch . ($ ()) . Delay.effect)
+           >>= traverse_ (P.launch . Delay.effect)
 
 -- | Executes 'Status.bombs' of a 'Status'.
 doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()

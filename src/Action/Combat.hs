@@ -1,4 +1,3 @@
-{-# LANGUAGE ImpredicativeTypes    #-}
 -- | Actions that characters can use to affect
 -- 'Ninja.health', 'Ninja.barrier', and 'Ninja.defense'.
 module Action.Combat

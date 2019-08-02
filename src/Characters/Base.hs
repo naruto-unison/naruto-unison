@@ -1,5 +1,4 @@
-{-# LANGUAGE ImpredicativeTypes #-}
-{-# OPTIONS_HADDOCK hide        #-}
+{-# OPTIONS_HADDOCK hide #-}
 module Characters.Base
   ( module Import
   , p
