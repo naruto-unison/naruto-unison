@@ -614,7 +614,7 @@ previewSkill char slot skills i = case List.getAt i skills of
           List.filter first
           [ (skill.charges > 1,  String.fromInt skill.charges ++ " charges.")
           , (skill.charges == 1, String.fromInt skill.charges ++ " charge.")
-          , (skill.cooldown > 0, "CD: " ++ String.fromInt skill.cooldown)
+          , (skill.cooldown > 0, "CD: " ++ String.fromInt (skill.cooldown // 2))
           ]
         ]
 

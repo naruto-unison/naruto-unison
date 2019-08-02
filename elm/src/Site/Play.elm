@@ -575,7 +575,7 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
       let
         cooldown = case x.cooldown of
             0 -> "None"
-            y -> String.fromInt y
+            y -> String.fromInt <| y // 2
         cost = case Chakra.total x.cost of
             0 -> [H.text "Free"]
             _ -> Render.chakras x.cost
