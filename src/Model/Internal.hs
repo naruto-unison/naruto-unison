@@ -272,14 +272,16 @@ instance Display Effect where
     display (Unreduce x) = "Damage reduction skills reduce " ++ display x ++ " fewer damage."
     display (Weaken cla amt x) = display cla ++ " skills deal " ++ displayAmt amt x ++ " fewer damage. Does not affect affliction damage."
 
+type Four a = (a, a, a, a)
+
 -- | In-game character, indexed between 0 and 5.
-data Ninja = Ninja { slot      :: Slot           -- ^ 'Model.Game.Ninjas' index (0-5)
+data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas' index (0-5)
                    , character :: Character
                    , health    :: Int                    -- ^ Starts at @100@
-                   , cooldowns :: Vector (Seq Int)       -- ^ Starts empty
-                   , charges   :: Vector Int             -- ^ Starts at @0@s
-                   , variants  :: Vector (NonEmpty Variant) -- ^ Starts at @0@s
-                   , copies    :: Vector (Maybe Copy)     -- ^ Starts at 'Nothing's
+                   , cooldowns :: Seq (Seq Int)          -- ^ Starts empty
+                   , charges   :: Seq Int                -- ^ Starts at @0@s
+                   , variants  :: Seq (NonEmpty Variant) -- ^ Starts at @0@s
+                   , copies    :: Seq (Maybe Copy)       -- ^ Starts at 'Nothing's
                    , defense   :: [Defense]              -- ^ Starts empty
                    , barrier   :: [Barrier]              -- ^ Starts empty
                    , statuses  :: [Status]               -- ^ Starts empty

@@ -13,8 +13,8 @@ import ClassyPrelude
 
 import           Data.List (findIndex)
 import           Data.List.NonEmpty (NonEmpty(..))
+import qualified Data.Sequence as Seq
 
-import           Core.Util (adjustVec, updateVec)
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
 import qualified Class.TurnBased as TurnBased
@@ -100,8 +100,8 @@ unsafeVary dur s v = do
                 , Variant.dur       = dur
                 }
             adjust
-              | TurnBased.getDur dur <= 0 = updateVec s $ variant :| []
-              | otherwise                 = adjustVec (cons variant) s
+              | TurnBased.getDur dur <= 0 = Seq.update s $ variant :| []
+              | otherwise                 = Seq.adjust' (cons variant) s
         P.modify target \n -> n { Ninja.variants = adjust $ Ninja.variants n }
   where
     shallow Copy.Shallow{} = True
@@ -126,7 +126,7 @@ varyNext name = do
     case maybeS of
         Nothing -> return ()
         Just s  -> P.modify target \n ->
-            n { Ninja.variants = adjustVec adj s $ Ninja.variants n }
+            n { Ninja.variants = Seq.adjust' adj s $ Ninja.variants n }
   where
     caseFolded = toCaseFold name
     match = (caseFolded ==) . toCaseFold . Skill.name
@@ -183,11 +183,11 @@ teachOne :: ∀ m. MonadPlay m
          -> (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.
          -> Int -- ^ User's skill slot of the 'Skill.Skill' to copy.
          -> m ()
-teachOne dur s' = teacher (updateVec s') dur
+teachOne dur s = teacher (Seq.update s) dur
 
 -- | Copies a 'Skill.Skill' from the user into the target.
 teacher :: ∀ m. MonadPlay m
-        => (Maybe Copy -> Vector (Maybe Copy) -> Vector (Maybe Copy))
+        => (Maybe Copy -> Seq (Maybe Copy) -> Seq (Maybe Copy))
         -- ^ Determines how to modify the target's 'Ninja.copies' skill slots.
         -> Turns -- ^ 'Copy.dur'.
         -> (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.

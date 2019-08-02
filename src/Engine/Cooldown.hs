@@ -13,7 +13,7 @@ import           Data.List.NonEmpty (head)
 import qualified Data.Sequence as Seq
 import           Data.Sequence ((|>))
 
-import           Core.Util ((!!), adjustVec)
+import           Core.Util ((!!))
 import qualified Model.Copy as Copy
 import           Model.Duration (sync)
 import qualified Model.Ninja as Ninja
@@ -26,7 +26,7 @@ import qualified Engine.SkillTransform as SkillTransform
 
 -- | Cooldowns of the currently active 'Skill's in all four slots of
 -- 'Ninja.variants'.
-active :: Ninja -> Vector Int
+active :: Ninja -> Seq Int
 active n = [copyCd copy vari cd | copy <- Ninja.copies n
                                 | vari <- head <$> Ninja.variants n
                                 | cd   <- Ninja.cooldowns n
@@ -50,11 +50,11 @@ adjust' v f cds
 adjust :: Int -- ^ 'Skill' index (0-3).
        -> Int -- ^ 'Variant.Variant' index in 'Character.skills' of 'Ninja.character'.
        -> (Int -> Int) -- ^ Adjustment function.
-       -> Vector (Seq Int) -> Vector (Seq Int)
+       -> Seq (Seq Int) -> Seq (Seq Int)
 adjust s v f cds
   | s < 0           = cds
   | s >= length cds = cds
-  | otherwise       = adjustVec (adjust' v f) s cds
+  | otherwise       = Seq.adjust' (adjust' v f) s cds
 
 -- | Adds to an element in 'Ninja.cooldowns'.
 alter :: Int -- ^ Skill index (0-3)
@@ -67,8 +67,8 @@ alter s v cd n = n { Ninja.cooldowns = adjust s v (+ cd) $ Ninja.cooldowns n }
 insert :: Int -- ^ 'Skill' index (0-3).
        -> Int -- ^ 'Variant.Variant' index in 'Character.skills' of 'Ninja.character'.
        -> Int -- ^ New cooldown.
-       -> Vector (Seq Int)
-       -> Vector (Seq Int)
+       -> Seq (Seq Int)
+       -> Seq (Seq Int)
 insert s v toCd = adjust s v $ const toCd
 
 -- | Updates an element in 'Ninja.cooldowns'.
@@ -76,7 +76,7 @@ insert s v toCd = adjust s v $ const toCd
 update :: Bool -> Int -> Skill -> Int -> Ninja -> Ninja
 update True a skill s n =
     (update False a skill s n)
-    { Ninja.charges = adjustVec (+ 1) s $ Ninja.charges n }
+    { Ninja.charges = adjust' s (+ 1) $ Ninja.charges n }
 update False a skill s n
    | copied $ Skill.copying skill = n
    | Skill.cooldown skill == 0    = n

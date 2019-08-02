@@ -59,11 +59,8 @@ getMuteR mute = do
 getPlayR :: Handler Html
 getPlayR = do
     Sockets.run gameSocket
-    ma <- Auth.maybeAuth
-    let (_, muser) = case ma of
-          Just (Entity who user) -> (Just who, Just user)
-          Nothing                -> (Nothing, Nothing)
-        team     = maybe [] (mapMaybe (`lookup` Characters.map)) $
+    muser <- (entityVal <$>) <$> Auth.maybeAuth
+    let team     = maybe [] (mapMaybe (`lookup` Characters.map)) $
                    muser >>= userTeam
         practice = maybe [] (mapMaybe (`lookup` Characters.map) . userPractice)
                    muser

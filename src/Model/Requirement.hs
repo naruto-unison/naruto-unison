@@ -7,9 +7,7 @@ module Model.Requirement
 
 import ClassyPrelude
 
-import Data.Vector ((!?))
-
-import           Core.Util ((∈), (∉), intersectsSet)
+import           Core.Util ((!?), (∈), (∉), intersectsSet)
 import qualified Class.Parity as Parity
 import           Model.Internal (Requirement(..))
 import qualified Model.Channel as Channel

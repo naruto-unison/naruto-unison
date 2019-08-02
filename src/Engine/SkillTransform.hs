@@ -12,7 +12,7 @@ module Engine.SkillTransform
 import ClassyPrelude hiding (swap)
 
 import Data.List (findIndex)
-import Data.List.NonEmpty (NonEmpty(..), (!!))
+import Data.List.NonEmpty ((!!), NonEmpty(..))
 
 import           Core.Util ((∈))
 import           Class.Play (Play)

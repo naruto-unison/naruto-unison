@@ -34,14 +34,13 @@ run = webSockets . fromYesod
 fromYesod :: ∀ m a. MonadUnliftIO m => SocketsT m a -> WebSocketsT m a
 fromYesod f = do
     conn <- ask
-    bracket (acquire conn) release $ runReaderT (runSocketsT f) . fst
+    bracket (acquire conn) (killThread . snd) $ runReaderT (runSocketsT f) . fst
   where
     acquire conn = liftIO do
         mvar <- newEmptyMVar
-        proc  <- forkIO . forever $ WebSockets.receiveData conn
-                                    >>= putMVar mvar
+        proc <- forkIO . forever $ WebSockets.receiveData conn
+                                   >>= putMVar mvar
         return (mvar, proc)
-    release = killThread . snd
 
 class Monad m => MonadSockets m where
     receive :: m Text

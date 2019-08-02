@@ -1,7 +1,6 @@
-resolver: lts-13.28
-
-packages:
-- .
+resolver: lts-13.30
 
 extra-deps:
 - elm-bridge-0.5.1
+- git: https://github.com/jnbooth/bounded-enum-set.git
+  commit: 2e0a888f49316f24526fbbf9ad50fdfab6c197ab

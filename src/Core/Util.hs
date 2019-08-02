@@ -1,8 +1,7 @@
 -- Helper functions.
 module Core.Util
-  ( (!!), (—), (∈), (∉)
+  ( (!?), (!!), (—), (∈), (∉)
   , Lift
-  , adjustVec, updateVec
   , enumerate
   , intersects, intersectsSet
   , duplic
@@ -13,9 +12,12 @@ module Core.Util
 import           ClassyPrelude hiding ((<|), mapMaybe)
 import           Control.Monad.Trans.Class (MonadTrans)
 import           Data.List (nub)
-import qualified Data.Vector as Vector
-import           Data.Vector ((//))
-import qualified Data.Vector.Mutable as MVector
+
+infixl 9 !?
+-- | 'unsafeIndex'.
+(!?) :: ∀ o. IsSequence o => o -> Index o -> Maybe (Element o)
+(!?) = index
+{-# INLINE (!?) #-}
 
 infixl 9 !!
 -- | 'unsafeIndex'.
@@ -83,14 +85,6 @@ shorten = omap f . filter (∉ bans)
     f 'Ū' = 'U'
     f 'ä' = 'a'
     f a = a
-
--- | In-place mutation of a vector at a given index using 'Vector.modify'.
-adjustVec :: ∀ a. (a -> a) -> Int -> Vector a -> Vector a
-adjustVec f i = Vector.modify \xs -> MVector.modify xs f i
-
--- | In-place update of a vector at a given index using '//'.
-updateVec :: ∀ a. Int -> a -> Vector a -> Vector a
-updateVec i x xs = xs // [(i, x)]
 
 -- | A metaconstraint for liftable functions.
 -- Useful for default signatures of MTL classes:

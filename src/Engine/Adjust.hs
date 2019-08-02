@@ -7,10 +7,9 @@ module Engine.Adjust
 
 import ClassyPrelude hiding (head)
 
-import           Data.List.NonEmpty ((!!), head)
-import           Data.Vector ((!?))
+import Data.List.NonEmpty ((!!), head)
 
-import           Core.Util ((∈), (∉))
+import           Core.Util ((!?), (∈), (∉))
 import qualified Class.Parity as Parity
 import qualified Model.Character as Character
 import qualified Model.Copy as Copy

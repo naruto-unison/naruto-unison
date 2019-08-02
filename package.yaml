@@ -10,6 +10,7 @@ dependencies:
 - base == 4.12.0.0
 - blaze-html == 0.9.1.1
 - blaze-markup == 0.8.2.2
+- bounded-enum-set == 0.1.0.0
 - bytestring == 0.10.8.2
 - cache == 0.1.1.2
 - case-insensitive == 1.2.0.11
@@ -72,6 +73,7 @@ library:
       - -fwarn-incomplete-patterns
       - -fwarn-incomplete-uni-patterns
       - -funbox-small-strict-fields
+      - -ferror-spans
       - -O0
       cpp-options: -DDEVELOPMENT
     else:
@@ -87,6 +89,7 @@ library:
       - -fwarn-incomplete-patterns
       - -fwarn-incomplete-uni-patterns
       - -funbox-small-strict-fields
+      - -ferror-spans
       - -O2
 
 # Runnable executable for our application
@@ -172,6 +175,8 @@ default-extensions:
 # More powerful types
 - TypeFamilies
 # More powerful deriving
+- AutoDeriveTypeable
+- DeriveDataTypeable
 - DeriveFoldable
 - DeriveFunctor
 - DeriveGeneric
@@ -184,6 +189,7 @@ default-extensions:
 # Unlikely to be used, but no drawbacks
 - BangPatterns
 - DefaultSignatures
+- EmptyDataDecls
 - KindSignatures
 - PartialTypeSignatures
 - PatternSynonyms
@@ -197,4 +203,6 @@ default-extensions:
 # Unfortunate necessities
 - OverloadedStrings
 # Here Be Dragons
+- ApplicativeDo
 - StrictData
+- UnboxedTuples

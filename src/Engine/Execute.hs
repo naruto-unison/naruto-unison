@@ -9,11 +9,12 @@ module Engine.Execute
 
 import ClassyPrelude hiding ((<|))
 
-import Control.Monad.Trans.Maybe (runMaybeT)
-import Data.Either (isLeft)
+import           Control.Monad.Trans.Maybe (runMaybeT)
+import           Data.Either (isLeft)
+import           Data.EnumSet (EnumSet)
+import qualified Data.Sequence as Seq
 
-import           Core.EnumSet (EnumSet)
-import           Core.Util ((—), (∈), (∉), intersectsSet, updateVec)
+import           Core.Util ((—), (∈), (∉), intersectsSet)
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
@@ -83,7 +84,7 @@ copy clear cop target skill (source, name, s, dur) = do
                    , Skill.cooldown = 0
                    , Skill.copying  = cop source $ sync dur - 1
                    }
-    copier = updateVec s . Just . Copy.Copy skill' $
+    copier = Seq.update s . Just . Copy.Copy skill' $
              sync if dur < -1 then dur + 1 else dur
 
 data Exit = Flagged | Done | Completed deriving (Eq)
