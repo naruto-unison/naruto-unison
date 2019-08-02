@@ -220,8 +220,7 @@ component ports =
         SwitchLogin  -> pure { st | showLogin = not st.showLogin }
         Untoggle     -> pure { st | toggled = Nothing }
         Page x       -> (st, scroll x)
-        UpdateForm x -> withSound Sound.Click
-            { st | form = updateForm x st.form }
+        UpdateForm x -> pure { st | form = updateForm x st.form }
         Scroll x     -> withSound Sound.Scroll <|
           let
             index = x + st.index

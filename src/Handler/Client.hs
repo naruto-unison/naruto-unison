@@ -68,7 +68,7 @@ getPlayR = do
         vol :: Text
         vol
           | isMuted muser = "click muted"
-          | otherwise     = "click"
+          | otherwise     = "click unmuted"
     setCsrfCookie
     defaultLayout do
         setTitle "Naruto Unison"

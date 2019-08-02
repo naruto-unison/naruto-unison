@@ -14,6 +14,8 @@ const nullary = x => {
   return x
 }
 
+const user = #{toJSON muser}
+
 const app = Elm.Main.init({
   flags: {
     url:          document.location.origin + "/",
