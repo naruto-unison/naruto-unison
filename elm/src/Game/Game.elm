@@ -65,7 +65,7 @@ root characters skill slot = get characters <| case skill.copying of
 targets : Int -> Skill -> List Int
 targets slot skill =
   let
-    possibleTargets = List.map first <| skill.start ++ skill.effects
+    possibleTargets = skill.start ++ skill.effects
     enemy = Enemy |> elem possibleTargets
     ally  = Ally  |> elem possibleTargets
     xally = XAlly |> elem possibleTargets

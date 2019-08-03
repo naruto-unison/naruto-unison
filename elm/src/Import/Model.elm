@@ -289,9 +289,9 @@ type alias Skill  =
    , varicd: Bool
    , charges: Int
    , channel: Channeling
-   , start: (List (Target, (Maybe Unit)))
-   , effects: (List (Target, (Maybe Unit)))
-   , interrupt: (List (Target, (Maybe Unit)))
+   , start: (List Target)
+   , effects: (List Target)
+   , interrupt: (List Target)
    , copying: Copying
    , pic: Bool
    }
@@ -308,9 +308,9 @@ jsonDecSkill =
    |> required "varicd" (Json.Decode.bool)
    |> required "charges" (Json.Decode.int)
    |> required "channel" (jsonDecChanneling)
-   |> required "start" (Json.Decode.list (Json.Decode.map2 tuple2 (Json.Decode.index 0 (jsonDecTarget)) (Json.Decode.index 1 (Json.Decode.maybe (jsonDecUnit)))))
-   |> required "effects" (Json.Decode.list (Json.Decode.map2 tuple2 (Json.Decode.index 0 (jsonDecTarget)) (Json.Decode.index 1 (Json.Decode.maybe (jsonDecUnit)))))
-   |> required "interrupt" (Json.Decode.list (Json.Decode.map2 tuple2 (Json.Decode.index 0 (jsonDecTarget)) (Json.Decode.index 1 (Json.Decode.maybe (jsonDecUnit)))))
+   |> required "start" (Json.Decode.list (jsonDecTarget))
+   |> required "effects" (Json.Decode.list (jsonDecTarget))
+   |> required "interrupt" (Json.Decode.list (jsonDecTarget))
    |> required "copying" (jsonDecCopying)
    |> required "pic" (Json.Decode.bool)
 
@@ -326,9 +326,9 @@ jsonEncSkill  val =
    , ("varicd", Json.Encode.bool val.varicd)
    , ("charges", Json.Encode.int val.charges)
    , ("channel", jsonEncChanneling val.channel)
-   , ("start", (Json.Encode.list (\(t1,t2) -> Json.Encode.list identity [(jsonEncTarget) t1,((maybeEncode (jsonEncUnit))) t2])) val.start)
-   , ("effects", (Json.Encode.list (\(t1,t2) -> Json.Encode.list identity [(jsonEncTarget) t1,((maybeEncode (jsonEncUnit))) t2])) val.effects)
-   , ("interrupt", (Json.Encode.list (\(t1,t2) -> Json.Encode.list identity [(jsonEncTarget) t1,((maybeEncode (jsonEncUnit))) t2])) val.interrupt)
+   , ("start", (Json.Encode.list jsonEncTarget) val.start)
+   , ("effects", (Json.Encode.list jsonEncTarget) val.effects)
+   , ("interrupt", (Json.Encode.list jsonEncTarget) val.interrupt)
    , ("copying", jsonEncCopying val.copying)
    , ("pic", Json.Encode.bool val.pic)
    ]
@@ -574,7 +574,7 @@ type alias Status  =
    , skill: Skill
    , effects: (List Effect)
    , classes: (List String)
-   , bombs: (List (Bomb, (Maybe Unit)))
+   , bombs: (List Bomb)
    , maxDur: Int
    , dur: Int
    }
@@ -589,7 +589,7 @@ jsonDecStatus =
    |> required "skill" (jsonDecSkill)
    |> required "effects" (Json.Decode.list (jsonDecEffect))
    |> required "classes" (Json.Decode.list (Json.Decode.string))
-   |> required "bombs" (Json.Decode.list (Json.Decode.map2 tuple2 (Json.Decode.index 0 (jsonDecBomb)) (Json.Decode.index 1 (Json.Decode.maybe (jsonDecUnit)))))
+   |> required "bombs" (Json.Decode.list (jsonDecBomb))
    |> required "maxDur" (Json.Decode.int)
    |> required "dur" (Json.Decode.int)
 
@@ -603,7 +603,7 @@ jsonEncStatus  val =
    , ("skill", jsonEncSkill val.skill)
    , ("effects", (Json.Encode.list jsonEncEffect) val.effects)
    , ("classes", (Json.Encode.list Json.Encode.string) val.classes)
-   , ("bombs", (Json.Encode.list (\(t1,t2) -> Json.Encode.list identity [(jsonEncBomb) t1,((maybeEncode (jsonEncUnit))) t2])) val.bombs)
+   , ("bombs", (Json.Encode.list jsonEncBomb) val.bombs)
    , ("maxDur", Json.Encode.int val.maxDur)
    , ("dur", Json.Encode.int val.dur)
    ]
@@ -743,19 +743,19 @@ jsonEncTrap  val =
 
 
 type Direction  =
-    To
+    Toward
     | From
     | Per
 
 jsonDecDirection : Json.Decode.Decoder ( Direction )
 jsonDecDirection =
-    let jsonDecDictDirection = Dict.fromList [("To", To), ("From", From), ("Per", Per)]
+    let jsonDecDictDirection = Dict.fromList [("Toward", Toward), ("From", From), ("Per", Per)]
     in  decodeSumUnaries "Direction" jsonDecDictDirection
 
 jsonEncDirection : Direction -> Value
 jsonEncDirection  val =
     case val of
-        To -> Json.Encode.string "To"
+        Toward -> Json.Encode.string "Toward"
         From -> Json.Encode.string "From"
         Per -> Json.Encode.string "Per"
 

@@ -3,6 +3,7 @@
 
 import Prelude
 import Data.Sequence (Seq)
+import Data.List (dropWhileEnd)
 import Data.List.NonEmpty (NonEmpty)
 
 import Data.Proxy
@@ -19,7 +20,8 @@ import qualified Class.Labeled as Labeled
 import           Class.Labeled (Labeled)
 import           Class.TurnBased (TurnBased(..))
 import qualified Data.Char as Char
-import           Data.Text as Text
+import qualified Data.Text as Text
+import           Data.Text (Text)
 import           Model.Class (Class(..))
 import           Model.Chakra (Chakras(..))
 import           Model.Defense (Defense)
@@ -91,6 +93,7 @@ alterations = recAlterType typeAlterations
 
 typeAlterations :: EType -> EType
 typeAlterations t = case t of
+    ETyApp (ETyCon (ETCon "Runnable")) x -> typeAlterations x
     ETyCon (ETCon "Seq")       -> ETyCon (ETCon "List")
     ETyCon (ETCon "NonEmpty")  -> ETyCon (ETCon "List")
     ETyCon (ETCon "Slot")      -> ETyCon (ETCon "Int")
@@ -99,7 +102,6 @@ typeAlterations t = case t of
     ETyCon (ETCon "Trigger")   -> ETyCon (ETCon "String")
     ETyCon (ETCon "Varying")   -> ETyCon (ETCon "Int")
     ETyCon (ETCon "ClassSet")  -> ETyApp (ETyCon (ETCon "List")) (ETyCon (ETCon "String"))
-    ETyCon (ETCon "Play")      -> ETyCon (ETCon "Maybe")
     ETyCon (ETCon "()")        -> ETyCon (ETCon "Unit") -- See elmUnitHandlers
     _                          -> defaultTypeAlterations t
 
@@ -138,9 +140,12 @@ deriveElmDef defaultOptions ''Target
 deriveElmDef defaultOptions ''Trap
 deriveElmDef defaultOptions ''Variant
 
+trimAll :: String -> String
+trimAll = unlines . (dropWhileEnd Char.isSpace <$>) . lines
+
 main :: IO ()
 main =
-    writeFile "elm/src/Import/Model.elm" $
+    writeFile "elm/src/Import/Model.elm" . trimAll $
     "module Import.Model exposing (..)\n\
 \\n\
 \import Json.Decode\n\
