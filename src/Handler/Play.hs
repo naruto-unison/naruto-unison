@@ -165,67 +165,67 @@ gameSocket = do
       Nothing   -> Sockets.send "Invalid team"
       Just team -> do
         flip Sql.runSqlPool (App.connPool app) $
-            update who [UserTeam =. Just (reverse teamNames)]
+            update who [UserTeam =. Just teamNames]
         liftIO Random.createSystemRandom >>= runReaderT do
-              randPlayer <- (Player.from :: Bool -> Player)
-                            <$> (ask >>= liftIO . Random.uniform)
-              let writeQueueChan = App.queue app
-              readQueueChan <- (liftIO . atomically) do
-                  writeTChan writeQueueChan $ Message.Announce who user team
-                  dupTChan writeQueueChan
-              (info, writer, reader) <- untilJust do
-                msg <- liftIO . atomically $ readTChan readQueueChan
-                case msg of
-                  Message.Respond mWho writer reader info
-                    | mWho == who -> return $ Just (info, writer, reader)
-                  Message.Announce vsWho vsUser vsTeam -> do
-                      game <- Game.newWithChakras
-                      let ninjas = zipWith Ninja.new Slot.all case randPlayer of
-                              Player.A -> team `vs` vsTeam
-                              Player.B -> vsTeam `vs` team
-                      liftIO $ atomically do
-                          writer <- newTBQueue 8
-                          reader <- newTBQueue 8
-                          writeTChan writeQueueChan $
-                              Message.Respond vsWho reader writer
-                              GameInfo
-                                  { GameInfo.vsWho  = who
-                                  , GameInfo.vsUser = user
-                                  , GameInfo.player = Player.opponent randPlayer
-                                  , GameInfo.game   = game
-                                  , GameInfo.ninjas = fromList ninjas
-                                  }
-                          let info = GameInfo
-                                  { GameInfo.vsWho = vsWho
-                                  , GameInfo.vsUser = vsUser
-                                  , GameInfo.player = randPlayer
-                                  , GameInfo.game   = game
-                                  , GameInfo.ninjas = fromList ninjas
-                                  }
-                          return $ Just (info, writer, reader)
-                  _ -> return Nothing
-              lift $ Sockets.sendJson info
-              let player = GameInfo.player info
-              Wrapper.fromInfo info >>= runReaderT do
-                  when (player == Player.A) $ tryEnact player writer
-                  completedGame <- untilJust do
-                      msg  <- liftIO . atomically $ readTBQueue reader
-                      case msg of
-                          Message.Forfeit -> do
-                              P.forfeit $ Player.opponent player
-                              Just <$> Wrapper.freeze
-                          Message.Enact wrapper -> do
-                              if not . null . Game.victor $
-                                 Wrapper.game wrapper then
-                                  return $ Just wrapper
-                              else do
-                                  Sockets.clear
-                                  Sockets.sendJson $
-                                      Wrapper.toJSON player wrapper
-                                  Wrapper.replaceIO wrapper
-                                  tryEnact player writer
-                                  return Nothing
-                  Sockets.sendJson $ Wrapper.toJSON player completedGame
+            randPlayer <- (Player.from :: Bool -> Player)
+                          <$> (ask >>= liftIO . Random.uniform)
+            let writeQueueChan = App.queue app
+            readQueueChan <- (liftIO . atomically) do
+                writeTChan writeQueueChan $ Message.Announce who user team
+                dupTChan writeQueueChan
+            (info, writer, reader) <- untilJust do
+              msg <- liftIO . atomically $ readTChan readQueueChan
+              case msg of
+                Message.Respond mWho writer reader info
+                  | mWho == who -> return $ Just (info, writer, reader)
+                Message.Announce vsWho vsUser vsTeam -> do
+                    game <- Game.newWithChakras
+                    let ninjas = zipWith Ninja.new Slot.all case randPlayer of
+                            Player.A -> team `vs` vsTeam
+                            Player.B -> vsTeam `vs` team
+                    liftIO $ atomically do
+                        writer <- newTBQueue 8
+                        reader <- newTBQueue 8
+                        writeTChan writeQueueChan $
+                            Message.Respond vsWho reader writer
+                            GameInfo
+                                { GameInfo.vsWho  = who
+                                , GameInfo.vsUser = user
+                                , GameInfo.player = Player.opponent randPlayer
+                                , GameInfo.game   = game
+                                , GameInfo.ninjas = fromList ninjas
+                                }
+                        let info = GameInfo
+                                { GameInfo.vsWho = vsWho
+                                , GameInfo.vsUser = vsUser
+                                , GameInfo.player = randPlayer
+                                , GameInfo.game   = game
+                                , GameInfo.ninjas = fromList ninjas
+                                }
+                        return $ Just (info, writer, reader)
+                _ -> return Nothing
+            lift $ Sockets.sendJson info
+            let player = GameInfo.player info
+            Wrapper.fromInfo info >>= runReaderT do
+                when (player == Player.A) $ tryEnact player writer
+                completedGame <- untilJust do
+                    msg  <- liftIO . atomically $ readTBQueue reader
+                    case msg of
+                        Message.Forfeit -> do
+                            P.forfeit $ Player.opponent player
+                            Just <$> Wrapper.freeze
+                        Message.Enact wrapper -> do
+                            if not . null . Game.victor $
+                                Wrapper.game wrapper then
+                                return $ Just wrapper
+                            else do
+                                Sockets.clear
+                                Sockets.sendJson $
+                                    Wrapper.toJSON player wrapper
+                                Wrapper.replaceIO wrapper
+                                tryEnact player writer
+                                return Nothing
+                Sockets.sendJson $ Wrapper.toJSON player completedGame
 
 -- | Wraps @enact@ with error handling.
 tryEnact :: ∀ m. (MonadGame m, MonadRandom m, MonadSockets m, MonadUnliftIO m)

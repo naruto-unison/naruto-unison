@@ -159,7 +159,7 @@ cs =
         , Skill.cost      = [Tai]
         , Skill.channel   = Action 3
         , Skill.start     = [ To Enemy $ perI "Single Gate Release" 5 damage 10 ]
-        , Skill.effects   = [ To Self $  trapFrom 1 (OnHarmed Physical) $ damage 10
+        , Skill.effects   = [ To Self $ trapFrom 1 (OnHarmed Physical) $ damage 10
                     , To Enemy $ ifnotI "first" $ damage 10
                     ]
         }
@@ -275,7 +275,7 @@ cs =
           [ To Enemy do
                 damage 25
                 tag 1
-          , To Self $  apply 1 [Reduce All Percent 50]
+          , To Self $ apply 1 [Reduce All Percent 50]
           ]
         }
       ]

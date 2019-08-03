@@ -976,7 +976,7 @@ cs =
         , Skill.channel   = Ongoing 5
         , Skill.start     = [ To XAlly $ everyone $ remove "Blood Sample"
                             • tag' "Blood Sample" 0)
-                    , To Ally $  sacrifice 0 15
+                    , To Ally $ sacrifice 0 15
                     ]
         }
       ]

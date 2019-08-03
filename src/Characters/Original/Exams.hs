@@ -246,7 +246,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $  tag 1
+          [ To Self $ tag 1
           , To Enemy do
                 deplete 1
                 whenM (userHas "Bell Ring Illusion") $

@@ -284,7 +284,7 @@ cs =
           [ To Enemies do
                 damage 15
                 apply 1 [Build (-10)]
-          , To Allies $  apply 1 [Build 10]
+          , To Allies $ apply 1 [Build 10]
           ]
         }
       ]

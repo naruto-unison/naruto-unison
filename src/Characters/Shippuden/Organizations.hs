@@ -52,8 +52,8 @@ cs =
           , To Allies do
                 trap 3 OnStunned $ apply 1 [Invulnerable All]
                 trap 3 (OnDamaged NonAffliction) $
-                    self $ apply 1 [Strengthen All Flat 10 ]
-          , To Self $  vary' 3 "Super Beast Scroll: Snake"
+                    self $ apply 1 [Strengthen All Flat 10]
+          , To Self $ vary' 3 "Super Beast Scroll: Snake"
                               "Super Beast Scroll: Bird"
           ]
         }

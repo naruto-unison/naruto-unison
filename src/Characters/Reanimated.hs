@@ -887,7 +887,7 @@ cs =
         , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ To Self $  heal 15
+          [ To Self $ heal 15
           , To Enemy do
                 pierce 20
                 trap 1 OnDamage $ self $ vary' 1 "Human Path" "Human Path"
