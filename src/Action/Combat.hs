@@ -85,6 +85,39 @@ demolishAll = do
     P.modify user   \n -> n { Ninja.barrier = [] }
     P.modify target \n -> n { Ninja.defense = [] }
 
+userAdjust :: Attack -> ClassSet -> Ninja -> Float -> Float
+userAdjust atk classes nUser x = x
+    * strengthen Percent
+    * weaken Percent
+    + strengthen Flat
+    - weaken Flat
+  where
+    direct = Direct ∈ classes
+    strengthen
+      | direct    = Effect.identity
+      | otherwise = Effects.strengthen classes nUser
+    weaken
+      | direct                = Effect.identity
+      | atk == Attack.Afflict = Effect.identity
+      | otherwise             = Effects.weaken classes nUser
+
+targetAdjust :: Attack -> ClassSet -> Ninja -> Float -> Float
+targetAdjust atk classes nTarget x = x
+    * bleed Percent
+    * reduceAfflic Percent
+    * reduce Percent
+    + bleed Flat
+    - reduceAfflic Flat
+    - reduce Flat
+  where
+    bleed         = Effects.bleed classes nTarget
+    reduceAfflic  = Effects.reduce (singletonSet Affliction) nTarget
+    reduce
+      | atk /= Attack.Damage = Effect.identity
+      | nTarget `is` Expose  = Effect.identity
+      | otherwise            = Effects.reduce classes nTarget
+
+
 -- | Damage formula.
 formula :: Attack -- ^ Attack type.
         -> ClassSet -- ^ 'Skill.classes'.
@@ -92,33 +125,14 @@ formula :: Attack -- ^ Attack type.
         -> Ninja -- ^ Target.
         -> Int -- ^ Base damage.
         -> Int
-formula atk classes nUser nTarget dmg =
-    truncate $
-    fromIntegral dmg
-    * strengthen Percent
-    * bleed Percent
-    * reduceAfflic Percent
-    * reduce Percent
-    * weaken Percent
-    + strengthen Flat
-    + bleed Flat
-    - reduceAfflic Flat
-    - reduce Flat
-    - weaken Flat
+formula atk classes nUser nTarget = truncate .
+                                    targetAdjust atk' classes nTarget .
+                                    userAdjust atk' classes nUser .
+                                    fromIntegral
   where
-    direct  = Direct ∈ classes
-    strengthen
-      | direct    = Effect.identity
-      | otherwise = Effects.strengthen classes nUser
-    bleed         = Effects.bleed classes nTarget
-    reduceAfflic  = Effects.reduce (singletonSet Affliction) nTarget
-    reduce
-      | atk /= Attack.Damage || nUser `is` Pierce || nTarget `is` Expose
-                  = Effect.identity
-      | otherwise = Effects.reduce classes nTarget
-    weaken
-      | atk == Attack.Afflict || direct = Effect.identity
-      | otherwise                       = Effects.weaken classes nUser
+    atk' = case atk of
+        Attack.Damage | nUser `is` Pierce -> Attack.Pierce
+        _                                 -> atk
 
 -- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce',
 -- 'Attack.Damage', or 'Attack.Demolish' attack.
