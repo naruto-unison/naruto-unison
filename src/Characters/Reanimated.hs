@@ -511,14 +511,14 @@ cs =
         , Skill.effects   =
           [ To Enemies do
                 pierce 10
-                trapPer (-1) PerDamaged \i ->
+                trapPer' (-1) PerDamaged \i ->
                     when (i >= 50) $ apply 1 [Stun All]
           ]
         , Skill.changes   = changeWith "Crystal Ice Mirrors" \_ skill -> skill
               { Skill.effects =
                 [ To Enemy do
                       pierce 30
-                      trapPer (-1) PerDamaged \i ->
+                      trapPer' (-1) PerDamaged \i ->
                           when (i >= 50) $ apply 1 [Stun All] ]
               }
         }
