@@ -3,7 +3,7 @@ module Class.Play
   ( -- * Monads
     MonadGame(..), MonadPlay(..)
     -- * Actions stored in data structures
-  , Play(..), PlayConstraint, SavedPlay, play, launch
+  , launch
     -- * Context
     -- ** From monad
   , skill
@@ -29,13 +29,15 @@ import ClassyPrelude hiding (zipWith)
 
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
-import           Model.Internal (MonadGame(..), Play(..), PlayConstraint, MonadPlay(..), SavedPlay)
+import           Model.Internal (MonadGame(..), MonadPlay(..))
 import qualified Model.Context as Context
 import           Model.Context (Context)
 import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
+import qualified Model.Runnable as Runnable
+import           Model.Runnable (Runnable)
 import qualified Model.Player as Player
 import           Model.Player (Player)
 import           Model.Skill (Skill)
@@ -43,20 +45,13 @@ import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
 import           Model.Trap (Trigger)
 
--- | Unwraps a 'Play' object, revealing its inner monadic function.
--- While wrapped in the 'Play' newtype, game functions may be passed around
--- freely as objects and stored in data structures without exposing their
--- impredicative innards. They must be unwrapped before they can be applied.
-play :: ∀ a. Play a -> PlayConstraint a
-play (Play a) = a
-
 -- | Alters the focus of the environment to a new 'Context'.
 withContext :: ∀ m a. Context -> ReaderT Context m a -> m a
 withContext ctx f = runReaderT f ctx
 
 -- | Runs a stored 'Play' function with its associated stored 'Context'.
-launch :: ∀ m. (MonadGame m, MonadRandom m) => SavedPlay -> m ()
-launch (ctx, Play a) = runReaderT a ctx
+launch :: ∀ m. (MonadGame m, MonadRandom m) => Runnable Context -> m ()
+launch x = runReaderT (Runnable.run x) $ Runnable.target x
 
 -- | 'Skill' being used to perform an action.
 skill :: ∀ m. MonadPlay m => m Skill

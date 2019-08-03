@@ -23,21 +23,24 @@ import           Core.Util ((—), (∈), intersectsSet)
 import qualified Class.Classed as Classed
 import qualified Class.Labeled as Labeled
 import qualified Class.Play as P
-import           Class.Play (MonadPlay, Play(..), PlayConstraint, SavedPlay)
+import           Class.Play (MonadPlay)
 import qualified Model.Attack as Attack
 import           Model.Attack (Attack)
 import qualified Model.Barrier as Barrier
-import           Model.Barrier (Barrier)
+import           Model.Barrier (Barrier(Barrier))
 import           Model.Class (Class(..), ClassSet)
 import qualified Model.Context as Context
+import           Model.Context (Context)
 import qualified Model.Copy as Copy
 import qualified Model.Defense as Defense
-import           Model.Defense (Defense)
+import           Model.Defense (Defense(Defense))
 import           Model.Duration (Duration(..), Turns, incr, sync)
 import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
+import qualified Model.Runnable as Runnable
+import           Model.Runnable (Runnable, RunConstraint)
 import qualified Model.Skill as Skill
 import           Model.Trap (Trigger(..))
 import qualified Engine.Effects as Effects
@@ -177,7 +180,7 @@ defend (Duration -> dur) amount = P.unsilenced do
     nUser      <- P.nUser
     nTarget    <- P.nTarget
     let amount' = Effects.boost user nTarget * amount + Effects.build nUser
-        defense = Defense.Defense
+        defense = Defense
                       { Defense.amount = amount'
                       , Defense.user   = user
                       , Defense.name   = Skill.name skill
@@ -214,8 +217,8 @@ barrier dur = barrierDoes dur (const $ return ()) (return ())
 -- 'Barrier.finish'es, which is passed as an argument the 'Barrier.amount' of
 -- barrier remaining, and an effect that occurs each turn 'Barrier.while' it
 -- exists.
-barrierDoes :: ∀ m. MonadPlay m => Turns -> (Int -> PlayConstraint ())
-            -> PlayConstraint () -> Int -> m ()
+barrierDoes :: ∀ m. MonadPlay m => Turns -> (Int -> RunConstraint ())
+            -> RunConstraint () -> Int -> m ()
 barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
     context    <- P.context
     amount'    <- (amount +) . Effects.build <$> P.nUser
@@ -223,13 +226,16 @@ barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
         user    = Context.user context
         target  = Context.target context
         dur'    = Copy.maxDur (Skill.copying skill) $ sync dur
-        save :: PlayConstraint () -> SavedPlay
-        save f  = (context { Context.new = False }, Play f)
+        save :: RunConstraint () -> Runnable Context
+        save f  = Runnable.To
+                      { Runnable.target = context { Context.new = False }
+                      , Runnable.run    = f
+                      }
         finish' amt
           | dur' < sync dur = save $ return ()
           | otherwise       = save $
                               Execute.wrap (singletonSet Trapped) (finish amt)
-        barr = Barrier.Barrier
+        barr = Barrier
             { Barrier.amount = amount'
             , Barrier.user = user
             , Barrier.name   = Skill.name skill

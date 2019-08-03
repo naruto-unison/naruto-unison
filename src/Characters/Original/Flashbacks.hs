@@ -19,7 +19,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 vary' 3 "Refocus" "Unsexy Technique"
                 tag 3
                 allies . self $ hide 3 [Boost 2]
@@ -32,7 +32,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy $ apply 1 [Seal, Expose, Uncounter] ]
+          [ To Enemy $ apply 1 [Seal, Expose, Uncounter] ]
         }
       ]
     , [ Skill.new
@@ -43,7 +43,7 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Action 3
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
               helpful <- user numHelpful
               damage (10 + 5 * helpful)
           ]
@@ -55,7 +55,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
               helpful <- user numHelpful
               damage (10 + 10 * helpful)
           ]
@@ -73,13 +73,13 @@ cs =
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
         , Skill.start     =
-          [ p Self $ flag
-          , p Enemy do
+          [ To Self $ flag
+          , To Enemy do
                 deplete 1
                 damage 20
           ]
         , Skill.effects   =
-          [ p REnemy $ unlessM (userHas "Gentle Fist") do
+          [ To REnemy $ unlessM (userHas "Gentle Fist") do
                 damage 20
                 deplete 1
           ]
@@ -93,9 +93,9 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Action 2
         , Skill.start     =
-          [ p Self     $ apply 1 [Invulnerable All]
-          , p Enemy    $ damage 15
-          , p XEnemies $ damage 10
+          [ To Self     $ apply 1 [Invulnerable All]
+          , To Enemy    $ damage 15
+          , To XEnemies $ damage 10
           ]
         }
       ]
@@ -106,7 +106,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Enemies $ trap (-1) OnReflectAll $
+          [ To Enemies $ trap (-1) OnReflectAll $
                 everyone $ removeTrap "Eight Trigrams Air Palm Wall"
           ]
         }
@@ -122,10 +122,10 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 5
                 apply 1 [Weaken Physical Flat 10, Weaken Chakra Flat 10]
-          , p Allies $ defend 0 5
+          , To Allies $ defend 0 5
           ]
         }
       ]
@@ -137,8 +137,8 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Action 3
         , Skill.effects   =
-          [ p Allies $ defend 1 10
-          ,  p Enemy do
+          [ To Allies $ defend 1 10
+          ,  To Enemy do
                 damage 15
                 whenM (targetHas "Chain Bind") $
                     apply' "Chain Bind" 1 [ Weaken Physical Flat 10
@@ -154,8 +154,8 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p XAlly $ apply 0 [Parry NonMental $ Play $ damage 10]
-          , p Enemy $ trap 0 (OnCounter NonMental) $ damage 10
+          [ To XAlly $ apply 0 [Parry NonMental $ To () $ damage 10 ]
+          , To Enemy $ trap 0 (OnCounter NonMental) $ damage 10
           ]
         }
       ]
@@ -172,7 +172,7 @@ cs =
         , Skill.cooldown  = 1
         , Skill.channel   = Control 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 20
                 apply 1 [Uncounter]
           ]
@@ -184,8 +184,8 @@ cs =
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Self $ vary "Sensory Radar" "Sensory Radar: Collate"
-          , p Enemies $ trap 0 OnHarm $ self do
+          [ To Self $ vary "Sensory Radar" "Sensory Radar: Collate"
+          , To Enemies $ trap 0 OnHarm $ self do
                 heal 10
                 addStack
           ]
@@ -196,8 +196,8 @@ cs =
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemies $ removeTrap "Sensory Radar"
-          ,  p Self do
+          [ To Enemies $ removeTrap "Sensory Radar"
+          ,  To Self do
                 vary "Sensory Radar" baseVariant
                 stacks <- userStacks "Sensory Radar"
                 gain $ replicate stacks Rand
@@ -212,7 +212,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
               apply 4 [Throttle 1 $ Any Invulnerable]
               trapFrom 4 (OnHarmed Mental) $ apply 1 [Invulnerable All]
           ]
@@ -230,7 +230,7 @@ cs =
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 deplete 1
                 damage 15
                 apply 1 [Stun All]
@@ -245,7 +245,7 @@ cs =
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 tag 4
                 trap 4 OnDeath $ self kill
                 self $ trap 4 OnDeath $
@@ -260,7 +260,7 @@ cs =
         , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 purge
                 apply 2 [Stun All, Invulnerable All, Seal]
           ]
@@ -277,15 +277,15 @@ cs =
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-        [ p Self $ apply 1 [Invulnerable All]
-        , p XAllies $
+        [ To Self $ apply 1 [Invulnerable All]
+        , To XAllies $
               whenM (targetHas "Space-Time Marking") $
                   apply 1 [Invulnerable All]
-        , p Enemies $ whenM (targetHas "Space-Time Marking") $ damage 30
-        , p XAlly do
+        , To Enemies $ whenM (targetHas "Space-Time Marking") $ damage 30
+        , To XAlly do
               apply 1 [Invulnerable All]
               whenM (userHas "Space-Time Marking") $ tag' "Space-Time Marking" 1
-        , p Enemy do
+        , To Enemy do
               damage 30
               whenM (userHas "Space-Time Marking") $ tag' "Space-Time Marking" 1
           ]
@@ -299,8 +299,8 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Control 2
         , Skill.effects   =
-          [ p Enemies $ apply 1 [Expose]
-          , p Self    $ gain [Rand]
+          [ To Enemies $ apply 1 [Expose]
+          , To Self    $ gain [Rand]
           ]
         }
       ]
@@ -311,7 +311,7 @@ cs =
         , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 6
         , Skill.effects   =
-          [ p Self $ tag 3 ]
+          [ To Self $ tag 3 ]
         }
       ]
     , [ invuln "Flying Light" "Minato" [Physical] ]
@@ -326,10 +326,10 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p XAllies $ delay 0 $ trap 1 OnNoAction do
+          [ To XAllies $ delay 0 $ trap 1 OnNoAction do
                 apply' "Space-Time Marking " 3 []
                 self $ hide 4 [Reduce All Flat 5]
-          , p Enemies $ trap (-1) OnNoAction do
+          , To Enemies $ trap (-1) OnNoAction do
                 apply' "Space-Time Marking " (-4) []
                 self $ hide 4 [Reduce All Flat 5]
           ]
@@ -342,7 +342,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Ally $ apply 1 [Reflect] ]
+          [ To Ally $ apply 1 [Reflect] ]
         }
       ]
     , [ Skill.new
@@ -351,8 +351,8 @@ cs =
         , Skill.classes   = [Chakra, Melee, Bypassing]
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
-          [ p Enemy $ damage 20
-          , p Enemies do
+          [ To Enemy $ damage 20
+          , To Enemies do
                 stacks <- targetStacks "Space-Time Marking"
                 damage (20 * stacks)
           ]
@@ -364,7 +364,7 @@ cs =
         , Skill.classes   = [Chakra]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 apply 1 [Invulnerable All]
                 allies . whenM (targetHas "Space-Time Marking") $
                     apply 1 [Invulnerable All]
@@ -385,8 +385,8 @@ cs =
         , Skill.cooldown  = 2
         , Skill.channel   = Action 2
         , Skill.effects   =
-          [ p Self   $ apply 1 [Invulnerable Chakra]
-          , p REnemy $ absorb 1
+          [ To Self   $ apply 1 [Invulnerable Chakra]
+          , To REnemy $ absorb 1
           ]
         , Skill.changes   = kannon
         }
@@ -399,8 +399,8 @@ cs =
         , Skill.cooldown  = 2
         , Skill.channel   = Action 2
         , Skill.effects   =
-          [ p Enemy $ damage 20
-          , p Self  $ apply 1 [Invulnerable Physical]
+          [ To Enemy $ damage 20
+          , To Self  $ apply 1 [Invulnerable Physical]
           ]
         , Skill.changes   = kannon
         }
@@ -412,8 +412,8 @@ cs =
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Allies $ defend 0 30
-          , p Self   $ tag 3
+          [ To Allies $ defend 0 30
+          , To Self   $ tag 3
           ]
         }
       ]
@@ -428,11 +428,11 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 20
                 apply 1 [Weaken All Flat 5]
                 whenM (userHas "Sharingan Stun") $ apply 1 [Stun All]
-          , p Self $ apply 1 [Strengthen All Flat 5]
+          , To Self $ apply 1 [Strengthen All Flat 5]
           ]
         }
       ]
@@ -442,11 +442,11 @@ cs =
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 20
                 apply 1 [Weaken All Flat 5]
                 whenM (userHas "Sharingan Stun") $ apply 1 [Stun All]
-          , p Self $ apply 1 [Strengthen All Flat 5]
+          , To Self $ apply 1 [Strengthen All Flat 5]
           ]
         }
       ]
@@ -456,7 +456,7 @@ cs =
         , Skill.classes   = [Mental, Ranged, InvisibleTraps]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 trap 1 OnChakra $ self $ gain [Rand]
                 trap 1 OnStun   $ self $ gain [Rand]
                 trap 1 OnDamage $ self $ apply 1 [Strengthen All Flat 10]
@@ -474,8 +474,8 @@ cs =
         , Skill.classes   = [Invisible, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ p Self $ apply 1 [Reduce All Flat 15]
-          , p Enemy do
+          [ To Self $ apply 1 [Reduce All Flat 15]
+          , To Enemy do
                 trap (-1) (OnAction All) flag
                 delay (-1) do
                     bonus <- 15 `bonusIf` targetHas "Pit Trap"
@@ -489,7 +489,7 @@ cs =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Ally do
+          [ To Ally do
                 cureAll
                 heal 25
           ]
@@ -502,7 +502,7 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Ally $ apply 3 [Bless 10, Heal 10] ]
+          [ To Ally $ apply 3 [Bless 10, Heal 10] ]
         }
       ]
     , [ invuln "Flee" "Rin" [Physical] ]
@@ -516,7 +516,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 10 `bonusIf` userHas "Sharingan"
                 pierce (15 + bonus)
           ]
@@ -529,7 +529,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy $ apply 2 [Afflict 15] ]
+          [ To Enemy $ apply 2 [Afflict 15] ]
         }
       , Skill.new
         { Skill.name      = "Grand Fireball"
@@ -538,7 +538,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.varicd    = True
         , Skill.effects   =
-          [ p Enemy $ afflict 30 ]
+          [ To Enemy $ afflict 30 ]
         }
       ]
     , [ Skill.new
@@ -548,8 +548,8 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p XAlly $ tag 4
-          ,  p Self do
+          [ To XAlly $ tag 4
+          ,  To Self do
                 apply 4 [Reduce All Flat 15]
                 trap 4 OnDeath $ everyone $ whenM (targetHas "Sharingan") $
                     apply' "Borrowed Sharingan" 0
@@ -570,7 +570,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 2 `bonusIf` targetHas "Murderous Resolve"
                 stacks <- targetStacks "Cutting Sprigs"
                 pierce $ bonus * (20 + 5 * stacks)
@@ -584,7 +584,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Self $ apply 0 [Parry NonMental $ Play $ tag 1] ]
+          [ To Self $ apply 0 [Parry NonMental $ To () $ tag 1] ]
         }
       ]
     , [ Skill.new
@@ -595,7 +595,7 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ p Enemy $ apply 4 [Expose, Weaken All Flat 5] ]
+          [ To Enemy $ apply 4 [Expose, Weaken All Flat 5] ]
         }
       ]
     , [ invuln "Hide" "Obito" [Mental] ]
@@ -610,8 +610,8 @@ cs =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Self  $ apply 1 [Invulnerable All]
-          , p Enemy $ tag 1
+          [ To Self  $ apply 1 [Invulnerable All]
+          , To Enemy $ tag 1
           ]
         }
       ]
@@ -622,7 +622,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 2 `bonusIf` targetHas "Kamui Chain Combo"
                 pierce (20 * bonus)
                 userSlot <- user slot
@@ -638,10 +638,10 @@ cs =
         , Skill.cooldown  = 5
         , Skill.channel   = Ongoing 3
         , Skill.start     =
-          [ p Enemies demolishAll ]
+          [ To Enemies demolishAll ]
         , Skill.effects   =
-          [ p REnemy $ damage 25
-          , p Allies $ apply 1 [Enrage]
+          [ To REnemy $ damage 25
+          , To Allies $ apply 1 [Enrage]
           ]
         }
       ]

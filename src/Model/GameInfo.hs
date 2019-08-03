@@ -25,6 +25,7 @@ import qualified Model.Skill as Skill
 import           Model.Skill (Skill, Target(..))
 import qualified Model.Player as Player
 import           Model.Player (Player)
+import qualified Model.Runnable as Runnable
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
 import qualified Model.Status as Status
@@ -111,7 +112,7 @@ gameToJSON player ninjas g = object
 skillTargets :: Skill -> Slot -> [Slot]
 skillTargets skill c = filter target Slot.all
   where
-    ts = fst
+    ts = Runnable.target
          <$> Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill
     target t
       | Everyone ∈ ts                         = True

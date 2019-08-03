@@ -9,6 +9,7 @@ import           Core.Util ((∉), intersects)
 import qualified Model.Character as Character
 import           Model.Character (Character, Category(..))
 import           Model.Class (Class(..))
+import qualified Model.Runnable as Runnable
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill, Target(..))
 
@@ -79,7 +80,7 @@ doSkill skill = skill { Skill.classes = added ++ Skill.classes skill }
             , (Harmful,   harm)
             ]
     harm = [Enemy, Enemies, REnemy, XEnemies] `intersects` ts
-    ts   = fst
+    ts   = Runnable.target
            <$> Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill
     --Game{..}  = mockSkill skill
 {-}

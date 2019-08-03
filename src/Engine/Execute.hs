@@ -24,17 +24,20 @@ import qualified Class.TurnBased as TurnBased
 import qualified Model.Act as Act
 import           Model.Act (Act)
 import qualified Model.Channel as Channel
-import           Model.Channel (Channeling(..))
+import           Model.Channel (Channel(Channel), Channeling(..))
 import qualified Model.Chakra as Chakra
 import           Model.Class (Class(..))
 import qualified Model.Context as Context
+import           Model.Context (Context(Context))
 import qualified Model.Copy as Copy
-import           Model.Copy (Copying)
+import           Model.Copy (Copy(Copy), Copying)
 import           Model.Duration (Duration, incr, sync)
 import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (is)
+import qualified Model.Runnable as Runnable
+import           Model.Runnable (Runnable)
 import qualified Model.Requirement as Requirement
 import           Model.Requirement (Requirement(..))
 import qualified Model.Skill as Skill
@@ -84,7 +87,7 @@ copy clear cop target skill (source, name, s, dur) = do
                    , Skill.cooldown = 0
                    , Skill.copying  = cop source $ sync dur - 1
                    }
-    copier = Seq.update s . Just . Copy.Copy skill' $
+    copier = Seq.update s . Just . Copy skill' $
              sync if dur < -1 then dur + 1 else dur
 
 data Exit = Flagged | Done | Completed deriving (Eq)
@@ -140,7 +143,7 @@ wrap affected f = void $ runMaybeT do
                 P.with (\ctx -> ctx
                         { Context.user   = Status.user st
                         , Context.target = Context.user ctx
-                        }) . wrap (insertSet Trapped affected) $ P.play f'
+                        }) . wrap (insertSet Trapped affected) $ Runnable.run f'
         <|> do
             guard $ allow Trapped
             (n, nt, mPlay) <- Trigger.counter classes nUser nTarget
@@ -211,18 +214,20 @@ targetEffect affected f = do
 
 
 -- | Handles a single effect tuple in a 'Skill'. Uses 'targetEffect' internally.
-effect :: ∀ m. (MonadPlay m, MonadRandom m) => AffectedSet -> (Target, m ())
-       -> m ()
-effect affected (target, f)  = do
+effect :: ∀ m. (MonadPlay m, MonadRandom m)
+       => AffectedSet -> Runnable Target -> m ()
+effect affected x  = do
       skill   <- P.skill
-      targets <- chooseTarget target
-      let localize t ctx = ctx { Context.skill = skill, Context.target = t }
-      traverse_ (flip P.with (targetEffect affected f) . localize) targets
+      targets <- chooseTarget $ Runnable.target x
+      let local t ctx = ctx { Context.skill = skill, Context.target = t }
+          runAny      = targetEffect affected $ Runnable.run x
+          run target  = P.with (local target) runAny
+      traverse_ run targets
+      --traverse_ (flip P.with (targetEffect affected $ Play.action x) . localize) targets
 
 -- | Handles all effects of a 'Skill'. Uses 'effect' internally.
 effects :: ∀ m. (MonadPlay m, MonadRandom m) => AffectedSet -> m ()
-effects affected = traverse_ (effect affected . second P.play)
-                   =<< getEffects <$> P.skill
+effects affected = traverse_ (effect affected) =<< getEffects <$> P.skill
   where
     getEffects skill
       | Channeled ∈ affected = Skill.effects skill
@@ -237,11 +242,11 @@ addChannels = do
     target   <- P.target
     let chan  = Skill.channel skill
         dur   = Copy.maxDur (Skill.copying skill) . incr $ TurnBased.getDur chan
-        chan' = Channel.Channel { Channel.source = Copy.source skill user
-                                , Channel.skill  = skill
-                                , Channel.target = target
-                                , Channel.dur    = TurnBased.setDur dur chan
-                                }
+        chan' = Channel { Channel.source = Copy.source skill user
+                          , Channel.skill  = skill
+                          , Channel.target = target
+                          , Channel.dur    = TurnBased.setDur dur chan
+                          }
     unless (chan == Instant || dur == 1 || dur == 2) $
         P.modify user \n -> n { Ninja.newChans = chan' : Ninja.newChans n }
 
@@ -282,11 +287,11 @@ act a = do
     s       = Act.skill a
     new     = isLeft s
     user    = Act.user a
-    ctx skill = Context.Context { Context.skill  = skill
-                                , Context.user   = user
-                                , Context.target = Act.target a
-                                , Context.new    = new
-                                }
+    ctx skill = Context { Context.skill  = skill
+                        , Context.user   = user
+                        , Context.target = Act.target a
+                        , Context.new    = new
+                        }
 {-
 invincEffects :: [Effect]
 invincEffects = enumerate Invulnerable ++ enumerate Invincible

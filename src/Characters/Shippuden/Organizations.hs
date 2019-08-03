@@ -17,8 +17,8 @@ cs =
         , Skill.desc      = "Sai draws a pack of lions that attack an enemy, dealing 30 damage to them and providing 20 destructible defense to Sai for 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen, Rand]
-        , Skill.effects   = [ p Enemy $ damage 30
-                            , p Self  $ defend 1 20
+        , Skill.effects   = [ To Enemy $ damage 30
+                            , To Self  $ defend 1 20
                             ]
         }
       ]
@@ -28,7 +28,7 @@ cs =
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ p Enemy $ apply 1 [Stun Physical, Stun Chakra, Expose] ]
+          [ To Enemy $ apply 1 [Stun Physical, Stun Chakra, Expose] ]
         }
       , Skill.new
         { Skill.name      = "Super Beast Scroll: Bird"
@@ -36,7 +36,7 @@ cs =
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 25
                 apply 1 [Stun All]
           ]
@@ -48,12 +48,12 @@ cs =
         , Skill.classes   = [Mental, Bypassing]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
-          [ p Enemies $ trap 3 OnChakra $ self $ gain [Rand]
-          , p Allies do
+          [ To Enemies $ trap 3 OnChakra $ self $ gain [Rand]
+          , To Allies do
                 trap 3 OnStunned $ apply 1 [Invulnerable All]
                 trap 3 (OnDamaged NonAffliction) $
                     self $ apply 1 [Strengthen All Flat 10 ]
-          , p Self $  vary' 3 "Super Beast Scroll: Snake"
+          , To Self $  vary' 3 "Super Beast Scroll: Snake"
                               "Super Beast Scroll: Bird"
           ]
         }
@@ -74,7 +74,7 @@ cs =
           , Skill.classes   = [Physical, Melee]
           , Skill.cost      = [Tai]
           , Skill.effects   =
-            [ p Enemy do
+            [ To Enemy do
                   bonus <- 15 `bonusIf` targetHas "Mind Transfer"
                   damage (25 + bonus)
             ]
@@ -87,9 +87,9 @@ cs =
           , Skill.cost      = [Gen]
           , Skill.cooldown  = 3
           , Skill.channel   = Control 3
-          , Skill.start     = [ p Enemy $ commandeer ]
+          , Skill.start     = [ To Enemy $ commandeer ]
           , Skill.effects   =
-            [ p Enemy do
+            [ To Enemy do
                   tag 1
                   enemies $ hide' "revealed" 1 [Reveal]
             ]
@@ -102,15 +102,15 @@ cs =
           , Skill.cost      = [Gen]
           , Skill.cooldown  = 3
           , Skill.effects   =
-            let f = Play do
+            let f = To () do
                         copyAll 4
                         tag (-4)
                         teach 4 Shallow 4
                         teachOne 4 3 Deep 5
                         self do
                             resetAll
-                            bomb (-4) [] [ p Done resetAll ] in
-            [ p Ally $
+                            bomb (-4) [] [ To Done resetAll ] in
+            [ To Ally $
                   applyWith [Invisible] 2 [Parry Physical f, Parry Chakra f]
             ]
           }
@@ -122,7 +122,7 @@ cs =
           , Skill.classes   = [Physical, Melee]
           , Skill.cost      = [Rand]
           , Skill.effects   =
-            [ p Enemy $ damage 15 ]
+            [ To Enemy $ damage 15 ]
           }
         ]
       , [ Skill.new
@@ -132,7 +132,7 @@ cs =
           , Skill.cost      = [Rand]
           , Skill.cooldown  = 4
           , Skill.effects   =
-            [ p Self $ apply 1 [Invulnerable All] ]
+            [ To Self $ apply 1 [Invulnerable All] ]
           }
         ]
       ] []
@@ -146,8 +146,8 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 0
         , Skill.effects   =
-          [ p Enemy $ apply' "Venom Beetle" 5 [Afflict 5]
-          , p Self do
+          [ To Enemy $ apply' "Venom Beetle" 5 [Afflict 5]
+          , To Self do
                 defend 0 15
                 onBreak $ addStacks "Venom Beetle" 1
           ]
@@ -162,8 +162,8 @@ cs =
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 0
         , Skill.effects   =
-          [ p Enemies $ apply' "Venom Beetle" 5 [Afflict 5]
-          , p Self do
+          [ To Enemies $ apply' "Venom Beetle" 5 [Afflict 5]
+          , To Self do
                 defend 0 30
                 onBreak $ addStacks "Venom Beetle" 1
           ]
@@ -179,7 +179,7 @@ cs =
         , Skill.cost      = [Blood, Blood, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 stacks <- targetStacks "Venom Beetle"
                 deplete stacks
           ]
@@ -197,12 +197,12 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 addStacks "Sharingan" 10
                 vary "Izanagi" "Izanagi"
           ]
         , Skill.effects   =
-          [ p Self $ unlessM (userHas "paused") do
+          [ To Self $ unlessM (userHas "paused") do
                 removeStack "Sharingan"
                 unlessM (userHas "Sharingan") do
                     cancelChannel "Izanagi"
@@ -220,7 +220,7 @@ cs =
         , Skill.desc      = "Pauses the effect of [Izanagi] for 1 turn."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Blood]
-        , Skill.effects   = [ p Self $ flag' "paused"]
+        , Skill.effects   = [ To Self $ flag' "paused"]
         }
       , Skill.new
         { Skill.name      = "Reverse Tetragram Sealing"
@@ -228,8 +228,8 @@ cs =
         , Skill.classes   = [Mental, Bypassing, Unremovable]
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.effects   =
-          [ p Enemies $ delay (-3) kill
-          , p Self do
+          [ To Enemies $ delay (-3) kill
+          , To Self do
                 enemies $ apply (-3) [Seal]
                 kill
           ]
@@ -242,7 +242,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 15 `bonusIf` userHas "Kotoamatsukami"
                 pierce (20 + bonus)
           ]
@@ -255,7 +255,7 @@ cs =
         , Skill.cost      = [Blood, Gen, Gen]
         , Skill.cooldown  = 9
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 apply 2 [Replace 2 All 2 True]
                 trap 2 (OnCounter Uncounterable) do
                     remove "Kotoamatsukami"

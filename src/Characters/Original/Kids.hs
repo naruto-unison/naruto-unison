@@ -18,11 +18,11 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 stacks <- userStacks "Shadow Clone"
                 damage (10 + 5 * stacks)
-          , p REnemy $ whenM (userHas "Shadow Clone") $ damage 5
-          , p Self   $ removeStack "Shadow Clone"
+          , To REnemy $ whenM (userHas "Shadow Clone") $ damage 5
+          , To Self   $ removeStack "Shadow Clone"
           ]
         }
       ]
@@ -34,12 +34,12 @@ cs =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Self $ removeStacks "Shadow Clone" 2
-          , p Enemy do
+          [ To Self $ removeStacks "Shadow Clone" 2
+          , To Enemy do
                 damage 30
                 stacks <- userStacks "Shadow Clone"
                 when (stacks >= 2) $ apply (stacks `quot` 2) [Stun All]
-          , p REnemy $ damage 10
+          , To REnemy $ damage 10
           ]
         }
       ]
@@ -51,7 +51,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
             trapFrom' 0 (OnHarmed All) do
                 whenM (userHas "Shadow Clone") $ damage 5
                 self $ removeStack "Shadow Clone"
@@ -74,7 +74,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 10 `bonusIf` userHas "Inner Sakura"
                 damage (20 + bonus)
                 apply 1 [Stun Mental, Stun Physical]
@@ -88,7 +88,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Ally $ heal 25 ]
+          [ To Ally $ heal 25 ]
         }
       ]
     , [ Skill.new
@@ -98,7 +98,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self $ apply 4 [Enrage, Reduce All Flat 10] ]
+          [ To Self $ apply 4 [Enrage, Reduce All Flat 10] ]
         }
       ]
     , [ invuln "Substitution Technique" "Sakura" [Chakra] ]
@@ -112,7 +112,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 15 `bonusIf` targetHas "Sharingan"
                 damage (30 + bonus)
           ]
@@ -125,7 +125,7 @@ cs =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 25 `bonusIf` targetHas "Sharingan"
                 pierce (30 + bonus)
           ]
@@ -138,8 +138,8 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self  $ apply 4 [Reduce All Flat 10]
-          , p Enemy $ apply 4 [Expose]
+          [ To Self  $ apply 4 [Reduce All Flat 10]
+          , To Enemy $ apply 4 [Expose]
           ]
         }
       ]
@@ -154,7 +154,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 5 `bonusIf` targetHas "Dynamic Marking"
                 damage (30 + bonus)
           ]
@@ -169,8 +169,8 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Action 3
         , Skill.effects   =
-          [ p Enemies $ damage 15
-          , p Self    $ apply 1 [Reduce All Flat 15]
+          [ To Enemies $ damage 15
+          , To Self    $ apply 1 [Reduce All Flat 15]
           ]
         }
       ]
@@ -179,7 +179,7 @@ cs =
         , Skill.desc      = "Akamaru sprays urine on an enemy, preventing them from reducing damage or becoming invulnerable for 3 turns. Cannot be used on an enemy already affected by this skill."
         , Skill.classes   = [Ranged, Single]
         , Skill.effects   =
-          [ p Enemy $ apply 3 [Expose] ]
+          [ To Enemy $ apply 3 [Expose] ]
         }
       ]
     , [ invuln "Smoke Bomb" "Kiba" [Physical] ]
@@ -194,7 +194,7 @@ cs =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 absorb 1
                 stacks <- targetStacks "Parasite"
                 afflict (20 + 5 * stacks)
@@ -208,7 +208,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy $ apply 4 [Weaken All Flat 5] ]
+          [ To Enemy $ apply 4 [Weaken All Flat 5] ]
         }
       ]
     , [ Skill.new
@@ -218,7 +218,7 @@ cs =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Allies $ defend 0 20 ]
+          [ To Allies $ defend 0 20 ]
         }
       ]
     , [ invuln "Insect Clone" "Shino" [Chakra] ]
@@ -234,7 +234,7 @@ cs =
         , Skill.cooldown  = 1
         , Skill.channel   = Action 2
         , Skill.effects   =
-            [ p Enemy do
+            [ To Enemy do
                   whenM (userHas "Byakugan") $ deplete 1
                   damage 20
             ]
@@ -246,10 +246,10 @@ cs =
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 bonus <- 5 `bonusIf` userHas "Byakugan"
                 damage (15 + bonus)
-          , p Allies  $ defend 1 10
+          , To Allies  $ defend 1 10
           ]
         }
       ]
@@ -260,7 +260,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self $ apply 4 [Reduce All Flat 15] ]
+          [ To Self $ apply 4 [Reduce All Flat 15] ]
         }
       ]
     , [ invuln "Block" "Hinata" [Physical] ]
@@ -273,7 +273,7 @@ cs =
         , Skill.desc      = "Shikamaru sits down and contemplates an enemy. Over the next 5 turns, he composes a strategy against them. Cannot be used on an enemy already affected by this skill."
         , Skill.classes   = [Single, Mental, Ranged, Uncounterable, Unreflectable]
         , Skill.effects   =
-          [ p Enemy $ tag 5 ]
+          [ To Enemy $ tag 5 ]
         }
       ]
     , [ Skill.new
@@ -283,7 +283,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
-            [ p Enemies do
+            [ To Enemies do
                   damage 15
                   bonus <- 1 `bonusIf` targetHas "Meditate"
                   apply (1 + bonus) [Expose]
@@ -297,7 +297,7 @@ cs =
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 bonus <- 1 `bonusIf` targetHas "Meditate"
                 apply (1 + bonus) [Stun NonMental]
           ]
@@ -314,8 +314,8 @@ cs =
         , Skill.desc      = "Chōji eats the mildest Akimichi pill, losing 5 health down to a minimum of 1 and gaining the strength he needs to protect his friends. While alive, he provides 5 points of damage reduction to his allies."
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.effects   =
-          [ p XAllies $ apply' "Protected" 0 [Reduce All Flat 5]
-          , p Self    do
+          [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 5]
+          , To Self    do
                 sacrifice 1 5
                 varyLoadout loadout 1
           ]
@@ -327,7 +327,7 @@ cs =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 20
                 apply 1 [Weaken All Flat 20]
           ]
@@ -338,7 +338,7 @@ cs =
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ p Enemies $ damage 20 ]
+          [ To Enemies $ damage 20 ]
         }
       , Skill.new
         { Skill.name      = "Justice Punch"
@@ -347,7 +347,7 @@ cs =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 25
                 apply 1 [Stun All, Expose]
           ]
@@ -359,8 +359,8 @@ cs =
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-            [ p XAllies $ apply' "Protected" 0 [Reduce All Flat 10]
-            , p Self    do
+            [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 10]
+            , To Self    do
                   sacrifice 1 15
                   varyLoadout loadout 2
             ]
@@ -373,10 +373,10 @@ cs =
         , Skill.cooldown  = 1
         , Skill.channel   = Action 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 10
                 pierce 5
-          , p Self  $ apply 1 [Ignore $ Any Stun, Reduce All Flat 15]
+          , To Self  $ apply 1 [Ignore $ Any Stun, Reduce All Flat 15]
           ]
         }
       , Skill.new
@@ -386,7 +386,7 @@ cs =
         , Skill.cost      = [Tai, Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 damage 30
                 apply 1 [Stun All]
           ]
@@ -399,9 +399,9 @@ cs =
         , Skill.cooldown  = 5
         , Skill.channel   = Action 3
         , Skill.start     =
-          [ p Self $ gain [Rand] ]
+          [ To Self $ gain [Rand] ]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 heal 15
                 apply 1 [ImmuneSelf]
           ]
@@ -413,8 +413,8 @@ cs =
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
-          [ p XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
-          ,  p Self   do
+          [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
+          ,  To Self   do
                 sacrifice 1 10
                 apply 0 [Ignore $ Any Stun, Afflict 15]
                 varyLoadout loadout 3
@@ -426,8 +426,8 @@ cs =
         , Skill.desc      = "Chōji eats the second Akimichi pill, losing 5 health down to a minimum of 1 and unlocking huge reserves of chakra. While alive, he provides 10 points of damage reduction to his allies."
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.effects   =
-          [ p XAllies $ apply' "Protected" 0 [Reduce All Flat 10]
-          , p Self do
+          [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 10]
+          , To Self do
                 sacrifice 1 5
                 varyLoadout loadout 2
           ]
@@ -437,8 +437,8 @@ cs =
         , Skill.desc      = "Chōji eats the third Akimichi pill and gains so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns."
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.effects   =
-            [ p XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
-            , p Self    do
+            [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
+            , To Self    do
                   apply 0 [Ignore $ Any Stun, Afflict 15]
                   varyLoadout loadout 3
                   vary "Block" "Block"
@@ -452,7 +452,7 @@ cs =
         , Skill.cost      = [Nin, Tai]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 45
                 hp <- target health
                 when (hp <= 20) kill
@@ -466,7 +466,7 @@ cs =
                   , Skill.cooldown  = 4
                   , Skill.cost      = [Rand]
                   , Skill.effects   =
-                    [ p Self $ apply 1 [Invulnerable All, ImmuneSelf] ]
+                    [ To Self $ apply 1 [Invulnerable All, ImmuneSelf] ]
                   , Skill.pic       = True
                   }
       ]
@@ -480,8 +480,8 @@ cs =
         , Skill.classes   = [Mental, Ranged, Bypassing]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-          [ p Enemy  $ apply 1 [Stun NonMental, Expose]
-          , p REnemy $ pierce 30
+          [ To Enemy  $ apply 1 [Stun NonMental, Expose]
+          , To REnemy $ pierce 30
           ]
         }
       ]
@@ -493,9 +493,9 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Control 4
         , Skill.start     =
-          [ p Self $ vary "Mind Transfer" "Art of the Valentine"]
+          [ To Self $ vary "Mind Transfer" "Art of the Valentine"]
         , Skill.effects   =
-          [ p Enemy $ apply 1 [Stun All, Expose] ]
+          [ To Enemy $ apply 1 [Stun All, Expose] ]
         }
       , Skill.new
         { Skill.name      = "Art of the Valentine"
@@ -503,7 +503,7 @@ cs =
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemy $ damage 25 ]
+          [ To Enemy $ damage 25 ]
         }
       ]
     , [ Skill.new
@@ -513,7 +513,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy $ trap 1 OnHarm $ apply 2 [Snare 1] ]
+          [ To Enemy $ trap 1 OnHarm $ apply 2 [Snare 1] ]
         }
       ]
     , [ invuln "Block" "Ino" [Physical] ]
@@ -528,11 +528,11 @@ cs =
         , Skill.cost      = [Tai]
         , Skill.channel   = Action 3
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 15 `bonusIf` userHas "Fifth Gate Opening"
                 damage (10 + bonus)
                 tag 1
-          , p Self $ apply 1 [Reduce All Flat 10 ]
+          , To Self $ apply 1 [Reduce All Flat 10 ]
           ]
         }
       ]
@@ -542,7 +542,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 targetBonus <- 10 `bonusIf` targetHas "Ferocious Fist"
                 userBonus   <- 30 `bonusIf` userHas "Fifth Gate Opening"
                 damage (30 + targetBonus + userBonus)
@@ -556,7 +556,7 @@ cs =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 cureAll
                 apply 2 [Invulnerable All]
                 sacrifice 1 50
@@ -569,7 +569,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Tai]
         , Skill.effects   =
-          [ p Enemy $ damage 100 ]
+          [ To Enemy $ damage 100 ]
         }
       ]
     , [ invuln "Block" "Lee" [Physical] ]
@@ -583,9 +583,9 @@ cs =
         , Skill.classes   = [Physical, Ranged, Uncounterable]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemy    $ damage 20
-          , p XEnemies $ damage 10
-          , p Self do
+          [ To Enemy    $ damage 20
+          , To XEnemies $ damage 10
+          , To Self do
                 addStack
                 whenM (userHas "Rising Twin Dragons") addStack
                 remove "Rising Twin Dragons"
@@ -598,12 +598,12 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 stacks <- userStacks "Unsealing Technique"
                 damage (5 + 10 * stacks)
                 bonus <- 1 `bonusIf` userHas "Rising Twin Dragons"
                 apply (1 + bonus) [Weaken NonMental Flat (5 + 10 * stacks)]
-          ,  p Self do
+          ,  To Self do
                 remove "Unsealing Technique"
                 remove "Rising Twin Dragons"
           ]
@@ -616,7 +616,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 tag 0
                 apply' "Twin Dragons Defense" 1
                     [Invulnerable Physical, Invulnerable Chakra]
@@ -636,7 +636,7 @@ cs =
         , Skill.cooldown  = 1
         , Skill.channel   = Action 2
         , Skill.effects   =
-            [ p Enemy do
+            [ To Enemy do
                 damage 25
                 apply 1 [Weaken All Flat 5]
             ]
@@ -649,8 +649,8 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-            [ p Self    $ apply 1 [Invulnerable All]
-            , p Enemies $ damage 15
+            [ To Self    $ apply 1 [Invulnerable All]
+            , To Enemies $ damage 15
             ]
         }
       ]
@@ -661,7 +661,7 @@ cs =
         , Skill.cost      = [Blood, Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 deplete 1
                 damage 40
           ]
@@ -680,9 +680,9 @@ cs =
         , Skill.cooldown  = 2
         , Skill.channel   = Control 2
         , Skill.start     =
-          [ p Self $ vary "Sand Coffin" "Sand Burial" ]
+          [ To Self $ vary "Sand Coffin" "Sand Burial" ]
         , Skill.effects   =
-          [ p Enemy $ apply 1 [Expose, Stun NonMental] ]
+          [ To Enemy $ apply 1 [Expose, Stun NonMental] ]
         }
       , Skill.new
         { Skill.name      = "Sand Burial"
@@ -691,7 +691,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Nin]
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
               kill
               unlessM (target alive) . self $ cancelChannel "Sand Coffin"
           ]
@@ -703,7 +703,7 @@ cs =
         , Skill.classes   = [Physical, Single, Unremovable]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 apply 0 [Enrage]
                 trap' 0 (OnDamaged NonAffliction) do
                     remove "Sand Clone"
@@ -718,7 +718,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self $ defend 0 40 ]
+          [ To Self $ defend 0 40 ]
         }
       ]
     , [ invuln "Sand Shield" "Gaara" [Physical] ]
@@ -732,7 +732,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 5 `bonusIf` userHas "Puppet Technique"
                 pierce (30 + bonus)
           ]
@@ -745,7 +745,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 bonus <- 5 `bonusIf` userHas "Puppet Technique"
                 afflict (10 + bonus)
           ]
@@ -758,7 +758,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 defend 0 15
                 tag 4
           ]
@@ -775,8 +775,8 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Enemy $ damage 20
-          , p Self  $ apply 1 [Invulnerable NonMental]
+          [ To Enemy $ damage 20
+          , To Self  $ apply 1 [Invulnerable NonMental]
           ]
         }
       ]
@@ -787,7 +787,7 @@ cs =
         , Skill.cost      = [Nin, Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemies $ damage 35 ]
+          [ To Enemies $ damage 35 ]
         }
       ]
     , [ Skill.new
@@ -797,8 +797,8 @@ cs =
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ p Allies  $ apply 1 [Invulnerable All]
-          , p Enemies $ apply 2 [Weaken All Flat 15]
+          [ To Allies  $ apply 1 [Invulnerable All]
+          , To Enemies $ apply 2 [Weaken All Flat 15]
           ]
         }
       ]

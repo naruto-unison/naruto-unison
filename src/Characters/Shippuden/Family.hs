@@ -19,8 +19,8 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy  $ pierce 15
-          , p REnemy $ pierce 15
+          [ To Enemy  $ pierce 15
+          , To REnemy $ pierce 15
           ]
         }
       , Skill.new
@@ -30,7 +30,7 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 apply 1 [Stun NonMental]
                 has <- targetHas "Lion Roar Sealing"
                 if has then afflict 30 else damage 30
@@ -45,13 +45,13 @@ cs =
         , Skill.cooldown  = 5
         , Skill.channel   = Action 0
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 defend 0 50
                 vary "Assault Blade" "Three Treasure Suction Crush"
                 vary "Ten Puppets Collection" "Lion Roar Sealing"
                 onBreak'
           ]
-        , Skill.effects   = [ p REnemy $ damage 10 ]
+        , Skill.effects   = [ To REnemy $ damage 10 ]
         }
       , Skill.new
         { Skill.name      = "Lion Roar Sealing"
@@ -60,7 +60,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Enemy $ apply 2 [Expose, Seal] ]
+          [ To Enemy $ apply 2 [Expose, Seal] ]
         }
       ]
     , [ Skill.new
@@ -70,7 +70,7 @@ cs =
         , Skill.cost      = [Blood, Nin]
         , Skill.charges   = 1
         , Skill.effects   =
-          [ p XAlly $ trap 0 OnRes do
+          [ To XAlly $ trap 0 OnRes do
                 cureAll
                 setHealth 100
                 self $ setHealth 1

@@ -13,8 +13,10 @@ import           Class.Random (MonadRandom)
 import qualified Model.Channel as Channel
 import           Model.Channel (Channel)
 import qualified Model.Context as Context
+import           Model.Context (Context(Context))
 import           Model.Duration (Duration(..), Turns)
 import qualified Model.Ninja as Ninja
+import qualified Model.Runnable as Runnable
 import qualified Model.Skill as Skill
 import           Model.Skill (Target(..))
 import qualified Engine.Execute as Execute
@@ -42,13 +44,15 @@ onInterrupt chan = P.with chanContext $
         traverse_ (Execute.effect $ setFromList [Channeled, Interrupted]) disr
   where
     name = Skill.name $ Channel.skill chan
-    disr = (Enemy, P.fromSource $ Ninja.clear name)
-         : (second P.play <$> Skill.interrupt (Channel.skill chan))
-    chanContext ctx = Context.Context { Context.skill  = Channel.skill chan
-                                      , Context.user   = Context.target ctx
-                                      , Context.target = Channel.target chan
-                                      , Context.new    = False
-                                      }
+    disr = Runnable.To { Runnable.target = Enemy
+                       , Runnable.run    = P.fromSource $ Ninja.clear name
+                       }
+         : Skill.interrupt (Channel.skill chan)
+    chanContext ctx = Context { Context.skill  = Channel.skill chan
+                              , Context.user   = Context.target ctx
+                              , Context.target = Channel.target chan
+                              , Context.new    = False
+                              }
 
 -- | Increases the duration of 'Ninja.channels' with a matching 'Channel.name'.
 prolongChannel :: ∀ m. MonadPlay m => Turns -> Text -> m ()

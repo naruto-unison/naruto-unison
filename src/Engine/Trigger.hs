@@ -16,15 +16,18 @@ import qualified Data.Sequence as Seq
 
 import           Core.Util ((∈), (∉), intersects)
 import qualified Class.Play as P
-import           Class.Play (MonadGame, Play, SavedPlay)
+import           Class.Play (MonadGame)
 import           Class.Random (MonadRandom)
 import           Model.Class (Class(..), ClassSet)
 import           Model.Duration (Duration)
 import           Model.Effect (Effect(..))
 import qualified Model.Channel as Channel
 import qualified Model.Context as Context
+import           Model.Context (Context)
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
+import qualified Model.Runnable as Runnable
+import           Model.Runnable (Runnable)
 import           Model.Slot (Slot)
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
@@ -49,7 +52,8 @@ replace classes n harm = mapMaybe ifCopy allStatuses
 counter :: ClassSet
         -> Ninja -- ^ User
         -> Ninja -- ^ Target
-        -> Maybe (Ninja, Ninja, Maybe (SavedPlay)) -- ^ (User', target', effect)
+        -> Maybe (Ninja, Ninja, Maybe (Runnable Context))
+        -- ^ (User without counter, target without counter, counter effect)
 counter classes n nt =
     do
         guard $ Uncounterable ∉ classes
@@ -77,7 +81,7 @@ counter classes n nt =
     counterOne _                = False
 
 -- | Trigger a 'Parry'.
-parry :: Skill -> Ninja -> Maybe (Ninja, Status, Play ())
+parry :: Skill -> Ninja -> Maybe (Ninja, Status, Runnable ())
 parry skill n =
     [(n', st, a) | st <- find (any matchN . Status.effects) $ Ninja.statuses n
                  , ParryAll _ a <- find matchN $ Status.effects st]
@@ -153,7 +157,8 @@ death slot = do
             trigger die
             P.modifyAll unres
   where
-    trigger = traverse_ $ P.launch . first \ctx -> ctx { Context.user = slot }
+    trigger = traverse_ $ P.launch . Runnable.retarget \ctx ->
+                  ctx { Context.user = slot }
     unres n = n
         { Ninja.statuses = [st | st <- Ninja.statuses n
                                , slot /= Status.user st

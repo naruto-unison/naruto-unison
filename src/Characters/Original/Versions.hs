@@ -19,12 +19,12 @@ cs =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 apply 1 [Stun All]
                 arms  <- 10 `bonusIf` channeling "Tailed Beast Chakra Arms"
                 inner <- (-10) `bonusIf` channeling "Inner Chakra Mode"
                 damage (35 + arms + inner)
-          , p Self $ sacrifice 0 5
+          , To Self $ sacrifice 0 5
           ]
         }
       ]
@@ -37,7 +37,7 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Action 3
         , Skill.effects   =
-          [ p Enemies $ damage 15 ]
+          [ To Enemies $ damage 15 ]
         }
       ]
     , [ Skill.new
@@ -49,7 +49,7 @@ cs =
         , Skill.cooldown  = 5
         , Skill.channel   = Action 5
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 heal 15
                 apply 1 [Reduce All Flat 10]
           ]
@@ -67,7 +67,7 @@ cs =
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 pierce 45
                 apply 2 [Weaken All Flat 20]
           ]
@@ -81,8 +81,8 @@ cs =
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ p Enemy $ bomb 2 [Stun All, Invulnerable All, Seal]
-                             [ p Expire $ damage 55 ]
+          [ To Enemy $ bomb 2 [Stun All, Invulnerable All, Seal]
+                             [ To Expire $ damage 55 ]
           ]
         , Skill.changes   = changeWith "Curse Mark" $ setCost [Rand, Rand]
         }
@@ -93,7 +93,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Self $ apply 1 [Invulnerable All] ]
+          [ To Self $ apply 1 [Invulnerable All] ]
         }
       ]
     , [ invuln "Sharingan Foresight" "Sasuke" [Mental] ]
@@ -107,8 +107,8 @@ cs =
         , Skill.classes   = [Physical, Melee, Uncounterable]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Self addStack
-          , p REnemy do
+          [ To Self addStack
+          , To REnemy do
                 stacks <- userStacks "Unpredictable Assault"
                 damage (20 + 5 * stacks)
           ]
@@ -119,8 +119,8 @@ cs =
         , Skill.classes   = [Physical, Melee, Uncounterable]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Self addStack
-          , p Enemy do
+          [ To Self addStack
+          , To Enemy do
                 stacks <- userStacks "Unpredictable Assault"
                 damage (25 + 5 * stacks)
           ]
@@ -133,7 +133,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Ally $ apply 1 [Parry Physical $ Play do
+          [ To Ally $ apply 1 [Parry Physical $ To () do
                 self $ addStacks "Unpredictable Assault" 1
                 stacks <- userStacks "Unpredictable Assault"
                 damage (20 + 5 * stacks)]
@@ -148,10 +148,10 @@ cs =
         , Skill.channel   = Action 3
         , Skill.cooldown  = 3
         , Skill.start     =
-          [ p Self $ vary "Unpredictable Assault" "Unpredictable Assault" ]
+          [ To Self $ vary "Unpredictable Assault" "Unpredictable Assault" ]
         , Skill.effects   =
-          [ p Enemy $ damage 15
-          , p Self  $ apply 1 [Enrage]
+          [ To Enemy $ damage 15
+          , To Self  $ apply 1 [Enrage]
           ]
         }
       ]
@@ -166,8 +166,8 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
-          [ p Enemy $ damage 30
-          , p Self  $ defend 0 10
+          [ To Enemy $ damage 30
+          , To Self  $ defend 0 10
           ]
         , Skill.changes   = changeWith "Tailed Beast Form" $ setCost [Blood]
         }
@@ -179,11 +179,11 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
-          [ p Enemy $ trap 0 (OnCounter All) $
+          [ To Enemy $ trap 0 (OnCounter All) $
                 self $ cancelChannel "Monstrous Sand Arm"
           ]
         , Skill.effects   =
-          [ p Enemy $ afflict 10 ]
+          [ To Enemy $ afflict 10 ]
         }
       , Skill.new
         { Skill.name      = "Wind Bullet"
@@ -192,7 +192,7 @@ cs =
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy $ damage 60 ]
+          [ To Enemy $ damage 60 ]
         }
       ]
     , [ Skill.new
@@ -204,19 +204,19 @@ cs =
         , Skill.cooldown  = 6
         , Skill.channel   = Action 5
         , Skill.start     =
-          [ p Self $ bombWith [Hidden] (-5) [] [ p Expire do
+          [ To Self $ bombWith [Hidden] (-5) [] [ To Expire do
                 tag' "Tailed Beast Form" 0
                 setFace 0
                 vary' 0 "Montrous Sand Arm" "Wind Bullet"
                 vary' 0 "Sand Transformation" "Shukaku Full Release" ]
           ]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 defend 0 10
                 heal 2
           ]
         , Skill.interrupt =
-          [ p Self $ remove "Sand Transformation" ]
+          [ To Self $ remove "Sand Transformation" ]
         }
       , Skill.new
         { Skill.name      = "Shukaku Full Release"
@@ -225,7 +225,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Self $ apply 1 [Strengthen All Percent 200] ]
+          [ To Self $ apply 1 [Strengthen All Percent 200] ]
         }
       ]
     , [ invuln "Thick Sand Coat" "Shukaku" [Physical] ]
@@ -241,8 +241,8 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Action 3
         , Skill.effects   =
-          [ p Self  $ defend 1 35
-          , p Enemy $ damage 15
+          [ To Self  $ defend 1 35
+          , To Enemy $ damage 15
           ]
         }
       ]
@@ -252,12 +252,12 @@ cs =
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin]
         , Skill.channel   = Control 1
-        , Skill.start     = [ p Self $ vary "Sand Burial Prison" "Giant Sand Burial"]
+        , Skill.start     = [ To Self $ vary "Sand Burial Prison" "Giant Sand Burial"]
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 apply 1 [Exhaust NonMental]
                 trap 1 (OnAction NonMental) $ remove "Sand Burial Prison"
-          , p Self $ tag' "Giant Sand Burial" 1
+          , To Self $ tag' "Giant Sand Burial" 1
           ]
         }
       , Skill.new
@@ -266,10 +266,10 @@ cs =
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin, Nin]
         , Skill.effects   =
-          [ p Enemies $ whenM (targetHas "Sand Burial Prison") do
+          [ To Enemies $ whenM (targetHas "Sand Burial Prison") do
                 demolishAll
                 pierce 40
-          , p Self    $ cancelChannel "Sand Burial Prison"
+          , To Self    $ cancelChannel "Sand Burial Prison"
           ]
         }
       ]
@@ -281,10 +281,10 @@ cs =
         , Skill.cooldown  = 4
         , Skill.channel   = Action 4
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 damage 15
                 apply 1 [Build (-10)]
-          , p Allies $  apply 1 [Build 10]
+          , To Allies $  apply 1 [Build 10]
           ]
         }
       ]

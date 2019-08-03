@@ -22,6 +22,7 @@ import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja)
 import qualified Model.Player as Player
+import qualified Model.Runnable as Runnable
 import qualified Model.Status as Status
 import           Model.Status (Bomb(..), Status)
 import qualified Model.Slot as Slot
@@ -87,10 +88,11 @@ doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
 doBomb bomb target st = traverse_ detonate $ Status.bombs st
   where
     ctx = (Context.fromStatus st) { Context.target = target }
-    detonate (bomb', f)
-      | bomb == bomb' = P.withContext ctx .
-                        Execute.wrap (singletonSet Trapped) $ P.play f
-      | otherwise     = return ()
+    detonate x
+      | bomb == Runnable.target x = P.withContext ctx .
+                                    Execute.wrap (singletonSet Trapped) $
+                                    Runnable.run x
+      | otherwise                 = return ()
 
 -- | Executes 'Status.bombs' of all 'Status'es that were removed.
 doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Vector Ninja -> m ()

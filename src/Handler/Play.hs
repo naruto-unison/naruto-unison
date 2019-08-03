@@ -23,6 +23,7 @@ import           Core.Fields (Privilege(..))
 import qualified Core.Message as Message
 import           Core.Model (EntityField(..), User(..))
 import qualified Core.Wrapper as Wrapper
+import           Core.Wrapper (Wrapper(Wrapper))
 import           Core.Util (duplic)
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
@@ -36,6 +37,7 @@ import           Model.Chakra (Chakras)
 import           Model.Character (Character)
 import qualified Model.Game as Game
 import qualified Model.GameInfo as GameInfo
+import           Model.GameInfo (GameInfo(GameInfo))
 import qualified Model.Ninja as Ninja
 import qualified Model.Player as Player
 import           Model.Player (Player)
@@ -85,13 +87,13 @@ getPracticeQueueR characters@[a1, b1, c1, a2, b2, c2]
           practice <- getsYesod App.practice
           liftIO do
               Cache.purgeExpired practice -- TODO: Move to a recurring timer?
-              Cache.insert practice who $ Wrapper.Wrapper game ninjas
-          returnJson GameInfo.GameInfo { vsWho  = who
-                                       , vsUser = bot
-                                       , player = Player.A
-                                       , game   = game
-                                       , ninjas = ninjas
-                                       }
+              Cache.insert practice who $ Wrapper game ninjas
+          returnJson GameInfo { vsWho  = who
+                              , vsUser = bot
+                              , player = Player.A
+                              , game   = game
+                              , ninjas = ninjas
+                              }
   where
     ninjas  = fromList . zipWith Ninja.new Slot.all $ map (Characters.map !)
               [c1, a2, b1, b2, a1, c2]
@@ -186,14 +188,14 @@ gameSocket = do
                           reader <- newTBQueue 8
                           writeTChan writeQueueChan $
                               Message.Respond vsWho reader writer
-                              GameInfo.GameInfo
+                              GameInfo
                                   { GameInfo.vsWho  = who
                                   , GameInfo.vsUser = user
                                   , GameInfo.player = Player.opponent randPlayer
                                   , GameInfo.game   = game
                                   , GameInfo.ninjas = fromList ninjas
                                   }
-                          let info = GameInfo.GameInfo
+                          let info = GameInfo
                                   { GameInfo.vsWho = vsWho
                                   , GameInfo.vsUser = vsUser
                                   , GameInfo.player = randPlayer

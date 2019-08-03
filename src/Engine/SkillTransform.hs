@@ -15,7 +15,6 @@ import Data.List (findIndex)
 import Data.List.NonEmpty ((!!), NonEmpty(..))
 
 import           Core.Util ((∈))
-import           Class.Play (Play)
 import           Class.TurnBased as TurnBased
 import           Model.Chakra (Chakras)
 import qualified Model.Character as Character
@@ -23,6 +22,8 @@ import           Model.Class (Class)
 import           Model.Effect (Effect(..))
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
+import qualified Model.Runnable as Runnable
+import           Model.Runnable (Runnable(..))
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill, Target(..))
 import qualified Model.Status as Status
@@ -93,8 +94,7 @@ extendWith name i n skill = skill { Skill.channel = TurnBased.setDur dur chan }
 
 -- | Applies a transformation to 'Skill.effects', 'Skill.start', and
 -- 'Skill.interrupt'.
-changeEffects :: ([(Target, Play ())] -> [(Target, Play ())])
-              -> Skill -> Skill
+changeEffects :: ([Runnable Target] -> [Runnable Target]) -> Skill -> Skill
 changeEffects f skill = skill { Skill.effects   = f $ Skill.effects skill
                               , Skill.start     = f $ Skill.start skill
                               , Skill.interrupt = f $ Skill.interrupt skill
@@ -114,15 +114,15 @@ change n sk =
 restrict :: Skill.Transform
 restrict = const . changeEffects $ mapMaybe f
   where
-    f (XEnemies, _)  = Nothing
-    f (REnemy,   _)  = Nothing
-    f (Everyone, ef) = Just (Allies, ef)
-    f (Enemies, ef)  = Just (Enemy, ef)
-    f x              = Just x
+    f (To XEnemies _)  = Nothing
+    f (To REnemy   _)  = Nothing
+    f (To Everyone ef) = Just $ To Allies ef
+    f (To Enemies  ef) = Just $ To Enemy ef
+    f x                  = Just x
 
 -- | Turns single-target effects into AoE effects.
 targetAll :: Skill.Transform
-targetAll = const . changeEffects . map $ first f
+targetAll = const . changeEffects . map $ Runnable.retarget f
   where
     f Enemy = Enemies
     f Ally  = Allies
@@ -131,11 +131,11 @@ targetAll = const . changeEffects . map $ first f
 
 -- | Restricts to a specified list of 'Target's.
 targetOnly :: [Target] -> Skill.Transform
-targetOnly xs = const . changeEffects . filter $ (∈ xs) . fst
+targetOnly xs = const . changeEffects . filter $ (∈ xs) . Runnable.target
 
 -- | Affects enemies instead of allies and allies instead of enemies.
 swap :: Status -> Skill -> Skill
-swap st = changeEffects . map $ first f
+swap st = changeEffects . map $ Runnable.retarget f
   where
     f Self         = Self
     f Ally         = Specific $ Status.user st

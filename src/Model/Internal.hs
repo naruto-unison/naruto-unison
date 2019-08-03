@@ -52,52 +52,52 @@ instance Eq Constructor where
 
 -- | Effects of 'Status'es.
 data Effect
-    = Afflict      Int               -- ^ Deals damage every turn
-    | AntiCounter                    -- ^ Cannot be countered or reflected
-    | Bleed        Class Amount Int  -- ^ Adds to damage received
-    | Bless        Int               -- ^ Adds to healing 'Skill's
-    | Block                          -- ^ Treats user as 'Invulnerable'
-    | Boost        Int               -- ^ Scales effects from allies
-    | Build        Int               -- ^ Adds to destructible defense 'Skill'
-    | Counter      Class             -- ^ Counters the first 'Skill's
-    | CounterAll   Class             -- ^ 'Counter's without being removed
-    | Duel         Slot              -- ^ 'Invulnerable' to everyone but user
-    | Endure                         -- ^ Health cannot go below 1
-    | Enrage                         -- ^ Ignore all harmful status effects
-    | Exhaust      Class             -- ^ 'Skill's cost 1 additional random chakra
-    | Expose                         -- ^ Cannot reduce damage or be 'Invulnerable'
-    | Heal         Int               -- ^ Heals every turn
-    | Ignore       Constructor       -- ^ Invulnerable to certain effects
-    | Invulnerable Class             -- ^ Invulnerable to enemy 'Skill's
-    | ImmuneSelf                     -- ^ Invulnerable to self-caused damage
-    | Invincible   Class             -- ^ Like 'Invulnerable', but targetable
-    | Parry        Class (Play ())   -- ^ 'Counter' and trigger an effect
-    | ParryAll     Class (Play ())   -- ^ 'Parry' repeatedly
-    | Pierce                         -- ^ Damage attacks become piercing
-    | Plague                         -- ^ Invulnerable to healing and curing
-    | Reduce       Class Amount Int  -- ^ Reduces damage by an amount
-    | Redirect     Class Slot        -- ^ Transfers harmful 'Skill's
-    | Reflect                        -- ^ Reflects the first 'Skill'
-    | ReflectAll                     -- ^ 'Reflect' repeatedly
-    | Restrict                       -- ^ Forces AoE attacks to be single-target
-    | Reveal                         -- ^ Makes 'Invisible' effects visible
-    | Seal                           -- ^ Ignore all friendly 'Skill's
-    | Share        Slot              -- ^ Harmful skills are also applied to a target
-    | Silence                        -- ^ Unable to cause non-damage effects
-    | Snapshot     Ninja             -- ^ Saves a snapshot of the current state
-    | Snare        Int               -- ^ Increases cooldowns
-    | SnareTrap    Class Int         -- ^ Negates next skill and increases cooldown
-    | Strengthen   Class Amount Int  -- ^ Adds to all damage dealt
-    | Stun         Class             -- ^ Unable to use 'Skill's
-    | Swap         Class             -- ^ Target's skills swap enemies and allies
-    | Taunt        Slot              -- ^ Forced to attack a target
-    | Threshold    Int               -- ^ Invulnerable to baseline damage below a threhold
-    | Throttle     Int Constructor   -- ^ Applying an effect lasts fewer turns
-    | Undefend                       -- ^ Does not benefit from destructible defense
-    | Uncounter                      -- ^ Cannot counter or reflect
-    | Unexhaust                      -- ^ Decreases chakra costs by 1 random
-    | Unreduce     Int               -- ^ Reduces damage reduction 'Skill's
-    | Weaken       Class Amount Int  -- ^ Lessens damage dealt
+    = Afflict      Int                 -- ^ Deals damage every turn
+    | AntiCounter                      -- ^ Cannot be countered or reflected
+    | Bleed        Class Amount Int    -- ^ Adds to damage received
+    | Bless        Int                 -- ^ Adds to healing 'Skill's
+    | Block                            -- ^ Treats user as 'Invulnerable'
+    | Boost        Int                 -- ^ Scales effects from allies
+    | Build        Int                 -- ^ Adds to destructible defense 'Skill'
+    | Counter      Class               -- ^ Counters the first 'Skill's
+    | CounterAll   Class               -- ^ 'Counter's without being removed
+    | Duel         Slot                -- ^ 'Invulnerable' to everyone but user
+    | Endure                           -- ^ Health cannot go below 1
+    | Enrage                           -- ^ Ignore all harmful status effects
+    | Exhaust      Class               -- ^ 'Skill's cost 1 additional random chakra
+    | Expose                           -- ^ Cannot reduce damage or be 'Invulnerable'
+    | Heal         Int                 -- ^ Heals every turn
+    | Ignore       Constructor         -- ^ Invulnerable to certain effects
+    | Invulnerable Class               -- ^ Invulnerable to enemy 'Skill's
+    | ImmuneSelf                       -- ^ Invulnerable to self-caused damage
+    | Invincible   Class               -- ^ Like 'Invulnerable', but targetable
+    | Parry        Class (Runnable ()) -- ^ 'Counter' and trigger an effect
+    | ParryAll     Class (Runnable ()) -- ^ 'Parry' repeatedly
+    | Pierce                           -- ^ Damage attacks become piercing
+    | Plague                           -- ^ Invulnerable to healing and curing
+    | Reduce       Class Amount Int    -- ^ Reduces damage by an amount
+    | Redirect     Class Slot          -- ^ Transfers harmful 'Skill's
+    | Reflect                          -- ^ Reflects the first 'Skill'
+    | ReflectAll                       -- ^ 'Reflect' repeatedly
+    | Restrict                         -- ^ Forces AoE attacks to be single-target
+    | Reveal                           -- ^ Makes 'Invisible' effects visible
+    | Seal                             -- ^ Ignore all friendly 'Skill's
+    | Share        Slot                -- ^ Harmful skills are also applied to a target
+    | Silence                          -- ^ Unable to cause non-damage effects
+    | Snapshot     Ninja               -- ^ Saves a snapshot of the current state
+    | Snare        Int                 -- ^ Increases cooldowns
+    | SnareTrap    Class Int           -- ^ Negates next skill and increases cooldown
+    | Strengthen   Class Amount Int    -- ^ Adds to all damage dealt
+    | Stun         Class               -- ^ Unable to use 'Skill's
+    | Swap         Class               -- ^ Target's skills swap enemies and allies
+    | Taunt        Slot                -- ^ Forced to attack a target
+    | Threshold    Int                 -- ^ Invulnerable to baseline damage below a threhold
+    | Throttle     Int Constructor     -- ^ Applying an effect lasts fewer turns
+    | Undefend                         -- ^ Does not benefit from destructible defense
+    | Uncounter                        -- ^ Cannot counter or reflect
+    | Unexhaust                        -- ^ Decreases chakra costs by 1 random
+    | Unreduce     Int                 -- ^ Reduces damage reduction 'Skill's
+    | Weaken       Class Amount Int    -- ^ Lessens damage dealt
     -- | Copies a skill into user's skill slot
     | Replace Duration
               Class
@@ -290,7 +290,7 @@ data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas
                    , face      :: [Face]                 -- ^ Starts empty
                    , lastSkill :: Maybe Skill            -- ^ Starts at 'Nothing'
                    , triggers  :: Set Trigger            -- ^ Empty at the start of each turn
-                   , counters  :: [SavedPlay]            -- ^ Empty at the start of each turn
+                   , counters  :: [Runnable Context]     -- ^ Empty at the start of each turn
                    , effects   :: [Effect]               -- ^ Empty at the start of each turn
                    }
 instance Eq Ninja where
@@ -333,20 +333,20 @@ data Target
     deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 
 -- | A move that a 'Character' can perform.
-data Skill = Skill { name      :: Text -- ^ Name
-                   , desc      :: Text -- ^ Description
-                   , require   :: Requirement   -- ^ Defaults to 'Usable'
-                   , classes   :: ClassSet      -- ^ Defaults to @mempty@
-                   , cost      :: Chakras       -- ^ Defaults to '[]'
-                   , cooldown  :: Duration      -- ^ Defaults to @0@
-                   , varicd    :: Bool          -- ^ Defaults to @False@
-                   , charges   :: Int           -- ^ Defaults to @0@
-                   , channel   :: Channeling    -- ^ Defaults to 'Instant'
-                   , start     :: [(Target, Play ())] -- ^ Defaults to @[]@
-                   , effects   :: [(Target, Play ())] -- ^ Defaults to @[]@
-                   , interrupt :: [(Target, Play ())] -- ^ Defaults to @[]@
-                   , copying   :: Copying       -- ^ Defaults to 'NotCopied'
-                   , pic       :: Bool          -- ^ Defaults to @False@
+data Skill = Skill { name      :: Text              -- ^ Name
+                   , desc      :: Text              -- ^ Description
+                   , require   :: Requirement       -- ^ Defaults to 'Usable'
+                   , classes   :: ClassSet          -- ^ Defaults to @mempty@
+                   , cost      :: Chakras           -- ^ Defaults to '[]'
+                   , cooldown  :: Duration          -- ^ Defaults to @0@
+                   , varicd    :: Bool              -- ^ Defaults to @False@
+                   , charges   :: Int               -- ^ Defaults to @0@
+                   , channel   :: Channeling        -- ^ Defaults to 'Instant'
+                   , start     :: [Runnable Target] -- ^ Defaults to @[]@
+                   , effects   :: [Runnable Target] -- ^ Defaults to @[]@
+                   , interrupt :: [Runnable Target] -- ^ Defaults to @[]@
+                   , copying   :: Copying           -- ^ Defaults to 'NotCopied'
+                   , pic       :: Bool              -- ^ Defaults to @False@
                    , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'
                    } deriving (Generic)
 instance ToJSON Skill where
@@ -373,8 +373,8 @@ instance Classed Skill where
 data Barrier = Barrier { amount :: Int
                        , user   :: Slot
                        , name   :: Text
-                       , while  :: SavedPlay
-                       , finish :: Int -> SavedPlay
+                       , while  :: Runnable Context
+                       , finish :: Int -> Runnable Context
                        , dur    :: Int
                        } deriving (Generic)
 instance ToJSON Barrier where
@@ -539,7 +539,7 @@ data Copying
 -- | Applies an effect after several turns.
 data Delay = Delay { user   :: Slot
                    , skill  :: Skill
-                   , effect :: SavedPlay
+                   , effect :: Runnable Context
                    , dur    :: Int
                    }
 
@@ -569,7 +569,7 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
                      , skill   :: Skill
                      , effects :: [Effect]
                      , classes :: ClassSet
-                     , bombs   :: [(Bomb, Play ())]
+                     , bombs   :: [Runnable Bomb]
                      , maxDur  :: Int
                      , dur     :: Int
                      } deriving (Generic, ToJSON)
@@ -587,7 +587,7 @@ instance Classed Status where
     classes = classes
 
 data Direction
-    = To
+    = Toward
     | From
     | Per
     deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
@@ -598,7 +598,7 @@ data Trap = Trap { direction :: Direction
                  , name      :: Text
                  , desc      :: Text
                  , user      :: Slot
-                 , effect    :: Int -> SavedPlay
+                 , effect    :: Int -> Runnable Context
                  , classes   :: ClassSet
                  , tracker   :: Int
                  , dur       :: Int
@@ -668,16 +668,16 @@ instance MonadGame m => MonadPlay (ReaderT Context m) where
     context = ask
     with    = local
 
-type PlayConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
+type RunConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
 
-newtype Play a = Play (PlayConstraint a)
+data Runnable a = To { target :: a
+                     , run    :: RunConstraint ()
+                     }
 
-instance Eq (Play a) where
-    (==) = const $ const True
-instance ToJSON (Play a) where
-    toJSON = const $ toJSON (Nothing :: Maybe ())
-
-type SavedPlay = (Context, Play ())
+instance Eq a => Eq (Runnable a) where
+    (==) = (==) `on` (target :: Runnable a -> a)
+instance ToJSON a => ToJSON (Runnable a) where
+    toJSON = toJSON . (target :: Runnable a -> a)
 
 instance MonadGame m => MonadGame (ExceptT e m)
 instance MonadGame m => MonadGame (IdentityT m)

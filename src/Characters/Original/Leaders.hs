@@ -18,8 +18,8 @@ cs =
         , Skill.classes   = [Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Enemy    $ damage 20
-          , p XEnemies $ damage 10
+          [ To Enemy    $ damage 20
+          , To XEnemies $ damage 10
           ]
         }
       ]
@@ -31,11 +31,11 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Ongoing 2
         , Skill.start     =
-          [ p Allies $
+          [ To Allies $
                 trap 2 (OnDamaged NonAffliction) $ apply 1 [Invulnerable All]
           ]
         , Skill.effects   =
-          [ p Enemies $ apply 1 [Expose] ]
+          [ To Enemies $ apply 1 [Expose] ]
         }
       ]
     , [ Skill.new
@@ -45,10 +45,10 @@ cs =
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
-          [ p Enemies do
+          [ To Enemies do
                 afflict 25
                 apply 0 [Bleed Affliction Flat 5]
-          , p Self $ vary "Major Summoning: Gamabunta" "Toad Oil Bomb"
+          , To Self $ vary "Major Summoning: Gamabunta" "Toad Oil Bomb"
           ]
         }
       , Skill.new
@@ -58,7 +58,7 @@ cs =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemies $ apply 2 [Afflict 15] ]
+          [ To Enemies $ apply 2 [Afflict 15] ]
         }
       ]
     , [ invuln "Needle Jizou" "Jiraiya" [Physical] ]
@@ -72,7 +72,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 30
                 apply 1 [Stun Physical, Stun Mental]
           ]
@@ -85,7 +85,7 @@ cs =
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 cureAll
                 setHealth 100
           ]
@@ -98,11 +98,11 @@ cs =
         , Skill.cost      = [Blood, Gen, Nin]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
-          [ p Allies $ heal 40
-          , p Self   $ vary "Major Summoning: Katsuyu" "Slug Division"
+          [ To Allies $ heal 40
+          , To Self   $ vary "Major Summoning: Katsuyu" "Slug Division"
           ]
         , Skill.effects   =
-          [ p Allies $ heal 5 ]
+          [ To Allies $ heal 5 ]
         }
       , Skill.new
         { Skill.name      = "Slug Division"
@@ -111,7 +111,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Allies $ defend 0 15 ]
+          [ To Allies $ defend 0 15 ]
         }
       ]
     , [ invuln "Block" "Tsunade" [Physical] ]
@@ -125,7 +125,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 demolishAll
                 pierce 25
           ]
@@ -137,10 +137,10 @@ cs =
         , Skill.classes   = [Melee, Bypassing]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 afflict 15
                 gain [Rand]
-          , p XAlly do
+          , To XAlly do
                 sacrifice 0 15
                 gain [Rand]
           ]
@@ -153,11 +153,11 @@ cs =
         , Skill.cost      = [Blood, Nin, Tai]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
-          [ p Enemy $ damage 45
-          , p Self  $ vary "Major Summoning: Manda" "Paralyzing Bite"
+          [ To Enemy $ damage 45
+          , To Self  $ vary "Major Summoning: Manda" "Paralyzing Bite"
           ]
         , Skill.effects   =
-          [ p Self $ gain [Rand] ]
+          [ To Self $ gain [Rand] ]
         }
       , Skill.new
         { Skill.name      = "Paralyzing Bite"
@@ -166,7 +166,7 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy $ bomb 1 [Stun All] [ p Expire $ damage 25 ] ]
+          [ To Enemy $ bomb 1 [Stun All] [ To Expire $ damage 25 ] ]
         }
       ]
     , [ invuln "Earth Clone" "Orochimaru" [Chakra] ]
@@ -180,7 +180,7 @@ cs =
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 afflict 30
                 apply 1 [Bleed Affliction Flat 10]
           ]
@@ -192,8 +192,8 @@ cs =
         , Skill.classes   = [Ranged, Unreflectable, Unremovable, Soulbound, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
-          [ p Enemy $ apply 0 [Afflict 40, Stun All, Expose]
-          , p Self  $ apply 0 [Afflict 20, Stun All]
+          [ To Enemy $ apply 0 [Afflict 40, Stun All, Expose]
+          , To Self  $ apply 0 [Afflict 20, Stun All]
           ]
         }
       ]
@@ -204,10 +204,10 @@ cs =
         , Skill.cost      = [Gen, Nin, Tai]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
-          [ p Allies do
+          [ To Allies do
                 apply 1 [Invulnerable All, Endure]
                 apply 0 [Reduce All Flat 5 ]
-          , p Self $ vary "Major Summoning: Enma" "Adamantine Prison"
+          , To Self $ vary "Major Summoning: Enma" "Adamantine Prison"
           ]
         }
       , Skill.new
@@ -217,7 +217,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Allies do
+          [ To Allies do
                 defend 0 15
                 apply 1 [Endure]
           ]

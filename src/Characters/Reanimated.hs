@@ -19,8 +19,8 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemies $ damage 10
-          , p Allies  $ defend 0 5
+          [ To Enemies $ damage 10
+          , To Allies  $ defend 0 5
           ]
         }
       , Skill.new
@@ -30,8 +30,8 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.varicd    = True
         , Skill.effects   =
-          [ p Enemies $ damage 10
-          , p Allies  $ defend 0 5
+          [ To Enemies $ damage 10
+          , To Allies  $ defend 0 5
           ]
         }
       ]
@@ -41,7 +41,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
               damage 25
               has <- userHas "Deep ForestCreation"
               apply 1 if has then [Stun All] else [Stun Physical, Stun Chakra]
@@ -54,8 +54,8 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
-          [ p Enemies $ apply 2 [Snare 1, Exhaust NonMental]
-          ,  p Self do
+          [ To Enemies $ apply 2 [Snare 1, Exhaust NonMental]
+          ,  To Self do
                 tag 2
                 vary' 2 "Tree Wave Destruction" "Tree Wave Destruction"
                 vary' 2 "Deep Forest Creation" "Deep Forest Flourishing"
@@ -67,7 +67,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
-          [ p Allies do
+          [ To Allies do
                 defend 0 30
                 resetAll
           ]
@@ -84,7 +84,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 15 `bonusIf` channeling "Water Shockwave"
                 damage (15 + bonus)
                 apply 1 [Seal]
@@ -99,7 +99,7 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Ongoing 3
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 damage 15
                 apply 1 [Stun Affliction]
           ]
@@ -112,7 +112,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Allies $ apply 1 [Invulnerable Physical, Invulnerable Mental] ]
+          [ To Allies $ apply 1 [Invulnerable Physical, Invulnerable Mental] ]
         }
       ]
     , [ invuln "Water Wall" "Tobirama" [Physical] ]
@@ -127,7 +127,7 @@ cs =
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.cooldown  = 6
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 has <- userHas "Venom Sac"
                 if has then do
                     remove "Venom Sac"
@@ -153,7 +153,7 @@ cs =
         , Skill.cost      = [Blood, Blood]
         , Skill.channel   = Ongoing 0
         , Skill.effects   =
-          [ p Enemies $ afflict 10 ]
+          [ To Enemies $ afflict 10 ]
         }
       ]
     , [ Skill.new
@@ -163,7 +163,7 @@ cs =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 pierce 15
                 apply 2 [Afflict 15]
                 whenM (userHas "Major Summoning: Ibuse") do
@@ -180,7 +180,7 @@ cs =
         , Skill.classes   = [Bane, InvisibleTraps]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-            [ p Self $ trapFrom (-1) (OnHarmed NonMental) do
+            [ To Self $ trapFrom (-1) (OnHarmed NonMental) do
                   apply 0 [Afflict 20]
                   has <- userHas "Ibuse"
                   if has then self do
@@ -206,8 +206,8 @@ cs =
         , Skill.channel   = Ongoing 4
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ p RAlly $ apply 1 [Reflect]
-          , p RAlly do
+          [ To RAlly $ apply 1 [Reflect]
+          , To RAlly do
                 defend 1 80
                 onBreak'
           ]
@@ -219,7 +219,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 10 `bonusIf` userHas "Major Summoning: Giant Clam"
                 pierce (10 + bonus)
                 targetHealth <- target health
@@ -236,17 +236,17 @@ cs =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 userSlot     <- user slot
                 targetSlot   <- target slot
                 userHealth   <- user health
                 targetHealth <- target health
                 bomb 2 [Duel userSlot, Taunt userSlot]
-                       [ p Done $ setHealth targetHealth ]
+                       [ To Done $ setHealth targetHealth ]
                 setHealth 30
                 self do
                     bomb 2 [Duel targetSlot, Taunt targetSlot]
-                           [ p Done $ setHealth userHealth ]
+                           [ To Done $ setHealth userHealth ]
                     setHealth 30
           ]
         }
@@ -262,7 +262,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 targetBonus <- 10 `bonusIf` target immune
                 userBonus   <- (-5) `bonusIf` userHas "Fragmentation"
                 pierce (25 + targetBonus + userBonus)
@@ -277,7 +277,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 apply 2 [Ignore $ Any Stun, Reduce Affliction Percent 50]
                 trap 2 OnRes do
                     setHealth 15
@@ -293,7 +293,7 @@ cs =
         , Skill.cost      = [Nin, Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 demolishAll
                 bonus <- (-5) `bonusIf` userHas "Fragmentation"
                 pierce (40 + bonus)
@@ -312,8 +312,8 @@ cs =
         , Skill.classes   = [Chakra, Melee, Bypassing]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Allies $ trapFrom 0 (OnHarmed All) $ tag 1
-          , p Self do
+          [ To Allies $ trapFrom 0 (OnHarmed All) $ tag 1
+          , To Self do
                 hide' "finger" 0 []
                 vary "Piercing Four-Fingered" "Three-Fingered Assault"
           ]
@@ -324,7 +324,7 @@ cs =
         , Skill.classes   = [Chakra, Melee, Bypassing]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 trap 0 (OnDamaged All) $ alterCd 1 0 (-1)
                 hide' "finger" 0 []
                 vary "Piercing Four-Fingered" "One-Fingered Assault"
@@ -337,9 +337,9 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.charges   = 1
         , Skill.effects   =
-          [ p XAllies $ trap 0 OnDeath $
+          [ To XAllies $ trap 0 OnDeath $
                 self $ apply 0 [Reduce Affliction Flat 10]
-          , p Self do
+          , To Self do
                 hide' "finger" 0 []
                 allies $ whenM (target $ not . alive) $
                     self $ apply 0 [Reduce Affliction Flat 10]
@@ -353,7 +353,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 8
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 stacks <- userStacks "Cracks in the Shield"
                 heal stacks
                 apply 2 [Endure, Reduce Affliction Flat 20]
@@ -366,8 +366,8 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Self $ trap' (-1) OnDamage $ alterCd 1 0 (-1)
-          , p Enemy do
+          [ To Self $ trap' (-1) OnDamage $ alterCd 1 0 (-1)
+          , To Enemy do
                 stacks <- userStacks "finger"
                 damage (20 + 5 * stacks)
                 unlessM (targetHas "Aftershocks") do
@@ -390,7 +390,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 damage 10
                 bonus <- 10 `bonusIf` targetHas "Gold Dust Waterfall"
                 barrierDoes 0 (const $ return ()) (apply 1 [Exhaust All])
@@ -405,7 +405,7 @@ cs =
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 35
                 barrier 0 30
                 tag 1
@@ -419,7 +419,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemy $ trap 1 (OnCounter All) do
+          [ To Enemy $ trap 1 (OnCounter All) do
                 bonus <- 20 `bonusIf` targetHas "Gold Dust Waterfall"
                 barrier 0 (20 + bonus)
           ]
@@ -438,7 +438,7 @@ cs =
           , Skill.cost      = [Rand]
           , Skill.cooldown  = 3
           , Skill.effects   =
-            [ p Enemy do
+            [ To Enemy do
                   everyone $ remove "Rivalry"
                   userSlot <- user slot
                   trap (-1) (OnCounter All) $ apply 0 [Taunt userSlot]
@@ -451,10 +451,10 @@ cs =
           , Skill.classes   = [Physical, Ranged]
           , Skill.cost      = [Tai, Rand]
           , Skill.effects   =
-            [ p Enemy do
+            [ To Enemy do
                   damage 30
                   unlessM (targetHas "Rivalry") . everyone $ remove "Rivalry"
-            , p Self $ apply' "Scattered Rock" 0 []
+            , To Self $ apply' "Scattered Rock" 0 []
             ]
           , Skill.changes   = changeWith "Earth Dome Prison" $ setCost [Tai]
           }
@@ -465,7 +465,7 @@ cs =
           , Skill.classes   = [Chakra, Melee]
           , Skill.cost      = [Nin, Rand]
           , Skill.effects   =
-            [ p Enemy do
+            [ To Enemy do
                   has <- targetHas "Rivalry"
                   if has then leech 20 (self . heal)
                   else do
@@ -483,7 +483,7 @@ cs =
           , Skill.cost      = [Rand, Rand]
           , Skill.cooldown  = 4
           , Skill.effects   =
-            [ p Self do
+            [ To Self do
                   userSlot <- user slot
                   enemies do
                       remove "Rivalry"
@@ -509,14 +509,14 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 pierce 10
                 trapPer (-1) PerDamaged \i ->
                     when (i >= 50) $ apply 1 [Stun All]
           ]
         , Skill.changes   = changeWith "Crystal Ice Mirrors" \_ skill -> skill
               { Skill.effects =
-                [ p Enemy do
+                [ To Enemy do
                       pierce 30
                       trapPer (-1) PerDamaged \i ->
                           when (i >= 50) $ apply 1 [Stun All] ]
@@ -530,7 +530,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemy $ apply 2 [Silence] ]
+          [ To Enemy $ apply 2 [Silence] ]
         , Skill.changes   = changeWith "Crystal Ice Mirrors" $
                             addClass Bypassing `also` targetAll
         }
@@ -543,7 +543,7 @@ cs =
         , Skill.cooldown  = 6
         , Skill.channel   = Ongoing 3
         , Skill.start     =
-          [ p Self $ defend 0 20 ]
+          [ To Self $ defend 0 20 ]
         }
       ]
     , [ invuln "Ice Dome" "Haku" [Chakra] ]
@@ -564,9 +564,9 @@ cs =
         , Skill.cooldown  = 4
         , Skill.channel   = Action 2
         , Skill.effects   =
-          [ p Self $ apply' "Demon Shroud " 1
+          [ To Self $ apply' "Demon Shroud " 1
                 [Reduce All Flat 10, Ignore $ Any Stun]
-          , p REnemy do
+          , To REnemy do
                 pierce 30
                 tag' "Executioner's Butchering" 1
           ]
@@ -580,8 +580,8 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy $ leech 10 $ self . heal
-          , p Self do
+          [ To Enemy $ leech 10 $ self . heal
+          , To Self do
                 defend 0 10
                 prolongChannel 1 "Demon Shroud"
           ]
@@ -594,7 +594,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 pierce 30
                 tag 1
           ]
@@ -612,7 +612,7 @@ cs =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 apply' "Electricity" 2 []
                 unlessM (targetHas "electrocuted") do
                     hide' "electrocuted" 0 []
@@ -630,10 +630,10 @@ cs =
         , Skill.classes   = [Bane, Chakra, Melee, Extending]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 has <- targetHas "Electricity"
                 if has then afflict 30 else damage 30
-          , p Self $ trapFrom 1 (OnHarmed All) do
+          , To Self $ trapFrom 1 (OnHarmed All) do
                 apply' "Electricity" 1 []
                 unlessM (targetHas "electrocuted") do
                     hide' "electrocuted" 0 []
@@ -652,7 +652,7 @@ cs =
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 affected <- numAffected "Electricity"
                 pierce (30 + 10 * affected)
                 everyone $ hasten 1 "Electricity"
@@ -670,11 +670,11 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 5 `bonusIf` userHas "Stitching Spider"
                 pierce (20 + bonus)
                 tag 1
-          , p XEnemies $ whenM (targetHas "Stitching Spider") do
+          , To XEnemies $ whenM (targetHas "Stitching Spider") do
                 pierce 25
                 tag 1
           ]
@@ -688,7 +688,7 @@ cs =
         , Skill.cooldown  = 2
         , Skill.channel   = Control 3
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 prolong 1 "Stitching Spider"
                 trap (-2) (OnAction Physical) $
                     whenM (userHas "Stitching Spider") do
@@ -704,7 +704,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 pierce 15
                 interrupt $ const True
           ]
@@ -721,10 +721,10 @@ cs =
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 30
                 apply 1 [Seal]
-          , p Self do
+          , To Self do
                 unlessM (userHas "Paper Bomb") $ sacrifice 0 15
                 removeStack "Paper Bomb"
           ]
@@ -735,7 +735,7 @@ cs =
         , Skill.desc      = "Adding it to his sword, Jinpachi gains 1 Paper Bomb. Each Paper Bomb provides 5 points of damage reduction."
         , Skill.classes   = [Physical]
         , Skill.effects   =
-          [ p Self $ apply' "Paper Bomb" 0 [Reduce All Flat 5] ]
+          [ To Self $ apply' "Paper Bomb" 0 [Reduce All Flat 5] ]
         }
       ]
     , [ Skill.new
@@ -746,11 +746,11 @@ cs =
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
               stacks <- userStacks "Paper Bomb"
               when (stacks <= 2) $ sacrifice 0 30
-          , p Enemy  $ damage 40
-          , p REnemy $ damage 40
+          , To Enemy  $ damage 40
+          , To REnemy $ damage 40
           ]
         }
       ]
@@ -768,12 +768,12 @@ cs =
         , Skill.cooldown  = 1
         , Skill.channel   = Action 2
         , Skill.start     =
-          [ p Enemy $ trapFrom 2 OnHarm do
+          [ To Enemy $ trapFrom 2 OnHarm do
               targetSlot <- target slot
               apply 2 [Taunt targetSlot]
           ]
         , Skill.effects   =
-          [ p Enemy $ pierce 15 ]
+          [ To Enemy $ pierce 15 ]
         , Skill.changes   = changeWith "Chakra Weave" $ setCost [Rand]
         }
       ]
@@ -785,12 +785,12 @@ cs =
         , Skill.cooldown  = 5
         , Skill.channel   = Ongoing 4
         , Skill.start     =
-          [ p Self do
-                bombWith [Hidden] 4 [] [ p Done $ remove "Chakra Weave" ]
+          [ To Self do
+                bombWith [Hidden] 4 [] [ To Done $ remove "Chakra Weave" ]
                 trap' 4 (OnDamaged All) $ hide' "hair" (-1) []
           ]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 trap 1 OnDamage $ apply 0 [Reduce All Flat 5]
                 delay (-1) $ unlessM (userHas "hair") $ heal 10
           ]
@@ -803,7 +803,7 @@ cs =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 apply 1 [Stun NonMental]
                 has <- userHas "Chakra Weave"
                 if has then pierce 15 else damage 10
@@ -821,10 +821,10 @@ cs =
         , Skill.classes   = [Bane, Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 pierce 10
                 apply 2 [Afflict 5]
-          , p Self $ vary' 1 "Phoenix Flower" "Phoenix Flower"
+          , To Self $ vary' 1 "Phoenix Flower" "Phoenix Flower"
           ]
         }
       , Skill.new
@@ -834,10 +834,10 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 pierce 10
                 apply 2 [Afflict 5]
-          , p Self $ vary' 1 "Phoenix Flower" "Phoenix Flower"
+          , To Self $ vary' 1 "Phoenix Flower" "Phoenix Flower"
           ]
         }
       ]
@@ -848,7 +848,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 apply 1 [Reduce Affliction Flat 15]
                 vary' 1 "Susano'o" "Totsuka Blade"
           ]
@@ -859,8 +859,8 @@ cs =
         , Skill.classes   = [Chakra, Invisible]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ p Enemy $ pierce 20
-          ,  p Self do
+          [ To Enemy $ pierce 20
+          ,  To Self do
                 apply 1 [Reduce Affliction Flat 15]
                 vary' 1 "Susano'o" "Totsuka Blade"
           ]
@@ -873,7 +873,7 @@ cs =
         , Skill.cost      = [Blood, Gen]
         , Skill.charges   = 2
         , Skill.effects   =
-          [ p Enemy $ trapFrom 2 OnDamage $ snapshot (-2) ]
+          [ To Enemy $ trapFrom 2 OnDamage $ snapshot (-2) ]
         }
       ]
     , [ invuln "Block" "Itachi" [Physical] ]
@@ -887,8 +887,8 @@ cs =
         , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ p Self $  heal 15
-          , p Enemy do
+          [ To Self $  heal 15
+          , To Enemy do
                 pierce 20
                 trap 1 OnDamage $ self $ vary' 1 "Human Path" "Human Path"
                 trapPer (-1) PerDamage $ self . addStacks' (-1) "Human Path"
@@ -900,10 +900,10 @@ cs =
         , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 stacks <- userStacks "Human Path"
                 heal stacks
-          , p Enemy do
+          , To Enemy do
                 stacks <- userStacks "Human Path"
                 pierce stacks
                 trap 1 OnDamage $ self $ vary' 1 "Human Path" "Human Path"
@@ -920,7 +920,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self $ apply (-1) [ParryAll All $ Play do
+          [ To Self $ apply (-1) [ParryAll All $ To () do
                 absorb 1
                 self do
                     heal 10
@@ -937,14 +937,14 @@ cs =
         , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p XAlly do
+          [ To XAlly do
               trapPer (-2) PerDamage heal
               trap (-2) OnDamage $ remove "Naraka Path"
-              bomb (-2) [] [ p Expire $ apply 2 [Unexhaust] ]
-          , p Enemy do
+              bomb (-2) [] [ To Expire $ apply 2 [Unexhaust] ]
+          , To Enemy do
                 trapPer (-2) PerDamage damage
                 trap (-2) OnDamage $ remove "Naraka Path"
-                bomb (-2) [] [ p Expire $ apply 2 [Exhaust All] ]
+                bomb (-2) [] [ To Expire $ apply 2 [Exhaust All] ]
           ]
         }
       , Skill.new
@@ -954,14 +954,14 @@ cs =
         , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p XAllies do
+          [ To XAllies do
                 trapPer (-2) PerDamage heal
                 trap (-2) OnDamage $ remove "Naraka Path"
-                bomb (-2) [] [ p Expire $ apply 2 [Unexhaust] ]
-          , p Enemies do
+                bomb (-2) [] [ To Expire $ apply 2 [Unexhaust] ]
+          , To Enemies do
                 trapPer (-2) PerDamage damage
                 trap (-2) OnDamage $ remove "Naraka Path"
-                bomb (-2) [] [ p Expire $ apply 2 [Exhaust All] ]
+                bomb (-2) [] [ To Expire $ apply 2 [Exhaust All] ]
           ]
         }
     ]
@@ -972,11 +972,11 @@ cs =
         , Skill.cooldown  = 2
         , Skill.changes   = \n skill -> skill
           { Skill.effects = snd <$> filter fst
-                            [ ( hasOwn "Rinnegan" n, p Enemy do
+                            [ ( hasOwn "Rinnegan" n, To Enemy do
                                     stacks <- userStacks "Rinnegan"
                                     damage stacks
                               )
-                            , ( hasOwn "Rinnegan Heal" n, p XAlly do
+                            , ( hasOwn "Rinnegan Heal" n, To XAlly do
                                     stacks <- userStacks "Rinnegan Heal"
                                     heal stacks
                               )

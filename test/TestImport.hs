@@ -35,6 +35,7 @@ import           Model.Duration (Duration(..), Turns, sync)
 import qualified Model.Game as Game
 import           Model.Game (Game)
 import qualified Model.Character as Character
+import           Model.Character (Character(Character))
 import qualified Model.Player as Player
 import           Model.Player (Player)
 import qualified Model.Ninja as Ninja
@@ -68,11 +69,11 @@ useSkill char target skillName f =
         Just ctx -> runIdentity $ evalStateT (runReaderT f ctx) $ game char
   where
     findSkill x   = find ((x ==) . Skill.name) . join . Character.skills
-    context skill = Context.Context { Context.skill  = skill
-                                    , Context.user   = unsafeHead Slot.all
-                                    , Context.target = targetSlot
-                                    , Context.new    = True
-                                    }
+    context skill = Context { Context.skill  = skill
+                            , Context.user   = unsafeHead Slot.all
+                            , Context.target = targetSlot
+                            , Context.new    = True
+                            }
     targetSlot    = (Slot.all !!) case target of
         Self       -> 0
         Ally       -> 2
@@ -91,7 +92,7 @@ game :: Character -> Game
 game char = Game.new $ char : (character <$> unsafeTail Slot.all)
 
 character :: Slot -> Character
-character slot = Character.Character
+character slot = Character
     { Character.name     = "Ninja " ++ tshow slot
     , Character.bio      = ""
     , Character.skills   = [[Skill.new], [Skill.new], [Skill.new], [Skill.new]]

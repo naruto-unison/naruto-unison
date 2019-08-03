@@ -1,7 +1,6 @@
 {-# OPTIONS_HADDOCK hide #-}
 module Characters.Base
   ( module Import
-  , p
   , invuln
   , user, target, userHas, targetHas
   , userStacks, targetStacks, userDefense
@@ -12,7 +11,6 @@ module Characters.Base
   ) where
 
 import ClassyPrelude as Import hiding (swap)
-import Class.Play as Import (Play(..))
 import Model.Character as Import (Character(..), Category)
 import Model.Chakra as Import (Chakra(..), Chakras)
 import Model.Channel as Import (Channeling(..))
@@ -21,6 +19,7 @@ import Model.Class as Import (Class(..), ClassSet)
 import Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
 import Model.Ninja as Import (Ninja(health, slot), addOwnStacks, addOwnDefense, alive, hasDefense, hasOwn, isChanneling, numActive, numHelpful)
 import Model.Requirement as Import (Requirement(..))
+import Model.Runnable as Import (Runnable(To))
 import Model.Skill as Import (Target(..))
 import Model.Status as Import (Bomb(..))
 import Model.Trap as Import (Trigger(..))
@@ -33,7 +32,7 @@ import Action.Trap as Import
 import Engine.SkillTransform as Import
 
 import qualified Class.Play as P
-import           Class.Play (PlayConstraint, MonadPlay)
+import           Class.Play (MonadPlay)
 import qualified Model.Context as Context
 import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
@@ -41,16 +40,13 @@ import           Model.Skill (Skill)
 import qualified Model.Slot as Slot
 import qualified Engine.Effects as Effects
 
-p :: ∀ a b. a -> PlayConstraint b -> (a, Play b)
-p tar f = (tar, Play f)
-
 invuln :: Text -> Text -> ClassSet -> Skill
 invuln skillName userName classes = Skill.new
     { Skill.name      = skillName
     , Skill.desc      = userName ++ " becomes invulnerable for 1 turn."
     , Skill.classes   = classes
     , Skill.cooldown  = 4
-    , Skill.effects   = [(Self, Play $ apply 1 [Invulnerable All])]
+    , Skill.effects   = [To Self $ apply 1 [Invulnerable All]]
     }
 
 self :: ∀ m a. MonadPlay m => m a -> m a

@@ -19,7 +19,7 @@ cs =
         , Skill.desc      = "Naruto's rage takes over. He loses 5 health down to a minimum of 1 and gains 10 points of damage reduction and 10 permanent destructible defense. He permanently ignores all healing. His other skills become usable, and will increase in strength as his transformation progresses through further stages. Once used, this skill becomes [Six-Tailed Transformation][b][r]."
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 sacrifice 1 5
                 defend 0 10
                 varyLoadout loadout 0
@@ -33,7 +33,7 @@ cs =
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 remove "Four-Tailed Transformation"
                 sacrifice 1 10
                 defend 0 20
@@ -48,7 +48,7 @@ cs =
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 remove "Six-Tailed Transformation"
                 sacrifice 1 15
                 defend 0 30
@@ -64,7 +64,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 afflict 20
                 apply 1 [Weaken All Flat 10] ]
         }
@@ -76,7 +76,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
-          [ p Enemy $ pierce 30 ]
+          [ To Enemy $ pierce 30 ]
         }
       , Skill.new
         { Skill.name      = "Mini Tailed Beast Bomb Barrage"
@@ -86,7 +86,7 @@ cs =
         , Skill.cooldown  = 1
         , Skill.channel   = Action 3
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 has <- targetHas "Clasp"
                 if has then do
                     afflict 30
@@ -103,7 +103,7 @@ cs =
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 40 `bonusIf` userHas "Chakra Gathering"
                 pierce (60 + bonus)
           ]
@@ -116,7 +116,7 @@ cs =
         , Skill.classes   = [Melee, Bypassing]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 afflict 20
                 apply 1 [Weaken All Flat 5]
           ]
@@ -128,7 +128,7 @@ cs =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 10
                 apply 1 [Stun NonMental]
           ]
@@ -140,7 +140,7 @@ cs =
         , Skill.cost      = [Rand, Rand, Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Self $ tag 1 ]
+          [ To Self $ tag 1 ]
         }
       ]
      , [ invuln "Chakra Skin" "Naruto" [Chakra]
@@ -158,7 +158,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Self $ apply 3 [Reduce All Flat 10, Enrage] ]
+          [ To Self $ apply 3 [Reduce All Flat 10, Enrage] ]
         }
       ]
     , [ Skill.new
@@ -167,7 +167,7 @@ cs =
         , Skill.classes   = [Chakra, Melee, Bypassing]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 10 `bonusIf` userHas "Sharingan"
                 pierce (20 + bonus)
                 survived <- target alive
@@ -175,9 +175,9 @@ cs =
                     apply 1 [Weaken All Flat 10]
                 else
                     self $ hide' "executed" (-1) []
-          , p REnemy $ whenM (userHas "executed") do
+          , To REnemy $ whenM (userHas "executed") do
                 bonus <- 1 `bonusIf` userHas "Sharingan"
-                trapWith Trap.To [Invisible] (1 + bonus) OnReflectAll $
+                trapWith Trap.Toward [Invisible] (1 + bonus) OnReflectAll $
                     return ()
           ]
         }
@@ -189,7 +189,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 1 `bonusIf` userHas "Sharingan"
                 trap (1 + bonus) OnReflectAll $ return ()
           ]
@@ -208,7 +208,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 apply 3 [Reduce Affliction Flat 15]
                 vary' 3 "Chidori" "Blazing Arrow"
                 vary' 3 "Amaterasu" "Yasaka Beads"
@@ -223,13 +223,13 @@ cs =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 pierce 20
                 apply 1 [Stun All]
-          , p Self do
+          , To Self do
                 trap (-1) (OnDamaged Physical) $ remove "Chidori"
                 bomb (-1) [Reduce Physical Flat 15]
-                    [ p Expire do
+                    [ To Expire do
                           hide 1 []
                           reset "Chidori" baseVariant
                     ]
@@ -244,19 +244,19 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Action 3
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 remove "Blazing Arrow"
                 addStacks "Blazing Arrow" 3
           ]
         , Skill.effects   =
-        [ p Enemy $ damage 15
-        , p Self $ removeStack "Blazing Arrow"
+        [ To Enemy $ damage 15
+        , To Self $ removeStack "Blazing Arrow"
         ]
         , Skill.interrupt  =
-          [ p Enemy do
+          [ To Enemy do
                 stacks <- userStacks "Blazing Arrow"
                 damage (15 * stacks)
-          , p Self do
+          , To Self do
                 remove "Blazing Arrow"
                 cancelChannel "Blazing Arrow"
                 reset "Chidori" "Blazing Arrow"
@@ -270,12 +270,12 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 trap 4 OnImmune do
                     removeTrap "Amaterasu"
                     remove "Amaterasu"
                 stacks <- userStacks "Amaterasu"
-                bomb 4 [Afflict (5 + 5 * stacks)] [ p Remove $ self $ addStack ]
+                bomb 4 [Afflict (5 + 5 * stacks)] [ To Remove $ self $ addStack ]
           ]
         }
       , Skill.new
@@ -284,7 +284,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 20 `bonusIf` userHas "Yasaka Beads"
                 stacks <- userStacks "Amaterasu"
                 afflict (10 + bonus + 5 * stacks)
@@ -308,7 +308,7 @@ cs =
         , Skill.classes   = [Mental]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 apply 1 [Invulnerable All]
                 prolong 1 "Susano'o"
 
@@ -325,7 +325,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 stacks <- targetStacks "Sand Bomb"
                 damage (15 + 5 * stacks)
                 apply' "Sand Bomb" 0 []
@@ -341,7 +341,7 @@ cs =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 defend 3 50
                 onBreak'
                 apply 3 [Enrage]
@@ -356,11 +356,11 @@ cs =
         , Skill.cooldown  = 4
         , Skill.channel   = Action 3
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 stacks <- targetStacks "Sand Bomb"
                 damage (15 + 5 * stacks)
                 apply 1 [Exhaust All]
-          , p Everyone $ remove "Sand Bomb"
+          , To Everyone $ remove "Sand Bomb"
           ]
         }
       ]
@@ -375,7 +375,7 @@ cs =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.channel   = Ongoing 0
-        , Skill.effects   = [p Self $ delay (-1) kabuto]
+        , Skill.effects   = [ To Self $ delay (-1) kabuto ]
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
@@ -384,15 +384,15 @@ cs =
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.channel   = Control 1
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 hide' "dna" 1 []
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , p XAlly $ delay (-1) $ whenM (userHas "dna") do
+          , To XAlly $ delay (-1) $ whenM (userHas "dna") do
                 factory
                 apply 1 [Stun All]
           ]
         , Skill.interrupt  =
-          [ p Self $ remove "dna" ]
+          [ To Self $ remove "dna" ]
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
@@ -401,15 +401,15 @@ cs =
         , Skill.cost      = [Blood, Blood, Blood]
         , Skill.channel   = Control 1
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 hide' "dna" 1 []
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , p XAlly $ delay (-1) $ whenM (userHas "dna") do
+          , To XAlly $ delay (-1) $ whenM (userHas "dna") do
                 factory
                 apply 1 [Stun All]
           ]
         , Skill.interrupt  =
-          [ p Self $ remove "dna" ]
+          [ To Self $ remove "dna" ]
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
@@ -418,15 +418,15 @@ cs =
         , Skill.cost      = [Gen, Gen, Gen]
         , Skill.channel   = Control 1
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 hide' "dna" 1 []
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , p XAlly $ delay (-1) $ whenM (userHas "dna") do
+          , To XAlly $ delay (-1) $ whenM (userHas "dna") do
                 factory
                 apply 1 [Stun All]
           ]
         , Skill.interrupt  =
-          [ p Self $ remove "dna" ]
+          [ To Self $ remove "dna" ]
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
@@ -435,15 +435,15 @@ cs =
         , Skill.cost      = [Nin, Nin, Nin]
         , Skill.channel   = Control 1
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 hide' "dna" 1 []
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , p XAlly $ delay (-1) $ whenM (userHas "dna") do
+          , To XAlly $ delay (-1) $ whenM (userHas "dna") do
                 factory
                 apply 1 [Stun All]
           ]
         , Skill.interrupt  =
-          [ p Self $ remove "dna" ]
+          [ To Self $ remove "dna" ]
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
@@ -452,15 +452,15 @@ cs =
         , Skill.cost      = [Tai, Tai, Tai]
         , Skill.channel   = Control 1
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 hide' "dna" 1 []
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , p XAlly $ delay (-1) $ whenM (userHas "dna") do
+          , To XAlly $ delay (-1) $ whenM (userHas "dna") do
                 factory
                 apply 1 [Stun All]
           ]
         , Skill.interrupt  =
-          [ p Self $ remove "dna" ]
+          [ To Self $ remove "dna" ]
         }
       ]
     , [ Skill.new
@@ -469,10 +469,10 @@ cs =
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 trap' (-1) OnDamage resetCharges
                 enemies $ apply 1 [Restrict]
-          , p Enemies $ damage 10
+          , To Enemies $ damage 10
           ]
         }
       , Skill.new
@@ -481,10 +481,10 @@ cs =
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 trap' (-1) OnDamage resetCharges
                 enemies $ apply 1 [Restrict]
-          , p Enemies $ damage 10
+          , To Enemies $ damage 10
           ]
         }
       , Skill.new
@@ -493,10 +493,10 @@ cs =
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 trap' (-1) OnDamage resetCharges
                 enemies $ apply 1 [Restrict]
-          , p Enemies $ damage 10
+          , To Enemies $ damage 10
           ]
         }
       , Skill.new
@@ -505,10 +505,10 @@ cs =
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 trap' (-1) OnDamage resetCharges
                 enemies $ apply 1 [Restrict]
-          , p Enemies $ damage 10
+          , To Enemies $ damage 10
           ]
         }
       , Skill.new
@@ -517,10 +517,10 @@ cs =
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 trap' (-1) OnDamage resetCharges
                 enemies $ apply 1 [Restrict]
-          , p Enemies $ damage 10
+          , To Enemies $ damage 10
           ]
         }
       ]
@@ -530,10 +530,10 @@ cs =
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.charges   = 1
         , Skill.effects   =
-          [ p Ally do
+          [ To Ally do
                 resetAll
                 apply 3 [Heal 15]
-          , p Self $ gain [Rand]
+          , To Self $ gain [Rand]
           ]
         }
       , Skill.new
@@ -542,10 +542,10 @@ cs =
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.charges   = 1
         , Skill.effects   =
-          [ p Ally do
+          [ To Ally do
                 resetAll
                 apply 3 [Heal 15]
-          , p Self $ gain [Blood]
+          , To Self $ gain [Blood]
           ]
         }
       , Skill.new
@@ -554,10 +554,10 @@ cs =
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.charges   = 1
         , Skill.effects   =
-          [ p Ally do
+          [ To Ally do
                 resetAll
                 apply 3 [Heal 15]
-          , p Self $ gain [Gen]
+          , To Self $ gain [Gen]
           ]
         }
       , Skill.new
@@ -566,10 +566,10 @@ cs =
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.charges   = 1
         , Skill.effects   =
-          [ p Ally do
+          [ To Ally do
                 resetAll
                 apply 3 [Heal 15]
-          , p Self $ gain [Nin]
+          , To Self $ gain [Nin]
           ]
         }
       , Skill.new
@@ -578,10 +578,10 @@ cs =
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.charges   = 1
         , Skill.effects   =
-          [ p Ally do
+          [ To Ally do
                 resetAll
                 apply 3 [Heal 15]
-          , p Self $ gain [Tai]
+          , To Self $ gain [Tai]
           ]
         }
       ]
@@ -592,9 +592,9 @@ cs =
         , Skill.cooldown  = 3
         , Skill.charges   = 1
         , Skill.effects   =
-          [ p Self    $ gain [Rand, Rand]
-          , p XAllies $ apply 1 [Stun All]
-          , p Enemies $ apply 1 [Stun All]
+          [ To Self    $ gain [Rand, Rand]
+          , To XAllies $ apply 1 [Stun All]
+          , To Enemies $ apply 1 [Stun All]
           ]
         }
       , Skill.new
@@ -604,9 +604,9 @@ cs =
         , Skill.cooldown  = 3
         , Skill.charges   = 1
         , Skill.effects   =
-          [ p Self    $ gain [Blood, Blood]
-          , p XAllies $ apply 1 [Stun All]
-          , p Enemies $ apply 1 [Stun All]
+          [ To Self    $ gain [Blood, Blood]
+          , To XAllies $ apply 1 [Stun All]
+          , To Enemies $ apply 1 [Stun All]
           ]
         }
       , Skill.new
@@ -616,9 +616,9 @@ cs =
         , Skill.cooldown  = 3
         , Skill.charges   = 1
         , Skill.effects   =
-          [ p Self    $ gain [Gen, Gen]
-          , p XAllies $ apply 1 [Stun All]
-          , p Enemies $ apply 1 [Stun All]
+          [ To Self    $ gain [Gen, Gen]
+          , To XAllies $ apply 1 [Stun All]
+          , To Enemies $ apply 1 [Stun All]
           ]
         }
       , Skill.new
@@ -628,9 +628,9 @@ cs =
         , Skill.cooldown  = 3
         , Skill.charges   = 1
         , Skill.effects   =
-          [ p Self    $ gain [Nin, Nin]
-          , p XAllies $ apply 1 [Stun All]
-          , p Enemies $ apply 1 [Stun All]
+          [ To Self    $ gain [Nin, Nin]
+          , To XAllies $ apply 1 [Stun All]
+          , To Enemies $ apply 1 [Stun All]
           ]
         }
       , Skill.new
@@ -640,9 +640,9 @@ cs =
         , Skill.cooldown  = 3
         , Skill.charges   = 1
         , Skill.effects   =
-          [ p Self    $ gain [Tai, Tai]
-          , p XAllies $ apply 1 [Stun All]
-          , p Enemies $ apply 1 [Stun All]
+          [ To Self    $ gain [Tai, Tai]
+          , To XAllies $ apply 1 [Stun All]
+          , To Enemies $ apply 1 [Stun All]
           ]
         }
       ]
@@ -656,11 +656,11 @@ cs =
         , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 stacks <- userStacks "Evening Elephant"
                 damage (20 + 20 * stacks)
                 apply 1 [Seal, Stun NonMental]
-          , p Self do
+          , To Self do
                 sacrifice 1 20
                 addStack
           ]
@@ -674,7 +674,7 @@ cs =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 sacrifice 1 10
                 apply 1 [Enrage, Strengthen All Percent 200]
           ]
@@ -687,11 +687,11 @@ cs =
         , Skill.cost      = [Tai, Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 stacks <- userStacks "Night Guy"
                 pierce (50 + 25 * stacks)
                 apply 2 [Seal, Weaken All Flat 5]
-          , p Self do
+          , To Self do
                 sacrifice 1 30
                 addStack
                 apply 2 [Plague]
@@ -712,13 +712,13 @@ cs =
         , Skill.charges   = 1
         , Skill.channel   = Ongoing 3
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 apply 0 [Reduce Affliction Flat 5]
                 delay (-3) $ vary' 0 "Skeletal Susano'o" "Armored Susano'o"
                 hide' "susan" 0 []
           ]
         , Skill.effects   =
-          [ p Self $ defend 0 5 ]
+          [ To Self $ defend 0 5 ]
         }
       , Skill.new
         { Skill.name      = "Armored Susano'o"
@@ -727,7 +727,7 @@ cs =
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 apply' "Armored Susano'o " 0 [Reduce Affliction Flat 10]
                 defend 2 40
                 onBreak'
@@ -742,7 +742,7 @@ cs =
         , Skill.classes   = [Chakra, Melee, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 stacks <- targetStacks "Hangover"
                 afflict (25 + 5 * stacks)
                 tag 1
@@ -756,7 +756,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 deplete 1
                 apply 1 [Stun All, Seal]
                 apply' "Sealed" 0 []
@@ -771,7 +771,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 apply 1 [Invincible All, Enrage]
                 trapFrom 1 (OnHarmed All) do
                     damage 10

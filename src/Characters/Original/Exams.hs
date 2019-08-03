@@ -20,7 +20,7 @@ cs =
         , Skill.cooldown  = 1
         , Skill.channel   = Action 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 15
                 trap 1 OnChakra $ deplete 1
           ]
@@ -34,7 +34,7 @@ cs =
         , Skill.cooldown  = 1
         , Skill.channel   = Action 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 15
                 trap 1 OnStun $ apply 1 [Stun All]
           ]
@@ -48,7 +48,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self $ apply 2
+          [ To Self $ apply 2
                      [Endure, Ignore $ Any Stun, Strengthen All Flat 5]
           ]
         }
@@ -63,7 +63,7 @@ cs =
         , Skill.desc      = "Shigure tosses his umbrellas upward, gaining four Umbrellas. While Shigure has Umbrellas, this skill becomes [Umbrella Gathering]."
         , Skill.classes   = [Physical, Resource]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 addStacks "Umbrella" 4
                 vary "Umbrella Toss" "Umbrella Gathering"
           ]
@@ -73,7 +73,7 @@ cs =
         , Skill.desc      = "Shigure builds a wall of overlapping umbrellas in front of him. Spends all Umbrellas to provide 10 points of damage reduction per Umbrella for 1 turn."
         , Skill.classes   = [Physical]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 stacks <- userStacks "Umbrella"
                 apply 1 [Reduce All Flat (stacks * 10)]
                 remove "Umbrella"
@@ -88,8 +88,8 @@ cs =
         , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemies $ damage 15
-          , p Self do
+          [ To Enemies $ damage 15
+          , To Self do
                 removeStack "Umbrella"
                 unlessM (userHas "Umbrella") $ vary "Umbrella Toss" baseVariant
           ]
@@ -102,10 +102,10 @@ cs =
         , Skill.cost      = [Rand, Rand, Rand, Rand]
         , Skill.classes   = [Physical, Ranged]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 stacks <- userStacks "Umbrella"
                 damage (15 * stacks)
-          , p Self do
+          , To Self do
                 remove "Umbrella"
                 vary "Umbrella Toss" baseVariant
           ]
@@ -123,7 +123,7 @@ cs =
         , Skill.classes   = [Bane, Chakra, Melee]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 pierce 20
                 apply 1 [ Exhaust All
                         , Bleed Physical Flat 5
@@ -140,9 +140,9 @@ cs =
         , Skill.cooldown  = 5
         , Skill.channel   = Ongoing 5
         , Skill.start     =
-          [ p Self $ cureBane]
+          [ To Self $ cureBane]
         , Skill.effects   =
-          [ p Self $ heal 15 ]
+          [ To Self $ heal 15 ]
         }
       ]
     , [ Skill.new
@@ -152,7 +152,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemies $ trap (-1) OnNoAction $
+          [ To Enemies $ trap (-1) OnNoAction $
                 apply 1 [ Stun All
                         , Bleed Physical Flat 10
                         , Bleed Chakra Flat 10
@@ -171,7 +171,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 20 `bonusIf` userHas "Echo Speaker Tuning"
                 damage (20 + bonus)
                 apply 2 [Expose]
@@ -186,7 +186,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 targetBonus <- 10 `bonusIf` targetHas "Echoing Sound"
                 userBonus   <- 10 `bonusIf` userHas "Echo Speaker Tuning"
                 damage (10 + targetBonus + userBonus)
@@ -201,7 +201,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self $ tag 4 ]
+          [ To Self $ tag 4 ]
         }
       ]
     , [ invuln "Dodge" "Dosu" [Physical] ]
@@ -215,10 +215,10 @@ cs =
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Self $ whenM (userHas "Shadow Senbon") do
+          [ To Self $ whenM (userHas "Shadow Senbon") do
                 apply 1 [Invulnerable All]
                 tag 1
-          , p Enemy do
+          , To Enemy do
                 bonus <- 25 `bonusIf` userHas "Unnerving Bells"
                 damage (15 + bonus)
           ]
@@ -231,8 +231,8 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Self   $ tag 1
-          ,  p Enemy do
+          [ To Self   $ tag 1
+          ,  To Enemy do
                 apply 2 [Expose]
                 whenM (userHas "Bell Ring Illusion") $ damage 10
                 whenM (userHas "Unnerving Bells") $ apply 1 [Stun All]
@@ -246,8 +246,8 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Self $  tag 1
-          , p Enemy do
+          [ To Self $  tag 1
+          , To Enemy do
                 deplete 1
                 whenM (userHas "Bell Ring Illusion") $
                     apply 1 [Bleed Chakra Flat 15]
@@ -267,8 +267,8 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ p Enemy $ damage 25
-          , p Self  $ tag 1
+          [ To Enemy $ damage 25
+          , To Self  $ tag 1
           ]
         }
       ]
@@ -279,7 +279,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p XAlly $ apply 1 [Counter NonMental] ]
+          [ To XAlly $ apply 1 [Counter NonMental] ]
         }
       ]
     , [ Skill.new
@@ -289,7 +289,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.effects   =
-          [ p Enemies $ damage 45]
+          [ To Enemies $ damage 45]
         }
       ]
     , [ invuln "Deflect" "Zaku" [Chakra] ]
@@ -303,7 +303,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
-          [ p Enemies $ damage 15 ]
+          [ To Enemies $ damage 15 ]
         , Skill.changes   = changeWith "Fog Clone" $ setCost [Rand]
         }
       ]
@@ -313,7 +313,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 20
                 apply 1 [Stun Physical, Stun Mental]
           ]
@@ -328,7 +328,7 @@ cs =
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
               defend 3 30
               apply 3 [Invulnerable Mental, Invulnerable Physical]
           ]
@@ -345,11 +345,11 @@ cs =
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 whenM (userHas "Chakra Focus") $ absorb 1
                 apply 2 [Weaken All Flat 5]
                 leech 20 $ self . heal
-          , p Self $ apply 2 [Strengthen All Flat 5]
+          , To Self $ apply 2 [Strengthen All Flat 5]
           ]
         }
       ]
@@ -361,11 +361,11 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Action 3
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 whenM (userHas "Chakra Focus") $ absorb 1
                 apply 1 [Weaken All Flat 5]
                 leech 15 $ self . heal
-          , p Self $ apply 1 [Strengthen All Flat 5]
+          , To Self $ apply 1 [Strengthen All Flat 5]
           ]
         }
       ]
@@ -376,7 +376,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Self $ tag 2 ]
+          [ To Self $ tag 2 ]
         }
       ]
     , [ invuln "Deflect" "Yoroi" [Chakra] ]
@@ -390,8 +390,8 @@ cs =
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p XAlly $ apply 1 [Reduce All Flat 15]
-          , p Enemy $ damage 15
+          [ To XAlly $ apply 1 [Reduce All Flat 15]
+          , To Enemy $ damage 15
           ]
         }
       ]
@@ -402,7 +402,7 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 apply 2 [Expose]
                 userSlot <- user slot
                 self $ hide 2 [Redirect NonMental userSlot]
@@ -415,8 +415,8 @@ cs =
         , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Self    $ defend 0 15
-          , p Enemies $ whenM (targetHas "Soft Physique Modification") do
+          [ To Self    $ defend 0 15
+          , To Enemies $ whenM (targetHas "Soft Physique Modification") do
                 damage 20
                 apply 1 [Stun All]
           ]

@@ -19,11 +19,11 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.channel   = Ongoing 4
         , Skill.start     =
-          [ p Self do
+          [ To Self do
               enemies $ apply (-4) []
               allies  $ apply (-4) [Reduce All Flat 5 ]
           ]
-        , Skill.effects   = [ p Enemies $ damage 5 ]
+        , Skill.effects   = [ To Enemies $ damage 5 ]
         }
       ]
     , [ Skill.new
@@ -32,13 +32,13 @@ cs =
         , Skill.classes   = [Mental, Ranged, Invisible, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p XAlly $ trap 3 OnRes do
+          [ To XAlly $ trap 3 OnRes do
                 resetAll
                 setHealth 5
                 teach 1 Deep 2
                 setFace 1
                 bomb (-1) [Invulnerable All, Seal, Enrage, Ignore $ Any Stun]
-                          [ p Done killHard ]
+                          [ To Done killHard ]
           ]
         }
       ]
@@ -49,7 +49,7 @@ cs =
         , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 stacks <- targetStacks "Scattering Crow Swarm"
                 damage (45 + 5 * stacks)
           ]
@@ -66,7 +66,7 @@ cs =
         , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 apply 0 [Reduce All Flat 10]
                 vary "Biding Time" "Payback"
                 trap 0 (OnDamaged All) $ addStacks "Payback" 1
@@ -78,10 +78,10 @@ cs =
         , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 stacks <- userStacks "Payback"
                 damage (15 + 5 * stacks)
-          , p Self do
+          , To Self do
                 remove "Payback"
                 vary "Biding Time" baseVariant
           ]
@@ -93,8 +93,8 @@ cs =
         , Skill.classes   = [Physical, Melee, Summon]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
-          [ p Enemy $ trap 3 OnHarm $ pierce 25
-          , p Self  $ defend 0 30
+          [ To Enemy $ trap 3 OnHarm $ pierce 25
+          , To Self  $ defend 0 30
           ]
         }
       ]
@@ -104,8 +104,8 @@ cs =
         , Skill.classes   = [Physical, Melee, Summon]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
-          [ p Enemy $ trap 3 OnNoAction $ pierce 25
-          , p Self  $ defend 0 30
+          [ To Enemy $ trap 3 OnNoAction $ pierce 25
+          , To Self  $ defend 0 30
           ]
         }
       ]
@@ -121,10 +121,10 @@ cs =
         , Skill.cost      = [Gen, Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 stacks <- userStacks "Moon Haze"
                 damage (50 + 25 * stacks)
-          , p Self  $ remove "Moon Haze"
+          , To Self  $ remove "Moon Haze"
           ]
         }
       ]
@@ -134,7 +134,7 @@ cs =
         , Skill.classes   = [Physical]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 defend 1 20
                 addStack
           ]
@@ -147,7 +147,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy $ apply 2 [Expose, Uncounter, Undefend] ]
+          [ To Enemy $ apply 2 [Expose, Uncounter, Undefend] ]
         }
       ]
     , [ invuln "Parry" "Yūgao" [Physical] ]
@@ -161,8 +161,8 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemy $ apply 1 [Stun NonMental]
-          , p Self  $ vary' 1 "Chain Wrap" "Chain Shred"
+          [ To Enemy $ apply 1 [Stun NonMental]
+          , To Self  $ vary' 1 "Chain Wrap" "Chain Shred"
           ]
         }
       , Skill.new
@@ -172,7 +172,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 pierce 45
                 apply' "Chain Wrap" 1 [Stun NonMental]
                 self $ vary' 1 "Chain Wrap" "Chain Shred"
@@ -185,7 +185,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 10 `bonusIf` targetHas "Chain Wrap"
                 damage (30 + bonus)
           ]
@@ -198,7 +198,7 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 defend 0 20
                 gain [Tai]
           ]
@@ -217,7 +217,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
-          [ p Enemy $ damage 30 ]
+          [ To Enemy $ damage 30 ]
         , Skill.changes   = changeWith "Crystal Ice Mirrors" targetAll
         }
       ]
@@ -228,8 +228,8 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy $ apply 1 [Stun All]
-          , p XAlly do
+          [ To Enemy $ apply 1 [Stun All]
+          , To XAlly do
                 cureStun
                 apply 1 [Ignore $ Any Stun]
           ]
@@ -243,7 +243,7 @@ cs =
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 6
         , Skill.effects   =
-          [ p Self $ apply 3 [Invulnerable All] ]
+          [ To Self $ apply 3 [Invulnerable All] ]
         }
       ]
     , [ invuln "Parry" "Haku" [Physical] ]
@@ -257,7 +257,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 15 `bonusIf` userHas "Hidden Mist"
                 pierce (30 + bonus)
           ]
@@ -271,7 +271,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 damage 10
                 apply 1 [Stun Physical, Stun Affliction]
           ]
@@ -284,8 +284,8 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Self    $ apply 2 [Reduce All Flat 5]
-          , p Enemies $ apply 2 [Exhaust Physical, Exhaust Mental]
+          [ To Self    $ apply 2 [Reduce All Flat 5]
+          , To Enemies $ apply 2 [Exhaust Physical, Exhaust Mental]
           ]
         }
       ]
@@ -300,7 +300,7 @@ cs =
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 apply 0 [Invulnerable All, Afflict 15]
                 vary "Mangekyō Sharingan" "Mangekyō Sharingan"
                 vary "Amaterasu"          "Amaterasu"
@@ -313,7 +313,7 @@ cs =
         , Skill.classes   = [Mental]
         , Skill.varicd    = True
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 remove "Mangekyō Sharingan"
                 vary "Mangekyō Sharingan" baseVariant
                 vary "Amaterasu" baseVariant
@@ -328,7 +328,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 15
                 apply 0 [Afflict 5]
           ]
@@ -340,7 +340,7 @@ cs =
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 damage 30
                 apply 0 [Afflict 10]
           ]
@@ -353,7 +353,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 20
                 apply 1 [ Stun All]
           ]
@@ -365,7 +365,7 @@ cs =
         , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 20
                 apply 3 [Stun All]
           ]
@@ -383,7 +383,7 @@ cs =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 20
                 apply 1 [Stun Chakra, Stun Mental]
           ]
@@ -397,7 +397,7 @@ cs =
         , Skill.cooldown  = 2
         , Skill.channel   = Action 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 absorb 1
                 damage 15
           ]
@@ -410,7 +410,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 20
                 apply 1 [Stun Physical, Stun Affliction]
           ]
@@ -427,8 +427,8 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ p Self  $ tag 1
-          , p Enemy do
+          [ To Self  $ tag 1
+          , To Enemy do
                 bonus <- 10 `bonusIf` userHas "Sphere of Graves"
                 damage (30 + bonus)
           ]
@@ -440,8 +440,8 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ p Self $ tag 1
-          , p Enemies do
+          [ To Self $ tag 1
+          , To Enemies do
                 bonus <- 10 `bonusIf` userHas "Crushing Palm"
                 damage (20 + bonus)
           ]
@@ -455,11 +455,11 @@ cs =
         , Skill.cooldown  = 6
         , Skill.channel   = Ongoing 3
         , Skill.start     =
-          [ p Allies $ defend 3 35
-          , p Self   $ onBreak'
+          [ To Allies $ defend 3 35
+          , To Self   $ onBreak'
           ]
         , Skill.effects   =
-          [ p REnemy $ absorb 1 ]
+          [ To REnemy $ absorb 1 ]
         }
       ]
     , [ invuln "Terra Shield" "Jirōbō" [Physical] ]
@@ -474,7 +474,7 @@ cs =
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy $ pierce 50 ]
+          [ To Enemy $ pierce 50 ]
         }
       ]
     , [ Skill.new
@@ -485,10 +485,10 @@ cs =
         , Skill.cooldown  = 4
         , Skill.channel   = Ongoing 5
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 damage 10
                 apply 1 [Snare 1]
-          , p Self $ apply 1 [Reduce All Flat 10]
+          , To Self $ apply 1 [Reduce All Flat 10]
           ]
         }
       ]
@@ -499,7 +499,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Ally $ apply 0 [Counter Physical] ]
+          [ To Ally $ apply 0 [Counter Physical] ]
         }
       ]
     , [ invuln "Spider Thread Armor" "Kidōmaru" [Chakra] ]
@@ -515,8 +515,8 @@ cs =
         , Skill.cooldown  = 1
         , Skill.channel   = Ongoing 2
         , Skill.effects   =
-          [ p Enemies $ damage 15
-          , p Self    $ apply 1 [Reduce All Flat 10 ]
+          [ To Enemies $ damage 15
+          , To Self    $ apply 1 [Reduce All Flat 10 ]
           ]
         }
       ]
@@ -527,7 +527,7 @@ cs =
         , Skill.classes   = [Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 deplete 1
                 afflict 10
           ]
@@ -540,7 +540,7 @@ cs =
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Enemies $ apply 1 [Stun All] ]
+          [ To Enemies $ apply 1 [Stun All] ]
         }
       ]
     , [ invuln "Foresight" "Tayuya" [Mental] ]
@@ -554,7 +554,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- (-20) `bonusIf` userHas "Demon Parasite"
                 damage (40 + bonus)
           ]
@@ -567,12 +567,12 @@ cs =
         , Skill.classes   = [Bane, Unreflectable, Unremovable, Single]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 trap' 0 OnDeath $ self $ remove "Demon Parasite"
                 bomb 0 [Afflict 20]
-                       [ p Done $ self $ remove "Demon Parasite" ]
+                       [ To Done $ self $ remove "Demon Parasite" ]
                 self $ bomb 0 [Reduce All Flat 15]
-                       [ p Done $ everyone $ remove "Demon Parasite" ]
+                       [ To Done $ everyone $ remove "Demon Parasite" ]
           ]
         }
       ]
@@ -583,7 +583,7 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 heal 30
                 cancelChannel "Demon Parasite"
                 everyone $ remove "Demon Parasite"
@@ -596,7 +596,7 @@ cs =
         , Skill.classes   = [Chakra, Summon]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self $ remove "Demon Parasite" ]
+          [ To Self $ remove "Demon Parasite" ]
         }
       ]
     ] []
@@ -609,8 +609,8 @@ cs =
         , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemy $ damage 30
-          , p Self  $ sacrifice 0 5
+          [ To Enemy $ damage 30
+          , To Self  $ sacrifice 0 5
           ]
         }
       ]
@@ -621,10 +621,10 @@ cs =
         , Skill.cooldown  = 1
         , Skill.cost      = [Blood, Tai]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 40
                 apply 1 [Stun All]
-          , p Self $ sacrifice 0 10
+          , To Self $ sacrifice 0 10
           ]
         }
       ]
@@ -635,10 +635,10 @@ cs =
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 damage 30
                 apply 1 [Weaken NonMental Flat 20]
-          , p Self $ apply (-2) [Afflict 15]
+          , To Self $ apply (-2) [Afflict 15]
           ]
         }
       ]

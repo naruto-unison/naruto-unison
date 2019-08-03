@@ -21,13 +21,13 @@ import qualified Class.TurnBased as TurnBased
 import qualified Model.Channel as Channel
 import qualified Model.Character as Character
 import qualified Model.Copy as Copy
-import           Model.Copy (Copy, Copying)
+import           Model.Copy (Copy(Copy), Copying)
 import           Model.Duration (Duration(..), Turns, incr, sync)
 import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
 import           Model.Slot (Slot)
 import qualified Model.Variant as Variant
-import           Model.Variant (Varying)
+import           Model.Variant (Variant(Variant), Varying)
 import qualified Engine.Adjust as Adjust
 import qualified Engine.Cooldown as Cooldown
 import qualified Engine.Execute as Execute
@@ -94,7 +94,7 @@ unsafeVary dur s v = do
     let copying = Skill.copying skill
     unless (shallow copying) do
         target     <- P.target
-        let variant = Variant.Variant
+        let variant = Variant
                 { Variant.variant   = v
                 , Variant.ownCd     = Skill.varicd $ Adjust.skill' nUser s v
                 , Variant.dur       = dur
@@ -142,9 +142,9 @@ copyAll (Duration -> dur) = do
     user    <- P.user
     target  <- P.target
     nTarget <- P.nTarget
-    let copy skill = Just $ Copy.Copy { Copy.dur   = dur'
-                                      , Copy.skill = copying skill target
-                                      }
+    let copy skill = Just $ Copy { Copy.dur   = dur'
+                                 , Copy.skill = copying skill target
+                                 }
     P.modify user \n ->
         n { Ninja.copies = fromList $ copy <$> Adjust.skills nTarget }
   where
@@ -199,9 +199,9 @@ teacher f (Duration -> dur) cop s = do
     nUser  <- P.nUser
     let skill  = (Adjust.skill (Left s) nUser)
                  { Skill.copying = cop user $ sync dur - 1 }
-        copied = Just $ Copy.Copy { Copy.skill = skill
-                                  , Copy.dur   = dur'
-                                  }
+        copied = Just $ Copy { Copy.skill = skill
+                             , Copy.dur   = dur'
+                             }
     P.modify target \n -> n { Ninja.copies = f copied $ Ninja.copies n }
   where
     synced = sync dur

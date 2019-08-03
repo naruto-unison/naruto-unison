@@ -39,11 +39,12 @@ import qualified Class.Labeled as Labeled
 import qualified Class.TurnBased as TurnBased
 import           Model.Internal (Ninja(..))
 import qualified Model.Channel as Channel
+import           Model.Channel (Channel(Channel))
 import qualified Model.Character as Character
 import           Model.Character (Character)
 import           Model.Class (Class(..))
 import qualified Model.Defense as Defense
-import           Model.Defense (Defense)
+import           Model.Defense (Defense(Defense))
 import           Model.Duration (Duration, incr, sync)
 import qualified Model.Effect as Effect
 import           Model.Effect (Effect(..))
@@ -54,8 +55,9 @@ import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
 import           Model.Slot (Slot)
 import qualified Model.Status as Status
-import           Model.Status (Status)
+import           Model.Status (Status(Status))
 import qualified Model.Variant as Variant
+import           Model.Variant (Variant(Variant))
 
 -- | Constructs a 'Ninja' with starting values from a character and an index.
 new :: Slot -> Character -> Ninja
@@ -274,11 +276,11 @@ addOwnDefense :: Duration -- ^ 'Defense.dur'.
               -> Ninja -> Ninja
 addOwnDefense dur name i n = n { defense = d : defense n }
   where
-    d = Defense.Defense { Defense.amount = i
-                        , Defense.user   = slot n
-                        , Defense.name   = name
-                        , Defense.dur    = incr $ sync dur
-                        }
+    d = Defense { Defense.amount = i
+                , Defense.user   = slot n
+                , Defense.name   = name
+                , Defense.dur    = incr $ sync dur
+                }
 
 addDefense :: Int -> Defense -> Ninja -> Ninja
 addDefense amount d n =
@@ -306,7 +308,7 @@ clearVariants :: Text -- ^ 'Variant.name'.
               -> Ninja -> Ninja
 clearVariants name n = n { variants = f <$> variants n }
   where
-    keep Variant.Variant{ dur = Variant.FromSkill x } = x /= name
+    keep Variant{ dur = Variant.FromSkill x } = x /= name
     keep _ = True
     f = ensure . filter keep . toList -- TODO
     ensure []     = Variant.none :| []
@@ -451,7 +453,7 @@ kabuto skill n =
     nSlot      = slot n
     nChannels' = case channels n of
                     x:xs -> x :| xs
-                    []   -> Channel.Channel
+                    []   -> Channel
                                 { Channel.source = nSlot
                                 , Channel.skill  = skill
                                 , Channel.target = nSlot
@@ -461,23 +463,23 @@ kabuto skill n =
     sLen       = length sage
     (mode, m)  = advance . maybe "" (dropEnd sLen . Status.name) .
                  find getMode $ statuses n
-    var        = Variant.Variant { Variant.variant = m
-                                 , Variant.ownCd   = False
-                                 , Variant.dur     = Variant.Duration 0
-                                 }
+    var        = Variant { Variant.variant = m
+                         , Variant.ownCd   = False
+                         , Variant.dur     = Variant.Duration 0
+                         }
     var'       = var { Variant.variant = m + 1 }
     ml         = mode ++ sage
-    newmode    = Status.Status { Status.amount  = 1
-                               , Status.name    = ml
-                               , Status.source  = nSlot
-                               , Status.user    = nSlot
-                               , Status.skill   = skill
-                               , Status.effects = []
-                               , Status.classes = setFromList [Hidden, Unremovable]
-                               , Status.bombs   = []
-                               , Status.maxDur  = 0
-                               , Status.dur     = 0
-                               }
+    newmode    = Status { Status.amount  = 1
+                        , Status.name    = ml
+                        , Status.source  = nSlot
+                        , Status.user    = nSlot
+                        , Status.skill   = skill
+                        , Status.effects = []
+                        , Status.classes = setFromList [Hidden, Unremovable]
+                        , Status.bombs   = []
+                        , Status.maxDur  = 0
+                        , Status.dur     = 0
+                        }
     getMode st = Status.user st == nSlot
                  && sage == Text.takeEnd sLen (Status.name st)
     advance "Bloodline" = ("Genjutsu" , 2)

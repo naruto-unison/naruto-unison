@@ -19,7 +19,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 addStacks "Hundred Hungry Sharks" 10
                 trapFrom' 0 (OnHarmed All) do
                     enemies $ hide' "ignored" 0 []
@@ -29,11 +29,11 @@ cs =
                     self $ removeTrap "Thousand Hungry Sharks"
           ]
         , Skill.effects   =
-          [ p Enemies $ unlessM (targetHas "ignored") do
+          [ To Enemies $ unlessM (targetHas "ignored") do
                 bonus <- 5 `bonusIf` channeling "Exploding Water Shockwave"
                 pierce (5 + bonus)
                 self $ removeStack "Hundred Hungry Sharks"
-          , p Self $ unlessM (userHas "Hundred Hungry Sharks") do
+          , To Self $ unlessM (userHas "Hundred Hungry Sharks") do
                 cancelChannel "Thousand Hungry Sharks"
                 everyone do
                     remove "ignored"
@@ -46,10 +46,10 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 stacks <- userStacks "Hundred Hungry Sharks"
                 pierce (5 * stacks)
-          , p Self do
+          , To Self do
                 cancelChannel "Thousand Hungry Sharks"
                 remove "Hundred Hungry Sharks"
                 everyone do
@@ -66,11 +66,11 @@ cs =
         , Skill.cooldown  = 4
         , Skill.channel   = Ongoing 3
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 setFace 3
                 vary "Exploding Water Shockwave" "Shark Dance"
           ]
-        , Skill.effects   = [ p Enemies $ apply 1 [Snare 1] ]
+        , Skill.effects   = [ To Enemies $ apply 1 [Snare 1] ]
         }
       , Skill.new
         { Skill.name      = "Shark Dance"
@@ -78,7 +78,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 absorb 1
                 damage 20
           ]
@@ -91,7 +91,7 @@ cs =
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 trap 1 (OnCounter Chakra) flag
                 trap 1 (OnCounter Mental) flag
                 delay (-1) do
@@ -111,10 +111,10 @@ cs =
         , Skill.classes   = [Chakra, Ranged, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 15
                 apply 4 [ Weaken All Flat 5]
-          , p Self $ vary "C1: Bird Bomb" "C3: Megaton Sculpture"
+          , To Self $ vary "C1: Bird Bomb" "C3: Megaton Sculpture"
           ]
         }
       , Skill.new
@@ -123,10 +123,10 @@ cs =
         , Skill.classes   = [Chakra, Ranged, Nonstacking]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 damage 20
                 apply 4 [ Weaken All Flat 5]
-          , p Self $ vary "C1: Bird Bomb" baseVariant
+          , To Self $ vary "C1: Bird Bomb" baseVariant
           ]
         }
       , Skill.new
@@ -136,7 +136,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 30
                 apply 4 [Weaken All Flat 5]
           ]
@@ -149,7 +149,7 @@ cs =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 defend 3 35
                 vary' 3 "C1: Bird Bomb"   "C2: Dragon Missile"
                 vary' 3 "C2: Clay Dragon" "C2: Minefield"
@@ -162,7 +162,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemy $ trap (-2) (OnAction NonMental) do
+          [ To Enemy $ trap (-2) (OnAction NonMental) do
                 removeTrap "C2: Minefield"
                 damage 10
                 apply 4 [Weaken All Flat 5]
@@ -175,8 +175,8 @@ cs =
         , Skill.classes   = [Bane, Chakra, Ranged, Uncounterable, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =
-          [ p Enemy $ apply 0 [Afflict 10, Weaken All Flat 5]
-          , p Self  $ vary "C4: Karura" "C0: Ultimate Art"
+          [ To Enemy $ apply 0 [Afflict 10, Weaken All Flat 5]
+          , To Self  $ vary "C4: Karura" "C0: Ultimate Art"
           ]
         }
       , Skill.new
@@ -185,10 +185,10 @@ cs =
         , Skill.classes   = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Blood, Nin, Nin]
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 hp <- user health
                 when (hp <= 40) $ afflict 35
-          , p Self do
+          , To Self do
                 hp <- user health
                 when (hp <= 40) killHard
           ]
@@ -205,7 +205,7 @@ cs =
         , Skill.desc      = "Hidan prepares for his ritual by drawing an insignia on the ground in blood. Once used, this skill becomes [First Blood][r]."
         , Skill.classes   = [Physical, Single, Unremovable, Uncounterable, Unreflectable]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 tag 0
                 vary "Jashin Sigil" "First Blood"
           ]
@@ -216,7 +216,7 @@ cs =
         , Skill.classes   = [Physical, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 5
                 tag 2
                 self $ vary' 2 "Jashin Sigil" "Blood Curse"
@@ -229,11 +229,11 @@ cs =
         , Skill.classes   = [Soulbound, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 stacks <- userStacks "jashin"
                 apply' "Prayer" (1 + stacks) [Endure]
                 hide' "jashin" 0 []
-          ,  p Enemies do
+          ,  To Enemies do
                 userSlot   <- user slot
                 targetSlot <- target slot
                 apply' "Blood Curse" 3 [Share userSlot]
@@ -241,7 +241,7 @@ cs =
                 self do
                     hide' "bloodlink" 3 []
                     bomb' "Blood Curse" 3 [Enrage, Share targetSlot]
-                        [ p Done do
+                        [ To Done do
                               remove "Jashin Sigil"
                               remove "bloodlink"
                               vary "Jashin Sigil" baseVariant
@@ -254,7 +254,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen, Tai]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 has <- userHas "bloodlink"
                 if has then do
                     heal 50
@@ -271,7 +271,7 @@ cs =
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 has <- userHas "bloodlink"
                 if has then do
                     heal 35
@@ -287,7 +287,7 @@ cs =
         , Skill.classes   = [Mental, Single, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 stacks <- userStacks "jashin"
                 apply (1 + stacks) [Endure]
                 hide' "jashin" 0 []
@@ -306,7 +306,7 @@ cs =
         , Skill.classes   = [Chakra, Single]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 cancelChannel "Black Zetsu"
                 setFace 0
                 vary "White Zetsu" "Black Zetsu"
@@ -314,7 +314,7 @@ cs =
                 vary "Doppelgänger / Body Coating" "Doppelgänger"
           ]
         , Skill.effects   =
-          [ p Self $ defend 0 5 ]
+          [ To Self $ defend 0 5 ]
         }
       , Skill.new
         { Skill.name      = "Black Zetsu"
@@ -322,7 +322,7 @@ cs =
         , Skill.classes   = [Chakra, Single]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 cancelChannel "White Zetsu"
                 setFace 0
                 vary "White Zetsu" baseVariant
@@ -330,7 +330,7 @@ cs =
                 vary "Doppelgänger / Body Coating" "Body Coating"
           ]
         , Skill.effects   =
-          [ p Self $ unlessM (userHas "chakra") do
+          [ To Self $ unlessM (userHas "chakra") do
                 gain [Rand]
                 hide' "chakra" 1 []
           ]
@@ -342,7 +342,7 @@ cs =
         , Skill.classes   = [Chakra, Single]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 cancelChannel "White Zetsu"
                 setFace 0
                 vary "White Zetsu" baseVariant
@@ -350,7 +350,7 @@ cs =
                 vary "Doppelgänger / Body Coating" "Body Coating"
           ]
         , Skill.effects   =
-          [ p Self $ unlessM (userHas "chakra") do
+          [ To Self $ unlessM (userHas "chakra") do
                 gain [Rand]
                 hide' "chakra" 1 []
           ]
@@ -363,7 +363,7 @@ cs =
         , Skill.cooldown  = 2
         , Skill.channel   = Action 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 20
                 apply 1 [Weaken All Percent 50]
           ]
@@ -375,7 +375,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.channel   = Ongoing 5
         , Skill.effects   =
-          [ p Enemies $ damage 5 ]
+          [ To Enemies $ damage 5 ]
         }
       ]
     , [ Skill.new
@@ -392,7 +392,7 @@ cs =
         , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Enemy $ apply 0 [Swap All] ]
+          [ To Enemy $ apply 0 [Swap All] ]
         }
       , Skill.new
         { Skill.name      = "Doppelgänger"
@@ -401,7 +401,7 @@ cs =
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 absorb 1
                 copyLast 1 2
                 apply 1 [Stun NonMental]
@@ -420,10 +420,10 @@ cs =
         , Skill.classes   = [Bane, Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 10
                 apply (-1) [Stun NonMental, Bleed All Flat 10 ]
-          , p Self $ vary "Scorpion Tail Constriction" "Scorpion Tail Strike"
+          , To Self $ vary "Scorpion Tail Constriction" "Scorpion Tail Strike"
           ]
         }
       , Skill.new
@@ -432,7 +432,7 @@ cs =
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 20
                 afflict 20
                 apply 1 [Exhaust All]
@@ -446,9 +446,9 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Self $ delay 1 $ defend 0 20
-          , p Self $ tag (-1)
-          , p Enemies do
+          [ To Self $ delay 1 $ defend 0 20
+          , To Self $ tag (-1)
+          , To Enemies do
                 delay (-1) $ whenM (userHas "needles at the ready") $
                     apply 2 [Afflict 15]
                 trap (-1) (OnAction All) $
@@ -464,7 +464,7 @@ cs =
         , Skill.channel   = Control 2
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 defend 1 10
                 heal 10
                 apply 1 [Ignore $ Only Expose]
@@ -482,9 +482,9 @@ cs =
         , Skill.classes   = [Physical]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
-          [ p Self $ defend 0 15 ]
+          [ To Self $ defend 0 15 ]
         , Skill.effects   =
-          [ p Self $ apply' "Iron Sand" 0 [] ]
+          [ To Self $ apply' "Iron Sand" 0 [] ]
         }
       , Skill.new
         { Skill.name      = "Iron Sand: World Order"
@@ -493,7 +493,7 @@ cs =
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 stacks <- userStacks "Iron Sand"
                 pierce (10 + 5 * stacks)
           ]
@@ -508,12 +508,12 @@ cs =
         , Skill.channel   = Action 2
         , Skill.cooldown  = 3
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 defend 2 20
                 onBreak'
           ]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 10
                 afflict 10
           ]
@@ -528,8 +528,8 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Control 1
         , Skill.effects   =
-          [ p Enemies $ trap (-1) OnHarm $ apply' "Pinned" (-1) [Expose]
-          , p Self    $ vary "Thousand Arms" "Poison Gas"
+          [ To Enemies $ trap (-1) OnHarm $ apply' "Pinned" (-1) [Expose]
+          , To Self    $ vary "Thousand Arms" "Poison Gas"
           ]
         }
       , Skill.new
@@ -538,7 +538,7 @@ cs =
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 afflict 15
                 bonus <- 1 `bonusIf` targetHas "Pinned"
                 apply (1 + bonus) [Snare 1, Exhaust All]
@@ -556,11 +556,11 @@ cs =
         , Skill.classes   = [Bane, Ranged, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 apply 3 [Afflict 5]
                 userSlot <- user slot
                 apply 1 [Taunt userSlot]
-          , p Self do
+          , To Self do
                 vary "Poisonous Chain Skewer" "Impale"
                 cancelChannel "Flamethrower Jets"
                 everyone do
@@ -574,18 +574,18 @@ cs =
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 vary "Poisonous Chain Skewer" baseVariant
                 cancelChannel "Flamethrower Jets"
                 everyone do
                     remove "Flame Blast"
                     remove "Flamethrower Jets"
-          ,  p Enemy do
+          ,  To Enemy do
                   pierce 15
                   apply 2 [Afflict 5]
                   whenM (targetHas "Poisonous Chain Skewer") $
                       bomb' "Complex Toxin" 2 []
-                            [ p Expire $ apply 1 [Stun All] ]
+                            [ To Expire $ apply 1 [Stun All] ]
           ]
         }
       ]
@@ -597,12 +597,12 @@ cs =
         , Skill.channel   = Action 3
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 afflict 10
                 tag 1
                 userSlot <- user slot
                 self $ apply' "Flame Blast" 1 [Duel userSlot]
-          , p Self do
+          , To Self do
                 apply 1 [Enrage]
                 vary "Flamethrower Jets" "Cutting Water Jets"
           ]
@@ -613,10 +613,10 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 10 `bonusIf` targetHas "Flamethrower Jets"
                 pierce (20 + bonus)
-          , p Self do
+          , To Self do
                 vary "Flamethrower Jets" baseVariant
                 cancelChannel "Flamethrower Jets"
                 everyone do
@@ -632,7 +632,7 @@ cs =
         , Skill.cost      = [Tai, Rand, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 cancelChannel "Flamethrower Jets"
                 everyone do
                     remove "Flame Blast"
@@ -642,7 +642,7 @@ cs =
                 defend 0 50
                 onBreak $ self $
                     vary "Performance of a Hundred Puppets" baseVariant
-          , p XAllies $ defend 0 25
+          , To XAllies $ defend 0 25
           ]
         }
       , Skill.new
@@ -651,10 +651,10 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 30
-                bomb' "Complex Toxin" 2 [] [ p Expire $ apply 1 [Stun All] ]
-          , p Self do
+                bomb' "Complex Toxin" 2 [] [ To Expire $ apply 1 [Stun All] ]
+          , To Self do
                 cancelChannel "Flamethrower Jets"
                 everyone do
                     remove "Flame Blast"
@@ -675,14 +675,14 @@ cs =
         , Skill.cooldown  = 2
         , Skill.channel   = Ongoing 2
         , Skill.start     =
-          [ p Enemy do
+          [ To Enemy do
                 trap 2 (OnAction All) $ remove "Summoming: Giant Centipede"
                 bomb 2 []
-                    [ p Expire $ apply' "Giant Centipede Stun" 1 [Stun All] ]
-          ,  p Self $ vary "Summoning: Giant Centipede"
+                    [ To Expire $ apply' "Giant Centipede Stun" 1 [Stun All] ]
+          ,  To Self $ vary "Summoning: Giant Centipede"
                            "Summoning: Giant Crustacean"
           ]
-        , Skill.effects   = [ p Enemy $ afflict 15 ]
+        , Skill.effects   = [ To Enemy $ afflict 15 ]
         }
       , Skill.new
         { Skill.name      = "Summoning: Giant Crustacean"
@@ -692,12 +692,12 @@ cs =
         , Skill.cooldown  = 2
         , Skill.channel   = Ongoing 2
         , Skill.start     =
-          [ p Self $ vary "Summoning: Giant Centipede" baseVariant ]
+          [ To Self $ vary "Summoning: Giant Centipede" baseVariant ]
         , Skill.effects   =
-          [ p Enemies do
+          [ To Enemies do
                 afflict 10
                 apply 1 [Exhaust All]
-          , p Allies $ apply 1 [Reduce All Flat 10]
+          , To Allies $ apply 1 [Reduce All Flat 10]
           ]
         }
       ]
@@ -709,7 +709,7 @@ cs =
         , Skill.cooldown  = 4
         , Skill.channel   = Ongoing 2
         , Skill.start     =
-          [ p Ally do
+          [ To Ally do
                 defend 0 20
                 apply 1 [Invulnerable All]
           ]
@@ -723,8 +723,8 @@ cs =
         , Skill.cost      = [Blood, Rand ]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
-          [ p Enemies $ tag 2
-          , p Allies $ apply 0 [Parry Uncounterable $ Play do
+          [ To Enemies $ tag 2
+          , To Allies $ apply 0 [Parry Uncounterable $ To () do
                 unlessM (targetHas "already") do
                     prolong 2 "Summoning: Giant Multi-Headed Dog"
                     flag' "already"
@@ -732,10 +732,10 @@ cs =
                     remove "Summoning: Giant Multi-Headed Dog"]
           ]
         , Skill.effects   =
-          [ p Enemies $ whenM (targetHas "Summoning: Giant Multi-Headed Dog") do
+          [ To Enemies $ whenM (targetHas "Summoning: Giant Multi-Headed Dog") do
                 pierce 10
                 self $ flag' "keep going"
-          , p Self $ unlessM (userHas "keep going") $
+          , To Self $ unlessM (userHas "keep going") $
                 cancelChannel "Summoning: Giant Multi-Headed Dog"
           ]
         }
@@ -752,7 +752,7 @@ cs =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Allies $ apply 0 [Reflect] ]
+          [ To Allies $ apply 0 [Reflect] ]
         }
       ]
     , [ Skill.new
@@ -762,7 +762,7 @@ cs =
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 absorb 1
                 damage 25
           ]
@@ -775,7 +775,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy $ apply 1 [Stun Bloodline, Stun Ninjutsu] ]
+          [ To Enemy $ apply 1 [Stun Bloodline, Stun Ninjutsu] ]
         }
       ]
       , [ invuln "Rinnegan Foresight" "Pain" [Mental] ]
@@ -790,7 +790,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 vary "Summoning: King of Hell" "Energy Transfer"
                 defend 0 20
                 onBreak $ self $ vary "Summoning: King of Hell" baseVariant
@@ -803,7 +803,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Ally do
+          [ To Ally do
                 defense <- userDefense "Summoning: King of Hell"
                 heal defense
           ]
@@ -816,7 +816,7 @@ cs =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 20
                 apply 1 [Stun NonMental]
           ]
@@ -829,7 +829,7 @@ cs =
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 bonus <- 20 `bonusIf` targetHas "Choke Hold"
                 leech (20 + bonus) $ self . addDefense "Summoning: King of Pain"
           ]
@@ -846,7 +846,7 @@ cs =
         , Skill.classes   = [Mental, Melee, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 damage 15
                 apply 1 [Reveal]
           ]
@@ -860,7 +860,7 @@ cs =
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 absorb 1
                 apply 1 [ Reveal]
                 leech 20 $ self . heal
@@ -875,7 +875,7 @@ cs =
         , Skill.cost      = [Gen, Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 apply 1 [Stun All, Reveal]
                 leech 30 $ self . heal
                 hp <- target health
@@ -895,7 +895,7 @@ cs =
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 pierce 15
                 apply 0 [Afflict 10]
                 trap 0 OnHelped $ remove "Metal Blade"
@@ -910,10 +910,10 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Action 2
         , Skill.start     =
-          [ p Enemy $ purge
-          , p Self  $ vary' 0 "Missile Salvo" "Head Cannon"
+          [ To Enemy $ purge
+          , To Self  $ vary' 0 "Missile Salvo" "Head Cannon"
           ]
-        , Skill.effects   = [ p Enemy $ damage 10 ]
+        , Skill.effects   = [ To Enemy $ damage 10 ]
         }
       , Skill.new
         { Skill.name      = "Head Cannon"
@@ -922,8 +922,8 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemies $ pierce 20
-          , p Self    $ vary "Missile Salvo" baseVariant
+          [ To Enemies $ pierce 20
+          , To Self    $ vary "Missile Salvo" baseVariant
           ]
         }
       ]
@@ -933,11 +933,11 @@ cs =
         , Skill.classes   = [Physical, Ranged, Bypassing, Invisible]
         , Skill.channel   = Ongoing 4
         , Skill.start     =
-          [ p Self  $ hide' "missile" 1 []
-          , p Enemy $ tag 4
+          [ To Self  $ hide' "missile" 1 []
+          , To Enemy $ tag 4
           ]
         , Skill.effects   =
-          [ p Self $ varyNext "Guided Missile" ]
+          [ To Self $ varyNext "Guided Missile" ]
         }
       , Skill.new
         { Skill.name      = "Bloodline Missile"
@@ -945,9 +945,9 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ p Enemies $ whenM (targetHas "Guided Missile") $ damage 25
-          , p REnemy  $ damage 25
-          , p Self do
+          [ To Enemies $ whenM (targetHas "Guided Missile") $ damage 25
+          , To REnemy  $ damage 25
+          , To Self do
                 cancelChannel "Guided Missile"
                 everyone $ remove "Guided Missile"
           ]
@@ -958,10 +958,10 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ p Enemies $ whenM (targetHas "Guided Missile") do
+          [ To Enemies $ whenM (targetHas "Guided Missile") do
                 damage 25
                 apply 2 [Expose]
-          , p Self do
+          , To Self do
               cancelChannel "Guided Missile"
               everyone $ remove "Guided Missile"
           ]
@@ -972,10 +972,10 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ p Enemies $ whenM (targetHas "Guided Missile") do
+          [ To Enemies $ whenM (targetHas "Guided Missile") do
                 damage 25
                 apply 1 [Stun All]
-          , p Self do
+          , To Self do
                 cancelChannel "Guided Missile"
                 everyone $ remove "Guided Missile"
           ]
@@ -986,8 +986,8 @@ cs =
         , Skill.classes   = [Physical, Ranged, Bypassing]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ p Enemies $ whenM (targetHas "Guided Missile") $ pierce 30
-          ,  p Self do
+          [ To Enemies $ whenM (targetHas "Guided Missile") $ pierce 30
+          ,  To Self do
                 cancelChannel "Guided Missile"
                 everyone $ remove "Guided Missile"
           ]
@@ -1005,11 +1005,11 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.channel   = Passive
         , Skill.start     =
-          [ p Ally $ apply 1 [Parry All $ Play $ damage 20]
-          , p Self $ tag' "Tidal Force" 1
+          [ To Ally $ apply 1 [Parry All $ To () $ damage 20]
+          , To Self $ tag' "Tidal Force" 1
           ]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 has <- userHas "pull"
                 if has then
                     vary "Almighty Push" "Almighty Push"
@@ -1024,8 +1024,8 @@ cs =
         , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ p Ally $ apply 1 [Parry All $ Play $ damage 20]
-          , p Self $ tag' "Tidal Force" 1
+          [ To Ally $ apply 1 [Parry All $ To () $ damage 20]
+          , To Self $ tag' "Tidal Force" 1
           ]
         }
       , Skill.new
@@ -1034,12 +1034,12 @@ cs =
         , Skill.classes   = [Chakra, Ranged, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 interrupt $ const True
                 userSlot <- user slot
                 apply 1 [Taunt userSlot]
-          , p Self $ whenM (userHas "Tidal Force") $
-                apply' "Almighty Push" 1 [Parry All $ Play $ damage 20]
+          , To Self $ whenM (userHas "Tidal Force") $
+                apply' "Almighty Push" 1 [Parry All $ To () $ damage 20]
           ]
         }
       ]
@@ -1050,7 +1050,7 @@ cs =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 pierce 15
                 barrierDoes 0 (const $ return ()) (do
                     has <- targetHas "receive"
@@ -1066,7 +1066,7 @@ cs =
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ p Enemy $
+          [ To Enemy $
                 barrierDoes 3 damage (apply 1 [Invulnerable All, Seal]) 80
           ]
         }
@@ -1084,12 +1084,12 @@ cs =
         , Skill.cooldown  = 4
         , Skill.channel   = Control (-4)
         , Skill.start     =
-          [ p Self do
+          [ To Self do
                 remove "gedo"
                 remove "dragon"
           ]
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 vary' 1 "Summoning: Gedo Statue" "Control"
                 vary' 1 "Phantom Dragon" "Phantom Dragon"
                 dragonStacks <- userStacks "dragon"
@@ -1098,7 +1098,7 @@ cs =
                 apply 1 [Reduce All Flat (10 + 5 * gedoStacks)]
           ]
         , Skill.interrupt =
-          [ p Self do
+          [ To Self do
                 remove "Summoning: Gedo Statue"
                 remove "Control"
           ]
@@ -1110,7 +1110,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p Self do
+          [ To Self do
                 prolongChannel 2 "Summoning: Gedo Statue"
                 hide' "dragon" 0 []
                 stacks <- userStacks "gedo"
@@ -1125,8 +1125,8 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-          [ p Enemy $ pierce 20
-          , p Self  $ tag 1
+          [ To Enemy $ pierce 20
+          , To Self  $ tag 1
           ]
         }
       , Skill.new
@@ -1135,10 +1135,10 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 stacks <- userStacks "dragon"
                 pierce (20 + 5 * stacks)
-          , p Self $ tag 1
+          , To Self $ tag 1
           ]
         }
       ]
@@ -1151,10 +1151,10 @@ cs =
         , Skill.cooldown  = 6
         , Skill.channel   = Control 3
         , Skill.effects   =
-          [ p Allies do
+          [ To Allies do
                 heal 15
                 resetAll
-          , p Self $ gain [Rand]
+          , To Self $ gain [Rand]
           ]
         }
       ]
@@ -1170,7 +1170,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ p Self $ apply 0 [Parry All $ Play do
+          [ To Self $ apply 0 [Parry All $ To () do
                 self $ tag' "Kamui" 2
                 vary' (-2) "Sharingan" "Kamui"]
           ]
@@ -1182,11 +1182,11 @@ cs =
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ p XAlly do
+          [ To XAlly do
                 cureAll
                 userSlot <- user slot
                 apply 3 [Duel userSlot]
-          , p Enemy do
+          , To Enemy do
                 pierce 20
                 userSlot <- user slot
                 apply 3 [Duel userSlot, Expose]
@@ -1199,7 +1199,7 @@ cs =
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ p Enemy do
+          [ To Enemy do
                 has <- targetHas "Kamui"
                 if has then
                     pierce 40
@@ -1216,7 +1216,7 @@ cs =
         , Skill.cost      = [Blood, Blood]
         , Skill.charges   = 2
         , Skill.effects   =
-          [ p Self $ snapshot 2 ]
+          [ To Self $ snapshot 2 ]
         }
       ]
     , [ invuln "Phase" "Tobi" [Chakra] ]
