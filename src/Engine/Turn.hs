@@ -27,6 +27,7 @@ import qualified Model.Status as Status
 import           Model.Status (Bomb(..), Status)
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
+import qualified Engine.Adjust as Adjust
 import qualified Engine.Chakras as Chakras
 import qualified Engine.Effects as Effects
 import qualified Engine.Execute as Execute
@@ -72,6 +73,7 @@ process runner = do
     doDeaths
     Chakras.gain
     P.yieldVictor
+    P.modifyAll Adjust.effects
   where
     getChannels n = map (Act.fromChannel n) .
                     filter ((1 /=) . TurnBased.getDur) $

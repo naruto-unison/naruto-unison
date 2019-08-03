@@ -254,7 +254,6 @@ addChannels = do
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadRandom m) => Act -> m ()
 act a = do
-    P.modifyAll Adjust.effects
     nUser     <- P.ninja user
     game      <- P.game
     let skill' = Adjust.skill s nUser
@@ -283,6 +282,7 @@ act a = do
                 when new addChannels
         traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
         -- P.modifyAll \n -> n { Ninja.triggers = mempty } TODO
+    P.modifyAll Adjust.effects
   where
     s       = Act.skill a
     new     = isLeft s
