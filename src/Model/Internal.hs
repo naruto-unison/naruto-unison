@@ -10,7 +10,6 @@ import           Control.Monad.Trans.Accum (AccumT, mapAccumT)
 import           Control.Monad.Trans.Except (ExceptT, mapExceptT)
 import           Control.Monad.Trans.Identity (IdentityT, mapIdentityT)
 import           Control.Monad.Trans.Select (SelectT, mapSelectT)
-import           Control.Monad.Trans.State.Strict (StateT, mapStateT)
 import           Control.Monad.Trans.Writer (WriterT, mapWriterT)
 import           Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import           Data.Aeson ((.=), ToJSON(..), object)
@@ -21,7 +20,7 @@ import           Yesod.WebSockets (WebSocketsT)
 import           Core.Util ((∈), Lift, enumerate)
 import qualified Class.Classed as Classed
 import           Class.Classed (Classed)
-import           Class.Display (Display(..))
+import           Class.Display (Display(..), display')
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
 import qualified Class.Labeled
@@ -125,7 +124,7 @@ instance Classed Effect where
 
 instance ToJSON Effect where
     toJSON x = object
-      [ "desc"    .= builderToLazy (display x)
+      [ "desc"    .= display' x
       , "helpful" .= helpful x
       , "sticky"  .= sticky x
       , "trap"    .= False
@@ -475,7 +474,7 @@ data Trigger
     deriving (Eq, Ord, Show, Read)
 
 instance ToJSON Trigger where
-    toJSON = toJSON . builderToLazy . display
+    toJSON = toJSON . display'
 
 instance Classed Trigger where
     classes (OnAction cla)  = singletonSet cla
@@ -683,7 +682,6 @@ instance MonadGame m => MonadGame (ExceptT e m)
 instance MonadGame m => MonadGame (IdentityT m)
 instance MonadGame m => MonadGame (MaybeT m)
 instance MonadGame m => MonadGame (SelectT r m)
-instance MonadGame m => MonadGame (StateT r m)
 instance MonadGame m => MonadGame (ReaderT Context m)
 instance MonadGame m => MonadGame (WebSocketsT m)
 instance (MonadGame m, Monoid w) => MonadGame (WriterT w m)
@@ -697,8 +695,6 @@ instance MonadPlay m => MonadPlay (MaybeT m) where
     with f = mapMaybeT $ with f
 instance MonadPlay m => MonadPlay (SelectT r m) where
     with f = mapSelectT $ with f
-instance MonadPlay m => MonadPlay (StateT r m) where
-    with f = mapStateT $ with f
 instance MonadPlay m => MonadPlay (WebSocketsT m) where
     with f = mapReaderT $ with f
 instance (MonadPlay m, Monoid w) => MonadPlay (WriterT w m) where

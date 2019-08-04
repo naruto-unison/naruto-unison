@@ -4,11 +4,10 @@ module Model.Class (Class(..), lower, ClassSet) where
 import ClassyPrelude
 
 import           Data.Aeson (ToJSON(..))
-import           Data.EnumSet (EnumSet)
-import qualified Data.Vector as Vector
+import qualified Data.Enum.Memo as Enum
+import           Data.Enum.Set (EnumSet)
 
 import Class.Display (Display(..))
-import Core.Util ((!!))
 
 -- | Qualifiers of 'Model.Skill.Skill's and 'Model.Status.Status'es.
 data Class
@@ -56,25 +55,17 @@ data Class
 type ClassSet = EnumSet Word64 Class
 
 instance ToJSON Class where
-    toJSON = toJSON . (textCache !!) . fromEnum
+    toJSON = Enum.memoize $ toJSON . name
 
 instance Display Class where
-    display = (displayCache !!) . fromEnum
+    display = Enum.memoize $ display . name
 
-textCache :: Vector Text
-textCache = Vector.generate (1 + fromEnum (maxBound :: Class)) $ f . toEnum
-  where
-    f InvisibleTraps = f Invisible
-    f Nonstacking    = "Non-stacking"
-    f NonAffliction  = "Non-affliction"
-    f NonMental      = "Non-mental"
-    f x              = tshow x
-
-displayCache :: Vector TextBuilder
-displayCache = toBuilder <$> textCache
-
-lowerCache :: Vector TextBuilder
-lowerCache = toBuilder . toLower <$> textCache
+name :: Class -> Text
+name InvisibleTraps = name Invisible
+name Nonstacking    = "Non-stacking"
+name NonAffliction  = "Non-affliction"
+name NonMental      = "Non-mental"
+name x              = tshow x
 
 lower :: Class -> TextBuilder
-lower = (lowerCache !!) . fromEnum
+lower = Enum.memoize $ display . toLower . name

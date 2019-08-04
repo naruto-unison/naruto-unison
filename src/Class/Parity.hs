@@ -13,6 +13,7 @@ class Parity a where
     even :: a -> Bool
     default even :: Integral a => a -> Bool
     even = Prelude.even
+    {-# INLINE even #-}
 
 -- | Splits a sequence into alternating evens and odds, based on index.
 split :: ∀ o. (Monoid o, SemiSequence o) => o -> (o, o)
@@ -34,6 +35,7 @@ enemies _               = snd . split
 
 instance Parity Bool where
     even = id
+    {-# INLINE even #-}
 instance Parity Int
 instance Parity Int32
 instance Parity Int64

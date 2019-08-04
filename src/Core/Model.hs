@@ -20,9 +20,7 @@ instance Ord Post where
     compare = comparing postTime
 
 instance Hashable (Key User) where
-    hashWithSalt salt = hashWithSalt salt .
-                        (fromIntegral :: ∀ a. Integral a => a -> Int) .
-                        Sql.fromSqlKey
+    hashWithSalt salt = hashWithSalt salt . fromEnum . Sql.fromSqlKey
 
 instance ToJSON User where
     toJSON User{..} = object

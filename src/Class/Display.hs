@@ -1,4 +1,4 @@
-module Class.Display (Display(..)) where
+module Class.Display (Display(..), display') where
 
 import ClassyPrelude
 
@@ -9,6 +9,16 @@ class Display a where
 
 instance Display Text where
     display = toBuilder
+    {-# INLINE display #-}
+
+instance Display String where
+    display = toBuilder
+    {-# INLINE display #-}
 
 instance Display Int where
     display = IntBuilder.decimal
+    {-# INLINE display #-}
+
+display' :: ∀ a. Display a => a -> LText
+display' = builderToLazy . display
+{-# INLINE display' #-}

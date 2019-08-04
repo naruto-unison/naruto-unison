@@ -35,7 +35,9 @@ data Chakras = Chakras { blood :: Int -- ^ Bloodline
 instance IsList Chakras where
     type Item Chakras = Chakra
     toList = fromChakras
+    {-# INLINE toList #-}
     fromList = collect
+    {-# INLINE fromList #-}
 
 instance PathPiece Chakras where
   toPathPiece Chakras{..} = intercalate "," $ tshow <$> [blood, gen, nin, tai]

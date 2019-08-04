@@ -13,18 +13,18 @@ packages:
     hackage: elm-bridge-0.5.1
 - completed:
     cabal-file:
-      size: 890
-      sha256: d496af7f8a90414e727e52b677b818426ceccc485422447a6ececd8dd622afa7
-    name: bounded-enum-set
+      size: 959
+      sha256: 571aaf873632270f6a1657618e6f115cde57120dd14f49632b54c45a1bb7d55c
+    name: bounded-enum
     version: 0.1.0.0
-    git: https://github.com/jnbooth/bounded-enum-set.git
+    git: https://github.com/jnbooth/bounded-enum.git
     pantry-tree:
-      size: 312
-      sha256: 9d3b7844781285f3aa5aaecf8c2e535d5ab9716f63d28d7ab2dbdc14d2d58aff
-    commit: 2e0a888f49316f24526fbbf9ad50fdfab6c197ab
+      size: 367
+      sha256: 78434836e8c22cd70d704aa426220f5811893c97bc14631d24d9ac38681fdb50
+    commit: 01be7c6b89e7540a0c29d39f2238ea6ff1bbbf22
   original:
-    git: https://github.com/jnbooth/bounded-enum-set.git
-    commit: 2e0a888f49316f24526fbbf9ad50fdfab6c197ab
+    git: https://github.com/jnbooth/bounded-enum.git
+    commit: 01be7c6b89e7540a0c29d39f2238ea6ff1bbbf22
 snapshots:
 - completed:
     size: 500539

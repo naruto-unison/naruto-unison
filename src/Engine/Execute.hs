@@ -11,7 +11,7 @@ import ClassyPrelude hiding ((<|))
 
 import           Control.Monad.Trans.Maybe (runMaybeT)
 import           Data.Either (isLeft)
-import           Data.EnumSet (EnumSet)
+import           Data.Enum.Set (EnumSet)
 import qualified Data.Sequence as Seq
 
 import           Core.Util ((—), (∈), (∉), intersectsSet)

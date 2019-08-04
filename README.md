@@ -14,7 +14,7 @@ Currently pre-alpha and in active development. Nothing is guaranteed to be stabl
 
 ## Installing
 
-1. Install [Stack](https://docs.haskellstack.org/en/stable/install_and_upgrade/), [PostgreSQL](https://www.postgresql.org/download/), and [NPM](https://www.npmjs.com/get-npm). Make sure all executables are added to your path.
+1. Install [Git](https://git-scm.com/downloads), [Stack](https://docs.haskellstack.org/en/stable/install_and_upgrade/), [PostgreSQL](https://www.postgresql.org/download/), and [NPM](https://www.npmjs.com/get-npm). Make sure all executables are added to your path.
 
 2. Run `stack install yesod-bin`.
 

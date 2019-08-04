@@ -78,7 +78,8 @@ mapMaybe f = catMaybes . (f <$>)
 shorten :: Text -> Text
 shorten = omap f . filter (∉ bans)
   where
-    bans  = " -:()®'/?" :: String
+    bans :: String
+    bans  = " -:()®'/?"
     f 'ō' = 'o'
     f 'Ō' = 'O'
     f 'ū' = 'u'
