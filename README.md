@@ -32,5 +32,4 @@ Currently pre-alpha and in active development. Nothing is guaranteed to be stabl
 
 To use a development web server, run `stack exec -- yesod devel` in the root directory of the project.
 
-In order to run the server in production mode, which has significantly better performance, deploy it with [Keter](https://www.yesodweb.com/blog/2012/05/keter-app-deployment). It is recommended to use a standalone server for hosting the Keter bundle and PostgreSQL database.
-
+In order to run the server in production mode, which has significantly better performance, deploy it with [Keter](https://www.yesodweb.com/blog/2012/05/keter-app-deployment). It is recommended to use a standalone server for hosting the Keter bundle and PostgreSQL database. The only server requirement to host Keter bundles is the Keter binary itself, which may be compiled on another machine with GHC and copied over. Docker support is planned but not yet implemented.
