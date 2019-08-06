@@ -49,12 +49,12 @@ total : Chakras -> Int
 total x = x.blood + x.gen + x.nin + x.tai + x.rand
 
 affordable : Chakras -> Chakras -> Bool
-affordable x y = rate < total { blood = if y.blood /= 0 then 0 else x.blood
-                              , gen   = if y.gen   /= 0 then 0 else x.gen
-                              , nin   = if y.nin   /= 0 then 0 else x.nin
-                              , tai   = if y.tai   /= 0 then 0 else x.tai
-                              , rand  = 0
-                              }
+affordable x y = rate <= total { blood = if y.blood /= 0 then 0 else x.blood
+                               , gen   = if y.gen   /= 0 then 0 else x.gen
+                               , nin   = if y.nin   /= 0 then 0 else x.nin
+                               , tai   = if y.tai   /= 0 then 0 else x.tai
+                               , rand  = 0
+                               }
 
 lacks : Chakras -> Chakras -> Bool
 lacks x y =
@@ -63,6 +63,7 @@ lacks x y =
     || x.nin  < y.nin
     || x.tai  < y.tai
     || x.rand < y.rand
+    || x.rand < total y
 
 canExchange : Chakras -> Bool
 canExchange x = List.any (affordable x)

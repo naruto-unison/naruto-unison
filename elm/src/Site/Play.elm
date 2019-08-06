@@ -102,10 +102,11 @@ component ports =
         characters  = List.map2 Game.merge st.characters st.game.ninjas
         costs       = Chakra.sum <| List.map (.cost << .skill) st.acts
         net         = Chakra.sum [st.exchanged, st.chakras, Chakra.negate costs]
+        netUnrand   = { net | rand = 0 }
         ownTurn     = st.player == st.game.playing
         rand        = Chakra.total st.randoms + net.rand
                       - Chakra.rate * Chakra.total st.exchanged
-        free        = { net | rand = Chakra.total net + rand }
+        free        = { net | rand = Chakra.total netUnrand + rand }
         acted       = List.map .user st.acts
         renderNinja = renderCharacter characters acted st.toggled st.highlight
                       free ownTurn
@@ -169,10 +170,11 @@ component ports =
               in
                 [ H.section [A.id "playchakra"] <|
                   List.map (renderChakra ownTurn st.exchange net) chakraPairs ++
-                  [ Render.rands (Chakra.total net) rand
+                  [ Render.rands (Chakra.total netUnrand) rand
                   , chakraButton "Exchange" Begin <|
                     free.rand >= 5 && Chakra.canExchange net && ownTurn
-                  , chakraButton "Reset" Reset <| st.exchanged /= Chakra.none
+                  , chakraButton "Reset" Reset <|
+                        st.exchanged /= Chakra.none || st.randoms /= Chakra.none
                   ]
                 , H.section [A.id "playqueuecont"]
                   [ H.div [A.id "playqueue"] <|
