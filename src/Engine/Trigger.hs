@@ -12,13 +12,14 @@ module Engine.Trigger
 
 import ClassyPrelude hiding (swap)
 
+import           Data.Enum.Set.Class (EnumSet)
 import qualified Data.Sequence as Seq
 
 import           Core.Util ((∈), (∉), intersects)
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
 import           Class.Random (MonadRandom)
-import           Model.Class (Class(..), ClassSet)
+import           Model.Class (Class(..))
 import           Model.Duration (Duration)
 import           Model.Effect (Effect(..))
 import qualified Model.Channel as Channel
@@ -35,11 +36,12 @@ import qualified Model.Status as Status
 import           Model.Status (Status)
 import qualified Model.Trap as Trap
 import           Model.Trap (Trigger(..))
+import qualified Engine.Adjust as Adjust
 import qualified Engine.Traps as Traps
 
 -- | Trigger a 'Replace'.
 -- Returns ('Status.user', 'Status.name', 'Effects.replaceTo', 'Effects.replaceDuration').
-replace :: ClassSet -> Ninja -> Bool -> [(Slot, Text, Int, Duration)]
+replace :: EnumSet Class -> Ninja -> Bool -> [(Slot, Text, Int, Duration)]
 replace classes n harm = mapMaybe ifCopy allStatuses
   where
     allStatuses = filter (any matches . Status.effects) $ Ninja.statuses n
@@ -99,7 +101,7 @@ parry skill n =
     match _ = False
 
 -- | Trigger a 'Reflect'.
-reflect :: ClassSet -> Ninja -> Ninja -> Maybe Ninja
+reflect :: EnumSet Class -> Ninja -> Ninja -> Maybe Ninja
 reflect classes n nt
   | [Mental, Unreflectable] `intersects` classes              = Nothing
   | any ((ReflectAll ∈) . Status.effects) $ Ninja.statuses nt = Just nt
@@ -113,18 +115,18 @@ snareTrap skill n = [(n', a) | (n', SnareTrap _ a, _) <- Ninja.take match n]
     match (SnareTrap cla _) = cla ∈ Skill.classes skill
     match _                 = False
 
-reflectable :: ([Effect] -> Bool) -> ClassSet -> Ninja -> Maybe Status
+reflectable :: ([Effect] -> Bool) -> EnumSet Class -> Ninja -> Maybe Status
 reflectable matches classes
   | Unreflectable ∈ classes = const Nothing
   | otherwise               = find (matches . Status.effects) . Ninja.statuses
 
 -- | Trigger a 'Redirect'.
-redirect :: ClassSet -> Ninja -> Maybe Slot
+redirect :: EnumSet Class -> Ninja -> Maybe Slot
 redirect classes n = listToMaybe [slot | Redirect cla slot <- Ninja.effects n
                                        , cla ∈ classes || cla == Uncounterable]
 
 -- | Trigger a 'Swap'.
-swap :: ClassSet -> Ninja -> Maybe Status
+swap :: EnumSet Class -> Ninja -> Maybe Status
 swap classes = reflectable (any match) classes
   where
     match (Swap cla) = cla ∈ classes

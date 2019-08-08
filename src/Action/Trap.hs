@@ -7,10 +7,12 @@ module Action.Trap
   ) where
 import ClassyPrelude
 
+import Data.Enum.Set.Class (EnumSet)
+
 import           Core.Util ((∈))
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
-import           Model.Class (Class(..), ClassSet)
+import           Model.Class (Class(..))
 import qualified Model.Context as Context
 import           Model.Context (Context(Context))
 import qualified Model.Delay as Delay
@@ -46,12 +48,12 @@ trapFrom' = trapWith Trap.From $ singletonSet Hidden
 
 -- | Adds a 'Trap.Trap' to 'Ninja.traps' with an effect that depends on a number
 -- accumulated while the trap is in play and tracked with its 'Trap.tracker'.
-trapPer  :: ∀ m. MonadPlay m => Turns -> Trigger -> (Int -> RunConstraint ())
-         -> m ()
+trapPer  :: ∀ m. MonadPlay m
+         => Turns -> Trigger -> (Int -> RunConstraint ()) -> m ()
 trapPer  = trapFull Trap.Per mempty
 -- | 'Hidden' 'trapPer'.
-trapPer' :: ∀ m. MonadPlay m => Turns -> Trigger -> (Int -> RunConstraint ())
-         -> m ()
+trapPer' :: ∀ m. MonadPlay m
+         => Turns -> Trigger -> (Int -> RunConstraint ()) -> m ()
 trapPer' = trapFull Trap.Per $ singletonSet Hidden
 
 -- | Adds an 'OnBreak' 'Trap.Trap' for the used 'Skill.Skill' to 'Ninja.traps'.
@@ -77,13 +79,15 @@ onBreak' = do
         P.modifyAll $ Ninja.clear name user
 
 -- | Adds a 'Trap.Trap' to 'Ninja.traps'.
-trapWith :: ∀ m. MonadPlay m => Trap.Direction -> ClassSet -> Turns -> Trigger
+trapWith :: ∀ m. MonadPlay m
+         => Trap.Direction -> EnumSet Class -> Turns -> Trigger
          -> RunConstraint () -> m ()
 trapWith trapType clas dur tr f = trapFull trapType clas dur tr (const f)
 
 -- | Trap engine.
-trapFull :: ∀ m. MonadPlay m => Trap.Direction -> ClassSet -> Turns
-         -> Trap.Trigger -> (Int -> RunConstraint ()) -> m ()
+trapFull :: ∀ m. MonadPlay m
+         => Trap.Direction -> EnumSet Class -> Turns -> Trap.Trigger
+         -> (Int -> RunConstraint ()) -> m ()
 trapFull direction classes (Duration -> dur) trigger f = do
     skill   <- P.skill
     user    <- P.user

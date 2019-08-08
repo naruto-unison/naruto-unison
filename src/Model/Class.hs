@@ -1,11 +1,10 @@
-{-# LANGUAGE DeriveAnyClass #-}
-module Model.Class (Class(..), lower, ClassSet) where
+module Model.Class (Class(..), lower) where
 
 import ClassyPrelude
 
 import           Data.Aeson (ToJSON(..))
 import qualified Data.Enum.Memo as Enum
-import           Data.Enum.Set (EnumSet)
+import           Data.Enum.Set.Class (AsEnumSet(..))
 
 import Class.Display (Display(..))
 
@@ -52,7 +51,8 @@ data Class
     | Random
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
-type ClassSet = EnumSet Word64 Class
+instance AsEnumSet Class where
+    type EnumSetRep Class = Word64
 
 instance ToJSON Class where
     toJSON = Enum.memoize $ toJSON . name

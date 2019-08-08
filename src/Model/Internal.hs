@@ -5,17 +5,18 @@ module Model.Internal where
 
 import ClassyPrelude
 
-import           Control.Monad.Reader (local, mapReaderT)
-import           Control.Monad.Trans.Accum (AccumT, mapAccumT)
-import           Control.Monad.Trans.Except (ExceptT, mapExceptT)
-import           Control.Monad.Trans.Identity (IdentityT, mapIdentityT)
-import           Control.Monad.Trans.Select (SelectT, mapSelectT)
-import           Control.Monad.Trans.Writer (WriterT, mapWriterT)
-import           Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
-import           Data.Aeson ((.=), ToJSON(..), object)
-import           Data.List.NonEmpty (NonEmpty(..))
-import           Text.Blaze (ToMarkup(..))
-import           Yesod.WebSockets (WebSocketsT)
+import Control.Monad.Reader (local, mapReaderT)
+import Control.Monad.Trans.Accum (AccumT, mapAccumT)
+import Control.Monad.Trans.Except (ExceptT, mapExceptT)
+import Control.Monad.Trans.Identity (IdentityT, mapIdentityT)
+import Control.Monad.Trans.Select (SelectT, mapSelectT)
+import Control.Monad.Trans.Writer (WriterT, mapWriterT)
+import Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
+import Data.Aeson ((.=), ToJSON(..), object)
+import Data.Enum.Set.Class (EnumSet)
+import Data.List.NonEmpty (NonEmpty(..))
+import Text.Blaze (ToMarkup(..))
+import Yesod.WebSockets (WebSocketsT)
 
 import           Core.Util ((∈), Lift, enumerate)
 import qualified Class.Classed as Classed
@@ -27,7 +28,7 @@ import qualified Class.Labeled
 import           Class.Labeled (Labeled)
 import           Class.Random (MonadRandom)
 import           Class.TurnBased (TurnBased(..))
-import           Model.Class (Class(..), ClassSet, lower)
+import           Model.Class (Class(..), lower)
 import           Model.Chakra (Chakras(..))
 import           Model.Defense (Defense(..))
 import           Model.Duration (Duration, sync, unsync)
@@ -270,8 +271,6 @@ instance Display Effect where
     display (Unreduce x) = "Damage reduction skills reduce " ++ display x ++ " fewer damage."
     display (Weaken cla amt x) = display cla ++ " skills deal " ++ displayAmt amt x ++ " fewer damage. Does not affect affliction damage."
 
-type Four a = (a, a, a, a)
-
 -- | In-game character, indexed between 0 and 5.
 data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas' index (0-5)
                    , character :: Character
@@ -335,7 +334,7 @@ data Target
 data Skill = Skill { name      :: Text              -- ^ Name
                    , desc      :: Text              -- ^ Description
                    , require   :: Requirement       -- ^ Defaults to 'Usable'
-                   , classes   :: ClassSet          -- ^ Defaults to @mempty@
+                   , classes   :: EnumSet Class     -- ^ Defaults to @mempty@
                    , cost      :: Chakras           -- ^ Defaults to '[]'
                    , cooldown  :: Duration          -- ^ Defaults to @0@
                    , varicd    :: Bool              -- ^ Defaults to @False@
@@ -567,7 +566,7 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
                      , user    :: Slot -- ^ User
                      , skill   :: Skill
                      , effects :: [Effect]
-                     , classes :: ClassSet
+                     , classes :: EnumSet Class
                      , bombs   :: [Runnable Bomb]
                      , maxDur  :: Int
                      , dur     :: Int
@@ -598,7 +597,7 @@ data Trap = Trap { direction :: Direction
                  , desc      :: Text
                  , user      :: Slot
                  , effect    :: Int -> Runnable Context
-                 , classes   :: ClassSet
+                 , classes   :: EnumSet Class
                  , tracker   :: Int
                  , dur       :: Int
                  } deriving (Generic)

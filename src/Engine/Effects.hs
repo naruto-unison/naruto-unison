@@ -25,12 +25,13 @@ module Engine.Effects
 
 import ClassyPrelude hiding (link)
 
+import Data.Enum.Set.Class (EnumSet)
 import Data.List.NonEmpty (NonEmpty(..))
 
 import           Core.Util ((!!), (∈), intersects)
 import qualified Class.Parity as Parity
 import           Model.Chakra (Chakras(..))
-import           Model.Class (Class(..), ClassSet)
+import           Model.Class (Class(..))
 import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Ninja as Ninja
@@ -54,7 +55,7 @@ negativeTotal xs Flat = total xs Flat
 negativeTotal xs Percent = total (second (100 -) <$> xs) Percent
 
 -- | 'Bleed' sum.
-bleed :: ClassSet -> Ninja -> Amount -> Float
+bleed :: EnumSet Class -> Ninja -> Amount -> Float
 bleed classes n =
     total [(amt, x) | Bleed cla amt x <- Ninja.effects n, cla ∈ classes]
 
@@ -82,7 +83,7 @@ duel :: Ninja -> [Slot]
 duel n = [slot | Duel slot <- Ninja.effects n, slot /= Ninja.slot n]
 
 -- | 'Exhaust' sum.
-exhaust :: ClassSet -> Ninja -> Chakras
+exhaust :: EnumSet Class -> Ninja -> Chakras
 exhaust classes n =
     0 { rand = length [x | Exhaust x <- Ninja.effects n, x ∈ classes] }
 
@@ -91,7 +92,7 @@ ignore :: Ninja -> [Effect]
 ignore n = [ef | Ignore con <- Ninja.effects n, ef <- Effect.construct con]
 
 -- | 'Invulnerable' collection.
-immune :: Ninja -> ClassSet
+immune :: Ninja -> EnumSet Class
 immune n = setFromList [x | Invulnerable x <- Ninja.effects n]
 
 -- | 'Invincible' collection.
@@ -99,7 +100,7 @@ invincible :: Ninja -> ClassSet
 invincible n = setFromList [x | Invincible x <- Ninja.effects n]
 
 -- | 'Reduce' sum.
-reduce :: ClassSet -> Ninja -> Amount -> Float
+reduce :: EnumSet Class -> Ninja -> Amount -> Float
 reduce classes n
     | classes == singletonSet Affliction =
         negativeTotal [(amt, x) | Reduce Affliction amt x <- Ninja.effects n]
@@ -117,12 +118,12 @@ snare :: Ninja -> Int
 snare n = sum [x | Snare x <- Ninja.effects n]
 
 -- | 'Strengthen' sum.
-strengthen :: ClassSet -> Ninja -> Amount -> Float
+strengthen :: EnumSet Class -> Ninja -> Amount -> Float
 strengthen classes n =
     total [(amt, x) | Strengthen cla amt x <- Ninja.effects n, cla ∈ classes]
 
 -- | 'Stun' collection.
-stun :: Ninja -> ClassSet
+stun :: Ninja -> EnumSet Class
 stun n = setFromList [x | Stun x <- Ninja.effects n]
 
 -- | 'Taunt' collection.
@@ -144,7 +145,7 @@ unreduce :: Ninja -> Int
 unreduce n = sum [x | Unreduce x <- Ninja.effects n]
 
 -- | 'Weaken' sum.
-weaken :: ClassSet -> Ninja -> Amount -> Float
+weaken :: EnumSet Class -> Ninja -> Amount -> Float
 weaken classes n =
   negativeTotal [(amt, x) | Weaken cla amt x <- Ninja.effects n, cla ∈ classes]
 
@@ -178,7 +179,7 @@ afflict :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
 afflict ninjas player n = sum
     [aff st | st <- Ninja.statuses n
             , not (n `is` ImmuneSelf) || Status.user st /= Ninja.slot n
-            , not $ [All, Affliction] `intersects` invincible n]
+            , not $ [All, Affliction] `intersects` immune n]
   where
     aff = afflict1 ninjas player $ Ninja.slot n
 

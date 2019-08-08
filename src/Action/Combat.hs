@@ -18,6 +18,7 @@ module Action.Combat
 import ClassyPrelude
 
 import Control.Monad.Trans.Maybe (runMaybeT)
+import Data.Enum.Set.Class (EnumSet)
 
 import           Core.Util ((—), (∈), intersectsSet)
 import qualified Class.Classed as Classed
@@ -28,7 +29,7 @@ import qualified Model.Attack as Attack
 import           Model.Attack (Attack)
 import qualified Model.Barrier as Barrier
 import           Model.Barrier (Barrier(Barrier))
-import           Model.Class (Class(..), ClassSet)
+import           Model.Class (Class(..))
 import qualified Model.Context as Context
 import           Model.Context (Context)
 import qualified Model.Copy as Copy
@@ -85,7 +86,7 @@ demolishAll = do
     P.modify user   \n -> n { Ninja.barrier = [] }
     P.modify target \n -> n { Ninja.defense = [] }
 
-userAdjust :: Attack -> ClassSet -> Ninja -> Float -> Float
+userAdjust :: Attack -> EnumSet Class -> Ninja -> Float -> Float
 userAdjust atk classes nUser x = x
     * strengthen Percent
     * weaken Percent
@@ -101,7 +102,7 @@ userAdjust atk classes nUser x = x
       | atk == Attack.Afflict = Effect.identity
       | otherwise             = Effects.weaken classes nUser
 
-targetAdjust :: Attack -> ClassSet -> Ninja -> Float -> Float
+targetAdjust :: Attack -> EnumSet Class -> Ninja -> Float -> Float
 targetAdjust atk classes nTarget x = x
     * bleed Percent
     * reduceAfflic Percent
@@ -120,7 +121,7 @@ targetAdjust atk classes nTarget x = x
 
 -- | Damage formula.
 formula :: Attack -- ^ Attack type.
-        -> ClassSet -- ^ 'Skill.classes'.
+        -> EnumSet Class -- ^ 'Skill.classes'.
         -> Ninja -- ^ User.
         -> Ninja -- ^ Target.
         -> Int -- ^ Base damage.

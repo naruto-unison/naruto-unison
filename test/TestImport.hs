@@ -92,13 +92,13 @@ useSkill char target skillName f =
         Specific x -> Slot.toInt x
 
 testBase :: Wrapper
-testBase = Wrapper 
+testBase = Wrapper
     { Wrapper.game = Game.new
     , Wrapper.ninjas = fromList $ testNinja <$> unsafeTail Slot.all
     }
 
 testGame :: Character -> Wrapper
-testGame char = 
+testGame char =
     testBase { Wrapper.ninjas = charNinja `cons` Wrapper.ninjas testBase }
   where
     charNinja = Ninja.new (unsafeHead Slot.all) char

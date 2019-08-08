@@ -21,6 +21,7 @@ module Action.Status
 import ClassyPrelude
 
 import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
+import Data.Enum.Set.Class (EnumSet)
 
 import           Core.Util ((∈), (∉), intersectsSet)
 import qualified Class.Play as P
@@ -28,7 +29,7 @@ import           Class.Play (MonadPlay)
 import           Class.Random (MonadRandom)
 import qualified Model.Channel as Channel
 import           Model.Channel (Channeling(..))
-import           Model.Class (Class(..), ClassSet)
+import           Model.Class (Class(..))
 import qualified Model.Copy as Copy
 import qualified Model.Duration as Duration
 import           Model.Duration (Duration(..), Turns, incr, sync)
@@ -90,12 +91,12 @@ apply = apply' ""
 apply' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> [Effect] -> m ()
 apply' = applyWith' mempty
 -- | 'apply' with extra 'Status.classes'.
-applyWith :: ∀ m. (MonadPlay m, MonadRandom m) => ClassSet -> Turns -> [Effect]
-          -> m ()
+applyWith :: ∀ m. (MonadPlay m, MonadRandom m)
+          => EnumSet Class -> Turns -> [Effect] -> m ()
 applyWith classes = applyWith' classes ""
 -- | 'applyWith' with a 'Status.name'.
-applyWith' :: ∀ m. (MonadPlay m, MonadRandom m) => ClassSet -> Text -> Turns
-           -> [Effect] -> m ()
+applyWith' :: ∀ m. (MonadPlay m, MonadRandom m)
+           => EnumSet Class -> Text -> Turns -> [Effect] -> m ()
 applyWith' classes turns efs =
     P.unsilenced . applyFull classes False [] turns efs
 
@@ -153,26 +154,29 @@ hide' = applyWith' $ setFromList [Unremovable, Hidden]
 -- activates when the 'Status.Status' is removd before naturally reaching the end of
 -- its 'Status.dur'. If the 'Bomb' type is 'Status.Done', the bomb activates
 -- in both situations.
-bomb :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> [Effect] -> [Runnable Bomb]
-     -> m ()
+bomb :: ∀ m. (MonadPlay m, MonadRandom m)
+     => Turns -> [Effect] -> [Runnable Bomb] -> m ()
 bomb = bomb' ""
 -- | 'bomb' with a 'Status.name'.
-bomb' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> [Effect]
-      -> [Runnable Bomb] -> m ()
+bomb' :: ∀ m. (MonadPlay m, MonadRandom m)
+      => Text -> Turns -> [Effect] -> [Runnable Bomb] -> m ()
 bomb' = bombWith' mempty
 -- | 'bomb' with extra 'Status.classes'.
-bombWith :: ∀ m. (MonadPlay m, MonadRandom m) => ClassSet -> Turns -> [Effect]
-         -> [Runnable Bomb] -> m ()
+bombWith :: ∀ m. (MonadPlay m, MonadRandom m)
+         => EnumSet Class -> Turns -> [Effect] -> [Runnable Bomb]
+         -> m ()
 bombWith classes = bombWith' classes ""
 -- | 'bombWith' with a 'Status.name'.
-bombWith' :: ∀ m. (MonadPlay m, MonadRandom m) => ClassSet -> Text -> Turns
-          -> [Effect] -> [Runnable Bomb] -> m ()
+bombWith' :: ∀ m. (MonadPlay m, MonadRandom m)
+          => EnumSet Class -> Text -> Turns -> [Effect] -> [Runnable Bomb]
+          -> m ()
 bombWith' classes name dur fs bombs =
     P.unsilenced $ applyFull classes False bombs name dur fs
 
 -- | Status engine.
-applyFull :: ∀ m. (MonadPlay m, MonadRandom m) => ClassSet -> Bool
-          -> [Runnable Bomb] -> Text -> Turns -> [Effect] -> m ()
+applyFull :: ∀ m. (MonadPlay m, MonadRandom m)
+          => EnumSet Class -> Bool -> [Runnable Bomb] -> Text -> Turns
+          -> [Effect] -> m ()
 applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
     void $ runMaybeT do
         skill       <- P.skill

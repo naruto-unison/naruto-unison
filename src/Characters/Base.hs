@@ -11,11 +11,12 @@ module Characters.Base
   ) where
 
 import ClassyPrelude as Import hiding (swap)
+
 import Model.Character as Import (Character(..), Category)
 import Model.Chakra as Import (Chakra(..), Chakras)
 import Model.Channel as Import (Channeling(..))
 import Model.Copy as Import (Copying(..))
-import Model.Class as Import (Class(..), ClassSet)
+import Model.Class as Import (Class(..))
 import Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
 import Model.Ninja as Import (Ninja(health, slot), addOwnStacks, addOwnDefense, alive, hasDefense, hasOwn, isChanneling, numActive, numHelpful)
 import Model.Requirement as Import (Requirement(..))
@@ -31,6 +32,8 @@ import Action.Status as Import
 import Action.Trap as Import
 import Engine.SkillTransform as Import
 
+import Data.Enum.Set.Class (EnumSet)
+
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
 import qualified Model.Context as Context
@@ -40,7 +43,7 @@ import           Model.Skill (Skill)
 import qualified Model.Slot as Slot
 import qualified Engine.Effects as Effects
 
-invuln :: Text -> Text -> ClassSet -> Skill
+invuln :: Text -> Text -> EnumSet Class -> Skill
 invuln skillName userName classes = Skill.new
     { Skill.name      = skillName
     , Skill.desc      = userName ++ " becomes invulnerable for 1 turn."

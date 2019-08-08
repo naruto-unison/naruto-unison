@@ -5,14 +5,16 @@ module Class.Classed
 
 import ClassyPrelude
 
+import Data.Enum.Set.Class (EnumSet)
+
 import           Core.Util ((∈))
 import qualified Class.Labeled as Labeled
 import           Class.Labeled (Labeled)
-import           Model.Class (Class(..), ClassSet)
+import           Model.Class (Class(..))
 
 -- | A type with 'Class'es.
 class Classed a where
-    classes :: a -> ClassSet
+    classes :: a -> EnumSet Class
 instance Classed Class where
     classes = singletonSet
 

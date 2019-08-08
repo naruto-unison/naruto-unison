@@ -11,7 +11,7 @@ import ClassyPrelude hiding ((<|))
 
 import           Control.Monad.Trans.Maybe (runMaybeT)
 import           Data.Either (isLeft)
-import           Data.Enum.Set (EnumSet)
+import           Data.Enum.Set.Class (EnumSet, AsEnumSet(..))
 import qualified Data.Sequence as Seq
 
 import           Core.Util ((—), (∈), (∉), intersectsSet)
@@ -66,9 +66,10 @@ data Affected
     | Trapped
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
-type AffectedSet = EnumSet Word8 Affected
+instance AsEnumSet Affected where
+    type EnumSetRep Affected = Word8
 
-oldSet :: AffectedSet
+oldSet :: EnumSet Affected
 oldSet = setFromList [Channeled, Delayed, Trapped]
 
 -- | Adds a 'Copy.Copy' to 'Ninja.copies'.
@@ -95,7 +96,7 @@ data Exit = Flagged | Done | Completed deriving (Eq)
 -- invincibility, usability, counters, reflects, etc. all come into play.
 -- If an action is applied directly instead of passing it to this function,
 -- its exact effects will occur and nothing else.
-wrap :: ∀ m. (MonadPlay m, MonadRandom m) => AffectedSet -> m () -> m ()
+wrap :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Affected -> m () -> m ()
 wrap affected f = void $ runMaybeT do
     skill       <- P.skill
     user        <- P.user
@@ -198,7 +199,7 @@ chooseTarget REnemy   = maybeToList <$> (chooseTarget Enemies >>= R.choose)
 chooseTarget Everyone = return Slot.all
 
 -- | Directs an effect tuple in a 'Skill' to a target. Uses 'wrap' internally.
-targetEffect :: ∀ m. (MonadPlay m, MonadRandom m) => AffectedSet -> m () -> m ()
+targetEffect :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Affected -> m () -> m ()
 targetEffect affected f = do
     user   <- P.user
     target <- P.target
@@ -215,7 +216,7 @@ targetEffect affected f = do
 
 -- | Handles a single effect tuple in a 'Skill'. Uses 'targetEffect' internally.
 effect :: ∀ m. (MonadPlay m, MonadRandom m)
-       => AffectedSet -> Runnable Target -> m ()
+       => EnumSet Affected -> Runnable Target -> m ()
 effect affected x  = do
       skill   <- P.skill
       targets <- chooseTarget $ Runnable.target x
@@ -297,7 +298,7 @@ invincEffects :: [Effect]
 invincEffects = enumerate Invulnerable ++ enumerate Invincible
 
 -- | After an action takes place, activates any corresponding 'Trap.Trap's.
-trigger :: ∀ m. (MonadPlay m, MonadRandom m) => AffectedSet -> Game -> m ()
+trigger :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Affected -> Game -> m ()
 trigger affected gameBefore = void $ runMaybeT do
     user  <- P.user
     total <- sum . Game.zipNinjasWith Ninja.healthLost gameBefore <$> P.game

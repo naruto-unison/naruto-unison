@@ -22,7 +22,7 @@ spec = parallel do
                 it "spends 1 clone" $
                     clonesSpent `shouldBe` 1
                 it "damages target" $
-                    100 - targetHealth `shouldBe` 
+                    100 - targetHealth `shouldBe`
                         10 + 5 * maxClones + 5 * clonesSpent
         useOn Enemy "Rasengan" do
             self $ addStacks "Shadow Clone" maxClones
@@ -57,7 +57,7 @@ spec = parallel do
                 it "spends 1 clone per damaged" $
                     clonesSpent `shouldBe` 2
                 it "reduces damage" $
-                    100 - userHealth `shouldBe` 
+                    100 - userHealth `shouldBe`
                         (targetDmg - userStacks * 5)
                         + (targetDmg - (userStacks - 1) * 5)
 

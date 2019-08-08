@@ -15,6 +15,7 @@ import ClassyPrelude hiding (fromList, sum, toList)
 import Prelude (sum)
 
 import           Data.Aeson (ToJSON)
+import           Data.Enum.Set.Class (EnumSet)
 import qualified Data.Text as Text
 import qualified Data.Text.Read as Read
 import           GHC.Exts (IsList(..))
@@ -22,7 +23,7 @@ import           Yesod.Core.Dispatch (PathPiece(..))
 
 import qualified Class.Random as R
 import           Class.Random (MonadRandom)
-import           Model.Class (Class(..), ClassSet)
+import           Model.Class (Class(..))
 
 -- | Collection of all chakra types.
 data Chakras = Chakras { blood :: Int -- ^ Bloodline
@@ -102,7 +103,7 @@ fromChakras (Chakras b g n t _) = replicate b Blood
 collect :: ∀ f. (Foldable f, Functor f) => f Chakra -> Chakras
 collect = sum . (toChakras <$>)
 
-classes :: Chakras -> ClassSet
+classes :: Chakras -> EnumSet Class
 classes (Chakras b g n t r) = fromList $ fst <$> filter snd
                               [ (Bloodline, b > 0)
                               , (Genjutsu,  g > 0)

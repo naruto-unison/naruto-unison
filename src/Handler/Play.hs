@@ -250,8 +250,8 @@ tryEnact player writer = do
         atomically . writeTBQueue writer $ Message.Enact wrapper
 
 -- | Processes a user's actions and passes them to 'Turn.run'.
-enact :: ∀ m. (MonadGame m, MonadRandom m) => Chakras -> Chakras -> [Act]
-      -> m (Either LByteString ())
+enact :: ∀ m. (MonadGame m, MonadRandom m)
+      => Chakras -> Chakras -> [Act] -> m (Either LByteString ())
 enact actChakra exchangeChakra actions = do
     player     <- P.player
     gameChakra <- Game.getChakra player <$> P.game
