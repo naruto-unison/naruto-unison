@@ -15,8 +15,6 @@ import           Model.Class (Class(..))
 -- | A type with 'Class'es.
 class Classed a where
     classes :: a -> EnumSet Class
-instance Classed Class where
-    classes = singletonSet
 
 -- | Conditionally adds an item to a list of items depending on its classes.
 -- If the item is classified as 'Single', it will not be added if there is

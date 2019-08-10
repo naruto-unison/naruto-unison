@@ -11,6 +11,7 @@ import qualified Prelude
 -- | Types that are either even or odd.
 class Parity a where
     even :: a -> Bool
+
     default even :: Integral a => a -> Bool
     even = Prelude.even
     {-# INLINE even #-}

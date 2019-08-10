@@ -41,7 +41,7 @@ instance Eq Act where
         eq (Right x') (Right y') = Skill.name x' == Skill.name y'
         eq _         _         = False
 instance Show Act where
-    show = show . fromAct
+    showsPrec i = showsPrec i . fromAct
 instance Read Act where
     readPrec = toAct <$> readPrec
 

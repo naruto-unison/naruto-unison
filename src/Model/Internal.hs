@@ -49,6 +49,7 @@ instance Eq Constructor where
     Any  x == Any  y = x All == y All
     Any  x == Only y = y ∈ enumerate x
     Only x == Any  y = x ∈ enumerate y
+    {-# INLINE (==) #-}
 
 -- | Effects of 'Status'es.
 data Effect
@@ -655,10 +656,13 @@ class MonadGame m => MonadPlay m where
 
     default context :: Lift MonadPlay m => m Context
     context = lift context
+    {-# INLINE context #-}
 
 instance MonadGame m => MonadPlay (ReaderT Context m) where
     context = ask
+    {-# INLINE context #-}
     with    = local
+    {-# INLINE with #-}
 
 type RunConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
 

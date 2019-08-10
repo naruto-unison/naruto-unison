@@ -48,6 +48,7 @@ class HasAuthor a where
 instance HasAuthor Topic where
     getAuthor = topicAuthor
     getLatest = topicLatest
+
 instance HasAuthor Post where
     getAuthor = postAuthor
     getLatest = postAuthor

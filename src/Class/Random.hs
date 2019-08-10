@@ -36,11 +36,15 @@ class Monad m => MonadRandom m where
 
 instance MonadRandom (ReaderT (Random.Gen s) (ST s)) where
     random a b = ask >>= lift . Random.uniformR (a, b)
+    {-# INLINE random #-}
     shuffle xs = ask >>= lift . Random.uniformShuffle xs
+    {-# INLINE shuffle #-}
 
 instance MonadIO m => MonadRandom (ReaderT (Random.Gen RealWorld) m) where
     random a b = ask >>= liftIO . Random.uniformR (a, b)
+    {-# INLINE random #-}
     shuffle xs = ask >>= liftIO . Random.uniformShuffle xs
+    {-# INLINE shuffle #-}
 
 instance MonadRandom m => MonadRandom (ExceptT e m)
 instance MonadRandom m => MonadRandom (IdentityT m)

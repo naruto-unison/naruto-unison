@@ -46,6 +46,7 @@ class Monad m => MonadSockets m where
     receive :: m Text
     clear   :: m ()
     send    :: LByteString -> m ()
+
     default receive :: Lift MonadSockets m => m Text
     receive = lift receive
     {-# INLINE receive #-}
@@ -82,8 +83,11 @@ instance MonadHandler m => MonadHandler (SocketsT m) where
 
 instance MonadIO m => MonadSockets (SocketsT m) where
     receive = SocketsT $ ask >>= takeMVar
+    {-# INLINE receive #-}
     clear   = SocketsT $ ask >>= void . iterateUntil isNothing . tryTakeMVar
+    {-# INLINE clear #-}
     send x  = SocketsT $ lift ask >>= liftIO . flip WebSockets.sendTextData x
+    {-# INLINE send #-}
 
 instance MonadSockets m => MonadSockets (ExceptT e m)
 instance MonadSockets m => MonadSockets (IdentityT m)
