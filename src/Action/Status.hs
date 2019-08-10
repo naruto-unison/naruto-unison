@@ -251,7 +251,6 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
     isStun Stun{}     = True
     isStun _          = False
     isImmune Invulnerable{} = True
-    isImmune Invincible{}   = True
     isImmune _              = False
 
 -- | Removes non-'Effect.helpful' effects in 'Ninja.statuses' that match a

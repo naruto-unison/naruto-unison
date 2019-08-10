@@ -20,7 +20,7 @@ import ClassyPrelude
 import Control.Monad.Trans.Maybe (runMaybeT)
 import Data.Enum.Set.Class (EnumSet)
 
-import           Core.Util ((—), (∈), intersectsSet)
+import           Core.Util ((—), (∈))
 import qualified Class.Classed as Classed
 import qualified Class.Labeled as Labeled
 import qualified Class.Play as P
@@ -155,8 +155,7 @@ attack atk dmg = void $ runMaybeT do
           | direct    = handleDefense dmgCalc $ Ninja.defense nTarget
           | otherwise = handleDefense dmg'Barrier $ Ninja.defense nTarget
 
-    guard . not $ classes `intersectsSet` Effects.invincible nTarget
-               || dmg < Effects.threshold nTarget
+    guard . not $ dmg < Effects.threshold nTarget
                || not direct && nUser `is` Stun atkClass
                || dmgCalc <= 0
 

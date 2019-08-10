@@ -76,7 +76,6 @@ new slot c = Ninja { slot      = slot
                    , traps     = mempty
                    , face      = []
                    , lastSkill = Nothing
-                   , counters  = []
                    , triggers  = mempty
                    , effects   = mempty
                    }
@@ -230,7 +229,6 @@ decr n = case findMatch $ statuses n of
            , variants  = variantsDecr <$> variants n
            , copies    = (>>= TurnBased.decr) <$> copies n
            , cooldowns = ((max 0 . subtract 1) <$>) <$> cooldowns n
-           , counters  = []
            , triggers  = singleton OnNoAction
            }
   where

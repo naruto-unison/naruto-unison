@@ -119,7 +119,7 @@ trapFull direction classes (Duration -> dur) trigger f = do
                                sync dur
             }
     unless (newTrap ∈ Ninja.traps nTarget) $ P.modify target
-        \n -> n { Ninja.traps = Ninja.traps n `snoc` newTrap }
+        \n -> n { Ninja.traps = newTrap : Ninja.traps n }
   where
     throttled = case trigger of
         OnCounter c  -> [Counter c]

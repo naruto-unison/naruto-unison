@@ -21,7 +21,7 @@ import Yesod.WebSockets (WebSocketsT)
 import           Core.Util ((∈), Lift, enumerate)
 import qualified Class.Classed as Classed
 import           Class.Classed (Classed)
-import           Class.Display (Display(..), display')
+import           Class.Display (Display(..))
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
 import qualified Class.Labeled
@@ -70,7 +70,6 @@ data Effect
     | Ignore       Constructor         -- ^ Invulnerable to certain effects
     | Invulnerable Class               -- ^ Invulnerable to enemy 'Skill's
     | ImmuneSelf                       -- ^ Invulnerable to self-caused damage
-    | Invincible   Class               -- ^ Like 'Invulnerable', but targetable
     | Parry        Class (Runnable ()) -- ^ 'Counter' and trigger an effect
     | ParryAll     Class (Runnable ()) -- ^ 'Parry' repeatedly
     | Pierce                           -- ^ Damage attacks become piercing
@@ -110,7 +109,6 @@ instance Classed Effect where
     classes (CounterAll cla)     = singletonSet cla
     classes (Exhaust cla)        = singletonSet cla
     classes (Invulnerable cla)   = singletonSet cla
-    classes (Invincible cla)     = singletonSet cla
     classes (Parry cla _)        = singletonSet cla
     classes (ParryAll cla _)     = singletonSet cla
     classes (Reduce cla _ _)     = singletonSet cla
@@ -150,7 +148,6 @@ helpful Heal{}         = True
 helpful Invulnerable{} = True
 helpful ImmuneSelf     = True
 helpful Ignore{}       = True
-helpful Invincible{}   = True
 helpful Parry{}        = True
 helpful ParryAll {}    = True
 helpful Pierce         = True
@@ -187,7 +184,6 @@ sticky Counter{}      = True
 sticky CounterAll{}   = True
 sticky Enrage         = True
 sticky Invulnerable{} = True
-sticky Invincible{}   = True
 sticky Parry{}        = True
 sticky ParryAll{}     = True
 sticky Redirect{}     = True
@@ -231,7 +227,6 @@ instance Display Effect where
     display (Ignore _) = "Ignores certain effects."
     display (Invulnerable cla) = "Invulnerable to " ++ lower cla ++ " skills."
     display ImmuneSelf = "Invulnerable to self-damage."
-    display (Invincible cla) = "Harmful " ++ lower cla ++ " skills have no effect."
     display (Parry All _) = "Counters the first skill."
     display (Parry cla _) = "Counters the first " ++ lower cla ++ " skill."
     display (ParryAll All _) = "Counters all skill."
@@ -284,11 +279,10 @@ data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas
                    , statuses  :: [Status]               -- ^ Starts empty
                    , channels  :: [Channel]              -- ^ Starts empty
                    , newChans  :: [Channel]              -- ^ Starts empty
-                   , traps     :: Seq Trap               -- ^ Starts empty
+                   , traps     :: [Trap]                 -- ^ Starts empty
                    , face      :: [Face]                 -- ^ Starts empty
                    , lastSkill :: Maybe Skill            -- ^ Starts at 'Nothing'
                    , triggers  :: Set Trigger            -- ^ Empty at the start of each turn
-                   , counters  :: [Runnable Context]     -- ^ Empty at the start of each turn
                    , effects   :: [Effect]               -- ^ Empty at the start of each turn
                    }
 instance Eq Ninja where
@@ -436,7 +430,7 @@ instance ToMarkup Category where
 data Character = Character { name     :: Text
                            , bio      :: Text
                            , skills   :: NonEmpty (NonEmpty Skill)
-                           , hooks    :: Seq (Trigger, Int -> Ninja -> Ninja)
+                           , hooks    :: [(Trigger, Int -> Ninja -> Ninja)]
                            , category :: Category
                            } deriving (Generic)
 instance ToJSON Character where
@@ -521,8 +515,8 @@ instance Classed Copy where
 instance TurnBased Copy where
     getDur = dur
     setDur d x@Copy{skill} = x { dur   = d
-                                 , skill = f $ copying skill
-                                 }
+                               , skill = f $ copying skill
+                               }
         where
           f (Shallow b _) = skill { copying = Shallow b d }
           f (Deep    b _) = skill { copying = Deep    b d }
@@ -640,7 +634,7 @@ class Monad m => MonadGame m where
     write     :: Slot -> Ninja -> m ()
     modify    :: Slot -> (Ninja -> Ninja) -> m ()
     modifyAll :: (Ninja -> Ninja) -> m ()
-    modifyAll f = traverse_ (flip modify f) Slot.all
+    modifyAll f = traverse_ (`modify` f) Slot.all
 
     default game   :: Lift MonadGame m => m Game
     game     = lift game

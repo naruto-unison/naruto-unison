@@ -10,7 +10,6 @@ module Engine.Effects
   , hp
   , ignore
   , immune
-  , invincible
   , reduce
   , share
   , snare
@@ -94,10 +93,6 @@ ignore n = [ef | Ignore con <- Ninja.effects n, ef <- Effect.construct con]
 -- | 'Invulnerable' collection.
 immune :: Ninja -> EnumSet Class
 immune n = setFromList [x | Invulnerable x <- Ninja.effects n]
-
--- | 'Invincible' collection.
-invincible :: Ninja -> ClassSet
-invincible n = setFromList [x | Invincible x <- Ninja.effects n]
 
 -- | 'Reduce' sum.
 reduce :: EnumSet Class -> Ninja -> Amount -> Float

@@ -1,6 +1,7 @@
 -- 'Trap.Trap' processing.
 module Engine.Traps
-  ( track
+  ( run
+  , track
     -- Performing 'Trap.Trap's
   , runTurn
     -- Collecting 'Trap.Trap's
@@ -30,25 +31,24 @@ import           Model.Slot (Slot)
 import qualified Model.Trap as Trap
 import           Model.Trap (Trap, Trigger(..))
 
-savedPlay :: Slot -> Trap -> Runnable Context
-savedPlay user trap
+run :: Slot -> Trap -> Runnable Context
+run user trap
   | Trap.direction trap == Trap.From = Runnable.retarget withTarget play
   | otherwise                        = play
   where
       withTarget ctx = ctx { Context.target = user }
       play           = Trap.effect trap $ Trap.tracker trap
 
-getOf :: (MonoFoldable o, Trigger ~ Element o) => Slot -> o -> Ninja
-      -> Seq (Runnable Context)
+getOf :: (MonoFoldable o, Trigger ~ Element o)
+      => Slot -> o -> Ninja -> [Runnable Context]
 getOf user triggers n =
-    savedPlay user <$> filter (match . Trap.trigger) (Ninja.traps n)
+    run user <$> filter (match . Trap.trigger) (Ninja.traps n)
   where
     match trigger = trigger ∈ Ninja.triggers n && trigger ∈ triggers
 
-get :: Slot -> Ninja -> Seq (Runnable Context)
+get :: Slot -> Ninja -> [Runnable Context]
 get user n =
-    savedPlay user
-    <$> filter ((∈ Ninja.triggers n) . Trap.trigger) (Ninja.traps n)
+    run user <$> filter ((∈ Ninja.triggers n) . Trap.trigger) (Ninja.traps n)
 
 -- | Adds a value to 'Trap.tracker' of 'Ninja.traps' with a certain 'Trigger'.
 track :: Trigger -> Int -> Ninja -> Ninja
@@ -76,7 +76,7 @@ getPer :: Bool -- ^ If 'False', returns 'mempty' instead.
        -> Trigger -- ^ Filter.
        -> Int -- ^ Value to pass to 'Trap.effect'.
        -> Ninja -- 'Ninja.traps' owner.
-       -> Seq (Runnable Context)
+       -> [Runnable Context]
 getPer False _  _   _ = mempty
 getPer True  tr amt n = [Trap.effect trap amt | trap <- Ninja.traps n
                                               , Trap.trigger trap == tr]
@@ -86,7 +86,7 @@ getHooks :: Bool -- ^ If 'False', returns 'mempty' instead.
          -> Trigger -- ^ Filter.
          -> Int -- ^ Value to pass to 'Character.hooks' effects.
          -> Ninja -- ^ 'Character.hooks' owner.
-         -> Seq (Slot, Ninja -> Ninja)
+         -> [(Slot, Ninja -> Ninja)]
 getHooks False _  _   _ = mempty
 getHooks True  tr amt n = [(Ninja.slot n, f amt)
                               | (p, f) <- Character.hooks $ Ninja.character n
@@ -96,7 +96,7 @@ getHooks True  tr amt n = [(Ninja.slot n, f amt)
 getTurnHooks :: Player -- ^ Player during the current turn.
              -> Ninja -- ^ Old.
              -> Ninja -- ^ New.
-             -> Seq (Slot, Ninja -> Ninja)
+             -> [(Slot, Ninja -> Ninja)]
 getTurnHooks player n n'
   | hp < 0 && Parity.allied player user       = getHooks True PerHealed (-hp) n'
   | hp > 0 && not (Parity.allied player user) = getHooks True PerDamaged hp n'
@@ -109,7 +109,7 @@ getTurnHooks player n n'
 getTracked :: Bool -- ^ If 'False', returns 'mempty' instead.
            -> Trigger -- ^ Filter.
            -> Ninja -- ^ 'Ninja.traps' owner.
-           -> Seq (Runnable Context)
+           -> [Runnable Context]
 getTracked False _ _ = mempty
 getTracked True tr n =
     [Trap.effect trap $ Trap.tracker trap | trap <- Ninja.traps n
@@ -121,7 +121,7 @@ getTracked True tr n =
 getTurnPer :: Player -- ^ Player during the current turn.
            -> Ninja -- ^ Old.
            -> Ninja -- ^ New.
-           -> Seq (Runnable Context)
+           -> [Runnable Context]
 getTurnPer player n n'
   | hp < 0 && Parity.allied player user       = getPer True PerHealed (-hp) n'
   | hp > 0 && not (Parity.allied player user) = getPer True PerDamaged hp n'
@@ -133,7 +133,7 @@ getTurnPer player n n'
 -- | Returns 'OnNoAction' 'Trap.Trap's.
 getTurnNot :: Player -- ^ Player during the current turn.
            -> Ninja -- ^ 'Ninja.flags' owner.
-           -> Seq (Runnable Context)
+           -> [Runnable Context]
 getTurnNot player n
   | Parity.allied player user = getOf user [OnNoAction] n
   | otherwise                 = mempty

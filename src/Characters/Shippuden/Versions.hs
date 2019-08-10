@@ -765,14 +765,14 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Yata Mirror"
-        , Skill.desc      = "Itachi becomes invincible for 1 turn. While active, every harmful skill used on him deals 10 damage to its user and causes Itachi to gain 10 destructible defense."
+        , Skill.desc      = "Itachi gains 100% damage reduction for 1 turn. While active, every harmful skill used on him deals 10 damage to its user and causes Itachi to gain 10 destructible defense."
         , Skill.require   = HasI 1 "susan"
         , Skill.classes   = [Chakra, Invisible, Unremovable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Self do
-                apply 1 [Invincible All, Enrage]
+                apply 1 [Reduce All Percent 100, Enrage]
                 trapFrom 1 (OnHarmed All) do
                     damage 10
                     self $ defend 0 10
