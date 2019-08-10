@@ -57,19 +57,28 @@ instance PathPiece Chakras where
 
 map1 :: (Int -> Int) -> Chakras -> Chakras
 map1 f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
+{-# INLINE map1 #-}
 
 map2 :: (Int -> Int -> Int) -> Chakras -> Chakras -> Chakras
 map2 f (Chakras b g n t r) (Chakras b' g' n' t' r') =
     Chakras (f b b') (f g g') (f n n') (f t t') (f r r')
+{-# INLINE map2 #-}
 
 instance Num Chakras where
     (+)    = map2 (+)
+    {-# INLINE (+) #-}
     (-)    = map2 (-)
+    {-# INLINE (-) #-}
     (*)    = map2 (*)
+    {-# INLINE (*) #-}
     negate = map1 negate
+    {-# INLINE negate #-}
     abs    = map1 abs
+    {-# INLINE abs #-}
     signum = map1 signum
+    {-# INLINE signum #-}
     fromInteger (fromInteger -> x) = Chakras x x x x x
+    {-# INLINE fromInteger #-}
 
 total :: Chakras -> Int
 total (Chakras b g n t r) = b + g + n + t + r
