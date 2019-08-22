@@ -26,7 +26,7 @@ maxDur (Shallow _ d) = absmin d
 maxDur (Deep    _ d) = absmin d
 maxDur  NotCopied    = id
 
--- | 'Skill' owner. Determines the folder location of the icon image.
+-- | @Skill@ owner. Determines the folder location of the icon image.
 source :: Skill -> Slot -> Slot
 source = cp . Skill.copying
   where

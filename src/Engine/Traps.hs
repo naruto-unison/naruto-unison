@@ -50,7 +50,7 @@ get :: Slot -> Ninja -> [Runnable Context]
 get user n =
     run user <$> filter ((∈ Ninja.triggers n) . Trap.trigger) (Ninja.traps n)
 
--- | Adds a value to 'Trap.tracker' of 'Ninja.traps' with a certain 'Trigger'.
+-- | Adds a value to 'Trap.tracker' of 'Ninja.traps' with a certain @Trigger@.
 track :: Trigger -> Int -> Ninja -> Ninja
 track trigger amount n = n { Ninja.traps = tracked <$> Ninja.traps n }
   where
@@ -72,7 +72,7 @@ broken n n' =
                         \\ nub (Defense.name <$> Ninja.defense n')
 
 -- | Conditionally returns 'Trap.Trap's that accept a numeric value.
-getPer :: Bool -- ^ If 'False', returns 'mempty' instead.
+getPer :: Bool -- ^ If False, returns @mempty@ instead.
        -> Trigger -- ^ Filter.
        -> Int -- ^ Value to pass to 'Trap.effect'.
        -> Ninja -- 'Ninja.traps' owner.
@@ -82,7 +82,7 @@ getPer True  tr amt n = [Trap.effect trap amt | trap <- Ninja.traps n
                                               , Trap.trigger trap == tr]
 
 -- | Conditionally returns 'Character.hooks'.
-getHooks :: Bool -- ^ If 'False', returns 'mempty' instead.
+getHooks :: Bool -- ^ If False, returns @mempty@ instead.
          -> Trigger -- ^ Filter.
          -> Int -- ^ Value to pass to 'Character.hooks' effects.
          -> Ninja -- ^ 'Character.hooks' owner.
@@ -106,7 +106,7 @@ getTurnHooks player n n'
     hp   = Ninja.health n - Ninja.health n'
 
 -- | Conditionally returns 'Trap.tracker' 'Trap.Trap's.
-getTracked :: Bool -- ^ If 'False', returns 'mempty' instead.
+getTracked :: Bool -- ^ If False, returns @mempty@ instead.
            -> Trigger -- ^ Filter.
            -> Ninja -- ^ 'Ninja.traps' owner.
            -> [Runnable Context]

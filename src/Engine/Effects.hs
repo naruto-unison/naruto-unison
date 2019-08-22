@@ -156,7 +156,7 @@ heal ninjas player n
   | n `is` Plague = 0
   | otherwise     = sum $ heal1 ninjas player n <$> Ninja.statuses n
 
--- | Calculates the total 'Heal' of a single 'Status.Status'.
+-- | Calculates the total 'Heal' of a single @Status@.
 heal1 :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
       => o -> Player -> Ninja -> Status -> Int
 heal1 ninjas player n st
@@ -178,7 +178,7 @@ afflict ninjas player n = sum
   where
     aff = afflict1 ninjas player $ Ninja.slot n
 
--- | Calculates the total 'Afflict' of a single 'Status.Status'.
+-- | Calculates the total 'Afflict' of a single @Status@.
 afflict1 :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
          => o -> Player -> Slot -> Status -> Int
 afflict1 ninjas player t st

@@ -1,4 +1,4 @@
--- | Actions that characters can use to affect 'Skill.Skill's.
+-- | Actions that characters can use to affect @Skill@s.
 module Action.Skill
   ( -- * Cooldowns and charges
     alterCd
@@ -33,29 +33,29 @@ import qualified Engine.Cooldown as Cooldown
 import qualified Engine.Execute as Execute
 import qualified Engine.SkillTransform as SkillTransform
 
--- | Changes the 'Skill.cooldown' of a 'Skill.Skill.'
+-- | Changes the 'Skill.cooldown' of a @Skill@.
 -- Uses 'Cooldown.alter' internally.
 alterCd :: ∀ m. MonadPlay m => Int -> Int -> Int -> m ()
 alterCd s v = P.unsilenced . P.toTarget . Cooldown.alter s v
 
--- | Resets 'Ninja.cooldowns' with a matching 'Skill.name' of a 'Ninja.Ninja'.
+-- | Resets 'Ninja.cooldowns' with a matching 'Skill.name' of a @Ninja@.
 -- Uses 'Cooldown.reset' internally.
 reset :: ∀ m. MonadPlay m => Text -> Text -> m ()
 reset name = P.unsilenced . P.toTarget . Cooldown.reset name
 
--- | Resets all 'Ninja.cooldowns' of a 'Ninja.Ninja'.
+-- | Resets all 'Ninja.cooldowns' of a @Ninja@.
 -- Uses 'Cooldown.resetAll' internally.
 resetAll :: ∀ m. MonadPlay m => m ()
 resetAll = P.unsilenced $ P.toTarget Cooldown.resetAll
 
--- | Resets all 'Ninja.charges' of a 'Ninja.Ninja'.
+-- | Resets all 'Ninja.charges' of a @Ninja@.
 -- Uses 'Ninja.resetCharges' internally.
 resetCharges :: ∀ m. MonadPlay m => m ()
 resetCharges = P.unsilenced $ P.toTarget Ninja.resetCharges
 
 -- | Adds a 'Variant.Variant' to 'Ninja.variants' with a 'Variant.dur' that
--- depends on the 'Skill.dur' of the 'Skill.Skill' that performs the action.
--- If the 'Skill.Skill' is interrupted, the 'Variant.Variant' immediately ends.
+-- depends on the 'Skill.dur' of the @Skill@ that performs the action.
+-- If the @Skill@ is interrupted, the 'Variant.Variant' immediately ends.
 vary :: ∀ m. MonadPlay m
      => Text -- ^ 'Skill.name' of root skill.
      -> Text -- ^ 'Skill.name' of variant skill.
@@ -111,7 +111,7 @@ unsafeVary dur s v = do
 varyLoadout :: ∀ m. MonadPlay m
             => [Int]-- ^ 'Variant.Variant' offsets
             -> Int  -- ^ Counter added to all 'Variant.Variant' slots.
-            -> m () -- ^ Recalculates every 'Variant.Variant' of a target 'Ninja.Ninja'.
+            -> m () -- ^ Recalculates every 'Variant.Variant' of a target @Ninja@.
 varyLoadout els i = traverse_ f $ zip [0..] els
   where
     f (slot, offset) = unsafeVary (Variant.Duration 0) slot $ i + offset
@@ -136,7 +136,7 @@ varyNext name = do
       where
         variant = Variant.variant x
 
--- | Copies all 'Skill.Skill's from the target into the user's 'Ninja.copies'.
+-- | Copies all @Skill@s from the target into the user's 'Ninja.copies'.
 copyAll :: ∀ m. MonadPlay m => Turns -> m ()
 copyAll (Duration -> dur) = do
     user    <- P.user
@@ -166,32 +166,32 @@ copyLast (Duration -> dur) s = do
         Just lastSkill -> Execute.copy False Copy.Shallow target lastSkill
                           (user, Skill.name skill, s, dur)
 
--- | Copies a 'Skill.Skill' from the user into all of the target's
--- 'Ninja.copies' skill slots.
+-- | Copies a @Skill@ from the user into all of the target's 'Ninja.copies'
+-- skill slots.
 teach :: ∀ m. MonadPlay m
       => Turns -- ^ 'Copy.dur'.
       -> (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.
-      -> Int -- ^ User's skill slot of the 'Skill.Skill' to copy.
+      -> Int -- ^ User's skill slot of the @Skill@ to copy.
       -> m ()
 teach = teacher $ map . const
 
--- | Copies a 'Skill.Skill' from the user into a specific skill slot of the
--- target's 'Ninja.copies'.
+-- | Copies a @Skill@ from the user into a specific skill slot of the target's
+-- 'Ninja.copies'.
 teachOne :: ∀ m. MonadPlay m
          => Turns -- ^ 'Copy.dur'.
          -> Int -- ^ Target's skill slot to copy into.
          -> (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.
-         -> Int -- ^ User's skill slot of the 'Skill.Skill' to copy.
+         -> Int -- ^ User's skill slot of the @Skill@ to copy.
          -> m ()
 teachOne dur s = teacher (Seq.update s) dur
 
--- | Copies a 'Skill.Skill' from the user into the target.
+-- | Copies a @Skill@ from the user into the target.
 teacher :: ∀ m. MonadPlay m
         => (Maybe Copy -> Seq (Maybe Copy) -> Seq (Maybe Copy))
         -- ^ Determines how to modify the target's 'Ninja.copies' skill slots.
         -> Turns -- ^ 'Copy.dur'.
         -> (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.
-        -> Int -- ^ User's skill slot of the 'Skill.Skill' to copy.
+        -> Int -- ^ User's skill slot of the @Skill@ to copy.
         -> m ()
 teacher f (Duration -> dur) cop s = do
     user   <- P.user

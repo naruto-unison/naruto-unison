@@ -55,7 +55,7 @@ instance (MonadRandom m, Monoid w) => MonadRandom (WriterT w m)
 instance (MonadRandom m, Monoid w) => MonadRandom (AccumT w m)
 
 -- | Randomly selects an element from a list.
--- Returns 'Nothing' on an empty list.
+-- Returns @Nothing@ on an empty list.
 choose :: ∀ m a. MonadRandom m => [a] -> m (Maybe a)
 choose [] = return Nothing
 choose xs = Just . (xs !!) <$> random 0 (length xs - 1)

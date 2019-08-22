@@ -11,6 +11,8 @@ import ClassyPrelude hiding (all)
 
 import           Data.Aeson (ToJSON)
 import qualified Data.Text.Read as Read
+import           Text.Read hiding (read)
+import           Text.Read.Lex (numberToInteger)
 
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
@@ -23,12 +25,19 @@ teamSize = 3
 maxVal :: Int
 maxVal = teamSize * 2 - 1
 
--- | A 'Slot' represents an index in 'Model.Game.ninjas'.
--- It is hidden behind a newtype and cannot be constructed outside this module
--- in order to prevent arithmetic manipulation and out-of-bounds errors.
+-- | A @Slot@ represents an index in 'Model.Game.ninjas'.
+-- It is hidden behind a newtype and cannot be constructed or modified outside
+-- this module in order to prevent out-of-bound errors.
 -- This has the added advantage of making function signatures more readable!
 newtype Slot = Slot { toInt :: Int }
-               deriving (Eq, Ord, Show, Read, ToJSON, Parity)
+               deriving (Eq, Ord, Show, ToJSON, Parity)
+
+instance Read Slot where
+    readPrec = parens $ prec 10 do
+        Number n <- lexP
+        case numberToInteger n of
+            Just (fromInteger -> i) | i >= 0 && i <= maxVal -> return $ Slot i
+            _                                               -> empty
 
 instance Bounded Slot where
     minBound = Slot 0

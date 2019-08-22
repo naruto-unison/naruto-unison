@@ -45,15 +45,15 @@ import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
 import           Model.Trap (Trigger)
 
--- | Alters the focus of the environment to a new 'Context'.
+-- | Alters the focus of the environment to a new @Context@.
 withContext :: ∀ m a. Context -> ReaderT Context m a -> m a
 withContext ctx f = runReaderT f ctx
 
--- | Runs a stored 'Play' function with its associated stored 'Context'.
+-- | Runs a @Runnable@ with its associated @Context@.
 launch :: ∀ m. (MonadGame m, MonadRandom m) => Runnable Context -> m ()
 launch x = runReaderT (Runnable.run x) $ Runnable.target x
 
--- | 'Skill' being used to perform an action.
+-- | @Skill@ used to perform an action.
 skill :: ∀ m. MonadPlay m => m Skill
 skill = Context.skill <$> context
 
@@ -80,7 +80,7 @@ nUser = ninja =<< user
 nTarget :: ∀ m. MonadPlay m => m Ninja
 nTarget = ninja =<< target
 
--- | The 'Player' whose turn it is.
+-- | The @Player@ whose turn it is.
 player :: ∀ m. MonadGame m => m Player
 player = Game.playing <$> game
 
@@ -107,12 +107,12 @@ unsilenced f = do
     else
         unlessM ((`is` Silence) <$> nUser) f
 
--- | Applies a 'Ninja' transformation to the 'target'.
+-- | Applies a @Ninja@ transformation to the 'target'.
 toTarget :: ∀ m. MonadPlay m => (Ninja -> Ninja) -> m ()
 toTarget f = flip modify f =<< target
 
--- | Applies a 'Ninja' transformation to the 'target', passing it the 'user'
--- as an argument.
+-- | Applies a @Ninja@ transformation to the 'target', passing it the 'user' as
+-- an argument.
 fromSource :: ∀ m. MonadPlay m => (Slot -> Ninja -> Ninja) -> m ()
 fromSource f = do
     t   <- target
@@ -125,7 +125,8 @@ zipWith f = traverse_ (uncurry g) . zip Slot.all . toList
   where
     g i = modify i . f
 
--- | Adds a 'Flag' if 'Context.user' is not 'Context.target' and 'Context.new' is True.
+-- | Adds a 'Flag' if 'Context.user' is not 'Context.target' and 'Context.new'
+-- is @True@.
 trigger :: ∀ m o. (MonadPlay m, MonoFoldable o, Trigger ~ Element o)
         => Slot -> o -> m ()
 trigger i xs = whenM (valid <$> context) $ modify i \n ->
@@ -140,7 +141,7 @@ yieldVictor = whenM (null . Game.victor <$> game) do
   where
     mVictor ns = filter (dead ns . Player.opponent) [minBound..maxBound]
 
--- | The entire team of a 'Player' is dead, resulting in defeat.
+-- | The entire team of a @Player@ is dead, resulting in defeat.
 dead :: Vector Ninja -> Player -> Bool
 dead ns p = not $ any (Ninja.playing p) ns
 

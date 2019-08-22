@@ -25,13 +25,13 @@ module Model.Ninja
   , kabuto
   ) where
 
-import ClassyPrelude hiding (drop, group, head, init, last, take, mapMaybe)
+import ClassyPrelude hiding (drop, group, head, init, last, take)
 
 import           Data.List (nubBy)
 import           Data.List.NonEmpty ((!!), NonEmpty(..), group, init, last)
 import qualified Data.Text as Text
 
-import           Core.Util ((—), (∈), (∉), mapMaybe)
+import           Core.Util ((—), (∈), (∉))
 import qualified Class.Classed as Classed
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
@@ -59,7 +59,7 @@ import           Model.Status (Status(Status))
 import qualified Model.Variant as Variant
 import           Model.Variant (Variant(Variant))
 
--- | Constructs a 'Ninja' with starting values from a character and an index.
+-- | Constructs a @Ninja@ with starting values from a character and an index.
 new :: Slot -> Character -> Ninja
 new slot c = Ninja { slot      = slot
                    , health    = 100
@@ -82,14 +82,14 @@ new slot c = Ninja { slot      = slot
   where
     skillSize = length $ Character.skills c
 
--- | Factory resets a 'Ninja' to its starting values.
+-- | Factory resets a @Ninja@ to its starting values.
 factory :: Ninja -> Ninja
 factory n = new (slot n) $ character n
 
 alive :: Ninja -> Bool
 alive = (> 0) . health
 
--- | Whether a 'Ninja' belongs to the currently playing 'Model.Player.Player'.
+-- | Whether a @Ninja@ belongs to the currently playing 'Model.Player.Player'.
 playing :: ∀ a. Parity a => a -> Ninja -> Bool
 playing p n = alive n && Parity.allied p n
 
@@ -215,7 +215,8 @@ decrStats n = n { statuses = expire <$> statuses n }
       | Status.dur st == 1 = st { Status.effects = mempty }
       | otherwise          = st
 
--- | Applies 'Class.TurnBased.decr' to all of a 'Ninja's 'Class.TurnBased' types.
+-- | Applies 'Class.TurnBased.decr' to all of a @Ninja@'s 'Class.TurnBased'
+-- types.
 decr :: Ninja -> Ninja
 decr n = case findMatch $ statuses n of
     Just (Snapshot n') -> decr n' -- TODO
@@ -344,7 +345,7 @@ cureBane n
     keep st         = Bane ∉ Status.classes st
                       || slot n == Status.user st
 
-kill :: Bool -- ^ Can be prevented by 'Endure'
+kill :: Bool -- ^ Can be prevented by 'Endure'.
      -> Ninja -> Ninja
 kill endurable n
   | endurable = setHealth 0 n

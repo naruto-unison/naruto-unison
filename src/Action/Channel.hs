@@ -28,7 +28,7 @@ cancelChannel :: ∀ m. MonadPlay m => Text -> m ()
 cancelChannel = P.toTarget . Ninja.cancelChannel
 
 -- | Interrupts all 'Channel.interruptible' 'Ninja.channels'.
--- Triggers 'onInterrupts' for affected 'Channel's.
+-- Triggers 'onInterrupts' for affected @Channel@s.
 interrupt :: ∀ m. (MonadPlay m, MonadRandom m) => (Channel -> Bool) -> m ()
 interrupt interrupting = P.unsilenced do
     target <- P.target
@@ -38,7 +38,7 @@ interrupt interrupting = P.unsilenced do
   where
     interrupts x = Channel.interruptible x && interrupting x
 
--- | Triggers 'Skill.interrupt' effects of a 'Channel'.
+-- | Triggers 'Skill.interrupt' effects of a @Channel@.
 onInterrupt :: ∀ m. (MonadPlay m, MonadRandom m) => Channel -> m ()
 onInterrupt chan = P.with chanContext $
         traverse_ (Execute.effect $ setFromList [Channeled, Interrupted]) disr

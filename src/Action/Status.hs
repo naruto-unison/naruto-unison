@@ -1,4 +1,4 @@
--- | Actions that characters can use to affect 'Status.Status'es.
+-- | Actions that characters can use to affect @Status@es.
 module Action.Status
   ( -- * Applying statuses
     apply, apply', applyWith
@@ -68,8 +68,8 @@ hasten (Duration -> dur) name =
     P.unsilenced . P.toTarget . Ninja.prolong (negate $ sync dur) name
     =<< P.user
 
--- | Adds a 'Face.Face' to the 'Ninja.face' of a 'Ninja.Ninja', changing their
--- in-game icon.
+-- | Adds a 'Face.Face' to the 'Ninja.face' of a @Ninja@, changing their in-game
+-- icon.
 setFace :: ∀ m. MonadPlay m => Turns -> m ()
 setFace (Duration -> dur) = do
     skill <- P.skill
@@ -84,7 +84,7 @@ setFace (Duration -> dur) = do
             P.toTarget \n -> n { Ninja.face = face : Ninja.face n }
         _ -> return ()
 
--- | Adds a 'Status.Status' to 'Ninja.statuses'.
+-- | Adds a @Status@ to 'Ninja.statuses'.
 apply :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> [Effect] -> m ()
 apply = apply' ""
 -- | 'apply' with a 'Status.name'.
@@ -100,7 +100,7 @@ applyWith' :: ∀ m. (MonadPlay m, MonadRandom m)
 applyWith' classes turns efs =
     P.unsilenced . applyFull classes False [] turns efs
 
--- | Adds a simple 'Status.Status' with no 'Status.effects' or 'Status.dur' to
+-- | Adds a simple @Status@ with no 'Status.effects' or 'Status.dur'
 -- 'Ninja.statuses'. Stacks are unremovable.
 addStack :: ∀ m. MonadPlay m => m ()
 addStack = do
@@ -125,14 +125,14 @@ addStacks' (Duration -> dur) name i = do
            , Status.classes = insertSet Unremovable $ Status.classes st
            }
 
--- | Adds a hidden 'Status.Status' with no effects that immediately expires.
+-- | Adds a hidden @Status@ with no effects that immediately expires.
 flag :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 flag = flag' ""
 -- | 'flag' with a 'Status.name'.
 flag' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> m ()
 flag' name =
     applyWith' (setFromList [Hidden, Unremovable, Nonstacking]) name (-1) []
--- | Applies a 'Status.Status' with no effects, used as a marker for other
+-- | Applies a @Status@ with no effects, used as a marker for other
 -- 'Skill.Skill's.
 tag :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> m ()
 tag = tag' ""
@@ -140,28 +140,28 @@ tag = tag' ""
 tag' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> m ()
 tag' name dur = applyWith' (setFromList [Unremovable, Nonstacking]) name dur []
 
--- | Applies a 'Hidden' and 'Unremovable' 'Status.Status'.
+-- | Applies a 'Hidden' and 'Unremovable' @Status@.
 hide :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> [Effect] -> m ()
 hide = hide' ""
 -- | 'hide' with a 'Status.name'.
 hide' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> [Effect] -> m ()
 hide' = applyWith' $ setFromList [Unremovable, Hidden]
 
--- Adds a 'Status.Status' with 'Status.bombs' to 'Ninja.statuses'.
--- Bombs apply an effect when the 'Status.Status' ends. If the 'Bomb' type is
--- 'Status.Expire', the bomb activates when the 'Status.Status' naturally reaches the
--- end of its 'Status.dur'. If the 'Bomb' type is 'Status.Remove', the bomb
--- activates when the 'Status.Status' is removd before naturally reaching the end of
--- its 'Status.dur'. If the 'Bomb' type is 'Status.Done', the bomb activates
--- in both situations.
+-- Adds a @Status@ with 'Status.bombs' to 'Ninja.statuses'.
+-- @Bomb@s apply an effect when the @Status@ ends. If the @Bomb@ type is
+-- 'Status.Expire', the bomb activates if the @Status@ naturally reaches the end
+-- of its 'Status.dur'. If the @Bomb@ type is 'Status.Remove', the @Bomb@
+-- activates if the @Status@ is removed before naturally reaching the end of its
+-- 'Status.dur'. If the @Bomb@ type is 'Status.Done', the bomb activates in both
+-- situations.
 bomb :: ∀ m. (MonadPlay m, MonadRandom m)
      => Turns -> [Effect] -> [Runnable Bomb] -> m ()
 bomb = bomb' ""
--- | 'bomb' with a 'Status.name'.
+-- | @Bomb@ with a 'Status.name'.
 bomb' :: ∀ m. (MonadPlay m, MonadRandom m)
       => Text -> Turns -> [Effect] -> [Runnable Bomb] -> m ()
 bomb' = bombWith' mempty
--- | 'bomb' with extra 'Status.classes'.
+-- | @Bomb@ with extra 'Status.classes'.
 bombWith :: ∀ m. (MonadPlay m, MonadRandom m)
          => EnumSet Class -> Turns -> [Effect] -> [Runnable Bomb]
          -> m ()
@@ -281,20 +281,19 @@ cureStun = P.unsilenced $ cure cured
 purge :: ∀ m. MonadPlay m => m ()
 purge = P.toTarget Ninja.purge
 
--- | Removes all 'Status.Status'es with matching 'Status.name' and whose
--- 'Status.user' is the one performing the action.
--- Uses 'Ninja.clear' internally.
+-- | Removes all @Status@es with matching 'Status.name' and whose 'Status.user'
+-- is the one performing the action. Uses 'Ninja.clear' internally.
 remove :: ∀ m. MonadPlay m => Text -> m ()
 remove = P.fromSource . Ninja.clear
 
--- | Decreases the 'Status.amount' of a 'Status.Status' with matching 'Status.name' by
+-- | Decreases the 'Status.amount' of a @Status@ with matching 'Status.name' by
 -- 1, removing it if it reaches 0. Uses 'Ninja.removeStack' internally.
 removeStack :: ∀ m. MonadPlay m => Text -> m ()
 removeStack = P.toTarget . Ninja.removeStack
 
--- | Decreases the 'Status.amount' of a 'Status.Status' with matching 'Status.name' and
--- whose 'Status.user is the one performing the action by some amount,
--- removing it if it reaches 0. Uses 'Ninja.removeStack' internally.
+-- | Decreases the 'Status.amount' of a @Status@ with matching 'Status.name' and
+-- whose 'Status.user is the one performing the action by some amount, removing
+-- it if it reaches 0. Uses 'Ninja.removeStack' internally.
 removeStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
 removeStacks name i = P.fromSource $ Ninja.removeStacks name i
 

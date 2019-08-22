@@ -24,14 +24,14 @@ import qualified Model.Variant as Variant
 import qualified Engine.Effects as Effects
 import qualified Engine.SkillTransform as SkillTransform
 
--- | Adjusts the 'Skill' slot of a 'Ninja' due to 'Ninja.variants', 'Effect's
--- that modify skills, and the 'Skill.changes' of the 'Skill'.
+-- | Adjusts the @Skill@ slot of a @Ninja@ due to 'Ninja.variants', 'Effect's
+-- that modify skills, and the 'Skill.changes' of the @Skill@.
 skill' :: Ninja -> Int -> Int -> Skill
 skill' n s v = SkillTransform.change n $ cSkills !! s !! v
   where
     cSkills = Character.skills $ Ninja.character n
 
--- | Applies 'skill'' to a 'Skill' and further modifies it due to 'Ninja.copies'
+-- | Applies 'skill'' to a @Skill@ and further modifies it due to 'Ninja.copies'
 -- and 'Skill.require'ments.
 skill :: Either Int Skill -> Ninja -> Skill
 skill (Right sk) n = Requirement.usable n Nothing sk
@@ -41,11 +41,11 @@ skill (Left s)   n = Requirement.usable n (Just s) .
     where
       v = maybe 0 (Variant.variant . head) . (!? s) $ Ninja.variants n
 
--- | All four skill slots of a 'Ninja' modified by 'skill'.
+-- | All four skill slots of a @Ninja@ modified by 'skill'.
 skills :: Ninja -> [Skill]
 skills n = flip skill n . Left <$> [0..3]
 
--- | Modifies 'Effect's when they are first added to a 'Ninja' due to 'Effect's
+-- | Modifies @Effect@s when they are first added to a @Ninja@ due to @Effect@s
 -- already added.
 apply :: ∀ f. (Functor f, IsSequence (f Effect), Effect ~ Element (f Effect))
       => Ninja -> f Effect -> f Effect

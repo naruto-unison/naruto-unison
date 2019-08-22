@@ -60,8 +60,8 @@ succeed (HasI i name) t n
   | i < 0     = t /= Ninja.slot n || Ninja.numActive name n < (-i)
   | otherwise = True
 
--- | Checks whether a 'Skill' can be used on a target.
-targetable :: Skill -- ^ 'Skill' to check.
+-- | Checks whether a @Skill@ can be used on a target.
+targetable :: Skill -- ^ @Skill@ to check.
            -> Ninja -- ^ User.
            -> Ninja -- ^ Target.
            -> Bool

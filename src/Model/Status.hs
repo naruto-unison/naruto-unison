@@ -45,18 +45,18 @@ dead slot = Status { amount  = 1
                    , dur     = -1
                    }
 
--- | Decreases 'amount' and removes the 'Status' if the amount reaches 0.
+-- | Decreases 'amount' and removes the @Status@ if the amount reaches 0.
 decr :: Int -> Status -> [Status] -> [Status]
 decr i x xs
   | amount x > i = x { amount = amount x - i } : x `delete` xs
   | otherwise    = x `delete` xs
 
--- | Decreases 'amount' by 1 and removes the 'Status' if the amount reaches 0.
+-- | Decreases 'amount' by 1 and removes the @Status@ if the amount reaches 0.
 remove :: Status -> [Status] -> [Status]
 remove = decr 1
 
--- | Decreases the 'amount' of a matching 'Status' by some number
--- | and removes the Status if the amount reaches 0.
+-- | Decreases the 'amount' of a matching @Status@ by some number
+-- | and removes the @Status@ if the amount reaches 0.
 removeMatch :: Int -> (Status -> Bool) -> [Status] -> [Status]
 removeMatch i predic xs = case find predic xs of
     Nothing -> xs

@@ -174,7 +174,7 @@ wrap affected f = void $ runMaybeT do
                 skill { Skill.classes = insertSet Direct $ Skill.classes skill }
             }
 
--- | Transforms a 'Target' into 'Slot's. 'RAlly' and 'REnemy' targets are chosen
+-- | Transforms a @Target@ into @Slot@s. 'RAlly' and 'REnemy' targets are chosen
 -- at random.
 chooseTarget :: ∀ m. (MonadPlay m, MonadRandom m) => Target -> m [Slot]
 chooseTarget (Specific x) = return [x]

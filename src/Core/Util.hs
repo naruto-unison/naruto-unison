@@ -5,13 +5,12 @@ module Core.Util
   , enumerate
   , intersects, intersectsSet
   , duplic
-  , mapMaybe
   , shorten
   ) where
 
-import           ClassyPrelude hiding ((<|), mapMaybe)
-import           Control.Monad.Trans.Class (MonadTrans)
-import           Data.List (nub)
+import ClassyPrelude hiding ((<|), mapMaybe)
+import Control.Monad.Trans.Class (MonadTrans)
+import Data.List (nub)
 
 infixl 9 !?
 -- | 'unsafeIndex'.
@@ -43,7 +42,7 @@ infix 4 ∉
 (∉) = notElem
 {-# INLINE (∉) #-}
 
--- | Maps across an enum.
+-- | Maps across an enumeration.
 enumerate :: ∀ a b. (Bounded a, Enum a) => (a -> b) -> [b]
 enumerate = (<$> [minBound..maxBound])
 {-# INLINE enumerate #-}
@@ -64,15 +63,6 @@ intersectsSet xs = not . null . intersection xs
 duplic :: ∀ a. Eq a => [a] -> Bool
 duplic x = nub x /= x
 {-# INLINE duplic #-}
-
-mapMaybe :: ∀ (f :: * -> *) a b.
-            ( IsSequence (f (Maybe b))
-            , Functor f
-            , Maybe b ~ Element (f (Maybe b))
-            )
-         => (a -> Maybe b) -> f a -> f b
-mapMaybe f = catMaybes . (f <$>)
-{-# INLINE mapMaybe #-}
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text

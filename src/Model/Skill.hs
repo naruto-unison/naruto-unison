@@ -35,7 +35,7 @@ new = Skill { name      = "Unnamed"
 
 -- | Adds 'Model.Class.Bloodline', 'Model.Class.Genjutsu',
 -- 'Model.Class.Ninjutsu', 'Model.Class.Taijutsu', and 'Model.Class.Random'
--- to the 'classes' of a 'Skill' if they are included in its 'cost'.
+-- to the 'classes' of a @Skill@ if they are included in its 'cost'.
 chakraClasses :: Skill -> Skill
 chakraClasses skill =
     skill { classes = Chakra.classes (cost skill) ++ classes skill }

@@ -274,7 +274,7 @@ data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas
                    , cooldowns :: Seq (Seq Int)          -- ^ Starts empty
                    , charges   :: Seq Int                -- ^ Starts at @0@s
                    , variants  :: Seq (NonEmpty Variant) -- ^ Starts at @0@s
-                   , copies    :: Seq (Maybe Copy)       -- ^ Starts at 'Nothing's
+                   , copies    :: Seq (Maybe Copy)       -- ^ Starts at @Nothing@s
                    , defense   :: [Defense]              -- ^ Starts empty
                    , barrier   :: [Barrier]              -- ^ Starts empty
                    , statuses  :: [Status]               -- ^ Starts empty
@@ -282,7 +282,7 @@ data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas
                    , newChans  :: [Channel]              -- ^ Starts empty
                    , traps     :: [Trap]                 -- ^ Starts empty
                    , face      :: [Face]                 -- ^ Starts empty
-                   , lastSkill :: Maybe Skill            -- ^ Starts at 'Nothing'
+                   , lastSkill :: Maybe Skill            -- ^ Starts at @Nothing@
                    , triggers  :: Set Trigger            -- ^ Empty at the start of each turn
                    , effects   :: [Effect]               -- ^ Empty at the start of each turn
                    }
@@ -329,15 +329,15 @@ data Target
 data Skill = Skill { name      :: Text              -- ^ Name
                    , desc      :: Text              -- ^ Description
                    , require   :: Requirement       -- ^ Defaults to 'Usable'
-                   , classes   :: EnumSet Class     -- ^ Defaults to @mempty@
-                   , cost      :: Chakras           -- ^ Defaults to '[]'
+                   , classes   :: EnumSet Class     -- ^ Defaults to empty
+                   , cost      :: Chakras           -- ^ Defaults to empty
                    , cooldown  :: Duration          -- ^ Defaults to @0@
                    , varicd    :: Bool              -- ^ Defaults to @False@
                    , charges   :: Int               -- ^ Defaults to @0@
                    , channel   :: Channeling        -- ^ Defaults to 'Instant'
-                   , start     :: [Runnable Target] -- ^ Defaults to @[]@
-                   , effects   :: [Runnable Target] -- ^ Defaults to @[]@
-                   , interrupt :: [Runnable Target] -- ^ Defaults to @[]@
+                   , start     :: [Runnable Target] -- ^ Defaults to empty
+                   , effects   :: [Runnable Target] -- ^ Defaults to empty
+                   , interrupt :: [Runnable Target] -- ^ Defaults to empty
                    , copying   :: Copying           -- ^ Defaults to 'NotCopied'
                    , pic       :: Bool              -- ^ Defaults to @False@
                    , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'

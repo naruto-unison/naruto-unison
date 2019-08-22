@@ -16,7 +16,6 @@ module Engine.Trigger
 import ClassyPrelude hiding (swap)
 
 import Data.Enum.Set.Class (EnumSet)
-import Data.HashMap.Lazy (elems)
 
 import           Core.Util ((∈), (∉), intersects)
 import qualified Class.Play as P
@@ -180,6 +179,18 @@ death slot = do
 
 userCounters :: ∀ m. (MonadPlay m, MonadRandom m)
              => EnumSet Class -> Ninja -> [m ()]
+userCounters classes = mapMaybe f . Ninja.traps
+  where
+    f tr = case Trap.trigger tr of
+        OnCounterAll                  -> Just add
+        OnCounter cla | cla ∈ classes -> Just add
+        _                             -> Nothing
+      where
+        add = P.launch $ Traps.run (Trap.user tr) tr
+
+{-}
+userCounters :: ∀ m. (MonadPlay m, MonadRandom m)
+             => EnumSet Class -> Ninja -> [m ()]
 userCounters classes = elems . foldr acc mempty . Ninja.traps
   where
     acc tr = case Trap.trigger tr of
@@ -188,7 +199,7 @@ userCounters classes = elems . foldr acc mempty . Ninja.traps
         _                             -> id
       where
         add = insertMap (Trap.name tr) (P.launch $ Traps.run (Trap.user tr) tr)
-
+-}
 userUncounter :: EnumSet Class -> Ninja -> Ninja
 userUncounter classes n =
     n { Ninja.traps = filter (keep . Trap.trigger) $ Ninja.traps n }

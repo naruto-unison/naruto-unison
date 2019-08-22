@@ -59,7 +59,7 @@ changeWith name f n
   | Ninja.hasOwn name n = f n
   | otherwise           = id
 
--- | Adds a 'Class' to 'Skill.classes'.
+-- | Adds a @Class@ to 'Skill.classes'.
 addClass :: Class -> Skill.Transform
 addClass cla _ skill =
     skill { Skill.classes = insertSet cla $ Skill.classes skill }
@@ -68,14 +68,14 @@ addClass cla _ skill =
 setCost :: Chakras -> Skill.Transform
 setCost chaks _ skill = skill { Skill.cost = chaks }
 
--- | Multiplies 'Chakra's by 'Ninja.numActive' and adds the total to
+-- | Multiplies @Chakras@ by 'Ninja.numActive' and adds the total to
 -- 'Skill.cost'.
 costPer :: Text -> Chakras -> Skill.Transform
 costPer name chaks n skill = skill { Skill.cost = Skill.cost skill + added }
   where
     added = chaks * fromIntegral (Ninja.numActive name n)
 
--- | Multiplies 'Chakra's by 'Ninja.numActive' and subtracts the total from
+-- | Multiplies @Chakras@ by 'Ninja.numActive' and subtracts the total from
 -- 'Skill.cost'.
 reduceCostPer :: Text -> Chakras -> Skill.Transform
 reduceCostPer name chaks n skill =
@@ -129,7 +129,7 @@ targetAll = const . changeEffects . map $ Runnable.retarget f
     f XAlly = XAllies
     f x     = x
 
--- | Restricts to a specified list of 'Target's.
+-- | Restricts to a specified list of @Target@s.
 targetOnly :: [Target] -> Skill.Transform
 targetOnly xs = const . changeEffects . filter $ (∈ xs) . Runnable.target
 

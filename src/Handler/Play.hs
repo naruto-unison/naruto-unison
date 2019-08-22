@@ -9,7 +9,6 @@ import Yesod
 
 import           Control.Monad.Loops (untilJust)
 import qualified Data.Cache as Cache
-import           Data.HashMap.Strict ((!))
 import           Data.List (transpose)
 import qualified Data.Text as Text
 import qualified Database.Persist.Postgresql as Sql
@@ -74,29 +73,27 @@ bot = User
 
 -- | Joins the practice-match queue with a given team. Requires authentication.
 getPracticeQueueR :: [Text] -> Handler Value
-getPracticeQueueR characters@[a1, b1, c1, a2, b2, c2]
-  | any (not . (`member` Characters.map)) characters =
-        invalidArgs ["Unknown character(s)"]
-  | otherwise = do
-      (who, _) <- Auth.requireAuthPair
-      runDB $ update who [ UserTeam     =. Just [a1, b1, c1]
-                         , UserPractice =. [a2, b2, c2]
-                         ]
-      liftIO Random.createSystemRandom >>= runReaderT do
-          game <- runReaderT Game.newWithChakras =<< ask
-          practice <- getsYesod App.practice
-          liftIO do
-              Cache.purgeExpired practice -- TODO: Move to a recurring timer?
-              Cache.insert practice who $ Wrapper game ninjas
-          returnJson GameInfo { vsWho  = who
-                              , vsUser = bot
-                              , player = Player.A
-                              , game   = game
-                              , ninjas = ninjas
-                              }
-  where
-    ninjas  = fromList . zipWith Ninja.new Slot.all $ map (Characters.map !)
-              [c1, a2, b1, b2, a1, c2]
+getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
+    case fromList . zipWith Ninja.new Slot.all <$>
+         traverse (`lookup` Characters.map) [c1, a2, b1, b2, a1, c2] of
+    Nothing -> invalidArgs ["Unknown character(s)"]
+    Just ninjas -> do
+        (who, _) <- Auth.requireAuthPair
+        runDB $ update who [ UserTeam    =. Just [a1, b1, c1]
+                          , UserPractice =. [a2, b2, c2]
+                          ]
+        liftIO Random.createSystemRandom >>= runReaderT do
+            game <- runReaderT Game.newWithChakras =<< ask
+            practice <- getsYesod App.practice
+            liftIO do
+                Cache.purgeExpired practice -- TODO: Move to a recurring timer?
+                Cache.insert practice who $ Wrapper game ninjas
+            returnJson GameInfo { vsWho  = who
+                                , vsUser = bot
+                                , player = Player.A
+                                , game   = game
+                                , ninjas = ninjas
+                                }
 getPracticeQueueR _ = invalidArgs ["Wrong number of characters"]
  --zipWith Ninja.new Slot.all
 -- | Wrapper for 'getPracticeActR' with no actions.

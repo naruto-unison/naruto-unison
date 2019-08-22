@@ -88,7 +88,7 @@ update False a skill s n
     copied Copy.Shallow{} = True
     copied Copy.Deep{}    = False
 
--- | 'update's a corresponding 'Ninja' when they use a new 'Skill'.
+-- | 'update's a corresponding @Ninja@ when they use a new @Skill@.
 updateN :: Bool -> Skill -> Either Int Skill -> Ninja -> Ninja
 updateN _      _     (Right _) n = n
 updateN charge skill (Left s)  n = update charge (Effects.snare n) skill s n
@@ -108,6 +108,6 @@ reset name v n = safe n name v n
   where
     safe = SkillTransform.safe id unsafeReset
 
--- | Sets all 'Ninja.cooldowns' to 'mempty'.
+-- | Sets all 'Ninja.cooldowns' to @mempty@.
 resetAll :: Ninja -> Ninja
 resetAll n = n { Ninja.cooldowns = mempty }

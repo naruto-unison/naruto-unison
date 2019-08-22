@@ -18,8 +18,8 @@ import qualified Model.Ninja as Ninja
 import qualified Engine.Chakras as Chakras
 
 -- ** CHAKRA
--- | Adds 'Chakra's to the 'Game.chakra' of the target's team.
--- 'Rand's are replaced by other Chakra types selected by 'Chakras.random'.
+-- | Adds @Chakra@s to the 'Game.chakra' of the target's team.
+-- 'Rand's are replaced by other @Chakra@ types selected by 'Chakras.random'.
 gain :: ∀ m. (MonadPlay m, MonadRandom m) => [Chakra] -> m ()
 gain [] = return ()
 gain chakras = P.unsilenced do
@@ -29,13 +29,13 @@ gain chakras = P.unsilenced do
   where
     (rands, nonrands) = partition (Rand ==) chakras
 
--- | Removes some number of 'Chakra's from the 'Game.chakra' of the target's
+-- | Removes some number of @Chakra@s from the 'Game.chakra' of the target's team
 -- team. 'Chakra's are selected at random by 'Chakras.remove'.
 deplete :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 deplete amount = P.unsilenced . void $ Chakras.remove amount
 
--- | Transfers some number of 'Chakra's from the 'Game.chakra' of the target's
--- team to the 'Game.chakra' of the user's team. 'Chakra's are selected at
+-- | Transfers some number of @Chakra@s from the 'Game.chakra' of the target's
+-- team to the 'Game.chakra' of the user's team. @Chakra@s are selected at
 -- random by 'Chakras.remove'.
 absorb :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 absorb amount = P.unsilenced do

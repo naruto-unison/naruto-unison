@@ -108,7 +108,7 @@ gameToJSON player ninjas g = object
                 guard $ Requirement.targetable skill n nt && t ∈ targs
                 return t
 
--- | All targets that a 'Skill' from a a specific 'Ninja' affects.
+-- | All targets that a @Skill@ from a a specific 'Ninja' affects.
 skillTargets :: Skill -> Slot -> [Slot]
 skillTargets skill c = filter target Slot.all
   where

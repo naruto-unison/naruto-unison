@@ -1,4 +1,4 @@
--- | Actions that characters can use to affect 'Trap.Trap's.
+-- | Actions that characters can use to affect @Trap@s.
 module Action.Trap
   ( trap, trap', trapFrom, trapFrom', trapPer, trapPer', trapWith
   , onBreak, onBreak'
@@ -32,21 +32,21 @@ import qualified Engine.Effects as Effects
 import qualified Engine.Execute as Execute
 import           Engine.Execute (Affected(..))
 
--- | Adds a 'Trap.Trap' to 'Ninja.traps' that targets the person it was used on.
+-- | Adds a @Trap@ to 'Ninja.traps' that targets the person it was used on.
 trap :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
 trap = trapWith Trap.Toward mempty
 -- | 'Hidden' 'trap'.
 trap' :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
 trap' = trapWith Trap.Toward $ singletonSet Hidden
 
--- | Adds a 'Trap.Trap' to 'Ninja.traps' that targets the person who triggers it.
+-- | Adds a @Trap@ to 'Ninja.traps' that targets the person who triggers it.
 trapFrom :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
 trapFrom = trapWith Trap.From mempty
 -- | 'Hidden' 'trapFrom'.
 trapFrom' :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
 trapFrom' = trapWith Trap.From $ singletonSet Hidden
 
--- | Adds a 'Trap.Trap' to 'Ninja.traps' with an effect that depends on a number
+-- | Adds a @Trap@ to 'Ninja.traps' with an effect that depends on a number
 -- accumulated while the trap is in play and tracked with its 'Trap.tracker'.
 trapPer  :: ∀ m. MonadPlay m
          => Turns -> Trigger -> (Int -> RunConstraint ()) -> m ()
@@ -56,8 +56,8 @@ trapPer' :: ∀ m. MonadPlay m
          => Turns -> Trigger -> (Int -> RunConstraint ()) -> m ()
 trapPer' = trapFull Trap.Per $ singletonSet Hidden
 
--- | Adds an 'OnBreak' 'Trap.Trap' for the used 'Skill.Skill' to 'Ninja.traps'.
--- 'OnBreak' traps are triggered when a 'Defense.Defense' with the same
+-- | Adds an 'OnBreak' @Trap@ for the used 'Skill.Skill' to 'Ninja.traps'.
+-- @OnBreak@ traps are triggered when a 'Defense.Defense' with the same
 -- 'Defense.name' is broken.
 onBreak :: ∀ m. MonadPlay m => RunConstraint () -> m ()
 onBreak f = do
@@ -68,8 +68,8 @@ onBreak f = do
         trapFrom' 0 (OnBreak name) f
 
 -- | Default 'onBreak': remove 'Model.Status.Status'es and
--- 'Model.Channel.Channel's that match 'Defense.name'. This is useful for '
--- Defense.Defense's that apply an effect or empower some action while active.
+-- 'Model.Channel.Channel's that match 'Defense.name'. This is useful for
+-- 'Defense.Defense's that apply an effect or empower some action while active.
 onBreak' :: ∀ m. MonadPlay m => m ()
 onBreak' = do
     user <- P.user
@@ -78,7 +78,7 @@ onBreak' = do
         P.modify user $ Ninja.cancelChannel name
         P.modifyAll $ Ninja.clear name user
 
--- | Adds a 'Trap.Trap' to 'Ninja.traps'.
+-- | Adds a @Trap@ to 'Ninja.traps'.
 trapWith :: ∀ m. MonadPlay m
          => Trap.Direction -> EnumSet Class -> Turns -> Trigger
          -> RunConstraint () -> m ()

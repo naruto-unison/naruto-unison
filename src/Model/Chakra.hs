@@ -88,11 +88,11 @@ lack :: Chakras -> Bool
 lack (Chakras b g n t r) = b < 0 || g < 0 || n < 0 || t < 0 || r < 0
 
 data Chakra
-    = Blood
-    | Gen
-    | Nin
-    | Tai
-    | Rand
+    = Blood -- ^ Bloodline
+    | Gen -- ^ Genjutsu
+    | Nin -- ^ Ninjutsu
+    | Tai -- ^ Taijutsu
+    | Rand -- ^ Random
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 toChakras :: Chakra -> Chakras
@@ -121,7 +121,7 @@ classes (Chakras b g n t r) = fromList $ fst <$> filter snd
                               , (Random,    r > 0)
                               ]
 
--- | Randomly selects a 'Chakra'.
+-- | Randomly selects a @Chakra@.
 random :: ∀ m. MonadRandom m => m Chakra
 random = toEnum <$> R.random (fromEnum (minBound :: Chakra))
                              (fromEnum (maxBound :: Chakra) - 1)
