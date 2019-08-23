@@ -374,8 +374,6 @@ cs =
           , To Enemies do
                 damage 10
                 apply 1 [ Throttle 1 $ Any Stun
-                        , Throttle 1 $ Any Counter
-                        , Throttle 1 $ Any CounterAll
                         , Throttle 1 $ Only Reflect
                         , Throttle 1 $ Only ReflectAll
                         ]

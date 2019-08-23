@@ -11,7 +11,7 @@ module Model.Ninja
   , decrStats
 
   , cancelChannel
-  , clear, clearCounters, clearTrap, clearVariants
+  , clear, clearTrap, clearVariants
   , cure
   , cureBane
   , kill
@@ -49,7 +49,6 @@ import           Model.Duration (Duration, incr, sync)
 import qualified Model.Effect as Effect
 import           Model.Effect (Effect(..))
 import qualified Model.Copy as Copy
-import qualified Model.Trap as Trap
 import           Model.Trap (Trigger(..))
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
@@ -218,9 +217,7 @@ decrStats n = n { statuses = expire <$> statuses n }
 -- | Applies 'Class.TurnBased.decr' to all of a @Ninja@'s 'Class.TurnBased'
 -- types.
 decr :: Ninja -> Ninja
-decr n = case findMatch $ statuses n of
-    Just (Snapshot n') -> decr n' -- TODO
-    _ -> n { defense   = mapMaybe TurnBased.decr $ defense n
+decr n = n { defense   = mapMaybe TurnBased.decr $ defense n
            , statuses  = foldStats . mapMaybe TurnBased.decr $ statuses n
            , barrier   = mapMaybe TurnBased.decr $ barrier n
            , face      = mapMaybe TurnBased.decr $ face n
@@ -234,10 +231,6 @@ decr n = case findMatch $ statuses n of
            }
   where
     decrChannels       = mapMaybe TurnBased.decr $ newChans n ++ channels n
-    findMatch          = find match . reverse . toList .
-                         concatMap Status.effects . filter ((<= 2) . Status.dur)
-    match Snapshot{}   = True
-    match _            = False
     foldStats          = (foldStat <$>) . group . sort
     foldStat   (x:|[]) = x
     foldStat xs@(x:|_) = x { Status.amount = sum $ Status.amount <$> xs }
@@ -432,14 +425,6 @@ removeStacks name i user n = n { statuses = f $ statuses n }
 -- | Resets 'charges' to four @0@s.
 resetCharges :: Ninja -> Ninja
 resetCharges n = n { charges = replicate 4 0 }
-
--- | Removes 'OnCounter' 'traps'.
-clearCounters :: Ninja -> Ninja
-clearCounters n = n { traps = [trap | trap <- traps n
-                                    , keep $ Trap.trigger trap] }
-  where
-    keep (OnCounter _) = False
-    keep _             = True
 
 -- With my... ninja info cards
 kabuto :: Skill -> Ninja -> Ninja

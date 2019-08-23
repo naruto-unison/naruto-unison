@@ -419,7 +419,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 1 (OnCounter All) do
+          [ To Enemy $ trap 1 (Countered All) do
                 bonus <- 20 `bonusIf` targetHas "Gold Dust Waterfall"
                 barrier 0 (20 + bonus)
           ]
@@ -441,7 +441,7 @@ cs =
             [ To Enemy do
                   everyone $ remove "Rivalry"
                   userSlot <- user slot
-                  trap (-1) (OnCounter All) $ apply 0 [Taunt userSlot]
+                  trap (-1) (Countered All) $ apply 0 [Taunt userSlot]
             ]
           }
         ]
@@ -813,72 +813,6 @@ cs =
     , [ invuln "Block" "Fuguki" [Physical] ]
     ] []
   , Character
-    "Itachi Uchiha"
-    "Reanimated by Kabuto, Itachi intends to stop the reanimation process and end the war. Unfettered by disease or mortality, Itachi is at the height of his power."
-    [ [ Skill.new
-        { Skill.name      = "Phoenix Flower"
-        , Skill.desc      = "Itachi throws burning shuriken at an enemy, dealing 10 piercing damage immediately and 5 affliction damage for 2 turns. Next turn, this skill costs two random chakra, targets all enemies, and has a cooldown of 1."
-        , Skill.classes   = [Bane, Physical, Ranged]
-        , Skill.cost      = [Rand]
-        , Skill.effects   =
-          [ To Enemy do
-                pierce 10
-                apply 2 [Afflict 5]
-          , To Self $ vary' 1 "Phoenix Flower" "Phoenix Flower"
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Phoenix Flower"
-        , Skill.desc      = "Itachi throws burning shuriken at an enemy, dealing 10 piercing damage immediately and 5 affliction damage for 2 turns. Next turn, this skill costs two random chakra, targets all enemies, and has a cooldown of 1."
-        , Skill.classes   = [Bane, Physical, Ranged]
-        , Skill.cost      = [Rand, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemies do
-                pierce 10
-                apply 2 [Afflict 5]
-          , To Self $ vary' 1 "Phoenix Flower" "Phoenix Flower"
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Susano'o"
-        , Skill.desc      = "Using the mangekyō sharingan's signature ability, Itachi creates a colossus of chakra around himself. For 1 turn, all damage to Itachi—including piercing and affliction—is reduced by 15 points. While active, this skill becomes [Totsuka Blade][g]."
-        , Skill.classes   = [Chakra, Invisible]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Self do
-                apply 1 [Reduce Affliction Flat 15]
-                vary' 1 "Susano'o" "Totsuka Blade"
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Totsuka Blade"
-        , Skill.desc      = "Itachi slashes an enemy with an ethereal liquid blade, dealing 20 piercing damage and extending the duration of [Susano'o] by 1 turn."
-        , Skill.classes   = [Chakra, Invisible]
-        , Skill.cost      = [Gen]
-        , Skill.effects   =
-          [ To Enemy $ pierce 20
-          ,  To Self do
-                apply 1 [Reduce Affliction Flat 15]
-                vary' 1 "Susano'o" "Totsuka Blade"
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Izanami"
-        , Skill.desc      = "Sacrificing one of his eyes, Itachi locks an opponent in an endless memory loop. For 2 turns, any skills they use on Itachi's team will apply an Izanami Snapshot to their targets. After 2 turns, the Snapshot completely restores its owner to their state when it was applied. Izanami Snapshots do not stack."
-        , Skill.classes   = [Mental, Ranged, Invisible, Single]
-        , Skill.cost      = [Blood, Gen]
-        , Skill.charges   = 2
-        , Skill.effects   =
-          [ To Enemy $ trapFrom 2 OnDamage $ snapshot (-2) ]
-        }
-      ]
-    , [ invuln "Block" "Itachi" [Physical] ]
-    ] []
-  , Character
     "Nagato"
     "Reanimated by Kabuto, Nagato is as much a pawn in the schemes of others as he was in life. With the power of the Rinnegan and all his Paths at his disposal, he uses the attacks of his opponents to strengthen his own abilities."
     [ [ Skill.new
@@ -920,13 +854,13 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply (-1) [ParryAll All $ To () do
+          [ To Self $ trapFrom (-1) (CounterAll All) do
                 absorb 1
                 self do
                     heal 10
                     addStack
                     stacks <- userStacks "Preta Path"
-                    when (stacks >= 2) $ vary' 1 "Naraka Path" "Naraka Path" ]
+                    when (stacks >= 2) $ vary' 1 "Naraka Path" "Naraka Path"
           ]
         }
       ]

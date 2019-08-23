@@ -97,21 +97,19 @@ cs =
         ]
       , [ Skill.new
           { Skill.name      = "Mind Transfer Puppet Curse"
-          , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a harmful physical or chakra skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Effects from Fū's usage of their skills are canceled when Fū's skills revert."
+          , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a harmful non-mental skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Effects from Fū's usage of their skills are canceled when Fū's skills revert."
           , Skill.classes   = [Mental, InvisibleTraps, Unreflectable]
           , Skill.cost      = [Gen]
           , Skill.cooldown  = 3
           , Skill.effects   =
-            let f = To () do
-                        copyAll 4
-                        tag (-4)
-                        teach 4 Shallow 4
-                        teachOne 4 3 Deep 5
-                        self do
-                            resetAll
-                            bomb (-4) [] [ To Done resetAll ] in
-            [ To Ally $
-                  applyWith [Invisible] 2 [Parry Physical f, Parry Chakra f]
+            [ To Ally $ trapFrom' 2 (Counter NonMental) do
+                  copyAll 4
+                  tag (-4)
+                  teach 4 Shallow 4
+                  teachOne 4 3 Deep 5
+                  self do
+                      resetAll
+                      bomb (-4) [] [ To Done resetAll ]
             ]
           }
         ]
@@ -257,7 +255,7 @@ cs =
         , Skill.effects   =
           [ To Enemy do
                 apply 2 [Replace 2 All 2 True]
-                trap 2 (OnCounter Uncounterable) do
+                trap 2 (Countered Uncounterable) do
                     remove "Kotoamatsukami"
                     apply' "Kotoamatsukami Stun" 2 [Stun All]
           ]

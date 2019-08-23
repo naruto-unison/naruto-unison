@@ -1,8 +1,6 @@
 -- | Processing of 'Effect's that change an action as it occurs.
 module Engine.Trigger
-  ( counter1
-  , parry
-  , redirect
+  ( redirect
   , reflect
   , replace
   , death
@@ -26,19 +24,16 @@ import           Model.Duration (Duration)
 import           Model.Effect (Effect(..))
 import qualified Model.Channel as Channel
 import qualified Model.Context as Context
-import           Model.Context (Context)
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
 import qualified Model.Runnable as Runnable
-import           Model.Runnable (Runnable)
 import           Model.Slot (Slot)
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
 import qualified Model.Status as Status
 import           Model.Status (Status)
 import qualified Model.Trap as Trap
-import           Model.Trap (Trigger(..))
-import qualified Engine.Adjust as Adjust
+import           Model.Trap (Trap, Trigger(..))
 import qualified Engine.Traps as Traps
 
 -- | Trigger a 'Replace'.
@@ -51,58 +46,6 @@ replace classes n harm = mapMaybe ifCopy allStatuses
     matches _                        = False
     ifCopy st = [(Status.user st, Status.name st, to, dur)
                   | Replace dur _ to _ <- find matches $ Status.effects st]
-
--- | Trigger a 'Counter'.
-counter1 :: EnumSet Class
-        -> Ninja -- ^ User
-        -> Ninja -- ^ Target
-        -> Maybe (Ninja, Ninja, Maybe (Runnable Context))
-        -- ^ (User without counter, target without counter, counter effect)
-counter1 classes n nt =
-    do
-        guard $ Uncounterable ∉ classes
-        trap <- find ((OnCounterAll ==) . Trap.trigger) $ Ninja.traps n
-        return (n, nt, Just $ launchTrap trap)
-    <|> do
-        guard . any (any counterAll . Status.effects) $ Ninja.statuses nt
-        return (n, nt, Nothing)
-        {-}
-    <|> do
-        i <- Seq.findIndexL (onCounter . Trap.trigger) $ Ninja.traps n
-        let n' = n { Ninja.traps = Seq.deleteAt i $ Ninja.traps n }
-        return (n', nt, launchTrap <$> Seq.lookup i (Ninja.traps n))
-        -}
-    <|> do
-        nt' <- Ninja.drop counterOne nt
-        return (n, nt', Nothing)
-  where
-    launchTrap trap             = Trap.effect trap 0
-    matchClass cla              = cla == Uncounterable
-                                  || cla ∈ classes && Uncounterable ∉ classes
-    counterAll (CounterAll cla) = matchClass cla
-    counterAll _                = False
-    onCounter (OnCounter cla)   = matchClass cla
-    onCounter _                 = False
-    counterOne (Counter cla)    = matchClass cla
-    counterOne _                = False
-
--- | Trigger a 'Parry'.
-parry :: Skill -> Ninja -> Maybe (Ninja, Status, Runnable ())
-parry skill n =
-    [(n', st, a) | st <- find (any matchN . Status.effects) $ Ninja.statuses n
-                 , ParryAll _ a <- find matchN $ Status.effects st]
-    <|> [(n'', st, a) | (n'', Parry _ a, st) <- Ninja.take match n]
-  where
-    classes = Skill.classes skill
-    n'      = n -- { Ninja.parrying = skill : Ninja.parrying n }
-    matchN (ParryAll Uncounterable _) = True
-    matchN (ParryAll cla _)           = cla ∈ classes
-                                        && Uncounterable ∉ classes
-    matchN _                          = False
-    match (Parry Uncounterable _)     = True
-    match (Parry cla _)               = cla ∈ classes
-                                        && Uncounterable ∉ classes
-    match _ = False
 
 -- | Trigger a 'Reflect'.
 reflect :: EnumSet Class -> Ninja -> Ninja -> Maybe Ninja
@@ -177,54 +120,41 @@ death slot = do
                            Ninja.channels n
         }
 
+getCounters :: ∀ m. (MonadPlay m, MonadRandom m)
+           => (Trap -> Maybe Class) -> EnumSet Class -> Ninja -> [m ()]
+getCounters f classes = mapMaybe g . Ninja.traps
+  where
+    g x = case f x of
+        Just cla | cla ∈ classes -> Just . P.launch $ Traps.run (Trap.user x) x
+        _                        -> Nothing
+
 userCounters :: ∀ m. (MonadPlay m, MonadRandom m)
              => EnumSet Class -> Ninja -> [m ()]
-userCounters classes = mapMaybe f . Ninja.traps
+userCounters = getCounters f
   where
     f tr = case Trap.trigger tr of
-        OnCounterAll                  -> Just add
-        OnCounter cla | cla ∈ classes -> Just add
-        _                             -> Nothing
-      where
-        add = P.launch $ Traps.run (Trap.user tr) tr
+        Countered cla -> Just cla
+        _             -> Nothing
 
-{-}
-userCounters :: ∀ m. (MonadPlay m, MonadRandom m)
-             => EnumSet Class -> Ninja -> [m ()]
-userCounters classes = elems . foldr acc mempty . Ninja.traps
-  where
-    acc tr = case Trap.trigger tr of
-        OnCounterAll                  -> add
-        OnCounter cla | cla ∈ classes -> add
-        _                             -> id
-      where
-        add = insertMap (Trap.name tr) (P.launch $ Traps.run (Trap.user tr) tr)
--}
 userUncounter :: EnumSet Class -> Ninja -> Ninja
 userUncounter classes n =
     n { Ninja.traps = filter (keep . Trap.trigger) $ Ninja.traps n }
   where
-    keep (OnCounter cla) = cla ∉ classes
+    keep (Countered cla) = cla ∉ classes
     keep _               = True
 
 targetCounters :: ∀ m. (MonadPlay m, MonadRandom m)
-               => EnumSet Class -> Ninja -> [m ()]
-targetCounters classes = mapMaybe f . Ninja.effects
+             => EnumSet Class -> Ninja -> [m ()]
+targetCounters = getCounters f
   where
-    f (CounterAll cla)   | cla ∈ classes = Just $ return ()
-    f (Counter cla)      | cla ∈ classes = Just $ return ()
-    f (ParryAll cla run) | cla ∈ classes = Just $ Runnable.run run
-    f (Parry cla run)    | cla ∈ classes = Just $ Runnable.run run
-    f _                                  = Nothing
+    f tr = case Trap.trigger tr of
+        CounterAll cla -> Just cla
+        Counter cla    -> Just cla
+        _              -> Nothing
 
 targetUncounter :: EnumSet Class -> Ninja -> Ninja
 targetUncounter classes n =
-    Adjust.effects n { Ninja.statuses = mapMaybe f $ Ninja.statuses n }
+    n { Ninja.traps = filter (keep . Trap.trigger) $ Ninja.traps n }
   where
-    uncounter (Counter cla) = cla ∈ classes
-    uncounter (Parry cla _) = cla ∈ classes
-    uncounter _             = False
-    f st = case partition uncounter $ Status.effects st of
-        ([], _)   -> Just st
-        (_,  [])  -> Nothing
-        (_,  efs) -> Just st { Status.effects = efs }
+    keep (Counter cla) = cla ∉ classes
+    keep _             = True

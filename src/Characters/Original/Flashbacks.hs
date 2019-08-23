@@ -154,8 +154,8 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To XAlly $ apply 0 [Parry NonMental $ To () $ damage 10 ]
-          , To Enemy $ trap 0 (OnCounter NonMental) $ damage 10
+          [ To XAlly $ trapFrom 0 (Counter NonMental) $ damage 10
+          , To Enemy $ trap 0 (Countered NonMental) $ damage 10
           ]
         }
       ]
@@ -584,7 +584,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ apply 0 [Parry NonMental $ To () $ tag 1] ]
+          [ To Self $ trapFrom 0 (Counter NonMental) $ tag 1 ]
         }
       ]
     , [ Skill.new

@@ -42,7 +42,7 @@ cs =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                apply 1 [Parry All $ To () $ tag 1]
+                trapFrom 1 (Counter All) $ tag 1
                 vary' 1 "Giant Rasengan" "Giant Rasengan"
           ]
         }
@@ -302,12 +302,12 @@ cs =
         , Skill.effects   =
           [ To Self $ bomb' "Barricaded" (-1) []
                            [ To Expire $ self $ gain [Blood] ]
-          ,  To Ally $ apply 1 [Parry All $ To () do
+          ,  To Ally $ trapFrom 1 (Counter All) do
                 stacks <- targetStacks "Gigantic Beetle Infestation"
                 damage (25 + 25 * stacks)
                 remove "Gigantic Beetle Infestation"
                 remove "Chakra Leech"
-                self $ remove "Barricaded" ]
+                self $ remove "Barricaded"
           ]
         }
       ]
@@ -482,27 +482,27 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Spiky Human Boulder"
-        , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters physical and chakra skills. Increases the cost of Chōji's skills by 1 random chakra each turn."
+        , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters non-mental skills. Increases the cost of Chōji's skills by 1 random chakra each turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.channel   = Action 2
         , Skill.start     =
           [ To Enemy $ damage 15
           , To Self do
-                apply 2 [CounterAll Physical, CounterAll Chakra]
+                trapFrom 2 (CounterAll NonMental) $ return ()
                 hide' "calories" 0 [Exhaust All]
           ]
         }
       , Skill.new
         { Skill.name      = "Spiky Human Boulder"
-        , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters physical and chakra skills. Increases the cost of Chōji's skills by 1 random chakra each turn."
+        , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters non-mental skills. Increases the cost of Chōji's skills by 1 random chakra each turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.channel   = Action 2
         , Skill.start     =
           [ To Enemy $ damage 15
           ,  To Self do
-                apply 2 [CounterAll Physical, CounterAll Chakra]
+                trapFrom 2 (CounterAll NonMental) $ return ()
                 hide' "calories" 0 [Exhaust All]
           ]
         }
@@ -564,7 +564,7 @@ cs =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                trap (-1) (OnCounter Uncounterable) $ return ()
+                trap (-1) (Countered Uncounterable) $ return ()
                 bomb (-1) [Replace 1 All 0 False] [ To Done $ damage 15 ]
           ]
         }
@@ -770,9 +770,9 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemies $ apply 2 [Expose]
-          , To Self    $ apply 1 [Parry All $ To () $ self $
+          , To Self    $ trapFrom 1 (Counter All) $
                 vary' 1 "Eight Trigrams Sixty-Four Palms"
-                        "Pressure Point Strike" ]
+                        "Pressure Point Strike"
           ]
         }
       , Skill.new
@@ -819,11 +819,11 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Allies $ apply 1 [Parry All $ To () do
+          [ To Allies $ trapFrom 1 (Counter All) do
                 tag 1
                 allies do
                     defend 0 15
-                    delay (-1) $ remove "Third Eye" ]
+                    delay (-1) $ remove "Third Eye"
           ]
         }
       ]
@@ -1031,7 +1031,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                apply 0 [Counter NonMental]
+                trapFrom 0 (Counter NonMental) $ return ()
                 hide' "tired" 0 []
           ]
         , Skill.changes   = costPer "tired" [Rand]

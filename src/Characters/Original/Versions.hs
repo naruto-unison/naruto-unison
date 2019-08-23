@@ -133,10 +133,10 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Ally $ apply 1 [Parry Physical $ To () do
+          [ To Ally $ trapFrom 1 (Counter Physical) do
                 self $ addStacks "Unpredictable Assault" 1
                 stacks <- userStacks "Unpredictable Assault"
-                damage (20 + 5 * stacks)]
+                damage (20 + 5 * stacks)
           ]
         }
       ]
@@ -179,7 +179,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.channel   = Ongoing 0
         , Skill.start     =
-          [ To Enemy $ trap 0 (OnCounter All) $
+          [ To Enemy $ trap 0 (Countered All) $
                 self $ cancelChannel "Monstrous Sand Arm"
           ]
         , Skill.effects   =

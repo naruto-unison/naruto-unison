@@ -82,16 +82,3 @@ doSkill skill = skill { Skill.classes = added ++ Skill.classes skill }
     harm = [Enemy, Enemies, REnemy, XEnemies] `intersects` ts
     ts   = Runnable.target
            <$> Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill
-    --Game{..}  = mockSkill skill
-{-}
-reanimatedBy :: Character -> [Character]
-reanimatedBy c = filter match reanimated
-  where
-    reanimated = addClasses . ($ Reanimated)
-                 <$> reanimatedCs
-    userIs     = (`Text.isInfixOf` characterName c)
-    match
-      | userIs "Kabuto"     = Text.isInfixOf "by Kabuto" . characterBio
-      | userIs "Orochimaru" = Text.isInfixOf "By Orochimaru" . characterBio
-      | otherwise           = const True
--}

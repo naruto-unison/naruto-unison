@@ -1,6 +1,6 @@
 module Model.Trap
   ( Trap(..)
-  , Trigger(..)
+  , Trigger(..), isCounter
   , Direction(..)
   , Transform
   ) where
@@ -15,3 +15,9 @@ type Transform = Int  -- ^ Amount (optional argument for traps).
                  -> Slot -- ^ 'Game.ninjas' index of the user. Used as an optional argument by trap effects.
                  -> Game -- ^ Before.
                  -> Game -- ^ After.
+
+isCounter :: Trigger -> Bool
+isCounter Counter{}    = True
+isCounter CounterAll{} = True
+isCounter Countered{}  = True
+isCounter _            = False

@@ -92,8 +92,8 @@ cs =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Enemy do
-                trap 1 (OnCounter Chakra) flag
-                trap 1 (OnCounter Mental) flag
+                trap 1 (Countered Chakra) flag
+                trap 1 (Countered Mental) flag
                 delay (-1) do
                     bonus <- 20 `bonusIf` targetHas "Super Shark Bomb"
                     damage (30 + bonus)
@@ -724,12 +724,12 @@ cs =
         , Skill.channel   = Ongoing 0
         , Skill.start     =
           [ To Enemies $ tag 2
-          , To Allies $ apply 0 [Parry Uncounterable $ To () do
+          , To Allies $ trapFrom 0 (Counter Uncounterable) do
                 unlessM (targetHas "already") do
                     prolong 2 "Summoning: Giant Multi-Headed Dog"
                     flag' "already"
                 allies $ delay (-1) $
-                    remove "Summoning: Giant Multi-Headed Dog"]
+                    remove "Summoning: Giant Multi-Headed Dog"
           ]
         , Skill.effects   =
           [ To Enemies $ whenM (targetHas "Summoning: Giant Multi-Headed Dog") do
@@ -1005,7 +1005,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.channel   = Passive
         , Skill.start     =
-          [ To Ally $ apply 1 [Parry All $ To () $ damage 20]
+          [ To Ally $ trapFrom 1 (Counter All) $ damage 20
           , To Self $ tag' "Tidal Force" 1
           ]
         , Skill.effects   =
@@ -1024,7 +1024,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ To Ally $ apply 1 [Parry All $ To () $ damage 20]
+          [ To Ally $ trapFrom 1 (Counter All) $ damage 20
           , To Self $ tag' "Tidal Force" 1
           ]
         }
@@ -1039,7 +1039,7 @@ cs =
                 userSlot <- user slot
                 apply 1 [Taunt userSlot]
           , To Self $ whenM (userHas "Tidal Force") $
-                apply' "Almighty Push" 1 [Parry All $ To () $ damage 20]
+                trapFrom 1 (Counter All) $ damage 20
           ]
         }
       ]
@@ -1159,66 +1159,5 @@ cs =
         }
       ]
     , [ invuln "Rinnegan Foresight" "Nagato" [Mental] ]
-    ] []
-  , Character
-    "Tobi"
-    "A peculiar new member of the Akatsuki, Tobi claims to be Madara Uchiha even though Madara has been dead for many years. Using his Izanagi, he can rewind his state to an earlier point and even come back from the dead."
-    [ [ Skill.new
-        { Skill.name      = "Sharingan"
-        , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time a harmful skill is used on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
-        , Skill.classes   = [Mental, Invisible, Single]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To Self $ apply 0 [Parry All $ To () do
-                self $ tag' "Kamui" 2
-                vary' (-2) "Sharingan" "Kamui"]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Kamui"
-        , Skill.desc      = "Tobi banishes a target to his pocket dimension for 3 turns, preventing them from affecting or being affected by anyone else. If used on an ally, cures all harmful effects on them. If used on an enemy, deals 20 piercing damage and prevents them from reducing damage or becoming invulnerable. Ends if Tobi uses [Kamui Strike] on someone else."
-        , Skill.classes   = [Chakra, Ranged, Single, Unreflectable]
-        , Skill.cost      = [Gen, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To XAlly do
-                cureAll
-                userSlot <- user slot
-                apply 3 [Duel userSlot]
-          , To Enemy do
-                pierce 20
-                userSlot <- user slot
-                apply 3 [Duel userSlot, Expose]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Kamui Strike"
-        , Skill.desc      = "Tobi teleports behind an enemy and deals 20 piercing damage to them. Deals 20 additional damage if the target is affected by [Kamui]."
-        , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = [Gen]
-        , Skill.effects   =
-          [ To Enemy do
-                has <- targetHas "Kamui"
-                if has then
-                    pierce 40
-                else do
-                    everyone $ remove "Kamui"
-                    pierce 20
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Izanagi"
-        , Skill.desc      = "Tobi sacrifices one of his eyes to take control of reality on a local scale. 2 turns from now, he will be restored to his current state."
-        , Skill.classes   = [Mental, Invisible]
-        , Skill.cost      = [Blood, Blood]
-        , Skill.charges   = 2
-        , Skill.effects   =
-          [ To Self $ snapshot 2 ]
-        }
-      ]
-    , [ invuln "Phase" "Tobi" [Chakra] ]
     ] []
   ]

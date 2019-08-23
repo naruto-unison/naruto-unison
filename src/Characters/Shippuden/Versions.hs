@@ -293,15 +293,6 @@ cs =
           ]
         }
       ]
-      {-
-      Skill.new
-    { Skill.name      = skillName
-    , Skill.desc      = userName ++ " becomes invulnerable for 1 turn."
-    , Skill.classes   = classes
-    , Skill.cooldown  = 4
-    , Skill.effects   = [(Self, Play $ apply 1 [Invulnerable All])]
-    }
-      -}
     , [ Skill.new
         { Skill.name      = "Mangekyō Foresight"
         , Skill.desc      = "Sasuke becomes invulnerable for 1 turn. Extends the duration of [Susano'o] by 1 turn."

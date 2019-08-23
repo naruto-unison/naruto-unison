@@ -499,7 +499,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Ally $ apply 0 [Counter Physical] ]
+          [ To Ally $ trapFrom 0 (Counter Physical) $ return () ]
         }
       ]
     , [ invuln "Spider Thread Armor" "Kidōmaru" [Chakra] ]

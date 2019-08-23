@@ -35,7 +35,7 @@ instance ToJSON User where
         , "privilege"  .= userPrivilege
         , "condense"   .= userCondense
         ]
-{-}
+{-
 instance PathPiece UTCTime where
   fromPathPiece = Aeson.decodeStrict . encodeUtf8
   toPathPiece   = toStrict . decodeUtf8 . Aeson.encode

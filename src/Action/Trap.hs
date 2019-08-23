@@ -24,7 +24,7 @@ import           Model.Copy (Copying(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import qualified Model.Runnable as Runnable
-import           Model.Runnable (RunConstraint)
+import           Model.Runnable (Runnable(..), RunConstraint)
 import qualified Model.Skill as Skill
 import qualified Model.Trap as Trap
 import           Model.Trap (Trap(Trap), Trigger(..))
@@ -114,18 +114,16 @@ trapFull direction classes (Duration -> dur) trigger f = do
                 }
             , Trap.classes   = classes ++ (invis `omap` Skill.classes skill)
             , Trap.tracker   = 0
-            , Trap.dur       = Copy.maxDur (Skill.copying skill) . incr .
-                               (+ 2 * Effects.throttle throttled nUser) $
-                               sync dur
+            , Trap.dur       = Copy.maxDur (Skill.copying skill) . incr $
+                               sync dur + throttled nUser
             }
     unless (newTrap ∈ Ninja.traps nTarget) $ P.modify target
         \n -> n { Ninja.traps = newTrap : Ninja.traps n }
   where
-    throttled = case trigger of
-        OnCounter c  -> [Counter c]
-        OnCounterAll -> [CounterAll All]
-        OnReflectAll -> [ReflectAll]
-        _            -> []
+    throttled n
+      | dur == 0               = 0
+      | Trap.isCounter trigger = 2 * Effects.throttle [Reflect] n
+      | otherwise              = 0
     invis InvisibleTraps = Invisible
     invis x              = x
 

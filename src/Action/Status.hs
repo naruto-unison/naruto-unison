@@ -14,7 +14,6 @@ module Action.Status
   , cure, cureAll, cureBane, cureStun, purge, remove, removeStack, removeStacks
   -- * Specialized
   , setFace
-  , snapshot
   , commandeer
   ) where
 
@@ -296,21 +295,6 @@ removeStack = P.toTarget . Ninja.removeStack
 -- it if it reaches 0. Uses 'Ninja.removeStack' internally.
 removeStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
 removeStacks name i = P.fromSource $ Ninja.removeStacks name i
-
--- | Saves the target's state to their 'Ninja.statuses' in a 'Snapshot'.
-snapshot :: ∀ m. MonadPlay m => Duration -> m ()
-snapshot dur = P.unsilenced do
-    skill   <- P.skill
-    user    <- P.user
-    target  <- P.target
-    nTarget <- P.nTarget
-    let st   = Status.new user dur skill
-    P.modify target $ Ninja.addStatus
-        st { Status.user    = user
-           , Status.effects = [Snapshot nTarget]
-           , Status.classes = setFromList [Nonstacking, Unremovable]
-                              ++ Status.classes st
-           }
 
 -- | Steals all of the target's 'Effect.helpful' 'Effect's.
 commandeer :: ∀ m. MonadPlay m => m ()

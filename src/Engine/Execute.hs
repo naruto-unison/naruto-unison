@@ -42,7 +42,6 @@ import qualified Model.Requirement as Requirement
 import           Model.Requirement (Requirement(..))
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill, Target(..))
-import qualified Model.Status as Status
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
 import           Model.Trap (Trigger(..))
@@ -137,22 +136,6 @@ wrap affected f = void $ runMaybeT do
             guard $ allow Redirected
             t <- Trigger.redirect classes nTarget
             return . P.withTarget t $ wrap (insertSet Redirected affected) f
-        <|> do
-            guard $ allow Trapped
-            (nt, st, f') <- Trigger.parry skill nTarget
-            return do
-                P.write target nt
-                P.with (\ctx -> ctx
-                        { Context.user   = Status.user st
-                        , Context.target = Context.user ctx
-                        }) . wrap (insertSet Trapped affected) $ Runnable.run f'
-        <|> do
-            guard $ allow Trapped
-            (n, nt, mPlay) <- Trigger.counter1 classes nUser nTarget
-            return do
-                P.write user n
-                P.write target nt
-                maybe (return ()) P.launch mPlay
         <|> do
             guard $ allow Reflected
             nt <- Trigger.reflect classes nUser nTarget

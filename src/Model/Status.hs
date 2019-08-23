@@ -8,9 +8,10 @@ module Model.Status
 
 import ClassyPrelude
 
-import           Model.Internal (Bomb(..), Effect(..), Status(..))
+import           Model.Internal (Bomb(..), Status(..))
 import qualified Model.Copy as Copy
 import           Model.Duration (Duration, incr, sync)
+import           Model.Effect (Effect(..))
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
 import           Model.Slot (Slot)

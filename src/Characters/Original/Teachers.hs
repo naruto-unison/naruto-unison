@@ -220,7 +220,7 @@ cs =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To Self  $ apply 1 [Counter All]
+          , To Self  $ trapFrom 1 (Counter All) $ return ()
           ]
         }
       ]
@@ -414,7 +414,7 @@ cs =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 1 (OnCounter All) $ damage 30 ]
+          [ To Enemy $ trap 1 (Countered All) $ damage 30 ]
         }
       ]
     , [ invuln "Dodge" "Guy" [Physical] ]
