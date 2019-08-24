@@ -295,13 +295,12 @@ instance Classed Copy where
 
 instance TurnBased Copy where
     getDur = dur
-    setDur d x@Copy{skill} = x { dur   = d
-                               , skill = f $ copying skill
-                               }
-        where
-          f (Shallow b _) = skill { copying = Shallow b d }
-          f (Deep    b _) = skill { copying = Deep    b d }
-          f NotCopied     = skill
+    setDur d Copy{skill} = Copy { skill = skill', dur = d }
+      where
+        skill' = case copying skill of
+            Shallow b _ -> skill { copying = Shallow b d }
+            Deep    b _ -> skill { copying = Deep    b d }
+            NotCopied   -> skill
 
 data Copying
     = Shallow Slot Int -- ^ No cooldown or chakra cost.

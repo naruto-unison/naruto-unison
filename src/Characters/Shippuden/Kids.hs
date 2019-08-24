@@ -489,7 +489,7 @@ cs =
         , Skill.start     =
           [ To Enemy $ damage 15
           , To Self do
-                trapFrom 2 (CounterAll NonMental) $ return ()
+                trap 2 (CounterAll NonMental) $ return ()
                 hide' "calories" 0 [Exhaust All]
           ]
         }
@@ -502,7 +502,7 @@ cs =
         , Skill.start     =
           [ To Enemy $ damage 15
           ,  To Self do
-                trapFrom 2 (CounterAll NonMental) $ return ()
+                trap 2 (CounterAll NonMental) $ return ()
                 hide' "calories" 0 [Exhaust All]
           ]
         }
@@ -770,7 +770,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemies $ apply 2 [Expose]
-          , To Self    $ trapFrom 1 (Counter All) $
+          , To Self    $ trap 1 (Counter All) $
                 vary' 1 "Eight Trigrams Sixty-Four Palms"
                         "Pressure Point Strike"
           ]
@@ -823,7 +823,7 @@ cs =
                 tag 1
                 allies do
                     defend 0 15
-                    delay (-1) $ remove "Third Eye"
+                    removeTrap "Third Eye"
           ]
         }
       ]
@@ -964,48 +964,7 @@ cs =
         }
       ]
     , [ invuln "Block" "Temari" [Physical] ]
-    ] []{-
-  , Character
-    "Kabuto Yakushi"
-    "A dangerous rogue ninja and Orochimaru's pupil, Kabuto grows more powerful by the day through untiring study and research. His knowledge and brilliance are all but limitless, and his ambition has been growing to match them. With his perfected form of reanimation, he sacrifices his enemies to resurrect his dead teammates."
-    [ [ Skill.new
-        { Skill.name      = "Summoning: Clone Serpent"
-        , Skill.desc      = "Kabuto draws blood from himself or an ally, sacrificing 15 of the target's health to summon a giant serpent made up of smaller snakes for 5 turns. When Kabuto uses a skill on an enemy, the serpent bites his target with paralyzing venom, dealing 5 affliction damage to them for 3 turns and ending their Action and Control skills in progress. While poisoned, enemies cannot reduce damage, become invulnerable, or be healed or cured. Kabuto stores a blood sample of the ally most recently affected by this skill."
-        , Skill.classes   = [Chakra, Summon]
-        , Skill.cost      = [Nin]
-        , Skill.channel   = Ongoing 5
-        , Skill.start     = [ To XAlly $ everyone $ remove "Blood Sample"
-                            • tag' "Blood Sample" 0)
-                    , To Ally $ sacrifice 0 15
-                    ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Blood Offering"
-        , Skill.desc      = "Kabuto draws blood from himself or an ally to summon a venomous snake, sacrificing  A reanimated corpse stalks one of Kabuto's enemies, dealing 35 piercing damage to them. The target cannot be healed or cured for 2 turns."
-        , Skill.classes   = [Bane, Physical, Ranged]
-        , Skill.cost      = [Nin, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   = [ To Enemy $ pierce 35 • apply 2 [Plague] ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Reanimation Sacrifice"
-        , Skill.desc      = "Kabuto slices an enemy with a chakra scalpel, dealing 20 affliction damage to them. If he has a blood sample from [Summoning: Clone Serpent], he injects it into the target and prepares to use their body as a sacrifice. In 2 turns, if the target carries the blood sample of a dead ally, the ally is resurrected with as much health as the target and the target is killed."
-        , Skill.classes   = [Bane, Chakra]
-        , Skill.cost      = [Nin]
-        , Skill.cooldown  = 1
-        , Skill.effects   = [ To Enemy $ afflict 20
-                           • ifI "Summoning: Clone Serpent" $ interrrupt
-                           • perI "Summoning: Clone Serpent" 5
-                             (\i -> apply' "Summoning: Clone Serpent" 3
-                                   [Afflict i, Plague, Expose])
-                             0
-                           • bomb (-2) [] [ To Expire $ )] ]
-        }
-      ]
-    , [ invuln "Dodge" "Kabuto" [Physical] ]
-    ] []-}
+    ] []
   , Character
     "Konohamaru Sarutobi"
     "The grandson of the Third Hokage, Konohamaru has spent his youth working hard to pursue his dream of one day following in his grandfather's steps. No longer a bumbling student, Konohamaru has become remarkably skillful as a genin. Agile and fast, he can rush in to save an ally on the brink of defeat."
@@ -1031,7 +990,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                trapFrom 0 (Counter NonMental) $ return ()
+                trap 0 (Counter NonMental) $ return ()
                 hide' "tired" 0 []
           ]
         , Skill.changes   = costPer "tired" [Rand]

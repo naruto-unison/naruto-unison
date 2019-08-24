@@ -279,7 +279,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To XAlly $ trapFrom 1 (Counter NonMental) $ return () ]
+          [ To XAlly $ trap 1 (Counter NonMental) $ return () ]
         }
       ]
     , [ Skill.new

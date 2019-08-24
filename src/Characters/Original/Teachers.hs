@@ -220,7 +220,7 @@ cs =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To Self  $ trapFrom 1 (Counter All) $ return ()
+          , To Self  $ trap 1 (Counter All) $ return ()
           ]
         }
       ]

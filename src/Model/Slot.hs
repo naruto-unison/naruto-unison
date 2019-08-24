@@ -55,14 +55,14 @@ odds = Slot <$> [1, 3 .. maxVal]
 -- | Slots with the same parity.
 allies :: Slot -> [Slot]
 allies x
-  | Parity.even x = x `delete` evens
-  | otherwise     = x `delete` odds
+  | Parity.even x = evens
+  | otherwise     = odds
 
 -- | Slots with opposite parity.
 enemies :: Slot -> [Slot]
 enemies x
-  | Parity.even x = x `delete` odds
-  | otherwise     = x `delete` evens
+  | Parity.even x = odds
+  | otherwise     = evens
 
 read :: Text -> Either String (Slot, Text)
 read s = case Read.decimal s of

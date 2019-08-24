@@ -97,9 +97,7 @@ trapFull direction classes (Duration -> dur) trigger f = do
     let trapUser = Copy.source skill user
         ctx      = Context { Context.skill   = skill
                            , Context.user   = trapUser
-                           , Context.target = case direction of
-                                 Trap.From -> user
-                                 _         -> target
+                           , Context.target = target
                            , Context.new    = False
                            }
         newTrap  = Trap

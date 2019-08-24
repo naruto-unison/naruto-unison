@@ -257,6 +257,7 @@ cs =
                 apply 2 [Replace 2 All 2 True]
                 trap 2 (Countered Uncounterable) do
                     remove "Kotoamatsukami"
+                    removeTrap "Kotoamatsukami"
                     apply' "Kotoamatsukami Stun" 2 [Stun All]
           ]
         }

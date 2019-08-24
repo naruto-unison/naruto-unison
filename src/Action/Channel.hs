@@ -41,7 +41,8 @@ interrupt interrupting = P.unsilenced do
 -- | Triggers 'Skill.interrupt' effects of a @Channel@.
 onInterrupt :: ∀ m. (MonadPlay m, MonadRandom m) => Channel -> m ()
 onInterrupt chan = P.with chanContext $
-        traverse_ (Execute.effect $ setFromList [Channeled, Interrupted]) disr
+        Execute.effects (setFromList [Channeled, Interrupted]) =<<
+        Execute.chooseTargets disr
   where
     name = Skill.name $ Channel.skill chan
     disr = Runnable.To { Runnable.target = Enemy

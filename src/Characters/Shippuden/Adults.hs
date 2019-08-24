@@ -133,55 +133,6 @@ cs =
       ]
     , [ invuln "Dodge" "Asuma" [Physical] ]
     ] []
-  {-
-  , Character
-    "Zaji"
-    "A chūnin from the Hidden Leaf Village, Zaji loves to boast about his strength and combat prowess. He doesn't actually have either, but he's a decent sensor. By warning his team of incoming attacks, he can protect them from both light and heavy damage."
-    [ [ Skill.new
-        { Skill.name      = "Chakra Sense"
-        , Skill.desc      = "Zaji extends his senses over the battlefield and detects incoming attacks. For 2 turns, attacks that deal 25 baseline damage or lower will not injure Zaji or his allies."
-        , Skill.classes   = [Mental]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 2
-        , Skill.effects   = [ To Allies $ apply 2 [Threshold 25 ] ]
-        }
-      ]
-    ] []
-  -}
-{-
-  , Character
-    "Might Guy"
-    "Over the past few years, Guy has learned restraint. By gradually opening his Gates in sequence, he avoids the risk of burning out before the battle is won."
-    [ [ Skill.new
-        { Skill.name      = "Nunchaku"
-        , Skill.desc      = "Using his signature Twin Fangs weapons, Guy deals 10 damage to an enemy for 3 turns. While active, if an enemy uses a harmful physical skill on him, he will deal 10 damage to them. Deals 5 additional damage on the first turn per stack of [Single Gate Release]."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Tai]
-        , Skill.channel   = Action 3
-        , Skill.start     = [ To Enemy $ perI "Single Gate Release" 5 damage 10 ]
-        , Skill.effects   = [ To Self $ trapFrom 1 (OnHarmed Physical) $ damage 10
-                    , To Enemy $ ifnotI "first" $ damage 10
-                    ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Fiery Kick"
-        , Skill.desc      = "Guy slams his leg into an enemy, dealing 35 damage and weakening their damage by 20 for 1 turn. Deals 5 additional damage per stack of [Single Gate Release]."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Blood, Tai]
-        , Skill.effects   = [ To Enemy $ perI "Single Gate Release" 5 damage 35
-                           • apply 1 [Weaken All 20 ])]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Single Gate Release"
-        , Skill.desc      = "Guy opens one of his internal Gates, losing 5 health and gaining 5 points of permanent damage reduction. "
-        , Skill.classes   = [Mental, Unremovable]
-        , Skill.effects   = [ To Self $ sacrifice 0 5 • apply 0 [Reduce All 5 ] ]
-        }
-      ]
-    , [ invuln "Block" "Guy" [Physical] ]
-    ] []-}
   , Character
     "Maki"
     "A jōnin from the Hidden Sand Village, Maki studied under Pakura and mourned her death greatly. As a member of the Allied Shinobi Forces Sealing Team, Maki must put aside her long-held grudge against the Hidden Stone Village for killing her teacher."

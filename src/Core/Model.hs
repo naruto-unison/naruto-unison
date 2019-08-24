@@ -35,11 +35,7 @@ instance ToJSON User where
         , "privilege"  .= userPrivilege
         , "condense"   .= userCondense
         ]
-{-
-instance PathPiece UTCTime where
-  fromPathPiece = Aeson.decodeStrict . encodeUtf8
-  toPathPiece   = toStrict . decodeUtf8 . Aeson.encode
--}
+
 -- | Types that can be summarized with oldest and most recent users to post.
 class HasAuthor a where
     getAuthor :: a -> UserId

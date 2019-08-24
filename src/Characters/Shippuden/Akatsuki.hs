@@ -676,7 +676,9 @@ cs =
         , Skill.channel   = Ongoing 2
         , Skill.start     =
           [ To Enemy do
-                trap 2 (OnAction All) $ remove "Summoming: Giant Centipede"
+                trap 2 (OnAction All) do
+                    remove "Summoming: Giant Centipede"
+                    removeTrap "Summoning: Giant Centipede"
                 bomb 2 []
                     [ To Expire $ apply' "Giant Centipede Stun" 1 [Stun All] ]
           ,  To Self $ vary "Summoning: Giant Centipede"
@@ -728,8 +730,7 @@ cs =
                 unlessM (targetHas "already") do
                     prolong 2 "Summoning: Giant Multi-Headed Dog"
                     flag' "already"
-                allies $ delay (-1) $
-                    remove "Summoning: Giant Multi-Headed Dog"
+                allies $ removeTrap "Summoning: Giant Multi-Headed Dog"
           ]
         , Skill.effects   =
           [ To Enemies $ whenM (targetHas "Summoning: Giant Multi-Headed Dog") do

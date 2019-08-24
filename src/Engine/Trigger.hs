@@ -121,15 +121,15 @@ death slot = do
         }
 
 getCounters :: ∀ m. (MonadPlay m, MonadRandom m)
-           => (Trap -> Maybe Class) -> EnumSet Class -> Ninja -> [m ()]
-getCounters f classes = mapMaybe g . Ninja.traps
+           => (Trap -> Maybe Class) -> Slot -> EnumSet Class -> Ninja -> [m ()]
+getCounters f from classes = mapMaybe g . Ninja.traps
   where
-    g x = case f x of
-        Just cla | cla ∈ classes -> Just . P.launch $ Traps.run (Trap.user x) x
+    g tr = case f tr of
+        Just cla | cla ∈ classes -> Just . P.launch $ Traps.run from tr
         _                        -> Nothing
 
 userCounters :: ∀ m. (MonadPlay m, MonadRandom m)
-             => EnumSet Class -> Ninja -> [m ()]
+             => Slot -> EnumSet Class -> Ninja -> [m ()]
 userCounters = getCounters f
   where
     f tr = case Trap.trigger tr of
@@ -144,7 +144,7 @@ userUncounter classes n =
     keep _               = True
 
 targetCounters :: ∀ m. (MonadPlay m, MonadRandom m)
-             => EnumSet Class -> Ninja -> [m ()]
+             => Slot -> EnumSet Class -> Ninja -> [m ()]
 targetCounters = getCounters f
   where
     f tr = case Trap.trigger tr of
