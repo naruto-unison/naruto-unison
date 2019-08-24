@@ -19,12 +19,12 @@ packages:
     version: 0.1.0.0
     git: https://github.com/jnbooth/bounded-enum.git
     pantry-tree:
-      size: 431
-      sha256: 034358e16810e6d464825ec1316e28292ae3abe4aee5888aaa09e77c40fa8dbd
-    commit: f0b52d146f2bca2e85d72ba254f475643e6a9dcb
+      size: 430
+      sha256: 180abccbba6266e9ce7ce50f7eaac298acbb858ac1edc4ab6033805bf758504e
+    commit: fff4cbdf47be29d55d088881c9c7ad97e8a21b88
   original:
     git: https://github.com/jnbooth/bounded-enum.git
-    commit: f0b52d146f2bca2e85d72ba254f475643e6a9dcb
+    commit: fff4cbdf47be29d55d088881c9c7ad97e8a21b88
 snapshots:
 - completed:
     size: 500539
