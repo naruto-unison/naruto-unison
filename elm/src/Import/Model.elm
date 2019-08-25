@@ -124,28 +124,28 @@ jsonEncCategory  val =
 
 type alias Game  =
    { chakra: (Chakras, Chakras)
-   , ninjas: (List Ninja)
    , playing: Player
    , victor: (List Player)
+   , ninjas: (List Ninja)
    , targets: (List (List (List Int)))
    }
 
 jsonDecGame : Json.Decode.Decoder ( Game )
 jsonDecGame =
-   Json.Decode.succeed (\pchakra pninjas pplaying pvictor ptargets -> {chakra = pchakra, ninjas = pninjas, playing = pplaying, victor = pvictor, targets = ptargets})
+   Json.Decode.succeed (\pchakra pplaying pvictor pninjas ptargets -> {chakra = pchakra, playing = pplaying, victor = pvictor, ninjas = pninjas, targets = ptargets})
    |> required "chakra" (Json.Decode.map2 tuple2 (Json.Decode.index 0 (jsonDecChakras)) (Json.Decode.index 1 (jsonDecChakras)))
-   |> required "ninjas" (Json.Decode.list (jsonDecNinja))
    |> required "playing" (jsonDecPlayer)
    |> required "victor" (Json.Decode.list (jsonDecPlayer))
+   |> required "ninjas" (Json.Decode.list (jsonDecNinja))
    |> required "targets" (Json.Decode.list (Json.Decode.list (Json.Decode.list (Json.Decode.int))))
 
 jsonEncGame : Game -> Value
 jsonEncGame  val =
    Json.Encode.object
    [ ("chakra", (\(t1,t2) -> Json.Encode.list identity [(jsonEncChakras) t1,(jsonEncChakras) t2]) val.chakra)
-   , ("ninjas", (Json.Encode.list jsonEncNinja) val.ninjas)
    , ("playing", jsonEncPlayer val.playing)
    , ("victor", (Json.Encode.list jsonEncPlayer) val.victor)
+   , ("ninjas", (Json.Encode.list jsonEncNinja) val.ninjas)
    , ("targets", (Json.Encode.list (Json.Encode.list (Json.Encode.list Json.Encode.int))) val.targets)
    ]
 

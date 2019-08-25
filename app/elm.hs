@@ -33,6 +33,7 @@ import           Core.Fields (Privilege(..))
 
 import Model.Internal hiding (Barrier(..), Effect(..), Ninja(..), Game(..))
 
+-- From Model.GameInfo.ninjaToJSON
 data Ninja = Ninja
     { slot      :: Slot
     , health    :: Int
@@ -50,19 +51,29 @@ data Ninja = Ninja
     , skills    :: [Skill]
     }
 
+-- From Model.GameInfo.gameToJSON
+data Game = Game { chakra  :: (Chakras, Chakras)
+                 , playing :: Player
+                 , victor  :: [Player]
+                 , ninjas  :: Seq Ninja
+                 , targets :: [[[Slot]]]
+                 }
+
+-- From the ToJSON instance of GameInfo in Model.GameInfo
+data GameInfo = GameInfo { opponent   :: User
+                         , game       :: Game
+                         , characters :: [Character]
+                         , player     :: Player
+                         }
+
+-- From the ToJSON instance of Barrier in Model.Internal
 data Barrier = Barrier { amount :: Int
                        , user   :: Slot
                        , name   :: Text
                        , dur    :: Int
                        }
 
-data Game = Game { chakra  :: (Chakras, Chakras)
-                 , ninjas  :: Seq Ninja
-                 , playing :: Player
-                 , victor  :: [Player]
-                 , targets :: [[[Slot]]]
-                 }
-
+-- From the ToJSON instance of Effect in Model.Effect
 data Effect = Effect
     { desc    :: Text
     , helpful :: Bool
@@ -70,6 +81,7 @@ data Effect = Effect
     , trap    :: Bool
     }
 
+-- From the ToJSON instance of User in Core.Model
 data User = User { name       :: Text
                  , avatar     :: Text
                  , clan       :: Maybe Text
@@ -81,12 +93,6 @@ data User = User { name       :: Text
                  , privilege  :: Privilege
                  , condense   :: Bool
                  }
-
-data GameInfo = GameInfo { opponent   :: User
-                         , game       :: Game
-                         , characters :: [Character]
-                         , player     :: Player
-                         }
 
 alterations :: ETypeDef -> ETypeDef
 alterations = recAlterType typeAlterations
