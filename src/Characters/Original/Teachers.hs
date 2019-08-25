@@ -82,7 +82,7 @@ cs =
           [ To Enemy do
                 hp     <- target health
                 bonus  <- 30 `bonusIf` userHas "Successful Ambush"
-                damage $ 20 + bonus + 10 * ((100 - hp) `quot` 20)
+                damage $ 10 + bonus + 10 * ((100 - hp) `quot` 20)
           ]
         }
       ]
@@ -112,7 +112,7 @@ cs =
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Kakashi anticipates any attacks against him, copying them faster than their user. All harmful skills that target Kakashi next turn will be reflected."
         , Skill.classes   = [Chakra, Melee, Invisible]
-        , Skill.cost      = [Nin, Tai]
+        , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self $ apply 1 [ReflectAll] ]
