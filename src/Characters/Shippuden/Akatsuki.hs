@@ -911,7 +911,7 @@ cs =
         , Skill.cooldown  = 3
         , Skill.channel   = Action 2
         , Skill.start     =
-          [ To Enemy $ purge
+          [ To Enemy purge
           , To Self  $ vary' 0 "Missile Salvo" "Head Cannon"
           ]
         , Skill.effects   = [ To Enemy $ damage 10 ]

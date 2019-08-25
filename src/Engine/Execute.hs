@@ -253,6 +253,9 @@ filterCounters user slots = filter $ keep . Ninja.slot
     keep slot = not (Parity.allied user slot)
                 && testBit targetSet (Slot.toInt slot)
 
+setActed :: Ninja -> Ninja
+setActed n = n { Ninja.acted = True }
+
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadRandom m) => Act -> m ()
@@ -282,11 +285,12 @@ act a = do
             effects affected =<< chooseTargets (Skill.effects skill)
         else case Trigger.snareTrap skill nUser of
             Just (n', sn) -> P.write user case s of
-                Left s' | s' <= 3 -> Cooldown.update charge sn skill s' n'
-                _                 -> n'
+                Left s' | s' <= 3 -> Cooldown.update charge sn skill s' $
+                                     setActed n'
+                _                 -> setActed n'
             Nothing -> do
                 P.alter $ Game.adjustChakra user (— cost)
-                P.modify user $ Cooldown.updateN charge skill s
+                P.modify user $ Cooldown.updateN charge skill s . setActed
                 efs        <- chooseTargets
                               (Skill.start skill ++ Skill.effects skill)
                 countering <- filterCounters user efs . toList <$> P.ninjas
@@ -308,7 +312,6 @@ act a = do
                     sequence_ counters
 
         traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
-        P.modifyAll \n -> n { Ninja.triggers = mempty }
     P.modifyAll Adjust.effects
   where
     s       = Act.skill a

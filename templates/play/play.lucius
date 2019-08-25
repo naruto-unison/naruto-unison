@@ -682,7 +682,6 @@ a.playButton {
     transition: all 1s;
     left: 0;
     right: 0;
-    margin: 0 -2em;
 }
 #player1 .charhealth span {
     right: 100%;

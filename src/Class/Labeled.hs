@@ -14,7 +14,7 @@ import Model.Slot (Slot)
 -- in order for a structure to count as theirs.
 class Labeled a where
     -- | Label
-    name  :: a -> Text
+    name :: a -> Text
     -- | 'Model.Ninja.Ninja' user
     user :: a -> Slot
 

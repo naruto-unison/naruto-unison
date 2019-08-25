@@ -3,8 +3,9 @@ module Engine.Turn (run, process) where
 
 import ClassyPrelude hiding ((\\), groupBy, drop, head)
 
-import Data.List ((\\))
-import Data.List.NonEmpty (groupBy, head)
+import           Data.List ((\\))
+import           Data.List.NonEmpty (groupBy, head)
+import qualified Data.Vector as Vector
 
 import           Core.Util ((—))
 import qualified Class.Labeled as Labeled
@@ -98,9 +99,9 @@ doBomb bomb target st = traverse_ detonate $ Status.bombs st
 
 -- | Executes 'Status.bombs' of all 'Status'es that were removed.
 doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Vector Ninja -> m ()
-doBombs bomb ninjas = traverse_ sequence_ . zipWith comp ninjas =<< P.ninjas
+doBombs bomb ninjas = Vector.zipWithM_ comp ninjas =<< P.ninjas
   where
-    comp n n' = doBomb bomb (Ninja.slot n)
+    comp n n' = sequence $ doBomb bomb (Ninja.slot n)
                 <$> Ninja.statuses n \\ Ninja.statuses n'
 
 -- | Executes 'Barrier.while' and 'Barrier.finish' effects.

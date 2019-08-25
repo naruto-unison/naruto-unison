@@ -2,7 +2,6 @@
 module Core.Util
   ( (!?), (!!), (—), (∈), (∉)
   , Lift
-  , enumerate
   , intersects, intersectsSet
   , duplic
   , shorten
@@ -41,11 +40,6 @@ infix 4 ∉
 (∉) :: ∀ o. (MonoFoldable o, Eq (Element o)) => Element o -> o -> Bool
 (∉) = notElem
 {-# INLINE (∉) #-}
-
--- | Maps across an enumeration.
-enumerate :: ∀ a b. (Bounded a, Enum a) => (a -> b) -> [b]
-enumerate = (<$> [minBound..maxBound])
-{-# INLINE enumerate #-}
 
 -- | True if any elements are shared by both collections.
 intersects :: ∀ a b.

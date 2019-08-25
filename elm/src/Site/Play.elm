@@ -463,7 +463,6 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
   let
     render   = renderDetail onTeam b.ninja.slot characters
     anchor   = if onTeam then "left" else "right"
-    hp       = String.fromInt b.ninja.health ++ "%"
     live     = if b.ninja.health > 0 then identity else always []
     channels = live << List.map (render << Detail.channel) <|
                List.reverse b.ninja.channels
@@ -506,8 +505,13 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
     H.section [A.classList [("dead", b.ninja.health == 0)]] <|
       H.aside [A.class "channels"] channels :: mainBar ++
         [ H.div [A.class "charhealth"] <|
-          [ H.div [A.style "width" hp] []
-          , H.span [A.class "charhealthtext", A.style anchor hp] <|
+          [ H.div [A.style "width" <| String.fromInt b.ninja.health ++ "%"] []
+          , H.span
+            [ A.class "charhealthtext"
+            , A.style anchor <|
+              -- TODO this obviously is not ideal
+              String.fromInt (b.ninja.health * 93 // 100) ++ "%"
+            ] <|
             live [H.text <| String.fromInt b.ninja.health]
           ] ++ defenses
         , H.aside [A.class "statuses"] details

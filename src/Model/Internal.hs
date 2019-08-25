@@ -57,6 +57,7 @@ data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas
                    , lastSkill :: Maybe Skill            -- ^ Starts at @Nothing@
                    , triggers  :: Set Trigger            -- ^ Empty at the start of each turn
                    , effects   :: [Effect]               -- ^ Empty at the start of each turn
+                   , acted     :: Bool                   -- ^ False at the start of each turn
                    }
 instance Eq Ninja where
     (==) = (==) `on` \Ninja{..} -> (slot, health, cooldowns, charges)

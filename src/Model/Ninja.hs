@@ -49,7 +49,6 @@ import           Model.Duration (Duration, incr, sync)
 import qualified Model.Effect as Effect
 import           Model.Effect (Effect(..))
 import qualified Model.Copy as Copy
-import           Model.Trap (Trigger(..))
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
 import           Model.Slot (Slot)
@@ -77,6 +76,7 @@ new slot c = Ninja { slot      = slot
                    , lastSkill = Nothing
                    , triggers  = mempty
                    , effects   = mempty
+                   , acted     = False
                    }
   where
     skillSize = length $ Character.skills c
@@ -227,7 +227,7 @@ decr n = n { defense   = mapMaybe TurnBased.decr $ defense n
            , variants  = variantsDecr <$> variants n
            , copies    = (>>= TurnBased.decr) <$> copies n
            , cooldowns = ((max 0 . subtract 1) <$>) <$> cooldowns n
-           , triggers  = singleton OnNoAction
+           , acted     = False
            }
   where
     decrChannels       = mapMaybe TurnBased.decr $ newChans n ++ channels n

@@ -86,7 +86,7 @@ trapWith trapType clas dur tr f = trapFull trapType clas dur tr (const f)
 
 -- | Trap engine.
 trapFull :: ∀ m. MonadPlay m
-         => Trap.Direction -> EnumSet Class -> Turns -> Trap.Trigger
+         => Trap.Direction -> EnumSet Class -> Turns -> Trigger
          -> (Int -> RunConstraint ()) -> m ()
 trapFull direction classes (Duration -> dur) trigger f = do
     skill   <- P.skill

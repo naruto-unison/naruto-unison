@@ -73,7 +73,7 @@ cs =
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
         , Skill.start     =
-          [ To Self $ flag
+          [ To Self flag
           , To Enemy do
                 deplete 1
                 damage 20

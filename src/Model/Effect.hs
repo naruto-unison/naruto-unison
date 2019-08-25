@@ -15,7 +15,7 @@ import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), object)
 
-import Core.Util ((∈), enumerate)
+import Core.Util ((∈))
 import Class.Classed (Classed(..))
 import Class.Display (Display(..))
 import Model.Class (Class(..), lower)
@@ -24,15 +24,23 @@ import Model.Slot (Slot)
 
 data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
+identity :: ∀ a. Num a => Amount -> a
+identity Flat    = 0
+identity Percent = 1
+
 data Constructor
     = Only Effect
     | Any (Class -> Effect)
 
+construct :: Constructor -> [Effect]
+construct (Only x) = [x]
+construct (Any x)  = x <$> [minBound..maxBound]
+
 instance Eq Constructor where
     Only x == Only y = x == y
     Any  x == Any  y = x All == y All
-    Any  x == Only y = y ∈ enumerate x
-    Only x == Any  y = x ∈ enumerate y
+    Any  x == Only y = y ∈ (x <$> [minBound..maxBound])
+    Only x == Any  y = x ∈ (y <$> [minBound..maxBound])
     {-# INLINE (==) #-}
 
 -- | Effects of 'Status'es.
@@ -222,14 +230,6 @@ instance Display Effect where
     display Unexhaust = "All skills cost 1 fewer random chakra."
     display (Unreduce x) = "Damage reduction skills reduce " ++ display x ++ " fewer damage."
     display (Weaken cla amt x) = display cla ++ " skills deal " ++ displayAmt amt x ++ " fewer damage. Does not affect affliction damage."
-
-construct :: Constructor -> [Effect]
-construct (Only x) = [x]
-construct (Any x)  = enumerate x
-
-identity :: ∀ a. Num a => Amount -> a
-identity Flat    = 0
-identity Percent = 1
 
 -- | Scales the power of an effect.
 boosted :: Int -> Effect -> Effect

@@ -27,6 +27,9 @@ module Class.Play
 
 import ClassyPrelude hiding (zipWith)
 
+import qualified Data.Vector as Vector
+import           Data.Vector (Vector)
+
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
 import           Model.Internal (MonadGame(..), MonadPlay(..))
@@ -43,7 +46,7 @@ import           Model.Player (Player)
 import           Model.Skill (Skill)
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
-import           Model.Trap (Trigger)
+import           Model.Trap (Trigger(..))
 
 -- | Alters the focus of the environment to a new @Context@.
 withContext :: ∀ m a. Context -> ReaderT Context m a -> m a
@@ -119,20 +122,21 @@ fromSource f = do
     src <- user
     modify t $ f src
 
-zipWith :: ∀ m o. (MonadGame m, MonoFoldable o, Ninja ~ Element o)
-        => (Ninja -> Ninja -> Ninja) -> o -> m ()
-zipWith f = traverse_ (uncurry g) . zip Slot.all . toList
-  where
-    g i = modify i . f
+allSlotsVec :: Vector Slot
+allSlotsVec = fromList Slot.all
+
+zipWith :: ∀ m. (MonadGame m)
+        => (Ninja -> Ninja -> Ninja) -> Vector Ninja -> m ()
+zipWith f = Vector.zipWithM_ (\i -> modify i . f) allSlotsVec
 
 -- | Adds a 'Flag' if 'Context.user' is not 'Context.target' and 'Context.new'
 -- is @True@.
-trigger :: ∀ m o. (MonadPlay m, MonoFoldable o, Trigger ~ Element o)
-        => Slot -> o -> m ()
+trigger :: ∀ m. MonadPlay m => Slot -> [Trigger] -> m ()
 trigger i xs = whenM (valid <$> context) $ modify i \n ->
     n { Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n) xs }
   where
     valid ctx = Context.new ctx && Context.user ctx /= Context.target ctx
+
 
 yieldVictor :: ∀ m. MonadGame m => m ()
 yieldVictor = whenM (null . Game.victor <$> game) do
@@ -142,7 +146,7 @@ yieldVictor = whenM (null . Game.victor <$> game) do
     mVictor ns = filter (dead ns . Player.opponent) [minBound..maxBound]
 
 -- | The entire team of a @Player@ is dead, resulting in defeat.
-dead :: Vector Ninja -> Player -> Bool
+dead :: ∀ o. (MonoFoldable o, Ninja ~ Element o) => o -> Player -> Bool
 dead ns p = not $ any (Ninja.playing p) ns
 
 forfeit :: ∀ m. MonadGame m => Player -> m ()

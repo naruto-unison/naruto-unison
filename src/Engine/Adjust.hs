@@ -47,8 +47,7 @@ skills n = flip skill n . Left <$> [0..3]
 
 -- | Modifies @Effect@s when they are first added to a @Ninja@ due to @Effect@s
 -- already added.
-apply :: ∀ f. (Functor f, IsSequence (f Effect), Effect ~ Element (f Effect))
-      => Ninja -> f Effect -> f Effect
+apply :: Ninja -> [Effect] -> [Effect]
 apply n = map adjustEffect . filter keepEffects
   where
     adjustEffect (Reduce cla Flat x) = Reduce cla Flat $ x - Effects.unreduce n

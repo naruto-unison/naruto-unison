@@ -39,12 +39,14 @@ run user trap
       withTarget ctx = ctx { Context.target = user }
       play           = Trap.effect trap $ Trap.tracker trap
 
-getOf :: (MonoFoldable o, Trigger ~ Element o)
-      => Slot -> o -> Ninja -> [Runnable Context]
-getOf user triggers n =
-    run user <$> filter (match . Trap.trigger) (Ninja.traps n)
-  where
-    match trigger = trigger ∈ Ninja.triggers n && trigger ∈ triggers
+getBase :: Slot -> Trigger -> Ninja -> [Runnable Context]
+getBase user trigger n =
+    run user <$> filter ((trigger ==) . Trap.trigger) (Ninja.traps n)
+
+getOf :: Slot -> Trigger -> Ninja -> [Runnable Context]
+getOf user trigger n
+  | trigger ∈ Ninja.triggers n = getBase user trigger n
+  | otherwise                  = []
 
 get :: Slot -> Ninja -> [Runnable Context]
 get user n =
@@ -135,7 +137,8 @@ getTurnNot :: Player -- ^ Player during the current turn.
            -> Ninja -- ^ 'Ninja.flags' owner.
            -> [Runnable Context]
 getTurnNot player n
-  | Parity.allied player user = getOf user [OnNoAction] n
+  | Ninja.acted n             = mempty
+  | Parity.allied player user = getBase user OnNoAction n
   | otherwise                 = mempty
   where
     user = Ninja.slot n
@@ -143,7 +146,7 @@ getTurnNot player n
 -- | Processes and runs all 'Trap.Trap's at the end of a turn.
 runTurn :: ∀ m. (MonadGame m, MonadRandom m) => Vector Ninja -> m ()
 runTurn ninjas = do
-    player <- P.player
+    player  <- P.player
     ninjas' <- P.ninjas
     traverses (uncurry P.modify) $ zipWith (getTurnHooks player) ninjas ninjas'
     traverses P.launch $ zipWith (getTurnPer player) ninjas ninjas'

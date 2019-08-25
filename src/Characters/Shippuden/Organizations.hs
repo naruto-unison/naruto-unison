@@ -87,7 +87,7 @@ cs =
           , Skill.cost      = [Gen]
           , Skill.cooldown  = 3
           , Skill.channel   = Control 3
-          , Skill.start     = [ To Enemy $ commandeer ]
+          , Skill.start     = [ To Enemy commandeer ]
           , Skill.effects   =
             [ To Enemy do
                   tag 1

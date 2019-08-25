@@ -87,10 +87,10 @@ swap classes = reflectable (any match) classes
 death :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> m ()
 death slot = do
     n <- P.ninja slot
-    let die = Traps.getOf slot [OnDeath] n
+    let die = Traps.getOf slot OnDeath n
         res
           | n `is` Plague = mempty
-          | otherwise     = Traps.getOf slot [OnRes] n
+          | otherwise     = Traps.getOf slot OnRes n
     if | Ninja.health n > 0 -> return ()
        | not $ null res     -> do
             P.modify slot \nt ->

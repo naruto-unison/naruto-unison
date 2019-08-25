@@ -140,7 +140,7 @@ cs =
         , Skill.cooldown  = 5
         , Skill.channel   = Ongoing 5
         , Skill.start     =
-          [ To Self $ cureBane]
+          [ To Self cureBane ]
         , Skill.effects   =
           [ To Self $ heal 15 ]
         }
@@ -215,9 +215,9 @@ cs =
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self $ whenM (userHas "Shadow Senbon") do
-                apply 1 [Invulnerable All]
-                tag 1
+          [ To Self do
+              whenM (userHas "Shadow Senbon") $ apply 1 [Invulnerable All]
+              tag 1
           , To Enemy do
                 bonus <- 25 `bonusIf` userHas "Unnerving Bells"
                 damage (15 + bonus)
@@ -404,8 +404,8 @@ cs =
         , Skill.effects   =
           [ To Enemy do
                 apply 2 [Expose]
-                userSlot <- user slot
-                self $ hide 2 [Redirect NonMental userSlot]
+                targetSlot <- target slot
+                self $ apply 2 [Redirect NonMental targetSlot]
           ]
         }
       ]
