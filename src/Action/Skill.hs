@@ -19,6 +19,7 @@ import qualified Class.Play as P
 import           Class.Play (MonadPlay)
 import qualified Class.TurnBased as TurnBased
 import qualified Model.Channel as Channel
+import           Model.Channel (Channeling(..))
 import qualified Model.Character as Character
 import qualified Model.Copy as Copy
 import           Model.Copy (Copy(Copy), Copying)
@@ -62,8 +63,10 @@ vary :: ∀ m. MonadPlay m
      -> m ()
 vary name variant = do
     skill <- P.skill
-    unless (Channel.turnDur (Skill.channel skill) == Duration (-1)) $
-        varyFull (Variant.FromSkill $ Skill.name skill) name variant
+    case Skill.channel skill of
+        Instant -> vary' 0 name variant
+        (Channel.turnDur -> Duration (-1)) -> return ()
+        _ -> varyFull (Variant.FromSkill $ Skill.name skill) name variant
 
 -- | Adds a 'Variant.Variant' to 'Ninja.variants' with a fixed 'Variant.dur'.
 vary' :: ∀ m. MonadPlay m

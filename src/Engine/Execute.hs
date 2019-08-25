@@ -312,7 +312,7 @@ act a = do
                     sequence_ counters
 
         traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
-    P.modifyAll Adjust.effects
+    P.modifyAll $ Adjust.effects . \n -> n { Ninja.triggers = mempty }
   where
     s       = Act.skill a
     new     = isLeft s

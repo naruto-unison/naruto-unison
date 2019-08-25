@@ -62,7 +62,7 @@ cs =
     "A sadistic jōnin who specializes in extracting information, Ibiki commands the Hidden Leaf Village's Torture and Interrogation Force. Pain is his preferred method of communication, and his preferred approach to battle is ensuring all options available to his enemies will lead to their defeat."
     [ [ Skill.new
         { Skill.name      = "Biding Time"
-        , Skill.desc      = "Provides 10 points of permanent damage reduction to Ibiki. Each time a damaging skill is used on Ibiki, he will gain a stack of [Payback]. Once used, this skill becomes [Payback][r]."
+        , Skill.desc      = "Provides 10 points of permanent damage reduction to Ibiki. Each time an enemy uses a skill that deals damage to Ibiki, he will gain a stack of [Payback]. Once used, this skill becomes [Payback][r]."
         , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -89,7 +89,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Summoning: Iron Maiden"
-        , Skill.desc      = "A spike-filled iron coffin shaped like a cat imprisons an enemy. For 3 turns, each time the target uses a harmfull skill, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
+        , Skill.desc      = "A spike-filled iron coffin shaped like a cat imprisons an enemy. For 3 turns, each time the target uses a harmful skill, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
         , Skill.classes   = [Physical, Melee, Summon]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =

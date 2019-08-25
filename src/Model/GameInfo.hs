@@ -138,7 +138,6 @@ ninjaToJSON n = object
     , "face"      .= Ninja.face n
     , "lastSkill" .= Ninja.lastSkill n
     , "skills"    .= (usable <$> Adjust.skills n)
-    , "triggers"  .= Ninja.triggers n
     ]
   where
     usable skill = skill { Skill.require = fulfill $ Skill.require skill }
