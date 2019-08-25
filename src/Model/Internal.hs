@@ -83,19 +83,18 @@ data Requirement
 
 -- | Target destinations of 'Skill's.
 data Target
-    = Self          -- ^ User of 'Skill'
-    | Ally          -- ^ Specific ally
-    | Allies        -- ^ All allies
-    | RAlly         -- ^ Random ally
-    | XAlly         -- ^ Specific ally excluding 'Self'
-    | XAllies       -- ^ 'Allies' excluding 'Self'
-    | Enemy         -- ^ Specific enemy
-    | Enemies       -- ^ All enemies
-    | REnemy        -- ^ Random enemy
-    | XEnemies      -- ^ Enemies excluding 'Enemy'
-    | Everyone      -- ^ All 'Ninja's
-    | Specific Slot -- ^ Specific ninja index in 'ninjas' (0-5)
-    deriving (Eq, Ord, Show, Read, Generic, ToJSON)
+    = Self    -- ^ User of 'Skill'
+    | Ally    -- ^ Specific ally
+    | Allies  -- ^ All allies
+    | RAlly   -- ^ Random ally
+    | XAlly   -- ^ Specific ally excluding 'Self'
+    | XAllies -- ^ 'Allies' excluding 'Self'
+    | Enemy   -- ^ Specific enemy
+    | Enemies -- ^ All enemies
+    | REnemy  -- ^ Random enemy
+    | XEnemies -- ^ Enemies excluding 'Enemy'
+    | Everyone -- ^ All 'Ninja's
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
 
 -- | A move that a 'Character' can perform.
 data Skill = Skill { name      :: Text              -- ^ Name

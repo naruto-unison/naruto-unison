@@ -375,43 +375,26 @@ type Target  =
     | REnemy
     | XEnemies
     | Everyone
-    | Specific Int
 
 jsonDecTarget : Json.Decode.Decoder ( Target )
 jsonDecTarget =
-    let jsonDecDictTarget = Dict.fromList
-            [ ("Self", Json.Decode.lazy (\_ -> Json.Decode.succeed Self))
-            , ("Ally", Json.Decode.lazy (\_ -> Json.Decode.succeed Ally))
-            , ("Allies", Json.Decode.lazy (\_ -> Json.Decode.succeed Allies))
-            , ("RAlly", Json.Decode.lazy (\_ -> Json.Decode.succeed RAlly))
-            , ("XAlly", Json.Decode.lazy (\_ -> Json.Decode.succeed XAlly))
-            , ("XAllies", Json.Decode.lazy (\_ -> Json.Decode.succeed XAllies))
-            , ("Enemy", Json.Decode.lazy (\_ -> Json.Decode.succeed Enemy))
-            , ("Enemies", Json.Decode.lazy (\_ -> Json.Decode.succeed Enemies))
-            , ("REnemy", Json.Decode.lazy (\_ -> Json.Decode.succeed REnemy))
-            , ("XEnemies", Json.Decode.lazy (\_ -> Json.Decode.succeed XEnemies))
-            , ("Everyone", Json.Decode.lazy (\_ -> Json.Decode.succeed Everyone))
-            , ("Specific", Json.Decode.lazy (\_ -> Json.Decode.map Specific (Json.Decode.int)))
-            ]
-        jsonDecObjectSetTarget = Set.fromList []
-    in  decodeSumTaggedObject "Target" "tag" "contents" jsonDecDictTarget jsonDecObjectSetTarget
+    let jsonDecDictTarget = Dict.fromList [("Self", Self), ("Ally", Ally), ("Allies", Allies), ("RAlly", RAlly), ("XAlly", XAlly), ("XAllies", XAllies), ("Enemy", Enemy), ("Enemies", Enemies), ("REnemy", REnemy), ("XEnemies", XEnemies), ("Everyone", Everyone)]
+    in  decodeSumUnaries "Target" jsonDecDictTarget
 
 jsonEncTarget : Target -> Value
 jsonEncTarget  val =
-    let keyval v = case v of
-                    Self  -> ("Self", encodeValue (Json.Encode.list identity []))
-                    Ally  -> ("Ally", encodeValue (Json.Encode.list identity []))
-                    Allies  -> ("Allies", encodeValue (Json.Encode.list identity []))
-                    RAlly  -> ("RAlly", encodeValue (Json.Encode.list identity []))
-                    XAlly  -> ("XAlly", encodeValue (Json.Encode.list identity []))
-                    XAllies  -> ("XAllies", encodeValue (Json.Encode.list identity []))
-                    Enemy  -> ("Enemy", encodeValue (Json.Encode.list identity []))
-                    Enemies  -> ("Enemies", encodeValue (Json.Encode.list identity []))
-                    REnemy  -> ("REnemy", encodeValue (Json.Encode.list identity []))
-                    XEnemies  -> ("XEnemies", encodeValue (Json.Encode.list identity []))
-                    Everyone  -> ("Everyone", encodeValue (Json.Encode.list identity []))
-                    Specific v1 -> ("Specific", encodeValue (Json.Encode.int v1))
-    in encodeSumTaggedObject "tag" "contents" keyval val
+    case val of
+        Self -> Json.Encode.string "Self"
+        Ally -> Json.Encode.string "Ally"
+        Allies -> Json.Encode.string "Allies"
+        RAlly -> Json.Encode.string "RAlly"
+        XAlly -> Json.Encode.string "XAlly"
+        XAllies -> Json.Encode.string "XAllies"
+        Enemy -> Json.Encode.string "Enemy"
+        Enemies -> Json.Encode.string "Enemies"
+        REnemy -> Json.Encode.string "REnemy"
+        XEnemies -> Json.Encode.string "XEnemies"
+        Everyone -> Json.Encode.string "Everyone"
 
 
 

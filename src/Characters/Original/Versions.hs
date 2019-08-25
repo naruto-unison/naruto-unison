@@ -180,7 +180,7 @@ cs =
         , Skill.channel   = Ongoing 0
         , Skill.start     =
           [ To Enemy $ trap 0 (Countered All) $
-                self $ cancelChannel "Monstrous Sand Arm"
+                cancelChannel "Monstrous Sand Arm"
           ]
         , Skill.effects   =
           [ To Enemy $ afflict 10 ]

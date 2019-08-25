@@ -691,10 +691,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Nin]
         , Skill.effects   =
-          [ To Enemies do
-              kill
-              unlessM (target alive) . self $ cancelChannel "Sand Coffin"
-          ]
+          [ To Enemies kill ]
         }
       ]
     , [ Skill.new

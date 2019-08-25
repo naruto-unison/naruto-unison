@@ -11,6 +11,7 @@ module Engine.Execute
 import ClassyPrelude hiding ((<|))
 
 import           Control.Monad.Trans.Maybe (runMaybeT)
+import           Data.Bits (setBit, testBit)
 import           Data.Either (isLeft)
 import           Data.Enum.Set.Class (EnumSet, AsEnumSet(..))
 import qualified Data.Sequence as Seq
@@ -36,7 +37,7 @@ import           Model.Duration (Duration, incr, sync)
 import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
-import           Model.Ninja (is)
+import           Model.Ninja (Ninja, is)
 import qualified Model.Runnable as Runnable
 import           Model.Runnable (Runnable(To))
 import qualified Model.Requirement as Requirement
@@ -161,12 +162,12 @@ wrap affected f = void $ runMaybeT do
             }
 
 chooseTargets :: ∀ m. (MonadPlay m, MonadRandom m)
-              => [Runnable Target] -> m [Runnable Slot]
+              => [Runnable Target] -> m [[Runnable Slot]]
 chooseTargets targets = do
     skill     <- P.skill
     nUser     <- P.nUser
     ninjas    <- P.ninjas
-    join <$> forM targets \run -> do
+    forM targets \run -> do
         target <- chooseTarget $ Runnable.target run
         return [ run { Runnable.target = t }
                    | t <- target
@@ -176,7 +177,6 @@ chooseTargets targets = do
 -- | Transforms a @Target@ into @Slot@s. 'RAlly' and 'REnemy' targets are chosen
 -- at random.
 chooseTarget :: ∀ m. (MonadPlay m, MonadRandom m) => Target -> m [Slot]
-chooseTarget (Specific x) = return [x]
 chooseTarget Self = singleton <$> P.user
 chooseTarget Ally = do
     user   <- P.user
@@ -216,12 +216,12 @@ targetEffect affected f = do
 
 -- | Handles effects in a 'Skill'. Uses 'targetEffect' internally.
 effects :: ∀ m. (MonadPlay m, MonadRandom m)
-        => EnumSet Affected -> [Runnable Slot] -> m ()
+        => EnumSet Affected -> [[Runnable Slot]] -> m ()
 effects affected xs = do
     skill      <- P.skill
     let local t ctx = ctx { Context.skill = skill, Context.target = t }
         run (To t r) = P.with (local t) $ targetEffect affected r
-    traverse_ run xs
+    traverse_ (traverse_ run) xs
 
     --traverse_ (flip P.with (targetEffect affected $ Play.action x) . localize) targets
 
@@ -242,6 +242,17 @@ addChannels = do
     unless (chan == Instant || dur == 1 || dur == 2) $
         P.modify user \n -> n { Ninja.newChans = chan' : Ninja.newChans n }
 
+-- | Filters a list of targets to those capable of countering a skill.
+filterCounters :: Slot -- ^ User at risk of being countered.
+               -> [[Runnable Slot]] -- ^ Effects of the skill to be countered.
+               -> [Ninja] -> [Ninja]
+filterCounters user slots = filter $ keep . Ninja.slot
+  where
+    acc x     = setBit x . Slot.toInt . Runnable.target
+    targetSet = foldl' acc (0 :: Word8) $ join slots
+    keep slot = not (Parity.allied user slot)
+                && testBit targetSet (Slot.toInt slot)
+
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadRandom m) => Act -> m ()
@@ -254,7 +265,7 @@ act a = do
             P.write user nUser
                 { Ninja.statuses = swapped `delete` Ninja.statuses nUser }
             return ( setFromList [Swapped, Targeted]
-                   , SkillTransform.swap swapped skill'
+                   , SkillTransform.swap skill'
                    )
         Nothing -> return (singletonSet Targeted, skill')
     let classes = Skill.classes skill
@@ -276,11 +287,9 @@ act a = do
             Nothing -> do
                 P.alter $ Game.adjustChakra user (— cost)
                 P.modify user $ Cooldown.updateN charge skill s
-                efs <- chooseTargets $ Skill.start skill ++ Skill.effects skill
-                let targets = Runnable.target <$> efs
-                    filt n  = not (Parity.allied user n) && n ∈ targets
-                countering <- filter (filt . Ninja.slot) . toList <$>
-                              P.ninjas
+                efs        <- chooseTargets
+                              (Skill.start skill ++ Skill.effects skill)
+                countering <- filterCounters user efs . toList <$> P.ninjas
                 let counters =
                         Trigger.userCounters user classes nUser
                         ++ (Trigger.targetCounters user classes =<< countering)

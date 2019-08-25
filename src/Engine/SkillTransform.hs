@@ -26,8 +26,6 @@ import qualified Model.Runnable as Runnable
 import           Model.Runnable (Runnable(..))
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill, Target(..))
-import qualified Model.Status as Status
-import           Model.Status (Status)
 import qualified Engine.Effects as Effects
 
 -- | Converts a function that uses raw 'Int's as indices in a
@@ -134,12 +132,12 @@ targetOnly :: [Target] -> Skill.Transform
 targetOnly xs = const . changeEffects . filter $ (∈ xs) . Runnable.target
 
 -- | Affects enemies instead of allies and allies instead of enemies.
-swap :: Status -> Skill -> Skill
-swap st = changeEffects . map $ Runnable.retarget f
+swap :: Skill -> Skill
+swap = changeEffects . map $ Runnable.retarget f
   where
     f Self         = Self
-    f Ally         = Specific $ Status.user st
-    f XAlly        = Specific $ Status.user st
+    f Ally         = REnemy
+    f XAlly        = REnemy
     f RAlly        = REnemy
     f Allies       = Enemies
     f XAllies      = Enemies
@@ -148,4 +146,3 @@ swap st = changeEffects . map $ Runnable.retarget f
     f Enemies      = Allies
     f XEnemies     = XAllies
     f Everyone     = Everyone
-    f (Specific x) = Specific x

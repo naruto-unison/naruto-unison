@@ -90,8 +90,7 @@ cs =
                 has <- targetHas "Clasp"
                 if has then do
                     afflict 30
-                    self $ delay (-1) $
-                        cancelChannel "Mini Tailed Beast Bomb Barrage"
+                    delay (-1) $ cancelChannel "Mini Tailed Beast Bomb Barrage"
                 else
                     afflict 10
           ]

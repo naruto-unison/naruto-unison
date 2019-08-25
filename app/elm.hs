@@ -94,6 +94,8 @@ alterations = recAlterType typeAlterations
 typeAlterations :: EType -> EType
 typeAlterations t = case t of
     ETyApp (ETyCon (ETCon "Runnable")) x -> typeAlterations x
+    ETyApp (ETyCon (ETCon "EnumSet")) x  -> ETyApp (ETyCon (ETCon "List")) $
+                                            typeAlterations x
     ETyCon (ETCon "Seq")       -> ETyCon (ETCon "List")
     ETyCon (ETCon "NonEmpty")  -> ETyCon (ETCon "List")
     ETyCon (ETCon "Slot")      -> ETyCon (ETCon "Int")
@@ -101,7 +103,6 @@ typeAlterations t = case t of
     ETyCon (ETCon "Duration")  -> ETyCon (ETCon "Int")
     ETyCon (ETCon "Trigger")   -> ETyCon (ETCon "String")
     ETyCon (ETCon "Varying")   -> ETyCon (ETCon "Int")
-    ETyCon (ETCon "ClassSet")  -> ETyApp (ETyCon (ETCon "List")) (ETyCon (ETCon "String"))
     ETyCon (ETCon "()")        -> ETyCon (ETCon "Unit") -- See elmUnitHandlers
     _                          -> defaultTypeAlterations t
 

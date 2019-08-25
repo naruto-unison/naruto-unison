@@ -178,8 +178,8 @@ cs =
         , Skill.classes   = [Melee]
         , Skill.cost      = [Nin, Nin]
         , Skill.effects   =
-          [ To Enemies $ kill
-          , To Self    $ killHard
+          [ To Enemies kill
+          , To Self    killHard
           ]
         }
       ]
