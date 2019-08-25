@@ -30,6 +30,10 @@ Currently pre-alpha and in active development. Nothing is guaranteed to be stabl
 
 ## Running
 
-To use a development web server, run `stack exec -- yesod devel` in the root directory of the project.
+To use a development web server, run `stack exec -- yesod devel` in the root directory of the project. Recompile the Elm frontend with `(cd elm && npm install)` whenever changes are made to the [elm](elm/) folder.
 
 In order to run the server in production mode, which has significantly better performance, deploy it with [Keter](https://www.yesodweb.com/blog/2012/05/keter-app-deployment). It is recommended to use a standalone server for hosting the Keter bundle and PostgreSQL database. The only server requirement to host Keter bundles is the Keter binary itself, which may be compiled on another machine with GHC and copied over. Docker support is planned but not yet implemented.
+
+## Model Syncing
+
+After making changes that affect the JSON representation of a data structure transmitted to the client, run `stack run elm-bridge` to make the corresponding changes to the client's representations. Always run `(cd elm && npm install)` after altering code in the [elm](elm/) folder.
