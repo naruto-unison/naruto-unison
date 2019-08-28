@@ -58,7 +58,7 @@ apply n = map adjustEffect . filter keepEffects
 -- | Fills 'Ninja.effects' with the effects of 'Ninja.statuses', modified by
 -- 'Ignore', 'Seal', 'Boost', and so on.
 effects :: Ninja -> Ninja
-effects n = n { Ninja.effects = baseStatuses >>= processEffects }
+effects n = n { Ninja.effects = baseStatuses >>= replicates >>= processEffects }
   where
     nSlot         = Ninja.slot n
     baseStatuses  = Ninja.statuses n
@@ -76,6 +76,7 @@ effects n = n { Ninja.effects = baseStatuses >>= processEffects }
       | sealed    = 1
       | otherwise = product $ 1 : [x | Boost x <- baseEffects]
     filtered filt = filter (\ef -> filt ef && ef ∉ ignores) . Status.effects
+    replicates st = replicate (Status.amount st) st { Status.amount = 1 }
     processEffects st
       | Status.user st == Ninja.slot n = Status.effects st
       | enraged   = boost <$> filtered Effect.bypassEnrage st
