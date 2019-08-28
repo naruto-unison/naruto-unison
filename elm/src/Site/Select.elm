@@ -605,8 +605,7 @@ previewSkill char slot skills i = case List.getAt i skills of
           , vNext
           ]
         , H.h1 [] <| H.text skill.name :: Render.chakras skill.cost ++
-          [ H.div [A.class "skillClasses"]
-            [H.text << String.join ", " <| skill.classes]
+          [ Render.classes False skill.classes
           ]
         , H.p [] << (++) (Render.desc skill.desc) << List.map
           (H.span [A.class "extra"] << List.singleton << H.text << second) <|

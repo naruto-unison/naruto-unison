@@ -110,26 +110,27 @@ effect removable x =
 
 hidden : List String
 hidden =
-    [ "Non-mental"
+    [ "Non-stacking"
+    , "Extending"
+
+    , "Necromancy"
+
+    , "All"
+    , "Harmful"
+    , "Healing"
+    , "Hidden"
+    , "Affliction"
+    , "Non-affliction"
+    , "Non-mental"
+    , "Non-mental"
+    , "Resource"
+    , "Direct"
+
     , "Bloodline"
     , "Genjutsu"
     , "Ninjutsu"
     , "Taijutsu"
     , "Random"
-    , "Necromancy"
-
-    , "All"
-    , "Harmful"
-    , "Affliction"
-    , "Non-affliction"
-    , "Nonstacking"
-    , "Resource"
-    , "Extending"
-    , "Hidden"
-    , "Shifted"
-    , "Unshifted"
-    , "Direct"
-    , "Healing"
     ]
 
 moreHidden : List String

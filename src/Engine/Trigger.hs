@@ -22,7 +22,6 @@ import           Class.Random (MonadRandom)
 import           Model.Class (Class(..))
 import           Model.Duration (Duration)
 import           Model.Effect (Effect(..))
-import qualified Model.Channel as Channel
 import qualified Model.Context as Context
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
@@ -116,8 +115,6 @@ death slot = do
         , Ninja.traps    = [trap | trap <- Ninja.traps n
                                  , slot /= Trap.user trap
                                    || Soulbound ∉ Trap.classes trap]
-        , Ninja.channels = filter ((slot /=) . Channel.target) $
-                           Ninja.channels n
         }
 
 getCounters :: ∀ m. (MonadPlay m, MonadRandom m)

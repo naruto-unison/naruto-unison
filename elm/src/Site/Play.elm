@@ -591,9 +591,9 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
             (Action 0)  -> "Action"
             (Control 0) -> "Control"
             (Ongoing 0) -> "Ongoing"
-            (Action y)  -> "Action "  ++ String.fromInt y
-            (Control y) -> "Control " ++ String.fromInt y
-            (Ongoing y) -> "Ongoing " ++ String.fromInt y
+            (Action y)  -> "Action "  ++ String.fromInt ((y + 1) // 2)
+            (Control y) -> "Control " ++ String.fromInt ((y + 1) // 2)
+            (Ongoing y) -> "Ongoing " ++ String.fromInt ((y + 1) // 2)
         charges =
           if x.charges == 0 then
             []

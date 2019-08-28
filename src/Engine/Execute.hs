@@ -6,6 +6,7 @@ module Engine.Execute
   , effects, addChannels
   , chooseTargets, filterCounters
   , copy
+  , interruptions
   ) where
 
 import ClassyPrelude hiding ((<|))
@@ -312,6 +313,7 @@ act a = do
                     sequence_ counters
 
         traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
+    breakControls
     P.modifyAll $ Adjust.effects . \n -> n { Ninja.triggers = mempty }
   where
     s       = Act.skill a
@@ -322,3 +324,40 @@ act a = do
                         , Context.target = Act.target a
                         , Context.new    = new
                         }
+
+interruptions :: Skill -> [Runnable Target]
+interruptions skill = (To Enemy clear) : (To Ally clear) : Skill.interrupt skill
+  where
+    clear :: ∀ m. MonadPlay m => m ()
+    clear = P.fromSource . Ninja.clear $ Skill.name skill
+
+nonRandom :: Target -> Bool
+nonRandom RAlly  = False
+nonRandom REnemy = False
+nonRandom _      = True
+
+breakControl :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Channel -> m ()
+breakControl user Channel{ dur = Control{}, skill, target} =
+    P.withContext chanContext do
+        targets <- chooseTargets . filter (nonRandom . Runnable.target) $
+                   Skill.effects skill
+        when (any null targets) do
+            interruptTargets <- chooseTargets $ interruptions skill
+            effects (setFromList [Channeled, Interrupted]) interruptTargets
+
+            P.modify user . Ninja.cancelChannel $ Skill.name skill
+  where
+    chanContext = Context { Context.skill  = skill
+                          , Context.user   = user
+                          , Context.target = target
+                          , Context.new    = False
+                          }
+breakControl _ _ = return ()
+
+-- | Ends all Control channels without valid targets.
+-- For example, if a Control skill targets an enemy, the channel will end
+-- if the target becomes invulnerable or dies.
+breakControls :: ∀ m. (MonadGame m, MonadRandom m) => m ()
+breakControls = traverse_ breakN =<< P.ninjas
+  where
+    breakN n = traverse_ (breakControl $ Ninja.slot n) $ Ninja.channels n
