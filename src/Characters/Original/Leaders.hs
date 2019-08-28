@@ -206,7 +206,7 @@ cs =
         , Skill.start     =
           [ To Allies do
                 apply 1 [Invulnerable All, Endure]
-                apply 0 [Reduce All Flat 5 ]
+                apply 0 [Reduce All Flat 5]
           , To Self $ vary "Major Summoning: Enma" "Adamantine Prison"
           ]
         }

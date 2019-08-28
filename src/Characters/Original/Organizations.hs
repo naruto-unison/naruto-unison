@@ -21,7 +21,7 @@ cs =
         , Skill.start     =
           [ To Self do
               enemies $ apply (-4) []
-              allies  $ apply (-4) [Reduce All Flat 5 ]
+              allies  $ apply (-4) [Reduce All Flat 5]
           ]
         , Skill.effects   = [ To Enemies $ damage 5 ]
         }
@@ -516,7 +516,7 @@ cs =
         , Skill.channel   = Ongoing 2
         , Skill.effects   =
           [ To Enemies $ damage 15
-          , To Self    $ apply 1 [Reduce All Flat 10 ]
+          , To Self    $ apply 1 [Reduce All Flat 10]
           ]
         }
       ]

@@ -161,7 +161,7 @@ targetTurn f = P.with with . Turn.process $ wrap Player.B
   where
     with ctx = ctx { Context.user   = Context.target ctx
         , Context.target = Context.user ctx
-        , Context.skill  = (Context.skill ctx) { Skill.start   = [] 
+        , Context.skill  = (Context.skill ctx) { Skill.start   = []
                                                , Skill.effects = [To Enemy f]
                                                }
         }

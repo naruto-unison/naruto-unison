@@ -422,7 +422,7 @@ cs =
         , Skill.effects   =
           [ To Enemy do
                 damage 10
-                apply (-1) [Stun NonMental, Bleed All Flat 10 ]
+                apply (-1) [Stun NonMental, Bleed All Flat 10]
           , To Self $ vary "Scorpion Tail Constriction" "Scorpion Tail Strike"
           ]
         }

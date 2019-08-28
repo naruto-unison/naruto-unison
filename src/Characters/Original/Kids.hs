@@ -532,7 +532,7 @@ cs =
                 bonus <- 15 `bonusIf` userHas "Fifth Gate Opening"
                 damage (10 + bonus)
                 tag 1
-          , To Self $ apply 1 [Reduce All Flat 10 ]
+          , To Self $ apply 1 [Reduce All Flat 10]
           ]
         }
       ]
