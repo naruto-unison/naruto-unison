@@ -95,7 +95,7 @@ trapFull direction classes (Duration -> dur) trigger f = do
     nUser   <- P.nUser
     nTarget <- P.nTarget
     let trapUser = Copy.source skill user
-        ctx      = Context { Context.skill   = skill
+        ctx      = Context { Context.skill  = skill
                            , Context.user   = trapUser
                            , Context.target = target
                            , Context.new    = False

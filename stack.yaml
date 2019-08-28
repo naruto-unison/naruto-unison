@@ -3,4 +3,4 @@ resolver: lts-13.30
 extra-deps:
 - elm-bridge-0.5.1
 - git: https://github.com/jnbooth/bounded-enum.git
-  commit: fff4cbdf47be29d55d088881c9c7ad97e8a21b88
+  commit: 469f1757a75c205444e48e4a063e388fd00ea9b3

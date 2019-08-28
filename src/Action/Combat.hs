@@ -93,7 +93,7 @@ userAdjust atk classes nUser x = x
     + strengthen Flat
     - weaken Flat
   where
-    direct = Direct ∈ classes
+    direct = Hidden ∈ classes
     strengthen
       | direct    = Effect.identity
       | otherwise = Effects.strengthen classes nUser
@@ -146,7 +146,7 @@ attack atk dmg = void $ runMaybeT do
     nTarget    <- P.nTarget
     let classes = insertSet atkClass $ Skill.classes skill
         dmgCalc = formula atk classes nUser nTarget dmg
-        direct  = Direct ∈ classes
+        direct  = Hidden ∈ classes
         (dmg'Barrier, barr) = absorbBarrier dmgCalc $ Ninja.barrier nUser
         handleDefense
           | nTarget `is` Undefend = (,)

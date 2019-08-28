@@ -43,7 +43,7 @@ cs =
         , Skill.effects   =
           [ To Enemy $ trap 1 OnHarm do
                 damage 40
-                apply 1 [Bleed Physical Flat 25, Bleed Chakra Flat 25 ]
+                apply 1 [Bleed Physical Flat 25, Bleed Chakra Flat 25]
           ]
         }
       ]

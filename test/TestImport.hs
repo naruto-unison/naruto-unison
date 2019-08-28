@@ -89,7 +89,6 @@ useSkill char target skillName f =
         REnemy     -> 1
         XEnemies   -> 3
         Everyone   -> 0
-        Specific x -> Slot.toInt x
 
 testBase :: Wrapper
 testBase = Wrapper
@@ -124,9 +123,10 @@ wrap player f = do
     P.modifyAll Adjust.effects
 
 act :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
-act = Turn.process . wrap Player.A $ Execute.effects []
-
-
+act = do
+    skill <- P.skill
+    targets <- Execute.chooseTargets $ Skill.start skill ++ Skill.effects skill
+    Turn.process . wrap Player.A $ Execute.effects [] targets
 
 turns :: ∀ m. (MonadGame m, MonadRandom m) => Turns -> m ()
 turns (Duration -> i) = replicateM_ (sync i) $ Turn.run []
