@@ -26,7 +26,7 @@ import Characters.Base as Import (self)
 import Control.Monad.Trans.State.Strict (StateT, evalStateT)
 import Test.Hspec (SpecWith, describe, it)
 
-import           Core.Util ((!!))
+import           Core.Util ((!!), (∈))
 import qualified Core.Wrapper as Wrapper
 import           Core.Wrapper (Wrapper(Wrapper))
 import qualified Class.Play as P
@@ -38,16 +38,20 @@ import           Model.Duration (Duration(..), Turns, sync)
 import qualified Model.Game as Game
 import qualified Model.Character as Character
 import           Model.Character (Character(Character))
-import qualified Model.Player as Player
-import           Model.Player (Player)
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja)
+import qualified Model.Player as Player
+import           Model.Player (Player)
+import           Model.Runnable (Runnable(..), RunConstraint)
 import qualified Model.Skill as Skill
+import           Model.Skill (Target(..))
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
+import           Model.Trap (Trigger(..))
 import qualified Engine.Adjust as Adjust
 import qualified Engine.Execute as Execute
 import qualified Engine.Traps as Traps
+import qualified Engine.Trigger as Trigger
 import qualified Engine.Turn as Turn
 import qualified Characters
 
@@ -111,28 +115,53 @@ testNinja slot = Ninja.new slot $ Character
     , Character.category = Original
     }
 
-wrap :: ∀ m. (MonadPlay m, MonadRandom m) => Player -> m () -> m ()
-wrap player f = do
+wrap :: ∀ m. (MonadPlay m, MonadRandom m) => Player -> m ()
+wrap player = do
     whenM ((player /=) . Game.playing <$> P.game) $ Turn.run []
-    user  <- P.user
-    skill <- P.skill
+    skill  <- P.skill
+    user   <- P.user
+    target <- P.target
+    nUser  <- P.nUser
+    let classes = Skill.classes skill
     P.trigger user $ OnAction <$> toList (Skill.classes skill)
-    f
-    when (player == Player.A) Execute.addChannels
+    efs        <- Execute.chooseTargets
+                  (Skill.start skill ++ Skill.effects skill)
+    countering <- Execute.filterCounters user efs . toList <$> P.ninjas
+    let counters =
+            Trigger.userCounters user classes nUser
+            ++ (Trigger.targetCounters user classes =<< countering)
+    if null counters then do
+        Execute.effects [] efs
+        when (player == Player.A) Execute.addChannels
+    else do
+        let countered = Ninja.slot <$> countering
+            uncounter n
+              | slot == user     = Trigger.userUncounter classes n
+              | slot ∈ countered = Trigger.targetUncounter classes n
+              | otherwise        = n
+              where
+                slot = Ninja.slot n
+        P.modifyAll uncounter
+        sequence_ counters
+
     traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
-    P.modifyAll Adjust.effects
+    P.modifyAll $ Adjust.effects . \n -> n { Ninja.triggers = mempty }
 
 act :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 act = do
     skill <- P.skill
     targets <- Execute.chooseTargets $ Skill.start skill ++ Skill.effects skill
-    Turn.process . wrap Player.A $ Execute.effects [] targets
+    Turn.process $ wrap Player.A
 
 turns :: ∀ m. (MonadGame m, MonadRandom m) => Turns -> m ()
 turns (Duration -> i) = replicateM_ (sync i) $ Turn.run []
 
-targetTurn :: ∀ m. (MonadPlay m, MonadRandom m) => m () -> m ()
-targetTurn = Turn.process . wrap Player.B . P.with \ctx ->
-    ctx { Context.user   = Context.target ctx
+targetTurn :: ∀ m. (MonadPlay m, MonadRandom m) => RunConstraint () -> m ()
+targetTurn f = P.with with . Turn.process $ wrap Player.B
+  where
+    with ctx = ctx { Context.user   = Context.target ctx
         , Context.target = Context.user ctx
+        , Context.skill  = (Context.skill ctx) { Skill.start   = [] 
+                                               , Skill.effects = [To Enemy f]
+                                               }
         }

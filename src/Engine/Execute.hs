@@ -4,7 +4,7 @@ module Engine.Execute
   , Affected(..)
   , act
   , effects, addChannels
-  , chooseTargets
+  , chooseTargets, filterCounters
   , copy
   ) where
 
