@@ -20,7 +20,7 @@ import ClassyPrelude
 import Control.Monad.Trans.Maybe (runMaybeT)
 import Data.Enum.Set.Class (EnumSet)
 
-import           Core.Util ((—), (∈))
+import           Core.Util ((—), (∈), (∉))
 import qualified Class.Classed as Classed
 import qualified Class.Labeled as Labeled
 import qualified Class.Play as P
@@ -93,12 +93,8 @@ userAdjust atk classes nUser x = x
     + strengthen Flat
     - weaken Flat
   where
-    direct = Hidden ∈ classes
-    strengthen
-      | direct    = Effect.identity
-      | otherwise = Effects.strengthen classes nUser
+    strengthen = Effects.strengthen classes nUser
     weaken
-      | direct                = Effect.identity
       | atk == Attack.Afflict = Effect.identity
       | otherwise             = Effects.weaken classes nUser
 
@@ -146,23 +142,20 @@ attack atk dmg = void $ runMaybeT do
     nTarget    <- P.nTarget
     let classes = insertSet atkClass $ Skill.classes skill
         dmgCalc = formula atk classes nUser nTarget dmg
-        direct  = Hidden ∈ classes
         (dmg'Barrier, barr) = absorbBarrier dmgCalc $ Ninja.barrier nUser
         handleDefense
           | nTarget `is` Undefend = (,)
           | otherwise             = absorbDefense
-        (dmg'Def, defense)
-          | direct    = handleDefense dmgCalc $ Ninja.defense nTarget
-          | otherwise = handleDefense dmg'Barrier $ Ninja.defense nTarget
+        (dmg'Def, defense) = handleDefense dmg'Barrier $ Ninja.defense nTarget
 
     guard . not $ dmg < Effects.threshold nTarget
-               || not direct && nUser `is` Stun atkClass
+               || Direct ∉ classes && nUser `is` Stun atkClass
                || dmgCalc <= 0
 
     if atk == Attack.Afflict then do
         P.modify target $ Ninja.adjustHealth (— dmgCalc)
     else do
-        unless direct $ P.modify user \n -> n { Ninja.barrier = barr }
+        P.modify user \n -> n { Ninja.barrier = barr }
         if atk == Attack.Demolish || dmg'Def <= 0 then
             P.modify target \n -> n { Ninja.defense = defense }
         else if dmg'Def == 0 then return () else
