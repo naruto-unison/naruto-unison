@@ -14,56 +14,42 @@ cs =
     "A genin from Team 7, Naruto is an orphan with the goal of becoming Hokage. His signature Shadow Clones copy his moves to perform powerful combos and wield the Rasengan."
     [ [ Skill.new
         { Skill.name      = "Naruto Uzumaki Barrage"
-        , Skill.desc      = "Using his version of the Lions Barrage, Naruto deals 10 damage to an enemy. Each Shadow Clone deals 5 damage to the target as well. Spends one Shadow Clone if Naruto has any."
+        , Skill.desc      = "Using his version of the Lions Barrage, Naruto deals 20 damage to an enemy. Deals 10 additional damage during [Shadow Clones]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Shadow Clone"
-                damage (10 + 5 * stacks)
-          , To REnemy $ whenM (userHas "Shadow Clone") $ damage 5
-          , To Self   $ removeStack "Shadow Clone"
+                bonus <- 10 `bonusIf` userHas "Shadow Clones"
+                damage (20 + bonus)
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Rasengan"
-        , Skill.desc      = "Naruto hits an enemy with an orb of chakra, dealing 30 damage. Spends two Shadow Clones. The target is stunned 1 turn for every 2 Shadow Clones remaining."
-        , Skill.require   = HasI 2 "Shadow Clone"
+        , Skill.desc      = "Naruto hits an enemy with an orb of chakra, dealing 45 damage to them and stunning their skills for 1 turn. Requires [Shadow Clones]."
+        , Skill.require   = HasI 1 "Shadow Clones"
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ removeStacks "Shadow Clone" 2
-          , To Enemy do
-                damage 30
-                stacks <- userStacks "Shadow Clone"
-                when (stacks >= 2) $ apply (stacks `quot` 2) [Stun All]
-          , To REnemy $ damage 10
+          [ To Enemy do
+                damage 45
+                apply 1 [Stun All]
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Shadow Clones"
-        , Skill.desc      = "Naruto creates 6 Shadow Clones who hide him and fight in his place. Each shadow clone provides 5 points of damage reduction. Each time an enemy uses a skill on Naruto, a shadow clone deals 5 damage to them and disappears. Each time Naruto loses a shadow clone by using a skill, the shadow clone deals 5 damage to a random enemy. Cannot be used while Naruto has shadow clones remaining."
+        , Skill.desc      = "Naruto creates multiple shadow clones who hide him and fight in his place, providing 15 points of damage reduction for 4 turns. Cannot be used while active."
         , Skill.require   = HasI (-1) "Shadow Clone"
-        , Skill.classes   = [Chakra, Unremovable]
+        , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Self do
-            trapFrom' 0 (OnHarmed All) do
-                whenM (userHas "Shadow Clone") $ damage 5
-                self $ removeStack "Shadow Clone"
-                unlessM (userHas "Shadow Clone") $ removeTrap "Shadow Clones"
-            replicateM_ 6 $
-                apply' "Shadow Clone" 0 [Reduce All Flat 5]
-          ]
+          [ To Self $ apply 4 [Reduce All Flat 15] ]
         }
       ]
-    , [ (invuln "Sexy Technique" "Naruto" [Chakra])
-          { Skill.desc = "Naruto and his shadow clones become invulnerable for 1 turn." }
-      ]
+    , [ [ invuln "Sexy Technique" "Naruto" [Chakra] ]
     ] []
   , Character
     "Sakura Haruno"
