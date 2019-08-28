@@ -20,7 +20,7 @@ import ClassyPrelude
 import Control.Monad.Trans.Maybe (runMaybeT)
 import Data.Enum.Set.Class (EnumSet)
 
-import           Core.Util ((—), (∈), (∉))
+import           Core.Util ((—), (∉))
 import qualified Class.Classed as Classed
 import qualified Class.Labeled as Labeled
 import qualified Class.Play as P
