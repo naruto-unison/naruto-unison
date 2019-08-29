@@ -356,6 +356,81 @@ cs =
       ]
     , [ invuln "Sand Shield" "Gaara" [Physical] ]
     ] []
+    , Character
+      "Puppet Master Kankurō"
+      "After defeating Sasori, Kankurō considers himself one of the greatest puppeteers in history. Adding Sasori's body to his collection of puppets, Kankurō uses each puppet for a different purpose."
+      [ [ Skill.new
+          { Skill.name      = "Sasori Surrogate"
+          , Skill.desc      = "Sasori's puppet body attacks an enemy, dealing 15 damage to them for 3 turns. While active, this skill becomes [Hidden Coil Strike][r]."
+          , Skill.classes   = [Physical, Ranged]
+          , Skill.cost      = [Rand, Rand]
+          , Skill.cooldown  = 2
+          , Skill.channel   = Action 3
+          , Skill.start     =
+            [ To Self $ vary "Sasori Surrogate" "Hidden Coil Strike" ]
+          , Skill.effects   =
+            [ To Enemy $ damage 15 ]
+          }
+        , Skill.new
+          { Skill.name      = "Hidden Coil Strike"
+          , Skill.desc      = "Kankurō hooks an enemy with the coil hidden in Sasori's body and pulls the target to him, dealing 10 piercing damage. For 1 turn, the target can only target Kankurō or themselves."
+          , Skill.classes   = [Physical, Ranged, Bypassing, Unreflectable]
+          , Skill.cost      = [Rand]
+          , Skill.effects   =
+            [ To Enemy do
+                  pierce 10
+                  userSlot <- user slot
+                  apply 1 [Taunt userSlot]
+                  remove "Kuroari Trap"
+            ]
+          }
+        ]
+      , [ Skill.new
+          { Skill.name      = "Kuroari Trap"
+          , Skill.desc      = "Kankurō's Kuroari puppet stalks an enemy for 5 turns. If Kankurō uses [Hidden Coil Strike] on the target, the trap is activated immediately; otherwise, it is activated at the end of the 5 turns. Activating the trap applies [Kuroari Ambush] to the target, stunning them for 1 turn and making them invulnerable to everyone but Kankurō. Once used, this skill becomes [Iron Maiden][r][r][r]."
+          , Skill.classes   = [Physical, Ranged, Nonstacking, InvisibleTraps, Bypassing, Unreflectable, Unremovable]
+          , Skill.cost      = [Rand]
+          , Skill.cooldown  = 5
+          , Skill.effects   =
+            [ To Self  $ vary "Kuroari Trap" "Iron Maiden"
+            , To Enemy $ bombWith [Invisible] 5 []
+                  [ To Done do
+                      userSlot <- user slot
+                      apply' "Kuroari Ambush" 1 [Stun All, Seal, Duel userSlot]
+                  ]
+            ]
+          }
+        , Skill.new
+          { Skill.name      = "Iron Maiden"
+          , Skill.desc      = "Kankurō's Karasu puppet snaps shut around an enemy, dealing 20 piercing damage and 40 additional damage if the target is affected by [Kuroari Ambush]. Once used, this skill becomes [Kuroari Trap][r]."
+          , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable]
+          , Skill.cost      = [Rand, Rand]
+          , Skill.effects   =
+              [ To Enemy do
+                    bonus <- 40 `bonusIf` targetHas "Kuroari Ambush"
+                    pierce (20 + bonus)
+              , To Self $ vary "Kuroari Trap" baseVariant
+              ]
+          }
+        ]
+      , [ Skill.new
+          { Skill.name      = "Salamander Shield"
+          , Skill.desc      = "Kankurō's Sanshōuo puppet shields him and his allies, providing 40 permanent destructible defense to Kankurō. While Kankurō has destructible defense from this skill, damage against his allies is reflected to him. Cannot be used while active."
+          , Skill.classes   = [Physical, Single, Soulbound, Unremovable, Unreflectable]
+          , Skill.cost      = [Rand, Rand, Rand]
+          , Skill.cooldown  = 5
+          , Skill.effects   =
+            [ To Self do
+                  defend 0 40
+                  onBreak'
+            , To XAllies do
+                  userSlot <- user slot
+                  apply 0 [Redirect All userSlot]
+            ]
+          }
+        ]
+      , [ invuln "Puppet Distraction" "Kankurō" [Physical] ]
+      ] []
   , Character
     "Sage Mode Kabuto"
     "Unable to find an identity of his own, Kabuto has spent his life taking on the traits of others. Years of research and experiments upon himself have reached their conclusion, and now Kabuto prepares for his final metamorphosis."
@@ -769,5 +844,119 @@ cs =
           ]
         }
       ]
+    ] []
+  , Character
+    "Split Zetsu"
+    "After Madara turned the Gedo statue's mutated victims into an army of servants, he chose one to lead them. Imbuing the White Zetsu entity with materialized will in the form of Black Zetsu, he created a hybrid being who became an official member of Akatsuki. White Zetsu and Black Zetsu have different approaches to combat, but both are able to take control of an enemy's abilities."
+    [ [ Skill.new
+        { Skill.name      = "White Zetsu"
+        , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense each turn. Once used, this skill becomes [Black Zetu]."
+        , Skill.classes   = [Chakra, Single]
+        , Skill.channel   = Ongoing 0
+        , Skill.start     =
+          [ To Self do
+                cancelChannel "Black Zetsu"
+                setFace 0
+                vary "White Zetsu" "Black Zetsu"
+                vary "Black Zetsu" "White Army"
+                vary "Doppelgänger / Body Coating" "Doppelgänger"
+          ]
+        , Skill.effects   =
+          [ To Self $ defend 0 5 ]
+        }
+      , Skill.new
+        { Skill.name      = "Black Zetsu"
+        , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [White Zetsu]."
+        , Skill.classes   = [Chakra, Single]
+        , Skill.channel   = Ongoing 0
+        , Skill.start     =
+          [ To Self do
+                cancelChannel "White Zetsu"
+                setFace 0
+                vary "White Zetsu" baseVariant
+                vary "Black Zetsu" "Underground Roots"
+                vary "Doppelgänger / Body Coating" "Body Coating"
+          ]
+        , Skill.effects   =
+          [ To Self $ unlessM (userHas "chakra") do
+                gain [Rand]
+                hide' "chakra" 1 []
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Black Zetsu"
+        , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [Underground Roots][b][r]. As White Zetsu, this skill becomes [White Army][g]."
+        , Skill.classes   = [Chakra, Single]
+        , Skill.channel   = Ongoing 0
+        , Skill.start     =
+          [ To Self do
+                cancelChannel "White Zetsu"
+                setFace 0
+                vary "White Zetsu" baseVariant
+                vary "Black Zetsu" "Underground Roots"
+                vary "Doppelgänger / Body Coating" "Body Coating"
+          ]
+        , Skill.effects   =
+          [ To Self $ unlessM (userHas "chakra") do
+                gain [Rand]
+                hide' "chakra" 1 []
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Underground Roots"
+        , Skill.desc      = "Tree roots emerge from the ground and wrap around an enemy, dealing 20 damage for 2 turns. While active, the target's damage is weakened by half. As White Zetsu, this skill becomes [White Army][g]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 2
+        , Skill.channel   = Action 2
+        , Skill.effects   =
+          [ To Enemy do
+                damage 20
+                apply 1 [Weaken All Percent 50]
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "White Army"
+        , Skill.desc      = "Zetsu creates numerous clones of himself which deal 5 damage to all enemies for 5 turns. As Black Zetsu, this skill becomes [Underground Roots][b][r]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Gen]
+        , Skill.channel   = Ongoing 5
+        , Skill.effects   =
+          [ To Enemies $ damage 5 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Doppelgänger / Body Coating"
+        , Skill.desc      = "Zetsu seizes an enemy and makes use of their abilities. As White Zetsu, this skill deals 20 damage, steals 1 random chakra, stuns their non-mental skill for 1 turn, and replaces itself with the last skill they used for 1 turn. As Black Zetsu, this skill causes the target's next reflectable non-unique skill to target allies instead of enemies and enemies instead of allies."
+        , Skill.require   = Unusable
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai, Rand]
+        }
+      , Skill.new
+        { Skill.name      = "Body Coating"
+        , Skill.desc      = "Zetsu melts and flows over an enemy, taking control of their body. The next skill they use will target allies instead of enemies and enemies instead of allies. Does not stack. As White Zetsu, this skill becomes [Doppelgänger][t][r]."
+        , Skill.classes   = [Mental, Melee, Single, Invisible, Unreflectable]
+        , Skill.cost      = [Blood, Gen]
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Enemy $ apply 0 [Swap All] ]
+        }
+      , Skill.new
+        { Skill.name      = "Doppelgänger"
+        , Skill.desc      = "Zetsu seizes an enemy and alters his chakra to match their own, dealing 20 damage, absorbing 1 random chakra, and stunning their non-mental skills for 1 turn. The last skill they used replaces this skill for 1 turn. Zetsu's copy of their skill has no chakra cost and ends when this skill reverts. As Black Zetsu, this skill becomes [Body Coating][b][g]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                absorb 1
+                copyLast 1 2
+                apply 1 [Stun NonMental]
+                damage 20
+          ]
+        }
+      ]
+    , [ invuln "Hide" "Zetsu" [Physical] ]
     ] []
   ]

@@ -6,7 +6,6 @@ $newline always
     #{changelog New "Jirōbō" Reanimated}
   <h3>May 15
   <ul>
-    #{changelog Rework "Itachi Uchiha" Reanimated}
     #{changelog New "Susano'o Itachi" Shippuden}
   <h3>May 14
   <ul>
@@ -60,7 +59,6 @@ $newline always
   <h3>April 14
   <ul>
     #{changelog New "Konohamaru Sarutobi" Original}
-    #{changelog Rework "Naruto Uzumaki" Original}
   <h3>April 13
   <ul>
     <li>
@@ -71,7 +69,7 @@ $newline always
     <li>
       Effects from reflected skills are colored black
     #{changelog New "Hanzō" Reanimated}
-    #{changelog Rework "Zetsu" Shippuden}
+    #{changelog New "Split Zetsu" Shippuden}
   <h3>April 10
   <ul>
     <li>
@@ -85,7 +83,6 @@ $newline always
   <ul>
     #{changelog New "Eight-Gates Guy" Shippuden}
     #{changelog New "Ōnoki" Shippuden}
-    #{changelog Rework "Tobi" Shippuden}
   <h3>April 5
   <ul>
     #{changelog New "Sage Mode Kabuto" Shippuden}
@@ -111,7 +108,7 @@ $newline always
     <li>
       The <i>Bane</i> class has been added to lingering effects from poison and burns
     <li>
-      The <i>Unique</i> class has been subdivided into <i>Unique</i>, <i>Unique Equipment</i>, and <i>Kekkai Genkai</i>; no gameplay difference, it just seemed silly to have dozens of Sharingan abilities all labeled 'Unique'
+      The <i>Unique</i> class has been removed
     <li>
       The <i>Soulbound</i> class has been added to all skills that end when their user dies
     #{changelog Rework "Kisame Hoshigaki" Shippuden}
@@ -120,8 +117,7 @@ $newline always
     #{changelog New "Animal Path Pain" Shippuden}
   <h3>March 28
   <ul>
-    #{changelog Rework "Kankurō" Shippuden}
-    #{changelog Rework "Temari" Shippuden}
+    #{changelog New "Puppet Master Kankurō" Shippuden}
   <h3>March 27
   <ul>
     #{changelog Rework "Ino Yamanaka" Shippuden}
