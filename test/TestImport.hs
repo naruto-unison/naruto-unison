@@ -5,10 +5,17 @@ module TestImport
   , describeCategory
   , act
   , turns
-  , targetTurn
+  , enemyTurn
+  , resetHealth
+  , stunned, targetIsExposed, totalDefense
+  , toLists
+  , allyOf
   ) where
 
-import ClassyPrelude as Import
+import ClassyPrelude as Import hiding ((\\), fromList, toList)
+import GHC.Exts as Import (fromList, toList)
+import Test.Hspec as Import hiding (context) --(SpecWith, describe, it, parallel)
+import Model.Chakra as Import (Chakra(..))
 import Model.Character as Import (Category(..), Character)
 import Model.Class as Import (Class(..))
 import Model.Effect as Import (Amount(..), Effect(..))
@@ -21,10 +28,10 @@ import Action.Channel as Import
 import Action.Skill as Import
 import Action.Status as Import
 import Action.Trap as Import
-import Characters.Base as Import (self)
+import Characters.Base as Import (self, targetHas, userHas)
 
 import Control.Monad.Trans.State.Strict (StateT, evalStateT)
-import Test.Hspec (SpecWith, describe, it)
+import Data.List ((\\))
 
 import           Core.Util ((!!), (∈))
 import qualified Core.Wrapper as Wrapper
@@ -32,8 +39,10 @@ import           Core.Wrapper (Wrapper(Wrapper))
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
 import           Class.Random (MonadRandom)
+import           Model.Chakra (Chakras)
 import qualified Model.Context as Context
 import           Model.Context (Context(Context))
+import qualified Model.Defense as Defense
 import           Model.Duration (Duration(..), Turns, sync)
 import qualified Model.Game as Game
 import qualified Model.Character as Character
@@ -44,11 +53,10 @@ import qualified Model.Player as Player
 import           Model.Player (Player)
 import           Model.Runnable (Runnable(..), RunConstraint)
 import qualified Model.Skill as Skill
-import           Model.Skill (Target(..))
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
-import           Model.Trap (Trigger(..))
 import qualified Engine.Adjust as Adjust
+import qualified Engine.Effects as Effects
 import qualified Engine.Execute as Execute
 import qualified Engine.Traps as Traps
 import qualified Engine.Trigger as Trigger
@@ -65,7 +73,7 @@ describeCategory :: Category -> Text -> (TestRun -> SpecWith ()) -> SpecWith ()
 describeCategory category name specs =
     describe (unpack name) case find matchChar Characters.list of
         Nothing   -> it "Exists in the database" False
-        Just char -> specs $ useSkill char
+        Just char -> parallel . specs $ useSkill char
   where
     matchChar x = Character.name x == name && Character.category x == category
 
@@ -116,11 +124,11 @@ testNinja slot = Ninja.new slot $ Character
     }
 
 wrap :: ∀ m. (MonadPlay m, MonadRandom m) => Player -> m ()
-wrap player = do
-    whenM ((player /=) . Game.playing <$> P.game) $ Turn.run []
+wrap player = P.with noCosts do
+    --whenM ((player /=) . Game.playing <$> P.game) . Turn.process $ return ()
+    --P.alter \game -> game { Game.playing = player }
     skill  <- P.skill
     user   <- P.user
-    target <- P.target
     nUser  <- P.nUser
     let classes = Skill.classes skill
     P.trigger user $ OnAction <$> toList (Skill.classes skill)
@@ -144,24 +152,53 @@ wrap player = do
         P.modifyAll uncounter
         sequence_ counters
 
+    P.modify user \n -> n { Ninja.acted = True }
     traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
     P.modifyAll $ Adjust.effects . \n -> n { Ninja.triggers = mempty }
+  where
+    noCosts ctx = ctx { Context.skill = (Context.skill ctx) { Skill.cost = 0 } }
 
 act :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
-act = do
-    skill <- P.skill
-    targets <- Execute.chooseTargets $ Skill.start skill ++ Skill.effects skill
-    Turn.process $ wrap Player.A
+act = Turn.process $ wrap Player.A
 
 turns :: ∀ m. (MonadGame m, MonadRandom m) => Turns -> m ()
-turns (Duration -> i) = replicateM_ (sync i) $ Turn.run []
+turns (Duration -> i) = do
+    replicateM_ (sync i) . Turn.process $ return ()
+    P.alter \game -> game { Game.playing = Player.A }
 
-targetTurn :: ∀ m. (MonadPlay m, MonadRandom m) => RunConstraint () -> m ()
-targetTurn f = P.with with . Turn.process $ wrap Player.B
+enemyTurn :: ∀ m. (MonadPlay m, MonadRandom m) => RunConstraint () -> m ()
+enemyTurn f = do
+    Turn.process . P.with with $ wrap Player.B
+    P.alter \game -> game { Game.playing = Player.A }
   where
-    with ctx = ctx { Context.user   = Context.target ctx
+    with ctx = ctx 
+        { Context.user   = Slot.all !! 1
         , Context.target = Context.user ctx
         , Context.skill  = (Context.skill ctx) { Skill.start   = []
                                                , Skill.effects = [To Enemy f]
                                                }
         }
+
+resetHealth :: ∀ m. MonadPlay m => Slot -> m ()
+resetHealth target = P.modify target \n -> n { Ninja.health = 100 }
+
+stunned :: [Class] -> Ninja -> Bool
+stunned classes n = 
+    null $ (Stun <$> classes) \\ (Ninja.effects $ Adjust.effects n) 
+
+targetIsExposed :: ∀ m. (MonadPlay m, MonadRandom m) => m Bool
+targetIsExposed = do
+    target <- P.target
+    P.with (\ctx -> ctx { Context.user = target }) $ 
+        apply 0 [Invulnerable All]
+    null . Effects.immune . Adjust.effects <$> P.nTarget
+
+totalDefense :: Ninja -> Int
+totalDefense = sum . (Defense.amount <$>) . Ninja.defense
+
+toLists :: (Chakras, Chakras) -> ([Chakra], [Chakra])
+toLists (a, b) = (toList a, toList b)
+
+allyOf :: ∀ m. MonadGame m => Slot -> m Ninja
+allyOf target = P.ninja $ Slot.all !! (Slot.toInt target + 2)
+

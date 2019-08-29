@@ -49,7 +49,7 @@ cs =
           [ To Self $ apply 4 [Reduce All Flat 15] ]
         }
       ]
-    , [ [ invuln "Sexy Technique" "Naruto" [Chakra] ]
+    , [ invuln "Sexy Technique" "Naruto" [Chakra] ]
     ] []
   , Character
     "Sakura Haruno"
@@ -124,7 +124,7 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self  $ apply 4 [Reduce All Flat 10]
+          [ To Self  $ apply 4 [Reduce All Flat 15]
           , To Enemy $ apply 4 [Expose]
           ]
         }
@@ -149,13 +149,15 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Two-Headed Wolf"
-        , Skill.desc      = "Kiba and Akamaru transform into giant beasts, gaining 15 points of damage reduction and dealing 15 damage to all enemies for 3 turns."
+        , Skill.desc      = "Kiba and Akamaru transform into giant beasts, gaining 15 points of damage reduction and dealing 15 damage to all enemies for 3 turns. Deals 5 additional damage each turn to enemies affected by [Dynamic Marking]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Tai]
         , Skill.cooldown  = 3
         , Skill.channel   = Action 3
         , Skill.effects   =
-          [ To Enemies $ damage 15
+          [ To Enemies do
+              bonus <- 5 `bonusIf` targetHas "Dynamic Marking"
+              damage (15 + bonus)
           , To Self    $ apply 1 [Reduce All Flat 15]
           ]
         }
@@ -163,7 +165,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Dynamic Marking"
         , Skill.desc      = "Akamaru sprays urine on an enemy, preventing them from reducing damage or becoming invulnerable for 3 turns. Cannot be used on an enemy already affected by this skill."
-        , Skill.classes   = [Ranged, Single]
+        , Skill.classes   = [Bane, Ranged, Single]
         , Skill.effects   =
           [ To Enemy $ apply 3 [Expose] ]
         }
@@ -176,7 +178,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Chakra Leech"
         , Skill.desc      = "Chakra-draining bugs attack an enemy, dealing 20 affliction damage and absorbing 1 random chakra. Deals 5 additional damage per target's stack of [Parasite]."
-        , Skill.classes   = [Bane, Ranged]
+        , Skill.classes   = [Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -294,7 +296,7 @@ cs =
   , let loadout = [0, 0, 0]
     in Character
     "Chōji Akimichi"
-    "A genin from Team 10, Chōji is a voracious eater and loyal friend. His clan's special pills immensely magnify his innate strength and unlock different abilities, but the toll they take on his body can kill him if he pushes himself too far."
+    "A genin from Team 10, Chōji is a voracious eater and loyal friend. His clan's special pills immensely magnify his innate strength and unlock different abilities, but the toll they take on his body can kill him if he pushes himself too far, too fast."
     [ [ Skill.new
         { Skill.name      = "Spinach Pill"
         , Skill.desc      = "Chōji eats the mildest Akimichi pill, losing 5 health down to a minimum of 1 and gaining the strength he needs to protect his friends. While alive, he provides 5 points of damage reduction to his allies."
@@ -384,11 +386,10 @@ cs =
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 5
         , Skill.channel   = Action 3
-        , Skill.start     =
-          [ To Self $ gain [Rand] ]
         , Skill.effects   =
           [ To Self do
                 heal 15
+                gain [Rand]
                 apply 1 [ImmuneSelf]
           ]
         }
@@ -711,32 +712,32 @@ cs =
     "One of the three sand siblings, Kankurō is a master puppeteer. His strategically-placed poison bombs pierce through enemy defenses. In order to harm him, his enemies will have to go through his army of puppets first."
     [ [ Skill.new
         { Skill.name      = "Iron Maiden"
-        , Skill.desc      = "Two of Kankurō's puppets trap and stab an enemy, dealing 30 piercing damage. Deals 5 additional damage if used within 4 turns of [Puppet Technique]."
+        , Skill.desc      = "Two of Kankurō's puppets trap and stab an enemy, dealing 30 piercing damage. Deals 5 additional damage per stack of [Puppet Technique]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 5 `bonusIf` userHas "Puppet Technique"
-                pierce (30 + bonus)
+                stacks <- userStacks "Puppet Technique"
+                pierce (30 + 5 * stacks)
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Poison Bomb"
-        , Skill.desc      = "One of Kankurō's puppets creates a cloud of smoke that deals 10 affliction damage to all enemies. Deals 5 additional damage if used within 4 turns of [Puppet Technique]."
-        , Skill.classes   = [Bane, Ranged]
+        , Skill.desc      = "One of Kankurō's puppets creates a cloud of smoke that deals 10 affliction damage to all enemies. Deals 5 additional damage per stack of [Puppet Technique]."
+        , Skill.classes   = [Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies do
-                bonus <- 5 `bonusIf` userHas "Puppet Technique"
-                afflict (10 + bonus)
+                stacks <- userStacks "Puppet Technique"
+                afflict (10 + 5 * stacks)
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Puppet Technique"
-        , Skill.desc      = "Kankurō fashions a chakra-controlled puppet which serves as a decoy, providing 15 permanent destructible defense."
+        , Skill.desc      = "Kankurō fashions a chakra-controlled puppet which serves as a decoy, increasing his damage for 4 turns and providing 15 permanent destructible defense."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
