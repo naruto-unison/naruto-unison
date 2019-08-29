@@ -44,7 +44,9 @@ import qualified Engine.Trigger as Trigger
 -- and resolves 'Model.Chakra.Chakras' for the next turn.
 -- Uses 'process' internally.
 run :: ∀ m. (MonadGame m, MonadRandom m) => [Act] -> m ()
-run = process . traverse_ Execute.act
+run acts = do
+    process $ traverse_ Execute.act acts
+    Chakras.gain
 
 -- | The underlying mechanism of 'run'.
 -- Performs posteffects such as 'Model.Channel.Channel's and 'Model.Trap.Trap's.
@@ -72,7 +74,6 @@ process runner = do
     doHpsOverTime
     P.alter \game -> game { Game.playing = opponent }
     doDeaths
-    Chakras.gain
     P.yieldVictor
     P.modifyAll Adjust.effects
   where

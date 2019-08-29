@@ -32,6 +32,12 @@ data Constructor
     = Only Effect
     | Any (Class -> Effect)
 
+instance Show Constructor where
+    show (Only x) = show x
+    show (Any xs) = fromMaybe shown $ stripSuffix (' ' : show All) shown
+      where
+        shown = show $ xs All
+
 construct :: Constructor -> [Effect]
 construct (Only x) = [x]
 construct (Any x)  = x <$> [minBound..maxBound]
@@ -90,7 +96,7 @@ data Effect
               Class
               Int   -- ^ Skill index of user to copy into
               Bool  -- ^ Include non-harmful 'Skill's
-              deriving (Eq)
+              deriving (Eq, Show)
 instance Classed Effect where
     classes (Bleed cla _ _)      = singletonSet cla
     classes (Exhaust cla)        = singletonSet cla

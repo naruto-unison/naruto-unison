@@ -113,7 +113,7 @@ data Skill = Skill { name      :: Text              -- ^ Name
                    , copying   :: Copying           -- ^ Defaults to 'NotCopied'
                    , pic       :: Bool              -- ^ Defaults to @False@
                    , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'
-                   } deriving (Generic)
+                   }
 instance ToJSON Skill where
     toJSON Skill{..} = object
         [ "name"      .= name
@@ -141,7 +141,7 @@ data Barrier = Barrier { amount :: Int
                        , while  :: Runnable Context
                        , finish :: Int -> Runnable Context
                        , dur    :: Int
-                       } deriving (Generic)
+                       }
 instance ToJSON Barrier where
     toJSON Barrier{..} = object
         [ "amount" .= amount
@@ -205,7 +205,7 @@ data Character = Character { name     :: Text
                            , skills   :: NonEmpty (NonEmpty Skill)
                            , hooks    :: [(Trigger, Int -> Ninja -> Ninja)]
                            , category :: Category
-                           } deriving (Generic)
+                           }
 instance ToJSON Character where
     toJSON Character{..} = object
         [ "name"     .= name
@@ -374,7 +374,7 @@ data Trap = Trap { direction :: Direction
                  , classes   :: EnumSet Class
                  , tracker   :: Int
                  , dur       :: Int
-                 } deriving (Generic)
+                 }
 instance ToJSON Trap where
     toJSON Trap{..} = object
         [ "direction" .= direction
@@ -451,6 +451,8 @@ data Runnable a = To { target :: a
 
 instance Eq a => Eq (Runnable a) where
     (==) = (==) `on` (target :: Runnable a -> a)
+instance Show a => Show (Runnable a) where
+    show = show . (target :: Runnable a -> a)
 instance ToJSON a => ToJSON (Runnable a) where
     toJSON = toJSON . (target :: Runnable a -> a)
 
