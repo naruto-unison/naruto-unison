@@ -14,7 +14,6 @@ import ClassyPrelude hiding (Handler, head)
 import Yesod
 
 import           Data.List (nub)
-import           Data.List.NonEmpty (head)
 import qualified Yesod.Auth as Auth
 
 import qualified Class.Sockets as Sockets

@@ -68,7 +68,7 @@ spec = parallel do
                     100 - targetHealth `shouldBe` targetDmg - 25
         useOn Self "Inner Sakura" do
             act
-            tagged <- Ninja.hasOwn "Inner Sakura" <$> P.nUser 
+            tagged <- Ninja.hasOwn "Inner Sakura" <$> P.nUser
             enemyTurn do
                 damage targetDmg
                 apply 0 [Stun All]
@@ -120,8 +120,6 @@ spec = parallel do
                     100 - userHealth `shouldBe` targetDmg - 15
                 it "exposes target"
                     exposed
-                
-
 
     describeCharacter "Kiba Inuzuka" \useOn -> do
         useOn Enemy "Wolf Fang" do
@@ -259,7 +257,7 @@ spec = parallel do
             return do
                 it "stuns targets"
                     targetStunned
-    
+
     describeCharacter "Chōji Akimichi" \useOn -> do
         useOn Enemy "Obstructing Tackle" do
             act
@@ -335,7 +333,7 @@ spec = parallel do
                     100 - targetHealth `shouldBe` 45
                 it "executes below 20 health" $
                     targetHealth' `shouldBe` 0
-        
+
     describeCharacter "Ino Yamanaka" \useOn -> do
         useOn Enemy "Mind Destruction" do
             act
@@ -433,11 +431,11 @@ spec = parallel do
             act
             targetHealth <- Ninja.health <$> P.nTarget
             otherEnemyHealth <- Ninja.health <$> (allyOf =<< P.target)
-            userStacks <- Ninja.numStacks "Unsealing Technique" <$> 
+            userStacks <- Ninja.numStacks "Unsealing Technique" <$>
                           P.user <*> P.nUser
             self $ tag' "Rising Twin Dragons" 0
             act
-            userStacks' <- Ninja.numStacks "Unsealing Technique" <$> 
+            userStacks' <- Ninja.numStacks "Unsealing Technique" <$>
                            P.user <*> P.nUser
             tagged <- Ninja.hasOwn "Rising Twin Dragons" <$> P.nUser
             return do
@@ -506,7 +504,7 @@ spec = parallel do
                     100 - targetHealth `shouldBe` 40
                 it "depletes chakra" $
                     targetChakra `shouldBe` [Tai]
-      
+
     describeCharacter "Gaara" \useOn -> do
         useOn Enemy "Sand Coffin" do
             act
@@ -597,7 +595,6 @@ spec = parallel do
                     not harmed
                 it "weakens targets" $
                     100 - userHealth `shouldBe` targetDmg - 15
-        -- Cyclone Scythe, Summoning: Blade Dance, Sandstorm
   where
     describeCharacter = describeCategory Original
     targetDmg = 50

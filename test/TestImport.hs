@@ -171,7 +171,7 @@ enemyTurn f = do
     Turn.process . P.with with $ wrap Player.B
     P.alter \game -> game { Game.playing = Player.A }
   where
-    with ctx = ctx 
+    with ctx = ctx
         { Context.user   = Slot.all !! 1
         , Context.target = Context.user ctx
         , Context.skill  = (Context.skill ctx) { Skill.start   = []
@@ -183,13 +183,13 @@ resetHealth :: ∀ m. MonadPlay m => Slot -> m ()
 resetHealth target = P.modify target \n -> n { Ninja.health = 100 }
 
 stunned :: [Class] -> Ninja -> Bool
-stunned classes n = 
-    null $ (Stun <$> classes) \\ (Ninja.effects $ Adjust.effects n) 
+stunned classes n =
+    null $ (Stun <$> classes) \\ (Ninja.effects $ Adjust.effects n)
 
 targetIsExposed :: ∀ m. (MonadPlay m, MonadRandom m) => m Bool
 targetIsExposed = do
     target <- P.target
-    P.with (\ctx -> ctx { Context.user = target }) $ 
+    P.with (\ctx -> ctx { Context.user = target }) $
         apply 0 [Invulnerable All]
     null . Effects.immune . Adjust.effects <$> P.nTarget
 
