@@ -13,6 +13,7 @@ module Handler.Client
 import ClassyPrelude hiding (Handler, head)
 import Yesod
 
+import           Data.List (nub)
 import           Data.List.NonEmpty (head)
 import qualified Yesod.Auth as Auth
 
@@ -82,7 +83,7 @@ getPlayR = do
 charAvatars :: Character -> [Text]
 charAvatars char = toFile <$> "icon" : skills
   where
-    skills      = Skill.name . head <$> toList (Character.skills char)
+    skills      = nub $ Skill.name <$> concatMap toList (Character.skills char)
     toFile path = "/img/ninja/" ++ shorten (Character.format char) ++ "/"
                   ++ shorten path ++ ".jpg"
 
