@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedLists #-}
 module Characters.Original.KidsSpec (spec) where
 
 import TestImport
@@ -166,7 +167,7 @@ spec = parallel do
         useOn Enemy "Chakra Leech" do
             gain [Nin, Tai]
             act
-            chakras <- toLists . Game.chakra <$> P.game
+            chakras <- Game.chakra <$> P.game
             targetHealth <- Ninja.health <$> P.nTarget
             factory
             addStacks "Parasite" stacks
@@ -203,7 +204,7 @@ spec = parallel do
             gain [Nin, Tai]
             act
             turns 4
-            (_, targetChakras) <- toLists . Game.chakra <$> P.game
+            (_, targetChakras) <- Game.chakra <$> P.game
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 2 * 20
@@ -317,12 +318,12 @@ spec = parallel do
             act
             turns 5
             userHealth <- Ninja.health <$> P.nUser
-            (userChakras, _) <- toLists . Game.chakra <$> P.game
+            (userChakras, _) <- Game.chakra <$> P.game
             return do
                 it "heals user" $
                     100 - userHealth `shouldBe` targetDmg - 3 * 15
                 it "bestows chakra" $
-                    length userChakras `shouldBe` 3
+                    length (toList userChakras) `shouldBe` 3
         useOn Enemy "Butterfly Bombing" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
@@ -499,7 +500,7 @@ spec = parallel do
             gain [Nin, Tai]
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            (_, targetChakra) <- toLists . Game.chakra <$> P.game
+            (_, targetChakra) <- Game.chakra <$> P.game
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 40
@@ -598,5 +599,5 @@ spec = parallel do
                     100 - userHealth `shouldBe` targetDmg - 15
   where
     describeCharacter = describeCategory Original
-    targetDmg = 50
+    targetDmg = 55
     stacks = 3
