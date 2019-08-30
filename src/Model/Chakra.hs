@@ -7,7 +7,7 @@ module Model.Chakra
   , collect
   , classes
   , lack
-  , fromChakras
+  , toSequence
   , random
   ) where
 
@@ -35,7 +35,7 @@ data Chakras = Chakras { blood :: Int -- ^ Bloodline
 
 instance IsList Chakras where
     type Item Chakras = Chakra
-    toList = fromChakras
+    toList = toSequence
     {-# INLINE toList #-}
     fromList = collect
     {-# INLINE fromList #-}
@@ -102,12 +102,13 @@ toChakras Nin   = 0 { nin   = 1 }
 toChakras Tai   = 0 { tai   = 1 }
 toChakras Rand  = 0 { rand  = 1 }
 
-fromChakras :: ∀ m. (IsSequence m, Index m ~ Int, Element m ~ Chakra)
-            => Chakras -> m
-fromChakras (Chakras b g n t _) = replicate b Blood
-                               ++ replicate g Gen
-                               ++ replicate n Nin
-                               ++ replicate t Tai
+toSequence :: ∀ m. (IsSequence m, Index m ~ Int, Element m ~ Chakra)
+           => Chakras -> m
+toSequence (Chakras b g n t r) = replicate b Blood
+                              ++ replicate g Gen
+                              ++ replicate n Nin
+                              ++ replicate t Tai
+                              ++ replicate r Rand
 
 collect :: ∀ f. (Foldable f, Functor f) => f Chakra -> Chakras
 collect = sum . (toChakras <$>)

@@ -452,7 +452,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Sharingan"
-        , Skill.desc      = "Kakashi anticipates an opponent's moves for 2 turns. If they use a skill that depletes or absorbs chakra, Kakashi gains 1 random chakra. If they use a skill that stuns, Kakashi's skills will stun next turn. If they use a skill that damages, Kakashi's damage will be increased by 10 during the next turn."
+        , Skill.desc      = "Kakashi anticipates an opponent's moves for 2 turns. If they use a skill that gains, depletes, or absorbs chakra, Kakashi gains 1 random chakra. If they use a skill that stuns, Kakashi's skills will stun next turn. If they use a skill that damages, Kakashi's damage will be increased by 10 during the next turn."
         , Skill.classes   = [Mental, Ranged, InvisibleTraps]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -562,47 +562,8 @@ cs =
     , [ invuln "Flee" "Obito" [Physical] ]
     ] []
   , Character
-    "Corrupted Obito"
-    "After being rescued from the brink of death, Obito has hurried back to the Hidden Leaf Village only to witness Kakashi stab Rin through the heart. With his sanity shattered by trauma and his Mangekyō Sharingan awakened, he wields the wood-shaping abilities of his Zetsu armor to rampage through the senseless hell his life has become."
-    [ [ Skill.new
-        { Skill.name      = "Cutting Sprigs"
-        , Skill.desc      = "A wooden skewer impales an enemy, dealing 20 piercing damage and permanently increasing the damage of this skill on the target by 5. Deals twice as much damage if the target is affected by [Murderous Resolve]."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Blood]
-        , Skill.effects   =
-          [ To Enemy do
-                bonus <- 2 `bonusIf` targetHas "Murderous Resolve"
-                stacks <- targetStacks "Cutting Sprigs"
-                pierce $ bonus * (20 + 5 * stacks)
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Mangekyō Sharingan"
-        , Skill.desc      = "Obito activates his trauma-awakened Mangekyō eye to counter the next non-mental skill used on him."
-        , Skill.classes   = [Chakra, Invisible, Single]
-        , Skill.cost      = [Gen]
-        , Skill.cooldown  = 2
-        , Skill.effects   =
-          [ To Self $ trapFrom 0 (Counter NonMental) $ tag 1 ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Murderous Resolve"
-        , Skill.desc      = "Obito's mind snaps and fixates obsessively on an enemy who was countered by [Mangekyō Sharingan] last turn. For 4 turns, the target's damage is weakened by 5 and they are prevented from reducing damage or becoming invulnerable."
-        , Skill.require   = HasU "Mangekyō Sharingan"
-        , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = [Rand, Rand]
-        , Skill.cooldown  = 5
-        , Skill.effects   =
-          [ To Enemy $ apply 4 [Expose, Weaken All Flat 5] ]
-        }
-      ]
-    , [ invuln "Hide" "Obito" [Mental] ]
-    ] []
-  , Character
     "Masked Man"
-    "As the Nine-Tailed Beast rampages across the Hidden Leaf Village, a mysterious masked man appears and tries to bend it to his will. The legendary beast demolishes house after house, laying waste to the defenses of its enemies."
+    "As the Nine-Tailed Beast rampages across the Hidden Leaf Village, a mysterious masked man appears and attempts to bend it to his will. The legendary beast demolishes house after house, laying waste to the defenses of its enemies."
     [ [ Skill.new
         { Skill.name      = "Kamui Chain Combo"
         , Skill.desc      = "The masked man snares an enemy in sealing chains and phases through them, becoming invulnerable to damage and ignoring harmful effects other than chakra cost changes for 1 turn."

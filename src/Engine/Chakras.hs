@@ -30,10 +30,12 @@ remove amount = do
         return 0
     else do
         target  <- P.target
-        chakras <- Chakra.fromChakras . Game.getChakra target <$> P.game
+        chakras <- Chakra.toSequence . noRand . Game.getChakra target <$> P.game
         removed <- Chakra.collect . Vector.take amount <$> R.shuffle chakras
         P.alter $ Game.adjustChakra target (— removed)
         return removed
+  where
+    noRand x = x { Chakra.rand = 0 }
 
 -- | Adds as many random 'Chakra's as the number of living 'Ninja.Ninja's on the
 -- player's team to the player's 'Game.chakra'.

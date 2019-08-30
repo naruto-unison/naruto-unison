@@ -331,12 +331,9 @@ cure match n = n { statuses = mapMaybe cure' $ statuses n }
 cureBane :: Ninja -> Ninja
 cureBane n
   | n `is` Plague = n
-  | otherwise     = cure cured n { statuses = filter keep $ statuses n }
+  | otherwise     = n { statuses = filter keep $ statuses n }
   where
-    cured Afflict{} = True
-    cured _         = False
-    keep st         = Bane ∉ Status.classes st
-                      || slot n == Status.user st
+    keep st = Bane ∉ Status.classes st || slot n == Status.user st
 
 kill :: Bool -- ^ Can be prevented by 'Endure'.
      -> Ninja -> Ninja

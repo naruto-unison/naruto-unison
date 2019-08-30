@@ -211,10 +211,7 @@ cs =
                 vary' 0 "Sand Transformation" "Shukaku Full Release" ]
           ]
         , Skill.effects   =
-          [ To Self do
-                defend 0 10
-                heal 2
-          ]
+          [ To Self $ defend 0 10 ]
         , Skill.interrupt =
           [ To Self $ remove "Sand Transformation" ]
         }

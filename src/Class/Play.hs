@@ -132,10 +132,8 @@ zipWith f = Vector.zipWithM_ (\i -> modify i . f) allSlotsVec
 -- | Adds a 'Flag' if 'Context.user' is not 'Context.target' and 'Context.new'
 -- is @True@.
 trigger :: ∀ m. MonadPlay m => Slot -> [Trigger] -> m ()
-trigger i xs = whenM (valid <$> context) $ modify i \n ->
+trigger i xs = whenM (Context.new <$> context) $ modify i \n ->
     n { Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n) xs }
-  where
-    valid ctx = Context.new ctx && Context.user ctx /= Context.target ctx
 
 
 yieldVictor :: ∀ m. MonadGame m => m ()

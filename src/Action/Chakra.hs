@@ -13,6 +13,7 @@ import           Class.Play (MonadPlay)
 import           Class.Random (MonadRandom)
 import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra(..))
+import           Model.Trap (Trigger(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import qualified Engine.Chakras as Chakras
@@ -21,11 +22,12 @@ import qualified Engine.Chakras as Chakras
 -- | Adds @Chakra@s to the 'Game.chakra' of the target's team.
 -- 'Rand's are replaced by other @Chakra@ types selected by 'Chakras.random'.
 gain :: ∀ m. (MonadPlay m, MonadRandom m) => [Chakra] -> m ()
-gain [] = return ()
 gain chakras = P.unsilenced do
+    user   <- P.user
     target <- P.target
     rand   <- replicateM (length rands) Chakra.random
     P.alter $ Game.adjustChakra target (+ Chakra.collect (rand ++ nonrands))
+    P.trigger user [OnChakra]
   where
     (rands, nonrands) = partition (Rand ==) chakras
 

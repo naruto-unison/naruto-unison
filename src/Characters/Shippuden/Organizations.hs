@@ -44,7 +44,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Ink Mist"
-        , Skill.desc      = "Streams of ink coil in the air around Sai and his allies for 3 turns, obscuring them from enemies and allowing Sai to draw three-dimensionally. If an enemy uses a skill to stun someone on Sai's team, their target becomes invulnerable for 1 turn. If an enemy uses a skill that depletes or absorbs chakra, Sai's team gains 1 random chakra. If an enemy uses a skill that deals non-affliction damage to someone on Sai's team, Sai's damage increases by 10 for 1 turn."
+        , Skill.desc      = "Streams of ink coil in the air around Sai and his allies for 3 turns, obscuring them from enemies and allowing Sai to draw three-dimensionally. If an enemy uses a skill to stun someone on Sai's team, their target becomes invulnerable for 1 turn. If an enemy uses a skill that gains, depletes, or absorbs chakra, Sai's team gains 1 random chakra. If an enemy uses a skill that deals non-affliction damage to someone on Sai's team, Sai's damage increases by 10 for 1 turn."
         , Skill.classes   = [Mental, Bypassing]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =

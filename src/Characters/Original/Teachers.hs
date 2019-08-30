@@ -185,8 +185,8 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Striking Shadow Snakes"
-        , Skill.desc      = "Numerous snakes attack an enemy, dealing 20 damage instantly and 5 affliction damage each turn for 3 turns."
-        , Skill.classes   = [Physical, Melee]
+        , Skill.desc      = "Numerous poisonous snakes attack an enemy, dealing 20 damage instantly and 5 affliction damage each turn for 3 turns."
+        , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
