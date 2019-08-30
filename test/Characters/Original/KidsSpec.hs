@@ -13,7 +13,7 @@ spec = parallel do
         useOn Enemy "Naruto Uzumaki Barrage" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            P.toTarget \n -> n { Ninja.health = 100 }
+            factory
             self $ tag' "Shadow Clones" 0
             act
             targetHealth' <- Ninja.health <$> P.nTarget
@@ -47,8 +47,8 @@ spec = parallel do
         useOn Enemy "KO Punch" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            P.toTarget \n -> n { Ninja.health = 100 }
             targetStunned <- stunned [Mental, Physical] <$> P.nTarget
+            factory
             self $ tag' "Inner Sakura" 0
             act
             targetHealth' <- Ninja.health <$> P.nTarget
@@ -86,7 +86,7 @@ spec = parallel do
         useOn Enemy "Lions Barrage" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            P.toTarget \n -> n { Ninja.health = 100 }
+            factory
             tag' "Sharingan" 0
             act
             targetHealth' <- Ninja.health <$> P.nTarget
@@ -98,7 +98,7 @@ spec = parallel do
         useOn Enemy "Chidori" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            P.toTarget \n -> n { Ninja.health = 100 }
+            factory
             tag' "Sharingan" 0
             act
             targetHealth' <- Ninja.health <$> P.nTarget
@@ -109,7 +109,7 @@ spec = parallel do
                     100 - targetHealth' `shouldBe` 30 + 25
         useOn Enemy "Sharingan" do
             act
-            tagged <- Ninja.hasOwn "Sharingan" <$> P.nUser
+            tagged <- Ninja.has "Sharingan" <$> P.user <*> P.nTarget
             enemyTurn $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             exposed <- targetIsExposed
@@ -125,7 +125,7 @@ spec = parallel do
         useOn Enemy "Wolf Fang" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            P.toTarget \n -> n { Ninja.health = 100 }
+            factory
             tag' "Dynamic Marking" 0
             act
             targetHealth' <- Ninja.health <$> P.nTarget
@@ -140,7 +140,7 @@ spec = parallel do
             turns 5
             userHealth   <- Ninja.health <$> P.nUser
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
-            P.toTarget \n -> n { Ninja.health = 100 }
+            factory
             tag' "Dynamic Marking" 0
             act
             turns 5
@@ -168,7 +168,7 @@ spec = parallel do
             act
             chakras <- toLists . Game.chakra <$> P.game
             targetHealth <- Ninja.health <$> P.nTarget
-            P.toTarget \n -> n { Ninja.health = 100 }
+            factory
             addStacks "Parasite" stacks
             act
             targetHealth' <- Ninja.health <$> P.nTarget
@@ -213,7 +213,7 @@ spec = parallel do
             act
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
             defense <- totalDefense <$> (allyOf =<< P.user)
-            P.toTarget \n -> n { Ninja.health = 100 }
+            factory
             self $ tag' "Byakugan" 0
             act
             targetHealth' <- Ninja.health <$> P.nTarget
@@ -378,7 +378,7 @@ spec = parallel do
             userHealth <- Ninja.health <$> P.nUser
             turns 5
             targetHealth <- Ninja.health <$> P.nTarget
-            P.toTarget \n -> n { Ninja.health = 100 }
+            factory
             self $ tag' "Fifth Gate Opening" 0
             act
             turns 5
@@ -393,7 +393,7 @@ spec = parallel do
         useOn Enemy "Primary Lotus" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            P.toTarget \n -> n { Ninja.health = 100 }
+            factory
             self $ tag' "Fifth Gate Opening" 0
             act
             targetHealth' <- Ninja.health <$> P.nTarget
@@ -433,6 +433,7 @@ spec = parallel do
             otherEnemyHealth <- Ninja.health <$> (allyOf =<< P.target)
             userStacks <- Ninja.numStacks "Unsealing Technique" <$>
                           P.user <*> P.nUser
+            self factory
             self $ tag' "Rising Twin Dragons" 0
             act
             userStacks' <- Ninja.numStacks "Unsealing Technique" <$>
@@ -446,7 +447,7 @@ spec = parallel do
                 it "adds a stack to user" $
                     userStacks `shouldBe` 1
                 it "adds a bonus stack during Rising Twin Dragons" $
-                    userStacks' `shouldBe` 1 + (1 + 1)
+                    userStacks' `shouldBe` 1 + 1
                 it "expends Rising Twin Dragons" $
                     not tagged
         useOn Enemies "Rising Dragon Control" do
