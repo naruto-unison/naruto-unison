@@ -6,7 +6,6 @@ module TestImport
   , act
   , turns
   , enemyTurn
-  , resetHealth
   , stunned, targetIsExposed, totalDefense
   , toLists
   , allyOf
@@ -14,7 +13,7 @@ module TestImport
 
 import ClassyPrelude as Import hiding ((\\), fromList, toList)
 import GHC.Exts as Import (fromList, toList)
-import Test.Hspec as Import hiding (context) --(SpecWith, describe, it, parallel)
+import Test.Hspec as Import hiding (context)
 import Model.Chakra as Import (Chakra(..))
 import Model.Character as Import (Category(..), Character)
 import Model.Class as Import (Class(..))
@@ -178,9 +177,6 @@ enemyTurn f = do
                                                , Skill.effects = [To Enemy f]
                                                }
         }
-
-resetHealth :: ∀ m. MonadPlay m => Slot -> m ()
-resetHealth target = P.modify target \n -> n { Ninja.health = 100 }
 
 stunned :: [Class] -> Ninja -> Bool
 stunned classes n =

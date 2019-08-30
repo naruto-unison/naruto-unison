@@ -13,7 +13,7 @@ spec = parallel do
         useOn Enemy "Naruto Uzumaki Barrage" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            resetHealth =<< P.target
+            P.toTarget \n -> n { Ninja.health = 100 }
             self $ tag' "Shadow Clones" 0
             act
             targetHealth' <- Ninja.health <$> P.nTarget
@@ -47,7 +47,7 @@ spec = parallel do
         useOn Enemy "KO Punch" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            resetHealth =<< P.target
+            P.toTarget \n -> n { Ninja.health = 100 }
             targetStunned <- stunned [Mental, Physical] <$> P.nTarget
             self $ tag' "Inner Sakura" 0
             act
@@ -86,24 +86,24 @@ spec = parallel do
         useOn Enemy "Lions Barrage" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            resetHealth =<< P.target
+            P.toTarget \n -> n { Ninja.health = 100 }
             tag' "Sharingan" 0
             act
             targetHealth' <- Ninja.health <$> P.nTarget
             return do
-                it "deals damage" $
+                it "damages target" $
                     100 - targetHealth `shouldBe` 30
                 it "deals bonus damage if target has Sharingan" $
                     100 - targetHealth' `shouldBe` 30 + 15
         useOn Enemy "Chidori" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            resetHealth =<< P.target
+            P.toTarget \n -> n { Ninja.health = 100 }
             tag' "Sharingan" 0
             act
             targetHealth' <- Ninja.health <$> P.nTarget
             return do
-                it "deals damage" $
+                it "damages target" $
                     100 - targetHealth `shouldBe` 30
                 it "deals bonus damage if target has Sharingan" $
                     100 - targetHealth' `shouldBe` 30 + 25
@@ -125,12 +125,12 @@ spec = parallel do
         useOn Enemy "Wolf Fang" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            resetHealth =<< P.target
+            P.toTarget \n -> n { Ninja.health = 100 }
             tag' "Dynamic Marking" 0
             act
             targetHealth' <- Ninja.health <$> P.nTarget
             return do
-                it "deals damage" $
+                it "damages target" $
                     100 - targetHealth `shouldBe` 30
                 it "deals bonus damage if target has Dynamic Marking" $
                     100 - targetHealth' `shouldBe` 30 + 5
@@ -140,7 +140,7 @@ spec = parallel do
             turns 5
             userHealth   <- Ninja.health <$> P.nUser
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
-            resetHealth =<< P.target
+            P.toTarget \n -> n { Ninja.health = 100 }
             tag' "Dynamic Marking" 0
             act
             turns 5
@@ -168,7 +168,7 @@ spec = parallel do
             act
             chakras <- toLists . Game.chakra <$> P.game
             targetHealth <- Ninja.health <$> P.nTarget
-            resetHealth =<< P.target
+            P.toTarget \n -> n { Ninja.health = 100 }
             addStacks "Parasite" stacks
             act
             targetHealth' <- Ninja.health <$> P.nTarget
@@ -213,7 +213,7 @@ spec = parallel do
             act
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
             defense <- totalDefense <$> (allyOf =<< P.user)
-            resetHealth =<< P.target
+            P.toTarget \n -> n { Ninja.health = 100 }
             self $ tag' "Byakugan" 0
             act
             targetHealth' <- Ninja.health <$> P.nTarget
@@ -378,13 +378,13 @@ spec = parallel do
             userHealth <- Ninja.health <$> P.nUser
             turns 5
             targetHealth <- Ninja.health <$> P.nTarget
-            resetHealth =<< P.target
+            P.toTarget \n -> n { Ninja.health = 100 }
             self $ tag' "Fifth Gate Opening" 0
             act
             turns 5
             targetHealth' <- Ninja.health <$> P.nTarget
             return do
-                it "deals damage" $
+                it "damages target" $
                     100 - targetHealth `shouldBe` 3 * 10
                 it "deals bonus damage during Fifth Gate Opening" $
                     100 - targetHealth' `shouldBe` 3 * (10 + 15)
@@ -393,12 +393,12 @@ spec = parallel do
         useOn Enemy "Primary Lotus" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            resetHealth =<< P.target
+            P.toTarget \n -> n { Ninja.health = 100 }
             self $ tag' "Fifth Gate Opening" 0
             act
             targetHealth' <- Ninja.health <$> P.nTarget
             return do
-                it "deals damage" $
+                it "damages target" $
                     100 - targetHealth `shouldBe` 30
                 it "deals bonus damage during Fifth Gate Opening" $
                     100 - targetHealth' `shouldBe` 30 + 30
