@@ -7,8 +7,8 @@ module TestImport
   , turns
   , enemyTurn
   , stunned, targetIsExposed, totalDefense
-  , toLists
   , allyOf
+  , withClass
   ) where
 
 import ClassyPrelude as Import hiding ((\\), fromList, toList)
@@ -35,10 +35,10 @@ import Data.List ((\\))
 import           Core.Util ((!!), (∈))
 import qualified Core.Wrapper as Wrapper
 import           Core.Wrapper (Wrapper(Wrapper))
+import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
 import           Class.Random (MonadRandom)
-import           Model.Chakra (Chakras)
 import qualified Model.Context as Context
 import           Model.Context (Context(Context))
 import qualified Model.Defense as Defense
@@ -57,6 +57,7 @@ import           Model.Slot (Slot)
 import qualified Engine.Adjust as Adjust
 import qualified Engine.Effects as Effects
 import qualified Engine.Execute as Execute
+import qualified Engine.SkillTransform as SkillTransform
 import qualified Engine.Traps as Traps
 import qualified Engine.Trigger as Trigger
 import qualified Engine.Turn as Turn
@@ -123,12 +124,12 @@ testNinja slot = Ninja.new slot $ Character
     }
 
 wrap :: ∀ m. (MonadPlay m, MonadRandom m) => Player -> m ()
-wrap player = P.with noCosts do
+wrap player = do
     --whenM ((player /=) . Game.playing <$> P.game) . Turn.process $ return ()
     --P.alter \game -> game { Game.playing = player }
-    skill  <- P.skill
     user   <- P.user
     nUser  <- P.nUser
+    skill  <- SkillTransform.change nUser <$> P.skill
     let classes = Skill.classes skill
     P.trigger user $ OnAction <$> toList (Skill.classes skill)
     efs        <- Execute.chooseTargets
@@ -154,8 +155,6 @@ wrap player = P.with noCosts do
     P.modify user \n -> n { Ninja.acted = True }
     traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
     P.modifyAll $ Adjust.effects . \n -> n { Ninja.triggers = mempty }
-  where
-    noCosts ctx = ctx { Context.skill = (Context.skill ctx) { Skill.cost = 0 } }
 
 act :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 act = Turn.process $ wrap Player.A
@@ -167,16 +166,22 @@ turns (Duration -> i) = do
 
 enemyTurn :: ∀ m. (MonadPlay m, MonadRandom m) => RunConstraint () -> m ()
 enemyTurn f = do
-    Turn.process . P.with with $ wrap Player.B
+    P.with with . Turn.process $ wrap Player.B
     P.alter \game -> game { Game.playing = Player.A }
   where
     with ctx = ctx
-        { Context.user   = Slot.all !! 1
-        , Context.target = Context.user ctx
+        { Context.user   = user
+        , Context.target = target
         , Context.skill  = (Context.skill ctx) { Skill.start   = []
                                                , Skill.effects = [To Enemy f]
                                                }
         }
+      where
+        user = Slot.all !! 1
+        ctxTarget = Context.target ctx
+        target
+          | Parity.allied ctxTarget user = Context.user ctx
+          | otherwise                    = ctxTarget
 
 stunned :: [Class] -> Ninja -> Bool
 stunned classes n =
@@ -192,9 +197,11 @@ targetIsExposed = do
 totalDefense :: Ninja -> Int
 totalDefense = sum . (Defense.amount <$>) . Ninja.defense
 
-toLists :: (Chakras, Chakras) -> ([Chakra], [Chakra])
-toLists (a, b) = (toList a, toList b)
-
 allyOf :: ∀ m. MonadGame m => Slot -> m Ninja
 allyOf target = P.ninja $ Slot.all !! (Slot.toInt target + 2)
 
+withClass :: ∀ m. MonadPlay m => Class -> m () -> m ()
+withClass cla = P.with withContext
+  where
+    withContext ctx = ctx { Context.skill = withSkill $ Context.skill ctx }
+    withSkill sk = sk { Skill.classes = insertSet cla $ Skill.classes sk }

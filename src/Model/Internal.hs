@@ -265,7 +265,7 @@ instance Display Trigger where
     display (OnAction  All)    = "Trigger: Use any skill"
     display (OnAction  cla)    = "Trigger: Use " ++ lower cla ++ " skills"
     display (OnBreak   name)   = "Trigger: Lose all destructible defense from '" ++ display name ++ "'"
-    display OnChakra           = "Trigger: Steal or remove chakra"
+    display OnChakra           = "Trigger: Gain, deplete, or absorb chakra"
     display OnDamage           = "Trigger: Deal damage"
     display (OnDamaged All)    = "Trigger: Receive damage"
     display (OnDamaged cla)    = "Trigger: Receive " ++ lower cla ++ " damage"

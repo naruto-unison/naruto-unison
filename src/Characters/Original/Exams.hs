@@ -14,7 +14,7 @@ cs =
     "The younger sister of Hinata, Hanabi trains endlessly to prove herself. What she lacks in strength, she makes up for with speed and tenacity. Through sheer force of willpower, she endures attacks that would kill anyone else."
     [ [ Skill.new
         { Skill.name      = "Gentle Fist"
-        , Skill.desc      = "With a series of blows, Hanabi deals 15 damage to an enemy for 2 turns. Each time they use a skill that depletes or absorbs chakra, their team will be depleted of 1 random chakra."
+        , Skill.desc      = "With a series of blows, Hanabi deals 15 damage to an enemy for 2 turns. Each time they use a skill that gains, depletes, or absorbs chakra, their team will be depleted of 1 random chakra."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
@@ -138,11 +138,11 @@ cs =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 5
-        , Skill.channel   = Ongoing 5
-        , Skill.start     =
-          [ To Self cureBane ]
         , Skill.effects   =
-          [ To Self $ heal 15 ]
+          [ To Self do
+              cureBane
+              apply 5 [Heal 15]
+          ]
         }
       ]
     , [ Skill.new
@@ -216,8 +216,11 @@ cs =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-              whenM (userHas "Shadow Senbon") $ apply 1 [Invulnerable All]
-              tag 1
+              has <- userHas "Shadow Senbon"
+              if has then
+                  apply 1 [Invulnerable All]
+              else
+                  tag 1
           , To Enemy do
                 bonus <- 25 `bonusIf` userHas "Unnerving Bells"
                 damage (15 + bonus)
