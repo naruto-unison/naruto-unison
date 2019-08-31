@@ -7,6 +7,8 @@ import Characters.Base
 
 import qualified Model.Skill as Skill
 
+import qualified Model.Ninja as Ninja -- TODO
+
 cs :: [Category -> Character]
 cs =
   [ Character
@@ -60,80 +62,127 @@ cs =
       ]
     , [ invuln "Ink Clone" "Sai" [Chakra] ]
     ] []
-    -- TODO "Ignore all effects that improve their skills"
---  , Character
---    "Yamato"
---    "An operative of the Hidden Leaf Village's elite Root division, Yamato carries the first Hokage's wood-manipulation abilities due to having been injected with his cells.
+  , Character
+    "Yamato"
+    "An operative of the Hidden Leaf Village's elite Root division, Yamato has had many identities, also going by the names Kinoe and Tenzō. The sole survivor of Orochimaru's horrifying experiments on children, he carries the first Hokage's wood-manipulation abilities along with his DNA. His mastery of power supppression makes him a grave threat against hosts of tailed beasts and others who accumulate power gradually."
+    [ [ Skill.new
+        { Skill.name      = "Tenth Edict on Enlightenment"
+        , Skill.desc      = "Using the legendary chakra-suppression technique with which Hashirama subdued tailed beasts, Yamato negates all power an enemy has accumulated. They completely reset to their state at the start of the game, except that their health is not restored."
+        , Skill.classes   = [Chakra, Melee]
+        , Skill.cost      = [Blood, Blood, Rand]
+        , Skill.charges   = 1
+        , Skill.effects   =
+          [ To Enemy do
+                health <- target health
+                factory
+                setHealth health
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Wood Clone"
+        , Skill.desc      = "Yamato protects himself or an ally with a clone of wood for 1 turn, countering the first non-mental harmful skill used on them. If countered, the attacker receives 20 damage and the target gains 20 destructible defense, and [Tenth Edict on Enlightenment] is recharged."
+        , Skill.classes   = [Physical, Melee, Invisible]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Ally do
+                trapFrom 1 (Counter All) $ damage 20
+                trap 1 (Counter All) do
+                    defend 0 20
+                    self do
+                        charges <- user Ninja.charges
+                        tag' (tshow charges) 5
+                        resetCharges
+                        charges' <- user Ninja.charges
+                        tag' (tshow charges') 3
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Four-Pillar Architecture"
+        , Skill.desc      = "If used on an ally, a wooden house rises from the ground around Yamato's team and provides all of them with 20 destructible defense. If used on an enemy, a wooden prison rises from the ground around the enemy team and applies 20 destructible barrier to all of them."
+        , Skill.classes   = [Chakra, Ranged, Bypassing]
+        , Skill.cost      = [Blood, Nin]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Ally  $ allies  $ defend  0 20
+          , To Enemy $ enemies $ barrier 0 20
+          ]
+        }
+      ]
+    , [ invuln "Wood Wall" "Yamato" [Physical] ]
+    ] []
 -- TODO Izumo and Kotetsu swap health
   , Character
-      "Fū Yamanaka"
-      "An operative of the Hidden Leaf Village's elite Root division, Fū is emotionless and ruthlessly straightforward. His only drive is unswerving loyalty to Danzō. His combination of long-distance Yamanaka genjutsu and his personal form of taijutsu makes him a formidable threat in any situation, but his trump card is the ability to swap his consciousness into the body of an opponent and make use of all their skills."
-      [ [ Skill.new
-          { Skill.name      = "Tantō Slash"
-          , Skill.desc      = "Fū slashes an enemy with his tantō, dealing 25 damage. Deals 15 additional damage if the target is affected by [Mind Transfer]."
-          , Skill.classes   = [Physical, Melee]
-          , Skill.cost      = [Tai]
-          , Skill.effects   =
-            [ To Enemy do
-                  bonus <- 15 `bonusIf` targetHas "Mind Transfer"
-                  damage (25 + bonus)
-            ]
-          }
-        ]
-      , [ Skill.new
-          { Skill.name      = "Mind Transfer"
-          , Skill.desc      = "Fū takes over an enemy's mind and steals all removable beneficial effects on them. The target's destructible defense is transferred to Fū, and Fū's destructible barrier is transferred to the target. While active, Fū detects all invisible effects and enemy cooldowns."
-          , Skill.classes   = [Chakra]
-          , Skill.cost      = [Gen]
-          , Skill.cooldown  = 3
-          , Skill.channel   = Control 3
-          , Skill.start     = [ To Enemy commandeer ]
-          , Skill.effects   =
-            [ To Enemy do
-                  tag 1
-                  enemies $ hide' "revealed" 1 [Reveal]
-            ]
-          }
-        ]
-      , [ Skill.new
-          { Skill.name      = "Mind Transfer Puppet Curse"
-          , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a harmful non-mental skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Effects from Fū's usage of their skills are canceled when Fū's skills revert."
-          , Skill.classes   = [Mental, InvisibleTraps, Unreflectable]
-          , Skill.cost      = [Gen]
-          , Skill.cooldown  = 3
-          , Skill.effects   =
-            [ To Ally $ trapFrom' 2 (Counter NonMental) do
-                  copyAll 4
-                  tag (-4)
-                  teach 4 Shallow 4
-                  teachOne 4 3 Deep 5
-                  self do
-                      resetAll
-                      bomb (-4) [] [ To Done resetAll ]
-            ]
-          }
-        ]
-      , [ invuln "Dodge" "Fū" [Physical] ]
-      , [ Skill.new
-          { Skill.name      = "Puppet Curse: Attack"
-          , Skill.desc      = "Trapped in a puppet, little can be done but flail about and hope to hit someone! Deals 15 damage to an enemy."
-          , Skill.classes   = [Physical, Melee]
-          , Skill.cost      = [Rand]
-          , Skill.effects   =
-            [ To Enemy $ damage 15 ]
-          }
-        ]
-      , [ Skill.new
-          { Skill.name      = "Puppet Curse: Defend"
-          , Skill.desc      = "Trapped in a puppet, little can be done but flail about and hope to block an attack! The puppet becomes invulnerable for 1 turn."
-          , Skill.classes   = [Physical, Melee]
-          , Skill.cost      = [Rand]
-          , Skill.cooldown  = 4
-          , Skill.effects   =
-            [ To Self $ apply 1 [Invulnerable All] ]
-          }
-        ]
-      ] []
+    "Fū Yamanaka"
+    "An operative of the Hidden Leaf Village's elite Root division, Fū is emotionless and ruthlessly straightforward. His only drive is unswerving loyalty to Danzō. His combination of long-distance Yamanaka genjutsu and his personal form of taijutsu makes him a formidable threat in any situation, but his trump card is the ability to swap his consciousness into the body of an opponent and make use of all their skills."
+    [ [ Skill.new
+        { Skill.name      = "Tantō Slash"
+        , Skill.desc      = "Fū slashes an enemy with his tantō, dealing 25 damage. Deals 15 additional damage if the target is affected by [Mind Transfer]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
+          [ To Enemy do
+                bonus <- 15 `bonusIf` targetHas "Mind Transfer"
+                damage (25 + bonus)
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Mind Transfer"
+        , Skill.desc      = "Fū takes over an enemy's mind and steals all removable beneficial effects on them. The target's destructible defense is transferred to Fū, and Fū's destructible barrier is transferred to the target. While active, Fū detects all invisible effects and enemy cooldowns."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 3
+        , Skill.channel   = Control 3
+        , Skill.start     = [ To Enemy commandeer ]
+        , Skill.effects   =
+          [ To Enemy do
+                tag 1
+                enemies $ hide' "revealed" 1 [Reveal]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Mind Transfer Puppet Curse"
+        , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a harmful non-mental skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Effects from Fū's usage of their skills are canceled when Fū's skills revert."
+        , Skill.classes   = [Mental, InvisibleTraps, Unreflectable]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Ally $ trapFrom' 2 (Counter NonMental) do
+                copyAll 4
+                tag (-4)
+                teach 4 Shallow 4
+                teachOne 4 3 Deep 5
+                self do
+                    resetAll
+                    bomb (-4) [] [ To Done resetAll ]
+          ]
+        }
+      ]
+    , [ invuln "Dodge" "Fū" [Physical] ]
+    , [ Skill.new
+        { Skill.name      = "Puppet Curse: Attack"
+        , Skill.desc      = "Trapped in a puppet, little can be done but flail about and hope to hit someone! Deals 15 damage to an enemy."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Enemy $ damage 15 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Puppet Curse: Defend"
+        , Skill.desc      = "Trapped in a puppet, little can be done but flail about and hope to block an attack! The puppet becomes invulnerable for 1 turn."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Self $ apply 1 [Invulnerable All] ]
+        }
+      ]
+    ] []
   , Character
     "Torune Aburame"
     "An operative of the Hidden Leaf Village's elite Root division, Torune was born with rare venom-resistant antibodies that allow him to carry the Aburame clan's most dangerous species of beetle. The venom beetles cover his skin like armor, protecting him and infesting anyone who dares to touch him."

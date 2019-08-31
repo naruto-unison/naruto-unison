@@ -1,6 +1,9 @@
 $newline always
 
 <section>
+  <h3>TBD
+  <ul>
+    #{changelog Rework "Yamato" Shippuden}
   <h3>May 16
   <ul>
     #{changelog New "Jirōbō" Reanimated}
