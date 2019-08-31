@@ -647,7 +647,7 @@ cs =
     "Now a chūnin, Tenten's arsenal has expanded to a prodigious stockpile of some of the most powerful weapons in existence, including the legendary fan of the Sage of the Six Paths. Taking any excuse to show off the size and variety of her collection, she has assembled multiple item sets to switch out at a moment's notice."
     [ [ Skill.new
         { Skill.name      = "Kunai Grenade"
-        , Skill.desc      = "Tenten throws an explosive filled with a frankly ridiculous amount of kunai at an enemy, dealing 20 damage to them and 10 damage to the rest of their team."
+        , Skill.desc      = "Tenten throws an explosive filled with a frankly ridiculous number of kunai at an enemy, dealing 20 damage to them and 10 damage to the rest of their team."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Tai]
         , Skill.effects   =
