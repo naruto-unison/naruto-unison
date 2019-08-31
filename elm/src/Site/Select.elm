@@ -232,11 +232,20 @@ component ports =
               let
                 rem = size st |> remainderBy (-x)
               in
-                { st | index = if rem == 0 then 0 else size st - rem }
+                { st
+                | index    = if rem == 0 then 0 else size st - rem
+                , pageSize = x
+                }
             else if index >= size st then
-                { st | index = 0 }
+                { st
+                | index    = 0
+                , pageSize = x
+                }
             else
-                { st | index = x + st.index }
+                { st
+                | index    = x + st.index
+                , pageSize = x
+                }
         Preview x    -> pure <|
             if Maybe.isJust st.toggled then
                 st
