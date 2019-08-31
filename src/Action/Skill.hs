@@ -126,11 +126,9 @@ varyNext name = do
     target <- P.target
     maybeS <- findIndex (any match) .
               toList . Character.skills . Ninja.character <$> P.nTarget
-    case maybeS of
-        Nothing -> return ()
-        Just s  -> P.modify target \n ->
-            n { Ninja.variants = Seq.adjust' adj s $ Ninja.variants n }
+    mapM_ (P.modify target . adjVariant) maybeS
   where
+    adjVariant s n = n { Ninja.variants = Seq.adjust' adj s $ Ninja.variants n }
     caseFolded = toCaseFold name
     match = (caseFolded ==) . toCaseFold . Skill.name
     adj vs@(x:|xs)
@@ -164,10 +162,9 @@ copyLast (Duration -> dur) s = do
     user       <- P.user
     target     <- P.target
     mLastSkill <- Ninja.lastSkill <$> P.nTarget
-    case mLastSkill of
-        Nothing -> return ()
-        Just lastSkill -> Execute.copy False Copy.Shallow target lastSkill
-                          (user, Skill.name skill, s, dur)
+    forM_ mLastSkill \lastSkill ->
+        Execute.copy False Copy.Shallow target lastSkill
+        (user, Skill.name skill, s, dur)
 
 -- | Copies a @Skill@ from the user into all of the target's 'Ninja.copies'
 -- skill slots.

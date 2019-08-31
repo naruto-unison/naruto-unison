@@ -209,7 +209,7 @@ addDefense name amount = P.unsilenced do
     user    <- P.user
     target  <- P.user
     nTarget <- P.nTarget
-    maybe (return ()) (P.modify target . Ninja.addDefense amount) .
+    mapM_ (P.modify target . Ninja.addDefense amount) .
         find (Labeled.match name user) $ Ninja.defense nTarget
 
 -- | Adds new destructible 'Barrier'.
