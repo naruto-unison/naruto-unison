@@ -7,6 +7,7 @@ module Import.Flags exposing
 
 import Dict          as Dict exposing (Dict)
 import Json.Decode   as D exposing (Value)
+import Json.Helpers  as D
 import Html          as H exposing (Html)
 import List.Extra    as List
 import List.Nonempty as Nonempty exposing (Nonempty(..))
@@ -24,6 +25,7 @@ type alias Flags =
     , avatars:      List String
     , characters:   Characters
     , csrf:         String
+    , csrfParam:    String
     }
 
 failure : Flags
@@ -36,20 +38,21 @@ failure =
     , avatars      = []
     , characters   = makeCharacters []
     , csrf         = ""
+    , csrfParam    = ""
     }
 
 decode : D.Decoder Flags
 decode =
-    D.map8 Flags
-    (D.field "url"          <| D.string)
-    (D.field "bg"           <| D.string)
-    (D.field "userTeam"     <| D.list Model.jsonDecCharacter)
-    (D.field "userPractice" <| D.list Model.jsonDecCharacter)
-    (D.field "user"         <| D.maybe Model.jsonDecUser)
-    (D.field "avatars"      <| D.list D.string)
-    (D.field "characters"   << D.map makeCharacters
-                            <| D.list Model.jsonDecCharacter)
-    (D.field "csrf"         <| D.string)
+    D.succeed Flags
+    |> D.required "url"          D.string
+    |> D.required "bg"           D.string
+    |> D.required "userTeam"     (D.list Model.jsonDecCharacter)
+    |> D.required "userPractice" (D.list Model.jsonDecCharacter)
+    |> D.required "user"         (D.maybe Model.jsonDecUser)
+    |> D.required "avatars"      (D.list D.string)
+    |> D.required "characters"   (D.map makeCharacters <| D.list Model.jsonDecCharacter)
+    |> D.required  "csrf"        D.string
+    |> D.required  "csrfParam"   D.string
 
 type alias Characters =
     { list       : List Character

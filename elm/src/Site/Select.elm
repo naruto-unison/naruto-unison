@@ -78,6 +78,7 @@ type alias Model =
     , avatars    : List String
     , chars      : Characters
     , csrf       : String
+    , csrfParam  : String
     , showLogin  : Bool
     , index      : Int
     , cols       : Int
@@ -124,6 +125,7 @@ component ports =
         , chars      = flags.characters
         , avatars    = flags.avatars
         , csrf       = flags.csrf
+        , csrfParam  = flags.csrfParam
         , showLogin  = True
         , index      = 0
         , cols       = 11
@@ -149,7 +151,8 @@ component ports =
     view : Model -> Html Msg
     view st =
         H.section [A.id "charSelect"] <|
-        lazy4 userBox st.user st.csrf st.showLogin st.team :: case st.stage of
+        lazy5 userBox st.user st.csrf st.csrfParam st.showLogin st.team ::
+        case st.stage of
             Queued     -> []
             _          ->
               let
@@ -322,8 +325,8 @@ characterButtons st =
     else
         wraparound wrapping st.index st.chars.list
 
-userBox : Maybe User -> String -> Bool -> List Character -> Html Msg
-userBox mUser csrf showLogin team =
+userBox : Maybe User -> String -> String -> Bool -> List Character -> Html Msg
+userBox mUser csrf csrfParam showLogin team =
     let
       meta onClick =
           if List.length team == 3 then
@@ -390,7 +393,7 @@ userBox mUser csrf showLogin team =
                 ] << List.map second <| List.filter first
                   [ ( True, H.input
                       [ A.type_         "hidden"
-                      , A.name          "_token"
+                      , A.name          csrfParam
                       , A.value         csrf
                       ] []
                     )

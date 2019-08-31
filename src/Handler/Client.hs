@@ -70,6 +70,7 @@ getPlayR = do
           | isMuted muser = "click muted"
           | otherwise     = "click unmuted"
     setCsrfCookie
+    token <- reqToken <$> getRequest
     defaultLayout do
         setTitle "Naruto Unison"
         addStylesheetRemote "/css/embeds.css"

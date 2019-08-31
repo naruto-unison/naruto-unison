@@ -25,7 +25,8 @@ const app = Elm.Main.init({
     user:         #{toJSON muser},
     avatars:      #{toJSON avatars},
     characters:   nullary(#{toJSON Characters.list}),
-    csrf:         Cookies.get("XSRF-TOKEN")
+    csrf:         #{fromMaybe "" token},
+    csrfParam:    #{defaultCsrfParamName} //Cookies.get("XSRF-TOKEN")
   }
 })
 app.ports.sounds.subscribe(sounds => {
