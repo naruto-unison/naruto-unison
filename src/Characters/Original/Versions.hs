@@ -71,7 +71,8 @@ cs =
                 pierce 45
                 apply 2 [Weaken All Flat 20]
           ]
-        , Skill.changes   = changeWith "Curse Mark" $ setCost [Rand]
+        , Skill.changes   =
+            changeWith "Curse Mark" \x -> x { Skill.cost = [Rand] }
         }
       ]
     , [ Skill.new
@@ -84,7 +85,8 @@ cs =
           [ To Enemy $ bomb 2 [Stun All, Invulnerable All, Seal]
                              [ To Expire $ damage 55 ]
           ]
-        , Skill.changes   = changeWith "Curse Mark" $ setCost [Rand, Rand]
+        , Skill.changes   =
+            changeWith "Curse Mark" \x -> x { Skill.cost = [Rand, Rand] }
         }
       ]
     , [ Skill.new
@@ -112,18 +114,15 @@ cs =
                 stacks <- userStacks "Unpredictable Assault"
                 damage (20 + 5 * stacks)
           ]
-        }
-      , Skill.new
-        { Skill.name      = "Unpredictable Assault"
-        , Skill.desc      = "Lee lashes out drunkenly, dealing 20 damage to a random enemy and permanently increasing the damage of this skill by 5. During [Drunken Fist], targets a specific enemy and deals 5 additional damage."
-        , Skill.classes   = [Physical, Melee, Uncounterable]
-        , Skill.cost      = [Tai]
-        , Skill.effects   =
-          [ To Self addStack
-          , To Enemy do
-                stacks <- userStacks "Unpredictable Assault"
-                damage (25 + 5 * stacks)
-          ]
+        , Skill.changes   =
+            changeWithChannel "Drunken Fist" \x ->
+              x { Skill.effects =
+                  [ To Self addStack
+                  , To Enemy do
+                        stacks <- userStacks "Unpredictable Assault"
+                        damage (25 + 5 * stacks)
+                  ]
+                }
         }
       ]
     , [ Skill.new
@@ -147,8 +146,6 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.channel   = Action 3
         , Skill.cooldown  = 3
-        , Skill.start     =
-          [ To Self $ vary "Unpredictable Assault" "Unpredictable Assault" ]
         , Skill.effects   =
           [ To Enemy $ damage 15
           , To Self  $ apply 1 [Enrage]
@@ -169,7 +166,8 @@ cs =
           [ To Enemy $ damage 30
           , To Self  $ defend 0 10
           ]
-        , Skill.changes   = changeWith "Tailed Beast Form" $ setCost [Blood]
+        , Skill.changes   =
+            changeWith "Tailed Beast Form" \x -> x { Skill.cost = [Blood] }
         }
       ]
     , [ Skill.new

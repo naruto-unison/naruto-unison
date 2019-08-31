@@ -1,12 +1,13 @@
 -- | 'Skill.Transform' processing.
 module Engine.SkillTransform
   ( change
-  , also
-  , changeWith, extendWith
-  , addClass
-  , setCost, costPer, reduceCostPer
-  , targetAll, targetOnly, swap
   , safe
+  , swap
+  , targetAll
+  , also
+  , changeWith, changeWithChannel, changeWithDefense
+  , extendWith
+  , costPer, reduceCostPer
   ) where
 
 import ClassyPrelude hiding (swap)
@@ -14,11 +15,9 @@ import ClassyPrelude hiding (swap)
 import Data.List (findIndex)
 import Data.List.NonEmpty ((!!), NonEmpty(..))
 
-import           Core.Util ((∈))
 import           Class.TurnBased as TurnBased
 import           Model.Chakra (Chakras)
 import qualified Model.Character as Character
-import           Model.Class (Class)
 import           Model.Effect (Effect(..))
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
@@ -51,20 +50,24 @@ safe a f n sName vName = fromMaybe a do
 also :: Skill.Transform -> Skill.Transform -> Skill.Transform
 (f `also` g) n skill = g n $ f n skill
 
--- | Applies a 'Skill.Transform' if 'Ninja.hasOwn'.
-changeWith :: Text -> Skill.Transform -> Skill.Transform
+-- | Applies a 'Skill.Transform' conditional upon 'Ninja.has'.
+changeWith :: Text -> (Skill -> Skill) -> Skill.Transform
 changeWith name f n
-  | Ninja.hasOwn name n = f n
-  | otherwise           = id
+  | Ninja.has name (Ninja.slot n) n = f
+  | otherwise                       = id
 
--- | Adds a @Class@ to 'Skill.classes'.
-addClass :: Class -> Skill.Transform
-addClass cla _ skill =
-    skill { Skill.classes = insertSet cla $ Skill.classes skill }
+-- | Applies a 'Skill.Transform' conditional upon 'Ninja.isChanneling'.
+changeWithChannel :: Text -> (Skill -> Skill) -> Skill.Transform
+changeWithChannel name f n
+  | Ninja.isChanneling name n = f
+  | otherwise                 = id
 
--- | Replaces 'Skill.cost'.
-setCost :: Chakras -> Skill.Transform
-setCost chaks _ skill = skill { Skill.cost = chaks }
+-- | Applies a 'Skill.Transform' conditional upon 'Ninja.hasDefense'.
+changeWithDefense :: Text -> (Skill -> Skill) -> Skill.Transform
+changeWithDefense name f n
+  | Ninja.hasDefense name (Ninja.slot n) n = f
+  | otherwise                              = id
+
 
 -- | Multiplies @Chakras@ by 'Ninja.numActive' and adds the total to
 -- 'Skill.cost'.
@@ -104,13 +107,13 @@ change n sk =
     sk' { Skill.cost = Effects.exhaust (Skill.classes sk') n + Skill.cost sk' }
   where
     mRestrict
-      | n `is` Restrict = restrict n
+      | n `is` Restrict = restrict
       | otherwise       = id
     sk' = mRestrict . Skill.chakraClasses $ Skill.changes sk n sk
 
 -- | Turns AoE effects into single-target effects.
-restrict :: Skill.Transform
-restrict = const . changeEffects $ mapMaybe f
+restrict :: Skill -> Skill
+restrict = changeEffects $ mapMaybe f
   where
     f (To XEnemies _)  = Nothing
     f (To REnemy   _)  = Nothing
@@ -119,17 +122,13 @@ restrict = const . changeEffects $ mapMaybe f
     f x                  = Just x
 
 -- | Turns single-target effects into AoE effects.
-targetAll :: Skill.Transform
-targetAll = const . changeEffects . map $ Runnable.retarget f
+targetAll :: Skill -> Skill
+targetAll = changeEffects . map $ Runnable.retarget f
   where
     f Enemy = Enemies
     f Ally  = Allies
     f XAlly = XAllies
     f x     = x
-
--- | Restricts to a specified list of @Target@s.
-targetOnly :: [Target] -> Skill.Transform
-targetOnly xs = const . changeEffects . filter $ (∈ xs) . Runnable.target
 
 -- | Affects enemies instead of allies and allies instead of enemies.
 swap :: Skill -> Skill

@@ -292,7 +292,8 @@ cs =
                 apply (1 + stacks) [Endure]
                 hide' "jashin" 0 []
           ]
-        , Skill.changes   = costPer "jashin" [Rand]
+        , Skill.changes   =
+            costPer "jashin" [Rand]
         }
       ]
     , [ invuln "Block" "Hidan" [Physical] ]
@@ -978,7 +979,6 @@ cs =
         , Skill.effects   =
           [ To Self do
                 vary' 1 "Summoning: Gedo Statue" "Control"
-                vary' 1 "Phantom Dragon" "Phantom Dragon"
                 dragonStacks <- userStacks "dragon"
                 addStacks' 1 "Control" dragonStacks
                 gedoStacks   <- userStacks "gedo"
@@ -1003,7 +1003,8 @@ cs =
                 stacks <- userStacks "gedo"
                 when (stacks < 3) $ hide' "gedo" 0 []
           ]
-        , Skill.changes   = changeWith "Phantom Dragon" $ setCost []
+        , Skill.changes   =
+            changeWith "Phantom Dragon" \x -> x { Skill.cost = [] }
         }
       ]
     , [ Skill.new
@@ -1012,21 +1013,20 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-          [ To Enemy $ pierce 20
-          , To Self  $ tag 1
+          [ To Self  $ tag 1
+          , To Enemy $ pierce 20
+
           ]
-        }
-      , Skill.new
-        { Skill.name      = "Phantom Dragon"
-        , Skill.desc      = "Nagato summons a dragon to attack an enemy for 20 piercing damage. During [Summoning: Gedo Statue], costs 1 genjutsu chakra and deals 5 additional damage per stack of [Control]."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = [Gen]
-        , Skill.effects   =
-          [ To Enemy do
-                stacks <- userStacks "dragon"
-                pierce (20 + 5 * stacks)
-          , To Self $ tag 1
-          ]
+        , Skill.changes   =
+            changeWithChannel "Summoning: Gedo Statue" \x ->
+              x { Skill.cost    = [Gen]
+                , Skill.effects =
+                  [ To Self  $ tag 1
+                  , To Enemy do
+                        stacks <- userStacks "dragon"
+                        pierce (20 + 5 * stacks)
+                  ]
+                }
         }
       ]
     , [ Skill.new

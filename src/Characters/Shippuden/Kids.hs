@@ -43,7 +43,7 @@ cs =
         , Skill.effects   =
           [ To Self do
                 trapFrom 1 (Counter All) $ tag 1
-                vary' 1 "Giant Rasengan" "Giant Rasengan"
+                vary' 1 "Giant Rasengan" "Rasenshuriken"
           ]
         }
       ]
@@ -182,7 +182,9 @@ cs =
                 has <- userHas "Lightning Flash"
                 if has then afflict 40 else pierce 40
           ]
-        , Skill.changes   = changeWith "Lightning Flash" $ addClass Bypassing
+        , Skill.changes   =
+            changeWith "Lightning Flash" \x ->
+              x { Skill.classes = insertSet Bypassing $ Skill.classes x }
         }
       ]
     , [ invuln "Snake Shedding" "Sasuke" [Physical] ]
@@ -871,7 +873,8 @@ cs =
                 trap 0 (Counter NonMental) $ return ()
                 hide' "tired" 0 []
           ]
-        , Skill.changes   = costPer "tired" [Rand]
+        , Skill.changes   =
+            costPer "tired" [Rand]
         }
       ]
     , [ Skill.new

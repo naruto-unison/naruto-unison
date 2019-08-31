@@ -149,8 +149,11 @@ cs =
                 defend 0 15
                 onBreak $ addStacks "Venom Beetle" 1
           ]
-        , Skill.changes   = changeWith "Nano-Sized Venom Beetles" $
-                            setCost [Rand] `also` targetOnly [Enemy]
+        , Skill.changes   =
+            changeWithDefense "Nano-Sized Venom Beetles" \x ->
+              x { Skill.cost = [Rand]
+                , Skill.effects = take 1 $ Skill.effects x
+                }
         }
       ]
     , [ Skill.new
@@ -165,8 +168,11 @@ cs =
                 defend 0 30
                 onBreak $ addStacks "Venom Beetle" 1
           ]
-        , Skill.changes   = changeWith "Jar of Poison" $
-                            setCost [Rand, Rand] `also` targetOnly [Enemies]
+        , Skill.changes   =
+            changeWithDefense "Jar of Poison" \x ->
+              x { Skill.cost    = [Rand, Rand]
+                , Skill.effects = take 1 $ Skill.effects x
+                }
         }
       ]
     , [ Skill.new

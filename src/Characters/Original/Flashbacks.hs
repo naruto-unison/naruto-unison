@@ -372,9 +372,7 @@ cs =
         }
       ]
     ] []
-  , let kannon = changeWith "Veritable 1000-Armed Kannon" \_ skill ->
-                 skill { Skill.channel = Action 3, Skill.cost = [Blood] }
-    in Character
+  , Character
     "Hashirama Senju"
     "The founder and first Hokage of the Hidden Leaf Village, Hashirama is headstrong and enthusiastic. He believes with all his heart that communities should behave as families, taking care of each other and protecting their children from the cruelties of war. Due to a unique genetic mutation, Hashirama is able shape wood into defensive barriers and constructs."
     [ [ Skill.new
@@ -388,7 +386,9 @@ cs =
           [ To Self   $ apply 1 [Invulnerable Chakra]
           , To REnemy $ absorb 1
           ]
-        , Skill.changes   = kannon
+        , Skill.changes   =
+            changeWith "Veritable 1000-Armed Kannon" \x ->
+                 x { Skill.channel = Action 3, Skill.cost = [Blood] }
         }
       ]
     , [ Skill.new
@@ -402,7 +402,9 @@ cs =
           [ To Enemy $ damage 20
           , To Self  $ apply 1 [Invulnerable Physical]
           ]
-        , Skill.changes   = kannon
+        , Skill.changes   =
+            changeWith "Veritable 1000-Armed Kannon" \x ->
+                 x { Skill.channel = Action 3, Skill.cost = [Blood] }
         }
       ]
     , [ Skill.new

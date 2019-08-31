@@ -38,7 +38,9 @@ cs =
                 damage 15
                 trap 1 OnStun $ apply 1 [Stun All]
           ]
-        , Skill.changes   = changeWith "Unyielding Tenacity" $ setCost [Rand]
+        , Skill.changes   =
+            changeWith "Unyielding Tenacity" \x -> x { Skill.cost = [Rand] }
+
         }
       ]
     , [ Skill.new
@@ -109,7 +111,8 @@ cs =
                 remove "Umbrella"
                 vary "Umbrella Toss" baseVariant
           ]
-        , Skill.changes   = reduceCostPer "Umbrella" [Rand]
+        , Skill.changes   =
+            reduceCostPer "Umbrella" [Rand]
         }
       ]
     , [ invuln "Umbrella Shield" "Shigure" [Physical] ]
@@ -307,7 +310,8 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Enemies $ damage 15 ]
-        , Skill.changes   = changeWith "Fog Clone" $ setCost [Rand]
+        , Skill.changes   =
+            changeWith "Fog Clone" \x -> x { Skill.cost = [Rand] }
         }
       ]
     , [ Skill.new
@@ -320,8 +324,8 @@ cs =
                 damage 20
                 apply 1 [Stun Physical, Stun Mental]
           ]
-        , Skill.changes   = changeWith "Fog Clone" $
-                            setCost [Gen] `also` targetAll
+        , Skill.changes   =
+            changeWith "Fog Clone" \x -> targetAll x { Skill.cost = [Gen] }
         }
       ]
     , [ Skill.new

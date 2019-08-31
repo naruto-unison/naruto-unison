@@ -192,7 +192,8 @@ cs =
                 bonus <- 1 `bonusIf` userHas "Sharingan"
                 trap (1 + bonus) OnReflectAll $ return ()
           ]
-        , Skill.changes   = changeWith "Sharingan" $ setCost [Gen, Gen]
+        , Skill.changes   =
+            changeWith "Sharingan" \x -> x { Skill.cost = [Gen, Gen] }
         }
       ]
     , [ invuln "Snake Shedding" "Sasuke" [Physical] ]
@@ -233,7 +234,8 @@ cs =
                           reset "Chidori" baseVariant
                     ]
           ]
-        , Skill.changes   = changeWith "Chidori" $ setCost [Nin]
+        , Skill.changes   =
+            changeWith "Chidori" \x -> x { Skill.cost = [Nin] }
         }
       , Skill.new
         { Skill.name      = "Blazing Arrow"
@@ -320,8 +322,9 @@ cs =
                 damage (15 + 5 * stacks)
                 apply' "Sand Bomb" 0 []
           ]
-        , Skill.changes   = changeWith "Sand Mausoleum Seal" (setCost [])
-                            `also` changeWith "Mother's Embrace" targetAll
+        , Skill.changes   =
+            changeWithDefense "Mother's Embrace" targetAll `also`
+            changeWith "Sand Mausoleum Seal" \x -> x { Skill.cost = [] }
         }
       ]
     , [ Skill.new
@@ -729,7 +732,8 @@ cs =
                 sacrifice 1 20
                 addStack
           ]
-        , Skill.changes   = costPer "Evening Elephant" [Rand]
+        , Skill.changes   =
+            costPer "Evening Elephant" [Rand]
         }
       ]
     , [ Skill.new
@@ -761,7 +765,8 @@ cs =
                 addStack
                 apply 2 [Plague]
           ]
-        , Skill.changes   = costPer "Night Guy" [Tai]
+        , Skill.changes   =
+            costPer "Night Guy" [Tai]
         }
       ]
     , [ invuln "Dodge" "Guy" [Physical] ]

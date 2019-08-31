@@ -170,8 +170,8 @@ cs =
                     afflict 10
                     apply 1 [Stun All]
           ]
-        , Skill.changes   = changeWith "Major Summoning: Ibuse"
-                  \_ skill -> skill { Skill.pic = True }
+        , Skill.changes   =
+            changeWith "Major Summoning: Ibuse" \x -> x { Skill.pic = True }
         }
       ]
     , [ Skill.new
@@ -225,8 +225,9 @@ cs =
                 targetHealth <- target health
                 when (targetHealth <= 10) kill
           ]
-        , Skill.changes   = changeWith "Major Summoning: Giant Clam" $
-                            addClass Bypassing
+        , Skill.changes   =
+            changeWithChannel "Major Summoning: Giant Clam" \x ->
+                x { Skill.classes = insertSet Bypassing $ Skill.classes x }
         }
       ]
     , [ Skill.new
@@ -267,7 +268,8 @@ cs =
                 userBonus   <- (-5) `bonusIf` userHas "Fragmentation"
                 pierce (25 + targetBonus + userBonus)
           ]
-        , Skill.changes   = changeWith "Fragmentation" $ setCost [Nin]
+        , Skill.changes   =
+            changeWith "Fragmentation" \x -> x { Skill.cost = [Nin] }
         }
       ]
     , [ Skill.new
@@ -298,7 +300,8 @@ cs =
                 bonus <- (-5) `bonusIf` userHas "Fragmentation"
                 pierce (40 + bonus)
           ]
-        , Skill.changes   = changeWith "Fragmentation" $ setCost [Nin, Rand]
+        , Skill.changes   =
+            changeWith "Fragmentation" \x -> x { Skill.cost = [Nin, Rand] }
         }
       ]
     , [ invuln "Dustless Bewildering Cover" "Mū" [Chakra] ]
@@ -374,8 +377,9 @@ cs =
                     apply 1 [Stun All]
                     tag' "Aftershocks" 4
           ]
-        , Skill.changes   = \n skill -> skill
-            { Skill.desc = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing " ++ tshow (20 + 5 * numActive "finger" n) ++ " damage. If this skill deals damage, the cooldown of [Strongest Shield] decreases by 1 additional turn." }
+        , Skill.changes   =
+            \n x ->
+              x { Skill.desc = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing " ++ tshow (20 + 5 * numActive "finger" n) ++ " damage. If this skill deals damage, the cooldown of [Strongest Shield] decreases by 1 additional turn." }
         }
       ]
     , [ invuln "Dodge" "A" [Physical] ]
@@ -456,7 +460,8 @@ cs =
                   unlessM (targetHas "Rivalry") . everyone $ remove "Rivalry"
             , To Self $ apply' "Scattered Rock" 0 []
             ]
-          , Skill.changes   = changeWith "Earth Dome Prison" $ setCost [Tai]
+          , Skill.changes   =
+              changeWith "Earth Dome Prison" \x -> x { Skill.cost = [Tai] }
           }
         ]
       , [ Skill.new
@@ -514,13 +519,14 @@ cs =
                 trapPer' (-1) PerDamaged \i ->
                     when (i >= 50) $ apply 1 [Stun All]
           ]
-        , Skill.changes   = changeWith "Crystal Ice Mirrors" \_ skill -> skill
-              { Skill.effects =
-                [ To Enemy do
-                      pierce 30
-                      trapPer' (-1) PerDamaged \i ->
-                          when (i >= 50) $ apply 1 [Stun All] ]
-              }
+        , Skill.changes   =
+            changeWithChannel "Crystal Ice Mirrors" \x ->
+              x { Skill.effects =
+                  [ To Enemy do
+                        pierce 30
+                        trapPer' (-1) PerDamaged \i ->
+                            when (i >= 50) $ apply 1 [Stun All] ]
+                }
         }
       ]
     , [ Skill.new
@@ -531,8 +537,10 @@ cs =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ apply 2 [Silence] ]
-        , Skill.changes   = changeWith "Crystal Ice Mirrors" $
-                            addClass Bypassing `also` targetAll
+        , Skill.changes   =
+            changeWithChannel "Crystal Ice Mirrors" \x ->
+              targetAll
+              x { Skill.classes = insertSet Bypassing $ Skill.classes x }
         }
       ]
     , [ Skill.new
@@ -774,7 +782,8 @@ cs =
           ]
         , Skill.effects   =
           [ To Enemy $ pierce 15 ]
-        , Skill.changes   = changeWith "Chakra Weave" $ setCost [Rand]
+        , Skill.changes   =
+            changeWithChannel "Chakra Weave" \x -> x { Skill.cost = [Rand] }
         }
       ]
     , [ Skill.new
@@ -821,30 +830,20 @@ cs =
         , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ To Self $ heal 15
+          [ To Self do
+              stacks <- userStacks "Human Path"
+              if stacks > 0 then
+                  heal stacks
+              else
+                  heal 15
           , To Enemy do
                 pierce 20
-                trap 1 OnDamage $ self $ vary' 1 "Human Path" "Human Path"
                 trapPer (-1) PerDamage $ self . addStacks' (-1) "Human Path"
           ]
-        }
-      , Skill.new
-        { Skill.name      = "Human Path"
-        , Skill.desc      = "Nagato restores 15 health and deals 20 piercing damage to an enemy. If the target deals any damage next turn, the damage and healing of this skill will be set to the damage they dealt for 1 turn and its cost will remain increased."
-        , Skill.classes   = [Mental, Melee]
-        , Skill.cost      = [Gen, Rand]
-        , Skill.effects   =
-          [ To Self do
-                stacks <- userStacks "Human Path"
-                heal stacks
-          , To Enemy do
-                stacks <- userStacks "Human Path"
-                pierce stacks
-                trap 1 OnDamage $ self $ vary' 1 "Human Path" "Human Path"
-                trapPer (-1) PerDamage $ self . addStacks' (-1) "Human Path"
-            ]
-        , Skill.changes   = \n skill -> skill
-            { Skill.desc = "Nagato restores " ++ tshow (numActive "Human Path" n) ++ " health and deals " ++ tshow (numActive "Human Path" n) ++ " piercing damage to an enemy. If the target deals any damage next turn, the damage and healing of this skill will be set to the damage they dealt for 1 turn and its cost will remain increased." }
+        , Skill.changes   =
+            changeWith "Human Path" (\x -> x { Skill.cost = [Gen, Rand] })
+            `also` \n x ->
+              x { Skill.desc = "Nagato restores " ++ tshow (numActive "Human Path" n) ++ " health and deals " ++ tshow (numActive "Human Path" n) ++ " piercing damage to an enemy. If the target deals any damage next turn, the damage and healing of this skill will be set to the damage they dealt for 1 turn and its cost will remain increased." }
         }
       ]
     , [ Skill.new
@@ -858,9 +857,7 @@ cs =
                 absorb 1
                 self do
                     heal 10
-                    addStack
-                    stacks <- userStacks "Preta Path"
-                    when (stacks >= 2) $ vary' 1 "Naraka Path" "Naraka Path"
+                    addStacks' 1 "Preta Path" 1
           ]
         }
       ]
@@ -880,23 +877,10 @@ cs =
                 trap (-2) OnDamage $ remove "Naraka Path"
                 bomb (-2) [] [ To Expire $ apply 2 [Exhaust All] ]
           ]
-        }
-      , Skill.new
-        { Skill.name      = "Naraka Path"
-        , Skill.desc      = "Nagato tracks a target's damage for 2 turns. If the target is an ally, they are healed for the damage total. If the target is an enemy, they are damaged for the damage total. If the target did not cause any damage, their chakra costs are modified for 2 turns: increased by 1 random chakra if an enemy, decreased by 1 random chakra if an ally. If [Preta Path] countered 2 or more skills last turn, this skill affects all allies and enemies."
-        , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = [Gen, Gen]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To XAllies do
-                trapPer (-2) PerDamage heal
-                trap (-2) OnDamage $ remove "Naraka Path"
-                bomb (-2) [] [ To Expire $ apply 2 [Unexhaust] ]
-          , To Enemies do
-                trapPer (-2) PerDamage damage
-                trap (-2) OnDamage $ remove "Naraka Path"
-                bomb (-2) [] [ To Expire $ apply 2 [Exhaust All] ]
-          ]
+        , Skill.changes   =
+            \n -> if
+              | numActive "Preta Path" n >= 2 -> targetAll
+              | otherwise                     -> id
         }
     ]
     , [ Skill.new
@@ -904,21 +888,22 @@ cs =
         , Skill.desc      = "Whenever Nagato deals damage to an enemy, he can use this skill the following turn to damage an enemy for half his damage total from that turn. Whenever Nagato is healed, he can use this skill the following turn to heal himself or an ally for half the amount of health he regained during that turn."
         , Skill.classes   = [Mental]
         , Skill.cooldown  = 2
-        , Skill.changes   = \n skill -> skill
-          { Skill.effects = snd <$> filter fst
-                            [ ( hasOwn "Rinnegan" n, To Enemy do
-                                    stacks <- userStacks "Rinnegan"
-                                    damage stacks
-                              )
-                            , ( hasOwn "Rinnegan Heal" n, To XAlly do
-                                    stacks <- userStacks "Rinnegan Heal"
-                                    heal stacks
-                              )
-                            ]
-          , Skill.require   = if
-              | hasOwn "Rinnegan" n || hasOwn "Rinnegan Heal" n -> Usable
-              | otherwise                                       -> Unusable
-          }
+        , Skill.changes   =
+            \n x ->
+              x { Skill.effects = snd <$> filter fst
+                                  [ ( hasOwn "Rinnegan" n, To Enemy do
+                                          stacks <- userStacks "Rinnegan"
+                                          damage stacks
+                                    )
+                                  , ( hasOwn "Rinnegan Heal" n, To XAlly do
+                                          stacks <- userStacks "Rinnegan Heal"
+                                          heal stacks
+                                    )
+                                  ]
+                , Skill.require   = if
+                  | hasOwn "Rinnegan" n || hasOwn "Rinnegan Heal" n -> Usable
+                  | otherwise                                       -> Unusable
+                }
         }
       ]
     ]

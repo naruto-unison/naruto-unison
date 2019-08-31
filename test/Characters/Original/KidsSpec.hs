@@ -432,13 +432,11 @@ spec = parallel do
             act
             targetHealth <- Ninja.health <$> P.nTarget
             otherEnemyHealth <- Ninja.health <$> (allyOf =<< P.target)
-            userStacks <- Ninja.numStacks "Unsealing Technique" <$>
-                          P.user <*> P.nUser
+            userStacks <- Ninja.numActive "Unsealing Technique" <$> P.nUser
             self factory
             self $ tag' "Rising Twin Dragons" 0
             act
-            userStacks' <- Ninja.numStacks "Unsealing Technique" <$>
-                           P.user <*> P.nUser
+            userStacks' <- Ninja.numActive "Unsealing Technique" <$> P.nUser
             tagged <- Ninja.hasOwn "Rising Twin Dragons" <$> P.nUser
             return do
                 it "damages target" $

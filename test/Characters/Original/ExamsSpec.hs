@@ -53,7 +53,7 @@ spec = parallel do
     describeCharacter "Shigure" \useOn -> do
         useOn Self "Umbrella Toss" do
             act
-            userStacks <- Ninja.numStacks "Umbrella" <$> P.user <*> P.nUser
+            userStacks <- Ninja.numActive "Umbrella" <$> P.nUser
             return do
                 it "adds stacks to user" $
                     userStacks `shouldBe` 4
@@ -62,7 +62,7 @@ spec = parallel do
             act
             enemyTurn $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
-            userStacks <- Ninja.numStacks "Umbrella" <$> P.user <*> P.nUser
+            userStacks <- Ninja.numActive "Umbrella" <$> P.nUser
             return do
                 it "reduces damage" $
                     100 - userHealth `shouldBe` targetDmg - 10 * stacks
@@ -72,7 +72,7 @@ spec = parallel do
             self $ addStacks "Umbrella" stacks
             act
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
-            userStacks <- Ninja.numStacks "Umbrella" <$> P.user <*> P.nUser
+            userStacks <- Ninja.numActive "Umbrella" <$> P.nUser
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 15
@@ -82,7 +82,7 @@ spec = parallel do
             self $ addStacks "Umbrella" stacks
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            userStacks <- Ninja.numStacks "Umbrella" <$> P.user <*> P.nUser
+            userStacks <- Ninja.numActive "Umbrella" <$> P.nUser
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 15 * stacks

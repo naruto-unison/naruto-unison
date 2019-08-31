@@ -61,15 +61,12 @@ cs =
         , Skill.channel   = Action 2
         , Skill.effects   =
           [ To Enemy $ damage 15 ]
-        }
-      , Skill.new
-        { Skill.name      = "Kunai Assault"
-        , Skill.desc      = "Mizuki throws a series of kunai at an enemy, dealing 15 damage for 2 turns. Deals all 30 damage instantly during [Successful Ambush]."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy $ damage 30 ]
+        , Skill.changes   =
+            changeWith "Successful Ambush" \x ->
+              x { Skill.channel = Instant
+                , Skill.effects =
+                  [ To Enemy $ damage 30 ]
+                }
         }
       ]
     , [ Skill.new
@@ -88,7 +85,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Genjutsu Ambush Tactics"
-        , Skill.desc      = "Mizuki lurks in the shadows. If no enemy uses a skill that deals damage to him, he becomes invulnerable for 1 turn and his other skills are empowered."
+        , Skill.desc      = "Mizuki lurks in the shadows. If no enemy uses a skill that deals damage to him, he becomes invulnerable for 1 turn as a Successful Ambush."
         , Skill.classes   = [Mental, InvisibleTraps]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
@@ -96,9 +93,8 @@ cs =
           [ To Self do
                 trap (-1) (OnDamaged All) $ remove "Ambush Preparation"
                 bombWith' [Hidden] "Ambush Preparation" (-1) []
-                  [ To Expire $ self do
-                        vary' 1 "Kunai Assault" "Kunai Assault"
-                        apply (-1) [Invulnerable All]
+                  [ To Expire $ self $
+                        apply' "Successful Ambush" (-1) [Invulnerable All]
                   ]
           ]
         }
@@ -320,7 +316,8 @@ cs =
           , To Allies  $ apply 1 [Reduce All Flat 15]
           , To Self    $ remove "Sharpen Blades"
           ]
-        , Skill.changes   = extendWith "Sharpen Blades" 1
+        , Skill.changes   =
+            extendWith "Sharpen Blades" 1
         }
       , Skill.new
         { Skill.name      = "Finishing Blow"
@@ -361,7 +358,7 @@ cs =
           [ To XAlly do
                 userSlot <- user slot
                 apply 0 [Redirect All userSlot]
-          , To Self  $ vary "Self-Sacrifice" "Self-Sacrifice"
+          , To Self $ vary "Self-Sacrifice" "Self-Sacrifice"
           ]
         }
       , Skill.new
@@ -391,7 +388,9 @@ cs =
                 bonus <- 30 `bonusIf` userHas "Sixth Gate Opening"
                 damage (30 + bonus)
           ]
-        , Skill.changes   = changeWith "Sixth Gate Opening" $ addClass Bypassing
+        , Skill.changes   =
+            changeWith "Sixth Gate Opening" \x ->
+              x { Skill.classes = insertSet Bypassing $ Skill.classes x }
         }
       ]
     , [ Skill.new
