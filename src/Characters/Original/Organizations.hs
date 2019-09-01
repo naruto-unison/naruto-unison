@@ -15,22 +15,33 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Scattering Crow Swarm"
         , Skill.desc      = "A flock of self-duplicating crows swarms the enemy team for 4 turns, dealing 5 damage each turn and providing 5 points of damage reduction to Aoba and his allies."
-        , Skill.classes   = [Mental, Ranged, Summon]
+        , Skill.classes   = [Mental, Ranged, Summon, Resource]
         , Skill.cost      = [Gen]
         , Skill.channel   = Ongoing 4
         , Skill.start     =
           [ To Self do
-              enemies $ apply (-4) []
-              allies  $ apply (-4) [Reduce All Flat 5]
+              enemies $ apply 4 []
+              allies  $ apply 4 [Reduce All Flat 5]
           ]
-        , Skill.effects   = [ To Enemies $ damage 5 ]
+        , Skill.effects   =
+          [ To Enemies $ whenM (not <$> targetHas "swarmed") do
+                stacks <- targetStacks "Scattering Crow Swarm"
+                damage (5 * stacks)
+                flag' "swarmed"
+          ]
+        , Skill.interrupt =
+          [ To Self do
+                everyone $ remove "Scattering Crow Swarm"
+                cancelChannel "Scattering Crow Swarm" -- just in case
+          ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Revenge of the Murder"
-        , Skill.desc      = "If the target ally's health reaches 0 within 3 turns, their health will be set to 5, all their skills will be replaced by [Converging Murder], and they will become completely immune to all skills. At the end of their next turn, they will die."
+        , Skill.desc      = "If the target ally's health reaches 0 within 3 turns, their health will be set to 5, all their skills will be replaced by [Converging Murder][g][g], and they will become completely immune to all skills. At the end of their next turn, they will die."
         , Skill.classes   = [Mental, Ranged, Invisible, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
+        , Skill.cooldown  = 3
         , Skill.effects   =
           [ To XAlly $ trap 3 OnRes do
                 resetAll
@@ -50,7 +61,7 @@ cs =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- targetStacks "Scattering Crow Swarm"
+                stacks <- target $ numHarmfulStacks "Scattering Crow Swarm"
                 damage (45 + 5 * stacks)
           ]
         }
