@@ -69,9 +69,9 @@ bless n = sum [x | Bless x <- Ninja.effects n]
 -- | 'Boost' sum from a user.
 boost :: Slot -> Ninja -> Int
 boost user n
-  | user == Ninja.slot n                    = 1
-  | not . Parity.allied user $ Ninja.slot n = 1
-  | otherwise = product $ 1 : [x | Boost x <- Ninja.effects n]
+  | user == Ninja.slot n = 1
+  | Parity.allied user n = product $ 1 : [x | Boost x <- Ninja.effects n]
+  | otherwise            = 1
 
 -- | 'Build' sum.
 build :: Ninja -> Int

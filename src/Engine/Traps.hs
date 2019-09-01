@@ -95,12 +95,12 @@ getTurnHooks :: Player -- ^ Player during the current turn.
              -> Ninja -- ^ New.
              -> [(Slot, Ninja -> Ninja)]
 getTurnHooks player n n'
-  | hp < 0 && Parity.allied player user       = getHooks True PerHealed (-hp) n'
-  | hp > 0 && not (Parity.allied player user) = getHooks True PerDamaged hp n'
-  | otherwise                                 = mempty
+  | hp < 0 && allied     = getHooks True PerHealed (-hp) n'
+  | hp > 0 && not allied = getHooks True PerDamaged hp n'
+  | otherwise            = mempty
   where
-    user = Ninja.slot n'
-    hp   = Ninja.health n - Ninja.health n'
+    allied = Parity.allied player n'
+    hp    = Ninja.health n - Ninja.health n'
 
 -- | Conditionally returns 'Trap.tracker' 'Trap.Trap's.
 getTracked :: Bool -- ^ If False, returns @mempty@ instead.
@@ -120,11 +120,11 @@ getTurnPer :: Player -- ^ Player during the current turn.
            -> Ninja -- ^ New.
            -> [Runnable Context]
 getTurnPer player n n'
-  | hp < 0 && Parity.allied player user       = getPer True PerHealed (-hp) n'
-  | hp > 0 && not (Parity.allied player user) = getPer True PerDamaged hp n'
-  | otherwise                                 = mempty
+  | hp < 0 && allied     = getPer True PerHealed (-hp) n'
+  | hp > 0 && not allied = getPer True PerDamaged hp n'
+  | otherwise            = mempty
   where
-    user = Ninja.slot n'
+    allied = Parity.allied player n'
     hp   = Ninja.health n - Ninja.health n'
 
 -- | Returns 'OnNoAction' 'Trap.Trap's.

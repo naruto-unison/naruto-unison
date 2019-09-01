@@ -153,5 +153,5 @@ forfeit p = whenM (null . Game.victor <$> game) do
     alter \g -> g { Game.victor = [Player.opponent p] }
   where
     suicide n
-      | Parity.allied p $ Ninja.slot n = n { Ninja.health = 0 }
-      | otherwise                      = n
+      | Parity.allied p n = n { Ninja.health = 0 }
+      | otherwise         = n

@@ -5,7 +5,7 @@ module Model.Ninja
   , adjustHealth, setHealth, sacrifice
   , is, isChanneling
   , has, hasOwn, hasDefense, hasStatus, hasTrap
-  , numActive, numStacks, numHelpful, defenseAmount
+  , numActive, numStacks, numHarmfulStacks, numHelpful, defenseAmount
   , take, drop
   , decr
   , decrStats
@@ -150,6 +150,13 @@ numStacks name user n = sum . (Status.amount <$>) .
                         filter (Labeled.match name user) $
                         statuses n
 
+-- | Number of stacks of 'statuses' from any non-allied source.
+numHarmfulStacks :: Text -- ^ 'Status.name'.
+                 -> Ninja -> Int
+numHarmfulStacks name n = sum . (Status.amount <$>) . filter harm $ statuses n
+  where
+    harm st = Status.name st == name && not (Parity.allied n $ Status.user st)
+
 -- | Counts all 'Effect.helpful' 'statuses' from allies.
 -- Does not include self-applied 'Status'es.
 numHelpful :: Ninja -> Int
@@ -158,12 +165,12 @@ numHelpful n = length stats + length defs
     stats = nubBy Labeled.eq [ st | st <- statuses n
                                   , any Effect.helpful $ Status.effects st
                                   , slot n /= Status.user st
-                                  , Parity.allied (slot n) $ Status.user st
+                                  , Parity.allied n $ Status.user st
                                   , Hidden ∉ Status.classes st
                                   ]
     defs  = nubBy Labeled.eq [ de | de <- defense n
                                   , slot n /= Defense.user de
-                                  , Parity.allied (slot n) $ Defense.user de
+                                  , Parity.allied n $ Defense.user de
                                   ]
 
 -- | @1@ if affected by 'Endure', otherwise @0@.
