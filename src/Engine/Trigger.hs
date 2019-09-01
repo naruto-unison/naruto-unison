@@ -86,8 +86,7 @@ swap classes = reflectable (any match) classes
 death :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> m ()
 death slot = do
     n <- P.ninja slot
-    let die = Traps.getOf slot OnDeath n
-        res
+    let res
           | n `is` Plague = mempty
           | otherwise     = Traps.getOf slot OnRes n
     if | Ninja.health n > 0 -> return ()
@@ -102,7 +101,7 @@ death slot = do
             P.modify slot \nt ->
                 nt { Ninja.traps = filter ((OnDeath /=) . Trap.trigger) $
                                   Ninja.traps nt }
-            trigger die
+            trigger $ Traps.getOf slot OnDeath n
             P.modifyAll unres
   where
     trigger = traverse_ $ P.launch . Runnable.retarget \ctx ->
@@ -110,7 +109,6 @@ death slot = do
     unres n = n
         { Ninja.statuses = [st | st <- Ninja.statuses n
                                , slot /= Status.user st
-                                 && slot /= Status.user st
                                  || Soulbound ∉ Status.classes st]
         , Ninja.traps    = [trap | trap <- Ninja.traps n
                                  , slot /= Trap.user trap

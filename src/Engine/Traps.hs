@@ -39,14 +39,9 @@ run user trap
       withTarget ctx = ctx { Context.target = user }
       play           = Trap.effect trap $ Trap.tracker trap
 
-getBase :: Slot -> Trigger -> Ninja -> [Runnable Context]
-getBase user trigger n =
-    run user <$> filter ((trigger ==) . Trap.trigger) (Ninja.traps n)
-
 getOf :: Slot -> Trigger -> Ninja -> [Runnable Context]
-getOf user trigger n
-  | trigger ∈ Ninja.triggers n = getBase user trigger n
-  | otherwise                  = []
+getOf user trigger n =
+    run user <$> filter ((trigger ==) . Trap.trigger) (Ninja.traps n)
 
 get :: Slot -> Ninja -> [Runnable Context]
 get user n =
@@ -138,7 +133,7 @@ getTurnNot :: Player -- ^ Player during the current turn.
            -> [Runnable Context]
 getTurnNot player n
   | Ninja.acted n             = mempty
-  | Parity.allied player user = getBase user OnNoAction n
+  | Parity.allied player user = getOf user OnNoAction n
   | otherwise                 = mempty
   where
     user = Ninja.slot n
