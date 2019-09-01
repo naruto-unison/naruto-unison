@@ -79,8 +79,6 @@ vary' (Duration -> dur) name variant = do
     varyFull (Variant.Duration . Copy.maxDur copying . sync $ incr dur)
              name variant
 
--- Copy.maxDur copying . sync $ incr dur
-
 -- | Adds a 'Variant.Variant' to 'Ninja.variants' by base 'Skill.name' and
 -- variant 'Skill.name'.
 varyFull :: ∀ m. MonadPlay m => Varying -> Text -> Text -> m ()

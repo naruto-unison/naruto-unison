@@ -76,10 +76,10 @@ setFace (Duration -> dur) = do
     case copying of
         Copy.NotCopied -> do
             user <- P.user
-            let face = Face { Face.icon   = Skill.name skill
-                              , Face.user = user
-                              , Face.dur    = sync dur
-                              }
+            let face = Face { Face.icon = Skill.name skill
+                            , Face.user = user
+                            , Face.dur  = sync dur
+                            }
             P.toTarget \n -> n { Ninja.face = face : Ninja.face n }
         _ -> return ()
 
@@ -118,9 +118,9 @@ addStacks' (Duration -> dur) name i = do
     target <- P.target
     let st  = Status.new user dur skill
     P.modify target $ Ninja.addStatus
-        st { Status.name   = name
-           , Status.amount = i
-           , Status.user   = user
+        st { Status.name    = name
+           , Status.amount  = i
+           , Status.user    = user
            , Status.classes = insertSet Unremovable $ Status.classes st
            }
 

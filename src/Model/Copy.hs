@@ -14,10 +14,11 @@ import           Model.Slot (Slot)
 
 -- | Finds the value with lesser magnitude.
 absmin :: ∀ a. (Ord a, Num a) => a -> a -> a
-absmin _ 0 = 0
+absmin x 0 = x
+absmin 0 y = y
 absmin x y
   | abs x <= abs y = x
-  | otherwise = y
+  | otherwise      = y
 
 -- | Maximum duration of an effect.
 -- Effects from 'Copy' 'Skill's must not last longer than the 'Copy' 'dur'.

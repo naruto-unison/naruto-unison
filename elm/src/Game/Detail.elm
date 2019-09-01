@@ -53,7 +53,7 @@ concat (Nonempty x xs) =
     | effects = List.uniqueBy .desc <| List.concatMap .effects xxs
     , trap    = List.any .trap xxs
     , ghost   = List.all .ghost xxs
-    , amount  = List.sum <| List.map .amount xxs
+    , amount  = List.sum << List.map .amount <| List.filter (not << .trap) xxs
     }
 
 unfold : Detail -> List Detail
