@@ -196,8 +196,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                        [ (Soulbound,   any bind fs)
                        , (Unremovable, noremove)
                        ]
-            classes' = deleteSet Resource $
-                       extra ++ classes ++ Skill.classes skill
+            classes' = extra ++ classes ++ Skill.classes skill
             silenced = nUser `is` Silence
             filt
               | silenced && bounced = const []
@@ -209,8 +208,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                   { Status.name    = Skill.defaultName name skill
                   , Status.user    = user
                   , Status.effects = filt $ Adjust.apply nTarget fs
-                  , Status.classes = deleteSet Resource $
-                                     extra ++ classes ++ Skill.classes skill
+                  , Status.classes = classes'
                   , Status.bombs   = guard (Status.dur newSt <= incr (sync dur))
                                      >> bombs
                   }

@@ -510,7 +510,7 @@ a.playButton {
 #top > article .char {
     margin-bottom: 0;
     height: 75px;
-    width: 75px;
+    /*width: 75px;*/
 }
 #top > article h1 {
     font-weight: bold;
@@ -616,7 +616,7 @@ a.playButton {
     right: 25px;
     text-align: right;
 }
-#player1 .player > section > section img {
+#player1 .charicon {
     transform: rotateY(180deg);
 }
 .charhealth {
@@ -981,7 +981,7 @@ svg {
         width: 200px;
     }
     #playqueuecont, #playchakra {
-        top: 635px;
+        top: 675px;
     }
     #playqueuecont {
         margin: 0 0 0 25px !important;

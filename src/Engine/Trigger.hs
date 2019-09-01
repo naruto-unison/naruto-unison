@@ -22,10 +22,8 @@ import           Class.Random (MonadRandom)
 import           Model.Class (Class(..))
 import           Model.Duration (Duration)
 import           Model.Effect (Effect(..))
-import qualified Model.Context as Context
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
-import qualified Model.Runnable as Runnable
 import           Model.Slot (Slot)
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
@@ -90,22 +88,20 @@ death slot = do
           | n `is` Plague = mempty
           | otherwise     = Traps.getOf slot OnRes n
     if | Ninja.health n > 0 -> return ()
-       | not $ null res     -> do
+       | null res           -> do
+            P.modify slot \nt ->
+                nt { Ninja.traps = filter ((OnDeath /=) . Trap.trigger) $
+                                  Ninja.traps nt }
+            traverse_ P.launch $ Traps.getOf slot OnDeath n
+            P.modifyAll unres
+       | otherwise          -> do
             P.modify slot \nt ->
                 nt { Ninja.health = 1
                    , Ninja.traps  = filter ((OnRes /=) . Trap.trigger) $
                                     Ninja.traps nt
                    }
-            trigger res
-       | otherwise -> do
-            P.modify slot \nt ->
-                nt { Ninja.traps = filter ((OnDeath /=) . Trap.trigger) $
-                                  Ninja.traps nt }
-            trigger $ Traps.getOf slot OnDeath n
-            P.modifyAll unres
+            traverse_ P.launch res
   where
-    trigger = traverse_ $ P.launch . Runnable.retarget \ctx ->
-                  ctx { Context.user = slot }
     unres n = n
         { Ninja.statuses = [st | st <- Ninja.statuses n
                                , slot /= Status.user st

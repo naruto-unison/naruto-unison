@@ -151,6 +151,7 @@ cs =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Ally $ trapFrom' 2 (Counter NonMental) do
+                setFace (-4)
                 copyAll 4
                 tag (-4)
                 teach 4 Shallow 4
