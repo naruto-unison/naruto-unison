@@ -113,7 +113,6 @@ cs =
       ]
     , [ invuln "Wood Wall" "Yamato" [Physical] ]
     ] []
--- TODO Izumo and Kotetsu swap health
   , Character
     "Fū Yamanaka"
     "An operative of the Hidden Leaf Village's elite Root division, Fū is emotionless and ruthlessly straightforward. His only drive is unswerving loyalty to Danzō. His combination of long-distance Yamanaka genjutsu and his personal form of taijutsu makes him a formidable threat in any situation, but his trump card is the ability to swap his consciousness into the body of an opponent and make use of all their skills."
