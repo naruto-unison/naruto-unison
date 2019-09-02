@@ -134,6 +134,80 @@ cs =
     , [ invuln "Dodge" "Asuma" [Physical] ]
     ] []
   , Character
+    "Might Guy"
+    "Over the past few years, Guy has learned restraint. By gradually opening his Gates in sequence, he avoids the risk of burning out before the battle is won."
+    [ [ Skill.new
+        { Skill.name      = "Nunchaku"
+        , Skill.desc      = "Using his signature Twin Fangs weapons, Guy deals 10 damage to an enemy for 3 turns. While active, if an enemy uses a harmful physical skill on him, he will deal 10 damage to them. Deals 5 additional damage on the first turn per stack of [Single Gate Release]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.channel   = Action 3
+        , Skill.start     =
+          [ To Self $ flag' "first" ]
+        , Skill.effects   =
+          [ To Self $ trapFrom 1 (OnHarmed Physical) $ damage 10
+          , To Enemy do
+                firstTurn <- userHas "first"
+                if firstTurn then do
+                    stacks <- userStacks "Single Gate Release"
+                    damage (10 + 5 * stacks)
+                else
+                    damage 10
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Fiery Kick"
+        , Skill.desc      = "Guy slams his leg into an enemy, dealing 35 damage and weakening their damage by 20 for 1 turn. Deals 5 additional damage per stack of [Single Gate Release]. At 6 stacks of [Single Gate Release], this skill becomes [Asakujaku][b][t]. At 7 stacks of [Single Gate Release], this skill becomes [Hirudora][b][t]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Blood, Tai]
+        , Skill.effects   =
+          [ To Enemy do
+                stacks <- userStacks "Single Gate Release"
+                damage (35 + 5 * stacks)
+                apply 1 [Weaken All Flat 20]
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Asakujaku"
+        , Skill.desc      = "With unparalleled speed and power, Guy deals 60 damage to an enemy and stuns them for 1 turn. At 7 stacks of [Single Gate Release], this skill becomes [Hirudora][b][t]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Blood, Tai]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 60
+                apply 1 [Stun All]
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Hirudora"
+        , Skill.desc      = "Using one single punch, Guy deals 300 damage to one enemy."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Blood, Tai]
+        , Skill.effects   =
+          [ To Enemy $ damage 300 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Single Gate Release"
+        , Skill.desc      = "Guy opens one of his internal Gates, losing 5 health and gaining 5 points of permanent damage reduction."
+        , Skill.classes   = [Mental, Unremovable]
+        , Skill.charges   = 7
+        , Skill.effects   =
+          [ To Self do
+                sacrifice 0 5
+                apply 0 [Reduce All Flat 5]
+                stacks <- userStacks "Single Gate Release"
+                case stacks of
+                    6 -> vary "Fiery Kick" "Asakujaku"
+                    7 -> vary "Fiery Kick" "Hirudora"
+                    _ -> return ()
+          ]
+        }
+      ]
+    , [ invuln "Block" "Guy" [Physical] ]
+    ] []
+  , Character
     "Maki"
     "A jōnin from the Hidden Sand Village, Maki studied under Pakura and mourned her death greatly. As a member of the Allied Shinobi Forces Sealing Team, Maki must put aside her long-held grudge against the Hidden Stone Village for killing her teacher."
     [ [ Skill.new
@@ -428,7 +502,7 @@ cs =
     ] []
   , Character
     "Izumo and Kotetsu"
-    "A pair of Konoha chūnin assigned to hunt down members of Akatsuki, Izumo and Kotetsu are close friends and effective partners. Although their strength may be somewhat lacking as individuals, they have a significant advantage of their own: there are two of them."
+    "A pair of chūnin from the Hidden Leaf Village assigned to hunt down members of Akatsuki, Izumo and Kotetsu are close friends and effective partners. Although their strength may be somewhat lacking as individuals, they have a significant advantage of their own: there are two of them."
     [ [ Skill.new
         { Skill.name      = "Mace Crush"
         , Skill.desc      = "Kotetsu slams an enemy with his mace, dealing 30 damage. Deals 10 additional damage to an enemy affected by [Syrup Trap]."
