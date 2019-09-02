@@ -7,9 +7,6 @@ $newline always
   <h3>May 16
   <ul>
     #{changelog New "Jirōbō" Reanimated}
-  <h3>May 15
-  <ul>
-    #{changelog New "Susano'o Itachi" Shippuden}
   <h3>May 14
   <ul>
     #{changelog Rework "Zabuza Momochi" Reanimated}
@@ -92,7 +89,6 @@ $newline always
   <h3>April 4
   <ul>
     #{changelog New "Human Path Pain" Shippuden}
-    #{changelog New"Mangekyō Sasuke" Shippuden}
   <h3>April 3
   <ul>
     <li>
@@ -116,7 +112,7 @@ $newline always
       The <i>Soulbound</i> class has been added to all skills that end when their user dies
     #{changelog Rework "Kisame Hoshigaki" Shippuden}
     #{changelog New "Masked Man" Shippuden}
-    #{changelog New "Curse Mark Sasuke" Shippuden}
+    #{changelog New "Curse Mark Sasuke" Sfhippuden}
     #{changelog New "Animal Path Pain" Shippuden}
   <h3>March 28
   <ul>
