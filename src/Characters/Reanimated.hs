@@ -264,9 +264,8 @@ cs =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
-                targetBonus <- 10 `bonusIf` target immune
-                userBonus   <- (-5) `bonusIf` userHas "Fragmentation"
-                pierce (25 + targetBonus + userBonus)
+                bonus <- 10 `bonusIf` target immune
+                pierce (25 + bonus)
           ]
         , Skill.changes   =
             changeWith "Fragmentation" \x -> x { Skill.cost = [Nin] }
@@ -274,13 +273,16 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Fragmentation"
-        , Skill.desc      = "Mū's body undergoes fission and splits into two. For 2 turns, Mū ignores stuns and reduces damage against him by half. If Mū's health reaches 0 during this skill, he regains 15 health and this skill ends."
+        , Skill.desc      = "Mū's body undergoes fission and splits into two. For 2 turns, Mū ignores stuns and reduces damage against him by half. While active, Mū's damage is weakened by 5. If Mū's health reaches 0 during this skill, he regains 15 health and this skill ends."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                apply 2 [Ignore $ Any Stun, Reduce Affliction Percent 50]
+                apply 2 [ Ignore $ Any Stun
+                        , Reduce All Percent 50
+                        , Weaken All Flat 5
+                        ]
                 trap 2 OnRes do
                     setHealth 15
                     remove      "Fragmentation"
@@ -297,8 +299,7 @@ cs =
         , Skill.effects   =
           [ To Enemy do
                 demolishAll
-                bonus <- (-5) `bonusIf` userHas "Fragmentation"
-                pierce (40 + bonus)
+                pierce 40
           ]
         , Skill.changes   =
             changeWith "Fragmentation" \x -> x { Skill.cost = [Nin, Rand] }
