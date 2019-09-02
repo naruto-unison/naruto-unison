@@ -84,7 +84,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy do
                 has <- targetHas "Clasp"
@@ -243,7 +243,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged, Resource]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.start     =
           [ To Self do
                 remove "Blazing Arrow"
@@ -347,7 +347,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Nin, Rand]
         , Skill.cooldown  = 4
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemies do
                 stacks <- targetStacks "Sand Bomb"
@@ -368,7 +368,7 @@ cs =
           , Skill.classes   = [Physical, Ranged]
           , Skill.cost      = [Rand, Rand]
           , Skill.cooldown  = 2
-          , Skill.channel   = Action 3
+          , Skill.dur       = Action 3
           , Skill.start     =
             [ To Self $ vary "Sasori Surrogate" "Hidden Coil Strike" ]
           , Skill.effects   =
@@ -442,7 +442,7 @@ cs =
         , Skill.desc      = "By synthesizing rare genetic traits from other bloodlines inside his body, Kabuto becomes attuned to the flow of natural energy. Each turn, the chakra costs and type of chakra gained from his other skills cycle through the different types of chakra. Once used, this skill becomes [DNA Transmission Shadow][r][r][r]."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand, Rand, Rand]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.effects   = [ To Self $ delay (-1) kabuto ]
         }
       , Skill.new
@@ -450,7 +450,7 @@ cs =
         , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = [Rand, Rand, Rand]
-        , Skill.channel   = Control 1
+        , Skill.dur       = Control 1
         , Skill.start     =
           [ To Self do
                 hide' "dna" 1 []
@@ -467,7 +467,7 @@ cs =
         , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Blood, Blood]
-        , Skill.channel   = Control 1
+        , Skill.dur       = Control 1
         , Skill.start     =
           [ To Self do
                 hide' "dna" 1 []
@@ -484,7 +484,7 @@ cs =
         , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = [Gen, Gen, Gen]
-        , Skill.channel   = Control 1
+        , Skill.dur       = Control 1
         , Skill.start     =
           [ To Self do
                 hide' "dna" 1 []
@@ -501,7 +501,7 @@ cs =
         , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = [Nin, Nin, Nin]
-        , Skill.channel   = Control 1
+        , Skill.dur       = Control 1
         , Skill.start     =
           [ To Self do
                 hide' "dna" 1 []
@@ -518,7 +518,7 @@ cs =
         , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = [Tai, Tai, Tai]
-        , Skill.channel   = Control 1
+        , Skill.dur       = Control 1
         , Skill.start     =
           [ To Self do
                 hide' "dna" 1 []
@@ -780,7 +780,7 @@ cs =
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.charges   = 1
-        , Skill.channel   = Ongoing 3
+        , Skill.dur       = Ongoing 3
         , Skill.start     =
           [ To Self do
                 apply 0 [Reduce Affliction Flat 5]
@@ -857,7 +857,7 @@ cs =
         { Skill.name      = "White Zetsu"
         , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense each turn. Once used, this skill becomes [Black Zetu]."
         , Skill.classes   = [Chakra, Single]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Self do
                 cancelChannel "Black Zetsu"
@@ -873,7 +873,7 @@ cs =
         { Skill.name      = "Black Zetsu"
         , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [White Zetsu]."
         , Skill.classes   = [Chakra, Single]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Self do
                 cancelChannel "White Zetsu"
@@ -893,7 +893,7 @@ cs =
         { Skill.name      = "Black Zetsu"
         , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [Underground Roots][b][r]. As White Zetsu, this skill becomes [White Army][g]."
         , Skill.classes   = [Chakra, Single]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Self do
                 cancelChannel "White Zetsu"
@@ -914,7 +914,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy do
                 damage 20
@@ -926,7 +926,7 @@ cs =
         , Skill.desc      = "Zetsu creates numerous clones of himself which deal 5 damage to all enemies for 5 turns. As Black Zetsu, this skill becomes [Underground Roots][b][r]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen]
-        , Skill.channel   = Ongoing 5
+        , Skill.dur       = Ongoing 5
         , Skill.effects   =
           [ To Enemies $ damage 5 ]
         }

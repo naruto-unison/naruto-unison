@@ -17,7 +17,7 @@ cs =
         , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Each turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage to each enemy during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
         , Skill.classes   = [Chakra, Ranged, Single, Unreflectable, Resource]
         , Skill.cost      = [Nin]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Self do
                 addStacks "Hundred Hungry Sharks" 10
@@ -64,7 +64,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
-        , Skill.channel   = Ongoing 3
+        , Skill.dur       = Ongoing 3
         , Skill.start     =
           [ To Self do
                 setFace 3
@@ -348,7 +348,7 @@ cs =
         , Skill.desc      = "Hiruko swings his tail about to knock back enemies, gaining 10 destructible defense and restoring 10 health for 2 turns. While active, Sasori ignores effects that prevent him from reducing damage or becoming invulnerable."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand, Rand]
-        , Skill.channel   = Control 2
+        , Skill.dur       = Control 2
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Self do
@@ -367,7 +367,7 @@ cs =
         { Skill.name      = "Kazekage Puppet Summoning"
         , Skill.desc      = "Sasori summons his most prized puppet, gaining 15 destructible defense and enabling his other skills. Once used, this skill becomes [Iron Sand: World Order][b][n]. Each turn, Sasori gains a stack of Iron Sand."
         , Skill.classes   = [Physical]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Self $ defend 0 15 ]
         , Skill.effects   =
@@ -392,7 +392,7 @@ cs =
         , Skill.require   = HasI 1 "Iron Sand"
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Rand, Rand]
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.cooldown  = 3
         , Skill.start     =
           [ To Self do
@@ -413,7 +413,7 @@ cs =
         , Skill.classes   = [Physical, Melee, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
-        , Skill.channel   = Control 1
+        , Skill.dur       = Control 1
         , Skill.effects   =
           [ To Enemies $ trap (-1) OnHarm $ apply' "Pinned" (-1) [Expose]
           , To Self    $ vary "Thousand Arms" "Poison Gas"
@@ -481,7 +481,7 @@ cs =
         , Skill.desc      = "Using fuel stored in a sealing scroll, Sasori shoots flames at an enemy for 3 turns, dealing 10 affliction damage each turn. While active, Sasori is invulnerable to all other enemies and ignores status effects from enemies except chakra cost changes. If Sasori uses any skill, [Flamethrower Jets] is canceled. After use, this skill becomes [Cutting Water Jets][n]."
         , Skill.classes   = [Ranged, Unreflectable]
         , Skill.cost      = [Nin, Rand]
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy do
@@ -560,7 +560,7 @@ cs =
         , Skill.classes   = [Physical, Melee, Summon]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
-        , Skill.channel   = Ongoing 2
+        , Skill.dur       = Ongoing 2
         , Skill.start     =
           [ To Enemy do
                 trap 2 (OnAction All) do
@@ -579,7 +579,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged, Summon]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 2
-        , Skill.channel   = Ongoing 2
+        , Skill.dur       = Ongoing 2
         , Skill.start     =
           [ To Self $ vary "Summoning: Giant Centipede" baseVariant ]
         , Skill.effects   =
@@ -596,7 +596,7 @@ cs =
         , Skill.classes   = [Physical, Summon]
         , Skill.cost      = [Nin, Blood]
         , Skill.cooldown  = 4
-        , Skill.channel   = Ongoing 2
+        , Skill.dur       = Ongoing 2
         , Skill.start     =
           [ To Ally do
                 defend 0 20
@@ -610,7 +610,7 @@ cs =
         , Skill.require   = HasI (-1) "Summoning: Giant Multi-Headed Dog"
         , Skill.classes   = [Physical, Melee, Summon, Bypassing, Unreflectable]
         , Skill.cost      = [Blood, Rand ]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Enemies $ tag 2
           , To Allies $ trapFrom 0 (Counter Uncounterable) do
@@ -796,7 +796,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.start     =
           [ To Enemy purge
           , To Self  $ vary' 0 "Missile Salvo" "Head Cannon"
@@ -819,7 +819,7 @@ cs =
         { Skill.name      = "Guided Missile"
         , Skill.desc      = "Pain fires a slow-moving but devastating missile at a target. Over the next four turns, the cost of this skill is 1 chakra that cycles through the different types of chakra. Each turn, it has a different effect on the target. Using the skill again resets it."
         , Skill.classes   = [Physical, Ranged, Bypassing, Invisible]
-        , Skill.channel   = Ongoing 4
+        , Skill.dur       = Ongoing 4
         , Skill.start     =
           [ To Self  $ hide' "missile" 1 []
           , To Enemy $ tag 4
@@ -891,7 +891,7 @@ cs =
         , Skill.desc      = "Pain targets himself or an ally. The first harmful skill used on them next turn will be countered, and the person countered will receive 20 damage. Once used, this skill alternates between [Universal Pull] and [Almighty Push] each turn. "
         , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
-        , Skill.channel   = Passive
+        , Skill.dur       = Passive
         , Skill.start     =
           [ To Ally $ trapFrom 1 (Counter All) $ damage 20
           , To Self $ tag' "Tidal Force" 1
@@ -970,7 +970,7 @@ cs =
         , Skill.classes   = [Mental, Summon, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
-        , Skill.channel   = Control (-4)
+        , Skill.dur       = Control (-4)
         , Skill.start     =
           [ To Self do
                 remove "gedo"
@@ -1036,7 +1036,7 @@ cs =
         , Skill.classes   = [Mental]
         , Skill.cost      = [Blood, Gen, Nin]
         , Skill.cooldown  = 6
-        , Skill.channel   = Control 3
+        , Skill.dur       = Control 3
         , Skill.effects   =
           [ To Allies do
                 heal 15

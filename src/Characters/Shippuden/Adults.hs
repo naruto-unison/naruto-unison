@@ -97,7 +97,7 @@ cs =
         , Skill.desc      = "Asuma continually exhales a cloud of combustible ash upon his enemies, increasing the cooldowns of their skills by 1 turn. While active, this skill becomes [Burning Ash: Ignite][b]."
         , Skill.classes   = [Bane, Ranged, Unreflectable]
         , Skill.cost      = [Gen, Rand]
-        , Skill.channel   = Action 0
+        , Skill.dur       = Action 0
         , Skill.start     =
           [ To Self $ vary "Burning Ash" "Burning Ash: Ignite"]
         , Skill.effects   =
@@ -141,7 +141,7 @@ cs =
         , Skill.desc      = "Using his signature Twin Fangs weapons, Guy deals 10 damage to an enemy for 3 turns. While active, if an enemy uses a harmful physical skill on him, he will deal 10 damage to them. Deals 5 additional damage on the first turn per stack of [Single Gate Release]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.start     =
           [ To Self $ flag' "first" ]
         , Skill.effects   =
@@ -266,7 +266,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemies $ damage 15
           , To Self    $ apply 1 [Reduce All Percent 25]
@@ -412,7 +412,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 2
-        , Skill.channel   = Control 2
+        , Skill.dur       = Control 2
         , Skill.effects   =
           [ To Enemy do
                 damage 45
@@ -743,7 +743,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemies do
               demolish 20

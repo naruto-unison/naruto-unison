@@ -63,7 +63,7 @@ vary :: ∀ m. MonadPlay m
      -> m ()
 vary name variant = do
     skill <- P.skill
-    case Skill.channel skill of
+    case Skill.dur skill of
         Instant -> vary' 0 name variant
         (Channel.turnDur -> Duration (-1)) -> return ()
         _ -> varyFull (Variant.FromSkill $ Skill.name skill) name variant

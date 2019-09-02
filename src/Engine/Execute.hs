@@ -233,7 +233,7 @@ addChannels = do
     skill    <- P.skill
     user     <- P.user
     target   <- P.target
-    let chan  = Skill.channel skill
+    let chan  = Skill.dur skill
         dur   = Copy.maxDur (Skill.copying skill) . incr $ TurnBased.getDur chan
         chan' = Channel { Channel.source = Copy.source skill user
                         , Channel.skill  = skill

@@ -35,7 +35,7 @@ cs =
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Blood, Tai]
         , Skill.cooldown  = 3
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemies $ damage 15 ]
         }
@@ -47,7 +47,7 @@ cs =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 5
-        , Skill.channel   = Action 5
+        , Skill.dur       = Action 5
         , Skill.effects   =
           [ To Self do
                 heal 15
@@ -144,7 +144,7 @@ cs =
         , Skill.desc      = "Lee assumes the Drunken Fist stance and deals 15 damage to an enemy for 3 turns, ignoring status effects from enemies except chakra cost changes."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand, Rand]
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy $ damage 15
@@ -175,7 +175,7 @@ cs =
         , Skill.desc      = "Shukaku squeezes an enemy in a fist of sand, dealing 10 damage to them each turn. If they use a skill, the skill is countered and this effect ends. During [Tailed Beast Form], this skill becomes [Wind Bullet][b][b]."
         , Skill.classes   = [Physical, Melee, Single]
         , Skill.cost      = [Blood]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Enemy $ trap 0 (Countered All) $
                 cancelChannel "Monstrous Sand Arm"
@@ -200,7 +200,7 @@ cs =
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6
-        , Skill.channel   = Action 5
+        , Skill.dur       = Action 5
         , Skill.start     =
           [ To Self $ bombWith [Hidden] (-5) [] [ To Expire do
                 tag' "Tailed Beast Form" 0
@@ -234,7 +234,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Self  $ defend 1 35
           , To Enemy $ damage 15
@@ -246,7 +246,7 @@ cs =
         , Skill.desc      = "Gaara traps all enemies in a sinking pit of sand, increasing the costs of their non-mental skills by 1 random chakra for 1 turn. If an enemy uses a non-mental skill, they are freed from [Sand Burial Prison]. While active, this skill becomes [Giant Sand Burial][n][n]."
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin]
-        , Skill.channel   = Control 1
+        , Skill.dur       = Control 1
         , Skill.start     = [ To Self $ vary "Sand Burial Prison" "Giant Sand Burial"]
         , Skill.effects   =
           [ To Enemies do
@@ -274,7 +274,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 4
-        , Skill.channel   = Action 4
+        , Skill.dur       = Action 4
         , Skill.effects   =
           [ To Enemies do
                 damage 15

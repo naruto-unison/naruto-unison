@@ -87,9 +87,9 @@ reduceCostPer name chaks n skill =
 -- | Multiplies some number of turns by 'Ninja.numActive' and adds the total to
 -- 'Skill.channel'.
 extendWith :: Text -> Int -> Skill.Transform
-extendWith name i n skill = skill { Skill.channel = TurnBased.setDur dur chan }
+extendWith name i n skill = skill { Skill.dur = TurnBased.setDur dur chan }
   where
-    chan  = Skill.channel skill
+    chan  = Skill.dur skill
     added = i * Ninja.numActive name n
     dur   = TurnBased.getDur chan + added
 

@@ -198,7 +198,7 @@ cs =
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
-        , Skill.channel   = Action 4
+        , Skill.dur       = Action 4
         , Skill.start     =
           [ To Self $ vary "Man-Beast Clone" "Three-Headed Wolf"]
         , Skill.effects   =
@@ -268,7 +268,7 @@ cs =
         , Skill.desc       = "A wave of insects attack an enemy, dealing 15 affliction damage to them for 3 turns and making them immune to effects from allies. While active, this skill becomes [Chakra Leech]."
         , Skill.classes   = [Ranged]
         , Skill.cost      = [Blood, Rand]
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.cooldown  = 2
         , Skill.start     =
           [ To Self $ vary "Insect Swarm" "Chakra Leech"
@@ -487,7 +487,7 @@ cs =
         , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters non-mental skills. Increases the cost of Chōji's skills by 1 random chakra each turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand, Rand]
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.start     =
           [ To Enemy $ damage 15
           , To Self do
@@ -500,7 +500,7 @@ cs =
         , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters non-mental skills. Increases the cost of Chōji's skills by 1 random chakra each turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.start     =
           [ To Enemy $ damage 15
           ,  To Self do
@@ -513,7 +513,7 @@ cs =
         { Skill.name      = "Butterfly Mode"
         , Skill.desc      = "Performing an advanced Akimichi technique that would be lethal without precise control over his body, Chōji converts calories into jets of chakra energy that grow from his back like butterfly wings. Once used, this skill permanently becomes [Super-Slam][n][r][r]. Each turn after [Butterfly Mode] is activated, the costs of Chōji's skills decrease by 1 random chakra."
         , Skill.classes   = [Chakra]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Self do
                 replicateM_ 3 $ hide' "calories" 0 [Exhaust All]

@@ -29,7 +29,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged, Summon, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
-        , Skill.channel   = Ongoing 2
+        , Skill.dur       = Ongoing 2
         , Skill.start     =
           [ To Allies $
                 trap 2 (OnDamaged NonAffliction) $ apply 1 [Invulnerable All]
@@ -43,7 +43,7 @@ cs =
         , Skill.desc      = "Jiraiya summons the great toad Gamabunta, who deals 25 affliction damage to all enemies. Once used, this skill permanently becomes [Toad Oil Bomb][n][r]. All enemies permanently receive 5 additional damage from affliction skills."
         , Skill.classes   = [Ranged, Summon, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Gen, Tai]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Enemies do
                 afflict 25
@@ -96,7 +96,7 @@ cs =
         , Skill.desc      = "Tsunade summons the great slug Katsuyu, who heals her team for 40 health. Once used, this skill permanently becomes [Slug Division][n]. Each turn that Tsunade is alive, her team regains 5 health."
         , Skill.classes   = [Chakra, Summon, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Gen, Nin]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Allies $ heal 40
           , To Self   $ vary "Major Summoning: Katsuyu" "Slug Division"
@@ -151,7 +151,7 @@ cs =
         , Skill.desc      = "Orochimaru summons the great serpent Manda, who deals 45 damage to an enemy. Once used, this skill permanently becomes [Paralyzing Bite][r][r]. Each turn that Orochimaru is alive, he gains 1 random chakra."
         , Skill.classes   = [Physical, Melee, Summon, Unreflectable]
         , Skill.cost      = [Blood, Nin, Tai]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Enemy $ damage 45
           , To Self  $ vary "Major Summoning: Manda" "Paralyzing Bite"
@@ -202,7 +202,7 @@ cs =
         , Skill.desc      = "Hiruzen summons the great monkey Enma, who makes his team invulnerable for 1 turn. Once used, this skill permanently becomes [Adamantine Prison][n]. As long as Hiruzen is alive, he provides 5 points of damage reduction to his team."
         , Skill.classes   = [Physical, Melee, Summon, Unreflectable, Unremovable]
         , Skill.cost      = [Gen, Nin, Tai]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Allies do
                 apply 1 [Invulnerable All, Endure]

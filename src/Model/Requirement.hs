@@ -26,17 +26,17 @@ usable :: Ninja
        -> Maybe Int -- ^ Index in 'Character.skills'.
        -> Skill -> Skill
 usable n s sk
-  | Skill.charges sk > 0 && uncharged                    = unusable
-  | maybe False (> 0) $ (Cooldown.active n !?) =<< s     = unusable
-  | isNothing s && Channel.ignoreStun (Skill.channel sk) = sk'
-  | Skill.classes sk `intersectsSet` Effects.stun n      = unusable
-  | isNothing s                                          = sk'
-  | Single ∉ Skill.classes sk                            = sk'
-  | Ninja.isChanneling (Skill.name sk) n                 = unusable
-  | Ninja.has (Skill.name sk) (Ninja.slot n) n           = unusable
-  | Ninja.hasDefense (Skill.name sk) (Ninja.slot n) n    = unusable
-  | Ninja.hasTrap (Skill.name sk) (Ninja.slot n) n       = unusable
-  | otherwise                                            = sk'
+  | Skill.charges sk > 0 && uncharged                 = unusable
+  | maybe False (> 0) $ (Cooldown.active n !?) =<< s  = unusable
+  | isNothing s && Channel.ignoreStun (Skill.dur sk)  = sk'
+  | Skill.classes sk `intersectsSet` Effects.stun n   = unusable
+  | isNothing s                                       = sk'
+  | Single ∉ Skill.classes sk                         = sk'
+  | Ninja.isChanneling (Skill.name sk) n              = unusable
+  | Ninja.has (Skill.name sk) (Ninja.slot n) n        = unusable
+  | Ninja.hasDefense (Skill.name sk) (Ninja.slot n) n = unusable
+  | Ninja.hasTrap (Skill.name sk) (Ninja.slot n) n    = unusable
+  | otherwise                                         = sk'
   where
     uncharged = maybe False (>= Skill.charges sk) $
                 (Ninja.charges n !?) =<< s

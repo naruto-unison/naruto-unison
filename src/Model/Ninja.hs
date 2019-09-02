@@ -445,7 +445,7 @@ kabuto skill n =
                                 { Channel.source = nSlot
                                 , Channel.skill  = skill
                                 , Channel.target = nSlot
-                                , Channel.dur    = Skill.channel skill
+                                , Channel.dur    = Skill.dur skill
                                 } :| []
     sage       = " Sage"
     sLen       = length sage

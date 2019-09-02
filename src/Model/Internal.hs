@@ -106,7 +106,7 @@ data Skill = Skill { name      :: Text              -- ^ Name
                    , cooldown  :: Duration          -- ^ Defaults to @0@
                    , varicd    :: Bool              -- ^ Defaults to @False@
                    , charges   :: Int               -- ^ Defaults to @0@
-                   , channel   :: Channeling        -- ^ Defaults to 'Instant'
+                   , dur       :: Channeling        -- ^ Defaults to 'Instant'
                    , start     :: [Runnable Target] -- ^ Defaults to empty
                    , effects   :: [Runnable Target] -- ^ Defaults to empty
                    , interrupt :: [Runnable Target] -- ^ Defaults to empty
@@ -124,7 +124,7 @@ instance ToJSON Skill where
         , "cooldown"  .= cooldown
         , "varicd"    .= varicd
         , "charges"   .= charges
-        , "channel"   .= channel
+        , "dur"       .= dur
         , "start"     .= start
         , "effects"   .= effects
         , "interrupt" .= interrupt

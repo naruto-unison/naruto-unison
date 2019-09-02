@@ -97,7 +97,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 3
-        , Skill.channel   = Ongoing 3
+        , Skill.dur       = Ongoing 3
         , Skill.effects   =
           [ To Enemies do
                 damage 15
@@ -151,7 +151,7 @@ cs =
         , Skill.desc      = "Ibuse opens its mouth to reveal a noxious cloud of deadly poison, dealing 10 affliction damage to all enemies until Ibuse dies. Cannot be used while active."
         , Skill.classes   = [Ranged, Single, Unreflectable]
         , Skill.cost      = [Blood, Blood]
-        , Skill.channel   = Ongoing 0
+        , Skill.dur       = Ongoing 0
         , Skill.effects   =
           [ To Enemies $ afflict 10 ]
         }
@@ -203,7 +203,7 @@ cs =
         , Skill.desc      = "Gengetsu summons a huge clam that exudes illusory mist for 4 turns. Each turn, a random member of his team becomes a mirage, reflecting the first harmful skill used on them next turn, and a random member of his team gains 80 destructible defense for 1 turn. If the clam's destructible defense is destroyed, this skill is canceled."
         , Skill.classes   = [Chakra, Summon]
         , Skill.cost      = [Nin, Gen, Rand]
-        , Skill.channel   = Ongoing 4
+        , Skill.dur       = Ongoing 4
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To RAlly $ apply 1 [Reflect]
@@ -549,7 +549,7 @@ cs =
         , Skill.classes   = [Chakra, Single]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 6
-        , Skill.channel   = Ongoing 3
+        , Skill.dur       = Ongoing 3
         , Skill.start     =
           [ To Self $ defend 0 20 ]
         }
@@ -570,7 +570,7 @@ cs =
         , Skill.classes   = [Mental]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 4
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Self $ apply' "Demon Shroud " 1
                 [Reduce All Flat 10, Ignore $ Any Stun]
@@ -694,7 +694,7 @@ cs =
         , Skill.classes   = [Physical, Ranged, InvisibleTraps]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
-        , Skill.channel   = Control 3
+        , Skill.dur       = Control 3
         , Skill.effects   =
           [ To Enemies do
                 prolong 1 "Stitching Spider"
@@ -774,7 +774,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.start     =
           [ To Enemy $ trapFrom 2 OnHarm do
               targetSlot <- target slot
@@ -792,7 +792,7 @@ cs =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 5
-        , Skill.channel   = Ongoing 4
+        , Skill.dur       = Ongoing 4
         , Skill.start     =
           [ To Self do
                 bombWith [Hidden] 4 [] [ To Done $ remove "Chakra Weave" ]

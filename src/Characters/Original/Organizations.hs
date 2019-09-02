@@ -17,7 +17,7 @@ cs =
         , Skill.desc      = "A flock of self-duplicating crows swarms the enemy team for 4 turns, dealing 5 damage each turn and providing 5 points of damage reduction to Aoba and his allies."
         , Skill.classes   = [Mental, Ranged, Summon, Resource]
         , Skill.cost      = [Gen]
-        , Skill.channel   = Ongoing 4
+        , Skill.dur       = Ongoing 4
         , Skill.start     =
           [ To Self do
               enemies $ apply 4 []
@@ -402,7 +402,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Nin]
         , Skill.cooldown  = 2
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy do
                 absorb 1
@@ -460,7 +460,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 6
-        , Skill.channel   = Ongoing 3
+        , Skill.dur       = Ongoing 3
         , Skill.start     =
           [ To Allies $ defend 3 35
           , To Self   $ onBreak'
@@ -490,7 +490,7 @@ cs =
         , Skill.classes   = [Physical, Ranged, Summon]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4
-        , Skill.channel   = Ongoing 5
+        , Skill.dur       = Ongoing 5
         , Skill.effects   =
           [ To Enemies do
                 damage 10
@@ -520,7 +520,7 @@ cs =
         , Skill.classes   = [Physical, Ranged, Summon]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
-        , Skill.channel   = Ongoing 2
+        , Skill.dur       = Ongoing 2
         , Skill.effects   =
           [ To Enemies $ damage 15
           , To Self    $ apply 1 [Reduce All Flat 10]

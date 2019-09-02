@@ -24,7 +24,7 @@ new = Skill { name      = "Unnamed"
             , cooldown  = 0
             , varicd    = False
             , charges   = 0
-            , channel   = Instant
+            , dur       = Instant
             , start     = []
             , effects   = []
             , interrupt = []

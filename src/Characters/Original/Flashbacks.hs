@@ -41,7 +41,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy do
               helpful <- user numHelpful
@@ -91,7 +91,7 @@ cs =
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.start     =
           [ To Self     $ apply 1 [Invulnerable All]
           , To Enemy    $ damage 15
@@ -135,7 +135,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Allies $ defend 1 10
           ,  To Enemy do
@@ -170,7 +170,7 @@ cs =
         , Skill.classes   = [Mental, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
-        , Skill.channel   = Control 2
+        , Skill.dur       = Control 2
         , Skill.effects   =
           [ To Enemy do
                 damage 20
@@ -297,7 +297,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 3
-        , Skill.channel   = Control 2
+        , Skill.dur       = Control 2
         , Skill.effects   =
           [ To Enemies $ apply 1 [Expose]
           , To Self    $ gain [Rand]
@@ -381,14 +381,14 @@ cs =
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Self   $ apply 1 [Invulnerable Chakra]
           , To REnemy $ absorb 1
           ]
         , Skill.changes   =
             changeWith "Veritable 1000-Armed Kannon" \x ->
-                 x { Skill.channel = Action 3, Skill.cost = [Blood] }
+                 x { Skill.dur     = Action 3, Skill.cost = [Blood] }
         }
       ]
     , [ Skill.new
@@ -397,14 +397,14 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy $ damage 20
           , To Self  $ apply 1 [Invulnerable Physical]
           ]
         , Skill.changes   =
             changeWith "Veritable 1000-Armed Kannon" \x ->
-                 x { Skill.channel = Action 3, Skill.cost = [Blood] }
+                 x { Skill.dur     = Action 3, Skill.cost = [Blood] }
         }
       ]
     , [ Skill.new
@@ -599,7 +599,7 @@ cs =
         , Skill.classes   = [Chakra, Melee, Summon, Bypassing]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.cooldown  = 5
-        , Skill.channel   = Ongoing 3
+        , Skill.dur       = Ongoing 3
         , Skill.start     =
           [ To Enemies demolishAll ]
         , Skill.effects   =

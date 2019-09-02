@@ -190,7 +190,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
             self     = user == user && user == target
             noremove = self && any (not . Effect.helpful) fs
                        || turns == 0
-                       || turns == 1 && Skill.channel skill /= Instant
+                       || turns == 1 && Skill.dur skill /= Instant
                        || null fs && Bane ∉ Skill.classes skill
             extra    = setFromList $ fst <$> filter snd
                        [ (Soulbound,   any bind fs)

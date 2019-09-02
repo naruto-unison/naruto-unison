@@ -18,7 +18,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy do
                 damage 15
@@ -32,7 +32,7 @@ cs =
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy do
                 damage 15
@@ -366,7 +366,7 @@ cs =
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Tai, Rand, Rand]
         , Skill.cooldown  = 3
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy do
                 whenM (userHas "Chakra Focus") $ absorb 1

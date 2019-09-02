@@ -154,7 +154,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Tai]
         , Skill.cooldown  = 3
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemies do
               bonus <- 5 `bonusIf` targetHas "Dynamic Marking"
@@ -221,7 +221,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.effects   =
             [ To Enemy do
                   whenM (userHas "Byakugan") $ deplete 1
@@ -360,7 +360,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy do
                 damage 10
@@ -386,7 +386,7 @@ cs =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 5
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Self do
                 heal 15
@@ -479,7 +479,7 @@ cs =
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 3
-        , Skill.channel   = Control 4
+        , Skill.dur       = Control 4
         , Skill.start     =
           [ To Self $ vary "Mind Transfer" "Art of the Valentine"]
         , Skill.effects   =
@@ -514,7 +514,7 @@ cs =
         , Skill.desc      = "For 3 turns, Lee deals 10 damage to an enemy and gains 10 points of damage reduction. Deals 15 additional damage during [Fifth Gate Opening]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
-        , Skill.channel   = Action 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 15 `bonusIf` userHas "Fifth Gate Opening"
@@ -622,7 +622,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.effects   =
             [ To Enemy do
                 damage 25
@@ -666,7 +666,7 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
-        , Skill.channel   = Control 2
+        , Skill.dur       = Control 2
         , Skill.start     =
           [ To Self $ vary "Sand Coffin" "Sand Burial" ]
         , Skill.effects   =

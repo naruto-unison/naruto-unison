@@ -18,7 +18,7 @@ cs =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
-        , Skill.channel   = Ongoing 4
+        , Skill.dur       = Ongoing 4
         , Skill.start     =
           [ To Self $ vary "Call Kuromaru" "Fierce Bite" ]
         , Skill.effects   =
@@ -44,7 +44,7 @@ cs =
         , Skill.desc      = "Spinning like a buzzsaw, Tsume deals 15 piercing damage to an enemy for 2 turns. Deals 5 additional damage during [Call Kuromaru]. While active, all stun skills used by the target will have their duration reduced by 2 turns."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 5 `bonusIf` userHas "Call Kuromaru"
@@ -99,7 +99,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged, Single]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 5
-        , Skill.channel   = Action 0
+        , Skill.dur       = Action 0
         , Skill.start     =
           [ To Self do
                 defend 0 50

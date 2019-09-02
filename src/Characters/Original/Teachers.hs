@@ -58,12 +58,12 @@ cs =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy $ damage 15 ]
         , Skill.changes   =
             changeWith "Successful Ambush" \x ->
-              x { Skill.channel = Instant
+              x { Skill.dur     = Instant
                 , Skill.effects =
                   [ To Enemy $ damage 30 ]
                 }
@@ -146,7 +146,7 @@ cs =
         { Skill.name      = "Dual Pin"
         , Skill.desc      = "Anko pins herself to an enemy by stabbing a kunai through her hand, dealing 5 damage and preventing the target from reducing damage or becoming invulnerable for 1 turn."
         , Skill.classes   = [Physical, Melee]
-        , Skill.channel   = Control 1
+        , Skill.dur       = Control 1
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 5 `bonusIf` targetHas "Dragon Flame"
@@ -274,7 +274,7 @@ cs =
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 4
-        , Skill.channel   = Control 2
+        , Skill.dur       = Control 2
         , Skill.start     =
           [ To Self $
                 vary "Demonic Illusion: Sylvan Fetters" "Sylvan Fetters Attack"
@@ -305,7 +305,7 @@ cs =
         , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Nin, Tai]
         , Skill.cooldown  = 2
-        , Skill.channel   = Action 2
+        , Skill.dur       = Action 2
         , Skill.start     =
           [ To Self do
                 vary "Flying Swallow" "Finishing Blow"
