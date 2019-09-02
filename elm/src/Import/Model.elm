@@ -283,7 +283,7 @@ type alias Skill  =
    { name: String
    , desc: String
    , require: Requirement
-   , classes: (List String)
+   , classes: (Set String)
    , cost: Chakras
    , cooldown: Int
    , varicd: Bool
@@ -302,7 +302,7 @@ jsonDecSkill =
    |> required "name" (Json.Decode.string)
    |> required "desc" (Json.Decode.string)
    |> required "require" (jsonDecRequirement)
-   |> required "classes" (Json.Decode.list (Json.Decode.string))
+   |> required "classes" (decodeSet (Json.Decode.string))
    |> required "cost" (jsonDecChakras)
    |> required "cooldown" (Json.Decode.int)
    |> required "varicd" (Json.Decode.bool)
@@ -320,7 +320,7 @@ jsonEncSkill  val =
    [ ("name", Json.Encode.string val.name)
    , ("desc", Json.Encode.string val.desc)
    , ("require", jsonEncRequirement val.require)
-   , ("classes", (Json.Encode.list Json.Encode.string) val.classes)
+   , ("classes", (encodeSet Json.Encode.string) val.classes)
    , ("cost", jsonEncChakras val.cost)
    , ("cooldown", Json.Encode.int val.cooldown)
    , ("varicd", Json.Encode.bool val.varicd)
@@ -556,7 +556,7 @@ type alias Status  =
    , user: Int
    , skill: Skill
    , effects: (List Effect)
-   , classes: (List String)
+   , classes: (Set String)
    , bombs: (List Bomb)
    , maxDur: Int
    , dur: Int
@@ -571,7 +571,7 @@ jsonDecStatus =
    |> required "user" (Json.Decode.int)
    |> required "skill" (jsonDecSkill)
    |> required "effects" (Json.Decode.list (jsonDecEffect))
-   |> required "classes" (Json.Decode.list (Json.Decode.string))
+   |> required "classes" (decodeSet (Json.Decode.string))
    |> required "bombs" (Json.Decode.list (jsonDecBomb))
    |> required "maxDur" (Json.Decode.int)
    |> required "dur" (Json.Decode.int)
@@ -585,7 +585,7 @@ jsonEncStatus  val =
    , ("user", Json.Encode.int val.user)
    , ("skill", jsonEncSkill val.skill)
    , ("effects", (Json.Encode.list jsonEncEffect) val.effects)
-   , ("classes", (Json.Encode.list Json.Encode.string) val.classes)
+   , ("classes", (encodeSet Json.Encode.string) val.classes)
    , ("bombs", (Json.Encode.list jsonEncBomb) val.bombs)
    , ("maxDur", Json.Encode.int val.maxDur)
    , ("dur", Json.Encode.int val.dur)
@@ -693,7 +693,7 @@ type alias Trap  =
    , name: String
    , desc: String
    , user: Int
-   , classes: (List String)
+   , classes: (Set String)
    , tracker: Int
    , dur: Int
    }
@@ -706,7 +706,7 @@ jsonDecTrap =
    |> required "name" (Json.Decode.string)
    |> required "desc" (Json.Decode.string)
    |> required "user" (Json.Decode.int)
-   |> required "classes" (Json.Decode.list (Json.Decode.string))
+   |> required "classes" (decodeSet (Json.Decode.string))
    |> required "tracker" (Json.Decode.int)
    |> required "dur" (Json.Decode.int)
 
@@ -718,7 +718,7 @@ jsonEncTrap  val =
    , ("name", Json.Encode.string val.name)
    , ("desc", Json.Encode.string val.desc)
    , ("user", Json.Encode.int val.user)
-   , ("classes", (Json.Encode.list Json.Encode.string) val.classes)
+   , ("classes", (encodeSet Json.Encode.string) val.classes)
    , ("tracker", Json.Encode.int val.tracker)
    , ("dur", Json.Encode.int val.dur)
    ]

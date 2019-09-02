@@ -100,7 +100,7 @@ alterations = recAlterType typeAlterations
 typeAlterations :: EType -> EType
 typeAlterations t = case t of
     ETyApp (ETyCon (ETCon "Runnable")) x -> typeAlterations x
-    ETyApp (ETyCon (ETCon "EnumSet")) x  -> ETyApp (ETyCon (ETCon "List")) $
+    ETyApp (ETyCon (ETCon "EnumSet")) x  -> ETyApp (ETyCon (ETCon "Set")) $
                                             typeAlterations x
     ETyCon (ETCon "Seq")       -> ETyCon (ETCon "List")
     ETyCon (ETCon "NonEmpty")  -> ETyCon (ETCon "List")

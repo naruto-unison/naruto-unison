@@ -14,6 +14,7 @@ import Dict            as Dict exposing (Dict)
 import Html            as H exposing (Html)
 import Html.Attributes as A
 import Parser exposing (Parser, (|=), (|.))
+import Set exposing (Set)
 import String.Extra as String
 import Tuple exposing (first)
 
@@ -87,13 +88,11 @@ class x others = A.class <| case x.dur of
     Control _ -> others ++ " control"
     _         -> others
 
-classes : Bool -> List String -> Html msg
-classes hideMore =
-  let
-    hide = if hideMore then hidden ++ moreHidden else hidden
-  in
+classes : Bool -> Set String -> Html msg
+classes hideMore xs =
     H.p [A.class "skillClasses"] << List.singleton <<
-    H.text << String.join ", " << List.filter (not << elem hide)
+    H.text << String.join ", " << Set.toList << Set.diff xs <|
+    if hideMore then moreHidden else hidden
 
 effect : (Effect -> Bool) -> Effect -> Html msg
 effect removable x =
@@ -108,8 +107,8 @@ effect removable x =
   in
     H.li meta [H.text x.desc]
 
-hidden : List String
-hidden =
+hidden : Set String
+hidden = Set.fromList
     [ "Non-stacking"
     , "Extending"
 
@@ -133,8 +132,8 @@ hidden =
     , "Random"
     ]
 
-moreHidden : List String
-moreHidden =
+moreHidden : Set String
+moreHidden = Set.union hidden <| Set.fromList
     [ "Single"
     , "Bypassing"
     , "Uncounterable"

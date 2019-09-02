@@ -9,6 +9,7 @@ import Html.Lazy exposing (..)
 import List.Extra      as List
 import Maybe.Extra     as Maybe
 import Process
+import Set
 import Task
 
 import Import.Flags exposing (Flags)
@@ -444,13 +445,14 @@ renderDetail team slot characters detail =
   in
     H.div
     [ E.onMouseOver << View <| ViewDetail removable detail
-    , A.classList [ ("detail"   , True)
-                  , ("trap"     , detail.trap)
-                  , ("tag"      , detail.ghost || detail.dur == 1)
-                  , ("reflected", "Shifted" |> elem detail.classes)
-                  , ("remove"   , List.any removable detail.effects
-                                  && not ("Unremovable" |> elem detail.classes))
-                  ]
+    , A.classList
+      [ ("detail"   , True)
+      , ("trap"     , detail.trap)
+      , ("tag"      , detail.ghost || detail.dur == 1)
+      , ("reflected", Set.member "Shifted" detail.classes)
+      , ("remove"   , List.any removable detail.effects
+                      && not (Set.member "Unremovable" detail.classes))
+      ]
     ]
     [ H.div [] <| amount
       [icon (Game.get characters detail.source) detail.name []]
@@ -558,7 +560,7 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
           else
               x.name
         name   =
-          if "Shifted" |> elem x.classes then
+          if Set.member "Shifted" x.classes then
               H.span [A.class "reflected"] [H.text <| count ++ " (Reflected)"]
           else
               H.span [] [H.text count]

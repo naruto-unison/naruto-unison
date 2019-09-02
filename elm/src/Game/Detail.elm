@@ -7,6 +7,7 @@ module Game.Detail exposing
 
 import List.Extra as List
 import List.Nonempty as Nonempty exposing (Nonempty(..))
+import Set exposing (Set)
 
 import Game.Game as Game
 import Import.Model exposing (Channel, Effect, Ninja, Status, Trap)
@@ -15,7 +16,7 @@ import Util exposing (elem, groupBy)
 type alias Detail =
     { name    : String
     , desc    : String
-    , classes : List String
+    , classes : Set String
     , dur     : Int
     , source  : Int
     , effects : List Effect
@@ -39,7 +40,11 @@ get n =
     self ++ others
 
 eq : Detail -> Detail -> Bool
-eq x y = x.desc == y.desc && x.classes == y.classes && x.dur == y.dur
+eq x y = x.dur == y.dur && x.desc == y.desc
+         && ignoreClasses x.classes == ignoreClasses y.classes
+
+ignoreClasses : Set String -> Set String
+ignoreClasses = Set.remove "Unremovable"
 
 allied : Int -> Detail -> Bool
 allied user x = (user + x.source |> remainderBy 2) == 0
@@ -58,7 +63,7 @@ concat (Nonempty x xs) =
 
 unfold : Detail -> List Detail
 unfold x =
-  if x.amount <= 1 || not ("Resource" |> elem x.classes) then
+  if x.amount <= 1 || not (Set.member "Resource" x.classes) then
       [x]
   else
       List.repeat x.amount { x | amount = 1 }
