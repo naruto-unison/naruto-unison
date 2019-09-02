@@ -219,7 +219,7 @@ cs =
           ]
         }
       , Skill.new
-        { Skill.name      = "Giant Rotating Fang"
+        { Skill.name      = "Tail Chasing Rotating Fang"
         , Skill.desc      = "Deals 40 damage to all enemies and stuns them for 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Blood, Tai]

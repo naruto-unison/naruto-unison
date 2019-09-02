@@ -10,6 +10,62 @@ import qualified Model.Skill as Skill
 cs :: [Category -> Character]
 cs =
   [ Character
+    "Tsume Inuzuka"
+    "A jōnin from the Hidden Leaf Village and mother to Kiba, Tsume shares his wild temperament, impatience, and odd sense of humor. Kuromaru, her animal companion, keeps her enemies at bay and strikes back at any who dare to attack her."
+    [ [ Skill.new
+        { Skill.name      = "Call Kuromaru"
+        , Skill.desc      = "Kuromaru guards Tsume from her enemies for 4 turns, providing her with 10 points of damage reduction and dealing 10 damage to enemies who use harmful skills on her. While active, this skill becomes [Fierce Bite][t]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 4
+        , Skill.channel   = Ongoing 4
+        , Skill.start     =
+          [ To Self $ vary "Call Kuromaru" "Fierce Bite" ]
+        , Skill.effects   =
+          [ To Self do
+                apply 1 [Reduce All Flat 10]
+                trapFrom 1 (OnHarmed All) $ damage 10
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Fierce Bite"
+        , Skill.desc      = "Kuromaru pounces on an enemy, dealing 25 damage. If the target dies during the same turn, Tsume will become unkilllable for 2 turns, during which her damage will be increased by 10 and she will ignore stuns."
+        , Skill.classes   = [Physical, Melee, Bypassing]
+        , Skill.effects   =
+          [ To Enemy do
+                trap' (-1) OnDeath $ self $
+                    apply 2 [Strengthen All Flat 10, Endure, Ignore $ Any Stun]
+                damage 25
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Tunneling Fang"
+        , Skill.desc      = "Spinning like a buzzsaw, Tsume deals 15 piercing damage to an enemy for 2 turns. Deals 5 additional damage during [Call Kuromaru]. While active, all stun skills used by the target will have their duration reduced by 2 turns."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Rand]
+        , Skill.channel   = Action 2
+        , Skill.effects   =
+          [ To Enemy do
+                bonus <- 5 `bonusIf` userHas "Call Kuromaru"
+                pierce (15 + bonus)
+                apply 1 [Throttle 2 $ Any Stun]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Light Bomb"
+        , Skill.desc      = "Tsume blinds her enemies with a flash-bang, making her team invulnerable for 1 turn."
+        , Skill.classes   = [Physical]
+        , Skill.cost      = [Rand]
+        , Skill.charges   = 3
+        , Skill.effects   =
+          [ To Allies $ apply 1 [Invulnerable All] ]
+        }
+      ]
+    , [ invuln "Dodge" "Tsume" [Physical] ]
+    ] []
+  , Character
     "Chiyo"
     "A widely-respected puppeteer and former leader of the Hidden Sand Village's Puppet Brigade, Elder Chiyo has a lifetime of combat experience. Her numerous puppets sow chaos among her enemies and shield her from harm, allowing her to use her other skills with impunity. If one of her allies is close to death, she can sacrifice her own life to restore theirs."
     [ [ Skill.new
