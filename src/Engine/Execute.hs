@@ -15,6 +15,7 @@ import           Control.Monad.Trans.Maybe (runMaybeT)
 import           Data.Bits (setBit, testBit)
 import           Data.Either (isLeft)
 import           Data.Enum.Set.Class (EnumSet, AsEnumSet(..))
+import           Data.List (findIndex)
 import qualified Data.Sequence as Seq
 
 import           Core.Util ((!!), (—), (∈), (∉), intersectsSet)
@@ -29,6 +30,7 @@ import           Model.Act (Act)
 import qualified Model.Channel as Channel
 import           Model.Channel (Channel(Channel), Channeling(..))
 import qualified Model.Chakra as Chakra
+import qualified Model.Character as Character
 import           Model.Class (Class(..))
 import qualified Model.Context as Context
 import           Model.Context (Context(Context))
@@ -47,6 +49,7 @@ import qualified Model.Skill as Skill
 import           Model.Skill (Skill, Target(..))
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
+import qualified Model.Status as Status
 import           Model.Trap (Trigger(..))
 import qualified Engine.Adjust as Adjust
 import qualified Engine.Cooldown as Cooldown
@@ -77,24 +80,32 @@ oldSet = setFromList [Channeled, Delayed, Trapped]
 
 -- | Adds a 'Copy.Copy' to 'Ninja.copies'.
 copy :: ∀ m. MonadPlay m
-     => Bool -- ^ Whether or not to call 'Ninja.clear' on matching 'Status.Status'es.
-     -> (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.
+     => (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.
      -> Slot -- ^ Target.
      -> Skill -- ^ Skill.
-     -> (Slot, Text, Int, Duration) -- ^ Output of 'Trigger.replace'.
+     -> (Duration, Slot, Text) -- ^ Output of 'Effects.replace'.
      -> m ()
-copy clear cop target skill (source, name, s, dur) = do
-    P.modify target \n -> n { Ninja.copies = copier $ Ninja.copies n }
-    when clear . P.modifyAll $ Ninja.clear name target
+copy constructor copyFrom skill (dur, copyTo, name) =
+    P.modify copyTo \n -> fromMaybe n do
+        s <- findIndex (any $ (name ==) . Skill.name) . toList .
+             Character.skills $ Ninja.character n
+        return n { Ninja.copies = copier s $ Ninja.copies n }
   where
+    copier s = Seq.update s . Just . Copy skill' $
+               sync if dur < -1 then dur + 1 else dur
     skill' = skill { Skill.cost     = 0
                    , Skill.cooldown = 0
-                   , Skill.copying  = cop source $ sync dur - 1
+                   , Skill.copying  = constructor copyFrom $ sync dur - 1
                    }
-    copier = Seq.update s . Just . Copy skill' $
-             sync if dur < -1 then dur + 1 else dur
 
 data Exit = Flagged | Done | Completed deriving (Eq)
+
+unReplace :: Ninja -> Ninja
+unReplace n =
+    n { Ninja.statuses = filter (any un . Status.effects) $ Ninja.statuses n }
+  where
+    un Replace{} = False
+    un _         = True
 
 -- | Processes an action before it can be applied to the game. This is where
 -- invincibility, usability, reflects, etc. all come into play.
@@ -126,9 +137,12 @@ wrap affected f = void $ runMaybeT do
     let harm      = Harmful ∈ classes && not (Parity.allied user target)
         allow aff = harm && not (nUser `is` AntiCounter) && aff ∉ affected
     when new do
-        copies <- flip (Trigger.replace classes) harm <$> P.nUser
-        traverse_ (copy True Copy.Shallow user skill) copies
         P.modify user \n -> n { Ninja.lastSkill = Just skill }
+        when harm do
+            replaces <- Effects.replace <$> P.nUser
+            when (not $ null replaces) do
+                P.modify user unReplace
+                traverse_ (copy Copy.Shallow user skill) replaces
 
     if exit == Done then
         lift $ withDirect skill f

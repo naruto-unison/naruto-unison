@@ -566,8 +566,10 @@ cs =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
+                userSlot <- user slot
                 trap (-1) (Countered Uncounterable) $ return ()
-                bomb (-1) [Replace 1 All 0 False] [ To Done $ damage 15 ]
+                bomb (-1) [Replace 1 userSlot "Mind Destruction"]
+                          [To Done $ damage 15]
           ]
         }
       ]

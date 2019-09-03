@@ -2,7 +2,6 @@
 module Engine.Trigger
   ( redirect
   , reflect
-  , replace
   , death
   , snareTrap
   , swap
@@ -20,7 +19,6 @@ import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
 import           Class.Random (MonadRandom)
 import           Model.Class (Class(..))
-import           Model.Duration (Duration)
 import           Model.Effect (Effect(..))
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
@@ -33,16 +31,6 @@ import qualified Model.Trap as Trap
 import           Model.Trap (Trap, Trigger(..))
 import qualified Engine.Traps as Traps
 
--- | Trigger a 'Replace'.
--- Returns ('Status.user', 'Status.name', 'Effects.replaceTo', 'Effects.replaceDuration').
-replace :: EnumSet Class -> Ninja -> Bool -> [(Slot, Text, Int, Duration)]
-replace classes n harm = mapMaybe ifCopy allStatuses
-  where
-    allStatuses = filter (any matches . Status.effects) $ Ninja.statuses n
-    matches (Replace _ cla _ noharm) = (harm || noharm) && cla ∈ classes
-    matches _                        = False
-    ifCopy st = [(Status.user st, Status.name st, to, dur)
-                  | Replace dur _ to _ <- find matches $ Status.effects st]
 
 -- | Trigger a 'Reflect'.
 reflect :: EnumSet Class -> Ninja -> Ninja -> Maybe Ninja

@@ -36,15 +36,14 @@ import qualified Engine.Effects as Effects
 -- the identically-named variant.
 safe :: ∀ a. a -> (Int -> Int -> a) -> Ninja -> Text -> Text -> a
 safe a f n sName vName = fromMaybe a do
-    s <- findIndex (any $ match sName) $ toList skills
+    s <- findIndex (any $ (sName ==) . Skill.name) $ toList skills
     v <- case vName of
             "" -> return 0
             _  -> let (_:|xs) = skills !! s
-                  in (+1) <$> findIndex (match vName) xs
+                  in (+1) <$> findIndex ((vName ==) . Skill.name) xs
     return $ f s v
   where
     skills  = Character.skills $ Ninja.character n
-    match (toCaseFold -> x) = (x ==) . toCaseFold . Skill.name
 
 -- | Combines two 'Skill.Transform's.
 also :: Skill.Transform -> Skill.Transform -> Skill.Transform

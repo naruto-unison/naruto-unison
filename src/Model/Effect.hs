@@ -73,6 +73,7 @@ data Effect
     | Redirect     Class Slot          -- ^ Transfers harmful 'Skill's
     | Reflect                          -- ^ Reflects the first 'Skill'
     | ReflectAll                       -- ^ 'Reflect' repeatedly
+    | Replace      Duration Slot Text  -- ^ Copies a skill into user's skill slot
     | Restrict                         -- ^ Forces AoE attacks to be single-target
     | Reveal                           -- ^ Makes 'Invisible' effects visible
     | Seal                             -- ^ Ignore all friendly 'Skill's
@@ -91,12 +92,7 @@ data Effect
     | Unexhaust                        -- ^ Decreases chakra costs by 1 random
     | Unreduce     Int                 -- ^ Reduces damage reduction 'Skill's
     | Weaken       Class Amount Int    -- ^ Lessens damage dealt
-    -- | Copies a skill into user's skill slot
-    | Replace Duration
-              Class
-              Int   -- ^ Skill index of user to copy into
-              Bool  -- ^ Include non-harmful 'Skill's
-              deriving (Eq, Show)
+    deriving (Eq, Show)
 instance Classed Effect where
     classes (Bleed cla _ _)      = singletonSet cla
     classes (Exhaust cla)        = singletonSet cla
@@ -108,7 +104,6 @@ instance Classed Effect where
     classes (Stun cla)           = singletonSet cla
     classes (Swap cla)           = singletonSet cla
     classes (Weaken cla _ _)     = singletonSet cla
-    classes (Replace _ cla _ _)  = singletonSet cla
     classes _                    = mempty
 
 instance ToJSON Effect where
@@ -214,7 +209,7 @@ instance Display Effect where
     display (Redirect cla _) = "Redirects " ++ lower cla  ++ " harmful skills to a different target."
     display Reflect = "Reflects the first harmful non-mental skill."
     display ReflectAll = "Reflects all non-mental skills."
-    display (Replace _ cla _ _) = display cla ++ " skills will be temporarily acquired by the user of this effect."
+    display (Replace d _ l) = "The next skill used will be copied to the source of this effect's [" ++ display l ++ "] skill for " ++ display d ++ " turns."
     display Reveal = "Reveals invisible skills to the enemy team. This effect cannot be removed."
     display Restrict = "Skills that normally affect all opponents must be targeted."
     display Seal = "Invulnerable to effects from allies."

@@ -57,7 +57,9 @@ cs =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To XAllies $ apply 3 [Snare (-1)]
-          , To Enemies $ apply' "Team Tactics " 3 [Replace 1 All 2 True]
+          , To Enemies do
+                  userSlot <- user slot
+                  apply' "Team Tactics " 3 [Replace 1 userSlot "Team Tactics"]
           ]
         }
       ]

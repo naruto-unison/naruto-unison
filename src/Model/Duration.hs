@@ -10,8 +10,13 @@ import ClassyPrelude
 
 import Data.Aeson (ToJSON(..))
 
+import Class.Display (Display(..))
+
 type Turns = Int
 newtype Duration = Duration Turns deriving (Num, Eq, Ord, Show, Read)
+
+instance Display Duration where
+    display (Duration d) = display $ abs d
 
 instance ToJSON Duration where
     toJSON = toJSON . sync
@@ -36,12 +41,12 @@ incr x
 -- | Converts from turns to sub-turns. Output is always positive.
 -- Each turn consists of two sub-turns, one for each player.
 sync :: Duration -> Int
-sync (Duration n)
-  | n >= 0    = 2 * n
-  | otherwise = -2 * n - 1
+sync (Duration d)
+  | d >= 0    = 2 * d
+  | otherwise = -2 * d - 1
 
 -- | Inverse of 'sync'. Input should always be positive.
 unsync :: Int -> Duration
-unsync x
-  | even x    = Duration $ x `quot` 2
-  | otherwise = Duration . negate $ 1 + x `quot` 2
+unsync d
+  | even d    = Duration $ d `quot` 2
+  | otherwise = Duration . negate $ 1 + d `quot` 2

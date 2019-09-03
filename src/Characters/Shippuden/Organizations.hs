@@ -309,7 +309,8 @@ cs =
         , Skill.cooldown  = 9
         , Skill.effects   =
           [ To Enemy do
-                apply 2 [Replace 2 All 2 True]
+                userSlot <- user slot
+                apply 2 [Replace 2 userSlot "Kotoamatsukami"]
                 trap 2 (Countered Uncounterable) do
                     remove "Kotoamatsukami"
                     removeTrap "Kotoamatsukami"

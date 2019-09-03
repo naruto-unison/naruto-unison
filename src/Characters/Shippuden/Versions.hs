@@ -767,7 +767,7 @@ cs =
         , Skill.effects   =
           [ To Enemy do
                 absorb 1
-                copyLast 1 2
+                copyLast 1
                 apply 1 [Stun NonMental]
                 damage 20
           ]

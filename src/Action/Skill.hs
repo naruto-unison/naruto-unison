@@ -154,15 +154,14 @@ copyAll (Duration -> dur) = do
 
 -- | Copies the 'Ninja.lastSkill' of the target into a specific skill slot
 -- of the user's 'Ninja.copies'. Uses 'Execute.copy' internally.
-copyLast :: ∀ m. MonadPlay m => Turns -> Int -> m ()
-copyLast (Duration -> dur) s = do
+copyLast :: ∀ m. MonadPlay m => Turns -> m ()
+copyLast (Duration -> dur) = do
     skill      <- P.skill
     user       <- P.user
     target     <- P.target
     mLastSkill <- Ninja.lastSkill <$> P.nTarget
     forM_ mLastSkill \lastSkill ->
-        Execute.copy False Copy.Shallow target lastSkill
-        (user, Skill.name skill, s, dur)
+        Execute.copy Copy.Shallow target lastSkill (dur, user, Skill.name skill)
 
 -- | Copies a @Skill@ from the user into all of the target's 'Ninja.copies'
 -- skill slots.
