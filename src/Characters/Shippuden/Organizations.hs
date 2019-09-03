@@ -7,8 +7,6 @@ import Characters.Base
 
 import qualified Model.Skill as Skill
 
-import qualified Model.Ninja as Ninja -- TODO
-
 cs :: [Category -> Character]
 cs =
   [ Character
@@ -90,12 +88,7 @@ cs =
                 trapFrom 1 (Counter All) $ damage 20
                 trap 1 (Counter All) do
                     defend 0 20
-                    self do
-                        charges <- user Ninja.charges
-                        tag' (tshow charges) 5
-                        resetCharges
-                        charges' <- user Ninja.charges
-                        tag' (tshow charges') 3
+                    self resetCharges
           ]
         }
       ]
