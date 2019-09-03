@@ -58,6 +58,7 @@ data Effect
     | Block                            -- ^ Treats user as 'Invulnerable'
     | Boost        Int                 -- ^ Scales effects from allies
     | Build        Int                 -- ^ Adds to destructible defense 'Skill'
+    | DamageToDefense                  -- ^ Damage received converts to defense
     | Duel         Slot                -- ^ 'Invulnerable' to everyone but user
     | Endure                           -- ^ Health cannot go below 1
     | Enrage                           -- ^ Ignore all harmful status effects
@@ -115,47 +116,48 @@ instance ToJSON Effect where
       ]
 
 helpful :: Effect -> Bool
-helpful Afflict{}      = False
-helpful AntiCounter    = True
-helpful (Bleed _ _ x)  = x < 0
-helpful Bless{}        = True
-helpful Block{}        = False
-helpful Boost{}        = True
-helpful (Build x)      = x >= 0
-helpful Duel{}         = True
-helpful Endure         = True
-helpful Enrage         = True
-helpful Exhaust{}      = False
-helpful Expose         = False
-helpful Heal{}         = True
-helpful Invulnerable{} = True
-helpful ImmuneSelf     = True
-helpful Ignore{}       = True
-helpful Pierce         = True
-helpful Plague         = False
-helpful (Reduce _ _ x) = x >= 0
-helpful Redirect{}     = True
-helpful Reflect        = True
-helpful ReflectAll     = True
-helpful Replace{}      = False
-helpful Restrict       = False
-helpful Reveal         = False
-helpful Seal           = False
-helpful Share{}        = False
-helpful Silence        = False
-helpful (Snare x)      = x < 0
-helpful SnareTrap{}    = False
-helpful Strengthen{}   = True
-helpful Stun{}         = False
-helpful Swap{}         = False
-helpful Taunt{}        = False
-helpful Threshold{}    = True
-helpful Throttle{}     = False
-helpful Uncounter      = False
-helpful Undefend       = False
-helpful Unexhaust      = True
-helpful Unreduce{}     = False
-helpful Weaken{}       = False
+helpful Afflict{}       = False
+helpful AntiCounter     = True
+helpful (Bleed _ _ x)   = x < 0
+helpful Bless{}         = True
+helpful Block{}         = False
+helpful Boost{}         = True
+helpful (Build x)       = x >= 0
+helpful DamageToDefense = True
+helpful Duel{}          = True
+helpful Endure          = True
+helpful Enrage          = True
+helpful Exhaust{}       = False
+helpful Expose          = False
+helpful Heal{}          = True
+helpful Invulnerable{}  = True
+helpful ImmuneSelf      = True
+helpful Ignore{}        = True
+helpful Pierce          = True
+helpful Plague          = False
+helpful (Reduce _ _ x)  = x >= 0
+helpful Redirect{}      = True
+helpful Reflect         = True
+helpful ReflectAll      = True
+helpful Replace{}       = False
+helpful Restrict        = False
+helpful Reveal          = False
+helpful Seal            = False
+helpful Share{}         = False
+helpful Silence         = False
+helpful (Snare x)       = x < 0
+helpful SnareTrap{}     = False
+helpful Strengthen{}    = True
+helpful Stun{}          = False
+helpful Swap{}          = False
+helpful Taunt{}         = False
+helpful Threshold{}     = True
+helpful Throttle{}      = False
+helpful Uncounter       = False
+helpful Undefend        = False
+helpful Unexhaust       = True
+helpful Unreduce{}      = False
+helpful Weaken{}        = False
 
 -- | Effect cannot be removed.
 sticky :: Effect -> Bool
@@ -188,7 +190,7 @@ instance Display Effect where
     display (Build x)
       | x >= 0    = "Destructible skills provide " ++ display x ++ " additional points of defense."
       | otherwise =  "Destructible skills provide " ++ display (-x) ++ " fewer points of defense."
-    display Undefend = "Unable to benefit from destructible defense"
+    display DamageToDefense = "Non-affliction damage received is converted into destructible defense."
     display (Duel _) = "Invulnerable to everyone but a specific target."
     display Endure = "Health cannot go below 1."
     display Enrage = "Ignores status effects from enemies except chakra cost changes."
@@ -228,6 +230,7 @@ instance Display Effect where
     display (Threshold x) = "Uninjured by attacks that deal " ++ display x ++ " baseline damage or lower."
     display (Throttle x _) = "Skills will apply " ++ display x ++ " fewer turns of some effects."
     display Uncounter = "Unable to benefit from counters or reflects."
+    display Undefend = "Unable to benefit from destructible defense"
     display Unexhaust = "All skills cost 1 fewer random chakra."
     display (Unreduce x) = "Damage reduction skills reduce " ++ display x ++ " fewer damage."
     display (Weaken cla amt x) = display cla ++ " skills deal " ++ displayAmt amt x ++ " fewer damage. Does not affect affliction damage."

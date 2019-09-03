@@ -19,6 +19,7 @@ import qualified Characters.Original.Teachers
 import qualified Characters.Original.Organizations
 import qualified Characters.Original.Leaders
 import qualified Characters.Original.Versions
+import qualified Characters.Original.Family
 import qualified Characters.Original.Flashbacks
 
 import qualified Characters.Shippuden.Kids
@@ -38,6 +39,7 @@ original = ($ Original)
             ++ Characters.Original.Organizations.cs
             ++ Characters.Original.Leaders.cs
             ++ Characters.Original.Versions.cs
+            ++ Characters.Original.Family.cs
             ++ Characters.Original.Flashbacks.cs
 
 shippuden :: [Character]

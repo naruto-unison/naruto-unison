@@ -154,6 +154,15 @@ attack atk dmg = void $ runMaybeT do
 
     if atk == Attack.Afflict then do
         P.modify target $ Ninja.adjustHealth (— dmgCalc)
+    else if nTarget `is` DamageToDefense then
+        let damageDefense = Defense
+                { Defense.amount = dmgCalc
+                , Defense.user   = user
+                , Defense.name   = Skill.name skill
+                , Defense.dur    = 0
+                }
+        in P.modify target \n ->
+          n { Ninja.defense = damageDefense : Ninja.defense n }
     else do
         P.modify user \n -> n { Ninja.barrier = barr }
         if atk == Attack.Demolish || dmg'Def <= 0 then
