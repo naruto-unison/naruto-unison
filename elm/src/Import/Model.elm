@@ -339,7 +339,7 @@ type Requirement  =
     Usable
     | Unusable
     | HasI Int String
-    | HasU String
+    | HasU Int String
 
 jsonDecRequirement : Json.Decode.Decoder ( Requirement )
 jsonDecRequirement =
@@ -347,7 +347,7 @@ jsonDecRequirement =
             [ ("Usable", Json.Decode.lazy (\_ -> Json.Decode.succeed Usable))
             , ("Unusable", Json.Decode.lazy (\_ -> Json.Decode.succeed Unusable))
             , ("HasI", Json.Decode.lazy (\_ -> Json.Decode.map2 HasI (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.string))))
-            , ("HasU", Json.Decode.lazy (\_ -> Json.Decode.map HasU (Json.Decode.string)))
+            , ("HasU", Json.Decode.lazy (\_ -> Json.Decode.map2 HasU (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.string))))
             ]
         jsonDecObjectSetRequirement = Set.fromList []
     in  decodeSumTaggedObject "Requirement" "tag" "contents" jsonDecDictRequirement jsonDecObjectSetRequirement
@@ -358,7 +358,7 @@ jsonEncRequirement  val =
                     Usable  -> ("Usable", encodeValue (Json.Encode.list identity []))
                     Unusable  -> ("Unusable", encodeValue (Json.Encode.list identity []))
                     HasI v1 v2 -> ("HasI", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.string v2]))
-                    HasU v1 -> ("HasU", encodeValue (Json.Encode.string v1))
+                    HasU v1 v2 -> ("HasU", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.string v2]))
     in encodeSumTaggedObject "tag" "contents" keyval val
 
 
