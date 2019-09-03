@@ -587,7 +587,7 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
         cost = case Chakra.total x.cost of
             0 -> [H.text "Free"]
             _ -> Render.chakras x.cost
-        duration = case x.channel of
+        duration = case x.dur of
             Instant     -> "Instant"
             Passive     -> "Instant"
             (Action 0)  -> "Action"

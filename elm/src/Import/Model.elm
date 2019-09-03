@@ -288,7 +288,7 @@ type alias Skill  =
    , cooldown: Int
    , varicd: Bool
    , charges: Int
-   , channel: Channeling
+   , dur: Channeling
    , start: (List Target)
    , effects: (List Target)
    , interrupt: (List Target)
@@ -298,7 +298,7 @@ type alias Skill  =
 
 jsonDecSkill : Json.Decode.Decoder ( Skill )
 jsonDecSkill =
-   Json.Decode.succeed (\pname pdesc prequire pclasses pcost pcooldown pvaricd pcharges pchannel pstart peffects pinterrupt pcopying ppic -> {name = pname, desc = pdesc, require = prequire, classes = pclasses, cost = pcost, cooldown = pcooldown, varicd = pvaricd, charges = pcharges, channel = pchannel, start = pstart, effects = peffects, interrupt = pinterrupt, copying = pcopying, pic = ppic})
+   Json.Decode.succeed (\pname pdesc prequire pclasses pcost pcooldown pvaricd pcharges pdur pstart peffects pinterrupt pcopying ppic -> {name = pname, desc = pdesc, require = prequire, classes = pclasses, cost = pcost, cooldown = pcooldown, varicd = pvaricd, charges = pcharges, dur = pdur, start = pstart, effects = peffects, interrupt = pinterrupt, copying = pcopying, pic = ppic})
    |> required "name" (Json.Decode.string)
    |> required "desc" (Json.Decode.string)
    |> required "require" (jsonDecRequirement)
@@ -307,7 +307,7 @@ jsonDecSkill =
    |> required "cooldown" (Json.Decode.int)
    |> required "varicd" (Json.Decode.bool)
    |> required "charges" (Json.Decode.int)
-   |> required "channel" (jsonDecChanneling)
+   |> required "dur" (jsonDecChanneling)
    |> required "start" (Json.Decode.list (jsonDecTarget))
    |> required "effects" (Json.Decode.list (jsonDecTarget))
    |> required "interrupt" (Json.Decode.list (jsonDecTarget))
@@ -325,7 +325,7 @@ jsonEncSkill  val =
    , ("cooldown", Json.Encode.int val.cooldown)
    , ("varicd", Json.Encode.bool val.varicd)
    , ("charges", Json.Encode.int val.charges)
-   , ("channel", jsonEncChanneling val.channel)
+   , ("dur", jsonEncChanneling val.dur)
    , ("start", (Json.Encode.list jsonEncTarget) val.start)
    , ("effects", (Json.Encode.list jsonEncTarget) val.effects)
    , ("interrupt", (Json.Encode.list jsonEncTarget) val.interrupt)
