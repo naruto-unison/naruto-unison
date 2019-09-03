@@ -15,17 +15,17 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Giant Flame Bomb"
         , Skill.desc      = "Jiraiya spits out a burst of fire, dealing 20 affliction damage to an enemy and 10 to the rest of their team."
-        , Skill.classes   = [Ranged]
+        , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Enemy    $ damage 20
-          , To XEnemies $ damage 10
+          [ To Enemy    $ afflict 20
+          , To XEnemies $ afflict 10
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Summoning: Toad Mouth Trap"
-        , Skill.desc      = "The esophagus of a humongous toad swallows the battlefield for 2 turns. Within the esophagus, enemies cannot reduce damage or become invulnerable, and each member of Jiraiya's team becomes invulnerable for 1 turn if an enemy uses a skill that deals non-affliction damage to them."
+        , Skill.desc      = "The esophagus of a humongous toad swallows the battlefield for 2 turns. Within the esophagus, enemies cannot reduce damage or become invulnerable. While active, if an enemy uses a skill that deals non-affliction damage to Jiraiya or one of his allies, their target will become invulnerable for 1 turn."
         , Skill.classes   = [Chakra, Ranged, Summon, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
@@ -134,7 +134,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Curse Mark"
         , Skill.desc      = "Orochimaru places a curse mark on an ally or enemy, dealing 15 affliction damage and granting the target 1 random chakra."
-        , Skill.classes   = [Melee, Bypassing]
+        , Skill.classes   = [Bane, Melee, Bypassing]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy do

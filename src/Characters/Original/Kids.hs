@@ -179,7 +179,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Chakra Leech"
         , Skill.desc      = "Chakra-draining bugs attack an enemy, dealing 20 affliction damage and absorbing 1 random chakra. Deals 5 additional damage per target's stack of [Parasite]."
-        , Skill.classes   = [Ranged]
+        , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -402,7 +402,7 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
-          ,  To Self   do
+          ,  To Self do
                 sacrifice 1 10
                 apply 0 [Ignore $ Any Stun, Afflict 15]
                 varyLoadout loadout 3
@@ -426,7 +426,7 @@ cs =
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.effects   =
             [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
-            , To Self    do
+            , To Self do
                   apply 0 [Ignore $ Any Stun, Afflict 15]
                   varyLoadout loadout 3
                   vary "Block" "Block"
@@ -448,15 +448,16 @@ cs =
         }
       ]
     , [ invuln "Block" "Choji" [Physical]
-      , Skill.new { Skill.name     = "Block"
-                  , Skill.desc      = "Chōji becomes invulnerable for 1 turn. While active, Chōji does not take damage from [Chili Pill]."
-                  , Skill.classes   = [Physical]
-                  , Skill.cooldown  = 4
-                  , Skill.cost      = [Rand]
-                  , Skill.effects   =
-                    [ To Self $ apply 1 [Invulnerable All, ImmuneSelf] ]
-                  , Skill.pic       = True
-                  }
+      , Skill.new
+        { Skill.name      = "Block"
+        , Skill.desc      = "Chōji becomes invulnerable for 1 turn. While active, Chōji does not take damage from [Chili Pill]."
+        , Skill.classes   = [Physical]
+        , Skill.cooldown  = 4
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Self $ apply 1 [Invulnerable All, ImmuneSelf] ]
+        , Skill.pic       = True
+        }
       ]
     ] []
   , Character
@@ -726,7 +727,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Poison Bomb"
         , Skill.desc      = "One of Kankurō's puppets creates a cloud of smoke that deals 10 affliction damage to all enemies. Deals 5 additional damage per stack of [Puppet Technique]."
-        , Skill.classes   = [Ranged]
+        , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =

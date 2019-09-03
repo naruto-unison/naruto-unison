@@ -212,8 +212,8 @@ cs =
         }
       , Skill.new
         { Skill.name      = "First Blood"
-        , Skill.desc      = "Searching for a victim to join him in his ritual of death, Hidan deals 5 damage to an opponent and marks them for 2 turns. For 2 turns, this skill becomes [Blood Curse Ritual][g]."
-        , Skill.classes   = [Physical, Unreflectable, Unremovable]
+        , Skill.desc      = "Searching for a victim to join him in his ritual of death, Hidan deals 5 damage to an opponent and leaves them bleeding for 2 turns. For 2 turns, this skill becomes [Blood Curse Ritual][g]."
+        , Skill.classes   = [Bane, Physical, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
@@ -322,7 +322,7 @@ cs =
           [ To Enemy do
                 damage 20
                 afflict 20
-                apply 1 [Exhaust All]
+                apply 2 [Exhaust All]
           ]
         }
       ]
@@ -575,7 +575,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Summoning: Giant Crustacean"
-        , Skill.desc      = "Pain summons a huge foaming lobster that sprays spittle over the battlefield. For 2 turns, all enemies take 10 affliction damage and their cooldowns are increased by 1 turn. While active, the lobster provides 10 points of damage reduction to Pain and her team. Once used, this skill becomes [Summoning: Giant Centipede][n]."
+        , Skill.desc      = "Pain summons a huge foaming lobster that sprays spittle over the battlefield. For 2 turns, all enemies take 10 damage and their cooldowns are increased by 1 turn. While active, the lobster provides 10 points of damage reduction to Pain and her team. Once used, this skill becomes [Summoning: Giant Centipede][n]."
         , Skill.classes   = [Chakra, Ranged, Summon]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 2
@@ -584,7 +584,7 @@ cs =
           [ To Self $ vary "Summoning: Giant Centipede" baseVariant ]
         , Skill.effects   =
           [ To Enemies do
-                afflict 10
+                damage 10
                 apply 1 [Exhaust All]
           , To Allies $ apply 1 [Reduce All Flat 10]
           ]
@@ -778,8 +778,8 @@ cs =
     "Having taken over the body of a wandering puppeteer, Pain now acts through it as one of his Six Paths. Asura Path's body is heavily augmented with ballistic and mechanical weaponry."
     [ [ Skill.new
         { Skill.name      = "Metal Blade"
-        , Skill.desc      = "Pain attacks an enemy with a blade that unfolds from his body, dealing 15 piercing damage. The target takes 10 affliction damage each turn until one of their allies uses a skill on them."
-        , Skill.classes   = [Physical, Melee]
+        , Skill.desc      = "Pain attacks an enemy with a blade that unfolds from his body, dealing 15 piercing damage and inflicting a deep wound. The target takes 10 affliction damage each turn until one of their allies uses a skill on them."
+        , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =

@@ -81,18 +81,16 @@ cs =
       , Skill.new
         { Skill.name      = "Mini Tailed Beast Bomb Barrage"
         , Skill.desc      = "Naruto fires a volley of burning chakra orbs at an enemy, dealing 10 affliction damage to them for 3 turns. If used on an enemy affected by [Clasp], this skill deals all 30 damage instantly."
-        , Skill.classes   = [Chakra, Ranged, Bypassing]
+        , Skill.classes   = [Bane, Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
-        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy do
                 has <- targetHas "Clasp"
-                if has then do
+                if has then
                     afflict 30
-                    delay (-1) $ cancelChannel "Mini Tailed Beast Bomb Barrage"
                 else
-                    afflict 10
+                    apply 3 [Afflict 10]
           ]
         }
       , Skill.new
@@ -484,61 +482,66 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Transfusion"
-        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns and resetting the target's cooldowns. Kabuto gains 1 random chakra."
+        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns, resetting the target's cooldowns, and curing them of Bane effects. While being healed, the target is invulnerable to Bane skills. Kabuto gains 1 random chakra."
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Ally do
                 resetAll
-                apply 3 [Heal 15]
+                cureBane
+                apply 3 [Heal 15, Invulnerable Bane]
           , To Self $ gain [Rand]
           ]
         }
       , Skill.new
         { Skill.name      = "Transfusion"
-        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns and resetting the target's cooldowns. Kabuto gains 1 bloodline chakra."
+        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns, resetting the target's cooldowns, and curing them of Bane effects. While being healed, the target is invulnerable to Bane skills. Kabuto gains 1 bloodline chakra."
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Ally do
                 resetAll
-                apply 3 [Heal 15]
+                cureBane
+                apply 3 [Heal 15, Invulnerable Bane]
           , To Self $ gain [Blood]
           ]
         }
       , Skill.new
         { Skill.name      = "Transfusion"
-        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns and resetting the target's cooldowns. Kabuto gains 1 genjutsu chakra."
+        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns, resetting the target's cooldowns, and curing them of Bane effects. While being healed, the target is invulnerable to Bane skills. Kabuto gains 1 genjutsu chakra."
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Ally do
                 resetAll
-                apply 3 [Heal 15]
+                cureBane
+                apply 3 [Heal 15, Invulnerable Bane]
           , To Self $ gain [Gen]
           ]
         }
       , Skill.new
         { Skill.name      = "Transfusion"
-        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns and resetting the target's cooldowns. Kabuto gains 1 ninjutsu chakra."
+        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns, resetting the target's cooldowns, and curing them of Bane effects. While being healed, the target is invulnerable to Bane skills. Kabuto gains 1 ninjutsu chakra."
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Ally do
                 resetAll
-                apply 3 [Heal 15]
+                cureBane
+                apply 3 [Heal 15, Invulnerable Bane]
           , To Self $ gain [Nin]
           ]
         }
       , Skill.new
         { Skill.name      = "Transfusion"
-        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns and resetting the target's cooldowns. Kabuto gains 1 taijutsu chakra."
+        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns, resetting the target's cooldowns, and curing them of Bane effects. While being healed, the target is invulnerable to Bane skills. Kabuto gains 1 taijutsu chakra."
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Ally do
                 resetAll
-                apply 3 [Heal 15]
+                cureBane
+                apply 3 [Heal 15, Invulnerable Bane]
           , To Self $ gain [Tai]
           ]
         }

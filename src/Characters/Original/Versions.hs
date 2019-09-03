@@ -14,7 +14,7 @@ cs =
     "Naruto's anger and desperation has forced the nine-tailed beast's power to the surface, transforming him into a single-minded beast. His overflowing tailed-beast chakra heals him and ravages his enemies."
     [ [ Skill.new
         { Skill.name      = "Tailed Beast Rasengan"
-        , Skill.desc      = "Naruto slams an orb of ultrapowered chakra into an enemy, dealing 35 damage, stunning them for a turn, and losing 5 health from the backlash. Deals 10 additional damage during [Tailed Beast Chakra Arms], or 10 fewer damage during [Inner Chakra Mode]."
+        , Skill.desc      = "Naruto slams an orb of supercharged chakra into an enemy, dealing 35 damage, stunning them for a turn, and losing 5 health from the backlash. Deals 10 additional damage during [Tailed Beast Chakra Arms], or 10 fewer damage during [Inner Chakra Mode]."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
@@ -63,7 +63,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Chidori"
         , Skill.desc      = "Mixing a Chidori with his corrupt chakra, Sasuke deals 45 piercing damage to an enemy. Corruption enfeebles the target for 2 turns, weakening their damage by 20. Costs 1 random chakra during [Curse Mark]."
-        , Skill.classes   = [Chakra, Melee]
+        , Skill.classes   = [Bane, Chakra, Melee]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -78,7 +78,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Dark Void"
         , Skill.desc      = "Corrupt chakra engulfs an enemy, stunning them for 2 turns. While active, the target is immune to effects from allies and invulnerable. At the end of the 2 turns, the enemy receives 55 damage. Costs 2 random chakra during [Curse Mark]."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
@@ -181,7 +181,7 @@ cs =
                 cancelChannel "Monstrous Sand Arm"
           ]
         , Skill.effects   =
-          [ To Enemy $ afflict 10 ]
+          [ To Enemy $ damage 10 ]
         }
       , Skill.new
         { Skill.name      = "Wind Bullet"

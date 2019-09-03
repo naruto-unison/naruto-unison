@@ -247,7 +247,7 @@ cs =
         , Skill.effects   =
           [ To Enemy do
                 tag 4
-                trap 4 OnDeath $ self kill
+                trap 4 OnDeath $ self killHard
                 self $ trap 4 OnDeath $
                     everyone $ whenM (targetHas "Life Link") killHard
           ]

@@ -266,7 +266,7 @@ cs =
     [ [ Skill.new
         { Skill.name       = "Insect Swarm"
         , Skill.desc       = "A wave of insects attack an enemy, dealing 15 affliction damage to them for 3 turns and making them immune to effects from allies. While active, this skill becomes [Chakra Leech]."
-        , Skill.classes   = [Ranged]
+        , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.dur       = Action 3
         , Skill.cooldown  = 2

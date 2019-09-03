@@ -149,7 +149,7 @@ cs =
       , Skill.new
         { Skill.name      = "Poison Fog"
         , Skill.desc      = "Ibuse opens its mouth to reveal a noxious cloud of deadly poison, dealing 10 affliction damage to all enemies until Ibuse dies. Cannot be used while active."
-        , Skill.classes   = [Ranged, Single, Unreflectable]
+        , Skill.classes   = [Bane, Ranged, Single, Unreflectable]
         , Skill.cost      = [Blood, Blood]
         , Skill.dur       = Ongoing 0
         , Skill.effects   =

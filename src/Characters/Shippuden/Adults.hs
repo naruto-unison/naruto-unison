@@ -520,7 +520,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Syrup Trap"
         , Skill.desc      = "Izumo spits out a field of sticky syrup that impedes the enemy team. For 2 turns, enemies that use chakra skills will have their chakra skills stunned for 1 turn, and enemies that use physical skills will have their physical skills stunned for 1 turn."
-        , Skill.classes   = [Ranged, Bane]
+        , Skill.classes   = [Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
@@ -715,15 +715,15 @@ cs =
     ] []
   , Character
     "Mei Terumi"
-    "The third Mizukage of the Hidden Mist Village, Mei works tirelessly to help her village overcome its dark history and become a place of kindness and prosperity. Her corrosive attacks eat away at the defenses of her "
+    "The third Mizukage of the Hidden Mist Village, Mei works tirelessly to help her village overcome its dark history and become a place of kindness and prosperity. Her corrosive attacks eat away at the defenses of her enemies."
     [ [ Skill.new
         { Skill.name      = "Solid Fog"
-        , Skill.desc      = "Mei exhales a cloud of acid mist, dealing 15 affliction damage to an enemy for 3 turns."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.desc      = "Mei exhales a cloud of acid mist that deals 15 affliction damage to an enemy for 3 turns."
+        , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ afflict 15 ]
+          [ To Enemy $ apply 3 [Afflict 15] ]
         }
       ]
     , [ Skill.new
@@ -742,7 +742,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Lava Monster"
         , Skill.desc      = "Mei spits a stream of hot lava, dealing 10 affliction damage to all enemies and removing 20 destructible defense from them for 3 turns."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3

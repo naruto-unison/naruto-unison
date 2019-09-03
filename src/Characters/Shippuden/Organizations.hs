@@ -304,7 +304,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Kotoamatsukami"
         , Skill.desc      = "Danzō infiltrates the mind of an enemy. The next time they use a skill, its effects will be nullified, they will be stunned for 2 turns, and this skill will be replaced by the skill they used for 2 turns. Danzō's copy of their skill has no chakra cost or cooldown and ends when this skill reverts."
-        , Skill.classes   = [ Mental, Ranged, Invisible, Uncounterable, Unreflectable]
+        , Skill.classes   = [Mental, Ranged, Invisible, Uncounterable, Unreflectable]
         , Skill.cost      = [Blood, Gen, Gen]
         , Skill.cooldown  = 9
         , Skill.effects   =
