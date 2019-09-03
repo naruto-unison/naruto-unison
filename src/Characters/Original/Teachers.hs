@@ -170,7 +170,7 @@ cs =
       , Skill.new
         { Skill.name      = "Twin Snake Sacrifice"
         , Skill.desc      = "Kills Anko and the target of [Dual Pin]."
-        , Skill.require   = HasU "Dual Pin"
+        , Skill.require   = HasU 1 "Dual Pin"
         , Skill.classes   = [Melee]
         , Skill.cost      = [Nin, Nin]
         , Skill.effects   =
@@ -287,7 +287,7 @@ cs =
       , Skill.new
         { Skill.name      = "Sylvan Fetters Attack"
         , Skill.desc      = "Deals 30 piercing damage to the target of [Demonic Illusion: Sylvan Fetters]."
-        , Skill.require   = HasU "Demonic Illusion: Sylvan Fetters"
+        , Skill.require   = HasU 1 "Demonic Illusion: Sylvan Fetters"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =

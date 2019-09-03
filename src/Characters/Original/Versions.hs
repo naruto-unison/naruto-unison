@@ -258,10 +258,11 @@ cs =
       , Skill.new
         { Skill.name      = "Giant Sand Burial"
         , Skill.desc      = "Demolishes Gaara's destructible barrier and the destructible defense of enemies affected by [Sand Burial Prison], then deals 40 piercing damage to them."
+        , Skill.require   = HasU 1 "Sand Burial Prison"
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin, Nin]
         , Skill.effects   =
-          [ To Enemies $ whenM (targetHas "Sand Burial Prison") do
+          [ To Enemies do
                 demolishAll
                 pierce 40
           , To Self    $ cancelChannel "Sand Burial Prison"

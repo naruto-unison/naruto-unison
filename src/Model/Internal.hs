@@ -79,7 +79,7 @@ data Requirement
     = Usable
     | Unusable
     | HasI Int Text
-    | HasU Text
+    | HasU Int Text
     deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 
 -- | Target destinations of 'Skill's.

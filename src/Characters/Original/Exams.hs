@@ -419,11 +419,12 @@ cs =
     , [ Skill.new
         { Skill.name      = "Tighten Joints"
         , Skill.desc      = "By stiffening his joints, Misumi gains 15 non-stacking permanent destructible defense. If an enemy is affected by [Soft Physique Modification], they take 20 damage and are stunned for 1 turn."
+        , Skill.require   = HasU 1 "Soft Physique Modification"
         , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self    $ defend 0 15
-          , To Enemies $ whenM (targetHas "Soft Physique Modification") do
+          , To Enemies do
                 damage 20
                 apply 1 [Stun All]
           ]

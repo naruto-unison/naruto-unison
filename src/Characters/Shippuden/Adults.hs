@@ -70,7 +70,7 @@ cs =
     "Having somehow managed to avoid lung cancer, Asuma remains the leader of Team 10. Using techniques he learned from the Fire Temple, he hinders his opponents and instantly executes weak enemies."
     [ [ Skill.new
         { Skill.name      = "Thousand Hand Strike"
-        , Skill.desc      = "Asuma summons Kannon, the Fire Temple's patron spirit, which provides him with 40 permanent destructible defense and deals 25 damage to an enemy. Next turn, this skill becomes [Kannon Strike][r]. When [Kannon Strike] ends, this skill is disabled for 1 turn."
+        , Skill.desc      = "Asuma summons Kannon, the Fire Temple's patron spirit, which provides him with 40 permanent destructible defense and deals 25 damage to an enemy. The following turn, this skill becomes [Kannon Strike][r]. When [Kannon Strike] ends, this skill is disabled for 1 turn."
         , Skill.require   = HasI (-1) "Overheating"
         , Skill.classes   = [Physical, Melee, Summon]
         , Skill.cost      = [Blood, Rand]
@@ -429,7 +429,7 @@ cs =
     "A jōnin from the Hidden Cloud Village, C is one of the Raikage's bodyguards. Reliable and dutiful, C supports his allies with healing and sensing."
     [ [ Skill.new
         { Skill.name      = "Sensory Technique"
-        , Skill.desc      = "C strikes a random enemy while detecting the flow of chakra, dealing 20 damage to them. Next turn, if an enemy uses a skill on C, he will become invulnerable for 1 turn."
+        , Skill.desc      = "C strikes a random enemy while detecting the flow of chakra, dealing 20 damage to them. If an enemy uses a skill on C next turn, he will become invulnerable for 1 turn."
         , Skill.classes   = [Mental, Nonstacking, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1

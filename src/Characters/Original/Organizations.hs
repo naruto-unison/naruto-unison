@@ -179,7 +179,7 @@ cs =
       , Skill.new
         { Skill.name      = "Chain Shred"
         , Skill.desc      = "Meizu tears his chains through the target of [Chain Wrap], dealing 45 piercing damage and reapplying [Chain Wrap], stunning the target's non-mental skills for 1 turn."
-        , Skill.require   = HasU "Chain Wrap"
+        , Skill.require   = HasU 1 "Chain Wrap"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =

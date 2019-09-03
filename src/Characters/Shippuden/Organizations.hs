@@ -227,7 +227,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Venom Explosion"
         , Skill.desc      = "Torune detonates all Venom Beetles on an enemy, depleting 1 random chakra for each Venom Beetle destroyed. "
-        , Skill.require   = HasU "Venom Beetle"
+        , Skill.require   = HasU 1 "Venom Beetle"
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood, Blood, Rand]
         , Skill.cooldown  = 2

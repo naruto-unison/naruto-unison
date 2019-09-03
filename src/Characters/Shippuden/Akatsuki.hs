@@ -225,7 +225,7 @@ cs =
       , Skill.new
         { Skill.name      = "Blood Curse Ritual"
         , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, skills used on Hidan and the target by their opponents are also reflected to each other, and this skill becomes [Death Blow][t][g]. Hidan ignores status effects from enemies except chakra cost changes, although his target does not. Damage that Hidan deals to himself while Linked to a living target heals him instead."
-        , Skill.require   = HasU "First Blood"
+        , Skill.require   = HasU 1 "First Blood"
         , Skill.classes   = [Soulbound, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Gen]
         , Skill.effects   =
@@ -743,7 +743,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Spirit Absorption"
         , Skill.desc      = "Pain draws out the lifeforce of an enemy affected by [Mind Invasion], stealing 20 health and absorbing 1 random chakra. Reveals invisible effects from the target and the target's cooldowns for 1 turn."
-        , Skill.require   = HasU "Mind Invasion"
+        , Skill.require   = HasU 1 "Mind Invasion"
         , Skill.classes   = [Mental, Melee, Unreflectable]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 2
@@ -758,7 +758,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Soul Rip"
         , Skill.desc      = "Pain pulls out the soul of an enemy affected by [Mind Invasion], stealing 30 health. If their health reaches 30 or lower, they die; if not, he absorbs 1 random chakra from them and stuns them for 1 turn. Reveals invisible effects from the target and the target's cooldowns for 1 turn."
-        , Skill.require   = HasU "Mind Invasion"
+        , Skill.require   = HasU 1 "Mind Invasion"
         , Skill.classes   = [Mental, Melee, Unreflectable]
         , Skill.cost      = [Gen, Tai]
         , Skill.cooldown  = 2
@@ -843,10 +843,11 @@ cs =
       , Skill.new
         { Skill.name      = "Genjutsu Missile"
         , Skill.desc      = "Deals 20 damage to the target of [Guided Missile] and prevents them from reducing damage or becoming invulnerable for 2 turns."
+        , Skill.require   = HasU 1 "Guided Missile"
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ To Enemies $ whenM (targetHas "Guided Missile") do
+          [ To Enemies do
                 damage 25
                 apply 2 [Expose]
           , To Self do
@@ -857,10 +858,11 @@ cs =
       , Skill.new
         { Skill.name      = "Ninjutsu Missile"
         , Skill.desc      = "Deals 25 damage to the target of [Guided Missile] and stuns them for 1 turn."
+        , Skill.require   = HasU 1 "Guided Missile"
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Enemies $ whenM (targetHas "Guided Missile") do
+          [ To Enemies do
                 damage 25
                 apply 1 [Stun All]
           , To Self do
@@ -871,10 +873,11 @@ cs =
       , Skill.new
         { Skill.name      = "Taijutsu Missile"
         , Skill.desc      = "Deals 30 piercing damage to the target of [Guided Missile]."
+        , Skill.require   = HasU 1 "Guided Missile"
         , Skill.classes   = [Physical, Ranged, Bypassing]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Enemies $ whenM (targetHas "Guided Missile") $ pierce 30
+          [ To Enemies $ pierce 30
           ,  To Self do
                 cancelChannel "Guided Missile"
                 everyone $ remove "Guided Missile"

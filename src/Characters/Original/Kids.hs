@@ -676,7 +676,7 @@ cs =
       , Skill.new
         { Skill.name      = "Sand Burial"
         , Skill.desc      = "Kills the target of [Sand Coffin]."
-        , Skill.require   = HasU "Sand Coffin"
+        , Skill.require   = HasU 1 "Sand Coffin"
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Nin]
         , Skill.effects   =

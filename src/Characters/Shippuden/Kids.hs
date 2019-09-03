@@ -400,7 +400,7 @@ cs =
       , Skill.new
         { Skill.name      = "Shadow Sewing: Hold"
         , Skill.desc      = "Deals 20 damage to an enemy affected by [Shadow Sewing] and prolongs its stun by 1 turn."
-        , Skill.require   = HasU "Shadow Sewing"
+        , Skill.require   = HasU 1 "Shadow Sewing"
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]
         , Skill.effects   =

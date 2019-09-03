@@ -327,7 +327,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Gold Dust Waterfall"
-        , Skill.desc      = "A towering tidal wave of gold slams down on an enemy, dealing 35 damage and applying 30 permanent destructible barrier. Next turn, [Gold Dust Wave] and [24-Karat Barricade] will apply twice as much destructible barrier to them."
+        , Skill.desc      = "A towering tidal wave of gold slams down on an enemy, dealing 35 damage and applying 30 permanent destructible barrier. The following turn, [Gold Dust Wave] and [24-Karat Barricade] will apply twice as much destructible barrier to them."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 2
@@ -506,7 +506,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Blood Harvest"
         , Skill.desc      = "Kubikiribōchō drinks up the blood it has spilled and uses the iron to reinforce itself, draining 10 health from a target affected by [Executioner's Butchering] to provide 10 permanent destructible defense. Extends the duration of [Demon Shroud] by 1 turn if active."
-        , Skill.require   = HasU "Executioner's Butchering"
+        , Skill.require   = HasU 1 "Executioner's Butchering"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
@@ -557,7 +557,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Depth Charge"
-        , Skill.desc      = "Ameyuri surrounds herself with lightning and electrocutes an opponent, dealing 30 damage. Deals affliction damage if the target is affected by Electricity. Next turn, enemies who use a skill on Ameyuri will have 1 turn of Electricity applied to them."
+        , Skill.desc      = "Ameyuri surrounds herself with lightning and electrocutes an opponent, dealing 30 damage. Deals affliction damage if the target is affected by Electricity. Enemies who use a skill on Ameyuri next turn will have 1 turn of Electricity applied to them."
         , Skill.classes   = [Bane, Chakra, Melee, Extending]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
@@ -631,7 +631,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Wire Crucifixion"
         , Skill.desc      = "Kushimaru stitches up all enemies affected by [Needle and Thread], dealing 15 piercing damage and ending their Action and Control skills in progress."
-        , Skill.require   = HasU "Needle and Thread"
+        , Skill.require   = HasU 1 "Needle and Thread"
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Tai]
         , Skill.effects   =
