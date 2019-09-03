@@ -81,7 +81,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Wood Clone"
-        , Skill.desc      = "Yamato protects himself or an ally with a clone of wood for 1 turn, countering the first non-mental harmful skill used on them. If countered, the attacker receives 20 damage and the target gains 20 destructible defense, and [Tenth Edict on Enlightenment] is recharged."
+        , Skill.desc      = "Yamato protects himself or an ally with a clone of wood for 1 turn, countering the first non-mental skill an enemy uses on them. If countered, the attacker receives 20 damage and the target gains 20 destructible defense, and [Tenth Edict on Enlightenment] is recharged."
         , Skill.classes   = [Physical, Melee, Invisible]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
@@ -145,7 +145,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Mind Transfer Puppet Curse"
-        , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a harmful non-mental skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Effects from Fū's usage of their skills are canceled when Fū's skills revert."
+        , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a non-mental skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Effects from Fū's usage of their skills are canceled when Fū's skills revert."
         , Skill.classes   = [Mental, InvisibleTraps, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3

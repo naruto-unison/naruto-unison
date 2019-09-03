@@ -59,7 +59,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Raging Flames"
-        , Skill.desc      = "Finally emerging from years of imprisonment, Kurama is as cranky as he is powerful. He rains fire upon the enemy team, dealing 20 affliction damage and weakening their non-affliction damage by 10 for 1 turn."
+        , Skill.desc      = "Finally emerging from years of imprisonment, Kurama is as cranky as he is powerful. He rains fire upon the enemy team, dealing 20 affliction damage and weakening their damage by 10 for 1 turn."
         , Skill.classes   = [Bane, Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
@@ -110,7 +110,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Burning Chakra Hand"
-        , Skill.desc      = "Naruto extends a limb made of chakra to reach out and grab an enemy, dealing 20 damage and weakening their non-affliction damage by 5 for 1 turn."
+        , Skill.desc      = "Naruto extends a limb made of chakra to reach out and grab an enemy, dealing 20 damage and weakening their damage by 5 for 1 turn."
         , Skill.require   = HasI 1 "Four-Tailed Transformation"
         , Skill.classes   = [Melee, Bypassing]
         , Skill.cost      = [Blood]
@@ -162,7 +162,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Chidori"
-        , Skill.desc      = "Sasuke attacks an enemy from above, dealing 20 piercing damage and weakening their non-affliction damage by 10 for 1 turn. Deals 10 additional damage during [Sharingan]. If this skill kills an enemy, [Sharingan Genjutsu] will be applied to a random enemy."
+        , Skill.desc      = "Sasuke attacks an enemy from above, dealing 20 piercing damage and weakening their damage by 10 for 1 turn. Deals 10 additional damage during [Sharingan]. If this skill kills an enemy, [Sharingan Genjutsu] will be applied to a random enemy."
         , Skill.classes   = [Chakra, Melee, Bypassing]
         , Skill.cost      = [Nin]
         , Skill.effects   =

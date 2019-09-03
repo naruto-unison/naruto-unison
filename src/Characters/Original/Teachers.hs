@@ -106,7 +106,7 @@ cs =
     "Team 7's jōnin squad leader, Kakashi puts the life of his teammates above all else. Known as the Copy Ninja, Kakashi analyzes and duplicates abilities used against him."
     [ [ Skill.new
         { Skill.name      = "Sharingan"
-        , Skill.desc      = "Kakashi anticipates any attacks against him, copying them faster than their user. All harmful skills that target Kakashi next turn will be reflected."
+        , Skill.desc      = "Kakashi anticipates any attacks against him, copying them faster than their user. All skills that enemies use on Kakashi next turn will be reflected back at them."
         , Skill.classes   = [Chakra, Melee, Invisible]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
@@ -210,7 +210,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Crescent Moon Dance"
-        , Skill.desc      = "Performing a genjutsu-aided triple sword strike, Hayate deals 30 damage to an enemy. Catching his opponents off guard, he also counters the first harmful skill used on him in the next turn."
+        , Skill.desc      = "Performing a genjutsu-aided triple sword strike, Hayate deals 30 damage to an enemy. Catching his opponents off guard, he also counters the first skill an enemy uses on him in the next turn."
         , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
@@ -351,7 +351,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Self-Sacrifice"
-        , Skill.desc      = "Asuma continually protects one ally. All harmful skills used on the target will be reflected to Asuma. This skill can be used again with no chakra cost to cancel its effect."
+        , Skill.desc      = "Asuma continually protects one ally. All skills that enemies use on the target will be reflected to Asuma. This skill can be used again with no chakra cost to cancel its effect."
         , Skill.classes   = [Physical, Melee, Soulbound, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -408,7 +408,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Counter Punch"
-        , Skill.desc      = "Guy singles out an enemy. If the target uses a harmful skill next turn, they will be countered and receive 30 damage."
+        , Skill.desc      = "Guy singles out an enemy. If the target uses a skill on Guy or his allies next turn, they will be countered and receive 30 damage."
         , Skill.classes   = [Physical, Melee, Invisible]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2

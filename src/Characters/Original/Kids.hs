@@ -496,7 +496,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Chakra Hair Trap"
-        , Skill.desc      = "Ino endows a strand of hair with chakra to create an ensnaring trap near an enemy. If they use a harmful skill during their next turn, their cooldowns will increase by 1 for 2 turns."
+        , Skill.desc      = "Ino endows a strand of hair with chakra to create an ensnaring trap near an enemy. If they use a skill on Ino or her allies during their next turn, their cooldowns will increase by 1 for 2 turns."
         , Skill.classes   = [Chakra, Ranged, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
@@ -756,7 +756,7 @@ cs =
     "The older sister of Gaara and Kankurō, Temari is a cruel and blunt expert in war-fan combat. She uses her massive iron fan to generate powerful gusts of wind that repel attacks on her team."
     [ [ Skill.new
         { Skill.name       = "Cyclone Scythe"
-        , Skill.desc       = "Temari creates a razor sharp wind with her fan that hits an enemy, dealing 20 damage. The following turn, she is invulnerable to all harmful non-mental skills."
+        , Skill.desc       = "Temari creates a razor sharp wind with her fan that hits an enemy, dealing 20 damage. The following turn, she is invulnerable to non-mental skills."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -777,7 +777,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Sandstorm"
-        , Skill.desc      = "Temari kicks up dust with her fan, granting her team invulnerability for 1 turn and weakening all enemies' non-affliction damage by 15 for 2 turns."
+        , Skill.desc      = "Temari kicks up dust with her fan, granting her team invulnerability for 1 turn and weakening all enemies' damage by 15 for 2 turns."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 5

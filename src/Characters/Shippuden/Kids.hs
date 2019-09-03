@@ -36,7 +36,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Multi Shadow Clone"
-        , Skill.desc      = "Naruto creates countless clones hidden in the area around him, who counter the first harmful skill used on him in the next turn."
+        , Skill.desc      = "Naruto creates countless clones, hidden in the area around him, who counter the first skill an enemy uses on him in the next turn."
         , Skill.classes   = [Physical, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
@@ -245,7 +245,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Fang Over Fang"
-        , Skill.desc      = "Kiba launches attack after attack on an enemy, dealing 40 damage to them and permanently lowering their non-affliction damage by 10. Deals 10 additional damage during [Man-Beast Clone]. Deals 20 additional damage during [Three-Headed Wolf]."
+        , Skill.desc      = "Kiba launches attack after attack on an enemy, dealing 40 damage to them and permanently lowering their damage by 10. Deals 10 additional damage during [Man-Beast Clone]. Deals 20 additional damage during [Three-Headed Wolf]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Tai]
         , Skill.cooldown  = 1
@@ -297,7 +297,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Insect Barricade"
-        , Skill.desc      = "Colonies of insects hide around Shino or one of his allies, countering the first harmful skill used against them in the next turn. If an enemy is countered, [Gigantic Beetle Infestation] is applied to them and activated. If no enemies are countered, Shino gains a bloodline chakra."
+        , Skill.desc      = "Colonies of insects hide around Shino or one of his allies, countering the first skill an enemy uses on them in the next turn. If an enemy is countered, [Gigantic Beetle Infestation] is applied to them and activated. If no enemies are countered, Shino gains a bloodline chakra."
         , Skill.classes   = [Melee, Invisible, Unreflectable]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
@@ -350,7 +350,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Gentle Step Twin Lion Fists"
-        , Skill.desc      = "Hinata creates two lions out of chakra. The next 2 times an enemy uses a harmful skill, a chakra lion will attack them, dealing 30 damage and depleting 1 random chakra. Creates a third lion during [Eight Trigrams Sixty-Four Palms]. Cannot be used while active. Ends if Hinata dies."
+        , Skill.desc      = "Hinata creates two lions out of chakra. The next 2 times an enemy uses a skill on Hinata or her allies, a chakra lion will attack them, dealing 30 damage and depleting 1 random chakra. Creates a third lion during [Eight Trigrams Sixty-Four Palms]. Cannot be used while active. Ends if Hinata dies."
         , Skill.classes   = [Chakra, Melee, Bypassing, Soulbound, Single, Resource]
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =
@@ -370,7 +370,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Sixty-Four Palms"
-        , Skill.desc      = "For 4 turns, each time an enemy affected by [Pressure Point Strike] uses a harmful skill, Hinata's next [Pressure Point Strike] will last 1 additional turn on them."
+        , Skill.desc      = "For 4 turns, each time an enemy affected by [Pressure Point Strike] uses a skill on Hinata or her allies, Hinata's next [Pressure Point Strike] will last 1 additional turn on them."
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -413,7 +413,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Long-Range Tactics"
-        , Skill.desc      = "Shikamaru goes long. For 4 turns, each time Shikamaru uses a harmful skill, if no enemy used a skill last turn that dealt non-affliction damage to him, he will become invulnerable for 1 turn. While active, this skill becomes [Final Explosion][r][r]."
+        , Skill.desc      = "Shikamaru goes long. For 4 turns, each time Shikamaru uses a skill on an enemy, he will become invulnerable for 1 turn. However, if an enemy uses a skill that deals non-affliction damage to him, he will not become invulnerable during the next turn. While active, this skill becomes [Final Explosion][r][r]."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 5
@@ -560,7 +560,7 @@ cs =
     "Now a chūnin, Ino takes control of every fight she faces. Her overpowering will steals the skills and secrets of her enemies and forces her allies to fight on no matter the cost. "
     [ [ Skill.new
         { Skill.name      = "Mind Destruction"
-        , Skill.desc      = "Ino infiltrates an enemy's mind and prepares to strike at a moment of weakness. Next turn, the target receives 15 damage. If they use a harmful skill, its effects will be nullified and this skill will be replaced by that skill for 1 turn. Ino's copy of their skill has no chakra cost and ends when this skill reverts."
+        , Skill.desc      = "Ino infiltrates an enemy's mind and prepares to strike at a moment of weakness. Next turn, the target receives 15 damage. If they use a skill on Ino or her allies next turn, its effects will be nullified and this skill will be replaced by that skill for 1 turn. Ino's copy of their skill has no chakra cost and ends when this skill reverts."
         , Skill.classes   = [Mental, Ranged, Invisible, Unreflectable, Unremovable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
@@ -598,7 +598,7 @@ cs =
     "Lee's years of training with Gai have taught him not only new abilities, but what it truly means to fight. His strength grows as his allies fall, determined to honor them by finishing their battle."
     [ [ Skill.new
         { Skill.name      = "Leaf Rising Wind"
-        , Skill.desc      = "Lee plants his back on the ground and uses his entire body as a spring to kick an enemy with such power that they are launched into the air, dealing 15 damage and lowering the target's non-affliction damage by 15 for 2 turns. Deals 10 additional damage per dead ally. Effect lasts 1 additional turn per dead ally."
+        , Skill.desc      = "Lee plants his back on the ground and uses his entire body as a spring to kick an enemy with such power that they are launched into the air, dealing 15 damage and lowering the target's damage by 15 for 2 turns. Deals 10 additional damage per dead ally. Effect lasts 1 additional turn per dead ally."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -767,7 +767,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Sixty-Four Palms"
-        , Skill.desc      = "For 2 turns, enemies are prevented from reducing damage or becoming invulnerable. If an enemy uses a harmful skill on Neji during the first turn, it is countered and this skill is replaced for 1 turn by [Pressure Point Strike]."
+        , Skill.desc      = "For 2 turns, enemies are prevented from reducing damage or becoming invulnerable. If an enemy uses a skill on Neji during the first turn, it is countered and this skill is replaced for 1 turn by [Pressure Point Strike]."
         , Skill.classes   = [Physical, Mental, Invisible]
         , Skill.cost      = [Blood]
         , Skill.effects   =
@@ -816,7 +816,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Third Eye"
-        , Skill.desc      = "A hidden layer of sensing sand surrounds Gaara and his allies. Next turn, the first harmful skill used on his team will be countered and provide its target with 15 permanent destructible defense."
+        , Skill.desc      = "A hidden layer of sensing sand surrounds Gaara and his allies. Next turn, the first skill an enemy uses on Gaara or his allies will be countered and provide its target with 15 permanent destructible defense."
         , Skill.classes   = [Physical, Invisible, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2

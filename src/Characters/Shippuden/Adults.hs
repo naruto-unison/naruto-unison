@@ -138,7 +138,7 @@ cs =
     "Over the past few years, Guy has learned restraint. By gradually opening his Gates in sequence, he avoids the risk of burning out before the battle is won."
     [ [ Skill.new
         { Skill.name      = "Nunchaku"
-        , Skill.desc      = "Using his signature Twin Fangs weapons, Guy deals 10 damage to an enemy for 3 turns. While active, if an enemy uses a harmful physical skill on him, he will deal 10 damage to them. Deals 5 additional damage on the first turn per stack of [Single Gate Release]."
+        , Skill.desc      = "Using his signature Twin Fangs weapons, Guy deals 10 damage to an enemy for 3 turns. While active, if an enemy uses a physical skill on him, he will deal 10 damage to them. Deals 5 additional damage on the first turn per stack of [Single Gate Release]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.dur       = Action 3
@@ -225,7 +225,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Humidified Cloth"
-        , Skill.desc      = "Maki soaks a strip of cloth in steam and lashes out with it, dealing 20 piercing damage to an enemy and stunning their harmful skills for 1 turn."
+        , Skill.desc      = "Maki soaks a strip of cloth in steam and lashes out with it, dealing 20 piercing damage to an enemy and stunning their skills that affect opponents for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =

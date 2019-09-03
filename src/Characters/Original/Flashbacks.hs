@@ -101,7 +101,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Air Palm Wall"
-        , Skill.desc      = "Hiashi prepares to blast an enemy's attack back. The first harmful skill used on him or his allies next turn will be reflected."
+        , Skill.desc      = "Hiashi prepares to blast an enemy's attack back. The first skill an enemy uses on him or his allies next turn will be reflected back at them."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
@@ -149,7 +149,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Partial Expansion"
-        , Skill.desc      = "If used on an enemy, the next harmful non-mental skill they use will be countered. If used on an ally, the next harmful non-mental skill used on them will be countered. The person countered will receive 10 damage, bypassing invulnerability."
+        , Skill.desc      = "If used on an enemy, the next non-mental skill they use on Chōza or his allies will be countered. If used on an ally, the next non-mental skill an enemy uses on them will be countered. The person countered will receive 10 damage, bypassing invulnerability."
         , Skill.classes   = [Physical, Melee, Single, Invisible, Unreflectable]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
@@ -180,7 +180,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Sensory Radar"
-        , Skill.desc      = "Inoichi steps back and focuses on the tide of battle. Each time an enemy uses a harmful skill, Inoichi will recover 10 health and gain a stack of [Sensory Radar]. While active, this skill becomes [Sensory Radar: Collate][r]."
+        , Skill.desc      = "Inoichi steps back and focuses on the tide of battle. Each time an enemy uses a skill on Inoichi or his allies, Inoichi will recover 10 health and gain a stack of [Sensory Radar]. While active, this skill becomes [Sensory Radar: Collate][r]."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -207,7 +207,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Mental Invasion"
-        , Skill.desc      = "Inoichi preys on an enemy's weaknesses. For 4 turns, all invulnerability skills used by the target will have their duration reduced by 1 turn. While active, anyone who uses a harmful mental skill on the target will become invulnerable for 1 turn."
+        , Skill.desc      = "Inoichi preys on an enemy's weaknesses. For 4 turns, all invulnerability skills used by the target will have their duration reduced by 1 turn. While active, any enemy who uses a mental skill on the target will become invulnerable for 1 turn."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
@@ -337,7 +337,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Teleportation Barrier"
-        , Skill.desc      = "Space warps around Minato or one of his allies. The first harmful skill used on the target next turn will be reflected."
+        , Skill.desc      = "Space warps around Minato or one of his allies. The first skill an enemy uses on the target will be reflected back at them."
         , Skill.classes   = [Chakra, Ranged, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
@@ -568,7 +568,7 @@ cs =
     "As the Nine-Tailed Beast rampages across the Hidden Leaf Village, a mysterious masked man appears and attempts to bend it to his will. The legendary beast demolishes house after house, laying waste to the defenses of its enemies."
     [ [ Skill.new
         { Skill.name      = "Kamui Chain Combo"
-        , Skill.desc      = "The masked man snares an enemy in sealing chains and phases through them, becoming invulnerable to damage and ignoring harmful effects other than chakra cost changes for 1 turn."
+        , Skill.desc      = "The masked man snares an enemy in sealing chains and phases through them, becoming invulnerable for 1 turn."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2

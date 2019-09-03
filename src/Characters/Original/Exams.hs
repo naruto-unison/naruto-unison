@@ -123,7 +123,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Chakra Scalpel"
         , Skill.desc      = "Kabuto slices an enemy with a medical scalpel made of chakra, dealing 20 piercing damage. For 1 turn, the target's skills cost 1 additional random chakra and they receive 5 additional damage from physical and chakra damaging skills."
-        , Skill.classes   = [Bane, Chakra, Melee]
+        , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
@@ -280,7 +280,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Wall of Air"
-        , Skill.desc      = "An invisible barrier of air shields an ally, countering the first harmful non-mental skill used on them next turn."
+        , Skill.desc      = "An invisible barrier of air shields an ally, countering the first non-mental skill an enemy uses on them next turn."
         , Skill.classes   = [Physical, Invisible, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
@@ -404,7 +404,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Soft Physique Modification"
-        , Skill.desc      = "Misumi wraps around an enemy. For 2 turns, all harmful non-mental skills used on Misumi are reflected to that enemy. During this time, the target cannot reduce damage or become invulnerable."
+        , Skill.desc      = "Misumi wraps around an enemy. For 2 turns, non-mental skills that enemies use on Misumi are reflected back at them. During this time, the target cannot reduce damage or become invulnerable."
         , Skill.classes   = [Physical, Melee, Soulbound, Uncounterable, Unreflectable]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4

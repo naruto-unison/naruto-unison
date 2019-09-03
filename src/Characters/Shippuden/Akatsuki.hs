@@ -86,7 +86,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Super Shark Bomb"
-        , Skill.desc      = "Kisame traps an enemy for 1 turn. At the end of their turn, the target takes 30 damage. If they use a harmful chakra or mental skill while active, they will be countered and receive 20 additional damage."
+        , Skill.desc      = "Kisame traps an enemy for 1 turn. At the end of their turn, the target takes 30 damage. While active, if the target uses a chakra or mental skill on Kisame or his allies, they will be countered and receive 20 additional damage."
         , Skill.classes   = [Chakra, Ranged, Bypassing, Invisible]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4
@@ -107,7 +107,7 @@ cs =
     "An S-Rank rogue ninja from the Hidden Stone Village, Deidara has begrudgingly joined Akatsuki after losing in a bet to Itachi. As a former member of the Explosion Corps, he posesses the unusual ability to turn clay into explosives by infusing it with lightning chakra. Most of his reckless decisions can be attributed to his pride and his love of art, which usually outweighs any other priorities."
     [ [ Skill.new
         { Skill.name      = "C1: Bird Bomb"
-        , Skill.desc      = "Deidara hurls a clay bird at an enemy that explodes into shrapnel on impact, dealing 15 damage to the target and weakening their non-affliction damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C3: Megaton Sculpture][n][r]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
+        , Skill.desc      = "Deidara hurls a clay bird at an enemy that explodes into shrapnel on impact, dealing 15 damage to the target and weakening their damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C3: Megaton Sculpture][n][r]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
         , Skill.classes   = [Chakra, Ranged, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -119,7 +119,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "C3: Megaton Sculpture"
-        , Skill.desc      = "Deidara drops a large explosive on the enemy team, dealing 20 damage to them and weakening their non-affliction damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C1: Bird Bomb]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
+        , Skill.desc      = "Deidara drops a large explosive on the enemy team, dealing 20 damage to them and weakening their damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C1: Bird Bomb]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
         , Skill.classes   = [Chakra, Ranged, Nonstacking]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
@@ -131,7 +131,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "C2: Dragon Missile"
-        , Skill.desc      = "Deidara's dragon fires a long-range bomb at an opponent, dealing 30 damage and weakening their non-affliction damage by 5 for 4 turns. Does not stack."
+        , Skill.desc      = "Deidara's dragon fires a long-range bomb at an opponent, dealing 30 damage and weakening their damage by 5 for 4 turns. Does not stack."
         , Skill.classes   = [Chakra, Ranged, Bypassing, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
@@ -171,7 +171,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "C4: Karura"
-        , Skill.desc      = "A cloud of microscopic bombs enter an enemy's bloodstream and repeatedly detonate, dealing 10 affliction damage to the target each turn for the rest of the game and weakening their non-affliction damage by 5. Once used, this skill becomes [C0: Ultimate Art][b][n][n]."
+        , Skill.desc      = "A cloud of microscopic bombs enter an enemy's bloodstream and repeatedly detonate, dealing 10 affliction damage to the target each turn for the rest of the game and weakening their damage by 5. Once used, this skill becomes [C0: Ultimate Art][b][n][n]."
         , Skill.classes   = [Bane, Chakra, Ranged, Uncounterable, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =
@@ -224,7 +224,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Blood Curse Ritual"
-        , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, harmful skills used on Hidan and the target are also reflected to each other and this skill becomes [Death Blow][t][g]. Hidan ignores status effects from enemies except chakra cost changes, although his target does not. Damage that Hidan deals to himself while Linked to a living target heals him instead."
+        , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, skills used on Hidan and the target by their opponents are also reflected to each other, and this skill becomes [Death Blow][t][g]. Hidan ignores status effects from enemies except chakra cost changes, although his target does not. Damage that Hidan deals to himself while Linked to a living target heals him instead."
         , Skill.require   = HasU "First Blood"
         , Skill.classes   = [Soulbound, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Gen]
@@ -304,7 +304,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Scorpion Tail Constriction"
         , Skill.desc      = "Sasori shifts Hiruko into offensive mode and seizes an enemy, dealing 10 damage and stunning their non-mental skills for 1 turn. The target receives 10 additional damage from skills for the rest of the turn. Once used, this skill becomes [Scorpion Tail Strike][t][r]."
-        , Skill.classes   = [Bane, Physical, Ranged]
+        , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
@@ -408,7 +408,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Thousand Arms"
-        , Skill.desc      = "Countless concealed arms lash out from Sasori's Kazekage puppet and flail wildly for 1 turn, pinning down anyone they catch. Enemies who do not use harmful skills next turn will be pinned for 1 turn, unable to reduce damage or become invulnerable. While active, this skill becomes [Poison Gas][r][r]."
+        , Skill.desc      = "Countless concealed arms lash out from Sasori's Kazekage puppet and flail wildly for 1 turn, pinning down anyone they catch. Enemies who do not use skills on Sasori or his allies next turn will be pinned for 1 turn, unable to reduce damage or become invulnerable. While active, this skill becomes [Poison Gas][r][r]."
         , Skill.require   = HasI 1 "Iron Sand"
         , Skill.classes   = [Physical, Melee, Unreflectable]
         , Skill.cost      = [Rand]
@@ -606,7 +606,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Summoning: Giant Multi-Headed Dog"
-        , Skill.desc      = "Pain summons a huge Cerberus hound that deals 10 piercing damage to all enemies for 2 turns. The first enemy to use a harmful skill on Pain or her allies will extend the effect of this skill on them by 2 turns. Cannot be used while active."
+        , Skill.desc      = "Pain summons a huge Cerberus hound that deals 10 piercing damage to all enemies for 2 turns. The first enemy to use a skill on Pain or her allies will extend the effect of this skill on them by 2 turns. Cannot be used while active."
         , Skill.require   = HasI (-1) "Summoning: Giant Multi-Headed Dog"
         , Skill.classes   = [Physical, Melee, Summon, Bypassing, Unreflectable]
         , Skill.cost      = [Blood, Rand ]
@@ -888,7 +888,7 @@ cs =
     "Having taken over the body of Yahiko, his deceased best friend, Pain now acts through it as one of his Six Paths. To honor Yahiko's memory, Pain uses the Deva Path as the leader of the Six Paths and his main body when interacting with others. Deva Path's specialization is gravity manipulation, which he uses to impair and imprison his enemies."
     [ [ Skill.new
         { Skill.name      = "Almighty Push"
-        , Skill.desc      = "Pain targets himself or an ally. The first harmful skill used on them next turn will be countered, and the person countered will receive 20 damage. Once used, this skill alternates between [Universal Pull] and [Almighty Push] each turn. "
+        , Skill.desc      = "Pain targets himself or an ally. The first skill an enemy uses on them next turn will be countered, and the person countered will receive 20 damage. Once used, this skill alternates between [Universal Pull] and [Almighty Push] each turn. "
         , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.dur       = Passive
@@ -908,7 +908,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Almighty Push"
-        , Skill.desc      = "Pain targets himself or an ally. The first harmful skill used on them next turn will be countered, and the person countered will receive 20 damage. This skill will become [Universal Pull] next turn."
+        , Skill.desc      = "Pain targets himself or an ally. The first skill an enemy uses on them next turn will be countered, and the person countered will receive 20 damage. This skill will become [Universal Pull] next turn."
         , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.effects   =

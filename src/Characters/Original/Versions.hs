@@ -62,7 +62,7 @@ cs =
     "Having acclimated to his Curse Mark, Sasuke draws Orochimaru's vile chakra through it to grow stronger and more monstrous. His powers have grown exponentially, allowing him to pierce or trap enemies with his corrupted chakra."
     [ [ Skill.new
         { Skill.name      = "Chidori"
-        , Skill.desc      = "Mixing a Chidori with his corrupt chakra, Sasuke deals 45 piercing damage to an enemy. Corruption weakens the target for 2 turns, decreasing their non-affliction damage by 20. Costs 1 random chakra during [Curse Mark]."
+        , Skill.desc      = "Mixing a Chidori with his corrupt chakra, Sasuke deals 45 piercing damage to an enemy. Corruption enfeebles the target for 2 turns, weakening their damage by 20. Costs 1 random chakra during [Curse Mark]."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 1
@@ -127,7 +127,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Drunken Counter"
-        , Skill.desc      = "Lee targets himself or an ally. The first harmful physical skill used on the target next turn will be countered, and Lee will instantly strike the person countered with [Unpredictable Assault]."
+        , Skill.desc      = "Lee targets himself or an ally. The first physical skill an enemy uses on the target next turn will be countered, and Lee will instantly strike the person countered with [Unpredictable Assault]."
         , Skill.classes   = [Physical, Melee, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2

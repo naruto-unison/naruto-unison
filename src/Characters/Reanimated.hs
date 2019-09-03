@@ -107,7 +107,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Infinite Darkness"
-        , Skill.desc      = "Tobirama plunges the battlefield into darkness, making his team invulnerable to all harmful physical and mental skills for 1 turn."
+        , Skill.desc      = "Tobirama plunges the battlefield into darkness, making his team invulnerable to physical and mental skills for 1 turn."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
@@ -158,7 +158,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Sickle Dance"
-        , Skill.desc      = "Hanzō slashes an enemy with his sickle, dealing 15 piercing damage to them immediately and 5 affliction damage for 2 turns. During [Major Summoning: Ibuse], Ibuse swallows the target, stunning their non-mental skills for 1 turn and dealing 10 additional affliction damage."
+        , Skill.desc      = "Hanzō gouges an enemy with his sickle, dealing 15 piercing damage to them immediately and 5 affliction damage for 2 turns. During [Major Summoning: Ibuse], Ibuse swallows the target, stunning their non-mental skills for 1 turn and dealing 10 additional affliction damage."
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
@@ -200,7 +200,7 @@ cs =
     "Reanimated by Kabuto, Gengetsu was the second Mizukage of the Hidden Mist Village. Charismatic and carefree, he cheerfully offers tips to his opponents on how to beat him. He is especially fond of one-on-one duels."
     [ [ Skill.new
         { Skill.name      = "Major Summoning: Giant Clam"
-        , Skill.desc      = "Gengetsu summons a huge clam that exudes illusory mist for 4 turns. Each turn, a random member of his team becomes a mirage, reflecting the first harmful skill used on them next turn, and a random member of his team gains 80 destructible defense for 1 turn. If the clam's destructible defense is destroyed, this skill is canceled."
+        , Skill.desc      = "Gengetsu summons a huge clam that exudes illusory mist for 4 turns. Each turn, a random member of his team becomes a mirage, reflecting the first skill an enemy uses on them next turn, and a random member of his team gains 80 destructible defense for 1 turn. If the clam's destructible defense is destroyed, this skill is canceled."
         , Skill.classes   = [Chakra, Summon]
         , Skill.cost      = [Nin, Gen, Rand]
         , Skill.dur       = Ongoing 4
@@ -341,7 +341,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "24-Karat Barricade"
-        , Skill.desc      = "Rasa constructs a golden blockade in front of an enemy. If they use a harmful skill next turn, it will be countered and they will gain 20 permanent destructible barrier."
+        , Skill.desc      = "Rasa constructs a golden blockade in front of an enemy. If they use a skill on Rasa or his allies next turn, it will be countered and they will gain 20 permanent destructible barrier."
         , Skill.classes   = [Physical, Ranged, Invisible]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
@@ -359,7 +359,7 @@ cs =
       "Reanimated by Kabuto, Jirōbō was a member of the Sound Five. No longer concealing his anger beneath a facade of politeness, Jirōbō has only one thing on his mind: revenge."
       [ [ Skill.new
           { Skill.name      = "Rivalry"
-          , Skill.desc      = "Jirōbō picks out an enemy as his rival. If they use a harmful skill next turn, they will be countered and permanently forced to target Jirōbō. Effect ends if Jirōbō uses a skill on a different enemy or uses this skill again. Cannot be used during [Summoning: Earth Prison Golem]."
+          , Skill.desc      = "Jirōbō picks out an enemy as his rival. If they use a skill on Jirōbō or his allies next turn, they will be countered and permanently forced to target Jirōbō. Effect ends if Jirōbō uses a skill on a different enemy or uses this skill again. Cannot be used during [Summoning: Earth Prison Golem]."
           , Skill.require   = HasI (-1) "Summoning: Earth Prison Golem"
           , Skill.classes   = [Mental, Melee, InvisibleTraps]
           , Skill.cost      = [Rand]
