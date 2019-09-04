@@ -164,8 +164,8 @@ gameSocket = do
         flip Sql.runSqlPool (App.connPool app) $
             update who [UserTeam =. Just teamNames]
         liftIO Random.createSystemRandom >>= runReaderT do
-            randPlayer <- (Player.from :: Bool -> Player)
-                          <$> (ask >>= liftIO . Random.uniform)
+            randPlayer <- Player.from @Bool <$>
+                          (ask >>= liftIO . Random.uniform)
             let writeQueueChan = App.queue app
             readQueueChan <- (liftIO . atomically) do
                 writeTChan writeQueueChan $ Message.Announce who user team
