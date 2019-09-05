@@ -365,7 +365,7 @@ cs =
     "Sasori's most prized human puppet is the body of the Third Kazekage, which allows him to wield its magnetic abilities. As Sasori's last resort, this puppet favors all-out attack. Its enemies must deal with it quickly before its iron sand takes over the battlefield."
     [ [ Skill.new
         { Skill.name      = "Kazekage Puppet Summoning"
-        , Skill.desc      = "Sasori summons his most prized puppet, gaining 15 destructible defense and enabling his other skills. Once used, this skill becomes [Iron Sand: World Order][b][n]. Each turn, Sasori gains a stack of Iron Sand."
+        , Skill.desc      = "Sasori summons his most prized puppet, gaining 15 permanent destructible defense and enabling his other skills. Once used, this skill becomes [Iron Sand: World Order][b][n]. Each turn, Sasori gains a stack of Iron Sand."
         , Skill.classes   = [Physical]
         , Skill.dur       = Ongoing 0
         , Skill.start     =

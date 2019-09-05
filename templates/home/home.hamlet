@@ -6,16 +6,10 @@
   <h4>May 16
   <ul>
     #{changelog New "Jirōbō" Reanimated}
-  <h4>May 15
-  <ul>
-    #{changelog Added "Susano'o Itachi" Shippuden}
   <h4>May 14
   <ul>
     #{changelog Rework "Zabuza Momochi" Reanimated}
     #{changelog Rework "Fuguki Suikazan" Reanimated}
-  <h4>May 13
-  <ul>
-    #{changelog Rework "A" Reanimated}
   <h4>May 12
   <ul>
     #{changelog Added "Rock Lee" Shippuden}

@@ -9,7 +9,6 @@ module Core.Util
 
 import ClassyPrelude hiding ((<|), mapMaybe)
 import Control.Monad.Trans.Class (MonadTrans)
-import Data.List (nub)
 
 infixl 9 !?
 -- | 'unsafeIndex'.
@@ -55,8 +54,12 @@ intersectsSet xs = not . null . intersection xs
 
 -- | True if a list contains multiple identical values.
 duplic :: ∀ a. Eq a => [a] -> Bool
-duplic x = nub x /= x
-{-# INLINE duplic #-}
+duplic = go []
+  where
+    go _ [] = False
+    go seen (x:xs)
+      | x ∈ seen  = True
+      | otherwise = go (x:seen) xs
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text
@@ -69,7 +72,8 @@ shorten = omap f . filter (∉ bans)
     f 'ū' = 'u'
     f 'Ū' = 'U'
     f 'ä' = 'a'
-    f a = a
+    f a   = a
+    {-# INLINE f #-}
 
 -- | A metaconstraint for liftable functions.
 -- Useful for default signatures of MTL classes:

@@ -79,7 +79,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Wood Clone"
-        , Skill.desc      = "Yamato protects himself or an ally with a clone of wood for 1 turn, countering the first non-mental skill an enemy uses on them. If countered, the attacker receives 20 damage and the target gains 20 destructible defense, and [Tenth Edict on Enlightenment] is recharged."
+        , Skill.desc      = "Yamato protects himself or an ally with a clone of wood for 1 turn, countering the first non-mental skill an enemy uses on them. If countered, the attacker receives 20 damage and the target gains 20 permanent destructible defense, and [Tenth Edict on Enlightenment] is recharged."
         , Skill.classes   = [Physical, Melee, Invisible]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
@@ -94,7 +94,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Four-Pillar Architecture"
-        , Skill.desc      = "If used on an ally, a wooden house rises from the ground around Yamato's team and provides all of them with 20 destructible defense. If used on an enemy, a wooden prison rises from the ground around the enemy team and applies 20 destructible barrier to all of them."
+        , Skill.desc      = "If used on an ally, a wooden house rises from the ground around Yamato's team and provides all of them with 20 permanent destructible defense. If used on an enemy, a wooden prison rises from the ground around the enemy team and applies 20 permanent destructible barrier to all of them."
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4

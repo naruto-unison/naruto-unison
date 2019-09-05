@@ -96,7 +96,6 @@ gameToJSON player ninjas g = object
     ]
   where
     ns = toList ninjas
-    targets :: [[[Slot]]]
     targets = do
         n <- ns
         return do
