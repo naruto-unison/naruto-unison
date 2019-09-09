@@ -29,6 +29,7 @@ import qualified Model.Status as Status
 import           Model.Status (Status)
 import qualified Model.Trap as Trap
 import           Model.Trap (Trap, Trigger(..))
+import qualified Engine.Ninjas as Ninjas
 import qualified Engine.Traps as Traps
 
 
@@ -38,11 +39,11 @@ reflect classes n nt
   | [Mental, Unreflectable] `intersects` classes              = Nothing
   | any ((ReflectAll ∈) . Status.effects) $ Ninja.statuses nt = Just nt
   | any ((OnReflectAll ==) . Trap.trigger) $ Ninja.traps n    = Just nt
-  | otherwise = Ninja.drop (Reflect ==) nt
+  | otherwise = Ninjas.drop (Reflect ==) nt
 
 -- | Trigger a 'SnareTrap'.
 snareTrap :: Skill -> Ninja -> Maybe (Ninja, Int)
-snareTrap skill n = [(n', a) | (n', SnareTrap _ a, _) <- Ninja.take match n]
+snareTrap skill n = [(n', a) | (n', SnareTrap _ a, _) <- Ninjas.take match n]
   where
     match (SnareTrap cla _) = cla ∈ Skill.classes skill
     match _                 = False
@@ -77,17 +78,11 @@ death slot = do
           | otherwise     = Traps.getOf slot OnRes n
     if | Ninja.health n > 0 -> return ()
        | null res           -> do
-            P.modify slot \nt ->
-                nt { Ninja.traps = filter ((OnDeath /=) . Trap.trigger) $
-                                  Ninja.traps nt }
+            P.modify slot $ Ninjas.clearTraps OnDeath
             traverse_ P.launch $ Traps.getOf slot OnDeath n
             P.modifyAll unres
        | otherwise          -> do
-            P.modify slot \nt ->
-                nt { Ninja.health = 1
-                   , Ninja.traps  = filter ((OnRes /=) . Trap.trigger) $
-                                    Ninja.traps nt
-                   }
+            P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps OnRes
             traverse_ P.launch res
   where
     unres n = n

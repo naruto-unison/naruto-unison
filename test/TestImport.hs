@@ -54,10 +54,10 @@ import           Model.Runnable (Runnable(..), RunConstraint)
 import qualified Model.Skill as Skill
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
-import qualified Engine.Adjust as Adjust
 import qualified Engine.Effects as Effects
 import qualified Engine.Execute as Execute
-import qualified Engine.SkillTransform as SkillTransform
+import qualified Engine.Ninjas as Ninjas
+import qualified Engine.Skills as Skills
 import qualified Engine.Traps as Traps
 import qualified Engine.Trigger as Trigger
 import qualified Engine.Turn as Turn
@@ -129,7 +129,7 @@ wrap player = do
     --P.alter \game -> game { Game.playing = player }
     user   <- P.user
     nUser  <- P.nUser
-    skill  <- SkillTransform.change nUser <$> P.skill
+    skill  <- Skills.change nUser <$> P.skill
     let classes = Skill.classes skill
     P.trigger user $ OnAction <$> toList (Skill.classes skill)
     efs        <- Execute.chooseTargets
@@ -154,7 +154,7 @@ wrap player = do
 
     P.modify user \n -> n { Ninja.acted = True }
     traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
-    P.modifyAll $ Adjust.effects . \n -> n { Ninja.triggers = mempty }
+    P.modifyAll $ Ninjas.processEffects . \n -> n { Ninja.triggers = mempty }
 
 act :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 act = Turn.process $ wrap Player.A
@@ -185,14 +185,14 @@ enemyTurn f = do
 
 stunned :: [Class] -> Ninja -> Bool
 stunned classes n =
-    null $ (Stun <$> classes) \\ (Ninja.effects $ Adjust.effects n)
+    null $ (Stun <$> classes) \\ (Ninja.effects $ Ninjas.processEffects n)
 
 targetIsExposed :: ∀ m. (MonadPlay m, MonadRandom m) => m Bool
 targetIsExposed = do
     target <- P.target
     P.with (\ctx -> ctx { Context.user = target }) $
         apply 0 [Invulnerable All]
-    null . Effects.immune . Adjust.effects <$> P.nTarget
+    null . Effects.immune . Ninjas.processEffects <$> P.nTarget
 
 totalDefense :: Ninja -> Int
 totalDefense = sum . (Defense.amount <$>) . Ninja.defense

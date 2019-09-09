@@ -28,11 +28,11 @@ import qualified Model.Status as Status
 import           Model.Status (Bomb(..), Status)
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
-import qualified Engine.Adjust as Adjust
 import qualified Engine.Chakras as Chakras
 import qualified Engine.Effects as Effects
 import qualified Engine.Execute as Execute
 import           Engine.Execute (Affected(..))
+import qualified Engine.Ninjas as Ninjas
 import qualified Engine.Traps as Traps
 import qualified Engine.Trigger as Trigger
 
@@ -62,20 +62,20 @@ process runner = do
     traverse_ Execute.act channels
     Traps.runTurn initial
     doBombs Remove initial
-    P.modifyAll Ninja.decrStats
+    P.modifyAll Ninjas.decrStats
     doBarriers
     doDelays
     doDeaths
     P.alter \game -> game { Game.delays = decrDelays $ Game.delays game }
     expired <- P.ninjas
-    P.modifyAll Ninja.decr
+    P.modifyAll Ninjas.decr
     doBombs Expire expired
     doBombs Done initial
     doHpsOverTime
     P.alter \game -> game { Game.playing = opponent }
     doDeaths
     P.yieldVictor
-    P.modifyAll Adjust.effects
+    P.modifyAll Ninjas.processEffects
   where
     getChannels n = map (Act.fromChannel n) .
                     filter ((1 /=) . TurnBased.getDur) $
@@ -130,7 +130,7 @@ doHpOverTime slot = do
     player <- P.player
     n      <- P.ninja slot
     hp     <- Effects.hp player n <$> P.ninjas
-    when (Ninja.alive n) . P.modify slot $ Ninja.adjustHealth (— hp)
+    when (Ninja.alive n) . P.modify slot $ Ninjas.adjustHealth (— hp)
 
 doHpsOverTime :: ∀ m. MonadGame m => m ()
 doHpsOverTime = traverse_ doHpOverTime Slot.all

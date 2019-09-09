@@ -31,6 +31,7 @@ import           Model.Trap (Trap(Trap), Trigger(..))
 import qualified Engine.Effects as Effects
 import qualified Engine.Execute as Execute
 import           Engine.Execute (Affected(..))
+import qualified Engine.Ninjas as Ninjas
 
 -- | Adds a @Trap@ to 'Ninja.traps' that targets the person it was used on.
 trap :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
@@ -75,8 +76,8 @@ onBreak' = do
     user <- P.user
     name <- Skill.name <$> P.skill
     onBreak do
-        P.modify user $ Ninja.cancelChannel name
-        P.modifyAll $ Ninja.clear name user
+        P.modify user $ Ninjas.cancelChannel name
+        P.modifyAll $ Ninjas.clear name user
 
 -- | Adds a @Trap@ to 'Ninja.traps'.
 trapWith :: ∀ m. MonadPlay m
@@ -115,8 +116,8 @@ trapFull direction classes (Duration -> dur) trigger f = do
             , Trap.dur       = Copy.maxDur (Skill.copying skill) . incr $
                                sync dur + throttled nUser
             }
-    unless (newTrap ∈ Ninja.traps nTarget) $ P.modify target
-        \n -> n { Ninja.traps = newTrap : Ninja.traps n }
+    unless (newTrap ∈ Ninja.traps nTarget) $ P.modify target \n ->
+        n { Ninja.traps = newTrap : Ninja.traps n }
   where
     throttled n
       | dur == 0               = 0
@@ -149,11 +150,10 @@ delay (Duration -> dur) f = do
     past (Deep    _ d) = dur' > d
     past NotCopied     = False
 
--- | Removes 'Ninja.traps' with matching 'Trap.name'. Uses 'Ninja.clearTrap'
--- internally.
+-- | Removes 'Ninja.traps' with matching 'Trap.name'.
+-- Uses 'Ninjas.clearTrap' internally.
 removeTrap :: ∀ m. MonadPlay m => Text -> m ()
 removeTrap name = do
     skill  <- P.skill
     user   <- P.user
-    target <- P.target
-    P.modify target . Ninja.clearTrap name $ Copy.source skill user
+    flip P.modify (Ninjas.clearTrap name $ Copy.source skill user) =<< P.target

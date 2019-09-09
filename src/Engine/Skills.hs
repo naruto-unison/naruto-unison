@@ -1,5 +1,5 @@
 -- | 'Skill.Transform' processing.
-module Engine.SkillTransform
+module Engine.Skills
   ( change
   , safe
   , swap

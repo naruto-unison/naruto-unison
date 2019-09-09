@@ -43,28 +43,29 @@ import qualified Model.Skill as Skill
 import qualified Model.Status as Status
 import           Model.Status (Bomb)
 import           Model.Trap (Trigger(..))
-import qualified Engine.Adjust as Adjust
 import qualified Engine.Effects as Effects
+import qualified Engine.Ninjas as Ninjas
 import qualified Action.Channel as ActionChannel
 
 -- | Refreshes the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'
--- to 'Status.maxDur'. Uses 'Ninja.refresh' internally.
+-- to 'Status.maxDur'.
+-- Uses 'Ninjas.refresh' internally.
 refresh :: ∀ m. MonadPlay m => Text -> m ()
-refresh = P.unsilenced . P.fromSource . Ninja.refresh
+refresh = P.unsilenced . P.fromSource . Ninjas.refresh
 
 -- | Increases the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
--- Uses 'Ninja.prolong' internally.
+-- Uses 'Ninjas.prolong' internally.
 prolong :: ∀ m. MonadPlay m => Turns -> Text -> m ()
 prolong (Duration -> dur) name = P.unsilenced do
     user    <- P.user
     copying <- Skill.copying <$> P.skill
-    P.toTarget $ Ninja.prolong (Copy.maxDur copying $ sync dur) name user
+    P.toTarget $ Ninjas.prolong (Copy.maxDur copying $ sync dur) name user
 
 -- | Reduces the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
--- Uses 'Ninja.prolong' internally.
+-- Uses 'Ninjas.prolong' internally.
 hasten :: ∀ m. MonadPlay m => Turns -> Text -> m ()
 hasten (Duration -> dur) name =
-    P.unsilenced . P.toTarget . Ninja.prolong (negate $ sync dur) name
+    P.unsilenced . P.toTarget . Ninjas.prolong (negate $ sync dur) name
     =<< P.user
 
 -- | Adds a 'Face.Face' to the 'Ninja.face' of a @Ninja@, changing their in-game
@@ -111,13 +112,14 @@ addStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
 addStacks = addStacks' 0
 
 -- | 'addStack' with a 'Status.dur', 'Status.name', and 'Status.amount'.
+-- Uses 'Ninjas.addStatus' internally.
 addStacks' :: ∀ m. MonadPlay m => Turns -> Text -> Int -> m ()
 addStacks' (Duration -> dur) name i = do
     skill  <- P.skill
     user   <- P.user
-    target <- P.target
     let st  = Status.new user dur skill
-    P.modify target $ Ninja.addStatus
+    target <- P.target
+    P.modify target $ Ninjas.addStatus
         st { Status.name    = name
            , Status.amount  = i
            , Status.user    = user
@@ -173,6 +175,7 @@ bombWith' classes name dur fs bombs =
     P.unsilenced $ applyFull classes False bombs name dur fs
 
 -- | Status engine.
+-- Uses 'Ninjas.addStatus' internally.
 applyFull :: ∀ m. (MonadPlay m, MonadRandom m)
           => EnumSet Class -> Bool -> [Runnable Bomb] -> Text -> Turns
           -> [Effect] -> m ()
@@ -207,13 +210,13 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
             st    = newSt
                   { Status.name    = Skill.defaultName name skill
                   , Status.user    = user
-                  , Status.effects = filt $ Adjust.apply nTarget fs
+                  , Status.effects = filt $ Ninjas.apply nTarget fs
                   , Status.classes = classes'
                   , Status.bombs   = guard (Status.dur newSt <= incr (sync dur))
                                      >> bombs
                   }
             prolong' = mapMaybe $
-                       Ninja.prolong' (Status.dur st) name (Status.source st)
+                       Ninjas.prolong' (Status.dur st) name (Status.source st)
         guard . not $ already && (bounced || isSingle)
         if already && Extending ∈ classes' then
             P.modify target \n ->
@@ -225,7 +228,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                 | any isImmune $ Status.effects st =
                     n { Ninja.triggers = insertSet OnImmune $ Ninja.triggers n }
                 | otherwise = n
-            P.modify target $ onImmune . Ninja.addStatus st
+            P.modify target $ onImmune . Ninjas.addStatus st
             when (any isStun $ Status.effects st) do
                 P.trigger user [OnStun]
                 P.trigger target [OnStunned]
@@ -251,22 +254,23 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
     isImmune _              = False
 
 -- | Removes non-'Effect.helpful' effects in 'Ninja.statuses' that match a
--- predicate. Uses 'Ninja.cure' internally.
+-- predicate.
+-- Uses 'Ninjas.cure' internally.
 cure :: ∀ m. MonadPlay m => (Effect -> Bool) -> m ()
-cure match = P.unsilenced . P.toTarget $ Ninja.cure match
+cure match = P.unsilenced . P.toTarget $ Ninjas.cure match
 
 -- | Removes all non-'Effect.helpful' 'effects in 'Ninja.statuses'.
--- Uses 'Ninja.cure' internally.
+-- Uses 'Ninjas.cure' internally.
 cureAll :: ∀ m. MonadPlay m => m ()
 cureAll = P.unsilenced . cure $ const True
 
 -- | Removes all 'Ninja.statuses' with 'Bane' in their 'Status.classes'.
--- Uses 'Ninja.cureBane' internally.
+-- Uses 'Ninjas.cureBane' internally.
 cureBane :: ∀ m. MonadPlay m => m ()
-cureBane = P.unsilenced $ P.toTarget Ninja.cureBane
+cureBane = P.unsilenced $ P.toTarget Ninjas.cureBane
 
 -- | Cures all 'Stun' effects from 'Ninja.statuses'.
--- Uses 'Ninja.cure' internally.
+-- Uses 'Ninjas.cure' internally.
 cureStun :: ∀ m. MonadPlay m => m ()
 cureStun = P.unsilenced $ cure cured
   where
@@ -274,39 +278,42 @@ cureStun = P.unsilenced $ cure cured
     cured _      = False
 
 -- | Cures all 'Effect.helpful' effects from 'Ninja.statuses'.
--- Uses 'Ninja.purge' internally.
+-- Uses 'Ninjas.purge' internally.
 purge :: ∀ m. MonadPlay m => m ()
-purge = P.toTarget Ninja.purge
+purge = P.toTarget Ninjas.purge
 
 -- | Removes all @Status@es with matching 'Status.name' and whose 'Status.user'
--- is the one performing the action. Uses 'Ninja.clear' internally.
+-- is the one performing the action.
+-- Uses 'Ninjas.clear' internally.
 remove :: ∀ m. MonadPlay m => Text -> m ()
-remove = P.fromSource . Ninja.clear
+remove = P.fromSource . Ninjas.clear
 
 -- | Decreases the 'Status.amount' of a @Status@ with matching 'Status.name' by
--- 1, removing it if it reaches 0. Uses 'Ninja.removeStack' internally.
+-- 1, removing it if it reaches 0.
+-- Uses 'Ninjas.removeStack' internally.
 removeStack :: ∀ m. MonadPlay m => Text -> m ()
-removeStack = P.toTarget . Ninja.removeStack
+removeStack = P.toTarget . Ninjas.removeStack
 
 -- | Decreases the 'Status.amount' of a @Status@ with matching 'Status.name' and
 -- whose 'Status.user is the one performing the action by some amount, removing
--- it if it reaches 0. Uses 'Ninja.removeStack' internally.
+-- it if it reaches 0.
+-- Uses 'Ninjas.removeStacks' internally.
 removeStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
-removeStacks name i = P.fromSource $ Ninja.removeStacks name i
+removeStacks name i = P.fromSource $ Ninjas.removeStacks name i
 
 -- | Steals all of the target's 'Effect.helpful' 'Effect's.
 commandeer :: ∀ m. MonadPlay m => m ()
 commandeer = P.unsilenced do
-    user    <- P.user
-    target  <- P.target
     nUser   <- P.nUser
     nTarget <- P.nTarget
+    user    <- P.user
     P.modify user \n ->
         n { Ninja.defense  = Ninja.defense nTarget ++ Ninja.defense n
           , Ninja.barrier  = []
           , Ninja.statuses = mapMaybe gainHelpful (Ninja.statuses nTarget)
                              ++ Ninja.statuses n
           }
+    target  <- P.target
     P.modify target \n ->
         n { Ninja.defense  = []
           , Ninja.barrier  = Ninja.barrier nUser

@@ -395,7 +395,7 @@ cs =
           , Skill.effects   =
             [ To Enemy do
                   has <- targetHas "Rivalry"
-                  if has then leech 20 (self . heal)
+                  if has then leech 20 $ self . heal
                   else do
                       afflict 20
                       everyone $ remove "Rivalry"

@@ -31,8 +31,8 @@ import           Model.Slot (Slot)
 import qualified Model.Status as Status
 import qualified Model.Trap as Trap
 import qualified Model.Variant as Variant
-import qualified Engine.Adjust as Adjust
 import qualified Engine.Cooldown as Cooldown
+import qualified Engine.Ninjas as Ninjas
 
 data GameInfo = GameInfo { vsWho  :: Key User
                          , vsUser :: User
@@ -99,7 +99,7 @@ gameToJSON player ninjas g = object
     targets = do
         n <- ns
         return do
-            skill    <- Adjust.skills n
+            skill    <- Ninjas.skills n
             let targs = skillTargets skill $ Ninja.slot n
             return do
                 nt   <- ns
@@ -136,7 +136,7 @@ ninjaToJSON n = object
     , "traps"     .= filter ((Hidden ∉) . Trap.classes) (Ninja.traps n)
     , "face"      .= Ninja.face n
     , "lastSkill" .= Ninja.lastSkill n
-    , "skills"    .= (usable <$> Adjust.skills n)
+    , "skills"    .= (usable <$> Ninjas.skills n)
     ]
   where
     usable skill = skill { Skill.require = fulfill $ Skill.require skill }

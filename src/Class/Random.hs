@@ -54,7 +54,7 @@ instance MonadRandom m => MonadRandom (WebSocketsT m)
 instance (MonadRandom m, Monoid w) => MonadRandom (WriterT w m)
 instance (MonadRandom m, Monoid w) => MonadRandom (AccumT w m)
 
--- | Randomly selects an element from a list.
+-- | Randomly selects an element from a finite list.
 -- Returns @Nothing@ on an empty list.
 choose :: ∀ m a. MonadRandom m => [a] -> m (Maybe a)
 choose [] = return Nothing

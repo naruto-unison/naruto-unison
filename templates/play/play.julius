@@ -74,7 +74,7 @@ const progress = args => {
 app.ports.progress.subscribe(progress)
 
 const barOpts = { color: '#0099ff', fill: '#111' }
-const observer = new MutationObserver(mutations => {
+new MutationObserver(mutations => {
   for (mutation of mutations)
     if (mutation.addedNodes)
       for (addedNode of mutation.addedNodes.values())
@@ -85,8 +85,7 @@ const observer = new MutationObserver(mutations => {
             queuedProgress = undefined
           }
         }
-})
-observer.observe(document.getElementsByTagName("main")[0], { childList: true })
+}).observe(document.getElementsByTagName("main")[0], { childList: true })
 
 
 app.ports.websocketSend.subscribe(msg => {

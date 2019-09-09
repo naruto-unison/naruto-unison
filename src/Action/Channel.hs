@@ -18,22 +18,20 @@ import           Model.Duration (Duration(..), Turns)
 import qualified Model.Ninja as Ninja
 import qualified Engine.Execute as Execute
 import           Engine.Execute (Affected(..))
+import qualified Engine.Ninjas as Ninjas
 
 -- | Cancels 'Ninja.channels' with a matching 'Channel.name'.
--- Uses 'Ninja.cancelChannel' internally.
+-- Uses 'Ninjas.cancelChannel' internally.
 cancelChannel :: ∀ m. MonadPlay m => Text -> m ()
-cancelChannel name = do
-    user <- P.user
-    P.modify user $ Ninja.cancelChannel name
+cancelChannel name = flip P.modify (Ninjas.cancelChannel name) =<< P.user
 
 -- | Interrupts all 'Channel.interruptible' 'Ninja.channels'.
 -- Triggers 'onInterrupts' for affected @Channel@s.
 interrupt :: ∀ m. (MonadPlay m, MonadRandom m) => (Channel -> Bool) -> m ()
 interrupt interrupting = P.unsilenced do
-    target <- P.target
     (interrupted, kept) <- partition interrupts . Ninja.channels <$> P.nTarget
     traverse_ onInterrupt interrupted
-    P.modify target \n -> n { Ninja.channels = kept }
+    flip P.modify (\n -> n { Ninja.channels = kept }) =<< P.target
   where
     interrupts x = Channel.interruptible x && interrupting x
 
@@ -50,5 +48,6 @@ onInterrupt chan = P.with chanContext $
                               }
 
 -- | Increases the duration of 'Ninja.channels' with a matching 'Channel.name'.
+-- Uses 'Ninjas.prolongChannel' internally.
 prolongChannel :: ∀ m. MonadPlay m => Turns -> Text -> m ()
-prolongChannel (Duration -> dur) = P.toTarget . Ninja.prolongChannel dur
+prolongChannel (Duration -> dur) = P.toTarget . Ninjas.prolongChannel dur

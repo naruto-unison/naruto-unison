@@ -15,8 +15,6 @@ import           Control.Monad.Trans.Maybe (runMaybeT)
 import           Data.Bits (setBit, testBit)
 import           Data.Either (isLeft)
 import           Data.Enum.Set.Class (EnumSet, AsEnumSet(..))
-import           Data.List (findIndex)
-import qualified Data.Sequence as Seq
 
 import           Core.Util ((!!), (—), (∈), (∉), intersectsSet)
 import qualified Class.Parity as Parity
@@ -24,19 +22,17 @@ import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Random as R
 import           Class.Random (MonadRandom)
-import qualified Class.TurnBased as TurnBased
 import qualified Model.Act as Act
 import           Model.Act (Act)
 import qualified Model.Channel as Channel
 import           Model.Channel (Channel(Channel), Channeling(..))
 import qualified Model.Chakra as Chakra
-import qualified Model.Character as Character
 import           Model.Class (Class(..))
 import qualified Model.Context as Context
 import           Model.Context (Context(Context))
 import qualified Model.Copy as Copy
-import           Model.Copy (Copy(Copy), Copying)
-import           Model.Duration (Duration, incr, sync)
+import           Model.Copy (Copying)
+import           Model.Duration (Duration)
 import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
@@ -49,12 +45,11 @@ import qualified Model.Skill as Skill
 import           Model.Skill (Skill, Target(..))
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
-import qualified Model.Status as Status
 import           Model.Trap (Trigger(..))
-import qualified Engine.Adjust as Adjust
 import qualified Engine.Cooldown as Cooldown
 import qualified Engine.Effects as Effects
-import qualified Engine.SkillTransform as SkillTransform
+import qualified Engine.Ninjas as Ninjas
+import qualified Engine.Skills as Skills
 import qualified Engine.Traps as Traps
 import qualified Engine.Trigger as Trigger
 
@@ -79,6 +74,7 @@ oldSet :: EnumSet Affected
 oldSet = setFromList [Channeled, Delayed, Trapped]
 
 -- | Adds a 'Copy.Copy' to 'Ninja.copies'.
+-- Uses 'Ninjas.copy' internally.
 copy :: ∀ m. MonadPlay m
      => (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.
      -> Slot -- ^ Target.
@@ -86,26 +82,9 @@ copy :: ∀ m. MonadPlay m
      -> (Duration, Slot, Text) -- ^ Output of 'Effects.replace'.
      -> m ()
 copy constructor copyFrom skill (dur, copyTo, name) =
-    P.modify copyTo \n -> fromMaybe n do
-        s <- findIndex (any $ (name ==) . Skill.name) . toList .
-             Character.skills $ Ninja.character n
-        return n { Ninja.copies = copier s $ Ninja.copies n }
-  where
-    copier s = Seq.update s . Just . Copy skill' $
-               sync if dur < -1 then dur + 1 else dur
-    skill' = skill { Skill.cost     = 0
-                   , Skill.cooldown = 0
-                   , Skill.copying  = constructor copyFrom $ sync dur - 1
-                   }
+    P.modify copyTo $ Ninjas.copy dur name constructor copyFrom skill
 
 data Exit = Flagged | Done | Completed deriving (Eq)
-
-unReplace :: Ninja -> Ninja
-unReplace n =
-    n { Ninja.statuses = filter (any un . Status.effects) $ Ninja.statuses n }
-  where
-    un Replace{} = False
-    un _         = True
 
 -- | Processes an action before it can be applied to the game. This is where
 -- invincibility, usability, reflects, etc. all come into play.
@@ -141,7 +120,7 @@ wrap affected f = void $ runMaybeT do
         when harm do
             replaces <- Effects.replace <$> P.nUser
             when (not $ null replaces) do
-                P.modify user unReplace
+                P.modify user Ninjas.clearReplaces
                 traverse_ (copy Copy.Shallow user skill) replaces
 
     if exit == Done then
@@ -242,20 +221,12 @@ effects affected xs = do
 
 -- | If 'Skill.dur' is long enough to last for multiple turns, the 'Skill'
 -- is added to 'Ninja.channels'.
+-- Uses 'Ninjas.addChannels' internally.
 addChannels :: ∀ m. MonadPlay m => m ()
 addChannels = do
-    skill    <- P.skill
-    user     <- P.user
-    target   <- P.target
-    let chan  = Skill.dur skill
-        dur   = Copy.maxDur (Skill.copying skill) . incr $ TurnBased.getDur chan
-        chan' = Channel { Channel.source = Copy.source skill user
-                        , Channel.skill  = skill
-                        , Channel.target = target
-                        , Channel.dur    = TurnBased.setDur dur chan
-                        }
-    unless (chan == Instant || dur == 1 || dur == 2) $
-        P.modify user \n -> n { Ninja.newChans = chan' : Ninja.newChans n }
+    skill  <- P.skill
+    target <- P.target
+    flip P.modify (Ninjas.addChannels skill target) =<< P.user
 
 -- | Filters a list of targets to those capable of countering a skill.
 filterCounters :: Slot -- ^ User at risk of being countered.
@@ -277,13 +248,13 @@ act :: ∀ m. (MonadGame m, MonadRandom m) => Act -> m ()
 act a = do
     nUser     <- P.ninja user
     game      <- P.game
-    let skill' = Adjust.skill s nUser
+    let skill' = Ninjas.skill s nUser
     (affected, skill) <- case Trigger.swap (Skill.classes skill') nUser of
         Just swapped -> do
             P.write user nUser
                 { Ninja.statuses = swapped `delete` Ninja.statuses nUser }
             return ( setFromList [Swapped, Targeted]
-                   , SkillTransform.swap skill'
+                   , Skills.swap skill'
                    )
         Nothing -> return (singletonSet Targeted, skill')
     let classes = Skill.classes skill
@@ -328,7 +299,7 @@ act a = do
 
         traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
     breakControls
-    P.modifyAll $ Adjust.effects . \n -> n { Ninja.triggers = mempty }
+    P.modifyAll $ Ninjas.processEffects . \n -> n { Ninja.triggers = mempty }
   where
     s       = Act.skill a
     new     = isLeft s
@@ -343,7 +314,7 @@ interruptions :: Skill -> [Runnable Target]
 interruptions skill = (To Enemy clear) : (To Ally clear) : Skill.interrupt skill
   where
     clear :: ∀ m. MonadPlay m => m ()
-    clear = P.fromSource . Ninja.clear $ Skill.name skill
+    clear = P.fromSource . Ninjas.clear $ Skill.name skill
 
 nonRandom :: Target -> Bool
 nonRandom RAlly  = False
@@ -359,7 +330,7 @@ breakControl user Channel{ dur = Control{}, skill, target} =
             interruptTargets <- chooseTargets $ interruptions skill
             effects (setFromList [Channeled, Interrupted]) interruptTargets
 
-            P.modify user . Ninja.cancelChannel $ Skill.name skill
+            P.modify user . Ninjas.cancelChannel $ Skill.name skill
   where
     chanContext = Context { Context.skill  = skill
                           , Context.user   = user

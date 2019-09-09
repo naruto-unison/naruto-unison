@@ -52,7 +52,7 @@ total xs Percent = product . (1 :) . map ((/ 100) . fromIntegral . snd) $
 
 -- | 'total' for negative effects such as damage reduction.
 negativeTotal :: [(Amount, Int)] -> Amount -> Float
-negativeTotal xs Flat = total xs Flat
+negativeTotal xs Flat    = total xs Flat
 negativeTotal xs Percent = total (second (100 -) <$> xs) Percent
 
 -- | 'Bleed' sum.

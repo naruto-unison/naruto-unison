@@ -22,7 +22,7 @@ import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
 import qualified Model.Variant as Variant
 import qualified Engine.Effects as Effects
-import qualified Engine.SkillTransform as SkillTransform
+import qualified Engine.Skills as Skills
 
 -- | Cooldowns of the currently active 'Skill's in all four slots of
 -- 'Ninja.variants'.
@@ -104,9 +104,7 @@ unsafeReset s v n =
 reset :: Text -- ^ 'Skill.name' of the base 'Skill'.
       -> Text -- ^ 'Skill.name' of the variant to search for.
       -> Ninja -> Ninja
-reset name v n = safe n name v n
-  where
-    safe = SkillTransform.safe id unsafeReset
+reset name v n = Skills.safe id unsafeReset n name v n
 
 -- | Sets all 'Ninja.cooldowns' to @mempty@.
 resetAll :: Ninja -> Ninja

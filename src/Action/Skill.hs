@@ -17,7 +17,6 @@ import qualified Data.Sequence as Seq
 
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
-import qualified Class.TurnBased as TurnBased
 import qualified Model.Channel as Channel
 import           Model.Channel (Channeling(..))
 import qualified Model.Character as Character
@@ -28,11 +27,11 @@ import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
 import           Model.Slot (Slot)
 import qualified Model.Variant as Variant
-import           Model.Variant (Variant(Variant), Varying)
-import qualified Engine.Adjust as Adjust
+import           Model.Variant (Varying)
 import qualified Engine.Cooldown as Cooldown
 import qualified Engine.Execute as Execute
-import qualified Engine.SkillTransform as SkillTransform
+import qualified Engine.Ninjas as Ninjas
+import qualified Engine.Skills as Skills
 
 -- | Changes the 'Skill.cooldown' of a @Skill@.
 -- Uses 'Cooldown.alter' internally.
@@ -50,9 +49,9 @@ resetAll :: ∀ m. MonadPlay m => m ()
 resetAll = P.unsilenced $ P.toTarget Cooldown.resetAll
 
 -- | Resets all 'Ninja.charges' of a @Ninja@.
--- Uses 'Ninja.resetCharges' internally.
+-- Uses 'Ninjas.resetCharges' internally.
 resetCharges :: ∀ m. MonadPlay m => m ()
-resetCharges = P.unsilenced $ P.toTarget Ninja.resetCharges
+resetCharges = P.unsilenced $ P.toTarget Ninjas.resetCharges
 
 -- | Adds a 'Variant.Variant' to 'Ninja.variants' with a 'Variant.dur' that
 -- depends on the 'Skill.dur' of the @Skill@ that performs the action.
@@ -84,26 +83,14 @@ vary' (Duration -> dur) name variant = do
 varyFull :: ∀ m. MonadPlay m => Varying -> Text -> Text -> m ()
 varyFull dur name variant = do
     nUser <- P.nUser
-    SkillTransform.safe (return ()) (unsafeVary dur) nUser name variant
+    Skills.safe (return ()) (unsafeVary dur) nUser name variant
 
 -- | Adds a 'Variant.Variant' to 'Ninja.variants' by skill and variant index
 -- within 'Character.skills'.
+-- Uses 'Ninjas.vary' internally.
 unsafeVary :: ∀ m. MonadPlay m => Varying -> Int -> Int -> m ()
-unsafeVary dur s v = do
-    skill      <- P.skill
-    nUser      <- P.nUser
-    let copying = Skill.copying skill
-    unless (shallow copying) do
-        target     <- P.target
-        let variant = Variant
-                { Variant.variant   = v
-                , Variant.ownCd     = Skill.varicd $ Adjust.skill' nUser s v
-                , Variant.dur       = dur
-                }
-            adjust
-              | TurnBased.getDur dur <= 0 = Seq.update s $ variant :| []
-              | otherwise                 = Seq.adjust' (cons variant) s
-        P.modify target \n -> n { Ninja.variants = adjust $ Ninja.variants n }
+unsafeVary dur s v = unlessM (shallow . Skill.copying <$> P.skill) $
+                     flip P.modify (Ninjas.vary dur s v) =<< P.target
   where
     shallow Copy.Shallow{} = True
     shallow _              = False
@@ -136,21 +123,11 @@ varyNext name = do
         variant = Variant.variant x
 
 -- | Copies all @Skill@s from the target into the user's 'Ninja.copies'.
+-- Uses 'Ninjas.copyAll' internally.
 copyAll :: ∀ m. MonadPlay m => Turns -> m ()
 copyAll (Duration -> dur) = do
-    user    <- P.user
-    target  <- P.target
     nTarget <- P.nTarget
-    let copy skill = Just $ Copy { Copy.dur   = dur'
-                                 , Copy.skill = copying skill target
-                                 }
-    P.modify user \n ->
-        n { Ninja.copies = fromList $ copy <$> Adjust.skills nTarget }
-  where
-    synced = sync dur
-    dur'   = synced + synced `rem` 2
-    copying skill target = skill
-        { Skill.copying = Copy.Deep (Copy.source skill target) $ sync dur - 1 }
+    flip P.modify (Ninjas.copyAll dur nTarget) =<< P.user
 
 -- | Copies the 'Ninja.lastSkill' of the target into a specific skill slot
 -- of the user's 'Ninja.copies'. Uses 'Execute.copy' internally.
@@ -194,7 +171,7 @@ teacher f (Duration -> dur) cop s = do
     user   <- P.user
     target <- P.target
     nUser  <- P.nUser
-    let skill  = (Adjust.skill (Left s) nUser)
+    let skill  = (Ninjas.skill (Left s) nUser)
                  { Skill.copying = cop user $ sync dur - 1 }
         copied = Just $ Copy { Copy.skill = skill
                              , Copy.dur   = dur'

@@ -15,11 +15,11 @@ import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra(..))
 import           Model.Trap (Trigger(..))
 import qualified Model.Game as Game
-import qualified Model.Ninja as Ninja
 import qualified Engine.Chakras as Chakras
+import qualified Engine.Ninjas as Ninjas
 
 -- ** CHAKRA
--- | Adds @Chakra@s to the 'Game.chakra' of the target's team.
+-- | Adds a finite amount of @Chakra@ to the 'Game.chakra' of the target's team.
 -- 'Rand's are replaced by other @Chakra@ types selected by 'Chakras.random'.
 gain :: ∀ m. (MonadPlay m, MonadRandom m) => [Chakra] -> m ()
 gain chakras = P.unsilenced do
@@ -46,9 +46,8 @@ absorb amount = P.unsilenced do
     P.alter $ Game.adjustChakra user (+ chakras)
 
 -- | Cycles Kabuto Yakushi's chakra mode through the four types of 'Chakra'.
--- Uses 'Ninja.kabuto' internally.
+-- Uses 'Ninjas.kabuto' internally.
 kabuto :: ∀ m. MonadPlay m => m ()
 kabuto = do
-    skill  <- P.skill
-    target <- P.target
-    P.modify target $ Ninja.kabuto skill
+    skill <- P.skill
+    flip P.modify (Ninjas.kabuto skill) =<< P.target

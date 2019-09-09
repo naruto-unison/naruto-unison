@@ -18,7 +18,7 @@ import Model.Channel as Import (Channeling(..))
 import Model.Copy as Import (Copying(..))
 import Model.Class as Import (Class(..))
 import Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
-import Model.Ninja as Import (Ninja(health, slot), addOwnStacks, addOwnDefense, alive, hasDefense, hasOwn, isChanneling, numActive, numHarmfulStacks, numHelpful)
+import Model.Ninja as Import (Ninja(health, slot), alive, hasDefense, hasOwn, isChanneling, numActive, numHarmfulStacks, numHelpful)
 import Model.Requirement as Import (Requirement(..))
 import Model.Runnable as Import (Runnable(To))
 import Model.Skill as Import (Target(..))
@@ -30,7 +30,8 @@ import Action.Channel as Import
 import Action.Skill as Import
 import Action.Status as Import
 import Action.Trap as Import
-import Engine.SkillTransform as Import
+import Engine.Skills as Import
+import Engine.Ninjas as Import (addOwnStacks, addOwnDefense)
 
 import Data.Enum.Set.Class (EnumSet)
 
