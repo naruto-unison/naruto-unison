@@ -1,4 +1,7 @@
-module Characters (map, list) where
+module Characters
+  ( list, map
+  , lookupName
+  ) where
 
 import ClassyPrelude hiding (map)
 
@@ -59,6 +62,9 @@ list = addClasses <$> original ++ shippuden ++ reanimated
 
 map :: HashMap Text Character
 map = mapFromList $ (\c -> (Character.format c, c)) <$> list
+
+lookupName :: Text -> Maybe Character
+lookupName k = lookup k map
 
 addClasses :: Character -> Character
 addClasses char = char { Character.skills = doSkills <$> Character.skills char }

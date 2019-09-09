@@ -60,9 +60,9 @@ getPlayR :: Handler Html
 getPlayR = do
     Sockets.run gameSocket
     muser <- (entityVal <$>) <$> Auth.maybeAuth
-    let team     = maybe [] (mapMaybe (`lookup` Characters.map)) $
+    let team     = maybe [] (mapMaybe Characters.lookupName) $
                    muser >>= userTeam
-        practice = maybe [] (mapMaybe (`lookup` Characters.map) . userPractice)
+        practice = maybe [] (mapMaybe Characters.lookupName . userPractice)
                    muser
         bg       = fromMaybe "/img/bg/valley2.jpg" $ muser >>= userBackground
         vol :: Text

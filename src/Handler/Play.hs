@@ -75,7 +75,7 @@ bot = User
 getPracticeQueueR :: [Text] -> Handler Value
 getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
     case fromList . zipWith Ninja.new Slot.all <$>
-         traverse (`lookup` Characters.map) [c1, a2, b1, b2, a1, c2] of
+         traverse Characters.lookupName [c1, a2, b1, b2, a1, c2] of
     Nothing -> invalidArgs ["Unknown character(s)"]
     Just ninjas -> do
         (who, _) <- Auth.requireAuthPair
@@ -134,12 +134,9 @@ getPracticeActR actChakra exchangeChakra actions = do
                   Wrapper.toJSON Player.A <$> [game'A, game'B]
 
 formTeam :: [Text] -> Maybe [Character]
-formTeam team@[a, b, c]
+formTeam team@[_,_,_]
   | duplic team = Nothing
-  | otherwise   = [[a', b', c'] | a' <- lookup a Characters.map
-                                , b' <- lookup b Characters.map
-                                , c' <- lookup c Characters.map
-                                ]
+  | otherwise   = traverse Characters.lookupName team
 formTeam _ = Nothing
 
 formEnact :: [Text] -> Maybe (Chakras, Chakras, [Act])

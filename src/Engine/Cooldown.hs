@@ -13,7 +13,7 @@ import           Data.List.NonEmpty (head)
 import qualified Data.Sequence as Seq
 import           Data.Sequence ((|>))
 
-import           Core.Util ((!!))
+import           Core.Util ((!!), (!?))
 import qualified Model.Copy as Copy
 import           Model.Duration (sync)
 import qualified Model.Ninja as Ninja
@@ -36,7 +36,7 @@ active n = [copyCd copy vari cd | copy <- Ninja.copies n
     isShallow _              = False
     copyCd (Just copied) _ _
         | isShallow . Skill.copying $ Copy.skill copied = 0
-    copyCd _ vari cd = fromMaybe 0 $ Seq.lookup (Variant.cooldown vari) cd
+    copyCd _ vari cd = fromMaybe 0 $ cd !? Variant.cooldown vari
 
 -- Safely adjusts a row in 'Ninja.cooldowns' by appending to it if incomplete.
 adjust' :: Int -> (Int -> Int) -> Seq Int -> Seq Int

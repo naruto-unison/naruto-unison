@@ -10,6 +10,85 @@ import qualified Model.Skill as Skill
 cs :: [Category -> Character]
 cs =
   [ Character
+    "Shisui Uchiha"
+    "An operative of the Hidden Leaf Village, Shisui gained the rare Mangekyō Sharingan after witnessing his friend die on a mission. Known as Shisui the Teleporter for his perfect mastery of the Teleportation Technique, the former jōnin prodigy is compassionate and open-minded to a fault. His signature technique makes him all but impossible to flank and allows him to beleaguer his opponents without leaving himself vulnerable."
+    [ [ Skill.new
+        { Skill.name      = "Susanoo"
+        , Skill.desc      = "Shisui surrounds himself with chakra armor, gaining 45 permanent destructible defense. While Shisui has destructible defense from this skill, he gains a stack of Susanoo every turn and this skill becomes [Tsukumo][b]. Stacks of Susanoo last as long as he has destructible defense from this skill."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 3
+        , Skill.dur       = Action 0
+        , Skill.start     =
+          [ To Self do
+                defend 0 45
+                vary "Susanoo" "Tsukumo"
+                onBreak do
+                    cancelChannel "Tsukumo"
+                    remove "Susanoo"
+                    vary "Susanoo" baseVariant
+          ]
+        , Skill.effects   =
+          [ To Self addStack ]
+        }
+      , Skill.new
+        { Skill.name      = "Tsukumo"
+        , Skill.desc      = "Shisui's Susanoo sprays a barrage of needles that deal 15 damage to all enemies and weaken their damage by 5. The weakening effect lasts for as many turns as Shisui has stacks of Susanoo."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Blood]
+        , Skill.effects   =
+          [ To Enemies do
+                damage 15
+                stacks <- userStacks "Susanoo"
+                apply stacks [Weaken All Flat 5]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Teleportation Technique"
+        , Skill.desc      = "For 2 turns, if an enemy uses a skill on Shisui, he will deal 15 damage to them and become invulnerable for the rest of the turn."
+        , Skill.classes   = [Physical, Invisible]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Self $ trapFrom 2 (CounterAll All) do
+                damage 15
+                self $ apply (-1) [Invulnerable All]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Kotoamatsukami"
+        , Skill.desc      = "Using his Mangekyō Sharingan, Shisui traps an enemy in a powerful genjutsu. The next time they use a skill, their team will lose 1 random chakra. Until they use a skill, Shisui can use this skill with no chakra cost to transfer Kotoamatsukami to a different enemy."
+        , Skill.classes   = [Mental, Ranged, Invisible]
+        , Skill.cost      = [Blood, Gen]
+        , Skill.effects   =
+          [ To Enemy do
+                self $ vary "Kotoamatsukami" "Kotoamatsukami"
+                trap 0 (OnAction All) do
+                    self $ vary "Kotoamatsukami" baseVariant
+                    deplete 1
+                trap 0 OnDeath $ self $ vary "Kotoamatsukami" baseVariant
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Kotoamatsukami"
+        , Skill.desc      = "Using his Mangekyō Sharingan, Shisui traps an enemy in a powerful genjutsu. The next time they use a skill, their team will lose 1 random chakra. Until they use a skill, Shisui can use this skill with no chakra cost to transfer Kotoamatsukami to a different enemy."
+        , Skill.classes   = [Mental, Ranged, Invisible]
+        , Skill.cost      = []
+        , Skill.effects   =
+          [ To Enemy do
+                everyone $ removeTrap "Kotoamatsukami"
+                trap 0 (OnAction All) do
+                    self $ vary "Kotoamatsukami" baseVariant
+                    deplete 1
+          ]
+        }
+      ]
+    , [ invuln "Block" "Shisui" [Physical] ]
+
+    ] []
+  , Character
     "Sai"
     "An operative of the Hidden Leaf Village's elite Root division, Sai is quietly expressive and artistic. He uses a set of brushes with chakra-infused ink to give life to his illustrations, which usually take the form of powerful black-and-white beasts."
     [ [ Skill.new

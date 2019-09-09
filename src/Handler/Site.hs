@@ -65,7 +65,7 @@ logLabel False Change = "Update:"
 
 getChangelog :: Bool -> LogType -> Text -> Character.Category -> Html
 getChangelog long logType name characterType =
-    case lookup tagName Characters.map of
+    case Characters.lookupName tagName of
         Nothing -> [shamlet|Error: character #{tagName} not found!|]
         Just char -> [shamlet|
 $if not long
