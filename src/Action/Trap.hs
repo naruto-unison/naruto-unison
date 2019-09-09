@@ -156,4 +156,5 @@ removeTrap :: ∀ m. MonadPlay m => Text -> m ()
 removeTrap name = do
     skill  <- P.skill
     user   <- P.user
-    flip P.modify (Ninjas.clearTrap name $ Copy.source skill user) =<< P.target
+    target <- P.target
+    P.modify target . Ninjas.clearTrap name $ Copy.source skill user

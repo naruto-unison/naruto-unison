@@ -1,6 +1,7 @@
 -- Helper functions.
 module Core.Util
-  ( (!?), (!!), (—), (∈), (∉)
+  ( (!?), (!!)
+  , (—), (∈), (∉)
   , Lift
   , intersects, intersectsSet
   , duplic
@@ -44,12 +45,12 @@ infix 4 ∉
 intersects :: ∀ a b.
     (MonoFoldable a, MonoFoldable b, Element a ~ Element b, Eq (Element a))
     => a -> b -> Bool
-intersects x y = any (∈ y) x
+x `intersects` y = any (∈ y) x
 {-# INLINE intersects #-}
 
 -- | True if any elements are shared by both collections.
 intersectsSet :: ∀ a. SetContainer a => a -> a -> Bool
-intersectsSet xs = not . null . intersection xs
+xs `intersectsSet` ys = not . null $ intersection xs ys
 {-# INLINE intersectsSet #-}
 
 -- | True if a list contains multiple identical values.

@@ -82,8 +82,10 @@ demolish = attack Attack.Demolish
 -- target.
 demolishAll :: ∀ m. MonadPlay m => m ()
 demolishAll = do
-    flip P.modify (\n -> n { Ninja.barrier = [] }) =<< P.user
-    flip P.modify (\n -> n { Ninja.defense = [] }) =<< P.target
+    user <- P.user
+    P.modify user \n -> n { Ninja.barrier = [] }
+    target <- P.target
+    P.modify target \n -> n { Ninja.defense = [] }
 
 userAdjust :: Attack -> EnumSet Class -> Ninja -> Float -> Float
 userAdjust atk classes nUser x = x
@@ -266,7 +268,8 @@ barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
             nTarget <- P.nTarget
             damage (-amount')
             damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
-            flip P.modify (Traps.track PerDamaged damaged) =<< P.target
+            target' <- P.target
+            P.modify target' $ Traps.track PerDamaged damaged
     else when (amount' > 0) $ P.modify target \n ->
         n { Ninja.barrier = Classed.nonStack skill barr $ Ninja.barrier n }
 

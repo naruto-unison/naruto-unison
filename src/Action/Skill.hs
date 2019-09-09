@@ -89,8 +89,9 @@ varyFull dur name variant = do
 -- within 'Character.skills'.
 -- Uses 'Ninjas.vary' internally.
 unsafeVary :: ∀ m. MonadPlay m => Varying -> Int -> Int -> m ()
-unsafeVary dur s v = unlessM (shallow . Skill.copying <$> P.skill) $
-                     flip P.modify (Ninjas.vary dur s v) =<< P.target
+unsafeVary dur s v = unlessM (shallow . Skill.copying <$> P.skill) do
+    target <- P.target
+    P.modify target $ Ninjas.vary dur s v
   where
     shallow Copy.Shallow{} = True
     shallow _              = False
@@ -127,7 +128,8 @@ varyNext name = do
 copyAll :: ∀ m. MonadPlay m => Turns -> m ()
 copyAll (Duration -> dur) = do
     nTarget <- P.nTarget
-    flip P.modify (Ninjas.copyAll dur nTarget) =<< P.user
+    user    <- P.user
+    P.modify user $ Ninjas.copyAll dur nTarget
 
 -- | Copies the 'Ninja.lastSkill' of the target into a specific skill slot
 -- of the user's 'Ninja.copies'. Uses 'Execute.copy' internally.

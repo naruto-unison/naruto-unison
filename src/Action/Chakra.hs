@@ -49,5 +49,6 @@ absorb amount = P.unsilenced do
 -- Uses 'Ninjas.kabuto' internally.
 kabuto :: ∀ m. MonadPlay m => m ()
 kabuto = do
-    skill <- P.skill
-    flip P.modify (Ninjas.kabuto skill) =<< P.target
+    skill  <- P.skill
+    target <- P.target
+    P.modify target $ Ninjas.kabuto skill

@@ -99,7 +99,7 @@ withTarget x = with \ctx -> ctx { Context.target = x }
 
 -- | Runs an action against each 'target'.
 withTargets :: ∀ m. MonadPlay m => [Slot] -> m () -> m ()
-withTargets xs f = traverse_ (`withTarget` f) xs
+withTargets xs f = traverse_ (flip withTarget f) xs
 
 -- | Forbid actions if the user is 'Silence'd.
 unsilenced :: ∀ m. MonadPlay m => m () -> m ()
@@ -132,7 +132,7 @@ zipWith f = Vector.zipWithM_ (\i -> modify i . f) allSlotsVec
 -- | Adds a 'Flag' if 'Context.user' is not 'Context.target' and 'Context.new'
 -- is @True@.
 trigger :: ∀ m. MonadPlay m => Slot -> [Trigger] -> m ()
-trigger i xs = whenM (Context.new <$> context) $ modify i \n ->
+trigger i xs = whenM new $ modify i \n ->
     n { Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n) xs }
 
 

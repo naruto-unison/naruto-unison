@@ -42,6 +42,7 @@ import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
 import qualified Model.Slot as Slot
+import           Model.Slot (Slot)
 import qualified Engine.Effects as Effects
 
 invuln :: Text -> Text -> EnumSet Class -> Skill
@@ -56,23 +57,28 @@ invuln skillName userName classes = Skill.new
 self :: ∀ m a. MonadPlay m => m a -> m a
 self = P.with Context.reflect
 
--- | Directly applies an effect to all other Ninjas, both living and dead,
--- ignoring invulnerabilities and traps.
-everyone :: ∀ m. MonadPlay m => m () -> m ()
-everyone f = flip P.withTargets f . (`delete` Slot.all) =<< P.user
+targetWithUser :: ∀ m. MonadPlay m => (Slot -> [Slot]) -> m () -> m ()
+targetWithUser targeter f = do
+    targets <- targeter <$> P.user
+    P.withTargets targets f
 
 -- | Directly applies an effect to all allies, both living and dead,
 -- ignoring invulnerabilities and traps.
 allies :: ∀ m. MonadPlay m => m () -> m ()
-allies f = flip P.withTargets f . Slot.allies =<< P.user
+allies = targetWithUser Slot.allies
 
 -- | Directly applies an effect to all enemies, both living and dead,
 -- ignoring invulnerabilities and traps.
 enemies :: ∀ m. MonadPlay m => m () -> m ()
-enemies f = flip P.withTargets f . Slot.enemies =<< P.user
+enemies = targetWithUser Slot.enemies
+
+-- | Directly applies an effect to all other Ninjas, both living and dead,
+-- ignoring invulnerabilities and traps.
+everyone :: ∀ m. MonadPlay m => m () -> m ()
+everyone = targetWithUser (`delete` Slot.all)
 
 baseVariant :: Text
-baseVariant = ""
+baseVariant = mempty
 
 bonusIf :: ∀ m. MonadPlay m => Int -> m Bool -> m Int
 bonusIf amount condition = do

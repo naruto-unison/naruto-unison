@@ -217,8 +217,6 @@ effects affected xs = do
         run (To t r) = P.with (local t) $ targetEffect affected r
     traverse_ (traverse_ run) xs
 
-    --traverse_ (flip P.with (targetEffect affected $ Play.action x) . localize) targets
-
 -- | If 'Skill.dur' is long enough to last for multiple turns, the 'Skill'
 -- is added to 'Ninja.channels'.
 -- Uses 'Ninjas.addChannels' internally.
@@ -226,7 +224,8 @@ addChannels :: ∀ m. MonadPlay m => m ()
 addChannels = do
     skill  <- P.skill
     target <- P.target
-    flip P.modify (Ninjas.addChannels skill target) =<< P.user
+    user   <- P.user
+    P.modify user $ Ninjas.addChannels skill target
 
 -- | Filters a list of targets to those capable of countering a skill.
 filterCounters :: Slot -- ^ User at risk of being countered.
