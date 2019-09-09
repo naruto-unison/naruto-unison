@@ -16,16 +16,18 @@ import           Model.Class (Class(..))
 import qualified Model.Context as Context
 import           Model.Context (Context(Context))
 import qualified Model.Delay as Delay
-import           Model.Delay (Delay(Delay))
 import           Model.Duration (Duration(..), Turns, incr, sync)
 import           Model.Effect (Effect(..))
 import qualified Model.Copy as Copy
 import           Model.Copy (Copying(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
+import           Model.Ninja (Ninja)
 import qualified Model.Runnable as Runnable
 import           Model.Runnable (Runnable(..), RunConstraint)
 import qualified Model.Skill as Skill
+import           Model.Skill (Skill)
+import           Model.Slot (Slot)
 import qualified Model.Trap as Trap
 import           Model.Trap (Trap(Trap), Trigger(..))
 import qualified Engine.Effects as Effects
@@ -91,34 +93,39 @@ trapFull :: ∀ m. MonadPlay m
          -> (Int -> RunConstraint ()) -> m ()
 trapFull direction classes (Duration -> dur) trigger f = do
     skill   <- P.skill
-    user    <- P.user
     target  <- P.target
     nUser   <- P.nUser
     nTarget <- P.nTarget
-    let trapUser = Copy.source skill user
-        ctx      = Context { Context.skill  = skill
-                           , Context.user   = trapUser
-                           , Context.target = target
-                           , Context.new    = False
-                           }
-        newTrap  = Trap
-            { Trap.trigger   = trigger
-            , Trap.direction = direction
-            , Trap.name      = Skill.name skill
-            , Trap.desc      = Skill.desc skill
-            , Trap.user      = trapUser
-            , Trap.effect    = \i -> Runnable.To
-                { Runnable.target = ctx
-                , Runnable.run    = Execute.wrap (singletonSet Trapped) $ f i
-                }
-            , Trap.classes   = classes ++ (invis `omap` Skill.classes skill)
-            , Trap.tracker   = 0
-            , Trap.dur       = Copy.maxDur (Skill.copying skill) . incr $
-                               sync dur + throttled nUser
-            }
+    let newTrap  = makeTrap skill nUser target 
+                   direction classes dur trigger f
     unless (newTrap ∈ Ninja.traps nTarget) $ P.modify target \n ->
         n { Ninja.traps = newTrap : Ninja.traps n }
+
+makeTrap :: Skill -> Ninja -> Slot
+         -> Trap.Direction -> EnumSet Class -> Duration -> Trigger
+         -> (Int -> RunConstraint ()) -> Trap
+makeTrap skill nUser target direction classes dur trigger f = Trap
+    { Trap.trigger   = trigger
+    , Trap.direction = direction
+    , Trap.name      = Skill.name skill
+    , Trap.desc      = Skill.desc skill
+    , Trap.user      = trapUser
+    , Trap.effect    = \i -> Runnable.To
+        { Runnable.target = ctx
+        , Runnable.run    = Execute.wrap (singletonSet Trapped) $ f i
+        }
+    , Trap.classes   = classes ++ (invis `omap` Skill.classes skill)
+    , Trap.tracker   = 0
+    , Trap.dur       = Copy.maxDur (Skill.copying skill) . incr $
+                        sync dur + throttled nUser
+    }
   where
+    trapUser = Copy.source skill $ Ninja.slot nUser
+    ctx      = Context { Context.skill  = skill
+                        , Context.user   = trapUser
+                        , Context.target = target
+                        , Context.new    = False
+                        }
     throttled n
       | dur == 0               = 0
       | Trap.isCounter trigger = 2 * Effects.throttle [Reflect] n
@@ -132,16 +139,7 @@ delay :: ∀ m. MonadPlay m => Turns -> RunConstraint () -> m ()
 delay (Duration -> dur) f = do
     context  <- P.context
     let skill = Context.skill context
-        user  = Context.user context
-        del   = Delay
-                { Delay.skill  = skill
-                , Delay.user   = user
-                , Delay.effect = Runnable.To
-                    { Runnable.target = context
-                    , Runnable.run    = Execute.wrap (singletonSet Delayed) f
-                    }
-                , Delay.dur    = dur'
-                }
+        del   = Delay.new context dur $ Execute.wrap (singletonSet Delayed) f
     unless (past $ Skill.copying skill) $ P.alter \game ->
         game { Game.delays = del : Game.delays game }
   where

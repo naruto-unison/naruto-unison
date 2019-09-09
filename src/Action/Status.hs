@@ -37,11 +37,12 @@ import           Model.Effect (Effect(..))
 import qualified Model.Face as Face
 import           Model.Face (Face(Face))
 import qualified Model.Ninja as Ninja
-import           Model.Ninja (is)
+import           Model.Ninja (Ninja, is)
 import           Model.Runnable (Runnable)
 import qualified Model.Skill as Skill
+import           Model.Skill (Skill)
 import qualified Model.Status as Status
-import           Model.Status (Bomb)
+import           Model.Status (Bomb, Status)
 import           Model.Trap (Trigger(..))
 import qualified Engine.Effects as Effects
 import qualified Engine.Ninjas as Ninjas
@@ -115,9 +116,8 @@ addStacks = addStacks' 0
 -- Uses 'Ninjas.addStatus' internally.
 addStacks' :: ∀ m. MonadPlay m => Turns -> Text -> Int -> m ()
 addStacks' (Duration -> dur) name i = do
-    skill  <- P.skill
     user   <- P.user
-    let st  = Status.new user dur skill
+    st     <- Status.new user dur <$> P.skill
     target <- P.target
     P.modify target $ Ninjas.addStatus
         st { Status.name    = name
@@ -190,31 +190,9 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                        (Effects.throttle fs nUser) unthrottled
         let already  = Ninja.has name user nTarget
             isSingle = name == Skill.name skill && Single ∈ classes
-            self     = user == user && user == target
-            noremove = self && any (not . Effect.helpful) fs
-                       || turns == 0
-                       || turns == 1 && Skill.dur skill /= Instant
-                       || null fs && Bane ∉ Skill.classes skill
-            extra    = setFromList $ fst <$> filter snd
-                       [ (Soulbound,   any bind fs)
-                       , (Unremovable, noremove)
-                       ]
-            classes' = extra ++ classes ++ Skill.classes skill
-            silenced = nUser `is` Silence
-            filt
-              | silenced && bounced = const []
-              | silenced            = filter isDmg
-              | bounced             = filter (not . isDmg)
-              | otherwise           = id
-            newSt = Status.new user dur skill
-            st    = newSt
-                  { Status.name    = Skill.defaultName name skill
-                  , Status.user    = user
-                  , Status.effects = filt $ Ninjas.apply nTarget fs
-                  , Status.classes = classes'
-                  , Status.bombs   = guard (Status.dur newSt <= incr (sync dur))
-                                     >> bombs
-                  }
+            st       = makeStatus skill nUser nTarget
+                       classes bounced bombs name dur fs
+            classes' = Status.classes st
             prolong' = mapMaybe $
                        Ninjas.prolong' (Status.dur st) name (Status.source st)
         guard . not $ already && (bounced || isSingle)
@@ -233,9 +211,9 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                 P.trigger user [OnStun]
                 P.trigger target [OnStunned]
 
-            let stuns = setFromList [ x | stun@(Stun x) <- Status.effects st
-                                    , stun ∉ Effects.ignore nTarget
-                                    ]
+            let stuns = setFromList [x | stun@(Stun x) <- Status.effects st
+                                       , stun ∉ Effects.ignore nTarget]
+                self  = user == user && user == target
             lift . ActionChannel.interrupt $
                 (stuns `intersectsSet`) . Skill.classes . Channel.skill
             when (bounced && not self) do
@@ -244,14 +222,45 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                                turns fs
                 lift . traverse_ bounce . delete user $ Effects.share nTarget
   where
-    bind Redirect{}   = True
-    bind _            = False
-    isDmg (Afflict x) = x > 0
-    isDmg _           = False
     isStun Stun{}     = True
     isStun _          = False
     isImmune Invulnerable{} = True
     isImmune _              = False
+
+makeStatus :: Skill -> Ninja -> Ninja 
+           -> EnumSet Class -> Bool -> [Runnable Bomb] -> Text -> Duration 
+           -> [Effect] -> Status
+makeStatus skill nUser nTarget classes bounced bombs name dur fs = newSt
+    { Status.name    = Skill.defaultName name skill
+    , Status.user    = user
+    , Status.effects = filt $ Ninjas.apply nTarget fs
+    , Status.classes = classes'
+    , Status.bombs   = guard (Status.dur newSt <= incr (sync dur))
+                        >> bombs
+    }
+  where
+    user     = Ninja.slot nUser
+    newSt    = Status.new user dur skill
+    self     = user == user && user == Ninja.slot nTarget
+    noremove = null fs && Bane ∉ Skill.classes skill
+               || dur == Duration 1 && Skill.dur skill /= Instant
+               || self && any (not . Effect.helpful) fs
+    extra    = setFromList $ fst <$> filter snd
+                [ (Soulbound,   any bind fs)
+                , (Unremovable, noremove)
+                ]
+    classes' = extra ++ classes ++ Skill.classes skill
+    silenced = nUser `is` Silence
+    filt
+      | silenced && bounced = const []
+      | silenced            = filter isDmg
+      | bounced             = filter (not . isDmg)
+      | otherwise           = id
+    bind Redirect{}   = True
+    bind _            = False
+    isDmg (Afflict x) = x > 0
+    isDmg _           = False
+
 
 -- | Removes non-'Effect.helpful' effects in 'Ninja.statuses' that match a
 -- predicate.
@@ -320,6 +329,7 @@ commandeer = P.unsilenced do
           , Ninja.statuses = mapMaybe loseHelpful $ Ninja.statuses n
          }
   where
+    lose ef = Effect.helpful ef && not (Effect.sticky ef)
     loseHelpful st
       | Unremovable ∈ Status.classes st    = Just st
       | null $ Status.effects st           = Just st
@@ -334,4 +344,3 @@ commandeer = P.unsilenced do
       | all lose $ Status.effects st       = Just st
       | otherwise = Just
           st { Status.effects = filter lose $ Status.effects st }
-    lose ef = Effect.helpful ef && not (Effect.sticky ef)
