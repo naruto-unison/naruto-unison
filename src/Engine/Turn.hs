@@ -1,9 +1,9 @@
 -- | Turn execution. The surface of the game engine.
 module Engine.Turn (run, process) where
 
-import ClassyPrelude hiding ((\\), groupBy, drop, head)
+import ClassyPrelude hiding (groupBy, drop, head)
 
-import           Data.List ((\\))
+import           Data.List (deleteFirstsBy)
 import           Data.List.NonEmpty (groupBy, head)
 import qualified Data.Vector as Vector
 
@@ -101,8 +101,9 @@ doBomb bomb target st = traverse_ detonate $ Status.bombs st
 doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Vector Ninja -> m ()
 doBombs bomb ninjas = Vector.zipWithM_ comp ninjas =<< P.ninjas
   where
-    comp n n' = sequence $ doBomb bomb (Ninja.slot n)
-                <$> Ninja.statuses n \\ Ninja.statuses n'
+    comp n n' = sequence $
+                doBomb bomb (Ninja.slot n) <$> deleteFirstsBy Labeled.eq
+                (Ninja.statuses n) (Ninja.statuses n')
 
 -- | Executes 'Barrier.while' and 'Barrier.finish' effects.
 doBarriers :: ∀ m. (MonadGame m, MonadRandom m) => m ()
