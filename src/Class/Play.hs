@@ -129,9 +129,10 @@ trigger i xs = whenM new $ modify i \n ->
 yieldVictor :: ∀ m. MonadGame m => m ()
 yieldVictor = whenM (null . Game.victor <$> game) do
     ns <- Parity.split <$> ninjas
-    alter \g -> g { Game.victor = filter (dead ns) [Player.A, Player.B] }
+    alter \g -> g { Game.victor = filter (victor ns) [Player.A, Player.B] }
   where
-    dead ns ofPlayer = not . any Ninja.alive $ Parity.getOf ofPlayer ns
+    victor ns ofPlayer = not . any Ninja.alive $
+                         Parity.getOf (Player.opponent ofPlayer) ns
 
 livingOf :: ∀ m. MonadGame m => Player -> m (Vector Ninja)
 livingOf ofPlayer =
