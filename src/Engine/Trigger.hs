@@ -49,9 +49,9 @@ snareTrap skill n = [(n', a) | (n', SnareTrap _ a, _) <- Ninjas.take match n]
     match _                 = False
 
 reflectable :: ([Effect] -> Bool) -> EnumSet Class -> Ninja -> Maybe Status
-reflectable matches classes
-  | Unreflectable ∈ classes = const Nothing
-  | otherwise               = find (matches . Status.effects) . Ninja.statuses
+reflectable matches classes n
+  | Unreflectable ∈ classes = Nothing
+  | otherwise               = find (matches . Status.effects) $ Ninja.statuses n
 
 -- | Trigger a 'Redirect'.
 redirect :: EnumSet Class -> Ninja -> Maybe Slot
@@ -96,7 +96,7 @@ death slot = do
 
 getCounters :: ∀ m. (MonadPlay m, MonadRandom m)
            => (Trap -> Maybe Class) -> Slot -> EnumSet Class -> Ninja -> [m ()]
-getCounters f from classes = mapMaybe g . Ninja.traps
+getCounters f from classes n = mapMaybe g $ Ninja.traps n
   where
     g tr = case f tr of
         Just cla | cla ∈ classes -> Just . P.launch $ Traps.run from tr

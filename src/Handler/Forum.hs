@@ -179,7 +179,7 @@ userRank User{..} = case userPrivilege of
 data NewTopic = NewTopic Topic (TopicId -> Post)
 
 toBody :: Textarea -> [Text]
-toBody = Text.splitOn "\n" . unTextarea
+toBody (Textarea area) = Text.splitOn "\n" area
 
 newTopicForm :: User -> ForumBoard -> UserId -> UTCTime
              -> AForm Handler NewTopic
@@ -198,8 +198,8 @@ newTopicForm User{..} topicBoard postAuthor postTime = makeNewTopic
         postBody = toBody area
 
 newPostForm :: TopicId -> UserId -> UTCTime -> AForm Handler Post
-newPostForm postTopic postAuthor postTime = makePost . toBody
-    <$> areq textareaField "" Nothing
+newPostForm postTopic postAuthor postTime = 
+    makePost . toBody <$> areq textareaField "" Nothing
   where
     makePost postBody = Post{..}
 

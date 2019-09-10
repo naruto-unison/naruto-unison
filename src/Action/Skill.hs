@@ -36,12 +36,12 @@ import qualified Engine.Skills as Skills
 -- | Changes the 'Skill.cooldown' of a @Skill@.
 -- Uses 'Cooldown.alter' internally.
 alterCd :: ∀ m. MonadPlay m => Int -> Int -> Int -> m ()
-alterCd s v = P.unsilenced . P.toTarget . Cooldown.alter s v
+alterCd s v cd = P.unsilenced . P.toTarget $ Cooldown.alter s v cd
 
 -- | Resets 'Ninja.cooldowns' with a matching 'Skill.name' of a @Ninja@.
 -- Uses 'Cooldown.reset' internally.
 reset :: ∀ m. MonadPlay m => Text -> Text -> m ()
-reset name = P.unsilenced . P.toTarget . Cooldown.reset name
+reset name v = P.unsilenced . P.toTarget $ Cooldown.reset name v
 
 -- | Resets all 'Ninja.cooldowns' of a @Ninja@.
 -- Uses 'Cooldown.resetAll' internally.

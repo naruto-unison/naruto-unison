@@ -1,6 +1,6 @@
 -- | 'Ninja' processing.
 module Engine.Ninjas
-  ( skills, skill, skill'
+  ( skill, skills
   , apply
   , processEffects
 
@@ -426,13 +426,12 @@ prolong' dur name user st
 prolongChannel :: Duration -> Text -> Ninja -> Ninja
 prolongChannel dur name n = n { channels = f <$> channels n }
   where
+    dur' chan = Copy.maxDur (Skill.copying $ Channel.skill chan) $
+                TurnBased.getDur chan + sync dur
     f chan
       | TurnBased.getDur chan <= 0              = chan
       | Skill.name (Channel.skill chan) /= name = chan
-      | otherwise = flip TurnBased.setDur chan .
-                    Copy.maxDur (Skill.copying $ Channel.skill chan) $
-                    TurnBased.getDur chan + sync dur
-
+      | otherwise = TurnBased.setDur (dur' chan) chan
 
 -- | Removes all helpful effects.
 purge :: Ninja -> Ninja

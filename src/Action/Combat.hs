@@ -28,10 +28,9 @@ import           Class.Play (MonadPlay)
 import qualified Model.Attack as Attack
 import           Model.Attack (Attack)
 import qualified Model.Barrier as Barrier
-import           Model.Barrier (Barrier(Barrier))
+import           Model.Barrier (Barrier)
 import           Model.Class (Class(..))
 import qualified Model.Context as Context
-import           Model.Context (Context)
 import qualified Model.Copy as Copy
 import qualified Model.Defense as Defense
 import           Model.Defense (Defense(Defense))
@@ -40,8 +39,7 @@ import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
-import qualified Model.Runnable as Runnable
-import           Model.Runnable (Runnable, RunConstraint)
+import           Model.Runnable (RunConstraint)
 import qualified Model.Skill as Skill
 import           Model.Trap (Trigger(..))
 import qualified Engine.Effects as Effects
@@ -243,26 +241,9 @@ barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
     context    <- P.context
     amount'    <- (amount +) . Effects.build <$> P.nUser
     let skill   = Context.skill context
-        user    = Context.user context
         target  = Context.target context
         dur'    = Copy.maxDur (Skill.copying skill) $ sync dur
-        save :: RunConstraint () -> Runnable Context
-        save f  = Runnable.To
-                      { Runnable.target = context { Context.new = False }
-                      , Runnable.run    = f
-                      }
-        finish' amt
-          | dur' < sync dur = save $ return ()
-          | otherwise       = save $
-                              Execute.wrap (singletonSet Trapped) (finish amt)
-        barr = Barrier
-            { Barrier.amount = amount'
-            , Barrier.user = user
-            , Barrier.name   = Skill.name skill
-            , Barrier.while  = save $ Execute.wrap (singletonSet Trapped) while
-            , Barrier.finish = finish'
-            , Barrier.dur    = dur'
-            }
+        barr    = Barrier.new context dur' (finish' dur') while' amount'
     if amount' < 0 then do
         P.with Context.reflect do
             nTarget <- P.nTarget
@@ -272,6 +253,13 @@ barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
             P.modify target' $ Traps.track PerDamaged damaged
     else when (amount' > 0) $ P.modify target \n ->
         n { Ninja.barrier = Classed.nonStack skill barr $ Ninja.barrier n }
+  where
+    finish' :: Int -> Int -> RunConstraint ()
+    finish' dur'
+      | dur' < sync dur = const $ return ()
+      | otherwise       = Execute.wrap (singletonSet Trapped) . finish
+    while' :: RunConstraint ()
+    while' = Execute.wrap (singletonSet Trapped) while
 
 -- | Kills the target. The target can survive if it has the 'Endure' effect.
 -- Uses 'Ninjas.kill' internally.
@@ -286,7 +274,7 @@ killHard = P.toTarget $ Ninjas.kill False
 -- | Adjusts 'Ninja.health'.
 -- Uses 'Ninjas.setHealth' internally.
 setHealth :: ∀ m. MonadPlay m => Int -> m ()
-setHealth = P.toTarget . Ninjas.setHealth
+setHealth amt = P.toTarget $ Ninjas.setHealth amt
 
 -- | Adds a flat amount of 'Ninja.health'.
 -- Uses 'Ninjas.adjustHealth' internally.

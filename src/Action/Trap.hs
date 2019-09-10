@@ -85,7 +85,7 @@ onBreak' = do
 trapWith :: ∀ m. MonadPlay m
          => Trap.Direction -> EnumSet Class -> Turns -> Trigger
          -> RunConstraint () -> m ()
-trapWith trapType clas dur tr f = trapFull trapType clas dur tr (const f)
+trapWith trapType clas dur tr f = trapFull trapType clas dur tr $ const f
 
 -- | Trap engine.
 trapFull :: ∀ m. MonadPlay m

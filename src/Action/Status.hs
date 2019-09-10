@@ -52,7 +52,7 @@ import qualified Action.Channel as ActionChannel
 -- to 'Status.maxDur'.
 -- Uses 'Ninjas.refresh' internally.
 refresh :: ∀ m. MonadPlay m => Text -> m ()
-refresh = P.unsilenced . P.fromSource . Ninjas.refresh
+refresh name = P.unsilenced . P.fromUser $ Ninjas.refresh name
 
 -- | Increases the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
@@ -66,8 +66,7 @@ prolong (Duration -> dur) name = P.unsilenced do
 -- Uses 'Ninjas.prolong' internally.
 hasten :: ∀ m. MonadPlay m => Turns -> Text -> m ()
 hasten (Duration -> dur) name =
-    P.unsilenced . P.toTarget . Ninjas.prolong (negate $ sync dur) name
-    =<< P.user
+    P.unsilenced . P.fromUser $ Ninjas.prolong (negate $ sync dur) name
 
 -- | Adds a 'Face.Face' to the 'Ninja.face' of a @Ninja@, changing their in-game
 -- icon.
@@ -295,20 +294,20 @@ purge = P.toTarget Ninjas.purge
 -- is the one performing the action.
 -- Uses 'Ninjas.clear' internally.
 remove :: ∀ m. MonadPlay m => Text -> m ()
-remove = P.fromSource . Ninjas.clear
+remove name = P.fromUser $ Ninjas.clear name
 
 -- | Decreases the 'Status.amount' of a @Status@ with matching 'Status.name' by
 -- 1, removing it if it reaches 0.
 -- Uses 'Ninjas.removeStack' internally.
 removeStack :: ∀ m. MonadPlay m => Text -> m ()
-removeStack = P.toTarget . Ninjas.removeStack
+removeStack name = P.toTarget $ Ninjas.removeStack name
 
 -- | Decreases the 'Status.amount' of a @Status@ with matching 'Status.name' and
 -- whose 'Status.user is the one performing the action by some amount, removing
 -- it if it reaches 0.
 -- Uses 'Ninjas.removeStacks' internally.
 removeStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
-removeStacks name i = P.fromSource $ Ninjas.removeStacks name i
+removeStacks name i = P.fromUser $ Ninjas.removeStacks name i
 
 -- | Steals all of the target's 'Effect.helpful' 'Effect's.
 commandeer :: ∀ m. MonadPlay m => m ()

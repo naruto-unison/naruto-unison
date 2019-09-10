@@ -24,4 +24,4 @@ eq x y = name x == name y && user x == user y
 
 -- Matching.
 match :: ∀ a. Labeled a => Text -> Slot -> a -> Bool
-match n src a = name a == n && user a == src
+match n usr a = name a == n && user a == usr

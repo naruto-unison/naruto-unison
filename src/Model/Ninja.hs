@@ -56,7 +56,7 @@ new slot c = Ninja { slot      = slot
     skillSize = length $ Character.skills c
 
 alive :: Ninja -> Bool
-alive = (> 0) . health
+alive n = health n > 0
 
 -- | Whether a @Ninja@ belongs to the currently playing 'Model.Player.Player'.
 playing :: ∀ a. Parity a => a -> Ninja -> Bool
@@ -67,20 +67,17 @@ is n ef = ef ∈ effects n
 
 isChanneling :: Text -- ^ 'Skill.name'.
              -> Ninja -> Bool
-isChanneling name = any ((name ==) . Skill.name . Channel.skill) . channels
+isChanneling name n = any ((name ==) . Skill.name . Channel.skill) $ channels n
 
 has :: Text -- ^ 'Status.name'.
     -> Slot -- ^ 'Status.user'.
     -> Ninja -> Bool
-has name user = any (Labeled.match name user) . statuses
-
-hasStatus :: Status -> Ninja -> Bool
-hasStatus st = any (Labeled.eq st) . statuses
+has name user n = any (Labeled.match name user) $ statuses n
 
 hasDefense :: Text -- ^ 'Defense.name'.
            -> Slot -- ^ 'Defense.user'.
            -> Ninja -> Bool
-hasDefense name user = any (Labeled.match name user) . defense
+hasDefense name user n = any (Labeled.match name user) $ defense n
 
 defenseAmount :: Text -- ^ 'Defense.name'.
               -> Slot -- ^ 'Defense.user'.
@@ -95,7 +92,7 @@ hasTrap :: Text -- ^ 'Trap.name'.
         -> Slot -- ^ 'Trap.user'.
         -> Ninja -- ^ 'traps' owner.
         -> Bool
-hasTrap name user = any (Labeled.match name user) . traps
+hasTrap name user n = any (Labeled.match name user) $ traps n
 
 hasOwn :: Text -> Ninja -> Bool
 hasOwn name n = has name (slot n) n

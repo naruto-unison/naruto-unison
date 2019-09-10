@@ -111,7 +111,7 @@ toSequence (Chakras b g n t r) = replicate b Blood
                               ++ replicate r Rand
 
 collect :: ∀ f. (Foldable f, Functor f) => f Chakra -> Chakras
-collect = sum . (toChakras <$>)
+collect xs = sum $ toChakras <$> xs
 
 classes :: Chakras -> EnumSet Class
 classes (Chakras b g n t r) = fromList $ fst <$> filter snd

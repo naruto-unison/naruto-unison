@@ -42,5 +42,5 @@ chakraClasses skill =
 
 -- | Replaces an empty string with a 'name'.
 defaultName :: Text -> Skill -> Text
-defaultName "" = name
-defaultName name  = const name
+defaultName ""   skill = name skill
+defaultName name _     = name

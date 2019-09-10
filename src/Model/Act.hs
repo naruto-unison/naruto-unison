@@ -14,12 +14,14 @@ import qualified Data.Text.Read as Read
 import           Text.Read (Read(..))
 import           Yesod.Core.Dispatch (PathPiece(..))
 
+import qualified Class.Parity as Parity
 import qualified Class.Random as R
 import           Class.Random (MonadRandom)
 import qualified Model.Channel as Channel
 import           Model.Channel (Channel)
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja)
+import qualified Model.Player as Player
 import           Model.Player (Player)
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
@@ -49,11 +51,11 @@ random :: ∀ m. MonadRandom m => Slot -> m Act
 random user = Act user <$> (Left <$> R.random 0 3) <*> Slot.random
 
 randoms :: ∀ m. MonadRandom m => m [Act]
-randoms = traverse random Slot.odds
+randoms = traverse random $ Slot.allies Player.B
 
 -- A 'Player' attempts to control a 'Ninja' not on their team.
 illegal :: Player -> Act -> Bool
-illegal p = (fromEnum p /=) . (`rem` 2) . Slot.toInt . user
+illegal p a = not . Parity.allied p . Slot.toInt $ user a
 
 fromChannel :: Ninja -> Channel -> Act
 fromChannel n chan = Act { user   = Ninja.slot n

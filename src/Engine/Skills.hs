@@ -47,7 +47,7 @@ safe a f n sName vName = fromMaybe a do
 
 -- | Combines two 'Skill.Transform's.
 also :: Skill.Transform -> Skill.Transform -> Skill.Transform
-(f `also` g) n skill = g n $ f n skill
+(f `also` g) n = g n . f n
 
 -- | Applies a 'Skill.Transform' conditional upon 'Ninja.has'.
 changeWith :: Text -> (Skill -> Skill) -> Skill.Transform

@@ -53,4 +53,5 @@ onInterrupt chan = P.with chanContext $
 -- | Increases the duration of 'Ninja.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.prolongChannel' internally.
 prolongChannel :: ∀ m. MonadPlay m => Turns -> Text -> m ()
-prolongChannel (Duration -> dur) = P.toTarget . Ninjas.prolongChannel dur
+prolongChannel (Duration -> dur) name = 
+    P.toTarget $ Ninjas.prolongChannel dur name
