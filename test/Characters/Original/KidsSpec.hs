@@ -441,7 +441,7 @@ spec = parallel do
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 20
-                it "damages otheres" $
+                it "damages others" $
                     100 - otherEnemyHealth `shouldBe` 10
                 it "adds a stack to user" $
                     userStacks `shouldBe` 1
