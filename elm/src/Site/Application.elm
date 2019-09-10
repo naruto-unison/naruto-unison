@@ -25,10 +25,10 @@ type alias Model =
     }
 
 type Msg
-    = SelectMsg Select.Msg
+    = OnError   (Result Dom.Error ())
     | PlayMsg   Play.Msg
     | Receive   String
-    | OnError   (Result Dom.Error ())
+    | SelectMsg Select.Msg
 
 printError : Dom.Error -> String
 printError a = case a of

@@ -740,6 +740,9 @@ a.playButton {
 #ready.noclick:before {
     content: "WAITING" !important;
 }
+#forfeit:hover {
+    color: #e11;
+}
 .charmove.click:hover, .chakra.click:hover, #avatars img:hover {
     border-color: #0099ff;
 }

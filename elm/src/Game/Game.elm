@@ -2,6 +2,7 @@ module Game.Game exposing
   ( Act
   , died
   , dur
+  , forfeit
   , get
   , merge
   , rank
@@ -28,16 +29,30 @@ type alias Act =
 died : Player -> Game -> Game -> Bool
 died player oldGame newGame = living player oldGame > living player newGame
 
+allied : Player -> Ninja -> Bool
+allied player n = ((n.slot |> remainderBy 2) == 0) == (player == Player.A)
+
 living : Player -> Game -> Int
 living player game =
   let
-    health ninja =
-      if ((ninja.slot |> remainderBy 2) == 0) == (player == Player.A) then
-          min 1 ninja.health
-      else
-          0
+    health n = if allied player n then min 1 n.health else 0
   in
     List.sum <| List.map health game.ninjas
+
+opponent : Player -> Player
+opponent player = case player of
+    Player.A -> Player.B
+    Player.B -> Player.A
+
+forfeit : Player -> Game -> Game
+forfeit player game =
+  let
+    forfeitN n = if allied player n then { n | health = 0 } else n
+  in
+    { game
+    | ninjas = List.map forfeitN game.ninjas
+    , victor = [opponent player]
+    }
 
 unknown : Character
 unknown = { name = "unknown", bio = "", skills = [], category = Original }

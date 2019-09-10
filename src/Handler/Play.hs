@@ -208,45 +208,41 @@ gameSocket = do
             liftST (Wrapper.fromInfo info) >>= runReaderT do
                 when (player == Player.A) $ tryEnact player writer
                 completedGame <- untilJust do
-                    msg  <- liftIO . atomically $ readTBQueue reader
-                    case msg of
-                        Message.Forfeit -> do
-                            P.forfeit $ Player.opponent player
-                            Just <$> Wrapper.freeze
-                        Message.Enact wrapper -> do
-                            if not . null . Game.victor $
-                                Wrapper.game wrapper then
-                                return $ Just wrapper
-                            else do
-                                Sockets.clear
-                                Sockets.sendJson $
-                                    Wrapper.toJSON player wrapper
-                                liftST . Wrapper.replace wrapper =<< ask
-                                tryEnact player writer
-                                return Nothing
+                    wrapper <- liftIO . atomically $ readTBQueue reader
+                    Sockets.clear
+                    if null . Game.victor $ Wrapper.game wrapper then do
+                        Sockets.sendJson $ Wrapper.toJSON player wrapper
+                        liftST . Wrapper.replace wrapper =<< ask
+                        tryEnact player writer
+                        return Nothing
+                    else do
+                        return $ Just wrapper
                 Sockets.sendJson $ Wrapper.toJSON player completedGame
 
 -- | Wraps @enact@ with error handling.
 tryEnact :: ∀ m. (MonadGame m, MonadRandom m, MonadSockets m, MonadUnliftIO m)
-         => Player -> TBQueue Message.Game -> m ()
+         => Player -> TBQueue Wrapper -> m ()
 tryEnact player writer = do
     enactMessage <- Timeout.timeout 60000000 $ -- 1 minute
                     Text.split ('/' ==) <$> Sockets.receive
 
-    case formEnact =<< enactMessage of
-        Nothing -> do
-            Turn.run []
+    case enactMessage of
+        Just ["forfeit"] -> do
+            P.forfeit player
             conclude
-        Just (actChakra, exchangeChakra, actions) -> do
+        Just (formEnact -> Just (actChakra, exchangeChakra, actions)) -> do
             res <- enact actChakra exchangeChakra actions
             case res of
                 Left errorMsg -> Sockets.send errorMsg
                 Right ()      -> conclude
+        _ -> do
+            Turn.run []
+            conclude
   where
     conclude = do
         wrapper <- Wrapper.freeze
         Sockets.sendJson $ Wrapper.toJSON player wrapper
-        atomically . writeTBQueue writer $ Message.Enact wrapper
+        atomically $ writeTBQueue writer wrapper
 
 -- | Processes a user's actions and passes them to 'Turn.run'.
 enact :: ∀ m. (MonadGame m, MonadRandom m)

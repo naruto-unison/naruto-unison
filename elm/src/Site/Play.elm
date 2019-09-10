@@ -64,16 +64,17 @@ type ExchangeMsg
     | Reset
 
 type Msg
-    = Receive String
+    = DoNothing
     | Enact ListChange Act
     | Exchange ExchangeMsg
+    | Forfeit
     | Ready
+    | Receive String
     | ReceivePractice (Result Http.Error (List Game))
     | Spend Chakras
     | Toggle Act
     | Unhighlight
     | View Viewable
-    | DoNothing
 
 component ports =
   let
@@ -155,8 +156,8 @@ component ports =
               let
                 chakraButton text msg condition =
                     H.button
-                    ( A.id (String.toLower text)
-                      :: clickIf condition "chakraButton" (Exchange msg)
+                    ( A.id text
+                      :: clickIf condition "chakraButton" msg
                     ) [H.text text]
                 readyMeta =
                     if not ownTurn then
@@ -172,10 +173,11 @@ component ports =
                 [ H.section [A.id "playchakra"] <|
                   List.map (renderChakra ownTurn st.exchange net) chakraPairs ++
                   [ Render.rands (Chakra.total netUnrand) rand
-                  , chakraButton "Exchange" Begin <|
+                  , chakraButton "exchange" (Exchange Begin) <|
                     free.rand >= 5 && Chakra.canExchange net && ownTurn
-                  , chakraButton "Reset" Reset <|
+                  , chakraButton "reset" (Exchange Reset) <|
                         st.exchanged /= Chakra.none || st.randoms /= Chakra.none
+                  , chakraButton "forfeit" Forfeit ownTurn
                   ]
                 , H.section [A.id "playqueuecont"]
                   [ H.div [A.id "playqueue"] <|
@@ -271,21 +273,28 @@ component ports =
                 | exchanged = Chakra.sum [st.exchanged, chakras]
                 , exchange  = False
                 }
+            Forfeit ->
+                if st.practice then
+                    setGameAnd (Game.forfeit st.player st.game) st
+                    [ports.sound Sound.Lose]
+                else
+                    (st, ports.websocket "forfeit")
             Receive json -> case D.decodeString Model.jsonDecGame json of
                 Err err -> pure { st | error = D.errorToString err }
-                Ok game -> case game.victor of
-                    [victor] -> withSound
-                        (if victor == st.player then Sound.Win else Sound.Lose)
-                        st
+                Ok game -> setGameAnd game st <| case game.victor of
+                    [victor] ->
+                        if victor == st.player then
+                            [ports.sound Sound.Win]
+                        else
+                            [ports.sound Sound.Lose]
                     [] ->
-                        setGameAnd game st <|
                         [ ports.sound Sound.StartTurn
                         , if game.playing == st.player then
                             ports.progress 60000 1 0
                           else
                             ports.progress 60000 0 1
                         ]
-                    _ -> (st, ports.sound Sound.Death)
+                    _ -> [ports.sound Sound.Death]
             Ready ->
                 if st.practice then
                     ( { untoggled
