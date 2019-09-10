@@ -5,56 +5,6 @@ license:    BSD3
 author:     "Naruto Unison"
 maintainer: "joshua.n.booth@gmail.com"
 
-dependencies:
-- aeson == 1.4.2.0
-- base == 4.12.0.0
-- blaze-html == 0.9.1.1
-- blaze-markup == 0.8.2.2
-- bounded-enum == 0.1.0.0
-- bytestring == 0.10.8.2
-- cache == 0.1.1.2
-- case-insensitive == 1.2.0.11
-- classy-prelude == 1.5.0
-- clock == 0.7.2
-- containers == 0.6.0.1
-- data-default == 0.7.1.1
-- elm-bridge == 0.5.1
-- fast-logger == 2.4.16
-- file-embed == 0.0.11
-- foreign-store == 0.2
-- hjsmin == 0.2.0.2
-- http-client-tls == 0.3.5.3
-- http-conduit == 2.3.7.1
-- mime-mail == 0.4.14
-- monad-logger == 0.3.30
-- monad-loops == 0.4.3
-- mtl == 2.2.2
-- mwc-random == 0.14.0.0
-- persistent == 2.9.2
-- persistent-postgresql == 2.9.1
-- persistent-template == 2.5.4
-- resourcet == 1.2.2
-- shakespeare == 2.0.20
-- template-haskell == 2.14.0.0
-- text == 1.2.3.1
-- time == 1.8.0.2
-- transformers == 0.5.6.2
-- unliftio == 0.2.11
-- unordered-containers == 0.2.10.0
-- vector == 0.12.0.3
-- wai == 3.2.2.1
-- wai-extra == 3.0.26.1
-- wai-logger == 2.3.5
-- warp == 3.2.28
-- websockets == 0.12.5.3
-- yaml == 0.11.1.0
-- yesod == 1.6.0
-- yesod-auth == 1.6.7
-- yesod-core == 1.6.14
-- yesod-form == 1.6.5
-- yesod-static == 1.6.0.1
-- yesod-websockets == 0.3.0.2
-
 library:
   source-dirs: src
   when:
@@ -90,42 +40,97 @@ library:
       - -funbox-small-strict-fields
       - -ferror-spans
       - -O2
+  dependencies:
+  - aeson == 1.4.2.0
+  - base == 4.12.0.0
+  - blaze-html == 0.9.1.1
+  - blaze-markup == 0.8.2.2
+  - bounded-enum == 0.1.0.0
+  - bytestring == 0.10.8.2
+  - cache == 0.1.1.2
+  - case-insensitive == 1.2.0.11
+  - classy-prelude == 1.5.0
+  - clock == 0.7.2
+  - containers == 0.6.0.1
+  - data-default == 0.7.1.1
+  - fast-logger == 2.4.16
+  - file-embed == 0.0.11
+  - hjsmin == 0.2.0.2
+  - http-client-tls == 0.3.5.3
+  - http-conduit == 2.3.7.1
+  - mime-mail == 0.4.14
+  - monad-logger == 0.3.30
+  - monad-loops == 0.4.3
+  - mtl == 2.2.2
+  - mwc-random == 0.14.0.0
+  - persistent == 2.9.2
+  - persistent-postgresql == 2.9.1
+  - persistent-template == 2.5.4
+  - resourcet == 1.2.2
+  - shakespeare == 2.0.20
+  - template-haskell == 2.14.0.0
+  - text == 1.2.3.1
+  - time == 1.8.0.2
+  - transformers == 0.5.6.2
+  - unliftio == 0.2.11
+  - unordered-containers == 0.2.10.0
+  - vector == 0.12.0.3
+  - wai == 3.2.2.1
+  - wai-extra == 3.0.26.1
+  - wai-logger == 2.3.5
+  - warp == 3.2.28
+  - websockets == 0.12.5.3
+  - yaml == 0.11.1.0
+  - yesod == 1.6.0
+  - yesod-auth == 1.6.7
+  - yesod-core == 1.6.14
+  - yesod-form == 1.6.5
+  - yesod-static == 1.6.0.1
+  - yesod-websockets == 0.3.0.2
 
-# Runnable executable for our application
 executables:
   naruto-unison:
+    source-dirs: app/naruto-unison
     main: main.hs
-    source-dirs: app
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
     - naruto-unison
+    - base
     when:
     - condition: flag(library-only)
       buildable: false
   elm-bridge:
-    main: elm.hs
-    source-dirs: app
+    source-dirs: app/elm-bridge
+    main: main.hs
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
     - naruto-unison
+    - aeson
+    - base
+    - containers
+    - elm-bridge == 0.5.1
+    - template-haskell
+    - text
     when:
     - condition: flag(library-only)
       buildable: false
 
-# Test suite
 tests:
   yesod-test:
-    main: Spec.hs
     source-dirs: test
+    main: Spec.hs
     dependencies:
     - naruto-unison
+    - base
+    - classy-prelude
     - hspec
+    - transformers
     ghc-options:
       - -Wall
       - -Wincomplete-uni-patterns

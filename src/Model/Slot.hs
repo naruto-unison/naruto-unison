@@ -3,7 +3,7 @@
 module Model.Slot
   ( Slot, toInt, read
   , teamSize
-  , all, allies, enemies, evens, odds
+  , all, allies, enemies
   , random
   ) where
 
@@ -53,13 +53,13 @@ odds :: [Slot]
 odds = Slot <$> [1, 3 .. maxVal]
 
 -- | Slots with the same parity.
-allies :: Slot -> [Slot]
+allies :: ∀ a. Parity a => a -> [Slot]
 allies x
   | Parity.even x = evens
   | otherwise     = odds
 
 -- | Slots with opposite parity.
-enemies :: Slot -> [Slot]
+enemies :: ∀ a. Parity a => a -> [Slot]
 enemies x
   | Parity.even x = odds
   | otherwise     = evens

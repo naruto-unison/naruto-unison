@@ -253,9 +253,9 @@ instance Classed Trigger where
     classes _                  = mempty
 
 instance Display Trigger where
-    display (Counter Uncounterable)      = "Next harmful skill received will be negated."
-    display (CounterAll Uncounterable)   = "All harmful skills received will be negated."
-    display (Countered Uncounterable)    = "Next harmful skill used will be negated."
+    display (Counter Uncounterable)    = "Next harmful skill received will be negated."
+    display (CounterAll Uncounterable) = "All harmful skills received will be negated."
+    display (Countered Uncounterable)  = "Next harmful skill used will be negated."
     display (Counter All)      = "Next harmful skill received will be countered."
     display (CounterAll All)   = "All harmful skills received will be countered."
     display (Countered All)    = "Next harmful skill used will be countered."
@@ -281,9 +281,9 @@ instance Display Trigger where
     display OnRes              = "Trigger: Reach 0 health"
     display OnStun             = "Trigger: Apply a stun"
     display OnStunned          = "Trigger: Stunned"
-    display PerDamage          = display OnDamage
-    display PerDamaged         = display $ OnDamaged All
-    display PerHealed          = display OnHealed
+    display PerDamage          = "Trigger: Deal damage"
+    display PerDamaged         = "Trigger: Receive damage"
+    display PerHealed          = "Trigger: Receive healing"
 
 -- | A 'Skill' copied from a different character.
 data Copy = Copy { skill :: Skill

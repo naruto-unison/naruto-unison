@@ -36,7 +36,6 @@ data Class
     -- Fake (Hidden)
     | All
     | Harmful
-    | Healing
     | Hidden
     | Affliction
     | NonAffliction
@@ -61,7 +60,7 @@ instance Display Class where
     display = Enum.memoize $ display . name
 
 name :: Class -> Text
-name InvisibleTraps = name Invisible
+name InvisibleTraps = "Invisible"
 name Nonstacking    = "Non-stacking"
 name NonAffliction  = "Non-affliction"
 name NonMental      = "Non-mental"

@@ -13,15 +13,15 @@ module Class.Play
   , nUser, nTarget
   , player
   -- * Transformation
-  , old
   , withContext
   , withTarget, withTargets
   , unsilenced
   -- * Lifting
-  , toTarget, fromSource
+  , toTarget, fromUser
   -- * Other
   , trigger
   , zipWith
+  , livingOf
   , yieldVictor, forfeit
   ) where
 
@@ -87,12 +87,6 @@ nTarget = ninja =<< target
 player :: ∀ m. MonadGame m => m Player
 player = Game.playing <$> game
 
--- | Runs an action in a localized state where 'Context.new' is 'False'.
-old :: ∀ m a. MonadPlay m => m a -> m a
-old f = do
-    isNew <- new
-    if isNew then with (\ctx -> ctx { Context.new = False }) f else f
-
 -- | Runs an action in a localized state where 'target' is replaced.
 withTarget :: ∀ m a. MonadPlay m => Slot -> m a -> m a
 withTarget x = with \ctx -> ctx { Context.target = x }
@@ -116,18 +110,15 @@ toTarget f = flip modify f =<< target
 
 -- | Applies a @Ninja@ transformation to the 'target', passing it the 'user' as
 -- an argument.
-fromSource :: ∀ m. MonadPlay m => (Slot -> Ninja -> Ninja) -> m ()
-fromSource f = do
+fromUser :: ∀ m. MonadPlay m => (Slot -> Ninja -> Ninja) -> m ()
+fromUser f = do
     t   <- target
-    src <- user
-    modify t $ f src
-
-allSlotsVec :: Vector Slot
-allSlotsVec = fromList Slot.all
+    usr <- user
+    modify t $ f usr
 
 zipWith :: ∀ m. (MonadGame m)
         => (Ninja -> Ninja -> Ninja) -> Vector Ninja -> m ()
-zipWith f = Vector.zipWithM_ (\i -> modify i . f) allSlotsVec
+zipWith f = Vector.zipWithM_ (\i -> modify i . f) $ fromList Slot.all
 
 -- | Adds a 'Flag' if 'Context.user' is not 'Context.target' and 'Context.new'
 -- is @True@.
@@ -135,17 +126,16 @@ trigger :: ∀ m. MonadPlay m => Slot -> [Trigger] -> m ()
 trigger i xs = whenM new $ modify i \n ->
     n { Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n) xs }
 
-
 yieldVictor :: ∀ m. MonadGame m => m ()
 yieldVictor = whenM (null . Game.victor <$> game) do
-    ns <- ninjas
-    alter \g -> g { Game.victor = mVictor ns }
+    ns <- Parity.split <$> ninjas
+    alter \g -> g { Game.victor = filter (dead ns) [Player.A, Player.B] }
   where
-    mVictor ns = filter (dead ns . Player.opponent) [minBound..maxBound]
+    dead ns ofPlayer = not . any Ninja.alive $ Parity.getOf ofPlayer ns
 
--- | The entire team of a @Player@ is dead, resulting in defeat.
-dead :: ∀ o. (MonoFoldable o, Ninja ~ Element o) => o -> Player -> Bool
-dead ns p = not $ any (Ninja.playing p) ns
+livingOf :: ∀ m. MonadGame m => Player -> m (Vector Ninja)
+livingOf ofPlayer =
+    filter Ninja.alive . Parity.getOf ofPlayer . Parity.split <$> ninjas
 
 forfeit :: ∀ m. MonadGame m => Player -> m ()
 forfeit p = whenM (null . Game.victor <$> game) do

@@ -8,6 +8,8 @@ import ClassyPrelude hiding (Handler)
 import Yesod
 
 import           Control.Monad.Loops (untilJust)
+import qualified Control.Monad.ST as ST
+import           Control.Monad.ST (RealWorld, ST)
 import qualified Data.Cache as Cache
 import           Data.List (transpose)
 import qualified Data.Text as Text
@@ -100,6 +102,9 @@ getPracticeQueueR _ = invalidArgs ["Wrong number of characters"]
 getPracticeWaitR :: Chakras -> Chakras -> Handler Value
 getPracticeWaitR actChakra xChakra = getPracticeActR actChakra xChakra []
 
+liftST :: ∀ m a. MonadIO m => ST RealWorld a -> m a
+liftST = liftIO . ST.stToIO
+
 -- | Handles a turn for a practice game. Practice games are not limited by time
 -- and use GET requests instead of WebSockets.
 getPracticeActR :: Chakras -> Chakras -> [Act] -> Handler Value
@@ -111,7 +116,7 @@ getPracticeActR actChakra exchangeChakra actions = do
         Nothing   -> notFound
         Just game -> do
           random  <- liftIO Random.createSystemRandom
-          wrapper <- Wrapper.thawIO game
+          wrapper <- liftST $ Wrapper.thaw game
           runReaderT (runReaderT (enactPractice who practice) wrapper) random
   where
     enactPractice who practice = do
@@ -200,7 +205,7 @@ gameSocket = do
                 _ -> return Nothing
             lift $ Sockets.sendJson info
             let player = GameInfo.player info
-            Wrapper.fromInfo info >>= runReaderT do
+            liftST (Wrapper.fromInfo info) >>= runReaderT do
                 when (player == Player.A) $ tryEnact player writer
                 completedGame <- untilJust do
                     msg  <- liftIO . atomically $ readTBQueue reader
@@ -216,7 +221,7 @@ gameSocket = do
                                 Sockets.clear
                                 Sockets.sendJson $
                                     Wrapper.toJSON player wrapper
-                                Wrapper.replaceIO wrapper
+                                liftST . Wrapper.replace wrapper =<< ask
                                 tryEnact player writer
                                 return Nothing
                 Sockets.sendJson $ Wrapper.toJSON player completedGame

@@ -1,20 +1,20 @@
 module Core.Wrapper
-  ( IOWrapper(..), fromInfo, replaceIO, thawIO
-  , STWrapper(..), replaceST
+  ( STWrapper(..), fromInfo, replace, thaw
+  , IOWrapper
   , Wrapper(..), freeze, toJSON
   ) where
 
 import ClassyPrelude
 
 
-import           Control.Monad.ST (ST)
+import           Control.Monad.ST (RealWorld, ST, stToIO)
 import           Control.Monad.Trans.State.Strict (StateT, gets, modify')
 import           Data.Aeson (Value)
 import           Data.STRef
 import qualified Data.Vector as Vector
 import           Data.Vector ((//))
 import qualified Data.Vector.Mutable as MVector
-import           Data.Vector.Mutable (IOVector, STVector)
+import           Data.Vector.Mutable (STVector)
 
 import           Core.Util ((!!))
 import qualified Class.Play as P
@@ -27,54 +27,42 @@ import           Model.Ninja (Ninja)
 import           Model.Player (Player)
 import qualified Model.Slot as Slot
 
-data STWrapper s = STWrapper { stGame   :: STRef s Game
-                             , stNinjas :: STVector s Ninja
+data STWrapper s = STWrapper { gameRef   :: STRef s Game
+                             , ninjasRef :: STVector s Ninja
                              }
 
 instance MonadGame (ReaderT (STWrapper s) (ST s)) where
-    game        = asks stGame   >>= lift . readSTRef
-    alter f     = asks stGame   >>= lift . flip modifySTRef' f
-    ninjas      = asks stNinjas >>= lift . Vector.freeze
-    ninja i     = asks stNinjas >>= lift . flip MVector.unsafeRead (Slot.toInt i)
-    write i x   = asks stNinjas >>= \xs ->
+    game        = asks gameRef   >>= lift . readSTRef
+    alter f     = asks gameRef   >>= lift . flip modifySTRef' f
+    ninjas      = asks ninjasRef >>= lift . Vector.freeze
+    ninja i     = asks ninjasRef >>= lift . flip MVector.unsafeRead (Slot.toInt i)
+    write i x   = asks ninjasRef >>= \xs ->
                   MVector.unsafeWrite xs (Slot.toInt i) x
-    modify i f  = asks stNinjas >>= \xs ->
+    modify i f  = asks ninjasRef >>= \xs ->
                   MVector.unsafeModify xs f $ Slot.toInt i
 
-replaceST :: ∀ s. Wrapper -> ReaderT (STWrapper s) (ST s) ()
-replaceST Wrapper{..} = do
-    gameRef <- asks stGame
-    lift $ writeSTRef gameRef game
-    ninjasRef <- asks stNinjas
-    MVector.unsafeCopy ninjasRef =<< Vector.thaw ninjas
-
-data IOWrapper = IOWrapper { ioGame   :: IORef Game
-                           , ioNinjas :: IOVector Ninja
-                           }
+type IOWrapper = STWrapper RealWorld
 
 instance MonadIO m => MonadGame (ReaderT IOWrapper m) where
-    game       = asks ioGame   >>= liftIO . readIORef
-    alter f    = asks ioGame   >>= liftIO . flip modifyIORef' f
-    ninjas     = asks ioNinjas >>= liftIO . Vector.freeze
-    ninja i    = asks ioNinjas >>=
-                 liftIO . flip MVector.unsafeRead (Slot.toInt i)
-    write i x  = asks ioNinjas >>= \xs ->
-                 liftIO $ MVector.unsafeWrite xs (Slot.toInt i) x
-    modify i f = asks ioNinjas >>= \xs ->
-                 liftIO . MVector.modify xs f $ Slot.toInt i
+    game        = asks gameRef   >>= liftIO . stToIO . readSTRef
+    alter f     = asks gameRef   >>= liftIO . stToIO . flip modifySTRef' f
+    ninjas      = asks ninjasRef >>= liftIO . Vector.freeze
+    ninja i     = asks ninjasRef >>= liftIO . flip MVector.unsafeRead (Slot.toInt i)
+    write i x   = asks ninjasRef >>= liftIO . \xs ->
+                  MVector.unsafeWrite xs (Slot.toInt i) x
+    modify i f  = asks ninjasRef >>= liftIO . \xs ->
+                  MVector.unsafeModify xs f $ Slot.toInt i
 
-fromInfo :: ∀ m. MonadIO m => GameInfo -> m IOWrapper
+fromInfo :: ∀ s. GameInfo -> ST s (STWrapper s)
 fromInfo info = do
-    ioGame   <- newIORef $ GameInfo.game info
-    ioNinjas <- liftIO . Vector.thaw $ GameInfo.ninjas info
-    return IOWrapper{..}
+    gameRef <- newSTRef $ GameInfo.game info
+    ninjasRef <- Vector.thaw $ GameInfo.ninjas info
+    return STWrapper{..}
 
-replaceIO :: ∀ m. MonadIO m => Wrapper -> ReaderT IOWrapper m ()
-replaceIO Wrapper{..} = do
-    gameRef <- asks ioGame
-    lift $ writeIORef gameRef game
-    ninjasRef <- asks ioNinjas
-    liftIO $ MVector.unsafeCopy ninjasRef =<< Vector.thaw ninjas
+replace :: ∀ s. Wrapper -> STWrapper s -> ST s ()
+replace Wrapper{..} STWrapper{..} = do
+    writeSTRef gameRef game
+    MVector.unsafeCopy ninjasRef =<< Vector.thaw ninjas
 
 adjustVec :: ∀ a. (a -> a) -> Int -> Vector a -> Vector a
 adjustVec f i = Vector.modify \xs -> MVector.modify xs f i
@@ -103,12 +91,11 @@ instance MonadRandom (StateT Wrapper Identity) where
 freeze :: ∀ m. MonadGame m => m Wrapper
 freeze = Wrapper <$> P.game <*> P.ninjas
 
-thawIO :: MonadIO m => Wrapper -> m IOWrapper
-thawIO Wrapper{..} = IOWrapper <$> newIORef game <*> liftIO (Vector.thaw ninjas)
+thaw :: ∀ s. Wrapper -> ST s (STWrapper s)
+thaw Wrapper{..} = STWrapper <$> newSTRef game <*> Vector.thaw ninjas
 
 toJSON :: Player -> Wrapper -> Value
 toJSON player Wrapper{..} = GameInfo.gameToJSON player ninjas game
 
 instance MonadRandom m => MonadRandom (ReaderT Wrapper m)
-instance MonadRandom m => MonadRandom (ReaderT IOWrapper m)
 instance MonadRandom m => MonadRandom (ReaderT (STWrapper s) m)

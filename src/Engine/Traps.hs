@@ -5,7 +5,7 @@ module Engine.Traps
     -- Performing 'Trap.Trap's
   , runTurn
     -- Collecting 'Trap.Trap's
-  , get, getOf, getTracked, getPer
+  , get, getOf
   , broken
   ) where
 
@@ -32,12 +32,11 @@ import qualified Model.Trap as Trap
 import           Model.Trap (Trap, Trigger(..))
 
 run :: Slot -> Trap -> Runnable Context
-run user trap
-  | Trap.direction trap == Trap.From = Runnable.retarget withTarget play
-  | otherwise                        = play
+run user trap = case Trap.direction trap of
+    Trap.From -> Runnable.retarget (\ctx -> ctx { Context.target = user }) play
+    _         -> play
   where
-      withTarget ctx = ctx { Context.target = user }
-      play           = Trap.effect trap $ Trap.tracker trap
+      play = Trap.effect trap $ Trap.tracker trap
 
 getOf :: Slot -> Trigger -> Ninja -> [Runnable Context]
 getOf user trigger n =
@@ -100,19 +99,7 @@ getTurnHooks player n n'
   | otherwise            = mempty
   where
     allied = Parity.allied player n'
-    hp    = Ninja.health n - Ninja.health n'
-
--- | Conditionally returns 'Trap.tracker' 'Trap.Trap's.
-getTracked :: Bool -- ^ If False, returns @mempty@ instead.
-           -> Trigger -- ^ Filter.
-           -> Ninja -- ^ 'Ninja.traps' owner.
-           -> [Runnable Context]
-getTracked False _ _ = mempty
-getTracked True tr n =
-    [Trap.effect trap $ Trap.tracker trap | trap <- Ninja.traps n
-                                          , Trap.trigger trap == tr
-                                          , Trap.dur trap <= 2
-                                          , Trap.tracker trap > 0]
+    hp     = Ninja.health n - Ninja.health n'
 
 -- | Tallies 'PerHealed' and 'PerDamaged' traps.
 getTurnPer :: Player -- ^ Player during the current turn.

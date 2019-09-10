@@ -4,8 +4,6 @@ import ClassyPrelude
 
 import qualified Model.Context as Context
 import           Model.Context (Context)
-import qualified Model.Copy as Copy
-import           Model.Duration (Duration, sync)
 import           Model.Runnable (Runnable(To), RunConstraint)
 import           Model.Internal (Barrier(..))
 import qualified Model.Skill as Skill
@@ -15,7 +13,7 @@ import qualified Model.Skill as Skill
 -- barrier remaining, and an effect that occurs each turn 'Barrier.while' it
 -- exists.
 new :: Context
-    -> Duration 
+    -> Int -- ^ Duration.
     -> (Int -> RunConstraint ()) -- ^ Applied at end with amount remaining.
     -> RunConstraint () -- ^ Applied every turn.
     -> Int -- ^ Initial amount.
@@ -26,7 +24,7 @@ new context dur finish while amount = Barrier
     , finish = \i -> To saved $ finish i
     , while  = To saved while
     , amount = amount
-    , dur    = Copy.maxDur (Skill.copying skill) $ sync dur
+    , dur    = dur
     }
   where
     saved = context { Context.new = False }

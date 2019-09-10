@@ -313,7 +313,7 @@ interruptions :: Skill -> [Runnable Target]
 interruptions skill = (To Enemy clear) : (To Ally clear) : Skill.interrupt skill
   where
     clear :: ∀ m. MonadPlay m => m ()
-    clear = P.fromSource . Ninjas.clear $ Skill.name skill
+    clear = P.fromUser . Ninjas.clear $ Skill.name skill
 
 nonRandom :: Target -> Bool
 nonRandom RAlly  = False

@@ -3,7 +3,6 @@ module Model.Status
   , Bomb(..)
   , new, dead
   , remove, removeMatch
-  , unfold
   ) where
 
 import ClassyPrelude
@@ -62,7 +61,3 @@ removeMatch :: Int -> (Status -> Bool) -> [Status] -> [Status]
 removeMatch i predic xs = case find predic xs of
     Nothing -> xs
     Just x  -> decr i x xs
-
--- | Replicates 'effects' by 'amount' so that they can be summed.
-unfold :: Status -> Status
-unfold st = st { amount = 1, effects = effects st >>= replicate (amount st) }

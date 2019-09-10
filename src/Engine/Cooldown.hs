@@ -3,7 +3,6 @@ module Engine.Cooldown
   ( active
   , update, updateN
   , alter
-  , insert
   , reset, resetAll
   ) where
 

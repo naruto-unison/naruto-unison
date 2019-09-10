@@ -125,8 +125,6 @@ testNinja slot = Ninja.new slot $ Character
 
 wrap :: ∀ m. (MonadPlay m, MonadRandom m) => Player -> m ()
 wrap player = do
-    --whenM ((player /=) . Game.playing <$> P.game) . Turn.process $ return ()
-    --P.alter \game -> game { Game.playing = player }
     user   <- P.user
     nUser  <- P.nUser
     skill  <- Skills.change nUser <$> P.skill

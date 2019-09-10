@@ -1,9 +1,9 @@
 module Model.Ninja
   ( Ninja(..), new
   , playing
-  , alive, minHealth, healthLost
+  , alive, minHealth
   , is, isChanneling
-  , has, hasOwn, hasDefense, hasStatus, hasTrap
+  , has, hasOwn, hasDefense, hasTrap
   , numActive, numStacks, numHarmfulStacks, numHelpful
   , defenseAmount
   ) where
@@ -28,7 +28,6 @@ import           Model.Effect (Effect(..))
 import qualified Model.Skill as Skill
 import           Model.Slot (Slot)
 import qualified Model.Status as Status
-import           Model.Status (Status)
 import qualified Model.Variant as Variant
 
 -- | Constructs a @Ninja@ with starting values from a character and an index.
@@ -143,8 +142,3 @@ minHealth :: Ninja -> Int
 minHealth n
   | n `is` Endure = 1
   | otherwise     = 0
-
-healthLost :: Ninja -- ^ Old.
-           -> Ninja -- ^ New.
-           -> Int
-healthLost n n' = max 0 $ health n' - health n
