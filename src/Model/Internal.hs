@@ -59,8 +59,6 @@ data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas
                    , effects   :: [Effect]               -- ^ Empty at the start of each turn
                    , acted     :: Bool                   -- ^ False at the start of each turn
                    }
-instance Eq Ninja where
-    (==) = (==) `on` \Ninja{..} -> (slot, health, cooldowns, charges)
 instance Parity Ninja where
     even = Parity.even . slot
 
@@ -346,7 +344,7 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
                      , dur     :: Int
                      } deriving (Generic, ToJSON)
 instance Eq Status where
-    (==) = (==) `on` \Status{..} -> (name, user, maxDur, classes, dur)
+    (==) = (==) `on` \Status{..} -> (name, user, classes, maxDur, dur)
 instance Ord Status where
     compare = comparing (name :: Status -> Text)
 instance TurnBased Status where
@@ -387,7 +385,7 @@ instance ToJSON Trap where
         , "dur"       .= dur
         ]
 instance Eq Trap where
-    (==) = (==) `on` \Trap{..} -> (direction, trigger, name, user, dur)
+    (==) = (==) `on` \Trap{..} -> (direction, trigger, name, user, classes, dur)
 instance TurnBased Trap where
     getDur     = dur
     setDur d x = x { dur = d }
@@ -448,9 +446,6 @@ type RunConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
 data Runnable a = To { target :: a
                      , run    :: RunConstraint ()
                      }
-
-instance Eq a => Eq (Runnable a) where
-    (==) = (==) `on` (target :: Runnable a -> a)
 instance Show a => Show (Runnable a) where
     show = show . (target :: Runnable a -> a)
 instance ToJSON a => ToJSON (Runnable a) where
