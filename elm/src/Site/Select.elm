@@ -234,17 +234,17 @@ component ports =
               in
                 { st
                 | index    = if rem == 0 then 0 else size st - rem
-                , pageSize = x
+                , pageSize = abs x
                 }
             else if index >= size st then
                 { st
                 | index    = 0
-                , pageSize = x
+                , pageSize = abs x
                 }
             else
                 { st
                 | index    = x + st.index
-                , pageSize = x
+                , pageSize = abs x
                 }
         Preview x    -> pure <|
             if Maybe.isJust st.toggled then
