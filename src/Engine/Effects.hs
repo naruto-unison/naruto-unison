@@ -159,8 +159,9 @@ hp player n ninjas = afflict ninjas player n - heal ninjas player n
 heal ::  ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
      => o -> Player -> Ninja -> Int
 heal ninjas player n
-  | n `is` Plague = 0
-  | otherwise     = sum $ heal1 ninjas player n <$> Ninja.statuses n
+  | not $ Ninja.alive n = 0
+  | n `is` Plague       = 0
+  | otherwise           = sum $ heal1 ninjas player n <$> Ninja.statuses n
 
 -- | Calculates the total 'Heal' of a single @Status@.
 heal1 :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)

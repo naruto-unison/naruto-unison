@@ -281,7 +281,7 @@ setHealth amt = P.toTarget $ Ninjas.setHealth amt
 heal :: ∀ m. MonadPlay m => Int -> m ()
 heal hp = P.unsilenced do
     nTarget <- P.nTarget
-    unless (nTarget `is` Plague) do
+    unless (nTarget `is` Plague || not (Ninja.alive nTarget)) do
         user   <- P.user
         target <- P.target
         nUser  <- P.nUser

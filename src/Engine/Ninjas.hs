@@ -74,16 +74,15 @@ import           Model.Ninja (Ninja(..), is)
 import qualified Model.Requirement as Requirement
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
+import           Model.Slot (Slot)
 import qualified Model.Status as Status
+import           Model.Status (Status(Status))
+import qualified Model.Trap as Trap
+import           Model.Trap (Trigger(..))
 import qualified Model.Variant as Variant
 import           Model.Variant (Variant(Variant), Varying)
 import qualified Engine.Effects as Effects
 import qualified Engine.Skills as Skills
-
-import           Model.Slot (Slot)
-import           Model.Status (Status(Status))
-import qualified Model.Trap as Trap
-import           Model.Trap (Trigger)
 
 -- | Adjusts the @Skill@ slot of a @Ninja@ due to 'Ninja.variants', 'Effect's
 -- that modify skills, and the 'Skill.changes' of the @Skill@.
@@ -389,11 +388,9 @@ kill :: Bool -- ^ Can be prevented by 'Endure'.
      -> Ninja -> Ninja
 kill endurable n
   | endurable = setHealth 0 n
-  | otherwise = n { statuses = dead : statuses n
-                  , health = 0
+  | otherwise = n { health = 0
+                  , traps  = filter ((OnRes /=) . Trap.trigger) $ traps n
                   }
-  where
-    dead = Status.dead $ slot n
 
 -- | Extends the duration of matching 'statuses'.
 prolong :: Int -- ^ Added to 'Status.dur'.

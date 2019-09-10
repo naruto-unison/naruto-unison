@@ -1,7 +1,7 @@
 module Model.Status
   ( Status(..)
   , Bomb(..)
-  , new, dead
+  , new
   , remove, removeMatch
   ) where
 
@@ -10,7 +10,6 @@ import ClassyPrelude
 import           Model.Internal (Bomb(..), Status(..))
 import qualified Model.Copy as Copy
 import           Model.Duration (Duration, incr, sync)
-import           Model.Effect (Effect(..))
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
 import           Model.Slot (Slot)
@@ -30,20 +29,6 @@ new user dur skill =
            }
   where
     dur' = Copy.maxDur (Skill.copying skill) . incr $ sync dur
-
--- | Applies 'Plague' to prevent healing or resurrecting dead targets.
-dead :: Slot -> Status
-dead slot = Status { amount  = 1
-                   , name    = "dead"
-                   , source  = slot
-                   , user    = slot
-                   , skill   = Skill.new
-                   , effects = singleton Plague
-                   , classes = mempty
-                   , bombs   = []
-                   , maxDur  = -1
-                   , dur     = -1
-                   }
 
 -- | Decreases 'amount' and removes the @Status@ if the amount reaches 0.
 decr :: Int -> Status -> [Status] -> [Status]
