@@ -112,7 +112,7 @@ channeling :: ∀ m. MonadPlay m => Text -> m Bool
 channeling name = Ninja.isChanneling name <$> P.nUser
 
 immune :: Ninja -> Bool
-immune = not . null . Effects.immune
+immune n = not . null $ Effects.immune n
 
 filterOthers :: ∀ m. MonadPlay m => (Ninja -> Bool) -> m Int
 filterOthers match = do

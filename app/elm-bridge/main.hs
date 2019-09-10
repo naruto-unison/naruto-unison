@@ -148,7 +148,7 @@ deriveElmDef defaultOptions ''Trap
 deriveElmDef defaultOptions ''Variant
 
 trimAll :: String -> String
-trimAll = unlines . (dropWhileEnd Char.isSpace <$>) . lines
+trimAll s = unlines $ dropWhileEnd Char.isSpace <$> lines s
 
 main :: IO ()
 main =

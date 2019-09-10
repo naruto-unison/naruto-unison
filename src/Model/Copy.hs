@@ -29,8 +29,7 @@ maxDur  NotCopied    = id
 
 -- | @Skill@ owner. Determines the folder location of the icon image.
 source :: Skill -> Slot -> Slot
-source = cp . Skill.copying
-  where
-    cp (Shallow a _) = const a
-    cp (Deep    a _) = const a
-    cp NotCopied     = id
+source skill slot = case Skill.copying skill of
+    NotCopied   -> slot
+    Shallow a _ -> a
+    Deep    a _ -> a

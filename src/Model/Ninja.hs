@@ -102,9 +102,9 @@ hasOwn name n = has name (slot n) n
 numActive :: Text -- ^ 'Status.name'.
           -> Ninja -> Int
 numActive name n
-  | stacks > 0         = stacks
-  | hasOwn name n      = 1
-  | otherwise          = 0
+  | stacks > 0    = stacks
+  | hasOwn name n = 1
+  | otherwise     = 0
   where
     stacks = numStacks name (slot n) n
 
@@ -112,14 +112,13 @@ numActive name n
 numStacks :: Text -- ^ 'Status.name'.
           -> Slot -- ^ 'Status.user'.
           -> Ninja -> Int
-numStacks name user n = sum . (Status.amount <$>) .
-                        filter (Labeled.match name user) $
-                        statuses n
+numStacks name user n =
+    sum $ Status.amount <$> filter (Labeled.match name user) (statuses n)
 
 -- | Number of stacks of 'statuses' from any non-allied source.
 numHarmfulStacks :: Text -- ^ 'Status.name'.
                  -> Ninja -> Int
-numHarmfulStacks name n = sum . (Status.amount <$>) . filter harm $ statuses n
+numHarmfulStacks name n = sum $ Status.amount <$> filter harm (statuses n)
   where
     harm st = Status.name st == name && not (Parity.allied n $ Status.user st)
 

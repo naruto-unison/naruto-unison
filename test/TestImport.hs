@@ -193,7 +193,7 @@ targetIsExposed = do
     null . Effects.immune . Ninjas.processEffects <$> P.nTarget
 
 totalDefense :: Ninja -> Int
-totalDefense = sum . (Defense.amount <$>) . Ninja.defense
+totalDefense n = sum $ Defense.amount <$> Ninja.defense n
 
 allyOf :: ∀ m. MonadGame m => Slot -> m Ninja
 allyOf target = P.ninja $ Slot.all !! (Slot.toInt target + 2)

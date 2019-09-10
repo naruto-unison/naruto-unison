@@ -221,7 +221,7 @@ decr n = n { defense   = mapMaybe TurnBased.decr $ defense n
            }
   where
     decrChannels       = mapMaybe TurnBased.decr $ newChans n ++ channels n
-    foldStats          = (foldStat <$>) . group . sort
+    foldStats xs       = foldStat <$> group (sort xs)
     foldStat   (x:|[]) = x
     foldStat xs@(x:|_) = x { Status.amount = sum $ Status.amount <$> xs }
     variantsDecr xs    = case mapMaybe decrVariant $ toList xs of
@@ -328,7 +328,7 @@ cancelChannel :: Text -- ^ 'Skill.name'.
               -> Ninja -> Ninja
 cancelChannel name n = clearVariants name n { channels = f $ channels n }
   where
-    f = filter ((name /=) . Skill.name . Channel.skill)
+    f = filter $ (name /=) . Skill.name . Channel.skill
 
 -- | Adds a 'Copy.Copy' to copies'.
 copy :: Duration

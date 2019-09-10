@@ -116,7 +116,7 @@ varyNext name = do
   where
     adjVariant s n = n { Ninja.variants = Seq.adjust' adj s $ Ninja.variants n }
     caseFolded = toCaseFold name
-    match = (caseFolded ==) . toCaseFold . Skill.name
+    match skill = caseFolded == toCaseFold (Skill.name skill)
     adj vs@(x:|xs)
       | variant <= 0 = vs
       | otherwise    = x { Variant.variant = 1 + variant } :| xs

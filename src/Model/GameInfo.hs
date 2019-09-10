@@ -67,7 +67,7 @@ censorNinja player ninjas n
       , Ninja.lastSkill = Nothing
       }
   where
-    filt = (not . (Invisible ∈)) . Skill.classes . Channel.skill
+    filt chan = not $ Invisible ∈ Skill.classes (Channel.skill chan)
     n'   = n { Ninja.statuses = mapMaybe mst $ Ninja.statuses n
              , Ninja.traps    = [ trap | trap <- Ninja.traps n
                                 , Parity.allied player (Trap.user trap)

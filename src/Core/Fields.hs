@@ -68,4 +68,4 @@ boardName OffTopic             = "Off Topic"
 boardName x = tshow x
 
 boardDesc :: ForumBoard -> Text
-boardDesc = ("Sample description for " ++) . (++ ".") . boardName
+boardDesc board = "Sample description for " ++ boardName board ++ "."
