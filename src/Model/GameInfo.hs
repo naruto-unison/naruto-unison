@@ -1,6 +1,5 @@
 module Model.GameInfo
   ( GameInfo(..)
-  , censor
   , gameToJSON
   ) where
 
@@ -54,7 +53,7 @@ instance ToJSON GameInfo where
         characters = Ninja.character <$> ninjas
 
 censor :: Player -> Vector Ninja -> Vector Value
-censor player ninjas = (ninjaToJSON . censorNinja player ninjas) <$> ninjas
+censor player ninjas = ninjaToJSON . censorNinja player ninjas <$> ninjas
 
 censorNinja :: Player -> Vector Ninja -> Ninja -> Ninja
 censorNinja player ninjas n

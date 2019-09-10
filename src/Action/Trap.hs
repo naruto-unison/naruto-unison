@@ -96,7 +96,7 @@ trapFull direction classes (Duration -> dur) trigger f = do
     target  <- P.target
     nUser   <- P.nUser
     nTarget <- P.nTarget
-    let newTrap  = makeTrap skill nUser target 
+    let newTrap  = makeTrap skill nUser target
                    direction classes dur trigger f
     unless (newTrap ∈ Ninja.traps nTarget) $ P.modify target \n ->
         n { Ninja.traps = newTrap : Ninja.traps n }

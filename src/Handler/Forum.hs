@@ -198,7 +198,7 @@ newTopicForm User{..} topicBoard postAuthor postTime = makeNewTopic
         postBody = toBody area
 
 newPostForm :: TopicId -> UserId -> UTCTime -> AForm Handler Post
-newPostForm postTopic postAuthor postTime = 
+newPostForm postTopic postAuthor postTime =
     makePost . toBody <$> areq textareaField "" Nothing
   where
     makePost postBody = Post{..}

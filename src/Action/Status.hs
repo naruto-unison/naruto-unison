@@ -226,8 +226,8 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
     isImmune Invulnerable{} = True
     isImmune _              = False
 
-makeStatus :: Skill -> Ninja -> Ninja 
-           -> EnumSet Class -> Bool -> [Runnable Bomb] -> Text -> Duration 
+makeStatus :: Skill -> Ninja -> Ninja
+           -> EnumSet Class -> Bool -> [Runnable Bomb] -> Text -> Duration
            -> [Effect] -> Status
 makeStatus skill nUser nTarget classes bounced bombs name dur fs = newSt
     { Status.name    = Skill.defaultName name skill
