@@ -158,9 +158,9 @@ wrap affected f = void $ runMaybeT do
 chooseTargets :: ∀ m. (MonadPlay m, MonadRandom m)
               => [Runnable Target] -> m [[Runnable Slot]]
 chooseTargets targets = do
-    skill     <- P.skill
-    nUser     <- P.nUser
-    ninjas    <- P.ninjas
+    skill  <- P.skill
+    nUser  <- P.nUser
+    ninjas <- P.ninjas
     forM targets \run -> do
         target <- chooseTarget $ Runnable.target run
         return [ run { Runnable.target = t }

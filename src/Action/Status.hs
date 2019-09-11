@@ -253,7 +253,7 @@ makeStatus skill nUser nTarget classes bounced bombs name dur fs = newSt
     filt
       | silenced && bounced = const []
       | silenced            = filter isDmg
-      | bounced             = filter (not . isDmg)
+      | bounced             = filter $ not . isDmg
       | otherwise           = id
     bind Redirect{}   = True
     bind _            = False
