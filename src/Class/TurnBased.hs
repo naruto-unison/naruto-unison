@@ -5,7 +5,12 @@ module Class.TurnBased
 
 import ClassyPrelude
 
--- | Typeclass for structures that expire after a set number of turns.
+-- | Typeclass for structures that expire after a set number of turns.k
+--
+-- Instances should obey the following laws:
+--
+-- * @getDur (setDur x) y == x@
+-- * @setDur (getDur x) x == x@
 class TurnBased a where
     -- | Number of turns before expiration. If @<= 0@, never expires.
     getDur :: a -> Int

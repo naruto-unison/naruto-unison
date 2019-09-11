@@ -18,10 +18,10 @@ class Labeled a where
     -- | 'Model.Ninja.Ninja' user
     user :: a -> Slot
 
--- Equality.
+-- Equality by both fields.
 eq :: ∀ a. Labeled a => a -> a -> Bool
 eq x y = name x == name y && user x == user y
 
--- Matching.
+-- Matching by both fields.
 match :: ∀ a. Labeled a => Text -> Slot -> a -> Bool
 match n usr a = name a == n && user a == usr

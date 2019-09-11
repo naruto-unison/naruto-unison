@@ -9,6 +9,11 @@ import ClassyPrelude hiding (even)
 import qualified Prelude
 
 -- | Types that are either even or odd.
+--
+--Instances should satisfy the following laws:
+--
+-- * @even a == even b && even b == even c <=> even a == even c@
+-- * @even a == even b && even b /= even c <=> even a /= even c@
 class Parity a where
     even :: a -> Bool
 

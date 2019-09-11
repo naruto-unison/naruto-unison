@@ -18,6 +18,10 @@ import qualified Data.Text.Lazy.Builder.Int as IntBuilder
 -- >
 -- > instance Display Point where
 -- >     display Point{x, y} = "(" ++ display x ++ ", " ++ display y ++ ")"
+--
+-- Instances should satisfy the following law:
+--
+-- @display' x == 'Builder.toLazyText' (display x)
 class Display a where
     display :: a -> Builder
     -- | Extracts a lazy @Text@ from the value of @display@.
