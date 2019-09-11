@@ -115,15 +115,11 @@ getTurnPer player n n'
     hp   = Ninja.health n - Ninja.health n'
 
 -- | Returns 'OnNoAction' 'Trap.Trap's.
-getTurnNot :: Player -- ^ Player during the current turn.
-           -> Ninja -- ^ 'Ninja.flags' owner.
+getTurnNot :: Ninja -- ^ 'Ninja.flags' owner.
            -> [Runnable Context]
-getTurnNot player n
-  | Ninja.acted n             = mempty
-  | Parity.allied player user = getOf user OnNoAction n
-  | otherwise                 = mempty
-  where
-    user = Ninja.slot n
+getTurnNot n
+  | Ninja.acted n = mempty
+  | otherwise     = getOf (Ninja.slot n) OnNoAction n
 
 -- | Processes and runs all 'Trap.Trap's at the end of a turn.
 runTurn :: ∀ m. (MonadGame m, MonadRandom m) => Vector Ninja -> m ()
@@ -132,6 +128,7 @@ runTurn ninjas = do
     ninjas' <- P.ninjas
     traverses (uncurry P.modify) $ zipWith (getTurnHooks player) ninjas ninjas'
     traverses P.launch $ zipWith (getTurnPer player) ninjas ninjas'
-    traverses P.launch $ getTurnNot player <$> ninjas'
+    traverses P.launch . (getTurnNot <$>) . Parity.getOf player . Parity.split $
+        otoList ninjas'
   where
     traverses f = traverse_ $ traverse_ f

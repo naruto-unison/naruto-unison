@@ -228,15 +228,12 @@ addChannels = do
     P.modify user $ Ninjas.addChannels skill target
 
 -- | Filters a list of targets to those capable of countering a skill.
-filterCounters :: Slot -- ^ User at risk of being countered.
-               -> [[Runnable Slot]] -- ^ Effects of the skill to be countered.
+filterCounters :: [[Runnable Slot]] -- ^ Effects of the skill to be countered.
                -> [Ninja] -> [Ninja]
-filterCounters user slots = filter $ keep . Ninja.slot
+filterCounters slots = filter $ (testBit targetSet . Slot.toInt) . Ninja.slot
   where
     acc x     = setBit x . Slot.toInt . Runnable.target
     targetSet = foldl' acc (0 :: Word8) $ join slots
-    keep slot = not (Parity.allied user slot)
-                && testBit targetSet (Slot.toInt slot)
 
 setActed :: Ninja -> Ninja
 setActed n = n { Ninja.acted = True }
@@ -278,7 +275,8 @@ act a = do
                 P.modify user $ Cooldown.updateN charge skill s . setActed
                 efs        <- chooseTargets
                               (Skill.start skill ++ Skill.effects skill)
-                countering <- filterCounters user efs . toList <$> P.ninjas
+                countering <- filterCounters efs .
+                              Parity.getNotOf user <$> P.teams
                 let counters =
                         Trigger.userCounters user classes nUser
                         ++ (Trigger.targetCounters user classes =<< countering)

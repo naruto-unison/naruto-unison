@@ -1,6 +1,5 @@
 module Model.Ninja
   ( Ninja(..), new
-  , playing
   , alive, minHealth
   , is, isChanneling
   , has, hasOwn, hasDefense, hasTrap
@@ -15,7 +14,6 @@ import           Data.List.NonEmpty (NonEmpty(..))
 
 import           Core.Util ((∈), (∉))
 import qualified Class.Parity as Parity
-import           Class.Parity (Parity)
 import qualified Class.Labeled as Labeled
 import           Model.Internal (Ninja(..))
 import qualified Model.Channel as Channel
@@ -56,10 +54,6 @@ new slot c = Ninja { slot      = slot
 
 alive :: Ninja -> Bool
 alive n = health n > 0
-
--- | Whether a @Ninja@ belongs to the currently playing 'Model.Player.Player'.
-playing :: ∀ a. Parity a => a -> Ninja -> Bool
-playing p n = alive n && Parity.allied p n
 
 is :: Ninja -> Effect -> Bool
 is n ef = ef ∈ effects n

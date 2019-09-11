@@ -2,7 +2,7 @@ module Class.Parity
   ( Parity(..)
   , allied
   , split
-  , getOf
+  , getOf, getNotOf
   ) where
 
 import ClassyPrelude hiding (even)
@@ -21,13 +21,18 @@ allied :: ∀ a b. (Parity a, Parity b) => a -> b -> Bool
 allied x y = even x == even y
 
 -- | Splits a sequence into alternating evens and odds, based on index.
-split :: ∀ o. (Monoid o, SemiSequence o) => o -> (o, o)
-split = foldr (\x ~(xs, ys) -> (x `cons` ys, xs)) (mempty, mempty)
+split :: ∀ a. [a] -> ([a], [a])
+split = foldr (\x ~(xs, ys) -> (x : ys, xs)) (mempty, mempty)
 
 getOf :: ∀ a b. Parity a => a -> (b, b) -> b
 getOf x
   | even x    = fst
   | otherwise = snd
+
+getNotOf :: ∀ a b. Parity a => a -> (b, b) -> b
+getNotOf x
+  | even x    = snd
+  | otherwise = fst
 
 instance Parity Bool where
     even = id

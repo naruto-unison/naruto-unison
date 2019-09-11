@@ -12,6 +12,7 @@ module Class.Play
     -- ** From game
   , nUser, nTarget
   , player
+  , teams
   -- * Transformation
   , withContext
   , withTarget, withTargets
@@ -87,6 +88,10 @@ nTarget = ninja =<< target
 player :: ∀ m. MonadGame m => m Player
 player = Game.playing <$> game
 
+teams :: ∀ m. MonadGame m => m ([Ninja], [Ninja])
+teams = Parity.split . toList <$> ninjas
+-- TODO benchmark against @filter (Parity.allied p) . toList <$> ninjas@
+
 -- | Runs an action in a localized state where 'target' is replaced.
 withTarget :: ∀ m a. MonadPlay m => Slot -> m a -> m a
 withTarget x = with \ctx -> ctx { Context.target = x }
@@ -128,15 +133,13 @@ trigger i xs = whenM new $ modify i \n ->
 
 yieldVictor :: ∀ m. MonadGame m => m ()
 yieldVictor = whenM (null . Game.victor <$> game) do
-    ns <- Parity.split <$> ninjas
+    ns <- teams
     alter \g -> g { Game.victor = filter (victor ns) [Player.A, Player.B] }
   where
-    victor ns ofPlayer = not . any Ninja.alive $
-                         Parity.getOf (Player.opponent ofPlayer) ns
+    victor ns ofPlayer = not . any Ninja.alive $ Parity.getNotOf ofPlayer ns
 
-livingOf :: ∀ m. MonadGame m => Player -> m (Vector Ninja)
-livingOf ofPlayer =
-    filter Ninja.alive . Parity.getOf ofPlayer . Parity.split <$> ninjas
+livingOf :: ∀ m. MonadGame m => Player -> m [Ninja]
+livingOf p = filter Ninja.alive . Parity.getOf p <$> teams
 
 forfeit :: ∀ m. MonadGame m => Player -> m ()
 forfeit p = whenM (null . Game.victor <$> game) do

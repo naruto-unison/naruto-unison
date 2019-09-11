@@ -132,7 +132,7 @@ wrap player = do
     P.trigger user $ OnAction <$> toList (Skill.classes skill)
     efs        <- Execute.chooseTargets
                   (Skill.start skill ++ Skill.effects skill)
-    countering <- Execute.filterCounters user efs . toList <$> P.ninjas
+    countering <- Execute.filterCounters efs . Parity.getNotOf user <$> P.teams
     let counters =
             Trigger.userCounters user classes nUser
             ++ (Trigger.targetCounters user classes =<< countering)
