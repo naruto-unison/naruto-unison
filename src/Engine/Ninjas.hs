@@ -103,7 +103,7 @@ skill (Left s)   n = Requirement.usable n (Just s) .
 
 -- | All four skill slots of a @Ninja@ modified by 'skill'.
 skills :: Ninja -> [Skill]
-skills n = flip skill n . Left <$> [0..3]
+skills n = flip skill n . Left <$> [0 .. Ninja.skillSize - 1]
 
 -- | Modifies @Effect@s when they are first added to a @Ninja@ due to @Effect@s
 -- already added.
@@ -467,7 +467,7 @@ removeStacks name i user n = n { statuses = f $ statuses n }
 
 -- | Resets 'charges' to four @0@s.
 resetCharges :: Ninja -> Ninja
-resetCharges n = n { charges = replicate 4 0 }
+resetCharges n = n { charges = replicate Ninja.skillSize 0 }
 
 -- With my... ninja info cards
 kabuto :: Skill -> Ninja -> Ninja

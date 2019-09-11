@@ -48,7 +48,8 @@ instance Read Act where
     readPrec = toAct <$> readPrec
 
 random :: ∀ m. MonadRandom m => Slot -> m Act
-random user = Act user <$> (Left <$> R.random 0 3) <*> Slot.random
+random user =
+    Act user <$> (Left <$> R.random 0 (Ninja.skillSize - 1)) <*> Slot.random
 
 randoms :: ∀ m. MonadRandom m => m [Act]
 randoms = traverse random $ Slot.allies Player.B

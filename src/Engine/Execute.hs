@@ -268,9 +268,10 @@ act a = do
             effects affected =<< chooseTargets (Skill.effects skill)
         else case Trigger.snareTrap skill nUser of
             Just (n', sn) -> P.write user case s of
-                Left s' | s' <= 3 -> Cooldown.update charge sn skill s' $
-                                     setActed n'
-                _                 -> setActed n'
+                Left s'
+                  | s' < Ninja.skillSize -> Cooldown.update charge sn skill s' $
+                                            setActed n'
+                _                        -> setActed n'
             Nothing -> do
                 P.alter $ Game.adjustChakra user (— cost)
                 P.modify user $ Cooldown.updateN charge skill s . setActed

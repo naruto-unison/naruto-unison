@@ -1,5 +1,6 @@
 module Model.Ninja
   ( Ninja(..), new
+  , skillSize
   , alive, minHealth
   , is, isChanneling
   , has, hasOwn, hasDefense, hasTrap
@@ -17,7 +18,6 @@ import qualified Class.Parity as Parity
 import qualified Class.Labeled as Labeled
 import           Model.Internal (Ninja(..))
 import qualified Model.Channel as Channel
-import qualified Model.Character as Character
 import           Model.Character (Character)
 import           Model.Class (Class(..))
 import qualified Model.Defense as Defense
@@ -27,6 +27,9 @@ import qualified Model.Skill as Skill
 import           Model.Slot (Slot)
 import qualified Model.Status as Status
 import qualified Model.Variant as Variant
+
+skillSize :: Int
+skillSize = 4
 
 -- | Constructs a @Ninja@ with starting values from a character and an index.
 new :: Slot -> Character -> Ninja
@@ -49,8 +52,6 @@ new slot c = Ninja { slot      = slot
                    , effects   = mempty
                    , acted     = False
                    }
-  where
-    skillSize = length $ Character.skills c
 
 alive :: Ninja -> Bool
 alive n = health n > 0
