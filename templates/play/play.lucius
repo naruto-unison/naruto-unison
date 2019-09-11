@@ -317,7 +317,7 @@ body {
 
 .playButton, #updateButton, #logoutButton {
     margin: 3px;
-    padding: 3px;
+    padding: 4px 3px 2px 3px;
     border: 2px solid #999;
     color: #666;
     text-transform: uppercase;
@@ -742,6 +742,15 @@ a.playButton {
 }
 #forfeit:hover {
     color: #e11;
+}
+#cancel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    margin: 50px auto 0 auto;
+    width: 187px;
+    height: 27px;
 }
 .charmove.click:hover, .chakra.click:hover, #avatars img:hover {
     border-color: #0099ff;

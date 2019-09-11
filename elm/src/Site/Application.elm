@@ -4,6 +4,7 @@ import Browser exposing (Document, UrlRequest)
 import Browser.Dom        as Dom
 import Html               as H exposing (Html)
 import Html.Attributes    as A
+import Html.Events        as E
 import Json.Decode        as D exposing (Value)
 import Process
 import Task
@@ -64,13 +65,19 @@ app websocket ports =
         showError = case st.error of
           Nothing  -> identity
           Just err -> (::) <| H.div [A.id "error"] [H.text err]
-        contents =
+        contents els =
             if st.selectModel.stage == Select.Queued then
-                H.main_ [A.class "queueing"] <<
-                (::)
-                (H.div [A.id "searching"] [H.img [A.src "/img/spin.gif"] []])
+                H.main_ [A.class "queueing"] <|
+                [ H.div [A.id "searching"] [H.img [A.src "/img/spin.gif"] []]
+                , H.button
+                  [ A.id "cancel"
+                  , A.class "parchment playButton click"
+                  , E.onClick <| SelectMsg Select.Dequeue
+                  ]
+                  [H.text "Cancel"]
+                ] ++ els
             else
-                H.main_ []
+                H.main_ [] els
       in
         Document "Naruto Unison" << List.singleton << contents << showError <|
         case st.playModel of

@@ -95,22 +95,23 @@ type Queue
     | Private
 
 type Msg
-    = Fail String
-    | Page Int
-    | Scroll Int
-    | Vary Int Int
-    | SwitchLogin
-    | TryUpdate
+    = Dequeue
+    | DoNothing
     | Enqueue Queue
-    | SetStage Stage
+    | Fail String
+    | Page Int
     | Preview Previewing
+    | ReceiveGame (Result Http.Error GameInfo)
+    | ReceiveUpdate (Result Http.Error ())
+    | Scroll Int
+    | SetStage Stage
+    | SwitchLogin
     | Team ListChange Character
+    | TryUpdate
+    | Vary Int Int
     | Vs ListChange Character
     | Untoggle
     | UpdateForm FormUpdate
-    | ReceiveUpdate (Result Http.Error ())
-    | ReceiveGame (Result Http.Error GameInfo)
-    | DoNothing
 
 component ports =
   let
@@ -304,6 +305,7 @@ component ports =
         ReceiveGame _   -> pure st
         SetStage stage  -> withSound Sound.Click { st | stage = stage }
         Enqueue Private -> pure st
+        Dequeue         -> pure { st | stage = Browsing }
         Enqueue Quick   ->
           ( { st | stage = Queued }
           , ports.websocket << String.join "/" <| List.map characterName st.team
