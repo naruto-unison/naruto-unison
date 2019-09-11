@@ -35,7 +35,6 @@ import Engine.Ninjas as Import (addOwnStacks, addOwnDefense)
 
 import Data.Enum.Set.Class (EnumSet)
 
-import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
 import qualified Model.Context as Context
@@ -116,9 +115,7 @@ immune :: Ninja -> Bool
 immune n = not . null $ Effects.immune n
 
 filterOthers :: ∀ m. MonadPlay m => (Ninja -> Bool) -> m Int
-filterOthers match = do
-    usr <- P.user
-    length . filter match . Parity.getOf usr <$> P.teams
+filterOthers match = length . filter match <$> (P.allies =<< P.user)
 
 numAffected :: ∀ m. MonadPlay m => Text -> m Int
 numAffected name = filterOthers =<< Ninja.has name <$> P.user

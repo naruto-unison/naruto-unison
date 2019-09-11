@@ -30,7 +30,11 @@ maxVal = teamSize * 2 - 1
 -- this module in order to prevent out-of-bound errors.
 -- This has the added advantage of making function signatures more readable!
 newtype Slot = Slot { toInt :: Int }
-               deriving (Eq, Ord, Show, ToJSON, Parity)
+               deriving (Eq, Ord, Show, ToJSON)
+
+instance Parity Slot where
+    even (Slot x) = x < teamSize
+    {-# INLINE even #-}
 
 instance Read Slot where
     readPrec = parens $ prec 10 do
@@ -46,23 +50,17 @@ instance Bounded Slot where
 all :: [Slot]
 all = Slot <$> [0 .. maxVal]
 
-evens :: [Slot]
-evens = Slot <$> [0, 2 .. maxVal]
-
-odds :: [Slot]
-odds = Slot <$> [1, 3 .. maxVal]
-
 -- | Slots with the same parity.
 allies :: ∀ a. Parity a => a -> [Slot]
 allies x
-  | Parity.even x = evens
-  | otherwise     = odds
+  | Parity.even x = Slot <$> [0 .. teamSize - 1]
+  | otherwise     = Slot <$> [teamSize .. maxVal]
 
 -- | Slots with opposite parity.
 enemies :: ∀ a. Parity a => a -> [Slot]
 enemies x
-  | Parity.even x = odds
-  | otherwise     = evens
+  | Parity.even x = Slot <$> [teamSize .. maxVal]
+  | otherwise     = Slot <$> [0 .. teamSize - 1]
 
 read :: Text -> Either String (Slot, Text)
 read s = case Read.decimal s of

@@ -9,6 +9,7 @@ import ClassyPrelude
 import qualified Data.Vector as Vector
 
 import           Core.Util ((—))
+import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Random as R
@@ -16,6 +17,7 @@ import           Class.Random (MonadRandom)
 import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra(..), Chakras)
 import qualified Model.Game as Game
+import qualified Model.Ninja as Ninja
 import           Model.Trap (Trigger(..))
 
 -- | Removes some number of 'Chakra's from the target's team.
@@ -29,18 +31,19 @@ remove amount = do
         return 0
     else do
         target  <- P.target
-        chakras <- Chakra.toSequence . noRand . Game.getChakra target <$> P.game
+        chakras <- Chakra.toSequence . removeRandoms . Parity.getOf target .
+                   Game.chakra <$> P.game
         removed <- Chakra.collect . Vector.take amount <$> R.shuffle chakras
         P.alter $ Game.adjustChakra target (— removed)
         return removed
   where
-    noRand x = x { Chakra.rand = 0 }
+    removeRandoms x = x { Chakra.rand = 0 }
 
 -- | Adds as many random 'Chakra's as the number of living 'Ninja.Ninja's on the
 -- player's team to the player's 'Game.chakra'.
 gain :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 gain = do
     player <- P.player
-    living <- length <$> P.livingOf player
+    living <- length . filter Ninja.alive <$> P.allies player
     randoms :: [Chakra] <- replicateM living Chakra.random
     P.alter $ Game.adjustChakra player (+ Chakra.collect randoms)

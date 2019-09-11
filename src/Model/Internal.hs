@@ -61,6 +61,7 @@ data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas
                    }
 instance Parity Ninja where
     even = Parity.even . slot
+    {-# INLINE even #-}
 
 -- | Game state.
 data Game = Game { chakra  :: (Chakras, Chakras)

@@ -1,5 +1,6 @@
 module Game.Game exposing
   ( Act
+  , skillSize, teamSize
   , died
   , dur
   , forfeit
@@ -29,15 +30,48 @@ type alias Act =
 died : Player -> Game -> Game -> Bool
 died player oldGame newGame = living player oldGame > living player newGame
 
+skillSize : Int
+skillSize = 4
+
+teamSize : Int
+teamSize = 3
+
+team : List Int
+team = List.range 0 <| teamSize - 1
+
+allSlots : List Int
+allSlots = List.range 0 <| 2 * teamSize - 1
+
+targets : Int -> Skill -> List Int
+targets slot skill =
+  let
+    possibleTargets = skill.start ++ skill.effects
+    enemy = Enemy |> elem possibleTargets
+    ally  = Ally  |> elem possibleTargets
+    xally = XAlly |> elem possibleTargets
+    rem   = teamSize |> remainderBy (slot + 1)
+  in
+    if enemy && ally then
+        allSlots
+    else if enemy && xally then
+        List.remove slot allSlots
+    else if enemy then
+        List.map ((+) <| teamSize - rem) team
+    else if ally then
+        List.map ((+) rem) team
+    else if xally then
+        List.remove slot <| List.map ((+) rem) team
+    else
+        [slot]
+
 allied : Player -> Ninja -> Bool
-allied player n = ((n.slot |> remainderBy 2) == 0) == (player == Player.A)
+allied player n = (n.slot < teamSize) == (player == Player.A)
 
 living : Player -> Game -> Int
-living player game =
-  let
-    health n = if allied player n then min 1 n.health else 0
-  in
-    List.sum <| List.map health game.ninjas
+living player game = List.sum << List.map (min 1 << .health) <| case player of
+    Player.A -> List.take teamSize game.ninjas
+    Player.B -> List.drop teamSize game.ninjas
+
 
 opponent : Player -> Player
 opponent player = case player of
@@ -76,27 +110,6 @@ root characters skill slot = get characters <| case skill.copying of
     NotCopied   -> slot
     Shallow x _ -> x
     Deep x _    -> x
-
-targets : Int -> Skill -> List Int
-targets slot skill =
-  let
-    possibleTargets = skill.start ++ skill.effects
-    enemy = Enemy |> elem possibleTargets
-    ally  = Ally  |> elem possibleTargets
-    xally = XAlly |> elem possibleTargets
-  in
-    if enemy && ally then
-        List.range 0 5
-    else if enemy && xally then
-        List.remove slot <| List.range 0 5
-    else if enemy then
-        List.map ((+) <| 1 - remainderBy 2 slot) [0, 2, 4]
-    else if ally then
-        List.map ((+) <| remainderBy 2 slot) [0, 2, 4]
-    else if xally then
-        List.remove slot <| List.map ((+) <| remainderBy 2 slot) [0, 2, 4]
-    else
-        [slot]
 
 toggles : Maybe Act -> List Int
 toggles x = case x of

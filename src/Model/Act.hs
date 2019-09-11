@@ -55,7 +55,7 @@ randoms = traverse random $ Slot.allies Player.B
 
 -- A 'Player' attempts to control a 'Ninja' not on their team.
 illegal :: Player -> Act -> Bool
-illegal p a = not . Parity.allied p . Slot.toInt $ user a
+illegal p a = not . Parity.allied p $ user a
 
 fromChannel :: Ninja -> Channel -> Act
 fromChannel n chan = Act { user   = Ninja.slot n

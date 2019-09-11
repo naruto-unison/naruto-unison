@@ -118,12 +118,11 @@ component ports =
                       , pair "nin"   .nin   { none | nin   = 1 }
                       , pair "tai"   .tai   { none | tai   = 1 }
                       ]
-        ally bundle = (bundle.ninja.slot |> remainderBy 2) == case st.player of
-            Player.A -> 0
-            Player.B -> 1
-        (allies, enemies) =
-            List.partition ally <|
+        (left, right) = List.splitAt Game.teamSize <|
             List.map3 Bundle characters st.game.ninjas st.game.targets
+        (allies, enemies) = case st.player of
+            Player.A -> (left, right)
+            Player.B -> (right, left)
       in
         H.div [A.id "game"] <|
         [ H.div [A.id "error"] [H.text st.error]
@@ -174,7 +173,7 @@ component ports =
                   List.map (renderChakra ownTurn st.exchange net) chakraPairs ++
                   [ Render.rands (Chakra.total netUnrand) rand
                   , chakraButton "exchange" (Exchange Begin) <|
-                    free.rand >= 5 && Chakra.canExchange net && ownTurn
+                    free.rand >= Chakra.rate && Chakra.canExchange net && ownTurn
                   , chakraButton "reset" (Exchange Reset) <|
                         st.exchanged /= Chakra.none || st.randoms /= Chakra.none
                   , chakraButton "forfeit" Forfeit ownTurn
@@ -509,8 +508,9 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
                [ H.section fullMeta [faceIcon [A.class "charicon"]]
                , H.div [A.class "charmoves"] <<
                  List.map5 (renderSkill b.ninja.slot chakras active characters)
-                 (List.range 0 3) b.targets (b.ninja.charges ++ [0, 0, 0, 0])
-                 b.ninja.skills <| cooldown ++ [0, 0, 0, 0]
+                 (List.range 0 <| Game.skillSize - 1)
+                 b.targets (b.ninja.charges ++ List.repeat Game.skillSize 0)
+                 b.ninja.skills <| cooldown ++ List.repeat Game.skillSize 0
                ]
   in
     H.section [A.classList [("dead", b.ninja.health == 0)]] <|

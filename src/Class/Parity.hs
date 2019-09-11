@@ -1,8 +1,8 @@
 module Class.Parity
   ( Parity(..)
   , allied
-  , split
-  , getOf, getNotOf
+  , getOf
+  , half
   ) where
 
 import ClassyPrelude hiding (even)
@@ -19,20 +19,20 @@ class Parity a where
 -- | True if both arguments have matching parity.
 allied :: ∀ a b. (Parity a, Parity b) => a -> b -> Bool
 allied x y = even x == even y
+{-# INLINE allied #-}
 
--- | Splits a sequence into alternating evens and odds, based on index.
-split :: ∀ a. [a] -> ([a], [a])
-split = foldr (\x ~(xs, ys) -> (x : ys, xs)) (mempty, mempty)
+half :: ∀ p a. Parity p => p -> Vector a -> Vector a
+half p xs = splitHalf (length xs `quot` 2) xs
+  where
+    splitHalf
+      | even p    = take
+      | otherwise = drop
 
 getOf :: ∀ a b. Parity a => a -> (b, b) -> b
 getOf x
   | even x    = fst
   | otherwise = snd
-
-getNotOf :: ∀ a b. Parity a => a -> (b, b) -> b
-getNotOf x
-  | even x    = snd
-  | otherwise = fst
+{-# INLINE getOf #-}
 
 instance Parity Bool where
     even = id

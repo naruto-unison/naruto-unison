@@ -256,9 +256,10 @@ act a = do
     let classes = Skill.classes skill
         charge  = Skill.charges skill > 0
         cost    = Skill.cost skill
+        chakra  = Parity.getOf user $ Game.chakra game
         valid   = Ninja.alive nUser
                   && Skill.require skill /= Unusable
-                  && not (new && Chakra.lack (Game.getChakra user game - cost))
+                  && not (new && Chakra.lack (chakra - cost))
 
     when valid $ P.withContext (ctx skill) do
         P.trigger user $ OnAction <$> toList classes
@@ -275,8 +276,7 @@ act a = do
                 P.modify user $ Cooldown.updateN charge skill s . setActed
                 efs        <- chooseTargets
                               (Skill.start skill ++ Skill.effects skill)
-                countering <- filterCounters efs .
-                              Parity.getNotOf user <$> P.teams
+                countering <- filterCounters efs . toList <$> P.enemies user
                 let counters =
                         Trigger.userCounters user classes nUser
                         ++ (Trigger.targetCounters user classes =<< countering)

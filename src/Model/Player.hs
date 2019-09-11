@@ -19,6 +19,7 @@ data Player
 instance Parity Player where
     even A = True
     even B = False
+    {-# INLINE even #-}
 
 from :: ∀ a. Parity a => a -> Player
 from (Parity.even -> True) = A

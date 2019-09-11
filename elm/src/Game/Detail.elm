@@ -47,7 +47,7 @@ ignoreClasses : Set String -> Set String
 ignoreClasses = Set.remove "Unremovable"
 
 allied : Int -> Detail -> Bool
-allied user x = (user + x.source |> remainderBy 2) == 0
+allied user x = (user < Game.teamSize) == (x.source < Game.teamSize)
 
 concat : Nonempty Detail -> Detail
 concat (Nonempty x xs) =

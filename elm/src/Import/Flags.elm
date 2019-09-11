@@ -14,6 +14,7 @@ import List.Nonempty as Nonempty exposing (Nonempty(..))
 import String.Extra  as String
 
 import Import.Model as Model exposing (Category(..), Character, User)
+import Game.Game as Game
 import Util exposing (groupBy)
 
 type alias Flags =
@@ -96,7 +97,7 @@ makeShortName char = case char.name of
     "Nagato"           -> "Pain"
     "Shukaku Gaara"    -> "Gaara"
     "Sage Mode Kabuto" -> "Kabuto"
-    _                  -> List.getAt 3 char.skills
+    _                  -> List.getAt (Game.skillSize - 1) char.skills
                           |> Maybe.andThen List.head
                           >> Maybe.map (String.leftOf " " << .desc)
                           >> Maybe.withDefault char.name

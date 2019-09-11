@@ -128,7 +128,6 @@ runTurn ninjas = do
     ninjas' <- P.ninjas
     traverses (uncurry P.modify) $ zipWith (getTurnHooks player) ninjas ninjas'
     traverses P.launch $ zipWith (getTurnPer player) ninjas ninjas'
-    traverses P.launch . (getTurnNot <$>) . Parity.getOf player . Parity.split $
-        otoList ninjas'
+    traverses P.launch $ getTurnNot <$> Parity.half player ninjas'
   where
     traverses f = traverse_ $ traverse_ f

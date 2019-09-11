@@ -57,7 +57,7 @@ process runner = do
     player      <- Game.playing <$> P.game
     let opponent = Player.opponent player
     runner
-    channels <- concatMap getChannels <$> P.livingOf player
+    channels <- concatMap getChannels . filter Ninja.alive <$> P.allies player
     traverse_ Execute.act channels
     Traps.runTurn initial
     doBombs Remove initial

@@ -11,7 +11,6 @@ import           Control.Monad.Loops (untilJust)
 import qualified Control.Monad.ST as ST
 import           Control.Monad.ST (RealWorld, ST)
 import qualified Data.Cache as Cache
-import           Data.List (transpose)
 import qualified Data.Text as Text
 import qualified Database.Persist.Postgresql as Sql
 import qualified System.Random.MWC as Random
@@ -26,6 +25,7 @@ import           Core.Model (EntityField(..), User(..))
 import qualified Core.Wrapper as Wrapper
 import           Core.Wrapper (Wrapper(Wrapper))
 import           Core.Util (duplic)
+import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
 import           Class.Random (MonadRandom)
@@ -45,10 +45,6 @@ import           Model.Player (Player)
 import qualified Model.Slot as Slot
 import qualified Engine.Turn as Turn
 import qualified Characters
-
--- | @'concat' . 'transpose'@
-vs :: ∀ a. [a] -> [a] -> [a]
-x `vs` y = concat $ transpose [x, y]
 
 bot :: User
 bot = User
@@ -77,7 +73,7 @@ bot = User
 getPracticeQueueR :: [Text] -> Handler Value
 getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
     case fromList . zipWith Ninja.new Slot.all <$>
-         traverse Characters.lookupName [c1, a2, b1, b2, a1, c2] of
+         traverse Characters.lookupName [c1, b1, a1, a2, b2, c2] of
     Nothing -> invalidArgs ["Unknown character(s)"]
     Just ninjas -> do
         (who, _) <- Auth.requireAuthPair
@@ -180,8 +176,8 @@ gameSocket = do
                 Message.Announce vsWho vsUser vsTeam -> do
                     game <- Game.newWithChakras
                     let ninjas = zipWith Ninja.new Slot.all case randPlayer of
-                            Player.A -> team `vs` vsTeam
-                            Player.B -> vsTeam `vs` team
+                            Player.A -> team ++ vsTeam
+                            Player.B -> vsTeam ++ team
                     liftIO $ atomically do
                         writer <- newTBQueue 8
                         reader <- newTBQueue 8
@@ -249,7 +245,7 @@ enact :: ∀ m. (MonadGame m, MonadRandom m)
       => Chakras -> Chakras -> [Act] -> m (Either LByteString ())
 enact actChakra exchangeChakra actions = do
     player     <- P.player
-    gameChakra <- Game.getChakra player <$> P.game
+    gameChakra <- Parity.getOf player . Game.chakra <$> P.game
     let chakra  = gameChakra + exchangeChakra - actChakra
     if | not . null $ drop Slot.teamSize actions -> err "Too many actions"
        | duplic $ Act.user <$> actions           -> err "Duplicate actors"

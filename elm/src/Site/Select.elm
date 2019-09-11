@@ -17,7 +17,7 @@ import Task exposing (Task)
 import Tuple exposing (first, second)
 import Url
 
-import Game.Game exposing (rank)
+import Game.Game as Game
 import Import.Flags exposing (Characters, Flags, characterName)
 import Import.Model as Model exposing (Character, GameInfo, Skill, User)
 import Ports exposing (Ports)
@@ -259,7 +259,7 @@ component ports =
                   { st | toggled = Nothing }
               else if st.toggled /= Just char then
                   { st | toggled = Just char }
-              else if List.length st.team < 3 then
+              else if List.length st.team < Game.teamSize then
                   { st | toggled = Nothing, team = char :: st.team }
               else
                   { st | toggled = Nothing }
@@ -268,7 +268,7 @@ component ports =
         Vs Add char -> withSound Sound.Click <|
             if char |> elem st.vs then
                 st
-            else if List.length st.vs < 3 then
+            else if List.length st.vs < Game.teamSize then
                 { st | vs = st.vs ++ [char] }
             else
                 st
@@ -340,7 +340,7 @@ userBox : Maybe User -> String -> String -> Bool -> List Character -> Html Msg
 userBox mUser csrf csrfParam showLogin team =
     let
       meta onClick =
-          if List.length team == 3 then
+          if List.length team == Game.teamSize then
               [A.class "parchment playButton click", E.onClick onClick]
           else
               [A.class "parchment playButton"]
@@ -375,7 +375,7 @@ userBox mUser csrf csrfParam showLogin team =
               [ H.img [A.class "userimg", A.src user.avatar] []
               , H.strong [] [H.text user.name]
               , H.br [] []
-              , H.text <| rank user
+              , H.text <| Game.rank user
               , H.br [] []
               , H.strong [] [H.text "Clan: "]
               , H.text <| Maybe.withDefault "Clanless" user.clan
@@ -486,7 +486,7 @@ vsBox : Model -> Html Msg
 vsBox st =
   let
     meta =
-        if List.length st.vs == 3 then
+        if List.length st.vs == Game.teamSize then
             [ A.class "parchment playButton click"
             , E.onClick <| Enqueue Practice
             ]
@@ -591,7 +591,8 @@ previewBox st = case st.previewing of
         , H.h1 [] <| icon char "icon" [A.class "char"] :: Render.name char
         , H.p [] [H.text char.bio]
         ] ++
-        List.map3 (previewSkill char) (List.range 0 3) char.skills st.variants
+        List.map3 (previewSkill char) (List.range 0 <| Game.skillSize - 1)
+        char.skills st.variants
 
 previewSkill : Character -> Int -> List Skill -> Int -> Html Msg
 previewSkill char slot skills i = case List.getAt i skills of

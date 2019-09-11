@@ -498,7 +498,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Chakra Hair Trap"
         , Skill.desc      = "Ino endows a strand of hair with chakra to create an ensnaring trap near an enemy. If they use a skill on Ino or her allies during their next turn, their cooldowns will increase by 1 for 2 turns."
-        , Skill.classes   = [Chakra, Ranged, Invisible]
+        , Skill.classes   = [Chakra, Ranged, InvisibleTraps]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =

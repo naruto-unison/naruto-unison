@@ -1,6 +1,6 @@
 module Model.Game
   ( Game(..), new, newWithChakras
-  , getChakra, setChakra, adjustChakra
+  , setChakra, adjustChakra
   ) where
 
 import ClassyPrelude
@@ -25,10 +25,6 @@ newWithChakras :: ∀ m. MonadRandom m => m Game
 newWithChakras = do
     randoms :: [Chakra] <- replicateM Slot.teamSize Chakra.random
     return $ adjustChakra Player.A (+ Chakra.collect randoms) new
-
-getChakra :: ∀ a. Parity a => a -> Game -> Chakras
-getChakra (Parity.even -> True) = fst . chakra
-getChakra _                     = snd . chakra
 
 setChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
 setChakra (Parity.even -> True) x game

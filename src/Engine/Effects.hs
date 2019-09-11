@@ -167,7 +167,7 @@ heal ninjas player n
 heal1 :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
       => o -> Player -> Ninja -> Status -> Int
 heal1 ninjas player n st
-  | user /= Ninja.slot n && n `is` Seal = 0
+  | user /= Ninja.slot n && n `is` Seal      = 0
   | summed /= 0 && Parity.allied player user =
       boost user n * summed + bless (ninjas !! Slot.toInt user)
   | otherwise = 0

@@ -63,7 +63,8 @@ import qualified Engine.Trigger as Trigger
 import qualified Engine.Turn as Turn
 import qualified Characters
 
-
+-- Because MonadGame and MonadRandom do not actually require IO,
+-- all tests are completely pure, and can comfortably run in parallel.
 type TestRun = Target
                -> Text
                -> ReaderT Context (StateT Wrapper Identity) (SpecWith ())
@@ -91,15 +92,15 @@ useSkill char target skillName f =
                             }
     targetSlot    = (Slot.all !!) case target of
         Self       -> 0
-        Ally       -> 2
-        Allies     -> 2
-        RAlly      -> 2
-        XAlly      -> 4
-        XAllies    -> 4
-        Enemy      -> 1
-        Enemies    -> 1
-        REnemy     -> 1
-        XEnemies   -> 3
+        Ally       -> 1
+        Allies     -> 1
+        RAlly      -> 1
+        XAlly      -> 2
+        XAllies    -> 2
+        Enemy      -> 3
+        Enemies    -> 3
+        REnemy     -> 3
+        XEnemies   -> 4
         Everyone   -> 0
 
 testBase :: Wrapper
@@ -132,7 +133,7 @@ wrap player = do
     P.trigger user $ OnAction <$> toList (Skill.classes skill)
     efs        <- Execute.chooseTargets
                   (Skill.start skill ++ Skill.effects skill)
-    countering <- Execute.filterCounters efs . Parity.getNotOf user <$> P.teams
+    countering <- Execute.filterCounters efs . toList <$> P.enemies user
     let counters =
             Trigger.userCounters user classes nUser
             ++ (Trigger.targetCounters user classes =<< countering)
@@ -175,7 +176,7 @@ enemyTurn f = do
                                                }
         }
       where
-        user = Slot.all !! 1
+        user = Slot.all !! 3
         ctxTarget = Context.target ctx
         target
           | Parity.allied ctxTarget user = Context.user ctx
@@ -196,7 +197,7 @@ totalDefense :: Ninja -> Int
 totalDefense n = sum $ Defense.amount <$> Ninja.defense n
 
 allyOf :: ∀ m. MonadGame m => Slot -> m Ninja
-allyOf target = P.ninja $ Slot.all !! (Slot.toInt target + 2)
+allyOf target = P.ninja $ Slot.all !! (Slot.toInt target + 1)
 
 withClass :: ∀ m. MonadPlay m => Class -> m () -> m ()
 withClass cla = P.with withContext
