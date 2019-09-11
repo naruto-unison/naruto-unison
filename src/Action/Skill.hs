@@ -110,9 +110,9 @@ varyLoadout els i = traverse_ f $ zip [0..] els
 varyNext :: ∀ m. MonadPlay m => Text -> m ()
 varyNext name = do
     target <- P.target
-    maybeS <- findIndex (any match) .
-              toList . Character.skills . Ninja.character <$> P.nTarget
-    mapM_ (P.modify target . adjVariant) maybeS
+    mapM_ (P.modify target . adjVariant) .
+        findIndex (any match) . toList . Character.skills .
+        Ninja.character =<< P.nTarget
   where
     adjVariant s n = n { Ninja.variants = Seq.adjust' adj s $ Ninja.variants n }
     caseFolded = toCaseFold name
