@@ -31,24 +31,24 @@ spec = parallel do
             self factory
             act
             enemyTurn $ apply 0 [Stun All]
-            targetStunned <- stunned [All] <$> P.nTarget
+            targetStunned <- Effects.stun <$> P.nTarget
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 2 * 15
-                it "stuns target if they stun"
-                    targetStunned
+                it "stuns target if they stun" $
+                    targetStunned `shouldBe` [All]
         useOn Self "Unyielding Tenacity" do
             act
             damage targetDmg
             enemyTurn $ apply 0 [Stun All]
-            userStunned <- stunned [All] <$> P.nUser
+            userStunned <- Effects.stun <$> P.nUser
             enemyTurn $ kill
             userHealth <- Ninja.health <$> P.nUser
             return do
                 it "prevents death" $
                     userHealth `shouldBe` 1
                 it "ignores stuns" $
-                    not userStunned
+                    null userStunned
 
     describeCharacter "Shigure" \useOn -> do
         useOn Self "Umbrella Toss" do
@@ -119,20 +119,20 @@ spec = parallel do
         useOn Enemies "Temple of Nirvana" do
             act
             enemyTurn $ damage 5
-            enemyStunned <- stunned [All] <$> P.nTarget
-            othersStunned <- stunned [All] <$> (allyOf =<< P.target)
+            enemyStunned <- Effects.stun <$> P.nTarget
+            othersStunned <- Effects.stun <$> (allyOf =<< P.target)
             factory
             act
             turns 1
             withClass Physical $ damage targetDmg
             targetHealth <- Ninja.health <$> P.nTarget
             return do
-                it "stuns targets"
-                    othersStunned
+                it "stuns targets" $
+                    othersStunned `shouldBe` [All]
                 it "adds to damage against targets" $
                     (100 - targetHealth) - targetDmg `shouldBe` 10
                 it "does not affect targets who act" $
-                    not enemyStunned
+                    null enemyStunned
 
     describeCharacter "Dosu Kinuta" \useOn -> do
         useOn Enemy "Resonating Echo Drill" do
@@ -212,7 +212,7 @@ spec = parallel do
             factory
             self $ tag' "Unnerving Bells" 0
             act
-            targetStunned <- stunned [All] <$> P.nTarget
+            targetStunned <- Effects.stun <$> P.nTarget
             factory
             self factory
             self $ tag' "Bell Ring Illusion" 0
@@ -223,8 +223,8 @@ spec = parallel do
                     tagged
                 it "exposes target"
                     exposed
-                it "stuns target during Unnerving Bells"
-                    targetStunned
+                it "stuns target during Unnerving Bells" $
+                    targetStunned `shouldBe` [All]
                 it "damages target during Bell Ring Illusion" $
                     100 - targetHealth `shouldBe` 10
         useOn Enemy "Unnerving Bells" do
@@ -288,15 +288,15 @@ spec = parallel do
         useOn Enemy "Underground Move" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            targetStunned <- stunned [Physical, Mental] <$> P.nTarget
+            targetStunned <- Effects.stun <$> P.nTarget
             self $ tag' "Fog Clone" 0
             act
             targetHealth' <- Ninja.health <$> (allyOf =<< P.target)
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 20
-                it "stuns target"
-                    targetStunned
+                it "stuns target" $
+                    targetStunned `shouldBe` [Physical, Mental]
                 it "targets all during Fog Clone" $
                     100 - targetHealth' `shouldBe` 20
         useOn Enemy "Fog Clone" do
@@ -395,9 +395,9 @@ spec = parallel do
             return do
                 it "exposes target"
                     exposed
-                it "transfers harm from the user..." $
+                it "transfers harm from user" $
                     100 - userHealth `shouldBe` 0
-                it "...to the target" $
+                it "tranfers harm to target" $
                     100 - targetHealth `shouldBe` targetDmg
         useOn Enemy "Tighten Joints" do
             act
@@ -405,14 +405,14 @@ spec = parallel do
             tag' "Soft Physique Modification" 0
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            targetStunned <- stunned [All] <$> P.nTarget
+            targetStunned <- Effects.stun <$> P.nTarget
             return do
                 it "defends user" $
                     defense `shouldBe` 15
                 it "damages target of Soft Physique Modification" $
                     100 - targetHealth `shouldBe` 20
-                it "stuns target of Soft Physique Modification"
-                    targetStunned
+                it "stuns target of Soft Physique Modification" $
+                    targetStunned `shouldBe` [All]
   where
     describeCharacter = describeCategory Original
     targetDmg = 55

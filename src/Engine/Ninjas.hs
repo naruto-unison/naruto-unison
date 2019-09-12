@@ -66,7 +66,6 @@ import qualified Model.Copy as Copy
 import           Model.Copy (Copy(Copy), Copying)
 import qualified Model.Defense as Defense
 import           Model.Defense (Defense(Defense))
-import qualified Model.Delay as Delay
 import           Model.Duration (Duration, incr, sync)
 import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))

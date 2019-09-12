@@ -160,7 +160,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Dragon Flame"
-        , Skill.desc      = "Fire scorches the battlefield, dealing 10 affliction damage to all enemies for 2 turns. All of Anko's damage is increased by 5 against targets affected by [Dragon Flame]. During [Dual Pin], this skill becomes [Twin Snake Sacrifice][n][n]."
+        , Skill.desc      = "Fire scorches the battlefield, dealing 10 affliction damage to all enemies for 2 turns. All of Anko's instant damage is increased by 5 against targets affected by [Dragon Flame]. During [Dual Pin], this skill becomes [Twin Snake Sacrifice][n][n]."
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
@@ -228,10 +228,12 @@ cs =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Self do
-                apply 3 [Strengthen All Flat 10]
-                apply 1 [Reduce All Flat 25]
-                delay (-1) $ apply 1 [Reduce All Flat 15]
-                delay (-2) $ apply 1 [Reduce All Flat 5]
+                apply 1
+                    [Strengthen All Flat 10, Reduce All Flat 25]
+                delay 1 $ apply 1
+                    [Strengthen All Flat 10, Reduce All Flat 15]
+                delay 2 $ apply 1
+                    [Strengthen All Flat 10, Reduce All Flat 5]
           ]
         }
       ]

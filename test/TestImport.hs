@@ -6,7 +6,7 @@ module TestImport
   , act
   , turns
   , enemyTurn
-  , stunned, targetIsExposed, totalDefense
+  , targetIsExposed, totalDefense
   , allyOf
   , withClass
   ) where
@@ -30,7 +30,6 @@ import Action.Trap as Import
 import Characters.Base as Import (self, targetHas, userHas)
 
 import Control.Monad.Trans.State.Strict (StateT, evalStateT)
-import Data.List ((\\))
 
 import           Core.Util ((!!), (∈))
 import qualified Core.Wrapper as Wrapper
@@ -127,34 +126,36 @@ testNinja slot = Ninja.new slot $ Character
 
 wrap :: ∀ m. (MonadPlay m, MonadRandom m) => Player -> m ()
 wrap player = do
-    user   <- P.user
-    nUser  <- P.nUser
-    skill  <- Skills.change nUser <$> P.skill
+    user       <- P.user
+    nUser      <- P.nUser
+    skill      <- Skills.change nUser <$> P.skill
     let classes = Skill.classes skill
-    P.trigger user $ OnAction <$> toList (Skill.classes skill)
-    efs        <- Execute.chooseTargets
-                  (Skill.start skill ++ Skill.effects skill)
-    countering <- Execute.filterCounters efs . toList <$> P.enemies user
-    let counters =
-            Trigger.userCounters user classes nUser
-            ++ (Trigger.targetCounters user classes =<< countering)
-    if null counters then do
-        Execute.effects [] efs
-        when (player == Player.A) Execute.addChannels
-    else do
-        let countered = Ninja.slot <$> countering
-            uncounter n
-              | slot == user     = Trigger.userUncounter classes n
-              | slot ∈ countered = Trigger.targetUncounter classes n
-              | otherwise        = n
-              where
-                slot = Ninja.slot n
-        P.modifyAll uncounter
-        sequence_ counters
+    P.with (\ctx -> ctx { Context.skill = skill }) do
+        P.trigger user $ OnAction <$> toList (Skill.classes skill)
+        efs        <- Execute.chooseTargets
+                      (Skill.start skill ++ Skill.effects skill)
+        countering <- Execute.filterCounters efs . toList <$> P.enemies user
+        let counters =
+                Trigger.userCounters user classes nUser
+                ++ (Trigger.targetCounters user classes =<< countering)
+        if null counters then do
+            Execute.effects [] efs
+            when (player == Player.A) Execute.addChannels
+        else do
+            let countered = Ninja.slot <$> countering
+                uncounter n
+                  | slot == user     = Trigger.userUncounter classes n
+                  | slot ∈ countered = Trigger.targetUncounter classes n
+                  | otherwise        = n
+                  where
+                    slot = Ninja.slot n
+            P.modifyAll uncounter
+            sequence_ counters
 
-    P.modify user \n -> n { Ninja.acted = True }
-    traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
-    P.modifyAll $ Ninjas.processEffects . \n -> n { Ninja.triggers = mempty }
+        P.modify user \n -> n { Ninja.acted = True }
+        traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
+        P.modifyAll $ Ninjas.processEffects . \n ->
+            n { Ninja.triggers = mempty }
 
 act :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 act = Turn.process $ wrap Player.A
@@ -186,10 +187,6 @@ enemyTurn f = do
         target
           | Parity.allied ctxTarget user = Context.user ctx
           | otherwise                    = ctxTarget
-
-stunned :: [Class] -> Ninja -> Bool
-stunned classes n =
-    null $ (Stun <$> classes) \\ (Ninja.effects $ Ninjas.processEffects n)
 
 targetIsExposed :: ∀ m. (MonadPlay m, MonadRandom m) => m Bool
 targetIsExposed = do

@@ -27,12 +27,12 @@ spec = parallel do
             self $ tag' "Shadow Clones" 0
             act
             targetHealth  <- Ninja.health <$> P.nTarget
-            targetStunned <- stunned [All] <$> P.nTarget
+            targetStunned <- Effects.stun <$> P.nTarget
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 45
-                it "stuns target"
-                    targetStunned
+                it "stuns target" $
+                    targetStunned `shouldBe` [All]
         useOn Enemy "Shadow Clones" do
             act
             tagged <- Ninja.hasOwn "Shadow Clones" <$> P.nUser
@@ -48,7 +48,7 @@ spec = parallel do
         useOn Enemy "KO Punch" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            targetStunned <- stunned [Mental, Physical] <$> P.nTarget
+            targetStunned <- Effects.stun <$> P.nTarget
             factory
             self $ tag' "Inner Sakura" 0
             act
@@ -58,8 +58,8 @@ spec = parallel do
                     100 - targetHealth `shouldBe` 20
                 it "deals bonus damage during Inner Sakura" $
                     targetHealth - targetHealth' `shouldBe` 10
-                it "stuns target"
-                    targetStunned
+                it "stuns target" $
+                    targetStunned `shouldBe` [Mental, Physical]
         useOn Ally "Mystical Palm Healing" do
             damage targetDmg
             act
@@ -74,14 +74,14 @@ spec = parallel do
                 damage targetDmg
                 apply 0 [Stun All]
             userHealth <- Ninja.health <$> P.nUser
-            userStunned <- stunned [All] <$> P.nUser
+            userStunned <- Effects.stun <$> P.nUser
             return do
                 it "tags user"
                     tagged
                 it "reduces damage" $
                     100 - userHealth  `shouldBe` targetDmg - 10
                 it "ignores non-damage effects" $
-                    not userStunned
+                    null userStunned
 
     describeCharacter "Sasuke Uchiha" \useOn -> do
         useOn Enemy "Lions Barrage" do
@@ -254,10 +254,10 @@ spec = parallel do
                     exposed
         useOn Enemies "Shadow Possession" do
             act
-            targetStunned <- stunned [NonMental] <$> (allyOf =<< P.target)
+            targetStunned <- Effects.stun <$> (allyOf =<< P.target)
             return do
-                it "stuns targets"
-                    targetStunned
+                it "stuns targets" $
+                    targetStunned `shouldBe` [NonMental]
 
     describeCharacter "Chōji Akimichi" \useOn -> do
         useOn Enemy "Obstructing Tackle" do
@@ -279,13 +279,13 @@ spec = parallel do
         useOn Enemy "Justice Punch" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            targetStunned <- stunned [All] <$> P.nTarget
+            targetStunned <- Effects.stun <$> P.nTarget
             exposed <- targetIsExposed
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 25
-                it "stuns target"
-                    targetStunned
+                it "stuns target" $
+                    targetStunned `shouldBe` [All]
                 it "exposes target"
                     exposed
         useOn Enemy "Human Boulder" do
@@ -293,7 +293,7 @@ spec = parallel do
             enemyTurn do
                 damage targetDmg
                 apply 2 [Stun All]
-            userStunned <- stunned [All] <$> P.nUser
+            userStunned <- Effects.stun <$> P.nUser
             turns 4
             userHealth <- Ninja.health <$> P.nUser
             targetHealth <- Ninja.health <$> P.nTarget
@@ -303,16 +303,16 @@ spec = parallel do
                 it "reduces damage" $
                     100 - userHealth `shouldBe` targetDmg - 15
                 it "ignores stuns" $
-                    not userStunned
+                    null userStunned
         useOn Enemies "Full Expansion" do
             act
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
-            targetStunned <- stunned [All] <$> (allyOf =<< P.target)
+            targetStunned <- Effects.stun <$> (allyOf =<< P.target)
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 30
-                it "stuns targets"
-                    targetStunned
+                it "stuns targets" $
+                    targetStunned `shouldBe` [All]
         useOn Enemy "Chakra Wings" do
             enemyTurn $ damage targetDmg
             act
@@ -339,22 +339,22 @@ spec = parallel do
         useOn Enemy "Mind Destruction" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            targetStunned <- stunned [NonMental] <$> P.nTarget
+            targetStunned <- Effects.stun <$> P.nTarget
             exposed <- targetIsExposed
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 30
-                it "stuns target"
-                    targetStunned
+                it "stuns target" $
+                    targetStunned `shouldBe` [NonMental]
                 it "exposes target"
                     exposed
         useOn Enemy "Mind Transfer" do
             act
-            targetStunned <- stunned [All] <$> P.nTarget
+            targetStunned <- Effects.stun <$> P.nTarget
             exposed <- targetIsExposed
             return do
-                it "stuns target"
-                    targetStunned
+                it "stuns target" $
+                    targetStunned `shouldBe` [All]
                 it "exposes target"
                     exposed
         useOn Enemy "Art of the Valentine" do
@@ -508,11 +508,11 @@ spec = parallel do
     describeCharacter "Gaara" \useOn -> do
         useOn Enemy "Sand Coffin" do
             act
-            targetStunned <- stunned [NonMental] <$> P.nTarget
+            targetStunned <- Effects.stun <$> P.nTarget
             exposed <- targetIsExposed
             return do
-                it "stuns target"
-                    targetStunned
+                it "stuns target" $
+                    targetStunned `shouldBe` [NonMental]
                 it "exposes target"
                     exposed
         useOn Enemy "Sand Burial" do

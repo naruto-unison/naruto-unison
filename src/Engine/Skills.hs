@@ -89,7 +89,7 @@ extendWith :: Text -> Int -> Skill.Transform
 extendWith name i n skill = skill { Skill.dur = TurnBased.setDur dur chan }
   where
     chan  = Skill.dur skill
-    added = i * Ninja.numActive name n
+    added = i * 2 * Ninja.numActive name n
     dur   = TurnBased.getDur chan + added
 
 -- | Applies a transformation to 'Skill.effects', 'Skill.start', and
