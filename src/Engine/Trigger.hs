@@ -14,7 +14,7 @@ import ClassyPrelude hiding (swap)
 
 import Data.Enum.Set.Class (EnumSet)
 
-import           Core.Util ((∈), (∉), intersects)
+import           Core.Util ((∈), (∉))
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
 import           Class.Random (MonadRandom)
@@ -36,7 +36,7 @@ import qualified Engine.Traps as Traps
 -- | Trigger a 'Reflect'.
 reflect :: EnumSet Class -> Ninja -> Ninja -> Maybe Ninja
 reflect classes n nt
-  | [Mental, Unreflectable] `intersects` classes              = Nothing
+  | Unreflectable ∈ classes                                   = Nothing
   | any ((ReflectAll ∈) . Status.effects) $ Ninja.statuses nt = Just nt
   | any ((OnReflectAll ==) . Trap.trigger) $ Ninja.traps n    = Just nt
   | otherwise = Ninjas.drop (Reflect ==) nt

@@ -699,7 +699,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Leaf Fan: Coil of Wind"
-        , Skill.desc      = "Using the Sage of the Six Path's legendary battle fan, Tenten throws a gust of wind that reflects all non-mental skills used on her or her allies next turn."
+        , Skill.desc      = "Using the Sage of the Six Path's legendary battle fan, Tenten throws a gust of wind that reflects all skills used on her or her allies next turn."
         , Skill.classes   = [Physical, Invisible, Unreflectable]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
