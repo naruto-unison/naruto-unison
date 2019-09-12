@@ -5,6 +5,14 @@ main {
     margin: 0 2.5em;
     box-sizing: border-box;
 }
+main, #accountSettings {
+    -webkit-user-select: none;
+    user-select: none;
+}
+article {
+    -webkit-user-select: text;
+    user-select: text;
+}
 a:hover {
     text-decoration: none !important;
 }
