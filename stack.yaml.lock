@@ -5,13 +5,6 @@
 
 packages:
 - completed:
-    hackage: elm-bridge-0.5.1@sha256:e38bfb9dcd1e2cd119a280072f2f99ed718120c21f37f102b8318156645f06da,2421
-    pantry-tree:
-      size: 1084
-      sha256: cd4fd21b75bfd977b30e73249d8edd5cc21a8b7fd0dd0c7f364987e0221d626d
-  original:
-    hackage: elm-bridge-0.5.1
-- completed:
     cabal-file:
       size: 2462
       sha256: a60e052f6ade1a10a4164d8d0f56ffa6e04865773fb5c723fb7b278819fec2da
@@ -27,7 +20,7 @@ packages:
     commit: 469f1757a75c205444e48e4a063e388fd00ea9b3
 snapshots:
 - completed:
-    size: 500539
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/13/30.yaml
-    sha256: 59ad6b944c9903847fecdc1d4815e8500c1f9999d80fd1b4d2d66e408faec44b
-  original: lts-13.30
+    size: 524104
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/5.yaml
+    sha256: 3c146eebc1b383211ea49d5422fb3d63d699da12307b4bc989107300eb579d60
+  original: lts-14.5

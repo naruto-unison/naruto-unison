@@ -264,8 +264,8 @@ instance YesodAuthEmail App where
         vtextPart = Mail.Part
             { partType = "text/plain; charset=utf-8"
             , partEncoding = Mail.None
-            , partFilename = Nothing
-            , partContent = LazyEncoding.encodeUtf8 [stext|
+            , partDisposition = Mail.DefaultDisposition
+            , partContent = Mail.PartContent $ LazyEncoding.encodeUtf8 [stext|
 Welcome to Naruto Unison! To confirm your email address, click on the link below or copy and paste it into your address bar.
 \#{verurl}
 |]
@@ -274,8 +274,8 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
         vhtmlPart = Mail.Part
             { partType = "text/html; charset=utf-8"
             , partEncoding = Mail.None
-            , partFilename = Nothing
-            , partContent = Blaze.renderHtml [shamlet|
+            , partDisposition = Mail.DefaultDisposition
+            , partContent = Mail.PartContent $ Blaze.renderHtml [shamlet|
 <p>Welcome to Naruto Unison! To confirm your email address, click on the link below or copy and paste it into your address bar.
 <p>
     <a href=#{verurl}>#{verurl}
