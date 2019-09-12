@@ -8,15 +8,24 @@ import ClassyPrelude
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
 import           Class.Random (MonadRandom)
-import           Model.Internal (Game(..))
 import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra, Chakras)
 import qualified Model.Player as Player
+import           Model.Player (Player)
 import qualified Model.Slot as Slot
+
+
+-- | Game state.
+data Game = Game { chakra  :: (Chakras, Chakras)
+                 -- ^ Starts at @('Chakras' 0 0 0 0 0, 'Chakras' 0 0 0 0 0)@
+                 , playing :: Player
+                 -- ^ Starts at 'Player.A'
+                 , victor  :: [Player]
+                 -- ^ Starts empty
+                 } deriving (Eq, Show, Read)
 
 new :: Game
 new = Game { chakra  = (0, 0)
-           , delays  = []
            , playing = Player.A
            , victor  = []
            }

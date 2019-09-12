@@ -20,7 +20,6 @@ import           Model.Duration (Duration(..), Turns, incr, sync)
 import           Model.Effect (Effect(..))
 import qualified Model.Copy as Copy
 import           Model.Copy (Copying(..))
-import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja)
 import qualified Model.Runnable as Runnable
@@ -136,12 +135,14 @@ makeTrap skill nUser target direction classes dur trigger f = Trap
 -- | Saves an effect to a 'Delay.Delay', which is stored in 'Game.delays' and
 -- triggered when it expires.
 delay :: ∀ m. MonadPlay m => Turns -> RunConstraint () -> m ()
+delay 0 _ = return () -- A Delay that lasts forever would be pointless!
 delay (Duration -> dur) f = do
     context  <- P.context
     let skill = Context.skill context
+        user  = Context.user context
         del   = Delay.new context dur $ Execute.wrap (singletonSet Delayed) f
-    unless (past $ Skill.copying skill) $ P.alter \game ->
-        game { Game.delays = del : Game.delays game }
+    unless (past $ Skill.copying skill) $ P.modify user \n ->
+        n { Ninja.delays = del : Ninja.delays n }
   where
     dur' = incr $ sync dur
     past (Shallow _ d) = dur' > d

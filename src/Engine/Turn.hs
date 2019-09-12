@@ -65,7 +65,6 @@ process runner = do
     doBarriers
     doDelays
     doDeaths
-    P.alter \game -> game { Game.delays = decrDelays $ Game.delays game }
     expired <- P.ninjas
     P.modifyAll Ninjas.decr
     doBombs Expire expired
@@ -79,12 +78,13 @@ process runner = do
     getChannels n = map (Act.fromChannel n) .
                     filter ((1 /=) . TurnBased.getDur) $
                     Ninja.channels n
-    decrDelays = filter ((0 /=) . Delay.dur) . mapMaybe TurnBased.decr
 
 -- | Runs 'Game.delays'.
 doDelays :: ∀ m. (MonadGame m, MonadRandom m) => m ()
-doDelays = filter ((<= 1) . Delay.dur) . Game.delays <$> P.game
-           >>= traverse_ (P.launch . Delay.effect)
+doDelays = traverse_ delay . filter Ninja.alive =<< P.ninjas
+  where
+    delay n = traverse_ (P.launch . Delay.effect) .
+              filter ((<= 1) . Delay.dur) $ Ninja.delays n
 
 -- | Executes 'Status.bombs' of a @Status@.
 doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()

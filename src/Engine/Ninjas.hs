@@ -66,6 +66,7 @@ import qualified Model.Copy as Copy
 import           Model.Copy (Copy(Copy), Copying)
 import qualified Model.Defense as Defense
 import           Model.Defense (Defense(Defense))
+import qualified Model.Delay as Delay
 import           Model.Duration (Duration, incr, sync)
 import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
@@ -206,20 +207,22 @@ decrStats n = n { statuses = expire <$> statuses n }
 -- | Applies 'Class.TurnBased.decr' to all of a @Ninja@'s 'Class.TurnBased'
 -- types.
 decr :: Ninja -> Ninja
-decr n = n { defense   = mapMaybe TurnBased.decr $ defense n
-           , statuses  = foldStats . mapMaybe TurnBased.decr $ statuses n
-           , barrier   = mapMaybe TurnBased.decr $ barrier n
-           , face      = mapMaybe TurnBased.decr $ face n
-           , channels  = decrChannels
-           , traps     = mapMaybe TurnBased.decr $ traps n
-           , newChans  = mempty
-           , variants  = variantsDecr <$> variants n
-           , copies    = (>>= TurnBased.decr) <$> copies n
-           , cooldowns = ((max 0 . subtract 1) <$>) <$> cooldowns n
-           , acted     = False
-           }
+decr n@Ninja{..} = n
+    { defense   = mapMaybe TurnBased.decr defense
+    , statuses  = foldStats $ mapMaybe TurnBased.decr statuses
+    , barrier   = mapMaybe TurnBased.decr barrier
+    , face      = mapMaybe TurnBased.decr face
+    , channels  = decrChannels
+    , traps     = mapMaybe TurnBased.decr traps
+    , delays    = mapMaybe TurnBased.decr delays
+    , newChans  = mempty
+    , variants  = variantsDecr <$> variants
+    , copies    = (>>= TurnBased.decr) <$> copies
+    , cooldowns = ((max 0 . subtract 1) <$>) <$> cooldowns
+    , acted     = False
+    }
   where
-    decrChannels       = mapMaybe TurnBased.decr $ newChans n ++ channels n
+    decrChannels       = mapMaybe TurnBased.decr $ newChans ++ channels
     foldStats xs       = foldStat <$> group (sort xs)
     foldStat   (x:|[]) = x
     foldStat xs@(x:|_) = x { Status.amount = sum $ Status.amount <$> xs }

@@ -36,17 +36,18 @@ new :: Slot -> Character -> Ninja
 new slot c = Ninja { slot      = slot
                    , health    = 100
                    , character = c
-                   , defense   = []
-                   , barrier   = []
-                   , statuses  = []
+                   , defense   = mempty
+                   , barrier   = mempty
+                   , statuses  = mempty
                    , charges   = replicate skillSize 0
                    , cooldowns = replicate skillSize mempty
                    , variants  = replicate skillSize $ Variant.none :| []
                    , copies    = replicate skillSize Nothing
-                   , channels  = []
-                   , newChans  = []
+                   , channels  = mempty
+                   , newChans  = mempty
                    , traps     = mempty
-                   , face      = []
+                   , delays    = mempty
+                   , face      = mempty
                    , lastSkill = Nothing
                    , triggers  = mempty
                    , effects   = mempty

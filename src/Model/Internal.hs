@@ -35,7 +35,7 @@ import           Model.Defense (Defense(..))
 import           Model.Duration (Duration, sync, unsync)
 import           Model.Effect (Effect(..))
 import           Model.Face (Face(..))
-import           Model.Player (Player)
+import           Model.Game (Game)
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot(..))
 import           Model.Variant (Variant(..))
@@ -54,6 +54,7 @@ data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas
                    , channels  :: [Channel]              -- ^ Starts empty
                    , newChans  :: [Channel]              -- ^ Starts empty
                    , traps     :: [Trap]                 -- ^ Starts empty
+                   , delays    :: [Delay]                -- ^ Starts empty
                    , face      :: [Face]                 -- ^ Starts empty
                    , lastSkill :: Maybe Skill            -- ^ Starts at @Nothing@
                    , triggers  :: Set Trigger            -- ^ Empty at the start of each turn
@@ -63,17 +64,6 @@ data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas
 instance Parity Ninja where
     even = Parity.even . slot
     {-# INLINE even #-}
-
--- | Game state.
-data Game = Game { chakra  :: (Chakras, Chakras)
-                 -- ^ Starts at @('Chakras' 0 0 0 0 0, 'Chakras' 0 0 0 0 0)@
-                 , delays  :: [Delay]
-                 -- ^ Starts at @(0, 0)@. Resets every turn to @(0, 0)@
-                 , playing :: Player
-                 -- ^ Starts at 'Player.A'
-                 , victor  :: [Player]
-                 -- ^ Starts empty
-                 }
 
 data Requirement
     = Usable

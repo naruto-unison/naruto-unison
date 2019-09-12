@@ -200,7 +200,7 @@ cs =
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6
-        , Skill.dur       = Action 5
+        , Skill.dur       = Action (-5)
         , Skill.start     =
           [ To Self $ bombWith [Hidden] (-5) [] [ To Expire do
                 tag' "Tailed Beast Form" 0
