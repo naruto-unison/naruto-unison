@@ -12,7 +12,6 @@ import           Core.Util ((∉), intersects)
 import qualified Model.Character as Character
 import           Model.Character (Character, Category(..))
 import           Model.Class (Class(..))
-import qualified Model.Runnable as Runnable
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill, Target(..))
 
@@ -59,9 +58,11 @@ reanimated = ($ Reanimated) <$> Characters.Reanimated.cs
 
 list :: [Character]
 list = addClasses <$> original ++ shippuden ++ reanimated
+{-# NOINLINE list #-}
 
 map :: HashMap Text Character
 map = mapFromList $ (\c -> (Character.format c, c)) <$> list
+{-# NOINLINE map #-}
 
 lookupName :: Text -> Maybe Character
 lookupName k = lookup k map
@@ -87,6 +88,5 @@ doSkill skill = skill { Skill.classes = added ++ Skill.classes skill }
             , (NonMental, Mental ∉ Skill.classes skill)
             , (Harmful,   harm)
             ]
-    harm = [Enemy, Enemies, REnemy, XEnemies] `intersects` ts
-    ts   = Runnable.target
-           <$> Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill
+    harm = setFromList [Enemy, Enemies, REnemy, XEnemies]
+           `intersects` Skill.targets skill

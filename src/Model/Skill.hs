@@ -1,15 +1,17 @@
 module Model.Skill
-  ( Skill(..), new, chakraClasses
+  ( Skill(..), new, targets, chakraClasses
   , Target(..)
   , Transform
   , defaultName
   ) where
 
 import ClassyPrelude
+import Data.Enum.Set.Class (EnumSet)
 
 import           Model.Internal (Skill(..), Requirement(..), Target(..), Copying(..), Ninja)
 import           Model.Channel (Channeling(..))
 import qualified Model.Chakra as Chakra
+import qualified Model.Runnable as Runnable
 
 -- | The type signature of 'changes'.
 type Transform = (Ninja -> Skill -> Skill)
@@ -32,6 +34,10 @@ new = Skill { name      = "Unnamed"
             , copying   = NotCopied
             , pic       = False
             }
+
+targets :: Skill -> EnumSet Target
+targets x = setFromList $
+            Runnable.target <$> start x ++ effects x ++ interrupt x
 
 -- | Adds 'Model.Class.Bloodline', 'Model.Class.Genjutsu',
 -- 'Model.Class.Ninjutsu', 'Model.Class.Taijutsu', and 'Model.Class.Random'

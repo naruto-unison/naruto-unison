@@ -24,7 +24,6 @@ import qualified Model.Skill as Skill
 import           Model.Skill (Skill, Target(..))
 import qualified Model.Player as Player
 import           Model.Player (Player)
-import qualified Model.Runnable as Runnable
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
 import qualified Model.Status as Status
@@ -110,15 +109,16 @@ gameToJSON player ninjas g = object
 skillTargets :: Skill -> Slot -> [Slot]
 skillTargets skill c = filter target Slot.all
   where
-    ts = Runnable.target
-         <$> Skill.start skill ++ Skill.effects skill ++ Skill.interrupt skill
+    ts = Skill.targets skill
     target t
-      | Everyone ∈ ts                         = True
-      | not $ Parity.allied c t               = Harmful ∈ Skill.classes skill
-      | [XAlly, XAllies] `intersects` ts      = c /= t
-      | [Ally, Allies, RAlly] `intersects` ts = True
-      | c == t                                = Harmful ∉ Skill.classes skill
-      | otherwise                             = False
+      | Everyone ∈ ts           = True
+      | not $ Parity.allied c t = Harmful ∈ Skill.classes skill
+      | setFromList [XAlly, XAllies]
+            `intersects` ts     = c /= t
+      | setFromList [Ally, Allies, RAlly]
+            `intersects` ts     = True
+      | c == t                  = Harmful ∉ Skill.classes skill
+      | otherwise               = False
 
 ninjaToJSON :: Ninja -> Value
 ninjaToJSON n = object

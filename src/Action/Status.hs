@@ -22,7 +22,7 @@ import ClassyPrelude
 import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
 import Data.Enum.Set.Class (EnumSet)
 
-import           Core.Util ((∈), (∉), intersectsSet)
+import           Core.Util ((∈), (∉), intersects)
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
 import           Class.Random (MonadRandom)
@@ -214,7 +214,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                                        , stun ∉ Effects.ignore nTarget]
                 self  = user == user && user == target
             lift . ActionChannel.interrupt $
-                (stuns `intersectsSet`) . Skill.classes . Channel.skill
+                (stuns `intersects`) . Skill.classes . Channel.skill
             when (bounced && not self) do
                 let bounce t = P.withTarget t $
                                applyFull mempty True (Status.bombs st) name

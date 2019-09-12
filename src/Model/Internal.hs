@@ -13,8 +13,9 @@ import Control.Monad.Trans.Select (SelectT, mapSelectT)
 import Control.Monad.Trans.Writer (WriterT, mapWriterT)
 import Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import Data.Aeson ((.=), ToJSON(..), object)
-import Data.Enum.Set.Class (EnumSet)
+import Data.Enum.Set.Class (AsEnumSet(..), EnumSet)
 import Data.List.NonEmpty (NonEmpty(..))
+import Data.Word (Word16)
 import Text.Blaze (ToMarkup(..))
 import Yesod.WebSockets (WebSocketsT)
 
@@ -95,6 +96,9 @@ data Target
     | XEnemies -- ^ Enemies excluding 'Enemy'
     | Everyone -- ^ All 'Ninja's
     deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
+
+instance AsEnumSet Target where
+    type EnumSetRep Target = Word16
 
 -- | A move that a 'Character' can perform.
 data Skill = Skill { name      :: Text              -- ^ Name

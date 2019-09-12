@@ -29,8 +29,7 @@ maxVal = teamSize * 2 - 1
 -- It is hidden behind a newtype and cannot be constructed or modified outside
 -- this module in order to prevent out-of-bound errors.
 -- This has the added advantage of making function signatures more readable!
-newtype Slot = Slot { toInt :: Int }
-               deriving (Eq, Ord, Show, ToJSON)
+newtype Slot = Slot { toInt :: Int } deriving (Eq, Ord, Show, ToJSON)
 
 instance Parity Slot where
     even (Slot x) = x < teamSize

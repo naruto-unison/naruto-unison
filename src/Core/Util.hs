@@ -3,7 +3,7 @@ module Core.Util
   ( (!?), (!!)
   , (—), (∈), (∉)
   , Lift
-  , intersects, intersectsSet
+  , intersects
   , duplic
   , shorten
   ) where
@@ -42,16 +42,9 @@ infix 4 ∉
 {-# INLINE (∉) #-}
 
 -- | True if any elements are shared by both collections.
-intersects :: ∀ a b.
-    (MonoFoldable a, MonoFoldable b, Element a ~ Element b, Eq (Element a))
-    => a -> b -> Bool
-x `intersects` y = any (∈ y) x
+intersects :: ∀ a. SetContainer a => a -> a -> Bool
+xs `intersects` ys = not . null $ intersection xs ys
 {-# INLINE intersects #-}
-
--- | True if any elements are shared by both collections.
-intersectsSet :: ∀ a. SetContainer a => a -> a -> Bool
-xs `intersectsSet` ys = not . null $ intersection xs ys
-{-# INLINE intersectsSet #-}
 
 -- | True if a list contains multiple identical values.
 duplic :: ∀ a. Eq a => [a] -> Bool

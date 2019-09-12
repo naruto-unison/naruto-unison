@@ -16,7 +16,7 @@ import           Data.Bits (setBit, testBit)
 import           Data.Either (isLeft)
 import           Data.Enum.Set.Class (EnumSet, AsEnumSet(..))
 
-import           Core.Util ((!!), (—), (∈), (∉), intersectsSet)
+import           Core.Util ((!!), (—), (∈), (∉), intersects)
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
@@ -70,9 +70,6 @@ data Affected
 instance AsEnumSet Affected where
     type EnumSetRep Affected = Word8
 
-oldSet :: EnumSet Affected
-oldSet = setFromList [Channeled, Delayed, Trapped]
-
 -- | Adds a 'Copy.Copy' to 'Ninja.copies'.
 -- Uses 'Ninjas.copy' internally.
 copy :: ∀ m. MonadPlay m
@@ -101,7 +98,6 @@ wrap affected f = void $ runMaybeT do
     let classes  = Skill.classes skill
         targeted = Targeted ∈ affected
                    || Requirement.targetable (bypass skill) nUser nTarget
-        --invinc   = classes `intersectsSet` Effects.invincible nTarget
         exit     = if | Direct ∈ classes       -> Done
            --           | invinc                 -> Flagged
                       | Trapped ∈ affected     -> Done
@@ -142,7 +138,7 @@ wrap affected f = void $ runMaybeT do
                 P.with Context.reflect $ wrap (insertSet Reflected affected) f
     P.zipWith Traps.broken startNinjas
   where
-    new = not $ oldSet `intersectsSet` affected
+    new = not $ setFromList [Channeled, Delayed, Trapped] `intersects` affected
     bypass skill
       | Trapped ∈ affected =
           skill { Skill.classes = insertSet Bypassing $ Skill.classes skill }
