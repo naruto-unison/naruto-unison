@@ -52,6 +52,7 @@ import qualified Model.Player as Player
 import           Model.Player (Player)
 import           Model.Runnable (Runnable(..), RunConstraint)
 import qualified Model.Skill as Skill
+import           Model.Skill (Skill)
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
 import qualified Engine.Effects as Effects
@@ -105,7 +106,7 @@ useSkill char target skillName f =
 
 testBase :: Wrapper
 testBase = Wrapper
-    { Wrapper.game = Game.new
+    { Wrapper.game   = Game.new
     , Wrapper.ninjas = fromList $ testNinja <$> unsafeTail Slot.all
     }
 
@@ -163,6 +164,12 @@ turns (Duration -> i) = do
     replicateM_ (sync i) . Turn.process $ return ()
     P.alter \game -> game { Game.playing = Player.A }
 
+enemySkill :: Skill
+enemySkill = Skill.new
+    { Skill.start   = []
+    , Skill.classes = [Summon, Melee, Ranged, Chakra, Physical, Mental, All, Harmful, NonMental, Bloodline, Genjutsu, Ninjutsu, Taijutsu, Random]
+    }
+
 enemyTurn :: ∀ m. (MonadPlay m, MonadRandom m) => RunConstraint () -> m ()
 enemyTurn f = do
     P.with with . Turn.process $ wrap Player.B
@@ -171,9 +178,7 @@ enemyTurn f = do
     with ctx = ctx
         { Context.user   = user
         , Context.target = target
-        , Context.skill  = (Context.skill ctx) { Skill.start   = []
-                                               , Skill.effects = [To Enemy f]
-                                               }
+        , Context.skill  = enemySkill { Skill.effects = [To Enemy f] }
         }
       where
         user = Slot.all !! 3

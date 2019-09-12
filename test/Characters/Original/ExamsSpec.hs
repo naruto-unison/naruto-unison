@@ -101,7 +101,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 20
                 it "adds to damage against target" $
-                    100 - targetHealth' `shouldBe` targetDmg + 5
+                   (100 - targetHealth') - targetDmg `shouldBe` 5
                 it "adds a random chakra to target's skills" $
                     toList targetExhaust `shouldBe` [Rand]
         useOn Self "Pre-Healing Technique" do
@@ -130,7 +130,7 @@ spec = parallel do
                 it "stuns targets"
                     othersStunned
                 it "adds to damage against targets" $
-                    100 - targetHealth `shouldBe` targetDmg + 10
+                    (100 - targetHealth) - targetDmg `shouldBe` 10
                 it "does not affect targets who act" $
                     not enemyStunned
 
@@ -148,7 +148,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 20
                 it "deals bonus damage during Echo Speaker Tuning" $
-                    100 - targetHealth' `shouldBe` 20 + 20
+                    targetHealth - targetHealth' `shouldBe` 20
                 it "exposes target"
                     exposed
                 it "tags target"
@@ -169,11 +169,11 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 10
                 it "deals bonus damage during Echo Speaker Tuning" $
-                    100 - targetHealth'' `shouldBe` 10 + 10
+                    targetHealth - targetHealth'' `shouldBe` 10
                 it "adds to damage received by target" $
-                    100 - targetHealth' `shouldBe` targetDmg + 5
+                    (100 - targetHealth') - targetDmg `shouldBe` 5
                 it "weakens target" $
-                    100 - userHealth `shouldBe` targetDmg - 5
+                    targetDmg - (100 - userHealth) `shouldBe` 5
         useOn Self "Echo Speaker Tuning" do
             act
             tagged <- Ninja.hasOwn "Echo Speaker Tuning" <$> P.nUser
@@ -202,7 +202,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 15
                 it "deals bonus damage during Unnerving Bells" $
-                    100 - targetHealth' `shouldBe` 15 + 25
+                    targetHealth - targetHealth' `shouldBe` 25
                 it "makes user invulnerable during Shadow Senbon" $
                     not harmed
         useOn Enemy "Shadow Senbon" do
@@ -250,9 +250,9 @@ spec = parallel do
                 it "depletes 1 random chakra" $
                     targetChakra `shouldBe` [Gen]
                 it "adds to damage against target during Shadow Senbon" $
-                    100 - targetHealth `shouldBe` targetDmg + 15
+                    (100 - targetHealth) - targetDmg `shouldBe` 15
                 it "adds to damage against target during Bell Ring Illusion" $
-                    100 - targetHealth' `shouldBe` targetDmg + 15
+                    (100 - targetHealth') - targetDmg `shouldBe` 15
 
     describeCharacter "Zaku Abumi" \useOn -> do
         useOn Enemy "Slicing Sound Wave" do
@@ -336,9 +336,9 @@ spec = parallel do
                 it "heals user" $
                     100 - userHealth `shouldBe` targetDmg - 20
                 it "strengthens user" $
-                    100 - targetHealth' `shouldBe` targetDmg + 5
+                    (100 - targetHealth') - targetDmg `shouldBe` 5
                 it "weakens target" $
-                    100 - userHealth' `shouldBe` targetDmg - 5
+                    targetDmg - (100 - userHealth') `shouldBe` 5
                 it "steals a random chakra during Chakra Focus" $
                     targetChakra `shouldBe` [Gen]
         useOn Enemy "Draining Assault" do
@@ -360,9 +360,9 @@ spec = parallel do
                 it "steals health" $
                     100 - targetHealth `shouldBe` 3 * 15
                 it "strengthens user" $
-                    100 - targetHealth' `shouldBe` targetDmg + 5
+                    (100 - targetHealth') - targetDmg `shouldBe` 5
                 it "weakens enemy" $
-                    100 - userHealth `shouldBe` targetDmg - 15 * 2 - 5
+                    targetDmg - (100 - userHealth) `shouldBe` 15 * 2 + 5
                 it "steals a random chakra each turn during Chakra Focus" $
                     targetChakra `shouldBe` [Tai]
         useOn Self "Chakra Focus" do

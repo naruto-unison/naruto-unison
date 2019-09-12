@@ -22,7 +22,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 20
                 it "deals bonus damage during Shadow Clones" $
-                    100 - targetHealth' `shouldBe` 20 + 10
+                    targetHealth - targetHealth' `shouldBe` 10
         useOn Enemy "Rasengan" do
             self $ tag' "Shadow Clones" 0
             act
@@ -57,7 +57,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 20
                 it "deals bonus damage during Inner Sakura" $
-                    100 - targetHealth' `shouldBe` 20 + 10
+                    targetHealth - targetHealth' `shouldBe` 10
                 it "stuns target"
                     targetStunned
         useOn Ally "Mystical Palm Healing" do
@@ -95,7 +95,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 30
                 it "deals bonus damage if target has Sharingan" $
-                    100 - targetHealth' `shouldBe` 30 + 15
+                    targetHealth - targetHealth' `shouldBe` 15
         useOn Enemy "Chidori" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
@@ -107,7 +107,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 30
                 it "deals bonus damage if target has Sharingan" $
-                    100 - targetHealth' `shouldBe` 30 + 25
+                    targetHealth - targetHealth' `shouldBe` 25
         useOn Enemy "Sharingan" do
             act
             tagged <- Ninja.has "Sharingan" <$> P.user <*> P.nTarget
@@ -134,7 +134,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 30
                 it "deals bonus damage if target has Dynamic Marking" $
-                    100 - targetHealth' `shouldBe` 30 + 5
+                    targetHealth - targetHealth' `shouldBe` 5
         useOn Enemies "Two-Headed Wolf" do
             act
             enemyTurn $ damage targetDmg
@@ -150,7 +150,7 @@ spec = parallel do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 3 * 15
                 it "deals bonus damage if target has Dynamic Marking" $
-                    100 - targetHealth' `shouldBe` 3 * (15 + 5)
+                    targetHealth - targetHealth' `shouldBe` 3 * 5
                 it "reduces damage to user" $
                     100 - userHealth `shouldBe` targetDmg - 15
         useOn Enemy "Dynamic Marking" do
@@ -177,7 +177,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 20
                 it "deals bonus damage per target stack of Parasite" $
-                    100 - targetHealth' `shouldBe` 20 + 5 * stacks
+                    targetHealth - targetHealth' `shouldBe` 5 * stacks
                 it "steals 1 random chakra" $
                     chakras `shouldBe` ([Nin], [Tai])
         useOn Enemy "Parasite" do
@@ -186,7 +186,7 @@ spec = parallel do
             userHealth <- Ninja.health <$> P.nUser
             return do
                 it "weakens target damage" $
-                    100 - userHealth `shouldBe` targetDmg - 5 * stacks
+                  targetDmg - (100 - userHealth) `shouldBe` 5 * stacks
         useOn Allies "Wall of Insects" do
             act
             defense <- totalDefense <$> P.nTarget
@@ -222,7 +222,7 @@ spec = parallel do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 15
                 it "deals bonus damage during Byakugan" $
-                    100 - targetHealth' `shouldBe` 15 + 5
+                    targetHealth - targetHealth' `shouldBe` 5
                 it "defends user's team" $
                     defense `shouldBe` 10
         useOn Self "Byakugan" do
@@ -388,7 +388,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 3 * 10
                 it "deals bonus damage during Fifth Gate Opening" $
-                    100 - targetHealth' `shouldBe` 3 * (10 + 15)
+                    targetHealth - targetHealth' `shouldBe` 3 * 15
                 it "reduces damage" $
                     100 - userHealth `shouldBe` targetDmg - 10
         useOn Enemy "Primary Lotus" do
@@ -402,7 +402,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 30
                 it "deals bonus damage during Fifth Gate Opening" $
-                    100 - targetHealth' `shouldBe` 30 + 30
+                    targetHealth - targetHealth' `shouldBe` 30
         useOn Self "Fifth Gate Opening" do
             act
             tagged <- Ninja.hasOwn "Fifth Gate Opening" <$> P.nUser
@@ -446,7 +446,7 @@ spec = parallel do
                 it "adds a stack to user" $
                     userStacks `shouldBe` 1
                 it "adds a bonus stack during Rising Twin Dragons" $
-                    userStacks' `shouldBe` 1 + 1
+                    userStacks' - userStacks `shouldBe` 1
                 it "expends Rising Twin Dragons" $
                     not tagged
         useOn Enemies "Rising Dragon Control" do
@@ -462,7 +462,7 @@ spec = parallel do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 5 + 10 * stacks
                 it "weakens targets" $
-                    100 - userHealth `shouldBe` targetDmg - (5 + 10 * stacks)
+                    targetDmg - (100 - userHealth) `shouldBe` 5 + 10 * stacks
                 it "expends Rising Twin Dragons" $
                     not tagged
         useOn Self "Rising Twin Dragons" do
@@ -483,7 +483,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 2 * 25
                 it "weakens target" $
-                    100 - userHealth `shouldBe` targetDmg - 5
+                    targetDmg - (100 - userHealth) `shouldBe` 5
         useOn Enemies "Eight Trigrams Palm Rotation" do
             act
             enemyTurn $ apply 0 [Reveal]
@@ -594,7 +594,7 @@ spec = parallel do
                 it "makes user's team invulnerable" $
                     not harmed
                 it "weakens targets" $
-                    100 - userHealth `shouldBe` targetDmg - 15
+                    targetDmg - (100 - userHealth) `shouldBe` 15
   where
     describeCharacter = describeCategory Original
     targetDmg = 55
