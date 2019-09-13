@@ -46,10 +46,10 @@ module Engine.Ninjas
   , kabuto
   ) where
 
-import ClassyPrelude hiding (drop, group, head, init, last, take)
+import ClassyPrelude hiding (drop, take)
 
 import           Data.List (findIndex)
-import           Data.List.NonEmpty (NonEmpty(..), (!!), group, head, init, last)
+import           Data.List.NonEmpty ((!!))
 import qualified Data.Sequence as Seq
 import qualified Data.Text as Text
 

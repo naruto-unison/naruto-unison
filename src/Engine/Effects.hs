@@ -26,7 +26,6 @@ module Engine.Effects
 import ClassyPrelude hiding (link)
 
 import Data.Enum.Set.Class (EnumSet)
-import Data.List.NonEmpty (NonEmpty(..))
 
 import           Core.Util ((!!), (∈), intersects)
 import qualified Class.Parity as Parity
@@ -133,7 +132,7 @@ taunt n = [slot | Taunt slot <- Ninja.effects n, slot /= Ninja.slot n]
 
 -- | 'Threshold' max.
 threshold :: Ninja -> Int
-threshold n = maximumEx $ 0 :| [x | Threshold x <- Ninja.effects n]
+threshold n = maximum $ 0 :| [x | Threshold x <- Ninja.effects n]
 
 -- | 'Throttle' sum.
 throttle :: [Effect] -> Ninja -> Int

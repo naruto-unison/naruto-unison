@@ -6,9 +6,8 @@ module Engine.Cooldown
   , reset, resetAll
   ) where
 
-import ClassyPrelude hiding (head)
+import ClassyPrelude
 
-import           Data.List.NonEmpty (head)
 import qualified Data.Sequence as Seq
 import           Data.Sequence ((|>))
 

@@ -5,8 +5,7 @@ module Model.GameInfo
 
 import ClassyPrelude
 
-import           Data.Aeson ((.=), ToJSON(..), Value, object)
-import           Data.List.NonEmpty (NonEmpty(..))
+import Data.Aeson ((.=), ToJSON(..), Value, object)
 
 import           Core.Model (Key, User)
 import           Core.Util ((!!), (∈), (∉), intersects)

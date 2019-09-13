@@ -13,7 +13,7 @@ module Engine.Skills
 import ClassyPrelude hiding (swap)
 
 import Data.List (findIndex)
-import Data.List.NonEmpty ((!!), NonEmpty(..))
+import Data.List.NonEmpty ((!!))
 
 import           Class.TurnBased as TurnBased
 import           Model.Chakra (Chakras)

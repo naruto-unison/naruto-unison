@@ -4,7 +4,7 @@ module Characters.Base
   , invuln
   , user, target, userHas, targetHas
   , userStacks, targetStacks, userDefense
-  , channeling, immune
+  , channeling, invulnerable
   , self, allies, enemies, everyone
   , baseVariant
   , bonusIf, numAffected, numDeadAllies
@@ -111,8 +111,8 @@ userDefense name = defense <$> P.nUser
 channeling :: ∀ m. MonadPlay m => Text -> m Bool
 channeling name = Ninja.isChanneling name <$> P.nUser
 
-immune :: Ninja -> Bool
-immune n = not . null $ Effects.immune n
+invulnerable :: Ninja -> Bool
+invulnerable n = not . null $ Effects.invulnerable n
 
 filterOthers :: ∀ m. MonadPlay m => (Ninja -> Bool) -> m Int
 filterOthers match = length . filter match <$> (P.allies =<< P.user)

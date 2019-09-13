@@ -128,7 +128,6 @@ tests:
     dependencies:
     - naruto-unison
     - base
-    - classy-prelude
     - hspec == 2.7.1
     - transformers
     ghc-options:

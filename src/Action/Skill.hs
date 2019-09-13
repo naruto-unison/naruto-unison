@@ -12,7 +12,6 @@ module Action.Skill
 import ClassyPrelude
 
 import           Data.List (findIndex)
-import           Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Sequence as Seq
 
 import qualified Class.Play as P

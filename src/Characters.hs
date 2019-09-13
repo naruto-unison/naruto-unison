@@ -6,7 +6,6 @@ module Characters
 import ClassyPrelude hiding (map)
 
 import Data.HashMap.Strict (HashMap)
-import Data.List.NonEmpty (NonEmpty(..))
 
 import           Core.Util ((∉), intersects)
 import qualified Model.Character as Character

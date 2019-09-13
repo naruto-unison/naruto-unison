@@ -8,10 +8,9 @@ module Model.Ninja
   , defenseAmount
   ) where
 
-import ClassyPrelude --hiding (drop, group, head, init, last, take)
+import ClassyPrelude
 
-import           Data.List (nubBy)
-import           Data.List.NonEmpty (NonEmpty(..))
+import Data.List (nubBy)
 
 import           Core.Util ((∈), (∉))
 import qualified Class.Parity as Parity

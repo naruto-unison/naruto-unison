@@ -1,10 +1,9 @@
 -- | Turn execution. The surface of the game engine.
 module Engine.Turn (run, process) where
 
-import ClassyPrelude hiding (groupBy, drop, head)
+import ClassyPrelude
 
 import           Data.List (deleteFirstsBy)
-import           Data.List.NonEmpty (groupBy, head)
 import qualified Data.Vector as Vector
 
 import           Core.Util ((—))
