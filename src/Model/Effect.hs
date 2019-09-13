@@ -66,8 +66,8 @@ data Effect
     | Expose                           -- ^ Cannot reduce damage or be 'Invulnerable'
     | Heal         Int                 -- ^ Heals every turn
     | Ignore       Constructor         -- ^ Invulnerable to certain effects
-    | Invulnerable Class               -- ^ Invulnerable to enemy 'Skill's
     | ImmuneSelf                       -- ^ Invulnerable to self-caused damage
+    | Invulnerable Class               -- ^ Invulnerable to enemy 'Skill's
     | Pierce                           -- ^ Damage attacks become piercing
     | Plague                           -- ^ Invulnerable to healing and curing
     | Reduce       Class Amount Int    -- ^ Reduces damage by an amount
@@ -130,9 +130,10 @@ helpful Enrage          = True
 helpful Exhaust{}       = False
 helpful Expose          = False
 helpful Heal{}          = True
+helpful Ignore{}        = True
+helpful ImmuneSelf      = True
 helpful Invulnerable{}  = True
 helpful ImmuneSelf      = True
-helpful Ignore{}        = True
 helpful Pierce          = True
 helpful Plague          = False
 helpful (Reduce _ _ x)  = x >= 0
@@ -198,6 +199,7 @@ instance Display Effect where
     display Expose = "Unable to reduce damage or become invulnerable."
     display (Heal x) = "Gains " ++ display x ++ " health each turn."
     display (Ignore _) = "Ignores some effects."
+    display ImmuneSelf = "Invulnerable to self-damage."
     display (Invulnerable cla) = "Invulnerable to " ++ lower cla ++ " skills."
     display ImmuneSelf = "Invulnerable to self-damage."
     display Pierce = "Non-affliction skills deal piercing damage."

@@ -266,7 +266,7 @@ cs =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 10 `bonusIf` target immune
+                bonus <- 10 `bonusIf` target invulnerable
                 pierce (25 + bonus)
           ]
         , Skill.changes   =

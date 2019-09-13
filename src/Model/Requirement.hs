@@ -74,7 +74,7 @@ targetable skill n nt
   | not (Ninja.alive nt) && Necromancy ∉ classes             = False
   | Ninja.alive nt && user /= target && Necromancy ∈ classes = False
   | Bypassing ∈ classes                                      = True
-  | harm && (classes `intersects` Effects.immune nt)         = False
+  | harm && (classes `intersects` Effects.invulnerable nt)   = False
   | user /= target && not harm && nt `is` Seal               = False
   | user /= target && (dueling || taunted)                   = False
   | target ∈ Effects.block  n                                = False

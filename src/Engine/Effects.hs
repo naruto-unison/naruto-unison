@@ -9,7 +9,7 @@ module Engine.Effects
   , exhaust
   , hp
   , ignore
-  , immune
+  , invulnerable
   , reduce
   , replace
   , share
@@ -92,8 +92,8 @@ ignore :: Ninja -> [Effect]
 ignore n = [ef | Ignore con <- Ninja.effects n, ef <- Effect.construct con]
 
 -- | 'Invulnerable' collection.
-immune :: Ninja -> EnumSet Class
-immune n = setFromList [x | Invulnerable x <- Ninja.effects n]
+invulnerable :: Ninja -> EnumSet Class
+invulnerable n = setFromList [x | Invulnerable x <- Ninja.effects n]
 
 -- | 'Reduce' sum.
 reduce :: EnumSet Class -> Ninja -> Amount -> Float
@@ -183,7 +183,7 @@ afflict :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
 afflict ninjas player n = sum
     [aff st | st <- Ninja.statuses n
             , not (n `is` ImmuneSelf) || Status.user st /= Ninja.slot n
-            , not $ afflictClasses `intersects` immune n]
+            , not $ afflictClasses `intersects` invulnerable n]
   where
     aff = afflict1 ninjas player $ Ninja.slot n
 

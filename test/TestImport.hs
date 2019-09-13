@@ -192,7 +192,7 @@ targetIsExposed = do
     target <- P.target
     P.with (\ctx -> ctx { Context.user = target }) $
         apply 0 [Invulnerable All]
-    null . Effects.immune . Ninjas.processEffects <$> P.nTarget
+    null . Effects.invulnerable . Ninjas.processEffects <$> P.nTarget
 
 totalDefense :: Ninja -> Int
 totalDefense n = sum $ Defense.amount <$> Ninja.defense n
