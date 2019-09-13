@@ -96,7 +96,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Ten Puppets Collection"
         , Skill.desc      = "Chiyo commands a brigade of puppets, gaining 50 permanent destructible defense. Each turn that Chiyo has destructible defense from this skill, her puppets deal 10 damage to a random enemy. While active, this skill becomes [Lion Roar Sealing][b]."
-        , Skill.classes   = [Chakra, Ranged, Single]
+        , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 5
         , Skill.dur       = Action 0

@@ -149,7 +149,8 @@ cs =
       , Skill.new
         { Skill.name      = "Poison Fog"
         , Skill.desc      = "Ibuse opens its mouth to reveal a noxious cloud of deadly poison, dealing 10 affliction damage to all enemies until Ibuse dies. Cannot be used while active."
-        , Skill.classes   = [Bane, Ranged, Single, Unreflectable]
+        , Skill.require   = HasI (-1) "Poison Fog"
+        , Skill.classes   = [Bane, Ranged, Unreflectable]
         , Skill.cost      = [Blood, Blood]
         , Skill.dur       = Ongoing 0
         , Skill.effects   =
@@ -182,6 +183,7 @@ cs =
         , Skill.effects   =
             [ To Self $ trapFrom (-1) (OnHarmed NonMental) do
                   apply 0 [Afflict 20]
+                  self $ removeTrap "Venom Sac"
                   has <- userHas "Ibuse"
                   if has then self do
                       remove "Major Summoning Ibuse"
@@ -455,7 +457,8 @@ cs =
     , [ Skill.new
         { Skill.name      = "Acupuncture"
         , Skill.desc      = "Haku alters the flow of energy in an enemy by sticking a needle into one of their vital points, disabling the non-damage effects of their skills on allies and enemies for 2 turns. Bypasses invulnerability and targets all enemies during [Crystal Ice Mirrors]."
-        , Skill.classes   = [Physical, Ranged, Single]
+        , Skill.require   = HasU (-1) "Acupuncture"
+        , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
@@ -469,12 +472,21 @@ cs =
     , [ Skill.new
         { Skill.name      = "Crystal Ice Mirrors"
         , Skill.desc      = "Disorienting crystalline mirrors form all around the battlefield, providing 20 permanent destructible defense to Haku. For 3 turns, if Haku loses all destructible defense from this skill, he will gain destructible defense equal to how much health he lost during the same turn. Cannot be used while Haku still has destructible defense from this skill."
-        , Skill.classes   = [Chakra, Single]
+        , Skill.require   = DefenseI (-1) "Crystal Ice Mirrors"
+        , Skill.classes   = [Chakra, Nonstacking]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 6
         , Skill.dur       = Ongoing 3
         , Skill.start     =
-          [ To Self $ defend 0 20 ]
+          [ To Self do
+                defend 0 20
+                trapPer' 0 PerDamaged \i -> do
+                    userSlot <- user slot
+                    defended <- user $ hasDefense "Crystal Ice Mirrors" userSlot
+                    channing <- user $ isChanneling "Crystal Ice Mirrors"
+                    when (not defended && channing) $
+                        addDefense "Crystal Ice Mirrors" i
+          ]
         }
       ]
     , [ invuln "Ice Dome" "Haku" [Chakra] ]
@@ -505,7 +517,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Blood Harvest"
-        , Skill.desc      = "Kubikiribōchō drinks up the blood it has spilled and uses the iron to reinforce itself, draining 10 health from a target affected by [Executioner's Butchering] to provide 10 permanent destructible defense. Extends the duration of [Demon Shroud] by 1 turn if active."
+        , Skill.desc      = "Kubikiribōchō drinks up the blood it has spilled and uses the iron to reinforce itself, draining 10 health from a target marked by [Executioner's Butchering] to provide 10 permanent destructible defense. Extends the duration of [Demon Shroud] by 1 turn if active."
         , Skill.require   = HasU 1 "Executioner's Butchering"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
@@ -520,7 +532,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Executioner's Butchering"
-        , Skill.desc      = "Zabuza's sword carves into an enemy like the edge of a guillotine, dealing 30 piercing damage and spilling their blood for 1 turn. Cannot be used during [Demon Shroud]."
+        , Skill.desc      = "Zabuza's sword carves into an enemy like the edge of a guillotine, dealing 30 piercing damage and marking them for 1 turn. Cannot be used during [Demon Shroud]."
         , Skill.require   = HasI (-1) "Demon Shroud"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]

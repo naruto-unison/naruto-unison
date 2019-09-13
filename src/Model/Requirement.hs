@@ -30,12 +30,6 @@ usable n s sk
   | maybe False (> 0) $ (Cooldown.active n !?) =<< s  = unusable
   | isNothing s && Channel.ignoreStun (Skill.dur sk)  = sk'
   | Skill.classes sk `intersects` Effects.stun n      = unusable
-  | isNothing s                                       = sk'
-  | Single ∉ Skill.classes sk                         = sk'
-  | Ninja.isChanneling (Skill.name sk) n              = unusable
-  | Ninja.has (Skill.name sk) (Ninja.slot n) n        = unusable
-  | Ninja.hasDefense (Skill.name sk) (Ninja.slot n) n = unusable
-  | Ninja.hasTrap (Skill.name sk) (Ninja.slot n) n    = unusable
   | otherwise                                         = sk'
   where
     uncharged = maybe False (>= Skill.charges sk) $
@@ -54,15 +48,20 @@ succeed Usable      _ _ = True
 succeed Unusable    _ _ = False
 succeed (HasU i name) t n
   | t == Ninja.slot n = True
-  | i == 1            = Ninja.has name t n || Ninja.hasTrap name t n
   | i > 0             = Ninja.numStacks name t n >= i
-  | i < 0             = Ninja.numStacks name t n < i
-                        && not (Ninja.hasTrap name t n)
+  | i < 0             = Ninja.numStacks name t n < (-i)
   | otherwise         = True
 succeed (HasI i name) t n
   | t /= Ninja.slot n = True
-  | i > 0             = Ninja.numActive name n >= i
-  | i < 0             = Ninja.numActive name n < (-i)
+  | i == 1            = Ninja.has name t n || Ninja.isChanneling name n
+  | i > 0             = Ninja.numStacks name t n >= i
+  | i < 0             = Ninja.numStacks name t n < (-i)
+                        && not (Ninja.isChanneling name n)
+  | otherwise         = True
+succeed (DefenseI i name) t n
+  | t /= Ninja.slot n = True
+  | i > 0             = Ninja.defenseAmount name t n >= i
+  | i < 0             = Ninja.defenseAmount name t n < (-i)
   | otherwise         = True
 
 -- | Checks whether a @Skill@ can be used on a target.

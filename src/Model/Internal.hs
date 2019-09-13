@@ -70,6 +70,7 @@ data Requirement
     | Unusable
     | HasI Int Text
     | HasU Int Text
+    | DefenseI Int Text
     deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 
 -- | Target destinations of 'Skill's.

@@ -166,7 +166,8 @@ cs =
     , [ Skill.new
         { Skill.name      = "Dynamic Marking"
         , Skill.desc      = "Akamaru sprays urine on an enemy, preventing them from reducing damage or becoming invulnerable for 3 turns. Cannot be used on an enemy already affected by this skill."
-        , Skill.classes   = [Bane, Ranged, Single]
+        , Skill.require   = HasU (-1) "Dynamic Marking"
+        , Skill.classes   = [Bane, Ranged]
         , Skill.effects   =
           [ To Enemy $ apply 3 [Expose] ]
         }
@@ -260,7 +261,8 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Meditate"
         , Skill.desc      = "Shikamaru sits down and contemplates an enemy. Over the next 5 turns, he composes a strategy against them. Cannot be used on an enemy already affected by this skill."
-        , Skill.classes   = [Single, Mental, Ranged, Uncounterable, Unreflectable]
+        , Skill.require   = HasU (-1) "Meditate"
+        , Skill.classes   = [Mental, Ranged, Uncounterable, Unreflectable]
         , Skill.effects   =
           [ To Enemy $ tag 5 ]
         }
@@ -686,7 +688,8 @@ cs =
     , [ Skill.new
         { Skill.name      = "Sand Clone"
         , Skill.desc      = "Gaara creates a clone of sand that mimics him and provides defense. Until an enemy uses a skill that deals non-affliction damage to him, Gaara ignores status effects from enemies except chakra cost changes. Cannot be used while active."
-        , Skill.classes   = [Physical, Single, Unremovable]
+        , Skill.require   = HasI (-1) "Sand Clone"
+        , Skill.classes   = [Physical, Unremovable]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do

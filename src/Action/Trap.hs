@@ -10,6 +10,7 @@ import ClassyPrelude
 import Data.Enum.Set.Class (EnumSet)
 
 import           Core.Util ((∈))
+import qualified Class.Classed as Classed
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
 import           Model.Class (Class(..))
@@ -98,7 +99,7 @@ trapFull direction classes (Duration -> dur) trigger f = do
     let newTrap  = makeTrap skill nUser target
                    direction classes dur trigger f
     unless (newTrap ∈ Ninja.traps nTarget) $ P.modify target \n ->
-        n { Ninja.traps = newTrap : Ninja.traps n }
+        n { Ninja.traps = Classed.nonStack newTrap newTrap $ Ninja.traps n }
 
 makeTrap :: Skill -> Ninja -> Slot
          -> Trap.Direction -> EnumSet Class -> Duration -> Trigger

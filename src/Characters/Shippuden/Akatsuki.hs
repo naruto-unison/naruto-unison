@@ -15,7 +15,8 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Thousand Hungry Sharks"
         , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Each turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage to each enemy during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
-        , Skill.classes   = [Chakra, Ranged, Single, Unreflectable, Resource]
+        , Skill.require   = HasI (-1) "Thousand Hungry Sharks"
+        , Skill.classes   = [Chakra, Ranged, Unreflectable, Resource]
         , Skill.cost      = [Nin]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
@@ -203,7 +204,7 @@ cs =
         { Skill.name      = "Jashin Sigil"
         , Skill.require   = HasI (-1) "Jashin Sigil"
         , Skill.desc      = "Hidan prepares for his ritual by drawing an insignia on the ground in blood. Once used, this skill becomes [First Blood][r]."
-        , Skill.classes   = [Physical, Single, Unremovable, Uncounterable, Unreflectable]
+        , Skill.classes   = [Physical, Unremovable, Uncounterable, Unreflectable]
         , Skill.effects   =
           [ To Self do
                 tag 0
@@ -212,7 +213,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "First Blood"
-        , Skill.desc      = "Searching for a victim to join him in his ritual of death, Hidan deals 5 damage to an opponent and leaves them bleeding for 2 turns. For 2 turns, this skill becomes [Blood Curse Ritual][g]."
+        , Skill.desc      = "Searching for a victim to join him in his ritual of death, Hidan deals 5 damage to an opponent and marks them for 2 turns. For 2 turns, this skill becomes [Blood Curse Ritual][g]."
         , Skill.classes   = [Bane, Physical, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -284,7 +285,8 @@ cs =
     , [ Skill.new
         { Skill.name      = "Prayer"
         , Skill.desc      = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for 1 turn. Each time this skill is used, it costs 1 additional random chakra and its effect lasts 1 additional turn. Cannot be used while active."
-        , Skill.classes   = [Mental, Single, Uncounterable, Unreflectable, Unremovable]
+        , Skill.require   = HasI (-1) "Prayer"
+        , Skill.classes   = [Mental, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
@@ -329,7 +331,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Hidden Toxic Needles"
         , Skill.desc      = "Sasori shifts Hiruko into a defensive stance and takes aim at his enemies for 1 turn. If the enemy team uses any skills, they will receive 15 affliction damage for 2 turns. At the end of the turn, Sasori gains 20 permanent destructible defense."
-        , Skill.classes   = [Bane, Physical, Ranged, Single, InvisibleTraps]
+        , Skill.classes   = [Bane, Physical, Ranged, InvisibleTraps]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
@@ -515,7 +517,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Performance of a Hundred Puppets"
         , Skill.desc      = "Proving his reputation as the greatest puppeteer in history, Sasori takes control of 100 puppets, each acting as pure extensions of his will. Sasori gains 50 permanent destructible defense and provides 25 permanent destructible defense to his allies. As long as Sasori has destructible defense from this skill, this skill becomes [Barrage of a Hundred Puppets][r][r]."
-        , Skill.classes   = [Physical, Single]
+        , Skill.classes   = [Physical]
         , Skill.cost      = [Tai, Rand, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
@@ -636,7 +638,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Chakra Shield"
         , Skill.desc      = "Pain creates a protective barrier around himself and his allies which reflects the next skill used on each."
-        , Skill.classes   = [Chakra, Ranged, Invisible, Single, Unreflectable]
+        , Skill.classes   = [Chakra, Ranged, Invisible, Nonstacking, Unreflectable]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
@@ -750,7 +752,7 @@ cs =
         , Skill.effects   =
           [ To Enemy do
                 absorb 1
-                apply 1 [ Reveal]
+                apply 1 [Reveal]
                 leech 20 $ self . heal
           ]
         }
@@ -778,8 +780,8 @@ cs =
     "Having taken over the body of a wandering puppeteer, Pain now acts through it as one of his Six Paths. Asura Path's body is heavily augmented with ballistic and mechanical weaponry."
     [ [ Skill.new
         { Skill.name      = "Metal Blade"
-        , Skill.desc      = "Pain attacks an enemy with a blade that unfolds from his body, dealing 15 piercing damage and inflicting a deep wound. The target takes 10 affliction damage each turn until one of their allies uses a skill on them."
-        , Skill.classes   = [Bane, Physical, Melee]
+        , Skill.desc      = "Pain attacks an enemy with a blade that unfolds from his body, dealing 15 piercing damage and inflicting a deep wound. The target takes 10 affliction damage each turn until one of their allies uses a skill on them. Does not stack."
+        , Skill.classes   = [Bane, Physical, Melee, Nonstacking]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =

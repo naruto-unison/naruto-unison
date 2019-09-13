@@ -188,13 +188,12 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
         dur         <- MaybeT . return $ Duration.throttle
                        (Effects.throttle fs nUser) unthrottled
         let already  = Ninja.has name user nTarget
-            isSingle = name == Skill.name skill && Single ∈ classes
             st       = makeStatus skill nUser nTarget
                        classes bounced bombs name dur fs
             classes' = Status.classes st
             prolong' = mapMaybe $
                        Ninjas.prolong' (Status.dur st) name (Status.source st)
-        guard . not $ already && (bounced || isSingle)
+        guard . not $ already && bounced
         if already && Extending ∈ classes' then
             P.modify target \n ->
                 n { Ninja.statuses = prolong' $ Ninja.statuses n }

@@ -572,7 +572,8 @@ cs =
     , [ Skill.new
         { Skill.name      = "Demon Parasite"
         , Skill.desc      = "Sakon deals 20 affliction damage to an enemy and gains 15 points of damage reduction until the target dies. Cannot be used while active."
-        , Skill.classes   = [Bane, Unreflectable, Unremovable, Single]
+        , Skill.require   = HasI (-1) "Demon Parasite"
+        , Skill.classes   = [Bane, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Enemy do

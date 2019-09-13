@@ -351,7 +351,8 @@ cs =
     , [ Skill.new
         { Skill.name      = "Gentle Step Twin Lion Fists"
         , Skill.desc      = "Hinata creates two lions out of chakra. The next 2 times an enemy uses a skill on Hinata or her allies, a chakra lion will attack them, dealing 30 damage and depleting 1 random chakra. Creates a third lion during [Eight Trigrams Sixty-Four Palms]. Cannot be used while active. Ends if Hinata dies."
-        , Skill.classes   = [Chakra, Melee, Bypassing, Soulbound, Single, Resource]
+        , Skill.require   = HasI (-1) "Chakra Lion"
+        , Skill.classes   = [Chakra, Melee, Bypassing, Soulbound, Resource]
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =
           [ To Self do
@@ -867,8 +868,8 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Agile Backflip"
-        , Skill.desc      = "Konohamaru uses his agility to counter the next non-mental skill used on him. Each time this skill is used, its cost increases by 1 random. Cannot be used while active."
-        , Skill.classes   = [Physical, Invisible, Single]
+        , Skill.desc      = "Konohamaru uses his agility to counter the next non-mental skill used on him. Each time this skill is used, its cost increases by 1 random."
+        , Skill.classes   = [Physical, Invisible, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do

@@ -307,7 +307,8 @@ cs =
       , [ Skill.new
           { Skill.name      = "Salamander Shield"
           , Skill.desc      = "Kankurō's Sanshōuo puppet shields him and his allies, providing 40 permanent destructible defense to Kankurō. While Kankurō has destructible defense from this skill, damage against his allies is reflected to him. Cannot be used while active."
-          , Skill.classes   = [Physical, Single, Soulbound, Unremovable, Unreflectable]
+          , Skill.classes   = [Physical, Soulbound, Unremovable, Unreflectable]
+          , Skill.require   = DefenseI (-1) "Salamander Shield"
           , Skill.cost      = [Rand, Rand, Rand]
           , Skill.cooldown  = 5
           , Skill.effects   =
@@ -670,7 +671,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "White Zetsu"
         , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense each turn. Once used, this skill becomes [Black Zetu]."
-        , Skill.classes   = [Chakra, Single]
+        , Skill.classes   = [Chakra]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Self do
@@ -686,7 +687,7 @@ cs =
       , Skill.new
         { Skill.name      = "Black Zetsu"
         , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [White Zetsu]."
-        , Skill.classes   = [Chakra, Single]
+        , Skill.classes   = [Chakra]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Self do
@@ -706,7 +707,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Black Zetsu"
         , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [Underground Roots][b][r]. As White Zetsu, this skill becomes [White Army][g]."
-        , Skill.classes   = [Chakra, Single]
+        , Skill.classes   = [Chakra]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Self do
@@ -754,8 +755,9 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Body Coating"
-        , Skill.desc      = "Zetsu melts and flows over an enemy, taking control of their body. The next skill they use will target allies instead of enemies and enemies instead of allies. Does not stack. As White Zetsu, this skill becomes [Doppelgänger][t][r]."
-        , Skill.classes   = [Mental, Melee, Single, Invisible, Unreflectable]
+        , Skill.desc      = "Zetsu melts and flows over an enemy, taking control of their body. The next skill they use will target allies instead of enemies and enemies instead of allies. As White Zetsu, this skill becomes [Doppelgänger][t][r]."
+        , Skill.require   = HasU (-1) "Body Coating"
+        , Skill.classes   = [Mental, Melee, Invisible, Unreflectable]
         , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =

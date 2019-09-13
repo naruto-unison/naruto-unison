@@ -25,7 +25,6 @@ data Class
     | Mental
     -- Limits
     | Nonstacking
-    | Single
     | Extending
     -- Prevention
     | Bypassing

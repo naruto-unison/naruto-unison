@@ -33,7 +33,6 @@ const hidden = [ "All"
                , "Taijutsu"
                , "Random"
                , "Necromancy"
-               , "Single"
                ]
 const filterClasses = x => x.filter(y => !hidden.includes(y))
 

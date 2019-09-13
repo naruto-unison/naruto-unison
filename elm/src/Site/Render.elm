@@ -134,8 +134,7 @@ hidden = Set.fromList
 
 moreHidden : Set String
 moreHidden = Set.union hidden <| Set.fromList
-    [ "Single"
-    , "Bypassing"
+    [ "Bypassing"
     , "Uncounterable"
     , "Unreflectable"
     ]

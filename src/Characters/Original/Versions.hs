@@ -173,7 +173,8 @@ cs =
     , [ Skill.new
         { Skill.name      = "Monstrous Sand Arm"
         , Skill.desc      = "Shukaku squeezes an enemy in a fist of sand, dealing 10 damage to them each turn. If they use a skill, the skill is countered and this effect ends. During [Tailed Beast Form], this skill becomes [Wind Bullet][b][b]."
-        , Skill.classes   = [Physical, Melee, Single]
+        , Skill.require   = HasI (-1) "Monstrous Sand Arm"
+        , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
@@ -205,7 +206,7 @@ cs =
           [ To Self $ bombWith [Hidden] (-5) [] [ To Expire do
                 tag' "Tailed Beast Form" 0
                 setFace 0
-                vary' 0 "Montrous Sand Arm" "Wind Bullet"
+                vary' 0 "Monstrous Sand Arm" "Wind Bullet"
                 vary' 0 "Sand Transformation" "Shukaku Full Release" ]
           ]
         , Skill.effects   =
@@ -265,7 +266,7 @@ cs =
           [ To Enemies do
                 demolishAll
                 pierce 40
-          , To Self    $ cancelChannel "Sand Burial Prison"
+          , To Self $ cancelChannel "Sand Burial Prison"
           ]
         }
       ]

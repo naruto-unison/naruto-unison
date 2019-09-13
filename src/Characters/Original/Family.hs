@@ -150,7 +150,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Partial Expansion"
         , Skill.desc      = "If used on an enemy, the next non-mental skill they use on Chōza or his allies will be countered. If used on an ally, the next non-mental skill an enemy uses on them will be countered. The person countered will receive 10 damage, bypassing invulnerability."
-        , Skill.classes   = [Physical, Melee, Single, Invisible, Unreflectable]
+        , Skill.classes   = [Physical, Melee, Invisible, Unreflectable, Nonstacking]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
@@ -171,7 +171,7 @@ cs =
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self  $ vary' 1 "Shadow Possession" "Shadow Dispersion"
+          [ To Self $ vary' 1 "Shadow Possession" "Shadow Dispersion"
           , To Enemy do
                 bonus <- 10 `bonusIf` targetHas "Black Spider Lily"
                 damage (20 + bonus)
