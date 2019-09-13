@@ -68,7 +68,10 @@ onBreak f = do
     user    <- P.user
     nTarget <- P.nTarget
     when (Ninja.hasDefense name user nTarget) $
-        trapFrom' 0 (OnBreak name) f
+        trapFrom' 0 (OnBreak name) do
+            f
+            user' <- P.user
+            P.modify user' . Ninjas.clearTraps $ OnBreak name
 
 -- | Default 'onBreak': remove 'Model.Status.Status'es and
 -- 'Model.Channel.Channel's that match 'Defense.name'. This is useful for

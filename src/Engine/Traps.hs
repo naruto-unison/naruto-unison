@@ -13,7 +13,7 @@ import ClassyPrelude hiding ((\\), toList)
 
 import Data.List ((\\), nub)
 
-import           Core.Util ((∈), (∉))
+import           Core.Util ((∈))
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
@@ -59,9 +59,7 @@ broken :: Ninja -- ^ Old.
        -> Ninja -- ^ New.
        -> Ninja
 broken n n' =
-    n' { Ninja.traps    = filter ((∉ triggers) . Trap.trigger) $ Ninja.traps n'
-       , Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n') triggers
-       }
+    n' { Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n') triggers }
   where
     triggers = OnBreak <$> nub (Defense.name <$> Ninja.defense n)
                         \\ nub (Defense.name <$> Ninja.defense n')
@@ -82,7 +80,6 @@ getTurnPer :: Player -- ^ Player during the current turn.
            -> Ninja -- ^ New.
            -> [Runnable Context]
 getTurnPer player n n'
-  | hp < 0 && allied     = getPer True PerHealed (-hp) n'
   | hp > 0 && not allied = getPer True PerDamaged hp n'
   | otherwise            = mempty
   where

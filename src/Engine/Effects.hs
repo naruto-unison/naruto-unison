@@ -10,6 +10,7 @@ module Engine.Effects
   , hp
   , ignore
   , invulnerable
+  , limit
   , reduce
   , replace
   , share
@@ -94,6 +95,10 @@ ignore n = [ef | Ignore con <- Ninja.effects n, ef <- Effect.construct con]
 -- | 'Invulnerable' collection.
 invulnerable :: Ninja -> EnumSet Class
 invulnerable n = setFromList [x | Invulnerable x <- Ninja.effects n]
+
+-- | 'Limit' minimum.
+limit :: Ninja -> Maybe Int
+limit n = minimumMay [x | Limit x <- Ninja.effects n]
 
 -- | 'Reduce' sum.
 reduce :: EnumSet Class -> Ninja -> Amount -> Float
@@ -185,19 +190,22 @@ afflict ninjas player n = sum
             , not (n `is` ImmuneSelf) || Status.user st /= Ninja.slot n
             , not $ afflictClasses `intersects` invulnerable n]
   where
-    aff = afflict1 ninjas player $ Ninja.slot n
+    aff = afflict1 ninjas player (threshold n) $ Ninja.slot n
 
 -- | Calculates the total 'Afflict' of a single @Status@.
 afflict1 :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
-         => o -> Player -> Slot -> Status -> Int
-afflict1 ninjas player t st
-  | summed /= 0 && Parity.allied player user = truncate $ scale * (summed + ext)
-  | otherwise                                = 0
+         => o -> Player -> Int -> Slot -> Status -> Int
+afflict1 ninjas player nThreshold t st
+  | summed == 0                     = 0
+  | not $ Parity.allied player user = 0
+  | damage < nThreshold             = 0
+  | otherwise                       = damage
   where
     user   = Status.user st
     nt     = ninjas !! Slot.toInt t
     n      = ninjas !! Slot.toInt user
     summed = fromIntegral $ sum [hp' | Afflict hp' <- Status.effects st]
+    damage = truncate $ scale * (summed + ext)
     ext
       | t == user              = 0
       | not $ Ninja.alive n    = bleed      afflictClasses nt Flat

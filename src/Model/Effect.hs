@@ -68,6 +68,7 @@ data Effect
     | Ignore       Constructor         -- ^ Invulnerable to certain effects
     | ImmuneSelf                       -- ^ Invulnerable to self-caused damage
     | Invulnerable Class               -- ^ Invulnerable to enemy 'Skill's
+    | Limit        Int                 -- ^ Limits damage received
     | Pierce                           -- ^ Damage attacks become piercing
     | Plague                           -- ^ Invulnerable to healing and curing
     | Reduce       Class Amount Int    -- ^ Reduces damage by an amount
@@ -133,7 +134,7 @@ helpful Heal{}          = True
 helpful Ignore{}        = True
 helpful ImmuneSelf      = True
 helpful Invulnerable{}  = True
-helpful ImmuneSelf      = True
+helpful Limit{}         = True
 helpful Pierce          = True
 helpful Plague          = False
 helpful (Reduce _ _ x)  = x >= 0
@@ -201,7 +202,7 @@ instance Display Effect where
     display (Ignore _) = "Ignores some effects."
     display ImmuneSelf = "Invulnerable to self-damage."
     display (Invulnerable cla) = "Invulnerable to " ++ lower cla ++ " skills."
-    display ImmuneSelf = "Invulnerable to self-damage."
+    display (Limit x) = "Non-affliction damage received is reduced to at most " ++ display x ++ "."
     display Pierce = "Non-affliction skills deal piercing damage."
     display Plague = "Cannot be healed or cured."
     display (Reduce Affliction amt x)

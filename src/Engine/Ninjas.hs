@@ -391,9 +391,7 @@ kill :: Bool -- ^ Can be prevented by 'Endure'.
      -> Ninja -> Ninja
 kill endurable n
   | endurable = setHealth 0 n
-  | otherwise = n { health = 0
-                  , traps  = filter ((OnRes /=) . Trap.trigger) $ traps n
-                  }
+  | otherwise = clearTraps OnRes $ n { health = 0 }
 
 -- | Extends the duration of matching 'statuses'.
 prolong :: Int -- ^ Added to 'Status.dur'.

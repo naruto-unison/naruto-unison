@@ -199,12 +199,8 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                 n { Ninja.statuses = prolong' $ Ninja.statuses n }
         else do
             guard $ null fs || not (null $ Status.effects st)
-            let
-              onImmune n
-                | any isImmune $ Status.effects st =
-                    n { Ninja.triggers = insertSet OnImmune $ Ninja.triggers n }
-                | otherwise = n
-            P.modify target $ onImmune . Ninjas.addStatus st
+            P.modify target $ Ninjas.addStatus st
+            when (any isReduce $ Status.effects st) $ P.trigger user [OnReduce]
             when (any isStun $ Status.effects st) do
                 P.trigger user [OnStun]
                 P.trigger target [OnStunned]
@@ -220,10 +216,10 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                                turns fs
                 lift . traverse_ bounce . delete user $ Effects.share nTarget
   where
+    isReduce Reduce{} = True
+    isReduce _        = False
     isStun Stun{}     = True
     isStun _          = False
-    isImmune Invulnerable{} = True
-    isImmune _              = False
 
 makeStatus :: Skill -> Ninja -> Ninja
            -> EnumSet Class -> Bool -> [Runnable Bomb] -> Text -> Duration

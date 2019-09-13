@@ -55,6 +55,9 @@ instance AsEnumSet Class where
 instance ToJSON Class where
     toJSON = Enum.memoize $ toJSON . name
 
+instance Hashable Class where
+    hashWithSalt salt = hashWithSalt salt . fromEnum
+
 instance Display Class where
     display = Enum.memoize $ display . name
 

@@ -468,7 +468,7 @@ cs =
     "A chūnin from the Hidden Cloud Village, Atsui is a hot-headed hotshot whose favorite word is 'Hot' and whose name literally means 'Hot'. An incredibly complex character with hidden depths, Atsui's skills are as diverse as his multifaceted personality."
     [ [ Skill.new
         { Skill.name      = "Burning Blade"
-        , Skill.desc      = "Fire envelops Atsui's sword and surrounds him, providing 10 points of damage reduction to him for 3 turns. While active, any enemy who uses a skill on Atsui will receive 10 affliction damage."
+        , Skill.desc      = "Fire envelops Atsui's sword and surrounds him, providing 10 points of damage reduction to him for 3 turns. While active, enemies who use skills on Atsui will receive 10 affliction damage."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
@@ -481,7 +481,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Fire Wall"
-        , Skill.desc      = "Fire erupts around Atsui's enemies. Next turn, any enemy who uses a skill will receive 10 affliction damage. Costs 1 fewer random chakra during [Burning Blade]."
+        , Skill.desc      = "Fire erupts around Atsui's enemies. Next turn, enemies who use skills will receive 10 affliction damage. Costs 1 fewer random chakra during [Burning Blade]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1

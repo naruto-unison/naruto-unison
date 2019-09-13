@@ -121,7 +121,7 @@ formula :: Attack -- ^ Attack type.
         -> Ninja -- ^ Target.
         -> Int -- ^ Base damage.
         -> Int
-formula atk classes nUser nTarget = truncate .
+formula atk classes nUser nTarget = limit . truncate .
                                     targetAdjust atk' classes nTarget .
                                     userAdjust atk' classes nUser .
                                     fromIntegral
@@ -129,6 +129,9 @@ formula atk classes nUser nTarget = truncate .
     atk' = case atk of
         Attack.Damage | nUser `is` Pierce -> Attack.Pierce
         _                                 -> atk
+    limit = case Effects.limit nTarget of
+        Just x | atk /= Attack.Afflict -> min x
+        _                              -> id
 
 -- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce',
 -- 'Attack.Damage', or 'Attack.Demolish' attack.
@@ -176,7 +179,6 @@ attack atk dmg = void $ runMaybeT do
         P.trigger user [OnDamage]
         P.trigger target $ OnDamaged <$> toList classes
         P.modify target $ Traps.track PerDamaged damaged
-        whenM P.new . P.modify user $ Traps.track PerDamage damaged
 
   where
     atkClass = case atk of
@@ -207,8 +209,10 @@ defend (Duration -> dur) amount = P.unsilenced do
         damage (-amount')
         damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
         P.modify target $ Traps.track PerDamaged damaged
-    else when (amount' > 0) $ P.modify target \n ->
-        n { Ninja.defense = Classed.nonStack skill defense $ Ninja.defense n }
+    else when (amount' > 0) do
+        P.trigger user [OnDefend]
+        P.modify target \n ->
+          n { Ninja.defense = Classed.nonStack skill defense $ Ninja.defense n }
 
 -- | Adds an amount to a 'Defense' that the target already has.
 -- If the target does not have any 'Ninja.defense' with a matching
@@ -287,14 +291,8 @@ heal hp = P.unsilenced do
         nUser  <- P.nUser
         let hp'  = Effects.boost user nTarget * hp + Effects.bless nUser
         P.modify target $ Ninjas.adjustHealth (+ hp')
-        healed <- (— Ninja.health nTarget) . Ninja.health <$> P.nTarget
-        if healed > 0 then do
-            P.trigger target [OnHealed]
-            P.modify target $ Traps.track PerHealed healed
-        else if healed < 0 then
-            P.modify target $ Traps.track PerDamaged (-healed)
-        else
-            return ()
+        damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
+        when (damaged > 0) . P.modify target $ Traps.track PerDamaged damaged
 
 -- | Restores a percentage of missing 'Ninja.health'.
 -- Uses 'Ninjas.adjustHealth' internally.
@@ -309,14 +307,8 @@ restore percent = P.unsilenced do
                    * (100 - Ninja.health nTarget) `quot` 100
                    + Effects.bless nUser
         P.modify target $ Ninjas.adjustHealth (+ hp')
-        healed <- (— Ninja.health nTarget) . Ninja.health <$> P.nTarget
-        if healed > 0 then do
-            P.trigger target [OnHealed]
-            P.modify target $ Traps.track PerHealed healed
-        else if healed < 0 then
-            P.modify target $ Traps.track PerDamaged (-healed)
-        else
-            return ()
+        damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
+        when (damaged > 0) . P.modify target $ Traps.track PerDamaged damaged
 
 -- | Damages the target and passes the amount of damage dealt to another action.
 -- Typically paired with @self . 'heal'@ to effectively drain the target's
@@ -335,8 +327,6 @@ leech hp f = do
         P.trigger user [OnDamage]
         P.trigger target $ OnDamaged <$> toList classes
         P.modify target $ Traps.track PerDamaged damaged
-        whenM P.new .
-            P.modify user $ Traps.track PerDamage damaged
 
 -- | Sacrifices some amount of the target's 'Ninja.health' down to a minimum.
 -- If the target is the user and has the 'ImmuneSelf' effect, nothing happens.

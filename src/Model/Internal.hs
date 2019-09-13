@@ -56,7 +56,7 @@ data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas
                    , delays    :: [Delay]                -- ^ Starts empty
                    , face      :: [Face]                 -- ^ Starts empty
                    , lastSkill :: Maybe Skill            -- ^ Starts at @Nothing@
-                   , triggers  :: Set Trigger            -- ^ Empty at the start of each turn
+                   , triggers  :: HashSet Trigger        -- ^ Empty at the start of each turn
                    , effects   :: [Effect]               -- ^ Empty at the start of each turn
                    , acted     :: Bool                   -- ^ False at the start of each turn
                    }
@@ -211,19 +211,18 @@ data Trigger
     | OnDamage
     | OnDamaged Class
     | OnDeath
+    | OnDefend
     | OnHarm
     | OnHarmed Class
     | OnHealed
     | OnHelped
-    | OnImmune
+    | OnReduce
     | OnReflectAll
     | OnRes
     | OnStun
     | OnStunned
-    | PerDamage
-    | PerHealed
     | PerDamaged
-    deriving (Eq, Ord, Show, Read)
+    deriving (Eq, Ord, Show, Read, Generic, Hashable)
 
 instance ToJSON Trigger where
     toJSON = toJSON . display'
@@ -255,20 +254,19 @@ instance Display Trigger where
     display (OnDamaged All)    = "Trigger: Receive damage"
     display (OnDamaged cla)    = "Trigger: Receive " ++ lower cla ++ " damage"
     display OnDeath            = "Trigger: Die"
+    display OnDefend           = "Trigger: Provide destructible defense"
     display OnHarm             = "Trigger: Use harmful skill"
     display (OnHarmed All)     = "Trigger: Be affected by a new harmful skill"
     display (OnHarmed cla)     = "Trigger: Be affected by a new " ++ lower cla ++ " harmful skill"
     display OnHealed           = "Trigger: Receive healing"
     display OnHelped           = "Trigger: Be affected by a new skill from an ally"
-    display OnImmune           = "Trigger: Become invulnerable"
     display OnNoAction         = "Trigger: Do not use a new skill"
+    display OnReduce           = "Trigger: Apply damage reduction"
     display OnReflectAll       = "All skills are reflected."
     display OnRes              = "Trigger: Reach 0 health"
     display OnStun             = "Trigger: Apply a stun"
     display OnStunned          = "Trigger: Stunned"
-    display PerDamage          = "Trigger: Deal damage"
     display PerDamaged         = "Trigger: Receive damage"
-    display PerHealed          = "Trigger: Receive healing"
 
 -- | A 'Skill' copied from a different character.
 data Copy = Copy { skill :: Skill

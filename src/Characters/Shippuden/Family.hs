@@ -135,4 +135,77 @@ cs =
       ]
     , [ invuln "Chakra Barrier" "Chiyo" [Chakra] ]
     ]
+  , Character
+    "Madara Uchiha"
+    "The co-founder of the Hidden Leaf Village along with Hashirama Senju, Madara turned against his friend in pursuit of absolute, unrivaled power as a means to break the cycle of violence and establish lasting peace. Cynical and bitter, Madara works toward what he believes to be humanity's benefit without sparing a thought for those who get in his way."
+    [ [ Skill.new
+        { Skill.name      = "Mangekyō Sharingan"
+        , Skill.desc      = "Madara protects himself by predicting enemy attacks. For 4 turns, all non-affliction damage he receives is reduced to 25 at most. While active, this skill becomes [Eternal Mangekyō Sharingan][r]."
+        , Skill.classes   = [Mental]
+        , Skill.cost      = [Rand]
+        , Skill.dur       = Ongoing 4
+        , Skill.start     =
+          [ To Self $ vary "Mangekyō Sharingan" "Eternal Mangekyō Sharingan" ]
+        , Skill.effects   =
+          [ To Self do
+              apply 1 [Limit 25]
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Eternal Mangekyō Sharingan"
+        , Skill.desc      = "By predicting enemy attacks, Madara ignores status effects from enemies except chakra cost changes for 1 turn."
+        , Skill.classes   = [Mental]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Self $ apply 1 [Enrage] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Susanoo"
+        , Skill.desc      = "Madara encases himself in spectral armor that provides him with 70 permanent destructible defense. While Madara has destructible defense from this skill, he gains a stack of [Susanoo] each turn and this skill becomes [Armored Susanoo Assault][b][r]."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Blood, Blood]
+        , Skill.cooldown  = 6
+        , Skill.dur       = Ongoing 0
+        , Skill.start     =
+          [ To Self do
+                defend 0 70
+                vary "Susanoo" "Armored Susanoo Assault"
+                onBreak'
+          ]
+        , Skill.effects   =
+          [ To Self addStack ]
+        }
+      , Skill.new
+        { Skill.name      = "Armored Susanoo Assault"
+        , Skill.desc      = "Wielding a massive spectral blade, Madara deals 30 damage to an enemy. Deals 5 additional damage per stack of [Susanoo]."
+        , Skill.classes   = [Chakra, Melee]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                stacks <- userStacks "Susanoo"
+                damage (30 + 5 * stacks)
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Majestic Destroyer Flame"
+        , Skill.desc      = "Madara immolates the battlefield, dealing 10 damage to an enemy and 5 damage to all other enemies for 3 turns. While active, enemies who use skills that grant damage reduction or destructible defense will receive 10 damage."
+        , Skill.classes   = [Affliction, Bane]
+        , Skill.cost      = [Nin]
+        , Skill.dur       = Action 3
+        , Skill.effects   =
+          [ To Enemy do
+                damage 10
+                trap 1 OnDefend $ damage 10
+                trap 1 OnReduce $ damage 10
+          , To XEnemies do
+                damage 5
+                trap 1 OnDefend $ damage 10
+                trap 1 OnReduce $ damage 10
+          ]
+        }
+      ]
+    , [ invuln "Chakra Barrier" "Madara" [Chakra] ]
+    ]
   ]
