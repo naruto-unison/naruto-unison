@@ -105,8 +105,9 @@ spec = parallel do
                 it "adds a random chakra to target's skills" $
                     toList targetExhaust `shouldBe` [Rand]
         useOn Self "Pre-Healing Technique" do
+            let initialHealth = 10
             enemyTurn $ withClass Bane $ apply 0 [Reveal]
-            self $ setHealth 10
+            self $ setHealth initialHealth
             act
             uncured <- (`is` Reveal) <$> P.nTarget
             turns 8
@@ -115,7 +116,7 @@ spec = parallel do
                 it "cures bane" $
                     not uncured
                 it "heals user" $
-                    userHealth `shouldBe` 10 + 5 * 15
+                    userHealth `shouldBe` initialHealth + 5 * 15
         useOn Enemies "Temple of Nirvana" do
             act
             enemyTurn $ damage 5
@@ -334,7 +335,7 @@ spec = parallel do
                 it "steals health" $
                     100 - targetHealth `shouldBe` 20
                 it "heals user" $
-                    100 - userHealth `shouldBe` targetDmg - 20
+                    targetDmg - (100 - userHealth) `shouldBe` 20
                 it "strengthens user" $
                     (100 - targetHealth') - targetDmg `shouldBe` 5
                 it "weakens target" $

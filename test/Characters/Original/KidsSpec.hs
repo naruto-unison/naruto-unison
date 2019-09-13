@@ -66,7 +66,7 @@ spec = parallel do
             targetHealth <- Ninja.health <$> P.nTarget
             return do
                 it "heals target" $
-                    100 - targetHealth `shouldBe` targetDmg - 25
+                    targetDmg - (100 - targetHealth) `shouldBe` 25
         useOn Self "Inner Sakura" do
             act
             tagged <- Ninja.hasOwn "Inner Sakura" <$> P.nUser
@@ -321,7 +321,7 @@ spec = parallel do
             (userChakras, _) <- Game.chakra <$> P.game
             return do
                 it "heals user" $
-                    100 - userHealth `shouldBe` targetDmg - 3 * 15
+                    targetDmg - (100 - userHealth) `shouldBe` 3 * 15
                 it "bestows chakra" $
                     length (toList userChakras) `shouldBe` 3
         useOn Enemy "Butterfly Bombing" do

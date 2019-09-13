@@ -379,6 +379,34 @@ spec = parallel do
                     defense `shouldBe` 50
                 it "enrages target" $
                     not harmed
+
+    describeCharacter "Shizune" \useOn -> do
+        useOn Enemy "Poison Needle Volley" do
+            act
+            targetHealth <- Ninja.health <$> P.nTarget
+            return do
+                it "damages target" $
+                    100 - targetHealth `shouldBe` 15
+        useOn Enemy "Poison Fog" do
+            act
+            turns 5
+            targetHealth <- Ninja.health <$> P.nTarget
+            return do
+                it "damages target" $
+                    100 - targetHealth `shouldBe` 3 * 10
+        useOn Ally "Regenerative Healing Technique" do
+            enemyTurn do
+                damage targetDmg
+                apply 0 [Expose]
+            act
+            targetHealth <- Ninja.health <$> P.nTarget
+            exposed <- targetIsExposed
+            return do
+                it "heals target" $
+                    targetDmg - (100 - targetHealth) `shouldBe` 35
+                it "cures target" $
+                    not exposed
+
   where
     describeCharacter = describeCategory Original
     targetDmg = 55
