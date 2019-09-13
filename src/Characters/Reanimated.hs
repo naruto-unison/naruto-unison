@@ -473,19 +473,20 @@ cs =
         { Skill.name      = "Crystal Ice Mirrors"
         , Skill.desc      = "Disorienting crystalline mirrors form all around the battlefield, providing 20 permanent destructible defense to Haku. For 3 turns, if Haku loses all destructible defense from this skill, he will gain destructible defense equal to how much health he lost during the same turn. Cannot be used while Haku still has destructible defense from this skill."
         , Skill.require   = DefenseI (-1) "Crystal Ice Mirrors"
-        , Skill.classes   = [Chakra, Nonstacking]
+        , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 6
         , Skill.dur       = Ongoing 3
         , Skill.start     =
+          [ To Self $ defend 0 20
+          ]
+        , Skill.effects   =
           [ To Self do
-                defend 0 20
-                trapPer' 0 PerDamaged \i -> do
-                    userSlot <- user slot
-                    defended <- user $ hasDefense "Crystal Ice Mirrors" userSlot
-                    channing <- user $ isChanneling "Crystal Ice Mirrors"
-                    when (not defended && channing) $
-                        addDefense "Crystal Ice Mirrors" i
+                defense <- userDefense "Crystal Ice Mirrors"
+                when (defense > 0) $ trapPer (-1) PerDamaged \i -> do
+                    defense' <- userDefense "Crystal Ice Mirrors"
+                    when (defense' == 0) $ defend 0 i
+
           ]
         }
       ]

@@ -72,6 +72,7 @@ import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja(..), is)
 import qualified Model.Requirement as Requirement
+import           Model.Requirement (Requirement(..))
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
 import           Model.Slot (Slot)
@@ -318,7 +319,7 @@ addChannels sk target n
     chan  = Skill.dur sk
     dur   = Copy.maxDur (Skill.copying sk) . incr $ TurnBased.getDur chan
     chan' = Channel { Channel.source = Copy.source sk $ slot n
-                    , Channel.skill  = sk
+                    , Channel.skill  = sk { Skill.require = Usable }
                     , Channel.target = target
                     , Channel.dur    = TurnBased.setDur dur chan
                     }
