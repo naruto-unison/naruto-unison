@@ -18,7 +18,6 @@ import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
 import           Class.Random (MonadRandom)
-import qualified Model.Character as Character
 import qualified Model.Context as Context
 import           Model.Context (Context)
 import qualified Model.Defense as Defense
@@ -77,30 +76,6 @@ getPer False _  _   _ = mempty
 getPer True  tr amt n = [Trap.effect trap amt | trap <- Ninja.traps n
                                               , Trap.trigger trap == tr]
 
--- | Conditionally returns 'Character.hooks'.
-getHooks :: Bool -- ^ If False, returns @mempty@ instead.
-         -> Trigger -- ^ Filter.
-         -> Int -- ^ Value to pass to 'Character.hooks' effects.
-         -> Ninja -- ^ 'Character.hooks' owner.
-         -> [(Slot, Ninja -> Ninja)]
-getHooks False _  _   _ = mempty
-getHooks True  tr amt n = [(Ninja.slot n, f amt)
-                              | (p, f) <- Character.hooks $ Ninja.character n
-                              , tr == p]
-
--- | Tallies 'PerHealed' and 'PerDamaged' hooks.
-getTurnHooks :: Player -- ^ Player during the current turn.
-             -> Ninja -- ^ Old.
-             -> Ninja -- ^ New.
-             -> [(Slot, Ninja -> Ninja)]
-getTurnHooks player n n'
-  | hp < 0 && allied     = getHooks True PerHealed (-hp) n'
-  | hp > 0 && not allied = getHooks True PerDamaged hp n'
-  | otherwise            = mempty
-  where
-    allied = Parity.allied player n'
-    hp     = Ninja.health n - Ninja.health n'
-
 -- | Tallies 'PerHealed' and 'PerDamaged' traps.
 getTurnPer :: Player -- ^ Player during the current turn.
            -> Ninja -- ^ Old.
@@ -126,7 +101,6 @@ runTurn :: ∀ m. (MonadGame m, MonadRandom m) => Vector Ninja -> m ()
 runTurn ninjas = do
     player  <- P.player
     ninjas' <- P.ninjas
-    traverses (uncurry P.modify) $ zipWith (getTurnHooks player) ninjas ninjas'
     traverses P.launch $ zipWith (getTurnPer player) ninjas ninjas'
     traverses P.launch $ getTurnNot <$> Parity.half player ninjas'
   where

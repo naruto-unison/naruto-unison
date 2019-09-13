@@ -144,7 +144,7 @@ cs =
        , invuln "Hide" "Naruto" [Mental]
        , invuln "Block" "Kurama" [Physical]
        ]
-    ] []
+    ]
   , Character
     "Curse Mark Sasuke"
     "After training under Orochimaru for years, Sasuke has become a rogue ninja with complete control over his curse mark. With unlimited access to his strength and chakra, Sasuke empowers his abilities with dark energy and can even fly."
@@ -195,7 +195,7 @@ cs =
         }
       ]
     , [ invuln "Snake Shedding" "Sasuke" [Physical] ]
-    ] []
+    ]
   , Character
     "Commander Gaara"
     "Coordinating the Allied Shinobi Forces and personally commanding the Fourth Division, Gaara has proven to be an inspiring leader and talented strategist. His attacks scatter sand particles around the battlefield, which he draws back in with explosive force."
@@ -246,83 +246,83 @@ cs =
         }
       ]
     , [ invuln "Sand Shield" "Gaara" [Physical] ]
-    ] []
-    , Character
-      "Puppet Master Kankurō"
-      "After defeating Sasori, Kankurō considers himself one of the greatest puppeteers in history. Adding Sasori's body to his collection of puppets, Kankurō uses each puppet for a different purpose."
-      [ [ Skill.new
-          { Skill.name      = "Sasori Surrogate"
-          , Skill.desc      = "Sasori's puppet body attacks an enemy, dealing 15 damage to them for 3 turns. While active, this skill becomes [Hidden Coil Strike][r]."
-          , Skill.classes   = [Physical, Ranged]
-          , Skill.cost      = [Rand, Rand]
-          , Skill.cooldown  = 2
-          , Skill.dur       = Action 3
-          , Skill.start     =
-            [ To Self $ vary "Sasori Surrogate" "Hidden Coil Strike" ]
-          , Skill.effects   =
-            [ To Enemy $ damage 15 ]
-          }
-        , Skill.new
-          { Skill.name      = "Hidden Coil Strike"
-          , Skill.desc      = "Kankurō hooks an enemy with the coil hidden in Sasori's body and pulls the target to him, dealing 10 piercing damage. For 1 turn, the target can only target Kankurō or themselves."
-          , Skill.classes   = [Physical, Ranged, Bypassing, Unreflectable]
-          , Skill.cost      = [Rand]
-          , Skill.effects   =
+    ]
+  , Character
+    "Puppet Master Kankurō"
+    "After defeating Sasori, Kankurō considers himself one of the greatest puppeteers in history. Adding Sasori's body to his collection of puppets, Kankurō uses each puppet for a different purpose."
+    [ [ Skill.new
+        { Skill.name      = "Sasori Surrogate"
+        , Skill.desc      = "Sasori's puppet body attacks an enemy, dealing 15 damage to them for 3 turns. While active, this skill becomes [Hidden Coil Strike][r]."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 2
+        , Skill.dur       = Action 3
+        , Skill.start     =
+          [ To Self $ vary "Sasori Surrogate" "Hidden Coil Strike" ]
+        , Skill.effects   =
+          [ To Enemy $ damage 15 ]
+        }
+      , Skill.new
+        { Skill.name      = "Hidden Coil Strike"
+        , Skill.desc      = "Kankurō hooks an enemy with the coil hidden in Sasori's body and pulls the target to him, dealing 10 piercing damage. For 1 turn, the target can only target Kankurō or themselves."
+        , Skill.classes   = [Physical, Ranged, Bypassing, Unreflectable]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                pierce 10
+                userSlot <- user slot
+                apply 1 [Taunt userSlot]
+                remove "Kuroari Trap"
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Kuroari Trap"
+        , Skill.desc      = "Kankurō's Kuroari puppet stalks an enemy for 5 turns. If Kankurō uses [Hidden Coil Strike] on the target, the trap is activated immediately; otherwise, it is activated at the end of the 5 turns. Activating the trap applies [Kuroari Ambush] to the target, stunning them for 1 turn and making them invulnerable to everyone but Kankurō. Once used, this skill becomes [Iron Maiden][r][r][r]."
+        , Skill.classes   = [Physical, Ranged, Nonstacking, InvisibleTraps, Bypassing, Unreflectable, Unremovable]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 5
+        , Skill.effects   =
+          [ To Self  $ vary "Kuroari Trap" "Iron Maiden"
+          , To Enemy $ bombWith [Invisible] 5 []
+                [ To Done do
+                    userSlot <- user slot
+                    apply' "Kuroari Ambush" 1 [Stun All, Seal, Duel userSlot]
+                ]
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Iron Maiden"
+        , Skill.desc      = "Kankurō's Karasu puppet snaps shut around an enemy, dealing 20 piercing damage and 40 additional damage if the target is affected by [Kuroari Ambush]. Once used, this skill becomes [Kuroari Trap][r]."
+        , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.effects   =
             [ To Enemy do
-                  pierce 10
-                  userSlot <- user slot
-                  apply 1 [Taunt userSlot]
-                  remove "Kuroari Trap"
+                  bonus <- 40 `bonusIf` targetHas "Kuroari Ambush"
+                  pierce (20 + bonus)
+            , To Self $ vary "Kuroari Trap" baseVariant
             ]
-          }
-        ]
-      , [ Skill.new
-          { Skill.name      = "Kuroari Trap"
-          , Skill.desc      = "Kankurō's Kuroari puppet stalks an enemy for 5 turns. If Kankurō uses [Hidden Coil Strike] on the target, the trap is activated immediately; otherwise, it is activated at the end of the 5 turns. Activating the trap applies [Kuroari Ambush] to the target, stunning them for 1 turn and making them invulnerable to everyone but Kankurō. Once used, this skill becomes [Iron Maiden][r][r][r]."
-          , Skill.classes   = [Physical, Ranged, Nonstacking, InvisibleTraps, Bypassing, Unreflectable, Unremovable]
-          , Skill.cost      = [Rand]
-          , Skill.cooldown  = 5
-          , Skill.effects   =
-            [ To Self  $ vary "Kuroari Trap" "Iron Maiden"
-            , To Enemy $ bombWith [Invisible] 5 []
-                  [ To Done do
-                      userSlot <- user slot
-                      apply' "Kuroari Ambush" 1 [Stun All, Seal, Duel userSlot]
-                  ]
-            ]
-          }
-        , Skill.new
-          { Skill.name      = "Iron Maiden"
-          , Skill.desc      = "Kankurō's Karasu puppet snaps shut around an enemy, dealing 20 piercing damage and 40 additional damage if the target is affected by [Kuroari Ambush]. Once used, this skill becomes [Kuroari Trap][r]."
-          , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable]
-          , Skill.cost      = [Rand, Rand]
-          , Skill.effects   =
-              [ To Enemy do
-                    bonus <- 40 `bonusIf` targetHas "Kuroari Ambush"
-                    pierce (20 + bonus)
-              , To Self $ vary "Kuroari Trap" baseVariant
-              ]
-          }
-        ]
-      , [ Skill.new
-          { Skill.name      = "Salamander Shield"
-          , Skill.desc      = "Kankurō's Sanshōuo puppet shields him and his allies, providing 40 permanent destructible defense to Kankurō. While Kankurō has destructible defense from this skill, damage against his allies is reflected to him. Cannot be used while active."
-          , Skill.classes   = [Physical, Soulbound, Unremovable, Unreflectable]
-          , Skill.require   = DefenseI (-1) "Salamander Shield"
-          , Skill.cost      = [Rand, Rand, Rand]
-          , Skill.cooldown  = 5
-          , Skill.effects   =
-            [ To Self do
-                  defend 0 40
-                  onBreak'
-            , To XAllies do
-                  userSlot <- user slot
-                  apply 0 [Redirect All userSlot]
-            ]
-          }
-        ]
-      , [ invuln "Puppet Distraction" "Kankurō" [Physical] ]
-      ] []
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Salamander Shield"
+        , Skill.desc      = "Kankurō's Sanshōuo puppet shields him and his allies, providing 40 permanent destructible defense to Kankurō. While Kankurō has destructible defense from this skill, damage against his allies is reflected to him. Cannot be used while active."
+        , Skill.classes   = [Physical, Soulbound, Unremovable, Unreflectable]
+        , Skill.require   = DefenseI (-1) "Salamander Shield"
+        , Skill.cost      = [Rand, Rand, Rand]
+        , Skill.cooldown  = 5
+        , Skill.effects   =
+          [ To Self do
+                defend 0 40
+                onBreak'
+          , To XAllies do
+                userSlot <- user slot
+                apply 0 [Redirect All userSlot]
+          ]
+        }
+      ]
+    , [ invuln "Puppet Distraction" "Kankurō" [Physical] ]
+    ]
   , Character
     "Sage Mode Kabuto"
     "Unable to find an identity of his own, Kabuto has spent his life taking on the traits of others. Years of research and experiments upon himself have reached their conclusion, and now Kabuto prepares for his final metamorphosis."
@@ -608,7 +608,7 @@ cs =
           ]
         }
       ]
-    ] []
+    ]
   , Character
     "Eight-Gates Guy"
     "With the fate of the world at stake, Guy has opened all eight Gates and is holding nothing back. The effort will surely kill him, but while he lives, his strength outmatches even the legendary Madara Uchiha."
@@ -664,7 +664,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Guy" [Physical] ]
-    ] []
+    ]
   , Character
     "Split Zetsu"
     "After Madara turned the Gedo statue's mutated victims into an army of servants, he chose one to lead them. Imbuing the White Zetsu entity with materialized will in the form of Black Zetsu, he created a hybrid being who became an official member of Akatsuki. White Zetsu and Black Zetsu have different approaches to combat, but both are able to take control of an enemy's abilities."
@@ -779,5 +779,5 @@ cs =
         }
       ]
     , [ invuln "Hide" "Zetsu" [Physical] ]
-    ] []
+    ]
   ]

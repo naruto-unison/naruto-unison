@@ -62,7 +62,7 @@ cs =
         }
       ]
     , [ invuln "Needle Jizou" "Jiraiya" [Physical] ]
-    ] []
+    ]
   , Character
     "Tsunade"
     "One of three legendary sannin, Tsunade is a gambler and sake enthusiast with a short temper and terrible luck. Her abilities require large amounts of chakra, but their healing power is unrivaled."
@@ -115,7 +115,7 @@ cs =
         }
       ]
     , [ invuln "Block" "Tsunade" [Physical] ]
-    ] []
+    ]
   , Character
     "Orochimaru"
     "One of three legendary sannin, Orochimaru intends to learn every technique in existence. Driven by an insatiable hunger for power, he employs various methods to increase his chakra, even if he has to harm his allies in the process."
@@ -170,7 +170,7 @@ cs =
         }
       ]
     , [ invuln "Earth Clone" "Orochimaru" [Chakra] ]
-    ] []
+    ]
   , Character
     "Hiruzen Sarutobi"
     "Called the Supreme Shinobi, Hiruzen is the third Hokage. During his prime, he was considered the strongest ninja in history. His trump card ability brings certain doom to both Hiruzen and his enemy."
@@ -224,6 +224,6 @@ cs =
         }
       ]
     , [ invuln "Mud Wall" "Hiruzen" [Physical] ]
-    ] []
+    ]
   ]
 

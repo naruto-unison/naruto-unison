@@ -56,7 +56,7 @@ cs =
         }
       ]
     , [ invuln "Adamantine Covering Chains" "Kushina" [Chakra] ]
-    ] []
+    ]
   , Character
     "Minato Namikaze"
     "Known as the Yellow Flash for his incredible speed and mastery of space-time techniques, Naruto's father is a jōnin squad leader from the Hidden Leaf Village. Minato fights using unique kunai that allow him to teleport arround the battlefield."
@@ -104,7 +104,7 @@ cs =
         }
       ]
     , [ invuln "Flying Light" "Minato" [Physical] ]
-    ] []
+    ]
   , Character
     "Yondaime Minato"
     "Now the fourth Hokage, Minato has been shaped by his responsibilities into a thoughtful and strategic leader. With his space-time jutsu, he redirects the attacks of his enemies and effortlessly passes through their defenses."
@@ -160,7 +160,7 @@ cs =
           ]
         }
       ]
-    ] []
+    ]
   , Character
     "Hashirama Senju"
     "The founder and first Hokage of the Hidden Leaf Village, Hashirama is headstrong and enthusiastic. He believes with all his heart that communities should behave as families, taking care of each other and protecting their children from the cruelties of war. Due to a unique genetic mutation, Hashirama is able shape wood into defensive barriers and constructs."
@@ -209,7 +209,7 @@ cs =
         }
       ]
     , [ invuln "Foresight" "Hashirama" [Mental] ]
-    ] []
+    ]
   , Character
     "Young Kakashi"
     "A member of Team Minato, Kakashi is the thirteen-year-old son of the legendary White Fang. His early ninjutsu and borrowed Sharingan make him the equal of any adult he faces."
@@ -255,7 +255,7 @@ cs =
         }
       ]
     , [ invuln "Parry" "Kakashi" [Physical] ]
-    ] []
+    ]
   , Character
       "Rin Nohara"
       "A chūnin on Team Minato, Rin is a quiet but strong-willed medical-nin. Her priority is always healing her teammates, though she can also defend herself with traps if necessary."
@@ -297,7 +297,7 @@ cs =
         }
       ]
     , [ invuln "Flee" "Rin" [Physical] ]
-    ] []
+    ]
   , Character
     "Obito Uchiha"
     "A member of Team Minato, Obito is treated as a nobody despite his Uchiha heritage. He dreams of becoming Hokage so that people will finally acknowledge him. Accustomed to helping from the sidelines, if he falls in battle, he will lend his strength to his allies."
@@ -351,7 +351,7 @@ cs =
         }
       ]
     , [ invuln "Flee" "Obito" [Physical] ]
-    ] []
+    ]
   , Character
     "Masked Man"
     "As the Nine-Tailed Beast rampages across the Hidden Leaf Village, a mysterious masked man appears and attempts to bend it to his will. The legendary beast demolishes house after house, laying waste to the defenses of its enemies."
@@ -398,5 +398,5 @@ cs =
         }
       ]
     , [ invuln "Teleportation" "The masked man" [Chakra] ]
-    ] []
+    ]
   ]

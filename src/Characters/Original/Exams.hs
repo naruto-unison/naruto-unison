@@ -56,7 +56,7 @@ cs =
         }
       ]
     , [ invuln "Byakugan Foresight" "Hanabi" [Mental] ]
-    ] []
+    ]
   , Character
     "Shigure"
     "A genin from the Hidden Rain Village, Shigure is strong but arrogant. He wields up to four needle-filled umbrellas at a time, choosing whether to use them on defense, widespread attacks, or focused damage."
@@ -116,7 +116,7 @@ cs =
         }
       ]
     , [ invuln "Umbrella Shield" "Shigure" [Physical] ]
-    ] []
+    ]
   , Character
     "Kabuto Yakushi"
     "Orochimaru's close assistant and confidant, Kabuto is a brilliant and enigmatic genin. He uses his medical expertise to weaken and expose his opponents."
@@ -164,7 +164,7 @@ cs =
         }
       ]
     , [ invuln "Dead Soul Technique" "Kabuto" [Chakra] ]
-    ] []
+    ]
   , Character
     "Dosu Kinuta"
     "One of the three sound genin, Dosu is patient and logical. His sound-projecting gauntlet shatters his opponents' hearing, making them more vulnerable to attacks."
@@ -208,7 +208,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Dosu" [Physical] ]
-    ] []
+    ]
   , Character
     "Kin Tsuchi"
     "One of the three sound genin, Kin likes to defeat her enemies slowly and painfully, torturing them with her needles and bells. Her moves empower each other when strung together in disorienting harmony."
@@ -263,7 +263,7 @@ cs =
         }
       ]
     , [ invuln "Foresight" "Kin" [Mental] ]
-    ] []
+    ]
   , Character
     "Zaku Abumi"
     "One of the three sound genin, Zaku has a strong desire to win and succeed. The tubes implanted in his arm let him create powerful waves of chakra and protect his allies with air currents."
@@ -299,7 +299,7 @@ cs =
         }
       ]
     , [ invuln "Deflect" "Zaku" [Chakra] ]
-    ] []
+    ]
   , Character
     "Oboro"
     "A genin from the Hidden Rain Village, Oboro is a vindictive specialist in genjutsu. He conceals himself within a crowd of illusory clones, making it almost impossible for enemies to locate and harm him."
@@ -342,7 +342,7 @@ cs =
         }
       ]
     , [ invuln "Hide" "Oboro" [Mental] ]
-    ] []
+    ]
   , Character
     "Yoroi Akadō"
     "A genin from the fake Hidden Sound Village, Yoroi was a resident of the Hidden Leaf Village before defecting to Orochimaru. Capable but brash, Yoroi likes to toy with his enemies, gradually stealing their strength and health for himself."
@@ -387,7 +387,7 @@ cs =
         }
       ]
     , [ invuln "Deflect" "Yoroi" [Chakra] ]
-    ] []
+    ]
   , Character
     "Misumi Tsurugi"
     "A genin from the fake Hidden Sound Village, Misumi was a resident of the Hidden Leaf Village before defecting to Orochimaru. He twists his muscles and bones to wrap around targets, shielding his allies or choking his opponents."
@@ -431,5 +431,5 @@ cs =
         }
       ]
     , [ invuln "Block" "Misumi" [Physical] ]
-    ] []
+    ]
   ]

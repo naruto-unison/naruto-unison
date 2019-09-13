@@ -48,7 +48,7 @@ cs =
         }
       ]
     , [ invuln "Parry" "Iruka" [Physical] ]
-    ] []
+    ]
   , Character
     "Mizuki"
     "A chūnin from the Hidden Leaf Village, Mizuki is an unpleasant instructor who betrays his allies without hesitation in order to succeed. Unless forced into direct combat, he slips into the shadows and ambushes his enemies at their weakest."
@@ -100,7 +100,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Mizuki" [Physical] ]
-    ] []
+    ]
   , Character
     "Kakashi Hatake"
     "Team 7's jōnin squad leader, Kakashi puts the life of his teammates above all else. Known as the Copy Ninja, Kakashi analyzes and duplicates abilities used against him."
@@ -138,7 +138,7 @@ cs =
         }
       ]
     , [ invuln "Hide" "Kakashi" [Mental] ]
-    ] []
+    ]
   , Character
     "Anko Mitarashi"
     "A former student of Orochimaru who bears his Curse Mark, Anko is now a jōnin teacher in the Hidden Leaf Village. She uses various poisons and forbidden techniques learned from Orochimaru to dismantle her enemies."
@@ -193,7 +193,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Anko" [Physical] ]
-    ] []
+    ]
   , Character
     "Hayate Gekkō"
     "A jōnin exam proctor from the Hidden Leaf Village, Hayate is calm and composed despite his poor health and chronic cough. He slips in and out of the shadows, gradually recovering his strength and honing his expert swordsmanship."
@@ -238,7 +238,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Hayate" [Physical] ]
-    ] []
+    ]
   , Character
     "Kurenai Yuhi"
     "Team 8's jōnin squad leader, Kurenai is caring and brave. A master of genjutsu, Kurenai traps her enemies in inescapable illusions."
@@ -297,7 +297,7 @@ cs =
         }
       ]
     , [ invuln "Vanish" "Kurenai" [Mental] ]
-    ] []
+    ]
   , Character
     "Asuma Sarutobi"
     "Team 10's squad leader, Asuma is a chronic smoker and the third Hokage's son. He focuses on protecting his team, providing them with defense and taking blows in their stead."
@@ -376,7 +376,7 @@ cs =
         }
       ]
     , [ invuln "Parry" "Asuma" [Physical] ]
-    ] []
+    ]
   , Character
     "Might Guy"
     "Team Guy's jōnin squad leader, Guy is passionate and strong-willed. He treats his teammates like family, especially Lee, who looks up to him as a father figure. His taijutsu prowess is unmatched. Although opening his inner Gates takes a heavy toll on his body, it empowers his blows with inescapable destruction."
@@ -419,7 +419,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Guy" [Physical] ]
-    ] []
+    ]
   , Character
     "Baki"
     "A jōnin from the Hidden Sand Village, Baki is a ruthlessly efficient squad leader. He cloaks his attacks in illusions to prevent his enemies from defending against them."
@@ -456,7 +456,7 @@ cs =
         }
       ]
     , [ invuln "Teleport" "Baki" [Chakra] ]
-    ] []
+    ]
   , Character
     "Shizune"
     "A jōnin from the Hidden Leaf Village, Shizune is a talented medical-nin apprenticed to Tsunade. She is agile and fast, fully capable of holding her own in a fight whenever she isn't healing one of her allies."
@@ -494,5 +494,5 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Shizune" [Physical] ]
-    ] []
+    ]
   ]

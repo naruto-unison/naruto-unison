@@ -197,16 +197,8 @@ instance ToMarkup Category where
 data Character = Character { name     :: Text
                            , bio      :: Text
                            , skills   :: NonEmpty (NonEmpty Skill)
-                           , hooks    :: [(Trigger, Int -> Ninja -> Ninja)]
                            , category :: Category
-                           }
-instance ToJSON Character where
-    toJSON Character{..} = object
-        [ "name"     .= name
-        , "bio"      .= bio
-        , "skills"   .= skills
-        , "category" .= category
-        ]
+                           } deriving (Generic, ToJSON)
 
 -- | Conditions to activate a 'Trap'.
 data Trigger

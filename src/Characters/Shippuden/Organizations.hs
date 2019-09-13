@@ -87,7 +87,7 @@ cs =
       ]
     , [ invuln "Block" "Shisui" [Physical] ]
 
-    ] []
+    ]
   , Character
     "Sai"
     "An operative of the Hidden Leaf Village's elite Root division, Sai is quietly expressive and artistic. He uses a set of brushes with chakra-infused ink to give life to his illustrations, which usually take the form of powerful black-and-white beasts."
@@ -138,7 +138,7 @@ cs =
         }
       ]
     , [ invuln "Ink Clone" "Sai" [Chakra] ]
-    ] []
+    ]
   , Character
     "Yamato"
     "An operative of the Hidden Leaf Village's elite Root division, Yamato has had many identities, also going by the names Kinoe and Tenzō. The sole survivor of Orochimaru's horrifying experiments on children, he carries the first Hokage's wood-manipulation abilities along with his DNA. His mastery of power supppression makes him a grave threat against hosts of tailed beasts and others who accumulate power gradually."
@@ -184,7 +184,7 @@ cs =
         }
       ]
     , [ invuln "Wood Wall" "Yamato" [Physical] ]
-    ] []
+    ]
   , Character
     "Fū Yamanaka"
     "An operative of the Hidden Leaf Village's elite Root division, Fū is emotionless and ruthlessly straightforward. His only drive is unswerving loyalty to Danzō. His combination of long-distance Yamanaka genjutsu and his personal form of taijutsu makes him a formidable threat in any situation, but his trump card is the ability to swap his consciousness into the body of an opponent and make use of all their skills."
@@ -254,7 +254,7 @@ cs =
           [ To Self $ apply 1 [Invulnerable All] ]
         }
       ]
-    ] []
+    ]
   , Character
     "Torune Aburame"
     "An operative of the Hidden Leaf Village's elite Root division, Torune was born with rare venom-resistant antibodies that allow him to carry the Aburame clan's most dangerous species of beetle. The venom beetles cover his skin like armor, protecting him and infesting anyone who dares to touch him."
@@ -311,7 +311,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Torune" [Physical] ]
-    ] []
+    ]
   , Character
     "Danzō Shimura"
     "The founder and leader of the Hidden Leaf Village's elite Root division, Danzō has had a hand in almost every important global event since he came to power. His numerous implanted Sharingans allow him to repeatedly cheat death."
@@ -391,5 +391,5 @@ cs =
         }
       ]
     , [ invuln "Summoning: Baku" "Danzō" [Chakra, Summon] ]
-    ] []
+    ]
   ]

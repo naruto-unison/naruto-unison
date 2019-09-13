@@ -67,7 +67,7 @@ cs =
         }
       ]
     , [ invuln "Crow Barrier" "Aoba" [Chakra] ]
-    ] []
+    ]
   , Character
     "Ibiki Morino"
     "A sadistic jōnin who specializes in extracting information, Ibiki commands the Hidden Leaf Village's Torture and Interrogation Force. Pain is his preferred method of communication, and his preferred approach to battle is ensuring all options available to his enemies will lead to their defeat."
@@ -121,7 +121,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Ibiki" [Physical] ]
-    ] []
+    ]
   , Character
     "Yūgao Uzuki"
     "An operative of the Hidden Leaf Village, Yūgao is dedicated and thorough. Having grown close to Hayate, Yūgao combines his expert sword techniques with her sealing abilities."
@@ -162,7 +162,7 @@ cs =
         }
       ]
     , [ invuln "Parry" "Yūgao" [Physical] ]
-    ] []
+    ]
   , Character
     "Demon Brothers"
     "A pair of rogue chūnin from the Hidden Mist Village, the Demon Brothers are Zabuza's professional assassins. Armed with chain weapons, Gōzu and Meizu gang up on an enemy, disable them, and dispose of them in short order."
@@ -218,7 +218,7 @@ cs =
     , [ (invuln "Vanish" "The Demon Brothers" [Mental])
         { Skill.desc = "The Demon Brothers become invulnerable for 1 turn." }
       ]
-    ] []
+    ]
   , Character
     "Haku"
     "The sole survivor of the Yuki clan, Haku is Zabuza's young but remarkably strong subordinate. With his inherited ice manipulation techniques, he disrupts his enemies while hiding safely behind crystalline mirrors."
@@ -260,7 +260,7 @@ cs =
         }
       ]
     , [ invuln "Parry" "Haku" [Physical] ]
-    ] []
+    ]
   , Character
     "Zabuza Momochi"
     "One of the Seven Swordsmen of the Mist, Zabuza is a rogue operative who specializes in silent assassination. Wielding Kubikiribōchō, the legendary executioner's broadsword, he uses concealing mist to catch his enemies off-guard, bypassing their defenses."
@@ -305,7 +305,7 @@ cs =
         }
       ]
     , [ invuln "Water Clone" "Zabuza" [Chakra] ]
-    ] []
+    ]
   , Character
     "Itachi Uchiha"
     "A master of Sharingan techniques, Itachi is an S-Rank rogue operative who has joined Akatsuki. His power comes at a steep price: using his Sharingan causes him to gradually go blind. He intends to make the most of whatever time he has left."
@@ -379,7 +379,7 @@ cs =
         }
       ]
     , [ invuln "Sharingan Foresight" "Itachi" [Mental] ]
-    ] []
+    ]
   , Character
     "Kisame Hoshigaki"
     "One of the Seven Swordsmen of the Mist, Kisame is an S-Rank rogue ninja who has joined Akatsuki. Wielding the legendary sentient sword Samehada, Kisame disables his enemies while his eternally hungry sword eats their chakra."
@@ -424,7 +424,7 @@ cs =
         }
       ]
     , [ invuln "Scale Shield" "Kisame" [Physical] ]
-    ] []
+    ]
   , Character
     "Jirōbō"
     "A member of the Sound Five, Jirōbō hides his arrogance and hot temper beneath a calm facade. His immense strength and earth-rending attacks lay waste to all who stand against him."
@@ -470,7 +470,7 @@ cs =
         }
       ]
     , [ invuln "Terra Shield" "Jirōbō" [Physical] ]
-    ] []
+    ]
   , Character
     "Kidōmaru"
     "A member of the Sound Five, Kidōmaru resembles a spider in both appearance and fighting style. His webs protect his allies and slow his enemies."
@@ -510,7 +510,7 @@ cs =
         }
       ]
     , [ invuln "Spider Thread Armor" "Kidōmaru" [Chakra] ]
-    ] []
+    ]
   , Character
     "Tayuya"
     "A member of the Sound Five, Tayuya is foul-mouthed and aggressive. She plays her flute to trap her enemies in genjutsu and control the beasts she summons."
@@ -551,7 +551,7 @@ cs =
         }
       ]
     , [ invuln "Foresight" "Tayuya" [Mental] ]
-    ] []
+    ]
   , Character
     "Sakon and Ukon"
     "Members of the Sound Five, Sakon and Ukon are nearly identical twins with a bloodline that enables each brother to live within the body of the other."
@@ -608,7 +608,7 @@ cs =
           [ To Self $ remove "Demon Parasite" ]
         }
       ]
-    ] []
+    ]
   , Character
     "Kimimaro"
     "A member of the Sound Five, Kimimaro led the team before his illness. His bloodline grants him unstoppable offensive power, but his illness is slowly killing him, eroding the little time he has left."
@@ -652,5 +652,5 @@ cs =
         }
       ]
     , [ invuln "Larch Dance" "Kimimaro" [Physical] ]
-    ] []
+    ]
   ]

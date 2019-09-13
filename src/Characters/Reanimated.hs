@@ -74,7 +74,7 @@ cs =
         }
       ]
     , [ invuln "Parry" "Hashirama" [Physical] ]
-    ] []
+    ]
   , Character
     "Tobirama Senju"
     "Reanimated by Orochimaru, Hashirama was the second Hokage. His water-manipulating skills flood the battlefield, impairing and harming the enemy team."
@@ -116,7 +116,7 @@ cs =
         }
       ]
     , [ invuln "Water Wall" "Tobirama" [Physical] ]
-    ] []
+    ]
   , Character
     "Hanzō"
     "Reanimated by Kabuto, Hanzō the Salamander was the leader of Amegakure. In combination with his unrivaled combat prowess, the lethal venom sac implanted in his body makes him a feared legend throughout the world."
@@ -196,7 +196,7 @@ cs =
         }
       ]
     , [ invuln "Block" "Hanzō" [Physical] ]
-    ] []
+    ]
   , Character
     "Gengetsu Hōzuki"
     "Reanimated by Kabuto, Gengetsu was the second Mizukage of the Hidden Mist Village. Charismatic and carefree, he cheerfully offers tips to his opponents on how to beat him. He is especially fond of one-on-one duels."
@@ -255,7 +255,7 @@ cs =
         }
       ]
     , [ invuln "Mirage" "Gengetsu" [Mental] ]
-    ] []
+    ]
   , Character
     "Mū"
     "Reanimated by Kabuto, Mū was the second Tsuchikage of the Hidden Rock Village. Unfailingly polite, he intends to ensure that his village benefits from the war. By manipulating matter at the atomic level, he disintegrates the defenses of his enemies."
@@ -308,7 +308,7 @@ cs =
         }
       ]
     , [ invuln "Dustless Bewildering Cover" "Mū" [Chakra] ]
-    ] []
+    ]
   , Character
     "Rasa"
     "Reanimated by Kabuto, Rasa was the fourth Kazekage of the Hidden Sand Village and the father of the Sand Siblings. Cold and calculating, Rasa buries his enemies beneath crushingly heavy gold dust that they must fight their way out of to survive."
@@ -355,82 +355,82 @@ cs =
         }
       ]
     , [ invuln "Gold Dust Shield" "Rasa" [Physical] ]
-    ] []
-    , Character
-      "Jirōbō"
-      "Reanimated by Kabuto, Jirōbō was a member of the Sound Five. No longer concealing his anger beneath a facade of politeness, Jirōbō has only one thing on his mind: revenge."
-      [ [ Skill.new
-          { Skill.name      = "Rivalry"
-          , Skill.desc      = "Jirōbō picks out an enemy as his rival. If they use a skill on Jirōbō or his allies next turn, they will be countered and permanently forced to target Jirōbō. Effect ends if Jirōbō uses a skill on a different enemy or uses this skill again. Cannot be used during [Summoning: Earth Prison Golem]."
-          , Skill.require   = HasI (-1) "Summoning: Earth Prison Golem"
-          , Skill.classes   = [Mental, Melee, InvisibleTraps]
-          , Skill.cost      = [Rand]
-          , Skill.cooldown  = 3
-          , Skill.effects   =
-            [ To Enemy do
-                  everyone $ remove "Rivalry"
-                  userSlot <- user slot
-                  trap (-1) (Countered All) $ apply 0 [Taunt userSlot]
-            ]
-          }
-        ]
-      , [ Skill.new
-          { Skill.name      = "Sphere of Graves"
-          , Skill.desc      = "Jirōbō lifts the ground up and hurls it forward, dealing 30 damage to an enemy and gaining a Scattered Rock. Costs one taijutsu chakra if [Earth Dome Prison] affected any enemies last turn."
-          , Skill.classes   = [Physical, Ranged]
-          , Skill.cost      = [Tai, Rand]
-          , Skill.effects   =
-            [ To Enemy do
-                  damage 30
-                  unlessM (targetHas "Rivalry") . everyone $ remove "Rivalry"
-            , To Self $ apply' "Scattered Rock" 0 []
-            ]
-          , Skill.changes   =
-              changeWith "Earth Dome Prison" \x -> x { Skill.cost = [Tai] }
-          }
-        ]
-      , [ Skill.new
-          { Skill.name      = "Earth Dome Prison"
-          , Skill.desc      = "Jirōbō encases an enemy in chakra-conductive rock and drains their energy, dealing 20 affliction damage. If this skill is used on the target of [Rivalry], the damage drains their health and adds it to Jirobo's health."
-          , Skill.classes   = [Chakra, Melee]
-          , Skill.cost      = [Nin, Rand]
-          , Skill.effects   =
-            [ To Enemy do
-                  has <- targetHas "Rivalry"
-                  if has then leech 20 $ self . heal
-                  else do
-                      afflict 20
-                      everyone $ remove "Rivalry"
-                  self $ tag 1
-            ]
-          }
-        ]
-      , [ Skill.new
-          { Skill.name      = "Summoning: Earth Prison Golem"
-          , Skill.desc      = "Jirōbō spends two Scattered Rocks to summon a golem, gaining 35 destructible defense for 2 turns. While Jirōbō has destructible defense from this skill, all enemies are his Rivals and can only target him. The first enemy to use a skill on him each turn is instantly affected by [Earth Dome Prison]."
-          , Skill.require   = HasI 2 "Scattered Rock"
-          , Skill.classes   = [Summon]
-          , Skill.cost      = [Rand, Rand]
-          , Skill.cooldown  = 4
-          , Skill.effects   =
-            [ To Self do
-                  userSlot <- user slot
-                  enemies do
-                      remove "Rivalry"
-                      apply' "Rivalry" 2 [Taunt userSlot]
-                  removeStacks "Scattered Rock" 2
-                  defend 2 35
-                  trapFrom 2 (OnHarmed All) do
-                      leech 20 (self . heal)
-                      self $ tag' "Earth Dome Prison" 1
-                  onBreak $ everyone do
-                      remove "Rivalry"
-                      removeTrap "Summoning: Earth Prison Golem"
-            ]
-          }
-        ]
-      ] []
-    , Character
+    ]
+  , Character
+    "Jirōbō"
+    "Reanimated by Kabuto, Jirōbō was a member of the Sound Five. No longer concealing his anger beneath a facade of politeness, Jirōbō has only one thing on his mind: revenge."
+    [ [ Skill.new
+        { Skill.name      = "Rivalry"
+        , Skill.desc      = "Jirōbō picks out an enemy as his rival. If they use a skill on Jirōbō or his allies next turn, they will be countered and permanently forced to target Jirōbō. Effect ends if Jirōbō uses a skill on a different enemy or uses this skill again. Cannot be used during [Summoning: Earth Prison Golem]."
+        , Skill.require   = HasI (-1) "Summoning: Earth Prison Golem"
+        , Skill.classes   = [Mental, Melee, InvisibleTraps]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Enemy do
+                everyone $ remove "Rivalry"
+                userSlot <- user slot
+                trap (-1) (Countered All) $ apply 0 [Taunt userSlot]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Sphere of Graves"
+        , Skill.desc      = "Jirōbō lifts the ground up and hurls it forward, dealing 30 damage to an enemy and gaining a Scattered Rock. Costs one taijutsu chakra if [Earth Dome Prison] affected any enemies last turn."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Tai, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 30
+                unlessM (targetHas "Rivalry") . everyone $ remove "Rivalry"
+          , To Self $ apply' "Scattered Rock" 0 []
+          ]
+        , Skill.changes   =
+            changeWith "Earth Dome Prison" \x -> x { Skill.cost = [Tai] }
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Earth Dome Prison"
+        , Skill.desc      = "Jirōbō encases an enemy in chakra-conductive rock and drains their energy, dealing 20 affliction damage. If this skill is used on the target of [Rivalry], the damage drains their health and adds it to Jirobo's health."
+        , Skill.classes   = [Chakra, Melee]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                has <- targetHas "Rivalry"
+                if has then leech 20 $ self . heal
+                else do
+                    afflict 20
+                    everyone $ remove "Rivalry"
+                self $ tag 1
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Summoning: Earth Prison Golem"
+        , Skill.desc      = "Jirōbō spends two Scattered Rocks to summon a golem, gaining 35 destructible defense for 2 turns. While Jirōbō has destructible defense from this skill, all enemies are his Rivals and can only target him. The first enemy to use a skill on him each turn is instantly affected by [Earth Dome Prison]."
+        , Skill.require   = HasI 2 "Scattered Rock"
+        , Skill.classes   = [Summon]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Self do
+                userSlot <- user slot
+                enemies do
+                    remove "Rivalry"
+                    apply' "Rivalry" 2 [Taunt userSlot]
+                removeStacks "Scattered Rock" 2
+                defend 2 35
+                trapFrom 2 (OnHarmed All) do
+                    leech 20 (self . heal)
+                    self $ tag' "Earth Dome Prison" 1
+                onBreak $ everyone do
+                    remove "Rivalry"
+                    removeTrap "Summoning: Earth Prison Golem"
+          ]
+        }
+      ]
+    ]
+  , Character
     "Haku"
     "Reanimated by Kabuto, Haku remains as loyal to Zabuza as he was in life. With his inherited ice manipulation techniques, he disrupts his enemies while hiding safely behind crystalline mirrors."
     [ [ Skill.new
@@ -491,11 +491,6 @@ cs =
       ]
     , [ invuln "Ice Dome" "Haku" [Chakra] ]
     ]
-    [ (PerDamaged, \i n ->
-        if | hasDefense "Crystal Ice Mirrors" (slot n) n -> n
-           | not $ isChanneling "Crystal Ice Mirrors" n  -> n
-           | otherwise -> addOwnDefense 0 "Crystal Ice Mirrors" i n)
-    ]
   , Character
     "Zabuza Momochi"
     "Reanimated by Kabuto, Zabuza was one of the Seven Swordsmen of the Mist and a renowned mercenary. Although he has been reunited with Haku, Zabuza is furious at being forced to fight against his will. He still wields Kubikiribōchō, his legendary executioner's broadsword, which feeds on the blood it spills to strengthen itself."
@@ -544,7 +539,7 @@ cs =
         }
       ]
     , [ invuln "Block" "Zabuza" [Physical] ]
-    ] []
+    ]
   , Character
     "Ameyuri Ringo"
     "Reanimated by Kabuto, Ameyuri was one of the Seven Swordsmen of the Mist. Wielding Baki, the legendary twin lightning blades, Ameyuri cuts down her enemies using paralyzing electricity."
@@ -603,7 +598,7 @@ cs =
         }
       ]
     , [ invuln "Parry" "Ameyuri" [Physical] ]
-    ] []
+    ]
   , Character
     "Kushimaru Kuriarare"
     "Reanimated by Kabuto, Kushimaru was one of the Seven Swordsmen of the Mist. Wielding Nuibari, the legendary razor-wire longsword, Kushimaru stitches together his enemies to prevent them from acting."
@@ -654,7 +649,7 @@ cs =
         }
       ]
     , [ invuln "Parry" "Kushimaru" [Physical] ]
-    ] []
+    ]
   , Character
     "Jinpachi Munashi"
     "Reanimated by Kabuto, Jinpachi was one of the Seven Swordsmen of the Mist. Wielding Shibuki, the legendary explosive blade, Jinpachi builds up stockpiles of paper bombs that he can detonate simultaneously."
@@ -699,7 +694,6 @@ cs =
       ]
     , [ invuln "Parry" "Jinpachi" [Physical] ]
     ]
-    []
   , Character
     "Fuguki Suikazan"
     "Reanimated by Kabuto, Fuguki was one of the Seven Swordsmen of the Mist who wielded the legendary sentient sword Samehada. Without his sword, he relies on his chakra-enhanced hair to heal himself and ensnare his opponents."
@@ -755,94 +749,5 @@ cs =
         }
       ]
     , [ invuln "Block" "Fuguki" [Physical] ]
-    ] []
-  , Character
-    "Nagato"
-    "Reanimated by Kabuto, Nagato is as much a pawn in the schemes of others as he was in life. With the power of the Rinnegan and all his Paths at his disposal, he uses the attacks of his opponents to strengthen his own abilities."
-    [ [ Skill.new
-        { Skill.name      = "Human Path"
-        , Skill.desc      = "Nagato restores 15 health and deals 20 piercing damage to an enemy. If the target deals any damage next turn, the damage and healing of this skill will be set to the damage they dealt for 1 turn and its cost will increase by 1 random chakra."
-        , Skill.classes   = [Mental, Melee]
-        , Skill.cost      = [Gen]
-        , Skill.effects   =
-          [ To Self do
-              stacks <- userStacks "Human Path"
-              if stacks > 0 then
-                  heal stacks
-              else
-                  heal 15
-          , To Enemy do
-                pierce 20
-                trapPer (-1) PerDamage $ self . addStacks' (-1) "Human Path"
-          ]
-        , Skill.changes   =
-            changeWith "Human Path" (\x -> x { Skill.cost = [Gen, Rand] })
-            `also` \n x ->
-              x { Skill.desc = "Nagato restores " ++ tshow (numActive "Human Path" n) ++ " health and deals " ++ tshow (numActive "Human Path" n) ++ " piercing damage to an enemy. If the target deals any damage next turn, the damage and healing of this skill will be set to the damage they dealt for 1 turn and its cost will remain increased." }
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Preta Path"
-        , Skill.desc      = "Nagato absorbs attacks against him, countering all enemy skills next turn. Each countered skill restores 10 health to Nagato and absorbs 1 random chakra from its user."
-        , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = [Nin]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To Self $ trapFrom (-1) (CounterAll All) do
-                absorb 1
-                self do
-                    heal 10
-                    addStacks' 1 "Preta Path" 1
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Naraka Path"
-        , Skill.desc      = "Nagato tracks a target's damage for 2 turns. If the target is an ally, they are healed for the damage total. If the target is an enemy, they are damaged for the damage total. If the target did not cause any damage, their chakra costs are modified for 2 turns: increased by 1 random chakra if an enemy, decreased by 1 random chakra if an ally. If [Preta Path] countered 2 or more skills last turn, this skill affects all allies and enemies."
-        , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = [Gen, Gen]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To XAlly do
-              trapPer (-2) PerDamage heal
-              trap (-2) OnDamage $ remove "Naraka Path"
-              bomb (-2) [] [ To Expire $ apply 2 [Unexhaust] ]
-          , To Enemy do
-                trapPer (-2) PerDamage damage
-                trap (-2) OnDamage $ remove "Naraka Path"
-                bomb (-2) [] [ To Expire $ apply 2 [Exhaust All] ]
-          ]
-        , Skill.changes   =
-            \n -> if
-              | numActive "Preta Path" n >= 2 -> targetAll
-              | otherwise                     -> id
-        }
-    ]
-    , [ Skill.new
-        { Skill.name      = "Rinnegan"
-        , Skill.desc      = "Whenever Nagato deals damage to an enemy, he can use this skill the following turn to damage an enemy for half his damage total from that turn. Whenever Nagato is healed, he can use this skill the following turn to heal himself or an ally for half the amount of health he regained during that turn."
-        , Skill.classes   = [Mental]
-        , Skill.cooldown  = 2
-        , Skill.changes   =
-            \n x ->
-              x { Skill.effects = snd <$> filter fst
-                                  [ ( hasOwn "Rinnegan" n, To Enemy do
-                                          stacks <- userStacks "Rinnegan"
-                                          damage stacks
-                                    )
-                                  , ( hasOwn "Rinnegan Heal" n, To XAlly do
-                                          stacks <- userStacks "Rinnegan Heal"
-                                          heal stacks
-                                    )
-                                  ]
-                , Skill.require   = if
-                  | hasOwn "Rinnegan" n || hasOwn "Rinnegan Heal" n -> Usable
-                  | otherwise                                       -> Unusable
-                }
-        }
-      ]
-    ]
-    [ (PerDamage, addOwnStacks 1 "Rinnegan"      3 0 . (+ 2))
-    , (PerHealed, addOwnStacks 1 "Rinnegan Heal" 3 0 . (+ 2))
     ]
   ]

@@ -64,7 +64,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Tsume" [Physical] ]
-    ] []
+    ]
   , Character
     "Chiyo"
     "A widely-respected puppeteer and former leader of the Hidden Sand Village's Puppet Brigade, Elder Chiyo has a lifetime of combat experience. Her numerous puppets sow chaos among her enemies and shield her from harm, allowing her to use her other skills with impunity. If one of her allies is close to death, she can sacrifice her own life to restore theirs."
@@ -134,5 +134,5 @@ cs =
         }
       ]
     , [ invuln "Chakra Barrier" "Chiyo" [Chakra] ]
-    ] []
+    ]
   ]

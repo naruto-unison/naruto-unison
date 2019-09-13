@@ -62,7 +62,7 @@ cs =
         }
       ]
     , [ invuln "Shadow Clone Save" "Naruto" [Chakra] ]
-    ] []
+    ]
   , Character
     "Sakura Haruno"
     "Sakura's years of training under Tsunade have provided her with an intricate understanding of healing and the human body. Now a chūnin, she has learned how to store her chakra in concentrated points and then unleash it in empowering waves."
@@ -142,7 +142,7 @@ cs =
         }
       ]
       , [ invuln "Dodge" "Sakura" [Physical] ]
-    ] []
+    ]
   , Character
     "Sasuke Uchiha"
     "Sasuke's years of training under Orochimaru have made him a master of his elemental aspects. Now that he has absorbed Orochimaru, he has added the sannin's snake abilities to his own lightning attacks, which pierce through the defenses of his enemies. He is regarded as one of the most dangerous and ruthless ninjas alive."
@@ -188,7 +188,7 @@ cs =
         }
       ]
     , [ invuln "Snake Shedding" "Sasuke" [Physical] ]
-    ] []
+    ]
   , Character
     "Kiba Inuzuka"
     "Kiba's years with Akamaru have enhanced their bond and teamwork. Now a chūnin, he has learned the alarming ability to transform Akamaru into a bestial humanoid resembling Kiba. As they progress through several stages of shapeshifting, they gradually transform into unstoppable rampaging beasts."
@@ -259,7 +259,7 @@ cs =
         }
       ]
     , [ invuln "Hide" "Kiba" [Mental] ]
-    ] []
+    ]
   , Character
     "Shino Aburame"
     "Shino's years of practice with his loyal bugs have deepened his connection with them. Having attained the rank of chūnin, Shino has learned to breed his insects to favor specific traits. His advanced parasites accumulate invisibly in targets before bursting out all at once."
@@ -328,7 +328,7 @@ cs =
         }
       ]
     , [ invuln "Insect Cocoon" "Shino" [Physical] ]
-    ] []
+    ]
   , Character
     "Hinata Hyūga"
     "With the Chūnin Exam behind her and Naruto's words deep in her heart, Hinata has grown and become stronger. Now that she has mastered the Hyūga clan tactics, she can give life to powerful chakra lions and hinder the chakra paths of her enemies."
@@ -381,7 +381,7 @@ cs =
         }
       ]
     , [ invuln "Byakugan Foresight" "Hinata" [Mental] ]
-    ] []
+    ]
   , Character
     "Shikamaru Nara"
     "Once known for his laziniess, Shikamaru has worked tirelessly to become a leader. With years of experience, his plans have become even more convoluted and intricate."
@@ -452,7 +452,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Shikamaru" [Physical] ]
-    ] []
+    ]
   , Character
     "Chōji Akimichi"
     "Chōji's years of mastering his clan's techniques have ended the growing chūnin's dependence on Akimichi pills. Now that he can reshape his body at will without having to sacrifice his health, chakra costs are the only remaining limits on his physical power."
@@ -555,7 +555,7 @@ cs =
           [ To Self $ apply 1 [Invulnerable All] ]
         }
       ]
-    ] []
+    ]
   , Character
     "Ino Yamanaka"
     "Now a chūnin, Ino takes control of every fight she faces. Her overpowering will steals the skills and secrets of her enemies and forces her allies to fight on no matter the cost. "
@@ -595,7 +595,7 @@ cs =
         }
       ]
     , [ invuln "Hide" "Ino" [Mental] ]
-    ] []
+    ]
   , Character
     "Rock Lee"
     "Lee's years of training with Gai have taught him not only new abilities, but what it truly means to fight. His strength grows as his allies fall, determined to honor them by finishing their battle."
@@ -643,7 +643,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Lee" [Physical] ]
-    ] []
+    ]
   , let loadout = [0, 0, 0]
     in Character
     "Tenten"
@@ -740,7 +740,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Tenten" [Physical] ]
-    ] []
+    ]
   , Character
     "Neji Hyūga"
     "Having surpassed his peers to reach the rank of jōnin, Neji has spent the intervening years honing his skills. He has learned to supplement his precise pressure-point attacks with devastating chakra waves that demolish the defenses of his opponents."
@@ -795,7 +795,7 @@ cs =
         }
       ]
     , [ invuln "Byakugan Foresight" "Neji" [Mental] ]
-    ] []
+    ]
   , Character
     "Kazekage Gaara"
     "Gaara's years of soul-searching have made him a powerful force for good, ready to assume the title of Kazekage. No longer concerned with destroying others, he devotes himself to protecting his friends and the Hidden Sand Village."
@@ -847,7 +847,7 @@ cs =
         }
       ]
     , [ invuln "Levitating Sand Shield" "Gaara" [Physical] ]
-    ] []
+    ]
   , Character
     "Konohamaru Sarutobi"
     "The grandson of the Third Hokage, Konohamaru has spent his youth working hard to pursue his dream of one day following in his grandfather's steps. No longer a bumbling student, Konohamaru has become remarkably skillful as a genin. Agile and fast, he can rush in to save an ally on the brink of defeat."
@@ -891,5 +891,5 @@ cs =
         }
       ]
     , [ invuln "Hide" "Konohamaru" [Mental] ]
-    ] []
+    ]
   ]

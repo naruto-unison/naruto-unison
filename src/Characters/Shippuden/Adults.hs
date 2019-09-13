@@ -64,7 +64,7 @@ cs =
         }
       ]
     , [ invuln "Shadow Clone" "Kakashi" [Chakra] ]
-    ] []
+    ]
   , Character
     "Asuma Sarutobi"
     "Having somehow managed to avoid lung cancer, Asuma remains the leader of Team 10. Using techniques he learned from the Fire Temple, he hinders his opponents and instantly executes weak enemies."
@@ -134,7 +134,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Asuma" [Physical] ]
-    ] []
+    ]
   , Character
     "Might Guy"
     "Over the past few years, Guy has learned restraint. By gradually opening his Gates in sequence, he avoids the risk of burning out before the battle is won."
@@ -208,7 +208,7 @@ cs =
         }
       ]
     , [ invuln "Block" "Guy" [Physical] ]
-    ] []
+    ]
   , Character
     "Maki"
     "A jōnin from the Hidden Sand Village, Maki studied under Pakura and mourned her death greatly. As a member of the Allied Shinobi Forces Sealing Team, Maki must put aside her long-held grudge against the Hidden Stone Village for killing her teacher."
@@ -248,7 +248,7 @@ cs =
         }
       ]
     , [ invuln "Cloth Dome" "Maki" [Physical] ]
-    ] []
+    ]
   , Character
     "Akatsuchi"
     "A jōnin from the Hidden Rock Village, Akatsauchi is cheerful and excitable. He uses brute strength and rock golems to pummel his enemies to the ground."
@@ -289,7 +289,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Akatsuchi" [Physical] ]
-    ] []
+    ]
   , Character
     "Kurotsuchi"
     "A jōnin from the Hidden Rock Village, Kurotsuchi is the Third Tsuchikage's granddaughter. Witty and self-assured, Kurotsuchi is famed for her unflinching resolve in the face of danger."
@@ -333,7 +333,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Kurotsuchi" [Physical] ]
-    ] []
+    ]
   , Character
     "Ittan"
     "A chūnin from the Hidden Rock Village, Ittan is battle-hardened and level-headed. By reshaping the terrain, Ittan turns the battlefield to his advantage."
@@ -374,7 +374,7 @@ cs =
         }
       ]
     , [ invuln "Trench Defense" "Ittan" [Physical] ]
-    ] []
+    ]
   , Character
     "Kitsuchi"
     "A jōnin from the Hidden Rock Village, Kitsuchi is the Third Tsuchikage's son and Kurotsuchi's father. He commands the Allied Shinobi Forces Second Division, a responsibility he takes with the utmost seriousness."
@@ -423,7 +423,7 @@ cs =
         }
       ]
     , [ invuln "Rock Shelter" "Kitsuchi" [Physical] ]
-    ] []
+    ]
   , Character
     "C"
     "A jōnin from the Hidden Cloud Village, C is one of the Raikage's bodyguards. Reliable and dutiful, C supports his allies with healing and sensing."
@@ -462,7 +462,7 @@ cs =
         }
       ]
     , [ invuln "Parry" "C" [Physical] ]
-    ] []
+    ]
   , Character
     "Atsui"
     "A chūnin from the Hidden Cloud Village, Atsui is a hot-headed hotshot whose favorite word is 'Hot' and whose name literally means 'Hot'. An incredibly complex character with hidden depths, Atsui's skills are as diverse as his multifaceted personality."
@@ -501,7 +501,7 @@ cs =
         }
       ]
     , [ invuln "Parry" "Atsui" [Physical] ]
-    ] []
+    ]
   , Character
     "Izumo and Kotetsu"
     "A pair of chūnin from the Hidden Leaf Village assigned to hunt down members of Akatsuki, Izumo and Kotetsu are close friends and effective partners. Although their strength may be somewhat lacking as individuals, they have a significant advantage of their own: there are two of them."
@@ -604,7 +604,7 @@ cs =
           ]
         }
       ]
-    ] []
+    ]
   , Character
     "Tsunade"
     "Tsunade has become the fifth Hokage. Knowing the Hidden Leaf Village's fate depends on her, she holds nothing back. Even if one of her allies is on the verge of dying, she can keep them alive long enough for her healing to get them back on their feet."
@@ -672,7 +672,7 @@ cs =
         }
       ]
     , [ invuln "Block" "Tsunade" [Physical] ]
-    ] []
+    ]
   , Character
     "Ōnoki"
     "The third Tsuchikage of the Hidden Rock Village, Onoki is the oldest and most stubborn Kage. His remarkable ability to control matter on an atomic scale rapidly grows in strength until it can wipe out a foe in a single attack."
@@ -712,7 +712,7 @@ cs =
         }
       ]
     , [ invuln "Flight" "Ōnoki" [Chakra] ]
-    ] []
+    ]
   , Character
     "Mei Terumi"
     "The third Mizukage of the Hidden Mist Village, Mei works tirelessly to help her village overcome its dark history and become a place of kindness and prosperity. Her corrosive attacks eat away at the defenses of her enemies."
@@ -754,5 +754,5 @@ cs =
         }
       ]
     , [ invuln "Flee" "Mei" [Physical] ]
-    ] []
+    ]
   ]

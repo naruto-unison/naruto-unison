@@ -62,7 +62,7 @@ cs =
         }
       ]
     , [ invuln "Hide?" "Konohamaru" [Mental] ]
-    ] []
+    ]
   , Character
     "Hiashi Hyūga"
     "A jōnin from the Hidden Leaf Village and father to Hinata and Hanabi, Hiashi does not tolerate weakness or failure. All of the Hyūga clan's secret techniques have been passed down to him, and he wields them with unmatched expertise."
@@ -112,7 +112,7 @@ cs =
         }
       ]
     , [ invuln "Byakugan Foresight" "Hiashi" [Mental] ]
-    ] []
+    ]
   , Character
     "Chōza Akimichi"
     "A jōnin from the Hidden Leaf Village and Chōji's father, Chōza instills confidence in his comrades with his bravery and wisdom. Never one to back down from a fight, he defends his allies and forces the attention of his enemies to himself."
@@ -160,7 +160,7 @@ cs =
         }
       ]
     , [ invuln "Block" "Chōza" [Physical] ]
-    ] []
+    ]
   , Character
     "Shikaku Nara"
     "A jōnin from the Hidden Leaf Village and Shikamaru's father, Shikaku is a master tactician capable of analyzing enormous quantities of information at lightning speed. Always one step ahead of his enemies, Shikaku spots the weaknesses in their actions and uses them as opportunities to take back control."
@@ -218,7 +218,7 @@ cs =
         }
       ]
     , [ invuln "Team Formation" "Shikaku" [Physical] ]
-    ] []
+    ]
   , Character
     "Inoichi Yamanaka"
     "A jōnin from the Hidden Leaf Village and Ino's father, Inoichi can solve practically any dilemma with his analytical perspective. Under his watchful gaze, every move made by his enemies only adds to his strength."
@@ -277,5 +277,5 @@ cs =
         }
       ]
     , [ invuln "Mobile Barrier" "Inoichi" [Chakra] ]
-    ] []
+    ]
   ]

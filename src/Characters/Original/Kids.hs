@@ -50,7 +50,7 @@ cs =
         }
       ]
     , [ invuln "Sexy Technique" "Naruto" [Chakra] ]
-    ] []
+    ]
   , Character
     "Sakura Haruno"
     "A genin from Team 7, Sakura is intelligent but self-conscious. Her recent training from Tsunade has prepared her to heal her allies and knock back her enemies."
@@ -88,7 +88,7 @@ cs =
         }
       ]
     , [ invuln "Substitution Technique" "Sakura" [Chakra] ]
-    ] []
+    ]
   , Character
     "Sasuke Uchiha"
     "A genin from Team 7, Sasuke seeks vengeance against his brother for slaughtering the rest of the Uchiha clan. Using his Sharingan, Sasuke targets his opponent's weak spots and anticipates their attacks."
@@ -130,7 +130,7 @@ cs =
         }
       ]
     , [ invuln "Block" "Sasuke" [Physical] ]
-    ] []
+    ]
   , Character
     "Kiba Inuzuka"
     "A genin from Team 8, Kiba is short-tempered and impulsive. His powerful taijutsu skills are amplified when he fuses with his dog, Akamaru, and transforms into a double-headed monster."
@@ -173,7 +173,7 @@ cs =
         }
       ]
     , [ invuln "Smoke Bomb" "Kiba" [Physical] ]
-    ] []
+    ]
   , Character
     "Shino Aburame"
     "A genin from Team 8, Shino is reserved and tactical. He directs the insects living within his body to leech chakra from his enemies and protect his teammates."
@@ -212,7 +212,7 @@ cs =
         }
       ]
     , [ invuln "Insect Clone" "Shino" [Chakra] ]
-    ] []
+    ]
   , Character
     "Hinata Hyūga"
     "A genin from Team 8, Hinata is the shy and withdrawn heiress of the Hyūga clan. With her clan's signature Byakugan, she senses her opponent's energy flow and blocks it at key points to remove their chakra."
@@ -254,7 +254,7 @@ cs =
         }
       ]
     , [ invuln "Block" "Hinata" [Physical] ]
-    ] []
+    ]
   , Character
     "Shikamaru Nara"
     "A genin from Team 10, Shikamaru is considered the smartest of the Konoha 11. He manipulates shadows to disable and attack his enemies. Whomever he fights, it's only a matter of time before he comes up with the perfect plan to defeat them."
@@ -295,7 +295,7 @@ cs =
         }
       ]
     , [ invuln "Hide" "Shikamaru" [Mental] ]
-    ] []
+    ]
   , let loadout = [0, 0, 0]
     in Character
     "Chōji Akimichi"
@@ -461,7 +461,7 @@ cs =
         , Skill.pic       = True
         }
       ]
-    ] []
+    ]
   , Character
     "Ino Yamanaka"
     "A genin from Team 10, Ino is as confident as she is vain. She projects the strength of her will directly into the minds of her opponents, bypassing their physical defenses and rendering them helpless."
@@ -508,7 +508,7 @@ cs =
         }
       ]
     , [ invuln "Block" "Ino" [Physical] ]
-    ] []
+    ]
   , Character
     "Rock Lee"
     "A member of team Guy, Lee is a genin whose inability to use ninjutsu and genjutsu has led him to devote his life to mastering taijutsu. His strength increases with every strike, building up unstoppable momentum as the fight goes on."
@@ -564,7 +564,7 @@ cs =
         }
       ]
     , [ invuln "Block" "Lee" [Physical] ]
-    ] []
+    ]
   , Character
     "Tenten"
     "A member of Team Guy, Tenten is a fiercely independent weapon specialist who intends to become a legendary kunoichi. She keeps an entire arsenal sealed in scrolls to rain down upon the battlefield, wounding and disabling her opponents."
@@ -615,7 +615,7 @@ cs =
         }
       ]
     , [ invuln "Spiked Boulder Shield" "Tenten" [Physical] ]
-    ] []
+    ]
   , Character
     "Neji Hyūga"
     "A member of team Guy, Neji is the cold and fatalistic prodigy of the Hyūga clan. He has mastered numerous techniques, from crippling blows to whirling invulnerability."
@@ -659,7 +659,7 @@ cs =
         }
       ]
     , [ invuln "Byakugan Foresight" "Neji" [Mental] ]
-    ] []
+    ]
   , Character
     "Gaara"
     "The youngest of the sand siblings, Gaara is the unstable jinchūriki of Shukaku, the one-tailed beast. With its aid, Gaara manipulates the sand in his gourd to crush his enemies. The shell of sand around his body makes him invulnerable to all but the strongest of blows."
@@ -711,7 +711,7 @@ cs =
         }
       ]
     , [ invuln "Sand Shield" "Gaara" [Physical] ]
-    ] []
+    ]
   , Character
     "Kankurō"
     "One of the three sand siblings, Kankurō is a master puppeteer. His strategically-placed poison bombs pierce through enemy defenses. In order to harm him, his enemies will have to go through his army of puppets first."
@@ -754,7 +754,7 @@ cs =
         }
       ]
     , [ invuln "Substitution Technique" "Kankurō" [Chakra] ]
-    ] []
+    ]
   , Character
     "Temari"
     "The older sister of Gaara and Kankurō, Temari is a cruel and blunt expert in war-fan combat. She uses her massive iron fan to generate powerful gusts of wind that repel attacks on her team."
@@ -792,5 +792,5 @@ cs =
         }
       ]
     , [ invuln "Block" "Temari" [Physical] ]
-    ] []
+    ]
   ]

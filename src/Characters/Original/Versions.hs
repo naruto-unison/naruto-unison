@@ -56,7 +56,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Naruto" [Physical] ]
-    ] []
+    ]
   , Character
     "Curse Mark Sasuke"
     "Having acclimated to his Curse Mark, Sasuke draws Orochimaru's vile chakra through it to grow stronger and more monstrous. His powers have grown exponentially, allowing him to pierce or trap enemies with his corrupted chakra."
@@ -99,7 +99,7 @@ cs =
         }
       ]
     , [ invuln "Sharingan Foresight" "Sasuke" [Mental] ]
-    ] []
+    ]
   , Character
     "Drunken Lee"
     "Accidentally drinking sake has awakened Lee's hidden Drunken Fist powers, completely changing his fighting style. Lee's strength increases the longer he fights, though he is too drunk to focus his attacks on a single opponent."
@@ -153,7 +153,7 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Lee" [Physical] ]
-    ] []
+    ]
   , Character
     "Shukaku Gaara"
     "Gaara has spent his whole life struggling to contain Shukaku, the one-tailed beast, within himself. As his will fades and sleep rushes to claim him, Shukaku gleefully takes over, eager to wreak havoc."
@@ -225,7 +225,7 @@ cs =
         }
       ]
     , [ invuln "Thick Sand Coat" "Shukaku" [Physical] ]
-    ] []
+    ]
   , Character
     "Rehabilitated Gaara"
     "Following his fateful encounter with Naruto, Gaara has become a kind and loyal friend. The sand that was once an extension of his fear and rage has become a versatile tool for shaping the battlefield."
@@ -286,5 +286,5 @@ cs =
         }
       ]
     , [ invuln "Shukaku Shield" "Gaara" [Physical] ]
-    ] []
+    ]
   ]

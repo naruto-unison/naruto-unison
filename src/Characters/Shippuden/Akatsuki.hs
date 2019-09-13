@@ -102,7 +102,7 @@ cs =
         }
       ]
     , [ invuln "Scale Shield" "Kisame" [Physical] ]
-    ] []
+    ]
   , Character
     "Deidara"
     "An S-Rank rogue ninja from the Hidden Stone Village, Deidara has begrudgingly joined Akatsuki after losing in a bet to Itachi. As a former member of the Explosion Corps, he posesses the unusual ability to turn clay into explosives by infusing it with lightning chakra. Most of his reckless decisions can be attributed to his pride and his love of art, which usually outweighs any other priorities."
@@ -196,7 +196,7 @@ cs =
         }
       ]
     , [ invuln "Clay Clone" "Deidara" [Chakra] ]
-    ] []
+    ]
   , Character
     "Hidan"
     "An S-Rank rogue ninja from the Hidden Hotspring Village, Hidan joined Akatsuki to learn the secrets of its members. He belongs to a cult that worships Jashin, a bloodthirsty and murderous god who blesses him with immortality. With no need to fear death, he binds his soul to his enemies and tortures himself endlessly."
@@ -299,7 +299,7 @@ cs =
         }
       ]
     , [ invuln "Block" "Hidan" [Physical] ]
-    ] []
+    ]
   , Character
     "Hiruko Sasori"
     "The Akatsuki member Sasori is rarely seen outside of Hiruko, a heavily armored shell that allows him to perform puppetry without the usual weakness of leaving himself exposed. Its poisonous stinger and hidden traps make it a threat that cannot be ignored."
@@ -361,7 +361,7 @@ cs =
         }
       ]
     , [ invuln "Tail Block" "Sasori" [Physical] ]
-    ] []
+    ]
   , Character
     "Kazekage Puppeteer Sasori"
     "Sasori's most prized human puppet is the body of the Third Kazekage, which allows him to wield its magnetic abilities. As Sasori's last resort, this puppet favors all-out attack. Its enemies must deal with it quickly before its iron sand takes over the battlefield."
@@ -435,7 +435,7 @@ cs =
         }
       ]
     , [ invuln "Chakra Barrier" "Sasori" [Chakra] ]
-    ] []
+    ]
   , Character
     "True Form Sasori"
     "Having invented and perfected the art of human puppetry, Sasori accomplished its ultimate act: transforming himself into a living puppet. His immortal core now resides in an unnaturally youthful simulacrum filled to the brim with tools of slaughter, each of which he switches out for another as soon as he uses it."
@@ -552,7 +552,7 @@ cs =
         }
       ]
     , [ invuln "Heart Switch" "Sasori" [Physical] ]
-    ] []
+    ]
   , Character
     "Animal Path Pain"
     "Having taken over the body of a ninja from the Hidden Rain Village named Ajisai, Pain now acts through it as one of his Six Paths. Animal Path's specialization is summoning giant creatures that continue to fight for her even if she is immobilized."
@@ -631,7 +631,7 @@ cs =
         }
       ]
     , [ invuln "Summoning: Giant Chameleon" "Pain" [Physical, Summon] ]
-    ] []
+    ]
   , Character
     "Preta Path Pain"
     "Having taken over the body of a farmer from the Hidden Grass Village, Pain now acts through it as one of his Six Paths. Preta Path's specialization is absorbing chakra and nullifying ninjutsu abilities."
@@ -669,7 +669,7 @@ cs =
         }
       ]
       , [ invuln "Rinnegan Foresight" "Pain" [Mental] ]
-    ] []
+    ]
   , Character
     "Naraka Path Pain"
     "Having taken over the body of a priest, Pain now acts through it as one of his Six Paths. Naraka Path's specialty is summoning and controlling the King of Hell, which shields and supports his allies by draining the strength of those it considers unworthy."
@@ -726,7 +726,7 @@ cs =
         }
       ]
     , [ invuln "Block" "Pain" [Physical] ]
-    ] []
+    ]
   , Character
     "Human Path Pain"
     "Having taken over the body of a ninja from the Hidden Waterfall Village, Pain now acts through it as one of his Six Paths. Human Path's specialty is drawing the souls of his enemies from their bodies to reveal their secrets and drain their lifeforce."
@@ -774,7 +774,7 @@ cs =
         }
       ]
     , [ invuln "Rinnegan Foresight" "Pain" [Mental] ]
-    ] []
+    ]
   , Character
     "Asura Path Pain"
     "Having taken over the body of a wandering puppeteer, Pain now acts through it as one of his Six Paths. Asura Path's body is heavily augmented with ballistic and mechanical weaponry."
@@ -887,7 +887,7 @@ cs =
         }
       ]
     , [ invuln "Flee" "Pain" [Physical] ]
-    ] []
+    ]
   , Character
     "Deva Path Pain"
     "Having taken over the body of Yahiko, his deceased best friend, Pain now acts through it as one of his Six Paths. To honor Yahiko's memory, Pain uses the Deva Path as the leader of the Six Paths and his main body when interacting with others. Deva Path's specialization is gravity manipulation, which he uses to impair and imprison his enemies."
@@ -965,7 +965,7 @@ cs =
         }
       ]
     , [ invuln "Rinnegan Foresight" "Pain" [Mental] ]
-    ] []
+    ]
   , Character
     "Nagato"
     "Nagato leads the Akatsuki as the six-bodied Pain. His true body has remained safely hidden for years, acting through the Gedo statue. Though vulnerable without his Paths to defend him, Nagato's rinnegan makes him a formidable opponent."
@@ -1051,5 +1051,5 @@ cs =
         }
       ]
     , [ invuln "Rinnegan Foresight" "Nagato" [Mental] ]
-    ] []
+    ]
   ]

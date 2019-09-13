@@ -120,7 +120,6 @@ testNinja slot = Ninja.new slot $ Character
     { Character.name     = "Ninja " ++ tshow slot
     , Character.bio      = ""
     , Character.skills   = [[Skill.new], [Skill.new], [Skill.new], [Skill.new]]
-    , Character.hooks    = mempty
     , Character.category = Original
     }
 
