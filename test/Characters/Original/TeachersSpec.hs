@@ -406,7 +406,6 @@ spec = parallel do
                     targetDmg - (100 - targetHealth) `shouldBe` 35
                 it "cures target" $
                     not exposed
-
   where
     describeCharacter = describeCategory Original
     targetDmg = 55
