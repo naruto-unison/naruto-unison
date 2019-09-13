@@ -47,7 +47,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Teleportation Technique"
         , Skill.desc      = "For 2 turns, if an enemy uses a skill on Shisui, he will deal 15 damage to them and become invulnerable for the rest of the turn."
-        , Skill.classes   = [Physical, Invisible]
+        , Skill.classes   = [Physical, InvisibleTraps]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -376,13 +376,13 @@ cs =
     , [ Skill.new
         { Skill.name      = "Kotoamatsukami"
         , Skill.desc      = "Danzō infiltrates the mind of an enemy. The next time they use a skill, its effects will be nullified, they will be stunned for 2 turns, and this skill will be replaced by the skill they used for 2 turns. Danzō's copy of their skill has no chakra cost or cooldown and ends when this skill reverts."
-        , Skill.classes   = [Mental, Ranged, Invisible, Uncounterable, Unreflectable]
+        , Skill.classes   = [Mental, Ranged, InvisibleTraps, Uncounterable, Unreflectable]
         , Skill.cost      = [Blood, Gen, Gen]
         , Skill.cooldown  = 9
         , Skill.effects   =
           [ To Enemy do
                 userSlot <- user slot
-                apply 2 [Replace 2 userSlot "Kotoamatsukami"]
+                applyWith [Invisible] 2 [Replace 2 userSlot "Kotoamatsukami"]
                 trap 2 (Countered Uncounterable) do
                     remove "Kotoamatsukami"
                     removeTrap "Kotoamatsukami"

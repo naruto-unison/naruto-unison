@@ -37,7 +37,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Multi Shadow Clone"
         , Skill.desc      = "Naruto creates countless clones, hidden in the area around him, who counter the first skill an enemy uses on him in the next turn."
-        , Skill.classes   = [Physical, Invisible]
+        , Skill.classes   = [Physical, InvisibleTraps]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
