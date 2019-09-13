@@ -20,7 +20,7 @@ import ClassyPrelude
 import Control.Monad.Trans.Maybe (runMaybeT)
 import Data.Enum.Set.Class (EnumSet)
 
-import           Core.Util ((—), (∉))
+import           Core.Util ((—), (∈), (∉))
 import qualified Class.Classed as Classed
 import qualified Class.Labeled as Labeled
 import qualified Class.Play as P
@@ -138,22 +138,26 @@ formula atk classes nUser nTarget = limit . truncate .
 -- Uses 'Ninjas.adjustHealth' internally.
 attack :: ∀ m. MonadPlay m => Attack -> Int -> m ()
 attack atk dmg = void $ runMaybeT do
+    nTarget    <- P.nTarget
+
+    guard $ atkClass ∉ Effects.invulnerable nTarget
+
     skill      <- P.skill
+    nUser      <- P.nUser
+    let classes = insertSet atkClass $ Skill.classes skill
+
+    guard $ Direct ∈ classes || not (nUser `is` Stun atkClass)
+
     user       <- P.user
     target     <- P.target
-    nUser      <- P.nUser
-    nTarget    <- P.nTarget
-    let classes = insertSet atkClass $ Skill.classes skill
-        dmgCalc = formula atk classes nUser nTarget dmg
+    let dmgCalc = formula atk classes nUser nTarget dmg
         (dmg'Barrier, barr) = absorbBarrier dmgCalc $ Ninja.barrier nUser
         handleDefense
           | nTarget `is` Undefend = (,)
           | otherwise             = absorbDefense
         (dmg'Def, defense) = handleDefense dmg'Barrier $ Ninja.defense nTarget
 
-    guard . not $ dmg < Effects.threshold nTarget
-               || Direct ∉ classes && nUser `is` Stun atkClass
-               || dmgCalc <= 0
+    guard $ dmgCalc > Effects.threshold nTarget -- Always 0 or higher
 
     if atk == Attack.Afflict then do
         P.modify target $ Ninjas.adjustHealth (— dmgCalc)

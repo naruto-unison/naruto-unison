@@ -849,6 +849,57 @@ cs =
     , [ invuln "Levitating Sand Shield" "Gaara" [Physical] ]
     ]
   , Character
+    "Kankurō"
+    "Now a jōnin, Kankurō has crafted a third puppet for his collection and honed his skill as a puppetmaster. Each puppet has its own use, improving his overall versatility."
+    [ [ Skill.new
+        { Skill.name      = "Kuroari Trap"
+        , Skill.desc      = "The Kuroari puppet traps an enemy, countering them if they use a skill on Kankurō or his allies next turn. If countered, the target receives twice as much damage from [Karasu Knives] for 1 turn."
+        , Skill.classes   = [Physical, Ranged, InvisibleTraps]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Enemy $ trap (-1) (Countered All) $ tag 1 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Karasu Knives"
+        , Skill.desc      = "The Karasu puppet shoots poisoned knives at an enemy, dealing 20 damage to them. Next turn, the target takes 10 affliction damage."
+        , Skill.classes   = [Physical, Ranged, Bane]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                bonus <- 20 `bonusIf` targetHas "Kuroari Trap"
+                damage (20 + bonus)
+                bomb 1 [] [ To Expire do
+                    bonus' <- 10 `bonusIf` targetHas "Kuroari Trap"
+                    afflict (10 + bonus') ]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Sanshōuo Shield"
+        , Skill.desc      = "The Sanshōuo puppet blocks enemy attacks for 3 turns, providing 25% damage reduction to Kankuro and his allies and making them immune to affliction damage. While active, this skill becomes [Salamander Puppet]."
+        , Skill.classes   = [Physical]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.dur       = Action 3
+        , Skill.cooldown  = 3
+        , Skill.start     =
+          [ To Self $ vary "Sanshōuo Shield" "Salamander Puppet" ]
+        , Skill.effects   =
+          [ To Allies $
+              apply 1 [Reduce All Percent 25, Invulnerable Affliction]
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Salamander Puppet"
+        , Skill.desc      = "The Sanshōuo puppet focuses its defense on Kankurō or one of his allies, providing them with 25% additional damage reduction for 1 turn."
+        , Skill.classes   = [Physical]
+        , Skill.effects   =
+          [ To Ally $ apply 1 [Reduce All Percent 25] ]
+        }
+      ]
+    , [ invuln "Puppet Distraction" "Kankurō" [Physical] ]
+    ]
+  , Character
     "Konohamaru Sarutobi"
     "The grandson of the Third Hokage, Konohamaru has spent his youth working hard to pursue his dream of one day following in his grandfather's steps. No longer a bumbling student, Konohamaru has become remarkably skillful as a genin. Agile and fast, he can rush in to save an ally on the brink of defeat."
     [ [ Skill.new

@@ -194,6 +194,7 @@ cs =
         , Skill.classes   = [Affliction, Bane]
         , Skill.cost      = [Nin]
         , Skill.dur       = Action 3
+        , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
                 damage 10
