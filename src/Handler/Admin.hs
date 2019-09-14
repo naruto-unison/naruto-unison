@@ -10,12 +10,12 @@ import Yesod
 
 import           Core.App (Handler)
 import qualified Class.Sockets as Sockets
-import           Handler.Play (gameSocket)
+import qualified Handler.Play as Play
 
 -- | Provides a simple JavaScript interface for 'gameSocket'.
 getTestR :: Handler Html
 getTestR = do
-  Sockets.run gameSocket
+  Sockets.run Play.gameSocket
   defaultLayout do
     setTitle "Socket Test"
     [whamlet|

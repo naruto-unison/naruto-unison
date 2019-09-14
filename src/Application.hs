@@ -71,12 +71,19 @@ makeFoundation settings = do
         tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
         logFunc = messageLoggerSource tempFoundation logger
 
-    pool <- flip Logger.runLoggingT logFunc $ Sql.createPostgresqlPool
-        (Sql.pgConnStr  $ AppSettings.databaseConf settings)
-        (Sql.pgPoolSize $ AppSettings.databaseConf settings)
+    pool <- flip Logger.runLoggingT logFunc .
+            Logger.filterLogger (const (/= Logger.LevelDebug)) $
+            Sql.createPostgresqlPool
+                (Sql.pgConnStr  $ AppSettings.databaseConf settings)
+                (Sql.pgPoolSize $ AppSettings.databaseConf settings)
 
     Logger.runLoggingT
         (Sql.runSqlPool (Sql.runMigration Model.migrateAll) pool) logFunc
+
+    dbMigrationsSql <- readFile "config/db.sql"
+    Logger.runLoggingT
+      (Sql.runSqlPool (Sql.rawExecute (decodeUtf8 dbMigrationsSql) []) pool)
+      logFunc
 
     return $ mkFoundation pool
   where

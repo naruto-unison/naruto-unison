@@ -7,5 +7,3 @@ database:
   #
   #   database: "_env:PGDATABASE:naruto-unison_test"
   database: naruto-unison_test
-
-auth-dummy-login: false

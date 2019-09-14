@@ -287,14 +287,14 @@ body {
     margin-top: 15px;
     padding: 10px;
 }
-#vs nav {
-    margin: -5px 5px -5px 0;
-    padding-bottom: 9px;
+#vs span, #vs button, #vs input {
+    align-self: center;
 }
 #vs button {
-    display: block;
     width: 6em;
-    height: 50%;
+}
+#vs span {
+    margin: 0 0.5em 0 1em;
 }
 #characterButtons.full {
     top: 260px;

@@ -24,7 +24,7 @@ import           Core.Util ((∉), shorten)
 import qualified Model.Character as Character
 import           Model.Character (Character)
 import qualified Model.Skill as Skill
-import           Handler.Play (gameSocket)
+import qualified Handler.Play as Play
 import qualified Characters
 
 -- | Updates a user's profile.
@@ -35,12 +35,12 @@ getUpdateR updateName updateCondense updateBackground updateAvatar
   | any (∉ legalChars) updateName =
       invalidArgs ["Name can only contain letters and numbers"]
   | otherwise = do
-    (accId, _) <- Auth.requireAuthPair
-    user <- runDB $ updateGet accId [ UserName      =. updateName
-                                   , UserCondense   =. updateCondense
-                                   , UserBackground =. updateBackground''
-                                   , UserAvatar     =. updateAvatar
-                                   ]
+    accId <- Auth.requireAuthId
+    user  <- runDB $ updateGet accId [ UserName      =. updateName
+                                    , UserCondense   =. updateCondense
+                                    , UserBackground =. updateBackground''
+                                    , UserAvatar     =. updateAvatar
+                                    ]
     returnJson user
   where
     updateBackground'  = fromMaybe "" $ tailMay updateBackground
@@ -51,14 +51,14 @@ getUpdateR updateName updateCondense updateBackground updateAvatar
 -- | Updates a user's muted status.
 getMuteR :: Bool -> Handler Value
 getMuteR mute = do
-    (who, _) <- Auth.requireAuthPair
+    who <- Auth.requireAuthId
     runDB $ update who [ UserMuted =. mute ]
     returnJson mute
 
 -- | Renders the gameplay client.
 getPlayR :: Handler Html
 getPlayR = do
-    Sockets.run gameSocket
+    Sockets.run Play.gameSocket
     muser <- (entityVal <$>) <$> Auth.maybeAuth
     let team     = maybe [] (mapMaybe Characters.lookupName) $
                    muser >>= userTeam

@@ -13,6 +13,7 @@ import Html.Lazy exposing (..)
 import List.Extra         as List
 import List.Nonempty      as Nonempty exposing (Nonempty(..))
 import Maybe.Extra        as Maybe
+import Process
 import Task exposing (Task)
 import Tuple exposing (first, second)
 import Url
@@ -66,7 +67,7 @@ formUrl form = "api/update/" ++ form.name ++ "/"
                ++ "/b" ++ form.background ++ "/"
                ++ Url.percentEncode form.avatar
 
-type Stage = Browsing | Queued | Practicing
+type Stage = Browsing | Queued | Practicing | Searching
 
 type alias Model =
     { error      : Maybe String
@@ -86,6 +87,7 @@ type alias Model =
     , previewing : Previewing
     , variants   : List Int
     , pageSize   : Int
+    , search     : String
     , form       : Form
     }
 
@@ -104,6 +106,8 @@ type Msg
     | ReceiveGame (Result Http.Error GameInfo)
     | ReceiveUpdate (Result Http.Error ())
     | Scroll Int
+    | Search
+    | SetSearch String
     | SetStage Stage
     | SwitchLogin
     | Team ListChange Character
@@ -134,6 +138,7 @@ component ports =
         , previewing = NoPreview
         , variants   = [0, 0, 0, 0]
         , pageSize   = 36
+        , search     = ""
         , form       = case flags.user of
             Nothing   ->
                 { name       = ""
@@ -178,8 +183,9 @@ component ports =
                             else
                                 "char"
                 (topModule, teamOp) = case st.stage of
-                    Browsing -> (previewBox st, Team)
-                    _        -> (vsBox st,      Vs)
+                    Practicing -> (vsBox st,      Vs)
+                    Searching  -> (searchBox st,  Team)
+                    _          -> (previewBox st, Team)
               in
                 topModule ::
                 [ H.section
@@ -303,12 +309,28 @@ component ports =
                  }
             )
         ReceiveGame _   -> pure st
-        SetStage stage  -> withSound Sound.Click { st | stage = stage }
-        Enqueue Private -> pure st
+        SetSearch name  -> pure { st | search = name }
+        SetStage stage  ->
+            ( { st | stage = stage, error = Nothing }
+            , case (st.stage, stage) of
+                (Queued, Browsing) -> Cmd.batch
+                    [ports.websocket "cancel", ports.sound Sound.Click]
+                _                  -> ports.sound Sound.Click
+            )
+        Search -> (st, ports.websocket st.search)
+        Enqueue Private ->
+          ( { st | stage = Queued }
+          , Cmd.batch
+            [ ports.websocket << String.join "/" <|
+                  "private" :: List.map characterName st.team
+            , Process.sleep 1000 |> Task.perform (always Search)
+            ]
+          )
         Dequeue         -> pure { st | stage = Browsing }
         Enqueue Quick   ->
           ( { st | stage = Queued }
-          , ports.websocket << String.join "/" <| List.map characterName st.team
+          , ports.websocket << String.join "/" <|
+              "quick" :: List.map characterName st.team
           )
 
 
@@ -354,7 +376,7 @@ userBox mUser csrf csrfParam showLogin team =
                 ] [H.text "Main Site"]
               , H.a (meta <| Enqueue Quick)
                 [H.text "Start Quick Match"]
-              , H.a (meta <| Enqueue Private)
+              , H.a (meta <| SetStage Searching)
                 [H.text "Start Private Match"]
               , H.a (meta <| SetStage Practicing)
                 [H.text "Start Practice Match"]
@@ -494,12 +516,10 @@ vsBox st =
             [A.class "parchment playButton"]
   in
     H.section [A.id "vs", A.class "parchment"]
-    [ H.nav []
-      [ H.button meta [H.text "Ready"]
-      , H.button
-        [A.class "parchment playButton click", E.onClick <| SetStage Browsing]
-        [H.text "Cancel"]
-      ]
+    [ H.button meta [H.text "Ready"]
+    , H.button
+      [A.class "parchment playButton click", E.onClick <| SetStage Browsing]
+      [H.text "Cancel"]
     , H.span [] [H.text "VS: "]
     , Keyed.node "div" [A.id "vsButtons", A.class "select"] <<
       for st.vs <| \char ->
@@ -509,6 +529,31 @@ vsBox st =
             , E.onClick <| Vs Delete char
             ]
           )
+    ]
+
+searchBox : Model -> Html Msg
+searchBox st =
+  let
+    meta =
+        if List.length st.vs == Game.teamSize then
+            [ A.class "parchment playButton click"
+            , E.onClick <| Enqueue Private
+            ]
+        else
+            [A.class "parchment playButton"]
+  in
+    H.section [A.id "vs", A.class "parchment"] <| failWarning st.error
+    [ H.button meta [H.text "Ready"]
+    , H.button
+      [A.class "parchment playButton click", E.onClick <| SetStage Browsing]
+      [H.text "Cancel"]
+    , H.span [] [H.text "VS: "]
+    , H.input
+      [ A.type_ "text"
+      , A.name "search"
+      , A.value st.search
+      , E.onInput SetSearch
+      ] []
     ]
 
 previewBox : Model -> Html Msg

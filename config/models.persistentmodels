@@ -6,7 +6,6 @@ User
     verified    Bool
     privilege   Privilege
     name        Text
-    UniqueName name
     avatar      Text
     background  Text Maybe
     xp          Int

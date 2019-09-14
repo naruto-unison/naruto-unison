@@ -1,8 +1,10 @@
 {-# LANGUAGE NoStrictData #-}
 -- | Messages passed between users through
 -- 'Control.Concurrent.STM.TChan.TChan's.
-module Core.Message
-  ( Queue(..)
+module Core.Queue
+  ( Message(..)
+  , Section(..)
+  , Failure(..)
   ) where
 
 import ClassyPrelude
@@ -13,6 +15,16 @@ import Model.Character (Character)
 import Model.GameInfo (GameInfo)
 
 -- | Messages between all users queued for games.
-data Queue
+data Message
     = Announce (Key User) User [Character]
+    | Request  (Key User) (Key User) [Character]
     | Respond  (Key User) (TBQueue Wrapper) (TBQueue Wrapper) GameInfo
+
+data Section
+    = Quick
+    | Private
+
+data Failure
+    = InvalidTeam
+    | Canceled
+    | OpponentNotFound

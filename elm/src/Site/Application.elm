@@ -113,27 +113,49 @@ app websocket ports =
           Nothing           -> pure st
           Just (model, cmd) ->
               ({ st | playModel = Just model }, Cmd.map PlayMsg cmd)
-      Receive json -> case D.decodeString Model.jsonDecGameInfo json of
-                Err err -> pure { st | error = Just <| D.errorToString err }
-                Ok info ->
-                  let
-                    selectModel = st.selectModel
-                    firstPlayer = info.player == info.game.playing
-                    progress    = if firstPlayer then 0 else 1
-                  in
-                    ( { st
-                      | playModel   = Just <| play.init st.flags False info
-                      , selectModel = { selectModel | stage = Select.Browsing }
-                      }
-                    , Cmd.batch
-                      [ ports.progress 60000 (1 - progress) progress
-                      , ports.sound <|
-                            if firstPlayer then
-                                Sound.StartFirst
-                            else
-                                Sound.StartSecond
-                      ]
-                    )
+      Receive msg -> case msg of
+          "ping" ->
+              if st.selectModel.stage == Select.Queued then
+                  (st, ports.websocket "pong")
+              else
+                  pure st
+          "User not found" ->
+              let
+                selectModel = st.selectModel
+              in
+                  if selectModel.stage == Select.Queued then
+                      ( { st
+                        | selectModel =
+                            { selectModel
+                            | stage = Select.Searching
+                            , error = Just "User not found"
+                            }
+                        }
+                      , ports.sound Sound.Death
+                      )
+                  else
+                      pure st
+          _      -> case D.decodeString Model.jsonDecGameInfo msg of
+              Err err -> pure { st | error = Just <| D.errorToString err }
+              Ok info ->
+                let
+                  selectModel = st.selectModel
+                  firstPlayer = info.player == info.game.playing
+                  progress    = if firstPlayer then 0 else 1
+                in
+                  ( { st
+                    | playModel   = Just <| play.init st.flags False info
+                    , selectModel = { selectModel | stage = Select.Browsing }
+                    }
+                  , Cmd.batch
+                    [ ports.progress 60000 (1 - progress) progress
+                    , ports.sound <|
+                          if firstPlayer then
+                              Sound.StartFirst
+                          else
+                              Sound.StartSecond
+                    ]
+                  )
 
     subscriptions : Model -> Sub Msg
     subscriptions st = case st.playModel of

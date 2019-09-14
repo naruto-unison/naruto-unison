@@ -72,7 +72,7 @@ getBoardR board = do
 -- | Renders a 'Topic'.
 getTopicR :: TopicId -> Handler Html
 getTopicR topicId = do
-    (who, _)  <- Auth.requireAuthPair
+    who       <- Auth.requireAuthId
     time      <- liftIO getCurrentTime
     timestamp <- liftIO makeTimestamp
     zone      <- liftIO LocalTime.getCurrentTimeZone
@@ -87,7 +87,7 @@ getTopicR topicId = do
 -- | Adds to a 'Topic'.
 postTopicR :: TopicId -> Handler Html
 postTopicR topicId = do
-    (who, _)  <- Auth.requireAuthPair
+    who       <- Auth.requireAuthId
     time      <- liftIO getCurrentTime
     timestamp <- liftIO makeTimestamp
     ((result, _), _) <- runFormPost . renderTable $ newPostForm topicId who time

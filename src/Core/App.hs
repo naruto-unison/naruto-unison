@@ -40,8 +40,8 @@ import qualified Yesod.Default.Util as YesodUtil
 import           Yesod.Static hiding (static)
 
 import           Core.Fields (ForumBoard, Privilege(..), boardName)
+import qualified Core.Queue as Queue
 import           Core.Wrapper (Wrapper)
-import qualified Core.Message as Message
 import           Core.Model (EntityField(..), Topic(..), TopicId, User(..), UserId, Unique(..))
 import qualified Core.AppSettings as AppSettings
 import           Core.AppSettings (AppSettings)
@@ -65,7 +65,7 @@ data App = App
       -- ^ Saved state of Practice Games. Games expire after one hour or as soon
       -- as they yield a victor.
       -- All other games are stored in their websocket threads.
-    , queue       :: TChan Message.Queue
+    , queue       :: TChan Queue.Message
       -- ^ Broadcast channel for users to queue and be matched with each other.
     }
 
