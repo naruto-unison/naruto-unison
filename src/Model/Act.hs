@@ -65,10 +65,11 @@ fromChannel n chan = Act { user   = Ninja.slot n
                          }
 
 instance PathPiece Act where
-    toPathPiece Act{..} = intercalate "," [ tshow user
-                                          , either tshow Skill.name skill
-                                          , tshow target
-                                          ]
+    toPathPiece Act{user, skill, target} =
+        intercalate "," [ tshow user
+                        , either tshow Skill.name skill
+                        , tshow target
+                        ]
     fromPathPiece raw   = case pieces of
         [c, s, t] -> case makeAct c s t of
                         Right act -> Just act

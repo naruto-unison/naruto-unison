@@ -130,8 +130,7 @@ instance Yesod App where
         -> LByteString -- ^ The contents of the file
         -> Handler (Maybe (Either Text (Route App, [(Text, Text)])))
     addStaticContent ext mime content = do
-        master <- getYesod
-        let staticDir = AppSettings.staticDir $ settings master
+        staticDir <- getsYesod $ AppSettings.staticDir . settings
         YesodUtil.addStaticContentExternal
             Jasmine.minifym
             genFileName
@@ -160,16 +159,14 @@ instance YesodBreadcrumbs App where
   breadcrumb (ProfileR name) = return (name, Just HomeR)
   breadcrumb (NewTopicR board) = return ("New Topic", Just $ BoardR board)
   breadcrumb (TopicR topic) = do
-      Topic{..} <- runDB $ get404 topic
+      Topic{topicTitle, topicBoard} <- runDB $ get404 topic
       return (topicTitle, Just $ BoardR topicBoard)
   breadcrumb _ = return ("Home", Nothing)
 
 instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend
     runDB :: ∀ a. SqlPersistT Handler a -> Handler a
-    runDB action = do
-        master <- getYesod
-        Sql.runSqlPool action $ connPool master
+    runDB action = Sql.runSqlPool action =<< getsYesod connPool
 
 instance YesodPersistRunner App where
     getDBRunner :: Handler (DBRunner App, Handler ())

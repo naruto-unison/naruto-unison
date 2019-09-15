@@ -76,4 +76,4 @@ instance FromJSON AppSettings where
 
         authDummyLogin         <- o .:? "auth-dummy-login" .!= dev
 
-        return AppSettings {..}
+        return AppSettings{..}

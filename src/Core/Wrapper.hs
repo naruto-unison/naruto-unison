@@ -54,13 +54,11 @@ instance MonadIO m => MonadGame (ReaderT IOWrapper m) where
                   MVector.unsafeModify xs f $ Slot.toInt i
 
 fromInfo :: ∀ s. GameInfo -> ST s (STWrapper s)
-fromInfo info = do
-    gameRef <- newSTRef $ GameInfo.game info
-    ninjasRef <- Vector.thaw $ GameInfo.ninjas info
-    return STWrapper{..}
+fromInfo info = STWrapper <$> newSTRef (GameInfo.game info)
+                          <*> Vector.thaw (GameInfo.ninjas info)
 
 replace :: ∀ s. Wrapper -> STWrapper s -> ST s ()
-replace Wrapper{..} STWrapper{..} = do
+replace Wrapper{game, ninjas} STWrapper{gameRef, ninjasRef} = do
     writeSTRef gameRef game
     MVector.unsafeCopy ninjasRef =<< Vector.thaw ninjas
 
@@ -92,10 +90,10 @@ freeze :: ∀ m. MonadGame m => m Wrapper
 freeze = Wrapper <$> P.game <*> P.ninjas
 
 thaw :: ∀ s. Wrapper -> ST s (STWrapper s)
-thaw Wrapper{..} = STWrapper <$> newSTRef game <*> Vector.thaw ninjas
+thaw Wrapper{game, ninjas} = STWrapper <$> newSTRef game <*> Vector.thaw ninjas
 
 toJSON :: Player -> Wrapper -> Value
-toJSON player Wrapper{..} = GameInfo.gameToJSON player ninjas game
+toJSON p Wrapper{game, ninjas} = GameInfo.gameToJSON p ninjas game
 
 instance MonadRandom m => MonadRandom (ReaderT Wrapper m)
 instance MonadRandom m => MonadRandom (ReaderT (STWrapper s) m)
