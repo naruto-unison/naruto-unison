@@ -302,11 +302,11 @@ clearTraps tr n = n { traps = filter ((tr /=) . Trap.trigger) $ traps n }
 -- | Resets matching 'variants'.
 clearVariants :: Text -- ^ 'Variant.name'.
               -> Ninja -> Ninja
-clearVariants name n = n { variants = f <$> variants n }
+clearVariants name n =
+    n { variants = ensure . filter keep . toList <$> variants n }
   where
     keep Variant{ dur = Variant.FromSkill x } = x /= name
-    keep _ = True
-    f = ensure . filter keep . toList -- TODO
+    keep _                                    = True
     ensure []     = Variant.none :| []
     ensure (x:xs) = x :| xs
 
@@ -414,12 +414,12 @@ prolong' dur name user st
       { Status.dur    = statusDur'
       , Status.maxDur = max (Status.maxDur st) statusDur'
       }
-    where -- TODO figure out why the fuck this works
+    where
       statusDur' = Status.dur st + dur'
       dur'
-        | odd (Status.dur st) == even dur = dur
-        | dur < 0                         = dur + 1
-        | otherwise                       = dur - 1
+        | odd (Status.dur st + dur) = dur
+        | dur < 0                   = dur + 1
+        | otherwise                 = dur - 1
 
 prolongChannel :: Duration -> Text -> Ninja -> Ninja
 prolongChannel dur name n = n { channels = f <$> channels n }
