@@ -71,9 +71,14 @@ shorten = omap f . filter (∉ bans)
 
 -- | A metaconstraint for liftable functions.
 -- Useful for default signatures of MTL classes:
+--
 -- > default myfunc :: Lift MyMonad m => m ()
 -- > myfunc = lift myfunc
-type Lift mtl m = (MonadTrans (Car m), mtl (Cdr m), m ~ Car m (Cdr m))
--- Just don't worry about it
-type family Car m :: (* -> *) -> * -> * where Car (t n) = t
-type family Cdr (m :: * -> *) :: * -> * where Cdr (t n) = n
+--
+-- This is equivalent to
+--
+-- > type Lift mClass tran base m = (MonadTrans tran, mClass base, m ~ tran base)
+
+type Lift mClass m = (MonadTrans (Tran m), mClass (Base m), m ~ Tran m (Base m))
+type family Tran m :: (* -> *) -> * -> * where Tran (t n) = t
+type family Base (m :: * -> *) :: * -> * where Base (t n) = n
