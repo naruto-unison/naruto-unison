@@ -24,6 +24,7 @@ import           Model.Game (Game)
 import qualified Model.GameInfo as GameInfo
 import           Model.GameInfo (GameInfo)
 import           Model.Ninja (Ninja)
+import qualified Model.Player as Player
 import           Model.Player (Player)
 import qualified Model.Slot as Slot
 
@@ -85,6 +86,7 @@ instance MonadGame (StateT Wrapper Identity) where
 instance MonadRandom (StateT Wrapper Identity) where
     random x = return . const x
     shuffle  = return . id
+    player   = return Player.A
 
 freeze :: ∀ m. MonadGame m => m Wrapper
 freeze = Wrapper <$> P.game <*> P.ninjas

@@ -2,7 +2,6 @@
 module Model.Player
   ( Player(..)
   , opponent
-  , from
   ) where
 
 import ClassyPrelude hiding (even)
@@ -20,10 +19,6 @@ instance Parity Player where
     even A = True
     even B = False
     {-# INLINE even #-}
-
-from :: ∀ a. Parity a => a -> Player
-from (Parity.even -> True) = A
-from _                     = B
 
 opponent :: Player -> Player
 opponent A = B
