@@ -158,12 +158,15 @@ queue :: Queue.Section -> [Character] ->
         ExceptT Queue.Failure (ReaderT Random.GenIO (SocketsT Handler))
         (GameInfo, TBQueue Wrapper, TBQueue Wrapper)
 queue Queue.Quick team = do
-    app         <- lift getYesod
+    app         <- getYesod
     (who, user) <- Auth.requireAuthPair
     randPlayer  <- Player.from @Bool <$> (ask >>= liftIO . Random.uniform)
     let writeQueueChan = App.queue app
+    userMVar <- newEmptyMVar
+    -- TODO use userMVar in some kind of periodic timeout check based on its
+    -- UTCTime contents? or else just a semaphore
     readQueueChan <- (liftIO . atomically) do
-        writeTChan writeQueueChan $ Queue.Announce who user team
+        writeTChan writeQueueChan $ Queue.Announce who user team userMVar
         dupTChan writeQueueChan
     untilJust do
       msg <- liftIO . atomically $ readTChan readQueueChan
@@ -173,40 +176,44 @@ queue Queue.Quick team = do
       case msg of
         Queue.Respond mWho writer reader info
           | mWho == who -> return $ Just (info, writer, reader)
-        Queue.Announce vsWho vsUser vsTeam -> do
-            game <- Game.newWithChakras
-            let ninjas = zipWith Ninja.new Slot.all case randPlayer of
-                    Player.A -> team ++ vsTeam
-                    Player.B -> vsTeam ++ team
-            liftIO $ atomically do
-                writer <- newTBQueue 8
-                reader <- newTBQueue 8
-                writeTChan writeQueueChan $
-                    Queue.Respond vsWho reader writer
-                    GameInfo
-                        { GameInfo.vsWho  = who
-                        , GameInfo.vsUser = user
-                        , GameInfo.player = Player.opponent randPlayer
-                        , GameInfo.game   = game
-                        , GameInfo.ninjas = fromList ninjas
-                        }
-                let info = GameInfo
-                        { GameInfo.vsWho = vsWho
-                        , GameInfo.vsUser = vsUser
-                        , GameInfo.player = randPlayer
-                        , GameInfo.game   = game
-                        , GameInfo.ninjas = fromList ninjas
-                        }
-                return $ Just (info, writer, reader)
+        Queue.Announce vsWho vsUser vsTeam vsMVar -> do
+            time <- liftIO getCurrentTime
+            matched <- tryPutMVar vsMVar time
+            if not matched then
+                return Nothing
+            else do
+                game <- Game.newWithChakras
+                let ninjas = zipWith Ninja.new Slot.all case randPlayer of
+                        Player.A -> team ++ vsTeam
+                        Player.B -> vsTeam ++ team
+                liftIO $ atomically do
+                    writer <- newTBQueue 8
+                    reader <- newTBQueue 8
+                    writeTChan writeQueueChan $
+                        Queue.Respond vsWho reader writer
+                        GameInfo
+                            { GameInfo.vsWho  = who
+                            , GameInfo.vsUser = user
+                            , GameInfo.player = Player.opponent randPlayer
+                            , GameInfo.game   = game
+                            , GameInfo.ninjas = fromList ninjas
+                            }
+                    let info = GameInfo
+                            { GameInfo.vsWho = vsWho
+                            , GameInfo.vsUser = vsUser
+                            , GameInfo.player = randPlayer
+                            , GameInfo.game   = game
+                            , GameInfo.ninjas = fromList ninjas
+                            }
+                    return $ Just (info, writer, reader)
         _ -> return Nothing
 
 queue Queue.Private team = do
-    app                 <- lift $ lift getYesod
+    app                 <- getYesod
     (who, user)         <- Auth.requireAuthPair
     Entity vsWho vsUser <- do
         vsName <- Sockets.receive
-        mVs    <- lift . lift . lift . runDB $ -- surely there is a better way
-                  selectFirst [UserName ==. vsName] []
+        mVs    <- liftHandler . runDB $ selectFirst [UserName ==. vsName] []
         case mVs of
             Just vs -> return vs
             Nothing -> throwE Queue.OpponentNotFound
@@ -253,7 +260,6 @@ queue Queue.Private team = do
                 return $ Just (info, writer, reader)
         _ -> return Nothing
 
--- TODO do more stuff
 handleFailures :: ∀ m a. MonadSockets m => Either Queue.Failure a -> m (Maybe a)
 handleFailures (Right val)              = return $ Just val
 handleFailures (Left Queue.Canceled)    = return Nothing
@@ -267,7 +273,7 @@ handleFailures (Left Queue.OpponentNotFound) = do
 -- | Sends messages through 'TChan's in 'App.App'.
 gameSocket :: SocketsT Handler ()
 gameSocket = do
-    who       <- Auth.requireAuthId
+    who <- Auth.requireAuthId
     liftIO Random.createSystemRandom >>= runReaderT do
         (info, writer, reader) <- untilJust $ handleFailures =<< runExceptT do
             teamNames <- Text.split (=='/') <$> Sockets.receive
@@ -275,7 +281,7 @@ gameSocket = do
                 Nothing   -> throwE Queue.InvalidTeam
                 Just vals -> return vals
 
-            lift . lift . lift . runDB $ update who [UserTeam =. Just teamNames]
+            liftHandler . runDB $ update who [UserTeam =. Just teamNames]
             queue section team
 
         lift $ Sockets.sendJson info

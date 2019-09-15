@@ -16,7 +16,7 @@ import Model.GameInfo (GameInfo)
 
 -- | Messages between all users queued for games.
 data Message
-    = Announce (Key User) User [Character]
+    = Announce (Key User) User [Character] (MVar UTCTime)
     | Request  (Key User) (Key User) [Character]
     | Respond  (Key User) (TBQueue Wrapper) (TBQueue Wrapper) GameInfo
 
