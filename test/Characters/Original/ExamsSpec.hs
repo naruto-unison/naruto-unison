@@ -42,7 +42,7 @@ spec = parallel do
             damage targetDmg
             enemyTurn $ apply 0 [Stun All]
             userStunned <- Effects.stun <$> P.nUser
-            enemyTurn $ kill
+            enemyTurn kill
             userHealth <- Ninja.health <$> P.nUser
             return do
                 it "prevents death" $

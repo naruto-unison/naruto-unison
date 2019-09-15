@@ -463,7 +463,7 @@ cs =
         , Skill.dur       = Ongoing 3
         , Skill.start     =
           [ To Allies $ defend 3 35
-          , To Self   $ onBreak'
+          , To Self     onBreak'
           ]
         , Skill.effects   =
           [ To REnemy $ absorb 1 ]

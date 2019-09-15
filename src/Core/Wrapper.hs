@@ -85,7 +85,7 @@ instance MonadGame (StateT Wrapper Identity) where
     modifyAll f = modify' \g -> g { ninjas = f <$> ninjas g }
 instance MonadRandom (StateT Wrapper Identity) where
     random x = return . const x
-    shuffle  = return . id
+    shuffle  = return
     player   = return Player.A
 
 freeze :: ∀ m. MonadGame m => m Wrapper

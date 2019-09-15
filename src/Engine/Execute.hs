@@ -115,7 +115,7 @@ wrap affected f = void $ runMaybeT do
         P.modify user \n -> n { Ninja.lastSkill = Just skill }
         when harm do
             replaces <- Effects.replace <$> P.nUser
-            when (not $ null replaces) do
+            unless (null replaces) do
                 P.modify user Ninjas.clearReplaces
                 traverse_ (copy Copy.Shallow user skill) replaces
 
@@ -305,7 +305,7 @@ act a = do
                         }
 
 interruptions :: Skill -> [Runnable Target]
-interruptions skill = (To Enemy clear) : (To Ally clear) : Skill.interrupt skill
+interruptions skill = To Enemy clear : To Ally clear : Skill.interrupt skill
   where
     clear :: ∀ m. MonadPlay m => m ()
     clear = P.fromUser . Ninjas.clear $ Skill.name skill

@@ -147,8 +147,7 @@ cs =
         , Skill.start     =
           [ To Self $ vary "Mangekyō Sharingan" "Eternal Mangekyō Sharingan" ]
         , Skill.effects   =
-          [ To Self do
-              apply 1 [Limit 25]
+          [ To Self $ apply 1 [Limit 25]
           ]
         }
       , Skill.new

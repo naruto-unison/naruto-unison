@@ -128,7 +128,7 @@ getPracticeActR actChakra exchangeChakra actions = do
                   }
               Turn.run =<< Act.randoms
               game'B <- Wrapper.freeze
-              liftIO if (null . Game.victor $ Wrapper.game game'B) then
+              liftIO if null . Game.victor $ Wrapper.game game'B then
                   Cache.insert practice who game'B
               else
                   Cache.delete practice who
@@ -296,7 +296,7 @@ gameSocket = do
                     liftST . Wrapper.replace wrapper =<< ask
                     tryEnact player writer
                     return Nothing
-                else do
+                else
                     return $ Just wrapper
             Sockets.sendJson $ Wrapper.toJSON player completedGame
 

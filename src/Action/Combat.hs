@@ -159,7 +159,7 @@ attack atk dmg = void $ runMaybeT do
 
     guard $ dmgCalc > Effects.threshold nTarget -- Always 0 or higher
 
-    if atk == Attack.Afflict then do
+    if atk == Attack.Afflict then
         P.modify target $ Ninjas.adjustHealth (— dmgCalc)
     else if nTarget `is` DamageToDefense then
         let damageDefense = Defense
@@ -252,13 +252,12 @@ barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
         target  = Context.target context
         dur'    = Copy.maxDur (Skill.copying skill) $ sync dur
         barr    = Barrier.new context dur' (finish' dur') while' amount'
-    if amount' < 0 then do
-        P.with Context.reflect do
-            nTarget <- P.nTarget
-            damage (-amount')
-            damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
-            target' <- P.target
-            P.modify target' $ Traps.track PerDamaged damaged
+    if amount' < 0 then P.with Context.reflect do
+        nTarget <- P.nTarget
+        damage (-amount')
+        damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
+        target' <- P.target
+        P.modify target' $ Traps.track PerDamaged damaged
     else when (amount' > 0) $ P.modify target \n ->
         n { Ninja.barrier = Classed.nonStack skill barr $ Ninja.barrier n }
   where
