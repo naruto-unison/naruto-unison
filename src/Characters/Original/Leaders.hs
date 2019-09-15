@@ -10,6 +10,61 @@ import qualified Model.Skill as Skill
 cs :: [Category -> Character]
 cs =
   [ Character
+    "Orochimaru"
+    "One of three legendary sannin, Orochimaru intends to learn every technique in existence. Driven by an insatiable hunger for power, he employs various methods to increase his chakra, even if he has to harm his allies in the process."
+    [ [ Skill.new
+        { Skill.name      = "Kusanagi"
+        , Skill.desc      = "Striking swiftly, Orochimaru demolishes an enemy's destructible defense and his own destructible barrier, then deals 25 piercing damage to the target."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                demolishAll
+                pierce 25
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Curse Mark"
+        , Skill.desc      = "Orochimaru places a curse mark on an ally or enemy, dealing 15 affliction damage and granting the target 1 random chakra."
+        , Skill.classes   = [Bane, Melee, Bypassing]
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Enemy do
+                afflict 15
+                gain [Rand]
+          , To XAlly do
+                sacrifice 0 15
+                gain [Rand]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Major Summoning: Manda"
+        , Skill.desc      = "Orochimaru summons the great serpent Manda, who deals 45 damage to an enemy. Once used, this skill permanently becomes [Paralyzing Bite][r][r]. Each turn that Orochimaru is alive, he gains 1 random chakra."
+        , Skill.classes   = [Physical, Melee, Summon, Unreflectable]
+        , Skill.cost      = [Blood, Nin, Tai]
+        , Skill.dur       = Ongoing 0
+        , Skill.start     =
+          [ To Enemy $ damage 45
+          , To Self  $ vary "Major Summoning: Manda" "Paralyzing Bite"
+          ]
+        , Skill.effects   =
+          [ To Self $ gain [Rand] ]
+        }
+      , Skill.new
+        { Skill.name      = "Paralyzing Bite"
+        , Skill.desc      = "Stuns an enemy for 1 turn and deals 25 damage when the effect ends."
+        , Skill.classes   = [Bane, Physical, Melee]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ bomb 1 [Stun All] [ To Expire $ damage 25 ] ]
+        }
+      ]
+    , [ invuln "Earth Clone" "Orochimaru" [Chakra] ]
+    ]
+  , Character
     "Jiraiya"
     "One of three legendary sannin, Jiraiya is a lecherous frog hermit who travels the world in search of knowledge. His toad summoning techniques and fire manipulation wreak destruction upon enemy teams."
     [ [ Skill.new
@@ -115,61 +170,6 @@ cs =
         }
       ]
     , [ invuln "Block" "Tsunade" [Physical] ]
-    ]
-  , Character
-    "Orochimaru"
-    "One of three legendary sannin, Orochimaru intends to learn every technique in existence. Driven by an insatiable hunger for power, he employs various methods to increase his chakra, even if he has to harm his allies in the process."
-    [ [ Skill.new
-        { Skill.name      = "Kusanagi"
-        , Skill.desc      = "Striking swiftly, Orochimaru demolishes an enemy's destructible defense and his own destructible barrier, then deals 25 piercing damage to the target."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Tai, Rand]
-        , Skill.effects   =
-          [ To Enemy do
-                demolishAll
-                pierce 25
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Curse Mark"
-        , Skill.desc      = "Orochimaru places a curse mark on an ally or enemy, dealing 15 affliction damage and granting the target 1 random chakra."
-        , Skill.classes   = [Bane, Melee, Bypassing]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Enemy do
-                afflict 15
-                gain [Rand]
-          , To XAlly do
-                sacrifice 0 15
-                gain [Rand]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Major Summoning: Manda"
-        , Skill.desc      = "Orochimaru summons the great serpent Manda, who deals 45 damage to an enemy. Once used, this skill permanently becomes [Paralyzing Bite][r][r]. Each turn that Orochimaru is alive, he gains 1 random chakra."
-        , Skill.classes   = [Physical, Melee, Summon, Unreflectable]
-        , Skill.cost      = [Blood, Nin, Tai]
-        , Skill.dur       = Ongoing 0
-        , Skill.start     =
-          [ To Enemy $ damage 45
-          , To Self  $ vary "Major Summoning: Manda" "Paralyzing Bite"
-          ]
-        , Skill.effects   =
-          [ To Self $ gain [Rand] ]
-        }
-      , Skill.new
-        { Skill.name      = "Paralyzing Bite"
-        , Skill.desc      = "Stuns an enemy for 1 turn and deals 25 damage when the effect ends."
-        , Skill.classes   = [Bane, Physical, Melee]
-        , Skill.cost      = [Rand, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy $ bomb 1 [Stun All] [ To Expire $ damage 25 ] ]
-        }
-      ]
-    , [ invuln "Earth Clone" "Orochimaru" [Chakra] ]
     ]
   , Character
     "Hiruzen Sarutobi"
