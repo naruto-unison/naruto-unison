@@ -32,9 +32,12 @@ import qualified Characters.Shippuden.Versions
 
 import qualified Characters.Reanimated
 
+import qualified Characters.Development
+
 original :: [Character]
 original = ($ Original)
-           <$> Characters.Original.Kids.cs
+           <$> Characters.Development.cs
+            ++ Characters.Original.Kids.cs
             ++ Characters.Original.Exams.cs
             ++ Characters.Original.Teachers.cs
             ++ Characters.Original.Organizations.cs
