@@ -22,26 +22,6 @@ cs =
         }
       ]
     , [ Skill.new
-        { Skill.name    = "Dance Dance Resurrection"
-        , Skill.desc    = "Revives a dead target to full health."
-        , Skill.classes = [Necromancy, Bypassing, Direct, Uncounterable, Unreflectable]
-        , Skill.effects =
-          [ To Enemy factory
-          , To XAlly factory
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name    = "Funk Coffin"
-        , Skill.desc    = "Instantly kills a target who does not respect the funk."
-        , Skill.classes = [Bypassing, Direct, Uncounterable, Unreflectable]
-        , Skill.effects =
-          [ To Enemy kill
-          , To Ally  kill
-          ]
-        }
-      ]
-    , [ Skill.new
         { Skill.name    = "The Funk Wasn't With You"
         , Skill.desc    = "Permanently stuns the entire enemy team. Once used, this skill becomes [Could've Had a V8]."
         , Skill.classes = [Bypassing, Direct, Uncounterable, Unreflectable]
@@ -57,6 +37,26 @@ cs =
         , Skill.effects =
           [ To Enemies $ remove "The Funk Wasn't With You"
           , To Self    $ vary "The Funk Wasn't With You" baseVariant
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name    = "Funk Coffin"
+        , Skill.desc    = "Instantly kills a target who does not respect the funk."
+        , Skill.classes = [Bypassing, Direct, Uncounterable, Unreflectable]
+        , Skill.effects =
+          [ To Enemy kill
+          , To Ally  kill
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name    = "Dance Dance Resurrection"
+        , Skill.desc    = "Revives a dead target to full health."
+        , Skill.classes = [Necromancy, Bypassing, Direct, Uncounterable, Unreflectable]
+        , Skill.effects =
+          [ To Enemy factory
+          , To XAlly factory
           ]
         }
       ]
