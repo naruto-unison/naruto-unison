@@ -850,7 +850,7 @@ cs =
     ]
   , Character
     "Kankurō"
-    "Now a jōnin, Kankurō has crafted a third puppet for his collection and honed his skill as a puppetmaster. Each puppet has its own use, improving his overall versatility."
+    "Now a jōnin, Kankurō has crafted a third puppet for his collection and honed his skills as a puppetmaster. Each puppet has its own use, improving his overall versatility."
     [ [ Skill.new
         { Skill.name      = "Kuroari Trap"
         , Skill.desc      = "The Kuroari puppet traps an enemy, countering them if they use a skill on Kankurō or his allies next turn. If countered, the target receives twice as much damage from [Karasu Knives] for 1 turn."
@@ -898,6 +898,69 @@ cs =
         }
       ]
     , [ invuln "Puppet Distraction" "Kankurō" [Physical] ]
+    ]
+  , Character
+    "Temari"
+    "The Hidden Sand Village's official ambassador, Temari is a formidable jōnin who wields an equally formidable battle fan. She defends her team with chakra-infused whirlwinds that deflect attacks, and uses the metal fan itself to block anything that gets through."
+    [ [ Skill.new
+        { Skill.name      = "First Moon"
+        , Skill.desc      = "Snapping open her fan to reveal the first marking on it, Temari gains 25% damage reduction. Once used, this skill becomes [Second Moon][r]."
+        , Skill.classes   = [Physical, Ranged, Unremovable]
+        , Skill.effects   =
+          [ To Self do
+                apply 0 [Reduce All Percent 25]
+                vary "First Moon" "Second Moon"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Second Moon"
+        , Skill.desc      = "Snapping open her fan to reveal the second marking, Temari gains 25% additional damage reduction. Once used, this skill becomes [Third Moon][n][r]."
+        , Skill.classes   = [Physical, Ranged, Unremovable]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Self do
+                remove "First Moon"
+                apply 0 [Reduce All Percent 50]
+                vary "First Moon" "Third Moon"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Third Moon"
+        , Skill.desc      = "Fully opening her fan, Temari deals 20 damage to all enemies and weakens their damage by 5 for 1 turn."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemies do
+                damage 20
+                apply 1 [Weaken All Flat 5]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Gale Raging Wall"
+        , Skill.desc      = "Temari defends an ally behind a wall of wind, providing them with 50% damage reduction and preventing their health from dropping below 1."
+        , Skill.classes   = [Physical]
+        , Skill.cost      = [Tai]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To XAlly $ apply 1 [Reduce All Percent 50, Endure] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Cyclone Scythe"
+        , Skill.desc      = "Temari strikes an enemy with a gust of wind, dealing 20 damage. Deals 5 additional damage during [First Moon]. Deals 10 additional damage during [Second Moon]."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Nin]
+        , Skill.effects   =
+          [ To Enemy do
+                bonusFirst  <- 5  `bonusIf` userHas "First Moon"
+                bonusSecond <- 10 `bonusIf` userHas "Second Moon"
+                damage (20 + bonusFirst + bonusSecond)
+          ]
+        }
+      ]
+    , [ invuln "Block" "Temari" [Physical] ]
     ]
   , Character
     "Konohamaru Sarutobi"
