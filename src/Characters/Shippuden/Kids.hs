@@ -23,7 +23,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Rasenshuriken"
-        , Skill.desc      = "Deals 50 piercing damage. Deals 25 additional damage if the target was countered by [Multi Shadow Clone] last turn."
+        , Skill.desc      = "Deals 50 piercing damage. Deals 25 additional damage if [Multi Shadow Clone] countered the target last turn."
         , Skill.classes   = [Chakra, Melee, Bypassing]
         , Skill.cost      = [Nin, Tai]
         , Skill.cooldown  = 1
@@ -798,51 +798,49 @@ cs =
     ]
   , Character
     "Kazekage Gaara"
-    "Gaara's years of soul-searching have made him a powerful force for good, ready to assume the title of Kazekage. No longer concerned with destroying others, he devotes himself to protecting his friends and the Hidden Sand Village."
+    "Gaara's years of soul-searching have made him ready to assume the title of Kazekage. Now a powerful force for good, he devotes himself to protecting his friends and the Hidden Sand Village."
     [ [ Skill.new
-        { Skill.name      = "Partial Sand Coffin"
-        , Skill.desc      = "Gaara keeps an enemy away from his allies by encasing one of the target's limbs in sand, stunning their non-mental skills for 1 turn and dealing 20 piercing damage when the effect ends. If they were countered by [Third Eye] last turn, all of their skills are stunned and the damage is dealt immediately. If the target has been affected by this skill before, the stun lasts 1 additional turn."
-        , Skill.classes   = [Physical, Ranged, Unremovable]
-        , Skill.cost      = [Nin]
-        , Skill.cooldown  = 1
+        { Skill.name      = "Monstrous Sand Arm"
+        , Skill.desc      = "Gaara shapes sand into an enormous hand that slams into an enemy, dealing 5 piercing damage and weakening their damage by 10 for 1 turn."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 1 `bonusIf` targetHas "Clinging Sand"
-                has   <- targetHas "Third Eye"
-                if has then do
-                    apply (1 + bonus) [Stun All]
-                    pierce 20
-                else
-                    bomb (1 + bonus) [Stun NonMental] [ To Expire $ pierce 20 ]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Third Eye"
-        , Skill.desc      = "A hidden layer of sensing sand surrounds Gaara and his allies. Next turn, the first skill an enemy uses on Gaara or his allies will be countered and provide its target with 15 permanent destructible defense."
-        , Skill.classes   = [Physical, Invisible, Unreflectable]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 2
-        , Skill.effects   =
-          [ To Allies $ trapFrom 1 (Counter All) do
-                tag 1
-                allies do
-                    defend 0 15
-                    removeTrap "Third Eye"
+                pierce 5
+                apply 1 [Weaken All Flat 10]
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Sand Prison"
-        , Skill.desc      = "Crushing ropes of sand constrict into an airtight prison around an enemy, dealing 30 damage to them. For 2 turns, the target is immune to effects from allies and cannot reduce damage or become invulnerable. Deals 20 additional damage if the target was countered by [Third Eye] last turn."
+        , Skill.desc      = "Crushing ropes of sand constrict into an airtight prison around an enemy, dealing 10 damage to them and stunning their Chakra and Ranged skills for 1 turn."
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Blood, Nin]
-        , Skill.cooldown  = 4
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 20 `bonusIf` targetHas "Third Eye"
-                damage (30 + bonus)
-                apply 2 [Seal, Expose]
+                damage 10
+                apply 1 [Stun Chakra, Stun Ranged]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Sand Summoning"
+        , Skill.desc      = "Gaara transforms the battlefield into a desert, providing 15 permanent destructible defense to his allies. The first use of this skill also causes all of Gaara's damage to be multiplied by 3. The second use of this skill also provides Gaara with 10 points of damage reduction and causes all of his damage to be multiplied by 5."
+        , Skill.classes   = [Chakra, Unremovable]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 2
+        , Skill.charges   = 2
+        , Skill.effects   =
+          [ To XAllies $ defend 0 15
+          , To Self do
+                has <- userHas "Sand Summoning"
+                if has then do
+                    remove "Sand Summoning"
+                    apply 0 [Strengthen All Percent 500, Reduce All Flat 10]
+                else
+                    apply 0 [Strengthen All Percent 300]
+
           ]
         }
       ]
