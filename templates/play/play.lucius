@@ -394,6 +394,10 @@ a.playButton {
     font-size: 15px;
     position: relative;
 }
+#userBox strong {
+    width: 5em;
+    display: inline-block;
+}
 .userimg {
     border: 2px solid #000;
     position: absolute;

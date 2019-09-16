@@ -407,7 +407,7 @@ userBox mUser csrf csrfParam showLogin team =
                           ++ String.fromInt (user.xp |> remainderBy 1000)
                           ++ " XP)"
               , H.br [] []
-              , H.strong [] [H.text "Ladder Rank: "]
+              , H.strong [] [H.text "Rank:"]
               , H.text "None"
               , H.br [] []
               , H.strong [] [H.text "Record: "]
