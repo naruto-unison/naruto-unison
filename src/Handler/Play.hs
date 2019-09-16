@@ -275,7 +275,8 @@ gameSocket = do
                 Nothing   -> throwE Queue.InvalidTeam
                 Just vals -> return vals
 
-            liftHandler . runDB $ update who [UserTeam =. Just teamNames]
+            liftHandler . runDB $
+                update who [UserTeam =. Just (drop 1 teamNames)]
             queue section team
 
         lift $ Sockets.sendJson info
@@ -289,7 +290,11 @@ gameSocket = do
                     Sockets.sendJson $ Wrapper.toJSON player wrapper
                     liftST . Wrapper.replace wrapper =<< ask
                     tryEnact player writer
-                    return Nothing
+                    victor <- Game.victor <$> P.game
+                    if null victor then
+                        return Nothing
+                    else
+                        Just <$> Wrapper.freeze
                 else
                     return $ Just wrapper
             liftHandler . runDB . onFinish who player $ Wrapper.game gameEnd
