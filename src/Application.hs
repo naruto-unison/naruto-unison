@@ -6,7 +6,6 @@ module Application
     , appMain
     , develMain
     , makeFoundation
-    , makeLogWare
     -- * for DevelMain
     , getApplicationRepl
     , shutdownApp
@@ -20,15 +19,11 @@ import Yesod
 
 import qualified Control.Monad.Logger as Logger
 import qualified Data.Cache as Cache
-import           Data.Default (def)
 import qualified Database.Persist.Postgresql as Sql
 import           Database.Persist.Postgresql (SqlBackend)
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Network.HTTP.Client.TLS as TLS
-import           Network.Wai (Middleware)
 import qualified Network.Wai.Handler.Warp as Warp
-import qualified Network.Wai.Middleware.RequestLogger as RequestLogger
-import           Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource(..), OutputFormat(..))
 import           System.Clock (TimeSpec(..))
 import qualified System.Log.FastLogger as FastLogger
 import qualified Yesod.Static as Static
@@ -41,6 +36,7 @@ import qualified Core.App as App
 import           Core.App (App(..), Handler, Route(..))
 import qualified Core.AppSettings as AppSettings
 import           Core.AppSettings (AppSettings)
+import qualified Core.Logger as AppLogger
 import qualified Core.Settings as Settings
 import qualified Core.Model as Model
 
@@ -71,11 +67,9 @@ makeFoundation settings = do
         tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
         logFunc = messageLoggerSource tempFoundation logger
 
-    pool <- flip Logger.runLoggingT logFunc .
-            Logger.filterLogger (const (/= Logger.LevelDebug)) $
-            Sql.createPostgresqlPool
-                (Sql.pgConnStr  $ AppSettings.databaseConf settings)
-                (Sql.pgPoolSize $ AppSettings.databaseConf settings)
+    pool <- flip Logger.runLoggingT logFunc $ Sql.createPostgresqlPool
+        (Sql.pgConnStr  $ AppSettings.databaseConf settings)
+        (Sql.pgPoolSize $ AppSettings.databaseConf settings)
 
     Logger.runLoggingT
         (Sql.runSqlPool (Sql.runMigration Model.migrateAll) pool) logFunc
@@ -95,23 +89,9 @@ makeFoundation settings = do
 -- applying some additional middlewares.
 makeApplication :: App -> IO Application
 makeApplication foundation = do
-    logWare <- makeLogWare foundation
+    logWare <- AppLogger.makeLogWare foundation
     appPlain <- toWaiAppPlain foundation
     return $ logWare $ defaultMiddlewaresNoLogging appPlain
-
-makeLogWare :: App -> IO Middleware
-makeLogWare foundation =
-    RequestLogger.mkRequestLogger def
-        { RequestLogger.outputFormat =
-            if AppSettings.detailedRequestLogging $ App.settings foundation
-                then Detailed True
-                else Apache $
-                        if AppSettings.ipFromHeader $ App.settings foundation
-                            then FromFallback
-                            else FromSocket
-        , RequestLogger.destination =
-            Logger . YesodTypes.loggerSet $ App.logger foundation
-        }
 
 warpSettings :: App -> Warp.Settings
 warpSettings foundation =

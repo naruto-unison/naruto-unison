@@ -18,7 +18,7 @@ ip-from-header: "_env:YESOD_IP_FROM_HEADER:false"
 # Optional values with the following production defaults.
 # In development, they default to the inverse.
 #
-# detailed-logging: false
+detailed-logging: false
 # should-log-all: false
 # reload-templates: false
 # mutable-static: false
