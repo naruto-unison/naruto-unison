@@ -250,7 +250,7 @@ body {
     font-size: 18px;
     font-weight: bold;
 }
-#charSelect > article > h1 > img {
+#charSelect > article > h1 > img.char {
     width: 60px;
     height: 60px;
     float: right;
