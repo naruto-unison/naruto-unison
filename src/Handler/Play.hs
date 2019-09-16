@@ -13,6 +13,7 @@ import qualified Control.Monad.ST as ST
 import           Control.Monad.ST (RealWorld, ST)
 import qualified Data.Cache as Cache
 import qualified Data.Text as Text
+import           Database.Persist.Sql (SqlPersistT)
 import qualified System.Random.MWC as Random
 import qualified UnliftIO.Timeout as Timeout
 import qualified Yesod.Auth as Auth
@@ -38,6 +39,7 @@ import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakras)
 import           Model.Character (Character)
 import qualified Model.Game as Game
+import           Model.Game (Game(Game))
 import qualified Model.GameInfo as GameInfo
 import           Model.GameInfo (GameInfo(GameInfo))
 import qualified Model.Ninja as Ninja
@@ -147,7 +149,7 @@ parseTeam ("private":team) = (Queue.Private, ) <$> formTeam team
 parseTeam _                = Nothing
 
 formEnact :: [Text] -> Maybe (Chakras, Chakras, [Act])
-formEnact (_:_: _:_:_:_:_) = Nothing -- No more than 3 actions!
+formEnact (_:_: _:_:_: _:_) = Nothing -- No more than 3 actions!
 formEnact (actChakra:exchangeChakra:acts) = do
     actChakra'      <- fromPathPiece actChakra
     exchangeChakra' <- fromPathPiece exchangeChakra
@@ -155,25 +157,66 @@ formEnact (actChakra:exchangeChakra:acts) = do
     return (actChakra', exchangeChakra', acts')
 formEnact _ = Nothing -- willywonka.gif
 
+pingSocket :: ∀ m. MonadSockets m => ExceptT Queue.Failure m ()
+pingSocket = do
+    Sockets.send "ping"
+    pong <- Sockets.receive
+    when (pong == "cancel") $ throwE Queue.Canceled
+
+onFinish :: Key User -> Player -> Game -> SqlPersistT Handler ()
+onFinish who player Game{victor = [victor]}
+  | player == victor = update who [UserWins +=. 1, UserStreak +=. 1]
+  | otherwise        = update who [UserLosses +=. 1, UserStreak =. 0]
+onFinish _ _ _ = return ()
+
+makeGame :: ∀ m. (MonadRandom m, MonadIO m)
+         => TChan Queue.Message
+         -> Key User -> User -> [Character]
+         -> Key User -> User -> [Character]
+         -> m (GameInfo, TBQueue Wrapper, TBQueue Wrapper)
+makeGame queueWrite who user team vsWho vsUser vsTeam = do
+    randPlayer <- R.player
+    game       <- Game.newWithChakras
+    let ninjas = zipWith Ninja.new Slot.all case randPlayer of
+            Player.A -> team ++ vsTeam
+            Player.B -> vsTeam ++ team
+    liftIO $ atomically do
+        writer <- newTBQueue 8
+        reader <- newTBQueue 8
+        writeTChan queueWrite $
+            Queue.Respond vsWho reader writer
+            GameInfo
+                { GameInfo.vsWho  = who
+                , GameInfo.vsUser = user
+                , GameInfo.player = Player.opponent randPlayer
+                , GameInfo.game   = game
+                , GameInfo.ninjas = fromList ninjas
+                }
+        let info = GameInfo
+                { GameInfo.vsWho = vsWho
+                , GameInfo.vsUser = vsUser
+                , GameInfo.player = randPlayer
+                , GameInfo.game   = game
+                , GameInfo.ninjas = fromList ninjas
+                }
+        return (info, writer, reader)
+
 queue :: ∀ m.
         (MonadRandom m, MonadSockets m, MonadHandler m, App ~ HandlerSite m)
       => Queue.Section -> [Character]
       -> ExceptT Queue.Failure m (GameInfo, TBQueue Wrapper, TBQueue Wrapper)
 queue Queue.Quick team = do
     (who, user) <- Auth.requireAuthPair
-    randPlayer  <- R.player
     queueWrite  <- getsYesod App.queue
-    userMVar <- newEmptyMVar
+    userMVar    <- newEmptyMVar
     -- TODO use userMVar in some kind of periodic timeout check based on its
     -- UTCTime contents? or else just a semaphore
-    queueRead <- (liftIO . atomically) do
+    queueRead <- liftIO $ atomically do
         writeTChan queueWrite $ Queue.Announce who user team userMVar
         dupTChan queueWrite
     untilJust do
       msg <- liftIO . atomically $ readTChan queueRead
-      Sockets.send "ping"
-      pong <- Sockets.receive
-      when (pong == "cancel") $ throwE Queue.Canceled
+      pingSocket
       case msg of
         Queue.Respond mWho writer reader info
           | mWho == who -> return $ Just (info, writer, reader)
@@ -182,31 +225,8 @@ queue Queue.Quick team = do
             matched <- tryPutMVar vsMVar time
             if not matched then
                 return Nothing
-            else do
-                game <- Game.newWithChakras
-                let ninjas = zipWith Ninja.new Slot.all case randPlayer of
-                        Player.A -> team ++ vsTeam
-                        Player.B -> vsTeam ++ team
-                liftIO $ atomically do
-                    writer <- newTBQueue 8
-                    reader <- newTBQueue 8
-                    writeTChan queueWrite $
-                        Queue.Respond vsWho reader writer
-                        GameInfo
-                            { GameInfo.vsWho  = who
-                            , GameInfo.vsUser = user
-                            , GameInfo.player = Player.opponent randPlayer
-                            , GameInfo.game   = game
-                            , GameInfo.ninjas = fromList ninjas
-                            }
-                    let info = GameInfo
-                            { GameInfo.vsWho = vsWho
-                            , GameInfo.vsUser = vsUser
-                            , GameInfo.player = randPlayer
-                            , GameInfo.game   = game
-                            , GameInfo.ninjas = fromList ninjas
-                            }
-                    return $ Just (info, writer, reader)
+            else
+                Just <$> makeGame queueWrite who user team vsWho vsUser vsTeam
         _ -> return Nothing
 
 queue Queue.Private team = do
@@ -219,45 +239,19 @@ queue Queue.Private team = do
             Nothing -> throwE Queue.OpponentNotFound
 
     queueWrite <- getsYesod App.queue
-    randPlayer <- R.player
-    queueRead  <- (liftIO . atomically) do
+    queueRead  <- liftIO $ atomically do
         writeTChan queueWrite $ Queue.Request who vsWho team
         dupTChan queueWrite
     untilJust do
       msg <- liftIO . atomically $ readTChan queueRead
-      Sockets.send "ping"
-      pong <- Sockets.receive
-      when (pong == "cancel") $ throwE Queue.Canceled
+      pingSocket
       case msg of
         Queue.Respond mWho writer reader info
           | mWho == who && GameInfo.vsWho info == vsWho ->
               return $ Just (info, writer, reader)
         Queue.Request vsWho' requestWho vsTeam
-          | vsWho' == vsWho && requestWho == who -> do
-              game <- Game.newWithChakras
-              let ninjas = zipWith Ninja.new Slot.all case randPlayer of
-                      Player.A -> team ++ vsTeam
-                      Player.B -> vsTeam ++ team
-              liftIO $ atomically do
-                  writer <- newTBQueue 8
-                  reader <- newTBQueue 8
-                  writeTChan queueWrite $
-                      Queue.Respond vsWho reader writer
-                      GameInfo
-                          { GameInfo.vsWho  = who
-                          , GameInfo.vsUser = user
-                          , GameInfo.player = Player.opponent randPlayer
-                          , GameInfo.game   = game
-                          , GameInfo.ninjas = fromList ninjas
-                          }
-                  let info = GameInfo
-                          { GameInfo.vsWho = vsWho
-                          , GameInfo.vsUser = vsUser
-                          , GameInfo.player = randPlayer
-                          , GameInfo.game   = game
-                          , GameInfo.ninjas = fromList ninjas
-                          }
-                  return $ Just (info, writer, reader)
+          | vsWho' == vsWho && requestWho == who ->
+              Just <$> makeGame queueWrite who user team vsWho vsUser vsTeam
         _ -> return Nothing
 
 handleFailures :: ∀ m a. MonadSockets m => Either Queue.Failure a -> m (Maybe a)
@@ -288,7 +282,7 @@ gameSocket = do
         let player = GameInfo.player info
         liftST (Wrapper.fromInfo info) >>= runReaderT do
             when (player == Player.A) $ tryEnact player writer
-            completedGame <- untilJust do
+            gameEnd <- untilJust do
                 wrapper <- liftIO . atomically $ readTBQueue reader
                 Sockets.clear
                 if null . Game.victor $ Wrapper.game wrapper then do
@@ -298,7 +292,8 @@ gameSocket = do
                     return Nothing
                 else
                     return $ Just wrapper
-            Sockets.sendJson $ Wrapper.toJSON player completedGame
+            liftHandler . runDB . onFinish who player $ Wrapper.game gameEnd
+            Sockets.sendJson $ Wrapper.toJSON player gameEnd
 
 -- | Wraps @enact@ with error handling.
 tryEnact :: ∀ m. (MonadGame m, MonadRandom m, MonadSockets m, MonadUnliftIO m)

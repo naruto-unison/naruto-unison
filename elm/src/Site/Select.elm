@@ -412,7 +412,7 @@ userBox mUser csrf csrfParam showLogin team =
               , H.br [] []
               , H.strong [] [H.text "Record: "]
               , H.text <| String.fromInt user.wins ++ " - "
-                ++ String.fromInt (user.wins + user.losses)
+                ++ String.fromInt user.losses
                 ++ " (+" ++ String.fromInt user.streak ++ ")"
               ]
           Nothing ->

@@ -9,7 +9,7 @@ main, #accountSettings {
     -webkit-user-select: none;
     user-select: none;
 }
-article {
+article, #userBox {
     -webkit-user-select: text;
     user-select: text;
 }
