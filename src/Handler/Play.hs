@@ -13,16 +13,16 @@ import qualified Control.Monad.ST as ST
 import           Control.Monad.ST (RealWorld, ST)
 import qualified Data.Cache as Cache
 import qualified Data.Text as Text
-import           Database.Persist.Sql (SqlPersistT)
 import qualified System.Random.MWC as Random
+import           UnliftIO.Concurrent (forkIO)
 import qualified UnliftIO.Timeout as Timeout
 import qualified Yesod.Auth as Auth
 
 import qualified Core.App as App
 import           Core.App (App, Handler)
-import           Core.Fields (Privilege(..))
 import qualified Core.Queue as Queue
 import           Core.Model (EntityField(..), User(..))
+import qualified Core.Rating as Rating
 import qualified Core.Wrapper as Wrapper
 import           Core.Wrapper (Wrapper(Wrapper))
 import           Core.Util (duplic)
@@ -39,7 +39,6 @@ import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakras)
 import           Model.Character (Character)
 import qualified Model.Game as Game
-import           Model.Game (Game(Game))
 import qualified Model.GameInfo as GameInfo
 import           Model.GameInfo (GameInfo(GameInfo))
 import qualified Model.Ninja as Ninja
@@ -49,25 +48,16 @@ import qualified Model.Slot as Slot
 import qualified Engine.Turn as Turn
 import qualified Characters
 
+-- | If the difference in skill rating between two players exceeds this
+-- threshold, they will not be matched together.
+ratingThreshold :: Double
+ratingThreshold = 1/0 -- i.e. infinity
+
 bot :: User
-bot = User
-    { userIdent      = ""
-    , userPassword   = Nothing
-    , userName       = "Bot"
+bot = (App.newUser "Bot" Nothing)
+    { userName       = "Bot"
     , userAvatar     = "/img/icon/bot.jpg"
-    , userVerkey     = Nothing
     , userVerified   = True
-    , userPrivilege  = Normal
-    , userBackground = Nothing
-    , userXp         = 0
-    , userWins       = 0
-    , userLosses     = 0
-    , userStreak     = 0
-    , userClan       = Nothing
-    , userTeam       = Nothing
-    , userPractice   = []
-    , userMuted      = False
-    , userCondense   = False
     }
 
 -- * HANDLERS
@@ -163,12 +153,6 @@ pingSocket = do
     pong <- Sockets.receive
     when (pong == "cancel") $ throwE Queue.Canceled
 
-onFinish :: Key User -> Player -> Game -> SqlPersistT Handler ()
-onFinish who player Game{victor = [victor]}
-  | player == victor = update who [UserWins +=. 1, UserStreak +=. 1]
-  | otherwise        = update who [UserLosses +=. 1, UserStreak =. 0]
-onFinish _ _ _ = return ()
-
 makeGame :: ∀ m. (MonadRandom m, MonadIO m)
          => TChan Queue.Message
          -> Key User -> User -> [Character]
@@ -220,13 +204,17 @@ queue Queue.Quick team = do
       case msg of
         Queue.Respond mWho writer reader info
           | mWho == who -> return $ Just (info, writer, reader)
-        Queue.Announce vsWho vsUser vsTeam vsMVar -> do
-            time <- liftIO getCurrentTime
-            matched <- tryPutMVar vsMVar time
-            if not matched then
+        Queue.Announce vsWho vsUser vsTeam vsMVar ->
+            if abs (userRating user - userRating vsUser) > ratingThreshold then
                 return Nothing
-            else
-                Just <$> makeGame queueWrite who user team vsWho vsUser vsTeam
+            else do
+                time    <- liftIO getCurrentTime
+                matched <- tryPutMVar vsMVar time
+                if not matched then
+                    return Nothing
+                else
+                    Just <$>
+                    makeGame queueWrite who user team vsWho vsUser vsTeam
         _ -> return Nothing
 
 queue Queue.Private team = do
@@ -290,14 +278,14 @@ gameSocket = do
                     Sockets.sendJson $ Wrapper.toJSON player wrapper
                     liftST . Wrapper.replace wrapper =<< ask
                     tryEnact player writer
-                    victor <- Game.victor <$> P.game
-                    if null victor then
-                        return Nothing
-                    else
+                    game <- P.game
+                    if null $ Game.victor game then return Nothing
+                    else do
+                        liftHandler . runDB . void . forkIO .
+                            Rating.update game player who $ GameInfo.vsWho info
                         Just <$> Wrapper.freeze
                 else
                     return $ Just wrapper
-            liftHandler . runDB . onFinish who player $ Wrapper.game gameEnd
             Sockets.sendJson $ Wrapper.toJSON player gameEnd
 
 -- | Wraps @enact@ with error handling.

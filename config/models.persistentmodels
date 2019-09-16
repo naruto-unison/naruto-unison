@@ -17,6 +17,9 @@ User
     practice    [Text]
     muted       Bool
     condense    Bool
+    rating      Double default=0
+    deviation   Double default=2.0148
+    volatility  Double default=0.06
     deriving Typeable
 
 Post

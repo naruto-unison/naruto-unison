@@ -10,6 +10,8 @@ module Core.App
   , AppPersistEntity
   , unsafeHandler
   , resourcesApp
+
+  , newUser
   ) where
 
 import ClassyPrelude hiding (Handler)
@@ -191,6 +193,9 @@ newUser ident verkey = User
     , userPractice   = ["Naruto Uzumaki", "Sakura Haruno", "Sasuke Uchiha"]
     , userMuted      = False
     , userCondense   = False
+    , userRating     = 0.0
+    , userDeviation  = 350.0 / 173.7178
+    , userVolatility = 0.06
     }
 
 instance YesodAuth App where
