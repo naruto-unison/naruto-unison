@@ -706,6 +706,46 @@ cs =
     , [ invuln "Block" "Yugito" [Physical] ]
     ]
   , Character
+    "Killer B"
+    "You know his name, you know his fame, don't be lame!\nMakin' beats and rhymes, and makin' 'em' live, is what a jinchūriki needs to survive!\nWin after win is the way that it's done, and when he's done, you'll wish you never met, son!"
+    [ [ Skill.new
+        { Skill.name      = "Acrobat"
+        , Skill.desc      = "For 4 turns, Killer B prepares for attacks. If you mess with the Bee, he'll sting ya right back!\n15 piercing damage back at any aggressor—it's the school of hard knocks, and B's the professor!"
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Self $ trapFrom 4 (OnHarmed All) $ pierce 15 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Lariat"
+        , Skill.desc      = "As the eight-tailed beast's chakra surrounds Killer B, he deals 20 piercing damage to one enemy.\nHe spends an additional random chakra during [Acrobat]'s funky flow to deal 20 extra damage with a punishing blow."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
+          [ To Enemy do
+                bonus <- 20 `bonusIf` userHas "Acrobat"
+                pierce (20 + bonus)
+          ]
+        , Skill.changes   =
+            changeWith "Acrobat" \x -> x { Skill.cost = [Tai, Rand] }
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Octopus Hold"
+        , Skill.desc      = "Clones form around B from ink that Gyūki spills. For 1 turn, they counter harmful non-mental skills.\nCountered foes take 20 piercing damage each, while Killer B strikes a cool pose, safely out of reach."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 2
+        }
+      ]
+    , [ (invuln "Octopus Leg Clone" "Killer B" [Chakra])
+        { Skill.desc = "Deciding that he has cause for concern, Killer B becomes invulnerable for 1 turn.\nHe and Gyūki stage tactical retreats, and spend the time working on some ice-cold beats."
+        }
+      ]
+    ]
+  , Character
     "Tsunade"
     "Tsunade has become the fifth Hokage. Knowing the Hidden Leaf Village's fate depends on her, she holds nothing back. Even if one of her allies is on the verge of dying, she can keep them alive long enough for her healing to get them back on their feet."
     [ [ Skill.new
