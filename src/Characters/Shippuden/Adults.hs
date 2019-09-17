@@ -15,7 +15,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Lightning Beast Fang"
         , Skill.desc      = "Kakashi creates a lightning hound out of his Lightning Blade, which deals 25 piercing damage to an enemy. If the target is damaged, they will be stunned for 1 turn. During the next turn, this skill becomes [Lightning Blade Finisher][n][r]."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
@@ -653,6 +653,57 @@ cs =
         }
       ]
     , [ invuln "Block" "Darui" [Physical] ]
+    ]
+  , Character
+    "Yugito Nii"
+    "A jōnin from the Hidden Cloud Village, Yugito is the expert jinchūriki of Matatabi, the two-tailed beast. Having trained as a tailed-beast host since infancy, Yugito can effortlessly transform into Matatabi at will and has access to its full power."
+    [ [ Skill.new
+        { Skill.name      = "Two-Tailed Transformation"
+        , Skill.desc      = "Matatabi's chakra envelops Yugito, transforming her into a huge two-tailed cat of blue flame. Yugito permanently gains 50% damage reduction and can use her other skills."
+        , Skill.require   = HasI (-1) "Two-Tailed Transformation"
+        , Skill.classes   = [Chakra]
+        , Skill.effects   =
+          [ To Self do
+                apply 0 [Reduce All Percent 50]
+                setFace 0
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Flaming Cat Roar"
+        , Skill.desc      = "A fireball engulfs an enemy, dealing 30 damage to them and weakening their damage by 10 for 1 turn. Each time this skill is used, it deals 5 additional damage."
+        , Skill.require   = HasI 1 "Two-Tailed Transformation"
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                stacks <- userStacks "Flaming Cat Roar"
+                damage (30 + 5 * stacks)
+                apply 1 [Weaken All Flat 10]
+          , To Self addStack
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Cat Claws"
+        , Skill.desc      = "Yugito rakes the enemy team with her claws, dealing 15 damage to an enemy and 5 damage to all other enemies. Each time this skill is used, it deals 5 additional damage."
+        , Skill.require   = HasI 1 "Two-Tailed Transformation"
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                stacks <- userStacks "Cat Claws"
+                damage (15 + 5 * stacks)
+          , To XEnemies do
+                stacks <- userStacks "Cat Claws"
+                damage (5 + 5 * stacks)
+          , To Self addStack
+          ]
+        }
+      ]
+    , [ invuln "Block" "Yugito" [Physical] ]
     ]
   , Character
     "Tsunade"
