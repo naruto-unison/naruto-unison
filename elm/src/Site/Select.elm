@@ -208,7 +208,7 @@ component ports =
                     ] []
                   , Keyed.node "div"
                     [ A.id "charScroll"
-                    , E.onMouseOver Untoggle
+                    , E.onMouseLeave Untoggle
                     ] <| for displays <| \char ->
                         ( characterName char
                         , icon char "icon"
