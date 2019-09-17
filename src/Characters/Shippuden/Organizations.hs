@@ -478,4 +478,50 @@ cs =
       ]
     , [ invuln "Dodge" "Karin" [Physical] ]
     ]
+  , Character
+    "Jūgo"
+    "A member of Sasuke's strike team, Jūgo suffers from uncontrollable fits of rage. In his normal state, he is compassionate and conflict-averse, but in battle his psychotic second nature overtakes him."
+    [ [ Skill.new
+        { Skill.name      = "Piston Fist"
+        , Skill.desc      = "Boosting jets form on the back of Jūgo's and propel his fist into an enemy, dealing 40 damage and stunning their physical and melee skills for 1 turn."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Blood, Tai]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 40
+                apply 1 [Stun Physical, Stun Melee]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Sage Transformation"
+        , Skill.desc      = "Entering a killing rage, Jūgo transforms into a monster, gaining 75% damage reduction for 3 turns. Each turn, he deals 25 piercing damage to a random energy."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Blood, Blood]
+        , Skill.cooldown  = 4
+        , Skill.dur       = Action 3
+        , Skill.start     =
+          [ To Self setFace ]
+        , Skill.effects   =
+          [ To Self $ apply 1 [Reduce All Percent 75]
+          , To REnemy $ pierce 25
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Cellular Regeneration"
+        , Skill.desc      = "Jūgo transfers his cells to an ally, restoring 20 health to them and providing them with 20 permanent destructible defense. The following 4 turns, Jūgo's cooldowns increase by 1."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To XAlly do
+                heal 20
+                defend 0 20
+          , To Self $ apply 4 [Snare 1]
+          ]
+        }
+      ]
+    , [ invuln "Hide" "Jūgo" [Mental] ]
+    ]
   ]
