@@ -813,7 +813,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Sand Prison"
-        , Skill.desc      = "Crushing ropes of sand constrict into an airtight prison around an enemy, dealing 10 damage to them and stunning their Chakra and Ranged skills for 1 turn."
+        , Skill.desc      = "Crushing ropes of sand constrict into an airtight prison around an enemy, dealing 10 damage to them and stunning their chakra and ranged skills for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
