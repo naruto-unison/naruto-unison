@@ -150,7 +150,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Temple of Nirvana"
-        , Skill.desc      = "Illusory white feathers descend upon the battlefield and lull the enemy team to sleep. Unless an enemy uses a skill next turn, they will be stunned for 1 turn and receive 10 additional damage from physical and chakra skills."
+        , Skill.desc      = "Illusory white feathers descend upon the battlefield and lull the enemy team to sleep. Unless an enemy uses a skill next turn, they will be stunned for 1 turn, during which they will receive 10 additional damage from physical and chakra skills."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2

@@ -87,7 +87,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Super Shark Bomb"
-        , Skill.desc      = "Kisame traps an enemy for 1 turn. At the end of their turn, the target takes 30 damage. While active, if the target uses a chakra or mental skill on Kisame or his allies, they will be countered and receive 20 additional damage."
+        , Skill.desc      = "Kisame traps an enemy for 1 turn. At the end of their turn, the target takes 30 damage. While active, if the target uses a chakra or mental skill on Kisame or his allies, they will be countered and take 20 additional damage."
         , Skill.classes   = [Chakra, Ranged, Bypassing, Invisible]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4
@@ -330,7 +330,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Hidden Toxic Needles"
-        , Skill.desc      = "Sasori shifts Hiruko into a defensive stance and takes aim at his enemies for 1 turn. If the enemy team uses any skills, they will receive 15 affliction damage for 2 turns. At the end of the turn, Sasori gains 20 permanent destructible defense."
+        , Skill.desc      = "Sasori shifts Hiruko into a defensive stance and takes aim at his enemies for 1 turn. If the enemy team uses any skills, they will take 15 affliction damage for 2 turns. At the end of the turn, Sasori gains 20 permanent destructible defense."
         , Skill.classes   = [Bane, Physical, Ranged, InvisibleTraps]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3

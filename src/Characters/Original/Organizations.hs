@@ -203,7 +203,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Summoning: Iron Maiden"
-        , Skill.desc      = "A spike-filled iron coffin shaped like a cat imprisons an enemy. For 3 turns, each time the target uses a skill on Ibiki or his allies, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
+        , Skill.desc      = "A spike-filled iron coffin shaped like a cat imprisons an enemy. For 3 turns, each time the target uses a skill on Ibiki or his allies, they will take 25 piercing damage. Ibiki gains 30 permanent destructible defense."
         , Skill.classes   = [Physical, Melee, Summon]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
@@ -214,7 +214,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Summoning: Torture Chamber"
-        , Skill.desc      = "A cage of chains and gears surrounds an enemy. For 3 turns, each time the target does not use a skill, they will receive 25 piercing damage. Ibiki gains 30 permanent destructible defense."
+        , Skill.desc      = "A cage of chains and gears surrounds an enemy. For 3 turns, each time the target does not use a skill, they will take 25 piercing damage. Ibiki gains 30 permanent destructible defense."
         , Skill.classes   = [Physical, Melee, Summon]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =

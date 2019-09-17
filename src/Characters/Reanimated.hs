@@ -621,7 +621,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Stitching Spider"
-        , Skill.desc      = "Kushimaru lays a trap of wires on the ground. For 3 turns, enemies who use physical skills will receive 10 piercing damage and be marked until after this skill ends."
+        , Skill.desc      = "Kushimaru lays a trap of wires on the ground. For 3 turns, enemies who use physical skills will take 10 piercing damage and be marked until after this skill ends."
         , Skill.classes   = [Physical, Ranged, InvisibleTraps]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2

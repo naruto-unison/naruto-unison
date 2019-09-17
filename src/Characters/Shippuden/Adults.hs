@@ -122,7 +122,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Decapitate"
-        , Skill.desc      = "Bypassing invulnerability, Asuma mercilessly slaughters an enemy whose health is at or below 25."
+        , Skill.desc      = "Asuma mercilessly slaughters an enemy whose health is at or below 25."
         , Skill.classes   = [Physical, Melee, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
@@ -466,10 +466,10 @@ cs =
     ]
   , Character
     "Atsui"
-    "A chūnin from the Hidden Cloud Village, Atsui is a hot-headed hotshot whose favorite word is 'Hot' and whose name literally means 'Hot'. An incredibly complex character with hidden depths, Atsui's skills are as diverse as his multifaceted personality."
+    "A chūnin from the Hidden Cloud Village, Atsui is a hot-headed hotshot whose favorite word is 'hot' and whose name literally means 'Hot'. A staggeringly complex character with hidden depths, Atsui's skills are as diverse as his multifaceted personality."
     [ [ Skill.new
         { Skill.name      = "Burning Blade"
-        , Skill.desc      = "Fire envelops Atsui's sword and surrounds him, providing 10 points of damage reduction to him for 3 turns. While active, enemies who use skills on Atsui will receive 10 affliction damage."
+        , Skill.desc      = "Fire envelops Atsui's sword and surrounds him, providing 10 points of damage reduction to him for 3 turns. While active, enemies who use skills on Atsui will take 10 affliction damage."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
@@ -482,7 +482,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Fire Wall"
-        , Skill.desc      = "Fire erupts around Atsui's enemies. Next turn, enemies who use skills will receive 10 affliction damage. Costs 1 fewer random chakra during [Burning Blade]."
+        , Skill.desc      = "Fire erupts around Atsui's enemies. Next turn, enemies who use skills will take 10 affliction damage. Costs 1 fewer random chakra during [Burning Blade]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1

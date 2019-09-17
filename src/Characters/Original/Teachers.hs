@@ -36,7 +36,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Capture and Arrest"
-        , Skill.desc      = "Iruka traps an enemy in an area filled with his paper bombs. If the target uses a skill on Iruka or his allies during their next turn, they will receive 40 damage, and physical and chakra skills will deal 25 additional damage to them for 1 turn."
+        , Skill.desc      = "Iruka traps an enemy in an area filled with his paper bombs. If the target uses a skill on Iruka or his allies during their next turn, they will take 40 damage, and physical and chakra skills will deal 25 additional damage to them for 1 turn."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2

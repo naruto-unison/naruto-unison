@@ -95,7 +95,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Space-Time Marking"
-        , Skill.desc      = "For 3 turns, [Flying Raijen] marks its target for 1 turn. Using [Flying Raijen] causes marked allies to become invulnerable for 1 turn and deals 30 damage to marked enemies, bypassing invulnerability."
+        , Skill.desc      = "For 3 turns, [Flying Raijen] marks its target for 1 turn. Using [Flying Raijen] causes marked allies to become invulnerable for 1 turn and deals 30 damage to marked enemies."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 6
