@@ -248,7 +248,7 @@ cs =
           [ To Enemy $ apply 2 [Stun Chakra, Stun Ranged, Bleed Melee Flat 5] ]
         }
       ]
-    , [ invuln "Cloth Dome" "Maki" [Physical] ]
+    , [ invuln "Cloth Shield" "Maki" [Physical] ]
     ]
   , Character
     "Chiyo"
