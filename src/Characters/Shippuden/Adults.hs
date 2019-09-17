@@ -504,6 +504,66 @@ cs =
     , [ invuln "Parry" "Atsui" [Physical] ]
     ]
   , Character
+    "Omoi"
+    "A chūnin from the Hidden Cloud Village, Omoi has an overactive imagination that feeds into his pessimism. A master swordsman, Omoi is quick to spot vulnerabilities in his opponents' defenses."
+    [ [ Skill.new
+        { Skill.name      = "Back Slice"
+        , Skill.desc      = "Omoi sets up a feint technique, preparing to spin and catch his enemies off-balance. Next turn, enemies who use a skill on Omoi will be countered and receive 20 piercing damage. Once used, this skill becomes [Crescent Moon Slice][t][r]."
+        , Skill.classes   = [Physical, Melee, Invisible]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
+          [ To Self do
+                vary "Back Slice" "Crescent Moon Slice"
+                trapFrom 1 (CounterAll All) $ pierce 20
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Crescent Moon Slice"
+        , Skill.desc      = "Omoi follows up his reverse attack with a forward slash, dealing 35 piercing damage to an enemy and preventing them from reducing damage or becoming invulnerable for 1 turn. Once used, this skill becomes [Back Slice][t]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                pierce 35
+                apply 1 [Expose]
+          , To Self $ vary "Back Slice" baseVariant
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Thunderbolt"
+        , Skill.desc      = "Omoi channels electricity into an enemy, dealing 25 damage and preventing them from affecting their allies for 1 turn."
+        , Skill.classes   = [Chakra, Melee]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                damage 25
+                apply 1 [BlockAllies]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Paper Bomb"
+        , Skill.desc      = "Omoi sets an explosive tag as a trap near himself or an ally. The first enemy to use a skill on the target will take 20 damage. This skill stacks."
+        , Skill.classes   = [Physical, Ranged, Invisible, Bypassing]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Ally do
+                addStack
+                stacks <- targetStacks "Paper Bomb"
+                removeTrap "Paper Bomb" -- so 'stacks' is in the closure
+                trap 0 (OnHarmed All) do
+                    removeTrap "Paper Bomb"
+                    remove "Paper Bomb"
+                trapFrom 0 (OnHarmed All) $ damage (20 * stacks)
+          ]
+        }
+      ]
+    , [ invuln "Parry" "Omoi" [Physical] ]
+    ]
+  , Character
     "Tsunade"
     "Tsunade has become the fifth Hokage. Knowing the Hidden Leaf Village's fate depends on her, she holds nothing back. Even if one of her allies is on the verge of dying, she can keep them alive long enough for her healing to get them back on their feet."
     [ [ Skill.new
