@@ -167,7 +167,7 @@ turns (Duration -> i) = do
 enemySkill :: Skill
 enemySkill = Skill.new
     { Skill.start   = []
-    , Skill.classes = [Summon, Melee, Ranged, Chakra, Physical, Mental, All, Harmful, NonMental, Bloodline, Genjutsu, Ninjutsu, Taijutsu, Random]
+    , Skill.classes = [Summon, Melee, Ranged, Chakra, Physical, Mental, All, NonMental, Bloodline, Genjutsu, Ninjutsu, Taijutsu, Random]
     }
 
 enemyTurn :: ∀ m. (MonadPlay m, MonadRandom m) => RunConstraint () -> m ()

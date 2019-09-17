@@ -62,7 +62,7 @@ bleed classes n =
 
 -- | 'Block' collection.
 block :: Ninja -> [Slot]
-block n = [Status.user st | st <- Ninja.statuses n, Block ∈ Status.effects st]
+block n = [slot | Block slot <- Ninja.effects n]
 
 -- | 'Bless' sum.
 bless :: Ninja -> Int

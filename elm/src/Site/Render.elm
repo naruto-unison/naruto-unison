@@ -115,7 +115,6 @@ hidden = Set.fromList
     , "Necromancy"
 
     , "All"
-    , "Harmful"
     , "Healing"
     , "Hidden"
     , "Affliction"

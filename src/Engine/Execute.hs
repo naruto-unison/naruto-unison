@@ -81,7 +81,7 @@ copy :: ∀ m. MonadPlay m
 copy constructor copyFrom skill (dur, copyTo, name) =
     P.modify copyTo $ Ninjas.copy dur name constructor copyFrom skill
 
-data Exit = Flagged | Done | Completed deriving (Eq)
+data Exit = Break | Done | Completed deriving (Eq)
 
 -- | Processes an action before it can be applied to the game. This is where
 -- invincibility, usability, reflects, etc. all come into play.
@@ -101,15 +101,14 @@ wrap affected f = void $ runMaybeT do
         exit     = if | Direct ∈ classes       -> Done
            --           | invinc                 -> Flagged
                       | Trapped ∈ affected     -> Done
-                      | not targeted           -> Flagged
+                      | not targeted           -> Break
                       | not new                -> Done
                       | nTarget `is` Uncounter -> Done
                       | otherwise              -> Completed
 
-    -- P.flag target Flag.Targeted
-    guard $ exit /= Flagged
+    guard $ exit /= Break
 
-    let harm      = Harmful ∈ classes && not (Parity.allied user target)
+    let harm      = not $ Parity.allied user target
         allow aff = harm && not (nUser `is` AntiCounter) && aff ∉ affected
     when new do
         P.modify user \n -> n { Ninja.lastSkill = Just skill }

@@ -55,7 +55,9 @@ data Effect
     | AntiCounter                      -- ^ Cannot be countered or reflected
     | Bleed        Class Amount Int    -- ^ Adds to damage received
     | Bless        Int                 -- ^ Adds to healing 'Skill's
-    | Block                            -- ^ Treats user as 'Invulnerable'
+    | Block        Slot                -- ^ Treats user as 'Invulnerable'
+    | BlockAllies                      -- ^ Cannot affect allies
+    | BlockEnemies                     -- ^ Cannot affect enemies
     | Boost        Int                 -- ^ Scales effects from allies
     | Build        Int                 -- ^ Adds to destructible defense 'Skill'
     | DamageToDefense                  -- ^ Damage received converts to defense
@@ -122,6 +124,8 @@ helpful AntiCounter     = True
 helpful (Bleed _ _ x)   = x < 0
 helpful Bless{}         = True
 helpful Block{}         = False
+helpful BlockAllies{}   = False
+helpful BlockEnemies{}  = False
 helpful Boost{}         = True
 helpful (Build x)       = x >= 0
 helpful DamageToDefense = True
@@ -187,7 +191,9 @@ instance Display Effect where
       | x >= 0    =  displayAmt amt x ++ " additional damage taken from " ++ lower cla ++ " skills."
       | otherwise = "Reduces all " ++ lower cla ++  " damage received by " ++ displayAmt amt (-x) ++ "."
     display (Bless x) = "Healing skills heal 1 additional " ++ display x ++ " health."
-    display Block = "Unable to affect the source of this effect."
+    display (Block _) = "Unable to affect a specific target."
+    display BlockAllies = "Unable to affect allies."
+    display BlockEnemies = "Unable to affect enemies."
     display (Boost x) = "Active effects from allies are " ++ display x ++ " times as powerful."
     display (Build x)
       | x >= 0    = "Destructible skills provide " ++ display x ++ " additional points of defense."

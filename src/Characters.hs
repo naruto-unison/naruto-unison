@@ -7,12 +7,12 @@ import ClassyPrelude hiding (map)
 
 import Data.HashMap.Strict (HashMap)
 
-import           Core.Util ((∉), intersects)
+import           Core.Util ((∉))
 import qualified Model.Character as Character
 import           Model.Character (Character, Category(..))
 import           Model.Class (Class(..))
 import qualified Model.Skill as Skill
-import           Model.Skill (Skill, Target(..))
+import           Model.Skill (Skill)
 
 import qualified Characters.Original.Kids
 import qualified Characters.Original.Exams
@@ -88,7 +88,4 @@ doSkill skill = skill { Skill.classes = added ++ Skill.classes skill }
     added = setFromList $ fst <$> filter snd
             [ (All,       True)
             , (NonMental, Mental ∉ Skill.classes skill)
-            , (Harmful,   harm)
             ]
-    harm = setFromList [Enemy, Enemies, REnemy, XEnemies]
-           `intersects` Skill.targets skill

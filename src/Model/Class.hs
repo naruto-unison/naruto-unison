@@ -34,7 +34,6 @@ data Class
     | Necromancy
     -- Fake (Hidden)
     | All
-    | Harmful
     | Hidden
     | Affliction
     | NonAffliction

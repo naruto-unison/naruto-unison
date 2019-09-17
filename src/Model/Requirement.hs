@@ -73,11 +73,13 @@ targetable skill n nt
   | not $ succeed (Skill.require skill) user nt              = False
   | not (Ninja.alive nt) && Necromancy ∉ classes             = False
   | Ninja.alive nt && user /= target && Necromancy ∈ classes = False
+  | harm && n `is` BlockEnemies                              = False
+  | user /= target && not harm && n `is` BlockAllies         = False
   | Bypassing ∈ classes                                      = True
   | harm && (classes `intersects` Effects.invulnerable nt)   = False
   | user /= target && not harm && nt `is` Seal               = False
   | user /= target && (dueling || taunted)                   = False
-  | target ∈ Effects.block  n                                = False
+  | target ∈ Effects.block n                                 = False
   | otherwise                                                = True
   where
     classes = Skill.classes skill
