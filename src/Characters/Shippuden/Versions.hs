@@ -645,4 +645,42 @@ cs =
       ]
     , [ invuln "Hide" "Zetsu" [Physical] ]
     ]
+  , Character
+    "Curse Mark Jūgo"
+    "No longer recognizably human, Jūgo has been transformed by bloodlust into a terrifying monster. Tapping into limitless chakra, he is an unstoppable and uncontrollable force."
+    [ [ Skill.new
+        { Skill.name      = "Psychotic Break"
+        , Skill.desc      = "Jūgo fixates obsessively on an enemy, dealing 10 damage to them for 3 turns and gaining 20% damage reduction."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 4
+        , Skill.dur       = Action 3
+        , Skill.effects   =
+          [ To Enemy $ damage 10
+          , To Self  $ apply 1 [Reduce All Percent 20]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Connected Cannons"
+        , Skill.desc      = "A powerful chakra blast deals 50 damage to an enemy."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Nin, Nin]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ damage 50 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Cellular Absorption"
+        , Skill.desc      = "Jūgo drains the lifeforce from an enemy with a needle-like appendage, stealing 15 health from them."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ leech 15 $ self . heal ]
+        }
+      ]
+    , [ invuln "Block" "Jūgo" [Physical] ]
+    ]
   ]
