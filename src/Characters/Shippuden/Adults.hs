@@ -764,4 +764,43 @@ cs =
       ]
     , [ invuln "Block" "Ao" [Physical] ]
     ]
+  , Character
+    "Chōjūrō"
+    "One of the Seven Swordsmen of the Mist, Chōjūrō is a jōnin who serves as the Mizukage's retainer. Wielding the legendary twin-sword Hiramekarei, Chōjūrō overpowers the defenses of his enemies with its battering-ram chakra blasts."
+    [ [ Skill.new
+        { Skill.name      = "Hiramekarei Longsword"
+        , Skill.desc      = "Chōjūrō combines the blades of his sword into a long, sweeping weapon, and uses it to deal 10 piercing damage to all enemies."
+        , Skill.classes   = [Bypassing, Physical, Ranged]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemies $ pierce 10 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Hiramekarei Hammer"
+        , Skill.desc      = "Chōjūrō shapes the chakra of his sword into a sledgehammer, and uses it to demolish an enemy's destructible defense and his own destructible barrier, then deals 50 piercing damage to the target."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Nin, Tai]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                demolishAll
+                pierce 50
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Hiramekarei Twinswords"
+        , Skill.desc      = "Chōjūrō separates his sword into two weapons and sends out a volley of bone-mutilating needles that disrupt chakra pathways. Enemies who use skills on Chōjūrō next turn will be countered and will take 20 piercing damage."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Self $ trap 1 (CounterAll All) $ pierce 20 ]
+        }
+      ]
+    , [ invuln "Dodge " "Chōjūrō" [Physical] ]
+    ]
   ]
+
