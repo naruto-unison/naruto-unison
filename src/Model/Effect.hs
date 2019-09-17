@@ -237,6 +237,7 @@ instance Display Effect where
     display (Swap cla) = "Next " ++ lower cla ++ " skill will target allies instead of enemies and enemies instead of allies."
     display (Taunt _) = "Can only affect a specific target."
     display (Threshold x) = "Uninjured by attacks that deal " ++ display x ++ " baseline damage or lower."
+    display (Throttle 0 _) = "Skills cannot apply some effects."
     display (Throttle x _) = "Skills will apply " ++ display x ++ " fewer turns of some effects."
     display Uncounter = "Unable to benefit from counters or reflects."
     display Undefend = "Unable to benefit from destructible defense"

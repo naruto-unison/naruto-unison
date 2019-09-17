@@ -5,6 +5,7 @@ module Engine.Effects
   , block
   , boost
   , build
+  , disabled
   , duel
   , exhaust
   , hp
@@ -153,6 +154,10 @@ unreduce n = sum [x | Unreduce x <- Ninja.effects n]
 weaken :: EnumSet Class -> Ninja -> Amount -> Float
 weaken classes n =
   negativeTotal [(amt, x) | Weaken cla amt x <- Ninja.effects n, cla ∈ classes]
+
+-- | 'Throttle'-0 collection.
+disabled :: Ninja -> [Effect]
+disabled n = [f | Throttle 0 con <- Ninja.effects n, f <- Effect.construct con]
 
 -- | 'Afflict' sum minus 'Heal' sum.
 hp :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)

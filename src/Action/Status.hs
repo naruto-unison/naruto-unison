@@ -227,13 +227,14 @@ makeStatus :: Skill -> Ninja -> Ninja
 makeStatus skill nUser nTarget classes bounced bombs name dur fs = newSt
     { Status.name    = Skill.defaultName name skill
     , Status.user    = user
-    , Status.effects = filt $ Ninjas.apply nTarget fs
+    , Status.effects = filt . filter (∉ disabled) $ Ninjas.apply nTarget fs
     , Status.classes = classes'
     , Status.bombs   = guard (Status.dur newSt <= incr (sync dur))
                         >> bombs
     }
   where
     user     = Ninja.slot nUser
+    disabled = Effects.disabled nUser
     newSt    = Status.new user dur skill
     self     = user == user && user == Ninja.slot nTarget
     noremove = null fs && Bane ∉ Skill.classes skill

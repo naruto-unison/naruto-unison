@@ -564,6 +564,52 @@ cs =
     , [ invuln "Parry" "Omoi" [Physical] ]
     ]
   , Character
+    "Dodai"
+    "A jōnin from the Hidden Cloud Village, Dodai is an impassive utilitarian with decades of experience as a sensor. He possesses the unusual ability to create rubbery lava by combining fire and earth chakra."
+    [ [ Skill.new
+        { Skill.name      = "Rubber Wall"
+        , Skill.desc      = "A force-absorbing barrier springs up in front of Dodai's team, reducing damage to them by 20% for 3 turns and causing them to ignore stuns."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 5
+        , Skill.effects   =
+          [ To Allies $ apply 3 [Reduce All Percent 20, Ignore $ Any Stun] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Sensory Technique"
+        , Skill.desc      = "Dodai scans an enemy's psyche for weaknesses, dealing 20 piercing damage and preventing them from applying stuns for 1 turn. If the target was hit by [Rubber Sphere and Rope] within the past 4 turns, their physical and chakra skills are stunned."
+        , Skill.classes   = [Mental, Ranged]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                pierce 20
+                has <- targetHas "Rubber Sphere and Rope"
+                if has then
+                    apply 1 [Throttle 0 $ Any Stun, Stun Physical, Stun Chakra]
+                else
+                    apply 1 [Throttle 0 $ Any Stun]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Rubber Sphere and Rope"
+        , Skill.desc      = "Dodai lobs a huge rubber ball at an enemy, dealing 35 damage. With the enemy distracted, he quickly pulls a random nearby ally out of harm's way, making them invulnerable for 1 turn."
+        , Skill.classes   = [Mental, Ranged]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                damage 35
+                tag 4
+          , To XAlly $ apply 1 [Invulnerable All]
+          ]
+        }
+      ]
+    , [ invuln "Dodge" "Dodai" [Physical] ]
+    ]
+  , Character
     "Tsunade"
     "Tsunade has become the fifth Hokage. Knowing the Hidden Leaf Village's fate depends on her, she holds nothing back. Even if one of her allies is on the verge of dying, she can keep them alive long enough for her healing to get them back on their feet."
     [ [ Skill.new
