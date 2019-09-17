@@ -61,6 +61,46 @@ cs =
     , [ invuln "Block" "Yugito" [Physical] ]
     ]
   , Character
+    "Utakata"
+    "A rogue operative from the Hidden Mist Village, Utakata is the jinchūriki of Saiken, the six-tailed beast. He abandoned his home during its Blood Mist era, and has had to fend off tracker ninjas ever since."
+    [ [ Skill.new
+        { Skill.name      = "Soap Bubble"
+        , Skill.desc      = "Utakata blows bubbles from his pipe that burst on an enemy, demolishing their destructible defense and his own destructible barrier, then dealing 25 piercing damage to the target."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Nin]
+        , Skill.effects   =
+          [ To Enemy do
+                demolishAll
+                pierce 25
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Drowning Bubble"
+        , Skill.desc      = "Soap bubbles surround an enemy's head and prevent them from breathing, dealing 10 affliction damage each turn. Cannot be used on an enemy already affected by this skill. Ends if Utakata dies."
+        , Skill.require   = HasU (-1) "Drowning Bubble"
+        , Skill.classes   = [Chakra, Ranged, Bane, Soulbound]
+        , Skill.cost      = [Nin]
+        , Skill.effects   =
+          [ To Enemy $ apply 0 [Afflict 10] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Six-Tailed Transformation"
+        , Skill.desc      = "Saiken's chakra heals Utakata, restoring 25 health and providing him with 1 turn of 50% damage reduction to all types of damage, including piercing and affliction."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Self do
+                heal 25
+                apply 1 [Reduce Affliction Percent 50]
+          ]
+        }
+      ]
+    , [ invuln "Bubble Dome" "Utakata" [Chakra] ]
+    ]
+  , Character
     "Killer B"
     "You know his name, you know his fame, don't be lame!\nMakin' beats and rhymes, and makin' 'em' live, is what a jinchūriki needs to survive!\nWin after win is the way that it's done, and when he's done, you'll wish you never met, son!"
     [ [ Skill.new
