@@ -10,142 +10,7 @@ import qualified Model.Trap as Trap
 
 cs :: [Category -> Character]
 cs =
-  [ let loadout = [1, 0, 0, 0]
-    in Character
-    "Nine-Tailed Naruto"
-    "Rage has triggered the beast within Naruto to emerge. As his hatred grows, so does the nine-tailed beast's power. If left unchecked, Kurama may break free of his seal, and Naruto himself will cease to exist."
-    [ [ Skill.new
-        { Skill.name      = "Four-Tailed Transformation"
-        , Skill.desc      = "Naruto's rage takes over. He loses 5 health down to a minimum of 1 and gains 10 points of damage reduction and 10 permanent destructible defense. He permanently ignores all healing. His other skills become usable, and will increase in strength as his transformation progresses through further stages. Once used, this skill becomes [Six-Tailed Transformation][b][r]."
-        , Skill.classes   = [Chakra, Unremovable]
-        , Skill.effects   =
-          [ To Self do
-                sacrifice 1 5
-                defend 0 10
-                varyLoadout loadout 0
-                setFace 0
-                apply 0 [Reduce All Flat 10, Plague]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Six-Tailed Transformation"
-        , Skill.desc      = "Naruto's fury drives him to the brink of madness. He loses 10 health down to a minimum of 1 and gains 20 points of damage reduction and 20 permanent destructible defense. He permanently ignores status effects from enemies except chakra cost changes and is immune to effects from his allies. The power of his other skills continues to grow. Once used, this skill becomes [Nine-Tailed Transformation][b][b]."
-        , Skill.classes   = [Chakra, Unremovable]
-        , Skill.cost      = [Blood, Rand]
-        , Skill.effects   =
-          [ To Self do
-                remove "Four-Tailed Transformation"
-                sacrifice 1 10
-                defend 0 20
-                varyLoadout loadout 1
-                setFace 0
-                apply 0 [Reduce All Flat 20, Plague, Seal, Enrage]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Nine-Tailed Transformation"
-        , Skill.desc      = "As Naruto's mind is overwhelmed by wrath, the seal breaks and Kurama takes over, unlocking the full extent of his abilities. He loses 15 health down to a minimum of 1 and gains 30 points of damage reduction and 30 permanent destructible defense. Once used, this skill becomes [Raging Flames][b][r]."
-        , Skill.classes   = [Chakra, Unremovable]
-        , Skill.cost      = [Blood, Blood]
-        , Skill.effects   =
-          [ To Self do
-                remove "Six-Tailed Transformation"
-                sacrifice 1 15
-                defend 0 30
-                varyLoadout loadout 2
-                setFace 0
-                apply 0 [Reduce All Flat 30, Plague, Seal, Enrage]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Raging Flames"
-        , Skill.desc      = "Finally emerging from years of imprisonment, Kurama is as cranky as he is powerful. He rains fire upon the enemy team, dealing 20 affliction damage and weakening their damage by 10 for 1 turn."
-        , Skill.classes   = [Bane, Chakra, Ranged, Bypassing]
-        , Skill.cost      = [Nin]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemies do
-                afflict 20
-                apply 1 [Weaken All Flat 10] ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Tailed Beast Bomb"
-        , Skill.desc      = "Naruto launches a sphere of condensed chakra at an opponent, dealing 30 piercing damage."
-        , Skill.require   = HasI 1 "Four-Tailed Transformation"
-        , Skill.classes   = [Chakra, Ranged, Bypassing]
-        , Skill.cost      = [Nin, Rand]
-        , Skill.effects   =
-          [ To Enemy $ pierce 30 ]
-        }
-      , Skill.new
-        { Skill.name      = "Mini Tailed Beast Bomb Barrage"
-        , Skill.desc      = "Naruto fires a volley of burning chakra orbs at an enemy, dealing 10 affliction damage to them for 3 turns. If used on an enemy affected by [Clasp], this skill deals all 30 damage instantly."
-        , Skill.classes   = [Bane, Chakra, Ranged, Bypassing]
-        , Skill.cost      = [Nin, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy do
-                has <- targetHas "Clasp"
-                if has then
-                    afflict 30
-                else
-                    apply 3 [Afflict 10]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Massive Tailed Beast Bomb"
-        , Skill.desc      = "Kurama fires a gigantic sphere of condensed chakra at an enemy, dealing 60 piercing damage. Deals 40 additional damage if [Chakra Gathering] was used last turn."
-        , Skill.classes   = [Chakra, Ranged, Bypassing]
-        , Skill.cost      = [Blood, Nin]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy do
-                bonus <- 40 `bonusIf` userHas "Chakra Gathering"
-                pierce (60 + bonus)
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Burning Chakra Hand"
-        , Skill.desc      = "Naruto extends a limb made of chakra to reach out and grab an enemy, dealing 20 damage and weakening their damage by 5 for 1 turn."
-        , Skill.require   = HasI 1 "Four-Tailed Transformation"
-        , Skill.classes   = [Melee, Bypassing]
-        , Skill.cost      = [Blood]
-        , Skill.effects   =
-          [ To Enemy do
-                afflict 20
-                apply 1 [Weaken All Flat 5]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Clasp"
-        , Skill.desc      = "Naruto breaks through an enemy's defenses and takes hold of their head, dealing 10 damage and stunning their non-mental skills for 1 turn."
-        , Skill.classes   = [Physical, Melee, Bypassing]
-        , Skill.cost      = [Tai]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy do
-                damage 10
-                apply 1 [Stun NonMental]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Chakra Gathering"
-        , Skill.desc      = "Kurama draws in chakra to improve his next [Tailed Beast Bomb]."
-        , Skill.classes   = [Chakra]
-        , Skill.cost      = [Rand, Rand, Rand, Rand]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Self $ tag 1 ]
-        }
-      ]
-     , [ invuln "Chakra Skin" "Naruto" [Chakra]
-       , invuln "Hide" "Naruto" [Mental]
-       , invuln "Block" "Kurama" [Physical]
-       ]
-    ]
-  , Character
+  [ Character
     "Curse Mark Sasuke"
     "After training under Orochimaru for years, Sasuke has become a rogue ninja with complete control over his curse mark. With unlimited access to his strength and chakra, Sasuke empowers his abilities with dark energy and can even fly."
     [ [ Skill.new
@@ -614,7 +479,7 @@ cs =
     "With the fate of the world at stake, Guy has opened all eight Gates and is holding nothing back. The effort will surely kill him, but while he lives, his strength outmatches even the legendary Madara Uchiha."
     [ [ Skill.new
         { Skill.name      = "Evening Elephant"
-        , Skill.desc      = "Using a devastating sequence of punches, Guy deals 20 damage to an enemy. For 1 turn, they are immune to effects from allies and their nonmental skills are stunned. Guy loses 20 health down to a minimum of 1. Each time this skill is used, it permanently deals 20 additional damage and costs 1 additional random chakra."
+        , Skill.desc      = "Using a devastating sequence of punches, Guy deals 20 damage to an enemy. For 1 turn, they are immune to effects from allies and their non-mental skills are stunned. Guy loses 20 health down to a minimum of 1. Each time this skill is used, it permanently deals 20 additional damage and costs 1 additional random chakra."
         , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Tai]
         , Skill.effects   =

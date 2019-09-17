@@ -25,9 +25,10 @@ import qualified Characters.Original.Flashbacks
 
 import qualified Characters.Shippuden.Kids
 import qualified Characters.Shippuden.Adults
-import qualified Characters.Shippuden.Family
+import qualified Characters.Shippuden.Leaders
 import qualified Characters.Shippuden.Organizations
 import qualified Characters.Shippuden.Akatsuki
+import qualified Characters.Shippuden.Jinchuriki
 import qualified Characters.Shippuden.Versions
 
 import qualified Characters.Reanimated
@@ -50,9 +51,10 @@ shippuden :: [Character]
 shippuden = ($ Shippuden)
             <$> Characters.Shippuden.Kids.cs
              ++ Characters.Shippuden.Adults.cs
-             ++ Characters.Shippuden.Family.cs
+             ++ Characters.Shippuden.Leaders.cs
              ++ Characters.Shippuden.Organizations.cs
              ++ Characters.Shippuden.Akatsuki.cs
+             ++ Characters.Shippuden.Jinchuriki.cs
              ++ Characters.Shippuden.Versions.cs
 
 reanimated :: [Character]

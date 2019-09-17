@@ -251,6 +251,76 @@ cs =
     , [ invuln "Cloth Dome" "Maki" [Physical] ]
     ]
   , Character
+    "Chiyo"
+    "A widely-respected puppeteer and former leader of the Hidden Sand Village's Puppet Brigade, Elder Chiyo has a lifetime of combat experience. Her numerous puppets sow chaos among her enemies and shield her from harm, allowing her to use her other skills with impunity. If one of her allies is close to death, she can sacrifice her own life to restore theirs."
+    [ [ Skill.new
+        { Skill.name      = "Assault Blade"
+        , Skill.desc      = "Hovering kunai deal 15 piercing damage to a targeted enemy and a random enemy. During [Ten Puppets Collection], this skill becomes [Three Treasure Suction Crush][r][r]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy  $ pierce 15
+          , To REnemy $ pierce 15
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Three Treasure Suction Crush"
+        , Skill.desc      = "Three puppets in a triangle formation create a vacuum hurricane which sucks in an enemy, dealing 30 damage to them and stunning their non-mental skills for 1 turn. Deals affliction damage if the target is affected by [Lion Sealing]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                apply 1 [Stun NonMental]
+                has <- targetHas "Lion Roar Sealing"
+                if has then afflict 30 else damage 30
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Ten Puppets Collection"
+        , Skill.desc      = "Chiyo commands a brigade of puppets, gaining 50 permanent destructible defense. Each turn that Chiyo has destructible defense from this skill, her puppets deal 10 damage to a random enemy. While active, this skill becomes [Lion Roar Sealing][b]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 5
+        , Skill.dur       = Action 0
+        , Skill.start     =
+          [ To Self do
+                defend 0 50
+                vary "Assault Blade" "Three Treasure Suction Crush"
+                vary "Ten Puppets Collection" "Lion Roar Sealing"
+                onBreak'
+          ]
+        , Skill.effects   = [ To REnemy $ damage 10 ]
+        }
+      , Skill.new
+        { Skill.name      = "Lion Roar Sealing"
+        , Skill.desc      = "Chiyo uses an advanced sealing technique on an enemy, making them immune to effects from allies and preventing them from reducing damage or becoming invulnerable for 2 turns."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Enemy $ apply 2 [Expose, Seal] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Self-Sacrifice Reanimation"
+        , Skill.desc      = "Chiyo prepares to use her forbidden healing technique on an ally. The next time their health reaches 0, their health is fully restored, they are cured of harmful effects, and Chiyo's health is reduced to 1."
+        , Skill.classes   = [Chakra, Invisible]
+        , Skill.cost      = [Blood, Nin]
+        , Skill.charges   = 1
+        , Skill.effects   =
+          [ To XAlly $ trap 0 OnRes do
+                cureAll
+                setHealth 100
+                self $ setHealth 1
+          ]
+        }
+      ]
+    , [ invuln "Chakra Barrier" "Chiyo" [Chakra] ]
+    ]
+  , Character
     "Akatsuchi"
     "A jōnin from the Hidden Rock Village, Akatsauchi is cheerful and excitable. He uses brute strength and rock golems to pummel his enemies to the ground."
     [ [ Skill.new
@@ -653,246 +723,5 @@ cs =
         }
       ]
     , [ invuln "Block" "Darui" [Physical] ]
-    ]
-  , Character
-    "Yugito Nii"
-    "A jōnin from the Hidden Cloud Village, Yugito is the expert jinchūriki of Matatabi, the two-tailed beast. Having trained as a tailed-beast host since infancy, Yugito can effortlessly transform into Matatabi at will and has access to its full power."
-    [ [ Skill.new
-        { Skill.name      = "Two-Tailed Transformation"
-        , Skill.desc      = "Matatabi's chakra envelops Yugito, transforming her into a huge two-tailed cat of blue flame. Yugito permanently gains 50% damage reduction and can use her other skills."
-        , Skill.require   = HasI (-1) "Two-Tailed Transformation"
-        , Skill.classes   = [Chakra]
-        , Skill.effects   =
-          [ To Self do
-                apply 0 [Reduce All Percent 50]
-                setFace 0
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Flaming Cat Roar"
-        , Skill.desc      = "A fireball engulfs an enemy, dealing 30 damage to them and weakening their damage by 10 for 1 turn. Each time this skill is used, it deals 5 additional damage."
-        , Skill.require   = HasI 1 "Two-Tailed Transformation"
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = [Blood, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy do
-                stacks <- userStacks "Flaming Cat Roar"
-                damage (30 + 5 * stacks)
-                apply 1 [Weaken All Flat 10]
-          , To Self addStack
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Cat Claws"
-        , Skill.desc      = "Yugito rakes the enemy team with her claws, dealing 15 damage to an enemy and 5 damage to all other enemies. Each time this skill is used, it deals 5 additional damage."
-        , Skill.require   = HasI 1 "Two-Tailed Transformation"
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy do
-                stacks <- userStacks "Cat Claws"
-                damage (15 + 5 * stacks)
-          , To XEnemies do
-                stacks <- userStacks "Cat Claws"
-                damage (5 + 5 * stacks)
-          , To Self addStack
-          ]
-        }
-      ]
-    , [ invuln "Block" "Yugito" [Physical] ]
-    ]
-  , Character
-    "Killer B"
-    "You know his name, you know his fame, don't be lame!\nMakin' beats and rhymes, and makin' 'em' live, is what a jinchūriki needs to survive!\nWin after win is the way that it's done, and when he's done, you'll wish you never met, son!"
-    [ [ Skill.new
-        { Skill.name      = "Acrobat"
-        , Skill.desc      = "For 4 turns, Killer B prepares for attacks. If you mess with the Bee, he'll sting ya right back!\n15 piercing damage back at any aggressor—it's the school of hard knocks, and B's the professor!"
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Tai]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To Self $ trapFrom 4 (OnHarmed All) $ pierce 15 ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Lariat"
-        , Skill.desc      = "As the eight-tailed beast's chakra surrounds Killer B, he deals 20 piercing damage to one enemy.\nHe spends an additional random chakra during [Acrobat]'s funky flow to deal 20 extra damage with a punishing blow."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Tai]
-        , Skill.effects   =
-          [ To Enemy do
-                bonus <- 20 `bonusIf` userHas "Acrobat"
-                pierce (20 + bonus)
-          ]
-        , Skill.changes   =
-            changeWith "Acrobat" \x -> x { Skill.cost = [Tai, Rand] }
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Octopus Hold"
-        , Skill.desc      = "Clones form around B from ink that Gyūki spills. For 1 turn, they counter harmful non-mental skills.\nCountered foes take 20 piercing damage each, while Killer B strikes a cool pose, safely out of reach."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = [Nin]
-        , Skill.cooldown  = 2
-        }
-      ]
-    , [ (invuln "Octopus Leg Clone" "Killer B" [Chakra])
-        { Skill.desc = "Deciding that he has cause for concern, Killer B becomes invulnerable for 1 turn.\nHe and Gyūki stage tactical retreats, and spend the time working on some ice-cold beats."
-        }
-      ]
-    ]
-  , Character
-    "Tsunade"
-    "Tsunade has become the fifth Hokage. Knowing the Hidden Leaf Village's fate depends on her, she holds nothing back. Even if one of her allies is on the verge of dying, she can keep them alive long enough for her healing to get them back on their feet."
-    [ [ Skill.new
-        { Skill.name      = "Heaven Spear Kick"
-        , Skill.desc      = "Tsunade spears an enemy with her foot, dealing 20 piercing damage to them. If an ally is affected by [Healing Wave], their health cannot drop below 1 next turn. Spends a Seal if available to deal 20 additional damage and demolish the target's destructible defense and Tsunade's destructible barrier."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Tai]
-        , Skill.effects   =
-          [ To Enemy do
-                has <- userHas "Strength of One Hundred Seal"
-                when has demolishAll
-                pierce (20 + if has then 20 else 0)
-          , To Allies $ whenM (targetHas "Healing Wave") $ apply 1 [Endure]
-          , To Self do
-              remove "Strength of One Hundred Seal"
-              vary "Strength of One Hundred Seal" baseVariant
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Healing Wave"
-        , Skill.desc      = "Tsunade pours chakra into an ally, restoring 30 health to them immediately and 10 health each turn for 2 turns. Spends a Seal if available to restore 10 additional health immediately and last 3 turns."
-        , Skill.classes   = [Chakra, Unremovable]
-        , Skill.cost      = [Nin, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To XAlly do
-                has <- userHas "Strength of One Hundred Seal"
-                heal (20 + if has then 10 else 0)
-                apply (if has then (-3) else (-2)) [Heal 10]
-          , To Self do
-                remove "Strength of One Hundred Seal"
-                vary "Strength of One Hundred Seal" baseVariant
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Strength of One Hundred Seal"
-        , Skill.desc      = "Tsunade activates her chakra-storing Seal, restoring 25 health and empowering her next skill. Spends a Seal if available to instead restore 50 health to Tsunade and gain 2 random chakra."
-        , Skill.classes   = [Chakra]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Self do
-                heal 25
-                tag 0
-                vary "Strength of One Hundred Seal"
-                     "Strength of One Hundred Seal"
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Strength of One Hundred Seal"
-        , Skill.desc      = "Tsunade activates her chakra-storing Seal, restoring 25 health and empowering her next skill. Spends a Seal if available to instead restore 50 health to Tsunade and gain 2 random chakra."
-        , Skill.classes   = [Chakra]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Self do
-                heal 50
-                gain [Rand, Rand]
-                vary "Strength of One Hundred Seal" baseVariant
-                remove "Strength of One Hundred Seal"
-          ]
-        }
-      ]
-    , [ invuln "Block" "Tsunade" [Physical] ]
-    ]
-  , Character
-    "Ōnoki"
-    "The third Tsuchikage of the Hidden Rock Village, Onoki is the oldest and most stubborn Kage. His remarkable ability to control matter on an atomic scale rapidly grows in strength until it can wipe out a foe in a single attack."
-    [ [ Skill.new
-        { Skill.name      = "Earth Golem"
-        , Skill.desc      = "A golem of rock emerges from the ground, providing 10 permanent destructible defense to his team and dealing 10 damage to all enemies."
-        , Skill.classes   = [Chakra, Physical, Melee]
-        , Skill.cost      = [Nin]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Allies  $ defend 0 10
-          , To Enemies $ damage 10
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Lightened Boulder"
-        , Skill.desc      = "Ōnoki negates the gravity of an ally, providing 10 points of damage reduction to them for 2 turns. While active, the target cannot be countered or reflected."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To XAlly $ apply 2 [Reduce All Flat 10, AntiCounter] ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Atomic Dismantling"
-        , Skill.desc      = "The atomic bonds within an enemy shatter, dealing 20 piercing damage to them and permanently increasing the damage of this skill by 10."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = [Nin]
-        , Skill.effects   =
-          [ To Enemy do
-                stacks <- userStacks "Atomic Dismantling"
-                pierce (20 + 10 * stacks)
-          , To Self addStack
-          ]
-        }
-      ]
-    , [ invuln "Flight" "Ōnoki" [Chakra] ]
-    ]
-  , Character
-    "Mei Terumi"
-    "The third Mizukage of the Hidden Mist Village, Mei works tirelessly to help her village overcome its dark history and become a place of kindness and prosperity. Her corrosive attacks eat away at the defenses of her enemies."
-    [ [ Skill.new
-        { Skill.name      = "Solid Fog"
-        , Skill.desc      = "Mei exhales a cloud of acid mist that deals 15 affliction damage to an enemy for 3 turns."
-        , Skill.classes   = [Bane, Chakra, Ranged]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Enemy $ apply 3 [Afflict 15] ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Water Bomb"
-        , Skill.desc      = "Water floods the battlefield, dealing 20 piercing damage to all enemies and preventing them from reducing damage or becoming invulnerable for 1 turn."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = [Nin, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemies do
-                pierce 20
-                apply 1 [Expose]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Lava Monster"
-        , Skill.desc      = "Mei spits a stream of hot lava, dealing 10 affliction damage to all enemies and removing 20 destructible defense from them for 3 turns."
-        , Skill.classes   = [Bane, Chakra, Ranged]
-        , Skill.cost      = [Blood, Rand]
-        , Skill.cooldown  = 3
-        , Skill.dur       = Action 3
-        , Skill.effects   =
-          [ To Enemies do
-              demolish 20
-              afflict 10
-          ]
-        }
-      ]
-    , [ invuln "Flee" "Mei" [Physical] ]
     ]
   ]

@@ -114,6 +114,62 @@ cs =
     , [ invuln "Byakugan Foresight" "Hiashi" [Mental] ]
     ]
   , Character
+    "Tsume Inuzuka"
+    "A jōnin from the Hidden Leaf Village and mother to Kiba, Tsume shares his wild temperament, impatience, and odd sense of humor. Kuromaru, her animal companion, keeps her enemies at bay and strikes back at any who dare to attack her."
+    [ [ Skill.new
+        { Skill.name      = "Call Kuromaru"
+        , Skill.desc      = "Kuromaru guards Tsume from her enemies for 4 turns, providing her with 10 points of damage reduction and dealing 10 damage to enemies who use skills on her. While active, this skill becomes [Fierce Bite][t]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 4
+        , Skill.dur       = Ongoing 4
+        , Skill.start     =
+          [ To Self $ vary "Call Kuromaru" "Fierce Bite" ]
+        , Skill.effects   =
+          [ To Self do
+                apply 1 [Reduce All Flat 10]
+                trapFrom 1 (OnHarmed All) $ damage 10
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Fierce Bite"
+        , Skill.desc      = "Kuromaru pounces on an enemy, dealing 25 damage. If the target dies during the same turn, Tsume will become unkilllable for 2 turns, during which her damage will be increased by 10 and she will ignore stuns."
+        , Skill.classes   = [Physical, Melee, Bypassing]
+        , Skill.effects   =
+          [ To Enemy do
+                trap' (-1) OnDeath $ self $
+                    apply 2 [Strengthen All Flat 10, Endure, Ignore $ Any Stun]
+                damage 25
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Tunneling Fang"
+        , Skill.desc      = "Spinning like a buzzsaw, Tsume deals 15 piercing damage to an enemy for 2 turns. Deals 5 additional damage during [Call Kuromaru]. While active, all stun skills used by the target will have their duration reduced by 2 turns."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Rand]
+        , Skill.dur       = Action 2
+        , Skill.effects   =
+          [ To Enemy do
+                bonus <- 5 `bonusIf` userHas "Call Kuromaru"
+                pierce (15 + bonus)
+                apply 1 [Throttle 2 $ Any Stun]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Light Bomb"
+        , Skill.desc      = "Tsume blinds her enemies with a flash-bang, making her team invulnerable for 1 turn."
+        , Skill.classes   = [Physical]
+        , Skill.cost      = [Rand]
+        , Skill.charges   = 3
+        , Skill.effects   =
+          [ To Allies $ apply 1 [Invulnerable All] ]
+        }
+      ]
+    , [ invuln "Dodge" "Tsume" [Physical] ]
+    ]
+  , Character
     "Chōza Akimichi"
     "A jōnin from the Hidden Leaf Village and Chōji's father, Chōza instills confidence in his comrades with his bravery and wisdom. Never one to back down from a fight, he defends his allies and forces the attention of his enemies to himself."
     [ [ Skill.new
