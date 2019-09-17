@@ -36,7 +36,7 @@ import qualified Engine.Effects as Effects
 -- the identically-named variant.
 safe :: ∀ a. a -> (Int -> Int -> a) -> Ninja -> Text -> Text -> a
 safe a f n sName vName = fromMaybe a do
-    s <- findIndex (any $ (sName ==) . Skill.name) $ toList skills
+    s <- findIndex ((sName ==) . Skill.name . head) $ toList skills
     v <- case vName of
             "" -> return 0
             _  -> let (_:|xs) = skills !! s
