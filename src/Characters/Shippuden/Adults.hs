@@ -452,7 +452,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Flash Pillar"
         , Skill.desc      = "A flash of lightning blinds and disorients an enemy, dealing 35 damage to them and making them immune to effects from allies."
-        , Skill.classes   = [Mental, Ranged]
+        , Skill.classes   = [Bane, Mental, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -519,7 +519,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Crescent Moon Slice"
-        , Skill.desc      = "Omoi follows up his reverse attack with a forward slash, dealing 35 piercing damage to an enemy and preventing them from reducing damage or becoming invulnerable for 1 turn. Once used, this skill becomes [Back Slice][t]."
+        , Skill.desc      = "Following up his reverse attack with a forward slash, Omoi deals 35 piercing damage to an enemy and preventing them from reducing damage or becoming invulnerable for 1 turn. Once used, this skill becomes [Back Slice][t]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
@@ -533,7 +533,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Thunderbolt"
         , Skill.desc      = "Omoi channels electricity into an enemy, dealing 25 damage and preventing them from affecting their allies for 1 turn."
-        , Skill.classes   = [Chakra, Melee]
+        , Skill.classes   = [Chakra, Melee, Bane]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -608,6 +608,51 @@ cs =
         }
       ]
     , [ invuln "Dodge" "Dodai" [Physical] ]
+    ]
+  , Character
+    "Darui"
+    "A jōnin of the Hidden Cloud Village, Darui is the fourth Raikage's right hand. Despite his laid-back attitude and characteristic slouch, he fights with incredible speed and ferocity."
+    [ [ Skill.new
+        { Skill.name      = "Laser Circus"
+        , Skill.desc      = "Energy beams shoot out of Darui's hand, stunning an enemy's mental and ranged skills and dealing 20 piercing damage to all other enemies. Deals 5 additional damage to targets affected by [Water Wall]."
+        , Skill.classes   = [Bane, Chakra, Ranged, Bypassing]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ apply 1 [Stun Mental, Stun Ranged]
+          , To XEnemies do
+                bonus <- 5 `bonusIf` targetHas "Water Wall"
+                pierce (20 + bonus)
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Water Wall"
+        , Skill.desc      = "Darui establishes a barrier of electrified water, dealing 5 affliction damage to all enemies and marking them for 1 turn."
+        , Skill.classes   = [Bane, Chakra, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemies do
+                afflict 5
+                tag 1
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Black Panther"
+        , Skill.desc      = "Using a prized technique that the third Raikage passed down to him alone, Darui manifests an elemental made of black lightning that deals 45 piercing damage to an enemy. Deals 5 additional damage if the target is affected by [Water Wall]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Blood, Nin]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                bonus <- 5 `bonusIf` targetHas "Water Wall"
+                pierce (45 + bonus)
+          ]
+        }
+      ]
+    , [ invuln "Block" "Darui" [Physical] ]
     ]
   , Character
     "Tsunade"
