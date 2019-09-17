@@ -724,4 +724,44 @@ cs =
       ]
     , [ invuln "Block" "Darui" [Physical] ]
     ]
+  , Character
+    "Ao"
+    "A jōnin from the Hidden Mist Village, Ao is a veteran with a proclivity for body modification. His expertise as a sensor and tracker is aided by the Byakugan he stole from a defeated Hyūga."
+    [ [ Skill.new
+        { Skill.name      = "Byakugan"
+        , Skill.desc      = "Using the power of the eye he stole from a Hyūga, Ao gains 5 points of damage reduction for 3 turns. While active, enemies who use non-mental skills on Ao will take 10 damage."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Self do
+                apply 3 [Reduce All Flat 5]
+                trap 3 (OnHarmed NonMental) $ damage 10
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Sensory Technique"
+        , Skill.desc      = "Ao scans an enemy's psyche for weaknesses, dealing 25 damage and preventing them from reducing damage or becoming invulnerable for 1 turn."
+        , Skill.classes   = [Mental, Ranged]
+        , Skill.cost      = [Blood]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 25
+                apply 1 [Expose]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Barrier Talisman"
+        , Skill.desc      = "Ao's earrings shift to form a barrier over targeted body parts. Next turn, enemies who use non-mental skills on Ao will be countered, and their skills will cost 1 additional random chakra for 1 turn."
+        , Skill.classes   = [Chakra, Invisible]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Self $ trapFrom 1 (CounterAll All) $ apply 1 [Exhaust All] ]
+        }
+      ]
+    , [ invuln "Block" "Ao" [Physical] ]
+    ]
   ]
