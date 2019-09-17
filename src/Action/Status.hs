@@ -13,7 +13,6 @@ module Action.Status
   -- * Removing statuses
   , cure, cureAll, cureBane, cureStun, purge, remove, removeStack, removeStacks
   -- * Specialized
-  , setFace
   , commandeer
   ) where
 
@@ -34,8 +33,6 @@ import qualified Model.Duration as Duration
 import           Model.Duration (Duration(..), Turns, incr, sync)
 import qualified Model.Effect as Effect
 import           Model.Effect (Effect(..))
-import qualified Model.Face as Face
-import           Model.Face (Face(Face))
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
 import           Model.Runnable (Runnable)
@@ -67,22 +64,6 @@ prolong (Duration -> dur) name = P.unsilenced do
 hasten :: ∀ m. MonadPlay m => Turns -> Text -> m ()
 hasten (Duration -> dur) name =
     P.unsilenced . P.fromUser $ Ninjas.prolong (negate $ sync dur) name
-
--- | Adds a 'Face.Face' to the 'Ninja.face' of a @Ninja@, changing their in-game
--- icon.
-setFace :: ∀ m. MonadPlay m => Turns -> m ()
-setFace (Duration -> dur) = do
-    skill <- P.skill
-    let copying = Skill.copying skill
-    case copying of
-        Copy.NotCopied -> do
-            user <- P.user
-            let face = Face { Face.icon = Skill.name skill
-                            , Face.user = user
-                            , Face.dur  = sync dur
-                            }
-            P.toTarget \n -> n { Ninja.face = face : Ninja.face n }
-        _ -> return ()
 
 -- | Adds a @Status@ to 'Ninja.statuses'.
 apply :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> [Effect] -> m ()

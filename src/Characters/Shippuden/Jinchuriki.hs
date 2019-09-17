@@ -20,7 +20,7 @@ cs =
         , Skill.effects   =
           [ To Self do
                 apply 0 [Reduce All Percent 50]
-                setFace 0
+                setFace
           ]
         }
       ]
@@ -153,7 +153,7 @@ cs =
                 sacrifice 1 5
                 defend 0 10
                 varyLoadout loadout 0
-                setFace 0
+                setFace
                 apply 0 [Reduce All Flat 10, Plague]
           ]
         }
@@ -168,7 +168,7 @@ cs =
                 sacrifice 1 10
                 defend 0 20
                 varyLoadout loadout 1
-                setFace 0
+                setFace
                 apply 0 [Reduce All Flat 20, Plague, Seal, Enrage]
           ]
         }
@@ -183,7 +183,7 @@ cs =
                 sacrifice 1 15
                 defend 0 30
                 varyLoadout loadout 2
-                setFace 0
+                setFace
                 apply 0 [Reduce All Flat 30, Plague, Seal, Enrage]
           ]
         }

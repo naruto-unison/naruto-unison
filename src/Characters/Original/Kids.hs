@@ -408,7 +408,7 @@ cs =
                 sacrifice 1 10
                 apply 0 [Ignore $ Any Stun, Afflict 15]
                 varyLoadout loadout 3
-                setFace 0
+                setFace
           ]
         }
       , Skill.new
@@ -432,7 +432,7 @@ cs =
                   apply 0 [Ignore $ Any Stun, Afflict 15]
                   varyLoadout loadout 3
                   vary "Block" "Block"
-                  setFace 0
+                  setFace
             ]
         }
       , Skill.new

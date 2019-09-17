@@ -20,6 +20,7 @@ module Engine.Ninjas
   , addDefense
 
   , clear
+  , clearFace
   , clearReplaces
   , clearTrap
   , clearTraps
@@ -58,6 +59,7 @@ import qualified Class.Classed as Classed
 import qualified Class.Parity as Parity
 import qualified Class.Labeled as Labeled
 import qualified Class.TurnBased as TurnBased
+import           Class.TurnBased (TurnBased)
 import qualified Model.Channel as Channel
 import           Model.Channel (Channel(Channel), Channeling(..))
 import qualified Model.Character as Character
@@ -69,6 +71,8 @@ import           Model.Defense (Defense(Defense))
 import           Model.Duration (Duration, incr, sync)
 import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
+import qualified Model.Face as Face
+import           Model.Face (Face(Face))
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja(..), is)
 import qualified Model.Requirement as Requirement
@@ -211,7 +215,7 @@ decr n@Ninja{..} = n
     { defense   = mapMaybe TurnBased.decr defense
     , statuses  = foldStats $ mapMaybe TurnBased.decr statuses
     , barrier   = mapMaybe TurnBased.decr barrier
-    , face      = mapMaybe TurnBased.decr face
+    , face      = mapMaybe faceDecr face
     , channels  = decrChannels
     , traps     = mapMaybe TurnBased.decr traps
     , delays    = mapMaybe TurnBased.decr delays
@@ -226,14 +230,16 @@ decr n@Ninja{..} = n
     foldStats xs       = foldStat <$> group (sort xs)
     foldStat   (x:|[]) = x
     foldStat xs@(x:|_) = x { Status.amount = sum $ Status.amount <$> xs }
+    faceDecr x         = decrVarying (Face.dur x) x
     variantsDecr xs    = case mapMaybe decrVariant $ toList xs of
         x:xs' -> x :| xs'
         []    -> Variant.none :| []
-    decrVariant x = case Variant.dur x of
-        Variant.FromSkill name
-          | any ((name ==) . Skill.name . Channel.skill) decrChannels -> Just x
-          | otherwise -> Nothing
-        _ -> TurnBased.decr x
+    decrVariant x = decrVarying (Variant.dur x) x
+    decrVarying :: ∀ a. TurnBased a => Varying -> a -> Maybe a
+    decrVarying (Variant.FromSkill name)
+      | any ((name ==) . Skill.name . Channel.skill) decrChannels = Just
+      | otherwise = const Nothing
+    decrVarying (Variant.Duration _) = TurnBased.decr
 
 addStatus :: Status -> Ninja -> Ninja
 addStatus st n = n { statuses = Classed.nonStack st' st' $ statuses n }
@@ -299,11 +305,18 @@ clearTrap name user n =
 clearTraps :: Trigger -> Ninja -> Ninja
 clearTraps tr n = n { traps = filter ((tr /=) . Trap.trigger) $ traps n }
 
+-- | Resets matching 'face's.
+clearFace :: Text -- ^ 'Face.name'.
+          -> [Face] -> [Face]
+clearFace name = filter keep
+  where
+    keep Face{ dur = Variant.FromSkill x } = x /= name
+    keep _                                 = True
+
 -- | Resets matching 'variants'.
 clearVariants :: Text -- ^ 'Variant.name'.
-              -> Ninja -> Ninja
-clearVariants name n =
-    n { variants = ensure . filter keep . toList <$> variants n }
+              -> Seq (NonEmpty Variant) -> Seq (NonEmpty Variant)
+clearVariants name variants  = ensure . filter keep . toList <$> variants
   where
     keep Variant{ dur = Variant.FromSkill x } = x /= name
     keep _                                    = True
@@ -324,11 +337,13 @@ addChannels sk target n
                     , Channel.dur    = TurnBased.setDur dur chan
                     }
 
-
 -- | Deletes matching 'channels'.
 cancelChannel :: Text -- ^ 'Skill.name'.
               -> Ninja -> Ninja
-cancelChannel name n = clearVariants name n { channels = f $ channels n }
+cancelChannel name n = n { channels = f $ channels n
+                         , variants = clearVariants name $ variants n
+                         , face     = clearFace name $ face n
+                         }
   where
     f = filter $ (name /=) . Skill.name . Channel.skill
 

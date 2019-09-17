@@ -205,7 +205,7 @@ cs =
         , Skill.start     =
           [ To Self $ bombWith [Hidden] (-5) [] [ To Expire do
                 tag' "Tailed Beast Form" 0
-                setFace 0
+                setFace
                 vary' 0 "Monstrous Sand Arm" "Wind Bullet"
                 vary' 0 "Sand Transformation" "Shukaku Full Release" ]
           ]

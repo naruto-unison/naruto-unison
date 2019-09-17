@@ -141,7 +141,7 @@ cs =
         , Skill.dur       = Ongoing 3
         , Skill.start     =
           [ To Self do
-                setFace 3
+                setFace
                 vary "Exploding Water Shockwave" "Shark Dance"
           ]
         , Skill.effects   = [ To Enemies $ apply 1 [Snare 1] ]
@@ -160,7 +160,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Super Shark Bomb"
-        , Skill.desc      = "Kisame traps an enemy for 1 turn. At the end of their turn, the target takes 30 damage. While active, if the target uses a chakra or mental skill on Kisame or his allies, they will be countered and take 20 additional damage."
+        , Skill.desc      = "Kisame traps an enemy for 1 turn. At the end of their turn, the target takes 30 damage. While active, if the target uses a chakra or mental skill on Kisame or his allies, they will be countered and will take 20 additional damage."
         , Skill.classes   = [Chakra, Ranged, Bypassing, Invisible]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4

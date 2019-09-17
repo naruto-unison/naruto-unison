@@ -3,6 +3,8 @@ module Action.Skill
   ( -- * Cooldowns and charges
     alterCd
   , reset, resetAll, resetCharges
+  -- * Changing face icons
+  , setFace, setFace'
   -- * Copying
   , copyAll, copyLast, teach, teachOne
   -- * Variants
@@ -22,6 +24,8 @@ import qualified Model.Character as Character
 import qualified Model.Copy as Copy
 import           Model.Copy (Copy(Copy), Copying)
 import           Model.Duration (Duration(..), Turns, incr, sync)
+import qualified Model.Face as Face
+import           Model.Face (Face(Face))
 import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
 import           Model.Slot (Slot)
@@ -51,6 +55,35 @@ resetAll = P.unsilenced $ P.toTarget Cooldown.resetAll
 -- Uses 'Ninjas.resetCharges' internally.
 resetCharges :: ∀ m. MonadPlay m => m ()
 resetCharges = P.unsilenced $ P.toTarget Ninjas.resetCharges
+
+-- | Adds a 'Face.Face' to 'Ninja.face' with a 'Face.dur' that
+-- depends on the 'Skill.dur' of the @Skill@ that performs the action.
+-- If the @Skill@ is interrupted, the 'Face.Face' immediately ends.
+setFace :: ∀ m. MonadPlay m => m ()
+setFace = do
+    skill <- P.skill
+    case Skill.dur skill of
+        Instant -> setFace' 0
+        (Channel.turnDur -> Duration (-1)) -> return ()
+        _ -> setFaceFull . Variant.FromSkill $ Skill.name skill
+
+-- | Adds a 'Face.Face' to 'Ninja.face' with a fixed 'Face.dur'.
+setFace' :: ∀ m. MonadPlay m => Turns -> m ()
+setFace' (Duration -> dur) = do
+    copying <- Skill.copying <$> P.skill
+    setFaceFull . Variant.Duration . Copy.maxDur copying $ sync dur
+
+-- | Adds a 'Face.Face' to the 'Ninja.face' of a @Ninja@, changing their in-game
+-- icon.
+setFaceFull :: ∀ m. MonadPlay m => Varying -> m ()
+setFaceFull dur = do
+    skill <- P.skill
+    user  <- P.user
+    let face = Face { Face.icon = Skill.name skill
+                    , Face.user = user
+                    , Face.dur  = dur
+                    }
+    P.toTarget \n -> n { Ninja.face = face : Ninja.face n }
 
 -- | Adds a 'Variant.Variant' to 'Ninja.variants' with a 'Variant.dur' that
 -- depends on the 'Skill.dur' of the @Skill@ that performs the action.

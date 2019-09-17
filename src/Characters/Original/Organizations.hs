@@ -150,7 +150,7 @@ cs =
                 resetAll
                 setHealth 5
                 teach 1 Deep 2
-                setFace 1
+                setFace
                 bomb (-1) [Invulnerable All, Seal, Enrage, Ignore $ Any Stun]
                           [ To Done killHard ]
           ]

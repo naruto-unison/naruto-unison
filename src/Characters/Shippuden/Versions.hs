@@ -541,7 +541,7 @@ cs =
         , Skill.start     =
           [ To Self do
                 cancelChannel "Black Zetsu"
-                setFace 0
+                setFace
                 vary "White Zetsu" "Black Zetsu"
                 vary "Black Zetsu" "White Army"
                 vary "Doppelgänger / Body Coating" "Doppelgänger"
@@ -557,7 +557,7 @@ cs =
         , Skill.start     =
           [ To Self do
                 cancelChannel "White Zetsu"
-                setFace 0
+                setFace
                 vary "White Zetsu" baseVariant
                 vary "Black Zetsu" "Underground Roots"
                 vary "Doppelgänger / Body Coating" "Body Coating"
@@ -577,7 +577,7 @@ cs =
         , Skill.start     =
           [ To Self do
                 cancelChannel "White Zetsu"
-                setFace 0
+                setFace
                 vary "White Zetsu" baseVariant
                 vary "Black Zetsu" "Underground Roots"
                 vary "Doppelgänger / Body Coating" "Body Coating"

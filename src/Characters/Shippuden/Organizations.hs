@@ -223,7 +223,7 @@ cs =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Ally $ trapFrom' 2 (Counter NonMental) do
-                setFace (-4)
+                setFace' (-4)
                 copyAll 4
                 tag (-4)
                 teach 4 Shallow 4
@@ -425,12 +425,13 @@ cs =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
         , Skill.dur       = Action 2
+        , Skill.start     =
+          [ To Self setFace ]
         , Skill.effects   =
           [ To Self do
                 apply 1 [Invulnerable Mental]
                 gain [Rand]
                 defend 0 10
-                setFace 1
           ]
         }
       ]
