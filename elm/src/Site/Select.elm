@@ -634,7 +634,7 @@ previewBox st = case st.previewing of
                     , E.onClick <| Team Add char_
                     ])
         , H.h1 [] <| icon char "icon" [A.class "char"] :: Render.name char
-        , H.p [] [H.text char.bio]
+        , H.p [] <| Render.desc char.bio
         ] ++
         List.map3 (previewSkill char) (List.range 0 <| Game.skillSize - 1)
         char.skills st.variants

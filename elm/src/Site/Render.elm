@@ -138,6 +138,11 @@ moreHidden = Set.union hidden <| Set.fromList
     , "Unreflectable"
     ]
 
+parseBreak : Parser (Html msg)
+parseBreak =
+    Parser.succeed (H.br [] [])
+    |. Parser.token "\n"
+
 parseChakra : String -> Parser (Html msg)
 parseChakra kind =
   let
@@ -158,7 +163,7 @@ parseName =
 parseText : Parser (Html msg)
 parseText =
     Parser.succeed H.text
-    |= Parser.getChompedString (Parser.chompWhile ((/=) '['))
+    |= Parser.getChompedString (Parser.chompWhile <| \c -> c /= '[' && c /= '\n')
 
 parseDesc : Parser (List (Html msg))
 parseDesc = Parser.loop [] <| \acc ->
@@ -167,7 +172,8 @@ parseDesc = Parser.loop [] <| \acc ->
         |. Parser.end
         |> Parser.map (\_ -> Parser.Done (List.reverse acc))
       , Parser.succeed (\stmt -> Parser.Loop (stmt :: acc)) |= Parser.oneOf
-        [ parseChakra "blood"
+        [ parseBreak
+        , parseChakra "blood"
         , parseChakra "gen"
         , parseChakra "nin"
         , parseChakra "tai"

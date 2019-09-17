@@ -628,7 +628,7 @@ a.playButton {
     right: 25px;
     text-align: right;
 }
-#player1 .charicon {
+#account1 .charicon, #player1 .charicon {
     transform: rotateY(180deg);
 }
 .charhealth {
