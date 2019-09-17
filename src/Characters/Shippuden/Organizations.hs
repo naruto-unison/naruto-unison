@@ -392,4 +392,48 @@ cs =
       ]
     , [ invuln "Summoning: Baku" "Danzō" [Chakra, Summon] ]
     ]
+  , Character
+    "Suigetsu Hōzuki"
+    "One of Sasuke's followers, Suigetsu is a sadistic murderer from the Hidden Mist Village known as the Second Coming of the Demon for his desire to follow in Zabuza's footsteps. He uses his clan's unique water-manipulation abilities to strengthen and replenish his body, making himself as tough as he is cruel."
+    [ [ Skill.new
+        { Skill.name      = "Great Water Arm"
+        , Skill.desc      = "Suigetsu pumps up his arm with water, gaining 10 destructible defense for 1 turn, and deals 20 damage to an enemy."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
+          [ To Self  $ defend 1 10
+          , To Enemy $ damage 20
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Demon Wave"
+        , Skill.desc      = "A giant wave shaped like a demonic fish crashes into an enemy, dealing 40 piercing damage and providing Suigetsu with 25% damage reduction for 1 turn."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Nin, Tai]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ pierce 40
+          , To Self  $ apply 1 [Reduce All Percent 25]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Liquefy"
+        , Skill.desc      = "Suigetsu transforms his body into water, becoming invulnerable to mental skills for 2 turns. Each turn, he gains a random chakra and 10 permanent destructible defense."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 4
+        , Skill.dur       = Action 2
+        , Skill.effects   =
+          [ To Self do
+                apply 1 [Invulnerable Mental]
+                gain [Rand]
+                defend 0 10
+                setFace 1
+          ]
+        }
+      ]
+    , [ invuln "Parry" "Suigetsu" [Physical] ]
+    ]
   ]
