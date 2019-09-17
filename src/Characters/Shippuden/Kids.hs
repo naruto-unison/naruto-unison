@@ -145,49 +145,54 @@ cs =
     ]
   , Character
     "Sasuke Uchiha"
-    "Sasuke's years of training under Orochimaru have made him a master of his elemental aspects. Now that he has absorbed Orochimaru, he has added the sannin's snake abilities to his own lightning attacks, which pierce through the defenses of his enemies. He is regarded as one of the most dangerous and ruthless ninjas alive."
+    "Sasuke's years of training under Orochimaru have made him a master of his elemental aspects. Cold and ruthless, he is regarded as one of the most dangerous ninjas alive."
     [ [ Skill.new
-        { Skill.name      = "Lightning Flash"
-        , Skill.desc      = "Sasuke infuses a spinning shuriken with Chidori and hurls it at an enemy, dealing 30 piercing damage and leaving a trail of electricity that briefly links Sasuke to his enemies."
-        , Skill.classes   = [Chakra, Melee]
+        { Skill.name      = "Chidori Stream"
+        , Skill.desc      = "An electric field surrounds Sasuke. Enemies who use non-mental skills on Sasuke next turn will be countered and will take 10 affliction damage. Once used, this skill becomes [Chidori Spear][t]."
+        , Skill.classes   = [Bane, Chakra, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy $ pierce 30
-          , To Self  $ tag 1
+          , To Self  $ vary "Chidori Stream" "Chidori Spear"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Chidori Spear"
+        , Skill.desc      = "Employing his swordsmanship to wield an energy beam like a weapon, Sasuke deals 15 damage to an enemy and stuns them with electricity for 1 turn. Once used, this skill becomes [Chidori Stream][n][r]."
+        , Skill.classes   = [Bane, Physical, Ranged]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 15
+                apply 1 [Stun All]
+          , To Self $ vary "Chidori Stream" baseVariant
           ]
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Shadow Shuriken"
-        , Skill.desc      = "Sasuke throws two shuriken rigged with electric wires at an enemy, concealing the lower blade in the shadow of the upper one. Deals 20 piercing damage and an additional 5 if [Lightning Flash] was used last turn. If the target uses a ranged skill next turn, they will receive 10 piercing damage."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Tai]
-        , Skill.cooldown  = 1
+        { Skill.name      = "Dragon Flame"
+        , Skill.desc      = "Draconic fireballs sear an enemy, dealing 10 damage to them for 4 turns. While active, enemies who use skills on Sasuke will take 5 affliction damage."
+        , Skill.classes   = [Chakra, Ranged, Bane]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.cooldown  = 4
+        , Skill.dur       = Action 4
         , Skill.effects   =
-          [ To Enemy do
-                bonus <- 5 `bonusIf` userHas "Lightning Flash"
-                damage (20 + bonus)
-                trap (-1) (OnAction Ranged) $ pierce 10
+          [ To Enemy $ damage 10
+          , To Self  $ trapFrom 1 (OnHarmed All) $ afflict 5
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Kirin"
-        , Skill.desc      = "A pillar of lightning strikes an enemy, dealing 40 piercing damage. If [Lightning Flash] was used last turn, this skill bypasses invulnerability and deals 40 affliction damage instead."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.desc      = "A pillar of lightning strikes an enemy, dealing 45 piercing damage."
+        , Skill.classes   = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Nin, Nin]
-        , Skill.cooldown  = 3
+        , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy do
-                has <- userHas "Lightning Flash"
-                if has then afflict 40 else pierce 40
-          ]
-        , Skill.changes   =
-            changeWith "Lightning Flash" \x ->
-              x { Skill.classes = insertSet Bypassing $ Skill.classes x }
+          [ To Enemy $ pierce 45 ]
         }
       ]
-    , [ invuln "Snake Shedding" "Sasuke" [Physical] ]
+    , [ invuln "Summoning: Serpent" "Sasuke" [Physical, Summon] ]
     ]
   , Character
     "Kiba Inuzuka"
