@@ -394,7 +394,7 @@ cs =
     ]
   , Character
     "Suigetsu Hōzuki"
-    "One of Sasuke's followers, Suigetsu is a sadistic murderer from the Hidden Mist Village known as the Second Coming of the Demon for his desire to follow in Zabuza's footsteps. He uses his clan's unique water-manipulation abilities to strengthen and replenish his body, making himself as tough as he is cruel."
+    "A member of Sasuke's strike team, Suigetsu is a sadistic murderer from the Hidden Mist Village known as the Second Coming of the Demon for his desire to follow in Zabuza's footsteps. He uses his clan's unique water-manipulation abilities to strengthen and replenish his body, making himself as tough as he is cruel."
     [ [ Skill.new
         { Skill.name      = "Great Water Arm"
         , Skill.desc      = "Suigetsu pumps up his arm with water, gaining 10 destructible defense for 1 turn, and deals 20 damage to an enemy."
@@ -435,5 +435,46 @@ cs =
         }
       ]
     , [ invuln "Parry" "Suigetsu" [Physical] ]
+    ]
+  , Character
+    "Karin"
+    "A member of Sasuke's strike team, Karin is a genin from the Hidden Grass Village, Karin has the unique ability to sense chakra signatures automatically. She is all but omniscient within her range, able to detect hidden individuals, penetrate illusions, and even tell when someone is lying."
+    [ [ Skill.new
+        { Skill.name     = "Mind's Eye"
+        , Skill.desc     = "Karin predicts attacks using her chakra detection. Enemies who use skills on her next turn will be countered, and enemies use skills on their allies next turn will have the costs of their skills increased by 1 additional random chakra."
+        , Skill.classes  = [Mental, Ranged, Invisible]
+        , Skill.cost     = [Rand]
+        , Skill.cooldown = 2
+        , Skill.effects  =
+          [ To Self $ trap 1 (CounterAll All) $ return ()
+          , To Enemies $ trapFrom 1 OnHelped $ apply 3 [Exhaust All]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Adamantine Attacking Chains"
+        , Skill.desc      = "Karin attacks an enemy with sealing chains, dealing 30 damage and preventing them from applying stuns for 1 turn."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 30
+                apply 1 [Throttle 0 $ Any Stun]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Heal Bite"
+        , Skill.desc      = "One of Karin's allies bites her, restoring 30 health to them and causing Karin to lose 5 health."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To XAlly $ heal 30
+          , To Self  $ sacrifice 0 5
+          ]
+        }
+      ]
+    , [ invuln "Dodge" "Karin" [Physical] ]
     ]
   ]
