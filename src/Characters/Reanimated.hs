@@ -698,7 +698,7 @@ cs =
     "Reanimated by Kabuto, Fuguki was one of the Seven Swordsmen of the Mist who wielded the legendary sentient sword Samehada. Without his sword, he relies on his chakra-enhanced hair to heal himself and ensnare his opponents."
     [ [ Skill.new
         { Skill.name      = "Needle Senbon"
-        , Skill.desc      = "Fuguki hardens his hair into needles and launches a barrage at an enemy, dealing 15 piercing damage for 2 turns. While active, if they use a skill on Fuguki or one of his allies, they will be unable to target anyone else for 2 turns. Costs 1 random chakra during [Chakra Weave]."
+        , Skill.desc      = "Fuguki hardens his hair into needles and launches a barrage at an enemy, dealing 15 piercing damage for 2 turns. While active, if they use a skill on Fuguki or his allies, they will be unable to target anyone else for 2 turns. Costs 1 random chakra during [Chakra Weave]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1

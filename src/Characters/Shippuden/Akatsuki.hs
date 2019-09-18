@@ -573,7 +573,7 @@ cs =
         , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Enemies $ tag 2
-          , To Allies $ trapFrom 0 (Counter Uncounterable) do
+          , To Allies $ trapFrom 0 (OnHarmed All) do
                 unlessM (targetHas "already") do
                     prolong 2 "Summoning: Giant Multi-Headed Dog"
                     flag' "already"

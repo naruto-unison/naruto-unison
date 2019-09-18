@@ -21,7 +21,6 @@ module Engine.Ninjas
 
   , clear
   , clearFace
-  , clearReplaces
   , clearTrap
   , clearTraps
   , cure
@@ -279,14 +278,6 @@ clear name user n = n { statuses = filter keep $ statuses n }
   where
     keep = not . Labeled.match name user
 
--- | Deletes 'Replace' effects.
-clearReplaces :: Ninja -> Ninja
-clearReplaces n =
-    n { statuses = filter (any un . Status.effects) $ statuses n }
-  where
-    un Replace{} = False
-    un _         = True
-
 -- | Deletes matching 'traps'.
 clearTrap :: Text -- ^ 'Trap.name'.
           -> Slot -- ^ 'Trap.user'.
@@ -324,8 +315,7 @@ addChannels sk target n
   where
     chan  = Skill.dur sk
     dur   = Copy.maxDur (Skill.copying sk) . incr $ TurnBased.getDur chan
-    chan' = Channel { Channel.source = Copy.source sk $ slot n
-                    , Channel.skill  = sk { Skill.require = Usable }
+    chan' = Channel { Channel.skill  = sk { Skill.require = Usable }
                     , Channel.target = target
                     , Channel.dur    = TurnBased.setDur dur chan
                     }
@@ -491,8 +481,7 @@ kabuto sk n =
     nChannels' = case channels n of
                     x:xs -> x :| xs
                     []   -> Channel
-                                { Channel.source = nSlot
-                                , Channel.skill  = sk
+                                { Channel.skill  = sk
                                 , Channel.target = nSlot
                                 , Channel.dur    = Skill.dur sk
                                 } :| []
@@ -508,7 +497,6 @@ kabuto sk n =
     ml         = mode ++ sage
     newmode    = Status { Status.amount  = 1
                         , Status.name    = ml
-                        , Status.source  = nSlot
                         , Status.user    = nSlot
                         , Status.skill   = sk
                         , Status.effects = []

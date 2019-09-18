@@ -24,7 +24,7 @@ import qualified Model.Channel as Channel
 import           Model.Channel (Channeling(..))
 import qualified Model.Character as Character
 import qualified Model.Copy as Copy
-import           Model.Copy (Copy(Copy), Copying)
+import           Model.Copy (Copy(Copy), Copying(..))
 import           Model.Duration (Duration(..), Turns, incr, sync)
 import qualified Model.Face as Face
 import           Model.Face (Face(Face))
@@ -34,7 +34,6 @@ import           Model.Slot (Slot)
 import qualified Model.Variant as Variant
 import           Model.Variant (Varying)
 import qualified Engine.Cooldown as Cooldown
-import qualified Engine.Execute as Execute
 import qualified Engine.Ninjas as Ninjas
 import qualified Engine.Skills as Skills
 
@@ -156,10 +155,19 @@ varyNext name = do
       where
         variant = Variant.variant x
 
+-- | Performs an action only if the skill being used is not copied from
+-- someone else.
+uncopied :: ∀ m. MonadPlay m => m () -> m ()
+uncopied f = do
+    skill <- P.skill
+    case Skill.copying skill of
+        NotCopied -> f
+        _         -> return ()
+
 -- | Copies all @Skill@s from the target into the user's 'Ninja.copies'.
 -- Uses 'Ninjas.copyAll' internally.
 copyAll :: ∀ m. MonadPlay m => Turns -> m ()
-copyAll (Duration -> dur) = do
+copyAll (Duration -> dur) = uncopied do
     nTarget <- P.nTarget
     user    <- P.user
     P.modify user $ Ninjas.copyAll dur nTarget
@@ -167,13 +175,12 @@ copyAll (Duration -> dur) = do
 -- | Copies the 'Ninja.lastSkill' of the target into a specific skill slot
 -- of the user's 'Ninja.copies'. Uses 'Execute.copy' internally.
 copyLast :: ∀ m. MonadPlay m => Turns -> m ()
-copyLast (Duration -> dur) = do
-    skill      <- P.skill
-    user       <- P.user
-    target     <- P.target
-    mLastSkill <- Ninja.lastSkill <$> P.nTarget
-    forM_ mLastSkill \lastSkill ->
-        Execute.copy Copy.Shallow target lastSkill (dur, user, Skill.name skill)
+copyLast (Duration -> dur) = uncopied do
+    name   <- Skill.name <$> P.skill
+    user   <- P.user
+    target <- P.target
+    mapM_ (P.modify user . Ninjas.copy dur name Copy.Shallow target) .
+          Ninja.lastSkill =<< P.nTarget
 
 -- | Copies a @Skill@ from the user into all of the target's 'Ninja.copies'
 -- skill slots.
@@ -202,7 +209,7 @@ teacher :: ∀ m. MonadPlay m
         -> (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.
         -> Int -- ^ User's skill slot of the @Skill@ to copy.
         -> m ()
-teacher f (Duration -> dur) cop s = do
+teacher f (Duration -> dur) cop s = uncopied do
     user   <- P.user
     target <- P.target
     nUser  <- P.nUser

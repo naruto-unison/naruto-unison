@@ -32,8 +32,8 @@ cs =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies do
-                trap 2 (Countered Chakra)   $ apply 1 [Stun Chakra]
-                trap 2 (Countered Physical) $ apply 1 [Stun Physical]
+                trap 2 (OnAction Chakra)   $ apply 1 [Stun Chakra]
+                trap 2 (OnAction Physical) $ apply 1 [Stun Physical]
           ]
         }
       ]
@@ -411,7 +411,7 @@ cs =
     ]
   , Character
     "Itachi Uchiha"
-    "A master of Sharingan techniques, Itachi is a rogue operative who has joined Akatsuki. His power comes at a steep price: using his Sharingan causes him to gradually go blind. He intends to make the most of whatever time he has left."
+    "A master of Sharingan techniques, Itachi is a rogue operative from the Hidden Leaf Village who has joined Akatsuki. His power comes at a steep price: using his Sharingan causes him to gradually go blind. He intends to make the most of whatever time he has left."
     [ [ Skill.new
         { Skill.name      = "Mangekyō Sharingan"
         , Skill.desc      = "Itachi becomes invulnerable but loses 15 health each turn. While active, the cooldowns and chakra costs of his other skills are doubled. This skill can be used again with no chakra cost to cancel its effect."

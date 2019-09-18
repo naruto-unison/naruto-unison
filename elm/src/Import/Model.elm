@@ -425,16 +425,14 @@ jsonEncVariant  val =
 
 
 type alias Channel  =
-   { source: Int
-   , skill: Skill
+   { skill: Skill
    , target: Int
    , dur: Channeling
    }
 
 jsonDecChannel : Json.Decode.Decoder ( Channel )
 jsonDecChannel =
-   Json.Decode.succeed (\psource pskill ptarget pdur -> {source = psource, skill = pskill, target = ptarget, dur = pdur})
-   |> required "source" (Json.Decode.int)
+   Json.Decode.succeed (\pskill ptarget pdur -> {skill = pskill, target = ptarget, dur = pdur})
    |> required "skill" (jsonDecSkill)
    |> required "target" (Json.Decode.int)
    |> required "dur" (jsonDecChanneling)
@@ -442,8 +440,7 @@ jsonDecChannel =
 jsonEncChannel : Channel -> Value
 jsonEncChannel  val =
    Json.Encode.object
-   [ ("source", Json.Encode.int val.source)
-   , ("skill", jsonEncSkill val.skill)
+   [ ("skill", jsonEncSkill val.skill)
    , ("target", Json.Encode.int val.target)
    , ("dur", jsonEncChanneling val.dur)
    ]
@@ -555,7 +552,6 @@ jsonEncEffect  val =
 type alias Status  =
    { amount: Int
    , name: String
-   , source: Int
    , user: Int
    , skill: Skill
    , effects: (List Effect)
@@ -567,10 +563,9 @@ type alias Status  =
 
 jsonDecStatus : Json.Decode.Decoder ( Status )
 jsonDecStatus =
-   Json.Decode.succeed (\pamount pname psource puser pskill peffects pclasses pbombs pmaxDur pdur -> {amount = pamount, name = pname, source = psource, user = puser, skill = pskill, effects = peffects, classes = pclasses, bombs = pbombs, maxDur = pmaxDur, dur = pdur})
+   Json.Decode.succeed (\pamount pname puser pskill peffects pclasses pbombs pmaxDur pdur -> {amount = pamount, name = pname, user = puser, skill = pskill, effects = peffects, classes = pclasses, bombs = pbombs, maxDur = pmaxDur, dur = pdur})
    |> required "amount" (Json.Decode.int)
    |> required "name" (Json.Decode.string)
-   |> required "source" (Json.Decode.int)
    |> required "user" (Json.Decode.int)
    |> required "skill" (jsonDecSkill)
    |> required "effects" (Json.Decode.list (jsonDecEffect))
@@ -584,7 +579,6 @@ jsonEncStatus  val =
    Json.Encode.object
    [ ("amount", Json.Encode.int val.amount)
    , ("name", Json.Encode.string val.name)
-   , ("source", Json.Encode.int val.source)
    , ("user", Json.Encode.int val.user)
    , ("skill", jsonEncSkill val.skill)
    , ("effects", (Json.Encode.list jsonEncEffect) val.effects)
@@ -694,7 +688,7 @@ type alias Trap  =
    { direction: Direction
    , trigger: String
    , name: String
-   , desc: String
+   , skill: Skill
    , user: Int
    , classes: (Set String)
    , tracker: Int
@@ -703,11 +697,11 @@ type alias Trap  =
 
 jsonDecTrap : Json.Decode.Decoder ( Trap )
 jsonDecTrap =
-   Json.Decode.succeed (\pdirection ptrigger pname pdesc puser pclasses ptracker pdur -> {direction = pdirection, trigger = ptrigger, name = pname, desc = pdesc, user = puser, classes = pclasses, tracker = ptracker, dur = pdur})
+   Json.Decode.succeed (\pdirection ptrigger pname pskill puser pclasses ptracker pdur -> {direction = pdirection, trigger = ptrigger, name = pname, skill = pskill, user = puser, classes = pclasses, tracker = ptracker, dur = pdur})
    |> required "direction" (jsonDecDirection)
    |> required "trigger" (Json.Decode.string)
    |> required "name" (Json.Decode.string)
-   |> required "desc" (Json.Decode.string)
+   |> required "skill" (jsonDecSkill)
    |> required "user" (Json.Decode.int)
    |> required "classes" (decodeSet (Json.Decode.string))
    |> required "tracker" (Json.Decode.int)
@@ -719,7 +713,7 @@ jsonEncTrap  val =
    [ ("direction", jsonEncDirection val.direction)
    , ("trigger", Json.Encode.string val.trigger)
    , ("name", Json.Encode.string val.name)
-   , ("desc", Json.Encode.string val.desc)
+   , ("skill", jsonEncSkill val.skill)
    , ("user", Json.Encode.int val.user)
    , ("classes", (encodeSet Json.Encode.string) val.classes)
    , ("tracker", Json.Encode.int val.tracker)

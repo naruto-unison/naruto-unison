@@ -568,16 +568,14 @@ cs =
     "Now a chūnin, Ino takes control of every fight she faces. Her overpowering will steals the skills and secrets of her enemies and forces her allies to fight on no matter the cost. "
     [ [ Skill.new
         { Skill.name      = "Mind Destruction"
-        , Skill.desc      = "Ino infiltrates an enemy's mind and prepares to strike at a moment of weakness. Next turn, the target receives 15 damage. If they use a skill on Ino or her allies next turn, its effects will be nullified and this skill will be replaced by that skill for 1 turn. Ino's copy of their skill has no chakra cost and ends when this skill reverts."
+        , Skill.desc      = "Ino infiltrates an enemy's mind and prepares to strike at a moment of weakness. Next turn, the target receives 15 damage. If they use a skill on Ino or her allies next turn, they will be countered and this skill will be replaced by that skill for 1 turn. Ino's copy of their skill has no chakra cost and ends when this skill reverts."
         , Skill.classes   = [Mental, Ranged, Invisible, Unreflectable, Unremovable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                userSlot <- user slot
-                trap (-1) (Countered Uncounterable) $ return ()
-                bomb (-1) [Replace 1 userSlot "Mind Destruction"]
-                          [To Done $ damage 15]
+                trap (-1) (Countered All) $ copyLast 1
+                delay (-1) $ damage 15
           ]
         }
       ]
@@ -858,7 +856,7 @@ cs =
     "Now a jōnin, Kankurō has crafted a third puppet for his collection and honed his skills as a puppetmaster. Each puppet has its own use, improving his overall versatility."
     [ [ Skill.new
         { Skill.name      = "Kuroari Trap"
-        , Skill.desc      = "The Kuroari puppet traps an enemy, countering them if they use a skill on Kankurō or his allies next turn. If countered, the target receives twice as much damage from [Karasu Knives] for 1 turn."
+        , Skill.desc      = "The Kuroari puppet traps an enemy. If they use a skill on Kankurō or his allies next turn, they will be countered and will receive twice as much damage from [Karasu Knives] for 1 turn."
         , Skill.classes   = [Physical, Ranged, InvisibleTraps]
         , Skill.cost      = [Rand]
         , Skill.effects   =

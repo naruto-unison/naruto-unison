@@ -12,7 +12,6 @@ module Engine.Effects
   , invulnerable
   , limit
   , reduce
-  , replace
   , share
   , snare
   , strengthen
@@ -32,7 +31,6 @@ import           Core.Util ((!!), (∈), intersects)
 import qualified Class.Parity as Parity
 import           Model.Chakra (Chakras(..))
 import           Model.Class (Class(..))
-import           Model.Duration (Duration)
 import qualified Model.Effect as Effect
 import           Model.Effect (Amount(..), Effect(..))
 import qualified Model.Ninja as Ninja
@@ -105,10 +103,6 @@ reduce classes n
         negativeTotal [(amt, x) | Reduce cla amt x <- Ninja.effects n
                                 , cla ∈ classes
                                 , cla /= Affliction]
-
--- | 'Replace' collection.
-replace :: Ninja -> [(Duration, Slot, Text)]
-replace n = [(dur, slot, name) | Replace dur slot name <- Ninja.effects n]
 
 -- | 'Share' collection.
 share :: Ninja -> [Slot]

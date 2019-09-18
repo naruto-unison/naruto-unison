@@ -8,6 +8,7 @@ module Game.Game exposing
   , merge
   , rank
   , removable
+  , source
   , root
   , targets
   , toggles
@@ -107,11 +108,14 @@ dur chan = case chan.dur of
 removable : Bool -> Effect -> Bool
 removable onAlly ef = not ef.sticky && onAlly /= ef.helpful
 
-root : List Character -> Skill -> Int -> Character
-root characters skill slot = get characters <| case skill.copying of
+source : Skill -> Int -> Int
+source skill slot = case skill.copying of
     NotCopied   -> slot
     Shallow x _ -> x
-    Deep x _    -> x
+    Deep    x _ -> x
+
+root : List Character -> Skill -> Int -> Character
+root characters skill slot = get characters <| source skill slot
 
 toggles : Maybe Act -> List Int
 toggles x = case x of

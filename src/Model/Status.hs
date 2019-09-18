@@ -18,7 +18,6 @@ new :: Slot -> Duration -> Skill -> Status
 new user dur skill =
     Status { amount  = 1
            , name    = Skill.name skill
-           , source  = Copy.source skill user
            , user    = user
            , skill   = skill
            , effects = mempty

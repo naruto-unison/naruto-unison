@@ -111,8 +111,8 @@ makeTrap skill nUser target direction classes dur trigger f = Trap
     { Trap.trigger   = trigger
     , Trap.direction = direction
     , Trap.name      = Skill.name skill
-    , Trap.desc      = Skill.desc skill
-    , Trap.user      = trapUser
+    , Trap.skill     = skill
+    , Trap.user      = user
     , Trap.effect    = \i -> Runnable.To
         { Runnable.target = ctx
         , Runnable.run    = Execute.wrap (singletonSet Trapped) $ f i
@@ -123,12 +123,12 @@ makeTrap skill nUser target direction classes dur trigger f = Trap
                         sync dur + throttled nUser
     }
   where
-    trapUser = Copy.source skill $ Ninja.slot nUser
-    ctx      = Context { Context.skill  = skill
-                        , Context.user   = trapUser
-                        , Context.target = target
-                        , Context.new    = False
-                        }
+    user = Ninja.slot nUser
+    ctx  = Context { Context.skill  = skill
+                   , Context.user   = user
+                   , Context.target = target
+                   , Context.new    = False
+                   }
     throttled n
       | dur == 0               = 0
       | Trap.isCounter trigger = 2 * Effects.throttle [Reflect] n
@@ -156,8 +156,4 @@ delay (Duration -> dur) f = do
 -- | Removes 'Ninja.traps' with matching 'Trap.name'.
 -- Uses 'Ninjas.clearTrap' internally.
 removeTrap :: ∀ m. MonadPlay m => Text -> m ()
-removeTrap name = do
-    skill  <- P.skill
-    user   <- P.user
-    target <- P.target
-    P.modify target . Ninjas.clearTrap name $ Copy.source skill user
+removeTrap name = P.fromUser $ Ninjas.clearTrap name

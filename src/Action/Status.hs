@@ -172,8 +172,8 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
             st       = makeStatus skill nUser nTarget
                        classes bounced bombs name dur fs
             classes' = Status.classes st
-            prolong' = mapMaybe $
-                       Ninjas.prolong' (Status.dur st) name (Status.source st)
+            prolong' = mapMaybe .
+                       Ninjas.prolong' (Status.dur st) name $ Status.user st
         guard . not $ already && bounced
         if already && Extending ∈ classes' then
             P.modify target \n ->

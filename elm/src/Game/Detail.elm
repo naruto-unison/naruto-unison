@@ -3,6 +3,7 @@ module Game.Detail exposing
   , allied
   , get
   , channel
+  , copy
   )
 
 import List.Extra as List
@@ -10,7 +11,7 @@ import List.Nonempty as Nonempty exposing (Nonempty(..))
 import Set exposing (Set)
 
 import Game.Game as Game
-import Import.Model exposing (Channel, Effect, Ninja, Status, Trap)
+import Import.Model exposing (Channel, Copy, Effect, Ninja, Skill, Status, Trap)
 import Util exposing (elem, groupBy)
 
 type alias Detail =
@@ -19,9 +20,9 @@ type alias Detail =
     , classes : Set String
     , dur     : Int
     , source  : Int
+    , user    : Int
     , effects : List Effect
     , trap    : Bool
-    , ghost   : Bool
     , amount  : Int
     }
 
@@ -35,7 +36,7 @@ get n =
     traps = List.map (concat << reduce) << groupBy eq <| List.map trap n.traps
     stats = List.concatMap unfold <|
             List.filter (\x -> not <| List.any (eq x) traps) statuses
-    (self, others) = List.partition ((==) n.slot << .source) <| stats ++ traps
+    (self, others) = List.partition ((==) n.slot << .user) <| stats ++ traps
   in
     self ++ others
 
@@ -47,7 +48,7 @@ ignoreClasses : Set String -> Set String
 ignoreClasses = Set.remove "Unremovable"
 
 allied : Int -> Detail -> Bool
-allied user x = (user < Game.teamSize) == (x.source < Game.teamSize)
+allied user x = (user < Game.teamSize) == (x.user < Game.teamSize)
 
 concat : Nonempty Detail -> Detail
 concat (Nonempty x xs) =
@@ -57,7 +58,6 @@ concat (Nonempty x xs) =
     { x
     | effects = List.uniqueBy .desc <| List.concatMap .effects xxs
     , trap    = List.any .trap xxs
-    , ghost   = List.all .ghost xxs
     , amount  = List.sum << List.map .amount <| List.filter (not << .trap) xxs
     }
 
@@ -68,16 +68,32 @@ unfold x =
   else
       List.repeat x.amount { x | amount = 1 }
 
-channel : Channel -> Detail
-channel x =
+channel : Int -> Channel -> Detail
+channel user x =
     { name    = x.skill.name
     , desc    = x.skill.desc
     , classes = x.skill.classes
     , dur     = Game.dur x
-    , source  = x.source
+    , source  = Game.source x.skill user
+    , user    = user
     , effects = []
     , trap    = False
-    , ghost   = False
+    , amount  = 1
+    }
+
+copy : Copy -> Detail
+copy x =
+  let
+    source = Game.source x.skill (-1)
+  in
+    { name    = x.skill.name
+    , desc    = x.skill.desc
+    , classes = x.skill.classes
+    , dur     = x.dur
+    , source  = source
+    , user    = source
+    , effects = []
+    , trap    = False
     , amount  = 1
     }
 
@@ -87,10 +103,10 @@ status x =
     , desc    = x.skill.desc
     , classes = x.classes
     , dur     = x.dur
-    , source  = x.source
+    , source  = Game.source x.skill x.user
+    , user    = x.user
     , effects = x.effects
     , trap    = False
-    , ghost   = False
     , amount  = x.amount
     }
 
@@ -105,12 +121,12 @@ trap x =
         }
   in
     { name    = x.name
-    , desc    = x.desc
+    , desc    = x.skill.desc
     , classes = x.classes
     , dur     = x.dur
-    , source  = x.user
+    , source  = Game.source x.skill x.user
+    , user    = x.user
     , effects = [effects]
     , trap    = True
-    , ghost   = False
     , amount  = 1
     }

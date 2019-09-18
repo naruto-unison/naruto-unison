@@ -456,7 +456,7 @@ renderDetail team slot characters detail =
     , A.classList
       [ ("detail"   , True)
       , ("trap"     , detail.trap)
-      , ("tag"      , detail.ghost || detail.dur == 1)
+      , ("tag"      , detail.dur == 1)
       , ("reflected", Set.member "Shifted" detail.classes)
       , ("remove"   , List.any removable detail.effects
                       && not (Set.member "Unremovable" detail.classes))
@@ -473,9 +473,11 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
   let
     render   = renderDetail onTeam b.ninja.slot characters
     anchor   = if onTeam then "left" else "right"
-    live     = if b.ninja.health > 0 then identity else always []
-    channels = live << List.map (render << Detail.channel) <|
+    live xs  = if b.ninja.health > 0 then xs else []
+    channels = live << List.map (render << Detail.channel b.ninja.slot) <|
                List.reverse b.ninja.channels
+    copies   = live << List.map (render << Detail.copy) <<
+               List.reverse <| List.filterMap identity b.ninja.copies
     defenses = live <| renderDefense b.ninja.slot anchor b.ninja.health
                (List.reverse b.ninja.barrier) (List.reverse b.ninja.defense)
     details  = live << List.map render <|
@@ -514,7 +516,8 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
                ]
   in
     H.section [A.classList [("dead", b.ninja.health == 0)]] <|
-      H.aside [A.class "channels"] channels :: mainBar ++
+      H.aside [A.class "channels"] (channels ++ copies)
+      :: mainBar ++
         [ H.div [A.class "charhealth"] <|
           [ H.div [A.style "width" <| String.fromInt b.ninja.health ++ "%"] []
           , H.span
@@ -562,7 +565,6 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
         ]
     ViewDetail removable x ->
       let
-        source = Game.get characters x.source
         count  =
           if x.amount > 1 then
               x.name ++ " (" ++ String.fromInt x.amount ++ ")"
@@ -575,12 +577,12 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
               H.span [] [H.text count]
       in
         [ H.section []
-          [ icon source "icon" [A.class "char"]
+          [ icon (Game.get characters x.source) "icon" [A.class "char"]
           , H.section []
             [ H.h1 [] [name]
             , Render.classes True x.classes
             , label "Source: "
-            , H.span [] <| Render.name source
+            , H.span [] << Render.name <| Game.get characters x.user
             , label "Duration: "
             , H.span [] << Render.duration "Permanent" <| x.dur
             ]

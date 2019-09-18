@@ -20,7 +20,6 @@ import Core.Util ((∈))
 import Class.Classed (Classed(..))
 import Class.Display (Display(..))
 import Model.Class (Class(..), lower)
-import Model.Duration (Duration(..))
 import Model.Slot (Slot)
 
 data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show, Read)
@@ -78,7 +77,6 @@ data Effect
     | Redirect     Class Slot          -- ^ Transfers harmful 'Skill's
     | Reflect                          -- ^ Reflects the first 'Skill'
     | ReflectAll                       -- ^ 'Reflect' repeatedly
-    | Replace      Duration Slot Text  -- ^ Copies a skill into user's skill slot
     | Restrict                         -- ^ Forces AoE attacks to be single-target
     | Reveal                           -- ^ Makes 'Invisible' effects visible
     | Seal                             -- ^ Ignore all friendly 'Skill's
@@ -146,7 +144,6 @@ helpful (Reduce _ _ x)  = x >= 0
 helpful Redirect{}      = True
 helpful Reflect         = True
 helpful ReflectAll      = True
-helpful Replace{}       = False
 helpful Restrict        = False
 helpful Reveal          = False
 helpful Seal            = False
@@ -172,7 +169,6 @@ sticky Block{}        = True
 sticky Enrage         = True
 sticky Invulnerable{} = True
 sticky Redirect{}     = True
-sticky Replace{}      = True
 sticky Reflect        = True
 sticky ReflectAll     = True
 sticky Restrict       = True
@@ -228,7 +224,6 @@ instance Display Effect where
     display (Redirect cla _) = "Redirects " ++ lower cla  ++ " harmful skills to a different target."
     display Reflect = "Reflects the first harmful non-mental skill."
     display ReflectAll = "Reflects all non-mental skills."
-    display (Replace d _ l) = "The next skill used will be copied to the source of this effect's [" ++ display l ++ "] skill for " ++ display d ++ " turns."
     display Reveal = "Reveals invisible skills to the enemy team. This effect cannot be removed."
     display Restrict = "Skills that normally affect all opponents must be targeted."
     display Seal = "Invulnerable to effects from allies."

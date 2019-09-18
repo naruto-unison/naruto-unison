@@ -178,9 +178,7 @@ cs =
         , Skill.cost      = [Blood]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
-          [ To Enemy $ trap 0 (Countered All) $
-                cancelChannel "Monstrous Sand Arm"
-          ]
+          [ To Enemy $ trap 0 Nullified $ cancelChannel "Monstrous Sand Arm" ]
         , Skill.effects   =
           [ To Enemy $ damage 10 ]
         }

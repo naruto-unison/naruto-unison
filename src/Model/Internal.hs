@@ -152,8 +152,7 @@ instance Labeled Barrier where
     user = user
 
 -- | An 'Model.Act.Act' channeled over multiple turns.
-data Channel = Channel { source :: Slot
-                       , skill  :: Skill
+data Channel = Channel { skill  :: Skill
                        , target :: Slot
                        , dur    :: Channeling
                        } deriving (Generic, ToJSON)
@@ -208,6 +207,7 @@ data Trigger
     = Counter Class
     | CounterAll Class
     | Countered Class
+    | Nullified
     | OnAction Class
     | OnNoAction
     | OnBreak Text
@@ -241,15 +241,16 @@ instance Classed Trigger where
     classes _                  = mempty
 
 instance Display Trigger where
-    display (Counter Uncounterable)    = "Next harmful skill received will be negated."
-    display (CounterAll Uncounterable) = "All harmful skills received will be negated."
+    display (Counter Uncounterable)    = "Next skill received from an enemy will be negated."
+    display (CounterAll Uncounterable) = "All skills received from enemies will be negated."
     display (Countered Uncounterable)  = "Next harmful skill used will be negated."
-    display (Counter All)      = "Next harmful skill received will be countered."
-    display (CounterAll All)   = "All harmful skills received will be countered."
-    display (Countered All)    = "Next harmful skill used will be countered."
-    display (Counter cla)      = "Next harmful " ++ lower cla ++ " skill received will be countered."
-    display (CounterAll cla)   = "All harmful " ++ lower cla ++ " skills received will be countered."
-    display (Countered cla)    = "Next harmful " ++ lower cla ++ " skill used will be countered."
+    display (Counter All)      = "Next skill received from an enemy will be countered."
+    display (Counter cla)      = "Next " ++ lower cla ++ " skill received from an enemy will be countered."
+    display (CounterAll All)   = "All skills received from enemies will be countered."
+    display (CounterAll cla)   = "All " ++ lower cla ++ " skills received from enemies will be countered."
+    display (Countered All)    = "Next skill used on an enemy will be countered."
+    display (Countered cla)    = "Next " ++ lower cla ++ " skill used on an enemy will be countered."
+    display Nullified          = "Next skill used will be countered."
     display (OnAction  All)    = "Trigger: Use any skill"
     display (OnAction  cla)    = "Trigger: Use " ++ lower cla ++ " skills"
     display (OnBreak   name)   = "Trigger: Lose all destructible defense from '" ++ display name ++ "'"
@@ -259,9 +260,9 @@ instance Display Trigger where
     display (OnDamaged cla)    = "Trigger: Receive " ++ lower cla ++ " damage"
     display OnDeath            = "Trigger: Die"
     display OnDefend           = "Trigger: Provide destructible defense"
-    display OnHarm             = "Trigger: Use harmful skill"
-    display (OnHarmed All)     = "Trigger: Be affected by a new harmful skill"
-    display (OnHarmed cla)     = "Trigger: Be affected by a new " ++ lower cla ++ " harmful skill"
+    display OnHarm             = "Trigger: Use a skill on an enemy"
+    display (OnHarmed All)     = "Trigger: Be affected by a new skill from an enemy"
+    display (OnHarmed cla)     = "Trigger: Be affected by a new " ++ lower cla ++ " skill from an enemy"
     display OnHeal             = "Trigger: Restore health"
     display OnHelped           = "Trigger: Be affected by a new skill from an ally"
     display OnNoAction         = "Trigger: Do not use a new skill"
@@ -282,7 +283,7 @@ instance Classed Copy where
 
 instance TurnBased Copy where
     getDur = dur
-    setDur d Copy{skill} = Copy { skill = skill', dur = d }
+    setDur d Copy{skill} = Copy {skill = skill', dur = d }
       where
         skill' = case copying skill of
             Shallow b _ -> skill { copying = Shallow b d }
@@ -296,22 +297,18 @@ data Copying
     deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 
 -- | Applies an effect after several turns.
-data Delay = Delay { user   :: Slot
-                   , skill  :: Skill
-                   , effect :: Runnable Context
+data Delay = Delay { effect :: Runnable Context
                    , dur    :: Int
                    }
 
 instance Classed Delay where
-    classes = Classed.classes . (skill :: Delay -> Skill)
+    classes = Classed.classes . (skill :: Context -> Skill) .
+              (target :: Runnable Context -> Context) .
+              (effect :: Delay -> Runnable Context)
 
 instance TurnBased Delay where
     getDur     = dur
     setDur d x = x { dur = d }
-
-instance Labeled Delay where
-    name   = (name :: Skill -> Text) . (skill :: Delay -> Skill)
-    user = user
 
 -- | Applies actions when a 'Status' ends.
 data Bomb
@@ -323,7 +320,6 @@ data Bomb
 -- | A status effect affecting a 'Ninja'.
 data Status = Status { amount  :: Int  -- ^ Starts at 1
                      , name    :: Text -- ^ Label
-                     , source  :: Slot -- ^ Owner of the 'Status.skill'
                      , user    :: Slot -- ^ User
                      , skill   :: Skill
                      , effects :: [Effect]
@@ -355,7 +351,7 @@ data Direction
 data Trap = Trap { direction :: Direction
                  , trigger   :: Trigger
                  , name      :: Text
-                 , desc      :: Text
+                 , skill     :: Skill
                  , user      :: Slot
                  , effect    :: Int -> Runnable Context
                  , classes   :: EnumSet Class
@@ -367,7 +363,7 @@ instance ToJSON Trap where
         [ "direction" .= direction
         , "trigger"   .= trigger
         , "name"      .= name
-        , "desc"      .= desc
+        , "skill"     .= skill
         , "user"      .= user
         , "classes"   .= classes
         , "tracker"   .= tracker

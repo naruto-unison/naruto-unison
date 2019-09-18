@@ -134,8 +134,9 @@ wrap player = do
         efs        <- Execute.chooseTargets
                       (Skill.start skill ++ Skill.effects skill)
         countering <- Execute.filterCounters efs . toList <$> P.enemies user
-        let counters =
-                Trigger.userCounters user classes nUser
+        let harm     = not $ null countering
+            counters =
+                Trigger.userCounters harm user classes nUser
                 ++ (Trigger.targetCounters user classes =<< countering)
         if null counters then do
             Execute.effects [] efs
@@ -143,7 +144,7 @@ wrap player = do
         else do
             let countered = Ninja.slot <$> countering
                 uncounter n
-                  | slot == user     = Trigger.userUncounter classes n
+                  | slot == user     = Trigger.userUncounter  classes n
                   | slot ∈ countered = Trigger.targetUncounter classes n
                   | otherwise        = n
                   where

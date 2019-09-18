@@ -51,15 +51,15 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Team Tactics"
-        , Skill.desc      = "For 3 turns, the cooldowns of Kakashi's allies are decreased by 1. While active, the first enemy skill used will replace this skill for 1 turn. Kakashi's copy of the skill has no chakra cost and ends when this skill reverts."
+        , Skill.desc      = "For 3 turns, the cooldowns of Kakashi's allies are decreased by 1. While active, the first skill used by an enemy will replace this skill for 1 turn. Kakashi's copy of the skill has no chakra cost and ends when this skill reverts."
         , Skill.classes   = [Mental, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To XAllies $ apply 3 [Snare (-1)]
-          , To Enemies do
-                  userSlot <- user slot
-                  apply' "Team Tactics " 3 [Replace 1 userSlot "Team Tactics"]
+          , To Enemies $ trap 3 (OnAction All) do
+                copyLast 1
+                everyone $ removeTrap "Team Tactics"
           ]
         }
       ]

@@ -5,7 +5,6 @@ module Engine.Execute
   , act
   , effects, addChannels
   , chooseTargets, filterCounters
-  , copy
   , interruptions
   ) where
 
@@ -30,9 +29,6 @@ import qualified Model.Chakra as Chakra
 import           Model.Class (Class(..))
 import qualified Model.Context as Context
 import           Model.Context (Context(Context))
-import qualified Model.Copy as Copy
-import           Model.Copy (Copying)
-import           Model.Duration (Duration)
 import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
@@ -70,17 +66,6 @@ data Affected
 instance AsEnumSet Affected where
     type EnumSetRep Affected = Word8
 
--- | Adds a 'Copy.Copy' to 'Ninja.copies'.
--- Uses 'Ninjas.copy' internally.
-copy :: ∀ m. MonadPlay m
-     => (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.
-     -> Slot -- ^ Target.
-     -> Skill -- ^ Skill.
-     -> (Duration, Slot, Text) -- ^ Output of 'Effects.replace'.
-     -> m ()
-copy constructor copyFrom skill (dur, copyTo, name) =
-    P.modify copyTo $ Ninjas.copy dur name constructor copyFrom skill
-
 data Exit = Break | Done | Completed deriving (Eq)
 
 -- | Processes an action before it can be applied to the game. This is where
@@ -111,13 +96,6 @@ wrap affected f = void $ runMaybeT do
 
     let harm      = not $ Parity.allied user target
         allow aff = harm && not (nUser `is` AntiCounter) && aff ∉ affected
-    when new do
-        P.modify user \n -> n { Ninja.lastSkill = Just skill }
-        when harm do
-            replaces <- Effects.replace <$> P.nUser
-            unless (null replaces) do
-                P.modify user Ninjas.clearReplaces
-                traverse_ (copy Copy.Shallow user skill) replaces
 
     if exit == Done then
         lift $ withDirect skill f
@@ -269,13 +247,15 @@ act a = do
                                             setActed n'
                 _                        -> setActed n'
             Nothing -> do
+                P.modify user \n -> n { Ninja.lastSkill = Just skill }
                 P.alter $ Game.adjustChakra user (— cost)
                 P.modify user $ Cooldown.updateN charge skill s . setActed
-                efs        <- chooseTargets
+                efs         <- chooseTargets
                               (Skill.start skill ++ Skill.effects skill)
-                countering <- filterCounters efs . toList <$> P.enemies user
+                countering  <- filterCounters efs . toList <$> P.enemies user
+                let harmed   = not $ null countering
                 let counters =
-                        Trigger.userCounters user classes nUser
+                        Trigger.userCounters harmed user classes nUser
                         ++ (Trigger.targetCounters user classes =<< countering)
                 if null counters then do
                     effects affected efs

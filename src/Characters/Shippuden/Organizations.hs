@@ -14,7 +14,7 @@ cs =
     "An operative of the Hidden Leaf Village, Shisui gained the rare Mangekyō Sharingan after witnessing his friend die on a mission. Known as Shisui the Teleporter for his perfect mastery of the Teleportation Technique, the former jōnin prodigy is compassionate and open-minded to a fault. His signature technique makes him all but impossible to flank and allows him to beleaguer his opponents without leaving himself vulnerable."
     [ [ Skill.new
         { Skill.name      = "Susanoo"
-        , Skill.desc      = "Shisui surrounds himself with chakra armor, gaining 45 permanent destructible defense. While Shisui has destructible defense from this skill, he gains a stack of Susanoo every turn and this skill becomes [Tsukumo][b]. Stacks of Susanoo last as long as he has destructible defense from this skill."
+        , Skill.desc      = "Shisui encases himself in spectral armor that provides him with 45 permanent destructible defense. While Shisui has destructible defense from this skill, he gains a stack of Susanoo every turn and this skill becomes [Tsukumo][b]. Stacks of Susanoo last as long as he has destructible defense from this skill."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
@@ -375,18 +375,16 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Kotoamatsukami"
-        , Skill.desc      = "Danzō infiltrates the mind of an enemy. The next time they use a skill, its effects will be nullified, they will be stunned for 2 turns, and this skill will be replaced by the skill they used for 2 turns. Danzō's copy of their skill has no chakra cost or cooldown and ends when this skill reverts."
+        , Skill.desc      = "Danzō infiltrates the mind of an enemy. The next time they use a skill, they will be countered and stunned for 2 turns, and this skill will be replaced by the skill they used for 2 turns. Danzō's copy of their skill has no chakra cost or cooldown and ends when this skill reverts."
         , Skill.classes   = [Mental, Ranged, InvisibleTraps, Uncounterable, Unreflectable]
         , Skill.cost      = [Blood, Gen, Gen]
         , Skill.cooldown  = 9
         , Skill.effects   =
-          [ To Enemy do
-                userSlot <- user slot
-                applyWith [Invisible] 2 [Replace 2 userSlot "Kotoamatsukami"]
-                trap 2 (Countered Uncounterable) do
-                    remove "Kotoamatsukami"
-                    removeTrap "Kotoamatsukami"
-                    apply' "Kotoamatsukami Stun" 2 [Stun All]
+          [ To Enemy $ trap 2 Nullified do
+                remove "Kotoamatsukami"
+                removeTrap "Kotoamatsukami"
+                apply' "Kotoamatsukami Stun" 2 [Stun All]
+                copyLast 2
           ]
         }
       ]
