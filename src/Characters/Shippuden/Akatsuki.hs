@@ -354,6 +354,70 @@ cs =
     , [ invuln "Block" "Hidan" [Physical] ]
     ]
   , Character
+    "Kakuzu"
+    "The self-proclaimed Treasurer of the Akatsuki, Kakuzu is a money-obsessed bounty hunter who defected from the Hidden Waterfall Village in pursuit of wealth. With his anger usually going unchecked, he has a bad habit of ripping out the heart of anyone who annoys him. He stores extra hearts in masks, each of which grants different abilities."
+    [ [ Skill.new
+        { Skill.name     = "Pressure Damage"
+        , Skill.desc     = "Attaching his wind-element mask, Kakuzu fires a tornado of compressed air at an enemy, dealing 30 damage and stunning their chakra and ranged skills for 1 turn. Once used, this skill becomes [Searing Migraine][b]."
+        , Skill.classes  = [Chakra, Ranged]
+        , Skill.cost     = [Nin, Rand]
+        , Skill.effects  =
+          [ To Enemy do
+                damage 30
+                apply 1 [Stun Chakra, Stun Ranged]
+          , To Self $ vary "Pressure Damage" "Searing Migraine"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Searing Migraine"
+        , Skill.desc      = "Attaching his fire-element mask, Kakuzu creates a firestorm that spreads across the battlefield, dealing 15 affliction damage to all enemies. Once used, this skill becomes [Pressure Damage][n][r]."
+        , Skill.classes   = [Bane, Chakra, Ranged]
+        , Skill.cost      = [Blood]
+        , Skill.effects   =
+          [ To Enemies $ afflict 15
+          , To Self    $ vary "Pressure Damage" baseVariant
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "False Darkness"
+        , Skill.desc      = "Attaching his lightning-element mask, Kakuzu transfixes an enemy with energy spears that deal 30 piercing damage. Once used, this skill becomes [Blast Flames][b][n]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Gen, Rand]
+        , Skill.effects   =
+          [ To Enemy $ pierce 30
+          , To Self  $ vary "False Darkness" "Blast Flames"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Blast Flames"
+        , Skill.desc      = "Combining his fire-element and wind-element masks, Kakuzu creates a fiery tornado that deals 35 damage to an enemy and 20 damage to all other enemies. Once used, this skill becomes [False Darkness][g][r]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.effects   =
+          [ To Enemy    $ damage 35
+          , To XEnemies $ damage 20
+          , To Self     $ vary "False Darkness" baseVariant
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Earth Grudge"
+        , Skill.desc      = "Black thread-like tendrils rip apart an enemy whose health is at 20 or lower, killing the target and restoring 35 health to Kakuzu if successful."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Enemy do
+                targetHealth <- target health
+                when (targetHealth <= 20) do
+                    kill
+                    unlessM (target alive) $ self $ heal 35
+          ]
+        }
+      ]
+    , [ invuln "Iron Skin" "Kakuzu" [Physical] ]
+    ]
+  , Character
     "Kisame Hoshigaki"
     "An Akatsuki member and one of the Seven Swordsmen of the Mist, Kisame is a rogue operative who hunts and captures tailed beasts. His water techniques and legendary sword Samehada flood his enemies."
     [ [ Skill.new
