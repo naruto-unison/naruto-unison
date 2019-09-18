@@ -5,6 +5,8 @@ module Model.Internal where
 
 import ClassyPrelude
 
+import qualified Text.Blaze.Html5 as HTML
+
 import Control.Monad.Reader (local, mapReaderT)
 import Control.Monad.Trans.Accum (AccumT, mapAccumT)
 import Control.Monad.Trans.Except (ExceptT, mapExceptT)
@@ -190,7 +192,9 @@ data Category
     | Reanimated
     deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
 instance ToMarkup Category where
-    toMarkup = toMarkup . show
+    toMarkup Original   = mempty
+    toMarkup Shippuden  = HTML.sup "𝕊"
+    toMarkup Reanimated = HTML.sup "ℝ"
 
 -- | An out-of-game character.
 data Character = Character { name     :: Text
