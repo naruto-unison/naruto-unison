@@ -1,14 +1,15 @@
 -- | 'Game.chakra' processing.
 module Engine.Chakras
-  ( remove
+  ( remove, remove1
   , gain
   ) where
 
 import ClassyPrelude
 
+import           Data.Enum.Set.Class (EnumSet)
 import qualified Data.Vector as Vector
 
-import           Core.Util ((—))
+import           Core.Util ((—), (∈))
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
@@ -39,6 +40,24 @@ remove amount = do
         return removed
   where
     removeRandoms x = x { Chakra.rand = 0 }
+
+-- | Removes a single 'Chakra' from the enemy team that is one of several types.
+-- 'Chakra's are chosen randomly from the available pool of 'Game.chakra', but
+-- only the ones passed in the parameter.
+-- Removed 'Chakra's are collected into a 'Chakras' object and returned.
+remove1 :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Chakra -> m Chakras
+remove1 permitted = do
+    user     <- P.user
+    target   <- P.target
+    P.trigger user [OnChakra]
+    chakras  <- filter (∈ permitted) . Chakra.toSequence . Parity.getOf target .
+                Game.chakra <$> P.game
+    mRemoved <- R.choose chakras
+    case Chakra.toChakras <$> mRemoved of
+        Nothing      -> return 0
+        Just removed -> do
+            P.alter $ Game.adjustChakra target (— removed)
+            return removed
 
 -- | Adds as many random 'Chakra's as the number of living 'Ninja.Ninja's on the
 -- player's team to the player's 'Game.chakra'.

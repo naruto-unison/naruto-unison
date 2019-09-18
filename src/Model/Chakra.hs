@@ -15,7 +15,7 @@ import ClassyPrelude hiding (fromList, sum, toList)
 import Prelude (sum)
 
 import           Data.Aeson (ToJSON)
-import           Data.Enum.Set.Class (EnumSet)
+import           Data.Enum.Set.Class (AsEnumSet(..), EnumSet)
 import qualified Data.Text as Text
 import qualified Data.Text.Read as Read
 import           GHC.Exts (IsList(..))
@@ -94,6 +94,9 @@ data Chakra
     | Tai -- ^ Taijutsu
     | Rand -- ^ Random
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
+
+instance AsEnumSet Chakra where
+    type EnumSetRep Chakra = Word8
 
 toChakras :: Chakra -> Chakras
 toChakras Blood = 0 { blood = 1 }

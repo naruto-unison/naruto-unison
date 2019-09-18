@@ -1,12 +1,14 @@
 -- | Actions that characters can use to manipulate 'Chakra'.
 module Action.Chakra
   ( absorb
-  , deplete
+  , deplete, deplete1
   , gain
   , kabuto
   ) where
 
 import ClassyPrelude
+
+import Data.Enum.Set.Class (EnumSet)
 
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
@@ -35,6 +37,12 @@ gain chakras = P.unsilenced do
 -- team. 'Chakra's are selected at random by 'Chakras.remove'.
 deplete :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 deplete amount = P.unsilenced . void $ Chakras.remove amount
+
+-- | Removes a single 'Chakra' from the enemy team that is one of several types.
+-- 'Chakra's are chosen randomly from the available pool of 'Game.chakra', but
+-- only the ones passed in the parameter.
+deplete1 :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Chakra -> m ()
+deplete1 chakras = P.unsilenced . void $ Chakras.remove1 chakras
 
 -- | Transfers some number of @Chakra@s from the 'Game.chakra' of the target's
 -- team to the 'Game.chakra' of the user's team. @Chakra@s are selected at
