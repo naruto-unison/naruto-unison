@@ -643,7 +643,7 @@ cs =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Allies $ apply 3 [Reduce All Percent 20, Ignore $ Any Stun] ]
+          [ To Allies $ apply 3 [Reduce All Percent 20, Focus] ]
         }
       ]
     , [ Skill.new

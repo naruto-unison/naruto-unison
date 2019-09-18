@@ -182,13 +182,15 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
             guard $ null fs || not (null $ Status.effects st)
             P.modify target $ Ninjas.addStatus st
             when (any isReduce $ Status.effects st) $ P.trigger user [OnReduce]
-            when (any isStun $ Status.effects st) do
+            when (any Effect.disabling $ Status.effects st) do
                 P.trigger user [OnStun]
                 P.trigger target [OnStunned]
+            when (any isHeal $ Status.effects st) $ P.trigger user [OnHeal]
 
-            let stuns = setFromList [x | stun@(Stun x) <- Status.effects st
-                                       , stun ∉ Effects.ignore nTarget]
-                self  = user == user && user == target
+            let self = user == user && user == target
+                stuns
+                  | nTarget `is` Focus = mempty
+                  | otherwise = setFromList [x | Stun x <- Status.effects st]
             lift . ActionChannel.interrupt $
                 (stuns `intersects`) . Skill.classes . Channel.skill
             when (bounced && not self) do
@@ -197,10 +199,10 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                                turns fs
                 lift . traverse_ bounce . delete user $ Effects.share nTarget
   where
+    isHeal (Heal x)   = x > 0
+    isHeal _          = False
     isReduce Reduce{} = True
     isReduce _        = False
-    isStun Stun{}     = True
-    isStun _          = False
 
 makeStatus :: Skill -> Ninja -> Ninja
            -> EnumSet Class -> Bool -> [Runnable Bomb] -> Text -> Duration
@@ -257,10 +259,7 @@ cureBane = P.unsilenced $ P.toTarget Ninjas.cureBane
 -- | Cures all 'Stun' effects from 'Ninja.statuses'.
 -- Uses 'Ninjas.cure' internally.
 cureStun :: ∀ m. MonadPlay m => m ()
-cureStun = P.unsilenced $ cure cured
-  where
-    cured Stun{} = True
-    cured _      = False
+cureStun = P.unsilenced $ cure Effect.disabling
 
 -- | Cures all 'Effect.helpful' effects from 'Ninja.statuses'.
 -- Uses 'Ninjas.purge' internally.

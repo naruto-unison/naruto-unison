@@ -367,7 +367,7 @@ cs =
           [ To Enemy do
                 damage 10
                 pierce 5
-          , To Self  $ apply 1 [Ignore $ Any Stun, Reduce All Flat 15]
+          , To Self  $ apply 1 [Focus, Reduce All Flat 15]
           ]
         }
       , Skill.new
@@ -406,7 +406,7 @@ cs =
           [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
           ,  To Self do
                 sacrifice 1 10
-                apply 0 [Ignore $ Any Stun, Afflict 15]
+                apply 0 [Focus, Afflict 15]
                 varyLoadout loadout 3
                 setFace
           ]
@@ -429,7 +429,7 @@ cs =
         , Skill.effects   =
             [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
             , To Self do
-                  apply 0 [Ignore $ Any Stun, Afflict 15]
+                  apply 0 [Focus, Afflict 15]
                   varyLoadout loadout 3
                   vary "Block" "Block"
                   setFace

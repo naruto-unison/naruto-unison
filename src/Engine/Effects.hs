@@ -9,7 +9,6 @@ module Engine.Effects
   , duel
   , exhaust
   , hp
-  , ignore
   , invulnerable
   , limit
   , reduce
@@ -89,10 +88,6 @@ exhaust :: EnumSet Class -> Ninja -> Chakras
 exhaust classes n =
     0 { rand = length [x | Exhaust x <- Ninja.effects n, x ∈ classes] }
 
--- | 'Ignore' collection.
-ignore :: Ninja -> [Effect]
-ignore n = [ef | Ignore con <- Ninja.effects n, ef <- Effect.construct con]
-
 -- | 'Invulnerable' collection.
 invulnerable :: Ninja -> EnumSet Class
 invulnerable n = setFromList [x | Invulnerable x <- Ninja.effects n]
@@ -130,7 +125,9 @@ strengthen classes n =
 
 -- | 'Stun' collection.
 stun :: Ninja -> EnumSet Class
-stun n = setFromList [x | Stun x <- Ninja.effects n]
+stun n
+  | n `is` Focus = mempty
+  | otherwise    = setFromList [x | Stun x <- Ninja.effects n]
 
 -- | 'Taunt' collection.
 taunt :: Ninja -> [Slot]
@@ -157,7 +154,10 @@ weaken classes n =
 
 -- | 'Throttle'-0 collection.
 disabled :: Ninja -> [Effect]
-disabled n = [f | Throttle 0 con <- Ninja.effects n, f <- Effect.construct con]
+disabled n
+  | n `is` Focus = mempty
+  | otherwise    = [f | Throttle 0 con <- Ninja.effects n
+                      , f <- Effect.construct con]
 
 -- | 'Afflict' sum minus 'Heal' sum.
 hp :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)

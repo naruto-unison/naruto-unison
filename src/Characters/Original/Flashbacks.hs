@@ -243,7 +243,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Sharingan"
-        , Skill.desc      = "Kakashi anticipates an opponent's moves for 2 turns. If they use a skill that gains, depletes, or absorbs chakra, Kakashi gains 1 random chakra. If they use a skill that stuns, Kakashi's skills will stun next turn. If they use a skill that damages, Kakashi's damage will be increased by 10 during the next turn."
+        , Skill.desc      = "Kakashi anticipates an opponent's moves for 2 turns. If they use a skill that gains, depletes, or absorbs chakra, Kakashi gains 1 random chakra. If they use a skill that stuns or disables, Kakashi's skills will stun next turn. If they use a skill that damages, Kakashi's damage will be increased by 10 during the next turn."
         , Skill.classes   = [Mental, Ranged, InvisibleTraps]
         , Skill.cooldown  = 1
         , Skill.effects   =

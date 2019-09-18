@@ -264,7 +264,7 @@ instance Display Trigger where
     display OnReduce           = "Trigger: Apply damage reduction"
     display OnReflectAll       = "All skills are reflected."
     display OnRes              = "Trigger: Reach 0 health"
-    display OnStun             = "Trigger: Apply a stun"
+    display OnStun             = "Trigger: Apply a stun or disabling effect"
     display OnStunned          = "Trigger: Stunned"
     display PerDamaged         = "Trigger: Receive damage"
 

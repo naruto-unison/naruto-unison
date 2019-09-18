@@ -281,7 +281,7 @@ cs =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                apply 2 [ Ignore $ Any Stun
+                apply 2 [ Focus
                         , Reduce All Percent 50
                         , Weaken All Flat 5
                         ]
@@ -504,7 +504,7 @@ cs =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Self $ apply' "Demon Shroud " 1
-                [Reduce All Flat 10, Ignore $ Any Stun]
+                [Reduce All Flat 10, Focus]
           , To REnemy do
                 pierce 30
                 tag' "Executioner's Butchering" 1
@@ -513,16 +513,14 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Blood Harvest"
-        , Skill.desc      = "Kubikiribōchō drinks up the blood it has spilled and uses the iron to reinforce itself, draining 10 health from a target marked by [Executioner's Butchering] to provide 10 permanent destructible defense. Extends the duration of [Demon Shroud] by 1 turn if active."
+        , Skill.desc      = "Kubikiribōchō drinks up the blood it has spilled and uses the iron to reinforce itself, draining 10 health from a target marked by [Executioner's Butchering] to provide permanent destructible defense equal to the damage dealt. Extends the duration of [Demon Shroud] by 1 turn if active."
         , Skill.require   = HasU 1 "Executioner's Butchering"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ leech 10 $ self . heal
-          , To Self do
-                defend 0 10
-                prolongChannel 1 "Demon Shroud"
+          [ To Enemy $ leech 10 $ self . defend 0
+          , To Self  $ prolongChannel 1 "Demon Shroud"
           ]
         }
       ]

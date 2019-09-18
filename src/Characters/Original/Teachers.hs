@@ -482,7 +482,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Regenerative Healing Technique"
-        , Skill.desc      = "Using a notoriously difficult healing technique, Shizune restores 35 health to herself or an ally and cures them of enemy effects."
+        , Skill.desc      = "Using a notoriously difficult healing technique, Shizune restores 35 health to herself or an ally and cures the target of enemy effects."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1

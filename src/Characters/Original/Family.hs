@@ -138,7 +138,7 @@ cs =
         , Skill.effects   =
           [ To Enemy do
                 trap' (-1) OnDeath $ self $
-                    apply 2 [Strengthen All Flat 10, Endure, Ignore $ Any Stun]
+                    apply 2 [Strengthen All Flat 10, Endure, Focus]
                 damage 25
           ]
         }
@@ -252,7 +252,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Black Spider Lily"
-        , Skill.desc      = "Shikaku draws his enemies closer with shadow tendrils for 3 turns. If an enemy affected by [Black Spider Lily] uses a skill that stuns Shikaku or his allies, [Shadow Possession] and [Shadow Dispersion] will stun them for an additional turn if used within 3 turns."
+        , Skill.desc      = "Shikaku draws his enemies closer with shadow tendrils for 3 turns. If an enemy affected by [Black Spider Lily] uses a skill that stuns or disables Shikaku or his allies, [Shadow Possession] and [Shadow Dispersion] will stun them for an additional turn if used within 3 turns."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3

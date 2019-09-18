@@ -151,7 +151,7 @@ cs =
                 setHealth 5
                 teach 1 Deep 2
                 setFace
-                bomb (-1) [Invulnerable All, Seal, Enrage, Ignore $ Any Stun]
+                bomb (-1) [Invulnerable All, Seal, Enrage, Focus]
                           [ To Done killHard ]
           ]
         }
@@ -338,7 +338,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Acupuncture"
-        , Skill.desc      = "Haku sticks a needle into one of the target's vital points, altering the flow of energy through their body. If used on an enemy, the target is stunned for 1 turn. If used on an ally, all stun effects are removed and they ignore stuns for 1 turn. Targets all allies and enemies during [Crystal Ice Mirrors]."
+        , Skill.desc      = "Haku sticks a needle into one of the target's vital points, altering the flow of energy through their body. If used on an enemy, the target is stunned for 1 turn. If used on an ally, all stuns and disabling effects are cured and they ignore stuns for 1 turn. Targets all allies and enemies during [Crystal Ice Mirrors]."
         , Skill.classes   = [Physical, Ranged, Bypassing]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
@@ -346,7 +346,7 @@ cs =
           [ To Enemy $ apply 1 [Stun All]
           , To XAlly do
                 cureStun
-                apply 1 [Ignore $ Any Stun]
+                apply 1 [Focus]
           ]
         , Skill.changes   =
             changeWith "Crystal Ice Mirrors" targetAll

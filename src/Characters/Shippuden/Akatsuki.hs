@@ -374,68 +374,6 @@ cs =
     , [ invuln "Block" "Hidan" [Physical] ]
     ]
   , Character
-    "Hiruko Sasori"
-    "The Akatsuki member Sasori is rarely seen outside of Hiruko, a heavily armored shell that allows him to perform puppetry without the usual weakness of leaving himself exposed. Its poisonous stinger and hidden traps make it a threat that cannot be ignored."
-    [ [ Skill.new
-        { Skill.name      = "Scorpion Tail Constriction"
-        , Skill.desc      = "Sasori shifts Hiruko into offensive mode and seizes an enemy, dealing 10 damage and stunning their non-mental skills for 1 turn. The target receives 10 additional damage from skills for the rest of the turn. Once used, this skill becomes [Scorpion Tail Strike][t][r]."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Rand]
-        , Skill.effects   =
-          [ To Enemy do
-                damage 10
-                apply (-1) [Stun NonMental, Bleed All Flat 10]
-          , To Self $ vary "Scorpion Tail Constriction" "Scorpion Tail Strike"
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Scorpion Tail Strike"
-        , Skill.desc      = "Hiruko's poison-drenched tail stabs at an enemy, dealing 20 damage and 20 affliction damage. For 2 turns, the target's skills cost 2 additional random chakra."
-        , Skill.classes   = [Bane, Physical, Melee]
-        , Skill.cost      = [Tai, Rand]
-        , Skill.effects   =
-          [ To Enemy do
-                damage 20
-                afflict 20
-                apply 2 [Exhaust All]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Hidden Toxic Needles"
-        , Skill.desc      = "Sasori shifts Hiruko into a defensive stance and takes aim at his enemies for 1 turn. If the enemy team uses any skills, they will take 15 affliction damage for 2 turns. At the end of the turn, Sasori gains 20 permanent destructible defense."
-        , Skill.classes   = [Bane, Physical, Ranged, InvisibleTraps]
-        , Skill.cost      = [Rand, Rand]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Self $ delay 1 $ defend 0 20
-          , To Self $ tag (-1)
-          , To Enemies do
-                delay (-1) $ whenM (userHas "needles at the ready") $
-                    apply 2 [Afflict 15]
-                trap (-1) (OnAction All) $
-                    self $ hide' "needles at the ready" 1 []
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Defensive Puppeteering"
-        , Skill.desc      = "Hiruko swings his tail about to knock back enemies, gaining 10 destructible defense and restoring 10 health for 2 turns. While active, Sasori ignores effects that prevent him from reducing damage or becoming invulnerable."
-        , Skill.classes   = [Physical]
-        , Skill.cost      = [Rand, Rand]
-        , Skill.dur       = Control 2
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Self do
-                defend 1 10
-                heal 10
-                apply 1 [Ignore $ Only Expose]
-          ]
-        }
-      ]
-    , [ invuln "Tail Block" "Sasori" [Physical] ]
-    ]
-  , Character
     "Kazekage Puppeteer Sasori"
     "Sasori's most prized human puppet is the body of the Third Kazekage, which allows him to wield its magnetic abilities. As Sasori's last resort, this puppet favors all-out attack. Its enemies must deal with it quickly before its iron sand takes over the battlefield."
     [ [ Skill.new

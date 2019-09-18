@@ -6,6 +6,7 @@ module Model.Effect
   , construct
   , helpful
   , sticky
+  , disabling
   , bypassEnrage
   , boosted
   , identity
@@ -66,8 +67,8 @@ data Effect
     | Enrage                           -- ^ Ignore all harmful status effects
     | Exhaust      Class               -- ^ 'Skill's cost 1 additional random chakra
     | Expose                           -- ^ Cannot reduce damage or be 'Invulnerable'
+    | Focus                            -- ^ Immune to 'Stun' and 'Throttle 0'
     | Heal         Int                 -- ^ Heals every turn
-    | Ignore       Constructor         -- ^ Invulnerable to certain effects
     | ImmuneSelf                       -- ^ Invulnerable to self-caused damage
     | Invulnerable Class               -- ^ Invulnerable to enemy 'Skill's
     | Limit        Int                 -- ^ Limits damage received
@@ -134,8 +135,8 @@ helpful Endure          = True
 helpful Enrage          = True
 helpful Exhaust{}       = False
 helpful Expose          = False
+helpful Focus           = True
 helpful Heal{}          = True
-helpful Ignore{}        = True
 helpful ImmuneSelf      = True
 helpful Invulnerable{}  = True
 helpful Limit{}         = True
@@ -180,6 +181,13 @@ sticky Share{}        = True
 sticky Swap{}         = True
 sticky _              = False
 
+-- | Effect is affected by 'Focus'.
+disabling :: Effect -> Bool
+disabling Silence        = True
+disabling (Stun _)       = True
+disabling (Throttle 0 _) = True
+disabling _              = False
+
 displayAmt :: Amount -> Int -> TextBuilder
 displayAmt Flat    = display
 displayAmt Percent = (++ "%") . display
@@ -205,7 +213,7 @@ instance Display Effect where
     display (Exhaust cla) = display cla ++ " skills cost 1 additional random chakra."
     display Expose = "Unable to reduce damage or become invulnerable."
     display (Heal x) = "Gains " ++ display x ++ " health each turn."
-    display (Ignore _) = "Ignores some effects."
+    display Focus = "Ignores stuns and disabling effects."
     display ImmuneSelf = "Invulnerable to self-damage."
     display (Invulnerable cla) = "Invulnerable to " ++ lower cla ++ " skills."
     display (Limit x) = "Non-affliction damage received is reduced to at most " ++ display x ++ "."

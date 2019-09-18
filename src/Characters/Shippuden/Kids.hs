@@ -56,7 +56,7 @@ cs =
         , Skill.effects   =
           [ To Self do
                 cureAll
-                gain [ Nin, Tai]
+                gain [Nin, Tai]
                 apply 1 [Reduce All Flat 10]
           ]
         }
@@ -86,26 +86,28 @@ cs =
       ]
     , [ Skill.new
         { Skill.name     = "Mystical Palm Healing"
-        , Skill.desc     = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures them of baneful effects. Spends a Seal if available to have no cooldown and cost 1 random chakra."
+        , Skill.desc     = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures the target of bane effects. Spends a Seal if available to have no cooldown and cost 1 random chakra."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To XAlly do
                 cureBane
-                restore 50
+                targetHealth <- target health
+                heal $ (100 - targetHealth) `quot` 2
           ]
         }
       , Skill.new
         { Skill.name     = "Mystical Palm Healing"
-        , Skill.desc     = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures them of baneful effects. Spends a Seal if available to have no cooldown and cost 1 random chakra."
+        , Skill.desc     = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures the target of bane effects. Spends a Seal if available to have no cooldown and cost 1 random chakra."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand]
         , Skill.varicd    = True
         , Skill.effects   =
           [ To XAlly do
                 cureBane
-                restore 50
+                targetHealth <- target health
+                heal $ (100 - targetHealth) `quot` 2
           , To Self do
                 removeStack "Seal"
                 unlessM (userHas "Seal") do
@@ -199,7 +201,7 @@ cs =
     "Kiba's years with Akamaru have enhanced their bond and teamwork. Now a chūnin, he has learned the alarming ability to transform Akamaru into a bestial humanoid resembling Kiba. As they progress through several stages of shapeshifting, they gradually transform into unstoppable rampaging beasts."
     [ [ Skill.new
         { Skill.name      = "Man-Beast Clone"
-        , Skill.desc      = "Akamaru transforms into a bestial copy of Kiba, providing 15 points of damage reduction to Kiba for 4 turns and causing him to ignore stuns. While active, this skill becomes [Three-Headed Wolf][b][b]."
+        , Skill.desc      = "Akamaru transforms into a bestial copy of Kiba, providing 15 points of damage reduction to Kiba for 4 turns and causing him to ignore stuns and disabling effects. While active, this skill becomes [Three-Headed Wolf][b][b]."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
@@ -207,11 +209,11 @@ cs =
         , Skill.start     =
           [ To Self $ vary "Man-Beast Clone" "Three-Headed Wolf"]
         , Skill.effects   =
-          [ To Self $ apply 1 [Ignore $ Any Stun, Reduce All Flat 15] ]
+          [ To Self $ apply 1 [Focus, Reduce All Flat 15] ]
         }
       , Skill.new
         { Skill.name      = "Three-Headed Wolf"
-        , Skill.desc      = "Akamaru and Kiba fuse together, ending [Man-Beast Clone]. For 3 turns, Kiba gains 30 points of damage reduction and ignores stuns. While active, this skill becomes [Giant Rotating Fang][t][b][b]."
+        , Skill.desc      = "Akamaru and Kiba fuse together, ending [Man-Beast Clone]. For 3 turns, Kiba gains 30 points of damage reduction and ignores stuns and disabling effects. While active, this skill becomes [Giant Rotating Fang][t][b][b]."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 5
@@ -220,7 +222,7 @@ cs =
                 cancelChannel "Man-Beast Clone"
                 vary' 3 "Man-Beast Clone" "Giant Rotating Fang"
                 remove "Man-Beast Clone"
-                apply 3 [Ignore $ Any Stun, Reduce All Flat 30]
+                apply 3 [Reduce All Flat 30]
           ]
         }
       , Skill.new

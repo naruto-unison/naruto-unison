@@ -400,7 +400,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Transfusion"
-        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns, resetting the target's cooldowns, and curing them of Bane effects. While being healed, the target is invulnerable to bane skills. Kabuto gains 1 taijutsu chakra."
+        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns, resetting the target's cooldowns, and curing them of bane effects. While being healed, the target is invulnerable to bane skills. Kabuto gains 1 taijutsu chakra."
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.charges   = 1
         , Skill.effects   =

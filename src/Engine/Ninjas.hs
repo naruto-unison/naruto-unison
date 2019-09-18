@@ -127,20 +127,13 @@ processEffects n = n { Ninja.effects = baseStatuses >>= replicates >>= process }
   where
     nSlot         = Ninja.slot n
     baseStatuses  = Ninja.statuses n
-    baseEffects   = concatMap Status.effects baseStatuses
+    baseEffects   = baseStatuses >>= Status.effects
     enraged       = Enrage ∈ baseEffects
     sealed        = not enraged && Seal ∈ baseEffects
-    ignores
-      | sealed    = [ef | status <- baseStatuses
-                        , Status.user status == nSlot
-                        , Ignore con <- Status.effects status
-                        , ef <- Effect.construct con
-                        ]
-      | otherwise = [ef | Ignore con <- baseEffects, ef <- Effect.construct con]
     boostAmount
       | sealed    = 1
       | otherwise = product $ 1 : [x | Boost x <- baseEffects]
-    filtered filt = filter (\ef -> filt ef && ef ∉ ignores) . Status.effects
+    filtered filt = filter filt . Status.effects
     replicates st = replicate (Status.amount st) st { Status.amount = 1 }
     process st
       | Status.user st == Ninja.slot n = Status.effects st
@@ -382,7 +375,9 @@ copyAll dur source n = n { copies = fromList $ cop <$> skills source }
 
 -- | Removes harmful effects. Does not work if the target has 'Plague'.
 cure :: (Effect -> Bool) -> Ninja -> Ninja
-cure match n = n { statuses = mapMaybe cure' $ statuses n }
+cure match n
+  | n `is` Plague = n
+  | otherwise     = n { statuses = mapMaybe cure' $ statuses n }
   where
     keep Reveal = True
     keep a      = Effect.helpful a || not (match a)
@@ -390,7 +385,6 @@ cure match n = n { statuses = mapMaybe cure' $ statuses n }
       | Status.user st == slot n           = Just st
       | null $ Status.effects st           = Just st
       | Unremovable ∈ Status.classes st    = Just st
-      | n `is` Plague                      = Just st
       | not $ any keep $ Status.effects st = Nothing
       | otherwise = Just st { Status.effects = filter keep $ Status.effects st }
 

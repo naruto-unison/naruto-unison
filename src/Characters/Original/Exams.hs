@@ -28,7 +28,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Palm Rotation"
-        , Skill.desc      = "Hanabi spins at an enemy, dealing 15 damage to them for 2 turns. If they use a skill that stuns, they will be stunned for 1 turn. Costs 1 random chakra during [Unyielding Tenacity]."
+        , Skill.desc      = "Hanabi spins at an enemy, dealing 15 damage to them for 2 turns. If they use a skill that stuns or disables, they will be stunned for 1 turn. Costs 1 random chakra during [Unyielding Tenacity]."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
@@ -51,7 +51,7 @@ cs =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self $ apply 2
-                     [Endure, Ignore $ Any Stun, Strengthen All Flat 5]
+                     [Endure, Focus, Strengthen All Flat 5]
           ]
         }
       ]
@@ -119,7 +119,7 @@ cs =
     ]
   , Character
     "Kabuto Yakushi"
-    "Orochimaru's close assistant and confidant, Kabuto is a brilliant and enigmatic genin. He uses his medical expertise to weaken and expose his opponents."
+    "A genin and former operative of the Hidden Leaf Village's elite Root division, Kabuto is Orochimaru's close assistant and confidant. He hides his brilliance behind a genial façade, but under the surface he remains a cold and calculating spy. In combat, he uses his medical expertise to weaken and expose his opponents."
     [ [ Skill.new
         { Skill.name      = "Chakra Scalpel"
         , Skill.desc      = "Kabuto slices an enemy with a medical scalpel made of chakra, dealing 20 piercing damage. For 1 turn, the target's skills cost 1 additional random chakra and they receive 5 additional damage from physical and chakra damaging skills."
@@ -137,7 +137,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Pre-Healing Technique"
-        , Skill.desc      = "Kabuto accelerates his cell growth in anticipation of attacks, restoring 15 health for 5 turns and curing himself of baneful effects."
+        , Skill.desc      = "Kabuto accelerates his cell growth in anticipation of attacks, restoring 15 health for 5 turns and curing himself of bane effects."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 5
