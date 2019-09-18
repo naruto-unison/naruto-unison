@@ -108,7 +108,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Toad Oil Bomb"
-        , Skill.desc      = "Deals 15 affliction to all enemies for 2 turns."
+        , Skill.desc      = "Jiraiya spits a dense projectile of oil that deals 15 affliction to all enemies for 2 turns."
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1

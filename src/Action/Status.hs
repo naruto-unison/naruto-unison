@@ -191,7 +191,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                 stuns
                   | nTarget `is` Focus = mempty
                   | otherwise = setFromList [x | Stun x <- Status.effects st]
-            lift . ActionChannel.interrupt $
+            lift . ActionChannel.interrupt' $
                 (stuns `intersects`) . Skill.classes . Channel.skill
             when (bounced && not self) do
                 let bounce t = P.withTarget t $

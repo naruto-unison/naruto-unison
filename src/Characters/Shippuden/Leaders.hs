@@ -10,8 +10,70 @@ import qualified Model.Skill as Skill
 cs :: [Category -> Character]
 cs =
   [ Character
+    "Jiraiya"
+    "One of three legendary sannin, Jiraiya has accepted Naruto as his student. Famed as the Toad Sage, he believes that Naruto is the child spoken of in the prophecies, and that it is his responsibility to teach him to save the world rather than destroy it."
+    [ [ Skill.new
+        { Skill.name      = "Giant Flame Bomb"
+        , Skill.desc      = "Jiraiya spits out a burst of fire, dealing 20 damage to an enemy. Once used, this skill becomes [Toad Oil Bomb][r]."
+        , Skill.classes   = [Bane, Chakra, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 20
+                stacks <- targetStacks "Toad Oil Bomb"
+                afflict (10 * stacks)
+          , To Self  $ vary "Giant Flame Bomb" "Toad Oil Bomb"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Toad Oil Bomb"
+        , Skill.desc      = "Jiraiya spits a dense projectile of oil that deals 10 affliction damage to an enemy and ends their Action and Control skills in progress. All subsequent uses of [Giant Flame Bomb] on the target will deal 10 additional affliction damage. Once used, this skill becomes [Giant Flame Bomb][r]."
+        , Skill.classes   = [Bane, Physical, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                afflict 10
+                interrupt
+                addStack
+          , To Self $ vary "Giant Flame Bomb" baseVariant
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Toad Subjugation Shadow Manipulation"
+        , Skill.desc      = "Jiraiya merges with an enemy's shadow. Next turn, skills that enemies use on Jiraiya will be reflected onto the target."
+        , Skill.classes   = [Mental, Invisible, Melee, Uncounterable, Unreflectable]
+        , Skill.cost      = [Gen, Rand]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemy do
+                targetSlot <- target slot
+                self $ apply 2 [Redirect NonMental targetSlot]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Raging Lion's Mane"
+        , Skill.desc      = "Chakra-laced hair as strong as steel cables grows from Jiraiya's head and wrap around him or one of his allies. For 3 turns, enemies who use melee physical skills on the target will take 25 damage, and enemies who use ranged physical skills on the target will take 15 damage, and their melee and physical skills will be stunned for 1 turn."
+        , Skill.classes   = [Invisible, Physical, Ranged]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Ally do
+                trapFrom 3 (OnHarmed Melee) $ whenM (targetHas "mane") $
+                    damage 25
+                trapFrom 3 (OnHarmed Ranged) $ whenM (targetHas "mane") do
+                    damage 15
+                    apply 1 [Stun All]
+                trapFrom 3 (OnHarmed Physical) $ flag' "mane"
+          ]
+        }
+      ]
+    , [ invuln "Summoning: Gamaken" "Jiraiya" [Summon] ]
+    ]
+  , Character
     "Tsunade"
-    "Tsunade has become the fifth Hokage. Knowing the Hidden Leaf Village's fate depends on her, she holds nothing back. Even if one of her allies is on the verge of dying, she can keep them alive long enough for her healing to get them back on their feet."
+    "One of three legendary sannin, Tsunade has become the fifth Hokage. Knowing the Hidden Leaf Village's fate depends on her, she holds nothing back. Even if one of her allies is on the verge of dying, she can keep them alive long enough for her healing to get them back on their feet."
     [ [ Skill.new
         { Skill.name      = "Heaven Spear Kick"
         , Skill.desc      = "Tsunade spears an enemy with her foot, dealing 20 piercing damage to them. If an ally is affected by [Healing Wave], their health cannot drop below 1 next turn. Spends a Seal if available to deal 20 additional damage and demolish the target's destructible defense and Tsunade's destructible barrier."

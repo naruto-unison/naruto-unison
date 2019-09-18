@@ -939,7 +939,7 @@ cs =
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Enemy do
-                interrupt $ const True
+                interrupt
                 userSlot <- user slot
                 apply 1 [Taunt userSlot]
           , To Self $ whenM (userHas "Tidal Force") $
