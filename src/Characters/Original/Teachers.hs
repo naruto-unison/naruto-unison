@@ -117,7 +117,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Summoning: Ninja Hounds"
         , Skill.desc      = "A pack of giant dogs bite at an enemy, stunning the target's non-mental skills for 1 turn."
-        , Skill.classes   = [Physical, Ranged, Summon]
+        , Skill.classes   = [Summon, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =

@@ -42,7 +42,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Major Summoning: Manda"
         , Skill.desc      = "Orochimaru summons the great serpent Manda, who deals 45 damage to an enemy. Once used, this skill permanently becomes [Paralyzing Bite][r][r]. Each turn that Orochimaru is alive, he gains 1 random chakra."
-        , Skill.classes   = [Physical, Melee, Summon, Unreflectable]
+        , Skill.classes   = [Summon, Melee, Unreflectable]
         , Skill.cost      = [Blood, Nin, Tai]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
@@ -81,7 +81,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Summoning: Toad Mouth Trap"
         , Skill.desc      = "The esophagus of a humongous toad swallows the battlefield for 2 turns. Within the esophagus, enemies cannot reduce damage or become invulnerable. While active, if an enemy uses a skill that deals non-affliction damage to Jiraiya or one of his allies, their target will become invulnerable for 1 turn."
-        , Skill.classes   = [Chakra, Ranged, Summon, Bypassing]
+        , Skill.classes   = [Summon, Ranged, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.dur       = Ongoing 2
@@ -96,7 +96,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Major Summoning: Gamabunta"
         , Skill.desc      = "Jiraiya summons the great toad Gamabunta, who deals 25 affliction damage to all enemies. Once used, this skill permanently becomes [Toad Oil Bomb][n][r]. All enemies permanently receive 5 additional damage from affliction skills."
-        , Skill.classes   = [Ranged, Summon, Unreflectable, Unremovable]
+        , Skill.classes   = [Summon, Ranged, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
@@ -149,7 +149,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Major Summoning: Katsuyu"
         , Skill.desc      = "Tsunade summons the great slug Katsuyu, who heals her team for 40 health. Once used, this skill permanently becomes [Slug Division][n]. Each turn that Tsunade is alive, her team regains 5 health."
-        , Skill.classes   = [Chakra, Summon, Unremovable, Unreflectable]
+        , Skill.classes   = [Summon, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Gen, Nin]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
@@ -200,7 +200,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Major Summoning: Enma"
         , Skill.desc      = "Hiruzen summons the great monkey Enma, who makes his team invulnerable for 1 turn. Once used, this skill permanently becomes [Adamantine Prison][n]. As long as Hiruzen is alive, he provides 5 points of damage reduction to his team."
-        , Skill.classes   = [Physical, Melee, Summon, Unreflectable, Unremovable]
+        , Skill.classes   = [Summon, Melee, Unreflectable, Unremovable]
         , Skill.cost      = [Gen, Nin, Tai]
         , Skill.dur       = Ongoing 0
         , Skill.start     =

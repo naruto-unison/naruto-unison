@@ -118,7 +118,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Scattering Crow Swarm"
         , Skill.desc      = "A flock of self-duplicating crows swarms the enemy team for 4 turns, dealing 5 damage each turn and providing 5 points of damage reduction to Aoba and his allies."
-        , Skill.classes   = [Mental, Ranged, Summon, Resource]
+        , Skill.classes   = [Mental, Ranged, Resource]
         , Skill.cost      = [Gen]
         , Skill.dur       = Ongoing 4
         , Skill.start     =
@@ -204,7 +204,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Summoning: Iron Maiden"
         , Skill.desc      = "A spike-filled iron coffin shaped like a cat imprisons an enemy. For 3 turns, each time the target uses a skill on Ibiki or his allies, they will take 25 piercing damage. Ibiki gains 30 permanent destructible defense."
-        , Skill.classes   = [Physical, Melee, Summon]
+        , Skill.classes   = [Summon, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy $ trap 3 OnHarm $ pierce 25
@@ -215,7 +215,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Summoning: Torture Chamber"
         , Skill.desc      = "A cage of chains and gears surrounds an enemy. For 3 turns, each time the target does not use a skill, they will take 25 piercing damage. Ibiki gains 30 permanent destructible defense."
-        , Skill.classes   = [Physical, Melee, Summon]
+        , Skill.classes   = [Summon, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy $ trap 3 OnNoAction $ pierce 25
@@ -590,7 +590,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Summoning: Kyodaigumo"
         , Skill.desc      = "Kidōmaru summons a giant spider which creates endless swarms of small spiders. For 5 turns, all enemies take 10 damage, their cooldowns are increased by 1, and Kidōmaru gains 10 points of damage reduction."
-        , Skill.classes   = [Physical, Ranged, Summon]
+        , Skill.classes   = [Summon, Ranged]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4
         , Skill.dur       = Ongoing 5
@@ -620,7 +620,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Summoning: Doki"
         , Skill.desc      = "Tayuya summons the Doki Demons, which deal 15 damage to all enemies for 2 turns and provide her with 10 points of damage reduction."
-        , Skill.classes   = [Physical, Ranged, Summon]
+        , Skill.classes   = [Summon, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.dur       = Ongoing 2
@@ -705,7 +705,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Summoning: Rashōmon"
         , Skill.desc      = "Sakon and Ukon become invulnerable for 1 turn. Ends [Demon Parasite]."
-        , Skill.classes   = [Chakra, Summon]
+        , Skill.classes   = [Summon]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self $ remove "Demon Parasite" ]

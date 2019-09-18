@@ -123,7 +123,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Major Summoning: Ibuse"
         , Skill.desc      = "Hanzō summons his fabled salamander to the battlefield. Ibuse starts with 30 health and redirects half of all damage against Hanzō to itself until it dies. While active, this skill becomes [Poison Fog][b][b]."
-        , Skill.classes   = [Chakra, Summon, Unreflectable, Unremovable]
+        , Skill.classes   = [Summon, Unreflectable, Unremovable]
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.cooldown  = 6
         , Skill.effects   =
@@ -203,7 +203,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Major Summoning: Giant Clam"
         , Skill.desc      = "Gengetsu summons a huge clam that exudes illusory mist for 4 turns. Each turn, a random member of his team becomes a mirage, reflecting the first skill an enemy uses on them next turn, and a random member of his team gains 80 destructible defense for 1 turn. If the clam's destructible defense is destroyed, this skill is canceled."
-        , Skill.classes   = [Chakra, Summon]
+        , Skill.classes   = [Summon]
         , Skill.cost      = [Nin, Gen, Rand]
         , Skill.dur       = Ongoing 4
         , Skill.cooldown  = 5

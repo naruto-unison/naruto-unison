@@ -772,7 +772,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Summoning: Blade Dance"
         , Skill.desc      = "The wind weasel Kamatari uses a massive version of Cyclone Scythe to deal 35 damage to all enemies."
-        , Skill.classes   = [Physical, Ranged, Summon]
+        , Skill.classes   = [Summon, Ranged]
         , Skill.cost      = [Nin, Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =

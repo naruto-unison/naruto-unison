@@ -390,7 +390,7 @@ cs =
           ]
         }
       ]
-    , [ invuln "Summoning: Baku" "Danzō" [Chakra, Summon] ]
+    , [ invuln "Summoning: Baku" "Danzō" [Summon] ]
     ]
   , Character
     "Suigetsu Hōzuki"

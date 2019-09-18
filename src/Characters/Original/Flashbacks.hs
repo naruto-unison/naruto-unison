@@ -385,7 +385,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Major Summoning: Kurama"
         , Skill.desc      = "The masked man summons the Nine-Tailed Beast to the battlefield to wreak havoc, demolishing the enemy team's destructible defenses and his own destructible barrier. For 3 turns, it deals 25 damage to a random enemy. While active, the masked man and his allies ignore status effects from enemies except chakra cost changes."
-        , Skill.classes   = [Chakra, Melee, Summon, Bypassing]
+        , Skill.classes   = [Summon, Melee, Bypassing]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.cooldown  = 5
         , Skill.dur       = Ongoing 3

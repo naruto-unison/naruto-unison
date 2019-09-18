@@ -570,7 +570,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Summoning: Giant Centipede"
         , Skill.desc      = "Pain summons a huge centipede behind an enemy to ambush them. It deals 15 damage to them for 2 turns, and if the target does not use a skill during that time, they will be stunned for 1 turn. Once used, this skill becomes [Summoning: Giant Crustacean][r][r]."
-        , Skill.classes   = [Physical, Melee, Summon]
+        , Skill.classes   = [Summon, Melee]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.dur       = Ongoing 2
@@ -589,7 +589,7 @@ cs =
       , Skill.new
         { Skill.name      = "Summoning: Giant Crustacean"
         , Skill.desc      = "Pain summons a huge foaming lobster that sprays spittle over the battlefield. For 2 turns, all enemies take 10 damage and their cooldowns are increased by 1 turn. While active, the lobster provides 10 points of damage reduction to Pain and her team. Once used, this skill becomes [Summoning: Giant Centipede][n]."
-        , Skill.classes   = [Chakra, Ranged, Summon]
+        , Skill.classes   = [Summon, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.dur       = Ongoing 2
@@ -606,7 +606,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Summoning: Giant Panda"
         , Skill.desc      = "Pain summons a huge panda that defends herself or an ally, providing 20 permanent destructible defense and making them invulnerable for 2 turns."
-        , Skill.classes   = [Physical, Summon]
+        , Skill.classes   = [Summon]
         , Skill.cost      = [Nin, Blood]
         , Skill.cooldown  = 4
         , Skill.dur       = Ongoing 2
@@ -621,7 +621,7 @@ cs =
         { Skill.name      = "Summoning: Giant Multi-Headed Dog"
         , Skill.desc      = "Pain summons a huge Cerberus hound that deals 10 piercing damage to all enemies for 2 turns. The first enemy to use a skill on Pain or her allies will extend the effect of this skill on them by 2 turns. Cannot be used while active."
         , Skill.require   = HasI (-1) "Summoning: Giant Multi-Headed Dog"
-        , Skill.classes   = [Physical, Melee, Summon, Bypassing, Unreflectable]
+        , Skill.classes   = [Summon, Melee, Bypassing, Unreflectable]
         , Skill.cost      = [Blood, Rand ]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
@@ -641,7 +641,7 @@ cs =
           ]
         }
       ]
-    , [ invuln "Summoning: Giant Chameleon" "Pain" [Physical, Summon] ]
+    , [ invuln "Summoning: Giant Chameleon" "Pain" [Summon] ]
     ]
   , Character
     "Preta Path Pain"
@@ -687,7 +687,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Summoning: King of Hell"
         , Skill.desc      = "Pain calls upon a timeless being tied to the power of the rinnegan which exists beyond life and death. The King of Hell provides 20 permanent destructible defense to Pain. While Pain has destructible defense from the King of Hell, this skill becomes [Energy Transfer][g]."
-        , Skill.classes   = [Mental, Summon]
+        , Skill.classes   = [Summon]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -983,7 +983,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Summoning: Gedo Statue"
         , Skill.desc      = "Nagato summons the empty vessel of the ten-tailed beast, which provides 10 points of damage reduction to him for 3 turns. While active, Nagato can use his other skills and this skill becomes [Control][r]."
-        , Skill.classes   = [Mental, Summon, Unremovable]
+        , Skill.classes   = [Summon, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
         , Skill.dur       = Control (-4)

@@ -10,28 +10,28 @@ import Class.Display (Display(..))
 
 -- | Qualifiers of 'Model.Skill.Skill's and 'Model.Status.Status'es.
 data Class
-    = Invisible
+    = Bypassing
+    | Invisible
     | InvisibleTraps
     | Soulbound
     -- Tags
     | Bane
-    | Summon
+    | Necromancy
     -- Distance
     | Melee
     | Ranged
     -- Type
     | Chakra
-    | Physical
     | Mental
+    | Physical
+    | Summon
     -- Limits
     | Nonstacking
     | Extending
     -- Prevention
-    | Bypassing
     | Uncounterable
     | Unreflectable
     | Unremovable
-    | Necromancy
     -- Fake (Hidden)
     | All
     | Hidden

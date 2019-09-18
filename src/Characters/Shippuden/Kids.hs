@@ -194,7 +194,7 @@ cs =
           [ To Enemy $ pierce 45 ]
         }
       ]
-    , [ invuln "Summoning: Serpent" "Sasuke" [Physical, Summon] ]
+    , [ invuln "Summoning: Serpent" "Sasuke" [Summon] ]
     ]
   , Character
     "Kiba Inuzuka"
