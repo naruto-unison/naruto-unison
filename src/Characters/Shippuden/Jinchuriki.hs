@@ -62,7 +62,7 @@ cs =
     ]
   , Character
     "Utakata"
-    "A rogue operative from the Hidden Mist Village, Utakata is the jinchūriki of Saiken, the six-tailed beast. He abandoned his home during its Blood Mist era, and has had to fend off tracker ninjas ever since."
+    "An exile from the Hidden Mist Village, Utakata is the jinchūriki of Saiken, the six-tailed beast. He abandoned his home during its Blood Mist era, and has had to fend off tracker ninjas ever since."
     [ [ Skill.new
         { Skill.name      = "Soap Bubble"
         , Skill.desc      = "Utakata blows bubbles from his pipe that burst on an enemy, demolishing their destructible defense and his own destructible barrier, then dealing 25 piercing damage to the target."

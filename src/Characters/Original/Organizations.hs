@@ -411,7 +411,7 @@ cs =
     ]
   , Character
     "Itachi Uchiha"
-    "A master of Sharingan techniques, Itachi is an S-Rank rogue operative who has joined Akatsuki. His power comes at a steep price: using his Sharingan causes him to gradually go blind. He intends to make the most of whatever time he has left."
+    "A master of Sharingan techniques, Itachi is a rogue operative who has joined Akatsuki. His power comes at a steep price: using his Sharingan causes him to gradually go blind. He intends to make the most of whatever time he has left."
     [ [ Skill.new
         { Skill.name      = "Mangekyō Sharingan"
         , Skill.desc      = "Itachi becomes invulnerable but loses 15 health each turn. While active, the cooldowns and chakra costs of his other skills are doubled. This skill can be used again with no chakra cost to cancel its effect."
@@ -485,7 +485,7 @@ cs =
     ]
   , Character
     "Kisame Hoshigaki"
-    "One of the Seven Swordsmen of the Mist, Kisame is an S-Rank rogue ninja who has joined Akatsuki. Wielding the legendary sentient sword Samehada, Kisame disables his enemies while his eternally hungry sword eats their chakra."
+    "One of the Seven Swordsmen of the Mist, Kisame is a rogue operative who has joined Akatsuki. Wielding the legendary sentient sword Samehada, Kisame disables his enemies while his eternally hungry sword eats their chakra."
     [ [ Skill.new
         { Skill.name      = "Samehada Slash"
         , Skill.desc      = "Kisame slashes an enemy with the legendary sword Samehada, dealing 20 damage and stunning their chakra and mental skills for 1 turn."

@@ -84,7 +84,7 @@ cs =
     ]
   , Character
     "Deidara"
-    "An S-Rank rogue ninja from the Hidden Stone Village, Deidara has begrudgingly joined Akatsuki after losing in a bet to Itachi. As a former member of the Explosion Corps, he posesses the unusual ability to turn clay into explosives by infusing it with lightning chakra. Most of his reckless decisions can be attributed to his pride and his love of art, which usually outweighs any other priorities."
+    "An Akatsuki member who defected from the Hidden Stone Village's Explosion Corps, Deidara posesses the unusual ability to turn clay into explosives by infusing it with lightning chakra. Most of his reckless decisions can be attributed to his pride and love of art, which usually outweigh any other priorities."
     [ [ Skill.new
         { Skill.name      = "C1: Bird Bomb"
         , Skill.desc      = "Deidara hurls a clay bird at an enemy that explodes into shrapnel on impact, dealing 15 damage to the target and weakening their damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C3: Megaton Sculpture][n][r]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
@@ -178,7 +178,7 @@ cs =
     ]
   , Character
     "Sasori"
-    "An Akatsuki member formerly of the Hidden Sand Village's Puppet Brigade, Sasori of the Red Sand is as hollow and soullesss as his playthings. Obsessed with creating human puppets, Sasori prizes above all others the body of the Third Kazekage, through which he can wield magnetic abilities."
+    "An Akatsuki member who defected from the Hidden Sand Village's Puppet Brigade, Sasori of the Red Sand is as hollow and soullesss as his playthings. Obsessed with creating human puppets, Sasori prizes above all others the body of the Third Kazekage, through which he can wield magnetic abilities."
     [ [ Skill.new
         { Skill.name      = "Kazekage Puppet Summoning"
         , Skill.desc      = "Sasori summons his most prized puppet, gaining 15 permanent destructible defense and enabling his other skills. Once used, this skill becomes [Iron Sand: World Order][b][n]. Each turn, Sasori gains a stack of Iron Sand."
@@ -252,7 +252,7 @@ cs =
     ]
   , Character
     "Hidan"
-    "An S-Rank rogue ninja from the Hidden Hotspring Village, Hidan joined Akatsuki to learn the secrets of its members. He belongs to a cult that worships Jashin, a bloodthirsty and murderous god who blesses him with immortality. With no need to fear death, he binds his soul to his enemies and tortures himself endlessly."
+    "An Akatsuki member who defected from the Hidden Hotspring Village, Hidan belongs to a cult that worships Jashin, a bloodthirsty and murderous god who blesses him with immortality. With no need to fear death, he binds his soul to his enemies and tortures himself endlessly."
     [ [ Skill.new
         { Skill.name      = "Jashin Sigil"
         , Skill.require   = HasI (-1) "Jashin Sigil"
@@ -355,7 +355,7 @@ cs =
     ]
   , Character
     "Kisame Hoshigaki"
-    "An Akatsuki member and one of the Seven Swordsmen of the Mist, Kisame is an S-Rank rogue ninja who hunts and captures tailed beasts. His water techniques and legendary sword Samehada flood his enemies."
+    "An Akatsuki member and one of the Seven Swordsmen of the Mist, Kisame is a rogue operative who hunts and captures tailed beasts. His water techniques and legendary sword Samehada flood his enemies."
     [ [ Skill.new
         { Skill.name      = "Thousand Hungry Sharks"
         , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Each turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage to each enemy during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
