@@ -10,6 +10,50 @@ import qualified Model.Skill as Skill
 cs :: [Category -> Character]
 cs =
   [ Character
+    "Orochimaru"
+    "One of three legendary sannin, Orochimaru has cheated death time and time again. As his body slowly rots away, he is forced to discard it and find a new host to possess."
+    [ [ Skill.new
+        { Skill.name      = "Body Replacement Substitution"
+        , Skill.desc      = "This skill can only be used when Orochimaru's health is at or below 20. Having sustained grievous injuries, Orochimaru's body has reached the end of its usefulness. He sheds it like a second skin, restoring his health to 60."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 2
+        , Skill.varicd    = True
+        , Skill.effects   =
+          [ To Self $ setHealth 60 ]
+        , Skill.changes   =
+            \n x -> if health n > 20 then x { Skill.require = Unusable } else x
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Ten Thousand Snakes Wave"
+        , Skill.desc      = "A horde of sword-brandishing snakes pours from Orochimaru's mouth and deals 20 affliction damage to an enemy. Next turn, all stun skills used by the target will have their duration reduced by 1 turn."
+        , Skill.classes   = [Physical, Bane, Ranged]
+        , Skill.cost      = [Blood]
+        , Skill.effects   =
+          [ To Enemy do
+                afflict 20
+                apply 1 [Throttle 1 $ Any Stun]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Kusanagi"
+        , Skill.desc      = "Orochimaru pins down an enemy with his legendary sword, dealing 20 piercing damage to them for 2 turns. While active, the target's physical and chakra skills are stunned."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood, Tai]
+        , Skill.cooldown  = 3
+        , Skill.dur       = Control 2
+        , Skill.effects   =
+          [ To Enemy do
+                pierce 20
+                apply 1 [Stun Physical, Stun Chakra]
+          ]
+        }
+      ]
+    , [ invuln "Summoning: Triple Rashōmon" "Orochimaru" [Summon] ]
+    ]
+  , Character
     "Jiraiya"
     "One of three legendary sannin, Jiraiya has accepted Naruto as his student. Famed as the Toad Sage, he believes that Naruto is the child spoken of in the prophecies, and that it is his responsibility to teach him to save the world rather than destroy it."
     [ [ Skill.new
