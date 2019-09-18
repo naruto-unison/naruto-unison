@@ -32,8 +32,9 @@ new = Game { chakra  = (0, 0)
 
 newWithChakras :: ∀ m. MonadRandom m => m Game
 newWithChakras = do
-    randoms :: [Chakra] <- replicateM Slot.teamSize Chakra.random
-    return $ adjustChakra Player.A (+ Chakra.collect randoms) new
+    randomA <- Chakra.random
+    randomsB :: [Chakra] <- replicateM Slot.teamSize Chakra.random
+    return new { chakra = (Chakra.toChakras randomA, Chakra.collect randomsB) }
 
 setChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
 setChakra (Parity.even -> True) x game

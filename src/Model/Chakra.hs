@@ -7,7 +7,7 @@ module Model.Chakra
   , collect
   , classes
   , lack
-  , toSequence
+  , toSequence, toChakras
   , random
   ) where
 

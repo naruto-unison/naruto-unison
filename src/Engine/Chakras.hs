@@ -18,6 +18,7 @@ import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra(..), Chakras)
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
+import qualified Model.Player as Player
 import           Model.Trap (Trigger(..))
 
 -- | Removes some number of 'Chakra's from the target's team.
@@ -43,7 +44,7 @@ remove amount = do
 -- player's team to the player's 'Game.chakra'.
 gain :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 gain = do
-    player <- P.player
+    player <- Player.opponent <$> P.player
     living <- length . filter Ninja.alive <$> P.allies player
     randoms :: [Chakra] <- replicateM living Chakra.random
     P.alter $ Game.adjustChakra player (+ Chakra.collect randoms)
