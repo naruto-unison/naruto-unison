@@ -1011,4 +1011,47 @@ cs =
       ]
     , [ invuln "Hide" "Konohamaru" [Mental] ]
     ]
+  , Character
+    "Kabuto Yakushi"
+    "A dangerous rogue operative from the Hidden Leaf Village, Kabuto is a calculating follower of Orochimaru whose healing expertise goes beyond the limits of medical techniques to outright necromancy."
+    [ [ Skill.new
+        { Skill.name      = "Chakra Absorbing Snakes"
+        , Skill.desc      = "Black snakes wrap around an enemy, dealing 20 damage. For 1 turn, if the target restores health to anyone, the snakes will constrict and stun them for 2 turns."
+        , Skill.classes   = [Chakra, Melee]
+        , Skill.cost      = [Nin]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 20
+                trap 1 OnHeal $ apply 2 [Stun All]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      =  "Striking Shadow Snakes"
+        , Skill.desc      = "Numerous poisonous snakes attack an enemy, dealing 35 piercing damage. For 2 turns, the target cannot be healed or cured."
+        , Skill.classes   = [Bane, Physical, Ranged]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                pierce 35
+                apply 2 [Plague]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Healing Technique"
+        , Skill.desc      = "Using advanced medical techniques, Kabuto restores 25 health to himself or an ally and cures the target of bane effects."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Ally do
+                heal 25
+                cureBane
+          ]
+        }
+      ]
+    , [ invuln "Dodge" "Kabuto" [Physical] ]
+    ]
   ]

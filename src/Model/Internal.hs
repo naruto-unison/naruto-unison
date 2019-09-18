@@ -214,7 +214,7 @@ data Trigger
     | OnDefend
     | OnHarm
     | OnHarmed Class
-    | OnHealed
+    | OnHeal
     | OnHelped
     | OnReduce
     | OnReflectAll
@@ -258,7 +258,7 @@ instance Display Trigger where
     display OnHarm             = "Trigger: Use harmful skill"
     display (OnHarmed All)     = "Trigger: Be affected by a new harmful skill"
     display (OnHarmed cla)     = "Trigger: Be affected by a new " ++ lower cla ++ " harmful skill"
-    display OnHealed           = "Trigger: Receive healing"
+    display OnHeal             = "Trigger: Restore health"
     display OnHelped           = "Trigger: Be affected by a new skill from an ally"
     display OnNoAction         = "Trigger: Do not use a new skill"
     display OnReduce           = "Trigger: Apply damage reduction"

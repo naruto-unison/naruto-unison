@@ -7,7 +7,7 @@ module Action.Combat
   , defend, addDefense
   , barrier, barrierDoes
     -- * Healing
-  , heal, restore, setHealth
+  , heal, setHealth
   , leech
     -- * Special effects
   , sacrifice
@@ -281,7 +281,13 @@ killHard = P.toTarget $ Ninjas.kill False
 -- | Adjusts 'Ninja.health'.
 -- Uses 'Ninjas.setHealth' internally.
 setHealth :: ∀ m. MonadPlay m => Int -> m ()
-setHealth amt = P.toTarget $ Ninjas.setHealth amt
+setHealth amt = do
+    nHealth <- Ninja.health <$> P.nTarget
+    P.toTarget $ Ninjas.setHealth amt
+    nHealth' <- Ninja.health <$> P.nTarget
+    when (nHealth' > nHealth) do
+        user <- P.user
+        P.trigger user [OnHeal]
 
 -- | Adds a flat amount of 'Ninja.health'.
 -- Uses 'Ninjas.adjustHealth' internally.
@@ -295,23 +301,12 @@ heal hp = P.unsilenced do
         let hp'  = Effects.boost user nTarget * hp + Effects.bless nUser
         P.modify target $ Ninjas.adjustHealth (+ hp')
         damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
-        when (damaged > 0) . P.modify target $ Traps.track PerDamaged damaged
-
--- | Restores a percentage of missing 'Ninja.health'.
--- Uses 'Ninjas.adjustHealth' internally.
-restore :: ∀ m. MonadPlay m => Int -> m ()
-restore percent = P.unsilenced do
-    nTarget <- P.nTarget
-    unless (nTarget `is` Plague) do
-        user   <- P.user
-        target <- P.target
-        nUser  <- P.nUser
-        let hp'  = Effects.boost user nTarget * percent
-                   * (100 - Ninja.health nTarget) `quot` 100
-                   + Effects.bless nUser
-        P.modify target $ Ninjas.adjustHealth (+ hp')
-        damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
-        when (damaged > 0) . P.modify target $ Traps.track PerDamaged damaged
+        if damaged > 0 then
+            P.modify target $ Traps.track PerDamaged damaged
+        else if damaged < 0 then
+            P.trigger user [OnHeal]
+        else
+            return ()
 
 -- | Damages the target and passes the amount of damage dealt to another action.
 -- Typically paired with @self . 'heal'@ to effectively drain the target's
