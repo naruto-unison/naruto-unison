@@ -94,6 +94,7 @@ wrap affected f = void $ runMaybeT do
     target      <- P.target
     nUser       <- P.nUser
     nTarget     <- P.nTarget
+    guard . not $ nTarget `is` Nullify
     startNinjas <- P.ninjas
     let classes  = Skill.classes skill
         targeted = Targeted ∈ affected

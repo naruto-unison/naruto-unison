@@ -69,9 +69,9 @@ data Effect
     | Expose                           -- ^ Cannot reduce damage or be 'Invulnerable'
     | Focus                            -- ^ Immune to 'Stun' and 'Throttle 0'
     | Heal         Int                 -- ^ Heals every turn
-    | ImmuneSelf                       -- ^ Invulnerable to self-caused damage
     | Invulnerable Class               -- ^ Invulnerable to enemy 'Skill's
     | Limit        Int                 -- ^ Limits damage received
+    | Nullify                          -- ^ Invulnerable but targetable
     | Pierce                           -- ^ Damage attacks become piercing
     | Plague                           -- ^ Invulnerable to healing and curing
     | Reduce       Class Amount Int    -- ^ Reduces damage by an amount
@@ -137,9 +137,9 @@ helpful Exhaust{}       = False
 helpful Expose          = False
 helpful Focus           = True
 helpful Heal{}          = True
-helpful ImmuneSelf      = True
 helpful Invulnerable{}  = True
 helpful Limit{}         = True
+helpful Nullify         = True
 helpful Pierce          = True
 helpful Plague          = False
 helpful (Reduce _ _ x)  = x >= 0
@@ -214,9 +214,9 @@ instance Display Effect where
     display Expose = "Unable to reduce damage or become invulnerable."
     display (Heal x) = "Gains " ++ display x ++ " health each turn."
     display Focus = "Ignores stuns and disabling effects."
-    display ImmuneSelf = "Invulnerable to self-damage."
     display (Invulnerable cla) = "Invulnerable to " ++ lower cla ++ " skills."
     display (Limit x) = "Non-affliction damage received is reduced to at most " ++ display x ++ "."
+    display Nullify = "Ignores enemy skills."
     display Pierce = "Non-affliction skills deal piercing damage."
     display Plague = "Cannot be healed or cured."
     display (Reduce Affliction amt x)

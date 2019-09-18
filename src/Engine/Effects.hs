@@ -192,7 +192,6 @@ afflict :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
         => o -> Player -> Ninja -> Int
 afflict ninjas player n = sum
     [aff st | st <- Ninja.statuses n
-            , not (n `is` ImmuneSelf) || Status.user st /= Ninja.slot n
             , not $ afflictClasses `intersects` invulnerable n]
   where
     aff = afflict1 ninjas player (threshold n) $ Ninja.slot n

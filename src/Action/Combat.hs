@@ -332,9 +332,4 @@ sacrifice :: ∀ m. MonadPlay m
           => Int  -- ^ Minimum 'Ninja.health'.
           -> Int  -- ^ Amount of 'Ninja.health' to sacrifice.
           -> m ()
-sacrifice minhp hp = do
-    user    <- P.user
-    target  <- P.target
-    nTarget <- P.nTarget
-    unless (user == target && nTarget `is` ImmuneSelf) .
-        P.modify target $ Ninjas.sacrifice minhp hp
+sacrifice minhp hp = P.toTarget $ Ninjas.sacrifice minhp hp

@@ -393,7 +393,7 @@ cs =
           [ To Self do
                 heal 15
                 gain [Rand]
-                apply 1 [ImmuneSelf]
+                hide' "unchili" (-1) []
           ]
         }
       ]
@@ -402,14 +402,18 @@ cs =
         , Skill.desc      = "Chōji swallows all three Akimichi pills, losing 10 health down to a minimum of 1 and gaining so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns."
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.cost      = [Rand, Rand]
-        , Skill.effects   =
+        , Skill.dur       = Passive
+        , Skill.start     =
           [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
           ,  To Self do
                 sacrifice 1 10
-                apply 0 [Focus, Afflict 15]
+                apply 0 [Focus]
                 varyLoadout loadout 3
                 setFace
+                vary "Block" "Block"
           ]
+        , Skill.effects   =
+          [ To Self $ unlessM (userHas "unchili") $ afflict 15 ]
         }
       , Skill.new
         { Skill.name      = "Curry Pill"
@@ -426,14 +430,17 @@ cs =
         { Skill.name      = "Chili Pill"
         , Skill.desc      = "Chōji eats the third Akimichi pill and gains so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns."
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
+        , Skill.dur       = Passive
+        , Skill.start     =
+          [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
+          , To Self do
+                apply 0 [Focus]
+                varyLoadout loadout 3
+                vary "Block" "Block"
+                setFace
+          ]
         , Skill.effects   =
-            [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
-            , To Self do
-                  apply 0 [Focus, Afflict 15]
-                  varyLoadout loadout 3
-                  vary "Block" "Block"
-                  setFace
-            ]
+          [ To Self $ unlessM (userHas "unchili") $ afflict 15 ]
         }
       , Skill.new
         { Skill.name      = "Butterfly Bombing"
@@ -457,7 +464,10 @@ cs =
         , Skill.cooldown  = 4
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self $ apply 1 [Invulnerable All, ImmuneSelf] ]
+          [ To Self do
+                apply 1 [Invulnerable All]
+                hide' "unchili" (-1) []
+          ]
         , Skill.pic       = True
         }
       ]
