@@ -83,100 +83,6 @@ cs =
     , [ invuln "Chakra Barrier" "Madara" [Chakra] ]
     ]
   , Character
-    "Kisame Hoshigaki"
-    "An Akatsuki member and one of the Seven Swordsmen of the Mist, Kisame is an S-Rank rogue ninja who hunts and captures tailed beasts. His water techniques and legendary sword Samehada flood his enemies."
-    [ [ Skill.new
-        { Skill.name      = "Thousand Hungry Sharks"
-        , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Each turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage to each enemy during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
-        , Skill.require   = HasI (-1) "Thousand Hungry Sharks"
-        , Skill.classes   = [Chakra, Ranged, Unreflectable, Resource]
-        , Skill.cost      = [Nin]
-        , Skill.dur       = Ongoing 0
-        , Skill.start     =
-          [ To Self do
-                addStacks "Hundred Hungry Sharks" 10
-                trapFrom' 0 (OnHarmed All) do
-                    enemies $ hide' "ignored" 0 []
-                    remove "ignored"
-                    tag 0
-                    trap' 0 OnDeath $ everyone $ remove "ignored"
-                    self $ removeTrap "Thousand Hungry Sharks"
-          ]
-        , Skill.effects   =
-          [ To Enemies $ unlessM (targetHas "ignored") do
-                bonus <- 5 `bonusIf` channeling "Exploding Water Shockwave"
-                pierce (5 + bonus)
-                self $ removeStack "Hundred Hungry Sharks"
-          , To Self $ unlessM (userHas "Hundred Hungry Sharks") do
-                cancelChannel "Thousand Hungry Sharks"
-                everyone do
-                    remove "ignored"
-                    remove "Thousand Hungry Sharks"
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Man-Eating Sharks"
-        , Skill.desc      = "Spends all stacks of [Hundred Hungry Sharks] to deal 5 piercing damage per stack to an enemy. Costs 1 random chakra during [Exploding Water Shockwave]."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = [Nin]
-        , Skill.effects   =
-          [ To Enemy do
-                stacks <- userStacks "Hundred Hungry Sharks"
-                pierce (5 * stacks)
-          , To Self do
-                cancelChannel "Thousand Hungry Sharks"
-                remove "Hundred Hungry Sharks"
-                everyone do
-                    remove "ignored"
-                    remove "Thousand Hungry Sharks"
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Exploding Water Shockwave"
-        , Skill.desc      = "As a giant orb of water fills the entire battlefield, Kisame merges with Samehada and transforms into a shark for 3 turns. While active, enemy cooldowns are increased by 1 and this skill becomes [Shark Dance][t]."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = [Rand, Rand]
-        , Skill.cooldown  = 4
-        , Skill.dur       = Ongoing 3
-        , Skill.start     =
-          [ To Self do
-                setFace
-                vary "Exploding Water Shockwave" "Shark Dance"
-          ]
-        , Skill.effects   = [ To Enemies $ apply 1 [Snare 1] ]
-        }
-      , Skill.new
-        { Skill.name      = "Shark Dance"
-        , Skill.desc      = "Deals 20 damage to an enemy and absorbs 1 random chakra."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Tai]
-        , Skill.effects   =
-          [ To Enemy do
-                absorb 1
-                damage 20
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Super Shark Bomb"
-        , Skill.desc      = "Kisame traps an enemy for 1 turn. At the end of their turn, the target takes 30 damage. While active, if the target uses a chakra or mental skill on Kisame or his allies, they will be countered and will take 20 additional damage."
-        , Skill.classes   = [Chakra, Ranged, Bypassing, Invisible]
-        , Skill.cost      = [Blood, Nin]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To Enemy do
-                trap 1 (Countered Chakra) flag
-                trap 1 (Countered Mental) flag
-                delay (-1) do
-                    bonus <- 20 `bonusIf` targetHas "Super Shark Bomb"
-                    damage (30 + bonus)
-          ]
-        }
-      ]
-    , [ invuln "Scale Shield" "Kisame" [Physical] ]
-    ]
-  , Character
     "Deidara"
     "An S-Rank rogue ninja from the Hidden Stone Village, Deidara has begrudgingly joined Akatsuki after losing in a bet to Itachi. As a former member of the Explosion Corps, he posesses the unusual ability to turn clay into explosives by infusing it with lightning chakra. Most of his reckless decisions can be attributed to his pride and his love of art, which usually outweighs any other priorities."
     [ [ Skill.new
@@ -255,7 +161,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "C0: Ultimate Art"
-        , Skill.desc      = "Deidara fills his veins with explosives and becomes art. If he his health is at or below 40, he deals 35 affliction damage to all enemies and dies."
+        , Skill.desc      = "Deidara fills his veins with explosives and becomes art. If his health is at or below 40, he deals 35 affliction damage to all enemies and dies."
         , Skill.classes   = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Blood, Nin, Nin]
         , Skill.effects   =
@@ -269,6 +175,80 @@ cs =
         }
       ]
     , [ invuln "Clay Clone" "Deidara" [Chakra] ]
+    ]
+  , Character
+    "Sasori"
+    "An Akatsuki member formerly of the Hidden Sand Village's Puppet Brigade, Sasori of the Red Sand is as hollow and soullesss as his playthings. Obsessed with creating human puppets, Sasori prizes above all others the body of the Third Kazekage, through which he can wield magnetic abilities."
+    [ [ Skill.new
+        { Skill.name      = "Kazekage Puppet Summoning"
+        , Skill.desc      = "Sasori summons his most prized puppet, gaining 15 permanent destructible defense and enabling his other skills. Once used, this skill becomes [Iron Sand: World Order][b][n]. Each turn, Sasori gains a stack of Iron Sand."
+        , Skill.classes   = [Physical]
+        , Skill.dur       = Ongoing 0
+        , Skill.start     =
+          [ To Self $ defend 0 15 ]
+        , Skill.effects   =
+          [ To Self $ apply' "Iron Sand" 0 [] ]
+        }
+      , Skill.new
+        { Skill.name      = "Iron Sand: World Order"
+        , Skill.desc      = "Using the third Kazekage's magnetic abilities, Sasori shapes his Iron Sand into a massive tangle of branching iron spikes that looms overhead. As it comes crashing down on the battlefield, it deals 10 piercing damage to all enemies and 5 additional damage per stack of Iron Sand."
+        , Skill.classes   = [Physical]
+        , Skill.cost      = [Blood, Nin]
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Enemies do
+                stacks <- userStacks "Iron Sand"
+                pierce (10 + 5 * stacks)
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Poison Blade Assault"
+        , Skill.desc      = "Sasori directs the Kazekage puppet to single out an enemy and gains 20 destructible defense for 2 turns. While Sasori has destructible defense from this skill, he deals 10 damage and 10 affliction damage to the target."
+        , Skill.require   = HasI 1 "Iron Sand"
+        , Skill.classes   = [Bane, Physical, Melee]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.dur       = Action 2
+        , Skill.cooldown  = 3
+        , Skill.start     =
+          [ To Self do
+                defend 2 20
+                onBreak'
+          ]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 10
+                afflict 10
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Thousand Arms"
+        , Skill.desc      = "Countless concealed arms lash out from Sasori's Kazekage puppet and flail wildly for 1 turn, pinning down anyone they catch. Enemies who do not use skills on Sasori or his allies next turn will be pinned for 1 turn, unable to reduce damage or become invulnerable. While active, this skill becomes [Poison Gas][r][r]."
+        , Skill.require   = HasI 1 "Iron Sand"
+        , Skill.classes   = [Physical, Melee, Unreflectable]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 3
+        , Skill.dur       = Control 1
+        , Skill.effects   =
+          [ To Enemies $ trap (-1) OnHarm $ apply' "Pinned" (-1) [Expose]
+          , To Self    $ vary "Thousand Arms" "Poison Gas"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Poison Gas"
+        , Skill.desc      = "Sasori emits a cloud of poisonous gas, dealing 15 affliction damage to all enemies. Next turn, enemy cooldowns are increased by 1 and enemy chakra costs are increased by 1 random. Lasts 2 turns on targets pinned by [Thousand Arms]."
+        , Skill.classes   = [Bane, Ranged]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.effects   =
+          [ To Enemies do
+                afflict 15
+                bonus <- 1 `bonusIf` targetHas "Pinned"
+                apply (1 + bonus) [Snare 1, Exhaust All]
+          ]
+        }
+      ]
+    , [ invuln "Chakra Barrier" "Sasori" [Chakra] ]
     ]
   , Character
     "Hidan"
@@ -374,195 +354,98 @@ cs =
     , [ invuln "Block" "Hidan" [Physical] ]
     ]
   , Character
-    "Kazekage Puppeteer Sasori"
-    "Sasori's most prized human puppet is the body of the Third Kazekage, which allows him to wield its magnetic abilities. As Sasori's last resort, this puppet favors all-out attack. Its enemies must deal with it quickly before its iron sand takes over the battlefield."
+    "Kisame Hoshigaki"
+    "An Akatsuki member and one of the Seven Swordsmen of the Mist, Kisame is an S-Rank rogue ninja who hunts and captures tailed beasts. His water techniques and legendary sword Samehada flood his enemies."
     [ [ Skill.new
-        { Skill.name      = "Kazekage Puppet Summoning"
-        , Skill.desc      = "Sasori summons his most prized puppet, gaining 15 permanent destructible defense and enabling his other skills. Once used, this skill becomes [Iron Sand: World Order][b][n]. Each turn, Sasori gains a stack of Iron Sand."
-        , Skill.classes   = [Physical]
+        { Skill.name      = "Thousand Hungry Sharks"
+        , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Each turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage to each enemy during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
+        , Skill.require   = HasI (-1) "Thousand Hungry Sharks"
+        , Skill.classes   = [Chakra, Ranged, Unreflectable, Resource]
+        , Skill.cost      = [Nin]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
-          [ To Self $ defend 0 15 ]
-        , Skill.effects   =
-          [ To Self $ apply' "Iron Sand" 0 [] ]
-        }
-      , Skill.new
-        { Skill.name      = "Iron Sand: World Order"
-        , Skill.desc      = "Using the third Kazekage's magnetic abilities, Sasori shapes his Iron Sand into a massive tangle of branching iron spikes that looms overhead. As it comes crashing down on the battlefield, it deals 10 piercing damage to all enemies and 5 additional damage per stack of Iron Sand."
-        , Skill.classes   = [Physical]
-        , Skill.cost      = [Blood, Nin]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Enemies do
-                stacks <- userStacks "Iron Sand"
-                pierce (10 + 5 * stacks)
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Poison Blade Assault"
-        , Skill.desc      = "Sasori directs the Kazekage puppet to single out an enemy and gains 20 destructible defense for 2 turns. While Sasori has destructible defense from this skill, he deals 10 damage and 10 affliction damage to the target."
-        , Skill.require   = HasI 1 "Iron Sand"
-        , Skill.classes   = [Bane, Physical, Melee]
-        , Skill.cost      = [Rand, Rand]
-        , Skill.dur       = Action 2
-        , Skill.cooldown  = 3
-        , Skill.start     =
           [ To Self do
-                defend 2 20
-                onBreak'
+                addStacks "Hundred Hungry Sharks" 10
+                trapFrom' 0 (OnHarmed All) do
+                    enemies $ hide' "ignored" 0 []
+                    remove "ignored"
+                    tag 0
+                    trap' 0 OnDeath $ everyone $ remove "ignored"
+                    self $ removeTrap "Thousand Hungry Sharks"
           ]
         , Skill.effects   =
-          [ To Enemy do
-                damage 10
-                afflict 10
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Thousand Arms"
-        , Skill.desc      = "Countless concealed arms lash out from Sasori's Kazekage puppet and flail wildly for 1 turn, pinning down anyone they catch. Enemies who do not use skills on Sasori or his allies next turn will be pinned for 1 turn, unable to reduce damage or become invulnerable. While active, this skill becomes [Poison Gas][r][r]."
-        , Skill.require   = HasI 1 "Iron Sand"
-        , Skill.classes   = [Physical, Melee, Unreflectable]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 3
-        , Skill.dur       = Control 1
-        , Skill.effects   =
-          [ To Enemies $ trap (-1) OnHarm $ apply' "Pinned" (-1) [Expose]
-          , To Self    $ vary "Thousand Arms" "Poison Gas"
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Poison Gas"
-        , Skill.desc      = "Sasori emits a cloud of poisonous gas, dealing 15 affliction damage to all enemies. Next turn, enemy cooldowns are increased by 1 and enemy chakra costs are increased by 1 random. Lasts 2 turns on targets pinned by [Thousand Arms]."
-        , Skill.classes   = [Bane, Ranged]
-        , Skill.cost      = [Rand, Rand]
-        , Skill.effects   =
-          [ To Enemies do
-                afflict 15
-                bonus <- 1 `bonusIf` targetHas "Pinned"
-                apply (1 + bonus) [Snare 1, Exhaust All]
-          ]
-        }
-      ]
-    , [ invuln "Chakra Barrier" "Sasori" [Chakra] ]
-    ]
-  , Character
-    "True Form Sasori"
-    "Having invented and perfected the art of human puppetry, Sasori accomplished its ultimate act: transforming himself into a living puppet. His immortal core now resides in an unnaturally youthful simulacrum filled to the brim with tools of slaughter, each of which he switches out for another as soon as he uses it."
-    [ [ Skill.new
-        { Skill.name      = "Poisonous Chain Skewer"
-        , Skill.desc      = "Sasori hooks an enemy with the poison-soaked steel ropes inside his body and pulls himself to them, dealing 5 affliction damage for 3 turns. Next turn, the target can only target Sasori or themselves. Once used, this skill becomes [Impale][t]."
-        , Skill.classes   = [Bane, Ranged, Unreflectable]
-        , Skill.cost      = [Rand]
-        , Skill.effects   =
-          [ To Enemy do
-                apply 3 [Afflict 5]
-                userSlot <- user slot
-                apply 1 [Taunt userSlot]
-          , To Self do
-                vary "Poisonous Chain Skewer" "Impale"
-                cancelChannel "Flamethrower Jets"
+          [ To Enemies $ unlessM (targetHas "ignored") do
+                bonus <- 5 `bonusIf` channeling "Exploding Water Shockwave"
+                pierce (5 + bonus)
+                self $ removeStack "Hundred Hungry Sharks"
+          , To Self $ unlessM (userHas "Hundred Hungry Sharks") do
+                cancelChannel "Thousand Hungry Sharks"
                 everyone do
-                    remove "Flame Blast"
-                    remove "Flamethrower Jets"
+                    remove "ignored"
+                    remove "Thousand Hungry Sharks"
           ]
         }
       , Skill.new
-        { Skill.name      = "Impale"
-        , Skill.desc      = "Sasori stabs an enemy with a poison-soaked blade, dealing 15 piercing damage immediately and 5 affliction damage for 2 turns. If the target is affected by [Poisonous Chain Skewer], they become affected by [Complex Toxin], which stuns them after 2 turns. Once used, this skill becomes [Poisonous Chain Skewer]."
-        , Skill.classes   = [Bane, Physical, Melee]
-        , Skill.cost      = [Tai]
-        , Skill.effects   =
-          [ To Self do
-                vary "Poisonous Chain Skewer" baseVariant
-                cancelChannel "Flamethrower Jets"
-                everyone do
-                    remove "Flame Blast"
-                    remove "Flamethrower Jets"
-          ,  To Enemy do
-                  pierce 15
-                  apply 2 [Afflict 5]
-                  whenM (targetHas "Poisonous Chain Skewer") $
-                      bomb' "Complex Toxin" 2 []
-                            [ To Expire $ apply 1 [Stun All] ]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Flamethrower Jets"
-        , Skill.desc      = "Using fuel stored in a sealing scroll, Sasori shoots flames at an enemy for 3 turns, dealing 10 affliction damage each turn. While active, Sasori is invulnerable to all other enemies and ignores status effects from enemies except chakra cost changes. If Sasori uses any skill, [Flamethrower Jets] is canceled. After use, this skill becomes [Cutting Water Jets][n]."
-        , Skill.classes   = [Ranged, Unreflectable]
-        , Skill.cost      = [Nin, Rand]
-        , Skill.dur       = Action 3
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Enemy do
-                afflict 10
-                tag 1
-                userSlot <- user slot
-                self $ apply' "Flame Blast" 1 [Duel userSlot]
-          , To Self do
-                apply 1 [Enrage]
-                vary "Flamethrower Jets" "Cutting Water Jets"
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Cutting Water Jets"
-        , Skill.desc      = "Sasori shoots a high-pressure jet of water at an enemy, dealing 20 piercing damage. Deals 10 additional damage if the target is affected by [Flamethrower Jets]. Ends [Flamethrower Jets]. Once used, this skill becomes [Flamethrower Jets]."
-        , Skill.classes   = [Physical, Ranged]
+        { Skill.name      = "Man-Eating Sharks"
+        , Skill.desc      = "Spends all stacks of [Hundred Hungry Sharks] to deal 5 piercing damage per stack to an enemy. Costs 1 random chakra during [Exploding Water Shockwave]."
+        , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 10 `bonusIf` targetHas "Flamethrower Jets"
-                pierce (20 + bonus)
+                stacks <- userStacks "Hundred Hungry Sharks"
+                pierce (5 * stacks)
           , To Self do
-                vary "Flamethrower Jets" baseVariant
-                cancelChannel "Flamethrower Jets"
+                cancelChannel "Thousand Hungry Sharks"
+                remove "Hundred Hungry Sharks"
                 everyone do
-                    remove "Flame Blast"
-                    remove "Flamethrower Jets"
+                    remove "ignored"
+                    remove "Thousand Hungry Sharks"
           ]
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Performance of a Hundred Puppets"
-        , Skill.desc      = "Proving his reputation as the greatest puppeteer in history, Sasori takes control of 100 puppets, each acting as pure extensions of his will. Sasori gains 50 permanent destructible defense and provides 25 permanent destructible defense to his allies. As long as Sasori has destructible defense from this skill, this skill becomes [Barrage of a Hundred Puppets][r][r]."
-        , Skill.classes   = [Physical]
-        , Skill.cost      = [Tai, Rand, Rand]
-        , Skill.cooldown  = 5
-        , Skill.effects   =
+        { Skill.name      = "Exploding Water Shockwave"
+        , Skill.desc      = "As a giant orb of water fills the entire battlefield, Kisame merges with Samehada and transforms into a shark for 3 turns. While active, enemy cooldowns are increased by 1 and this skill becomes [Shark Dance][t]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 4
+        , Skill.dur       = Ongoing 3
+        , Skill.start     =
           [ To Self do
-                cancelChannel "Flamethrower Jets"
-                everyone do
-                    remove "Flame Blast"
-                    remove "Flamethrower Jets"
-                vary "Performance of a Hundred Puppets"
-                     "Barrage of a Hundred Puppets"
-                defend 0 50
-                onBreak $ self $
-                    vary "Performance of a Hundred Puppets" baseVariant
-          , To XAllies $ defend 0 25
+                setFace
+                vary "Exploding Water Shockwave" "Shark Dance"
           ]
+        , Skill.effects   = [ To Enemies $ apply 1 [Snare 1] ]
         }
       , Skill.new
-        { Skill.name      = "Barrage of a Hundred Puppets"
-        , Skill.desc      = "Sasori commands his puppet army to attack an enemy, dealing 30 damage and applying [Complex Toxin] to the target, which stuns them after 2 turns."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Rand, Rand]
+        { Skill.name      = "Shark Dance"
+        , Skill.desc      = "Deals 20 damage to an enemy and absorbs 1 random chakra."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                damage 30
-                bomb' "Complex Toxin" 2 [] [ To Expire $ apply 1 [Stun All] ]
-          , To Self do
-                cancelChannel "Flamethrower Jets"
-                everyone do
-                    remove "Flame Blast"
-                    remove "Flamethrower Jets"
+                absorb 1
+                damage 20
           ]
         }
       ]
-    , [ invuln "Heart Switch" "Sasori" [Physical] ]
+    , [ Skill.new
+        { Skill.name      = "Super Shark Bomb"
+        , Skill.desc      = "Kisame traps an enemy for 1 turn. At the end of their turn, the target takes 30 damage. While active, if the target uses a chakra or mental skill on Kisame or his allies, they will be countered and will take 20 additional damage."
+        , Skill.classes   = [Chakra, Ranged, Bypassing, Invisible]
+        , Skill.cost      = [Blood, Nin]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Enemy do
+                trap 1 (Countered Chakra) flag
+                trap 1 (Countered Mental) flag
+                delay (-1) do
+                    bonus <- 20 `bonusIf` targetHas "Super Shark Bomb"
+                    damage (30 + bonus)
+          ]
+        }
+      ]
+    , [ invuln "Scale Shield" "Kisame" [Physical] ]
     ]
   , Character
     "Animal Path Pain"

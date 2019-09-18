@@ -531,6 +531,123 @@ cs =
     , [ invuln "Dodge" "Guy" [Physical] ]
     ]
   , Character
+    "True Form Sasori"
+    "Having invented and perfected the art of human puppetry, Sasori accomplished its ultimate act: transforming himself into a living puppet. His immortal core now resides in an unnaturally youthful simulacrum filled to the brim with tools of slaughter, each of which he switches out for another as soon as he uses it."
+    [ [ Skill.new
+        { Skill.name      = "Poisonous Chain Skewer"
+        , Skill.desc      = "Sasori hooks an enemy with the poison-soaked steel ropes inside his body and pulls himself to them, dealing 5 affliction damage for 3 turns. Next turn, the target can only target Sasori or themselves. Once used, this skill becomes [Impale][t]."
+        , Skill.classes   = [Bane, Ranged, Unreflectable]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                apply 3 [Afflict 5]
+                userSlot <- user slot
+                apply 1 [Taunt userSlot]
+          , To Self do
+                vary "Poisonous Chain Skewer" "Impale"
+                cancelChannel "Flamethrower Jets"
+                everyone do
+                    remove "Flame Blast"
+                    remove "Flamethrower Jets"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Impale"
+        , Skill.desc      = "Sasori stabs an enemy with a poison-soaked blade, dealing 15 piercing damage immediately and 5 affliction damage for 2 turns. If the target is affected by [Poisonous Chain Skewer], they become affected by [Complex Toxin], which stuns them after 2 turns. Once used, this skill becomes [Poisonous Chain Skewer]."
+        , Skill.classes   = [Bane, Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
+          [ To Self do
+                vary "Poisonous Chain Skewer" baseVariant
+                cancelChannel "Flamethrower Jets"
+                everyone do
+                    remove "Flame Blast"
+                    remove "Flamethrower Jets"
+          ,  To Enemy do
+                  pierce 15
+                  apply 2 [Afflict 5]
+                  whenM (targetHas "Poisonous Chain Skewer") $
+                      bomb' "Complex Toxin" 2 []
+                            [ To Expire $ apply 1 [Stun All] ]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Flamethrower Jets"
+        , Skill.desc      = "Using fuel stored in a sealing scroll, Sasori shoots flames at an enemy for 3 turns, dealing 10 affliction damage each turn. While active, Sasori is invulnerable to all other enemies and ignores status effects from enemies except chakra cost changes. If Sasori uses any skill, [Flamethrower Jets] is canceled. After use, this skill becomes [Cutting Water Jets][n]."
+        , Skill.classes   = [Ranged, Unreflectable]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.dur       = Action 3
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Enemy do
+                afflict 10
+                tag 1
+                userSlot <- user slot
+                self $ apply' "Flame Blast" 1 [Duel userSlot]
+          , To Self do
+                apply 1 [Enrage]
+                vary "Flamethrower Jets" "Cutting Water Jets"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Cutting Water Jets"
+        , Skill.desc      = "Sasori shoots a high-pressure jet of water at an enemy, dealing 20 piercing damage. Deals 10 additional damage if the target is affected by [Flamethrower Jets]. Ends [Flamethrower Jets]. Once used, this skill becomes [Flamethrower Jets]."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Nin]
+        , Skill.effects   =
+          [ To Enemy do
+                bonus <- 10 `bonusIf` targetHas "Flamethrower Jets"
+                pierce (20 + bonus)
+          , To Self do
+                vary "Flamethrower Jets" baseVariant
+                cancelChannel "Flamethrower Jets"
+                everyone do
+                    remove "Flame Blast"
+                    remove "Flamethrower Jets"
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Performance of a Hundred Puppets"
+        , Skill.desc      = "Proving his reputation as the greatest puppeteer in history, Sasori takes control of 100 puppets, each acting as pure extensions of his will. Sasori gains 50 permanent destructible defense and provides 25 permanent destructible defense to his allies. As long as Sasori has destructible defense from this skill, this skill becomes [Barrage of a Hundred Puppets][r][r]."
+        , Skill.classes   = [Physical]
+        , Skill.cost      = [Tai, Rand, Rand]
+        , Skill.cooldown  = 5
+        , Skill.effects   =
+          [ To Self do
+                cancelChannel "Flamethrower Jets"
+                everyone do
+                    remove "Flame Blast"
+                    remove "Flamethrower Jets"
+                vary "Performance of a Hundred Puppets"
+                     "Barrage of a Hundred Puppets"
+                defend 0 50
+                onBreak $ self $
+                    vary "Performance of a Hundred Puppets" baseVariant
+          , To XAllies $ defend 0 25
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Barrage of a Hundred Puppets"
+        , Skill.desc      = "Sasori commands his puppet army to attack an enemy, dealing 30 damage and applying [Complex Toxin] to the target, which stuns them after 2 turns."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 30
+                bomb' "Complex Toxin" 2 [] [ To Expire $ apply 1 [Stun All] ]
+          , To Self do
+                cancelChannel "Flamethrower Jets"
+                everyone do
+                    remove "Flame Blast"
+                    remove "Flamethrower Jets"
+          ]
+        }
+      ]
+    , [ invuln "Heart Switch" "Sasori" [Physical] ]
+    ]
+  , Character
     "Split Zetsu"
     "After Madara turned the Gedo statue's mutated victims into an army of servants, he chose one to lead them. Imbuing the White Zetsu entity with materialized will in the form of Black Zetsu, he created a hybrid being who became an official member of Akatsuki. White Zetsu and Black Zetsu have different approaches to combat, but both are able to take control of an enemy's abilities."
     [ [ Skill.new
