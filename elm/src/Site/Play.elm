@@ -556,7 +556,7 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
           [ icon x "icon" [A.class "char"]
           , H.section []
             [ H.h1 [] <| Render.name x
-            , H.p [] [H.text x.bio]
+            , H.p  [] <| Render.desc x.bio
             ]
           ]
         ]
