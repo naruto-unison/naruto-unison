@@ -12,7 +12,6 @@ module Action.Combat
     -- * Special effects
   , sacrifice
   , kill, killHard
-  , factory
   ) where
 
 import ClassyPrelude
@@ -339,8 +338,3 @@ sacrifice minhp hp = do
     nTarget <- P.nTarget
     unless (user == target && nTarget `is` ImmuneSelf) .
         P.modify target $ Ninjas.sacrifice minhp hp
-
--- | Resets a 'Ninja.Ninja' to their initial state.
--- Uses 'Ninjas.factory' internally.
-factory :: ∀ m. MonadPlay m => m ()
-factory = P.toTarget Ninjas.factory

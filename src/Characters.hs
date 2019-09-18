@@ -51,9 +51,9 @@ shippuden :: [Character]
 shippuden = ($ Shippuden)
             <$> Characters.Shippuden.Kids.cs
              ++ Characters.Shippuden.Adults.cs
-             ++ Characters.Shippuden.Leaders.cs
              ++ Characters.Shippuden.Organizations.cs
              ++ Characters.Shippuden.Akatsuki.cs
+             ++ Characters.Shippuden.Leaders.cs
              ++ Characters.Shippuden.Jinchuriki.cs
              ++ Characters.Shippuden.Versions.cs
 

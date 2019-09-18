@@ -683,4 +683,61 @@ cs =
       ]
     , [ invuln "Block" "Jūgo" [Physical] ]
     ]
+  , Character
+    "White Snake Orochimaru"
+    "Orochimaru has cast off his body and revealed his true form of a giant serpent. Making use of the power he was granted by the White Sage Snake of Ryūchi Cave, Orochimaru transcends life and death in his endless hunger for knowledge and power."
+    [ [ Skill.new
+        { Skill.name        = "Kusanagi"
+        , Skill.desc        = "Spitting out his legendary sword, Orochimaru destroys an enemy's destructible defense and his own destructible barrier, then steals 25 health from the target."
+        , Skill.classes     = [Physical, Melee]
+        , Skill.cost        = [Tai]
+        , Skill.effects     =
+          [ To Enemy do
+                demolishAll
+                leech 30 $ self . heal
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name        = "Eight-Headed Serpent"
+        , Skill.desc        = "Orochimaru transforms into a colossal snake with eight heads and eight tails and deals 20 damage to all enemies for 3 turns. While active, Orochimaru ignores stuns and disabling effects, and enemies who stun him will take 20 damage and be stunned for 1 turn."
+        , Skill.classes     = [Physical, Melee]
+        , Skill.cost        = [Blood, Tai]
+        , Skill.cooldown    = 3
+        , Skill.dur         = Action 3
+        , Skill.effects     =
+          [ To Enemies $ damage 20
+          , To Self do
+                apply 1 [Focus]
+                trapFrom 1 OnStunned do
+                    damage 20
+                    apply 1 [Stun All]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Immortality Transference"
+        , Skill.desc      = "Orochimaru prepares an enemy or ally as a host for his eventual resurrection. If used on an enemy, when the target dies, Orochimaru's health will be fully restored. If used on an ally, if Orochimaru dies while the target is still alive, the target's health will be fully restored, all status effects will be removed from them, and they will become Orochimaru. Only one target can be affected by [Immortality Transference]."
+        , Skill.require   = HasI (-1) "transferred"
+        , Skill.classes   = [Physical, Unremovable, Bypassing, Uncounterable, Unreflectable, Invisible, Melee]
+        , Skill.cost      = [Blood, Nin]
+        , Skill.effects   =
+          [ To Self $ hide' "transferred" 0 []
+          , To Enemy do
+                trap 0 OnDeath $ self do
+                    remove "transferred"
+                    everyone $ remove "Immortality Transference"
+                    setHealth 100
+          , To XAlly do
+                bomb 0 [] [ To Done $ self $ remove "transferred" ]
+                trap' 0 OnDeath $ self $ remove "transferred"
+                self $ trap' 0 OnDeath $
+                    allies $ whenM (targetHas "Immortality Transference") do
+                        everyone $ remove "Immortality Transference"
+                        replace
+          ]
+        }
+      ]
+    , [ invuln "Coil" "Orochimaru" [Physical] ]
+    ]
   ]

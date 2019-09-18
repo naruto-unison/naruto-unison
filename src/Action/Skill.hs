@@ -9,6 +9,8 @@ module Action.Skill
   , copyAll, copyLast, teach, teachOne
   -- * Variants
   , vary, vary', varyLoadout, varyNext
+  -- * Other
+  , factory, replace
   ) where
 
 import ClassyPrelude
@@ -213,3 +215,15 @@ teacher f (Duration -> dur) cop s = do
   where
     synced = sync dur
     dur'   = synced + synced `rem` 2
+
+-- | Resets a 'Ninja.Ninja' to their initial state.
+-- Uses 'Ninjas.factory' internally.
+factory :: ∀ m. MonadPlay m => m ()
+factory = P.toTarget Ninjas.factory
+
+-- | Replaces the target with the user.
+replace :: ∀ m. MonadPlay m => m ()
+replace = do
+    nUser <- P.nUser
+    target <- P.target
+    P.write target $ Ninja.new target $ Ninja.character nUser
