@@ -10,7 +10,15 @@ import Class.Display (Display(..))
 
 -- | Qualifiers of 'Model.Skill.Skill's and 'Model.Status.Status'es.
 data Class
-    = Bypassing
+    = Chakra
+    | Mental
+    | Physical
+    | Summon
+    -- Distance
+    | Melee
+    | Ranged
+    -- Effects
+    | Bypassing
     | Invisible
     | InvisibleTraps
     | Soulbound
@@ -18,13 +26,6 @@ data Class
     | Bane
     | Necromancy
     -- Distance
-    | Melee
-    | Ranged
-    -- Type
-    | Chakra
-    | Mental
-    | Physical
-    | Summon
     -- Limits
     | Nonstacking
     | Extending
