@@ -51,7 +51,7 @@ targets slot skill =
     enemy = Enemy |> elem possibleTargets
     ally  = Ally  |> elem possibleTargets
     xally = XAlly |> elem possibleTargets
-    rem   = teamSize |> remainderBy (slot + 1)
+    rem   = if slot >= teamSize then teamSize else 0
   in
     if enemy && ally then
         allSlots
