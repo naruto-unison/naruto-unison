@@ -36,6 +36,7 @@ import Model.Internal hiding (Barrier(..), Effect(..), Ninja(..), Game(..))
 -- From Model.GameInfo.ninjaToJSON
 data Ninja = Ninja
     { slot      :: Slot
+    , character :: Text
     , health    :: Int
     , defense   :: [Defense]
     , barrier   :: [Barrier]
@@ -62,7 +63,6 @@ data Game = Game { chakra  :: (Chakras, Chakras)
 -- From the ToJSON instance of GameInfo in Model.GameInfo
 data GameInfo = GameInfo { opponent   :: User
                          , game       :: Game
-                         , characters :: [Character]
                          , player     :: Player
                          }
 

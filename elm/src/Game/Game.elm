@@ -13,9 +13,11 @@ module Game.Game exposing
   , toggles
   )
 
+import Dict
 import List.Extra as List
 import Tuple exposing (first, second)
 
+import Import.Flags exposing (Characters)
 import Import.Model as Player exposing (Category(..), Chakras, Channel, Channeling(..), Character, Copying(..), Effect, Game, Ninja, Player(..), Privilege(..), Skill, Target(..), User)
 import Util exposing (elem)
 
@@ -136,10 +138,11 @@ ranks = [ "Academy Student"
         , "Hokage"
         ]
 
-merge : Character -> Ninja -> Character
-merge char n =
+merge : Characters -> Ninja -> Character
+merge chars n =
   let
+    char = Maybe.withDefault unknown <| Dict.get n.character chars.dict
     zip cSkills nSkill = cSkills |> List.map (\cSkill ->
         if cSkill.name == nSkill.name then nSkill else cSkill)
-    in
-      { char | skills = List.map2 zip char.skills n.skills }
+  in
+    { char | skills = List.map2 zip char.skills n.skills }

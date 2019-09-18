@@ -12,6 +12,7 @@ import           Core.Model (Key, User)
 import           Core.Util ((!!), (∈), (∉), intersects)
 import qualified Class.Parity as Parity
 import qualified Model.Channel as Channel
+import qualified Model.Character as Character
 import           Model.Class (Class(..))
 import           Model.Effect (Effect(..))
 import qualified Model.Game as Game
@@ -44,12 +45,10 @@ instance ToJSON GameInfo where
         [ "opponent"   .= vsUser
         , "game"       .= gameJson
         , "player"     .= player
-        , "characters" .= characters
         ]
       where
-        gameJson   = gameToJSON player ninjas $
-                     Game.setChakra (Player.opponent player) 0 game
-        characters = Ninja.character <$> ninjas
+        gameJson = gameToJSON player ninjas $
+                   Game.setChakra (Player.opponent player) 0 game
 
 censor :: Player -> Vector Ninja -> Vector Value
 censor player ninjas = ninjaToJSON . censorNinja player ninjas <$> ninjas
@@ -128,6 +127,7 @@ skillTargets skill c = filter target Slot.all
 ninjaToJSON :: Ninja -> Value
 ninjaToJSON n = object
     [ "slot"      .= Ninja.slot n
+    , "character" .= Character.format (Ninja.character n)
     , "health"    .= Ninja.health n
     , "defense"   .= Ninja.defense n
     , "barrier"   .= Ninja.barrier n

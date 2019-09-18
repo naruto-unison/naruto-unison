@@ -154,16 +154,14 @@ jsonEncGame  val =
 type alias GameInfo  =
    { opponent: User
    , game: Game
-   , characters: (List Character)
    , player: Player
    }
 
 jsonDecGameInfo : Json.Decode.Decoder ( GameInfo )
 jsonDecGameInfo =
-   Json.Decode.succeed (\popponent pgame pcharacters pplayer -> {opponent = popponent, game = pgame, characters = pcharacters, player = pplayer})
+   Json.Decode.succeed (\popponent pgame pplayer -> {opponent = popponent, game = pgame, player = pplayer})
    |> required "opponent" (jsonDecUser)
    |> required "game" (jsonDecGame)
-   |> required "characters" (Json.Decode.list (jsonDecCharacter))
    |> required "player" (jsonDecPlayer)
 
 jsonEncGameInfo : GameInfo -> Value
@@ -171,7 +169,6 @@ jsonEncGameInfo  val =
    Json.Encode.object
    [ ("opponent", jsonEncUser val.opponent)
    , ("game", jsonEncGame val.game)
-   , ("characters", (Json.Encode.list jsonEncCharacter) val.characters)
    , ("player", jsonEncPlayer val.player)
    ]
 
@@ -225,6 +222,7 @@ jsonEncPlayer  val =
 
 type alias Ninja  =
    { slot: Int
+   , character: String
    , health: Int
    , defense: (List Defense)
    , barrier: (List Barrier)
@@ -242,8 +240,9 @@ type alias Ninja  =
 
 jsonDecNinja : Json.Decode.Decoder ( Ninja )
 jsonDecNinja =
-   Json.Decode.succeed (\pslot phealth pdefense pbarrier pstatuses pcharges pcooldowns pvariants pcopies pchannels ptraps pface plastSkill pskills -> {slot = pslot, health = phealth, defense = pdefense, barrier = pbarrier, statuses = pstatuses, charges = pcharges, cooldowns = pcooldowns, variants = pvariants, copies = pcopies, channels = pchannels, traps = ptraps, face = pface, lastSkill = plastSkill, skills = pskills})
+   Json.Decode.succeed (\pslot pcharacter phealth pdefense pbarrier pstatuses pcharges pcooldowns pvariants pcopies pchannels ptraps pface plastSkill pskills -> {slot = pslot, character = pcharacter, health = phealth, defense = pdefense, barrier = pbarrier, statuses = pstatuses, charges = pcharges, cooldowns = pcooldowns, variants = pvariants, copies = pcopies, channels = pchannels, traps = ptraps, face = pface, lastSkill = plastSkill, skills = pskills})
    |> required "slot" (Json.Decode.int)
+   |> required "character" (Json.Decode.string)
    |> required "health" (Json.Decode.int)
    |> required "defense" (Json.Decode.list (jsonDecDefense))
    |> required "barrier" (Json.Decode.list (jsonDecBarrier))
@@ -262,6 +261,7 @@ jsonEncNinja : Ninja -> Value
 jsonEncNinja  val =
    Json.Encode.object
    [ ("slot", Json.Encode.int val.slot)
+   , ("character", Json.Encode.string val.character)
    , ("health", Json.Encode.int val.health)
    , ("defense", (Json.Encode.list jsonEncDefense) val.defense)
    , ("barrier", (Json.Encode.list jsonEncBarrier) val.barrier)

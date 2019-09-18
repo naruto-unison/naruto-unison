@@ -12,7 +12,7 @@ import Process
 import Set
 import Task
 
-import Import.Flags exposing (Flags)
+import Import.Flags exposing (Characters, Flags)
 import Game.Chakra as Chakra exposing (none)
 import Game.Detail as Detail exposing (Detail)
 import Game.Game as Game exposing (Act)
@@ -45,7 +45,7 @@ type alias Model =
     , player     : Player
     , user       : User
     , vs         : User
-    , characters : List Character
+    , characters : Characters
     , game       : Game
     , chakras    : Chakras
     , randoms    : Chakras
@@ -85,7 +85,7 @@ component ports =
         , player     = info.player
         , user       = Maybe.withDefault info.opponent flags.user
         , vs         = info.opponent
-        , characters = info.characters
+        , characters = flags.characters
         , game       = info.game
         , chakras    = Chakra.get info.player info.game
         , randoms    = Chakra.none
@@ -101,7 +101,7 @@ component ports =
     view : Model -> Html Msg
     view st =
       let
-        characters  = List.map2 Game.merge st.characters st.game.ninjas
+        characters  = List.map (Game.merge st.characters) st.game.ninjas
         costs       = Chakra.sum <| List.map (.cost << .skill) st.acts
         net         = Chakra.sum [st.exchanged, st.chakras, Chakra.negate costs]
         netUnrand   = { net | rand = 0 }
