@@ -8,7 +8,6 @@ module Model.Effect
   , sticky
   , disabling
   , bypassEnrage
-  , boosted
   , identity
   ) where
 
@@ -52,6 +51,7 @@ instance Eq Constructor where
 -- | Effects of 'Status'es.
 data Effect
     = Afflict      Int                 -- ^ Deals damage every turn
+    | Alone                            -- ^ Cannot be targeted by allies
     | AntiCounter                      -- ^ Cannot be countered or reflected
     | Bleed        Class Amount Int    -- ^ Adds to damage received
     | Bless        Int                 -- ^ Adds to healing 'Skill's
@@ -79,7 +79,7 @@ data Effect
     | ReflectAll                       -- ^ 'Reflect' repeatedly
     | Restrict                         -- ^ Forces AoE attacks to be single-target
     | Reveal                           -- ^ Makes 'Invisible' effects visible
-    | Seal                             -- ^ Ignore all friendly 'Skill's
+    | Seal                             -- ^ Ignores helpful status effects
     | Share        Slot                -- ^ Harmful skills are also applied to a target
     | Silence                          -- ^ Unable to cause non-damage effects
     | Snare        Int                 -- ^ Increases cooldowns
@@ -119,6 +119,7 @@ instance ToJSON Effect where
 
 helpful :: Effect -> Bool
 helpful Afflict{}       = False
+helpful Alone           = False
 helpful AntiCounter     = True
 helpful (Bleed _ _ x)   = x < 0
 helpful Bless{}         = True
@@ -190,6 +191,7 @@ displayAmt Percent = (++ "%") . display
 
 instance Display Effect where
     display (Afflict x) = "Receives " ++ display x ++ " affliction damage each turn."
+    display Alone = "Invulnerable to allies."
     display AntiCounter = "Cannot be countered or reflected."
     display (Bleed cla amt x)
       | x >= 0    =  displayAmt amt x ++ " additional damage taken from " ++ lower cla ++ " skills."
@@ -247,19 +249,6 @@ instance Display Effect where
     display Unexhaust = "All skills cost 1 fewer random chakra."
     display (Unreduce x) = "Damage reduction skills reduce " ++ display x ++ " fewer damage."
     display (Weaken cla amt x) = display cla ++ " skills deal " ++ displayAmt amt x ++ " fewer damage. Does not affect affliction damage."
-
--- | Scales the power of an effect.
-boosted :: Int -> Effect -> Effect
-boosted b (Afflict  x) = Afflict  $ x * b
-boosted b (Build    x) = Build    $ x * b
-boosted b (Heal     x) = Heal     $ x * b
-boosted b (Snare    x) = Snare    $ x * b
-boosted b (Unreduce x) = Unreduce $ x * b
-boosted b (Bleed      c Flat x) = Bleed      c Flat $ x * b
-boosted b (Reduce     c Flat x) = Reduce     c Flat $ x * b
-boosted b (Strengthen c Flat x) = Strengthen c Flat $ x * b
-boosted b (Weaken     c Flat x) = Weaken     c Flat $ x * b
-boosted _ ef = ef
 
 -- | Not canceled by 'Enrage'.
 bypassEnrage :: Effect -> Bool

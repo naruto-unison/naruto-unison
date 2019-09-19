@@ -80,7 +80,7 @@ cs =
     "Reanimated by Orochimaru, Hashirama was the second Hokage. His water-manipulating skills flood the battlefield, impairing and harming the enemy team."
     [ [ Skill.new
         { Skill.name      = "Water Prison"
-        , Skill.desc      = "Water surrounds an enemy, dealing 15 damage and making them immune to effects from allies for 1 turn."
+        , Skill.desc      = "Water surrounds an enemy, dealing 15 damage and making them ignore helpful effects for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -654,7 +654,7 @@ cs =
     "Reanimated by Kabuto, Jinpachi was one of the Seven Swordsmen of the Mist. Wielding Shibuki, the legendary explosive blade, Jinpachi builds up stockpiles of paper bombs that he can detonate simultaneously."
     [ [ Skill.new
         { Skill.name      = "Blast Sword"
-        , Skill.desc      = "Jinpachi swings his sword at an enemy, dealing 30 damage and making them immune to effects from allies for 1 turn. If Jinpachi does not have any Paper Bombs, he loses 15 health. Otherwise, he spends one Paper Bomb."
+        , Skill.desc      = "Jinpachi swings his sword at an enemy, dealing 30 damage and making them ignore helpful effects for 1 turn. If Jinpachi does not have any Paper Bombs, he loses 15 health. Otherwise, he spends one Paper Bomb."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =

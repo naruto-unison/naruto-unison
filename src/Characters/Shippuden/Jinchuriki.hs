@@ -159,7 +159,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Six-Tailed Transformation"
-        , Skill.desc      = "Naruto's fury drives him to the brink of madness. He loses 10 health down to a minimum of 1 and gains 20 points of damage reduction and 20 permanent destructible defense. He permanently ignores status effects from enemies except chakra cost changes and is immune to effects from his allies. The power of his other skills continues to grow. Once used, this skill becomes [Nine-Tailed Transformation][b][b]."
+        , Skill.desc      = "Naruto's fury drives him to the brink of madness. He loses 10 health down to a minimum of 1 and gains 20 points of damage reduction and 20 permanent destructible defense. He permanently ignores status effects from enemies except chakra cost changes and is invulnerable to allies. The power of his other skills continues to grow. Once used, this skill becomes [Nine-Tailed Transformation][b][b]."
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
@@ -169,7 +169,7 @@ cs =
                 defend 0 20
                 varyLoadout loadout 1
                 setFace
-                apply 0 [Reduce All Flat 20, Plague, Seal, Enrage]
+                apply 0 [Reduce All Flat 20, Plague, Alone, Enrage]
           ]
         }
       , Skill.new
@@ -184,7 +184,7 @@ cs =
                 defend 0 30
                 varyLoadout loadout 2
                 setFace
-                apply 0 [Reduce All Flat 30, Plague, Seal, Enrage]
+                apply 0 [Reduce All Flat 30, Plague, Alone, Enrage]
           ]
         }
       , Skill.new

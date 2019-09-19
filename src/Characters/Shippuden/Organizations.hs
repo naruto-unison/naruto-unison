@@ -350,12 +350,12 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Reverse Tetragram Sealing"
-        , Skill.desc      = "Kills Danzō and makes all enemies immune to effects from each other for 3 turns. In 3 turns, enemies who are not invulnerable will die."
+        , Skill.desc      = "Kills Danzō and makes all enemies invulnerable to each other for 3 turns. In 3 turns, enemies who are not invulnerable will die."
         , Skill.classes   = [Mental, Bypassing, Unremovable]
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.effects   =
           [ To Self do
-                enemies $ bomb (-3) [Seal]
+                enemies $ bomb (-3) [Alone]
                     [ To Expire $ unlessM (target invulnerable) kill ]
                 kill
           ]

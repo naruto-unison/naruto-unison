@@ -48,7 +48,7 @@ module Engine.Ninjas
 
 import ClassyPrelude hiding (drop, take)
 
-import           Data.List (findIndex)
+import           Data.List (elemIndex, findIndex)
 import           Data.List.NonEmpty ((!!))
 import qualified Data.Sequence as Seq
 import qualified Data.Text as Text
@@ -85,6 +85,7 @@ import qualified Model.Trap as Trap
 import           Model.Trap (Trigger(..))
 import qualified Model.Variant as Variant
 import           Model.Variant (Variant(Variant), Varying)
+import qualified Engine.Cooldown as Cooldown
 import qualified Engine.Effects as Effects
 import qualified Engine.Skills as Skills
 
@@ -133,16 +134,19 @@ processEffects n = n { Ninja.effects = baseStatuses >>= replicates >>= process }
       | sealed    = 1
       | otherwise = product $ 1 : [x | Boost x <- baseEffects]
     filtered filt = filter filt . Status.effects
-    replicates st = replicate (Status.amount st) st { Status.amount = 1 }
-    process st
-      | Status.user st == Ninja.slot n = Status.effects st
-      | enraged   = boost <$> filtered Effect.bypassEnrage st
-      | sealed    = boost <$> filtered (not . Effect.helpful) st
-      | otherwise = boost <$> filtered (const True) st
+    replicates st = replicate (boost * Status.amount st)
+                    st { Status.amount = 1 }
       where
+        user = Status.user st
         boost
-          | Parity.allied nSlot $ Status.user st = Effect.boosted boostAmount
-          | otherwise                            = id
+          | user == nSlot            = 1
+          | Parity.allied nSlot user = boostAmount
+          | otherwise                = 1
+    process st
+      | sealed                  = filtered (not . Effect.helpful) st
+      | Status.user st == nSlot = Status.effects st
+      | enraged                 = filtered Effect.bypassEnrage st
+      | otherwise               = filtered (const True) st
 
 -- | Adds a 'Variant.Variant' to 'Ninja.variants' by skill and variant index
 -- within 'Character.skills'.

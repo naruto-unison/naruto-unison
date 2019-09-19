@@ -272,7 +272,7 @@ cs =
     "Shino's years of practice with his loyal bugs have deepened his connection with them. Having attained the rank of chūnin, Shino has learned to breed his insects to favor specific traits. His advanced parasites accumulate invisibly in targets before bursting out all at once."
     [ [ Skill.new
         { Skill.name       = "Insect Swarm"
-        , Skill.desc       = "A wave of insects attack an enemy, dealing 15 affliction damage to them for 3 turns and making them immune to effects from allies. While active, this skill becomes [Chakra Leech]."
+        , Skill.desc       = "A wave of insects attack an enemy, dealing 15 affliction damage to them for 3 turns and making them invulnerable to allies. While active, this skill becomes [Chakra Leech]."
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.dur       = Action 3
@@ -288,7 +288,7 @@ cs =
           [ To Enemy do
                 stacks <- targetStacks "Chakra Leech"
                 afflict (15 + 5 * stacks)
-                apply 1 [Seal]
+                apply 1 [Alone]
           ]
         }
       , Skill.new

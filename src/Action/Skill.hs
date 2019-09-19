@@ -10,7 +10,7 @@ module Action.Skill
   -- * Variants
   , vary, vary', varyLoadout, varyNext
   -- * Other
-  , factory, replace
+  , factory
   ) where
 
 import ClassyPrelude
@@ -227,10 +227,3 @@ teacher f (Duration -> dur) cop s = uncopied do
 -- Uses 'Ninjas.factory' internally.
 factory :: ∀ m. MonadPlay m => m ()
 factory = P.toTarget Ninjas.factory
-
--- | Replaces the target with the user.
-replace :: ∀ m. MonadPlay m => m ()
-replace = do
-    nUser <- P.nUser
-    target <- P.target
-    P.write target $ Ninja.new target $ Ninja.character nUser

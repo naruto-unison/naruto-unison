@@ -152,7 +152,7 @@ cs =
           , To Enemy $ bombWith [Invisible] 5 []
                 [ To Done do
                     userSlot <- user slot
-                    apply' "Kuroari Ambush" 1 [Stun All, Seal, Duel userSlot]
+                    apply' "Kuroari Ambush" 1 [Stun All, Alone, Duel userSlot]
                 ]
           ]
         }
@@ -479,14 +479,14 @@ cs =
     "With the fate of the world at stake, Guy has opened all eight Gates and is holding nothing back. The effort will surely kill him, but while he lives, his strength outmatches even the legendary Madara Uchiha."
     [ [ Skill.new
         { Skill.name      = "Evening Elephant"
-        , Skill.desc      = "Using a devastating sequence of punches, Guy deals 20 damage to an enemy. For 1 turn, they are immune to effects from allies and their non-mental skills are stunned. Guy loses 20 health down to a minimum of 1. Each time this skill is used, it permanently deals 20 additional damage and costs 1 additional random chakra."
+        , Skill.desc      = "Using a devastating sequence of punches, Guy deals 20 damage to an enemy. For 1 turn, they are invulnerable to allies and their non-mental skills are stunned. Guy loses 20 health down to a minimum of 1. Each time this skill is used, it permanently deals 20 additional damage and costs 1 additional random chakra."
         , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
                 stacks <- userStacks "Evening Elephant"
                 damage (20 + 20 * stacks)
-                apply 1 [Seal, Stun NonMental]
+                apply 1 [Alone, Stun NonMental]
           , To Self do
                 sacrifice 1 20
                 addStack
@@ -510,7 +510,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Night Guy"
-        , Skill.desc      = "As his blood evaporates into mist around him, Guy warps time and space to instantly attack an enemy, dealing 50 piercing damage. For 2 turns, the target is immune to effects from allies, their damage is weakened by 5, and Guy cannot be healed. Guy loses 30 health down to a minimum of 1. Each time this skill is used, it permanently deals 25 additional damage and costs 1 additional taijutsu chakra."
+        , Skill.desc      = "As his blood evaporates into mist around him, Guy warps time and space to instantly attack an enemy, dealing 50 piercing damage. For 2 turns, the target ignores helpful effects, their damage is weakened by 5, and Guy cannot be healed. Guy loses 30 health down to a minimum of 1. Each time this skill is used, it permanently deals 25 additional damage and costs 1 additional taijutsu chakra."
         , Skill.classes   = [Physical, Melee, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Tai, Tai]
         , Skill.cooldown  = 2

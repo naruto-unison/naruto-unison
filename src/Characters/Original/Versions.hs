@@ -77,12 +77,12 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Dark Void"
-        , Skill.desc      = "Corrupt chakra engulfs an enemy, stunning them for 2 turns. While active, the target is immune to effects from allies and invulnerable. At the end of the 2 turns, the enemy receives 55 damage. Costs 2 random chakra during [Curse Mark]."
+        , Skill.desc      = "Corrupt chakra engulfs an enemy, stunning them for 2 turns. While active, the target is invulnerable to allies as well as enemies. At the end of the 2 turns, the enemy receives 55 damage. Costs 2 random chakra during [Curse Mark]."
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Enemy $ bomb 2 [Stun All, Invulnerable All, Seal]
+          [ To Enemy $ bomb 2 [Stun All, Alone, Invulnerable All]
                              [ To Expire $ damage 55 ]
           ]
         , Skill.changes   =

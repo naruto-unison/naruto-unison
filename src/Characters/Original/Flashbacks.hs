@@ -44,14 +44,14 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Adamantine Sealing Chains"
-        , Skill.desc      = "A cage of chain-shaped chakra seals an enemy, removing the effects of helpful skills from them and stunning them for 2 turns. While active, the target is immune to effects from allies and invulnerable."
+        , Skill.desc      = "A cage of chain-shaped chakra seals an enemy, removing the effects of helpful skills from them and stunning them for 2 turns. While active, the target is invulnerable to allies as well as enemies."
         , Skill.classes   = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Enemy do
                 purge
-                apply 2 [Stun All, Invulnerable All, Seal]
+                apply 2 [Stun All, Alone, Invulnerable All]
           ]
         }
       ]
@@ -369,7 +369,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Kamui Banishment"
-        , Skill.desc      = "The masked man uses a rare space-time technique to warp an enemy to his pocket dimension, dealing 20 piercing damage and making them immune to effects from their allies for 1 turn. While active, the target can only target the masked man or themselves. Deals 20 additional damage and lasts 1 additional turn if the target is affected by [Kamui Chain Combo]."
+        , Skill.desc      = "The masked man uses a rare space-time technique to warp an enemy to his pocket dimension, dealing 20 piercing damage and making them invulnerable to their allies for 1 turn. While active, the target can only target the masked man or themselves. Deals 20 additional damage and lasts 1 additional turn if the target is affected by [Kamui Chain Combo]."
         , Skill.classes   = [Chakra, Melee, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
@@ -378,7 +378,7 @@ cs =
                 bonus <- 2 `bonusIf` targetHas "Kamui Chain Combo"
                 pierce (20 * bonus)
                 userSlot <- user slot
-                apply (1 * bonus) [Seal, Taunt userSlot]
+                apply (1 * bonus) [Alone, Taunt userSlot]
           ]
         }
       ]

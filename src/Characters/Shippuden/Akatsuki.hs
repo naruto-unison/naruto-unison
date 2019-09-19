@@ -986,13 +986,13 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Planetary Devastation"
-        , Skill.desc      = "Pain creates a gravitational anchor that pulls in an enemy and accumulates a rough sphere of rock and debris around them, applying 80 destructible barrier for 3 turns. While the target has destructible barrier from this skill, they are immune to effects from allies and invulnerable. At the end of the 3 turns, the target will receive damage equal to the remaining destructible barrier from this skill."
+        , Skill.desc      = "Pain creates a gravitational anchor that pulls in an enemy and accumulates a rough sphere of rock and debris around them, applying 80 destructible barrier for 3 turns. While the target has destructible barrier from this skill, they are invulnerable to allies as well as enemies. At the end of the 3 turns, the target will receive damage equal to the remaining destructible barrier from this skill."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy $
-                barrierDoes 3 damage (apply 1 [Invulnerable All, Seal]) 80
+                barrierDoes 3 damage (apply 1 [Alone, Invulnerable All]) 80
           ]
         }
       ]

@@ -141,7 +141,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Revenge of the Murder"
-        , Skill.desc      = "If the target ally's health reaches 0 within 3 turns, their health will be set to 5, all their skills will be replaced by [Converging Murder][g][g], and they will become completely immune to all skills. At the end of their next turn, they will die."
+        , Skill.desc      = "If the target ally's health reaches 0 within 3 turns, their health will be set to 5, all their skills will be replaced by [Converging Murder][g][g], and they will become completely invulnerable to all skills. At the end of their next turn, they will die."
         , Skill.classes   = [Mental, Ranged, InvisibleTraps, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
@@ -151,7 +151,7 @@ cs =
                 setHealth 5
                 teach 1 Deep 2
                 setFace
-                bomb (-1) [Invulnerable All, Seal, Enrage, Focus]
+                bomb (-1) [Invulnerable All, Alone, Seal, Enrage, Focus]
                           [ To Done killHard ]
           ]
         }

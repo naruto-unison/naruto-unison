@@ -162,18 +162,15 @@ hp player n ninjas = afflict ninjas player n - heal ninjas player n
 heal :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
      => o -> Player -> Ninja -> Int
 heal ninjas player n
-  | not $ Ninja.alive n = 0
-  | n `is` Plague       = 0
-  | otherwise           = sum $ heal1 ninjas player n <$> Ninja.statuses n
+  | not $ Ninja.alive n || n `is` Plague || n `is` Seal = 0
+  | otherwise = sum $ heal1 ninjas player n <$> Ninja.statuses n
 
 -- | Calculates the total 'Heal' of a single @Status@.
 heal1 :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
       => o -> Player -> Ninja -> Status -> Int
 heal1 ninjas player n st
-  | user /= Ninja.slot n && n `is` Seal      = 0
-  | summed /= 0 && Parity.allied player user =
-      boost user n * summed + bless (ninjas !! Slot.toInt user)
-  | otherwise = 0
+  | summed == 0 || not (Parity.allied player user) = 0
+  | otherwise = boost user n * summed + bless (ninjas !! Slot.toInt user)
   where
     user = Status.user st
     summed = sum [hp' | Heal hp' <- Status.effects st]

@@ -77,7 +77,7 @@ targetable skill n nt
   | user /= target && not harm && n `is` BlockAllies         = False
   | Bypassing ∈ classes                                      = True
   | harm && (classes `intersects` Effects.invulnerable nt)   = False
-  | user /= target && not harm && nt `is` Seal               = False
+  | user /= target && not harm && nt `is` Alone              = False
   | user /= target && (dueling || taunted)                   = False
   | target ∈ Effects.block n                                 = False
   | otherwise                                                = True

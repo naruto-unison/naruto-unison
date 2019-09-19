@@ -296,7 +296,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Lion Roar Sealing"
-        , Skill.desc      = "Chiyo uses an advanced sealing technique on an enemy, making them immune to effects from allies and preventing them from reducing damage or becoming invulnerable for 2 turns."
+        , Skill.desc      = "Chiyo uses an advanced sealing technique on an enemy, making them ignore helpful effects and preventing them from reducing damage or becoming invulnerable for 2 turns."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
@@ -393,13 +393,13 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Falling Earth Spears"
-        , Skill.desc      = "Spikes of stone and mud erupt from the ground, dealing 15 damage to all enemies and making them immune to effects from each other."
+        , Skill.desc      = "Spikes of stone and mud erupt from the ground, dealing 15 damage to all enemies and making them invulnerable to each other."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ To Enemies do
                 damage 15
-                apply 1 [Seal]
+                apply 1 [Alone]
           ]
         }
       ]
@@ -521,14 +521,14 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Flash Pillar"
-        , Skill.desc      = "A flash of lightning blinds and disorients an enemy, dealing 35 damage to them and making them immune to effects from allies."
+        , Skill.desc      = "A flash of lightning blinds and disorients an enemy, dealing 35 damage to them and making them invulnerable to allies for 1 turn."
         , Skill.classes   = [Bane, Mental, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
                 damage 35
-                apply 1 [Seal]
+                apply 1 [Alone]
           ]
         }
       ]

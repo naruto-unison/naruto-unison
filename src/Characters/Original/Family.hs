@@ -27,7 +27,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Unsexy Technique"
-        , Skill.desc      = "Konohamaru distracts an enemy with his modified version of the transformation technique he learned from Naruto. For 1 turn, the target is immune to effects from their allies and cannot reduce damage, become invulnerable, counter, or reflect."
+        , Skill.desc      = "Konohamaru distracts an enemy with his modified version of the transformation technique he learned from Naruto. For 1 turn, the target ignores helpful effects and cannot reduce damage, become invulnerable, counter, or reflect."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
