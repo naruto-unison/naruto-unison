@@ -804,25 +804,47 @@ cs =
     "White Snake Orochimaru"
     "Orochimaru has cast off his body and revealed his true form of a giant serpent. Making use of the power he was granted by the White Sage Snake of Ryūchi Cave, Orochimaru transcends life and death in his endless hunger for knowledge and power."
     [ [ Skill.new
-        { Skill.name        = "Kusanagi"
-        , Skill.desc        = "Spitting out his legendary sword, Orochimaru destroys an enemy's destructible defense and his own destructible barrier, then steals 25 health from the target."
-        , Skill.classes     = [Physical, Melee]
-        , Skill.cost        = [Tai]
-        , Skill.effects     =
+        { Skill.name      = "Regenerative Bite"
+        , Skill.desc      = "Orochimaru snaps his jaws around an enemy and steals 35 health from them. If Orochimaru acquires a new body, this skill becomes [Kusanagi][t]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Blood, Tai]
+        , Skill.effects   =
+          [ To Enemy $ leech 35 $ self . heal ]
+        }
+      , Skill.new
+        { Skill.name      = "Kusanagi"
+        , Skill.desc      = "Spitting out his legendary sword, Orochimaru destroys an enemy's destructible defense and his own destructible barrier, then deals 30 piercing damage to the target."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
           [ To Enemy do
                 demolishAll
-                leech 30 $ self . heal
+                pierce 30
           ]
         }
       ]
     , [ Skill.new
-        { Skill.name        = "Eight-Headed Serpent"
-        , Skill.desc        = "Orochimaru transforms into a colossal snake with eight heads and eight tails and deals 20 damage to all enemies for 3 turns. While active, Orochimaru ignores stuns and disabling effects, and enemies who stun him will take 20 damage and be stunned for 1 turn."
-        , Skill.classes     = [Physical, Melee]
-        , Skill.cost        = [Blood, Tai]
-        , Skill.cooldown    = 3
-        , Skill.dur         = Action 3
-        , Skill.effects     =
+        { Skill.name      = "Immortality Transference"
+        , Skill.desc      = "Orochimaru forces his soul on an enemy, dealing 15 damage to them for 3 turns and stunning their non-mental skills. If the target dies while this skill is active, Orochimaru's health is fully restored. If Orochimaru acquires a new body, this skill becomes [Eight-Headed Serpent Assault][b][t]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Gen, Nin]
+        , Skill.cooldown  = 3
+        , Skill.dur       = Control 3
+        , Skill.effects   =
+          [ To Enemy do
+                damage 15
+                apply 1 [Stun NonMental]
+                trap 1 OnDeath $ self $ setHealth 100
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Eight-Headed Serpent"
+        , Skill.desc      = "Orochimaru transforms into a colossal snake with eight heads and eight tails and deals 20 damage to all enemies for 3 turns. While active, Orochimaru ignores stuns and disabling effects, and enemies who stun him will take 20 damage and be stunned for 1 turn."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Blood, Tai]
+        , Skill.cooldown  = 3
+        , Skill.dur       = Action 3
+        , Skill.effects   =
           [ To Enemies $ damage 20
           , To Self do
                 apply 1 [Focus]
@@ -833,28 +855,38 @@ cs =
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Immortality Transference"
-        , Skill.desc      = "Orochimaru prepares an enemy or ally as a host for his eventual resurrection. If used on an enemy, when the target dies, Orochimaru's health will be fully restored. If used on an ally, if Orochimaru dies while the target is still alive, the target's health will be fully restored, all status effects will be removed from them, and they will become Orochimaru. Only one target can be affected by [Immortality Transference]."
-        , Skill.require   = HasI (-1) "transferred"
-        , Skill.classes   = [Physical, Unremovable, Bypassing, Uncounterable, Unreflectable, Invisible, Melee]
-        , Skill.cost      = [Blood, Nin]
-        , Skill.effects   =
-          [ To Self $ hide' "transferred" 0 []
-          , To Enemy do
-                trap 0 OnDeath $ self do
-                    remove "transferred"
-                    everyone $ remove "Immortality Transference"
-                    setHealth 100
-          , To XAlly do
-                bomb 0 [] [ To Done $ self $ remove "transferred" ]
-                trap' 0 OnDeath $ self $ remove "transferred"
-                self $ trap' 0 OnDeath $
-                    allies $ whenM (targetHas "Immortality Transference") do
-                        everyone $ remove "Immortality Transference"
-                        replace
+        { Skill.name    = "Curse Mark Release"
+        , Skill.desc    = "By giving an ally a curse mark, Orochimaru uses their body as an anchor for his soul after death. If the target's health reaches 25 or lower while Orochimaru is dead, Orochimaru will be resurrected into their body with full health and all status effects removed. If Orochimaru acquires a new body, this skill becomes [Regeneration][g][n]. Cannot be used while active."
+        , Skill.require = HasI (-1) "curse"
+        , Skill.classes = [Physical, Unremovable, Bypassing, Uncounterable, Unreflectable, Invisible, Melee]
+        , Skill.cost    = [Blood, Nin]
+        , Skill.effects =
+          [ To Ally do
+                self $ hide' "curse" 0 []
+                bomb 0 [] [ To Done $ self $ remove "curse" ]
+                trap' 0 OnDeath $ self $ remove "curse"
+                trap' 0 (OnDamaged All) $ unlessM (user alive) do
+                    targetHealth <- target health
+                    when (25 >= targetHealth && targetHealth > 0) do
+                        killHard
+                        self do
+                            setHealth 100
+                            varyLoadout [0, 0, 0, 0] 1
           ]
         }
+      , Skill.new
+        { Skill.name      = "Regeneration"
+        , Skill.desc      = "Orochimaru regrows his form from the body of his ally, restoring 25 health to himself for 4 turns."
+        , Skill.classes   = [Physical]
+        , Skill.cost      = [Gen, Nin]
+        , Skill.cooldown  = 5
+        , Skill.dur       = Action 4
+        , Skill.effects   =
+          [ To Self $ heal 25 ]
+        }
       ]
-    , [ invuln "Coil" "Orochimaru" [Physical] ]
+    , [ invuln "Snake Wall" "Orochimaru" [Physical]
+      , invuln "Snake Scales" "Orochimaru" [Physical]
+      ]
     ]
   ]
