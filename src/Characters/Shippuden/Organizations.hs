@@ -329,15 +329,16 @@ cs =
         , Skill.effects   =
           [ To Self $ unlessM (userHas "paused") do
                 removeStack "Sharingan"
-                unlessM (userHas "Sharingan") do
+                has <- userHas "Sharingan"
+                if has then trap' 1 OnRes do
                     cancelChannel "Izanagi"
-                    vary "Izanagi" "Reverse Tetragram Sealing"
-                    trap' 1 OnRes do
-                        cancelChannel "Izanagi"
-                        vary "Izanagi" "Reverse Tetragram Sealing"
-                        stacks <- userStacks "Sharingan"
-                        setHealth (10 * stacks)
-                        remove "Sharingan"
+                    vary' 0 "Izanagi" "Reverse Tetragram Sealing"
+                    stacks <- userStacks "Sharingan"
+                    setHealth (10 * stacks)
+                    remove "Sharingan"
+                else do
+                    cancelChannel "Izanagi"
+                    vary' 0 "Izanagi" "Reverse Tetragram Sealing"
           ]
         }
       , Skill.new
@@ -353,9 +354,9 @@ cs =
         , Skill.classes   = [Mental, Bypassing, Unremovable]
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.effects   =
-          [ To Enemies $ delay (-3) kill
-          , To Self do
-                enemies $ apply (-3) [Seal]
+          [ To Self do
+                enemies $ bomb (-3) [Seal]
+                    [ To Expire $ unlessM (target invulnerable) kill ]
                 kill
           ]
         }
