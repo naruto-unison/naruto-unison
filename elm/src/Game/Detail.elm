@@ -38,7 +38,7 @@ get n =
             List.filter (\x -> not <| List.any (eq x) traps) statuses
     (self, others) = List.partition ((==) n.slot << .user) <| stats ++ traps
   in
-    self ++ others
+    others ++ self --self ++ others
 
 eq : Detail -> Detail -> Bool
 eq x y = x.dur == y.dur && x.desc == y.desc
