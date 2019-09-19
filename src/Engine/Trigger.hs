@@ -3,7 +3,6 @@ module Engine.Trigger
   ( redirect
   , reflect
   , death
-  , snareTrap
   , swap
 
   , targetCounters, targetUncounter
@@ -23,8 +22,6 @@ import           Model.Effect (Effect(..))
 import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
 import           Model.Slot (Slot)
-import qualified Model.Skill as Skill
-import           Model.Skill (Skill)
 import qualified Model.Status as Status
 import           Model.Status (Status)
 import qualified Model.Trap as Trap
@@ -40,13 +37,6 @@ reflect classes n nt
   | any ((ReflectAll ∈) . Status.effects) $ Ninja.statuses nt = Just nt
   | any ((OnReflectAll ==) . Trap.trigger) $ Ninja.traps n    = Just nt
   | otherwise = Ninjas.drop (Reflect ==) nt
-
--- | Trigger a 'SnareTrap'.
-snareTrap :: Skill -> Ninja -> Maybe (Ninja, Int)
-snareTrap skill n = [(n', a) | (n', SnareTrap _ a, _) <- Ninjas.take match n]
-  where
-    match (SnareTrap cla _) = cla ∈ Skill.classes skill
-    match _                 = False
 
 reflectable :: ([Effect] -> Bool) -> EnumSet Class -> Ninja -> Maybe Status
 reflectable matches classes n

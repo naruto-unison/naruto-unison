@@ -72,19 +72,21 @@ insert s v toCd = adjust s v $ const toCd
 -- | Updates an element in 'Ninja.cooldowns'.
 -- If 'True', also increments 'Ninja.charges'.
 update :: Bool -> Int -> Skill -> Int -> Ninja -> Ninja
-update True a skill s n =
-    (update False a skill s n)
-    { Ninja.charges = adjust' s (+ 1) $ Ninja.charges n }
-update False a skill s n
+update alsoCharge a skill s n
    | copied $ Skill.copying skill = n
    | Skill.cooldown skill == 0    = n
-   | otherwise = n { Ninja.cooldowns = insert s vari cd' $ Ninja.cooldowns n }
+   | otherwise = n { Ninja.cooldowns = insert s vari cd' $ Ninja.cooldowns n
+                   , Ninja.charges   = charges $ Ninja.charges n
+                   }
   where
     cd'  = sync (Skill.cooldown skill) + 2 + 2 * a
     vari = Variant.cooldown . head $ Ninja.variants n !! s
     copied Copy.NotCopied = False
     copied Copy.Shallow{} = True
     copied Copy.Deep{}    = False
+    charges
+      | alsoCharge = adjust' s (+1)
+      | otherwise  = id
 
 -- | 'update's a corresponding @Ninja@ when they use a new @Skill@.
 updateN :: Bool -> Skill -> Either Int Skill -> Ninja -> Ninja

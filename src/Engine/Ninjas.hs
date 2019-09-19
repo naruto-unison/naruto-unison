@@ -48,7 +48,7 @@ module Engine.Ninjas
 
 import ClassyPrelude hiding (drop, take)
 
-import           Data.List (elemIndex, findIndex)
+import           Data.List (findIndex)
 import           Data.List.NonEmpty ((!!))
 import qualified Data.Sequence as Seq
 import qualified Data.Text as Text
@@ -85,7 +85,6 @@ import qualified Model.Trap as Trap
 import           Model.Trap (Trigger(..))
 import qualified Model.Variant as Variant
 import           Model.Variant (Variant(Variant), Varying)
-import qualified Engine.Cooldown as Cooldown
 import qualified Engine.Effects as Effects
 import qualified Engine.Skills as Skills
 

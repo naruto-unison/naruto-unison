@@ -240,36 +240,30 @@ act a = do
 
         if not new then
             effects affected =<< chooseTargets (Skill.effects skill)
-        else case Trigger.snareTrap skill nUser of
-            Just (n', sn) -> P.write user case s of
-                Left s'
-                  | s' < Ninja.skillSize -> Cooldown.update charge sn skill s' $
-                                            setActed n'
-                _                        -> setActed n'
-            Nothing -> do
-                P.modify user \n -> n { Ninja.lastSkill = Just skill }
-                P.alter $ Game.adjustChakra user (— cost)
-                P.modify user $ Cooldown.updateN charge skill s . setActed
-                efs         <- chooseTargets
-                              (Skill.start skill ++ Skill.effects skill)
-                countering  <- filterCounters efs . toList <$> P.enemies user
-                let harmed   = not $ null countering
-                let counters =
-                        Trigger.userCounters harmed user classes nUser
-                        ++ (Trigger.targetCounters user classes =<< countering)
-                if null counters then do
-                    effects affected efs
-                    addChannels
-                else do
-                    let countered = Ninja.slot <$> countering
-                        uncounter n
-                          | slot == user     = Trigger.userUncounter classes n
-                          | slot ∈ countered = Trigger.targetUncounter classes n
-                          | otherwise        = n
-                          where
-                            slot = Ninja.slot n
-                    P.modifyAll uncounter
-                    sequence_ counters
+        else do
+            P.modify user \n -> n { Ninja.lastSkill = Just skill }
+            P.alter $ Game.adjustChakra user (— cost)
+            P.modify user $ Cooldown.updateN charge skill s . setActed
+            efs         <- chooseTargets
+                          (Skill.start skill ++ Skill.effects skill)
+            countering  <- filterCounters efs . toList <$> P.enemies user
+            let harmed   = not $ null countering
+            let counters =
+                    Trigger.userCounters harmed user classes nUser
+                    ++ (Trigger.targetCounters user classes =<< countering)
+            if null counters then do
+                effects affected efs
+                addChannels
+            else do
+                let countered = Ninja.slot <$> countering
+                    uncounter n
+                      | slot == user     = Trigger.userUncounter classes n
+                      | slot ∈ countered = Trigger.targetUncounter classes n
+                      | otherwise        = n
+                      where
+                        slot = Ninja.slot n
+                P.modifyAll uncounter
+                sequence_ counters
 
         traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
     breakControls

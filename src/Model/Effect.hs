@@ -83,7 +83,6 @@ data Effect
     | Share        Slot                -- ^ Harmful skills are also applied to a target
     | Silence                          -- ^ Unable to cause non-damage effects
     | Snare        Int                 -- ^ Increases cooldowns
-    | SnareTrap    Class Int           -- ^ Negates next skill and increases cooldown
     | Strengthen   Class Amount Int    -- ^ Adds to all damage dealt
     | Stun         Class               -- ^ Unable to use 'Skill's
     | Swap         Class               -- ^ Target's skills swap enemies and allies
@@ -102,7 +101,6 @@ instance Classed Effect where
     classes (Invulnerable cla)   = singletonSet cla
     classes (Reduce cla _ _)     = singletonSet cla
     classes (Redirect cla _)     = singletonSet cla
-    classes (SnareTrap cla _)    = singletonSet cla
     classes (Strengthen cla _ _) = singletonSet cla
     classes (Stun cla)           = singletonSet cla
     classes (Swap cla)           = singletonSet cla
@@ -151,7 +149,6 @@ helpful Seal            = False
 helpful Share{}         = False
 helpful Silence         = False
 helpful (Snare x)       = x < 0
-helpful SnareTrap{}     = False
 helpful Strengthen{}    = True
 helpful Stun{}          = False
 helpful Swap{}          = False
@@ -228,13 +225,12 @@ instance Display Effect where
     display ReflectAll = "Reflects all non-mental skills."
     display Reveal = "Reveals invisible skills to the enemy team. This effect cannot be removed."
     display Restrict = "Skills that normally affect all opponents must be targeted."
-    display Seal = "Invulnerable to effects from allies."
+    display Seal = "Ignores helpful effects."
     display (Share _) = "Harmful skills received are also reflected to another target."
     display Silence = "Unable to cause non-damage effects."
     display (Snare x)
       | x >= 0    = "Cooldowns increased by " ++ display x ++ "."
       | otherwise = "Cooldowns decreased by " ++ display (-x) ++ "."
-    display (SnareTrap _ _) = "Next skill used will be negated and go on a longer cooldown."
     display (Strengthen cla amt x) = display cla ++ " damaging skills deal " ++ displayAmt amt x ++ " additional damage."
     display (Stun Affliction) = "Unable to deal affliction damage."
     display (Stun NonAffliction) = "Unable to deal non-affliction damage."
