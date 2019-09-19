@@ -512,6 +512,80 @@ cs =
     , [ invuln "Scale Shield" "Kisame" [Physical] ]
     ]
   , Character
+    "Itachi Uchiha"
+    "An Akatsuki member who defected from the Hidden Leaf Village, Itachi is known as the Clan Killer for slaughtering the rest of the Uchihas, sparing only his brother. Plagued by a lethal disease that saps his strength, Itachi has been forced to go on the defensive. Out of other options, he now plays his trump card: the legendary armor Susanoo, created by the power of the mangekyō sharingan."
+    [ [ Skill.new
+        { Skill.name      = "Susanoo"
+        , Skill.desc      = "Itachi loses 10 health and encases himself in spectral armor that provides him with 5 permanent destructible defense every turn. This skill can be used again with no chakra cost to cancel its effect."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Blood]
+        , Skill.dur       = Ongoing 0
+        , Skill.start     =
+          [ To Self do
+                sacrifice 0 10
+                vary "Susanoo" "Susanoo"
+                vary "Amaterasu" "Totsuka Blade"
+                vary "Mirage Crow" "Yata Mirror"
+          ]
+        , Skill.effects   =
+          [ To Self $ defend 0 5 ]
+        }
+      , Skill.new
+        { Skill.name      = "Susanoo"
+        , Skill.desc      = "Ends the effect of [Susanoo]."
+        , Skill.classes   = [Chakra]
+        , Skill.effects   =
+          [ To Self $ cancelChannel "Susanoo" ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Amaterasu"
+        , Skill.desc      = "Itachi sets an enemy on fire, dealing 15 affliction damage to them for 2 turns. During [Susanoo], this skill becomes [Totsuka Blade][g]."
+        , Skill.classes   = [Bane, Chakra, Ranged]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ apply 2 [Afflict 15] ]
+        }
+      , Skill.new
+        { Skill.name      = "Totsuka Blade"
+        , Skill.desc      = "Itachi slashes an enemy with an ethereal liquid blade, dealing 25 piercing damage and depleting a bloodline or genjutsu chakra."
+        , Skill.classes   = [Chakra, Melee]
+        , Skill.cost      = [Gen]
+        , Skill.effects   =
+          [ To Enemy do
+                pierce 25
+                deplete1 [Blood, Gen]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Mirage Crow"
+        , Skill.desc      = "Itachi traps an enemy in an illusion. If they use a skill on Itachi or his allies next turn, their physical and ranged skills will be stunned for 2 turns. During [Susanoo], this skill becomes [Yata Mirror][g][r]."
+        , Skill.classes   = [Mental, Ranged, Invisible]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemy $
+                trap 1 (Countered All) $ apply 2 [Stun Physical, Stun Ranged]
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Yata Mirror"
+        , Skill.desc      = "Itachi defends himself with an ethereal shield. Next turn, Itachi ignores enemy skills, and enemies who use skills on Itachi will have the costs of their skills increased by 1 additional random chakra for 1 turn."
+        , Skill.classes    = [Chakra, Ranged, InvisibleTraps]
+        , Skill.cost       = [Gen, Rand]
+        , Skill.cooldown   = 2
+        , Skill.effects    =
+          [ To Self do
+                trapFrom 1 (OnHarmed All) $ apply 1 [Exhaust All]
+                applyWith [Invisible] 1 [Nullify]
+          ]
+        }
+      ]
+    , [ invuln "Dodge" "Itachi" [Physical] ]
+    ]
+  , Character
     "Animal Path Pain"
     "Having taken over the body of a ninja from the Hidden Rain Village named Ajisai, Pain now acts through it as one of his Six Paths. Animal Path's specialization is summoning giant creatures that continue to fight for her even if she is immobilized."
     [ [ Skill.new
