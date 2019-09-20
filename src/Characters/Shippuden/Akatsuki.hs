@@ -586,6 +586,45 @@ cs =
     , [ invuln "Dodge" "Itachi" [Physical] ]
     ]
   , Character
+    "Konan"
+    "One of the founding members of Akatsuki, Konan is an elegant origamist from the Hidden Rain Village. Her ability to fly with paper wings has earned her the title of Angel. Although Akatsuki has strayed far from its original methodologies, Konan holds fast to her goal of bringing peace to the world."
+    [ [ Skill.new
+        { Skill.name      = "Paper Cut"
+        , Skill.desc      = "Konan slices an enemy with a razor-sharp blade made of durable paper strips, dealing 25 piercing damage."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Blood]
+        , Skill.effects   =
+          [ To Enemy $ pierce 25 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Dance of the Shikigami"
+        , Skill.desc      = "Konan transforms into sheets of paper that wrap around an enemy, dealing 15 damage to them for 2 turns. While active, the target's physical and mental skills are stunned, and they are invulnerable to allies."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood, Nin]
+        , Skill.cooldown  = 3
+        , Skill.dur       = Action 2
+        , Skill.effects   =
+          [ To Enemy do
+                damage 15
+                apply 1 [Stun Physical, Stun Mental, Alone]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Paper Shower"
+        , Skill.desc      = "The Angel of Akatsuki fires countless razor-ship paper strips from her wings, dealing 25 damage to an enemy and 25 to a random enemy."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.effects   =
+          [ To Enemy  $ damage 25
+          , To REnemy $ damage 25
+          ]
+        }
+      ]
+    , [ invuln "Paper Clone" "Konan" [Chakra] ]
+    ]
+  , Character
     "Animal Path Pain"
     "Having taken over the body of a ninja from the Hidden Rain Village named Ajisai, Pain now acts through it as one of his Six Paths. Animal Path's specialization is summoning giant creatures that continue to fight for her even if she is immobilized."
     [ [ Skill.new
