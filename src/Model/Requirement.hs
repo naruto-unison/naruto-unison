@@ -70,22 +70,24 @@ targetable :: Skill -- ^ @Skill@ to check.
            -> Ninja -- ^ Target.
            -> Bool
 targetable skill n nt
-  | not $ succeed (Skill.require skill) user nt              = False
-  | not (Ninja.alive nt) && Necromancy ∉ classes             = False
-  | Ninja.alive nt && user /= target && Necromancy ∈ classes = False
-  | harm && n `is` BlockEnemies                              = False
-  | user /= target && not harm && n `is` BlockAllies         = False
-  | Bypassing ∈ classes                                      = True
-  | harm && (classes `intersects` Effects.invulnerable nt)   = False
-  | user /= target && not harm && nt `is` Alone              = False
-  | user /= target && (dueling || taunted)                   = False
-  | target ∈ Effects.block n                                 = False
-  | otherwise                                                = True
+  | not $ succeed (Skill.require skill) user nt = False
+  | not (Ninja.alive nt) && not necro = False
+  | user == target                    = True
+  | Ninja.alive nt && necro           = False
+  | harm && n `is` BlockEnemies       = False
+  | not harm && n `is` BlockAllies    = False
+  | Bypassing ∈ classes               = True
+  | harm && invuln                    = False
+  | not harm && nt `is` Alone         = False
+  | notIn user $ Effects.duel nt      = False
+  | notIn target $ Effects.taunt n    = False
+  | target ∈ Effects.block n          = False
+  | otherwise                         = True
   where
     classes = Skill.classes skill
     user    = Ninja.slot n
     target  = Ninja.slot nt
+    necro   = Necromancy ∈ classes
     harm    = not $ Parity.allied user target
-    dueling = notIn user $ Effects.duel nt
-    taunted = notIn target $ Effects.taunt n
+    invuln  = classes `intersects` Effects.invulnerable nt
     notIn a xs = not (null xs) && a ∉ xs
