@@ -11,7 +11,9 @@ import           Database.Persist.Postgresql (PostgresConf)
 import qualified Network.Wai.Handler.Warp as Warp
 
 data AppSettings = AppSettings
-    { staticDir              :: String
+    { allowVsSelf            :: Bool
+      -- Basic Yesod configuration below
+    , staticDir              :: String
     -- ^ Directory from which to serve static files.
     , databaseConf           :: PostgresConf
     -- ^ Configuration settings for accessing the database.
@@ -45,7 +47,6 @@ data AppSettings = AppSettings
 
     , authDummyLogin         :: Bool
     -- ^ Indicate if auth dummy login should be enabled.
-
     }
 
 instance FromJSON AppSettings where
@@ -75,5 +76,7 @@ instance FromJSON AppSettings where
         analytics              <- o .:? "analytics"
 
         authDummyLogin         <- o .:? "auth-dummy-login" .!= dev
+
+        allowVsSelf            <- o .:? "allow-vs-self"    .!= dev
 
         return AppSettings{..}

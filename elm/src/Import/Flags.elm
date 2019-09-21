@@ -3,6 +3,7 @@ module Import.Flags exposing
   , Flags
   , decode, failure
   , characterName
+  , printFailure
   )
 
 import Dict          as Dict exposing (Dict)
@@ -13,7 +14,7 @@ import List.Extra    as List
 import List.Nonempty as Nonempty exposing (Nonempty(..))
 import String.Extra  as String
 
-import Import.Model as Model exposing (Category(..), Character, User)
+import Import.Model as Model exposing (Category(..), Character, Failure(..), User)
 import Util exposing (groupBy)
 
 type alias Flags =
@@ -100,3 +101,10 @@ makeShortName char = case char.name of
                           |> Maybe.andThen List.head
                           >> Maybe.map (String.leftOf " " << .desc)
                           >> Maybe.withDefault char.name
+
+printFailure : Failure -> String
+printFailure x = case x of
+    AlreadyQueued    -> "Your account is already queued"
+    Canceled         -> "Queue canceled"
+    InvalidTeam      -> "Invalid team"
+    OpponentNotFound -> "User not found"

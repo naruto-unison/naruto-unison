@@ -30,6 +30,7 @@ import           Model.Player (Player(..))
 import           Model.Slot (Slot)
 import           Model.Variant (Variant)
 import           Core.Fields (Privilege(..))
+import           Core.Queue (Failure(..))
 
 import Model.Internal hiding (Barrier(..), Effect(..), Ninja(..), Game(..))
 
@@ -121,6 +122,8 @@ elmUnitHandlers = "type alias Unit = ()\n\
 \jsonEncUnit : () -> Value\n\
 \jsonEncUnit = always <| Json.Encode.list (always Json.Encode.null) []"
 
+deriveElmDef defaultOptions ''Failure
+
 deriveElmDef defaultOptions ''User
 deriveElmDef defaultOptions ''Privilege
 deriveElmDef defaultOptions ''Barrier
@@ -164,7 +167,8 @@ main =
 \import Import.Decode exposing (decodeSumTaggedObject)\n\n"
     ++ elmUnitHandlers ++ "\n\n" ++
     makeModuleContentWithAlterations alterations
-    [ DefineElm (Proxy :: Proxy User)
+    [ DefineElm (Proxy :: Proxy Failure)
+    , DefineElm (Proxy :: Proxy User)
     , DefineElm (Proxy :: Proxy Privilege)
     , DefineElm (Proxy :: Proxy Character)
     , DefineElm (Proxy :: Proxy Category)

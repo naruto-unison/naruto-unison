@@ -1,4 +1,5 @@
-{-# LANGUAGE NoStrictData #-}
+{-# LANGUAGE NoStrictData   #-}
+{-# LANGUAGE DeriveAnyClass #-}
 -- | Messages passed between users through
 -- 'Control.Concurrent.STM.TChan.TChan's.
 module Core.Queue
@@ -8,6 +9,8 @@ module Core.Queue
   ) where
 
 import ClassyPrelude
+
+import Data.Aeson (ToJSON)
 
 import Core.Model (Key, User)
 import Core.Wrapper (Wrapper)
@@ -25,6 +28,8 @@ data Section
     | Private
 
 data Failure
-    = InvalidTeam
+    = AlreadyQueued
     | Canceled
+    | InvalidTeam
     | OpponentNotFound
+    deriving (Generic, ToJSON)

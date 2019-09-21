@@ -14,6 +14,27 @@ jsonDecUnit = Json.Decode.succeed ()
 jsonEncUnit : () -> Value
 jsonEncUnit = always <| Json.Encode.list (always Json.Encode.null) []
 
+type Failure  =
+    AlreadyQueued
+    | Canceled
+    | InvalidTeam
+    | OpponentNotFound
+
+jsonDecFailure : Json.Decode.Decoder ( Failure )
+jsonDecFailure =
+    let jsonDecDictFailure = Dict.fromList [("AlreadyQueued", AlreadyQueued), ("Canceled", Canceled), ("InvalidTeam", InvalidTeam), ("OpponentNotFound", OpponentNotFound)]
+    in  decodeSumUnaries "Failure" jsonDecDictFailure
+
+jsonEncFailure : Failure -> Value
+jsonEncFailure  val =
+    case val of
+        AlreadyQueued -> Json.Encode.string "AlreadyQueued"
+        Canceled -> Json.Encode.string "Canceled"
+        InvalidTeam -> Json.Encode.string "InvalidTeam"
+        OpponentNotFound -> Json.Encode.string "OpponentNotFound"
+
+
+
 type alias User  =
    { name: String
    , avatar: String

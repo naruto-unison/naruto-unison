@@ -20,6 +20,7 @@ import qualified Yesod.Auth as Auth
 
 import qualified Core.App as App
 import           Core.App (App, Handler)
+import qualified Core.AppSettings as AppSettings
 import qualified Core.Queue as Queue
 import           Core.Model (EntityField(..), User(..))
 import qualified Core.Rating as Rating
@@ -191,7 +192,9 @@ queue :: ∀ m.
       -> ExceptT Queue.Failure m (GameInfo, TBQueue Wrapper, TBQueue Wrapper)
 queue Queue.Quick team = do
     (who, user) <- Auth.requireAuthPair
+    let rating = userRating user
     queueWrite  <- getsYesod App.queue
+    allowVsSelf <- getsYesod $ AppSettings.allowVsSelf . App.settings
     userMVar    <- newEmptyMVar
     -- TODO use userMVar in some kind of periodic timeout check based on its
     -- UTCTime contents? or else just a semaphore
@@ -204,25 +207,28 @@ queue Queue.Quick team = do
       case msg of
         Queue.Respond mWho writer reader info
           | mWho == who -> return $ Just (info, writer, reader)
-        Queue.Announce vsWho vsUser vsTeam vsMVar ->
-            if abs (userRating user - userRating vsUser) > ratingThreshold then
-                return Nothing
-            else do
-                time    <- liftIO getCurrentTime
-                matched <- tryPutMVar vsMVar time
-                if not matched then
-                    return Nothing
-                else
-                    Just <$>
-                    makeGame queueWrite who user team vsWho vsUser vsTeam
+        Queue.Announce vsWho vsUser vsTeam vsMVar
+          | abs (rating - userRating vsUser) > ratingThreshold ->
+              return Nothing
+          | vsWho == who && not allowVsSelf -> throwE Queue.AlreadyQueued
+          | otherwise -> do
+              matched <- tryPutMVar vsMVar =<< liftIO getCurrentTime
+              if matched then
+                  Just <$>
+                  makeGame queueWrite who user team vsWho vsUser vsTeam
+              else
+                  return Nothing
         _ -> return Nothing
 
 queue Queue.Private team = do
     (who, user)         <- Auth.requireAuthPair
+    allowVsSelf         <- getsYesod $ AppSettings.allowVsSelf . App.settings
     Entity vsWho vsUser <- do
         vsName <- Sockets.receive
         mVs    <- liftHandler . runDB $ selectFirst [UserName ==. vsName] []
         case mVs of
+            Just (Entity vsWho _)
+              | vsWho == who && not allowVsSelf -> throwE Queue.OpponentNotFound
             Just vs -> return vs
             Nothing -> throwE Queue.OpponentNotFound
 
@@ -243,14 +249,8 @@ queue Queue.Private team = do
         _ -> return Nothing
 
 handleFailures :: ∀ m a. MonadSockets m => Either Queue.Failure a -> m (Maybe a)
-handleFailures (Right val)              = return $ Just val
-handleFailures (Left Queue.Canceled)    = return Nothing
-handleFailures (Left Queue.InvalidTeam) = do
-    Sockets.send "Invalid team"
-    return Nothing
-handleFailures (Left Queue.OpponentNotFound) = do
-    Sockets.send "User not found"
-    return Nothing
+handleFailures (Right val) = return $ Just val
+handleFailures (Left msg)  = Nothing <$ Sockets.sendJson msg
 
 -- | Sends messages through 'TChan's in 'App.App'.
 gameSocket :: SocketsT Handler ()
@@ -279,7 +279,8 @@ gameSocket = do
                     liftST . Wrapper.replace wrapper =<< ask
                     tryEnact player writer
                     game <- P.game
-                    if null $ Game.victor game then return Nothing
+                    if null $ Game.victor game then
+                        return Nothing
                     else do
                         liftHandler . runDB . void . forkIO .
                             Rating.update game player who $ GameInfo.vsWho info
