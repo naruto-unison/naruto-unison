@@ -164,7 +164,7 @@ cs =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- target $ numHarmfulStacks "Scattering Crow Swarm"
+                stacks <- target $ numAnyStacks "Scattering Crow Swarm"
                 damage (45 + 5 * stacks)
           ]
         }

@@ -60,7 +60,6 @@ process runner = do
     traverse_ Execute.act channels
     Traps.runTurn initial
     doBombs Remove initial
-    P.modifyAll Ninjas.decrStats
     doBarriers
     doDelays
     doDeaths

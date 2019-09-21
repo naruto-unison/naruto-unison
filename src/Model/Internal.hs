@@ -221,7 +221,7 @@ data Trigger
     | OnHeal
     | OnHelped
     | OnReduce
-    | OnReflectAll
+    | OnReflect
     | OnRes
     | OnStun
     | OnStunned
@@ -267,7 +267,7 @@ instance Display Trigger where
     display OnHelped           = "Trigger: Be affected by a new skill from an ally"
     display OnNoAction         = "Trigger: Do not use a new skill"
     display OnReduce           = "Trigger: Apply damage reduction"
-    display OnReflectAll       = "All skills are reflected."
+    display OnReflect          = "Trigger: Reflect a skill"
     display OnRes              = "Trigger: Reach 0 health"
     display OnStun             = "Trigger: Apply a stun or disabling effect"
     display OnStunned          = "Trigger: Stunned"

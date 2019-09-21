@@ -12,6 +12,7 @@ module Engine.Effects
   , invulnerable
   , limit
   , reduce
+  , reflect
   , share
   , snare
   , strengthen
@@ -152,6 +153,9 @@ disabled n
   | n `is` Focus = mempty
   | otherwise    = [f | Throttle 0 con <- Ninja.effects n
                       , f <- Effect.construct con]
+
+reflect :: Ninja -> Bool
+reflect n = n `is` Reflect || n `is` ReflectAll
 
 -- | 'Afflict' sum minus 'Heal' sum.
 hp :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)

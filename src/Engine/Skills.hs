@@ -105,10 +105,10 @@ change :: Skill.Transform
 change n sk =
     sk' { Skill.cost = Effects.exhaust (Skill.classes sk') n + Skill.cost sk' }
   where
-    mRestrict
-      | n `is` Restrict = restrict
-      | otherwise       = id
-    sk' = mRestrict . Skill.chakraClasses $ Skill.changes sk n sk
+    prestrict = Skill.chakraClasses $ Skill.changes sk n sk
+    sk'
+      | n `is` Restrict = restrict prestrict
+      | otherwise       = prestrict
 
 -- | Turns AoE effects into single-target effects.
 restrict :: Skill -> Skill

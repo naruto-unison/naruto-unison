@@ -75,20 +75,22 @@ Readability is one of Haskell's key strengths, so browsing through sources of we
 
 Although Haskell is an unusual language, its idiosyncracies make it the perfect fit for a project such as Naruto Unison.
 
+#### Concurrency
+
+Haskell is excellent at parallel computing. Naruto Unison is built on top of the [Yesod framework](https://www.yesodweb.com/), a fully asynchronous web server. With lightweight green threads and event-based system calls, every connection to the server runs smoothly in separate non-blocking processes, communicating via [transactional channels](http://hackage.haskell.org/package/stm-2.5.0.0/).
+
 #### Separation of Pure and Impure Functions
 
 Unless quarantined in specific monads, Haskell functions are referentially transparent, meaning they always produce the same output if given the same inputs and do not cause side-effects. This is ideal for a game in which the game engine is an independent, quasi-mathematical process that can (and should!) be separate from all the effectful work of HTTP handling and websockets and so on. Separating pure and impure functions makes the codebase much easier to test, prevents numerous bugs that could otherwise occur, and promotes healthy concurrency.
 
-As an example, all the functions in [Model.Ninja](src/Model/Ninja.hs) are guaranteed to be pure. This one removes some number of stacks of a status effect:
+As an example, all the functions in [Model.Ninja](src/Model/Ninja.hs) are guaranteed to be pure. This one modifies a Ninja's health while constrained to a minimum and maximum:
 
 ```haskell
-removeStacks :: Text -> Int -> Slot -> Ninja -> Ninja
-removeStacks name i user n = n { statuses = f $ statuses n }
-  where
-    f = Status.removeMatch i $ Labeled.match name user
+adjustHealth :: (Int -> Int) -> Ninja -> Ninja
+adjustHealth f n = n { health = min 100 . max (Ninja.minHealth n) . f $ health n }
 ```
 
-It is a simple transformation of data. Because `removeStacks` is pure, `Status.removeMatch` and `Labeled.match` are also guaranteed to be pure. Their output is consistent and they can't modify shared state, perform network operations, or anything else that might cause problems in a multi-threaded environment.
+It is a simple transformation of data. Because `adjustHealth` is pure, `Ninja.minHealth` is also guaranteed to be pure. Their output is consistent and they can't modify shared state, perform network operations, or anything else that might cause problems in a multi-threaded environment.
 
 
 #### Clear and Concise Math
@@ -113,7 +115,7 @@ trap 0 OnRes do
     self $ setHealth 1
 ```
 
-Haskell's brevity and readability in this regard are clear winners over other languages.
+Haskell's brevity and readability in this regard are clear winners over other languages. There isn't any hidden complexity behind the scenes, either: `setHealth` is just a thin wrapper around `adjustHealth . const`, the function earlier in this README!
 
 #### Most Importantly
 

@@ -4,7 +4,6 @@ module Engine.Ninjas
   , apply
   , processEffects
 
-  , decrStats
   , decr
 
   , factory
@@ -40,8 +39,6 @@ module Engine.Ninjas
   , prolong'
   , prolongChannel
   , refresh
-
-  , take, drop
 
   , kabuto
   ) where
@@ -91,19 +88,16 @@ import qualified Engine.Skills as Skills
 -- | Adjusts the @Skill@ slot of a @Ninja@ due to 'Ninja.variants', 'Effect's
 -- that modify skills, and the 'Skill.changes' of the @Skill@.
 skill' :: Ninja -> Int -> Int -> Skill
-skill' n s v = Skills.change n $ cSkills !! s !! v
-  where
-    cSkills = Character.skills $ Ninja.character n
+skill' n s v = Skills.change n $ Character.skills (character n) !! s !! v
 
 -- | Applies 'skill'' to a @Skill@ and further modifies it due to 'Ninja.copies'
 -- and 'Skill.require'ments.
 skill :: Either Int Skill -> Ninja -> Skill
 skill (Right sk) n = Requirement.usable n Nothing sk
 skill (Left s)   n = Requirement.usable n (Just s) .
-                     maybe (skill' n s v) Copy.skill . join . (!? s) $
-                     Ninja.copies n
-    where
-      v = maybe 0 (Variant.variant . head) . (!? s) $ Ninja.variants n
+                     maybe (skill' n s v) Copy.skill . join . (!? s) $ copies n
+  where
+    v = maybe 0 (Variant.variant . head) . (!? s) $ variants n
 
 -- | All four skill slots of a @Ninja@ modified by 'skill'.
 skills :: Ninja -> [Skill]
@@ -122,17 +116,16 @@ apply n = map adjustEffect . filter keepEffects
 -- | Fills 'Ninja.effects' with the effects of 'Ninja.statuses', modified by
 -- 'Ignore', 'Seal', 'Boost', and so on.
 processEffects :: Ninja -> Ninja
-processEffects n = n { Ninja.effects = baseStatuses >>= replicates >>= process }
+processEffects n = n { effects = baseStatuses >>= replicates >>= process }
   where
-    nSlot         = Ninja.slot n
-    baseStatuses  = Ninja.statuses n
+    nSlot         = slot n
+    baseStatuses  = statuses n
     baseEffects   = baseStatuses >>= Status.effects
     enraged       = Enrage ∈ baseEffects
     sealed        = not enraged && Seal ∈ baseEffects
     boostAmount
       | sealed    = 1
       | otherwise = product $ 1 : [x | Boost x <- baseEffects]
-    filtered filt = filter filt . Status.effects
     replicates st = replicate (boost * Status.amount st)
                     st { Status.amount = 1 }
       where
@@ -141,16 +134,16 @@ processEffects n = n { Ninja.effects = baseStatuses >>= replicates >>= process }
           | user == nSlot            = 1
           | Parity.allied nSlot user = boostAmount
           | otherwise                = 1
-    process st
-      | sealed                  = filtered (not . Effect.helpful) st
-      | Status.user st == nSlot = Status.effects st
-      | enraged                 = filtered Effect.bypassEnrage st
-      | otherwise               = filtered (const True) st
+    process Status{user, effects}
+      | sealed        = filter (not . Effect.helpful) effects
+      | user == nSlot = effects
+      | enraged       = filter Effect.bypassEnrage effects
+      | otherwise     = effects
 
 -- | Adds a 'Variant.Variant' to 'Ninja.variants' by skill and variant index
 -- within 'Character.skills'.
 vary :: Varying -> Int -> Int -> Ninja -> Ninja
-vary dur s v n = n { Ninja.variants = adjust $ Ninja.variants n }
+vary dur s v n = n { variants = adjust $ variants n }
   where
     variant = Variant
         { Variant.variant = v
@@ -168,7 +161,8 @@ factory n = Ninja.new (slot n) $ character n
 
 -- | Modifies 'health', restricting the value within ['minHealth', 100].
 adjustHealth :: (Int -> Int) -> Ninja -> Ninja
-adjustHealth f n = n { Ninja.health = min 100 . max (Ninja.minHealth n) . f $ health n }
+adjustHealth f n =
+    n { health = min 100 . max (Ninja.minHealth n) . f $ health n }
 
 -- | Sets 'health', restricting the value within ['minHealth', 100].
 setHealth :: Int -> Ninja -> Ninja
@@ -177,31 +171,6 @@ setHealth = adjustHealth . const
 -- | Sacrifices some amount of the target's 'Ninja.health' down to a minimum.
 sacrifice :: Int -> Int -> Ninja -> Ninja
 sacrifice minhp hp = adjustHealth $ max minhp . (— hp)
-
--- | Obtains an 'Effect' and removes its 'Status' from its owner.
-take :: (Effect -> Bool) -> Ninja -> Maybe (Ninja, Effect, Status)
-take matcher n = do
-    match <- find (any matcher . Status.effects) $ statuses n
-    a     <- case Status.effects match of
-        [x] -> Just x
-        xs  -> find matcher xs
-    return (n { statuses = Status.remove match $ statuses n }, a, match)
-
--- | Removes a 'Status' with a matching 'Effect'. Uses 'take' internally.
-drop :: (Effect -> Bool) -> Ninja -> Maybe Ninja
-drop = map fst3 . take
-  where
-    fst3 (Just (n, _, _)) = Just n
-    fst3 Nothing          = Nothing
-
--- | While concluding 'Engine.Turn.run', prevents refreshed 'Status'es from
--- having doubled effects due to there being both an old and new version.
-decrStats :: Ninja -> Ninja
-decrStats n = n { statuses = expire <$> statuses n }
-  where
-    expire st
-      | Status.dur st == 1 = st { Status.effects = mempty }
-      | otherwise          = st
 
 -- | Applies 'Class.TurnBased.decr' to all of a @Ninja@'s 'Class.TurnBased'
 -- types.
@@ -231,10 +200,10 @@ decr n@Ninja{..} = n
         []    -> Variant.none :| []
     decrVariant x = decrVarying (Variant.dur x) x
     decrVarying :: ∀ a. TurnBased a => Varying -> a -> Maybe a
-    decrVarying (Variant.FromSkill name)
-      | any ((name ==) . Skill.name . Channel.skill) decrChannels = Just
-      | otherwise = const Nothing
-    decrVarying (Variant.Duration _) = TurnBased.decr
+    decrVarying (Variant.FromSkill name) x
+      | any ((name ==) . Skill.name . Channel.skill) decrChannels = Just x
+      | otherwise = Nothing
+    decrVarying (Variant.Duration _) x = TurnBased.decr x
 
 addStatus :: Status -> Ninja -> Ninja
 addStatus st n = n { statuses = Classed.nonStack st' st' $ statuses n }
@@ -267,11 +236,14 @@ addOwnDefense dur name i n = n { defense = d : defense n }
                 , Defense.dur    = incr $ sync dur
                 }
 
-addDefense :: Int -> Defense -> Ninja -> Ninja
-addDefense amount d n =
-    n { defense = added : deleteBy Labeled.eq added (defense n) }
+addDefense :: Int -- ^ 'Defense.amount'.
+           -> Text -- ^ 'Defense.name'.
+           -> Slot -- ^ 'Defense.user'.
+           -> Ninja -> Ninja
+addDefense amount name user n =
+    n { defense = Labeled.mapFirst addAmount name user $ defense n }
   where
-    added = d { Defense.amount = amount + Defense.amount d }
+    addAmount x = x { Defense.amount = amount + Defense.amount x }
 
 -- | Deletes matching 'statuses'.
 clear :: Text -- ^ 'Status.name'.
@@ -327,6 +299,7 @@ addChannels sk target n
 cancelChannel :: Text -- ^ 'Skill.name'.
               -> Ninja -> Ninja
 cancelChannel name n = n { channels = f $ channels n
+                         , newChans = f $ newChans n
                          , variants = clearVariants name $ variants n
                          , face     = clearFace name $ face n
                          }
@@ -455,18 +428,15 @@ refresh name user n = n { statuses = f <$> statuses n }
 -- | Deletes one matching 'Status'.
 removeStack :: Text -- ^ 'Status.name'.
             -> Ninja -> Ninja
-removeStack name n = n { statuses = f $ statuses n }
-  where
-    f = Status.removeMatch 1 . Labeled.match name $ slot n
+removeStack name n = n { statuses = Status.remove 1 name (slot n) $ statuses n }
 
 -- | Replicates 'removeStack'.
 removeStacks :: Text -- ^ 'Status.name'.
              -> Int -- ^ Subtracted from 'Status.amount'.
              -> Slot -- ^ 'Status.user'.
              -> Ninja -> Ninja
-removeStacks name i user n = n { statuses = f $ statuses n }
-  where
-    f = Status.removeMatch i $ Labeled.match name user
+removeStacks name i user n =
+    n { statuses = Status.remove i name user $ statuses n }
 
 -- | Resets 'charges' to four @0@s.
 resetCharges :: Ninja -> Ninja

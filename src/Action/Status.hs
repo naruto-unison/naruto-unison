@@ -21,11 +21,10 @@ import ClassyPrelude
 import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
 import Data.Enum.Set.Class (EnumSet)
 
-import           Core.Util ((∈), (∉), intersects)
+import           Core.Util ((∈), (∉))
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
 import           Class.Random (MonadRandom)
-import qualified Model.Channel as Channel
 import           Model.Channel (Channeling(..))
 import           Model.Class (Class(..))
 import qualified Model.Copy as Copy
@@ -43,7 +42,6 @@ import           Model.Status (Bomb, Status)
 import           Model.Trap (Trigger(..))
 import qualified Engine.Effects as Effects
 import qualified Engine.Ninjas as Ninjas
-import qualified Action.Channel as ActionChannel
 
 -- | Refreshes the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'
 -- to 'Status.maxDur'.
@@ -188,11 +186,6 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
             when (any isHeal $ Status.effects st) $ P.trigger user [OnHeal]
 
             let self = user == user && user == target
-                stuns
-                  | nTarget `is` Focus = mempty
-                  | otherwise = setFromList [x | Stun x <- Status.effects st]
-            lift . ActionChannel.interrupt' $
-                (stuns `intersects`) . Skill.classes . Channel.skill
             when (bounced && not self) do
                 let bounce t = P.withTarget t $
                                applyFull mempty True (Status.bombs st) name
@@ -229,11 +222,11 @@ makeStatus skill nUser nTarget classes bounced bombs name dur fs = newSt
                 ]
     classes' = extra ++ classes ++ Skill.classes skill
     silenced = nUser `is` Silence
-    filt
-      | silenced && bounced = const []
-      | silenced            = filter isDmg
-      | bounced             = filter $ not . isDmg
-      | otherwise           = id
+    filt xs
+      | silenced && bounced = []
+      | silenced            = filter isDmg xs
+      | bounced             = filter (not . isDmg) xs
+      | otherwise           = xs
     bind Redirect{}   = True
     bind _            = False
     isDmg (Afflict x) = x > 0

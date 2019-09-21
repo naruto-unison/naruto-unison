@@ -85,13 +85,12 @@ data Effect
     | Snare        Int                 -- ^ Increases cooldowns
     | Strengthen   Class Amount Int    -- ^ Adds to all damage dealt
     | Stun         Class               -- ^ Unable to use 'Skill's
-    | Swap         Class               -- ^ Target's skills swap enemies and allies
+    | Swap                             -- ^ Target's skills swap enemies and allies
     | Taunt        Slot                -- ^ Forced to attack a target
     | Threshold    Int                 -- ^ Invulnerable to baseline damage below a threhold
     | Throttle     Int Constructor     -- ^ Applying an effect lasts fewer turns
     | Undefend                         -- ^ Does not benefit from destructible defense
     | Uncounter                        -- ^ Cannot counter or reflect
-    | Unexhaust                        -- ^ Decreases chakra costs by 1 random
     | Unreduce     Int                 -- ^ Reduces damage reduction 'Skill's
     | Weaken       Class Amount Int    -- ^ Lessens damage dealt
     deriving (Eq, Show)
@@ -103,7 +102,6 @@ instance Classed Effect where
     classes (Redirect cla _)     = singletonSet cla
     classes (Strengthen cla _ _) = singletonSet cla
     classes (Stun cla)           = singletonSet cla
-    classes (Swap cla)           = singletonSet cla
     classes (Weaken cla _ _)     = singletonSet cla
     classes _                    = mempty
 
@@ -151,13 +149,12 @@ helpful Silence         = False
 helpful (Snare x)       = x < 0
 helpful Strengthen{}    = True
 helpful Stun{}          = False
-helpful Swap{}          = False
+helpful Swap            = False
 helpful Taunt{}         = False
 helpful Threshold{}     = True
 helpful Throttle{}      = False
 helpful Uncounter       = False
 helpful Undefend        = False
-helpful Unexhaust       = True
 helpful Unreduce{}      = False
 helpful Weaken{}        = False
 
@@ -172,7 +169,7 @@ sticky ReflectAll     = True
 sticky Restrict       = True
 sticky Reveal         = True
 sticky Share{}        = True
-sticky Swap{}         = True
+sticky Swap           = True
 sticky _              = False
 
 -- | Effect is affected by 'Focus'.
@@ -235,19 +232,17 @@ instance Display Effect where
     display (Stun Affliction) = "Unable to deal affliction damage."
     display (Stun NonAffliction) = "Unable to deal non-affliction damage."
     display (Stun cla) = "Unable to use " ++ lower cla ++ " skills."
-    display (Swap cla) = "Next " ++ lower cla ++ " skill will target allies instead of enemies and enemies instead of allies."
+    display Swap = "Next skill will target allies instead of enemies and enemies instead of allies."
     display (Taunt _) = "Can only affect a specific target."
     display (Threshold x) = "Uninjured by attacks that deal " ++ display x ++ " baseline damage or lower."
     display (Throttle 0 _) = "Skills cannot apply some effects."
     display (Throttle x _) = "Skills will apply " ++ display x ++ " fewer turns of some effects."
     display Uncounter = "Unable to benefit from counters or reflects."
     display Undefend = "Unable to benefit from destructible defense"
-    display Unexhaust = "All skills cost 1 fewer random chakra."
     display (Unreduce x) = "Damage reduction skills reduce " ++ display x ++ " fewer damage."
     display (Weaken cla amt x) = display cla ++ " skills deal " ++ displayAmt amt x ++ " fewer damage. Does not affect affliction damage."
 
 -- | Not canceled by 'Enrage'.
 bypassEnrage :: Effect -> Bool
 bypassEnrage Exhaust{} = True
-bypassEnrage Unexhaust = True
 bypassEnrage ef        = helpful ef || sticky ef

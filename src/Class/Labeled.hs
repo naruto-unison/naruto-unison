@@ -2,6 +2,7 @@ module Class.Labeled
   ( Labeled(..)
   , eq
   , match
+  , mapFirst
   ) where
 
 import ClassyPrelude
@@ -24,4 +25,10 @@ eq x y = name x == name y && user x == user y
 
 -- Matching by both fields.
 match :: ∀ a. Labeled a => Text -> Slot -> a -> Bool
-match n usr a = name a == n && user a == usr
+match name' user' x = name x == name' && user x == user'
+
+mapFirst :: ∀ a. Labeled a => (a -> a) -> Text -> Slot -> [a] -> [a]
+mapFirst _ _ _ [] = []
+mapFirst f name' user' (x:xs)
+  | match name' user' x = f x : xs
+  | otherwise           = x : mapFirst f name' user' xs

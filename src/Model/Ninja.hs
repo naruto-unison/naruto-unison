@@ -4,13 +4,11 @@ module Model.Ninja
   , alive, minHealth
   , is, isChanneling
   , has, hasOwn, hasDefense, hasTrap
-  , numActive, numStacks, numHarmfulStacks, numHelpful
+  , numActive, numStacks, numAnyStacks, numHelpful
   , defenseAmount
   ) where
 
 import ClassyPrelude
-
-import Data.List (nubBy)
 
 import           Core.Util ((∈), (∉))
 import qualified Class.Parity as Parity
@@ -110,26 +108,23 @@ numStacks :: Text -- ^ 'Status.name'.
 numStacks name user n =
     sum $ Status.amount <$> filter (Labeled.match name user) (statuses n)
 
--- | Number of stacks of 'statuses' from any non-allied source.
-numHarmfulStacks :: Text -- ^ 'Status.name'.
-                 -> Ninja -> Int
-numHarmfulStacks name n = sum $ Status.amount <$> filter harm (statuses n)
-  where
-    harm st = Status.name st == name && not (Parity.allied n $ Status.user st)
+-- | Number of stacks of 'statuses' from any source.
+numAnyStacks :: Text -- ^ 'Status.name'.
+             -> Ninja -> Int
+numAnyStacks name n =
+    sum $ Status.amount <$> filter ((name ==) . Status.name) (statuses n)
 
--- | Counts all 'Effect.helpful' 'statuses' from allies.
--- Does not include self-applied 'Status'es.
+-- | Counts all 'Effect.helpful' effects in 'statuses' from allies.
+-- Does not include self-applied or 'Hidden' 'Status'es.
+-- Each status counts for @(number of helpful effects) * (Status.amount)@.
 numHelpful :: Ninja -> Int
-numHelpful n = length stats + length defs
-  where
-    stats = nubBy Labeled.eq [st | st <- statuses n
-                                 , any Effect.helpful $ Status.effects st
-                                 , slot n /= Status.user st
-                                 , Parity.allied n $ Status.user st
-                                 , Hidden ∉ Status.classes st]
-    defs  = nubBy Labeled.eq [de | de <- defense n
-                                 , slot n /= Defense.user de
-                                 , Parity.allied n $ Defense.user de]
+numHelpful n = sum [Status.amount st | st <- statuses n
+                                     , let user = Status.user st
+                                     , slot n /= user
+                                     , Parity.allied n user
+                                     , Hidden ∉ Status.classes st
+                                     , ef <- Status.effects st
+                                     , Effect.helpful ef]
 
 -- | @1@ if affected by 'Endure', otherwise @0@.
 minHealth :: Ninja -> Int

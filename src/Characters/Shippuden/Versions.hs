@@ -6,62 +6,10 @@ module Characters.Shippuden.Versions (cs) where
 import Characters.Base
 
 import qualified Model.Skill as Skill
-import qualified Model.Trap as Trap
 
 cs :: [Category -> Character]
 cs =
   [ Character
-    "Curse Mark Sasuke"
-    "After training under Orochimaru for years, Sasuke has become a rogue ninja with complete control over his curse mark. With unlimited access to his strength and chakra, Sasuke empowers his abilities with dark energy and can even fly."
-    [ [ Skill.new
-        { Skill.name      = "Sharingan"
-        , Skill.desc      = "The dark energy of Sasuke's curse mark infuses his Sharingan, providing 10 points of damage reduction for 3 turns. While active, Sasuke ignores status effects from enemies except chakra cost changes."
-        , Skill.classes   = [Mental, Unremovable]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Self $ apply 3 [Reduce All Flat 10, Enrage] ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Chidori"
-        , Skill.desc      = "Sasuke attacks an enemy from above, dealing 20 piercing damage and weakening their damage by 10 for 1 turn. Deals 10 additional damage during [Sharingan]. If this skill kills an enemy, [Sharingan Genjutsu] will be applied to a random enemy."
-        , Skill.classes   = [Chakra, Melee, Bypassing]
-        , Skill.cost      = [Nin]
-        , Skill.effects   =
-          [ To Enemy do
-                bonus <- 10 `bonusIf` userHas "Sharingan"
-                pierce (20 + bonus)
-                survived <- target alive
-                if survived then
-                    apply 1 [Weaken All Flat 10]
-                else
-                    self $ hide' "executed" (-1) []
-          , To REnemy $ whenM (userHas "executed") do
-                bonus <- 1 `bonusIf` userHas "Sharingan"
-                trapWith Trap.Toward [Invisible] (1 + bonus) OnReflectAll $
-                    return ()
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Sharingan Genjutsu"
-        , Skill.desc      = "Sasuke traps an enemy in an illusion that makes them believe they got the upper hand. For 1 turn, any skill that the target uses on Sasuke or his allies is reflected back to them. Lasts 1 additional turn and costs two genjutsu chakra during [Sharingan]."
-        , Skill.classes   = [Mental, Ranged, Invisible]
-        , Skill.cost      = [Gen]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To Enemy do
-                bonus <- 1 `bonusIf` userHas "Sharingan"
-                trap (1 + bonus) OnReflectAll $ return ()
-          ]
-        , Skill.changes   =
-            changeWith "Sharingan" \x -> x { Skill.cost = [Gen, Gen] }
-        }
-      ]
-    , [ invuln "Snake Shedding" "Sasuke" [Physical] ]
-    ]
-  , Character
     "Commander Gaara"
     "Coordinating the Allied Shinobi Forces and personally commanding the Fourth Division, Gaara has proven to be an inspiring leader and talented strategist. His attacks scatter sand particles around the battlefield, which he draws back in with explosive force."
     [ [ Skill.new
@@ -743,7 +691,12 @@ cs =
         , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ apply 0 [Swap All] ]
+          [ To Enemy do
+                apply 0 [Swap]
+                trap' 0 (OnAction All) do
+                    remove "Body Coating"
+                    removeTrap "Body Coating"
+          ]
         }
       , Skill.new
         { Skill.name      = "Doppelgänger"

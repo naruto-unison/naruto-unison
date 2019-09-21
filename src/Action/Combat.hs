@@ -21,7 +21,6 @@ import Data.Enum.Set.Class (EnumSet)
 
 import           Core.Util ((—), (∈), (∉))
 import qualified Class.Classed as Classed
-import qualified Class.Labeled as Labeled
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
 import qualified Model.Attack as Attack
@@ -128,9 +127,9 @@ formula atk classes nUser nTarget = limit . truncate .
     atk' = case atk of
         Attack.Damage | nUser `is` Pierce -> Attack.Pierce
         _                                 -> atk
-    limit = case Effects.limit nTarget of
-        Just x | atk /= Attack.Afflict -> min x
-        _                              -> id
+    limit i = case Effects.limit nTarget of
+        Just x | atk /= Attack.Afflict -> min x i
+        _                              -> i
 
 -- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce',
 -- 'Attack.Damage', or 'Attack.Demolish' attack.
@@ -222,12 +221,8 @@ defend (Duration -> dur) amount = P.unsilenced do
 -- 'Defense.name', nothing happens.
 -- Uses 'Ninjas.addDefense' internally.
 addDefense :: ∀ m. MonadPlay m => Text -> Int -> m ()
-addDefense name amount = P.unsilenced do
-    user    <- P.user
-    target  <- P.user
-    nTarget <- P.nTarget
-    mapM_ (P.modify target . Ninjas.addDefense amount) .
-        find (Labeled.match name user) $ Ninja.defense nTarget
+addDefense name amount =
+    P.unsilenced . P.fromUser $ Ninjas.addDefense amount name
 
 
 -- | Adds new destructible 'Barrier'.

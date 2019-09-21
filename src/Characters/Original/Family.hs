@@ -37,7 +37,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Throw a Fit"
-        , Skill.desc      = "Konohamaru freaks out and punches wildly at an enemy, dealing 10 damage to them for 3 turns. Deals 5 additional damage per skill affecting Konohamaru from his allies."
+        , Skill.desc      = "Konohamaru freaks out and punches wildly at an enemy, dealing 10 damage to them for 3 turns. Deals 5 additional damage per helpful status effect on Konohamaru from his allies."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
@@ -51,7 +51,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Throw a Shuriken"
-        , Skill.desc      = "Konohamaru flings a shuriken almost too big for his hands at an enemy, dealing 10 damage and 10 additional damage per skill affecting Konohamaru from his allies."
+        , Skill.desc      = "Konohamaru flings a shuriken almost too big for his hands at an enemy, dealing 10 damage and 10 additional damage per helpful status effect on Konohamaru from his allies."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -101,14 +101,12 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Air Palm Wall"
-        , Skill.desc      = "Hiashi prepares to blast an enemy's attack back. The first skill an enemy uses on him or his allies next turn will be reflected back at them."
-        , Skill.classes   = [Chakra, Melee]
+        , Skill.desc      = "Targeting himself or an ally, Hiashi prepares to blast an enemy's attack back. The first skill that an enemy uses on the target next turn will be reflected."
+        , Skill.classes   = [Chakra, Melee, Invisible]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemies $ trap (-1) OnReflectAll $
-                everyone $ removeTrap "Eight Trigrams Air Palm Wall"
-          ]
+          [ To Ally $ apply 1 [Reflect] ]
         }
       ]
     , [ invuln "Byakugan Foresight" "Hiashi" [Mental] ]

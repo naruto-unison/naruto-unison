@@ -23,9 +23,9 @@ absmin x y
 -- | Maximum duration of an effect.
 -- Effects from 'Copy' 'Skill's must not last longer than the 'Copy' 'dur'.
 maxDur :: Copying -> Int -> Int
-maxDur (Shallow _ d) = absmin d
-maxDur (Deep    _ d) = absmin d
-maxDur  NotCopied    = id
+maxDur (Shallow _ d) i = absmin d i
+maxDur (Deep    _ d) i = absmin d i
+maxDur  NotCopied    i = i
 
 -- | @Skill@ owner. Determines the folder location of the icon image.
 source :: Skill -> Slot -> Slot

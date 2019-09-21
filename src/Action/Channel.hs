@@ -2,7 +2,7 @@
 module Action.Channel
   ( cancelChannel
   , prolongChannel
-  , interrupt, interrupt'
+  , interrupt
   ) where
 
 import ClassyPrelude
@@ -28,18 +28,11 @@ cancelChannel name = do
     P.modify user $ Ninjas.cancelChannel name
 
 interrupt :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
-interrupt = interrupt' $ const True
-
--- | Interrupts all 'Channel.interruptible' 'Ninja.channels'.
--- Triggers 'onInterrupts' for affected @Channel@s.
-interrupt' :: ∀ m. (MonadPlay m, MonadRandom m) => (Channel -> Bool) -> m ()
-interrupt' interrupting = P.unsilenced do
-    (interrupted, kept) <- partition interrupts . Ninja.channels <$> P.nTarget
-    traverse_ onInterrupt interrupted
+interrupt = P.unsilenced do
+    (yay, nay) <- partition Channel.interruptible . Ninja.channels <$> P.nTarget
+    traverse_ onInterrupt yay
     target <- P.target
-    P.modify target \n -> n { Ninja.channels = kept }
-  where
-    interrupts x = Channel.interruptible x && interrupting x
+    P.modify target \n -> n { Ninja.channels = nay }
 
 -- | Triggers 'Skill.interrupt' effects of a @Channel@.
 onInterrupt :: ∀ m. (MonadPlay m, MonadRandom m) => Channel -> m ()

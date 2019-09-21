@@ -1,9 +1,7 @@
 -- | Processing of 'Effect's that change an action as it occurs.
 module Engine.Trigger
   ( redirect
-  , reflect
   , death
-  , swap
 
   , targetCounters, targetUncounter
   , userCounters, userUncounter
@@ -23,38 +21,15 @@ import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
 import           Model.Slot (Slot)
 import qualified Model.Status as Status
-import           Model.Status (Status)
 import qualified Model.Trap as Trap
 import           Model.Trap (Trap, Trigger(..))
 import qualified Engine.Ninjas as Ninjas
 import qualified Engine.Traps as Traps
 
-
--- | Trigger a 'Reflect'.
-reflect :: EnumSet Class -> Ninja -> Ninja -> Maybe Ninja
-reflect classes n nt
-  | Unreflectable ∈ classes                                   = Nothing
-  | any ((ReflectAll ∈) . Status.effects) $ Ninja.statuses nt = Just nt
-  | any ((OnReflectAll ==) . Trap.trigger) $ Ninja.traps n    = Just nt
-  | otherwise = Ninjas.drop (Reflect ==) nt
-
-reflectable :: ([Effect] -> Bool) -> EnumSet Class -> Ninja -> Maybe Status
-reflectable matches classes n
-  | Unreflectable ∈ classes = Nothing
-  | otherwise               = find (matches . Status.effects) $ Ninja.statuses n
-
 -- | Trigger a 'Redirect'.
 redirect :: EnumSet Class -> Ninja -> Maybe Slot
 redirect classes n = listToMaybe [slot | Redirect cla slot <- Ninja.effects n
                                        , cla ∈ classes || cla == Uncounterable]
-
--- | Trigger a 'Swap'.
-swap :: EnumSet Class -> Ninja -> Maybe Status
-swap classes = reflectable (any match) classes
-  where
-    match (Swap cla) = cla ∈ classes
-    match _          = False
-
 
 -- | If the 'Ninja.health' of a 'Ninja' reaches 0,
 -- they are either resurrected by triggering 'OnRes'
@@ -111,7 +86,9 @@ userUncounter classes n =
 
 targetCounters :: ∀ m. (MonadPlay m, MonadRandom m)
              => Slot -> EnumSet Class -> Ninja -> [m ()]
-targetCounters = getCounters f
+targetCounters from classes n
+  | n `is` Uncounter = []
+  | otherwise        = getCounters f from classes n
   where
     f tr = case Trap.trigger tr of
         CounterAll cla -> Just cla
@@ -119,7 +96,9 @@ targetCounters = getCounters f
         _              -> Nothing
 
 targetUncounter :: EnumSet Class -> Ninja -> Ninja
-targetUncounter classes n =
+targetUncounter classes n
+  | n `is` Uncounter = n
+  | otherwise        =
     n { Ninja.traps = filter (keep . Trap.trigger) $ Ninja.traps n }
   where
     keep (Counter cla) = cla ∉ classes

@@ -2,7 +2,7 @@ module Model.Status
   ( Status(..)
   , Bomb(..)
   , new
-  , remove, removeMatch
+  , remove, removeEffect
   ) where
 
 import ClassyPrelude
@@ -10,6 +10,7 @@ import ClassyPrelude
 import           Model.Internal (Bomb(..), Status(..))
 import qualified Model.Copy as Copy
 import           Model.Duration (Duration, incr, sync)
+import           Model.Effect (Effect)
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
 import           Model.Slot (Slot)
@@ -29,19 +30,26 @@ new user dur skill =
   where
     dur' = Copy.maxDur (Skill.copying skill) . incr $ sync dur
 
--- | Decreases 'amount' and removes the @Status@ if the amount reaches 0.
-decr :: Int -> Status -> [Status] -> [Status]
-decr i x xs
-  | amount x > i = x { amount = amount x - i } : x `delete` xs
-  | otherwise    = x `delete` xs
+remove :: Int -- ^ 'amount'
+       -> Text -- ^ 'name'
+       -> Slot -- ^ 'user'
+       -> [Status] -> [Status]
+remove 0 _ _ xs = xs
+remove _ _ _ [] = []
+remove i name' user' (x:xs)
+  | user x /= user' || name x /= name' = x : remove i name' user' xs
+  | amt > i                            = x { amount = amt - i } : xs
+  | otherwise                          = remove (i - amt) name' user' xs
+  where
+    amt = amount x
 
--- | Decreases 'amount' by 1 and removes the @Status@ if the amount reaches 0.
-remove :: Status -> [Status] -> [Status]
-remove = decr 1
-
--- | Decreases the 'amount' of a matching @Status@ by some number
--- | and removes the @Status@ if the amount reaches 0.
-removeMatch :: Int -> (Status -> Bool) -> [Status] -> [Status]
-removeMatch i predic xs = case find predic xs of
-    Nothing -> xs
-    Just x  -> decr i x xs
+removeEffect :: Effect -> [Status] -> [Status]
+removeEffect ef = mapMaybe f
+  where
+    f st
+      | null before = Just st
+      | null after  = Nothing
+      | otherwise   = Just st { effects = after }
+      where
+        before = effects st
+        after  = filter (/= ef) before
