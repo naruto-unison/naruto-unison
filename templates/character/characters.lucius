@@ -1,9 +1,9 @@
 section {
     display: flex;
-    margin-bottom: 1em;
 }
 section aside {
     margin-right: 5px;
+    margin-top: 1em;
 }
 section h4 {
     margin: 0;
