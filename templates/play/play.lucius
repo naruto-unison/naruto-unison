@@ -1,8 +1,5 @@
 main {
     height: 100%;
-    -webkit-user-select: none;
-    user-select: none;
-    margin: 0 2.5em;
     box-sizing: border-box;
 }
 main, #accountSettings {
@@ -51,7 +48,6 @@ p {
 }
 
 #bg {
-    margin: 0 -5em;
     position: absolute;
     z-index: -2;
     object-position: center;
@@ -97,7 +93,7 @@ body {
 #charSelect {
     max-width: 942px;
     position: relative;
-    margin: auto;
+    margin: 0 3em;
     height: 100%;
 }
 
@@ -225,6 +221,7 @@ body {
 #charSelect > article .char {
     height: 50px;
     width: 50px;
+    margin: 3px 5px;
 }
 
 #charSelect > article > aside {
@@ -284,6 +281,9 @@ body {
     margin-top: 15px;
     padding: 10px;
 }
+#vs nav {
+    display: flex;
+}
 #vs span, #vs button, #vs input {
     align-self: center;
 }
@@ -318,6 +318,7 @@ body {
 
 #playButtons {
     margin: -3px;
+    align-self: end;
 }
 
 .playButton, #updateButton, #logoutButton {
@@ -343,6 +344,16 @@ body {
 a.playButton {
     display: block;
     text-decoration: none;
+    height: 17px;
+}
+a.playButton:before {
+    content: "Start ";
+}
+a.playButton:after {
+    content: " Match";
+}
+#mainsite:before, #mainsite:after {
+    content: none;
 }
 .blacked {
     border-color: #000 !important;
@@ -501,6 +512,19 @@ a.playButton {
     left: 290px;
     position: absolute;
     right: 290px;
+}
+dl {
+    width: 100%;
+    margin-bottom: 0 !important;
+}
+dd {
+    margin-bottom: 0 !important;
+}
+#userBox dt {
+    width: 4.8em;
+}
+dl dt {
+    width: 6.5em;
 }
 #top > article > section {
     display: flex;
@@ -992,6 +1016,13 @@ svg {
 
 }
 
+#return {
+    width: 5em;
+    margin: auto;
+    font-size: 1.3em;
+    border: 2px solid #e11;
+}
+
 @media (max-width: 1065px) {
     #player1 .charmove {
         display: none;
@@ -1004,17 +1035,9 @@ svg {
     #player1 {
         width: 200px;
     }
-    #playqueuecont, #playchakra {
-        top: 675px;
-    }
-    #playqueuecont {
-        margin: 0 0 0 25px !important;
-    }
-    #playchakra {
-        left: 100px;
-    }
-    #endgame {
-        top: 678px;
+    #playchakra, #playqueuecont {
+        padding-left: 295px;
+        margin-top: -21px;
     }
     #top > article {
         left: 100px;
@@ -1037,9 +1060,70 @@ svg {
     }
 }
 
-#return {
-    width: 5em;
-    margin: auto;
-    font-size: 1.3em;
-    border: 2px solid #e11;
+@media (max-width: 860px) {
+    #vs nav {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 830px) {
+    a.playButton {
+        font-size: 0.8em;
+    }
+    #userBox {
+        font-size: 0.9em;
+        width: 240px;
+    }
+    a.playButton:before {
+        content: none;
+    }
+}
+@media (max-width: 760px) {
+    #userBox {
+        width: 160px;
+    }
+    #userBox .userimg {
+        display: none;
+    }
+}
+@media (max-width: 680px) {
+    #userBox {
+        font-size: 0.85em;
+        width: 150px;
+    }
+    a.playButton:after {
+        content: none;
+    }
+}
+
+@media (max-height: 770px) {
+    #charSelect > article > h1 > img.char {
+        height: 50px;
+        width: 50px;
+    }
+    #characterButtons {
+        bottom: 5px;
+        height: 173px;
+    }
+    #charSelect > header {
+        padding-top: 5px;
+    }
+    #charSelect > article {
+        bottom: 200px;
+        font-size: 0.7em;
+    }
+    #charSelect > article > p {
+        min-height: unset;
+    }
+    #characterButtons .char {
+        width: 50px;
+        height: 50px;
+    }
+    #charSelect > article .char {
+        width: 40px;
+        height: 40px;
+    }
+    #charSelect > article > section > p {
+        min-height: 28px;
+    }
 }

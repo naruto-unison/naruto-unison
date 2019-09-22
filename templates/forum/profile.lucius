@@ -2,6 +2,13 @@ p {
   margin-top: 0;
   margin-bottom: 0.25em;
 }
+article {
+    display: flex;
+}
+dl {
+    margin-left: 25px;
+    flex-grow: 1;
+}
 .char {
   width: 50px;
 }

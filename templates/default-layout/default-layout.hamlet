@@ -30,7 +30,7 @@ $else
         <button>
           Play Now
 
-  <div #content .container>
+  <div .container>
 
     $if mcurrentRoute /= Just HomeR
       <nav #breadcrumb>
@@ -41,6 +41,6 @@ $else
           <li .active>#{title}
 
     $maybe msg <- mmsg
-      <div .container.alert.alert-info #message>#{msg}
+      <div .alert.alert-info #message>#{msg}
 
     ^{widget}

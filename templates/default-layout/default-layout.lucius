@@ -28,7 +28,8 @@ body {
     padding: 0 1em;
 }
 #sitenav img {
-    height: 35px;
+    height: 2em;
+    margin: 0.1em 0;
 }
 #sitenav nav {
     flex-grow: 1;
@@ -37,7 +38,6 @@ body {
 }
 #sitenav aside {
     display: flex;
-    width: 14em;
     align-self: center;
 }
 #sitenav div {
@@ -56,7 +56,7 @@ body {
     padding-bottom: 10px;
 }
 #sitenav nav a, #sitenav nav span {
-    margin: 0 0.5em -3px 0.5em;
+    margin: 0 0.2em -3px 0.2em;
     display: inline-block;
     box-sizing: content-box;
 }
@@ -87,7 +87,7 @@ body {
     color: #0099ff;
     border-color: #0099ff;
 }
-#content, #message {
+.container, #message {
     max-width: 800px;
     box-sizing: border-box;
 }
@@ -101,6 +101,7 @@ body {
 #breadcrumb li {
     display: inline-block;
     color: #000;
+    margin-right: -0.3em;
 }
 #breadcrumb li:first-child:before {
     content: none;
@@ -220,7 +221,6 @@ h4 { font-size: 1.15em }
 sup {
   font-style: italic;
   color: #606060;
-  /*margin-left: -0.3em;*/
   font-size: 0.75em;
 }
 .extra {
@@ -306,4 +306,37 @@ dt:after {
 }
 dd {
     margin-bottom: 0.25em;
+}
+
+@media (min-width: 880px) {
+    #sitenav aside {
+        width: 14em;
+    }
+}
+@media (min-width: 670px) {
+    #sitenav nav a, #sitenav nav span {
+        margin: 0 0.5em -3px 0.5em;
+    }
+}
+@media (max-width: 670px) {
+    #sitenav {
+        font-size: 0.9em;
+    }
+}
+@media (max-width: 585px) {
+    #sitenav {
+        font-size: 0.8em;
+    }
+}
+@media (max-width: 520px) {
+    #sitenav {
+        font-size: 0.7em;
+    }
+}
+
+@media (max-width: 640px) {
+    .container {
+        font-size: 0.8em;
+        padding: 1em 1.5em 5em 1.5em;
+    }
 }

@@ -375,11 +375,11 @@ userBox mUser csrf csrfParam showLogin team =
                 , A.href  "/home"
                 ] [H.text "Main Site"]
               , H.a (meta <| Enqueue Quick)
-                [H.text "Start Quick Match"]
+                [H.text "Quick"]
               , H.a (meta <| SetStage Searching)
-                [H.text "Start Private Match"]
+                [H.text "Private"]
               , H.a (meta <| SetStage Practicing)
-                [H.text "Start Practice Match"]
+                [H.text "Practice"]
               ]
           Nothing ->
               [ H.a
@@ -399,21 +399,18 @@ userBox mUser csrf csrfParam showLogin team =
               , H.br [] []
               , H.text <| Game.rank user
               , H.br [] []
-              , H.strong [] [H.text "Clan: "]
-              , H.text <| Maybe.withDefault "Clanless" user.clan
-              , H.br [] []
-              , H.strong [] [H.text "Level: "]
-              , H.text <| String.fromInt (user.xp // 1000) ++ " ("
+              , H.dt [] [H.text "Clan"]
+              , H.dd [] [H.text <| Maybe.withDefault "Clanless" user.clan]
+              , H.dt [] [H.text "Level"]
+              , H.dd [] [H.text <| String.fromInt (user.xp // 1000) ++ " ("
                           ++ String.fromInt (user.xp |> remainderBy 1000)
-                          ++ " XP)"
-              , H.br [] []
-              , H.strong [] [H.text "Rank:"]
-              , H.text "None"
-              , H.br [] []
-              , H.strong [] [H.text "Record: "]
-              , H.text <| String.fromInt user.wins ++ " - "
+                          ++ " XP)"]
+              , H.dt [] [H.text "Rank"]
+              , H.dd [] [H.text "None"]
+              , H.dt [] [H.text "Record"]
+              , H.dd [] [H.text <| String.fromInt user.wins ++ " - "
                 ++ String.fromInt user.losses
-                ++ " (+" ++ String.fromInt user.streak ++ ")"
+                ++ " (+" ++ String.fromInt user.streak ++ ")"]
               ]
           Nothing ->
               H.div [A.id "userBox", A.class "parchment"]
@@ -516,10 +513,12 @@ vsBox st =
             [A.class "parchment playButton"]
   in
     H.section [A.id "vs", A.class "parchment"]
-    [ H.button meta [H.text "Ready"]
-    , H.button
-      [A.class "parchment playButton click", E.onClick <| SetStage Browsing]
-      [H.text "Cancel"]
+     [ H.nav []
+       [ H.button meta [H.text "Ready"]
+       , H.button
+         [A.class "parchment playButton click", E.onClick <| SetStage Browsing]
+         [H.text "Cancel"]
+       ]
     , H.span [] [H.text "VS: "]
     , Keyed.node "div" [A.id "vsButtons", A.class "select"] <<
       for st.vs <| \char ->

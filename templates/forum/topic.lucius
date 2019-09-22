@@ -35,7 +35,7 @@ aside {
     flex-direction: column;
     text-align: center;
     margin-right: 10px;
-    box-shadow: 3px 0px 5px #ddd;
+    box-shadow: 3px 0 5px #ddd;
     border-right: 1px solid #ccc;
 }
 

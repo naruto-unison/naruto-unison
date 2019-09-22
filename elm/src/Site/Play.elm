@@ -531,21 +531,18 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
         , H.aside [A.class "statuses"] details
         ]
 
-label : String -> Html msg
-label name = H.span [A.class "label"] [H.text name]
-
 bar : Character -> String -> Int -> Int -> List (Html msg)
 bar source name amount dur =
   [ H.section []
     [ icon source name [A.class "char"]
-    , H.section []
+    , H.dl []
       [ H.h1 [] [H.text name]
-      , label "Amount: "
-      , H.span [] [H.text <| String.fromInt amount]
-      , label "Duration: "
-      , H.span [] << Render.duration "Permanent" <| dur
-      , label "Source: "
-      , H.span [] <| Render.name source
+      , H.dt [] [H.text "Amount"]
+      , H.dd [] [H.text <| String.fromInt amount]
+      , H.dt [] [H.text "Duration"]
+      , H.dd [] << Render.duration "Permanent" <| dur
+      , H.dt [] [H.text "Source"]
+      , H.dd [] <| Render.name source
       ]
     ]
   ]
@@ -578,13 +575,13 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
       in
         [ H.section []
           [ icon (Game.get characters x.source) "icon" [A.class "char"]
-          , H.section []
+          , H.dl []
             [ H.h1 [] [name]
             , Render.classes True x.classes
-            , label "Source: "
-            , H.span [] << Render.name <| Game.get characters x.user
-            , label "Duration: "
-            , H.span [] << Render.duration "Permanent" <| x.dur
+            , H.dt [] [H.text "Source"]
+            , H.dd [] << Render.name <| Game.get characters x.user
+            , H.dt [] [H.text "Duration"]
+            , H.dd [] << Render.duration "Permanent" <| x.dur
             ]
           ]
         , H.ul [] <| List.map (Render.effect removable) x.effects
@@ -646,15 +643,15 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
           [ H.div [] <|
             icon (Game.root characters x user) x.name [A.class "char"]
             :: Maybe.withDefault [] varyButtons
-          , H.section []
+          , H.dl []
             [ H.h1 [] [H.text x.name]
             , Render.classes False x.classes
-            , label "Cost: "
-            , H.span [] cost
-            , label "Duration: "
-            , H.span [] [H.text duration]
-            , label "Cooldown: "
-            , H.span [] [H.text cooldown]
+            , H.dt [] [H.text "Cost"]
+            , H.dd [] cost
+            , H.dt [] [H.text "Duration"]
+            , H.dd [] [H.text duration]
+            , H.dt [] [H.text "Cooldown"]
+            , H.dd [] [H.text cooldown]
             ]
           ]
         , H.p [] <| Render.desc x.desc ++ charges
@@ -662,13 +659,14 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
     ViewUser x ->
         [ H.section []
           [ H.img [A.class "char", A.src x.avatar] []
-          , H.section []
+          , H.dl []
             [ H.h1 [] [H.text x.name]
-            , H.span [] [H.text <| Game.rank x]
-            , label "Clan: "
-            , H.span [] [H.text <| Maybe.withDefault "Clanless" x.clan]
-            , label "Level: "
-            , H.span [] [H.text << String.fromInt <| x.xp // 1000]
+            , H.p [A.class << String.toLower <| Game.rank x]
+              [H.text <| Game.rank x]
+            , H.dt [] [H.text "Clan"]
+            , H.dd [] [H.text <| Maybe.withDefault "Clanless" x.clan]
+            , H.dt [] [H.text "Level"]
+            , H.dd [] [H.text << String.fromInt <| x.xp // 1000]
             ]
           ]
         ]

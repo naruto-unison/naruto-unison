@@ -1,60 +1,59 @@
 body {
     padding: 0 !important;
 }
-body, #content {
+body, .container {
     background: #1b4e66 !important;
 }
 .char {
     width: 50px;
     float: right;
-    margin: 1px 0px 0px -19px !important;
+    margin: 1px 0 0 0 !important;
 }
 .skill {
     display: block;
     padding-bottom: 2px;
     margin-right: 60px;
 }
-#content {
+.container {
     margin-top: 0 !important;
     padding-top: 0 !important;
     max-width: 1500px !important;
     display: flex;
 }
-#content > aside, #content > section {
+.container > aside, .container > section {
     padding-top: 1em !important;
 }
 .breadcrumb li {
     color: #fff !important;
 }
-#content > section {
+.container > section {
     text-align: left;
     background: #fff;
     border-top: none;
     border-bottom: none;
     border-width: 1px;
-    box-shadow: 0px 10px 10px rgba(0,0,0,0.25);
+    box-shadow: 0 10px 10px rgba(0,0,0,0.25);
     box-sizing: border-box;
     flex: 0 1 800px;
     padding: 0 1em;
 }
-#content > aside {
+.container > aside {
     color: #fff;
     flex: 1 0 230px;
 }
-#content > aside ul {
+.container > aside ul {
     font-size: 0.95em;
 }
-#content > aside ul ul {
+.container > aside ul ul {
     padding-left: 1em;
 }
-#content > aside > ul > li {
+.container > aside > ul > li {
     margin-bottom: 6px;
 }
-#content > aside h2 {
+.container > aside h2 {
     margin-bottom: 0.2em;
 }
 #changelog {
-    padding-left: 3em;
     padding-right: 1em;
     padding-bottom: 6em;
 }
@@ -63,9 +62,32 @@ body, #content {
 }
 #forums {
     padding-left: 1em;
-    padding-right: 3em;
 }
 section > aside {
     color: #606060;
     margin-bottom: -0.5em;
+}
+
+@media (max-width: 1000px) {
+    .container {
+        padding: 1em 1.5em 5em 1.5em;
+    }
+    .container > aside {
+        font-size: 0.8em;
+        flex: 1 0 165px;
+    }
+    #changelog .char {
+        display: none;
+    }
+    .skill {
+        margin-right: 0;
+    }
+}
+@media (max-width: 885px) {
+    .container {
+        max-width: 800px !important;
+    }
+    .container > aside {
+        display: none;
+    }
 }
