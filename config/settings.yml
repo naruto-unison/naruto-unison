@@ -40,3 +40,5 @@ database:
 
 copyright: Creative Commons
 #analytics: UA-YOURCODE
+
+turn-seconds: 60

@@ -12,6 +12,7 @@ import qualified Network.Wai.Handler.Warp as Warp
 
 data AppSettings = AppSettings
     { allowVsSelf            :: Bool
+    , turnSeconds            :: Int
       -- Basic Yesod configuration below
     , staticDir              :: String
     -- ^ Directory from which to serve static files.
@@ -78,5 +79,5 @@ instance FromJSON AppSettings where
         authDummyLogin         <- o .:? "auth-dummy-login" .!= dev
 
         allowVsSelf            <- o .:? "allow-vs-self"    .!= dev
-
+        turnSeconds            <- o .: "turn-seconds"
         return AppSettings{..}

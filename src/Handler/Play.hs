@@ -255,7 +255,9 @@ handleFailures (Left msg)  = Nothing <$ Sockets.sendJson msg
 -- | Sends messages through 'TChan's in 'App.App'.
 gameSocket :: SocketsT Handler ()
 gameSocket = do
-    who <- Auth.requireAuthId
+    who         <- Auth.requireAuthId
+    turnSeconds <- getsYesod $ AppSettings.turnSeconds . App.settings
+    let turnTime = 1000000 * turnSeconds
     liftIO Random.createSystemRandom >>= runReaderT do
         (info, writer, reader) <- untilJust $ handleFailures =<< runExceptT do
             teamNames <- Text.split (=='/') <$> Sockets.receive
@@ -264,20 +266,20 @@ gameSocket = do
                 Just vals -> return vals
 
             liftHandler . runDB $
-                update who [UserTeam =. Just (drop 1 teamNames)]
+                update who [UserTeam =. Just (tailEx teamNames)]
             queue section team
 
         lift $ Sockets.sendJson info
         let player = GameInfo.player info
         liftST (Wrapper.fromInfo info) >>= runReaderT do
-            when (player == Player.A) $ tryEnact player writer
+            when (player == Player.A) $ tryEnact turnTime player writer
             gameEnd <- untilJust do
                 wrapper <- liftIO . atomically $ readTBQueue reader
                 Sockets.clear
                 if null . Game.victor $ Wrapper.game wrapper then do
                     Sockets.sendJson $ Wrapper.toJSON player wrapper
                     liftST . Wrapper.replace wrapper =<< ask
-                    tryEnact player writer
+                    tryEnact turnTime player writer
                     game <- P.game
                     if null $ Game.victor game then
                         return Nothing
@@ -291,9 +293,9 @@ gameSocket = do
 
 -- | Wraps @enact@ with error handling.
 tryEnact :: ∀ m. (MonadGame m, MonadRandom m, MonadSockets m, MonadUnliftIO m)
-         => Player -> TBQueue Wrapper -> m ()
-tryEnact player writer = do
-    enactMessage <- Timeout.timeout 60000000 $ -- 1 minute
+         => Int -> Player -> TBQueue Wrapper -> m ()
+tryEnact turnTime player writer = do
+    enactMessage <- Timeout.timeout turnTime $ 
                     Text.split ('/' ==) <$> Sockets.receive
 
     case enactMessage of
