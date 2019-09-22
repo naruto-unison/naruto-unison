@@ -10,6 +10,7 @@ Currently pre-alpha and in active development. Nothing is guaranteed to be stabl
 - [Running](#running)
   - [Development](#development)
   - [Production](#production)
+  - [Tests](#tests)
 - [Model Syncing](#model-syncing)
 - [Haskell: How and Why](#haskell-how-and-why)
   - [How](#how)
@@ -42,6 +43,10 @@ Currently pre-alpha and in active development. Nothing is guaranteed to be stabl
 ### Development
 
 To use a development web server, run `stack exec -- yesod devel` in the root directory of the project. Recompile the Elm frontend with `(cd elm && npm install)` whenever changes are made to the [elm](elm/) folder.
+
+#### Admin Account
+
+To grant a user admin privilege, change the "privilege" field for that user in the "user" database to 'Admin'.
 
 ### Production
 
