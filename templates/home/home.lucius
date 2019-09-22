@@ -1,66 +1,71 @@
 body {
-  padding: 0 !important;
+    padding: 0 !important;
 }
 body, #content {
-  background: #1b4e66 !important;
+    background: #1b4e66 !important;
 }
 .char {
-  width: 50px;
-  float: right;
-  margin: 1px 0px 0px -19px !important;
+    width: 50px;
+    float: right;
+    margin: 1px 0px 0px -19px !important;
 }
 .skill {
-  display: block;
-  padding-bottom: 2px;
-  margin-right: 60px;
-}
-#bannerbg {
-  background-size: cover !important;
-  background: #040309 url('/img/banner.png') no-repeat center center;
-}
-#banner {
-  text-align: center;
+    display: block;
+    padding-bottom: 2px;
+    margin-right: 60px;
 }
 #content {
-  max-width: 1500px !important;
-  border-left: none;
-  border-right: none;
-  border-bottom: none;
-  padding: 0;
-  display: flex;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    max-width: 1500px !important;
+    display: flex;
+}
+#content > aside, #content > section {
+    padding-top: 1em !important;
+}
+.breadcrumb li {
+    color: #fff !important;
 }
 #content > section {
-  text-align: left;
-  background: #fff;
-  border-top: none;
-  border-bottom: none;
-  border-width: 1px;
-  box-shadow: 0px 0px 10px rgba(0,0,0,0.25);
-  box-sizing: border-box;
-  flex: 0 1 800px;
+    text-align: left;
+    background: #fff;
+    border-top: none;
+    border-bottom: none;
+    border-width: 1px;
+    box-shadow: 0px 10px 10px rgba(0,0,0,0.25);
+    box-sizing: border-box;
+    flex: 0 1 800px;
+    padding: 0 1em;
 }
 #content > aside {
-  color: #fff;
-  flex: 1 0 230px;
+    color: #fff;
+    flex: 1 0 230px;
 }
 #content > aside ul {
-  font-size: 0.95em;
+    font-size: 0.95em;
 }
 #content > aside ul ul {
-  padding-left: 1em;
+    padding-left: 1em;
 }
 #content > aside > ul > li {
-  margin-bottom: 6px;
+    margin-bottom: 6px;
 }
 #content > aside h2 {
-  margin-bottom: 0.2em;
+    margin-bottom: 0.2em;
 }
 #changelog {
-  padding-left: 3em;
-  padding-right: 1em;
-  padding-bottom: 6em;
+    padding-left: 3em;
+    padding-right: 1em;
+    padding-bottom: 6em;
+}
+#changelog li {
+    margin: 0;
 }
 #forums {
-  padding-left: 1em;
-  padding-right: 3em;
+    padding-left: 1em;
+    padding-right: 3em;
+}
+section > aside {
+    color: #606060;
+    margin-bottom: -0.5em;
 }

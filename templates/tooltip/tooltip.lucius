@@ -27,5 +27,7 @@
 }
 #tooltip .skillClasses {
   font-style: italic;
-  margin-left: 0 !important;
+  font-size: 12px;
+  display: inline;
+  margin: 0;
 }

@@ -1,0 +1,4 @@
+<form #form>
+  <h2>Websockets Test
+  <div #output>
+    <input #input autofocus>

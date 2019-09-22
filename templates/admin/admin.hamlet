@@ -1,0 +1,4 @@
+<form method=post action=@{AdminR} enctype=#{enctype}>
+  <h2>Post News
+  ^{newsForm}
+  <button>Submit

@@ -1,0 +1,13 @@
+$if not long
+  <img data-name=#{tagName} .char.head src=/img/ninja/#{shorten(tagName)}/icon.jpg>
+<li>
+  #{change logType}
+  <a .name data-name=#{tagName} href=@{CharacterR (Character.category char) (Characters.link char)}>
+    #{name}#{Character.category char}
+  <ul>
+    $if long
+      <img data-name=#{tagName} .char.head src=/img/ninja/#{shorten(tagName)}/icon.jpg>
+    $forall skills <- Character.skills char
+      <li>
+        $forall skill <- separate skills
+          <a .skill data-name=#{tagName}>#{Skill.name skill}

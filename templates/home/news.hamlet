@@ -1,0 +1,6 @@
+<h4>#{newsTitle}
+<aside>
+  #{show newsDate} by
+    <a href=@{ProfileR authorName}>#{authorName}
+<p>
+  #{preEscapedToHtml newsContent}

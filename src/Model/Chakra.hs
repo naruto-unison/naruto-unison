@@ -19,6 +19,10 @@ import           Data.Enum.Set.Class (AsEnumSet(..), EnumSet)
 import qualified Data.Text as Text
 import qualified Data.Text.Read as Read
 import           GHC.Exts (IsList(..))
+import           Text.Blaze (ToMarkup(..))
+import qualified Text.Blaze.Html5 as HTML
+import qualified Text.Blaze.Html5.Attributes as HTML
+import           Text.Blaze ((!))
 import           Yesod.Core.Dispatch (PathPiece(..))
 
 import qualified Class.Random as R
@@ -39,6 +43,9 @@ instance IsList Chakras where
     {-# INLINE toList #-}
     fromList = collect
     {-# INLINE fromList #-}
+
+instance ToMarkup Chakras where
+    toMarkup = concatMap toMarkup . toList
 
 instance PathPiece Chakras where
   toPathPiece Chakras{..} = intercalate "," $ tshow <$> [blood, gen, nin, tai]
@@ -97,6 +104,13 @@ data Chakra
 
 instance AsEnumSet Chakra where
     type EnumSetRep Chakra = Word8
+
+instance ToMarkup Chakra where
+    toMarkup Blood = HTML.div ! HTML.class_ "chakra blood" $ mempty
+    toMarkup Gen   = HTML.div ! HTML.class_ "chakra gen"   $ mempty
+    toMarkup Nin   = HTML.div ! HTML.class_ "chakra nin"   $ mempty
+    toMarkup Tai   = HTML.div ! HTML.class_ "chakra tai"   $ mempty
+    toMarkup Rand  = HTML.div ! HTML.class_ "chakra rand"  $ mempty
 
 toChakras :: Chakra -> Chakras
 toChakras Blood = 0 { blood = 1 }

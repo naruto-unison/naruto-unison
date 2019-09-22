@@ -11,14 +11,16 @@
 !/api/practiceact/#Chakras/#Chakras/*[Act]  PracticeActR    GET
 /api/update/#Text/#Bool/#Text/#Text         UpdateR         GET
 
-/admin                  TestR       GET
-/api/mute/#Bool         MuteR       GET
-!/                      PlayR       GET
-/changelog              ChangelogR  GET
-/home                   HomeR       GET
-/user/#Text             ProfileR    GET
-/forums                 ForumsR     GET
-/forum/#ForumBoard      BoardR      GET
-/topic/#ForumBoard/new  NewTopicR   GET POST
-/topic/#TopicId         TopicR      GET POST
-!/                      StaticR     Static static
+/admin                       AdminR       GET POST
+/api/mute/#Bool              MuteR        GET
+!/                           PlayR        GET
+/changelog                   ChangelogR   GET
+/home                        HomeR        GET
+/user/#Text                  ProfileR     GET
+/forums                      ForumsR      GET
+/forum/#ForumBoard           BoardR       GET
+/topic/#ForumBoard/new       NewTopicR    GET POST
+/topic/#TopicId              TopicR       GET POST
+/characters                  CharactersR  GET
+/characters/#Category/#Text  CharacterR   GET
+!/                           StaticR      Static static

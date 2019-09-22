@@ -5,42 +5,37 @@
   <a .refer href=@{ChangelogR}>View full changelog
   <h4>May 16
   <ul>
-    #{changelog New "Jirōbō" Reanimated}
+    ^{change New "Jirōbō" Reanimated}
   <h4>May 14
   <ul>
-    #{changelog Rework "Zabuza Momochi" Reanimated}
-    #{changelog Rework "Fuguki Suikazan" Reanimated}
+    ^{change Rework "Zabuza Momochi" Reanimated}
+    ^{change Rework "Fuguki Suikazan" Reanimated}
   <h4>May 12
   <ul>
-    #{changelog Added "Rock Lee" Shippuden}
+    ^{change Added "Rock Lee" Shippuden}
   <h4>May 2
   <ul>
-    #{changelog Rework "Rasa" Reanimated}
-    #{changelog Rework "Mū" Reanimated}
+    ^{change Rework "Rasa" Reanimated}
+    ^{change Rework "Mū" Reanimated}
   <h4>May 1
   <ul>
-    #{changelog Rework "Gengetsu Hōzuki" Reanimated}
+    ^{change Rework "Gengetsu Hōzuki" Reanimated}
   <h4>April 25
   <ul>
-    #{changelog Rework "Jinpachi Munashi" Reanimated}
+    ^{change Rework "Jinpachi Munashi" Reanimated}
   <h4>April 24
   <ul>
-    #{changelog Rework "Haku" Reanimated}
-    #{changelog Rework "Kushimaru Kuriarare" Reanimated}
+    ^{change Rework "Haku" Reanimated}
+    ^{change Rework "Kushimaru Kuriarare" Reanimated}
   <h4>April 19
   <ul>
-    #{changelog Rework "Hidan" Shippuden}
+    ^{change Rework "Hidan" Shippuden}
 
 <section>
   <h2>Naruto Unison
-  <p>
-    I'll figure out what to put here! News announcements, I guess?
-  <p>
-    Clicking on "NARUTO UNISON" at the top of the page takes you to the game, fyi.
-  <p>
-    There needs to be an actual "Play Naruto Unison" button as well as a display for login/register/view account, but I'm not sure if those should go here or in a column or something.
-  <p>
-    Work in progress.
+  <h3>News
+  $forall new <- newsList
+    ^{news new}
 
 <aside #forums>
   <h2>Recent Activity

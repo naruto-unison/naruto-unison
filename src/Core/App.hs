@@ -5,6 +5,7 @@
 -- | Yesod app instance. @stack new@ was used to generate boilerplate.
 module Core.App
   ( App(..)
+  , Form
   , Handler, Widget
   , Route(..)
   , AppPersistEntity
@@ -50,6 +51,9 @@ import           Core.AppSettings (AppSettings)
 import           Core.Settings (widgetFile)
 import           Model.Act (Act)
 import           Model.Chakra (Chakras)
+import qualified Model.Character as Character
+import           Model.Character (Category)
+import qualified Characters
 
 -- | App environment.
 data App = App
@@ -76,11 +80,35 @@ data App = App
 -- type Widget = WidgetT App IO ()
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
+-- | A convenient synonym for creating forms.
+type Form x = Html -> MForm (HandlerFor App) (FormResult x, Widget)
+
 -- | The set of constraints for persisted types.
 type AppPersistEntity a = ( PersistEntity a
                           , PersistRecordBackend a
                             (BaseBackend (YesodPersistBackend App))
                           )
+
+getNavLinks :: Handler [(Route App, Html)]
+getNavLinks = do
+    showAdmin <- isAuthenticated Moderator
+    return $ admin showAdmin
+      [ (HomeR,       "Home")
+      , (CharactersR, "Characters")
+      , (ForumsR,     "Forums")
+      ]
+  where
+    admin Authorized xs = xs ++ [(AdminR, "Admin")]
+    admin _          xs = xs
+
+origin :: Route App -> Route App
+origin ChangelogR = HomeR
+origin ProfileR{} = ForumsR
+origin BoardR{} = ForumsR
+origin NewTopicR{} = ForumsR
+origin TopicR{} = ForumsR
+origin CharacterR{} = CharactersR
+origin x = x
 
 instance Yesod App where
     approot :: Approot App
@@ -98,12 +126,12 @@ instance Yesod App where
 
     defaultLayout :: Widget -> Handler Html
     defaultLayout widget = do
-        master <- getYesod
-        mmsg <- getMessage
-
-        mcurrentRoute <- getCurrentRoute
-
+        master           <- getYesod
+        mmsg             <- getMessage
+        mcurrentRoute    <- getCurrentRoute
         (title, parents) <- breadcrumbs
+        muser            <- (entityVal <$>) <$> Auth.maybeAuth
+        navLinks         <- getNavLinks
 
         pc <- widgetToPageContent do
             $(widgetFile "include/cookie.min")
@@ -121,7 +149,7 @@ instance Yesod App where
         :: Route App  -- ^ The route the user is visiting.
         -> Bool       -- ^ Whether or not this is a "write" request.
         -> Handler AuthResult
-    isAuthorized TestR _ = isAuthenticated Moderator
+    isAuthorized AdminR _ = isAuthenticated Moderator
     -- isAuthorized PlayR _ = isAuthenticated Normal
     -- Routes not requiring authentication.
     isAuthorized _     _ = return Authorized
@@ -154,12 +182,18 @@ instance Yesod App where
     makeLogger = return . logger
 
 instance YesodBreadcrumbs App where
+  breadcrumb AdminR = return ("Admin", Just HomeR)
   breadcrumb (AuthR _) = return ("Login", Just HomeR)
   breadcrumb ChangelogR = return ("Changelog", Just HomeR)
   breadcrumb ForumsR = return ("Forums", Just HomeR)
   breadcrumb (BoardR board) = return (boardName board, Just ForumsR)
   breadcrumb (ProfileR name) = return (name, Just HomeR)
   breadcrumb (NewTopicR board) = return ("New Topic", Just $ BoardR board)
+  breadcrumb CharactersR = return ("Characters", Just HomeR)
+  breadcrumb (CharacterR category char) = return
+      ( maybe "Character" Character.name $ Characters.lookupSite category char
+      , Just CharactersR
+      )
   breadcrumb (TopicR topic) = do
       Topic{topicTitle, topicBoard} <- runDB $ get404 topic
       return (topicTitle, Just $ BoardR topicBoard)
@@ -174,12 +208,13 @@ instance YesodPersistRunner App where
     getDBRunner :: Handler (DBRunner App, Handler ())
     getDBRunner = defaultGetDBRunner connPool
 
-newUser :: Text -> Maybe Text -> User
-newUser ident verkey = User
+newUser :: Text -> Maybe Text -> Day -> User
+newUser ident verkey day = User
     { userIdent      = ident
     , userPassword   = Nothing
     , userVerkey     = verkey
     , userVerified   = False
+    , userJoined     = day
     , userPrivilege  = Normal
     , userName       = ident
     , userAvatar     = "/img/icon/default.jpg"
@@ -188,6 +223,7 @@ newUser ident verkey = User
     , userWins       = 0
     , userLosses     = 0
     , userStreak     = 0
+    , userRecord     = 0
     , userClan       = Nothing
     , userTeam       = Nothing
     , userPractice   = ["Naruto Uzumaki", "Sakura Haruno", "Sasuke Uchiha"]
@@ -215,7 +251,9 @@ instance YesodAuth App where
         x <- getBy $ UniqueUser ident
         case x of
             Just (Entity uid _) -> return $ Authenticated uid
-            Nothing -> Authenticated <$> insert (newUser ident Nothing)
+            Nothing -> Authenticated <$>
+                (insert =<<
+                 newUser ident Nothing . utctDay <$> liftIO getCurrentTime)
       where
         ident = Auth.credsIdent creds
     authPlugins :: App -> [AuthPlugin App]
@@ -252,8 +290,9 @@ instance YesodAuthEmail App where
 
     afterPasswordRoute _ = PlayR
 
-    addUnverified email verkey = liftHandler $
-        runDB $ insert $ newUser email (Just verkey)
+    addUnverified email verkey = do
+        liftHandler . runDB . insert .
+            newUser email (Just verkey) . utctDay =<< liftIO getCurrentTime
 
     sendVerifyEmail email _ verurl =
         liftIO $ Mail.renderSendMail

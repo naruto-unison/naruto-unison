@@ -1,0 +1,29 @@
+h2 {
+    margin-bottom: -0.25em;
+}
+.skillClasses {
+    margin: 0.25em 0;
+    clear: both;
+}
+.char.head {
+    float: right;
+    position: relative;
+    margin: 0 0 10px 10px;
+}
+section .char {
+    margin: 0.5em 1em 0 0;
+    position: relative;
+    top: 5px;
+}
+section {
+    padding-bottom: 0.5em;
+}
+section section {
+    display: flex;
+    padding-top: 0.5em;
+    padding-bottom: 0em;
+    min-height: 100px;
+}
+.container > section {
+    border-top: 3px solid #ddd;
+}

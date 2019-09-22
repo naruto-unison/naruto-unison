@@ -55,7 +55,7 @@ ratingThreshold :: Double
 ratingThreshold = 1/0 -- i.e. infinity
 
 bot :: User
-bot = (App.newUser "Bot" Nothing)
+bot = (App.newUser "Bot" Nothing $ ModifiedJulianDay 0)
     { userName       = "Bot"
     , userAvatar     = "/img/icon/bot.jpg"
     , userVerified   = True
@@ -295,7 +295,7 @@ gameSocket = do
 tryEnact :: ∀ m. (MonadGame m, MonadRandom m, MonadSockets m, MonadUnliftIO m)
          => Int -> Player -> TBQueue Wrapper -> m ()
 tryEnact turnTime player writer = do
-    enactMessage <- Timeout.timeout turnTime $ 
+    enactMessage <- Timeout.timeout turnTime $
                     Text.split ('/' ==) <$> Sockets.receive
 
     case enactMessage of

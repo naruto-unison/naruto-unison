@@ -1,0 +1,29 @@
+<img .char.head src=/img/ninja/#{path}/icon.jpg>
+<h2>
+  #{Character.name char}#{Character.category char}
+<p>
+  #{Parse.desc $ Character.bio char}
+$forall skills <- Character.skills char
+  <section>
+    $forall skill <- separate skills
+      <section>
+        <aside>
+          <img .char src=/img/ninja/#{path}/#{shorten(Skill.name skill)}.jpg>
+        <div>
+          <h3>
+            #{Skill.name skill}
+          #{Parse.desc $ Skill.desc skill}
+          <p .skillClasses>
+            #{skillClasses skill}
+          <dl>
+            $if Skill.cost skill /= 0
+              <dt>Cost
+              <dd>#{Skill.cost skill}
+            <dt>Duration
+            <dd>#{Skill.dur skill}
+            $if Skill.cooldown skill /= 0
+              <dt>Cooldown
+              <dd>#{Skill.cooldown skill}
+            $if Skill.charges skill /= 0
+              <dt>Charges
+              <dd>#{Skill.charges skill}

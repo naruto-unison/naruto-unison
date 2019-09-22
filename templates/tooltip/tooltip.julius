@@ -85,7 +85,7 @@ $(() => {
               ...cTypes.map(cType => Array.from(Array(skill.cost[cType]))
               .map(()=> $(`<div class=" chakra ${cType}"></div>`) ))
             )).append($('<br/><p class="skillClasses">' +
-              [skill.channel.tag].concat(filterClasses(skill.classes)).join(", ") +
+              [skill.dur.tag].concat(filterClasses(skill.classes)).join(", ") +
               '</div>'))
             desc = tooltip.find("article").html(skill.desc.replace(/\[.\]/g,"").replace(/\[/g,"<i>").replace(/\]/g,"</i>"))
             const charges = skill.charges

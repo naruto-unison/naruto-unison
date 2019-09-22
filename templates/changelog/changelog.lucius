@@ -1,15 +1,19 @@
 .char {
-  float: left;
-  margin: 1px 0px 0px -19px !important;
+    float: left;
+    margin: 1px 0px 0px -19px !important;
 }
 li li .skill:after {
-  content: " |";
-  color: #666;
+    content: " |";
+    color: #666;
 }
 .skill:last-child:after {
-  content: none;
+    content: none;
 }
 
 li li {
-  margin-left: 5.5em;
+    margin-left: 5.5em;
+    line-height: 1em;
+}
+#content {
+    padding-bottom: 10em;
 }

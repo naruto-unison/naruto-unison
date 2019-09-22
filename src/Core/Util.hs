@@ -1,11 +1,13 @@
 -- Helper functions.
+-- If a function doesn't seem like it should be inlined, it probably doesn't go
+-- here.
 module Core.Util
   ( (!?), (!!)
   , (—), (∈), (∉)
   , Lift
   , intersects
   , duplic
-  , shorten
+  , shorten, unaccent
   ) where
 
 import ClassyPrelude hiding ((<|), mapMaybe)
@@ -57,17 +59,29 @@ duplic = go []
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text
-shorten = omap f . filter (∉ bans)
+shorten = omap unaccent . filter permit
   where
-    bans :: String
-    bans  = " -:()®'/?"
-    f 'ō' = 'o'
-    f 'Ō' = 'O'
-    f 'ū' = 'u'
-    f 'Ū' = 'U'
-    f 'ä' = 'a'
-    f a   = a
-    {-# INLINE f #-}
+    permit ' '  = False
+    permit '-'  = False
+    permit ':'  = False
+    permit '('  = False
+    permit ')'  = False
+    permit '®'  = False
+    permit '\'' = False
+    permit '/'  = False
+    permit '?'  = False
+    permit _    = True
+    {-# INLINE permit #-}
+{-# INLINE shorten #-}
+
+unaccent :: Char -> Char
+unaccent 'ō' = 'o'
+unaccent 'Ō' = 'O'
+unaccent 'ū' = 'u'
+unaccent 'Ū' = 'U'
+unaccent 'ä' = 'a'
+unaccent x   = x
+{-# INLINE unaccent #-}
 
 -- | A metaconstraint for liftable functions.
 -- Useful for default signatures of MTL classes:

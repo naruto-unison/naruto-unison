@@ -7,6 +7,8 @@ module Core.Rating (update) where
 
 import ClassyPrelude hiding (Handler)
 
+import qualified Database.Esqueleto as ESQL
+import           Database.Esqueleto ((>.), (^.), (==.))
 import qualified Database.Persist as DB
 import Database.Persist ((=.), (+=.))
 import Database.Persist.Sql (SqlPersistT)
@@ -36,6 +38,8 @@ update game player who1 who2 = do
             let (updates1, updates2) = compute (user1, user2) victors
             DB.update who1 updates1
             DB.update who2 updates2
+            updateStreak who1
+            updateStreak who2
         _ -> return ()
   where
     victors = case game of
@@ -55,6 +59,13 @@ updateRecord :: Double -> [Update User]
 updateRecord 1 = [UserWins +=. 1,   UserStreak +=. 1] -- User won.
 updateRecord 0 = [UserLosses +=. 1, UserStreak =. 0] -- User lost.
 updateRecord _ = [UserStreak =. 0] -- Tie.
+
+updateStreak :: Key User -> SqlPersistT Handler ()
+updateStreak who =
+    ESQL.update \p -> do
+        ESQL.set p [ UserRecord ESQL.=. p ^. UserStreak ]
+        ESQL.where_ $ p ^. UserId ==. ESQL.val who
+        ESQL.where_ $ p ^. UserStreak >. p ^. UserRecord
 
 -- | Updates skill ratings.
 -- Uses the [Glicko-2 algorithm](http://glicko.net/glicko/glicko2.pdf)

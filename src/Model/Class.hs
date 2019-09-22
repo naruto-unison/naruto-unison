@@ -1,10 +1,15 @@
-module Model.Class (Class(..), lower) where
+module Model.Class
+  ( Class(..)
+  , visible
+  , name, lower
+  ) where
 
 import ClassyPrelude
 
 import           Data.Aeson (ToJSON(..))
 import qualified Data.Enum.Memo as Enum
 import           Data.Enum.Set.Class (AsEnumSet(..))
+import           Text.Blaze (ToMarkup(..))
 
 import Class.Display (Display(..))
 
@@ -25,10 +30,6 @@ data Class
     -- Tags
     | Bane
     | Necromancy
-    -- Distance
-    -- Limits
-    | Nonstacking
-    | Extending
     -- Prevention
     | Uncounterable
     | Unreflectable
@@ -41,6 +42,9 @@ data Class
     | NonMental
     | Resource -- ^ Display stacks separately
     | Direct
+    -- Limits (Hidden)
+    | Nonstacking
+    | Extending
     -- Chakra (Hidden)
     | Bloodline
     | Genjutsu
@@ -53,13 +57,19 @@ instance AsEnumSet Class where
     type EnumSetRep Class = Word64
 
 instance ToJSON Class where
-    toJSON = Enum.memoize $ toJSON . name
+    toJSON = toJSON . name
+
+instance ToMarkup Class where
+    toMarkup = toMarkup . name
 
 instance Hashable Class where
     hashWithSalt salt = hashWithSalt salt . fromEnum
 
 instance Display Class where
     display = Enum.memoize $ display . name
+
+visible :: Class -> Bool
+visible = (< All)
 
 name :: Class -> Text
 name InvisibleTraps = "Invisible"

@@ -1,13 +1,15 @@
 module Characters
   ( list, map
   , lookupName
+  , link, lookupSite
   ) where
 
-import ClassyPrelude hiding (map)
+import ClassyPrelude hiding (link, map)
 
-import Data.HashMap.Strict (HashMap)
+import qualified Data.Enum.Memo as Enum
+import           Data.HashMap.Strict (HashMap)
 
-import           Core.Util ((∉))
+import           Core.Util ((∉), unaccent)
 import qualified Model.Character as Character
 import           Model.Character (Character, Category(..))
 import           Model.Class (Class(..))
@@ -91,3 +93,18 @@ doSkill skill = skill { Skill.classes = added ++ Skill.classes skill }
             [ (All,       True)
             , (NonMental, Mental ∉ Skill.classes skill)
             ]
+
+link :: Character -> Text
+link = omap clean . toLower . Character.name
+  where
+    clean ' ' = '-'
+    clean x   = unaccent x
+
+siteChars :: Category -> HashMap Text Character
+siteChars =
+    Enum.memoize \category -> mapFromList $ (\c -> (link c, c)) <$>
+    filter ((== category) . Character.category) list
+{-# NOINLINE siteChars #-}
+
+lookupSite :: Category -> Text -> Maybe Character
+lookupSite category x = lookup x $ siteChars category

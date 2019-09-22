@@ -1,0 +1,16 @@
+const output = document.getElementById("output")
+const form   = document.getElementById("form")
+const input  = document.getElementById("input")
+const conn   = new WebSocket(document.URL.replace(/^http/g, "ws"))
+
+conn.onmessage = e => {
+    const p = document.createElement("p")
+    p.appendChild(document.createTextNode(e.data.substr(0, 100) + "\n\n"))
+    output.appendChild(p)
+}
+
+form.addEventListener("submit", e => {
+    conn.send(input.value)
+    input.value = ""
+    e.preventDefault()
+})

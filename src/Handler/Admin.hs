@@ -1,60 +1,51 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE MultiParamTypeClasses       #-}
+{-# LANGUAGE QuasiQuotes                 #-}
+{-# LANGUAGE TemplateHaskell             #-}
+{-# LANGUAGE TypeFamilies                #-}
+{-# OPTIONS_GHC -fno-warn-unused-matches #-}
 
 -- | Behind-the-scenes utility pages. Require sufficient 'Core.Field.Privilege'.
 -- Privilege levels are handled in "Core.App".
-module Handler.Admin (getTestR) where
+module Handler.Admin (getAdminR, postAdminR) where
 
+import ClassyPrelude hiding (Handler)
 import Yesod
 
-import           Core.App (Handler)
+import qualified Yesod.Auth as Auth
+
+import           Core.App (Form, Handler, Route(..))
+import           Core.Model (News(..))
+import           Core.Settings (widgetFile)
 import qualified Class.Sockets as Sockets
 import qualified Handler.Play as Play
 
--- | Provides a simple JavaScript interface for 'gameSocket'.
-getTestR :: Handler Html
-getTestR = do
-  Sockets.run Play.gameSocket
-  defaultLayout do
-    setTitle "Socket Test"
-    [whamlet|
-        <div #output>
-        <form #form>
-            <input #input autofocus>
-    |]
-    toWidget [lucius|
-        \#output {
-            width: 600px;
-            height: 400px;
-            border: 1px solid black;
-            margin-bottom: 1em;
-            p {
-                margin: 0 0 0.5em 0;
-                padding: 0 0 0.5em 0;
-                border-bottom: 1px dashed #99aa99;
-            }
-        }
-        \#input {
-            width: 600px;
-            display: block;
-        }
-    |]
-    toWidget [julius|
-        const output = document.getElementById("output")
-        const form   = document.getElementById("form")
-        const input  = document.getElementById("input")
-        const conn   = new WebSocket(document.URL.replace(/^http/g, "ws"))
+getAdminR :: Handler Html
+getAdminR = do
+    (newsForm, enctype) <- generateFormPost =<< getNewsForm
+    Sockets.run Play.gameSocket
+    defaultLayout do
+        setTitle "Admin"
+        $(widgetFile "admin/admin")
+        $(widgetFile "admin/sockets")
 
-        conn.onmessage = e => {
-            const p = document.createElement("p")
-            p.appendChild(document.createTextNode(e.data.substr(0, 100) + "\n\n"))
-            output.appendChild(p)
-        }
+postAdminR :: Handler Html
+postAdminR = do
+    ((result, newsForm), enctype) <- runFormPost =<< getNewsForm
+    case result of
+        FormSuccess news -> do
+            runDB $ insert400_ news
+            defaultLayout [whamlet|<p>"News posted"|]
+        _             -> defaultLayout [whamlet|<p>"Invalid post"|]
+    Sockets.run Play.gameSocket
+    defaultLayout do
+        setTitle "Admin"
+        $(widgetFile "admin/admin")
+        $(widgetFile "admin/sockets")
 
-        form.addEventListener("submit", e => {
-            conn.send(input.value)
-            input.value = ""
-            e.preventDefault()
-        })
-|]
+getNewsForm :: Handler (Form News)
+getNewsForm = do
+    author <- Auth.requireAuthId
+    (UTCTime date _) <- liftIO getCurrentTime
+    return . renderDivs $ News author date
+        <$> areq textField "" Nothing
+        <*> (unTextarea <$> areq textareaField "" Nothing)

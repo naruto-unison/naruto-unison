@@ -53,6 +53,7 @@ library:
   - clock == 0.8
   - containers == 0.6.0.1
   - data-default == 0.7.1.1
+  - esqueleto == 3.0.0
   - fast-logger == 2.4.17
   - file-embed == 0.0.11
   - hjsmin == 0.2.0.2

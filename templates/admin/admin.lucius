@@ -1,0 +1,7 @@
+input, textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
+h2 {
+    text-transform: none !important;
+}

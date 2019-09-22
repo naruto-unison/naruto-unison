@@ -30,7 +30,7 @@ p.label {
   font-weight: initial;
   text-decoration: underline;
 }
-#content > section {
+.container > section {
   flex-grow: 0;
   padding: 0;
   padding-left: 1em;

@@ -1,20 +1,46 @@
 <!-- Page Contents -->
 
-$if (mcurrentRoute == Just PlayR)
+$if mcurrentRoute == Just PlayR
   ^{widget}
 $else
-  <header #bannerbg>
-    <a #banner href=/>
+  <header #sitenav>
+    <aside>
       <img src=/img/logo.png>
-      <img src=/img/header.png>
-    <nav .breadcrumb>
-      <ul>
-        $forall bc <- parents
-          <li>
-            <a href="@{fst bc}">#{snd bc}
-        <li .active>#{title}
+    <nav>
+      $maybe currentRoute <- mcurrentRoute
+        $forall (dest, name) <- navLinks
+          $if currentRoute == dest
+            <span #current>#{name}
+          $elseif origin currentRoute == dest
+            <a #current href=@{dest}>#{name}
+          $else
+            <a href=@{dest}>#{name}
+      $nothing
+        $forall (dest, name) <- navLinks
+          <a href=@{dest}>#{name}
+    <aside>
+      <div>
+        $maybe user <- muser
+          <a href=@{ProfileR $ userName user}>
+            Profile
+        $nothing
+          <a href=@{AuthR Auth.LoginR}>
+            Login
+      <a href=@{PlayR}>
+        <button>
+          Play Now
+
+  <div #content .container>
+
+    $if mcurrentRoute /= Just HomeR
+      <nav #breadcrumb>
+        <ul>
+          $forall bc <- parents
+            <li>
+              <a href=@{fst bc}>#{snd bc}
+          <li .active>#{title}
+
     $maybe msg <- mmsg
       <div .container.alert.alert-info #message>#{msg}
 
-  <div #content .container>
     ^{widget}

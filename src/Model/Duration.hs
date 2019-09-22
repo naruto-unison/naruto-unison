@@ -11,6 +11,7 @@ import ClassyPrelude
 import Data.Aeson (ToJSON(..))
 
 import Class.Display (Display(..))
+import Text.Blaze (ToMarkup(..))
 
 type Turns = Int
 newtype Duration = Duration Turns deriving (Num, Eq, Ord, Show, Read)
@@ -20,6 +21,9 @@ instance Display Duration where
 
 instance ToJSON Duration where
     toJSON = toJSON . sync
+
+instance ToMarkup Duration where
+      toMarkup (Duration d) = toMarkup $ abs d
 
 throttle :: Int -> Duration -> Maybe Duration
 throttle 0 dur = Just dur

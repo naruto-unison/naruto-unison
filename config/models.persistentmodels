@@ -4,14 +4,16 @@ User
     password    Text Maybe
     verkey      Text Maybe
     verified    Bool
+    joined      Day default=current_date
     privilege   Privilege
     name        Text
     avatar      Text
     background  Text Maybe
     xp          Int
-    wins        Int
-    losses      Int
-    streak      Int
+    wins        Int default=0
+    losses      Int default=0
+    streak      Int default=0
+    record      Int default=0
     clan        Text Maybe
     team        [Text] Maybe
     practice    [Text]
@@ -37,3 +39,9 @@ Topic
     posts   Int
     time    UTCTime
     latest  UserId
+
+News
+    author   UserId
+    date     Day
+    title    Text
+    content  Text

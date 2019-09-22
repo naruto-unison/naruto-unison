@@ -18,45 +18,103 @@ span.label {
 }
 body {
     font-family: Trebuchet MS, sans-serif;
-    background-size: cover !important;
-    background: #040309 url('/img/bg/hokage.png') no-repeat center bottom;
-    background-attachment: fixed;
-    padding: 0 2.5em;
-    box-sizing: border-box;
+    overflow-y: scroll;
+    background: #1b4e66;
 }
-.breadcrumb, #content, #banner, #message {
+#sitenav {
+    display: flex;
+    background: #ddd;
+    border-color: #999;
+    padding: 0 1em;
+}
+#sitenav img {
+    height: 35px;
+}
+#sitenav nav {
+    flex-grow: 1;
+    text-align: center;
+    align-self: end;
+}
+#sitenav aside {
+    display: flex;
+    width: 14em;
+    align-self: center;
+}
+#sitenav div {
+    align-self: end;
+    padding-right: 1em;
+    flex-grow: 1;
+    text-align: right;
+}
+#sitenav aside > a {
+    align-self: end;
+    padding-right: 5px;
+    padding-top: 10px;
+    margin: -0.3em 0;
+}
+#sitenav div, #sitenav aside > a, #sitenav nav a, #sitenav nav span {
+    padding-bottom: 10px;
+}
+#sitenav nav a, #sitenav nav span {
+    margin: 0 0.5em -3px 0.5em;
+    display: inline-block;
+    box-sizing: content-box;
+}
+#sitenav, #current {
+    border-bottom-width: 3px;
+    border-bottom-style: solid;
+}
+#sitenav a {
+    color: #59778a;
+}
+#sitenav a:hover {
+    text-decoration: none;
+    color: #0099ff;
+}
+#current {
+    border-bottom-color: #666;
+}
+#sitenav, #sitenav button {
+    text-transform: uppercase;
+}
+#sitenav button {
+    cursor: unset;
+    border-color: #000;
+    background-color: #eee;
+    color: #000;
+}
+#sitenav button:hover {
+    color: #0099ff;
+    border-color: #0099ff;
+}
+#content, #message {
     max-width: 800px;
     box-sizing: border-box;
 }
-.breadcrumb {
-    margin: 0 auto -2px auto;
+#breadcrumb {
+    margin-bottom: 1em;
 }
-.breadcrumb ul {
+#breadcrumb ul {
     margin: 0;
     padding: 0;
 }
-.breadcrumb li {
+#breadcrumb li {
     display: inline-block;
-    color: #fff;
-    text-shadow: 0 0 2px #000;
+    color: #000;
 }
-.breadcrumb li:first-child:before {
+#breadcrumb li:first-child:before {
     content: none;
 }
-.breadcrumb li:before {
+#breadcrumb li:before {
     content: " > ";
     white-space: pre;
 }
 .container {
     background: #fff;
-    border: 2px solid #333;
-    margin: 5px auto auto;
+    margin: auto;
     font-size: 14px;
-    padding-bottom: 1em;
-}
-.container > section, container > p {
-    flex-grow: 1;
-    padding: 0 2.5em 1em;
+    padding: 1em 2.5em 5em 2.5em;
+    box-sizing: border-box;
 }
 table {
     width: 100%;
@@ -84,6 +142,9 @@ thead {
     vertical-align: baseline;
     text-transform: uppercase;
 }
+a.name {
+    text-decoration: underline;
+}
 th h3 a {
     font-weight: normal;
     margin-left: 0.5em;
@@ -104,40 +165,17 @@ tr:first-child th {
     padding: 10px 30px;
     color: #e00;
 }
-#bannerbg {
-    padding-top: 1em;
-    margin-bottom: -5px;
-    padding-bottom: 5px;
-}
-#banner {
-    height: 58px;
-    margin: auto auto;
-    font-size: 35px;
-    color: #44aaff;
-    text-decoration: none;
-    text-transform: uppercase;
-    text-shadow: 0 0 3px #000;
-    text-align: center;
-    display: block;
-    padding-left: 0;
-    padding-right: 50px;
-}
-#banner img:first-child {
-    width: 50px;
-    margin-bottom: 7px;
-    margin-right: 6px;
-    margin-left: 1px;
-}
-.container ul {
+ul {
     margin: 0;
     padding: 0;
 }
-.container ul ul {
+ul ul {
     padding-left: 1.5em;
     padding-bottom: 0.2em;
 }
-.container li {
-    margin-top: 0.3em;
+li {
+    margin-top: 0.5em;
+    line-height: 1.5em;
 }
 h1, h2 {
     text-transform: uppercase;
@@ -147,9 +185,9 @@ h3, h4 {
     margin-bottom: 0.3em;
 }
 h1 { margin: 0.1em 0 }
-h2 { margin-bottom: 0.5em; }
-h3 { font-size: 1.25em; }
-h4 { font-size: 1.15em; }
+h2 { margin: 0 0 0.5em 0 }
+h3 { font-size: 1.25em }
+h4 { font-size: 1.15em }
 
 .char {
   display: inline-block;
@@ -177,16 +215,12 @@ h4 { font-size: 1.15em; }
 
 .skillClasses {
   font-weight: normal;
-  font-size: 12px;
-  display: inline;
-  margin: 0;
-  margin-left: 10px;
   color: #606060;
 }
 sup {
   font-style: italic;
   color: #606060;
-  margin-left: -0.3em;
+  /*margin-left: -0.3em;*/
   font-size: 0.75em;
 }
 .extra {
@@ -231,13 +265,14 @@ textarea {
     padding: 5px;
 }
 
-#content > form {
+.container > form {
     padding: 10px;
     margin: auto;
 }
-#content {
-    padding: 0 10px;
+.container section a {
+    margin-left: 5px;
 }
+
 .full {
     flex-grow: 1;
 }
@@ -254,4 +289,21 @@ textarea {
 td header div {
     font-size: 0.9em;
     color: #606060;
+}
+i {
+    color: #600;
+}
+dl {
+    margin-top: 0;
+}
+dt {
+    float: left;
+    width: 6.5em;
+    font-weight: bold;
+}
+dt:after {
+    content: ":";
+}
+dd {
+    margin-bottom: 0.25em;
 }

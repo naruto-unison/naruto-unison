@@ -1,44 +1,30 @@
-<section>
-  <img .char.avatar src=#{userAvatar}>
-  $maybe team <- userTeam
-    <div .team>
-      $forall name <- team
-        <img .char.head data-name=#{name} src="/img/ninja/#{shorten(name)}/icon.jpg">
-<section>
-  <h3>#{userName}
-  <p>
-    <span .label>Rank
-    <span .#{userRank user}>#{userRank user}
-  <p>
-    <span .label>Clan
-    #{fromMaybe "Clanless" userClan}
-  <p>
-    <span .label>Joined
-    $# TODO
-    --
-  <p>
-    <span .label>Online
-    $# TODO
-    --
-  <p>
-    <span .label>Level
-    <div .level>
+<article>
+  <section>
+    <img .char.avatar src=#{userAvatar}>
+    $maybe team <- userTeam
+      <div .team>
+        $forall name <- team
+          <img .char.head data-name=#{name} src=/img/ninja/#{shorten(name)}/icon.jpg>
+  <dl>
+    <h3>#{userName}
+    <dt>Rank
+    <dd .#{userRank user}>#{userRank user}
+    <dt>Clan
+    <dd>#{fromMaybe "Clanless" userClan}
+    <dt>Joined
+    <dd>#{show userJoined}
+    <dt>Level
+    <dd>
       <div .levelBg style="width: #{quot xp 5000}%;">
       <div .levelText>
         #{level}
-  <p>
-    <span .label>XP
-    #{userXp}
-  <p>
-    <span .label>Wins
-    #{userWins}
-  <p>
-    <span .label>Losses
-    #{userLosses}
-  <p>
-    <span .label>Streak
-    #{userStreak}
-  <p>
-    <span .label>Highest
-    $# TODO
-    #{userStreak}
+    <dt>XP
+    <dd>#{userXp}
+    <dt>Wins
+    <dd>#{userWins}
+    <dt>Losses
+    <dd>#{userLosses}
+    <dt>Streak
+    <dd>#{userStreak}
+    <dt>Record
+    <dd>#{userRecord}

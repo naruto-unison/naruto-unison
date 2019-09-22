@@ -19,9 +19,6 @@ a:hover {
 body h1 {
     text-transform: none;
 }
-i {
-    color: #600;
-}
 p {
     margin: 0;
 }
@@ -390,7 +387,6 @@ a.playButton {
     line-height: 1.15;
     margin-left: -2px;
     text-align: left;
-    /* text-transform: uppercase; */
     font-size: 15px;
     position: relative;
 }
@@ -522,7 +518,6 @@ a.playButton {
 #top > article .char {
     margin-bottom: 0;
     height: 75px;
-    /*width: 75px;*/
 }
 #top > article h1 {
     font-weight: bold;
@@ -537,6 +532,12 @@ a.playButton {
     top: 200px;
     width: 383px;
     transition: 0.5s all;
+}
+.skillClasses {
+  font-size: 12px;
+  display: inline;
+  margin: 0;
+  margin-left: 10px;
 }
 #game .skillClasses {
     display: block;
@@ -731,7 +732,6 @@ a.playButton {
     bottom: -4px;
 }
 #ready {
-    /*background: #161616;*/
     color: #eee;
     width: 238px;
     margin: auto;

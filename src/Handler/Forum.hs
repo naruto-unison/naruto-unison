@@ -90,7 +90,8 @@ postTopicR topicId = do
     who       <- Auth.requireAuthId
     time      <- liftIO getCurrentTime
     timestamp <- liftIO makeTimestamp
-    ((result, _), _) <- runFormPost . renderTable $ newPostForm topicId who time
+    ((result, widget), enctype) <- runFormPost . renderTable $
+                                   newPostForm topicId who time
     case result of
         FormSuccess post -> runDB do
             insert400_ post
@@ -101,8 +102,6 @@ postTopicR topicId = do
         _ -> return ()
     Topic{..} <- runDB $ get404 topicId
     posts     <- selectWithAuthors [PostTopic ==. topicId] []
-    (widget, enctype) <- generateFormPost . renderTable $
-                         newPostForm topicId who time
     defaultLayout do
         setTitle . toHtml $ "Topic: " ++ topicTitle
         $(widgetFile "forum/topic")

@@ -19,6 +19,7 @@ import Data.Enum.Set.Class (AsEnumSet(..), EnumSet)
 import Data.Word (Word16)
 import Text.Blaze (ToMarkup(..))
 import Yesod.WebSockets (WebSocketsT)
+import Yesod.Core.Dispatch (PathPiece(..))
 
 import           Core.Util (Lift)
 import qualified Class.Classed as Classed
@@ -184,16 +185,36 @@ instance TurnBased Channeling where
     setDur d Control{} = Control $ unsync d
     setDur d Ongoing{} = Ongoing $ unsync d
 
+instance ToMarkup Channeling where
+    toMarkup Instant     = "Instant"
+    toMarkup Passive     = "Passive"
+    toMarkup (Action 0)  = "Action"
+    toMarkup (Control 0) = "Control"
+    toMarkup (Ongoing 0) = "Ongoing"
+    toMarkup (Action x)  = "Action " ++ toMarkup x
+    toMarkup (Control x) = "Control " ++ toMarkup x
+    toMarkup (Ongoing x) = "Ongoing " ++ toMarkup x
+
 -- | 'Original', 'Shippuden', or 'Reanimated'.
 data Category
     = Original
     | Shippuden
     | Reanimated
     deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
+
 instance ToMarkup Category where
     toMarkup Original   = mempty
     toMarkup Shippuden  = HTML.sup "𝕊"
     toMarkup Reanimated = HTML.sup "ℝ"
+
+instance PathPiece Category where
+    toPathPiece Original   = "original"
+    toPathPiece Shippuden  = "shippuden"
+    toPathPiece Reanimated = "reanimated"
+    fromPathPiece "original"   = Just Original
+    fromPathPiece "shippuden"  = Just Shippuden
+    fromPathPiece "reanimated" = Just Reanimated
+    fromPathPiece _            = Nothing
 
 -- | An out-of-game character.
 data Character = Character { name     :: Text

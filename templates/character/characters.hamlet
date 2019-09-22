@@ -1,0 +1,14 @@
+<h2>Characters
+<p>
+  Naruto Unison games are played with teams of three different characters. Each character has their own skills, and most favor one type of chakra over the rest. The characters in the Original category are available from the start, but the others must be unlocked by completing specific missions.
+$forall category <- categories
+  <h3>#{heading category}
+  $forall char <- categoryChars category
+    <div>
+      <section>
+        <aside>
+          <img .char.head src=/img/ninja/#{shorten(Character.format char)}/icon.jpg>
+        <div>
+          <a href=@{CharacterR category $ Characters.link char}>
+            <h4>#{Character.name char}
+          <p>#{Parse.desc $ Character.bio char}

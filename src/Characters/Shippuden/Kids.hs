@@ -391,7 +391,7 @@ cs =
     ]
   , Character
     "Shikamaru Nara"
-    "Once known for his laziniess, Shikamaru has worked tirelessly to become a leader. With years of experience, his plans have become even more convoluted and intricate."
+    "Once known for his laziness, Shikamaru has worked tirelessly to become a leader. With years of experience, his plans have become even more convoluted and intricate."
     [ [ Skill.new
         { Skill.name      = "Shadow Sewing"
         , Skill.desc      = "Delicate tendrils of shadow wrap around an enemy, dealing 35 damage and stunning their non-mental skills for 1 turn. While active, this skill becomes [Shadow Sewing: Hold][g]."
