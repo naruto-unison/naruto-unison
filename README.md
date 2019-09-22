@@ -83,14 +83,14 @@ Haskell is excellent at parallel computing. Naruto Unison is built on top of the
 
 Unless quarantined in specific monads, Haskell functions are referentially transparent, meaning they always produce the same output if given the same inputs and do not cause side-effects. This is ideal for a game in which the game engine is an independent, quasi-mathematical process that can (and should!) be separate from all the effectful work of HTTP handling and websockets and so on. Separating pure and impure functions makes the codebase much easier to test, prevents numerous bugs that could otherwise occur, and promotes healthy concurrency.
 
-As an example, all the functions in [Model.Ninja](src/Model/Ninja.hs) are guaranteed to be pure. This one modifies a Ninja's health while constrained to a minimum and maximum:
+As an example, all the functions in [Engine.Ninjas](src/Engine/Ninjas.hs) are guaranteed to be pure. This one modifies a Ninja's health constrained within a range:
 
 ```haskell
 adjustHealth :: (Int -> Int) -> Ninja -> Ninja
 adjustHealth f n = n { health = min 100 . max (Ninja.minHealth n) . f $ health n }
 ```
 
-It is a simple transformation of data. Because `adjustHealth` is pure, `Ninja.minHealth` is also guaranteed to be pure. Their output is consistent and they can't modify shared state, perform network operations, or anything else that might cause problems in a multi-threaded environment.
+It is a simple transformation of data. Because `adjustHealth` is pure, `Ninja.minHealth` is also guaranteed to be pure. These functions have consistent output and cannot modify shared state, perform network operations, or anything else that might cause problems in a multi-threaded environment.
 
 
 #### Clear and Concise Math
