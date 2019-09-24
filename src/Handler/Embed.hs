@@ -8,7 +8,7 @@ module Handler.Embed
   , getRobotsR
   ) where
 
-import ClassyPrelude hiding (Handler)
+import ClassyPrelude
 import Yesod
 
 import qualified Data.FileEmbed as FileEmbed

@@ -10,7 +10,7 @@ module Handler.Client
     , getUpdateR
     ) where
 
-import ClassyPrelude hiding (Handler, head)
+import ClassyPrelude
 import Yesod
 
 import           Data.List (nub)

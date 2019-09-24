@@ -8,7 +8,7 @@
 -- Privilege levels are handled in "Core.App".
 module Handler.Admin (getAdminR, postAdminR) where
 
-import ClassyPrelude hiding (Handler)
+import ClassyPrelude
 import Yesod
 
 import qualified Yesod.Auth as Auth

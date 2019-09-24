@@ -15,7 +15,7 @@ module Core.App
   , newUser
   ) where
 
-import ClassyPrelude hiding (Handler)
+import ClassyPrelude
 import Yesod
 
 import           Control.Monad.Logger (LogSource)

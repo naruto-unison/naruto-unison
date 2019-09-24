@@ -12,7 +12,7 @@ module Handler.Site
   , getCharactersR, getCharacterR
   ) where
 
-import ClassyPrelude hiding (Handler)
+import ClassyPrelude
 import Yesod
 
 import Data.List (nubBy)

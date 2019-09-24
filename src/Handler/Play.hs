@@ -4,7 +4,7 @@ module Handler.Play
     , getPracticeActR, getPracticeQueueR, getPracticeWaitR
     ) where
 
-import ClassyPrelude hiding (Handler)
+import ClassyPrelude
 import Yesod
 
 import           Control.Monad.Loops (untilJust)

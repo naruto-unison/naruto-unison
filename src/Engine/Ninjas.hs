@@ -249,9 +249,8 @@ addDefense amount name user n =
 clear :: Text -- ^ 'Status.name'.
       -> Slot -- ^ 'Status.user'.
       -> Ninja -> Ninja
-clear name user n = n { statuses = filter keep $ statuses n }
-  where
-    keep = not . Labeled.match name user
+clear name user n =
+    n { statuses = filter (not . Labeled.match name user) $ statuses n }
 
 -- | Deletes matching 'traps'.
 clearTrap :: Text -- ^ 'Trap.name'.
@@ -267,15 +266,14 @@ clearTraps tr n = n { traps = filter ((tr /=) . Trap.trigger) $ traps n }
 -- | Resets matching 'face's.
 clearFace :: Text -- ^ 'Face.name'.
           -> [Face] -> [Face]
-clearFace name = filter keep
-  where
-    keep Face{ dur = Variant.FromSkill x } = x /= name
-    keep _                                 = True
+clearFace name = filter \case
+    Face{ dur = Variant.FromSkill x } -> x /= name
+    _                                 -> True
 
 -- | Resets matching 'variants'.
 clearVariants :: Text -- ^ 'Variant.name'.
               -> Seq (NonEmpty Variant) -> Seq (NonEmpty Variant)
-clearVariants name variants  = ensure . filter keep . toList <$> variants
+clearVariants name variants = ensure . filter keep . toList <$> variants
   where
     keep Variant{ dur = Variant.FromSkill x } = x /= name
     keep _                                    = True

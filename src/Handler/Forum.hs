@@ -16,7 +16,7 @@ module Handler.Forum
     , selectWithAuthors, makeCitelink
     ) where
 
-import ClassyPrelude hiding (Handler)
+import ClassyPrelude
 import Yesod
 
 import qualified Data.Time.Format as Format

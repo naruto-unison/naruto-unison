@@ -5,7 +5,7 @@
 -- They are useful for matchmaking, but should not otherwise affect ranking.
 module Core.Rating (update) where
 
-import ClassyPrelude hiding (Handler)
+import ClassyPrelude
 
 import qualified Database.Esqueleto as ESQL
 import           Database.Esqueleto ((>.), (^.), (==.))

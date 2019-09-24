@@ -22,10 +22,12 @@ class Labeled a where
 -- Equality by both fields.
 eq :: ∀ a. Labeled a => a -> a -> Bool
 eq x y = name x == name y && user x == user y
+{-# INLINE eq #-}
 
 -- Matching by both fields.
 match :: ∀ a. Labeled a => Text -> Slot -> a -> Bool
 match name' user' x = name x == name' && user x == user'
+{-# INLINE match #-}
 
 mapFirst :: ∀ a. Labeled a => (a -> a) -> Text -> Slot -> [a] -> [a]
 mapFirst _ _ _ [] = []

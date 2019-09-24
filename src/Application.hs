@@ -14,7 +14,7 @@ module Application
     , db
     ) where
 
-import ClassyPrelude hiding (Handler)
+import ClassyPrelude
 import Yesod
 
 import qualified Control.Monad.Logger as Logger
