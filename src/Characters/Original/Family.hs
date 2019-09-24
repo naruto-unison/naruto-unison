@@ -92,7 +92,7 @@ cs =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
         , Skill.dur       = Action 2
-        , Skill.start     =
+        , Skill.effects   =
           [ To Self     $ apply 1 [Invulnerable All]
           , To Enemy    $ damage 15
           , To XEnemies $ damage 10
