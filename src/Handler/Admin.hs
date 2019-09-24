@@ -16,13 +16,12 @@ import qualified Yesod.Auth as Auth
 import           Core.App (Form, Handler, Route(..))
 import           Core.Model (News(..))
 import           Core.Settings (widgetFile)
-import qualified Class.Sockets as Sockets
 import qualified Handler.Play as Play
 
 getAdminR :: Handler Html
 getAdminR = do
     (newsForm, enctype) <- generateFormPost =<< getNewsForm
-    Sockets.run Play.gameSocket
+    Play.gameSocket
     defaultLayout do
         setTitle "Admin"
         $(widgetFile "admin/admin")
@@ -36,7 +35,7 @@ postAdminR = do
             runDB $ insert400_ news
             defaultLayout [whamlet|<p>"News posted"|]
         _             -> defaultLayout [whamlet|<p>"Invalid post"|]
-    Sockets.run Play.gameSocket
+    Play.gameSocket
     defaultLayout do
         setTitle "Admin"
         $(widgetFile "admin/admin")

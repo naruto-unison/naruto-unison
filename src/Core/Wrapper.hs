@@ -20,6 +20,7 @@ import           Core.Util ((!!))
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
 import           Class.Random (MonadRandom(..))
+import           Class.Sockets (MonadSockets)
 import           Model.Game (Game)
 import qualified Model.GameInfo as GameInfo
 import           Model.GameInfo (GameInfo)
@@ -99,3 +100,5 @@ toJSON p Wrapper{game, ninjas} = GameInfo.gameToJSON p ninjas game
 
 instance MonadRandom m => MonadRandom (ReaderT Wrapper m)
 instance MonadRandom m => MonadRandom (ReaderT (STWrapper s) m)
+instance MonadSockets m => MonadSockets (ReaderT Wrapper m)
+instance MonadSockets m => MonadSockets (ReaderT (STWrapper s) m)

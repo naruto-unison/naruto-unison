@@ -14,9 +14,9 @@ import           Control.Monad.ST (RealWorld, ST)
 import qualified Data.Cache as Cache
 import qualified Data.Text as Text
 import qualified System.Random.MWC as Random
-import           UnliftIO.Concurrent (forkIO)
-import qualified UnliftIO.Timeout as Timeout
+import           UnliftIO.Concurrent (forkIO, threadDelay)
 import qualified Yesod.Auth as Auth
+import           Yesod.WebSockets (webSockets)
 
 import qualified Core.App as App
 import           Core.App (App, Handler)
@@ -33,7 +33,7 @@ import           Class.Play (MonadGame)
 import qualified Class.Random as R
 import           Class.Random (MonadRandom)
 import qualified Class.Sockets as Sockets
-import           Class.Sockets (MonadSockets, SocketsT)
+import           Class.Sockets (MonadSockets)
 import qualified Model.Act as Act
 import           Model.Act (Act)
 import qualified Model.Chakra as Chakra
@@ -166,6 +166,7 @@ makeGame queueWrite who user team vsWho vsUser vsTeam = do
             Player.A -> team ++ vsTeam
             Player.B -> vsTeam ++ team
     liftIO $ atomically do
+        mvar <- newEmptyMVar
         writer <- newTBQueue 8
         reader <- newTBQueue 8
         writeTChan queueWrite $
@@ -253,9 +254,10 @@ handleFailures (Right val) = return $ Just val
 handleFailures (Left msg)  = Nothing <$ Sockets.sendJson msg
 
 -- | Sends messages through 'TChan's in 'App.App'.
-gameSocket :: SocketsT Handler ()
-gameSocket = do
+gameSocket :: Handler ()
+gameSocket = webSockets do
     who         <- Auth.requireAuthId
+    lock        <- liftIO newEmptyMVar
     turnSeconds <- getsYesod $ AppSettings.turnSeconds . App.settings
     let turnTime = 1000000 * turnSeconds
     liftIO Random.createSystemRandom >>= runReaderT do
@@ -269,17 +271,17 @@ gameSocket = do
                 update who [UserTeam =. Just (tailEx teamNames)]
             queue section team
 
-        lift $ Sockets.sendJson info
+        Sockets.sendJson info
         let player = GameInfo.player info
         liftST (Wrapper.fromInfo info) >>= runReaderT do
-            when (player == Player.A) $ tryEnact turnTime player writer
+            when (player == Player.A) $ tryEnact turnTime player writer lock
             gameEnd <- untilJust do
                 wrapper <- liftIO . atomically $ readTBQueue reader
                 Sockets.clear
                 if null . Game.victor $ Wrapper.game wrapper then do
                     Sockets.sendJson $ Wrapper.toJSON player wrapper
                     liftST . Wrapper.replace wrapper =<< ask
-                    tryEnact turnTime player writer
+                    tryEnact turnTime player writer lock
                     game <- P.game
                     if null $ Game.victor game then
                         return Nothing
@@ -293,10 +295,17 @@ gameSocket = do
 
 -- | Wraps @enact@ with error handling.
 tryEnact :: ∀ m. (MonadGame m, MonadRandom m, MonadSockets m, MonadUnliftIO m)
-         => Int -> Player -> TBQueue Wrapper -> m ()
-tryEnact turnTime player writer = do
-    enactMessage <- Timeout.timeout turnTime $
-                    Text.split ('/' ==) <$> Sockets.receive
+         => Int -> Player -> TBQueue Wrapper -> MVar (Maybe Text) -> m ()
+tryEnact turnTime player writer lock = do
+    -- This is necessary because canceling Sockets.receive closes the socket
+    -- connection, which means that a naive timeout will break the connection.
+    void $ tryTakeMVar lock
+    forkIO do
+        threadDelay turnTime
+        void $ tryPutMVar lock Nothing
+    forkIO . void $ tryPutMVar lock . Just =<< Sockets.receive
+
+    enactMessage <- (Text.split ('/' ==) <$>) <$> readMVar lock
 
     case enactMessage of
         Just ["forfeit"] -> do

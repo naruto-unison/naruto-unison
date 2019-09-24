@@ -16,7 +16,6 @@ import Yesod
 import           Data.List (nub)
 import qualified Yesod.Auth as Auth
 
-import qualified Class.Sockets as Sockets
 import           Core.App (Handler)
 import           Core.Model (EntityField(..), User(..))
 import           Core.Settings (widgetFile)
@@ -58,7 +57,7 @@ getMuteR mute = do
 -- | Renders the gameplay client.
 getPlayR :: Handler Html
 getPlayR = do
-    Sockets.run Play.gameSocket
+    Play.gameSocket
     muser <- (entityVal <$>) <$> Auth.maybeAuth
     let team     = maybe [] (mapMaybe Characters.lookupName) $
                    muser >>= userTeam
