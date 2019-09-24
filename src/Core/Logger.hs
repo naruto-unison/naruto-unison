@@ -24,7 +24,7 @@ getDateGetter :: IO () -> IO (IO ByteString)
 getDateGetter flusher = do
     (getter, updater) <- WaiLogger.clockDateCacher
     _ <- Concurrent.forkIO $ forever $ do
-        Concurrent.threadDelay 1000000
+        Concurrent.threadDelay 1e6
         updater
         flusher
     return getter

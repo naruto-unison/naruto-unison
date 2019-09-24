@@ -41,4 +41,6 @@ database:
 copyright: Creative Commons
 #analytics: UA-YOURCODE
 
-turn-seconds: 60
+# Values are in seconds
+turn-length: 60
+practice-cache-expiry: 3600

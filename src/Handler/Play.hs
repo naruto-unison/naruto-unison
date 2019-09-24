@@ -254,9 +254,8 @@ handleFailures (Left msg)  = Nothing <$ Sockets.sendJson msg
 -- | Sends messages through 'TChan's in 'App.App'.
 gameSocket :: Handler ()
 gameSocket = webSockets do
-    who         <- Auth.requireAuthId
-    turnSeconds <- getsYesod $ AppSettings.turnSeconds . App.settings
-    let turnTime = 1000000 * turnSeconds
+    who        <- Auth.requireAuthId
+    turnLength <- getsYesod $ AppSettings.turnLength . App.settings
     liftIO Random.createSystemRandom >>= runReaderT do
         (mvar, info) <- untilJust $ handleFailures =<< runExceptT do
             teamNames <- Text.split (=='/') <$> Sockets.receive
@@ -271,13 +270,13 @@ gameSocket = webSockets do
         Sockets.sendJson info
         let player = GameInfo.player info
         liftST (Wrapper.fromInfo info) >>= runReaderT do
-            when (player == Player.A) $ tryEnact turnTime player mvar
+            when (player == Player.A) $ tryEnact turnLength player mvar
             gameEnd <- untilJust do
                 wrapper <- takeMVar mvar
                 if null . Game.victor $ Wrapper.game wrapper then do
                     Sockets.sendJson $ Wrapper.toJSON player wrapper
                     liftST . Wrapper.replace wrapper =<< ask
-                    tryEnact turnTime player mvar
+                    tryEnact turnLength player mvar
                     game <- P.game
                     if null $ Game.victor game then
                         return Nothing
@@ -292,12 +291,12 @@ gameSocket = webSockets do
 -- | Wraps @enact@ with error handling.
 tryEnact :: ∀ m. (MonadGame m, MonadRandom m, MonadSockets m, MonadUnliftIO m)
          => Int -> Player -> MVar Wrapper -> m ()
-tryEnact turnTime player mvar = do
+tryEnact turnLength player mvar = do
     -- This is necessary because canceling Sockets.receive closes the socket
     -- connection, which means that a naive timeout will break the connection.
     lock <- newEmptyMVar
     forkIO do
-        threadDelay turnTime
+        threadDelay turnLength
         void $ tryPutMVar lock Nothing
     forkIO . void $ tryPutMVar lock . Just =<< Sockets.receive
 

@@ -50,7 +50,6 @@ library:
   - cache == 0.1.1.2
   - case-insensitive == 1.2.0.11
   - classy-prelude == 1.5.0
-  - clock == 0.8
   - containers == 0.6.0.1
   - data-default == 0.7.1.1
   - esqueleto == 3.0.0
@@ -68,7 +67,6 @@ library:
   - persistent == 2.9.2
   - persistent-postgresql == 2.9.1
   - persistent-template == 2.6.0
-  - resourcet == 1.2.2
   - shakespeare == 2.0.21
   - template-haskell == 2.14.0.0
   - text == 1.2.3.1

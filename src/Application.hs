@@ -24,7 +24,6 @@ import           Database.Persist.Postgresql (SqlBackend)
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Network.HTTP.Client.TLS as TLS
 import qualified Network.Wai.Handler.Warp as Warp
-import           System.Clock (TimeSpec(..))
 import qualified System.Log.FastLogger as FastLogger
 import qualified Yesod.Static as Static
 import qualified Yesod.Auth as Auth
@@ -56,7 +55,8 @@ makeFoundation settings = do
                    =<< FastLogger.newStdoutLoggerSet FastLogger.defaultBufSize
     static      <- staticMode $ AppSettings.staticDir settings
     queue       <- newTChanIO
-    practice    <- Cache.newCache . Just $ TimeSpec 3600 0
+    practice    <- Cache.newCache . Just . fromInteger $
+                   AppSettings.practiceCacheExpiry settings
 
     -- We need a log function to create a connection pool. We need a connection
     -- pool to create our foundation. And we need our foundation to get a
