@@ -1,6 +1,7 @@
 main {
     height: 100%;
     box-sizing: border-box;
+    margin: 0 3em;
 }
 main, #accountSettings {
     -webkit-user-select: none;
@@ -54,6 +55,7 @@ p {
     object-fit: cover;
     height: 100%;
     width: 100%;
+    margin: 0 -3em;
 }
 
 body {
@@ -93,8 +95,8 @@ body {
 #charSelect {
     max-width: 942px;
     position: relative;
-    margin: 0 3em;
     height: 100%;
+    margin: auto;
 }
 
 #searching {
@@ -836,11 +838,16 @@ svg {
     margin: auto;
     font-family: Verdana, sans-serif;
     font-size: 1.3em;
-    pointer-events: none;
     padding-left: -27px;
 }
 .act:hover {
     border: 1px solid #e00 !important;
+}
+#playqueuecont, #playchakra {
+    pointer-events: none;
+}
+#playqueuecont div {
+    pointer-events: all;
 }
 #playchakra a {
     color: #000;
@@ -1095,7 +1102,15 @@ svg {
         content: none;
     }
 }
-
+@media (max-width: 620px) {
+    a.playButton {
+        font-size: 0.6em;
+    }
+    #userBox {
+        font-size: 0.7em;
+        width: 116px;
+    }
+}
 @media (max-height: 770px) {
     #charSelect > article > h1 > img.char {
         height: 50px;
@@ -1125,5 +1140,62 @@ svg {
     }
     #charSelect > article > section > p {
         min-height: 28px;
+    }
+}
+
+@media (max-width: 560px) {
+    #userBox, #underTeam {
+        display: none;
+    }
+    #charSelect {
+        margin: 0 10px;
+    }
+    #charScroll {
+        overflow-y: scroll;
+    }
+    #characterButtons {
+        height: 104px;
+        bottom: 10px;
+    }
+    #characterButtons nav {
+        display: none;
+    }
+    #characterButtons .char {
+        width: 45px;
+        height: 45px;
+    }
+    a.playButton {
+        font-size: 0.7em;
+        height: 10px;
+        line-height: 0.8em;
+    }
+    #charSelect > article > h1 {
+        font-size: 14px;
+    }
+    #charSelect > article {
+        font-size: 0.7em;
+        bottom: 150px;
+    }
+    #charSelect > article > section > h1 , #charSelect > article .skillClasses {
+        font-size: 0.8em;
+    }
+    #charSelect > article .char {
+        height: 30px;
+        width: 30px;
+    }
+    #charSelect > article > h1 > img.char {
+        width: 40px;
+        height: 40px;
+    }
+    #charSelect > header {
+        padding-top: 0;
+        margin-top: -5px;
+    }
+    #volume {
+        top: 100px;
+    }
+    .select img {
+        width: 60px;
+        height: 60px;
     }
 }

@@ -333,6 +333,11 @@ dd {
         font-size: 0.7em;
     }
 }
+@media (max-width: 425px) {
+    #sitenav {
+        font-size: 0.6em;
+    }
+}
 
 @media (max-width: 640px) {
     .container {
