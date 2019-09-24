@@ -21,7 +21,7 @@ import Model.GameInfo (GameInfo)
 data Message
     = Announce (Key User) User [Character] (MVar UTCTime)
     | Request  (Key User) (Key User) [Character]
-    | Respond  (Key User) (TBQueue Wrapper) (TBQueue Wrapper) GameInfo
+    | Respond  (Key User) (MVar Wrapper) GameInfo
 
 data Section
     = Quick

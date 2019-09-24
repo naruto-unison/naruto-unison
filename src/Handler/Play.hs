@@ -158,19 +158,17 @@ makeGame :: ∀ m. (MonadRandom m, MonadIO m)
          => TChan Queue.Message
          -> Key User -> User -> [Character]
          -> Key User -> User -> [Character]
-         -> m (GameInfo, TBQueue Wrapper, TBQueue Wrapper)
+         -> m (MVar Wrapper, GameInfo)
 makeGame queueWrite who user team vsWho vsUser vsTeam = do
     randPlayer <- R.player
     game       <- Game.newWithChakras
     let ninjas = zipWith Ninja.new Slot.all case randPlayer of
             Player.A -> team ++ vsTeam
             Player.B -> vsTeam ++ team
+    mvar <- newEmptyMVar
     liftIO $ atomically do
-        mvar <- newEmptyMVar
-        writer <- newTBQueue 8
-        reader <- newTBQueue 8
         writeTChan queueWrite $
-            Queue.Respond vsWho reader writer
+            Queue.Respond vsWho mvar
             GameInfo
                 { GameInfo.vsWho  = who
                 , GameInfo.vsUser = user
@@ -185,12 +183,12 @@ makeGame queueWrite who user team vsWho vsUser vsTeam = do
                 , GameInfo.game   = game
                 , GameInfo.ninjas = fromList ninjas
                 }
-        return (info, writer, reader)
+        return (mvar, info)
 
 queue :: ∀ m.
         (MonadRandom m, MonadSockets m, MonadHandler m, App ~ HandlerSite m)
       => Queue.Section -> [Character]
-      -> ExceptT Queue.Failure m (GameInfo, TBQueue Wrapper, TBQueue Wrapper)
+      -> ExceptT Queue.Failure m (MVar Wrapper, GameInfo)
 queue Queue.Quick team = do
     (who, user) <- Auth.requireAuthPair
     let rating = userRating user
@@ -206,8 +204,8 @@ queue Queue.Quick team = do
       msg <- liftIO . atomically $ readTChan queueRead
       pingSocket
       case msg of
-        Queue.Respond mWho writer reader info
-          | mWho == who -> return $ Just (info, writer, reader)
+        Queue.Respond mWho mvar info
+          | mWho == who -> return $ Just (mvar, info)
         Queue.Announce vsWho vsUser vsTeam vsMVar
           | abs (rating - userRating vsUser) > ratingThreshold ->
               return Nothing
@@ -241,9 +239,9 @@ queue Queue.Private team = do
       msg <- liftIO . atomically $ readTChan queueRead
       pingSocket
       case msg of
-        Queue.Respond mWho writer reader info
+        Queue.Respond mWho mvar info
           | mWho == who && GameInfo.vsWho info == vsWho ->
-              return $ Just (info, writer, reader)
+              return $ Just (mvar, info)
         Queue.Request vsWho' requestWho vsTeam
           | vsWho' == vsWho && requestWho == who ->
               Just <$> makeGame queueWrite who user team vsWho vsUser vsTeam
@@ -257,11 +255,10 @@ handleFailures (Left msg)  = Nothing <$ Sockets.sendJson msg
 gameSocket :: Handler ()
 gameSocket = webSockets do
     who         <- Auth.requireAuthId
-    lock        <- liftIO newEmptyMVar
     turnSeconds <- getsYesod $ AppSettings.turnSeconds . App.settings
     let turnTime = 1000000 * turnSeconds
     liftIO Random.createSystemRandom >>= runReaderT do
-        (info, writer, reader) <- untilJust $ handleFailures =<< runExceptT do
+        (mvar, info) <- untilJust $ handleFailures =<< runExceptT do
             teamNames <- Text.split (=='/') <$> Sockets.receive
             (section, team) <- case parseTeam teamNames of
                 Nothing   -> throwE Queue.InvalidTeam
@@ -274,14 +271,13 @@ gameSocket = webSockets do
         Sockets.sendJson info
         let player = GameInfo.player info
         liftST (Wrapper.fromInfo info) >>= runReaderT do
-            when (player == Player.A) $ tryEnact turnTime player writer lock
+            when (player == Player.A) $ tryEnact turnTime player mvar
             gameEnd <- untilJust do
-                wrapper <- liftIO . atomically $ readTBQueue reader
-                Sockets.clear
+                wrapper <- takeMVar mvar
                 if null . Game.victor $ Wrapper.game wrapper then do
                     Sockets.sendJson $ Wrapper.toJSON player wrapper
                     liftST . Wrapper.replace wrapper =<< ask
-                    tryEnact turnTime player writer lock
+                    tryEnact turnTime player mvar
                     game <- P.game
                     if null $ Game.victor game then
                         return Nothing
@@ -295,11 +291,11 @@ gameSocket = webSockets do
 
 -- | Wraps @enact@ with error handling.
 tryEnact :: ∀ m. (MonadGame m, MonadRandom m, MonadSockets m, MonadUnliftIO m)
-         => Int -> Player -> TBQueue Wrapper -> MVar (Maybe Text) -> m ()
-tryEnact turnTime player writer lock = do
+         => Int -> Player -> MVar Wrapper -> m ()
+tryEnact turnTime player mvar = do
     -- This is necessary because canceling Sockets.receive closes the socket
     -- connection, which means that a naive timeout will break the connection.
-    void $ tryTakeMVar lock
+    lock <- newEmptyMVar
     forkIO do
         threadDelay turnTime
         void $ tryPutMVar lock Nothing
@@ -323,7 +319,7 @@ tryEnact turnTime player writer lock = do
     conclude = do
         wrapper <- Wrapper.freeze
         Sockets.sendJson $ Wrapper.toJSON player wrapper
-        atomically $ writeTBQueue writer wrapper
+        putMVar mvar wrapper
 
 -- | Processes a user's actions and passes them to 'Turn.run'.
 enact :: ∀ m. (MonadGame m, MonadRandom m)
