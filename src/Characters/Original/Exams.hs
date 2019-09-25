@@ -170,14 +170,14 @@ cs =
     "One of the three sound genin, Dosu is patient and logical. His sound-projecting gauntlet shatters his opponents' hearing, making them more vulnerable to attacks."
     [ [ Skill.new
         { Skill.name      = "Resonating Echo Drill"
-        , Skill.desc      = "Dosu attacks an enemy with his drill, dealing 20 damage and preventing them from reducing damage or becoming invulnerable for 2 turns. Deals 20 additional damage during [Echo Speaker Tuning]."
+        , Skill.desc      = "Dosu attacks an enemy with his drill, preventing them from reducing damage or becoming invulnerable for 2 turns and dealing 20 damage. Deals 20 additional damage during [Echo Speaker Tuning]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
+                apply 2 [Expose]
                 bonus <- 20 `bonusIf` userHas "Echo Speaker Tuning"
                 damage (20 + bonus)
-                apply 2 [Expose]
                 tag' "Echoing Sound" 1
           ]
         }

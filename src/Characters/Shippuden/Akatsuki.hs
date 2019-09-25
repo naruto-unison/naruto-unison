@@ -915,14 +915,14 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Genjutsu Missile"
-        , Skill.desc      = "Deals 20 damage to the target of [Guided Missile] and prevents them from reducing damage or becoming invulnerable for 2 turns."
+        , Skill.desc      = "Prevents the target of [Guided Missile] from reducing damage or becoming invulnerable for 2 turns and deals 25 damage."
         , Skill.require   = HasU 1 "Guided Missile"
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Enemies do
-                damage 25
                 apply 2 [Expose]
+                damage 25
           , To Self do
               cancelChannel "Guided Missile"
               everyone $ remove "Guided Missile"

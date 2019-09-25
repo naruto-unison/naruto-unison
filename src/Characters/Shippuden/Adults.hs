@@ -589,13 +589,13 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Crescent Moon Slice"
-        , Skill.desc      = "Following up his reverse attack with a forward slash, Omoi deals 35 piercing damage to an enemy and preventing them from reducing damage or becoming invulnerable for 1 turn. Once used, this skill becomes [Back Slice][t]."
+        , Skill.desc      = "Following up his reverse attack with a forward slash, Omoi prevents an enemy from reducing damage or becoming invulnerable for 1 turn and deals 35 piercing damage. Once used, this skill becomes [Back Slice][t]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
-                pierce 35
                 apply 1 [Expose]
+                pierce 35
           , To Self $ vary "Back Slice" baseVariant
           ]
         }
@@ -742,13 +742,13 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Sensory Technique"
-        , Skill.desc      = "Ao scans an enemy's psyche for weaknesses, dealing 25 damage and preventing them from reducing damage or becoming invulnerable for 1 turn."
+        , Skill.desc      = "Ao scans an enemy's psyche for weaknesses, preventing them from reducing damage or becoming invulnerable for 1 turn and dealing 25 damage."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemy do
-                damage 25
                 apply 1 [Expose]
+                damage 25
           ]
         }
       ]

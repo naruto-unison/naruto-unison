@@ -396,8 +396,8 @@ spec = parallel do
                     100 - targetHealth `shouldBe` 3 * 10
         useOn Ally "Regenerative Healing Technique" do
             enemyTurn do
-                damage targetDmg
                 apply 0 [Expose]
+                damage targetDmg
             act
             targetHealth <- Ninja.health <$> P.nTarget
             exposed <- targetIsExposed

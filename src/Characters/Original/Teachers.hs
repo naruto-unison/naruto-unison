@@ -144,14 +144,14 @@ cs =
     "A former student of Orochimaru who bears his Curse Mark, Anko is now a jōnin teacher in the Hidden Leaf Village. She uses various poisons and forbidden techniques learned from Orochimaru to dismantle her enemies."
     [ [ Skill.new
         { Skill.name      = "Dual Pin"
-        , Skill.desc      = "Anko pins herself to an enemy by stabbing a kunai through her hand, dealing 5 damage and preventing the target from reducing damage or becoming invulnerable for 1 turn."
+        , Skill.desc      = "Anko pins herself to an enemy by stabbing a kunai through her hand,  preventing the target from reducing damage or becoming invulnerable for 1 turn and dealing 5 damage."
         , Skill.classes   = [Physical, Melee]
         , Skill.dur       = Control 1
         , Skill.effects   =
           [ To Enemy do
+                apply 1 [Expose]
                 bonus <- 5 `bonusIf` targetHas "Dragon Flame"
                 damage (5 + bonus)
-                apply 1 [Expose]
           , To Self do
                 vary "Dragon Flame" "Twin Snake Sacrifice"
                 tag' "Twin Snake Sacrifice" 1
@@ -244,14 +244,14 @@ cs =
     "Team 8's jōnin squad leader, Kurenai is caring and brave. A master of genjutsu, Kurenai traps her enemies in inescapable illusions."
     [ [ Skill.new
         { Skill.name      = "Demonic Illusion: Entrap"
-        , Skill.desc      = "Kurenai hinders an enemy with her genjutsu, dealing 10 damage. For 2 turns, the target's non-affliction damage is weakened by 10, the chakra costs of their skills is increased by 1 random chakra, and they cannot reduce damage or become invulnerable. Adds 5 destructible defense to Kurenai's next [Illusory Tree Meld]."
+        , Skill.desc      = "Kurenai hinders an enemy with her genjutsu. For 2 turns, the target's non-affliction damage is weakened by 10, the chakra costs of their skills is increased by 1 random chakra, and they cannot reduce damage or become invulnerable. Kurenai then deals 10 damage to the target. Adds 5 destructible defense to Kurenai's next [Illusory Tree Meld]."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                damage 10
                 apply 2 [Weaken All Flat 10, Exhaust All, Expose]
+                damage 10
           , To Self $ addStacks "Illusion" 1
           ]
         }

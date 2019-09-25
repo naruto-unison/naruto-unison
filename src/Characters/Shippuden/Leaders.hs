@@ -193,7 +193,7 @@ cs =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Allies  $ defend 0 10
+          [ To Allies  $ defend 0 104
           , To Enemies $ damage 10
           ]
         }
@@ -238,14 +238,14 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Water Bomb"
-        , Skill.desc      = "Water floods the battlefield, dealing 20 piercing damage to all enemies and preventing them from reducing damage or becoming invulnerable for 1 turn."
+        , Skill.desc      = "Water floods the battlefield, preventing all enemies from reducing damage or becoming invulnerable for 1 turn and dealing 20 piercing damage to them."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies do
-                pierce 20
                 apply 1 [Expose]
+                pierce 20
           ]
         }
       ]

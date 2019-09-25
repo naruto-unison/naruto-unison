@@ -269,15 +269,15 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Shadow Strangle"
-        , Skill.desc      = "Shadow tendrils choke Shikamaru's enemies, dealing 15 damage and preventing them from reducing damage or becoming invulnerable for 1 turn. Enemies affected by [Meditate] are exposed for 2 turns."
+        , Skill.desc      = "Shadow tendrils choke Shikamaru's enemies, preventing them from reducing damage or becoming invulnerable for 1 turn and dealing 15 damage. Enemies affected by [Meditate] are exposed for 2 turns."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
             [ To Enemies do
-                  damage 15
                   bonus <- 1 `bonusIf` targetHas "Meditate"
                   apply (1 + bonus) [Expose]
+                  damage 15
             ]
         }
       ]
@@ -333,14 +333,14 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Justice Punch"
-        , Skill.desc      = "Chōji slams his fist into an enemy and knocks them to the ground, dealing 25 damage and stunning them for 1 turn. While stunned, they cannot reduce damage or become invulnerable."
+        , Skill.desc      = "Chōji slams his fist into an enemy and knocks them to the ground, stunning them for 1 turn and preventing them from reducing damage or becoming invulnerable, then deals 25 damage to them."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                damage 25
                 apply 1 [Stun All, Expose]
+                damage 25
           ]
         }
       ]
