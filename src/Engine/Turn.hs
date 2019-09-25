@@ -71,7 +71,6 @@ process runner = do
     P.alter \game -> game { Game.playing = opponent }
     doDeaths
     P.yieldVictor
-    P.modifyAll Ninjas.processEffects
   where
     getChannels n = map (Act.fromChannel n) .
                     filter ((1 /=) . TurnBased.getDur) $

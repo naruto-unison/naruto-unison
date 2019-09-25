@@ -60,7 +60,7 @@ data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas
                    , face      :: [Face]                 -- ^ Starts empty
                    , lastSkill :: Maybe Skill            -- ^ Starts at @Nothing@
                    , triggers  :: HashSet Trigger        -- ^ Empty at the start of each turn
-                   , effects   :: [Effect]               -- ^ Empty at the start of each turn
+                   , effects   :: ~[Effect]              -- ^ Processed automatically
                    , acted     :: Bool                   -- ^ False at the start of each turn
                    }
 instance Parity Ninja where

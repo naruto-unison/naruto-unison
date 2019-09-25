@@ -262,9 +262,7 @@ act a = do
                 addChannels
         traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
 
-    P.modifyAll $
-        Ninjas.processEffects . (\n -> n { Ninja.triggers = mempty }) .
-        unreflect
+    P.modifyAll $ unreflect . \n -> n { Ninja.triggers = mempty }
     breakControls
   where
     s       = Act.skill a
@@ -282,7 +280,7 @@ act a = do
                         }
     unreflect n
       | OnReflect ∈ Ninja.triggers n =
-          n { Ninja.statuses = Status.removeEffect Reflect $ Ninja.statuses n }
+          Ninjas.modifyStatuses (Status.removeEffect Reflect) n
       | otherwise = n
 
 interruptions :: Skill -> [Runnable Target]

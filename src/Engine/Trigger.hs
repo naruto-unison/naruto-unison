@@ -50,14 +50,14 @@ death slot = do
             P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps OnRes
             traverse_ P.launch res
   where
-    unres n = n
-        { Ninja.statuses = [st | st <- Ninja.statuses n
-                               , slot /= Status.user st
-                                 || Soulbound ∉ Status.classes st]
-        , Ninja.traps    = [trap | trap <- Ninja.traps n
-                                 , slot /= Trap.user trap
-                                   || Soulbound ∉ Trap.classes trap]
-        }
+    unres n = Ninjas.modifyStatuses
+        (const [st | st <- Ninja.statuses n
+                   , slot /= Status.user st
+                     || Soulbound ∉ Status.classes st]) $
+        n { Ninja.traps = [trap | trap <- Ninja.traps n
+                                , slot /= Trap.user trap
+                                  || Soulbound ∉ Trap.classes trap]
+          }
 
 getCounters :: ∀ m. (MonadPlay m, MonadRandom m)
            => (Trap -> Maybe Class) -> Slot -> EnumSet Class -> Ninja -> [m ()]

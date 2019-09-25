@@ -56,7 +56,6 @@ import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
 import qualified Engine.Effects as Effects
 import qualified Engine.Execute as Execute
-import qualified Engine.Ninjas as Ninjas
 import qualified Engine.Skills as Skills
 import qualified Engine.Traps as Traps
 import qualified Engine.Trigger as Trigger
@@ -154,8 +153,7 @@ wrap player = do
 
         P.modify user \n -> n { Ninja.acted = True }
         traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
-        P.modifyAll $ Ninjas.processEffects . \n ->
-            n { Ninja.triggers = mempty }
+        P.modifyAll \n -> n { Ninja.triggers = mempty }
 
 act :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 act = Turn.process $ wrap Player.A
@@ -193,7 +191,7 @@ targetIsExposed = do
     target <- P.target
     P.with (\ctx -> ctx { Context.user = target }) $
         apply 0 [Invulnerable All]
-    null . Effects.invulnerable . Ninjas.processEffects <$> P.nTarget
+    null . Effects.invulnerable <$> P.nTarget
 
 totalDefense :: Ninja -> Int
 totalDefense n = sum $ Defense.amount <$> Ninja.defense n

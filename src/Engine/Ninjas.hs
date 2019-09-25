@@ -1,6 +1,7 @@
 -- | 'Ninja' processing.
 module Engine.Ninjas
   ( skill, skills
+  , modifyStatuses
   , apply
   , processEffects
 
@@ -111,6 +112,7 @@ apply n = map adjustEffect . filter keepEffects
     adjustEffect (Reduce cla Flat x) = Reduce cla Flat $ x - Effects.unreduce n
     adjustEffect f                   = f
     keepEffects Invulnerable{}       = not $ n `is` Expose
+    keepEffects Nullify{}            = not $ n `is` Expose
     keepEffects _                    = True
 
 -- | Fills 'Ninja.effects' with the effects of 'Ninja.statuses', modified by
@@ -139,6 +141,9 @@ processEffects n = n { effects = baseStatuses >>= replicates >>= process }
       | user == nSlot = effects
       | enraged       = filter Effect.bypassEnrage effects
       | otherwise     = effects
+
+modifyStatuses :: ([Status] -> [Status]) -> Ninja -> Ninja
+modifyStatuses f n = processEffects n { statuses = f $ statuses n }
 
 -- | Adds a 'Variant.Variant' to 'Ninja.variants' by skill and variant index
 -- within 'Character.skills'.
@@ -175,7 +180,7 @@ sacrifice minhp hp = adjustHealth $ max minhp . (— hp)
 -- | Applies 'Class.TurnBased.decr' to all of a @Ninja@'s 'Class.TurnBased'
 -- types.
 decr :: Ninja -> Ninja
-decr n@Ninja{..} = n
+decr n@Ninja{..} = processEffects n
     { defense   = mapMaybe TurnBased.decr defense
     , statuses  = foldStats $ mapMaybe TurnBased.decr statuses
     , barrier   = mapMaybe TurnBased.decr barrier
@@ -206,7 +211,7 @@ decr n@Ninja{..} = n
     decrVarying (Variant.Duration _) x = TurnBased.decr x
 
 addStatus :: Status -> Ninja -> Ninja
-addStatus st n = n { statuses = Classed.nonStack st' st' $ statuses n }
+addStatus st = modifyStatuses $ Classed.nonStack st' st'
   where
     st' = st { Status.classes = deleteSet InvisibleTraps $ Status.classes st }
 
@@ -249,8 +254,7 @@ addDefense amount name user n =
 clear :: Text -- ^ 'Status.name'.
       -> Slot -- ^ 'Status.user'.
       -> Ninja -> Ninja
-clear name user n =
-    n { statuses = filter (not . Labeled.match name user) $ statuses n }
+clear name user = modifyStatuses . filter $ not . Labeled.match name user
 
 -- | Deletes matching 'traps'.
 clearTrap :: Text -- ^ 'Trap.name'.
@@ -341,7 +345,7 @@ copyAll dur source n = n { copies = fromList $ cop <$> skills source }
 cure :: (Effect -> Bool) -> Ninja -> Ninja
 cure match n
   | n `is` Plague = n
-  | otherwise     = n { statuses = mapMaybe cure' $ statuses n }
+  | otherwise     = modifyStatuses (mapMaybe cure') n
   where
     keep Reveal = True
     keep a      = Effect.helpful a || not (match a)
@@ -356,7 +360,7 @@ cure match n
 cureBane :: Ninja -> Ninja
 cureBane n
   | n `is` Plague = n
-  | otherwise     = n { statuses = filter keep $ statuses n }
+  | otherwise     = modifyStatuses (filter keep) n
   where
     keep st = Bane ∉ Status.classes st || slot n == Status.user st
 
@@ -406,7 +410,7 @@ prolongChannel dur name n = n { channels = f <$> channels n }
 
 -- | Removes all helpful effects.
 purge :: Ninja -> Ninja
-purge n = n { statuses = doPurge <$> statuses n }
+purge = modifyStatuses (doPurge <$>)
   where
     canPurge ef = Effect.helpful ef || not (Effect.sticky ef)
     doPurge st
@@ -426,15 +430,14 @@ refresh name user n = n { statuses = f <$> statuses n }
 -- | Deletes one matching 'Status'.
 removeStack :: Text -- ^ 'Status.name'.
             -> Ninja -> Ninja
-removeStack name n = n { statuses = Status.remove 1 name (slot n) $ statuses n }
+removeStack name n = modifyStatuses (Status.remove 1 name $ slot n) n
 
 -- | Replicates 'removeStack'.
 removeStacks :: Text -- ^ 'Status.name'.
              -> Int -- ^ Subtracted from 'Status.amount'.
              -> Slot -- ^ 'Status.user'.
              -> Ninja -> Ninja
-removeStacks name i user n =
-    n { statuses = Status.remove i name user $ statuses n }
+removeStacks name i user = modifyStatuses $ Status.remove i name user
 
 -- | Resets 'charges' to four @0@s.
 resetCharges :: Ninja -> Ninja

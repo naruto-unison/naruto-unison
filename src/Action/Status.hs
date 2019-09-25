@@ -284,17 +284,15 @@ commandeer = P.unsilenced do
     nUser   <- P.nUser
     nTarget <- P.nTarget
     user    <- P.user
-    P.modify user \n ->
+    P.modify user $ Ninjas.modifyStatuses
+        (mapMaybe gainHelpful (Ninja.statuses nTarget) ++) . \n ->
         n { Ninja.defense  = Ninja.defense nTarget ++ Ninja.defense n
           , Ninja.barrier  = []
-          , Ninja.statuses = mapMaybe gainHelpful (Ninja.statuses nTarget)
-                             ++ Ninja.statuses n
           }
     target  <- P.target
-    P.modify target \n ->
+    P.modify target $ Ninjas.modifyStatuses (mapMaybe loseHelpful) . \n ->
         n { Ninja.defense  = []
           , Ninja.barrier  = Ninja.barrier nUser
-          , Ninja.statuses = mapMaybe loseHelpful $ Ninja.statuses n
          }
   where
     lose ef = Effect.helpful ef && not (Effect.sticky ef)
