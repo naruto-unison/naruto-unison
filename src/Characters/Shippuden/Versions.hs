@@ -10,6 +10,44 @@ import qualified Model.Skill as Skill
 cs :: [Category -> Character]
 cs =
   [ Character
+    "Mangekyō Sasuke"
+    "The trauma of Itachi's death has awakened Sasuke's Mangekyō Sharingan. With it, he has access to the most powerful techniques of the Uchiha clan. Although his sibling rivalry is at an end, Sasuke's need for vengeance has only grown stronger."
+    [ [ Skill.new
+        { Skill.name      = "Susanoo"
+        , Skill.desc      = "Sasuke encases himself in spectral armor that provides him with 20 points of damage reduction for 1 turn."
+        , Skill.classes   = [Chakra, Invisible]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Self $ apply 1 [Reduce All Flat 20] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Amaterasu"
+        , Skill.desc      = "Sasuke shapes the black flames of Amaterasu into an inferno that surrounds him. For 3 turns, if an enemy uses a non-mental skill on Sasuke, they will receive 5 affliction damage every turn for 5 turns, stacking."
+        , Skill.classes   = [Chakra, Bane]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Self $ trapFrom 3 (OnHarmed NonMental) $ apply 5 [Afflict 5] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Dark Genjutsu"
+        , Skill.desc      = "Trapping an enemy in a powerful illusion, Sasuke deals 25 piercing damage and stuns the target's physical and melee skills for 1 turn."
+        , Skill.classes   = [Mental, Ranged]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                pierce 25
+                apply 1 [Stun Physical, Stun Melee]
+          ]
+        }
+      ]
+    , [ invuln "Summoning: Hawk" "Sasuke" [Summon] ]
+    ]
+  , Character
     "Commander Gaara"
     "Coordinating the Allied Shinobi Forces and personally commanding the Fourth Division, Gaara has proven to be an inspiring leader and talented strategist. His attacks scatter sand particles around the battlefield, which he draws back in with explosive force."
     [ [ Skill.new
