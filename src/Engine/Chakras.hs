@@ -63,7 +63,7 @@ remove1 permitted = do
 -- player's team to the player's 'Game.chakra'.
 gain :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 gain = do
-    player <- Player.opponent <$> P.player
-    living <- length . filter Ninja.alive <$> P.allies player
-    randoms :: [Chakra] <- replicateM living Chakra.random
+    player  <- Player.opponent <$> P.player
+    living  <- length . filter Ninja.alive <$> P.allies player
+    randoms <- replicateM @[_] living Chakra.random
     P.alter $ Game.adjustChakra player (+ Chakra.collect randoms)

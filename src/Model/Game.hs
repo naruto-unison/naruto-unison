@@ -9,7 +9,7 @@ import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
 import           Class.Random (MonadRandom)
 import qualified Model.Chakra as Chakra
-import           Model.Chakra (Chakra, Chakras)
+import           Model.Chakra (Chakras)
 import qualified Model.Player as Player
 import           Model.Player (Player)
 import qualified Model.Slot as Slot
@@ -32,9 +32,10 @@ new = Game { chakra  = (0, 0)
 
 newWithChakras :: ∀ m. MonadRandom m => m Game
 newWithChakras = do
-    randomA <- Chakra.random
-    randomsB :: [Chakra] <- replicateM Slot.teamSize Chakra.random
-    return new { chakra = (Chakra.toChakras randomA, Chakra.collect randomsB) }
+    randomA  <- Chakra.random
+    randomsB <- replicateM @[_] Slot.teamSize Chakra.random
+    return
+        new { chakra = (Chakra.toChakras randomA, Chakra.collect randomsB) }
 
 setChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
 setChakra (Parity.even -> True) x game
