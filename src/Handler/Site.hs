@@ -15,8 +15,9 @@ module Handler.Site
 import ClassyPrelude
 import Yesod
 
-import Data.List (nubBy)
-import Text.Blaze.Html (preEscapedToHtml)
+import           Data.List (nubBy)
+import qualified Data.List.NonEmpty as NonEmpty
+import           Text.Blaze.Html (preEscapedToHtml)
 
 import           Core.App (Handler, Route(..), Widget)
 import           Core.Model (Cite(..), EntityField(..), News(..), User(..))
@@ -26,6 +27,7 @@ import           Class.Display (Display(..))
 import qualified Model.Character as Character
 import           Model.Character (Category(..))
 import qualified Model.Class as Class
+import qualified Model.Ninja as Ninja
 import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
 import qualified Characters

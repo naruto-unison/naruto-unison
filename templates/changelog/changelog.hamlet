@@ -1,163 +1,76 @@
 $newline always
 
-<section>
-  <h3>TBD
-  <ul>
-    ^{change Rework "Yamato" Shippuden}
-  <h3>May 16
-  <ul>
-    ^{change New "Jirōbō" Reanimated}
-  <h3>May 14
-  <ul>
-    ^{change Rework "Zabuza Momochi" Reanimated}
-    ^{change Rework "Fuguki Suikazan" Reanimated}
-  <h3>May 12
-  <ul>
-    ^{change Added "Rock Lee" Shippuden}
-  <ul>
-    Multiple versions of the same character can be grouped together
-  <h3>May 2
-  <ul>
-    ^{change Rework "Rasa" Reanimated}
-    ^{change Rework "Mū" Reanimated}
-  <h3>May 1
-  <ul>
-    ^{change Rework "Gengetsu Hōzuki" Reanimated}
-  <h3>April 25
-  <ul>
-    ^{change Rework "Jinpachi Munashi" Reanimated}
-  <h3>April 24
-  <ul>
-    <li>
-      Action skills in progress have blue borders
-    <li>
-      Control skills in progress have red borders
-    <li>
-      If a character will be affected by a non-new skill next turn, a desaturated icon displays the skill above the character next to their own skills in progress
-    <li>
-      If a skill's effect will expire at the end of the current turn, its icon is desaturated
-    <li>
-      If destructible defense will expire at the end of the current turn, its bar is desaturated
-    ^{change Rework "Haku" Reanimated}
-    ^{change Rework "Kushimaru Kuriarare" Reanimated}
-  <h3>April 19
-  <ul>
-    ^{change Rework "Hidan" Shippuden}
-  <h3>April 18
-  <ul>
-    ^{change New "Nagato" Shippuden}
-    ^{change New "Nagato" Reanimated}
-  <h3>April 17
-  <ul>
-    ^{change Rework "Fū Yamanaka" Shippuden}
-  <h3>April 15
-  <ul>
-    ^{change Added "Aoba Yamashiro" Shippuden}
-  <h3>April 15
-  <ul>
-    ^{change Rework "Ameyuri Ringo" Reanimated}
-  <h3>April 14
-  <ul>
-    ^{change New "Konohamaru Sarutobi" Original}
-  <h3>April 13
-  <ul>
-    <li>
-      Added destructible barrier, which absorbs an amount of damage dealt by a character
-    ^{change New "Deva Path Pain" Shippuden}
-  <h3>April 12
-  <ul>
-    <li>
-      Effects from reflected skills are colored black
-    ^{change New "Hanzō" Reanimated}
-    ^{change New "Split Zetsu" Shippuden}
-  <h3>April 10
-  <ul>
-    <li>
-      Removable effects are colored blue
-  <h3>April 9
-  <ul>
-    ^{change New "Mei Terumi" Shippuden}
-    ^{change Rework "Danzō Shimura" Shippuden}
-    ^{change New "Asura Path Pain" Shippuden}
-  <h3>April 8
-  <ul>
-    ^{change New "Eight-Gates Guy" Shippuden}
-    ^{change New "Ōnoki" Shippuden}
-  <h3>April 5
-  <ul>
-    ^{change New "Sage Mode Kabuto" Shippuden}
-  <h3>April 4
-  <ul>
-    ^{change New "Human Path Pain" Shippuden}
-  <h3>April 3
-  <ul>
-    <li>
-      <i>Invisible</i> effects are semi-transparent
-    ^{change Rework "Nine-Tailed Naruto" Shippuden}
-    ^{change New "Preta Path Pain" Shippuden}
-    ^{change New "Naraka Path Pain" Shippuden}
-  <h3>April 1
-  <ul>
-    <li>
-      Mousing over a skill highlights targets that it can affect in green, or in red if the skill itself isn't usable (e.g. on cooldown, not enough chakra, stunned)
-  <h3>March 31
-  <ul>
-    <li>
-      <i>Ongoing</i> skills can have a duration; this has been applied to weather-affecting skills and summoning skills
-    <li>
-      The <i>Bane</i> class has been added to lingering effects from poison and burns
-    <li>
-      The <i>Unique</i> class has been removed
-    <li>
-      The <i>Soulbound</i> class has been added to all skills that end when their user dies
-    ^{change Rework "Kisame Hoshigaki" Shippuden}
-    ^{change New "Masked Man" Shippuden}
-    ^{change New "Curse Mark Sasuke" Shippuden}
-    ^{change New "Animal Path Pain" Shippuden}
-  <h3>March 28
-  <ul>
-    ^{change New "Puppet Master Kankurō" Shippuden}
-  <h3>March 27
-  <ul>
-    ^{change Rework "Ino Yamanaka" Shippuden}
-    ^{change Rework "Deidara" Shippuden}
-    ^{change Rework "Chiyo" Shippuden}
-  <h3>March 25
-  <ul>
-    ^{change Rework "Chōji Akimichi" Original}
-    <li>
-      Shukaku Gaara's face icon changes upon completing
-      #{"Shukaku Gaara" ! "Sand Transformation"}
-  <h3>March 24
-  <ul>
-    ^{change New "Kazekage Puppeteer Sasori" Shippuden}
-    ^{change New "Hiruko Sasori" Shippuden}
-  <h3>March 23
-  <ul>
-    ^{change New "True Form Sasori" Shippuden}
-    <li>
-      The <i>Affliction</i> class has been renamed to <i>Bane</i>
-      in order to avoid confusion with affliction damage.
-      For example, Shino#{Shippuden}'s
-      #{"Shino Aburame (S)" ! "Gigantic Beetle Infestation"}, which does not deal any affliction damage, was a skill classified as <i>Affliction</i>.
-      In the future, other skills may be additionally classified as <i>Bane</i>;
-      this would make skills that cure all <i>Bane</i> effects more useful
-      and improve consistency.
-  <h3>March 21
-  <ul>
-    <li>Added a changelog
-    <li>Several classes have been added for clarity
-      <ul><i>Invisible</i>: Cannot be seen by the enemy team
-      <ul><i>Unremovable</i>: Effects cannot be cured or removed in any way
-      <ul><i>Bypassing</i>: Bypasses invulnerability
-      <ul><i>Soulbound:</i> Effects end when the user dies
-    <li>
-      In addition to <i>Instant</i>, <i>Action</i>, and <i>Control</i>, there is a new type of duration
-      called <i>Ongoing</i>. <i>Ongoing</i> skills are permanent,
-      perform an action every turn even if their user is stunned or otherwise disabled,
-      and end when their user dies. Examples:
-      Choji#{Shippuden}'s #{ "Chōji Akimichi (S)" ! "Butterfly Mode"},
-      Tsunade's #{"Tsunade" ! "Major Summoning: Katsuyu"},
-      Jiraiya's #{"Jiraiya" ! "Major Summoning: Gamabunta"},
-      Orochimaru's #{"Orochimaru" ! "Major Summoning: Manda"},
-      and Hiruzen's #{ "Hiruzen Sarutobi" ! "Major Summoning: Enma"}.
+<h2>Changes at Launch
+<h3>Mechanics
+<ul>
+  <li>Several classes have been added for clarity:
+    <ul><i>Invisible</i>: Cannot be seen by the enemy team.
+    <ul><i>Unremovable</i>: Effects cannot be cured or removed in any way.
+    <ul><i>Bypassing</i>: Bypasses invulnerability.
+    <ul><i>Soulbound:</i> Effects end when the user dies.
+    <ul><i>Necromancy:</i> Targets must be dead. Without this class, targets by default must be alive.
+  <li>
+    The <i>Affliction</i> class has been renamed to <i>Bane</i>
+    in order to avoid confusion with affliction damage.
+    For example, Shino#{Shippuden}'s
+    #{"Shino Aburame (S)" ! "Gigantic Beetle Infestation"}, which does not deal any affliction damage, was a skill classified as <i>Affliction</i>.
+  <li>
+    A few other skills have also been classified as <i>Bane</i>.
+  <li>
+    The <i>Instant</i>, <i>Action</i>, and <i>Control</i> classes have been moved to a new field, Duration, which also indicates how long the skill lasts.
+  <li>
+    Added the <i>Ongoing</i> duration. <i>Ongoing</i> skills are permanent,
+    perform an action every turn even if their user is stunned or otherwise disabled,
+    and end when their user dies. Examples:
+    Choji#{Shippuden}'s #{ "Chōji Akimichi (S)" ! "Butterfly Mode"},
+    Tsunade's #{"Tsunade" ! "Major Summoning: Katsuyu"},
+    Jiraiya's #{"Jiraiya" ! "Major Summoning: Gamabunta"},
+    Orochimaru's #{"Orochimaru" ! "Major Summoning: Manda"},
+    and Hiruzen's #{ "Hiruzen Sarutobi" ! "Major Summoning: Enma"}.
+  <li>
+    New mechanic: destructible barrier, a counterpart to destructible defense. Destructible barrier is a negative effect that absorbs some amount of outgoing damage. It is represented by a red bar next to the health bar.
+<h3>Original
+<ul>
+  ^{change New "Konohamaru Sarutobi" Original}
+  ^{change New "Masked Man" Original}
+  ^{change Rework "Chōji Akimichi" Original}
+<h3>Shippūden
+<ul>
+  ^{change New "Eight-Gates Guy" Shippuden}
+  ^{change New "Mei Terumi" Shippuden}
+  ^{change New "Ōnoki" Shippuden}
+  ^{change New "Puppet Master Kankurō" Shippuden}
+  ^{change New "Sage Mode Kabuto" Shippuden}
+  ^{change New "Split Zetsu" Shippuden}
+  ^{change New "True Form Sasori" Shippuden}
+  ^{change Rework "Chiyo" Shippuden}
+  ^{change Rework "Danzō Shimura" Shippuden}
+  ^{change Rework "Deidara" Shippuden}
+  ^{change Rework "Konohamaru Sarutobi" Shippuden}
+  ^{change Rework "Fū Yamanaka" Shippuden}
+  ^{change Rework "Hidan" Shippuden}
+  ^{change Rework "Ino Yamanaka" Shippuden}
+  ^{change Rework "Kisame Hoshigaki" Shippuden}
+  ^{change Rework "Nagato" Shippuden}
+  ^{change Rework "Nine-Tailed Naruto" Shippuden}
+  ^{change Rework "Sasori" Shippuden}
+  ^{change Rework "Yamato" Shippuden}
+  ^{change Rework "Animal Path Pain" Shippuden}
+  ^{change Rework "Asura Path Pain" Shippuden}
+  ^{change Rework "Deva Path Pain" Shippuden}
+  ^{change Rework "Human Path Pain" Shippuden}
+  ^{change Rework "Naraka Path Pain" Shippuden}
+  ^{change Rework "Preta Path Pain" Shippuden}
+<h3>Reanimated
+<ul>
+  ^{change New "Jirōbō" Reanimated}
+  ^{change New "Gengetsu Hōzuki" Reanimated}
+  ^{change New "Mū" Reanimated}
+  ^{change New "Rasa" Reanimated}
+  ^{change Rework "Ameyuri Ringo" Reanimated}
+  ^{change Rework "Fuguki Suikazan" Reanimated}
+  ^{change Rework "Haku" Reanimated}
+  ^{change Rework "Hanzō" Reanimated}
+  ^{change Rework "Jinpachi Munashi" Reanimated}
+  ^{change Rework "Kushimaru Kuriarare" Reanimated}
+  ^{change Rework "Zabuza Momochi" Reanimated}

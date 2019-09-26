@@ -3,33 +3,18 @@
 <aside #changelog>
   <h2>Recent Changes
   <a .refer href=@{ChangelogR}>View full changelog
-  <h4>May 16
+  <h4>Launch
   <ul>
+    ^{change New "Eight-Gates Guy" Shippuden}
+    ^{change New "Mei Terumi" Shippuden}
+    ^{change New "Ōnoki" Shippuden}
+    ^{change New "Puppet Master Kankurō" Shippuden}
+    ^{change New "Sage Mode Kabuto" Shippuden}
+    ^{change New "Split Zetsu" Shippuden}
+    ^{change New "True Form Sasori" Shippuden}
     ^{change New "Jirōbō" Reanimated}
-  <h4>May 14
-  <ul>
-    ^{change Rework "Zabuza Momochi" Reanimated}
-    ^{change Rework "Fuguki Suikazan" Reanimated}
-  <h4>May 12
-  <ul>
-    ^{change Added "Rock Lee" Shippuden}
-  <h4>May 2
-  <ul>
-    ^{change Rework "Rasa" Reanimated}
-    ^{change Rework "Mū" Reanimated}
-  <h4>May 1
-  <ul>
-    ^{change Rework "Gengetsu Hōzuki" Reanimated}
-  <h4>April 25
-  <ul>
-    ^{change Rework "Jinpachi Munashi" Reanimated}
-  <h4>April 24
-  <ul>
-    ^{change Rework "Haku" Reanimated}
-    ^{change Rework "Kushimaru Kuriarare" Reanimated}
-  <h4>April 19
-  <ul>
-    ^{change Rework "Hidan" Shippuden}
+    ^{change New "Gengetsu Hōzuki" Reanimated}
+    ^{change New "Mū" Reanimated}
 
 <section>
   <h2>Naruto Unison
