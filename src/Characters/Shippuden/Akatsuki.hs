@@ -238,7 +238,7 @@ cs =
       , Skill.new
         { Skill.name      = "Poison Gas"
         , Skill.desc      = "Sasori emits a cloud of poisonous gas, dealing 15 affliction damage to all enemies. Next turn, enemy cooldowns are increased by 1 and enemy chakra costs are increased by 1 random. Lasts 2 turns on targets pinned by [Thousand Arms]."
-        , Skill.classes   = [Bane, Ranged]
+        , Skill.classes   = [Physical, Bane, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Enemies do
@@ -280,7 +280,7 @@ cs =
         { Skill.name      = "Blood Curse Ritual"
         , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, skills used on Hidan and the target by their opponents are also reflected to each other, and this skill becomes [Death Blow][t][g]. Hidan ignores status effects from enemies except chakra cost changes, although his target does not. Damage that Hidan deals to himself while Linked to a living target heals him instead."
         , Skill.require   = HasU 1 "First Blood"
-        , Skill.classes   = [Soulbound, Uncounterable, Unreflectable, Unremovable]
+        , Skill.classes   = [Chakra, Soulbound, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Self do

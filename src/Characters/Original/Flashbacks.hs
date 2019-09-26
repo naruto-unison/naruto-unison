@@ -262,7 +262,7 @@ cs =
       [ [ Skill.new
         { Skill.name      = "Pit Trap"
         , Skill.desc      = "An enemy falls into a pit and is trapped there for 1 turn. At the end of their turn, the target takes 15 piercing damage. If they used a skill that turn, they take 15 additional damage. While active, Rin gains 15 points of damage reduction."
-        , Skill.classes   = [Invisible, Bypassing]
+        , Skill.classes   = [Physical, Ranged, Invisible, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Self $ apply 1 [Reduce All Flat 15]

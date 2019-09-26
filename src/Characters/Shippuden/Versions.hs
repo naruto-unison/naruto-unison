@@ -522,7 +522,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Poisonous Chain Skewer"
         , Skill.desc      = "Sasori hooks an enemy with the poison-soaked steel ropes inside his body and pulls himself to them, dealing 5 affliction damage for 3 turns. Next turn, the target can only target Sasori or themselves. Once used, this skill becomes [Impale][t]."
-        , Skill.classes   = [Bane, Ranged, Unreflectable]
+        , Skill.classes   = [Physical, Bane, Ranged, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
@@ -561,7 +561,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Flamethrower Jets"
         , Skill.desc      = "Using fuel stored in a sealing scroll, Sasori shoots flames at an enemy for 3 turns, dealing 10 affliction damage each turn. While active, Sasori is invulnerable to all other enemies and ignores status effects from enemies except chakra cost changes. If Sasori uses any skill, [Flamethrower Jets] is canceled. After use, this skill becomes [Cutting Water Jets][n]."
-        , Skill.classes   = [Ranged, Unreflectable]
+        , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin, Rand]
         , Skill.dur       = Action 3
         , Skill.cooldown  = 3

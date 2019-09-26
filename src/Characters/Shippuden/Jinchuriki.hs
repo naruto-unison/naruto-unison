@@ -240,7 +240,7 @@ cs =
         { Skill.name      = "Burning Chakra Hand"
         , Skill.desc      = "Naruto extends a limb made of chakra to reach out and grab an enemy, dealing 20 damage and weakening their damage by 5 for 1 turn."
         , Skill.require   = HasI 1 "Four-Tailed Transformation"
-        , Skill.classes   = [Melee, Bypassing]
+        , Skill.classes   = [Chakra, Melee, Bypassing]
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemy do

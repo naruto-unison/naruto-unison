@@ -150,7 +150,7 @@ cs =
         { Skill.name      = "Poison Fog"
         , Skill.desc      = "Ibuse opens its mouth to reveal a noxious cloud of deadly poison, dealing 10 affliction damage to all enemies until Ibuse dies. Cannot be used while active."
         , Skill.require   = HasI (-1) "Poison Fog"
-        , Skill.classes   = [Bane, Ranged, Unreflectable]
+        , Skill.classes   = [Physical, Bane, Ranged, Unreflectable]
         , Skill.cost      = [Blood, Blood]
         , Skill.dur       = Ongoing 0
         , Skill.effects   =
@@ -178,7 +178,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Venom Sac"
         , Skill.desc      = "The first enemy to use a non-mental skill on Hanzō next turn will rupture his implanted venom sac, taking 20 affliction damage every turn and causing Hanzō to take 10 affliction damage every turn. When Hanzō summons Ibuse or if [Major Summoning: Ibuse] is already active, Hanzō will replace his venom sac with Ibuse's, ending [Major Summoning: Ibuse], curing himself of this skill, and decreasing the current cooldown of [Major Summoning: Ibuse] by 3."
-        , Skill.classes   = [Bane, InvisibleTraps]
+        , Skill.classes   = [Physical, Bane, InvisibleTraps]
         , Skill.cost      = [Blood]
         , Skill.effects   =
             [ To Self $ trapFrom (-1) (OnHarmed NonMental) do
