@@ -350,7 +350,7 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
                      , dur     :: Int
                      } deriving (Generic, ToJSON)
 instance Eq Status where
-    (==) = (==) `on` \Status{..} -> (name, user, classes, maxDur, dur)
+    (==) = (==) `on` \Status{..} -> (name, user, classes, dur)
 instance Ord Status where
     compare = comparing (name :: Status -> Text)
 instance TurnBased Status where
