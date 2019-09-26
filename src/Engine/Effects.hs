@@ -120,9 +120,7 @@ strengthen classes n =
 
 -- | 'Stun' collection.
 stun :: Ninja -> EnumSet Class
-stun n
-  | n `is` Focus = mempty
-  | otherwise    = setFromList [x | Stun x <- Ninja.effects n]
+stun n = setFromList [x | Stun x <- Ninja.effects n]
 
 -- | 'Taunt' collection.
 taunt :: Ninja -> [Slot]
@@ -149,10 +147,7 @@ weaken classes n =
 
 -- | 'Throttle'-0 collection.
 disabled :: Ninja -> [Effect]
-disabled n
-  | n `is` Focus = mempty
-  | otherwise    = [f | Throttle 0 con <- Ninja.effects n
-                      , f <- Effect.construct con]
+disabled n = [f | Throttle 0 con <- Ninja.effects n, f <- Effect.construct con]
 
 reflect :: Ninja -> Bool
 reflect n = n `is` Reflect || n `is` ReflectAll

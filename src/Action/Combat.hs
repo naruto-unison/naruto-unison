@@ -108,7 +108,6 @@ targetAdjust atk classes nTarget x = x
     reduceAfflic  = Effects.reduce (singletonSet Affliction) nTarget
     reduce
       | atk /= Attack.Damage = Effect.identity
-      | nTarget `is` Expose  = Effect.identity
       | otherwise            = Effects.reduce classes nTarget
 
 

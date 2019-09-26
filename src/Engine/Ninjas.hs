@@ -112,35 +112,41 @@ apply n = map adjustEffect . filter keepEffects
     adjustEffect (Reduce cla Flat x) = Reduce cla Flat $ x - Effects.unreduce n
     adjustEffect f                   = f
     keepEffects Invulnerable{}       = not $ n `is` Expose
-    keepEffects Nullify{}            = not $ n `is` Expose
     keepEffects _                    = True
 
 -- | Fills 'Ninja.effects' with the effects of 'Ninja.statuses', modified by
 -- 'Ignore', 'Seal', 'Boost', and so on.
 processEffects :: Ninja -> Ninja
-processEffects n = n { effects = baseStatuses >>= replicates >>= process }
+processEffects n = n { effects = baseStatuses >>= process }
   where
     nSlot         = slot n
     baseStatuses  = statuses n
-    baseEffects   = baseStatuses >>= Status.effects
+    unmodEffects  = baseStatuses >>= Status.effects
+    baseEffects
+      | NoIgnore ∈ unmodEffects = filter (not . Effect.ignore) unmodEffects
+      | otherwise               = unmodEffects
     enraged       = Enrage ∈ baseEffects
     sealed        = not enraged && Seal ∈ baseEffects
     boostAmount
       | sealed    = 1
       | otherwise = product $ 1 : [x | Boost x <- baseEffects]
-    replicates st = replicate (boost * Status.amount st)
-                    st { Status.amount = 1 }
+    process Status{user, effects, amount} =
+        replicate (boost * amount) =<< filter allow efs
       where
-        user = Status.user st
         boost
           | user == nSlot            = 1
           | Parity.allied nSlot user = boostAmount
           | otherwise                = 1
-    process Status{user, effects}
-      | sealed        = filter (not . Effect.helpful) effects
-      | user == nSlot = effects
-      | enraged       = filter Effect.bypassEnrage effects
-      | otherwise     = effects
+        efs
+          | sealed        = filter (not . Effect.helpful) effects
+          | user == nSlot = effects
+          | enraged       = filter Effect.bypassEnrage effects
+          | otherwise     = effects
+        allow (Reduce _ _ x) = x <= 0 || enraged || not (Expose ∈ baseEffects)
+        allow (Bleed _ _ x)  = x >= 0 || enraged || not (Expose ∈ baseEffects)
+        allow (Effect.disabling -> True) = sealed || not (Focus ∈ baseEffects)
+        allow _ = True
+
 
 modifyStatuses :: ([Status] -> [Status]) -> Ninja -> Ninja
 modifyStatuses f n = processEffects n { statuses = f $ statuses n }

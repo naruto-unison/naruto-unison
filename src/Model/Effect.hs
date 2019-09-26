@@ -7,6 +7,7 @@ module Model.Effect
   , helpful
   , sticky
   , disabling
+  , ignore
   , bypassEnrage
   , identity
   ) where
@@ -70,6 +71,7 @@ data Effect
     | Heal         Int                 -- ^ Heals every turn
     | Invulnerable Class               -- ^ Invulnerable to enemy 'Skill's
     | Limit        Int                 -- ^ Limits damage received
+    | NoIgnore                         -- ^ Ignore ignores
     | Nullify                          -- ^ Invulnerable but targetable
     | Pierce                           -- ^ Damage attacks become piercing
     | Plague                           -- ^ Invulnerable to healing and curing
@@ -134,6 +136,7 @@ helpful Focus           = True
 helpful Heal{}          = True
 helpful Invulnerable{}  = True
 helpful Limit{}         = True
+helpful NoIgnore        = False
 helpful Nullify         = True
 helpful Pierce          = True
 helpful Plague          = False
@@ -179,6 +182,20 @@ disabling (Stun _)       = True
 disabling (Throttle 0 _) = True
 disabling _              = False
 
+-- | Not canceled by 'Enrage'.
+bypassEnrage :: Effect -> Bool
+bypassEnrage Exhaust{} = True
+bypassEnrage Reveal    = True
+bypassEnrage Share{}   = True
+bypassEnrage ef        = helpful ef
+
+-- | Effect is affected by 'NoIgnore'.
+ignore :: Effect -> Bool
+ignore Enrage  = True
+ignore Focus   = True
+ignore Nullify = True
+ignore _       = False
+
 displayAmt :: Amount -> Int -> TextBuilder
 displayAmt Flat    = display
 displayAmt Percent = (++ "%") . display
@@ -190,7 +207,7 @@ instance Display Effect where
     display (Bleed cla amt x)
       | x >= 0    =  displayAmt amt x ++ " additional damage taken from " ++ lower cla ++ " skills."
       | otherwise = "Reduces all " ++ lower cla ++  " damage received by " ++ displayAmt amt (-x) ++ "."
-    display (Bless x) = "Healing skills heal 1 additional " ++ display x ++ " health."
+    display (Bless x) = "Healing skills heal " ++ display x ++ " additional health."
     display (Block _) = "Unable to affect a specific target."
     display BlockAllies = "Unable to affect allies."
     display BlockEnemies = "Unable to affect enemies."
@@ -206,6 +223,7 @@ instance Display Effect where
     display Expose = "Unable to reduce damage or become invulnerable."
     display (Heal x) = "Gains " ++ display x ++ " health each turn."
     display Focus = "Ignores stuns and disabling effects."
+    display NoIgnore = "Unable to ignore harm."
     display (Invulnerable cla) = "Invulnerable to " ++ lower cla ++ " skills."
     display (Limit x) = "Non-affliction damage received is reduced to at most " ++ display x ++ "."
     display Nullify = "Ignores enemy skills."
@@ -238,11 +256,6 @@ instance Display Effect where
     display (Throttle 0 _) = "Skills cannot apply some effects."
     display (Throttle x _) = "Skills will apply " ++ display x ++ " fewer turns of some effects."
     display Uncounter = "Unable to benefit from counters or reflects."
-    display Undefend = "Unable to benefit from destructible defense"
+    display Undefend = "Unable to benefit from destructible defense."
     display (Unreduce x) = "Damage reduction skills reduce " ++ display x ++ " fewer damage."
     display (Weaken cla amt x) = display cla ++ " skills deal " ++ displayAmt amt x ++ " fewer damage. Does not affect affliction damage."
-
--- | Not canceled by 'Enrage'.
-bypassEnrage :: Effect -> Bool
-bypassEnrage Exhaust{} = True
-bypassEnrage ef        = helpful ef || sticky ef
