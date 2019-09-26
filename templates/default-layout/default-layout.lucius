@@ -20,6 +20,8 @@ body {
     font-family: Trebuchet MS, sans-serif;
     overflow-y: scroll;
     background: #1b4e66;
+    display: flex;
+    flex-direction: column;
 }
 #sitenav {
     display: flex;
@@ -87,9 +89,15 @@ body {
     color: #0099ff;
     border-color: #0099ff;
 }
-.container, #message {
+.container {
+    flex-grow: 1;
+    align-self: center;
+    width: 100%;
     max-width: 800px;
+    padding: 1em 2.5em 5em 2.5em;
     box-sizing: border-box;
+    background: #fff;
+    font-size: 14px;
 }
 #breadcrumb {
     margin-bottom: 1em;
@@ -109,13 +117,6 @@ body {
 #breadcrumb li:before {
     content: " > ";
     white-space: pre;
-}
-.container {
-    background: #fff;
-    margin: auto;
-    font-size: 14px;
-    padding: 1em 2.5em 5em 2.5em;
-    box-sizing: border-box;
 }
 table {
     width: 100%;
@@ -220,8 +221,9 @@ h4 { font-size: 1.15em }
 }
 sup {
   font-style: italic;
-  color: #606060;
   font-size: 0.75em;
+  display: inline-block;
+  text-decoration: none !important;
 }
 .extra {
   color: #606060;

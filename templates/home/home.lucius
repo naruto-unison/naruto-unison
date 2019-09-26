@@ -1,6 +1,9 @@
 body {
     padding: 0 !important;
 }
+.container {
+    padding-bottom: 0 !important;
+}
 body, .container {
     background: #1b4e66 !important;
 }
@@ -55,7 +58,7 @@ body, .container {
 }
 #changelog {
     padding-right: 1em;
-    padding-bottom: 6em;
+    padding-bottom: 1em;
 }
 #changelog li {
     margin: 0;

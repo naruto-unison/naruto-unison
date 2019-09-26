@@ -1,31 +1,30 @@
-<section>
-  <header>
-    <h2>#{boardName board}
-    <p>#{boardDesc board}
-  <table>
-    <thead>
+<header>
+  <h2>#{boardName board}
+  <p>#{boardDesc board}
+<table>
+  <thead>
+    <tr>
+      <th>
+        <h3>
+          Topic
+          <a href=@{NewTopicR board}>+New
+      <th>
+        Posts
+      <th>
+        Latest Post
+  <tbody>
+    $forall topic@Cite{..} <- topics
       <tr>
-        <th>
-          <h3>
-            Topic
-            <a href=@{NewTopicR board}>+New
-        <th>
-          Posts
-        <th>
-          Latest Post
-    <tbody>
-      $forall topic@Cite{..} <- topics
-        <tr>
-          <td>
-            <header>
-              <h4>
-                ^{topiclink topic}
-              <div>
-                by
-                ^{userlink citeAuthor}
-          <td>
-            #{topicPosts citeVal}
-          <td>
-            ^{userlink citeLatest}
-            at
-            ^{timestamp $ topicTime citeVal}
+        <td>
+          <header>
+            <h4>
+              ^{topiclink topic}
+            <div>
+              by
+              ^{userlink citeAuthor}
+        <td>
+          #{topicPosts citeVal}
+        <td>
+          ^{userlink citeLatest}
+          at
+          ^{timestamp $ topicTime citeVal}

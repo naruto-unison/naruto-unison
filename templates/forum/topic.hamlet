@@ -1,17 +1,16 @@
-<section>
-    <h2>#{topicTitle}
-  $forall Cite{citeVal = Post{..}, citeAuthor} <- posts
-    <article>
-      <aside>
-        <img .char src=#{userAvatar citeAuthor}>
-        ^{userlink citeAuthor}
-        ^{timestamp postTime}
-      <section>
-        $forall paragraph <- postBody
-          <p>
-            #{paragraph}
+<h2>#{topicTitle}
+$forall Cite{citeVal = Post{..}, citeAuthor} <- posts
   <article>
     <aside>
-    <form .full method=post action=@{TopicR topicId} enctype=#{enctype} autocomplete=off>
-        ^{widget}
-        <button>Reply
+      <img .char src=#{userAvatar citeAuthor}>
+      ^{userlink citeAuthor}
+      ^{timestamp postTime}
+    <section>
+      $forall paragraph <- postBody
+        <p>
+          #{paragraph}
+<article>
+  <aside>
+  <form .full method=post action=@{TopicR topicId} enctype=#{enctype} autocomplete=off>
+      ^{widget}
+      <button>Reply
