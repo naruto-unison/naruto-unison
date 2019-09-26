@@ -71,18 +71,17 @@ targetable :: Skill -- ^ @Skill@ to check.
            -> Bool
 targetable skill n nt
   | not $ succeed (Skill.require skill) user nt = False
-  | not (Ninja.alive nt) && not necro = False
-  | user == target                    = True
-  | Ninja.alive nt && necro           = False
-  | harm && n `is` BlockEnemies       = False
-  | not harm && n `is` BlockAllies    = False
-  | Bypassing ∈ classes               = True
-  | harm && invuln                    = False
-  | not harm && nt `is` Alone         = False
-  | notIn user $ Effects.duel nt      = False
-  | notIn target $ Effects.taunt n    = False
-  | target ∈ Effects.block n          = False
-  | otherwise                         = True
+  | not (Ninja.alive nt) && not necro     = False
+  | user == target                        = True
+  | Ninja.alive nt && necro               = False
+  | harm && n `is` BlockEnemies           = False
+  | not harm && n `is` BlockAllies        = False
+  | harm && invuln && Bypassing ∉ classes = False
+  | not harm && nt `is` Alone             = False
+  | notIn user $ Effects.duel nt          = False
+  | notIn target $ Effects.taunt n        = False
+  | target ∈ Effects.block n              = False
+  | otherwise                             = True
   where
     classes = Skill.classes skill
     user    = Ninja.slot n
