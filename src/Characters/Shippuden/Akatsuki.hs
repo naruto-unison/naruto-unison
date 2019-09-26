@@ -138,7 +138,7 @@ cs =
       , Skill.new
         { Skill.name      = "C2: Minefield"
         , Skill.desc      = "Deidara scatters mines that burrow into the ground around an enemy. The next time they use a non-mental skill within 2 turns, they will take 10 damage and their non-affliction damage will be weakened by 5 for 4 turns. Does not stack."
-        , Skill.classes   = [Chakra, Ranged, InvisibleTraps, Nonstacking]
+        , Skill.classes   = [Chakra, Ranged, Invisible, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
@@ -573,13 +573,13 @@ cs =
       , Skill.new
         { Skill.name      = "Yata Mirror"
         , Skill.desc      = "Itachi defends himself with an ethereal shield. Next turn, Itachi ignores enemy skills, and enemies who use skills on Itachi will have the costs of their skills increased by 1 additional random chakra for 1 turn."
-        , Skill.classes    = [Chakra, Ranged, InvisibleTraps]
+        , Skill.classes    = [Chakra, Ranged, Invisible]
         , Skill.cost       = [Gen, Rand]
         , Skill.cooldown   = 2
         , Skill.effects    =
           [ To Self do
                 trapFrom 1 (OnHarmed All) $ apply 1 [Exhaust All]
-                applyWith [Invisible] 1 [Nullify]
+                apply 1 [Nullify]
           ]
         }
       ]

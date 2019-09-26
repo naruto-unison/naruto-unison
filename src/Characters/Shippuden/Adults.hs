@@ -215,13 +215,12 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Binding Cloth"
         , Skill.desc      = "Maki deploys a roll of cloth from within a seal and wraps it around herself, gaining 50% damage reduction for 1 turn. If an enemy uses a skill on Maki, the cloth wraps around them, stunning their physical and melee skills for 1 turn."
-        , Skill.classes   = [Physical, Ranged, InvisibleTraps]
+        , Skill.classes   = [Physical, Ranged, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                -- the Invisible juggling is so that the stun is visible
-                applyWith [Invisible] 1 [Reduce All Percent 50]
+                apply 1 [Reduce All Percent 50]
                 trapFrom 1 (OnHarmed All) $ apply 1 [Stun Physical, Stun Melee]
           ]
         }

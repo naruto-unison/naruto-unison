@@ -159,6 +159,7 @@ applyFull :: ∀ m. (MonadPlay m, MonadRandom m)
           -> [Effect] -> m ()
 applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
     void $ runMaybeT do
+        new         <- P.new
         skill       <- P.skill
         user        <- P.user
         target      <- P.target
@@ -167,7 +168,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
         dur         <- MaybeT . return $ Duration.throttle
                        (Effects.throttle fs nUser) unthrottled
         let already  = Ninja.has name user nTarget
-            st       = makeStatus skill nUser nTarget
+            st       = makeStatus new skill nUser nTarget
                        classes bounced bombs name dur fs
             classes' = Status.classes st
             prolong' = mapMaybe .
@@ -197,10 +198,10 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
     isReduce Reduce{} = True
     isReduce _        = False
 
-makeStatus :: Skill -> Ninja -> Ninja
+makeStatus :: Bool -> Skill -> Ninja -> Ninja
            -> EnumSet Class -> Bool -> [Runnable Bomb] -> Text -> Duration
            -> [Effect] -> Status
-makeStatus skill nUser nTarget classes bounced bombs name dur fs = newSt
+makeStatus new skill nUser nTarget classes bounced bombs name dur fs = newSt
     { Status.name    = Skill.defaultName name skill
     , Status.user    = user
     , Status.effects = filt . filter (∉ disabled) $ Ninjas.apply nTarget fs
@@ -213,14 +214,17 @@ makeStatus skill nUser nTarget classes bounced bombs name dur fs = newSt
     disabled = Effects.disabled nUser
     newSt    = Status.new user dur skill
     self     = user == user && user == Ninja.slot nTarget
-    noremove = null fs && Bane ∉ Skill.classes skill
+    skillClasses
+      | new       = Skill.classes skill
+      | otherwise = deleteSet Invisible $ Skill.classes skill
+    noremove = null fs && Bane ∉ skillClasses
                || dur == Duration 1 && Skill.dur skill /= Instant
                || self && any (not . Effect.helpful) fs
     extra    = setFromList $ fst <$> filter snd
                 [ (Soulbound,   any bind fs)
                 , (Unremovable, noremove)
                 ]
-    classes' = extra ++ classes ++ Skill.classes skill
+    classes' = extra ++ classes ++ skillClasses
     silenced = nUser `is` Silence
     filt xs
       | silenced && bounced = []

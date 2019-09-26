@@ -217,9 +217,7 @@ decr n@Ninja{..} = processEffects n
     decrVarying (Variant.Duration _) x = TurnBased.decr x
 
 addStatus :: Status -> Ninja -> Ninja
-addStatus st = modifyStatuses $ Classed.nonStack st' st'
-  where
-    st' = st { Status.classes = deleteSet InvisibleTraps $ Status.classes st }
+addStatus st = modifyStatuses $ Classed.nonStack st st
 
 addOwnStacks :: Duration -- ^ 'Status.dur'.
              -> Text -- ^ 'Status.name'.

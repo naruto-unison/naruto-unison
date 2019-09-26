@@ -178,7 +178,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Venom Sac"
         , Skill.desc      = "The first enemy to use a non-mental skill on Hanzō next turn will rupture his implanted venom sac, taking 20 affliction damage every turn and causing Hanzō to take 10 affliction damage every turn. When Hanzō summons Ibuse or if [Major Summoning: Ibuse] is already active, Hanzō will replace his venom sac with Ibuse's, ending [Major Summoning: Ibuse], curing himself of this skill, and decreasing the current cooldown of [Major Summoning: Ibuse] by 3."
-        , Skill.classes   = [Physical, Bane, InvisibleTraps]
+        , Skill.classes   = [Physical, Bane, Invisible]
         , Skill.cost      = [Blood]
         , Skill.effects   =
             [ To Self $ trapFrom (-1) (OnHarmed NonMental) do
@@ -363,7 +363,7 @@ cs =
         { Skill.name      = "Rivalry"
         , Skill.desc      = "Jirōbō picks out an enemy as his rival. If they use a skill on Jirōbō or his allies next turn, they will be countered and permanently forced to target Jirōbō. Effect ends if Jirōbō uses a skill on a different enemy or uses this skill again. Cannot be used during [Summoning: Earth Prison Golem]."
         , Skill.require   = HasI (-1) "Summoning: Earth Prison Golem"
-        , Skill.classes   = [Mental, Melee, InvisibleTraps]
+        , Skill.classes   = [Mental, Melee, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
@@ -620,7 +620,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Stitching Spider"
         , Skill.desc      = "Kushimaru lays a trap of wires on the ground. For 3 turns, enemies who use physical skills will take 10 piercing damage and be marked until after this skill ends."
-        , Skill.classes   = [Physical, Ranged, InvisibleTraps]
+        , Skill.classes   = [Physical, Ranged, Invisible]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
         , Skill.dur       = Control 3

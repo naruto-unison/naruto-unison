@@ -117,7 +117,7 @@ makeTrap skill nUser target direction classes dur trigger f = Trap
         { Runnable.target = ctx
         , Runnable.run    = Execute.wrap (singletonSet Trapped) $ f i
         }
-    , Trap.classes   = classes ++ (invis `omap` Skill.classes skill)
+    , Trap.classes   = classes ++ Skill.classes skill
     , Trap.tracker   = 0
     , Trap.dur       = Copy.maxDur (Skill.copying skill) . incr $
                         sync dur + throttled nUser
@@ -133,8 +133,6 @@ makeTrap skill nUser target direction classes dur trigger f = Trap
       | dur == 0               = 0
       | Trap.isCounter trigger = 2 * Effects.throttle [Reflect] n
       | otherwise              = 0
-    invis InvisibleTraps = Invisible
-    invis x              = x
 
 -- | Saves an effect to a 'Delay.Delay', which is stored in 'Game.delays' and
 -- triggered when it expires.

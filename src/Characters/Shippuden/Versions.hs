@@ -130,12 +130,12 @@ cs =
     , [ Skill.new
         { Skill.name      = "Kuroari Trap"
         , Skill.desc      = "Kankurō's Kuroari puppet stalks an enemy for 5 turns. If Kankurō uses [Hidden Coil Strike] on the target, the trap is activated immediately; otherwise, it is activated at the end of the 5 turns. Activating the trap applies [Kuroari Ambush] to the target, stunning them for 1 turn and making them invulnerable to everyone but Kankurō. Once used, this skill becomes [Iron Maiden][r][r][r]."
-        , Skill.classes   = [Physical, Ranged, Nonstacking, InvisibleTraps, Bypassing, Unreflectable, Unremovable]
+        , Skill.classes   = [Physical, Ranged, Nonstacking, Invisible, Bypassing, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Self  $ vary "Kuroari Trap" "Iron Maiden"
-          , To Enemy $ bombWith [Invisible] 5 []
+          , To Enemy $ bomb 5 []
                 [ To Done do
                     userSlot <- user slot
                     apply' "Kuroari Ambush" 1 [Stun All, Alone, Duel userSlot]

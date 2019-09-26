@@ -47,7 +47,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Teleportation Technique"
         , Skill.desc      = "For 2 turns, if an enemy uses a skill on Shisui, he will deal 15 damage to them and become invulnerable for the rest of the turn."
-        , Skill.classes   = [Physical, InvisibleTraps]
+        , Skill.classes   = [Physical, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -218,7 +218,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Mind Transfer Puppet Curse"
         , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a non-mental skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Effects from Fū's usage of their skills are canceled when Fū's skills revert."
-        , Skill.classes   = [Mental, InvisibleTraps, Unreflectable]
+        , Skill.classes   = [Mental, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
@@ -377,7 +377,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Kotoamatsukami"
         , Skill.desc      = "Danzō infiltrates the mind of an enemy. The next time they use a skill, they will be countered and stunned for 2 turns, and this skill will be replaced by the skill they used for 2 turns. Danzō's copy of their skill has no chakra cost or cooldown and ends when this skill reverts."
-        , Skill.classes   = [Mental, Ranged, InvisibleTraps, Uncounterable, Unreflectable]
+        , Skill.classes   = [Mental, Ranged, Invisible, Uncounterable, Unreflectable]
         , Skill.cost      = [Blood, Gen, Gen]
         , Skill.cooldown  = 9
         , Skill.effects   =

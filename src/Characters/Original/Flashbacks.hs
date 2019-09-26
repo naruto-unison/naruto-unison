@@ -110,17 +110,17 @@ cs =
     "Now the fourth Hokage, Minato has been shaped by his responsibilities into a thoughtful and strategic leader. With his space-time jutsu, he redirects the attacks of his enemies and effortlessly passes through their defenses."
     [ [ Skill.new
         { Skill.name      = "Space-Time Marking"
-        , Skill.desc      = "Minato opportunistically marks targets to use as teleport destinations for avoiding attacks. Allies and enemies who do not use a skill next turn will be marked by this skill for 4 turns. Minato gains 5 points of damage reduction for each marked target. This skill stacks."
-        , Skill.classes   = [Physical, Ranged, InvisibleTraps]
+        , Skill.desc      = "Minato opportunistically marks targets to use as teleport destinations for avoiding attacks. Allies who do not use skills this turn and enemies who do not use skills next turn will be marked for 4 turns. Minato gains 5 points of damage reduction for each marked target. This skill stacks."
+        , Skill.classes   = [Physical, Ranged, Invisible]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To XAllies $ delay 0 $ trap 1 OnNoAction do
-                apply' "Space-Time Marking " 3 []
-                self $ hide 4 [Reduce All Flat 5]
+          [ To XAllies $ trap (-1) OnNoAction do
+                applyWith [Invisible] 4 []
+                self $ applyWith [Invisible] 4 [Reduce All Flat 5]
           , To Enemies $ trap (-1) OnNoAction do
-                apply' "Space-Time Marking " (-4) []
-                self $ hide 4 [Reduce All Flat 5]
+                applyWith [Invisible] (-4) []
+                self $ applyWith [Invisible] (-4) [Reduce All Flat 5]
           ]
         }
       ]
@@ -150,13 +150,12 @@ cs =
     , [ Skill.new
         { Skill.name      = "Round-Robin Raijen"
         , Skill.desc      = "Minato and allies affected by [Space-Time Marking] become invulnerable for 1 turn."
-        , Skill.classes   = [Chakra]
+        , Skill.require   = HasU 1 "Space-Time Marking"
+        , Skill.classes   = [Chakra, Bypassing]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self do
-                apply 1 [Invulnerable All]
-                allies . whenM (targetHas "Space-Time Marking") $
-                    apply 1 [Invulnerable All]
+          [ To Self    $ apply 1 [Invulnerable All]
+          , To XAllies $ apply 1 [Invulnerable All]
           ]
         }
       ]
@@ -244,7 +243,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Kakashi anticipates an opponent's moves for 2 turns. If they use a skill that gains, depletes, or absorbs chakra, Kakashi gains 1 random chakra. If they use a skill that stuns or disables, Kakashi's skills will stun next turn. If they use a skill that damages, Kakashi's damage will be increased by 10 during the next turn."
-        , Skill.classes   = [Mental, Ranged, InvisibleTraps]
+        , Skill.classes   = [Mental, Ranged, Invisible]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do

@@ -86,7 +86,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Genjutsu Ambush Tactics"
         , Skill.desc      = "Mizuki lurks in the shadows. If no enemy uses a skill that deals damage to him, he becomes invulnerable for 1 turn as a Successful Ambush."
-        , Skill.classes   = [Mental, InvisibleTraps]
+        , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =

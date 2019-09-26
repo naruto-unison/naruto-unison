@@ -26,7 +26,6 @@ data Class
     -- Effects
     | Bypassing
     | Invisible
-    | InvisibleTraps
     | Soulbound
     -- Tags
     | Bane
@@ -77,7 +76,6 @@ visibles = toJSON . mapFromKeyed @(Map _ _) (name, const True) $
            filter visible [minBound, maxBound]
 
 name :: Class -> Text
-name InvisibleTraps = "Invisible"
 name Nonstacking    = "Non-stacking"
 name NonAffliction  = "Non-affliction"
 name NonMental      = "Non-mental"

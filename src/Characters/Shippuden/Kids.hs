@@ -37,7 +37,7 @@ cs =
     , [ Skill.new
         { Skill.name      = "Multi Shadow Clone"
         , Skill.desc      = "Naruto creates countless clones, hidden in the area around him, who counter the first skill an enemy uses on him in the next turn."
-        , Skill.classes   = [Physical, InvisibleTraps]
+        , Skill.classes   = [Physical, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
@@ -857,7 +857,7 @@ cs =
     [ [ Skill.new
         { Skill.name      = "Kuroari Trap"
         , Skill.desc      = "The Kuroari puppet traps an enemy. If they use a skill on Kankurō or his allies next turn, they will be countered and will receive twice as much damage from [Karasu Knives] for 1 turn."
-        , Skill.classes   = [Physical, Ranged, InvisibleTraps]
+        , Skill.classes   = [Physical, Ranged, Invisible]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy $ trap (-1) (Countered All) $ tag 1 ]
