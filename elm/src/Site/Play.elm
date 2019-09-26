@@ -399,7 +399,7 @@ renderDefense slot anchor track barriers defenses = case List.uncons defenses of
     Nothing      -> renderBarrier slot anchor track barriers
     Just (x, xs) ->
         H.div
-        [ A.class "chardefense"
+        [ A.classList [("chardefense", True), ("ghost", x.dur == 1)]
         , A.style anchor <| String.fromInt track ++ "%"
         , A.style "width" <| String.fromInt x.amount ++ "%"
         , E.onMouseOver << View <| ViewDefense x
@@ -454,12 +454,12 @@ renderDetail team slot characters detail =
     H.div
     [ E.onMouseOver << View <| ViewDetail removable detail
     , A.classList
-      [ ("detail"   , True)
-      , ("trap"     , detail.trap)
-      , ("tag"      , detail.dur == 1)
-      , ("reflected", Set.member "Shifted" detail.classes)
-      , ("remove"   , List.any removable detail.effects
-                      && not (Set.member "Unremovable" detail.classes))
+      [ ("detail" , True)
+      , ("trap"   , detail.trap)
+      , ("ghost"  , detail.dur == 1)
+      , ("remove" , List.any removable detail.effects
+                    && not (Set.member "Unremovable" detail.classes))
+      , ("invis"  , Set.member "Invisible" detail.classes)
       ]
     ]
     [ H.div [] <| amount
@@ -567,11 +567,7 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
               x.name ++ " (" ++ String.fromInt x.amount ++ ")"
           else
               x.name
-        name   =
-          if Set.member "Shifted" x.classes then
-              H.span [A.class "reflected"] [H.text <| count ++ " (Reflected)"]
-          else
-              H.span [] [H.text count]
+        name   = H.span [] [H.text count]
       in
         [ H.section []
           [ icon (Game.get characters x.source) "icon" [A.class "char"]

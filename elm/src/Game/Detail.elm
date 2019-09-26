@@ -11,7 +11,7 @@ import List.Nonempty as Nonempty exposing (Nonempty(..))
 import Set exposing (Set)
 
 import Game.Game as Game
-import Import.Model exposing (Channel, Copy, Effect, Ninja, Skill, Status, Trap)
+import Import.Model exposing (Channel, Channeling(..), Copy, Effect, Ninja, Skill, Status, Trap)
 import Util exposing (elem, groupBy)
 
 type alias Detail =
@@ -77,7 +77,9 @@ channel user x =
     , source  = Game.source x.skill user
     , user    = user
     , effects = []
-    , trap    = False
+    , trap    = case x.dur of
+        Control _ -> True
+        _       -> False
     , amount  = 1
     }
 

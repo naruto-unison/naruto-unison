@@ -60,7 +60,7 @@ p {
 
 body {
     background: url('/img/bg/silhouette.jpg') no-repeat center center !important;
-    overflow: hidden;
+    overflow-y: hidden !important;
 }
 
 #controls {
@@ -552,6 +552,7 @@ dl dt {
 }
 #top > article ul {
     font-weight: bold;
+    padding-left: 1em;
 }
 .player {
     position: absolute;
@@ -965,20 +966,17 @@ svg {
     right: 1px;
     bottom: 0;
 }
-.tag div {
+.ghost div {
     border-color: #666;
 }
-.detail.tag img {
+.detail.ghost img, .ghost.chardefense {
     filter: grayscale(0.8);
+}
+.invis {
+    opacity: 0.65;
 }
 .remove div, .action div {
     border-color: #00a;
-}
-.detail.reflected img {
-    filter: grayscale(0.8);
-}
-.reflected div {
-    color: #000;
 }
 #top > article .remove {
     color: #00a;
