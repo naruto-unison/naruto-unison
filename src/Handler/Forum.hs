@@ -29,7 +29,10 @@ import Core.Fields (ForumBoard, ForumCategory(..), Privilege(..), boardCategory,
 import Core.Model (Cite(..), EntityField(..), HasAuthor(..), Post(..), Topic(..), TopicId, User(..), UserId)
 import Core.Settings (widgetFile)
 import Core.Util (shorten)
+
+import qualified Model.Class as Class
 import qualified Characters
+
 -- | Renders a 'User' profile.
 getProfileR :: Text -> Handler Html
 getProfileR name = do

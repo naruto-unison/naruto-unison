@@ -1,4 +1,4 @@
-const chars = #{toJSON Characters.map}
+const chars = #{Characters.mapJSON}
 
 const cTypes  = [ "blood", "gen", "nin", "tai", "rand" ]
 const tcTypes = [ "blood", "gen", "nin", "tai" ]
@@ -14,27 +14,8 @@ const half = x => (x + 1) / 2 >> 0
 const getSkill = (char, name) => char.skills.flat().filter(x => x.name == name)[0]
 
 const offset = 5
-const hidden = [ "All"
-               , "Affliction"
-               , "NonAffliction"
-               , "NonMental"
-               , "Nonstacking"
-               , "Multi"
-               , "Extending"
-               , "Hidden"
-               , "Shifted"
-               , "Unshifted"
-               , "Direct"
-               , "BaseTrap"
-               , "NonMental"
-               , "Bloodline"
-               , "Genjutsu"
-               , "Ninjutsu"
-               , "Taijutsu"
-               , "Random"
-               , "Necromancy"
-               ]
-const filterClasses = x => x.filter(y => !hidden.includes(y))
+const visible = #{Class.visibles}
+const filterClasses = x => x.filter(y => visible[y])
 
 const showChar = x => {
   switch (x.category) {
@@ -90,10 +71,11 @@ $(() => {
             desc = tooltip.find("article").html(skill.desc.replace(/\[.\]/g,"").replace(/\[/g,"<i>").replace(/\]/g,"</i>"))
             const charges = skill.charges
             if (charges === 1)
-                desc.append(` <span class="extra">1 charge.</span>`)
+                desc.append(`<span class="extra">1 charge.</span>`)
             else if (charges > 1)
-                desc.append(` <span class="extra">${charges} charges.</span>`)
-            desc.append(` <span class="extra">CD: ${skill.cooldown}</span>`)
+                desc.append(`<span class="extra">${charges} charges.</span>`)
+            if (skill.cooldown > 0)
+                desc.append(`<span class="extra">CD: ${skill.cooldown / 2}</span>`)
             tooltip
               .stop()
               .css("left", ev.pageX)

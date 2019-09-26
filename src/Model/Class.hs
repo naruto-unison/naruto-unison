@@ -1,16 +1,17 @@
 module Model.Class
   ( Class(..)
-  , visible
   , name, lower
+  , visible, visibles
   ) where
 
 import ClassyPrelude
 
-import           Data.Aeson (ToJSON(..))
+import           Data.Aeson (ToJSON(..), Value)
 import qualified Data.Enum.Memo as Enum
 import           Data.Enum.Set.Class (AsEnumSet(..))
 import           Text.Blaze (ToMarkup(..))
 
+import Core.Util (mapFromKeyed)
 import Class.Display (Display(..))
 
 -- | Qualifiers of 'Model.Skill.Skill's and 'Model.Status.Status'es.
@@ -70,6 +71,10 @@ instance Display Class where
 
 visible :: Class -> Bool
 visible = (< All)
+
+visibles :: Value
+visibles = toJSON . mapFromKeyed @(Map _ _) (name, const True) $
+           filter visible [minBound, maxBound]
 
 name :: Class -> Text
 name InvisibleTraps = "Invisible"

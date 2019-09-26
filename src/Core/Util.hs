@@ -8,6 +8,7 @@ module Core.Util
   , intersects
   , duplic
   , shorten, unaccent
+  , mapFromKeyed
   ) where
 
 import ClassyPrelude hiding ((<|), mapMaybe)
@@ -56,6 +57,11 @@ duplic = go []
     go seen (x:xs)
       | x ∈ seen  = True
       | otherwise = go (x:seen) xs
+
+mapFromKeyed :: ∀ map a. IsMap map
+             => (a -> ContainerKey map, a -> MapValue map) -> [a] -> map
+mapFromKeyed (toKey, toVal) xs = mapFromList $ (\x -> (toKey x, toVal x)) <$> xs
+{-# INLINE mapFromKeyed #-}
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text

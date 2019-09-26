@@ -2,14 +2,16 @@ module Characters
   ( list, map
   , lookupName
   , link, lookupSite
+  , listJSON, mapJSON
   ) where
 
 import ClassyPrelude hiding (link, map)
 
+import           Data.Aeson (Value, toJSON)
 import qualified Data.Enum.Memo as Enum
 import           Data.HashMap.Strict (HashMap)
 
-import           Core.Util ((∉), unaccent)
+import           Core.Util ((∉), mapFromKeyed, unaccent)
 import qualified Model.Character as Character
 import           Model.Character (Character, Category(..))
 import           Model.Class (Class(..))
@@ -37,38 +39,41 @@ import qualified Characters.Reanimated
 
 import qualified Characters.Development
 
-original :: [Character]
-original = ($ Original)
-           <$> Characters.Development.cs
-            ++ Characters.Original.Kids.cs
-            ++ Characters.Original.Exams.cs
-            ++ Characters.Original.Teachers.cs
-            ++ Characters.Original.Organizations.cs
-            ++ Characters.Original.Leaders.cs
-            ++ Characters.Original.Versions.cs
-            ++ Characters.Original.Family.cs
-            ++ Characters.Original.Flashbacks.cs
-
-shippuden :: [Character]
-shippuden = ($ Shippuden)
-            <$> Characters.Shippuden.Kids.cs
-             ++ Characters.Shippuden.Adults.cs
-             ++ Characters.Shippuden.Organizations.cs
-             ++ Characters.Shippuden.Akatsuki.cs
-             ++ Characters.Shippuden.Leaders.cs
-             ++ Characters.Shippuden.Jinchuriki.cs
-             ++ Characters.Shippuden.Versions.cs
-
-reanimated :: [Character]
-reanimated = ($ Reanimated) <$> Characters.Reanimated.cs
-
 list :: [Character]
 list = addClasses <$> original ++ shippuden ++ reanimated
+  where
+    original = ($ Original)
+        <$> Characters.Development.cs
+        ++ Characters.Original.Kids.cs
+        ++ Characters.Original.Exams.cs
+        ++ Characters.Original.Teachers.cs
+        ++ Characters.Original.Organizations.cs
+        ++ Characters.Original.Leaders.cs
+        ++ Characters.Original.Versions.cs
+        ++ Characters.Original.Family.cs
+        ++ Characters.Original.Flashbacks.cs
+    shippuden = ($ Shippuden)
+        <$> Characters.Shippuden.Kids.cs
+          ++ Characters.Shippuden.Adults.cs
+          ++ Characters.Shippuden.Organizations.cs
+          ++ Characters.Shippuden.Akatsuki.cs
+          ++ Characters.Shippuden.Leaders.cs
+          ++ Characters.Shippuden.Jinchuriki.cs
+          ++ Characters.Shippuden.Versions.cs
+    reanimated = ($ Reanimated) <$> Characters.Reanimated.cs
 {-# NOINLINE list #-}
 
+listJSON :: Value
+listJSON = toJSON list
+{-# NOINLINE listJSON #-}
+
 map :: HashMap Text Character
-map = mapFromList $ (\c -> (Character.format c, c)) <$> list
+map = mapFromKeyed (Character.format, id) list
 {-# NOINLINE map #-}
+
+mapJSON :: Value
+mapJSON = toJSON map
+{-# NOINLINE mapJSON #-}
 
 lookupName :: Text -> Maybe Character
 lookupName k = lookup k map
@@ -102,8 +107,8 @@ link = omap clean . toLower . Character.name
 
 siteChars :: Category -> HashMap Text Character
 siteChars =
-    Enum.memoize \category -> mapFromList $ (\c -> (link c, c)) <$>
-    filter ((== category) . Character.category) list
+    Enum.memoize \category -> mapFromKeyed (link, id) $
+        filter ((== category) . Character.category) list
 {-# NOINLINE siteChars #-}
 
 lookupSite :: Category -> Text -> Maybe Character

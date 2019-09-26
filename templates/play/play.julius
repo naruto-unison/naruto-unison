@@ -24,7 +24,7 @@ const app = Elm.Main.init({
     userPractice: nullary(#{toJSON practice}),
     user:         #{toJSON muser},
     avatars:      #{toJSON avatars},
-    characters:   nullary(#{toJSON Characters.list}),
+    characters:   nullary(#{Characters.listJSON}),
     csrf:         #{fromMaybe "" token},
     csrfParam:    #{defaultCsrfParamName} //Cookies.get("XSRF-TOKEN")
   }
