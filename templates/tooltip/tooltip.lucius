@@ -16,7 +16,8 @@
   box-shadow: 0 0 5px rgba(0,0,0,0.1);
   border: 1px solid rgba(0,0,0,0.2);
   display: none;
-  margin-left: -50px;
+  margin-top: 5px;
+  margin-left: 2px;
   pointer-events: none;
   border-radius: 3px;
   color: #000;

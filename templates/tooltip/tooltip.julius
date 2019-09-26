@@ -8,12 +8,8 @@ const shorten = x => x.replace(/ \(\d+\)/g, '')
                       .replace(/ō/g,'o')
                       .replace(/ū/g,'u')
 
-const hide = x => x.hide() // A taste of home...
-const half = x => (x + 1) / 2 >> 0
-
 const getSkill = (char, name) => char.skills.flat().filter(x => x.name == name)[0]
 
-const offset = 5
 const visible = #{Class.visibles}
 const filterClasses = x => x.filter(y => visible[y])
 
@@ -27,6 +23,13 @@ const showChar = x => {
 
 let cur
 
+const popup = (tooltip, ev, el) => tooltip
+    .stop()
+    .css("left", ev.pageX)
+    .css("top", Math.min(el.offsetTop, document.body.scrollHeight - tooltip[0].clientHeight - 10))
+    .fadeIn(100)
+    .show()
+
 const hoverChar = (i, el) => {
   const tooltip = $("#tooltip")
   const src = $(el)
@@ -38,12 +41,7 @@ const hoverChar = (i, el) => {
       tooltip.stop()
       tooltip.find("header").text(showChar(usr))
       tooltip.find("article").text(usr.bio)
-      tooltip
-        .stop()
-        .css("left", ev.pageX)
-        .css("top", el.clientHeight + el.offsetTop + offset + 5)
-        .fadeIn(100)
-        .show()
+      popup(tooltip, ev, el)
   }).mouseleave(() => $("#tooltip").fadeOut(100))
 }
 
@@ -75,13 +73,8 @@ $(() => {
             else if (charges > 1)
                 desc.append(`<span class="extra">${charges} charges.</span>`)
             if (skill.cooldown > 0)
-                desc.append(`<span class="extra">CD: ${skill.cooldown / 2}</span>`)
-            tooltip
-              .stop()
-              .css("left", ev.pageX)
-              .css("top", el.clientHeight + el.offsetTop + offset)
-              .fadeIn(100)
-              .show()
+                desc.append(`<span class="extra">CD: ${skill.cooldown / 2 | 0}</span>`)
+            popup(tooltip, ev, el)
         }).mouseleave(() => $("#tooltip").fadeOut(100))
     })
 })
