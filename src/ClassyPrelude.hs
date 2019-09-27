@@ -1,5 +1,8 @@
 {-# LANGUAGE PackageImports #-}
 {-# OPTIONS_HADDOCK hide     #-}
+
+-- | The [classy-prelude](https://hackage.haskell.org/package/classy-prelude)
+-- package, but with "Data.NonNull" replaced by "Data.List.NonEmpty".
 module ClassyPrelude
   ( module CP
   , module Data.List.NonEmpty

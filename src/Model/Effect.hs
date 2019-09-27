@@ -1,4 +1,3 @@
-
 module Model.Effect
   ( Amount(..)
   , Constructor(..)

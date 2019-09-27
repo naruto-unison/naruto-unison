@@ -196,7 +196,6 @@ newPostForm postTopic postAuthor postTime =
   where
     makePost postBody = Post{..}
 
-
 userlink :: User -> Widget
 userlink User{..} = $(widgetFile "widgets/userlink")
 

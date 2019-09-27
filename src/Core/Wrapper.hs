@@ -1,3 +1,7 @@
+-- | A container that implements 'MonadGame' and 'MonadRandom'.
+-- It comes in pure, ST, and IO flavors.
+-- Functions with such monadic constraints will almost always be called on MTL
+-- stacks built on the foundation of one of these three types.
 module Core.Wrapper
   ( STWrapper(..), fromInfo, replace, thaw
   , IOWrapper
@@ -5,7 +9,6 @@ module Core.Wrapper
   ) where
 
 import ClassyPrelude
-
 
 import           Control.Monad.ST (RealWorld, ST, stToIO)
 import           Control.Monad.Trans.State.Strict (StateT, gets, modify')

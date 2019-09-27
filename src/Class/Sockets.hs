@@ -1,3 +1,5 @@
+-- | Monadic constraints for websockets communication.
+-- In practice, this is used to automatically lift "Yesod.WebSockets".
 module Class.Sockets
   ( MonadSockets(..)
   , sendJson

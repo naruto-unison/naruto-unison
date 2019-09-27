@@ -21,7 +21,7 @@ cs =
         , Skill.effects   =
           [ To Self do
                 apply 4 [Limit 25]
-                vary "Mangekyō Sharingan" "Eternal Mangekyō Sharingan" 
+                vary "Mangekyō Sharingan" "Eternal Mangekyō Sharingan"
           ]
         }
       , Skill.new

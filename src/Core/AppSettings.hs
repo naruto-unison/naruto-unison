@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP          #-}
 {-# LANGUAGE NoStrictData #-}
+
 -- | Settings loaded from @config/settings.yml@.
 module Core.AppSettings (AppSettings(..)) where
 

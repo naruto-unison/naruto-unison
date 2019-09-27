@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveAnyClass        #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# OPTIONS_HADDOCK hide, not-home #-}
+
 module Model.Internal where
 
 import ClassyPrelude

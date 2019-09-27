@@ -1,3 +1,5 @@
+-- | The character database.
+-- Contains everything in the [Characters](src/Characters/) folder.
 module Characters
   ( list, map
   , lookupName

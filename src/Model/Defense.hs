@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveAnyClass #-}
-module Model.Defense  (Defense(..)) where
+
+module Model.Defense (Defense(..)) where
 
 import ClassyPrelude
 

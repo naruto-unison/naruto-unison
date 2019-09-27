@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveAnyClass #-}
+
 module Model.Player
   ( Player(..)
   , opponent

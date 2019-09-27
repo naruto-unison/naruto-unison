@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveAnyClass #-}
+
 module Model.Face (Face(..)) where
 
 import ClassyPrelude

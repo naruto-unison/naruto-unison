@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveAnyClass #-}
+
 module Model.Act
   ( Act(..)
   , fromChannel

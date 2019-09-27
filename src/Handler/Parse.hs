@@ -1,3 +1,7 @@
+-- | 'Model.Skill.desc' descriptions are slightly smarter than plaintext.
+-- Words in brackets turn red and italicized.
+-- The letters b, g, n, t, and r in brackets become icons indicating
+-- blood, genjutsu, ninjutsu, taijutsu, and random (a.k.a. arbitrary) chakra.
 module Handler.Parse (desc) where
 
 import ClassyPrelude

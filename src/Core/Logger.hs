@@ -1,3 +1,5 @@
+-- | A slightly customized logging system for Warp that hides successful queries
+-- if 'AppSettings.detailedRequestLogging' is disabled.
 module Core.Logger (makeLogWare) where
 
 import ClassyPrelude

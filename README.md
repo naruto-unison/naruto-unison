@@ -6,6 +6,8 @@ The next generation of Naruto Arena, built from the ground up in Haskell and Elm
 
 Currently pre-alpha and in active development. Nothing is guaranteed to be stable or fully functional.
 
+Character count: **159**! Only 29 Naruto Arena characters remain unimplemented.
+
 - [Installing](#installing)
 - [Running](#running)
   - [Development](#development)
@@ -82,7 +84,7 @@ Although Haskell is an unusual language, its idiosyncracies make it the perfect 
 
 #### Concurrency
 
-Haskell is excellent at parallel computing. Naruto Unison is built on top of the [Yesod framework](https://www.yesodweb.com/), a fully asynchronous web server. With lightweight green threads and event-based system calls, every connection to the server runs smoothly in separate non-blocking processes, communicating via [transactional channels](http://hackage.haskell.org/package/stm-2.5.0.0/).
+Haskell is excellent at parallel computing. Naruto Unison is built on top of the [Yesod framework](https://www.yesodweb.com/), a fully asynchronous web server. With lightweight green threads and event-based system calls, every connection to the server runs smoothly in separate non-blocking processes, communicating via [transactional channels](http://hackage.haskell.org/package/stm/).
 
 #### Separation of Pure and Impure Functions
 
@@ -96,7 +98,6 @@ adjustHealth f n = n { health = min 100 . max (Ninja.minHealth n) . f $ health n
 ```
 
 It is a simple transformation of data. Because `adjustHealth` is pure, `Ninja.minHealth` is also guaranteed to be pure. These functions have consistent output and cannot modify shared state, perform network operations, or anything else that might cause problems in a multi-threaded environment.
-
 
 #### Clear and Concise Math
 

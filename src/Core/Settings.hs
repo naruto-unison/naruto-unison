@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP               #-}
 {-# LANGUAGE TemplateHaskell   #-}
+
 -- | Yesod settings.
 module Core.Settings
   ( configSettingsYmlValue

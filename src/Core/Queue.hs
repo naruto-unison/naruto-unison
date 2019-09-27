@@ -1,7 +1,7 @@
 {-# LANGUAGE NoStrictData   #-}
 {-# LANGUAGE DeriveAnyClass #-}
--- | Messages passed between users through
--- 'Control.Concurrent.STM.TChan.TChan's.
+
+-- | Messages passed between users as cross-thread communication.
 module Core.Queue
   ( Message(..)
   , Section(..)

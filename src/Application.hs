@@ -1,6 +1,8 @@
 {-# LANGUAGE TemplateHaskell      #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
+-- | This is the main module of the library.
+-- It implements "Core.App" and holds the functions used by applications.
 module Application
     ( getApplicationDev
     , appMain
@@ -29,7 +31,6 @@ import qualified Yesod.Static as Static
 import qualified Yesod.Auth as Auth
 import qualified Yesod.Core.Types as YesodTypes
 import qualified Yesod.Default.Config2 as DefaultConfig
-
 
 import qualified Core.App as App
 import           Core.App (App(..), Handler, Route(..))
@@ -138,7 +139,6 @@ appMain = do
     app        <- makeApplication foundation
     Warp.runSettings (warpSettings foundation) app
 
-
 --------------------------------------------------------------
 -- Functions for DevelMain.hs (a way to run the app from GHCi)
 --------------------------------------------------------------
@@ -153,7 +153,6 @@ getApplicationRepl = do
 
 shutdownApp :: App -> IO ()
 shutdownApp _ = return ()
-
 
 ---------------------------------------------
 -- Functions for use in development with GHCi

@@ -16,11 +16,11 @@ $forall skills <- Character.skills char
           <p .skillClasses>
             #{skillClasses skill}
           <dl>
+            <dt>Duration
+            <dd>#{Skill.dur skill}
             $if Skill.cost skill /= 0
               <dt>Cost
               <dd>#{Skill.cost skill}
-            <dt>Duration
-            <dd>#{Skill.dur skill}
             $if Skill.cooldown skill /= 0
               <dt>Cooldown
               <dd>#{Skill.cooldown skill}

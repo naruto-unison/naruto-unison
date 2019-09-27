@@ -13,36 +13,14 @@
   <p .skillClasses>
     &lt;Comma, Separated, Classes&gt;
   <dl>
-    <dt>Cost
-    <dd>&lt;Chakra cost&gt;
     <dt>Duration
     <dd>&lt;Duration&gt; &lt;turns&gt;
+    <dt>Cost
+    <dd>&lt;Chakra cost&gt;
     <dt>Cooldown
     <dd>&lt;Cooldown&gt;
     <dt>Charges
     <dd>&lt;Charges&gt;
-
-<h3 #cost>
-  Cost
-<p>
-  There are four types of chakra:
-  <span .wrap>
-    <span .chakra.blood>
-    blood,
-  <span .wrap>
-    <span .chakra.gen>
-    genjutsu,
-  <span .wrap>
-    <span .chakra.nin>
-    ninjutsu, and
-  <span .wrap>
-    <span .chakra.tai>
-    taijutsu.
-  Some skills cost
-  <span .wrap>
-    <span .chakra.rand>
-    arbitrary
-  chakra, which means that chakra of any type may be used. If cost is not specified, the skill is free.
 
 <h3 #duration>
   Duration
@@ -67,6 +45,28 @@
       Ongoing
     <dd>
       Ongoing skills are passive effects that last for multiple turns and cannot be interrupted once they have been set into motion. Summoning techniques are usually Ongoing, but it is rare for other skills to have Ongoing duration.
+
+<h3 #cost>
+  Cost
+<p>
+  There are four types of chakra:
+  <span .wrap>
+    <span .chakra.blood>
+    blood,
+  <span .wrap>
+    <span .chakra.gen>
+    genjutsu,
+  <span .wrap>
+    <span .chakra.nin>
+    ninjutsu, and
+  <span .wrap>
+    <span .chakra.tai>
+    taijutsu.
+  Some skills cost
+  <span .wrap>
+    <span .chakra.rand>
+    arbitrary
+  chakra, which means that chakra of any type may be used. If cost is not specified, the skill is free.
 
 <h3 #cooldown>
   Cooldown

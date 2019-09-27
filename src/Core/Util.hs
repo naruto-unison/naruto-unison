@@ -1,6 +1,4 @@
--- Helper functions.
--- If a function doesn't seem like it should be inlined, it probably doesn't go
--- here.
+-- | Lightweight helper functions.
 module Core.Util
   ( (!?), (!!)
   , (—), (∈), (∉)
@@ -13,6 +11,9 @@ module Core.Util
 
 import ClassyPrelude hiding ((<|), mapMaybe)
 import Control.Monad.Trans.Class (MonadTrans)
+
+-- If a function doesn't seem like it should be inlined, it probably doesn't go
+-- here.
 
 infixl 9 !?
 -- | 'unsafeIndex'.

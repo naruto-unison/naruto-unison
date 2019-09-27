@@ -1,4 +1,4 @@
-module Model.Delay    (Delay(..), new) where
+module Model.Delay (Delay(..), new) where
 
 import ClassyPrelude
 
