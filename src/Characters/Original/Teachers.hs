@@ -144,7 +144,7 @@ cs =
     "A former student of Orochimaru who bears his Curse Mark, Anko is now a jōnin teacher in the Hidden Leaf Village. She uses various poisons and forbidden techniques learned from Orochimaru to dismantle her enemies."
     [ [ Skill.new
         { Skill.name      = "Dual Pin"
-        , Skill.desc      = "Anko pins herself to an enemy by stabbing a kunai through her hand,  preventing the target from reducing damage or becoming invulnerable for 1 turn and dealing 5 damage."
+        , Skill.desc      = "Anko pins herself to an enemy by stabbing a kunai through her hand, preventing the target from reducing damage or becoming invulnerable for 1 turn and dealing 5 damage."
         , Skill.classes   = [Physical, Melee]
         , Skill.dur       = Control 1
         , Skill.effects   =

@@ -242,10 +242,7 @@ body {
     outline-width: 2px !important;
     outline-style: solid !important;
 }
-#charSelect h3 {
-    margin: 0;
-}
-h4 {
+#charSelect h3, h4 {
     margin-top: 0.2em !important;
     margin-bottom: 0 !important;
 }
