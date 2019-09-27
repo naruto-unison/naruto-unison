@@ -38,7 +38,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Kamui"
-        , Skill.desc      = "If used on an enemy, deals 45 piercing damage to them, increases their cooldowns by 1 turn, and increases the costs of their skills by 1 random chakra. If used on an ally, cures them of enemy effects and makes them invulnerable for 1 turn."
+        , Skill.desc      = "If used on an enemy, deals 45 piercing damage to them, increases their cooldowns by 1 turn, and increases the costs of their skills by 1 arbitrary chakra. If used on an ally, cures them of enemy effects and makes them invulnerable for 1 turn."
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Blood, Gen]
         , Skill.effects   =
@@ -324,7 +324,7 @@ cs =
     "A jōnin from the Hidden Rock Village, Akatsauchi is cheerful and excitable. He uses brute strength and rock golems to pummel his enemies to the ground."
     [ [ Skill.new
         { Skill.name      = "High-Speed Assault"
-        , Skill.desc      = "Akatsuchi punches an enemy with all his might, dealing 25 damage. Costs 1 fewer random chakra during [Stone Golem]."
+        , Skill.desc      = "Akatsuchi punches an enemy with all his might, dealing 25 damage. Costs 1 taijutsu chakra during [Stone Golem]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   = [ To Enemy $ damage 25 ]
@@ -551,7 +551,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Fire Wall"
-        , Skill.desc      = "Fire erupts around Atsui's enemies. Next turn, enemies who use skills will take 10 affliction damage. Costs 1 fewer random chakra during [Burning Blade]."
+        , Skill.desc      = "Fire erupts around Atsui's enemies. Next turn, enemies who use skills will take 10 affliction damage. Costs 1 ninjutsu chakra during [Burning Blade]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
@@ -753,7 +753,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Barrier Talisman"
-        , Skill.desc      = "Ao's earrings shift to form a barrier over targeted body parts. Next turn, enemies who use non-mental skills on Ao will be countered, and their skills will cost 1 additional random chakra for 1 turn."
+        , Skill.desc      = "Ao's earrings shift to form a barrier over targeted body parts. Next turn, enemies who use non-mental skills on Ao will be countered, and their skills will cost 1 additional arbitrary chakra for 1 turn."
         , Skill.classes   = [Chakra, Invisible]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2

@@ -260,7 +260,7 @@ cs =
     "An operative of the Hidden Leaf Village's elite Root division, Torune was born with rare venom-resistant antibodies that allow him to carry the Aburame clan's most dangerous species of beetle. The venom beetles cover his skin like armor, protecting him and infesting anyone who dares to touch him."
     [ [ Skill.new
         { Skill.name      = "Nano-Sized Venom Beetles"
-        , Skill.desc      = "Torune applies a Venom Beetle to an enemy, dealing 5 affliction damage for 5 turns, and gains 15 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 1 random chakra but does not provide any destructible defense."
+        , Skill.desc      = "Torune applies a Venom Beetle to an enemy, dealing 5 affliction damage for 5 turns, and gains 15 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 1 arbitrary chakra but does not provide any destructible defense."
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 0
@@ -279,7 +279,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Jar of Poison"
-        , Skill.desc      = "Torune applies a Venom Beetle to all enemies, dealing 5 affliction damage to each for 5 turns, and gains 30 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 1 random chakra but does not provide any destructible defense."
+        , Skill.desc      = "Torune applies a Venom Beetle to all enemies, dealing 5 affliction damage to each for 5 turns, and gains 30 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 1 arbitrary chakra but does not provide any destructible defense."
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 0
@@ -441,7 +441,7 @@ cs =
     "A member of Sasuke's strike team, Karin is a genin from the Hidden Grass Village, Karin has the unique ability to sense chakra signatures automatically. She is all but omniscient within her range, able to detect hidden individuals, penetrate illusions, and even tell when someone is lying."
     [ [ Skill.new
         { Skill.name     = "Mind's Eye"
-        , Skill.desc     = "Karin predicts attacks using her chakra detection. Enemies who use skills on her next turn will be countered, and enemies use skills on their allies next turn will have the costs of their skills increased by 1 additional random chakra."
+        , Skill.desc     = "Karin predicts attacks using her chakra detection. Enemies who use skills on her next turn will be countered, and enemies use skills on their allies next turn will have the costs of their skills increased by 1 additional arbitrary chakra."
         , Skill.classes  = [Mental, Ranged, Invisible]
         , Skill.cost     = [Rand]
         , Skill.cooldown = 2

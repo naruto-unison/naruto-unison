@@ -86,7 +86,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name     = "Mystical Palm Healing"
-        , Skill.desc     = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures the target of bane effects. Spends a Seal if available to have no cooldown and cost 1 random chakra."
+        , Skill.desc     = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures the target of bane effects. Spends a Seal if available to have no cooldown and cost 1 arbitrary chakra."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
@@ -99,7 +99,7 @@ cs =
         }
       , Skill.new
         { Skill.name     = "Mystical Palm Healing"
-        , Skill.desc     = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures the target of bane effects. Spends a Seal if available to have no cooldown and cost 1 random chakra."
+        , Skill.desc     = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures the target of bane effects. Spends a Seal if available to have no cooldown and cost 1 arbitrary chakra."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand]
         , Skill.varicd    = True
@@ -341,7 +341,7 @@ cs =
     "With the Chūnin Exam behind her and Naruto's words deep in her heart, Hinata has grown and become stronger. Now that she has mastered the Hyūga clan tactics, she can give life to powerful chakra lions and hinder the chakra paths of her enemies."
     [ [ Skill.new
         { Skill.name      = "Pressure Point Strike"
-        , Skill.desc      = "Hinata blocks an enemy's pressure point, dealing 10 damage to them and increasing the costs of their skills by 1 random for 1 turn. Deals 10 additional damage during [Eight Trigrams Sixty-Four Palms]."
+        , Skill.desc      = "Hinata blocks an enemy's pressure point, dealing 10 damage to them and increasing the costs of their skills by 1 arbitrary chakra for 1 turn. Deals 10 additional damage during [Eight Trigrams Sixty-Four Palms]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
@@ -465,7 +465,7 @@ cs =
     "Chōji's years of mastering his clan's techniques have ended the growing chūnin's dependence on Akimichi pills. Now that he can reshape his body at will without having to sacrifice his health, chakra costs are the only remaining limits on his physical power."
     [ [ Skill.new
         { Skill.name      = "Butterfly Bombing"
-        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring status effects from enemies except chakra cost changes. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 random chakra."
+        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring status effects from enemies except chakra cost changes. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand, Rand]
         , Skill.effects   =
@@ -478,7 +478,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Butterfly Bombing"
-        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring status effects from enemies except chakra cost changes. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 random chakra."
+        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring status effects from enemies except chakra cost changes. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -492,7 +492,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Spiky Human Boulder"
-        , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters non-mental skills. Increases the cost of Chōji's skills by 1 random chakra each turn."
+        , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters non-mental skills. Increases the cost of Chōji's skills by 1 arbitrary chakra each turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.dur       = Action 2
@@ -505,7 +505,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Spiky Human Boulder"
-        , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters non-mental skills. Increases the cost of Chōji's skills by 1 random chakra each turn."
+        , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters non-mental skills. Increases the cost of Chōji's skills by 1 arbitrary chakra each turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.dur       = Action 2
@@ -519,7 +519,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Butterfly Mode"
-        , Skill.desc      = "Performing an advanced Akimichi technique that would be lethal without precise control over his body, Chōji converts calories into jets of chakra energy that grow from his back like butterfly wings. Once used, this skill permanently becomes [Super-Slam][n][r][r]. Each turn after [Butterfly Mode] is activated, the costs of Chōji's skills decrease by 1 random chakra."
+        , Skill.desc      = "Performing an advanced Akimichi technique that would be lethal without precise control over his body, Chōji converts calories into jets of chakra energy that grow from his back like butterfly wings. Once used, this skill permanently becomes [Super-Slam][n][r][r]. Each turn after [Butterfly Mode] is activated, the costs of Chōji's skills decrease by 1 arbitrary chakra."
         , Skill.classes   = [Chakra]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
@@ -535,7 +535,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Super-Slam"
-        , Skill.desc      = "Chōji funnels chakra into his hands until they are as powerful as iron jackhammers and slams them into an enemy, dealing 30 damage and curing Chōji of enemy effects. Increases the cost of Chōji's skills by 2 random chakra."
+        , Skill.desc      = "Chōji funnels chakra into his hands until they are as powerful as iron jackhammers and slams them into an enemy, dealing 30 damage and curing Chōji of enemy effects. Increases the cost of Chōji's skills by 2 arbitrary chakra."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -985,7 +985,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Agile Backflip"
-        , Skill.desc      = "Konohamaru uses his agility to counter the next non-mental skill used on him. Each time this skill is used, its cost increases by 1 random."
+        , Skill.desc      = "Konohamaru uses his agility to counter the next non-mental skill used on him. Each time this skill is used, its cost increases by 1 arbitrary chakra."
         , Skill.classes   = [Physical, Invisible, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =

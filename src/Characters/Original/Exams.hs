@@ -28,7 +28,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Palm Rotation"
-        , Skill.desc      = "Hanabi spins at an enemy, dealing 15 damage to them for 2 turns. If they use a skill that stuns or disables, they will be stunned for 1 turn. Costs 1 random chakra during [Unyielding Tenacity]."
+        , Skill.desc      = "Hanabi spins at an enemy, dealing 15 damage to them for 2 turns. If they use a skill that stuns or disables, they will be stunned for 1 turn. Costs 1 arbitrary chakra during [Unyielding Tenacity]."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
@@ -99,7 +99,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Senbon Barrage"
-        , Skill.desc      = "Shigure hurls all of his needles at a single target, dealing 15 damage per Umbrella. Costs 1 fewer random chakra per Umbrella. Uses up all Umbrellas."
+        , Skill.desc      = "Shigure hurls all of his needles at a single target, dealing 15 damage per Umbrella. Costs 1 fewer arbitrary chakra per Umbrella. Uses up all Umbrellas."
         , Skill.require   = HasI 1 "Umbrella"
         , Skill.cost      = [Rand, Rand, Rand, Rand]
         , Skill.classes   = [Physical, Ranged]
@@ -122,7 +122,7 @@ cs =
     "A genin and former operative of the Hidden Leaf Village's elite Root division, Kabuto is Orochimaru's close assistant and confidant. He hides his brilliance behind a genial façade, but under the surface he remains a cold and calculating spy. In combat, he uses his medical expertise to weaken and expose his opponents."
     [ [ Skill.new
         { Skill.name      = "Chakra Scalpel"
-        , Skill.desc      = "Kabuto slices an enemy with a medical scalpel made of chakra, dealing 20 piercing damage. For 1 turn, the target's skills cost 1 additional random chakra and they receive 5 additional damage from physical and chakra damaging skills."
+        , Skill.desc      = "Kabuto slices an enemy with a medical scalpel made of chakra, dealing 20 piercing damage. For 1 turn, the target's skills cost 1 additional arbitrary chakra and they receive 5 additional damage from physical and chakra damaging skills."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -305,7 +305,7 @@ cs =
     "A genin from the Hidden Rain Village, Oboro is a vindictive specialist in genjutsu. He conceals himself within a crowd of illusory clones, making it almost impossible for enemies to locate and harm him."
     [ [ Skill.new
         { Skill.name      = "Exploding Kunai"
-        , Skill.desc      = "Oboro throws a kunai attached to a paper bomb, dealing 15 damage to all enemies. Costs 1 random chakra during [Fog Clone]."
+        , Skill.desc      = "Oboro throws a kunai attached to a paper bomb, dealing 15 damage to all enemies. Costs 1 arbitrary chakra during [Fog Clone]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =

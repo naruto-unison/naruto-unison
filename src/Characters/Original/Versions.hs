@@ -62,7 +62,7 @@ cs =
     "Having acclimated to his Curse Mark, Sasuke draws Orochimaru's vile chakra through it to grow stronger and more monstrous. His powers have grown exponentially, allowing him to pierce or trap enemies with his corrupted chakra."
     [ [ Skill.new
         { Skill.name      = "Chidori"
-        , Skill.desc      = "Mixing a Chidori with his corrupt chakra, Sasuke deals 45 piercing damage to an enemy. Corruption enfeebles the target for 2 turns, weakening their damage by 20. Costs 1 random chakra during [Curse Mark]."
+        , Skill.desc      = "Mixing a Chidori with his corrupt chakra, Sasuke deals 45 piercing damage to an enemy. Corruption enfeebles the target for 2 turns, weakening their damage by 20. Costs 1 arbitrary chakra during [Curse Mark]."
         , Skill.classes   = [Bane, Chakra, Melee]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 1
@@ -77,7 +77,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Dark Void"
-        , Skill.desc      = "Corrupt chakra engulfs an enemy, stunning them for 2 turns. While active, the target is invulnerable to allies as well as enemies. At the end of the 2 turns, the enemy receives 55 damage. Costs 2 random chakra during [Curse Mark]."
+        , Skill.desc      = "Corrupt chakra engulfs an enemy, stunning them for 2 turns. While active, the target is invulnerable to allies as well as enemies. At the end of the 2 turns, the enemy receives 55 damage. Costs 2 arbitrary chakra during [Curse Mark]."
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 5
@@ -242,7 +242,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Sand Burial Prison"
-        , Skill.desc      = "Gaara traps all enemies in a sinking pit of sand, increasing the costs of their non-mental skills by 1 random chakra for 1 turn. If an enemy uses a non-mental skill, they are freed from [Sand Burial Prison]. While active, this skill becomes [Giant Sand Burial][n][n]."
+        , Skill.desc      = "Gaara traps all enemies in a sinking pit of sand, increasing the costs of their non-mental skills by 1 arbitrary chakra for 1 turn. If an enemy uses a non-mental skill, they are freed from [Sand Burial Prison]. While active, this skill becomes [Giant Sand Burial][n][n]."
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin]
         , Skill.dur       = Control 1

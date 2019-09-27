@@ -237,7 +237,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Poison Gas"
-        , Skill.desc      = "Sasori emits a cloud of poisonous gas, dealing 15 affliction damage to all enemies. Next turn, enemy cooldowns are increased by 1 and enemy chakra costs are increased by 1 random. Lasts 2 turns on targets pinned by [Thousand Arms]."
+        , Skill.desc      = "Sasori emits a cloud of poisonous gas, dealing 15 affliction damage to all enemies. Next turn, enemy cooldowns are increased by 1 and enemy chakra costs are increased by 1 arbitrary chakra. Lasts 2 turns on targets pinned by [Thousand Arms]."
         , Skill.classes   = [Physical, Bane, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
@@ -337,7 +337,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Prayer"
-        , Skill.desc      = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for 1 turn. Each time this skill is used, it costs 1 additional random chakra and its effect lasts 1 additional turn. Cannot be used while active."
+        , Skill.desc      = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for 1 turn. Each time this skill is used, it costs 1 additional arbitrary chakra and its effect lasts 1 additional turn. Cannot be used while active."
         , Skill.require   = HasI (-1) "Prayer"
         , Skill.classes   = [Mental, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
@@ -451,7 +451,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Man-Eating Sharks"
-        , Skill.desc      = "Spends all stacks of [Hundred Hungry Sharks] to deal 5 piercing damage per stack to an enemy. Costs 1 random chakra during [Exploding Water Shockwave]."
+        , Skill.desc      = "Spends all stacks of [Hundred Hungry Sharks] to deal 5 piercing damage per stack to an enemy. Costs 1 arbitrary chakra during [Exploding Water Shockwave]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -572,7 +572,7 @@ cs =
         }
       , Skill.new
         { Skill.name      = "Yata Mirror"
-        , Skill.desc      = "Itachi defends himself with an ethereal shield. Next turn, Itachi ignores enemy skills, and enemies who use skills on Itachi will have the costs of their skills increased by 1 additional random chakra for 1 turn."
+        , Skill.desc      = "Itachi defends himself with an ethereal shield. Next turn, Itachi ignores enemy skills, and enemies who use skills on Itachi will have the costs of their skills increased by 1 additional arbitrary chakra for 1 turn."
         , Skill.classes    = [Chakra, Ranged, Invisible]
         , Skill.cost       = [Gen, Rand]
         , Skill.cooldown   = 2

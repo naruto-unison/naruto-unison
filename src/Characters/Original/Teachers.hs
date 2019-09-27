@@ -244,7 +244,7 @@ cs =
     "Team 8's jōnin squad leader, Kurenai is caring and brave. A master of genjutsu, Kurenai traps her enemies in inescapable illusions."
     [ [ Skill.new
         { Skill.name      = "Demonic Illusion: Entrap"
-        , Skill.desc      = "Kurenai hinders an enemy with her genjutsu. For 2 turns, the target's non-affliction damage is weakened by 10, the chakra costs of their skills is increased by 1 random chakra, and they cannot reduce damage or become invulnerable. Kurenai then deals 10 damage to the target. Adds 5 destructible defense to Kurenai's next [Illusory Tree Meld]."
+        , Skill.desc      = "Kurenai hinders an enemy with her genjutsu. For 2 turns, the target's non-affliction damage is weakened by 10, the chakra costs of their skills is increased by 1 arbitrary chakra, and they cannot reduce damage or become invulnerable. Kurenai then deals 10 damage to the target. Adds 5 destructible defense to Kurenai's next [Illusory Tree Meld]."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
