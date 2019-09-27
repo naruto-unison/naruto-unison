@@ -23,7 +23,6 @@ getAdminR = do
     (newsForm, enctype) <- generateFormPost =<< getNewsForm
     Play.gameSocket
     defaultLayout do
-        setTitle "Admin"
         $(widgetFile "admin/admin")
         $(widgetFile "admin/sockets")
 
@@ -37,7 +36,6 @@ postAdminR = do
         _             -> defaultLayout [whamlet|<p>"Invalid post"|]
     Play.gameSocket
     defaultLayout do
-        setTitle "Admin"
         $(widgetFile "admin/admin")
         $(widgetFile "admin/sockets")
 

@@ -71,7 +71,6 @@ getPlayR = do
     setCsrfCookie
     token <- reqToken <$> getRequest
     defaultLayout do
-        setTitle "Naruto Unison"
         addStylesheetRemote "/css/embeds.css"
         $(widgetFile "include/progressbar.min")
         $(widgetFile "include/soundjs.min")

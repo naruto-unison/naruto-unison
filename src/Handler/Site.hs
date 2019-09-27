@@ -34,10 +34,12 @@ import qualified Characters
 import qualified Handler.Forum as Forum
 import qualified Handler.Parse as Parse
 
+userlink :: User -> Widget
+userlink User{..} = $(widgetFile "widgets/userlink")
+
 -- | Renders the changelog.
 getChangelogR :: Handler Html
 getChangelogR = defaultLayout do
-    setTitle "Naruto Unison: Changelog"
     $(widgetFile "tooltip/tooltip")
     $(widgetFile "changelog/changelog")
   where
@@ -46,6 +48,7 @@ getChangelogR = defaultLayout do
 -- | Renders the homepage of the website.
 getHomeR :: Handler Html
 getHomeR = do
+    mmsg     <- getMessage
     newsList <- runDB $ traverse withAuthor =<<
                 selectList [] [Desc NewsDate, LimitTo 5]
     topics   <- Forum.selectWithAuthors [] [Desc TopicTime, LimitTo 10]
@@ -56,11 +59,7 @@ getHomeR = do
         $(widgetFile "home/home")
   where
     change = getChangelog False
-    withAuthor (Entity _ newsVal) = do
-        mAuthor <- get $ newsAuthor newsVal
-        return case mAuthor of
-            Nothing     -> (newsVal, "Unknown")
-            Just author -> (newsVal, userName author)
+    withAuthor (Entity _ new) = ((new, ) <$>) <$> get $ newsAuthor new
 
 (!) :: Text -> Text -> Html
 name ! l = [shamlet| $newline never
@@ -93,13 +92,13 @@ getChangelog long logType name characterType =
         Reanimated -> name ++ " (R)"
         Shippuden  -> name ++ " (S)"
 
-news :: (News, Text) -> Widget
-news (News{..}, authorName) = $(widgetFile "home/news")
+news :: (News, Maybe User) -> Widget
+news (News{..}, author) = $(widgetFile "home/news")
 
 getCharactersR :: Handler Html
-getCharactersR = defaultLayout do
-    setTitle "Characters"
-    $(widgetFile "character/characters")
+getCharactersR = do
+    (title, _) <- breadcrumbs
+    defaultLayout $(widgetFile "guide/characters")
   where
     categories = [minBound..maxBound]
     heading :: Category -> Html
@@ -113,9 +112,8 @@ getCharacterR :: Category -> Text -> Handler Html
 getCharacterR category charLink = case Characters.lookupSite category charLink of
     Nothing   -> notFound
     Just char -> defaultLayout do
-        let fmt  = Character.format char
+        let path = shorten $ Character.format char
         let path = shorten fmt
-        setTitle . toHtml $ Character.format char
         $(widgetFile "character/character")
   where
     skillClasses skill =

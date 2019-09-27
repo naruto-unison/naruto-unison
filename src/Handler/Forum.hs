@@ -40,7 +40,6 @@ getProfileR name = do
     Entity _ user@User{..} <- maybe notFound return muser
     let (level, xp)         = quotRem userXp 5000
     defaultLayout do
-        setTitle . toHtml $ "User: " ++ userName
         $(widgetFile "tooltip/tooltip")
         $(widgetFile "forum/profile")
 
@@ -54,9 +53,7 @@ getForumsR = do
     citelink <- liftIO makeCitelink
     allBoards <- traverse indexBoard [minBound..maxBound]
     let boards category = filter (inCategory category) allBoards
-    defaultLayout do
-        setTitle "Naruto Unison Forums"
-        $(widgetFile "forum/browse")
+    defaultLayout $(widgetFile "forum/browse")
   where
     categories = [minBound..maxBound]
     indexBoard board = do
@@ -66,33 +63,31 @@ getForumsR = do
 -- | Renders a 'ForumBoard'.
 getBoardR :: ForumBoard -> Handler Html
 getBoardR board = do
-    timestamp <- liftIO makeTimestamp
-    topics    <- selectWithAuthors [TopicBoard ==. board] []
-    defaultLayout do
-        setTitle . toHtml $ "Forum: " ++ boardName board
-        $(widgetFile "forum/board")
+    timestamp  <- liftIO makeTimestamp
+    topics     <- selectWithAuthors [TopicBoard ==. board] []
+    defaultLayout $(widgetFile "forum/board")
 
 -- | Renders a 'Topic'.
 getTopicR :: TopicId -> Handler Html
 getTopicR topicId = do
-    who       <- Auth.requireAuthId
-    time      <- liftIO getCurrentTime
-    timestamp <- liftIO makeTimestamp
-    zone      <- liftIO LocalTime.getCurrentTimeZone
-    Topic{..} <- runDB $ get404 topicId
-    posts     <- selectWithAuthors [PostTopic ==. topicId] []
+    who        <- Auth.requireAuthId
+    (title, _) <- breadcrumbs
+    time       <- liftIO getCurrentTime
+    timestamp  <- liftIO makeTimestamp
+    zone       <- liftIO LocalTime.getCurrentTimeZone
+    Topic{..}  <- runDB $ get404 topicId
+    posts      <- selectWithAuthors [PostTopic ==. topicId] []
     (widget, enctype) <- generateFormPost . renderTable $
                          newPostForm topicId who time
-    defaultLayout do
-        setTitle . toHtml $ "Topic: " ++ topicTitle
-        $(widgetFile "forum/topic")
+    defaultLayout $(widgetFile "forum/topic")
 
 -- | Adds to a 'Topic'.
 postTopicR :: TopicId -> Handler Html
 postTopicR topicId = do
-    who       <- Auth.requireAuthId
-    time      <- liftIO getCurrentTime
-    timestamp <- liftIO makeTimestamp
+    who        <- Auth.requireAuthId
+    (title, _) <- breadcrumbs
+    time       <- liftIO getCurrentTime
+    timestamp  <- liftIO makeTimestamp
     ((result, widget), enctype) <- runFormPost . renderTable $
                                    newPostForm topicId who time
     case result of
@@ -105,26 +100,24 @@ postTopicR topicId = do
         _ -> return ()
     Topic{..} <- runDB $ get404 topicId
     posts     <- selectWithAuthors [PostTopic ==. topicId] []
-    defaultLayout do
-        setTitle . toHtml $ "Topic: " ++ topicTitle
-        $(widgetFile "forum/topic")
+    defaultLayout $(widgetFile "forum/topic")
 
 -- | Renders a page for creating a new 'Topic'.
 getNewTopicR :: ForumBoard -> Handler Html
 getNewTopicR board = do
     (who, user) <- Auth.requireAuthPair
     time        <- liftIO getCurrentTime
+    (title, _)  <- breadcrumbs
     (widget, enctype) <- generateFormPost . renderTable $
                          newTopicForm user board who time
-    defaultLayout do
-        setTitle "New Topic"
-        $(widgetFile "forum/new")
+    defaultLayout $(widgetFile "forum/new")
 
 -- | Creates a new 'Topic'.
 postNewTopicR :: ForumBoard -> Handler Html
 postNewTopicR board = do
     (who, user) <- Auth.requireAuthPair
     time        <- liftIO getCurrentTime
+    (title, _)  <- breadcrumbs
     ((result, widget), enctype) <- runFormPost . renderTable $
                                    newTopicForm user board who time
     case result of
@@ -133,9 +126,7 @@ postNewTopicR board = do
             let post = makePost topicId
             runDB $ insert400_ post
             redirect $ TopicR topicId
-        _ -> defaultLayout do
-            setTitle "New Topic"
-            $(widgetFile "forum/new")
+        _ -> defaultLayout $(widgetFile "forum/new")
 
 -- | Appended to titles of posts and threads by staff.
 staffTag :: Char

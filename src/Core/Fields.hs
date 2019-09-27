@@ -14,6 +14,7 @@ import ClassyPrelude
 
 import Yesod
 
+import Text.Blaze (ToMarkup(..))
 import Text.Read
 
 data Privilege
@@ -23,6 +24,9 @@ data Privilege
   deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, FromJSON, ToJSON)
 derivePersistField "Privilege"
 
+instance ToMarkup Privilege where
+    toMarkup = toMarkup . show
+
 data ForumCategory
     = Official
     | Community
@@ -30,6 +34,8 @@ data ForumCategory
     | General
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
+instance ToMarkup ForumCategory where
+    toMarkup = toMarkup . show
 
 data ForumBoard
     -- Official

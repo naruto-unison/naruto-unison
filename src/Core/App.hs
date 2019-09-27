@@ -134,6 +134,7 @@ instance Yesod App where
         navLinks         <- getNavLinks
 
         pc <- widgetToPageContent do
+            setTitle . toHtml $ title ++ " - Naruto Unison"
             $(widgetFile "include/cookie.min")
             $(widgetFile "include/jquery.min")
             $(widgetFile "include/main")
@@ -182,22 +183,23 @@ instance Yesod App where
     makeLogger = return . logger
 
 instance YesodBreadcrumbs App where
-  breadcrumb AdminR = return ("Admin", Just HomeR)
   breadcrumb (AuthR _) = return ("Login", Just HomeR)
+  breadcrumb AdminR = return ("Admin", Just HomeR)
   breadcrumb ChangelogR = return ("Changelog", Just HomeR)
+  breadcrumb HomeR = return ("Home", Nothing)
+  breadcrumb (ProfileR name) = return ("User: " ++ name, Just HomeR)
   breadcrumb ForumsR = return ("Forums", Just HomeR)
   breadcrumb (BoardR board) = return (boardName board, Just ForumsR)
-  breadcrumb (ProfileR name) = return (name, Just HomeR)
   breadcrumb (NewTopicR board) = return ("New Topic", Just $ BoardR board)
-  breadcrumb CharactersR = return ("Characters", Just HomeR)
-  breadcrumb (CharacterR category char) = return
-      ( maybe "Character" Character.name $ Characters.lookupSite category char
-      , Just CharactersR
-      )
   breadcrumb (TopicR topic) = do
       Topic{topicTitle, topicBoard} <- runDB $ get404 topic
       return (topicTitle, Just $ BoardR topicBoard)
-  breadcrumb _ = return ("Home", Nothing)
+  breadcrumb (CharacterR category char) = return
+      ( maybe "Character" Character.format $ Characters.lookupSite category char
+      , Just CharactersR
+      )
+  breadcrumb (TopicR topic) = do
+  breadcrumb _ = return (mempty, Nothing)
 
 instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend
