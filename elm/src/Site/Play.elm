@@ -132,7 +132,7 @@ component ports =
             , E.onMouseOver << View <| ViewUser st.user
             ]
             [ H.section []
-              [ H.h1 [] [H.text st.user.name]
+              [ H.h3 [] [H.text st.user.name]
               , H.p [] [H.text <| Game.rank st.user]
               ]
             , H.img [A.class "charicon", A.src st.user.avatar] []
@@ -141,7 +141,7 @@ component ports =
           , H.section [A.id "account1", E.onMouseOver << View <| ViewUser st.vs]
             [ H.img [A.class "charicon", A.src st.vs.avatar] []
             , H.section []
-              [ H.h1 [] [H.text st.vs.name]
+              [ H.h3 [] [H.text st.vs.name]
               , H.p [] [H.text <| Game.rank st.vs]
               ]
             ]
@@ -536,7 +536,7 @@ bar source name amount dur =
   [ H.section []
     [ icon source name [A.class "char"]
     , H.dl []
-      [ H.h1 [] [H.text name]
+      [ H.h4 [] [H.text name]
       , H.dt [] [H.text "Amount"]
       , H.dd [] [H.text <| String.fromInt amount]
       , H.dt [] [H.text "Duration"]
@@ -555,7 +555,7 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
         [ H.section []
           [ icon x "icon" [A.class "char"]
           , H.section []
-            [ H.h1 [] <| Render.name x
+            [ H.h4 [] <| Render.name x
             , H.p  [] <| Render.desc x.bio
             ]
           ]
@@ -572,7 +572,7 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
         [ H.section []
           [ icon (Game.get characters x.source) "icon" [A.class "char"]
           , H.dl []
-            [ H.h1 [] [name]
+            [ H.h4 [] [name]
             , Render.classes True x.classes
             , H.dt [] [H.text "Source"]
             , H.dd [] << Render.name <| Game.get characters x.user
@@ -640,7 +640,7 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
             icon (Game.root characters x user) x.name [A.class "char"]
             :: Maybe.withDefault [] varyButtons
           , H.dl []
-            [ H.h1 [] [H.text x.name]
+            [ H.h4 [] [H.text x.name]
             , Render.classes False x.classes
             , H.dt [] [H.text "Cost"]
             , H.dd [] cost
@@ -656,13 +656,15 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
         [ H.section []
           [ H.img [A.class "char", A.src x.avatar] []
           , H.dl []
-            [ H.h1 [] [H.text x.name]
+            [ H.h4 [] [H.text x.name]
             , H.p [A.class << String.toLower <| Game.rank x]
               [H.text <| Game.rank x]
             , H.dt [] [H.text "Clan"]
             , H.dd [] [H.text <| Maybe.withDefault "Clanless" x.clan]
             , H.dt [] [H.text "Level"]
             , H.dd [] [H.text << String.fromInt <| x.xp // 1000]
+            , H.dt [] [H.text "Streak"]
+            , H.dd [] [Render.streak x]
             ]
           ]
         ]

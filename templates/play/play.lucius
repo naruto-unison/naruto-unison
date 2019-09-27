@@ -17,9 +17,6 @@ article, #userBox {
 a:hover {
     text-decoration: none !important;
 }
-body h1 {
-    text-transform: none;
-}
 p {
     margin: 0;
 }
@@ -245,18 +242,21 @@ body {
     outline-width: 2px !important;
     outline-style: solid !important;
 }
-#charSelect > article > h1 {
+#charSelect h3 {
+    margin: 0;
+}
+h4 {
+    margin-top: 0.2em !important;
+    margin-bottom: 0 !important;
+}
+#charSelect h3 {
     font-size: 18px;
     font-weight: bold;
 }
-#charSelect > article > h1 > img.char {
+#charSelect h3 img.char {
     width: 60px;
     height: 60px;
     float: right;
-}
-#charSelect > article > section > h1 {
-    font-size: 14px;
-    font-weight: bold;
 }
 #charSelect > article > section > p {
     min-height: 43px;
@@ -490,9 +490,6 @@ a.playButton:after {
     display: inline-block;
     vertical-align: top;
 }
-#top > section h1 {
-    font-size: 1.2em;
-}
 .avatar {
     border: 2px solid #333;
     width: 75px;
@@ -548,7 +545,7 @@ dl dt {
     margin-bottom: 0;
     height: 75px;
 }
-#top > article h1 {
+#top h3 {
     font-weight: bold;
     font-size: 16px;
     margin-bottom: 0;
@@ -1113,7 +1110,7 @@ svg {
     }
 }
 @media (max-height: 770px) {
-    #charSelect > article > h1 > img.char {
+    #charSelect h3 img.char {
         height: 50px;
         width: 50px;
     }
@@ -1170,21 +1167,21 @@ svg {
         height: 10px;
         line-height: 0.8em;
     }
-    #charSelect > article > h1 {
+    #charSelect h3 {
         font-size: 14px;
     }
     #charSelect > article {
         font-size: 0.7em;
         bottom: 150px;
     }
-    #charSelect > article > section > h1 , #charSelect > article .skillClasses {
+    h4, #charSelect > article .skillClasses {
         font-size: 0.8em;
     }
     #charSelect > article .char {
         height: 30px;
         width: 30px;
     }
-    #charSelect > article > h1 > img.char {
+    #charSelect h3 img.char {
         width: 40px;
         height: 40px;
     }

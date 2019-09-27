@@ -408,9 +408,7 @@ userBox mUser csrf csrfParam showLogin team =
               , H.dt [] [H.text "Rank"]
               , H.dd [] [H.text "None"]
               , H.dt [] [H.text "Record"]
-              , H.dd [] [H.text <| String.fromInt user.wins ++ " - "
-                ++ String.fromInt user.losses
-                ++ " (+" ++ String.fromInt user.streak ++ ")"]
+              , H.dd [] [Render.streak user]
               ]
           Nothing ->
               H.div [A.id "userBox", A.class "parchment"]
@@ -632,7 +630,7 @@ previewBox st = case st.previewing of
                     , E.onMouseOver << Preview <| PreviewChar char_
                     , E.onClick <| Team Add char_
                     ])
-        , H.h1 [] <| icon char "icon" [A.class "char"] :: Render.name char
+        , H.h3 [] <| icon char "icon" [A.class "char"] :: Render.name char
         , H.p [] <| Render.desc char.bio
         ] ++
         List.map3 (previewSkill char) (List.range 0 <| Game.skillSize - 1)
@@ -663,7 +661,7 @@ previewSkill char slot skills i = case List.getAt i skills of
           , vPrev
           , vNext
           ]
-        , H.h1 [] <| H.text skill.name :: Render.chakras skill.cost ++
+        , H.h4 [] <| H.text skill.name :: Render.chakras skill.cost ++
           [ Render.classes False skill.classes
           ]
         , H.p [] << (++) (Render.desc skill.desc) << List.map

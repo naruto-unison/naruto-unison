@@ -8,6 +8,7 @@ module Site.Render exposing
   , desc
   , icon
   , name
+  , streak
   )
 
 import Dict            as Dict exposing (Dict)
@@ -20,8 +21,13 @@ import Tuple exposing (first)
 
 import Import.Flags exposing (Flags, characterName)
 import Game.Game as Game
-import Import.Model exposing (Category(..), Chakras, Channel, Channeling(..), Character, Effect)
+import Import.Model exposing (Category(..), Chakras, Channel, Channeling(..), Character, Effect, User)
 import Util exposing (elem)
+
+streak : User -> Html msg
+streak user = H.text <| String.fromInt user.wins
+              ++ " - " ++ String.fromInt user.losses
+              ++ " (+" ++ String.fromInt user.streak ++ ")"
 
 chakras : Chakras -> List (Html msg)
 chakras = List.map chakra << fromChakras
