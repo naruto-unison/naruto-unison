@@ -21,6 +21,8 @@
 /forum/#ForumBoard           BoardR       GET
 /topic/#ForumBoard/new       NewTopicR    GET POST
 /topic/#TopicId              TopicR       GET POST
+/guide                       GuideR       GET
 /characters                  CharactersR  GET
 /characters/#Category/#Text  CharacterR   GET
+/game-mechanics              MechanicsR   GET
 !/                           StaticR      Static static

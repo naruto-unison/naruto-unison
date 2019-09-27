@@ -94,13 +94,14 @@ body {
     align-self: center;
     width: 100%;
     max-width: 800px;
-    padding: 1em 2.5em 5em 2.5em;
+    padding: 1em 2.5em 1em 2.5em;
     box-sizing: border-box;
     background: #fff;
     font-size: 14px;
 }
 #breadcrumb {
     margin-bottom: 1em;
+    color: #666;
 }
 #breadcrumb ul {
     margin: 0;
@@ -108,7 +109,6 @@ body {
 }
 #breadcrumb li {
     display: inline-block;
-    color: #000;
     margin-right: -0.3em;
 }
 #breadcrumb li:first-child:before {
@@ -253,8 +253,8 @@ input, textarea {
     background-color: #ddd;
     border: 1px solid #888;
 }
-.Admin     { color: #edb634; border-color: #edb634; outline-color: #edb634; }
-.Moderator { color: #1bbc94; border-color: #1bbc94; outline-color: #1bbc94; }
+.Admin     { color: #151c77; border-color: #151c77; outline-color: #151c77; }
+.Moderator { color: #2d7715; border-color: #2d7715; outline-color: #2d7715; }
 
 td:last-child a span {
     font-size: 1.6em;
@@ -310,32 +310,32 @@ dd {
     margin-bottom: 0.25em;
 }
 
-@media (min-width: 880px) {
+@media (min-width: 824px) {
     #sitenav aside {
         width: 14em;
     }
 }
-@media (min-width: 670px) {
+@media (min-width: 615px) {
     #sitenav nav a, #sitenav nav span {
         margin: 0 0.5em -3px 0.5em;
     }
 }
-@media (max-width: 670px) {
+@media (max-width: 614px) {
     #sitenav {
         font-size: 0.9em;
     }
 }
-@media (max-width: 585px) {
+@media (max-width: 529px) {
     #sitenav {
         font-size: 0.8em;
     }
 }
-@media (max-width: 520px) {
+@media (max-width: 464px) {
     #sitenav {
         font-size: 0.7em;
     }
 }
-@media (max-width: 425px) {
+@media (max-width: 390px) {
     #sitenav {
         font-size: 0.6em;
     }

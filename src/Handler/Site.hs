@@ -7,9 +7,11 @@
 
 -- | Miscellaneous website handlers.
 module Handler.Site
-  ( getChangelogR
-  , getHomeR
+  ( getHomeR
+  , getChangelogR
+  , getGuideR
   , getCharactersR, getCharacterR
+  , getMechanicsR
   ) where
 
 import ClassyPrelude
@@ -95,6 +97,11 @@ getChangelog long logType name characterType =
 news :: (News, Maybe User) -> Widget
 news (News{..}, author) = $(widgetFile "home/news")
 
+getGuideR :: Handler Html
+getGuideR = do
+    (title, _) <- breadcrumbs
+    defaultLayout $(widgetFile "guide/guide")
+
 getCharactersR :: Handler Html
 getCharactersR = do
     (title, _) <- breadcrumbs
@@ -111,11 +118,15 @@ getCharactersR = do
 getCharacterR :: Category -> Text -> Handler Html
 getCharacterR category charLink = case Characters.lookupSite category charLink of
     Nothing   -> notFound
-    Just char -> defaultLayout do
+    Just char -> defaultLayout
         let path = shorten $ Character.format char
-        let path = shorten fmt
-        $(widgetFile "character/character")
+        in $(widgetFile "guide/character")
   where
     skillClasses skill =
         intercalate ", " $ display <$>
         filter Class.visible (toList $ Skill.classes skill)
+
+getMechanicsR :: Handler Html
+getMechanicsR = do
+    (title, _) <- breadcrumbs
+    defaultLayout $(widgetFile "guide/mechanics")

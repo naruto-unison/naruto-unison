@@ -93,9 +93,9 @@ getNavLinks :: Handler [(Route App, Html)]
 getNavLinks = do
     showAdmin <- isAuthenticated Moderator
     return $ admin showAdmin
-      [ (HomeR,       "Home")
-      , (CharactersR, "Characters")
-      , (ForumsR,     "Forums")
+      [ (HomeR,   "Home")
+      , (GuideR,  "Guide")
+      , (ForumsR, "Forums")
       ]
   where
     admin Authorized xs = xs ++ [(AdminR, "Admin")]
@@ -107,7 +107,9 @@ origin ProfileR{} = ForumsR
 origin BoardR{} = ForumsR
 origin NewTopicR{} = ForumsR
 origin TopicR{} = ForumsR
-origin CharacterR{} = CharactersR
+origin CharactersR = GuideR
+origin CharacterR{} = GuideR
+origin MechanicsR = GuideR
 origin x = x
 
 instance Yesod App where
@@ -194,11 +196,13 @@ instance YesodBreadcrumbs App where
   breadcrumb (TopicR topic) = do
       Topic{topicTitle, topicBoard} <- runDB $ get404 topic
       return (topicTitle, Just $ BoardR topicBoard)
+  breadcrumb GuideR = return ("Guide", Just HomeR)
+  breadcrumb CharactersR = return ("Characters", Just GuideR)
   breadcrumb (CharacterR category char) = return
       ( maybe "Character" Character.format $ Characters.lookupSite category char
       , Just CharactersR
       )
-  breadcrumb (TopicR topic) = do
+  breadcrumb MechanicsR = return ("Game Mechanics", Just GuideR)
   breadcrumb _ = return (mempty, Nothing)
 
 instance YesodPersist App where

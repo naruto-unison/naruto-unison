@@ -1,0 +1,9 @@
+<h2>#{title}
+<p>
+  <a href=@{PlayR}>
+    Practice games against AI
+  are a great way to become accustomed to Naruto Unison's combat system.
+<h3>Skills
+<p>
+  Every character has four skills. You can read about specific skills in the <a href=@{CharactersR}>character guide</a>.
+<h4>
