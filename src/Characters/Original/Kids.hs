@@ -727,39 +727,33 @@ cs =
     "One of the three sand siblings, Kankurō is a master puppeteer. His strategically-placed poison bombs pierce through enemy defenses. In order to harm him, his enemies will have to go through his army of puppets first."
     [ [ Skill.new
         { Skill.name      = "Iron Maiden"
-        , Skill.desc      = "Two of Kankurō's puppets trap and stab an enemy, dealing 30 piercing damage. Deals 5 additional damage per stack of [Puppet Technique]."
+        , Skill.desc      = "Two of Kankurō's puppets trap and stab an enemy, dealing 30 piercing damage."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
-          [ To Enemy do
-                stacks <- userStacks "Puppet Technique"
-                pierce (30 + 5 * stacks)
-          ]
+          [ To Enemy $ pierce 30 ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Poison Bomb"
-        , Skill.desc      = "One of Kankurō's puppets creates a cloud of smoke that deals 10 affliction damage to all enemies. Deals 5 additional damage per stack of [Puppet Technique]."
+        , Skill.desc      = "One of Kankurō's puppets creates a cloud of smoke that deals 10 affliction damage to all enemies."
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemies do
-                stacks <- userStacks "Puppet Technique"
-                afflict (10 + 5 * stacks)
-          ]
+          [ To Enemies $ afflict 10 ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Puppet Technique"
-        , Skill.desc      = "Kankurō fashions a chakra-controlled puppet which serves as a decoy, increasing his damage for 4 turns and providing 15 permanent destructible defense."
+        , Skill.desc      = "Kankurō fashions a chakra-controlled puppet which serves as a decoy, increasing his damage by 5 for 4 turns and providing 15 permanent destructible defense."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
                 defend 0 15
-                tag 4
+                apply 4 [Strengthen All Flat 5]
           ]
         }
       ]

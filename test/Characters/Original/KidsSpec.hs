@@ -543,26 +543,25 @@ spec = parallel do
                     defense `shouldBe` 40
     describeCharacter "Kankurō" \useOn -> do
         useOn Enemy "Iron Maiden" do
-            self $ addStacks "Puppet Technique" stacks
             act
             targetHealth <- Ninja.health <$> P.nTarget
             return do
                 it "damages target" $
-                    100 - targetHealth `shouldBe` (30 + 5 * stacks)
+                    100 - targetHealth `shouldBe` 30
         useOn Enemies "Poison Bomb" do
-            self $ addStacks "Puppet Technique" stacks
             act
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
             return do
                 it "damages targets" $
-                    100 - targetHealth `shouldBe` (10 + 5 * stacks)
-        useOn Self "Puppet Technique" do
+                    100 - targetHealth `shouldBe` 10
+        useOn Enemy "Puppet Technique" do
             act
-            tagged <- Ninja.hasOwn "Puppet Technique" <$> P.nUser
             defense <- totalDefense <$> P.nUser
+            damage targetDmg
+            targetHealth <- Ninja.health <$> P.nTarget
             return do
-                it "tags user"
-                    tagged
+                it "strengthens user" $
+                    (100 - targetHealth) - targetDmg `shouldBe` 5
                 it "defends user" $
                     defense `shouldBe` 15
 
