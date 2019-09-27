@@ -2,8 +2,127 @@
 <p>
   <a href=@{PlayR}>
     Practice games against AI
-  are a great way to become accustomed to Naruto Unison's combat system.
-<h3>Skills
+  are a great way to become accustomed to Naruto Unison's combat system!
+
+<h2 #skills>Skills
 <p>
-  Every character has four skills. You can read about specific skills in the <a href=@{CharactersR}>character guide</a>.
-<h4>
+  Every character has four skills. You can read about specific skills in the <a href=@{CharactersR}>character guide</a>. Skill entries are formatted as such:
+<blockquote>
+  <p>
+    &lt;Skill description&gt;
+  <p .skillClasses>
+    &lt;Comma, Separated, Classes&gt;
+  <dl>
+    <dt>Cost
+    <dd>&lt;Chakra cost&gt;
+    <dt>Duration
+    <dd>&lt;Duration&gt; &lt;turns&gt;
+    <dt>Cooldown
+    <dd>&lt;Cooldown&gt;
+    <dt>Charges
+    <dd>&lt;Charges&gt;
+
+<h3 #cost>
+  Cost
+<p>
+  There are four types of chakra:
+  <span .wrap>
+    <span .chakra.blood>
+    blood,
+  <span .wrap>
+    <span .chakra.gen>
+    genjutsu,
+  <span .wrap>
+    <span .chakra.nin>
+    ninjutsu, and
+  <span .wrap>
+    <span .chakra.tai>
+    taijutsu.
+  Some skills cost
+  <span .wrap>
+    <span .chakra.rand>
+    arbitrary
+  chakra, which means that chakra of any type may be used. If cost is not specified, the skill is free.
+
+<h3 #duration>
+  Duration
+<ul><dl>
+  <li #instant>
+    <dt>
+      Instant
+    <dd>
+      Instant skills have immediate effect and do not last for any turns.
+  <li #action>
+    <dt>
+      Action
+    <dd>
+      Action skills are actions carried out by their user for multiple turns. If the user is stunned while performing an action skill, the action will temporarily cease its effects. It will resume once the user is no longer stunned. If the number of turns is not specified, the skill lasts indefinitely.
+  <li #control>
+    <dt>
+      Control
+    <dd>
+      Control skills are "grab"-like skills that last for multiple turns and require a continual connection between the user and the target. The skill takes effect every turn for some number of turns. The skill is canceled if the user is stunned or their target becomes untargetable due to invulnerability, death, etc. If the number of turns is not specified, the skill lasts until canceled.
+  <li #ongoing>
+    <dt>
+      Ongoing
+    <dd>
+      Ongoing skills are passive effects that last for multiple turns and cannot be interrupted once they have been set into motion. Summoning techniques are usually Ongoing, but it is rare for other skills to have Ongoing duration.
+
+<h3 #cooldown>
+  Cooldown
+<p>
+  When a skill is successfully used, it becomes disabled for some number of turns. If cooldown is not specified, the skill has no cooldown and may be used again immediately.
+
+<h3 #charges>
+  Charges
+<p>
+  When a skill is successfully used, it uses up one of its charges. When a skill runs out of charges, it becomes unusable. Some skills can be recharged by using other skills. If charges are not specified, the skill has unlimited charges.
+
+<h3 #classes>
+  Classes
+<ul><dl>
+  <li #bane>
+    <dt>
+      Bane
+    <dd>
+      Bane skills are medical hazards such as burns, disease, and poison.
+      Some healers can cure bane effects and protect against them.
+  <li #bypassing>
+    <dt>
+      Bypassing
+    <dd>
+      Bypasses invulnerability. The skill can be used on a target even if they are invulnerable.
+  <li #invisible>
+    <dt>
+      Invisible
+    <dd>
+      Cannot be seen by the enemy team. Status effects and traps applied by the skill are visible only to the skill's user, who sees them as partially transparent icons. If the skill lasts for multiple turns, the active skill icon is also hidden from the enemy team.
+  <li #necromancy>
+    <dt>
+      Necromancy
+    <dd>
+      Normal skills may only be used on living targets. Necromancy skills, on the other hand, may only be used on dead targets.
+  <li #soulbound>
+    <dt>
+      Soulbound
+    <dd>
+      If the character who used the skill dies, all effects from the skill will be removed.
+  <li #uncounterable>
+    <dt>
+      Uncounterable
+    <dd>
+      Cannot be countered.
+  <li #unreflectable>
+    <dt>
+      Unreflectable
+    <dd>
+      Cannot be reflected.
+  <li #unremovable>
+    <dt>
+      Unremovable
+    <dd>
+      Status effects and traps applied by the skill cannot be subsequently removed or cured.
+<p>
+  Most skills have a type class: <strong>Chakra</strong>, <strong>Mental</strong>, <strong>Physical</strong>, or <strong>Summon</strong>.
+<p>
+  Many skills have a distance class: <strong>Melee</strong> or <strong>Ranged</strong>.
