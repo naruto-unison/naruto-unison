@@ -1,11 +1,11 @@
-<h2>#{title}
+<h1>#{title}
 <h3>Game Mechanics
 <p>
-  Know the basics! Naruto Unison's combat system is designed to be intuitive, but a grasp of the fundamentals is crucial to understanding skill descriptions.
+  Know the basics! This is everything you need to get started.
 <a href=@{MechanicsR} .guide>
-  Getting started
+  Read guide
 <h3>Characters
 <p>
-  Games are played with teams of three different characters, each of which has their own skills.
+  Each of Naruto Unison's #{length Characters.list} playable characters has their own skills and strategies.
 <a href=@{CharactersR} .guide>
   Browse characters

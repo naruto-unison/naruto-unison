@@ -1,4 +1,4 @@
-<h2>#{title}
+<h1>#{title}
 $forall Cite{citeVal = Post{..}, citeAuthor} <- posts
   <article>
     <aside>

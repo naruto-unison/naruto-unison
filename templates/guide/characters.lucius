@@ -1,12 +1,12 @@
 section {
     display: flex;
+    margin-bottom: 1em;
 }
 section aside {
     margin-right: 5px;
-    margin-top: 1em;
 }
 section h4 {
-    margin: 0;
+    margin: 0 0 -0.25em 0;
 }
 section .char {
     margin-top: 3px;
@@ -15,7 +15,6 @@ section p {
     margin-top: 0.25em;
     margin-bottom: 0;
 }
-h3 {
+h2 {
     text-align: center;
-    text-transform: uppercase;
 }

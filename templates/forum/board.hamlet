@@ -1,5 +1,5 @@
 <header>
-  <h2>#{boardName board}
+  <h1>#{boardName board}
   <p>#{boardDesc board}
 <table>
   <thead>

@@ -1,4 +1,4 @@
-<h2>#{title}
+<h1>#{title}
 <p>
   <a href=@{PlayR}>
     Practice games against AI

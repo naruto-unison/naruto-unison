@@ -1,6 +1,6 @@
-<h4>#{newsTitle}
+<h3>#{newsTitle}
 <aside>
-  #{show newsDate} by
+  #{show newsDate} by&nbsp;
     $maybe user <- author
       ^{userlink user}
     $nothing

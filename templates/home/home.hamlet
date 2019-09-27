@@ -1,10 +1,10 @@
 <!-- Page Contents -->
 
 <aside #changelog>
-  <h2>Recent Changes
+  <h1>Recent Changes
   <a .refer href=@{ChangelogR}>
     View full changelog
-  <h4>Launch
+  <h3>Launch
   <ul>
     ^{change New "Eight-Gates Guy" Shippuden}
     ^{change New "Mei Terumi" Shippuden}
@@ -21,13 +21,13 @@
   $maybe msg <- mmsg
     <div .alert.alert-info #message>
       #{msg}
-  <h2>Naruto Unison
-  <h3>News
+  <h1>Naruto Unison
+  <h2>News
   $forall new <- newsList
     ^{news new}
 
 <aside #forums>
-  <h2>Recent Activity
+  <h1>Recent Activity
   <a .refer href=@{ForumsR}>
     Go to forums
   $forall cite@Cite{..} <- topics

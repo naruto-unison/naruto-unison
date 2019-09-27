@@ -1,12 +1,12 @@
-<h2>#{title}
+<h1>#{title}
 <p>
-  Naruto Unison games are played with teams of three different characters. Each character has their own skills, and most favor one type of chakra over the rest. The characters in the Original category are available from the start, but the others must be unlocked by completing specific missions.
+  Naruto Unison games are played with teams of three different characters. The characters in the Original category are available from the start, but others must be unlocked by completing specific missions.
 <p>
   <a href=@{PlayR}>
     Practice games against AI
-  are a great way to try out characters and experiment with skill combinations.
+  are a great way to try out characters and experiment with skill combinations!
 $forall category <- categories
-  <h3>#{heading category}
+  <h2>#{heading category}
   $forall char <- categoryChars category
     <div>
       <section>

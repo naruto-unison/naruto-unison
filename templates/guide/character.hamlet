@@ -1,5 +1,5 @@
 <img .char.head src=/img/ninja/#{path}/icon.jpg>
-<h2>
+<h1>
   #{Character.name char}#{Character.category char}
 <p>
   #{Parse.desc $ Character.bio char}

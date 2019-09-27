@@ -41,9 +41,11 @@ userlink User{..} = $(widgetFile "widgets/userlink")
 
 -- | Renders the changelog.
 getChangelogR :: Handler Html
-getChangelogR = defaultLayout do
-    $(widgetFile "tooltip/tooltip")
-    $(widgetFile "changelog/changelog")
+getChangelogR = do
+    (title, _) <- breadcrumbs
+    defaultLayout do
+        $(widgetFile "tooltip/tooltip")
+        $(widgetFile "changelog/changelog")
   where
     change = getChangelog True
 
