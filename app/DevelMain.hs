@@ -72,7 +72,6 @@ update = do
         withStore doneStore takeMVar
         start =<< readStore doneStore
 
-
     -- | Start the server in a separate thread.
     start :: MVar () -- ^ Written to when the thread is killed.
           -> IO ThreadId

@@ -269,7 +269,7 @@ cs =
       ]
     , [ Skill.new
         { Skill.name      = "Shadow Strangle"
-        , Skill.desc      = "Shadow tendrils choke Shikamaru's enemies, preventing them from reducing damage or becoming invulnerable for 1 turn and dealing 15 damage. Enemies affected by [Meditate] are exposed for 2 turns."
+        , Skill.desc      = "Shadow tendrils choke Shikamaru's enemies, preventing them from reducing damage or becoming invulnerable for 1 turn and dealing 15 damage. Lasts an additional turn on enemies affected by [Meditate]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
