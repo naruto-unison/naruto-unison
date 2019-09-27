@@ -2,7 +2,7 @@
   $forall category <- categories
     <tr>
       <th>
-        <h2>#{show category}
+        <h2>#{category}
       <th>
         Topics
       <th>
@@ -11,8 +11,10 @@
       <tr>
         <td>
           <h3>
-            <a href=@{BoardR board}>#{boardName board}
-          <div>#{boardDesc board}
+            <a href=@{BoardR board}>
+              #{boardName board}
+          <div>
+            #{boardDesc board}
         <td>
           #{size}
         <td>

@@ -1,1 +1,2 @@
-<a href=@{ProfileR userName} class=#{show userPrivilege}>#{userName}
+<a href=@{ProfileR userName} class=#{userPrivilege}>
+  #{userName}

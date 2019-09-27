@@ -10,4 +10,5 @@ $if not long
     $forall skills <- NonEmpty.take Ninja.skillSize $ Character.skills char
       <li>
         $forall skill <- separate skills
-          <a .skill data-name=#{tagName}>#{Skill.name skill}
+          <a .skill data-name=#{tagName}>
+            #{Skill.name skill}

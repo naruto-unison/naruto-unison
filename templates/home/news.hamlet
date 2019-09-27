@@ -1,6 +1,9 @@
 <h4>#{newsTitle}
 <aside>
   #{show newsDate} by
-    <a href=@{ProfileR authorName}>#{authorName}
+    $maybe user <- author
+      ^{userlink user}
+    $nothing
+      [deleted]
 <p>
   #{preEscapedToHtml newsContent}

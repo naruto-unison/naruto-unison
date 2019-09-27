@@ -10,14 +10,18 @@ $else
       $maybe currentRoute <- mcurrentRoute
         $forall (dest, name) <- navLinks
           $if currentRoute == dest
-            <span #current>#{name}
+            <span #current>
+              #{name}
           $elseif origin currentRoute == dest
-            <a #current href=@{dest}>#{name}
+            <a #current href=@{dest}>
+              #{name}
           $else
-            <a href=@{dest}>#{name}
+            <a href=@{dest}>
+              #{name}
       $nothing
         $forall (dest, name) <- navLinks
-          <a href=@{dest}>#{name}
+          <a href=@{dest}>
+            #{name}
     <aside>
       <div>
         $maybe user <- muser
@@ -37,10 +41,13 @@ $else
         <ul>
           $forall bc <- parents
             <li>
-              <a href=@{fst bc}>#{snd bc}
-          <li .active>#{title}
+              <a href=@{fst bc}>
+                #{snd bc}
+          <li .active>
+            #{title}
 
-    $maybe msg <- mmsg
-      <div .alert.alert-info #message>#{msg}
+      $maybe msg <- mmsg
+        <div .alert.alert-info #message>
+          #{msg}
 
     ^{widget}

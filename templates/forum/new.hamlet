@@ -1,5 +1,5 @@
 <header>
-  <h2>New Post
+  <h2>#{title}
 <form .full method=post action=@{NewTopicR board} enctype=#{enctype} autocomplete=off>
     ^{widget}
     <button>Post
