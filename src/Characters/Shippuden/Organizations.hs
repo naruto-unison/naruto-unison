@@ -18,7 +18,7 @@ cs =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
-        , Skill.dur       = Action 0
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Self do
                 defend 0 45

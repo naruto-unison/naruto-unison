@@ -176,7 +176,7 @@ cs =
         , Skill.require   = HasI (-1) "Monstrous Sand Arm"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Control 0
         , Skill.start     =
           [ To Enemy $ trap 0 Nullified $ cancelChannel "Monstrous Sand Arm" ]
         , Skill.effects   =

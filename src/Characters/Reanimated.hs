@@ -720,7 +720,7 @@ cs =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 5
-        , Skill.dur       = Ongoing 4
+        , Skill.dur       = Action 4
         , Skill.start     =
           [ To Self do
                 bombWith [Hidden] 4 [] [ To Done $ remove "Chakra Weave" ]

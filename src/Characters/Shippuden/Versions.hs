@@ -709,7 +709,7 @@ cs =
         , Skill.desc      = "Zetsu creates numerous clones of himself which deal 5 damage to all enemies for 5 turns. As Black Zetsu, this skill becomes [Underground Roots][b][r]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen]
-        , Skill.dur       = Ongoing 5
+        , Skill.dur       = Action 5
         , Skill.effects   =
           [ To Enemies $ damage 5 ]
         }

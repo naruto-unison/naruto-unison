@@ -17,11 +17,11 @@ cs =
         , Skill.desc      = "Madara protects himself by predicting enemy attacks. For 4 turns, all non-affliction damage he receives is reduced to 25 at most. While active, this skill becomes [Eternal Mangekyō Sharingan][r]."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand]
-        , Skill.dur       = Ongoing 4
-        , Skill.start     =
-          [ To Self $ vary "Mangekyō Sharingan" "Eternal Mangekyō Sharingan" ]
+        , Skill.dur       = Instant
         , Skill.effects   =
-          [ To Self $ apply 1 [Limit 25]
+          [ To Self do
+                apply 4 [Limit 25]
+                vary "Mangekyō Sharingan" "Eternal Mangekyō Sharingan" 
           ]
         }
       , Skill.new
@@ -473,7 +473,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
-        , Skill.dur       = Ongoing 3
+        , Skill.dur       = Action 3
         , Skill.start     =
           [ To Self do
                 setFace

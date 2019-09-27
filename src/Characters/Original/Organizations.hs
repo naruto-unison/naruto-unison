@@ -563,7 +563,7 @@ cs =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 6
-        , Skill.dur       = Ongoing 3
+        , Skill.dur       = Action 3
         , Skill.start     =
           [ To Allies $ defend 3 35
           , To Self     onBreak'
