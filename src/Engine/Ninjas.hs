@@ -80,7 +80,7 @@ import           Model.Slot (Slot)
 import qualified Model.Status as Status
 import           Model.Status (Status(Status))
 import qualified Model.Trap as Trap
-import           Model.Trap (Trigger(..))
+import           Model.Trigger (Trigger(..))
 import qualified Model.Variant as Variant
 import           Model.Variant (Variant(Variant), Varying)
 import qualified Engine.Effects as Effects

@@ -39,7 +39,7 @@ import qualified Model.Ninja as Ninja
 import           Model.Ninja (Ninja, is)
 import           Model.Runnable (RunConstraint)
 import qualified Model.Skill as Skill
-import           Model.Trap (Trigger(..))
+import           Model.Trigger (Trigger(..))
 import qualified Engine.Effects as Effects
 import qualified Engine.Execute as Execute
 import           Engine.Execute (Affected(..))

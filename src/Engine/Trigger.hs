@@ -22,7 +22,8 @@ import           Model.Ninja (Ninja, is)
 import           Model.Slot (Slot)
 import qualified Model.Status as Status
 import qualified Model.Trap as Trap
-import           Model.Trap (Trap, Trigger(..))
+import           Model.Trap (Trap)
+import           Model.Trigger (Trigger(..))
 import qualified Engine.Ninjas as Ninjas
 import qualified Engine.Traps as Traps
 

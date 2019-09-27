@@ -20,7 +20,7 @@ import           Model.Chakra (Chakra(..), Chakras)
 import qualified Model.Game as Game
 import qualified Model.Ninja as Ninja
 import qualified Model.Player as Player
-import           Model.Trap (Trigger(..))
+import           Model.Trigger (Trigger(..))
 
 -- | Removes some number of 'Chakra's from the target's team.
 -- 'Chakra's are chosen randomly from the available pool of 'Game.chakra'.

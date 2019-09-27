@@ -42,7 +42,7 @@ import           Model.Skill (Skill, Target(..))
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
 import qualified Model.Status as Status
-import           Model.Trap (Trigger(..))
+import           Model.Trigger (Trigger(..))
 import qualified Engine.Cooldown as Cooldown
 import qualified Engine.Effects as Effects
 import qualified Engine.Ninjas as Ninjas

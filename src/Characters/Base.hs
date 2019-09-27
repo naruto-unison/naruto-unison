@@ -23,7 +23,7 @@ import Model.Requirement as Import (Requirement(..))
 import Model.Runnable as Import (Runnable(To))
 import Model.Skill as Import (Target(..))
 import Model.Status as Import (Bomb(..))
-import Model.Trap as Import (Trigger(..))
+import Model.Trigger as Import (Trigger(..))
 import Action.Chakra as Import
 import Action.Combat as Import
 import Action.Channel as Import

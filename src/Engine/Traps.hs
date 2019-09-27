@@ -28,7 +28,8 @@ import           Model.Runnable (Runnable)
 import           Model.Player (Player)
 import           Model.Slot (Slot)
 import qualified Model.Trap as Trap
-import           Model.Trap (Trap, Trigger(..))
+import           Model.Trap (Trap)
+import           Model.Trigger(Trigger(..))
 
 run :: Slot -> Trap -> Runnable Context
 run user trap = case Trap.direction trap of

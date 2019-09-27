@@ -39,7 +39,7 @@ import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
 import qualified Model.Status as Status
 import           Model.Status (Bomb, Status)
-import           Model.Trap (Trigger(..))
+import           Model.Trigger (Trigger(..))
 import qualified Engine.Effects as Effects
 import qualified Engine.Ninjas as Ninjas
 

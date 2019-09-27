@@ -48,7 +48,7 @@ import           Model.Player (Player)
 import           Model.Skill (Skill)
 import qualified Model.Slot as Slot
 import           Model.Slot (Slot)
-import           Model.Trap (Trigger(..))
+import           Model.Trigger (Trigger(..))
 
 -- | Alters the focus of the environment to a new @Context@.
 withContext :: ∀ m a. Context -> ReaderT Context m a -> m a

@@ -29,7 +29,9 @@ import qualified Model.Skill as Skill
 import           Model.Skill (Skill)
 import           Model.Slot (Slot)
 import qualified Model.Trap as Trap
-import           Model.Trap (Trap(Trap), Trigger(..))
+import           Model.Trap (Trap(Trap))
+import qualified Model.Trigger as Trigger
+import           Model.Trigger (Trigger(..))
 import qualified Engine.Effects as Effects
 import qualified Engine.Execute as Execute
 import           Engine.Execute (Affected(..))
@@ -130,9 +132,9 @@ makeTrap skill nUser target direction classes dur trigger f = Trap
                    , Context.new    = False
                    }
     throttled n
-      | dur == 0               = 0
-      | Trap.isCounter trigger = 2 * Effects.throttle [Reflect] n
-      | otherwise              = 0
+      | dur == 0                  = 0
+      | Trigger.isCounter trigger = 2 * Effects.throttle [Reflect] n
+      | otherwise                 = 0
 
 -- | Saves an effect to a 'Delay.Delay', which is stored in 'Game.delays' and
 -- triggered when it expires.

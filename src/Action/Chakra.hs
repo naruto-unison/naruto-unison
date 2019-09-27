@@ -15,7 +15,7 @@ import           Class.Play (MonadPlay)
 import           Class.Random (MonadRandom)
 import qualified Model.Chakra as Chakra
 import           Model.Chakra (Chakra(..))
-import           Model.Trap (Trigger(..))
+import           Model.Trigger (Trigger(..))
 import qualified Model.Game as Game
 import qualified Engine.Chakras as Chakras
 import qualified Engine.Ninjas as Ninjas

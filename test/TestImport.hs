@@ -20,7 +20,7 @@ import Model.Class as Import (Class(..))
 import Model.Effect as Import (Amount(..), Effect(..))
 import Model.Ninja as Import (is)
 import Model.Skill as Import (Target(..))
-import Model.Trap as Import (Trigger(..))
+import Model.Trigger as Import (Trigger(..))
 import Action.Chakra as Import
 import Action.Combat as Import
 import Action.Channel as Import
