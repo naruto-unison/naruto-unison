@@ -6,7 +6,6 @@ module Model.GameInfo
 import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), Value, object)
-import Data.Enum.Set.Class (EnumSet)
 
 import           Core.Model (Key, User)
 import           Core.Util ((!!), (∈), (∉), intersects)
@@ -104,13 +103,6 @@ gameToJSON player ninjas g = object
                 guard $ Requirement.targetable skill n nt && t ∈ targs
                 return t
 
-harmTargets  :: EnumSet Target
-harmTargets  = setFromList [Enemy, Enemies, REnemy, XEnemies]
-xAllyTargets :: EnumSet Target
-xAllyTargets = setFromList [XAlly, XAllies]
-allyTargets  :: EnumSet Target
-allyTargets  = setFromList [Ally, Allies, RAlly]
-
 -- | All targets that a @Skill@ from a a specific 'Ninja' affects.
 skillTargets :: Skill -> Slot -> [Slot]
 skillTargets skill c = filter target Slot.all
@@ -123,6 +115,9 @@ skillTargets skill c = filter target Slot.all
       | ts `intersects` allyTargets  = True
       | c == t                       = not $ ts `intersects` harmTargets
       | otherwise                    = False
+    harmTargets  = setFromList [Enemy, Enemies, REnemy, XEnemies]
+    xAllyTargets = setFromList [XAlly, XAllies]
+    allyTargets  = setFromList [Ally, Allies, RAlly]
 
 ninjaToJSON :: Ninja -> Value
 ninjaToJSON n = object

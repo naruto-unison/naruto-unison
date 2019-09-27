@@ -42,6 +42,7 @@ getUpdateR updateName updateCondense updateBackground updateAvatar
                                     ]
     returnJson user
   where
+    legalChars = ['0'..'9'] ++ ['a'..'z'] ++ ['A'..'z']
     updateBackground'  = fromMaybe "" $ tailMay updateBackground
     updateBackground''
       | null updateBackground' = Nothing
@@ -85,8 +86,9 @@ charAvatars char = toFile <$> "icon" : skills
     toFile path = "/img/ninja/" ++ shorten (Character.format char) ++ "/"
                   ++ shorten path ++ ".jpg"
 
-avatars :: [Text]
-avatars = (("/img/icon/" ++) <$> icons) ++ concatMap charAvatars Characters.list
+avatars :: Value
+avatars = toJSON $
+          (("/img/icon/" ++) <$> icons) ++ concatMap charAvatars Characters.list
   where
     icons =
         [ "default.jpg"
@@ -94,9 +96,7 @@ avatars = (("/img/icon/" ++) <$> icons) ++ concatMap charAvatars Characters.list
         , "ninjainfocards.jpg"
         , "kabugrin.jpg"
         ]
+{-# NOINLINE avatars #-}
 
 isMuted :: Maybe User -> Bool
 isMuted = maybe False userMuted
-
-legalChars :: String
-legalChars = ['0'..'9'] ++ ['a'..'z'] ++ ['A'..'z']

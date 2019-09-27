@@ -16,6 +16,7 @@ import Class.Display (Display(..))
 
 -- | Qualifiers of 'Model.Skill.Skill's and 'Model.Status.Status'es.
 data Class
+    -- Kind
     = Chakra
     | Mental
     | Physical
@@ -74,6 +75,7 @@ visible = (< All)
 visibles :: Value
 visibles = toJSON . mapFromKeyed @(Map _ _) (name, const True) $
            filter visible [minBound, maxBound]
+{-# NOINLINE visibles #-}
 
 name :: Class -> Text
 name Nonstacking    = "Non-stacking"
