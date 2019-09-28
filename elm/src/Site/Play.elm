@@ -663,7 +663,7 @@ renderView characters viewing = H.article [A.class "parchment"] <| case viewing 
             , H.dd [] [H.text <| Maybe.withDefault "Clanless" x.clan]
             , H.dt [] [H.text "Level"]
             , H.dd [] [H.text << String.fromInt <| x.xp // 1000]
-            , H.dt [] [H.text "Streak"]
+            , H.dt [] [H.text "Record"]
             , H.dd [] [Render.streak x]
             ]
           ]
