@@ -30,8 +30,8 @@ import Core.Model (Cite(..), EntityField(..), HasAuthor(..), Post(..), Topic(..)
 import Core.Settings (widgetFile)
 import Core.Util (shorten)
 
-import qualified Model.Class as Class
-import qualified Characters
+import qualified Game.Model.Class as Class
+import qualified Game.Characters as Characters
 
 -- | Renders a 'User' profile.
 getProfileR :: Text -> Handler Html

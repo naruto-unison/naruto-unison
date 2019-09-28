@@ -7,7 +7,7 @@ module Class.Labeled
 
 import ClassyPrelude
 
-import Model.Slot (Slot)
+import Game.Model.Slot (Slot)
 
 -- | Types with names and 'Model.Ninja.Ninja' sources.
 -- This is important because two different 'Model.Ninja.Ninja's might have

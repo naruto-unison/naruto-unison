@@ -10,7 +10,7 @@ import Data.Enum.Set.Class (EnumSet)
 import           Core.Util ((∈))
 import qualified Class.Labeled as Labeled
 import           Class.Labeled (Labeled)
-import           Model.Class (Class(..))
+import           Game.Model.Class (Class(..))
 
 -- | A type with 'Class'es.
 class Classed a where

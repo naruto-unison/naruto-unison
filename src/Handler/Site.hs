@@ -26,13 +26,13 @@ import           Core.Model (Cite(..), EntityField(..), News(..), User(..))
 import           Core.Settings (widgetFile)
 import           Core.Util (shorten)
 import           Class.Display (Display(..))
-import qualified Model.Character as Character
-import           Model.Character (Category(..))
-import qualified Model.Class as Class
-import qualified Model.Ninja as Ninja
-import qualified Model.Skill as Skill
-import           Model.Skill (Skill)
-import qualified Characters
+import qualified Game.Model.Character as Character
+import           Game.Model.Character (Category(..))
+import qualified Game.Model.Class as Class
+import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Skill as Skill
+import           Game.Model.Skill (Skill)
+import qualified Game.Characters as Characters
 import qualified Handler.Forum as Forum
 import qualified Handler.Parse as Parse
 

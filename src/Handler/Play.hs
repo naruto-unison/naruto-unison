@@ -21,11 +21,11 @@ import           Yesod.WebSockets (webSockets)
 import qualified Core.App as App
 import           Core.App (App, Handler)
 import qualified Core.AppSettings as AppSettings
-import qualified Core.Queue as Queue
+import qualified Handler.Play.Queue as Queue
 import           Core.Model (EntityField(..), User(..))
-import qualified Core.Rating as Rating
-import qualified Core.Wrapper as Wrapper
-import           Core.Wrapper (Wrapper(Wrapper))
+import qualified Handler.Play.Rating as Rating
+import qualified Handler.Play.Wrapper as Wrapper
+import           Handler.Play.Wrapper (Wrapper(Wrapper))
 import           Core.Util (duplic)
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
@@ -34,20 +34,20 @@ import qualified Class.Random as R
 import           Class.Random (MonadRandom)
 import qualified Class.Sockets as Sockets
 import           Class.Sockets (MonadSockets)
-import qualified Model.Act as Act
-import           Model.Act (Act)
-import qualified Model.Chakra as Chakra
-import           Model.Chakra (Chakras)
-import           Model.Character (Character)
-import qualified Model.Game as Game
-import qualified Model.GameInfo as GameInfo
-import           Model.GameInfo (GameInfo(GameInfo))
-import qualified Model.Ninja as Ninja
-import qualified Model.Player as Player
-import           Model.Player (Player)
-import qualified Model.Slot as Slot
-import qualified Engine.Turn as Turn
-import qualified Characters
+import qualified Game.Model.Act as Act
+import           Game.Model.Act (Act)
+import qualified Game.Model.Chakra as Chakra
+import           Game.Model.Chakra (Chakras)
+import           Game.Model.Character (Character)
+import qualified Game.Model.Game as Game
+import qualified Handler.Play.GameInfo as GameInfo
+import           Handler.Play.GameInfo (GameInfo(GameInfo))
+import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Player as Player
+import           Game.Model.Player (Player)
+import qualified Game.Model.Slot as Slot
+import qualified Game.Engine.Turn as Turn
+import qualified Game.Characters as Characters
 
 -- | If the difference in skill rating between two players exceeds this
 -- threshold, they will not be matched together.

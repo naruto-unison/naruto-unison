@@ -11,7 +11,7 @@ import qualified Text.Blaze.Html5 as HTML
 import qualified Text.ParserCombinators.ReadP as Parser
 import           Text.ParserCombinators.ReadP (ReadP)
 
-import Model.Chakra (Chakra(..))
+import Game.Model.Chakra (Chakra(..))
 
 parseBreak :: ReadP Html
 parseBreak = do

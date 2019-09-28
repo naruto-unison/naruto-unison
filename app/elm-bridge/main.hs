@@ -22,17 +22,17 @@ import           Class.TurnBased (TurnBased(..))
 import qualified Data.Char as Char
 import qualified Data.Text as Text
 import           Data.Text (Text)
-import           Model.Class (Class(..))
-import           Model.Chakra (Chakras(..))
-import           Model.Defense (Defense)
-import           Model.Face (Face(..))
-import           Model.Player (Player(..))
-import           Model.Slot (Slot)
-import           Model.Variant (Variant)
+import           Game.Model.Class (Class(..))
+import           Game.Model.Chakra (Chakras(..))
+import           Game.Model.Defense (Defense)
+import           Game.Model.Face (Face(..))
+import           Game.Model.Player (Player(..))
+import           Game.Model.Slot (Slot)
+import           Game.Model.Variant (Variant)
 import           Core.Fields (Privilege(..))
-import           Core.Queue (Failure(..))
+import           Handler.Play.Queue (Failure(..))
 
-import Model.Internal hiding (Barrier(..), Effect(..), Ninja(..), Game(..))
+import Game.Model.Internal hiding (Barrier(..), Effect(..), Ninja(..), Game(..))
 
 -- From Model.GameInfo.ninjaToJSON
 data Ninja = Ninja

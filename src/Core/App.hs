@@ -43,17 +43,17 @@ import qualified Yesod.Default.Util as YesodUtil
 import           Yesod.Static hiding (static)
 
 import           Core.Fields (ForumBoard, Privilege(..), boardName)
-import qualified Core.Queue as Queue
-import           Core.Wrapper (Wrapper)
+import qualified Handler.Play.Queue as Queue
+import           Handler.Play.Wrapper (Wrapper)
 import           Core.Model (EntityField(..), Topic(..), TopicId, User(..), UserId, Unique(..))
 import qualified Core.AppSettings as AppSettings
 import           Core.AppSettings (AppSettings)
 import           Core.Settings (widgetFile)
-import           Model.Act (Act)
-import           Model.Chakra (Chakras)
-import qualified Model.Character as Character
-import           Model.Character (Category)
-import qualified Characters
+import           Game.Model.Act (Act)
+import           Game.Model.Chakra (Chakras)
+import qualified Game.Model.Character as Character
+import           Game.Model.Character (Category)
+import qualified Game.Characters as Characters
 
 -- | App environment.
 data App = App

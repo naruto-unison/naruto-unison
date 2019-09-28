@@ -34,21 +34,21 @@ import           Data.Vector (Vector)
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
 import           Class.Random (MonadRandom)
-import           Model.Internal (MonadGame(..), MonadPlay(..))
-import qualified Model.Context as Context
-import           Model.Context (Context)
-import           Model.Effect (Effect(..))
-import qualified Model.Game as Game
-import qualified Model.Ninja as Ninja
-import           Model.Ninja (Ninja, is)
-import qualified Model.Runnable as Runnable
-import           Model.Runnable (Runnable)
-import qualified Model.Player as Player
-import           Model.Player (Player)
-import           Model.Skill (Skill)
-import qualified Model.Slot as Slot
-import           Model.Slot (Slot)
-import           Model.Trigger (Trigger(..))
+import           Game.Model.Internal (MonadGame(..), MonadPlay(..))
+import qualified Game.Model.Context as Context
+import           Game.Model.Context (Context)
+import           Game.Model.Effect (Effect(..))
+import qualified Game.Model.Game as Game
+import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Ninja (Ninja, is)
+import qualified Game.Model.Runnable as Runnable
+import           Game.Model.Runnable (Runnable)
+import qualified Game.Model.Player as Player
+import           Game.Model.Player (Player)
+import           Game.Model.Skill (Skill)
+import qualified Game.Model.Slot as Slot
+import           Game.Model.Slot (Slot)
+import           Game.Model.Trigger (Trigger(..))
 
 -- | Alters the focus of the environment to a new @Context@.
 withContext :: ∀ m a. Context -> ReaderT Context m a -> m a

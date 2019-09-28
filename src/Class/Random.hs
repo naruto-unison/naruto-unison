@@ -20,7 +20,7 @@ import qualified System.Random.MWC.Distributions as Random
 import           Yesod.WebSockets (WebSocketsT)
 
 import Core.Util ((!!), Lift)
-import Model.Player (Player)
+import Game.Model.Player (Player)
 
 -- | A monad capable of nondeterministic behavior.
 --

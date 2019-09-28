@@ -20,11 +20,11 @@ import           Core.App (Handler)
 import           Core.Model (EntityField(..), User(..))
 import           Core.Settings (widgetFile)
 import           Core.Util ((∉), shorten)
-import qualified Model.Character as Character
-import           Model.Character (Character)
-import qualified Model.Skill as Skill
+import qualified Game.Model.Character as Character
+import           Game.Model.Character (Character)
+import qualified Game.Model.Skill as Skill
 import qualified Handler.Play as Play
-import qualified Characters
+import qualified Game.Characters as Characters
 
 -- | Updates a user's profile.
 getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
@@ -72,6 +72,7 @@ getPlayR = do
     setCsrfCookie
     token <- reqToken <$> getRequest
     defaultLayout do
+        setTitle "Naruto Unison"
         addStylesheetRemote "/css/embeds.css"
         $(widgetFile "include/progressbar.min")
         $(widgetFile "include/soundjs.min")
