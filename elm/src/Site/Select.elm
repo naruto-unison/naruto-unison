@@ -88,6 +88,7 @@ type alias Model =
     , variants   : List Int
     , pageSize   : Int
     , search     : String
+    , condense   : Bool
     , form       : Form
     }
 
@@ -139,6 +140,7 @@ component ports =
         , variants   = [0, 0, 0, 0]
         , pageSize   = 36
         , search     = ""
+        , condense   = Maybe.withDefault False <| Maybe.map .condense flags.user
         , form       = case flags.user of
             Nothing   ->
                 { name       = ""
@@ -164,7 +166,7 @@ component ports =
               let
                 wrapping = st.index + st.pageSize >= size st
                 displays =
-                    if condense st then
+                    if st.condense then
                         List.map Nonempty.head <|
                             wraparound wrapping st.index st.chars.groupList
                     else
@@ -337,12 +339,9 @@ component ports =
   in
     { init = init, view = view, update = update }
 
-condense : Model -> Bool
-condense = Maybe.withDefault False << Maybe.map .condense << .user
-
 size : Model -> Int
 size st =
-    if condense st then
+    if st.condense then
         List.length st.chars.groupList
     else
         List.length st.chars.list
@@ -352,7 +351,7 @@ characterButtons st =
   let
       wrapping = st.index + st.pageSize >= size st
   in
-    if condense st then
+    if st.condense then
         List.map Nonempty.head <|
             wraparound wrapping st.index st.chars.groupList
     else
@@ -610,13 +609,13 @@ previewBox st = case st.previewing of
       ]
     PreviewChar char ->
         H.article [A.class "parchment"] <|
-        [ Keyed.node "aside" [] <| if not <| condense st then [] else
+        [ Keyed.node "aside" [] <| if not st.condense then [] else
           case Dict.get (st.chars.shortName char) st.chars.groupDict of
             Nothing              -> []
             Just (Nonempty _ []) -> []
             Just (Nonempty x xs) -> for (x :: xs) <| \char_ ->
-                (characterName char, icon char_ "icon" <|
-                  if List.member char <| case st.stage of
+                (characterName char_, icon char_ "icon" <|
+                  if List.member char_ <| case st.stage of
                       Practicing -> st.vs
                       _          -> st.team
                   then

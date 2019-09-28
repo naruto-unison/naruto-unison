@@ -14,7 +14,7 @@ import List.Extra    as List
 import List.Nonempty as Nonempty exposing (Nonempty(..))
 import String.Extra  as String
 
-import Import.Model as Model exposing (Category(..), Character, Failure(..), User)
+import Import.Model as Model exposing (Category(..), Character, Failure(..), Skill, User)
 import Util exposing (groupBy)
 
 type alias Flags =
@@ -92,15 +92,22 @@ characterName char = case char.category of
 
 makeShortName : Character -> String
 makeShortName char = case char.name of
-    "Tobi"             -> "Obito"
-    "The Masked Man"   -> "Obito"
     "Nagato"           -> "Pain"
-    "Shukaku Gaara"    -> "Gaara"
     "Sage Mode Kabuto" -> "Kabuto"
+    "Shukaku Gaara"    -> "Gaara"
+    "Tobi"             -> "Obito"
+    "Killer B"         -> "B"
     _                  -> List.getAt 3 char.skills
                           |> Maybe.andThen List.head
-                          >> Maybe.map (String.leftOf " " << .desc)
+                          >> Maybe.andThen shortFromInvuln
                           >> Maybe.withDefault char.name
+
+shortFromInvuln : Skill -> Maybe String
+shortFromInvuln x = case String.words x.desc of
+    "The" :: name :: _ -> Just name
+    name :: _          -> Just name
+    []                 -> Nothing
+
 
 printFailure : Failure -> String
 printFailure x = case x of

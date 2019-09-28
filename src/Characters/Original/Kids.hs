@@ -239,7 +239,7 @@ cs =
           [ To Enemies do
                 bonus <- 5 `bonusIf` userHas "Byakugan"
                 damage (15 + bonus)
-          , To Allies  $ defend 1 10
+          , To Allies $ defend 1 10
           ]
         }
       ]
@@ -456,7 +456,7 @@ cs =
           ]
         }
       ]
-    , [ invuln "Block" "Choji" [Physical]
+    , [ invuln "Block" "Chōji" [Physical]
       , Skill.new
         { Skill.name      = "Block"
         , Skill.desc      = "Chōji becomes invulnerable for 1 turn. While active, Chōji does not take damage from [Chili Pill]."

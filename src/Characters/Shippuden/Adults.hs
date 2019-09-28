@@ -211,7 +211,7 @@ cs =
     ]
   , Character
     "Maki"
-    "A jōnin from the Hidden Sand Village, Maki studied under Pakura and mourned her death greatly. As a member of the Allied Shinobi Forces Sealing Team, Maki must put aside her long-held grudge against the Hidden Stone Village for killing her teacher."
+    "A jōnin from the Hidden Sand Village, Maki studied under Pakura, the Hero of the Hidden Sand. As a member of the Allied Shinobi Forces Sealing Team, Maki must put aside her long-held grudge against the Hidden Stone Village for killing her teacher."
     [ [ Skill.new
         { Skill.name      = "Binding Cloth"
         , Skill.desc      = "Maki deploys a roll of cloth from within a seal and wraps it around herself, gaining 50% damage reduction for 1 turn. If an enemy uses a skill on Maki, the cloth wraps around them, stunning their physical and melee skills for 1 turn."
