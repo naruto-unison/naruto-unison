@@ -31,7 +31,7 @@ import Game.Characters.Base as Import (self, targetHas, userHas)
 
 import Control.Monad.Trans.State.Strict (StateT, evalStateT)
 
-import           Core.Util ((!!), (∈))
+import           Util ((!!), (∈))
 import qualified Handler.Play.Wrapper as Wrapper
 import           Handler.Play.Wrapper (Wrapper(Wrapper))
 import qualified Class.Parity as Parity
@@ -55,11 +55,11 @@ import           Game.Model.Skill (Skill)
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Slot (Slot)
 import qualified Game.Engine.Effects as Effects
-import qualified Game.Engine.Execute as Execute
+import qualified Game.Action as Action
 import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Trigger as Trigger
-import qualified Game.Engine.Turn as Turn
+import qualified Game.Engine as Engine
 import qualified Game.Characters as Characters
 
 -- Because MonadGame and MonadRandom do not actually require IO,
@@ -130,16 +130,16 @@ wrap player = do
     let classes = Skill.classes skill
     P.with (\ctx -> ctx { Context.skill = skill }) do
         P.trigger user $ OnAction <$> toList (Skill.classes skill)
-        efs        <- Execute.chooseTargets
+        efs        <- Action.chooseTargets
                       (Skill.start skill ++ Skill.effects skill)
-        countering <- Execute.filterCounters efs . toList <$> P.enemies user
+        countering <- Action.filterCounters efs . toList <$> P.enemies user
         let harm     = not $ null countering
             counters =
                 Trigger.userCounters harm user classes nUser
                 ++ (Trigger.targetCounters user classes =<< countering)
         if null counters then do
-            Execute.effects [] efs
-            when (player == Player.A) Execute.addChannels
+            Action.run [] efs
+            when (player == Player.A) Action.addChannels
         else do
             let countered = Ninja.slot <$> countering
                 uncounter n
@@ -156,11 +156,11 @@ wrap player = do
         P.modifyAll \n -> n { Ninja.triggers = mempty }
 
 act :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
-act = Turn.process $ wrap Player.A
+act = Engine.processTurn $ wrap Player.A
 
 turns :: ∀ m. (MonadGame m, MonadRandom m) => Turns -> m ()
 turns (Duration -> i) = do
-    replicateM_ (sync i) . Turn.process $ return ()
+    replicateM_ (sync i) . Engine.processTurn $ return ()
     P.alter \game -> game { Game.playing = Player.A }
 
 enemySkill :: Skill
@@ -171,7 +171,7 @@ enemySkill = Skill.new
 
 enemyTurn :: ∀ m. (MonadPlay m, MonadRandom m) => RunConstraint () -> m ()
 enemyTurn f = do
-    P.with with . Turn.process $ wrap Player.B
+    P.with with . Engine.processTurn $ wrap Player.B
     P.alter \game -> game { Game.playing = Player.A }
   where
     with ctx = ctx

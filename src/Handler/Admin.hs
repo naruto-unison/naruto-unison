@@ -5,7 +5,7 @@
 {-# OPTIONS_GHC -fno-warn-unused-matches #-}
 
 -- | Behind-the-scenes utility pages. Require sufficient 'Core.Field.Privilege'.
--- Privilege levels are handled in "Core.App".
+-- Privilege levels are handled in "Application.App".
 module Handler.Admin (getAdminR, postAdminR) where
 
 import ClassyPrelude
@@ -13,9 +13,9 @@ import Yesod
 
 import qualified Yesod.Auth as Auth
 
-import           Core.App (Form, Handler, Route(..))
-import           Core.Model (News(..))
-import           Core.Settings (widgetFile)
+import           Application.App (Form, Handler, Route(..))
+import           Application.Model (News(..))
+import           Application.Settings (widgetFile)
 import qualified Handler.Play as Play
 
 getAdminR :: Handler Html

@@ -1,14 +1,14 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide     #-}
 
-module Game.Characters.Shippuden.Adults (cs) where
+module Game.Characters.Shippuden.Adults (characters) where
 
 import Game.Characters.Base
 
 import qualified Game.Model.Skill as Skill
 
-cs :: [Category -> Character]
-cs =
+characters :: [Category -> Character]
+characters =
   [ Character
     "Kakashi Hatake"
     "For most of his life, Kakashi has avoided using Kamui—his Sharingan's ultimate ability—unless absolutely necessary, due to the mental and physical strain. Those days are over. With years of practice and refinement behind him, Kakashi can now rely on Kamui's dimensional warping to torture his enemies and make his allies intangible."

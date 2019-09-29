@@ -20,7 +20,7 @@ import qualified System.Random.MWC as Random
 import qualified Yesod.WebSockets as WebSockets
 import           Yesod.WebSockets (WebSocketsT)
 
-import Core.Util (Lift)
+import Util (Lift)
 
 sendJson :: ∀ m a. (MonadSockets m, ToJSON a) => a -> m ()
 sendJson val = send . Encoding.encodingToLazyByteString $ toEncoding val

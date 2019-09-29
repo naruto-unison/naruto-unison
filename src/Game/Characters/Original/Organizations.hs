@@ -1,14 +1,14 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide     #-}
 
-module Game.Characters.Original.Organizations (cs) where
+module Game.Characters.Original.Organizations (characters) where
 
 import Game.Characters.Base
 
 import qualified Game.Model.Skill as Skill
 
-cs :: [Category -> Character]
-cs =
+characters :: [Category -> Character]
+characters =
   [ Character
     "Izumo and Kotetsu"
     "A pair of chūnin from the Hidden Leaf Village assigned to hunt down members of Akatsuki, Izumo and Kotetsu are close friends and effective partners. Although their strength may be somewhat lacking as individuals, they have a significant advantage of their own: there are two of them."

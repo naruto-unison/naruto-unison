@@ -20,7 +20,7 @@
   <body>
     ^{pageBody pc}
 
-    $maybe analytics <- AppSettings.analytics $ settings master
+    $maybe analytics <- Settings.analytics $ settings master
       <script>
         if(!window.location.href.match(/localhost/)){
             (function(wi,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

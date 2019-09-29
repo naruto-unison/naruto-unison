@@ -22,7 +22,7 @@ import Text.Blaze (ToMarkup(..))
 import Yesod.WebSockets (WebSocketsT)
 import Yesod.Core.Dispatch (PathPiece(..))
 
-import           Core.Util (Lift)
+import           Util (Lift)
 import qualified Class.Classed as Classed
 import           Class.Classed (Classed)
 import qualified Class.Parity as Parity

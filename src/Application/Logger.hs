@@ -1,6 +1,6 @@
 -- | A slightly customized logging system for Warp that hides successful queries
--- if 'AppSettings.detailedRequestLogging' is disabled.
-module Core.Logger (makeLogWare) where
+-- if 'Settings.detailedRequestLogging' is disabled.
+module Application.Logger (makeLogWare) where
 
 import ClassyPrelude
 
@@ -18,9 +18,9 @@ import qualified System.Log.FastLogger as FastLogger
 import qualified Yesod.Core.Types as YesodTypes
 
 
-import qualified Core.App as App
-import           Core.App (App(..))
-import qualified Core.AppSettings as AppSettings
+import qualified Application.App as App
+import           Application.App (App(..))
+import qualified Application.Settings as Settings
 
 getDateGetter :: IO () -> IO (IO ByteString)
 getDateGetter flusher = do
@@ -33,7 +33,7 @@ getDateGetter flusher = do
 
 makeLogWare :: App -> IO Middleware
 makeLogWare foundation
-  | AppSettings.detailedRequestLogging $ App.settings foundation =
+  | Settings.detailedRequestLogging $ App.settings foundation =
     RequestLogger.mkRequestLogger def
         { RequestLogger.outputFormat = Detailed True
         , RequestLogger.destination =
@@ -45,7 +45,7 @@ makeLogWare foundation
       return $ apacheMiddleware apache
   where
     ipSrc
-      | AppSettings.ipFromHeader $ App.settings foundation = FromFallback
+      | Settings.ipFromHeader $ App.settings foundation = FromFallback
       | otherwise                                          = FromSocket
     logger   = YesodTypes.loggerSet $ App.logger foundation
     flusher  = FastLogger.flushLogStr logger

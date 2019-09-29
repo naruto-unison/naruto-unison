@@ -1,14 +1,14 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide     #-}
 
-module Game.Characters.Original.Teachers (cs) where
+module Game.Characters.Original.Teachers (characters) where
 
 import Game.Characters.Base
 
 import qualified Game.Model.Skill as Skill
 
-cs :: [Category -> Character]
-cs =
+characters :: [Category -> Character]
+characters =
   [ Character
     "Iruka Umino"
      "A chūnin from the Hidden Leaf Village, Iruka is a kind instructor who has mentored Naruto throughout his youth. He fights to keep his allies safe and protect them from harm, growing stronger out of desperation the closer to death he is."

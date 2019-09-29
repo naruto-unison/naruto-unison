@@ -15,7 +15,7 @@ import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), object)
 
-import Core.Util ((∈))
+import Util ((∈))
 import Class.Classed (Classed(..))
 import Class.Display (Display(..))
 import Game.Model.Class (Class(..), lower)

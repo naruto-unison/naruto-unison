@@ -1,14 +1,14 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide     #-}
 
-module Game.Characters.Original.Family (cs) where
+module Game.Characters.Original.Family (characters) where
 
 import Game.Characters.Base
 
 import qualified Game.Model.Skill as Skill
 
-cs :: [Category -> Character]
-cs =
+characters :: [Category -> Character]
+characters =
   [ Character
     "Konohamaru Sarutobi"
     "The overly bold grandson of the third Hokage, Konohamaru has a knack for getting into trouble and requiring others to bail him out. His usefulness in battle depends on how willing his teammates are to babysit him."

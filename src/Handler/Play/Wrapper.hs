@@ -19,7 +19,7 @@ import           Data.Vector ((//))
 import qualified Data.Vector.Mutable as MVector
 import           Data.Vector.Mutable (STVector)
 
-import           Core.Util ((!!))
+import           Util ((!!))
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
 import           Class.Random (MonadRandom(..))

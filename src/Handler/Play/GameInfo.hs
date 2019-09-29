@@ -7,8 +7,8 @@ import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), Value, object)
 
-import           Core.Model (Key, User)
-import           Core.Util ((!!), (∈), (∉), intersects)
+import           Util ((!!), (∈), (∉), intersects)
+import           Application.Model (Key, User)
 import qualified Class.Parity as Parity
 import qualified Game.Model.Channel as Channel
 import qualified Game.Model.Character as Character

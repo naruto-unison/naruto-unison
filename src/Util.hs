@@ -1,5 +1,5 @@
 -- | Lightweight helper functions.
-module Core.Util
+module Util
   ( (!?), (!!)
   , (—), (∈), (∉)
   , Lift

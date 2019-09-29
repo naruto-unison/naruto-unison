@@ -16,8 +16,8 @@ import qualified Game.Model.Context as Context
 import           Game.Model.Context (Context(Context))
 import           Game.Model.Duration (Duration(..), Turns)
 import qualified Game.Model.Ninja as Ninja
-import qualified Game.Engine.Execute as Execute
-import           Game.Engine.Execute (Affected(..))
+import qualified Game.Action as Action
+import           Game.Action (Affected(..))
 import qualified Game.Engine.Ninjas as Ninjas
 
 -- | Cancels 'Ninja.channels' with a matching 'Channel.name'.
@@ -37,8 +37,8 @@ interrupt = P.unsilenced do
 -- | Triggers 'Skill.interrupt' effects of a @Channel@.
 onInterrupt :: ∀ m. (MonadPlay m, MonadRandom m) => Channel -> m ()
 onInterrupt chan = P.with chanContext $
-    Execute.effects (setFromList [Channeled, Interrupted]) =<<
-    Execute.chooseTargets (Execute.interruptions $ Channel.skill chan)
+    Action.run (setFromList [Channeled, Interrupted]) =<<
+    Action.chooseTargets (Action.interruptions $ Channel.skill chan)
   where
     chanContext ctx = Context { Context.skill  = Channel.skill chan
                               , Context.user   = Context.target ctx

@@ -7,7 +7,7 @@ import ClassyPrelude
 
 import Data.Enum.Set.Class (EnumSet)
 
-import           Core.Util ((∈))
+import           Util ((∈))
 import qualified Class.Labeled as Labeled
 import           Class.Labeled (Labeled)
 import           Game.Model.Class (Class(..))

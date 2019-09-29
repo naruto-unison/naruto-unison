@@ -4,7 +4,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 -- | Types generated from @config/models.persistentmodels@.
-module Core.Model where
+module Application.Model where
 
 import ClassyPrelude
 import Yesod
@@ -12,7 +12,7 @@ import Yesod
 import qualified Database.Persist.Quasi as Quasi
 import qualified Database.Persist.Postgresql as Sql
 
-import Core.Fields (ForumBoard, Privilege)
+import Application.Fields (ForumBoard, Privilege)
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
     $(persistFileWith Quasi.lowerCaseSettings "config/models.persistentmodels")

@@ -1,14 +1,15 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide     #-}
 
-module Game.Characters.Reanimated (cs) where
+module Game.Characters.Reanimated (characters) where
 
 import Game.Characters.Base
 
+import           Game.Model.Character (Category(Reanimated))
 import qualified Game.Model.Skill as Skill
 
-cs :: [Category -> Character]
-cs =
+characters :: [Character]
+characters = ($ Reanimated) <$>
   [ Character
     "Hashirama Senju"
     "Reanimated by Orochimaru, Hashirama was the founder of the Hidden Leaf Village and its first Hokage. His unique ability to manipulate wood allows him give life to trees, which protect his allies and impair his enemies."

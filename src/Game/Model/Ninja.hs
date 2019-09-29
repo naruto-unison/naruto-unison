@@ -10,7 +10,7 @@ module Game.Model.Ninja
 
 import ClassyPrelude
 
-import           Core.Util ((∈), (∉))
+import           Util ((∈), (∉))
 import qualified Class.Parity as Parity
 import qualified Class.Labeled as Labeled
 import           Game.Model.Internal (Ninja(..))

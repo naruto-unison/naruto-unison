@@ -1,14 +1,14 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide     #-}
 
-module Game.Characters.Shippuden.Leaders (cs) where
+module Game.Characters.Shippuden.Leaders (characters) where
 
 import Game.Characters.Base
 
 import qualified Game.Model.Skill as Skill
 
-cs :: [Category -> Character]
-cs =
+characters :: [Category -> Character]
+characters =
   [ Character
     "Orochimaru"
     "One of three legendary sannin, Orochimaru has cheated death time and time again. As his body slowly rots away, he is forced to discard it and find a new host to possess."

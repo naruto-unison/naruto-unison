@@ -13,7 +13,7 @@ import ClassyPrelude hiding ((\\), toList)
 
 import Data.List ((\\), nub)
 
-import           Core.Util ((∈))
+import           Util ((∈))
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame)

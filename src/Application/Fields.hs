@@ -1,8 +1,8 @@
 {-# LANGUAGE DeriveAnyClass  #-}
 {-# LANGUAGE TemplateHaskell #-}
 
--- | Fields for persistent types in 'Core.Model'.
-module Core.Fields
+-- | Fields for persistent types in 'Application.Model'.
+module Application.Fields
     ( Privilege(..)
     -- * Forums
     , ForumCategory(..)

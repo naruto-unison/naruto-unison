@@ -1,12 +1,12 @@
 -- | Turn execution. The surface of the game engine.
-module Game.Engine.Turn (run, process) where
+module Game.Engine (runTurn, processTurn) where
 
 import ClassyPrelude
 
 import           Data.List (deleteFirstsBy)
 import qualified Data.Vector as Vector
 
-import           Core.Util ((—))
+import           Util ((—))
 import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
@@ -29,8 +29,8 @@ import qualified Game.Model.Slot as Slot
 import           Game.Model.Slot (Slot)
 import qualified Game.Engine.Chakras as Chakras
 import qualified Game.Engine.Effects as Effects
-import qualified Game.Engine.Execute as Execute
-import           Game.Engine.Execute (Affected(..))
+import qualified Game.Action as Action
+import           Game.Action (Affected(..))
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Trigger as Trigger
@@ -42,22 +42,22 @@ import qualified Game.Engine.Trigger as Trigger
 -- decrements all 'TurnBased.TurnBased' data;
 -- and resolves 'Model.Chakra.Chakras' for the next turn.
 -- Uses 'process' internally.
-run :: ∀ m. (MonadGame m, MonadRandom m) => [Act] -> m ()
-run acts = do
-    process $ traverse_ Execute.act acts
+runTurn :: ∀ m. (MonadGame m, MonadRandom m) => [Act] -> m ()
+runTurn acts = do
+    processTurn $ traverse_ Action.act acts
     Chakras.gain
 
 -- | The underlying mechanism of 'run'.
 -- Performs posteffects such as 'Model.Channel.Channel's and 'Model.Trap.Trap's.
 -- Using 'run' is generally preferable to invoking this function directly.
-process :: ∀ m. (MonadGame m, MonadRandom m) => m () -> m ()
-process runner = do
+processTurn :: ∀ m. (MonadGame m, MonadRandom m) => m () -> m ()
+processTurn runner = do
     initial     <- P.ninjas
     player      <- Game.playing <$> P.game
     let opponent = Player.opponent player
     runner
     channels <- concatMap getChannels . filter Ninja.alive <$> P.allies player
-    traverse_ Execute.act channels
+    traverse_ Action.act channels
     Traps.runTurn initial
     doBombs Remove initial
     doBarriers
@@ -90,7 +90,7 @@ doBomb bomb target st = traverse_ detonate $ Status.bombs st
     ctx = (Context.fromStatus st) { Context.target = target }
     detonate x
       | bomb == Runnable.target x = P.withContext ctx .
-                                    Execute.wrap (singletonSet Trapped) $
+                                    Action.wrap (singletonSet Trapped) $
                                     Runnable.run x
       | otherwise                 = return ()
 

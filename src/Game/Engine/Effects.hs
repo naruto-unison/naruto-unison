@@ -28,7 +28,7 @@ import ClassyPrelude hiding (link)
 
 import Data.Enum.Set.Class (EnumSet)
 
-import           Core.Util ((!!), (∈), intersects)
+import           Util ((!!), (∈), intersects)
 import qualified Class.Parity as Parity
 import           Game.Model.Chakra (Chakras(..))
 import           Game.Model.Class (Class(..))

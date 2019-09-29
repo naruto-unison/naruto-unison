@@ -29,7 +29,7 @@ import           Game.Model.Face (Face(..))
 import           Game.Model.Player (Player(..))
 import           Game.Model.Slot (Slot)
 import           Game.Model.Variant (Variant)
-import           Core.Fields (Privilege(..))
+import           Application.Fields (Privilege(..))
 import           Handler.Play.Queue (Failure(..))
 
 import Game.Model.Internal hiding (Barrier(..), Effect(..), Ninja(..), Game(..))
@@ -82,7 +82,7 @@ data Effect = Effect
     , trap    :: Bool
     }
 
--- From the ToJSON instance of User in Core.Model
+-- From the ToJSON instance of User in Application.Model
 data User = User { name       :: Text
                  , avatar     :: Text
                  , clan       :: Maybe Text

@@ -24,11 +24,11 @@ import qualified Data.Time.LocalTime as LocalTime
 import qualified Data.Text as Text
 import qualified Yesod.Auth as Auth
 
-import Core.App (AppPersistEntity, Handler, Route(..), Widget)
-import Core.Fields (ForumBoard, ForumCategory(..), Privilege(..), boardCategory, boardDesc, boardName)
-import Core.Model (Cite(..), EntityField(..), HasAuthor(..), Post(..), Topic(..), TopicId, User(..), UserId)
-import Core.Settings (widgetFile)
-import Core.Util (shorten)
+import Util (shorten)
+import Application.App (AppPersistEntity, Handler, Route(..), Widget)
+import Application.Fields (ForumBoard, ForumCategory(..), Privilege(..), boardCategory, boardDesc, boardName)
+import Application.Model (Cite(..), EntityField(..), HasAuthor(..), Post(..), Topic(..), TopicId, User(..), UserId)
+import Application.Settings (widgetFile)
 
 import qualified Game.Model.Class as Class
 import qualified Game.Characters as Characters

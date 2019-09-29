@@ -9,7 +9,7 @@ import ClassyPrelude
 
 import Data.Enum.Set.Class (EnumSet)
 
-import           Core.Util ((∈))
+import           Util ((∈))
 import qualified Class.Classed as Classed
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
@@ -33,8 +33,8 @@ import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trigger as Trigger
 import           Game.Model.Trigger (Trigger(..))
 import qualified Game.Engine.Effects as Effects
-import qualified Game.Engine.Execute as Execute
-import           Game.Engine.Execute (Affected(..))
+import qualified Game.Action as Action
+import           Game.Action (Affected(..))
 import qualified Game.Engine.Ninjas as Ninjas
 
 -- | Adds a @Trap@ to 'Ninja.traps' that targets the person it was used on.
@@ -117,7 +117,7 @@ makeTrap skill nUser target direction classes dur trigger f = Trap
     , Trap.user      = user
     , Trap.effect    = \i -> Runnable.To
         { Runnable.target = ctx
-        , Runnable.run    = Execute.wrap (singletonSet Trapped) $ f i
+        , Runnable.run    = Action.wrap (singletonSet Trapped) $ f i
         }
     , Trap.classes   = classes ++ Skill.classes skill
     , Trap.tracker   = 0
@@ -144,7 +144,7 @@ delay (Duration -> dur) f = do
     context  <- P.context
     let skill = Context.skill context
         user  = Context.user context
-        del   = Delay.new context dur $ Execute.wrap (singletonSet Delayed) f
+        del   = Delay.new context dur $ Action.wrap (singletonSet Delayed) f
     unless (past $ Skill.copying skill) $ P.modify user \n ->
         n { Ninja.delays = del : Ninja.delays n }
   where

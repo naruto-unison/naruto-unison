@@ -18,15 +18,15 @@ import           UnliftIO.Concurrent (forkIO, threadDelay)
 import qualified Yesod.Auth as Auth
 import           Yesod.WebSockets (webSockets)
 
-import qualified Core.App as App
-import           Core.App (App, Handler)
-import qualified Core.AppSettings as AppSettings
+import           Util (duplic)
+import qualified Application.App as App
+import           Application.App (App, Handler)
+import           Application.Model (EntityField(..), User(..))
+import qualified Application.Settings as Settings
 import qualified Handler.Play.Queue as Queue
-import           Core.Model (EntityField(..), User(..))
 import qualified Handler.Play.Rating as Rating
 import qualified Handler.Play.Wrapper as Wrapper
 import           Handler.Play.Wrapper (Wrapper(Wrapper))
-import           Core.Util (duplic)
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
@@ -46,7 +46,7 @@ import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Player as Player
 import           Game.Model.Player (Player)
 import qualified Game.Model.Slot as Slot
-import qualified Game.Engine.Turn as Turn
+import qualified Game.Engine as Engine
 import qualified Game.Characters as Characters
 
 -- | If the difference in skill rating between two players exceeds this
@@ -119,7 +119,7 @@ getPracticeActR actChakra exchangeChakra actions = do
                   { Game.chakra  = (fst $ Game.chakra g, 100)
                   , Game.playing = Player.B
                   }
-              Turn.run =<< Act.randoms
+              Engine.runTurn =<< Act.randoms
               game'B <- Wrapper.freeze
               liftIO if null . Game.victor $ Wrapper.game game'B then
                   Cache.insert practice who game'B
@@ -193,7 +193,7 @@ queue Queue.Quick team = do
     (who, user) <- Auth.requireAuthPair
     let rating = userRating user
     queueWrite  <- getsYesod App.queue
-    allowVsSelf <- getsYesod $ AppSettings.allowVsSelf . App.settings
+    allowVsSelf <- getsYesod $ Settings.allowVsSelf . App.settings
     userMVar    <- newEmptyMVar
     -- TODO use userMVar in some kind of periodic timeout check based on its
     -- UTCTime contents? or else just a semaphore
@@ -221,7 +221,7 @@ queue Queue.Quick team = do
 
 queue Queue.Private team = do
     (who, user)         <- Auth.requireAuthPair
-    allowVsSelf         <- getsYesod $ AppSettings.allowVsSelf . App.settings
+    allowVsSelf         <- getsYesod $ Settings.allowVsSelf . App.settings
     Entity vsWho vsUser <- do
         vsName <- Sockets.receive
         mVs    <- liftHandler . runDB $ selectFirst [UserName ==. vsName] []
@@ -255,7 +255,7 @@ handleFailures (Left msg)  = Nothing <$ Sockets.sendJson msg
 gameSocket :: Handler ()
 gameSocket = webSockets do
     who        <- Auth.requireAuthId
-    turnLength <- getsYesod $ AppSettings.turnLength . App.settings
+    turnLength <- getsYesod $ Settings.turnLength . App.settings
     liftIO Random.createSystemRandom >>= runReaderT do
         (mvar, info) <- untilJust $ handleFailures =<< runExceptT do
             teamNames <- Text.split (=='/') <$> Sockets.receive
@@ -312,7 +312,7 @@ tryEnact turnLength player mvar = do
                 Left errorMsg -> Sockets.send errorMsg
                 Right ()      -> conclude
         _ -> do
-            Turn.run []
+            Engine.runTurn []
             conclude
   where
     conclude = do
@@ -320,7 +320,7 @@ tryEnact turnLength player mvar = do
         Sockets.sendJson $ Wrapper.toJSON player wrapper
         putMVar mvar wrapper
 
--- | Processes a user's actions and passes them to 'Turn.run'.
+-- | Processes a user's actions and passes them to 'Engine.run'.
 enact :: ∀ m. (MonadGame m, MonadRandom m)
       => Chakras -> Chakras -> [Act] -> m (Either LByteString ())
 enact actChakra exchangeChakra actions = do
@@ -333,7 +333,7 @@ enact actChakra exchangeChakra actions = do
        | any (Act.illegal player) actions        -> err "Character out of range"
        | otherwise                               -> Right <$> do
             P.alter . Game.setChakra player $ chakra { Chakra.rand = randTotal }
-            Turn.run actions
+            Engine.runTurn actions
   where
     randTotal = Chakra.total actChakra - 5 * Chakra.total exchangeChakra
     err       = return . Left

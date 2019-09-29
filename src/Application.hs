@@ -2,7 +2,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- | This is the main module of the library.
--- It implements "Core.App" and holds the functions used by applications.
+-- It implements "Application.App" and holds the functions used by applications.
 module Application
     ( getApplicationDev
     , appMain
@@ -32,13 +32,12 @@ import qualified Yesod.Auth as Auth
 import qualified Yesod.Core.Types as YesodTypes
 import qualified Yesod.Default.Config2 as DefaultConfig
 
-import qualified Core.App as App
-import           Core.App (App(..), Handler, Route(..))
-import qualified Core.AppSettings as AppSettings
-import           Core.AppSettings (AppSettings)
-import qualified Core.Logger as AppLogger
-import qualified Core.Settings as Settings
-import qualified Core.Model as Model
+import qualified Application.App as App
+import           Application.App (App(..), Handler, Route(..))
+import qualified Application.Settings as Settings
+import           Application.Settings (Settings)
+import qualified Application.Logger as AppLogger
+import qualified Application.Model as Model
 
 import Handler.Admin
 import Handler.Client
@@ -49,15 +48,15 @@ import Handler.Site
 
 mkYesodDispatch "App" App.resourcesApp
 
-makeFoundation :: AppSettings -> IO App
+makeFoundation :: Settings -> IO App
 makeFoundation settings = do
     httpManager <- TLS.getGlobalManager
     logger      <- DefaultConfig.makeYesodLogger
                    =<< FastLogger.newStdoutLoggerSet FastLogger.defaultBufSize
-    static      <- staticMode $ AppSettings.staticDir settings
+    static      <- staticMode $ Settings.staticDir settings
     queue       <- newTChanIO
     practice    <- Cache.newCache . Just . fromInteger $
-                   AppSettings.practiceCacheExpiry settings
+                   Settings.practiceCacheExpiry settings
 
     -- We need a log function to create a connection pool. We need a connection
     -- pool to create our foundation. And we need our foundation to get a
@@ -69,8 +68,8 @@ makeFoundation settings = do
         logFunc = messageLoggerSource tempFoundation logger
 
     pool <- flip Logger.runLoggingT logFunc $ Sql.createPostgresqlPool
-        (Sql.pgConnStr  $ AppSettings.databaseConf settings)
-        (Sql.pgPoolSize $ AppSettings.databaseConf settings)
+        (Sql.pgConnStr  $ Settings.databaseConf settings)
+        (Sql.pgPoolSize $ Settings.databaseConf settings)
 
     Logger.runLoggingT
         (Sql.runSqlPool (Sql.runMigration Model.migrateAll) pool) logFunc
@@ -83,7 +82,7 @@ makeFoundation settings = do
     return $ mkFoundation pool
   where
     staticMode
-      | AppSettings.mutableStatic settings = Static.staticDevel
+      | Settings.mutableStatic settings = Static.staticDevel
       | otherwise                          = Static.static
 
 -- | Convert foundation to a WAI Application by calling @toWaiAppPlain@ and
@@ -96,8 +95,8 @@ makeApplication foundation = do
 
 warpSettings :: App -> Warp.Settings
 warpSettings foundation =
-      Warp.setPort (AppSettings.port $ App.settings foundation)
-    $ Warp.setHost (AppSettings.host $ App.settings foundation)
+      Warp.setPort (Settings.port $ App.settings foundation)
+    $ Warp.setHost (Settings.host $ App.settings foundation)
     $ Warp.setOnException (\_req e ->
         when (Warp.defaultShouldDisplayException e) $ messageLoggerSource
             foundation
@@ -117,7 +116,7 @@ getApplicationDev = do
     app <- makeApplication foundation
     return (wsettings, app)
 
-getAppSettings :: IO AppSettings
+getAppSettings :: IO Settings
 getAppSettings = DefaultConfig.loadYamlSettings
                  [DefaultConfig.configSettingsYml] [] DefaultConfig.useEnv
 

@@ -3,7 +3,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 -- | Yesod app instance. @stack new@ was used to generate boilerplate.
-module Core.App
+module Application.App
   ( App(..)
   , Form
   , Handler, Widget
@@ -42,13 +42,12 @@ import qualified Yesod.Default.Util as YesodUtil
 -- Used only when in "auth-dummy-login" setting is enabled.
 import           Yesod.Static hiding (static)
 
-import           Core.Fields (ForumBoard, Privilege(..), boardName)
+import           Application.Fields (ForumBoard, Privilege(..), boardName)
 import qualified Handler.Play.Queue as Queue
 import           Handler.Play.Wrapper (Wrapper)
-import           Core.Model (EntityField(..), Topic(..), TopicId, User(..), UserId, Unique(..))
-import qualified Core.AppSettings as AppSettings
-import           Core.AppSettings (AppSettings)
-import           Core.Settings (widgetFile)
+import           Application.Model (EntityField(..), Topic(..), TopicId, User(..), UserId, Unique(..))
+import qualified Application.Settings as Settings
+import           Application.Settings (Settings, widgetFile)
 import           Game.Model.Act (Act)
 import           Game.Model.Chakra (Chakras)
 import qualified Game.Model.Character as Character
@@ -57,7 +56,7 @@ import qualified Game.Characters as Characters
 
 -- | App environment.
 data App = App
-    { settings    :: AppSettings
+    { settings    :: Settings
       -- ^ Settings loaded from a local file.
     , static      :: Static
       -- ^ Server for static files.
@@ -116,7 +115,7 @@ instance Yesod App where
     approot :: Approot App
     approot = ApprootRequest \app req ->
         fromMaybe (getApprootText guessApproot app req) .
-        AppSettings.root $ settings app
+        Settings.root $ settings app
 
     makeSessionBackend :: App -> IO (Maybe SessionBackend)
     makeSessionBackend _ = Just <$> defaultClientSessionBackend
@@ -163,7 +162,7 @@ instance Yesod App where
         -> LByteString -- ^ The contents of the file
         -> Handler (Maybe (Either Text (Route App, [(Text, Text)])))
     addStaticContent ext mime content = do
-        staticDir <- getsYesod $ AppSettings.staticDir . settings
+        staticDir <- getsYesod $ Settings.staticDir . settings
         YesodUtil.addStaticContentExternal
             Jasmine.minifym
             genFileName
@@ -177,7 +176,7 @@ instance Yesod App where
 
     shouldLogIO :: App -> LogSource -> LogLevel -> IO Bool
     shouldLogIO app _source level =
-        return $ AppSettings.shouldLogAll (settings app)
+        return $ Settings.shouldLogAll (settings app)
                  || level == LevelWarn
                  || level == LevelError
 
@@ -267,7 +266,7 @@ instance YesodAuth App where
         -- Enable authDummy login if enabled.
         where
           extraAuthPlugins =
-              [Dummy.authDummy | AppSettings.authDummyLogin $ settings app]
+              [Dummy.authDummy | Settings.authDummyLogin $ settings app]
 
 isAuthenticated :: Privilege -> Handler AuthResult
 isAuthenticated level = do

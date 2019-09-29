@@ -11,7 +11,7 @@ import ClassyPrelude hiding (swap)
 
 import Data.Enum.Set.Class (EnumSet)
 
-import           Core.Util ((∈), (∉))
+import           Util ((∈), (∉))
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
 import           Class.Random (MonadRandom)

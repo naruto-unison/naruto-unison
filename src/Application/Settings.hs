@@ -1,0 +1,158 @@
+{-# LANGUAGE CPP             #-}
+{-# LANGUAGE NoStrictData    #-}
+{-# LANGUAGE TemplateHaskell #-}
+
+-- | Yesod settings.
+module Application.Settings
+  ( Settings(..)
+  , configSettingsYmlValue
+  , widgetFile
+  ) where
+
+import ClassyPrelude
+
+import qualified Control.Exception as Exception
+import qualified Data.Aeson as Aeson
+import           Data.Aeson ((.!=), (.:), (.:?), FromJSON, Result(..), Value)
+import           Data.Default (def)
+import qualified Data.FileEmbed as FileEmbed
+import qualified Data.Yaml as Yaml
+import           Database.Persist.Postgresql (PostgresConf)
+import qualified Language.Haskell.TH.Syntax as TH
+import qualified Network.Wai.Handler.Warp as Warp
+import qualified Yesod.Default.Config2 as DefaultConfig
+import qualified Yesod.Default.Util as Util
+import           Yesod.Default.Util (WidgetFileSettings)
+
+data Settings = Settings
+    { allowVsSelf            :: Bool
+    , turnLength             :: Int
+    , practiceCacheExpiry    :: Integer
+      -- Basic Yesod configuration below
+    , staticDir              :: String
+    -- ^ Directory from which to serve static files.
+    , databaseConf           :: PostgresConf
+    -- ^ Configuration settings for accessing the database.
+    , root                   :: Maybe Text
+    -- ^ Base for all generated URLs. If @Nothing@, determined
+    -- from the request headers.
+    , host                   :: Warp.HostPreference
+    -- ^ Host/interface the server should bind to.
+    , port                   :: Int
+    -- ^ Port to listen on
+    , ipFromHeader           :: Bool
+    -- ^ Get the IP address from the header when logging. Useful when sitting
+    -- behind a reverse proxy.
+
+    , detailedRequestLogging :: Bool
+    -- ^ Use detailed request logging system
+    , shouldLogAll           :: Bool
+    -- ^ Should all log messages be displayed?
+    , reloadTemplates        :: Bool
+    -- ^ Use the reload version of templates
+    , mutableStatic          :: Bool
+    -- ^ Assume that files in the static dir may change after compilation
+    , skipCombining          :: Bool
+    -- ^ Perform no stylesheet/script combining
+
+    -- Example app-specific configuration values.
+    , copyright              :: Text
+    -- ^ Copyright text to appear in the footer of the page
+    , analytics              :: Maybe Text
+    -- ^ Google Analytics code
+
+    , authDummyLogin         :: Bool
+    -- ^ Indicate if auth dummy login should be enabled.
+    }
+
+instance FromJSON Settings where
+    parseJSON = Aeson.withObject "Settings" \o -> do
+        let defaultDev =
+#ifdef DEVELOPMENT
+                True
+#else
+                False
+#endif
+        staticDir              <- o .: "static-dir"
+        databaseConf           <- o .: "database"
+        root                   <- o .:? "approot"
+        host                   <- fromString <$> o .: "host"
+        port                   <- o .: "port"
+        ipFromHeader           <- o .: "ip-from-header"
+
+        dev                    <- o .:? "development"      .!= defaultDev
+
+        detailedRequestLogging <- o .:? "detailed-logging" .!= dev
+        shouldLogAll           <- o .:? "should-log-all"   .!= dev
+        reloadTemplates        <- o .:? "reload-templates" .!= dev
+        mutableStatic          <- o .:? "mutable-static"   .!= dev
+        skipCombining          <- o .:? "skip-combining"   .!= dev
+
+        copyright              <- o .:  "copyright"
+        analytics              <- o .:? "analytics"
+
+        authDummyLogin         <- o .:? "auth-dummy-login" .!= dev
+
+        allowVsSelf            <- o .:? "allow-vs-self"    .!= dev
+        turnLength             <- (1e6 *) <$> o .: "turn-length"
+        practiceCacheExpiry    <- (1e9 *) <$> o .: "practice-cache-expiry"
+        return Settings{..}
+
+-- | Settings for 'widgetFile', such as which template languages to support and
+-- default Hamlet settings.
+--
+-- For more information on modifying behavior, see:
+--
+-- https://github.com/yesodweb/yesod/wiki/Overriding-widgetFile
+widgetFileSettings :: WidgetFileSettings
+widgetFileSettings = def
+
+-- The rest of this file contains settings which rarely need changing by a
+-- user.
+
+widgetFile :: String -> TH.Q TH.Exp
+widgetFile = (if reloadTemplates compileTimeAppSettings
+                then Util.widgetFileReload
+                else Util.widgetFileNoReload)
+              widgetFileSettings
+
+-- | Raw bytes at compile time of @config/settings.yml@
+configSettingsYmlBS :: ByteString
+configSettingsYmlBS = $(FileEmbed.embedFile DefaultConfig.configSettingsYml)
+
+-- | @config/settings.yml@, parsed to a @Value@.
+configSettingsYmlValue :: Value
+configSettingsYmlValue = either Exception.throw id
+                       $ Yaml.decodeEither' configSettingsYmlBS
+
+-- | A version of @Settings@ parsed at compile time from @config/settings.yml@.
+compileTimeAppSettings :: Settings
+compileTimeAppSettings =
+    case Aeson.fromJSON json of
+        Error e -> error e
+        Success settings -> settings
+  where
+    json = DefaultConfig.applyEnvValue False mempty configSettingsYmlValue
+
+{-
+-- | How static files should be combined.
+combineSettings :: CombineSettings
+combineSettings = def
+
+-- The following two functions can be used to combine multiple CSS or JS files
+-- at compile time to decrease the number of http requests.
+-- Sample usage (inside a Widget):
+--
+-- > $(combineStylesheets 'StaticR [style1_css, style2_css])
+
+combineStylesheets :: TH.Name -> [Route Static] -> TH.Q TH.Exp
+combineStylesheets = combineStylesheets'
+    (Settings.skipCombining compileTimeAppSettings)
+    combineSettings
+
+combineScripts :: TH.Name -> [Route Static] -> TH.Q TH.Exp
+combineScripts = combineScripts'
+    (Settings.skipCombining compileTimeAppSettings)
+    combineSettings
+
+-}

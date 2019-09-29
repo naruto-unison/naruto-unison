@@ -21,10 +21,10 @@ import           Data.List (nubBy)
 import qualified Data.List.NonEmpty as NonEmpty
 import           Text.Blaze.Html (preEscapedToHtml)
 
-import           Core.App (Handler, Route(..), Widget)
-import           Core.Model (Cite(..), EntityField(..), News(..), User(..))
-import           Core.Settings (widgetFile)
-import           Core.Util (shorten)
+import           Util (shorten)
+import           Application.App (Handler, Route(..), Widget)
+import           Application.Model (Cite(..), EntityField(..), News(..), User(..))
+import           Application.Settings (widgetFile)
 import           Class.Display (Display(..))
 import qualified Game.Model.Character as Character
 import           Game.Model.Character (Category(..))

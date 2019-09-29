@@ -7,7 +7,7 @@ module Game.Model.Requirement
 
 import ClassyPrelude
 
-import           Core.Util ((!?), (∈), (∉), intersects)
+import           Util ((!?), (∈), (∉), intersects)
 import qualified Class.Parity as Parity
 import           Game.Model.Internal (Requirement(..))
 import qualified Game.Model.Channel as Channel

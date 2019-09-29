@@ -12,7 +12,7 @@ import ClassyPrelude
 
 import Data.Aeson (ToJSON)
 
-import Core.Model (Key, User)
+import Application.Model (Key, User)
 import Handler.Play.Wrapper (Wrapper)
 import Game.Model.Character (Character)
 import Handler.Play.GameInfo (GameInfo)

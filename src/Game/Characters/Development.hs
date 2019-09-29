@@ -2,15 +2,15 @@
 {-# LANGUAGE CPP             #-}
 {-# OPTIONS_HADDOCK hide     #-}
 
-module Game.Characters.Development (cs) where
+module Game.Characters.Development (characters) where
 
 import Game.Characters.Base
 
 #ifdef DEVELOPMENT
 import qualified Game.Model.Skill as Skill
 
-cs :: [Category -> Character]
-cs =
+characters :: [Character]
+characters = ($ Original) <$>
   [ Character
     "Gaara of the Funk"
     "Gaara's life has been marked by abandonment. Shortly after he was born, his mother tragically died from severe funk poisoning. The only true friend he ever had was his uncle, Mr. Expendable, whom Gaara was later forced to murder in self-defense. He has nothing left but hatred, bloodlust, and incredible dance moves.\n[This development-only character exists in stack exec -- yesod devel, but not stack exec -- yesod keter.]"
@@ -63,6 +63,6 @@ cs =
     ]
   ]
 #else
-cs :: [Category -> Character]
-cs = []
+characters :: [Character]
+characters = []
 #endif

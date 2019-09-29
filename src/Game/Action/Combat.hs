@@ -19,7 +19,7 @@ import ClassyPrelude
 import Control.Monad.Trans.Maybe (runMaybeT)
 import Data.Enum.Set.Class (EnumSet)
 
-import           Core.Util ((—), (∈), (∉))
+import           Util ((—), (∈), (∉))
 import qualified Class.Classed as Classed
 import qualified Class.Play as P
 import           Class.Play (MonadPlay)
@@ -41,8 +41,8 @@ import           Game.Model.Runnable (RunConstraint)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
 import qualified Game.Engine.Effects as Effects
-import qualified Game.Engine.Execute as Execute
-import           Game.Engine.Execute (Affected(..))
+import qualified Game.Action as Action
+import           Game.Action (Affected(..))
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
 
@@ -257,9 +257,9 @@ barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
     finish' :: Int -> Int -> RunConstraint ()
     finish' dur'
       | dur' < sync dur = const $ return ()
-      | otherwise       = Execute.wrap (singletonSet Trapped) . finish
+      | otherwise       = Action.wrap (singletonSet Trapped) . finish
     while' :: RunConstraint ()
-    while' = Execute.wrap (singletonSet Trapped) while
+    while' = Action.wrap (singletonSet Trapped) while
 
 -- | Kills the target. The target can survive if it has the 'Endure' effect.
 -- Uses 'Ninjas.kill' internally.

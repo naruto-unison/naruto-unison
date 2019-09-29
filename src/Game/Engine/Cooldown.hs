@@ -11,7 +11,7 @@ import ClassyPrelude
 import qualified Data.Sequence as Seq
 import           Data.Sequence ((|>))
 
-import           Core.Util ((!!), (!?))
+import           Util ((!!), (!?))
 import qualified Game.Model.Copy as Copy
 import           Game.Model.Duration (sync)
 import qualified Game.Model.Ninja as Ninja

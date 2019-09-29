@@ -13,7 +13,7 @@ import Yesod
 
 import qualified Data.FileEmbed as FileEmbed
 
-import Core.App (Handler)
+import Application.App (Handler)
 
 getFaviconR :: Handler TypedContent
 getFaviconR = do cacheSeconds $ 60 * 60 * 24 * 30 -- cache for a month

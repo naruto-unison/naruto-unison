@@ -14,8 +14,8 @@ import Database.Persist ((=.), (+=.))
 import Database.Persist.Sql (SqlPersistT)
 import Database.Persist.Types (Update)
 
-import Core.App (Handler)
-import Core.Model (EntityField(..), Key, User(..))
+import Application.App (Handler)
+import Application.Model (EntityField(..), Key, User(..))
 import Game.Model.Game (Game(Game, victor))
 import Game.Model.Player (Player)
 

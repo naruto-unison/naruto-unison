@@ -1,9 +1,9 @@
 -- | Action processing. The core of the game engine.
-module Game.Engine.Execute
+module Game.Action
   ( wrap
   , Affected(..)
   , act
-  , effects, addChannels
+  , run, addChannels
   , chooseTargets, filterCounters
   , interruptions
   ) where
@@ -15,7 +15,7 @@ import           Data.Bits (setBit, testBit)
 import           Data.Either (isLeft)
 import           Data.Enum.Set.Class (EnumSet, AsEnumSet(..))
 
-import           Core.Util ((!!), (—), (∈), (∉), intersects)
+import           Util ((!!), (—), (∈), (∉), intersects)
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
@@ -184,13 +184,13 @@ targetEffect affected f = do
         P.trigger target =<< (OnHarmed <$>) . toList . Skill.classes <$> P.skill
 
 -- | Handles effects in a 'Skill'. Uses 'targetEffect' internally.
-effects :: ∀ m. (MonadPlay m, MonadRandom m)
+run :: ∀ m. (MonadPlay m, MonadRandom m)
         => EnumSet Affected -> [[Runnable Slot]] -> m ()
-effects affected xs = do
+run affected xs = do
     skill      <- P.skill
     let local t ctx = ctx { Context.skill = skill, Context.target = t }
-        run (To t r) = P.with (local t) $ targetEffect affected r
-    traverse_ (traverse_ run) xs
+        execute (To t r) = P.with (local t) $ targetEffect affected r
+    traverse_ (traverse_ execute) xs
 
 -- | If 'Skill.dur' is long enough to last for multiple turns, the 'Skill'
 -- is added to 'Ninja.channels'.
@@ -232,7 +232,7 @@ act a = do
         P.trigger user $ OnAction <$> toList classes
 
         if not new then
-            effects affected =<< chooseTargets (Skill.effects skill)
+            run affected =<< chooseTargets (Skill.effects skill)
         else do
             P.modify user \n -> n { Ninja.lastSkill = Just skill }
             P.alter $ Game.adjustChakra user (— cost)
@@ -258,7 +258,7 @@ act a = do
                 P.modifyAll uncounter
                 sequence_ counters
             else do
-                effects affected efs
+                run affected efs
                 addChannels
         traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
 
@@ -314,7 +314,7 @@ breakControl user stuns Channel{ dur = Control{}, skill, target }
   where
     doBreak = do
         interruptTargets <- chooseTargets $ interruptions skill
-        effects (setFromList [Channeled, Interrupted]) interruptTargets
+        run (setFromList [Channeled, Interrupted]) interruptTargets
         P.modify user . Ninjas.cancelChannel $ Skill.name skill
     chanContext = Context { Context.skill  = skill
                           , Context.user   = user

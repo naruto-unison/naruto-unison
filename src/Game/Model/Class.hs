@@ -11,7 +11,7 @@ import qualified Data.Enum.Memo as Enum
 import           Data.Enum.Set.Class (AsEnumSet(..))
 import           Text.Blaze (ToMarkup(..))
 
-import Core.Util (mapFromKeyed)
+import Util (mapFromKeyed)
 import Class.Display (Display(..))
 
 -- | Qualifiers of 'Model.Skill.Skill's and 'Model.Status.Status'es.
@@ -68,6 +68,7 @@ instance Hashable Class where
 
 instance Display Class where
     display = Enum.memoize $ display . name
+    {-# NOINLINE display #-}
 
 visible :: Class -> Bool
 visible = (< All)
@@ -85,3 +86,4 @@ name x              = tshow x
 
 lower :: Class -> TextBuilder
 lower = Enum.memoize $ display . toLower . name
+{-# NOINLINE lower #-}

@@ -16,10 +16,10 @@ import Yesod
 import           Data.List (nub)
 import qualified Yesod.Auth as Auth
 
-import           Core.App (Handler)
-import           Core.Model (EntityField(..), User(..))
-import           Core.Settings (widgetFile)
-import           Core.Util ((∉), shorten)
+import           Util ((∉), shorten)
+import           Application.App (Handler)
+import           Application.Model (EntityField(..), User(..))
+import           Application.Settings (widgetFile)
 import qualified Game.Model.Character as Character
 import           Game.Model.Character (Character)
 import qualified Game.Model.Skill as Skill

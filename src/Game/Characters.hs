@@ -13,56 +13,24 @@ import           Data.Aeson (Value, toJSON)
 import qualified Data.Enum.Memo as Enum
 import           Data.HashMap.Strict (HashMap)
 
-import           Core.Util ((∉), mapFromKeyed, unaccent)
+import           Util ((∉), mapFromKeyed, unaccent)
 import qualified Game.Model.Character as Character
 import           Game.Model.Character (Character, Category(..))
 import           Game.Model.Class (Class(..))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Skill (Skill)
 
-import qualified Game.Characters.Original.Kids
-import qualified Game.Characters.Original.Exams
-import qualified Game.Characters.Original.Teachers
-import qualified Game.Characters.Original.Organizations
-import qualified Game.Characters.Original.Leaders
-import qualified Game.Characters.Original.Versions
-import qualified Game.Characters.Original.Family
-import qualified Game.Characters.Original.Flashbacks
-
-import qualified Game.Characters.Shippuden.Kids
-import qualified Game.Characters.Shippuden.Adults
-import qualified Game.Characters.Shippuden.Leaders
-import qualified Game.Characters.Shippuden.Organizations
-import qualified Game.Characters.Shippuden.Akatsuki
-import qualified Game.Characters.Shippuden.Jinchuriki
-import qualified Game.Characters.Shippuden.Versions
-
+import qualified Game.Characters.Original
+import qualified Game.Characters.Shippuden
 import qualified Game.Characters.Reanimated
-
 import qualified Game.Characters.Development
 
 list :: [Character]
-list = addClasses <$> original ++ shippuden ++ reanimated
-  where
-    original = ($ Original)
-       <$> Game.Characters.Development.cs
-        ++ Game.Characters.Original.Kids.cs
-        ++ Game.Characters.Original.Exams.cs
-        ++ Game.Characters.Original.Teachers.cs
-        ++ Game.Characters.Original.Organizations.cs
-        ++ Game.Characters.Original.Leaders.cs
-        ++ Game.Characters.Original.Versions.cs
-        ++ Game.Characters.Original.Family.cs
-        ++ Game.Characters.Original.Flashbacks.cs
-    shippuden = ($ Shippuden)
-         <$> Game.Characters.Shippuden.Kids.cs
-          ++ Game.Characters.Shippuden.Adults.cs
-          ++ Game.Characters.Shippuden.Organizations.cs
-          ++ Game.Characters.Shippuden.Akatsuki.cs
-          ++ Game.Characters.Shippuden.Leaders.cs
-          ++ Game.Characters.Shippuden.Jinchuriki.cs
-          ++ Game.Characters.Shippuden.Versions.cs
-    reanimated = ($ Reanimated) <$> Game.Characters.Reanimated.cs
+list = addClasses
+    <$> Game.Characters.Development.characters
+    ++ Game.Characters.Original.characters
+    ++ Game.Characters.Shippuden.characters
+    ++ Game.Characters.Reanimated.characters
 {-# NOINLINE list #-}
 
 listJSON :: Value

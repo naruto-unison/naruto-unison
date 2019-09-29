@@ -9,7 +9,7 @@ import ClassyPrelude
 import           Data.Enum.Set.Class (EnumSet)
 import qualified Data.Vector as Vector
 
-import           Core.Util ((—), (∈))
+import           Util ((—), (∈))
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)

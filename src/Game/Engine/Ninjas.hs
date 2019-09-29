@@ -51,7 +51,7 @@ import           Data.List.NonEmpty ((!!))
 import qualified Data.Sequence as Seq
 import qualified Data.Text as Text
 
-import           Core.Util ((—), (!?), (∈), (∉))
+import           Util ((—), (!?), (∈), (∉))
 import qualified Class.Classed as Classed
 import qualified Class.Parity as Parity
 import qualified Class.Labeled as Labeled
