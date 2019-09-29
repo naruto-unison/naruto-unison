@@ -107,10 +107,9 @@ doBarriers :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 doBarriers = do
     player <- P.player
     ninjas <- P.ninjas
-    traverse_ (doBarrier player) $ concatMap collect ninjas
+    traverse_ (doBarrier player) $ concatMap ((head <$>) . collect) ninjas
   where
-    collect = (head <$>) . groupBy Labeled.eq . sortWith Barrier.name .
-              Ninja.barrier
+    collect n = groupBy Labeled.eq . sortWith Barrier.name $ Ninja.barrier n
     doBarrier p b
       | Barrier.dur b == 1 = P.launch . Barrier.finish b $ Barrier.amount b
       | Parity.allied p $ Barrier.user b = P.launch $ Barrier.while b

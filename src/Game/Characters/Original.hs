@@ -1,3 +1,5 @@
+{-# OPTIONS_HADDOCK hide #-}
+
 module Game.Characters.Original (characters) where
 
 import Prelude (($), (<$>), (++))

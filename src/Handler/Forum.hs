@@ -149,10 +149,11 @@ userRanks = [ "Academy Student"
 -- | Fills out author information from the database.
 selectWithAuthors :: ∀ a. (HasAuthor a, AppPersistEntity a)
                   => [Filter a] -> [SelectOpt a] -> Handler [Cite a]
-selectWithAuthors selectors opts = runDB (selectList selectors opts)
-                                   >>= traverse go
+selectWithAuthors selectors opts = runDB do
+    selected <- selectList selectors opts
+    traverse go selected
   where
-    go (Entity citeKey citeVal) = runDB do
+    go (Entity citeKey citeVal) = do
         citeAuthor <- get404 author
         citeLatest <- if | author == latest -> return citeAuthor
                          | otherwise        -> get404 latest

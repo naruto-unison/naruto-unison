@@ -53,8 +53,8 @@ getChangelogR = do
 getHomeR :: Handler Html
 getHomeR = do
     mmsg     <- getMessage
-    newsList <- runDB $ traverse withAuthor =<<
-                selectList [] [Desc NewsDate, LimitTo 5]
+    newsList <- runDB $ traverse withAuthor
+                        =<< selectList [] [Desc NewsDate, LimitTo 5]
     topics   <- Forum.selectWithAuthors [] [Desc TopicTime, LimitTo 10]
     citelink <- liftIO Forum.makeCitelink
     defaultLayout do
@@ -125,8 +125,8 @@ getCharacterR category charLink = case Characters.lookupSite category charLink o
         in $(widgetFile "guide/character")
   where
     skillClasses skill =
-        intercalate ", " $ display <$>
-        filter Class.visible (toList $ Skill.classes skill)
+        intercalate ", " $
+        display <$> filter Class.visible (toList $ Skill.classes skill)
 
 getMechanicsR :: Handler Html
 getMechanicsR = do

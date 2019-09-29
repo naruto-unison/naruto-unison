@@ -256,9 +256,10 @@ instance YesodAuth App where
         x <- getBy $ UniqueUser ident
         case x of
             Just (Entity uid _) -> return $ Authenticated uid
-            Nothing -> Authenticated <$>
-                (insert =<<
-                 newUser ident Nothing . utctDay <$> liftIO getCurrentTime)
+            Nothing -> do
+                (UTCTime day _) <- liftIO getCurrentTime
+                who             <- insert $ newUser ident Nothing day
+                return $ Authenticated who
       where
         ident = Auth.credsIdent creds
     authPlugins :: App -> [AuthPlugin App]
@@ -296,8 +297,8 @@ instance YesodAuthEmail App where
     afterPasswordRoute _ = PlayR
 
     addUnverified email verkey = do
-        liftHandler . runDB . insert .
-            newUser email (Just verkey) . utctDay =<< liftIO getCurrentTime
+        (UTCTime day _) <- liftIO getCurrentTime
+        liftHandler . runDB . insert $ newUser email (Just verkey) day
 
     sendVerifyEmail email _ verurl =
         liftIO $ Mail.renderSendMail

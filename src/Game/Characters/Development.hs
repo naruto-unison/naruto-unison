@@ -7,6 +7,7 @@ module Game.Characters.Development (characters) where
 import Game.Characters.Base
 
 #ifdef DEVELOPMENT
+import           Game.Model.Character (Category(Original))
 import qualified Game.Model.Skill as Skill
 
 characters :: [Character]

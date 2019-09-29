@@ -10,7 +10,7 @@ import ClassyPrelude
 import Yesod
 
 import qualified Database.Persist.Quasi as Quasi
-import qualified Database.Persist.Postgresql as Sql
+import qualified Database.Persist.Sql as Sql
 
 import Application.Fields (ForumBoard, Privilege)
 

@@ -1,3 +1,5 @@
+{-# OPTIONS_HADDOCK hide #-}
+
 module Game.Characters.Shippuden (characters) where
 
 import Prelude (($), (<$>), (++))

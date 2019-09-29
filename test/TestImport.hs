@@ -79,9 +79,10 @@ describeCategory category name specs =
 
 useSkill :: Character -> TestRun
 useSkill char target skillName f =
-    describe (unpack skillName) case context <$> findSkill skillName char of
+    describe (unpack skillName) case findSkill skillName char of
         Nothing  -> it "Exists in the database" False
-        Just ctx -> runIdentity $ evalStateT (runReaderT f ctx) $ testGame char
+        Just (context -> ctx) ->
+            runIdentity $ evalStateT (runReaderT f ctx) $ testGame char
   where
     findSkill x   = find ((x ==) . Skill.name) . join . Character.skills
     context skill = Context { Context.skill  = skill
@@ -189,8 +190,7 @@ enemyTurn f = do
 targetIsExposed :: ∀ m. (MonadPlay m, MonadRandom m) => m Bool
 targetIsExposed = do
     target <- P.target
-    P.with (\ctx -> ctx { Context.user = target }) $
-        apply 0 [Invulnerable All]
+    P.with (\ctx -> ctx { Context.user = target }) $ apply 0 [Invulnerable All]
     null . Effects.invulnerable <$> P.nTarget
 
 totalDefense :: Ninja -> Int

@@ -7,10 +7,14 @@ module Util
   , duplic
   , shorten, unaccent
   , mapFromKeyed
+  , adjustWith
   ) where
 
-import ClassyPrelude hiding ((<|), mapMaybe)
-import Control.Monad.Trans.Class (MonadTrans)
+import ClassyPrelude
+
+import           Control.Monad.Trans.Class (MonadTrans)
+import qualified Data.Sequence as Seq
+import           Data.Sequence ((|>))
 
 -- If a function doesn't seem like it should be inlined, it probably doesn't go
 -- here.
@@ -63,6 +67,13 @@ mapFromKeyed :: ∀ map a. IsMap map
              => (a -> ContainerKey map, a -> MapValue map) -> [a] -> map
 mapFromKeyed (toKey, toVal) xs = mapFromList $ (\x -> (toKey x, toVal x)) <$> xs
 {-# INLINE mapFromKeyed #-}
+
+adjustWith :: ∀ a. a -> (a -> a) -> Int -> Seq a -> Seq a
+adjustWith x f i xs
+  | i < len   = Seq.adjust' f i xs
+  | otherwise = xs ++ (replicate (i - len) x |> f x)
+  where
+    len = length xs
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text

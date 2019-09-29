@@ -88,10 +88,9 @@ charAvatars char = toFile <$> "icon" : skills
                   ++ shorten path ++ ".jpg"
 
 avatars :: Value
-avatars = toJSON $
-          (("/img/icon/" ++) <$> icons) ++ concatMap charAvatars Characters.list
+avatars = toJSON $ icons ++ concatMap charAvatars Characters.list
   where
-    icons =
+    icons = ("/img/icon/" ++) <$>
         [ "default.jpg"
         , "gaaraofthefunk.jpg"
         , "ninjainfocards.jpg"

@@ -66,8 +66,8 @@ bot = (App.newUser "Bot" Nothing $ ModifiedJulianDay 0)
 -- | Joins the practice-match queue with a given team. Requires authentication.
 getPracticeQueueR :: [Text] -> Handler Value
 getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
-    case fromList . zipWith Ninja.new Slot.all <$>
-         traverse Characters.lookupName [c1, b1, a1, a2, b2, c2] of
+    case fromList . zipWith Ninja.new Slot.all
+         <$> traverse Characters.lookupName [c1, b1, a1, a2, b2, c2] of
     Nothing -> invalidArgs ["Unknown character(s)"]
     Just ninjas -> do
         who <- Auth.requireAuthId
@@ -75,7 +75,8 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
                           , UserPractice =. [a2, b2, c2]
                           ]
         liftIO Random.createSystemRandom >>= runReaderT do
-            game <- runReaderT Game.newWithChakras =<< ask
+            rand     <- ask
+            game     <- runReaderT Game.newWithChakras rand
             practice <- getsYesod App.practice
             liftIO do
                 Cache.purgeExpired practice -- TODO: Move to a recurring timer?
@@ -211,10 +212,10 @@ queue Queue.Quick team = do
               return Nothing
           | vsWho == who && not allowVsSelf -> throwE Queue.AlreadyQueued
           | otherwise -> do
-              matched <- tryPutMVar vsMVar =<< liftIO getCurrentTime
+              time    <- liftIO getCurrentTime
+              matched <- tryPutMVar vsMVar time
               if matched then
-                  Just <$>
-                  makeGame queueWrite who user team vsWho vsUser vsTeam
+                  Just <$> makeGame queueWrite who user team vsWho vsUser vsTeam
               else
                   return Nothing
         _ -> return Nothing
@@ -275,7 +276,8 @@ gameSocket = webSockets do
                 wrapper <- takeMVar mvar
                 if null . Game.victor $ Wrapper.game wrapper then do
                     Sockets.sendJson $ Wrapper.toJSON player wrapper
-                    liftST . Wrapper.replace wrapper =<< ask
+                    newWrapper <- ask
+                    liftST $ Wrapper.replace wrapper newWrapper
                     tryEnact turnLength player mvar
                     game <- P.game
                     if null $ Game.victor game then
@@ -298,7 +300,10 @@ tryEnact turnLength player mvar = do
     forkIO do
         threadDelay turnLength
         void $ tryPutMVar lock Nothing
-    forkIO . void $ tryPutMVar lock . Just =<< Sockets.receive
+
+    forkIO do
+        message <- Sockets.receive
+        void . tryPutMVar lock $ Just message
 
     enactMessage <- (Text.split ('/' ==) <$>) <$> readMVar lock
 
@@ -331,9 +336,9 @@ enact actChakra exchangeChakra actions = do
        | duplic $ Act.user <$> actions           -> err "Duplicate actors"
        | randTotal < 0 || Chakra.lack chakra     -> err "Insufficient chakra"
        | any (Act.illegal player) actions        -> err "Character out of range"
-       | otherwise                               -> Right <$> do
+       | otherwise                               -> do
             P.alter . Game.setChakra player $ chakra { Chakra.rand = randTotal }
-            Engine.runTurn actions
+            Right <$> Engine.runTurn actions
   where
     randTotal = Chakra.total actChakra - 5 * Chakra.total exchangeChakra
     err       = return . Left

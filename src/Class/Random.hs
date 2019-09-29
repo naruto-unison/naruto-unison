@@ -19,7 +19,7 @@ import qualified System.Random.MWC as Random
 import qualified System.Random.MWC.Distributions as Random
 import           Yesod.WebSockets (WebSocketsT)
 
-import Util ((!!), Lift)
+import Util (Lift)
 import Game.Model.Player (Player)
 
 -- | A monad capable of nondeterministic behavior.
@@ -73,4 +73,4 @@ instance (MonadRandom m, Monoid w) => MonadRandom (AccumT w m)
 -- Returns @Nothing@ on an empty list.
 choose :: ∀ m a. MonadRandom m => [a] -> m (Maybe a)
 choose [] = return Nothing
-choose xs = Just . (xs !!) <$> random 0 (length xs - 1)
+choose xs = index xs <$> random 0 (length xs - 1)

@@ -9,12 +9,10 @@ import ClassyPrelude
 
 import qualified Database.Esqueleto as ESQL
 import           Database.Esqueleto ((>.), (^.), (==.))
-import qualified Database.Persist as DB
-import Database.Persist ((=.), (+=.))
-import Database.Persist.Sql (SqlPersistT)
-import Database.Persist.Types (Update)
+import qualified Database.Persist.Sql as Sql
+import           Database.Persist.Sql ((=.), (+=.), SqlPersistT)
+import           Database.Persist.Types (Update)
 
-import Application.App (Handler)
 import Application.Model (EntityField(..), Key, User(..))
 import Game.Model.Game (Game(Game, victor))
 import Game.Model.Player (Player)
@@ -25,19 +23,20 @@ square x = x * x
 -- | Updates fields in the user table based on the end of a game.
 -- Win record fields: 'userWins', 'userLosses', 'userStreak'.
 -- Skill rating fields: 'userRating', 'userDeviation', 'userVolatility'.
-update :: Game -- ^ Completed game.
+update :: ∀ m. MonadIO m
+       => Game -- ^ Completed game.
        -> Player -- ^ Whether the viewed user was 'Player.A' or 'Player.B'.
        -> Key User -- ^ Viewed user.
        -> Key User -- ^ Opponent user.
-       -> SqlPersistT Handler ()
+       -> SqlPersistT m ()
 update game player who1 who2 = do
-    mUser1 <- DB.get who1
-    mUser2 <- DB.get who2
+    mUser1 <- Sql.get who1
+    mUser2 <- Sql.get who2
     case (mUser1, mUser2) of
         (Just user1, Just user2) -> do
             let (updates1, updates2) = compute (user1, user2) victors
-            DB.update who1 updates1
-            DB.update who2 updates2
+            Sql.update who1 updates1
+            Sql.update who2 updates2
             updateStreak who1
             updateStreak who2
         _ -> return ()
@@ -60,7 +59,7 @@ updateRecord 1 = [UserWins +=. 1,   UserStreak +=. 1] -- User won.
 updateRecord 0 = [UserLosses +=. 1, UserStreak =. 0] -- User lost.
 updateRecord _ = [UserStreak =. 0] -- Tie.
 
-updateStreak :: Key User -> SqlPersistT Handler ()
+updateStreak :: ∀ m. MonadIO m => Key User -> SqlPersistT m ()
 updateStreak who =
     ESQL.update \p -> do
         ESQL.set p [ UserRecord ESQL.=. p ^. UserStreak ]

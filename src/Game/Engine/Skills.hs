@@ -38,10 +38,9 @@ safe :: ∀ a. a -> (Int -> Int -> a) -> Ninja -> Text -> Text -> a
 safe a f n sName vName = fromMaybe a do
     s <- findIndex ((sName ==) . Skill.name . head) $ toList skills
     v <- case vName of
-            "" -> return 0
-            _  -> let (_:|xs) = skills !! s
-                  in (+1) <$> findIndex ((vName ==) . Skill.name) xs
-    return $ f s v
+            "" -> return (-1)
+            _  -> findIndex ((vName ==) . Skill.name) . tail $ skills !! s
+    return . f s $ v + 1
   where
     skills  = Character.skills $ Ninja.character n
 

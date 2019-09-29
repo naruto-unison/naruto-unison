@@ -1,5 +1,3 @@
-{-# OPTIONS_HADDOCK hide #-}
-
 module Game.Characters.Base
   ( module Import
   , invuln

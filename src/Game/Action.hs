@@ -136,10 +136,10 @@ chooseTargets targets = do
     skill  <- P.skill
     nUser  <- P.nUser
     ninjas <- P.ninjas
-    forM targets \run -> do
-        target <- chooseTarget $ Runnable.target run
-        return [ run { Runnable.target = t }
-                   | t <- target
+    forM targets \target -> do
+        choices <- chooseTarget $ Runnable.target target
+        return [ target { Runnable.target = t }
+                   | t <- choices
                    , Requirement.targetable skill nUser $ ninjas !! Slot.toInt t
                    ]
 
@@ -181,7 +181,8 @@ targetEffect affected f = do
     else do
         wrap affected f
         P.trigger user [OnHarm]
-        P.trigger target =<< (OnHarmed <$>) . toList . Skill.classes <$> P.skill
+        classes <- Skill.classes <$> P.skill
+        P.trigger target $ OnHarmed <$> toList classes
 
 -- | Handles effects in a 'Skill'. Uses 'targetEffect' internally.
 run :: ∀ m. (MonadPlay m, MonadRandom m)

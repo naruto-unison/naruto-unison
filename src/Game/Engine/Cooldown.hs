@@ -9,9 +9,8 @@ module Game.Engine.Cooldown
 import ClassyPrelude
 
 import qualified Data.Sequence as Seq
-import           Data.Sequence ((|>))
 
-import           Util ((!!), (!?))
+import           Util ((!!), (!?), adjustWith)
 import qualified Game.Model.Copy as Copy
 import           Game.Model.Duration (sync)
 import qualified Game.Model.Ninja as Ninja
@@ -36,23 +35,12 @@ active n = [copyCd copy vari cd | copy <- Ninja.copies n
         | isShallow . Skill.copying $ Copy.skill copied = 0
     copyCd _ vari cd = fromMaybe 0 $ cd !? Variant.cooldown vari
 
--- Safely adjusts a row in 'Ninja.cooldowns' by appending to it if incomplete.
-adjust' :: Int -> (Int -> Int) -> Seq Int -> Seq Int
-adjust' v f cds
-  | len > v   =  Seq.adjust' f v cds
-  | otherwise = (cds ++ replicate (v - len) 0) |> f 0
-  where
-    len = length cds
-
 -- Safely adjusts 'Ninja.cooldowns'.
 adjust :: Int -- ^ 'Skill' index (0-3).
        -> Int -- ^ 'Variant.Variant' index in 'Character.skills' of 'Ninja.character'.
        -> (Int -> Int) -- ^ Adjustment function.
        -> Seq (Seq Int) -> Seq (Seq Int)
-adjust s v f cds
-  | s < 0           = cds
-  | s >= length cds = cds
-  | otherwise       = Seq.adjust' (adjust' v f) s cds
+adjust s v f = Seq.adjust' (adjustWith 0 f v) s
 
 -- | Adds to an element in 'Ninja.cooldowns'.
 alter :: Int -- ^ Skill index (0-3)
@@ -85,7 +73,7 @@ update alsoCharge a skill s n
     copied Copy.Shallow{} = True
     copied Copy.Deep{}    = False
     charges
-      | alsoCharge = adjust' s (+1)
+      | alsoCharge = adjustWith 0 (+1) s
       | otherwise  = id
 
 -- | 'update's a corresponding @Ninja@ when they use a new @Skill@.

@@ -53,9 +53,9 @@ remove1 permitted = do
     chakras  <- filter (∈ permitted) . Chakra.toSequence . Parity.getOf target .
                 Game.chakra <$> P.game
     mRemoved <- R.choose chakras
-    case Chakra.toChakras <$> mRemoved of
-        Nothing      -> return 0
-        Just removed -> do
+    case mRemoved of
+        Nothing                            -> return 0
+        Just (Chakra.toChakras -> removed) -> do
             P.alter $ Game.adjustChakra target (— removed)
             return removed
 
