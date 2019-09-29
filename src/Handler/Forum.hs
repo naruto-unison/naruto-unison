@@ -70,26 +70,25 @@ getBoardR board = do
 -- | Renders a 'Topic'.
 getTopicR :: TopicId -> Handler Html
 getTopicR topicId = do
-    who        <- Auth.requireAuthId
+    mwho       <- Auth.maybeAuthId
     (title, _) <- breadcrumbs
     time       <- liftIO getCurrentTime
     timestamp  <- liftIO makeTimestamp
     zone       <- liftIO LocalTime.getCurrentTimeZone
     Topic{..}  <- runDB $ get404 topicId
     posts      <- selectWithAuthors [PostTopic ==. topicId] []
-    (widget, enctype) <- generateFormPost . renderTable $
-                         newPostForm topicId who time
+    mwidget    <- mapM (generateFormPost . renderTable . newPostForm topicId time) mwho
     defaultLayout $(widgetFile "forum/topic")
 
--- | Adds to a 'Topic'.
+-- | Adds to a 'Topic'. Requires authentication.
 postTopicR :: TopicId -> Handler Html
 postTopicR topicId = do
-    who        <- Auth.requireAuthId
-    (title, _) <- breadcrumbs
-    time       <- liftIO getCurrentTime
-    timestamp  <- liftIO makeTimestamp
+    who         <- Auth.requireAuthId
+    (title, _)  <- breadcrumbs
+    time        <- liftIO getCurrentTime
+    timestamp   <- liftIO makeTimestamp
     ((result, widget), enctype) <- runFormPost . renderTable $
-                                   newPostForm topicId who time
+                                   newPostForm topicId time who
     case result of
         FormSuccess post -> runDB do
             insert400_ post
@@ -98,28 +97,29 @@ postTopicR topicId = do
                            , TopicLatest =. who
                            ]
         _ -> return ()
-    Topic{..} <- runDB $ get404 topicId
-    posts     <- selectWithAuthors [PostTopic ==. topicId] []
+    Topic{..}  <- runDB $ get404 topicId
+    posts      <- selectWithAuthors [PostTopic ==. topicId] []
+    let mwidget = Just (widget, enctype)
     defaultLayout $(widgetFile "forum/topic")
 
--- | Renders a page for creating a new 'Topic'.
+-- | Renders a page for creating a new 'Topic'. Requires authentication.
 getNewTopicR :: ForumBoard -> Handler Html
 getNewTopicR board = do
     (who, user) <- Auth.requireAuthPair
     time        <- liftIO getCurrentTime
     (title, _)  <- breadcrumbs
     (widget, enctype) <- generateFormPost . renderTable $
-                         newTopicForm user board who time
+                         newTopicForm user board time who
     defaultLayout $(widgetFile "forum/new")
 
--- | Creates a new 'Topic'.
+-- | Creates a new 'Topic'. Requires authentication.
 postNewTopicR :: ForumBoard -> Handler Html
 postNewTopicR board = do
     (who, user) <- Auth.requireAuthPair
     time        <- liftIO getCurrentTime
     (title, _)  <- breadcrumbs
     ((result, widget), enctype) <- runFormPost . renderTable $
-                                   newTopicForm user board who time
+                                   newTopicForm user board time who
     case result of
         FormSuccess (NewTopic topic makePost) -> do
             topicId <- runDB $ insert400 topic
@@ -175,9 +175,9 @@ data NewTopic = NewTopic Topic (TopicId -> Post)
 toBody :: Textarea -> [Text]
 toBody (Textarea area) = Text.splitOn "\n" area
 
-newTopicForm :: User -> ForumBoard -> UserId -> UTCTime
+newTopicForm :: User -> ForumBoard -> UTCTime -> UserId
              -> AForm Handler NewTopic
-newTopicForm User{..} topicBoard postAuthor postTime = makeNewTopic
+newTopicForm User{..} topicBoard postTime postAuthor = makeNewTopic
     <$> areq textField "Title" Nothing
     <*> areq textareaField "Post" Nothing
   where
@@ -191,8 +191,8 @@ newTopicForm User{..} topicBoard postAuthor postTime = makeNewTopic
         topicTitle = filter (/= staffTag) rawTitle
         postBody = toBody area
 
-newPostForm :: TopicId -> UserId -> UTCTime -> AForm Handler Post
-newPostForm postTopic postAuthor postTime =
+newPostForm :: TopicId -> UTCTime -> UserId -> AForm Handler Post
+newPostForm postTopic postTime postAuthor =
     makePost . toBody <$> areq textareaField "" Nothing
   where
     makePost postBody = Post{..}

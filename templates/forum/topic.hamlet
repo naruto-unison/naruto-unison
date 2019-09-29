@@ -11,6 +11,7 @@ $forall Cite{citeVal = Post{..}, citeAuthor} <- posts
           #{paragraph}
 <article>
   <aside>
-  <form .full method=post action=@{TopicR topicId} enctype=#{enctype} autocomplete=off>
-      ^{widget}
-      <button>Reply
+  $maybe (widget, enctype) <- mwidget
+    <form .full method=post action=@{TopicR topicId} enctype=#{enctype} autocomplete=off>
+        ^{widget}
+        <button>Reply

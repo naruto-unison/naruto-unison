@@ -26,7 +26,7 @@ import qualified Game.Model.Skill as Skill
 import qualified Handler.Play as Play
 import qualified Game.Characters as Characters
 
--- | Updates a user's profile.
+-- | Updates a user's profile. Requires authentication.
 getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
 getUpdateR updateName updateCondense updateBackground updateAvatar
   | not $ "/img/icon/" `isPrefixOf` updateAvatar =
@@ -48,7 +48,7 @@ getUpdateR updateName updateCondense updateBackground updateAvatar
       | null updateBackground' = Nothing
       | otherwise              = Just updateBackground'
 
--- | Updates a user's muted status.
+-- | Updates a user's muted status. Requires authentication.
 getMuteR :: Bool -> Handler Value
 getMuteR mute = do
     who <- Auth.requireAuthId
@@ -58,8 +58,8 @@ getMuteR mute = do
 -- | Renders the gameplay client.
 getPlayR :: Handler Html
 getPlayR = do
-    Play.gameSocket
     muser <- (entityVal <$>) <$> Auth.maybeAuth
+    when (isJust muser) Play.gameSocket
     let team     = maybe [] (mapMaybe Characters.lookupName) $
                    muser >>= userTeam
         practice = maybe [] (mapMaybe Characters.lookupName . userPractice)

@@ -96,13 +96,13 @@ getPracticeWaitR actChakra xChakra = getPracticeActR actChakra xChakra []
 liftST :: ∀ m a. MonadIO m => ST RealWorld a -> m a
 liftST = liftIO . ST.stToIO
 
--- | Handles a turn for a practice game. Practice games are not limited by time
--- and use GET requests instead of WebSockets.
+-- | Handles a turn for a practice game. Requires authentication.
+-- Practice games are not time-limited and use GET requests instead of sockets.
 getPracticeActR :: Chakras -> Chakras -> [Act] -> Handler Value
 getPracticeActR actChakra exchangeChakra actions = do
-    who      <- Auth.requireAuthId -- !FAILS!
+    who      <- Auth.requireAuthId
     practice <- getsYesod App.practice
-    mGame    <- liftIO $ Cache.lookup practice who -- !FAILS
+    mGame    <- liftIO $ Cache.lookup practice who
     case mGame of
         Nothing   -> notFound
         Just game -> do
@@ -113,7 +113,7 @@ getPracticeActR actChakra exchangeChakra actions = do
     enactPractice who practice = do
         res <- enact actChakra exchangeChakra actions
         case res of
-          Left errorMsg -> invalidArgs [tshow errorMsg] -- !FAILS!
+          Left errorMsg -> invalidArgs [tshow errorMsg]
           Right ()      -> do
               game'A   <- Wrapper.freeze
               P.alter \g -> g
@@ -252,7 +252,7 @@ handleFailures :: ∀ m a. MonadSockets m => Either Queue.Failure a -> m (Maybe 
 handleFailures (Right val) = return $ Just val
 handleFailures (Left msg)  = Nothing <$ Sockets.sendJson msg
 
--- | Sends messages through 'TChan's in 'App.App'.
+-- | Sends messages through 'TChan's in 'App.App'. Requires authentication.
 gameSocket :: Handler ()
 gameSocket = webSockets do
     who        <- Auth.requireAuthId
