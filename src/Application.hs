@@ -20,9 +20,10 @@ import ClassyPrelude
 import Yesod
 
 import qualified Control.Monad.Logger as Logger
+import           Data.Bimap (Bimap)
 import qualified Data.Cache as Cache
 import qualified Database.Persist.Postgresql as Sql
-import           Database.Persist.Postgresql (SqlBackend)
+import           Database.Persist.Sql (SqlBackend, SqlPersistT)
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Network.HTTP.Client.TLS as TLS
 import qualified Network.Wai.Handler.Warp as Warp
@@ -38,15 +39,24 @@ import qualified Application.Settings as Settings
 import           Application.Settings (Settings)
 import qualified Application.Logger as AppLogger
 import qualified Application.Model as Model
+import           Application.Model (CharacterId)
 
-import Handler.Admin
-import Handler.Client
-import Handler.Embed
-import Handler.Forum
-import Handler.Play
-import Handler.Site
+import qualified Mission
+import           Handler.Admin
+import           Handler.Client
+import           Handler.Embed
+import           Handler.Forum
+import           Handler.Play
+import           Handler.Site
 
 mkYesodDispatch "App" App.resourcesApp
+
+initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
+initDB = do
+    Sql.runMigration Model.migrateAll
+    dbMigrationsSql <- readFile "config/db.sql"
+    Sql.rawExecute (decodeUtf8 dbMigrationsSql) []
+    Mission.initDB
 
 makeFoundation :: Settings -> IO App
 makeFoundation settings = do
@@ -63,23 +73,18 @@ makeFoundation settings = do
     -- logging function. To get out of this loop, we initially create a
     -- temporary foundation without a real connection pool, get a log function
     -- from there, and then create the real foundation.
-    let mkFoundation connPool = App {..}
-        tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
+    let mkFoundation connPool characterIDs = App {..}
+        tempFoundation = mkFoundation
+            (error "connPool forced in tempFoundation")
+            (error "characterIDs forced in tempFoundation")
         logFunc = messageLoggerSource tempFoundation logger
 
     pool <- flip Logger.runLoggingT logFunc $ Sql.createPostgresqlPool
         (Sql.pgConnStr  $ Settings.databaseConf settings)
         (Sql.pgPoolSize $ Settings.databaseConf settings)
 
-    Logger.runLoggingT
-        (Sql.runSqlPool (Sql.runMigration Model.migrateAll) pool) logFunc
-
-    dbMigrationsSql <- readFile "config/db.sql"
-    Logger.runLoggingT
-      (Sql.runSqlPool (Sql.rawExecute (decodeUtf8 dbMigrationsSql) []) pool)
-      logFunc
-
-    return $ mkFoundation pool
+    conn <- Logger.runLoggingT (Sql.runSqlPool initDB pool) logFunc
+    return $ mkFoundation pool conn
   where
     staticMode
       | Settings.mutableStatic settings = Static.staticDevel

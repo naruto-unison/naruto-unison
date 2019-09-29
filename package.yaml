@@ -41,51 +41,52 @@ library:
       - -ferror-spans
       - -O2
   dependencies:
-  - aeson == 1.4.4.0
-  - base == 4.12.0.0
-  - blaze-html == 0.9.1.1
-  - blaze-markup == 0.8.2.2
-  - bounded-enum == 0.1.0.0
-  - bytestring == 0.10.8.2
-  - cache == 0.1.1.2
-  - case-insensitive == 1.2.0.11
-  - classy-prelude == 1.5.0
-  - containers == 0.6.0.1
-  - data-default == 0.7.1.1
-  - esqueleto == 3.0.0
-  - fast-logger == 2.4.17
-  - file-embed == 0.0.11
-  - hjsmin == 0.2.0.2
-  - http-client-tls == 0.3.5.3
-  - http-conduit == 2.3.7.1
-  - http-types == 0.12.3
-  - mime-mail == 0.5.0
-  - monad-logger == 0.3.30
-  - monad-loops == 0.4.3
-  - mtl == 2.2.2
-  - mwc-random == 0.14.0.0
-  - persistent == 2.9.2
-  - persistent-postgresql == 2.9.1
-  - persistent-template == 2.6.0
-  - shakespeare == 2.0.21
-  - template-haskell == 2.14.0.0
-  - text == 1.2.3.1
-  - time == 1.8.0.2
-  - transformers == 0.5.6.2
-  - unliftio == 0.2.12
-  - unordered-containers == 0.2.10.0
-  - vector == 0.12.0.3
-  - wai == 3.2.2.1
-  - wai-extra == 3.0.28
-  - wai-logger == 2.3.5
-  - warp == 3.2.28
-  - yaml == 0.11.1.2
-  - yesod == 1.6.0
-  - yesod-auth == 1.6.8
-  - yesod-core == 1.6.16.1
-  - yesod-form == 1.6.6
-  - yesod-static == 1.6.0.1
-  - yesod-websockets == 0.3.0.2
+  - aeson
+  - base
+  - bimap
+  - blaze-html
+  - blaze-markup
+  - bounded-enum
+  - bytestring
+  - cache
+  - case-insensitive
+  - classy-prelude
+  - containers
+  - data-default
+  - esqueleto
+  - fast-logger
+  - file-embed
+  - hjsmin
+  - http-client-tls
+  - http-conduit
+  - http-types
+  - mime-mail
+  - monad-logger
+  - monad-loops
+  - mtl
+  - mwc-random
+  - persistent
+  - persistent-postgresql
+  - persistent-template
+  - shakespeare
+  - template-haskell
+  - text
+  - time
+  - transformers
+  - unliftio
+  - unordered-containers
+  - vector
+  - wai
+  - wai-extra
+  - wai-logger
+  - warp
+  - yaml
+  - yesod
+  - yesod-auth
+  - yesod-core
+  - yesod-form
+  - yesod-static
+  - yesod-websockets
 
 executables:
   naruto-unison:
@@ -113,7 +114,7 @@ executables:
     - aeson
     - base
     - containers
-    - elm-bridge == 0.5.2
+    - elm-bridge
     - template-haskell
     - text
     when:
@@ -127,7 +128,7 @@ tests:
     dependencies:
     - naruto-unison
     - base
-    - hspec == 2.7.1
+    - hspec
     - transformers
     ghc-options:
       - -Wall

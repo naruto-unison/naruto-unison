@@ -19,6 +19,7 @@ import ClassyPrelude
 import Yesod
 
 import           Control.Monad.Logger (LogSource)
+import           Data.Bimap (Bimap)
 import qualified Data.CaseInsensitive as CaseInsensitive
 import           Data.Cache (Cache)
 import qualified Data.Text.Encoding as TextEncoding
@@ -45,7 +46,7 @@ import           Yesod.Static hiding (static)
 import           Application.Fields (ForumBoard, Privilege(..), boardName)
 import qualified Handler.Play.Queue as Queue
 import           Handler.Play.Wrapper (Wrapper)
-import           Application.Model (EntityField(..), Topic(..), TopicId, User(..), UserId, Unique(..))
+import           Application.Model (CharacterId, EntityField(..), Topic(..), TopicId, User(..), UserId, Unique(..))
 import qualified Application.Settings as Settings
 import           Application.Settings (Settings, widgetFile)
 import           Game.Model.Act (Act)
@@ -70,8 +71,9 @@ data App = App
       -- ^ Saved state of Practice Games. Games expire after one hour or as soon
       -- as they yield a victor.
       -- All other games are stored in their websocket threads.
-    , queue       :: TChan Queue.Message
+    , queue        :: TChan Queue.Message
       -- ^ Broadcast channel for users to queue and be matched with each other.
+    , characterIDs :: Bimap CharacterId Text
     }
 
 -- Generates the following type synonyms:

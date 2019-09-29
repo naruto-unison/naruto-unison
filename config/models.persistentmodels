@@ -1,27 +1,27 @@
 User
     ident       Text
     UniqueUser ident
-    password    Text Maybe
-    verkey      Text Maybe
+    password    Text  Maybe
+    verkey      Text  Maybe
     verified    Bool
-    joined      Day default=current_date
+    joined      Day  default=current_date
     privilege   Privilege
     name        Text
     avatar      Text
     background  Text Maybe
     xp          Int
-    wins        Int default=0
-    losses      Int default=0
-    streak      Int default=0
-    record      Int default=0
-    clan        Text Maybe
-    team        [Text] Maybe
+    wins        Int  default=0
+    losses      Int  default=0
+    streak      Int  default=0
+    record      Int  default=0
+    clan        Text  Maybe
+    team        [Text]  Maybe
     practice    [Text]
     muted       Bool
     condense    Bool
-    rating      Double default=0
-    deviation   Double default=2.0148
-    volatility  Double default=0.06
+    rating      Double  default=0
+    deviation   Double  default=2.0148
+    volatility  Double  default=0.06
     deriving Typeable
 
 Post
@@ -45,3 +45,20 @@ News
     date     Day
     title    Text
     content  Text
+
+Character
+    name  Text
+    UniqueName name
+    deriving Eq
+
+Unlocked
+    user       UserId
+    character  CharacterId
+    UniqueUnlocked user character
+
+Mission
+    user       UserId
+    character  CharacterId
+    objective  Int
+    UniqueMission user character objective
+    progress   Int
