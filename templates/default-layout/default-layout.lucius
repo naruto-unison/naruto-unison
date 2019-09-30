@@ -1,13 +1,30 @@
-.space {
-    flex-grow: 1;
+a, a sup, .skill {
+  color: #007acc;
+  text-decoration: none;
 }
-.message {
-    display: none;
+
+a.name {
+    text-decoration: underline;
 }
-html, body {
+
+a:hover {
+    text-decoration: underline;
+}
+
+.alert {
+    padding: 10px 30px;
+    color: #e00;
+}
+
+article sup {
+    margin-left: 1px;
+}
+
+body, html {
     width: 100%;
     height: 100%;
 }
+
 body {
     font-family: sans-serif;
     overflow-y: scroll;
@@ -15,72 +32,59 @@ body {
     display: flex;
     flex-direction: column;
 }
-#sitenav {
-    display: flex;
-    background: #ddd;
-    border-color: #999;
-    padding: 0 1em;
+
+#breadcrumb {
+    margin-bottom: 1.5em;
+    color: #666;
+
+    li {
+        display: inline-block;
+        margin-right: -0.3em;
+    }
+    li:before {
+        content: " > ";
+        white-space: pre;
+    }
+    li:first-child:before {
+        content: none;
+    }
+
+    ul {
+        margin: 0;
+        padding: 0;
+    }
 }
-#sitenav img {
-    height: 2em;
-    margin: 0.1em 0;
+
+button {
+    border-radius: 0;
+    border: 1px solid #007acc;
+    padding: 0.4em 1em 0.3em 1em;
+    background-color: #dfdfdf;
 }
-#sitenav nav {
-    flex-grow: 1;
-    text-align: center;
-    align-self: end;
+button:hover {
+    background-color: #ccc;
 }
-#sitenav aside {
-    display: flex;
-    align-self: center;
+
+.chakra {
+  display: inline-block;
+  height: 0.6em;
+  width: 0.6em;
+  border: 1px solid #222;
+  margin-left: 3px;
 }
-#sitenav div {
-    align-self: end;
-    padding-right: 1em;
-    flex-grow: 1;
-    text-align: right;
+.chakra.blood { background-color:#f0000a; }
+.chakra.gen   { background-color:#ffffff; }
+.chakra.nin   { background-color:#00a9d5; }
+.chakra.tai   { background-color:#0cdd2c; }
+.chakra.rand  { background-color:#000000; }
+
+.char {
+  display: inline-block;
+  outline: 1px solid #000;
+  margin: 5px;
+  vertical-align: top;
 }
-#sitenav aside > a {
-    align-self: end;
-    padding-right: 5px;
-    padding-top: 10px;
-    margin: -0.3em 0;
-}
-#sitenav div, #sitenav aside > a, #sitenav nav a, #sitenav nav span {
-    padding-bottom: 10px;
-}
-#sitenav nav a, #sitenav nav span {
-    margin: 0 0.2em -3px 0.2em;
-    display: inline-block;
-    box-sizing: content-box;
-}
-#sitenav, #current {
-    border-bottom-width: 3px;
-    border-bottom-style: solid;
-}
-#sitenav a {
-    color: #59778a;
-}
-#sitenav a:hover {
-    text-decoration: none;
-    color: #0099ff;
-}
-#current {
-    border-bottom-color: #666;
-}
-#sitenav, #sitenav button {
-    text-transform: uppercase;
-}
-#sitenav button {
-    cursor: unset;
-    border-color: #000;
-    background-color: #eee;
-    color: #000;
-}
-#sitenav button:hover {
-    color: #0099ff;
-    border-color: #0099ff;
-}
+
 .container {
     line-height: 1.4em;
     flex-grow: 1;
@@ -91,200 +95,13 @@ body {
     box-sizing: border-box;
     background: #fff;
     font-size: 13px;
-}
-#breadcrumb {
-    margin-bottom: 1.5em;
-    color: #666;
-}
-#breadcrumb ul {
-    margin: 0;
-    padding: 0;
-}
-#breadcrumb li {
-    display: inline-block;
-    margin-right: -0.3em;
-}
-#breadcrumb li:first-child:before {
-    content: none;
-}
-#breadcrumb li:before {
-    content: " > ";
-    white-space: pre;
-}
-table {
-    width: 100%;
-    text-align: center;
-    margin: -3px;
-    border-spacing: 0;
-}
-table h2 {
-    margin-bottom: 0;
-}
-table h3 {
-    margin: 0.25em 0em 0.1em;
-}
-table h4 {
-    margin-bottom: 0;
-}
-td, th {
-    min-width: 3em;
-}
-td:first-child, th:first-child {
-    text-align: left;
-    width: 100%;
-}
-thead {
-    vertical-align: baseline;
-    text-transform: uppercase;
-}
-a.name {
-    text-decoration: underline;
-}
-th h3 a {
-    font-weight: normal;
-    margin-left: 0.5em;
-}
-th {
-    color: #666;
-    vertical-align: baseline;
-    display: none;
-}
-th:first-child {
-    color: inherit;
-    display: table-cell;
-}
-tr:first-child th {
-    display: table-cell;
-}
-.alert {
-    padding: 10px 30px;
-    color: #e00;
-}
-ul {
-    margin: 0;
-    padding: 0 1em;
-}
-ul ul {
-    padding-left: 1.5em;
-    padding-bottom: 0.2em;
-}
-li {
-    margin-top: 0.5em;
-    line-height: 1.4em;
-}
-h1, h2 {
-    text-transform: uppercase;
-}
-h3, h4 {
-    margin-top: 0.5em;
-    margin-bottom: 0.3em;
-}
-h1 { font-size: 1.6em; text-align: center }
-h2 { margin: 0 0 0.5em 0 }
-h3 { font-size: 1.25em }
-h4 { font-size: 1.15em }
 
-.char {
-  display: inline-block;
-  outline: 1px solid #000;
-  margin: 5px;
-  vertical-align: top;
+    > form {
+        padding: 10px;
+        margin: auto;
+    }
 }
 
-.chakra {
-  display: inline-block;
-  height: 0.6em;
-  width: 0.6em;
-  border: 1px solid #222;
-  margin-left: 3px;
-}
-#charSelect .chakra {
-    margin-left: 3px;
-    margin-right: 1px;
-}
-.chakra.blood { background-color:#f0000a; }
-.chakra.gen   { background-color:#ffffff; }
-.chakra.nin   { background-color:#00a9d5; }
-.chakra.tai   { background-color:#0cdd2c; }
-.chakra.rand  { background-color:#000000; }
-
-.skillClasses {
-  font-weight: normal;
-  color: #606060;
-}
-sup {
-  font-style: italic;
-  font-size: 0.75em;
-  display: inline-block;
-  text-decoration: none !important;
-}
-.extra {
-  color: #606060;
-  margin-left: 0.4em;
-}
-article sup {
-    margin-left: 1px;
-}
-a, a sup {
-  color: #0099ff;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-button {
-    border-radius: 0;
-    border: 1px solid #0099ff;
-    padding: 0.4em 1em 0.3em 1em;
-    background-color: #dfdfdf;
-}
-button:hover {
-    background-color: #ccc;
-}
-input, textarea {
-    background-color: #ddd;
-    border: 1px solid #888;
-}
-.Admin     { color: #151c77; border-color: #151c77; outline-color: #151c77; }
-.Moderator { color: #2d7715; border-color: #2d7715; outline-color: #2d7715; }
-
-td:last-child a span {
-    font-size: 1.6em;
-    line-height: 0.625em;
-    vertical-align: text-bottom;
-    margin-right: -0.2em;
-}
-
-textarea {
-    padding: 5px;
-}
-
-.container > form {
-    padding: 10px;
-    margin: auto;
-}
-
-.full {
-    flex-grow: 1;
-}
-.full input, .full textarea {
-    display: block;
-    width: 100%;
-    resize: none;
-    margin: 5px 0 10px 0;
-    box-sizing: border-box;
-}
-.full textarea {
-    height: 25em;
-}
-td header div {
-    font-size: 0.9em;
-    color: #606060;
-}
-i {
-    color: #600;
-}
 dl {
     margin-top: 0;
 }
@@ -299,13 +116,231 @@ dt:after {
 dd {
     margin-bottom: 0.25em;
 }
-li > dt, li > dd {
-    display: contents;
+
+.extra {
+  color: #606060;
+  margin-left: 0.4em;
+}
+
+.full {
+    flex-grow: 1;
+
+    input, textarea {
+        display: block;
+        width: 100%;
+        resize: none;
+        margin: 5px 0 10px 0;
+        box-sizing: border-box;
+    }
+
+    textarea {
+        height: 25em;
+    }
+}
+
+h1, h2 {
+    text-transform: uppercase;
+}
+h2, h3, h4 {
+    margin-top: 0.5em;
+    margin-bottom: 0.3em;
+}
+h1 { font-size: 1.6em; text-align: center }
+h3 { font-size: 1.25em }
+h4 { font-size: 1.15em }
+
+i {
+    color: #600;
+}
+
+input, textarea {
+    background-color: #ddd;
+    border: 1px solid #888;
+}
+
+li {
+    margin-top: 0.5em;
+    line-height: 1.4em;
+
+
+    > dt, > dd {
+        display: contents;
+    }
+}
+
+.message {
+    display: none;
+}
+
+#sitenav {
+    display: flex;
+    background: #ddd;
+    border-color: #999;
+    padding: 0 1em;
+
+
+    a {
+        color: #59778a;
+    }
+    a:hover {
+        text-decoration: none;
+        color: #0099ff;
+    }
+
+    button {
+        cursor: unset;
+        border-color: #000;
+        background-color: #eee;
+        color: #000;
+    }
+
+    aside {
+        display: flex;
+        align-self: center;
+
+        > a {
+            align-self: end;
+            padding-right: 5px;
+            padding-top: 10px;
+            margin: -0.3em 0;
+        }
+    }
+
+    button:hover {
+        color: #007acc;
+        border-color: #007acc;
+    }
+
+    div {
+        align-self: end;
+        padding-right: 1em;
+        flex-grow: 1;
+        text-align: right;
+    }
+
+    img {
+        height: 2em;
+        margin: 0.1em 0;
+    }
+
+    nav {
+        flex-grow: 1;
+        text-align: center;
+        align-self: end;
+
+        a, span {
+            margin: 0 0.2em -3px 0.2em;
+            display: inline-block;
+            box-sizing: content-box;
+        }
+    }
+
+    div, aside > a, nav a, nav span {
+        padding-bottom: 10px;
+    }
+
+}
+#sitenav, #current {
+    border-bottom-width: 3px;
+    border-bottom-style: solid;
+}
+#current {
+    border-bottom-color: #666;
+}
+#sitenav, #sitenav button {
+    text-transform: uppercase;
+}
+
+.skillClasses {
+  font-weight: normal;
+  color: #606060;
+}
+
+sup {
+  font-style: italic;
+  font-size: 0.75em;
+  display: inline-block;
+  text-decoration: none !important;
+}
+
+.space {
+    flex-grow: 1;
+}
+
+table {
+    width: 100%;
+    text-align: center;
+    margin: -3px;
+    border-spacing: 0;
+
+    h2 {
+        margin-bottom: 0;
+    }
+
+    h3 {
+        margin: 0.25em 0em 0.1em;
+    }
+
+    h4 {
+        margin-bottom: 0;
+    }
+}
+td:first-child, th:first-child {
+    text-align: left;
+}
+td header div {
+    font-size: 0.9em;
+    color: #606060;
+}
+td:last-child a span {
+    font-size: 1.6em;
+    line-height: 0.625em;
+    vertical-align: text-bottom;
+    margin-right: -0.2em;
+}
+th {
+    color: #666;
+    vertical-align: baseline;
+    display: none;
+
+    h3 a {
+        font-weight: normal;
+        margin-left: 0.5em;
+    }
+}
+th:first-child {
+    color: inherit;
+    display: table-cell;
+
+    th {
+        display: table-cell;
+    }
+}
+thead {
+    vertical-align: baseline;
+    text-transform: uppercase;
+}
+
+textarea {
+    padding: 5px;
+}
+
+ul {
+    margin: 0;
+    padding: 0 1em;
+
+    ul {
+        padding-left: 1.5em;
+        padding-bottom: 0.2em;
+    }
 }
 
 .wrap {
     white-space: nowrap;
 }
+
+.Admin     { color: #151c77; border-color: #151c77; outline-color: #151c77; }
+.Moderator { color: #2d7715; border-color: #2d7715; outline-color: #2d7715; }
 
 @media (min-width: 824px) {
     #sitenav aside {
@@ -313,8 +348,10 @@ li > dt, li > dd {
     }
 }
 @media (min-width: 615px) {
-    #sitenav nav a, #sitenav nav span {
-        margin: 0 0.5em -3px 0.5em;
+    #sitenav nav {
+        a, span {
+            margin: 0 0.5em -3px 0.5em;
+        }
     }
 }
 @media (max-width: 614px) {

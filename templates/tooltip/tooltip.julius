@@ -25,7 +25,7 @@ let cur
 
 const popup = (tooltip, ev, el) => tooltip
     .stop()
-    .css("left", ev.pageX)
+    .css("left", Math.min(ev.pageX, document.body.scrollWidth - tooltip[0].clientWidth - 10))
     .css("top", Math.min(el.offsetTop, document.body.scrollHeight - tooltip[0].clientHeight - 10))
     .fadeIn(100)
     .show()

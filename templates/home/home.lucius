@@ -1,96 +1,113 @@
-body {
-    padding: 0 !important;
-}
-.container {
-    padding-bottom: 0 !important;
-}
 body, .container {
     background: #1b4e66 !important;
 }
+
+body {
+    padding: 0 !important;
+}
+
+.container {
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    max-width: 1500px !important;
+    display: flex;
+
+    > aside, > section {
+        padding-top: 1em !important;
+    }
+
+    > section {
+        text-align: left;
+        background: #fff;
+        border-top: none;
+        border-bottom: none;
+        border-width: 1px;
+        box-shadow: 0 10px 10px rgba(0,0,0,0.25);
+        box-sizing: border-box;
+        flex: 0 1 800px;
+        padding: 0 1em;
+    }
+
+    > aside {
+        color: #fff;
+        flex: 1 0 230px;
+
+        ul {
+            font-size: 0.95em;
+
+            ul {
+                padding-left: 1em;
+            }
+        }
+
+        > ul > li {
+            margin-bottom: 6px;
+        }
+
+        h2 {
+            margin-bottom: 0.2em;
+        }
+
+        a, a sup, .name, .skill {
+            color: #0099ff;
+        }
+    }
+}
+
+#changelog {
+    padding-right: 1em;
+    padding-bottom: 1em;
+
+    li {
+        margin: 0;
+    }
+}
+
 .char {
     width: 50px;
     float: right;
     margin: 1px 0 0 0 !important;
 }
-.skill {
-    display: block;
-    padding-bottom: 2px;
-    margin-right: 60px;
-}
-.container {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-    max-width: 1500px !important;
-    display: flex;
-}
-.container > aside, .container > section {
-    padding-top: 1em !important;
-}
-.breadcrumb li {
-    color: #fff !important;
-}
-.container > section {
-    text-align: left;
-    background: #fff;
-    border-top: none;
-    border-bottom: none;
-    border-width: 1px;
-    box-shadow: 0 10px 10px rgba(0,0,0,0.25);
-    box-sizing: border-box;
-    flex: 0 1 800px;
-    padding: 0 1em;
-}
-.container > aside {
-    color: #fff;
-    flex: 1 0 230px;
-}
-.container > aside ul {
-    font-size: 0.95em;
-}
-.container > aside ul ul {
-    padding-left: 1em;
-}
-.container > aside > ul > li {
-    margin-bottom: 6px;
-}
-.container > aside h2 {
-    margin-bottom: 0.2em;
-}
-#changelog {
-    padding-right: 1em;
-    padding-bottom: 1em;
-}
-#changelog li {
-    margin: 0;
-}
+
 #forums {
     padding-left: 1em;
 }
+
 section > aside {
     color: #606060;
     margin-bottom: -0.5em;
 }
 
+.skill {
+    display: block;
+    padding-bottom: 2px;
+    margin-right: 60px;
+}
+
 @media (max-width: 1000px) {
-    .container {
-        padding: 1em 1.5em 5em 1.5em;
-    }
-    .container > aside {
-        font-size: 0.8em;
-        flex: 1 0 165px;
-    }
     #changelog .char {
         display: none;
+    }
+    .container {
+        padding: 1em 1.5em 5em 1.5em;
+
+        > aside {
+            font-size: 0.8em;
+            flex: 1 0 165px;
+        }
     }
     .skill {
         margin-right: 0;
     }
 }
+
 @media (max-width: 885px) {
     .container {
         max-width: 800px !important;
-    }
-    .container > aside {
-        display: none;
+
+        > aside {
+            display: none;
+        }
     }
 }

@@ -1,7 +1,15 @@
 .guide {
     display: block;
-    margin-top: -0.5em;
 }
+
 .guide:after {
     content: " →";
+}
+
+h3, a, p {
+    line-height: 0.75em;
+}
+
+h3 {
+    padding-top: 0.75em;
 }

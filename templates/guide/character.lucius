@@ -1,29 +1,51 @@
-h2 {
-    margin-bottom: -0.25em;
-}
-.skillClasses {
-    margin: 0.25em 0;
-    clear: both;
-}
 .char.head {
     float: right;
     position: relative;
     margin: 3px 0 10px 10px;
 }
-section .char {
-    margin: 0.5em 1em 0 0;
-    position: relative;
-    top: 5px;
-}
-section {
-    padding-bottom: 0.5em;
-}
-section section {
-    display: flex;
-    padding-top: 0.5em;
-    padding-bottom: 0em;
-    min-height: 100px;
-}
+
 .container > section {
     border-top: 3px solid #ddd;
+}
+
+dl {
+    margin-bottom: 0;
+}
+
+h1 {
+    margin-bottom: -0.25em;
+}
+
+section {
+    padding-top: 0.5em;
+    clear: both;
+
+    h2 {
+        margin-top: 0.45em;
+    }
+
+    .char {
+        margin: 0.5em 1em 0 0;
+        position: relative;
+        top: 5px;
+    }
+
+    section {
+        display: flex;
+        padding-top: 0;
+        padding-bottom: 0.5em;
+        min-height: 100px;
+    }
+}
+
+.skillClasses {
+    margin: 0.25em 0;
+    clear: both;
+}
+
+.complete {
+    color: #0f0;
+}
+.incomplete {
+    color: #f00;
 }

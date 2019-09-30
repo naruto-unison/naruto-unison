@@ -1,19 +1,24 @@
 .char {
     float: left;
-    margin: 1px 0 0 -19px !important;
+    margin: 1px 21px 0 -19px !important;
 }
-li li .skill:after {
-    content: " |";
-    color: #666;
-}
-.skill:last-child:after {
-    content: none;
+
+.container {
+    padding-bottom: 10em;
 }
 
 li li {
-    margin-left: 5.5em;
     line-height: 1em;
-}
-.container {
-    padding-bottom: 10em;
+
+    .skill {
+        display: inline-block;
+    }
+    .skill:after {
+        content: " |";
+        color: #666;
+    }
+
+    .skill:last-child:after {
+        content: none;
+    }
 }

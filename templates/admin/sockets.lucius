@@ -1,9 +1,10 @@
 #output {
     height: 400px;
     border: 1px solid black;
-}
-#output p {
-    margin: 0 0 0.5em 0;
-    padding: 0 0 0.5em 0;
-    border-bottom: 1px dashed #99aa99;
+
+    p {
+        margin: 0 0 0.5em 0;
+        padding: 0 0 0.5em 0;
+        border-bottom: 1px dashed #99aa99;
+    }
 }
