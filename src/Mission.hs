@@ -33,7 +33,7 @@ list = Mission.Shippuden.missions
 {-# NOINLINE list #-}
 
 map :: HashMap Text Goal.Mission
-map = mapFromKeyed (Goal.character, id) list
+map = mapFromKeyed (Goal.char, id) list
 {-# NOINLINE map #-}
 
 characterMissions :: Text -> [Goal.Mission]
@@ -59,7 +59,7 @@ makeMap chars = Bimap.fromList . mapMaybe maybePair $ chars
 
 unlocked :: Handler (HashSet Text)
 unlocked = do
-    mwho     <- Auth.maybeAuthId
+    mwho <- Auth.maybeAuthId
     case mwho of
         Nothing  -> return mempty
         Just who -> do
@@ -91,15 +91,20 @@ progress name i amount = fromMaybe False <$> runMaybeT do
         deleteWhere [MissionUser ==. who, MissionCharacter ==. char]
     return True
 
-userMission :: Text -> Handler (Maybe (Goal.Mission, Seq Int))
-userMission name = runMaybeT do
-    Just who   <- Auth.maybeAuthId
-    mission    <- MaybeT . return $ lookup name map
+userMission :: Text -> Handler (Seq (Goal.Goal, Int))
+userMission name = fromMaybe mempty <$> runMaybeT do
+    mission    <- MaybeT . return $ Goal.goals <$> lookup name map
     ids        <- getsYesod App.characterIDs
     char       <- Bimap.lookupR name ids
-    objectives <- lift . runDB $
-                  selectList [MissionUser ==. who, MissionCharacter ==. char] []
-    return (mission, setObjectives objectives $ Goal.goals mission)
+    mwho       <- Auth.maybeAuthId
+    case mwho of
+        Nothing  -> return $ unGoal <$> mission
+        Just who -> do
+            objectives <- lift . runDB $ selectList
+                          [MissionUser ==. who, MissionCharacter ==. char] []
+            return . zip mission $ setObjectives objectives mission
+  where
+    unGoal x = (x { Goal.reach = 0 }, 0)
 
 setObjectives :: [Entity Mission] -> Seq Goal -> Seq Int
 setObjectives objectives xs = foldl' f (0 <$ xs) objectives

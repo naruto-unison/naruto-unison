@@ -1,6 +1,6 @@
 module Mission.Goal
   ( Mission(..)
-  , Goal(..)
+  , Goal(..), character
   , Objective(..), involves
   , Span(..)
   , HookFunc, Store
@@ -8,8 +8,10 @@ module Mission.Goal
 
 import ClassyPrelude
 
-import Util ((∈))
-import Game.Model.Ninja (Ninja)
+import           Util ((∈))
+import           Game.Model.Character (Character)
+import           Game.Model.Ninja (Ninja)
+import qualified Game.Characters as Characters
 
 type Store = IntSet
 type HookFunc = Ninja -- ^ User.
@@ -41,9 +43,16 @@ data Goal = Reach { reach     :: Int
                   , objective :: Objective
                   }
 
-data Mission = Mission { character :: Text
-                       , goals     :: Seq Goal
+data Mission = Mission { char  :: Text
+                       , goals :: Seq Goal
                        }
 
 instance Eq Mission where
-    (==) = (==) `on` character
+    (==) = (==) `on` char
+
+character :: Goal -> Maybe Character
+character x = case objective x of
+    Win _               -> Nothing
+    (Hook name _ _)     -> Characters.lookupName name
+    (HookTurn name _)   -> Characters.lookupName name
+    (UseAllSkills name) -> Characters.lookupName name

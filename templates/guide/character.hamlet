@@ -27,3 +27,19 @@ $forall skills <- Character.skills char
             $if Skill.charges skill /= 0
               <dt>Charges
               <dd>#{Skill.charges skill}
+$if not (null mission)
+  <section>
+    <h2>
+      Mission
+    <ul>
+      $forall (goal, progress) <- mission
+        <li>
+          $maybe char <- Goal.character goal
+            As <a href=@{CharacterR (Character.category char) (Characters.link char)}>#{Character.name char}#{Character.category char}</a>: #
+          #{Parse.desc $ Goal.desc goal} #
+          $if progress < Goal.reach goal
+            <span .incomplete>
+              (#{progress}/#{Goal.reach goal})
+          $elseif Goal.reach goal /= 0
+            <span .complete>
+              (#{Goal.reach goal}/#{Goal.reach goal})

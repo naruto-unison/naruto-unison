@@ -35,6 +35,8 @@ import           Game.Model.Skill (Skill)
 import qualified Game.Characters as Characters
 import qualified Handler.Forum as Forum
 import qualified Handler.Parse as Parse
+import qualified Mission
+import qualified Mission.Goal as Goal
 
 userlink :: User -> Widget
 userlink User{..} = $(widgetFile "widgets/userlink")
@@ -120,9 +122,11 @@ getCharactersR = do
 getCharacterR :: Category -> Text -> Handler Html
 getCharacterR category charLink = case Characters.lookupSite category charLink of
     Nothing   -> notFound
-    Just char -> defaultLayout
-        let path = shorten $ Character.format char
-        in $(widgetFile "guide/character")
+    Just char -> do
+        let name = Character.format char
+            path = shorten name
+        mission <- Mission.userMission name
+        defaultLayout $(widgetFile "guide/character")
   where
     skillClasses skill =
         intercalate ", " $
