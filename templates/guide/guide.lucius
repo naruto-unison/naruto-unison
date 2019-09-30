@@ -2,7 +2,7 @@
     display: block;
 }
 
-.guide:after {
+.guide::after {
     content: " →";
 }
 

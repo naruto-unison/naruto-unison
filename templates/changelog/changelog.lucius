@@ -13,12 +13,12 @@ li li {
     .skill {
         display: inline-block;
     }
-    .skill:after {
+    .skill::after {
         content: " |";
         color: #666;
     }
 
-    .skill:last-child:after {
+    .skill:last-child::after {
         content: none;
     }
 }

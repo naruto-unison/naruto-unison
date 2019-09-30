@@ -588,7 +588,7 @@ main, #accountSettings {
     user-select: none;
 }
 
-#mainsite:before, #mainsite:after {
+#mainsite::before, #mainsite::after {
     content: none;
 }
 
@@ -608,8 +608,8 @@ main, #accountSettings {
 
 #nextPage { right: -50px }
 #prevPage  { left: -50px }
-#nextPage:after { content: ">" }
-#prevPage:after  { content: "<" }
+#nextPage::after { content: ">" }
+#prevPage::after  { content: "<" }
 
 .nextSkill, .prevSkill {
     font-size: 15px;
@@ -621,8 +621,8 @@ main, #accountSettings {
 }
 .nextSkill { right: 5px }
 .prevSkill { left: 5px }
-.nextSkill:after { content: '▶' }
-.prevSkill:after { content: '◀' }
+.nextSkill::after { content: '▶' }
+.prevSkill::after { content: '◀' }
 
 p {
     margin: 0;
@@ -657,10 +657,10 @@ a.playButton {
     text-decoration: none;
     height: 17px;
 }
-a.playButton:before {
+a.playButton::before {
     content: "Start ";
 }
-a.playButton:after {
+a.playButton::after {
     content: " Match";
 }
 .playButton.click:hover, #updateButton.click:hover, #logoutButton.click:hover {
@@ -867,16 +867,16 @@ a.playButton:after {
     padding: 3px 0;
     position: relative;
 }
-#ready:before {
+#ready::before {
     content: "WAITING"
 }
-#ready.click:before {
+#ready.click::before {
     content: "READY";
 }
-#ready.noChakra:before {
+#ready.noChakra::before {
     content: "CHOOSE CHAKRA";
 }
-#ready.noclick:before {
+#ready.noclick::before {
     content: "WAITING" !important;
 }
 
@@ -887,7 +887,7 @@ a.playButton:after {
     border: 2px solid #e11;
     padding-bottom: 0.5em;
 }
-#return:before, #return:after {
+#return::before, #return::after {
     content: none;
 }
 
@@ -1196,7 +1196,7 @@ svg {
         font-size: 0.9em;
         width: 240px;
     }
-    a.playButton:before {
+    a.playButton::before {
         content: none;
     }
 }
@@ -1214,7 +1214,7 @@ svg {
         font-size: 0.85em;
         width: 150px;
     }
-    a.playButton:after {
+    a.playButton::after {
         content: none;
     }
 }

@@ -41,11 +41,11 @@ body {
         display: inline-block;
         margin-right: -0.3em;
     }
-    li:before {
+    li::before {
         content: " > ";
         white-space: pre;
     }
-    li:first-child:before {
+    li:first-child::before {
         content: none;
     }
 
@@ -110,7 +110,7 @@ dt {
     width: 6.5em;
     font-weight: bold;
 }
-dt:after {
+dt::after {
     content: ":";
 }
 dd {
