@@ -26,9 +26,14 @@ import           Yesod.Default.Util (WidgetFileSettings)
 
 data Settings = Settings
     { allowVsSelf            :: Bool
+    -- ^ Allow players to queue against themselves
+    , unlockAll              :: Bool
+    -- ^ Allow players to use characters they have not unlocked
     , turnLength             :: Int
+    -- ^ Duration of a game turn
     , practiceCacheExpiry    :: Integer
-      -- Basic Yesod configuration below
+    -- ^ Expiration duration of the cache that holds practice matches
+
     , staticDir              :: String
     -- ^ Directory from which to serve static files.
     , databaseConf           :: PostgresConf
@@ -94,6 +99,7 @@ instance FromJSON Settings where
         authDummyLogin         <- o .:? "auth-dummy-login" .!= dev
 
         allowVsSelf            <- o .:? "allow-vs-self"    .!= dev
+        unlockAll              <- o .:? "unlock-all"       .!= dev
         turnLength             <- (1e6 *) <$> o .: "turn-length"
         practiceCacheExpiry    <- (1e9 *) <$> o .: "practice-cache-expiry"
         return Settings{..}

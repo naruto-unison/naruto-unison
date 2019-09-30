@@ -19,6 +19,7 @@ ip-from-header: "_env:YESOD_IP_FROM_HEADER:false"
 # In development, they default to the inverse.
 #
 #allow-vs-self: false
+#unlock-all: false
 detailed-logging: false
 # should-log-all: false
 # reload-templates: false
