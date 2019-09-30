@@ -1,17 +1,17 @@
-$newline always
 <h1>#{title}
 <h2>Changes at Launch
 <h3>Mechanics
 <ul>
-  <li>Several classes have been added for clarity:
-    <ul><i>Invisible</i>: Cannot be seen by the enemy team.
-    <ul><i>Unremovable</i>: Effects cannot be cured or removed in any way.
-    <ul><i>Bypassing</i>: Bypasses invulnerability.
-    <ul><i>Soulbound:</i> Effects end when the user dies.
-    <ul><i>Necromancy:</i> Targets must be dead. Without this class, targets by default must be alive.
   <li>
-    The <i>Affliction</i> class has been renamed to <i>Bane</i>
-    in order to avoid confusion with affliction damage.
+    Several classes have been added for clarity:
+    <ul>
+      <li><i>Invisible</i>: Cannot be seen by the enemy team.
+      <li><i>Unremovable</i>: Effects cannot be cured or removed in any way.
+      <li><i>Bypassing</i>: Bypasses invulnerability.
+      <li><i>Soulbound:</i> Effects end when the user dies.
+      <li><i>Necromancy:</i> Targets must be dead. Without this class, targets by default must be alive.
+  <li>
+    The <i>Affliction</i> class has been renamed to <i>Bane</i> in order to avoid confusion with affliction damage.
     For example, Shino#{Shippuden}'s
     #{"Shino Aburame (S)" ! "Gigantic Beetle Infestation"}, which does not deal any affliction damage, was a skill classified as <i>Affliction</i>.
   <li>
