@@ -14,6 +14,7 @@ import List.Extra         as List
 import List.Nonempty      as Nonempty exposing (Nonempty(..))
 import Maybe.Extra        as Maybe
 import Process
+import Set exposing (Set)
 import Task exposing (Task)
 import Tuple exposing (first, second)
 import Url
@@ -75,6 +76,7 @@ type alias Model =
     , url        : String
     , team       : List Character
     , vs         : List Character
+    , unlocked   : Set String
     , user       : Maybe User
     , avatars    : List String
     , chars      : Characters
@@ -128,6 +130,7 @@ component ports =
         , team       = flags.userTeam
         , vs         = flags.userPractice
         , user       = flags.user
+        , unlocked   = flags.unlocked
         , chars      = flags.characters
         , avatars    = flags.avatars
         , csrf       = flags.csrf
@@ -172,11 +175,13 @@ component ports =
                     else
                         wraparound wrapping st.index st.chars.list
                 charClass char = -- god I wish this language had pattern guards
-                    if List.member char <| case st.stage of
-                      Practicing -> st.vs
-                      _          -> st.team
-                  then
-                        "char disabled"
+                    if not <| Set.member (characterName char) st.unlocked then
+                        "char locked"
+                    else if List.member char <| case st.stage of
+                        Practicing -> st.vs
+                        _          -> st.team
+                    then
+                          "char disabled"
                     else case st.toggled of
                         Nothing      -> "char click"
                         Just toggled ->
@@ -615,7 +620,12 @@ previewBox st = case st.previewing of
             Just (Nonempty _ []) -> []
             Just (Nonempty x xs) -> for (x :: xs) <| \char_ ->
                 (characterName char_, icon char_ "icon" <|
-                  if List.member char_ <| case st.stage of
+                  if not <| Set.member (characterName char_) st.unlocked then
+                      [ A.classList
+                        [("on", char == char_), ("noclick locked char", True)]
+                      , E.onMouseOver << Preview <| PreviewChar char_
+                      ]
+                  else if List.member char_ <| case st.stage of
                       Practicing -> st.vs
                       _          -> st.team
                   then

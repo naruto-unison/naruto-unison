@@ -18,7 +18,7 @@ import           UnliftIO.Concurrent (forkIO, threadDelay)
 import qualified Yesod.Auth as Auth
 import           Yesod.WebSockets (webSockets)
 
-import           Util (duplic)
+import           Util ((∉), duplic)
 import qualified Application.App as App
 import           Application.App (App, Handler)
 import           Application.Model (EntityField(..), User(..))
@@ -71,23 +71,28 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
          <$> traverse Characters.lookupName [c1, b1, a1, a2, b2, c2] of
     Nothing -> invalidArgs ["Unknown character(s)"]
     Just ninjas -> do
-        who <- Auth.requireAuthId
-        runDB $ update who [ UserTeam    =. Just [a1, b1, c1]
-                          , UserPractice =. [a2, b2, c2]
-                          ]
-        liftIO Random.createSystemRandom >>= runReaderT do
-            rand     <- ask
-            game     <- runReaderT Game.newWithChakras rand
-            practice <- getsYesod App.practice
-            liftIO do
-                Cache.purgeExpired practice -- TODO: Move to a recurring timer?
-                Cache.insert practice who $ Wrapper game ninjas
-            returnJson GameInfo { vsWho  = who
-                                , vsUser = bot
-                                , player = Player.A
-                                , game   = game
-                                , ninjas = ninjas
-                                }
+        who      <- Auth.requireAuthId
+        unlocked <- Mission.unlocked
+        if any (∉ unlocked) [a1, b1, c1] then
+            invalidArgs ["Locked character(s)"]
+        else do
+            runDB $ update who [ UserTeam    =. Just [a1, b1, c1]
+                              , UserPractice =. [a2, b2, c2]
+                              ]
+            liftIO Random.createSystemRandom >>= runReaderT do
+                rand     <- ask
+                game     <- runReaderT Game.newWithChakras rand
+                practice <- getsYesod App.practice
+                liftIO do
+                    -- TODO: Move to a recurring timer?
+                    Cache.purgeExpired practice
+                    Cache.insert practice who $ Wrapper game ninjas
+                returnJson GameInfo { vsWho  = who
+                                    , vsUser = bot
+                                    , player = Player.A
+                                    , game   = game
+                                    , ninjas = ninjas
+                                    }
 getPracticeQueueR _ = invalidArgs ["Wrong number of characters"]
  --zipWith Ninja.new Slot.all
 -- | Wrapper for 'getPracticeActR' with no actions.
@@ -258,6 +263,7 @@ gameSocket :: Handler ()
 gameSocket = webSockets do
     who        <- Auth.requireAuthId
     turnLength <- getsYesod $ Settings.turnLength . App.settings
+    unlocked   <- liftHandler Mission.unlocked
     liftIO Random.createSystemRandom >>= runReaderT do
         (team, mvar, info) <- untilJust $ handleFailures =<< runExceptT do
             teamNames <- Text.split (=='/') <$> Sockets.receive
@@ -266,6 +272,9 @@ gameSocket = webSockets do
                 Just vals -> return vals
 
             let teamTail = tailEx teamNames
+
+            when (any (∉ unlocked) teamTail) $ throwE Queue.Locked
+
             liftHandler . runDB $ update who [UserTeam =. Just teamTail]
             (mvar, info) <- queue section team
             return (teamTail, mvar, info)

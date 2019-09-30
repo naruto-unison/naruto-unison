@@ -16,7 +16,7 @@ import Yesod
 import           Data.List (nub)
 import qualified Yesod.Auth as Auth
 
-import           Util ((∉), shorten)
+import           Util ((∈), (∉), shorten)
 import           Application.App (Handler)
 import           Application.Model (EntityField(..), User(..))
 import           Application.Settings (widgetFile)
@@ -25,6 +25,7 @@ import           Game.Model.Character (Character)
 import qualified Game.Model.Skill as Skill
 import qualified Handler.Play as Play
 import qualified Game.Characters as Characters
+import qualified Mission
 
 -- | Updates a user's profile. Requires authentication.
 getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
@@ -58,9 +59,11 @@ getMuteR mute = do
 -- | Renders the gameplay client.
 getPlayR :: Handler Html
 getPlayR = do
-    muser <- (entityVal <$>) <$> Auth.maybeAuth
+    muser       <- (entityVal <$>) <$> Auth.maybeAuth
+    unlocked    <- Mission.unlocked
     when (isJust muser) Play.gameSocket
-    let team     = maybe [] (mapMaybe Characters.lookupName) $
+    let team     = maybe []
+                   (mapMaybe Characters.lookupName . filter (∈ unlocked)) $
                    muser >>= userTeam
         practice = maybe [] (mapMaybe Characters.lookupName . userPractice)
                    muser

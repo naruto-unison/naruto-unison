@@ -22,6 +22,7 @@ import           Util ((∉), mapFromKeyed)
 import qualified Application.App as App
 import           Application.App (Handler)
 import           Application.Model (Character(..), CharacterId, EntityField(..), Mission(..), Unlocked(..), User)
+import qualified Application.Settings as Settings
 import qualified Game.Model.Character as Character
 import qualified Game.Characters as Characters
 import qualified Mission.Goal as Goal
@@ -60,13 +61,14 @@ makeMap chars = Bimap.fromList . mapMaybe maybePair $ chars
 
 unlocked :: Handler (HashSet Text)
 unlocked = do
+    unlockAll <- getsYesod $ Settings.unlockAll . App.settings
     mwho <- Auth.maybeAuthId
     case mwho of
-        Nothing  -> return mempty
-        Just who -> do
+        Just who | not unlockAll -> do
             ids     <- getsYesod App.characterIDs
             unlocks <- runDB $ selectList [UnlockedUser ==. who] []
             return $ unlock ids unlocks
+        _ -> return $ keysSet Characters.map
 
 unlock :: Bimap CharacterId Text -> [Entity Unlocked] -> HashSet Text
 unlock ids unlocks = union (setFromList $ mapMaybe look unlocks) $

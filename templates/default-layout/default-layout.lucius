@@ -168,6 +168,11 @@ li {
     }
 }
 
+.locked {
+    filter: none !important;
+    opacity: 0.7;
+}
+
 .message {
     display: none;
 }

@@ -13,6 +13,7 @@ import Html          as H exposing (Html)
 import List.Extra    as List
 import List.Nonempty as Nonempty exposing (Nonempty(..))
 import String.Extra  as String
+import Set exposing (Set)
 
 import Import.Model as Model exposing (Category(..), Character, Failure(..), Skill, User)
 import Util exposing (groupBy)
@@ -22,6 +23,7 @@ type alias Flags =
     , bg:           String
     , userTeam:     List Character
     , userPractice: List Character
+    , unlocked:     Set String
     , user:         Maybe User
     , avatars:      List String
     , characters:   Characters
@@ -35,6 +37,7 @@ failure =
     , bg           = ""
     , userTeam     = []
     , userPractice = []
+    , unlocked     = Set.empty
     , user         = Nothing
     , avatars      = []
     , characters   = makeCharacters []
@@ -46,14 +49,15 @@ decode : D.Decoder Flags
 decode =
     D.succeed Flags
     |> D.required "url"          D.string
-    |> D.required "bg"           D.string
-    |> D.required "userTeam"     (D.list Model.jsonDecCharacter)
-    |> D.required "userPractice" (D.list Model.jsonDecCharacter)
-    |> D.required "user"         (D.maybe Model.jsonDecUser)
-    |> D.required "avatars"      (D.list D.string)
-    |> D.required "characters"   (D.map makeCharacters <| D.list Model.jsonDecCharacter)
-    |> D.required  "csrf"        D.string
-    |> D.required  "csrfParam"   D.string
+    >> D.required "bg"           D.string
+    >> D.required "userTeam"     (D.list Model.jsonDecCharacter)
+    >> D.required "userPractice" (D.list Model.jsonDecCharacter)
+    >> D.required "unlocked"     (D.list D.string |> D.map Set.fromList)
+    >> D.required "user"         (D.maybe Model.jsonDecUser)
+    >> D.required "avatars"      (D.list D.string)
+    >> D.required "characters"   (D.list Model.jsonDecCharacter |> D.map makeCharacters)
+    >> D.required  "csrf"        D.string
+    >> D.required  "csrfParam"   D.string
 
 type alias Characters =
     { list       : List Character
@@ -113,5 +117,6 @@ printFailure : Failure -> String
 printFailure x = case x of
     AlreadyQueued    -> "Your account is already queued"
     Canceled         -> "Queue canceled"
+    Locked           -> "Character not unlocked"
     InvalidTeam      -> "Invalid team"
     OpponentNotFound -> "User not found"

@@ -22,6 +22,7 @@ const app = Elm.Main.init({
     bg:           #{toJSON bg},
     userTeam:     nullary(#{toJSON team}),
     userPractice: nullary(#{toJSON practice}),
+    unlocked:     #{toJSON unlocked},
     user:         #{toJSON muser},
     avatars:      #{avatars},
     characters:   nullary(#{Characters.listJSON}),

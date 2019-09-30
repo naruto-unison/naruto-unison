@@ -139,13 +139,14 @@ app websocket ports =
                 ]
               )
           Err err -> case D.decodeString Model.jsonDecFailure msg of
-              Ok AlreadyQueued    -> failAt Select.Browsing  AlreadyQueued st
-              Ok OpponentNotFound -> failAt Select.Searching OpponentNotFound st
+              Ok AlreadyQueued    -> failTo Select.Browsing  AlreadyQueued    st
+              Ok OpponentNotFound -> failTo Select.Searching OpponentNotFound st
+              Ok Locked           -> failTo Select.Browsing  Locked           st
               Ok _                -> pure st
               Err _ -> pure { st | error = Just <| D.errorToString err }
 
-    failAt : Select.Stage -> Failure -> Model -> (Model, Cmd Msg)
-    failAt stage failure st =
+    failTo : Select.Stage -> Failure -> Model -> (Model, Cmd Msg)
+    failTo stage failure st =
         let
           selectModel = st.selectModel
         in

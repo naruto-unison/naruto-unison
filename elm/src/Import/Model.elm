@@ -18,11 +18,12 @@ type Failure  =
     AlreadyQueued
     | Canceled
     | InvalidTeam
+    | Locked
     | OpponentNotFound
 
 jsonDecFailure : Json.Decode.Decoder ( Failure )
 jsonDecFailure =
-    let jsonDecDictFailure = Dict.fromList [("AlreadyQueued", AlreadyQueued), ("Canceled", Canceled), ("InvalidTeam", InvalidTeam), ("OpponentNotFound", OpponentNotFound)]
+    let jsonDecDictFailure = Dict.fromList [("AlreadyQueued", AlreadyQueued), ("Canceled", Canceled), ("InvalidTeam", InvalidTeam), ("Locked", Locked), ("OpponentNotFound", OpponentNotFound)]
     in  decodeSumUnaries "Failure" jsonDecDictFailure
 
 jsonEncFailure : Failure -> Value
@@ -31,6 +32,7 @@ jsonEncFailure  val =
         AlreadyQueued -> Json.Encode.string "AlreadyQueued"
         Canceled -> Json.Encode.string "Canceled"
         InvalidTeam -> Json.Encode.string "InvalidTeam"
+        Locked -> Json.Encode.string "Locked"
         OpponentNotFound -> Json.Encode.string "OpponentNotFound"
 
 

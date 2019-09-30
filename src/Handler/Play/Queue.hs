@@ -31,5 +31,6 @@ data Failure
     = AlreadyQueued
     | Canceled
     | InvalidTeam
+    | Locked
     | OpponentNotFound
     deriving (Generic, ToJSON)
