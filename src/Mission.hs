@@ -4,15 +4,16 @@ module Mission
   , unlocked
   , teamMissions
   , userMission
+  , processWin
   ) where
 
-import ClassyPrelude hiding (map)
+import ClassyPrelude hiding ((\\), map)
 import Yesod
 
 import           Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
 import qualified Data.Bimap as Bimap
 import           Data.Bimap (Bimap)
-import           Data.List (nub)
+import           Data.List ((\\), nub)
 import qualified Data.Sequence as Seq
 import           Database.Persist.Sql (Entity(..), SqlPersistT)
 import qualified Yesod.Auth as Auth
@@ -20,7 +21,7 @@ import qualified Yesod.Auth as Auth
 import           Util ((∉), mapFromKeyed)
 import qualified Application.App as App
 import           Application.App (Handler)
-import           Application.Model (Character(..), CharacterId, EntityField(..), Mission(..), Unlocked(..))
+import           Application.Model (Character(..), CharacterId, EntityField(..), Mission(..), Unlocked(..), User)
 import qualified Game.Model.Character as Character
 import qualified Game.Characters as Characters
 import qualified Mission.Goal as Goal
@@ -74,24 +75,7 @@ unlock ids unlocks = union (setFromList $ mapMaybe look unlocks) $
     look (Entity _ Unlocked{unlockedCharacter}) =
         Bimap.lookup unlockedCharacter ids
 
-progress :: Text -> Int -> Int -> Handler Bool
-progress name i amount = fromMaybe False <$> runMaybeT do
-    Just who   <- Auth.maybeAuthId
-    mission    <- MaybeT . return $ Goal.goals <$> lookup name map
-    let len     = length mission
-    guard $ i < len
-    ids        <- getsYesod App.characterIDs
-    char       <- Bimap.lookupR name ids
-    objectives <- lift $ runDB do
-        void $ upsert (Mission who char i amount) [MissionProgress +=. amount]
-        selectList [MissionUser ==. who, MissionCharacter ==. char] []
-    guard $ completed mission objectives
-    lift $ runDB do
-        void . insertUnique $ Unlocked who char
-        deleteWhere [MissionUser ==. who, MissionCharacter ==. char]
-    return True
-
-userMission :: Text -> Handler (Seq (Goal.Goal, Int))
+userMission :: Text -> Handler (Seq (Goal, Int))
 userMission name = fromMaybe mempty <$> runMaybeT do
     mission    <- MaybeT . return $ Goal.goals <$> lookup name map
     ids        <- getsYesod App.characterIDs
@@ -106,6 +90,29 @@ userMission name = fromMaybe mempty <$> runMaybeT do
   where
     unGoal x = (x { Goal.reach = 0 }, 0)
 
+updateProgress :: ∀ m. MonadIO m
+               => Seq Goal
+               -> Key User -> Key Character -> Int -> Int -> SqlPersistT m Bool
+updateProgress mission who char i amount = do
+    void $ upsert (Mission who char i amount) [MissionProgress +=. amount]
+    objectives <- selectList [MissionUser ==. who, MissionCharacter ==. char] []
+    if completed mission objectives then do
+        deleteWhere [MissionUser ==. who, MissionCharacter ==. char]
+        insertUnique $ Unlocked who char
+        return True
+    else
+        return False
+
+progress :: Text -> Int -> Int -> Handler Bool
+progress name i amount = fromMaybe False <$> runMaybeT do
+    Just who   <- Auth.maybeAuthId
+    mission    <- MaybeT . return $ Goal.goals <$> lookup name map
+    let len     = length mission
+    guard $ i < len
+    ids        <- getsYesod App.characterIDs
+    char       <- Bimap.lookupR name ids
+    lift . runDB $ updateProgress mission who char i amount
+
 setObjectives :: [Entity Mission] -> Seq Goal -> Seq Int
 setObjectives objectives xs = foldl' f (0 <$ xs) objectives
   where
@@ -114,3 +121,24 @@ setObjectives objectives xs = foldl' f (0 <$ xs) objectives
 completed :: Seq Goal -> [Entity Mission] -> Bool
 completed mission objectives = and . zipWith ((<=) . Goal.reach) mission $
                                setObjectives objectives mission
+
+winners :: Bimap CharacterId Text
+        -> [Text] -> [Entity Unlocked] -> [(Seq Goal, Key Character, Int)]
+winners ids team unlocks = do
+    Goal.Mission name mission <- list
+    guard $ name ∉ names
+    (i, Goal.Win team') <- zip [0..] $ Goal.objective <$> toList mission
+    guard . null $ team' \\ team
+    char <- Bimap.lookupR name ids
+    return (mission, char, i)
+  where
+    names = unlock ids unlocks
+
+processWin :: [Text] -> Handler ()
+processWin team = do
+    who <- Auth.requireAuthId
+    ids <- getsYesod App.characterIDs
+    runDB do
+        unlocks <- selectList [UnlockedUser ==. who] []
+        forM_ (winners ids team unlocks) \(mission, char, i) ->
+            void $ updateProgress mission who char i 1

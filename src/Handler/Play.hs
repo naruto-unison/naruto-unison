@@ -48,6 +48,7 @@ import           Game.Model.Player (Player)
 import qualified Game.Model.Slot as Slot
 import qualified Game.Engine as Engine
 import qualified Game.Characters as Characters
+import qualified Mission
 
 -- | If the difference in skill rating between two players exceeds this
 -- threshold, they will not be matched together.
@@ -258,15 +259,16 @@ gameSocket = webSockets do
     who        <- Auth.requireAuthId
     turnLength <- getsYesod $ Settings.turnLength . App.settings
     liftIO Random.createSystemRandom >>= runReaderT do
-        (mvar, info) <- untilJust $ handleFailures =<< runExceptT do
+        (team, mvar, info) <- untilJust $ handleFailures =<< runExceptT do
             teamNames <- Text.split (=='/') <$> Sockets.receive
             (section, team) <- case parseTeam teamNames of
                 Nothing   -> throwE Queue.InvalidTeam
                 Just vals -> return vals
 
-            liftHandler . runDB $
-                update who [UserTeam =. Just (tailEx teamNames)]
-            queue section team
+            let teamTail = tailEx teamNames
+            liftHandler . runDB $ update who [UserTeam =. Just teamTail]
+            (mvar, info) <- queue section team
+            return (teamTail, mvar, info)
 
         Sockets.sendJson info
         let player = GameInfo.player info
@@ -289,6 +291,10 @@ gameSocket = webSockets do
                 else
                     return $ Just wrapper
             Sockets.sendJson $ Wrapper.toJSON player gameEnd
+            let game = Wrapper.game gameEnd
+            when (Game.victor game == [player]) .
+                liftHandler $ Mission.processWin team
+
 
 -- | Wraps @enact@ with error handling.
 tryEnact :: ∀ m. (MonadGame m, MonadRandom m, MonadSockets m, MonadUnliftIO m)

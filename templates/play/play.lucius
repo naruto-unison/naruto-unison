@@ -885,6 +885,10 @@ a.playButton:after {
     margin: auto;
     font-size: 1.3em;
     border: 2px solid #e11;
+    padding-bottom: 0.5em;
+}
+#return:before, #return:after {
+    content: none;
 }
 
 #searching {
