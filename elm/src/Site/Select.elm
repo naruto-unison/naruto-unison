@@ -175,20 +175,29 @@ component ports =
                     else
                         wraparound wrapping st.index st.chars.list
                 charClass char = -- god I wish this language had pattern guards
-                    if not <| Set.member (characterName char) st.unlocked then
-                        "char locked"
-                    else if List.member char <| case st.stage of
-                        Practicing -> st.vs
-                        _          -> st.team
-                    then
-                          "char disabled"
-                    else case st.toggled of
-                        Nothing      -> "char click"
+                  let
+                    selected = case st.toggled of
+                        Nothing -> ""
                         Just toggled ->
                             if toggled == char then
-                                "char click selected"
+                                "selected"
                             else
-                                "char"
+                                "deselected"
+                    disabled =
+                        if not <| Set.member (characterName char) st.unlocked then
+                            "locked"
+                        else if List.member char <| case st.stage of
+                            Practicing -> st.vs
+                            _          -> st.team
+                        then
+                            "disabled"
+                        else
+                            ""
+                  in
+                    if String.isEmpty selected && String.isEmpty disabled then
+                        "char click"
+                    else
+                        String.join " " ["char", selected, disabled]
                 (topModule, teamOp) = case st.stage of
                     Practicing -> (vsBox st,      Vs)
                     Searching  -> (searchBox st,  Team)
@@ -268,7 +277,9 @@ component ports =
         Vary slot i -> withSound Sound.Click
             { st | variants = List.updateAt slot (always i) st.variants }
         Team Add char -> withSound Sound.Click <|
-              if char |> elem st.team then
+              if not <| Set.member (characterName char) st.unlocked then
+                  { st | toggled = Nothing }
+              else if char |> elem st.team then
                   { st | toggled = Nothing }
               else if st.toggled /= Just char then
                   { st | toggled = Just char }

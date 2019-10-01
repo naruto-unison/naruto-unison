@@ -16,6 +16,8 @@ import           Data.Either (isLeft)
 import           Data.Enum.Set.Class (EnumSet, AsEnumSet(..))
 
 import           Util ((!!), (—), (∈), (∉), intersects)
+import qualified Class.Hook as Hook
+import           Class.Hook (MonadHook)
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
@@ -216,10 +218,11 @@ setActed n = n { Ninja.acted = True }
 
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
-act :: ∀ m. (MonadGame m, MonadRandom m) => Act -> m ()
+act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Act -> m ()
 act a = do
     nUser     <- P.ninja user
     game      <- P.game
+    initial   <- P.ninjas
     let (affected, skill) = swapped nUser
         classes = Skill.classes skill
         charge  = Skill.charges skill > 0
@@ -261,6 +264,7 @@ act a = do
             else do
                 run affected efs
                 addChannels
+            Hook.action skill initial
         traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
 
     P.modifyAll $ unreflect . \n -> n { Ninja.triggers = mempty }

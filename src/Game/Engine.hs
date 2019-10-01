@@ -7,7 +7,9 @@ import           Data.List (deleteFirstsBy)
 import qualified Data.Vector as Vector
 
 import           Util ((—))
-import qualified Class.Labeled as Labeled
+import qualified Class.Hook as Hook
+import           Class.Hook (MonadHook)
+import qualified Class.Labeled as  Labeled
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
@@ -42,7 +44,7 @@ import qualified Game.Engine.Trigger as Trigger
 -- decrements all 'TurnBased.TurnBased' data;
 -- and resolves 'Model.Chakra.Chakras' for the next turn.
 -- Uses 'process' internally.
-runTurn :: ∀ m. (MonadGame m, MonadRandom m) => [Act] -> m ()
+runTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => [Act] -> m ()
 runTurn acts = do
     processTurn $ traverse_ Action.act acts
     Chakras.gain
@@ -50,7 +52,7 @@ runTurn acts = do
 -- | The underlying mechanism of 'run'.
 -- Performs posteffects such as 'Model.Channel.Channel's and 'Model.Trap.Trap's.
 -- Using 'run' is generally preferable to invoking this function directly.
-processTurn :: ∀ m. (MonadGame m, MonadRandom m) => m () -> m ()
+processTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m () -> m ()
 processTurn runner = do
     initial     <- P.ninjas
     player      <- Game.playing <$> P.game
@@ -71,6 +73,7 @@ processTurn runner = do
     P.alter \game -> game { Game.playing = opponent }
     doDeaths
     P.yieldVictor
+    Hook.turn
   where
     getChannels n = map (Act.fromChannel n) .
                     filter ((1 /=) . TurnBased.getDur) $

@@ -1,14 +1,13 @@
 module Mission.Goal
   ( Mission(..)
   , Goal(..), character
-  , Objective(..), involves
+  , Objective(..), belongsTo
   , Span(..)
-  , HookFunc, Store
+  , HookFunc, TurnFunc, Store
   ) where
 
 import ClassyPrelude
 
-import           Util ((∈))
 import           Game.Model.Character (Character)
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Characters as Characters
@@ -20,6 +19,11 @@ type HookFunc = Ninja -- ^ User.
                 -> Store
                 -> (Store, Int)
 
+type TurnFunc = Ninja -- User.
+                -> Ninja -- ^ Target at end of turn.
+                -> Store
+                -> (Store, Int)
+
 data Span
     = Turn
     | Match
@@ -28,14 +32,14 @@ data Span
 data Objective
     = Win [Text]
     | Hook Text Text HookFunc
-    | HookTurn Text (Ninja -> Store -> (Store, Int))
+    | HookTurn Text TurnFunc
     | UseAllSkills Text
 
-involves :: Text -> Objective -> Bool
-involves name (Win names) = name ∈ names
-involves name (Hook name' _ _) = name == name'
-involves name (HookTurn name' _) = name == name'
-involves name (UseAllSkills name') = name == name'
+user :: Objective -> Maybe Text
+user Win{}               = Nothing
+user (Hook name _ _)     = Just name
+user (HookTurn name _)   = Just name
+user (UseAllSkills name) = Just name
 
 data Goal = Reach { reach     :: Int
                   , spanning  :: Span
@@ -51,8 +55,7 @@ instance Eq Mission where
     (==) = (==) `on` char
 
 character :: Goal -> Maybe Character
-character x = case objective x of
-    Win _               -> Nothing
-    (Hook name _ _)     -> Characters.lookupName name
-    (HookTurn name _)   -> Characters.lookupName name
-    (UseAllSkills name) -> Characters.lookupName name
+character x = Characters.lookupName =<< user (objective x)
+
+belongsTo :: Text -> Goal -> Bool
+belongsTo name x = maybe False (name ==) . user $ objective x

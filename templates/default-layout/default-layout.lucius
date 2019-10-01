@@ -168,11 +168,6 @@ li {
     }
 }
 
-.locked {
-    filter: none !important;
-    opacity: 0.7;
-}
-
 .message {
     display: none;
 }
@@ -193,7 +188,7 @@ li {
     }
 
     button {
-        cursor: unset;
+        cursor: revert;
         border-color: #000;
         background-color: #eee;
         color: #000;

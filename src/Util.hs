@@ -3,15 +3,19 @@ module Util
   ( (!?), (!!)
   , (—), (∈), (∉)
   , Lift
-  , intersects
-  , duplic
-  , shorten, unaccent
-  , mapFromKeyed
   , adjustWith
+  , duplic
+  , intersects
+  , liftST
+  , mapFromKeyed
+  , shorten, unaccent
+  , whileM
   ) where
 
 import ClassyPrelude
 
+import qualified Control.Monad.ST as ST
+import           Control.Monad.ST (ST)
 import           Control.Monad.Trans.Class (MonadTrans)
 import qualified Data.Sequence as Seq
 import           Data.Sequence ((|>))
@@ -49,10 +53,12 @@ infix 4 ∉
 (∉) = notElem
 {-# INLINE (∉) #-}
 
--- | True if any elements are shared by both collections.
-intersects :: ∀ a. SetContainer a => a -> a -> Bool
-xs `intersects` ys = not . null $ intersection xs ys
-{-# INLINE intersects #-}
+adjustWith :: ∀ a. a -> (a -> a) -> Int -> Seq a -> Seq a
+adjustWith x f i xs
+  | i < len   = Seq.adjust' f i xs
+  | otherwise = xs ++ (replicate (i - len) x |> f x)
+  where
+    len = length xs
 
 -- | True if a list contains multiple identical values.
 duplic :: ∀ a. Eq a => [a] -> Bool
@@ -63,17 +69,19 @@ duplic = go []
       | x ∈ seen  = True
       | otherwise = go (x:seen) xs
 
+-- | True if any elements are shared by both collections.
+intersects :: ∀ a. SetContainer a => a -> a -> Bool
+xs `intersects` ys = not . null $ intersection xs ys
+{-# INLINE intersects #-}
+
+liftST :: ∀ m a. MonadIO m => ST RealWorld a -> m a
+liftST = liftIO . ST.stToIO
+{-# INLINE liftST #-}
+
 mapFromKeyed :: ∀ map a. IsMap map
              => (a -> ContainerKey map, a -> MapValue map) -> [a] -> map
 mapFromKeyed (toKey, toVal) xs = mapFromList $ (\x -> (toKey x, toVal x)) <$> xs
 {-# INLINE mapFromKeyed #-}
-
-adjustWith :: ∀ a. a -> (a -> a) -> Int -> Seq a -> Seq a
-adjustWith x f i xs
-  | i < len   = Seq.adjust' f i xs
-  | otherwise = xs ++ (replicate (i - len) x |> f x)
-  where
-    len = length xs
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text
@@ -100,6 +108,12 @@ unaccent 'Ū' = 'U'
 unaccent 'ä' = 'a'
 unaccent x   = x
 {-# INLINE unaccent #-}
+
+-- | Repeats a monadic action until it returns @False@.
+whileM :: Monad m => m Bool -> m ()
+whileM act = go
+  where
+    go = whenM act go
 
 -- | A metaconstraint for liftable functions.
 -- Useful for default signatures of MTL classes:

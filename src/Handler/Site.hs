@@ -125,7 +125,7 @@ getCharacterR category charLink = case Characters.lookupSite category charLink o
     Just char -> do
         let name = Character.format char
             path = shorten name
-        mission <- Mission.userMission name
+        mmission <- Mission.userMission name
         defaultLayout $(widgetFile "guide/character")
   where
     skillClasses skill =

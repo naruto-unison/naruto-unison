@@ -77,7 +77,9 @@ getTopicR topicId = do
     zone       <- liftIO LocalTime.getCurrentTimeZone
     Topic{..}  <- runDB $ get404 topicId
     posts      <- selectWithAuthors [PostTopic ==. topicId] []
-    mwidget    <- mapM (generateFormPost . renderTable . newPostForm topicId time) mwho
+    mwidget    <- traverse
+                  (generateFormPost . renderTable . newPostForm topicId time)
+                  mwho
     defaultLayout $(widgetFile "forum/topic")
 
 -- | Adds to a 'Topic'. Requires authentication.

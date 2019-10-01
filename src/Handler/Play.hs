@@ -9,8 +9,6 @@ import Yesod
 
 import           Control.Monad.Loops (untilJust)
 import           Control.Monad.Trans.Except (ExceptT, runExceptT, throwE)
-import qualified Control.Monad.ST as ST
-import           Control.Monad.ST (RealWorld, ST)
 import qualified Data.Cache as Cache
 import qualified Data.Text as Text
 import qualified System.Random.MWC as Random
@@ -18,7 +16,7 @@ import           UnliftIO.Concurrent (forkIO, threadDelay)
 import qualified Yesod.Auth as Auth
 import           Yesod.WebSockets (webSockets)
 
-import           Util ((∉), duplic)
+import           Util ((∉), duplic, liftST, whileM)
 import qualified Application.App as App
 import           Application.App (App, Handler)
 import           Application.Model (EntityField(..), User(..))
@@ -27,6 +25,7 @@ import qualified Handler.Play.Queue as Queue
 import qualified Handler.Play.Rating as Rating
 import qualified Handler.Play.Wrapper as Wrapper
 import           Handler.Play.Wrapper (Wrapper(Wrapper))
+import           Class.Hook (MonadHook)
 import qualified Class.Parity as Parity
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
@@ -86,7 +85,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
                 liftIO do
                     -- TODO: Move to a recurring timer?
                     Cache.purgeExpired practice
-                    Cache.insert practice who $ Wrapper game ninjas
+                    Cache.insert practice who $ Wrapper mempty game ninjas
                 returnJson GameInfo { vsWho  = who
                                     , vsUser = bot
                                     , player = Player.A
@@ -99,13 +98,10 @@ getPracticeQueueR _ = invalidArgs ["Wrong number of characters"]
 getPracticeWaitR :: Chakras -> Chakras -> Handler Value
 getPracticeWaitR actChakra xChakra = getPracticeActR actChakra xChakra []
 
-liftST :: ∀ m a. MonadIO m => ST RealWorld a -> m a
-liftST = liftIO . ST.stToIO
-
 -- | Handles a turn for a practice game. Requires authentication.
 -- Practice games are not time-limited and use GET requests instead of sockets.
 getPracticeActR :: Chakras -> Chakras -> [Act] -> Handler Value
-getPracticeActR actChakra exchangeChakra actions = do
+getPracticeActR spend exchange acts = do
     who      <- Auth.requireAuthId
     practice <- getsYesod App.practice
     mGame    <- liftIO $ Cache.lookup practice who
@@ -117,11 +113,11 @@ getPracticeActR actChakra exchangeChakra actions = do
           runReaderT (runReaderT (enactPractice who practice) wrapper) random
   where
     enactPractice who practice = do
-        res <- enact actChakra exchangeChakra actions
+        res <- enact $ Enact{spend, exchange, acts}
         case res of
           Left errorMsg -> invalidArgs [tshow errorMsg]
           Right ()      -> do
-              game'A   <- Wrapper.freeze
+              game'A <- Wrapper.freeze
               P.alter \g -> g
                   { Game.chakra  = (fst $ Game.chakra g, 100)
                   , Game.playing = Player.B
@@ -135,24 +131,30 @@ getPracticeActR actChakra exchangeChakra actions = do
               lift . returnJson $
                   Wrapper.toJSON Player.A <$> [game'A, game'B]
 
+data Team = Team Queue.Section [Character]
+
+parseTeam :: [Text] -> Maybe Team
+parseTeam ("quick"  :team) = Team Queue.Quick   <$> formTeam team
+parseTeam ("private":team) = Team Queue.Private <$> formTeam team
+parseTeam _                = Nothing
+
 formTeam :: [Text] -> Maybe [Character]
 formTeam team@[_,_,_]
   | duplic team = Nothing
   | otherwise   = traverse Characters.lookupName team
 formTeam _ = Nothing
 
-parseTeam :: [Text] -> Maybe (Queue.Section,  [Character])
-parseTeam ("quick"  :team) = (Queue.Quick, )   <$> formTeam team
-parseTeam ("private":team) = (Queue.Private, ) <$> formTeam team
-parseTeam _                = Nothing
+data Enact = Enact { spend    :: Chakras
+                   , exchange :: Chakras
+                   , acts     :: [Act]
+                   }
 
-formEnact :: [Text] -> Maybe (Chakras, Chakras, [Act])
+formEnact :: [Text] -> Maybe Enact
 formEnact (_:_: _:_:_: _:_) = Nothing -- No more than 3 actions!
-formEnact (actChakra:exchangeChakra:acts) = do
-    actChakra'      <- fromPathPiece actChakra
-    exchangeChakra' <- fromPathPiece exchangeChakra
-    acts'           <- traverse fromPathPiece acts
-    return (actChakra', exchangeChakra', acts')
+formEnact (spend':exchange':acts') = Enact
+                                     <$> fromPathPiece spend'
+                                     <*> fromPathPiece exchange'
+                                     <*> traverse fromPathPiece acts'
 formEnact _ = Nothing -- willywonka.gif
 
 pingSocket :: ∀ m. MonadSockets m => ExceptT Queue.Failure m ()
@@ -267,7 +269,7 @@ gameSocket = webSockets do
     liftIO Random.createSystemRandom >>= runReaderT do
         (team, mvar, info) <- untilJust $ handleFailures =<< runExceptT do
             teamNames <- Text.split (=='/') <$> Sockets.receive
-            (section, team) <- case parseTeam teamNames of
+            Team section team <- case parseTeam teamNames of
                 Nothing   -> throwE Queue.InvalidTeam
                 Just vals -> return vals
 
@@ -283,7 +285,7 @@ gameSocket = webSockets do
         let player = GameInfo.player info
         liftST (Wrapper.fromInfo info) >>= runReaderT do
             when (player == Player.A) $ tryEnact turnLength player mvar
-            gameEnd <- untilJust do
+            whileM  do
                 wrapper <- takeMVar mvar
                 if null . Game.victor $ Wrapper.game wrapper then do
                     Sockets.sendJson $ Wrapper.toJSON player wrapper
@@ -292,21 +294,28 @@ gameSocket = webSockets do
                     tryEnact turnLength player mvar
                     game <- P.game
                     if null $ Game.victor game then
-                        return Nothing
+                        return True
                     else do
                         liftHandler . runDB . void . forkIO .
                             Rating.update game player who $ GameInfo.vsWho info
-                        Just <$> Wrapper.freeze
-                else
-                    return $ Just wrapper
-            Sockets.sendJson $ Wrapper.toJSON player gameEnd
-            let game = Wrapper.game gameEnd
-            when (Game.victor game == [player]) .
-                liftHandler $ Mission.processWin team
-
+                        return False
+                else do
+                    liftST . Wrapper.replace wrapper =<< ask
+                    return False
+            game <- liftST . Wrapper.unsafeFreeze =<< ask
+            Sockets.sendJson $ Wrapper.toJSON player game
+            liftHandler do
+                when (Game.victor (Wrapper.game game) == [player]) $
+                    Mission.processWin team
+                traverse_ Mission.progress $ Wrapper.progress game
 
 -- | Wraps @enact@ with error handling.
-tryEnact :: ∀ m. (MonadGame m, MonadRandom m, MonadSockets m, MonadUnliftIO m)
+tryEnact :: ∀ m. ( MonadGame m
+                 , MonadHook m
+                 , MonadRandom m
+                 , MonadSockets m
+                 , MonadUnliftIO m
+                 )
          => Int -> Player -> MVar Wrapper -> m ()
 tryEnact turnLength player mvar = do
     -- This is necessary because canceling Sockets.receive closes the socket
@@ -326,8 +335,8 @@ tryEnact turnLength player mvar = do
         Just ["forfeit"] -> do
             P.forfeit player
             conclude
-        Just (formEnact -> Just (actChakra, exchangeChakra, actions)) -> do
-            res <- enact actChakra exchangeChakra actions
+        Just (formEnact -> Just formedEnact) -> do
+            res <- enact formedEnact
             case res of
                 Left errorMsg -> Sockets.send errorMsg
                 Right ()      -> conclude
@@ -341,19 +350,19 @@ tryEnact turnLength player mvar = do
         putMVar mvar wrapper
 
 -- | Processes a user's actions and passes them to 'Engine.run'.
-enact :: ∀ m. (MonadGame m, MonadRandom m)
-      => Chakras -> Chakras -> [Act] -> m (Either LByteString ())
-enact actChakra exchangeChakra actions = do
+enact :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+      => Enact -> m (Either LByteString ())
+enact Enact{spend, exchange, acts} = do
     player     <- P.player
     gameChakra <- Parity.getOf player . Game.chakra <$> P.game
-    let chakra  = gameChakra + exchangeChakra - actChakra
-    if | not . null $ drop Slot.teamSize actions -> err "Too many actions"
-       | duplic $ Act.user <$> actions           -> err "Duplicate actors"
-       | randTotal < 0 || Chakra.lack chakra     -> err "Insufficient chakra"
-       | any (Act.illegal player) actions        -> err "Character out of range"
-       | otherwise                               -> do
+    let chakra  = gameChakra + exchange - spend
+    if | not . null $ drop Slot.teamSize acts -> err "Too many actions"
+       | duplic $ Act.user <$> acts           -> err "Duplicate actors"
+       | randTotal < 0 || Chakra.lack chakra  -> err "Insufficient chakra"
+       | any (Act.illegal player) acts        -> err "Character out of range"
+       | otherwise                            -> do
             P.alter . Game.setChakra player $ chakra { Chakra.rand = randTotal }
-            Right <$> Engine.runTurn actions
+            Right <$> Engine.runTurn acts
   where
-    randTotal = Chakra.total actChakra - 5 * Chakra.total exchangeChakra
+    randTotal = Chakra.total spend - 5 * Chakra.total exchange
     err       = return . Left

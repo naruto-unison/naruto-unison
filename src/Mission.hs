@@ -2,23 +2,22 @@ module Mission
   ( initDB
   , progress
   , unlocked
-  , teamMissions
   , userMission
   , processWin
   ) where
 
-import ClassyPrelude hiding ((\\), map)
+import ClassyPrelude hiding ((\\))
 import Yesod
 
 import           Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
 import qualified Data.Bimap as Bimap
 import           Data.Bimap (Bimap)
-import           Data.List ((\\), nub)
+import           Data.List ((\\))
 import qualified Data.Sequence as Seq
 import           Database.Persist.Sql (Entity(..), SqlPersistT)
 import qualified Yesod.Auth as Auth
 
-import           Util ((∉), mapFromKeyed)
+import           Util ((∉))
 import qualified Application.App as App
 import           Application.App (Handler)
 import           Application.Model (Character(..), CharacterId, EntityField(..), Mission(..), Unlocked(..), User)
@@ -27,23 +26,8 @@ import qualified Game.Model.Character as Character
 import qualified Game.Characters as Characters
 import qualified Mission.Goal as Goal
 import           Mission.Goal (Goal)
-
-import qualified Mission.Shippuden
-
-list :: [Goal.Mission]
-list = Mission.Shippuden.missions
-{-# NOINLINE list #-}
-
-map :: HashMap Text Goal.Mission
-map = mapFromKeyed (Goal.char, id) list
-{-# NOINLINE map #-}
-
-characterMissions :: Text -> [Goal.Mission]
-characterMissions name =
-    filter (any (Goal.involves name . Goal.objective) . Goal.goals) list
-
-teamMissions :: [Text] -> [Goal.Mission]
-teamMissions names = nub $ characterMissions =<< names
+import qualified Mission.Missions as Missions
+import           Mission.Progress (Progress(..))
 
 initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do
@@ -72,62 +56,70 @@ unlocked = do
 
 unlock :: Bimap CharacterId Text -> [Entity Unlocked] -> HashSet Text
 unlock ids unlocks = union (setFromList $ mapMaybe look unlocks) $
-                     keysSet Characters.map `difference` keysSet map
+                     keysSet Characters.map `difference` keysSet Missions.map
   where
     look (Entity _ Unlocked{unlockedCharacter}) =
         Bimap.lookup unlockedCharacter ids
 
-userMission :: Text -> Handler (Seq (Goal, Int))
+userMission :: Text -> Handler (Maybe (Seq (Goal, Int)))
 userMission name = fromMaybe mempty <$> runMaybeT do
-    mission    <- MaybeT . return $ Goal.goals <$> lookup name map
-    ids        <- getsYesod App.characterIDs
-    char       <- Bimap.lookupR name ids
-    mwho       <- Auth.maybeAuthId
-    case mwho of
-        Nothing  -> return $ unGoal <$> mission
-        Just who -> do
-            objectives <- lift . runDB $ selectList
-                          [MissionUser ==. who, MissionCharacter ==. char] []
-            return . zip mission $ setObjectives objectives mission
-  where
-    unGoal x = (x { Goal.reach = 0 }, 0)
+    who     <- MaybeT Auth.maybeAuthId
+    ids     <- getsYesod App.characterIDs
+    char    <- Bimap.lookupR name ids
+    mission <- MaybeT . return $ lookup name Missions.map
+    (Just . zip mission <$>) . lift $ runDB do
+        alreadyUnlocked <-
+            selectFirst [UnlockedUser ==. who, UnlockedCharacter ==. char] []
+        if isJust alreadyUnlocked then
+            return $ Goal.reach <$> mission
+        else
+            setObjectives mission <$>
+                selectList [MissionUser ==. who, MissionCharacter ==. char] []
 
 updateProgress :: ∀ m. MonadIO m
                => Seq Goal
                -> Key User -> Key Character -> Int -> Int -> SqlPersistT m Bool
 updateProgress mission who char i amount = do
-    void $ upsert (Mission who char i amount) [MissionProgress +=. amount]
-    objectives <- selectList [MissionUser ==. who, MissionCharacter ==. char] []
-    if completed mission objectives then do
-        deleteWhere [MissionUser ==. who, MissionCharacter ==. char]
-        insertUnique $ Unlocked who char
+    alreadyUnlocked <- isJust <$> selectFirst unlockedChar []
+    if alreadyUnlocked then
         return True
-    else
-        return False
+    else do
+        void $ upsert (Mission who char i amount) [MissionProgress +=. amount]
+        objectives <- selectList missionChar []
+        if completed mission objectives then do
+            deleteWhere missionChar
+            insertUnique $ Unlocked who char
+            return True
+        else
+            return False
+  where
+    unlockedChar = [UnlockedUser ==. who, UnlockedCharacter ==. char]
+    missionChar  = [MissionUser ==. who, MissionCharacter ==. char]
 
-progress :: Text -> Int -> Int -> Handler Bool
-progress name i amount = fromMaybe False <$> runMaybeT do
-    Just who   <- Auth.maybeAuthId
-    mission    <- MaybeT . return $ Goal.goals <$> lookup name map
+progress :: Progress -> Handler Bool
+progress Progress{amount = 0} = return False
+progress Progress{name, objective, amount} = fromMaybe False <$> runMaybeT do
+    who        <- MaybeT Auth.maybeAuthId
+    mission    <- MaybeT . return $ lookup name Missions.map
     let len     = length mission
-    guard $ i < len
+    guard $ objective < len
     ids        <- getsYesod App.characterIDs
     char       <- Bimap.lookupR name ids
-    lift . runDB $ updateProgress mission who char i amount
+    lift . runDB $ updateProgress mission who char objective amount
 
-setObjectives :: [Entity Mission] -> Seq Goal -> Seq Int
-setObjectives objectives xs = foldl' f (0 <$ xs) objectives
+setObjectives :: Seq Goal -> [Entity Mission] -> Seq Int
+setObjectives xs objectives = foldl' f (0 <$ xs) objectives
   where
     f acc (Entity _ x) = Seq.update (missionObjective x) (missionProgress x) acc
 
 completed :: Seq Goal -> [Entity Mission] -> Bool
 completed mission objectives = and . zipWith ((<=) . Goal.reach) mission $
-                               setObjectives objectives mission
+                               setObjectives mission objectives
 
 winners :: Bimap CharacterId Text
         -> [Text] -> [Entity Unlocked] -> [(Seq Goal, Key Character, Int)]
 winners ids team unlocks = do
-    Goal.Mission name mission <- list
+    Goal.Mission name mission <- Missions.list
     guard $ name ∉ names
     (i, Goal.Win team') <- zip [0..] $ Goal.objective <$> toList mission
     guard . null $ team' \\ team

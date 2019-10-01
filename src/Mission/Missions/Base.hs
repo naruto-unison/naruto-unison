@@ -1,4 +1,4 @@
-module Mission.Base
+module Mission.Missions.Base
   ( module Import
   , check
   , maintain
@@ -43,8 +43,11 @@ killDuring name user target target' store = (store, ) . fromEnum $
     && not (alive target')
     && hasOwn name user
 
-maintain :: Int -> Text -> (Ninja -> Store -> (Store, Int))
-maintain goal name user store = (singleton count, fromEnum $ count >= goal)
+maintain :: Int -> Text -> TurnFunc
+maintain goal name user target store
+  | Ninja.slot user == Ninja.slot target =
+      (singleton count, fromEnum $ count >= goal)
+  | otherwise = (store, 0)
   where
     count
       | hasOwn name user = maybe 1 (+1) $ headMay store

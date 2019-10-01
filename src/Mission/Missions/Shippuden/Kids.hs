@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_HADDOCK hide     #-}
 
-module Mission.Shippuden.Kids (missions) where
+module Mission.Missions.Shippuden.Kids (missions) where
 
-import Mission.Base
+import Mission.Missions.Base
 
 missions :: [Mission]
 missions =
@@ -29,7 +29,8 @@ missions =
 
     , Reach 1 Match
       "Maintain [Shadow Clones] for 8 consecutive turns." .
-      HookTurn "Naruto Uzumaki" $ maintain 8 "Shadow Clones"
+      HookTurn "Naruto Uzumaki" $
+      maintain 8 "Shadow Clones"
     ]
   , Mission
     "Sakura Haruno (S)"

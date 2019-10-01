@@ -64,6 +64,7 @@ library:
   - monad-logger
   - monad-loops
   - mtl
+  - multimap
   - mwc-random
   - persistent
   - persistent-postgresql
