@@ -3,8 +3,8 @@ module Game.Engine (runTurn, processTurn) where
 
 import ClassyPrelude
 
+import           Control.Monad (zipWithM_)
 import           Data.List (deleteFirstsBy)
-import qualified Data.Vector as Vector
 
 import           Util ((—))
 import qualified Class.Hook as Hook
@@ -98,8 +98,8 @@ doBomb bomb target st = traverse_ detonate $ Status.bombs st
       | otherwise                 = return ()
 
 -- | Executes 'Status.bombs' of all 'Status'es that were removed.
-doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Vector Ninja -> m ()
-doBombs bomb ninjas = Vector.zipWithM_ comp ninjas =<< P.ninjas
+doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> [Ninja] -> m ()
+doBombs bomb ninjas = zipWithM_ comp ninjas =<< P.ninjas
   where
     comp n n' = sequence $
                 doBomb bomb (Ninja.slot n) <$> deleteFirstsBy Labeled.eq

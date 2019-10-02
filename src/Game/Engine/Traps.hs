@@ -95,7 +95,7 @@ getTurnNot n
   | otherwise     = getOf (Ninja.slot n) OnNoAction n
 
 -- | Processes and runs all 'Trap.Trap's at the end of a turn.
-runTurn :: ∀ m. (MonadGame m, MonadRandom m) => Vector Ninja -> m ()
+runTurn :: ∀ m. (MonadGame m, MonadRandom m) => [Ninja] -> m ()
 runTurn ninjas = do
     player  <- P.player
     ninjas' <- P.ninjas

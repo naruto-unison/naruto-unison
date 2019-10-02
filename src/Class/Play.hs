@@ -28,8 +28,7 @@ module Class.Play
 
 import ClassyPrelude hiding (zipWith)
 
-import qualified Data.Vector as Vector
-import           Data.Vector (Vector)
+import           Control.Monad (zipWithM_)
 
 import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
@@ -89,10 +88,10 @@ nTarget = ninja =<< target
 player :: ∀ m. MonadGame m => m Player
 player = Game.playing <$> game
 
-allies :: ∀ p m. (MonadGame m, Parity p) => p -> m (Vector Ninja)
+allies :: ∀ p m. (MonadGame m, Parity p) => p -> m [Ninja]
 allies p = Parity.half p <$> ninjas
 
-enemies :: ∀ p m. (MonadGame m, Parity p) => p -> m (Vector Ninja)
+enemies :: ∀ p m. (MonadGame m, Parity p) => p -> m [Ninja]
 enemies p = allies . not $ Parity.even p
 
 -- | Runs an action in a localized state where 'target' is replaced.
@@ -125,8 +124,8 @@ fromUser f = do
     modify t $ f usr
 
 zipWith :: ∀ m. (MonadGame m)
-        => (Ninja -> Ninja -> Ninja) -> Vector Ninja -> m ()
-zipWith f = Vector.zipWithM_ (\i -> modify i . f) $ fromList Slot.all
+        => (Ninja -> Ninja -> Ninja) -> [Ninja] -> m ()
+zipWith f = zipWithM_ (\i -> modify i . f) Slot.all
 
 -- | Adds a 'Flag' if 'Context.user' is not 'Context.target' and 'Context.new'
 -- is @True@.

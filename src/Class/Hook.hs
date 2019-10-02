@@ -16,10 +16,10 @@ import Game.Model.Ninja (Ninja)
 import Game.Model.Skill (Skill)
 
 class Monad m => MonadHook m where
-    action :: Skill -> Vector Ninja -> m ()
+    action :: Skill -> [Ninja] -> m ()
     turn   :: m ()
 
-    default action :: Lift MonadHook m => Skill -> Vector Ninja -> m ()
+    default action :: Lift MonadHook m => Skill -> [Ninja] -> m ()
     action sk = lift . action sk
     {-# INLINE action #-}
     default turn :: Lift MonadHook m => m ()

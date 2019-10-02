@@ -39,9 +39,9 @@ missionKeys name mission =
                  zip [0..] . toList $ Goal.goals mission
 
 data Track s = Track { slot     :: Slot
-                     , key      :: Vector (Int -> Progress)
+                     , key      :: [(Int -> Progress)]
                      , hooks    :: MultiMap Text (Int, HookFunc)
-                     , turns    :: Vector (Int, TurnFunc)
+                     , turns    :: [(Int, TurnFunc)]
                      , store    :: MVector s IntSet
                      , progress :: MVector s Int
                      }
@@ -52,7 +52,7 @@ track x i f = do
     MVector.unsafeWrite (store x) i store'
     MVector.unsafeModify (progress x) (+ progress') i
 
-trackTurn1 :: ∀ s. Vector Ninja -> Track s -> ST s ()
+trackTurn1 :: ∀ s. [Ninja] -> Track s -> ST s ()
 trackTurn1 ns x = sequence_ $ tracker <$> ns <*> turns x
   where
     user = ns !! Slot.toInt (slot x)
@@ -69,9 +69,9 @@ new n = do
     store    <- MVector.replicate Slot.teamSize mempty
     progress <- MVector.replicate Slot.teamSize 0
     return Track { slot  = Ninja.slot n
-                 , key   = fromList $ missionKeys name =<< missions
+                 , key   = missionKeys name =<< missions
                  , hooks = MultiMap.fromList $ mapMaybe hook objectives
-                 , turns = fromList $ mapMaybe turn objectives
+                 , turns = mapMaybe turn objectives
                  , store
                  , progress
                  }
@@ -90,21 +90,21 @@ new n = do
 newtype Tracker s = Tracker (Vector (Track s))
 
 -- | The mutable elements of the Tracker may not be used after this operation.
-unsafeFreeze :: ∀ s. Tracker s -> ST s (Vector Progress)
+unsafeFreeze :: ∀ s. Tracker s -> ST s [Progress]
 unsafeFreeze (Tracker xs) = concat <$> traverse freeze xs
   where
-    freeze x = (key x <*>) <$> Vector.unsafeFreeze (progress x)
+    freeze x = (key x <*>) . toList <$> Vector.unsafeFreeze (progress x)
 
 fromInfo :: ∀ s. GameInfo -> ST s (Tracker s)
 fromInfo info = Tracker <$> mapM new ninjas
   where
     player = GameInfo.player info
-    ninjas = Parity.half player $ GameInfo.ninjas info
+    ninjas = fromList . Parity.half player $ GameInfo.ninjas info
 
-trackTurn :: ∀ s. Tracker s -> Vector Ninja -> ST s ()
+trackTurn :: ∀ s. Tracker s -> [Ninja] -> ST s ()
 trackTurn (Tracker xs) ns = traverse_ (trackTurn1 ns) xs
 
-trackAction :: ∀ s. Tracker s -> Text -> Vector Ninja -> Vector Ninja -> ST s ()
+trackAction :: ∀ s. Tracker s -> Text -> [Ninja] -> [Ninja] -> ST s ()
 trackAction (Tracker xs) skill ns ns' = traverse_ (trackHooks1 skill zipped) xs
   where
     zipped = toList $ zip ns ns'

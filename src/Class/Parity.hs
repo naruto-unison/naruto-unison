@@ -26,7 +26,7 @@ allied :: ∀ a b. (Parity a, Parity b) => a -> b -> Bool
 allied x y = even x == even y
 {-# INLINE allied #-}
 
-half :: ∀ p a. Parity p => p -> Vector a -> Vector a
+half :: ∀ o p. (IsSequence o, Index o ~ Int, Parity p) => p -> o -> o
 half p xs = splitHalf (length xs `quot` 2) xs
   where
     splitHalf

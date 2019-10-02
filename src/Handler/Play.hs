@@ -66,7 +66,7 @@ bot = (App.newUser "Bot" Nothing $ ModifiedJulianDay 0)
 -- | Joins the practice-match queue with a given team. Requires authentication.
 getPracticeQueueR :: [Text] -> Handler Value
 getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
-    case fromList . zipWith Ninja.new Slot.all
+    case zipWith Ninja.new Slot.all
          <$> traverse Characters.lookupName [c1, b1, a1, a2, b2, c2] of
     Nothing -> invalidArgs ["Unknown character(s)"]
     Just ninjas -> do
@@ -75,9 +75,9 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
         if any (∉ unlocked) [a1, b1, c1] then
             invalidArgs ["Locked character(s)"]
         else do
-            runDB $ update who [ UserTeam    =. Just [a1, b1, c1]
-                              , UserPractice =. [a2, b2, c2]
-                              ]
+            runDB $ update who [ UserTeam     =. Just [a1, b1, c1]
+                               , UserPractice =. [a2, b2, c2]
+                               ]
             liftIO Random.createSystemRandom >>= runReaderT do
                 rand     <- ask
                 game     <- runReaderT Game.newWithChakras rand
@@ -85,7 +85,8 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
                 liftIO do
                     -- TODO: Move to a recurring timer?
                     Cache.purgeExpired practice
-                    Cache.insert practice who $ Wrapper mempty game ninjas
+                    Cache.insert practice who . Wrapper mempty game $
+                        fromList ninjas
                 returnJson GameInfo { vsWho  = who
                                     , vsUser = bot
                                     , player = Player.A

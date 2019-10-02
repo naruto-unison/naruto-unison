@@ -35,7 +35,7 @@ import qualified Game.Engine.Ninjas as Ninjas
 data GameInfo = GameInfo { vsWho  :: Key User
                          , vsUser :: User
                          , game   :: Game
-                         , ninjas :: Vector Ninja
+                         , ninjas :: [Ninja]
                          , player :: Player
                          }
 
@@ -49,10 +49,10 @@ instance ToJSON GameInfo where
         gameJson = gameToJSON player ninjas $
                    Game.setChakra (Player.opponent player) 0 game
 
-censor :: Player -> Vector Ninja -> Vector Value
+censor :: Player -> [Ninja] -> [Value]
 censor player ninjas = ninjaToJSON . censorNinja player ninjas <$> ninjas
 
-censorNinja :: Player -> Vector Ninja -> Ninja -> Ninja
+censorNinja :: Player -> [Ninja] -> Ninja -> Ninja
 censorNinja player ninjas n
   | Parity.allied player n = n'
   | n `is` Reveal          = n'
@@ -82,7 +82,7 @@ censorNinja player ninjas n
           _        -> Just st
               { Status.effects = Reveal `delete` Status.effects st }
 
-gameToJSON :: Player -> Vector Ninja -> Game -> Value
+gameToJSON :: Player -> [Ninja] -> Game -> Value
 gameToJSON player ninjas g = object
     [ "chakra"  .= Game.chakra g
     , "playing" .= Game.playing g
