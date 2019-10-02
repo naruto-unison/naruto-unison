@@ -19,6 +19,7 @@ import           Yesod.WebSockets (webSockets)
 import           Util ((∉), duplic, liftST, whileM)
 import qualified Application.App as App
 import           Application.App (App, Handler)
+import qualified Application.Model as Model
 import           Application.Model (EntityField(..), User(..))
 import qualified Application.Settings as Settings
 import qualified Handler.Play.Queue as Queue
@@ -55,7 +56,7 @@ ratingThreshold :: Double
 ratingThreshold = 1/0 -- i.e. infinity
 
 bot :: User
-bot = (App.newUser "Bot" Nothing $ ModifiedJulianDay 0)
+bot = (Model.newUser "Bot" Nothing $ ModifiedJulianDay 0)
     { userName       = "Bot"
     , userAvatar     = "/img/icon/bot.jpg"
     , userVerified   = True

@@ -12,7 +12,7 @@ import Yesod
 import qualified Database.Persist.Quasi as Quasi
 import qualified Database.Persist.Sql as Sql
 
-import Application.Fields (ForumBoard, Privilege)
+import Application.Fields (ForumBoard, Privilege(..))
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
     $(persistFileWith Quasi.lowerCaseSettings "config/models.persistentmodels")
@@ -25,17 +25,47 @@ instance Hashable (Key User) where
 
 instance ToJSON User where
     toJSON User{..} = object
-        [ "name"       .= userName
+        [ "privilege"  .= userPrivilege
+        , "name"       .= userName
         , "avatar"     .= userAvatar
-        , "clan"       .= userClan
+        , "background" .= userBackground
         , "xp"         .= userXp
         , "wins"       .= userWins
         , "losses"     .= userLosses
         , "streak"     .= userStreak
-        , "background" .= userBackground
-        , "privilege"  .= userPrivilege
+        , "record"     .= userRecord
+        , "clan"       .= userClan
+        , "muted"      .= userMuted
         , "condense"   .= userCondense
+        , "dna"        .= userDna
         ]
+
+newUser :: Text -> Maybe Text -> Day -> User
+newUser ident verkey day = User
+    { userIdent      = ident
+    , userPassword   = Nothing
+    , userVerkey     = verkey
+    , userVerified   = False
+    , userJoined     = day
+    , userPrivilege  = Normal
+    , userName       = ident
+    , userAvatar     = "/img/icon/default.jpg"
+    , userBackground = Nothing
+    , userXp         = 0
+    , userWins       = 0
+    , userLosses     = 0
+    , userStreak     = 0
+    , userRecord     = 0
+    , userClan       = Nothing
+    , userTeam       = Nothing
+    , userPractice   = ["Naruto Uzumaki", "Sakura Haruno", "Sasuke Uchiha"]
+    , userMuted      = False
+    , userCondense   = False
+    , userRating     = 0.0
+    , userDeviation  = 350.0 / 173.7178
+    , userVolatility = 0.06
+    , userDna        = 0
+    }
 
 -- | Types that can be summarized with oldest and most recent users to post.
 class HasAuthor a where

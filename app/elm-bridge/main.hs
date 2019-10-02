@@ -1,5 +1,6 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE TemplateHaskell       #-}
+{-# OPTIONS_GHC -fno-warn-orphans -fno-warn-unused-top-binds #-}
 
 import Prelude
 import Data.Sequence (Seq)
@@ -12,27 +13,18 @@ import Elm.TyRep
 
 import ElmDerive
 
-import qualified Class.Classed as Classed
-import           Class.Classed (Classed)
-import qualified Class.Parity as Parity
-import           Class.Parity (Parity)
-import qualified Class.Labeled as Labeled
-import           Class.Labeled (Labeled)
-import           Class.TurnBased (TurnBased(..))
-import qualified Data.Char as Char
-import qualified Data.Text as Text
-import           Data.Text (Text)
-import           Game.Model.Class (Class(..))
-import           Game.Model.Chakra (Chakras(..))
-import           Game.Model.Defense (Defense)
-import           Game.Model.Face (Face(..))
-import           Game.Model.Player (Player(..))
-import           Game.Model.Slot (Slot)
-import           Game.Model.Variant (Variant)
-import           Application.Fields (Privilege(..))
-import           Handler.Play.Queue (Failure(..))
+import Data.Char (isSpace)
+import Data.Text (Text)
+import Game.Model.Chakra (Chakras(..))
+import Game.Model.Defense (Defense)
+import Game.Model.Face (Face(..))
+import Game.Model.Player (Player(..))
+import Game.Model.Slot (Slot)
+import Game.Model.Variant (Variant)
+import Application.Fields (Privilege(..))
+import Handler.Play.Queue (Failure(..))
 
-import Game.Model.Internal hiding (Barrier(..), Effect(..), Ninja(..), Game(..))
+import Game.Model.Internal hiding (Barrier(..), Ninja(..))
 
 -- From Model.GameInfo.ninjaToJSON
 data Ninja = Ninja
@@ -83,16 +75,19 @@ data Effect = Effect
     }
 
 -- From the ToJSON instance of User in Application.Model
-data User = User { name       :: Text
+data User = User { privilege  :: Privilege
+                 , name       :: Text
                  , avatar     :: Text
-                 , clan       :: Maybe Text
+                 , background :: Maybe Text
                  , xp         :: Int
                  , wins       :: Int
                  , losses     :: Int
                  , streak     :: Int
-                 , background :: Maybe Text
-                 , privilege  :: Privilege
+                 , record     :: Int
+                 , clan       :: Maybe Text
+                 , muted      :: Bool
                  , condense   :: Bool
+                 , dna        :: Int
                  }
 
 alterations :: ETypeDef -> ETypeDef
@@ -151,7 +146,7 @@ deriveElmDef defaultOptions ''Trap
 deriveElmDef defaultOptions ''Variant
 
 trimAll :: String -> String
-trimAll s = unlines $ dropWhileEnd Char.isSpace <$> lines s
+trimAll s = unlines $ dropWhileEnd isSpace <$> lines s
 
 main :: IO ()
 main =

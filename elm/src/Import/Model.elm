@@ -38,45 +38,54 @@ jsonEncFailure  val =
 
 
 type alias User  =
-   { name: String
+   { privilege: Privilege
+   , name: String
    , avatar: String
-   , clan: (Maybe String)
+   , background: (Maybe String)
    , xp: Int
    , wins: Int
    , losses: Int
    , streak: Int
-   , background: (Maybe String)
-   , privilege: Privilege
+   , record: Int
+   , clan: (Maybe String)
+   , muted: Bool
    , condense: Bool
+   , dna: Int
    }
 
 jsonDecUser : Json.Decode.Decoder ( User )
 jsonDecUser =
-   Json.Decode.succeed (\pname pavatar pclan pxp pwins plosses pstreak pbackground pprivilege pcondense -> {name = pname, avatar = pavatar, clan = pclan, xp = pxp, wins = pwins, losses = plosses, streak = pstreak, background = pbackground, privilege = pprivilege, condense = pcondense})
+   Json.Decode.succeed (\pprivilege pname pavatar pbackground pxp pwins plosses pstreak precord pclan pmuted pcondense pdna -> {privilege = pprivilege, name = pname, avatar = pavatar, background = pbackground, xp = pxp, wins = pwins, losses = plosses, streak = pstreak, record = precord, clan = pclan, muted = pmuted, condense = pcondense, dna = pdna})
+   |> required "privilege" (jsonDecPrivilege)
    |> required "name" (Json.Decode.string)
    |> required "avatar" (Json.Decode.string)
-   |> fnullable "clan" (Json.Decode.string)
+   |> fnullable "background" (Json.Decode.string)
    |> required "xp" (Json.Decode.int)
    |> required "wins" (Json.Decode.int)
    |> required "losses" (Json.Decode.int)
    |> required "streak" (Json.Decode.int)
-   |> fnullable "background" (Json.Decode.string)
-   |> required "privilege" (jsonDecPrivilege)
+   |> required "record" (Json.Decode.int)
+   |> fnullable "clan" (Json.Decode.string)
+   |> required "muted" (Json.Decode.bool)
    |> required "condense" (Json.Decode.bool)
+   |> required "dna" (Json.Decode.int)
 
 jsonEncUser : User -> Value
 jsonEncUser  val =
    Json.Encode.object
-   [ ("name", Json.Encode.string val.name)
+   [ ("privilege", jsonEncPrivilege val.privilege)
+   , ("name", Json.Encode.string val.name)
    , ("avatar", Json.Encode.string val.avatar)
-   , ("clan", (maybeEncode (Json.Encode.string)) val.clan)
+   , ("background", (maybeEncode (Json.Encode.string)) val.background)
    , ("xp", Json.Encode.int val.xp)
    , ("wins", Json.Encode.int val.wins)
    , ("losses", Json.Encode.int val.losses)
    , ("streak", Json.Encode.int val.streak)
-   , ("background", (maybeEncode (Json.Encode.string)) val.background)
-   , ("privilege", jsonEncPrivilege val.privilege)
+   , ("record", Json.Encode.int val.record)
+   , ("clan", (maybeEncode (Json.Encode.string)) val.clan)
+   , ("muted", Json.Encode.bool val.muted)
    , ("condense", Json.Encode.bool val.condense)
+   , ("dna", Json.Encode.int val.dna)
    ]
 
 

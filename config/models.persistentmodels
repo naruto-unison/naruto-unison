@@ -22,6 +22,7 @@ User
     rating      Double  default=0
     deviation   Double  default=2.0148
     volatility  Double  default=0.06
+    dna         Int  default=0
     deriving Typeable
 
 Post

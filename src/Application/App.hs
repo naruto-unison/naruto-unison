@@ -11,8 +11,6 @@ module Application.App
   , AppPersistEntity
   , unsafeHandler
   , resourcesApp
-
-  , newUser
   ) where
 
 import ClassyPrelude
@@ -46,6 +44,7 @@ import           Yesod.Static hiding (static)
 import           Application.Fields (ForumBoard, Privilege(..), boardName)
 import qualified Handler.Play.Queue as Queue
 import           Handler.Play.Wrapper (Wrapper)
+import qualified Application.Model as Model
 import           Application.Model (CharacterId, EntityField(..), Topic(..), TopicId, User(..), UserId, Unique(..))
 import qualified Application.Settings as Settings
 import           Application.Settings (Settings, widgetFile)
@@ -215,32 +214,6 @@ instance YesodPersistRunner App where
     getDBRunner :: Handler (DBRunner App, Handler ())
     getDBRunner = defaultGetDBRunner connPool
 
-newUser :: Text -> Maybe Text -> Day -> User
-newUser ident verkey day = User
-    { userIdent      = ident
-    , userPassword   = Nothing
-    , userVerkey     = verkey
-    , userVerified   = False
-    , userJoined     = day
-    , userPrivilege  = Normal
-    , userName       = ident
-    , userAvatar     = "/img/icon/default.jpg"
-    , userBackground = Nothing
-    , userXp         = 0
-    , userWins       = 0
-    , userLosses     = 0
-    , userStreak     = 0
-    , userRecord     = 0
-    , userClan       = Nothing
-    , userTeam       = Nothing
-    , userPractice   = ["Naruto Uzumaki", "Sakura Haruno", "Sasuke Uchiha"]
-    , userMuted      = False
-    , userCondense   = False
-    , userRating     = 0.0
-    , userDeviation  = 350.0 / 173.7178
-    , userVolatility = 0.06
-    }
-
 instance YesodAuth App where
     type AuthId App = UserId
 
@@ -260,7 +233,7 @@ instance YesodAuth App where
             Just (Entity uid _) -> return $ Authenticated uid
             Nothing -> do
                 (UTCTime day _) <- liftIO getCurrentTime
-                who             <- insert $ newUser ident Nothing day
+                who             <- insert $ Model.newUser ident Nothing day
                 return $ Authenticated who
       where
         ident = Auth.credsIdent creds
@@ -300,7 +273,7 @@ instance YesodAuthEmail App where
 
     addUnverified email verkey = do
         (UTCTime day _) <- liftIO getCurrentTime
-        liftHandler . runDB . insert $ newUser email (Just verkey) day
+        liftHandler . runDB . insert $ Model.newUser email (Just verkey) day
 
     sendVerifyEmail email _ verurl =
         liftIO $ Mail.renderSendMail

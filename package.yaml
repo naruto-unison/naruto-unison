@@ -110,6 +110,17 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -Wall
+    - -Wincomplete-uni-patterns
+    - -Wcompat
+    - -Wincomplete-record-updates
+    - -Wredundant-constraints
+    - -Wpartial-type-signatures
+    - -fwarn-tabs
+    - -fwarn-incomplete-patterns
+    - -fwarn-incomplete-uni-patterns
+    - -funbox-small-strict-fields
+    - -ferror-spans
     dependencies:
     - naruto-unison
     - aeson
