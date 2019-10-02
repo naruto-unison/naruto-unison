@@ -7,7 +7,6 @@ module Game.Engine.Chakras
 import ClassyPrelude
 
 import           Data.Enum.Set.Class (EnumSet)
-import qualified Data.Vector as Vector
 
 import           Util ((—), (∈))
 import qualified Class.Parity as Parity
@@ -35,7 +34,7 @@ remove amount = do
         target  <- P.target
         chakras <- Chakra.toSequence . removeRandoms . Parity.getOf target .
                    Game.chakra <$> P.game
-        removed <- Chakra.collect . Vector.take amount <$> R.shuffle chakras
+        removed <- Chakra.collect @Vector . take amount <$> R.shuffle chakras
         P.alter $ Game.adjustChakra target (— removed)
         return removed
   where

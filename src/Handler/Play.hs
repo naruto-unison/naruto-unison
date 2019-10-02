@@ -283,9 +283,9 @@ gameSocket = webSockets do
 
         Sockets.sendJson info
         let player = GameInfo.player info
-        liftST (Wrapper.fromInfo info) >>= runReaderT do
+        game <- liftST (Wrapper.fromInfo info) >>= runReaderT do
             when (player == Player.A) $ tryEnact turnLength player mvar
-            whileM  do
+            whileM do
                 wrapper <- takeMVar mvar
                 if null . Game.victor $ Wrapper.game wrapper then do
                     Sockets.sendJson $ Wrapper.toJSON player wrapper
@@ -302,12 +302,14 @@ gameSocket = webSockets do
                 else do
                     liftST . Wrapper.replace wrapper =<< ask
                     return False
-            game <- liftST . Wrapper.unsafeFreeze =<< ask
-            Sockets.sendJson $ Wrapper.toJSON player game
-            liftHandler do
-                when (Game.victor (Wrapper.game game) == [player]) $
-                    Mission.processWin team
-                traverse_ Mission.progress $ Wrapper.progress game
+            -- Because the STWrapper is confined to its ReaderT, it may safely
+            -- be deconstructed as the final step.
+            liftST . Wrapper.unsafeFreeze =<< ask
+        Sockets.sendJson $ Wrapper.toJSON player game
+        liftHandler do
+            when (Game.victor (Wrapper.game game) == [player]) $
+                Mission.processWin team
+            traverse_ Mission.progress $ Wrapper.progress game
 
 -- | Wraps @enact@ with error handling.
 tryEnact :: ∀ m. ( MonadGame m
@@ -318,15 +320,18 @@ tryEnact :: ∀ m. ( MonadGame m
                  )
          => Int -> Player -> MVar Wrapper -> m ()
 tryEnact turnLength player mvar = do
-    -- This is necessary because canceling Sockets.receive closes the socket
+    -- This is necessary because interrupting Sockets.receive closes the socket
     -- connection, which means that a naive timeout will break the connection.
+    -- Even if the turn is over and its output will be ignored, Sockets.receive
+    -- must not be canceled.
     lock <- newEmptyMVar
+
     forkIO do
-        threadDelay turnLength
+        threadDelay turnLength -- No message before the end of the turn.
         void $ tryPutMVar lock Nothing
 
     forkIO do
-        message <- Sockets.receive
+        message <- Sockets.receive -- Message received from client.
         void . tryPutMVar lock $ Just message
 
     enactMessage <- (Text.split ('/' ==) <$>) <$> readMVar lock

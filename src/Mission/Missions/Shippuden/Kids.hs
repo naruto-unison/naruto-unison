@@ -23,7 +23,6 @@ missions =
       Hook "Naruto Uzumaki" "Rasengan" $
       affectAll \user target ->
           not (allied user target)
-          && not (stunned target)
           && stunned target
           && hasFrom user "Rasengan" target
 

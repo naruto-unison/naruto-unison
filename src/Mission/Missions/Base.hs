@@ -54,9 +54,10 @@ maintain goal name user target store
       | otherwise        = 0
 
 affectAll :: (Ninja -> Ninja -> Bool) -> HookFunc
-affectAll f user _ target' store = (store', fromEnum $ size store' >= 3)
+affectAll f user target target' store = (store', fromEnum $ size store' >= 3)
   where
     targetSlot = Slot.toInt $ Ninja.slot target'
     store'
+      | f user target  = store
       | f user target' = insertSet targetSlot store
       | otherwise      = store
