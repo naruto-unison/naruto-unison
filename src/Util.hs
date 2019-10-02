@@ -14,8 +14,7 @@ module Util
 
 import ClassyPrelude
 
-import qualified Control.Monad.ST as ST
-import           Control.Monad.ST (ST)
+import           Control.Monad.ST (ST, stToIO)
 import           Control.Monad.Trans.Class (MonadTrans)
 import qualified Data.Sequence as Seq
 import           Data.Sequence ((|>))
@@ -23,14 +22,14 @@ import           Data.Sequence ((|>))
 -- If a function doesn't seem like it should be inlined, it probably doesn't go
 -- here.
 
-infixl 9 !?
 -- | 'unsafeIndex'.
+infixl 9 !?
 (!?) :: ∀ o. IsSequence o => o -> Index o -> Maybe (Element o)
 (!?) = index
 {-# INLINE (!?) #-}
 
-infixl 9 !!
 -- | 'unsafeIndex'.
+infixl 9 !!
 (!!) :: ∀ o. IsSequence o => o -> Index o -> Element o
 (!!) = unsafeIndex
 {-# INLINE (!!) #-}
@@ -53,12 +52,15 @@ infix 4 ∉
 (∉) = notElem
 {-# INLINE (∉) #-}
 
+-- | 'Seq.adjust''. If the index is out of bounds, the @Seq@ is padded with
+-- a provided default value up to the index.
 adjustWith :: ∀ a. a -> (a -> a) -> Int -> Seq a -> Seq a
 adjustWith x f i xs
   | i < len   = Seq.adjust' f i xs
   | otherwise = xs ++ (replicate (i - len) x |> f x)
   where
     len = length xs
+{-# INLINABLE adjustWith #-}
 
 -- | True if a list contains multiple identical values.
 duplic :: ∀ a. Eq a => [a] -> Bool
@@ -68,14 +70,16 @@ duplic = go []
     go seen (x:xs)
       | x ∈ seen  = True
       | otherwise = go (x:seen) xs
+{-# INLINABLE duplic #-}
 
 -- | True if any elements are shared by both collections.
 intersects :: ∀ a. SetContainer a => a -> a -> Bool
 xs `intersects` ys = not . null $ intersection xs ys
 {-# INLINE intersects #-}
 
+-- | @'liftIO' . 'stToIO'
 liftST :: ∀ m a. MonadIO m => ST RealWorld a -> m a
-liftST = liftIO . ST.stToIO
+liftST = liftIO . stToIO
 {-# INLINE liftST #-}
 
 mapFromKeyed :: ∀ map a. IsMap map
@@ -114,6 +118,7 @@ whileM :: Monad m => m Bool -> m ()
 whileM act = go
   where
     go = whenM act go
+{-# INLINABLE whileM #-}
 
 -- | A metaconstraint for liftable functions.
 -- Useful for default signatures of MTL classes:

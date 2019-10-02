@@ -95,6 +95,10 @@ replace Wrapper{game, ninjas} STWrapper{gameRef, ninjasRef} = do
     writeSTRef gameRef game
     MVector.unsafeCopy ninjasRef =<< Vector.thaw ninjas
 
+-- Wrappers are pure and immutable, so these two functions are inefficient and a
+-- bit silly. That's fine, because test suites can make good use of them.
+-- Elsewhere, Wrappers are merely frozen snapshots of game state.
+
 adjustVec :: ∀ a. (a -> a) -> Int -> Vector a -> Vector a
 adjustVec f i = Vector.modify \xs -> MVector.modify xs f i
 
