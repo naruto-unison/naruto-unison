@@ -1,6 +1,7 @@
 .skill {
     padding: 4px;
     margin: -4px;
+    cursor: help;
 }
 .name:hover, .skill:hover, small:hover {
   text-decoration: none !important;
