@@ -3,13 +3,13 @@ User
     UniqueUser ident
     password    Text  Maybe
     verkey      Text  Maybe
-    verified    Bool
+    verified    Bool  default=TRUE
     joined      Day  default=current_date
     privilege   Privilege
     name        Text
     avatar      Text
     background  Text Maybe
-    xp          Int
+    xp          Int  default=0
     wins        Int  default=0
     losses      Int  default=0
     streak      Int  default=0
@@ -17,8 +17,8 @@ User
     clan        Text  Maybe
     team        [Text]  Maybe
     practice    [Text]
-    muted       Bool
-    condense    Bool
+    muted       Bool  default=False
+    condense    Bool  default=False
     rating      Double  default=0
     deviation   Double  default=2.0148
     volatility  Double  default=0.06
@@ -26,7 +26,7 @@ User
 
 Post
     author  UserId
-    time    UTCTime
+    time    UTCTime  default=current_timestamp
     body    [Text]
     topic   TopicId
     deriving Eq
@@ -36,13 +36,13 @@ Topic
     author  UserId
     staff   Bool
     title   Text
-    posts   Int
-    time    UTCTime
+    posts   Int  default=1
+    time    UTCTime  default=current_timestamp
     latest  UserId
 
 News
     author   UserId
-    date     Day
+    date     Day  default=current_date
     title    Text
     content  Text
 
@@ -61,4 +61,4 @@ Mission
     character  CharacterId
     objective  Int
     UniqueMission user character objective
-    progress   Int
+    progress   Int  default=0
