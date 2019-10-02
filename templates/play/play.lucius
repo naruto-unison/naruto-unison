@@ -181,8 +181,8 @@ body {
 }
 
 .char.locked {
-    opacity: 0.7;
-    outline-color: #666;
+    opacity: 0.5;
+    outline-color: #999;
 }
 
 #characterButtons, #vs {
