@@ -67,7 +67,7 @@ body {
 .char {
     width: 50px;
     float: right;
-    margin: 1px 0 0 0 !important;
+    margin: 1px 0px 2px 2px !important;
 }
 
 #forums {
@@ -82,7 +82,6 @@ section > aside {
 .skill {
     display: block;
     padding-bottom: 2px;
-    margin-right: 60px;
 }
 
 @media (max-width: 1000px) {

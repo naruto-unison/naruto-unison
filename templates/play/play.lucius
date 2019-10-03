@@ -595,6 +595,11 @@ main, #accountSettings {
     user-select: none;
 }
 
+
+#mainsite {
+    padding-left: 1em;
+    padding-right: 1em;
+}
 #mainsite::before, #mainsite::after {
     content: none;
 }

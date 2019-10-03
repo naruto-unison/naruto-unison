@@ -4,7 +4,10 @@
   Know the basics! This is everything you need to get started.
 <a href=@{MechanicsR} .guide>
   Read guide
-<h3>Characters
+$if loggedin
+  <h3>Characters and Missions
+$else
+  <h3>Characters
 <p>
   Each of Naruto Unison's #{length Characters.list} playable characters has their own skills and strategies.
 <a href=@{CharactersR} .guide>

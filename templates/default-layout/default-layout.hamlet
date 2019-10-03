@@ -3,6 +3,10 @@
 $if mcurrentRoute == Just PlayR
   ^{widget}
 $else
+  $maybe msg <- mmsg
+    <div .alert.alert-info #message>
+      #{msg}
+
   <header #sitenav>
     <aside>
       <img src=/img/logo.png>
@@ -45,9 +49,5 @@ $else
                 #{snd bc}
           <li .active>
             #{title}
-
-      $maybe msg <- mmsg
-        <div .alert.alert-info #message>
-          #{msg}
 
     ^{widget}

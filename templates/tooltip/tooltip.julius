@@ -21,6 +21,13 @@ const showChar = x => {
   }
 }
 
+const showDur = x => {
+  switch (x) {
+    case "Passive": return "Instant";
+    default:        return x;
+  }
+}
+
 let cur
 
 const popup = (tooltip, ev, el) => tooltip
@@ -64,7 +71,7 @@ $(() => {
               ...cTypes.map(cType => Array.from(Array(skill.cost[cType]))
               .map(()=> $(`<div class=" chakra ${cType}"></div>`) ))
             )).append($('<br/><p class="skillClasses">' +
-              [skill.dur.tag].concat(filterClasses(skill.classes)).join(", ") +
+              [showDur(skill.dur.tag)].concat(filterClasses(skill.classes)).join(", ") +
               '</div>'))
             desc = tooltip.find("article").html(skill.desc.replace(/\[.\]/g,"").replace(/\[/g,"<i>").replace(/\]/g,"</i>"))
             const charges = skill.charges

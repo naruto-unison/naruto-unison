@@ -1,3 +1,12 @@
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
 a, a sup, .skill {
   color: #007acc;
   text-decoration: none;
@@ -12,8 +21,21 @@ a:hover {
 }
 
 .alert {
+    pointer-events: none;
+    animation: fadeOut 0.5s linear 3s 1 normal forwards;
     padding: 10px 30px;
     color: #e00;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 1px solid #aaa;
+    text-align: center;
+    background: rgba(255,255,255,0.9);
+    margin: auto;
+    height: 1.5em;
+    align-content: center;
+    vertical-align: middle;
 }
 
 article sup {
@@ -34,7 +56,7 @@ body {
 }
 
 #breadcrumb {
-    margin-bottom: 1.5em;
+    margin-bottom: 1.25em;
     color: #666;
 
     li {
@@ -142,8 +164,10 @@ h1, h2 {
     text-transform: uppercase;
 }
 h2, h3, h4 {
-    margin-top: 0.5em;
     margin-bottom: 0.3em;
+}
+h3, h4 {
+    margin-top: 0.5em;
 }
 h1 { font-size: 1.6em; text-align: center }
 h3 { font-size: 1.25em }
@@ -156,6 +180,21 @@ i {
 input, textarea {
     background-color: #ddd;
     border: 1px solid #888;
+}
+
+nav.jump {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1em;
+
+    a {
+        margin-left: 1.5em;
+        margin-right: -0.5em;
+    }
+    a::before {
+        content: "→";
+        margin-right: 0.3em;
+    }
 }
 
 li {

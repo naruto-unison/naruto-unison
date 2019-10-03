@@ -3,14 +3,6 @@
     margin: 1px 21px 0 -19px !important;
 }
 
-.container {
-    padding-bottom: 10em;
-}
-
-.h3 {
-    margin-top: 1em;
-}
-
 li li {
     line-height: 1em;
 

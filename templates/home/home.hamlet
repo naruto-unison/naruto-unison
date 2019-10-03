@@ -18,9 +18,6 @@
     ^{change New "Mū" Reanimated}
 
 <section>
-  $maybe msg <- mmsg
-    <div .alert.alert-info #message>
-      #{msg}
   <h1>Naruto Unison
   <h2>News
   $forall new <- newsList

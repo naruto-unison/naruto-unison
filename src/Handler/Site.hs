@@ -20,6 +20,7 @@ import Yesod
 import           Data.List (nubBy)
 import qualified Data.List.NonEmpty as NonEmpty
 import           Text.Blaze.Html (preEscapedToHtml)
+import qualified Yesod.Auth as Auth
 
 import           Util (shorten)
 import           Application.App (Handler, Route(..), Widget)
@@ -54,7 +55,6 @@ getChangelogR = do
 -- | Renders the homepage of the website.
 getHomeR :: Handler Html
 getHomeR = do
-    mmsg     <- getMessage
     newsList <- runDB $ traverse withAuthor
                         =<< selectList [] [Desc NewsDate, LimitTo 5]
     topics   <- Forum.selectWithAuthors [] [Desc TopicTime, LimitTo 10]
@@ -103,6 +103,7 @@ news (News{..}, author) = $(widgetFile "home/news")
 
 getGuideR :: Handler Html
 getGuideR = do
+    loggedin   <- isJust <$> Auth.maybeAuthId
     (title, _) <- breadcrumbs
     defaultLayout $(widgetFile "guide/guide")
 
