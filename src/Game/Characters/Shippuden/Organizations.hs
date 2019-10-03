@@ -202,7 +202,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Mind Transfer"
-        , Skill.desc      = "Fū takes over an enemy's mind and steals all removable beneficial effects on them. The target's destructible defense is transferred to Fū, and Fū's destructible barrier is transferred to the target. While active, Fū detects all invisible effects and enemy cooldowns."
+        , Skill.desc      = "Fū takes over an enemy's mind and steals all removable beneficial effects on them. The target's destructible defense is transferred to Fū, and Fū's destructible barrier is transferred to the target. For 3 turns, Fū detects all invisible effects and enemy cooldowns."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
