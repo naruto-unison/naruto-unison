@@ -1,10 +1,7 @@
 .skill {
     padding: 4px;
     margin: -4px;
-    cursor: help;
-}
-.name:hover, .skill:hover, small:hover {
-  text-decoration: none !important;
+    cursor: default;
 }
 
 #tooltip {
@@ -22,13 +19,15 @@
   border-radius: 3px;
   color: #000;
   z-index: 2;
-}
-#tooltip header {
-  font-weight: bold;
-}
-#tooltip .skillClasses {
-  font-style: italic;
-  font-size: 12px;
-  display: inline;
-  margin: 0;
+
+  header {
+      font-weight: bold;
+  }
+
+  .skillClasses {
+    font-style: italic;
+    font-size: 12px;
+    display: inline;
+    margin: 0;
+    }
 }

@@ -16,7 +16,7 @@ a.name {
     text-decoration: underline;
 }
 
-a:hover {
+a:hover, a.name:hover {
     text-decoration: underline;
 }
 
