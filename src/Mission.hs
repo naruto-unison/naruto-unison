@@ -4,6 +4,7 @@ module Mission
   , unlocked
   , userMission
   , processWin
+  , awardDNA
   ) where
 
 import ClassyPrelude hiding ((\\))
@@ -14,16 +15,19 @@ import qualified Data.Bimap as Bimap
 import           Data.Bimap (Bimap)
 import           Data.List ((\\))
 import qualified Data.Sequence as Seq
+import qualified Database.Persist.Sql as Sql
 import           Database.Persist.Sql (Entity(..), SqlPersistT)
 import qualified Yesod.Auth as Auth
 
 import           Util ((∉))
 import qualified Application.App as App
 import           Application.App (Handler)
-import           Application.Model (Character(..), CharacterId, EntityField(..), Mission(..), Unlocked(..), User)
+import           Application.Model (Character(..), CharacterId, EntityField(..), Mission(..), Unlocked(..), User(..))
 import qualified Application.Settings as Settings
 import qualified Game.Model.Character as Character
 import qualified Game.Characters as Characters
+import qualified Handler.Play.Queue as Queue
+import           Handler.Play.Match (Outcome(..))
 import qualified Mission.Goal as Goal
 import           Mission.Goal (Goal)
 import qualified Mission.Missions as Missions
@@ -54,9 +58,14 @@ unlocked = do
             return $ unlock ids unlocks
         _ -> return $ keysSet Characters.map
 
+freeChars :: HashSet Text
+freeChars = setFromList dna `difference` keysSet Missions.map
+  where
+    dna = Character.format <$> filter ((== 0) . Character.price) Characters.list
+{-# NOINLINE freeChars #-}
+
 unlock :: Bimap CharacterId Text -> [Entity Unlocked] -> HashSet Text
-unlock ids unlocks = union (setFromList $ mapMaybe look unlocks) $
-                     keysSet Characters.map `difference` keysSet Missions.map
+unlock ids unlocks = freeChars `union` setFromList (mapMaybe look unlocks)
   where
     look (Entity _ Unlocked{unlockedCharacter}) =
         Bimap.lookup unlockedCharacter ids
@@ -136,3 +145,50 @@ processWin team = do
         unlocks <- selectList [UnlockedUser ==. who] []
         forM_ (winners ids team unlocks) \(mission, char, i) ->
             void $ updateProgress mission who char i 1
+
+-- When ladder matches are introduced, these two will become more complicated.
+
+awardDNA :: Queue.Section -> Outcome -> Handler [(Text, Int)]
+awardDNA Queue.Private _ = return []
+awardDNA Queue.Quick outcome = do
+    (who, user)   <- Auth.requireAuthPair
+    dnaConf       <- getsYesod $ Settings.dnaConf . App.settings
+    UTCTime day _ <- liftIO getCurrentTime
+    let jDay       = Just day
+    let tallies    = tallyDNA Queue.Quick outcome dnaConf jDay user
+    runDB . Sql.update who $ updateLatestWin outcome jDay
+        [UserLatestGame =. jDay, UserDna +=. sum (snd <$> tallies)]
+    return tallies
+
+updateLatestWin :: Outcome -> Maybe Day -> [Update User] -> [Update User]
+updateLatestWin Victory day xs = (UserLatestWin =. day) : xs
+updateLatestWin _       _   xs = xs
+
+tallyDNA :: Queue.Section -> Outcome -> Settings.DNA -> Maybe Day -> User
+         -> [(Text, Int)]
+tallyDNA section outcome dnaConf day user = filter ((> 0) . snd)
+    [ (tshow outcome, outcomeDNA section outcome dnaConf)
+    , ("First Game of the Day", dailyGame)
+    , ("First Win of the Day", dailyWin)
+    , ("Win Streak",  winStreak)
+    ]
+  where
+
+    winStreak
+      | userStreak user < 1        = 0
+      | Settings.useStreak dnaConf = floor . sqrt @Float . fromIntegral $
+                                     userStreak user - 1
+      | otherwise                  = 0
+    dailyGame
+      | userLatestGame user == day = 0
+      | otherwise                  = Settings.dailyGame dnaConf
+    dailyWin
+      | userLatestWin user == day = 0
+      | otherwise                 = Settings.dailyWin dnaConf
+
+
+outcomeDNA ::Queue.Section -> Outcome -> Settings.DNA -> Int
+outcomeDNA Queue.Private _     = const 0
+outcomeDNA Queue.Quick Victory = Settings.quickWin
+outcomeDNA Queue.Quick Defeat  = Settings.quickLose
+outcomeDNA Queue.Quick Tie     = Settings.quickTie

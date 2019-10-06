@@ -10,12 +10,12 @@ import ClassyPrelude
 import qualified Database.Esqueleto as ESQL
 import           Database.Esqueleto ((>.), (^.), (==.))
 import qualified Database.Persist.Sql as Sql
-import           Database.Persist.Sql ((=.), (+=.), SqlPersistT)
+import           Database.Persist.Sql ((=.), (+=.), Entity(..), SqlPersistT)
 import           Database.Persist.Types (Update)
 
-import Application.Model (EntityField(..), Key, User(..))
-import Game.Model.Game (Game(Game, victor))
-import Game.Model.Player (Player)
+import           Application.Model (EntityField(..), Key, User(..))
+import qualified Handler.Play.Match as Match
+import           Handler.Play.Match (Match, Outcome(..))
 
 square :: Double -> Double
 square x = x * x
@@ -23,41 +23,21 @@ square x = x * x
 -- | Updates fields in the user table based on the end of a game.
 -- Win record fields: 'userWins', 'userLosses', 'userStreak'.
 -- Skill rating fields: 'userRating', 'userDeviation', 'userVolatility'.
-update :: ∀ m. MonadIO m
-       => Game -- ^ Completed game.
-       -> Player -- ^ Whether the viewed user was 'Player.A' or 'Player.B'.
-       -> Key User -- ^ Viewed user.
-       -> Key User -- ^ Opponent user.
-       -> SqlPersistT m ()
-update game player who1 who2 = do
-    mUser1 <- Sql.get who1
-    mUser2 <- Sql.get who2
-    case (mUser1, mUser2) of
-        (Just user1, Just user2) -> do
-            let (updates1, updates2) = compute (user1, user2) victors
-            Sql.update who1 updates1
-            Sql.update who2 updates2
-            updateStreak who1
-            updateStreak who2
-        _ -> return ()
+update :: ∀ m. MonadIO m => Match (Entity User) -> SqlPersistT m ()
+update match = Match.traverse_ go match
   where
-    victors = case game of
-        Game{victor = [victor]}
-          | player == victor -> (1,   0)
-          | otherwise        -> (0,   1)
-        _                    -> (0.5, 0.5)
+    go outcome (Entity who player) (Entity _ opponent) = do
+        Sql.update who $ compute outcome player opponent
+        updateStreak who
 
-compute :: (User, User) -> (Double, Double) -> ([Update User], [Update User])
-compute (playerA, playerB) (scoreA, scoreB) =
-    ( updatePlayer playerA playerB scoreA
-    , updatePlayer playerB playerA scoreB
-    )
+compute :: Outcome -> User -> User -> [Update User]
+compute outcome player opponent = updateUser player opponent outcome
 
 -- | Updates the win/loss record.
-updateRecord :: Double -> [Update User]
-updateRecord 1 = [UserWins +=. 1,   UserStreak +=. 1] -- User won.
-updateRecord 0 = [UserLosses +=. 1, UserStreak =. 0] -- User lost.
-updateRecord _ = [UserStreak =. 0] -- Tie.
+updateRecord :: Outcome -> [Update User]
+updateRecord Victory = [UserWins +=. 1, UserStreak +=. 1]
+updateRecord Defeat  = [UserLosses +=. 1, UserStreak =. 0]
+updateRecord Tie     = [UserStreak =. 0]
 
 updateStreak :: ∀ m. MonadIO m => Key User -> SqlPersistT m ()
 updateStreak who =
@@ -69,13 +49,17 @@ updateStreak who =
 -- | Updates skill ratings.
 -- Uses the [Glicko-2 algorithm](http://glicko.net/glicko/glicko2.pdf)
 -- by Dr. Mark E. Glickman.
-updatePlayer :: User -> User -> Double -> [Update User]
-updatePlayer player opponent s =
-    updateRecord s ++ [ UserDeviation  =. φ'
-                      , UserRating     =. µ'
-                      , UserVolatility =. σ'
-                      ]
+updateUser :: User -> User -> Outcome -> [Update User]
+updateUser player opponent outcome =
+    updateRecord outcome ++ [ UserDeviation  =. φ'
+                            , UserRating     =. µ'
+                            , UserVolatility =. σ'
+                            ]
   where
+    s  = case outcome of
+        Victory -> 1
+        Defeat  -> 0
+        Tie     -> 0.5
     µ  = userRating     player
     φ  = userDeviation  player
     σ  = userVolatility player

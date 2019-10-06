@@ -7,6 +7,7 @@ module Application.Settings
   ( Settings(..)
   , configSettingsYmlValue
   , widgetFile
+  , DNA(..)
   ) where
 
 import ClassyPrelude
@@ -24,6 +25,32 @@ import qualified Yesod.Default.Config2 as DefaultConfig
 import qualified Yesod.Default.Util as Util
 import           Yesod.Default.Util (WidgetFileSettings)
 
+-- | DNA rewards.
+data DNA = DNA
+    { dailyGame :: Int
+    -- ^ When a player completes their first quick/ranked match of the day
+    , dailyWin  :: Int
+    -- ^ When a player earns their first quick/ranked victory of the day
+    ,quickWin   :: Int
+    -- ^ Whenever a player wins a quick match
+    , quickLose :: Int
+    -- ^ Whenever a player loses a quick match
+    , quickTie  :: Int
+    -- ^ Whenever a player ends a match in a tie
+    , useStreak :: Bool
+    -- ^ Add the square root of the user's win streak to the DNA reward
+    }
+
+instance FromJSON DNA where
+    parseJSON = Aeson.withObject "DNA" \o -> do
+        dailyGame <- o .: "daily-game"
+        dailyWin  <- o .: "daily-win"
+        quickWin  <- o .: "quick-win"
+        quickLose <- o .: "quick-lose"
+        quickTie  <- o .: "quick-tie"
+        useStreak <- o .: "use-streak"
+        return DNA{..}
+
 data Settings = Settings
     { allowVsSelf            :: Bool
     -- ^ Allow players to queue against themselves
@@ -38,6 +65,8 @@ data Settings = Settings
     -- ^ Directory from which to serve static files.
     , databaseConf           :: PostgresConf
     -- ^ Configuration settings for accessing the database.
+    , dnaConf                :: DNA
+    -- ^ Configuration settings for rewarding DNA.
     , root                   :: Maybe Text
     -- ^ Base for all generated URLs. If @Nothing@, determined
     -- from the request headers.
@@ -80,6 +109,7 @@ instance FromJSON Settings where
 #endif
         staticDir              <- o .: "static-dir"
         databaseConf           <- o .: "database"
+        dnaConf                <- o .: "dna"
         root                   <- o .:? "approot"
         host                   <- fromString <$> o .: "host"
         port                   <- o .: "port"

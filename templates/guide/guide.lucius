@@ -4,6 +4,7 @@
 
 .guide::after {
     content: " →";
+    font-weight: normal;
 }
 
 h3, a, p {

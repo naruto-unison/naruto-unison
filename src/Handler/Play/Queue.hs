@@ -26,11 +26,12 @@ data Message
 data Section
     = Quick
     | Private
+    deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 data Failure
     = AlreadyQueued
     | Canceled
     | InvalidTeam
     | Locked
-    | OpponentNotFound
-    deriving (Generic, ToJSON)
+    | NotFound
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)

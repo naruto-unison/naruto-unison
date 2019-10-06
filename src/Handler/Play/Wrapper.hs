@@ -5,14 +5,13 @@
 module Handler.Play.Wrapper
   ( STWrapper(..), fromInfo, replace, thaw
   , IOWrapper
-  , Wrapper(..), freeze, unsafeFreeze, toJSON
+  , Wrapper(..), freeze, unsafeFreeze, toTurn
   ) where
 
 import ClassyPrelude
 
 import           Control.Monad.ST (RealWorld, ST)
 import           Control.Monad.Trans.State.Strict (StateT, gets, modify')
-import           Data.Aeson (Value)
 import           Data.STRef
 import qualified Data.Vector as Vector
 import           Data.Vector ((//))
@@ -22,7 +21,8 @@ import           Data.Vector.Mutable (STVector)
 import           Util ((!!), liftST)
 import qualified Class.Play as P
 import           Class.Play (MonadGame)
-import           Class.Random (MonadRandom(..))
+import qualified Class.Random
+import           Class.Random (MonadRandom)
 import           Class.Hook (MonadHook(..))
 import           Class.Sockets (MonadSockets)
 import           Game.Model.Game (Game)
@@ -35,6 +35,8 @@ import qualified Handler.Play.GameInfo as GameInfo
 import           Handler.Play.GameInfo (GameInfo)
 import qualified Handler.Play.Tracker as Tracker
 import           Handler.Play.Tracker (Tracker)
+import qualified Handler.Play.Turn as Turn
+import           Handler.Play.Turn (Turn)
 import           Mission.Progress (Progress)
 
 
@@ -144,8 +146,8 @@ thaw Wrapper{game, ninjas} = STWrapper Tracker.empty
                              <$> newSTRef game
                              <*> Vector.thaw ninjas
 
-toJSON :: Player -> Wrapper -> Value
-toJSON p Wrapper{game, ninjas} = GameInfo.gameToJSON p (toList ninjas) game
+toTurn :: Player -> Wrapper -> Turn
+toTurn player Wrapper{..} = Turn.new player (toList ninjas) game
 
 instance MonadRandom m => MonadRandom (ReaderT Wrapper m)
 instance MonadRandom m => MonadRandom (ReaderT (STWrapper s) m)

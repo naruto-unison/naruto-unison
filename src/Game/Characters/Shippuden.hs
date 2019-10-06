@@ -2,7 +2,7 @@
 
 module Game.Characters.Shippuden (characters) where
 
-import Prelude (($), (<$>), (++))
+import Prelude ((<$>), (++))
 
 import Game.Model.Character (Character, Category(Shippuden))
 
@@ -15,7 +15,7 @@ import qualified Game.Characters.Shippuden.Jinchuriki
 import qualified Game.Characters.Shippuden.Versions
 
 characters :: [Character]
-characters = ($ Shippuden)
+characters = (\x -> x 0 Shippuden)
     <$> Game.Characters.Shippuden.Kids.characters
     ++ Game.Characters.Shippuden.Adults.characters
     ++ Game.Characters.Shippuden.Organizations.characters

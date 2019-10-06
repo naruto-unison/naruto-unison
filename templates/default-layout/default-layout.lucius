@@ -137,6 +137,21 @@ dt::after {
 }
 dd {
     margin-bottom: 0.25em;
+    margin-left: 6.5em;
+}
+
+.dna::after, .locked::after {
+    margin-left: 0.15em;
+    vertical-align: middle;
+    filter: saturate(0) brightness(0);
+    line-height: 0;
+    font-weight: normal;
+}
+.dna::after {
+    content: "🧬";
+}
+.locked::after {
+    content: "🔒";
 }
 
 .extra {
@@ -172,6 +187,11 @@ h3, h4 {
 h1 { font-size: 1.6em; text-align: center }
 h3 { font-size: 1.25em }
 h4 { font-size: 1.15em }
+h1 aside, h2 aside, h3 aside, h4 aside, h5 aside, h6 aside {
+    float: right;
+    font-weight: normal !important;
+    opacity: 0.9;
+}
 
 i {
     color: #600;
@@ -194,6 +214,7 @@ nav.jump {
     a::before {
         content: "→";
         margin-right: 0.3em;
+        font-weight: normal;
     }
 }
 

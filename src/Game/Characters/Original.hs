@@ -2,7 +2,7 @@
 
 module Game.Characters.Original (characters) where
 
-import Prelude (($), (<$>), (++))
+import Prelude ((<$>), (++))
 
 import Game.Model.Character (Character, Category(Original))
 
@@ -16,7 +16,7 @@ import qualified Game.Characters.Original.Family
 import qualified Game.Characters.Original.Flashbacks
 
 characters :: [Character]
-characters = ($ Original)
+characters = (\x -> x 0 Original)
     <$> Game.Characters.Original.Kids.characters
     ++ Game.Characters.Original.Exams.characters
     ++ Game.Characters.Original.Teachers.characters

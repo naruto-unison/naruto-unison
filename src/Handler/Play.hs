@@ -1,7 +1,9 @@
+{-# LANGUAGE DeriveAnyClass #-}
 -- | Handles API routes and WebSockets related to gameplay.
 module Handler.Play
     ( gameSocket
     , getPracticeActR, getPracticeQueueR, getPracticeWaitR
+    , Message(..)
     ) where
 
 import ClassyPrelude
@@ -40,15 +42,26 @@ import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Chakra (Chakras)
 import           Game.Model.Character (Character)
 import qualified Game.Model.Game as Game
-import qualified Handler.Play.GameInfo as GameInfo
-import           Handler.Play.GameInfo (GameInfo(GameInfo))
 import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Player as Player
 import           Game.Model.Player (Player)
 import qualified Game.Model.Slot as Slot
 import qualified Game.Engine as Engine
 import qualified Game.Characters as Characters
+import qualified Handler.Play.GameInfo as GameInfo
+import           Handler.Play.GameInfo (GameInfo(GameInfo))
+import qualified Handler.Play.Match as Match
+import           Handler.Play.Match (Outcome(..))
+import           Handler.Play.Turn (Turn)
 import qualified Mission
+
+data Message
+    = Fail Queue.Failure
+    | Info GameInfo
+    | Ping
+    | Play Turn
+    | Reward [(Text, Int)]
+    deriving (Generic, ToJSON)
 
 -- | If the difference in skill rating between two players exceeds this
 -- threshold, they will not be matched together.
@@ -61,6 +74,9 @@ bot = (Model.newUser "Bot" Nothing $ ModifiedJulianDay 0)
     , userAvatar     = "/img/icon/bot.jpg"
     , userVerified   = True
     }
+
+sendClient :: ∀ m. MonadSockets m => Message -> m ()
+sendClient = Sockets.sendJson
 
 -- * HANDLERS
 
@@ -91,8 +107,8 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
                 returnJson GameInfo { vsWho  = who
                                     , vsUser = bot
                                     , player = Player.A
-                                    , game   = game
-                                    , ninjas = ninjas
+                                    , game
+                                    , ninjas
                                     }
 getPracticeQueueR _ = invalidArgs ["Wrong number of characters"]
  --zipWith Ninja.new Slot.all
@@ -131,7 +147,7 @@ getPracticeActR spend exchange acts = do
               else
                   Cache.delete practice who
               lift . returnJson $
-                  Wrapper.toJSON Player.A <$> [game'A, game'B]
+                  Wrapper.toTurn Player.A <$> [game'A, game'B]
 
 data Team = Team Queue.Section [Character]
 
@@ -161,7 +177,7 @@ formEnact _ = Nothing -- willywonka.gif
 
 pingSocket :: ∀ m. MonadSockets m => ExceptT Queue.Failure m ()
 pingSocket = do
-    Sockets.send "ping"
+    sendClient Ping
     pong <- Sockets.receive
     when (pong == "cancel") $ throwE Queue.Canceled
 
@@ -238,9 +254,9 @@ queue Queue.Private team = do
         mVs    <- liftHandler . runDB $ selectFirst [UserName ==. vsName] []
         case mVs of
             Just (Entity vsWho _)
-              | vsWho == who && not allowVsSelf -> throwE Queue.OpponentNotFound
+              | vsWho == who && not allowVsSelf -> throwE Queue.NotFound
             Just vs -> return vs
-            Nothing -> throwE Queue.OpponentNotFound
+            Nothing -> throwE Queue.NotFound
 
     queueWrite <- getsYesod App.queue
     queueRead  <- liftIO $ atomically do
@@ -260,7 +276,7 @@ queue Queue.Private team = do
 
 handleFailures :: ∀ m a. MonadSockets m => Either Queue.Failure a -> m (Maybe a)
 handleFailures (Right val) = return $ Just val
-handleFailures (Left msg)  = Nothing <$ Sockets.sendJson msg
+handleFailures (Left msg)  = Nothing <$ sendClient (Fail msg)
 
 -- | Sends messages through 'TChan's in 'App.App'. Requires authentication.
 gameSocket :: Handler ()
@@ -283,23 +299,25 @@ gameSocket = webSockets do
             (mvar, info) <- queue section team
             return (teamTail, mvar, info)
 
-        Sockets.sendJson info
+        sendClient $ Info info
         let player = GameInfo.player info
         game <- liftST (Wrapper.fromInfo info) >>= runReaderT do
-            when (player == Player.A) $ tryEnact turnLength player mvar
+            when (player == Player.A) $ tryEnact player turnLength mvar
             whileM do
                 wrapper <- takeMVar mvar
                 if null . Game.victor $ Wrapper.game wrapper then do
-                    Sockets.sendJson $ Wrapper.toJSON player wrapper
+                    sendClient . Play $ Wrapper.toTurn player wrapper
                     newWrapper <- ask
                     liftST $ Wrapper.replace wrapper newWrapper
-                    tryEnact turnLength player mvar
+                    tryEnact player turnLength mvar
                     game <- P.game
                     if null $ Game.victor game then
                         return True
                     else do
-                        liftHandler . runDB . void . forkIO .
-                            Rating.update game player who $ GameInfo.vsWho info
+                        let match = Match.fromGame game player who $
+                                    GameInfo.vsWho info
+                        liftHandler . runDB . void . forkIO $
+                            mapM_ Rating.update =<< Match.load match
                         return False
                 else do
                     liftST . Wrapper.replace wrapper =<< ask
@@ -307,10 +325,12 @@ gameSocket = webSockets do
             -- Because the STWrapper is confined to its ReaderT, it may safely
             -- be deconstructed as the final step.
             liftST . Wrapper.unsafeFreeze =<< ask
-        Sockets.sendJson $ Wrapper.toJSON player game
+        sendClient . Play $ Wrapper.toTurn player game
+        let outcome = Match.outcome (Wrapper.game game) player
+        dnaReward <- liftHandler $ Mission.awardDNA Queue.Quick outcome
+        sendClient $ Reward dnaReward
         liftHandler do
-            when (Game.victor (Wrapper.game game) == [player]) $
-                Mission.processWin team
+            when (outcome == Victory) $ Mission.processWin team
             traverse_ Mission.progress $ Wrapper.progress game
 
 -- | Wraps @enact@ with error handling.
@@ -320,8 +340,8 @@ tryEnact :: ∀ m. ( MonadGame m
                  , MonadSockets m
                  , MonadUnliftIO m
                  )
-         => Int -> Player -> MVar Wrapper -> m ()
-tryEnact turnLength player mvar = do
+         => Player -> Int -> MVar Wrapper -> m ()
+tryEnact player turnLength mvar = do
     -- This is necessary because interrupting Sockets.receive closes the socket
     -- connection, which means that a naive timeout will break the connection.
     -- Even if the turn is over and its output will be ignored, Sockets.receive
@@ -353,23 +373,21 @@ tryEnact turnLength player mvar = do
   where
     conclude = do
         wrapper <- Wrapper.freeze
-        Sockets.sendJson $ Wrapper.toJSON player wrapper
+        sendClient . Play $ Wrapper.toTurn player wrapper
         putMVar mvar wrapper
 
 -- | Processes a user's actions and passes them to 'Engine.run'.
 enact :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
       => Enact -> m (Either LByteString ())
-enact Enact{spend, exchange, acts} = do
+enact Enact{spend, exchange, acts} = runExceptT do
     player     <- P.player
     gameChakra <- Parity.getOf player . Game.chakra <$> P.game
     let chakra  = gameChakra + exchange - spend
-    if | not . null $ drop Slot.teamSize acts -> err "Too many actions"
-       | duplic $ Act.user <$> acts           -> err "Duplicate actors"
-       | randTotal < 0 || Chakra.lack chakra  -> err "Insufficient chakra"
-       | any (Act.illegal player) acts        -> err "Character out of range"
-       | otherwise                            -> do
-            P.alter . Game.setChakra player $ chakra { Chakra.rand = randTotal }
-            Right <$> Engine.runTurn acts
+    unless (null $ drop Slot.teamSize acts)    $ throwE "Too many actions"
+    when (duplic $ Act.user <$> acts)          $ throwE "Duplicate actors"
+    when (randTotal < 0 || Chakra.lack chakra) $ throwE "Insufficient chakra"
+    when (any (Act.illegal player) acts)       $ throwE "Character out of range"
+    P.alter . Game.setChakra player $ chakra { Chakra.rand = randTotal }
+    Engine.runTurn acts
   where
     randTotal = Chakra.total spend - 5 * Chakra.total exchange
-    err       = return . Left

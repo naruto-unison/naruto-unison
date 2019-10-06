@@ -23,6 +23,8 @@ import Game.Model.Slot (Slot)
 import Game.Model.Variant (Variant)
 import Application.Fields (Privilege(..))
 import Handler.Play.Queue (Failure(..))
+import Handler.Play.Turn (Turn(..))
+import Handler.Play (Message(..))
 
 import Game.Model.Internal hiding (Barrier(..), Ninja(..))
 
@@ -45,17 +47,9 @@ data Ninja = Ninja
     , skills    :: [Skill]
     }
 
--- From Model.GameInfo.gameToJSON
-data Game = Game { chakra  :: (Chakras, Chakras)
-                 , playing :: Player
-                 , victor  :: [Player]
-                 , ninjas  :: Seq Ninja
-                 , targets :: [[[Slot]]]
-                 }
-
 -- From the ToJSON instance of GameInfo in Model.GameInfo
 data GameInfo = GameInfo { opponent   :: User
-                         , game       :: Game
+                         , turn       :: Turn
                          , player     :: Player
                          }
 
@@ -105,18 +99,9 @@ typeAlterations t = case t of
     ETyCon (ETCon "Duration")  -> ETyCon (ETCon "Int")
     ETyCon (ETCon "Trigger")   -> ETyCon (ETCon "String")
     ETyCon (ETCon "Varying")   -> ETyCon (ETCon "Int")
-    ETyCon (ETCon "()")        -> ETyCon (ETCon "Unit") -- See elmUnitHandlers
     _                          -> defaultTypeAlterations t
 
-
--- | Aeson encodes () as a zero-length array.
-elmUnitHandlers :: String
-elmUnitHandlers = "type alias Unit = ()\n\
-\jsonDecUnit : Json.Decode.Decoder ( () )\n\
-\jsonDecUnit = Json.Decode.succeed ()\n\
-\jsonEncUnit : () -> Value\n\
-\jsonEncUnit = always <| Json.Encode.list (always Json.Encode.null) []"
-
+deriveElmDef defaultOptions ''Message
 deriveElmDef defaultOptions ''Failure
 
 deriveElmDef defaultOptions ''User
@@ -134,7 +119,6 @@ deriveElmDef defaultOptions ''Defense
 deriveElmDef defaultOptions ''Direction
 deriveElmDef defaultOptions ''Effect
 deriveElmDef defaultOptions ''Face
-deriveElmDef defaultOptions ''Game
 deriveElmDef defaultOptions ''GameInfo
 deriveElmDef defaultOptions ''Ninja
 deriveElmDef defaultOptions ''Player
@@ -143,6 +127,7 @@ deriveElmDef defaultOptions ''Skill
 deriveElmDef defaultOptions ''Status
 deriveElmDef defaultOptions ''Target
 deriveElmDef defaultOptions ''Trap
+deriveElmDef defaultOptions ''Turn
 deriveElmDef defaultOptions ''Variant
 
 trimAll :: String -> String
@@ -159,33 +144,33 @@ main =
 \import Dict exposing (Dict)\n\
 \import Set exposing (Set)\n\
 \\n\
-\import Import.Decode exposing (decodeSumTaggedObject)\n\n"
-    ++ elmUnitHandlers ++ "\n\n" ++
+\import Import.Decode exposing (decodeSumTaggedObject)\n\n" ++
     makeModuleContentWithAlterations alterations
-    [ DefineElm (Proxy :: Proxy Failure)
-    , DefineElm (Proxy :: Proxy User)
-    , DefineElm (Proxy :: Proxy Privilege)
-    , DefineElm (Proxy :: Proxy Character)
+    [ DefineElm (Proxy :: Proxy Barrier)
+    , DefineElm (Proxy :: Proxy Bomb)
     , DefineElm (Proxy :: Proxy Category)
-    , DefineElm (Proxy :: Proxy Game)
-    , DefineElm (Proxy :: Proxy GameInfo)
     , DefineElm (Proxy :: Proxy Chakras)
-    , DefineElm (Proxy :: Proxy Player)
-    , DefineElm (Proxy :: Proxy Ninja)
-    , DefineElm (Proxy :: Proxy Skill)
-    , DefineElm (Proxy :: Proxy Requirement)
-    , DefineElm (Proxy :: Proxy Target)
-    , DefineElm (Proxy :: Proxy Variant)
     , DefineElm (Proxy :: Proxy Channel)
     , DefineElm (Proxy :: Proxy Channeling)
+    , DefineElm (Proxy :: Proxy Character)
     , DefineElm (Proxy :: Proxy Copy)
     , DefineElm (Proxy :: Proxy Copying)
-    , DefineElm (Proxy :: Proxy Effect)
-    , DefineElm (Proxy :: Proxy Status)
-    , DefineElm (Proxy :: Proxy Bomb)
-    , DefineElm (Proxy :: Proxy Face)
-    , DefineElm (Proxy :: Proxy Barrier)
     , DefineElm (Proxy :: Proxy Defense)
-    , DefineElm (Proxy :: Proxy Trap)
     , DefineElm (Proxy :: Proxy Direction)
+    , DefineElm (Proxy :: Proxy Effect)
+    , DefineElm (Proxy :: Proxy Face)
+    , DefineElm (Proxy :: Proxy Failure)
+    , DefineElm (Proxy :: Proxy GameInfo)
+    , DefineElm (Proxy :: Proxy Message)
+    , DefineElm (Proxy :: Proxy Ninja)
+    , DefineElm (Proxy :: Proxy Player)
+    , DefineElm (Proxy :: Proxy Privilege)
+    , DefineElm (Proxy :: Proxy Requirement)
+    , DefineElm (Proxy :: Proxy Skill)
+    , DefineElm (Proxy :: Proxy Status)
+    , DefineElm (Proxy :: Proxy Target)
+    , DefineElm (Proxy :: Proxy Trap)
+    , DefineElm (Proxy :: Proxy Turn)
+    , DefineElm (Proxy :: Proxy User)
+    , DefineElm (Proxy :: Proxy Variant)
     ]

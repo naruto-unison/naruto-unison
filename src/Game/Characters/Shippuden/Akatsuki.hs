@@ -7,7 +7,7 @@ import Game.Characters.Base
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Category -> Character]
+characters :: [Int -> Category -> Character]
 characters =
   [ Character
     "Madara Uchiha"

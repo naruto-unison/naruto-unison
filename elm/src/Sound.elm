@@ -1,5 +1,6 @@
 module Sound exposing (Sound(..), enum, show)
 
+
 type Sound
     = ApplySkill
     | Cancel
@@ -13,6 +14,7 @@ type Sound
     | StartSecond
     | Target
     | Win
+
 
 enum : List Sound
 enum =
@@ -30,17 +32,42 @@ enum =
     , Win
     ]
 
+
 show : Sound -> String
-show x = case x of
-    ApplySkill  -> "ApplySkill"
-    Cancel      -> "Cancel"
-    Click       -> "Click"
-    Death       -> "Death"
-    Lose        -> "Lose"
-    NextTurn    -> "NextTurn"
-    Scroll      -> "Scroll"
-    StartFirst  -> "StartFirst"
-    StartTurn   -> "StartTurn"
-    StartSecond -> "StartSecond"
-    Target      -> "Target"
-    Win         -> "Win"
+show x =
+    case x of
+        ApplySkill ->
+            "ApplySkill"
+
+        Cancel ->
+            "Cancel"
+
+        Click ->
+            "Click"
+
+        Death ->
+            "Death"
+
+        Lose ->
+            "Lose"
+
+        NextTurn ->
+            "NextTurn"
+
+        Scroll ->
+            "Scroll"
+
+        StartFirst ->
+            "StartFirst"
+
+        StartTurn ->
+            "StartTurn"
+
+        StartSecond ->
+            "StartSecond"
+
+        Target ->
+            "Target"
+
+        Win ->
+            "Win"

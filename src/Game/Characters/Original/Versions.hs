@@ -7,11 +7,11 @@ import Game.Characters.Base
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Category -> Character]
+characters :: [Int -> Category -> Character]
 characters =
   [ Character
     "One-Tailed Naruto"
-    "Naruto's anger and desperation has forced the nine-tailed beast's power to the surface, transforming him into a single-minded beast. His overflowing tailed-beast chakra heals him and ravages his enemies."
+    "Naruto's anger and desperation has forced the nine-tailed beast's power to surface, unleashing Kurama's animalistic fury and boundless chakra. Overflowing with undirected power that could heal or destroy, Naruto has a choice to make: will he protect himself and stay in control, or give in to the beast within?"
     [ [ Skill.new
         { Skill.name      = "Tailed Beast Rasengan"
         , Skill.desc      = "Naruto slams an orb of supercharged chakra into an enemy, dealing 35 damage, stunning them for a turn, and losing 5 health from the backlash. Deals 10 additional damage during [Tailed Beast Chakra Arms], or 10 fewer damage during [Inner Chakra Mode]."

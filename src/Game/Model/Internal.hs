@@ -221,6 +221,7 @@ instance PathPiece Category where
 data Character = Character { name     :: Text
                            , bio      :: Text
                            , skills   :: NonEmpty (NonEmpty Skill)
+                           , price    :: Int
                            , category :: Category
                            } deriving (Generic, ToJSON)
 

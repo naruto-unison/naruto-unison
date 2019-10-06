@@ -43,5 +43,13 @@ copyright: Creative Commons
 #analytics: UA-YOURCODE
 
 # Values are in seconds
-turn-length: 60
-practice-cache-expiry: 3600
+turn-length:           "_env:NU_TURN_LENGTH:60"
+practice-cache-expiry: "_env:NU_EXPIRY:3600"
+
+dna:
+  daily-game: 3
+  daily-win:  3
+  quick-win:  5
+  quick-lose: 1
+  quick-tie:  2
+  use-streak: true
