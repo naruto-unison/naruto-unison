@@ -11,25 +11,25 @@ module Handler.Play.Tracker
 import ClassyPrelude hiding (empty)
 
 import           Control.Monad.ST (ST)
-import qualified Data.MultiMap as MultiMap
 import           Data.MultiMap (MultiMap, (!))
+import qualified Data.MultiMap as MultiMap
 import qualified Data.Vector as Vector
-import qualified Data.Vector.Mutable as MVector
 import           Data.Vector.Mutable (MVector)
+import qualified Data.Vector.Mutable as MVector
 
-import           Util ((!!))
 import qualified Class.Parity as Parity
 import qualified Game.Model.Character as Character
-import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Ninja (Ninja)
-import qualified Game.Model.Slot as Slot
+import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Slot (Slot)
-import qualified Handler.Play.GameInfo as GameInfo
+import qualified Game.Model.Slot as Slot
 import           Handler.Play.GameInfo (GameInfo)
-import qualified Mission.Missions as Missions
-import qualified Mission.Goal as Goal
+import qualified Handler.Play.GameInfo as GameInfo
 import           Mission.Goal (Mission, TurnFunc, HookFunc, Objective(..), Store)
+import qualified Mission.Goal as Goal
+import qualified Mission.Missions as Missions
 import           Mission.Progress (Progress(Progress))
+import           Util ((!!))
 
 missionKeys :: Text -> Mission -> [Int -> Progress]
 missionKeys name mission =

@@ -11,11 +11,19 @@ module Game.Characters.Base
 
 import ClassyPrelude as Import hiding (swap)
 
-import Game.Model.Character as Import (Character(..), Category)
+import Game.Action.Chakra as Import
+import Game.Action.Channel as Import
+import Game.Action.Combat as Import
+import Game.Action.Skill as Import
+import Game.Action.Status as Import
+import Game.Action.Trap as Import
+import Game.Engine.Ninjas as Import (addOwnStacks, addOwnDefense)
+import Game.Engine.Skills as Import
 import Game.Model.Chakra as Import (Chakra(..), Chakras)
 import Game.Model.Channel as Import (Channeling(..))
-import Game.Model.Copy as Import (Copying(..))
+import Game.Model.Character as Import (Character(..), Category)
 import Game.Model.Class as Import (Class(..))
+import Game.Model.Copy as Import (Copying(..))
 import Game.Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
 import Game.Model.Ninja as Import (Ninja(health, slot), alive, hasDefense, hasOwn, isChanneling, numActive, numAnyStacks, numHelpful)
 import Game.Model.Requirement as Import (Requirement(..))
@@ -23,26 +31,18 @@ import Game.Model.Runnable as Import (Runnable(To))
 import Game.Model.Skill as Import (Target(..))
 import Game.Model.Status as Import (Bomb(..))
 import Game.Model.Trigger as Import (Trigger(..))
-import Game.Action.Chakra as Import
-import Game.Action.Combat as Import
-import Game.Action.Channel as Import
-import Game.Action.Skill as Import
-import Game.Action.Status as Import
-import Game.Action.Trap as Import
-import Game.Engine.Skills as Import
-import Game.Engine.Ninjas as Import (addOwnStacks, addOwnDefense)
 
 import Data.Enum.Set.Class (EnumSet)
 
-import qualified Class.Play as P
 import           Class.Play (MonadPlay)
+import qualified Class.Play as P
+import qualified Game.Engine.Effects as Effects
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Ninja as Ninja
-import qualified Game.Model.Skill as Skill
 import           Game.Model.Skill (Skill)
-import qualified Game.Model.Slot as Slot
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
-import qualified Game.Engine.Effects as Effects
+import qualified Game.Model.Slot as Slot
 
 invuln :: Text -> Text -> EnumSet Class -> Skill
 invuln skillName userName classes = Skill.new

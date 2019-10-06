@@ -5,15 +5,15 @@ import ClassyPrelude
 import Control.Monad.Trans.Accum (AccumT)
 import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Identity (IdentityT)
+import Control.Monad.Trans.Maybe (MaybeT)
 import Control.Monad.Trans.Select (SelectT)
 import Control.Monad.Trans.Writer (WriterT)
-import Control.Monad.Trans.Maybe (MaybeT)
 import Yesod.WebSockets (WebSocketsT)
 
-import Util (Lift)
 import Game.Model.Context (Context)
 import Game.Model.Ninja (Ninja)
 import Game.Model.Skill (Skill)
+import Util (Lift)
 
 class Monad m => MonadHook m where
     action :: Skill -> [Ninja] -> m ()

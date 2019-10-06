@@ -8,8 +8,8 @@ module Game.Model.Channel
 
 import ClassyPrelude
 
-import Game.Model.Internal (Channel(..), Channeling(..))
 import Game.Model.Duration (Duration)
+import Game.Model.Internal (Channel(..), Channeling(..))
 
 -- | 'Control' and 'Action' 'Model.Skill.Skill's can be interrupted.
 -- Others cannot, because they are not considered user actions.

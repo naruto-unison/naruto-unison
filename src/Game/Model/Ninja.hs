@@ -10,20 +10,20 @@ module Game.Model.Ninja
 
 import ClassyPrelude
 
-import           Util ((∈), (∉))
-import qualified Class.Parity as Parity
 import qualified Class.Labeled as Labeled
-import           Game.Model.Internal (Ninja(..))
+import qualified Class.Parity as Parity
 import qualified Game.Model.Channel as Channel
 import           Game.Model.Character (Character)
 import           Game.Model.Class (Class(..))
 import qualified Game.Model.Defense as Defense
-import qualified Game.Model.Effect as Effect
 import           Game.Model.Effect (Effect(..))
+import qualified Game.Model.Effect as Effect
+import           Game.Model.Internal (Ninja(..))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Variant as Variant
+import           Util ((∈), (∉))
 
 skillSize :: Int
 skillSize = 4

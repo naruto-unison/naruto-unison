@@ -12,36 +12,36 @@ import Control.Monad.Reader (local, mapReaderT)
 import Control.Monad.Trans.Accum (AccumT, mapAccumT)
 import Control.Monad.Trans.Except (ExceptT, mapExceptT)
 import Control.Monad.Trans.Identity (IdentityT, mapIdentityT)
+import Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import Control.Monad.Trans.Select (SelectT, mapSelectT)
 import Control.Monad.Trans.Writer (WriterT, mapWriterT)
-import Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import Data.Aeson ((.=), ToJSON(..), object)
 import Data.Enum.Set.Class (AsEnumSet(..), EnumSet)
 import Data.Word (Word16)
 import Text.Blaze (ToMarkup(..))
-import Yesod.WebSockets (WebSocketsT)
 import Yesod.Core.Dispatch (PathPiece(..))
+import Yesod.WebSockets (WebSocketsT)
 
-import           Util (Lift)
-import qualified Class.Classed as Classed
 import           Class.Classed (Classed)
-import qualified Class.Parity as Parity
-import           Class.Parity (Parity)
+import qualified Class.Classed as Classed
 import qualified Class.Labeled
 import           Class.Labeled (Labeled)
+import           Class.Parity (Parity)
+import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
 import           Class.TurnBased (TurnBased(..))
-import           Game.Model.Class (Class(..))
 import           Game.Model.Chakra (Chakras(..))
+import           Game.Model.Class (Class(..))
 import           Game.Model.Defense (Defense(..))
 import           Game.Model.Duration (Duration, sync, unsync)
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Face (Face(..))
 import           Game.Model.Game (Game)
-import qualified Game.Model.Slot as Slot
 import           Game.Model.Slot (Slot(..))
+import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger(..))
 import           Game.Model.Variant (Variant(..))
+import           Util (Lift)
 
 -- | In-game character, indexed between 0 and 5.
 data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas' index (0-5)

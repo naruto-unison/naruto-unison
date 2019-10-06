@@ -4,8 +4,8 @@ import Prelude
 
 import           Data.Text (Text)
 import qualified Data.Text.Lazy as Lazy
-import qualified Data.Text.Lazy.Builder as Builder
 import           Data.Text.Lazy.Builder (Builder)
+import qualified Data.Text.Lazy.Builder as Builder
 import qualified Data.Text.Lazy.Builder.Int as IntBuilder
 
 -- | A class for types with textual descriptions.

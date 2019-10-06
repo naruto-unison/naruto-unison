@@ -3,39 +3,39 @@ module Game.Engine (runTurn, processTurn) where
 
 import ClassyPrelude
 
-import           Control.Monad (zipWithM_)
-import           Data.List (deleteFirstsBy)
+import Control.Monad (zipWithM_)
+import Data.List (deleteFirstsBy)
 
-import           Util ((—))
-import qualified Class.Hook as Hook
 import           Class.Hook (MonadHook)
+import qualified Class.Hook as Hook
 import qualified Class.Labeled as  Labeled
 import qualified Class.Parity as Parity
-import qualified Class.Play as P
 import           Class.Play (MonadGame)
+import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Class.TurnBased as TurnBased
-import qualified Game.Model.Act as Act
+import           Game.Action (Affected(..))
+import qualified Game.Action as Action
+import qualified Game.Engine.Chakras as Chakras
+import qualified Game.Engine.Effects as Effects
+import qualified Game.Engine.Ninjas as Ninjas
+import qualified Game.Engine.Traps as Traps
+import qualified Game.Engine.Trigger as Trigger
 import           Game.Model.Act (Act)
+import qualified Game.Model.Act as Act
 import qualified Game.Model.Barrier as Barrier
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Delay as Delay
 import qualified Game.Model.Game as Game
-import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Ninja (Ninja)
+import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Runnable as Runnable
-import qualified Game.Model.Status as Status
-import           Game.Model.Status (Bomb(..), Status)
-import qualified Game.Model.Slot as Slot
 import           Game.Model.Slot (Slot)
-import qualified Game.Engine.Chakras as Chakras
-import qualified Game.Engine.Effects as Effects
-import qualified Game.Action as Action
-import           Game.Action (Affected(..))
-import qualified Game.Engine.Ninjas as Ninjas
-import qualified Game.Engine.Traps as Traps
-import qualified Game.Engine.Trigger as Trigger
+import qualified Game.Model.Slot as Slot
+import           Game.Model.Status (Bomb(..), Status)
+import qualified Game.Model.Status as Status
+import           Util ((—))
 
 -- | The game engine's main function.
 -- Performs 'Act's and 'Model.Channel.Channel's;

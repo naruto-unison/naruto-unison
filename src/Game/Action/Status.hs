@@ -21,27 +21,27 @@ import ClassyPrelude
 import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
 import Data.Enum.Set.Class (EnumSet)
 
-import           Util ((∈), (∉))
-import qualified Class.Play as P
 import           Class.Play (MonadPlay)
+import qualified Class.Play as P
 import           Class.Random (MonadRandom)
+import qualified Game.Engine.Effects as Effects
+import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
 import qualified Game.Model.Copy as Copy
-import qualified Game.Model.Duration as Duration
 import           Game.Model.Duration (Duration(..), Turns, incr, sync)
-import qualified Game.Model.Effect as Effect
+import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Effect(..))
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja, is)
+import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Runnable (Runnable)
-import qualified Game.Model.Skill as Skill
 import           Game.Model.Skill (Skill)
-import qualified Game.Model.Status as Status
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Bomb, Status)
+import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
-import qualified Game.Engine.Effects as Effects
-import qualified Game.Engine.Ninjas as Ninjas
+import           Util ((∈), (∉))
 
 -- | Refreshes the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'
 -- to 'Status.maxDur'.

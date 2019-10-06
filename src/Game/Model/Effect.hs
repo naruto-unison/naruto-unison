@@ -15,11 +15,11 @@ import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), object)
 
-import Util ((∈))
 import Class.Classed (Classed(..))
 import Class.Display (Display(..))
 import Game.Model.Class (Class(..), lower)
 import Game.Model.Slot (Slot)
+import Util ((∈))
 
 data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show, Read)
 

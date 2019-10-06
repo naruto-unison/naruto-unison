@@ -6,20 +6,20 @@ module Game.Engine.Chakras
 
 import ClassyPrelude
 
-import           Data.Enum.Set.Class (EnumSet)
+import Data.Enum.Set.Class (EnumSet)
 
-import           Util ((—), (∈))
 import qualified Class.Parity as Parity
-import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
-import qualified Class.Random as R
+import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import qualified Game.Model.Chakra as Chakra
+import qualified Class.Random as R
 import           Game.Model.Chakra (Chakra(..), Chakras)
+import qualified Game.Model.Chakra as Chakra
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Player as Player
 import           Game.Model.Trigger (Trigger(..))
+import           Util ((—), (∈))
 
 -- | Removes some number of 'Chakra's from the target's team.
 -- 'Chakra's are chosen randomly from the available pool of 'Game.chakra'.

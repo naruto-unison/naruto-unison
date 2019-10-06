@@ -7,18 +7,18 @@ module Game.Action.Channel
 
 import ClassyPrelude
 
-import qualified Class.Play as P
 import           Class.Play (MonadPlay)
+import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import qualified Game.Model.Channel as Channel
+import           Game.Action (Affected(..))
+import qualified Game.Action as Action
+import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Channel (Channel)
-import qualified Game.Model.Context as Context
+import qualified Game.Model.Channel as Channel
 import           Game.Model.Context (Context(Context))
+import qualified Game.Model.Context as Context
 import           Game.Model.Duration (Duration(..), Turns)
 import qualified Game.Model.Ninja as Ninja
-import qualified Game.Action as Action
-import           Game.Action (Affected(..))
-import qualified Game.Engine.Ninjas as Ninjas
 
 -- | Cancels 'Ninja.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.cancelChannel' internally.

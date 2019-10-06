@@ -18,42 +18,42 @@ import           UnliftIO.Concurrent (forkIO, threadDelay)
 import qualified Yesod.Auth as Auth
 import           Yesod.WebSockets (webSockets)
 
-import           Util ((∉), duplic, liftST, whileM)
-import qualified Application.App as App
 import           Application.App (App, Handler)
-import qualified Application.Model as Model
+import qualified Application.App as App
 import           Application.Model (EntityField(..), User(..))
+import qualified Application.Model as Model
 import qualified Application.Settings as Settings
-import qualified Handler.Play.Queue as Queue
-import qualified Handler.Play.Rating as Rating
-import qualified Handler.Play.Wrapper as Wrapper
-import           Handler.Play.Wrapper (Wrapper(Wrapper))
 import           Class.Hook (MonadHook)
 import qualified Class.Parity as Parity
-import qualified Class.Play as P
 import           Class.Play (MonadGame)
-import qualified Class.Random as R
+import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import qualified Class.Sockets as Sockets
+import qualified Class.Random as R
 import           Class.Sockets (MonadSockets)
-import qualified Game.Model.Act as Act
+import qualified Class.Sockets as Sockets
+import qualified Game.Characters as Characters
+import qualified Game.Engine as Engine
 import           Game.Model.Act (Act)
-import qualified Game.Model.Chakra as Chakra
+import qualified Game.Model.Act as Act
 import           Game.Model.Chakra (Chakras)
+import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Character (Character)
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as Ninja
-import qualified Game.Model.Player as Player
 import           Game.Model.Player (Player)
+import qualified Game.Model.Player as Player
 import qualified Game.Model.Slot as Slot
-import qualified Game.Engine as Engine
-import qualified Game.Characters as Characters
-import qualified Handler.Play.GameInfo as GameInfo
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
-import qualified Handler.Play.Match as Match
+import qualified Handler.Play.GameInfo as GameInfo
 import           Handler.Play.Match (Outcome(..))
+import qualified Handler.Play.Match as Match
+import qualified Handler.Play.Queue as Queue
+import qualified Handler.Play.Rating as Rating
 import           Handler.Play.Turn (Turn)
+import           Handler.Play.Wrapper (Wrapper(Wrapper))
+import qualified Handler.Play.Wrapper as Wrapper
 import qualified Mission
+import           Util ((∉), duplic, liftST, whileM)
 
 data Message
     = Fail Queue.Failure

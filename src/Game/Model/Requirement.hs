@@ -7,19 +7,19 @@ module Game.Model.Requirement
 
 import ClassyPrelude
 
-import           Util ((!?), (∈), (∉), intersects)
 import qualified Class.Parity as Parity
-import           Game.Model.Internal (Requirement(..))
+import qualified Game.Engine.Cooldown as Cooldown
+import qualified Game.Engine.Effects as Effects
 import qualified Game.Model.Channel as Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
-import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Internal (Requirement(..))
 import           Game.Model.Ninja (Ninja, is)
-import qualified Game.Model.Skill as Skill
+import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Skill (Skill)
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
-import qualified Game.Engine.Cooldown as Cooldown
-import qualified Game.Engine.Effects as Effects
+import           Util ((!?), (∈), (∉), intersects)
 
 -- | Processes 'Skill.require'.
 usable :: Ninja

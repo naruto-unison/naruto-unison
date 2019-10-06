@@ -16,16 +16,16 @@ import Yesod
 import           Data.List (nub)
 import qualified Yesod.Auth as Auth
 
-import           Util ((∈), (∉), shorten)
 import           Application.App (Handler)
 import           Application.Model (EntityField(..), User(..))
 import           Application.Settings (widgetFile)
-import qualified Game.Model.Character as Character
+import qualified Game.Characters as Characters
 import           Game.Model.Character (Character)
+import qualified Game.Model.Character as Character
 import qualified Game.Model.Skill as Skill
 import qualified Handler.Play as Play
-import qualified Game.Characters as Characters
 import qualified Mission
+import           Util ((∈), (∉), shorten)
 
 -- | Updates a user's profile. Requires authentication.
 getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value

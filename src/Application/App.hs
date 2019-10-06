@@ -18,8 +18,8 @@ import Yesod
 
 import           Control.Monad.Logger (LogSource)
 import           Data.Bimap (Bimap)
-import qualified Data.CaseInsensitive as CaseInsensitive
 import           Data.Cache (Cache)
+import qualified Data.CaseInsensitive as CaseInsensitive
 import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Lazy.Encoding as LazyEncoding
 import qualified Database.Persist.Sql as Sql
@@ -30,8 +30,8 @@ import qualified Text.Blaze.Html.Renderer.Utf8 as Blaze
 import           Text.Hamlet (hamletFile)
 import qualified Text.Jasmine as Jasmine
 import           Text.Shakespeare.Text (stext)
-import qualified Yesod.Auth as Auth
 import           Yesod.Auth (Auth, YesodAuth(..), YesodAuthPersist, AuthenticationResult(..), AuthPlugin)
+import qualified Yesod.Auth as Auth
 import qualified Yesod.Auth.Dummy as Dummy
 import qualified Yesod.Auth.Email as AuthEmail
 import           Yesod.Auth.Email (YesodAuthEmail(..))
@@ -42,17 +42,17 @@ import qualified Yesod.Default.Util as YesodUtil
 import           Yesod.Static hiding (static)
 
 import           Application.Fields (ForumBoard, Privilege(..), boardName)
-import qualified Handler.Play.Queue as Queue
-import           Handler.Play.Wrapper (Wrapper)
-import qualified Application.Model as Model
 import           Application.Model (CharacterId, EntityField(..), Topic(..), TopicId, User(..), UserId, Unique(..))
-import qualified Application.Settings as Settings
+import qualified Application.Model as Model
 import           Application.Settings (Settings, widgetFile)
+import qualified Application.Settings as Settings
+import qualified Game.Characters as Characters
 import           Game.Model.Act (Act)
 import           Game.Model.Chakra (Chakras)
-import qualified Game.Model.Character as Character
 import           Game.Model.Character (Category)
-import qualified Game.Characters as Characters
+import qualified Game.Model.Character as Character
+import qualified Handler.Play.Queue as Queue
+import           Handler.Play.Wrapper (Wrapper)
 
 -- | App environment.
 data App = App

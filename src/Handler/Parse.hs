@@ -8,8 +8,8 @@ import ClassyPrelude
 import Yesod
 
 import qualified Text.Blaze.Html5 as HTML
-import qualified Text.ParserCombinators.ReadP as Parser
 import           Text.ParserCombinators.ReadP ((<++), ReadP)
+import qualified Text.ParserCombinators.ReadP as Parser
 
 import Game.Model.Chakra (Chakra(..))
 

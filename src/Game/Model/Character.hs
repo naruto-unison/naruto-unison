@@ -1,9 +1,19 @@
-module Game.Model.Character (Character(..), format, Category(..)) where
-import Game.Model.Internal  (Character(..), Category(..))
+module Game.Model.Character
+  ( Character(..)
+  , format
+  , Category(..)
+  ) where
 
 import ClassyPrelude
 
+import Game.Model.Internal (Character(..), Category(..))
+import Util (unaccent)
+
 format :: Character -> Text
-format (Character name _ _ _ Original)   = name
-format (Character name _ _ _ Shippuden)  = name ++ " (S)"
-format (Character name _ _ _ Reanimated) = name ++ " (R)"
+format Character{name, category} = omap clean . toLower $ case category of
+    Original   -> name
+    Shippuden  -> name ++ " (S)"
+    Reanimated -> name ++ " (R)"
+  where
+    clean ' ' = '-'
+    clean x   = unaccent x

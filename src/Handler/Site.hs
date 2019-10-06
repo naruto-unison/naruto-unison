@@ -22,22 +22,22 @@ import qualified Data.List.NonEmpty as NonEmpty
 import           Text.Blaze.Html (preEscapedToHtml)
 import qualified Yesod.Auth as Auth
 
-import           Util (shorten)
 import           Application.App (Handler, Route(..), Widget)
 import           Application.Model (Cite(..), EntityField(..), News(..), User(..))
 import           Application.Settings (widgetFile)
 import           Class.Display (Display(..))
-import qualified Game.Model.Character as Character
+import qualified Game.Characters as Characters
 import           Game.Model.Character (Category(..))
+import qualified Game.Model.Character as Character
 import qualified Game.Model.Class as Class
 import qualified Game.Model.Ninja as Ninja
-import qualified Game.Model.Skill as Skill
 import           Game.Model.Skill (Skill)
-import qualified Game.Characters as Characters
+import qualified Game.Model.Skill as Skill
 import qualified Handler.Forum as Forum
 import qualified Handler.Parse as Parse
 import qualified Mission
 import qualified Mission.Goal as Goal
+import           Util (shorten)
 
 userlink :: User -> Widget
 userlink User{..} = $(widgetFile "widgets/userlink")

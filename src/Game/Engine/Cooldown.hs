@@ -10,16 +10,16 @@ import ClassyPrelude
 
 import qualified Data.Sequence as Seq
 
-import           Util ((!!), (!?), adjustWith)
-import qualified Game.Model.Copy as Copy
-import           Game.Model.Duration (sync)
-import qualified Game.Model.Ninja as Ninja
-import           Game.Model.Ninja (Ninja)
-import qualified Game.Model.Skill as Skill
-import           Game.Model.Skill (Skill)
-import qualified Game.Model.Variant as Variant
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Skills as Skills
+import qualified Game.Model.Copy as Copy
+import           Game.Model.Duration (sync)
+import           Game.Model.Ninja (Ninja)
+import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Skill (Skill)
+import qualified Game.Model.Skill as Skill
+import qualified Game.Model.Variant as Variant
+import           Util ((!!), (!?), adjustWith)
 
 -- | Cooldowns of the currently active 'Skill's in all four slots of
 -- 'Ninja.variants'.

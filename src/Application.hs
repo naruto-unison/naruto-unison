@@ -28,26 +28,26 @@ import qualified Language.Haskell.TH.Syntax as TH
 import qualified Network.HTTP.Client.TLS as TLS
 import qualified Network.Wai.Handler.Warp as Warp
 import qualified System.Log.FastLogger as FastLogger
-import qualified Yesod.Static as Static
 import qualified Yesod.Auth as Auth
 import qualified Yesod.Core.Types as YesodTypes
 import qualified Yesod.Default.Config2 as DefaultConfig
+import qualified Yesod.Static as Static
 
-import qualified Application.App as App
 import           Application.App (App(..), Handler, Route(..))
-import qualified Application.Settings as Settings
-import           Application.Settings (Settings)
+import qualified Application.App as App
 import qualified Application.Logger as AppLogger
-import qualified Application.Model as Model
 import           Application.Model (CharacterId)
+import qualified Application.Model as Model
+import           Application.Settings (Settings)
+import qualified Application.Settings as Settings
 
-import qualified Mission
 import           Handler.Admin
 import           Handler.Client
 import           Handler.Embed
 import           Handler.Forum
 import           Handler.Play
 import           Handler.Site
+import qualified Mission
 
 mkYesodDispatch "App" App.resourcesApp
 

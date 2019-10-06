@@ -14,10 +14,10 @@ import qualified Data.Text.Read as Read
 import           Text.Read hiding (read)
 import           Text.Read.Lex (numberToInteger)
 
-import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
-import qualified Class.Random as R
+import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
+import qualified Class.Random as R
 
 teamSize :: Int
 teamSize = 3

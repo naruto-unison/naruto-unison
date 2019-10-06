@@ -11,12 +11,12 @@ module Handler.Play.Match
 import ClassyPrelude hiding (map, traverse_)
 
 import           Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
-import qualified Database.Persist.Sql as Sql
 import           Database.Persist.Sql (Entity(..), SqlPersistT)
+import qualified Database.Persist.Sql as Sql
 
-import           Application.Model (Key, User)
-import           Game.Model.Game (Game(..))
-import           Game.Model.Player (Player)
+import Application.Model (Key, User)
+import Game.Model.Game (Game(..))
+import Game.Model.Player (Player)
 
 data Outcome
     = Victory

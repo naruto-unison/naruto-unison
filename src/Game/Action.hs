@@ -10,47 +10,47 @@ module Game.Action
 
 import ClassyPrelude hiding ((<|))
 
-import           Control.Monad.Trans.Maybe (runMaybeT)
-import           Data.Bits (setBit, testBit)
-import           Data.Either (isLeft)
-import           Data.Enum.Set.Class (EnumSet, AsEnumSet(..))
+import Control.Monad.Trans.Maybe (runMaybeT)
+import Data.Bits (setBit, testBit)
+import Data.Either (isLeft)
+import Data.Enum.Set.Class (EnumSet, AsEnumSet(..))
 
-import           Util ((!!), (—), (∈), (∉), intersects)
-import qualified Class.Hook as Hook
 import           Class.Hook (MonadHook)
+import qualified Class.Hook as Hook
 import qualified Class.Parity as Parity
-import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
-import qualified Class.Random as R
+import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import qualified Game.Model.Act as Act
-import           Game.Model.Act (Act)
-import qualified Game.Model.Channel as Channel
-import           Game.Model.Channel (Channel(Channel), Channeling(..))
-import qualified Game.Model.Chakra as Chakra
-import           Game.Model.Class (Class(..))
-import qualified Game.Model.Context as Context
-import           Game.Model.Context (Context(Context))
-import           Game.Model.Effect (Effect(..))
-import qualified Game.Model.Game as Game
-import qualified Game.Model.Ninja as Ninja
-import           Game.Model.Ninja (Ninja, is)
-import qualified Game.Model.Runnable as Runnable
-import           Game.Model.Runnable (Runnable(To))
-import qualified Game.Model.Requirement as Requirement
-import           Game.Model.Requirement (Requirement(..))
-import qualified Game.Model.Skill as Skill
-import           Game.Model.Skill (Skill, Target(..))
-import qualified Game.Model.Slot as Slot
-import           Game.Model.Slot (Slot)
-import qualified Game.Model.Status as Status
-import           Game.Model.Trigger (Trigger(..))
+import qualified Class.Random as R
 import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Trigger as Trigger
+import           Game.Model.Act (Act)
+import qualified Game.Model.Act as Act
+import qualified Game.Model.Chakra as Chakra
+import           Game.Model.Channel (Channel(Channel), Channeling(..))
+import qualified Game.Model.Channel as Channel
+import           Game.Model.Class (Class(..))
+import           Game.Model.Context (Context(Context))
+import qualified Game.Model.Context as Context
+import           Game.Model.Effect (Effect(..))
+import qualified Game.Model.Game as Game
+import           Game.Model.Ninja (Ninja, is)
+import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Requirement (Requirement(..))
+import qualified Game.Model.Requirement as Requirement
+import           Game.Model.Runnable (Runnable(To))
+import qualified Game.Model.Runnable as Runnable
+import           Game.Model.Skill (Skill, Target(..))
+import qualified Game.Model.Skill as Skill
+import           Game.Model.Slot (Slot)
+import qualified Game.Model.Slot as Slot
+import qualified Game.Model.Status as Status
+import           Game.Model.Trigger (Trigger(..))
+import           Util ((!!), (—), (∈), (∉), intersects)
 
 -- Conditions that have already affected an action in progress.
 -- Permits passive effects to bypass steps in the process and prevents infinite

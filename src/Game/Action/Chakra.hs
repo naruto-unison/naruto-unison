@@ -10,15 +10,15 @@ import ClassyPrelude
 
 import Data.Enum.Set.Class (EnumSet)
 
-import qualified Class.Play as P
 import           Class.Play (MonadPlay)
+import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import qualified Game.Model.Chakra as Chakra
-import           Game.Model.Chakra (Chakra(..))
-import           Game.Model.Trigger (Trigger(..))
-import qualified Game.Model.Game as Game
 import qualified Game.Engine.Chakras as Chakras
 import qualified Game.Engine.Ninjas as Ninjas
+import           Game.Model.Chakra (Chakra(..))
+import qualified Game.Model.Chakra as Chakra
+import qualified Game.Model.Game as Game
+import           Game.Model.Trigger (Trigger(..))
 
 -- ** CHAKRA
 -- | Adds a finite amount of @Chakra@ to the 'Game.chakra' of the target's team.

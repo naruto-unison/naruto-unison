@@ -16,8 +16,8 @@ import ClassyPrelude
 
 import           Control.Monad.ST (ST, stToIO)
 import           Control.Monad.Trans.Class (MonadTrans)
-import qualified Data.Sequence as Seq
 import           Data.Sequence ((|>))
+import qualified Data.Sequence as Seq
 
 -- If a function doesn't seem like it should be inlined, it probably doesn't go
 -- here.

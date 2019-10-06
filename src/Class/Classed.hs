@@ -7,10 +7,10 @@ import ClassyPrelude
 
 import Data.Enum.Set.Class (EnumSet)
 
-import           Util ((∈))
-import qualified Class.Labeled as Labeled
 import           Class.Labeled (Labeled)
+import qualified Class.Labeled as Labeled
 import           Game.Model.Class (Class(..))
+import           Util ((∈))
 
 -- | A type with 'Class'es.
 class Classed a where

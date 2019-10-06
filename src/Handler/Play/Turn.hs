@@ -7,29 +7,29 @@ import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), Value, object)
 
-import           Util ((!!), (∈), (∉), intersects)
 import qualified Class.Parity as Parity
+import qualified Game.Engine.Cooldown as Cooldown
+import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Chakra (Chakras)
 import qualified Game.Model.Channel as Channel
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
-import qualified Game.Model.Game as Game
 import           Game.Model.Game (Game(..))
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja, is)
-import qualified Game.Model.Requirement as Requirement
-import           Game.Model.Requirement (Requirement(..))
-import qualified Game.Model.Skill as Skill
-import           Game.Model.Skill (Skill, Target(..))
+import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
-import qualified Game.Model.Slot as Slot
+import           Game.Model.Requirement (Requirement(..))
+import qualified Game.Model.Requirement as Requirement
+import           Game.Model.Skill (Skill, Target(..))
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
+import qualified Game.Model.Slot as Slot
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import qualified Game.Model.Variant as Variant
-import qualified Game.Engine.Cooldown as Cooldown
-import qualified Game.Engine.Ninjas as Ninjas
+import           Util ((!!), (∈), (∉), intersects)
 
 data Turn = Turn { chakra  :: Chakras
                  , playing :: Player

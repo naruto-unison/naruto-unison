@@ -6,9 +6,9 @@ module Mission.Missions
 
 import ClassyPrelude hiding ((\\), map)
 
-import           Util (mapFromKeyed)
-import qualified Mission.Goal as Goal
 import           Mission.Goal (Goal, Mission)
+import qualified Mission.Goal as Goal
+import           Util (mapFromKeyed)
 
 import qualified Mission.Missions.Shippuden
 

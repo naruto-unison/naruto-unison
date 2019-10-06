@@ -11,13 +11,13 @@ module Mission.Missions.Base
 
 import ClassyPrelude as Import
 import Class.Parity as Import (allied)
+import Data.IntSet as Import (size)
 import Game.Model.Ninja as Import (alive, hasOwn, health)
 import Mission.Goal as Import
-import Data.IntSet as Import (size)
 
 import qualified Game.Engine.Effects as Effects
-import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Ninja (Ninja)
+import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Slot as Slot
 
 hasFrom :: Ninja -> Text -> Ninja -> Bool

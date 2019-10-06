@@ -51,40 +51,40 @@ import           Data.List.NonEmpty ((!!))
 import qualified Data.Sequence as Seq
 import qualified Data.Text as Text
 
-import           Util ((—), (!?), (∈), (∉))
 import qualified Class.Classed as Classed
-import qualified Class.Parity as Parity
 import qualified Class.Labeled as Labeled
-import qualified Class.TurnBased as TurnBased
+import qualified Class.Parity as Parity
 import           Class.TurnBased (TurnBased)
-import qualified Game.Model.Channel as Channel
-import           Game.Model.Channel (Channel(Channel), Channeling(..))
-import qualified Game.Model.Character as Character
-import           Game.Model.Class (Class(..))
-import qualified Game.Model.Copy as Copy
-import           Game.Model.Copy (Copy(Copy), Copying)
-import qualified Game.Model.Defense as Defense
-import           Game.Model.Defense (Defense(Defense))
-import           Game.Model.Duration (Duration, incr, sync)
-import qualified Game.Model.Effect as Effect
-import           Game.Model.Effect (Amount(..), Effect(..))
-import qualified Game.Model.Face as Face
-import           Game.Model.Face (Face(Face))
-import qualified Game.Model.Ninja as Ninja
-import           Game.Model.Ninja (Ninja(..), is)
-import qualified Game.Model.Requirement as Requirement
-import           Game.Model.Requirement (Requirement(..))
-import qualified Game.Model.Skill as Skill
-import           Game.Model.Skill (Skill)
-import           Game.Model.Slot (Slot)
-import qualified Game.Model.Status as Status
-import           Game.Model.Status (Status(Status))
-import qualified Game.Model.Trap as Trap
-import           Game.Model.Trigger (Trigger(..))
-import qualified Game.Model.Variant as Variant
-import           Game.Model.Variant (Variant(Variant), Varying)
+import qualified Class.TurnBased as TurnBased
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Skills as Skills
+import           Game.Model.Channel (Channel(Channel), Channeling(..))
+import qualified Game.Model.Channel as Channel
+import qualified Game.Model.Character as Character
+import           Game.Model.Class (Class(..))
+import           Game.Model.Copy (Copy(Copy), Copying)
+import qualified Game.Model.Copy as Copy
+import           Game.Model.Defense (Defense(Defense))
+import qualified Game.Model.Defense as Defense
+import           Game.Model.Duration (Duration, incr, sync)
+import           Game.Model.Effect (Amount(..), Effect(..))
+import qualified Game.Model.Effect as Effect
+import           Game.Model.Face (Face(Face))
+import qualified Game.Model.Face as Face
+import           Game.Model.Ninja (Ninja(..), is)
+import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Requirement (Requirement(..))
+import qualified Game.Model.Requirement as Requirement
+import           Game.Model.Skill (Skill)
+import qualified Game.Model.Skill as Skill
+import           Game.Model.Slot (Slot)
+import           Game.Model.Status (Status(Status))
+import qualified Game.Model.Status as Status
+import qualified Game.Model.Trap as Trap
+import           Game.Model.Trigger (Trigger(..))
+import           Game.Model.Variant (Variant(Variant), Varying)
+import qualified Game.Model.Variant as Variant
+import           Util ((—), (!?), (∈), (∉))
 
 -- | Adjusts the @Skill@ slot of a @Ninja@ due to 'Ninja.variants', 'Effect's
 -- that modify skills, and the 'Skill.changes' of the @Skill@.

@@ -7,15 +7,15 @@ module Handler.Play.Rating (update) where
 
 import ClassyPrelude
 
-import qualified Database.Esqueleto as ESQL
 import           Database.Esqueleto ((>.), (^.), (==.))
-import qualified Database.Persist.Sql as Sql
+import qualified Database.Esqueleto as ESQL
 import           Database.Persist.Sql ((=.), (+=.), Entity(..), SqlPersistT)
+import qualified Database.Persist.Sql as Sql
 import           Database.Persist.Types (Update)
 
 import           Application.Model (EntityField(..), Key, User(..))
-import qualified Handler.Play.Match as Match
 import           Handler.Play.Match (Match, Outcome(..))
+import qualified Handler.Play.Match as Match
 
 square :: Double -> Double
 square x = x * x

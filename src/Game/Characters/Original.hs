@@ -6,14 +6,14 @@ import Prelude ((<$>), (++))
 
 import Game.Model.Character (Character, Category(Original))
 
-import qualified Game.Characters.Original.Kids
 import qualified Game.Characters.Original.Exams
-import qualified Game.Characters.Original.Teachers
-import qualified Game.Characters.Original.Organizations
-import qualified Game.Characters.Original.Leaders
-import qualified Game.Characters.Original.Versions
 import qualified Game.Characters.Original.Family
 import qualified Game.Characters.Original.Flashbacks
+import qualified Game.Characters.Original.Kids
+import qualified Game.Characters.Original.Leaders
+import qualified Game.Characters.Original.Organizations
+import qualified Game.Characters.Original.Teachers
+import qualified Game.Characters.Original.Versions
 
 characters :: [Character]
 characters = (\x -> x 0 Original)

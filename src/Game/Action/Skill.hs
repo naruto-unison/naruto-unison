@@ -18,24 +18,24 @@ import ClassyPrelude
 import           Data.List (findIndex)
 import qualified Data.Sequence as Seq
 
-import qualified Class.Play as P
 import           Class.Play (MonadPlay)
-import qualified Game.Model.Channel as Channel
-import           Game.Model.Channel (Channeling(..))
-import qualified Game.Model.Character as Character
-import qualified Game.Model.Copy as Copy
-import           Game.Model.Copy (Copy(Copy), Copying(..))
-import           Game.Model.Duration (Duration(..), Turns, incr, sync)
-import qualified Game.Model.Face as Face
-import           Game.Model.Face (Face(Face))
-import qualified Game.Model.Ninja as Ninja
-import qualified Game.Model.Skill as Skill
-import           Game.Model.Slot (Slot)
-import qualified Game.Model.Variant as Variant
-import           Game.Model.Variant (Varying)
+import qualified Class.Play as P
 import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
+import           Game.Model.Channel (Channeling(..))
+import qualified Game.Model.Channel as Channel
+import qualified Game.Model.Character as Character
+import           Game.Model.Copy (Copy(Copy), Copying(..))
+import qualified Game.Model.Copy as Copy
+import           Game.Model.Duration (Duration(..), Turns, incr, sync)
+import           Game.Model.Face (Face(Face))
+import qualified Game.Model.Face as Face
+import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Skill as Skill
+import           Game.Model.Slot (Slot)
+import           Game.Model.Variant (Varying)
+import qualified Game.Model.Variant as Variant
 
 -- | Changes the 'Skill.cooldown' of a @Skill@.
 -- Uses 'Cooldown.alter' internally.

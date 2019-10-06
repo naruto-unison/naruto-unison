@@ -13,8 +13,8 @@ module Application.Settings
 import ClassyPrelude
 
 import qualified Control.Exception as Exception
-import qualified Data.Aeson as Aeson
 import           Data.Aeson ((.!=), (.:), (.:?), FromJSON, Result(..), Value)
+import qualified Data.Aeson as Aeson
 import           Data.Default (def)
 import qualified Data.FileEmbed as FileEmbed
 import qualified Data.Yaml as Yaml
@@ -22,8 +22,8 @@ import           Database.Persist.Postgresql (PostgresConf)
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Network.Wai.Handler.Warp as Warp
 import qualified Yesod.Default.Config2 as DefaultConfig
-import qualified Yesod.Default.Util as Util
 import           Yesod.Default.Util (WidgetFileSettings)
+import qualified Yesod.Default.Util as Util
 
 -- | DNA rewards.
 data DNA = DNA

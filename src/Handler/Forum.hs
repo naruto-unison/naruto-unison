@@ -19,19 +19,18 @@ module Handler.Forum
 import ClassyPrelude
 import Yesod
 
+import qualified Data.Text as Text
 import qualified Data.Time.Format as Format
 import qualified Data.Time.LocalTime as LocalTime
-import qualified Data.Text as Text
 import qualified Yesod.Auth as Auth
 
-import Util (shorten)
-import Application.App (AppPersistEntity, Handler, Route(..), Widget)
-import Application.Fields (ForumBoard, ForumCategory(..), Privilege(..), boardCategory, boardDesc, boardName)
-import Application.Model (Cite(..), EntityField(..), HasAuthor(..), Post(..), Topic(..), TopicId, User(..), UserId)
-import Application.Settings (widgetFile)
-
-import qualified Game.Model.Class as Class
+import           Application.App (AppPersistEntity, Handler, Route(..), Widget)
+import           Application.Fields (ForumBoard, ForumCategory(..), Privilege(..), boardCategory, boardDesc, boardName)
+import           Application.Model (Cite(..), EntityField(..), HasAuthor(..), Post(..), Topic(..), TopicId, User(..), UserId)
+import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
+import qualified Game.Model.Class as Class
+import           Util (shorten)
 
 -- | Renders a 'User' profile.
 getProfileR :: Text -> Handler Html

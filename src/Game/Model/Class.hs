@@ -11,8 +11,8 @@ import qualified Data.Enum.Memo as Enum
 import           Data.Enum.Set.Class (AsEnumSet(..))
 import           Text.Blaze (ToMarkup(..))
 
-import Util (mapFromKeyed)
 import Class.Display (Display(..))
+import Util (mapFromKeyed)
 
 -- | Qualifiers of 'Model.Skill.Skill's and 'Model.Status.Status'es.
 data Class

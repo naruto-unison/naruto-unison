@@ -5,13 +5,13 @@ module Game.Model.Game
 
 import ClassyPrelude
 
-import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
+import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
-import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Chakra (Chakras)
-import qualified Game.Model.Player as Player
+import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Player (Player)
+import qualified Game.Model.Player as Player
 import qualified Game.Model.Slot as Slot
 
 

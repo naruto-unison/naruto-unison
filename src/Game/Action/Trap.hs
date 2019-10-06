@@ -9,33 +9,33 @@ import ClassyPrelude
 
 import Data.Enum.Set.Class (EnumSet)
 
-import           Util ((∈))
 import qualified Class.Classed as Classed
-import qualified Class.Play as P
 import           Class.Play (MonadPlay)
+import qualified Class.Play as P
+import           Game.Action (Affected(..))
+import qualified Game.Action as Action
+import qualified Game.Engine.Effects as Effects
+import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Class (Class(..))
-import qualified Game.Model.Context as Context
 import           Game.Model.Context (Context(Context))
+import qualified Game.Model.Context as Context
+import           Game.Model.Copy (Copying(..))
+import qualified Game.Model.Copy as Copy
 import qualified Game.Model.Delay as Delay
 import           Game.Model.Duration (Duration(..), Turns, incr, sync)
 import           Game.Model.Effect (Effect(..))
-import qualified Game.Model.Copy as Copy
-import           Game.Model.Copy (Copying(..))
-import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Ninja (Ninja)
-import qualified Game.Model.Runnable as Runnable
+import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Runnable (Runnable(..), RunConstraint)
-import qualified Game.Model.Skill as Skill
+import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Skill (Skill)
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
-import qualified Game.Model.Trap as Trap
 import           Game.Model.Trap (Trap(Trap))
-import qualified Game.Model.Trigger as Trigger
+import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
-import qualified Game.Engine.Effects as Effects
-import qualified Game.Action as Action
-import           Game.Action (Affected(..))
-import qualified Game.Engine.Ninjas as Ninjas
+import qualified Game.Model.Trigger as Trigger
+import           Util ((∈))
 
 -- | Adds a @Trap@ to 'Ninja.traps' that targets the person it was used on.
 trap :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()

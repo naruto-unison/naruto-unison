@@ -8,8 +8,8 @@ import Game.Model.Internal (Copy(..), Copying(..))
 
 import ClassyPrelude
 
-import qualified Game.Model.Skill as Skill
 import           Game.Model.Skill (Skill)
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 
 -- | Finds the value with lesser magnitude.

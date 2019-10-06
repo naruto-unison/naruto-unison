@@ -11,27 +11,27 @@ import ClassyPrelude hiding ((\\))
 import Yesod
 
 import           Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
-import qualified Data.Bimap as Bimap
 import           Data.Bimap (Bimap)
+import qualified Data.Bimap as Bimap
 import           Data.List ((\\))
 import qualified Data.Sequence as Seq
-import qualified Database.Persist.Sql as Sql
 import           Database.Persist.Sql (Entity(..), SqlPersistT)
+import qualified Database.Persist.Sql as Sql
 import qualified Yesod.Auth as Auth
 
-import           Util ((∉))
-import qualified Application.App as App
 import           Application.App (Handler)
+import qualified Application.App as App
 import           Application.Model (Character(..), CharacterId, EntityField(..), Mission(..), Unlocked(..), User(..))
 import qualified Application.Settings as Settings
-import qualified Game.Model.Character as Character
 import qualified Game.Characters as Characters
-import qualified Handler.Play.Queue as Queue
+import qualified Game.Model.Character as Character
 import           Handler.Play.Match (Outcome(..))
-import qualified Mission.Goal as Goal
+import qualified Handler.Play.Queue as Queue
 import           Mission.Goal (Goal)
+import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
 import           Mission.Progress (Progress(..))
+import           Util ((∉))
 
 initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do

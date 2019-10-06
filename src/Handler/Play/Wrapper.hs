@@ -13,31 +13,31 @@ import ClassyPrelude
 import           Control.Monad.ST (RealWorld, ST)
 import           Control.Monad.Trans.State.Strict (StateT, gets, modify')
 import           Data.STRef
-import qualified Data.Vector as Vector
 import           Data.Vector ((//))
-import qualified Data.Vector.Mutable as MVector
+import qualified Data.Vector as Vector
 import           Data.Vector.Mutable (STVector)
+import qualified Data.Vector.Mutable as MVector
 
-import           Util ((!!), liftST)
-import qualified Class.Play as P
+import           Class.Hook (MonadHook(..))
 import           Class.Play (MonadGame)
+import qualified Class.Play as P
 import qualified Class.Random
 import           Class.Random (MonadRandom)
-import           Class.Hook (MonadHook(..))
 import           Class.Sockets (MonadSockets)
 import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
-import qualified Game.Model.Player as Player
 import           Game.Model.Player (Player)
+import qualified Game.Model.Player as Player
 import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Slot as Slot
-import qualified Handler.Play.GameInfo as GameInfo
 import           Handler.Play.GameInfo (GameInfo)
-import qualified Handler.Play.Tracker as Tracker
+import qualified Handler.Play.GameInfo as GameInfo
 import           Handler.Play.Tracker (Tracker)
-import qualified Handler.Play.Turn as Turn
+import qualified Handler.Play.Tracker as Tracker
 import           Handler.Play.Turn (Turn)
+import qualified Handler.Play.Turn as Turn
 import           Mission.Progress (Progress)
+import           Util ((!!), liftST)
 
 
 data STWrapper s = STWrapper { tracker   :: Tracker s

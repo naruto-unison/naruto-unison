@@ -13,23 +13,23 @@ import ClassyPrelude hiding ((\\), toList)
 
 import Data.List ((\\), nub)
 
-import           Util ((∈))
 import qualified Class.Parity as Parity
-import qualified Class.Play as P
 import           Class.Play (MonadGame)
+import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import qualified Game.Model.Context as Context
 import           Game.Model.Context (Context)
+import qualified Game.Model.Context as Context
 import qualified Game.Model.Defense as Defense
-import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Ninja (Ninja)
-import qualified Game.Model.Runnable as Runnable
-import           Game.Model.Runnable (Runnable)
+import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
+import           Game.Model.Runnable (Runnable)
+import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Slot (Slot)
-import qualified Game.Model.Trap as Trap
 import           Game.Model.Trap (Trap)
+import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger(Trigger(..))
+import           Util ((∈))
 
 run :: Slot -> Trap -> Runnable Context
 run user trap = case Trap.direction trap of

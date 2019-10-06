@@ -16,18 +16,18 @@ import           Text.Read (Read(..))
 import           Yesod.Core.Dispatch (PathPiece(..))
 
 import qualified Class.Parity as Parity
-import qualified Class.Random as R
 import           Class.Random (MonadRandom)
-import qualified Game.Model.Channel as Channel
+import qualified Class.Random as R
 import           Game.Model.Channel (Channel)
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Channel as Channel
 import           Game.Model.Ninja (Ninja)
-import qualified Game.Model.Player as Player
+import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
-import qualified Game.Model.Slot as Slot
-import           Game.Model.Slot (Slot)
-import qualified Game.Model.Skill as Skill
+import qualified Game.Model.Player as Player
 import           Game.Model.Skill (Skill)
+import qualified Game.Model.Skill as Skill
+import           Game.Model.Slot (Slot)
+import qualified Game.Model.Slot as Slot
 
 -- | A single action of a 'Ninja'.
 data Act = Act { user   :: Slot

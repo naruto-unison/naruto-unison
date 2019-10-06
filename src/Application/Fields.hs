@@ -11,7 +11,6 @@ module Application.Fields
     ) where
 
 import ClassyPrelude
-
 import Yesod
 
 import Text.Blaze (ToMarkup(..))

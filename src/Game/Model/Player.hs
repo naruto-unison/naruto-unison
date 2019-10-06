@@ -9,8 +9,8 @@ import ClassyPrelude hiding (even)
 
 import Data.Aeson (ToJSON)
 
-import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
+import qualified Class.Parity as Parity
 
 data Player
     = A | B

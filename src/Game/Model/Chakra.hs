@@ -19,14 +19,14 @@ import           Data.Enum.Set.Class (AsEnumSet(..), EnumSet)
 import qualified Data.Text as Text
 import qualified Data.Text.Read as Read
 import           GHC.Exts (IsList(..))
+import           Text.Blaze ((!))
 import           Text.Blaze (ToMarkup(..))
 import qualified Text.Blaze.Html5 as HTML
 import qualified Text.Blaze.Html5.Attributes as HTML
-import           Text.Blaze ((!))
 import           Yesod.Core.Dispatch (PathPiece(..))
 
-import qualified Class.Random as R
 import           Class.Random (MonadRandom)
+import qualified Class.Random as R
 import           Game.Model.Class (Class(..))
 
 -- | Collection of all chakra types.

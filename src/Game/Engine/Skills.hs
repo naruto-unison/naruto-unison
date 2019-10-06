@@ -16,16 +16,16 @@ import Data.List (findIndex)
 import Data.List.NonEmpty ((!!))
 
 import           Class.TurnBased as TurnBased
+import qualified Game.Engine.Effects as Effects
 import           Game.Model.Chakra (Chakras)
 import qualified Game.Model.Character as Character
 import           Game.Model.Effect (Effect(..))
-import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Ninja (Ninja, is)
-import qualified Game.Model.Runnable as Runnable
+import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Runnable (Runnable(..))
-import qualified Game.Model.Skill as Skill
+import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Skill (Skill, Target(..))
-import qualified Game.Engine.Effects as Effects
+import qualified Game.Model.Skill as Skill
 
 -- | Converts a function that uses raw 'Int's as indices in a
 -- 'Character.Character''s @[[Skill]]@ list into one that searches by name.

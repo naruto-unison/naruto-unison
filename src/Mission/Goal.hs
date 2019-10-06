@@ -8,9 +8,9 @@ module Mission.Goal
 
 import ClassyPrelude
 
+import qualified Game.Characters as Characters
 import           Game.Model.Character (Character)
 import           Game.Model.Ninja (Ninja)
-import qualified Game.Characters as Characters
 
 type Store = IntSet
 type HookFunc = Ninja -- ^ User.

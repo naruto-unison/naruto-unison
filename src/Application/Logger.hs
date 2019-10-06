@@ -7,19 +7,18 @@ import ClassyPrelude
 import qualified Control.Concurrent as Concurrent
 import           Data.Default (def)
 import           Network.HTTP.Types (Status(Status))
-import qualified Network.Wai as Wai
 import           Network.Wai (Middleware)
+import qualified Network.Wai as Wai
 import qualified Network.Wai.Header as Header
-import qualified Network.Wai.Logger as WaiLogger
 import           Network.Wai.Logger (ApacheLoggerActions)
-import qualified Network.Wai.Middleware.RequestLogger as RequestLogger
+import qualified Network.Wai.Logger as WaiLogger
 import           Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource(..), OutputFormat(..))
+import qualified Network.Wai.Middleware.RequestLogger as RequestLogger
 import qualified System.Log.FastLogger as FastLogger
 import qualified Yesod.Core.Types as YesodTypes
 
-
-import qualified Application.App as App
 import           Application.App (App(..))
+import qualified Application.App as App
 import qualified Application.Settings as Settings
 
 getDateGetter :: IO () -> IO (IO ByteString)

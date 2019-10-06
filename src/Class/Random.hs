@@ -10,9 +10,9 @@ import           Control.Monad.ST (ST)
 import           Control.Monad.Trans.Accum (AccumT)
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Identity (IdentityT)
+import           Control.Monad.Trans.Maybe (MaybeT)
 import           Control.Monad.Trans.Select (SelectT)
 import           Control.Monad.Trans.Writer (WriterT)
-import           Control.Monad.Trans.Maybe (MaybeT)
 import           Data.Bits ((.&.))
 import qualified Data.Vector.Generic as Generic
 import qualified System.Random.MWC as Random

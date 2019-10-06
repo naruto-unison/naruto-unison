@@ -19,32 +19,32 @@ import ClassyPrelude
 import Control.Monad.Trans.Maybe (runMaybeT)
 import Data.Enum.Set.Class (EnumSet)
 
-import           Util ((—), (∈), (∉))
 import qualified Class.Classed as Classed
-import qualified Class.Play as P
 import           Class.Play (MonadPlay)
-import qualified Game.Model.Attack as Attack
+import qualified Class.Play as P
+import           Game.Action (Affected(..))
+import qualified Game.Action as Action
+import qualified Game.Engine.Effects as Effects
+import qualified Game.Engine.Ninjas as Ninjas
+import qualified Game.Engine.Traps as Traps
 import           Game.Model.Attack (Attack)
-import qualified Game.Model.Barrier as Barrier
+import qualified Game.Model.Attack as Attack
 import           Game.Model.Barrier (Barrier)
+import qualified Game.Model.Barrier as Barrier
 import           Game.Model.Class (Class(..))
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Copy as Copy
-import qualified Game.Model.Defense as Defense
 import           Game.Model.Defense (Defense(Defense))
+import qualified Game.Model.Defense as Defense
 import           Game.Model.Duration (Duration(..), Turns, incr, sync)
-import qualified Game.Model.Effect as Effect
 import           Game.Model.Effect (Amount(..), Effect(..))
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja, is)
+import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Runnable (RunConstraint)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
-import qualified Game.Engine.Effects as Effects
-import qualified Game.Action as Action
-import           Game.Action (Affected(..))
-import qualified Game.Engine.Ninjas as Ninjas
-import qualified Game.Engine.Traps as Traps
+import           Util ((—), (∈), (∉))
 
 -- | Reduces incoming damage by depleting the user's 'Ninja.barrier'.
 absorbBarrier :: Int -> [Barrier] -> (Int, [Barrier])

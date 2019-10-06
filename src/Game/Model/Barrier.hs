@@ -2,10 +2,10 @@ module Game.Model.Barrier (Barrier(..), new) where
 
 import ClassyPrelude
 
-import qualified Game.Model.Context as Context
 import           Game.Model.Context (Context)
-import           Game.Model.Runnable (Runnable(To), RunConstraint)
+import qualified Game.Model.Context as Context
 import           Game.Model.Internal (Barrier(..))
+import           Game.Model.Runnable (Runnable(To), RunConstraint)
 import qualified Game.Model.Skill as Skill
 
 -- | Adds a 'Barrier' with an effect that occurs when its duration

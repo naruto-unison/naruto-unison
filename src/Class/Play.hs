@@ -28,25 +28,25 @@ module Class.Play
 
 import ClassyPrelude hiding (zipWith)
 
-import           Control.Monad (zipWithM_)
+import Control.Monad (zipWithM_)
 
-import qualified Class.Parity as Parity
 import           Class.Parity (Parity)
+import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
-import           Game.Model.Internal (MonadGame(..), MonadPlay(..))
-import qualified Game.Model.Context as Context
 import           Game.Model.Context (Context)
+import qualified Game.Model.Context as Context
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
-import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Internal (MonadGame(..), MonadPlay(..))
 import           Game.Model.Ninja (Ninja, is)
-import qualified Game.Model.Runnable as Runnable
-import           Game.Model.Runnable (Runnable)
-import qualified Game.Model.Player as Player
+import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
+import qualified Game.Model.Player as Player
+import           Game.Model.Runnable (Runnable)
+import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Skill (Skill)
-import qualified Game.Model.Slot as Slot
 import           Game.Model.Slot (Slot)
+import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger(..))
 
 -- | Alters the focus of the environment to a new @Context@.

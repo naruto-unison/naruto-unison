@@ -28,19 +28,19 @@ import ClassyPrelude hiding (link)
 
 import Data.Enum.Set.Class (EnumSet)
 
-import           Util ((!!), (∈), intersects)
 import qualified Class.Parity as Parity
 import           Game.Model.Chakra (Chakras(..))
 import           Game.Model.Class (Class(..))
-import qualified Game.Model.Effect as Effect
 import           Game.Model.Effect (Amount(..), Effect(..))
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja, is)
+import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
-import qualified Game.Model.Slot as Slot
 import           Game.Model.Slot (Slot)
-import qualified Game.Model.Status as Status
+import qualified Game.Model.Slot as Slot
 import           Game.Model.Status (Status)
+import qualified Game.Model.Status as Status
+import           Util ((!!), (∈), intersects)
 
 -- | Adds 'Flat' amounts and multiplies by 'Percent' amounts.
 total :: [(Amount, Int)] -> Amount -> Float

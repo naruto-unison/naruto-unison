@@ -7,12 +7,12 @@ module Game.Model.Status
 
 import ClassyPrelude
 
-import           Game.Model.Internal (Bomb(..), Status(..))
 import qualified Game.Model.Copy as Copy
 import           Game.Model.Duration (Duration, incr, sync)
 import           Game.Model.Effect (Effect)
-import qualified Game.Model.Skill as Skill
+import           Game.Model.Internal (Bomb(..), Status(..))
 import           Game.Model.Skill (Skill)
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 
 new :: Slot -> Duration -> Skill -> Status

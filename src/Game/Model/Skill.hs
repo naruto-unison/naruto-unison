@@ -8,9 +8,9 @@ module Game.Model.Skill
 import ClassyPrelude
 import Data.Enum.Set.Class (EnumSet)
 
-import           Game.Model.Internal (Skill(..), Requirement(..), Target(..), Copying(..), Ninja)
-import           Game.Model.Channel (Channeling(..))
 import qualified Game.Model.Chakra as Chakra
+import           Game.Model.Channel (Channeling(..))
+import           Game.Model.Internal (Skill(..), Requirement(..), Target(..), Copying(..), Ninja)
 import qualified Game.Model.Runnable as Runnable
 
 -- | The type signature of 'changes'.

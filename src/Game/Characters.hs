@@ -13,17 +13,17 @@ import           Data.Aeson (Value, toJSON)
 import qualified Data.Enum.Memo as Enum
 import           Data.HashMap.Strict (HashMap)
 
-import           Util ((∉), mapFromKeyed, unaccent)
-import qualified Game.Model.Character as Character
 import           Game.Model.Character (Character, Category(..))
+import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
-import qualified Game.Model.Skill as Skill
 import           Game.Model.Skill (Skill)
+import qualified Game.Model.Skill as Skill
+import           Util ((∉), mapFromKeyed, unaccent)
 
-import qualified Game.Characters.Original
-import qualified Game.Characters.Shippuden
-import qualified Game.Characters.Reanimated
 import qualified Game.Characters.Development
+import qualified Game.Characters.Original
+import qualified Game.Characters.Reanimated
+import qualified Game.Characters.Shippuden
 
 list :: [Character]
 list = addClasses

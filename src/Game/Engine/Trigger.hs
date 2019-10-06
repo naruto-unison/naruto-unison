@@ -11,21 +11,21 @@ import ClassyPrelude hiding (swap)
 
 import Data.Enum.Set.Class (EnumSet)
 
-import           Util ((∈), (∉))
-import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
+import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import           Game.Model.Class (Class(..))
-import           Game.Model.Effect (Effect(..))
-import qualified Game.Model.Ninja as Ninja
-import           Game.Model.Ninja (Ninja, is)
-import           Game.Model.Slot (Slot)
-import qualified Game.Model.Status as Status
-import qualified Game.Model.Trap as Trap
-import           Game.Model.Trap (Trap)
-import           Game.Model.Trigger (Trigger(..))
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
+import           Game.Model.Class (Class(..))
+import           Game.Model.Effect (Effect(..))
+import           Game.Model.Ninja (Ninja, is)
+import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Slot (Slot)
+import qualified Game.Model.Status as Status
+import           Game.Model.Trap (Trap)
+import qualified Game.Model.Trap as Trap
+import           Game.Model.Trigger (Trigger(..))
+import           Util ((∈), (∉))
 
 -- | Trigger a 'Redirect'.
 redirect :: EnumSet Class -> Ninja -> Maybe Slot

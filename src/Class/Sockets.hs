@@ -10,15 +10,15 @@ import ClassyPrelude
 import           Control.Monad.Trans.Accum (AccumT)
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Identity (IdentityT)
+import           Control.Monad.Trans.Maybe (MaybeT)
 import           Control.Monad.Trans.Select (SelectT)
 import           Control.Monad.Trans.State.Strict (StateT)
 import           Control.Monad.Trans.Writer (WriterT)
-import           Control.Monad.Trans.Maybe (MaybeT)
 import           Data.Aeson (ToJSON, toEncoding)
 import qualified Data.Aeson.Encoding as Encoding
 import qualified System.Random.MWC as Random
-import qualified Yesod.WebSockets as WebSockets
 import           Yesod.WebSockets (WebSocketsT)
+import qualified Yesod.WebSockets as WebSockets
 
 import Util (Lift)
 
