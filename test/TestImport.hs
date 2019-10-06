@@ -73,7 +73,7 @@ type TestRun = Target
 describeCategory :: Category -> Text -> (TestRun -> SpecWith ()) -> SpecWith ()
 describeCategory category name specs =
     describe (unpack name) case find matchChar Characters.list of
-        Nothing   -> it "Exists in the database" False
+        Nothing   -> it "exists in the database" False
         Just char -> parallel . specs $ useSkill char
   where
     matchChar x = Character.name x == name && Character.category x == category
@@ -81,7 +81,7 @@ describeCategory category name specs =
 useSkill :: Character -> TestRun
 useSkill char target skillName f =
     describe (unpack skillName) case findSkill skillName char of
-        Nothing  -> it "Exists in the database" False
+        Nothing  -> it "exists in the database" False
         Just (context -> ctx) ->
             runIdentity $ evalStateT (runReaderT f ctx) $ testGame char
   where
