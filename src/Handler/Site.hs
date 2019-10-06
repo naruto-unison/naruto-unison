@@ -47,7 +47,7 @@ getChangelogR = do
     (title, _) <- breadcrumbs
     defaultLayout do
         $(widgetFile "tooltip/tooltip")
-        $(widgetFile "changelog/changelog")
+        $(widgetFile "home/changelog")
   where
     change = getChangelog True
 
@@ -89,7 +89,7 @@ getChangelog :: Bool -> LogType -> Text -> Character.Category -> Widget
 getChangelog long logType name category =
     case Characters.lookup tagName of
         Nothing -> [whamlet|Error: character #{tagName} not found!|]
-        Just char -> $(widgetFile "changelog/change")
+        Just char -> $(widgetFile "home/change")
   where
     change  = logLabel long
     tagName = Character.formatFrom category name

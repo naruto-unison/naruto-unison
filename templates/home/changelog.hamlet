@@ -29,6 +29,22 @@
     and Hiruzen's #{ "Hiruzen Sarutobi" ! "Major Summoning: Enma"}.
   <li>
     New mechanic: destructible barrier, a counterpart to destructible defense. Destructible barrier is a negative effect that absorbs some amount of outgoing damage. It is represented by a red bar next to the health bar.
+  <li>
+    Reanimated (#{Reanimated}) characters are purchased with DNA, which is obtained from:
+    <ul>
+      <li>
+        Winning, with higher bonuses at higher win streaks.
+      <li>
+        Losing, although not as much.
+      <li>
+        First game of the day.
+      <li>
+        First win of the day.
+      <li>
+        Participating in wars. (unimplemented)
+      <li>
+        Defeating A.I. boss challenges. (unimplemented)
+
 <h3>Original
 <ul>
   ^{change New "Konohamaru Sarutobi" Original}
