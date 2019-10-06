@@ -13,7 +13,7 @@
   <li>
     The <i>Affliction</i> class has been renamed to <i>Bane</i> in order to avoid confusion with affliction damage.
     For example, Shino#{Shippuden}'s
-    #{"Shino Aburame (S)" ! "Gigantic Beetle Infestation"}, which does not deal any affliction damage, was a skill classified as <i>Affliction</i>.
+    #{skill "Shino Aburame" Shippuden "Gigantic Beetle Infestation"}, which does not deal any affliction damage, was a skill classified as <i>Affliction</i>.
   <li>
     A few other skills have also been classified as <i>Bane</i>.
   <li>
@@ -22,11 +22,11 @@
     Added the <i>Ongoing</i> duration. <i>Ongoing</i> skills are permanent,
     perform an action every turn even if their user is stunned or otherwise disabled,
     and end when their user dies. Examples:
-    Choji#{Shippuden}'s #{ "Chōji Akimichi (S)" ! "Butterfly Mode"},
-    Tsunade's #{"Tsunade" ! "Major Summoning: Katsuyu"},
-    Jiraiya's #{"Jiraiya" ! "Major Summoning: Gamabunta"},
-    Orochimaru's #{"Orochimaru" ! "Major Summoning: Manda"},
-    and Hiruzen's #{ "Hiruzen Sarutobi" ! "Major Summoning: Enma"}.
+    Choji#{Shippuden}'s #{ skill "Chōji Akimichi" Shippuden "Butterfly Mode"},
+    Tsunade's #{skill "Tsunade" Original "Major Summoning: Katsuyu"},
+    Jiraiya's #{skill "Jiraiya" Original "Major Summoning: Gamabunta"},
+    Orochimaru's #{skill "Orochimaru" Original "Major Summoning: Manda"},
+    and Hiruzen's #{skill "Hiruzen Sarutobi" Original "Major Summoning: Enma"}.
   <li>
     New mechanic: destructible barrier, a counterpart to destructible defense. Destructible barrier is a negative effect that absorbs some amount of outgoing damage. It is represented by a red bar next to the health bar.
   <li>

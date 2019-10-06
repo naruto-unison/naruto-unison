@@ -297,7 +297,7 @@ gameSocket = webSockets do
 
             liftHandler . runDB $ update who [UserTeam =. Just teamTail]
             (mvar, info) <- queue section team
-            return (teamTail, mvar, info)
+            return (team, mvar, info)
 
         sendClient $ Info info
         let player = GameInfo.player info

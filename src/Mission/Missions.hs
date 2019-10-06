@@ -6,19 +6,33 @@ module Mission.Missions
 
 import ClassyPrelude hiding ((\\), map)
 
-import           Mission.Goal (Goal, Mission)
+import           Game.Model.Character (Character)
+import qualified Game.Model.Character as Character
+import           Mission.Goal (Goal(..), Mission(..), Objective(..))
 import qualified Mission.Goal as Goal
 import           Util (mapFromKeyed)
 
 import qualified Mission.Missions.Shippuden
 
+clean :: Mission -> Mission
+clean (Mission char goals) =
+    Mission (Character.clean char) $ cleanGoal <$> goals
+  where
+    cleanGoal goal = goal { objective = cleanObjective $ objective goal }
+    cleanObjective (Win names) = Win $ Character.clean <$> names
+    cleanObjective (Hook name skill fn) = Hook (Character.clean name) skill fn
+    cleanObjective (HookTurn name fn) = HookTurn (Character.clean name) fn
+    cleanObjective (UseAllSkills x) = UseAllSkills x
+
 list :: [Mission]
-list = Mission.Missions.Shippuden.missions
+list = clean
+       <$> Mission.Missions.Shippuden.missions
 {-# NOINLINE list #-}
 
 map :: HashMap Text (Seq Goal)
 map = mapFromKeyed (Goal.char, Goal.goals) list
 {-# NOINLINE map #-}
 
-characterMissions :: Text -> [Mission]
-characterMissions name = filter (any (Goal.belongsTo name) . Goal.goals) list
+characterMissions :: Character -> [Mission]
+characterMissions (Character.format -> name) =
+    filter (any (Goal.belongsTo name) . Goal.goals) list

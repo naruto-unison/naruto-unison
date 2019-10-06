@@ -148,6 +148,10 @@ body {
     overflow: hidden !important;
 }
 
+button {
+    cursor: revert;
+}
+
 #cancel {
     position: absolute;
     left: 0;

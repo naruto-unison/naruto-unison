@@ -66,9 +66,9 @@ getHomeR = do
     change = getChangelog False
     withAuthor (Entity _ new) = ((new, ) <$>) <$> get $ newsAuthor new
 
-(!) :: Text -> Text -> Html
-name ! l = [shamlet| $newline never
-<a .skill data-name=#{name}>#{l}|]
+skill :: Text -> Category -> Text -> Html
+skill char category name = [shamlet| $newline never
+<a .skill data-name=#{Character.formatFrom category char}>#{name}|]
 
 data LogType = Added | New | Rework | Change
 
@@ -118,13 +118,13 @@ getCharactersR = do
 
 getCharacterR :: Character -> Handler Html
 getCharacterR char = do
-        mmission <- Mission.userMission name
+        mmission <- Mission.userMission char
         defaultLayout $(widgetFile "guide/character")
   where
     name = Character.format char
-    skillClasses skill =
+    skillClasses sk =
         intercalate ", " $
-        display <$> filter Class.visible (toList $ Skill.classes skill)
+        display <$> filter Class.visible (toList $ Skill.classes sk)
 
 getMechanicsR :: Handler Html
 getMechanicsR = do

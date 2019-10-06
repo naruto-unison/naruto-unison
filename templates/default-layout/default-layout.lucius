@@ -90,6 +90,7 @@ button {
     border: 1px solid #007acc;
     padding: 0.4em 1em 0.3em 1em;
     background-color: #dfdfdf;
+    cursor: pointer;
 }
 button:hover {
     background-color: #ccc;
@@ -256,7 +257,6 @@ li {
     }
 
     button {
-        cursor: revert;
         border-color: #000;
         background-color: #eee;
         color: #000;

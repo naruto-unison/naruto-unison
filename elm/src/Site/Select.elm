@@ -573,12 +573,16 @@ locked set char =
 
 affordable : Maybe User -> Character -> Bool
 affordable muser char =
-    case muser of
-        Nothing ->
-            False
+    if char.price == 0 then
+        False
 
-        Just user ->
-            user.dna >= char.price
+    else
+        case muser of
+            Nothing ->
+                False
+
+            Just user ->
+                user.dna >= char.price
 
 
 userBox : Maybe User -> String -> String -> Bool -> List Character -> Html Msg

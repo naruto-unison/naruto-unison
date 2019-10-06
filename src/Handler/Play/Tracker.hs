@@ -76,8 +76,9 @@ new n = do
                  , progress
                  }
   where
+    char       = Ninja.character n
     name       = Character.format $ Ninja.character n
-    missions   = Missions.characterMissions name
+    missions   = Missions.characterMissions char
     objectives = [(i, Goal.objective x) | i <- [0..]
                                         | mission <- missions
                                         , x       <- toList $ Goal.goals mission
@@ -93,7 +94,7 @@ newtype Tracker s = Tracker (Vector (Track s))
 unsafeFreeze :: ∀ s. Tracker s -> ST s [Progress]
 unsafeFreeze (Tracker xs) = concat <$> traverse freeze xs
   where
-    freeze x = (key x <*>) . toList <$> Vector.unsafeFreeze (progress x)
+    freeze x = (zipWith ($) $ key x) . toList <$> Vector.unsafeFreeze (progress x)
 
 fromInfo :: ∀ s. GameInfo -> ST s (Tracker s)
 fromInfo info = Tracker <$> mapM new ninjas

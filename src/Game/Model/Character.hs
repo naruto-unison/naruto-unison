@@ -3,6 +3,7 @@ module Game.Model.Character
   , format
   , Category(..)
   , formatFrom
+  , clean
   ) where
 
 import ClassyPrelude
@@ -10,14 +11,17 @@ import ClassyPrelude
 import Game.Model.Internal (Character(..), Category(..))
 import Util (unaccent)
 
+clean :: Text -> Text
+clean name = omap f $ toLower name
+  where
+    f ' ' = '-'
+    f x   = unaccent x
+
 formatFrom :: Category -> Text -> Text
-formatFrom category name = omap clean . toLower $ case category of
+formatFrom category name = clean case category of
     Original   -> name
     Shippuden  -> name ++ " (S)"
     Reanimated -> name ++ " (R)"
-  where
-    clean ' ' = '-'
-    clean x   = unaccent x
 
 format :: Character -> Text
 format Character{..} = formatFrom category name

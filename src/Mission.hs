@@ -34,6 +34,8 @@ import qualified Mission.Missions as Missions
 import           Mission.Progress (Progress(..))
 import           Util ((∉))
 
+import Control.Monad.Logger
+
 initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do
     chars    <- (entityVal <$>) <$> selectList [] []
@@ -74,19 +76,21 @@ getUnlocked ids unlocks = freeChars `union` setFromList (mapMaybe look unlocks)
     look (Entity _ Unlocked{unlockedCharacter}) =
         Bimap.lookup unlockedCharacter ids
 
-userMission :: Text -> Handler (Maybe (Seq (Goal, Int)))
-userMission name = fromMaybe mempty <$> runMaybeT do
+userMission :: Character.Character -> Handler (Maybe (Seq (Goal, Int)))
+userMission char = fromMaybe mempty <$> runMaybeT do
     who     <- MaybeT Auth.maybeAuthId
-    char    <- characterID name
+    charID  <- characterID name
     mission <- MaybeT . return $ lookup name Missions.map
     (Just . zip mission <$>) . lift $ runDB do
         alreadyUnlocked <-
-            selectFirst [UnlockedUser ==. who, UnlockedCharacter ==. char] []
+            selectFirst [UnlockedUser ==. who, UnlockedCharacter ==. charID] []
         if isJust alreadyUnlocked then
             return $ Goal.reach <$> mission
         else
             setObjectives mission <$>
-                selectList [MissionUser ==. who, MissionCharacter ==. char] []
+                selectList [MissionUser ==. who, MissionCharacter ==. charID] []
+  where
+    name = Character.format char
 
 updateProgress :: ∀ m. MonadIO m
                => Seq Goal
@@ -110,13 +114,15 @@ updateProgress mission who char i amount = do
 
 progress :: Progress -> Handler Bool
 progress Progress{amount = 0} = return False
-progress Progress{name, objective, amount} = fromMaybe False <$> runMaybeT do
-    who        <- MaybeT Auth.maybeAuthId
-    mission    <- MaybeT . return $ lookup name Missions.map
-    let len     = length mission
-    guard $ objective < len
-    char       <- characterID name
-    lift . runDB $ updateProgress mission who char objective amount
+progress Progress{character, objective, amount} = do
+    logWarnN $ character ++ ": " ++ tshow objective ++ " (" ++ tshow amount ++ ")"
+    fromMaybe False <$> runMaybeT do
+        who        <- MaybeT Auth.maybeAuthId
+        mission    <- MaybeT . return $ lookup character Missions.map
+        let len     = length mission
+        guard $ objective < len
+        charID     <- characterID character
+        lift . runDB $ updateProgress mission who charID objective amount
 
 setObjectives :: Seq Goal -> [Entity Mission] -> Seq Int
 setObjectives xs objectives = foldl' f (0 <$ xs) objectives
@@ -128,18 +134,20 @@ completed mission objectives = and . zipWith ((<=) . Goal.reach) mission $
                                setObjectives mission objectives
 
 winners :: Bimap CharacterId Text
-        -> [Text] -> [Entity Unlocked] -> [(Seq Goal, Key Character, Int)]
-winners ids team unlocks = do
-    Goal.Mission name mission <- Missions.list
-    guard $ name ∉ names
-    (i, Goal.Win team') <- zip [0..] $ Goal.objective <$> toList mission
+        -> [Character.Character] -> [Entity Unlocked]
+        -> [(Seq Goal, Key Character, Int)]
+winners ids chars unlocks = do
+    Goal.Mission{char, goals} <- Missions.list
+    guard $ char ∉ names
+    (i, Goal.Win team') <- zip [0..] $ Goal.objective <$> toList goals
     guard . null $ team' \\ team
-    char <- Bimap.lookupR name ids
-    return (mission, char, i)
+    charID <- Bimap.lookupR char ids
+    return (goals, charID, i)
   where
+    team  = Character.format <$> chars
     names = getUnlocked ids unlocks
 
-processWin :: [Text] -> Handler ()
+processWin :: [Character.Character] -> Handler ()
 processWin team = do
     who <- Auth.requireAuthId
     ids <- getsYesod App.characterIDs
@@ -175,7 +183,6 @@ tallyDNA section outcome dnaConf day user = filter ((> 0) . snd)
     , ("Win Streak",  winStreak)
     ]
   where
-
     winStreak
       | outcome /= Victory         = 0
       | userStreak user < 1        = 0
