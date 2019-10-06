@@ -1,8 +1,7 @@
-{-# LANGUAGE MultiParamTypeClasses       #-}
-{-# LANGUAGE QuasiQuotes                 #-}
-{-# LANGUAGE TemplateHaskell             #-}
-{-# LANGUAGE TypeFamilies                #-}
-{-# OPTIONS_GHC -fno-warn-unused-matches #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE QuasiQuotes           #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
 
 -- | User forum handler.
 module Handler.Forum
@@ -73,7 +72,6 @@ getTopicR topicId = do
     (title, _) <- breadcrumbs
     time       <- liftIO getCurrentTime
     timestamp  <- liftIO makeTimestamp
-    zone       <- liftIO LocalTime.getCurrentTimeZone
     Topic{..}  <- runDB $ get404 topicId
     posts      <- selectWithAuthors [PostTopic ==. topicId] []
     mwidget    <- traverse

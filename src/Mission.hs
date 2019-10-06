@@ -45,7 +45,7 @@ makeMap :: [Entity Character] -> Bimap CharacterId Text
 makeMap chars = Bimap.fromList . mapMaybe maybePair $ chars
   where
     maybePair (Entity charId Character{characterName}) =
-        (charId, ) . Character.format <$> Characters.lookupName characterName
+        (charId, ) . Character.format <$> Characters.lookup characterName
 
 unlocked :: Handler (HashSet Text)
 unlocked = do

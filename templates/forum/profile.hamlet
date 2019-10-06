@@ -4,7 +4,7 @@
     $maybe team <- userTeam
       <div .team>
         $forall name <- team
-          <img .char.head data-name=#{name} src=/img/ninja/#{shorten(name)}/icon.jpg>
+          <img .char.head data-name=#{name} src=/img/ninja/#{name}/icon.jpg>
   <dl>
     <h3>#{userName}
     <dt>Rank

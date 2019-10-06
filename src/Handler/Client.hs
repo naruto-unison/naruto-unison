@@ -63,9 +63,9 @@ getPlayR = do
     unlocked    <- Mission.unlocked
     when (isJust muser) Play.gameSocket
     let team     = maybe []
-                   (mapMaybe Characters.lookupName . filter (∈ unlocked)) $
+                   (mapMaybe Characters.lookup . filter (∈ unlocked)) $
                    muser >>= userTeam
-        practice = maybe [] (mapMaybe Characters.lookupName . userPractice)
+        practice = maybe [] (mapMaybe Characters.lookup . userPractice)
                    muser
         bg       = fromMaybe "/img/bg/valley2.jpg" $ muser >>= userBackground
         vol :: Text
@@ -87,7 +87,7 @@ charAvatars :: Character -> [Text]
 charAvatars char = toFile <$> "icon" : skills
   where
     skills      = nub $ Skill.name <$> concatMap toList (Character.skills char)
-    toFile path = "/img/ninja/" ++ shorten (Character.format char) ++ "/"
+    toFile path = "/img/ninja/" ++ Character.format char ++ "/"
                   ++ shorten path ++ ".jpg"
 
 avatars :: Value

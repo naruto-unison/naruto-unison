@@ -4,9 +4,9 @@ module Game.Characters.Original.KidsSpec (spec) where
 import TestImport
 
 import qualified Class.Play as P
+import qualified Game.Engine.Effects as Effects
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as Ninja
-import qualified Game.Engine.Effects as Effects
 
 spec :: Spec
 spec = parallel do

@@ -19,7 +19,7 @@ import String.Extra as String
 
 import Import.Flags exposing (characterName)
 import Import.Model exposing (Category(..), Chakras, Channel, Channeling(..), Character, Effect, User)
-import Util exposing (elem)
+import Util exposing (shorten)
 
 
 streak : User -> Html msg
@@ -76,34 +76,12 @@ icon char path attrs =
     let
         src =
             "/img/ninja/"
-                ++ shorten (characterName char)
+                ++ characterName char
                 ++ "/"
                 ++ shorten path
                 ++ ".jpg"
     in
     H.img (A.src src :: attrs) []
-
-
-shorten : String -> String
-shorten =
-    String.filter (not << elem illegal)
-        >> String.map simplify
-
-
-illegal : List Char
-illegal =
-    String.toList " -:()®./?'"
-
-
-simplify : Char -> Char
-simplify c =
-    case c of
-        'ō' -> 'o'
-        'Ō' -> 'O'
-        'ū' -> 'u'
-        'Ū' -> 'U'
-        'ä' -> 'a'
-        _   -> c
 
 
 name : Character -> List (Html msg)

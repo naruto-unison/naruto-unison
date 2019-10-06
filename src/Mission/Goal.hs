@@ -55,7 +55,7 @@ instance Eq Mission where
     (==) = (==) `on` char
 
 character :: Goal -> Maybe Character
-character x = Characters.lookupName =<< user (objective x)
+character x = Characters.lookup =<< user (objective x)
 
 belongsTo :: Text -> Goal -> Bool
 belongsTo name x = maybe False (name ==) . user $ objective x

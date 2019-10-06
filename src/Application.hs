@@ -40,7 +40,6 @@ import           Application.Model (CharacterId)
 import qualified Application.Model as Model
 import           Application.Settings (Settings)
 import qualified Application.Settings as Settings
-
 import           Handler.Admin
 import           Handler.Client
 import           Handler.Embed

@@ -12,8 +12,13 @@ module TestImport
   ) where
 
 import ClassyPrelude as Import hiding ((\\), fromList, toList)
-import GHC.Exts as Import (fromList, toList)
-import Test.Hspec as Import hiding (context)
+import Game.Action.Chakra as Import
+import Game.Action.Channel as Import
+import Game.Action.Combat as Import
+import Game.Action.Skill as Import
+import Game.Action.Status as Import
+import Game.Action.Trap as Import
+import Game.Characters.Base as Import (self, targetHas, userHas)
 import Game.Model.Chakra as Import (Chakra(..))
 import Game.Model.Character as Import (Category(..), Character)
 import Game.Model.Class as Import (Class(..))
@@ -21,46 +26,41 @@ import Game.Model.Effect as Import (Amount(..), Effect(..))
 import Game.Model.Ninja as Import (is)
 import Game.Model.Skill as Import (Target(..))
 import Game.Model.Trigger as Import (Trigger(..))
-import Game.Action.Chakra as Import
-import Game.Action.Combat as Import
-import Game.Action.Channel as Import
-import Game.Action.Skill as Import
-import Game.Action.Status as Import
-import Game.Action.Trap as Import
-import Game.Characters.Base as Import (self, targetHas, userHas)
+import GHC.Exts as Import (fromList, toList)
+import Test.Hspec as Import hiding (context)
 
 import Control.Monad.Trans.State.Strict (StateT, evalStateT)
 
-import           Util ((!!), (∈))
-import qualified Handler.Play.Wrapper as Wrapper
-import           Handler.Play.Wrapper (Wrapper(Wrapper))
 import qualified Class.Parity as Parity
-import qualified Class.Play as P
 import           Class.Play (MonadGame, MonadPlay)
+import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import qualified Game.Model.Context as Context
-import           Game.Model.Context (Context(Context))
-import qualified Game.Model.Defense as Defense
-import           Game.Model.Duration (Duration(..), Turns, sync)
-import qualified Game.Model.Game as Game
-import qualified Game.Model.Character as Character
-import           Game.Model.Character (Character(Character))
-import qualified Game.Model.Ninja as Ninja
-import           Game.Model.Ninja (Ninja)
-import qualified Game.Model.Player as Player
-import           Game.Model.Player (Player)
-import           Game.Model.Runnable (Runnable(..), RunConstraint)
-import qualified Game.Model.Skill as Skill
-import           Game.Model.Skill (Skill)
-import qualified Game.Model.Slot as Slot
-import           Game.Model.Slot (Slot)
-import qualified Game.Engine.Effects as Effects
 import qualified Game.Action as Action
+import qualified Game.Characters as Characters
+import qualified Game.Engine as Engine
+import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Trigger as Trigger
-import qualified Game.Engine as Engine
-import qualified Game.Characters as Characters
+import           Game.Model.Character (Character(Character))
+import qualified Game.Model.Character as Character
+import           Game.Model.Context (Context(Context))
+import qualified Game.Model.Context as Context
+import qualified Game.Model.Defense as Defense
+import           Game.Model.Duration (Duration(..), Turns, sync)
+import qualified Game.Model.Game as Game
+import           Game.Model.Ninja (Ninja)
+import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Player (Player)
+import qualified Game.Model.Player as Player
+import           Game.Model.Runnable (Runnable(..), RunConstraint)
+import           Game.Model.Skill (Skill)
+import qualified Game.Model.Skill as Skill
+import           Game.Model.Slot (Slot)
+import qualified Game.Model.Slot as Slot
+import           Handler.Play.Wrapper (Wrapper(Wrapper))
+import qualified Handler.Play.Wrapper as Wrapper
+import           Util ((!!), (∈))
 
 -- Because MonadGame and MonadRandom do not actually require IO,
 -- all tests are completely pure, and can comfortably run in parallel.

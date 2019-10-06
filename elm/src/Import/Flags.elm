@@ -14,7 +14,7 @@ import List.Extra as List
 import List.Nonempty as Nonempty exposing (Nonempty(..))
 import Set exposing (Set)
 import String.Extra as String
-import Util exposing (groupBy)
+import Util exposing (groupBy, unaccent)
 
 import Import.Model as Model exposing (Category(..), Character, Failure(..), Skill, User)
 
@@ -106,12 +106,24 @@ withKey f =
     List.map <| \x -> ( f x, x )
 
 
+clean : Char -> Char
+clean x =
+    case x of
+        ' ' -> '-'
+        _   -> unaccent x
+
+
 characterName : Character -> String
 characterName char =
-    case char.category of
-        Original   -> char.name
-        Shippuden  -> char.name ++ " (S)"
-        Reanimated -> char.name ++ " (R)"
+    String.map clean << String.toLower <| case char.category of
+        Original ->
+            char.name
+
+        Shippuden ->
+            char.name ++ " (S)"
+
+        Reanimated ->
+            char.name ++ " (R)"
 
 
 makeShortName : Character -> String

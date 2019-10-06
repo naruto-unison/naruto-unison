@@ -1,12 +1,12 @@
 <h1>#{title}
-$forall Cite{citeVal = Post{..}, citeAuthor} <- posts
+$forall cite <- posts
   <article>
     <aside>
-      <img .char src=#{userAvatar citeAuthor}>
-      ^{userlink citeAuthor}
-      ^{timestamp postTime}
+      <img .char src=#{userAvatar $ citeAuthor cite}>
+      ^{userlink $ citeAuthor cite}
+      ^{timestamp $ postTime $ citeVal cite}
     <section>
-      $forall paragraph <- postBody
+      $forall paragraph <- postBody $ citeVal cite
         <p>
           #{paragraph}
 <article>

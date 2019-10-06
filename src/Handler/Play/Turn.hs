@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass #-}
+
 module Handler.Play.Turn
   ( Turn(..)
   , new
@@ -5,14 +7,12 @@ module Handler.Play.Turn
 
 import ClassyPrelude
 
-import Data.Aeson ((.=), ToJSON(..), Value, object)
+import Data.Aeson (ToJSON)
 
 import qualified Class.Parity as Parity
-import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Chakra (Chakras)
 import qualified Game.Model.Channel as Channel
-import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(..))
@@ -20,7 +20,6 @@ import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
-import           Game.Model.Requirement (Requirement(..))
 import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Skill (Skill, Target(..))
 import qualified Game.Model.Skill as Skill
@@ -29,6 +28,7 @@ import qualified Game.Model.Slot as Slot
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import qualified Game.Model.Variant as Variant
+import           OrphanInstances.Ninja ()
 import           Util ((!!), (∈), (∉), intersects)
 
 data Turn = Turn { chakra  :: Chakras
@@ -36,16 +36,7 @@ data Turn = Turn { chakra  :: Chakras
                  , victor  :: [Player]
                  , ninjas  :: [Ninja]
                  , targets :: [[[Slot]]]
-                 }
-
-instance ToJSON Turn where
-    toJSON Turn{..} = object
-        [ "chakra"  .= chakra
-        , "playing" .= playing
-        , "victor"  .= victor
-        , "ninjas"  .= (ninjaToJSON <$> ninjas)
-        , "targets" .= targets
-        ]
+                 } deriving (Generic, ToJSON)
 
 new :: Player -> [Ninja] -> Game -> Turn
 new player ninjas game = Turn { chakra  = Parity.getOf player $ Game.chakra game
@@ -112,28 +103,3 @@ skillTargets skill c = filter target Slot.all
     harmTargets  = setFromList [Enemy, Enemies, REnemy, XEnemies]
     xAllyTargets = setFromList [XAlly, XAllies]
     allyTargets  = setFromList [Ally, Allies, RAlly]
-
-ninjaToJSON :: Ninja -> Value
-ninjaToJSON n = object
-    [ "slot"      .= Ninja.slot n
-    , "character" .= Character.format (Ninja.character n)
-    , "health"    .= Ninja.health n
-    , "defense"   .= Ninja.defense n
-    , "barrier"   .= Ninja.barrier n
-    , "statuses"  .= filter ((Hidden ∉) . Status.classes) (Ninja.statuses n)
-    , "charges"   .= Ninja.charges n
-    , "cooldowns" .= Cooldown.active n
-    , "variants"  .= Ninja.variants n
-    , "copies"    .= Ninja.copies n
-    , "channels"  .= Ninja.channels n
-    , "traps"     .= filter ((Hidden ∉) . Trap.classes) (Ninja.traps n)
-    , "face"      .= Ninja.face n
-    , "lastSkill" .= Ninja.lastSkill n
-    , "skills"    .= (usable <$> Ninjas.skills n)
-    ]
-  where
-    usable skill = skill { Skill.require = fulfill $ Skill.require skill }
-    fulfill req@HasI{}
-      | Requirement.succeed req (Ninja.slot n) n = Usable
-      | otherwise                                = Unusable
-    fulfill x = x

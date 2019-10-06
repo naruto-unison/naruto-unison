@@ -27,6 +27,6 @@
   <h1>Recent Activity
   <a .refer href=@{ForumsR}>
     Go to forums
-  $forall cite@Cite{..} <- topics
+  $forall cite <- topics
     <p>
       ^{citelink cite}

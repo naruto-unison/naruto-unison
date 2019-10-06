@@ -2,23 +2,22 @@
 -- Contains everything in the [Characters](src/Characters/) folder.
 module Game.Characters
   ( list, map
-  , lookupName
-  , link, lookupSite
+  , lookup
   , listJSON, mapJSON
   ) where
 
-import ClassyPrelude hiding (link, map)
+import ClassyPrelude hiding (link, lookup, map)
 
 import           Data.Aeson (Value, toJSON)
-import qualified Data.Enum.Memo as Enum
 import           Data.HashMap.Strict (HashMap)
+import qualified Data.HashMap.Strict as HashMap
 
-import           Game.Model.Character (Character, Category(..))
+import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
-import           Util ((∉), mapFromKeyed, unaccent)
+import           Util ((∉), mapFromKeyed)
 
 import qualified Game.Characters.Development
 import qualified Game.Characters.Original
@@ -45,8 +44,8 @@ mapJSON :: Value
 mapJSON = toJSON map
 {-# NOINLINE mapJSON #-}
 
-lookupName :: Text -> Maybe Character
-lookupName k = lookup k map
+lookup :: Text -> Maybe Character
+lookup k = HashMap.lookup k map
 
 addClasses :: Character -> Character
 addClasses char = char { Character.skills = doSkills <$> Character.skills char }
@@ -68,18 +67,3 @@ doSkill skill = skill { Skill.classes = added ++ Skill.classes skill }
             [ (All,       True)
             , (NonMental, Mental ∉ Skill.classes skill)
             ]
-
-link :: Character -> Text
-link = omap clean . toLower . Character.name
-  where
-    clean ' ' = '-'
-    clean x   = unaccent x
-
-siteChars :: Category -> HashMap Text Character
-siteChars =
-    Enum.memoize \category -> mapFromKeyed (link, id) $
-        filter ((== category) . Character.category) list
-{-# NOINLINE siteChars #-}
-
-lookupSite :: Category -> Text -> Maybe Character
-lookupSite category x = lookup x $ siteChars category

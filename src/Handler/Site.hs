@@ -1,9 +1,8 @@
-{-# LANGUAGE MultiParamTypeClasses       #-}
-{-# LANGUAGE NoBangPatterns              #-}
-{-# LANGUAGE QuasiQuotes                 #-}
-{-# LANGUAGE TemplateHaskell             #-}
-{-# LANGUAGE TypeFamilies                #-}
-{-# OPTIONS_GHC -fno-warn-unused-matches #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NoBangPatterns        #-}
+{-# LANGUAGE QuasiQuotes           #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
 
 -- | Miscellaneous website handlers.
 module Handler.Site
@@ -23,11 +22,11 @@ import           Text.Blaze.Html (preEscapedToHtml)
 import qualified Yesod.Auth as Auth
 
 import           Application.App (Handler, Route(..), Widget)
-import           Application.Model (Cite(..), EntityField(..), News(..), User(..))
+import           Application.Model (EntityField(..), News(..), User(..))
 import           Application.Settings (widgetFile)
 import           Class.Display (Display(..))
 import qualified Game.Characters as Characters
-import           Game.Model.Character (Category(..))
+import           Game.Model.Character (Category(..), Character)
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Class as Class
 import qualified Game.Model.Ninja as Ninja
@@ -87,16 +86,13 @@ separate :: NonEmpty Skill -> [Skill]
 separate = nubBy ((==) `on` Skill.name) . toList
 
 getChangelog :: Bool -> LogType -> Text -> Character.Category -> Widget
-getChangelog long logType name characterType =
-    case Characters.lookupName tagName of
+getChangelog long logType name category =
+    case Characters.lookup tagName of
         Nothing -> [whamlet|Error: character #{tagName} not found!|]
         Just char -> $(widgetFile "changelog/change")
   where
-    change   = logLabel long
-    tagName  = case characterType of
-        Original   -> name
-        Reanimated -> name ++ " (R)"
-        Shippuden  -> name ++ " (S)"
+    change  = logLabel long
+    tagName = Character.formatFrom category name
 
 news :: (News, Maybe User) -> Widget
 news (News{..}, author) = $(widgetFile "home/news")
@@ -120,15 +116,12 @@ getCharactersR = do
     categoryChars category =
         filter ((== category) . Character.category) Characters.list
 
-getCharacterR :: Category -> Text -> Handler Html
-getCharacterR category charLink = case Characters.lookupSite category charLink of
-    Nothing   -> notFound
-    Just char -> do
-        let name = Character.format char
-            path = shorten name
+getCharacterR :: Character -> Handler Html
+getCharacterR char = do
         mmission <- Mission.userMission name
         defaultLayout $(widgetFile "guide/character")
   where
+    name = Character.format char
     skillClasses skill =
         intercalate ", " $
         display <$> filter Class.visible (toList $ Skill.classes skill)

@@ -84,7 +84,7 @@ sendClient = Sockets.sendJson
 getPracticeQueueR :: [Text] -> Handler Value
 getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
     case zipWith Ninja.new Slot.all
-         <$> traverse Characters.lookupName [c1, b1, a1, a2, b2, c2] of
+         <$> traverse Characters.lookup [c1, b1, a1, a2, b2, c2] of
     Nothing -> invalidArgs ["Unknown character(s)"]
     Just ninjas -> do
         who      <- Auth.requireAuthId
@@ -159,7 +159,7 @@ parseTeam _                = Nothing
 formTeam :: [Text] -> Maybe [Character]
 formTeam team@[_,_,_]
   | duplic team = Nothing
-  | otherwise   = traverse Characters.lookupName team
+  | otherwise   = traverse Characters.lookup team
 formTeam _ = Nothing
 
 data Enact = Enact { spend    :: Chakras

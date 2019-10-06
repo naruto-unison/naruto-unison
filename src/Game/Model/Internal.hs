@@ -225,6 +225,9 @@ data Character = Character { name     :: Text
                            , category :: Category
                            } deriving (Generic, ToJSON)
 
+instance Eq Character where
+    (==) = (==) `on` \Character{..} -> (name, category)
+
 -- | A 'Skill' copied from a different character.
 data Copy = Copy { skill :: Skill
                  , dur   :: Int

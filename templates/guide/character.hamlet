@@ -1,4 +1,4 @@
-<img .char.head src=/img/ninja/#{path}/icon.jpg>
+<img .char.head src=/img/ninja/#{name}/icon.jpg>
 <h1>
   #{Character.name char}#{Character.category char}
 <p>
@@ -10,7 +10,7 @@ $maybe mission <- mmission
     $forall (goal, progress) <- mission
       <li>
         $maybe char <- Goal.character goal
-          As <a href=@{CharacterR (Character.category char) (Characters.link char)}>#{Character.name char}#{Character.category char}</a>: #
+          As <a href=@{CharacterR char}>#{Character.name char}#{Character.category char}</a>: #
         #{Parse.desc $ Goal.desc goal} #
         $if progress < Goal.reach goal
           <span .incomplete>
@@ -24,7 +24,7 @@ $forall skills <- Character.skills char
     $forall skill <- separate skills
       <section>
         <aside>
-          <img .char src=/img/ninja/#{path}/#{shorten(Skill.name skill)}.jpg>
+          <img .char src=/img/ninja/#{name}/#{shorten(Skill.name skill)}.jpg>
         <div>
           <h3>
             #{Skill.name skill}

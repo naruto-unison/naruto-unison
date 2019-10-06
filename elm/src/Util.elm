@@ -4,6 +4,7 @@ module Util exposing
     , groupBy
     , pure
     , showErr
+    , shorten, unaccent, illegal
     )
 
 import Http exposing (Error(..))
@@ -54,3 +55,25 @@ showErr err =
 
         BadBody x ->
             "Invalid response from server: " ++ x
+
+
+shorten : String -> String
+shorten =
+    String.filter (not << elem illegal)
+        >> String.map unaccent
+
+
+illegal : List Char
+illegal =
+    String.toList " -:()®./?'"
+
+
+unaccent : Char -> Char
+unaccent c =
+    case c of
+        'ō' -> 'o'
+        'Ō' -> 'O'
+        'ū' -> 'u'
+        'Ū' -> 'U'
+        'ä' -> 'a'
+        _   -> c

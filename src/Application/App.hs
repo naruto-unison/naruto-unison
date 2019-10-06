@@ -46,13 +46,13 @@ import           Application.Model (CharacterId, EntityField(..), Topic(..), Top
 import qualified Application.Model as Model
 import           Application.Settings (Settings, widgetFile)
 import qualified Application.Settings as Settings
-import qualified Game.Characters as Characters
 import           Game.Model.Act (Act)
 import           Game.Model.Chakra (Chakras)
-import           Game.Model.Character (Category)
+import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
 import qualified Handler.Play.Queue as Queue
 import           Handler.Play.Wrapper (Wrapper)
+import           OrphanInstances.Character ()
 
 -- | App environment.
 data App = App
@@ -198,10 +198,8 @@ instance YesodBreadcrumbs App where
       return (topicTitle, Just $ BoardR topicBoard)
   breadcrumb GuideR = return ("Guide", Just HomeR)
   breadcrumb CharactersR = return ("Characters", Just GuideR)
-  breadcrumb (CharacterR category char) = return
-      ( maybe "Character" Character.format $ Characters.lookupSite category char
-      , Just CharactersR
-      )
+  breadcrumb (CharacterR char) = return
+      (Character.format char, Just CharactersR)
   breadcrumb MechanicsR = return ("Game Mechanics", Just GuideR)
   breadcrumb _ = return (mempty, Nothing)
 

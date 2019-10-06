@@ -1,8 +1,7 @@
-{-# LANGUAGE MultiParamTypeClasses       #-}
-{-# LANGUAGE QuasiQuotes                 #-}
-{-# LANGUAGE TemplateHaskell             #-}
-{-# LANGUAGE TypeFamilies                #-}
-{-# OPTIONS_GHC -fno-warn-unused-matches #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE QuasiQuotes           #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
 
 -- | Behind-the-scenes utility pages. Require sufficient 'Core.Field.Privilege'.
 -- Privilege levels are handled in "Application.App".

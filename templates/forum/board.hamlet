@@ -14,7 +14,7 @@
       <th>
         Latest Post
   <tbody>
-    $forall topic@Cite{..} <- topics
+    $forall topic <- topics
       <tr>
         <td>
           <header>
@@ -22,10 +22,10 @@
               ^{topiclink topic}
             <div>
               by
-              ^{userlink citeAuthor}
+              ^{userlink $ citeAuthor topic}
         <td>
-          #{topicPosts citeVal}
+          #{topicPosts $ citeVal topic}
         <td>
-          ^{userlink citeLatest}
+          ^{userlink $ citeLatest topic}
           at
-          ^{timestamp $ topicTime citeVal}
+          ^{timestamp $ topicTime $ citeVal topic}

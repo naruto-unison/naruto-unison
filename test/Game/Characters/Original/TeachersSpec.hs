@@ -5,8 +5,8 @@ module Game.Characters.Original.TeachersSpec (spec) where
 import TestImport
 
 import qualified Class.Play as P
-import qualified Game.Model.Ninja as Ninja
 import qualified Game.Engine.Effects as Effects
+import qualified Game.Model.Ninja as Ninja
 
 spec :: Spec
 spec = parallel do

@@ -48,19 +48,19 @@ instance ToMarkup Chakras where
     toMarkup = concatMap toMarkup . toList
 
 instance PathPiece Chakras where
-  toPathPiece Chakras{..} = intercalate "," $ tshow <$> [blood, gen, nin, tai]
-  fromPathPiece raw = case pieces of
-      [b, g, n, t] -> case makeChakras b g n t of
-                          Right chakras -> Just chakras
-                          Left  _       -> Nothing
-      _            -> Nothing
-    where
-      pieces              = Text.splitOn "," raw
-      makeChakras b g n t = [Chakras b' g' n' t' 0 | (b',_) <- Read.decimal b
-                                                   , (g',_) <- Read.decimal g
-                                                   , (n',_) <- Read.decimal n
-                                                   , (t',_) <- Read.decimal t
-                                                   ]
+    toPathPiece Chakras{..} = intercalate "," $ tshow <$> [blood, gen, nin, tai]
+    fromPathPiece raw = case pieces of
+        [b, g, n, t] -> case makeChakras b g n t of
+                            Right chakras -> Just chakras
+                            Left  _       -> Nothing
+        _            -> Nothing
+      where
+        pieces              = Text.splitOn "," raw
+        makeChakras b g n t = [Chakras b' g' n' t' 0 | (b',_) <- Read.decimal b
+                                                    , (g',_) <- Read.decimal g
+                                                    , (n',_) <- Read.decimal n
+                                                    , (t',_) <- Read.decimal t
+                                                    ]
 
 map1 :: (Int -> Int) -> Chakras -> Chakras
 map1 f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
