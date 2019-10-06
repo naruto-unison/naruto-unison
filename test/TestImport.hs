@@ -31,6 +31,7 @@ import Test.Hspec as Import hiding (context)
 
 import Control.Monad.Trans.State.Strict (StateT, evalStateT)
 
+import           Class.Hook (MonadHook)
 import qualified Class.Parity as Parity
 import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Play as P
@@ -105,8 +106,9 @@ useSkill char target skillName f =
 
 testBase :: Wrapper
 testBase = Wrapper
-    { Wrapper.game   = Game.new
-    , Wrapper.ninjas = fromList $ testNinja <$> unsafeTail Slot.all
+    { Wrapper.progress = []
+    , Wrapper.game     = Game.new
+    , Wrapper.ninjas   = fromList $ testNinja <$> unsafeTail Slot.all
     }
 
 testGame :: Character -> Wrapper
@@ -121,6 +123,7 @@ testNinja slot = Ninja.new slot $ Character
     , Character.bio      = ""
     , Character.skills   = [[Skill.new], [Skill.new], [Skill.new], [Skill.new]]
     , Character.category = Original
+    , Character.price    = 0
     }
 
 wrap :: ∀ m. (MonadPlay m, MonadRandom m) => Player -> m ()
@@ -156,10 +159,10 @@ wrap player = do
         traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
         P.modifyAll \n -> n { Ninja.triggers = mempty }
 
-act :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
+act :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => m ()
 act = Engine.processTurn $ wrap Player.A
 
-turns :: ∀ m. (MonadGame m, MonadRandom m) => Turns -> m ()
+turns :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Turns -> m ()
 turns (Duration -> i) = do
     replicateM_ (sync i) . Engine.processTurn $ return ()
     P.alter \game -> game { Game.playing = Player.A }
@@ -170,7 +173,7 @@ enemySkill = Skill.new
     , Skill.classes = [Summon, Melee, Ranged, Chakra, Physical, Mental, All, NonMental, Bloodline, Genjutsu, Ninjutsu, Taijutsu, Random]
     }
 
-enemyTurn :: ∀ m. (MonadPlay m, MonadRandom m) => RunConstraint () -> m ()
+enemyTurn :: ∀ m. (MonadPlay m, MonadHook m, MonadRandom m) => RunConstraint () -> m ()
 enemyTurn f = do
     P.with with . Engine.processTurn $ wrap Player.B
     P.alter \game -> game { Game.playing = Player.A }

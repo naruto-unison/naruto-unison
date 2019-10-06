@@ -22,7 +22,7 @@ clean (Mission char goals) =
     cleanObjective (Win names) = Win $ Character.clean <$> names
     cleanObjective (Hook name skill fn) = Hook (Character.clean name) skill fn
     cleanObjective (HookTurn name fn) = HookTurn (Character.clean name) fn
-    cleanObjective (UseAllSkills x) = UseAllSkills x
+    cleanObjective (UseAllSkills x) = UseAllSkills $ Character.clean x
 
 list :: [Mission]
 list = clean
