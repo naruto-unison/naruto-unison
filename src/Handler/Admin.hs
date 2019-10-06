@@ -42,7 +42,7 @@ postAdminR = do
 getNewsForm :: Handler (Form News)
 getNewsForm = do
     author <- Auth.requireAuthId
-    (UTCTime date _) <- liftIO getCurrentTime
+    UTCTime date _ <- liftIO getCurrentTime
     return . renderDivs $ News author date
         <$> areq textField "" Nothing
         <*> (unTextarea <$> areq textareaField "" Nothing)

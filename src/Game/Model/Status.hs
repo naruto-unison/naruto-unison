@@ -19,8 +19,8 @@ new :: Slot -> Duration -> Skill -> Status
 new user dur skill =
     Status { amount  = 1
            , name    = Skill.name skill
-           , user    = user
-           , skill   = skill
+           , user
+           , skill
            , effects = mempty
            , classes = Skill.classes skill
            , bombs   = []

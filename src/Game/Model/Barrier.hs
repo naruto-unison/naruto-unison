@@ -23,8 +23,8 @@ new context dur finish while amount = Barrier
     , name   = Skill.name skill
     , finish = \i -> To saved $ finish i
     , while  = To saved while
-    , amount = amount
-    , dur    = dur
+    , amount
+    , dur
     }
   where
     saved = context { Context.new = False }

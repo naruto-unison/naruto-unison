@@ -30,7 +30,7 @@ skillSize = 4
 
 -- | Constructs a @Ninja@ with starting values from a character and an index.
 new :: Slot -> Character -> Ninja
-new slot c = Ninja { slot      = slot
+new slot c = Ninja { slot
                    , health    = 100
                    , character = c
                    , defense   = mempty

@@ -1,0 +1,5 @@
+{
+  "excludedPaths" : [
+    "src/Import/Model.elm"
+  ]
+}

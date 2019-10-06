@@ -8,5 +8,5 @@ import ClassyPrelude
 
 import Game.Model.Internal (Runnable(..), RunConstraint)
 
-retarget :: (a -> a) -> Runnable a -> Runnable a
+retarget :: (a -> b) -> Runnable a -> Runnable b
 retarget f x = x { target = f $ target x }
