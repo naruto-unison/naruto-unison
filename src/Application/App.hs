@@ -244,9 +244,9 @@ instance YesodAuth App where
 
 isAuthenticated :: Privilege -> Handler AuthResult
 isAuthenticated level = do
-    muser <- Auth.maybeAuth
+    muser <- Auth.maybeAuthPair
     return case muser of
-        Just (Entity _ user)
+        Just (_, user)
           | userPrivilege user >= level -> Authorized
         Just _  -> Unauthorized "You do not have access to this page"
         Nothing -> Unauthorized "You must login to access this page"

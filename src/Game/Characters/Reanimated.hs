@@ -76,7 +76,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Parry" "Hashirama" [Physical] ]
     ]
-    50
+    100
   , Character
     "Tobirama Senju"
     "Reanimated by Orochimaru, Hashirama was the second Hokage. His water-manipulating skills flood the battlefield, impairing and harming the enemy team."
@@ -119,7 +119,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Water Wall" "Tobirama" [Physical] ]
     ]
-    50
+    100
   , Character
     "Hanzō"
     "Reanimated by Kabuto, Hanzō the Salamander was the leader of Amegakure. In combination with his unrivaled combat prowess, the lethal venom sac implanted in his body makes him a feared legend throughout the world."
@@ -200,7 +200,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Block" "Hanzō" [Physical] ]
     ]
-    50
+    150
   , Character
     "Gengetsu Hōzuki"
     "Reanimated by Kabuto, Gengetsu was the second Mizukage of the Hidden Mist Village. Charismatic and carefree, he cheerfully offers tips to his opponents on how to beat him. He is especially fond of one-on-one duels."
@@ -260,7 +260,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Mirage" "Gengetsu" [Mental] ]
     ]
-    50
+    100
   , Character
     "Mū"
     "Reanimated by Kabuto, Mū was the second Tsuchikage of the Hidden Rock Village. Unfailingly polite, he intends to ensure that his village benefits from the war. By manipulating matter at the atomic level, he disintegrates the defenses of his enemies."
@@ -314,7 +314,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Dustless Bewildering Cover" "Mū" [Chakra] ]
     ]
-    50
+    100
   , Character
     "Rasa"
     "Reanimated by Kabuto, Rasa was the fourth Kazekage of the Hidden Sand Village and the father of the Sand Siblings. Cold and calculating, Rasa buries his enemies beneath crushingly heavy gold dust that they must fight their way out of to survive."
@@ -362,7 +362,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Gold Dust Shield" "Rasa" [Physical] ]
     ]
-    50
+    100
   , Character
     "Jirōbō"
     "Reanimated by Kabuto, Jirōbō was a member of the Sound Five. No longer concealing his anger beneath a facade of politeness, Jirōbō has only one thing on his mind: revenge."
@@ -437,7 +437,7 @@ characters = ($ Reanimated) <$>
         }
       ]
     ]
-    50
+    75
   , Character
     "Haku"
     "Reanimated by Kabuto, Haku remains as loyal to Zabuza as he was in life. With his inherited ice manipulation techniques, he disrupts his enemies while hiding safely behind crystalline mirrors."
@@ -499,7 +499,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Ice Dome" "Haku" [Chakra] ]
     ]
-    50
+    75
   , Character
     "Zabuza Momochi"
     "Reanimated by Kabuto, Zabuza was one of the Seven Swordsmen of the Mist and a renowned mercenary. Although he has been reunited with Haku, Zabuza is furious at being forced to fight against his will. He still wields Kubikiribōchō, his legendary executioner's broadsword, which feeds on the blood it spills to strengthen itself."
@@ -547,7 +547,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Block" "Zabuza" [Physical] ]
     ]
-    50
+    75
   , Character
     "Ameyuri Ringo"
     "Reanimated by Kabuto, Ameyuri was one of the Seven Swordsmen of the Mist. Wielding Baki, the legendary twin lightning blades, Ameyuri cuts down her enemies using paralyzing electricity."
@@ -607,7 +607,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Parry" "Ameyuri" [Physical] ]
     ]
-    50
+    75
   , Character
     "Kushimaru Kuriarare"
     "Reanimated by Kabuto, Kushimaru was one of the Seven Swordsmen of the Mist. Wielding Nuibari, the legendary razor-wire longsword, Kushimaru stitches together his enemies to prevent them from acting."
@@ -659,7 +659,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Parry" "Kushimaru" [Physical] ]
     ]
-    50
+    75
   , Character
     "Jinpachi Munashi"
     "Reanimated by Kabuto, Jinpachi was one of the Seven Swordsmen of the Mist. Wielding Shibuki, the legendary explosive blade, Jinpachi builds up stockpiles of paper bombs that he can detonate simultaneously."
@@ -704,7 +704,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Parry" "Jinpachi" [Physical] ]
     ]
-    50
+    75
   , Character
     "Fuguki Suikazan"
     "Reanimated by Kabuto, Fuguki was one of the Seven Swordsmen of the Mist who wielded the legendary sentient sword Samehada. Without his sword, he relies on his chakra-enhanced hair to heal himself and ensnare his opponents."
@@ -761,5 +761,5 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Block" "Fuguki" [Physical] ]
     ]
-    50
+    75
   ]

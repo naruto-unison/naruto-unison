@@ -29,7 +29,6 @@ import           Application.Model (Cite(..), EntityField(..), HasAuthor(..), Po
 import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
 import qualified Game.Model.Class as Class
-import           Util (shorten)
 
 -- | Renders a 'User' profile.
 getProfileR :: Text -> Handler Html

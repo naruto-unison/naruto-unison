@@ -7,17 +7,19 @@
 module Handler.Client
     ( getPlayR
     , getMuteR
+    , getReanimateR
     , getUpdateR
     ) where
 
 import ClassyPrelude
 import Yesod
 
+import           Control.Monad.Trans.Maybe (runMaybeT)
 import           Data.List (nub)
 import qualified Yesod.Auth as Auth
 
 import           Application.App (Handler)
-import           Application.Model (EntityField(..), User(..))
+import           Application.Model (EntityField(..), Unlocked(..), User(..))
 import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
 import           Game.Model.Character (Character)
@@ -55,6 +57,25 @@ getMuteR mute = do
     who <- Auth.requireAuthId
     runDB $ update who [ UserMuted =. mute ]
     returnJson mute
+
+-- | Buys a Reanimated character with DNA. Returns the new 'UserDna' balance.
+getReanimateR :: Character -> Handler Value
+getReanimateR char = do
+    (who, user) <- Auth.requireAuthPair
+    when (userDna user < price) $
+        invalidArgs ["Unaffordable"]
+    unlocks <- Mission.unlocked
+    when (Character.format char ∈ unlocks) $
+        invalidArgs ["Character already unlocked"]
+    mCharID <- runMaybeT . Mission.characterID $ Character.format char
+    case mCharID of
+        Nothing -> invalidArgs ["Character not found"]
+        Just charID -> runDB do
+            insertUnique $ Unlocked who charID
+            user' <- updateGet who [UserDna -=. price]
+            returnJson $ userDna user'
+  where
+    price = Character.price char
 
 -- | Renders the gameplay client.
 getPlayR :: Handler Html

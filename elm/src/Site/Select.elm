@@ -3,6 +3,7 @@ module Site.Select exposing (Model, Msg(..), Stage(..), component)
 import Browser.Dom as Dom
 import Browser.Navigation as Navigation
 import Dict
+import Json.Decode as D
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
@@ -139,7 +140,9 @@ type Msg
     | Fail String
     | Page Int
     | Preview Previewing
+    | Reanimate Character
     | ReceiveGame (Result Http.Error GameInfo)
+    | ReceiveReanimate Character (Result Http.Error Int)
     | ReceiveUpdate (Result Http.Error ())
     | Scroll Int
     | Search
@@ -388,20 +391,28 @@ component ports =
 
                 Team Add char ->
                     withSound Sound.Click <|
-                        if locked st.unlocked char then
-                            { st | toggled = Nothing }
+                        case st.toggled of
+                            Nothing ->
+                                { st | toggled = Just char }
 
-                        else if char |> elem st.team then
-                            { st | toggled = Nothing }
+                            Just toggled ->
+                                if toggled /= char then
+                                    { st | toggled = Just char }
 
-                        else if st.toggled /= Just char then
-                            { st | toggled = Just char }
+                                else if locked st.unlocked char then
+                                    { st | toggled = Nothing }
 
-                        else if List.length st.team < Game.teamSize then
-                            { st | toggled = Nothing, team = char :: st.team }
+                                else if char |> elem st.team then
+                                    { st | toggled = Nothing }
 
-                        else
-                            { st | toggled = Nothing }
+                                else if List.length st.team < Game.teamSize then
+                                    { st
+                                        | toggled = Nothing
+                                        , team = char :: st.team
+                                    }
+
+                                else
+                                    { st | toggled = Nothing }
 
                 Team Delete char ->
                     withSound Sound.Cancel
@@ -512,6 +523,36 @@ component ports =
                         "quick"
                             :: List.map characterName st.team
                     )
+
+                Reanimate char ->
+                    ( st
+                    , Http.get
+                        { url =
+                            st.url ++ "api/reanimate/" ++ characterName char
+                        , expect =
+                            Http.expectJson (ReceiveReanimate char) D.int
+                        }
+                    )
+
+                ReceiveReanimate char (Ok dna) ->
+                    let
+                        muser = st.user
+                    in
+                    case muser of
+                        Just user ->
+                            withSound Sound.Win <|
+                                { st
+                                    | user =
+                                        Just { user | dna = dna }
+                                    , unlocked =
+                                        Set.insert (characterName char) st.unlocked
+                                }
+
+                        Nothing ->
+                            pure st
+
+                ReceiveReanimate _ (Err err) ->
+                    pure { st | error = Just <| showErr err }
     in
     { init = init, view = view, update = update }
 
@@ -902,7 +943,8 @@ previewBox st =
               else if char.price > 0 then
                 H.aside [ A.class "dna" ] <|
                     if affordable st.user char then
-                        [ H.button [] [H.text "Reanimate"]
+                        [ H.button [E.onClick <| Reanimate char]
+                          [H.text "Reanimate"]
                         , H.text <| String.fromInt char.price
                         ]
 

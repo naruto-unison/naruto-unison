@@ -2,6 +2,7 @@ module Mission
   ( initDB
   , progress
   , unlocked
+  , characterID
   , userMission
   , processWin
   , awardDNA
@@ -41,6 +42,9 @@ initDB = do
     newChars <- selectList [] []
     return $ makeMap newChars
 
+characterID :: Text -> MaybeT Handler CharacterId
+characterID name = Bimap.lookupR name =<< getsYesod App.characterIDs
+
 makeMap :: [Entity Character] -> Bimap CharacterId Text
 makeMap chars = Bimap.fromList . mapMaybe maybePair $ chars
   where
@@ -55,7 +59,7 @@ unlocked = do
         Just who | not unlockAll -> do
             ids     <- getsYesod App.characterIDs
             unlocks <- runDB $ selectList [UnlockedUser ==. who] []
-            return $ unlock ids unlocks
+            return $ getUnlocked ids unlocks
         _ -> return $ keysSet Characters.map
 
 freeChars :: HashSet Text
@@ -64,8 +68,8 @@ freeChars = setFromList dna `difference` keysSet Missions.map
     dna = Character.format <$> filter ((== 0) . Character.price) Characters.list
 {-# NOINLINE freeChars #-}
 
-unlock :: Bimap CharacterId Text -> [Entity Unlocked] -> HashSet Text
-unlock ids unlocks = freeChars `union` setFromList (mapMaybe look unlocks)
+getUnlocked :: Bimap CharacterId Text -> [Entity Unlocked] -> HashSet Text
+getUnlocked ids unlocks = freeChars `union` setFromList (mapMaybe look unlocks)
   where
     look (Entity _ Unlocked{unlockedCharacter}) =
         Bimap.lookup unlockedCharacter ids
@@ -73,8 +77,7 @@ unlock ids unlocks = freeChars `union` setFromList (mapMaybe look unlocks)
 userMission :: Text -> Handler (Maybe (Seq (Goal, Int)))
 userMission name = fromMaybe mempty <$> runMaybeT do
     who     <- MaybeT Auth.maybeAuthId
-    ids     <- getsYesod App.characterIDs
-    char    <- Bimap.lookupR name ids
+    char    <- characterID name
     mission <- MaybeT . return $ lookup name Missions.map
     (Just . zip mission <$>) . lift $ runDB do
         alreadyUnlocked <-
@@ -112,8 +115,7 @@ progress Progress{name, objective, amount} = fromMaybe False <$> runMaybeT do
     mission    <- MaybeT . return $ lookup name Missions.map
     let len     = length mission
     guard $ objective < len
-    ids        <- getsYesod App.characterIDs
-    char       <- Bimap.lookupR name ids
+    char       <- characterID name
     lift . runDB $ updateProgress mission who char objective amount
 
 setObjectives :: Seq Goal -> [Entity Mission] -> Seq Int
@@ -135,7 +137,7 @@ winners ids team unlocks = do
     char <- Bimap.lookupR name ids
     return (mission, char, i)
   where
-    names = unlock ids unlocks
+    names = getUnlocked ids unlocks
 
 processWin :: [Text] -> Handler ()
 processWin team = do
@@ -175,6 +177,7 @@ tallyDNA section outcome dnaConf day user = filter ((> 0) . snd)
   where
 
     winStreak
+      | outcome /= Victory         = 0
       | userStreak user < 1        = 0
       | Settings.useStreak dnaConf = floor . sqrt @Float . fromIntegral $
                                      userStreak user - 1
@@ -183,6 +186,7 @@ tallyDNA section outcome dnaConf day user = filter ((> 0) . snd)
       | userLatestGame user == day = 0
       | otherwise                  = Settings.dailyGame dnaConf
     dailyWin
+      | outcome /= Victory        = 0
       | userLatestWin user == day = 0
       | otherwise                 = Settings.dailyWin dnaConf
 
