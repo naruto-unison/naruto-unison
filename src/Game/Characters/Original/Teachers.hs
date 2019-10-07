@@ -392,7 +392,7 @@ characters =
           ]
         , Skill.changes   =
             changeWith "Sixth Gate Opening" \x ->
-              x { Skill.classes = insertSet Bypassing $ Skill.classes x }
+              x { Skill.classes = Bypassing `insertSet` Skill.classes x }
         }
       ]
     , [ Skill.new

@@ -141,7 +141,7 @@ attack atk dmg = void $ runMaybeT do
 
     skill      <- P.skill
     nUser      <- P.nUser
-    let classes = insertSet atkClass $ Skill.classes skill
+    let classes = atkClass `insertSet` Skill.classes skill
 
     guard $ Direct ∈ classes || not (nUser `is` Stun atkClass)
 

@@ -110,30 +110,30 @@ wrap affected f = void $ runMaybeT do
         do
             f
             when (allow Reflected) . P.withTargets (Effects.share nTarget) $
-                wrap (insertSet Reflected affected) f
+                wrap (Reflected `insertSet` affected) f
         $ do
             guard $ allow Redirected
             t <- Trigger.redirect classes nTarget
-            return . P.withTarget t $ wrap (insertSet Redirected affected) f
+            return . P.withTarget t $ wrap (Redirected `insertSet` affected) f
         <|> do
             guard $ allow Reflected
                     && Unreflectable ∉ classes && Effects.reflect nTarget
             return do
                 P.trigger target [OnReflect]
-                P.with Context.reflect $ wrap (insertSet Reflected affected) f
+                P.with Context.reflect $ wrap (Reflected `insertSet` affected) f
     P.zipWith Traps.broken startNinjas
   where
     new = not $ setFromList [Channeled, Delayed, Trapped] `intersects` affected
     bypass skill
       | Trapped ∈ affected =
-          skill { Skill.classes = insertSet Bypassing $ Skill.classes skill }
+          skill { Skill.classes = Bypassing `insertSet` Skill.classes skill }
       | otherwise = skill
     withDirect skill
       | new       = id
       | otherwise =
           P.with \ctx -> ctx
             { Context.skill =
-                skill { Skill.classes = insertSet Direct $ Skill.classes skill }
+                skill { Skill.classes = Direct `insertSet` Skill.classes skill }
             }
 
 chooseTargets :: ∀ m. (MonadPlay m, MonadRandom m)

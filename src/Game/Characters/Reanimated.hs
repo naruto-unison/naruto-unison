@@ -233,7 +233,7 @@ characters = ($ Reanimated) <$>
           ]
         , Skill.changes   =
             changeWithChannel "Major Summoning: Giant Clam" \x ->
-                x { Skill.classes = insertSet Bypassing $ Skill.classes x }
+                x { Skill.classes = Bypassing `insertSet` Skill.classes x }
         }
       ]
     , [ Skill.new
@@ -474,7 +474,7 @@ characters = ($ Reanimated) <$>
         , Skill.changes   =
             changeWithChannel "Crystal Ice Mirrors" \x ->
               targetAll
-              x { Skill.classes = insertSet Bypassing $ Skill.classes x }
+              x { Skill.classes = Bypassing `insertSet` Skill.classes x }
         }
       ]
     , [ Skill.new

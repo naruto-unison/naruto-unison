@@ -206,4 +206,4 @@ withClass :: ∀ m. MonadPlay m => Class -> m () -> m ()
 withClass cla = P.with withContext
   where
     withContext ctx = ctx { Context.skill = withSkill $ Context.skill ctx }
-    withSkill sk = sk { Skill.classes = insertSet cla $ Skill.classes sk }
+    withSkill sk = sk { Skill.classes = cla `insertSet` Skill.classes sk }

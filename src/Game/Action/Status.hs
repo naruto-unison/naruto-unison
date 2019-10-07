@@ -101,7 +101,7 @@ addStacks' (Duration -> dur) name i = do
         st { Status.name    = name
            , Status.amount  = i
            , Status.user    = user
-           , Status.classes = insertSet Unremovable $ Status.classes st
+           , Status.classes = Unremovable `insertSet` Status.classes st
            }
 
 -- | Adds a hidden @Status@ with no effects that immediately expires.
@@ -191,7 +191,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                 let bounce t = P.withTarget t $
                                applyFull mempty True (Status.bombs st) name
                                turns fs
-                lift . traverse_ bounce . delete user $ Effects.share nTarget
+                lift . traverse_ bounce $ user `delete` Effects.share nTarget
   where
     isHeal (Heal x)   = x > 0
     isHeal _          = False

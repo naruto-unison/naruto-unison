@@ -379,7 +379,7 @@ characters =
           ]
         , Skill.changes   =
             changeWith "Hidden Mist" \x ->
-                x { Skill.classes = insertSet Bypassing $ Skill.classes x }
+                x { Skill.classes = Bypassing `insertSet` Skill.classes x }
         }
       ]
     , [ Skill.new

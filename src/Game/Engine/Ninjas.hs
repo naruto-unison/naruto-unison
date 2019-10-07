@@ -227,7 +227,7 @@ addOwnStacks :: Duration -- ^ 'Status.dur'.
              -> Ninja -> Ninja
 addOwnStacks dur name s v i n =
     addStatus st { Status.name    = name
-                 , Status.classes = insertSet Unremovable $ Status.classes st
+                 , Status.classes = Unremovable `insertSet` Status.classes st
                  , Status.amount  = i
                  } n
   where
