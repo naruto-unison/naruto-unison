@@ -127,6 +127,9 @@ whileM act = go
 -- This is equivalent to
 --
 -- > type Lift mClass tran base m = (MonadTrans tran, mClass base, m ~ tran base)
+--
+-- Lift is a type family rather than a type alias in order to eliminate the
+-- superfluous @tran@ and @base@ parameters.
 
 type Lift mClass m = (MonadTrans (Tran m), mClass (Base m), m ~ Tran m (Base m))
 type family Tran m :: (* -> *) -> * -> * where Tran (t n) = t

@@ -355,16 +355,22 @@ class Monad m => MonadGame m where
 
     default game   :: Lift MonadGame m => m Game
     game     = lift game
+    {-# INLINE game #-}
     default alter  :: Lift MonadGame m => (Game -> Game) -> m ()
     alter    = lift . alter
+    {-# INLINE alter #-}
     default ninjas :: Lift MonadGame m => m [Ninja]
     ninjas   = lift ninjas
+    {-# INLINE ninjas #-}
     default ninja  :: Lift MonadGame m => Slot -> m Ninja
     ninja    = lift . ninja
+    {-# INLINE ninja #-}
     default write  :: Lift MonadGame m => Slot -> Ninja -> m ()
     write i  = lift . write i
+    {-# INLINE write #-}
     default modify :: Lift MonadGame m => Slot -> (Ninja -> Ninja) -> m ()
     modify i = lift . modify i
+    {-# INLINE modify #-}
 
 class MonadGame m => MonadPlay m where
     context :: m Context
