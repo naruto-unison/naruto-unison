@@ -386,7 +386,7 @@ data Runnable a = To { target :: a
                      , run    :: RunConstraint ()
                      }
 instance Show a => Show (Runnable a) where
-    show = show . (target :: Runnable a -> a)
+    showsPrec i = showsPrec i . (target :: Runnable a -> a)
 instance ToJSON a => ToJSON (Runnable a) where
     toJSON = toJSON . (target :: Runnable a -> a)
 

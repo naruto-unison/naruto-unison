@@ -69,7 +69,11 @@ data Affected
 instance AsEnumSet Affected where
     type EnumSetRep Affected = Word8
 
-data Exit = Break | Done | Completed deriving (Eq)
+data Exit
+    = Break
+    | Done
+    | Completed
+    deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 -- | Processes an action before it can be applied to the game. This is where
 -- invincibility, usability, reflects, etc. all come into play.

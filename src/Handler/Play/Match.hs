@@ -32,7 +32,7 @@ inverse Tie     = Tie
 data Match a = Match { outcomeA :: Outcome
                      , playerA  :: a
                      , playerB  :: a
-                     }
+                     } deriving (Eq, Show, Read)
 
 outcome :: Game -> Player -> Outcome
 outcome Game{victor = [victor]} player

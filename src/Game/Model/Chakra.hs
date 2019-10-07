@@ -37,6 +37,10 @@ data Chakras = Chakras { blood :: Int -- ^ Bloodline
                        , rand  :: Int -- ^ Random
                        } deriving (Eq, Show, Read, Generic, ToJSON)
 
+instance Ord Chakras where
+    compare = comparing total
+    {-# INLINE compare #-}
+
 instance IsList Chakras where
     type Item Chakras = Chakra
     toList = toSequence

@@ -14,7 +14,7 @@ import Game.Model.Variant (Varying)
 data Face = Face { icon :: Text
                  , user :: Slot
                  , dur  :: Varying
-                 } deriving (Eq, Ord, Show, Read, Generic, ToJSON)
+                 } deriving (Eq, Show, Read, Generic, ToJSON)
 instance TurnBased Face where
     getDur        = getDur . dur
     setDur x vari = vari { dur = setDur x $ dur vari }

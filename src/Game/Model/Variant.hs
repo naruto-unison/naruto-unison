@@ -30,7 +30,7 @@ instance TurnBased Varying where
 data Variant = Variant { variant   :: Int -- ^ Index in 'skills'
                        , ownCd     :: Bool -- ^ Uses a different cooldown than the baseline 'Skill'
                        , dur       :: Varying
-                       } deriving (Eq, Ord, Show, Read, Generic, ToJSON)
+                       } deriving (Eq, Show, Read, Generic, ToJSON)
 instance TurnBased Variant where
     getDur        = getDur . dur
     setDur x vari = vari { dur = setDur x $ dur vari }

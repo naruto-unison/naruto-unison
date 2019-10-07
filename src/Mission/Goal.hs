@@ -28,6 +28,7 @@ data Span
     = Turn
     | Match
     | Career
+    deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 data Objective
     = Win [Text]

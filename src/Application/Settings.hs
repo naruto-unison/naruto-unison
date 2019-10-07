@@ -39,7 +39,7 @@ data DNA = DNA
     -- ^ Whenever a player ends a match in a tie
     , useStreak :: Bool
     -- ^ Add the square root of the user's win streak to the DNA reward
-    }
+    } deriving (Show, Read)
 
 instance FromJSON DNA where
     parseJSON = Aeson.withObject "DNA" \o -> do
@@ -97,7 +97,7 @@ data Settings = Settings
 
     , authDummyLogin         :: Bool
     -- ^ Indicate if auth dummy login should be enabled.
-    }
+    } deriving (Show, Read)
 
 instance FromJSON Settings where
     parseJSON = Aeson.withObject "Settings" \o -> do

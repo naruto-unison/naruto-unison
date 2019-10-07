@@ -70,17 +70,19 @@ skill :: Text -> Category -> Text -> Html
 skill char category name = [shamlet| $newline never
 <a .skill data-name=#{Character.formatFrom category char}>#{name}|]
 
-data LogType = Added | New | Rework | Change
+data LogType
+    = Balance
+    | New
+    | Rework
+    deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 logLabel :: Bool -> LogType -> Text
-logLabel True  Added  = "Character added:"
-logLabel False Added  = "Added:"
-logLabel True  New    = "New character:"
-logLabel False New    = "New:"
-logLabel True  Rework = "Character rework:"
-logLabel False Rework = "Rework:"
-logLabel True  Change = "Character update:"
-logLabel False Change = "Update:"
+logLabel True  Balance = "Balance update:"
+logLabel False Balance = "Balance:"
+logLabel True  New     = "New character:"
+logLabel False New     = "New:"
+logLabel True  Rework  = "Character rework:"
+logLabel False Rework  = "Rework:"
 
 separate :: NonEmpty Skill -> [Skill]
 separate = nubBy ((==) `on` Skill.name) . toList

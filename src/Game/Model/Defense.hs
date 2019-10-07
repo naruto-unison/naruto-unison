@@ -16,7 +16,7 @@ data Defense = Defense { amount :: Int
                        , user   :: Slot
                        , name   :: Text
                        , dur    :: Int
-                       } deriving (Eq, Ord, Show, Read, Generic, ToJSON)
+                       } deriving (Eq, Show, Read, Generic, ToJSON)
 instance TurnBased Defense where
     getDur     = dur
     setDur d x = x { dur = d }

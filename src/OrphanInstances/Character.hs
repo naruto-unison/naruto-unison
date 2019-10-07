@@ -16,7 +16,7 @@ instance PathPiece Character where
     fromPathPiece = Characters.lookup
 
 instance Show Character where
-    show = show . Character.format
+    showsPrec i = showsPrec i . Character.format
 
 instance Read Character where
     readPrec = parens $ prec 10 do

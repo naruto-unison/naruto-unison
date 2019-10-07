@@ -1,10 +1,8 @@
 module Mission.Progress (Progress(..)) where
 
-import Prelude (Int)
-
-import Data.Text (Text)
+import ClassyPrelude
 
 data Progress = Progress { character :: Text
                          , objective :: Int
-                         , amount :: Int
-                         }
+                         , amount    :: Int
+                         } deriving (Eq, Show, Read)
