@@ -91,7 +91,7 @@ characters =
     ]
   , Character
     "Sasuke Uchiha"
-    "A genin from Team 7, Sasuke seeks vengeance against his brother for slaughtering the rest of the Uchiha clan. Using his Sharingan, Sasuke targets his opponent's weak spots and anticipates their attacks."
+    "A genin from Team 7, Sasuke seeks vengeance against his brother for slaughtering the rest of their clan. Using his Sharingan, Sasuke targets his opponent's weak spots and anticipates their attacks."
     [ [ Skill.new
         { Skill.name      = "Lions Barrage"
         , Skill.desc      = "Copying a taijutsu combo that Lee used on him, Sasuke deals 30 damage to an enemy. Deals 15 additional damage to an enemy affected by [Sharingan]."
