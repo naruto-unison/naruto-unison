@@ -37,7 +37,7 @@ listJSON = toJSON list
 {-# NOINLINE listJSON #-}
 
 map :: HashMap Text Character
-map = mapFromKeyed (Character.format, id) list
+map = mapFromKeyed (Character.ident, id) list
 {-# NOINLINE map #-}
 
 mapJSON :: Value

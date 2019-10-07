@@ -1,9 +1,10 @@
 module Game.Model.Character
   ( Character(..)
-  , format
+  , ident
   , Category(..)
-  , formatFrom
+  , identFrom
   , clean
+  , format
   ) where
 
 import ClassyPrelude
@@ -17,11 +18,16 @@ clean name = omap f $ toLower name
     f ' ' = '-'
     f x   = unaccent x
 
-formatFrom :: Category -> Text -> Text
-formatFrom category name = clean case category of
-    Original   -> name
-    Shippuden  -> name ++ " (S)"
-    Reanimated -> name ++ " (R)"
+formatFull :: Category -> Text -> Text
+formatFull Original   name = name
+formatFull Shippuden  name = name ++ " (S)"
+formatFull Reanimated name = name ++ " (R)"
+
+identFrom :: Category -> Text -> Text
+identFrom category name = clean $ formatFull category name
+
+ident :: Character -> Text
+ident x = identFrom (category x) $ name x
 
 format :: Character -> Text
-format Character{..} = formatFrom category name
+format x = formatFull (category x) $ name x

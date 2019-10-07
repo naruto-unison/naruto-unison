@@ -22,7 +22,7 @@ import           Util ((∉))
 instance ToJSON Ninja where
     toJSON n = object
         [ "slot"      .= Ninja.slot n
-        , "character" .= Character.format (Ninja.character n)
+        , "character" .= Character.ident (Ninja.character n)
         , "health"    .= Ninja.health n
         , "defense"   .= Ninja.defense n
         , "barrier"   .= Ninja.barrier n

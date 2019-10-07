@@ -65,9 +65,9 @@ getReanimateR char = do
     when (userDna user < price) $
         invalidArgs ["Unaffordable"]
     unlocks <- Mission.unlocked
-    when (Character.format char ∈ unlocks) $
+    when (Character.ident char ∈ unlocks) $
         invalidArgs ["Character already unlocked"]
-    mCharID <- runMaybeT . Mission.characterID $ Character.format char
+    mCharID <- runMaybeT . Mission.characterID $ Character.ident char
     case mCharID of
         Nothing -> invalidArgs ["Character not found"]
         Just charID -> runDB do
@@ -108,7 +108,7 @@ charAvatars :: Character -> [Text]
 charAvatars char = toFile <$> "icon" : skills
   where
     skills      = nub $ Skill.name <$> concatMap toList (Character.skills char)
-    toFile path = "/img/ninja/" ++ Character.format char ++ "/"
+    toFile path = "/img/ninja/" ++ Character.ident char ++ "/"
                   ++ shorten path ++ ".jpg"
 
 avatars :: Value

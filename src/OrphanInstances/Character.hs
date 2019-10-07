@@ -12,11 +12,11 @@ import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
 
 instance PathPiece Character where
-    toPathPiece   = Character.format
+    toPathPiece   = Character.ident
     fromPathPiece = Characters.lookup
 
 instance Show Character where
-    showsPrec i = showsPrec i . Character.format
+    showsPrec i = showsPrec i . Character.ident
 
 instance Read Character where
     readPrec = parens $ prec 10 do

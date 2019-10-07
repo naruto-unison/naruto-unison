@@ -12,6 +12,6 @@ findSkills f = toStrict . builderToLazy . mconcat $ drop 1 do
                      | skill <- toList . join $ Character.skills character
                      , f skill]
     guard . not $ null skills
-    ["\n", toBuilder $ Character.format character, ": "]
+    ["\n", toBuilder $ Character.ident character, ": "]
       ++ intersperse ", " skills
 

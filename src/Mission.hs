@@ -38,7 +38,7 @@ initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do
     chars    <- (entityVal <$>) <$> selectList [] []
     insertMany_ .
-        filter (∉ chars) $ Character . Character.format <$> Characters.list
+        filter (∉ chars) $ Character . Character.ident <$> Characters.list
     newChars <- selectList [] []
     return $ makeMap newChars
 
@@ -49,7 +49,7 @@ makeMap :: [Entity Character] -> Bimap CharacterId Text
 makeMap chars = Bimap.fromList . mapMaybe maybePair $ chars
   where
     maybePair (Entity charId Character{characterName}) =
-        (charId, ) . Character.format <$> Characters.lookup characterName
+        (charId, ) . Character.ident <$> Characters.lookup characterName
 
 unlocked :: Handler (HashSet Text)
 unlocked = do
@@ -65,7 +65,7 @@ unlocked = do
 freeChars :: HashSet Text
 freeChars = setFromList dna `difference` keysSet Missions.map
   where
-    dna = Character.format <$> filter ((== 0) . Character.price) Characters.list
+    dna = Character.ident <$> filter ((== 0) . Character.price) Characters.list
 {-# NOINLINE freeChars #-}
 
 getUnlocked :: Bimap CharacterId Text -> [Entity Unlocked] -> HashSet Text
@@ -88,7 +88,7 @@ userMission char = fromMaybe mempty <$> runMaybeT do
             setObjectives mission <$>
                 selectList [MissionUser ==. who, MissionCharacter ==. charID] []
   where
-    name = Character.format char
+    name = Character.ident char
 
 -- Invariant: @i < length mission@.
 updateProgress :: ∀ m. MonadIO m
@@ -121,8 +121,7 @@ progress Progress{character, objective, amount} =
     fromMaybe False <$> runMaybeT do
         who     <- MaybeT Auth.maybeAuthId
         mission <- MaybeT . return $ lookup character Missions.map
-        let len  = length mission
-        guard $ objective < len
+        guard $ objective < length mission
         charID  <- characterID character
         lift . runDB $ updateProgress mission who charID objective amount
 
@@ -146,7 +145,7 @@ winners ids chars unlocks = do
     charID <- Bimap.lookupR char ids
     return (goals, charID, i)
   where
-    team  = Character.format <$> chars
+    team  = Character.ident <$> chars
     names = getUnlocked ids unlocks
 
 processWin :: [Character.Character] -> Handler ()

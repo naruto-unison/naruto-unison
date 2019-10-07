@@ -68,7 +68,7 @@ getHomeR = do
 
 skill :: Text -> Category -> Text -> Html
 skill char category name = [shamlet| $newline never
-<a .skill data-name=#{Character.formatFrom category char}>#{name}|]
+<a .skill data-name=#{Character.identFrom category char}>#{name}|]
 
 data LogType
     = Balance
@@ -94,7 +94,7 @@ getChangelog long logType name category =
         Just char -> $(widgetFile "home/change")
   where
     change  = logLabel long
-    tagName = Character.formatFrom category name
+    tagName = Character.identFrom category name
 
 news :: (News, Maybe User) -> Widget
 news (News{..}, author) = $(widgetFile "home/news")
@@ -123,7 +123,7 @@ getCharacterR char = do
         mmission <- Mission.userMission char
         defaultLayout $(widgetFile "guide/character")
   where
-    name = Character.format char
+    name = Character.ident char
     skillClasses sk =
         intercalate ", " $
         display <$> filter Class.visible (toList $ Skill.classes sk)

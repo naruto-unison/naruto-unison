@@ -16,7 +16,7 @@ $forall category <- categories
     <div>
       <section>
         <aside>
-          <img .char.head src=/img/ninja/#{Character.format char}/icon.jpg>
+          <img .char.head src=/img/ninja/#{Character.ident char}/icon.jpg>
         <div>
           <h4>
             <a href=@{CharacterR char}>

@@ -34,5 +34,5 @@ map = mapFromKeyed (Goal.char, Goal.goals) list
 {-# NOINLINE map #-}
 
 characterMissions :: Character -> [Mission]
-characterMissions (Character.format -> name) =
+characterMissions (Character.ident -> name) =
     filter (any (Goal.belongsTo name) . Goal.goals) list
