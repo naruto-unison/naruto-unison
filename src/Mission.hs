@@ -28,13 +28,11 @@ import qualified Game.Characters as Characters
 import qualified Game.Model.Character as Character
 import           Handler.Play.Match (Outcome(..))
 import qualified Handler.Play.Queue as Queue
-import           Mission.Goal (Goal)
+import           Mission.Goal (Goal, Span(..))
 import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
 import           Mission.Progress (Progress(..))
 import           Util ((∉))
-
-import Control.Monad.Logger
 
 initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do
@@ -92,36 +90,40 @@ userMission char = fromMaybe mempty <$> runMaybeT do
   where
     name = Character.format char
 
+-- Invariant: @i < length mission@.
 updateProgress :: ∀ m. MonadIO m
                => Seq Goal
                -> Key User -> Key Character -> Int -> Int -> SqlPersistT m Bool
-updateProgress mission who char i amount = do
-    alreadyUnlocked <- isJust <$> selectFirst unlockedChar []
-    if alreadyUnlocked then
-        return True
-    else do
-        void $ upsert (Mission who char i amount) [MissionProgress +=. amount]
-        objectives <- selectList missionChar []
-        if completed mission objectives then do
-            deleteWhere missionChar
-            insertUnique $ Unlocked who char
+updateProgress mission who char i amount = case mission `index` i of
+    Nothing   -> return False
+    Just goal
+      | Goal.spanning goal /= Career && Goal.reach goal < amount -> return False
+      | otherwise -> do
+        alreadyUnlocked <- isJust <$> selectFirst unlockedChar []
+        if alreadyUnlocked then
             return True
-        else
-            return False
+        else do
+            void $ upsert (Mission who char i amount) [MissionProgress +=. amount]
+            objectives <- selectList missionChar []
+            if completed mission objectives then do
+                deleteWhere missionChar
+                insertUnique $ Unlocked who char
+                return True
+            else
+                return False
   where
     unlockedChar = [UnlockedUser ==. who, UnlockedCharacter ==. char]
     missionChar  = [MissionUser ==. who, MissionCharacter ==. char]
 
 progress :: Progress -> Handler Bool
 progress Progress{amount = 0} = return False
-progress Progress{character, objective, amount} = do
-    logWarnN $ character ++ ": " ++ tshow objective ++ " (" ++ tshow amount ++ ")"
+progress Progress{character, objective, amount} =
     fromMaybe False <$> runMaybeT do
-        who        <- MaybeT Auth.maybeAuthId
-        mission    <- MaybeT . return $ lookup character Missions.map
-        let len     = length mission
+        who     <- MaybeT Auth.maybeAuthId
+        mission <- MaybeT . return $ lookup character Missions.map
+        let len  = length mission
         guard $ objective < len
-        charID     <- characterID character
+        charID  <- characterID character
         lift . runDB $ updateProgress mission who charID objective amount
 
 setObjectives :: Seq Goal -> [Entity Mission] -> Seq Int
