@@ -1,11 +1,14 @@
 module Mission.Missions.Base
   ( module Import
   , check
-  , maintain
-  , affectAll
+  , checkEnemyStatus
+  , checkUnique
+  , damageWith
+  , defend
   , killAffected
   , killDuring
   , hasFrom
+  , maintain
   , stunned
   ) where
 
@@ -20,14 +23,30 @@ import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Slot as Slot
 
+resetToZero :: Int
+resetToZero = -1000
+
 hasFrom :: Ninja -> Text -> Ninja -> Bool
 hasFrom user name = Ninja.has name $ Ninja.slot user
 
 check :: (Ninja -> Ninja -> Ninja -> Bool) -> HookFunc
 check f x y z store = (store, fromEnum $ f x y z)
 
+checkUnique :: (Ninja -> Ninja -> Bool) -> HookFunc
+checkUnique f user _ target' store
+  | targetSlot `elem` store = (store, 0)
+  | f user target'          = (targetSlot `insertSet` store, 1)
+  | otherwise               = (store, 0)
+  where
+    targetSlot = Slot.toInt $ Ninja.slot target'
+
 stunned :: Ninja -> Bool
 stunned n = not . null $ Effects.stun n
+
+checkEnemyStatus :: Text -> TurnFunc
+checkEnemyStatus name user target store
+  | allied user target = (store, 0)
+  | otherwise          = (store, fromEnum $ hasFrom user name target)
 
 killAffected :: Text -> HookFunc
 killAffected name user target target' store = (store, ) . fromEnum $
@@ -36,6 +55,13 @@ killAffected name user target target' store = (store, ) . fromEnum $
     && not (alive target')
     && hasFrom user name target
 
+defend :: Text -> HookFunc
+defend name user target target' store = (store, max 0 addedDefense)
+  where
+    userSlot     = Ninja.slot user
+    addedDefense = Ninja.defenseAmount name userSlot target'
+                   - Ninja.defenseAmount name userSlot target
+
 killDuring :: Text -> HookFunc
 killDuring name user target target' store = (store, ) . fromEnum $
     not (allied user target)
@@ -43,21 +69,14 @@ killDuring name user target target' store = (store, ) . fromEnum $
     && not (alive target')
     && hasOwn name user
 
-maintain :: Int -> Text -> TurnFunc
-maintain goal name user target store
-  | Ninja.slot user == Ninja.slot target =
-      (singleton count, fromEnum $ count >= goal)
-  | otherwise = (store, 0)
-  where
-    count
-      | hasOwn name user = maybe 1 (+1) $ headMay store
-      | otherwise        = 0
+maintain :: Text -> TurnFunc
+maintain name user target store
+  | Ninja.slot user /= Ninja.slot target = (store, 0)
+  | hasOwn name user                     = (store, 1)
+  | otherwise                            = (store, resetToZero)
 
-affectAll :: (Ninja -> Ninja -> Bool) -> HookFunc
-affectAll f user target target' store = (store', fromEnum $ size store' >= 3)
-  where
-    targetSlot = Slot.toInt $ Ninja.slot target'
-    store'
-      | f user target  = store
-      | f user target' = insertSet targetSlot store
-      | otherwise      = store
+damageWith :: Int -> Text -> HookFunc
+damageWith amount name user target target' store
+  | Ninja.health target' >= Ninja.health target             = (store, 0)
+  | Ninja.numStacks name (Ninja.slot user) target >= amount = (store, 1)
+  | otherwise                                               = (store, 0)

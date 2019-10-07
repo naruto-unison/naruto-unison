@@ -18,18 +18,17 @@ missions =
       Hook "Naruto Uzumaki" "Naruto Uzumaki Barrage" $
       killDuring "Shadow Clones"
 
-    , Reach 1 Match
+    , Reach 3 Match
       "In a single match, stun all 3 enemies with [Rasengan]." .
       Hook "Naruto Uzumaki" "Rasengan" $
-      affectAll \user target ->
+      checkUnique \user target ->
           not (allied user target)
-          && stunned target
           && hasFrom user "Rasengan" target
 
-    , Reach 1 Match
+    , Reach 8 Match
       "Maintain [Shadow Clones] for 8 consecutive turns." .
       HookTurn "Naruto Uzumaki" $
-      maintain 8 "Shadow Clones"
+      maintain "Shadow Clones"
     ]
   , Mission
     "Sakura Haruno (S)"
@@ -53,10 +52,10 @@ missions =
           && health target < 30
           && health target' >= 30
 
-    , Reach 1 Career
+    , Reach 8 Match
       "Maintain [Inner Sakura] for 8 turns." .
       HookTurn "Sakura Haruno" $
-      maintain 8 "Inner Sakura"
+      maintain "Inner Sakura"
     ]
   , Mission
     "Sasuke Uchiha (S)"
@@ -69,15 +68,75 @@ missions =
       Hook "Sasuke Uchiha" "Chidori" $
       killAffected "Sharingan"
 
-    , Reach 1 Match
+    , Reach 3 Match
       "In a single match, apply [Sharingan] to all 3 enemies." .
       Hook "Sasuke Uchiha" "Sharingan" $
-      affectAll \user target ->
+      checkUnique \user target ->
           not (allied user target)
           && hasFrom user "Sharingan" target
 
-    , Reach 1 Career
+    , Reach 1 Match
       "Use all 4 skills in 4 consecutive turns." $
       UseAllSkills "Sasuke Uchiha"
+    ]
+  , Mission
+    "Kiba Inuzuka (S)"
+    [ Reach 5 Career
+      "Win 5 matches with Kiba Inuzuka and Kurenai Yuhi together." $
+      Win ["Kiba Inuzuka", "Kurenai Yuhi"]
+
+    , Reach 10 Career
+      "Kill 10 enemies affected by [Dynamic Marking] with [Wolf Fang]." .
+      Hook "Kiba Inuzuka" "Wolf Fang" $
+      killAffected "Dynamic Marking"
+
+    , Reach 6 Match
+      "Maintain [Two-Headed Wolf] for 6 consecutive turns." .
+      HookTurn "Kiba Inuzuka" $
+      maintain "Two-Headed Wolf"
+
+    , Reach 3 Turn
+      "Cause all 3 enemies to be affected by [Dynamic Marking] simultaneously." .
+      HookTurn "Kiba Inuzuka" $
+      checkEnemyStatus "Dynamic Marking"
+    ]
+
+  , Mission
+    "Shino Aburame (S)"
+    [ Reach 5 Career
+      "Win 5 matches with Shino Aburame and Kurenai Yuhi together." $
+      Win ["Shino Aburame", "Kurenai Yuhi"]
+
+    , Reach 1 Career
+      "Use [Chakra Leech] to damage an enemy with at least 2 stacks of [Parasite]." .
+      Hook "Shino Aburame" "Chakra Leech" $
+      damageWith 2 "Parasite"
+
+    , Reach 3 Turn
+      "Cause all 3 enemies to be affected by [Parasite] simultaneously." .
+      HookTurn "Shino Aburame" $
+      checkEnemyStatus "Parasite"
+
+    , Reach 400 Career
+      "Provide 400 destructible defense with [Wall of Insects]." .
+      Hook "Shino Aburame" "Wall of Insects" $
+      defend "Wall of Insects"
+    ]
+
+  , Mission
+    "Hinata Hyūga (S)"
+    [ Reach 5 Career
+      "Win 5 matches with Hinata Hyūga and Kurenai Yuhi together." $
+      Win ["Hinata Hyūga", "Kurenai Yuhi"]
+
+    , Reach 6 Match
+      "Maintain [Gentle Fist] for 6 consecutive turns." .
+      HookTurn "Hinata Hyūga" $
+      maintain "Gentle Fist"
+
+    , Reach 100 Career
+      "Provide 100 destructible defense with [Eight Trigrams Sixty-Four Palms]." .
+      Hook "Hinata Hyūga" "Eight Trigrams Sixty-Four Palms" $
+      defend "Eight Trigrams Sixty-Four Palms"
     ]
   ]

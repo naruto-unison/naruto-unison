@@ -11,6 +11,7 @@ module Handler.Play.Tracker
 import ClassyPrelude hiding (empty)
 
 import           Control.Monad.ST (ST)
+import           Data.List (nub)
 import           Data.MultiMap (MultiMap, (!))
 import qualified Data.MultiMap as MultiMap
 import qualified Data.Vector as Vector
@@ -25,7 +26,7 @@ import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import           Handler.Play.GameInfo (GameInfo)
 import qualified Handler.Play.GameInfo as GameInfo
-import           Mission.Goal (Mission, TurnFunc, HookFunc, Objective(..), Store)
+import           Mission.Goal (Mission, TurnFunc, HookFunc, Objective(..), Span(..), Store)
 import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
 import           Mission.Progress (Progress(Progress))
@@ -42,51 +43,74 @@ data Track s = Track { slot     :: Slot
                      , key      :: [(Int -> Progress)]
                      , hooks    :: MultiMap Text (Int, HookFunc)
                      , turns    :: [(Int, TurnFunc)]
+                     , useAll   :: [Int]
+                     , resets   :: [Bool]
+                     , skills   :: STRef s [Text]
                      , store    :: MVector s IntSet
                      , progress :: MVector s Int
                      }
+
+reset :: ∀ s. Track s -> ST s ()
+reset x = traverse_ f . zip [0..] $ resets x
+  where
+    f (i, True) = MVector.unsafeWrite (progress x) i 0
+    f _         = return ()
 
 track :: ∀ s. Track s -> Int -> (Store -> (Store, Int)) -> ST s ()
 track x i f = do
     (store', progress') <- f <$> MVector.unsafeRead (store x) i
     MVector.unsafeWrite (store x) i store'
-    MVector.unsafeModify (progress x) (+ progress') i
+    MVector.unsafeModify (progress x) (max 0 . (+ progress')) i
 
 trackTurn1 :: ∀ s. [Ninja] -> Track s -> ST s ()
-trackTurn1 ns x = sequence_ $ tracker <$> ns <*> turns x
+trackTurn1 ns x = do
+    sequence_ $ tracker <$> ns <*> turns x
+    reset x
+    modifyRef' (skills x) $ drop 1
   where
     user = ns !! Slot.toInt (slot x)
     tracker n (i, f) = track x i $ f user n
 
 trackHooks1 :: ∀ s. Text -> [(Ninja, Ninja)] -> Track s -> ST s ()
-trackHooks1 skill ns x = sequence_ $ tracker <$> ns <*> hooks x ! skill
+trackHooks1 skill ns x = do
+    sequence_ $ tracker <$> ns <*> hooks x ! skill
+    modifyRef' (skills x) (++ [skill])
+    used <- readRef $ skills x
+    when (length (nub used) >= Ninja.skillSize) .
+        traverse_ (MVector.unsafeModify (progress x) (+1)) $ useAll x
   where
     user = snd $ ns !! Slot.toInt (slot x)
     tracker (n, n') (i, f) = track x i $ f user n n'
 
 new :: ∀ s. Ninja -> ST s (Track s)
 new n = do
-    store    <- MVector.replicate Slot.teamSize mempty
-    progress <- MVector.replicate Slot.teamSize 0
-    return Track { slot  = Ninja.slot n
-                 , key   = missionKeys name =<< missions
-                 , hooks = MultiMap.fromList $ mapMaybe hook objectives
-                 , turns = mapMaybe turn objectives
+    skills   <- newRef mempty
+    store    <- MVector.replicate (length objectives) mempty
+    progress <- MVector.replicate (length objectives) 0
+    return Track { slot   = Ninja.slot n
+                 , key    = missionKeys name =<< missions
+                 , hooks  = MultiMap.fromList $ mapMaybe hook objectives
+                 , turns  = mapMaybe turn objectives
+                 , useAll = mapMaybe useAll objectives
+                 , resets = (Turn ==) . Goal.spanning <$> goals
+                 , skills
                  , store
                  , progress
                  }
   where
     char       = Ninja.character n
-    name       = Character.format $ Ninja.character n
+    name       = Character.ident $ Ninja.character n
     missions   = Missions.characterMissions char
-    objectives = [(i, Goal.objective x) | i <- [0..]
-                                        | mission <- missions
-                                        , x       <- toList $ Goal.goals mission
-                                        , Goal.belongsTo name x]
+    goals      = [x | mission <- missions
+                    , x       <- toList $ Goal.goals mission
+                    , Goal.belongsTo name x]
+    objectives = zip [0..] $ Goal.objective <$> goals
     hook (i, Hook _ skill func) = Just (skill, (i, func))
-    hook _ = Nothing
+    hook _                      = Nothing
     turn (i, HookTurn _ func) = Just (i, func)
-    turn _ = Nothing
+    turn _                    = Nothing
+    useAll (i, UseAllSkills _) = Just i
+    useAll _                   = Nothing
 
 newtype Tracker s = Tracker (Vector (Track s))
 
