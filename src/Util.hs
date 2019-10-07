@@ -56,10 +56,8 @@ infix 4 ∉
 -- a provided default value up to the index.
 adjustWith :: ∀ a. a -> (a -> a) -> Int -> Seq a -> Seq a
 adjustWith x f i xs
-  | i < len   = Seq.adjust' f i xs
-  | otherwise = xs ++ (replicate (i - len) x |> f x)
-  where
-    len = length xs
+  | i < length xs = Seq.adjust' f i xs
+  | otherwise     = xs ++ (replicate (i - length xs) x |> f x)
 {-# INLINABLE adjustWith #-}
 
 -- | True if a list contains multiple identical values.

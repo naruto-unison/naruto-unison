@@ -383,7 +383,7 @@ enact Enact{spend, exchange, acts} = runExceptT do
     player     <- P.player
     gameChakra <- Parity.getOf player . Game.chakra <$> P.game
     let chakra  = gameChakra + exchange - spend
-    unless (null $ drop Slot.teamSize acts)    $ throwE "Too many actions"
+    when (length acts > Slot.teamSize)         $ throwE "Too many actions"
     when (duplic $ Act.user <$> acts)          $ throwE "Duplicate actors"
     when (randTotal < 0 || Chakra.lack chakra) $ throwE "Insufficient chakra"
     when (any (Act.illegal player) acts)       $ throwE "Character out of range"
