@@ -126,7 +126,7 @@ testNinja slot = Ninja.new slot $ Character
     , Character.price    = 0
     }
 
-wrap :: ∀ m. (MonadPlay m, MonadRandom m) => Player -> m ()
+wrap :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => Player -> m ()
 wrap player = do
     user       <- P.user
     nUser      <- P.nUser
@@ -156,7 +156,7 @@ wrap player = do
             sequence_ counters
 
         P.modify user \n -> n { Ninja.acted = True }
-        traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
+        traverse_ (sequence_ . Traps.get user) =<< P.ninjas
         P.modifyAll \n -> n { Ninja.triggers = mempty }
 
 act :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => m ()

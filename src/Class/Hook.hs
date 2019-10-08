@@ -10,20 +10,35 @@ import Control.Monad.Trans.Select (SelectT)
 import Control.Monad.Trans.Writer (WriterT)
 import Yesod.WebSockets (WebSocketsT)
 
+import Game.Model.Chakra (Chakras)
 import Game.Model.Context (Context)
 import Game.Model.Ninja (Ninja)
+import Game.Model.Player (Player)
 import Game.Model.Skill (Skill)
+import Game.Model.Trap (Trap)
 import Util (Lift)
 
 class Monad m => MonadHook m where
-    action :: Skill -> [Ninja] -> m ()
-    turn   :: m ()
+    action :: Skill -> [Ninja] -> [Ninja] -> m ()
+    chakra :: Skill -> (Chakras, Chakras) -> (Chakras, Chakras) -> m ()
+    trap   :: Trap -> Ninja -> m ()
+    turn   :: Player -> [Ninja] -> [Ninja] -> m ()
 
-    default action :: Lift MonadHook m => Skill -> [Ninja] -> m ()
-    action sk = lift . action sk
+    default action :: Lift MonadHook m
+                   => Skill -> [Ninja] -> [Ninja] -> m ()
+    action sk ns = lift . action sk ns
     {-# INLINE action #-}
-    default turn :: Lift MonadHook m => m ()
-    turn = lift turn
+    default chakra :: Lift MonadHook m
+                   => Skill -> (Chakras, Chakras) -> (Chakras, Chakras) -> m ()
+    chakra sk chaks = lift . chakra sk chaks
+    {-# INLINE chakra #-}
+    default trap :: Lift MonadHook m
+                 => Trap -> Ninja -> m ()
+    trap x = lift . trap x
+    {-# INLINE trap #-}
+    default turn :: Lift MonadHook m
+                 => Player -> [Ninja] -> [Ninja] -> m ()
+    turn p ns = lift . turn p ns
     {-# INLINE turn #-}
 
 instance MonadHook m => MonadHook (ExceptT e m)

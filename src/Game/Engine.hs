@@ -73,7 +73,7 @@ processTurn runner = do
     P.alter \game -> game { Game.playing = opponent }
     doDeaths
     P.yieldVictor
-    Hook.turn
+    Hook.turn player initial =<< P.ninjas
   where
     getChannels n = map (Act.fromChannel n) .
                     filter ((1 /=) . TurnBased.getDur) $
@@ -119,7 +119,7 @@ doBarriers = do
       | otherwise = return ()
 
 -- | Executes 'Trigger.death'.
-doDeaths :: ∀ m. (MonadGame m, MonadRandom m) => m ()
+doDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
 doDeaths = traverse_ Trigger.death Slot.all
 
 -- | Executes 'Model.Effect.Afflict' and 'Model.Effect.Heal'

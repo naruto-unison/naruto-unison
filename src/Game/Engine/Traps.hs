@@ -13,6 +13,8 @@ import ClassyPrelude hiding ((\\), toList)
 
 import Data.List ((\\), nub)
 
+import           Class.Hook (MonadHook)
+import qualified Class.Hook as Hook
 import qualified Class.Parity as Parity
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
@@ -31,18 +33,28 @@ import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger(Trigger(..))
 import           Util ((∈))
 
-run :: Slot -> Trap -> Runnable Context
-run user trap = case Trap.direction trap of
+launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+       => Trap -> Runnable Context -> m ()
+launch trap ctx = do
+    P.launch ctx
+    nTarget <- P.ninja . Context.target $ Runnable.target ctx
+    Hook.trap trap nTarget
+
+run :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+    => Slot -> Trap -> m ()
+run user trap = launch trap case Trap.direction trap of
     Trap.From -> Runnable.retarget (\ctx -> ctx { Context.target = user }) play
     _         -> play
   where
-      play = Trap.effect trap $ Trap.tracker trap
+    play = Trap.effect trap $ Trap.tracker trap
 
-getOf :: Slot -> Trigger -> Ninja -> [Runnable Context]
+getOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+      => Slot -> Trigger -> Ninja -> [m ()]
 getOf user trigger n =
     run user <$> filter ((trigger ==) . Trap.trigger) (Ninja.traps n)
 
-get :: Slot -> Ninja -> [Runnable Context]
+get :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+    => Slot -> Ninja -> [m ()]
 get user n =
     run user <$> filter ((∈ Ninja.triggers n) . Trap.trigger) (Ninja.traps n)
 
@@ -66,20 +78,23 @@ broken n n' =
                         \\ nub (Defense.name <$> Ninja.defense n')
 
 -- | Conditionally returns 'Trap.Trap's that accept a numeric value.
-getPer :: Bool -- ^ If False, returns @mempty@ instead.
+getPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+       => Bool -- ^ If False, returns @mempty@ instead.
        -> Trigger -- ^ Filter.
        -> Int -- ^ Value to pass to 'Trap.effect'.
        -> Ninja -- 'Ninja.traps' owner.
-       -> [Runnable Context]
+       -> [m ()]
 getPer False _  _   _ = mempty
-getPer True  tr amt n = [Trap.effect trap amt | trap <- Ninja.traps n
-                                              , Trap.trigger trap == tr]
+getPer True  tr amt n =
+    [launch trap $ Trap.effect trap amt | trap <- Ninja.traps n
+                                        , Trap.trigger trap == tr]
 
 -- | Tallies 'PerHealed' and 'PerDamaged' traps.
-getTurnPer :: Player -- ^ Player during the current turn.
+getTurnPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+           => Player -- ^ Player during the current turn.
            -> Ninja -- ^ Old.
            -> Ninja -- ^ New.
-           -> [Runnable Context]
+           -> [m ()]
 getTurnPer player n n'
   | hp > 0 && not allied = getPer True PerDamaged hp n'
   | otherwise            = mempty
@@ -88,18 +103,17 @@ getTurnPer player n n'
     hp   = Ninja.health n - Ninja.health n'
 
 -- | Returns 'OnNoAction' 'Trap.Trap's.
-getTurnNot :: Ninja -- ^ 'Ninja.flags' owner.
-           -> [Runnable Context]
+getTurnNot :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+           => Ninja -- ^ 'Ninja.flags' owner.
+           -> [m ()]
 getTurnNot n
   | Ninja.acted n = mempty
   | otherwise     = getOf (Ninja.slot n) OnNoAction n
 
 -- | Processes and runs all 'Trap.Trap's at the end of a turn.
-runTurn :: ∀ m. (MonadGame m, MonadRandom m) => [Ninja] -> m ()
+runTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => [Ninja] -> m ()
 runTurn ninjas = do
     player  <- P.player
     ninjas' <- P.ninjas
-    traverses P.launch $ zipWith (getTurnPer player) ninjas ninjas'
-    traverses P.launch $ getTurnNot <$> Parity.half player ninjas'
-  where
-    traverses f = traverse_ $ traverse_ f
+    traverse_ sequence_ $ zipWith (getTurnPer player) ninjas ninjas'
+    traverse_ sequence_ $ getTurnNot <$> Parity.half player ninjas'

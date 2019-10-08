@@ -214,8 +214,8 @@ filterCounters :: [[Runnable Slot]] -- ^ Effects of the skill to be countered.
                -> [Ninja] -> [Ninja]
 filterCounters slots = filter $ (testBit targetSet . Slot.toInt) . Ninja.slot
   where
-    acc x     = setBit x . Slot.toInt . Runnable.target
-    targetSet = foldl' acc (0 :: Word8) $ join slots
+    targetSet = foldl' go (0 :: Word8) $ join slots
+    go x      = setBit x . Slot.toInt . Runnable.target
 
 setActed :: Ninja -> Ninja
 setActed n = n { Ninja.acted = True }
@@ -224,14 +224,14 @@ setActed n = n { Ninja.acted = True }
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Act -> m ()
 act a = do
-    nUser     <- P.ninja user
-    game      <- P.game
-    initial   <- P.ninjas
+    nUser      <- P.ninja user
+    chakras    <- Game.chakra <$> P.game
+    initial    <- P.ninjas
     let (affected, skill) = swapped nUser
         classes = Skill.classes skill
         charge  = Skill.charges skill > 0
         cost    = Skill.cost skill
-        chakra  = Parity.getOf user $ Game.chakra game
+        chakra  = Parity.getOf user chakras
         valid   = Ninja.alive nUser
                   && Skill.require skill /= Unusable
                   && not (new && Chakra.lack (chakra - cost))
@@ -268,8 +268,9 @@ act a = do
             else do
                 run affected efs
                 addChannels
-            Hook.action skill initial
-        traverse_ (traverse_ P.launch . Traps.get user) =<< P.ninjas
+        Hook.action skill initial =<< P.ninjas
+        Hook.chakra skill chakras . Game.chakra =<< P.game
+        traverse_ (sequence_ . Traps.get user) =<< P.ninjas
 
     P.modifyAll $ unreflect . \n -> n { Ninja.triggers = mempty }
     breakControls

@@ -18,11 +18,14 @@ clean :: Mission -> Mission
 clean (Mission char goals) =
     Mission (Character.clean char) $ cleanGoal <$> goals
   where
-    cleanGoal goal = goal { objective = cleanObjective $ objective goal }
-    cleanObjective (Win names) = Win $ Character.clean <$> names
-    cleanObjective (Hook name skill fn) = Hook (Character.clean name) skill fn
-    cleanObjective (HookTurn name fn) = HookTurn (Character.clean name) fn
-    cleanObjective (UseAllSkills x) = UseAllSkills $ Character.clean x
+    cleanGoal goal = goal { objective = f $ objective goal }
+    f (Win names) = Win $ Character.clean <$> names
+    f (HookAction name skill fn) = HookAction (Character.clean name) skill fn
+    f (HookChakra name skill fn) = HookChakra (Character.clean name) skill fn
+    f (HookStore name skill fn)  = HookStore (Character.clean name) skill fn
+    f (HookTrap name trap fn)    = HookTrap (Character.clean name) trap fn
+    f (HookTurn name fn)         = HookTurn (Character.clean name) fn
+    f (Consecutive x skills)     = Consecutive (Character.clean x) $ sort skills
 
 list :: [Mission]
 list = clean

@@ -7,28 +7,35 @@ import qualified Game.Model.Character as Character
 import qualified Game.Model.Skill as Skill
 import           Mission.Goal (Goal(..), Mission(..), Objective(..))
 import qualified Mission.Missions as Missions
+import           Util ((∈))
 
 spec :: SpecWith ()
-spec = traverse_ describeMission Missions.list
+spec = traverse_ mission Missions.list
 
 lookupChar :: Text -> (Character -> SpecWith ()) -> SpecWith ()
 lookupChar name f = case Characters.lookup name of
     Nothing   -> describe (unpack name) $ it "exists in the database" False
     Just char -> describe (unpack $ Character.name char) $ f char
 
-describeMission :: Mission -> SpecWith ()
-describeMission Mission{char, goals} = do
+mission :: Mission -> SpecWith ()
+mission Mission{char, goals} = do
     lookupChar char . const $ return ()
-    traverse_ describeGoal goals
+    traverse_ goal goals
 
-describeGoal :: Goal -> SpecWith ()
-describeGoal Reach{desc, objective} = describe (unpack desc) $
-    describeObjective objective
+goal :: Goal -> SpecWith ()
+goal Reach{desc, objective} = describe (unpack desc) $ f objective
+  where
+    f (Consecutive name skills) = lookupChar name $ hasSkills skills
+    f (HookAction name skill _) = lookupChar name $ hasSkills [skill]
+    f (HookChakra name skill _) = lookupChar name $ hasSkills [skill]
+    f (HookStore name skill _)  = lookupChar name $ hasSkills [skill]
+    f (HookTrap name _ _)       = lookupChar name . const $ return ()
+    f (HookTurn name _)         = lookupChar name . const $ return ()
+    f (Win names) = traverse_ (`lookupChar` const (return ())) names
 
-describeObjective :: Objective -> SpecWith ()
-describeObjective (Win names) = traverse_ (`lookupChar` const (return ())) names
-describeObjective (Hook name skill _) = lookupChar name $
-    it ("has [" ++ unpack skill ++ "]") . any ((== skill) . Skill.name) .
-    join . Character.skills
-describeObjective (HookTurn name _) = lookupChar name . const $ return ()
-describeObjective (UseAllSkills name) = lookupChar name . const $ return ()
+hasSkills :: [Text] -> Character -> SpecWith ()
+hasSkills skills char = traverse_ hasSkill skills
+  where
+    allSkills  = Skill.name <$> join (Character.skills char)
+    hasSkill :: Text -> SpecWith ()
+    hasSkill x = it ("has [" ++ unpack x ++ "]") $ x ∈ allSkills

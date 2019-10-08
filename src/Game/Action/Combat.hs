@@ -43,6 +43,8 @@ import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Runnable (RunConstraint)
 import qualified Game.Model.Skill as Skill
+import           Game.Model.Status (Status(Status))
+import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((—), (∈), (∉))
 
@@ -261,15 +263,32 @@ barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
     while' :: RunConstraint ()
     while' = Action.wrap (singletonSet Trapped) while
 
+killFull :: ∀ m. MonadPlay m => Bool -> m ()
+killFull endure = whenM (Ninja.alive <$> P.nTarget) do
+    P.toTarget $ Ninjas.kill endure
+    whenM (not . Ninja.alive <$> P.nTarget) $
+        P.toTarget . Ninjas.addStatus =<< execute <$> P.user <*> P.skill
+  where
+    execute user skill = Status { amount = 1
+                                , name   = "executed"
+                                , user
+                                , skill
+                                , effects = mempty
+                                , classes = setFromList [Unremovable, Hidden]
+                                , bombs   = []
+                                , maxDur  = 1
+                                , dur     = 1
+                                }
+
 -- | Kills the target. The target can survive if it has the 'Endure' effect.
 -- Uses 'Ninjas.kill' internally.
 kill :: ∀ m. MonadPlay m => m ()
-kill = P.toTarget $ Ninjas.kill True
+kill = killFull True
 
 -- | Kills the target. The target cannot survive by any means.
 -- Uses 'Ninjas.kill' internally.
 killHard :: ∀ m. MonadPlay m => m ()
-killHard = P.toTarget $ Ninjas.kill False
+killHard = killFull False
 
 -- | Adjusts 'Ninja.health'.
 -- Uses 'Ninjas.setHealth' internally.

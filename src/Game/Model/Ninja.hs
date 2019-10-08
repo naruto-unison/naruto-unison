@@ -4,7 +4,7 @@ module Game.Model.Ninja
   , alive, minHealth
   , is, isChanneling
   , has, hasOwn, hasDefense, hasTrap
-  , numActive, numStacks, numAnyStacks, numHelpful
+  , numActive, numStacks, numAnyStacks, numHelpful, numHarmful
   , defenseAmount
   ) where
 
@@ -125,6 +125,17 @@ numHelpful n = sum [Status.amount st | st <- statuses n
                                      , Hidden ∉ Status.classes st
                                      , ef <- Status.effects st
                                      , Effect.helpful ef]
+
+-- | Counts all non-'Effect.helpful' effects in 'statuses'.
+-- Does not include self-applied or 'Hidden' 'Status'es.
+-- Each status counts for @(number of harmful effects) * (Status.amount)@.
+numHarmful :: Ninja -> Int
+numHarmful n = sum [Status.amount st | st <- statuses n
+                                     , let user = Status.user st
+                                     , slot n /= user
+                                     , Hidden ∉ Status.classes st
+                                     , ef <- Status.effects st
+                                     , not $ Effect.helpful ef]
 
 -- | @1@ if affected by 'Endure', otherwise @0@.
 minHealth :: Ninja -> Int

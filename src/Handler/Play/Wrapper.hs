@@ -24,6 +24,7 @@ import qualified Class.Random
 import           Class.Random (MonadRandom)
 import           Class.Sockets (MonadSockets)
 import           Game.Model.Copy (Copying(..))
+import           Game.Model.Chakra (Chakras)
 import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
 import           Game.Model.Player (Player)
@@ -31,6 +32,8 @@ import qualified Game.Model.Player as Player
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Slot as Slot
+import           Game.Model.Trap (Trap)
+import qualified Game.Model.Trap as Trap
 import           Handler.Play.GameInfo (GameInfo)
 import qualified Handler.Play.GameInfo as GameInfo
 import           Handler.Play.Tracker (Tracker)
@@ -49,42 +52,73 @@ data STWrapper s = STWrapper { tracker   :: Tracker s
 type IOWrapper = STWrapper RealWorld
 
 instance MonadGame (ReaderT (STWrapper s) (ST s)) where
-    game        = asks gameRef   >>= lift . readRef
-    alter f     = asks gameRef   >>= lift . flip modifyRef' f
-    ninjas      = asks ninjasRef >>= (toList <$>) . lift . Vector.freeze
-    ninja i     = asks ninjasRef >>= lift . flip MVector.unsafeRead (Slot.toInt i)
-    write i x   = asks ninjasRef >>= \xs ->
-                  MVector.unsafeWrite xs (Slot.toInt i) x
-    modify i f  = asks ninjasRef >>= \xs ->
-                  MVector.unsafeModify xs f $ Slot.toInt i
+    game        = asks gameRef
+                  >>= lift . readRef
+    alter f     = asks gameRef
+                  >>= lift . flip modifyRef' f
+    ninjas      = asks ninjasRef
+                  >>= (toList <$>) . lift . Vector.freeze
+    ninja i     = asks ninjasRef
+                  >>= lift . flip MVector.unsafeRead (Slot.toInt i)
+    write i x   = asks ninjasRef
+                  >>= \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
+    modify i f  = asks ninjasRef
+                  >>= \xs -> MVector.unsafeModify xs f $ Slot.toInt i
 
 instance MonadIO m => MonadGame (ReaderT IOWrapper m) where
-    game        = asks gameRef   >>= liftST . readRef
-    alter f     = asks gameRef   >>= liftST . flip modifyRef' f
-    ninjas      = asks ninjasRef >>= (toList <$>) . liftIO . Vector.freeze
-    ninja i     = asks ninjasRef >>= liftIO . flip MVector.unsafeRead (Slot.toInt i)
-    write i x   = asks ninjasRef >>= liftIO . \xs ->
-                  MVector.unsafeWrite xs (Slot.toInt i) x
-    modify i f  = asks ninjasRef >>= liftIO . \xs ->
-                  MVector.unsafeModify xs f $ Slot.toInt i
+    game        = asks gameRef
+                  >>= liftST . readRef
+    alter f     = asks gameRef
+                  >>= liftST . flip modifyRef' f
+    ninjas      = asks ninjasRef
+                  >>= (toList <$>) . liftIO . Vector.freeze
+    ninja i     = asks ninjasRef
+                  >>= liftIO . flip MVector.unsafeRead (Slot.toInt i)
+    write i x   = asks ninjasRef
+                  >>= liftIO . \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
+    modify i f  = asks ninjasRef
+                  >>= liftIO . \xs -> MVector.unsafeModify xs f $ Slot.toInt i
 
-trackAction :: ∀ s. Skill -> [Ninja] -> STWrapper s -> ST s ()
-trackAction skill ns x = case Skill.copying skill of
-    NotCopied -> Tracker.trackAction (tracker x) (Skill.name skill) ns . toList
-                  =<< Vector.freeze (ninjasRef x)
+trackAction :: ∀ s. Skill -> [Ninja] -> [Ninja] -> STWrapper s -> ST s ()
+trackAction skill ns ns' x = case Skill.copying skill of
+    NotCopied -> Tracker.trackAction (Skill.name skill) ns ns' $ tracker x
     _         -> return ()
 
-trackTurn :: ∀ s. STWrapper s -> ST s ()
-trackTurn x =
-    Tracker.trackTurn (tracker x) . toList =<< Vector.freeze (ninjasRef x)
+trackChakra :: ∀ s. Skill -> (Chakras, Chakras) -> (Chakras, Chakras)
+            -> STWrapper s -> ST s ()
+trackChakra skill chaks chaks' x = case Skill.copying skill of
+    NotCopied -> Tracker.trackChakra (Skill.name skill) chaks chaks' $ tracker x
+    _         -> return ()
+
+trackTrap :: ∀ s. Trap -> Ninja -> STWrapper s -> ST s ()
+trackTrap tr n x = case Skill.copying $ Trap.skill tr of
+    NotCopied -> Tracker.trackTrap (Trap.name tr) n $ tracker x
+    _         -> return ()
+
+trackTurn :: ∀ s. Player -> [Ninja] -> [Ninja] -> STWrapper s -> ST s ()
+trackTurn p ns ns' x = Tracker.trackTurn p ns ns' $ tracker x
+
+lift2 :: ∀ m r a b c d. MonadReader r m
+         => (c -> m d) -> (a -> b -> r -> c) -> a -> b -> m d
+lift2 lifter f x y = ask >>= lifter . f x y
+{-# INLINE lift2 #-}
+
+lift3 :: ∀ m r a b c d e. MonadReader r m
+         => (d -> m e) -> (a -> b -> c -> r -> d) -> a -> b -> c -> m e
+lift3 lifter f x y z = ask >>= lifter . f x y z
+{-# INLINE lift3 #-}
 
 instance MonadHook (ReaderT (STWrapper s) (ST s)) where
-    action skill ns = lift . trackAction skill ns =<< ask
-    turn = lift . trackTurn =<< ask
+    action = lift3 lift trackAction
+    chakra = lift3 lift trackChakra
+    trap   = lift2 lift trackTrap
+    turn   = lift3 lift trackTurn
 
 instance MonadIO m => MonadHook (ReaderT IOWrapper m) where
-    action skill ns = liftST . trackAction skill ns =<< ask
-    turn = liftST . trackTurn =<< ask
+    action = lift3 liftST trackAction
+    chakra = lift3 liftST trackChakra
+    trap   = lift2 liftST trackTrap
+    turn   = lift3 liftST trackTurn
 
 fromInfo :: ∀ s. GameInfo -> ST s (STWrapper s)
 fromInfo info = STWrapper <$> Tracker.fromInfo info
@@ -99,8 +133,8 @@ replace Wrapper{game, ninjas} STWrapper{gameRef, ninjasRef} = do
     MVector.unsafeCopy ninjasRef =<< Vector.thaw ninjas
 
 -- Wrappers are pure and immutable, so these two functions are inefficient and a
--- bit silly. That's fine, because test suites can make good use of them.
--- Elsewhere, Wrappers are merely frozen snapshots of game state.
+-- bit silly. Test suites can make good use of them, but Wrappers elsewhere
+-- are treated merely as frozen snapshots of game state.
 
 adjustVec :: ∀ a. (a -> a) -> Int -> Vector a -> Vector a
 adjustVec f i = Vector.modify \xs -> MVector.modify xs f i
@@ -128,8 +162,10 @@ instance MonadRandom (StateT Wrapper Identity) where
     shuffle  = return
     player   = return Player.A
 instance MonadHook (StateT Wrapper Identity) where
-    action = const . const $ return ()
-    turn   = return ()
+    action = const . const . const $ return ()
+    chakra = const . const . const $ return ()
+    trap   = const . const $ return ()
+    turn   = const . const . const $ return ()
 
 freeze :: ∀ m. MonadGame m => m Wrapper
 freeze = Wrapper mempty <$> P.game <*> (fromList <$> P.ninjas)
