@@ -50,6 +50,18 @@ To use a development web server, run `stack exec -- yesod devel` in the root dir
 
 To grant a user admin privilege, change the "privilege" field for that user in the "user" database to 'Admin'.
 
+#### Missions
+
+By default, the development server unlocks all characters with missions. In order to test missions, this behavior may be changed by editing [config/settings.yml](https://github.com/naruto-unison/naruto-unison/blob/master/config/settings.yml) and uncommenting this line:
+
+```yaml
+# unlock-all: false
+```
+to
+```yaml
+unlock-all: false
+```
+
 ### Production
 
 In order to run the server in production mode, which has significantly better performance, deploy it with [Keter](https://www.yesodweb.com/blog/2012/05/keter-app-deployment). It is recommended to use a standalone server for hosting the Keter bundle and PostgreSQL database. The only server requirement to host Keter bundles is the Keter binary itself, which may be compiled on another machine with GHC and copied over. Docker support is planned but not yet implemented.
