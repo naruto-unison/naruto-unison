@@ -248,8 +248,9 @@ isAuthenticated level = do
     return case muser of
         Just (_, user)
           | userPrivilege user >= level -> Authorized
-        Just _  -> Unauthorized "You do not have access to this page"
-        Nothing -> Unauthorized "You must login to access this page"
+        -- Should this maybe just return a 404?
+        Just _  -> Unauthorized "You are not authorized to access this page."
+        Nothing -> Unauthorized "You must login to access this page."
 
 instance YesodAuthPersist App
 

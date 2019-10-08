@@ -35,13 +35,16 @@ class Monad m => MonadRandom m where
     -- | Randomly chooses 'Player.A' or 'Player.B'. A coin toss.
     player :: m Player
 
-    default random  :: Lift MonadRandom m => Int -> Int -> m Int
+    default random :: Lift MonadRandom m
+                   => Int -> Int -> m Int
     random a = lift . random a
     {-# INLINE random #-}
-    default shuffle :: Lift MonadRandom m => Generic.Vector v a => v a -> m (v a)
-    shuffle  = lift . shuffle
+    default shuffle :: Lift MonadRandom m
+                    => Generic.Vector v a => v a -> m (v a)
+    shuffle = lift . shuffle
     {-# INLINE shuffle #-}
-    default player :: Lift MonadRandom m => m Player
+    default player :: Lift MonadRandom m
+                   => m Player
     player = lift player
     {-# INLINE player #-}
 

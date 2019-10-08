@@ -29,10 +29,12 @@ class Monad m => MonadSockets m where
     receive :: m Text
     send    :: LByteString -> m ()
 
-    default receive :: Lift MonadSockets m => m Text
+    default receive :: Lift MonadSockets m
+                    => m Text
     receive = lift receive
     {-# INLINE receive #-}
-    default send :: Lift MonadSockets m => LByteString -> m ()
+    default send :: Lift MonadSockets m
+                 => LByteString -> m ()
     send = lift . send
     {-# INLINE send #-}
 

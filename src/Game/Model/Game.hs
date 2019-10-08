@@ -14,7 +14,6 @@ import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Slot as Slot
 
-
 -- | Game state.
 data Game = Game { chakra  :: (Chakras, Chakras)
                  -- ^ Starts at @('Chakras' 0 0 0 0 0, 'Chakras' 0 0 0 0 0)@
