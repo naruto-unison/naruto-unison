@@ -50,7 +50,8 @@ instance Eq Constructor where
 
 -- | Effects of 'Status'es.
 data Effect
-    = Afflict      Int                 -- ^ Deals damage every turn
+    = Absorb                           -- ^ Gain chakra when targeted by skills
+    | Afflict      Int                 -- ^ Deals damage every turn
     | Alone                            -- ^ Cannot be targeted by allies
     | AntiCounter                      -- ^ Cannot be countered or reflected
     | Bleed        Class Amount Int    -- ^ Adds to damage received
@@ -115,6 +116,7 @@ instance ToJSON Effect where
       ]
 
 helpful :: Effect -> Bool
+helpful Absorb          = True
 helpful Afflict{}       = False
 helpful Alone           = False
 helpful AntiCounter     = True
@@ -200,6 +202,7 @@ displayAmt Flat    = display
 displayAmt Percent = (++ "%") . display
 
 instance Display Effect where
+    display Absorb = "Gains chakra equal to the chakra cost of skills received from enemies."
     display (Afflict x) = "Receives " ++ display x ++ " affliction damage each turn."
     display Alone = "Invulnerable to allies."
     display AntiCounter = "Cannot be countered or reflected."

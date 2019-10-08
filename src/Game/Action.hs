@@ -194,10 +194,10 @@ targetEffect affected f = do
 run :: ∀ m. (MonadPlay m, MonadRandom m)
         => EnumSet Affected -> [[Runnable Slot]] -> m ()
 run affected xs = do
-    skill      <- P.skill
-    let local t ctx = ctx { Context.skill = skill, Context.target = t }
-        execute (To t r) = P.with (local t) $ targetEffect affected r
-    traverse_ (traverse_ execute) xs
+    skill            <- P.skill
+    let local t ctx   = ctx { Context.skill = skill, Context.target = t }
+        exec (To t r) = P.with (local t) $ targetEffect affected r
+    traverse_ (traverse_ exec) xs
 
 -- | If 'Skill.dur' is long enough to last for multiple turns, the 'Skill'
 -- is added to 'Ninja.channels'.
@@ -248,10 +248,10 @@ act a = do
             efs <- chooseTargets (Skill.start skill ++ Skill.effects skill)
 
             countering  <- filterCounters efs . toList <$> P.enemies user
-            let harmed   = not $ null countering
-            let counters =
-                    Trigger.userCounters harmed user classes nUser
-                    ++ (Trigger.targetCounters user classes =<< countering)
+            traverse_ Trigger.absorb countering
+            let counters = Trigger.userCounters (not $ null countering)
+                           user classes nUser ++
+                           (Trigger.targetCounters user classes =<< countering)
             if not $
               Uncounterable ∈ classes
               || nUser `is` AntiCounter

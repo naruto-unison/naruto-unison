@@ -3,6 +3,7 @@ module Game.Action.Chakra
   ( absorb
   , deplete, deplete1
   , gain
+  , healFromChakra
   , kabuto
   ) where
 
@@ -17,8 +18,13 @@ import qualified Game.Engine.Chakras as Chakras
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Chakra (Chakra(..))
 import qualified Game.Model.Chakra as Chakra
+import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
+import           Game.Model.Ninja (is)
+import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
+import           Util ((—))
 
 -- ** CHAKRA
 -- | Adds a finite amount of @Chakra@ to the 'Game.chakra' of the target's team.
@@ -52,6 +58,20 @@ absorb amount = P.unsilenced do
     user    <- P.user
     chakras <- Chakras.remove amount
     P.alter $ Game.adjustChakra user (+ chakras)
+
+-- | Restores health to the user multiplied by the chakra cost of the target's
+-- last skill.
+healFromChakra :: ∀ m. MonadPlay m => Int -> m ()
+healFromChakra amount = P.unsilenced do
+    nUser <- P.nUser
+    when (not $ nUser `is` Plague) do
+        user       <- P.user
+        lastSkill  <- Ninja.lastSkill <$> P.nTarget
+        let amount' = amount * maybe 0 (Chakra.total . Skill.cost) lastSkill
+        when (amount' > 0) do
+            P.modify user $ Ninjas.adjustHealth (+ amount')
+            healed <- (— Ninja.health nUser) . Ninja.health <$> P.nUser
+            when (healed > 0) $ P.trigger user [OnHeal]
 
 -- | Cycles Kabuto Yakushi's chakra mode through the four types of 'Chakra'.
 -- Uses 'Ninjas.kabuto' internally.

@@ -1,6 +1,7 @@
 -- | Processing of 'Effect's that change an action as it occurs.
 module Game.Engine.Trigger
-  ( redirect
+  ( absorb
+  , redirect
   , death
 
   , targetCounters, targetUncounter
@@ -19,14 +20,24 @@ import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
+import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Status as Status
 import           Game.Model.Trap (Trap)
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉))
+
+-- | Trigger an 'Absorb'.
+absorb :: ∀ m. MonadPlay m => Ninja -> m ()
+absorb n
+  | n `is` Absorb = do
+      cost <- Skill.cost <$> P.skill
+      P.alter $ Game.adjustChakra n (+ cost)
+  | otherwise = return ()
 
 -- | Trigger a 'Redirect'.
 redirect :: EnumSet Class -> Ninja -> Maybe Slot
