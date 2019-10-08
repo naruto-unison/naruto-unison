@@ -449,3 +449,8 @@ ul {
         padding: 1em 1.5em 5em 1.5em;
     }
 }
+@media (max-width: 420px) {
+    nav.jump a {
+        margin-left: 1em;
+    }
+}

@@ -709,6 +709,7 @@ p {
 #playButtons {
     margin: -3px;
     align-self: end;
+    min-width: 5em;
 }
 .playButton, #updateButton, #logoutButton {
     margin: 3px;
