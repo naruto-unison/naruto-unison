@@ -99,7 +99,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "C3: Megaton Sculpture"
-        , Skill.desc      = "Deidara drops a large explosive on the enemy team, dealing 20 damage to them and weakening their damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C1: Bird Bomb]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
+        , Skill.desc      = "Deidara drops a large explosive on the enemy team, dealing 20 damage to them and weakening their damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C1: Bird Bomb][r]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
         , Skill.classes   = [Chakra, Ranged, Nonstacking]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
@@ -1131,7 +1131,7 @@ characters =
     "After Madara turned the Gedo statue's mutated victims into an army of servants, he chose one to lead them. Imbuing the White Zetsu entity with materialized will in the form of Black Zetsu, he created a hybrid being who became an official member of Akatsuki. White Zetsu and Black Zetsu have different approaches to combat, but both are able to take control of an enemy's abilities."
     [ [ Skill.new
         { Skill.name      = "White Zetsu"
-        , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense each turn. Once used, this skill becomes [Black Zetu]."
+        , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense each turn. Once used, this skill becomes [Black Zetsu]."
         , Skill.classes   = [Chakra]
         , Skill.dur       = Ongoing 0
         , Skill.start     =

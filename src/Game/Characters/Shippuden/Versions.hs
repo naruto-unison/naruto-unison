@@ -539,7 +539,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Impale"
-        , Skill.desc      = "Sasori stabs an enemy with a poison-soaked blade, dealing 15 piercing damage immediately and 5 affliction damage for 2 turns. If the target is affected by [Poisonous Chain Skewer], they become affected by [Complex Toxin], which stuns them after 2 turns. Once used, this skill becomes [Poisonous Chain Skewer]."
+        , Skill.desc      = "Sasori stabs an enemy with a poison-soaked blade, dealing 15 piercing damage immediately and 5 affliction damage for 2 turns. If the target is affected by [Poisonous Chain Skewer], they become affected by [Complex Toxin], which stuns them after 2 turns. Once used, this skill becomes [Poisonous Chain Skewer][r]."
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -578,7 +578,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Cutting Water Jets"
-        , Skill.desc      = "Sasori shoots a high-pressure jet of water at an enemy, dealing 20 piercing damage. Deals 10 additional damage if the target is affected by [Flamethrower Jets]. Ends [Flamethrower Jets]. Once used, this skill becomes [Flamethrower Jets]."
+        , Skill.desc      = "Sasori shoots a high-pressure jet of water at an enemy, dealing 20 piercing damage. Deals 10 additional damage if the target is affected by [Flamethrower Jets]. Ends [Flamethrower Jets]. Once used, this skill becomes [Flamethrower Jets][n][r]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
