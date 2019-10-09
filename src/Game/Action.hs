@@ -272,8 +272,8 @@ act a = do
         Hook.chakra skill chakras . Game.chakra =<< P.game
         traverse_ (sequence_ . Traps.get user) =<< P.ninjas
 
-    P.modifyAll $ unreflect . \n -> n { Ninja.triggers = mempty }
-    breakControls
+        P.modifyAll $ unreflect . \n -> n { Ninja.triggers = mempty }
+        breakControls
   where
     s       = Act.skill a
     new     = isLeft s

@@ -680,7 +680,6 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Enemy do
-                trap' 0 OnDeath $ self $ remove "Demon Parasite"
                 bomb 0 [Afflict 20]
                        [ To Done $ self $ remove "Demon Parasite" ]
                 self $ bomb 0 [Reduce All Flat 15]

@@ -20,14 +20,15 @@ import qualified Game.Engine.Chakras as Chakras
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
-import qualified Game.Engine.Trigger as Trigger
 import           Game.Model.Act (Act)
 import qualified Game.Model.Act as Act
 import qualified Game.Model.Barrier as Barrier
+import           Game.Model.Class (Class(..))
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Delay as Delay
+import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
-import           Game.Model.Ninja (Ninja)
+import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Runnable as Runnable
@@ -35,7 +36,9 @@ import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Status (Bomb(..), Status)
 import qualified Game.Model.Status as Status
-import           Util ((—))
+import qualified Game.Model.Trap as Trap
+import           Game.Model.Trigger (Trigger(..))
+import           Util ((—), (∈), (∉))
 
 -- | The game engine's main function.
 -- Performs 'Act's and 'Model.Channel.Channel's;
@@ -103,7 +106,12 @@ doBombs bomb ninjas = zipWithM_ comp ninjas =<< P.ninjas
   where
     comp n n' = sequence $
                 doBomb bomb (Ninja.slot n) <$> deleteFirstsBy Labeled.eq
-                (Ninja.statuses n) (Ninja.statuses n')
+                (stats n) (stats n')
+      where
+        stats
+          | Ninja.alive n' = Ninja.statuses
+          | otherwise      = filter ((Necromancy ∈) . Status.classes) .
+                             Ninja.statuses
 
 -- | Executes 'Barrier.while' and 'Barrier.finish' effects.
 doBarriers :: ∀ m. (MonadGame m, MonadRandom m) => m ()
@@ -120,7 +128,40 @@ doBarriers = do
 
 -- | Executes 'Trigger.death'.
 doDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
-doDeaths = traverse_ Trigger.death Slot.all
+doDeaths = traverse_ doDeath Slot.all
+
+-- | If the 'Ninja.health' of a 'Ninja' reaches 0,
+-- they are either resurrected by triggering 'OnRes'
+-- or they die and trigger 'OnDeath'.
+-- If they die, their 'Soulbound' effects are canceled.
+doDeath :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Slot -> m ()
+doDeath slot = do
+    n <- P.ninja slot
+    let res
+          | n `is` Plague = mempty
+          | otherwise     = Traps.getOf slot OnRes n
+    if | Ninja.health n > 0 -> return ()
+       | null res           -> do
+            P.modify slot $ Ninjas.clearTraps OnDeath
+            sequence_ $ Traps.getOf slot OnDeath n
+            traverse_ (doBomb Done slot) .
+                filter ((Necromancy ∉) . Status.classes) $ Ninja.statuses n
+            P.modifyAll unres
+       | otherwise          -> do
+            P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps OnRes
+            sequence_ res
+  where
+    unres n = Ninjas.modifyStatuses
+        (const [st | st <- Ninja.statuses n
+                   , slot /= Status.user st
+                     || Soulbound ∉ Status.classes st]) $
+        n { Ninja.traps = [trap | trap <- Ninja.traps n
+                                , slot /= Trap.user trap
+                                  || Soulbound ∉ Trap.classes trap]
+          }
+
+doHpsOverTime :: ∀ m. MonadGame m => m ()
+doHpsOverTime = traverse_ doHpOverTime Slot.all
 
 -- | Executes 'Model.Effect.Afflict' and 'Model.Effect.Heal'
 -- 'Model.Effect.Effect's.
@@ -130,6 +171,3 @@ doHpOverTime slot = do
     n      <- P.ninja slot
     hp     <- Effects.hp player n <$> P.ninjas
     when (Ninja.alive n) . P.modify slot $ Ninjas.adjustHealth (— hp)
-
-doHpsOverTime :: ∀ m. MonadGame m => m ()
-doHpsOverTime = traverse_ doHpOverTime Slot.all

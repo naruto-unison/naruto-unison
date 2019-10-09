@@ -249,11 +249,11 @@ characters = ($ Reanimated) <$>
                 userHealth   <- user health
                 targetHealth <- target health
                 bomb 2 [Duel userSlot, Taunt userSlot]
-                       [ To Done $ setHealth targetHealth ]
+                       [ To Expire $ setHealth targetHealth ]
                 setHealth 30
                 self do
                     bomb 2 [Duel targetSlot, Taunt targetSlot]
-                           [ To Done $ setHealth userHealth ]
+                           [ To Expire $ setHealth userHealth ]
                     setHealth 30
           ]
         }
