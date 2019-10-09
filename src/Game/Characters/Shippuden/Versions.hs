@@ -634,126 +634,6 @@ characters =
     , [ invuln "Heart Switch" "Sasori" [Physical] ]
     ]
   , Character
-    "Split Zetsu"
-    "After Madara turned the Gedo statue's mutated victims into an army of servants, he chose one to lead them. Imbuing the White Zetsu entity with materialized will in the form of Black Zetsu, he created a hybrid being who became an official member of Akatsuki. White Zetsu and Black Zetsu have different approaches to combat, but both are able to take control of an enemy's abilities."
-    [ [ Skill.new
-        { Skill.name      = "White Zetsu"
-        , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense each turn. Once used, this skill becomes [Black Zetu]."
-        , Skill.classes   = [Chakra]
-        , Skill.dur       = Ongoing 0
-        , Skill.start     =
-          [ To Self do
-                cancelChannel "Black Zetsu"
-                setFace
-                vary "White Zetsu" "Black Zetsu"
-                vary "Black Zetsu" "White Army"
-                vary "Doppelgänger / Body Coating" "Doppelgänger"
-          ]
-        , Skill.effects   =
-          [ To Self $ defend 0 5 ]
-        }
-      , Skill.new
-        { Skill.name      = "Black Zetsu"
-        , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [White Zetsu]."
-        , Skill.classes   = [Chakra]
-        , Skill.dur       = Ongoing 0
-        , Skill.start     =
-          [ To Self do
-                cancelChannel "White Zetsu"
-                setFace
-                vary "White Zetsu" baseVariant
-                vary "Black Zetsu" "Underground Roots"
-                vary "Doppelgänger / Body Coating" "Body Coating"
-          ]
-        , Skill.effects   =
-          [ To Self $ unlessM (userHas "chakra") do
-                gain [Rand]
-                hide' "chakra" 1 []
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Black Zetsu"
-        , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [Underground Roots][b][r]. As White Zetsu, this skill becomes [White Army][g]."
-        , Skill.classes   = [Chakra]
-        , Skill.dur       = Ongoing 0
-        , Skill.start     =
-          [ To Self do
-                cancelChannel "White Zetsu"
-                setFace
-                vary "White Zetsu" baseVariant
-                vary "Black Zetsu" "Underground Roots"
-                vary "Doppelgänger / Body Coating" "Body Coating"
-          ]
-        , Skill.effects   =
-          [ To Self $ unlessM (userHas "chakra") do
-                gain [Rand]
-                hide' "chakra" 1 []
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Underground Roots"
-        , Skill.desc      = "Tree roots emerge from the ground and wrap around an enemy, dealing 20 damage for 2 turns. While active, the target's damage is weakened by half. As White Zetsu, this skill becomes [White Army][g]."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = [Blood, Rand]
-        , Skill.cooldown  = 2
-        , Skill.dur       = Action 2
-        , Skill.effects   =
-          [ To Enemy do
-                damage 20
-                apply 1 [Weaken All Percent 50]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "White Army"
-        , Skill.desc      = "Zetsu creates numerous clones of himself which deal 5 damage to all enemies for 5 turns. As Black Zetsu, this skill becomes [Underground Roots][b][r]."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Gen]
-        , Skill.dur       = Action 5
-        , Skill.effects   =
-          [ To Enemies $ damage 5 ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Doppelgänger / Body Coating"
-        , Skill.desc      = "Zetsu seizes an enemy and makes use of their abilities. As White Zetsu, this skill deals 20 damage, steals 1 random chakra, stuns their non-mental skill for 1 turn, and replaces itself with the last skill they used for 1 turn. As Black Zetsu, this skill causes the target's next reflectable non-unique skill to target allies instead of enemies and enemies instead of allies."
-        , Skill.require   = Unusable
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Tai, Rand]
-        }
-      , Skill.new
-        { Skill.name      = "Body Coating"
-        , Skill.desc      = "Zetsu melts and flows over an enemy, taking control of their body. The next skill they use will target allies instead of enemies and enemies instead of allies. As White Zetsu, this skill becomes [Doppelgänger][t][r]."
-        , Skill.require   = HasU (-1) "Body Coating"
-        , Skill.classes   = [Mental, Melee, Invisible, Unreflectable]
-        , Skill.cost      = [Blood, Gen]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Enemy do
-                apply 0 [Swap]
-                trap' 0 (OnAction All) do
-                    remove "Body Coating"
-                    removeTrap "Body Coating"
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Doppelgänger"
-        , Skill.desc      = "Zetsu seizes an enemy and alters his chakra to match their own, dealing 20 damage, absorbing 1 random chakra, and stunning their non-mental skills for 1 turn. The last skill they used replaces this skill for 1 turn. Zetsu's copy of their skill has no chakra cost and ends when this skill reverts. As Black Zetsu, this skill becomes [Body Coating][b][g]."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Tai, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy do
-                absorb 1
-                copyLast 1
-                apply 1 [Stun NonMental]
-                damage 20
-          ]
-        }
-      ]
-    , [ invuln "Hide" "Zetsu" [Physical] ]
-    ]
-  , Character
     "Curse Mark Jūgo"
     "No longer recognizably human, Jūgo has been transformed by bloodlust into a terrifying monster. Tapping into limitless chakra, he is an unstoppable and uncontrollable force."
     [ [ Skill.new
@@ -855,7 +735,6 @@ characters =
           [ To Ally do
                 self $ hide' "curse" 0 []
                 bomb 0 [] [ To Done $ self $ remove "curse" ]
-                trap' 0 OnDeath $ self $ remove "curse"
                 trap' 0 (OnDamaged All) $ unlessM (user alive) do
                     targetHealth <- target health
                     when (25 >= targetHealth && targetHealth > 0) do
