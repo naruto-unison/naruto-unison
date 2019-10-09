@@ -1246,4 +1246,73 @@ characters =
       ]
     , [ invuln "Hide" "Zetsu" [Physical] ]
     ]
+  , Character
+    "Tobi"
+    "A peculiar new member of the Akatsuki, Tobi claims to be Madara Uchiha even though Madara has been dead for many years. Using his Izanagi, he can rewind his state to an earlier point and even come back from the dead."
+    [ [ Skill.new
+        { Skill.name      = "Sharingan"
+        , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time a harmful skill is used on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
+        , Skill.require   = HasI (-1) "Sharingan"
+        , Skill.classes   = [Mental, Invisible]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Self $ trap 0 (Counter All) $ vary' 2 "Sharingan" "Kamui" ]
+        }
+      , Skill.new
+        { Skill.name      = "Kamui"
+        , Skill.desc      = "Tobi banishes a target to his pocket dimension for 3 turns, making them invulnerable to allies as well as enemies and unable to affect anyone else. If used on an ally, cures all harmful effects on them. If used on an enemy, deals 20 piercing damage, purges them of helpful effects, and prevents them from reducing damage or becoming invulnerable. Ends if Tobi uses [Kamui] or [Kamui Strike] on someone else."
+        , Skill.classes   = [Chakra, Ranged, Unreflectable, Unremovable]
+        , Skill.cost      = [Gen, Rand]
+        , Skill.effects   =
+          [ To XAlly do
+                everyone $ remove "Kamui"
+                cureAll
+                apply 3 [Alone, Invulnerable All, BlockAllies, BlockEnemies]
+          , To Enemy do
+                everyone $ remove "Kamui"
+                purge
+                apply 3
+                    [Expose, Alone, Invulnerable All, BlockAllies, BlockEnemies]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Kamui Strike"
+        , Skill.desc      = "Tobi teleports behind an enemy and deals 20 piercing damage to them. Deals 20 additional damage if the target is affected by [Kamui]."
+        , Skill.classes   = [Chakra, Melee, Bypassing]
+        , Skill.cost      = [Gen]
+        , Skill.effects   =
+          [ To Enemy do
+                has <- targetHas "Kamui"
+                if has then
+                    pierce 40
+                else do
+                    everyone $ remove "Kamui"
+                    pierce 20
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Izanagi"
+        , Skill.desc      = "Tobi sacrifices one of his eyes to take control of reality on a local scale, reversing the flow of time. In 4 turns, he will reset completely to his state at the start of the game, with as much health as he has at the moment of using this skill."
+        , Skill.require    = HasI (-1) "Izanagi"
+        , Skill.classes    = [Mental, Invisible, Unremovable]
+        , Skill.cost       = [Blood, Blood]
+        , Skill.charges    = 2
+        , Skill.effects    =
+          [ To Self do
+                eyeballs   <- userStacks "eyeball"
+                userHealth <- user health
+                bombWith [Necromancy] 4 [] [ To Expire do
+                    factory
+                    setHealth userHealth
+                    addStacks "eyeball" $ eyeballs + 1 ]
+          ]
+        , Skill.changes    =
+          \n x -> x { Skill.charges = Skill.charges x - numActive "eyeball" n }
+        }
+      ]
+    , [ invuln "Phase" "Tobi" [Chakra] ]
+    ]
   ]

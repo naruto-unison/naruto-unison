@@ -62,7 +62,6 @@ insert s v toCd = adjust s v $ const toCd
 update :: Bool -> Int -> Skill -> Int -> Ninja -> Ninja
 update alsoCharge a skill s n
    | copied $ Skill.copying skill = n
-   | Skill.cooldown skill == 0    = n
    | otherwise = n { Ninja.cooldowns = insert s vari cd' $ Ninja.cooldowns n
                    , Ninja.charges   = charges $ Ninja.charges n
                    }
