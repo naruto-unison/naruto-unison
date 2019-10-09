@@ -140,6 +140,46 @@ characters =
         }
       ]
     ]
+  , Character
+    "Eight-Tailed B"
+    "Killer B works in perfect harmony with Gyūki, maintaining control of its immense quantities of tailed-beast chakra. With its bulk and might, B in jinchūriki mode is practically unassailable."
+    [ [ Skill.new
+        { Skill.name      = "Chakra Bones"
+        , Skill.desc      = "Skeletal armor manifests from Gyūki's chakra, permanently increasing B's damage by 5 and providing him with 10% damage reduction to all types of damage, including piercing and affliction."
+        , Skill.classes   = [Chakra]
+        , Skill.cooldown  = 1
+        , Skill.charges   = 5
+        , Skill.effects   =
+          [ To Self $
+                apply 0 [Strengthen All Flat 5, Reduce Affliction Percent 10]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Lariat"
+        , Skill.desc      = "Rushing an enemy, B deals 20 damage to them and increases their cooldowns by 1 for 1 turn."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                damage 20
+                apply 1 [Snare 1]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Tailed Beast Bomb"
+        , Skill.desc      = "B launches a sphere of condensed chakra at an opponent, dealing 25 damage."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ damage 25 ]
+        }
+      ]
+    , [ invuln "Chakra Barrier" "B" [Chakra] ]
+    ]
   , let loadout = [1, 0, 0, 0]
     in Character
     "Nine-Tailed Naruto"
