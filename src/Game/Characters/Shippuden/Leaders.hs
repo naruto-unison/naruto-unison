@@ -265,4 +265,51 @@ characters =
       ]
     , [ invuln "Flee" "Mei" [Physical] ]
     ]
+  , Character
+    "Fukasaku and Shima"
+    "Revered as the Two Great Sage Toads, Fukasaku and Shima serve Lord Elder Gamamaru in administrating Mount Myōboku. They taught Jiraiya and Naruto how to absorb chakra from natural energy. If left uninterrupted, their sound-based genjutsu can disable their enemies with ease."
+    [ [ Skill.new
+        { Skill.name      = "Frog Song"
+        , Skill.desc      = "Croaking in unison, the Toad Sages emit destabilizing sound waves that deal 20 affliction damage to a target for 2 turns and increase the chakra costs of their skills by 1 additional arbitrary chakra."
+        , Skill.classes   = [Mental, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
+        , Skill.dur       = Action 2
+        , Skill.effects   =
+          [ To Enemy do
+                afflict 20
+                apply 1 [Exhaust All]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Sand Dust"
+        , Skill.desc      = "Shima exhales a cloud of dust that conceals her and her allies, making them invulnerable to ranged skills for 1 turn."
+        , Skill.classes   = [Physical]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Allies $ apply 1 [Invulnerable Ranged] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Demonic Illusion: Gamarinsho"
+        , Skill.desc      = "Fukasaku and Shima gradually weave a melodic harmony with each other. If this skill is used three times in a row, all enemies will be stunned for 2 turns. Using this skill cancels its previous stuns."
+        , Skill.classes   = [Mental, Ranged, Resource]
+        , Skill.cost      = [Gen]
+        , Skill.effects   =
+          [ To Self do
+                stacks <- userStacks "Harmony"
+                remove "Harmony"
+                addStacks' 1 "Harmony"
+                    if stacks < 3 then stacks + 1 else 1
+          , To Enemies do
+                remove "Demonic Illusion: Gamarinsho"
+                stacks <- userStacks "Harmony"
+                when (stacks == 3) $ apply 2 [Stun All]
+          ]
+        }
+      ]
+    , [ invuln "Reverse Summoning" "Fukasaku and Shima" [Summon] ]
+    ]
   ]
