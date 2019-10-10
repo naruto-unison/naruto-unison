@@ -67,7 +67,7 @@ characters =
         , Skill.desc      = "Izumo tags out, swapping his health with Kotetsu's. Once used, if Kotetsu dies, Izumo will immediately take over. "
         , Skill.classes   = [Nonstacking, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
-        , Skill.require   = HasI (-1) "solo"
+        , Skill.require   = HasI 0 "solo"
         , Skill.effects   =
           [ To Self do
                 userHealth <- user health
@@ -91,7 +91,7 @@ characters =
         , Skill.desc      = "Kotetsu tags out, swapping his health with Izumo's. Once used, if Izumo dies, Kotetsu will immediately take over. "
         , Skill.classes   = [Nonstacking, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
-        , Skill.require   = HasI (-1) "solo"
+        , Skill.require   = HasI 0 "solo"
         , Skill.effects   =
           [ To Self do
                 userHealth <- user health
@@ -675,7 +675,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Demon Parasite"
         , Skill.desc      = "Sakon deals 20 affliction damage to an enemy and gains 15 points of damage reduction until the target dies. Cannot be used while active."
-        , Skill.require   = HasI (-1) "Demon Parasite"
+        , Skill.require   = HasI 0 "Demon Parasite"
         , Skill.classes   = [Bane, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =

@@ -31,7 +31,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Tailed Beast Chakra Arms"
         , Skill.desc      = "Naruto unleashes his tailed-beast chakra, dealing 15 damage to all enemies for 3 turns. Cannot be used during [Inner Chakra Mode]."
-        , Skill.require   = HasI (-1) "Inner Chakra Mode"
+        , Skill.require   = HasI 0 "Inner Chakra Mode"
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Blood, Tai]
         , Skill.cooldown  = 3
@@ -43,7 +43,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Inner Chakra Mode"
         , Skill.desc      = "Naruto draws in his tailed-beast chakra, gaining 10 points of damage reduction and restoring 15 health for 5 turns. Cannot be used during [Tailed Beast Chakra Arms]."
-        , Skill.require   = HasI (-1) "Tailed Beast Chakra Arms"
+        , Skill.require   = HasI 0 "Tailed Beast Chakra Arms"
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 5
@@ -173,7 +173,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Monstrous Sand Arm"
         , Skill.desc      = "Shukaku squeezes an enemy in a fist of sand, dealing 10 damage to them each turn. If they use a skill, the skill is countered and this effect ends. During [Tailed Beast Form], this skill becomes [Wind Bullet][b][b]."
-        , Skill.require   = HasI (-1) "Monstrous Sand Arm"
+        , Skill.require   = HasI 0 "Monstrous Sand Arm"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.dur       = Control 0
@@ -195,7 +195,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Sand Transformation"
         , Skill.desc      = "Shukaku gradually accumulates sand around Gaara's body, gaining 10 permanent destructible defense each turn for 5 turns. At the end of the 5 turns, Shukaku enters Tailed Beast Form. During [Tailed Beast Form], this skill becomes [Shukaku Full Release][b]."
-        , Skill.require   = HasI (-1) "Sand Transformation"
+        , Skill.require   = HasI 0 "Sand Transformation"
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6

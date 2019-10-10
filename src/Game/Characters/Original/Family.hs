@@ -236,7 +236,7 @@ characters =
       , Skill.new
         { Skill.name      = "Shadow Dispersion"
         , Skill.desc      = "Extending his shadow tendrils, Shikaku deals 20 damage to all enemies not affected by [Shadow Possession] and stuns their non-mental skills for 1 turn. Deals 10 additional damage to enemies affected by [Black Spider Lily]."
-        , Skill.require   = HasU (-1) "Shadow Possession"
+        , Skill.require   = HasU 0 "Shadow Possession"
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]
         , Skill.effects   =

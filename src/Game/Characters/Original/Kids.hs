@@ -41,7 +41,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Shadow Clones"
         , Skill.desc      = "Naruto creates multiple shadow clones who hide him and fight in his place, providing 15 points of damage reduction for 4 turns. Cannot be used while active."
-        , Skill.require   = HasI (-1) "Shadow Clone"
+        , Skill.require   = HasI 0 "Shadow Clone"
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
@@ -166,7 +166,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Dynamic Marking"
         , Skill.desc      = "Akamaru sprays urine on an enemy, preventing them from reducing damage or becoming invulnerable for 3 turns. Cannot be used on an enemy already affected by this skill."
-        , Skill.require   = HasU (-1) "Dynamic Marking"
+        , Skill.require   = HasU 0 "Dynamic Marking"
         , Skill.classes   = [Bane, Ranged]
         , Skill.effects   =
           [ To Enemy $ apply 3 [Expose] ]
@@ -261,7 +261,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Meditate"
         , Skill.desc      = "Shikamaru sits down and contemplates an enemy. Over the next 5 turns, he composes a strategy against them. Cannot be used on an enemy already affected by this skill."
-        , Skill.require   = HasU (-1) "Meditate"
+        , Skill.require   = HasU 0 "Meditate"
         , Skill.classes   = [Mental, Ranged, Uncounterable, Unreflectable]
         , Skill.effects   =
           [ To Enemy $ tag 5 ]
@@ -698,7 +698,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Sand Clone"
         , Skill.desc      = "Gaara creates a clone of sand that mimics him and provides defense. Until an enemy uses a skill that deals non-affliction damage to him, Gaara ignores status effects from enemies except chakra cost changes. Cannot be used while active."
-        , Skill.require   = HasI (-1) "Sand Clone"
+        , Skill.require   = HasI 0 "Sand Clone"
         , Skill.classes   = [Physical, Unremovable]
         , Skill.cooldown  = 2
         , Skill.effects   =

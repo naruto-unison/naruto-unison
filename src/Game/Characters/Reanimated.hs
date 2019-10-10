@@ -152,7 +152,7 @@ characters = ($ Reanimated) <$>
       , Skill.new
         { Skill.name      = "Poison Fog"
         , Skill.desc      = "Ibuse opens its mouth to reveal a noxious cloud of deadly poison, dealing 10 affliction damage to all enemies until Ibuse dies. Cannot be used while active."
-        , Skill.require   = HasI (-1) "Poison Fog"
+        , Skill.require   = HasI 0 "Poison Fog"
         , Skill.classes   = [Physical, Bane, Ranged, Unreflectable]
         , Skill.cost      = [Blood, Blood]
         , Skill.dur       = Ongoing 0
@@ -369,7 +369,7 @@ characters = ($ Reanimated) <$>
     [ [ Skill.new
         { Skill.name      = "Rivalry"
         , Skill.desc      = "Jirōbō picks out an enemy as his rival. If they use a skill on Jirōbō or his allies next turn, they will be countered and permanently forced to target Jirōbō. Effect ends if Jirōbō uses a skill on a different enemy or uses this skill again. Cannot be used during [Summoning: Earth Prison Golem]."
-        , Skill.require   = HasI (-1) "Summoning: Earth Prison Golem"
+        , Skill.require   = HasI 0 "Summoning: Earth Prison Golem"
         , Skill.classes   = [Mental, Melee, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
@@ -465,7 +465,7 @@ characters = ($ Reanimated) <$>
     , [ Skill.new
         { Skill.name      = "Acupuncture"
         , Skill.desc      = "Haku alters the flow of energy in an enemy by sticking a needle into one of their vital points, disabling the non-damage effects of their skills on allies and enemies for 2 turns. Bypasses invulnerability and targets all enemies during [Crystal Ice Mirrors]."
-        , Skill.require   = HasU (-1) "Acupuncture"
+        , Skill.require   = HasU 0 "Acupuncture"
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
@@ -480,7 +480,7 @@ characters = ($ Reanimated) <$>
     , [ Skill.new
         { Skill.name      = "Crystal Ice Mirrors"
         , Skill.desc      = "Disorienting crystalline mirrors form all around the battlefield, providing 20 permanent destructible defense to Haku. For 3 turns, if Haku loses all destructible defense from this skill, he will gain destructible defense equal to how much health he lost during the same turn. Cannot be used while Haku still has destructible defense from this skill."
-        , Skill.require   = DefenseI (-1) "Crystal Ice Mirrors"
+        , Skill.require   = DefenseI 0 "Crystal Ice Mirrors"
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 6
@@ -535,7 +535,7 @@ characters = ($ Reanimated) <$>
     , [ Skill.new
         { Skill.name      = "Executioner's Butchering"
         , Skill.desc      = "Zabuza's sword carves into an enemy like the edge of a guillotine, dealing 30 piercing damage and marking them for 1 turn. Cannot be used during [Demon Shroud]."
-        , Skill.require   = HasI (-1) "Demon Shroud"
+        , Skill.require   = HasI 0 "Demon Shroud"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
@@ -930,7 +930,7 @@ characters = ($ Reanimated) <$>
     , [ Skill.new
         { Skill.name      = "Searing Combat"
         , Skill.desc      = "Pakura ignites an enemy, dealing 20 affliction damage to them for 2 turns. Cannot be used on an enemy already affected by this skill."
-        , Skill.require   = HasU (-1) "Searing Combat"
+        , Skill.require   = HasU 0 "Searing Combat"
         , Skill.classes   = [Physical, Melee, Bane]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =

@@ -71,7 +71,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Thousand Hand Strike"
         , Skill.desc      = "Asuma summons Kannon, the Fire Temple's patron spirit, which provides him with 40 permanent destructible defense and deals 25 damage to an enemy. The following turn, this skill becomes [Kannon Strike][r]. When [Kannon Strike] ends, this skill is disabled for 1 turn."
-        , Skill.require   = HasI (-1) "Overheating"
+        , Skill.require   = HasI 0 "Overheating"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =

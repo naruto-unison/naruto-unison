@@ -358,7 +358,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Gentle Step Twin Lion Fists"
         , Skill.desc      = "Hinata creates two lions out of chakra. The next 2 times an enemy uses a skill on Hinata or her allies, a chakra lion will attack them, dealing 30 damage and depleting 1 random chakra. Creates a third lion during [Eight Trigrams Sixty-Four Palms]. Cannot be used while active. Ends if Hinata dies."
-        , Skill.require   = HasI (-1) "Chakra Lion"
+        , Skill.require   = HasI 0 "Chakra Lion"
         , Skill.classes   = [Chakra, Melee, Bypassing, Soulbound, Resource]
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =
@@ -437,7 +437,7 @@ characters =
       , Skill.new
         { Skill.name      = "Final Explosion"
         , Skill.desc      = "Deals 100 damage to an enemy affected by [Shadow Sewing] or [Expert Analysis]. Cannot be used if an enemy used a skill that dealt non-affliction damage to Shikamaru last turn."
-        , Skill.require   = HasI (-1) "What a Drag"
+        , Skill.require   = HasI 0 "What a Drag"
         , Skill.classes   = [Physical]
         , Skill.cost      = [Tai]
         , Skill.effects   =

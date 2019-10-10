@@ -255,7 +255,7 @@ characters =
     "An Akatsuki member who defected from the Hidden Hotspring Village, Hidan belongs to a cult that worships Jashin, a bloodthirsty and murderous god who blesses him with immortality. With no need to fear death, he binds his soul to his enemies and tortures himself endlessly."
     [ [ Skill.new
         { Skill.name      = "Jashin Sigil"
-        , Skill.require   = HasI (-1) "Jashin Sigil"
+        , Skill.require   = HasI 0 "Jashin Sigil"
         , Skill.desc      = "Hidan prepares for his ritual by drawing an insignia on the ground in blood. Once used, this skill becomes [First Blood][r]."
         , Skill.classes   = [Physical, Unremovable, Uncounterable, Unreflectable]
         , Skill.effects   =
@@ -338,7 +338,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Prayer"
         , Skill.desc      = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for 1 turn. Each time this skill is used, it costs 1 additional arbitrary chakra and its effect lasts 1 additional turn. Cannot be used while active."
-        , Skill.require   = HasI (-1) "Prayer"
+        , Skill.require   = HasI 0 "Prayer"
         , Skill.classes   = [Mental, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -423,7 +423,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Thousand Hungry Sharks"
         , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Each turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage to each enemy during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
-        , Skill.require   = HasI (-1) "Thousand Hungry Sharks"
+        , Skill.require   = HasI 0 "Thousand Hungry Sharks"
         , Skill.classes   = [Chakra, Ranged, Unreflectable, Resource]
         , Skill.cost      = [Nin]
         , Skill.dur       = Ongoing 0
@@ -1005,7 +1005,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Summoning: Giant Multi-Headed Dog"
         , Skill.desc      = "Pain summons a huge Cerberus hound that deals 10 piercing damage to all enemies for 2 turns. The first enemy to use a skill on Pain or her allies will extend the effect of this skill on them by 2 turns. Cannot be used while active."
-        , Skill.require   = HasI (-1) "Summoning: Giant Multi-Headed Dog"
+        , Skill.require   = HasI 0 "Summoning: Giant Multi-Headed Dog"
         , Skill.classes   = [Summon, Melee, Bypassing, Unreflectable]
         , Skill.cost      = [Blood, Rand ]
         , Skill.dur       = Ongoing 0
@@ -1217,7 +1217,7 @@ characters =
       , Skill.new
         { Skill.name      = "Body Coating"
         , Skill.desc      = "Zetsu melts and flows over an enemy, taking control of their body. The next skill they use will target allies instead of enemies and enemies instead of allies. As White Zetsu, this skill becomes [Doppelgänger][t][r]."
-        , Skill.require   = HasU (-1) "Body Coating"
+        , Skill.require   = HasU 0 "Body Coating"
         , Skill.classes   = [Mental, Melee, Invisible, Unreflectable]
         , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 3
@@ -1252,7 +1252,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time a harmful skill is used on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
-        , Skill.require   = HasI (-1) "Sharingan"
+        , Skill.require   = HasI 0 "Sharingan"
         , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
@@ -1296,7 +1296,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Izanagi"
         , Skill.desc      = "Tobi sacrifices one of his eyes to take control of reality on a local scale, reversing the flow of time. In 4 turns, he will reset completely to his state at the start of the game, with as much health as he has at the moment of using this skill."
-        , Skill.require    = HasI (-1) "Izanagi"
+        , Skill.require    = HasI 0 "Izanagi"
         , Skill.classes    = [Mental, Invisible, Unremovable]
         , Skill.cost       = [Blood, Blood]
         , Skill.charges    = 2
