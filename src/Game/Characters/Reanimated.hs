@@ -866,4 +866,48 @@ characters = ($ Reanimated) <$>
     , [ invuln "Clay Clone" "Deidara" [Chakra] ]
     ]
     100
+  , Character
+    "Sasori"
+    "Reanimated by Kabuto, Sasori was an Akatsuki member who crafted puppets from human corpses. Finally inhabiting the perfect, ageless body he strived for in life, Sasori uses his chakra threads to control enemies and allies alike."
+    [ [ Skill.new
+        { Skill.name      = "Chakra Threads"
+        , Skill.desc      = "Sasori defends himself by ensaring his enemies, gaining 10 points of damage reduction."
+        , Skill.classes   = [Physical]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Self $ apply 4 [Reduce All Flat 10] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Ally Control"
+        , Skill.desc      = "Sasori manipulates an ally with puppeteering threads. All skills that enemies use on the target next turn will be reflected back at them."
+        , Skill.classes   = [Physical]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To XAlly $ apply 1 [ReflectAll] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Puppet Manipulation"
+        , Skill.desc      = "Sasori attacks an enemy with chakra threads, dealing 15 damage and weakening their damage by 5 for 1 turn. If their health reaches 35 or lower, their physical and chakra skills are stunned for 1 turn. Deals 5 additional damage during [Chakra Threads]."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                bonus <- 5 `bonusIf` userHas "Chakra Threads"
+                damage (15 + bonus)
+                apply 1 [Weaken All Flat 5]
+                targetHealth <- target health
+                if targetHealth <= 35 then
+                    apply 1 [Weaken All Flat 5, Stun Physical, Stun Chakra]
+                else
+                    apply 1 [Weaken All Flat 5]
+          ]
+        }
+      ]
+    , [ invuln "Block" "Sasori" [Physical] ]
+    ]
+    100
   ]
