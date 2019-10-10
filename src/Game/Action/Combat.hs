@@ -266,7 +266,7 @@ barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
 killFull :: ∀ m. MonadPlay m => Bool -> m ()
 killFull endure = whenM (Ninja.alive <$> P.nTarget) do
     P.toTarget $ Ninjas.kill endure
-    whenM (not . Ninja.alive <$> P.nTarget) $
+    unlessM (Ninja.alive <$> P.nTarget) $
         P.toTarget . Ninjas.addStatus =<< execute <$> P.user <*> P.skill
   where
     execute user skill = Status { amount = 1
