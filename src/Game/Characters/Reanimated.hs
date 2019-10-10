@@ -806,4 +806,64 @@ characters = ($ Reanimated) <$>
     , [ invuln "Dodge" "Jinin" [Physical] ]
     ]
     75
+  , Character
+    "Deidara"
+    "Reanimated by Kabuto, Deidara was an Akatsuki member obsessed with art. His style remains largely as it was when he was alive, revolving around clay explosives that successively render its victims more vulnerable to subsequent explosions."
+    [ [ Skill.new
+        { Skill.name      = "Detonating Clay"
+        , Skill.desc      = "Deidara tosses an explosive clay bomb at an enemy, dealing 20 piercing damage and becoming invulnerable to mental skills for 1 turn."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                stacksA <- targetStacks "Chakra Clay Trap"
+                stacksB <- targetStacks "Sonar Bat Bombs"
+                stacksC <- targetStacks "Jellyfish Explosives"
+                pierce (20 + 5 * stacksA + 5 * stacksB + 10 * stacksC)
+          , To Self $ apply 1 [Invulnerable Mental]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Chakra Clay Trap"
+        , Skill.desc      = "Deidara plants an explosive mine near an enemy. The next time they use a skill on Deidara or his allies, they will take 20 piercing damage and [Detonating Clay] will permanently deal 5 additional damage to them. The trap does not stack."
+        , Skill.classes   = [Chakra, Ranged, Invisible]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemy $ trap 0 OnHarm do
+                pierce 20
+                addStack
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Sonar Bat Bombs"
+        , Skill.desc      = "With piercing shrieks, a swarm of bats deals 10 affliction damage to all enemies and permanently increases the damage of [Detonating Clay] on them by 5. Once used, this skill becomes [Jellyfish Explosives][n]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Nin]
+        , Skill.effects   =
+          [ To Enemies do
+                afflict 10
+                addStack
+          , To Self $ vary "Sonar Bat Bombs" "Jellyfish Explosives"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Jellyfish Explosives"
+        , Skill.desc      = "Deidara sculpts a jellyfish out of clay that explodes near an enemy, dealing 25 piercing damage and permanently increasing the damage of [Detonating Clay] on them by 10. Once used, this skill becomes [Sonar Bat Bombs][n]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Nin]
+        , Skill.effects   =
+          [ To Enemy do
+                pierce 25
+                addStack
+          , To Self $ vary "Sonar Bat Bombs" baseVariant
+          ]
+        }
+      ]
+    , [ invuln "Clay Clone" "Deidara" [Chakra] ]
+    ]
+    100
   ]
