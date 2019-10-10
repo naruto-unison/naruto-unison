@@ -76,7 +76,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Parry" "Hashirama" [Physical] ]
     ]
-    100
+    150
   , Character
     "Tobirama Senju"
     "Reanimated by Orochimaru, Hashirama was the second Hokage. His water-manipulating skills flood the battlefield, impairing and harming the enemy team."
@@ -119,10 +119,10 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Water Wall" "Tobirama" [Physical] ]
     ]
-    100
+    150
   , Character
     "Hanzō"
-    "Reanimated by Kabuto, Hanzō the Salamander was the leader of Amegakure. In combination with his unrivaled combat prowess, the lethal venom sac implanted in his body makes him a feared legend throughout the world."
+    "Reanimated by Kabuto, Hanzō the Salamander was the leader of the Hidden Rain Village. In combination with his unrivaled combat prowess, the lethal venom sac implanted in his body makes him a feared legend throughout the world."
     [ [ Skill.new
         { Skill.name      = "Major Summoning: Ibuse"
         , Skill.desc      = "Hanzō summons his fabled salamander to the battlefield. Ibuse starts with 30 health and redirects half of all damage against Hanzō to itself until it dies. While active, this skill becomes [Poison Fog][b][b]."
@@ -200,7 +200,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Block" "Hanzō" [Physical] ]
     ]
-    150
+    200
   , Character
     "Gengetsu Hōzuki"
     "Reanimated by Kabuto, Gengetsu was the second Mizukage of the Hidden Mist Village. Charismatic and carefree, he cheerfully offers tips to his opponents on how to beat him. He is especially fond of one-on-one duels."
@@ -260,7 +260,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Mirage" "Gengetsu" [Mental] ]
     ]
-    100
+    150
   , Character
     "Mū"
     "Reanimated by Kabuto, Mū was the second Tsuchikage of the Hidden Rock Village. Unfailingly polite, he intends to ensure that his village benefits from the war. By manipulating matter at the atomic level, he disintegrates the defenses of his enemies."
@@ -314,7 +314,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Dustless Bewildering Cover" "Mū" [Chakra] ]
     ]
-    100
+    150
   , Character
     "Rasa"
     "Reanimated by Kabuto, Rasa was the fourth Kazekage of the Hidden Sand Village and the father of the Sand Siblings. Cold and calculating, Rasa buries his enemies beneath crushingly heavy gold dust that they must fight their way out of to survive."
@@ -362,7 +362,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Gold Dust Shield" "Rasa" [Physical] ]
     ]
-    100
+    150
   , Character
     "Jirōbō"
     "Reanimated by Kabuto, Jirōbō was a member of the Sound Five. No longer concealing his anger beneath a facade of politeness, Jirōbō has only one thing on his mind: revenge."
@@ -437,7 +437,7 @@ characters = ($ Reanimated) <$>
         }
       ]
     ]
-    75
+    50
   , Character
     "Haku"
     "Reanimated by Kabuto, Haku remains as loyal to Zabuza as he was in life. With his inherited ice manipulation techniques, he disrupts his enemies while hiding safely behind crystalline mirrors."
@@ -499,7 +499,7 @@ characters = ($ Reanimated) <$>
       ]
     , [ invuln "Ice Dome" "Haku" [Chakra] ]
     ]
-    75
+    50
   , Character
     "Zabuza Momochi"
     "Reanimated by Kabuto, Zabuza was one of the Seven Swordsmen of the Mist and a renowned mercenary. Although he has been reunited with Haku, Zabuza is furious at being forced to fight against his will. He still wields Kubikiribōchō, his legendary executioner's broadsword, which feeds on the blood it spills to strengthen itself."
@@ -910,4 +910,44 @@ characters = ($ Reanimated) <$>
     , [ invuln "Block" "Sasori" [Physical] ]
     ]
     100
+  , Character
+    "Pakura"
+    "Known as the Hero of the Hidden Sand, Pakura was a successful diplomat until she was betrayed and ambushed by the Hidden Mist Village. Her unique scorch style combines fire and wind elements to create heat orbs that mummify her enemies."
+    [ [ Skill.new
+        { Skill.name      = "Scorch Style"
+        , Skill.desc      = "Miniature suns orbit Pakura and attack an enemy, dealing 20 affliction damage. For 2 turns, enemies who use skills on Pakura will take 10 affliction damage."
+        , Skill.classes   = [Chakra, Ranged, Bane]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemy $ afflict 20
+          , To Self do
+                trapFrom 2 (OnHarmed All) $ afflict 10
+                tag 2
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Searing Combat"
+        , Skill.desc      = "Pakura ignites an enemy, dealing 20 affliction damage to them for 2 turns. Cannot be used on an enemy already affected by this skill."
+        , Skill.require   = HasU (-1) "Searing Combat"
+        , Skill.classes   = [Physical, Melee, Bane]
+        , Skill.cost      = [Tai, Rand]
+        , Skill.effects   =
+          [ To Enemy $ apply 2 [Afflict 20] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Super Steam Kill"
+        , Skill.desc      = "One of Pakura's orbs contacts an enemy and evaporates the water inside their body, mummifying them and dealing 40 affliction damage. Requires [Scorch Style]."
+        , Skill.require   = HasI 1 "Scorch Style"
+        , Skill.classes   = [Chakra, Melee, Bane]
+        , Skill.cost      = [Blood, Blood]
+        , Skill.effects   =
+          [ To Enemy $ afflict 40 ]
+        }
+      ]
+    , [ invuln "Block" "Pakura" [Physical] ]
+    ]
+    75
   ]
