@@ -762,4 +762,48 @@ characters = ($ Reanimated) <$>
     , [ invuln "Block" "Fuguki" [Physical] ]
     ]
     75
+  , Character
+    "Jinin Akebino"
+    "Reanimated by Kabuto, Jinin was one of the Seven Swordsmen of the Mist. Wielding Kabutowari, the legendary blunt blade, Jinin cleaves the armor and protections of his enemies."
+    [ [ Skill.new
+        { Skill.name      = "Axe Chop"
+        , Skill.desc      = "Jinin slashes an enemy with the axe part of Kabutowari, dealing 15 piercing damage and preventing them from reducing damage, becoming invulnerable, or benefiting from counters for 1 turn."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                pierce 15
+                apply 1 [Expose, Uncounter]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Hammer Bash"
+        , Skill.desc      = "Jinin slams the hammer part of Kabutowari into an enemy, dealing 25 damage. If the target is affected by [Axe Slash], they are prevented from reducing damage or becoming invulnerable for 4 turns."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 25
+                whenM (targetHas "Axe Slash") $ apply 4 [Expose]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Helm-Splitter"
+        , Skill.desc      = "Bringing the full might of Kabutowari down upon an enemy, Jinin deals 35 damage and stuns the target's chakra and melee skills for 1 turn."
+        , Skill.classes   = [Physical, Melee, Uncounterable]
+        , Skill.cost      = [Tai, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                damage 35
+                apply 1 [Stun Chakra, Stun Melee]
+          ]
+        }
+      ]
+    , [ invuln "Dodge" "Jinin" [Physical] ]
+    ]
+    75
   ]
