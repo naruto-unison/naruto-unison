@@ -358,10 +358,10 @@ component ports =
                                 rem =
                                     size st |> remainderBy -x
                                 remIndex =
-                                    if rem == 0 then 0 else size st - rem
+                                    if rem == 0 then -x else rem
                             in
                             { st
-                                | index    = remIndex
+                                | index    = size st - remIndex
                                 , pageSize = abs x
                             }
 
