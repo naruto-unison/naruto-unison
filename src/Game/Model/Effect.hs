@@ -61,6 +61,7 @@ data Effect
     | BlockEnemies                     -- ^ Cannot affect enemies
     | Boost        Int                 -- ^ Scales effects from allies
     | Build        Int                 -- ^ Adds to destructible defense 'Skill'
+    | Bypass
     | DamageToDefense                  -- ^ Damage received converts to defense
     | Duel         Slot                -- ^ 'Invulnerable' to everyone but user
     | Endure                           -- ^ Health cannot go below 1
@@ -127,6 +128,7 @@ helpful BlockAllies{}   = False
 helpful BlockEnemies{}  = False
 helpful Boost{}         = True
 helpful (Build x)       = x >= 0
+helpful Bypass          = True
 helpful DamageToDefense = True
 helpful Duel{}          = True
 helpful Endure          = True
@@ -217,6 +219,7 @@ instance Display Effect where
     display (Build x)
       | x >= 0    = "Destructible skills provide " ++ display x ++ " additional points of defense."
       | otherwise =  "Destructible skills provide " ++ display (-x) ++ " fewer points of defense."
+    display Bypass = "All skills bypass invulnerability."
     display DamageToDefense = "Non-affliction damage received is converted into destructible defense."
     display (Duel _) = "Invulnerable to everyone but a specific target."
     display Endure = "Health cannot go below 1."

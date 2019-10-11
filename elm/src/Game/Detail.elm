@@ -66,7 +66,8 @@ eq x y =
 
 ignoreClasses : Set String -> Set String
 ignoreClasses =
-    Set.remove "Unremovable"
+    Set.remove "Soulbound"
+    >> Set.remove "Unremovable"
 
 
 allied : Int -> Detail -> Bool

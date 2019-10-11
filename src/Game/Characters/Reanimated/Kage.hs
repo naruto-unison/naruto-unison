@@ -120,6 +120,72 @@ characters =
     ]
     150
   , Character
+    "Minato Namikaze"
+    "Reanimated by Orochimaru, Minato was the fourth Hokage. Free at last from the Reaper's eternal torment, Minato's soul carries the Yin half of Kurama, the nine-tailed beast. On his own, he was renowned as a legendary fighter and the fastest man in history; as an immortal jinchūriki, he is a threat unto gods."
+    [ [ Skill.new
+        { Skill.name      = "Space-Time Marking"
+        , Skill.desc      = "Minato opportunistically marks targets to use as teleport destinations for avoiding attacks. Allies who do not use skills this turn and enemies who do not use skills next turn will be marked for 4 turns. Minato gains 5 points of damage reduction for each marked target. This skill stacks."
+        , Skill.classes   = [Physical, Ranged, Invisible]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To XAllies $ trap (-1) OnNoAction do
+                applyWith [Invisible] 4 []
+                self $ applyWith [Invisible] 4 [Reduce All Flat 5]
+          , To Enemies $ trap (-1) OnNoAction do
+                applyWith [Invisible] (-4) []
+                self $ applyWith [Invisible] (-4) [Reduce All Flat 5]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Reciprocal Round-Robin"
+        , Skill.desc      = "Minato prepares to switch places with an ally. If enemies use skills on Minato next turn, the skills will be reflected onto the target, and Minato's skills next turn will bypass invulnerability, counters, reflects, and damage reduction. If enemies use skills on the target next turn, the skills will be reflected onto Minato, and the target's skills next turn will bypass invulnerability, counters, reflects, and damage reduction."
+        , Skill.classes   = [Chakra, Ranged, Invisible]
+        , Skill.cost      = [Nin, Nin]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To XAlly do
+                userSlot   <- user slot
+                targetSlot <- target slot
+                apply (-1) [Redirect All userSlot]
+                trap (-1) (OnHarmed All) $ self $
+                    apply' "Round-Robin Surprise Attack" (-1)
+                    [AntiCounter, Bypass, Pierce]
+                self do
+                    apply (-1) [Redirect All targetSlot]
+                    trap (-1) (OnHarmed All) $ withTarget targetSlot $
+                        apply' "Round-Robin Surprise Attack" (-1)
+                        [AntiCounter, Bypass, Pierce]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Rasen-Flash Super-Circle Dance Howl (Stage III)"
+        , Skill.desc      = "Minato teleports behind an enemy and slams a Rasengan orb into them, dealing 20 damage. Wreathed in yellow lightning, he teleports in quick succession to every enemy affected by [Space-Time Marking], dealing 20 damage for every stack of [Space-Time Marking] on them."
+        , Skill.classes   = [Chakra, Melee, Bypassing]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.effects   =
+          [ To Enemy $ damage 20
+          , To Enemies do
+                stacks <- targetStacks "Space-Time Marking"
+                damage (20 * stacks)
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Chakra-Arm Raijin"
+        , Skill.desc      = "Minato and allies affected by [Space-Time Marking] become invulnerable for 1 turn."
+        , Skill.require   = HasU 1 "Space-Time Marking"
+        , Skill.classes   = [Chakra, Bypassing]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Allies $ apply 1 [Invulnerable All] ]
+        }
+      ]
+    ]
+    150
+  , Character
     "Hanzō"
     "Reanimated by Kabuto, Hanzō the Salamander was the leader of the Hidden Rain Village. In combination with his unrivaled combat prowess, the lethal venom sac implanted in his body makes him a feared legend throughout the world."
     [ [ Skill.new

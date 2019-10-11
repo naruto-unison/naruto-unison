@@ -61,7 +61,7 @@ characters =
     "Minato Namikaze"
     "Known as the Yellow Flash for his incredible speed and mastery of space-time techniques, Naruto's father is a jōnin squad leader from the Hidden Leaf Village. Minato fights using unique kunai that allow him to teleport arround the battlefield."
     [ [ Skill.new
-        { Skill.name      = "Flying Raijen"
+        { Skill.name      = "Flying Raijin"
         , Skill.desc      = "Minato teleports to a target, becoming invulnerable for 1 turn. If he teleports to an enemy, he deals 30 damage. If he teleports to an ally, the ally becomes invulnerable for 1 turn."
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Gen, Rand]
@@ -353,7 +353,7 @@ characters =
     ]
   , Character
     "Masked Man"
-    "As the Nine-Tailed Beast rampages across the Hidden Leaf Village, a mysterious masked man appears and attempts to bend it to his will. The legendary beast demolishes house after house, laying waste to the defenses of its enemies."
+    "As the nine-tailed beast rampages across the Hidden Leaf Village, a mysterious masked man appears and attempts to bend it to his will. The legendary beast demolishes house after house, laying waste to the defenses of its enemies."
     [ [ Skill.new
         { Skill.name      = "Kamui Chain Combo"
         , Skill.desc      = "The masked man snares an enemy in sealing chains and phases through them, becoming invulnerable for 1 turn."
@@ -383,7 +383,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Major Summoning: Kurama"
-        , Skill.desc      = "The masked man summons the Nine-Tailed Beast to the battlefield to wreak havoc, demolishing the enemy team's destructible defenses and his own destructible barrier. For 3 turns, it deals 25 damage to a random enemy. While active, the masked man and his allies ignore status effects from enemies except chakra cost changes."
+        , Skill.desc      = "The masked man summons the nine-tailed beast to the battlefield to wreak havoc, demolishing the enemy team's destructible defenses and his own destructible barrier. For 3 turns, it deals 25 damage to a random enemy. While active, the masked man and his allies ignore status effects from enemies except chakra cost changes."
         , Skill.classes   = [Summon, Melee, Bypassing]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.cooldown  = 5

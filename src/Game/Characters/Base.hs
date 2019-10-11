@@ -11,6 +11,7 @@ module Game.Characters.Base
 
 import ClassyPrelude as Import hiding (swap)
 
+import Class.Play as Import (withTarget)
 import Game.Action.Chakra as Import
 import Game.Action.Channel as Import
 import Game.Action.Combat as Import

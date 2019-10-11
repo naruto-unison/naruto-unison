@@ -76,7 +76,7 @@ targetable skill n nt
   | Ninja.alive nt && necro               = False
   | harm && n `is` BlockEnemies           = False
   | not harm && n `is` BlockAllies        = False
-  | harm && invuln && Bypassing ∉ classes = False
+  | harm && invuln && not bypass          = False
   | not harm && nt `is` Alone             = False
   | notIn user $ Effects.duel nt          = False
   | notIn target $ Effects.taunt n        = False
@@ -89,4 +89,5 @@ targetable skill n nt
     necro   = Necromancy ∈ classes
     harm    = not $ Parity.allied user target
     invuln  = classes `intersects` Effects.invulnerable nt
+    bypass  = Bypassing ∈ classes || n `is` Bypass
     notIn a xs = not (null xs) && a ∉ xs
