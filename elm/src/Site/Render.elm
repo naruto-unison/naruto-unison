@@ -26,7 +26,7 @@ import Util exposing (shorten)
 
 scroll : String -> String -> msg -> Html msg
 scroll id src cmd =
-    H.button [A.id id, A.class "scroll"]
+    H.button [A.id id, A.class "scroll click"]
     [ H.div [] []
     , H.img [A.src <| "/img/ui/scroll/" ++ src ++ ".png", E.onClick cmd] []
     ]
