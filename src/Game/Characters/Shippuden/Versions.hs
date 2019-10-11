@@ -24,7 +24,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Amaterasu"
-        , Skill.desc      = "Sasuke shapes the black flames of Amaterasu into an inferno that surrounds him. For 3 turns, if an enemy uses a non-mental skill on Sasuke, they will receive 5 affliction damage every turn for 5 turns, stacking."
+        , Skill.desc      = "Sasuke shapes the black flames of Amaterasu into an inferno that surrounds him. For 3 turns, if an enemy uses a non-mental skill on Sasuke, they will take 5 affliction damage every turn for 5 turns, stacking."
         , Skill.classes   = [Chakra, Bane]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 3

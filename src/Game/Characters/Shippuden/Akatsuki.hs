@@ -63,7 +63,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Majestic Destroyer Flame"
-        , Skill.desc      = "Madara immolates the battlefield, dealing 10 damage to an enemy and 5 damage to all other enemies for 3 turns. While active, enemies who use skills that grant damage reduction or destructible defense will receive 10 damage."
+        , Skill.desc      = "Madara immolates the battlefield, dealing 10 damage to an enemy and 5 damage to all other enemies for 3 turns. While active, enemies who use skills that grant damage reduction or destructible defense will take 10 damage."
         , Skill.classes   = [Affliction, Bane]
         , Skill.cost      = [Nin]
         , Skill.dur       = Action 3
@@ -84,7 +84,7 @@ characters =
     ]
   , Character
     "Deidara"
-    "An Akatsuki member who defected from the Hidden Stone Village's Explosion Corps, Deidara posesses the unusual ability to turn clay into explosives by infusing it with lightning chakra. Most of his reckless decisions can be attributed to his pride and love of art, which usually outweigh any other priorities."
+    "An Akatsuki member who defected from the Hidden Stone Village's Demolitions Unit, Deidara posesses the unusual ability to turn clay into explosives by infusing it with lightning chakra. Most of his reckless decisions can be attributed to his pride and love of art, which usually outweigh any other priorities."
     [ [ Skill.new
         { Skill.name      = "C1: Bird Bomb"
         , Skill.desc      = "Deidara hurls a clay bird at an enemy that explodes into shrapnel on impact, dealing 15 damage to the target and weakening their damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C3: Megaton Sculpture][n][r]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
@@ -715,7 +715,7 @@ characters =
     "Having taken over the body of Yahiko, his deceased best friend, Pain now acts through it as one of his Six Paths. To honor Yahiko's memory, Pain uses the Deva Path as the leader of the Six Paths and his main body when interacting with others. Deva Path's specialization is gravity manipulation, which he uses to impair and imprison his enemies."
     [ [ Skill.new
         { Skill.name      = "Almighty Push"
-        , Skill.desc      = "Pain targets himself or an ally. The first skill an enemy uses on them next turn will be countered, and the person countered will receive 20 damage. Once used, this skill alternates between [Universal Pull] and [Almighty Push] each turn. "
+        , Skill.desc      = "Pain targets himself or an ally. The first skill an enemy uses on them next turn will be countered, and the person countered will take 20 damage. Once used, this skill alternates between [Universal Pull] and [Almighty Push] each turn. "
         , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.dur       = Passive
@@ -735,7 +735,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Almighty Push"
-        , Skill.desc      = "Pain targets himself or an ally. The first skill an enemy uses on them next turn will be countered, and the person countered will receive 20 damage. This skill will become [Universal Pull] next turn."
+        , Skill.desc      = "Pain targets himself or an ally. The first skill an enemy uses on them next turn will be countered, and the person countered will take 20 damage. This skill will become [Universal Pull] next turn."
         , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.effects   =
@@ -776,7 +776,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Planetary Devastation"
-        , Skill.desc      = "Pain creates a gravitational anchor that pulls in an enemy and accumulates a rough sphere of rock and debris around them, applying 80 destructible barrier for 3 turns. While the target has destructible barrier from this skill, they are invulnerable to allies as well as enemies. At the end of the 3 turns, the target will receive damage equal to the remaining destructible barrier from this skill."
+        , Skill.desc      = "Pain creates a gravitational anchor that pulls in an enemy and accumulates a rough sphere of rock and debris around them, applying 80 destructible barrier for 3 turns. While the target has destructible barrier from this skill, they are invulnerable to allies as well as enemies. At the end of the 3 turns, the target will take damage equal to the remaining destructible barrier from this skill."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.cooldown  = 3
