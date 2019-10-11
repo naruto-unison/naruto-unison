@@ -1,5 +1,5 @@
 body, .container {
-    background: #1b4e66 !important;
+    background-color: #1b4e66 !important;
 }
 
 body {
@@ -19,7 +19,7 @@ body {
 
     > section {
         text-align: left;
-        background: #fff;
+        background-color: #fff;
         border-top: none;
         border-bottom: none;
         border-width: 1px;

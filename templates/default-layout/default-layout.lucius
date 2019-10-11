@@ -39,7 +39,7 @@ a:hover, a.name:hover {
     right: 0;
     border-top: 1px solid #aaa;
     text-align: center;
-    background: rgba(255,255,255,0.9);
+    background-color: rgba(255,255,255,0.9);
     margin: auto;
     height: 1.5em;
     align-content: center;
@@ -58,7 +58,7 @@ body, html {
 body {
     font-family: sans-serif;
     overflow-y: scroll;
-    background: #1b4e66;
+    background-color: #1b4e66;
     display: flex;
     flex-direction: column;
 }
@@ -124,7 +124,7 @@ button:hover {
     max-width: 800px;
     padding: 0 2.5em 1em 2.5em;
     box-sizing: border-box;
-    background: #fff;
+    background-color: #fff;
     font-size: 13px;
 
     > form {
@@ -243,7 +243,7 @@ li {
 
 #sitenav {
     display: flex;
-    background: #ddd;
+    background-color: #ddd;
     border-color: #999;
     padding: 0 1em;
 

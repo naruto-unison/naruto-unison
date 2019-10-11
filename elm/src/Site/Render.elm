@@ -8,11 +8,13 @@ module Site.Render exposing
     , icon
     , name
     , rands
+    , scroll
     , streak
     )
 
 import Html as H exposing (Html)
 import Html.Attributes as A
+import Html.Events as E
 import Parser exposing ((|.), (|=), Parser)
 import Set exposing (Set)
 import String.Extra as String
@@ -20,6 +22,14 @@ import String.Extra as String
 import Import.Flags exposing (characterName)
 import Import.Model exposing (Category(..), Chakras, Channel, Channeling(..), Character, Effect, User)
 import Util exposing (shorten)
+
+
+scroll : String -> String -> msg -> Html msg
+scroll id src cmd =
+    H.button [A.id id, A.class "scroll"]
+    [ H.div [] []
+    , H.img [A.src <| "/img/ui/scroll/" ++ src ++ ".png", E.onClick cmd] []
+    ]
 
 
 streak : User -> Html msg

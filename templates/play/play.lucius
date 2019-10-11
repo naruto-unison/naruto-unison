@@ -152,6 +152,34 @@ button {
     cursor: revert;
 }
 
+button.scroll {
+    background: none;
+    border: none;
+    padding: 0;
+    position: relative;
+
+    div {
+        position: absolute;
+        background-color: #222;
+        display: block;
+        left: 20%;
+        top: 20%;
+        right: 20%;
+        bottom: 20%;
+    }
+
+    img {
+        position: relative;
+    }
+}
+button.scroll:hover {
+    background: none;
+
+    div {
+        background-color: #0099ff;
+    }
+}
+
 #cancel {
     position: absolute;
     left: 0;
@@ -203,17 +231,19 @@ button {
 }
 
 #characterButtons, #vs {
-    border: 4px solid #e00;
+    border: 9px solid #dc2e3c;
     -webkit-user-select: none;
     user-select: none;
 }
 #characterButtons {
+    border-left: none;
+    border-right: none;
     text-align: center;
     position: absolute;
     bottom: 30px;
     height: 202px;
-    left: 0;
-    right: 0;
+    left: 55px;
+    right: 55px;
     padding: 5px;
     padding-top: 3px;
 
@@ -231,23 +261,25 @@ button {
         filter: none;
     }
 
-    img {
-        width: 60px;
-    }
-
-    > nav {
+    > button {
         position: absolute;
-        top: 50%;
-        margin-top: -35px;
-        font-family: Georgia, serif;
-        font-size: 60px;
-        color: #e00;
-        font-weight: bold;
+        top: -17px;
     }
 }
 #characterButtons.full {
-    top: 260px;
+    top: 250px;
+    left: 0;
+    right: 0;
     height: revert;
+
+    #charScroll {
+        overflow-y: unset;
+        margin-top: -3px;
+    }
+
+    button {
+        display: none;
+    }
 }
 
 .chardefense, .charbarrier {
@@ -263,7 +295,7 @@ button {
     border-left: none;
 }
 .exposed .chardefense {
-    background: #999;
+    background-color: #999;
 }
 .chardefense:hover {
     transition: none;
@@ -307,18 +339,18 @@ button {
 .charhealth {
     height: 8px;
     margin-top: -12px;
-    background: #111;
+    background-color: #111;
     border: 2px solid #111;
     width: 297px;
     position: relative;
 
     .chardefense {
-        background: #08b;
+        background-color: #08b;
         z-index: 2;
     }
 
     .charbarrier {
-        background: #e00;
+        background-color: #e00;
     }
 
     div {
@@ -326,7 +358,7 @@ button {
         top: 0;
         bottom: 0;
         width: 100%;
-        background: #0a0;
+        background-color: #0a0;
         transition: all 1s;
     }
 
@@ -385,6 +417,10 @@ button {
     height: 100%;
     text-align: center;
     overflow: hidden;
+
+    img {
+        width: 60px;
+    }
 }
 
 #charSelect {
@@ -643,7 +679,7 @@ dl dt {
 }
 
 #forfeit:hover {
-    color: #e11;
+    color: #e00;
 }
 
 #game.over > section, #bg.over {
@@ -684,10 +720,8 @@ main, #accountSettings {
     top: 186px;
 }
 
-#nextPage { right: -50px }
-#prevPage  { left: -50px }
-#nextPage::after { content: ">" }
-#prevPage::after  { content: "<" }
+#nextPage { right: -56px }
+#prevPage { left:  -56px }
 
 .nextSkill, .prevSkill {
     font-size: 15px;
@@ -728,7 +762,7 @@ p {
 #updateButton { margin-left: 0; float: left; }
 #logoutButton { margin-right: 0; float: right; }
 .playButton.click, #updateButton.click, #logoutButton.click {
-    border: 2px solid #e11;
+    border: 2px solid #dc2e3c;
     color: #000 !important;
 }
 a.playButton {
@@ -840,7 +874,7 @@ a.playButton::after {
             }
         }
         > section.highlighted {
-            background: #0f0;
+            background-color: #0f0;
 
             img {
                 border-color: rgb(19, 112, 19);
@@ -848,7 +882,7 @@ a.playButton::after {
             }
         }
         > section.highlighted.nohighlight {
-            background: rgb(170, 0, 0);
+            background-color: rgb(170, 0, 0);
 
             img {
                 border-color: rgb(119, 1, 1);
@@ -963,7 +997,7 @@ a.playButton::after {
     width: 5em;
     margin: auto;
     font-size: 1.3em;
-    border: 2px solid #e11;
+    border: 2px solid #dc2e3c;
     padding-bottom: 0.5em;
 }
 #return::before, #return::after {
@@ -1027,7 +1061,7 @@ svg {
     top: 0;
     bottom: 0;
     z-index: -1;
-    background: #161616;
+    background-color: #161616;
 }
 
 #teamButtons {
@@ -1205,8 +1239,10 @@ svg {
 }
 
 #vs {
+    border-bottom: none;
     display: flex;
     margin-top: 15px;
+    margin-bottom: -9px;
     padding: 10px;
 
     nav {

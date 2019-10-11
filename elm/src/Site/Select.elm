@@ -284,6 +284,7 @@ component ports =
 
                                 _ ->
                                     ( previewBox st, Team )
+
                     in
                     [ topModule
                     , H.section [ A.id "characterButtons"
@@ -292,20 +293,10 @@ component ports =
                                   , ( "full", st.stage == Practicing )
                                   ]
                                 ]
-                      [ H.nav [ A.id "prevPage"
-                              , A.classList
-                                [ ( "click", True )
-                                , ( "wraparound", st.index == 0 )
-                                ]
-                              , E.onClick <| Page -1
-                              ] []
-                      , H.nav [ A.id "nextPage"
-                              , A.classList
-                                [ ( "click", True )
-                                , ( "wraparound", wrapping )
-                                ]
-                              , E.onClick <| Page 1
-                              ] []
+                      [ Render.scroll "prevPage"
+                        (if st.index == 0 then "close" else "left") <| Page -1
+                      , Render.scroll "nextPage"
+                        (if wrapping then "close" else "right") <| Page 1
                       , Keyed.node "div"
                         [ A.id "charScroll"
                         , E.onMouseLeave Untoggle
@@ -555,7 +546,6 @@ component ports =
                     pure { st | error = Just <| showErr err }
     in
     { init = init, view = view, update = update }
-
 
 size : Model -> Int
 size st =
