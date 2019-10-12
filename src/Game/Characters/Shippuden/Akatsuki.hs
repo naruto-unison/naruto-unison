@@ -586,129 +586,187 @@ characters =
     , [ invuln "Dodge" "Itachi" [Physical] ]
     ]
   , Character
-    "Konan"
-    "One of the founding members of Akatsuki, Konan is an elegant origamist from the Hidden Rain Village. Her ability to fly with paper wings has earned her the title of Angel. Although Akatsuki has strayed far from its original methodologies, Konan holds fast to her goal of bringing peace to the world."
+    "Zetsu"
+    "After Madara turned the Gedo statue's mutated victims into an army of servants, he chose one to lead them. Imbuing the White Zetsu entity with materialized will in the form of Black Zetsu, he created a hybrid being who became an official member of Akatsuki. White Zetsu and Black Zetsu have different approaches to combat, but both are able to take control of an enemy's abilities."
     [ [ Skill.new
-        { Skill.name      = "Paper Cut"
-        , Skill.desc      = "Konan slices an enemy with a razor-sharp blade made of durable paper strips, dealing 25 piercing damage."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Blood]
-        , Skill.effects   =
-          [ To Enemy $ pierce 25 ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Dance of the Shikigami"
-        , Skill.desc      = "Konan transforms into sheets of paper that wrap around an enemy, dealing 15 damage to them for 2 turns. While active, the target's physical and mental skills are stunned, and they are invulnerable to allies."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Blood, Nin]
-        , Skill.cooldown  = 3
-        , Skill.dur       = Action 2
-        , Skill.effects   =
-          [ To Enemy do
-                damage 15
-                apply 1 [Stun Physical, Stun Mental, Alone]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Paper Shower"
-        , Skill.desc      = "The Angel of Akatsuki fires countless razor-ship paper strips from her wings, dealing 25 damage to an enemy and 25 to a random enemy."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Nin, Rand]
-        , Skill.effects   =
-          [ To Enemy  $ damage 25
-          , To REnemy $ damage 25
-          ]
-        }
-      ]
-    , [ invuln "Paper Clone" "Konan" [Chakra] ]
-    ]
-  , Character
-    "Nagato"
-    "Nagato leads the Akatsuki as the six-bodied Pain. His true body has remained safely hidden for years, acting through the Gedo statue. Though vulnerable without his Paths to defend him, Nagato's rinnegan makes him a formidable opponent."
-    [ [ Skill.new
-        { Skill.name      = "Summoning: Gedo Statue"
-        , Skill.desc      = "Nagato summons the empty vessel of the ten-tailed beast, which provides 10 points of damage reduction to him for 3 turns. While active, this skill becomes [Control][r]."
-        , Skill.classes   = [Summon, Unremovable]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 4
-        , Skill.dur       = Control (-4)
+        { Skill.name      = "White Zetsu"
+        , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense each turn. Once used, this skill becomes [Black Zetsu]."
+        , Skill.classes   = [Chakra]
+        , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Self do
-                remove "gedo"
-                remove "dragon"
+                cancelChannel "Black Zetsu"
+                setFace
+                vary "White Zetsu" "Black Zetsu"
+                vary "Black Zetsu" "White Army"
+                vary "Doppelgänger / Body Coating" "Doppelgänger"
           ]
         , Skill.effects   =
+          [ To Self $ defend 0 5 ]
+        }
+      , Skill.new
+        { Skill.name      = "Black Zetsu"
+        , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [White Zetsu]."
+        , Skill.classes   = [Chakra]
+        , Skill.dur       = Ongoing 0
+        , Skill.start     =
           [ To Self do
-                vary' 1 "Summoning: Gedo Statue" "Control"
-                dragonStacks <- userStacks "dragon"
-                addStacks' 1 "Control" dragonStacks
-                gedoStacks   <- userStacks "gedo"
-                apply 1 [Reduce All Flat (10 + 5 * gedoStacks)]
+                cancelChannel "White Zetsu"
+                setFace
+                vary "White Zetsu" baseVariant
+                vary "Black Zetsu" "Underground Roots"
+                vary "Doppelgänger / Body Coating" "Body Coating"
           ]
-        , Skill.interrupt =
+        , Skill.effects   =
+          [ To Self $ unlessM (userHas "chakra") do
+                gain [Rand]
+                hide' "chakra" 1 []
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Black Zetsu"
+        , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [Underground Roots][b][r]. As White Zetsu, this skill becomes [White Army][g]."
+        , Skill.classes   = [Chakra]
+        , Skill.dur       = Ongoing 0
+        , Skill.start     =
           [ To Self do
-                remove "Summoning: Gedo Statue"
-                remove "Control"
+                cancelChannel "White Zetsu"
+                setFace
+                vary "White Zetsu" baseVariant
+                vary "Black Zetsu" "Underground Roots"
+                vary "Doppelgänger / Body Coating" "Body Coating"
+          ]
+        , Skill.effects   =
+          [ To Self $ unlessM (userHas "chakra") do
+                gain [Rand]
+                hide' "chakra" 1 []
           ]
         }
       , Skill.new
-        { Skill.name      = "Control"
-        , Skill.desc      = "Nagato attempts to maintain control over the Gedo statue for a little longer, prolonging [Summoning: Gedo Statue] for 2 additional turns. Until it ends, [Summoning: Gedo Statue] provides 5 additional points of damage reduction up to a maximum of 25 and [Phantom Dragon] deals 5 additional damage. This skill has no chakra cost if [Phantom Dragon] was used last turn."
-        , Skill.classes   = [Mental]
-        , Skill.cost      = [Rand]
+        { Skill.name      = "Underground Roots"
+        , Skill.desc      = "Tree roots emerge from the ground and wrap around an enemy, dealing 20 damage for 2 turns. While active, the target's damage is weakened by half. As White Zetsu, this skill becomes [White Army][g]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 2
+        , Skill.dur       = Action 2
+        , Skill.effects   =
+          [ To Enemy do
+                damage 20
+                apply 1 [Weaken All Percent 50]
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "White Army"
+        , Skill.desc      = "Zetsu creates numerous clones of himself which deal 5 damage to all enemies for 5 turns. As Black Zetsu, this skill becomes [Underground Roots][b][r]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Gen]
+        , Skill.dur       = Action 5
+        , Skill.effects   =
+          [ To Enemies $ damage 5 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Doppelgänger / Body Coating"
+        , Skill.desc      = "Zetsu seizes an enemy and makes use of their abilities. As White Zetsu, this skill deals 20 damage, steals 1 random chakra, stuns their non-mental skill for 1 turn, and replaces itself with the last skill they used for 1 turn. As Black Zetsu, this skill causes the target's next reflectable non-unique skill to target allies instead of enemies and enemies instead of allies."
+        , Skill.require   = Unusable
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai, Rand]
+        }
+      , Skill.new
+        { Skill.name      = "Body Coating"
+        , Skill.desc      = "Zetsu melts and flows over an enemy, taking control of their body. The next skill they use will target allies instead of enemies and enemies instead of allies. As White Zetsu, this skill becomes [Doppelgänger][t][r]."
+        , Skill.require   = HasU 0 "Body Coating"
+        , Skill.classes   = [Mental, Melee, Invisible, Unreflectable]
+        , Skill.cost      = [Blood, Gen]
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Enemy do
+                apply 0 [Swap]
+                trap' 0 (OnAction All) do
+                    remove "Body Coating"
+                    removeTrap "Body Coating"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Doppelgänger"
+        , Skill.desc      = "Zetsu seizes an enemy and alters his chakra to match their own, dealing 20 damage, absorbing 1 random chakra, and stunning their non-mental skills for 1 turn. The last skill they used replaces this skill for 1 turn. Zetsu's copy of their skill has no chakra cost and ends when this skill reverts. As Black Zetsu, this skill becomes [Body Coating][b][g]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self do
-                prolongChannel 2 "Summoning: Gedo Statue"
-                hide' "dragon" 0 []
-                stacks <- userStacks "gedo"
-                when (stacks < 3) $ hide' "gedo" 0 []
+          [ To Enemy do
+                absorb 1
+                copyLast 1
+                apply 1 [Stun NonMental]
+                damage 20
           ]
-        , Skill.changes   =
-            changeWith "Phantom Dragon" \x -> x { Skill.cost = [] }
         }
       ]
-    , [ Skill.new
-        { Skill.name      = "Phantom Dragon"
-        , Skill.desc      = "Nagato summons a dragon to attack an enemy for 20 piercing damage. Costs 1 genjutsu chakra during [Summoning: Gedo Statue]."
-        , Skill.classes   = [Chakra, Ranged]
+    , [ invuln "Hide" "Zetsu" [Physical] ]
+    ]
+  , Character
+    "Tobi"
+    "A peculiar new member of the Akatsuki, Tobi claims to be Madara Uchiha, even though Madara has been dead for years. Using his Izanagi, he can rewind his state to an earlier point and even come back from the dead."
+    [ [ Skill.new
+        { Skill.name      = "Sharingan"
+        , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time a harmful skill is used on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
+        , Skill.require   = HasI 0 "Sharingan"
+        , Skill.classes   = [Mental, Invisible]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Self $ trap 0 (Counter All) $ vary' 2 "Sharingan" "Kamui" ]
+        }
+      , Skill.new
+        { Skill.name      = "Kamui"
+        , Skill.desc      = "Tobi banishes a target to his pocket dimension for 3 turns, making them invulnerable to allies as well as enemies and unable to affect anyone else. If used on an ally, cures all harmful effects on them. If used on an enemy, deals 20 piercing damage, purges them of helpful effects, and prevents them from reducing damage or becoming invulnerable. Ends if Tobi uses [Kamui] or [Kamui Strike] on someone else."
+        , Skill.classes   = [Chakra, Ranged, Unreflectable, Unremovable]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-          [ To Self  $ tag 1
-          , To Enemy $ pierce 20
-
+          [ To XAlly do
+                everyone $ remove "Kamui"
+                cureAll
+                apply 3 [Alone, Invulnerable All, BlockAllies, BlockEnemies]
+          , To Enemy do
+                everyone $ remove "Kamui"
+                purge
+                apply 3
+                    [Expose, Alone, Invulnerable All, BlockAllies, BlockEnemies]
           ]
-        , Skill.changes   =
-            changeWithChannel "Summoning: Gedo Statue" \x ->
-              x { Skill.cost    = [Gen]
-                , Skill.effects =
-                  [ To Self  $ tag 1
-                  , To Enemy do
-                        stacks <- userStacks "dragon"
-                        pierce (20 + 5 * stacks)
-                  ]
-                }
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Rinne Rebirth"
-        , Skill.desc      = "Nagato draws on the strength of the Outer Path to infuse life into himself and his allies. During each of the next 3 turns, Nagato restores 15 health to his team, resets their cooldowns, and gains 1 random chakra. Requires [Summoning: Gedo Statue]."
-        , Skill.require   = HasI 1 "Summoning: Gedo Statue"
-        , Skill.classes   = [Mental]
-        , Skill.cost      = [Blood, Gen, Nin]
-        , Skill.cooldown  = 6
-        , Skill.dur       = Control 3
+        { Skill.name      = "Kamui Strike"
+        , Skill.desc      = "Tobi teleports behind an enemy and deals 20 piercing damage to them. Deals 20 additional damage if the target is affected by [Kamui]."
+        , Skill.classes   = [Chakra, Melee, Bypassing]
+        , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ To Allies do
-                heal 15
-                resetAll
-          , To Self $ gain [Rand]
+          [ To Enemy do
+                has <- targetHas "Kamui"
+                if has then
+                    pierce 40
+                else do
+                    everyone $ remove "Kamui"
+                    pierce 20
           ]
         }
       ]
-    , [ invuln "Rinnegan Foresight" "Nagato" [Mental] ]
+    , [ Skill.new
+        { Skill.name      = "Izanagi"
+        , Skill.desc      = "Tobi sacrifices one of his eyes to take control of reality on a local scale, reversing the flow of time. In 4 turns, he will be restored to his condition at the moment of using this skill. Cannot be used while active."
+        , Skill.require    = HasI 0 "Izanagi"
+        , Skill.classes    = [Mental, Invisible, Unremovable]
+        , Skill.cost       = [Blood, Blood]
+        , Skill.charges    = 2
+        , Skill.effects    =
+          [ To Self do
+                rewind <- makeRewind
+                bombWith [Necromancy] 4 [] [ rewind Expire ]
+          ]
+        }
+      ]
+    , [ invuln "Phase" "Tobi" [Chakra] ]
     ]
   , Character
     "Deva Path Pain"
@@ -1127,186 +1185,182 @@ characters =
     , [ invuln "Block" "Pain" [Physical] ]
     ]
   , Character
-    "Zetsu"
-    "After Madara turned the Gedo statue's mutated victims into an army of servants, he chose one to lead them. Imbuing the White Zetsu entity with materialized will in the form of Black Zetsu, he created a hybrid being who became an official member of Akatsuki. White Zetsu and Black Zetsu have different approaches to combat, but both are able to take control of an enemy's abilities."
+    "Nagato"
+    "Nagato leads the Akatsuki as the six-bodied Pain. His true body has remained safely hidden for years, acting through the Gedo statue. Though vulnerable without his Paths to defend him, Nagato's rinnegan makes him a formidable opponent."
     [ [ Skill.new
-        { Skill.name      = "White Zetsu"
-        , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense each turn. Once used, this skill becomes [Black Zetsu]."
-        , Skill.classes   = [Chakra]
-        , Skill.dur       = Ongoing 0
+        { Skill.name      = "Summoning: Gedo Statue"
+        , Skill.desc      = "Nagato summons the empty vessel of the ten-tailed beast, which provides 10 points of damage reduction to him for 3 turns. While active, this skill becomes [Control][r]."
+        , Skill.classes   = [Summon, Unremovable]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 4
+        , Skill.dur       = Control (-4)
         , Skill.start     =
           [ To Self do
-                cancelChannel "Black Zetsu"
-                setFace
-                vary "White Zetsu" "Black Zetsu"
-                vary "Black Zetsu" "White Army"
-                vary "Doppelgänger / Body Coating" "Doppelgänger"
+                remove "gedo"
+                remove "dragon"
           ]
         , Skill.effects   =
-          [ To Self $ defend 0 5 ]
+          [ To Self do
+                vary' 1 "Summoning: Gedo Statue" "Control"
+                dragonStacks <- userStacks "dragon"
+                addStacks' 1 "Control" dragonStacks
+                gedoStacks   <- userStacks "gedo"
+                apply 1 [Reduce All Flat (10 + 5 * gedoStacks)]
+          ]
+        , Skill.interrupt =
+          [ To Self do
+                remove "Summoning: Gedo Statue"
+                remove "Control"
+          ]
         }
       , Skill.new
-        { Skill.name      = "Black Zetsu"
-        , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [White Zetsu]."
-        , Skill.classes   = [Chakra]
-        , Skill.dur       = Ongoing 0
-        , Skill.start     =
-          [ To Self do
-                cancelChannel "White Zetsu"
-                setFace
-                vary "White Zetsu" baseVariant
-                vary "Black Zetsu" "Underground Roots"
-                vary "Doppelgänger / Body Coating" "Body Coating"
-          ]
+        { Skill.name      = "Control"
+        , Skill.desc      = "Nagato attempts to maintain control over the Gedo statue for a little longer, prolonging [Summoning: Gedo Statue] for 2 additional turns. Until it ends, [Summoning: Gedo Statue] provides 5 additional points of damage reduction up to a maximum of 25 and [Phantom Dragon] deals 5 additional damage. This skill has no chakra cost if [Phantom Dragon] was used last turn."
+        , Skill.classes   = [Mental]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ unlessM (userHas "chakra") do
-                gain [Rand]
-                hide' "chakra" 1 []
+          [ To Self do
+                prolongChannel 2 "Summoning: Gedo Statue"
+                hide' "dragon" 0 []
+                stacks <- userStacks "gedo"
+                when (stacks < 3) $ hide' "gedo" 0 []
           ]
+        , Skill.changes   =
+            changeWith "Phantom Dragon" \x -> x { Skill.cost = [] }
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Black Zetsu"
-        , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [Underground Roots][b][r]. As White Zetsu, this skill becomes [White Army][g]."
-        , Skill.classes   = [Chakra]
-        , Skill.dur       = Ongoing 0
-        , Skill.start     =
-          [ To Self do
-                cancelChannel "White Zetsu"
-                setFace
-                vary "White Zetsu" baseVariant
-                vary "Black Zetsu" "Underground Roots"
-                vary "Doppelgänger / Body Coating" "Body Coating"
-          ]
+        { Skill.name      = "Phantom Dragon"
+        , Skill.desc      = "Nagato summons a dragon to attack an enemy for 20 piercing damage. Costs 1 genjutsu chakra during [Summoning: Gedo Statue]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-          [ To Self $ unlessM (userHas "chakra") do
-                gain [Rand]
-                hide' "chakra" 1 []
+          [ To Self  $ tag 1
+          , To Enemy $ pierce 20
+
+          ]
+        , Skill.changes   =
+            changeWithChannel "Summoning: Gedo Statue" \x ->
+              x { Skill.cost    = [Gen]
+                , Skill.effects =
+                  [ To Self  $ tag 1
+                  , To Enemy do
+                        stacks <- userStacks "dragon"
+                        pierce (20 + 5 * stacks)
+                  ]
+                }
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Rinne Rebirth"
+        , Skill.desc      = "Nagato draws on the strength of the Outer Path to infuse life into himself and his allies. During each of the next 3 turns, Nagato restores 15 health to his team, resets their cooldowns, and gains 1 random chakra. Requires [Summoning: Gedo Statue]."
+        , Skill.require   = HasI 1 "Summoning: Gedo Statue"
+        , Skill.classes   = [Mental]
+        , Skill.cost      = [Blood, Gen, Nin]
+        , Skill.cooldown  = 6
+        , Skill.dur       = Control 3
+        , Skill.effects   =
+          [ To Allies do
+                heal 15
+                resetAll
+          , To Self $ gain [Rand]
           ]
         }
-      , Skill.new
-        { Skill.name      = "Underground Roots"
-        , Skill.desc      = "Tree roots emerge from the ground and wrap around an enemy, dealing 20 damage for 2 turns. While active, the target's damage is weakened by half. As White Zetsu, this skill becomes [White Army][g]."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = [Blood, Rand]
-        , Skill.cooldown  = 2
+      ]
+    , [ invuln "Rinnegan Foresight" "Nagato" [Mental] ]
+    ]
+  , Character
+    "Konan"
+    "One of the founding members of Akatsuki, Konan is an elegant origamist from the Hidden Rain Village. Her ability to fly with paper wings has earned her the title of Angel. Although Akatsuki has strayed far from its original methodologies, Konan holds fast to her goal of bringing peace to the world."
+    [ [ Skill.new
+        { Skill.name      = "Paper Cut"
+        , Skill.desc      = "Konan slices an enemy with a razor-sharp blade made of durable paper strips, dealing 25 piercing damage."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Blood]
+        , Skill.effects   =
+          [ To Enemy $ pierce 25 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Dance of the Shikigami"
+        , Skill.desc      = "Konan transforms into sheets of paper that wrap around an enemy, dealing 15 damage to them for 2 turns. While active, the target's physical and mental skills are stunned, and they are invulnerable to allies."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood, Nin]
+        , Skill.cooldown  = 3
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy do
-                damage 20
-                apply 1 [Weaken All Percent 50]
+                damage 15
+                apply 1 [Stun Physical, Stun Mental, Alone]
           ]
-        }
-      , Skill.new
-        { Skill.name      = "White Army"
-        , Skill.desc      = "Zetsu creates numerous clones of himself which deal 5 damage to all enemies for 5 turns. As Black Zetsu, this skill becomes [Underground Roots][b][r]."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Gen]
-        , Skill.dur       = Action 5
-        , Skill.effects   =
-          [ To Enemies $ damage 5 ]
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Doppelgänger / Body Coating"
-        , Skill.desc      = "Zetsu seizes an enemy and makes use of their abilities. As White Zetsu, this skill deals 20 damage, steals 1 random chakra, stuns their non-mental skill for 1 turn, and replaces itself with the last skill they used for 1 turn. As Black Zetsu, this skill causes the target's next reflectable non-unique skill to target allies instead of enemies and enemies instead of allies."
-        , Skill.require   = Unusable
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Tai, Rand]
-        }
-      , Skill.new
-        { Skill.name      = "Body Coating"
-        , Skill.desc      = "Zetsu melts and flows over an enemy, taking control of their body. The next skill they use will target allies instead of enemies and enemies instead of allies. As White Zetsu, this skill becomes [Doppelgänger][t][r]."
-        , Skill.require   = HasU 0 "Body Coating"
-        , Skill.classes   = [Mental, Melee, Invisible, Unreflectable]
-        , Skill.cost      = [Blood, Gen]
-        , Skill.cooldown  = 3
+        { Skill.name      = "Paper Shower"
+        , Skill.desc      = "The Angel of Akatsuki fires countless razor-sharp paper strips from her wings, dealing 25 damage to an enemy and 25 to a random enemy."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
-          [ To Enemy do
-                apply 0 [Swap]
-                trap' 0 (OnAction All) do
-                    remove "Body Coating"
-                    removeTrap "Body Coating"
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Doppelgänger"
-        , Skill.desc      = "Zetsu seizes an enemy and alters his chakra to match their own, dealing 20 damage, absorbing 1 random chakra, and stunning their non-mental skills for 1 turn. The last skill they used replaces this skill for 1 turn. Zetsu's copy of their skill has no chakra cost and ends when this skill reverts. As Black Zetsu, this skill becomes [Body Coating][b][g]."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Tai, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy do
-                absorb 1
-                copyLast 1
-                apply 1 [Stun NonMental]
-                damage 20
+          [ To Enemy  $ damage 25
+          , To REnemy $ damage 25
           ]
         }
       ]
-    , [ invuln "Hide" "Zetsu" [Physical] ]
+    , [ invuln "Paper Clone" "Konan" [Chakra] ]
     ]
   , Character
-    "Tobi"
-    "A peculiar new member of the Akatsuki, Tobi claims to be Madara Uchiha, even though Madara has been dead for years. Using his Izanagi, he can rewind his state to an earlier point and even come back from the dead."
+    "Konan of the Rain"
+    "One of the founding members of Akatsuki, Konan has turned against her own organization in order to aid Naruto in his quest for peace. With Nagato dead, the young Uzumaki is her best hope for the future."
     [ [ Skill.new
-        { Skill.name      = "Sharingan"
-        , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time a harmful skill is used on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
-        , Skill.require   = HasI 0 "Sharingan"
-        , Skill.classes   = [Mental, Invisible]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 4
+        { Skill.name      = "Paper Chakram"
+        , Skill.desc      = "Konan hurls a razor-sharp disc at an enemy, dealing 35 piercing damage. Next turn, Konan ignores stuns."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ trap 0 (Counter All) $ vary' 2 "Sharingan" "Kamui" ]
+          [ To Enemy $ pierce 35
+          , To Self  $ apply 1 [Focus]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Sacred Paper Emissary"
+        , Skill.desc      = "Playing her trump card, Konan sets off countless explosive strips of paper disguised as an ocean. For 2 turns, her team gains 10 points of damage reduction and the enemy team's cooldowns are increased by 1 turn."
+        , Skill.classes   = [Physical, Ranged, Bane]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Allies  $ apply 2 [Reduce All Flat 10]
+          , To Enemies $ apply 2 [Snare 1]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Paper Bomb"
+        , Skill.desc      = "Konan sets off an explosive paper tag, dealing 15 damage to an enemy. Once used, this skill becomes [Paper Shuriken][n]."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Self $ vary "Paper Bomb" "Paper Shuriken"
+          , To Enemy do
+                stacks <- targetStacks "Paper Shuriken"
+                damage (15 + 10 * stacks)
+          ]
         }
       , Skill.new
-        { Skill.name      = "Kamui"
-        , Skill.desc      = "Tobi banishes a target to his pocket dimension for 3 turns, making them invulnerable to allies as well as enemies and unable to affect anyone else. If used on an ally, cures all harmful effects on them. If used on an enemy, deals 20 piercing damage, purges them of helpful effects, and prevents them from reducing damage or becoming invulnerable. Ends if Tobi uses [Kamui] or [Kamui Strike] on someone else."
-        , Skill.classes   = [Chakra, Ranged, Unreflectable, Unremovable]
-        , Skill.cost      = [Gen, Rand]
+        { Skill.name      = "Paper Shuriken"
+        , Skill.desc      = "Konan attacks an enemy with a barrage of origami shuriken, dealing 20 piercing damage and increasing the damage of [Paper Bomb] to the target by 10. Once used, this skill becomes [Paper Bomb][r]."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To XAlly do
-                everyone $ remove "Kamui"
-                cureAll
-                apply 3 [Alone, Invulnerable All, BlockAllies, BlockEnemies]
+          [ To Self $ vary "Paper Bomb" baseVariant
           , To Enemy do
-                everyone $ remove "Kamui"
-                purge
-                apply 3
-                    [Expose, Alone, Invulnerable All, BlockAllies, BlockEnemies]
+                pierce 20
+                addStack
           ]
         }
       ]
-    , [ Skill.new
-        { Skill.name      = "Kamui Strike"
-        , Skill.desc      = "Tobi teleports behind an enemy and deals 20 piercing damage to them. Deals 20 additional damage if the target is affected by [Kamui]."
-        , Skill.classes   = [Chakra, Melee, Bypassing]
-        , Skill.cost      = [Gen]
-        , Skill.effects   =
-          [ To Enemy do
-                has <- targetHas "Kamui"
-                if has then
-                    pierce 40
-                else do
-                    everyone $ remove "Kamui"
-                    pierce 20
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Izanagi"
-        , Skill.desc      = "Tobi sacrifices one of his eyes to take control of reality on a local scale, reversing the flow of time. In 4 turns, he will be restored to his condition at the moment of using this skill."
-        , Skill.require    = HasI 0 "Izanagi"
-        , Skill.classes    = [Mental, Invisible, Unremovable]
-        , Skill.cost       = [Blood, Blood]
-        , Skill.charges    = 2
-        , Skill.effects    =
-          [ To Self do
-                rewind <- makeRewind
-                bombWith [Necromancy] 4 [] [ rewind Expire ]
-          ]
-        }
-      ]
-    , [ invuln "Phase" "Tobi" [Chakra] ]
+    , [ invuln "Paper Clone" "Konan" [Chakra] ]
     ]
   ]
