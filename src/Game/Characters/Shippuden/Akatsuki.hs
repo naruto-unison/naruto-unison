@@ -1248,7 +1248,7 @@ characters =
     ]
   , Character
     "Tobi"
-    "A peculiar new member of the Akatsuki, Tobi claims to be Madara Uchiha even though Madara has been dead for many years. Using his Izanagi, he can rewind his state to an earlier point and even come back from the dead."
+    "A peculiar new member of the Akatsuki, Tobi claims to be Madara Uchiha, even though Madara has been dead for years. Using his Izanagi, he can rewind his state to an earlier point and even come back from the dead."
     [ [ Skill.new
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time a harmful skill is used on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
@@ -1295,22 +1295,16 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Izanagi"
-        , Skill.desc      = "Tobi sacrifices one of his eyes to take control of reality on a local scale, reversing the flow of time. In 4 turns, he will reset completely to his state at the start of the game, with as much health as he has at the moment of using this skill."
+        , Skill.desc      = "Tobi sacrifices one of his eyes to take control of reality on a local scale, reversing the flow of time. In 4 turns, he will be restored to his condition at the moment of using this skill."
         , Skill.require    = HasI 0 "Izanagi"
         , Skill.classes    = [Mental, Invisible, Unremovable]
         , Skill.cost       = [Blood, Blood]
         , Skill.charges    = 2
         , Skill.effects    =
           [ To Self do
-                eyeballs   <- userStacks "eyeball"
-                userHealth <- user health
-                bombWith [Necromancy] 4 [] [ To Expire do
-                    factory
-                    setHealth userHealth
-                    addStacks "eyeball" $ eyeballs + 1 ]
+                rewind <- makeRewind
+                bombWith [Necromancy] 4 [] [ rewind Expire ]
           ]
-        , Skill.changes    =
-          \n x -> x { Skill.charges = Skill.charges x - numActive "eyeball" n }
         }
       ]
     , [ invuln "Phase" "Tobi" [Chakra] ]

@@ -229,22 +229,19 @@ act a = do
     initial    <- P.ninjas
     let (affected, skill) = swapped nUser
         classes = Skill.classes skill
-        charge  = Skill.charges skill > 0
         cost    = Skill.cost skill
-        chakra  = Parity.getOf user chakras
         valid   = Ninja.alive nUser
                   && Skill.require skill /= Unusable
-                  && not (new && Chakra.lack (chakra - cost))
+                  && not (new && Chakra.lack (Parity.getOf user chakras - cost))
 
     when valid $ P.withContext (ctx skill) do
-        P.trigger user $ OnAction <$> toList classes
-
         if not new then
             run affected =<< chooseTargets (Skill.effects skill)
         else do
-            P.modify user \n -> n { Ninja.lastSkill = Just skill }
+            P.trigger user $ OnAction <$> toList classes
+            when (Skill.charges skill > 0) .
+                P.modify user $ Cooldown.spendCharge skill s
             P.alter $ Game.adjustChakra user (— cost)
-            P.modify user $ Cooldown.updateN charge skill s . setActed
             efs <- chooseTargets (Skill.start skill ++ Skill.effects skill)
 
             countering  <- filterCounters efs . toList <$> P.enemies user
@@ -268,6 +265,8 @@ act a = do
             else do
                 run affected efs
                 addChannels
+            P.modify user \n -> n { Ninja.lastSkill = Just skill }
+            P.modify user $ Cooldown.update skill s . setActed
         Hook.action skill initial =<< P.ninjas
         Hook.chakra skill chakras . Game.chakra =<< P.game
         traverse_ (sequence_ . Traps.get user) =<< P.ninjas

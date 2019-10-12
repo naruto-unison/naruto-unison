@@ -621,12 +621,13 @@ characters =
         , Skill.effects   =
           [ To Ally do
                 addStack
-                stacks <- targetStacks "Paper Bomb"
-                removeTrap "Paper Bomb" -- so 'stacks' is in the closure
+                targetSlot <- target slot
                 trap 0 (OnHarmed All) do
                     removeTrap "Paper Bomb"
                     remove "Paper Bomb"
-                trapFrom 0 (OnHarmed All) $ damage (20 * stacks)
+                trapFrom 0 (OnHarmed All) do
+                    stacks <- withTarget targetSlot $ targetStacks "Paper Bomb"
+                    damage (20 * stacks)
           ]
         }
       ]

@@ -13,7 +13,7 @@ module Game.Action.Status
   -- * Removing statuses
   , cure, cureAll, cureBane, cureStun, purge, remove, removeStack, removeStacks
   -- * Specialized
-  , commandeer
+  , makeRewind, commandeer
   ) where
 
 import ClassyPrelude
@@ -35,10 +35,10 @@ import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
-import           Game.Model.Runnable (Runnable)
+import           Game.Model.Runnable (Runnable(To))
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
-import           Game.Model.Status (Bomb, Status)
+import           Game.Model.Status (Bomb(..), Status)
 import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉))
@@ -281,6 +281,14 @@ removeStack name = P.toTarget $ Ninjas.removeStack name
 -- Uses 'Ninjas.removeStacks' internally.
 removeStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
 removeStacks name i = P.fromUser $ Ninjas.removeStacks name i
+
+-- | In some number of turns from now, restores the target to their state at the
+-- current moment.
+makeRewind :: ∀ m. MonadPlay m => m (Bomb -> Runnable Bomb)
+makeRewind = rewind <$> P.nTarget
+  where
+    rewind n b   = To b $ P.toTarget $ replace n
+    replace n n' = n { Ninja.charges = Ninja.charges n' }
 
 -- | Steals all of the target's 'Effect.helpful' 'Effect's.
 commandeer :: ∀ m. MonadPlay m => m ()
