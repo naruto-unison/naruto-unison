@@ -145,7 +145,7 @@ characters =
     "Killer B works in perfect harmony with Gyūki, maintaining control of its immense quantities of tailed-beast chakra. With its bulk and might, B in jinchūriki mode is practically unassailable."
     [ [ Skill.new
         { Skill.name      = "Chakra Bones"
-        , Skill.desc      = "Skeletal armor manifests from Gyūki's chakra, permanently increasing B's damage by 5 and providing him with 10% damage reduction to all types of damage, including piercing and affliction."
+        , Skill.desc      = "Skeletal armor manifests from Gyūki's chakra, increasing B's damage by 5 and providing him with 10% damage reduction to all types of damage, including piercing and affliction."
         , Skill.classes   = [Chakra]
         , Skill.cooldown  = 1
         , Skill.charges   = 5

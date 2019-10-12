@@ -199,7 +199,7 @@ characters =
     "A jōnin exam proctor from the Hidden Leaf Village, Hayate is calm and composed despite his poor health and chronic cough. He slips in and out of the shadows, gradually recovering his strength and honing his expert swordsmanship."
     [ [ Skill.new
         { Skill.name      = "Secret Sword"
-        , Skill.desc      = "Hayate leaps and attacks an enemy from above, dealing 15 damage. Permanently increases Hayate's damage by 5."
+        , Skill.desc      = "Hayate leaps and attacks an enemy from above, dealing 15 damage. Increases Hayate's damage by 5."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =

@@ -77,7 +77,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Amaterasu"
-        , Skill.desc      = "Sasuke ignites an enemy, dealing 5 affliction damage to them for 4 turns. If the target becomes invulnerable, they are cured of the effect. If an ally of the target uses a skill on them while they are affected, [Amaterasu] will spread to the ally. Every time an enemy is cured of [Amaterasu], the damage of [Amaterasu] and [Yasaka Beads] permanently increases by 5. During [Susanoo], this skill becomes [Yasaka Beads][n]."
+        , Skill.desc      = "Sasuke ignites an enemy, dealing 5 affliction damage to them for 4 turns. If the target becomes invulnerable, they are cured of the effect. If an ally of the target uses a skill on them while they are affected, [Amaterasu] will spread to the ally. Every time an enemy is cured of [Amaterasu], the damage of [Amaterasu] and [Yasaka Beads] increases by 5. During [Susanoo], this skill becomes [Yasaka Beads][n]."
         , Skill.classes   = [Bane, Chakra, Ranged, Unreflectable]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
@@ -97,7 +97,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Yasaka Beads"
-        , Skill.desc      = "Sasuke attacks an enemy with a Magatama of black flame, dealing 10 affliction damage. Damage permanently increases by 5 every time an enemy is cured of [Amaterasu]. If the target uses a skill next turn, they take 20 additional affliction damage."
+        , Skill.desc      = "Sasuke attacks an enemy with a Magatama of black flame, dealing 10 affliction damage. Damage increases by 5 every time an enemy is cured of [Amaterasu]. If the target uses a skill next turn, they take 20 additional affliction damage."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =

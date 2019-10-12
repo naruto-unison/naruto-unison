@@ -14,7 +14,7 @@ characters =
     "Reanimated by Kabuto, Jirōbō was a member of the Sound Five. No longer concealing his anger beneath a facade of politeness, Jirōbō has only one thing on his mind: revenge."
     [ [ Skill.new
         { Skill.name      = "Rivalry"
-        , Skill.desc      = "Jirōbō picks out an enemy as his rival. If they use a skill on Jirōbō or his allies next turn, they will be countered and permanently forced to target Jirōbō. Effect ends if Jirōbō uses a skill on a different enemy or uses this skill again. Cannot be used during [Summoning: Earth Prison Golem]."
+        , Skill.desc      = "Jirōbō picks out an enemy as his rival. If they use a skill on Jirōbō or his allies next turn, they will be countered and forced to target Jirōbō. Effect ends if Jirōbō uses a skill on a different enemy or uses this skill again. Cannot be used during [Summoning: Earth Prison Golem]."
         , Skill.require   = HasI 0 "Summoning: Earth Prison Golem"
         , Skill.classes   = [Mental, Melee, Invisible]
         , Skill.cost      = [Rand]
@@ -473,7 +473,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Chakra Clay Trap"
-        , Skill.desc      = "Deidara plants an explosive mine near an enemy. The next time they use a skill on Deidara or his allies, they will take 20 piercing damage and [Detonating Clay] will permanently deal 5 additional damage to them. The trap does not stack."
+        , Skill.desc      = "Deidara plants an explosive mine near an enemy. The next time they use a skill on Deidara or his allies, they will take 20 piercing damage and [Detonating Clay] will deal 5 additional damage to them. The trap does not stack."
         , Skill.classes   = [Chakra, Ranged, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
@@ -486,7 +486,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sonar Bat Bombs"
-        , Skill.desc      = "With piercing shrieks, a swarm of bats deals 10 affliction damage to all enemies and permanently increases the damage of [Detonating Clay] on them by 5. Once used, this skill becomes [Jellyfish Explosives][n]."
+        , Skill.desc      = "With piercing shrieks, a swarm of bats deals 10 affliction damage to all enemies and increases the damage of [Detonating Clay] on them by 5. Once used, this skill becomes [Jellyfish Explosives][n]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -498,7 +498,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Jellyfish Explosives"
-        , Skill.desc      = "Deidara sculpts a jellyfish out of clay that explodes near an enemy, dealing 25 piercing damage and permanently increasing the damage of [Detonating Clay] on them by 10. Once used, this skill becomes [Sonar Bat Bombs][n]."
+        , Skill.desc      = "Deidara sculpts a jellyfish out of clay that explodes near an enemy, dealing 25 piercing damage and increasing the damage of [Detonating Clay] to them by 10. Once used, this skill becomes [Sonar Bat Bombs][n]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =

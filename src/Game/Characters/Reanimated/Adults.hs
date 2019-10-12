@@ -11,7 +11,7 @@ characters :: [Category -> Character]
 characters =
   [ Character
     "Pakura"
-    "Reanimated by Kabuto, Pakura was a successful diplomat known as the Hero of the Hidden Sand until she was betrayed and ambushed by the Hidden Mist Village. Her unique scorch style combines fire and wind elements to create heat orbs that mummify her enemies."
+    "Reanimated by Kabuto, Pakura was a jōnin diplomat known as the Hero of the Hidden Sand until she was betrayed and ambushed by the Hidden Mist Village. Her unique scorch style combines fire and wind elements to create heat orbs that mummify her enemies."
     [ [ Skill.new
         { Skill.name      = "Scorch Style"
         , Skill.desc      = "Miniature suns orbit Pakura and attack an enemy, dealing 20 affliction damage. For 2 turns, enemies who use skills on Pakura will take 10 affliction damage."
@@ -51,7 +51,7 @@ characters =
     75
   , Character
     "Gari"
-    "Reanimated by Kabuto, Gari was a member of the Hidden Stone Village's Demolitions Unit. Augmented with explosive force, his taijutsu attacks overwhelm enemies who meet them head-on."
+    "Reanimated by Kabuto, Gari was a jōnin member of the Hidden Stone Village's Demolitions Unit. Augmented with explosive force, his taijutsu attacks overwhelm enemies who meet them head-on."
     [ [ Skill.new
         { Skill.name      = "Exploding Palm"
         , Skill.desc      = "Gari strikes an enemy and sets off an explosion at the moment of contact. The next time they use a skill on Gari or his allies, they will take 20 piercing damage. This skill stacks."
@@ -124,7 +124,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Benihisago"
-        , Skill.desc      = "Ginkaku draws an enemy's soul into a crimson gourd, dealing 10 affliction damage and 5 additional damage for each of the target's Spirit Words. This also extracts a Spirit Word from the target and permanently increases the damage of Kinkaku's [Scroll of Fire] on the target by 5."
+        , Skill.desc      = "Ginkaku draws an enemy's soul into a crimson gourd, dealing 10 affliction damage and 5 additional damage for each of the target's Spirit Words. This also extracts a Spirit Word from the target and increases the damage of Kinkaku's [Scroll of Fire] on the target by 5."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
