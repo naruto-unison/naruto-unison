@@ -340,11 +340,11 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self do
+          [ To Enemy  $ damage 40
+          , To REnemy $ damage 40
+          , To Self do
               stacks <- userStacks "Paper Bomb"
               when (stacks <= 2) $ sacrifice 0 30
-          , To Enemy  $ damage 40
-          , To REnemy $ damage 40
           ]
         }
       ]

@@ -210,7 +210,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Atomic Dismantling"
-        , Skill.desc      = "The atomic bonds within an enemy shatter, dealing 20 piercing damage to them and permanently increasing the damage of this skill by 10."
+        , Skill.desc      = "The atomic bonds within an enemy shatter, dealing 20 piercing damage. Every time this skill is used, its damage increases by 10."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =

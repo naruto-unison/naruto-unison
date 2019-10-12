@@ -34,14 +34,14 @@ characters =
                 afflict 15
                 gain [Rand]
           , To XAlly do
-                sacrifice 0 15
                 gain [Rand]
+                sacrifice 0 15
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Major Summoning: Manda"
-        , Skill.desc      = "Orochimaru summons the great serpent Manda, who deals 45 damage to an enemy. Once used, this skill permanently becomes [Paralyzing Bite][r][r]. Each turn that Orochimaru is alive, he gains 1 random chakra."
+        , Skill.desc      = "Orochimaru summons the great serpent Manda, who deals 45 damage to an enemy. Once used, this skill becomes [Paralyzing Bite][r][r]. Each turn that Orochimaru is alive, he gains 1 random chakra."
         , Skill.classes   = [Summon, Melee, Unreflectable]
         , Skill.cost      = [Blood, Nin, Tai]
         , Skill.dur       = Ongoing 0
@@ -95,7 +95,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Major Summoning: Gamabunta"
-        , Skill.desc      = "Jiraiya summons the great toad Gamabunta, who deals 25 affliction damage to all enemies. Once used, this skill permanently becomes [Toad Oil Bomb][n][r]. All enemies permanently receive 5 additional damage from affliction skills."
+        , Skill.desc      = "Jiraiya summons the great toad Gamabunta, who deals 25 affliction damage to all enemies. Once used, this skill becomes [Toad Oil Bomb][n][r]. All enemies receive 5 additional damage from affliction skills."
         , Skill.classes   = [Summon, Ranged, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.dur       = Ongoing 0
@@ -148,7 +148,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Major Summoning: Katsuyu"
-        , Skill.desc      = "Tsunade summons the great slug Katsuyu, who heals her team for 40 health. Once used, this skill permanently becomes [Slug Division][n]. Each turn that Tsunade is alive, her team regains 5 health."
+        , Skill.desc      = "Tsunade summons the great slug Katsuyu, who heals her team for 40 health. Once used, this skill becomes [Slug Division][n]. Each turn that Tsunade is alive, her team regains 5 health."
         , Skill.classes   = [Summon, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Gen, Nin]
         , Skill.dur       = Ongoing 0
@@ -188,7 +188,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Reaper Death Seal"
-        , Skill.desc      = "Hiruzen unleashes the God of Death upon an enemy in exchange for his soul. Each turn, the God of Death deals 40 affliction damage to the target and 20 affliction damage to Hiruzen. Both are permanently stunned, and the target cannot reduce damage or become invulnerable. Hiruzen is permanently stunned. Ends when Hiruzen dies."
+        , Skill.desc      = "Hiruzen unleashes the God of Death upon an enemy in exchange for his soul. Each turn, the God of Death deals 40 affliction damage to the target and 20 affliction damage to Hiruzen. Both are permanently stunned, and the target cannot reduce damage or become invulnerable. Ends when Hiruzen dies."
         , Skill.classes   = [Ranged, Unreflectable, Unremovable, Soulbound, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
@@ -199,7 +199,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Major Summoning: Enma"
-        , Skill.desc      = "Hiruzen summons the great monkey Enma, who makes his team invulnerable for 1 turn. Once used, this skill permanently becomes [Adamantine Prison][n]. As long as Hiruzen is alive, he provides 5 points of damage reduction to his team."
+        , Skill.desc      = "Hiruzen summons the great monkey Enma, who makes his team invulnerable for 1 turn. Once used, this skill becomes [Adamantine Prison][n]. As long as Hiruzen is alive, he provides 5 points of damage reduction to his team."
         , Skill.classes   = [Summon, Melee, Unreflectable, Unremovable]
         , Skill.cost      = [Gen, Nin, Tai]
         , Skill.dur       = Ongoing 0

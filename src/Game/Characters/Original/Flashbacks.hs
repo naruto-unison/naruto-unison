@@ -14,7 +14,7 @@ characters =
     "Known as the Red-Hot Habanero for her fiery hair and fierce temper, Naruto's mother possesses exceptional chakra necessary to become the nine-tailed fox's jinchūriki. Kushina specializes in unique sealing techniques that bind and incapacitate her enemies."
     [ [ Skill.new
         { Skill.name      = "Double Tetragram Seal"
-        , Skill.desc      = "Kushina seals away an enemy's power, dealing 15 piercing damage, stunning them for 1 turn, depleting 1 random chakra, and permanently weakening their damage by 5."
+        , Skill.desc      = "Kushina seals away an enemy's power, dealing 15 piercing damage, stunning them for 1 turn, depleting 1 random chakra, and weakening their damage by 5."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1

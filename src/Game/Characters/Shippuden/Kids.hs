@@ -252,7 +252,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Fang Over Fang"
-        , Skill.desc      = "Kiba launches attack after attack on an enemy, dealing 40 damage to them and permanently lowering their damage by 10. Deals 10 additional damage during [Man-Beast Clone]. Deals 20 additional damage during [Three-Headed Wolf]."
+        , Skill.desc      = "Kiba launches attack after attack on an enemy, dealing 40 damage to them and weakening their damage by 10. Deals 10 additional damage during [Man-Beast Clone]. Deals 20 additional damage during [Three-Headed Wolf]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Tai]
         , Skill.cooldown  = 1
@@ -519,7 +519,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Butterfly Mode"
-        , Skill.desc      = "Performing an advanced Akimichi technique that would be lethal without precise control over his body, Chōji converts calories into jets of chakra energy that grow from his back like butterfly wings. Once used, this skill permanently becomes [Super-Slam][n][r][r]. Each turn after [Butterfly Mode] is activated, the costs of Chōji's skills decrease by 1 arbitrary chakra."
+        , Skill.desc      = "Performing an advanced Akimichi technique that would be lethal without precise control over his body, Chōji converts calories into jets of chakra energy that grow from his back like butterfly wings. Once used, this skill becomes [Super-Slam][n][r][r]. Each turn after [Butterfly Mode] is activated, the costs of Chōji's skills decrease by 1 arbitrary chakra."
         , Skill.classes   = [Chakra]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
@@ -1028,7 +1028,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Agile Backflip"
-        , Skill.desc      = "Konohamaru uses his agility to counter the next non-mental skill used on him. Each time this skill is used, its cost increases by 1 arbitrary chakra."
+        , Skill.desc      = "Konohamaru uses his agility to counter the next non-mental skill used on him. Every time this skill is used, its cost increases by 1 arbitrary chakra."
         , Skill.classes   = [Physical, Invisible, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =

@@ -14,7 +14,7 @@ characters =
     "A jōnin from the Hidden Cloud Village, Yugito is the expert jinchūriki of Matatabi, the two-tailed beast. Having trained as a tailed-beast host since infancy, Yugito can effortlessly transform into Matatabi at will and has access to its full power."
     [ [ Skill.new
         { Skill.name      = "Two-Tailed Transformation"
-        , Skill.desc      = "Matatabi's chakra envelops Yugito, transforming her into a huge two-tailed cat of blue flame. Yugito permanently gains 50% damage reduction and can use her other skills."
+        , Skill.desc      = "Matatabi's chakra envelops Yugito, transforming her into a huge two-tailed cat of blue flame. Yugito gains 50% damage reduction and can use her other skills."
         , Skill.require   = HasI 0 "Two-Tailed Transformation"
         , Skill.classes   = [Chakra]
         , Skill.effects   =
@@ -26,7 +26,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Flaming Cat Roar"
-        , Skill.desc      = "A fireball engulfs an enemy, dealing 30 damage to them and weakening their damage by 10 for 1 turn. Each time this skill is used, it deals 5 additional damage."
+        , Skill.desc      = "A fireball engulfs an enemy, dealing 30 damage to them and weakening their damage by 10 for 1 turn. Every time this skill is used, its damage increases by 5."
         , Skill.require   = HasI 1 "Two-Tailed Transformation"
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Blood, Rand]
@@ -42,7 +42,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Cat Claws"
-        , Skill.desc      = "Yugito rakes the enemy team with her claws, dealing 15 damage to an enemy and 5 damage to all other enemies. Each time this skill is used, it deals 5 additional damage."
+        , Skill.desc      = "Yugito rakes the enemy team with her claws, dealing 15 damage to an enemy and 5 damage to all other enemies. Every time this skill is used, its damage increases by 5."
         , Skill.require   = HasI 1 "Two-Tailed Transformation"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]

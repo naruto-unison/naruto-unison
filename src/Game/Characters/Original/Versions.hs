@@ -105,7 +105,7 @@ characters =
     "Accidentally drinking sake has awakened Lee's hidden Drunken Fist powers, completely changing his fighting style. Lee's strength increases the longer he fights, though he is too drunk to focus his attacks on a single opponent."
     [ [ Skill.new
         { Skill.name      = "Unpredictable Assault"
-        , Skill.desc      = "Lee lashes out drunkenly, dealing 20 damage to a random enemy and permanently increasing the damage of this skill by 5. During [Drunken Fist], targets a specific enemy and deals 5 additional damage."
+        , Skill.desc      = "Lee lashes out drunkenly, dealing 20 damage to a random enemy. Every time this skill is used, its damage increases by 5. During [Drunken Fist], targets a specific enemy and deals 5 additional damage."
         , Skill.classes   = [Physical, Melee, Uncounterable]
         , Skill.cost      = [Tai]
         , Skill.effects   =

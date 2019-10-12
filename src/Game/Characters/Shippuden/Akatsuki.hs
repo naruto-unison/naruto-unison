@@ -337,7 +337,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Prayer"
-        , Skill.desc      = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for 1 turn. Each time this skill is used, it costs 1 additional arbitrary chakra and its effect lasts 1 additional turn. Cannot be used while active."
+        , Skill.desc      = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for 1 turn. Every time this skill is used, it costs 1 additional arbitrary chakra and its effect lasts 1 additional turn. Cannot be used while active."
         , Skill.require   = HasI 0 "Prayer"
         , Skill.classes   = [Mental, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
