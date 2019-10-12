@@ -95,4 +95,94 @@ characters =
     , [ invuln "Dodge" "Gari" [Physical] ]
     ]
     75
+  , Character
+    "Ginkaku"
+    "The word \"Silver\" tattooed on his shoulder marks Ginkaku as one half of the Silver and Gold Brothers, the most notorious criminals in the history of the Hidden Cloud Village. Ginkaku and Kinkaku use tailed-beast chakra to wield the revered arsenal of their ancestor, the Sage of the Six Paths. When they fight together, they make a terrifying pair."
+    [ [ Skill.new
+        { Skill.name      = "Seven Stars Blade"
+        , Skill.desc      = "Using a legendary sword that records a person's most frequently used word, Ginkaku slashes at an enemy's soul, dealing 25 piercing damage and extracting a Spirit Word from them."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
+          [ To Enemy do
+                pierce 25
+                addStack' "Spirit Word"
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Amber Purification Jar"
+        , Skill.desc      = "Ginkaku captures an enemy inside the Sage of the Sixth Path's sealing jar, stunning their physical and melee skills for 1 turn and extracting a Spirit Word from them."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
+          [ To Enemy do
+                apply 1 [Stun Physical, Stun Melee]
+                addStack' "Spirit Word"
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Benihisago"
+        , Skill.desc      = "Ginkaku draws an enemy's soul into a crimson gourd, dealing 10 affliction damage and 5 additional damage for each of the target's Spirit Words. This also extracts a Spirit Word from the target and permanently increases the damage of Kinkaku's [Scroll of Fire] on the target by 5."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                stacks <- target $ numAnyStacks "Spirit Word"
+                afflict (10 + 5 * stacks)
+                addStack' "Scroll of Fire"
+          ]
+        }
+      ]
+    , [ invuln "Parry" "Ginkaku" [Physical] ]
+    ]
+    75
+  , Character
+    "Kinkaku"
+    "The word \"Gold\" tattooed on his shoulder marks Kinkaku as one half of the Silver and Gold Brothers, the most notorious criminals in the history of the Hidden Cloud Village. Ginkaku and Kinkaku use tailed-beast chakra to wield the revered arsenal of their ancestor, the Sage of the Six Paths. When they fight together, they make a terrifying pair."
+    [ [ Skill.new
+        { Skill.name      = "Leaf Fan"
+        , Skill.desc      = "Using a legendary fan that can generate any of the five elements, Kinkaku deals 25 affliction damage to an enemy, extracts a Spirit Word from them, and gains 50% damage reduction for 1 turn."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                afflict 25
+                addStack' "Spirit Word"
+          , To Self $ apply 1 [Reduce All Percent 50]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Gold Rope"
+        , Skill.desc      = "Kinkaku binds an enemy with the Sage of the Six Path's soul-stealing rope. The next time they use a skill on Kinkaku or his allies, they will take 35 damage and a Spirit Word will be extracted from them."
+        , Skill.classes   = [Chakra, Melee]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemy $ trap 0 OnHarm do
+                damage 35
+                addStack' "Spirit Word"
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Scroll of Fire"
+        , Skill.desc      = "A coil of flame erupts from the Bashōsen Leaf Fan, dealing 20 damage to all enemies and extracting a Spirit Word from each of them."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemies do
+                stacks <- target $ numAnyStacks "Scroll of Fire"
+                damage (20 + 5 * stacks)
+                addStack' "Spirit Word"
+          ]
+        }
+      ]
+    , [ invuln "Parry" "Kinkaku" [Physical] ]
+    ]
+    75
   ]
