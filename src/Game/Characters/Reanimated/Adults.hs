@@ -374,4 +374,48 @@ characters =
       ]
     , [ invuln "Block" "Kimimaro" [Physical] ]
     ]
+    75
+  , Character
+    "Chūkichi"
+    "Reanimated by Kabuto, Chūkichi was a jōnin renowned as the Hidden Mist Village's most talented sensor. Due to his refusal to serve Akatsuki, Chūkichi had his personality completely erased by Kabuto, transforming him into a mere killing machine."
+    [ [ Skill.new
+        { Skill.name      = "Hidden Frost"
+        , Skill.desc      = "A cloud of frost conceals Chūkichi, rendering him effectively invisible. For 2 turns, he is invulnerable to ranged skills."
+        , Skill.classes   = [Chakra]
+        , Skill.cooldown  = 3
+        , Skill.cost      = [Nin]
+        , Skill.effects   =
+          [ To Self $ apply 2 [Invulnerable Ranged] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Psychic Jamming"
+        , Skill.desc      = "Chūkichi telepathically disrupts the minds of all enemies, increasing the costs of their skills by 1 arbitrary chakra for 1 turn. During [Hidden Frost], this skill costs 1 arbitrary chakra."
+        , Skill.classes   = [Mental, Ranged]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemies $ apply 1 [Exhaust All] ]
+        , Skill.changes   =
+            changeWith "Hidden Frost" \x -> x { Skill.cost = [Rand] }
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Silent Killing"
+        , Skill.desc      = "Chūkichi ambushes an enemy, preventing them from reducing damage or becoming invulnerable for 1 turn and dealing 30 piercing damage. During [Hidden Frost], this skill deals 10 additional damage and costs 1 taijutsu chakra."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                apply 1 [Expose]
+                bonus <- 10 `bonusIf` userHas "Hidden Frost"
+                pierce (30 + bonus)
+          ]
+        , Skill.changes   =
+            changeWith "Hidden Frost" \x -> x { Skill.cost = [Rand] }
+        }
+      ]
+    , [ invuln "Hide" "Chūkichi" [Mental] ]
+    ]
+    75
   ]
