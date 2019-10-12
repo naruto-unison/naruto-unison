@@ -540,12 +540,11 @@ type alias Skill  =
    , effects: (List Target)
    , interrupt: (List Target)
    , copying: Copying
-   , pic: Bool
    }
 
 jsonDecSkill : Json.Decode.Decoder ( Skill )
 jsonDecSkill =
-   Json.Decode.succeed (\pname pdesc prequire pclasses pcost pcooldown pvaricd pcharges pdur pstart peffects pinterrupt pcopying ppic -> {name = pname, desc = pdesc, require = prequire, classes = pclasses, cost = pcost, cooldown = pcooldown, varicd = pvaricd, charges = pcharges, dur = pdur, start = pstart, effects = peffects, interrupt = pinterrupt, copying = pcopying, pic = ppic})
+   Json.Decode.succeed (\pname pdesc prequire pclasses pcost pcooldown pvaricd pcharges pdur pstart peffects pinterrupt pcopying -> {name = pname, desc = pdesc, require = prequire, classes = pclasses, cost = pcost, cooldown = pcooldown, varicd = pvaricd, charges = pcharges, dur = pdur, start = pstart, effects = peffects, interrupt = pinterrupt, copying = pcopying})
    |> required "name" (Json.Decode.string)
    |> required "desc" (Json.Decode.string)
    |> required "require" (jsonDecRequirement)
@@ -559,7 +558,6 @@ jsonDecSkill =
    |> required "effects" (Json.Decode.list (jsonDecTarget))
    |> required "interrupt" (Json.Decode.list (jsonDecTarget))
    |> required "copying" (jsonDecCopying)
-   |> required "pic" (Json.Decode.bool)
 
 jsonEncSkill : Skill -> Value
 jsonEncSkill  val =
@@ -577,7 +575,6 @@ jsonEncSkill  val =
    , ("effects", (Json.Encode.list jsonEncTarget) val.effects)
    , ("interrupt", (Json.Encode.list jsonEncTarget) val.interrupt)
    , ("copying", jsonEncCopying val.copying)
-   , ("pic", Json.Encode.bool val.pic)
    ]
 
 

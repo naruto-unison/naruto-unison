@@ -468,7 +468,6 @@ characters =
                 apply 1 [Invulnerable All]
                 hide' "unchili" (-1) []
           ]
-        , Skill.pic       = True
         }
       ]
     ]

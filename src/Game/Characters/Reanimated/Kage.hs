@@ -239,8 +239,6 @@ characters =
                     afflict 10
                     apply 1 [Stun All]
           ]
-        , Skill.changes   =
-            changeWith "Major Summoning: Ibuse" \x -> x { Skill.pic = True }
         }
       ]
     , [ Skill.new
@@ -266,6 +264,54 @@ characters =
     , [ invuln "Block" "Hanzō" [Physical] ]
     ]
     200
+  , Character
+    "Rasa"
+    "Reanimated by Kabuto, Rasa was the fourth Kazekage of the Hidden Sand Village and the father of the Sand Siblings. Cold and calculating, Rasa buries his enemies beneath crushingly heavy gold dust that they must fight their way out of to survive."
+    [ [ Skill.new
+        { Skill.name      = "Magnet Technique"
+        , Skill.desc      = "Waves of gold flood the enemy team, dealing 10 damage to them and applying 10 permanent destructible barrier to each. The skills of enemies who have destructible barrier from this skill cost 1 additional arbitrary chakra."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemies do
+                damage 10
+                bonus <- 10 `bonusIf` targetHas "Gold Dust Waterfall"
+                barrierDoes 0 (const $ return ()) (apply 1 [Exhaust All])
+                    (10 + bonus)
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Gold Dust Waterfall"
+        , Skill.desc      = "A towering tidal wave of gold slams down on an enemy, dealing 35 damage and applying 30 permanent destructible barrier. The following turn, [Gold Dust Wave] and [24-Karat Barricade] will apply twice as much destructible barrier to them."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Nin, Nin]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemy do
+                damage 35
+                barrier 0 30
+                tag 1
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "24-Karat Barricade"
+        , Skill.desc      = "Rasa constructs a golden blockade in front of an enemy. If they use a skill on Rasa or his allies next turn, it will be countered and they will gain 20 permanent destructible barrier."
+        , Skill.classes   = [Physical, Ranged, Invisible]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemy $ trap 1 (Countered All) do
+                bonus <- 20 `bonusIf` targetHas "Gold Dust Waterfall"
+                barrier 0 (20 + bonus)
+          ]
+        }
+      ]
+    , [ invuln "Gold Dust Shield" "Rasa" [Physical] ]
+    ]
+    150
   , Character
     "Gengetsu Hōzuki"
     "Reanimated by Kabuto, Gengetsu was the second Mizukage of the Hidden Mist Village. Charismatic and carefree, he cheerfully offers tips to his opponents on how to beat him. He is especially fond of one-on-one duels."
@@ -378,54 +424,6 @@ characters =
         }
       ]
     , [ invuln "Dustless Bewildering Cover" "Mū" [Chakra] ]
-    ]
-    150
-  , Character
-    "Rasa"
-    "Reanimated by Kabuto, Rasa was the fourth Kazekage of the Hidden Sand Village and the father of the Sand Siblings. Cold and calculating, Rasa buries his enemies beneath crushingly heavy gold dust that they must fight their way out of to survive."
-    [ [ Skill.new
-        { Skill.name      = "Magnet Technique"
-        , Skill.desc      = "Waves of gold flood the enemy team, dealing 10 damage to them and applying 10 permanent destructible barrier to each. The skills of enemies who have destructible barrier from this skill cost 1 additional arbitrary chakra."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Nin]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemies do
-                damage 10
-                bonus <- 10 `bonusIf` targetHas "Gold Dust Waterfall"
-                barrierDoes 0 (const $ return ()) (apply 1 [Exhaust All])
-                    (10 + bonus)
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Gold Dust Waterfall"
-        , Skill.desc      = "A towering tidal wave of gold slams down on an enemy, dealing 35 damage and applying 30 permanent destructible barrier. The following turn, [Gold Dust Wave] and [24-Karat Barricade] will apply twice as much destructible barrier to them."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Nin, Nin]
-        , Skill.cooldown  = 2
-        , Skill.effects   =
-          [ To Enemy do
-                damage 35
-                barrier 0 30
-                tag 1
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "24-Karat Barricade"
-        , Skill.desc      = "Rasa constructs a golden blockade in front of an enemy. If they use a skill on Rasa or his allies next turn, it will be countered and they will gain 20 permanent destructible barrier."
-        , Skill.classes   = [Physical, Ranged, Invisible]
-        , Skill.cost      = [Nin]
-        , Skill.cooldown  = 2
-        , Skill.effects   =
-          [ To Enemy $ trap 1 (Countered All) do
-                bonus <- 20 `bonusIf` targetHas "Gold Dust Waterfall"
-                barrier 0 (20 + bonus)
-          ]
-        }
-      ]
-    , [ invuln "Gold Dust Shield" "Rasa" [Physical] ]
     ]
     150
   ]

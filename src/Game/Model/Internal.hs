@@ -108,7 +108,6 @@ data Skill = Skill { name      :: Text              -- ^ Name
                    , effects   :: [Runnable Target] -- ^ Defaults to empty
                    , interrupt :: [Runnable Target] -- ^ Defaults to empty
                    , copying   :: Copying           -- ^ Defaults to 'NotCopied'
-                   , pic       :: Bool              -- ^ Defaults to @False@
                    , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'
                    }
 instance ToJSON Skill where
@@ -126,7 +125,6 @@ instance ToJSON Skill where
         , "effects"   .= effects
         , "interrupt" .= interrupt
         , "copying"   .= copying
-        , "pic"       .= pic
         ]
 instance Classed Skill where
     classes = classes

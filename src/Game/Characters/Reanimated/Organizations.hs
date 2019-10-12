@@ -303,7 +303,7 @@ characters =
           ]
         }
       ]
-    , [ invuln "Parry" "Kushimaru" [Physical] ]
+    , [ invuln "Block" "Kushimaru" [Physical] ]
     ]
     75
   , Character
@@ -326,7 +326,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Shibuki Bomb Reload"
-        , Skill.desc      = "Adding it to his sword, Jinpachi gains 1 Paper Bomb. Each Paper Bomb provides 5 points of damage reduction."
+        , Skill.desc      = "Jinpachi adds a Paper Bomb to his sword. In addition to fueling his other attacks, Paper Bombs provides 5 points of damage reduction each."
         , Skill.classes   = [Physical]
         , Skill.effects   =
           [ To Self $ apply' "Paper Bomb" 0 [Reduce All Flat 5] ]

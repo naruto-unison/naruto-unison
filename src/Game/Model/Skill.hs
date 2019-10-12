@@ -32,7 +32,6 @@ new = Skill { name      = "Unnamed"
             , interrupt = []
             , changes   = const id
             , copying   = NotCopied
-            , pic       = False
             }
 
 targets :: Skill -> EnumSet Target
