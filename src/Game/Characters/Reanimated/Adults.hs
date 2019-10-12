@@ -185,4 +185,61 @@ characters =
     , [ invuln "Parry" "Kinkaku" [Physical] ]
     ]
     75
+  , Character
+    "Toroi"
+    "Reanimated by Kabuto, Toroi was a jōnin from the Hidden Cloud Village with the rare ability to manipulate magnetic fields. His weapons are magnetized, and as their magnetic field accumulates on targets, they become harder and harder to avoid."
+    [ [ Skill.new
+        { Skill.name      = "Demon Wind Shuriken"
+        , Skill.desc      = "Toroi deals 20 damage to an enemy with a giant shuriken and defends himself with several others. For 2 turns, enemies who use skills on Toroi will become permanently unable to be healed or cured."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Self $ trapFrom 2 (OnHarmed All) $ apply 0 [Plague]
+          , To Enemy do
+                stacksA <- targetStacks "Conserving Bee Twin Blades"
+                stacksB <- targetStacks "Magnetic Current"
+                damage (20 + 5 * stacksA + 5 * stacksB)
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Magnetic Field"
+        , Skill.desc      = "Toroi generates a field of magnetism around himself that provides 50% damage reduction for 3 turns. While active, this skill becomes [Conserving Bee Twin Blades]."
+        , Skill.classes   = [Physical]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Self do
+                apply 3 [Reduce All Percent 50]
+                vary' 3 "Magnetic Field" "Conserving Bee Twin Blades"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Conserving Bee Twin Blades"
+        , Skill.desc      = "Toroi hurls a magnetized shuriken at an enemy, dealing 10 piercing damage and increasing the damage of [Demon Wind Shuriken] and [Magnetic Current] to the target by 5."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.effects   =
+          [ To Enemy do
+                stacks <- targetStacks "Magnetic Current"
+                pierce (10 + 5 * stacks)
+                addStack
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Magnetic Current"
+        , Skill.desc      = "Toroi energizes the field with magnetism, dealing 10 piercing damage to all enemies and increasing the damage of [Demon Wind Shuriken] and [Conserving Bee Twin Blades] to the targets by 5."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemies do
+                stacks <- targetStacks "Conserving Bee Twin Blades"
+                pierce (10 + 5 * stacks)
+                addStack
+          ]
+        }
+      ]
+    , [ invuln "Shuriken Threads" "Toroi" [Physical] ]
+    ]
+    75
   ]
