@@ -157,7 +157,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Lariat"
-        , Skill.desc      = "Rushing an enemy, B deals 20 damage to them and increases their cooldowns by 1 for 1 turn."
+        , Skill.desc      = "Rushing an enemy, B deals 20 damage to them and increases their cooldowns by 1 turn for 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1

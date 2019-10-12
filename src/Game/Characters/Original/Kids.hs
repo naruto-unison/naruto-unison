@@ -40,8 +40,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Shadow Clones"
-        , Skill.desc      = "Naruto creates multiple shadow clones who hide him and fight in his place, providing 15 points of damage reduction for 4 turns. Cannot be used while active."
-        , Skill.require   = HasI 0 "Shadow Clone"
+        , Skill.desc      = "Naruto creates multiple shadow clones who hide him and fight in his place, providing 15 points of damage reduction for 4 turns."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
@@ -193,7 +192,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Parasite"
-        , Skill.desc      = "Shino directs one of his bugs to attach itself to an enemy. For 4 turns, the target's non-affliction damage is weakened by 5."
+        , Skill.desc      = "Shino directs one of his bugs to attach itself to an enemy. For 4 turns, the target's damage is weakened by 5."
         , Skill.classes   = [Bane, Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
@@ -211,7 +210,7 @@ characters =
           [ To Allies $ defend 0 20 ]
         }
       ]
-    , [ invuln "Insect Clone" "Shino" [Chakra] ]
+    , [ invuln "Hide" "Shino" [Mental] ]
     ]
   , Character
     "Hinata Hyūga"
@@ -232,7 +231,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Sixty-Four Palms"
-        , Skill.desc      = "Hinata deals 15 damage to all enemies and provides 10 destructible defense to her team for 1 turn. Deals 5 additional damage to all enemies during [Byakugan]."
+        , Skill.desc      = "Hinata deals 15 damage to all enemies and provides 10 destructible defense to her team for 1 turn. Deals 5 additional damage during [Byakugan]."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
@@ -283,7 +282,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Shadow Possession"
-        , Skill.desc      = "Shikamaru captures all enemies in shadows, stunning non-mental skills for 1 turn. Enemies affected by [Meditate] are stunned for 2 turns."
+        , Skill.desc      = "Shikamaru captures all enemies in shadows, stunning their non-mental skills for 1 turn. Enemies affected by [Meditate] are stunned for 2 turns."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 3
@@ -508,7 +507,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Chakra Hair Trap"
-        , Skill.desc      = "Ino endows a strand of hair with chakra to create an ensnaring trap near an enemy. If they use a skill on Ino or her allies during their next turn, their cooldowns will increase by 1 for 2 turns."
+        , Skill.desc      = "Ino endows a strand of hair with chakra to create an ensnaring trap near an enemy. If they use a skill on Ino or her allies during their next turn, their cooldowns will increase by 1 turn for 2 turns."
         , Skill.classes   = [Chakra, Ranged, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
@@ -611,7 +610,8 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Rising Twin Dragons"
-        , Skill.desc      = "Summoning scrolls conceal Tenten in a cloud of smoke, rendering her invulnerable to physical and chakra skills for 1 turn. The scrolls aid her the next time she uses one of her other skills. If she uses [Unsealing Technique], it adds 1 additional stack of [Unsealing Technique]. If she uses [Rising Dragon Control], the duration of its effect is increased by 1 turn."
+        , Skill.desc      = "Summoning scrolls conceal Tenten in a cloud of smoke, rendering her invulnerable to physical and chakra skills for 1 turn. The scrolls aid her the next time she uses one of her other skills. If she uses [Unsealing Technique], it adds 1 additional stack of [Unsealing Technique]. If she uses [Rising Dragon Control], the duration of its effect is increased by 1 turn. Cannot be used while active."
+        , Skill.require   = HasI 0 "Rising Twin Dragons"
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
@@ -630,7 +630,7 @@ characters =
     "A member of team Guy, Neji is the cold and fatalistic prodigy of the Hyūga clan. He has mastered numerous techniques, from crippling blows to whirling invulnerability."
     [ [ Skill.new
         { Skill.name      = "Gentle Fist"
-        , Skill.desc      = "Using the Hyūga clan's signature taijutsu, Neji deals 25 damage to an enemy for 2 turns. During this time, that enemy's non-affliction damage is weakened by 5."
+        , Skill.desc      = "Using the Hyūga clan's signature taijutsu, Neji deals 25 damage to an enemy for 2 turns. During this time, that enemy's damage is weakened by 5."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1

@@ -589,7 +589,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Summoning: Kyodaigumo"
-        , Skill.desc      = "Kidōmaru summons a giant spider which creates endless swarms of small spiders. For 5 turns, all enemies take 10 damage, their cooldowns are increased by 1, and Kidōmaru gains 10 points of damage reduction."
+        , Skill.desc      = "Kidōmaru summons a giant spider which creates endless swarms of small spiders. For 5 turns, all enemies take 10 damage, their cooldowns are increased by 1 turn, and Kidōmaru gains 10 points of damage reduction."
         , Skill.classes   = [Summon, Ranged]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4

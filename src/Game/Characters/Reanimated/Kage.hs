@@ -50,7 +50,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Deep Forest Creation"
-        , Skill.desc      = "The battlefield transforms into a forest. For 2 turns, enemy cooldowns are increased by 1 and the cost of enemy non-mental skills is increased by 1 arbitrary chakra. While active, this skill becomes [Deep Forest Flourishing][b][b]."
+        , Skill.desc      = "The battlefield transforms into a forest. For 2 turns, enemy cooldowns are increased by 1 turn and the cost of enemy non-mental skills is increased by 1 arbitrary chakra. While active, this skill becomes [Deep Forest Flourishing][b][b]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =

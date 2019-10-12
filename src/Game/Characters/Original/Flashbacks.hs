@@ -200,7 +200,7 @@ characters =
     "A member of Team Minato, Kakashi is the thirteen-year-old son of the legendary White Fang. His early ninjutsu and borrowed Sharingan make him the equal of any adult he faces."
     [ [ Skill.new
         { Skill.name      = "White Light Blade"
-        , Skill.desc      = "Kakashi deals 20 piercing damage to an enemy with his sword. For 1 turn, the target's non-affliction damage is weakened by 5 and Kakashi's damage is increased by 5."
+        , Skill.desc      = "Kakashi deals 20 piercing damage to an enemy with his sword. For 1 turn, the target's damage is weakened by 5 and Kakashi's damage is increased by 5."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -214,7 +214,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Amateur Lightning Blade"
-        , Skill.desc      = "Using an early form of his signature technique, Kakashi deals 20 piercing damage to one enemy. For 1 turn, the target's non-affliction damage is weakened by 5 and Kakashi's damage is increased by 5."
+        , Skill.desc      = "Using an early form of his signature technique, Kakashi deals 20 piercing damage to one enemy. For 1 turn, the target's damage is weakened by 5 and Kakashi's damage is increased by 5."
         , Skill.classes   = [Bane, Chakra, Melee]
         , Skill.cost      = [Nin]
         , Skill.effects   =

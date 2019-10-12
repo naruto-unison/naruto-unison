@@ -137,7 +137,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "C2: Minefield"
-        , Skill.desc      = "Deidara scatters mines that burrow into the ground around an enemy. The next time they use a non-mental skill within 2 turns, they will take 10 damage and their non-affliction damage will be weakened by 5 for 4 turns. Does not stack."
+        , Skill.desc      = "Deidara scatters mines that burrow into the ground around an enemy. The next time they use a non-mental skill within 2 turns, they will take 10 damage and their damage will be weakened by 5 for 4 turns. Does not stack."
         , Skill.classes   = [Chakra, Ranged, Invisible, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
@@ -237,7 +237,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Poison Gas"
-        , Skill.desc      = "Sasori emits a cloud of poisonous gas, dealing 15 affliction damage to all enemies. Next turn, enemy cooldowns are increased by 1 and enemy chakra costs are increased by 1 arbitrary chakra. Lasts 2 turns on targets pinned by [Thousand Arms]."
+        , Skill.desc      = "Sasori emits a cloud of poisonous gas, dealing 15 affliction damage to all enemies. Next turn, enemy cooldowns are increased by 1 turn and enemy chakra costs are increased by 1 arbitrary chakra. Lasts 2 turns on targets pinned by [Thousand Arms]."
         , Skill.classes   = [Physical, Bane, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
@@ -469,7 +469,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Exploding Water Shockwave"
-        , Skill.desc      = "As a giant orb of water fills the entire battlefield, Kisame merges with Samehada and transforms into a shark for 3 turns. While active, enemy cooldowns are increased by 1 and this skill becomes [Shark Dance][t]."
+        , Skill.desc      = "As a giant orb of water fills the entire battlefield, Kisame merges with Samehada and transforms into a shark for 3 turns. While active, enemy cooldowns are increased by 1 turn and this skill becomes [Shark Dance][t]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4

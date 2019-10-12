@@ -509,7 +509,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Cellular Regeneration"
-        , Skill.desc      = "Jūgo transfers his cells to an ally, restoring 20 health to them and providing them with 20 permanent destructible defense. The following 4 turns, Jūgo's cooldowns increase by 1."
+        , Skill.desc      = "Jūgo transfers his cells to an ally, restoring 20 health to them and providing them with 20 permanent destructible defense. The following 4 turns, Jūgo's cooldowns increase by 1 turn."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
