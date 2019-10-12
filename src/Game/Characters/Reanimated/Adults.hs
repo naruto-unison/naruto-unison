@@ -242,4 +242,51 @@ characters =
     , [ invuln "Shuriken Threads" "Toroi" [Physical] ]
     ]
     75
+  , Character
+    "Fukai"
+    "Also known as Blue B, Fukai was the previous jinchūriki of Gyūki, the eight-tailed beast. Lacking his successor's rapport with Gyūki, Fukai was unable to control the beast, which ultimately led to his downfall."
+    [ [ Skill.new
+        { Skill.name      = "Chakra Arms"
+        , Skill.desc      = "Manifesting limbs of tailed-beast chakra, Fukai deals 10 affliction damage to all enemies and increases the damage of [Tailed Beast Bomb Barrage] and [Lariat] to the targets by 5."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemies do
+                afflict 10
+                addStack
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Tailed Beast Bomb Barrage"
+        , Skill.desc      = "With a continuous attack of tailed-beast bombs, Fukai deals 30 damage to an enemy. All damage he receives—including piercing and affliction—is permanently reduced by 10%."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Self $ apply 0 [Reduce Affliction Percent 10]
+          , To Enemy do
+                stacks <- targetStacks "Chakra Arms"
+                damage (30 + 5 * stacks)
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Lariat"
+        , Skill.desc      = "Rushing an enemy, Fukai deals 15 percing damage to them and stuns their chakra and ranged skills for 1 turn."
+        , Skill.classes   = [Mental, Ranged]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                stacks <- targetStacks "Chakra Arms"
+                pierce (15 + 5 * stacks)
+                apply 1 [Stun Chakra, Stun Ranged]
+          ]
+        }
+      ]
+    , [ invuln "Dodge" "Fukai" [Physical] ]
+    ]
+    75
   ]
