@@ -199,7 +199,7 @@ characters =
                 has <- userHas "Venom Sac"
                 if has then do
                     remove "Venom Sac"
-                    alterCd 0 0 (-2)
+                    alterCd "Major Summoning: Ibuse" baseVariant (-2)
                 else do
                     hide' "Ibuse" 0 [Reduce Affliction Percent 50]
                     addStacks "Major Summoning: Ibuse" 30
@@ -254,7 +254,7 @@ characters =
                   if has then self do
                       remove "Major Summoning Ibuse"
                       vary "Major Summoning: Ibuse" baseVariant
-                      alterCd 0 0 (-2)
+                      alterCd "Major Summoning: Ibuse" baseVariant (-2)
                       cancelChannel "Poison Fog"
                   else self $
                       apply 0 [Afflict 20]
@@ -310,6 +310,135 @@ characters =
         }
       ]
     , [ invuln "Gold Dust Shield" "Rasa" [Physical] ]
+    ]
+    150
+  , Character
+    "A"
+    "Reanimated by Kabuto, A was the third Raikage of the Hidden Cloud Village. His legendary resilience and fortitude earned him the title of Strongest Shield."
+    [ [ Skill.new
+        { Skill.name      = "Piercing Four-Fingered"
+        , Skill.desc      = "A switches to his four-fingered style, increasing the damage of [Lightning Straight] by 5. For the rest of the game, enemies who use skills on A or his allies will be marked for 1 turn. If A uses [Lightning Straight] on a marked target, they will be stunned for 1 turn and immune to being marked for 4 turns. Once used, this skill becomes [Three-Fingered Assault][r][r]."
+        , Skill.classes   = [Chakra, Melee, Unremovable]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Allies $ trapFrom 0 (OnHarmed All) $ tag 1
+          , To Self do
+                hide' "finger" 0 []
+                vary "Piercing Four-Fingered" "Three-Fingered Assault"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Three-Fingered Assault"
+        , Skill.desc      = "A switches to his three-fingered style, increasing the damage of [Lightning Straight] by 5. For the rest of the game, whenever A is damaged, the cooldown of [Lightning Armor] will decrease by 1 turn. Once used, this skill becomes [One-Fingered Assault][r][r][r]."
+        , Skill.classes   = [Chakra, Melee, Unremovable]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.effects   =
+          [ To Self do
+                trap 0 (OnDamaged All) $
+                    alterCd "Lightning Armor" baseVariant (-1)
+                hide' "finger" 0 []
+                vary "Piercing Four-Fingered" "One-Fingered Assault"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "One-Fingered Assault"
+        , Skill.desc      = "A switches to his one-fingered style, increasing the damage of [Lightning Straight] by 5 and becoming invulnerable to affliction damage. Enemies who are stunned by [Lightning Straight] will only be immune to marking for 3 turns."
+        , Skill.classes   = [Chakra, Melee, Unremovable]
+        , Skill.cost      = [Rand, Rand, Rand]
+        , Skill.charges   = 1
+        , Skill.effects   =
+          [ To Self do
+                hide' "finger" 0 []
+                apply 0 [Invulnerable Affliction]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Lightning Armor"
+        , Skill.desc      = "An electric field envelops A and supercharges his nervous system. The field deflects attacks for 4 turns, reducing all non-affliction damage A receives to 10 at most."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 8
+        , Skill.effects   =
+          [ To Self $ apply 4 [Limit 10] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Lightning Straight"
+        , Skill.desc      = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing 20 damage. If this skill deals damage, the cooldown of [Lightning Armor] will decrease by 1 turn."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
+          [ To Self $ trap' (-1) OnDamage $
+                alterCd "Lightning Armor" baseVariant (-1)
+          , To Enemy do
+                stacks <- userStacks "finger"
+                damage (20 + 5 * stacks)
+                unlessM (targetHas "Aftershocks") do
+                    apply 1 [Stun All]
+                    bonus <- 1 `bonusIf` userHas "One-Fingered Assault"
+                    tag' "Aftershocks" (4 - bonus)
+          ]
+        , Skill.changes   =
+            \n x ->
+              x { Skill.desc = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing " ++ tshow (20 + 5 * numActive "finger" n) ++ " damage. If this skill deals damage, the cooldown of [Lightning Armor] decreases by 1 additional turn." }
+        }
+      ]
+    , [ invuln "Strongest Shield" "A" [Physical] ]
+    ]
+    150
+  , Character
+    "Mū"
+    "Reanimated by Kabuto, Mū was the second Tsuchikage of the Hidden Rock Village. Unfailingly polite, he intends to ensure that his village benefits from the war. By manipulating matter at the atomic level, he disintegrates the defenses of his enemies."
+    [ [ Skill.new
+        { Skill.name      = "Particle Beam"
+        , Skill.desc      = "A ray of high-energy atomic particles blasts an enemy, dealing 25 piercing damage. Deals 10 additional damage if the target is invulnerable. Deals 5 fewer damage and costs 1 ninjutsu chakra during [Fragmentation]."
+        , Skill.classes   = [Chakra, Ranged, Bypassing]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                bonus <- 10 `bonusIf` target invulnerable
+                pierce (25 + bonus)
+          ]
+        , Skill.changes   =
+            changeWith "Fragmentation" \x -> x { Skill.cost = [Nin] }
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Fragmentation"
+        , Skill.desc      = "Mū's body undergoes fission and splits into two. For 2 turns, Mū ignores stuns and reduces damage against him by half. While active, Mū's damage is weakened by 5. If Mū's health reaches 0 during this skill, he regains 15 health and this skill ends."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Self do
+                apply 2 [ Focus
+                        , Reduce All Percent 50
+                        , Weaken All Flat 5
+                        ]
+                trap 2 OnRes do
+                    setHealth 15
+                    remove      "Fragmentation"
+                    removeTrap "Fragmentation"
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Atomic Dismantling"
+        , Skill.desc      = "The atomic bonds within an enemy shatter, dealing 40 piercing damage and demolishing their destructible defense and his own destructible barrier. Deals 5 fewer damage and costs 1 ninjutsu chakra and 1 arbitrary chakra during [Fragmentation]."
+        , Skill.classes   = [Chakra, Ranged, Bypassing]
+        , Skill.cost      = [Nin, Rand, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                demolishAll
+                pierce 40
+          ]
+        , Skill.changes   =
+            changeWith "Fragmentation" \x -> x { Skill.cost = [Nin, Rand] }
+        }
+      ]
+    , [ invuln "Dustless Bewildering Cover" "Mū" [Chakra] ]
     ]
     150
   , Character
@@ -370,60 +499,6 @@ characters =
         }
       ]
     , [ invuln "Mirage" "Gengetsu" [Mental] ]
-    ]
-    150
-  , Character
-    "Mū"
-    "Reanimated by Kabuto, Mū was the second Tsuchikage of the Hidden Rock Village. Unfailingly polite, he intends to ensure that his village benefits from the war. By manipulating matter at the atomic level, he disintegrates the defenses of his enemies."
-    [ [ Skill.new
-        { Skill.name      = "Particle Beam"
-        , Skill.desc      = "A ray of high-energy atomic particles blasts an enemy, dealing 25 piercing damage. Deals 10 additional damage if the target is invulnerable. Deals 5 fewer damage and costs 1 ninjutsu chakra during [Fragmentation]."
-        , Skill.classes   = [Chakra, Ranged, Bypassing]
-        , Skill.cost      = [Nin, Rand]
-        , Skill.effects   =
-          [ To Enemy do
-                bonus <- 10 `bonusIf` target invulnerable
-                pierce (25 + bonus)
-          ]
-        , Skill.changes   =
-            changeWith "Fragmentation" \x -> x { Skill.cost = [Nin] }
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Fragmentation"
-        , Skill.desc      = "Mū's body undergoes fission and splits into two. For 2 turns, Mū ignores stuns and reduces damage against him by half. While active, Mū's damage is weakened by 5. If Mū's health reaches 0 during this skill, he regains 15 health and this skill ends."
-        , Skill.classes   = [Chakra]
-        , Skill.cost      = [Nin]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To Self do
-                apply 2 [ Focus
-                        , Reduce All Percent 50
-                        , Weaken All Flat 5
-                        ]
-                trap 2 OnRes do
-                    setHealth 15
-                    remove      "Fragmentation"
-                    removeTrap "Fragmentation"
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Atomic Dismantling"
-        , Skill.desc      = "The atomic bonds within an enemy shatter, dealing 40 piercing damage and demolishing their destructible defense and his own destructible barrier. Deals 5 fewer damage and costs 1 ninjutsu chakra and 1 arbitrary chakra during [Fragmentation]."
-        , Skill.classes   = [Chakra, Ranged, Bypassing]
-        , Skill.cost      = [Nin, Rand, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy do
-                demolishAll
-                pierce 40
-          ]
-        , Skill.changes   =
-            changeWith "Fragmentation" \x -> x { Skill.cost = [Nin, Rand] }
-        }
-      ]
-    , [ invuln "Dustless Bewildering Cover" "Mū" [Chakra] ]
     ]
     150
   ]

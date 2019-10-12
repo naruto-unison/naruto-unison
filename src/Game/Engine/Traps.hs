@@ -89,7 +89,7 @@ getPer True  tr amt n =
     [launch trap $ Trap.effect trap amt | trap <- Ninja.traps n
                                         , Trap.trigger trap == tr]
 
--- | Tallies 'PerHealed' and 'PerDamaged' traps.
+-- | Tallies 'PerDamaged' traps.
 getTurnPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
            => Player -- ^ Player during the current turn.
            -> Ninja -- ^ Old.

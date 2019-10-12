@@ -37,10 +37,19 @@ import           Game.Model.Slot (Slot)
 import           Game.Model.Variant (Varying)
 import qualified Game.Model.Variant as Variant
 
--- | Changes the 'Skill.cooldown' of a @Skill@.
+
+-- | Changes the 'Skill.cooldown' of a @Skill@ by base 'Skill.name' and variant
+-- 'Skill.name'.
 -- Uses 'Cooldown.alter' internally.
-alterCd :: ∀ m. MonadPlay m => Int -> Int -> Int -> m ()
-alterCd s v cd = P.unsilenced . P.toTarget $ Cooldown.alter s v cd
+alterCd :: ∀ m. MonadPlay m => Text -> Text -> Int -> m ()
+alterCd s v cd = do
+    nUser <- P.nUser
+    Skills.safe (return ()) (unsafeAlterCd cd) nUser s v
+
+-- | Changes the 'Skill.cooldown' of a @Skill@ by skill and variant index within
+-- 'Character.skills'.
+unsafeAlterCd :: ∀ m. MonadPlay m => Int -> Int -> Int -> m ()
+unsafeAlterCd cd s v = P.unsilenced . P.toTarget $ Cooldown.alter s v cd
 
 -- | Resets 'Ninja.cooldowns' with a matching 'Skill.name' of a @Ninja@.
 -- Uses 'Cooldown.reset' internally.
