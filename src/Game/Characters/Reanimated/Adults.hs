@@ -244,7 +244,7 @@ characters =
     75
   , Character
     "Fukai"
-    "Also known as Blue B, Fukai was the previous jinchūriki of Gyūki, the eight-tailed beast. Lacking his successor's rapport with Gyūki, Fukai was unable to control the beast, which ultimately led to his downfall."
+    "Reanimated by Kabuto, Fukai was the previous jinchūriki of Gyūki, the eight-tailed beast. Also known as Blue B, Fukai was unable to control Gyūki, which led to his downfall and the deaths of his comrades."
     [ [ Skill.new
         { Skill.name      = "Chakra Arms"
         , Skill.desc      = "Manifesting limbs of tailed-beast chakra, Fukai deals 10 affliction damage to all enemies and increases the damage of [Tailed Beast Bomb Barrage] and [Lariat] to the targets by 5."
@@ -287,6 +287,50 @@ characters =
         }
       ]
     , [ invuln "Dodge" "Fukai" [Physical] ]
+    ]
+    75
+  , Character
+    "Chiyo"
+    "Reanimated by Kabuto, Chiyo was the leader of the Hidden Sand Village's Puppet Brigade. Her expertise with chakra threads allows her to control numerous puppets at once."
+    [ [ Skill.new
+        { Skill.name      = "Ten Puppets Collection"
+        , Skill.desc      = "Commanding a brigade of puppets, Chiyo stuns an enemy's physical and ranged skills for 1 turn and deals 20 damage to a random enemy for 2 turns."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 2
+        , Skill.dur       = Action 2
+        , Skill.start     =
+          [ To Enemy $ apply 1 [Stun Physical, Stun Ranged] ]
+        , Skill.effects   =
+          [ To REnemy $ damage 20 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Possum"
+        , Skill.desc      = "Chiyo feigns unconsciousness to lure an enemy into a false sense of security. If the target uses a skill on Chiyo or her allies, they will be countered and take 20 damage, and their physical skills will be stunned for 1 turn."
+        , Skill.classes   = [Physical, Melee, Invisible]
+        , Skill.cost      = [Tai]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemy $ trap 0 OnHarm do
+                damage 20
+                apply 1 [Stun Physical]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Army of Illusions"
+        , Skill.desc      = "Chiyo takes control of multiple bodies and attacks an enemy, dealing 20 damage and becoming invulnerable to melee skills for 1 turn."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemy $ damage 20
+          , To Self  $ apply 1 [Invulnerable Melee]
+          ]
+        }
+      ]
+    , [ invuln "Puppet Distraction" "Chiyo" [Physical] ]
     ]
     75
   ]
