@@ -109,19 +109,16 @@ characters =
     "Yondaime Minato"
     "Now the fourth Hokage, Minato has been shaped by his responsibilities into a thoughtful and strategic leader. With his space-time jutsu, he redirects the attacks of his enemies and effortlessly passes through their defenses."
     [ [ Skill.new
-        { Skill.name      = "Space-Time Marking"
-        , Skill.desc      = "Minato opportunistically marks targets to use as teleport destinations for avoiding attacks. Allies who do not use skills this turn and enemies who do not use skills next turn will be marked for 4 turns. Minato gains 5 points of damage reduction for each marked target. This skill stacks."
-        , Skill.classes   = [Physical, Ranged, Invisible]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 1
+        { Skill.name      = "Rasengan"
+        , Skill.desc      = "Minato teleports behind an enemy and slams an orb of chakra into them, dealing 35 damage. Costs 1 ninjutsu chakra if [Rasengan] was used last turn."
+        , Skill.classes   = [Chakra, Melee, Bypassing, Uncounterable, Unreflectable]
+        , Skill.cost      = [Gen, Nin]
         , Skill.effects   =
-          [ To XAllies $ trap (-1) OnNoAction do
-                applyWith [Invisible] 4 []
-                self $ applyWith [Invisible] 4 [Reduce All Flat 5]
-          , To Enemies $ trap (-1) OnNoAction do
-                applyWith [Invisible] (-4) []
-                self $ applyWith [Invisible] (-4) [Reduce All Flat 5]
+          [ To Enemy $ damage 35
+          , To Self  $ tag 1
           ]
+        , Skill.changes   =
+            changeWith "Rasengan" \x -> x { Skill.cost = [Nin] }
         }
       ]
     , [ Skill.new
@@ -129,36 +126,25 @@ characters =
         , Skill.desc      = "Space warps around Minato or one of his allies. The first skill an enemy uses on the target will be reflected back at them."
         , Skill.classes   = [Chakra, Ranged, Unreflectable]
         , Skill.cost      = [Gen]
-        , Skill.cooldown  = 3
+        , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Ally $ apply 1 [Reflect] ]
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Rasengan"
-        , Skill.desc      = "Minato teleports behind an enemy and slams an orb of chakra into them, dealing 20 damage. In quick succession, he teleports between all enemies affected by [Space-Time Marking], dealing 20 damage for every stack of [Space-Time Marking] on them."
-        , Skill.classes   = [Chakra, Melee, Bypassing]
-        , Skill.cost      = [Blood, Rand]
+        { Skill.name      = "Reaper Death Seal"
+        , Skill.desc      = "Minato unleashes the God of Death upon an enemy in exchange for a piece of his soul, sacrificing 15 health to deal 25 affliction damage and weaken the target's damage by 5."
+        , Skill.classes   = [Melee]
+        , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
-          [ To Enemy $ damage 20
-          , To Enemies do
-                stacks <- targetStacks "Space-Time Marking"
-                damage (20 * stacks)
+          [ To Enemy do
+                afflict 25
+                apply 0 [Weaken All Flat 5]
+          , To Self  $ sacrifice 0 15
           ]
         }
       ]
-    , [ Skill.new
-        { Skill.name      = "Round-Robin Raijen"
-        , Skill.desc      = "Minato and allies affected by [Space-Time Marking] become invulnerable for 1 turn."
-        , Skill.require   = HasU 1 "Space-Time Marking"
-        , Skill.classes   = [Chakra, Bypassing]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To Self    $ apply 1 [Invulnerable All]
-          , To XAllies $ apply 1 [Invulnerable All]
-          ]
-        }
-      ]
+    , [ invuln "Parry" "Minato" [Physical] ]
     ]
   , Character
     "Hashirama Senju"
