@@ -1,6 +1,6 @@
 -- | Actions that characters can use to manipulate 'Chakra'.
 module Game.Action.Chakra
-  ( absorb
+  ( absorb, absorb1
   , deplete, deplete1
   , gain
   , healFromChakra
@@ -58,6 +58,16 @@ absorb amount = P.unsilenced do
     user    <- P.user
     chakras <- Chakras.remove amount
     P.alter $ Game.adjustChakra user (+ chakras)
+
+-- | Transfers a single 'Chakra' that is one of several types from the
+-- 'Game.chakra' of the target's team to the 'Game.chakra' of the user's team.
+-- 'Chakra's are chosen randomly from the available pool of 'Game.chakra', but
+-- only the ones passed in the parameter.
+absorb1 :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Chakra -> m ()
+absorb1 chakras = P.unsilenced do
+    user   <- P.user
+    chakra <- Chakras.remove1 chakras
+    P.alter $ Game.adjustChakra user (+ chakra)
 
 -- | Restores health to the user multiplied by the chakra cost of the target's
 -- last skill.

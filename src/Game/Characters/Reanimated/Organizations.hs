@@ -556,4 +556,49 @@ characters =
     , [ invuln "Block" "Sasori" [Physical] ]
     ]
     100
+  , Character
+    "Nagato"
+    "Reanimated by Kabuto, Nagato is as much a pawn in the schemes of others as he was in life. With the full power of the Rinnegan, he has all six Paths at his disposal."
+    [ [ Skill.new
+        { Skill.name      = "Human Path"
+        , Skill.desc      = "Nagato attacks the soul of an enemy, dealing 30 damage and preventing them from affecting Nagato's team for 1 turn."
+        , Skill.classes   = [Mental, Melee]
+        , Skill.cost      = [Gen, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                damage 30
+                apply 1 [BlockEnemies]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Preta Path"
+        , Skill.desc      = "Nagato absorbs an enemy's energy, stealing 10 health and absorbing a bloodline or taijutsu chakra."
+        , Skill.classes   = [Chakra, Melee]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                absorb1 [Blood, Tai]
+                leech 10 $ self . heal
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Animal Path"
+        , Skill.desc      = "Nagato summons a horde of beasts that deal 10 damage to all enemies for 2 turns. While active, enemies who use skills on Nagato will take 10 damage."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 3
+        , Skill.dur       = Ongoing 2
+        , Skill.effects   =
+          [ To Enemies $ damage 10
+          , To Self    $ trapFrom 1 (OnHarmed All) $ damage 10
+          ]
+        }
+      ]
+    , [ invuln "Asura Path" "Nagato" [Physical] ]
+    ]
+    125
   ]
