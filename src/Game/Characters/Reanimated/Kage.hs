@@ -355,12 +355,12 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Lightning Armor"
-        , Skill.desc      = "An electric field envelops A and supercharges his nervous system. The field deflects attacks for 4 turns, reducing all non-affliction damage A receives to 10 at most."
+        , Skill.desc      = "An electric field envelops A and supercharges his nervous system. The field deflects attacks for 3 turns, reducing all non-affliction damage A receives to 10 at most."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 8
         , Skill.effects   =
-          [ To Self $ apply 4 [Limit 10] ]
+          [ To Self $ apply 3 [Limit 10] ]
         }
       ]
     , [ Skill.new
