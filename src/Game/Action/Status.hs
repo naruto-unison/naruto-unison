@@ -5,7 +5,7 @@ module Game.Action.Status
   , tag, tag'
   , flag, flag'
   , hide, hide'
-  , addStack, addStacks, addStacks'
+  , addStack, addStack', addStacks, addStacks'
     -- * Applying bombs
   , bomb, bomb', bombWith, bombWith'
   -- * Adjusting statuses
@@ -84,7 +84,11 @@ applyWith' classes turns efs =
 addStack :: ∀ m. MonadPlay m => m ()
 addStack = do
     name <- Skill.name <$> P.skill
-    addStacks name 1
+    addStacks' 0 name 1
+
+-- | 'addStack' with a 'Status.name'.
+addStack' :: ∀ m. MonadPlay m => Text -> m ()
+addStack' name = addStacks' 0 name 1
 
 -- | 'addStack' with a 'Status.name' and 'Status.amount'.
 addStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()

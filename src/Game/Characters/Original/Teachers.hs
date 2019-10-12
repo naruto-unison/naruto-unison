@@ -252,7 +252,7 @@ characters =
           [ To Enemy do
                 apply 2 [Weaken All Flat 10, Exhaust All, Expose]
                 damage 10
-          , To Self $ addStacks "Illusion" 1
+          , To Self $ addStack' "Illusion"
           ]
         }
       ]
@@ -283,7 +283,7 @@ characters =
           ]
         , Skill.effects   =
           [ To Enemy $ apply 1 [Stun All]
-          , To Self  $ addStacks "Illusion" 1
+          , To Self  $ addStack' "Illusion"
           ]
         }
       , Skill.new

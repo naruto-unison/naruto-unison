@@ -133,7 +133,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Ally $ trapFrom 1 (Counter Physical) do
-                self $ addStacks "Unpredictable Assault" 1
+                self $ addStack' "Unpredictable Assault"
                 stacks <- userStacks "Unpredictable Assault"
                 damage (20 + 5 * stacks)
           ]

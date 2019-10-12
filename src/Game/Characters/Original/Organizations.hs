@@ -183,7 +183,7 @@ characters =
           [ To Self do
                 apply 0 [Reduce All Flat 10]
                 vary "Biding Time" "Payback"
-                trap 0 (OnDamaged All) $ addStacks "Payback" 1
+                trap 0 (OnDamaged All) $ addStack' "Payback"
           ]
         }
      , Skill.new

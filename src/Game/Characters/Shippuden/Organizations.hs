@@ -268,7 +268,7 @@ characters =
           [ To Enemy $ apply' "Venom Beetle" 5 [Afflict 5]
           , To Self do
                 defend 0 15
-                onBreak $ addStacks "Venom Beetle" 1
+                onBreak $ addStack' "Venom Beetle"
           ]
         , Skill.changes   =
             changeWithDefense "Nano-Sized Venom Beetles" \x ->
@@ -287,7 +287,7 @@ characters =
           [ To Enemies $ apply' "Venom Beetle" 5 [Afflict 5]
           , To Self do
                 defend 0 30
-                onBreak $ addStacks "Venom Beetle" 1
+                onBreak $ addStack' "Venom Beetle"
           ]
         , Skill.changes   =
             changeWithDefense "Jar of Poison" \x ->
