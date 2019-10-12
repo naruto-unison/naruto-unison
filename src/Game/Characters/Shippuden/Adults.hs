@@ -227,7 +227,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Humidified Cloth"
-        , Skill.desc      = "Maki soaks a strip of cloth in steam and lashes out with it, dealing 20 piercing damage to an enemy and preventing them from affecting opponents for 1 turn."
+        , Skill.desc      = "Maki soaks a strip of cloth in steam and lashes out with it, dealing 20 piercing damage to an enemy and preventing them from affecting Maki's team for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =

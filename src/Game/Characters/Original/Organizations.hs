@@ -26,7 +26,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Syrup Trap"
-        , Skill.desc      = "Izumo spits out a field of sticky syrup that impedes the enemy team. For 2 turns, enemies that use chakra skills will have their chakra skills stunned for 1 turn, and enemies that use physical skills will have their physical skills stunned for 1 turn."
+        , Skill.desc      = "Izumo spits out a field of sticky syrup that impedes the enemy team. For 2 turns, enemies who use chakra skills will have their chakra skills stunned for 1 turn, and enemies who use physical skills will have their physical skills stunned for 1 turn."
         , Skill.classes   = [Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
