@@ -894,4 +894,47 @@ characters =
       , invuln "Snake Scales" "Orochimaru" [Physical]
       ]
     ]
+  , Character
+    "Sage Mode Jiraiya"
+    "By absorbing natural energy, Jiraiya has enhanced his speed, strength, and skills. Unfortunately, the process gives him a distinctly toady appearance, which does no good for the lecherous sage's chances with women."
+    [ [ Skill.new
+        { Skill.name      = "Bath of Burning Oil"
+        , Skill.desc      = "Using a mixture of wind, oil, and fire, Jiraiya deals 20 damage and 15 piercing damage to an enemy. For 1 turn, counters applied by the target will have their duration reduced by 1 turn."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 20
+                pierce 15
+                apply 1 [Throttle 1 Counters]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Needle Senbon"
+        , Skill.desc      = "Jiraiya infuses his hair with chakra to turn it needle-sharp, then deals 15 damage to all enemies and becomes invulnerable to melee skills for 1 turn."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Tai]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemies $ damage 15
+          , To Self    $ apply 1 [Invulnerable Melee]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Massive Rasengan"
+        , Skill.desc      = "Jiraiya hits an enemy with an enormous orb of chakra, dealing 45 damage and preventing them from reducing damage or becoming invulnerable for 1 turn."
+        , Skill.classes   = [Chakra, Melee]
+        , Skill.cost      = [Nin, Tai]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                damage 45
+                apply 1 [Expose]
+          ]
+        }
+      ]
+    , [ invuln "Block" "Jiraiya" [Physical] ]
+    ]
   ]
