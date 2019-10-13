@@ -5,7 +5,7 @@ module Game.Model.Ninja
   , is, isChanneling
   , has, hasOwn, hasDefense, hasTrap
   , numActive, numStacks, numAnyStacks, numHelpful, numHarmful
-  , defenseAmount
+  , defenseAmount, totalDefense
   ) where
 
 import ClassyPrelude
@@ -79,6 +79,9 @@ defenseAmount name user n =
                            , Defense.user d == user
                            , Defense.name d == name
                            ]
+
+totalDefense :: Ninja -> Int
+totalDefense n = sum $ Defense.amount <$> defense n
 
 hasTrap :: Text -- ^ 'Trap.name'.
         -> Slot -- ^ 'Trap.user'.

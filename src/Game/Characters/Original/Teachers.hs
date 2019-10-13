@@ -360,6 +360,7 @@ characters =
           [ To XAlly do
                 userSlot <- user slot
                 apply 0 [Redirect All userSlot]
+                trap' 0 OnDeath $ self $ vary "Self-Sacrifice" baseVariant
           , To Self $ vary "Self-Sacrifice" "Self-Sacrifice"
           ]
         }

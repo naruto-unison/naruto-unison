@@ -2,13 +2,14 @@ module Mission.Missions
   ( list
   , map
   , characterMissions
+  , consecutiveWins
   ) where
 
 import ClassyPrelude hiding ((\\), map)
 
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
-import           Mission.Goal (Goal(..), Mission(..), Objective(..))
+import           Mission.Goal (Goal(..), Mission(..), Objective(..), WinType(..))
 import qualified Mission.Goal as Goal
 import           Util (mapFromKeyed)
 
@@ -19,11 +20,12 @@ clean (Mission char goals) =
     Mission (Character.clean char) $ cleanGoal <$> goals
   where
     cleanGoal goal = goal { objective = f $ objective goal }
-    f (Win names) = Win $ Character.clean <$> names
+    f (Win winType names)        = Win winType $ Character.clean <$> names
     f (HookAction name skill fn) = HookAction (Character.clean name) skill fn
     f (HookChakra name skill fn) = HookChakra (Character.clean name) skill fn
     f (HookStore name skill fn)  = HookStore (Character.clean name) skill fn
     f (HookTrap name trap fn)    = HookTrap (Character.clean name) trap fn
+    f (HookTrigger name trig fn) = HookTrigger (Character.clean name) trig fn
     f (HookTurn name fn)         = HookTurn (Character.clean name) fn
     f (Consecutive x skills)     = Consecutive (Character.clean x) $ sort skills
 
@@ -39,3 +41,14 @@ map = mapFromKeyed (Goal.char, Goal.goals) list
 characterMissions :: Character -> [Mission]
 characterMissions (Character.ident -> name) =
     filter (any (Goal.belongsTo name) . Goal.goals) list
+
+consecWins :: Mission -> [(Text, Int)]
+consecWins x = (Goal.char x, ) . fst <$> filter consec indices
+  where
+    indices = zip [0..] . toList $ Goal.goals x
+    consec (_, Reach{objective = Win WinConsecutive _}) = True
+    consec _                                            = False
+
+consecutiveWins :: [(Text, Int)]
+consecutiveWins = list >>= consecWins
+{-# NOINLINE consecutiveWins #-}

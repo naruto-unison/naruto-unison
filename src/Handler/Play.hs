@@ -330,7 +330,9 @@ gameSocket = webSockets do
         dnaReward <- liftHandler $ Mission.awardDNA Queue.Quick outcome
         sendClient $ Reward dnaReward
         liftHandler do
-            when (outcome == Victory) $ Mission.processWin team
+            case outcome of
+                Victory -> Mission.processWin team
+                _       -> Mission.processDefeat
             traverse_ Mission.progress $ Wrapper.progress game
 
 -- | Wraps @enact@ with error handling.

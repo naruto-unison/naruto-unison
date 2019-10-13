@@ -9,9 +9,7 @@ missions :: [Mission]
 missions =
   [ Mission
     "Naruto Uzumaki (S)"
-    [ Reach 5 Career
-      "Win 5 matches with Naruto Uzumaki and Jiraiya together." $
-      Win ["Naruto Uzumaki", "Jiraiya"]
+    [ win 5 ["Naruto Uzumaki", "Jiraiya"]
 
     , Reach 10 Career
       "Kill 10 enemies with [Naruto Uzumaki Barrage] during [Shadow Clones]." .
@@ -19,12 +17,9 @@ missions =
       killDuring "Shadow Clones"
 
     , Reach 3 Match
-      "In a single match, stun all 3 enemies with [Rasengan]." .
-      HookStore "Naruto Uzumaki" "Rasengan" $
-      checkUnique \user target ->
-          not (allied user target)
-          && hasFrom user "Rasengan" target
-          && stunned target
+      "In a single match, stun all 3 enemies with [Rasengan]." $
+      HookStore "Naruto Uzumaki" "Rasengan"
+      stunUnique
 
     , Reach 8 Match
       "Maintain [Shadow Clones] for 8 consecutive turns." .
@@ -33,17 +28,12 @@ missions =
     ]
   , Mission
     "Sakura Haruno (S)"
-    [ Reach 5 Career
-      "Win 5 matches with Sakura Haruno and Tsunade together." $
-      Win ["Sakura Haruno", "Tsunade"]
+    [ win 5 ["Sakura Haruno", "Tsunade"]
 
     , Reach 1 Career
       "Use [KO Punch] to damage an enemy affected by [KO Punch]." .
       HookAction "Sakura Haruno" "KO Punch" $
-      check \user target target' ->
-          not (allied user target)
-          && health target > health target'
-          && hasFrom user "KO Punch" target
+      damageWithStacks "KO Punch"
 
     , Reach 10 Career
       "Heal 10 allies under 30 health with [Mystical Palm Healing]." .
@@ -54,15 +44,13 @@ missions =
           && health target' >= 30
 
     , Reach 8 Match
-      "Maintain [Inner Sakura] for 8 turns." .
+      "Maintain [Inner Sakura] for 8 consecutive turns." .
       HookTurn "Sakura Haruno" $
       maintain "Inner Sakura"
     ]
   , Mission
     "Sasuke Uchiha (S)"
-    [ Reach 5 Career
-      "Win 5 matches with Sasuke Uchiha and Orochimaru together." $
-      Win ["Sasuke Uchiha", "Orochimaru"]
+    [ win 5 ["Sasuke Uchiha", "Orochimaru"]
 
     , Reach 10 Career
       "Kill 10 enemies affected by [Sharingan] with [Chidori]." .
@@ -70,12 +58,9 @@ missions =
       killAffected "Sharingan"
 
     , Reach 3 Match
-      "In a single match, apply [Sharingan] to all 3 enemies." .
-      HookStore "Sasuke Uchiha" "Sharingan" $
-      checkUnique \user target ->
-          alive target
-          && not (allied user target)
-          && hasFrom user "Sharingan" target
+      "In a single match, apply [Sharingan] to all 3 enemies." $
+      HookStore "Sasuke Uchiha" "Sharingan"
+      affectUniqueEnemy
 
     , Reach 1 Career
       "Use all 4 skills in 4 consecutive turns." $
@@ -84,9 +69,7 @@ missions =
     ]
   , Mission
     "Kiba Inuzuka (S)"
-    [ Reach 5 Career
-      "Win 5 matches with Kiba Inuzuka and Kurenai Yuhi together." $
-      Win ["Kiba Inuzuka", "Kurenai Yuhi"]
+    [ win 5 ["Kiba Inuzuka", "Kurenai Yuhi"]
 
     , Reach 10 Career
       "Kill 10 enemies affected by [Dynamic Marking] with [Wolf Fang]." .
@@ -106,9 +89,7 @@ missions =
 
   , Mission
     "Shino Aburame (S)"
-    [ Reach 5 Career
-      "Win 5 matches with Shino Aburame and Kurenai Yuhi together." $
-      Win ["Shino Aburame", "Kurenai Yuhi"]
+    [ win 5 ["Shino Aburame", "Kurenai Yuhi"]
 
     , Reach 2 Moment
       "Use [Chakra Leech] to damage an enemy with at least 2 stacks of [Parasite]." .
@@ -121,16 +102,14 @@ missions =
       checkEnemyStatus "Parasite"
 
     , Reach 400 Career
-      "Provide 400 destructible defense with [Wall of Insects]." .
-      HookAction "Shino Aburame" "Wall of Insects" $
-      defend "Wall of Insects"
+      "Provide 400 destructible defense with [Wall of Insects]." $
+      HookAction "Shino Aburame" "Wall of Insects"
+      defend
     ]
 
   , Mission
     "Hinata Hyūga (S)"
-    [ Reach 5 Career
-      "Win 5 matches with Hinata Hyūga and Kurenai Yuhi together." $
-      Win ["Hinata Hyūga", "Kurenai Yuhi"]
+    [ win 5 ["Hinata Hyūga", "Kurenai Yuhi"]
 
     , Reach 6 Match
       "Maintain [Gentle Fist] for 6 consecutive turns." .
@@ -138,9 +117,9 @@ missions =
       maintain "Gentle Fist"
 
     , Reach 100 Career
-      "Provide 100 destructible defense with [Eight Trigrams Sixty-Four Palms]." .
-      HookAction "Hinata Hyūga" "Eight Trigrams Sixty-Four Palms" $
-      defend "Eight Trigrams Sixty-Four Palms"
+      "Provide 100 destructible defense with [Eight Trigrams Sixty-Four Palms]." $
+      HookAction "Hinata Hyūga" "Eight Trigrams Sixty-Four Palms"
+      defend
 
     , Reach 8 Match
       "In a single match, deplete 8 chakra with [Gentle Fist]." $
@@ -150,9 +129,7 @@ missions =
 
   , Mission
     "Shikamaru Nara (S)"
-    [ Reach 5 Career
-      "Win 5 matches with Shikamaru Nara and Asuma Sarutobi together." $
-      Win ["Shikamaru Nara", "Asuma Sarutobi"]
+    [ win 5 ["Shikamaru Nara", "Asuma Sarutobi"]
 
     , Reach 3 Turn
       "Cause all 3 enemies to be affected by [Meditate] simultaneously." .
@@ -172,9 +149,7 @@ missions =
 
   , Mission
     "Chōji Akimichi (S)"
-    [ Reach 5 Career
-      "Win 5 matches with Chōji Akimichi and Asuma Sarutobi together." $
-      Win ["Chōji Akimichi", "Asuma Sarutobi"]
+    [ win 5 ["Chōji Akimichi", "Asuma Sarutobi"]
 
     , Reach 1 Career
       "Use [Spinach Pill], [Curry Pill], and [Chili Pill] in 3 consecutive turns." $
@@ -193,9 +168,7 @@ missions =
 
   , Mission
     "Ino Yamanaka (S)"
-    [ Reach 5 Career
-      "Win 5 matches with Ino Yamanaka and Asuma Sarutobi together." $
-      Win ["Ino Yamanaka", "Asuma Sarutobi"]
+    [ win 5 ["Ino Yamanaka", "Asuma Sarutobi"]
 
     , Reach 10 Career
       "Kill 10 enemies with [Mind Destruction]." $
@@ -203,21 +176,19 @@ missions =
       kill
 
     , Reach 4 Match
-      "Use [Mind Transfer] for 4 turns without being interrupted." .
+      "Maintain [Mind Transfer] for 4 consecutive turns without being interrupted." .
       HookTurn "Ino Yamanaka" $
       maintain "Mind Transfer"
 
     , Reach 3 Match
       "In a single match, cause all 3 enemies to activate [Chakra Hair Trap]." $
       HookTrap "Ino Yamanaka" "Chakra Hair Trap"
-      trapUnique
+      trapUniqueEnemy
     ]
 
   , Mission
     "Rock Lee (S)"
-    [ Reach 10 Career
-      "Win 10 matches with Rock Lee and Might Guy together." $
-      Win ["Rock Lee", "Might Guy"]
+    [ win 5 ["Rock Lee", "Might Guy"]
 
     , Reach 3 Turn
       "In a single turn, damage all 3 enemies with [Ferocious Fist]." $
@@ -237,9 +208,7 @@ missions =
 
   , Mission
     "Tenten (S)"
-    [ Reach 10 Career
-      "Win 10 matches with Tenten and Might Guy together." $
-      Win ["Tenten", "Might Guy"]
+    [ win 5 ["Tenten", "Might Guy"]
 
     , Reach 5 Moment
       "Use [Rising Dragon Control] with at least 5 stacks of [Unsealing Technique]." .
@@ -259,9 +228,7 @@ missions =
 
   , Mission
     "Neji Hyūga (S)"
-    [ Reach 10 Career
-      "Win 10 matches with Neji Hyūga and Might Guy together." $
-      Win ["Neji Hyūga", "Might Guy"]
+    [ win 5 ["Neji Hyūga", "Might Guy"]
 
     , Reach 6 Match
       "Maintain [Gentle Fist] for 6 consecutive turns." .
@@ -284,9 +251,7 @@ missions =
     ]
   , Mission
     "Kazekage Gaara (S)"
-    [ Reach 10 Career
-      "Win 10 matches with Gaara and Baki together." $
-      Win ["Gaara", "Baki"]
+    [ win 5 ["Gaara", "Baki"]
 
     , Reach 10 Career
       "Kill 10 enemies with [Sand Burial]." $
@@ -294,21 +259,19 @@ missions =
       kill
 
     , Reach 8 Match
-      "Maintain [Sand Clone] for 8 turns." .
+      "Maintain [Sand Clone] for 8 consecutive turns." .
       HookTurn "Gaara" $
       maintain "Sand Clone"
 
     , Reach 160 Match
-      "In a single match, apply 160 destructible defense with [Sand Armor]." .
-      HookAction "Gaara" "Sand Armor" $
-      defend "Sand Armor"
+      "In a single match, apply 160 destructible defense with [Sand Armor]." $
+      HookAction "Gaara" "Sand Armor"
+      defend
     ]
 
   , Mission
     "Kankurō (S)"
-    [ Reach 10 Career
-      "Win 10 matches with Kankurō and Baki together." $
-      Win ["Kankurō", "Baki"]
+    [ win 5 ["Kankurō", "Baki"]
 
     , Reach 10 Career
       "Kill 10 enemies with [Iron Maiden]." $
@@ -328,9 +291,7 @@ missions =
 
   , Mission
     "Temari (S)"
-    [ Reach 10 Career
-      "Win 10 matches with Temari and Baki together." $
-      Win ["Temari", "Baki"]
+    [ win 5 ["Temari", "Baki"]
 
     , Reach 10 Career
       "Kill 10 enemies with [Cyclone Scythe]." $
@@ -350,9 +311,7 @@ missions =
 
   , Mission
     "Konohamaru Sarutobi (S)"
-    [ Reach 10 Career
-      "Win 10 matches with Konohamaru Sarutobi and Naruto Uzumaki together." $
-      Win ["Konohamaru Sarutobi", "Naruto Uzumaki"]
+    [ win 5 ["Konohamaru Sarutobi", "Naruto Uzumaki"]
 
     , Reach 20 Career
       "With any team member, kill 20 enemies affected by [Unsexy Technique]." .
@@ -360,7 +319,7 @@ missions =
       killWith "Unsexy Technique"
 
     , Reach 6 Match
-      "Maintain [Throw a Fit] for 6 turns." .
+      "Maintain [Throw a Fit] for 6 consecutive turns." .
       HookTurn "Konohamaru Sarutobi" $
       maintain "Throw a Fit"
 
@@ -372,9 +331,7 @@ missions =
 
   , Mission
     "Kabuto Yakushi (S)"
-    [ Reach 10 Career
-      "Win 10 matches with Yoroi Akadō and Misumi Tsurugi together." $
-      Win ["Yoroi Akadō", "Misumi Tsurugi"]
+    [ win 5 ["Yoroi Akadō", "Misumi Tsurugi"]
 
     , Reach 20 Career
       "With any team member, kill 20 enemies affected by [Chakra Scalpel]." .
@@ -387,11 +344,8 @@ missions =
       cure
 
     , Reach 3 Match
-      "In a single match, stun all 3 enemies with [Temple of Nirvana]." .
-      HookStore "Kabuto Yakushi" "Temple of Nirvana" $
-      checkUnique \user target ->
-          not (allied user target)
-          && hasFrom user "Temple of Nirvana" target
-          && stunned target
+      "In a single match, stun all 3 enemies with [Temple of Nirvana]." $
+      HookStore "Kabuto Yakushi" "Temple of Nirvana"
+      stunUnique
     ]
   ]

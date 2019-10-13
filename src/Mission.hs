@@ -4,7 +4,7 @@ module Mission
   , unlocked
   , characterID
   , userMission
-  , processWin
+  , processWin, processDefeat
   , awardDNA
   ) where
 
@@ -97,7 +97,7 @@ updateProgress :: ∀ m. MonadIO m
 updateProgress mission who char i amount = case mission `index` i of
     Nothing   -> return False
     Just goal
-      | Goal.spanning goal /= Career && Goal.reach goal < amount -> return False
+      | Goal.spanning goal /= Career && amount < Goal.reach goal -> return False
       | otherwise -> do
         alreadyUnlocked <- isJust <$> selectFirst unlockedChar []
         if alreadyUnlocked then
@@ -140,7 +140,7 @@ winners :: Bimap CharacterId Text
 winners ids chars unlocks = do
     Goal.Mission{char, goals} <- Missions.list
     guard $ char ∉ names
-    (i, Goal.Win team') <- zip [0..] $ Goal.objective <$> toList goals
+    (i, Goal.Win _ team') <- zip [0..] $ Goal.objective <$> toList goals
     guard . null $ team' \\ team
     charID <- Bimap.lookupR char ids
     return (goals, charID, i)
@@ -157,10 +157,24 @@ processWin team = do
         forM_ (winners ids team unlocks) \(mission, char, i) ->
             void $ updateProgress mission who char i 1
 
+resetGoal :: ∀ m. MonadIO m
+          => Bimap CharacterId Text -> Key User -> (Text, Int)
+          -> SqlPersistT m ()
+resetGoal ids who ((`Bimap.lookupR` ids) -> Just char, i) =
+    Sql.deleteWhere
+    [MissionUser ==. who, MissionCharacter ==. char, MissionObjective ==. i]
+resetGoal _ _ _ = return ()
+
+processDefeat :: Handler ()
+processDefeat = do
+    who <- Auth.requireAuthId
+    ids <- getsYesod App.characterIDs
+    runDB $ traverse_ (resetGoal ids who) Missions.consecutiveWins
+
 -- When ladder matches are introduced, these two will become more complicated.
 
 awardDNA :: Queue.Section -> Outcome -> Handler [(Text, Int)]
-awardDNA Queue.Private _ = return []
+awardDNA Queue.Private _     = return []
 awardDNA Queue.Quick outcome = do
     (who, user)   <- Auth.requireAuthPair
     dnaConf       <- getsYesod $ Settings.dnaConf . App.settings

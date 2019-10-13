@@ -6,7 +6,7 @@ module TestImport
   , act
   , turns
   , enemyTurn
-  , targetIsExposed, totalDefense
+  , targetIsExposed
   , allyOf
   , withClass
   ) where
@@ -23,7 +23,7 @@ import Game.Model.Chakra as Import (Chakra(..))
 import Game.Model.Character as Import (Category(..), Character)
 import Game.Model.Class as Import (Class(..))
 import Game.Model.Effect as Import (Amount(..), Effect(..))
-import Game.Model.Ninja as Import (is)
+import Game.Model.Ninja as Import (is, totalDefense)
 import Game.Model.Skill as Import (Target(..))
 import Game.Model.Trigger as Import (Trigger(..))
 import GHC.Exts as Import (fromList, toList)
@@ -47,7 +47,6 @@ import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import qualified Game.Model.Defense as Defense
 import           Game.Model.Duration (Duration(..), Turns, sync)
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja)
@@ -195,9 +194,6 @@ targetIsExposed = do
     target <- P.target
     P.with (\ctx -> ctx { Context.user = target }) $ apply 0 [Invulnerable All]
     null . Effects.invulnerable <$> P.nTarget
-
-totalDefense :: Ninja -> Int
-totalDefense n = sum $ Defense.amount <$> Ninja.defense n
 
 allyOf :: ∀ m. MonadGame m => Slot -> m Ninja
 allyOf target = P.ninja $ Slot.all !! (Slot.toInt target + 1)

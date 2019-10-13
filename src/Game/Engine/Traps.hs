@@ -55,8 +55,10 @@ getOf user trigger n =
 
 get :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> [m ()]
-get user n =
-    run user <$> filter ((∈ Ninja.triggers n) . Trap.trigger) (Ninja.traps n)
+get user n = hooks : (run user <$> traps)
+  where
+      hooks = traverse_ (`Hook.trigger` n) $ Ninja.triggers n
+      traps = filter ((∈ Ninja.triggers n) . Trap.trigger) $ Ninja.traps n
 
 -- | Adds a value to 'Trap.tracker' of 'Ninja.traps' with a certain @Trigger@.
 track :: Trigger -> Int -> Ninja -> Ninja

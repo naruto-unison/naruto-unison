@@ -34,6 +34,7 @@ import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Trap (Trap)
 import qualified Game.Model.Trap as Trap
+import           Game.Model.Trigger (Trigger)
 import           Handler.Play.GameInfo (GameInfo)
 import qualified Handler.Play.GameInfo as GameInfo
 import           Handler.Play.Tracker (Tracker)
@@ -92,8 +93,11 @@ trackChakra skill chaks chaks' x = case Skill.copying skill of
 
 trackTrap :: ∀ s. Trap -> Ninja -> STWrapper s -> ST s ()
 trackTrap tr n x = case Skill.copying $ Trap.skill tr of
-    NotCopied -> Tracker.trackTrap (Trap.name tr) n $ tracker x
+    NotCopied -> Tracker.trackTrap (Trap.name tr) (Trap.user tr) n $ tracker x
     _         -> return ()
+
+trackTrigger :: ∀ s. Trigger -> Ninja -> STWrapper s -> ST s ()
+trackTrigger tr n x = Tracker.trackTrigger tr n $ tracker x
 
 trackTurn :: ∀ s. Player -> [Ninja] -> [Ninja] -> STWrapper s -> ST s ()
 trackTurn p ns ns' x = Tracker.trackTurn p ns ns' $ tracker x
@@ -109,16 +113,18 @@ lift3 lifter f x y z = ask >>= lifter . f x y z
 {-# INLINE lift3 #-}
 
 instance MonadHook (ReaderT (STWrapper s) (ST s)) where
-    action = lift3 lift trackAction
-    chakra = lift3 lift trackChakra
-    trap   = lift2 lift trackTrap
-    turn   = lift3 lift trackTurn
+    action  = lift3 lift trackAction
+    chakra  = lift3 lift trackChakra
+    trap    = lift2 lift trackTrap
+    trigger = lift2 lift trackTrigger
+    turn    = lift3 lift trackTurn
 
 instance MonadIO m => MonadHook (ReaderT IOWrapper m) where
-    action = lift3 liftST trackAction
-    chakra = lift3 liftST trackChakra
-    trap   = lift2 liftST trackTrap
-    turn   = lift3 liftST trackTurn
+    action  = lift3 liftST trackAction
+    chakra  = lift3 liftST trackChakra
+    trap    = lift2 liftST trackTrap
+    trigger = lift2 liftST trackTrigger
+    turn    = lift3 liftST trackTurn
 
 fromInfo :: ∀ s. GameInfo -> ST s (STWrapper s)
 fromInfo info = STWrapper <$> Tracker.fromInfo info
@@ -162,10 +168,11 @@ instance MonadRandom (StateT Wrapper Identity) where
     shuffle  = return
     player   = return Player.A
 instance MonadHook (StateT Wrapper Identity) where
-    action = const . const . const $ return ()
-    chakra = const . const . const $ return ()
-    trap   = const . const $ return ()
-    turn   = const . const . const $ return ()
+    action  = const . const . const $ return ()
+    chakra  = const . const . const $ return ()
+    trap    = const . const $ return ()
+    trigger = const . const $ return ()
+    turn    = const . const . const $ return ()
 
 freeze :: ∀ m. MonadGame m => m Wrapper
 freeze = Wrapper mempty <$> P.game <*> (fromList <$> P.ninjas)

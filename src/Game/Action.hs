@@ -92,7 +92,6 @@ wrap affected f = void $ runMaybeT do
         targeted = Targeted ∈ affected
                    || Requirement.targetable (bypass skill) nUser nTarget
         exit     = if | Direct ∈ classes       -> Done
-           --           | invinc                 -> Flagged
                       | Trapped ∈ affected     -> Done
                       | not targeted           -> Break
                       | not new                -> Done

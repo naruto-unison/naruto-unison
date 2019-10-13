@@ -7,6 +7,7 @@ module Handler.Play.Tracker
   , trackAction
   , trackChakra
   , trackTrap
+  , trackTrigger
   , trackTurn
   ) where
 
@@ -27,9 +28,10 @@ import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
+import           Game.Model.Trigger (Trigger)
 import           Handler.Play.GameInfo (GameInfo)
 import qualified Handler.Play.GameInfo as GameInfo
-import           Mission.Goal (ActionHook, ChakraHook, StoreHook, TrapHook, TurnHook, Goal, Mission, Objective(..), Span(..), Store)
+import           Mission.Goal (Goal, Mission, Objective(..), Span(..), Store, ActionHook, ChakraHook, StoreHook, TrapHook, TriggerHook, TurnHook)
 import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
 import           Mission.Progress (Progress(Progress))
@@ -48,6 +50,7 @@ data Track s = Track { slot     :: Slot
                      , chakras  :: MultiMap Text (Int, ChakraHook)
                      , stores   :: MultiMap Text (Int, StoreHook)
                      , traps    :: MultiMap Text (Int, TrapHook)
+                     , triggers :: MultiMap Trigger (Int, TriggerHook)
                      , turns    :: [(Int, TurnHook)]
                      , consecs  :: [(Int, [Text])]
                      , goals    :: Vector Goal
@@ -95,8 +98,8 @@ trackAction1 skill ns x = do
       | match == sort (zipWith const used match) =
           MVector.unsafeModify (progress x) (+1) i
       | otherwise = return ()
-    tracker (n, n') (i, f) = addProgress x i $ f user n n'
-    tracker' (n, n') (i, f) = trackStore x i $ f user n n'
+    tracker (n, n') (i, f) = addProgress x i $ f skill user n n'
+    tracker' (n, n') (i, f) = trackStore x i $ f skill user n n'
 
 trackChakra1 :: ∀ s. Text -> (Chakras, Chakras) -> (Chakras, Chakras) -> Track s
              -> ST s ()
@@ -107,15 +110,20 @@ trackChakra1 skill chaks chaks' x = sequence_ $ tracker <$> chakras x ! skill
       | Parity.even $ slot x = id
       | otherwise            = swap
 
-trackTrap1 :: ∀ s. Text -> Ninja -> Track s -> ST s ()
-trackTrap1 trap n x = sequence_ $ tracker <$> traps x ! trap
+trackTrap1 :: ∀ s. Text -> Slot -> Ninja -> Track s -> ST s ()
+trackTrap1 trap user n x = sequence_ $ tracker <$> traps x ! trap
   where
-    tracker (i, f) = trackStore x i $ f n
+    tracker (i, f) = trackStore x i $ f user n
+
+trackTrigger1 :: ∀ s. Trigger -> Ninja -> Track s -> ST s ()
+trackTrigger1 trigger n x = sequence_ $ tracker <$> triggers x ! trigger
+  where
+    tracker (i, f)
+      | f n       = addProgress x i 1
+      | otherwise = return ()
 
 trackTurn1 :: ∀ s. Player -> [(Ninja, Ninja)] -> Track s -> ST s ()
-trackTurn1 p ns x
-  | not . Parity.allied p $ slot x = return ()
-  | otherwise = do
+trackTurn1 p ns x = do
       sequence_ $ tracker <$> ns <*> turns x
       modifyRef' (skills x) safeInit
       reset x
@@ -123,7 +131,7 @@ trackTurn1 p ns x
     user = snd $ ns !! Slot.toInt (slot x)
     safeInit [] = []
     safeInit xs = initEx xs
-    tracker (n, n') (i, f) = addProgress x i $ f user n n'
+    tracker (n, n') (i, f) = trackStore x i $ f p user n n'
 
 new :: ∀ s. Ninja -> ST s (Track s)
 new n = do
@@ -131,15 +139,16 @@ new n = do
     store    <- MVector.replicate (length objectives) mempty
     progress <- MVector.replicate (length objectives) 0
     return $ foldl' go
-        Track { slot    = Ninja.slot n
-              , key     = missionKeys name =<< missions
-              , actions = MultiMap.empty
-              , chakras = MultiMap.empty
-              , stores  = MultiMap.empty
-              , traps   = MultiMap.empty
-              , turns   = mempty
-              , consecs = mempty
-              , goals   = fromList goals
+        Track { slot     = Ninja.slot n
+              , key      = missionKeys name =<< missions
+              , actions  = MultiMap.empty
+              , chakras  = MultiMap.empty
+              , stores   = MultiMap.empty
+              , traps    = MultiMap.empty
+              , triggers = MultiMap.empty
+              , turns    = mempty
+              , consecs  = mempty
+              , goals    = fromList goals
               , skills
               , store
               , progress
@@ -164,6 +173,8 @@ new n = do
         x { stores = MultiMap.insert skill (i, func) $ stores x }
     go x (i, HookTrap _ trap func) =
         x { traps = MultiMap.insert trap (i, func) $ traps x }
+    go x (i, HookTrigger _ trigger func) =
+        x { triggers = MultiMap.insert trigger (i, func) $ triggers x }
     go x (i, HookTurn _ func) =
         x { turns = (i, func) : turns x }
     go x (_, Win{}) =
@@ -178,7 +189,8 @@ trackAll f (Tracker xs) = traverse_ f xs
 unsafeFreeze :: ∀ s. Tracker s -> ST s [Progress]
 unsafeFreeze (Tracker xs) = concat <$> traverse freeze xs
   where
-    freeze x = (zipWith ($) $ key x) . toList <$> Vector.unsafeFreeze (progress x)
+    freeze x = (zipWith ($) $ key x) . toList
+               <$> Vector.unsafeFreeze (progress x)
 
 fromInfo :: ∀ s. GameInfo -> ST s (Tracker s)
 fromInfo info = Tracker <$> mapM new ninjas
@@ -193,8 +205,11 @@ trackChakra :: ∀ s. Text -> (Chakras, Chakras) -> (Chakras, Chakras)
             -> Tracker s -> ST s ()
 trackChakra skill chaks chaks' = trackAll $ trackChakra1 skill chaks chaks'
 
-trackTrap :: ∀ s. Text -> Ninja -> Tracker s -> ST s ()
-trackTrap trap n = trackAll $ trackTrap1 trap n
+trackTrap :: ∀ s. Text -> Slot -> Ninja -> Tracker s -> ST s ()
+trackTrap trap user n = trackAll $ trackTrap1 trap user n
+
+trackTrigger :: ∀ s. Trigger -> Ninja -> Tracker s -> ST s ()
+trackTrigger trigger n = trackAll $ trackTrigger1 trigger n
 
 trackTurn :: ∀ s. Player -> [Ninja] -> [Ninja] -> Tracker s -> ST s ()
 trackTurn p ns ns' = trackAll . trackTurn1 p $ zip ns ns'

@@ -8,6 +8,7 @@ module Util
   , intersects
   , liftST
   , mapFromKeyed
+  , commas
   , shorten, unaccent
   , whileM
   ) where
@@ -59,6 +60,19 @@ adjustWith x f i xs
   | i < length xs = Seq.adjust' f i xs
   | otherwise     = xs ++ (replicate (i - length xs) x |> f x)
 {-# INLINABLE adjustWith #-}
+
+-- | Divides a list of @Text@s into a single, comma-separated @Text@ ended
+-- with a provided conjunction.
+commas :: TextBuilder -> [Text] -> TextBuilder
+commas conj texts = go $ toBuilder <$> texts
+  where
+    conj'      = " " ++ conj ++ " "
+    go []      = mempty
+    go [x]     = x
+    go [x,y]   = x ++ conj' ++ y
+    go [x,y,z] = x ++ ", " ++ y ++ "," ++ conj' ++ z
+    go (x:xs)  = x ++ ", " ++ go xs
+{-# INLINE commas #-}
 
 -- | True if a list contains multiple identical values.
 duplic :: ∀ a. Eq a => [a] -> Bool

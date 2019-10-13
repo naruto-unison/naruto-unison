@@ -30,8 +30,9 @@ goal Reach{desc, objective} = describe (unpack desc) $ f objective
     f (HookChakra name skill _) = lookupChar name $ hasSkills [skill]
     f (HookStore name skill _)  = lookupChar name $ hasSkills [skill]
     f (HookTrap name _ _)       = lookupChar name . const $ return ()
+    f (HookTrigger name _ _)    = lookupChar name . const $ return ()
     f (HookTurn name _)         = lookupChar name . const $ return ()
-    f (Win names) = traverse_ (`lookupChar` const (return ())) names
+    f (Win _ names) = traverse_ (`lookupChar` const (return ())) names
 
 hasSkills :: [Text] -> Character -> SpecWith ()
 hasSkills skills char = traverse_ hasSkill skills

@@ -1,40 +1,39 @@
 module Mission.Missions.Base
   ( module Import
-  , hasFrom
-  , stunned
+  , win, winConsecutive
   -- * Action hooks
   , check
   , cure
-  , damage
-  , damageDuringStacks
-  , damageWithStacks
+  , damage, damageDuringStacks, damageWithStacks
   , defend
+  , demolish
   , execute
   , heal
-  , kill
-  , killAffected
-  , killDuring
+  , kill, killAffected, killDuring
   , interrupt
-  , useDuring
-  , useDuringStacks
+  , use, useDuring, useDuringStacks
   -- * Chakra hooks
   , deplete
   -- * Store hooks
+  , affectUniqueEnemy
   , checkUnique
   , damageUnique
-  , killUnique
+  , killUnique, killUniqueDuring
+  , stunUnique
+  , useUnique
   -- * Trap hooks
-  , trapUnique
+  , trapUnique, trapUniqueAlly, trapUniqueEnemy
   -- * Turn hooks
   , checkEnemyStatus
   , killWith
-  , maintain
+  , maintain, maintainOnAlly
   ) where
 
 import ClassyPrelude as Import
 import Class.Parity as Import (allied)
 import Data.IntSet as Import (size)
 import Game.Model.Ninja as Import (alive, hasOwn, health)
+import Game.Model.Trigger as Import (Trigger(..))
 import Mission.Goal as Import
 
 import qualified Game.Engine.Effects as Effects
@@ -42,7 +41,7 @@ import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Slot as Slot
-import           Util ((∈))
+import           Util ((∈), (∉), commas)
 
 resetToZero :: Int
 resetToZero = -1000
@@ -53,34 +52,46 @@ hasFrom user name = Ninja.has name $ Ninja.slot user
 stunned :: Ninja -> Bool
 stunned n = not . null $ Effects.stun n
 
+winFull :: WinType -> Int -> [Text] -> Goal
+winFull winType reach chars = Reach reach Career desc $ Win winType chars
+  where
+    desc = toStrict . builderToLazy $
+           "Win 10 matches with " ++ commas "and" chars ++ " together."
+
+win :: Int -> [Text] -> Goal
+win = winFull WinTotal
+
+winConsecutive :: Int -> [Text] -> Goal
+winConsecutive = winFull WinConsecutive
+
 -- ACTION HOOKS
 
 check :: (Ninja -> Ninja -> Ninja -> Bool) -> ActionHook
-check f x y z = fromEnum $ f x y z
+check f _ x y z = fromEnum $ f x y z
 
 cure :: ActionHook
-cure user target target' = fromEnum $
+cure _ user target target' = fromEnum $
     allied user target
     && Ninja.numHelpful target' < Ninja.numHelpful target
 
 damage :: ActionHook
-damage user target target'
+damage _ user target target'
   | allied user target = 0
-  | otherwise          = max 0 $ health target - health target'
+  | otherwise = max 0 $ health target - health target'
 
 damageDuringStacks :: Text -> ActionHook
-damageDuringStacks name user target target'
+damageDuringStacks name _ user target target'
   | allied user target              = 0
   | health target' >= health target = 0
   | otherwise = Ninja.numStacks name (Ninja.slot user) user
 
 damageWithStacks :: Text -> ActionHook
-damageWithStacks name user target target'
+damageWithStacks name _ user target target'
   | allied user target              = 0
   | health target' >= health target = 0
   | otherwise = Ninja.numStacks name (Ninja.slot user) target
 
-defend :: Text -> ActionHook
+defend :: ActionHook
 defend name user target target'
   | alive target = max 0 addedDefense
   | otherwise    = 0
@@ -89,52 +100,60 @@ defend name user target target'
     addedDefense = Ninja.defenseAmount name userSlot target'
                    - Ninja.defenseAmount name userSlot target
 
+demolish :: ActionHook
+demolish _ user target target'
+  | allied user target = 0
+  | otherwise = max 0 $ Ninja.totalDefense target - Ninja.totalDefense target'
+
 execute :: ActionHook
-execute user target target' = fromEnum $
+execute _ user target target' = fromEnum $
     not (allied user target)
     && alive target
     && not (alive target')
     && hasFrom user "executed" target'
 
 heal :: ActionHook
-heal user target target'
+heal _ user target target'
   | not $ alive target = 0
   | not $ allied user target = 0
   | otherwise = max 0 $ health target' - health target
 
 kill :: ActionHook
-kill user target target' = fromEnum $
+kill _ user target target' = fromEnum $
     not (allied user target)
     && alive target
     && not (alive target')
 
 killAffected :: Text -> ActionHook
-killAffected name user target target' = fromEnum $
+killAffected name _ user target target' = fromEnum $
     not (allied user target)
     && alive target
     && not (alive target')
     && hasFrom user name target
 
 killDuring :: Text -> ActionHook
-killDuring name user target target' = fromEnum $
+killDuring name _ user target target' = fromEnum $
     not (allied user target)
     && alive target
     && not (alive target')
     && hasOwn name user
 
 interrupt :: ActionHook
-interrupt user target target'
+interrupt _ user target target'
   | allied user target = 0
   | otherwise          = max 0 interrupted
   where
     numChannels n = length (Ninja.channels n) + length (Ninja.newChans n)
     interrupted   = numChannels target - numChannels target'
 
+use :: ActionHook
+use _ _ _ _ = 1
+
 useDuring :: Text -> ActionHook
-useDuring name user _ _ = fromEnum $ hasOwn name user
+useDuring name _ user _ _ = fromEnum $ hasOwn name user
 
 useDuringStacks :: Text -> ActionHook
-useDuringStacks name user _ _ = Ninja.numStacks name (Ninja.slot user) user
+useDuringStacks name _ user _ _ = Ninja.numStacks name (Ninja.slot user) user
 
 -- CHAKRA HOOKS
 
@@ -143,60 +162,109 @@ deplete (_, chak) (_, chak') = max 0 $ Chakra.total chak' - Chakra.total chak
 
 -- STORE HOOKS
 
-checkUnique :: (Ninja -> Ninja -> Bool) -> StoreHook
-checkUnique f user _ target' store
-  | targetSlot ∈ store = (store, 0)
-  | f user target'     = (targetSlot `insertSet` store, 1)
-  | otherwise          = (store, 0)
+affectUniqueEnemy :: StoreHook
+affectUniqueEnemy = checkUnique \name user target ->
+    alive target
+    && not (allied user target)
+    && hasFrom user name target
+
+checkUnique :: (Text -> Ninja -> Ninja -> Bool) -> StoreHook
+checkUnique f name user _ target' store
+  | targetSlot ∈ store  = (store, 0)
+  | f name user target' = (targetSlot `insertSet` store, 1)
+  | otherwise           = (store, 0)
   where
     targetSlot = Slot.toInt $ Ninja.slot target'
 
-compareUnique :: (Ninja -> Ninja -> Ninja -> Bool) -> StoreHook
-compareUnique f user target target' store
-  | targetSlot ∈ store    = (store, 0)
-  | f user target target' = (targetSlot `insertSet` store, 1)
-  | otherwise             = (store, 0)
+compareUnique :: (Text -> Ninja -> Ninja -> Ninja -> Bool) -> StoreHook
+compareUnique f name user target target' store
+  | targetSlot ∈ store         = (store, 0)
+  | f name user target target' = (targetSlot `insertSet` store, 1)
+  | otherwise                  = (store, 0)
   where
     targetSlot = Slot.toInt $ Ninja.slot target'
 
 damageUnique :: StoreHook
-damageUnique = compareUnique \user target target' ->
+damageUnique = compareUnique \_ user target target' ->
     not (allied user target)
     && health target' < health target
 
 killUnique :: StoreHook
-killUnique = compareUnique \user target target' ->
+killUnique = compareUnique \_ user target target' ->
     not (allied user target)
     && alive target
     && not (alive target')
 
+killUniqueDuring :: Text -> StoreHook
+killUniqueDuring name = compareUnique \_ user target target' ->
+    not (allied user target)
+    && alive target
+    && not (alive target')
+    && hasOwn name user
+
+stunUnique :: StoreHook
+stunUnique = checkUnique \name user target ->
+    not (allied user target)
+    && hasFrom user name target
+    && stunned target
+
+useUnique :: StoreHook
+useUnique _ _ target _ store =
+    (targetSlot `insertSet` store, fromEnum $ targetSlot ∉ store)
+  where
+    targetSlot = Slot.toInt $ Ninja.slot target
+
 -- TRAP HOOKS
 
 trapUnique :: TrapHook
-trapUnique target store
-  | targetSlot ∈ store = (store, 0)
-  | otherwise          = (targetSlot `insertSet` store, 1)
+trapUnique _ target store =
+    (targetSlot `insertSet` store, fromEnum $ targetSlot ∉ store)
   where
     targetSlot = Slot.toInt $ Ninja.slot target
+
+trapUniqueAlly :: TrapHook
+trapUniqueAlly user target store
+  | not $ allied user target = (store, 0)
+  | otherwise                = trapUnique user target store
+
+trapUniqueEnemy :: TrapHook
+trapUniqueEnemy user target store
+  | allied user target = (store, 0)
+  | otherwise          = trapUnique user target store
 
 -- TURN HOOKS
 
 checkEnemyStatus :: Text -> TurnHook
-checkEnemyStatus name user _ target
-  | allied user target = 0
-  | alive target       = fromEnum $ hasFrom user name target
-  | otherwise          = 0
+checkEnemyStatus name player user _ target store
+  | not $ allied player user = (store, 0)
+  | allied user target       = (store, 0)
+  | alive target             = (store, fromEnum $ hasFrom user name target)
+  | otherwise                = (store, 0)
 
 killWith :: Text -> TurnHook
-killWith name user target target' = fromEnum $
-    not (allied user target)
+killWith name player user target target' store = (store, ) . fromEnum $
+    allied player user
+    && not (allied user target)
     && alive target
     && not (alive target')
     && hasFrom user name target
 
 maintain :: Text -> TurnHook
-maintain name user _ target
-  | Ninja.slot user /= Ninja.slot target = 0
-  | not $ alive target                   = resetToZero
-  | hasOwn name user                     = 1
-  | otherwise                            = resetToZero
+maintain name player user _ target store
+  | Ninja.slot user /= Ninja.slot target = (store, 0)
+  | not $ alive target                   = (store, resetToZero)
+  | not $ hasOwn name user               = (store, resetToZero)
+  | allied player user                   = (store, 1)
+  | otherwise                            = (store, 0)
+
+maintainOnAlly :: Text -> TurnHook
+maintainOnAlly name player user _ target store
+  | not $ allied user target       = (store, 0)
+  | not $ alive target             = (targetSlot `deleteSet` store, reset)
+  | not $ hasFrom user name target = (targetSlot `deleteSet` store, reset)
+  | otherwise = (targetSlot `insertSet` store, fromEnum $ allied player user)
+  where
+    targetSlot = Slot.toInt $ Ninja.slot target
+    reset
+      | targetSlot ∈ store = resetToZero
+      | otherwise          = 0

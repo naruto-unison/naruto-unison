@@ -16,13 +16,15 @@ import Game.Model.Ninja (Ninja)
 import Game.Model.Player (Player)
 import Game.Model.Skill (Skill)
 import Game.Model.Trap (Trap)
+import Game.Model.Trigger (Trigger)
 import Util (Lift)
 
 class Monad m => MonadHook m where
-    action :: Skill -> [Ninja] -> [Ninja] -> m ()
-    chakra :: Skill -> (Chakras, Chakras) -> (Chakras, Chakras) -> m ()
-    trap   :: Trap -> Ninja -> m ()
-    turn   :: Player -> [Ninja] -> [Ninja] -> m ()
+    action  :: Skill -> [Ninja] -> [Ninja] -> m ()
+    chakra  :: Skill -> (Chakras, Chakras) -> (Chakras, Chakras) -> m ()
+    trap    :: Trap -> Ninja -> m ()
+    trigger :: Trigger -> Ninja -> m ()
+    turn    :: Player -> [Ninja] -> [Ninja] -> m ()
 
     default action :: Lift MonadHook m
                    => Skill -> [Ninja] -> [Ninja] -> m ()
@@ -36,6 +38,10 @@ class Monad m => MonadHook m where
                  => Trap -> Ninja -> m ()
     trap x = lift . trap x
     {-# INLINE trap #-}
+    default trigger :: Lift MonadHook m
+                    => Trigger -> Ninja -> m ()
+    trigger x = lift . trigger x
+    {--# INLINE trigger #-}
     default turn :: Lift MonadHook m
                  => Player -> [Ninja] -> [Ninja] -> m ()
     turn p ns = lift . turn p ns
