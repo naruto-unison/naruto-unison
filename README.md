@@ -6,7 +6,7 @@ The next generation of Naruto Arena, built from the ground up in Haskell and Elm
 
 Currently pre-alpha and in active development. Nothing is guaranteed to be stable or fully functional.
 
-Character count: **176**! All Naruto Arena characters are implemented except for 2 removed (body doubles) and 5 pending reworks.
+Character count: **180**! All Naruto Arena characters are implemented except for the body doubles, Mecha Naruto, and Zaji.
 
 ***
 
