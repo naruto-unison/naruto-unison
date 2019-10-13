@@ -188,7 +188,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
                 P.trigger user [OnInvulnerable]
             when (any isReduce $ Status.effects st) $
                 P.trigger user [OnReduce]
-            when (any Effect.disabling $ Status.effects st) do
+            when (any Effect.isDisable $ Status.effects st) do
                 P.trigger user [OnStun]
                 P.trigger target [OnStunned]
             when (any isHeal $ Status.effects st) $ P.trigger user [OnHeal]
@@ -213,14 +213,13 @@ makeStatus :: Bool -> Skill -> Ninja -> Ninja
 makeStatus new skill nUser nTarget classes bounced bombs name dur fs = newSt
     { Status.name    = Skill.defaultName name skill
     , Status.user    = user
-    , Status.effects = filt . filter (∉ disabled) $ Ninjas.apply nTarget fs
+    , Status.effects = filterDmg . filter disable $ Ninjas.apply nTarget fs
     , Status.classes = classes'
     , Status.bombs   = guard (Status.dur newSt <= incr (sync dur))
                         >> bombs
     }
   where
     user     = Ninja.slot nUser
-    disabled = Effects.disabled nUser
     newSt    = Status.new user dur skill
     self     = user == user && user == Ninja.slot nTarget
     skillClasses
@@ -235,7 +234,10 @@ makeStatus new skill nUser nTarget classes bounced bombs name dur fs = newSt
                 ]
     classes' = extra ++ classes ++ skillClasses
     silenced = nUser `is` Silence
-    filt xs
+    disabled = Effects.disabled nUser
+    disable (Disable _) = Silence ∉ disabled
+    disable x           = x ∉ disabled
+    filterDmg xs
       | silenced && bounced = []
       | silenced            = filter isDmg xs
       | bounced             = filter (not . isDmg) xs
@@ -265,7 +267,7 @@ cureBane = P.unsilenced $ P.toTarget Ninjas.cureBane
 -- | Cures all 'Stun' effects from 'Ninja.statuses'.
 -- Uses 'Ninjas.cure' internally.
 cureStun :: ∀ m. MonadPlay m => m ()
-cureStun = P.unsilenced $ cure Effect.disabling
+cureStun = P.unsilenced $ cure Effect.isDisable
 
 -- | Cures all 'Effect.helpful' effects from 'Ninja.statuses'.
 -- Uses 'Ninjas.purge' internally.

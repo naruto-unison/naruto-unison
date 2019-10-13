@@ -450,14 +450,17 @@ characters =
     "A jōnin from the Hidden Rock Village, Kitsuchi is the Third Tsuchikage's son and Kurotsuchi's father. He commands the Allied Shinobi Forces Second Division, a responsibility he takes with the utmost seriousness."
     [ [ Skill.new
         { Skill.name      = "Rock Fist"
-        , Skill.desc      = "A massive stone hand punches an enemy, dealing 35 damage and preventing them from countering or reflecting skills for 1 turn."
+        , Skill.desc      = "A massive stone hand punches an enemy, dealing 35 damage and disabling the countering and reflecting effects of their skills for 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
                 damage 35
-                apply 1 [Uncounter]
+                apply 1 [ Disable Counters
+                        , Disable $ Only Reflect
+                        , Disable $ Only ReflectAll
+                        ]
           ]
         }
       ]
@@ -471,7 +474,8 @@ characters =
           [ To Self $ apply 1 [Reduce All Percent 20]
           , To Enemies do
                 damage 10
-                apply 1 [ Throttle 1 $ Any Stun
+                apply 1 [ Throttle 1 Counters
+                        , Throttle 1 $ Any Stun
                         , Throttle 1 $ Only Reflect
                         , Throttle 1 $ Only ReflectAll
                         ]
@@ -648,7 +652,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sensory Technique"
-        , Skill.desc      = "Dodai scans an enemy's psyche for weaknesses, dealing 20 piercing damage and preventing them from applying stuns for 1 turn. If the target was hit by [Rubber Sphere and Rope] within the past 4 turns, their physical and chakra skills are stunned."
+        , Skill.desc      = "Dodai scans an enemy's psyche for weaknesses, dealing 20 piercing damage and disabling the stuns and disabling effects of their skills for 1 turn. If the target was hit by [Rubber Sphere and Rope] within the past 4 turns, their physical and chakra skills are stunned."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
@@ -657,9 +661,13 @@ characters =
                 pierce 20
                 has <- targetHas "Rubber Sphere and Rope"
                 if has then
-                    apply 1 [Throttle 0 $ Any Stun, Stun Physical, Stun Chakra]
+                    apply 1 [ Disable $ Any Stun
+                            , Disable $ Only Silence
+                            , Stun Physical
+                            , Stun Chakra
+                            ]
                 else
-                    apply 1 [Throttle 0 $ Any Stun]
+                    apply 1 [Disable $ Any Stun, Disable $ Only Silence]
           ]
         }
       ]

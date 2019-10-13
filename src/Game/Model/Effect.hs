@@ -5,8 +5,7 @@ module Game.Model.Effect
   , construct
   , helpful
   , sticky
-  , disabling
-  , ignore
+  , isDisable, isIgnore
   , bypassEnrage
   , identity
   ) where
@@ -30,22 +29,28 @@ identity Percent = 1
 data Constructor
     = Only Effect
     | Any (Class -> Effect)
+    | Counters
 
 instance Show Constructor where
     show (Only x) = show x
     show (Any xs) = fromMaybe shown $ stripSuffix (' ' : show All) shown
       where
         shown = show $ xs All
+    show Counters = "Counters"
 
 construct :: Constructor -> [Effect]
 construct (Only x) = [x]
 construct (Any x)  = x <$> [minBound..maxBound]
+construct Counters = []
 
 instance Eq Constructor where
     Only x == Only y = x == y
     Any  x == Any  y = x All == y All
     Any  x == Only y = y ∈ (x <$> [minBound..maxBound])
     Only x == Any  y = x ∈ (y <$> [minBound..maxBound])
+
+    Counters == Counters = True
+    _        == _        = False
     {-# INLINE (==) #-}
 
 -- | Effects of 'Status'es.
@@ -63,12 +68,13 @@ data Effect
     | Build        Int                 -- ^ Adds to destructible defense 'Skill'
     | Bypass
     | DamageToDefense                  -- ^ Damage received converts to defense
+    | Disable      Constructor         -- ^ Prevents applying an effect
     | Duel         Slot                -- ^ 'Invulnerable' to everyone but user
     | Endure                           -- ^ Health cannot go below 1
     | Enrage                           -- ^ Ignore all harmful status effects
     | Exhaust      Class               -- ^ 'Skill's cost 1 additional random chakra
     | Expose                           -- ^ Cannot reduce damage or be 'Invulnerable'
-    | Focus                            -- ^ Immune to 'Stun' and 'Throttle 0'
+    | Focus                            -- ^ Immune to 'Stun', 'Disable', and 'Silence'
     | Heal         Int                 -- ^ Heals every turn
     | Invulnerable Class               -- ^ Invulnerable to enemy 'Skill's
     | Limit        Int                 -- ^ Limits damage received
@@ -130,6 +136,7 @@ helpful Boost{}         = True
 helpful (Build x)       = x >= 0
 helpful Bypass          = True
 helpful DamageToDefense = True
+helpful Disable{}       = False
 helpful Duel{}          = True
 helpful Endure          = True
 helpful Enrage          = True
@@ -179,11 +186,11 @@ sticky Swap           = True
 sticky _              = False
 
 -- | Effect is affected by 'Focus'.
-disabling :: Effect -> Bool
-disabling Silence        = True
-disabling (Stun _)       = True
-disabling (Throttle 0 _) = True
-disabling _              = False
+isDisable :: Effect -> Bool
+isDisable Disable{} = True
+isDisable Silence   = True
+isDisable Stun{}    = True
+isDisable _         = False
 
 -- | Not canceled by 'Enrage'.
 bypassEnrage :: Effect -> Bool
@@ -193,11 +200,11 @@ bypassEnrage Share{}   = True
 bypassEnrage ef        = helpful ef
 
 -- | Effect is affected by 'NoIgnore'.
-ignore :: Effect -> Bool
-ignore Enrage  = True
-ignore Focus   = True
-ignore Nullify = True
-ignore _       = False
+isIgnore :: Effect -> Bool
+isIgnore Enrage  = True
+isIgnore Focus   = True
+isIgnore Nullify = True
+isIgnore _       = False
 
 displayAmt :: Amount -> Int -> TextBuilder
 displayAmt Flat    = display
@@ -221,6 +228,7 @@ instance Display Effect where
       | otherwise =  "Destructible skills provide " ++ display (-x) ++ " fewer points of defense."
     display Bypass = "All skills bypass invulnerability."
     display DamageToDefense = "Non-affliction damage received is converted into destructible defense."
+    display (Disable _) = "Skills are disabled from applying certain effects."
     display (Duel _) = "Invulnerable to everyone but a specific target."
     display Endure = "Health cannot go below 1."
     display Enrage = "Ignores status effects from enemies except chakra cost changes."
@@ -247,7 +255,7 @@ instance Display Effect where
     display Restrict = "Skills that normally affect all opponents must be targeted."
     display Seal = "Ignores helpful effects."
     display (Share _) = "Harmful skills received are also reflected to another target."
-    display Silence = "Unable to cause non-damage effects."
+    display Silence = "Non-damage effects are disabled."
     display (Snare x)
       | x >= 0    = "Cooldowns increased by " ++ display x ++ "."
       | otherwise = "Cooldowns decreased by " ++ display (-x) ++ "."
@@ -258,8 +266,7 @@ instance Display Effect where
     display Swap = "Next skill will target allies instead of enemies and enemies instead of allies."
     display (Taunt _) = "Can only affect a specific target."
     display (Threshold x) = "Uninjured by attacks that deal " ++ display x ++ " baseline damage or lower."
-    display (Throttle 0 _) = "Skills cannot apply some effects."
-    display (Throttle x _) = "Skills will apply " ++ display x ++ " fewer turns of some effects."
+    display (Throttle x _) = "Skills will apply " ++ display x ++ " fewer turns of certain effects."
     display Uncounter = "Unable to benefit from counters or reflects."
     display Undefend = "Unable to benefit from destructible defense."
     display (Unreduce x) = "Damage reduction skills reduce " ++ display x ++ " fewer damage."

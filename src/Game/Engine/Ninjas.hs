@@ -123,7 +123,7 @@ processEffects n = n { effects = baseStatuses >>= process }
     baseStatuses  = statuses n
     unmodEffects  = baseStatuses >>= Status.effects
     baseEffects
-      | NoIgnore ∈ unmodEffects = filter (not . Effect.ignore) unmodEffects
+      | NoIgnore ∈ unmodEffects = filter (not . Effect.isIgnore) unmodEffects
       | otherwise               = unmodEffects
     enraged       = Enrage ∈ baseEffects
     sealed        = not enraged && Seal ∈ baseEffects
@@ -144,7 +144,7 @@ processEffects n = n { effects = baseStatuses >>= process }
           | otherwise     = effects
         allow (Reduce _ _ x) = x <= 0 || enraged || not (Expose ∈ baseEffects)
         allow (Bleed _ _ x)  = x >= 0 || enraged || not (Expose ∈ baseEffects)
-        allow (Effect.disabling -> True) = sealed || not (Focus ∈ baseEffects)
+        allow (Effect.isDisable -> True) = sealed || not (Focus ∈ baseEffects)
         allow _ = True
 
 

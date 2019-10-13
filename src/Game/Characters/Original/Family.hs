@@ -27,7 +27,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Unsexy Technique"
-        , Skill.desc      = "Konohamaru distracts an enemy with his modified version of the transformation technique he learned from Naruto. For 1 turn, the target ignores helpful effects and cannot reduce damage, become invulnerable, counter, or reflect."
+        , Skill.desc      = "Konohamaru distracts an enemy with his modified version of the transformation technique he learned from Naruto. For 1 turn, the target ignores helpful effects and cannot become invulnerable or benefit from damage reduction, counters, or reflects."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
@@ -278,7 +278,7 @@ characters =
     "A jōnin from the Hidden Leaf Village and Ino's father, Inoichi can solve practically any dilemma with his analytical perspective. Under his watchful gaze, every move made by his enemies only adds to his strength."
     [ [ Skill.new
         { Skill.name      = "Psycho Mind Transmission"
-        , Skill.desc      = "Inoichi invades the mind of an enemy, dealing 20 damage to them for 2 turns. While active, the target cannot use counter or reflect skills."
+        , Skill.desc      = "Inoichi invades the mind of an enemy, dealing 20 damage to them for 2 turns and disabling the countering and reflecting effects of their skills."
         , Skill.classes   = [Mental, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
@@ -286,7 +286,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [Uncounter]
+                apply 1 [ Disable Counters
+                        , Disable $ Only Reflect
+                        , Disable $ Only ReflectAll
+                        ]
           ]
         }
       ]

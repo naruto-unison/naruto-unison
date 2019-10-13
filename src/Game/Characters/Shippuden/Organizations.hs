@@ -453,13 +453,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Adamantine Attacking Chains"
-        , Skill.desc      = "Karin attacks an enemy with sealing chains, dealing 30 damage and preventing them from applying stuns for 1 turn."
+        , Skill.desc      = "Karin attacks an enemy with sealing chains, dealing 30 damage and disabling the stuns and disabling effects of their skills for 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
                 damage 30
-                apply 1 [Throttle 0 $ Any Stun]
+                apply 1 [Disable $ Any Stun, Disable $ Only Silence]
           ]
         }
       ]

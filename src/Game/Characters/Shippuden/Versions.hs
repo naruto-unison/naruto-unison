@@ -47,11 +47,11 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Natural Energy Assault"
-        , Skill.desc      = "Naruto prevents enemies from applying stuns for 1 turn. Once used, this skill becomes [Rasengan Barrage][n][r]."
+        , Skill.desc      = "Naruto attacks all enemies with energy, disabling the stuns and disabling effects of their skills for 1 turn. Once used, this skill becomes [Rasengan Barrage][n][r]."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Enemies $ apply 1 [Throttle 0 $ Any Stun]
+          [ To Enemies $ apply 1 [Disable $ Any Stun, Disable $ Only Silence]
           , To Self    $ vary "Natural Energy Assault" "Rasengan Barrage"
           ]
         }

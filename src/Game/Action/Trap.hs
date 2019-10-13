@@ -7,6 +7,7 @@ module Game.Action.Trap
   ) where
 import ClassyPrelude
 
+import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
 import Data.Enum.Set.Class (EnumSet)
 
 import qualified Class.Classed as Classed
@@ -23,8 +24,9 @@ import           Game.Model.Copy (Copying(..))
 import qualified Game.Model.Copy as Copy
 import qualified Game.Model.Delay as Delay
 import           Game.Model.Duration (Duration(..), Turns, incr, sync)
-import           Game.Model.Effect (Effect(..))
-import           Game.Model.Ninja (Ninja)
+import qualified Game.Model.Duration as Duration
+import           Game.Model.Effect (Constructor(..), Effect(..))
+import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Runnable (Runnable(..), RunConstraint)
 import qualified Game.Model.Runnable as Runnable
@@ -35,7 +37,7 @@ import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
 import qualified Game.Model.Trigger as Trigger
-import           Util ((∈))
+import           Util ((∉))
 
 -- | Adds a @Trap@ to 'Ninja.traps' that targets the person it was used on.
 trap :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
@@ -96,15 +98,24 @@ trapWith trapType clas dur tr f = trapFull trapType clas dur tr $ const f
 trapFull :: ∀ m. MonadPlay m
          => Trap.Direction -> EnumSet Class -> Turns -> Trigger
          -> (Int -> RunConstraint ()) -> m ()
-trapFull direction classes (Duration -> dur) trigger f = do
-    skill      <- P.skill
-    target     <- P.target
-    nUser      <- P.nUser
-    nTarget    <- P.nTarget
-    let newTrap = makeTrap skill nUser target
-                  direction classes dur trigger f
-    unless (newTrap ∈ Ninja.traps nTarget) $ P.modify target \n ->
-        n { Ninja.traps = Classed.nonStack newTrap newTrap $ Ninja.traps n }
+trapFull direction classes (Duration -> unthrottled) trigger f =
+    void $ runMaybeT do
+        skill      <- P.skill
+        target     <- P.target
+        nUser      <- P.nUser
+        nTarget    <- P.nTarget
+        dur        <- MaybeT . return $ throttle nUser
+        let newTrap = makeTrap skill nUser target
+                      direction classes dur trigger f
+        guard $ newTrap ∉ Ninja.traps nTarget
+        guard . not $ isCounter && nUser `is` Disable Counters
+        P.modify target \n ->
+            n { Ninja.traps = Classed.nonStack newTrap newTrap $ Ninja.traps n }
+  where
+    isCounter = Trigger.isCounter trigger
+    throttle n
+      | isCounter = Duration.throttle (Effects.throttleCounters n) unthrottled
+      | otherwise = Just unthrottled
 
 makeTrap :: Skill -> Ninja -> Slot
          -> Trap.Direction -> EnumSet Class -> Duration -> Trigger
@@ -121,8 +132,7 @@ makeTrap skill nUser target direction classes dur trigger f = Trap
         }
     , Trap.classes   = classes ++ Skill.classes skill
     , Trap.tracker   = 0
-    , Trap.dur       = Copy.maxDur (Skill.copying skill) . incr $
-                        sync dur + throttled nUser
+    , Trap.dur       = Copy.maxDur (Skill.copying skill) . incr $ sync dur
     }
   where
     user = Ninja.slot nUser
@@ -131,10 +141,6 @@ makeTrap skill nUser target direction classes dur trigger f = Trap
                    , Context.target = target
                    , Context.new    = False
                    }
-    throttled n
-      | dur == 0                  = 0
-      | Trigger.isCounter trigger = 2 * Effects.throttle [Reflect] n
-      | otherwise                 = 0
 
 -- | Saves an effect to a 'Delay.Delay', which is stored in 'Game.delays' and
 -- triggered when it expires.

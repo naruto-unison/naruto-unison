@@ -18,7 +18,7 @@ module Game.Engine.Effects
   , strengthen
   , stun
   , threshold
-  , throttle
+  , throttle, throttleCounters
   , taunt
   , unreduce
   , weaken
@@ -31,7 +31,7 @@ import Data.Enum.Set.Class (EnumSet)
 import qualified Class.Parity as Parity
 import           Game.Model.Chakra (Chakras(..))
 import           Game.Model.Class (Class(..))
-import           Game.Model.Effect (Amount(..), Effect(..))
+import           Game.Model.Effect (Amount(..), Constructor(..), Effect(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
@@ -136,6 +136,10 @@ throttle efs n = sum [x | Throttle x f <- Ninja.effects n, throttled f]
   where
     throttled constructor = any (∈ efs) $ Effect.construct constructor
 
+-- 'Throttle' 'Counters' sum.
+throttleCounters :: Ninja -> Int
+throttleCounters n = sum [x | Throttle x Counters <- Ninja.effects n]
+
 -- | 'Unreduce' sum.
 unreduce :: Ninja -> Int
 unreduce n = sum [x | Unreduce x <- Ninja.effects n]
@@ -145,9 +149,9 @@ weaken :: EnumSet Class -> Ninja -> Amount -> Float
 weaken classes n =
   negativeTotal [(amt, x) | Weaken cla amt x <- Ninja.effects n, cla ∈ classes]
 
--- | 'Throttle'-0 collection.
+-- | 'Disable' collection.
 disabled :: Ninja -> [Effect]
-disabled n = [f | Throttle 0 con <- Ninja.effects n, f <- Effect.construct con]
+disabled n = [f | Disable con <- Ninja.effects n, f <- Effect.construct con]
 
 reflect :: Ninja -> Bool
 reflect n = n `is` Reflect || n `is` ReflectAll

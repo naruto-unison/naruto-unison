@@ -413,14 +413,14 @@ characters =
     "Reanimated by Kabuto, Jinin was one of the Seven Swordsmen of the Mist. Wielding Kabutowari, the legendary blunt blade, Jinin cleaves the armor and protections of his enemies."
     [ [ Skill.new
         { Skill.name      = "Axe Chop"
-        , Skill.desc      = "Jinin slashes an enemy with the axe part of Kabutowari, dealing 15 piercing damage and preventing them from reducing damage, becoming invulnerable, or benefiting from counters for 1 turn."
+        , Skill.desc      = "Slashing an enemy with the axe part of Kabutowari, Jinin deals 15 piercing damage, disables the countering effects of their skills, and prevents them from reducing damage, becoming invulnerable, or benefiting from counters for 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
                 pierce 15
-                apply 1 [Expose, Uncounter]
+                apply 1 [Expose, Disable Counters]
           ]
         }
       ]
