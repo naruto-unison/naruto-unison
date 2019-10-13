@@ -1,7 +1,7 @@
 <div>
-  ^{topiclink cite}
+  ^{topic citation}
 <div>
   by
-  ^{userlink citeLatest}
+  ^{user citeLatest}
   at
   ^{timestamp $ topicTime citeVal}

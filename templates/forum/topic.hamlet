@@ -3,7 +3,7 @@ $forall cite <- posts
   <article>
     <aside>
       <img .char src=#{userAvatar $ citeAuthor cite}>
-      ^{userlink $ citeAuthor cite}
+      ^{Link.user $ citeAuthor cite}
       ^{timestamp $ postTime $ citeVal cite}
     <section>
       $forall paragraph <- postBody $ citeVal cite

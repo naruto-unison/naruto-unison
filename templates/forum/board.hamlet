@@ -19,13 +19,13 @@
         <td>
           <header>
             <h4>
-              ^{topiclink topic}
+              ^{Link.topic topic}
             <div>
               by
-              ^{userlink $ citeAuthor topic}
+              ^{Link.user $ citeAuthor topic}
         <td>
           #{topicPosts $ citeVal topic}
         <td>
-          ^{userlink $ citeLatest topic}
+          ^{Link.user $ citeLatest topic}
           at
           ^{timestamp $ topicTime $ citeVal topic}

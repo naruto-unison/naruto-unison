@@ -1093,9 +1093,7 @@ svg {
         left: 290px;
         position: absolute;
         right: 290px;
-    }
 
-    > article {
         aside {
             position: relative;
         }
@@ -1103,6 +1101,10 @@ svg {
         .char {
             margin-bottom: 0;
             height: 75px;
+        }
+
+        li {
+            line-height: 0.75em;
         }
 
         span {
@@ -1125,6 +1127,7 @@ svg {
         ul {
             font-weight: bold;
             padding-left: 1em;
+            margin: 1em 0 0.5em 0;
         }
     }
 

@@ -20,11 +20,7 @@ a, a sup, .skill {
   text-decoration: none;
 }
 
-a.name {
-    text-decoration: underline;
-}
-
-a:hover, a.name:hover {
+a:hover {
     text-decoration: underline;
 }
 

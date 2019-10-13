@@ -33,13 +33,11 @@ import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import qualified Handler.Forum as Forum
+import qualified Handler.Link as Link
 import qualified Handler.Parse as Parse
 import qualified Mission
 import qualified Mission.Goal as Goal
 import           Util (shorten)
-
-userlink :: User -> Widget
-userlink User{..} = $(widgetFile "widgets/userlink")
 
 -- | Renders the changelog.
 getChangelogR :: Handler Html
@@ -57,7 +55,7 @@ getHomeR = do
     newsList <- runDB $ traverse withAuthor
                         =<< selectList [] [Desc NewsDate, LimitTo 5]
     topics   <- Forum.selectWithAuthors [] [Desc TopicTime, LimitTo 10]
-    citelink <- liftIO Forum.makeCitelink
+    citelink <- liftIO Link.cite
     defaultLayout do
         setTitle "Naruto Unison"
         $(widgetFile "tooltip/tooltip")
@@ -65,10 +63,6 @@ getHomeR = do
   where
     change = getChangelog False
     withAuthor (Entity _ new) = ((new, ) <$>) <$> get $ newsAuthor new
-
-skill :: Text -> Category -> Text -> Html
-skill char category name = [shamlet| $newline never
-<a .skill data-name=#{Character.identFrom category char}>#{name}|]
 
 data LogType
     = Balance
@@ -88,10 +82,9 @@ separate :: NonEmpty Skill -> [Skill]
 separate = nubBy ((==) `on` Skill.name) . toList
 
 getChangelog :: Bool -> LogType -> Text -> Character.Category -> Widget
-getChangelog long logType name category =
-    case Characters.lookup tagName of
-        Nothing -> [whamlet|Error: character #{tagName} not found!|]
-        Just char -> $(widgetFile "home/change")
+getChangelog long logType name category = case Characters.lookup tagName of
+      Nothing -> [whamlet|Error: character #{tagName} not found!|]
+      Just char -> $(widgetFile "home/change")
   where
     change  = logLabel long
     tagName = Character.identFrom category name

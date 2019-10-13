@@ -10,7 +10,7 @@ $maybe mission <- mmission
     $forall (goal, progress) <- mission
       <li>
         $maybe char <- Goal.character goal
-          As <a href=@{CharacterR char}>#{Character.name char}#{Character.category char}</a>: #
+          As ^{Link.character char}: #
         #{Parse.desc $ Goal.desc goal} #
         $if progress < Goal.reach goal
           <span .incomplete>

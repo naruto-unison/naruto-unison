@@ -12,23 +12,22 @@ module Handler.Forum
     , postTopicR
     , getNewTopicR
     , postNewTopicR
-    , selectWithAuthors, makeCitelink
+    , selectWithAuthors
     ) where
 
 import ClassyPrelude
 import Yesod
 
 import qualified Data.Text as Text
-import qualified Data.Time.Format as Format
-import qualified Data.Time.LocalTime as LocalTime
 import qualified Yesod.Auth as Auth
 
-import           Application.App (AppPersistEntity, Handler, Route(..), Widget)
+import           Application.App (AppPersistEntity, Handler, Route(..))
 import           Application.Fields (ForumBoard, ForumCategory(..), Privilege(..), boardCategory, boardDesc, boardName)
 import           Application.Model (Cite(..), EntityField(..), HasAuthor(..), Post(..), Topic(..), TopicId, User(..), UserId)
 import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
 import qualified Game.Model.Class as Class
+import qualified Handler.Link as Link
 
 -- | Renders a 'User' profile.
 getProfileR :: Text -> Handler Html
@@ -47,7 +46,7 @@ inCategory category (BoardIndex x _ _) = category == boardCategory x
 -- | Renders the forums.
 getForumsR :: Handler Html
 getForumsR = do
-    citelink <- liftIO makeCitelink
+    citelink <- liftIO Link.cite
     allBoards <- traverse indexBoard [minBound..maxBound]
     let boards category = filter (inCategory category) allBoards
     defaultLayout $(widgetFile "forum/browse")
@@ -60,7 +59,7 @@ getForumsR = do
 -- | Renders a 'ForumBoard'.
 getBoardR :: ForumBoard -> Handler Html
 getBoardR board = do
-    timestamp  <- liftIO makeTimestamp
+    timestamp  <- liftIO Link.makeTimestamp
     topics     <- selectWithAuthors [TopicBoard ==. board] []
     defaultLayout $(widgetFile "forum/board")
 
@@ -70,7 +69,7 @@ getTopicR topicId = do
     mwho       <- Auth.maybeAuthId
     (title, _) <- breadcrumbs
     time       <- liftIO getCurrentTime
-    timestamp  <- liftIO makeTimestamp
+    timestamp  <- liftIO Link.makeTimestamp
     Topic{..}  <- runDB $ get404 topicId
     posts      <- selectWithAuthors [PostTopic ==. topicId] []
     mwidget    <- traverse
@@ -84,7 +83,7 @@ postTopicR topicId = do
     who         <- Auth.requireAuthId
     (title, _)  <- breadcrumbs
     time        <- liftIO getCurrentTime
-    timestamp   <- liftIO makeTimestamp
+    timestamp   <- liftIO Link.makeTimestamp
     ((result, widget), enctype) <- runFormPost . renderTable $
                                    newPostForm topicId time who
     case result of
@@ -125,10 +124,6 @@ postNewTopicR board = do
             runDB $ insert400_ post
             redirect $ TopicR topicId
         _ -> defaultLayout $(widgetFile "forum/new")
-
--- | Appended to titles of posts and threads by staff.
-staffTag :: Char
-staffTag = '*'
 
 userRanks :: [Text]
 userRanks = [ "Academy Student"
@@ -186,7 +181,7 @@ newTopicForm User{..} topicBoard postTime postAuthor = makeNewTopic
     topicPosts  = 1
     makeNewTopic rawTitle area = NewTopic Topic{..} \postTopic -> Post{..}
       where
-        topicTitle = filter (/= staffTag) rawTitle
+        topicTitle = filter (/= Link.staffTag) rawTitle
         postBody = toBody area
 
 newPostForm :: TopicId -> UTCTime -> UserId -> AForm Handler Post
@@ -194,29 +189,3 @@ newPostForm postTopic postTime postAuthor =
     makePost . toBody <$> areq textareaField "" Nothing
   where
     makePost postBody = Post{..}
-
-userlink :: User -> Widget
-userlink User{..} = $(widgetFile "widgets/userlink")
-
-topiclink :: Cite Topic -> Widget
-topiclink Cite{..} = $(widgetFile "widgets/topiclink")
-
-makeCitelink :: IO (Cite Topic -> Widget)
-makeCitelink = do
-    timestamp <- makeTimestamp
-    return \cite@Cite{..} -> $(widgetFile "widgets/citelink")
-
-makeTimestamp :: IO (UTCTime -> Widget)
-makeTimestamp = do
-    time   <- getCurrentTime
-    zone   <- LocalTime.getCurrentTimeZone
-    return . pureTimestamp zone $ utctDay time
-
-pureTimestamp :: LocalTime.TimeZone -> Day -> UTCTime -> Widget
-pureTimestamp zone today unzoned = $(widgetFile "widgets/timestamp")
-  where
-    zoned = LocalTime.utcToLocalTime zone unzoned
-    time  = Format.formatTime Format.defaultTimeLocale format zoned
-    format
-      | utctDay unzoned == today = "%l:%M %p"
-      | otherwise                = "%m/%d/%y"

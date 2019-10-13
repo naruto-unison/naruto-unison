@@ -2,7 +2,7 @@
 <aside>
   #{show newsDate} by&nbsp;
     $maybe user <- author
-      ^{userlink user}
+      ^{Link.user user}
     $nothing
       [deleted]
 <p>
