@@ -102,6 +102,105 @@ characters =
     , [ invuln "Dodge" "Mizuki" [Physical] ]
     ]
   , Character
+    "Anko Mitarashi"
+    "A former student of Orochimaru who bears his Curse Mark, Anko is now a jōnin teacher in the Hidden Leaf Village. She uses various poisons and forbidden techniques learned from Orochimaru to dismantle her enemies."
+    [ [ Skill.new
+        { Skill.name      = "Dual Pin"
+        , Skill.desc      = "Anko pins herself to an enemy by stabbing a kunai through her hand, preventing the target from reducing damage or becoming invulnerable for 1 turn and dealing 5 damage. Deals 5 additional damage if the target is affected by [Dragon Flame]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.dur       = Control 1
+        , Skill.effects   =
+          [ To Enemy do
+                apply 1 [Expose]
+                bonus <- 5 `bonusIf` targetHas "Dragon Flame"
+                damage (5 + bonus)
+          , To Self do
+                vary "Dragon Flame" "Twin Snake Sacrifice"
+                tag' "Twin Snake Sacrifice" 1
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Dragon Flame"
+        , Skill.desc      = "Fire scorches the battlefield, dealing 10 affliction damage to all enemies for 2 turns and causing them to take 5 additional damage from bane effects. During [Dual Pin], this skill becomes [Twin Snake Sacrifice][n][n]."
+        , Skill.classes   = [Bane, Ranged]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemies $ apply 2 [Bleed Bane Flat 5, Afflict 5] ]
+        }
+      , Skill.new
+        { Skill.name      = "Twin Snake Sacrifice"
+        , Skill.desc      = "Kills Anko and the target of [Dual Pin]."
+        , Skill.require   = HasU 1 "Dual Pin"
+        , Skill.classes   = [Melee]
+        , Skill.cost      = [Nin, Nin]
+        , Skill.effects   =
+          [ To Enemies kill
+          , To Self    killHard
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Striking Shadow Snakes"
+        , Skill.desc      = "Numerous poisonous snakes attack an enemy, dealing 20 damage instantly and 5 affliction damage each turn for 3 turns."
+        , Skill.classes   = [Bane, Physical, Melee]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 20
+                apply 3 [Afflict 5]
+          ]
+        }
+      ]
+    , [ invuln "Dodge" "Anko" [Physical] ]
+    ]
+  , Character
+    "Hayate Gekkō"
+    "A jōnin exam proctor from the Hidden Leaf Village, Hayate is calm and composed despite his poor health and chronic cough. He slips in and out of the shadows, gradually recovering his strength and honing his expert swordsmanship."
+    [ [ Skill.new
+        { Skill.name      = "Secret Sword"
+        , Skill.desc      = "Hayate leaps and attacks an enemy from above, dealing 15 damage. Increases Hayate's damage by 5."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
+          [ To Enemy $ damage 15
+          , To Self  $ apply 0 [Strengthen All Flat 5]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Crescent Moon Dance"
+        , Skill.desc      = "Performing a genjutsu-aided triple sword strike, Hayate deals 30 damage to an enemy. Catching his opponents off guard, he also counters the first skill an enemy uses on him in next turn."
+        , Skill.classes   = [Mental, Melee]
+        , Skill.cost      = [Gen, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ damage 30
+          , To Self  $ trap 1 (Counter All) $ return ()
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Transparency Technique"
+        , Skill.desc      = "Hayate melds into shadows, increasing his damage by 10 for 3 turns. Each turn, he gains 1 turn of damage reduction: 25 points on the first turn, 15 points on the second, and 5 points on the third."
+        , Skill.classes   = [Mental, Unremovable]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Self do
+                apply 1
+                    [Strengthen All Flat 10, Reduce All Flat 25]
+                delay 1 $ apply 1
+                    [Strengthen All Flat 10, Reduce All Flat 15]
+                delay 2 $ apply 1
+                    [Strengthen All Flat 10, Reduce All Flat 5]
+          ]
+        }
+      ]
+    , [ invuln "Dodge" "Hayate" [Physical] ]
+    ]
+  , Character
     "Kakashi Hatake"
     "Team 7's jōnin squad leader, Kakashi puts the life of his teammates above all else. Known as the Copy Ninja, Kakashi analyzes and duplicates abilities used against him."
     [ [ Skill.new
@@ -138,106 +237,6 @@ characters =
         }
       ]
     , [ invuln "Hide" "Kakashi" [Mental] ]
-    ]
-  , Character
-    "Anko Mitarashi"
-    "A former student of Orochimaru who bears his Curse Mark, Anko is now a jōnin teacher in the Hidden Leaf Village. She uses various poisons and forbidden techniques learned from Orochimaru to dismantle her enemies."
-    [ [ Skill.new
-        { Skill.name      = "Dual Pin"
-        , Skill.desc      = "Anko pins herself to an enemy by stabbing a kunai through her hand, preventing the target from reducing damage or becoming invulnerable for 1 turn and dealing 5 damage."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.dur       = Control 1
-        , Skill.effects   =
-          [ To Enemy do
-                apply 1 [Expose]
-                bonus <- 5 `bonusIf` targetHas "Dragon Flame"
-                damage (5 + bonus)
-          , To Self do
-                vary "Dragon Flame" "Twin Snake Sacrifice"
-                tag' "Twin Snake Sacrifice" 1
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Dragon Flame"
-        , Skill.desc      = "Fire scorches the battlefield, dealing 10 affliction damage to all enemies for 2 turns. All of Anko's instant damage is increased by 5 against targets affected by [Dragon Flame]. During [Dual Pin], this skill becomes [Twin Snake Sacrifice][n][n]."
-        , Skill.classes   = [Bane, Ranged]
-        , Skill.cost      = [Nin]
-        , Skill.cooldown  = 2
-        , Skill.effects   =
-          [ To Enemies $ apply 2 [Afflict 10] ]
-        }
-      , Skill.new
-        { Skill.name      = "Twin Snake Sacrifice"
-        , Skill.desc      = "Kills Anko and the target of [Dual Pin]."
-        , Skill.require   = HasU 1 "Dual Pin"
-        , Skill.classes   = [Melee]
-        , Skill.cost      = [Nin, Nin]
-        , Skill.effects   =
-          [ To Enemies kill
-          , To Self    killHard
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Striking Shadow Snakes"
-        , Skill.desc      = "Numerous poisonous snakes attack an enemy, dealing 20 damage instantly and 5 affliction damage each turn for 3 turns."
-        , Skill.classes   = [Bane, Physical, Melee]
-        , Skill.cost      = [Nin, Rand]
-        , Skill.effects   =
-          [ To Enemy do
-                bonus <- 5 `bonusIf` targetHas "Dragon Flame"
-                damage (20 + bonus)
-                apply 3 [Afflict 5]
-          ]
-        }
-      ]
-    , [ invuln "Dodge" "Anko" [Physical] ]
-    ]
-  , Character
-    "Hayate Gekkō"
-    "A jōnin exam proctor from the Hidden Leaf Village, Hayate is calm and composed despite his poor health and chronic cough. He slips in and out of the shadows, gradually recovering his strength and honing his expert swordsmanship."
-    [ [ Skill.new
-        { Skill.name      = "Secret Sword"
-        , Skill.desc      = "Hayate leaps and attacks an enemy from above, dealing 15 damage. Increases Hayate's damage by 5."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Tai]
-        , Skill.effects   =
-          [ To Enemy $ damage 15
-          , To Self  $ apply 0 [Strengthen All Flat 5]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Crescent Moon Dance"
-        , Skill.desc      = "Performing a genjutsu-aided triple sword strike, Hayate deals 30 damage to an enemy. Catching his opponents off guard, he also counters the first skill an enemy uses on him in the next turn."
-        , Skill.classes   = [Mental, Melee]
-        , Skill.cost      = [Gen, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy $ damage 30
-          , To Self  $ trap 1 (Counter All) $ return ()
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Transparency Technique"
-        , Skill.desc      = "Hayate melds into shadows, increasing his damage by 10 for 3 turns. Each turn, he gains 1 turn of damage reduction: 25 points on the first turn, 15 points on the second, and 5 points on the third."
-        , Skill.classes   = [Mental, Unremovable]
-        , Skill.cost      = [Gen]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Self do
-                apply 1
-                    [Strengthen All Flat 10, Reduce All Flat 25]
-                delay 1 $ apply 1
-                    [Strengthen All Flat 10, Reduce All Flat 15]
-                delay 2 $ apply 1
-                    [Strengthen All Flat 10, Reduce All Flat 5]
-          ]
-        }
-      ]
-    , [ invuln "Dodge" "Hayate" [Physical] ]
     ]
   , Character
     "Kurenai Yuhi"
@@ -293,7 +292,7 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Enemy $ pierce 30 ]
+          [ To Enemies $ pierce 30 ]
         }
       ]
     , [ invuln "Vanish" "Kurenai" [Mental] ]
@@ -323,13 +322,13 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Finishing Blow"
-        , Skill.desc      = "Deals 35 damage to an enemy and stuns them for 1 turn."
+        , Skill.desc      = "Deals 35 pierce damage to an enemy and stuns them for 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                damage 35
+                pierce 35
                 apply 1 [Stun All]
           ]
         }
@@ -344,11 +343,14 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Flying Kick"
-        , Skill.desc      = "Deals 35 damage to an enemy."
+        , Skill.desc      = "Deals 35 damage to an enemy and stuns them for 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ To Enemy $ damage 35 ]
+          [ To Enemy do
+                damage 35
+                apply 1 [Stun All]
+          ]
         }
       ]
     , [ Skill.new
@@ -359,7 +361,7 @@ characters =
         , Skill.effects   =
           [ To XAlly do
                 userSlot <- user slot
-                apply 0 [Redirect All userSlot]
+                apply 0 [Redirect userSlot]
                 trap' 0 OnDeath $ self $ vary "Self-Sacrifice" baseVariant
           , To Self $ vary "Self-Sacrifice" "Self-Sacrifice"
           ]
@@ -383,7 +385,7 @@ characters =
     "Team Guy's jōnin squad leader, Guy is passionate and strong-willed. He treats his teammates like family, especially Lee, who looks up to him as a father figure. His taijutsu prowess is unmatched. Although opening his inner Gates takes a heavy toll on his body, it empowers his blows with inescapable destruction."
     [ [ Skill.new
         { Skill.name      = "Leaf Hurricane"
-        , Skill.desc      = "Guy delivers a powerful spinning kick to an enemy, dealing 30 damage. Deals 30 additional damage and bypasses invulnerability during [Sixth Gate Opening]."
+        , Skill.desc      = "Guy delivers a powerful spinning kick to an enemy, dealing 30 damage. During [Sixth Gate Opening], this skill becomes [Severe Leaf Hurricane][t][r]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =

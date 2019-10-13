@@ -83,7 +83,7 @@ data Effect
     | Pierce                           -- ^ Damage attacks become piercing
     | Plague                           -- ^ Invulnerable to healing and curing
     | Reduce       Class Amount Int    -- ^ Reduces damage by an amount
-    | Redirect     Class Slot          -- ^ Transfers harmful 'Skill's
+    | Redirect     Slot                -- ^ Transfers harmful 'Skill's
     | Reflect                          -- ^ Reflects the first 'Skill'
     | ReflectAll                       -- ^ 'Reflect' repeatedly
     | Restrict                         -- ^ Forces AoE attacks to be single-target
@@ -108,7 +108,6 @@ instance Classed Effect where
     classes (Exhaust cla)        = singletonSet cla
     classes (Invulnerable cla)   = singletonSet cla
     classes (Reduce cla _ _)     = singletonSet cla
-    classes (Redirect cla _)     = singletonSet cla
     classes (Strengthen cla _ _) = singletonSet cla
     classes (Stun cla)           = singletonSet cla
     classes (Weaken cla _ _)     = singletonSet cla
@@ -194,6 +193,7 @@ isDisable _         = False
 
 -- | Not canceled by 'Enrage'.
 bypassEnrage :: Effect -> Bool
+bypassEnrage Bleed{}   = True
 bypassEnrage Exhaust{} = True
 bypassEnrage Reveal    = True
 bypassEnrage Share{}   = True
@@ -248,7 +248,7 @@ instance Display Effect where
     display (Reduce cla amt x)
       | x >= 0    = "Reduces " ++ lower cla ++ " damage received by " ++ displayAmt amt x ++ ". Does not affect piercing or affliction damage."
       | otherwise = "Increases " ++ lower cla ++ " damage received by " ++ displayAmt amt (-x) ++ ". Does not affect piercing or affliction damage."
-    display (Redirect cla _) = "Redirects " ++ lower cla  ++ " harmful skills to a different target."
+    display Redirect{} = "Redirects skills from enemies to a different target."
     display Reflect = "Reflects the first harmful skill."
     display ReflectAll = "Reflects all skills."
     display Reveal = "Reveals invisible skills to the enemy team. This effect cannot be removed."

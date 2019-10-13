@@ -184,7 +184,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sound Manipulation"
-        , Skill.desc      = "Sound waves bombard an enemy, dealing 10 damage. The target permanently receives 5 additional damage from non-affliction skills and their damage is weakened by 5. Deals 10 additional damage if [Resonating Echo Drill] was used on the target last turn. Deals 10 additional damage during [Echo Speaker Tuning]."
+        , Skill.desc      = "Sound waves bombard an enemy, dealing 10 damage. The target permanently receives 5 additional damage from non-affliction attacks and their damage is weakened by 5. Deals 10 additional damage if [Resonating Echo Drill] was used on the target last turn. Deals 10 additional damage during [Echo Speaker Tuning]."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
@@ -214,7 +214,7 @@ characters =
     "One of the three sound genin, Kin likes to defeat her enemies slowly and painfully, torturing them with her needles and bells. Her moves empower each other when strung together in disorienting harmony."
     [ [ Skill.new
         { Skill.name      = "Bell Ring Illusion"
-        , Skill.desc      = "Sanity-shattering soundwaves deal 15 damage to an enemy. If [Shadow Senbon] was used last turn, Kin becomes invulnerable for 1 turn. If [Unnerving Bells] was used last turn, deals 25 additional damage."
+        , Skill.desc      = "Sanity-shattering soundwaves deal 15 damage to an enemy. Deals 25 additional damage if [Unnerving Bells] was used last turn. If [Shadow Senbon] was used last turn, Kin becomes invulnerable for 1 turn."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -404,7 +404,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Soft Physique Modification"
-        , Skill.desc      = "Misumi wraps around an enemy. For 2 turns, non-mental skills that enemies use on Misumi are reflected onto the target. During this time, the target cannot reduce damage or become invulnerable."
+        , Skill.desc      = "Misumi wraps around an enemy. For 2 turns, skills that enemies use on Misumi are reflected onto the target. During this time, the target cannot reduce damage or become invulnerable."
         , Skill.classes   = [Physical, Melee, Soulbound, Uncounterable, Unreflectable]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
@@ -412,7 +412,7 @@ characters =
           [ To Enemy do
                 apply 2 [Expose]
                 targetSlot <- target slot
-                self $ apply 2 [Redirect NonMental targetSlot]
+                self $ apply 2 [Redirect targetSlot]
           ]
         }
       ]

@@ -66,7 +66,6 @@ changeWithDefense name f n
   | Ninja.hasDefense name (Ninja.slot n) n = f
   | otherwise                              = id
 
-
 -- | Multiplies @Chakras@ by 'Ninja.numActive' and adds the total to
 -- 'Skill.cost'.
 costPer :: Text -> Chakras -> Skill.Transform

@@ -14,7 +14,7 @@ characters =
     "A pair of chūnin from the Hidden Leaf Village assigned to hunt down members of Akatsuki, Izumo and Kotetsu are close friends and effective partners. Although their strength may be somewhat lacking as individuals, they have a significant advantage of their own: there are two of them."
     [ [ Skill.new
         { Skill.name      = "Mace Crush"
-        , Skill.desc      = "Kotetsu slams an enemy with his mace, dealing 30 damage. Deals 10 additional damage to an enemy affected by [Syrup Trap]."
+        , Skill.desc      = "Kotetsu slams an enemy with his mace, dealing 30 damage. Deals 10 additional damage if the target is affected by [Syrup Trap]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
@@ -26,7 +26,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Syrup Trap"
-        , Skill.desc      = "Izumo spits out a field of sticky syrup that impedes the enemy team. For 2 turns, enemies who use chakra skills will have their chakra skills stunned for 1 turn, and enemies who use physical skills will have their physical skills stunned for 1 turn."
+        , Skill.desc      = "Izumo spits out a field of sticky syrup that impedes the enemy team. For 2 turns, enemies who use chakra skills will have their chakra skills stunned for 1 turn, enemies who use physical skills will have their physical skills stunned for 1 turn, and enemies who use summon skills will have their summon skills stunned for 1 turn."
         , Skill.classes   = [Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
@@ -34,6 +34,7 @@ characters =
           [ To Enemies do
                 trap 2 (OnAction Chakra)   $ apply 1 [Stun Chakra]
                 trap 2 (OnAction Physical) $ apply 1 [Stun Physical]
+                trap 2 (OnAction Summon)   $ apply 1 [Stun Summon]
           ]
         }
       ]

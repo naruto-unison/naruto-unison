@@ -169,7 +169,7 @@ turns (Duration -> i) = do
 enemySkill :: Skill
 enemySkill = Skill.new
     { Skill.start   = []
-    , Skill.classes = [Summon, Melee, Ranged, Chakra, Physical, Mental, All, NonMental, Bloodline, Genjutsu, Ninjutsu, Taijutsu, Random]
+    , Skill.classes = [All]
     }
 
 enemyTurn :: ∀ m. (MonadPlay m, MonadHook m, MonadRandom m) => RunConstraint () -> m ()
@@ -180,7 +180,11 @@ enemyTurn f = do
     with ctx = ctx
         { Context.user   = user
         , Context.target = target
-        , Context.skill  = enemySkill { Skill.effects = [To Enemy f] }
+        , Context.skill  = enemySkill 
+            { Skill.effects = [To Enemy f]
+            , Skill.classes = Skill.classes enemySkill
+                              ++ Skill.classes (Context.skill ctx)
+            }
         }
       where
         user = Slot.all !! 3

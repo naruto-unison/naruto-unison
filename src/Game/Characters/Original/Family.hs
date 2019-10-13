@@ -220,7 +220,7 @@ characters =
     "A jōnin from the Hidden Leaf Village and Shikamaru's father, Shikaku is a master tactician capable of analyzing enormous quantities of information at lightning speed. Always one step ahead of his enemies, Shikaku spots the weaknesses in their actions and uses them as opportunities to take back control."
     [ [ Skill.new
         { Skill.name      = "Shadow Possession"
-        , Skill.desc      = "Shikamaru captures an enemy in shadows, stunning their non-mental skills for 2 turns and dealing 20 damage. Deals 10 additional damage to an enemy affected by [Black Spider Lily]. The following turn, this skill becomes [Shadow Dispersion][g]."
+        , Skill.desc      = "Shikamaru captures an enemy in shadows, stunning their non-mental skills for 2 turns and dealing 20 damage. Deals 10 additional damage if the target is affected by [Black Spider Lily]. The following turn, this skill becomes [Shadow Dispersion][g]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
@@ -235,7 +235,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Shadow Dispersion"
-        , Skill.desc      = "Extending his shadow tendrils, Shikaku deals 20 damage to all enemies not affected by [Shadow Possession] and stuns their non-mental skills for 1 turn. Deals 10 additional damage to enemies affected by [Black Spider Lily]."
+        , Skill.desc      = "Extending his shadow tendrils, Shikaku deals 20 damage to all enemies not affected by [Shadow Possession] and stuns their non-mental skills for 1 turn. Deals 10 additional damage to targets affected by [Black Spider Lily]."
         , Skill.require   = HasU 0 "Shadow Possession"
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]

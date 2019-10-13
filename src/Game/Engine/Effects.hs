@@ -204,16 +204,19 @@ afflict1 ninjas player nThreshold t st
     n      = ninjas !! Slot.toInt user
     summed = fromIntegral $ sum [hp' | Afflict hp' <- Status.effects st]
     damage = truncate $ scale * (summed + ext)
+    classes
+      | Bane ∈ Status.classes st = Bane `insertSet` afflictClasses
+      | otherwise                = afflictClasses
     ext
       | t == user              = 0
-      | not $ Ninja.alive n    = bleed      afflictClasses nt Flat
+      | not $ Ninja.alive n    = bleed      classes nt Flat
       | n `is` Stun Affliction = 0
-      | otherwise              = strengthen afflictClasses n  Flat
-                                 + bleed    afflictClasses nt Flat
+      | otherwise              = strengthen classes n  Flat
+                                 + bleed    classes nt Flat
     scale
       | t == user              = 0
-      | not $ Ninja.alive n    = bleed      afflictClasses nt Percent
+      | not $ Ninja.alive n    = bleed      classes nt Percent
       | n `is` Stun Affliction = 0
-      | otherwise              = strengthen afflictClasses n  Percent
-                                 * bleed    afflictClasses nt Percent
+      | otherwise              = strengthen classes n  Percent
+                                 * bleed    classes nt Percent
 

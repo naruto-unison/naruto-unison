@@ -454,7 +454,7 @@ spec = parallel do
                 addStacks "Unsealing Technique" stacks
                 tag' "Rising Twin Dragons" 0
             act
-            enemyTurn $ damage targetDmg
+            withClass Physical $ enemyTurn $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
             tagged <- Ninja.hasOwn "Rising Twin Dragons" <$> P.nUser
@@ -568,7 +568,7 @@ spec = parallel do
     describeCharacter "Temari" \useOn -> do
         useOn Enemy "Cyclone Scythe" do
             act
-            enemyTurn $ apply 0 [Reveal]
+            withClass NonMental $ enemyTurn $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             targetHealth <- Ninja.health <$> P.nTarget
             return do

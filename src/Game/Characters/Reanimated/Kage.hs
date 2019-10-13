@@ -148,12 +148,12 @@ characters =
           [ To XAlly do
                 userSlot   <- user slot
                 targetSlot <- target slot
-                apply (-1) [Redirect All userSlot]
+                apply (-1) [Redirect userSlot]
                 trap (-1) (OnHarmed All) $ self $
                     apply' "Round-Robin Surprise Attack" (-1)
                     [AntiCounter, Bypass, Pierce]
                 self do
-                    apply (-1) [Redirect All targetSlot]
+                    apply (-1) [Redirect targetSlot]
                     trap (-1) (OnHarmed All) $ withTarget targetSlot $
                         apply' "Round-Robin Surprise Attack" (-1)
                         [AntiCounter, Bypass, Pierce]

@@ -93,7 +93,7 @@ characters =
     "A genin from Team 7, Sasuke seeks vengeance against his brother for slaughtering the rest of their clan. Using his Sharingan, Sasuke targets his opponent's weak spots and anticipates their attacks."
     [ [ Skill.new
         { Skill.name      = "Lions Barrage"
-        , Skill.desc      = "Copying a taijutsu combo that Lee used on him, Sasuke deals 30 damage to an enemy. Deals 15 additional damage to an enemy affected by [Sharingan]."
+        , Skill.desc      = "Copying a taijutsu combo that Lee used on him, Sasuke deals 30 damage to an enemy. Deals 15 additional damage if the target is affected by [Sharingan]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
@@ -105,7 +105,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Chidori"
-        , Skill.desc      = "Sasuke attacks an enemy with a bolt of lightning, dealing 30 piercing damage. Deals 25 additional damage to an enemy affected by [Sharingan]."
+        , Skill.desc      = "Sasuke attacks an enemy with a bolt of lightning, dealing 30 piercing damage. Deals 25 additional damage if the target is affected by [Sharingan]."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
@@ -135,7 +135,7 @@ characters =
     "A genin from Team 8, Kiba is short-tempered and impulsive. His powerful taijutsu skills are amplified when he fuses with his dog, Akamaru, and transforms into a double-headed monster."
     [ [ Skill.new
         { Skill.name      = "Wolf Fang"
-        , Skill.desc      = "Kiba projects a vacuum vortex at an enemy, dealing 30 damage. Deals 5 additional damage to an enemy affected by [Dynamic Marking]. Costs 1 taijutsu chakra during [Two-Headed Wolf]."
+        , Skill.desc      = "Kiba projects a vacuum vortex at an enemy, dealing 30 damage. Deals 5 additional damage if the target is affected by [Dynamic Marking]. Costs 1 taijutsu chakra during [Two-Headed Wolf]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
@@ -593,15 +593,18 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Rising Dragon Control"
-        , Skill.desc      = "Tenten's weapons scattered across the battlefield shoot upward, spending all stacks of [Unsealing Technique] to deal 5 damage plus 10 per stack to all enemies. For 1 turn, non-mental damage of all enemies is weakened by 5 plus 10 per stack spent."
-        , Skill.classes   = [Physical, Ranged]
+        , Skill.desc      = "Tenten's weapons scattered across the battlefield shoot upward, spending all stacks of [Unsealing Technique] to deal 5 damage plus 10 per stack to all enemies. For 1 turn, physical and chakra damage of all enemies is weakened by 5 plus 10 per stack spent."
+        , Skill.classes   = [Physical, Ranged, Uncounterable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemies do
                 stacks <- userStacks "Unsealing Technique"
                 damage (5 + 10 * stacks)
                 bonus <- 1 `bonusIf` userHas "Rising Twin Dragons"
-                apply (1 + bonus) [Weaken NonMental Flat (5 + 10 * stacks)]
+                apply (1 + bonus) 
+                    [ Weaken Physical Flat (5 + 10 * stacks)
+                    , Weaken Chakra   Flat (5 + 10 * stacks)
+                    ]
           ,  To Self do
                 remove "Unsealing Technique"
                 remove "Rising Twin Dragons"
@@ -680,15 +683,17 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Control 2
         , Skill.start     =
-          [ To Self $ vary "Sand Coffin" "Sand Burial" ]
+          []-- To Self $ vary "Sand Coffin" "Sand Burial" ]
         , Skill.effects   =
-          [ To Enemy $ apply 1 [Expose, Stun NonMental] ]
+          [ To Self  $ hide 1 [Alternate "Sand Coffin" "Sand Burial"]
+          , To Enemy $ apply 1 [Expose, Stun NonMental]
+          ]
         }
       , Skill.new
         { Skill.name      = "Sand Burial"
         , Skill.desc      = "Kills the target of [Sand Coffin]."
         , Skill.require   = HasU 1 "Sand Coffin"
-        , Skill.classes   = [Physical, Ranged]
+        , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable]
         , Skill.cost      = [Nin, Nin]
         , Skill.effects   =
           [ To Enemies kill ]

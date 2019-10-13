@@ -125,7 +125,8 @@ tag' name dur = applyWith' (setFromList [Unremovable, Nonstacking]) name dur []
 
 -- | Applies a 'Hidden' and 'Unremovable' @Status@.
 hide :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> [Effect] -> m ()
-hide = hide' ""
+hide = hide' "_" -- The effects are all that matter, not the status itself.
+
 -- | 'hide' with a 'Status.name'.
 hide' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> [Effect] -> m ()
 hide' = applyWith' $ setFromList [Unremovable, Hidden]

@@ -303,7 +303,7 @@ characters =
                 onBreak'
           , To XAllies do
                 userSlot <- user slot
-                apply 0 [Redirect All userSlot]
+                apply 0 [Redirect userSlot]
           ]
         }
       ]

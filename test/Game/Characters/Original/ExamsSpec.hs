@@ -106,7 +106,7 @@ spec = parallel do
                     toList targetExhaust `shouldBe` [Rand]
         useOn Self "Pre-Healing Technique" do
             let initialHealth = 10
-            enemyTurn $ withClass Bane $ apply 0 [Reveal]
+            withClass Bane $ enemyTurn $ apply 0 [Reveal]
             self $ setHealth initialHealth
             act
             uncured <- (`is` Reveal) <$> P.nTarget
@@ -267,7 +267,7 @@ spec = parallel do
                     100 - targetHealth `shouldBe` 25
         useOn XAlly "Wall of Air" do
             act
-            enemyTurn $ apply 0 [Reveal]
+            withClass NonMental $ enemyTurn $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nTarget
             return do
                 it "counters a skill" $
@@ -304,7 +304,7 @@ spec = parallel do
             act
             tagged <- Ninja.hasOwn "Fog Clone" <$> P.nUser
             defense <- totalDefense <$> P.nUser
-            enemyTurn $ apply 0 [Reveal]
+            withClass Mental $ enemyTurn $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             return do
                 it "tags user"

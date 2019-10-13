@@ -112,7 +112,7 @@ wrap affected f = void $ runMaybeT do
                 wrap (Reflected `insertSet` affected) f
         $ do
             guard $ allow Redirected
-            t <- Trigger.redirect classes nTarget
+            t <- Trigger.redirect nTarget
             return . P.withTarget t $ wrap (Redirected `insertSet` affected) f
         <|> do
             guard $ allow Reflected
