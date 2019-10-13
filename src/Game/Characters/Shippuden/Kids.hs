@@ -14,7 +14,7 @@ characters =
     "Naruto's years of training under Jiraiya have made him stronger, wiser, and far more effective at controlling his immense chakra. He has learned how to distribute his chakra efficiently across numerous shadow clones, and can harness the flow of energy within himself to transform and repurpose chakra."
     [ [ Skill.new
         { Skill.name      = "Giant Rasengan"
-        , Skill.desc      = "Naruto instantly creates several shadow clones to aid him in wielding the Rasengan. Infused with highly compressed chakra, the Rasengan blasts through his enemy's guard and deals 40 damage. If [Multi Shadow Clone] was used last turn, this skill becomes [Rasenshuriken][n][t]."
+        , Skill.desc      = "Naruto instantly creates several shadow clones to aid him in wielding the Rasengan. Infused with highly compressed chakra, the Rasengan blasts through his enemy's guard and deals 40 damage. If [Multi Shadow Clone] was used last turn, this skill becomes [Rasen Shuriken][n][t]."
         , Skill.classes   = [Chakra, Melee, Bypassing]
         , Skill.cost      = [Nin, Tai]
         , Skill.cooldown  = 1
@@ -22,7 +22,7 @@ characters =
           [ To Enemy $ damage 40 ]
         }
       , Skill.new
-        { Skill.name      = "Rasenshuriken"
+        { Skill.name      = "Rasen Shuriken"
         , Skill.desc      = "Deals 50 piercing damage. Deals 25 additional damage if [Multi Shadow Clone] countered the target last turn."
         , Skill.classes   = [Chakra, Melee, Bypassing]
         , Skill.cost      = [Nin, Tai]
@@ -43,7 +43,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 trapFrom 1 (Counter All) $ tag 1
-                vary' 1 "Giant Rasengan" "Rasenshuriken"
+                vary' 1 "Giant Rasengan" "Rasen Shuriken"
           ]
         }
       ]

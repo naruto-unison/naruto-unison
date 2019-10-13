@@ -10,6 +10,66 @@ import qualified Game.Model.Skill as Skill
 characters :: [Int -> Category -> Character]
 characters =
   [ Character
+    "Sage Mode Naruto"
+    "Naruto has trained on Mount Myōboku with Fukasaku and Shima, the Two Great Sage Toads. He has learned to absorb natural energy and use it to empower his attacks or heal himself."
+    [ [ Skill.new
+        { Skill.name      = "Frog Kumite"
+        , Skill.desc      = "Surrounded by a field of natural energy that extends the range of his attacks, Naruto deals 20 damage to an enemy and stuns their physical and melee skills for 1 turn. Once used, this skill becomes [Rasen Shuriken][n][t]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 20
+                apply 1 [Stun Physical, Stun Melee]
+          , To Self $ vary "Frog Kumite" "Rasen Shuriken"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Rasen Shuriken"
+        , Skill.desc      = "Using his ultimate attack, Naruto deals 50 piercing damage to an enemy. Once used, this skill becomes [Frog Kumite][t]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Nin, Tai]
+        , Skill.effects   =
+          [ To Enemy $ pierce 50
+          , To Self  $ vary "Frog Kumite" baseVariant
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Sage Mode"
+        , Skill.desc      = "Naruto holds still and absorbs natural energy from his surroundings to replenish his chakra, restoring 25 health."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Self $ heal 25 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Natural Energy Assault"
+        , Skill.desc      = "Naruto prevents enemies from applying stuns for 1 turn. Once used, this skill becomes [Rasengan Barrage][n][r]."
+        , Skill.classes   = [Chakra, Melee]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Enemies $ apply 1 [Throttle 0 $ Any Stun]
+          , To Self    $ vary "Natural Energy Assault" "Rasengan Barrage"
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Rasengan Barrage"
+        , Skill.desc      = "The first enemy who uses a skill on Naruto next turn will be countered and take 30 damage. Once used, this skill becomes [Natural Energy Assault][r]."
+        , Skill.classes   = [Chakra, Melee]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.effects   =
+          [ To Self do
+                trapFrom 1 (Counter All) $ damage 30
+                vary "Natural Energy Assault" baseVariant
+          ]
+        }
+      ]
+    , [ invuln "Parry" "Naruto" [Physical] ]
+    ]
+  , Character
     "Mangekyō Sasuke"
     "The trauma of Itachi's death has awakened Sasuke's Mangekyō Sharingan. With it, he has access to the most powerful techniques of the Uchiha clan. Although his sibling rivalry is at an end, Sasuke's need for vengeance has only grown stronger."
     [ [ Skill.new
