@@ -31,16 +31,16 @@ import qualified Game.Model.Skill as Skill
 -- 'Character.Character''s @[[Skill]]@ list into one that searches by name.
 -- Passing an empty string for the second argument will select the base (0)
 -- 'Skill' in the lists. Otherwise, the root skill will not be considered.
--- This means that if a skill has a variant with the same name as it, ""
--- selects the base variant, while "<skill name>" selects
--- the identically-named variant.
+-- This means that if a skill has an alternate with the same name as it, ""
+-- selects the base alternate, while "<skill name>" selects
+-- the identically-named alternate.
 safe :: ∀ a. a -> (Int -> Int -> a) -> Ninja -> Text -> Text -> a
-safe a f n sName vName = fromMaybe a do
-    s <- findIndex ((sName ==) . Skill.name . head) $ toList skills
-    v <- case vName of
+safe a f n sName altName = fromMaybe a do
+    s   <- findIndex ((sName ==) . Skill.name . head) $ toList skills
+    alt <- case altName of
             "" -> return (-1)
-            _  -> findIndex ((vName ==) . Skill.name) . tail $ skills !! s
-    return . f s $ v + 1
+            _  -> findIndex ((altName ==) . Skill.name) . tail $ skills !! s
+    return . f s $ alt + 1
   where
     skills  = Character.skills $ Ninja.character n
 

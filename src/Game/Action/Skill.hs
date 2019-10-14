@@ -37,23 +37,23 @@ import           Game.Model.Slot (Slot)
 import           Util ((!?))
 
 
--- | Changes the 'Skill.cooldown' of a @Skill@ by base 'Skill.name' and variant
--- 'Skill.name'.
+-- | Changes the 'Skill.cooldown' of a @Skill@ by base 'Skill.name' and
+-- alternate 'Skill.name'.
 -- Uses 'Cooldown.alter' internally.
 alterCd :: ∀ m. MonadPlay m => Text -> Text -> Int -> m ()
-alterCd s v cd = do
+alterCd s alt cd = do
     nUser <- P.nUser
-    Skills.safe (return ()) (unsafeAlterCd cd) nUser s v
+    Skills.safe (return ()) (unsafeAlterCd cd) nUser s alt
 
--- | Changes the 'Skill.cooldown' of a @Skill@ by skill and variant index within
--- 'Character.skills'.
+-- | Changes the 'Skill.cooldown' of a @Skill@ by skill and alternate index
+-- within 'Character.skills'.
 unsafeAlterCd :: ∀ m. MonadPlay m => Int -> Int -> Int -> m ()
-unsafeAlterCd cd s v = P.unsilenced . P.toTarget $ Cooldown.alter s v cd
+unsafeAlterCd cd s alt = P.unsilenced . P.toTarget $ Cooldown.alter s alt cd
 
 -- | Resets 'Ninja.cooldowns' with a matching 'Skill.name' of a @Ninja@.
 -- Uses 'Cooldown.reset' internally.
 reset :: ∀ m. MonadPlay m => Text -> Text -> m ()
-reset name v = P.unsilenced . P.toTarget $ Cooldown.reset name v
+reset name alt = P.unsilenced . P.toTarget $ Cooldown.reset name alt
 
 -- | Resets all 'Ninja.cooldowns' of a @Ninja@.
 -- Uses 'Cooldown.resetAll' internally.

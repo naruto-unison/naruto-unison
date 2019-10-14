@@ -210,16 +210,16 @@ addStatus st = modifyStatuses $ Classed.nonStack st st
 addOwnStacks :: Duration -- ^ 'Status.dur'.
              -> Text -- ^ 'Status.name'.
              -> Int -- ^ Skill index in 'Character.skills'.
-             -> Int -- ^ Variant index in skill in 'Character.skills'.
+             -> Int -- ^ Index in skill in 'Character.skills'.
              -> Int -- ^ 'Status.amount'.
              -> Ninja -> Ninja
-addOwnStacks dur name s v i n =
+addOwnStacks dur name s alt i n =
     addStatus st { Status.name    = name
                  , Status.classes = Unremovable `insertSet` Status.classes st
                  , Status.amount  = i
                  } n
   where
-    st = Status.new (slot n) dur $ Character.skills (character n) !! s !! v
+    st = Status.new (slot n) dur $ Character.skills (character n) !! s !! alt
 
 addOwnDefense :: Duration -- ^ 'Defense.dur'.
               -> Text -- ^ 'Defense.name'.

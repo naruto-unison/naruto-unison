@@ -39,25 +39,26 @@ active n = zipWith4 copyCd
 
 -- Safely adjusts 'Ninja.cooldowns'.
 adjust :: Int -- ^ 'Skill' index (0-3).
-       -> Int -- ^ 'Variant.Variant' index in 'Character.skills' of 'Ninja.character'.
+       -> Int -- ^ Alternate index in 'Character.skills' of 'Ninja.character'.
        -> (Int -> Int) -- ^ Adjustment function.
        -> Seq (Seq Int) -> Seq (Seq Int)
-adjust s v f = Seq.adjust' (adjustWith 0 f v) s
+adjust s alt f = Seq.adjust' (adjustWith 0 f alt) s
 
 -- | Adds to an element in 'Ninja.cooldowns'.
 alter :: Int -- ^ Skill index (0-3)
-      -> Int -- ^ 'Variant.Variant' index in 'Character.skills' of 'Ninja.character'.
+      -> Int -- ^ Alternate index in 'Character.skills' of 'Ninja.character'.
       -> Int -- ^ Amount added
       -> Ninja -> Ninja
-alter s v cd n = n { Ninja.cooldowns = adjust s v (+ cd) $ Ninja.cooldowns n }
+alter s alt cd n =
+    n { Ninja.cooldowns = adjust s alt (+ cd) $ Ninja.cooldowns n }
 
 -- | Safely inserts an element into 'Ninja.cooldowns'.
 insert :: Int -- ^ 'Skill' index (0-3).
-       -> Int -- ^ 'Variant.Variant' index in 'Character.skills' of 'Ninja.character'.
+       -> Int -- ^ Alternate index in 'Character.skills' of 'Ninja.character'.
        -> Int -- ^ New cooldown.
        -> Seq (Seq Int)
        -> Seq (Seq Int)
-insert s v toCd = adjust s v $ const toCd
+insert s alt toCd = adjust s alt $ const toCd
 
 -- | 'update's a corresponding @Ninja@ when they use a new @Skill@.
 update :: Skill -> Either Int Skill -> Ninja -> Ninja
@@ -82,14 +83,14 @@ spendCharge _ (Left s)  n =
 unsafeReset :: Int -- ^ Skill index (0-3).
             -> Int -- ^ Index in 'Character.skills' of 'Ninja.character'.
             -> Ninja -> Ninja
-unsafeReset s v n =
-    n { Ninja.cooldowns = insert s v 0 $ Ninja.cooldowns n }
+unsafeReset s alt n =
+    n { Ninja.cooldowns = insert s alt 0 $ Ninja.cooldowns n }
 
 -- | Sets an element in 'Ninja.coooldowns' to 0 by name.
 reset :: Text -- ^ 'Skill.name' of the base 'Skill'.
-      -> Text -- ^ 'Skill.name' of the variant to search for.
+      -> Text -- ^ 'Skill.name' of the alternate to search for.
       -> Ninja -> Ninja
-reset name v n = Skills.safe id unsafeReset n name v n
+reset name alt n = Skills.safe id unsafeReset n name alt n
 
 -- | Sets all 'Ninja.cooldowns' to @mempty@.
 resetAll :: Ninja -> Ninja

@@ -318,10 +318,10 @@ characters =
         , Skill.classes   = [Mental, Resource]
         , Skill.cost      = [Blood]
         , Skill.dur       = Ongoing 0
-        , Skill.start     = 
-          [ To Self $ 
+        , Skill.start     =
+          [ To Self $
                 applyStacks "Sharingan" 10 [Alternate "Izanagi" "Izanagi"]
-          ] 
+          ]
         , Skill.effects   =
           [ To Self do
                 unlessM (userHas "paused") do
