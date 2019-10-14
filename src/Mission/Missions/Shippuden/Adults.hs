@@ -9,7 +9,7 @@ missions :: [Mission]
 missions =
   [ Mission
     "Kakashi Hatake (S)"
-    [ win 5 ["Naruto Uzumaki", "Sakura Haruno", "Sasuke Uchiha"]
+    [ win 5 ["Naruto Uzumaki (S)", "Sakura Haruno (S)", "Sasuke Uchiha (S)"]
 
     , Reach 5 Match
       "In a single match, reflect 5 skills with [Sharingan]." $
@@ -29,7 +29,7 @@ missions =
 
   , Mission
     "Asuma Sarutobi (S)"
-    [ win 5 ["Ino Yamanaka", "Shikamaru Nara", "Chōji Akimichi"]
+    [ win 5 ["Ino Yamanaka (S)", "Shikamaru Nara (S)", "Chōji Akimichi (S)"]
 
     , Reach 6 Moment
       "Use [Flying Swallow] with at least 6 stacks of [Sharpen Blades]." .

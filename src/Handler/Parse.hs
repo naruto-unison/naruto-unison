@@ -12,11 +12,23 @@ import           Text.ParserCombinators.ReadP ((<++), ReadP)
 import qualified Text.ParserCombinators.ReadP as Parser
 
 import Game.Model.Chakra (Chakra(..))
+import Game.Model.Character (Category(..))
 
 parseBreak :: ReadP Html
 parseBreak = do
     void $ Parser.char '\n'
     return HTML.br
+
+parseCategory :: ReadP Html
+parseCategory = Parser.choice [parseShippuden, parseReanimated]
+  where
+      parseShippuden = do
+          void $ Parser.string " (S)"
+          return $ HTML.toMarkup Shippuden
+      parseReanimated = do
+          void $ Parser.string " (R)"
+          return $ HTML.toMarkup Reanimated
+
 
 parseChakra :: Chakra -> ReadP Html
 parseChakra kind = do
@@ -42,12 +54,16 @@ parseName = do
 parseText :: ReadP Html
 parseText = HTML.toMarkup <$> Parser.munch1 continue
   where
+    continue ' '  = False
     continue '['  = False
     continue '\n' = False
     continue _    = True
 
 parseSegment :: ReadP Html
-parseSegment = parseChakras <++ Parser.choice [parseBreak, parseName, parseText]
+parseSegment = parseChakras
+               <++ parseCategory
+               <++ Parser.choice [parseBreak, parseName, parseText]
+               <++ (HTML.toMarkup <$> Parser.char ' ')
 
 parseDesc :: ReadP Html
 parseDesc = mconcat <$> Parser.manyTill parseSegment Parser.eof

@@ -480,6 +480,10 @@ button.scroll:hover {
             }
         }
 
+        li {
+            margin-top: 0;
+        }
+
         > p {
             min-height: 40px;
         }
@@ -684,6 +688,10 @@ dl dt {
 
 #game.over > section, #bg.over {
     filter: blur(5px) contrast(0.5) brightness(1.3);
+}
+
+li sup {
+    margin-left: -0.3em;
 }
 
 main {

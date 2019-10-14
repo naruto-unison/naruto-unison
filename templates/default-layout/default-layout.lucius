@@ -112,6 +112,13 @@ button:hover {
   vertical-align: top;
 }
 
+.complete {
+    color: rgb(0, 150, 0);
+}
+.incomplete {
+    color: rgb(200, 0, 0);
+}
+
 .container {
     line-height: 1.4em;
     flex-grow: 1;

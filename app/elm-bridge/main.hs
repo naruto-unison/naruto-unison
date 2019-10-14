@@ -19,6 +19,7 @@ import Game.Model.Defense (Defense)
 import Game.Model.Player (Player(..))
 import Game.Model.Slot (Slot)
 import Application.Fields (Privilege(..))
+import Handler.Client (ObjectiveProgress(..))
 import Handler.Play.Queue (Failure(..))
 import Handler.Play.Turn (Turn(..))
 import Handler.Play (Message(..))
@@ -118,6 +119,7 @@ deriveElmDef defaultOptions ''Effect
 deriveElmDef defaultOptions ''Face
 deriveElmDef defaultOptions ''GameInfo
 deriveElmDef defaultOptions ''Ninja
+deriveElmDef defaultOptions ''ObjectiveProgress
 deriveElmDef defaultOptions ''Player
 deriveElmDef defaultOptions ''Requirement
 deriveElmDef defaultOptions ''Skill
@@ -159,6 +161,7 @@ main =
     , DefineElm (Proxy :: Proxy GameInfo)
     , DefineElm (Proxy :: Proxy Message)
     , DefineElm (Proxy :: Proxy Ninja)
+    , DefineElm (Proxy :: Proxy ObjectiveProgress)
     , DefineElm (Proxy :: Proxy Player)
     , DefineElm (Proxy :: Proxy Privilege)
     , DefineElm (Proxy :: Proxy Requirement)

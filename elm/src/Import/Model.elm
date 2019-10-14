@@ -453,6 +453,32 @@ jsonEncNinja  val =
 
 
 
+type alias ObjectiveProgress  =
+   { character: (Maybe String)
+   , desc: String
+   , goal: Int
+   , progress: Int
+   }
+
+jsonDecObjectiveProgress : Json.Decode.Decoder ( ObjectiveProgress )
+jsonDecObjectiveProgress =
+   Json.Decode.succeed (\pcharacter pdesc pgoal pprogress -> {character = pcharacter, desc = pdesc, goal = pgoal, progress = pprogress})
+   |> fnullable "character" (Json.Decode.string)
+   |> required "desc" (Json.Decode.string)
+   |> required "goal" (Json.Decode.int)
+   |> required "progress" (Json.Decode.int)
+
+jsonEncObjectiveProgress : ObjectiveProgress -> Value
+jsonEncObjectiveProgress  val =
+   Json.Encode.object
+   [ ("character", (maybeEncode (Json.Encode.string)) val.character)
+   , ("desc", Json.Encode.string val.desc)
+   , ("goal", Json.Encode.int val.goal)
+   , ("progress", Json.Encode.int val.progress)
+   ]
+
+
+
 type Player  =
     A
     | B

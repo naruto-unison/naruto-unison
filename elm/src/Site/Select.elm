@@ -21,7 +21,7 @@ import Url
 
 import Game.Game as Game
 import Import.Flags exposing (Characters, Flags, characterName)
-import Import.Model as Model exposing (Character, GameInfo, Skill, User)
+import Import.Model as Model exposing (Character, GameInfo, ObjectiveProgress, Skill, User)
 import Ports exposing (Ports)
 import Site.Render as Render exposing (icon)
 import Sound exposing (Sound)
@@ -119,7 +119,8 @@ type alias Model =
     , cols       : Int
     , toggled    : Maybe Character
     , previewing : Previewing
-    , variants   : List Int
+    , mission    : List ObjectiveProgress
+    , alternates : List Int
     , pageSize   : Int
     , search     : String
     , condense   : Bool
@@ -138,10 +139,12 @@ type Msg
     | DoNothing
     | Enqueue Queue
     | Fail String
+    | GetMission Character
     | Page Int
     | Preview Previewing
     | Reanimate Character
     | ReceiveGame (Result Http.Error GameInfo)
+    | ReceiveMission Character (Result Http.Error (List ObjectiveProgress))
     | ReceiveReanimate Character (Result Http.Error Int)
     | ReceiveUpdate (Result Http.Error ())
     | Scroll Int
@@ -151,7 +154,7 @@ type Msg
     | SwitchLogin
     | Team ListChange Character
     | TryUpdate
-    | Vary Int Int
+    | Alternate Int Int
     | Vs ListChange Character
     | Untoggle
     | UpdateForm FormUpdate
@@ -184,14 +187,15 @@ component ports =
             , cols       = 11
             , toggled    = Nothing
             , previewing = NoPreview
-            , variants   = [ 0, 0, 0, 0 ]
+            , mission    = []
+            , alternates = [ 0, 0, 0, 0 ]
             , pageSize   = 36
             , search     = ""
             , condense   =
                 flags.user
                     |> Maybe.map .condense
                     >> Maybe.withDefault False
-            , form =
+            , form       =
                 case flags.user of
                     Nothing ->
                         { name       = ""
@@ -374,11 +378,15 @@ component ports =
                             st
 
                         else
-                            { st | previewing = x, variants = [ 0, 0, 0, 0 ] }
+                            { st
+                                | previewing = x
+                                , alternates = [ 0, 0, 0, 0 ]
+                                , mission    = []
+                            }
 
-                Vary slot i ->
+                Alternate slot i ->
                     withSound Sound.Click
-                        { st | variants = List.updateAt slot (always i) st.variants }
+                        { st | alternates = List.updateAt slot (always i) st.alternates }
 
                 Team Add char ->
                     withSound Sound.Click <|
@@ -515,6 +523,27 @@ component ports =
                             :: List.map characterName st.team
                     )
 
+                GetMission char ->
+                    ( st
+                    , Http.get
+                        { url =
+                            st.url ++ "api/mission/" ++ characterName char
+                        , expect =
+                            Http.expectJson (ReceiveMission char) <|
+                            D.list Model.jsonDecObjectiveProgress
+                        }
+                    )
+
+                ReceiveMission char (Ok mission) ->
+                    if st.previewing == PreviewChar char then
+                        pure { st | mission = mission }
+
+                    else
+                        pure st
+
+                ReceiveMission _ (Err err) ->
+                    pure { st | error = Just <| showErr err }
+
                 Reanimate char ->
                     ( st
                     , Http.get
@@ -527,7 +556,8 @@ component ports =
 
                 ReceiveReanimate char (Ok dna) ->
                     let
-                        muser = st.user
+                        muser =
+                            st.user
                     in
                     case muser of
                         Just user ->
@@ -546,6 +576,7 @@ component ports =
                     pure { st | error = Just <| showErr err }
     in
     { init = init, view = view, update = update }
+
 
 size : Model -> Int
 size st =
@@ -946,17 +977,67 @@ previewBox st =
                         [ H.text <| String.fromInt char.price ]
 
               else
-                H.aside [ A.class "locked" ] []
-            ] ++
-            Render.name char
-          , H.p [] <|
-            Render.desc char.bio
+                        H.aside [ A.class "locked" ] <|
+                        if List.isEmpty st.mission then
+                            [ H.button [ E.onClick <| GetMission char ]
+                              [ H.text "Show Mission" ]
+                            ]
+
+                        else
+                            [ H.button
+                              [ E.onClick << Preview <| PreviewChar char ]
+                              [ H.text "Hide Mission" ]
+                            ]
+                    ]
+                        ++ Render.name char
+                , H.p [] <|
+                  if List.isEmpty st.mission then
+                      Render.desc char.bio
+
+                  else
+                      [ H.section []
+                        [ H.ul [] <| List.map previewObjective st.mission ]
+                      ]
           ] ++
           List.map3 (previewSkill char)
-              (List.range 0 <| Game.skillSize - 1)
-              char.skills
-              st.variants
+          (List.range 0 <| Game.skillSize - 1)
+          char.skills
+          st.alternates
 
+
+previewObjective : ObjectiveProgress -> Html Msg
+previewObjective x =
+    H.li [] <|
+    List.concat
+        [ case x.character of
+              Nothing ->
+                  []
+
+              Just char ->
+                  [ H.text <| "As " ++ char ++ ": " ]
+
+        , Render.desc x.desc
+
+        , if x.progress < x.goal then
+              [ H.span [A.class "incomplete"]
+                [ H.text
+                    <| " "
+                    ++ String.fromInt x.progress
+                    ++ "/"
+                    ++ String.fromInt x.goal
+                ]
+              ]
+
+          else
+              [ H.span [A.class "complete"]
+                [ H.text
+                    <| " "
+                    ++ String.fromInt x.goal
+                    ++ "/"
+                    ++ String.fromInt x.goal
+                ]
+              ]
+        ]
 
 previewSkill : Character -> Int -> List Skill -> Int -> Html Msg
 previewSkill char slot skills i =
@@ -976,8 +1057,9 @@ previewSkill char slot skills i =
                         >> Maybe.map
                             (\v ->
                                 H.a [ A.class "prevSkill click"
-                                    , E.onClick <| Vary slot v
-                                    ] []
+                                    , E.onClick <| Alternate slot v
+                                    ]
+                                    []
                             )
 
                 vNext =
@@ -987,8 +1069,9 @@ previewSkill char slot skills i =
                         >> Maybe.map
                             (\v ->
                                 H.a [ A.class "nextSkill click"
-                                    , E.onClick << Vary slot <| v + i
-                                    ] []
+                                    , E.onClick << Alternate slot <| v + i
+                                    ]
+                                    []
                             )
             in
             H.section []

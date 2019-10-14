@@ -6,6 +6,7 @@
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 
+/api/mission/#Character                     MissionR        GET
 /api/reanimate/#Character                   ReanimateR      GET
 /api/practicequeue/*[Text]                  PracticeQueueR  GET
 /api/practiceact/#Chakras/#Chakras          PracticeWaitR   GET

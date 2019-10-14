@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass        #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE QuasiQuotes           #-}
 {-# LANGUAGE TemplateHaskell       #-}
@@ -6,6 +7,7 @@
 -- | Interface for the Elm game client.
 module Handler.Client
     ( getPlayR
+    , getMissionR, ObjectiveProgress(..)
     , getMuteR
     , getReanimateR
     , getUpdateR
@@ -27,6 +29,8 @@ import qualified Game.Model.Character as Character
 import qualified Game.Model.Skill as Skill
 import qualified Handler.Play as Play
 import qualified Mission
+import           Mission.Goal (Goal)
+import qualified Mission.Goal as Goal
 import           Util ((∈), (∉), shorten)
 
 -- | Updates a user's profile. Requires authentication.
@@ -50,6 +54,26 @@ getUpdateR updateName updateCondense updateBackground updateAvatar
     updateBackground''
       | null updateBackground' = Nothing
       | otherwise              = Just updateBackground'
+
+data ObjectiveProgress =
+    ObjectiveProgress { character :: Maybe Text
+                      , desc      :: Text
+                      , goal      :: Int
+                      , progress  :: Int
+                      } deriving (Eq, Ord, Show, Read, Generic, ToJSON)
+
+unzipGoal :: (Goal, Int) -> ObjectiveProgress
+unzipGoal (goal, progress) =
+    ObjectiveProgress { character = Character.format <$> Goal.character goal
+                      , desc      = Goal.desc goal
+                      , goal      = Goal.reach goal
+                      , progress
+                      }
+
+-- | Returns progress on a character's mission.
+getMissionR :: Character -> Handler Value
+getMissionR char =
+    returnJson . maybe mempty (unzipGoal <$>) =<< Mission.userMission char
 
 -- | Updates a user's muted status. Requires authentication.
 getMuteR :: Bool -> Handler Value

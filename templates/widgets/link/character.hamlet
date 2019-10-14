@@ -1,2 +1,3 @@
+$newline never
 <a href=@{CharacterR char}>
   #{Character.name char}#{Character.category char}

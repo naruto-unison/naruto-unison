@@ -213,6 +213,18 @@ parseChakra kind =
         |. Parser.symbol tag
 
 
+parseShippuden : Parser (Html msg)
+parseShippuden =
+    Parser.succeed (H.sup [] [ H.text "𝕊" ] )
+    |. Parser.symbol "(S)"
+
+
+parseReanimated : Parser (Html msg)
+parseReanimated =
+    Parser.succeed (H.sup [] [ H.text "ℝ" ] )
+    |. Parser.symbol "(R)"
+
+
 parseName : Parser (Html msg)
 parseName =
     Parser.succeed (H.i [] << List.singleton << H.text)
@@ -225,7 +237,30 @@ parseText : Parser (Html msg)
 parseText =
     Parser.succeed H.text
         |= Parser.getChompedString
-            (Parser.chompWhile <| \c -> c /= '[' && c /= '\n')
+            (Parser.chompWhile <| \c -> c /= '[' && c /= '\n' && c /= '(')
+
+
+parseSuccess : Parser (Html msg)
+parseSuccess =
+    Parser.oneOf
+        [ parseBreak
+        , parseShippuden
+        , parseReanimated
+        , parseChakra "blood"
+        , parseChakra "gen"
+        , parseChakra "nin"
+        , parseChakra "tai"
+        , parseChakra "rand"
+        , parseName
+        , parseShippuden
+        , parseReanimated
+        , parseText
+        ]
+
+parseFail : Parser (Html msg)
+parseFail =
+    Parser.succeed H.text
+        |= Parser.getChompedString (Parser.chompUntilEndOr "\n")
 
 
 parseDesc : Parser (List (Html msg))
@@ -238,14 +273,8 @@ parseDesc =
                     |> Parser.map (\_ -> Parser.Done (List.reverse acc))
                 , Parser.succeed (\stmt -> Parser.Loop (stmt :: acc))
                     |= Parser.oneOf
-                        [ parseBreak
-                        , parseChakra "blood"
-                        , parseChakra "gen"
-                        , parseChakra "nin"
-                        , parseChakra "tai"
-                        , parseChakra "rand"
-                        , parseName
-                        , parseText
+                        [ Parser.backtrackable parseSuccess
+                        , parseFail
                         ]
                 , Parser.succeed ()
                     |> Parser.map (\_ -> Parser.Done (List.reverse acc))
