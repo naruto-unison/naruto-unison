@@ -7,68 +7,41 @@ module Handler.Parse (desc) where
 import ClassyPrelude
 import Yesod
 
+import           Data.Attoparsec.Text (Parser)
+import qualified Data.Attoparsec.Text as Parser
 import qualified Text.Blaze.Html5 as HTML
-import           Text.ParserCombinators.ReadP ((<++), ReadP)
-import qualified Text.ParserCombinators.ReadP as Parser
 
 import Game.Model.Chakra (Chakra(..))
 import Game.Model.Character (Category(..))
 
-parseBreak :: ReadP Html
-parseBreak = do
-    void $ Parser.char '\n'
-    return HTML.br
+desc :: Text -> Html
+desc s = case Parser.parseOnly (Parser.many' parseSegment) s of
+    Left  _    -> HTML.toMarkup s
+    Right html -> mconcat html
 
-parseCategory :: ReadP Html
-parseCategory = Parser.choice [parseShippuden, parseReanimated]
+parseSegment :: Parser Html
+parseSegment = Parser.choice
+    [ " (S)"           $> HTML.toMarkup Shippuden
+    , " (R)"           $> HTML.toMarkup Reanimated
+    , Parser.char '\n' $> HTML.br
+    , Parser.choice    $  parseChakra <$> [minBound .. maxBound]
+    , parseName
+    , HTML.toMarkup   <$> Parser.takeWhile1 (Parser.notInClass " [\n")
+    , HTML.toMarkup   <$> Parser.char ' '
+    ]
+
+parseChakra :: Chakra -> Parser Html
+parseChakra kind = Parser.string (token kind) $> HTML.toMarkup kind
   where
-      parseShippuden = do
-          void $ Parser.string " (S)"
-          return $ HTML.toMarkup Shippuden
-      parseReanimated = do
-          void $ Parser.string " (R)"
-          return $ HTML.toMarkup Reanimated
+    token Blood = "[b]"
+    token Gen   = "[g]"
+    token Nin   = "[n]"
+    token Tai   = "[t]"
+    token Rand  = "[t]"
 
-
-parseChakra :: Chakra -> ReadP Html
-parseChakra kind = do
-    void $ Parser.string ['[', token kind, ']']
-    return $ HTML.toMarkup kind
-  where
-    token Blood = 'b'
-    token Gen   = 'g'
-    token Nin   = 'n'
-    token Tai   = 't'
-    token Rand  = 'r'
-
-parseChakras :: ReadP Html
-parseChakras = Parser.choice $ parseChakra <$> [minBound .. maxBound]
-
-parseName :: ReadP Html
+parseName :: Parser Html
 parseName = do
     void $ Parser.char '['
-    name <- Parser.munch1 $ (/= ']')
+    name <- Parser.takeWhile (/= ']')
     void $ Parser.char ']'
     return . HTML.i $ HTML.toMarkup name
-
-parseText :: ReadP Html
-parseText = HTML.toMarkup <$> Parser.munch1 continue
-  where
-    continue ' '  = False
-    continue '['  = False
-    continue '\n' = False
-    continue _    = True
-
-parseSegment :: ReadP Html
-parseSegment = parseChakras
-               <++ parseCategory
-               <++ Parser.choice [parseBreak, parseName, parseText]
-               <++ (HTML.toMarkup <$> Parser.char ' ')
-
-parseDesc :: ReadP Html
-parseDesc = mconcat <$> Parser.manyTill parseSegment Parser.eof
-
-desc :: Text -> Html
-desc s = case Parser.readP_to_S parseDesc $ unpack s of
-    [(html, "")] -> html
-    _            -> HTML.toMarkup s

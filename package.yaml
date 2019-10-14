@@ -42,6 +42,7 @@ library:
       - -O2
   dependencies:
   - aeson
+  - attoparsec
   - base
   - bimap
   - blaze-html
