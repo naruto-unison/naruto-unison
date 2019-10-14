@@ -75,16 +75,15 @@ characters =
                 tagHealth <- userStacks "Kotetsu's Health"
                 setHealth if tagHealth == 0 then 100 else tagHealth
                 remove "Kotetsu's Health"
-                addStacks "Izumo's Health" userHealth
-                vary "Devastate" "Annihilate"
-                vary "Tag Team" "Tag Team"
+                applyStacks "Izumo's Health" userHealth
+                    [ Alternate "Devastate" "Annihilate"
+                    , Alternate "Tag Team" "Tag Team"
+                    ]
                 trap' 0 OnRes do
                     tagHealth' <- userStacks "Izumo's Health"
                     setHealth tagHealth'
                     remove "Izumo's Health"
                     hide' "solo" 0 []
-                    vary "Devastate" baseVariant
-                    vary "Tag Team" baseVariant
           ]
         }
       , Skill.new
@@ -100,15 +99,14 @@ characters =
                 setHealth if tagHealth == 0 then 100 else tagHealth
                 remove "Izumo's Health"
                 addStacks "Kotetsu's Health" userHealth
-                vary "Devastate" baseVariant
-                vary "Tag Team" baseVariant
                 trap' 0 OnRes do
                     tagHealth' <- userStacks "Kotetsu's Health"
                     setHealth tagHealth'
                     remove "Kotetsu's Health"
                     hide' "solo" 0 []
-                    vary "Devastate" "Annihilate"
-                    vary "Tag Team" "Tag Team"
+                    hide 0 [ Alternate "Devastate" "Annihilate"
+                           , Alternate "Tag Team" "Tag Team"
+                           ]
           ]
         }
       ]
@@ -151,8 +149,7 @@ characters =
                 resetAll
                 setHealth 5
                 teach 1 Deep 2
-                setFace
-                bomb (-1) [Invulnerable All, Alone, Seal, Enrage, Focus]
+                bomb (-1) [Face, Invulnerable All, Alone, Seal, Enrage, Focus]
                           [ To Done killHard ]
           ]
         }
@@ -182,8 +179,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                apply 0 [Reduce All Flat 10]
-                vary "Biding Time" "Payback"
+                apply 0 [Reduce All Flat 10, Alternate "Biding Time" "Payback"]
                 trap 0 (OnDamaged All) $ addStack' "Payback"
           ]
         }
@@ -196,9 +192,7 @@ characters =
           [ To Enemy do
                 stacks <- userStacks "Payback"
                 damage (15 + 5 * stacks)
-          , To Self do
-                remove "Payback"
-                vary "Biding Time" baseVariant
+          , To Self $ remove "Payback"
           ]
         }
       ]
@@ -209,7 +203,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy $ trap 3 OnHarm $ pierce 25
-          , To Self  $ defend 0 30
+          , To Self $ defend 0 30
           ]
         }
       ]
@@ -220,7 +214,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy $ trap 3 OnNoAction $ pierce 25
-          , To Self  $ defend 0 30
+          , To Self $ defend 0 30
           ]
         }
       ]
@@ -239,7 +233,7 @@ characters =
           [ To Enemy do
                 stacks <- userStacks "Moon Haze"
                 damage (50 + 25 * stacks)
-          , To Self  $ remove "Moon Haze"
+          , To Self $ remove "Moon Haze"
           ]
         }
       ]
@@ -277,20 +271,21 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy $ apply 1 [Stun NonMental]
-          , To Self  $ vary' 1 "Chain Wrap" "Chain Shred"
+          , To Self $ apply 1 [Alternate "Chain Wrap" "Chain Shred"]
           ]
         }
       , Skill.new
         { Skill.name      = "Chain Shred"
         , Skill.desc      = "Meizu tears his chains through the target of [Chain Wrap], dealing 45 piercing damage and reapplying [Chain Wrap], stunning the target's non-mental skills for 1 turn."
         , Skill.require   = HasU 1 "Chain Wrap"
-        , Skill.classes   = [Physical, Melee]
+        , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemies do
                 pierce 45
                 apply' "Chain Wrap" 1 [Stun NonMental]
-                self $ vary' 1 "Chain Wrap" "Chain Shred"
+                self $ apply' "Chain Wrap" 1
+                    [Alternate "Chain Wrap" "Chain Shred"]
           ]
         }
       ]
@@ -403,7 +398,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Self    $ apply 2 [Reduce All Flat 5]
+          [ To Self $ apply 2 [Reduce All Flat 5]
           , To Enemies $ apply 2 [Exhaust Physical, Exhaust Mental]
           ]
         }
@@ -419,9 +414,11 @@ characters =
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Self do
-                apply 0 [Invulnerable All, Afflict 15]
-                vary "Mangekyō Sharingan" "Mangekyō Sharingan"
+          [ To Self $ apply 0
+                [ Invulnerable All
+                , Afflict 15
+                , Alternate "Mangekyō Sharingan" "Mangekyō Sharingan"
+                ]
           ]
         }
       , Skill.new
@@ -430,10 +427,7 @@ characters =
         , Skill.classes   = [Mental]
         , Skill.varicd    = True
         , Skill.effects   =
-          [ To Self do
-                remove "Mangekyō Sharingan"
-                vary "Mangekyō Sharingan" baseVariant
-          ]
+          [ To Self $ remove "Mangekyō Sharingan" ]
         }
       ]
     , [ Skill.new
@@ -538,7 +532,7 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ To Self  $ tag 1
+          [ To Self $ tag 1
           , To Enemy do
                 bonus <- 10 `bonusIf` userHas "Sphere of Graves"
                 damage (30 + bonus)
@@ -567,7 +561,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.start     =
           [ To Allies $ defend 3 35
-          , To Self     onBreak'
+          , To Self onBreak'
           ]
         , Skill.effects   =
           [ To REnemy $ absorb 1 ]
@@ -627,7 +621,7 @@ characters =
         , Skill.dur       = Ongoing 2
         , Skill.effects   =
           [ To Enemies $ damage 15
-          , To Self    $ apply 1 [Reduce All Flat 10]
+          , To Self $ apply 1 [Reduce All Flat 10]
           ]
         }
       ]
@@ -722,7 +716,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To Self  $ sacrifice 0 5
+          , To Self $ sacrifice 0 5
           ]
         }
       ]

@@ -89,7 +89,7 @@ characters =
         , Skill.dur       = Control 2
         , Skill.effects   =
           [ To Enemies $ apply 1 [Expose]
-          , To Self    $ gain [Rand]
+          , To Self $ gain [Rand]
           ]
         }
       ]
@@ -115,7 +115,7 @@ characters =
         , Skill.cost      = [Gen, Nin]
         , Skill.effects   =
           [ To Enemy $ damage 35
-          , To Self  $ tag 1
+          , To Self $ tag 1
           ]
         , Skill.changes   =
             changeWith "Rasengan" \x -> x { Skill.cost = [Nin] }
@@ -140,7 +140,7 @@ characters =
           [ To Enemy do
                 afflict 25
                 apply 0 [Weaken All Flat 5]
-          , To Self  $ sacrifice 0 15
+          , To Self $ sacrifice 0 15
           ]
         }
       ]
@@ -157,12 +157,12 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Action 2
         , Skill.effects   =
-          [ To Self   $ apply 1 [Invulnerable Chakra]
+          [ To Self $ apply 1 [Invulnerable Chakra]
           , To REnemy $ absorb 1
           ]
         , Skill.changes   =
-            changeWith "Veritable 1000-Armed Kannon" \x ->
-                 x { Skill.dur     = Action 3, Skill.cost = [Blood] }
+            changeWith "Veritable 1000-Armed Kannon"
+            \x -> x { Skill.dur = Action 3, Skill.cost = [Blood] }
         }
       ]
     , [ Skill.new
@@ -174,11 +174,11 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy $ damage 20
-          , To Self  $ apply 1 [Invulnerable Physical]
+          , To Self $ apply 1 [Invulnerable Physical]
           ]
         , Skill.changes   =
-            changeWith "Veritable 1000-Armed Kannon" \x ->
-                 x { Skill.dur     = Action 3, Skill.cost = [Blood] }
+            changeWith "Veritable 1000-Armed Kannon"
+            \x -> x { Skill.dur = Action 3, Skill.cost = [Blood] }
         }
       ]
     , [ Skill.new
@@ -189,7 +189,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Allies $ defend 0 30
-          , To Self   $ tag 3
+          , To Self $ tag 3
           ]
         }
       ]
@@ -347,7 +347,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self  $ apply 1 [Invulnerable All]
+          [ To Self $ apply 1 [Invulnerable All]
           , To Enemy $ tag 1
           ]
         }

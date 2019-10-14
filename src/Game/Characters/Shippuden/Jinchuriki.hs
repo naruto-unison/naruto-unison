@@ -18,10 +18,7 @@ characters =
         , Skill.require   = HasI 0 "Two-Tailed Transformation"
         , Skill.classes   = [Chakra]
         , Skill.effects   =
-          [ To Self do
-                apply 0 [Reduce All Percent 50]
-                setFace
-          ]
+          [ To Self $ apply 0 [Reduce All Percent 50, Face] ]
         }
       ]
     , [ Skill.new
@@ -192,9 +189,8 @@ characters =
           [ To Self do
                 sacrifice 1 5
                 defend 0 10
-                varyLoadout loadout 0
-                setFace
-                apply 0 [Reduce All Flat 10, Plague]
+                alternate loadout 0
+                apply 0 [Reduce All Flat 10, Plague, Face]
           ]
         }
       , Skill.new
@@ -207,9 +203,8 @@ characters =
                 remove "Four-Tailed Transformation"
                 sacrifice 1 10
                 defend 0 20
-                varyLoadout loadout 1
-                setFace
-                apply 0 [Reduce All Flat 20, Plague, Alone, Enrage]
+                alternate loadout 1
+                apply 0 [Reduce All Flat 20, Plague, Alone, Enrage, Face]
           ]
         }
       , Skill.new
@@ -222,9 +217,8 @@ characters =
                 remove "Six-Tailed Transformation"
                 sacrifice 1 15
                 defend 0 30
-                varyLoadout loadout 2
-                setFace
-                apply 0 [Reduce All Flat 30, Plague, Alone, Enrage]
+                alternate loadout 2
+                apply 0 [Reduce All Flat 30, Plague, Alone, Enrage, Face]
           ]
         }
       , Skill.new

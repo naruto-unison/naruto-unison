@@ -162,16 +162,9 @@ spec = parallel do
             act
             turns 5
             targetHealth <- Ninja.health <$> P.nTarget
-            factory
-            tag' "Dragon Flame" 0
-            act
-            turns 5
-            targetHealth' <- Ninja.health <$> P.nTarget
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 20 + 5 * 3
-                it "deals bonus damage if target has Dragon Flame" $
-                    targetHealth - targetHealth' `shouldBe` 5
 
     describeCharacter "Hayate Gekkō" \useOn -> do
         useOn Enemy "Secret Sword" do

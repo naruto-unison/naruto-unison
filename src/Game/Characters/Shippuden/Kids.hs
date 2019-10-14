@@ -43,7 +43,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 trapFrom 1 (Counter All) $ tag 1
-                vary' 1 "Giant Rasengan" "Rasen Shuriken"
+                apply 1 [Alternate "Giant Rasengan" "Rasen Shuriken"]
           ]
         }
       ]
@@ -76,11 +76,7 @@ characters =
           ,  To Enemy do
                 bonus <- 10 `bonusIf` userHas "Seal"
                 damage (25 + bonus)
-          , To Self do
-                removeStack "Seal"
-                unlessM (userHas "Seal") do
-                    vary "Mystical Palm Healing" baseVariant
-                    vary "Strength of One Hundred Seal" baseVariant
+          , To Self $ removeStack "Seal"
           ]
         }
       ]
@@ -108,11 +104,7 @@ characters =
                 cureBane
                 targetHealth <- target health
                 heal $ (100 - targetHealth) `quot` 2
-          , To Self do
-                removeStack "Seal"
-                unlessM (userHas "Seal") do
-                    vary "Mystical Palm Healing" baseVariant
-                    vary "Strength of One Hundred Seal" baseVariant
+          , To Self $ removeStack "Seal"
           ]
         }
       ]
@@ -122,10 +114,10 @@ characters =
         , Skill.classes   = [Chakra, Resource]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self do
-                addStacks "Seal" 3
-                vary "Mystical Palm Healing" "Mystical Palm Healing"
-                vary "Strength of One Hundred Seal" "Seal Release"
+          [ To Self $ applyStacks "Seal" 3
+                [ Alternate "Mystical Palm Healing" "Mystical Palm Healing"
+                , Alternate "Strength of One Hundred Seal" "Seal Release"
+                ]
           ]
         }
       , Skill.new
@@ -137,9 +129,6 @@ characters =
                 cureAll
                 heal 25
                 removeStack "Seal"
-                unlessM (userHas "Seal") do
-                    vary "Mystical Palm Healing" baseVariant
-                    vary "Strength of One Hundred Seal" baseVariant
           ]
         }
       ]
@@ -155,7 +144,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy $ pierce 30
-          , To Self  $ vary "Chidori Stream" "Chidori Spear"
+          , To Self $ hide 0 [Alternate "Chidori Stream" "Chidori Spear"]
           ]
         }
       , Skill.new
@@ -167,7 +156,7 @@ characters =
           [ To Enemy do
                 damage 15
                 apply 1 [Stun All]
-          , To Self $ vary "Chidori Stream" baseVariant
+          , To Self $ remove "chidori stream"
           ]
         }
       ]
@@ -180,7 +169,7 @@ characters =
         , Skill.dur       = Action 4
         , Skill.effects   =
           [ To Enemy $ damage 10
-          , To Self  $ trapFrom 1 (OnHarmed All) $ afflict 5
+          , To Self $ trapFrom 1 (OnHarmed All) $ afflict 5
           ]
         }
       ]
@@ -206,10 +195,16 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.dur       = Action 4
-        , Skill.start     =
-          [ To Self $ vary "Man-Beast Clone" "Three-Headed Wolf"]
         , Skill.effects   =
-          [ To Self $ apply 1 [Focus, Reduce All Flat 15] ]
+          [ To Self $ apply 1 [ Focus
+                              , Reduce All Flat 15
+                              , Alternate "Man-Beast Clone" "Three-Headed Wolf"
+                              ]
+          ]
+        , Skill.interrupt =
+          [ To Self $
+                apply 1 [Alternate "Man-Beast Clone" "Three-Headed Wolf"]
+          ]
         }
       , Skill.new
         { Skill.name      = "Three-Headed Wolf"
@@ -220,9 +215,10 @@ characters =
         , Skill.effects   =
           [ To Self do
                 cancelChannel "Man-Beast Clone"
-                vary' 3 "Man-Beast Clone" "Giant Rotating Fang"
                 remove "Man-Beast Clone"
-                apply 3 [Reduce All Flat 30]
+                apply 3 [ Reduce All Flat 30
+                        , Alternate "Man-Beast Clone" "Giant Rotating Fang"
+                        ]
           ]
         }
       , Skill.new
@@ -244,9 +240,9 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ To Enemy    $ damage 30
+          [ To Enemy $ damage 30
           , To XEnemies $ whenM (userHas "Three-Headed Wolf")  $ damage 20
-          , To REnemy   $ whenM (channeling "Man-Beast Clone") $ damage 20
+          , To REnemy $ whenM (channeling "Man-Beast Clone") $ damage 20
           ]
         }
       ]
@@ -278,8 +274,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.cooldown  = 2
         , Skill.start     =
-          [ To Self $ vary "Insect Swarm" "Chakra Leech"
-          ,  To Enemy do
+          [ To Enemy do
                 stacks <- targetStacks "Chakra Leech"
                 addStacks' (-3) "Chakra Leech " stacks
                 remove "Chakra Leech"
@@ -289,7 +284,10 @@ characters =
                 stacks <- targetStacks "Chakra Leech"
                 afflict (15 + 5 * stacks)
                 apply 1 [Alone]
+          , To Self $ hide 1 [Alternate "Insect Swarm" "Chakra Leech"]
           ]
+        , Skill.interrupt =
+          [ To Self $ hide 1 [Alternate "Insect Swarm" "Chakra Leech"] ]
         }
       , Skill.new
         { Skill.name       = "Chakra Leech"
@@ -382,7 +380,7 @@ characters =
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self    $ tag 4
+          [ To Self $ tag 4
           , To Enemies $ trap 4 OnHarm addStack
           ]
         }
@@ -402,7 +400,7 @@ characters =
           [ To Enemy do
                 damage 35
                 apply 1 [Stun NonMental]
-                self $ vary' 1 "Shadow Sewing" "Shadow Sewing: Hold"
+                self $ apply 1 [Alternate "Shadow Sewing" "Shadow Sewing: Hold"]
           ]
         }
       , Skill.new
@@ -415,7 +413,8 @@ characters =
           [ To Enemies do
                 damage 20
                 apply' "Shadow Sewing" 1 [Stun NonMental]
-                self $ vary' 1 "Shadow Sewing" "Shadow Sewing: Hold"
+                self $ apply' "Shadow Sewing" 1
+                    [Alternate "Shadow Sewing" "Shadow Sewing: Hold"]
           ]
         }
       ]
@@ -427,8 +426,7 @@ characters =
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Self do
-                tag 4
-                vary' 4 "Long-Range Tactics" "Final Explosion"
+                apply 4 [Alternate "Long-Range Tactics" "Final Explosion"]
                 delay (-1) $ trap' (-4) OnHarm $
                     unlessM (userHas "What a Drag") $ apply 1 [Invulnerable All]
                 trap' 4 (OnDamaged NonAffliction) $ tag' "What a Drag" 1
@@ -525,10 +523,11 @@ characters =
         , Skill.start     =
           [ To Self do
                 replicateM_ 3 $ hide' "calories" 0 [Exhaust All]
-                vary "Butterfly Bombing"   "Butterfly Bombing"
-                vary "Spiky Human Boulder" "Spiky Human Boulder"
-                vary "Butterfly Mode"      "Super-Slam"
-                vary "Block"               "Block"
+                hide 0 [ Alternate "Butterfly Bombing"   "Butterfly Bombing"
+                       , Alternate "Spiky Human Boulder" "Spiky Human Boulder"
+                       , Alternate "Butterfly Mode"      "Super-Slam"
+                       , Alternate "Block"               "Block"
+                       ]
           ]
         , Skill.effects   =
           [ To Self $ removeStack "calories"]
@@ -540,7 +539,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To Self  $ replicateM_ 2 $ hide' "calories" 0 [Exhaust All]
+          , To Self $ replicateM_ 2 $ hide' "calories" 0 [Exhaust All]
           ]
         }
       ]
@@ -659,7 +658,7 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Enemy    $ damage 20
+          [ To Enemy $ damage 20
           , To XEnemies $ damage 10
           ]
         }
@@ -720,7 +719,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend 0 5
-                varyLoadout loadout 1
+                alternate loadout 1
           ]
         }
       , Skill.new
@@ -730,7 +729,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend 0 5
-                varyLoadout loadout 2
+                alternate loadout 2
           ]
         }
       , Skill.new
@@ -740,7 +739,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend 0 5
-                varyLoadout loadout 0
+                alternate loadout 0
           ]
         }
       ]
@@ -780,9 +779,9 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemies $ apply 2 [Expose]
-          , To Self    $ trap 1 (Counter All) $
-                vary' 1 "Eight Trigrams Sixty-Four Palms"
-                        "Pressure Point Strike"
+          , To Self $ trap 1 (Counter All) $ apply 1
+                [Alternate "Eight Trigrams Sixty-Four Palms"
+                           "Pressure Point Strike"]
           ]
         }
       , Skill.new
@@ -794,8 +793,9 @@ characters =
           [ To Enemy do
                 deplete 1
                 damage 5
-          ,  To Self $ vary' 1 "Eight Trigrams Sixty-Four Palms"
-                              "Pressure Point Strike"
+          ,  To Self $ apply' "Eight Trigrams Sixty-Four Palms" 1
+                [Alternate "Eight Trigrams Sixty-Four Palms"
+                           "Pressure Point Strike"]
           ]
         }
       ]
@@ -885,12 +885,13 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.dur       = Action 3
         , Skill.cooldown  = 3
-        , Skill.start     =
-          [ To Self $ vary "Sanshōuo Shield" "Salamander Puppet" ]
         , Skill.effects   =
           [ To Allies $
               apply 1 [Reduce All Percent 25, Invulnerable Affliction]
+          , To Self $ hide 1 [Alternate "Sanshōuo Shield" "Salamander Puppet"]
           ]
+        , Skill.interrupt =
+          [ To Self $ hide 1 [Alternate "Sanshōuo Shield" "Salamander Puppet"] ]
         }
       , Skill.new
         { Skill.name      = "Salamander Puppet"
@@ -910,9 +911,9 @@ characters =
         , Skill.desc      = "Snapping open her fan to reveal the first marking on it, Temari gains 25% damage reduction. Once used, this skill becomes [Second Moon][r]."
         , Skill.classes   = [Physical, Ranged, Unremovable]
         , Skill.effects   =
-          [ To Self do
-                apply 0 [Reduce All Percent 25]
-                vary "First Moon" "Second Moon"
+          [ To Self $ apply 0 [ Reduce All Percent 25
+                              , Alternate "First Moon" "Second Moon"
+                              ]
           ]
         }
       , Skill.new
@@ -923,8 +924,9 @@ characters =
         , Skill.effects   =
           [ To Self do
                 remove "First Moon"
-                apply 0 [Reduce All Percent 50]
-                vary "First Moon" "Third Moon"
+                apply 0 [ Reduce All Percent 50
+                        , Alternate "First Moon" "Third Moon"
+                        ]
           ]
         }
       , Skill.new
@@ -1034,10 +1036,10 @@ characters =
         , Skill.effects   =
           [ To Self do
                 trap 0 (Counter NonMental) $ return ()
-                hide' "tired" 0 []
+                hide 0 []
           ]
         , Skill.changes   =
-            costPer "tired" [Rand]
+            costPer "agile backflip" [Rand]
         }
       ]
     , [ Skill.new

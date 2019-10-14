@@ -1,5 +1,5 @@
-{-# LANGUAGE TemplateHaskell      #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE TemplateHaskell      #-}
 
 -- | This is the main module of the library.
 -- It implements "Application.App" and holds the functions used by applications.

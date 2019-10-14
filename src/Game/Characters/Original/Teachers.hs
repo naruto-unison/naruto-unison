@@ -114,9 +114,8 @@ characters =
                 apply 1 [Expose]
                 bonus <- 5 `bonusIf` targetHas "Dragon Flame"
                 damage (5 + bonus)
-          , To Self do
-                vary "Dragon Flame" "Twin Snake Sacrifice"
-                tag' "Twin Snake Sacrifice" 1
+          , To Self $ apply' "Twin Snake Sacrifice" 1
+                [Alternate "Dragon Flame" "Twin Snake Sacrifice"]
           ]
         }
       ]
@@ -137,7 +136,7 @@ characters =
         , Skill.cost      = [Nin, Nin]
         , Skill.effects   =
           [ To Enemies kill
-          , To Self    killHard
+          , To Self killHard
           ]
         }
       ]
@@ -165,7 +164,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy $ damage 15
-          , To Self  $ apply 0 [Strengthen All Flat 5]
+          , To Self $ apply 0 [Strengthen All Flat 5]
           ]
         }
       ]
@@ -177,7 +176,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To Self  $ trap 1 (Counter All) $ return ()
+          , To Self $ trap 1 (Counter All) $ return ()
           ]
         }
       ]
@@ -276,13 +275,12 @@ characters =
         , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 4
         , Skill.dur       = Control 2
-        , Skill.start     =
-          [ To Self $
-                vary "Demonic Illusion: Sylvan Fetters" "Sylvan Fetters Attack"
-          ]
         , Skill.effects   =
           [ To Enemy $ apply 1 [Stun All]
-          , To Self  $ addStack' "Illusion"
+          , To Self do
+                addStack' "Illusion"
+                hide 1 [Alternate "Demonic Illusion: Sylvan Fetters"
+                                  "Sylvan Fetters Attack"]
           ]
         }
       , Skill.new
@@ -307,15 +305,21 @@ characters =
         , Skill.cost      = [Nin, Tai]
         , Skill.cooldown  = 2
         , Skill.dur       = Action 2
-        , Skill.start     =
-          [ To Self do
-                vary "Flying Swallow" "Finishing Blow"
-                vary "Sharpen Blades" "Flying Kick"
-          ]
         , Skill.effects   =
           [ To Enemies $ damage 15
-          , To Allies  $ apply 1 [Reduce All Flat 15]
-          , To Self    $ remove "Sharpen Blades"
+          , To Allies $ apply 1 [Reduce All Flat 15]
+          , To Self do
+                remove "Sharpen Blades"
+                hide 1 [ Alternate "Flying Swallow" "Finishing Blow"
+                       , Alternate "Sharpen Blades" "Flying Kick"
+                       ]
+          ]
+        , Skill.interrupt =
+          [ To Self do
+                remove "Sharpen Blades"
+                hide 1 [ Alternate "Flying Swallow" "Finishing Blow"
+                       , Alternate "Sharpen Blades" "Flying Kick"
+                       ]
           ]
         , Skill.changes   =
             extendWith "Sharpen Blades" 1
@@ -361,9 +365,9 @@ characters =
         , Skill.effects   =
           [ To XAlly do
                 userSlot <- user slot
-                apply 0 [Redirect userSlot]
-                trap' 0 OnDeath $ self $ vary "Self-Sacrifice" baseVariant
-          , To Self $ vary "Self-Sacrifice" "Self-Sacrifice"
+                bomb 0 [Redirect userSlot]
+                    [ To Done $ self $ remove "self-sacrifice" ]
+          , To Self $ hide 0 [Alternate "Self-Sacrifice" "Self-Sacrifice"]
           ]
         }
       , Skill.new
@@ -372,10 +376,7 @@ characters =
         , Skill.classes   = [Physical, Melee, Unreflectable]
         , Skill.varicd    = True
         , Skill.effects   =
-          [ To Self do
-                vary "Self-Sacrifice" baseVariant
-                everyone $ remove "Self-Sacrifice"
-          ]
+          [ To Self $ everyone $ remove "Self-Sacrifice" ]
         }
       ]
     , [ invuln "Parry" "Asuma" [Physical] ]

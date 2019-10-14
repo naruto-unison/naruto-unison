@@ -6,23 +6,26 @@ module Game.Model.Ninja
   , has, hasOwn, hasDefense, hasTrap
   , numActive, numStacks, numAnyStacks, numHelpful, numHarmful
   , defenseAmount, totalDefense
+  , baseSkill
   ) where
 
 import ClassyPrelude
 
+import Data.List.NonEmpty ((!!))
+
 import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import qualified Game.Model.Channel as Channel
-import           Game.Model.Character (Character)
+import           Game.Model.Character (Character, skills)
 import           Game.Model.Class (Class(..))
 import qualified Game.Model.Defense as Defense
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.Internal (Ninja(..))
+import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Status as Status
-import qualified Game.Model.Variant as Variant
 import           Util ((∈), (∉))
 
 skillSize :: Int
@@ -31,24 +34,23 @@ skillSize = 4
 -- | Constructs a @Ninja@ with starting values from a character and an index.
 new :: Slot -> Character -> Ninja
 new slot c = Ninja { slot
-                   , health    = 100
-                   , character = c
-                   , defense   = mempty
-                   , barrier   = mempty
-                   , statuses  = mempty
-                   , charges   = replicate skillSize 0
-                   , cooldowns = replicate skillSize mempty
-                   , variants  = replicate skillSize $ Variant.none :| []
-                   , copies    = replicate skillSize Nothing
-                   , channels  = mempty
-                   , newChans  = mempty
-                   , traps     = mempty
-                   , delays    = mempty
-                   , face      = mempty
-                   , lastSkill = Nothing
-                   , triggers  = mempty
-                   , effects   = mempty
-                   , acted     = False
+                   , health     = 100
+                   , character  = c
+                   , defense    = mempty
+                   , barrier    = mempty
+                   , statuses   = mempty
+                   , charges    = replicate skillSize 0
+                   , cooldowns  = replicate skillSize mempty
+                   , alternates = replicate skillSize 0
+                   , copies     = replicate skillSize Nothing
+                   , channels   = mempty
+                   , newChans   = mempty
+                   , traps      = mempty
+                   , delays     = mempty
+                   , lastSkill  = Nothing
+                   , triggers   = mempty
+                   , effects    = mempty
+                   , acted      = False
                    }
 
 alive :: Ninja -> Bool
@@ -145,3 +147,6 @@ minHealth :: Ninja -> Int
 minHealth n
   | n `is` Endure = 1
   | otherwise     = 0
+
+baseSkill :: Int -> Ninja -> Skill
+baseSkill s n = skills (character n) !! s !! (alternates n `indexEx` s)

@@ -180,7 +180,7 @@ enemyTurn f = do
     with ctx = ctx
         { Context.user   = user
         , Context.target = target
-        , Context.skill  = enemySkill 
+        , Context.skill  = enemySkill
             { Skill.effects = [To Enemy f]
             , Skill.classes = Skill.classes enemySkill
                               ++ Skill.classes (Context.skill ctx)

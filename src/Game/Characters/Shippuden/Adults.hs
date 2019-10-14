@@ -21,7 +21,8 @@ characters =
           [ To Enemy do
                 trap' 1 (OnDamaged All) $ apply 1 [Stun All]
                 pierce 25
-          ,  To Self $ vary' 1 "Lightning Beast Fang" "Lightning Blade Finisher"
+          , To Self $ apply 1
+                [Alternate "Lightning Beast Fang" "Lightning Blade Finisher"]
           ]
         }
       , Skill.new
@@ -78,7 +79,7 @@ characters =
           [ To Enemy $ damage 25
           , To Self do
                 defend 0 40
-                vary' 1 "Thousand Hand Strike" "Kannon Strike"
+                apply 1 [Alternate "Thousand Hand Strike" "Kannon Strike"]
           ]
         }
       , Skill.new
@@ -90,7 +91,8 @@ characters =
           [ To Enemy $ damage 20
           , To Self do
                 tag' "Overheating" 2
-                vary' 1 "Thousand Hand Strike" "Kannon Strike"
+                apply' "Thousand Hand Strike" 1
+                    [Alternate "Thousand Hand Strike" "Kannon Strike"]
           ]
         }
       ]
@@ -100,10 +102,12 @@ characters =
         , Skill.classes   = [Bane, Ranged, Unreflectable]
         , Skill.cost      = [Gen, Rand]
         , Skill.dur       = Action 0
-        , Skill.start     =
-          [ To Self $ vary "Burning Ash" "Burning Ash: Ignite"]
         , Skill.effects   =
-          [ To Enemies $ apply 0 [Snare 1] ]
+          [ To Enemies $ apply 0 [Snare 1]
+          , To Self $ hide 1 [Alternate "Burning Ash" "Burning Ash: Ignite"]
+          ]
+        , Skill.interrupt  =
+          [ To Self $ hide 1 [Alternate "Burning Ash" "Burning Ash: Ignite"] ]
         }
       , Skill.new
         { Skill.name      = "Burning Ash: Ignite"
@@ -198,12 +202,11 @@ characters =
         , Skill.effects   =
           [ To Self do
                 sacrifice 0 5
-                apply 0 [Reduce All Flat 5]
                 stacks <- userStacks "Single Gate Release"
-                case stacks of
-                    6 -> vary "Fiery Kick" "Asakujaku"
-                    7 -> vary "Fiery Kick" "Hirudora"
-                    _ -> return ()
+                apply 0 $ Reduce All Flat 5 : case stacks of
+                    6 -> [Alternate "Fiery Kick" "Asakujaku"]
+                    7 -> [Alternate "Fiery Kick" "Hirudora"]
+                    _ -> []
           ]
         }
       ]
@@ -259,7 +262,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy  $ pierce 15
+          [ To Enemy $ pierce 15
           , To REnemy $ pierce 15
           ]
         }
@@ -284,14 +287,19 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 5
         , Skill.dur       = Action 0
-        , Skill.start     =
-          [ To Self do
-                defend 0 50
-                vary "Assault Blade" "Three Treasure Suction Crush"
-                vary "Ten Puppets Collection" "Lion Roar Sealing"
-                onBreak'
+        , Skill.effects   =
+          [ To REnemy $ damage 10
+          , To Self $ hide 1
+                [ Alternate "Assault Blade" "Three Treasure Suction Crush"
+                , Alternate "Ten Puppets Collection" "Lion Roar Sealing"
+                ]
           ]
-        , Skill.effects   = [ To REnemy $ damage 10 ]
+        , Skill.interrupt =
+          [ To Self $ hide 1
+                [ Alternate "Assault Blade" "Three Treasure Suction Crush"
+                , Alternate "Ten Puppets Collection" "Lion Roar Sealing"
+                ]
+          ]
         }
       , Skill.new
         { Skill.name      = "Lion Roar Sealing"
@@ -341,7 +349,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemies $ damage 15
-          , To Self    $ apply 1 [Reduce All Percent 25]
+          , To Self $ apply 1 [Reduce All Percent 25]
           ]
         }
       ]
@@ -509,7 +517,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To REnemy $ damage 20
-          , To Self   $ trap 1 (OnHarmed All) $ apply 1 [Invulnerable All]
+          , To Self $ trap 1 (OnHarmed All) $ apply 1 [Invulnerable All]
           ]
         }
       ]
@@ -586,8 +594,8 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Self do
-                vary "Back Slice" "Crescent Moon Slice"
                 trapFrom 1 (CounterAll All) $ pierce 20
+                hide 0 [Alternate "Back Slice" "Crescent Moon Slice"]
           ]
         }
       , Skill.new
@@ -599,7 +607,7 @@ characters =
           [ To Enemy do
                 apply 1 [Expose]
                 pierce 35
-          , To Self $ vary "Back Slice" baseVariant
+          , To Self $ remove "back slice"
           ]
         }
       ]

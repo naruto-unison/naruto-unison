@@ -148,7 +148,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy $ damage 15
-          , To Self  $ apply 1 [Enrage]
+          , To Self $ apply 1 [Enrage]
           ]
         }
       ]
@@ -164,7 +164,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To Self  $ defend 0 10
+          , To Self $ defend 0 10
           ]
         , Skill.changes   =
             changeWith "Tailed Beast Form" \x -> x { Skill.cost = [Blood] }
@@ -201,11 +201,12 @@ characters =
         , Skill.cooldown  = 6
         , Skill.dur       = Action (-5)
         , Skill.start     =
-          [ To Self $ bombWith [Hidden] (-5) [] [ To Expire do
-                tag' "Tailed Beast Form" 0
-                setFace
-                vary' 0 "Monstrous Sand Arm" "Wind Bullet"
-                vary' 0 "Sand Transformation" "Shukaku Full Release" ]
+          [ To Self $ bombWith [Hidden] (-5) [] [ To Expire $
+                apply' "Tailed Beast Form" 0
+                    [ Face
+                    , Alternate "Monstrous Sand Arm" "Wind Bullet"
+                    , Alternate "Sand Transformation" "Shukaku Full Release"
+                    ] ]
           ]
         , Skill.effects   =
           [ To Self $ defend 0 10 ]
@@ -235,7 +236,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
         , Skill.effects   =
-          [ To Self  $ defend 1 35
+          [ To Self $ defend 1 35
           , To Enemy $ damage 15
           ]
         }
@@ -246,12 +247,12 @@ characters =
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin]
         , Skill.dur       = Control 1
-        , Skill.start     = [ To Self $ vary "Sand Burial Prison" "Giant Sand Burial"]
         , Skill.effects   =
           [ To Enemies do
                 apply 1 [Exhaust NonMental]
                 trap 1 (OnAction NonMental) $ remove "Sand Burial Prison"
-          , To Self $ tag' "Giant Sand Burial" 1
+          , To Self $ apply' "Giant Sand Burial" 1
+                [Alternate "Sand Burial Prison" "Giant Sand Burial"]
           ]
         }
       , Skill.new

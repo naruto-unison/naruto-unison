@@ -22,14 +22,12 @@ characters =
         , Skill.start     =
           [ To Self do
                 defend 0 45
-                vary "Susanoo" "Tsukumo"
                 onBreak do
                     cancelChannel "Tsukumo"
                     remove "Susanoo"
-                    vary "Susanoo" baseVariant
           ]
         , Skill.effects   =
-          [ To Self addStack ]
+          [ To Self $ apply 0 [Alternate "Susanoo" "Tsukumo"] ]
         }
       , Skill.new
         { Skill.name      = "Tsukumo"
@@ -64,11 +62,11 @@ characters =
         , Skill.cost      = [Blood, Gen]
         , Skill.effects   =
           [ To Enemy do
-                self $ vary "Kotoamatsukami" "Kotoamatsukami"
+                self $ hide 0 [Alternate "Kotoamatsukami" "Kotoamatsukami"]
                 trap 0 (OnAction All) do
-                    self $ vary "Kotoamatsukami" baseVariant
+                    self $ remove "kotoamatsukami"
                     deplete 1
-                trap 0 OnDeath $ self $ vary "Kotoamatsukami" baseVariant
+                trap 0 OnDeath $ self $ remove "kotoamatsukami"
           ]
         }
       , Skill.new
@@ -80,7 +78,7 @@ characters =
           [ To Enemy do
                 everyone $ removeTrap "Kotoamatsukami"
                 trap 0 (OnAction All) do
-                    self $ vary "Kotoamatsukami" baseVariant
+                    self $ remove "kotoamatsukami"
                     deplete 1
           ]
         }
@@ -97,7 +95,7 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   = [ To Enemy $ damage 30
-                            , To Self  $ defend 1 20
+                            , To Self $ defend 1 20
                             ]
         }
       ]
@@ -132,8 +130,8 @@ characters =
                 trap 3 OnStunned $ apply 1 [Invulnerable All]
                 trap 3 (OnDamaged NonAffliction) $
                     self $ apply 1 [Strengthen All Flat 10]
-          , To Self $ vary' 3 "Super Beast Scroll: Snake"
-                              "Super Beast Scroll: Bird"
+          , To Self $ apply 3 [Alternate "Super Beast Scroll: Snake"
+                                         "Super Beast Scroll: Bird"]
           ]
         }
       ]
@@ -178,7 +176,7 @@ characters =
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Ally  $ allies  $ defend  0 20
+          [ To Ally $ allies  $ defend  0 20
           , To Enemy $ enemies $ barrier 0 20
           ]
         }
@@ -211,7 +209,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 tag 1
-                enemies $ hide' "revealed" 1 [Reveal]
+                enemies $ hide 1 [Reveal]
           ]
         }
       ]
@@ -223,9 +221,8 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Ally $ trapFrom' 2 (Counter NonMental) do
-                setFace' (-4)
+                apply (-4) [Face]
                 copyAll 4
-                tag (-4)
                 teach 4 Shallow 4
                 teachOne 4 3 Deep 5
                 self do
@@ -321,24 +318,24 @@ characters =
         , Skill.classes   = [Mental, Resource]
         , Skill.cost      = [Blood]
         , Skill.dur       = Ongoing 0
-        , Skill.start     =
-          [ To Self do
-                addStacks "Sharingan" 10
-                vary "Izanagi" "Izanagi"
-          ]
+        , Skill.start     = 
+          [ To Self $ 
+                applyStacks "Sharingan" 10 [Alternate "Izanagi" "Izanagi"]
+          ] 
         , Skill.effects   =
-          [ To Self $ unlessM (userHas "paused") do
-                removeStack "Sharingan"
-                has <- userHas "Sharingan"
-                if has then trap' 1 OnRes do
-                    cancelChannel "Izanagi"
-                    vary' 0 "Izanagi" "Reverse Tetragram Sealing"
-                    stacks <- userStacks "Sharingan"
-                    setHealth (10 * stacks)
-                    remove "Sharingan"
-                else do
-                    cancelChannel "Izanagi"
-                    vary' 0 "Izanagi" "Reverse Tetragram Sealing"
+          [ To Self do
+                unlessM (userHas "paused") do
+                  removeStack "Sharingan"
+                  has <- userHas "Sharingan"
+                  if has then trap' 1 OnRes do
+                      cancelChannel "Izanagi"
+                      hide 0 [Alternate "Izanagi" "Reverse Tetragram Sealing"]
+                      stacks <- userStacks "Sharingan"
+                      setHealth (10 * stacks)
+                      remove "Sharingan"
+                  else do
+                      cancelChannel "Izanagi"
+                      hide 0 [Alternate "Izanagi" "Reverse Tetragram Sealing"]
           ]
         }
       , Skill.new
@@ -400,7 +397,7 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Self  $ defend 1 10
+          [ To Self $ defend 1 10
           , To Enemy $ damage 20
           ]
         }
@@ -413,7 +410,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ pierce 40
-          , To Self  $ apply 1 [Reduce All Percent 25]
+          , To Self $ apply 1 [Reduce All Percent 25]
           ]
         }
       ]
@@ -424,14 +421,14 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
         , Skill.dur       = Action 2
-        , Skill.start     =
-          [ To Self setFace ]
         , Skill.effects   =
           [ To Self do
-                apply 1 [Invulnerable Mental]
+                apply 1 [Invulnerable Mental, Face]
                 gain [Rand]
                 defend 0 10
           ]
+        , Skill.interrupt =
+          [ To Self $ apply 1 [Face] ]
         }
       ]
     , [ invuln "Parry" "Suigetsu" [Physical] ]
@@ -471,7 +468,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To XAlly $ heal 30
-          , To Self  $ sacrifice 0 5
+          , To Self $ sacrifice 0 5
           ]
         }
       ]
@@ -499,12 +496,12 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 4
         , Skill.dur       = Action 3
-        , Skill.start     =
-          [ To Self setFace ]
         , Skill.effects   =
-          [ To Self $ apply 1 [Reduce All Percent 75]
-          , To REnemy $ pierce 25
+          [ To REnemy $ pierce 25
+          , To Self $ apply 1 [Reduce All Percent 75, Face]
           ]
+        , Skill.interrupt =
+          [ To Self $ apply 1 [Face] ]
         }
       ]
     , [ Skill.new

@@ -54,7 +54,7 @@ getForumsR = do
     categories = [minBound..maxBound]
     indexBoard board = do
         posts <- selectWithAuthors [TopicBoard ==. board] [Desc TopicTime]
-        pure $ BoardIndex board (length posts) (listToMaybe posts)
+        pure $ BoardIndex board (length posts) (headMay posts)
 
 -- | Renders a 'ForumBoard'.
 getBoardR :: ForumBoard -> Handler Html

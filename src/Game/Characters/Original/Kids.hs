@@ -123,7 +123,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self  $ apply 4 [Reduce All Flat 15]
+          [ To Self $ apply 4 [Reduce All Flat 15]
           , To Enemy $ apply 4 [Expose]
           ]
         }
@@ -158,7 +158,7 @@ characters =
           [ To Enemies do
               bonus <- 5 `bonusIf` targetHas "Dynamic Marking"
               damage (15 + bonus)
-          , To Self    $ apply 1 [Reduce All Flat 15]
+          , To Self $ apply 1 [Reduce All Flat 15]
           ]
         }
       ]
@@ -305,9 +305,9 @@ characters =
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.effects   =
           [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 5]
-          , To Self    do
+          , To Self do
                 sacrifice 1 5
-                varyLoadout loadout 1
+                alternate loadout 1
           ]
         }
       , Skill.new
@@ -350,9 +350,9 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
             [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 10]
-            , To Self    do
+            , To Self do
                   sacrifice 1 15
-                  varyLoadout loadout 2
+                  alternate loadout 2
             ]
         }
       , Skill.new
@@ -366,7 +366,7 @@ characters =
           [ To Enemy do
                 damage 10
                 pierce 5
-          , To Self  $ apply 1 [Focus, Reduce All Flat 15]
+          , To Self $ apply 1 [Focus, Reduce All Flat 15]
           ]
         }
       , Skill.new
@@ -406,10 +406,8 @@ characters =
           [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
           ,  To Self do
                 sacrifice 1 10
-                apply 0 [Focus]
-                varyLoadout loadout 3
-                setFace
-                vary "Block" "Block"
+                alternate loadout 3
+                apply 0 [Focus, Alternate "Block" "Block", Face]
           ]
         , Skill.effects   =
           [ To Self $ unlessM (userHas "unchili") $ afflict 15 ]
@@ -422,7 +420,7 @@ characters =
           [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 10]
           , To Self do
                 sacrifice 1 5
-                varyLoadout loadout 2
+                alternate loadout 2
           ]
         }
       , Skill.new
@@ -433,10 +431,8 @@ characters =
         , Skill.start     =
           [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
           , To Self do
-                apply 0 [Focus]
-                varyLoadout loadout 3
-                vary "Block" "Block"
-                setFace
+                alternate loadout 3
+                apply 0 [Focus, Alternate "Block" "Block", Face]
           ]
         , Skill.effects   =
           [ To Self $ unlessM (userHas "unchili") $ afflict 15 ]
@@ -479,7 +475,7 @@ characters =
         , Skill.classes   = [Mental, Ranged, Bypassing]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-          [ To Enemy  $ apply 1 [Stun NonMental, Expose]
+          [ To Enemy $ apply 1 [Stun NonMental, Expose]
           , To REnemy $ pierce 30
           ]
         }
@@ -492,7 +488,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Control 4
         , Skill.start     =
-          [ To Self $ vary "Mind Transfer" "Art of the Valentine"]
+          [ To Self $ hide 0 [Alternate "Mind Transfer" "Art of the Valentine"] ]
         , Skill.effects   =
           [ To Enemy $ apply 1 [Stun All, Expose] ]
         }
@@ -557,9 +553,10 @@ characters =
         , Skill.effects   =
           [ To Self do
                 cureAll
-                apply 2 [Invulnerable All]
+                apply 2 [ Invulnerable All
+                        , Alternate "Fifth Gate Opening" "Final Lotus"
+                        ]
                 sacrifice 1 50
-                vary' 2 "Fifth Gate Opening" "Final Lotus"
           ]
         }
       , Skill.new
@@ -582,7 +579,7 @@ characters =
         , Skill.classes   = [Physical, Ranged, Uncounterable]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Enemy    $ damage 20
+          [ To Enemy $ damage 20
           , To XEnemies $ damage 10
           , To Self do
                 addStack
@@ -601,7 +598,7 @@ characters =
                 stacks <- userStacks "Unsealing Technique"
                 damage (5 + 10 * stacks)
                 bonus <- 1 `bonusIf` userHas "Rising Twin Dragons"
-                apply (1 + bonus) 
+                apply (1 + bonus)
                     [ Weaken Physical Flat (5 + 10 * stacks)
                     , Weaken Chakra   Flat (5 + 10 * stacks)
                     ]
@@ -652,7 +649,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-            [ To Self    $ apply 1 [Invulnerable All]
+            [ To Self $ apply 1 [Invulnerable All]
             , To Enemies $ damage 15
             ]
         }
@@ -682,10 +679,8 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
         , Skill.dur       = Control 2
-        , Skill.start     =
-          []-- To Self $ vary "Sand Coffin" "Sand Burial" ]
         , Skill.effects   =
-          [ To Self  $ hide 1 [Alternate "Sand Coffin" "Sand Burial"]
+          [ To Self $ hide 1 [Alternate "Sand Coffin" "Sand Burial"]
           , To Enemy $ apply 1 [Expose, Stun NonMental]
           ]
         }
@@ -773,7 +768,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy $ damage 20
-          , To Self  $ apply 1 [Invulnerable NonMental]
+          , To Self $ apply 1 [Invulnerable NonMental]
           ]
         }
       ]
@@ -794,7 +789,7 @@ characters =
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Allies  $ apply 1 [Invulnerable All]
+          [ To Allies $ apply 1 [Invulnerable All]
           , To Enemies $ apply 2 [Weaken All Flat 15]
           ]
         }

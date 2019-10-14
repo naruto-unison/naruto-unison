@@ -4,38 +4,37 @@ module Game.Action.Skill
     alterCd
   , reset, resetAll, resetCharges
   -- * Changing face icons
-  , setFace, setFace'
   -- * Copying
   , copyAll, copyLast, teach, teachOne
-  -- * Variants
-  , vary, vary', varyLoadout, varyNext
+  -- * Alternates
+  , alternate, nextAlternate
+
   -- * Other
   , factory
   ) where
 
 import ClassyPrelude
 
-import           Data.List (findIndex)
+import           Data.Enum.Set.Class (EnumSet)
 import qualified Data.Sequence as Seq
 
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
+import           Class.Random (MonadRandom)
+import           Game.Action.Status (applyWith')
 import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
-import           Game.Model.Channel (Channeling(..))
-import qualified Game.Model.Channel as Channel
 import qualified Game.Model.Character as Character
+import           Game.Model.Class (Class(..))
 import           Game.Model.Copy (Copy(Copy), Copying(..))
 import qualified Game.Model.Copy as Copy
-import           Game.Model.Duration (Duration(..), Turns, incr, sync)
-import           Game.Model.Face (Face(Face))
-import qualified Game.Model.Face as Face
+import           Game.Model.Duration (Duration(..), Turns, sync)
+import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
-import           Game.Model.Variant (Varying)
-import qualified Game.Model.Variant as Variant
+import           Util ((!?))
 
 
 -- | Changes the 'Skill.cooldown' of a @Skill@ by base 'Skill.name' and variant
@@ -66,103 +65,25 @@ resetAll = P.unsilenced $ P.toTarget Cooldown.resetAll
 resetCharges :: ∀ m. MonadPlay m => m ()
 resetCharges = P.unsilenced $ P.toTarget Ninjas.resetCharges
 
--- | Adds a 'Face.Face' to 'Ninja.face' with a 'Face.dur' that
--- depends on the 'Skill.dur' of the @Skill@ that performs the action.
--- If the @Skill@ is interrupted, the 'Face.Face' immediately ends.
-setFace :: ∀ m. MonadPlay m => m ()
-setFace = do
-    skill <- P.skill
-    case Skill.dur skill of
-        Instant -> setFace' 0
-        (Channel.turnDur -> Duration (-1)) -> return ()
-        _ -> setFaceFull . Variant.FromSkill $ Skill.name skill
+alternateClasses :: EnumSet Class
+alternateClasses = setFromList [Hidden, Nonstacking, Unremovable]
 
--- | Adds a 'Face.Face' to 'Ninja.face' with a fixed 'Face.dur'.
-setFace' :: ∀ m. MonadPlay m => Turns -> m ()
-setFace' (Duration -> dur) = do
-    copying <- Skill.copying <$> P.skill
-    setFaceFull . Variant.Duration . Copy.maxDur copying $ sync dur
-
--- | Adds a 'Face.Face' to the 'Ninja.face' of a @Ninja@, changing their in-game
--- icon.
-setFaceFull :: ∀ m. MonadPlay m => Varying -> m ()
-setFaceFull dur = do
-    skill <- P.skill
-    user  <- P.user
-    let face = Face { Face.icon = Skill.name skill
-                    , Face.user = user
-                    , Face.dur  = dur
-                    }
-    P.toTarget \n -> n { Ninja.face = face : Ninja.face n }
-
--- | Adds a 'Variant.Variant' to 'Ninja.variants' with a 'Variant.dur' that
--- depends on the 'Skill.dur' of the @Skill@ that performs the action.
--- If the @Skill@ is interrupted, the 'Variant.Variant' immediately ends.
-vary :: ∀ m. MonadPlay m
-     => Text -- ^ 'Skill.name' of root skill.
-     -> Text -- ^ 'Skill.name' of variant skill.
-     -> m ()
-vary name variant = do
-    skill <- P.skill
-    case Skill.dur skill of
-        Instant -> vary' 0 name variant
-        (Channel.turnDur -> Duration (-1)) -> return ()
-        _ -> varyFull (Variant.FromSkill $ Skill.name skill) name variant
-
--- | Adds a 'Variant.Variant' to 'Ninja.variants' with a fixed 'Variant.dur'.
-vary' :: ∀ m. MonadPlay m
-      => Turns -- Custom 'Variant.dur'.
-      -> Text -- ^ 'Skill.name' of root skill.
-      -> Text -- ^ 'Skill.name' of variant skill.
-      -> m ()
-vary' (Duration -> dur) name variant = do
-    copying <- Skill.copying <$> P.skill
-    varyFull (Variant.Duration . Copy.maxDur copying . sync $ incr dur)
-             name variant
-
--- | Adds a 'Variant.Variant' to 'Ninja.variants' by base 'Skill.name' and
--- variant 'Skill.name'.
-varyFull :: ∀ m. MonadPlay m => Varying -> Text -> Text -> m ()
-varyFull dur name variant = do
-    nUser <- P.nUser
-    Skills.safe (return ()) (unsafeVary dur) nUser name variant
-
--- | Adds a 'Variant.Variant' to 'Ninja.variants' by skill and variant index
--- within 'Character.skills'.
--- Uses 'Ninjas.vary' internally.
-unsafeVary :: ∀ m. MonadPlay m => Varying -> Int -> Int -> m ()
-unsafeVary dur s v = unlessM (shallow . Skill.copying <$> P.skill) do
-    target <- P.target
-    P.modify target $ Ninjas.vary dur s v
+-- | Adjusts all 'Ninja.alternates' at once.
+alternate :: ∀ m. (MonadPlay m, MonadRandom m)
+          => [Int] -- ^ Index offsets.
+          -> Int   -- ^ Counter added to all 'Ninja.alternates' slots.
+          -> m () -- ^ Recalculates every alternate of a target @Ninja@.
+alternate loadout i =
+    applyWith' alternateClasses "loadout" 0 . catMaybes . zipWith load loadout .
+    toList . Character.skills . Ninja.character =<< P.nTarget
   where
-    shallow Copy.Shallow{} = True
-    shallow _              = False
+    load alt (x:|xs) =
+        Alternate (Skill.name x) . Skill.name <$> xs !? (alt + i - 1)
 
--- | Adjusts all 'Ninja.variants' at once.
-varyLoadout :: ∀ m. MonadPlay m
-            => [Int]-- ^ 'Variant.Variant' offsets
-            -> Int  -- ^ Counter added to all 'Variant.Variant' slots.
-            -> m () -- ^ Recalculates every 'Variant.Variant' of a target @Ninja@.
-varyLoadout els i = traverse_ f $ zip [0..] els
+nextAlternate :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> m ()
+nextAlternate name = mapM_ alt . Ninjas.nextAlternate name =<< P.nTarget
   where
-    f (slot, offset) = unsafeVary (Variant.Duration 0) slot $ i + offset
-
--- | Increments the 'Variant.variant' of a 'Ninja.variants' with matching
--- 'Skill.name'.
-varyNext :: ∀ m. MonadPlay m => Text -> m ()
-varyNext name = do
-    target <- P.target
-    mapM_ (P.modify target . adjVariant) .
-        findIndex (any match) . toList . Character.skills .
-        Ninja.character =<< P.nTarget
-  where
-    adjVariant s n = n { Ninja.variants = Seq.adjust' adj s $ Ninja.variants n }
-    match skill = name == Skill.name skill
-    adj vs@(x:|xs)
-      | variant <= 0 = vs
-      | otherwise    = x { Variant.variant = 1 + variant } :| xs
-      where
-        variant = Variant.variant x
+    alt x = applyWith' alternateClasses "nextAlternate" 1 [Alternate name x]
 
 -- | Performs an action only if the skill being used is not copied from
 -- someone else.

@@ -38,7 +38,7 @@ absorb n
 
 -- | Trigger a 'Redirect'.
 redirect :: Ninja -> Maybe Slot
-redirect n = listToMaybe [slot | Redirect slot <- Ninja.effects n]
+redirect n = headMay [slot | Redirect slot <- Ninja.effects n]
 
 getCounters :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
            => (Trap -> Maybe Class) -> Slot -> EnumSet Class -> Ninja -> [m ()]

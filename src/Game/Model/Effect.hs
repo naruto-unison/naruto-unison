@@ -5,6 +5,7 @@ module Game.Model.Effect
   , construct
   , helpful
   , sticky
+  , visible
   , isDisable, isIgnore
   , bypassEnrage
   , identity
@@ -58,6 +59,7 @@ data Effect
     = Absorb                           -- ^ Gain chakra when targeted by skills
     | Afflict      Int                 -- ^ Deals damage every turn
     | Alone                            -- ^ Cannot be targeted by allies
+    | Alternate    Text Text           -- ^ Modifies a skill to an alternate form
     | AntiCounter                      -- ^ Cannot be countered or reflected
     | Bleed        Class Amount Int    -- ^ Adds to damage received
     | Bless        Int                 -- ^ Adds to healing 'Skill's
@@ -66,7 +68,7 @@ data Effect
     | BlockEnemies                     -- ^ Cannot affect enemies
     | Boost        Int                 -- ^ Scales effects from allies
     | Build        Int                 -- ^ Adds to destructible defense 'Skill'
-    | Bypass
+    | Bypass                           -- ^ All skills are 'Bypassing'
     | DamageToDefense                  -- ^ Damage received converts to defense
     | Disable      Constructor         -- ^ Prevents applying an effect
     | Duel         Slot                -- ^ 'Invulnerable' to everyone but user
@@ -74,6 +76,7 @@ data Effect
     | Enrage                           -- ^ Ignore all harmful status effects
     | Exhaust      Class               -- ^ 'Skill's cost 1 additional random chakra
     | Expose                           -- ^ Cannot reduce damage or be 'Invulnerable'
+    | Face                             -- ^ Changes appearance
     | Focus                            -- ^ Immune to 'Stun', 'Disable', and 'Silence'
     | Heal         Int                 -- ^ Heals every turn
     | Invulnerable Class               -- ^ Invulnerable to enemy 'Skill's
@@ -125,6 +128,7 @@ helpful :: Effect -> Bool
 helpful Absorb          = True
 helpful Afflict{}       = False
 helpful Alone           = False
+helpful Alternate{}     = True
 helpful AntiCounter     = True
 helpful (Bleed _ _ x)   = x < 0
 helpful Bless{}         = True
@@ -141,6 +145,7 @@ helpful Endure          = True
 helpful Enrage          = True
 helpful Exhaust{}       = False
 helpful Expose          = False
+helpful Face            = True
 helpful Focus           = True
 helpful Heal{}          = True
 helpful Invulnerable{}  = True
@@ -172,8 +177,10 @@ helpful Weaken{}        = False
 
 -- | Effect cannot be removed.
 sticky :: Effect -> Bool
+sticky Alternate{}    = True
 sticky Block{}        = True
 sticky Enrage         = True
+sticky Face           = True
 sticky Invulnerable{} = True
 sticky Redirect{}     = True
 sticky Reflect        = True
@@ -210,10 +217,17 @@ displayAmt :: Amount -> Int -> TextBuilder
 displayAmt Flat    = display
 displayAmt Percent = (++ "%") . display
 
+-- | Effect is displayed to the client.
+visible :: Effect -> Bool
+visible (Alternate x y) = x /= y
+visible Face            = False
+visible _               = True
+
 instance Display Effect where
     display Absorb = "Gains chakra equal to the chakra cost of skills received from enemies."
     display (Afflict x) = "Receives " ++ display x ++ " affliction damage each turn."
     display Alone = "Invulnerable to allies."
+    display (Alternate from to) = "[" ++ display from ++ "] becomes [" ++ display to ++ "]."
     display AntiCounter = "Cannot be countered or reflected."
     display (Bleed cla amt x)
       | x >= 0    =  displayAmt amt x ++ " additional damage taken from " ++ lower cla ++ " skills."
@@ -234,6 +248,7 @@ instance Display Effect where
     display Enrage = "Ignores status effects from enemies except chakra cost changes."
     display (Exhaust cla) = display cla ++ " skills cost 1 additional random chakra."
     display Expose = "Unable to reduce damage or become invulnerable."
+    display Face = "Appearance is altered."
     display (Heal x) = "Gains " ++ display x ++ " health each turn."
     display Focus = "Ignores stuns and disabling effects."
     display NoIgnore = "Unable to ignore harm."

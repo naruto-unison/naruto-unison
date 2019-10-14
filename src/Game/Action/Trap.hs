@@ -86,7 +86,7 @@ onBreak' = do
     name <- Skill.name <$> P.skill
     onBreak do
         P.modify user $ Ninjas.cancelChannel name
-        P.modifyAll $ Ninjas.clear name user
+        P.modifyAll $ Ninjas.clear name user . Ninjas.clear (toLower name) user
 
 -- | Adds a @Trap@ to 'Ninja.traps'.
 trapWith :: ∀ m. MonadPlay m

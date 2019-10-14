@@ -1,11 +1,11 @@
 -- | Actions that characters can use to affect @Status@es.
 module Game.Action.Status
   ( -- * Applying statuses
-    apply, apply', applyWith
+    apply, apply', applyWith, applyWith'
   , tag, tag'
   , flag, flag'
   , hide, hide'
-  , addStack, addStack', addStacks, addStacks'
+  , addStack, addStack', addStacks, addStacks', applyStacks
     -- * Applying bombs
   , bomb, bomb', bombWith, bombWith'
   -- * Adjusting statuses
@@ -77,7 +77,7 @@ applyWith classes = applyWith' classes ""
 applyWith' :: ∀ m. (MonadPlay m, MonadRandom m)
            => EnumSet Class -> Text -> Turns -> [Effect] -> m ()
 applyWith' classes turns efs =
-    P.unsilenced . applyFull classes False [] turns efs
+    P.unsilenced . applyFull 1 classes False [] turns efs
 
 -- | Adds a simple @Status@ with no 'Status.effects' or 'Status.dur'
 -- 'Ninja.statuses'. Stacks are unremovable.
@@ -125,7 +125,9 @@ tag' name dur = applyWith' (setFromList [Unremovable, Nonstacking]) name dur []
 
 -- | Applies a 'Hidden' and 'Unremovable' @Status@.
 hide :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> [Effect] -> m ()
-hide = hide' "_" -- The effects are all that matter, not the status itself.
+hide dur efs = do
+    skill <- P.skill
+    hide' (toLower $ Skill.name skill) dur efs
 
 -- | 'hide' with a 'Status.name'.
 hide' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> [Effect] -> m ()
@@ -155,14 +157,20 @@ bombWith' :: ∀ m. (MonadPlay m, MonadRandom m)
           => EnumSet Class -> Text -> Turns -> [Effect] -> [Runnable Bomb]
           -> m ()
 bombWith' classes name dur fs bombs =
-    P.unsilenced $ applyFull classes False bombs name dur fs
+    P.unsilenced $ applyFull 1 classes False bombs name dur fs
+
+applyStacks :: ∀ m. (MonadPlay m, MonadRandom m)
+            => Text -> Int -> [Effect]
+            -> m ()
+applyStacks name amount fs =
+    applyFull amount (setFromList [Unremovable]) False mempty name 0 fs
 
 -- | Status engine.
 -- Uses 'Ninjas.addStatus' internally.
 applyFull :: ∀ m. (MonadPlay m, MonadRandom m)
-          => EnumSet Class -> Bool -> [Runnable Bomb] -> Text -> Turns
+          => Int -> EnumSet Class -> Bool -> [Runnable Bomb] -> Text -> Turns
           -> [Effect] -> m ()
-applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
+applyFull amount classes bounced bombs name turns@(Duration -> unthrottled) fs =
     void $ runMaybeT do
         new         <- P.new
         skill       <- P.skill
@@ -173,7 +181,7 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
         dur         <- MaybeT . return $ Duration.throttle
                        (Effects.throttle fs nUser) unthrottled
         let already  = Ninja.has name user nTarget
-            st       = makeStatus new skill nUser nTarget
+            st       = makeStatus amount new skill nUser nTarget
                        classes bounced bombs name dur fs
             classes' = Status.classes st
             prolong' = mapMaybe .
@@ -195,11 +203,8 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
             when (any isHeal $ Status.effects st) $ P.trigger user [OnHeal]
 
             let self = user == user && user == target
-            when (bounced && not self) do
-                let bounce t = P.withTarget t $
-                               applyFull mempty True (Status.bombs st) name
-                               turns fs
-                lift . traverse_ bounce $ user `delete` Effects.share nTarget
+            when (bounced && not self) . lift .
+                traverse_ (bounce st) $ user `delete` Effects.share nTarget
   where
     isHeal (Heal x) = x > 0
     isHeal _        = False
@@ -207,22 +212,26 @@ applyFull classes bounced bombs name turns@(Duration -> unthrottled) fs =
     isReduce _        = False
     isInvulnerable Invulnerable{} = True
     isInvulnerable _              = False
+    bounce st t = P.withTarget t $
+                  applyFull amount mempty True (Status.bombs st) name turns fs
 
-makeStatus :: Bool -> Skill -> Ninja -> Ninja
+makeStatus :: Int -> Bool -> Skill -> Ninja -> Ninja
            -> EnumSet Class -> Bool -> [Runnable Bomb] -> Text -> Duration
            -> [Effect] -> Status
-makeStatus new skill nUser nTarget classes bounced bombs name dur fs = newSt
+makeStatus amount new skill nUser nTarget classes bounced bombs name dur fs =
+    newSt
     { Status.name    = Skill.defaultName name skill
     , Status.user    = user
     , Status.effects = filterDmg . filter disable $ Ninjas.apply nTarget fs
     , Status.classes = classes'
+    , Status.amount  = amount
     , Status.bombs   = guard (Status.dur newSt <= incr (sync dur))
                         >> bombs
     }
   where
-    user     = Ninja.slot nUser
-    newSt    = Status.new user dur skill
-    self     = user == user && user == Ninja.slot nTarget
+    user  = Ninja.slot nUser
+    newSt = Status.new user dur skill
+    self  = user == user && user == Ninja.slot nTarget
     skillClasses
       | new       = Skill.classes skill
       | otherwise = deleteSet Invisible $ Skill.classes skill
@@ -230,9 +239,9 @@ makeStatus new skill nUser nTarget classes bounced bombs name dur fs = newSt
                || dur == Duration 1 && Skill.dur skill /= Instant
                || self && any (not . Effect.helpful) fs
     extra    = setFromList $ fst <$> filter snd
-                [ (Soulbound,   any bind fs)
-                , (Unremovable, noremove)
-                ]
+               [ (Soulbound,   any bind fs)
+               , (Unremovable, noremove)
+               ]
     classes' = extra ++ classes ++ skillClasses
     silenced = nUser `is` Silence
     disabled = Effects.disabled nUser

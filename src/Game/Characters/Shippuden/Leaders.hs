@@ -66,7 +66,7 @@ characters =
                 damage 20
                 stacks <- targetStacks "Toad Oil Bomb"
                 afflict (10 * stacks)
-          , To Self  $ vary "Giant Flame Bomb" "Toad Oil Bomb"
+          , To Self $ hide 0 [Alternate "Giant Flame Bomb" "Toad Oil Bomb"]
           ]
         }
       , Skill.new
@@ -79,7 +79,7 @@ characters =
                 afflict 10
                 interrupt
                 addStack
-          , To Self $ vary "Giant Flame Bomb" baseVariant
+          , To Self $ remove "giant flame bomb"
           ]
         }
       ]
@@ -129,9 +129,7 @@ characters =
                 when has demolishAll
                 pierce (20 + if has then 20 else 0)
           , To Allies $ whenM (targetHas "Healing Wave") $ apply 1 [Endure]
-          , To Self do
-              remove "Strength of One Hundred Seal"
-              vary "Strength of One Hundred Seal" baseVariant
+          , To Self $ remove "Strength of One Hundred Seal"
           ]
         }
       ]
@@ -146,9 +144,7 @@ characters =
                 has <- userHas "Strength of One Hundred Seal"
                 heal (20 + if has then 10 else 0)
                 apply (if has then (-3) else (-2)) [Heal 10]
-          , To Self do
-                remove "Strength of One Hundred Seal"
-                vary "Strength of One Hundred Seal" baseVariant
+          , To Self $ remove "Strength of One Hundred Seal"
           ]
         }
       ]
@@ -161,9 +157,8 @@ characters =
         , Skill.effects   =
           [ To Self do
                 heal 25
-                tag 0
-                vary "Strength of One Hundred Seal"
-                     "Strength of One Hundred Seal"
+                apply 0 [Alternate "Strength of One Hundred Seal"
+                                   "Strength of One Hundred Seal"]
           ]
         }
       , Skill.new
@@ -176,7 +171,6 @@ characters =
           [ To Self do
                 heal 50
                 gain [Rand, Rand]
-                vary "Strength of One Hundred Seal" baseVariant
                 remove "Strength of One Hundred Seal"
           ]
         }
@@ -193,7 +187,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Allies  $ defend 0 104
+          [ To Allies $ defend 0 104
           , To Enemies $ damage 10
           ]
         }

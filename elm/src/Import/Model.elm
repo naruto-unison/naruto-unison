@@ -303,22 +303,19 @@ jsonEncEffect  val =
 type alias Face  =
    { icon: String
    , user: Int
-   , dur: Int
    }
 
 jsonDecFace : Json.Decode.Decoder ( Face )
 jsonDecFace =
-   Json.Decode.succeed (\picon puser pdur -> {icon = picon, user = puser, dur = pdur})
+   Json.Decode.succeed (\picon puser -> {icon = picon, user = puser})
    |> required "icon" (Json.Decode.string)
    |> required "user" (Json.Decode.int)
-   |> required "dur" (Json.Decode.int)
 
 jsonEncFace : Face -> Value
 jsonEncFace  val =
    Json.Encode.object
    [ ("icon", Json.Encode.string val.icon)
    , ("user", Json.Encode.int val.user)
-   , ("dur", Json.Encode.int val.dur)
    ]
 
 
@@ -409,18 +406,17 @@ type alias Ninja  =
    , statuses: (List Status)
    , charges: (List Int)
    , cooldowns: (List Int)
-   , variants: (List (List Variant))
    , copies: (List (Maybe Copy))
    , channels: (List Channel)
    , traps: (List Trap)
-   , face: (List Face)
+   , face: (Maybe Face)
    , lastSkill: (Maybe Skill)
    , skills: (List Skill)
    }
 
 jsonDecNinja : Json.Decode.Decoder ( Ninja )
 jsonDecNinja =
-   Json.Decode.succeed (\pslot pcharacter phealth pdefense pbarrier pstatuses pcharges pcooldowns pvariants pcopies pchannels ptraps pface plastSkill pskills -> {slot = pslot, character = pcharacter, health = phealth, defense = pdefense, barrier = pbarrier, statuses = pstatuses, charges = pcharges, cooldowns = pcooldowns, variants = pvariants, copies = pcopies, channels = pchannels, traps = ptraps, face = pface, lastSkill = plastSkill, skills = pskills})
+   Json.Decode.succeed (\pslot pcharacter phealth pdefense pbarrier pstatuses pcharges pcooldowns pcopies pchannels ptraps pface plastSkill pskills -> {slot = pslot, character = pcharacter, health = phealth, defense = pdefense, barrier = pbarrier, statuses = pstatuses, charges = pcharges, cooldowns = pcooldowns, copies = pcopies, channels = pchannels, traps = ptraps, face = pface, lastSkill = plastSkill, skills = pskills})
    |> required "slot" (Json.Decode.int)
    |> required "character" (Json.Decode.string)
    |> required "health" (Json.Decode.int)
@@ -429,11 +425,10 @@ jsonDecNinja =
    |> required "statuses" (Json.Decode.list (jsonDecStatus))
    |> required "charges" (Json.Decode.list (Json.Decode.int))
    |> required "cooldowns" (Json.Decode.list (Json.Decode.int))
-   |> required "variants" (Json.Decode.list (Json.Decode.list (jsonDecVariant)))
    |> required "copies" (Json.Decode.list (Json.Decode.maybe (jsonDecCopy)))
    |> required "channels" (Json.Decode.list (jsonDecChannel))
    |> required "traps" (Json.Decode.list (jsonDecTrap))
-   |> required "face" (Json.Decode.list (jsonDecFace))
+   |> fnullable "face" (jsonDecFace)
    |> fnullable "lastSkill" (jsonDecSkill)
    |> required "skills" (Json.Decode.list (jsonDecSkill))
 
@@ -448,11 +443,10 @@ jsonEncNinja  val =
    , ("statuses", (Json.Encode.list jsonEncStatus) val.statuses)
    , ("charges", (Json.Encode.list Json.Encode.int) val.charges)
    , ("cooldowns", (Json.Encode.list Json.Encode.int) val.cooldowns)
-   , ("variants", (Json.Encode.list (Json.Encode.list jsonEncVariant)) val.variants)
    , ("copies", (Json.Encode.list (maybeEncode (jsonEncCopy))) val.copies)
    , ("channels", (Json.Encode.list jsonEncChannel) val.channels)
    , ("traps", (Json.Encode.list jsonEncTrap) val.traps)
-   , ("face", (Json.Encode.list jsonEncFace) val.face)
+   , ("face", (maybeEncode (jsonEncFace)) val.face)
    , ("lastSkill", (maybeEncode (jsonEncSkill)) val.lastSkill)
    , ("skills", (Json.Encode.list jsonEncSkill) val.skills)
    ]
@@ -771,28 +765,5 @@ jsonEncUser  val =
    , ("muted", Json.Encode.bool val.muted)
    , ("condense", Json.Encode.bool val.condense)
    , ("dna", Json.Encode.int val.dna)
-   ]
-
-
-
-type alias Variant  =
-   { variant: Int
-   , ownCd: Bool
-   , dur: Int
-   }
-
-jsonDecVariant : Json.Decode.Decoder ( Variant )
-jsonDecVariant =
-   Json.Decode.succeed (\pvariant pownCd pdur -> {variant = pvariant, ownCd = pownCd, dur = pdur})
-   |> required "variant" (Json.Decode.int)
-   |> required "ownCd" (Json.Decode.bool)
-   |> required "dur" (Json.Decode.int)
-
-jsonEncVariant : Variant -> Value
-jsonEncVariant  val =
-   Json.Encode.object
-   [ ("variant", Json.Encode.int val.variant)
-   , ("ownCd", Json.Encode.bool val.ownCd)
-   , ("dur", Json.Encode.int val.dur)
    ]
 

@@ -47,7 +47,8 @@ characters =
         , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Enemy $ damage 45
-          , To Self  $ vary "Major Summoning: Manda" "Paralyzing Bite"
+          , To Self $
+                hide 0 [Alternate "Major Summoning: Manda" "Paralyzing Bite"]
           ]
         , Skill.effects   =
           [ To Self $ gain [Rand] ]
@@ -73,7 +74,7 @@ characters =
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Enemy    $ afflict 20
+          [ To Enemy $ afflict 20
           , To XEnemies $ afflict 10
           ]
         }
@@ -103,7 +104,8 @@ characters =
           [ To Enemies do
                 afflict 25
                 apply 0 [Bleed Affliction Flat 5]
-          , To Self $ vary "Major Summoning: Gamabunta" "Toad Oil Bomb"
+          , To Self $
+                hide 0 [Alternate "Major Summoning: Gamabunta" "Toad Oil Bomb"]
           ]
         }
       , Skill.new
@@ -154,7 +156,8 @@ characters =
         , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Allies $ heal 40
-          , To Self   $ vary "Major Summoning: Katsuyu" "Slug Division"
+          , To Self $
+                hide 0 [Alternate "Major Summoning: Katsuyu" "Slug Division"]
           ]
         , Skill.effects   =
           [ To Allies $ heal 5 ]
@@ -193,7 +196,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy $ apply 0 [Afflict 40, Stun All, Expose]
-          , To Self  $ apply 0 [Afflict 20, Stun All]
+          , To Self $ apply 0 [Afflict 20, Stun All]
           ]
         }
       ]
@@ -207,7 +210,8 @@ characters =
           [ To Allies do
                 apply 1 [Invulnerable All, Endure]
                 apply 0 [Reduce All Flat 5]
-          , To Self $ vary "Major Summoning: Enma" "Adamantine Prison"
+          , To Self $
+                hide 0 [Alternate "Major Summoning: Enma" "Adamantine Prison"]
           ]
         }
       , Skill.new

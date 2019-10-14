@@ -21,7 +21,7 @@ characters =
           [ To Enemy do
                 damage 20
                 apply 1 [Stun Physical, Stun Melee]
-          , To Self $ vary "Frog Kumite" "Rasen Shuriken"
+          , To Self $ hide 0 [Alternate "Frog Kumite" "Rasen Shuriken"]
           ]
         }
       , Skill.new
@@ -31,7 +31,7 @@ characters =
         , Skill.cost      = [Nin, Tai]
         , Skill.effects   =
           [ To Enemy $ pierce 50
-          , To Self  $ vary "Frog Kumite" baseVariant
+          , To Self $ remove "frog kumite"
           ]
         }
       ]
@@ -52,7 +52,8 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemies $ apply 1 [Disable $ Any Stun, Disable $ Only Silence]
-          , To Self    $ vary "Natural Energy Assault" "Rasengan Barrage"
+          , To Self $ hide 0
+                         [Alternate "Natural Energy Assault" "Rasengan Barrage"]
           ]
         }
       , Skill.new
@@ -63,7 +64,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 trapFrom 1 (Counter All) $ damage 30
-                vary "Natural Energy Assault" baseVariant
+                remove "natural energy assault"
           ]
         }
       ]
@@ -79,11 +80,11 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self do
-                apply 3 [Reduce Affliction Flat 15]
-                vary' 3 "Chidori" "Blazing Arrow"
-                vary' 3 "Amaterasu" "Yasaka Beads"
-                setFace' 3
+          [ To Self $ apply 3 [ Reduce Affliction Flat 15
+                              , Alternate "Chidori" "Blazing Arrow"
+                              , Alternate "Amaterasu" "Yasaka Beads"
+                              , Face
+                              ]
           ]
         }
       ]
@@ -149,7 +150,7 @@ characters =
                   stacks <- userStacks "Amaterasu"
                   bomb 4 [Afflict (5 + 5 * stacks)]
                       [ To Remove $ self $ addStack
-                      , To Done   $ removeTrap "Amaterasu"
+                      , To Done $ removeTrap "Amaterasu"
                       ]
                   trapFrom 4 OnHelped amaterasu
           in
@@ -243,10 +244,14 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.dur       = Action 3
-        , Skill.start     =
-          [ To Self $ vary "Sasori Surrogate" "Hidden Coil Strike" ]
         , Skill.effects   =
-          [ To Enemy $ damage 15 ]
+          [ To Enemy $ damage 15
+          , To Self $ hide 1 [Alternate "Sasori Surrogate" "Hidden Coil Strike"]
+          ]
+        , Skill.interrupt =
+          [ To Self $
+                hide 1 [Alternate "Sasori Surrogate" "Hidden Coil Strike"]
+          ]
         }
       , Skill.new
         { Skill.name      = "Hidden Coil Strike"
@@ -269,7 +274,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Self  $ vary "Kuroari Trap" "Iron Maiden"
+          [ To Self $ hide 0 [Alternate "Kuroari Trap" "Iron Maiden"]
           , To Enemy $ bomb 5 []
                 [ To Done do
                     userSlot <- user slot
@@ -286,7 +291,7 @@ characters =
             [ To Enemy do
                   bonus <- 40 `bonusIf` targetHas "Kuroari Ambush"
                   pierce (20 + bonus)
-            , To Self $ vary "Kuroari Trap" baseVariant
+            , To Self $ remove "kuroari trap"
             ]
         }
       ]
@@ -328,9 +333,9 @@ characters =
         , Skill.dur       = Control 1
         , Skill.start     =
           [ To Self do
-                hide' "dna" 1 []
+                hide 1 []
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , To XAlly $ delay (-1) $ whenM (userHas "dna") do
+          , To XAlly $ delay (-1) $ whenM (userHas "dna transmission shadow") do
                 factory
                 apply 1 [Stun All]
           ]
@@ -345,9 +350,9 @@ characters =
         , Skill.dur       = Control 1
         , Skill.start     =
           [ To Self do
-                hide' "dna" 1 []
+                hide 1 []
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , To XAlly $ delay (-1) $ whenM (userHas "dna") do
+          , To XAlly $ delay (-1) $ whenM (userHas "dna transmission shadow") do
                 factory
                 apply 1 [Stun All]
           ]
@@ -362,9 +367,9 @@ characters =
         , Skill.dur       = Control 1
         , Skill.start     =
           [ To Self do
-                hide' "dna" 1 []
+                hide 1 []
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , To XAlly $ delay (-1) $ whenM (userHas "dna") do
+          , To XAlly $ delay (-1) $ whenM (userHas "dna transmission shadow") do
                 factory
                 apply 1 [Stun All]
           ]
@@ -379,9 +384,9 @@ characters =
         , Skill.dur       = Control 1
         , Skill.start     =
           [ To Self do
-                hide' "dna" 1 []
+                hide 1 []
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , To XAlly $ delay (-1) $ whenM (userHas "dna") do
+          , To XAlly $ delay (-1) $ whenM (userHas "dna transmission shadow") do
                 factory
                 apply 1 [Stun All]
           ]
@@ -396,9 +401,9 @@ characters =
         , Skill.dur       = Control 1
         , Skill.start     =
           [ To Self do
-                hide' "dna" 1 []
+                hide 1 []
                 everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , To XAlly $ delay (-1) $ whenM (userHas "dna") do
+          , To XAlly $ delay (-1) $ whenM (userHas "dna transmission shadow") do
                 factory
                 apply 1 [Stun All]
           ]
@@ -540,7 +545,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.charges   = 1
         , Skill.effects   =
-          [ To Self    $ gain [Rand, Rand]
+          [ To Self $ gain [Rand, Rand]
           , To XAllies $ apply 1 [Stun All]
           , To Enemies $ apply 1 [Stun All]
           ]
@@ -552,7 +557,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.charges   = 1
         , Skill.effects   =
-          [ To Self    $ gain [Blood, Blood]
+          [ To Self $ gain [Blood, Blood]
           , To XAllies $ apply 1 [Stun All]
           , To Enemies $ apply 1 [Stun All]
           ]
@@ -564,7 +569,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.charges   = 1
         , Skill.effects   =
-          [ To Self    $ gain [Gen, Gen]
+          [ To Self $ gain [Gen, Gen]
           , To XAllies $ apply 1 [Stun All]
           , To Enemies $ apply 1 [Stun All]
           ]
@@ -576,7 +581,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.charges   = 1
         , Skill.effects   =
-          [ To Self    $ gain [Nin, Nin]
+          [ To Self $ gain [Nin, Nin]
           , To XAllies $ apply 1 [Stun All]
           , To Enemies $ apply 1 [Stun All]
           ]
@@ -588,7 +593,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.charges   = 1
         , Skill.effects   =
-          [ To Self    $ gain [Tai, Tai]
+          [ To Self $ gain [Tai, Tai]
           , To XAllies $ apply 1 [Stun All]
           , To Enemies $ apply 1 [Stun All]
           ]
@@ -665,7 +670,7 @@ characters =
                 userSlot <- user slot
                 apply 1 [Taunt userSlot]
           , To Self do
-                vary "Poisonous Chain Skewer" "Impale"
+                hide 0 [Alternate "Poisonous Chain Skewer" "Impale"]
                 cancelChannel "Flamethrower Jets"
                 everyone do
                     remove "Flame Blast"
@@ -679,7 +684,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Self do
-                vary "Poisonous Chain Skewer" baseVariant
+                remove "poisonous chain skewer"
                 cancelChannel "Flamethrower Jets"
                 everyone do
                     remove "Flame Blast"
@@ -700,15 +705,17 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.dur       = Action 3
         , Skill.cooldown  = 3
+        , Skill.start     =
+          [ To Self $
+                hide 0 [Alternate "Flamethrower Jets" "Cutting Water Jets"]
+          ]
         , Skill.effects   =
           [ To Enemy do
                 afflict 10
                 tag 1
                 userSlot <- user slot
                 self $ apply' "Flame Blast" 1 [Duel userSlot]
-          , To Self do
-                apply 1 [Enrage]
-                vary "Flamethrower Jets" "Cutting Water Jets"
+          , To Self $ apply 1 [Enrage]
           ]
         }
       , Skill.new
@@ -721,7 +728,7 @@ characters =
                 bonus <- 10 `bonusIf` targetHas "Flamethrower Jets"
                 pierce (20 + bonus)
           , To Self do
-                vary "Flamethrower Jets" baseVariant
+                remove "flamethrower jets"
                 cancelChannel "Flamethrower Jets"
                 everyone do
                     remove "Flame Blast"
@@ -741,11 +748,11 @@ characters =
                 everyone do
                     remove "Flame Blast"
                     remove "Flamethrower Jets"
-                vary "Performance of a Hundred Puppets"
-                     "Barrage of a Hundred Puppets"
+                hide 0 [Alternate "Performance of a Hundred Puppets"
+                                  "Barrage of a Hundred Puppets"]
                 defend 0 50
                 onBreak $ self $
-                    vary "Performance of a Hundred Puppets" baseVariant
+                    remove "performance of a hundred puppets"
           , To XAllies $ defend 0 25
           ]
         }
@@ -780,7 +787,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy $ damage 10
-          , To Self  $ apply 1 [Reduce All Percent 20]
+          , To Self $ apply 1 [Reduce All Percent 20]
           ]
         }
       ]
@@ -868,15 +875,15 @@ characters =
         , Skill.cost    = [Blood, Nin]
         , Skill.effects =
           [ To Ally do
-                self $ hide' "curse" 0 []
-                bomb 0 [] [ To Done $ self $ remove "curse" ]
+                self $ hide 0 []
+                bomb 0 [] [ To Done $ self $ remove "curse mark release" ]
                 trap' 0 (OnDamaged All) $ unlessM (user alive) do
                     targetHealth <- target health
                     when (25 >= targetHealth && targetHealth > 0) do
                         killHard
                         self do
                             setHealth 100
-                            varyLoadout [0, 0, 0, 0] 1
+                            alternate [0, 0, 0, 0] 1
           ]
         }
       , Skill.new
@@ -918,7 +925,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies $ damage 15
-          , To Self    $ apply 1 [Invulnerable Melee]
+          , To Self $ apply 1 [Invulnerable Melee]
           ]
         }
       ]

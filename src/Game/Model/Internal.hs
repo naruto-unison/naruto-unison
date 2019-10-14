@@ -35,34 +35,31 @@ import           Game.Model.Class (Class(..))
 import           Game.Model.Defense (Defense(..))
 import           Game.Model.Duration (Duration, sync, unsync)
 import           Game.Model.Effect (Effect(..))
-import           Game.Model.Face (Face(..))
 import           Game.Model.Game (Game)
 import           Game.Model.Slot (Slot(..))
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger(..))
-import           Game.Model.Variant (Variant(..))
 import           Util (Lift)
 
 -- | In-game character, indexed between 0 and 5.
-data Ninja = Ninja { slot      :: Slot                   -- ^ 'Model.Game.Ninjas' index (0-5)
-                   , character :: Character
-                   , health    :: Int                    -- ^ Starts at @100@
-                   , cooldowns :: Seq (Seq Int)          -- ^ Starts empty
-                   , charges   :: Seq Int                -- ^ Starts at @0@s
-                   , variants  :: Seq (NonEmpty Variant) -- ^ Starts at @0@s
-                   , copies    :: Seq (Maybe Copy)       -- ^ Starts at @Nothing@s
-                   , defense   :: [Defense]              -- ^ Starts empty
-                   , barrier   :: [Barrier]              -- ^ Starts empty
-                   , statuses  :: [Status]               -- ^ Starts empty
-                   , channels  :: [Channel]              -- ^ Starts empty
-                   , newChans  :: [Channel]              -- ^ Starts empty
-                   , traps     :: [Trap]                 -- ^ Starts empty
-                   , delays    :: [Delay]                -- ^ Starts empty
-                   , face      :: [Face]                 -- ^ Starts empty
-                   , lastSkill :: Maybe Skill            -- ^ Starts at @Nothing@
-                   , triggers  :: HashSet Trigger        -- ^ Empty at the start of each turn
-                   , effects   :: ~[Effect]              -- ^ Processed automatically
-                   , acted     :: Bool                   -- ^ False at the start of each turn
+data Ninja = Ninja { slot       :: Slot             -- ^ 'Model.Game.Ninjas' index (0-5)
+                   , character  :: Character
+                   , health     :: Int              -- ^ Starts at @100@
+                   , cooldowns  :: Seq (Seq Int)    -- ^ Starts empty
+                   , charges    :: Seq Int          -- ^ Starts at @0@s
+                   , alternates :: Seq Int          -- ^ Starts at @0@s
+                   , copies     :: Seq (Maybe Copy) -- ^ Starts at @Nothing@s
+                   , defense    :: [Defense]        -- ^ Starts empty
+                   , barrier    :: [Barrier]        -- ^ Starts empty
+                   , statuses   :: [Status]         -- ^ Starts empty
+                   , channels   :: [Channel]        -- ^ Starts empty
+                   , newChans   :: [Channel]        -- ^ Starts empty
+                   , traps      :: [Trap]           -- ^ Starts empty
+                   , delays     :: [Delay]          -- ^ Starts empty
+                   , lastSkill  :: Maybe Skill      -- ^ Starts at @Nothing@
+                   , triggers   :: HashSet Trigger  -- ^ Empty at the start of each turn
+                   , effects    :: ~[Effect]        -- ^ Processed automatically
+                   , acted      :: Bool             -- ^ False at the start of each turn
                    }
 instance Parity Ninja where
     even = Parity.even . slot

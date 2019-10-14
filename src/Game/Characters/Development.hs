@@ -28,7 +28,8 @@ characters = (\x -> x 0 Original) <$>
         , Skill.classes = [Bypassing, Direct, Uncounterable, Unreflectable]
         , Skill.effects =
           [ To Enemies $ apply 0 [Stun All]
-          , To Self    $ vary "The Funk Wasn't With You" "Could've Had a V8"
+          , To Self $
+              hide 0 [Alternate "The Funk Wasn't With You" "Could've Had a V8"]
           ]
         }
       , Skill.new
@@ -37,7 +38,7 @@ characters = (\x -> x 0 Original) <$>
         , Skill.classes = [Bypassing, Direct, Uncounterable, Unreflectable]
         , Skill.effects =
           [ To Enemies $ remove "The Funk Wasn't With You"
-          , To Self    $ vary "The Funk Wasn't With You" baseVariant
+          , To Self $ remove "the funk wasn't with you"
           ]
         }
       ]
@@ -47,7 +48,7 @@ characters = (\x -> x 0 Original) <$>
         , Skill.classes = [Bypassing, Direct, Uncounterable, Unreflectable]
         , Skill.effects =
           [ To Enemy kill
-          , To Ally  kill
+          , To Ally kill
           ]
         }
       ]

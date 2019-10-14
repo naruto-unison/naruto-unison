@@ -20,8 +20,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                vary' 3 "Refocus" "Unsexy Technique"
-                tag 3
+                apply 3 [Alternate "Refocus" "Unsexy Technique"]
                 allies . self $ hide 3 [Boost 2]
           ]
         }
@@ -93,8 +92,8 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Action 2
         , Skill.effects   =
-          [ To Self     $ apply 1 [Invulnerable All]
-          , To Enemy    $ damage 15
+          [ To Self $ apply 1 [Invulnerable All]
+          , To Enemy $ damage 15
           , To XEnemies $ damage 10
           ]
         }
@@ -121,11 +120,11 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.dur       = Ongoing 4
-        , Skill.start     =
-          [ To Self $ vary "Call Kuromaru" "Fierce Bite" ]
         , Skill.effects   =
           [ To Self do
-                apply 1 [Reduce All Flat 10]
+                apply 1 [ Reduce All Flat 10
+                        , Alternate "Call Kuromaru" "Fierce Bite"
+                        ]
                 trapFrom 1 (OnHarmed All) $ damage 10
           ]
         }
@@ -225,7 +224,8 @@ characters =
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ vary' 1 "Shadow Possession" "Shadow Dispersion"
+          [ To Self $
+                apply 1 [Alternate "Shadow Possession" "Shadow Dispersion"]
           , To Enemy do
                 bonus <- 10 `bonusIf` targetHas "Black Spider Lily"
                 damage (20 + bonus)
@@ -298,9 +298,11 @@ characters =
         , Skill.desc      = "Inoichi steps back and focuses on the tide of battle. Each time an enemy uses a skill on Inoichi or his allies, Inoichi will recover 10 health and gain a stack of [Sensory Radar]. While active, this skill becomes [Sensory Radar: Collate][r]."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Nin]
+        , Skill.dur       = Ongoing 0
         , Skill.effects   =
-          [ To Self $ vary "Sensory Radar" "Sensory Radar: Collate"
-          , To Enemies $ trap 0 OnHarm $ self do
+          [ To Self $
+                hide 1 [Alternate "Sensory Radar" "Sensory Radar: Collate"]
+          , To Enemies $ trap 1 OnHarm $ self do
                 heal 10
                 addStack
           ]
@@ -313,10 +315,10 @@ characters =
         , Skill.effects   =
           [ To Enemies $ removeTrap "Sensory Radar"
           ,  To Self do
-                vary "Sensory Radar" baseVariant
                 stacks <- userStacks "Sensory Radar"
                 gain $ replicate stacks Rand
                 remove "Sensory Radar"
+                cancelChannel "Sensory Radar"
           ]
         }
       ]

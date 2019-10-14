@@ -20,7 +20,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies $ damage 10
-          , To Allies  $ defend 0 5
+          , To Allies $ defend 0 5
           ]
         }
       , Skill.new
@@ -31,7 +31,7 @@ characters =
         , Skill.varicd    = True
         , Skill.effects   =
           [ To Enemies $ damage 10
-          , To Allies  $ defend 0 5
+          , To Allies $ defend 0 5
           ]
         }
       ]
@@ -55,10 +55,10 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Enemies $ apply 2 [Snare 1, Exhaust NonMental]
-          ,  To Self do
-                tag 2
-                vary' 2 "Tree Wave Destruction" "Tree Wave Destruction"
-                vary' 2 "Deep Forest Creation" "Deep Forest Flourishing"
+          , To Self $ apply 2
+                [ Alternate "Tree Wave Destruction" "Tree Wave Destruction"
+                , Alternate "Deep Forest Creation" "Deep Fourist Flourishing"
+                ]
           ]
         }
       , Skill.new
@@ -201,16 +201,15 @@ characters =
                     remove "Venom Sac"
                     alterCd "Major Summoning: Ibuse" baseVariant (-2)
                 else do
-                    hide' "Ibuse" 0 [Reduce Affliction Percent 50]
-                    addStacks "Major Summoning: Ibuse" 30
-                    vary "Major Summoning: Ibuse" "Poison Fog"
+                    hide 0 [Reduce Affliction Percent 50]
+                    applyStacks "Major Summoning: Ibuse" 30
+                        [Alternate "Major Summoning: Ibuse" "Poison Fog"]
                     trapPer' 0 PerDamaged $
                         removeStacks "Major Summoning: Ibuse"
                     trap' 0 (OnDamaged All) $
                         unlessM (userHas "Major Summoning: Ibuse") do
-                            remove "Ibuse"
-                            removeTrap "Ibuse"
-                            vary "Major Summoning: Ibuse" baseVariant
+                            removeTrap "Major Summoning: Ibuse"
+                            remove "major summoning: ibuse"
                             cancelChannel "Poison Fog"
           ]
         }
@@ -250,10 +249,10 @@ characters =
             [ To Self $ trapFrom (-1) (OnHarmed NonMental) do
                   apply 0 [Afflict 20]
                   self $ removeTrap "Venom Sac"
-                  has <- userHas "Ibuse"
+                  has <- userHas "major summoning: ibuse"
                   if has then self do
                       remove "Major Summoning Ibuse"
-                      vary "Major Summoning: Ibuse" baseVariant
+                      remove "major summoning: ibuse"
                       alterCd "Major Summoning: Ibuse" baseVariant (-2)
                       cancelChannel "Poison Fog"
                   else self $
@@ -322,9 +321,8 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Allies $ trapFrom 0 (OnHarmed All) $ tag 1
-          , To Self do
-                hide' "finger" 0 []
-                vary "Piercing Four-Fingered" "Three-Fingered Assault"
+          , To Self $ hide 0
+                [Alternate "Piercing Four-Fingered" "Three-Fingered Assault"]
           ]
         }
       , Skill.new
@@ -336,8 +334,8 @@ characters =
           [ To Self do
                 trap 0 (OnDamaged All) $
                     alterCd "Lightning Armor" baseVariant (-1)
-                hide' "finger" 0 []
-                vary "Piercing Four-Fingered" "One-Fingered Assault"
+                hide 0
+                    [Alternate "Piercing Four-Fingered" "One-Fingered Assault"]
           ]
         }
       , Skill.new
@@ -372,8 +370,10 @@ characters =
           [ To Self $ trap' (-1) OnDamage $
                 alterCd "Lightning Armor" baseVariant (-1)
           , To Enemy do
-                stacks <- userStacks "finger"
-                damage (20 + 5 * stacks)
+                bonus4 <- 5 `bonusIf` userHas "piercing four-fingered"
+                bonus3 <- 5 `bonusIf` userHas "three-fingered assault"
+                bonus1 <- 5 `bonusIf` userHas "One-Fingered Assault"
+                damage (20 + bonus4 + bonus3 + bonus1)
                 unlessM (targetHas "Aftershocks") do
                     apply 1 [Stun All]
                     bonus <- 1 `bonusIf` userHas "One-Fingered Assault"

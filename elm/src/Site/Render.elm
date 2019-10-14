@@ -156,8 +156,7 @@ effect removable x =
             else
                 []
     in
-    H.li meta
-    [ H.text x.desc ]
+    H.li meta <| desc x.desc
 
 
 hidden : Set String

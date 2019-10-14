@@ -5,6 +5,8 @@ module Game.Engine.Ninjas
   , apply
   , processEffects
 
+  , nextAlternate
+
   , decr
 
   , factory
@@ -20,7 +22,6 @@ module Game.Engine.Ninjas
   , addDefense
 
   , clear
-  , clearFace
   , clearTrap
   , clearTraps
   , cure
@@ -34,7 +35,6 @@ module Game.Engine.Ninjas
 
   , copy, copyAll
   , resetCharges
-  , vary
 
   , prolong
   , prolong'
@@ -44,7 +44,7 @@ module Game.Engine.Ninjas
   , kabuto
   ) where
 
-import ClassyPrelude hiding (drop, take)
+import ClassyPrelude
 
 import           Data.List (findIndex)
 import           Data.List.NonEmpty ((!!))
@@ -54,10 +54,8 @@ import qualified Data.Text as Text
 import qualified Class.Classed as Classed
 import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
-import           Class.TurnBased (TurnBased)
 import qualified Class.TurnBased as TurnBased
 import qualified Game.Engine.Effects as Effects
-import qualified Game.Engine.Skills as Skills
 import           Game.Model.Channel (Channel(Channel), Channeling(..))
 import qualified Game.Model.Channel as Channel
 import qualified Game.Model.Character as Character
@@ -69,8 +67,6 @@ import qualified Game.Model.Defense as Defense
 import           Game.Model.Duration (Duration, incr, sync)
 import           Game.Model.Effect (Amount(..), Effect(..))
 import qualified Game.Model.Effect as Effect
-import           Game.Model.Face (Face(Face))
-import qualified Game.Model.Face as Face
 import           Game.Model.Ninja (Ninja(..), is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Requirement (Requirement(..))
@@ -82,23 +78,43 @@ import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
-import           Game.Model.Variant (Variant(Variant), Varying)
-import qualified Game.Model.Variant as Variant
 import           Util ((—), (!?), (∈), (∉))
 
--- | Adjusts the @Skill@ slot of a @Ninja@ due to 'Ninja.variants', 'Effect's
--- that modify skills, and the 'Skill.changes' of the @Skill@.
-skill' :: Ninja -> Int -> Int -> Skill
-skill' n s v = Skills.change n $ Character.skills (character n) !! s !! v
+headOr :: ∀ a. a -> [a] -> a
+headOr x []    = x
+headOr _ (x:_) = x
+
+alternate :: Ninja -> [Int]
+alternate n = findAlt <$> toList (Character.skills $ character n)
+  where
+    findAlt (base:|alts) = headOr 0 do
+        Alternate name alt <- effects n
+        guard $ name == Skill.name base
+        maybeToList $ (+1) <$> findIndex ((alt ==) . Skill.name) alts
+
+processAlternates :: Ninja -> Ninja
+processAlternates n = n { alternates = fromList $ alternate n }
+
+nextAlternate :: Text -> Ninja -> Maybe Text
+nextAlternate baseName n = do
+    alts <- find ((baseName ==) . Skill.name . head) .
+            toList . Character.skills $ character n
+    alt  <- filterAlt $ tail alts
+    return $ Skill.name alt
+  where
+    filterAlt = headOr headMay do
+        Alternate name alt <- effects n
+        guard $ name == baseName
+        return $ headMay . drop 1 . dropWhile ((alt /=) . Skill.name)
 
 -- | Applies 'skill'' to a @Skill@ and further modifies it due to 'Ninja.copies'
 -- and 'Skill.require'ments.
+-- Invariant: With @Left x@, @x < 'Ninja.skillSize'@.
 skill :: Either Int Skill -> Ninja -> Skill
 skill (Right sk) n = Requirement.usable n Nothing sk
 skill (Left s)   n = Requirement.usable n (Just s) .
-                     maybe (skill' n s v) Copy.skill . join . (!? s) $ copies n
-  where
-    v = maybe 0 (Variant.variant . head) . (!? s) $ variants n
+                     maybe (Ninja.baseSkill s n) Copy.skill .
+                     join . (!? s) $ copies n
 
 -- | All four skill slots of a @Ninja@ modified by 'skill'.
 skills :: Ninja -> [Skill]
@@ -147,24 +163,8 @@ processEffects n = n { effects = baseStatuses >>= process }
         allow (Effect.isDisable -> True) = sealed || not (Focus ∈ baseEffects)
         allow _ = True
 
-
 modifyStatuses :: ([Status] -> [Status]) -> Ninja -> Ninja
 modifyStatuses f n = processEffects n { statuses = f $ statuses n }
-
--- | Adds a 'Variant.Variant' to 'Ninja.variants' by skill and variant index
--- within 'Character.skills'.
-vary :: Varying -> Int -> Int -> Ninja -> Ninja
-vary dur s v n = n { variants = adjust $ variants n }
-  where
-    variant = Variant
-        { Variant.variant = v
-        , Variant.ownCd   = Skill.varicd $ skill' n s v
-        , Variant.dur     = dur
-        }
-    adjust
-      | TurnBased.getDur dur <= 0 = Seq.update s $ variant :| []
-      | otherwise                 = Seq.adjust' (cons variant) s
-
 
 -- | Factory resets a @Ninja@ to its starting values.
 factory :: Ninja -> Ninja
@@ -186,16 +186,14 @@ sacrifice minhp hp = adjustHealth $ max minhp . (— hp)
 -- | Applies 'Class.TurnBased.decr' to all of a @Ninja@'s 'Class.TurnBased'
 -- types.
 decr :: Ninja -> Ninja
-decr n@Ninja{..} = processEffects n
+decr n@Ninja{..} = processAlternates $ processEffects n
     { defense   = mapMaybe TurnBased.decr defense
     , statuses  = foldStats $ mapMaybe TurnBased.decr statuses
     , barrier   = mapMaybe TurnBased.decr barrier
-    , face      = mapMaybe faceDecr face
     , channels  = decrChannels
     , traps     = mapMaybe TurnBased.decr traps
     , delays    = mapMaybe TurnBased.decr delays
     , newChans  = mempty
-    , variants  = variantsDecr <$> variants
     , copies    = (>>= TurnBased.decr) <$> copies
     , cooldowns = ((max 0 . subtract 1) <$>) <$> cooldowns
     , acted     = False
@@ -205,16 +203,6 @@ decr n@Ninja{..} = processEffects n
     foldStats xs       = foldStat <$> group (sort xs)
     foldStat   (x:|[]) = x
     foldStat xs@(x:|_) = x { Status.amount = sum $ Status.amount <$> xs }
-    faceDecr x         = decrVarying (Face.dur x) x
-    variantsDecr xs    = case mapMaybe decrVariant $ toList xs of
-        x:xs' -> x :| xs'
-        []    -> Variant.none :| []
-    decrVariant x = decrVarying (Variant.dur x) x
-    decrVarying :: ∀ a. TurnBased a => Varying -> a -> Maybe a
-    decrVarying (Variant.FromSkill name) x
-      | any ((name ==) . Skill.name . Channel.skill) decrChannels = Just x
-      | otherwise = Nothing
-    decrVarying (Variant.Duration _) x = TurnBased.decr x
 
 addStatus :: Status -> Ninja -> Ninja
 addStatus st = modifyStatuses $ Classed.nonStack st st
@@ -271,23 +259,6 @@ clearTrap name user n =
 clearTraps :: Trigger -> Ninja -> Ninja
 clearTraps tr n = n { traps = filter ((tr /=) . Trap.trigger) $ traps n }
 
--- | Resets matching 'face's.
-clearFace :: Text -- ^ 'Face.name'.
-          -> [Face] -> [Face]
-clearFace name = filter \case
-    Face{ dur = Variant.FromSkill x } -> x /= name
-    _                                 -> True
-
--- | Resets matching 'variants'.
-clearVariants :: Text -- ^ 'Variant.name'.
-              -> Seq (NonEmpty Variant) -> Seq (NonEmpty Variant)
-clearVariants name variants = ensure . filter keep . toList <$> variants
-  where
-    keep Variant{ dur = Variant.FromSkill x } = x /= name
-    keep _                                    = True
-    ensure []     = Variant.none :| []
-    ensure (x:xs) = x :| xs
-
 -- | Adds channels with a specific target.
 addChannels :: Skill -> Slot -> Ninja -> Ninja
 addChannels sk target n
@@ -306,8 +277,6 @@ cancelChannel :: Text -- ^ 'Skill.name'.
               -> Ninja -> Ninja
 cancelChannel name n = n { channels = f $ channels n
                          , newChans = f $ newChans n
-                         , variants = clearVariants name $ variants n
-                         , face     = clearFace name $ face n
                          }
   where
     f = filter $ (name /=) . Skill.name . Channel.skill
@@ -450,9 +419,9 @@ resetCharges n = n { charges = replicate Ninja.skillSize 0 }
 -- With my... ninja info cards
 kabuto :: Skill -> Ninja -> Ninja
 kabuto sk n =
-    n { statuses = newmode : filter (not . getMode) (statuses n)
-      , variants = fromList $ (:|[]) <$> [var', var, var, var]
-      , channels = toList (init nChannels') ++ [swaps (last nChannels')]
+    n { statuses   = newmode : filter (not . getMode) (statuses n)
+      , alternates = fromList [m + 1, m, m, m]
+      , channels   = toList (init nChannels') ++ [swaps (last nChannels')]
       }
   where
     nSlot      = slot n
@@ -467,11 +436,6 @@ kabuto sk n =
     sLen       = length sage
     (mode, m)  = advance . maybe "" (dropEnd sLen . Status.name) .
                  find getMode $ statuses n
-    var        = Variant { Variant.variant = m
-                         , Variant.ownCd   = False
-                         , Variant.dur     = Variant.Duration 0
-                         }
-    var'       = var { Variant.variant = m + 1 }
     ml         = mode ++ sage
     newmode    = Status { Status.amount  = 1
                         , Status.name    = ml

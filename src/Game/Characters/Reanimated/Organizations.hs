@@ -174,7 +174,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ leech 10 $ self . defend 0
-          , To Self  $ prolongChannel 1 "Demon Shroud"
+          , To Self $ prolongChannel 1 "Demon Shroud"
           ]
         }
       ]
@@ -340,7 +340,7 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy  $ damage 40
+          [ To Enemy $ damage 40
           , To REnemy $ damage 40
           , To Self do
               stacks <- userStacks "Paper Bomb"
@@ -493,7 +493,8 @@ characters =
           [ To Enemies do
                 afflict 10
                 addStack
-          , To Self $ vary "Sonar Bat Bombs" "Jellyfish Explosives"
+          , To Self $ hide 0
+                [Alternate "Sonar Bat Bombs" "Jellyfish Explosives"]
           ]
         }
       , Skill.new
@@ -505,7 +506,7 @@ characters =
           [ To Enemy do
                 pierce 25
                 addStack
-          , To Self $ vary "Sonar Bat Bombs" baseVariant
+          , To Self $ remove "sonar bat bombs"
           ]
         }
       ]
@@ -594,7 +595,7 @@ characters =
         , Skill.dur       = Ongoing 2
         , Skill.effects   =
           [ To Enemies $ damage 10
-          , To Self    $ trapFrom 1 (OnHarmed All) $ damage 10
+          , To Self $ trapFrom 1 (OnHarmed All) $ damage 10
           ]
         }
       ]

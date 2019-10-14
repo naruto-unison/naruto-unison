@@ -838,7 +838,7 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
                     mainMeta
 
         faceIcon =
-            case List.head b.ninja.face of
+            case b.ninja.face of
                 Nothing ->
                     icon b.character "icon"
 

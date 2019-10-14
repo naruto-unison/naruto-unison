@@ -66,8 +66,8 @@ characters =
         , Skill.classes   = [Physical, Resource]
         , Skill.effects   =
           [ To Self do
-                addStacks "Umbrella" 4
-                vary "Umbrella Toss" "Umbrella Gathering"
+                applyStacks "Umbrella" 4
+                    [Alternate "Umbrella Toss" "Umbrella Gathering"]
           ]
         }
       , Skill.new
@@ -79,7 +79,6 @@ characters =
                 stacks <- userStacks "Umbrella"
                 apply 1 [Reduce All Flat (stacks * 10)]
                 remove "Umbrella"
-                vary "Umbrella Toss" baseVariant
           ]
         }
       ]
@@ -91,9 +90,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemies $ damage 15
-          , To Self do
-                removeStack "Umbrella"
-                unlessM (userHas "Umbrella") $ vary "Umbrella Toss" baseVariant
+          , To Self $ removeStack "Umbrella"
           ]
         }
       ]
@@ -107,9 +104,7 @@ characters =
           [ To Enemy do
                 stacks <- userStacks "Umbrella"
                 damage (15 * stacks)
-          , To Self do
-                remove "Umbrella"
-                vary "Umbrella Toss" baseVariant
+          , To Self $ remove "Umbrella"
           ]
         , Skill.changes   =
             reduceCostPer "Umbrella" [Rand]
@@ -237,7 +232,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self   $ tag 1
+          [ To Self $ tag 1
           ,  To Enemy do
                 apply 2 [Expose]
                 whenM (userHas "Bell Ring Illusion") $ damage 10
@@ -274,7 +269,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemy $ damage 25
-          , To Self  $ tag 1
+          , To Self $ tag 1
           ]
         }
       ]
@@ -423,7 +418,7 @@ characters =
         , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self    $ defend 0 15
+          [ To Self $ defend 0 15
           , To Enemies do
                 damage 20
                 apply 1 [Stun All]

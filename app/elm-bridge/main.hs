@@ -1,11 +1,10 @@
+{-# OPTIONS_GHC -fno-warn-orphans -fno-warn-unused-top-binds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE TemplateHaskell       #-}
-{-# OPTIONS_GHC -fno-warn-orphans -fno-warn-unused-top-binds #-}
 
 import Prelude
 import Data.Sequence (Seq)
 import Data.List (dropWhileEnd)
-import Data.List.NonEmpty (NonEmpty)
 
 import Data.Proxy
 import Elm.Module
@@ -17,14 +16,13 @@ import Data.Char (isSpace)
 import Data.Text (Text)
 import Game.Model.Chakra (Chakras(..))
 import Game.Model.Defense (Defense)
-import Game.Model.Face (Face(..))
 import Game.Model.Player (Player(..))
 import Game.Model.Slot (Slot)
-import Game.Model.Variant (Variant)
 import Application.Fields (Privilege(..))
 import Handler.Play.Queue (Failure(..))
 import Handler.Play.Turn (Turn(..))
 import Handler.Play (Message(..))
+import OrphanInstances.Ninja (Face(..))
 
 import Game.Model.Internal hiding (Barrier(..), Ninja(..))
 
@@ -38,11 +36,10 @@ data Ninja = Ninja
     , statuses  :: [Status]
     , charges   :: Seq Int
     , cooldowns :: Seq Int
-    , variants  :: Seq (NonEmpty Variant)
     , copies    :: Seq (Maybe Copy)
     , channels  :: [Channel]
     , traps     :: Seq Trap
-    , face      :: [Face]
+    , face      :: Maybe Face
     , lastSkill :: Maybe Skill
     , skills    :: [Skill]
     }
@@ -128,7 +125,6 @@ deriveElmDef defaultOptions ''Status
 deriveElmDef defaultOptions ''Target
 deriveElmDef defaultOptions ''Trap
 deriveElmDef defaultOptions ''Turn
-deriveElmDef defaultOptions ''Variant
 
 trimAll :: String -> String
 trimAll s = unlines $ dropWhileEnd isSpace <$> lines s
@@ -172,5 +168,4 @@ main =
     , DefineElm (Proxy :: Proxy Trap)
     , DefineElm (Proxy :: Proxy Turn)
     , DefineElm (Proxy :: Proxy User)
-    , DefineElm (Proxy :: Proxy Variant)
     ]

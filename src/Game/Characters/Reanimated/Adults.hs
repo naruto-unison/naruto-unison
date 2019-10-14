@@ -208,9 +208,10 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self do
-                apply 3 [Reduce All Percent 50]
-                vary' 3 "Magnetic Field" "Conserving Bee Twin Blades"
+          [ To Self $ apply 3
+                [ Reduce All Percent 50
+                , Alternate "Magnetic Field" "Conserving Bee Twin Blades"
+                ]
           ]
         }
       , Skill.new
@@ -326,7 +327,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ damage 20
-          , To Self  $ apply 1 [Invulnerable Melee]
+          , To Self $ apply 1 [Invulnerable Melee]
           ]
         }
       ]
