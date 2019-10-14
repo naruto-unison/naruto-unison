@@ -17,6 +17,7 @@ import ClassyPrelude
 
 import           Control.Monad.ST (ST, stToIO)
 import           Control.Monad.Trans.Class (MonadTrans)
+import           Data.Attoparsec.Text (notInClass)
 import           Data.Sequence ((|>))
 import qualified Data.Sequence as Seq
 
@@ -101,19 +102,7 @@ mapFromKeyed (toKey, toVal) xs = mapFromList $ (\x -> (toKey x, toVal x)) <$> xs
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text
-shorten = omap unaccent . filter permit
-  where
-    permit ' '  = False
-    permit '-'  = False
-    permit ':'  = False
-    permit '('  = False
-    permit ')'  = False
-    permit '®'  = False
-    permit '\'' = False
-    permit '/'  = False
-    permit '?'  = False
-    permit _    = True
-    {-# INLINE permit #-}
+shorten xs = omap unaccent $ filter (notInClass " _:()®'/?") xs
 {-# INLINE shorten #-}
 
 unaccent :: Char -> Char

@@ -226,7 +226,7 @@ makeStatus amount new skill nUser nTarget classes bounced bombs name dur fs =
     , Status.classes = classes'
     , Status.amount  = amount
     , Status.bombs   = guard (Status.dur newSt <= incr (sync dur))
-                        >> bombs
+                       *> bombs
     }
   where
     user  = Ninja.slot nUser
