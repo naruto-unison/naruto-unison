@@ -25,6 +25,7 @@ type alias Detail =
     , effects : List Effect
     , trap    : Bool
     , amount  : Int
+    , chan    : Bool
     }
 
 
@@ -120,6 +121,7 @@ channel user x =
             Control _ -> True
             _         -> False
     , amount = 1
+    , chan   = False
     }
 
 
@@ -138,6 +140,7 @@ copy x =
     , effects = []
     , trap    = False
     , amount  = 1
+    , chan    = False
     }
 
 
@@ -152,6 +155,7 @@ status x =
     , effects = x.effects
     , trap    = False
     , amount  = x.amount
+    , chan    = x.skill.dur /= Instant
     }
 
 
@@ -174,4 +178,5 @@ trap x =
     , effects = [ effects ]
     , trap    = True
     , amount  = 1
+    , chan    = x.skill.dur /= Instant
     }
