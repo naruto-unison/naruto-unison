@@ -29,6 +29,7 @@ new = Skill { name      = "Unnamed"
             , dur       = Instant
             , start     = []
             , effects   = []
+            , stunned   = []
             , interrupt = []
             , changes   = const id
             , copying   = NotCopied

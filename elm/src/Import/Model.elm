@@ -278,15 +278,17 @@ type alias Effect  =
    { desc: String
    , helpful: Bool
    , sticky: Bool
+   , visible: Bool
    , trap: Bool
    }
 
 jsonDecEffect : Json.Decode.Decoder ( Effect )
 jsonDecEffect =
-   Json.Decode.succeed (\pdesc phelpful psticky ptrap -> {desc = pdesc, helpful = phelpful, sticky = psticky, trap = ptrap})
+   Json.Decode.succeed (\pdesc phelpful psticky pvisible ptrap -> {desc = pdesc, helpful = phelpful, sticky = psticky, visible = pvisible, trap = ptrap})
    |> required "desc" (Json.Decode.string)
    |> required "helpful" (Json.Decode.bool)
    |> required "sticky" (Json.Decode.bool)
+   |> required "visible" (Json.Decode.bool)
    |> required "trap" (Json.Decode.bool)
 
 jsonEncEffect : Effect -> Value
@@ -295,6 +297,7 @@ jsonEncEffect  val =
    [ ("desc", Json.Encode.string val.desc)
    , ("helpful", Json.Encode.bool val.helpful)
    , ("sticky", Json.Encode.bool val.sticky)
+   , ("visible", Json.Encode.bool val.visible)
    , ("trap", Json.Encode.bool val.trap)
    ]
 
@@ -558,13 +561,14 @@ type alias Skill  =
    , dur: Channeling
    , start: (List Target)
    , effects: (List Target)
+   , stunned: (List Target)
    , interrupt: (List Target)
    , copying: Copying
    }
 
 jsonDecSkill : Json.Decode.Decoder ( Skill )
 jsonDecSkill =
-   Json.Decode.succeed (\pname pdesc prequire pclasses pcost pcooldown pvaricd pcharges pdur pstart peffects pinterrupt pcopying -> {name = pname, desc = pdesc, require = prequire, classes = pclasses, cost = pcost, cooldown = pcooldown, varicd = pvaricd, charges = pcharges, dur = pdur, start = pstart, effects = peffects, interrupt = pinterrupt, copying = pcopying})
+   Json.Decode.succeed (\pname pdesc prequire pclasses pcost pcooldown pvaricd pcharges pdur pstart peffects pstunned pinterrupt pcopying -> {name = pname, desc = pdesc, require = prequire, classes = pclasses, cost = pcost, cooldown = pcooldown, varicd = pvaricd, charges = pcharges, dur = pdur, start = pstart, effects = peffects, stunned = pstunned, interrupt = pinterrupt, copying = pcopying})
    |> required "name" (Json.Decode.string)
    |> required "desc" (Json.Decode.string)
    |> required "require" (jsonDecRequirement)
@@ -576,6 +580,7 @@ jsonDecSkill =
    |> required "dur" (jsonDecChanneling)
    |> required "start" (Json.Decode.list (jsonDecTarget))
    |> required "effects" (Json.Decode.list (jsonDecTarget))
+   |> required "stunned" (Json.Decode.list (jsonDecTarget))
    |> required "interrupt" (Json.Decode.list (jsonDecTarget))
    |> required "copying" (jsonDecCopying)
 
@@ -593,6 +598,7 @@ jsonEncSkill  val =
    , ("dur", jsonEncChanneling val.dur)
    , ("start", (Json.Encode.list jsonEncTarget) val.start)
    , ("effects", (Json.Encode.list jsonEncTarget) val.effects)
+   , ("stunned", (Json.Encode.list jsonEncTarget) val.stunned)
    , ("interrupt", (Json.Encode.list jsonEncTarget) val.interrupt)
    , ("copying", jsonEncCopying val.copying)
    ]

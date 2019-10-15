@@ -15,7 +15,6 @@ import           Game.Model.Chakra (Chakras)
 import qualified Game.Model.Channel as Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
-import qualified Game.Model.Effect as Effect
 import           Game.Model.Game (Game(..))
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja, is)
@@ -78,15 +77,14 @@ censor player ninjas n
              }
     revealed slot = ninjas !! Slot.toInt slot `is` Reveal
     mst st
-      | Parity.allied player $ Status.user st = Just st { Status.effects = efs }
+      | Parity.allied player $ Status.user st = Just st
       | Invisible ∈ Status.classes st
         && not (revealed $ Status.user st) = Nothing
       | otherwise = case Status.effects st of
-          []       -> Just st { Status.effects = efs }
+          []       -> Just st
           [Reveal] -> Nothing
-          _        -> Just st { Status.effects = Reveal `delete` efs }
-      where
-        efs = filter Effect.visible $ Status.effects st
+          _        -> Just st
+                          { Status.effects = Reveal `delete` Status.effects st }
 -- | All targets that a @Skill@ from a a specific 'Ninja' affects.
 skillTargets :: Skill -> Slot -> [Slot]
 skillTargets skill c = filter target Slot.all

@@ -26,11 +26,12 @@ usable :: Ninja
        -> Maybe Int -- ^ Index in 'Character.skills'.
        -> Skill -> Skill
 usable n s sk
-  | Skill.charges sk > 0 && uncharged                 = unusable
-  | maybe False (> 0) $ (Cooldown.active n !?) =<< s  = unusable
-  | isNothing s && Channel.ignoreStun (Skill.dur sk)  = sk'
-  | Skill.classes sk `intersects` Effects.stun n      = unusable
-  | otherwise                                         = sk'
+  | Skill.charges sk > 0 && uncharged                  = unusable
+  | maybe False (> 0) $ (Cooldown.active n !?) =<< s   = unusable
+  | not $ Skill.classes sk `intersects` Effects.stun n = sk'
+  | isJust s                                           = unusable
+  | Channel.ignoreStun $ Skill.dur sk                  = sk'
+  | otherwise = sk' { Skill.effects = Skill.stunned sk' }
   where
     uncharged = maybe False (>= Skill.charges sk) $
                 (Ninja.charges n !?) =<< s

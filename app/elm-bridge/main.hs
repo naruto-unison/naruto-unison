@@ -63,6 +63,7 @@ data Effect = Effect
     { desc    :: Text
     , helpful :: Bool
     , sticky  :: Bool
+    , visible :: Bool
     , trap    :: Bool
     }
 

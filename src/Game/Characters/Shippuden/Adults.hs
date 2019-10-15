@@ -106,7 +106,7 @@ characters =
           [ To Enemies $ apply 0 [Snare 1]
           , To Self $ hide 1 [Alternate "Burning Ash" "Burning Ash: Ignite"]
           ]
-        , Skill.interrupt  =
+        , Skill.stunned   =
           [ To Self $ hide 1 [Alternate "Burning Ash" "Burning Ash: Ignite"] ]
         }
       , Skill.new
@@ -294,7 +294,7 @@ characters =
                 , Alternate "Ten Puppets Collection" "Lion Roar Sealing"
                 ]
           ]
-        , Skill.interrupt =
+        , Skill.stunned   =
           [ To Self $ hide 1
                 [ Alternate "Assault Blade" "Three Treasure Suction Crush"
                 , Alternate "Ten Puppets Collection" "Lion Roar Sealing"

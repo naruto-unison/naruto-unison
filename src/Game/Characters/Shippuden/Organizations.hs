@@ -427,7 +427,7 @@ characters =
                 gain [Rand]
                 defend 0 10
           ]
-        , Skill.interrupt =
+        , Skill.stunned   =
           [ To Self $ apply 1 [Face] ]
         }
       ]
@@ -500,7 +500,7 @@ characters =
           [ To REnemy $ pierce 25
           , To Self $ apply 1 [Reduce All Percent 75, Face]
           ]
-        , Skill.interrupt =
+        , Skill.stunned   =
           [ To Self $ apply 1 [Face] ]
         }
       ]

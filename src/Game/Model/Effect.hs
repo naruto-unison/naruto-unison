@@ -5,7 +5,6 @@ module Game.Model.Effect
   , construct
   , helpful
   , sticky
-  , visible
   , isDisable, isIgnore
   , bypassEnrage
   , identity
@@ -122,6 +121,7 @@ instance ToJSON Effect where
       , "helpful" .= helpful x
       , "sticky"  .= sticky x
       , "trap"    .= False
+      , "visible" .= visible x
       ]
 
 helpful :: Effect -> Bool

@@ -474,7 +474,7 @@ characters =
           , To Self $ hide 1
                 [Alternate "Exploding Water Shockwave" "Shark Dance", Face]
           ]
-        , Skill.interrupt =
+        , Skill.stunned   =
           [ To Self $ hide 1
                 [Alternate "Exploding Water Shockwave" "Shark Dance", Face]
           ]

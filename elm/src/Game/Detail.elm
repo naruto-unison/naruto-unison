@@ -87,6 +87,7 @@ concat (Nonempty x xs) =
             xxs
                 |> List.concatMap .effects
                 >> List.uniqueBy .desc
+                >> List.filter .visible
         , trap =
             xxs
                 |> List.any .trap
@@ -167,6 +168,7 @@ trap x =
             , helpful = False
             , sticky  = True
             , trap    = True
+            , visible = True
             }
     in
     { name    = x.name

@@ -201,7 +201,7 @@ characters =
                               , Alternate "Man-Beast Clone" "Three-Headed Wolf"
                               ]
           ]
-        , Skill.interrupt =
+        , Skill.stunned   =
           [ To Self $
                 apply 1 [Alternate "Man-Beast Clone" "Three-Headed Wolf"]
           ]
@@ -286,7 +286,7 @@ characters =
                 apply 1 [Alone]
           , To Self $ hide 1 [Alternate "Insect Swarm" "Chakra Leech"]
           ]
-        , Skill.interrupt =
+        , Skill.stunned   =
           [ To Self $ hide 1 [Alternate "Insect Swarm" "Chakra Leech"] ]
         }
       , Skill.new
@@ -890,7 +890,7 @@ characters =
               apply 1 [Reduce All Percent 25, Invulnerable Affliction]
           , To Self $ hide 1 [Alternate "Sanshōuo Shield" "Salamander Puppet"]
           ]
-        , Skill.interrupt =
+        , Skill.stunned   =
           [ To Self $ hide 1 [Alternate "Sanshōuo Shield" "Salamander Puppet"] ]
         }
       , Skill.new

@@ -103,6 +103,7 @@ data Skill = Skill { name      :: Text              -- ^ Name
                    , dur       :: Channeling        -- ^ Defaults to 'Instant'
                    , start     :: [Runnable Target] -- ^ Defaults to empty
                    , effects   :: [Runnable Target] -- ^ Defaults to empty
+                   , stunned   :: [Runnable Target] -- ^ Defaults to empty
                    , interrupt :: [Runnable Target] -- ^ Defaults to empty
                    , copying   :: Copying           -- ^ Defaults to 'NotCopied'
                    , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'
@@ -120,6 +121,7 @@ instance ToJSON Skill where
         , "dur"       .= dur
         , "start"     .= start
         , "effects"   .= effects
+        , "stunned"   .= stunned
         , "interrupt" .= interrupt
         , "copying"   .= copying
         ]

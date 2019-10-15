@@ -122,16 +122,24 @@ characters =
                 addStacks "Blazing Arrow" 3
           ]
         , Skill.effects   =
-        [ To Enemy $ damage 15
-        , To Self $ removeStack "Blazing Arrow"
-        ]
-        , Skill.interrupt  =
+          [ To Enemy $ damage 15
+          , To Self $ removeStack "Blazing Arrow"
+          ]
+        , Skill.stunned   =
           [ To Enemy do
                 stacks <- userStacks "Blazing Arrow"
                 damage (15 * stacks)
           , To Self do
                 remove "Blazing Arrow"
                 cancelChannel "Blazing Arrow"
+                reset "Chidori" "Blazing Arrow"
+          ]
+        , Skill.interrupt  =
+          [ To Enemy do
+                stacks <- userStacks "Blazing Arrow"
+                damage (15 * stacks)
+          , To Self do
+                remove "Blazing Arrow"
                 reset "Chidori" "Blazing Arrow"
           ]
         }
@@ -248,7 +256,7 @@ characters =
           [ To Enemy $ damage 15
           , To Self $ hide 1 [Alternate "Sasori Surrogate" "Hidden Coil Strike"]
           ]
-        , Skill.interrupt =
+        , Skill.stunned   =
           [ To Self $
                 hide 1 [Alternate "Sasori Surrogate" "Hidden Coil Strike"]
           ]

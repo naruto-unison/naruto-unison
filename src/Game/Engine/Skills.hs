@@ -96,6 +96,7 @@ changeEffects :: ([Runnable Target] -> [Runnable Target]) -> Skill -> Skill
 changeEffects f skill = skill { Skill.effects   = f $ Skill.effects skill
                               , Skill.start     = f $ Skill.start skill
                               , Skill.interrupt = f $ Skill.interrupt skill
+                              , Skill.stunned   = f $ Skill.stunned skill
                               }
 
 -- | Modifies a 'Skill' by its 'Skill.change' and any other effects on it.

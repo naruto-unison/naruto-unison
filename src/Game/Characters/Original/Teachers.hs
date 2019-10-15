@@ -314,7 +314,7 @@ characters =
                        , Alternate "Sharpen Blades" "Flying Kick"
                        ]
           ]
-        , Skill.interrupt =
+        , Skill.stunned   =
           [ To Self do
                 remove "Sharpen Blades"
                 hide 1 [ Alternate "Flying Swallow" "Finishing Blow"
@@ -390,13 +390,15 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ To Enemy do
-                bonus <- 30 `bonusIf` userHas "Sixth Gate Opening"
-                damage (30 + bonus)
-          ]
-        , Skill.changes   =
-            changeWith "Sixth Gate Opening" \x ->
-              x { Skill.classes = Bypassing `insertSet` Skill.classes x }
+          [ To Enemy $ damage 30 ]
+        }
+      , Skill.new
+        { Skill.name      = "Severe Leaf Hurricane"
+        , Skill.desc      = "Guy delivers a spinning kick with enough force behind it to start a whirlwhind, dealing 60 piercing damage to an enemy."
+        , Skill.classes   = [Physical, Melee, Bypassing]
+        , Skill.cost      = [Tai, Rand]
+        , Skill.effects   =
+          [ To Enemy $ pierce 60 ]
         }
       ]
     , [ Skill.new
@@ -407,8 +409,10 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                apply 2 [Invulnerable All]
                 sacrifice 1 40
+                apply 2 [ Invulnerable All
+                        , Alternate "Leaf Hurricane" "Severe Leaf Hurricane"
+                        ]
           ]
         }
       ]
@@ -486,13 +490,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Regenerative Healing Technique"
-        , Skill.desc      = "Using a notoriously difficult healing technique, Shizune restores 35 health to herself or an ally and cures the target of enemy effects."
+        , Skill.desc      = "Using a notoriously difficult healing technique, Shizune restores 35 health to herself or an ally and cures the target of baneful effects."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To XAlly do
-                cureAll
+                cureBane
                 heal 35
           ]
         }

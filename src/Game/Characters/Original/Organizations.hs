@@ -65,7 +65,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Tag Team"
-        , Skill.desc      = "Izumo tags out, swapping his health with Kotetsu's. Once used, if Kotetsu dies, Izumo will immediately take over. "
+        , Skill.desc      = "Izumo tags out, swapping his health with Kotetsu's. Once used, if Kotetsu dies, Izumo will immediately take over."
         , Skill.classes   = [Nonstacking, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.require   = HasI 0 "solo"
@@ -88,7 +88,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Tag Team"
-        , Skill.desc      = "Kotetsu tags out, swapping his health with Izumo's. Once used, if Izumo dies, Kotetsu will immediately take over. "
+        , Skill.desc      = "Kotetsu tags out, swapping his health with Izumo's. Once used, if Izumo dies, Kotetsu will immediately take over."
         , Skill.classes   = [Nonstacking, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.require   = HasI 0 "solo"
