@@ -125,7 +125,7 @@ trackTrigger1 trigger n x = sequence_ $ tracker <$> triggers x ! trigger
 trackTurn1 :: ∀ s. Player -> [(Ninja, Ninja)] -> Track s -> ST s ()
 trackTurn1 p ns x = do
       sequence_ $ tracker <$> ns <*> turns x
-      modifyRef' (skills x) safeInit
+      when (not $ Parity.allied p user) $ modifyRef' (skills x) safeInit
       reset x
   where
     user = snd $ ns !! Slot.toInt (slot x)
