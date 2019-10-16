@@ -18,6 +18,7 @@ import Game.Action.Combat as Import
 import Game.Action.Skill as Import
 import Game.Action.Status as Import
 import Game.Action.Trap as Import
+import Game.Engine.Effects as Import (stunned)
 import Game.Engine.Ninjas as Import (addOwnStacks, addOwnDefense)
 import Game.Engine.Skills as Import
 import Game.Model.Chakra as Import (Chakra(..), Chakras)
@@ -31,6 +32,7 @@ import Game.Model.Requirement as Import (Requirement(..))
 import Game.Model.Runnable as Import (RunConstraint, Runnable(To))
 import Game.Model.Skill as Import (Target(..))
 import Game.Model.Status as Import (Bomb(..))
+import Game.Model.Trap as Import (Direction(..))
 import Game.Model.Trigger as Import (Trigger(..))
 
 import Data.Enum.Set.Class (EnumSet)

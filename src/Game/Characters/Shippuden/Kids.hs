@@ -140,22 +140,23 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Chidori Stream"
         , Skill.desc      = "An electric field surrounds Sasuke. Enemies who use non-mental skills on Sasuke next turn will be countered and will take 10 affliction damage. Once used, this skill becomes [Chidori Spear][t]."
-        , Skill.classes   = [Bane, Chakra, Melee]
+        , Skill.classes   = [Bane, Chakra, Melee, Invisible]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
-          [ To Enemy $ pierce 30
-          , To Self $ hide 0 [Alternate "Chidori Stream" "Chidori Spear"]
+          [ To Self do
+                trapFrom 1 (OnHarmed NonMental) $ afflict 10
+                hide 0 [Alternate "Chidori Stream" "Chidori Spear"]
           ]
         }
       , Skill.new
         { Skill.name      = "Chidori Spear"
-        , Skill.desc      = "Employing his swordsmanship to wield an energy beam like a weapon, Sasuke deals 15 damage to an enemy and stuns them with electricity for 1 turn. Once used, this skill becomes [Chidori Stream][n][r]."
-        , Skill.classes   = [Bane, Physical, Ranged]
+        , Skill.desc      = "Employing his swordsmanship to wield an energy beam like a weapon, Sasuke deals 15 damage to an enemy and stuns their physical and mental skills with electricity for 1 turn. Once used, this skill becomes [Chidori Stream][n][r]."
+        , Skill.classes   = [Bane, Chakra, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
                 damage 15
-                apply 1 [Stun All]
+                apply 1 [Stun Physical, Stun Mental]
           , To Self $ remove "chidori stream"
           ]
         }
@@ -163,7 +164,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Dragon Flame"
         , Skill.desc      = "Draconic fireballs sear an enemy, dealing 10 damage to them for 4 turns. While active, enemies who use skills on Sasuke will take 5 affliction damage."
-        , Skill.classes   = [Chakra, Ranged, Bane]
+        , Skill.classes   = [Bane, Chakra, Ranged, Bane]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 4
         , Skill.dur       = Action 4
@@ -208,7 +209,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Three-Headed Wolf"
-        , Skill.desc      = "Akamaru and Kiba fuse together, ending [Man-Beast Clone]. For 3 turns, Kiba gains 30 points of damage reduction and ignores stuns and disabling effects. While active, this skill becomes [Giant Rotating Fang][t][b][b]."
+        , Skill.desc      = "Akamaru and Kiba fuse together, ending [Man-Beast Clone]. For 3 turns, Kiba gains 30 points of damage reduction and ignores ignores status effects from enemies except chakra cost changes. While active, this skill becomes [Giant Rotating Fang][t][b][b]."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 5
@@ -217,16 +218,17 @@ characters =
                 cancelChannel "Man-Beast Clone"
                 remove "Man-Beast Clone"
                 apply 3 [ Reduce All Flat 30
+                        , Focus
                         , Alternate "Man-Beast Clone" "Giant Rotating Fang"
                         ]
           ]
         }
       , Skill.new
         { Skill.name      = "Tail Chasing Rotating Fang"
-        , Skill.desc      = "Deals 40 damage to all enemies and stuns them for 1 turn."
+        , Skill.desc      = "The fused form of Akamaru and Kiba spins rapidly like a dog chasing after its own tail, dealing 40 damage to all enemise and stunning them for 1 turn."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Blood, Blood, Tai]
-        , Skill.cooldown  = 1
+        , Skill.cost      = [Blood, Tai, Rand]
+        , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Enemies do
                 damage 40
@@ -273,16 +275,10 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.dur       = Action 3
         , Skill.cooldown  = 2
-        , Skill.start     =
-          [ To Enemy do
-                stacks <- targetStacks "Chakra Leech"
-                addStacks' (-3) "Chakra Leech " stacks
-                remove "Chakra Leech"
-          ]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- targetStacks "Chakra Leech"
-                afflict (15 + 5 * stacks)
+                bonus <- 5 `bonusIf` targetHas "Chakra Leech"
+                afflict (15 + bonus)
                 apply 1 [Alone]
           , To Self $ hide 1 [Alternate "Insect Swarm" "Chakra Leech"]
           ]
@@ -291,12 +287,12 @@ characters =
         }
       , Skill.new
         { Skill.name       = "Chakra Leech"
-        , Skill.desc       = "Adds 5 damage to the next [Insect Swarm] on an enemy and depletes 1 random chakra."
+        , Skill.desc       = "Shino's insect swarm drains their target of chakra, increasing the damage they receive from [Insect Swarm] by 5 during that turn and absorbing 1 random chakra."
         , Skill.classes    = [Bane, Physical, Ranged]
         , Skill.effects    =
           [ To Enemy do
-                deplete 1
-                apply 0 []
+                absorb 1
+                flag
           ]
         }
       ]
@@ -355,7 +351,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Gentle Step Twin Lion Fists"
-        , Skill.desc      = "Hinata creates two lions out of chakra. The next 2 times an enemy uses a skill on Hinata or her allies, a chakra lion will attack them, dealing 30 damage and depleting 1 random chakra. Creates a third lion during [Eight Trigrams Sixty-Four Palms]. Cannot be used while active. Ends if Hinata dies."
+        , Skill.desc      = "Hinata creates two lions of pure chakra. The next 2 times an enemy uses a skill on Hinata or her allies, a chakra lion will attack them, dealing 30 damage and depleting 1 random chakra. Creates a third lion during [Eight Trigrams Sixty-Four Palms]. Cannot be used while active."
         , Skill.require   = HasI 0 "Chakra Lion"
         , Skill.classes   = [Chakra, Melee, Bypassing, Soulbound, Resource]
         , Skill.cost      = [Blood, Nin]
@@ -392,7 +388,7 @@ characters =
     "Once known for his laziness, Shikamaru has worked tirelessly to become a leader. With years of experience, his plans have become even more convoluted and intricate."
     [ [ Skill.new
         { Skill.name      = "Shadow Sewing"
-        , Skill.desc      = "Delicate tendrils of shadow wrap around an enemy, dealing 35 damage and stunning their non-mental skills for 1 turn. While active, this skill becomes [Shadow Sewing: Hold][g]."
+        , Skill.desc      = "Delicate tendrils of shadow wrap around an enemy, dealing 35 damage and stunning their non-mental skills for 1 turn. While this skill's effect is active, it becomes [Shadow Sewing: Hold][g]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
@@ -400,12 +396,13 @@ characters =
           [ To Enemy do
                 damage 35
                 apply 1 [Stun NonMental]
+                hide' "final" 1 []
                 self $ apply 1 [Alternate "Shadow Sewing" "Shadow Sewing: Hold"]
           ]
         }
       , Skill.new
         { Skill.name      = "Shadow Sewing: Hold"
-        , Skill.desc      = "Deals 20 damage to an enemy affected by [Shadow Sewing] and prolongs its stun by 1 turn."
+        , Skill.desc      = "Maintaining his connection, Shikamaru deals 20 damage to an enemy affected by [Shadow Sewing] and prolongs its stun effect by 1 turn."
         , Skill.require   = HasU 1 "Shadow Sewing"
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]
@@ -413,6 +410,7 @@ characters =
           [ To Enemies do
                 damage 20
                 apply' "Shadow Sewing" 1 [Stun NonMental]
+                hide' "final" 1 []
                 self $ apply' "Shadow Sewing" 1
                     [Alternate "Shadow Sewing" "Shadow Sewing: Hold"]
           ]
@@ -420,29 +418,27 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Long-Range Tactics"
-        , Skill.desc      = "Shikamaru goes long. For 4 turns, each time Shikamaru uses a skill on an enemy, he will become invulnerable for 1 turn. However, if an enemy uses a skill that deals non-affliction damage to him, he will not become invulnerable during the next turn. While active, this skill becomes [Final Explosion][r][r]."
+        , Skill.desc      = "Shikamaru goes long. For 4 turns, every time Shikamaru uses a skill on an enemy, he will become invulnerable for 1 turn. However, if an enemy uses a skill that deals non-affliction damage to him, he will not become invulnerable during the next turn. While Shikamaru is invulnerable from this skill, it becomes [Final Explosion][r][r]."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Self do
-                apply 4 [Alternate "Long-Range Tactics" "Final Explosion"]
                 delay (-1) $ trap' (-4) OnHarm $
-                    unlessM (userHas "What a Drag") $ apply 1 [Invulnerable All]
+                    unlessM (userHas "What a Drag") $
+                    apply 1 [Invulnerable All, Alternate "Long-Range Tactics" "Final Explosion"]
                 trap' 4 (OnDamaged NonAffliction) $ tag' "What a Drag" 1
           ]
         }
       , Skill.new
         { Skill.name      = "Final Explosion"
-        , Skill.desc      = "Deals 100 damage to an enemy affected by [Shadow Sewing] or [Expert Analysis]. Cannot be used if an enemy used a skill that dealt non-affliction damage to Shikamaru last turn."
-        , Skill.require   = HasI 0 "What a Drag"
-        , Skill.classes   = [Physical]
-        , Skill.cost      = [Tai]
+        , Skill.desc      = "Bringing all his careful planning to fruition, Shikamaru deals 100 damage to an enemy affected by [Shadow Sewing] and [Expert Analysis]."
+        , Skill.require   = HasU 2 "final"
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy do
-                has1 <- targetHas "Shadow Sewing"
-                has2 <- targetHas "Expert Analysis"
-                when (has1 || has2) $ damage 100
+          [ To Enemy $ damage 100
           ]
         }
       ]
@@ -453,7 +449,11 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap (-3) (OnAction All) $ apply 1 [Expose, Uncounter] ]
+          [ To Enemy do
+                trap (-3) (OnAction All) do
+                    apply 1 [Expose, Uncounter]
+                    hide' "final" 1 []
+          ]
         }
       ]
     , [ invuln "Dodge" "Shikamaru" [Physical] ]
@@ -463,15 +463,15 @@ characters =
     "Chōji's years of mastering his clan's techniques have ended the growing chūnin's dependence on Akimichi pills. Now that he can reshape his body at will without having to sacrifice his health, chakra expenditure is the only remaining limit to his physical power."
     [ [ Skill.new
         { Skill.name      = "Butterfly Bombing"
-        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring status effects from enemies except chakra cost changes. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
+        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring status effects from enemies except chakra cost changes and dealing 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand, Rand]
         , Skill.effects   =
-          [ To Enemy $ delay (-1) $ damage 30
-          ,  To Self do
-                  apply 1 [Enrage]
-                  hide' "calories" 0 [Exhaust All]
-                  hide' "calories" 0 [Exhaust All]
+          [ To Self do
+                apply 1 [Enrage]
+                hide' "calories" 0 [Exhaust All]
+                hide' "calories" 0 [Exhaust All]
+          , To Enemy $ damage 30
           ]
         }
       , Skill.new
@@ -490,14 +490,16 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Spiky Human Boulder"
-        , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters non-mental skills. Increases the cost of Chōji's skills by 1 arbitrary chakra each turn."
+        , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters physical, chakra, and summon skills. Increases the cost of Chōji's skills by 1 arbitrary chakra each turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.dur       = Action 2
         , Skill.start     =
           [ To Enemy $ damage 15
           , To Self do
-                trap 2 (CounterAll NonMental) $ return ()
+                trap 2 (CounterAll Physical) $ return ()
+                trap 2 (CounterAll Chakra) $ return ()
+                trap 2 (CounterAll Summon) $ return ()
                 hide' "calories" 0 [Exhaust All]
           ]
         }
@@ -534,32 +536,19 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Super-Slam"
-        , Skill.desc      = "Chōji funnels chakra into his hands until they are as powerful as iron jackhammers and slams them into an enemy, dealing 30 damage and curing Chōji of enemy effects. Increases the cost of Chōji's skills by 2 arbitrary chakra."
-        , Skill.classes   = [Chakra, Melee]
+        , Skill.desc      = "Chōji funnels chakra into his hands until they are as powerful as iron jackhammers and slams them into an enemy, curing Chōji of enemy effects and dealing 30 damage to the target. Increases the cost of Chōji's skills by 2 arbitrary chakra."
+        , Skill.classes   = [Chakra, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Enemy $ damage 30
-          , To Self $ replicateM_ 2 $ hide' "calories" 0 [Exhaust All]
+          [ To Self do
+                cureAll
+                replicateM_ 2 $ hide' "calories" 0 [Exhaust All]
+          , To Enemy $ damage 30
           ]
         }
       ]
-    , [ Skill.new
-        { Skill.name      = "Block"
-        , Skill.desc      = "Chōji becomes invulnerable for 1 turn."
-        , Skill.classes   = [Physical]
-        , Skill.cooldown  = 4
-        , Skill.cost      = [Rand, Rand]
-        , Skill.effects   =
-          [ To Self $ apply 1 [Invulnerable All] ]
-        }
-      , Skill.new
-        { Skill.name      = "Block"
-        , Skill.desc      = "Chōji becomes invulnerable for 1 turn."
-        , Skill.classes   = [Physical]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To Self $ apply 1 [Invulnerable All] ]
-        }
+    , [ (invuln "Block" "Chōji" [Physical]) { Skill.cost = [Rand, Rand] }
+      , invuln "Block" "Chōji" [Physical]
       ]
     ]
   , Character
@@ -580,7 +569,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Proxy Surveillance"
-        , Skill.desc      = "Ino's will takes over the battlefield. For 3 turns, she detects invisible effects and enemy cooldowns. While active, the enemy team's damage reduction skills and destructible defense skills are reduced by 15. If an enemy uses a skill with negative damage reduction, damage to them is increased by its amount. If they use a skill with negative destructible defense, their target is damaged for its amount. If they use a skill with negative destructible barrier, they are damaged for its amount."
+        , Skill.desc      = "Ino's will takes over the battlefield. For 3 turns, she detects invisible effects and enemy cooldowns. While active, the enemy team's damage reduction skills and destructible defense skills are reduced by 15. If an enemy uses a skill with negative damage reduction, damage to them is increased by its amount. If they use a skill with negative destructible defense, their target gains destructible barrier equal to its amount. If they use a skill with negative destructible barrier, their target gains destructible defense equal to its amount."
         , Skill.classes   = [Mental, Invisible, Uncounterable, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
@@ -591,7 +580,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Mind Transfer Clone"
         , Skill.desc      = "Ino takes control of her allies, forcing them to fight on no matter their condition. For 2 turns, her allies ignore status effects from enemies except chakra cost changes."
-        , Skill.classes   = [Mental]
+        , Skill.classes   = [Mental, Invisible, Soulbound]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
@@ -669,18 +658,18 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemies $ pierce 25 ]
+          [ To Enemies $ damage 25 ]
         }
       , Skill.new
-        { Skill.name      = "Leaf Fan: Coil of Fire"
-        , Skill.desc      = "Using the Sage of the Six Path's legendary battle fan, Tenten blasts her enemies with a sea of raging fire, dealing 15 damage and 15 affliction damage to all enemies, as well as 5 affliction damage for the next 3 turns."
+        { Skill.name      = "Scroll of Fire"
+        , Skill.desc      = "Using the Sage of the Six Path's legendary leaf fan, Tenten blasts her enemies with a sea of raging fire, dealing 10 damage and 10 affliction damage to all enemies, as well as 5 affliction damage for the next 3 turns."
         , Skill.classes   = [Bane, Physical, Ranged]
         , Skill.cost      = [Nin, Tai]
-        , Skill.cooldown  = 3
+        , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies do
-                damage 15
-                afflict 15
+                damage 10
+                afflict 10
                 apply 3 [Afflict 5]
           ]
         }
@@ -690,6 +679,7 @@ characters =
         , Skill.desc      = "Tenten whirls a long chain whip around her team, making them invulnerable to physical skills for 1 turn."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
+        , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Allies $ apply 1 [Invulnerable Physical] ]
         }
@@ -698,18 +688,18 @@ characters =
         , Skill.desc      = "Tenten produces a massive metal dome from a very small scroll, providing 25 permanent destructible defense to her and her allies."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Nin, Rand]
-        , Skill.cooldown  = 1
+        , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ defend 0 25 ]
+          [ To Allies $ defend 0 20 ]
         }
       , Skill.new
-        { Skill.name      = "Leaf Fan: Coil of Wind"
-        , Skill.desc      = "Using the Sage of the Six Path's legendary battle fan, Tenten throws a gust of wind that reflects all skills used on her or her allies next turn."
+        { Skill.name      = "Scroll of Wind"
+        , Skill.desc      = "Using the Sage of the Six Path's legendary leaf fan, Tenten throws a gust of wind that reflects all non-mental skills used on her or her allies next turn."
         , Skill.classes   = [Physical, Invisible, Unreflectable]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ apply 1 [ReflectAll] ]
+          [ To Allies $ apply 1 [ReflectAll NonMental] ]
         }
       ]
     , [ Skill.new
@@ -755,8 +745,8 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
-                deplete 1
                 damage 20
+                deplete 1
           ]
         }
       ]
@@ -765,6 +755,7 @@ characters =
         , Skill.desc      = "Neji unleashes a giant wave of chakra at an enemy, demolishing their destructible defense and his own destructible barrier, then dealing 45 damage."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Blood, Tai]
+        , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
                 demolishAll
@@ -777,6 +768,7 @@ characters =
         , Skill.desc      = "For 2 turns, enemies are prevented from reducing damage or becoming invulnerable. If an enemy uses a skill on Neji during the first turn, it is countered and this skill is replaced for 1 turn by [Pressure Point Strike]."
         , Skill.classes   = [Physical, Mental, Invisible]
         , Skill.cost      = [Blood]
+        , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies $ apply 2 [Expose]
           , To Self $ trap 1 (Counter All) $ apply 1
@@ -786,16 +778,23 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Pressure Point Strike"
-        , Skill.desc      = "Deals 5 damage to an enemy, depletes 1 random chakra, and causes this skill to remain [Pressure Point Strike] for another turn."
+        , Skill.desc      = "Deals 5 damage to an enemy, depletes 1 random chakra, and causes this skill to remain [Pressure Point Strike] for another turn. Until this skill reverts to [Eight Trigrams Sixty-Four Palms], its damage increases by 5 every time it is used."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
+                stacks <- userStacks "Pressure Point Strike"
+                damage (5 + 5 * stacks)
                 deplete 1
-                damage 5
-          ,  To Self $ apply' "Eight Trigrams Sixty-Four Palms" 1
-                [Alternate "Eight Trigrams Sixty-Four Palms"
-                           "Pressure Point Strike"]
+          , To Self do
+                addStack
+                bomb' "Eight Trigrams Sixty-Four Palms" 1
+                    [Alternate "Eight Trigrams Sixty-Four Palms"
+                              "Pressure Point Strike"]
+                    [ To Expire $
+                        unlessM (targetHas "Eight Trigrams Sixty-Four Palms") $
+                        remove "Pressure Point Strike"
+                    ]
           ]
         }
       ]
@@ -806,32 +805,32 @@ characters =
     "Gaara's years of soul-searching have made him ready to assume the title of Kazekage. Now a powerful force for good, he devotes himself to protecting his friends and the Hidden Sand Village."
     [ [ Skill.new
         { Skill.name      = "Monstrous Sand Arm"
-        , Skill.desc      = "Gaara shapes sand into an enormous hand that slams into an enemy, dealing 5 piercing damage and weakening their damage by 10 for 1 turn."
+        , Skill.desc      = "Gaara shapes sand into an enormous hand that slams into an enemy, dealing 5 piercing damage and weakening their damage by 5 for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemy do
                 pierce 5
-                apply 1 [Weaken All Flat 10]
+                apply 1 [Weaken All Flat 5]
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Sand Prison"
-        , Skill.desc      = "Crushing ropes of sand constrict into an airtight prison around an enemy, dealing 10 damage to them and stunning their chakra and ranged skills for 1 turn."
+        , Skill.desc      = "Crushing ropes of sand constrict into an airtight prison around an enemy, dealing 10 damage to them and stunning their chakra and melee skills for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
                 damage 10
-                apply 1 [Stun Chakra, Stun Ranged]
+                apply 1 [Stun Chakra, Stun Melee]
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Sand Summoning"
-        , Skill.desc      = "Gaara transforms the battlefield into a desert, providing 15 permanent destructible defense to his allies. The first use of this skill also causes all of Gaara's damage to be multiplied by 3. The second use of this skill also provides Gaara with 10 points of damage reduction and causes all of his damage to be multiplied by 5."
+        , Skill.desc      = "Gaara transforms the battlefield into a desert, providing 15 permanent destructible defense to his allies and 10 points of damage reduction to himself. The first use of this skill also causes all of Gaara's damage to be multiplied by 3. The second use of this skill causes all of Gaara's damage to be multiplied by 5."
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 2
@@ -842,9 +841,9 @@ characters =
                 has <- userHas "Sand Summoning"
                 if has then do
                     remove "Sand Summoning"
-                    apply 0 [Strengthen All Percent 500, Reduce All Flat 10]
+                    apply 0 [Strengthen All Percent 400, Reduce All Flat 10]
                 else
-                    apply 0 [Strengthen All Percent 300]
+                    apply 0 [Strengthen All Percent 200, Reduce All Flat 10]
 
           ]
         }
@@ -859,6 +858,7 @@ characters =
         , Skill.desc      = "The Kuroari puppet traps an enemy. If they use a skill on Kankurō or his allies next turn, they will be countered and will receive twice as much damage from [Karasu Knives] for 1 turn."
         , Skill.classes   = [Physical, Ranged, Invisible]
         , Skill.cost      = [Rand]
+        , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ trap (-1) (Countered All) $ tag 1 ]
         }
@@ -959,7 +959,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                bonusFirst  <- 5  `bonusIf` userHas "First Moon"
+                bonusFirst  <-  5 `bonusIf` userHas "First Moon"
                 bonusSecond <- 10 `bonusIf` userHas "Second Moon"
                 damage (20 + bonusFirst + bonusSecond)
           ]

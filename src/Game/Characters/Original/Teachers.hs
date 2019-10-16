@@ -36,14 +36,17 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Capture and Arrest"
-        , Skill.desc      = "Iruka traps an enemy in an area filled with his paper bombs. If the target uses a skill on Iruka or his allies during their next turn, they will take 40 damage, and physical and chakra skills will deal 25 additional damage to them for 1 turn."
+        , Skill.desc      = "Iruka traps an enemy in an area filled with his paper bombs. If the target uses a skill on Iruka or his allies during their next turn, they will take 40 damage, and physical, chakra, and summon skills will deal 25 additional damage to them for 1 turn."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ trap 1 OnHarm do
                 damage 40
-                apply 1 [Bleed Physical Flat 25, Bleed Chakra Flat 25]
+                apply 1 [ Bleed Physical Flat 25
+                        , Bleed Chakra Flat 25
+                        , Bleed Summon Flat 25
+                        ]
           ]
         }
       ]
@@ -130,10 +133,11 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Twin Snake Sacrifice"
-        , Skill.desc      = "Kills Anko and the target of [Dual Pin]."
+        , Skill.desc      = "Anko introduces a lethal poison through the wound she shares with the target of [Dual Pin], killing both."
         , Skill.require   = HasU 1 "Dual Pin"
-        , Skill.classes   = [Melee]
+        , Skill.classes   = [Bane, Melee, Bypassing]
         , Skill.cost      = [Nin, Nin]
+        , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies kill
           , To Self killHard
@@ -209,7 +213,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ apply 1 [ReflectAll] ]
+          [ To Self $ apply 1 [ReflectAll All] ]
         }
       ]
     , [ Skill.new
@@ -285,9 +289,9 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Sylvan Fetters Attack"
-        , Skill.desc      = "Deals 30 piercing damage to the target of [Demonic Illusion: Sylvan Fetters]."
+        , Skill.desc      = "Taking advantage of their immobility, Kurenai deals 30 piercing damage to the target of [Demonic Illusion: Sylvan Fetters]."
         , Skill.require   = HasU 1 "Demonic Illusion: Sylvan Fetters"
-        , Skill.classes   = [Physical, Melee]
+        , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemies $ pierce 30 ]
@@ -326,15 +330,12 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Finishing Blow"
-        , Skill.desc      = "Deals 35 pierce damage to an enemy and stuns them for 1 turn."
+        , Skill.desc      = "Asuma deals 35 piercing damage to an enemy with a powerful attack."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy do
-                pierce 35
-                apply 1 [Stun All]
-          ]
+          [ To Enemy $ pierce 35 ]
         }
       ]
     , [ Skill.new
@@ -347,7 +348,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Flying Kick"
-        , Skill.desc      = "Deals 35 damage to an enemy and stuns them for 1 turn."
+        , Skill.desc      = "Asuma kicks an enemy squarely in the face, dealing 35 damage and stunning them for 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
@@ -457,8 +458,8 @@ characters =
         , Skill.cooldown  = 6
         , Skill.effects   =
           [ To Ally do
-                defend 4 50
                 apply 4 [Enrage]
+                defend 4 50
                 onBreak'
           ]
         }

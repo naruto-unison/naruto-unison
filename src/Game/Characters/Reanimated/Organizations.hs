@@ -10,6 +10,48 @@ import qualified Game.Model.Skill as Skill
 characters :: [Category -> Character]
 characters =
   [ Character
+    "Kimimaro"
+    "Reanimated by Kabuto, Kimimaro was a member of the Sound Five until he was claimed by illness. Loyal to Orochimaru, Kimimaro now follows Kabuto, who carries Orochimaru's chakra and shares similar ambitions."
+    [ [ Skill.new
+        { Skill.name      = "Clematis Dance"
+        , Skill.desc      = "Kimimaro attacks the enemy team with long, sharp bone spears, dealing 20 damage and killing them if their health reaches 5 or lower."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemies do
+                damage 20
+                hp <- target health
+                when (hp < 5) kill
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Macabre Bone Pulse"
+        , Skill.desc      = "Kimimmaro warps his skeleton into blades and attacks an enemy, dealing 45 piercing damage."
+        , Skill.classes   = [Physical, Melee, Uncounterable]
+        , Skill.cost      = [Blood, Tai]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ pierce 45 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Digital Shrapnel"
+        , Skill.desc      = "A volley of bullets shoot forth from Kimimaro's fingertips, providing him with 50% damage reduction for 1 turn. Next turn, enemies who use skills will take 20 damage."
+        , Skill.classes   = [Physical, Ranged, Bypassing, Invisible]
+        , Skill.cooldown  = 2
+        , Skill.cost      = [Blood]
+        , Skill.effects   =
+          [ To Enemies $ trap 1 (OnAction All) $ damage 20
+          , To Self $ apply 1 [Reduce All Percent 50]
+          ]
+        }
+      ]
+    , [ invuln "Block" "Kimimaro" [Physical] ]
+    ]
+    75
+  , Character
     "Jirōbō"
     "Reanimated by Kabuto, Jirōbō was a member of the Sound Five. No longer concealing his anger beneath a facade of politeness, Jirōbō has only one thing on his mind: revenge."
     [ [ Skill.new
@@ -151,7 +193,7 @@ characters =
     "Reanimated by Kabuto, Zabuza was one of the Seven Swordsmen of the Mist and a renowned mercenary. Although he has been reunited with Haku, Zabuza is furious at being forced to fight against his will. He still wields Kubikiribōchō, his legendary executioner's broadsword, which feeds on the blood it spills to strengthen itself."
     [ [ Skill.new
         { Skill.name      = "Demon Shroud"
-        , Skill.desc      = "Demonic chakra pours out of Zabuza as he gives in to his bloodlust, gaining 10 points of damage reduction for 2 turns and ignoring stuns. Each turn, a random enemy is affected by [Executioner's Butchering]."
+        , Skill.desc      = "Demonic chakra pours out of Zabuza as he gives in to his bloodlust, gaining 10 points of damage reduction for 2 turns and ignoring stuns and disabling effects. Each turn, a random enemy is affected by [Executioner's Butchering]."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 4
@@ -413,7 +455,7 @@ characters =
     "Reanimated by Kabuto, Jinin was one of the Seven Swordsmen of the Mist. Wielding Kabutowari, the legendary blunt blade, Jinin cleaves the armor and protections of his enemies."
     [ [ Skill.new
         { Skill.name      = "Axe Chop"
-        , Skill.desc      = "Slashing an enemy with the axe part of Kabutowari, Jinin deals 15 piercing damage, disables the countering effects of their skills, and prevents them from reducing damage, becoming invulnerable, or benefiting from counters for 1 turn."
+        , Skill.desc      = "Slashing an enemy with the axe part of Kabutowari, Jinin deals 15 piercing damage, disables the countering effects of their skills, and prevents them from reducing damage or becoming invulnerable."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
@@ -528,12 +570,12 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Ally Control"
-        , Skill.desc      = "Sasori manipulates an ally with puppeteering threads. All skills that enemies use on the target next turn will be reflected back at them."
-        , Skill.classes   = [Physical]
+        , Skill.desc      = "Sasori manipulates an ally with puppeteering threads. All non-ranged skills that enemies use on the target next turn will be reflected back at them."
+        , Skill.classes   = [Physical, Invisible]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To XAlly $ apply 1 [ReflectAll] ]
+          [ To XAlly $ apply 1 [ReflectAll NonRanged] ]
         }
       ]
     , [ Skill.new
@@ -545,7 +587,6 @@ characters =
           [ To Enemy do
                 bonus <- 5 `bonusIf` userHas "Chakra Threads"
                 damage (15 + bonus)
-                apply 1 [Weaken All Flat 5]
                 targetHealth <- target health
                 if targetHealth <= 35 then
                     apply 1 [Weaken All Flat 5, Stun Physical, Stun Chakra]

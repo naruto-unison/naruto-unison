@@ -14,14 +14,15 @@ characters =
     "Known as the Red-Hot Habanero for her fiery hair and fierce temper, Naruto's mother possesses exceptional chakra necessary to become the nine-tailed fox's jinchūriki. Kushina specializes in unique sealing techniques that bind and incapacitate her enemies."
     [ [ Skill.new
         { Skill.name      = "Double Tetragram Seal"
-        , Skill.desc      = "Kushina seals away an enemy's power, dealing 15 piercing damage, stunning them for 1 turn, depleting 1 random chakra, and weakening their damage by 5."
+        , Skill.desc      = "Kushina seals away an enemy's power, demolishing their destructible defense and her own destructible barrier, dealing 15 piercing damage, stunning them for 1 turn, depleting 1 random chakra, and weakening their damage by 5."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
+                demolishAll
                 deplete 1
-                damage 15
+                pierce 15
                 apply 1 [Stun All]
                 apply 0 [Weaken All Flat 5]
           ]
@@ -29,7 +30,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Life Link"
-        , Skill.desc      = "Kushina binds her life-force to that of an enemy. For 4 turns, if either dies, the other will die as well. Effect cannot be avoided, prevented, or removed."
+        , Skill.desc      = "Kushina binds her life-force to that of an enemy. For 4 turns, if either dies, the other will die as well. Effect cannot be avoided, prevented, or removed. While active, this skill becomes [Life Transfer][r]."
         , Skill.classes   = [Mental, Ranged, Bypassing, Unremovable, Uncounterable, Unreflectable]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 5
@@ -39,6 +40,16 @@ characters =
                 trap 4 OnDeath $ self killHard
                 self $ trap 4 OnDeath $
                     everyone $ whenM (targetHas "Life Link") killHard
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Life Transfer"
+        , Skill.desc      = "Kushina transfers part of her life to an ally, restoring 25 health to the target but losing 25 of her own health."
+        , Skill.classes   = [Mental, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To XAlly $ heal 25
+          , To Self $ sacrifice 0 25
           ]
         }
       ]
@@ -123,12 +134,12 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Teleportation Barrier"
-        , Skill.desc      = "Space warps around Minato or one of his allies. The first skill an enemy uses on the target will be reflected back at them."
-        , Skill.classes   = [Chakra, Ranged, Unreflectable]
-        , Skill.cost      = [Gen]
+        , Skill.desc      = "Space warps around Minato or one of his allies. The first skill an enemy uses on the target within 2 turns will be reflected back at them."
+        , Skill.classes   = [Chakra, Ranged, Unreflectable, Invisible]
+        , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Ally $ apply 1 [Reflect] ]
+          [ To Ally $ apply 2 [Reflect] ]
         }
       ]
     , [ Skill.new
@@ -205,7 +216,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                damage 20
+                pierce 20
                 apply 1 [Weaken All Flat 5]
                 whenM (userHas "Sharingan Stun") $ apply 1 [Stun All]
           , To Self $ apply 1 [Strengthen All Flat 5]
@@ -219,7 +230,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                damage 20
+                pierce 20
                 apply 1 [Weaken All Flat 5]
                 whenM (userHas "Sharingan Stun") $ apply 1 [Stun All]
           , To Self $ apply 1 [Strengthen All Flat 5]
@@ -228,14 +239,20 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sharingan"
-        , Skill.desc      = "Kakashi anticipates an opponent's moves for 2 turns. If they use a skill that gains, depletes, or absorbs chakra, Kakashi gains 1 random chakra. If they use a skill that stuns or disables, Kakashi's skills will stun next turn. If they use a skill that damages, Kakashi's damage will be increased by 10 during the next turn."
+        , Skill.desc      = "Kakashi anticipates an opponent's moves for 2 turns. If they use a skill that gains, depletes, or absorbs chakra, Kakashi gains 1 random chakra. If they use a skill that stuns or disables, Kakashi's skills will stun next turn. If they use a skill that damages, Kakashi's damage will be increased by 10 during the next turn. Ends when triggered."
         , Skill.classes   = [Mental, Ranged, Invisible]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                trap 1 OnChakra $ self $ gain [Rand]
-                trap 1 OnStun   $ self $ gain [Rand]
-                trap 1 OnDamage $ self $ apply 1 [Strengthen All Flat 10]
+                trap 2 OnChakra do
+                    removeTrap "Sharingan"
+                    self $ gain [Rand]
+                trap 2 OnStun do
+                    removeTrap "Sharingan"
+                    self $ tag' "Sharingan Stun" 1
+                trap 2 OnDamage do
+                    removeTrap "Sharingan"
+                    self $ apply 1 [Strengthen All Flat 10]
           ]
         }
       ]
@@ -261,12 +278,12 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Mystical Palm Healing"
-        , Skill.desc      = "Rin restores 25 health to herself or an ally and cures the target of enemy effects."
+        , Skill.desc      = "Rin restores 25 health to herself or an ally and cures the target of bane effects."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Ally do
-                cureAll
+                cureBane
                 heal 25
           ]
         }
@@ -377,8 +394,8 @@ characters =
         , Skill.start     =
           [ To Enemies demolishAll ]
         , Skill.effects   =
-          [ To REnemy $ damage 25
-          , To Allies $ apply 1 [Enrage]
+          [ To Allies $ apply 1 [Enrage]
+          , To REnemy $ damage 25
           ]
         }
       ]

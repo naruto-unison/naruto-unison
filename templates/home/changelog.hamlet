@@ -1,35 +1,7 @@
 <h1>#{title}
 <h2>Changes at Launch
-<h3>Mechanics
+<h3>Career
 <ul>
-  <li>
-    Several classes have been added for clarity:
-    <ul>
-      <li><em>Invisible</em>: Cannot be seen by the enemy team.
-      <li><em>Unremovable</em>: Effects cannot be cured or removed in any way.
-      <li><em>Bypassing</em>: Bypasses invulnerability.
-      <li><em>Soulbound:</em> Effects end when the user dies.
-      <li><em>Necromancy:</em> Targets must be dead. Without this class, targets by default must be alive.
-  <li>
-    The <em>Affliction</em> class has been renamed to <em>Bane</em> in order to avoid confusion with affliction damage.
-    For example,
-    ^{Link.skill "Shino Aburame" Shippuden "Gigantic Beetle Infestation"},
-    which does not deal any affliction damage, was a skill classified as <em>Affliction</em>.
-  <li>
-    A few other skills have also been classified as <em>Bane</em>.
-  <li>
-    The <em>Instant</em>, <em>Action</em>, and <em>Control</em> classes have been moved to a new field, Duration, which also indicates how long the skill lasts.
-  <li>
-    Added the <em>Ongoing</em> duration. <em>Ongoing</em> skills are permanent,
-    perform an action every turn even if their user is stunned or otherwise disabled,
-    and end when their user dies. Examples:
-    ^{Link.skill "Chōji Akimichi" Shippuden "Butterfly Mode"},
-    ^{Link.skill "Tsunade" Original "Major Summoning: Katsuyu"},
-    ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"},
-    ^{Link.skill "Orochimaru" Original "Major Summoning: Manda"}, and
-    ^{Link.skill "Hiruzen Sarutobi" Original "Major Summoning: Enma"}.
-  <li>
-    New mechanic: destructible barrier, a counterpart to destructible defense. Destructible barrier is a negative effect that absorbs some amount of outgoing damage. It is represented by a red bar next to the health bar.
   <li>
     Reanimated (#{Reanimated}) characters are purchased with DNA, which is obtained from:
     <ul>
@@ -45,6 +17,45 @@
         Participating in wars. (unimplemented)
       <li>
         Defeating A.I. boss challenges. (unimplemented)
+<h3>Mechanics
+<ul>
+  <li>
+    Several classes have been added for clarity:
+    <ul>
+      <li><i>Bypassing</i>: Bypasses invulnerability.
+      <li><i>Invisible</i>: Cannot be seen by the enemy team.
+      <li><i>Soulbound:</i> Effects end when the user dies.
+      <li><i>Uncounterable</i>: Cannot be countered.
+      <li><i>Unreflectable</i>: Cannot be reflected.
+      <li><i>Unremovable</i>: Effects cannot be cured or removed in any way.
+  <li>
+    The <i>Affliction</i> class has been renamed to <i>Bane</i> in order to avoid confusion with affliction damage.
+    For example,
+    ^{Link.skill "Shino Aburame" Shippuden "Gigantic Beetle Infestation"},
+    which does not deal any affliction damage, was a skill classified as <i>Affliction</i>.
+  <li>
+    A few other skills have also been classified as <i>Bane</i>.
+  <li>
+    The <i>Unique</i> class has been removed.
+  <li>
+    All parts of a skill have the same classes as each other.
+  <li>
+    In addition to <i>Chakra</i>, <i>Mental</i>, and <i>Physical</i> skills, there are now <i>Summon</i> skills. <i>Summon</i> skills are difficult to stun, but easy to avoid.
+  <li>
+    The <i>Instant</i>, <i>Action</i>, and <i>Control</i> classes have been moved to a new field, Duration, which also indicates how long the skill lasts.
+  <li>
+    Added the <i>Ongoing</i> duration. <i>Ongoing</i> skills continue to apply their effects even if their user is stunned or otherwise disabled. Examples:
+    <ul>
+      <li>
+        ^{Link.skill "Chōji Akimichi" Shippuden "Butterfly Mode"}
+      <li>
+        ^{Link.skill "Orochimaru" Original "Major Summoning: Manda"}
+      <li>
+        ^{Link.skill "Tobirama Senju" Reanimated "Water Shockwave"}
+      <li>
+        ^{Link.skill "Hanzō" Reanimated "Poison Fog"}
+  <li>
+    New mechanic: destructible barrier, a counterpart to destructible defense. Destructible barrier is a negative effect that absorbs some amount of outgoing damage. It is represented by a red bar next to the health bar, after the blue destructible defense bar.
 
 <h3>Original
 <ul>
@@ -65,7 +76,6 @@
   ^{change Rework "Chiyo" Shippuden}
   ^{change Rework "Yamato" Shippuden}
   ^{change Rework "Fū Yamanaka" Shippuden}
-  ^{change Rework "Danzō Shimura" Shippuden}
   ^{change Rework "Deidara" Shippuden}
   ^{change Rework "Sasori" Shippuden}
   ^{change Rework "Hidan" Shippuden}
@@ -97,7 +107,42 @@
   ^{change Rework "Kushimaru Kuriarare" Reanimated}
   ^{change Rework "Jinpachi Munashi" Reanimated}
   ^{change Rework "Fuguki Suikazan" Reanimated}
+
 <h3>Minor Adjustments
 <ul>
   <li>
-    ^{Link.skill "Anko Mitarashi" Original "Dragon Flame"} adds 5 to all bane damage that the target receives, rather than only damage from Anko's skills.
+    If a skill replaces itself with a temporary copy of someone else's skill, the copy has no chakra cost or cooldown, but its effects end when the copy expires rather than lasting forever.
+  <li>
+    ^{Link.skill "Anko Mitarashi" Original "Dragon Flame"}
+    adds 5 to all bane damage that the target receives, rather than only damage from Anko's skills.
+  <li>
+    The weak-to-affliction status effect from
+    ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}
+    ends when Jiraiya dies, in order to be consistent with
+    ^{Link.skill "Tsunade" Original "Major Summoning: Katsuyu"},
+    ^{Link.skill "Orochimaru" Original "Major Summoning: Manda"}, and
+    ^{Link.skill "Hiruzen Sarutobi" Original "Major Summoning: Enma"}.
+  <li>
+    ^{Link.skill "Jiraiya" Original "Toad Oil Bomb"} deals affliction damage, in order to be consistent with other damage-over-time fire attacks and to benefit from ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}.
+  <li>
+    ^{Link.skill "Hiashi Hyūga" Original "Eight Trigrams Air Palm Wall"} reflects skills onto their user, rather than a random enemy.
+  <li>
+    ^{Link.skill "Hinata Hyūga" Shippuden "Gentle Step Twin Lion Fists"} ends if Hinata dies.
+  <li>
+    Instead of merely alerting when skills are used, ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"} reveals enemy cooldowns and invisible effects.
+  <li>
+    Applying negative destructible defense (which can occur due to ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"} or ^{Link.skill "Rehabilitated Gaara" Original "Sand Tsunami"}) causes destructible barrier rather than negative damage reduction.
+  <li>
+    {Link.skill "Kabuto Yakushi" Shippuden "Chakra Absorbing Snakes"} no longer stuns healing effects for 1 turn. Instead, if the target heals next turn, all of their skills will be stunned for 2 turns.
+  <li>
+    ^{Link.skill "Maki" Shippuden "Humidified Cloth"} and ^{Link.skill "Nagato" Reanimated "Human Path"} block the target from affecting the user's team at all.
+  <li>
+    The cost of ^{Link.skill "Omoi" Shippuden "Crescent Moon Slice"} has been changed from 1 genjutsu chakra and 1 arbitrary chakra to 1 taijutsu chakra and 1 arbitrary chakra.
+  <li>
+    ^{Link.skill "Omoi" Shippuden "Thunderbolt"} blocks its target from affecting their allies at all.
+  <li>
+    ^{Link.skill "Danzō Shimura" Shippuden "Kotoamatsukami"} cannot counter uncounterable skills.
+  <li>
+    ^{Link.skill "Jiraiya" Shippuden "Toad Oil Bomb"} interrupts <i>action</i> skills as well as <i>control</i> skills.
+  <li>
+    ^{Link.skill "Chukichi" Reanimated "Hidden Frost"} makes Chukichi invulnerable to ranged skills.

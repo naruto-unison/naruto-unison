@@ -115,7 +115,7 @@ characters =
     "A jōnin from the Hidden Leaf Village and mother to Kiba, Tsume shares his wild temperament, impatience, and odd sense of humor. Kuromaru, her animal companion, keeps her enemies at bay and strikes back at any who dare to attack her."
     [ [ Skill.new
         { Skill.name      = "Call Kuromaru"
-        , Skill.desc      = "Kuromaru guards Tsume from her enemies for 4 turns, providing her with 10 points of damage reduction and dealing 10 damage to enemies who use skills on her. While active, this skill becomes [Fierce Bite][t]."
+        , Skill.desc      = "Kuromaru guards Tsume from her enemies for 4 turns, providing her with 10 points of damage reduction and dealing 10 damage to enemies who use non-bane skills on her. While active, this skill becomes [Fierce Bite][t]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
@@ -125,13 +125,14 @@ characters =
                 apply 1 [ Reduce All Flat 10
                         , Alternate "Call Kuromaru" "Fierce Bite"
                         ]
-                trapFrom 1 (OnHarmed All) $ damage 10
+                trapFrom 1 (OnHarmed NonBane) $ damage 10
           ]
         }
       , Skill.new
         { Skill.name      = "Fierce Bite"
-        , Skill.desc      = "Kuromaru pounces on an enemy, dealing 25 damage. If the target dies during the same turn, Tsume will become unkilllable for 2 turns, during which her damage will be increased by 10 and she will ignore stuns."
+        , Skill.desc      = "Kuromaru pounces on an enemy, dealing 25 damage. If the target dies during the same turn, Tsume will become unkilllable for 2 turns, during which her damage will be increased by 10 and she will ignore stuns and disabling effects."
         , Skill.classes   = [Physical, Melee, Bypassing]
+        , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
                 trap' (-1) OnDeath $ self $
@@ -156,12 +157,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Light Bomb"
-        , Skill.desc      = "Tsume blinds her enemies with a flash-bang, making her team invulnerable for 1 turn."
+        , Skill.desc      = "Tsume blinds her enemies with a flash-bang, making her team invulnerable to non-bane skills for 1 turn."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
         , Skill.charges   = 3
         , Skill.effects   =
-          [ To Allies $ apply 1 [Invulnerable All] ]
+          [ To Allies $ apply 1 [Invulnerable NonBane] ]
         }
       ]
     , [ invuln "Dodge" "Tsume" [Physical] ]
@@ -171,13 +173,17 @@ characters =
     "A jōnin from the Hidden Leaf Village and Chōji's father, Chōza instills confidence in his comrades with his bravery and wisdom. Never one to back down from a fight, he defends his allies and forces the attention of his enemies to himself."
     [ [ Skill.new
         { Skill.name      = "Chain Bind"
-        , Skill.desc      = "Chōza slows an enemy, dealing 5 damage and weakening their physical and chakra damage by 10 for 1 turn. Chōza's team gains 5 permanent destructible defense."
+        , Skill.desc      = "Chōza slows an enemy, dealing 5 damage and weakening their physical, chakra, and summon damage by 10 for 1 turn. Chōza's team gains 5 permanent destructible defense. The weakening effect lasts 1 additional turn during [Human Boulder]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
                 damage 5
-                apply 1 [Weaken Physical Flat 10, Weaken Chakra Flat 10]
+                bonus <- 1 `bonusIf` userHas "Human Boulder"
+                apply (1 + bonus) [ Weaken Physical Flat 10
+                                  , Weaken Chakra Flat 10
+                                  , Weaken Summon Flat 10
+                                  ]
           , To Allies $ defend 0 5
           ]
         }
@@ -191,12 +197,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Allies $ defend 1 10
-          ,  To Enemy do
-                damage 15
-                whenM (targetHas "Chain Bind") $
-                    apply' "Chain Bind" 1 [ Weaken Physical Flat 10
-                                          , Weaken Chakra Flat 10
-                                          ]
+          , To Enemy $ damage 15
           ]
         }
       ]
@@ -250,7 +251,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Black Spider Lily"
-        , Skill.desc      = "Shikaku draws his enemies closer with shadow tendrils for 3 turns. If an enemy affected by [Black Spider Lily] uses a skill that stuns or disables Shikaku or his allies, [Shadow Possession] and [Shadow Dispersion] will stun them for an additional turn if used within 3 turns."
+        , Skill.desc      = "Shikaku draws his enemies closer with shadow tendrils for 3 turns. If an enemy affected by [Black Spider Lily] uses a skill that stuns or disables Shikaku or his allies, [Shadow Possession] and [Shadow Dispersion] will stun them for 1 additional turn if used within 3 turns."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
@@ -263,12 +264,17 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Problem Analysis"
-        , Skill.desc      = "By predicting enemy attacks and using them as opportunities, Shikaku protects himself or an ally. For 1 turn, non-affliction damage dealt to the target is converted into destructible defense instead."
+        , Skill.desc      = "By predicting enemy attacks and using them as opportunities, Shikaku protects himself or an ally. The first skill used on them next turn that deals damage will instead have its damage converted into destructible defense."
         , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Ally $ apply 1 [DamageToDefense] ]
+          [ To Ally do
+                apply 1 [DamageToDefense]
+                trap 1 (OnDamaged All) do
+                    remove "Problem Analysis"
+                    removeTrap "Problem Analysis"
+          ]
         }
       ]
     , [ invuln "Team Formation" "Shikaku" [Physical] ]
@@ -288,7 +294,7 @@ characters =
                 damage 20
                 apply 1 [ Disable Counters
                         , Disable $ Only Reflect
-                        , Disable $ Only ReflectAll
+                        , Disable $ Any ReflectAll
                         ]
           ]
         }

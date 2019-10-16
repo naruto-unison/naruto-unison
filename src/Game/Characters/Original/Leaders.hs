@@ -11,7 +11,7 @@ characters :: [Int -> Category -> Character]
 characters =
   [ Character
     "Orochimaru"
-    "One of three legendary sannin, Orochimaru intends to learn every technique in existence. Driven by an insatiable hunger for power, he employs various methods to increase his chakra, even if he has to harm his allies in the process."
+    "One of three legendary sannin, Orochimaru intends to learn every technique in existence. Driven by an insatiable hunger for power, he gathers chakra any way he can, even if it means harming his allies."
     [ [ Skill.new
         { Skill.name      = "Kusanagi"
         , Skill.desc      = "Striking swiftly, Orochimaru demolishes an enemy's destructible defense and his own destructible barrier, then deals 25 piercing damage to the target."
@@ -31,8 +31,8 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy do
-                afflict 15
                 gain [Rand]
+                afflict 15
           , To XAlly do
                 gain [Rand]
                 sacrifice 0 15
@@ -41,17 +41,17 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Major Summoning: Manda"
-        , Skill.desc      = "Orochimaru summons the great serpent Manda, who deals 45 damage to an enemy. Once used, this skill becomes [Paralyzing Bite][r][r]. Each turn that Orochimaru is alive, he gains 1 random chakra."
+        , Skill.desc      = "Orochimaru summons the great serpent Manda, who deals 45 damage to an enemy. Once used, this skill becomes [Paralyzing Bite][r][r]. Every turn that Orochimaru is alive, he gains 1 random chakra."
         , Skill.classes   = [Summon, Melee, Unreflectable]
         , Skill.cost      = [Blood, Nin, Tai]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
-          [ To Enemy $ damage 45
-          , To Self $
-                hide 0 [Alternate "Major Summoning: Manda" "Paralyzing Bite"]
-          ]
+          [ To Enemy $ damage 45 ]
         , Skill.effects   =
-          [ To Self $ gain [Rand] ]
+          [ To Self do
+                gain [Rand]
+                hide 1 [Alternate "Major Summoning: Manda" "Paralyzing Bite"]
+          ]
         }
       , Skill.new
         { Skill.name      = "Paralyzing Bite"
@@ -70,7 +70,7 @@ characters =
     "One of three legendary sannin, Jiraiya is a lecherous frog hermit who travels the world in search of knowledge. His toad summoning techniques and fire manipulation wreak destruction upon enemy teams."
     [ [ Skill.new
         { Skill.name      = "Giant Flame Bomb"
-        , Skill.desc      = "Jiraiya spits out a burst of fire, dealing 20 affliction damage to an enemy and 10 to the rest of their team."
+        , Skill.desc      = "Jiraiya spits out a burst of fire that deals 20 affliction damage to an enemy and 10 to the rest of their team."
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -86,31 +86,30 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.dur       = Ongoing 2
-        , Skill.start     =
-          [ To Allies $
-                trap 2 (OnDamaged NonAffliction) $ apply 1 [Invulnerable All]
-          ]
         , Skill.effects   =
-          [ To Enemies $ apply 1 [Expose] ]
+          [ To Enemies $ apply 1 [Expose]
+          , To Allies $
+                trap 1 (OnDamaged NonAffliction) $ apply 1 [Invulnerable All]
+          ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Major Summoning: Gamabunta"
-        , Skill.desc      = "Jiraiya summons the great toad Gamabunta, who deals 25 affliction damage to all enemies. Once used, this skill becomes [Toad Oil Bomb][n][r]. All enemies receive 5 additional damage from affliction skills."
-        , Skill.classes   = [Summon, Ranged, Unreflectable, Unremovable]
+        , Skill.desc      = "Jiraiya summons the great toad Gamabunta, who deals 25 affliction damage to all enemies. Once used, this skill becomes [Toad Oil Bomb][n][r]. Every turn that Jiraiya is alive, Gamabunta causes all enemies to receive 5 additional damage from affliction skills."
+        , Skill.classes   = [Bane, Summon, Ranged, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
-          [ To Enemies do
-                afflict 25
-                apply 0 [Bleed Affliction Flat 5]
+          [ To Enemies $ afflict 25 ]
+        , Skill.effects   =
+          [ To Enemies $ apply 1 [Bleed Affliction Flat 5]
           , To Self $
-                hide 0 [Alternate "Major Summoning: Gamabunta" "Toad Oil Bomb"]
+                hide 1 [Alternate "Major Summoning: Gamabunta" "Toad Oil Bomb"]
           ]
         }
       , Skill.new
         { Skill.name      = "Toad Oil Bomb"
-        , Skill.desc      = "Jiraiya spits a dense projectile of oil that deals 15 affliction to all enemies for 2 turns."
+        , Skill.desc      = "Gamabunta douses the enemy team in dense oil and Jiraiya ignites it. The resulting blaze deals 15 affliction damage to all enemies for 2 turns."
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
@@ -150,26 +149,29 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Major Summoning: Katsuyu"
-        , Skill.desc      = "Tsunade summons the great slug Katsuyu, who heals her team for 40 health. Once used, this skill becomes [Slug Division][n]. Each turn that Tsunade is alive, her team regains 5 health."
+        , Skill.desc      = "Tsunade summons the great slug Katsuyu, who heals her team for 40 health. Once used, this skill becomes [Slug Division][n]. Every turn that Tsunade is alive, Katsuyu restores 5 health to her team."
         , Skill.classes   = [Summon, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Gen, Nin]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
-          [ To Allies $ heal 40
-          , To Self $
-                hide 0 [Alternate "Major Summoning: Katsuyu" "Slug Division"]
-          ]
+          [ To Allies $ heal 40 ]
         , Skill.effects   =
-          [ To Allies $ heal 5 ]
+          [ To Allies $ heal 5
+          , To Self $
+                hide 1 [Alternate "Major Summoning: Katsuyu" "Slug Division"]
+          ]
         }
       , Skill.new
         { Skill.name      = "Slug Division"
-        , Skill.desc      = "Provides 15 permanent destructible defense to Tsunade's team."
+        , Skill.desc      = "Katsuyu splits into many smaller slugs that restore 10 health to Tsunade's team and provide them with 10 permanent destructible defense."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Allies $ defend 0 15 ]
+          [ To Allies do
+                heal 10
+                defend 0 10
+          ]
         }
       ]
     , [ invuln "Block" "Tsunade" [Physical] ]
@@ -191,7 +193,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Reaper Death Seal"
-        , Skill.desc      = "Hiruzen unleashes the God of Death upon an enemy in exchange for his soul. Each turn, the God of Death deals 40 affliction damage to the target and 20 affliction damage to Hiruzen. Both are permanently stunned, and the target cannot reduce damage or become invulnerable. Ends when Hiruzen dies."
+        , Skill.desc      = "Hiruzen unleashes the God of Death upon an enemy in exchange for his soul. Each turn, the God of Death deals 40 affliction damage to the target and 20 affliction damage to Hiruzen. Both are permanently stunned, and the target cannot reduce damage or become invulnerable."
         , Skill.classes   = [Ranged, Unreflectable, Unremovable, Soulbound, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
@@ -202,29 +204,27 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Major Summoning: Enma"
-        , Skill.desc      = "Hiruzen summons the great monkey Enma, who makes his team invulnerable for 1 turn. Once used, this skill becomes [Adamantine Prison][n]. As long as Hiruzen is alive, he provides 5 points of damage reduction to his team."
+        , Skill.desc      = "Hiruzen summons the great monkey Enma, who makes his team invulnerable for 1 turn. Once used, this skill becomes [Adamantine Prison][n]. Every turn that Hiruzen is alive, Enma deals 5 damage to all enemies and provides 5 points of damage reduction to Hiruzen's team."
         , Skill.classes   = [Summon, Melee, Unreflectable, Unremovable]
         , Skill.cost      = [Gen, Nin, Tai]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
-          [ To Allies do
-                apply 1 [Invulnerable All, Endure]
-                apply 0 [Reduce All Flat 5]
+          [ To Allies $ apply 1 [Invulnerable All] ]
+        , Skill.effects   =
+          [ To Enemies $ damage 5
+          , To Allies $ apply 1 [Reduce All Flat 5]
           , To Self $
-                hide 0 [Alternate "Major Summoning: Enma" "Adamantine Prison"]
+                hide 1 [Alternate "Major Summoning: Enma" "Adamantine Prison"]
           ]
         }
       , Skill.new
         { Skill.name      = "Adamantine Prison"
-        , Skill.desc      = "Provides 15 permanent destructible defense to Hiruzen's team and prevents their health from dropping below 1 for 1 turn."
+        , Skill.desc      = "Enma clones and transforms into a diamond-hard cage around Hiruzen's team. For 1 turn, their health is prevented from dropping below 1, and all damage they receive—including piercing and affliction—is reduced by 20."
         , Skill.classes   = [Physical]
-        , Skill.cost      = [Nin]
-        , Skill.cooldown  = 3
+        , Skill.cost      = [Tai]
+        , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Allies do
-                defend 0 15
-                apply 1 [Endure]
-          ]
+          [ To Allies $ apply 1 [Endure, Reduce Affliction Flat 20] ]
         }
       ]
     , [ invuln "Mud Wall" "Hiruzen" [Physical] ]

@@ -65,5 +65,7 @@ doSkill skill = skill { Skill.classes = added ++ Skill.classes skill }
   where
     added = setFromList $ fst <$> filter snd
             [ (All,       True)
+            , (NonBane,   Bane ∉ Skill.classes skill)
             , (NonMental, Mental ∉ Skill.classes skill)
+            , (NonRanged, Ranged ∉ Skill.classes skill)
             ]

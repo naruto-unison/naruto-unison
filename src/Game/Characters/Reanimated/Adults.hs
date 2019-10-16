@@ -171,7 +171,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Scroll of Fire"
         , Skill.desc      = "A coil of flame erupts from the Bashōsen Leaf Fan, dealing 20 damage to all enemies and extracting a Spirit Word from each of them."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -277,7 +277,7 @@ characters =
         { Skill.name      = "Lariat"
         , Skill.desc      = "Rushing an enemy, Fukai deals 15 percing damage to them and stuns their chakra and ranged skills for 1 turn."
         , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = [Gen]
+        , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
@@ -321,59 +321,17 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Army of Illusions"
-        , Skill.desc      = "Chiyo takes control of multiple bodies and attacks an enemy, dealing 20 damage and becoming invulnerable to melee skills for 1 turn."
+        , Skill.desc      = "Chiyo takes control of multiple bodies and attacks an enemy, dealing 20 damage and becoming invulnerable to non-ranged skills for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ damage 20
-          , To Self $ apply 1 [Invulnerable Melee]
+          , To Self $ apply 1 [Invulnerable NonRanged]
           ]
         }
       ]
     , [ invuln "Puppet Distraction" "Chiyo" [Physical] ]
-    ]
-    75
-  , Character
-    "Kimimaro"
-    "Reanimated by Kabuto, Kimimaro was a member of the Sound Five until he was claimed by illness. Loyal to Orochimaru, Kimimaro now follows Kabuto, who carries Orochimaru's chakra and shares similar ambitions."
-    [ [ Skill.new
-        { Skill.name      = "Clematis Dance"
-        , Skill.desc      = "Kimimaro attacks the enemy team with long, sharp bone spears, dealing 20 damage and killing them if their health reaches 5 or lower."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Blood, Rand]
-        , Skill.cooldown  = 2
-        , Skill.effects   =
-          [ To Enemies do
-                damage 20
-                hp <- target health
-                when (hp < 5) kill
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Macabre Bone Pulse"
-        , Skill.desc      = "Kimimmaro warps his skeleton into blades and attacks an enemy, dealing 45 piercing damage."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Blood, Tai]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy $ pierce 45 ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Digital Shrapnel"
-        , Skill.desc      = "A volley of bullets shoot forth from Kimimaro's fingertips, providing him with 50% damage reduction for 1 turn. Next turn, enemies who use skills will take 20 damage."
-        , Skill.classes   = [Physical, Ranged, Invisible]
-        , Skill.cooldown  = 2
-        , Skill.cost      = [Blood]
-        , Skill.effects   =
-          [ To Enemies $ trap 1 (OnAction All) $ damage 20
-          , To Self $ apply 1 [Reduce All Percent 50]
-          ]
-        }
-      ]
-    , [ invuln "Block" "Kimimaro" [Physical] ]
     ]
     75
   , Character

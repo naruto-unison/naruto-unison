@@ -78,7 +78,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Dark Void"
         , Skill.desc      = "Corrupt chakra engulfs an enemy, stunning them for 2 turns. While active, the target is invulnerable to allies as well as enemies. At the end of the 2 turns, the enemy receives 55 damage. Costs 2 arbitrary chakra during [Curse Mark]."
-        , Skill.classes   = [Bane, Chakra, Ranged]
+        , Skill.classes   = [Bane, Chakra, Ranged, Soulbound]
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
@@ -91,11 +91,14 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Curse Mark"
-        , Skill.desc      = "Sasuke taps into the power of Orochimaru's curse mark, becoming invulnerable to all skills for 1 turn and losing 20 health."
+        , Skill.desc      = "Sasuke taps into the power of Orochimaru's curse mark, losing 20 health and becoming invulnerable to all skills for 1 turn."
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ apply 1 [Invulnerable All] ]
+          [ To Self do
+                  sacrifice 0 20
+                  apply 1 [Invulnerable All]
+          ]
         }
       ]
     , [ invuln "Sharingan Foresight" "Sasuke" [Mental] ]
@@ -109,18 +112,18 @@ characters =
         , Skill.classes   = [Physical, Melee, Uncounterable]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Self addStack
-          , To REnemy do
+          [ To REnemy do
                 stacks <- userStacks "Unpredictable Assault"
                 damage (20 + 5 * stacks)
+          , To Self addStack
           ]
         , Skill.changes   =
             changeWithChannel "Drunken Fist" \x ->
               x { Skill.effects =
-                  [ To Self addStack
-                  , To Enemy do
+                  [ To Enemy do
                         stacks <- userStacks "Unpredictable Assault"
                         damage (25 + 5 * stacks)
+                  , To Self addStack
                   ]
                 }
         }
@@ -147,8 +150,8 @@ characters =
         , Skill.dur       = Action 3
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ damage 15
-          , To Self $ apply 1 [Enrage]
+          [ To Self $ apply 1 [Enrage]
+          , To Enemy $ damage 15
           ]
         }
       ]
@@ -172,7 +175,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Monstrous Sand Arm"
-        , Skill.desc      = "Shukaku squeezes an enemy in a fist of sand, dealing 10 damage to them each turn. If they use a skill, the skill is countered and this effect ends. During [Tailed Beast Form], this skill becomes [Wind Bullet][b][b]."
+        , Skill.desc      = "Shukaku squeezes an enemy in a fist of sand, dealing 10 damage to them each turn. If they use a skill, the skill will be countered and this effect will end. During [Tailed Beast Form], this skill becomes [Wind Bullet][b][b]."
         , Skill.require   = HasI 0 "Monstrous Sand Arm"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
@@ -184,8 +187,8 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Wind Bullet"
-        , Skill.desc      = "Deals 60 damage to an enemy."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.desc      = "Shukaku fires a sphere of wind like a canonball that deals 60 damage to an enemy."
+        , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -194,7 +197,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sand Transformation"
-        , Skill.desc      = "Shukaku gradually accumulates sand around Gaara's body, gaining 10 permanent destructible defense each turn for 5 turns. At the end of the 5 turns, Shukaku enters Tailed Beast Form. During [Tailed Beast Form], this skill becomes [Shukaku Full Release][b]."
+        , Skill.desc      = "Shukaku gradually accumulates sand around Gaara's body, gaining 10 permanent destructible defense each turn for 5 turns. At the end of the 5 turns, Shukaku enters Tailed Beast Form for 3 turns. During [Tailed Beast Form], this skill becomes [Shukaku Full Release][b]."
         , Skill.require   = HasI 0 "Sand Transformation"
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand, Rand]
@@ -202,7 +205,7 @@ characters =
         , Skill.dur       = Action (-5)
         , Skill.start     =
           [ To Self $ bombWith [Hidden] (-5) [] [ To Expire $
-                apply' "Tailed Beast Form" 0
+                apply' "Tailed Beast Form" 3
                     [ Face
                     , Alternate "Monstrous Sand Arm" "Wind Bullet"
                     , Alternate "Sand Transformation" "Shukaku Full Release"
@@ -215,12 +218,12 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Shukaku Full Release"
-        , Skill.desc      = "Shukaku unleashes the full extent of its power, doubling the damage of its skills for the following turn."
+        , Skill.desc      = "Shukaku unleashes the full extent of its power, doubling the damage of its skills for 1 turn."
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ apply 1 [Strengthen All Percent 200] ]
+          [ To Self $ apply 1 [Strengthen All Percent 100] ]
         }
       ]
     , [ invuln "Thick Sand Coat" "Shukaku" [Physical] ]
@@ -230,7 +233,7 @@ characters =
     "Following his fateful encounter with Naruto, Gaara has become a kind and loyal friend. The sand that was once an extension of his fear and rage has become a versatile tool for shaping the battlefield."
     [ [ Skill.new
         { Skill.name      = "Sand Shower"
-        , Skill.desc      = "A stream of sand flows around Gaara toward an enemy, providing 35 destructible defense to him and dealing 15 damage to the target for 3 turns."
+        , Skill.desc      = "A stream of sand flows around Gaara toward an enemy, providing 35 destructible defense to him for 3 turns and dealing 15 damage to the target each 3 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
@@ -260,7 +263,7 @@ characters =
         , Skill.desc      = "Demolishes Gaara's destructible barrier and the destructible defense of enemies affected by [Sand Burial Prison], then deals 40 piercing damage to them."
         , Skill.require   = HasU 1 "Sand Burial Prison"
         , Skill.classes   = [Physical, Ranged, Unreflectable]
-        , Skill.cost      = [Nin, Nin]
+        , Skill.cost      = [Blood, Nin]
         , Skill.effects   =
           [ To Enemies do
                 demolishAll
@@ -271,7 +274,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sand Tsunami"
-        , Skill.desc      = "Massive waves of sand flood the battlefield. For 4 turns, all enemies take 15 damage, their destructible skills are weakened by 10, and the destructible skills of Gaara's team are increased by 10. If an enemy uses a skill with negative destructible defense, their target is damaged for its amount. If they use a skill with negative destructible barrier, they are damaged for its amount."
+        , Skill.desc      = "Massive waves of sand flood the battlefield. For 4 turns, all enemies take 15 damage, their destructible skills are weakened by 10, and the destructible skills of Gaara's team are increased by 10. If they use a skill with negative destructible defense, their target gains destructible barrier equal to its amount. If they use a skill with negative destructible barrier, their target gains destructible defense equal to its amount."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 4

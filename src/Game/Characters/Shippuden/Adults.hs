@@ -27,13 +27,14 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Lightning Blade Finisher"
-        , Skill.desc      = "Deals 35 piercing damage to an enemy. Deals 15 additional damage if the target is affected by [Lightning Beast Fang]."
+        , Skill.desc      = "Deals 35 piercing damage to an enemy. Deals 15 additional damage if the target is stunned or affected by [Lightning Beast Fang]."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
-              bonus <- 15 `bonusIf` targetHas "Lightning Beast Fang"
-              pierce (35 + bonus)
+              bonusA <- 10 `bonusIf` targetHas "Lightning Beast Fang"
+              bonusB <- 10 `bonusIf` target stunned
+              pierce (35 + max bonusA bonusB)
           ]
         }
       ]
@@ -43,7 +44,9 @@ characters =
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Blood, Gen]
         , Skill.effects   =
-          [ To Enemy $ pierce 45
+          [ To Enemy do
+                pierce 45
+                apply 1 [Snare 1, Exhaust All]
           , To XAlly do
                 cureAll
                 apply 1 [Invulnerable All]
@@ -112,7 +115,7 @@ characters =
       , Skill.new
         { Skill.name      = "Burning Ash: Ignite"
         , Skill.desc      = "Asuma strikes a piece of flint between his teeth, producing a spark that sets fire to his piles of ash and burns them away. The fire deals 10 affliction damage to each enemy per stack of [Burning Ash] on them."
-        , Skill.classes   = [Ranged, Bypassing, Uncounterable, Unreflectable]
+        , Skill.classes   = [Bane, Ranged, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemies do
@@ -187,7 +190,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Hirudora"
-        , Skill.desc      = "Using one single punch, Guy deals 300 damage to one enemy."
+        , Skill.desc      = "Using one single punch, Guy deals 300 damage to an enemy."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Tai]
         , Skill.effects   =
@@ -218,7 +221,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Binding Cloth"
         , Skill.desc      = "Maki deploys a roll of cloth from within a seal and wraps it around herself, gaining 50% damage reduction for 1 turn. If an enemy uses a skill on Maki, the cloth wraps around them, stunning their physical and melee skills for 1 turn."
-        , Skill.classes   = [Physical, Ranged, Invisible]
+        , Skill.classes   = [Physical, Ranged, Invisible, Bypassing]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
@@ -355,14 +358,14 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Chakra Devour"
-        , Skill.desc      = "A stone golem attacks an enemy, dealing 15 damage and depleting 1 random chakra."
+        , Skill.desc      = "A stone golem attacks an enemy, dealing 15 damage and depleting 1 genjutsu or taijutsu chakra."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                deplete 1
                 damage 15
+                deplete1 [Gen, Tai]
           ]
         }
       ]
@@ -467,7 +470,7 @@ characters =
                 damage 35
                 apply 1 [ Disable Counters
                         , Disable $ Only Reflect
-                        , Disable $ Only ReflectAll
+                        , Disable $ Any ReflectAll
                         ]
           ]
         }
@@ -485,7 +488,7 @@ characters =
                 apply 1 [ Throttle 1 Counters
                         , Throttle 1 $ Any Stun
                         , Throttle 1 $ Only Reflect
-                        , Throttle 1 $ Only ReflectAll
+                        , Throttle 1 $ Any ReflectAll
                         ]
           ]
         }
@@ -551,7 +554,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Burning Blade"
         , Skill.desc      = "Fire envelops Atsui's sword and surrounds him, providing 10 points of damage reduction to him for 3 turns. While active, enemies who use skills on Atsui will take 10 affliction damage."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
@@ -564,7 +567,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Fire Wall"
         , Skill.desc      = "Fire erupts around Atsui's enemies. Next turn, enemies who use skills will take 10 affliction damage. Costs 1 ninjutsu chakra during [Burning Blade]."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -575,11 +578,14 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Flame Slice"
-        , Skill.desc      = "Atsui slashes at an enemy with his fiery blade, sending an arc of flame in their direction that deals 25 piercing damage."
-        , Skill.classes   = [Physical, Melee]
+        , Skill.desc      = "Atsui slashes at an enemy with his fiery blade, sending an arc of flame in their direction that deals 25 piercing damage. Deals 10 additional damage during [Burning Blade]."
+        , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Enemy $ damage 25 ]
+          [ To Enemy do
+                bonus <- 10 `bonusIf` userHas "Burning Blade"
+                damage (25 + bonus)
+          ]
         }
       ]
     , [ invuln "Parry" "Atsui" [Physical] ]
@@ -650,7 +656,7 @@ characters =
     "A jōnin from the Hidden Cloud Village, Dodai is an impassive utilitarian with decades of experience as a sensor. He possesses the unusual ability to create rubbery lava by combining fire and earth chakra."
     [ [ Skill.new
         { Skill.name      = "Rubber Wall"
-        , Skill.desc      = "A force-absorbing barrier springs up in front of Dodai's team, reducing damage to them by 20% for 3 turns and causing them to ignore stuns."
+        , Skill.desc      = "A force-absorbing barrier springs up in front of Dodai's team, reducing damage to them by 20% for 3 turns and causing them to ignore stuns and disabling effects."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 5
@@ -689,7 +695,7 @@ characters =
           [ To Enemy do
                 damage 35
                 tag 4
-          , To XAlly $ apply 1 [Invulnerable All]
+          , To RAlly $ apply 1 [Invulnerable All]
           ]
         }
       ]
@@ -808,12 +814,12 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Hiramekarei Twinswords"
-        , Skill.desc      = "Chōjūrō separates his sword into two weapons and sends out a volley of bone-mutilating needles that disrupt chakra pathways. Enemies who use skills on Chōjūrō next turn will be countered and will take 20 piercing damage."
+        , Skill.desc      = "Chōjūrō separates his sword into two weapons and sends out a volley of bone-mutilating needles that disrupt chakra pathways. Enemies who use physical skills on Chōjūrō next turn will be countered and will take 20 piercing damage."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ trap 1 (CounterAll All) $ pierce 20 ]
+          [ To Self $ trap 1 (CounterAll Physical) $ pierce 20 ]
         }
       ]
     , [ invuln "Dodge " "Chōjūrō" [Physical] ]

@@ -25,7 +25,7 @@ characters =
         { Skill.name      = "Flaming Cat Roar"
         , Skill.desc      = "A fireball engulfs an enemy, dealing 30 damage to them and weakening their damage by 10 for 1 turn. Every time this skill is used, its damage increases by 5."
         , Skill.require   = HasI 1 "Two-Tailed Transformation"
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -62,19 +62,19 @@ characters =
     "An exile from the Hidden Mist Village, Utakata is the jinchūriki of Saiken, the six-tailed beast. He abandoned his home during its Blood Mist era, and has had to fend off tracker ninjas ever since."
     [ [ Skill.new
         { Skill.name      = "Soap Bubble"
-        , Skill.desc      = "Utakata blows bubbles from his pipe that burst on an enemy, demolishing their destructible defense and his own destructible barrier, then dealing 25 piercing damage to the target."
+        , Skill.desc      = "Utakata blows bubbles from his pipe that burst on an enemy, demolishing their destructible defense and his own destructible barrier, then dealing 15 piercing damage to the target."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
                 demolishAll
-                pierce 25
+                pierce 15
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Drowning Bubble"
-        , Skill.desc      = "Soap bubbles surround an enemy's head and prevent them from breathing, dealing 10 affliction damage each turn. Cannot be used on an enemy already affected by this skill. Ends if Utakata dies."
+        , Skill.desc      = "Soap bubbles surround an enemy's head and prevent them from breathing, dealing 10 affliction damage each turn. Cannot be used on an enemy already affected by this skill."
         , Skill.require   = HasU 0 "Drowning Bubble"
         , Skill.classes   = [Chakra, Ranged, Bane, Soulbound]
         , Skill.cost      = [Nin]
@@ -127,9 +127,11 @@ characters =
     , [ Skill.new
         { Skill.name      = "Octopus Hold"
         , Skill.desc      = "Clones form around B from ink that Gyūki spills. For 1 turn, they counter harmful non-mental skills.\nCountered foes take 20 piercing damage each, while Killer B strikes a cool pose, safely out of reach."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Chakra, Ranged, Invisible]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Self $ trapFrom 1 (CounterAll NonMental) $ pierce 20 ]
         }
       ]
     , [ (invuln "Octopus Leg Clone" "Killer B" [Chakra])
@@ -168,7 +170,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Tailed Beast Bomb"
         , Skill.desc      = "B launches a sphere of condensed chakra at an opponent, dealing 25 damage."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Chakra, Ranged, Unreflectable]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -200,11 +202,11 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ To Self do
+                apply 0 [Reduce All Flat 20, Plague, Alone, Enrage, Face]
                 remove "Four-Tailed Transformation"
                 sacrifice 1 10
                 defend 0 20
                 alternate loadout 1
-                apply 0 [Reduce All Flat 20, Plague, Alone, Enrage, Face]
           ]
         }
       , Skill.new
@@ -214,11 +216,11 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Self do
+                apply 0 [Reduce All Flat 30, Plague, Alone, Enrage, Face]
                 remove "Six-Tailed Transformation"
                 sacrifice 1 15
                 defend 0 30
                 alternate loadout 2
-                apply 0 [Reduce All Flat 30, Plague, Alone, Enrage, Face]
           ]
         }
       , Skill.new
@@ -271,14 +273,14 @@ characters =
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Burning Chakra Hand"
+        { Skill.name      = "Chakra Hand"
         , Skill.desc      = "Naruto extends a limb made of chakra to reach out and grab an enemy, dealing 20 damage and weakening their damage by 5 for 1 turn."
         , Skill.require   = HasI 1 "Four-Tailed Transformation"
         , Skill.classes   = [Chakra, Melee, Bypassing]
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemy do
-                afflict 20
+                damage 20
                 apply 1 [Weaken All Flat 5]
           ]
         }

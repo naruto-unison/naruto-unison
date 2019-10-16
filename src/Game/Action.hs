@@ -86,10 +86,10 @@ wrap affected f = void $ runMaybeT do
     target      <- P.target
     nUser       <- P.nUser
     nTarget     <- P.nTarget
-    guard . not $ nTarget `is` Nullify
-    startNinjas <- P.ninjas
     let classes  = Skill.classes skill
-        targeted = Targeted ∈ affected
+    guard $ Bypassing ∈ classes || not (nTarget `is` Nullify)
+    startNinjas <- P.ninjas
+    let targeted = Targeted ∈ affected
                    || Requirement.targetable (bypass skill) nUser nTarget
         exit     = if | Direct ∈ classes       -> Done
                       | Trapped ∈ affected     -> Done
@@ -116,7 +116,8 @@ wrap affected f = void $ runMaybeT do
             return . P.withTarget t $ wrap (Redirected `insertSet` affected) f
         <|> do
             guard $ allow Reflected
-                    && Unreflectable ∉ classes && Effects.reflect nTarget
+                    && Unreflectable ∉ classes
+                    && Effects.reflect classes nTarget
             return do
                 P.trigger target [OnReflect]
                 P.with Context.reflect $ wrap (Reflected `insertSet` affected) f

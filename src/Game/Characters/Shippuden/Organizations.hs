@@ -34,6 +34,7 @@ characters =
         , Skill.desc      = "Shisui's Susanoo sprays a barrage of needles that deal 15 damage to all enemies and weaken their damage by 5. The weakening effect lasts for as many turns as Shisui has stacks of Susanoo."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Blood]
+        , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies do
                 damage 15
@@ -94,9 +95,10 @@ characters =
         , Skill.desc      = "Sai draws a pack of lions that attack an enemy, dealing 30 damage to them and providing 20 destructible defense to Sai for 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen, Rand]
-        , Skill.effects   = [ To Enemy $ damage 30
-                            , To Self $ defend 1 20
-                            ]
+        , Skill.effects   =
+          [ To Enemy $ damage 30
+          , To Self $ defend 1 20
+          ]
         }
       ]
     , [ Skill.new
@@ -109,13 +111,13 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Super Beast Scroll: Bird"
-        , Skill.desc      = "Sai draws a bird in the air, which deals 25 damage to an enemy and stuns them for 1 turn."
+        , Skill.desc      = "Sai draws a bird in the air, which deals 25 damage to an enemy and stuns their physical and chakra skills for 1 turn."
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Enemy do
                 damage 25
-                apply 1 [Stun All]
+                apply 1 [Stun Physical, Stun Chakra]
           ]
         }
       ]
@@ -144,7 +146,7 @@ characters =
         { Skill.name      = "Tenth Edict on Enlightenment"
         , Skill.desc      = "Using the legendary chakra-suppression technique with which Hashirama subdued tailed beasts, Yamato negates all power an enemy has accumulated. They completely reset to their state at the start of the game, except that their health is not restored."
         , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = [Blood, Blood, Rand]
+        , Skill.cost      = [Blood, Rand]
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Enemy do
@@ -162,8 +164,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Ally do
-                trapFrom 1 (Counter All) $ damage 20
-                trap 1 (Counter All) do
+                trapFrom 1 (Counter NonMental) $ damage 20
+                trap 1 (Counter NonMental) do
                     defend 0 20
                     self resetCharges
           ]
@@ -171,17 +173,75 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Four-Pillar Architecture"
-        , Skill.desc      = "If used on an ally, a wooden house rises from the ground around Yamato's team and provides all of them with 20 permanent destructible defense. If used on an enemy, a wooden prison rises from the ground around the enemy team and applies 20 permanent destructible barrier to all of them."
+        , Skill.desc      = "If used on an ally, a wooden house rises from the ground around Yamato's team and provides all of them with 20 permanent destructible defense. If used on an enemy, a wooden prison rises from the ground around the enemy team and applies 20 permanent destructible barrier to all of them. Recharges [Tenth Edict on Enlightenment]."
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Ally $ allies  $ defend  0 20
+          [ To Self resetCharges
+          , To XAlly $ allies $ defend 0 20
           , To Enemy $ enemies $ barrier 0 20
           ]
         }
       ]
     , [ invuln "Wood Wall" "Yamato" [Physical] ]
+    ]
+  , Character
+    "Torune Aburame"
+    "An operative of the Hidden Leaf Village's elite Root division, Torune was born with rare venom-resistant antibodies that allow him to carry the Aburame clan's most dangerous species of beetle. The venom beetles cover his skin like armor, protecting him and infesting anyone who dares to touch him."
+    [ [ Skill.new
+        { Skill.name      = "Nano-Sized Venom Beetles"
+        , Skill.desc      = "Torune applies a Venom Beetle to an enemy, dealing 5 affliction damage for 5 turns, and gains 15 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 1 arbitrary chakra but does not provide any destructible defense."
+        , Skill.classes   = [Bane, Melee]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 0
+        , Skill.effects   =
+          [ To Enemy $ apply' "Venom Beetle" 5 [Afflict 5]
+          , To Self do
+                defend 0 15
+                onBreak $ addStack' "Venom Beetle"
+          ]
+        , Skill.changes   =
+            changeWithDefense "Nano-Sized Venom Beetles" \x ->
+              x { Skill.cost = [Rand]
+                , Skill.effects = take 1 $ Skill.effects x
+                }
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Jar of Poison"
+        , Skill.desc      = "Torune applies a Venom Beetle to all enemies, dealing 5 affliction damage to each for 5 turns, and gains 30 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 2 arbitrary chakra but does not provide any destructible defense."
+        , Skill.classes   = [Bane, Melee]
+        , Skill.cost      = [Blood, Blood]
+        , Skill.cooldown  = 0
+        , Skill.effects   =
+          [ To Enemies $ apply' "Venom Beetle" 5 [Afflict 5]
+          , To Self do
+                defend 0 30
+                onBreak $ addStack' "Venom Beetle"
+          ]
+        , Skill.changes   =
+            changeWithDefense "Jar of Poison" \x ->
+              x { Skill.cost    = [Rand, Rand]
+                , Skill.effects = take 1 $ Skill.effects x
+                }
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Venom Explosion"
+        , Skill.desc      = "Torune detonates all Venom Beetles on an enemy, depleting 1 random chakra for each Venom Beetle destroyed. "
+        , Skill.require   = HasU 1 "Venom Beetle"
+        , Skill.classes   = [Bane, Melee]
+        , Skill.cost      = [Blood, Blood, Rand]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemy do
+                stacks <- targetStacks "Venom Beetle"
+                deplete stacks
+          ]
+        }
+      ]
+    , [ invuln "Dodge" "Torune" [Physical] ]
     ]
   , Character
     "Fū Yamanaka"
@@ -253,63 +313,6 @@ characters =
       ]
     ]
   , Character
-    "Torune Aburame"
-    "An operative of the Hidden Leaf Village's elite Root division, Torune was born with rare venom-resistant antibodies that allow him to carry the Aburame clan's most dangerous species of beetle. The venom beetles cover his skin like armor, protecting him and infesting anyone who dares to touch him."
-    [ [ Skill.new
-        { Skill.name      = "Nano-Sized Venom Beetles"
-        , Skill.desc      = "Torune applies a Venom Beetle to an enemy, dealing 5 affliction damage for 5 turns, and gains 15 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 1 arbitrary chakra but does not provide any destructible defense."
-        , Skill.classes   = [Bane, Melee]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 0
-        , Skill.effects   =
-          [ To Enemy $ apply' "Venom Beetle" 5 [Afflict 5]
-          , To Self do
-                defend 0 15
-                onBreak $ addStack' "Venom Beetle"
-          ]
-        , Skill.changes   =
-            changeWithDefense "Nano-Sized Venom Beetles" \x ->
-              x { Skill.cost = [Rand]
-                , Skill.effects = take 1 $ Skill.effects x
-                }
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Jar of Poison"
-        , Skill.desc      = "Torune applies a Venom Beetle to all enemies, dealing 5 affliction damage to each for 5 turns, and gains 30 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 1 arbitrary chakra but does not provide any destructible defense."
-        , Skill.classes   = [Bane, Melee]
-        , Skill.cost      = [Blood, Blood]
-        , Skill.cooldown  = 0
-        , Skill.effects   =
-          [ To Enemies $ apply' "Venom Beetle" 5 [Afflict 5]
-          , To Self do
-                defend 0 30
-                onBreak $ addStack' "Venom Beetle"
-          ]
-        , Skill.changes   =
-            changeWithDefense "Jar of Poison" \x ->
-              x { Skill.cost    = [Rand, Rand]
-                , Skill.effects = take 1 $ Skill.effects x
-                }
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Venom Explosion"
-        , Skill.desc      = "Torune detonates all Venom Beetles on an enemy, depleting 1 random chakra for each Venom Beetle destroyed. "
-        , Skill.require   = HasU 1 "Venom Beetle"
-        , Skill.classes   = [Bane, Melee]
-        , Skill.cost      = [Blood, Blood, Rand]
-        , Skill.cooldown  = 2
-        , Skill.effects   =
-          [ To Enemy do
-                stacks <- targetStacks "Venom Beetle"
-                deplete stacks
-          ]
-        }
-      ]
-    , [ invuln "Dodge" "Torune" [Physical] ]
-    ]
-  , Character
     "Danzō Shimura"
     "The founder and leader of the Hidden Leaf Village's elite Root division, Danzō has had a hand in almost every important global event since he came to power. His numerous implanted Sharingans allow him to repeatedly cheat death."
     [ [ Skill.new
@@ -347,27 +350,38 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Reverse Tetragram Sealing"
-        , Skill.desc      = "Kills Danzō and makes all enemies invulnerable to each other for 3 turns. In 3 turns, enemies who are not invulnerable will die."
-        , Skill.classes   = [Mental, Bypassing, Unremovable]
-        , Skill.cost      = [Rand, Rand, Rand]
+        , Skill.desc      = "Out of options, Danzō seals his enemies and prepares to blow himself up. In 3 turns, Danzō will die, as will all enemies who are not invulnerable. If Danzō dies before the 3 turns are up, the effect is canceled."
+        , Skill.classes   = [Mental, Bypassing, Soulbound]
+        , Skill.cost      = [Blood, Gen]
+        , Skill.charges   = 1
         , Skill.effects   =
-          [ To Self do
-                enemies $ bomb (-3) [Alone]
-                    [ To Expire $ unlessM (target invulnerable) kill ]
-                kill
+          [ To Self $ bomb (-3) [] [ To Expire do
+                enemies $ unlessM (target invulnerable) kill
+                killHard ]
           ]
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Vacuum Wave"
-        , Skill.desc      = "Danzō exhales slicing blades of air at an enemy, dealing 20 piercing damage. Deals 15 additional damage if the target is affected by [Kotoamatsukami]."
+        { Skill.name      = "Vacuum Bullets"
+        , Skill.desc      = "Danzō exhales spheres of wind chakra toward an enemy, dealing 10 damage to them and 5 to all other enemies. Once used, this skill becomes [Vacuum Blade][r]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy do
-                bonus <- 15 `bonusIf` userHas "Kotoamatsukami"
-                pierce (20 + bonus)
+          [ To Self $ hide 0 [Alternate "Vacuum Bullets" "Vacuum Blade"]
+          , To Enemy $ damage 10
+          , To XEnemies $ damage 5
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Vacuum Blade"
+        , Skill.desc      = "Danzō extends the reach of a kunai by breathing wind chakra onto it and stabs an enemy, dealing 15 damage. Once used, this skill becomes [Vacuum Bullets][r]."
+        , Skill.classes   = [Chakra, Melee]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Self $ remove "vacuum bullets"
+          , To Enemy $ damage 15
           ]
         }
       ]

@@ -118,7 +118,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sharingan"
-        , Skill.desc      = "Sasuke focuses his gaze on an enemy. For 4 turns, he gains 15 points of damage reduction and the enemy cannot reduce damage or become invulnerable. Ends if Sasuke dies."
+        , Skill.desc      = "Sasuke focuses his gaze on an enemy. For 4 turns, he gains 15 points of damage reduction and the enemy cannot reduce damage or become invulnerable."
         , Skill.classes   = [Mental, Ranged, Soulbound, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
@@ -268,7 +268,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Shadow Strangle"
-        , Skill.desc      = "Shadow tendrils choke Shikamaru's enemies, preventing them from reducing damage or becoming invulnerable for 1 turn and dealing 15 damage. Lasts an additional turn on enemies affected by [Meditate]."
+        , Skill.desc      = "Shadow tendrils choke Shikamaru's enemies, preventing them from reducing damage or becoming invulnerable for 1 turn and dealing 15 damage. Lasts 1 additional turn on enemies affected by [Meditate]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
@@ -357,7 +357,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Human Boulder"
-        , Skill.desc      = "Chōji enlarges his body, tucks in his limbs, and uses chakra to propel himself into an unstoppable roll. For 2 turns, he deals 10 damage and 5 piercing damage to an enemy. While active, Chōji gains 15 points of damage reduction and ignores stuns."
+        , Skill.desc      = "Chōji enlarges his body, tucks in his limbs, and uses chakra to propel himself into an unstoppable roll. For 2 turns, he deals 10 damage and 5 piercing damage to an enemy. While active, Chōji gains 15 points of damage reduction and ignores stuns and disabling effects."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
@@ -398,7 +398,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Chili Pill"
-        , Skill.desc      = "Chōji swallows all three Akimichi pills, losing 10 health down to a minimum of 1 and gaining so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns."
+        , Skill.desc      = "Chōji swallows all three Akimichi pills, losing 10 health down to a minimum of 1 and gaining so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns and disabling effects."
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.cost      = [Rand, Rand]
         , Skill.dur       = Passive
@@ -410,7 +410,7 @@ characters =
                 apply 0 [Focus, Alternate "Block" "Block", Face]
           ]
         , Skill.effects   =
-          [ To Self $ unlessM (userHas "unchili") $ afflict 15 ]
+          [ To Self $ unlessM (userHas "unchili") $ sacrifice 0 15 ]
         }
       , Skill.new
         { Skill.name      = "Curry Pill"
@@ -425,7 +425,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Chili Pill"
-        , Skill.desc      = "Chōji eats the third Akimichi pill and gains so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns."
+        , Skill.desc      = "Chōji eats the third Akimichi pill and gains so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns and disabling effects."
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.dur       = Passive
         , Skill.start     =
@@ -435,7 +435,7 @@ characters =
                 apply 0 [Focus, Alternate "Block" "Block", Face]
           ]
         , Skill.effects   =
-          [ To Self $ unlessM (userHas "unchili") $ afflict 15 ]
+          [ To Self $ unlessM (userHas "unchili") $ sacrifice 0 15 ]
         }
       , Skill.new
         { Skill.name      = "Butterfly Bombing"
@@ -494,8 +494,8 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Art of the Valentine"
-        , Skill.desc      = "Deals 25 damage to an enemy."
-        , Skill.classes   = [Mental, Ranged]
+        , Skill.desc      = "Acting through her victim's body, Ino deals 25 damage to an enemy."
+        , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy $ damage 25 ]
@@ -546,7 +546,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Fifth Gate Opening"
-        , Skill.desc      = "Lee cures himself of enemy effects, loses 50 health down to a minimum of 1, and becomes invulnerable for 2 turns. While active, this skill becomes [Final Lotus][t][t]."
+        , Skill.desc      = "Lee cures himself of enemy effects, loses 50 health down to a minimum of 1, and becomes invulnerable for 2 turns. While active, this skill becomes [Hidden Lotus][t][t]."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 4
@@ -554,14 +554,14 @@ characters =
           [ To Self do
                 cureAll
                 apply 2 [ Invulnerable All
-                        , Alternate "Fifth Gate Opening" "Final Lotus"
+                        , Alternate "Fifth Gate Opening" "Hidden Lotus"
                         ]
                 sacrifice 1 50
           ]
         }
       , Skill.new
-        { Skill.name      = "Final Lotus"
-        , Skill.desc      = "Deals 100 damage to an enemy."
+        { Skill.name      = "Hidden Lotus"
+        , Skill.desc      = "Pushing his body far past its limits, Lee deals 100 damage to an enemy with an onslaught of punches."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Tai]
         , Skill.effects   =
@@ -590,7 +590,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Rising Dragon Control"
-        , Skill.desc      = "Tenten's weapons scattered across the battlefield shoot upward, spending all stacks of [Unsealing Technique] to deal 5 damage plus 10 per stack to all enemies. For 1 turn, physical and chakra damage of all enemies is weakened by 5 plus 10 per stack spent."
+        , Skill.desc      = "Tenten's weapons scattered across the battlefield shoot upward, spending all stacks of [Unsealing Technique] to deal 5 damage plus 10 per stack to all enemies. For 1 turn, physical, chakra, and summon damage of all enemies is weakened by 5 plus 10 per stack spent."
         , Skill.classes   = [Physical, Ranged, Uncounterable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -601,6 +601,7 @@ characters =
                 apply (1 + bonus)
                     [ Weaken Physical Flat (5 + 10 * stacks)
                     , Weaken Chakra   Flat (5 + 10 * stacks)
+                    , Weaken Summon   Flat (5 + 10 * stacks)
                     ]
           ,  To Self do
                 remove "Unsealing Technique"
@@ -610,7 +611,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Rising Twin Dragons"
-        , Skill.desc      = "Summoning scrolls conceal Tenten in a cloud of smoke, rendering her invulnerable to physical and chakra skills for 1 turn. The scrolls aid her the next time she uses one of her other skills. If she uses [Unsealing Technique], it adds 1 additional stack of [Unsealing Technique]. If she uses [Rising Dragon Control], the duration of its effect is increased by 1 turn. Cannot be used while active."
+        , Skill.desc      = "Summoning scrolls conceal Tenten in a cloud of smoke, rendering her invulnerable to physical, chakra, and summon skills for 1 turn. The scrolls aid her the next time she uses one of her other skills. If she uses [Unsealing Technique], it adds 1 additional stack of [Unsealing Technique]. If she uses [Rising Dragon Control], the duration of its effect is increased by 1 turn. Cannot be used while active."
         , Skill.require   = HasI 0 "Rising Twin Dragons"
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
@@ -618,8 +619,10 @@ characters =
         , Skill.effects   =
           [ To Self do
                 tag 0
-                apply' "Twin Dragons Defense" 1
-                    [Invulnerable Physical, Invulnerable Chakra]
+                apply' "Twin Dragons Defense" 1 [Invulnerable Physical
+                                                , Invulnerable Chakra
+                                                , Invulnerable Summon
+                                                ]
           ]
         }
       ]
@@ -686,7 +689,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Sand Burial"
-        , Skill.desc      = "Kills the target of [Sand Coffin]."
+        , Skill.desc      = "With a clenched fist, Gaara crushes the target of [Sand Coffin] into nothingness, killing them."
         , Skill.require   = HasU 1 "Sand Coffin"
         , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable]
         , Skill.cost      = [Nin, Nin]

@@ -20,6 +20,7 @@ module Game.Engine.Ninjas
   , addOwnStacks
   , addOwnDefense
   , addDefense
+  , removeDefense
 
   , clear
   , clearTrap
@@ -241,6 +242,12 @@ addDefense amount name user n =
     n { defense = Labeled.mapFirst addAmount name user $ defense n }
   where
     addAmount x = x { Defense.amount = amount + Defense.amount x }
+
+removeDefense :: Text -- ^ 'Defense.name'.
+              -> Slot -- ^ 'Defense.user'.
+              -> Ninja -> Ninja
+removeDefense name user n =
+    n { defense = filter (not . Labeled.match name user) $ defense n }
 
 -- | Deletes matching 'statuses'.
 clear :: Text -- ^ 'Status.name'.

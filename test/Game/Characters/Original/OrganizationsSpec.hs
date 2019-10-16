@@ -5,7 +5,6 @@ module Game.Characters.Original.OrganizationsSpec (spec) where
 import TestImport
 
 import qualified Class.Play as P
-import qualified Game.Engine.Effects as Effects
 import qualified Game.Model.Ninja as Ninja
 
 spec :: Spec

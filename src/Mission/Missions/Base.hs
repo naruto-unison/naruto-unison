@@ -34,9 +34,9 @@ import Class.Parity as Import (allied)
 import Data.IntSet as Import (size)
 import Game.Model.Ninja as Import (alive, hasOwn, health)
 import Game.Model.Trigger as Import (Trigger(..))
+import Game.Engine.Effects as Import (stunned)
 import Mission.Goal as Import
 
-import qualified Game.Engine.Effects as Effects
 import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as Ninja
@@ -48,9 +48,6 @@ resetToZero = -1000
 
 hasFrom :: Ninja -> Text -> Ninja -> Bool
 hasFrom user name = Ninja.has name $ Ninja.slot user
-
-stunned :: Ninja -> Bool
-stunned n = not . null $ Effects.stun n
 
 winFull :: WinType -> Int -> [Text] -> Goal
 winFull winType reach chars = Reach reach Career desc $ Win winType chars

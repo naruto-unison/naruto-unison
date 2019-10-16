@@ -45,7 +45,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Unyielding Tenacity"
-        , Skill.desc      = "Gritting her teeth, Hanabi fights to the bitter end. For 2 turns, her health cannot drop below 1, she ignores stuns, and her damage is increased by 5."
+        , Skill.desc      = "Gritting her teeth, Hanabi fights to the bitter end. For 2 turns, her health cannot drop below 1, she ignores stuns and disabling effects, and her damage is increased by 5."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
@@ -117,7 +117,7 @@ characters =
     "A genin and former operative of the Hidden Leaf Village's elite Root division, Kabuto is Orochimaru's close assistant and confidant. He hides his brilliance behind a genial façade, but under the surface he remains a cold and calculating spy. In combat, he uses his medical expertise to weaken and expose his opponents."
     [ [ Skill.new
         { Skill.name      = "Chakra Scalpel"
-        , Skill.desc      = "Kabuto slices an enemy with a medical scalpel made of chakra, dealing 20 piercing damage. For 1 turn, the target's skills cost 1 additional arbitrary chakra and they receive 5 additional damage from physical and chakra damaging skills."
+        , Skill.desc      = "Kabuto slices an enemy with a medical scalpel made of chakra, dealing 20 piercing damage. For 1 turn, the target's skills cost 1 additional arbitrary chakra and they receive 5 additional damage from physical, chakra, and summon damaging skills."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -126,6 +126,7 @@ characters =
                 apply 1 [ Exhaust All
                         , Bleed Physical Flat 5
                         , Bleed Chakra Flat 5
+                        , Bleed Summon Flat 5
                         ]
           ]
         }
@@ -145,7 +146,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Temple of Nirvana"
-        , Skill.desc      = "Illusory white feathers descend upon the battlefield and lull the enemy team to sleep. Unless an enemy uses a skill next turn, they will be stunned for 1 turn, during which they will receive 10 additional damage from physical and chakra skills."
+        , Skill.desc      = "Illusory white feathers descend upon the battlefield and lull the enemy team to sleep. Unless an enemy uses a skill next turn, they will be stunned for 1 turn, during which they will receive 10 additional damage from physical, chakra, and summon skills."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
@@ -154,6 +155,7 @@ characters =
                 apply 1 [ Stun All
                         , Bleed Physical Flat 10
                         , Bleed Chakra Flat 10
+                        , Bleed Summon Flat 10
                         ]
           ]
         }
@@ -325,14 +327,17 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Fog Clone"
-        , Skill.desc      = "Oboro surrounds himself with illusions, gaining 30 destructible defense and invulnerability to physical and mental skills for 3 turns."
+        , Skill.desc      = "Oboro surrounds himself with illusions, gaining 30 destructible defense and invulnerability to physical, mental, and summon skills for 3 turns."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
               defend 3 30
-              apply 3 [Invulnerable Mental, Invulnerable Physical]
+              apply 3 [ Invulnerable Mental
+                      , Invulnerable Physical
+                      , Invulnerable Summon
+                      ]
           ]
         }
       ]

@@ -40,7 +40,9 @@ data Class
     | Hidden
     | Affliction
     | NonAffliction
+    | NonBane
     | NonMental
+    | NonRanged
     | Resource -- ^ Display stacks separately
     | Direct
     -- Limits (Hidden)
@@ -81,7 +83,9 @@ visibles = toJSON . mapFromKeyed @(Map _ _) (name, const True) $
 name :: Class -> Text
 name Nonstacking    = "Non-stacking"
 name NonAffliction  = "Non-affliction"
+name NonBane        = "Non-bane"
 name NonMental      = "Non-mental"
+name NonRanged      = "Non-ranged"
 name x              = tshow x
 
 lower :: Class -> TextBuilder

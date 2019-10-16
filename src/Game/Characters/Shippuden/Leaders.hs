@@ -18,7 +18,6 @@ characters =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
-        , Skill.varicd    = True
         , Skill.effects   =
           [ To Self $ setHealth 60 ]
         , Skill.changes   =
@@ -27,7 +26,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Ten Thousand Snakes Wave"
-        , Skill.desc      = "A horde of sword-brandishing snakes pours from Orochimaru's mouth and deals 20 affliction damage to an enemy. Next turn, all stun skills used by the target will have their duration reduced by 1 turn."
+        , Skill.desc      = "A horde of poisonous sword-brandishing snakes pours from Orochimaru's mouth and deals 20 affliction damage to an enemy. Next turn, all stun skills used by the target will have their duration reduced by 1 turn."
         , Skill.classes   = [Physical, Bane, Ranged]
         , Skill.cost      = [Blood]
         , Skill.effects   =
@@ -72,7 +71,7 @@ characters =
       , Skill.new
         { Skill.name      = "Toad Oil Bomb"
         , Skill.desc      = "Jiraiya spits a dense projectile of oil that deals 10 affliction damage to an enemy and ends their Action and Control skills in progress. All subsequent uses of [Giant Flame Bomb] on the target will deal 10 additional affliction damage. Once used, this skill becomes [Giant Flame Bomb][r]."
-        , Skill.classes   = [Bane, Physical, Ranged]
+        , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
@@ -92,7 +91,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 targetSlot <- target slot
-                self $ apply 2 [Redirect targetSlot]
+                self $ apply 1 [Redirect targetSlot]
           ]
         }
       ]
@@ -108,7 +107,7 @@ characters =
                     damage 25
                 trapFrom 3 (OnHarmed Ranged) $ whenM (targetHas "mane") do
                     damage 15
-                    apply 1 [Stun All]
+                    apply 1 [Stun Melee, Stun Physical]
                 trapFrom 3 (OnHarmed Physical) $ flag' "mane"
           ]
         }
@@ -142,7 +141,7 @@ characters =
         , Skill.effects   =
           [ To XAlly do
                 has <- userHas "Strength of One Hundred Seal"
-                heal (20 + if has then 10 else 0)
+                heal (30 + if has then 10 else 0)
                 apply (if has then (-3) else (-2)) [Heal 10]
           , To Self $ remove "Strength of One Hundred Seal"
           ]

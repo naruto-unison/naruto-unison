@@ -26,7 +26,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Syrup Trap"
-        , Skill.desc      = "Izumo spits out a field of sticky syrup that impedes the enemy team. For 2 turns, enemies who use chakra skills will have their chakra skills stunned for 1 turn, enemies who use physical skills will have their physical skills stunned for 1 turn, and enemies who use summon skills will have their summon skills stunned for 1 turn."
+        , Skill.desc      = "Izumo spits out a field of sticky syrup that impedes the enemy team. For 2 turns, enemies who use chakra skills will have their chakra skills stunned for 1 turn, and enemies who use physical skills will have their physical skills stunned for 1 turn."
         , Skill.classes   = [Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
@@ -34,7 +34,6 @@ characters =
           [ To Enemies do
                 trap 2 (OnAction Chakra)   $ apply 1 [Stun Chakra]
                 trap 2 (OnAction Physical) $ apply 1 [Stun Physical]
-                trap 2 (OnAction Summon)   $ apply 1 [Stun Summon]
           ]
         }
       ]
@@ -239,7 +238,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Moon Haze"
-        , Skill.desc      = "The light of the moon empowers Yūgao, providing 20 destructible defense for 1 turn and adding 25 damage to her next [Moonlight Night]."
+        , Skill.desc      = "The light of the moon empowers Yūgao, providing 20 destructible defense for 1 turn and increasing the damage of her next [Moonlight Night] by 25."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -251,12 +250,12 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sealing Technique"
-        , Skill.desc      = "Yūgao places a powerful and thorough seal on an enemy. For 2 turns, they do not benefit from damage reduction, destructible defense, invulnerability, counters, or reflects."
+        , Skill.desc      = "Yūgao places a powerful and thorough seal on an enemy. For 2 turns, they do not benefit from damage reduction, destructible defense, counters, reflects, invulnerabilities, and ignores."
         , Skill.classes   = [Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ apply 2 [Expose, Uncounter, Undefend] ]
+          [ To Enemy $ apply 2 [Expose, Undefend, Uncounter, NoIgnore] ]
         }
       ]
     , [ invuln "Parry" "Yūgao" [Physical] ]
@@ -284,8 +283,6 @@ characters =
           [ To Enemies do
                 pierce 45
                 apply' "Chain Wrap" 1 [Stun NonMental]
-                self $ apply' "Chain Wrap" 1
-                    [Alternate "Chain Wrap" "Chain Shred"]
           ]
         }
       ]
@@ -334,7 +331,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Acupuncture"
-        , Skill.desc      = "Haku sticks a needle into one of the target's vital points, altering the flow of energy through their body. If used on an enemy, the target is stunned for 1 turn. If used on an ally, all stuns and disabling effects are cured and they ignore stuns for 1 turn. Targets all allies and enemies during [Crystal Ice Mirrors]."
+        , Skill.desc      = "Haku sticks a needle into one of the target's vital points, altering the flow of energy through their body. If used on an enemy, the target is stunned for 1 turn. If used on an ally, all stuns and disabling effects are cured, and they ignore stuns and disabling effects for 1 turn. Targets all allies and enemies during [Crystal Ice Mirrors]."
         , Skill.classes   = [Physical, Ranged, Bypassing]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
@@ -350,7 +347,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Crystal Ice Mirrors"
-        , Skill.desc      = "Haku fills the battlefield with disorienting crystalline mirrors, becoming invulnerable for 3 turns."
+        , Skill.desc      = "Haku fills the battlefield with disorienting crystalline mirrors and becomes invulnerable for 3 turns."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 6
@@ -380,14 +377,14 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Water Dragon"
-        , Skill.desc      = "A torrent of water shaped like a giant dragon attacks all enemies, dealing 10 damage. Its ferocious attacks knocks back targets for 1 turn, stunning their physical skills and negating their affliction damage."
+        , Skill.desc      = "A torrent of water shaped like a giant dragon attacks all enemies, dealing 10 damage. Its ferocious attacks knocks back targets, stunning their physical and bane skills for 1 turn."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemies do
                 damage 10
-                apply 1 [Stun Physical, Stun Affliction]
+                apply 1 [Stun Physical, Stun Bane]
           ]
         }
       ]
@@ -432,7 +429,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Amaterasu"
-        , Skill.desc      = "Itachi sets an enemy on fire, dealing 15 affliction damage and 5 affliction damage each turn. Targets all enemies and deals double damage during [Mangekyō Sharingan]. Does not stack. Ends if Itachi dies."
+        , Skill.desc      = "Itachi sets an enemy on fire, dealing 15 affliction damage and 5 affliction damage each turn. Targets all enemies and deals double damage during [Mangekyō Sharingan]. Does not stack."
         , Skill.classes   = [Bane, Ranged, Soulbound, Nonstacking, Unreflectable]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
@@ -455,7 +452,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Tsukuyomi"
-        , Skill.desc      = "Itachi mentally tortures an enemy for what feels like an entire day in a matter of seconds, dealing 20 damage and stunning them for 1 turn. During [Mangekyō Sharingan], stuns the target for 3 turns—which is to say, 3 subjective days and nights."
+        , Skill.desc      = "Itachi mentally tortures an enemy for what feels like an entire day in a matter of seconds, dealing 20 damage and stunning them for 1 turn. During [Mangekyō Sharingan], stuns the target for 3 turns—which is to say, three subjective days and nights."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
@@ -510,14 +507,14 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Super Shark Bomb"
-        , Skill.desc      = "Kisame shoots a stream of compressed water at an enemy, dealing 20 damage, stunning their physical skills for 1 turn, and negating their affliction damage for 1 turn."
+        , Skill.desc      = "Kisame shoots a stream of compressed water at an enemy, dealing 20 damage and stunning their physical and bane skills for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [Stun Physical, Stun Affliction]
+                apply 1 [Stun Physical, Stun Bane]
           ]
         }
       ]
@@ -525,7 +522,7 @@ characters =
     ]
   , Character
     "Jirōbō"
-    "A member of the Sound Five, Jirōbō hides his arrogance and hot temper beneath a calm facade. His immense strength and earth-rending attacks lay waste to all who stand against him."
+    "A member of the Sound Five, Jirōbō hides his arrogance and hot temper beneath a calm facade. His earth-rending attacks carry momentum from one to the next, making Jirōbō an absolute juggernaut."
     [ [ Skill.new
         { Skill.name      = "Crushing Palm"
         , Skill.desc      = "Jirōbō delivers a ground-shaking punch to an enemy, dealing 30 damage. Deals 10 additional damage if [Sphere of Graves] was used last turn."
@@ -669,16 +666,15 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Demon Parasite"
-        , Skill.desc      = "Sakon deals 20 affliction damage to an enemy and gains 15 points of damage reduction until the target dies. Cannot be used while active."
+        , Skill.desc      = "Ukon transfers into an enemy's body, dealing 20 affliction damage to them every turn until they die. While active, Sakon gains 15 points of damage reduction. Cannot be used while active."
         , Skill.require   = HasI 0 "Demon Parasite"
         , Skill.classes   = [Bane, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Enemy do
                 bomb 0 [Afflict 20]
-                       [ To Done $ self $ remove "Demon Parasite" ]
-                self $ bomb 0 [Reduce All Flat 15]
                        [ To Done $ everyone $ remove "Demon Parasite" ]
+                self $ apply 0 [Reduce All Flat 15]
           ]
         }
       ]
@@ -691,7 +687,6 @@ characters =
         , Skill.effects   =
           [ To Self do
                 heal 30
-                cancelChannel "Demon Parasite"
                 everyone $ remove "Demon Parasite"
           ]
         }
@@ -702,7 +697,7 @@ characters =
         , Skill.classes   = [Summon]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ remove "Demon Parasite" ]
+          [ To Self $ everyone $ remove "Demon Parasite" ]
         }
       ]
     ]
@@ -736,14 +731,17 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Bracken Dance"
-        , Skill.desc      = "A forest of razor-sharp bones erupts from the ground, dealing 30 damage to all enemies and reducing all enemy non-mental damage by 20 for 1 turn. Kimimaro loses 15 health and another 15 health at the end of his next turn."
+        , Skill.desc      = "A forest of razor-sharp bones erupts from the ground, dealing 30 damage to all enemies and reducing all enemy physical, chakra, and summon damage by 20 for 1 turn. Kimimaro loses 15 health and another 15 health at the end of his next turn."
         , Skill.classes   = [Physical, Ranged, Unremovable]
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies do
                 damage 30
-                apply 1 [Weaken NonMental Flat 20]
+                apply 1 [ Weaken Physical Flat 20
+                        , Weaken Chakra Flat 20
+                        , Weaken Summon Flat 20
+                        ]
           , To Self $ apply (-2) [Afflict 15]
           ]
         }

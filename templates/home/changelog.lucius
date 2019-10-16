@@ -3,6 +3,10 @@
     margin: 1px 21px 0 -19px !important;
 }
 
+i {
+    font-style: normal; /* s e m a n t i c s */
+}
+
 li li {
     line-height: 1em;
 

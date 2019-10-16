@@ -420,7 +420,7 @@ spec = parallel do
                     100 - userHealth `shouldBe` 50
                 it "does not kill user" $
                     userHealth' `shouldBe` 1
-        useOn Enemy "Final Lotus" do
+        useOn Enemy "Hidden Lotus" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
             return do

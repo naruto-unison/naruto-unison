@@ -91,7 +91,7 @@
     <dt>
       Bypassing
     <dd>
-      Bypasses invulnerability. The skill can be used on a target even if they are invulnerable.
+      Bypasses invulnerability. The skill can be used on a target even if they are invulnerable or otherwise able to ignore its effects.
   <li #invisible>
     <dt>
       Invisible
@@ -101,7 +101,7 @@
     <dt>
       Necromancy
     <dd>
-      Normal skills may only be used on living targets. Necromancy skills, on the other hand, may only be used on dead targets.
+      Normal skills may only be used on living targets. Necromancy skills, on the other hand, may only be used on dead targets. This is the rarest class in the game.
   <li #soulbound>
     <dt>
       Soulbound

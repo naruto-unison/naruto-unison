@@ -4,7 +4,7 @@ module Game.Action.Combat
   ( -- * Attacking
     afflict, pierce, damage, demolish, demolishAll
     -- * Defending
-  , defend, addDefense
+  , defend, addDefense, removeDefense
   , barrier, barrierDoes
     -- * Healing
   , heal, setHealth
@@ -158,9 +158,7 @@ attack atk dmg = void $ runMaybeT do
 
     guard $ dmgCalc > Effects.threshold nTarget -- Always 0 or higher
 
-    if atk == Attack.Afflict then
-        P.modify target $ Ninjas.adjustHealth (— dmgCalc)
-    else if nTarget `is` DamageToDefense then
+    if nTarget `is` DamageToDefense then
         let damageDefense = Defense
                 { Defense.amount = dmgCalc
                 , Defense.user   = user
@@ -169,6 +167,8 @@ attack atk dmg = void $ runMaybeT do
                 }
         in P.modify target \n ->
           n { Ninja.defense = damageDefense : Ninja.defense n }
+    else if atk == Attack.Afflict then
+        P.modify target $ Ninjas.adjustHealth (— dmgCalc)
     else do
         P.modify user \n -> n { Ninja.barrier = barr }
         if atk == Attack.Demolish || dmg'Def <= 0 then
@@ -201,17 +201,19 @@ defend (Duration -> dur) amount = P.unsilenced do
     nUser      <- P.nUser
     nTarget    <- P.nTarget
     let amount' = Effects.boost user nTarget * amount + Effects.build nUser
+        dur'    = Copy.maxDur (Skill.copying skill) . incr $ sync dur
         defense = Defense
                       { Defense.amount = amount'
                       , Defense.user   = user
                       , Defense.name   = Skill.name skill
-                      , Defense.dur    = Copy.maxDur (Skill.copying skill) .
-                                         incr $ sync dur
+                      , Defense.dur    = dur'
                       }
     if amount' < 0 then do
-        damage (-amount')
-        damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
-        P.modify target $ Traps.track PerDamaged damaged
+        context <- P.context
+        let barr = Barrier.new context dur'
+                   (const $ return ()) (return ()) (-amount')
+        P.modify target \n ->
+            n { Ninja.barrier = Classed.nonStack skill barr $ Ninja.barrier n }
     else when (amount' > 0) do
         P.trigger user [OnDefend]
         P.modify target \n ->
@@ -225,6 +227,9 @@ addDefense :: ∀ m. MonadPlay m => Text -> Int -> m ()
 addDefense name amount =
     P.unsilenced . P.fromUser $ Ninjas.addDefense amount name
 
+-- | Clears all 'Defense' with matching name and user.
+removeDefense :: ∀ m. MonadPlay m => Text -> m ()
+removeDefense name = P.unsilenced . P.fromUser $ Ninjas.removeDefense name
 
 -- | Adds new destructible 'Barrier'.
 -- Destructible barrier acts as an extra bar in front of the 'Ninja.health'
@@ -247,12 +252,17 @@ barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
         target  = Context.target context
         dur'    = Copy.maxDur (Skill.copying skill) $ sync dur
         barr    = Barrier.new context dur' (finish' dur') while' amount'
-    if amount' < 0 then P.with Context.reflect do
-        nTarget <- P.nTarget
-        damage (-amount')
-        damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
-        target' <- P.target
-        P.modify target' $ Traps.track PerDamaged damaged
+    if amount' < 0 then do
+        user       <- P.user
+        let defense = Defense
+                      { Defense.amount = (-amount')
+                      , Defense.user   = user
+                      , Defense.name   = Skill.name skill
+                      , Defense.dur    = dur'
+                      }
+        P.trigger user [OnDefend]
+        P.modify target \n ->
+          n { Ninja.defense = Classed.nonStack skill defense $ Ninja.defense n }
     else when (amount' > 0) $ P.modify target \n ->
         n { Ninja.barrier = Classed.nonStack skill barr $ Ninja.barrier n }
   where

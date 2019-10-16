@@ -43,7 +43,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
               damage 25
-              has <- userHas "Deep ForestCreation"
+              has <- userHas "Deep Forest Creation"
               apply 1 if has then [Stun All] else [Stun Physical, Stun Chakra]
           ]
         }
@@ -94,7 +94,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Water Shockwave"
-        , Skill.desc      = "A giant wave of water floods the enemy team for 3 turns, dealing 15 damage, negating their affliction damage, and increasing the damage of [Water Prison] by 15."
+        , Skill.desc      = "A giant wave of water floods the enemy team for 3 turns, dealing 15 damage, stunning their bane skills, and increasing the damage of [Water Prison] by 15."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 3
@@ -102,7 +102,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 15
-                apply 1 [Stun Affliction]
+                apply 1 [Stun Bane]
           ]
         }
       ]
@@ -406,7 +406,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Fragmentation"
-        , Skill.desc      = "Mū's body undergoes fission and splits into two. For 2 turns, Mū ignores stuns and reduces damage against him by half. While active, Mū's damage is weakened by 5. If Mū's health reaches 0 during this skill, he regains 15 health and this skill ends."
+        , Skill.desc      = "Mū's body undergoes fission and splits into two. For 2 turns, Mū ignores stuns and disabling effects, and damage he receives is reduced by half. While active, Mū's damage is weakened by 5. If Mū's health reaches 0 during this skill, he regains 15 health and this skill ends."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 4

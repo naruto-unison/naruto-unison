@@ -27,7 +27,7 @@ characters =
       , Skill.new
         { Skill.name      = "Rasen Shuriken"
         , Skill.desc      = "Using his ultimate attack, Naruto deals 50 piercing damage to an enemy. Once used, this skill becomes [Frog Kumite][t]."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Chakra, Ranged, Uncounterable]
         , Skill.cost      = [Nin, Tai]
         , Skill.effects   =
           [ To Enemy $ pierce 50
@@ -112,7 +112,7 @@ characters =
       , Skill.new
         { Skill.name      = "Blazing Arrow"
         , Skill.desc      = "Sasuke forges three arrows out of flame and shoots them one after another at an enemy, dealing 15 damage for 3 turns. If this skill is stunned, Sasuke deals the remaining damage instantly and the cooldown of this skill resets."
-        , Skill.classes   = [Chakra, Ranged, Resource]
+        , Skill.classes   = [Bane, Chakra, Ranged, Resource]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
@@ -167,7 +167,7 @@ characters =
       , Skill.new
         { Skill.name      = "Yasaka Beads"
         , Skill.desc      = "Sasuke attacks an enemy with a Magatama of black flame, dealing 10 affliction damage. Damage increases by 5 every time an enemy is cured of [Amaterasu]. If the target uses a skill next turn, they take 20 additional affliction damage."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
@@ -218,9 +218,9 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
+                apply 3 [Enrage]
                 defend 3 50
                 onBreak'
-                apply 3 [Enrage]
           ]
         }
       ]
@@ -637,8 +637,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
+                apply 1 [Enrage, Strengthen All Percent 100]
                 sacrifice 1 10
-                apply 1 [Enrage, Strengthen All Percent 200]
           ]
         }
       ]
@@ -709,7 +709,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Flamethrower Jets"
         , Skill.desc      = "Using fuel stored in a sealing scroll, Sasori shoots flames at an enemy for 3 turns, dealing 10 affliction damage each turn. While active, Sasori is invulnerable to all other enemies and ignores status effects from enemies except chakra cost changes. If Sasori uses any skill, [Flamethrower Jets] is canceled. After use, this skill becomes [Cutting Water Jets][n]."
-        , Skill.classes   = [Physical, Ranged, Unreflectable]
+        , Skill.classes   = [Bane, Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin, Rand]
         , Skill.dur       = Action 3
         , Skill.cooldown  = 3
@@ -718,12 +718,12 @@ characters =
                 hide 0 [Alternate "Flamethrower Jets" "Cutting Water Jets"]
           ]
         , Skill.effects   =
-          [ To Enemy do
+          [ To Self $ apply 1 [Enrage]
+          , To Enemy do
                 afflict 10
                 tag 1
                 userSlot <- user slot
                 self $ apply' "Flame Blast" 1 [Duel userSlot]
-          , To Self $ apply 1 [Enrage]
           ]
         }
       , Skill.new
@@ -846,7 +846,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Immortality Transference"
-        , Skill.desc      = "Orochimaru forces his soul on an enemy, dealing 15 damage to them for 3 turns and stunning their non-mental skills. If the target dies while this skill is active, Orochimaru's health is fully restored. If Orochimaru acquires a new body, this skill becomes [Eight-Headed Serpent Assault][b][t]."
+        , Skill.desc      = "Orochimaru forces his soul on an enemy, dealing 15 damage to them for 3 turns and stunning their non-mental skills."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 3

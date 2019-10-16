@@ -192,7 +192,7 @@ missions =
 
     , Reach 3 Turn
       "In a single turn, damage all 3 enemies with [Ferocious Fist]." $
-      HookStore "Rock Lee" "Final Lotus"
+      HookStore "Rock Lee" "Hidden Lotus"
       damageUnique
 
     , Reach 10 Career
@@ -201,8 +201,8 @@ missions =
       killDuring "Fifth Gate Opening"
 
     , Reach 3 Match
-      "In a single match, kill all 3 enemies with [Final Lotus]." $
-      HookStore "Rock Lee" "Final Lotus"
+      "In a single match, kill all 3 enemies with [Hidden Lotus]." $
+      HookStore "Rock Lee" "Hidden Lotus"
       killUnique
     ]
 

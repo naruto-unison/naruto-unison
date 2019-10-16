@@ -276,12 +276,9 @@ spec = parallel do
         useOn Enemy "Finishing Blow" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            targetStunned <- Effects.stun <$> P.nTarget
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 35
-                it "stuns target" $
-                    targetStunned `shouldBe` [All]
         useOn Self "Sharpen Blades" do
             replicateM_ stacks act
             userStacks <- Ninja.numStacks "Sharpen Blades" <$> P.user <*> P.nUser
@@ -309,15 +306,15 @@ spec = parallel do
         useOn Enemy "Leaf Hurricane" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            factory
-            self $ tag' "Sixth Gate Opening" 0
-            act
-            targetHealth' <- Ninja.health <$> P.nTarget
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 30
-                it "deals bonus damage during Sixth Gate Opening" $
-                    targetHealth - targetHealth' `shouldBe` 30
+        useOn Enemy "Severe Leaf Hurricane" do
+            act
+            targetHealth <- Ninja.health <$> P.nTarget
+            return do
+                it "damages target" $
+                    100 - targetHealth `shouldBe` 60
         useOn Self "Sixth Gate Opening" do
             act
             userHealth <- Ninja.health <$> P.nUser
@@ -388,7 +385,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 3 * 10
         useOn Ally "Regenerative Healing Technique" do
-            enemyTurn do
+            withClass Bane $ enemyTurn do
                 apply 0 [Expose]
                 damage targetDmg
             act

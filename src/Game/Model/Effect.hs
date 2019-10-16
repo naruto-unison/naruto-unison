@@ -87,7 +87,7 @@ data Effect
     | Reduce       Class Amount Int    -- ^ Reduces damage by an amount
     | Redirect     Slot                -- ^ Transfers harmful 'Skill's
     | Reflect                          -- ^ Reflects the first 'Skill'
-    | ReflectAll                       -- ^ 'Reflect' repeatedly
+    | ReflectAll   Class               -- ^ 'Reflect' repeatedly
     | Restrict                         -- ^ Forces AoE attacks to be single-target
     | Reveal                           -- ^ Makes 'Invisible' effects visible
     | Seal                             -- ^ Ignores helpful status effects
@@ -110,6 +110,7 @@ instance Classed Effect where
     classes (Exhaust cla)        = singletonSet cla
     classes (Invulnerable cla)   = singletonSet cla
     classes (Reduce cla _ _)     = singletonSet cla
+    classes (ReflectAll cla)     = singletonSet cla
     classes (Strengthen cla _ _) = singletonSet cla
     classes (Stun cla)           = singletonSet cla
     classes (Weaken cla _ _)     = singletonSet cla
@@ -157,7 +158,7 @@ helpful Plague          = False
 helpful (Reduce _ _ x)  = x >= 0
 helpful Redirect{}      = True
 helpful Reflect         = True
-helpful ReflectAll      = True
+helpful ReflectAll{}    = True
 helpful Restrict        = False
 helpful Reveal          = False
 helpful Seal            = False
@@ -184,7 +185,7 @@ sticky Face           = True
 sticky Invulnerable{} = True
 sticky Redirect{}     = True
 sticky Reflect        = True
-sticky ReflectAll     = True
+sticky ReflectAll{}   = True
 sticky Restrict       = True
 sticky Reveal         = True
 sticky Share{}        = True
@@ -265,7 +266,7 @@ instance Display Effect where
       | otherwise = "Increases " ++ lower cla ++ " damage received by " ++ displayAmt amt (-x) ++ ". Does not affect piercing or affliction damage."
     display Redirect{} = "Redirects skills from enemies to a different target."
     display Reflect = "Reflects the first harmful skill."
-    display ReflectAll = "Reflects all skills."
+    display (ReflectAll cla) = "Reflects " ++ lower cla ++ " skills."
     display Reveal = "Reveals invisible skills to the enemy team. This effect cannot be removed."
     display Restrict = "Skills that normally affect all opponents must be targeted."
     display Seal = "Ignores helpful effects."
@@ -275,8 +276,6 @@ instance Display Effect where
       | x >= 0    = "Cooldowns increased by " ++ display x ++ "."
       | otherwise = "Cooldowns decreased by " ++ display (-x) ++ "."
     display (Strengthen cla amt x) = display cla ++ " damaging skills deal " ++ displayAmt amt x ++ " additional damage."
-    display (Stun Affliction) = "Unable to deal affliction damage."
-    display (Stun NonAffliction) = "Unable to deal non-affliction damage."
     display (Stun cla) = "Unable to use " ++ lower cla ++ " skills."
     display Swap = "Next skill will target allies instead of enemies and enemies instead of allies."
     display (Taunt _) = "Can only affect a specific target."
