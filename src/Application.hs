@@ -24,6 +24,7 @@ import           Data.Bimap (Bimap)
 import qualified Data.Cache as Cache
 import qualified Database.Persist.Postgresql as Sql
 import           Database.Persist.Sql (SqlBackend, SqlPersistT)
+import           Data.Time.Clock.System (SystemTime(..), getSystemTime)
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Network.HTTP.Client.TLS as TLS
 import qualified Network.Wai.Handler.Warp as Warp
@@ -66,6 +67,8 @@ makeFoundation settings = do
     queue       <- newTChanIO
     practice    <- Cache.newCache . Just . fromInteger $
                    Settings.practiceCacheExpiry settings
+
+    MkSystemTime timestamp _ <- getSystemTime
 
     -- We need a log function to create a connection pool. We need a connection
     -- pool to create our foundation. And we need our foundation to get a

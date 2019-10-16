@@ -102,7 +102,7 @@ mapFromKeyed (toKey, toVal) xs = mapFromList $ (\x -> (toKey x, toVal x)) <$> xs
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text
-shorten xs = omap unaccent $ filter (notInClass " _:()®'/?") xs
+shorten xs = omap unaccent $ filter (notInClass "- _:()®'/?") xs
 {-# INLINE shorten #-}
 
 unaccent :: Char -> Char

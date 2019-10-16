@@ -2,6 +2,7 @@ module Class.Display (Display(..)) where
 
 import Prelude
 
+import           Data.Int (Int64)
 import           Data.Text (Text)
 import qualified Data.Text.Lazy as Lazy
 import           Data.Text.Lazy.Builder (Builder)
@@ -55,5 +56,9 @@ instance Display String where
     {-# INLINE display' #-}
 
 instance Display Int where
+    display = IntBuilder.decimal
+    {-# INLINE display #-}
+
+instance Display Int64 where
     display = IntBuilder.decimal
     {-# INLINE display #-}

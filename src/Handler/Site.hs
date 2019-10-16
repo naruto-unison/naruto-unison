@@ -22,6 +22,7 @@ import           Text.Blaze.Html (preEscapedToHtml)
 import qualified Yesod.Auth as Auth
 
 import           Application.App (Handler, Route(..), Widget)
+import qualified Application.App as App
 import           Application.Model (EntityField(..), News(..), User(..))
 import           Application.Settings (widgetFile)
 import           Class.Display (Display(..))
@@ -42,6 +43,7 @@ import           Util (shorten)
 -- | Renders the changelog.
 getChangelogR :: Handler Html
 getChangelogR = do
+    App.unchanged304
     (title, _) <- breadcrumbs
     defaultLayout do
         $(widgetFile "tooltip/tooltip")
@@ -83,8 +85,8 @@ separate = nubBy ((==) `on` Skill.name) . toList
 
 getChangelog :: Bool -> LogType -> Text -> Character.Category -> Widget
 getChangelog long logType name category = case Characters.lookup tagName of
-      Nothing -> [whamlet|Error: character #{tagName} not found!|]
-      Just char -> $(widgetFile "home/change")
+    Nothing -> [whamlet|Error: character #{tagName} not found!|]
+    Just char -> $(widgetFile "home/change")
   where
     change  = logLabel long
     tagName = Character.identFrom category name
@@ -94,12 +96,14 @@ news (News{..}, author) = $(widgetFile "home/news")
 
 getGuideR :: Handler Html
 getGuideR = do
+    App.unchanged304
     loggedin   <- isJust <$> Auth.maybeAuthId
     (title, _) <- breadcrumbs
     defaultLayout $(widgetFile "guide/guide")
 
 getCharactersR :: Handler Html
 getCharactersR = do
+    App.unchanged304
     (title, _) <- breadcrumbs
     defaultLayout $(widgetFile "guide/characters")
   where
@@ -113,8 +117,10 @@ getCharactersR = do
 
 getCharacterR :: Character -> Handler Html
 getCharacterR char = do
-        mmission <- Mission.userMission char
-        defaultLayout $(widgetFile "guide/character")
+    -- content does change if logged in, due to mission objectives
+    whenM (isNothing <$> Auth.maybeAuthId) App.unchanged304
+    mmission <- Mission.userMission char
+    defaultLayout $(widgetFile "guide/character")
   where
     name = Character.ident char
     skillClasses sk =
@@ -123,5 +129,6 @@ getCharacterR char = do
 
 getMechanicsR :: Handler Html
 getMechanicsR = do
+    App.unchanged304
     (title, _) <- breadcrumbs
     defaultLayout $(widgetFile "guide/mechanics")

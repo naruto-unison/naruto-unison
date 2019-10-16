@@ -27,6 +27,7 @@ import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
 import           Game.Model.Character (Category, Character)
 import qualified Game.Model.Character as Character
+import qualified Game.Model.Skill as Skill
 
 character :: Character -> Widget
 character char = $(widgetFile "widgets/link/character")
@@ -39,7 +40,11 @@ cite = do
 skill :: Text -> Category -> Text -> Widget
 skill charName category name = case Characters.lookup tagName of
       Nothing -> [whamlet|Error: character #{tagName} not found!|]
-      Just char -> $(widgetFile "widgets/link/skill")
+      Just char
+        | any (any $ (== name) . Skill.name) $ Character.skills char ->
+            $(widgetFile "widgets/link/skill")
+        | otherwise ->
+            [whamlet|Error: skill #{name} not found for character #{tagName}!|]
   where
     tagName = Character.identFrom category charName
 

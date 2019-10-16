@@ -13,12 +13,15 @@ import Yesod
 import qualified Yesod.Auth as Auth
 
 import           Application.App (Form, Handler, Route(..))
+import qualified Application.App as App
 import           Application.Model (News(..))
 import           Application.Settings (widgetFile)
+import qualified Application.Settings as Settings
 import qualified Handler.Play as Play
 
 getAdminR :: Handler Html
 getAdminR = do
+    app <- getYesod
     (newsForm, enctype) <- generateFormPost =<< getNewsForm
     Play.gameSocket
     defaultLayout do
@@ -27,6 +30,7 @@ getAdminR = do
 
 postAdminR :: Handler Html
 postAdminR = do
+    app <- getYesod
     ((result, newsForm), enctype) <- runFormPost =<< getNewsForm
     case result of
         FormSuccess news -> do

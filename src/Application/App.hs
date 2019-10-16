@@ -9,6 +9,7 @@ module Application.App
   , Handler, Widget
   , Route(..)
   , AppPersistEntity
+  , unchanged304
   , unsafeHandler
   , resourcesApp
   ) where
@@ -46,6 +47,7 @@ import           Application.Model (CharacterId, EntityField(..), Topic(..), Top
 import qualified Application.Model as Model
 import           Application.Settings (Settings, widgetFile)
 import qualified Application.Settings as Settings
+import           Class.Display (display')
 import           Game.Model.Act (Act)
 import           Game.Model.Chakra (Chakras)
 import           Game.Model.Character (Character)
@@ -56,7 +58,8 @@ import           OrphanInstances.Character ()
 
 -- | App environment.
 data App = App
-    { settings    :: Settings
+    { timestamp   :: Int64
+    , settings    :: Settings
       -- ^ Settings loaded from a local file.
     , static      :: Static
       -- ^ Server for static files.
@@ -79,6 +82,13 @@ data App = App
 -- type Handler = HandlerT App IO
 -- type Widget = WidgetT App IO ()
 mkYesodData "App" $(parseRoutesFile "config/routes")
+
+unchanged304 :: Handler ()
+unchanged304 = whenM (isNothing <$> getMessage) $
+               setEtag . toStrict . display'
+               =<< maybeAdd <$> getsYesod timestamp <*> maybeAuthId
+  where
+    maybeAdd x = maybe x $ (x +) . Sql.fromSqlKey
 
 -- | A convenient synonym for creating forms.
 type Form x = Html -> MForm (HandlerFor App) (FormResult x, Widget)
