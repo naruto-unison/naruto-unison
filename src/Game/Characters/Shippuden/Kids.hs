@@ -57,7 +57,7 @@ characters =
           [ To Self do
                 cureAll
                 gain [Nin, Tai]
-                apply 1 [Reduce All Flat 10]
+                apply 1 [Reduce [All] Flat 10]
           ]
         }
       ]
@@ -198,7 +198,7 @@ characters =
         , Skill.dur       = Action 4
         , Skill.effects   =
           [ To Self $ apply 1 [ Focus
-                              , Reduce All Flat 15
+                              , Reduce [All] Flat 15
                               , Alternate "Man-Beast Clone" "Three-Headed Wolf"
                               ]
           ]
@@ -217,7 +217,7 @@ characters =
           [ To Self do
                 cancelChannel "Man-Beast Clone"
                 remove "Man-Beast Clone"
-                apply 3 [ Reduce All Flat 30
+                apply 3 [ Reduce [All] Flat 30
                         , Focus
                         , Alternate "Man-Beast Clone" "Giant Rotating Fang"
                         ]
@@ -256,7 +256,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                apply 0 [Weaken All Flat 10]
+                apply 0 [Weaken [All] Flat 10]
                 cloneBonus <- 10 `bonusIf` userHas "Man-Beast Clone"
                 wolfBonus  <- 20 `bonusIf` userHas "Three-Headed Wolf"
                 damage (40 + cloneBonus + wolfBonus)
@@ -344,7 +344,7 @@ characters =
                 bonus <- 10 `bonusIf` userHas "Eight Trigrams Sixty-Four Palms"
                 damage (10 + bonus)
                 stacks <- targetStacks "Eight Trigrams Sixty-Four Palms"
-                apply (1 + stacks) [Exhaust All]
+                apply (1 + stacks) [Exhaust [All]]
                 remove "Eight Trigrams Sixty-Four Palms"
           ]
         }
@@ -469,8 +469,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 1 [Enrage]
-                hide' "calories" 0 [Exhaust All]
-                hide' "calories" 0 [Exhaust All]
+                replicateM_ 2 $ hide' "calories" 0 [Exhaust [All]]
           , To Enemy $ damage 30
           ]
         }
@@ -483,8 +482,7 @@ characters =
           [ To Enemy $ delay (-1) $ damage 30
           , To Self do
                 apply 1 [Enrage]
-                hide' "calories" 0 [Exhaust All]
-                hide' "calories" 0 [Exhaust All]
+                replicateM_ 2 $ hide' "calories" 0 [Exhaust [All]]
           ]
         }
       ]
@@ -500,7 +498,7 @@ characters =
                 trap 2 (CounterAll Physical) $ return ()
                 trap 2 (CounterAll Chakra) $ return ()
                 trap 2 (CounterAll Summon) $ return ()
-                hide' "calories" 0 [Exhaust All]
+                hide' "calories" 0 [Exhaust [All]]
           ]
         }
       , Skill.new
@@ -513,7 +511,7 @@ characters =
           [ To Enemy $ damage 15
           ,  To Self do
                 trap 2 (CounterAll NonMental) $ return ()
-                hide' "calories" 0 [Exhaust All]
+                hide' "calories" 0 [Exhaust [All]]
           ]
         }
       ]
@@ -524,7 +522,7 @@ characters =
         , Skill.dur       = Ongoing 0
         , Skill.start     =
           [ To Self do
-                replicateM_ 3 $ hide' "calories" 0 [Exhaust All]
+                replicateM_ 3 $ hide' "calories" 0 [Exhaust [All]]
                 hide 0 [ Alternate "Butterfly Bombing"   "Butterfly Bombing"
                        , Alternate "Spiky Human Boulder" "Spiky Human Boulder"
                        , Alternate "Butterfly Mode"      "Super-Slam"
@@ -542,7 +540,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 cureAll
-                replicateM_ 2 $ hide' "calories" 0 [Exhaust All]
+                replicateM_ 2 $ hide' "calories" 0 [Exhaust [All]]
           , To Enemy $ damage 30
           ]
         }
@@ -601,7 +599,7 @@ characters =
           [ To Enemy do
                 dead <- numDeadAllies
                 damage (15 + 10 * dead)
-                apply (2 + dead) [Weaken All Flat 15]
+                apply (2 + dead) [Weaken [All] Flat 15]
           ]
         }
       ]
@@ -617,7 +615,7 @@ characters =
               damage (20 + bonus + 10 * dead)
           , To Self do
                 bonus <- 10 `bonusIf` userHas "Leaf Great Whirlwind"
-                apply 1 [Reduce All Flat (10 + bonus)]
+                apply 1 [Reduce [All] Flat (10 + bonus)]
           ]
         }
       ]
@@ -811,7 +809,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 5
-                apply 1 [Weaken All Flat 5]
+                apply 1 [Weaken [All] Flat 5]
           ]
         }
       ]
@@ -841,9 +839,9 @@ characters =
                 has <- userHas "Sand Summoning"
                 if has then do
                     remove "Sand Summoning"
-                    apply 0 [Strengthen All Percent 400, Reduce All Flat 10]
+                    apply 0 [Strengthen [All] Percent 400, Reduce [All] Flat 10]
                 else
-                    apply 0 [Strengthen All Percent 200, Reduce All Flat 10]
+                    apply 0 [Strengthen [All] Percent 200, Reduce [All] Flat 10]
 
           ]
         }
@@ -887,7 +885,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Allies $
-              apply 1 [Reduce All Percent 25, Invulnerable Affliction]
+              apply 1 [Reduce [All] Percent 25, Invulnerable Affliction]
           , To Self $ hide 1 [Alternate "Sanshōuo Shield" "Salamander Puppet"]
           ]
         , Skill.stunned   =
@@ -898,7 +896,7 @@ characters =
         , Skill.desc      = "The Sanshōuo puppet focuses its defense on Kankurō or one of his allies, providing them with 25% additional damage reduction for 1 turn."
         , Skill.classes   = [Physical]
         , Skill.effects   =
-          [ To Ally $ apply 1 [Reduce All Percent 25] ]
+          [ To Ally $ apply 1 [Reduce [All] Percent 25] ]
         }
       ]
     , [ invuln "Puppet Distraction" "Kankurō" [Physical] ]
@@ -911,7 +909,7 @@ characters =
         , Skill.desc      = "Snapping open her fan to reveal the first marking on it, Temari gains 25% damage reduction. Once used, this skill becomes [Second Moon][r]."
         , Skill.classes   = [Physical, Ranged, Unremovable]
         , Skill.effects   =
-          [ To Self $ apply 0 [ Reduce All Percent 25
+          [ To Self $ apply 0 [ Reduce [All] Percent 25
                               , Alternate "First Moon" "Second Moon"
                               ]
           ]
@@ -924,7 +922,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 remove "First Moon"
-                apply 0 [ Reduce All Percent 50
+                apply 0 [ Reduce [All] Percent 50
                         , Alternate "First Moon" "Third Moon"
                         ]
           ]
@@ -938,7 +936,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 20
-                apply 1 [Weaken All Flat 5]
+                apply 1 [Weaken [All] Flat 5]
           ]
         }
       ]
@@ -949,7 +947,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To XAlly $ apply 1 [Reduce All Percent 50, Endure] ]
+          [ To XAlly $ apply 1 [Reduce [All] Percent 50, Endure] ]
         }
       ]
     , [ Skill.new

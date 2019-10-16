@@ -60,8 +60,8 @@ negTotal xs Percent = totalBase (second (100 -) <$> xs) Percent
 
 -- | 'Bleed' sum.
 bleed :: EnumSet Class -> Ninja -> Amount -> Float
-bleed classes n =
-    posTotal [(amt, x) | Bleed cla amt x <- Ninja.effects n, cla ∈ classes]
+bleed classes n = posTotal [(amt, x) | Bleed cla amt x <- Ninja.effects n
+                                     , cla `intersects` classes]
 
 -- | 'Block' collection.
 block :: Ninja -> [Slot]
@@ -88,8 +88,8 @@ duel n = [slot | Duel slot <- Ninja.effects n, slot /= Ninja.slot n]
 
 -- | 'Exhaust' sum.
 exhaust :: EnumSet Class -> Ninja -> Chakras
-exhaust classes n =
-    0 { rand = length [x | Exhaust x <- Ninja.effects n, x ∈ classes] }
+exhaust classes n = 0
+    { rand = length [x | Exhaust x <- Ninja.effects n, x `intersects` classes] }
 
 -- | 'Invulnerable' collection.
 invulnerable :: Ninja -> EnumSet Class
@@ -103,11 +103,12 @@ limit n = minimumMay [x | Limit x <- Ninja.effects n]
 reduce :: EnumSet Class -> Ninja -> Amount -> Float
 reduce classes n
     | classes == singletonSet Affliction =
-        negTotal [(amt, x) | Reduce Affliction amt x <- Ninja.effects n]
+        negTotal [(amt, x) | Reduce cla amt x <- Ninja.effects n
+                           , Affliction ∈ cla
+                           ]
     | otherwise =
         negTotal [(amt, x) | Reduce cla amt x <- Ninja.effects n
-                           , cla ∈ classes
-                           , cla /= Affliction]
+                           , Affliction `deleteSet` cla `intersects` classes]
 
 -- | 'Share' collection.
 share :: Ninja -> [Slot]
@@ -120,7 +121,9 @@ snare n = sum [x | Snare x <- Ninja.effects n]
 -- | 'Strengthen' sum.
 strengthen :: EnumSet Class -> Ninja -> Amount -> Float
 strengthen classes n =
-    posTotal [(amt, x) | Strengthen cla amt x <- Ninja.effects n, cla ∈ classes]
+    posTotal [(amt, x) | Strengthen cla amt x <- Ninja.effects n
+                       , cla `intersects` classes
+                       ]
 
 -- | 'Stun' collection.
 stun :: Ninja -> EnumSet Class
@@ -154,8 +157,8 @@ unreduce n = sum [x | Unreduce x <- Ninja.effects n]
 
 -- | 'Weaken' sum.
 weaken :: EnumSet Class -> Ninja -> Amount -> Float
-weaken classes n =
-  negTotal [(amt, x) | Weaken cla amt x <- Ninja.effects n, cla ∈ classes]
+weaken classes n = negTotal [(amt, x) | Weaken cla amt x <- Ninja.effects n
+                                      , cla `intersects` classes]
 
 -- | 'Disable' collection.
 disabled :: Ninja -> [Effect]

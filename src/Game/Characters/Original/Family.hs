@@ -122,7 +122,7 @@ characters =
         , Skill.dur       = Ongoing 4
         , Skill.effects   =
           [ To Self do
-                apply 1 [ Reduce All Flat 10
+                apply 1 [ Reduce [All] Flat 10
                         , Alternate "Call Kuromaru" "Fierce Bite"
                         ]
                 trapFrom 1 (OnHarmed NonBane) $ damage 10
@@ -136,7 +136,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 trap' (-1) OnDeath $ self $
-                    apply 2 [Strengthen All Flat 10, Endure, Focus]
+                    apply 2 [Strengthen [All] Flat 10, Endure, Focus]
                 damage 25
           ]
         }
@@ -180,10 +180,7 @@ characters =
           [ To Enemy do
                 damage 5
                 bonus <- 1 `bonusIf` userHas "Human Boulder"
-                apply (1 + bonus) [ Weaken Physical Flat 10
-                                  , Weaken Chakra Flat 10
-                                  , Weaken Summon Flat 10
-                                  ]
+                apply (1 + bonus) [Weaken [Physical, Chakra, Summon] Flat 10]
           , To Allies $ defend 0 5
           ]
         }

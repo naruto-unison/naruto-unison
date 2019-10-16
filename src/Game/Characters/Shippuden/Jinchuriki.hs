@@ -18,7 +18,7 @@ characters =
         , Skill.require   = HasI 0 "Two-Tailed Transformation"
         , Skill.classes   = [Chakra]
         , Skill.effects   =
-          [ To Self $ apply 0 [Reduce All Percent 50, Face] ]
+          [ To Self $ apply 0 [Reduce [All] Percent 50, Face] ]
         }
       ]
     , [ Skill.new
@@ -32,7 +32,7 @@ characters =
           [ To Enemy do
                 stacks <- userStacks "Flaming Cat Roar"
                 damage (30 + 5 * stacks)
-                apply 1 [Weaken All Flat 10]
+                apply 1 [Weaken [All] Flat 10]
           , To Self addStack
           ]
         }
@@ -91,7 +91,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 heal 25
-                apply 1 [Reduce Affliction Percent 50]
+                apply 1 [Reduce [Affliction] Percent 50]
           ]
         }
       ]
@@ -149,8 +149,8 @@ characters =
         , Skill.cooldown  = 1
         , Skill.charges   = 5
         , Skill.effects   =
-          [ To Self $
-                apply 0 [Strengthen All Flat 5, Reduce Affliction Percent 10]
+          [ To Self $ apply 0
+                [Strengthen [All] Flat 5, Reduce [Affliction] Percent 10]
           ]
         }
       ]
@@ -192,7 +192,7 @@ characters =
                 sacrifice 1 5
                 defend 0 10
                 alternate loadout 0
-                apply 0 [Reduce All Flat 10, Plague, Face]
+                apply 0 [Reduce [All] Flat 10, Plague, Face]
           ]
         }
       , Skill.new
@@ -202,7 +202,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ To Self do
-                apply 0 [Reduce All Flat 20, Plague, Alone, Enrage, Face]
+                apply 0 [Reduce [All] Flat 20, Plague, Alone, Enrage, Face]
                 remove "Four-Tailed Transformation"
                 sacrifice 1 10
                 defend 0 20
@@ -216,7 +216,7 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Self do
-                apply 0 [Reduce All Flat 30, Plague, Alone, Enrage, Face]
+                apply 0 [Reduce [All] Flat 30, Plague, Alone, Enrage, Face]
                 remove "Six-Tailed Transformation"
                 sacrifice 1 15
                 defend 0 30
@@ -232,7 +232,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 afflict 20
-                apply 1 [Weaken All Flat 10] ]
+                apply 1 [Weaken [All] Flat 10] ]
         }
       ]
     , [ Skill.new
@@ -281,7 +281,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [Weaken All Flat 5]
+                apply 1 [Weaken [All] Flat 5]
           ]
         }
       , Skill.new

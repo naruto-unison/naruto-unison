@@ -51,7 +51,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self $ apply 2
-                     [Endure, Focus, Strengthen All Flat 5]
+                     [Endure, Focus, Strengthen [All] Flat 5]
           ]
         }
       ]
@@ -77,7 +77,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 stacks <- userStacks "Umbrella"
-                apply 1 [Reduce All Flat (stacks * 10)]
+                apply 1 [Reduce [All] Flat (stacks * 10)]
                 remove "Umbrella"
           ]
         }
@@ -123,11 +123,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 20
-                apply 1 [ Exhaust All
-                        , Bleed Physical Flat 5
-                        , Bleed Chakra Flat 5
-                        , Bleed Summon Flat 5
-                        ]
+                apply 1 [Exhaust [All], Bleed [Physical, Chakra, Summon] Flat 5]
           ]
         }
       ]
@@ -152,11 +148,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies $ trap (-1) OnNoAction $
-                apply 1 [ Stun All
-                        , Bleed Physical Flat 10
-                        , Bleed Chakra Flat 10
-                        , Bleed Summon Flat 10
-                        ]
+                apply 1 [Stun All, Bleed [Physical, Chakra, Summon] Flat 10]
           ]
         }
       ]
@@ -190,7 +182,7 @@ characters =
                 targetBonus <- 10 `bonusIf` targetHas "Echoing Sound"
                 userBonus   <- 10 `bonusIf` userHas "Echo Speaker Tuning"
                 damage (10 + targetBonus + userBonus)
-                apply 0 [Bleed NonAffliction Flat 5, Weaken All Flat 5]
+                apply 0 [Bleed [NonAffliction] Flat 5, Weaken [All] Flat 5]
           ]
         }
       ]
@@ -253,9 +245,9 @@ characters =
           , To Enemy do
                 deplete 1
                 whenM (userHas "Bell Ring Illusion") $
-                    apply 1 [Bleed Chakra Flat 15]
+                    apply 1 [Bleed [Chakra] Flat 15]
                 whenM (userHas "Shadow Senbon") $
-                    apply 1 [Bleed Physical Flat 15]
+                    apply 1 [Bleed [Physical] Flat 15]
           ]
         }
       ]
@@ -354,9 +346,9 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 whenM (userHas "Chakra Focus") $ absorb 1
-                apply 2 [Weaken All Flat 5]
+                apply 2 [Weaken [All] Flat 5]
                 leech 20 $ self . heal
-          , To Self $ apply 2 [Strengthen All Flat 5]
+          , To Self $ apply 2 [Strengthen [All] Flat 5]
           ]
         }
       ]
@@ -370,9 +362,9 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 whenM (userHas "Chakra Focus") $ absorb 1
-                apply 1 [Weaken All Flat 5]
+                apply 1 [Weaken [All] Flat 5]
                 leech 15 $ self . heal
-          , To Self $ apply 1 [Strengthen All Flat 5]
+          , To Self $ apply 1 [Strengthen [All] Flat 5]
           ]
         }
       ]
@@ -397,7 +389,7 @@ characters =
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To XAlly $ apply 1 [Reduce All Flat 15]
+          [ To XAlly $ apply 1 [Reduce [All] Flat 15]
           , To Enemy $ damage 15
           ]
         }

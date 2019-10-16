@@ -39,7 +39,7 @@ characters =
           [ To Enemies do
                 damage 15
                 stacks <- userStacks "Susanoo"
-                apply stacks [Weaken All Flat 5]
+                apply stacks [Weaken [All] Flat 5]
           ]
         }
       ]
@@ -131,7 +131,7 @@ characters =
           , To Allies do
                 trap 3 OnStunned $ apply 1 [Invulnerable All]
                 trap 3 (OnDamaged NonAffliction) $
-                    self $ apply 1 [Strengthen All Flat 10]
+                    self $ apply 1 [Strengthen [All] Flat 10]
           , To Self $ apply 3 [Alternate "Super Beast Scroll: Snake"
                                          "Super Beast Scroll: Bird"]
           ]
@@ -424,7 +424,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ pierce 40
-          , To Self $ apply 1 [Reduce All Percent 25]
+          , To Self $ apply 1 [Reduce [All] Percent 25]
           ]
         }
       ]
@@ -458,7 +458,7 @@ characters =
         , Skill.cooldown = 2
         , Skill.effects  =
           [ To Self $ trap 1 (CounterAll All) $ return ()
-          , To Enemies $ trapFrom 1 OnHelped $ apply 3 [Exhaust All]
+          , To Enemies $ trapFrom 1 OnHelped $ apply 3 [Exhaust [All]]
           ]
         }
       ]
@@ -512,7 +512,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To REnemy $ pierce 25
-          , To Self $ apply 1 [Reduce All Percent 75, Face]
+          , To Self $ apply 1 [Reduce [All] Percent 75, Face]
           ]
         , Skill.stunned   =
           [ To Self $ apply 1 [Face] ]

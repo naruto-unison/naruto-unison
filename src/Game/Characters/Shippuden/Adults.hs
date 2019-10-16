@@ -46,7 +46,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 45
-                apply 1 [Snare 1, Exhaust All]
+                apply 1 [Snare 1, Exhaust [All]]
           , To XAlly do
                 cureAll
                 apply 1 [Invulnerable All]
@@ -174,7 +174,7 @@ characters =
           [ To Enemy do
                 stacks <- userStacks "Single Gate Release"
                 damage (35 + 5 * stacks)
-                apply 1 [Weaken All Flat 20]
+                apply 1 [Weaken [All] Flat 20]
           ]
         }
       , Skill.new
@@ -206,7 +206,7 @@ characters =
           [ To Self do
                 sacrifice 0 5
                 stacks <- userStacks "Single Gate Release"
-                apply 0 $ Reduce All Flat 5 : case stacks of
+                apply 0 $ Reduce [All] Flat 5 : case stacks of
                     6 -> [Alternate "Fiery Kick" "Asakujaku"]
                     7 -> [Alternate "Fiery Kick" "Hirudora"]
                     _ -> []
@@ -226,7 +226,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                apply 1 [Reduce All Percent 50]
+                apply 1 [Reduce [All] Percent 50]
                 trapFrom 1 (OnHarmed All) $ apply 1 [Stun Physical, Stun Melee]
           ]
         }
@@ -250,7 +250,9 @@ characters =
         , Skill.cost      = [Nin, Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ apply 2 [Stun Chakra, Stun Ranged, Bleed Melee Flat 5] ]
+          [ To Enemy $
+                apply 2 [Stun Chakra, Stun Ranged, Bleed [Melee] Flat 5]
+          ]
         }
       ]
     , [ invuln "Cloth Shield" "Maki" [Physical] ]
@@ -352,7 +354,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemies $ damage 15
-          , To Self $ apply 1 [Reduce All Percent 25]
+          , To Self $ apply 1 [Reduce [All] Percent 25]
           ]
         }
       ]
@@ -384,7 +386,7 @@ characters =
           [ To Enemy do
                 damage 25
                 tag 1
-          , To Self $ apply 1 [Reduce All Percent 50]
+          , To Self $ apply 1 [Reduce [All] Percent 50]
           ]
         }
       ]
@@ -425,8 +427,8 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 2 [Reduce All Flat 15]
-          , To Enemies $ apply 2 [Bleed All Percent 20]
+          [ To Self $ apply 2 [Reduce [All] Flat 15]
+          , To Enemies $ apply 2 [Bleed [All] Percent 20]
           ]
         }
       ]
@@ -438,7 +440,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 30
-                apply 1 [Weaken All Flat 10]
+                apply 1 [Weaken [All] Flat 10]
           ]
         }
       ]
@@ -482,7 +484,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ apply 1 [Reduce All Percent 20]
+          [ To Self $ apply 1 [Reduce [All] Percent 20]
           , To Enemies do
                 damage 10
                 apply 1 [ Throttle 1 Counters
@@ -559,7 +561,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                apply 3 [Reduce All Flat 10]
+                apply 3 [Reduce [All] Flat 10]
                 trapFrom 3 (OnHarmed All) $ afflict 10
           ]
         }
@@ -661,7 +663,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Allies $ apply 3 [Reduce All Percent 20, Focus] ]
+          [ To Allies $ apply 3 [Reduce [All] Percent 20, Focus] ]
         }
       ]
     , [ Skill.new
@@ -757,7 +759,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Self do
-                apply 3 [Reduce All Flat 5]
+                apply 3 [Reduce [All] Flat 5]
                 trap 3 (OnHarmed NonMental) $ damage 10
           ]
         }
@@ -781,7 +783,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ trapFrom 1 (CounterAll All) $ apply 1 [Exhaust All] ]
+          [ To Self $ trapFrom 1 (CounterAll All) $ apply 1 [Exhaust [All]] ]
         }
       ]
     , [ invuln "Block" "Ao" [Physical] ]

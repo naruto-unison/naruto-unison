@@ -24,7 +24,7 @@ characters =
                 deplete 1
                 pierce 15
                 apply 1 [Stun All]
-                apply 0 [Weaken All Flat 5]
+                apply 0 [Weaken [All] Flat 5]
           ]
         }
       ]
@@ -150,7 +150,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 afflict 25
-                apply 0 [Weaken All Flat 5]
+                apply 0 [Weaken [All] Flat 5]
           , To Self $ sacrifice 0 15
           ]
         }
@@ -217,9 +217,9 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 20
-                apply 1 [Weaken All Flat 5]
+                apply 1 [Weaken [All] Flat 5]
                 whenM (userHas "Sharingan Stun") $ apply 1 [Stun All]
-          , To Self $ apply 1 [Strengthen All Flat 5]
+          , To Self $ apply 1 [Strengthen [All] Flat 5]
           ]
         }
       ]
@@ -231,9 +231,9 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 20
-                apply 1 [Weaken All Flat 5]
+                apply 1 [Weaken [All] Flat 5]
                 whenM (userHas "Sharingan Stun") $ apply 1 [Stun All]
-          , To Self $ apply 1 [Strengthen All Flat 5]
+          , To Self $ apply 1 [Strengthen [All] Flat 5]
           ]
         }
       ]
@@ -252,7 +252,7 @@ characters =
                     self $ tag' "Sharingan Stun" 1
                 trap 2 OnDamage do
                     removeTrap "Sharingan"
-                    self $ apply 1 [Strengthen All Flat 10]
+                    self $ apply 1 [Strengthen [All] Flat 10]
           ]
         }
       ]
@@ -267,7 +267,7 @@ characters =
         , Skill.classes   = [Physical, Ranged, Invisible, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ To Self $ apply 1 [Reduce All Flat 15]
+          [ To Self $ apply 1 [Reduce [All] Flat 15]
           , To Enemy do
                 trap (-1) (OnAction All) flag
                 delay (-1) do
@@ -343,11 +343,11 @@ characters =
         , Skill.effects   =
           [ To XAlly $ tag 4
           ,  To Self do
-                apply 4 [Reduce All Flat 15]
+                apply 4 [Reduce [All] Flat 15]
                 trap 4 OnDeath $ everyone $ whenM (targetHas "Sharingan") $
                     apply' "Borrowed Sharingan" 0
-                        [ Reduce All Flat 5
-                        , Strengthen NonAffliction Flat 5
+                        [ Reduce [All] Flat 5
+                        , Strengthen [NonAffliction] Flat 5
                         ]
           ]
         }

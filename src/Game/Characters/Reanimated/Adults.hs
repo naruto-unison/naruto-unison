@@ -78,7 +78,7 @@ characters =
         , Skill.effects   =
           [ To Self $ trapFrom 1 (OnHarmed All) do
                 damage 25
-                self $ apply 2 [Reduce All Percent 25, Heal 15]
+                self $ apply 2 [Reduce [All] Percent 25, Heal 15]
           ]
         }
       ]
@@ -151,7 +151,7 @@ characters =
           [ To Enemy do
                 afflict 25
                 addStack' "Spirit Word"
-          , To Self $ apply 1 [Reduce All Percent 50]
+          , To Self $ apply 1 [Reduce [All] Percent 50]
           ]
         }
       ]
@@ -209,7 +209,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self $ apply 3
-                [ Reduce All Percent 50
+                [ Reduce [All] Percent 50
                 , Alternate "Magnetic Field" "Conserving Bee Twin Blades"
                 ]
           ]
@@ -266,7 +266,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ apply 0 [Reduce Affliction Percent 10]
+          [ To Self $ apply 0 [Reduce [Affliction] Percent 10]
           , To Enemy do
                 stacks <- targetStacks "Chakra Arms"
                 damage (30 + 5 * stacks)
@@ -354,7 +354,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemies $ apply 1 [Exhaust All] ]
+          [ To Enemies $ apply 1 [Exhaust [All]] ]
         , Skill.changes   =
             changeWith "Hidden Frost" \x -> x { Skill.cost = [Rand] }
         }

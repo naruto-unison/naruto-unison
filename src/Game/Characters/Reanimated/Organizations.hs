@@ -44,7 +44,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemies $ trap 1 (OnAction All) $ damage 20
-          , To Self $ apply 1 [Reduce All Percent 50]
+          , To Self $ apply 1 [Reduce [All] Percent 50]
           ]
         }
       ]
@@ -200,7 +200,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Self $ apply' "Demon Shroud " 1
-                [Reduce All Flat 10, Focus]
+                [Reduce [All] Flat 10, Focus]
           , To REnemy do
                 pierce 30
                 tag' "Executioner's Butchering" 1
@@ -371,7 +371,7 @@ characters =
         , Skill.desc      = "Jinpachi adds a Paper Bomb to his sword. In addition to fueling his other attacks, Paper Bombs provides 5 points of damage reduction each."
         , Skill.classes   = [Physical]
         , Skill.effects   =
-          [ To Self $ apply' "Paper Bomb" 0 [Reduce All Flat 5] ]
+          [ To Self $ apply' "Paper Bomb" 0 [Reduce [All] Flat 5] ]
         }
       ]
     , [ Skill.new
@@ -428,7 +428,7 @@ characters =
           ]
         , Skill.effects   =
           [ To Self do
-                trap 1 OnDamage $ apply 0 [Reduce All Flat 5]
+                trap 1 OnDamage $ apply 0 [Reduce [All] Flat 5]
                 delay (-1) $ unlessM (userHas "hair") $ heal 10
           ]
         }
@@ -565,7 +565,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 4 [Reduce All Flat 10] ]
+          [ To Self $ apply 4 [Reduce [All] Flat 10] ]
         }
       ]
     , [ Skill.new
@@ -589,9 +589,9 @@ characters =
                 damage (15 + bonus)
                 targetHealth <- target health
                 if targetHealth <= 35 then
-                    apply 1 [Weaken All Flat 5, Stun Physical, Stun Chakra]
+                    apply 1 [Weaken [All] Flat 5, Stun Physical, Stun Chakra]
                 else
-                    apply 1 [Weaken All Flat 5]
+                    apply 1 [Weaken [All] Flat 5]
           ]
         }
       ]

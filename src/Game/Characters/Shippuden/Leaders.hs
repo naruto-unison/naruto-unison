@@ -198,7 +198,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To XAlly $ apply 2 [Reduce All Flat 10, AntiCounter] ]
+          [ To XAlly $ apply 2 [Reduce [All] Flat 10, AntiCounter] ]
         }
       ]
     , [ Skill.new
@@ -271,7 +271,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 afflict 20
-                apply 1 [Exhaust All]
+                apply 1 [Exhaust [All]]
           ]
         }
       ]

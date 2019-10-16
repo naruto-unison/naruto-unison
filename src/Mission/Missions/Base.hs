@@ -52,8 +52,8 @@ hasFrom user name = Ninja.has name $ Ninja.slot user
 winFull :: WinType -> Int -> [Text] -> Goal
 winFull winType reach chars = Reach reach Career desc $ Win winType chars
   where
-    desc = toStrict . builderToLazy $
-           "Win 10 matches with " ++ commas "and" chars ++ " together."
+    desc = toStrict . builderToLazy $ "Win 10 matches with "
+           ++ commas "and" (toBuilder <$> chars) ++ " together."
 
 win :: Int -> [Text] -> Goal
 win = winFull WinTotal

@@ -54,7 +54,7 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
-          [ To Enemies $ apply 2 [Snare 1, Exhaust NonMental]
+          [ To Enemies $ apply 2 [Snare 1, Exhaust [NonMental]]
           , To Self $ apply 2
                 [ Alternate "Tree Wave Destruction" "Tree Wave Destruction"
                 , Alternate "Deep Forest Creation" "Deep Fourist Flourishing"
@@ -131,10 +131,10 @@ characters =
         , Skill.effects   =
           [ To XAllies $ trap (-1) OnNoAction do
                 applyWith [Invisible] 4 []
-                self $ applyWith [Invisible] 4 [Reduce All Flat 5]
+                self $ applyWith [Invisible] 4 [Reduce [All] Flat 5]
           , To Enemies $ trap (-1) OnNoAction do
                 applyWith [Invisible] (-4) []
-                self $ applyWith [Invisible] (-4) [Reduce All Flat 5]
+                self $ applyWith [Invisible] (-4) [Reduce [All] Flat 5]
           ]
         }
       ]
@@ -201,7 +201,7 @@ characters =
                     remove "Venom Sac"
                     alterCd "Major Summoning: Ibuse" baseVariant (-2)
                 else do
-                    hide 0 [Reduce Affliction Percent 50]
+                    hide 0 [Reduce [Affliction] Percent 50]
                     applyStacks "Major Summoning: Ibuse" 30
                         [Alternate "Major Summoning: Ibuse" "Poison Fog"]
                     trapPer' 0 PerDamaged $
@@ -276,7 +276,7 @@ characters =
           [ To Enemies do
                 damage 10
                 bonus <- 10 `bonusIf` targetHas "Gold Dust Waterfall"
-                barrierDoes 0 (const $ return ()) (apply 1 [Exhaust All])
+                barrierDoes 0 (const $ return ()) (apply 1 [Exhaust [All]])
                     (10 + bonus)
           ]
         }
@@ -413,8 +413,8 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 2 [ Focus
-                        , Reduce All Percent 50
-                        , Weaken All Flat 5
+                        , Reduce [All] Percent 50
+                        , Weaken [All] Flat 5
                         ]
                 trap 2 OnRes do
                     setHealth 15

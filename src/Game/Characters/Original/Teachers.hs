@@ -43,10 +43,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ trap 1 OnHarm do
                 damage 40
-                apply 1 [ Bleed Physical Flat 25
-                        , Bleed Chakra Flat 25
-                        , Bleed Summon Flat 25
-                        ]
+                apply 1 [Bleed [Physical, Chakra, Summon] Flat 25]
           ]
         }
       ]
@@ -129,7 +126,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemies $ apply 2 [Bleed Bane Flat 5, Afflict 5] ]
+          [ To Enemies $ apply 2 [Bleed [Bane] Flat 5, Afflict 5] ]
         }
       , Skill.new
         { Skill.name      = "Twin Snake Sacrifice"
@@ -168,7 +165,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy $ damage 15
-          , To Self $ apply 0 [Strengthen All Flat 5]
+          , To Self $ apply 0 [Strengthen [All] Flat 5]
           ]
         }
       ]
@@ -193,11 +190,11 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 1
-                    [Strengthen All Flat 10, Reduce All Flat 25]
+                    [Strengthen [All] Flat 10, Reduce [All] Flat 25]
                 delay 1 $ apply 1
-                    [Strengthen All Flat 10, Reduce All Flat 15]
+                    [Strengthen [All] Flat 10, Reduce [All] Flat 15]
                 delay 2 $ apply 1
-                    [Strengthen All Flat 10, Reduce All Flat 5]
+                    [Strengthen [All] Flat 10, Reduce [All] Flat 5]
           ]
         }
       ]
@@ -252,7 +249,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                apply 2 [Weaken All Flat 10, Exhaust All, Expose]
+                apply 2 [Weaken [All] Flat 10, Exhaust [All], Expose]
                 damage 10
           , To Self $ addStack' "Illusion"
           ]
@@ -311,7 +308,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemies $ damage 15
-          , To Allies $ apply 1 [Reduce All Flat 15]
+          , To Allies $ apply 1 [Reduce [All] Flat 15]
           , To Self do
                 remove "Sharpen Blades"
                 hide 1 [ Alternate "Flying Swallow" "Finishing Blow"

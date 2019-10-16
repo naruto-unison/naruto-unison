@@ -45,7 +45,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Self $ apply 4 [Reduce All Flat 15] ]
+          [ To Self $ apply 4 [Reduce [All] Flat 15] ]
         }
       ]
     , [ invuln "Sexy Technique" "Naruto" [Chakra] ]
@@ -83,7 +83,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 4 [Enrage, Reduce All Flat 10] ]
+          [ To Self $ apply 4 [Enrage, Reduce [All] Flat 10] ]
         }
       ]
     , [ invuln "Substitution Technique" "Sakura" [Chakra] ]
@@ -123,7 +123,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 4 [Reduce All Flat 15]
+          [ To Self $ apply 4 [Reduce [All] Flat 15]
           , To Enemy $ apply 4 [Expose]
           ]
         }
@@ -158,7 +158,7 @@ characters =
           [ To Enemies do
               bonus <- 5 `bonusIf` targetHas "Dynamic Marking"
               damage (15 + bonus)
-          , To Self $ apply 1 [Reduce All Flat 15]
+          , To Self $ apply 1 [Reduce [All] Flat 15]
           ]
         }
       ]
@@ -197,7 +197,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ apply 4 [Weaken All Flat 5] ]
+          [ To Enemy $ apply 4 [Weaken [All] Flat 5] ]
         }
       ]
     , [ Skill.new
@@ -249,7 +249,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 4 [Reduce All Flat 15] ]
+          [ To Self $ apply 4 [Reduce [All] Flat 15] ]
         }
       ]
     , [ invuln "Block" "Hinata" [Physical] ]
@@ -304,7 +304,7 @@ characters =
         , Skill.desc      = "Chōji eats the mildest Akimichi pill, losing 5 health down to a minimum of 1 and gaining the strength he needs to protect his friends. While alive, he provides 5 points of damage reduction to his allies."
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.effects   =
-          [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 5]
+          [ To XAllies $ apply' "Protected" 0 [Reduce [All] Flat 5]
           , To Self do
                 sacrifice 1 5
                 alternate loadout 1
@@ -319,7 +319,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [Weaken All Flat 20]
+                apply 1 [Weaken [All] Flat 20]
           ]
         }
       , Skill.new
@@ -349,7 +349,7 @@ characters =
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-            [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 10]
+            [ To XAllies $ apply' "Protected" 0 [Reduce [All] Flat 10]
             , To Self do
                   sacrifice 1 15
                   alternate loadout 2
@@ -366,7 +366,7 @@ characters =
           [ To Enemy do
                 damage 10
                 pierce 5
-          , To Self $ apply 1 [Focus, Reduce All Flat 15]
+          , To Self $ apply 1 [Focus, Reduce [All] Flat 15]
           ]
         }
       , Skill.new
@@ -403,7 +403,7 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.dur       = Passive
         , Skill.start     =
-          [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
+          [ To XAllies $ apply' "Protected" 0 [Reduce [All] Flat 15]
           ,  To Self do
                 sacrifice 1 10
                 alternate loadout 3
@@ -417,7 +417,7 @@ characters =
         , Skill.desc      = "Chōji eats the second Akimichi pill, losing 5 health down to a minimum of 1 and unlocking huge reserves of chakra. While alive, he provides 10 points of damage reduction to his allies."
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.effects   =
-          [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 10]
+          [ To XAllies $ apply' "Protected" 0 [Reduce [All] Flat 10]
           , To Self do
                 sacrifice 1 5
                 alternate loadout 2
@@ -429,7 +429,7 @@ characters =
         , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
         , Skill.dur       = Passive
         , Skill.start     =
-          [ To XAllies $ apply' "Protected" 0 [Reduce All Flat 15]
+          [ To XAllies $ apply' "Protected" 0 [Reduce [All] Flat 15]
           , To Self do
                 alternate loadout 3
                 apply 0 [Focus, Alternate "Block" "Block", Face]
@@ -527,7 +527,7 @@ characters =
                 bonus <- 15 `bonusIf` userHas "Fifth Gate Opening"
                 damage (10 + bonus)
                 tag 1
-          , To Self $ apply 1 [Reduce All Flat 10]
+          , To Self $ apply 1 [Reduce [All] Flat 10]
           ]
         }
       ]
@@ -599,10 +599,7 @@ characters =
                 damage (5 + 10 * stacks)
                 bonus <- 1 `bonusIf` userHas "Rising Twin Dragons"
                 apply (1 + bonus)
-                    [ Weaken Physical Flat (5 + 10 * stacks)
-                    , Weaken Chakra   Flat (5 + 10 * stacks)
-                    , Weaken Summon   Flat (5 + 10 * stacks)
-                    ]
+                    [Weaken [Physical, Chakra, Summon] Flat (5 + 10 * stacks)]
           ,  To Self do
                 remove "Unsealing Technique"
                 remove "Rising Twin Dragons"
@@ -641,7 +638,7 @@ characters =
         , Skill.effects   =
             [ To Enemy do
                 damage 25
-                apply 1 [Weaken All Flat 5]
+                apply 1 [Weaken [All] Flat 5]
             ]
         }
       ]
@@ -755,7 +752,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend 0 15
-                apply 4 [Strengthen All Flat 5]
+                apply 4 [Strengthen [All] Flat 5]
           ]
         }
       ]
@@ -793,7 +790,7 @@ characters =
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Allies $ apply 1 [Invulnerable All]
-          , To Enemies $ apply 2 [Weaken All Flat 15]
+          , To Enemies $ apply 2 [Weaken [All] Flat 15]
           ]
         }
       ]

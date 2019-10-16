@@ -13,12 +13,14 @@ module Game.Model.Effect
 import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), object)
+import Data.Enum.Set.Class (EnumSet)
 
-import Class.Classed (Classed(..))
-import Class.Display (Display(..))
-import Game.Model.Class (Class(..), lower)
-import Game.Model.Slot (Slot)
-import Util ((∈))
+import           Class.Classed (Classed)
+import qualified Class.Classed
+import           Class.Display (Display(..))
+import           Game.Model.Class (Class(..), lower)
+import           Game.Model.Slot (Slot)
+import           Util ((∈), commas)
 
 data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
@@ -55,66 +57,66 @@ instance Eq Constructor where
 
 -- | Effects of 'Status'es.
 data Effect
-    = Absorb                           -- ^ Gain chakra when targeted by skills
-    | Afflict      Int                 -- ^ Deals damage every turn
-    | Alone                            -- ^ Cannot be targeted by allies
-    | Alternate    Text Text           -- ^ Modifies a skill to an alternate form
-    | AntiCounter                      -- ^ Cannot be countered or reflected
-    | Bleed        Class Amount Int    -- ^ Adds to damage received
-    | Bless        Int                 -- ^ Adds to healing 'Skill's
-    | Block        Slot                -- ^ Treats user as 'Invulnerable'
-    | BlockAllies                      -- ^ Cannot affect allies
-    | BlockEnemies                     -- ^ Cannot affect enemies
-    | Boost        Int                 -- ^ Scales effects from allies
-    | Build        Int                 -- ^ Adds to destructible defense 'Skill'
-    | Bypass                           -- ^ All skills are 'Bypassing'
-    | DamageToDefense                  -- ^ Damage received converts to defense
-    | Disable      Constructor         -- ^ Prevents applying an effect
-    | Duel         Slot                -- ^ 'Invulnerable' to everyone but user
-    | Endure                           -- ^ Health cannot go below 1
-    | Enrage                           -- ^ Ignore all harmful status effects
-    | Exhaust      Class               -- ^ 'Skill's cost 1 additional random chakra
-    | Expose                           -- ^ Cannot reduce damage or be 'Invulnerable'
-    | Face                             -- ^ Changes appearance
-    | Focus                            -- ^ Immune to 'Stun', 'Disable', and 'Silence'
-    | Heal         Int                 -- ^ Heals every turn
-    | Invulnerable Class               -- ^ Invulnerable to enemy 'Skill's
-    | Limit        Int                 -- ^ Limits damage received
-    | NoIgnore                         -- ^ Ignore ignores
-    | Nullify                          -- ^ Invulnerable but targetable
-    | Pierce                           -- ^ Damage attacks become piercing
-    | Plague                           -- ^ Invulnerable to healing and curing
-    | Reduce       Class Amount Int    -- ^ Reduces damage by an amount
-    | Redirect     Slot                -- ^ Transfers harmful 'Skill's
-    | Reflect                          -- ^ Reflects the first 'Skill'
-    | ReflectAll   Class               -- ^ 'Reflect' repeatedly
-    | Restrict                         -- ^ Forces AoE attacks to be single-target
-    | Reveal                           -- ^ Makes 'Invisible' effects visible
-    | Seal                             -- ^ Ignores helpful status effects
-    | Share        Slot                -- ^ Harmful skills are also applied to a target
-    | Silence                          -- ^ Unable to cause non-damage effects
-    | Snare        Int                 -- ^ Increases cooldowns
-    | Strengthen   Class Amount Int    -- ^ Adds to all damage dealt
-    | Stun         Class               -- ^ Unable to use 'Skill's
-    | Swap                             -- ^ Target's skills swap enemies and allies
-    | Taunt        Slot                -- ^ Forced to attack a target
-    | Threshold    Int                 -- ^ Invulnerable to baseline damage below a threhold
-    | Throttle     Int Constructor     -- ^ Applying an effect lasts fewer turns
-    | Undefend                         -- ^ Does not benefit from destructible defense
-    | Uncounter                        -- ^ Cannot counter or reflect
-    | Unreduce     Int                 -- ^ Reduces damage reduction 'Skill's
-    | Weaken       Class Amount Int    -- ^ Lessens damage dealt
+    = Absorb                                  -- ^ Gain chakra when targeted by skills
+    | Afflict      Int                        -- ^ Deals damage every turn
+    | Alone                                   -- ^ Cannot be targeted by allies
+    | Alternate    Text Text                  -- ^ Modifies a skill to an alternate form
+    | AntiCounter                             -- ^ Cannot be countered or reflected
+    | Bleed        (EnumSet Class) Amount Int -- ^ Adds to damage received
+    | Bless        Int                        -- ^ Adds to healing 'Skill's
+    | Block        Slot                       -- ^ Treats user as 'Invulnerable'
+    | BlockAllies                             -- ^ Cannot affect allies
+    | BlockEnemies                            -- ^ Cannot affect enemies
+    | Boost        Int                        -- ^ Scales effects from allies
+    | Build        Int                        -- ^ Adds to destructible defense 'Skill'
+    | Bypass                                  -- ^ All skills are 'Bypassing'
+    | DamageToDefense                         -- ^ Damage received converts to defense
+    | Disable      Constructor                -- ^ Prevents applying an effect
+    | Duel         Slot                       -- ^ 'Invulnerable' to everyone but user
+    | Endure                                  -- ^ Health cannot go below 1
+    | Enrage                                  -- ^ Ignore all harmful status effects
+    | Exhaust      (EnumSet Class)            -- ^ 'Skill's cost 1 additional random chakra
+    | Expose                                  -- ^ Cannot reduce damage or be 'Invulnerable'
+    | Face                                    -- ^ Changes appearance
+    | Focus                                   -- ^ Immune to 'Stun', 'Disable', and 'Silence'
+    | Heal         Int                        -- ^ Heals every turn
+    | Invulnerable Class                      -- ^ Invulnerable to enemy 'Skill's
+    | Limit        Int                        -- ^ Limits damage received
+    | NoIgnore                                -- ^ Ignore ignores
+    | Nullify                                 -- ^ Invulnerable but targetable
+    | Pierce                                  -- ^ Damage attacks become piercing
+    | Plague                                  -- ^ Invulnerable to healing and curing
+    | Reduce       (EnumSet Class) Amount Int -- ^ Reduces damage by an amount
+    | Redirect     Slot                       -- ^ Transfers harmful 'Skill's
+    | Reflect                                 -- ^ Reflects the first 'Skill'
+    | ReflectAll   Class                      -- ^ 'Reflect' repeatedly
+    | Restrict                                -- ^ Forces AoE attacks to be single-target
+    | Reveal                                  -- ^ Makes 'Invisible' effects visible
+    | Seal                                    -- ^ Ignores helpful status effects
+    | Share        Slot                       -- ^ Harmful skills are also applied to a target
+    | Silence                                 -- ^ Unable to cause non-damage effects
+    | Snare        Int                        -- ^ Increases cooldowns
+    | Strengthen   (EnumSet Class) Amount Int -- ^ Adds to all damage dealt
+    | Stun         Class                      -- ^ Unable to use 'Skill's
+    | Swap                                    -- ^ Target's skills swap enemies and allies
+    | Taunt        Slot                       -- ^ Forced to attack a target
+    | Threshold    Int                        -- ^ Invulnerable to baseline damage below a threhold
+    | Throttle     Int Constructor            -- ^ Applying an effect lasts fewer turns
+    | Undefend                                -- ^ Does not benefit from destructible defense
+    | Uncounter                               -- ^ Cannot counter or reflect
+    | Unreduce     Int                        -- ^ Reduces damage reduction 'Skill's
+    | Weaken       (EnumSet Class) Amount Int -- ^ Lessens damage dealt
     deriving (Eq, Show)
 instance Classed Effect where
-    classes (Bleed cla _ _)      = singletonSet cla
-    classes (Exhaust cla)        = singletonSet cla
-    classes (Invulnerable cla)   = singletonSet cla
-    classes (Reduce cla _ _)     = singletonSet cla
-    classes (ReflectAll cla)     = singletonSet cla
-    classes (Strengthen cla _ _) = singletonSet cla
-    classes (Stun cla)           = singletonSet cla
-    classes (Weaken cla _ _)     = singletonSet cla
-    classes _                    = mempty
+    classes (Bleed classes _ _)      = classes
+    classes (Exhaust classes)        = classes
+    classes (Invulnerable cla)       = singletonSet cla
+    classes (Reduce classes _ _)     = classes
+    classes (ReflectAll cla)         = singletonSet cla
+    classes (Strengthen classes _ _) = classes
+    classes (Stun cla)               = singletonSet cla
+    classes (Weaken classes _ _)     = classes
+    classes _                        = mempty
 
 instance ToJSON Effect where
     toJSON x = object
@@ -224,15 +226,18 @@ visible (Alternate x y) = x /= y
 visible Face            = False
 visible _               = True
 
+list :: ∀ o. (MonoFoldable o, Element o ~ Class) => o -> TextBuilder
+list classes = commas "and" $ lower <$> toList classes
+
 instance Display Effect where
     display Absorb = "Gains chakra equal to the chakra cost of skills received from enemies."
     display (Afflict x) = "Receives " ++ display x ++ " affliction damage each turn."
     display Alone = "Invulnerable to allies."
     display (Alternate from to) = "[" ++ display from ++ "] becomes [" ++ display to ++ "]."
     display AntiCounter = "Cannot be countered or reflected."
-    display (Bleed cla amt x)
-      | x >= 0    =  displayAmt amt x ++ " additional damage taken from " ++ lower cla ++ " skills."
-      | otherwise = "Reduces " ++ lower cla ++  " damage received by " ++ displayAmt amt (-x) ++ "."
+    display (Bleed classes amt x)
+      | x >= 0    =  displayAmt amt x ++ " additional damage taken from " ++ list classes ++ " skills."
+      | otherwise = "Reduces " ++ list classes ++  " damage received by " ++ displayAmt amt (-x) ++ "."
     display (Bless x) = "Healing skills heal " ++ display x ++ " additional health."
     display (Block _) = "Unable to affect a specific target."
     display BlockAllies = "Unable to affect allies."
@@ -247,7 +252,7 @@ instance Display Effect where
     display (Duel _) = "Invulnerable to everyone but a specific target."
     display Endure = "Health cannot go below 1."
     display Enrage = "Ignores status effects from enemies except chakra cost changes."
-    display (Exhaust cla) = display cla ++ " skills cost 1 additional random chakra."
+    display (Exhaust classes) = "1 arbitrary chakra is added to the cost of " ++ list classes ++ " skills."
     display Expose = "Unable to reduce damage or become invulnerable."
     display Face = "Appearance is altered."
     display (Heal x) = "Gains " ++ display x ++ " health each turn."
@@ -258,12 +263,12 @@ instance Display Effect where
     display Nullify = "Ignores enemy skills."
     display Pierce = "Non-affliction skills deal piercing damage."
     display Plague = "Cannot be healed or cured."
-    display (Reduce Affliction amt x)
+    display (Reduce (member Affliction -> True) amt x)
       | x >= 0    = "Reduces all damage received—including piercing and affliction—by " ++ displayAmt amt x ++ "."
       | otherwise = "Increases all damage received—including piercing and affliction—by " ++ displayAmt amt x ++ "."
-    display (Reduce cla amt x)
-      | x >= 0    = "Reduces " ++ lower cla ++ " damage received by " ++ displayAmt amt x ++ ". Does not affect piercing or affliction damage."
-      | otherwise = "Increases " ++ lower cla ++ " damage received by " ++ displayAmt amt (-x) ++ ". Does not affect piercing or affliction damage."
+    display (Reduce classes amt x)
+      | x >= 0    = "Reduces " ++ list classes ++ " damage received by " ++ displayAmt amt x ++ ". Does not affect piercing or affliction damage."
+      | otherwise = "Increases " ++ list classes ++ " damage received by " ++ displayAmt amt (-x) ++ ". Does not affect piercing or affliction damage."
     display Redirect{} = "Redirects skills from enemies to a different target."
     display Reflect = "Reflects the first harmful skill."
     display (ReflectAll cla) = "Reflects " ++ lower cla ++ " skills."
@@ -275,7 +280,7 @@ instance Display Effect where
     display (Snare x)
       | x >= 0    = "Cooldowns increased by " ++ display x ++ "."
       | otherwise = "Cooldowns decreased by " ++ display (-x) ++ "."
-    display (Strengthen cla amt x) = display cla ++ " damaging skills deal " ++ displayAmt amt x ++ " additional damage."
+    display (Strengthen classes amt x) = "Deals " ++ displayAmt amt x ++ " additional damage with " ++ list classes ++ " skills."
     display (Stun cla) = "Unable to use " ++ lower cla ++ " skills."
     display Swap = "Next skill will target allies instead of enemies and enemies instead of allies."
     display (Taunt _) = "Can only affect a specific target."
@@ -284,4 +289,4 @@ instance Display Effect where
     display Uncounter = "Unable to benefit from counters or reflects."
     display Undefend = "Unable to benefit from destructible defense."
     display (Unreduce x) = "Damage reduction skills reduce " ++ display x ++ " fewer damage."
-    display (Weaken cla amt x) = display cla ++ " skills deal " ++ displayAmt amt x ++ " fewer damage. Does not affect affliction damage."
+    display (Weaken classes amt x) = "Deals " ++ displayAmt amt x ++ " fewer damage with " ++ list classes ++ "skills. Does not affect affliction damage."

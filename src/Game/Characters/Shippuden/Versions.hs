@@ -80,7 +80,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 3 [ Reduce Affliction Flat 15
+          [ To Self $ apply 3 [ Reduce [Affliction] Flat 15
                               , Alternate "Chidori" "Blazing Arrow"
                               , Alternate "Amaterasu" "Yasaka Beads"
                               , Face
@@ -100,7 +100,7 @@ characters =
                 apply 1 [Stun All]
           , To Self do
                 trap (-1) (OnDamaged Physical) $ remove "Chidori"
-                bomb (-1) [Reduce Physical Flat 15]
+                bomb (-1) [Reduce [Physical] Flat 15]
                     [ To Expire do
                           hide 1 []
                           reset "Chidori" baseVariant
@@ -235,7 +235,7 @@ characters =
           [ To Enemies do
                 stacks <- targetStacks "Sand Bomb"
                 damage (15 + 5 * stacks)
-                apply 1 [Exhaust All]
+                apply 1 [Exhaust [All]]
           , To Everyone $ remove "Sand Bomb"
           ]
         }
@@ -637,7 +637,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                apply 1 [Enrage, Strengthen All Percent 100]
+                apply 1 [Enrage, Strengthen [All] Percent 100]
                 sacrifice 1 10
           ]
         }
@@ -652,7 +652,7 @@ characters =
           [ To Enemy do
                 stacks <- userStacks "Night Guy"
                 pierce (50 + 25 * stacks)
-                apply 2 [Seal, Weaken All Flat 5]
+                apply 2 [Seal, Weaken [All] Flat 5]
           , To Self do
                 sacrifice 1 30
                 addStack
@@ -795,7 +795,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy $ damage 10
-          , To Self $ apply 1 [Reduce All Percent 20]
+          , To Self $ apply 1 [Reduce [All] Percent 20]
           ]
         }
       ]

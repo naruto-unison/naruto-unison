@@ -46,7 +46,7 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((—), (∈), (∉))
+import           Util ((—), (∈))
 
 -- | Reduces incoming damage by depleting the user's 'Ninja.barrier'.
 absorbBarrier :: Int -> [Barrier] -> (Int, [Barrier])
@@ -139,7 +139,7 @@ attack :: ∀ m. MonadPlay m => Attack -> Int -> m ()
 attack atk dmg = void $ runMaybeT do
     nTarget    <- P.nTarget
 
-    guard $ atkClass ∉ Effects.invulnerable nTarget
+    guard .not $ nTarget `is` Invulnerable atkClass
 
     skill      <- P.skill
     nUser      <- P.nUser

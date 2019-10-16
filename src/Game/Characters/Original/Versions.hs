@@ -51,7 +51,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 heal 15
-                apply 1 [Reduce All Flat 10]
+                apply 1 [Reduce [All] Flat 10]
           ]
         }
       ]
@@ -69,7 +69,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 45
-                apply 2 [Weaken All Flat 20]
+                apply 2 [Weaken [All] Flat 20]
           ]
         , Skill.changes   =
             changeWith "Curse Mark" \x -> x { Skill.cost = [Rand] }
@@ -223,7 +223,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ apply 1 [Strengthen All Percent 100] ]
+          [ To Self $ apply 1 [Strengthen [All] Percent 100] ]
         }
       ]
     , [ invuln "Thick Sand Coat" "Shukaku" [Physical] ]
@@ -252,7 +252,7 @@ characters =
         , Skill.dur       = Control 1
         , Skill.effects   =
           [ To Enemies do
-                apply 1 [Exhaust NonMental]
+                apply 1 [Exhaust [NonMental]]
                 trap 1 (OnAction NonMental) $ remove "Sand Burial Prison"
           , To Self $ apply' "Giant Sand Burial" 1
                 [Alternate "Sand Burial Prison" "Giant Sand Burial"]

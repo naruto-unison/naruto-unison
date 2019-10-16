@@ -122,7 +122,7 @@ characters =
         , Skill.start     =
           [ To Self do
               enemies $ apply 4 []
-              allies  $ apply 4 [Reduce All Flat 5]
+              allies  $ apply 4 [Reduce [All] Flat 5]
           ]
         , Skill.effects   =
           [ To Enemies $ whenM (not <$> targetHas "swarmed") do
@@ -178,7 +178,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                apply 0 [Reduce All Flat 10, Alternate "Biding Time" "Payback"]
+                apply 0 [Reduce [All] Flat 10, Alternate "Biding Time" "Payback"]
                 trap 0 (OnDamaged All) $ addStack' "Payback"
           ]
         }
@@ -395,8 +395,8 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Self $ apply 2 [Reduce All Flat 5]
-          , To Enemies $ apply 2 [Exhaust Physical, Exhaust Mental]
+          [ To Self $ apply 2 [Reduce [All] Flat 5]
+          , To Enemies $ apply 2 [Exhaust [Physical, Mental]]
           ]
         }
       ]
@@ -590,7 +590,7 @@ characters =
           [ To Enemies do
                 damage 10
                 apply 1 [Snare 1]
-          , To Self $ apply 1 [Reduce All Flat 10]
+          , To Self $ apply 1 [Reduce [All] Flat 10]
           ]
         }
       ]
@@ -618,7 +618,7 @@ characters =
         , Skill.dur       = Ongoing 2
         , Skill.effects   =
           [ To Enemies $ damage 15
-          , To Self $ apply 1 [Reduce All Flat 10]
+          , To Self $ apply 1 [Reduce [All] Flat 10]
           ]
         }
       ]
@@ -674,7 +674,7 @@ characters =
           [ To Enemy do
                 bomb 0 [Afflict 20]
                        [ To Done $ everyone $ remove "Demon Parasite" ]
-                self $ apply 0 [Reduce All Flat 15]
+                self $ apply 0 [Reduce [All] Flat 15]
           ]
         }
       ]
@@ -738,10 +738,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 30
-                apply 1 [ Weaken Physical Flat 20
-                        , Weaken Chakra Flat 20
-                        , Weaken Summon Flat 20
-                        ]
+                apply 1 [Weaken [Physical, Chakra, Summon] Flat 20]
           , To Self $ apply (-2) [Afflict 15]
           ]
         }

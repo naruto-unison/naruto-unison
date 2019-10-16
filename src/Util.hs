@@ -64,8 +64,8 @@ adjustWith x f i xs
 
 -- | Divides a list of @Text@s into a single, comma-separated @Text@ ended
 -- with a provided conjunction.
-commas :: TextBuilder -> [Text] -> TextBuilder
-commas conj texts = go $ toBuilder <$> texts
+commas :: TextBuilder -> [TextBuilder] -> TextBuilder
+commas conj = go
   where
     conj'      = " " ++ conj ++ " "
     go []      = mempty

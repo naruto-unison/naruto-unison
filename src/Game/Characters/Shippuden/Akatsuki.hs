@@ -90,7 +90,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 15
-                apply 4 [ Weaken All Flat 5]
+                apply 4 [ Weaken [All] Flat 5]
           , To Self $ hide 0 [Alternate "C1: Bird Bomb" "C3: Megaton Sculpture"]
           ]
         }
@@ -102,7 +102,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 20
-                apply 4 [ Weaken All Flat 5]
+                apply 4 [Weaken [All] Flat 5]
           , To Self $ remove "c1: bird bomb"
           ]
         }
@@ -115,7 +115,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 30
-                apply 4 [Weaken All Flat 5]
+                apply 4 [Weaken [All] Flat 5]
           ]
         }
       ]
@@ -143,7 +143,7 @@ characters =
           [ To Enemy $ trap (-2) (OnAction NonMental) do
                 removeTrap "C2: Minefield"
                 damage 10
-                apply 4 [Weaken All Flat 5]
+                apply 4 [Weaken [All] Flat 5]
           ]
         }
       ]
@@ -153,7 +153,7 @@ characters =
         , Skill.classes   = [Bane, Chakra, Ranged, Uncounterable, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =
-          [ To Enemy $ apply 0 [Afflict 10, Weaken All Flat 5]
+          [ To Enemy $ apply 0 [Afflict 10, Weaken [All] Flat 5]
           , To Self $ hide 0 [Alternate "C4: Karura" "C0: Ultimate Art"]
           ]
         }
@@ -242,7 +242,7 @@ characters =
           [ To Enemies do
                 afflict 15
                 bonus <- 1 `bonusIf` targetHas "Pinned"
-                apply (1 + bonus) [Snare 1, Exhaust All]
+                apply (1 + bonus) [Snare 1, Exhaust [All]]
           ]
         }
       ]
@@ -579,7 +579,7 @@ characters =
         , Skill.cooldown   = 2
         , Skill.effects    =
           [ To Self do
-                trapFrom 1 (OnHarmed All) $ apply 1 [Exhaust All]
+                trapFrom 1 (OnHarmed All) $ apply 1 [Exhaust [All]]
                 apply 1 [Nullify]
           ]
         }
@@ -653,7 +653,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [Weaken All Percent 50]
+                apply 1 [Weaken [All] Percent 50]
           ]
         }
       , Skill.new
@@ -1043,8 +1043,8 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 10
-                apply 1 [Exhaust All]
-          , To Allies $ apply 1 [Reduce All Flat 10]
+                apply 1 [Exhaust [All]]
+          , To Allies $ apply 1 [Reduce [All] Flat 10]
           ]
         }
       ]
@@ -1206,7 +1206,7 @@ characters =
                 dragonStacks <- userStacks "dragon"
                 addStacks' 1 "Control" dragonStacks
                 gedoStacks   <- userStacks "gedo"
-                apply 1 [ Reduce All Flat (10 + 5 * gedoStacks)
+                apply 1 [ Reduce [All] Flat (10 + 5 * gedoStacks)
                         , Alternate "Summoning: Gedo Statue" "Control"
                         ]
           ]
@@ -1337,7 +1337,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ apply 2 [Reduce All Flat 10]
+          [ To Allies $ apply 2 [Reduce [All] Flat 10]
           , To Enemies $ apply 2 [Snare 1]
           ]
         }

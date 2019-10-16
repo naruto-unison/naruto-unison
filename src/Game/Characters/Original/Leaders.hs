@@ -102,7 +102,7 @@ characters =
         , Skill.start     =
           [ To Enemies $ afflict 25 ]
         , Skill.effects   =
-          [ To Enemies $ apply 1 [Bleed Affliction Flat 5]
+          [ To Enemies $ apply 1 [Bleed [Affliction] Flat 5]
           , To Self $
                 hide 1 [Alternate "Major Summoning: Gamabunta" "Toad Oil Bomb"]
           ]
@@ -187,7 +187,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 afflict 30
-                apply 1 [Bleed Affliction Flat 10]
+                apply 1 [Bleed [Affliction] Flat 10]
           ]
         }
       ]
@@ -212,7 +212,7 @@ characters =
           [ To Allies $ apply 1 [Invulnerable All] ]
         , Skill.effects   =
           [ To Enemies $ damage 5
-          , To Allies $ apply 1 [Reduce All Flat 5]
+          , To Allies $ apply 1 [Reduce [All] Flat 5]
           , To Self $
                 hide 1 [Alternate "Major Summoning: Enma" "Adamantine Prison"]
           ]
@@ -224,7 +224,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Allies $ apply 1 [Endure, Reduce Affliction Flat 20] ]
+          [ To Allies $ apply 1 [Endure, Reduce [Affliction] Flat 20] ]
         }
       ]
     , [ invuln "Mud Wall" "Hiruzen" [Physical] ]
