@@ -1,6 +1,7 @@
 module Game.Model.Skill
   ( Skill(..), new, targets, chakraClasses
   , Target(..)
+  , Key(..), key
   , Transform
   , defaultName
   ) where
@@ -10,8 +11,9 @@ import Data.Enum.Set.Class (EnumSet)
 
 import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Channel (Channeling(..))
-import           Game.Model.Internal (Skill(..), Requirement(..), Target(..), Copying(..), Ninja)
+import           Game.Model.Internal (Key(..), Ninja, Skill(..), Requirement(..), Target(..))
 import qualified Game.Model.Runnable as Runnable
+import qualified Game.Model.Slot as Slot
 
 -- | The type signature of 'changes'.
 type Transform = (Ninja -> Skill -> Skill)
@@ -24,7 +26,6 @@ new = Skill { name      = "Unnamed"
             , classes   = mempty
             , cost      = 0
             , cooldown  = 0
-            , varicd    = False
             , charges   = 0
             , dur       = Instant
             , start     = []
@@ -32,7 +33,7 @@ new = Skill { name      = "Unnamed"
             , stunned   = []
             , interrupt = []
             , changes   = const id
-            , copying   = NotCopied
+            , owner     = headEx Slot.all
             }
 
 targets :: Skill -> EnumSet Target
@@ -50,3 +51,6 @@ chakraClasses skill =
 defaultName :: Text -> Skill -> Text
 defaultName ""   skill = name skill
 defaultName name _     = name
+
+key :: Skill -> Key
+key x = Key (name x) $ owner x

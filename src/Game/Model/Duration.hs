@@ -21,6 +21,7 @@ instance Display Duration where
 
 instance ToJSON Duration where
     toJSON = toJSON . sync
+    {-# INLINE toJSON #-}
 
 instance ToMarkup Duration where
       toMarkup (Duration d) = toMarkup $ abs d

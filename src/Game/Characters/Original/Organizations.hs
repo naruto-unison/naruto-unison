@@ -147,7 +147,7 @@ characters =
           [ To XAlly $ trap 3 OnRes do
                 resetAll
                 setHealth 5
-                teach 1 Deep 2
+                teach 1 2
                 bomb (-1) [Face, Invulnerable All, Alone, Seal, Enrage, Focus]
                           [ To Done killHard ]
           ]
@@ -414,15 +414,14 @@ characters =
           [ To Self $ apply 0
                 [ Invulnerable All
                 , Afflict 15
-                , Alternate "Mangekyō Sharingan" "Mangekyō Sharingan"
+                , Alternate "Mangekyō Sharingan" "Mangekyō Sharingan "
                 ]
           ]
         }
       , Skill.new
-        { Skill.name      = "Mangekyō Sharingan"
+        { Skill.name      = "Mangekyō Sharingan "
         , Skill.desc      = "Ends the effect of [Mangekyō Sharingan], halving Itachi's cooldowns and chakra costs."
         , Skill.classes   = [Mental]
-        , Skill.varicd    = True
         , Skill.effects   =
           [ To Self $ remove "Mangekyō Sharingan" ]
         }

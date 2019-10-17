@@ -5,6 +5,7 @@ module Game.Model.Slot
   , teamSize
   , all, allies, enemies
   , random
+  , toChar
   ) where
 
 import ClassyPrelude hiding (all)
@@ -14,6 +15,7 @@ import qualified Data.Text.Read as Read
 import           Text.Read hiding (read)
 import           Text.Read.Lex (numberToInteger)
 
+import           Class.Display (Display)
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
@@ -29,7 +31,8 @@ maxVal = teamSize * 2 - 1
 -- It is hidden behind a newtype and cannot be constructed or modified outside
 -- this module in order to prevent out-of-bound errors.
 -- This has the added advantage of making function signatures more readable!
-newtype Slot = Slot { toInt :: Int } deriving (Eq, Ord, Show, ToJSON)
+newtype Slot = Slot { toInt :: Int }
+               deriving (Eq, Ord, Show, Display, Hashable, ToJSON)
 
 instance Parity Slot where
     even (Slot x) = x < teamSize
@@ -69,3 +72,6 @@ read s = case Read.decimal s of
 
 random :: ∀ m. MonadRandom m => m Slot
 random = Slot <$> R.random 0 maxVal
+
+toChar :: Slot -> Char
+toChar (Slot x) = toEnum $ x + 48

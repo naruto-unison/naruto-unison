@@ -94,11 +94,10 @@ characters =
           ]
         }
       , Skill.new
-        { Skill.name     = "Mystical Palm Healing"
+        { Skill.name     = "Mystical Palm Healing "
         , Skill.desc     = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures the target of bane effects. Spends a Seal if available to have no cooldown and cost 1 arbitrary chakra."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand]
-        , Skill.varicd    = True
         , Skill.effects   =
           [ To XAlly do
                 cureBane
@@ -115,7 +114,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self $ applyStacks "Seal" 3
-                [ Alternate "Mystical Palm Healing" "Mystical Palm Healing"
+                [ Alternate "Mystical Palm Healing" "Mystical Palm Healing "
                 , Alternate "Strength of One Hundred Seal" "Seal Release"
                 ]
           ]
@@ -554,7 +553,7 @@ characters =
     "Now a chūnin, Ino takes control of every fight she faces. Her overpowering will steals the skills and secrets of her enemies and forces her allies to fight on no matter the cost. "
     [ [ Skill.new
         { Skill.name      = "Mind Destruction"
-        , Skill.desc      = "Ino infiltrates an enemy's mind and prepares to strike at a moment of weakness. Next turn, the target receives 15 damage. If they use a skill on Ino or her allies next turn, they will be countered and this skill will be replaced by that skill for 1 turn. Ino's copy of their skill has no chakra cost and ends when this skill reverts."
+        , Skill.desc      = "Ino infiltrates an enemy's mind and prepares to strike at a moment of weakness. Next turn, the target receives 15 damage. If they use a skill on Ino or her allies next turn, they will be countered and this skill will be replaced by that skill for 1 turn. Copied skills cannot copy other skills and do not transform into alternates."
         , Skill.classes   = [Mental, Ranged, Invisible, Unreflectable, Unremovable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1

@@ -24,11 +24,10 @@ characters =
           ]
         }
       , Skill.new
-        { Skill.name      = "Tree Wave Destruction"
+        { Skill.name      = "Tree Wave Destruction "
         , Skill.desc      = "Sending out trees in all directions, Hashirama deals 10 damage to all enemies and provides 5 permanent destructible defense to his team. Has no cooldown during [Deep Forest Creation]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
-        , Skill.varicd    = True
         , Skill.effects   =
           [ To Enemies $ damage 10
           , To Allies $ defend 0 5
@@ -56,7 +55,7 @@ characters =
         , Skill.effects   =
           [ To Enemies $ apply 2 [Snare 1, Exhaust [NonMental]]
           , To Self $ apply 2
-                [ Alternate "Tree Wave Destruction" "Tree Wave Destruction"
+                [ Alternate "Tree Wave Destruction" "Tree Wave Destruction "
                 , Alternate "Deep Forest Creation" "Deep Fourist Flourishing"
                 ]
           ]
@@ -199,7 +198,7 @@ characters =
                 has <- userHas "Venom Sac"
                 if has then do
                     remove "Venom Sac"
-                    alterCd "Major Summoning: Ibuse" baseVariant (-2)
+                    alterCd "Major Summoning: Ibuse" (-2)
                 else do
                     hide 0 [Reduce [Affliction] Percent 50]
                     applyStacks "Major Summoning: Ibuse" 30
@@ -253,7 +252,7 @@ characters =
                   if has then self do
                       remove "Major Summoning Ibuse"
                       remove "major summoning: ibuse"
-                      alterCd "Major Summoning: Ibuse" baseVariant (-2)
+                      alterCd "Major Summoning: Ibuse" (-2)
                       cancelChannel "Poison Fog"
                   else self $
                       apply 0 [Afflict 20]
@@ -332,8 +331,7 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Self do
-                trap 0 (OnDamaged All) $
-                    alterCd "Lightning Armor" baseVariant (-1)
+                trap 0 (OnDamaged All) $ alterCd "Lightning Armor" (-1)
                 hide 0
                     [Alternate "Piercing Four-Fingered" "One-Fingered Assault"]
           ]
@@ -367,8 +365,7 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Self $ trap' (-1) OnDamage $
-                alterCd "Lightning Armor" baseVariant (-1)
+          [ To Self $ trap' (-1) OnDamage $ alterCd "Lightning Armor" (-1)
           , To Enemy do
                 bonus4 <- 5 `bonusIf` userHas "piercing four-fingered"
                 bonus3 <- 5 `bonusIf` userHas "three-fingered assault"

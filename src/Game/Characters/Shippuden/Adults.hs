@@ -55,7 +55,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Team Tactics"
-        , Skill.desc      = "For 3 turns, the cooldowns of Kakashi's allies are decreased by 1 turn. While active, the first skill used by an enemy will replace this skill for 1 turn. Kakashi's copy of the skill has no chakra cost and ends when this skill reverts."
+        , Skill.desc      = "For 3 turns, the cooldowns of Kakashi's allies are decreased by 1 turn. While active, the first skill used by an enemy will replace this skill for 1 turn. Copied skills cannot copy other skills and do not transform into alternates."
         , Skill.classes   = [Mental, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4

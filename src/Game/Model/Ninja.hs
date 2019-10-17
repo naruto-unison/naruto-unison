@@ -22,7 +22,7 @@ import qualified Game.Model.Defense as Defense
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.Internal (Ninja(..))
-import           Game.Model.Skill (Skill)
+import           Game.Model.Skill (Skill(owner))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Status as Status
@@ -35,12 +35,12 @@ skillSize = 4
 new :: Slot -> Character -> Ninja
 new slot c = Ninja { slot
                    , health     = 100
-                   , character  = c
+                   , character  = c { skills = (own <$>) <$> skills c }
                    , defense    = mempty
                    , barrier    = mempty
                    , statuses   = mempty
-                   , charges    = replicate skillSize 0
-                   , cooldowns  = replicate skillSize mempty
+                   , charges    = mempty
+                   , cooldowns  = mempty
                    , alternates = replicate skillSize 0
                    , copies     = replicate skillSize Nothing
                    , channels   = mempty
@@ -52,6 +52,8 @@ new slot c = Ninja { slot
                    , effects    = mempty
                    , acted      = False
                    }
+  where
+    own x = x { owner = slot }
 
 alive :: Ninja -> Bool
 alive n = health n > 0

@@ -42,6 +42,7 @@ data Trigger
 
 instance ToJSON Trigger where
     toJSON = toJSON . display'
+    {-# INLINE toJSON #-}
 
 instance Classed Trigger where
     classes (Counter cla)      = singletonSet cla

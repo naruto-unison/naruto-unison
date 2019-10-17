@@ -103,7 +103,7 @@ characters =
                 bomb (-1) [Reduce [Physical] Flat 15]
                     [ To Expire do
                           hide 1 []
-                          reset "Chidori" baseVariant
+                          reset "Chidori"
                     ]
           ]
         , Skill.changes   =
@@ -132,7 +132,7 @@ characters =
           , To Self do
                 remove "Blazing Arrow"
                 cancelChannel "Blazing Arrow"
-                reset "Chidori" "Blazing Arrow"
+                reset "Blazing Arrow"
           ]
         , Skill.interrupt  =
           [ To Enemy do
@@ -140,7 +140,7 @@ characters =
                 damage (15 * stacks)
           , To Self do
                 remove "Blazing Arrow"
-                reset "Chidori" "Blazing Arrow"
+                reset "Blazing Arrow"
           ]
         }
       ]
@@ -421,60 +421,60 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Inorganic Animation"
-        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, [Transfusion] and [White Extreme Attack] are recharged."
+        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, Kabuto's skills are recharged."
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                trap' (-1) OnDamage resetCharges
+                trap' (-1) OnDamage rechargeAll
                 enemies $ apply 1 [Restrict]
           , To Enemies $ damage 10
           ]
         }
       , Skill.new
         { Skill.name      = "Inorganic Animation"
-        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, [Transfusion] and [White Extreme Attack] are recharged."
+        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, Kabuto's skills are recharged."
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Self do
-                trap' (-1) OnDamage resetCharges
+                trap' (-1) OnDamage rechargeAll
                 enemies $ apply 1 [Restrict]
           , To Enemies $ damage 10
           ]
         }
       , Skill.new
         { Skill.name      = "Inorganic Animation"
-        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, [Transfusion] and [White Extreme Attack] are recharged."
+        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, Kabuto's skills are recharged."
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Self do
-                trap' (-1) OnDamage resetCharges
+                trap' (-1) OnDamage rechargeAll
                 enemies $ apply 1 [Restrict]
           , To Enemies $ damage 10
           ]
         }
       , Skill.new
         { Skill.name      = "Inorganic Animation"
-        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, [Transfusion] and [White Extreme Attack] are recharged."
+        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, Kabuto's skills are recharged."
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Self do
-                trap' (-1) OnDamage resetCharges
+                trap' (-1) OnDamage rechargeAll
                 enemies $ apply 1 [Restrict]
           , To Enemies $ damage 10
           ]
         }
       , Skill.new
         { Skill.name      = "Inorganic Animation"
-        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, [Transfusion] and [White Extreme Attack] are recharged."
+        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, Kabuto's skills are recharged."
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Self do
-                trap' (-1) OnDamage resetCharges
+                trap' (-1) OnDamage rechargeAll
                 enemies $ apply 1 [Restrict]
           , To Enemies $ damage 10
           ]

@@ -38,7 +38,7 @@ launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
 launch trap ctx = do
     P.launch ctx
     nTarget <- P.ninja . Context.target $ Runnable.target ctx
-    Hook.trap trap nTarget
+    when (Trap.uncopied trap) $ Hook.trap trap nTarget
 
 run :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Trap -> m ()

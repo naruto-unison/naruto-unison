@@ -61,6 +61,7 @@ instance AsEnumSet Class where
 
 instance ToJSON Class where
     toJSON = toJSON . name
+    {-# INLINE toJSON #-}
 
 instance ToMarkup Class where
     toMarkup = toMarkup . name

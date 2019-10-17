@@ -365,14 +365,13 @@ characters =
                 userSlot <- user slot
                 bomb 0 [Redirect userSlot]
                     [ To Done $ self $ remove "self-sacrifice" ]
-          , To Self $ hide 0 [Alternate "Self-Sacrifice" "Self-Sacrifice"]
+          , To Self $ hide 0 [Alternate "Self-Sacrifice" "Self-Sacrifice "]
           ]
         }
       , Skill.new
-        { Skill.name      = "Self-Sacrifice"
+        { Skill.name      = "Self-Sacrifice "
         , Skill.desc      = "Ends the effect of [Self-Sacrifice]."
         , Skill.classes   = [Physical, Melee, Unreflectable]
-        , Skill.varicd    = True
         , Skill.effects   =
           [ To Self $ everyone $ remove "Self-Sacrifice" ]
         }

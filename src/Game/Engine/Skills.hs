@@ -1,7 +1,6 @@
 -- | 'Skill.Transform' processing.
 module Game.Engine.Skills
   ( change
-  , safe
   , swap
   , targetAll
   , also
@@ -12,37 +11,16 @@ module Game.Engine.Skills
 
 import ClassyPrelude hiding (swap)
 
-import Data.List (findIndex)
-import Data.List.NonEmpty ((!!))
-
 import           Class.TurnBased as TurnBased
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Chakra (Chakras)
-import qualified Game.Model.Character as Character
 import           Game.Model.Effect (Effect(..))
-import           Game.Model.Ninja (Ninja, is)
+import           Game.Model.Ninja (is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Runnable (Runnable(..))
 import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Skill (Skill, Target(..))
 import qualified Game.Model.Skill as Skill
-
--- | Converts a function that uses raw 'Int's as indices in a
--- 'Character.Character''s @[[Skill]]@ list into one that searches by name.
--- Passing an empty string for the second argument will select the base (0)
--- 'Skill' in the lists. Otherwise, the root skill will not be considered.
--- This means that if a skill has an alternate with the same name as it, ""
--- selects the base alternate, while "<skill name>" selects
--- the identically-named alternate.
-safe :: ∀ a. a -> (Int -> Int -> a) -> Ninja -> Text -> Text -> a
-safe a f n sName altName = fromMaybe a do
-    s   <- findIndex ((sName ==) . Skill.name . head) $ toList skills
-    alt <- case altName of
-            "" -> return (-1)
-            _  -> findIndex ((altName ==) . Skill.name) . tail $ skills !! s
-    return . f s $ alt + 1
-  where
-    skills  = Character.skills $ Ninja.character n
 
 -- | Combines two 'Skill.Transform's.
 also :: Skill.Transform -> Skill.Transform -> Skill.Transform

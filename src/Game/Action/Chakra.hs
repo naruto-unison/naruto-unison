@@ -75,8 +75,8 @@ healFromChakra :: ∀ m. MonadPlay m => Int -> m ()
 healFromChakra amount = P.unsilenced do
     nUser <- P.nUser
     when (not $ nUser `is` Plague) do
-        user       <- P.user
-        lastSkill  <- Ninja.lastSkill <$> P.nTarget
+        user      <- P.user
+        lastSkill <- Ninja.lastSkill <$> P.nTarget
         let amount' = amount * maybe 0 (Chakra.total . Skill.cost) lastSkill
         when (amount' > 0) do
             P.modify user $ Ninjas.adjustHealth (+ amount')

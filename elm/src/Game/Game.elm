@@ -9,7 +9,6 @@ module Game.Game exposing
     , removable
     , root
     , skillSize
-    , source
     , targets
     , teamSize
     , toggles
@@ -19,7 +18,7 @@ import Dict
 import List.Extra as List
 
 import Import.Flags exposing (Characters)
-import Import.Model as Player exposing (Category(..), Channel, Channeling(..), Character, Copying(..), Effect, Ninja, Player(..), Privilege(..), Skill, Target(..), Turn, User)
+import Import.Model as Player exposing (Category(..), Channel, Channeling(..), Character, Effect, Ninja, Player(..), Privilege(..), Skill, Target(..), Turn, User)
 import Util exposing (elem)
 
 
@@ -157,17 +156,9 @@ removable onAlly ef =
     not ef.sticky && onAlly /= ef.helpful
 
 
-source : Skill -> Int -> Int
-source skill slot =
-    case skill.copying of
-        NotCopied   -> slot
-        Shallow x _ -> x
-        Deep    x _ -> x
-
-
-root : List Character -> Skill -> Int -> Character
-root characters skill slot =
-    get characters <| source skill slot
+root : List Character -> Skill -> Character
+root characters skill =
+    get characters skill.owner
 
 
 toggles : Maybe Act -> List Int

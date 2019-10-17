@@ -17,7 +17,7 @@ module Class.Play
   -- * Transformation
   , withContext
   , withTarget, withTargets
-  , unsilenced
+  , uncopied, unsilenced
   -- * Lifting
   , toTarget, fromUser
   -- * Other
@@ -45,6 +45,7 @@ import qualified Game.Model.Player as Player
 import           Game.Model.Runnable (Runnable)
 import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Skill (Skill)
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger(..))
@@ -110,6 +111,14 @@ unsilenced f = do
         f
     else
         unlessM ((`is` Silence) <$> nUser) f
+
+-- | Performs an action only if the skill being used is not copied from
+-- someone else.
+uncopied :: ∀ m. MonadPlay m => m () -> m ()
+uncopied f = do
+    sk  <- skill
+    usr <- user
+    when (Skill.owner sk == usr) f
 
 -- | Applies a @Ninja@ transformation to the 'target'.
 toTarget :: ∀ m. MonadPlay m => (Ninja -> Ninja) -> m ()

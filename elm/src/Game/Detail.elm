@@ -114,7 +114,7 @@ channel user x =
     , desc    = x.skill.desc
     , classes = x.skill.classes
     , dur     = Game.dur x
-    , source  = Game.source x.skill user
+    , source  = x.skill.owner
     , user    = user
     , effects = []
     , trap    =
@@ -128,16 +128,12 @@ channel user x =
 
 copy : Copy -> Detail
 copy x =
-    let
-        source =
-            Game.source x.skill -1
-    in
     { name    = x.skill.name
     , desc    = x.skill.desc
     , classes = x.skill.classes
     , dur     = x.dur
-    , source  = source
-    , user    = source
+    , source  = x.skill.owner
+    , user    = x.skill.owner
     , effects = []
     , trap    = False
     , amount  = 1
@@ -151,7 +147,7 @@ status x =
     , desc    = x.skill.desc
     , classes = x.classes
     , dur     = x.dur
-    , source  = Game.source x.skill x.user
+    , source  = x.skill.owner
     , user    = x.user
     , effects = x.effects
     , trap    = False
@@ -175,7 +171,7 @@ trap x =
     , desc    = x.skill.desc
     , classes = x.classes
     , dur     = x.dur
-    , source  = Game.source x.skill x.user
+    , source  = x.skill.owner
     , user    = x.user
     , effects = [ effects ]
     , trap    = True

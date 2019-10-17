@@ -13,6 +13,7 @@ import Elm.TyRep
 import ElmDerive
 
 import Data.Char (isSpace)
+import Data.Map.Strict (Map)
 import Data.Text (Text)
 import Game.Model.Chakra (Chakras(..))
 import Game.Model.Defense (Defense)
@@ -32,11 +33,11 @@ data Ninja = Ninja
     { slot      :: Slot
     , character :: Text
     , health    :: Int
+    , cooldowns :: Map Text Int
+    , charges   :: Map Text Int
     , defense   :: [Defense]
     , barrier   :: [Barrier]
     , statuses  :: [Status]
-    , charges   :: Seq Int
-    , cooldowns :: Seq Int
     , copies    :: Seq (Maybe Copy)
     , channels  :: [Channel]
     , traps     :: Seq Trap
@@ -113,7 +114,6 @@ deriveElmDef defaultOptions ''Channeling
 deriveElmDef defaultOptions ''Chakras
 deriveElmDef defaultOptions ''Character
 deriveElmDef defaultOptions ''Copy
-deriveElmDef defaultOptions ''Copying
 deriveElmDef defaultOptions ''Defense
 deriveElmDef defaultOptions ''Direction
 deriveElmDef defaultOptions ''Effect
@@ -153,7 +153,6 @@ main =
     , DefineElm (Proxy :: Proxy Channeling)
     , DefineElm (Proxy :: Proxy Character)
     , DefineElm (Proxy :: Proxy Copy)
-    , DefineElm (Proxy :: Proxy Copying)
     , DefineElm (Proxy :: Proxy Defense)
     , DefineElm (Proxy :: Proxy Direction)
     , DefineElm (Proxy :: Proxy Effect)

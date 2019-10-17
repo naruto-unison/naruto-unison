@@ -325,11 +325,10 @@ characters =
           [ To Enemy $ apply 2 [Afflict 15] ]
         }
       , Skill.new
-        { Skill.name      = "Grand Fireball"
+        { Skill.name      = "Grand Fireball "
         , Skill.desc      = "Obito breathes searing fire on an enemy, dealing 15 affliction damage for 2 turns. During [Sharingan], this skill deals the full 30 affliction damage instantly and has no cooldown."
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Nin]
-        , Skill.varicd    = True
         , Skill.effects   =
           [ To Enemy $ afflict 30 ]
         }
@@ -343,7 +342,9 @@ characters =
         , Skill.effects   =
           [ To XAlly $ tag 4
           ,  To Self do
-                apply 4 [Reduce [All] Flat 15]
+                apply 4 [ Reduce [All] Flat 15
+                        , Alternate "Grand Fireball" "Grand Fireball "
+                        ]
                 trap 4 OnDeath $ everyone $ whenM (targetHas "Sharingan") $
                     apply' "Borrowed Sharingan" 0
                         [ Reduce [All] Flat 5

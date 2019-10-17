@@ -8,7 +8,6 @@ module Game.Model.Requirement
 import ClassyPrelude
 
 import qualified Class.Parity as Parity
-import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Model.Channel as Channel
 import           Game.Model.Class (Class(..))
@@ -19,29 +18,28 @@ import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
-import           Util ((!?), (∈), (∉), intersects)
+import           Util ((∈), (∉), intersects)
 
 -- | Processes 'Skill.require'.
-usable :: Ninja
-       -> Maybe Int -- ^ Index in 'Character.skills'.
-       -> Skill -> Skill
-usable n s sk
-  | Skill.charges sk > 0 && uncharged                  = unusable
-  | maybe False (> 0) $ (Cooldown.active n !?) =<< s   = unusable
-  | not $ Skill.classes sk `intersects` Effects.stun n = sk'
-  | isJust s                                           = unusable
-  | Channel.ignoreStun $ Skill.dur sk                  = sk'
-  | otherwise = sk' { Skill.effects = Skill.stunned sk' }
+usable :: Bool -- ^ New.
+       -> Ninja -> Skill -> Skill
+usable new n x
+  | Skill.charges x > 0 && uncharged                   = unusable
+  | maybe False (> 0) $ key `lookup` Ninja.cooldowns n = unusable
+  | not $ Skill.classes x `intersects` Effects.stun n  = x'
+  | new                                                = unusable
+  | Channel.ignoreStun $ Skill.dur x                   = x'
+  | otherwise = x' { Skill.effects = Skill.stunned x' }
   where
-    uncharged = maybe False (>= Skill.charges sk) $
-                (Ninja.charges n !?) =<< s
-    unusable  = sk { Skill.require = Unusable }
-    sk'       = sk { Skill.require = isUsable $ Skill.require sk }
+    key       = Skill.key x
+    uncharged = maybe False (>= Skill.charges x) $ key `lookup` Ninja.charges n
+    unusable  = x { Skill.require = Unusable }
+    x'        = x { Skill.require = isUsable $ Skill.require x }
     isUsable req@HasI{}
-      | isNothing s                  = Usable
+      | not new                      = Usable
       | succeed req (Ninja.slot n) n = Usable
       | otherwise                    = Unusable
-    isUsable x = x
+    isUsable y = y
 
 -- | Checks whether a user passes the 'Skill.require' of a 'Skill'.
 succeed :: Requirement -> Slot -> Ninja -> Bool

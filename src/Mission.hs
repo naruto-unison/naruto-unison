@@ -32,7 +32,7 @@ import           Mission.Goal (Goal, Span(..))
 import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
 import           Mission.Progress (Progress(..))
-import           Util ((∉))
+import           Util ((!?), (∉))
 
 initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do
@@ -94,7 +94,7 @@ userMission char = fromMaybe mempty <$> runMaybeT do
 updateProgress :: ∀ m. MonadIO m
                => Seq Goal
                -> Key User -> Key Character -> Int -> Int -> SqlPersistT m Bool
-updateProgress mission who char i amount = case mission `index` i of
+updateProgress mission who char i amount = case mission !? i of
     Nothing   -> return False
     Just goal
       | Goal.spanning goal /= Career && amount < Goal.reach goal -> return False

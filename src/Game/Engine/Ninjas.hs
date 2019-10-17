@@ -34,8 +34,8 @@ module Game.Engine.Ninjas
   , addChannels
   , cancelChannel
 
-  , copy, copyAll
-  , resetCharges
+  , copy, copyAll, copyAlternates
+  , recharge, rechargeAll
 
   , prolong
   , prolong'
@@ -61,7 +61,7 @@ import           Game.Model.Channel (Channel(Channel), Channeling(..))
 import qualified Game.Model.Channel as Channel
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
-import           Game.Model.Copy (Copy(Copy), Copying)
+import           Game.Model.Copy (Copy(Copy))
 import qualified Game.Model.Copy as Copy
 import           Game.Model.Defense (Defense(Defense))
 import qualified Game.Model.Defense as Defense
@@ -112,8 +112,8 @@ nextAlternate baseName n = do
 -- and 'Skill.require'ments.
 -- Invariant: With @Left x@, @x < 'Ninja.skillSize'@.
 skill :: Either Int Skill -> Ninja -> Skill
-skill (Right sk) n = Requirement.usable n Nothing sk
-skill (Left s)   n = Requirement.usable n (Just s) .
+skill (Right sk) n = Requirement.usable False n sk
+skill (Left s)   n = Requirement.usable True n .
                      maybe (Ninja.baseSkill s n) Copy.skill .
                      join . (!? s) $ copies n
 
@@ -196,7 +196,7 @@ decr n@Ninja{..} = processAlternates $ processEffects n
     , delays    = mapMaybe TurnBased.decr delays
     , newChans  = mempty
     , copies    = (>>= TurnBased.decr) <$> copies
-    , cooldowns = ((max 0 . subtract 1) <$>) <$> cooldowns
+    , cooldowns = (max 0 . subtract 1) `omap` cooldowns
     , acted     = False
     }
   where
@@ -273,7 +273,7 @@ addChannels sk target n
   | otherwise = n { newChans = chan' : newChans n }
   where
     chan  = Skill.dur sk
-    dur   = Copy.maxDur (Skill.copying sk) . incr $ TurnBased.getDur chan
+    dur   = incr $ TurnBased.getDur chan
     chan' = Channel { Channel.skill  = sk { Skill.require = Usable }
                     , Channel.target = target
                     , Channel.dur    = TurnBased.setDur dur chan
@@ -288,24 +288,33 @@ cancelChannel name n = n { channels = f $ channels n
   where
     f = filter $ (name /=) . Skill.name . Channel.skill
 
+-- | Acquires 'Alternate' effects when copying a target's skills.
+copyAlternates :: Duration -- ^ 'Copy.dur'.
+               -> Skill -- ^ Skill being copied.
+               -> Ninja -- ^ Person whose skills are being copied.
+               -> Ninja -> Ninja
+copyAlternates dur sk source n = n { statuses = alts ++ statuses n }
+  where
+    alts = filter (not . null . Status.effects) $ alt <$> statuses source
+    dur' = sync if dur < -1 then dur + 1 else dur
+    isAlt (Alternate _ name) = Skill.name sk == name
+    isAlt _                  = False
+    alt st = st { Status.dur     = min dur' $ Status.dur st
+                , Status.user    = slot n
+                , Status.effects = filter isAlt $ Status.effects st
+                }
+
 -- | Adds a 'Copy.Copy' to copies'.
-copy :: Duration
+copy :: Duration -- ^ 'Copy.dur'.
      -> Text -- ^ Replacing 'Skill.name'.
-     -> (Slot -> Int -> Copying) -- ^ Either 'Copy.Deep' or 'Copy.Shallow'.
-     -> Slot -- ^ Target.
      -> Skill -- ^ Skill.
      -> Ninja -> Ninja
-copy dur name constructor copyFrom sk n = fromMaybe n do
+copy dur name sk n = fromMaybe n do
       s <- findIndex (any $ (name ==) . Skill.name) . toList .
            Character.skills $ character n
       return n { copies = copier s $ copies n }
   where
-    copier s = Seq.update s . Just . Copy sk' $
-               sync if dur < -1 then dur + 1 else dur
-    sk'      = sk { Skill.cost     = 0
-                  , Skill.cooldown = 0
-                  , Skill.copying  = constructor copyFrom $ sync dur - 1
-                  }
+    copier s = Seq.update s . Just . Copy sk . incr $ sync dur
 
 -- | Copies all @Skill@s from a source into 'Ninja.copies'.
 copyAll :: Duration -- ^ 'Copy.dur'.
@@ -314,11 +323,9 @@ copyAll :: Duration -- ^ 'Copy.dur'.
 copyAll dur source n = n { copies = fromList $ cop <$> skills source }
   where
     synced = sync dur
-    src    = slot source
     cop sk = Just $ Copy
         { Copy.dur   = synced + synced `rem` 2
-        , Copy.skill =
-            sk { Skill.copying = Copy.Deep (Copy.source sk src) $ sync dur - 1 }
+        , Copy.skill = sk
         }
 
 -- | Removes harmful effects. Does not work if the target has 'Plague'.
@@ -381,8 +388,7 @@ prolong' dur name user st
 prolongChannel :: Duration -> Text -> Ninja -> Ninja
 prolongChannel dur name n = n { channels = f <$> channels n }
   where
-    dur' chan = Copy.maxDur (Skill.copying $ Channel.skill chan) $
-                TurnBased.getDur chan + sync dur
+    dur' chan = TurnBased.getDur chan + sync dur
     f chan
       | TurnBased.getDur chan <= 0              = chan
       | Skill.name (Channel.skill chan) /= name = chan
@@ -419,9 +425,15 @@ removeStacks :: Text -- ^ 'Status.name'.
              -> Ninja -> Ninja
 removeStacks name i user = modifyStatuses $ Status.remove i name user
 
--- | Resets 'charges' to four @0@s.
-resetCharges :: Ninja -> Ninja
-resetCharges n = n { charges = replicate Ninja.skillSize 0 }
+-- | Resets 'charges' to @mempty@s.
+rechargeAll :: Ninja -> Ninja
+rechargeAll n = n { charges = mempty }
+
+-- | Resets an element in 'charges'.
+recharge :: Text -> Slot -> Ninja -> Ninja
+recharge name owner n = n { charges = key `deleteMap` charges n }
+  where
+    key = Skill.Key name owner
 
 -- With my... ninja info cards
 kabuto :: Skill -> Ninja -> Ninja

@@ -120,12 +120,12 @@ instance Classed Effect where
 
 instance ToJSON Effect where
     toJSON x = object
-      [ "desc"    .= display' x
-      , "helpful" .= helpful x
-      , "sticky"  .= sticky x
-      , "trap"    .= False
-      , "visible" .= visible x
-      ]
+        [ "desc"    .= display' x
+        , "helpful" .= helpful x
+        , "sticky"  .= sticky x
+        , "trap"    .= False
+        , "visible" .= visible x
+        ]
 
 helpful :: Effect -> Bool
 helpful Absorb          = True

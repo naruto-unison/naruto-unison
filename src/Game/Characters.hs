@@ -48,20 +48,11 @@ lookup :: Text -> Maybe Character
 lookup k = HashMap.lookup k map
 
 addClasses :: Character -> Character
-addClasses char = char { Character.skills = doSkills <$> Character.skills char }
+addClasses char =
+    char { Character.skills = (addClass <$>) <$> Character.skills char }
 
-doSkills :: NonEmpty Skill -> NonEmpty Skill
-doSkills (x:|xs) = doSkill x :| (doSkill . vari <$> xs)
-  where
-    vari skill = skill
-                  { Skill.varicd = Skill.varicd skill
-                                   || Skill.cooldown x /= Skill.cooldown skill
-                                   || diff skill }
-    diff skill = Skill.name x ∉
-                 [Skill.name skill, fromMaybe "" . initMay $ Skill.name x]
-
-doSkill :: Skill -> Skill
-doSkill skill = skill { Skill.classes = added ++ Skill.classes skill }
+addClass :: Skill -> Skill
+addClass skill = skill { Skill.classes = added ++ Skill.classes skill }
   where
     added = setFromList $ fst <$> filter snd
             [ (All,       True)

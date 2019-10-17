@@ -141,8 +141,8 @@
   <li>
     ^{Link.skill "Omoi" Shippuden "Thunderbolt"} blocks its target from affecting their allies at all.
   <li>
-    ^{Link.skill "Danzō Shimura" Shippuden "Kotoamatsukami"} cannot counter uncounterable skills.
+    ^{Link.skill "Danzō Shimura" Shippuden "Kotoamatsukami"} cannot counter uncounterable skills. If it copies a skill, the copy retains its chakra cost.
   <li>
     ^{Link.skill "Jiraiya" Shippuden "Toad Oil Bomb"} interrupts <i>action</i> skills as well as <i>control</i> skills.
   <li>
-    ^{Link.skill "Chukichi" Reanimated "Hidden Frost"} makes Chukichi invulnerable to ranged skills.
+    ^{Link.skill "Chukichi" Reanimated "Hidden Frost"} makes Chukichi invulnerable to all ranged skills.

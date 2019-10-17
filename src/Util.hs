@@ -3,7 +3,6 @@ module Util
   ( (!?), (!!)
   , (—), (∈), (∉)
   , Lift
-  , adjustWith
   , duplic
   , intersects
   , liftST
@@ -15,11 +14,9 @@ module Util
 
 import ClassyPrelude
 
-import           Control.Monad.ST (ST, stToIO)
-import           Control.Monad.Trans.Class (MonadTrans)
-import           Data.Attoparsec.Text (notInClass)
-import           Data.Sequence ((|>))
-import qualified Data.Sequence as Seq
+import Control.Monad.ST (ST, stToIO)
+import Control.Monad.Trans.Class (MonadTrans)
+import Data.Attoparsec.Text (notInClass)
 
 -- If a function doesn't seem like it should be inlined, it probably doesn't go
 -- here.
@@ -53,14 +50,6 @@ infix 4 ∉
 (∉) :: ∀ o. (MonoFoldable o, Eq (Element o)) => Element o -> o -> Bool
 (∉) = notElem
 {-# INLINE (∉) #-}
-
--- | 'Seq.adjust''. If the index is out of bounds, the @Seq@ is padded with
--- a provided default value up to the index.
-adjustWith :: ∀ a. a -> (a -> a) -> Int -> Seq a -> Seq a
-adjustWith x f i xs
-  | i < length xs = Seq.adjust' f i xs
-  | otherwise     = xs ++ (replicate (i - length xs) x |> f x)
-{-# INLINABLE adjustWith #-}
 
 -- | Divides a list of @Text@s into a single, comma-separated @Text@ ended
 -- with a provided conjunction.

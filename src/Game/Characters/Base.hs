@@ -5,7 +5,6 @@ module Game.Characters.Base
   , userStacks, targetStacks, userDefense
   , channeling, invulnerable
   , self, allies, enemies, everyone
-  , baseVariant
   , bonusIf, numAffected, numDeadAllies
   ) where
 
@@ -25,7 +24,6 @@ import Game.Model.Chakra as Import (Chakra(..), Chakras)
 import Game.Model.Channel as Import (Channeling(..))
 import Game.Model.Character as Import (Character(..), Category)
 import Game.Model.Class as Import (Class(..))
-import Game.Model.Copy as Import (Copying(..))
 import Game.Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
 import Game.Model.Ninja as Import (Ninja(health, slot), alive, hasDefense, hasOwn, isChanneling, numActive, numAnyStacks, numHelpful)
 import Game.Model.Requirement as Import (Requirement(..))
@@ -78,9 +76,6 @@ enemies = targetWithUser Slot.enemies
 -- ignoring invulnerabilities and traps.
 everyone :: ∀ m. MonadPlay m => m () -> m ()
 everyone = targetWithUser (`delete` Slot.all)
-
-baseVariant :: Text
-baseVariant = mempty
 
 bonusIf :: ∀ m. MonadPlay m => Int -> m Bool -> m Int
 bonusIf amount condition = do

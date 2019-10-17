@@ -15,7 +15,7 @@ import Control.Monad.Trans.Identity (IdentityT, mapIdentityT)
 import Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import Control.Monad.Trans.Select (SelectT, mapSelectT)
 import Control.Monad.Trans.Writer (WriterT, mapWriterT)
-import Data.Aeson ((.=), ToJSON(..), object)
+import Data.Aeson.Types ((.=), ToJSON(..), ToJSONKey(..), object, toJSONKeyText)
 import Data.Enum.Set.Class (AsEnumSet(..), EnumSet)
 import Data.Word (Word16)
 import Text.Blaze (ToMarkup(..))
@@ -45,8 +45,8 @@ import           Util (Lift)
 data Ninja = Ninja { slot       :: Slot             -- ^ 'Model.Game.Ninjas' index (0-5)
                    , character  :: Character
                    , health     :: Int              -- ^ Starts at @100@
-                   , cooldowns  :: Seq (Seq Int)    -- ^ Starts empty
-                   , charges    :: Seq Int          -- ^ Starts at @0@s
+                   , cooldowns  :: HashMap Key Int  -- ^ Starts empty
+                   , charges    :: HashMap Key Int  -- ^ Starts at @0@s
                    , alternates :: Seq Int          -- ^ Starts at @0@s
                    , copies     :: Seq (Maybe Copy) -- ^ Starts at @Nothing@s
                    , defense    :: [Defense]        -- ^ Starts empty
@@ -64,6 +64,18 @@ data Ninja = Ninja { slot       :: Slot             -- ^ 'Model.Game.Ninjas' ind
 instance Parity Ninja where
     even = Parity.even . slot
     {-# INLINE even #-}
+
+data Key = Key Text Slot
+           deriving (Eq, Ord, Show, Read, Generic, Hashable)
+toText :: Key -> Text
+toText (Key x y) = Slot.toChar y `cons` x
+{-# INLINE toText #-}
+instance ToJSON Key where
+  toJSON = toJSON . toText
+  {-# INLINE toJSON #-}
+instance ToJSONKey Key where
+  toJSONKey = toJSONKeyText toText
+  {-# INLINE toJSONKey #-}
 
 data Requirement
     = Usable
@@ -98,15 +110,14 @@ data Skill = Skill { name      :: Text              -- ^ Name
                    , classes   :: EnumSet Class     -- ^ Defaults to empty
                    , cost      :: Chakras           -- ^ Defaults to empty
                    , cooldown  :: Duration          -- ^ Defaults to @0@
-                   , varicd    :: Bool              -- ^ Defaults to @False@
                    , charges   :: Int               -- ^ Defaults to @0@
                    , dur       :: Channeling        -- ^ Defaults to 'Instant'
                    , start     :: [Runnable Target] -- ^ Defaults to empty
                    , effects   :: [Runnable Target] -- ^ Defaults to empty
                    , stunned   :: [Runnable Target] -- ^ Defaults to empty
                    , interrupt :: [Runnable Target] -- ^ Defaults to empty
-                   , copying   :: Copying           -- ^ Defaults to 'NotCopied'
                    , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'
+                   , owner     :: Slot
                    }
 instance ToJSON Skill where
     toJSON Skill{..} = object
@@ -116,14 +127,13 @@ instance ToJSON Skill where
         , "classes"   .= classes
         , "cost"      .= cost
         , "cooldown"  .= cooldown
-        , "varicd"    .= varicd
         , "charges"   .= charges
         , "dur"       .= dur
         , "start"     .= start
         , "effects"   .= effects
         , "stunned"   .= stunned
         , "interrupt" .= interrupt
-        , "copying"   .= copying
+        , "owner"     .= owner
         ]
 instance Classed Skill where
     classes = classes
@@ -235,18 +245,7 @@ instance Classed Copy where
 
 instance TurnBased Copy where
     getDur = dur
-    setDur d Copy{skill} = Copy {skill = skill', dur = d }
-      where
-        skill' = case copying skill of
-            Shallow b _ -> skill { copying = Shallow b d }
-            Deep    b _ -> skill { copying = Deep    b d }
-            NotCopied   -> skill
-
-data Copying
-    = Shallow Slot Int -- ^ No cooldown or chakra cost.
-    | Deep Slot Int    -- ^ Cooldown and chakra cost.
-    | NotCopied
-    deriving (Eq, Ord, Show, Read, Generic, ToJSON)
+    setDur d x = x { dur = d }
 
 -- | Applies an effect after several turns.
 data Delay = Delay { effect :: Runnable Context
@@ -399,6 +398,7 @@ instance Show a => Show (Runnable a) where
     showsPrec i = showsPrec i . (target :: Runnable a -> a)
 instance ToJSON a => ToJSON (Runnable a) where
     toJSON = toJSON . (target :: Runnable a -> a)
+    {-# INLINE toJSON #-}
 
 instance MonadGame m => MonadGame (ExceptT e m)
 instance MonadGame m => MonadGame (IdentityT m)

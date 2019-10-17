@@ -20,8 +20,6 @@ import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import           Game.Model.Copy (Copying(..))
-import qualified Game.Model.Copy as Copy
 import qualified Game.Model.Delay as Delay
 import           Game.Model.Duration (Duration(..), Turns, incr, sync)
 import qualified Game.Model.Duration as Duration
@@ -132,7 +130,7 @@ makeTrap skill nUser target direction classes dur trigger f = Trap
         }
     , Trap.classes   = classes ++ Skill.classes skill
     , Trap.tracker   = 0
-    , Trap.dur       = Copy.maxDur (Skill.copying skill) . incr $ sync dur
+    , Trap.dur       = incr $ sync dur
     }
   where
     user = Ninja.slot nUser
@@ -148,16 +146,9 @@ delay :: ∀ m. MonadPlay m => Turns -> RunConstraint () -> m ()
 delay 0 _ = return () -- A Delay that lasts forever would be pointless!
 delay (Duration -> dur) f = do
     context  <- P.context
-    let skill = Context.skill context
-        user  = Context.user context
+    let user  = Context.user context
         del   = Delay.new context dur $ Action.wrap (singletonSet Delayed) f
-    unless (past $ Skill.copying skill) $ P.modify user \n ->
-        n { Ninja.delays = del : Ninja.delays n }
-  where
-    dur' = incr $ sync dur
-    past (Shallow _ d) = dur' > d
-    past (Deep    _ d) = dur' > d
-    past NotCopied     = False
+    P.modify user \n -> n { Ninja.delays = del : Ninja.delays n }
 
 -- | Removes 'Ninja.traps' with matching 'Trap.name'.
 -- Uses 'Ninjas.clearTrap' internally.

@@ -33,7 +33,6 @@ import           Game.Model.Barrier (Barrier)
 import qualified Game.Model.Barrier as Barrier
 import           Game.Model.Class (Class(..))
 import qualified Game.Model.Context as Context
-import qualified Game.Model.Copy as Copy
 import           Game.Model.Defense (Defense(Defense))
 import qualified Game.Model.Defense as Defense
 import           Game.Model.Duration (Duration(..), Turns, incr, sync)
@@ -194,23 +193,22 @@ attack atk dmg = void $ runMaybeT do
 -- destroy the target's 'Ninja.defense' before they can damage the target.
 -- Destructible defense can be temporary or permanent.
 defend :: ∀ m. MonadPlay m => Turns -> Int -> m ()
-defend (Duration -> dur) amount = P.unsilenced do
+defend (incr . sync . Duration -> dur) amount = P.unsilenced do
     skill      <- P.skill
     user       <- P.user
     target     <- P.target
     nUser      <- P.nUser
     nTarget    <- P.nTarget
     let amount' = Effects.boost user nTarget * amount + Effects.build nUser
-        dur'    = Copy.maxDur (Skill.copying skill) . incr $ sync dur
         defense = Defense
                       { Defense.amount = amount'
                       , Defense.user   = user
                       , Defense.name   = Skill.name skill
-                      , Defense.dur    = dur'
+                      , Defense.dur    = dur
                       }
     if amount' < 0 then do
         context <- P.context
-        let barr = Barrier.new context dur'
+        let barr = Barrier.new context dur
                    (const $ return ()) (return ()) (-amount')
         P.modify target \n ->
             n { Ninja.barrier = Classed.nonStack skill barr $ Ninja.barrier n }
@@ -245,20 +243,19 @@ barrier dur = barrierDoes dur (const $ return ()) (return ())
 -- exists.
 barrierDoes :: ∀ m. MonadPlay m => Turns -> (Int -> RunConstraint ())
             -> RunConstraint () -> Int -> m ()
-barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
+barrierDoes (sync . Duration -> dur) finish while amount = P.unsilenced do
     context    <- P.context
     amount'    <- (amount +) . Effects.build <$> P.nUser
     let skill   = Context.skill context
         target  = Context.target context
-        dur'    = Copy.maxDur (Skill.copying skill) $ sync dur
-        barr    = Barrier.new context dur' (finish' dur') while' amount'
+        barr    = Barrier.new context dur finish' while' amount'
     if amount' < 0 then do
         user       <- P.user
         let defense = Defense
                       { Defense.amount = (-amount')
                       , Defense.user   = user
                       , Defense.name   = Skill.name skill
-                      , Defense.dur    = dur'
+                      , Defense.dur    = dur
                       }
         P.trigger user [OnDefend]
         P.modify target \n ->
@@ -266,10 +263,8 @@ barrierDoes (Duration -> dur) finish while amount = P.unsilenced do
     else when (amount' > 0) $ P.modify target \n ->
         n { Ninja.barrier = Classed.nonStack skill barr $ Ninja.barrier n }
   where
-    finish' :: Int -> Int -> RunConstraint ()
-    finish' dur'
-      | dur' < sync dur = const $ return ()
-      | otherwise       = Action.wrap (singletonSet Trapped) . finish
+    finish' :: Int -> RunConstraint ()
+    finish' = Action.wrap (singletonSet Trapped) . finish
     while' :: RunConstraint ()
     while' = Action.wrap (singletonSet Trapped) while
 

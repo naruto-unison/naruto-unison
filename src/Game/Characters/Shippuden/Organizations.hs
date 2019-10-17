@@ -167,7 +167,7 @@ characters =
                 trapFrom 1 (Counter NonMental) $ damage 20
                 trap 1 (Counter NonMental) do
                     defend 0 20
-                    self resetCharges
+                    self $ recharge "Tenth Edict on Enlightenment"
           ]
         }
       ]
@@ -178,7 +178,7 @@ characters =
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self resetCharges
+          [ To Self $ recharge "Tenth Edict on Enlightenment"
           , To XAlly $ allies $ defend 0 20
           , To Enemy $ enemies $ barrier 0 20
           ]
@@ -275,16 +275,16 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Mind Transfer Puppet Curse"
-        , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a non-mental skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Effects from Fū's usage of their skills are canceled when Fū's skills revert."
+        , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a non-mental skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Copied skills cannot copy other skills and do not transform into alternates."
         , Skill.classes   = [Mental, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Ally $ trapFrom' 2 (Counter NonMental) do
+          [ To Ally $ trapFrom 2 (Counter NonMental) do
                 apply (-4) [Face]
                 copyAll 4
-                teach 4 Shallow 4
-                teachOne 4 3 Deep 5
+                teach 4 4
+                teachOne 4 3 5
                 self do
                     resetAll
                     bomb (-4) [] [ To Done resetAll ]
@@ -387,7 +387,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Kotoamatsukami"
-        , Skill.desc      = "Danzō infiltrates the mind of an enemy. The next time they use a skill, they will be countered and stunned for 2 turns, and this skill will be replaced by the skill they used for 2 turns. Danzō's copy of their skill has no chakra cost or cooldown and ends when this skill reverts."
+        , Skill.desc      = "Danzō infiltrates the mind of an enemy. The next time they use a skill, they will be countered and stunned for 2 turns, and this skill will be replaced by the skill they used for 2 turns. Copied skills cannot copy other skills and do not transform into alternates."
         , Skill.classes   = [Mental, Ranged, Invisible, Uncounterable, Unreflectable]
         , Skill.cost      = [Blood, Gen, Gen]
         , Skill.cooldown  = 9

@@ -1,5 +1,9 @@
 -- | Turn execution. The surface of the game engine.
-module Game.Engine (runTurn, processTurn) where
+module Game.Engine
+  ( runTurn
+  , processTurn
+  , unSoulbound
+  ) where
 
 import ClassyPrelude
 
@@ -146,17 +150,18 @@ doDeath slot = do
             sequence_ $ Traps.getOf slot OnDeath n
             traverse_ (doBomb Done slot) .
                 filter ((Necromancy ∉) . Status.classes) $ Ninja.statuses n
-            P.modifyAll unres
+            P.modifyAll $ unSoulbound slot
        | otherwise          -> do
             P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps OnRes
             sequence_ res
-  where
-    unres n = Ninjas.modifyStatuses
+
+unSoulbound :: Slot -> Ninja -> Ninja
+unSoulbound user n = Ninjas.modifyStatuses
         (const [st | st <- Ninja.statuses n
-                   , slot /= Status.user st
+                   , user /= Status.user st
                      || Soulbound ∉ Status.classes st]) $
         n { Ninja.traps = [trap | trap <- Ninja.traps n
-                                , slot /= Trap.user trap
+                                , user /= Trap.user trap
                                   || Soulbound ∉ Trap.classes trap]
           }
 

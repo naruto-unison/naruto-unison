@@ -28,8 +28,7 @@ import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
-import qualified Game.Model.Copy as Copy
-import           Game.Model.Duration (Duration(..), Turns, incr, sync)
+import           Game.Model.Duration (Duration(..), Turns, sync)
 import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Effect as Effect
@@ -52,16 +51,14 @@ refresh name = P.unsilenced . P.fromUser $ Ninjas.refresh name
 -- | Increases the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 prolong :: ∀ m. MonadPlay m => Turns -> Text -> m ()
-prolong (Duration -> dur) name = P.unsilenced do
-    user    <- P.user
-    copying <- Skill.copying <$> P.skill
-    P.toTarget $ Ninjas.prolong (Copy.maxDur copying $ sync dur) name user
+prolong (sync . Duration -> dur) name =
+    P.unsilenced . P.fromUser $ Ninjas.prolong dur name
 
 -- | Reduces the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 hasten :: ∀ m. MonadPlay m => Turns -> Text -> m ()
-hasten (Duration -> dur) name =
-    P.unsilenced . P.fromUser $ Ninjas.prolong (negate $ sync dur) name
+hasten (sync . Duration -> dur) name =
+    P.unsilenced . P.fromUser $ Ninjas.prolong (negate dur) name
 
 -- | Adds a @Status@ to 'Ninja.statuses'.
 apply :: ∀ m. (MonadPlay m, MonadRandom m) => Turns -> [Effect] -> m ()
@@ -225,8 +222,7 @@ makeStatus amount new skill nUser nTarget classes bounced bombs name dur fs =
     , Status.effects = filterDmg . filter disable $ Ninjas.apply nTarget fs
     , Status.classes = classes'
     , Status.amount  = amount
-    , Status.bombs   = guard (Status.dur newSt <= incr (sync dur))
-                       *> bombs
+    , Status.bombs   = bombs
     }
   where
     user  = Ninja.slot nUser

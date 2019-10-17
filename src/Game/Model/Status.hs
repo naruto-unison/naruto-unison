@@ -7,7 +7,6 @@ module Game.Model.Status
 
 import ClassyPrelude
 
-import qualified Game.Model.Copy as Copy
 import           Game.Model.Duration (Duration, incr, sync)
 import           Game.Model.Effect (Effect)
 import           Game.Model.Internal (Bomb(..), Status(..))
@@ -24,11 +23,9 @@ new user dur skill =
            , effects = mempty
            , classes = Skill.classes skill
            , bombs   = []
-           , maxDur  = dur'
-           , dur     = dur'
+           , maxDur  = incr $ sync dur
+           , dur     = incr $ sync dur
            }
-  where
-    dur' = Copy.maxDur (Skill.copying skill) . incr $ sync dur
 
 remove :: Int -- ^ 'amount'
        -> Text -- ^ 'name'

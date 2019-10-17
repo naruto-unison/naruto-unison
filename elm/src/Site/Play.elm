@@ -1,24 +1,26 @@
 module Site.Play exposing (Model, Msg(..), component)
 
-import Game.Chakra as Chakra exposing (none)
-import Game.Detail as Detail exposing (Detail)
-import Game.Game as Game exposing (Act)
+import Dict
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Html.Lazy exposing (lazy2)
 import Http
-import Import.Flags exposing (Characters, Flags, printFailure)
-import Import.Model as Model exposing (Barrier, Chakras, Channeling(..), Character, Defense, Effect, GameInfo, Message(..), Ninja, Player(..), Requirement(..), Skill, Turn, User)
 import Json.Decode as D
 import List.Extra as List
 import Maybe.Extra as Maybe
-import Ports exposing (Ports)
 import Process
 import Set
+import Task
+
+import Game.Chakra as Chakra exposing (none)
+import Game.Detail as Detail exposing (Detail)
+import Game.Game as Game exposing (Act)
+import Import.Flags exposing (Characters, Flags, printFailure)
+import Import.Model as Model exposing (Barrier, Chakras, Channeling(..), Character, Defense, Effect, GameInfo, Message(..), Ninja, Player(..), Requirement(..), Skill, Turn, User)
+import Ports exposing (Ports)
 import Site.Render as Render exposing (icon)
 import Sound exposing (Sound)
-import Task
 import Util exposing (ListChange(..), elem, pure, showErr)
 
 
@@ -579,7 +581,7 @@ renderChakra turn exchange chakras (ChakraPair chakra spend amount random) =
 renderAct : List Character -> Act -> Html Msg
 renderAct characters x =
     H.div [ A.class "act click", E.onClick <| Enact Delete x ]
-        [ icon (Game.root characters x.skill x.user) x.skill.name []
+        [ icon (Game.root characters x.skill) x.skill.name []
         , H.div [ A.class "actcost" ] <|
             Render.chakras x.skill.cost
         ]
@@ -629,23 +631,37 @@ renderDefense slot anchor track barriers defenses =
 
 
 renderSkill :
-    Int
+    Ninja
     -> Chakras
     -> Bool
     -> List Character
     -> Int
     -> List Int
-    -> Int
     -> Skill
-    -> Int
     -> Html Msg
-renderSkill user chakras able characters button targets charge skill cooldown =
+renderSkill user chakras able characters button targets skill =
     let
+        key =
+            String.cons (Char.fromCode <| skill.owner + 48) skill.name
         image =
-            icon (Game.root characters skill user) skill.name []
+            icon (Game.root characters skill) skill.name []
+        cooldown =
+            if user.health > 0 then
+                Dict.get key user.cooldowns
+                    |> Maybe.withDefault 0
+
+            else
+                0
+        charge =
+            if user.health > 0 then
+                Dict.get key user.charges
+                    |> Maybe.withDefault 0
+
+            else
+                0
     in
     if
-        cooldown
+        charge
             > 0
             || not able
             || skill.require
@@ -655,7 +671,7 @@ renderSkill user chakras able characters button targets charge skill cooldown =
     then
         H.div
             [ A.class "charmove noclick"
-            , E.onMouseOver << View <| ViewSkill user [] charge skill
+            , E.onMouseOver << View <| ViewSkill user.slot [] charge skill
             , E.onMouseLeave Unhighlight
             ]
         <|
@@ -672,7 +688,7 @@ renderSkill user chakras able characters button targets charge skill cooldown =
     else
         let
             toggler =
-                if Game.targets user skill == [ user ] then
+                if Game.targets user.slot skill == [ user.slot ] then
                     Enact Add
 
                 else
@@ -680,14 +696,14 @@ renderSkill user chakras able characters button targets charge skill cooldown =
         in
         H.div
             [ A.class "charmove click"
-            , E.onMouseOver << View <| ViewSkill user targets charge skill
+            , E.onMouseOver << View <| ViewSkill user.slot targets charge skill
             , E.onMouseLeave Unhighlight
             , E.onClick <|
                 toggler
-                    { user = user
-                    , skill = skill
-                    , target = user
-                    , button = button
+                    { user    = user.slot
+                    , skill   = skill
+                    , target  = user.slot
+                    , button  = button
                     , targets = targets
                     }
             ]
@@ -781,11 +797,14 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
                 >> live
 
         copies =
+            []
+            {-
             b.ninja.copies
                 |> List.filterMap identity
                 >> List.reverse
                 >> List.map (Detail.copy >> render)
                 >> live
+                -}
 
         defenses =
             renderDefense b.ninja.slot
@@ -856,15 +875,11 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
                 [ H.section fullMeta
                     [ faceIcon [ A.class "charicon" ] ]
                 , H.div [ A.class "charmoves" ]
-                    << List.map5
-                        (renderSkill b.ninja.slot chakras active characters)
+                    <| List.map3
+                        (renderSkill b.ninja chakras active characters)
                         (List.range 0 <| Game.skillSize - 1)
                         b.targets
-                        (b.ninja.charges ++ List.repeat Game.skillSize 0)
                         b.ninja.skills
-                  <|
-                    live b.ninja.cooldowns
-                        ++ List.repeat Game.skillSize 0
                 ]
     in
     H.section [ A.classList [ ( "dead", b.ninja.health == 0 ) ] ] <|
@@ -1024,7 +1039,7 @@ renderView characters viewing =
                     varyButtons =
                         List.find
                             (List.any match)
-                            (Game.root characters x user).skills
+                            (Game.root characters x).skills
                             |> Maybe.andThen
                                 (\matches ->
                                     List.findIndex match matches
@@ -1055,7 +1070,7 @@ renderView characters viewing =
                 in
                 [ H.section []
                     [ H.div [] <|
-                        icon (Game.root characters x user) x.name [ A.class "char" ]
+                        icon (Game.root characters x) x.name [ A.class "char" ]
                             :: Maybe.withDefault [] varyButtons
                     , H.dl []
                         [ H.h4 []

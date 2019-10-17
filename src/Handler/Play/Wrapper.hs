@@ -23,7 +23,6 @@ import qualified Class.Play as P
 import qualified Class.Random
 import           Class.Random (MonadRandom)
 import           Class.Sockets (MonadSockets)
-import           Game.Model.Copy (Copying(..))
 import           Game.Model.Chakra (Chakras)
 import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
@@ -81,20 +80,17 @@ instance MonadIO m => MonadGame (ReaderT IOWrapper m) where
                   >>= liftIO . \xs -> MVector.unsafeModify xs f $ Slot.toInt i
 
 trackAction :: ∀ s. Skill -> [Ninja] -> [Ninja] -> STWrapper s -> ST s ()
-trackAction skill ns ns' x = case Skill.copying skill of
-    NotCopied -> Tracker.trackAction (Skill.name skill) ns ns' $ tracker x
-    _         -> return ()
+trackAction skill ns ns' x =
+    Tracker.trackAction (Skill.name skill) ns ns' $ tracker x
 
 trackChakra :: ∀ s. Skill -> (Chakras, Chakras) -> (Chakras, Chakras)
             -> STWrapper s -> ST s ()
-trackChakra skill chaks chaks' x = case Skill.copying skill of
-    NotCopied -> Tracker.trackChakra (Skill.name skill) chaks chaks' $ tracker x
-    _         -> return ()
+trackChakra skill chaks chaks' x =
+    Tracker.trackChakra (Skill.name skill) chaks chaks' $ tracker x
 
 trackTrap :: ∀ s. Trap -> Ninja -> STWrapper s -> ST s ()
-trackTrap tr n x = case Skill.copying $ Trap.skill tr of
-    NotCopied -> Tracker.trackTrap (Trap.name tr) (Trap.user tr) n $ tracker x
-    _         -> return ()
+trackTrap tr n x =
+    Tracker.trackTrap (Trap.name tr) (Trap.user tr) n $ tracker x
 
 trackTrigger :: ∀ s. Trigger -> Ninja -> STWrapper s -> ST s ()
 trackTrigger tr n x = Tracker.trackTrigger tr n $ tracker x

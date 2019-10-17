@@ -156,7 +156,7 @@ new n = do
         objectives
   where
     char       = Ninja.character n
-    name       = Character.ident $ Ninja.character n
+    name       = Character.ident char
     missions   = Missions.characterMissions char
     goals      = [x | mission <- missions
                     , x       <- toList $ Goal.goals mission

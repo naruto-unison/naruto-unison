@@ -14,9 +14,9 @@ import List.Extra as List
 import List.Nonempty as Nonempty exposing (Nonempty(..))
 import Set exposing (Set)
 import String.Extra as String
-import Util exposing (groupBy, unaccent)
 
 import Import.Model as Model exposing (Category(..), Character, Failure(..), Skill, User)
+import Util exposing (groupBy, unaccent)
 
 
 type alias Flags =

@@ -204,31 +204,6 @@ jsonEncCopy  val =
 
 
 
-type Copying  =
-    Shallow Int Int
-    | Deep Int Int
-    | NotCopied
-
-jsonDecCopying : Json.Decode.Decoder ( Copying )
-jsonDecCopying =
-    let jsonDecDictCopying = Dict.fromList
-            [ ("Shallow", Json.Decode.lazy (\_ -> Json.Decode.map2 Shallow (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.int))))
-            , ("Deep", Json.Decode.lazy (\_ -> Json.Decode.map2 Deep (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.int))))
-            , ("NotCopied", Json.Decode.lazy (\_ -> Json.Decode.succeed NotCopied))
-            ]
-        jsonDecObjectSetCopying = Set.fromList []
-    in  decodeSumTaggedObject "Copying" "tag" "contents" jsonDecDictCopying jsonDecObjectSetCopying
-
-jsonEncCopying : Copying -> Value
-jsonEncCopying  val =
-    let keyval v = case v of
-                    Shallow v1 v2 -> ("Shallow", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.int v2]))
-                    Deep v1 v2 -> ("Deep", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.int v2]))
-                    NotCopied  -> ("NotCopied", encodeValue (Json.Encode.list identity []))
-    in encodeSumTaggedObject "tag" "contents" keyval val
-
-
-
 type alias Defense  =
    { amount: Int
    , user: Int
@@ -404,11 +379,11 @@ type alias Ninja  =
    { slot: Int
    , character: String
    , health: Int
+   , cooldowns: (Dict String Int)
+   , charges: (Dict String Int)
    , defense: (List Defense)
    , barrier: (List Barrier)
    , statuses: (List Status)
-   , charges: (List Int)
-   , cooldowns: (List Int)
    , copies: (List (Maybe Copy))
    , channels: (List Channel)
    , traps: (List Trap)
@@ -419,15 +394,15 @@ type alias Ninja  =
 
 jsonDecNinja : Json.Decode.Decoder ( Ninja )
 jsonDecNinja =
-   Json.Decode.succeed (\pslot pcharacter phealth pdefense pbarrier pstatuses pcharges pcooldowns pcopies pchannels ptraps pface plastSkill pskills -> {slot = pslot, character = pcharacter, health = phealth, defense = pdefense, barrier = pbarrier, statuses = pstatuses, charges = pcharges, cooldowns = pcooldowns, copies = pcopies, channels = pchannels, traps = ptraps, face = pface, lastSkill = plastSkill, skills = pskills})
+   Json.Decode.succeed (\pslot pcharacter phealth pcooldowns pcharges pdefense pbarrier pstatuses pcopies pchannels ptraps pface plastSkill pskills -> {slot = pslot, character = pcharacter, health = phealth, cooldowns = pcooldowns, charges = pcharges, defense = pdefense, barrier = pbarrier, statuses = pstatuses, copies = pcopies, channels = pchannels, traps = ptraps, face = pface, lastSkill = plastSkill, skills = pskills})
    |> required "slot" (Json.Decode.int)
    |> required "character" (Json.Decode.string)
    |> required "health" (Json.Decode.int)
+   |> required "cooldowns" (Json.Decode.dict (Json.Decode.int))
+   |> required "charges" (Json.Decode.dict (Json.Decode.int))
    |> required "defense" (Json.Decode.list (jsonDecDefense))
    |> required "barrier" (Json.Decode.list (jsonDecBarrier))
    |> required "statuses" (Json.Decode.list (jsonDecStatus))
-   |> required "charges" (Json.Decode.list (Json.Decode.int))
-   |> required "cooldowns" (Json.Decode.list (Json.Decode.int))
    |> required "copies" (Json.Decode.list (Json.Decode.maybe (jsonDecCopy)))
    |> required "channels" (Json.Decode.list (jsonDecChannel))
    |> required "traps" (Json.Decode.list (jsonDecTrap))
@@ -441,11 +416,11 @@ jsonEncNinja  val =
    [ ("slot", Json.Encode.int val.slot)
    , ("character", Json.Encode.string val.character)
    , ("health", Json.Encode.int val.health)
+   , ("cooldowns", (encodeMap (Json.Encode.string) (Json.Encode.int)) val.cooldowns)
+   , ("charges", (encodeMap (Json.Encode.string) (Json.Encode.int)) val.charges)
    , ("defense", (Json.Encode.list jsonEncDefense) val.defense)
    , ("barrier", (Json.Encode.list jsonEncBarrier) val.barrier)
    , ("statuses", (Json.Encode.list jsonEncStatus) val.statuses)
-   , ("charges", (Json.Encode.list Json.Encode.int) val.charges)
-   , ("cooldowns", (Json.Encode.list Json.Encode.int) val.cooldowns)
    , ("copies", (Json.Encode.list (maybeEncode (jsonEncCopy))) val.copies)
    , ("channels", (Json.Encode.list jsonEncChannel) val.channels)
    , ("traps", (Json.Encode.list jsonEncTrap) val.traps)
@@ -556,33 +531,31 @@ type alias Skill  =
    , classes: (Set String)
    , cost: Chakras
    , cooldown: Int
-   , varicd: Bool
    , charges: Int
    , dur: Channeling
    , start: (List Target)
    , effects: (List Target)
    , stunned: (List Target)
    , interrupt: (List Target)
-   , copying: Copying
+   , owner: Int
    }
 
 jsonDecSkill : Json.Decode.Decoder ( Skill )
 jsonDecSkill =
-   Json.Decode.succeed (\pname pdesc prequire pclasses pcost pcooldown pvaricd pcharges pdur pstart peffects pstunned pinterrupt pcopying -> {name = pname, desc = pdesc, require = prequire, classes = pclasses, cost = pcost, cooldown = pcooldown, varicd = pvaricd, charges = pcharges, dur = pdur, start = pstart, effects = peffects, stunned = pstunned, interrupt = pinterrupt, copying = pcopying})
+   Json.Decode.succeed (\pname pdesc prequire pclasses pcost pcooldown pcharges pdur pstart peffects pstunned pinterrupt powner -> {name = pname, desc = pdesc, require = prequire, classes = pclasses, cost = pcost, cooldown = pcooldown, charges = pcharges, dur = pdur, start = pstart, effects = peffects, stunned = pstunned, interrupt = pinterrupt, owner = powner})
    |> required "name" (Json.Decode.string)
    |> required "desc" (Json.Decode.string)
    |> required "require" (jsonDecRequirement)
    |> required "classes" (decodeSet (Json.Decode.string))
    |> required "cost" (jsonDecChakras)
    |> required "cooldown" (Json.Decode.int)
-   |> required "varicd" (Json.Decode.bool)
    |> required "charges" (Json.Decode.int)
    |> required "dur" (jsonDecChanneling)
    |> required "start" (Json.Decode.list (jsonDecTarget))
    |> required "effects" (Json.Decode.list (jsonDecTarget))
    |> required "stunned" (Json.Decode.list (jsonDecTarget))
    |> required "interrupt" (Json.Decode.list (jsonDecTarget))
-   |> required "copying" (jsonDecCopying)
+   |> required "owner" (Json.Decode.int)
 
 jsonEncSkill : Skill -> Value
 jsonEncSkill  val =
@@ -593,14 +566,13 @@ jsonEncSkill  val =
    , ("classes", (encodeSet Json.Encode.string) val.classes)
    , ("cost", jsonEncChakras val.cost)
    , ("cooldown", Json.Encode.int val.cooldown)
-   , ("varicd", Json.Encode.bool val.varicd)
    , ("charges", Json.Encode.int val.charges)
    , ("dur", jsonEncChanneling val.dur)
    , ("start", (Json.Encode.list jsonEncTarget) val.start)
    , ("effects", (Json.Encode.list jsonEncTarget) val.effects)
    , ("stunned", (Json.Encode.list jsonEncTarget) val.stunned)
    , ("interrupt", (Json.Encode.list jsonEncTarget) val.interrupt)
-   , ("copying", jsonEncCopying val.copying)
+   , ("owner", Json.Encode.int val.owner)
    ]
 
 

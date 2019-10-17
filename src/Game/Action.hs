@@ -28,7 +28,7 @@ import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Trigger as Trigger
-import           Game.Model.Act (Act)
+import           Game.Model.Act (Act(Act))
 import qualified Game.Model.Act as Act
 import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Channel (Channel(Channel), Channeling(..))
@@ -223,6 +223,7 @@ setActed n = n { Ninja.acted = True }
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Act -> m ()
+act Act{skill = Left s} | s >= Ninja.skillSize = return ()
 act a = do
     nUser      <- P.ninja user
     chakras    <- Game.chakra <$> P.game
@@ -240,7 +241,7 @@ act a = do
         else do
             P.trigger user $ OnAction <$> toList classes
             when (Skill.charges skill > 0) .
-                P.modify user $ Cooldown.spendCharge skill s
+                P.modify user $ Cooldown.spendCharge skill
             P.alter $ Game.adjustChakra user (— cost)
             efs <- chooseTargets (Skill.start skill ++ Skill.effects skill)
 
@@ -266,9 +267,9 @@ act a = do
                 run affected efs
                 addChannels
             P.modify user \n -> n { Ninja.lastSkill = Just skill }
-            P.modify user $ Cooldown.update skill s . setActed
-        Hook.action skill initial =<< P.ninjas
-        Hook.chakra skill chakras . Game.chakra =<< P.game
+            P.modify user $ Cooldown.update skill . setActed
+        P.uncopied $ Hook.action skill initial =<< P.ninjas
+        P.uncopied $ Hook.chakra skill chakras . Game.chakra =<< P.game
         traverse_ (sequence_ . Traps.get user) =<< P.ninjas
 
         P.modifyAll $ unreflect . \n -> n { Ninja.triggers = mempty }

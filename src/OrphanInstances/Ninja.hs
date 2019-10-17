@@ -7,7 +7,6 @@ import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), object)
 
-import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
@@ -35,11 +34,11 @@ instance ToJSON Ninja where
         [ "slot"      .= Ninja.slot n
         , "character" .= Character.ident (Ninja.character n)
         , "health"    .= Ninja.health n
+        , "cooldowns" .= Ninja.cooldowns n
+        , "charges"   .= Ninja.charges n
         , "defense"   .= Ninja.defense n
         , "barrier"   .= Ninja.barrier n
         , "statuses"  .= filter ((Hidden ∉) . Status.classes) (Ninja.statuses n)
-        , "charges"   .= Ninja.charges n
-        , "cooldowns" .= Cooldown.active n
         , "copies"    .= Ninja.copies n
         , "channels"  .= Ninja.channels n
         , "traps"     .= filter ((Hidden ∉) . Trap.classes) (Ninja.traps n)
