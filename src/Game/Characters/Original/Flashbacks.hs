@@ -38,8 +38,10 @@ characters =
           [ To Enemy do
                 tag 4
                 trap 4 OnDeath $ self killHard
-                self $ trap 4 OnDeath $
-                    everyone $ whenM (targetHas "Life Link") killHard
+                self do
+                    apply 4 [Alternate "Life Link" "Life Transfer"]
+                    trap 4 OnDeath $
+                        everyone $ whenM (targetHas "Life Link") killHard
           ]
         }
       , Skill.new

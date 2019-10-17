@@ -408,10 +408,9 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 20
-                apply' "Shadow Sewing" 1 [Stun NonMental]
+                prolong 1 "Shadow Sewing"
                 hide' "final" 1 []
-                self $ apply' "Shadow Sewing" 1
-                    [Alternate "Shadow Sewing" "Shadow Sewing: Hold"]
+                self $ prolong 1 "Shadow Sewing"
           ]
         }
       ]
@@ -769,9 +768,10 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies $ apply 2 [Expose]
-          , To Self $ trap 1 (Counter All) $ apply 1
+          , To Self $ trap 1 (Counter All) $ bomb 1
                 [Alternate "Eight Trigrams Sixty-Four Palms"
                            "Pressure Point Strike"]
+                [ To Expire $ remove "Pressure Point Strike" ]
           ]
         }
       , Skill.new
@@ -786,13 +786,7 @@ characters =
                 deplete 1
           , To Self do
                 addStack
-                bomb' "Eight Trigrams Sixty-Four Palms" 1
-                    [Alternate "Eight Trigrams Sixty-Four Palms"
-                              "Pressure Point Strike"]
-                    [ To Expire $
-                        unlessM (targetHas "Eight Trigrams Sixty-Four Palms") $
-                        remove "Pressure Point Strike"
-                    ]
+                prolong 1 "Eight Trigrams Sixty-Four Palms"
           ]
         }
       ]

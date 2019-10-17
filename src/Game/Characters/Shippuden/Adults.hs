@@ -95,8 +95,7 @@ characters =
           [ To Enemy $ damage 20
           , To Self do
                 tag' "Overheating" 2
-                apply' "Thousand Hand Strike" 1
-                    [Alternate "Thousand Hand Strike" "Kannon Strike"]
+                prolong 1 "Thousand Hand Strike"
           ]
         }
       ]
@@ -558,7 +557,7 @@ characters =
     "A chūnin from the Hidden Cloud Village, Atsui is a hot-headed hotshot whose favorite word is 'hot' and whose name literally means 'Hot'. A staggeringly complex character with hidden depths, Atsui's skills are as diverse as his multifaceted personality."
     [ [ Skill.new
         { Skill.name      = "Burning Blade"
-        , Skill.desc      = "Fire envelops Atsui's sword and surrounds him, providing 10 points of damage reduction to him for 3 turns. While active, enemies who use skills on Atsui will take 10 affliction damage."
+        , Skill.desc      = "Fire envelops Atsui's sword and surrounds him, providing him with 10 points of damage reduction for 3 turns. While active, enemies who use skills on Atsui will take 10 affliction damage."
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4

@@ -284,7 +284,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 pierce 45
-                apply' "Chain Wrap" 1 [Stun NonMental]
+                prolong 1 "Chain Wrap"
           ]
         }
       ]

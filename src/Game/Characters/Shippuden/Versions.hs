@@ -305,7 +305,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Salamander Shield"
-        , Skill.desc      = "Kankurō's Sanshōuo puppet shields him and his allies, providing 40 permanent destructible defense to Kankurō. While Kankurō has destructible defense from this skill, damage against his allies is reflected to him. Cannot be used while active."
+        , Skill.desc      = "Kankurō's Sanshōuo puppet shields him and his allies, providing Kankurō with 40 permanent destructible defense. While Kankurō has destructible defense from this skill, damage against his allies is reflected to him. Cannot be used while active."
         , Skill.classes   = [Physical, Soulbound, Unremovable, Unreflectable]
         , Skill.require   = DefenseI 0 "Salamander Shield"
         , Skill.cost      = [Rand, Rand, Rand]
@@ -846,7 +846,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Immortality Transference"
-        , Skill.desc      = "Orochimaru forces his soul on an enemy, dealing 15 damage to them for 3 turns and stunning their non-mental skills."
+        , Skill.desc      = "Orochimaru forces his soul on an enemy, dealing 15 damage to them for 3 turns and stunning their non-mental skills. If Orochimaru acquires a new body, this skill becomes [Eight-Headed Serpent][b][t]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 3
@@ -877,7 +877,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name    = "Curse Mark Release"
-        , Skill.desc    = "By giving an ally a curse mark, Orochimaru uses their body as an anchor for his soul after death. If the target's health reaches 25 or lower while Orochimaru is dead, Orochimaru will be resurrected into their body with full health and all status effects removed. If Orochimaru acquires a new body, this skill becomes [Regeneration][g][n]. Cannot be used while active."
+        , Skill.desc    = "By giving an ally a curse mark, Orochimaru uses their body as an anchor for his soul after death. If the target's health reaches 25 or lower while Orochimaru is dead, Orochimaru will be resurrected into their body with full health and all status effects removed. Cannot be used while active. If Orochimaru acquires a new body, this skill becomes [Regeneration][g][n]."
         , Skill.require = HasI 0 "curse"
         , Skill.classes = [Physical, Unremovable, Bypassing, Uncounterable, Unreflectable, Invisible, Melee]
         , Skill.cost    = [Blood, Nin]

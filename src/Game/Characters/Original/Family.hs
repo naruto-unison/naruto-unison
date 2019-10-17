@@ -173,14 +173,13 @@ characters =
     "A jōnin from the Hidden Leaf Village and Chōji's father, Chōza instills confidence in his comrades with his bravery and wisdom. Never one to back down from a fight, he defends his allies and forces the attention of his enemies to himself."
     [ [ Skill.new
         { Skill.name      = "Chain Bind"
-        , Skill.desc      = "Chōza slows an enemy, dealing 5 damage and weakening their physical, chakra, and summon damage by 10 for 1 turn. Chōza's team gains 5 permanent destructible defense. The weakening effect lasts 1 additional turn during [Human Boulder]."
+        , Skill.desc      = "Chōza slows an enemy, dealing 5 damage and weakening their physical, chakra, and summon damage by 10 for 1 turn. Chōza's team gains 5 permanent destructible defense."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
                 damage 5
-                bonus <- 1 `bonusIf` userHas "Human Boulder"
-                apply (1 + bonus) [Weaken [Physical, Chakra, Summon] Flat 10]
+                apply 1 [Weaken [Physical, Chakra, Summon] Flat 10]
           , To Allies $ defend 0 5
           ]
         }
@@ -194,7 +193,9 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Allies $ defend 1 10
-          , To Enemy $ damage 15
+          , To Enemy do
+                damage 15
+                prolong 1 "Chain Bind"
           ]
         }
       ]

@@ -136,9 +136,9 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Ally $ trapFrom 1 (Counter Physical) do
-                self $ addStack' "Unpredictable Assault"
                 stacks <- userStacks "Unpredictable Assault"
-                damage (20 + 5 * stacks)
+                damage (20 + 5 + 5 * stacks)
+                self $ addStack' "Unpredictable Assault"
           ]
         }
       ]
@@ -233,7 +233,7 @@ characters =
     "Following his fateful encounter with Naruto, Gaara has become a kind and loyal friend. The sand that was once an extension of his fear and rage has become a versatile tool for shaping the battlefield."
     [ [ Skill.new
         { Skill.name      = "Sand Shower"
-        , Skill.desc      = "A stream of sand flows around Gaara toward an enemy, providing 35 destructible defense to him for 3 turns and dealing 15 damage to the target each 3 turn."
+        , Skill.desc      = "A stream of sand flows around Gaara toward an enemy, providing him with 35 destructible defense for 3 turns and dealing 15 damage to the target each 3 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
