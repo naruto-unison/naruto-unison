@@ -780,8 +780,7 @@ userBox mUser csrf csrfParam showLogin costs team =
     [ H.nav [ A.id "playButtons" ]
       nav
     , H.section [ A.id "teamContainer" ]
-      [ H.div [ A.class "space" ] []
-      , Keyed.node "div"
+      [ Keyed.node "div"
         [ A.id "teamButtons", A.class "select" ] << for team <|
           \char ->
               ( characterName char
