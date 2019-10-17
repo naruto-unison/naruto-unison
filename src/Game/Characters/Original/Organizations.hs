@@ -733,7 +733,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Bracken Dance"
         , Skill.desc      = "A forest of razor-sharp bones erupts from the ground, dealing 30 damage to all enemies and reducing all enemy physical, chakra, and summon damage by 20 for 1 turn. Kimimaro loses 15 health and another 15 health at the end of his next turn."
-        , Skill.classes   = [Physical, Ranged, Unremovable]
+        , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =

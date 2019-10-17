@@ -463,7 +463,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Butterfly Bombing"
         , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring status effects from enemies except chakra cost changes and dealing 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
-        , Skill.classes   = [Physical, Melee]
+        , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Tai, Rand, Rand]
         , Skill.effects   =
           [ To Self do

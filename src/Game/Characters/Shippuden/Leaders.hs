@@ -85,7 +85,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Toad Subjugation Shadow Manipulation"
         , Skill.desc      = "Jiraiya merges with an enemy's shadow. Next turn, skills that enemies use on Jiraiya will be reflected onto the target."
-        , Skill.classes   = [Mental, Invisible, Melee, Uncounterable, Unreflectable]
+        , Skill.classes   = [Mental, Invisible, Melee, Unreflectable]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =

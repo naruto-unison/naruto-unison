@@ -340,7 +340,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "High-Speed Assault"
         , Skill.desc      = "Akatsuchi punches an enemy with all his might, dealing 25 damage. Costs 1 taijutsu chakra during [Stone Golem]."
-        , Skill.classes   = [Physical, Melee]
+        , Skill.classes   = [Physical, Melee, Uncounterable]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   = [ To Enemy $ damage 25 ]
         , Skill.changes   =
