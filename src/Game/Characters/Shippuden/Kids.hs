@@ -372,7 +372,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Sixty-Four Palms"
         , Skill.desc      = "For 4 turns, each time an enemy affected by [Pressure Point Strike] uses a skill on Hinata or her allies, Hinata's next [Pressure Point Strike] will last 1 additional turn on them."
-        , Skill.classes   = [Physical, Melee, Bypassing]
+        , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self $ tag 4

@@ -94,7 +94,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Sensory Technique"
         , Skill.desc      = "Minato's senses expand to cover the battlefield, preventing enemies from reducing damage or becoming invulnerable for 2 turns. Each turn, Minato gains 1 random chakra."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 3
         , Skill.dur       = Control 2
@@ -336,7 +336,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Obito targets an ally. For 4 turns, Obito gains 15 points of damage reduction, and if Obito dies, the ally will gain 5 points of damage reduction and deal 5 additional non-affliction damage."
-        , Skill.classes   = [Mental, Unremovable, Bypassing]
+        , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =

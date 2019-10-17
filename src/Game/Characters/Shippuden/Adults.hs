@@ -569,7 +569,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Fire Wall"
         , Skill.desc      = "Fire erupts around Atsui's enemies. Next turn, enemies who use skills will take 10 affliction damage. Costs 1 ninjutsu chakra during [Burning Blade]."
-        , Skill.classes   = [Bane, Chakra, Ranged]
+        , Skill.classes   = [Bane, Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =

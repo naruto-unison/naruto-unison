@@ -111,10 +111,10 @@
 <h3>Minor Adjustments
 <ul>
   <li>
-    If a skill replaces itself with a temporary copy of someone else's skill, the copy has no chakra cost or cooldown, but its effects end when the copy expires rather than lasting forever.
-  <li>
     ^{Link.skill "Anko Mitarashi" Original "Dragon Flame"}
     adds 5 to all bane damage that the target receives, rather than only damage from Anko's skills.
+  <li>
+    ^{Link.skill "Anko Mitarashi" Original "Twin Snake Sacrifice"} bypasses invulnerability.
   <li>
     The weak-to-affliction status effect from
     ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}
@@ -125,9 +125,11 @@
   <li>
     ^{Link.skill "Jiraiya" Original "Toad Oil Bomb"} deals affliction damage, in order to be consistent with other damage-over-time fire attacks and to benefit from ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}.
   <li>
+    ^{Link.skill "Hiruzen Sarutobi" Original "Reaper Death Seal"} bypasses invulnerability.
+  <li>
     ^{Link.skill "Hiashi Hyūga" Original "Eight Trigrams Air Palm Wall"} reflects skills onto their user, rather than a random enemy.
   <li>
-    ^{Link.skill "Hinata Hyūga" Shippuden "Gentle Step Twin Lion Fists"} ends if Hinata dies.
+    ^{Link.skill "Hinata Hyūga" Shippuden "Gentle Step Twin Lion Fists"} bypasses invulnerability and ends if Hinata dies.
   <li>
     Instead of merely alerting when skills are used, ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"} reveals enemy cooldowns and invisible effects.
   <li>
@@ -140,6 +142,8 @@
     The cost of ^{Link.skill "Omoi" Shippuden "Crescent Moon Slice"} has been changed from 1 genjutsu chakra and 1 arbitrary chakra to 1 taijutsu chakra and 1 arbitrary chakra.
   <li>
     ^{Link.skill "Omoi" Shippuden "Thunderbolt"} blocks its target from affecting their allies at all.
+  <li>
+    ^{Link.skill "Sai" Shippuden "Ink Mist"} bypasses invulnerability.
   <li>
     ^{Link.skill "Danzō Shimura" Shippuden "Kotoamatsukami"} cannot counter uncounterable skills. If it copies a skill, the copy retains its chakra cost.
   <li>

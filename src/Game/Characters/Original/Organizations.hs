@@ -391,7 +391,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Hidden Mist"
         , Skill.desc      = "Mist covers the battlefield for 2 turns, providing 5 points of damage reduction to Zabuza and increasing the cost of enemy physical and mental skills by 1 arbitrary chakra."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =

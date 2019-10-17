@@ -112,7 +112,7 @@ characters =
       , Skill.new
         { Skill.name      = "Super Beast Scroll: Bird"
         , Skill.desc      = "Sai draws a bird in the air, which deals 25 damage to an enemy and stuns their physical and chakra skills for 1 turn."
-        , Skill.classes   = [Physical, Melee, Bypassing]
+        , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Enemy do
@@ -465,7 +465,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Adamantine Attacking Chains"
         , Skill.desc      = "Karin attacks an enemy with sealing chains, dealing 30 damage and disabling the stuns and disabling effects of their skills for 1 turn."
-        , Skill.classes   = [Physical, Melee]
+        , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
