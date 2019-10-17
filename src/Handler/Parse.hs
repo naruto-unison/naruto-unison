@@ -37,7 +37,7 @@ parseChakra kind = Parser.string (token kind) $> HTML.toMarkup kind
     token Gen   = "[g]"
     token Nin   = "[n]"
     token Tai   = "[t]"
-    token Rand  = "[t]"
+    token Rand  = "[r]"
 
 parseName :: Parser Html
 parseName = do
