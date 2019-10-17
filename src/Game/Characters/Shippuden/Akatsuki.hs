@@ -66,8 +66,8 @@ characters =
         , Skill.desc      = "Madara immolates the battlefield, dealing 10 damage to an enemy and 5 damage to all other enemies for 3 turns. While active, enemies who use skills that grant damage reduction or destructible defense will take 10 damage."
         , Skill.classes   = [Bane]
         , Skill.cost      = [Nin]
-        , Skill.dur       = Action 3
         , Skill.cooldown  = 1
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy $ damage 10
           , To XEnemies $ damage 5
@@ -206,8 +206,8 @@ characters =
         , Skill.require   = HasI 1 "Iron Sand"
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Rand, Rand]
-        , Skill.dur       = Action 2
         , Skill.cooldown  = 3
+        , Skill.dur       = Action 2
         , Skill.start     =
           [ To Self do
                 defend 2 20

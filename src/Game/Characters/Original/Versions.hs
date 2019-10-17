@@ -147,8 +147,8 @@ characters =
         , Skill.desc      = "Lee assumes the Drunken Fist stance and deals 15 damage to an enemy for 3 turns, ignoring status effects from enemies except chakra cost changes."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand, Rand]
-        , Skill.dur       = Action 3
         , Skill.cooldown  = 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Self $ apply 1 [Enrage]
           , To Enemy $ damage 15
@@ -179,6 +179,7 @@ characters =
         , Skill.require   = HasI 0 "Monstrous Sand Arm"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
+        , Skill.cooldown  = 2
         , Skill.dur       = Control 0
         , Skill.start     =
           [ To Enemy $ trap 0 Nullified $ cancelChannel "Monstrous Sand Arm" ]
@@ -221,7 +222,6 @@ characters =
         , Skill.desc      = "Shukaku unleashes the full extent of its power, doubling the damage of its skills for 1 turn."
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Blood]
-        , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self $ apply 1 [Strengthen [All] Percent 100] ]
         }

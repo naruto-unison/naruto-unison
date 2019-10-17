@@ -200,6 +200,7 @@ characters =
         , Skill.desc      = "A spike-filled iron coffin shaped like a cat imprisons an enemy. For 3 turns, each time the target uses a skill on Ibiki or his allies, they will take 25 piercing damage. Ibiki gains 30 permanent destructible defense."
         , Skill.classes   = [Summon, Melee]
         , Skill.cost      = [Nin, Rand]
+        , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy $ trap 3 OnHarm $ pierce 25
           , To Self $ defend 0 30
@@ -211,6 +212,7 @@ characters =
         , Skill.desc      = "A cage of chains and gears surrounds an enemy. For 3 turns, each time the target does not use a skill, they will take 25 piercing damage. Ibiki gains 30 permanent destructible defense."
         , Skill.classes   = [Summon, Melee]
         , Skill.cost      = [Nin, Rand]
+        , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy $ trap 3 OnNoAction $ pierce 25
           , To Self $ defend 0 30

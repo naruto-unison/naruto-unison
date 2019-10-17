@@ -118,7 +118,7 @@ characters =
     ]
   , Character
     "Yondaime Minato"
-    "Now the fourth Hokage, Minato has been shaped by his responsibilities into a thoughtful and strategic leader. With his space-time jutsu, he redirects the attacks of his enemies and effortlessly passes through their defenses."
+    "As the fourth Hokage, Minato has been shaped by his responsibilities into a thoughtful and strategic leader. With his space-time jutsu, he redirects the attacks of his enemies and effortlessly passes through their defenses."
     [ [ Skill.new
         { Skill.name      = "Rasengan"
         , Skill.desc      = "Minato teleports behind an enemy and slams an orb of chakra into them, dealing 35 damage. Costs 1 ninjutsu chakra if [Rasengan] was used last turn."
@@ -197,7 +197,7 @@ characters =
         , Skill.desc      = "A titanic many-handed Buddha statue looms over the battlefield, providing 30 permanent destructible defense to Hashirama and his allies. For the next 3 turns, [Wooden Dragon] and [Wood Golem] cost 1 fewer arbitrary chakra and last 1 additional turn."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Blood, Blood]
-        , Skill.cooldown  = 2
+        , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Allies $ defend 0 30
           , To Self $ tag 3

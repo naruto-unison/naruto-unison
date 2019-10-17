@@ -711,8 +711,8 @@ characters =
         , Skill.desc      = "Using fuel stored in a sealing scroll, Sasori shoots flames at an enemy for 3 turns, dealing 10 affliction damage each turn. While active, Sasori is invulnerable to all other enemies and ignores status effects from enemies except chakra cost changes. If Sasori uses any skill, [Flamethrower Jets] is canceled. After use, this skill becomes [Cutting Water Jets][n]."
         , Skill.classes   = [Bane, Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin, Rand]
-        , Skill.dur       = Action 3
         , Skill.cooldown  = 3
+        , Skill.dur       = Action 3
         , Skill.start     =
           [ To Self $
                 hide 0 [Alternate "Flamethrower Jets" "Cutting Water Jets"]

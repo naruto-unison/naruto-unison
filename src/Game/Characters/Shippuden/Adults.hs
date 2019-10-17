@@ -43,6 +43,7 @@ characters =
         , Skill.desc      = "If used on an enemy, deals 45 piercing damage to them, increases their cooldowns by 1 turn, and increases the costs of their skills by 1 arbitrary chakra. If used on an ally, cures them of enemy effects and makes them invulnerable for 1 turn."
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Blood, Gen]
+        , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
                 pierce 45
@@ -150,6 +151,7 @@ characters =
         , Skill.desc      = "Using his signature Twin Fangs weapons, Guy deals 10 damage to an enemy for 3 turns. While active, if an enemy uses a physical skill on him, he will deal 10 damage to them. Deals 5 additional damage on the first turn per stack of [Single Gate Release]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
+        , Skill.cooldown  = 2
         , Skill.dur       = Action 3
         , Skill.start     =
           [ To Self $ flag' "first" ]
@@ -408,6 +410,7 @@ characters =
         , Skill.desc      = "Spikes of stone and mud erupt from the ground, dealing 15 damage to all enemies and making them invulnerable to each other."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies do
                 damage 15

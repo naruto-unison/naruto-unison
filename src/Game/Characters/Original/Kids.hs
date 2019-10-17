@@ -71,7 +71,6 @@ characters =
         , Skill.desc      = "Using basic healing techniques, Sakura restores 25 health to herself or an ally."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
-        , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Ally $ heal 25 ]
         }

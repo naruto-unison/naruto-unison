@@ -208,7 +208,7 @@ characters =
         , Skill.desc      = "Kakashi anticipates any attacks against him, copying them faster than their user. All skills that enemies use on Kakashi next turn will be reflected back at them."
         , Skill.classes   = [Chakra, Melee, Invisible]
         , Skill.cost      = [Blood]
-        , Skill.cooldown  = 1
+        , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self $ apply 1 [ReflectAll All] ]
         }
@@ -330,7 +330,6 @@ characters =
         , Skill.desc      = "Asuma deals 35 piercing damage to an enemy with a powerful attack."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Nin, Rand]
-        , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ pierce 35 ]
         }

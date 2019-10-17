@@ -446,8 +446,8 @@ characters =
         , Skill.desc      = "Gengetsu summons a huge clam that exudes illusory mist for 4 turns. Each turn, a random member of his team becomes a mirage, reflecting the first skill an enemy uses on them next turn, and a random member of his team gains 80 destructible defense for 1 turn. If the clam's destructible defense is destroyed, this skill is canceled."
         , Skill.classes   = [Summon]
         , Skill.cost      = [Nin, Gen, Rand]
-        , Skill.dur       = Ongoing 4
         , Skill.cooldown  = 5
+        , Skill.dur       = Ongoing 4
         , Skill.effects   =
           [ To RAlly $ apply 1 [Reflect]
           , To RAlly do

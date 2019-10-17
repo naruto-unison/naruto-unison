@@ -272,8 +272,8 @@ characters =
         , Skill.desc       = "A wave of insects attack an enemy, dealing 15 affliction damage to them for 3 turns and making them invulnerable to allies. While active, this skill becomes [Chakra Leech]."
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Blood, Rand]
-        , Skill.dur       = Action 3
         , Skill.cooldown  = 2
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 5 `bonusIf` targetHas "Chakra Leech"
@@ -337,7 +337,6 @@ characters =
         , Skill.desc      = "Hinata blocks an enemy's pressure point, dealing 10 damage to them and increasing the costs of their skills by 1 arbitrary chakra for 1 turn. Deals 10 additional damage during [Eight Trigrams Sixty-Four Palms]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
-        , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 10 `bonusIf` userHas "Eight Trigrams Sixty-Four Palms"
@@ -374,6 +373,7 @@ characters =
         , Skill.desc      = "For 4 turns, each time an enemy affected by [Pressure Point Strike] uses a skill on Hinata or her allies, Hinata's next [Pressure Point Strike] will last 1 additional turn on them."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
+        , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self $ tag 4
           , To Enemies $ trap 4 OnHarm addStack
@@ -490,6 +490,7 @@ characters =
         , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters physical, chakra, and summon skills. Increases the cost of Chōji's skills by 1 arbitrary chakra each turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand, Rand]
+        , Skill.cooldown  = 2
         , Skill.dur       = Action 2
         , Skill.start     =
           [ To Enemy $ damage 15
@@ -865,6 +866,7 @@ characters =
         , Skill.desc      = "The Karasu puppet shoots poisoned knives at an enemy, dealing 20 damage to them. Next turn, the target takes 10 affliction damage."
         , Skill.classes   = [Physical, Ranged, Bane]
         , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 20 `bonusIf` targetHas "Kuroari Trap"
@@ -880,8 +882,8 @@ characters =
         , Skill.desc      = "The Sanshōuo puppet blocks enemy attacks for 3 turns, providing 25% damage reduction to Kankuro and his allies and making them immune to affliction damage. While active, this skill becomes [Salamander Puppet]."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand, Rand]
-        , Skill.dur       = Action 3
         , Skill.cooldown  = 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Allies $
               apply 1 [Reduce [All] Percent 25, Invulnerable Affliction]
