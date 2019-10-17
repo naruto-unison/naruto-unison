@@ -1,5 +1,6 @@
 module Site.Render exposing
     ( chakras
+    , chakraTotals
     , class
     , classes
     , desc
@@ -78,6 +79,20 @@ rands amount random =
       []
     , H.span []
       [ H.text <| String.fromInt random ]
+    ]
+
+
+chakraTotals : Chakras -> List (Html msg)
+chakraTotals x =
+    let
+        named chak total =
+            H.span [] [ chakra chak, H.text <| String.fromInt total ]
+    in
+    [ named "blood" x.blood
+    , named "gen"   x.gen
+    , named "nin"   x.nin
+    , named "tai"   x.tai
+    , named "rand"  x.rand
     ]
 
 

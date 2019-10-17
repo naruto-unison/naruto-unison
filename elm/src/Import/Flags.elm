@@ -15,7 +15,8 @@ import List.Nonempty as Nonempty exposing (Nonempty(..))
 import Set exposing (Set)
 import String.Extra as String
 
-import Import.Model as Model exposing (Category(..), Character, Failure(..), Skill, User)
+import Game.Chakra as Chakra
+import Import.Model as Model exposing (Category(..), Chakras, Character, Failure(..), Skill, User)
 import Util exposing (groupBy, unaccent)
 
 
@@ -68,6 +69,7 @@ type alias Characters =
     , dict      : Dict String Character
     , groupList : List (Nonempty Character)
     , groupDict : Dict String (Nonempty Character)
+    , costs     : Dict String Chakras
     , shortName : Character -> String
     }
 
@@ -91,11 +93,16 @@ makeCharacters chars =
     { list =
         chars
     , dict =
-        Dict.fromList <| withKey characterName chars
+        Dict.fromList
+            <| withKey characterName chars
     , groupList =
         groupList
     , groupDict =
-        Dict.fromList <| withKey (Nonempty.head >> shortName) groupList
+        Dict.fromList
+            <| withKey (Nonempty.head >> shortName) groupList
+    , costs =
+        Dict.fromList
+            <| List.map (\char -> (shortName char, characterCosts char)) chars
     , shortName =
         shortName
     }
@@ -148,6 +155,14 @@ shortFromInvuln x =
         "The" :: name :: _ -> Just name
         name :: _          -> Just name
         []                 -> Nothing
+
+
+characterCosts : Character -> Chakras
+characterCosts char =
+    char.skills
+        |> List.concat
+        >> List.map .cost
+        >> Chakra.sum
 
 
 printFailure : Failure -> String

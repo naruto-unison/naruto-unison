@@ -8,7 +8,7 @@ import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Html.Keyed as Keyed
-import Html.Lazy exposing (lazy5)
+import Html.Lazy exposing (lazy6)
 import Http
 import List.Extra as List
 import List.Nonempty as Nonempty exposing (Nonempty(..))
@@ -19,9 +19,10 @@ import Task exposing (Task)
 import Tuple exposing (first, second)
 import Url
 
+import Game.Chakra as Chakra
 import Game.Game as Game
 import Import.Flags exposing (Characters, Flags, characterName)
-import Import.Model as Model exposing (Character, GameInfo, ObjectiveProgress, Skill, User)
+import Import.Model as Model exposing (Chakras, Character, GameInfo, ObjectiveProgress, Skill, User)
 import Ports exposing (Ports)
 import Site.Render as Render exposing (icon)
 import Sound exposing (Sound)
@@ -107,6 +108,7 @@ type alias Model =
     , stage      : Stage
     , url        : String
     , team       : List Character
+    , costs      : Chakras
     , vs         : List Character
     , unlocked   : Set String
     , user       : Maybe User
@@ -160,12 +162,20 @@ type Msg
     | UpdateForm FormUpdate
 
 
+teamCosts : Characters -> List Character -> Chakras
+teamCosts chars team =
+    team
+        |> List.map chars.shortName
+        >> List.filterMap (\char -> Dict.get char chars.costs)
+        >> Chakra.sum
+
+
 component :
     Ports Msg
     ->
-        { init : Flags -> Model
+        { init   : Flags -> Model
         , update : Msg -> Model -> ( Model, Cmd Msg )
-        , view : Model -> Html Msg
+        , view   : Model -> Html Msg
         }
 component ports =
     let
@@ -175,6 +185,7 @@ component ports =
             , stage      = Browsing
             , url        = flags.url
             , team       = flags.userTeam
+            , costs      = teamCosts flags.characters flags.userTeam
             , vs         = flags.userPractice
             , user       = flags.user
             , unlocked   = flags.unlocked
@@ -215,7 +226,14 @@ component ports =
         view : Model -> Html Msg
         view st =
             H.section [ A.id "charSelect" ] <|
-            lazy5 userBox st.user st.csrf st.csrfParam st.showLogin st.team
+            lazy6
+                userBox
+                st.user
+                st.csrf
+                st.csrfParam
+                st.showLogin
+                st.costs
+                st.team
             :: case st.stage of
                 Queued ->
                     []
@@ -405,17 +423,27 @@ component ports =
                                     { st | toggled = Nothing }
 
                                 else if List.length st.team < Game.teamSize then
+                                    let
+                                        team = char :: st.team
+                                    in
                                     { st
                                         | toggled = Nothing
-                                        , team = char :: st.team
+                                        , team    = team
+                                        , costs   = teamCosts st.chars team
                                     }
 
                                 else
                                     { st | toggled = Nothing }
 
                 Team Delete char ->
+                    let
+                        team = List.remove char st.team
+                    in
                     withSound Sound.Cancel
-                        { st | team = List.remove char st.team }
+                        { st
+                            | team  = team
+                            , costs = teamCosts st.chars team
+                        }
 
                 Vs Add char ->
                     withSound Sound.Click <|
@@ -606,8 +634,15 @@ affordable muser char =
                 user.dna >= char.price
 
 
-userBox : Maybe User -> String -> String -> Bool -> List Character -> Html Msg
-userBox mUser csrf csrfParam showLogin team =
+userBox :
+    Maybe User
+    -> String
+    -> String
+    -> Bool
+    -> Chakras
+    -> List Character
+    -> Html Msg
+userBox mUser csrf csrfParam showLogin costs team =
     let
         meta onClick =
             if List.length team == Game.teamSize then
@@ -744,7 +779,6 @@ userBox mUser csrf csrfParam showLogin team =
     H.header []
     [ H.nav [ A.id "playButtons" ]
       nav
-    , H.div [ A.class "space" ] []
     , H.section [ A.id "teamContainer" ]
       [ H.div [ A.class "space" ] []
       , Keyed.node "div"
@@ -758,7 +792,9 @@ userBox mUser csrf csrfParam showLogin team =
                   , E.onClick <| Team Delete char
                   ]
               )
-      , H.div [ A.id "underTeam", A.class "parchment" ] []
+    , H.div [ A.class "space" ] []
+      , H.div [ A.id "underTeam", A.class "parchment" ] <|
+        Render.chakraTotals costs
       ]
     , box
     ]
