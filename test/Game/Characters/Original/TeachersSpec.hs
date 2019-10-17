@@ -75,8 +75,8 @@ spec = parallel do
                     targetHealth' - targetHealth'' `shouldBe` 30
         useOn Self "Genjutsu Ambush Tactics" do
             act
-            enemyTurn $ apply 0 [Exhaust All]
-            harmedBefore <- (`is` Exhaust All) <$> P.nUser
+            enemyTurn $ apply 0 [Exhaust [All]]
+            harmedBefore <- (`is` Exhaust [All]) <$> P.nUser
             enemyTurn $ apply 0 [Reveal]
             harmedAfter <- (`is` Reveal) <$> P.nUser
             self factory
