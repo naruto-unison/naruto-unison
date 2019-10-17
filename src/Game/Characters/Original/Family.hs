@@ -101,7 +101,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Air Palm Wall"
         , Skill.desc      = "Targeting himself or an ally, Hiashi prepares to blast an enemy's attack back. The first skill that an enemy uses on the target next turn will be reflected."
-        , Skill.classes   = [Chakra, Melee, Invisible]
+        , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
