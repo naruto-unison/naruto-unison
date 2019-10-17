@@ -520,13 +520,6 @@ button.scroll:hover {
     font-size: 0.75em;
 }
 
-#controls {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 10px;
-}
-
 .detail {
     display: inline-flex;
     text-align: center;

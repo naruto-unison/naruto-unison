@@ -779,6 +779,7 @@ userBox mUser csrf csrfParam showLogin costs team =
     H.header []
     [ H.nav [ A.id "playButtons" ]
       nav
+    , H.div [ A.class "space" ] []
     , H.section [ A.id "teamContainer" ]
       [ Keyed.node "div"
         [ A.id "teamButtons", A.class "select" ] << for team <|
