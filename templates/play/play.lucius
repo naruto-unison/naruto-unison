@@ -684,7 +684,7 @@ dl dt {
 }
 
 li sup {
-    margin-left: -0.3em;
+    margin-left: -0.3em !important;
 }
 
 main {
