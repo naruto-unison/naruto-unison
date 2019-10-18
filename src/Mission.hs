@@ -9,6 +9,7 @@ module Mission
   , userMission
   , processWin, processDefeat, processUnpicked
   , awardDNA
+  , getUsageRates
   ) where
 
 import ClassyPrelude hiding ((\\))
@@ -37,6 +38,8 @@ import           Mission.Goal (Goal, Span(..))
 import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
 import           Mission.Progress (Progress(..))
+import           Mission.UsageRate (UsageRate)
+import qualified Mission.UsageRate as UsageRate
 import           Util ((!?), (∉))
 
 -- | Starts up the mission database by mapping every Character to a database
@@ -191,8 +194,6 @@ winners ids team unlocks = do
 newUsage :: CharacterId -> Usage
 newUsage x = Usage x 0 0 0 0
 
--- upsert (Mission who char i amount) [MissionProgress +=. amount]
-
 -- | Updates 'Goal.Win' progress with the user's team.
 -- This function should only be called when the user logged in wins a match.
 processWin :: [Text] -> Handler ()
@@ -229,7 +230,7 @@ processUnpicked team = do
     ids             <- getsYesod App.characterIDs
     Unlocks unlocks <- unlocked
     runDB . traverse_ ups . mapMaybe (`Bimap.lookupR` ids) . toList $
-        setFromList team `intersection` unlocks
+        unlocks `difference` setFromList team
   where
     ups char = upsert (newUsage char){ usageUnpicked = 1 }
                [UsageUnpicked +=. 1]
@@ -291,8 +292,22 @@ tallyDNA section outcome dnaConf day user = filter ((> 0) . Reward.amount)
 
 -- | DNA rewards for completing games, as configured in
 --  [config/settings.yml](config.settings.yml).
-outcomeDNA ::Queue.Section -> Outcome -> Settings.DNA -> Int
+outcomeDNA :: Queue.Section -> Outcome -> Settings.DNA -> Int
 outcomeDNA Queue.Private _     = const 0
 outcomeDNA Queue.Quick Victory = Settings.quickWin
 outcomeDNA Queue.Quick Defeat  = Settings.quickLose
 outcomeDNA Queue.Quick Tie     = Settings.quickTie
+
+-- | Returns usage stats about all characters in the database.
+getUsageRates :: Handler [UsageRate]
+getUsageRates = do
+    ids <- getsYesod App.characterIDs
+    usages <- runDB $ selectList [] []
+    return $ mapMaybe (findUsage ids) usages
+
+-- | Matches a @Usage@ with a 'Character' from 'Characters.map'.
+findUsage :: Bimap CharacterId Text -> Entity Usage -> Maybe UsageRate
+findUsage ids (Entity _ usage) = do
+    name <- Bimap.lookup (usageCharacter usage) ids
+    char <- Characters.lookup name
+    return $ UsageRate.new char usage

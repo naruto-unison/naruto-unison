@@ -288,19 +288,20 @@ gameSocket = webSockets do
     turnLength <- getsYesod $ Settings.turnLength . App.settings
     unlocked   <- liftHandler Mission.unlocked
     liftIO Random.createSystemRandom >>= runReaderT do
-        (team, mvar, info) <- untilJust $ handleFailures =<< runExceptT do
-            teamNames <- Text.split (=='/') <$> Sockets.receive
-            Team section team <- case parseTeam teamNames of
-                Nothing   -> throwE Queue.InvalidTeam
-                Just vals -> return vals
+        (section, team, mvar, info) <- untilJust $
+            handleFailures =<< runExceptT do
+                teamNames <- Text.split (=='/') <$> Sockets.receive
+                Team section team <- case parseTeam teamNames of
+                    Nothing   -> throwE Queue.InvalidTeam
+                    Just vals -> return vals
 
-            let teamTail = tailEx teamNames
+                let teamTail = tailEx teamNames
 
-            when (any (∉ unlocked) teamTail) $ throwE Queue.Locked
+                when (any (∉ unlocked) teamTail) $ throwE Queue.Locked
 
-            liftHandler . runDB $ update who [UserTeam =. Just teamTail]
-            (mvar, info) <- queue section team
-            return (teamTail, mvar, info)
+                liftHandler . runDB $ update who [UserTeam =. Just teamTail]
+                (mvar, info) <- queue section team
+                return (section, teamTail, mvar, info)
 
         sendClient $ Info info
         let player = GameInfo.player info
@@ -329,15 +330,16 @@ gameSocket = webSockets do
             -- be deconstructed as the final step.
             liftST . Wrapper.unsafeFreeze =<< ask
         sendClient . Play $ Wrapper.toTurn player game
-        let outcome = Match.outcome (Wrapper.game game) player
-        dnaReward <- liftHandler $ Mission.awardDNA Queue.Quick outcome
-        sendClient $ Rewards dnaReward
-        liftHandler do
-            case outcome of
-                Victory -> Mission.processWin team
-                _       -> Mission.processDefeat team
-            Mission.processUnpicked team
-            traverse_ Mission.progress $ Wrapper.progress game
+        when (section == Queue.Quick) do -- eventually, || Queue.Ladder
+            let outcome = Match.outcome (Wrapper.game game) player
+            dnaReward <- liftHandler $ Mission.awardDNA Queue.Quick outcome
+            sendClient $ Rewards dnaReward
+            liftHandler do
+                case outcome of
+                    Victory -> Mission.processWin team
+                    _       -> Mission.processDefeat team
+                Mission.processUnpicked team
+                traverse_ Mission.progress $ Wrapper.progress game
 
 -- | Wraps @enact@ with error handling.
 tryEnact :: ∀ m. ( MonadGame m

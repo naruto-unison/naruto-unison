@@ -1,0 +1,18 @@
+<table>
+  <thead>
+    <tr>
+      <th>
+        Character
+      <th>
+        Win Rate
+      <th>
+        Pick Rate
+  <tbody>
+    $forall usage <- usageRates
+      <tr>
+        <td>
+          ^{Link.character $ UsageRate.character usage}
+        <td>
+          #{showRate $ UsageRate.winRate usage}
+        <td>
+          #{showRate $ UsageRate.pickRate usage}

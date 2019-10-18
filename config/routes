@@ -7,14 +7,15 @@
 /robots.txt RobotsR GET
 
 /api/mission/#Character                     MissionR        GET
-/api/reanimate/#Character                   ReanimateR      GET
+/api/mute/#Bool                             MuteR           GET
 /api/practicequeue/*[Text]                  PracticeQueueR  GET
 /api/practiceact/#Chakras/#Chakras          PracticeWaitR   GET
 !/api/practiceact/#Chakras/#Chakras/*[Act]  PracticeActR    GET
+/api/reanimate/#Character                   ReanimateR      GET
 /api/update/#Text/#Bool/#Text/#Text         UpdateR         GET
 
 /admin                  AdminR       GET POST
-/api/mute/#Bool         MuteR        GET
+/admin/usage            UsageR       GET
 !/                      PlayR        GET
 /changelog              ChangelogR   GET
 /home                   HomeR        GET
@@ -24,7 +25,7 @@
 /topic/#ForumBoard/new  NewTopicR    GET POST
 /topic/#TopicId         TopicR       GET POST
 /guide                  GuideR       GET
+/guide/game-mechanics   MechanicsR   GET
 /characters             CharactersR  GET
 /characters/#Character  CharacterR   GET
-/game-mechanics         MechanicsR   GET
 !/                      StaticR      Static static

@@ -1,6 +1,9 @@
 <p>
   Running on port
   #{Settings.port $ App.settings app}
+<p>
+  <a href=@{UsageR}>
+    View character usage statistics
 <form method=post action=@{AdminR} enctype=#{enctype}>
   <h2>Post News
   ^{newsForm}

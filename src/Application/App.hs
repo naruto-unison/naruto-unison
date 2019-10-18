@@ -113,7 +113,7 @@ type AppPersistEntity a = ( PersistEntity a
 
 getNavLinks :: Handler [(Route App, Html)]
 getNavLinks = do
-    showAdmin <- isAuthenticated Moderator
+    showAdmin <- isAuthenticated Admin
     return $ admin showAdmin
       [ (HomeR,   "Home")
       , (GuideR,  "Guide")
@@ -124,15 +124,16 @@ getNavLinks = do
     admin _          xs = xs
 
 origin :: Route App -> Route App
-origin ChangelogR = HomeR
-origin ProfileR{} = ForumsR
-origin BoardR{} = ForumsR
-origin NewTopicR{} = ForumsR
-origin TopicR{} = ForumsR
-origin CharactersR = GuideR
+origin BoardR{}     = ForumsR
+origin ChangelogR   = HomeR
 origin CharacterR{} = GuideR
-origin MechanicsR = GuideR
-origin x = x
+origin CharactersR  = GuideR
+origin MechanicsR   = GuideR
+origin NewTopicR{}  = ForumsR
+origin ProfileR{}   = ForumsR
+origin TopicR{}     = ForumsR
+origin UsageR       = AdminR
+origin x            = x
 
 instance Yesod App where
     approot :: Approot App
@@ -174,7 +175,8 @@ instance Yesod App where
         :: Route App  -- ^ The route the user is visiting.
         -> Bool       -- ^ Whether or not this is a "write" request.
         -> Handler AuthResult
-    isAuthorized AdminR _ = isAuthenticated Moderator
+    isAuthorized AdminR _ = isAuthenticated Admin
+    isAuthorized UsageR _ = isAuthenticated Admin
     -- isAuthorized PlayR _ = isAuthenticated Normal
     -- Routes not requiring authentication.
     isAuthorized _     _ = return Authorized
@@ -207,23 +209,35 @@ instance Yesod App where
     makeLogger = return . logger
 
 instance YesodBreadcrumbs App where
-  breadcrumb (AuthR _) = return ("Login", Just HomeR)
-  breadcrumb AdminR = return ("Admin", Just HomeR)
-  breadcrumb ChangelogR = return ("Changelog", Just HomeR)
-  breadcrumb HomeR = return ("Home", Nothing)
-  breadcrumb (ProfileR name) = return ("User: " ++ name, Just HomeR)
-  breadcrumb ForumsR = return ("Forums", Just HomeR)
-  breadcrumb (BoardR board) = return (boardName board, Just ForumsR)
-  breadcrumb (NewTopicR board) = return ("New Topic", Just $ BoardR board)
-  breadcrumb (TopicR topic) = do
-      Topic{topicTitle, topicBoard} <- runDB $ get404 topic
-      return (topicTitle, Just $ BoardR topicBoard)
-  breadcrumb GuideR = return ("Guide", Just HomeR)
-  breadcrumb CharactersR = return ("Characters", Just GuideR)
-  breadcrumb (CharacterR char) = return
-      (Character.format char, Just CharactersR)
-  breadcrumb MechanicsR = return ("Game Mechanics", Just GuideR)
-  breadcrumb _ = return (mempty, Nothing)
+    breadcrumb AdminR         = return ("Admin", Just HomeR)
+    breadcrumb AuthR{}        = return ("Login", Just HomeR)
+    breadcrumb (BoardR x)     = return (boardName x, Just ForumsR)
+    breadcrumb ChangelogR     = return ("Changelog", Just HomeR)
+    breadcrumb (CharacterR x) = return (Character.format x, Just CharactersR)
+    breadcrumb CharactersR    = return ("Characters", Just GuideR)
+    breadcrumb ForumsR        = return ("Forums", Just HomeR)
+    breadcrumb GuideR         = return ("Guide", Just HomeR)
+    breadcrumb HomeR          = return ("Home", Nothing)
+    breadcrumb MechanicsR     = return ("Game Mechanics", Just GuideR)
+    breadcrumb (NewTopicR x)  = return ("New Topic", Just $ BoardR x)
+    breadcrumb PlayR          = return (mempty, Nothing)
+    breadcrumb (ProfileR x)   = return ("User: " ++ x, Just HomeR)
+    breadcrumb UsageR         = return ("Character Usage", Just AdminR)
+    breadcrumb (TopicR x)     = do
+        Topic{topicTitle, topicBoard} <- runDB $ get404 x
+        return (topicTitle, Just $ BoardR topicBoard)
+
+    breadcrumb FaviconR = return (mempty, Nothing)
+    breadcrumb RobotsR = return (mempty, Nothing)
+    breadcrumb StaticR{} = return (mempty, Nothing)
+
+    breadcrumb MissionR{} = return (mempty, Nothing)
+    breadcrumb MuteR{} = return (mempty, Nothing)
+    breadcrumb PracticeActR{} = return (mempty, Nothing)
+    breadcrumb PracticeQueueR{} = return (mempty, Nothing)
+    breadcrumb PracticeWaitR{} = return (mempty, Nothing)
+    breadcrumb ReanimateR{} = return (mempty, Nothing)
+    breadcrumb UpdateR{} = return (mempty, Nothing)
 
 instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend

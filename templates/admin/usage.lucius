@@ -1,0 +1,9 @@
+table {
+    max-width: 40em;
+    margin: auto !important;
+}
+
+th {
+    display: revert !important;
+    color: revert !important;
+}
