@@ -149,7 +149,7 @@ status x =
     , dur     = x.dur
     , source  = x.skill.owner
     , user    = x.user
-    , effects = x.effects
+    , effects = List.uniqueBy .desc x.effects
     , trap    = False
     , amount  = x.amount
     , chan    = x.skill.dur /= Instant
@@ -165,6 +165,7 @@ trap x =
             , sticky  = True
             , trap    = True
             , visible = True
+            , slot    = Nothing
             }
     in
     { name    = x.name

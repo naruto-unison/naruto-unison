@@ -25,7 +25,7 @@ parseSegment = Parser.choice
     [ " (S)"           $> HTML.toMarkup Shippuden
     , " (R)"           $> HTML.toMarkup Reanimated
     , Parser.char '\n' $> HTML.br
-    , Parser.choice    $  parseChakra <$> [minBound .. maxBound]
+    , Parser.choice    $  parseChakra <$> [minBound..maxBound]
     , parseName
     , HTML.toMarkup   <$> Parser.takeWhile1 (Parser.notInClass " [\n")
     , HTML.toMarkup   <$> Parser.char ' '

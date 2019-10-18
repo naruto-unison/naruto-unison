@@ -32,18 +32,7 @@ data Constructor
     = Only Effect
     | Any (Class -> Effect)
     | Counters
-
-instance Show Constructor where
-    show (Only x) = show x
-    show (Any xs) = fromMaybe shown $ stripSuffix (' ' : show All) shown
-      where
-        shown = show $ xs All
-    show Counters = "Counters"
-
-construct :: Constructor -> [Effect]
-construct (Only x) = [x]
-construct (Any x)  = x <$> [minBound..maxBound]
-construct Counters = []
+    | Stuns
 
 instance Eq Constructor where
     Only x == Only y = x == y
@@ -52,8 +41,58 @@ instance Eq Constructor where
     Only x == Any  y = x ∈ (y <$> [minBound..maxBound])
 
     Counters == Counters = True
+    Stuns    == Stuns    = True
     _        == _        = False
     {-# INLINE (==) #-}
+
+instance Show Constructor where
+    show (Only x) = show x
+    show (Any xs) = fromMaybe shown $ stripSuffix (' ' : show All) shown
+      where
+        shown = show $ xs All
+    show Counters = "Counters"
+    show Stuns    = "Stuns"
+
+instance Display Constructor where
+    display Counters       = "counters"
+    display Stuns          = "stuns and disabling effects"
+    display (Any x) = case ($ All) x of
+        Invulnerable All  -> "invulnerability"
+        ReflectAll All    -> "reflects"
+        Stun All          -> "stuns"
+        _                 -> "certain effects"
+    display (Only Bypass)  = "effects that grant invulnerability-bypassing"
+    display (Only Expose)  = "prevention of invulnerability and damage reduction"
+    display (Only Pierce)  = "effects that grant piercing damage"
+    display (Only Reflect) = "reflects"
+    display (Only x) = (++ " effects") case x of
+        Absorb            -> "chakra-absorbing"
+        Alone             -> "isolating"
+        AntiCounter       -> "anti-countering"
+        BlockAllies       -> "ally-blocking"
+        BlockEnemies      -> "enemy-blocking"
+        DamageToDefense   -> "damage-conversion"
+        Endure            -> "immortality"
+        Enrage            -> "anti-harm"
+        Face              -> "appearance changes"
+        Focus             -> "anti-stun"
+        NoIgnore          -> "anti-ignore"
+        Nullify           -> "nullifying"
+        Plague            -> "anti-heal"
+        Restrict          -> "target-restricting"
+        Reveal            -> "anti-invisible"
+        Seal              -> "anti-helpful"
+        Silence           -> "anti-effect"
+        Swap              -> "target-swapping"
+        Undefend          -> "anti-defense"
+        Uncounter         -> "anti-countering" -- yeah, yeah, I know
+        _                 -> "certain"
+
+construct :: Constructor -> [Effect]
+construct (Only x) = [x]
+construct (Any x)  = x <$> [minBound..maxBound]
+construct Counters = []
+construct Stuns    = []
 
 -- | Effects of 'Game.Model.Status.Status'es.
 data Effect
@@ -125,6 +164,7 @@ instance ToJSON Effect where
         , "sticky"  .= sticky x
         , "trap"    .= False
         , "visible" .= visible x
+        , "slot"    .= slot x
         ]
 
 helpful :: Effect -> Bool
@@ -226,6 +266,15 @@ visible (Alternate x y) = x /= y
 visible Face            = False
 visible _               = True
 
+-- | Slot component of an effect.
+slot :: Effect -> Maybe Slot
+slot (Block x)    = Just x
+slot (Duel x)     = Just x
+slot (Redirect x) = Just x
+slot (Share x)    = Just x
+slot (Taunt x)    = Just x
+slot _            = Nothing
+
 list :: ∀ o. (MonoFoldable o, Element o ~ Class) => o -> TextBuilder
 list classes = commas "and" $ lower <$> toList classes
 
@@ -238,28 +287,28 @@ instance Display Effect where
     display (Bleed classes amt x)
       | x >= 0    =  displayAmt amt x ++ " additional damage taken from " ++ list classes ++ " skills."
       | otherwise = "Reduces " ++ list classes ++  " damage received by " ++ displayAmt amt (-x) ++ "."
-    display (Bless x) = "Healing skills heal " ++ display x ++ " additional health."
-    display (Block _) = "Unable to affect a specific target."
+    display (Bless x) = "Adds " ++ display x ++ " to skills that restore health."
+    display Block{} = "Unable to affect "
     display BlockAllies = "Unable to affect allies."
     display BlockEnemies = "Unable to affect enemies."
-    display (Boost x) = "Active effects from allies are " ++ display x ++ " times as powerful."
+    display (Boost x) = "Multiplies active effects from allies by " ++ display x ++ "."
     display (Build x)
-      | x >= 0    = "Destructible skills provide " ++ display x ++ " additional points of defense."
+      | x >= 0    = "Adds " ++ display x ++ " to destructible skills."
       | otherwise =  "Destructible skills provide " ++ display (-x) ++ " fewer points of defense."
     display Bypass = "All skills bypass invulnerability."
-    display DamageToDefense = "Non-affliction damage received is converted into destructible defense."
-    display (Disable _) = "Skills are disabled from applying certain effects."
-    display (Duel _) = "Invulnerable to everyone but a specific target."
-    display Endure = "Health cannot go below 1."
+    display DamageToDefense = "Converts non-affliction damage received into destructible defense."
+    display (Disable x) = "Disables applying " ++ display x ++ "."
+    display Duel{} = "Invulnerable to everyone but "
+    display Endure = "Prevents health from dropping below 1."
     display Enrage = "Ignores status effects from enemies except chakra cost changes."
-    display (Exhaust classes) = "1 arbitrary chakra is added to the cost of " ++ list classes ++ " skills."
+    display (Exhaust classes) = "Adds 1 arbitrary chakra to the costs of " ++ list classes ++ " skills."
     display Expose = "Unable to reduce damage or become invulnerable."
-    display Face = "Appearance is altered."
-    display (Heal x) = "Gains " ++ display x ++ " health each turn."
+    display Face = "Alters appearance."
+    display (Heal x) = "Restores " ++ display x ++ " health each turn."
     display Focus = "Ignores stuns and disabling effects."
     display NoIgnore = "Unable to ignore harm."
     display (Invulnerable cla) = "Invulnerable to " ++ lower cla ++ " skills."
-    display (Limit x) = "Non-affliction damage received is reduced to at most " ++ display x ++ "."
+    display (Limit x) = "Reduces non-affliction damage received to at most " ++ display x ++ "."
     display Nullify = "Ignores enemy skills."
     display Pierce = "Non-affliction skills deal piercing damage."
     display Plague = "Cannot be healed or cured."
@@ -269,24 +318,24 @@ instance Display Effect where
     display (Reduce classes amt x)
       | x >= 0    = "Reduces " ++ list classes ++ " damage received by " ++ displayAmt amt x ++ ". Does not affect piercing or affliction damage."
       | otherwise = "Increases " ++ list classes ++ " damage received by " ++ displayAmt amt (-x) ++ ". Does not affect piercing or affliction damage."
-    display Redirect{} = "Redirects skills from enemies to a different target."
+    display Redirect{} = "Redirects skills from enemies to "
     display Reflect = "Reflects the first harmful skill."
     display (ReflectAll cla) = "Reflects " ++ lower cla ++ " skills."
-    display Reveal = "Reveals invisible skills to the enemy team. This effect cannot be removed."
+    display Reveal = "Reveals invisible skills to the enemy team."
     display Restrict = "Skills that normally affect all opponents must be targeted."
     display Seal = "Ignores helpful effects."
-    display (Share _) = "Harmful skills received are also reflected to another target."
-    display Silence = "Non-damage effects are disabled."
+    display Share{} = "Harmful skills received are also reflected to "
+    display Silence = "Disables non-damage effects."
     display (Snare x)
-      | x >= 0    = "Cooldowns increased by " ++ display x ++ "."
-      | otherwise = "Cooldowns decreased by " ++ display (-x) ++ "."
+      | x >= 0    = "Increases cooldowns by " ++ display x ++ "."
+      | otherwise = "Decreases cooldowns by " ++ display (-x) ++ "."
     display (Strengthen classes amt x) = "Deals " ++ displayAmt amt x ++ " additional damage with " ++ list classes ++ " skills."
-    display (Stun cla) = "Unable to use " ++ lower cla ++ " skills."
+    display (Stun cla) = "Disables " ++ lower cla ++ " skills."
     display Swap = "Next skill will target allies instead of enemies and enemies instead of allies."
-    display (Taunt _) = "Can only affect a specific target."
-    display (Threshold x) = "Uninjured by attacks that deal " ++ display x ++ " baseline damage or lower."
-    display (Throttle x _) = "Skills will apply " ++ display x ++ " fewer turns of certain effects."
+    display Taunt{} = "Can only affect "
+    display (Threshold x) = "Nullifies the damage of attacks that deal " ++ display x ++ " baseline damage or lower."
+    display (Throttle x y) = "Skills will apply " ++ display x ++ " fewer turns of " ++ display y ++ "."
     display Uncounter = "Unable to benefit from counters or reflects."
     display Undefend = "Unable to benefit from destructible defense."
-    display (Unreduce x) = "Damage reduction skills reduce " ++ display x ++ " fewer damage."
-    display (Weaken classes amt x) = "Deals " ++ displayAmt amt x ++ " fewer damage with " ++ list classes ++ "skills. Does not affect affliction damage."
+    display (Unreduce x) = "Reduces damage reduction skills by " ++ display x ++ "."
+    display (Weaken classes amt x) = "Weakens " ++ list classes ++ " damage by " ++ displayAmt amt x ++ ". Does not affect affliction damage."

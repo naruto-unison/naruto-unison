@@ -471,7 +471,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 30
-                apply 1 [Disable $ Any Stun, Disable $ Only Silence]
+                apply 1 [Disable Stuns]
           ]
         }
       ]

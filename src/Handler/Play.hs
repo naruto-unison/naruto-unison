@@ -43,6 +43,7 @@ import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Slot as Slot
+import           Handler.Client.Reward (Reward)
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
 import qualified Handler.Play.GameInfo as GameInfo
 import           Handler.Play.Match (Outcome(..))
@@ -62,7 +63,7 @@ data Message
     | Info GameInfo
     | Ping
     | Play Turn
-    | Reward [(Text, Int)]
+    | Rewards [Reward]
     deriving (Generic, ToJSON)
 
 -- | If the difference in skill rating between two players exceeds this
@@ -299,7 +300,7 @@ gameSocket = webSockets do
 
             liftHandler . runDB $ update who [UserTeam =. Just teamTail]
             (mvar, info) <- queue section team
-            return (team, mvar, info)
+            return (teamTail, mvar, info)
 
         sendClient $ Info info
         let player = GameInfo.player info
@@ -330,11 +331,12 @@ gameSocket = webSockets do
         sendClient . Play $ Wrapper.toTurn player game
         let outcome = Match.outcome (Wrapper.game game) player
         dnaReward <- liftHandler $ Mission.awardDNA Queue.Quick outcome
-        sendClient $ Reward dnaReward
+        sendClient $ Rewards dnaReward
         liftHandler do
             case outcome of
                 Victory -> Mission.processWin team
-                _       -> Mission.processDefeat
+                _       -> Mission.processDefeat team
+            Mission.processUnpicked team
             traverse_ Mission.progress $ Wrapper.progress game
 
 -- | Wraps @enact@ with error handling.

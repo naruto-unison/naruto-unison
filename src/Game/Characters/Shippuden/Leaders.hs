@@ -26,13 +26,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Ten Thousand Snakes Wave"
-        , Skill.desc      = "A horde of poisonous sword-brandishing snakes pours from Orochimaru's mouth and deals 20 affliction damage to an enemy. Next turn, all stun skills used by the target will have their duration reduced by 1 turn."
+        , Skill.desc      = "A horde of poisonous sword-brandishing snakes pours from Orochimaru's mouth and deals 20 affliction damage to an enemy. Next turn, all stuns and disabling effects applied by the target will have their duration reduced by 1 turn."
         , Skill.classes   = [Physical, Bane, Ranged]
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemy do
                 afflict 20
-                apply 1 [Throttle 1 $ Any Stun]
+                apply 1 [Throttle 1 Stuns]
           ]
         }
       ]
@@ -178,7 +178,7 @@ characters =
     ]
   , Character
     "Ōnoki"
-    "The third Tsuchikage of the Hidden Rock Village, Onoki is the oldest and most stubborn Kage. His remarkable ability to control matter on an atomic scale rapidly grows in strength until it can wipe out a foe in a single attack."
+    "The third Tsuchikage of the Hidden Rock Village, Ōnoki is the oldest and most stubborn Kage. His remarkable ability to control matter on an atomic scale rapidly grows in strength until it can wipe out a foe in a single attack."
     [ [ Skill.new
         { Skill.name      = "Earth Golem"
         , Skill.desc      = "A golem of rock emerges from the ground, providing 10 permanent destructible defense to his team and dealing 10 damage to all enemies."

@@ -78,7 +78,7 @@ visible = (< All)
 
 visibles :: Value
 visibles = toJSON . mapFromKeyed @(Map _ _) (name, const True) $
-           filter visible [minBound, maxBound]
+           filter visible [minBound..maxBound]
 {-# NOINLINE visibles #-}
 
 name :: Class -> Text

@@ -20,6 +20,7 @@ import Parser exposing ((|.), (|=), Parser)
 import Set exposing (Set)
 import String.Extra as String
 
+import Game.Game as Game
 import Import.Flags exposing (characterName)
 import Import.Model exposing (Category(..), Chakras, Channel, Channeling(..), Character, Effect, User)
 import Util exposing (shorten)
@@ -158,8 +159,8 @@ classes hideMore xs =
     >> H.p [A.class "skillClasses" ]
 
 
-effect : (Effect -> Bool) -> Effect -> Html msg
-effect removable x =
+effect : List Character -> (Effect -> Bool) -> Effect -> Html msg
+effect characters removable x =
     let
         meta =
             if x.trap then
@@ -171,7 +172,9 @@ effect removable x =
             else
                 []
     in
-    H.li meta <| desc x.desc
+    H.li meta << desc <| case x.slot of
+        Nothing   -> x.desc
+        Just slot -> x.desc ++ (Game.get characters slot).name ++ "."
 
 
 hidden : Set String

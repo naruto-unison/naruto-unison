@@ -71,8 +71,6 @@
   ^{change New "Sage Mode Kabuto" Shippuden}
   ^{change New "Eight-Gates Guy" Shippuden}
   ^{change New "True Form Sasori" Shippuden}
-  ^{change Rework "Ino Yamanaka" Shippuden}
-  ^{change Rework "Konohamaru Sarutobi" Shippuden}
   ^{change Rework "Chiyo" Shippuden}
   ^{change Rework "Yamato" Shippuden}
   ^{change Rework "Fū Yamanaka" Shippuden}
@@ -135,7 +133,7 @@
   <li>
     Applying negative destructible defense (which can occur due to ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"} or ^{Link.skill "Rehabilitated Gaara" Original "Sand Tsunami"}) causes destructible barrier rather than negative damage reduction.
   <li>
-    {Link.skill "Kabuto Yakushi" Shippuden "Chakra Absorbing Snakes"} no longer stuns healing effects for 1 turn. Instead, if the target heals next turn, all of their skills will be stunned for 2 turns.
+    ^{Link.skill "Kabuto Yakushi" Shippuden "Chakra Absorbing Snakes"} no longer stuns healing effects for 1 turn. Instead, if the target heals next turn, all of their skills will be stunned for 2 turns.
   <li>
     ^{Link.skill "Maki" Shippuden "Humidified Cloth"} and ^{Link.skill "Nagato" Reanimated "Human Path"} block the target from affecting the user's team at all.
   <li>

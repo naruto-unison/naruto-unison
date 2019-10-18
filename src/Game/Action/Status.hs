@@ -30,7 +30,7 @@ import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Duration (Duration(..), Turns, sync)
 import qualified Game.Model.Duration as Duration
-import           Game.Model.Effect (Effect(..))
+import           Game.Model.Effect (Constructor(..), Effect(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
@@ -242,8 +242,9 @@ makeStatus amount new skill nUser nTarget classes bounced bombs name dur fs =
     classes' = extra ++ classes ++ skillClasses
     silenced = nUser `is` Silence
     disabled = Effects.disabled nUser
-    disable (Disable _) = Silence ∉ disabled
-    disable x           = x ∉ disabled
+    disable x
+      | Effect.isDisable x = nUser `is` Disable Stuns
+      | otherwise          = x ∉ disabled
     filterDmg xs
       | silenced && bounced = []
       | silenced            = filter isDmg xs

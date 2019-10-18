@@ -21,6 +21,7 @@ import Game.Model.Player (Player(..))
 import Game.Model.Slot (Slot)
 import Application.Fields (Privilege(..))
 import Handler.Client (ObjectiveProgress(..))
+import Handler.Client.Reward (Reward(..))
 import Handler.Play.Queue (Failure(..))
 import Handler.Play.Turn (Turn(..))
 import Handler.Play (Message(..))
@@ -66,6 +67,7 @@ data Effect = Effect
     , sticky  :: Bool
     , visible :: Bool
     , trap    :: Bool
+    , slot    :: Maybe Slot
     }
 
 -- From the ToJSON instance of User in Application.Model
@@ -123,6 +125,7 @@ deriveElmDef defaultOptions ''Ninja
 deriveElmDef defaultOptions ''ObjectiveProgress
 deriveElmDef defaultOptions ''Player
 deriveElmDef defaultOptions ''Requirement
+deriveElmDef defaultOptions ''Reward
 deriveElmDef defaultOptions ''Skill
 deriveElmDef defaultOptions ''Status
 deriveElmDef defaultOptions ''Target
@@ -165,6 +168,7 @@ main =
     , DefineElm (Proxy :: Proxy Player)
     , DefineElm (Proxy :: Proxy Privilege)
     , DefineElm (Proxy :: Proxy Requirement)
+    , DefineElm (Proxy :: Proxy Reward)
     , DefineElm (Proxy :: Proxy Skill)
     , DefineElm (Proxy :: Proxy Status)
     , DefineElm (Proxy :: Proxy Target)

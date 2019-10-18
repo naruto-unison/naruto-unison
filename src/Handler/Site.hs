@@ -123,7 +123,7 @@ getCharacterR :: Character -> Handler Html
 getCharacterR char = do
     -- content does change if logged in, due to mission objectives
     whenM (isNothing <$> Auth.maybeAuthId) App.unchanged304
-    mmission <- Mission.userMission char
+    mmission <- Mission.userMission name
     defaultLayout $(widgetFile "guide/character")
   where
     name = Character.ident char

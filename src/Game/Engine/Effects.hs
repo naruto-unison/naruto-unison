@@ -145,6 +145,7 @@ threshold n = maximum $ 0 :| [x | Threshold x <- Ninja.effects n]
 throttle :: [Effect] -> Ninja -> Int
 throttle efs n = sum [x | Throttle x f <- Ninja.effects n, throttled f]
   where
+    throttled Stuns       = any Effect.isDisable efs
     throttled constructor = any (∈ efs) $ Effect.construct constructor
 
 -- 'Throttle' 'Counters' sum.

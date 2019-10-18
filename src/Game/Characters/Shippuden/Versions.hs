@@ -51,9 +51,9 @@ characters =
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Enemies $ apply 1 [Disable $ Any Stun, Disable $ Only Silence]
-          , To Self $ hide 0
-                         [Alternate "Natural Energy Assault" "Rasengan Barrage"]
+          [ To Enemies $ apply 1 [Disable Stuns]
+          , To Self $
+                hide 0 [Alternate "Natural Energy Assault" "Rasengan Barrage"]
           ]
         }
       , Skill.new

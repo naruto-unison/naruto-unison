@@ -65,3 +65,11 @@ Mission
     objective  Int
     UniqueMission user character objective
     progress   Int  default=0
+
+Usage
+    character  CharacterId
+    UniqueUsage character
+    wins      Int
+    losses    Int
+    picked    Int
+    unpicked  Int

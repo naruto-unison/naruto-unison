@@ -76,7 +76,7 @@ unzipGoal (goal, progress) =
 -- | Returns progress on a character's mission.
 getMissionR :: Character -> Handler Value
 getMissionR char =
-    returnJson . maybe mempty (unzipGoal <$>) =<< Mission.userMission char
+    returnJson . maybe mempty (unzipGoal <$>) =<< Mission.userMission (Character.ident char)
 
 -- | Updates a user's muted status. Requires authentication.
 getMuteR :: Bool -> Handler Value

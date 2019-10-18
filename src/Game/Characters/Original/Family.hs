@@ -143,7 +143,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Tunneling Fang"
-        , Skill.desc      = "Spinning like a buzzsaw, Tsume deals 15 piercing damage to an enemy for 2 turns. Deals 5 additional damage during [Call Kuromaru]. While active, all stun skills used by the target will have their duration reduced by 2 turns."
+        , Skill.desc      = "Spinning like a buzzsaw, Tsume deals 15 piercing damage to an enemy for 2 turns. Deals 5 additional damage during [Call Kuromaru]. While active, all stun and disabling effects applied by the target will have their duration reduced by 2 turns."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.dur       = Action 2
@@ -151,7 +151,7 @@ characters =
           [ To Enemy do
                 bonus <- 5 `bonusIf` userHas "Call Kuromaru"
                 pierce (15 + bonus)
-                apply 1 [Throttle 2 $ Any Stun]
+                apply 1 [Throttle 2 Stuns]
           ]
         }
       ]
@@ -328,7 +328,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Mental Invasion"
-        , Skill.desc      = "Inoichi preys on an enemy's weaknesses. For 4 turns, all invulnerability skills used by the target will have their duration reduced by 1 turn. While active, members of Inoichi's team who use a mental skill on the target will become invulnerable for 1 turn."
+        , Skill.desc      = "Inoichi preys on an enemy's weaknesses. For 4 turns, all invulnerability effects applied by the target will have their duration reduced by 1 turn. While active, members of Inoichi's team who use a mental skill on the target will become invulnerable for 1 turn."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4

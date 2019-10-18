@@ -255,16 +255,18 @@ type alias Effect  =
    , sticky: Bool
    , visible: Bool
    , trap: Bool
+   , slot: (Maybe Int)
    }
 
 jsonDecEffect : Json.Decode.Decoder ( Effect )
 jsonDecEffect =
-   Json.Decode.succeed (\pdesc phelpful psticky pvisible ptrap -> {desc = pdesc, helpful = phelpful, sticky = psticky, visible = pvisible, trap = ptrap})
+   Json.Decode.succeed (\pdesc phelpful psticky pvisible ptrap pslot -> {desc = pdesc, helpful = phelpful, sticky = psticky, visible = pvisible, trap = ptrap, slot = pslot})
    |> required "desc" (Json.Decode.string)
    |> required "helpful" (Json.Decode.bool)
    |> required "sticky" (Json.Decode.bool)
    |> required "visible" (Json.Decode.bool)
    |> required "trap" (Json.Decode.bool)
+   |> fnullable "slot" (Json.Decode.int)
 
 jsonEncEffect : Effect -> Value
 jsonEncEffect  val =
@@ -274,6 +276,7 @@ jsonEncEffect  val =
    , ("sticky", Json.Encode.bool val.sticky)
    , ("visible", Json.Encode.bool val.visible)
    , ("trap", Json.Encode.bool val.trap)
+   , ("slot", (maybeEncode (Json.Encode.int)) val.slot)
    ]
 
 
@@ -349,7 +352,7 @@ type Message  =
     | Info GameInfo
     | Ping
     | Play Turn
-    | Reward (List (String, Int))
+    | Rewards (List Reward)
 
 jsonDecMessage : Json.Decode.Decoder ( Message )
 jsonDecMessage =
@@ -358,7 +361,7 @@ jsonDecMessage =
             , ("Info", Json.Decode.lazy (\_ -> Json.Decode.map Info (jsonDecGameInfo)))
             , ("Ping", Json.Decode.lazy (\_ -> Json.Decode.succeed Ping))
             , ("Play", Json.Decode.lazy (\_ -> Json.Decode.map Play (jsonDecTurn)))
-            , ("Reward", Json.Decode.lazy (\_ -> Json.Decode.map Reward (Json.Decode.list (Json.Decode.map2 tuple2 (Json.Decode.index 0 (Json.Decode.string)) (Json.Decode.index 1 (Json.Decode.int))))))
+            , ("Rewards", Json.Decode.lazy (\_ -> Json.Decode.map Rewards (Json.Decode.list (jsonDecReward))))
             ]
         jsonDecObjectSetMessage = Set.fromList []
     in  decodeSumTaggedObject "Message" "tag" "contents" jsonDecDictMessage jsonDecObjectSetMessage
@@ -370,7 +373,7 @@ jsonEncMessage  val =
                     Info v1 -> ("Info", encodeValue (jsonEncGameInfo v1))
                     Ping  -> ("Ping", encodeValue (Json.Encode.list identity []))
                     Play v1 -> ("Play", encodeValue (jsonEncTurn v1))
-                    Reward v1 -> ("Reward", encodeValue ((Json.Encode.list (\(t1,t2) -> Json.Encode.list identity [(Json.Encode.string) t1,(Json.Encode.int) t2])) v1))
+                    Rewards v1 -> ("Rewards", encodeValue ((Json.Encode.list jsonEncReward) v1))
     in encodeSumTaggedObject "tag" "contents" keyval val
 
 
@@ -521,6 +524,26 @@ jsonEncRequirement  val =
                     HasU v1 v2 -> ("HasU", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.string v2]))
                     DefenseI v1 v2 -> ("DefenseI", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.string v2]))
     in encodeSumTaggedObject "tag" "contents" keyval val
+
+
+
+type alias Reward  =
+   { reason: String
+   , amount: Int
+   }
+
+jsonDecReward : Json.Decode.Decoder ( Reward )
+jsonDecReward =
+   Json.Decode.succeed (\preason pamount -> {reason = preason, amount = pamount})
+   |> required "reason" (Json.Decode.string)
+   |> required "amount" (Json.Decode.int)
+
+jsonEncReward : Reward -> Value
+jsonEncReward  val =
+   Json.Encode.object
+   [ ("reason", Json.Encode.string val.reason)
+   , ("amount", Json.Encode.int val.amount)
+   ]
 
 
 

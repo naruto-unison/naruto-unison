@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
 -- | Database handling for character missions, which users complete in order to
 -- unlock new characters.
 module Mission
@@ -6,7 +7,7 @@ module Mission
   , unlocked
   , characterID
   , userMission
-  , processWin, processDefeat
+  , processWin, processDefeat, processUnpicked
   , awardDNA
   ) where
 
@@ -24,10 +25,12 @@ import qualified Yesod.Auth as Auth
 
 import           Application.App (Handler)
 import qualified Application.App as App
-import           Application.Model (Character(..), CharacterId, EntityField(..), Mission(..), Unlocked(..), User(..))
+import           Application.Model (Character(..), CharacterId, EntityField(..), Mission(..), Unlocked(..), Usage(..), User(..))
 import qualified Application.Settings as Settings
 import qualified Game.Characters as Characters
 import qualified Game.Model.Character as Character
+import           Handler.Client.Reward (Reward(Reward))
+import qualified Handler.Client.Reward as Reward
 import           Handler.Play.Match (Outcome(..))
 import qualified Handler.Play.Queue as Queue
 import           Mission.Goal (Goal, Span(..))
@@ -59,20 +62,25 @@ makeMap chars = Bimap.fromList . mapMaybe maybePair $ chars
     maybePair (Entity charId Character{characterName}) =
         (charId, ) . Character.ident <$> Characters.lookup characterName
 
+type instance Element Unlocks = Text
+newtype Unlocks = Unlocks (HashSet Text)
+                 deriving (Show, Read, Semigroup, Monoid, MonoFoldable, ToJSON)
+
 -- | 'Character.ident' collection of all Characters that the user has unlocked.
 -- If not logged in, all Characters are returned.
 -- If @unlock-all@ in [config/settings.yml](config/settings.yml) is set to true,
 -- all Characters will always be returned.
-unlocked :: Handler (HashSet Text)
-unlocked = do
+unlocked :: Handler Unlocks
+unlocked = cached do
     unlockAll <- getsYesod $ Settings.unlockAll . App.settings
     mwho <- Auth.maybeAuthId
     case mwho of
         Just who | not unlockAll -> do
             ids     <- getsYesod App.characterIDs
             unlocks <- runDB $ selectList [UnlockedUser ==. who] []
-            return $ getUnlocked ids unlocks
-        _ -> return $ keysSet Characters.map
+            return . Unlocks $ getUnlocked ids unlocks
+        _ ->
+            return . Unlocks $ keysSet Characters.map
 
 -- | 'Character.ident's of all Characters without DNA 'Character.price's.
 freeChars :: HashSet Text
@@ -93,11 +101,11 @@ getUnlocked ids unlocks = freeChars `union` setFromList (mapMaybe look unlocks)
 -- Returns @Nothing@ if the user is not logged in, the Character does not
 -- have a mission, or the user has already completed their mission.
 -- Otherwise, returns a list of goals paired with the user's progress on each.
-userMission :: Character.Character -> Handler (Maybe (Seq (Goal, Int)))
+userMission :: Text -> Handler (Maybe (Seq (Goal, Int)))
 userMission char = fromMaybe mempty <$> runMaybeT do
     who     <- MaybeT Auth.maybeAuthId
-    charID  <- characterID name
-    mission <- MaybeT . return $ lookup name Missions.map
+    charID  <- characterID char
+    mission <- MaybeT . return $ lookup char Missions.map
     (Just . zip mission <$>) . lift $ runDB do
         alreadyUnlocked <-
             selectFirst [UnlockedUser ==. who, UnlockedCharacter ==. charID] []
@@ -106,18 +114,20 @@ userMission char = fromMaybe mempty <$> runMaybeT do
         else
             setObjectives mission <$>
                 selectList [MissionUser ==. who, MissionCharacter ==. charID] []
-  where
-    name = Character.ident char
+
+-- | If @i >= length goals@, this will do nothing.
+data GoalIndex = GoalIndex { goals :: Seq Goal
+                           , char  :: CharacterId
+                           , i     :: Int
+                           }
 
 -- | Inserts progress on a mission into the database.
 updateProgress :: ∀ m. MonadIO m
-               => Seq Goal
-               -> Key User
-               -> Key Character
-               -> Int -- ^ Objective index. Invariant: @< length mission@.
+               => Key User
                -> Int -- ^ Progress to add.
+               -> GoalIndex
                -> SqlPersistT m Bool -- ^ Returns True if the character unlocks.
-updateProgress mission who char i amount = case mission !? i of
+updateProgress who amount GoalIndex{goals, char, i} = case goals !? i of
     Nothing   -> return False
     Just goal
       | Goal.spanning goal /= Career && amount < Goal.reach goal -> return False
@@ -129,7 +139,7 @@ updateProgress mission who char i amount = case mission !? i of
             void $
                 upsert (Mission who char i amount) [MissionProgress +=. amount]
             objectives <- selectList missionChar []
-            if completed mission objectives then do
+            if completed goals objectives then do
                 deleteWhere missionChar
                 insertUnique $ Unlocked who char
                 return True
@@ -148,10 +158,11 @@ progress Progress{amount = 0} = return False
 progress Progress{character, objective, amount} =
     fromMaybe False <$> runMaybeT do
         who     <- MaybeT Auth.maybeAuthId
-        mission <- MaybeT . return $ lookup character Missions.map
-        guard $ objective < length mission
-        charID  <- characterID character
-        lift . runDB $ updateProgress mission who charID objective amount
+        goals <- MaybeT . return $ lookup character Missions.map
+        guard $ objective < length goals
+        char  <- characterID character
+        lift . runDB $
+            updateProgress who amount GoalIndex{ goals, char, i = objective }
 
 -- | Using a list of database mission entries for a user, maps goals onto the
 -- user's progress toward those goals.
@@ -167,29 +178,61 @@ completed mission objectives = and . zipWith ((<=) . Goal.reach) mission $
 
 -- | Extracts 'Goal.Win' progress from a winning user's team.
 winners :: Bimap CharacterId Text
-        -> [Character.Character] -> [Entity Unlocked]
-        -> [(Seq Goal, Key Character, Int)]
-winners ids chars unlocks = do
+        -> [Text] -> Unlocks
+        -> [GoalIndex]
+winners ids team unlocks = do
     Goal.Mission{char, goals} <- Missions.list
-    guard $ char ∉ names
+    guard $ char ∉ unlocks
     (i, Goal.Win _ team') <- zip [0..] $ Goal.objective <$> toList goals
     guard . null $ team' \\ team
     charID <- Bimap.lookupR char ids
-    return (goals, charID, i)
-  where
-    team  = Character.ident <$> chars
-    names = getUnlocked ids unlocks
+    return GoalIndex{ goals, char = charID, i }
+
+newUsage :: CharacterId -> Usage
+newUsage x = Usage x 0 0 0 0
+
+-- upsert (Mission who char i amount) [MissionProgress +=. amount]
 
 -- | Updates 'Goal.Win' progress with the user's team.
 -- This function should only be called when the user logged in wins a match.
-processWin :: [Character.Character] -> Handler ()
+processWin :: [Text] -> Handler ()
 processWin team = do
+    who      <- Auth.requireAuthId
+    ids      <- getsYesod App.characterIDs
+    unlocks  <- unlocked
+    let chars = mapMaybe (`Bimap.lookupR` ids) team
+    runDB do
+        traverse_ ups chars
+        traverse_ (updateProgress who 1) $ winners ids team unlocks
+  where
+    ups char = upsert (newUsage char){ usagePicked = 1, usageWins = 1 }
+               [UsagePicked +=. 1, UsageWins +=. 1]
+
+-- | Resets all 'Goal.WinConsecutive' win progress to 0.
+-- This function should only be called when the user logged in loses a match or
+-- ties.
+processDefeat :: [Text] -> Handler ()
+processDefeat team = do
     who <- Auth.requireAuthId
     ids <- getsYesod App.characterIDs
     runDB do
-        unlocks <- selectList [UnlockedUser ==. who] []
-        forM_ (winners ids team unlocks) \(mission, char, i) ->
-            void $ updateProgress mission who char i 1
+        traverse_ (resetGoal ids who) Missions.consecutiveWins
+        traverse_ ups $ mapMaybe (`Bimap.lookupR` ids) team
+  where
+    ups char = upsert (newUsage char){ usagePicked = 1, usageLosses = 1 }
+               [UsagePicked +=. 1, UsageLosses +=. 1]
+
+-- | Updates usage stats after a game.
+-- This function should always be called at the end of a game.
+processUnpicked :: [Text] -> Handler ()
+processUnpicked team = do
+    ids             <- getsYesod App.characterIDs
+    Unlocks unlocks <- unlocked
+    runDB . traverse_ ups . mapMaybe (`Bimap.lookupR` ids) . toList $
+        setFromList team `intersection` unlocks
+  where
+    ups char = upsert (newUsage char){ usageUnpicked = 1 }
+               [UsageUnpicked +=. 1]
 
 -- | Resets progress toward a goal to 0.
 resetGoal :: ∀ m. MonadIO m
@@ -200,20 +243,11 @@ resetGoal ids who ((`Bimap.lookupR` ids) -> Just char, i) =
     [MissionUser ==. who, MissionCharacter ==. char, MissionObjective ==. i]
 resetGoal _ _ _ = return ()
 
--- | Resets all 'Goal.WinConsecutive' win progress to 0.
--- This function should only be called when the user logged in loses a match or
--- ties.
-processDefeat :: Handler ()
-processDefeat = do
-    who <- Auth.requireAuthId
-    ids <- getsYesod App.characterIDs
-    runDB $ traverse_ (resetGoal ids who) Missions.consecutiveWins
-
 -- When ladder matches are introduced, these two will become more complicated.
 
 -- | Awards DNA upon completing a match and returns a list of DNA gains,
 -- paired with textual descriptions of why each was awarded.
-awardDNA :: Queue.Section -> Outcome -> Handler [(Text, Int)]
+awardDNA :: Queue.Section -> Outcome -> Handler [Reward]
 awardDNA Queue.Private _     = return []
 awardDNA Queue.Quick outcome = do
     (who, user)   <- Auth.requireAuthPair
@@ -222,7 +256,7 @@ awardDNA Queue.Quick outcome = do
     let jDay       = Just day
     let tallies    = tallyDNA Queue.Quick outcome dnaConf jDay user
     runDB . Sql.update who $ updateLatestWin outcome jDay
-        [UserLatestGame =. jDay, UserDna +=. sum (snd <$> tallies)]
+        [UserLatestGame =. jDay, UserDna +=. sum (Reward.amount <$> tallies)]
     return tallies
 
 -- | Modifies 'UserLatestWin' to today if the user won.
@@ -233,20 +267,14 @@ updateLatestWin _       _   xs = xs
 
 -- | Processes DNA gains for 'awardDNA'.
 tallyDNA :: Queue.Section -> Outcome -> Settings.DNA -> Maybe Day -> User
-         -> [(Text, Int)]
-tallyDNA section outcome dnaConf day user = filter ((> 0) . snd)
-    [ (tshow outcome, outcomeDNA section outcome dnaConf)
-    , ("First Game of the Day", dailyGame)
-    , ("First Win of the Day", dailyWin)
-    , ("Win Streak",  winStreak)
+         -> [Reward]
+tallyDNA section outcome dnaConf day user = filter ((> 0) . Reward.amount)
+    [ Reward (tshow outcome) $       outcomeDNA section outcome dnaConf
+    , Reward "First Game of the Day" dailyGame
+    , Reward "First Win of the Day " dailyWin
+    , Reward "Win Streak"            winStreak
     ]
   where
-    winStreak
-      | outcome /= Victory         = 0
-      | userStreak user < 1        = 0
-      | Settings.useStreak dnaConf = floor . sqrt @Float . fromIntegral $
-                                     userStreak user - 1
-      | otherwise                  = 0
     dailyGame
       | userLatestGame user == day = 0
       | otherwise                  = Settings.dailyGame dnaConf
@@ -254,6 +282,12 @@ tallyDNA section outcome dnaConf day user = filter ((> 0) . snd)
       | outcome /= Victory        = 0
       | userLatestWin user == day = 0
       | otherwise                 = Settings.dailyWin dnaConf
+    winStreak
+      | outcome /= Victory         = 0
+      | userStreak user < 1        = 0
+      | Settings.useStreak dnaConf = floor . sqrt @Float . fromIntegral $
+                                     userStreak user - 1
+      | otherwise                  = 0
 
 -- | DNA rewards for completing games, as configured in
 --  [config/settings.yml](config.settings.yml).

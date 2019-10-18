@@ -335,7 +335,7 @@ characters =
     ]
   , Character
     "Akatsuchi"
-    "A jōnin from the Hidden Rock Village, Akatsauchi is cheerful and excitable. He uses brute strength and rock golems to pummel his enemies to the ground."
+    "A jōnin from the Hidden Rock Village, Akatsuchi is cheerful and excitable. He uses brute strength and rock golems to pummel his enemies to the ground."
     [ [ Skill.new
         { Skill.name      = "High-Speed Assault"
         , Skill.desc      = "Akatsuchi punches an enemy with all his might, dealing 25 damage. Costs 1 taijutsu chakra during [Stone Golem]."
@@ -481,7 +481,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Erupt"
-        , Skill.desc      = "A mountain bursts from the ground under Kitsuchi's enemies, dealing 10 damage to them and providing him with 20% damage reduction for 1 turn. For 1 turn, stuns, counters, and reflects applied by enemies will last 1 fewer turn."
+        , Skill.desc      = "A mountain bursts from the ground under Kitsuchi's enemies, dealing 10 damage to them and providing him with 20% damage reduction for 1 turn. For 1 turn, stuns, disabling effects, counters, and reflects applied by enemies will last 1 fewer turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
@@ -490,9 +490,9 @@ characters =
           , To Enemies do
                 damage 10
                 apply 1 [ Throttle 1 Counters
-                        , Throttle 1 $ Any Stun
                         , Throttle 1 $ Only Reflect
                         , Throttle 1 $ Any ReflectAll
+                        , Throttle 1 Stuns
                         ]
           ]
         }
@@ -679,13 +679,9 @@ characters =
                 pierce 20
                 has <- targetHas "Rubber Sphere and Rope"
                 if has then
-                    apply 1 [ Disable $ Any Stun
-                            , Disable $ Only Silence
-                            , Stun Physical
-                            , Stun Chakra
-                            ]
+                    apply 1 [Disable Stuns, Stun Physical, Stun Chakra]
                 else
-                    apply 1 [Disable $ Any Stun, Disable $ Only Silence]
+                    apply 1 [Disable Stuns]
           ]
         }
       ]
