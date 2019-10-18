@@ -269,7 +269,10 @@ component ports =
                                                 "deselected"
 
                                 lock =
-                                    if locked st.unlocked char then
+                                    if st.stage == Practicing then
+                                        ""
+
+                                    else if locked st.unlocked char then
                                         if affordable st.user char then
                                             "locked buy"
 
