@@ -30,6 +30,8 @@ import qualified Game.Model.Trap as Trap
 import           OrphanInstances.Ninja ()
 import           Util ((!!), (∈), (∉), intersects)
 
+-- | Intermediate type for marshaling to JSON.
+-- Includes censorship of 'Invisible' 'Status.Status'es, enemy cooldowns, etc.
 data Turn = Turn { chakra  :: Chakras
                  , playing :: Player
                  , victor  :: [Player]
@@ -37,6 +39,7 @@ data Turn = Turn { chakra  :: Chakras
                  , targets :: [[[Slot]]]
                  } deriving (Generic, ToJSON)
 
+--  | Encodes game state into a form suitable for sending to the client.
 new :: Player -> [Ninja] -> Game -> Turn
 new player ninjas game = Turn { chakra  = Parity.getOf player $ Game.chakra game
                               , playing = Game.playing game

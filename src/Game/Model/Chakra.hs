@@ -91,13 +91,15 @@ instance Num Chakras where
     fromInteger (fromInteger -> x) = Chakras x x x x x
     {-# INLINE fromInteger #-}
 
+-- | Sum of all components.
 total :: Chakras -> Int
 total (Chakras b g n t r) = b + g + n + t + r
 
--- Any component is negative.
+-- | Any component is negative.
 lack :: Chakras -> Bool
 lack (Chakras b g n t r) = b < 0 || g < 0 || n < 0 || t < 0 || r < 0
 
+-- | Units of @Game.Model.Skill.cost@.
 data Chakra
     = Blood -- ^ Bloodline
     | Gen -- ^ Genjutsu

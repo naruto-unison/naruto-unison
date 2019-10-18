@@ -8,6 +8,7 @@ import           Game.Model.Ninja (Ninja)
 import           Game.Model.Player (Player)
 import qualified Handler.Play.Turn as Turn
 
+-- | Game state details. Sent at the start of games and during practice games.
 data GameInfo = GameInfo { vsWho  :: Key User
                          , vsUser :: User
                          , game   :: Game

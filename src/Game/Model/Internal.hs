@@ -65,6 +65,8 @@ instance Parity Ninja where
     even = Parity.even . slot
     {-# INLINE even #-}
 
+ -- Used for 'Game.Ninja.cooldowns' and 'Game.Ninja.charges'.
+ -- Generated from a 'Skill'.
 data Key = Key Text Slot
            deriving (Eq, Ord, Show, Read, Generic, Hashable)
 toText :: Key -> Text
@@ -331,6 +333,7 @@ instance Labeled Trap where
 instance Classed Trap where
     classes = classes
 
+-- | Gameplay context. This promotes a 'MonadGame' to 'MonadPlay'.
 data Context = Context { skill   :: Skill
                        , user    :: Slot
                        , target  :: Slot
@@ -339,6 +342,8 @@ data Context = Context { skill   :: Skill
 
 instance MonadRandom m => MonadRandom (ReaderT Context m)
 
+-- | Basic game-handling. @MonadGame@ provides functionality for querying and
+-- modifying 'Game' state and 'Ninja's.
 class Monad m => MonadGame m where
     game      :: m Game
     alter     :: (Game -> Game) -> m ()
@@ -374,6 +379,12 @@ class Monad m => MonadGame m where
     modify i = lift . modify i
     {-# INLINE modify #-}
 
+-- | The main typeclass of the game engine. @MonadPlay@ is built on top of
+-- @MonadGame@, but it also provides a "view" into the game: a @Context@ that
+-- defines which skill is being used, who is using it, and who they are using it
+-- on. This context changes frequently, and temporary contexts may even be
+-- pushed and popped (e.g. if a skill is reflected), but the underlying
+-- @MonadGame@ instance stays the same.
 class MonadGame m => MonadPlay m where
     context :: m Context
     with    :: ∀ a. (Context -> Context) -> m a -> m a
@@ -389,8 +400,11 @@ instance MonadGame m => MonadPlay (ReaderT Context m) where
     with    = local
     {-# INLINE with #-}
 
+-- | Impredicatively-typed monad constraint.
 type RunConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
 
+-- | Hides 'RunConstraint' behind a constructor so that only RankNTypes is
+-- needed.
 data Runnable a = To { target :: a
                      , run    :: RunConstraint ()
                      }

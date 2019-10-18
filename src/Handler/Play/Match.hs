@@ -1,3 +1,4 @@
+-- | Functions related to end-of-game processing.
 module Handler.Play.Match
   ( Match
   , Outcome(..)
@@ -18,22 +19,27 @@ import Application.Model (Key, User)
 import Game.Model.Game (Game(..))
 import Game.Model.Player (Player)
 
+-- | Result of a game from the perspective of one of its players.
 data Outcome
     = Victory
     | Defeat
     | Tie
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
+-- | Result of the game from the opposite player.
 inverse :: Outcome -> Outcome
 inverse Victory = Defeat
 inverse Defeat  = Victory
 inverse Tie     = Tie
 
+-- | Some piece of information compared for both players, along with the
+-- outcome of the game from the perspective of 'playerA'.
 data Match a = Match { outcomeA :: Outcome
                      , playerA  :: a
                      , playerB  :: a
                      } deriving (Eq, Show, Read)
 
+-- | Outcome of a game from a player's perspective, based on 'victor'.
 outcome :: Game -> Player -> Outcome
 outcome Game{victor = [victor]} player
   | victor == player = Victory

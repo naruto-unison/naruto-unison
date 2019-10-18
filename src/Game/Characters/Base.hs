@@ -1,3 +1,5 @@
+{-# OPTIONS_HADDOCK prune #-}
+
 module Game.Characters.Base
   ( module Import
   , invuln
@@ -45,7 +47,11 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 
-invuln :: Text -> Text -> EnumSet Class -> Skill
+-- | Baseline fourth skill that makes the character invulnerable for one turn.
+invuln :: Text -- ^ 'Skill.name'.
+       -> Text -- ^ Character name/nickname; first phrase in 'Skill.desc'.
+       -> EnumSet Class -- ^ 'Skill.classes'.
+       -> Skill
 invuln skillName userName classes = Skill.new
     { Skill.name      = skillName
     , Skill.desc      = userName ++ " becomes invulnerable for 1 turn."
@@ -54,6 +60,7 @@ invuln skillName userName classes = Skill.new
     , Skill.effects   = [To Self $ apply 1 [Invulnerable All]]
     }
 
+-- | Applies an effect to the user, rather than the target.
 self :: ∀ m a. MonadPlay m => m a -> m a
 self = P.with Context.reflect
 
@@ -77,45 +84,57 @@ enemies = targetWithUser Slot.enemies
 everyone :: ∀ m. MonadPlay m => m () -> m ()
 everyone = targetWithUser (`delete` Slot.all)
 
+-- | Returns the bonus if the monadic condition succeeds, otherwise returns 0.
 bonusIf :: ∀ m. MonadPlay m => Int -> m Bool -> m Int
 bonusIf amount condition = do
     succeed <- condition
     return if succeed then amount else 0
 
+-- | Applies a pure function to 'P.nUser'.
 user :: ∀ m a. MonadPlay m => (Ninja -> a) -> m a
 user f = f <$> P.nUser
 
+-- | Applies a pure function to 'P.nTarget'.
 target :: ∀ m a. MonadPlay m => (Ninja -> a) -> m a
 target f = f <$> P.nTarget
 
+-- | True if user 'Ninja.hasOwn'.
 userHas :: ∀ m. MonadPlay m => Text -> m Bool
 userHas name = Ninja.hasOwn name <$> P.nUser
 
+-- | True if target 'Ninja.has'.
 targetHas :: ∀ m. MonadPlay m => Text -> m Bool
 targetHas name = Ninja.has name <$> P.user <*> P.nTarget
 
+-- | 'Ninja.numStacks' of the user, from the user.
 userStacks :: ∀ m. MonadPlay m => Text -> m Int
 userStacks name = Ninja.numStacks name <$> P.user <*> P.nUser
 
+-- | 'Ninja.numStacks' of the target, from the user.
 targetStacks :: ∀ m. MonadPlay m => Text -> m Int
 targetStacks name = Ninja.numStacks name <$> P.user <*> P.nTarget
 
+-- | Returns 'Ninja.defense' of the user's own defense.
 userDefense :: ∀ m. MonadPlay m => Text -> m Int
 userDefense name = defense <$> P.nUser
   where
     defense n = Ninja.defenseAmount name (slot n) n
 
+-- | True if user 'Ninja.isChanneling'.
 channeling :: ∀ m. MonadPlay m => Text -> m Bool
 channeling name = Ninja.isChanneling name <$> P.nUser
 
+-- | True if the subject is 'Invulnerable' to any 'Model.Game.Class.Class'.
 invulnerable :: Ninja -> Bool
 invulnerable n = not . null $ Effects.invulnerable n
 
 filterOthers :: ∀ m. MonadPlay m => (Ninja -> Bool) -> m Int
 filterOthers match = length . filter match <$> (P.allies =<< P.user)
 
+-- | Number of user's allies who are affected by a 'Model.Game.Status.Status'.
 numAffected :: ∀ m. MonadPlay m => Text -> m Int
 numAffected name = filterOthers =<< Ninja.has name <$> P.user
 
+-- | Number of user's allies who are dead.
 numDeadAllies :: ∀ m. MonadPlay m => m Int
 numDeadAllies = filterOthers $ not . alive

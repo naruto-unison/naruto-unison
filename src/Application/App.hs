@@ -39,7 +39,7 @@ import           Yesod.Auth.Email (YesodAuthEmail(..))
 import           Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import qualified Yesod.Default.Util as YesodUtil
--- Used only when in "auth-dummy-login" setting is enabled.
+-- Used only when [auth-dummy-login](config/settings.yml) setting is enabled.
 import           Yesod.Static hiding (static)
 
 import           Application.Fields (ForumBoard, Privilege(..), boardName)
@@ -83,6 +83,18 @@ data App = App
 -- type Widget = WidgetT App IO ()
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
+-- | This function should only be used in handlers with completely static
+-- content. It sets an
+-- [ETag](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag)
+-- based on the time when the server started up and the user currently logged
+-- in, if there is one. The server respects
+-- [If-None-Match](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match):
+-- if the client sends the same ETag, the server sends 304 Not Modified instead
+-- of the web page's body. The client then loads their cached version of the
+-- page.
+-- Correct usage of this function can save a lot of bandwidth.
+-- Incorrect usage will lead to clients seeing outdated cached versions of pages
+-- because the server refuses to send them updates.
 unchanged304 :: Handler ()
 unchanged304 = whenM (isNothing <$> getMessage) $
                setEtag . toStrict . display'

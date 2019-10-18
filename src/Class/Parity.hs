@@ -26,6 +26,7 @@ allied :: ∀ a b. (Parity a, Parity b) => a -> b -> Bool
 allied x y = even x == even y
 {-# INLINE allied #-}
 
+-- | If 'even', takes the first half. Otherwise, drops the first half.
 half :: ∀ o p. (IsSequence o, Index o ~ Int, Parity p) => p -> o -> o
 half p xs = splitHalf (length xs `quot` 2) xs
   where
@@ -33,6 +34,7 @@ half p xs = splitHalf (length xs `quot` 2) xs
       | even p    = take
       | otherwise = drop
 
+-- | 'fst' if 'even', otherwise 'snd'.
 getOf :: ∀ a b. Parity a => a -> (b, b) -> b
 getOf x
   | even x    = fst

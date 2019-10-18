@@ -23,11 +23,13 @@ data Message
     | Request  (Key User) (Key User) [Character]
     | Respond  (Key User) (MVar Wrapper) GameInfo
 
+-- | Queue section.
 data Section
     = Quick
     | Private
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
+-- | Error messages sent to the client.
 data Failure
     = AlreadyQueued
     | Canceled

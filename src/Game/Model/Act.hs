@@ -54,10 +54,11 @@ random user = do
     target <- Slot.random
     return $ Act user (Left skill) target
 
+-- | Random acts for the practice-mode AI.
 randoms :: ∀ m. MonadRandom m => m [Act]
 randoms = traverse random $ Slot.allies Player.B
 
--- A 'Player' attempts to control a 'Ninja' not on their team.
+-- | A 'Player' attempts to control a 'Ninja' not on their team.
 illegal :: Player -> Act -> Bool
 illegal p a = not . Parity.allied p $ user a
 

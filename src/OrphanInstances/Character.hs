@@ -1,5 +1,8 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
+-- | 'Character's are used as 'PathPiece's in Yesod's routing system, but their
+-- encoding and decoding depends on the 'Characters.map' value, which itself
+-- depends on the definition of @Character@.
 module OrphanInstances.Character () where
 
 import ClassyPrelude

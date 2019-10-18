@@ -16,6 +16,7 @@ import Yesod
 import Text.Blaze (ToMarkup(..))
 import Text.Read
 
+-- | User privilege. Determines authorization level.
 data Privilege
     = Normal
     | Moderator

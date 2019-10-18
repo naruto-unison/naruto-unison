@@ -51,6 +51,11 @@ import qualified Mission
 
 mkYesodDispatch "App" App.resourcesApp
 
+-- | Initializes the database:
+-- loads 'Application.Model',
+-- runs migrations from [config/db.sql](db.sql),
+-- initializes the character ID table with 'Mission.initDB',
+-- and returns the table to be stored in 'characterIDs'.
 initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do
     Sql.runMigration Model.migrateAll
@@ -58,6 +63,7 @@ initDB = do
     Sql.rawExecute (decodeUtf8 dbMigrationsSql) []
     Mission.initDB
 
+-- | Initializes the core of the app with a logger and a database.
 makeFoundation :: Settings -> IO App
 makeFoundation settings = do
     httpManager <- TLS.getGlobalManager
@@ -100,6 +106,7 @@ makeApplication foundation = do
     appPlain <- toWaiAppPlain foundation
     return $ logWare $ defaultMiddlewaresNoLogging appPlain
 
+-- | Warp settings from app settings.
 warpSettings :: App -> Warp.Settings
 warpSettings foundation =
       Warp.setPort (Settings.port $ App.settings foundation)
@@ -123,6 +130,7 @@ getApplicationDev = do
     app <- makeApplication foundation
     return (wsettings, app)
 
+-- | Loads config settings from environment variables and config files.
 getAppSettings :: IO Settings
 getAppSettings = DefaultConfig.loadYamlSettings
                  [DefaultConfig.configSettingsYml] [] DefaultConfig.useEnv
@@ -149,6 +157,7 @@ appMain = do
 -- Functions for DevelMain.hs (a way to run the app from GHCi)
 --------------------------------------------------------------
 
+-- | Initializes the application for use in GHCi.
 getApplicationRepl :: IO (Int, App, Application)
 getApplicationRepl = do
     settings   <- getAppSettings
@@ -157,6 +166,7 @@ getApplicationRepl = do
     app1       <- makeApplication foundation
     return (Warp.getPort wsettings, foundation, app1)
 
+-- | This doesn't actually do anything.
 shutdownApp :: App -> IO ()
 shutdownApp _ = return ()
 
@@ -164,10 +174,10 @@ shutdownApp _ = return ()
 -- Functions for use in development with GHCi
 ---------------------------------------------
 
--- | Run a handler
+-- | Run a handler.
 handler :: Handler a -> IO a
 handler h = getAppSettings >>= makeFoundation >>= flip App.unsafeHandler h
 
--- | Run DB queries
+-- | Run DB queries.
 db :: ReaderT SqlBackend Handler a -> IO a
 db = handler . runDB

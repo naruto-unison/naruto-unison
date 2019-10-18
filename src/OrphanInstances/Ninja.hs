@@ -1,6 +1,10 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE DeriveAnyClass       #-}
 
+-- | 'Ninja' is defined in "Game.Model.Internal" as the basis for the majority
+-- of functions in other @Game.Model@ modules, but its JSON encoding requires
+-- the use of those functions. Unfortunately, an orphan instance is the least
+-- convoluted way to achieve this.
 module OrphanInstances.Ninja (Face(..)) where
 
 import ClassyPrelude
@@ -22,10 +26,12 @@ import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import           Util ((∈), (∉))
 
+-- | From 'Effect.Face'. Used only as an encoding intermediary.
 data Face = Face { icon :: Text
                  , user :: Slot
                  } deriving (Eq, Show, Read, Generic, ToJSON)
 
+-- | Generates a 'Face' from the most recent 'Effect.Face' in 'Ninja.statuses'.
 statusFace :: Status -> Face
 statusFace x = Face (toLower $ Status.name x) $ Status.user x
 

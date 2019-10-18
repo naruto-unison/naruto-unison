@@ -19,6 +19,7 @@ import           Application.Settings (widgetFile)
 import qualified Application.Settings as Settings
 import qualified Handler.Play as Play
 
+-- | Behind-the-scenes utilities for admin accounts. Requires authorization.
 getAdminR :: Handler Html
 getAdminR = do
     app <- getYesod
@@ -28,6 +29,7 @@ getAdminR = do
         $(widgetFile "admin/admin")
         $(widgetFile "admin/sockets")
 
+-- | 'getAdminR' for creating news posts.
 postAdminR :: Handler Html
 postAdminR = do
     app <- getYesod

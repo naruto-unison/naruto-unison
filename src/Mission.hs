@@ -1,3 +1,5 @@
+-- | Database handling for character missions, which users complete in order to
+-- unlock new characters.
 module Mission
   ( initDB
   , progress
@@ -34,6 +36,9 @@ import qualified Mission.Missions as Missions
 import           Mission.Progress (Progress(..))
 import           Util ((!?), (∉))
 
+-- | Starts up the mission database by mapping every Character to a database
+-- ID. Returns the map, which goes into 'App.characterIDs'.
+-- 'Character.ident' is used as the key.
 initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do
     chars    <- (entityVal <$>) <$> selectList [] []
@@ -42,15 +47,22 @@ initDB = do
     newChars <- selectList [] []
     return $ makeMap newChars
 
+-- | Looks up a Character's ID in 'App.characterIDs' using 'Character.ident'.
 characterID :: Text -> MaybeT Handler CharacterId
 characterID name = Bimap.lookupR name =<< getsYesod App.characterIDs
 
+-- | Processes the database list of characters into a map between IDs and
+-- 'Character.ident'.
 makeMap :: [Entity Character] -> Bimap CharacterId Text
 makeMap chars = Bimap.fromList . mapMaybe maybePair $ chars
   where
     maybePair (Entity charId Character{characterName}) =
         (charId, ) . Character.ident <$> Characters.lookup characterName
 
+-- | 'Character.ident' collection of all Characters that the user has unlocked.
+-- If not logged in, all Characters are returned.
+-- If @unlock-all@ in [config/settings.yml](config/settings.yml) is set to true,
+-- all Characters will always be returned.
 unlocked :: Handler (HashSet Text)
 unlocked = do
     unlockAll <- getsYesod $ Settings.unlockAll . App.settings
@@ -62,18 +74,25 @@ unlocked = do
             return $ getUnlocked ids unlocks
         _ -> return $ keysSet Characters.map
 
+-- | 'Character.ident's of all Characters without DNA 'Character.price's.
 freeChars :: HashSet Text
 freeChars = setFromList dna `difference` keysSet Missions.map
   where
     dna = Character.ident <$> filter ((== 0) . Character.price) Characters.list
 {-# NOINLINE freeChars #-}
 
+-- | 'Character.ident's of all Characters who can be used from the start.
+-- Specifically, characters without missions and without DNA 'Character.price's.
 getUnlocked :: Bimap CharacterId Text -> [Entity Unlocked] -> HashSet Text
 getUnlocked ids unlocks = freeChars `union` setFromList (mapMaybe look unlocks)
   where
     look (Entity _ Unlocked{unlockedCharacter}) =
         Bimap.lookup unlockedCharacter ids
 
+-- | Returns the user's progress on a single Character's mission.
+-- Returns @Nothing@ if the user is not logged in, the Character does not
+-- have a mission, or the user has already completed their mission.
+-- Otherwise, returns a list of goals paired with the user's progress on each.
 userMission :: Character.Character -> Handler (Maybe (Seq (Goal, Int)))
 userMission char = fromMaybe mempty <$> runMaybeT do
     who     <- MaybeT Auth.maybeAuthId
@@ -90,10 +109,14 @@ userMission char = fromMaybe mempty <$> runMaybeT do
   where
     name = Character.ident char
 
--- Invariant: @i < length mission@.
+-- | Inserts progress on a mission into the database.
 updateProgress :: ∀ m. MonadIO m
                => Seq Goal
-               -> Key User -> Key Character -> Int -> Int -> SqlPersistT m Bool
+               -> Key User
+               -> Key Character
+               -> Int -- ^ Objective index. Invariant: @< length mission@.
+               -> Int -- ^ Progress to add.
+               -> SqlPersistT m Bool -- ^ Returns True if the character unlocks.
 updateProgress mission who char i amount = case mission !? i of
     Nothing   -> return False
     Just goal
@@ -103,7 +126,8 @@ updateProgress mission who char i amount = case mission !? i of
         if alreadyUnlocked then
             return True
         else do
-            void $ upsert (Mission who char i amount) [MissionProgress +=. amount]
+            void $
+                upsert (Mission who char i amount) [MissionProgress +=. amount]
             objectives <- selectList missionChar []
             if completed mission objectives then do
                 deleteWhere missionChar
@@ -115,6 +139,10 @@ updateProgress mission who char i amount = case mission !? i of
     unlockedChar = [UnlockedUser ==. who, UnlockedCharacter ==. char]
     missionChar  = [MissionUser ==. who, MissionCharacter ==. char]
 
+-- | Attempts to update the database with progress on a mission.
+-- Fails if the user is not logged in. Also fails in the unlikely circumstances
+-- of the mission not existing, the objective index exceeding the size of the
+-- mission, or the Character not existing in the character ID database.
 progress :: Progress -> Handler Bool
 progress Progress{amount = 0} = return False
 progress Progress{character, objective, amount} =
@@ -125,15 +153,19 @@ progress Progress{character, objective, amount} =
         charID  <- characterID character
         lift . runDB $ updateProgress mission who charID objective amount
 
+-- | Using a list of database mission entries for a user, maps goals onto the
+-- user's progress toward those goals.
 setObjectives :: Seq Goal -> [Entity Mission] -> Seq Int
 setObjectives xs objectives = foldl' f (0 <$ xs) objectives
   where
     f acc (Entity _ x) = Seq.update (missionObjective x) (missionProgress x) acc
 
+-- | Returns true if a user has completed a given mission.
 completed :: Seq Goal -> [Entity Mission] -> Bool
 completed mission objectives = and . zipWith ((<=) . Goal.reach) mission $
                                setObjectives mission objectives
 
+-- | Extracts 'Goal.Win' progress from a winning user's team.
 winners :: Bimap CharacterId Text
         -> [Character.Character] -> [Entity Unlocked]
         -> [(Seq Goal, Key Character, Int)]
@@ -148,6 +180,8 @@ winners ids chars unlocks = do
     team  = Character.ident <$> chars
     names = getUnlocked ids unlocks
 
+-- | Updates 'Goal.Win' progress with the user's team.
+-- This function should only be called when the user logged in wins a match.
 processWin :: [Character.Character] -> Handler ()
 processWin team = do
     who <- Auth.requireAuthId
@@ -157,6 +191,7 @@ processWin team = do
         forM_ (winners ids team unlocks) \(mission, char, i) ->
             void $ updateProgress mission who char i 1
 
+-- | Resets progress toward a goal to 0.
 resetGoal :: ∀ m. MonadIO m
           => Bimap CharacterId Text -> Key User -> (Text, Int)
           -> SqlPersistT m ()
@@ -165,6 +200,9 @@ resetGoal ids who ((`Bimap.lookupR` ids) -> Just char, i) =
     [MissionUser ==. who, MissionCharacter ==. char, MissionObjective ==. i]
 resetGoal _ _ _ = return ()
 
+-- | Resets all 'Goal.WinConsecutive' win progress to 0.
+-- This function should only be called when the user logged in loses a match or
+-- ties.
 processDefeat :: Handler ()
 processDefeat = do
     who <- Auth.requireAuthId
@@ -173,6 +211,8 @@ processDefeat = do
 
 -- When ladder matches are introduced, these two will become more complicated.
 
+-- | Awards DNA upon completing a match and returns a list of DNA gains,
+-- paired with textual descriptions of why each was awarded.
 awardDNA :: Queue.Section -> Outcome -> Handler [(Text, Int)]
 awardDNA Queue.Private _     = return []
 awardDNA Queue.Quick outcome = do
@@ -185,10 +225,13 @@ awardDNA Queue.Quick outcome = do
         [UserLatestGame =. jDay, UserDna +=. sum (snd <$> tallies)]
     return tallies
 
+-- | Modifies 'UserLatestWin' to today if the user won.
+-- This is used to calculate first-win-of-the-day bonuses.
 updateLatestWin :: Outcome -> Maybe Day -> [Update User] -> [Update User]
 updateLatestWin Victory day xs = (UserLatestWin =. day) : xs
 updateLatestWin _       _   xs = xs
 
+-- | Processes DNA gains for 'awardDNA'.
 tallyDNA :: Queue.Section -> Outcome -> Settings.DNA -> Maybe Day -> User
          -> [(Text, Int)]
 tallyDNA section outcome dnaConf day user = filter ((> 0) . snd)
@@ -212,7 +255,8 @@ tallyDNA section outcome dnaConf day user = filter ((> 0) . snd)
       | userLatestWin user == day = 0
       | otherwise                 = Settings.dailyWin dnaConf
 
-
+-- | DNA rewards for completing games, as configured in
+--  [config/settings.yml](config.settings.yml).
 outcomeDNA ::Queue.Section -> Outcome -> Settings.DNA -> Int
 outcomeDNA Queue.Private _     = const 0
 outcomeDNA Queue.Quick Victory = Settings.quickWin

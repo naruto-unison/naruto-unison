@@ -78,6 +78,8 @@ alternate loadout i =
     load alt (x:|xs) =
         Alternate (Skill.name x) . Skill.name <$> xs !? (alt + i - 1)
 
+-- | Cycles a skill through its list of alternates.
+-- | Uses 'Ninjas.nextAlternate' internally.
 nextAlternate :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> m ()
 nextAlternate name = mapM_ alt . Ninjas.nextAlternate name =<< P.nTarget
   where

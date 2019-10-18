@@ -48,6 +48,7 @@ getCounters f from classes n = mapMaybe g $ Ninja.traps n
         Just cla | cla ∈ classes -> Just $ Traps.run from tr
         _                        -> Nothing
 
+-- | 'Countered' and 'Nullified' traps.
 userCounters :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
              => Bool -- ^ Enemies were targeted
              -> Slot -> EnumSet Class -> Ninja -> [m ()]
@@ -58,6 +59,7 @@ userCounters harmed = getCounters f
         Countered cla | harmed -> Just cla
         _                      -> Nothing
 
+-- | Removes 'Countered' traps matching the specified @Class@es.
 userUncounter :: EnumSet Class -> Ninja -> Ninja
 userUncounter classes n =
     n { Ninja.traps = filter (keep . Trap.trigger) $ Ninja.traps n }
@@ -65,6 +67,7 @@ userUncounter classes n =
     keep (Countered cla) = cla ∉ classes
     keep _               = True
 
+-- | 'CounterAll' and 'Counter' traps.
 targetCounters :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
                => Slot -> EnumSet Class -> Ninja -> [m ()]
 targetCounters from classes n
@@ -76,6 +79,7 @@ targetCounters from classes n
         Counter cla    -> Just cla
         _              -> Nothing
 
+-- | Removes 'Counter' traps matching the specified @Class@es.
 targetUncounter :: EnumSet Class -> Ninja -> Ninja
 targetUncounter classes n
   | n `is` Uncounter = n

@@ -13,6 +13,10 @@ import Data.Aeson (ToJSON(..))
 import Class.Display (Display(..))
 import Text.Blaze (ToMarkup(..))
 
+-- | A type synonym that should always be used in "Game.Action" modules to
+-- represent time, rather than @Int@ or @Duration@.
+-- Wherever it appears, it should immediately be converted to a @Duration@ via
+-- view pattern.
 type Turns = Int
 newtype Duration = Duration Turns deriving (Num, Eq, Ord, Show, Read)
 
@@ -26,6 +30,8 @@ instance ToJSON Duration where
 instance ToMarkup Duration where
       toMarkup (Duration d) = toMarkup $ abs d
 
+-- | Decreases a duration.
+-- Returns Nothing if the duration is reduced to 0.
 throttle :: Int -> Duration -> Maybe Duration
 throttle 0 dur = Just dur
 throttle amount dur@(Duration d)

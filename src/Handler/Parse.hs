@@ -14,6 +14,7 @@ import qualified Text.Blaze.Html5 as HTML
 import Game.Model.Chakra (Chakra(..))
 import Game.Model.Character (Category(..))
 
+-- | Parses a 'Model.Skill.desc' into HTML.
 desc :: Text -> Html
 desc s = case Parser.parseOnly (Parser.many' parseSegment) s of
     Left  _    -> HTML.toMarkup s

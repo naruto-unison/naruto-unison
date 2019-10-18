@@ -53,7 +53,7 @@ posTotal :: [(Amount, Int)] -> Amount -> Float
 posTotal xs Flat    = totalBase xs Flat
 posTotal xs Percent = totalBase (second (100 +) <$> xs) Percent
 
--- | 'total' for negative effects such as damage reduction.
+-- | 'posTotal' for negative effects such as damage reduction.
 negTotal :: [(Amount, Int)] -> Amount -> Float
 negTotal xs Flat    = totalBase xs Flat
 negTotal xs Percent = totalBase (second (100 -) <$> xs) Percent

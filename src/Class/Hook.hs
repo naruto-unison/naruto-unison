@@ -19,6 +19,8 @@ import Game.Model.Trap (Trap)
 import Game.Model.Trigger (Trigger)
 import Util (Lift)
 
+-- | Event hooks for mission progress.
+
 class Monad m => MonadHook m where
     action  :: Skill -> [Ninja] -> [Ninja] -> m ()
     chakra  :: Skill -> (Chakras, Chakras) -> (Chakras, Chakras) -> m ()

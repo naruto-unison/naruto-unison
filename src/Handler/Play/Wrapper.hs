@@ -1,4 +1,4 @@
--- | A container that implements 'MonadGame' and 'MonadRandom'.
+-- | A container that implements user-defined monads.
 -- It comes in pure, ST, and IO flavors.
 -- Functions with such monadic constraints will almost always be called on MTL
 -- stacks built on the foundation of one of these three types.
@@ -43,7 +43,8 @@ import qualified Handler.Play.Turn as Turn
 import           Mission.Progress (Progress)
 import           Util ((!!), liftST)
 
-
+-- | This type is the core of the entire program. It is the environment of game
+-- processes and implements all of the user-defined monads.
 data STWrapper s = STWrapper { tracker   :: Tracker s
                              , gameRef   :: STRef s Game
                              , ninjasRef :: STVector s Ninja
@@ -186,6 +187,7 @@ thaw Wrapper{game, ninjas} = STWrapper Tracker.empty
                              <$> newRef game
                              <*> Vector.thaw ninjas
 
+--  | Encodes game state into a form suitable for sending to the client.
 toTurn :: Player -> Wrapper -> Turn
 toTurn player Wrapper{..} = Turn.new player (toList ninjas) game
 

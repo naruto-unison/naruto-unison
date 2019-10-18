@@ -1,3 +1,4 @@
+-- | Tracks progress on character missions during a game.
 module Handler.Play.Tracker
   ( Tracker
   , fromInfo
@@ -192,25 +193,31 @@ unsafeFreeze (Tracker xs) = concat <$> traverse freeze xs
     freeze x = (zipWith ($) $ key x) . toList
                <$> Vector.unsafeFreeze (progress x)
 
+-- | Initializes a @Tracker@.
 fromInfo :: ∀ s. GameInfo -> ST s (Tracker s)
 fromInfo info = Tracker <$> mapM new ninjas
   where
     player = GameInfo.player info
     ninjas = fromList . Parity.half player $ GameInfo.ninjas info
 
+-- | 'HookAction'.
 trackAction :: ∀ s. Text -> [Ninja] -> [Ninja] -> Tracker s -> ST s ()
 trackAction skill ns ns' = trackAll . trackAction1 skill . toList $ zip ns ns'
 
+-- | 'HookChakra'.
 trackChakra :: ∀ s. Text -> (Chakras, Chakras) -> (Chakras, Chakras)
             -> Tracker s -> ST s ()
 trackChakra skill chaks chaks' = trackAll $ trackChakra1 skill chaks chaks'
 
+-- | 'HookTrap'.
 trackTrap :: ∀ s. Text -> Slot -> Ninja -> Tracker s -> ST s ()
 trackTrap trap user n = trackAll $ trackTrap1 trap user n
 
+-- | 'HookTrigger'.
 trackTrigger :: ∀ s. Trigger -> Ninja -> Tracker s -> ST s ()
 trackTrigger trigger n = trackAll $ trackTrigger1 trigger n
 
+-- | 'HookTurn'.
 trackTurn :: ∀ s. Player -> [Ninja] -> [Ninja] -> Tracker s -> ST s ()
 trackTurn p ns ns' = trackAll . trackTurn1 p $ zip ns ns'
 

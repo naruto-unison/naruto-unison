@@ -89,9 +89,11 @@ nTarget = ninja =<< target
 player :: ∀ m. MonadGame m => m Player
 player = Game.playing <$> game
 
+-- | Returns the half of 'ninjas' allied with an argument.
 allies :: ∀ p m. (MonadGame m, Parity p) => p -> m [Ninja]
 allies p = Parity.half p <$> ninjas
 
+-- | Returns the half of 'ninjas' not allied with an argument.
 enemies :: ∀ p m. (MonadGame m, Parity p) => p -> m [Ninja]
 enemies p = allies . not $ Parity.even p
 
@@ -136,12 +138,13 @@ zipWith :: ∀ m. (MonadGame m)
         => (Ninja -> Ninja -> Ninja) -> [Ninja] -> m ()
 zipWith f = zipWithM_ (\i -> modify i . f) Slot.all
 
--- | Adds a 'Flag' if 'Context.user' is not 'Context.target' and 'Context.new'
--- is @True@.
+-- | Adds to 'Ninja.triggers' if 'Context.user' is not 'Context.target' and
+-- 'Context.new' is @True@.
 trigger :: ∀ m. MonadPlay m => Slot -> [Trigger] -> m ()
 trigger i xs = whenM new $ modify i \n ->
     n { Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n) xs }
 
+-- | Updates 'Game.victor'.
 yieldVictor :: ∀ m. MonadGame m => m ()
 yieldVictor = whenM (null . Game.victor <$> game) do
     ns <- ninjas

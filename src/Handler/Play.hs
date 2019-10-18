@@ -55,6 +55,8 @@ import qualified Handler.Play.Wrapper as Wrapper
 import qualified Mission
 import           Util ((∉), duplic, liftST, whileM)
 
+-- | A message sent through the websocket to the client.
+-- This definition is xported so that @elm-bridge@ sends it over to the client.
 data Message
     = Fail Queue.Failure
     | Info GameInfo

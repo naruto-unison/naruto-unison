@@ -55,7 +55,7 @@ instance Eq Constructor where
     _        == _        = False
     {-# INLINE (==) #-}
 
--- | Effects of 'Status'es.
+-- | Effects of 'Game.Model.Status.Status'es.
 data Effect
     = Absorb                                  -- ^ Gain chakra when targeted by skills
     | Afflict      Int                        -- ^ Deals damage every turn
@@ -63,32 +63,32 @@ data Effect
     | Alternate    Text Text                  -- ^ Modifies a skill to an alternate form
     | AntiCounter                             -- ^ Cannot be countered or reflected
     | Bleed        (EnumSet Class) Amount Int -- ^ Adds to damage received
-    | Bless        Int                        -- ^ Adds to healing 'Skill's
+    | Bless        Int                        -- ^ Adds to healing 'Game.Model.Skill.Skill's
     | Block        Slot                       -- ^ Treats user as 'Invulnerable'
     | BlockAllies                             -- ^ Cannot affect allies
     | BlockEnemies                            -- ^ Cannot affect enemies
     | Boost        Int                        -- ^ Scales effects from allies
-    | Build        Int                        -- ^ Adds to destructible defense 'Skill'
+    | Build        Int                        -- ^ Adds to destructible defense 'Game.Model.Skill.Skill'
     | Bypass                                  -- ^ All skills are 'Bypassing'
     | DamageToDefense                         -- ^ Damage received converts to defense
     | Disable      Constructor                -- ^ Prevents applying an effect
     | Duel         Slot                       -- ^ 'Invulnerable' to everyone but user
     | Endure                                  -- ^ Health cannot go below 1
     | Enrage                                  -- ^ Ignore all harmful status effects
-    | Exhaust      (EnumSet Class)            -- ^ 'Skill's cost 1 additional random chakra
+    | Exhaust      (EnumSet Class)            -- ^ 'Game.Model.Skill.Skill's cost 1 additional random chakra
     | Expose                                  -- ^ Cannot reduce damage or be 'Invulnerable'
     | Face                                    -- ^ Changes appearance
     | Focus                                   -- ^ Immune to 'Stun', 'Disable', and 'Silence'
     | Heal         Int                        -- ^ Heals every turn
-    | Invulnerable Class                      -- ^ Invulnerable to enemy 'Skill's
+    | Invulnerable Class                      -- ^ Invulnerable to enemy 'Game.Model.Skill.Skill's
     | Limit        Int                        -- ^ Limits damage received
     | NoIgnore                                -- ^ Ignore ignores
     | Nullify                                 -- ^ Invulnerable but targetable
     | Pierce                                  -- ^ Damage attacks become piercing
     | Plague                                  -- ^ Invulnerable to healing and curing
     | Reduce       (EnumSet Class) Amount Int -- ^ Reduces damage by an amount
-    | Redirect     Slot                       -- ^ Transfers harmful 'Skill's
-    | Reflect                                 -- ^ Reflects the first 'Skill'
+    | Redirect     Slot                       -- ^ Transfers harmful 'Game.Model.Skill.Skill's
+    | Reflect                                 -- ^ Reflects the first 'Game.Model.Skill.Skill'
     | ReflectAll   Class                      -- ^ 'Reflect' repeatedly
     | Restrict                                -- ^ Forces AoE attacks to be single-target
     | Reveal                                  -- ^ Makes 'Invisible' effects visible
@@ -97,14 +97,14 @@ data Effect
     | Silence                                 -- ^ Unable to cause non-damage effects
     | Snare        Int                        -- ^ Increases cooldowns
     | Strengthen   (EnumSet Class) Amount Int -- ^ Adds to all damage dealt
-    | Stun         Class                      -- ^ Unable to use 'Skill's
+    | Stun         Class                      -- ^ Unable to use 'Game.Model.Skill.Skill's
     | Swap                                    -- ^ Target's skills swap enemies and allies
     | Taunt        Slot                       -- ^ Forced to attack a target
     | Threshold    Int                        -- ^ Invulnerable to baseline damage below a threhold
     | Throttle     Int Constructor            -- ^ Applying an effect lasts fewer turns
     | Undefend                                -- ^ Does not benefit from destructible defense
     | Uncounter                               -- ^ Cannot counter or reflect
-    | Unreduce     Int                        -- ^ Reduces damage reduction 'Skill's
+    | Unreduce     Int                        -- ^ Reduces damage reduction 'Game.Model.Skill.Skill's
     | Weaken       (EnumSet Class) Amount Int -- ^ Lessens damage dealt
     deriving (Eq, Show)
 instance Classed Effect where

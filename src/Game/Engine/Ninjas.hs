@@ -96,6 +96,7 @@ alternate n = findAlt <$> toList (Character.skills $ character n)
 processAlternates :: Ninja -> Ninja
 processAlternates n = n { alternates = fromList $ alternate n }
 
+-- | Cycles a skill through its list of alternates.
 nextAlternate :: Text -> Ninja -> Maybe Text
 nextAlternate baseName n = do
     alts <- find ((baseName ==) . Skill.name . head) .
@@ -108,9 +109,9 @@ nextAlternate baseName n = do
         guard $ name == baseName
         return $ headMay . drop 1 . dropWhile ((alt /=) . Skill.name)
 
--- | Applies 'skill'' to a @Skill@ and further modifies it due to 'Ninja.copies'
+-- | Applies 'skill' to a @Skill@ and further modifies it due to 'Ninja.copies'
 -- and 'Skill.require'ments.
--- Invariant: With @Left x@, @x < 'Ninja.skillSize'@.
+-- Invariant: for @Left x@, @x < 'Ninja.skillSize'@.
 skill :: Either Int Skill -> Ninja -> Skill
 skill (Right sk) n = Requirement.usable False n sk
 skill (Left s)   n = Requirement.usable True n .
@@ -132,7 +133,7 @@ apply n = map adjustEffect . filter keepEffects
     keepEffects _                    = True
 
 -- | Fills 'Ninja.effects' with the effects of 'Ninja.statuses', modified by
--- 'Ignore', 'Seal', 'Boost', and so on.
+-- 'NoIgnore', 'Seal', 'Boost', and so on.
 processEffects :: Ninja -> Ninja
 processEffects n = n { effects = baseStatuses >>= process }
   where
@@ -164,6 +165,7 @@ processEffects n = n { effects = baseStatuses >>= process }
         allow (Effect.isDisable -> True) = sealed || not (Focus ∈ baseEffects)
         allow _ = True
 
+-- | Alters 'statuses' and then calls 'processEffects'.
 modifyStatuses :: ([Status] -> [Status]) -> Ninja -> Ninja
 modifyStatuses f n = processEffects n { statuses = f $ statuses n }
 
@@ -171,12 +173,12 @@ modifyStatuses f n = processEffects n { statuses = f $ statuses n }
 factory :: Ninja -> Ninja
 factory n = Ninja.new (slot n) $ character n
 
--- | Modifies 'health', restricting the value within ['minHealth', 100].
+-- | Modifies 'health', restricting the value within ['Ninja.minHealth', 100].
 adjustHealth :: (Int -> Int) -> Ninja -> Ninja
 adjustHealth f n =
     n { health = min 100 . max (Ninja.minHealth n) . f $ health n }
 
--- | Sets 'health', restricting the value within ['minHealth', 100].
+-- | Sets 'health', restricting the value within ['Ninja.minHealth', 100].
 setHealth :: Int -> Ninja -> Ninja
 setHealth = adjustHealth . const
 
@@ -435,7 +437,7 @@ recharge name owner n = n { charges = key `deleteMap` charges n }
   where
     key = Skill.Key name owner
 
--- With my... ninja info cards
+-- | With my... ninja info cards
 kabuto :: Skill -> Ninja -> Ninja
 kabuto sk n =
     n { statuses   = newmode : filter (not . getMode) (statuses n)

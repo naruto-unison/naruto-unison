@@ -130,7 +130,7 @@ hide dur efs = do
 hide' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> Turns -> [Effect] -> m ()
 hide' = applyWith' $ setFromList [Unremovable, Hidden]
 
--- Adds a @Status@ with 'Status.bombs' to 'Ninja.statuses'.
+-- | Adds a @Status@ with 'Status.bombs' to 'Ninja.statuses'.
 -- @Bomb@s apply an effect when the @Status@ ends. If the @Bomb@ type is
 -- 'Status.Expire', the bomb activates if the @Status@ naturally reaches the end
 -- of its 'Status.dur'. If the @Bomb@ type is 'Status.Remove', the @Bomb@
@@ -156,6 +156,7 @@ bombWith' :: ∀ m. (MonadPlay m, MonadRandom m)
 bombWith' classes name dur fs bombs =
     P.unsilenced $ applyFull 1 classes False bombs name dur fs
 
+-- | 'addStacks' with 'Status.effect's.
 applyStacks :: ∀ m. (MonadPlay m, MonadRandom m)
             => Text -> Int -> [Effect]
             -> m ()

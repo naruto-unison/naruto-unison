@@ -50,15 +50,15 @@ import           Util ((—), (∈), (∉))
 -- 'Model.Trap.Trap's;
 -- decrements all 'TurnBased.TurnBased' data;
 -- and resolves 'Model.Chakra.Chakras' for the next turn.
--- Uses 'process' internally.
+-- Uses 'processTurn' internally.
 runTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => [Act] -> m ()
 runTurn acts = do
     processTurn $ traverse_ Action.act acts
     Chakras.gain
 
--- | The underlying mechanism of 'run'.
+-- | The underlying mechanism of 'runTurn'.
 -- Performs posteffects such as 'Model.Channel.Channel's and 'Model.Trap.Trap's.
--- Using 'run' is generally preferable to invoking this function directly.
+-- Using 'runTurn' is generally preferable to invoking this function directly.
 processTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m () -> m ()
 processTurn runner = do
     initial     <- P.ninjas
@@ -155,6 +155,7 @@ doDeath slot = do
             P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps OnRes
             sequence_ res
 
+-- | Removes 'Soulbound' effects. Applied when a Ninja dies or is factory-reset.
 unSoulbound :: Slot -> Ninja -> Ninja
 unSoulbound user n = Ninjas.modifyStatuses
         (const [st | st <- Ninja.statuses n
@@ -165,11 +166,11 @@ unSoulbound user n = Ninjas.modifyStatuses
                                   || Soulbound ∉ Trap.classes trap]
           }
 
+-- | Executes 'Model.Effect.Afflict' and 'Model.Effect.Heal'
+-- 'Model.Effect.Effect's.
 doHpsOverTime :: ∀ m. MonadGame m => m ()
 doHpsOverTime = traverse_ doHpOverTime Slot.all
 
--- | Executes 'Model.Effect.Afflict' and 'Model.Effect.Heal'
--- 'Model.Effect.Effect's.
 doHpOverTime :: ∀ m. MonadGame m => Slot -> m ()
 doHpOverTime slot = do
     player <- P.player

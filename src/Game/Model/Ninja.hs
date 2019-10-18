@@ -28,6 +28,8 @@ import           Game.Model.Slot (Slot)
 import qualified Game.Model.Status as Status
 import           Util ((∈), (∉))
 
+-- | Number of 'Skill' slots. This number is the boundary on quite a few things,
+-- most notably action messages from the client (in 'Game.Action.act').
 skillSize :: Int
 skillSize = 4
 
@@ -55,26 +57,32 @@ new slot c = Ninja { slot
   where
     own x = x { owner = slot }
 
+-- | @alive n = health n > 0@
 alive :: Ninja -> Bool
 alive n = health n > 0
 
+-- | Searches 'effects'.
 is :: Ninja -> Effect -> Bool
 is n ef = ef ∈ effects n
 
+-- | Searches 'channels'.
 isChanneling :: Text -- ^ 'Skill.name'.
              -> Ninja -> Bool
 isChanneling name n = any ((name ==) . Skill.name . Channel.skill) $ channels n
 
+-- | Searches 'statuses'.
 has :: Text -- ^ 'Status.name'.
     -> Slot -- ^ 'Status.user'.
     -> Ninja -> Bool
 has name user n = any (Labeled.match name user) $ statuses n
 
+-- | Searches 'defense'.
 hasDefense :: Text -- ^ 'Defense.name'.
            -> Slot -- ^ 'Defense.user'.
            -> Ninja -> Bool
 hasDefense name user n = any (Labeled.match name user) $ defense n
 
+-- | Sums 'Defense.amount' of all matching 'defense'.
 defenseAmount :: Text -- ^ 'Defense.name'.
               -> Slot -- ^ 'Defense.user'.
               -> Ninja -> Int
@@ -84,15 +92,18 @@ defenseAmount name user n =
                            , Defense.name d == name
                            ]
 
+-- | Sums 'Defense.amount' of all 'defense'.
 totalDefense :: Ninja -> Int
 totalDefense n = sum $ Defense.amount <$> defense n
 
+-- | Searches 'traps'.
 hasTrap :: Text -- ^ 'Trap.name'.
         -> Slot -- ^ 'Trap.user'.
         -> Ninja -- ^ 'traps' owner.
         -> Bool
 hasTrap name user n = any (Labeled.match name user) $ traps n
 
+-- | Matches a 'Status.Status', 'Channel.Channel', or 'Defense.Defense'.
 hasOwn :: Text -> Ninja -> Bool
 hasOwn name n = has name (slot n) n
                 || isChanneling name n
@@ -122,7 +133,7 @@ numAnyStacks name n =
     sum $ Status.amount <$> filter ((name ==) . Status.name) (statuses n)
 
 -- | Counts all 'Effect.helpful' effects in 'statuses' from allies.
--- Does not include self-applied or 'Hidden' 'Status'es.
+-- Does not include self-applied or 'Hidden' 'Status.Status'es.
 -- Each status counts for @(number of helpful effects) * (Status.amount)@.
 numHelpful :: Ninja -> Int
 numHelpful n = sum [Status.amount st | st <- statuses n
@@ -134,7 +145,7 @@ numHelpful n = sum [Status.amount st | st <- statuses n
                                      , Effect.helpful ef]
 
 -- | Counts all non-'Effect.helpful' effects in 'statuses'.
--- Does not include self-applied or 'Hidden' 'Status'es.
+-- Does not include self-applied or 'Hidden' 'Status.Status'es.
 -- Each status counts for @(number of harmful effects) * (Status.amount)@.
 numHarmful :: Ninja -> Int
 numHarmful n = sum [Status.amount st | st <- statuses n
@@ -150,5 +161,7 @@ minHealth n
   | n `is` Endure = 1
   | otherwise     = 0
 
+-- | Obtains a @Skill@ from 'skills' by slot index.
+-- Invariant: for @baseSkill x@, @x < 'skillSize'@.
 baseSkill :: Int -> Ninja -> Skill
 baseSkill s n = skills (character n) !! s !! (alternates n `indexEx` s)

@@ -17,7 +17,7 @@ class TurnBased a where
     -- | Updates the remaining number of turns after a turn has passed.
     setDur :: Int -> a -> a
 
--- If @'getDur' <= 0@, has no effect.
+-- | If @'getDur' <= 0@, has no effect.
 -- If @'getDur' == 1@, deletes the structure; it has expired.
 -- Otherwise, decreases the remaining duration by 1.
 decr :: ∀ a. TurnBased a => a -> Maybe a

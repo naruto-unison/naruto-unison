@@ -13,7 +13,7 @@ import Class.Classed (Classed(..))
 import Class.Display (Display(..))
 import Game.Model.Class (Class(..), lower)
 
--- | Conditions to activate a 'Trap'.
+-- | Conditions to activate a 'Game.Model.Trap.Trap'
 data Trigger
     = Counter Class
     | CounterAll Class

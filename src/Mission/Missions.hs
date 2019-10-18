@@ -1,3 +1,4 @@
+-- | Character missions, which users complete in order to unlock new characters.
 module Mission.Missions
   ( list
   , map
@@ -15,6 +16,8 @@ import           Util (mapFromKeyed)
 
 import qualified Mission.Missions.Shippuden
 
+-- | Uses 'Character.clean' to turn character names in 'Objective's into
+-- 'Character.ident' format.
 clean :: Mission -> Mission
 clean (Mission char goals) =
     Mission (Character.clean char) $ cleanGoal <$> goals
@@ -29,19 +32,24 @@ clean (Mission char goals) =
     f (HookTurn name fn)         = HookTurn (Character.clean name) fn
     f (Consecutive x skills)     = Consecutive (Character.clean x) $ sort skills
 
+-- | All missions.
 list :: [Mission]
 list = clean
        <$> Mission.Missions.Shippuden.missions
 {-# NOINLINE list #-}
 
+-- | Map of all missions objectives, from 'Character.ident's to 'Goal.goal's.
 map :: HashMap Text (Seq Goal)
 map = mapFromKeyed (Goal.char, Goal.goals) list
 {-# NOINLINE map #-}
 
+-- | Obtains all of a character's missions from 'list'.
 characterMissions :: Character -> [Mission]
 characterMissions (Character.ident -> name) =
     filter (any (Goal.belongsTo name) . Goal.goals) list
 
+-- | List of 'Character.ident's paired with 'WinConsecutive' indices within
+-- their missions.
 consecWins :: Mission -> [(Text, Int)]
 consecWins x = (Goal.char x, ) . fst <$> filter consec indices
   where
@@ -49,6 +57,8 @@ consecWins x = (Goal.char x, ) . fst <$> filter consec indices
     consec (_, Reach{objective = Win WinConsecutive _}) = True
     consec _                                            = False
 
+-- | All 'Character.ident's in 'list' paired with 'WinConsecutive' indices
+-- within their missions.
 consecutiveWins :: [(Text, Int)]
 consecutiveWins = list >>= consecWins
 {-# NOINLINE consecutiveWins #-}

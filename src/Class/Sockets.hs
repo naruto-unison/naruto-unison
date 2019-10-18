@@ -22,9 +22,11 @@ import qualified Yesod.WebSockets as WebSockets
 
 import Util (Lift)
 
+-- | Encodes a value to JSON and sends it.
 sendJson :: ∀ m a. (MonadSockets m, ToJSON a) => a -> m ()
 sendJson val = send . Encoding.encodingToLazyByteString $ toEncoding val
 
+-- | A monadic wrapper for sending and receiving text via websocket.
 class Monad m => MonadSockets m where
     receive :: m Text
     send    :: LByteString -> m ()

@@ -94,6 +94,8 @@ getChangelog long logType name category = case Characters.lookup tagName of
 news :: (News, Maybe User) -> Widget
 news (News{..}, author) = $(widgetFile "home/news")
 
+-- Renders the game guide, which includes the list of characters as well as
+-- introductions to game mechanics.
 getGuideR :: Handler Html
 getGuideR = do
     App.unchanged304
@@ -101,6 +103,7 @@ getGuideR = do
     (title, _) <- breadcrumbs
     defaultLayout $(widgetFile "guide/guide")
 
+-- Renders the list of all characters.
 getCharactersR :: Handler Html
 getCharactersR = do
     App.unchanged304
@@ -115,6 +118,7 @@ getCharactersR = do
     categoryChars category =
         filter ((== category) . Character.category) Characters.list
 
+-- | Renders a character's details and the user's progress on their mission.
 getCharacterR :: Character -> Handler Html
 getCharacterR char = do
     -- content does change if logged in, due to mission objectives
@@ -127,6 +131,7 @@ getCharacterR char = do
         intercalate ", " $
         display <$> filter Class.visible (toList $ Skill.classes sk)
 
+-- | Renders the game mechanics guide.
 getMechanicsR :: Handler Html
 getMechanicsR = do
     App.unchanged304

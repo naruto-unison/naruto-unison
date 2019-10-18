@@ -27,6 +27,7 @@ cancelChannel name = do
     user <- P.user
     P.modify user $ Ninjas.cancelChannel name
 
+-- | Prematurely ends a channeled action.
 interrupt :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 interrupt = P.unsilenced do
     (yay, nay) <- partition Channel.interruptible . Ninja.channels <$> P.nTarget

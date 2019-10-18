@@ -84,6 +84,7 @@ liftST :: ∀ m a. MonadIO m => ST RealWorld a -> m a
 liftST = liftIO . stToIO
 {-# INLINE liftST #-}
 
+-- | Creates a map from a list using a projection function.
 mapFromKeyed :: ∀ map a. IsMap map
              => (a -> ContainerKey map, a -> MapValue map) -> [a] -> map
 mapFromKeyed (toKey, toVal) xs = mapFromList $ (\x -> (toKey x, toVal x)) <$> xs
@@ -94,6 +95,7 @@ shorten :: Text -> Text
 shorten xs = omap unaccent $ filter (notInClass "- _:()®'/?") xs
 {-# INLINE shorten #-}
 
+-- | Turns special characters into ordinary characters.
 unaccent :: Char -> Char
 unaccent 'ō' = 'o'
 unaccent 'Ō' = 'O'

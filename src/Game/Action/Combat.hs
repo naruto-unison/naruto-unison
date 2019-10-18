@@ -65,16 +65,20 @@ absorbDefense hp (x:xs)
 -- and 'Ninja.defense'.
 afflict :: ∀ m. MonadPlay m => Int -> m ()
 afflict = attack Attack.Afflict
+
 -- | Deals damage that ignores 'Reduce' effects.
 pierce :: ∀ m. MonadPlay m => Int -> m ()
 pierce = attack Attack.Pierce
+
 -- | Deals damage.
 damage :: ∀ m. MonadPlay m => Int -> m ()
 damage = attack Attack.Damage
+
 -- | Deals damage to the user's 'Ninja.barrier' and the target's 'Ninja.defense'
 -- without affecting the target's 'Ninja.health'.
 demolish :: ∀ m. MonadPlay m => Int -> m ()
 demolish = attack Attack.Demolish
+
 -- | Removes all 'Ninja.barrier' from the user and 'Ninja.defense' from the
 -- target.
 demolishAll :: ∀ m. MonadPlay m => m ()
@@ -110,7 +114,6 @@ targetAdjust atk classes nTarget x = x
     reduce
       | atk /= Attack.Damage = Effect.identity
       | otherwise            = Effects.reduce classes nTarget
-
 
 -- | Damage formula.
 formula :: Attack -- ^ Attack type.
@@ -344,7 +347,6 @@ leech hp f = do
         P.modify target $ Traps.track PerDamaged damaged
 
 -- | Sacrifices some amount of the target's 'Ninja.health' down to a minimum.
--- If the target is the user and has the 'ImmuneSelf' effect, nothing happens.
 -- Uses 'Ninjas.sacrifice' internally.
 sacrifice :: ∀ m. MonadPlay m
           => Int  -- ^ Minimum 'Ninja.health'.

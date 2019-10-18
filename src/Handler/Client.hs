@@ -55,6 +55,8 @@ getUpdateR updateName updateCondense updateBackground updateAvatar
       | null updateBackground' = Nothing
       | otherwise              = Just updateBackground'
 
+-- | Used for displaying mission progress when viewing a character in the
+-- character selection screen.
 data ObjectiveProgress =
     ObjectiveProgress { character :: Maybe Text
                       , desc      :: Text
@@ -62,6 +64,7 @@ data ObjectiveProgress =
                       , progress  :: Int
                       } deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 
+-- | Unpacks the output of 'Mission.userMission'.
 unzipGoal :: (Goal, Int) -> ObjectiveProgress
 unzipGoal (goal, progress) =
     ObjectiveProgress { character = Character.format <$> Goal.character goal
@@ -128,6 +131,7 @@ getPlayR = do
         $(widgetFile "play/elm")
         $(widgetFile "play/play")
 
+-- | Icons from all of a character's skills.
 charAvatars :: Character -> [Text]
 charAvatars char = toFile <$> "icon" : skills
   where
@@ -135,6 +139,7 @@ charAvatars char = toFile <$> "icon" : skills
     toFile path = "/img/ninja/" ++ Character.ident char ++ "/"
                   ++ shorten path ++ ".jpg"
 
+-- | Icons that users can set as their avatars.
 avatars :: Value
 avatars = toJSON $ icons ++ concatMap charAvatars Characters.list
   where

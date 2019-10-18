@@ -52,7 +52,7 @@ import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((!!), (—), (∈), (∉), intersects)
 
--- Conditions that have already affected an action in progress.
+-- | Conditions that have already affected an action in progress.
 -- Permits passive effects to bypass steps in the process and prevents infinite
 -- recursion of 'Reflect's, 'Redirect's, etc.
 data Affected
@@ -136,6 +136,8 @@ wrap affected f = void $ runMaybeT do
                 skill { Skill.classes = Direct `insertSet` Skill.classes skill }
             }
 
+-- | Transforms @Target@s into @Slot@s. 'RAlly' and 'REnemy' targets are chosen
+-- at random.
 chooseTargets :: ∀ m. (MonadPlay m, MonadRandom m)
               => [Runnable Target] -> m [[Runnable Slot]]
 chooseTargets targets = do
@@ -217,6 +219,7 @@ filterCounters slots = filter $ (testBit targetSet . Slot.toInt) . Ninja.slot
     targetSet = foldl' go (0 :: Word8) $ join slots
     go x      = setBit x . Slot.toInt . Runnable.target
 
+-- | Sets 'Ninja.acted' to @True@.
 setActed :: Ninja -> Ninja
 setActed n = n { Ninja.acted = True }
 
@@ -293,12 +296,14 @@ act a = do
           Ninjas.modifyStatuses (Status.removeEffect Reflect) n
       | otherwise = n
 
+-- | Effects to run when a channeled skill is canceled.
 interruptions :: Skill -> [Runnable Target]
 interruptions skill = To Enemy clear : To Ally clear : Skill.interrupt skill
   where
     clear :: ∀ m. MonadPlay m => m ()
     clear = P.fromUser . Ninjas.clear $ Skill.name skill
 
+-- | True for all targets except 'RAlly' and 'REnemy'.
 nonRandom :: Target -> Bool
 nonRandom RAlly  = False
 nonRandom REnemy = False
