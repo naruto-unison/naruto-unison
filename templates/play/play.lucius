@@ -1067,7 +1067,7 @@ svg {
 
 #teamButtons {
     width: 256px;
-    margin-top: 2px;
+    margin: 2px 0 9px 0;
 }
 
 #teamContainer {
