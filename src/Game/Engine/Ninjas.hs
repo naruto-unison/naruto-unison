@@ -1,6 +1,6 @@
 -- | 'Ninja' processing.
 module Game.Engine.Ninjas
-  ( skill, skills
+  ( skills, getSkill
   , modifyStatuses
   , apply
   , processEffects
@@ -112,15 +112,15 @@ nextAlternate baseName n = do
 -- | Applies 'skill' to a @Skill@ and further modifies it due to 'Ninja.copies'
 -- and 'Skill.require'ments.
 -- Invariant: for @Left x@, @x < 'Ninja.skillSize'@.
-skill :: Either Int Skill -> Ninja -> Skill
-skill (Right sk) n = Requirement.usable False n sk
-skill (Left s)   n = Requirement.usable True n .
-                     maybe (Ninja.baseSkill s n) Copy.skill .
-                     join . (!? s) $ copies n
+getSkill :: Either Int Skill -> Ninja -> Skill
+getSkill (Right skill) n = Requirement.usable False n skill
+getSkill (Left s)      n = Requirement.usable True n .
+                           maybe (Ninja.baseSkill s n) Copy.skill .
+                           join . (!? s) $ copies n
 
 -- | All four skill slots of a @Ninja@ modified by 'skill'.
 skills :: Ninja -> [Skill]
-skills n = flip skill n . Left <$> [0 .. Ninja.skillSize - 1]
+skills n = flip getSkill n . Left <$> [0 .. Ninja.skillSize - 1]
 
 -- | Modifies @Effect@s when they are first added to a @Ninja@ due to @Effect@s
 -- already added.
@@ -228,13 +228,9 @@ addOwnDefense :: Duration -- ^ 'Defense.dur'.
               -> Text -- ^ 'Defense.name'.
               -> Int -- ^ 'Defense.amount'.
               -> Ninja -> Ninja
-addOwnDefense dur name i n = n { defense = d : defense n }
+addOwnDefense dur name amount n = n { defense = d : defense n }
   where
-    d = Defense { Defense.amount = i
-                , Defense.user   = slot n
-                , Defense.name   = name
-                , Defense.dur    = incr $ sync dur
-                }
+    d = Defense { amount, name, user = slot n, dur = incr $ sync dur }
 
 addDefense :: Int -- ^ 'Defense.amount'.
            -> Text -- ^ 'Defense.name'.
@@ -270,15 +266,15 @@ clearTraps tr n = n { traps = filter ((tr /=) . Trap.trigger) $ traps n }
 
 -- | Adds channels with a specific target.
 addChannels :: Skill -> Slot -> Ninja -> Ninja
-addChannels sk target n
+addChannels skill target n
   | chan == Instant || dur == 1 || dur == 2 = n
   | otherwise = n { newChans = chan' : newChans n }
   where
-    chan  = Skill.dur sk
+    chan  = Skill.dur skill
     dur   = incr $ TurnBased.getDur chan
-    chan' = Channel { Channel.skill  = sk { Skill.require = Usable }
-                    , Channel.target = target
-                    , Channel.dur    = TurnBased.setDur dur chan
+    chan' = Channel { target
+                    , skill = skill { Skill.require = Usable }
+                    , dur   = TurnBased.setDur dur chan
                     }
 
 -- | Deletes matching 'channels'.
@@ -295,11 +291,11 @@ copyAlternates :: Duration -- ^ 'Copy.dur'.
                -> Skill -- ^ Skill being copied.
                -> Ninja -- ^ Person whose skills are being copied.
                -> Ninja -> Ninja
-copyAlternates dur sk source n = n { statuses = alts ++ statuses n }
+copyAlternates dur skill source n = n { statuses = alts ++ statuses n }
   where
     alts = filter (not . null . Status.effects) $ alt <$> statuses source
     dur' = sync if dur < -1 then dur + 1 else dur
-    isAlt (Alternate _ name) = Skill.name sk == name
+    isAlt (Alternate _ name) = Skill.name skill == name
     isAlt _                  = False
     alt st = st { Status.dur     = min dur' $ Status.dur st
                 , Status.user    = slot n
@@ -311,12 +307,12 @@ copy :: Duration -- ^ 'Copy.dur'.
      -> Text -- ^ Replacing 'Skill.name'.
      -> Skill -- ^ Skill.
      -> Ninja -> Ninja
-copy dur name sk n = fromMaybe n do
+copy dur name skill n = fromMaybe n do
       s <- findIndex (any $ (name ==) . Skill.name) . toList .
            Character.skills $ character n
       return n { copies = copier s $ copies n }
   where
-    copier s = Seq.update s . Just . Copy sk . incr $ sync dur
+    copier s = Seq.update s $ Just Copy { skill, dur = incr $ sync dur }
 
 -- | Copies all @Skill@s from a source into 'Ninja.copies'.
 copyAll :: Duration -- ^ 'Copy.dur'.
@@ -324,11 +320,8 @@ copyAll :: Duration -- ^ 'Copy.dur'.
         -> Ninja -> Ninja
 copyAll dur source n = n { copies = fromList $ cop <$> skills source }
   where
-    synced = sync dur
-    cop sk = Just $ Copy
-        { Copy.dur   = synced + synced `rem` 2
-        , Copy.skill = sk
-        }
+    synced    = sync dur
+    cop skill = Just Copy { skill, dur = synced + synced `rem` 2 }
 
 -- | Removes harmful effects. Does not work if the target has 'Plague'.
 cure :: (Effect -> Bool) -> Ninja -> Ninja
@@ -439,39 +432,35 @@ recharge name owner n = n { charges = key `deleteMap` charges n }
 
 -- | With my... ninja info cards
 kabuto :: Skill -> Ninja -> Ninja
-kabuto sk n =
+kabuto skill n =
     n { statuses   = newmode : filter (not . getMode) (statuses n)
       , alternates = fromList [m + 1, m, m, m]
       , channels   = toList (init nChannels') ++ [swaps (last nChannels')]
       }
   where
-    nSlot      = slot n
+    target     = slot n
     nChannels' = case channels n of
-                    x:xs -> x :| xs
-                    []   -> Channel
-                                { Channel.skill  = sk
-                                , Channel.target = nSlot
-                                , Channel.dur    = Skill.dur sk
-                                } :| []
+        x:xs -> x :| xs
+        []   -> Channel { skill, target, dur = Skill.dur skill } :| []
     sage       = " Sage"
     sLen       = length sage
     (mode, m)  = advance . maybe "" (dropEnd sLen . Status.name) .
                  find getMode $ statuses n
-    ml         = mode ++ sage
-    newmode    = Status { Status.amount  = 1
-                        , Status.name    = ml
-                        , Status.user    = nSlot
-                        , Status.skill   = sk
-                        , Status.effects = []
-                        , Status.classes = setFromList [Hidden, Unremovable]
-                        , Status.bombs   = []
-                        , Status.maxDur  = 0
-                        , Status.dur     = 0
+    name       = mode ++ sage
+    newmode    = Status { amount  = 1
+                        , name
+                        , user    = target
+                        , skill
+                        , effects = []
+                        , classes = setFromList [Hidden, Unremovable]
+                        , bombs   = []
+                        , maxDur  = 0
+                        , dur     = 0
                         }
-    getMode st = Status.user st == nSlot
+    getMode st = Status.user st == target
                  && sage == Text.takeEnd sLen (Status.name st)
     advance "Bloodline" = ("Genjutsu" , 2)
     advance "Genjutsu"  = ("Ninjutsu" , 3)
     advance "Ninjutsu"  = ("Taijutsu" , 4)
     advance _           = ("Bloodline", 1)
-    swaps ch = ch { Channel.skill = (Channel.skill ch) { Skill.name = ml } }
+    swaps ch = ch { Channel.skill = (Channel.skill ch) { Skill.name = name } }

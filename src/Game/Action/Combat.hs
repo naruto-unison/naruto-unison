@@ -161,12 +161,11 @@ attack atk dmg = void $ runMaybeT do
     guard $ dmgCalc > Effects.threshold nTarget -- Always 0 or higher
 
     if nTarget `is` DamageToDefense then
-        let damageDefense = Defense
-                { Defense.amount = dmgCalc
-                , Defense.user   = user
-                , Defense.name   = Skill.name skill
-                , Defense.dur    = 0
-                }
+        let damageDefense = Defense { amount = dmgCalc
+                                    , user
+                                    , name   = Skill.name skill
+                                    , dur    = 0
+                                    }
         in P.modify target \n ->
           n { Ninja.defense = damageDefense : Ninja.defense n }
     else if atk == Attack.Afflict then
@@ -203,12 +202,11 @@ defend (incr . sync . Duration -> dur) amount = P.unsilenced do
     nUser      <- P.nUser
     nTarget    <- P.nTarget
     let amount' = Effects.boost user nTarget * amount + Effects.build nUser
-        defense = Defense
-                      { Defense.amount = amount'
-                      , Defense.user   = user
-                      , Defense.name   = Skill.name skill
-                      , Defense.dur    = dur
-                      }
+        defense = Defense { user
+                          , dur
+                          , amount = amount'
+                          , name   = Skill.name skill
+                          }
     if amount' < 0 then do
         context <- P.context
         let barr = Barrier.new context dur
@@ -254,12 +252,11 @@ barrierDoes (sync . Duration -> dur) finish while amount = P.unsilenced do
         barr    = Barrier.new context dur finish' while' amount'
     if amount' < 0 then do
         user       <- P.user
-        let defense = Defense
-                      { Defense.amount = (-amount')
-                      , Defense.user   = user
-                      , Defense.name   = Skill.name skill
-                      , Defense.dur    = dur
-                      }
+        let defense = Defense { user
+                              , dur
+                              , amount = (-amount')
+                              , name   = Skill.name skill
+                              }
         P.trigger user [OnDefend]
         P.modify target \n ->
           n { Ninja.defense = Classed.nonStack skill defense $ Ninja.defense n }

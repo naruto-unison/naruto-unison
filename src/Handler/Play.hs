@@ -190,30 +190,21 @@ makeGame :: ∀ m. (MonadRandom m, MonadIO m)
          -> Key User -> User -> [Character]
          -> m (MVar Wrapper, GameInfo)
 makeGame queueWrite who user team vsWho vsUser vsTeam = do
-    randPlayer <- R.player
-    game       <- Game.newWithChakras
-    let ninjas = zipWith Ninja.new Slot.all case randPlayer of
+    player <- R.player
+    game   <- Game.newWithChakras
+    let ninjas = fromList $ zipWith Ninja.new Slot.all case player of
             Player.A -> team ++ vsTeam
             Player.B -> vsTeam ++ team
     mvar <- newEmptyMVar
     liftIO $ atomically do
         writeTChan queueWrite $
-            Queue.Respond vsWho mvar
-            GameInfo
-                { GameInfo.vsWho  = who
-                , GameInfo.vsUser = user
-                , GameInfo.player = Player.opponent randPlayer
-                , GameInfo.game   = game
-                , GameInfo.ninjas = fromList ninjas
-                }
-        let info = GameInfo
-                { GameInfo.vsWho = vsWho
-                , GameInfo.vsUser = vsUser
-                , GameInfo.player = randPlayer
-                , GameInfo.game   = game
-                , GameInfo.ninjas = fromList ninjas
-                }
-        return (mvar, info)
+            Queue.Respond vsWho mvar GameInfo { vsWho  = who
+                                              , vsUser = user
+                                              , player = Player.opponent player
+                                              , game
+                                              , ninjas
+                                              }
+        return (mvar, GameInfo { vsWho, vsUser, player, game, ninjas })
 
 queue :: ∀ m.
         (MonadRandom m, MonadSockets m, MonadHandler m, App ~ HandlerSite m)

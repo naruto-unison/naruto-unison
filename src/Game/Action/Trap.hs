@@ -27,7 +27,6 @@ import           Game.Model.Effect (Constructor(..), Effect(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Runnable (Runnable(..), RunConstraint)
-import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
@@ -119,26 +118,20 @@ makeTrap :: Skill -> Ninja -> Slot
          -> Trap.Direction -> EnumSet Class -> Duration -> Trigger
          -> (Int -> RunConstraint ()) -> Trap
 makeTrap skill nUser target direction classes dur trigger f = Trap
-    { Trap.trigger   = trigger
-    , Trap.direction = direction
-    , Trap.name      = Skill.name skill
-    , Trap.skill     = skill
-    , Trap.user      = user
-    , Trap.effect    = \i -> Runnable.To
-        { Runnable.target = ctx
-        , Runnable.run    = Action.wrap (singletonSet Trapped) $ f i
-        }
-    , Trap.classes   = classes ++ Skill.classes skill
-    , Trap.tracker   = 0
-    , Trap.dur       = incr $ sync dur
+    { trigger
+    , direction
+    , skill
+    , user
+    , name    = Skill.name skill
+    , effect  = \i -> To { target = Context { skill, user, target, new = False }
+                         , run    = Action.wrap (singletonSet Trapped) $ f i
+                         }
+    , classes = classes ++ Skill.classes skill
+    , tracker = 0
+    , dur     = incr $ sync dur
     }
   where
     user = Ninja.slot nUser
-    ctx  = Context { Context.skill  = skill
-                   , Context.user   = user
-                   , Context.target = target
-                   , Context.new    = False
-                   }
 
 -- | Saves an effect to a 'Delay.Delay', which is stored in 'Game.delays' and
 -- triggered when it expires.

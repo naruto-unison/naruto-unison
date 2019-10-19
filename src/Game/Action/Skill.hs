@@ -128,8 +128,8 @@ teacher :: ∀ m. MonadPlay m
 teacher f (sync . Duration -> dur) s = P.uncopied do
     nUser  <- P.nUser
     target <- P.target
-    let copied = Just $ Copy { Copy.skill = Ninjas.skill (Left s) nUser
-                             , Copy.dur   = dur + dur `rem` 2
+    let copied = Just $ Copy { skill = Ninjas.getSkill (Left s) nUser
+                             , dur   = dur + dur `rem` 2
                              }
     P.modify target \n -> n { Ninja.copies = f copied $ Ninja.copies n }
 

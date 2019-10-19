@@ -41,10 +41,10 @@ onInterrupt chan = P.with chanContext $
     Action.run (setFromList [Channeled, Interrupted]) =<<
     Action.chooseTargets (Action.interruptions $ Channel.skill chan)
   where
-    chanContext ctx = Context { Context.skill  = Channel.skill chan
-                              , Context.user   = Context.target ctx
-                              , Context.target = Channel.target chan
-                              , Context.new    = False
+    chanContext ctx = Context { skill  = Channel.skill chan
+                              , user   = Context.target ctx
+                              , target = Channel.target chan
+                              , new    = False
                               }
 
 -- | Increases the duration of 'Ninja.channels' with a matching 'Channel.name'.

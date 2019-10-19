@@ -285,12 +285,8 @@ act a = do
       | nUser `is` Swap = (setFromList [Swapped, Targeted], Skills.swap skill)
       | otherwise       = (singletonSet Targeted, skill)
       where
-        skill = Ninjas.skill s nUser
-    ctx skill = Context { Context.skill  = skill
-                        , Context.user   = user
-                        , Context.target = Act.target a
-                        , Context.new    = new
-                        }
+        skill = Ninjas.getSkill s nUser
+    ctx skill = Context { skill, user, new, target = Act.target a }
     unreflect n
       | OnReflect ∈ Ninja.triggers n =
           Ninjas.modifyStatuses (Status.removeEffect Reflect) n
@@ -331,9 +327,5 @@ breakControl user stuns Channel{ dur = Control{}, skill, target }
         interruptTargets <- chooseTargets $ interruptions skill
         run (setFromList [Channeled, Interrupted]) interruptTargets
         P.modify user . Ninjas.cancelChannel $ Skill.name skill
-    chanContext = Context { Context.skill  = skill
-                          , Context.user   = user
-                          , Context.target = target
-                          , Context.new    = False
-                          }
+    chanContext = Context { skill, user, target, new = False }
 breakControl _ _ _ = return ()
