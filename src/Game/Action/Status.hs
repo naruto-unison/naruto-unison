@@ -243,7 +243,7 @@ makeStatus amount new skill nUser nTarget classes bounced bombs name dur fs =
     silenced = nUser `is` Silence
     disabled = Effects.disabled nUser
     disable x
-      | Effect.isDisable x = nUser `is` Disable Stuns
+      | Effect.isDisable x = not $ nUser `is` Disable Stuns
       | otherwise          = x ∉ disabled
     filterDmg xs
       | silenced && bounced = []
