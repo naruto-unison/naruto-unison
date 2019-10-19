@@ -28,6 +28,7 @@ import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
 import qualified Game.Model.Class as Class
 import qualified Handler.Link as Link
+import           Util ((!?))
 
 -- | Renders a 'User' profile.
 getProfileR :: Text -> Handler Html
@@ -150,18 +151,16 @@ selectWithAuthors selectors opts = runDB do
         citeAuthor <- get404 author
         citeLatest <- if | author == latest -> return citeAuthor
                          | otherwise        -> get404 latest
-        return Cite{..}
+        return Cite {citeKey, citeAuthor, citeLatest, citeVal}
       where
         author = getAuthor citeVal
         latest = getLatest citeVal
 
 -- | Displays a user's rank, or their 'Privilege' level if higher than 'Normal'.
 userRank :: User -> Text
-userRank User{..} = case userPrivilege of
-    Normal -> maybe "Hokage" fst . uncons $ drop level userRanks
-    _      -> tshow userPrivilege
-  where
-    level = userXp `quot` 5000
+userRank user = case userPrivilege user of
+    Normal -> fromMaybe "Hokage" $ userRanks !? (userXp user `quot` 5000)
+    _      -> tshow $ userPrivilege user
 
 data NewTopic = NewTopic Topic (TopicId -> Post)
 
@@ -188,4 +187,4 @@ newPostForm :: TopicId -> UTCTime -> UserId -> AForm Handler Post
 newPostForm postTopic postTime postAuthor =
     makePost . toBody <$> areq textareaField "" Nothing
   where
-    makePost postBody = Post{..}
+    makePost postBody = Post {postTopic, postTime, postAuthor, postBody}

@@ -189,7 +189,7 @@ thaw Wrapper{game, ninjas} = STWrapper Tracker.empty
 
 --  | Encodes game state into a form suitable for sending to the client.
 toTurn :: Player -> Wrapper -> Turn
-toTurn player Wrapper{..} = Turn.new player (toList ninjas) game
+toTurn player Wrapper{ninjas, game} = Turn.new player (toList ninjas) game
 
 instance MonadRandom m => MonadRandom (ReaderT Wrapper m)
 instance MonadRandom m => MonadRandom (ReaderT (STWrapper s) m)

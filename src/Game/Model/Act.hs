@@ -74,24 +74,25 @@ instance PathPiece Act where
                         , either tshow Skill.name skill
                         , tshow target
                         ]
-    fromPathPiece raw   = case pieces of
-        [c, s, t] -> case makeAct c s t of
+    fromPathPiece raw = case pieces of
+        [u, s, t] -> case makeAct u s t of
                         Right act -> Just act
                         Left  _   -> Nothing
         _         -> Nothing
       where
         pieces        = Text.splitOn "," raw
-        makeAct c s t = [Act{..} | (user,_)    <- Slot.read c
-                                 , (skill, _)  <- first Left <$> Read.decimal s
-                                 , (target, _) <- Slot.read t
-                                 ]
+        makeAct u s t = Act <$>        (fst <$> Slot.read u)
+                            <*> (Left . fst <$> Read.decimal s)
+                            <*>        (fst <$> Slot.read t)
 
 data Act' = Act' { user'   :: Slot
                  , skill'  :: Int
                  , target' :: Slot
                  } deriving (Show, Read)
+
 fromAct :: Act -> Act'
 fromAct (Act u (Left s) t)  = Act' u s t
 fromAct (Act u (Right _) t) = Act' u (-1) t
+
 toAct :: Act' -> Act
 toAct (Act' u s t) = Act u (Left s) t

@@ -81,7 +81,7 @@ makeFoundation settings = do
     -- logging function. To get out of this loop, we initially create a
     -- temporary foundation without a real connection pool, get a log function
     -- from there, and then create the real foundation.
-    let mkFoundation connPool characterIDs = App {..}
+    let mkFoundation connPool characterIDs = App{..}
         tempFoundation = mkFoundation
             (error "connPool forced in tempFoundation")
             (error "characterIDs forced in tempFoundation")
