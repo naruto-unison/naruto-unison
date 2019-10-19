@@ -4,13 +4,13 @@ import Dict
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
-import Html.Lazy exposing (lazy2)
+import Html.Lazy exposing (lazy3)
 import Http
 import Json.Decode as D
 import List.Extra as List
 import Maybe.Extra as Maybe
 import Process
-import Set
+import Set exposing (Set)
 import Task
 
 import Game.Chakra as Chakra exposing (none)
@@ -61,6 +61,7 @@ type alias Model =
     , toggled    : Maybe Act
     , acts       : List Act
     , dna        : List Reward
+    , visibles   : Set String
     , error      : String
     }
 
@@ -112,6 +113,7 @@ component ports =
             , toggled    = Nothing
             , acts       = []
             , dna        = []
+            , visibles   = flags.visibles
             , error      = ""
             }
 
@@ -380,7 +382,7 @@ renderTop st characters =
         ]
       , H.img [ A.class "charicon", A.src st.user.avatar ] []
       ]
-    , lazy2 renderView characters st.viewing
+    , lazy3 renderView st.visibles characters st.viewing
     , H.section
       [ A.id "account1"
       , E.onMouseOver << View <| ViewUser st.vs
@@ -852,8 +854,8 @@ bar source name amount dur =
     ]
 
 
-renderView : List Character -> Viewable -> Html Msg
-renderView characters viewing =
+renderView : Set String -> List Character -> Viewable -> Html Msg
+renderView visibles characters viewing =
     H.article [ A.class "parchment" ] <| case viewing of
         ViewBarrier x ->
             bar (Game.get characters x.user) x.name x.amount x.dur
@@ -886,7 +888,7 @@ renderView characters viewing =
               [ icon (Game.get characters x.source) "icon" [ A.class "char" ]
               , H.dl []
                 [ H.h4 [] [ H.span [] [ H.text count ] ]
-                , Render.classes True x.classes
+                , Render.classes True <| Set.intersect visibles x.classes
                 , H.dt [] [ H.text "Source" ]
                 , H.dd [] << Render.name <| Game.get characters x.user
                 , H.dt [] [ H.text "Duration" ]
@@ -992,7 +994,7 @@ renderView characters viewing =
               , H.dl []
                 [ H.h4 []
                   [ H.text x.name ]
-                , Render.classes False x.classes
+                , Render.classes False <| Set.intersect visibles x.classes
                 , H.dt [] [ H.text "Cost" ]
                 , H.dd [] cost
                 , H.dt [] [ H.text "Duration" ]

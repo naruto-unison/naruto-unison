@@ -10,7 +10,7 @@ const shorten = x => x.replace(/ \(\d+\)/g, '')
 
 const getSkill = (char, name) => char.skills.flat().filter(x => x.name == name)[0]
 
-const visible = #{Class.visibles}
+const visible = #{Class.visiblesMap}
 const filterClasses = x => x.filter(y => visible[y])
 
 const showChar = x => {

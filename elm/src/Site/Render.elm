@@ -150,9 +150,8 @@ class x others =
 
 classes : Bool -> Set String -> Html msg
 classes hideMore xs =
-    (if hideMore then moreHidden else hidden)
-    |> Set.diff xs
-    >> Set.toList
+    (if hideMore then Set.diff xs moreHidden else xs)
+    |> Set.toList
     >> String.join ", "
     >> H.text
     >> List.singleton
@@ -177,33 +176,9 @@ effect characters removable x =
         Just slot -> x.desc ++ (Game.get characters slot).name ++ "."
 
 
-hidden : Set String
-hidden =
-    Set.fromList
-        [ "Non-stacking"
-        , "Extending"
-        , "Necromancy"
-        , "All"
-        , "Healing"
-        , "Hidden"
-        , "Affliction"
-        , "Non-affliction"
-        , "Non-mental"
-        , "Non-mental"
-        , "Resource"
-        , "Direct"
-        , "Bloodline"
-        , "Genjutsu"
-        , "Ninjutsu"
-        , "Taijutsu"
-        , "Random"
-        ]
-
-
 moreHidden : Set String
 moreHidden =
-    Set.union hidden <|
-        Set.fromList
+    Set.fromList
             [ "Bypassing"
             , "Uncounterable"
             , "Unreflectable"

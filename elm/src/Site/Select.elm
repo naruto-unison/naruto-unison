@@ -114,6 +114,7 @@ type alias Model =
     , user       : Maybe User
     , avatars    : List String
     , chars      : Characters
+    , visibles   : Set String
     , csrf       : String
     , csrfParam  : String
     , showLogin  : Bool
@@ -191,6 +192,7 @@ component ports =
             , unlocked   = flags.unlocked
             , chars      = flags.characters
             , avatars    = flags.avatars
+            , visibles   = flags.visibles
             , csrf       = flags.csrf
             , csrfParam  = flags.csrfParam
             , showLogin  = True
@@ -1038,7 +1040,7 @@ previewBox st =
                         [ H.ul [] <| List.map previewObjective st.mission ]
                       ]
           ] ++
-          List.map3 (previewSkill char)
+          List.map3 (previewSkill st.visibles char)
           (List.range 0 <| Game.skillSize - 1)
           char.skills
           st.alternates
@@ -1078,8 +1080,8 @@ previewObjective x =
               ]
         ]
 
-previewSkill : Character -> Int -> List Skill -> Int -> Html Msg
-previewSkill char slot skills i =
+previewSkill : Set String -> Character -> Int -> List Skill -> Int -> Html Msg
+previewSkill visibles char slot skills i =
     case List.getAt i skills of
         Nothing ->
             H.section [] []
@@ -1123,7 +1125,7 @@ previewSkill char slot skills i =
             , H.h4 [] <|
               H.text skill.name
               :: Render.chakras skill.cost ++
-              [ Render.classes False skill.classes ]
+              [ Render.classes False <| Set.intersect visibles skill.classes ]
             , H.p [] <<
               (++) (Render.desc skill.desc) <<
               List.map

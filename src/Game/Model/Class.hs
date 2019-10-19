@@ -1,7 +1,7 @@
 module Game.Model.Class
   ( Class(..)
   , name, lower
-  , visible, visibles
+  , visible, visiblesList, visiblesMap
   ) where
 
 import ClassyPrelude
@@ -76,11 +76,6 @@ instance Display Class where
 visible :: Class -> Bool
 visible = (< All)
 
-visibles :: Value
-visibles = toJSON . mapFromKeyed @(Map _ _) (name, const True) $
-           filter visible [minBound..maxBound]
-{-# NOINLINE visibles #-}
-
 name :: Class -> Text
 name Nonstacking    = "Non-stacking"
 name NonAffliction  = "Non-affliction"
@@ -92,3 +87,12 @@ name x              = tshow x
 lower :: Class -> TextBuilder
 lower = Enum.memoize $ display . toLower . name
 {-# NOINLINE lower #-}
+
+visiblesList :: Value
+visiblesList = toJSON $ filter visible [minBound..maxBound]
+{-# NOINLINE visiblesList #-}
+
+visiblesMap :: Value
+visiblesMap = toJSON . mapFromKeyed @(Map _ _) (name, const True) $
+              filter visible [minBound..maxBound]
+{-# NOINLINE visiblesMap #-}

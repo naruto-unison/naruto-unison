@@ -29,6 +29,7 @@ type alias Flags =
     , user         : Maybe User
     , avatars      : List String
     , characters   : Characters
+    , visibles     : Set String
     , csrf         : String
     , csrfParam    : String
     }
@@ -44,6 +45,7 @@ failure =
     , user         = Nothing
     , avatars      = []
     , characters   = makeCharacters []
+    , visibles     = Set.empty
     , csrf         = ""
     , csrfParam    = ""
     }
@@ -60,6 +62,7 @@ decode =
         >> D.required "user"         (D.maybe Model.jsonDecUser)
         >> D.required "avatars"      (D.list D.string)
         >> D.required "characters"   (D.list Model.jsonDecCharacter |> D.map makeCharacters)
+        >> D.required "visibles"     (D.list D.string |> D.map Set.fromList)
         >> D.required "csrf"         D.string
         >> D.required "csrfParam"    D.string
 

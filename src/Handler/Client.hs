@@ -26,6 +26,7 @@ import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
+import qualified Game.Model.Class as Class
 import qualified Game.Model.Skill as Skill
 import qualified Handler.Play as Play
 import qualified Mission
