@@ -245,7 +245,7 @@ characters =
         , Skill.classes   = [Physical, Bane, Invisible]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-            [ To Self $ trapFrom (-1) (OnHarmed NonMental) do
+            [ To Self $ trapFrom 1 (OnHarmed NonMental) do
                   apply 0 [Afflict 20]
                   self $ removeTrap "Venom Sac"
                   has <- userHas "major summoning: ibuse"

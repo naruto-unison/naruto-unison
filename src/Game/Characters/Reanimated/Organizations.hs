@@ -65,7 +65,7 @@ characters =
           [ To Enemy do
                 everyone $ remove "Rivalry"
                 userSlot <- user slot
-                trap (-1) (Countered All) $ apply 0 [Taunt userSlot]
+                trap 1 (Countered All) $ apply 0 [Taunt userSlot]
           ]
         }
       ]
@@ -325,7 +325,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 prolong 1 "Stitching Spider"
-                trap (-2) (OnAction Physical) $
+                trap 2 (OnAction Physical) $
                     whenM (userHas "Stitching Spider") do
                         pierce 10
                         tag 1

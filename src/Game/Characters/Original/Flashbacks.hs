@@ -271,7 +271,7 @@ characters =
         , Skill.effects   =
           [ To Self $ apply 1 [Reduce [All] Flat 15]
           , To Enemy do
-                trap (-1) (OnAction All) flag
+                trap 1 (OnAction All) flag
                 delay (-1) do
                     bonus <- 15 `bonusIf` targetHas "Pit Trap"
                     pierce (15 + bonus)

@@ -448,7 +448,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                trap (-3) (OnAction All) do
+                trap 3 (OnAction All) do
                     apply 1 [Expose, Uncounter]
                     hide' "final" 1 []
           ]
@@ -559,7 +559,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                trap (-1) (Countered All) $ copyLast 1
+                trap 1 (Countered All) $ copyLast 1
                 delay (-1) $ damage 15
           ]
         }
@@ -852,7 +852,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap (-1) (Countered All) $ tag 1 ]
+          [ To Enemy $ trap 1 (Countered All) $ tag 1 ]
         }
       ]
     , [ Skill.new
@@ -1014,7 +1014,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                trap (-1) (OnAction All) flag
+                trap 1 (OnAction All) flag
                 delay (-1) do
                     bonus <- 15 `bonusIf` targetHas "Rasengan"
                     pierce (25 + bonus)

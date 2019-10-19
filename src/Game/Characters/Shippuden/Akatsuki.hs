@@ -140,7 +140,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap (-2) (OnAction NonMental) do
+          [ To Enemy $ trap 2 (OnAction NonMental) do
                 removeTrap "C2: Minefield"
                 damage 10
                 apply 4 [Weaken [All] Flat 5]
@@ -229,7 +229,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Control 1
         , Skill.effects   =
-          [ To Enemies $ trap (-1) OnHarm $ apply' "Pinned" (-1) [Expose]
+          [ To Enemies $ trap 1 OnHarm $ apply' "Pinned" (-1) [Expose]
           , To Self $ hide 1 [Alternate "Thousand Arms" "Poison Gas"]
           ]
         }
