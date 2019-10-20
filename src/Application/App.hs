@@ -200,10 +200,9 @@ instance Yesod App where
         genFileName lbs = "autogen-" ++ base64md5 lbs
 
     shouldLogIO :: App -> LogSource -> LogLevel -> IO Bool
-    shouldLogIO app _source level =
-        return $ Settings.shouldLogAll (settings app)
-                 || level == LevelWarn
-                 || level == LevelError
+    shouldLogIO _ _ LevelWarn  = return True
+    shouldLogIO _ _ LevelError = return True
+    shouldLogIO app _ _        = return . Settings.shouldLogAll $ settings app
 
     makeLogger :: App -> IO Logger
     makeLogger = return . logger

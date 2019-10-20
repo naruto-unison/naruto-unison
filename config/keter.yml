@@ -5,6 +5,8 @@ stanzas:
 
     hosts:
       - localhost
+      - naruto-unison.com
+      - www.naruto-unison.com
 
     requires-secure: false # force redirect to https
 

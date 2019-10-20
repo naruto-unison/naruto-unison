@@ -1,3 +1,50 @@
+Character
+    name  Text
+    UniqueName name
+    deriving Eq
+
+Mission
+    user       UserId
+    character  CharacterId
+    objective  Int
+    UniqueMission user character objective
+    progress   Int  default=0
+
+News
+    author   UserId
+    date     Day  default=current_date
+    title    Text
+    content  Text
+
+Post
+    author  UserId
+    time    UTCTime  default=current_timestamp
+    body    [Text]
+    topic   TopicId
+    deriving Eq
+
+Topic
+    board   ForumBoard
+    author  UserId
+    staff   Bool
+    title   Text
+    posts   Int  default=1
+    time    UTCTime  default=current_timestamp
+    latest  UserId
+
+Unlocked
+    user       UserId
+    character  CharacterId
+    UniqueUnlocked user character
+
+Usage
+    character  CharacterId
+    UniqueUsage character
+    wins      Int
+    losses    Int
+    picked    Int
+    unpicked  Int
+
 User
     ident       Text
     UniqueUser ident
@@ -26,50 +73,3 @@ User
     volatility  Double  default=0.06
     dna         Int  default=0
     deriving Typeable
-
-Post
-    author  UserId
-    time    UTCTime  default=current_timestamp
-    body    [Text]
-    topic   TopicId
-    deriving Eq
-
-Topic
-    board   ForumBoard
-    author  UserId
-    staff   Bool
-    title   Text
-    posts   Int  default=1
-    time    UTCTime  default=current_timestamp
-    latest  UserId
-
-News
-    author   UserId
-    date     Day  default=current_date
-    title    Text
-    content  Text
-
-Character
-    name  Text
-    UniqueName name
-    deriving Eq
-
-Unlocked
-    user       UserId
-    character  CharacterId
-    UniqueUnlocked user character
-
-Mission
-    user       UserId
-    character  CharacterId
-    objective  Int
-    UniqueMission user character objective
-    progress   Int  default=0
-
-Usage
-    character  CharacterId
-    UniqueUsage character
-    wins      Int
-    losses    Int
-    picked    Int
-    unpicked  Int
