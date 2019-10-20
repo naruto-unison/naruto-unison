@@ -1,5 +1,5 @@
-resolver: lts-14.7
+resolver: lts-14.10
 
 extra-deps:
 - git: https://github.com/jnbooth/bounded-enum.git
-  commit: 469f1757a75c205444e48e4a063e388fd00ea9b3
+  commit: d38fe48562af68f831f4cc45be9f9b019aa982a4

@@ -6,21 +6,21 @@
 packages:
 - completed:
     cabal-file:
-      size: 2462
-      sha256: a60e052f6ade1a10a4164d8d0f56ffa6e04865773fb5c723fb7b278819fec2da
+      size: 1832
+      sha256: 184f78a66a352912ae7d4a952dac55bcee4acc4625f6cb25b75380706ef9ab91
     name: bounded-enum
-    version: 0.1.0.0
+    version: 0.1.1.0
     git: https://github.com/jnbooth/bounded-enum.git
     pantry-tree:
-      size: 556
-      sha256: 31e5aa4d80fb28733e929fddd9e7dc360c0df0588b0496dcbc1fbac9336b602c
-    commit: 469f1757a75c205444e48e4a063e388fd00ea9b3
+      size: 557
+      sha256: 86e0c5727644074caf2e55170294321664a8aa03640f4bd85faeaee348e44695
+    commit: d38fe48562af68f831f4cc45be9f9b019aa982a4
   original:
     git: https://github.com/jnbooth/bounded-enum.git
-    commit: 469f1757a75c205444e48e4a063e388fd00ea9b3
+    commit: d38fe48562af68f831f4cc45be9f9b019aa982a4
 snapshots:
 - completed:
-    size: 523700
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/7.yaml
-    sha256: 8e3f3c894be74d71fa4bf085e0a8baae7e4d7622d07ea31a52736b80f8b9bb1a
-  original: lts-14.7
+    size: 524130
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/10.yaml
+    sha256: 04841e0397d7ce6364f19359fce89aa45ca8684609d665845db80d398002baa9
+  original: lts-14.10
