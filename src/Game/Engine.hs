@@ -3,6 +3,9 @@ module Game.Engine
   ( runTurn
   , processTurn
   , unSoulbound
+  , skipTurn
+  , forfeit
+  , resetInactive
   ) where
 
 import ClassyPrelude
@@ -34,6 +37,7 @@ import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Slot (Slot)
@@ -77,9 +81,9 @@ processTurn runner = do
     doBombs Expire expired
     doBombs Done initial
     doHpsOverTime
-    P.alter \game -> game { Game.playing = opponent }
+    P.alter \g -> g { Game.playing = opponent }
     doDeaths
-    P.yieldVictor
+    yieldVictor
     Hook.turn player initial =<< P.ninjas
   where
     getChannels n = map (Act.fromChannel n) .
@@ -177,3 +181,42 @@ doHpOverTime slot = do
     n      <- P.ninja slot
     hp     <- Effects.hp player n <$> P.ninjas
     when (Ninja.alive n) . P.modify slot $ Ninjas.adjustHealth (— hp)
+
+-- | Updates 'Game.victor'.
+yieldVictor :: ∀ m. MonadGame m => m ()
+yieldVictor = whenM (null . Game.victor <$> P.game) do
+    ninjas <- P.ninjas
+    let splitNs = splitAt (length ninjas `quot` 2) ninjas
+    P.alter \g ->
+        g { Game.victor = filter (victor splitNs) [Player.A, Player.B] }
+  where
+    victor (_, ninjas) Player.A = not $ any Ninja.alive ninjas
+    victor (ninjas, _) Player.B = not $ any Ninja.alive ninjas
+
+forfeit :: ∀ m. MonadGame m => Player -> m ()
+forfeit player = whenM (null . Game.victor <$> P.game) do
+    P.modifyAll suicide
+    P.alter \g -> g { Game.victor  = [Player.opponent player]
+                    , Game.forfeit = True
+                    }
+  where
+    suicide n
+      | Parity.allied player n = n { Ninja.health = 0 }
+      | otherwise              = n
+
+-- | Adds to 'Game.inactive', and forfeits if a threshold is reached.
+skipTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+         => Int -> Player -> m ()
+skipTurn threshold player = do
+    P.alter \g ->
+        g { Game.inactive = Parity.modifyOf player (+1) $ Game.inactive g }
+    inactive <- Parity.getOf player . Game.inactive <$> P.game
+    if inactive >= threshold then
+        forfeit player
+    else
+        runTurn []
+
+-- | Resets 'Game.inactive'.
+resetInactive :: ∀ m. MonadGame m => Player -> m ()
+resetInactive player = P.alter \g ->
+    g { Game.inactive = Parity.setOf player 0 $ Game.inactive g }

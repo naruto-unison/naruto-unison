@@ -31,25 +31,26 @@ detailed-logging: false
 # See https://github.com/yesodweb/yesod/wiki/Configuration#parsing-numeric-values-as-strings
 
 database:
-  user:     "_env:YESOD_PGUSER:naruto-unison"
-  password: "_env:YESOD_PGPASS:naruto-unison"
-  host:     "_env:YESOD_PGHOST:localhost"
-  port:     "_env:YESOD_PGPORT:5432"
-  # See config/test-settings.yml for an override during tests
-  database: "_env:YESOD_PGDATABASE:naruto-unison"
-  poolsize: "_env:YESOD_PGPOOLSIZE:10"
+    user:     "_env:YESOD_PGUSER:naruto-unison"
+    password: "_env:YESOD_PGPASS:naruto-unison"
+    host:     "_env:YESOD_PGHOST:localhost"
+    port:     "_env:YESOD_PGPORT:5432"
+    # See config/test-settings.yml for an override during tests
+    database: "_env:YESOD_PGDATABASE:naruto-unison"
+    poolsize: "_env:YESOD_PGPOOLSIZE:10"
 
-copyright: Creative Commons
+copyright: BSD-3
 #analytics: UA-YOURCODE
 
-# Values are in seconds
-turn-length:           "_env:NU_TURN_LENGTH:60"
-practice-cache-expiry: "_env:NU_EXPIRY:3600"
+turn-length:           "_env:NU_TURN_LENGTH:60" # seconds
+practice-cache-expiry: "_env:NU_EXPIRY:3600" # seconds
+
+forfeit-after-skips:   "_env:NU_FORFEIT_AFTER:3"
 
 dna:
-  daily-game: 3
-  daily-win:  3
-  quick-win:  5
-  quick-lose: 1
-  quick-tie:  2
-  use-streak: true
+    daily-game: 3
+    daily-win:  3
+    quick-win:  5
+    quick-lose: 1
+    quick-tie:  2
+    use-streak: true

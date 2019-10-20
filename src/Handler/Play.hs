@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveAnyClass #-}
+
 -- | Handles API routes and WebSockets related to gameplay.
 module Handler.Play
     ( gameSocket
@@ -9,10 +10,12 @@ module Handler.Play
 import ClassyPrelude
 import Yesod
 
+import           Control.Monad.Logger
 import           Control.Monad.Loops (untilJust)
 import           Control.Monad.Trans.Except (ExceptT, runExceptT, throwE)
 import qualified Data.Cache as Cache
 import qualified Data.Text as Text
+import           Network.WebSockets (ConnectionException(..))
 import qualified System.Random.MWC as Random
 import           UnliftIO.Concurrent (forkIO, threadDelay)
 import qualified Yesod.Auth as Auth
@@ -22,6 +25,7 @@ import           Application.App (App, Handler)
 import qualified Application.App as App
 import           Application.Model (EntityField(..), User(..))
 import qualified Application.Model as Model
+import           Application.Settings (Settings)
 import qualified Application.Settings as Settings
 import           Class.Hook (MonadHook)
 import qualified Class.Parity as Parity
@@ -43,7 +47,7 @@ import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Slot as Slot
-import           Handler.Client.Reward (Reward)
+import           Handler.Client.Reward (Reward(Reward))
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
 import qualified Handler.Play.GameInfo as GameInfo
 import           Handler.Play.Match (Outcome(..))
@@ -139,10 +143,9 @@ getPracticeActR spend exchange acts = do
           Left errorMsg -> invalidArgs [tshow errorMsg]
           Right ()      -> do
               game'A <- Wrapper.freeze
-              P.alter \g -> g
-                  { Game.chakra  = (fst $ Game.chakra g, 100)
-                  , Game.playing = Player.B
-                  }
+              P.alter \g -> g { Game.chakra  = (fst $ Game.chakra g, 100)
+                              , Game.playing = Player.B
+                              }
               Engine.runTurn =<< Act.randoms
               game'B <- Wrapper.freeze
               liftIO if null . Game.victor $ Wrapper.game game'B then
@@ -275,9 +278,9 @@ handleFailures (Left msg)  = Nothing <$ sendClient (Fail msg)
 -- | Sends messages through 'TChan's in 'App.App'. Requires authentication.
 gameSocket :: Handler ()
 gameSocket = webSockets do
-    who        <- Auth.requireAuthId
-    turnLength <- getsYesod $ Settings.turnLength . App.settings
-    unlocked   <- liftHandler Mission.unlocked
+    who      <- Auth.requireAuthId
+    settings <- getsYesod App.settings
+    unlocked <- liftHandler Mission.unlocked
     liftIO Random.createSystemRandom >>= runReaderT do
         (section, team, mvar, info) <- untilJust $
             handleFailures =<< runExceptT do
@@ -297,14 +300,14 @@ gameSocket = webSockets do
         sendClient $ Info info
         let player = GameInfo.player info
         game <- liftST (Wrapper.fromInfo info) >>= runReaderT do
-            when (player == Player.A) $ tryEnact player turnLength mvar
+            when (player == Player.A) $ tryEnact settings player mvar
             whileM do
                 wrapper <- takeMVar mvar
                 if null . Game.victor $ Wrapper.game wrapper then do
                     sendClient . Play $ Wrapper.toTurn player wrapper
                     newWrapper <- ask
                     liftST $ Wrapper.replace wrapper newWrapper
-                    tryEnact player turnLength mvar
+                    tryEnact settings player mvar
                     game <- P.game
                     if null $ Game.victor game then
                         return True
@@ -323,8 +326,11 @@ gameSocket = webSockets do
         sendClient . Play $ Wrapper.toTurn player game
         when (section == Queue.Quick) do -- eventually, || Queue.Ladder
             let outcome = Match.outcome (Wrapper.game game) player
-            dnaReward <- liftHandler $ Mission.awardDNA Queue.Quick outcome
-            sendClient $ Rewards dnaReward
+            if outcome == Defeat && Game.forfeit (Wrapper.game game) then
+                sendClient $ Rewards [Reward "Forfeit" 0]
+            else do
+                dnaReward <- liftHandler $ Mission.awardDNA Queue.Quick outcome
+                sendClient $ Rewards dnaReward
             liftHandler do
                 case outcome of
                     Victory -> Mission.processWin team
@@ -332,15 +338,22 @@ gameSocket = webSockets do
                 Mission.processUnpicked team
                 traverse_ Mission.progress $ Wrapper.progress game
 
+data ClientResponse
+    = Received [Text]
+    | TimedOut
+    | SocketException ConnectionException
+    deriving (Eq, Show)
+
 -- | Wraps @enact@ with error handling.
 tryEnact :: ∀ m. ( MonadGame m
                  , MonadHook m
                  , MonadRandom m
                  , MonadSockets m
                  , MonadUnliftIO m
+                 , MonadLogger m
                  )
-         => Player -> Int -> MVar Wrapper -> m ()
-tryEnact player turnLength mvar = do
+         => Settings -> Player -> MVar Wrapper -> m ()
+tryEnact settings player mvar = do
     -- This is necessary because interrupting Sockets.receive closes the socket
     -- connection, which means that a naive timeout will break the connection.
     -- Even if the turn is over and its output will be ignored, Sockets.receive
@@ -348,32 +361,55 @@ tryEnact player turnLength mvar = do
     lock <- newEmptyMVar
 
     forkIO do
-        threadDelay turnLength -- No message before the end of the turn.
-        void $ tryPutMVar lock Nothing
+        threadDelay $ Settings.turnLength settings
+        void $ tryPutMVar lock TimedOut
 
     forkIO do
-        message <- Sockets.receive -- Message received from client.
-        void . tryPutMVar lock $ Just message
+        tryMessage <- try Sockets.receive
+        void $ tryPutMVar lock case tryMessage of
+            Right message -> Received $ Text.split (== '/') message
+            Left err      -> SocketException err
 
-    enactMessage <- (Text.split ('/' ==) <$>) <$> readMVar lock
+    enactMessage <- readMVar lock
 
     case enactMessage of
-        Just ["forfeit"] -> do
-            P.forfeit player
-            conclude
-        Just (formEnact -> Just formedEnact) -> do
+        Received ["forfeit"] ->
+            Engine.forfeit player
+
+        Received (formEnact -> Just formedEnact) -> do
+            Engine.resetInactive player
             res <- enact formedEnact
             case res of
-                Left errorMsg -> Sockets.send errorMsg
-                Right ()      -> conclude
-        _ -> do
-            Engine.runTurn []
-            conclude
-  where
-    conclude = do
-        wrapper <- Wrapper.freeze
-        sendClient . Play $ Wrapper.toTurn player wrapper
-        putMVar mvar wrapper
+                Right ()      -> return ()
+                Left errorMsg -> do
+                    logErrorN $ "Client error: "
+                                ++ toStrict (decodeUtf8 errorMsg)
+                    Sockets.send errorMsg
+
+        Received malformed ->
+            logErrorN $ "Malformed client input: " ++ intercalate "/" malformed
+
+        TimedOut ->
+            Engine.skipTurn (Settings.forfeitAfterSkips settings) player
+
+        SocketException ConnectionClosed -> do
+            logErrorN "Socket closed"
+            Engine.forfeit player
+
+        SocketException (CloseRequest code why) -> do
+            logErrorN $ "Socket closed: " ++ tshow code ++ " "
+                        ++ toStrict (decodeUtf8 why)
+            Engine.forfeit player
+
+        SocketException (ParseException malformed) ->
+            logErrorN $ "Malformed client input: " ++ pack malformed
+
+        SocketException (UnicodeException malformed) ->
+            logErrorN $ "Malformed client input: " ++ pack malformed
+
+    wrapper <- Wrapper.freeze
+    sendClient . Play $ Wrapper.toTurn player wrapper
+    putMVar mvar wrapper
 
 -- | Processes a user's actions and passes them to 'Engine.run'.
 enact :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)

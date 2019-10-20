@@ -23,7 +23,6 @@ module Class.Play
   -- * Other
   , trigger
   , zipWith
-  , yieldVictor, forfeit
   ) where
 
 import ClassyPrelude hiding (zipWith)
@@ -41,7 +40,6 @@ import           Game.Model.Internal (MonadGame(..), MonadPlay(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
-import qualified Game.Model.Player as Player
 import           Game.Model.Runnable (Runnable)
 import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Skill (Skill)
@@ -143,22 +141,3 @@ zipWith f = zipWithM_ (\i -> modify i . f) Slot.all
 trigger :: ∀ m. MonadPlay m => Slot -> [Trigger] -> m ()
 trigger i xs = whenM new $ modify i \n ->
     n { Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n) xs }
-
--- | Updates 'Game.victor'.
-yieldVictor :: ∀ m. MonadGame m => m ()
-yieldVictor = whenM (null . Game.victor <$> game) do
-    ns <- ninjas
-    let splitNs = splitAt (length ns `quot` 2) ns
-    alter \g -> g { Game.victor = filter (victor splitNs) [Player.A, Player.B] }
-  where
-    victor (_, ns) Player.A = not $ any Ninja.alive ns
-    victor (ns, _) Player.B = not $ any Ninja.alive ns
-
-forfeit :: ∀ m. MonadGame m => Player -> m ()
-forfeit p = whenM (null . Game.victor <$> game) do
-    modifyAll suicide
-    alter \g -> g { Game.victor = [Player.opponent p] }
-  where
-    suicide n
-      | Parity.allied p n = n { Ninja.health = 0 }
-      | otherwise         = n

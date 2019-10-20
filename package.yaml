@@ -82,6 +82,7 @@ library:
   - wai-extra
   - wai-logger
   - warp
+  - websockets
   - yaml
   - yesod
   - yesod-auth

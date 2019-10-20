@@ -164,7 +164,7 @@ act = Engine.processTurn $ wrap Player.A
 turns :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Turns -> m ()
 turns (Duration -> i) = do
     replicateM_ (sync i) . Engine.processTurn $ return ()
-    P.alter \game -> game { Game.playing = Player.A }
+    P.alter \g -> g { Game.playing = Player.A }
 
 enemySkill :: Skill
 enemySkill = Skill.new
@@ -175,7 +175,7 @@ enemySkill = Skill.new
 enemyTurn :: ∀ m. (MonadPlay m, MonadHook m, MonadRandom m) => RunConstraint () -> m ()
 enemyTurn f = do
     P.with with . Engine.processTurn $ wrap Player.B
-    P.alter \game -> game { Game.playing = Player.A }
+    P.alter \g -> g { Game.playing = Player.A }
   where
     with ctx = ctx
         { Context.user   = user

@@ -1,7 +1,7 @@
 module Class.Parity
   ( Parity(..)
   , allied
-  , getOf
+  , getOf, setOf, modifyOf
   , half
   ) where
 
@@ -40,6 +40,18 @@ getOf x
   | even x    = fst
   | otherwise = snd
 {-# INLINE getOf #-}
+
+-- | 'first' if 'even', otherwise 'second'.
+modifyOf :: ∀ a b. Parity a => a -> (b -> b) -> (b, b) -> (b, b)
+modifyOf x
+  | even x    = first
+  | otherwise = second
+{-# INLINE modifyOf #-}
+
+-- | 'first . const' if 'even', otherwise 'second . const'.
+setOf :: ∀ a b. Parity a => a -> b -> (b, b) -> (b, b)
+setOf x = modifyOf x . const
+{-# INLINE setOf #-}
 
 instance Parity Bool where
     even = id

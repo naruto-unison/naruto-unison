@@ -369,6 +369,9 @@ component ports =
 
 renderTop : Model -> List Character -> Html Msg
 renderTop st characters =
+    let
+        ( playerInactive, vsInactive ) = st.game.inactive
+    in
     H.section [ A.id "top" ]
     [ H.section
       [ A.id "account0"
@@ -379,6 +382,7 @@ renderTop st characters =
           [ H.text st.user.name ]
         , H.p []
           [ H.text <| Game.rank st.user ]
+        , H.p [A.class "inactive"] << List.repeat playerInactive <| H.text "X"
         ]
       , H.img [ A.class "charicon", A.src st.user.avatar ] []
       ]
@@ -393,6 +397,7 @@ renderTop st characters =
           [ H.text st.vs.name ]
         , H.p []
           [ H.text <| Game.rank st.vs ]
+        , H.p [A.class "inactive"] << List.repeat vsInactive <| H.text "X"
         ]
       ]
     ]

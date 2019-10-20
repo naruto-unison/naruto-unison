@@ -20,6 +20,7 @@ import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
+import qualified Game.Model.Player as Player
 import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Skill (Skill, Target(..))
 import qualified Game.Model.Skill as Skill
@@ -32,11 +33,12 @@ import           Util ((!!), (∈), (∉), intersects)
 
 -- | Intermediate type for marshaling to JSON.
 -- Includes censorship of 'Invisible' 'Status.Status'es, enemy cooldowns, etc.
-data Turn = Turn { chakra  :: Chakras
-                 , playing :: Player
-                 , victor  :: [Player]
-                 , ninjas  :: [Ninja]
-                 , targets :: [[[Slot]]]
+data Turn = Turn { chakra   :: Chakras
+                 , playing  :: Player
+                 , victor   :: [Player]
+                 , inactive :: (Int, Int)
+                 , ninjas   :: [Ninja]
+                 , targets  :: [[[Slot]]]
                  } deriving (Generic, ToJSON)
 
 --  | Encodes game state into a form suitable for sending to the client.
@@ -44,11 +46,15 @@ new :: Player -> [Ninja] -> Game -> Turn
 new player ninjas game = Turn { chakra  = Parity.getOf player $ Game.chakra game
                               , playing = Game.playing game
                               , victor  = Game.victor game
+                              , inactive
                               , ninjas  = censored
                               , targets
                               }
   where
     censored = censor player ninjas <$> ninjas
+    inactive = case player of
+        Player.A -> Game.inactive game
+        Player.B -> swap $ Game.inactive game
     targets  = do
         n <- censored
         return do

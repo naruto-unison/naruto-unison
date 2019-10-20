@@ -16,20 +16,21 @@ import           Control.Monad.Trans.State.Strict (StateT)
 import           Control.Monad.Trans.Writer (WriterT)
 import           Data.Aeson (ToJSON, toEncoding)
 import qualified Data.Aeson.Encoding as Encoding
+import           Network.WebSockets (ConnectionException)
 import qualified System.Random.MWC as Random
 import           Yesod.WebSockets (WebSocketsT)
 import qualified Yesod.WebSockets as WebSockets
 
 import Util (Lift)
 
--- | Encodes a value to JSON and sends it.
-sendJson :: ∀ m a. (MonadSockets m, ToJSON a) => a -> m ()
-sendJson val = send . Encoding.encodingToLazyByteString $ toEncoding val
-
 -- | A monadic wrapper for sending and receiving text via websocket.
+-- @trySend@ should behave exactly the same as @send@ as long as no exceptions
+-- are thrown. Otherwise, its behavior is up to the instance. This is useful if
+-- the instance wants to handle some exceptions as special cases.
 class Monad m => MonadSockets m where
     receive :: m Text
     send    :: LByteString -> m ()
+    trySend :: LByteString -> m ()
 
     default receive :: Lift MonadSockets m
                     => m Text
@@ -39,10 +40,22 @@ class Monad m => MonadSockets m where
                  => LByteString -> m ()
     send = lift . send
     {-# INLINE send #-}
+    default trySend :: Lift MonadSockets m
+                    => LByteString -> m ()
+    trySend = lift . trySend
+    {-# INLINE trySend #-}
 
-instance MonadIO m => MonadSockets (WebSocketsT m) where
-    receive = WebSockets.receiveData
-    send    = WebSockets.sendTextData
+instance MonadUnliftIO m => MonadSockets (WebSocketsT m) where
+    receive     = WebSockets.receiveData
+    {-# INLINE receive #-}
+    send        = WebSockets.sendTextData
+    {-# INLINE send #-}
+    trySend msg = catch (WebSockets.sendTextData msg) ignore
+      where
+        ignore :: ConnectionException -> WebSocketsT m ()
+        ignore = const $ return ()
+        {-# INLINE ignore #-}
+    {-# INLINE trySend #-}
 
 instance MonadSockets m => MonadSockets (ExceptT e m)
 instance MonadSockets m => MonadSockets (IdentityT m)
@@ -52,3 +65,7 @@ instance MonadSockets m => MonadSockets (StateT r m)
 instance MonadSockets m => MonadSockets (ReaderT (Random.Gen s) m)
 instance (MonadSockets m, Monoid w) => MonadSockets (WriterT w m)
 instance (MonadSockets m, Monoid w) => MonadSockets (AccumT w m)
+
+-- | Encodes a value to JSON and sends it.
+sendJson :: ∀ m a. (MonadSockets m, ToJSON a) => a -> m ()
+sendJson val = trySend . Encoding.encodingToLazyByteString $ toEncoding val

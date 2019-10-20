@@ -53,13 +53,16 @@ instance FromJSON DNA where
 
 data Settings = Settings
     { allowVsSelf            :: Bool
-    -- ^ Allow players to queue against themselves
+    -- ^ Allow players to queue against themselves.
     , unlockAll              :: Bool
-    -- ^ Allow players to use characters they have not unlocked
+    -- ^ Allow players to use characters they have not unlocked.
     , turnLength             :: Int
-    -- ^ Duration of a game turn
+    -- ^ Duration of a game turn.
     , practiceCacheExpiry    :: Integer
-    -- ^ Expiration duration of the cache that holds practice matches
+    -- ^ Expiration duration of the cache that holds practice matches.
+    , forfeitAfterSkips      :: Int
+    -- ^ If a character goes past @turnLength@ this many times, they
+    -- automatically forfeit.
 
     , staticDir              :: String
     -- ^ Directory from which to serve static files.
@@ -73,27 +76,27 @@ data Settings = Settings
     , host                   :: Warp.HostPreference
     -- ^ Host/interface the server should bind to.
     , port                   :: Int
-    -- ^ Port to listen on
+    -- ^ Port to listen on.
     , ipFromHeader           :: Bool
     -- ^ Get the IP address from the header when logging. Useful when sitting
     -- behind a reverse proxy.
 
     , detailedRequestLogging :: Bool
-    -- ^ Use detailed request logging system
+    -- ^ Use detailed request logging system.
     , shouldLogAll           :: Bool
     -- ^ Should all log messages be displayed?
     , reloadTemplates        :: Bool
-    -- ^ Use the reload version of templates
+    -- ^ Use the reload version of templates.
     , mutableStatic          :: Bool
-    -- ^ Assume that files in the static dir may change after compilation
+    -- ^ Assume that files in the static dir may change after compilation.
     , skipCombining          :: Bool
-    -- ^ Perform no stylesheet/script combining
+    -- ^ Perform no stylesheet/script combining.
 
     -- Example app-specific configuration values.
     , copyright              :: Text
-    -- ^ Copyright text to appear in the footer of the page
+    -- ^ Copyright text to appear in the footer of the page.
     , analytics              :: Maybe Text
-    -- ^ Google Analytics code
+    -- ^ Google Analytics code.
 
     , authDummyLogin         :: Bool
     -- ^ Indicate if auth dummy login should be enabled.
@@ -132,6 +135,7 @@ instance FromJSON Settings where
         unlockAll              <- o .:? "unlock-all"       .!= dev
         turnLength             <- (1e6 *) <$> o .: "turn-length"
         practiceCacheExpiry    <- (1e9 *) <$> o .: "practice-cache-expiry"
+        forfeitAfterSkips      <- o .: "forfeit-after-skips"
         return Settings{..}
 
 -- | Settings for 'widgetFile', such as which template languages to support and
