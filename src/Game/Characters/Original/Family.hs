@@ -12,6 +12,7 @@ characters =
   [ Character
     "Konohamaru Sarutobi"
     "The overly bold grandson of the third Hokage, Konohamaru has a knack for getting into trouble and requiring others to bail him out. His usefulness in battle depends on how willing his teammates are to babysit him."
+    [LeafVillage, Fire, Wind, Lightning, Yang, Sarutobi]
     [ [ Skill.new
         { Skill.name      = "Refocus"
         , Skill.desc      = "Konohamaru tries his best to concentrate on the fight. For 3 turns, effects from his allies on him are twice as powerful. While active, this skill becomes [Unsexy Technique][n]."
@@ -65,6 +66,7 @@ characters =
   , Character
     "Hiashi Hyūga"
     "A jōnin from the Hidden Leaf Village and father to Hinata and Hanabi, Hiashi does not tolerate weakness or failure. All of the Hyūga clan's secret techniques have been passed down to him, and he wields them with unmatched expertise."
+    [LeafVillage, Jonin, Hyuga]
     [ [ Skill.new
         { Skill.name      = "Gentle Fist"
         , Skill.desc      = "Hiashi slams an enemy, dealing 20 damage and depleting 1 random chakra. The following turn, he repeats the attack on a random enemy."
@@ -113,6 +115,7 @@ characters =
   , Character
     "Tsume Inuzuka"
     "A jōnin from the Hidden Leaf Village and mother to Kiba, Tsume shares his wild temperament, impatience, and odd sense of humor. Kuromaru, her animal companion, keeps her enemies at bay and strikes back at any who dare to attack her."
+    [LeafVillage, Jonin, Inuzuka]
     [ [ Skill.new
         { Skill.name      = "Call Kuromaru"
         , Skill.desc      = "Kuromaru guards Tsume from her enemies for 4 turns, providing her with 10 points of damage reduction and dealing 10 damage to enemies who use non-bane skills on her. While active, this skill becomes [Fierce Bite][t]."
@@ -171,6 +174,7 @@ characters =
   , Character
     "Chōza Akimichi"
     "A jōnin from the Hidden Leaf Village and Chōji's father, Chōza instills confidence in his comrades with his bravery and wisdom. Never one to back down from a fight, he defends his allies and forces the attention of his enemies to himself."
+    [LeafVillage, AlliedForces, Jonin, TeamLeader, Yang, Akimichi]
     [ [ Skill.new
         { Skill.name      = "Chain Bind"
         , Skill.desc      = "Chōza slows an enemy, dealing 5 damage and weakening their physical, chakra, and summon damage by 10 for 1 turn. Chōza's team gains 5 permanent destructible defense."
@@ -216,6 +220,7 @@ characters =
   , Character
     "Shikaku Nara"
     "A jōnin from the Hidden Leaf Village and Shikamaru's father, Shikaku is a master tactician capable of analyzing enormous quantities of information at lightning speed. Always one step ahead of his enemies, Shikaku spots the weaknesses in their actions and uses them as opportunities to take back control."
+    [LeafVillage, Jonin, Yin, Nara]
     [ [ Skill.new
         { Skill.name      = "Shadow Possession"
         , Skill.desc      = "Shikamaru captures an enemy in shadows, stunning their non-mental skills for 2 turns and dealing 20 damage. Deals 10 additional damage if the target is affected by [Black Spider Lily]. The following turn, this skill becomes [Shadow Dispersion][g]."
@@ -280,6 +285,7 @@ characters =
   , Character
     "Inoichi Yamanaka"
     "A jōnin from the Hidden Leaf Village and Ino's father, Inoichi can solve practically any dilemma with his analytical perspective. Under his watchful gaze, every move made by his enemies only adds to his strength."
+    [LeafVillage, Jonin, Sensor, Water, Yamanaka]
     [ [ Skill.new
         { Skill.name      = "Psycho Mind Transmission"
         , Skill.desc      = "Inoichi invades the mind of an enemy, dealing 20 damage to them for 2 turns and disabling the countering and reflecting effects of their skills."

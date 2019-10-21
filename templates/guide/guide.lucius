@@ -1,5 +1,6 @@
 .guide {
     display: block;
+    margin-bottom: 1em;
 }
 
 .guide::after {

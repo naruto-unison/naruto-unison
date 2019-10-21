@@ -12,6 +12,7 @@ characters =
   [ Character
     "One-Tailed Naruto"
     "Naruto's anger and desperation has forced the nine-tailed beast's power to surface, unleashing Kurama's animalistic fury and boundless chakra. Overflowing with undirected power that could heal or destroy, Naruto has a choice to make: will he protect himself and stay in control, or give in to the beast within?"
+    [LeafVillage, Eleven, Genin, Jinchuriki, Sage, Sensor, Wind, Lightning, Earth, Water, Fire, Yin, Yang, Uzumaki]
     [ [ Skill.new
         { Skill.name      = "Tailed Beast Rasengan"
         , Skill.desc      = "Naruto slams an orb of supercharged chakra into an enemy, dealing 35 damage, stunning them for a turn, and losing 5 health from the backlash. Deals 10 additional damage during [Tailed Beast Chakra Arms], or 10 fewer damage during [Inner Chakra Mode]."
@@ -60,6 +61,7 @@ characters =
   , Character
     "Curse Mark Sasuke"
     "Having acclimated to his Curse Mark, Sasuke draws Orochimaru's vile chakra through it to grow stronger and more monstrous. His powers have grown exponentially, allowing him to pierce or trap enemies with his corrupted chakra."
+    [LeafVillage, Genin, Lightning, Fire, Wind, Earth, Water, Yin, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Chidori"
         , Skill.desc      = "Mixing a Chidori with his corrupt chakra, Sasuke deals 45 piercing damage to an enemy. Corruption enfeebles the target for 2 turns, weakening their damage by 20. Costs 1 arbitrary chakra during [Curse Mark]."
@@ -106,6 +108,7 @@ characters =
   , Character
     "Drunken Lee"
     "Accidentally drinking sake has awakened Lee's hidden Drunken Fist powers, completely changing his fighting style. Lee's strength increases the longer he fights, though he is too drunk to focus his attacks on a single opponent."
+    [LeafVillage, Eleven, Genin]
     [ [ Skill.new
         { Skill.name      = "Unpredictable Assault"
         , Skill.desc      = "Lee lashes out drunkenly, dealing 20 damage to a random enemy. Every time this skill is used, its damage increases by 5. During [Drunken Fist], targets a specific enemy and deals 5 additional damage."
@@ -160,6 +163,7 @@ characters =
   , Character
     "Shukaku Gaara"
     "Gaara has spent his whole life struggling to contain Shukaku, the one-tailed beast, within himself. As his will fades and sleep rushes to claim him, Shukaku gleefully takes over, eager to wreak havoc."
+    [SandVillage, Genin, Jinchuriki, Sensor, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new
         { Skill.name      = "Desert Hand"
         , Skill.desc      = "Shukaku attacks with a claw of dense sand, dealing 30 damage to an enemy and gaining 10 permanent destructible defense. Costs 1 bloodline chakra during [Tailed Beast Form]."
@@ -231,6 +235,7 @@ characters =
   , Character
     "Rehabilitated Gaara"
     "Following his fateful encounter with Naruto, Gaara has become a kind and loyal friend. The sand that was once an extension of his fear and rage has become a versatile tool for shaping the battlefield."
+    [SandVillage, Genin, Jinchuriki, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new
         { Skill.name      = "Sand Shower"
         , Skill.desc      = "A stream of sand flows around Gaara toward an enemy, providing him with 35 destructible defense for 3 turns and dealing 15 damage to the target each 3 turn."

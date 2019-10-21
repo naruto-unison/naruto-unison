@@ -12,6 +12,7 @@ characters =
   [ Character
     "Sage Mode Naruto"
     "Naruto has trained on Mount Myōboku with Fukasaku and Shima, the Two Great Sage Toads. He has learned to absorb natural energy and use it to empower his attacks or heal himself."
+    [LeafVillage, Eleven, AlliedForces, Genin, Jinchuriki, Sage, Sensor, Wind, Lightning, Earth, Water, Fire, Yin, Yang, Uzumaki]
     [ [ Skill.new
         { Skill.name      = "Frog Kumite"
         , Skill.desc      = "Surrounded by a field of natural energy that extends the range of his attacks, Naruto deals 20 damage to an enemy and stuns their physical and melee skills for 1 turn. Once used, this skill becomes [Rasen Shuriken][n][t]."
@@ -73,6 +74,7 @@ characters =
   , Character
     "Mangekyō Sasuke"
     "The trauma of Itachi's death has awakened Sasuke's Mangekyō Sharingan. With it, he has access to the most powerful techniques of the Uchiha clan. Although his sibling rivalry is at an end, Sasuke's need for vengeance has only grown stronger."
+    [LeafVillage, Orochimaru, Orochimaru, Genin, Rogue, Lightning, Fire, Wind, Earth, Water, Yin, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Susanoo"
         , Skill.desc      = "Using the mangekyō sharingan's signature ability, Sasuke creates a colossus of chakra around himself. For 3 turns, all damage to Sasuke—including piercing and affliction—is reduced by 15 points."
@@ -194,6 +196,7 @@ characters =
   , Character
     "Commander Gaara"
     "Coordinating the Allied Shinobi Forces and personally commanding the Fourth Division, Gaara has proven to be an inspiring leader and talented strategist. His attacks scatter sand particles around the battlefield, which he draws back in with explosive force."
+    [SandVillage, AlliedForces, Kage, Jinchuriki, Sensor, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new
         { Skill.name      = "Sand Grasp"
         , Skill.desc      = "Gaara grabs an enemy with sand, first adding a Sand Bomb to them and then dealing 10 damage. Deals 5 additional damage per Sand Bomb on the target. Has no chakra cost during [Sand Mausoleum Seal]. Targets all enemies during [Mother's Embrace]."
@@ -245,6 +248,7 @@ characters =
   , Character
     "Puppet Master Kankurō"
     "After defeating Sasori, Kankurō considers himself one of the greatest puppeteers in history. Adding Sasori's body to his collection of puppets, Kankurō uses each puppet for a different purpose."
+    [SandVillage, AlliedForces, Jonin, Wind, Lightning, Earth, Water, SandClan]
     [ [ Skill.new
         { Skill.name      = "Sasori Surrogate"
         , Skill.desc      = "Sasori's puppet body attacks an enemy, dealing 15 damage to them for 3 turns. While active, this skill becomes [Hidden Coil Strike][r]."
@@ -325,6 +329,7 @@ characters =
   , Character
     "Sage Mode Kabuto"
     "Unable to find an identity of his own, Kabuto has spent his life taking on the traits of others. Years of research and experiments upon himself have reached their conclusion, and now Kabuto prepares for his final metamorphosis."
+    [LeafVillage, Rogue, Sage, TeamLeader, Earth, Water, Wind, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Sage Transformation"
         , Skill.desc      = "By synthesizing rare genetic traits from other bloodlines inside his body, Kabuto becomes attuned to the flow of natural energy. Each turn, the chakra costs and type of chakra gained from his other skills cycle through the different types of chakra. Once used, this skill becomes [DNA Transmission Shadow][r][r][r]."
@@ -611,6 +616,7 @@ characters =
   , Character
     "Eight-Gates Guy"
     "With the fate of the world at stake, Guy has opened all eight Gates and is holding nothing back. The effort will surely kill him, but while he lives, his strength outmatches even the legendary Madara Uchiha."
+    [LeafVillage, AlliedForces, Jonin, TeamLeader, Fire, Lightning]
     [ [ Skill.new
         { Skill.name      = "Evening Elephant"
         , Skill.desc      = "Using a devastating sequence of punches, Guy deals 20 damage to an enemy. For 1 turn, they are invulnerable to allies and their non-mental skills are stunned. Guy loses 20 health down to a minimum of 1. Every time this skill is used, its damage increases by 20 and its cost increases by 1 additional arbitrary chakra."
@@ -667,6 +673,7 @@ characters =
   , Character
     "True Form Sasori"
     "Having invented and perfected the art of human puppetry, Sasori accomplished its ultimate act: transforming himself into a living puppet. His immortal core now resides in an unnaturally youthful simulacrum filled to the brim with tools of slaughter, each of which he switches out for another as soon as he uses it."
+    [SandVillage, Rogue]
     [ [ Skill.new
         { Skill.name      = "Poisonous Chain Skewer"
         , Skill.desc      = "Sasori hooks an enemy with the poison-soaked steel ropes inside his body and pulls himself to them, dealing 5 affliction damage for 3 turns. Next turn, the target can only target Sasori or themselves. Once used, this skill becomes [Impale][t]."
@@ -786,6 +793,7 @@ characters =
   , Character
     "Curse Mark Jūgo"
     "No longer recognizably human, Jūgo has been transformed by bloodlust into a terrifying monster. Tapping into limitless chakra, he is an unstoppable and uncontrollable force."
+    [Orochimaru, Sage, Wind, Earth, Water, Yang]
     [ [ Skill.new
         { Skill.name      = "Psychotic Break"
         , Skill.desc      = "Jūgo fixates obsessively on an enemy, dealing 10 damage to them for 3 turns and gaining 20% damage reduction."
@@ -822,8 +830,64 @@ characters =
     , [ invuln "Block" "Jūgo" [Physical] ]
     ]
   , Character
+    "Konan of the Rain"
+    "One of the founding members of Akatsuki, Konan has turned against her own organization in order to aid Naruto in his quest for peace. With Nagato dead, the young Uzumaki is her best hope for the future."
+    [RainVillage, Akatsuki, Sensor, SRank, Wind, Earth, Water, Yang, Wind, Earth, Water, Yang]
+    [ [ Skill.new
+        { Skill.name      = "Paper Chakram"
+        , Skill.desc      = "Konan hurls a razor-sharp disc at an enemy, dealing 35 piercing damage. Next turn, Konan ignores stuns and disabling effects."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ pierce 35
+          , To Self $ apply 1 [Focus]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Sacred Paper Emissary"
+        , Skill.desc      = "Playing her trump card, Konan sets off countless explosive strips of paper disguised as an ocean. For 2 turns, her team gains 10 points of damage reduction and the enemy team's cooldowns are increased by 1 turn."
+        , Skill.classes   = [Physical, Ranged, Bane]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 3
+        , Skill.effects   =
+          [ To Allies $ apply 2 [Reduce [All] Flat 10]
+          , To Enemies $ apply 2 [Snare 1]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Paper Bomb"
+        , Skill.desc      = "Konan sets off an explosive paper tag, dealing 15 damage to an enemy. Once used, this skill becomes [Paper Shuriken][n]."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Self $ hide 0 [Alternate "Paper Bomb" "Paper Shuriken"]
+          , To Enemy do
+                stacks <- targetStacks "Paper Shuriken"
+                damage (15 + 10 * stacks)
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Paper Shuriken"
+        , Skill.desc      = "Konan attacks an enemy with a barrage of origami shuriken, dealing 20 piercing damage and increasing the damage of [Paper Bomb] to the target by 10. Once used, this skill becomes [Paper Bomb][r]."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Nin]
+        , Skill.effects   =
+          [ To Self $ remove "paper bomb"
+          , To Enemy do
+                pierce 20
+                addStack
+          ]
+        }
+      ]
+    , [ invuln "Paper Clone" "Konan" [Chakra] ]
+    ]
+  , Character
     "White Snake Orochimaru"
-    "Orochimaru has cast off his body and revealed his true form of a giant serpent. Making use of the power he was granted by the White Sage Snake of Ryūchi Cave, Orochimaru transcends life and death in his endless hunger for knowledge and power."
+    "Orochimaru has cast off his body and revealed his true form as a giant serpent. Making use of the power he was granted by the White Sage Snake of Ryūchi Cave, Orochimaru transcends life and death in his endless hunger for knowledge and power."
+    [LeafVillage, Orochimaru, Sannin, Rogue, TeamLeader, Wind, Lightning, Earth, Water, Fire, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Regenerative Bite"
         , Skill.desc      = "Orochimaru snaps his jaws around an enemy and steals 35 health from them. If Orochimaru acquires a new body, this skill becomes [Kusanagi][t]."
@@ -912,6 +976,7 @@ characters =
   , Character
     "Sage Mode Jiraiya"
     "By absorbing natural energy, Jiraiya has enhanced his speed, strength, and skills. Unfortunately, the process gives him a distinctly toady appearance, which does no good for the lecherous sage's chances with women."
+    [LeafVillage, Sannin, Sage, TeamLeader, Fire, Wind, Earth, Water, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Bath of Burning Oil"
         , Skill.desc      = "Using a mixture of wind, oil, and fire, Jiraiya deals 20 damage and 15 piercing damage to an enemy. For 1 turn, counters applied by the target will have their duration reduced by 1 turn."

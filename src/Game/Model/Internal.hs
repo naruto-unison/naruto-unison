@@ -36,109 +36,11 @@ import           Game.Model.Defense (Defense(..))
 import           Game.Model.Duration (Duration, sync, unsync)
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game)
+import           Game.Model.Group (Group)
 import           Game.Model.Slot (Slot(..))
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger(..))
 import           Util (Lift)
-
--- | In-game character, indexed between 0 and 5.
-data Ninja = Ninja { slot       :: Slot             -- ^ 'Model.Game.Ninjas' index (0-5)
-                   , character  :: Character
-                   , health     :: Int              -- ^ Starts at @100@
-                   , cooldowns  :: HashMap Key Int  -- ^ Starts empty
-                   , charges    :: HashMap Key Int  -- ^ Starts at @0@s
-                   , alternates :: Seq Int          -- ^ Starts at @0@s
-                   , copies     :: Seq (Maybe Copy) -- ^ Starts at @Nothing@s
-                   , defense    :: [Defense]        -- ^ Starts empty
-                   , barrier    :: [Barrier]        -- ^ Starts empty
-                   , statuses   :: [Status]         -- ^ Starts empty
-                   , channels   :: [Channel]        -- ^ Starts empty
-                   , newChans   :: [Channel]        -- ^ Starts empty
-                   , traps      :: [Trap]           -- ^ Starts empty
-                   , delays     :: [Delay]          -- ^ Starts empty
-                   , lastSkill  :: Maybe Skill      -- ^ Starts at @Nothing@
-                   , triggers   :: HashSet Trigger  -- ^ Empty at the start of each turn
-                   , effects    :: ~[Effect]        -- ^ Processed automatically
-                   , acted      :: Bool             -- ^ False at the start of each turn
-                   }
-instance Parity Ninja where
-    even = Parity.even . slot
-    {-# INLINE even #-}
-
- -- Used for 'Game.Ninja.cooldowns' and 'Game.Ninja.charges'.
- -- Generated from a 'Skill'.
-data Key = Key Text Slot
-           deriving (Eq, Ord, Show, Read, Generic, Hashable)
-toText :: Key -> Text
-toText (Key x y) = Slot.toChar y `cons` x
-{-# INLINE toText #-}
-instance ToJSON Key where
-  toJSON = toJSON . toText
-  {-# INLINE toJSON #-}
-instance ToJSONKey Key where
-  toJSONKey = toJSONKeyText toText
-  {-# INLINE toJSONKey #-}
-
-data Requirement
-    = Usable
-    | Unusable
-    | HasI Int Text
-    | HasU Int Text
-    | DefenseI Int Text
-    deriving (Eq, Ord, Show, Read, Generic, ToJSON)
-
--- | Target destinations of 'Skill's.
-data Target
-    = Self    -- ^ User of 'Skill'
-    | Ally    -- ^ Specific ally
-    | Allies  -- ^ All allies
-    | RAlly   -- ^ Random ally
-    | XAlly   -- ^ Specific ally excluding 'Self'
-    | XAllies -- ^ 'Allies' excluding 'Self'
-    | Enemy   -- ^ Specific enemy
-    | Enemies -- ^ All enemies
-    | REnemy  -- ^ Random enemy
-    | XEnemies -- ^ Enemies excluding 'Enemy'
-    | Everyone -- ^ All 'Ninja's
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
-
-instance AsEnumSet Target where
-    type EnumSetRep Target = Word16
-
--- | A move that a 'Character' can perform.
-data Skill = Skill { name      :: Text              -- ^ Name
-                   , desc      :: Text              -- ^ Description
-                   , require   :: Requirement       -- ^ Defaults to 'Usable'
-                   , classes   :: EnumSet Class     -- ^ Defaults to empty
-                   , cost      :: Chakras           -- ^ Defaults to empty
-                   , cooldown  :: Duration          -- ^ Defaults to @0@
-                   , charges   :: Int               -- ^ Defaults to @0@
-                   , dur       :: Channeling        -- ^ Defaults to 'Instant'
-                   , start     :: [Runnable Target] -- ^ Defaults to empty
-                   , effects   :: [Runnable Target] -- ^ Defaults to empty
-                   , stunned   :: [Runnable Target] -- ^ Defaults to empty
-                   , interrupt :: [Runnable Target] -- ^ Defaults to empty
-                   , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'
-                   , owner     :: Slot
-                   }
-instance ToJSON Skill where
-    toJSON Skill{..} = object
-        [ "name"      .= name
-        , "desc"      .= desc
-        , "require"   .= require
-        , "classes"   .= classes
-        , "cost"      .= cost
-        , "cooldown"  .= cooldown
-        , "charges"   .= charges
-        , "dur"       .= dur
-        , "start"     .= start
-        , "effects"   .= effects
-        , "stunned"   .= stunned
-        , "interrupt" .= interrupt
-        , "owner"     .= owner
-        ]
-instance Classed Skill where
-    classes = classes
 
 -- | Destructible barrier.
 data Barrier = Barrier { amount :: Int
@@ -161,6 +63,34 @@ instance TurnBased Barrier where
 instance Labeled Barrier where
     name   = name
     user = user
+
+-- | Applies actions when a 'Status' ends.
+data Bomb
+    = Done   -- ^ Applied with both 'Expire' and 'Remove'
+    | Expire -- ^ Applied when a 'Status' reaches the end of its duration.
+    | Remove -- ^ Applied when a 'Status' is removed prematurely
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
+
+-- | 'Original', 'Shippuden', or 'Reanimated'.
+data Category
+    = Original
+    | Shippuden
+    | Reanimated
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
+
+instance ToMarkup Category where
+    toMarkup Original   = mempty
+    toMarkup Shippuden  = HTML.sup "𝕊"
+    toMarkup Reanimated = HTML.sup "ℝ"
+
+instance PathPiece Category where
+    toPathPiece Original   = "original"
+    toPathPiece Shippuden  = "shippuden"
+    toPathPiece Reanimated = "reanimated"
+    fromPathPiece "original"   = Just Original
+    fromPathPiece "shippuden"  = Just Shippuden
+    fromPathPiece "reanimated" = Just Reanimated
+    fromPathPiece _            = Nothing
 
 -- | An 'Model.Act.Act' channeled over multiple turns.
 data Channel = Channel { skill  :: Skill
@@ -205,30 +135,10 @@ instance ToMarkup Channeling where
     toMarkup (Control x) = "Control " ++ toMarkup x
     toMarkup (Ongoing x) = "Ongoing " ++ toMarkup x
 
--- | 'Original', 'Shippuden', or 'Reanimated'.
-data Category
-    = Original
-    | Shippuden
-    | Reanimated
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
-
-instance ToMarkup Category where
-    toMarkup Original   = mempty
-    toMarkup Shippuden  = HTML.sup "𝕊"
-    toMarkup Reanimated = HTML.sup "ℝ"
-
-instance PathPiece Category where
-    toPathPiece Original   = "original"
-    toPathPiece Shippuden  = "shippuden"
-    toPathPiece Reanimated = "reanimated"
-    fromPathPiece "original"   = Just Original
-    fromPathPiece "shippuden"  = Just Shippuden
-    fromPathPiece "reanimated" = Just Reanimated
-    fromPathPiece _            = Nothing
-
 -- | An out-of-game character.
 data Character = Character { name     :: Text
                            , bio      :: Text
+                           , groups   :: EnumSet Group
                            , skills   :: NonEmpty (NonEmpty Skill)
                            , price    :: Int
                            , category :: Category
@@ -263,12 +173,92 @@ instance TurnBased Delay where
     getDur     = dur
     setDur d x = x { dur = d }
 
--- | Applies actions when a 'Status' ends.
-data Bomb
-    = Done   -- ^ Applied with both 'Expire' and 'Remove'
-    | Expire -- ^ Applied when a 'Status' reaches the end of its duration.
-    | Remove -- ^ Applied when a 'Status' is removed prematurely
+data Direction
+    = Toward
+    | From
+    | Per
     deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
+
+ -- Used for 'Game.Ninja.cooldowns' and 'Game.Ninja.charges'.
+ -- Generated from a 'Skill'.
+data Key = Key Text Slot
+           deriving (Eq, Ord, Show, Read, Generic, Hashable)
+toText :: Key -> Text
+toText (Key x y) = Slot.toChar y `cons` x
+{-# INLINE toText #-}
+instance ToJSON Key where
+  toJSON = toJSON . toText
+  {-# INLINE toJSON #-}
+instance ToJSONKey Key where
+  toJSONKey = toJSONKeyText toText
+  {-# INLINE toJSONKey #-}
+
+-- | In-game character, indexed between 0 and 5.
+data Ninja = Ninja { slot       :: Slot             -- ^ 'Model.Game.Ninjas' index (0-5)
+                   , character  :: Character
+                   , health     :: Int              -- ^ Starts at @100@
+                   , cooldowns  :: HashMap Key Int  -- ^ Starts empty
+                   , charges    :: HashMap Key Int  -- ^ Starts at @0@s
+                   , alternates :: Seq Int          -- ^ Starts at @0@s
+                   , copies     :: Seq (Maybe Copy) -- ^ Starts at @Nothing@s
+                   , defense    :: [Defense]        -- ^ Starts empty
+                   , barrier    :: [Barrier]        -- ^ Starts empty
+                   , statuses   :: [Status]         -- ^ Starts empty
+                   , channels   :: [Channel]        -- ^ Starts empty
+                   , newChans   :: [Channel]        -- ^ Starts empty
+                   , traps      :: [Trap]           -- ^ Starts empty
+                   , delays     :: [Delay]          -- ^ Starts empty
+                   , lastSkill  :: Maybe Skill      -- ^ Starts at @Nothing@
+                   , triggers   :: HashSet Trigger  -- ^ Empty at the start of each turn
+                   , effects    :: ~[Effect]        -- ^ Processed automatically
+                   , acted      :: Bool             -- ^ False at the start of each turn
+                   }
+instance Parity Ninja where
+    even = Parity.even . slot
+    {-# INLINE even #-}
+
+data Requirement
+    = Usable
+    | Unusable
+    | HasI Int Text
+    | HasU Int Text
+    | DefenseI Int Text
+    deriving (Eq, Ord, Show, Read, Generic, ToJSON)
+
+-- | A move that a 'Character' can perform.
+data Skill = Skill { name      :: Text              -- ^ Name
+                   , desc      :: Text              -- ^ Description
+                   , require   :: Requirement       -- ^ Defaults to 'Usable'
+                   , classes   :: EnumSet Class     -- ^ Defaults to empty
+                   , cost      :: Chakras           -- ^ Defaults to empty
+                   , cooldown  :: Duration          -- ^ Defaults to @0@
+                   , charges   :: Int               -- ^ Defaults to @0@
+                   , dur       :: Channeling        -- ^ Defaults to 'Instant'
+                   , start     :: [Runnable Target] -- ^ Defaults to empty
+                   , effects   :: [Runnable Target] -- ^ Defaults to empty
+                   , stunned   :: [Runnable Target] -- ^ Defaults to empty
+                   , interrupt :: [Runnable Target] -- ^ Defaults to empty
+                   , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'
+                   , owner     :: Slot
+                   }
+instance ToJSON Skill where
+    toJSON Skill{..} = object
+        [ "name"      .= name
+        , "desc"      .= desc
+        , "require"   .= require
+        , "classes"   .= classes
+        , "cost"      .= cost
+        , "cooldown"  .= cooldown
+        , "charges"   .= charges
+        , "dur"       .= dur
+        , "start"     .= start
+        , "effects"   .= effects
+        , "stunned"   .= stunned
+        , "interrupt" .= interrupt
+        , "owner"     .= owner
+        ]
+instance Classed Skill where
+    classes = classes
 
 -- | A status effect affecting a 'Ninja'.
 data Status = Status { amount  :: Int  -- ^ Starts at 1
@@ -294,11 +284,23 @@ instance Labeled Status where
 instance Classed Status where
     classes = classes
 
-data Direction
-    = Toward
-    | From
-    | Per
+-- | Target destinations of 'Skill's.
+data Target
+    = Self    -- ^ User of 'Skill'
+    | Ally    -- ^ Specific ally
+    | Allies  -- ^ All allies
+    | RAlly   -- ^ Random ally
+    | XAlly   -- ^ Specific ally excluding 'Self'
+    | XAllies -- ^ 'Allies' excluding 'Self'
+    | Enemy   -- ^ Specific enemy
+    | Enemies -- ^ All enemies
+    | REnemy  -- ^ Random enemy
+    | XEnemies -- ^ Enemies excluding 'Enemy'
+    | Everyone -- ^ All 'Ninja's
     deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
+
+instance AsEnumSet Target where
+    type EnumSetRep Target = Word16
 
 -- | A trap which gets triggered when a 'Ninja' meets the conditions of a 'Trigger'.
 data Trap = Trap { direction :: Direction
@@ -332,6 +334,7 @@ instance Labeled Trap where
     user = user
 instance Classed Trap where
     classes = classes
+
 
 -- | Gameplay context. This promotes a 'MonadGame' to 'MonadPlay'.
 data Context = Context { skill   :: Skill

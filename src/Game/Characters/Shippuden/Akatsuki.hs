@@ -12,6 +12,7 @@ characters =
   [ Character
     "Madara Uchiha"
     "The co-founder of the Hidden Leaf Village along with Hashirama Senju, Madara turned against his friend in pursuit of absolute, unrivaled power as a means to break the cycle of violence and establish lasting peace. Cynical and bitter, Madara works toward what he believes to be humanity's benefit without sparing a thought for those who get in his way."
+    [LeafVillage, Akatsuki, Jinchuriki, Rogue, Sensor, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Mangekyō Sharingan"
         , Skill.desc      = "Madara protects himself by predicting enemy attacks. For 4 turns, all non-affliction damage he receives is reduced to 25 at most. While active, this skill becomes [Eternal Mangekyō Sharingan][r]."
@@ -82,6 +83,7 @@ characters =
   , Character
     "Deidara"
     "An Akatsuki member who defected from the Hidden Stone Village's Demolitions Unit, Deidara posesses the unusual ability to turn clay into explosives by infusing it with lightning chakra. Most of his reckless decisions can be attributed to his pride and love of art, which usually outweigh any other priorities."
+    [StoneVillage, Akatsuki, Rogue, SRank, Earth, Lightning]
     [ [ Skill.new
         { Skill.name      = "C1: Bird Bomb"
         , Skill.desc      = "Deidara hurls a clay bird at an enemy that explodes into shrapnel on impact, dealing 15 damage to the target and weakening their damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C3: Megaton Sculpture][n][r]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
@@ -177,6 +179,7 @@ characters =
   , Character
     "Sasori"
     "An Akatsuki member who defected from the Hidden Sand Village's Puppet Brigade, Sasori of the Red Sand is as hollow and soullesss as his playthings. Obsessed with creating human puppets, Sasori prizes above all others the body of the Third Kazekage, through which he can wield magnetic abilities."
+    [SandVillage, Akatsuki, Rogue]
     [ [ Skill.new
         { Skill.name      = "Kazekage Puppet Summoning"
         , Skill.desc      = "Sasori summons his most prized puppet, gaining 15 permanent destructible defense and enabling his other skills. Once used, this skill becomes [Iron Sand: World Order][b][n]. Each turn, Sasori gains a stack of Iron Sand."
@@ -251,6 +254,7 @@ characters =
   , Character
     "Hidan"
     "An Akatsuki member who defected from the Hidden Hotspring Village, Hidan belongs to a cult that worships Jashin, a bloodthirsty and murderous god who blesses him with immortality. With no need to fear death, he binds his soul to his enemies and tortures himself endlessly."
+    [Akatsuki, Rogue, SRank]
     [ [ Skill.new
         { Skill.name      = "Jashin Sigil"
         , Skill.require   = HasI 0 "Jashin Sigil"
@@ -349,6 +353,7 @@ characters =
   , Character
     "Kakuzu"
     "The self-proclaimed Treasurer of the Akatsuki, Kakuzu is a money-obsessed bounty hunter who defected from the Hidden Waterfall Village in pursuit of wealth. With his anger usually going unchecked, he has a bad habit of ripping out the heart of anyone who annoys him. He stores extra hearts in masks, each of which grants different abilities."
+    [Akatsuki, Rogue, SRank, Earth, Water, Fire, Wind, Lightning]
     [ [ Skill.new
         { Skill.name     = "Pressure Damage"
         , Skill.desc     = "Attaching his wind-element mask, Kakuzu fires a tornado of compressed air at an enemy, dealing 30 damage and stunning their chakra and ranged skills for 1 turn. Once used, this skill becomes [Searing Migraine][b]."
@@ -414,6 +419,7 @@ characters =
   , Character
     "Kisame Hoshigaki"
     "An Akatsuki member and one of the Seven Swordsmen of the Mist, Kisame is a rogue operative who hunts and captures tailed beasts. His water techniques and legendary sword Samehada flood his enemies."
+    [MistVillage, Akatsuki, SevenSwordsmen, Rogue, SRank, Water, Fire, Wind, Earth]
     [ [ Skill.new
         { Skill.name      = "Thousand Hungry Sharks"
         , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Each turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage to each enemy during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
@@ -511,6 +517,7 @@ characters =
   , Character
     "Itachi Uchiha"
     "An Akatsuki member who defected from the Hidden Leaf Village, Itachi is known as the Clan Killer for slaughtering the rest of the Uchihas, sparing only his brother. Plagued by a lethal disease that saps his strength, Itachi has been forced to go on the defensive. Out of other options, he now plays his trump card: the legendary armor Susanoo, created by the power of the mangekyō sharingan."
+    [LeafVillage, Akatsuki, Rogue, SRank, Fire, Wind, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Susanoo"
         , Skill.desc      = "Itachi loses 10 health and encases himself in spectral armor that provides him with 5 permanent destructible defense every turn. This skill can be used again with no chakra cost to cancel its effect and remove its destructible defense."
@@ -589,6 +596,7 @@ characters =
   , Character
     "Zetsu"
     "After Madara turned the Gedo statue's mutated victims into an army of servants, he chose one to lead them. Imbuing the White Zetsu entity with materialized will in the form of Black Zetsu, he created a hybrid being who became an official member of Akatsuki. White Zetsu and Black Zetsu have different approaches to combat, but both are able to take control of an enemy's abilities."
+    [Akatsuki, Sensor, SRank, Earth, Water, Fire, Wind, Lightning, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "White Zetsu"
         , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense each turn. Once used, this skill becomes [Black Zetsu]."
@@ -708,6 +716,7 @@ characters =
   , Character
     "Tobi"
     "A peculiar new member of the Akatsuki, Tobi claims to be Madara Uchiha, even though Madara has been dead for years. Using his Izanagi, he can rewind his state to an earlier point and even come back from the dead."
+    [LeafVillage, Akatsuki, SRank, Jinchuriki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time a harmful skill is used on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
@@ -773,6 +782,7 @@ characters =
   , Character
     "Deva Path Pain"
     "Having taken over the body of Yahiko, his deceased best friend, Pain now acts through it as one of his Six Paths. To honor Yahiko's memory, Pain uses the Deva Path as the leader of the Six Paths and his main body when interacting with others. Deva Path's specialization is gravity manipulation, which he uses to impair and imprison his enemies."
+    [RainVillage, Akatsuki, SRank, Water, Fire, Wind, Lightning, Earth, Water]
     [ [ Skill.new
         { Skill.name      = "Almighty Push"
         , Skill.desc      = "Pain targets himself or an ally. The first skill an enemy uses on them next turn will be countered, and the person countered will take 20 damage. Once used, this skill alternates between [Universal Pull] and [Almighty Push] each turn. "
@@ -851,6 +861,7 @@ characters =
   , Character
     "Asura Path Pain"
     "Having taken over the body of a wandering puppeteer, Pain now acts through it as one of his Six Paths. Asura Path's body is heavily augmented with ballistic and mechanical weaponry."
+    [Akatsuki, SRank]
     [ [ Skill.new
         { Skill.name      = "Metal Blade"
         , Skill.desc      = "Pain gouges an enemy with a blade that unfolds from his body, dealing 15 piercing damage and inflicting a deep wound. The target takes 10 affliction damage each turn until one of their allies uses a skill on them. Does not stack."
@@ -962,6 +973,7 @@ characters =
   , Character
     "Human Path Pain"
     "Having taken over the body of a ninja from the Hidden Waterfall Village, Pain now acts through it as one of his Six Paths. Human Path's specialty is drawing the souls of his enemies from their bodies to reveal their secrets and drain their lifeforce."
+    [Akatsuki, SRank]
     [ [ Skill.new
         { Skill.name      = "Mind Invasion"
         , Skill.desc      = "Pain invades the mind of an enemy, dealing 15 damage. Reveals invisible effects from the target and the target's cooldowns for 1 turn."
@@ -1010,6 +1022,7 @@ characters =
   , Character
     "Animal Path Pain"
     "Having taken over the body of a ninja from the Hidden Rain Village named Ajisai, Pain now acts through it as one of his Six Paths. Animal Path's specialization is summoning giant creatures that continue to fight for her even if she is immobilized."
+    [RainVillage, Akatsuki, SRank]
     [ [ Skill.new
         { Skill.name      = "Summoning: Giant Centipede"
         , Skill.desc      = "Pain summons a huge centipede behind an enemy to ambush them. It deals 15 damage to them for 2 turns, and if the target does not use a skill during that time, they will be stunned for 1 turn. Once used, this skill becomes [Summoning: Giant Crustacean][r][r]."
@@ -1091,6 +1104,7 @@ characters =
   , Character
     "Preta Path Pain"
     "Having taken over the body of a farmer from the Hidden Grass Village, Pain now acts through it as one of his Six Paths. Preta Path's specialization is absorbing chakra and nullifying ninjutsu abilities."
+    [Akatsuki, SRank]
     [ [ Skill.new
         { Skill.name      = "Chakra Shield"
         , Skill.desc      = "Pain creates a protective barrier around himself that absorbs chakra. Next turn, enemy skills used on him will be nullified, and Pain will gain chakra equal to the chakra cost of the nullified skill."
@@ -1132,6 +1146,7 @@ characters =
   , Character
     "Naraka Path Pain"
     "Having taken over the body of a priest, Pain now acts through it as one of his Six Paths. Naraka Path's specialty is summoning and controlling the King of Hell, which shields and supports his allies by draining the strength of those it considers unworthy."
+    [Akatsuki, SRank]
     [ [ Skill.new
         { Skill.name      = "Summoning: King of Hell"
         , Skill.desc      = "Pain calls upon a timeless being tied to the power of the rinnegan which exists beyond life and death. The King of Hell provides 20 permanent destructible defense to Pain. While Pain has destructible defense from the King of Hell, this skill becomes [Energy Transfer][g]."
@@ -1189,6 +1204,7 @@ characters =
   , Character
     "Nagato"
     "Nagato leads the Akatsuki as the six-bodied Pain. His true body has remained safely hidden for years, acting through the Gedo statue. Though vulnerable without his Paths to defend him, Nagato's rinnegan makes him a formidable opponent."
+    [RainVillage, Akatsuki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yang, Uzumaki]
     [ [ Skill.new
         { Skill.name      = "Summoning: Gedo Statue"
         , Skill.desc      = "Nagato summons the empty vessel of the ten-tailed beast, which provides 10 points of damage reduction to him for 3 turns. While active, this skill becomes [Control][r]."
@@ -1276,6 +1292,7 @@ characters =
   , Character
     "Konan"
     "One of the founding members of Akatsuki, Konan is an elegant origamist from the Hidden Rain Village. Her ability to fly with paper wings has earned her the title of Angel. Although Akatsuki has strayed far from its original methodologies, Konan holds fast to her goal of bringing peace to the world."
+    [RainVillage, Akatsuki, Sensor, SRank, Wind, Earth, Water, Yang]
     [ [ Skill.new
         { Skill.name      = "Paper Cut"
         , Skill.desc      = "Konan slices an enemy with a razor-sharp blade made of durable paper strips, dealing 25 piercing damage. Deals 5 additional damage if the target is affected by [Dance of the Shikigami]."
@@ -1310,60 +1327,6 @@ characters =
         , Skill.effects   =
           [ To Enemy $ damage 25
           , To REnemy $ damage 25
-          ]
-        }
-      ]
-    , [ invuln "Paper Clone" "Konan" [Chakra] ]
-    ]
-  , Character
-    "Konan of the Rain"
-    "One of the founding members of Akatsuki, Konan has turned against her own organization in order to aid Naruto in his quest for peace. With Nagato dead, the young Uzumaki is her best hope for the future."
-    [ [ Skill.new
-        { Skill.name      = "Paper Chakram"
-        , Skill.desc      = "Konan hurls a razor-sharp disc at an enemy, dealing 35 piercing damage. Next turn, Konan ignores stuns and disabling effects."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Blood, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy $ pierce 35
-          , To Self $ apply 1 [Focus]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Sacred Paper Emissary"
-        , Skill.desc      = "Playing her trump card, Konan sets off countless explosive strips of paper disguised as an ocean. For 2 turns, her team gains 10 points of damage reduction and the enemy team's cooldowns are increased by 1 turn."
-        , Skill.classes   = [Physical, Ranged, Bane]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Allies $ apply 2 [Reduce [All] Flat 10]
-          , To Enemies $ apply 2 [Snare 1]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Paper Bomb"
-        , Skill.desc      = "Konan sets off an explosive paper tag, dealing 15 damage to an enemy. Once used, this skill becomes [Paper Shuriken][n]."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Rand]
-        , Skill.effects   =
-          [ To Self $ hide 0 [Alternate "Paper Bomb" "Paper Shuriken"]
-          , To Enemy do
-                stacks <- targetStacks "Paper Shuriken"
-                damage (15 + 10 * stacks)
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Paper Shuriken"
-        , Skill.desc      = "Konan attacks an enemy with a barrage of origami shuriken, dealing 20 piercing damage and increasing the damage of [Paper Bomb] to the target by 10. Once used, this skill becomes [Paper Bomb][r]."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Nin]
-        , Skill.effects   =
-          [ To Self $ remove "paper bomb"
-          , To Enemy do
-                pierce 20
-                addStack
           ]
         }
       ]

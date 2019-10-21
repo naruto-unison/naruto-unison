@@ -158,6 +158,7 @@ jsonEncChanneling  val =
 type alias Character  =
    { name: String
    , bio: String
+   , groups: (Set String)
    , skills: (List (List Skill))
    , price: Int
    , category: Category
@@ -165,9 +166,10 @@ type alias Character  =
 
 jsonDecCharacter : Json.Decode.Decoder ( Character )
 jsonDecCharacter =
-   Json.Decode.succeed (\pname pbio pskills pprice pcategory -> {name = pname, bio = pbio, skills = pskills, price = pprice, category = pcategory})
+   Json.Decode.succeed (\pname pbio pgroups pskills pprice pcategory -> {name = pname, bio = pbio, groups = pgroups, skills = pskills, price = pprice, category = pcategory})
    |> required "name" (Json.Decode.string)
    |> required "bio" (Json.Decode.string)
+   |> required "groups" (decodeSet (Json.Decode.string))
    |> required "skills" (Json.Decode.list (Json.Decode.list (jsonDecSkill)))
    |> required "price" (Json.Decode.int)
    |> required "category" (jsonDecCategory)
@@ -177,6 +179,7 @@ jsonEncCharacter  val =
    Json.Encode.object
    [ ("name", Json.Encode.string val.name)
    , ("bio", Json.Encode.string val.bio)
+   , ("groups", (encodeSet Json.Encode.string) val.groups)
    , ("skills", (Json.Encode.list (Json.Encode.list jsonEncSkill)) val.skills)
    , ("price", Json.Encode.int val.price)
    , ("category", jsonEncCategory val.category)
@@ -328,14 +331,16 @@ type alias GameInfo  =
    { opponent: User
    , turn: Turn
    , player: Player
+   , war: (Maybe War)
    }
 
 jsonDecGameInfo : Json.Decode.Decoder ( GameInfo )
 jsonDecGameInfo =
-   Json.Decode.succeed (\popponent pturn pplayer -> {opponent = popponent, turn = pturn, player = pplayer})
+   Json.Decode.succeed (\popponent pturn pplayer pwar -> {opponent = popponent, turn = pturn, player = pplayer, war = pwar})
    |> required "opponent" (jsonDecUser)
    |> required "turn" (jsonDecTurn)
    |> required "player" (jsonDecPlayer)
+   |> fnullable "war" (jsonDecWar)
 
 jsonEncGameInfo : GameInfo -> Value
 jsonEncGameInfo  val =
@@ -343,6 +348,7 @@ jsonEncGameInfo  val =
    [ ("opponent", jsonEncUser val.opponent)
    , ("turn", jsonEncTurn val.turn)
    , ("player", jsonEncPlayer val.player)
+   , ("war", (maybeEncode (jsonEncWar)) val.war)
    ]
 
 
@@ -796,4 +802,21 @@ jsonEncUser  val =
    , ("condense", Json.Encode.bool val.condense)
    , ("dna", Json.Encode.int val.dna)
    ]
+
+
+
+type War  =
+    Red
+    | Blue
+
+jsonDecWar : Json.Decode.Decoder ( War )
+jsonDecWar =
+    let jsonDecDictWar = Dict.fromList [("Red", Red), ("Blue", Blue)]
+    in  decodeSumUnaries "War" jsonDecDictWar
+
+jsonEncWar : War -> Value
+jsonEncWar  val =
+    case val of
+        Red -> Json.Encode.string "Red"
+        Blue -> Json.Encode.string "Blue"
 

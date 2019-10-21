@@ -12,6 +12,7 @@ characters =
   [ Character
     "Naruto Uzumaki"
     "Naruto's years of training under Jiraiya have made him stronger, wiser, and far more effective at controlling his immense chakra. He has learned how to distribute his chakra efficiently across numerous shadow clones, and can harness the flow of energy within himself to transform and repurpose chakra."
+    [LeafVillage, Eleven, AlliedForces, Genin, Jinchuriki, Sage, Sensor, Wind, Lightning, Earth, Water, Fire, Yin, Yang, Uzumaki]
     [ [ Skill.new
         { Skill.name      = "Giant Rasengan"
         , Skill.desc      = "Naruto instantly creates several shadow clones to aid him in wielding the Rasengan. Infused with highly compressed chakra, the Rasengan blasts through his enemy's guard and deals 40 damage. If [Multi Shadow Clone] was used last turn, this skill becomes [Rasen Shuriken][n][t]."
@@ -66,6 +67,7 @@ characters =
   , Character
     "Sakura Haruno"
     "Sakura's years of training under Tsunade have provided her with an intricate understanding of healing and the human body. Now a chūnin, she has learned how to store her chakra in concentrated points and then unleash it in empowering waves."
+    [LeafVillage, Eleven, AlliedForces, Chunin, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Cherry Blossom Clash"
         , Skill.desc      = "Sakura expertly condenses her chakra into her fist and punches an enemy, dealing 25 damage. Spends a Seal if available to deal 10 additional damage to all enemies."
@@ -136,6 +138,7 @@ characters =
   , Character
     "Sasuke Uchiha"
     "Sasuke's years of training under Orochimaru have made him a master of his elemental aspects. Cold and ruthless, he is regarded as one of the most dangerous ninjas alive."
+    [LeafVillage, Orochimaru, Genin, Rogue, Lightning, Fire, Wind, Earth, Water, Yin, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Chidori Stream"
         , Skill.desc      = "An electric field surrounds Sasuke. Enemies who use non-mental skills on Sasuke next turn will be countered and will take 10 affliction damage. Once used, this skill becomes [Chidori Spear][t]."
@@ -188,6 +191,7 @@ characters =
   , Character
     "Kiba Inuzuka"
     "Kiba's years with Akamaru have enhanced their bond and teamwork. Now a chūnin, he has learned the alarming ability to transform Akamaru into a bestial humanoid resembling Kiba. As they progress through several stages of shapeshifting, they gradually transform into unstoppable rampaging beasts."
+    [LeafVillage, Eleven, AlliedForces, Chunin, Earth, Yang, Inuzuka]
     [ [ Skill.new
         { Skill.name      = "Man-Beast Clone"
         , Skill.desc      = "Akamaru transforms into a bestial copy of Kiba, providing 15 points of damage reduction to Kiba for 4 turns and causing him to ignore stuns and disabling effects. While active, this skill becomes [Three-Headed Wolf][b][b]."
@@ -267,6 +271,7 @@ characters =
   , Character
     "Shino Aburame"
     "Shino's years of practice with his loyal bugs have deepened his connection with them. Having attained the rank of chūnin, Shino has learned to breed his insects to favor specific traits. His advanced parasites accumulate invisibly in targets before bursting out all at once."
+    [LeafVillage, Eleven, AlliedForces, Chunin, Earth, Fire, Yang, Aburame]
     [ [ Skill.new
         { Skill.name       = "Insect Swarm"
         , Skill.desc       = "A wave of insects attack an enemy, dealing 15 affliction damage to them for 3 turns and making them invulnerable to allies. While active, this skill becomes [Chakra Leech]."
@@ -332,6 +337,7 @@ characters =
   , Character
     "Hinata Hyūga"
     "With the Chūnin Exam behind her and Naruto's words deep in her heart, Hinata has grown and become stronger. Now that she has mastered the Hyūga clan tactics, she can give life to powerful chakra lions and hinder the chakra paths of her enemies."
+    [LeafVillage, Eleven, AlliedForces, Chunin, Fire, Lightning, Hyuga, Uzumaki]
     [ [ Skill.new
         { Skill.name      = "Pressure Point Strike"
         , Skill.desc      = "Hinata blocks an enemy's pressure point, dealing 10 damage to them and increasing the costs of their skills by 1 arbitrary chakra for 1 turn. Deals 10 additional damage during [Eight Trigrams Sixty-Four Palms]."
@@ -384,7 +390,8 @@ characters =
     ]
   , Character
     "Shikamaru Nara"
-    "Once known for his laziness, Shikamaru has worked tirelessly to become a leader. With years of experience, his plans have become even more convoluted and intricate."
+    "Despite losing his match, Shikamaru was the only candidate promoted to chūnin after the exams that Orochimaru disrupted, and he has maintained that lead ever since. Once known for his laziness, Shikamaru has worked tirelessly to become a leader. With years of experience, his plans have become even more convoluted and intricate."
+    [LeafVillage, Eleven, AlliedForces, Chunin, Fire, Earth, Yin, Nara]
     [ [ Skill.new
         { Skill.name      = "Shadow Sewing"
         , Skill.desc      = "Delicate tendrils of shadow wrap around an enemy, dealing 35 damage and stunning their non-mental skills for 1 turn. While this skill's effect is active, it becomes [Shadow Sewing: Hold][g]."
@@ -459,6 +466,7 @@ characters =
   , Character
     "Chōji Akimichi"
     "Chōji's years of mastering his clan's techniques have ended the growing chūnin's dependence on Akimichi pills. Now that he can reshape his body at will without having to sacrifice his health, chakra expenditure is the only remaining limit to his physical power."
+    [LeafVillage, Eleven, AlliedForces, Chunin, Earth, Fire, Yang, Akimichi]
     [ [ Skill.new
         { Skill.name      = "Butterfly Bombing"
         , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring status effects from enemies except chakra cost changes and dealing 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
@@ -551,6 +559,7 @@ characters =
   , Character
     "Ino Yamanaka"
     "Now a chūnin, Ino takes control of every fight she faces. Her overpowering will steals the skills and secrets of her enemies and forces her allies to fight on no matter the cost. "
+    [LeafVillage, Eleven, AlliedForces, Chunin, Sensor, Earth, Water, Fire, Yin, Yang, Yamanaka]
     [ [ Skill.new
         { Skill.name      = "Mind Destruction"
         , Skill.desc      = "Ino infiltrates an enemy's mind and prepares to strike at a moment of weakness. Next turn, the target receives 15 damage. If they use a skill on Ino or her allies next turn, they will be countered and this skill will be replaced by that skill for 1 turn. Copied skills cannot copy other skills and do not transform into alternates."
@@ -588,7 +597,8 @@ characters =
     ]
   , Character
     "Rock Lee"
-    "Lee's years of training with Gai have taught him not only new abilities, but what it truly means to fight. His strength grows as his allies fall, determined to honor them by finishing their battle."
+    "Lee's years of training with Gai have taught him not only new abilities, but what it truly means to fight. Now a chūnin, he gains strength as his allies fall, determined to honor them by finishing their battle."
+    [LeafVillage, Eleven, AlliedForces, Chunin]
     [ [ Skill.new
         { Skill.name      = "Leaf Rising Wind"
         , Skill.desc      = "Lee plants his back on the ground and uses his entire body as a spring to kick an enemy with such power that they are launched into the air, dealing 15 damage and lowering the target's damage by 15 for 2 turns. Deals 10 additional damage per dead ally. Effect lasts 1 additional turn per dead ally."
@@ -638,6 +648,7 @@ characters =
     in Character
     "Tenten"
     "Now a chūnin, Tenten's arsenal has expanded to a prodigious stockpile of some of the most powerful weapons in existence, including the legendary fan of the Sage of the Six Paths. Taking any excuse to show off the size and variety of her collection, she has assembled multiple item sets to switch out at a moment's notice."
+    [LeafVillage, Eleven, AlliedForces, Chunin]
     [ [ Skill.new
         { Skill.name      = "Kunai Grenade"
         , Skill.desc      = "Tenten throws an explosive filled with a frankly ridiculous number of kunai at an enemy, dealing 20 damage to them and 10 damage to the rest of their team."
@@ -735,6 +746,7 @@ characters =
   , Character
     "Neji Hyūga"
     "Having surpassed his peers to reach the rank of jōnin, Neji has spent the intervening years honing his skills. He has learned to supplement his precise pressure-point attacks with devastating chakra waves that demolish the defenses of his opponents."
+    [LeafVillage, Eleven, AlliedForces, Jonin, Fire, Earth, Water, Hyuga]
     [ [ Skill.new
         { Skill.name      = "Eight Trigrams Air Palm"
         , Skill.desc      = "Neji sends a blast of chakra-filled air at an enemy's vital points, dealing 20 damage and depleting 1 random chakra."
@@ -795,6 +807,7 @@ characters =
   , Character
     "Kazekage Gaara"
     "Gaara's years of soul-searching have made him ready to assume the title of Kazekage. Now a powerful force for good, he devotes himself to protecting his friends and the Hidden Sand Village."
+    [SandVillage, Kage, Jinchuriki, Sensor, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new
         { Skill.name      = "Monstrous Sand Arm"
         , Skill.desc      = "Gaara shapes sand into an enormous hand that slams into an enemy, dealing 5 piercing damage and weakening their damage by 5 for 1 turn."
@@ -845,6 +858,7 @@ characters =
   , Character
     "Kankurō"
     "Now a jōnin, Kankurō has crafted a third puppet for his collection and honed his skills as a puppetmaster. Each puppet has its own use, improving his overall versatility."
+    [SandVillage, AlliedForces, Jonin, Wind, Lightning, Earth, Water, SandClan]
     [ [ Skill.new
         { Skill.name      = "Kuroari Trap"
         , Skill.desc      = "The Kuroari puppet traps an enemy. If they use a skill on Kankurō or his allies next turn, they will be countered and will receive twice as much damage from [Karasu Knives] for 1 turn."
@@ -899,6 +913,7 @@ characters =
   , Character
     "Temari"
     "The Hidden Sand Village's official ambassador, Temari is a formidable jōnin who wields an equally formidable battle fan. She defends her team with chakra-infused whirlwinds that deflect attacks, and uses the metal fan itself to block anything that gets through."
+    [SandVillage, AlliedForces, Jonin, Wind, SandClan, Nara]
     [ [ Skill.new
         { Skill.name      = "First Moon"
         , Skill.desc      = "Snapping open her fan to reveal the first marking on it, Temari gains 25% damage reduction. Once used, this skill becomes [Second Moon][r]."
@@ -963,6 +978,7 @@ characters =
   , Character
     "Kabuto Yakushi"
     "A dangerous rogue operative from the Hidden Leaf Village, Kabuto is a calculating follower of Orochimaru whose healing expertise goes beyond the limits of medical techniques to outright necromancy."
+    [LeafVillage, Orochimaru, Rogue, Sage, TeamLeader, Earth, Water, Wind, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Chakra Absorbing Snakes"
         , Skill.desc      = "Black snakes wrap around an enemy, dealing 20 damage. For 1 turn, if the target restores health to anyone, the snakes will constrict and stun them for 2 turns."
@@ -1006,6 +1022,7 @@ characters =
   , Character
     "Konohamaru Sarutobi"
     "The grandson of the Third Hokage, Konohamaru has spent his youth working hard to pursue his dream of one day following in his grandfather's steps. No longer a bumbling student, Konohamaru has become remarkably skillful as a genin. Agile and fast, he can rush in to save an ally on the brink of defeat."
+    [LeafVillage, Genin, Fire, Wind, Lightning, Yang, Sarutobi]
     [ [ Skill.new
         { Skill.name      = "Rasengan"
         , Skill.desc      = "Focusing on an enemy, Konohamaru takes his time to prepare his Rasengan. Next turn, it will deal 25 damage to the target and an additional 15 if they used a skill."

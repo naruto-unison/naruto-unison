@@ -10,6 +10,7 @@ module Handler.Site
   , getChangelogR
   , getGuideR
   , getCharactersR, getCharacterR
+  , getGroupsR
   , getMechanicsR
   ) where
 
@@ -38,7 +39,7 @@ import qualified Handler.Link as Link
 import qualified Handler.Parse as Parse
 import qualified Mission
 import qualified Mission.Goal as Goal
-import           Util (shorten)
+import           Util ((∈), shorten)
 
 -- | Renders the changelog.
 getChangelogR :: Handler Html
@@ -130,6 +131,16 @@ getCharacterR char = do
     skillClasses sk =
         intercalate ", " $
         display <$> filter Class.visible (toList $ Skill.classes sk)
+
+-- | Renders character groups.
+getGroupsR :: Handler Html
+getGroupsR = do
+    App.unchanged304
+    (title, _) <- breadcrumbs
+    defaultLayout $(widgetFile "guide/groups")
+  where
+    groups    = [minBound..maxBound]
+    inGroup x = (x ∈) . Character.groups
 
 -- | Renders the game mechanics guide.
 getMechanicsR :: Handler Html

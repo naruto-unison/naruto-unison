@@ -37,6 +37,8 @@ data DNA = DNA
     -- ^ Whenever a player loses a quick match
     , quickTie  :: Int
     -- ^ Whenever a player ends a match in a tie
+    , warWin    :: Int
+    -- ^ Reward for victory in a 'Handler.Play.War.War'.
     , useStreak :: Bool
     -- ^ Add the square root of the user's win streak to the DNA reward
     } deriving (Eq, Ord, Show, Read)
@@ -48,6 +50,7 @@ instance FromJSON DNA where
         quickWin  <- o .: "quick-win"
         quickLose <- o .: "quick-lose"
         quickTie  <- o .: "quick-tie"
+        warWin    <- o .: "war-win"
         useStreak <- o .: "use-streak"
         return DNA{..}
 

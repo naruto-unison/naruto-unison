@@ -12,6 +12,7 @@ characters =
   [ Character
     "Kushina Uzumaki"
     "Known as the Red-Hot Habanero for her fiery hair and fierce temper, Naruto's mother possesses exceptional chakra necessary to become the nine-tailed fox's jinchūriki. Kushina specializes in unique sealing techniques that bind and incapacitate her enemies."
+    [LeafVillage, Jinchuriki, Wind, Water, Yin, Uzumaki]
     [ [ Skill.new
         { Skill.name      = "Double Tetragram Seal"
         , Skill.desc      = "Kushina seals away an enemy's power, demolishing their destructible defense and her own destructible barrier, dealing 15 piercing damage, stunning them for 1 turn, depleting 1 random chakra, and weakening their damage by 5."
@@ -73,6 +74,7 @@ characters =
   , Character
     "Minato Namikaze"
     "Known as the Yellow Flash for his incredible speed and mastery of space-time techniques, Naruto's father is a jōnin squad leader from the Hidden Leaf Village. Minato fights using unique kunai that allow him to teleport arround the battlefield."
+    [LeafVillage, Jonin, Jinchuriki, Sage, Sensor, TeamLeader, Fire, Wind, Lightning, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Flying Raijin"
         , Skill.desc      = "Minato teleports to a target, becoming invulnerable for 1 turn. If he teleports to an enemy, he deals 30 damage. If he teleports to an ally, the ally becomes invulnerable for 1 turn."
@@ -121,6 +123,7 @@ characters =
   , Character
     "Yondaime Minato"
     "As the fourth Hokage, Minato has been shaped by his responsibilities into a thoughtful and strategic leader. With his space-time jutsu, he redirects the attacks of his enemies and effortlessly passes through their defenses."
+    [LeafVillage, Kage, Sage, TeamLeader, Fire, Wind, Lightning, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Rasengan"
         , Skill.desc      = "Minato teleports behind an enemy and slams an orb of chakra into them, dealing 35 damage. Costs 1 ninjutsu chakra if [Rasengan] was used last turn."
@@ -162,6 +165,7 @@ characters =
   , Character
     "Hashirama Senju"
     "The founder and first Hokage of the Hidden Leaf Village, Hashirama is headstrong and enthusiastic. He believes with all his heart that communities should behave as families, taking care of each other and protecting their children from the cruelties of war. Due to a unique genetic mutation, Hashirama is able shape wood into defensive barriers and constructs."
+    [LeafVillage, Kage, Sage, Earth, Water, Fire, Wind, Lightning, Yin, Yang, Senju]
     [ [ Skill.new
         { Skill.name      = "Wooden Dragon"
         , Skill.desc      = "A vampiric dragon made of wood drains chakra from Hashirama's enemies, making him invulnerable to chakra skills for 2 turns. While active, Hashirama absorbs 1 random chakra from his enemies each turn."
@@ -211,6 +215,7 @@ characters =
   , Character
     "Young Kakashi"
     "A member of Team Minato, Kakashi is the thirteen-year-old son of the legendary White Fang. His early ninjutsu and borrowed Sharingan make him the equal of any adult he faces."
+    [LeafVillage, Jonin, TeamLeader, Lightning, Water, Earth, Fire, Wind, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "White Light Blade"
         , Skill.desc      = "Kakashi deals 20 piercing damage to an enemy with his sword. For 1 turn, the target's damage is weakened by 5 and Kakashi's damage is increased by 5."
@@ -261,9 +266,10 @@ characters =
     , [ invuln "Parry" "Kakashi" [Physical] ]
     ]
   , Character
-      "Rin Nohara"
-      "A chūnin on Team Minato, Rin is a quiet but strong-willed medical-nin. Her priority is always healing her teammates, though she can also defend herself with traps if necessary."
-      [ [ Skill.new
+    "Rin Nohara"
+    "A chūnin on Team Minato, Rin is a quiet but strong-willed medical-nin. Her priority is always healing her teammates, though she can also defend herself with traps if necessary."
+    [LeafVillage, Chunin, Jinchuriki, Fire, Water, Yang]
+    [ [ Skill.new
         { Skill.name      = "Pit Trap"
         , Skill.desc      = "An enemy falls into a pit and is trapped there for 1 turn. At the end of their turn, the target takes 15 piercing damage. If they used a skill that turn, they take 15 additional damage. While active, Rin gains 15 points of damage reduction."
         , Skill.classes   = [Physical, Ranged, Invisible, Bypassing]
@@ -305,6 +311,7 @@ characters =
   , Character
     "Obito Uchiha"
     "A member of Team Minato, Obito is treated as a nobody despite his Uchiha heritage. He dreams of becoming Hokage so that people will finally acknowledge him. Accustomed to helping from the sidelines, if he falls in battle, he will lend his strength to his allies."
+    [LeafVillage, Chunin, Jinchuriki, Sensor, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Piercing Stab"
         , Skill.desc      = "Spotting an opening in his enemy's defense, Obito stabs them to deal 15 piercing damage. Deals 10 additional damage during [Sharingan]."
@@ -360,6 +367,7 @@ characters =
   , Character
     "Masked Man"
     "As the nine-tailed beast rampages across the Hidden Leaf Village, a mysterious masked man appears and attempts to bend it to his will. The legendary beast demolishes house after house, laying waste to the defenses of its enemies."
+    [LeafVillage, Jinchuriki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Kamui Chain Combo"
         , Skill.desc      = "The masked man snares an enemy in sealing chains and phases through them, becoming invulnerable for 1 turn."

@@ -53,4 +53,5 @@ dna:
     quick-win:  5
     quick-lose: 1
     quick-tie:  2
+    war-win:    2
     use-streak: true

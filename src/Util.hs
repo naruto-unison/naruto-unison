@@ -4,6 +4,7 @@ module Util
   , (—), (∈), (∉)
   , Lift
   , duplic
+  , getCurrentWeek
   , intersects
   , liftST
   , mapFromKeyed
@@ -73,6 +74,14 @@ duplic = go []
       | x ∈ seen  = True
       | otherwise = go (x:seen) xs
 {-# INLINABLE duplic #-}
+
+-- | This number uses 'getCurrentTime' and increments by 1 every Sunday.
+getCurrentWeek :: IO Integer
+getCurrentWeek = getWeek <$> getCurrentTime
+  where
+    getWeek (UTCTime (ModifiedJulianDay day) _) = (day + 3) `quot` 7
+    {-# INLINE getWeek #-}
+{-# INLINE getCurrentWeek #-}
 
 -- | True if any elements are shared by both collections.
 intersects :: ∀ a. SetContainer a => a -> a -> Bool

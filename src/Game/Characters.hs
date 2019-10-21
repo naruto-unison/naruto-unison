@@ -14,7 +14,10 @@ import qualified Data.HashMap.Strict as HashMap
 
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
+import           Game.Model.Chakra (Chakra(..))
+import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Class (Class(..))
+import           Game.Model.Group (Group(..))
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import           Util ((∉), mapFromKeyed)
@@ -25,7 +28,7 @@ import qualified Game.Characters.Reanimated
 import qualified Game.Characters.Shippuden
 
 list :: [Character]
-list = addClasses
+list = addGroups . addClasses
     <$> Game.Characters.Development.characters
     ++ Game.Characters.Original.characters
     ++ Game.Characters.Shippuden.characters
@@ -46,6 +49,19 @@ mapJSON = toJSON map
 
 lookup :: Text -> Maybe Character
 lookup k = HashMap.lookup k map
+
+addGroups :: Character -> Character
+addGroups char =
+    char { Character.groups = groups `union` Character.groups char }
+  where
+    costs  = Skill.cost <$> concatMap toList (Character.skills char)
+    groups = setFromList $ filter is [minBound..maxBound]
+    uses chakra chakras = not . Chakra.lack $ chakras - Chakra.toChakras chakra
+    is BloodlineUser = any (uses Blood) costs
+    is GenjutsuUser  = any (uses Gen)   costs
+    is NinjutsuUser  = any (uses Nin)   costs
+    is TaijutsuUser  = any (uses Tai)   costs
+    is _             = False
 
 addClasses :: Character -> Character
 addClasses char =

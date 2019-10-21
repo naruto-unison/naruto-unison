@@ -12,6 +12,7 @@ characters =
   [ Character
     "Hanabi Hyūga"
     "The younger sister of Hinata, Hanabi trains endlessly to prove herself. What she lacks in strength, she makes up for with speed and tenacity. Through sheer force of willpower, she endures attacks that would kill anyone else."
+    [LeafVillage, Genin, Hyuga]
     [ [ Skill.new
         { Skill.name      = "Gentle Fist"
         , Skill.desc      = "With a series of blows, Hanabi deals 15 damage to an enemy for 2 turns. Each time they use a skill that gains, depletes, or absorbs chakra, their team will be depleted of 1 random chakra."
@@ -60,6 +61,7 @@ characters =
   , Character
     "Shigure"
     "A genin from the Hidden Rain Village, Shigure is strong but arrogant. He wields up to four needle-filled umbrellas at a time, choosing whether to use them on defense, widespread attacks, or focused damage."
+    [RainVillage, Genin, TeamLeader]
     [ [ Skill.new
         { Skill.name      = "Umbrella Toss"
         , Skill.desc      = "Shigure tosses his umbrellas upward, gaining four Umbrellas. While Shigure has Umbrellas, this skill becomes [Umbrella Gathering]."
@@ -113,8 +115,56 @@ characters =
     , [ invuln "Umbrella Shield" "Shigure" [Physical] ]
     ]
   , Character
+    "Oboro"
+    "A genin from the Hidden Rain Village, Oboro is a vindictive specialist in genjutsu. He conceals himself within a crowd of illusory clones, making it almost impossible for enemies to locate and harm him."
+    [RainVillage, Genin, TeamLeader, Earth, Yin, Water]
+    [ [ Skill.new
+        { Skill.name      = "Exploding Kunai"
+        , Skill.desc      = "Oboro throws a kunai attached to a paper bomb, dealing 15 damage to all enemies. Costs 1 arbitrary chakra during [Fog Clone]."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.effects   =
+          [ To Enemies $ damage 15 ]
+        , Skill.changes   =
+            changeWith "Fog Clone" \x -> x { Skill.cost = [Rand] }
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Underground Move"
+        , Skill.desc      = "Emerging from the ground behind an enemy, Oboro deals 20 damage to them and stuns their physical and mental skills for 1 turn. Targets all enemies and costs 1 genjutsu chakra during [Fog Clone]."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Gen, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 20
+                apply 1 [Stun Physical, Stun Mental]
+          ]
+        , Skill.changes   =
+            changeWith "Fog Clone" \x -> targetAll x { Skill.cost = [Gen] }
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Fog Clone"
+        , Skill.desc      = "Oboro surrounds himself with illusions, gaining 30 destructible defense and invulnerability to physical, mental, and summon skills for 3 turns."
+        , Skill.classes   = [Mental]
+        , Skill.cost      = [Gen, Rand]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Self do
+              defend 3 30
+              apply 3 [ Invulnerable Mental
+                      , Invulnerable Physical
+                      , Invulnerable Summon
+                      ]
+          ]
+        }
+      ]
+    , [ invuln "Hide" "Oboro" [Mental] ]
+    ]
+  , Character
     "Kabuto Yakushi"
     "A genin and former operative of the Hidden Leaf Village's elite Root division, Kabuto is Orochimaru's close assistant and confidant. He hides his brilliance behind a genial façade, but under the surface he remains a cold and calculating spy. In combat, he uses his medical expertise to weaken and expose his opponents."
+    [LeafVillage, Orochimaru, Anbu, Genin, Rogue, Sage, TeamLeader, Earth, Water, Wind, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Chakra Scalpel"
         , Skill.desc      = "Kabuto slices an enemy with a medical scalpel made of chakra, dealing 20 piercing damage. For 1 turn, the target's skills cost 1 additional arbitrary chakra and they receive 5 additional damage from physical, chakra, and summon damaging skills."
@@ -157,6 +207,7 @@ characters =
   , Character
     "Dosu Kinuta"
     "One of the three sound genin, Dosu is patient and logical. His sound-projecting gauntlet shatters his opponents' hearing, making them more vulnerable to attacks."
+    [SoundVillage, Orochimaru, Genin, TeamLeader]
     [ [ Skill.new
         { Skill.name      = "Resonating Echo Drill"
         , Skill.desc      = "Dosu attacks an enemy with his drill, preventing them from reducing damage or becoming invulnerable for 2 turns and dealing 20 damage. Deals 20 additional damage during [Echo Speaker Tuning]."
@@ -201,6 +252,7 @@ characters =
   , Character
     "Kin Tsuchi"
     "One of the three sound genin, Kin likes to defeat her enemies slowly and painfully, torturing them with her needles and bells. Her moves empower each other when strung together in disorienting harmony."
+    [SoundVillage, Orochimaru, Genin, Yin]
     [ [ Skill.new
         { Skill.name      = "Bell Ring Illusion"
         , Skill.desc      = "Sanity-shattering soundwaves deal 15 damage to an enemy. Deals 25 additional damage if [Unnerving Bells] was used last turn. If [Shadow Senbon] was used last turn, Kin becomes invulnerable for 1 turn."
@@ -256,6 +308,7 @@ characters =
   , Character
     "Zaku Abumi"
     "One of the three sound genin, Zaku has a strong desire to win and succeed. The tubes implanted in his arm let him create powerful waves of chakra and protect his allies with air currents."
+    [SoundVillage, Orochimaru, Genin]
     [ [ Skill.new
         { Skill.name      = "Slicing Sound Wave"
         , Skill.desc      = "Zaku fires a blast of supersonic air at an enemy, dealing 25 damage and enabling the use of [Supersonic Slicing Wave] for 1 turn."
@@ -290,54 +343,9 @@ characters =
     , [ invuln "Deflect" "Zaku" [Chakra] ]
     ]
   , Character
-    "Oboro"
-    "A genin from the Hidden Rain Village, Oboro is a vindictive specialist in genjutsu. He conceals himself within a crowd of illusory clones, making it almost impossible for enemies to locate and harm him."
-    [ [ Skill.new
-        { Skill.name      = "Exploding Kunai"
-        , Skill.desc      = "Oboro throws a kunai attached to a paper bomb, dealing 15 damage to all enemies. Costs 1 arbitrary chakra during [Fog Clone]."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = [Rand, Rand]
-        , Skill.effects   =
-          [ To Enemies $ damage 15 ]
-        , Skill.changes   =
-            changeWith "Fog Clone" \x -> x { Skill.cost = [Rand] }
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Underground Move"
-        , Skill.desc      = "Emerging from the ground behind an enemy, Oboro deals 20 damage to them and stuns their physical and mental skills for 1 turn. Targets all enemies and costs 1 genjutsu chakra during [Fog Clone]."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Gen, Rand]
-        , Skill.effects   =
-          [ To Enemy do
-                damage 20
-                apply 1 [Stun Physical, Stun Mental]
-          ]
-        , Skill.changes   =
-            changeWith "Fog Clone" \x -> targetAll x { Skill.cost = [Gen] }
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Fog Clone"
-        , Skill.desc      = "Oboro surrounds himself with illusions, gaining 30 destructible defense and invulnerability to physical, mental, and summon skills for 3 turns."
-        , Skill.classes   = [Mental]
-        , Skill.cost      = [Gen, Rand]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To Self do
-              defend 3 30
-              apply 3 [ Invulnerable Mental
-                      , Invulnerable Physical
-                      , Invulnerable Summon
-                      ]
-          ]
-        }
-      ]
-    , [ invuln "Hide" "Oboro" [Mental] ]
-    ]
-  , Character
     "Yoroi Akadō"
     "A genin from the fake Hidden Sound Village, Yoroi was a resident of the Hidden Leaf Village before defecting to Orochimaru. Capable but brash, Yoroi likes to toy with his enemies, gradually stealing their strength and health for himself."
+    [SoundVillage, Orochimaru, Genin, Rogue, Water, Yin]
     [ [ Skill.new
         { Skill.name      = "Energy Drain"
         , Skill.desc      = "Yoroi touches an enemy, stealing 20 health. For 2 turns, their damage is weakened by 5 and Yoroi's damage is increased by 5."
@@ -383,6 +391,7 @@ characters =
   , Character
     "Misumi Tsurugi"
     "A genin from the fake Hidden Sound Village, Misumi was a resident of the Hidden Leaf Village before defecting to Orochimaru. He twists his muscles and bones to wrap around targets, shielding his allies or choking his opponents."
+    [SoundVillage, Orochimaru, Genin, Rogue, Water]
     [ [ Skill.new
         { Skill.name      = "Flexible Twisting Joints"
         , Skill.desc      = "Misumi latches on to a target with his startlingly loose joints, providing 15 points of damage reduction for 1 turn to an ally or 15 damage to an enemy."

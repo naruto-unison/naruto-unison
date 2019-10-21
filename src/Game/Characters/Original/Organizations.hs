@@ -12,6 +12,7 @@ characters =
   [ Character
     "Izumo and Kotetsu"
     "A pair of chūnin from the Hidden Leaf Village assigned to hunt down members of Akatsuki, Izumo and Kotetsu are close friends and effective partners. Although their strength may be somewhat lacking as individuals, they have a significant advantage of their own: there are two of them."
+    [LeafVillage, Chunin, Water, Yin]
     [ [ Skill.new
         { Skill.name      = "Mace Crush"
         , Skill.desc      = "Kotetsu slams an enemy with his mace, dealing 30 damage. Deals 10 additional damage if the target is affected by [Syrup Trap]."
@@ -113,6 +114,7 @@ characters =
   , Character
     "Aoba Yamashiro"
     "A jōnin from the Hidden Leaf Village assigned to hunt down Akatsuki members, Aoba maintains a reserved and impassive demeanor in public that quickly disappears among friends. He uses his significant genjutsu prowess to summon numerous crows and spread his consciousness among them, controlling all of their actions simultaneously."
+    [LeafVillage, AlliedForces, Jonin, Fire]
     [ [ Skill.new
         { Skill.name      = "Scattering Crow Swarm"
         , Skill.desc      = "A flock of self-duplicating crows swarms the enemy team for 4 turns, dealing 5 damage each turn and providing 5 points of damage reduction to Aoba and his allies."
@@ -171,6 +173,7 @@ characters =
   , Character
     "Ibiki Morino"
     "A sadistic jōnin who specializes in extracting information, Ibiki commands the Hidden Leaf Village's Torture and Interrogation Force. Pain is his preferred method of communication, and his preferred approach to battle is ensuring all options available to his enemies will lead to their defeat."
+    [LeafVillage, Jonin]
     [ [ Skill.new
         { Skill.name      = "Biding Time"
         , Skill.desc      = "Provides 10 points of permanent damage reduction to Ibiki. Each time an enemy uses a skill that deals damage to Ibiki, he will gain a stack of [Payback]. Once used, this skill becomes [Payback][r]."
@@ -224,6 +227,7 @@ characters =
   , Character
     "Yūgao Uzuki"
     "An operative of the Hidden Leaf Village, Yūgao is dedicated and thorough. Having grown close to Hayate, Yūgao combines his expert sword techniques with her sealing abilities."
+    [LeafVillage, Anbu, Sensor]
     [ [ Skill.new
         { Skill.name      = "Moonlight Night"
         , Skill.desc      = "Light flashes off Yūgao's sword as she spins it in a circle, surrounding herself with disorienting afterimages, then strikes at an enemy to deal 50 damage."
@@ -265,6 +269,7 @@ characters =
   , Character
     "Demon Brothers"
     "A pair of rogue chūnin from the Hidden Mist Village, the Demon Brothers are Zabuza's professional assassins. Armed with chain weapons, Gōzu and Meizu gang up on an enemy, disable them, and dispose of them in short order."
+    [MistVillage, Chunin, Rogue, Earth, Water]
     [ [ Skill.new
         { Skill.name      = "Chain Wrap"
         , Skill.desc      = "Gōzu throws his chains around an enemy, stunning their non-mental skills for 1 turn. The following turn, this skill becomes [Chain Shred][t]."
@@ -320,6 +325,7 @@ characters =
   , Character
     "Haku"
     "The sole survivor of the Yuki clan, Haku is Zabuza's young but remarkably strong subordinate. With his inherited ice manipulation techniques, he disrupts his enemies while hiding safely behind crystalline mirrors."
+    [MistVillage, Wind, Water]
     [ [ Skill.new
         { Skill.name      = "Thousand Needles of Death"
         , Skill.desc      = "Haku flings numerous ice needles at an enemy, dealing 30 damage. Targets all enemies during [Crystal Ice Mirrors]."
@@ -362,6 +368,7 @@ characters =
   , Character
     "Zabuza Momochi"
     "One of the Seven Swordsmen of the Mist, Zabuza is a rogue operative who specializes in silent assassination. Wielding Kubikiribōchō, the legendary executioner's broadsword, he uses concealing mist to catch his enemies off-guard, bypassing their defenses."
+    [MistVillage, SevenSwordsmen, Rogue, Water]
     [ [ Skill.new
         { Skill.name      = "Soundless Murder"
         , Skill.desc      = "Zabuza emerges from mist behind an enemy's defenses to deal 30 piercing damage to them. Deals 15 additional damage and bypasses invulnerability during [Hidden Mist]."
@@ -407,6 +414,7 @@ characters =
   , Character
     "Itachi Uchiha"
     "A master of Sharingan techniques, Itachi is a rogue operative from the Hidden Leaf Village who has joined Akatsuki. His power comes at a steep price: using his Sharingan causes him to gradually go blind. He intends to make the most of whatever time he has left."
+    [LeafVillage, Akatsuki, Rogue, SRank, Fire, Wind, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Mangekyō Sharingan"
         , Skill.desc      = "Itachi becomes invulnerable but loses 15 health each turn. While active, the cooldowns and chakra costs of his other skills are doubled. This skill can be used again with no chakra cost to cancel its effect."
@@ -479,6 +487,7 @@ characters =
   , Character
     "Kisame Hoshigaki"
     "One of the Seven Swordsmen of the Mist, Kisame is a rogue operative who has joined Akatsuki. Wielding the legendary sentient sword Samehada, Kisame disables his enemies while his eternally hungry sword eats their chakra."
+    [MistVillage, Akatsuki, SevenSwordsmen, Rogue, SRank, Water, Fire, Wind, Earth]
     [ [ Skill.new
         { Skill.name      = "Samehada Slash"
         , Skill.desc      = "Kisame slashes an enemy with the legendary sword Samehada, dealing 20 damage and stunning their chakra and mental skills for 1 turn."
@@ -524,6 +533,7 @@ characters =
   , Character
     "Jirōbō"
     "A member of the Sound Five, Jirōbō hides his arrogance and hot temper beneath a calm facade. His earth-rending attacks carry momentum from one to the next, making Jirōbō an absolute juggernaut."
+    [SoundVillage, Orochimaru, Earth]
     [ [ Skill.new
         { Skill.name      = "Crushing Palm"
         , Skill.desc      = "Jirōbō delivers a ground-shaking punch to an enemy, dealing 30 damage. Deals 10 additional damage if [Sphere of Graves] was used last turn."
@@ -570,6 +580,7 @@ characters =
   , Character
     "Kidōmaru"
     "A member of the Sound Five, Kidōmaru resembles a spider in both appearance and fighting style. His webs protect his allies and slow his enemies."
+    [SoundVillage, Orochimaru, Sensor]
     [ [ Skill.new
         { Skill.name      = "Spider War Bow"
         , Skill.desc      = "Kidōmaru fires an enzymatic arrow from his mouth, dealing 50 piercing damage to an enemy."
@@ -610,6 +621,7 @@ characters =
   , Character
     "Tayuya"
     "A member of the Sound Five, Tayuya is foul-mouthed and aggressive. She plays her flute to trap her enemies in genjutsu and control the beasts she summons."
+    [SoundVillage, Orochimaru, Yin]
     [ [ Skill.new
         { Skill.name      = "Summoning: Doki"
         , Skill.desc      = "Tayuya summons the Doki Demons, which deal 15 damage to all enemies for 2 turns and provide her with 10 points of damage reduction."
@@ -651,6 +663,7 @@ characters =
   , Character
     "Sakon and Ukon"
     "Members of the Sound Five, Sakon and Ukon are nearly identical twins with a bloodline that enables each brother to live within the body of the other."
+    [SoundVillage, Orochimaru]
     [ [ Skill.new
         { Skill.name      = "Demon Twin Attack"
         , Skill.desc      = "Acting in unison, Sakon and Ukon punch an enemy, dealing 40 damage. Deals 20 damage and costs 1 taijutsu chakra during [Demon Parasite]."
@@ -705,6 +718,7 @@ characters =
   , Character
     "Kimimaro"
     "A member of the Sound Five, Kimimaro led the team before his illness. His bloodline grants him unstoppable offensive power, but his illness is slowly killing him, eroding the little time he has left."
+    [SoundVillage, Orochimaru]
     [ [ Skill.new
         { Skill.name      = "Camellia Dance"
         , Skill.desc      = "Kimimaro wields his arm bones as swords, dealing 30 damage to an enemy. Kimimaro loses 5 health."

@@ -12,6 +12,7 @@ characters =
   [ Character
     "Naruto Uzumaki"
     "A genin from Team 7, Naruto is an orphan with the goal of becoming Hokage. His signature Shadow Clones copy his moves to perform powerful combos and wield the Rasengan."
+    [LeafVillage, Eleven, Genin, Jinchuriki, Sage, Sensor, Wind, Lightning, Earth, Water, Fire, Yin, Yang, Uzumaki]
     [ [ Skill.new
         { Skill.name      = "Naruto Uzumaki Barrage"
         , Skill.desc      = "Using his version of the Lions Barrage, Naruto deals 20 damage to an enemy. Deals 10 additional damage during [Shadow Clones]."
@@ -53,6 +54,7 @@ characters =
   , Character
     "Sakura Haruno"
     "A genin from Team 7, Sakura is intelligent but self-conscious. Her recent training from Tsunade has prepared her to heal her allies and knock back her enemies."
+    [LeafVillage, Eleven, Genin, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "KO Punch"
         , Skill.desc      = "Sakura punches an enemy with all her strength, dealing 20 damage and stunning their physical and mental skills for 1 turn. Deals 10 additional damage during [Inner Sakura]."
@@ -90,6 +92,7 @@ characters =
   , Character
     "Sasuke Uchiha"
     "A genin from Team 7, Sasuke seeks vengeance against his brother for slaughtering the rest of their clan. Using his Sharingan, Sasuke targets his opponent's weak spots and anticipates their attacks."
+    [LeafVillage, Genin, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Lions Barrage"
         , Skill.desc      = "Copying a taijutsu combo that Lee used on him, Sasuke deals 30 damage to an enemy. Deals 15 additional damage if the target is affected by [Sharingan]."
@@ -132,6 +135,7 @@ characters =
   , Character
     "Kiba Inuzuka"
     "A genin from Team 8, Kiba is short-tempered and impulsive. His powerful taijutsu skills are amplified when he fuses with his dog, Akamaru, and transforms into a double-headed monster."
+    [LeafVillage, Eleven, Genin, Earth, Yang, Inuzuka]
     [ [ Skill.new
         { Skill.name      = "Wolf Fang"
         , Skill.desc      = "Kiba projects a vacuum vortex at an enemy, dealing 30 damage. Deals 5 additional damage if the target is affected by [Dynamic Marking]. Costs 1 taijutsu chakra during [Two-Headed Wolf]."
@@ -175,6 +179,7 @@ characters =
   , Character
     "Shino Aburame"
     "A genin from Team 8, Shino is reserved and tactical. He directs the insects living within his body to leech chakra from his enemies and protect his teammates."
+    [LeafVillage, Eleven, Genin, Earth, Fire, Yang, Aburame]
     [ [ Skill.new
         { Skill.name      = "Chakra Leech"
         , Skill.desc      = "Chakra-draining bugs attack an enemy, dealing 20 affliction damage and absorbing 1 random chakra. Deals 5 additional damage per target's stack of [Parasite]."
@@ -214,6 +219,7 @@ characters =
   , Character
     "Hinata Hyūga"
     "A genin from Team 8, Hinata is the shy and withdrawn heiress of the Hyūga clan. With her clan's signature Byakugan, she senses her opponent's energy flow and blocks it at key points to remove their chakra."
+    [LeafVillage, Eleven, Genin, Fire, Lightning, Hyuga, Uzumaki]
     [ [ Skill.new
         { Skill.name      = "Gentle Fist"
         , Skill.desc      = "Using the Hyūga clan's signature taijutsu style, Hinata deals 20 damage to an enemy for 2 turns. During [Byakugan], depletes 1 random chakra of the opposing team each turn."
@@ -256,6 +262,7 @@ characters =
   , Character
     "Shikamaru Nara"
     "A genin from Team 10, Shikamaru is considered the smartest of the Konoha 11. He manipulates shadows to disable and attack his enemies. Whomever he fights, it's only a matter of time before he comes up with the perfect plan to defeat them."
+    [LeafVillage, Eleven, Genin, Fire, Earth, Yin, Nara]
     [ [ Skill.new
         { Skill.name      = "Meditate"
         , Skill.desc      = "Shikamaru sits down and contemplates an enemy. Over the next 5 turns, he composes a strategy against them. Cannot be used on an enemy already affected by this skill."
@@ -298,6 +305,7 @@ characters =
     in Character
     "Chōji Akimichi"
     "A genin from Team 10, Chōji is a voracious eater and loyal friend. His clan's special pills immensely magnify his innate strength and unlock different abilities, but the toll they take on his body can kill him if he pushes himself too far, too fast."
+    [LeafVillage, Eleven, Genin, Earth, Fire, Yang, Akimichi]
     [ [ Skill.new
         { Skill.name      = "Spinach Pill"
         , Skill.desc      = "Chōji eats the mildest Akimichi pill, losing 5 health down to a minimum of 1 and gaining the strength he needs to protect his friends. While alive, he provides 5 points of damage reduction to his allies."
@@ -468,6 +476,7 @@ characters =
   , Character
     "Ino Yamanaka"
     "A genin from Team 10, Ino is as confident as she is vain. She projects the strength of her will directly into the minds of her opponents, bypassing their physical defenses and rendering them helpless."
+    [LeafVillage, Eleven, Genin, Sensor, Earth, Water, Fire, Yin, Yang, Yamanaka]
     [ [ Skill.new
         { Skill.name      = "Mind Destruction"
         , Skill.desc      = "Ino launches a mental assault on an enemy, stunning their non-mental skills and preventing them from reducing damage or becoming invulnerable for 1 turn. Acting through them, she lashes out and deals 30 piercing damage to a random enemy."
@@ -515,6 +524,7 @@ characters =
   , Character
     "Rock Lee"
     "A member of team Guy, Lee is a genin whose inability to use ninjutsu and genjutsu has led him to devote his life to mastering taijutsu. His strength increases with every strike, building up unstoppable momentum as the fight goes on."
+    [LeafVillage, Eleven, Genin]
     [ [ Skill.new
         { Skill.name      = "Ferocious Fist"
         , Skill.desc      = "For 3 turns, Lee deals 10 damage to an enemy and gains 10 points of damage reduction. Deals 15 additional damage during [Fifth Gate Opening]."
@@ -572,6 +582,7 @@ characters =
   , Character
     "Tenten"
     "A member of Team Guy, Tenten is a fiercely independent weapon specialist who intends to become a legendary kunoichi. She keeps an entire arsenal sealed in scrolls to rain down upon the battlefield, wounding and disabling her opponents."
+    [LeafVillage, Eleven, Genin]
     [ [ Skill.new
         { Skill.name      = "Unsealing Technique"
         , Skill.desc      = "Tenten launches a barrage of weapons at an enemy, dealing 20 damage to them and 10 damage to the rest of their team. Each use of [Unsealing Technique] further empowers her next [Rising Dragon Control]."
@@ -627,6 +638,7 @@ characters =
   , Character
     "Neji Hyūga"
     "A member of team Guy, Neji is the cold and fatalistic prodigy of the Hyūga clan. He has mastered numerous techniques, from crippling blows to whirling invulnerability."
+    [LeafVillage, Eleven, Genin, Fire, Earth, Water, Hyuga]
     [ [ Skill.new
         { Skill.name      = "Gentle Fist"
         , Skill.desc      = "Using the Hyūga clan's signature taijutsu, Neji deals 25 damage to an enemy for 2 turns. During this time, that enemy's damage is weakened by 5."
@@ -671,6 +683,7 @@ characters =
   , Character
     "Gaara"
     "The youngest of the sand siblings, Gaara is the unstable jinchūriki of Shukaku, the one-tailed beast. With its aid, Gaara manipulates the sand in his gourd to crush his enemies. The shell of sand around his body makes him invulnerable to all but the strongest of blows."
+    [SandVillage, Genin, Jinchuriki, Sensor, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new
         { Skill.name      = "Sand Coffin"
         , Skill.desc      = "Sand surrounds an enemy, stunning their non-mental skills for 2 turns. While active, the enemy cannot reduce damage or become invulnerable and this skill becomes [Sand Burial][n][n]."
@@ -723,6 +736,7 @@ characters =
   , Character
     "Kankurō"
     "One of the three sand siblings, Kankurō is a master puppeteer. His strategically-placed poison bombs pierce through enemy defenses. In order to harm him, his enemies will have to go through his army of puppets first."
+    [SandVillage, Genin, Wind, Lightning, Earth, Water, SandClan]
     [ [ Skill.new
         { Skill.name      = "Iron Maiden"
         , Skill.desc      = "Two of Kankurō's puppets trap and stab an enemy, dealing 30 piercing damage."
@@ -760,6 +774,7 @@ characters =
   , Character
     "Temari"
     "The older sister of Gaara and Kankurō, Temari is a cruel and blunt expert in war-fan combat. She uses her massive iron fan to generate powerful gusts of wind that repel attacks on her team."
+    [SandVillage, Genin, Wind, SandClan]
     [ [ Skill.new
         { Skill.name       = "Cyclone Scythe"
         , Skill.desc       = "Temari creates a razor sharp wind with her fan that hits an enemy, dealing 20 damage. The following turn, she is invulnerable to non-mental skills."

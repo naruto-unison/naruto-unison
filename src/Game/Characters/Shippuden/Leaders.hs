@@ -12,6 +12,7 @@ characters =
   [ Character
     "Orochimaru"
     "One of three legendary sannin, Orochimaru has cheated death time and time again. As his body slowly rots away, he is forced to discard it and find a new host to possess."
+    [LeafVillage, Orochimaru, Sannin, Rogue, TeamLeader, Wind, Lightning, Earth, Water, Fire, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Body Replacement Substitution"
         , Skill.desc      = "This skill can only be used when Orochimaru's health is at or below 20. Having sustained grievous injuries, Orochimaru's body has reached the end of its usefulness. He sheds it like a second skin, restoring his health to 60."
@@ -55,6 +56,7 @@ characters =
   , Character
     "Jiraiya"
     "One of three legendary sannin, Jiraiya has accepted Naruto as his student. Famed as the Toad Sage, he believes that Naruto is the child spoken of in the prophecies, and that it is his responsibility to teach him to save the world rather than destroy it."
+    [LeafVillage, Sannin, Sage, TeamLeader, Fire, Wind, Earth, Water, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Giant Flame Bomb"
         , Skill.desc      = "Jiraiya spits out a burst of fire, dealing 20 damage to an enemy. Once used, this skill becomes [Toad Oil Bomb][r]."
@@ -117,6 +119,7 @@ characters =
   , Character
     "Tsunade"
     "One of three legendary sannin, Tsunade has become the fifth Hokage. Knowing the Hidden Leaf Village's fate depends on her, she holds nothing back. Even if one of her allies is on the verge of dying, she can keep them alive long enough for her healing to get them back on their feet."
+    [LeafVillage, AlliedForces, Sannin, Lightning, Earth, Water, Fire, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Heaven Spear Kick"
         , Skill.desc      = "Tsunade spears an enemy with her foot, dealing 20 piercing damage to them. If an ally is affected by [Healing Wave], their health cannot drop below 1 next turn. Spends a Seal if available to deal 20 additional damage and demolish the target's destructible defense and Tsunade's destructible barrier."
@@ -178,7 +181,8 @@ characters =
     ]
   , Character
     "Ōnoki"
-    "The third Tsuchikage of the Hidden Rock Village, Ōnoki is the oldest and most stubborn Kage. His remarkable ability to control matter on an atomic scale rapidly grows in strength until it can wipe out a foe in a single attack."
+    "The third Tsuchikage of the Hidden Stone Village, Ōnoki is the oldest and most stubborn Kage. His remarkable ability to control matter on an atomic scale rapidly grows in strength until it can wipe out a foe in a single attack."
+    [StoneVillage, AlliedForces, Kage, Earth, Fire, Wind, Lightning, Yang, Kamizuru]
     [ [ Skill.new
         { Skill.name      = "Earth Golem"
         , Skill.desc      = "A golem of rock emerges from the ground, providing 10 permanent destructible defense to his team and dealing 10 damage to all enemies."
@@ -219,6 +223,7 @@ characters =
   , Character
     "Mei Terumi"
     "The third Mizukage of the Hidden Mist Village, Mei works tirelessly to help her village overcome its dark history and become a place of kindness and prosperity. Her corrosive attacks eat away at the defenses of her enemies."
+    [MistVillage, AlliedForces, Kage, Water, Fire, Lightning, Earth]
     [ [ Skill.new
         { Skill.name      = "Solid Fog"
         , Skill.desc      = "Mei exhales a cloud of acid mist that deals 15 affliction damage to an enemy for 3 turns."
@@ -261,6 +266,7 @@ characters =
   , Character
     "Fukasaku and Shima"
     "Revered as the Two Great Sage Toads, Fukasaku and Shima serve Lord Elder Gamamaru in administrating Mount Myōboku. They taught Jiraiya and Naruto how to absorb chakra from natural energy. If left uninterrupted, their sound-based genjutsu can disable their enemies with ease."
+    [Sage, Wind, Water, Yin, Fire]
     [ [ Skill.new
         { Skill.name      = "Frog Song"
         , Skill.desc      = "Croaking in unison, the Toad Sages emit destabilizing sound waves that deal 20 affliction damage to a target for 2 turns and increase the chakra costs of their skills by 1 additional arbitrary chakra."

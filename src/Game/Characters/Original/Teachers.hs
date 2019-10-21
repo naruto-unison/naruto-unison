@@ -12,6 +12,7 @@ characters =
   [ Character
     "Iruka Umino"
      "A chūnin from the Hidden Leaf Village, Iruka is a kind instructor who has mentored Naruto throughout his youth. He fights to keep his allies safe and protect them from harm, growing stronger out of desperation the closer to death he is."
+    [LeafVillage, Chunin, Fire, Water, Yin]
     [ [ Skill.new
         { Skill.name      = "Shuriken Throw"
         , Skill.desc      = "Iruka throws a shuriken at an enemy, dealing 20 damage plus 10 per 25 health Iruka has lost."
@@ -52,6 +53,7 @@ characters =
   , Character
     "Mizuki"
     "A chūnin from the Hidden Leaf Village, Mizuki is an unpleasant instructor who betrays his allies without hesitation in order to succeed. Unless forced into direct combat, he slips into the shadows and ambushes his enemies at their weakest."
+    [LeafVillage, Orochimaru, Chunin, Rogue, Earth, Yin]
     [ [ Skill.new
         { Skill.name      = "Kunai Assault"
         , Skill.desc      = "Mizuki throws a series of kunai at an enemy, dealing 15 damage for 2 turns. Deals all 30 damage instantly during [Successful Ambush]."
@@ -104,6 +106,7 @@ characters =
   , Character
     "Anko Mitarashi"
     "A former student of Orochimaru who bears his Curse Mark, Anko is now a jōnin teacher in the Hidden Leaf Village. She uses various poisons and forbidden techniques learned from Orochimaru to dismantle her enemies."
+    [LeafVillage, AlliedForces, Jonin, Fire, Yin]
     [ [ Skill.new
         { Skill.name      = "Dual Pin"
         , Skill.desc      = "Anko pins herself to an enemy by stabbing a kunai through her hand, preventing the target from reducing damage or becoming invulnerable for 1 turn and dealing 5 damage. Deals 5 additional damage if the target is affected by [Dragon Flame]."
@@ -158,6 +161,7 @@ characters =
   , Character
     "Hayate Gekkō"
     "A jōnin exam proctor from the Hidden Leaf Village, Hayate is calm and composed despite his poor health and chronic cough. He slips in and out of the shadows, gradually recovering his strength and honing his expert swordsmanship."
+    [LeafVillage, Jonin]
     [ [ Skill.new
         { Skill.name      = "Secret Sword"
         , Skill.desc      = "Hayate leaps and attacks an enemy from above, dealing 15 damage. Increases Hayate's damage by 5."
@@ -203,6 +207,7 @@ characters =
   , Character
     "Kakashi Hatake"
     "Team 7's jōnin squad leader, Kakashi puts the life of his teammates above all else. Known as the Copy Ninja, Kakashi analyzes and duplicates abilities used against him."
+    [LeafVillage, Jonin, TeamLeader, Lightning, Water, Earth, Fire, Wind, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Kakashi anticipates any attacks against him, copying them faster than their user. All skills that enemies use on Kakashi next turn will be reflected back at them."
@@ -241,6 +246,7 @@ characters =
   , Character
     "Kurenai Yuhi"
     "Team 8's jōnin squad leader, Kurenai is caring and brave. A master of genjutsu, Kurenai traps her enemies in inescapable illusions."
+    [LeafVillage, Jonin, Sensor, TeamLeader, Yin, Sarutobi]
     [ [ Skill.new
         { Skill.name      = "Demonic Illusion: Entrap"
         , Skill.desc      = "Kurenai hinders an enemy with her genjutsu. For 2 turns, the target's damage is weakened by 10, the chakra costs of their skills is increased by 1 arbitrary chakra, and they cannot reduce damage or become invulnerable. Kurenai then deals 10 damage to the target. Adds 5 destructible defense to Kurenai's next [Illusory Tree Meld]."
@@ -298,7 +304,8 @@ characters =
     ]
   , Character
     "Asuma Sarutobi"
-    "Team 10's squad leader, Asuma is a chronic smoker and the third Hokage's son. He focuses on protecting his team, providing them with defense and taking blows in their stead."
+    "Team 10's jōnin squad leader, Asuma is a chronic smoker and the third Hokage's son. He focuses on protecting his team, providing them with defense and taking blows in their stead."
+    [LeafVillage, Jonin, TeamLeader, Wind, Fire, Sarutobi]
     [ [ Skill.new
         { Skill.name      = "Flying Swallow"
         , Skill.desc      = "Asuma carries out a series of chakra-enhanced knife attacks. For 2 turns, he deals 15 damage to all enemies and provides 15 points of damage reduction to his team. While active, this skill becomes [Finishing Blow][n][r] and [Sharpen Blades] becomes [Flying Kick][t][r]."
@@ -380,6 +387,7 @@ characters =
   , Character
     "Might Guy"
     "Team Guy's jōnin squad leader, Guy is passionate and strong-willed. He treats his teammates like family, especially Lee, who looks up to him as a father figure. His taijutsu prowess is unmatched. Although opening his inner Gates takes a heavy toll on his body, it empowers his blows with inescapable destruction."
+    [LeafVillage, Jonin, TeamLeader, Fire, Lightning]
     [ [ Skill.new
         { Skill.name      = "Leaf Hurricane"
         , Skill.desc      = "Guy delivers a powerful spinning kick to an enemy, dealing 30 damage. During [Sixth Gate Opening], this skill becomes [Severe Leaf Hurricane][t][r]."
@@ -427,6 +435,7 @@ characters =
   , Character
     "Baki"
     "A jōnin from the Hidden Sand Village, Baki is a ruthlessly efficient squad leader. He cloaks his attacks in illusions to prevent his enemies from defending against them."
+    [SandVillage, Jonin, TeamLeader, Wind]
     [ [ Skill.new
         { Skill.name      = "Sudden Strike"
         , Skill.desc      = "Baki performs a blindingly fast attack concealed by decoy illusory trails, dealing 20 piercing damage to an enemy."
@@ -464,6 +473,7 @@ characters =
   , Character
     "Shizune"
     "A jōnin from the Hidden Leaf Village, Shizune is a talented medical-nin apprenticed to Tsunade. She is agile and fast, fully capable of holding her own in a fight whenever she isn't healing one of her allies."
+    [LeafVillage, AlliedForces, Jonin]
     [ [ Skill.new
         { Skill.name      = "Poison Needle Volley"
         , Skill.desc      = "Shizune shoots hidden needles at an enemy, dealing 15 damage."

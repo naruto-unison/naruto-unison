@@ -8,7 +8,7 @@ import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Html.Keyed as Keyed
-import Html.Lazy exposing (lazy6)
+import Html.Lazy exposing (lazy3)
 import Http
 import List.Extra as List
 import List.Nonempty as Nonempty exposing (Nonempty(..))
@@ -48,7 +48,7 @@ wraparound wrapping i xs =
 
 
 type Previewing
-    = NoPreview
+    = PreviewWar
     | PreviewUser User
     | PreviewChar Character
 
@@ -115,6 +115,8 @@ type alias Model =
     , avatars    : List String
     , chars      : Characters
     , visibles   : Set String
+    , red        : Set String
+    , blue       : Set String
     , csrf       : String
     , csrfParam  : String
     , showLogin  : Bool
@@ -193,13 +195,15 @@ component ports =
             , chars      = flags.characters
             , avatars    = flags.avatars
             , visibles   = flags.visibles
+            , red        = flags.red
+            , blue       = flags.blue
             , csrf       = flags.csrf
             , csrfParam  = flags.csrfParam
             , showLogin  = True
             , index      = 0
             , cols       = 11
             , toggled    = Nothing
-            , previewing = NoPreview
+            , previewing = PreviewWar
             , mission    = []
             , alternates = [ 0, 0, 0, 0 ]
             , pageSize   = 36
@@ -228,11 +232,7 @@ component ports =
         view : Model -> Html Msg
         view st =
             H.section [ A.id "charSelect" ] <|
-            lazy6
-                userBox
-                st.user
-                st.csrf
-                st.csrfParam
+            lazy3 (userBox st.red st.blue st.user st.csrf st.csrfParam)
                 st.showLogin
                 st.costs
                 st.team
@@ -312,6 +312,28 @@ component ports =
                                 _ ->
                                     ( previewBox st, Team )
 
+                        displayChar char =
+                            let
+                                isRed = char |> belongsTo st.red
+                                isBlue = char |> belongsTo st.blue
+                            in
+                            ( characterName char
+                            , H.div [ A.class "charWrapper" ] <|
+                                icon char "icon"
+                                [ E.onMouseOver << Preview <| PreviewChar char
+                                , E.onClick <| teamOp Add char
+                                , A.class <| charClass char
+                                ] ::
+                                    if isRed && isBlue then
+                                        [ H.div [ A.class "redblue" ] [] ]
+                                    else if isRed then
+                                        [ H.div [ A.class "red"]  [] ]
+                                    else if isBlue then
+                                        [ H.div [ A.class "blue" ] [] ]
+                                    else
+                                        []
+                            )
+
                     in
                     [ topModule
                     , H.section [ A.id "characterButtons"
@@ -324,19 +346,10 @@ component ports =
                         (if st.index == 0 then "close" else "left") <| Page -1
                       , Render.scroll "nextPage"
                         (if wrapping then "close" else "right") <| Page 1
-                      , Keyed.node "div"
-                        [ A.id "charScroll"
-                        , E.onMouseLeave Untoggle
-                        ] << for displays <|
-                            \char ->
-                                ( characterName char
-                                , icon char
-                                  "icon"
-                                  [ E.onMouseOver << Preview <| PreviewChar char
-                                  , E.onClick <| teamOp Add char
-                                  , A.class <| charClass char
-                                  ]
-                                )
+                      , Keyed.node "div" [ A.id "charScroll"
+                                         , E.onMouseLeave Untoggle
+                                         ] <|
+                        List.map displayChar displays
                         ]
                     ]
 
@@ -625,6 +638,11 @@ locked set char =
     not <| Set.member (characterName char) set
 
 
+belongsTo : Set String -> Character -> Bool
+belongsTo war char =
+    not << Set.isEmpty <| Set.intersect war char.groups
+
+
 affordable : Maybe User -> Character -> Bool
 affordable muser char =
     if char.price == 0 then
@@ -640,14 +658,16 @@ affordable muser char =
 
 
 userBox :
-    Maybe User
+    Set String
+    -> Set String
+    -> Maybe User
     -> String
     -> String
     -> Bool
     -> Chakras
     -> List Character
     -> Html Msg
-userBox mUser csrf csrfParam showLogin costs team =
+userBox red blue mUser csrf csrfParam showLogin costs team =
     let
         meta onClick =
             if List.length team == Game.teamSize then
@@ -789,13 +809,26 @@ userBox mUser csrf csrfParam showLogin costs team =
       [ Keyed.node "div"
         [ A.id "teamButtons", A.class "select" ] << for team <|
           \char ->
+              let
+                  isRed = char |> belongsTo red
+                  isBlue = char |> belongsTo blue
+              in
               ( characterName char
-              , icon char
+              , H.div [ A.class "charWrapper" ] <|
+                icon char
                   "icon"
                   [ A.class "char click"
                   , E.onMouseOver << Preview <| PreviewChar char
                   , E.onClick <| Team Delete char
-                  ]
+                  ] ::
+                          if isRed && isBlue then
+                              [ H.div [ A.class "redblue" ] [] ]
+                          else if isRed then
+                              [ H.div [ A.class "red"]  [] ]
+                          else if isBlue then
+                              [ H.div [ A.class "blue" ] [] ]
+                          else
+                              []
               )
     , H.div [ A.class "space" ] []
       , H.div [ A.id "underTeam", A.class "parchment" ] <|
@@ -884,11 +917,27 @@ searchBox st =
     ]
 
 
+listWar : String -> Set String -> Html msg
+listWar class war =
+    war
+        |> Set.toList
+        >> List.map (H.text >> List.singleton >> H.p [])
+        >> H.div [ A.class class ]
+
+
 previewBox : Model -> Html Msg
 previewBox st =
     case st.previewing of
-        NoPreview ->
-            H.article [ A.class "parchment", A.style "display" "none" ] []
+        PreviewWar ->
+            H.article [ A.class "parchment war" ]
+            [ H.section []
+              [ listWar "red" st.red
+              , H.h1 [] [ H.text "Today's War" ]
+              , listWar "blue" st.blue
+              ]
+            , H.p []
+              [ H.text "Choose a side! Make a full team from one side and earn bonus DNA for defeating full teams from the other side."]
+            ]
 
         PreviewUser _ ->
             H.article [ A.class "parchment" ]

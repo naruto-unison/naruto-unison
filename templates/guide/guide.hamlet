@@ -12,3 +12,5 @@ $else
   Each of Naruto Unison's #{length Characters.list} playable characters has their own skills and strategies.
 <a href=@{CharactersR} .guide>
   Browse characters
+<a href=@{GroupsR} .guide>
+  Browse groups

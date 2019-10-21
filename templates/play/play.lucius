@@ -312,6 +312,40 @@ button.scroll:hover {
     height: 75px;
 }
 
+.charWrapper {
+    display: inline-block;
+    position: relative;
+
+    div {
+        border-radius: 100%;
+        border: 2px solid #000;
+        width: 15px;
+        height: 15px;
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+    }
+
+    .redblue {
+        background: purple;
+    }
+    .red {
+        background: #e00;
+    }
+    .blue {
+        background: #007acc;
+    }
+}
+.redblue {
+    color: purple;
+}
+.red {
+    color: #e00;
+}
+.blue {
+     color: #007acc;
+}
+
 #player0 .charhealth {
     margin-left: 77px;
     margin-right: auto;
@@ -1080,6 +1114,10 @@ svg {
     text-align: right;
     display: flex;
     flex-direction: column;
+
+    .charWrapper div {
+        bottom: -2px;
+    }
 }
 
 #top {
@@ -1280,6 +1318,29 @@ svg {
 
     span {
         margin: 0 0.5em 0 1em;
+    }
+}
+
+.war {
+    text-align: center;
+
+    section {
+        display: flex;
+    }
+
+    div {
+        float: none !important;
+        flex-grow: 1;
+        padding: 0.67em 0;
+    }
+
+    h1, div {
+        font-size: 1.75em;
+    }
+
+    > p {
+        margin-top: 0.5em;
+        font-size: 1.25em;
     }
 }
 

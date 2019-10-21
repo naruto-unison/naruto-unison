@@ -128,6 +128,7 @@ origin BoardR{}     = ForumsR
 origin ChangelogR   = HomeR
 origin CharacterR{} = GuideR
 origin CharactersR  = GuideR
+origin GroupsR      = GuideR
 origin MechanicsR   = GuideR
 origin NewTopicR{}  = ForumsR
 origin ProfileR{}   = ForumsR
@@ -215,6 +216,7 @@ instance YesodBreadcrumbs App where
     breadcrumb (CharacterR x) = return (Character.format x, Just CharactersR)
     breadcrumb CharactersR    = return ("Characters", Just GuideR)
     breadcrumb ForumsR        = return ("Forums", Just HomeR)
+    breadcrumb GroupsR        = return ("Groups", Just GuideR)
     breadcrumb GuideR         = return ("Guide", Just HomeR)
     breadcrumb HomeR          = return ("Home", Nothing)
     breadcrumb MechanicsR     = return ("Game Mechanics", Just GuideR)

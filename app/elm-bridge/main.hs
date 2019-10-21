@@ -24,6 +24,7 @@ import Handler.Client (ObjectiveProgress(..))
 import Handler.Client.Reward (Reward(..))
 import Handler.Play.Queue (Failure(..))
 import Handler.Play.Turn (Turn(..))
+import Handler.Play.War (War(..))
 import Handler.Play (Message(..))
 import OrphanInstances.Ninja (Face(..))
 
@@ -51,6 +52,7 @@ data Ninja = Ninja
 data GameInfo = GameInfo { opponent   :: User
                          , turn       :: Turn
                          , player     :: Player
+                         , war        :: Maybe War
                          }
 
 -- From the ToJSON instance of Barrier in Model.Internal
@@ -94,11 +96,12 @@ typeAlterations t = case t of
     ETyApp (ETyCon (ETCon "Runnable")) x -> typeAlterations x
     ETyApp (ETyCon (ETCon "EnumSet")) x  -> ETyApp (ETyCon (ETCon "Set")) $
                                             typeAlterations x
-    ETyCon (ETCon "Seq")       -> ETyCon (ETCon "List")
-    ETyCon (ETCon "NonEmpty")  -> ETyCon (ETCon "List")
-    ETyCon (ETCon "Slot")      -> ETyCon (ETCon "Int")
     ETyCon (ETCon "Class")     -> ETyCon (ETCon "String")
     ETyCon (ETCon "Duration")  -> ETyCon (ETCon "Int")
+    ETyCon (ETCon "Group")     -> ETyCon (ETCon "String")
+    ETyCon (ETCon "NonEmpty")  -> ETyCon (ETCon "List")
+    ETyCon (ETCon "Seq")       -> ETyCon (ETCon "List")
+    ETyCon (ETCon "Slot")      -> ETyCon (ETCon "Int")
     ETyCon (ETCon "Trigger")   -> ETyCon (ETCon "String")
     ETyCon (ETCon "Varying")   -> ETyCon (ETCon "Int")
     _                          -> defaultTypeAlterations t
@@ -131,6 +134,7 @@ deriveElmDef defaultOptions ''Status
 deriveElmDef defaultOptions ''Target
 deriveElmDef defaultOptions ''Trap
 deriveElmDef defaultOptions ''Turn
+deriveElmDef defaultOptions ''War
 
 trimAll :: String -> String
 trimAll s = unlines $ dropWhileEnd isSpace <$> lines s
@@ -175,4 +179,5 @@ main =
     , DefineElm (Proxy :: Proxy Trap)
     , DefineElm (Proxy :: Proxy Turn)
     , DefineElm (Proxy :: Proxy User)
+    , DefineElm (Proxy :: Proxy War) -- hehehe
     ]

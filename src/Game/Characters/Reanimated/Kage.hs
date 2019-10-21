@@ -12,6 +12,7 @@ characters =
   [ Character
     "Hashirama Senju"
     "Reanimated by Orochimaru, Hashirama was the founder of the Hidden Leaf Village and its first Hokage. His unique ability to manipulate wood allows him give life to trees, which protect his allies and impair his enemies."
+    [LeafVillage, Kage, Sage, Earth, Water, Fire, Wind, Lightning, Yin, Yang, Senju]
     [ [ Skill.new
         { Skill.name      = "Tree Wave Destruction"
         , Skill.desc      = "Sending out trees in all directions, Hashirama deals 10 damage to all enemies and provides 5 permanent destructible defense to his team. Has no cooldown during [Deep Forest Creation]."
@@ -78,6 +79,7 @@ characters =
   , Character
     "Tobirama Senju"
     "Reanimated by Orochimaru, Hashirama was the second Hokage. His water-manipulating skills flood the battlefield, impairing and harming the enemy team."
+    [LeafVillage, Kage, Sensor, TeamLeader, Water, Fire, Wind, Lightning, Earth, Yin, Yang, Senju]
     [ [ Skill.new
         { Skill.name      = "Water Prison"
         , Skill.desc      = "Water surrounds an enemy, dealing 15 damage and making them ignore helpful effects for 1 turn."
@@ -121,6 +123,7 @@ characters =
   , Character
     "Minato Namikaze"
     "Reanimated by Orochimaru, Minato was the fourth Hokage. Free at last from the Reaper's eternal torment, Minato's soul carries the Yin half of Kurama, the nine-tailed beast. On his own, he was renowned as a legendary fighter and the fastest man in history; as an immortal jinchūriki, he is a threat unto gods."
+    [LeafVillage, Kage, Jinchuriki, Sage, Sensor, TeamLeader, Fire, Wind, Lightning, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Space-Time Marking"
         , Skill.desc      = "Minato opportunistically marks targets to use as teleport destinations for avoiding attacks. Allies who do not use skills this turn and enemies who do not use skills next turn will be marked for 4 turns. Minato gains 5 points of damage reduction for each marked target. This skill stacks."
@@ -187,6 +190,7 @@ characters =
   , Character
     "Hanzō"
     "Reanimated by Kabuto, Hanzō the Salamander was the leader of the Hidden Rain Village. In combination with his unrivaled combat prowess, the lethal venom sac implanted in his body makes him a feared legend throughout the world."
+    [RainVillage, Kabuto, Kage, Fire]
     [ [ Skill.new
         { Skill.name      = "Major Summoning: Ibuse"
         , Skill.desc      = "Hanzō summons his fabled salamander to the battlefield. Ibuse starts with 30 health and redirects half of all damage against Hanzō to itself until it dies. While active, this skill becomes [Poison Fog][b][b]."
@@ -265,6 +269,7 @@ characters =
   , Character
     "Rasa"
     "Reanimated by Kabuto, Rasa was the fourth Kazekage of the Hidden Sand Village and the father of the Sand Siblings. Cold and calculating, Rasa buries his enemies beneath crushingly heavy gold dust that they must fight their way out of to survive."
+    [SandVillage, Kabuto, Kage, Wind, Earth, Water, Yin, SandClan]
     [ [ Skill.new
         { Skill.name      = "Magnet Technique"
         , Skill.desc      = "Waves of gold flood the enemy team, dealing 10 damage to them and applying 10 permanent destructible barrier to each. The skills of enemies who have destructible barrier from this skill cost 1 additional arbitrary chakra."
@@ -313,6 +318,7 @@ characters =
   , Character
     "A"
     "Reanimated by Kabuto, A was the third Raikage of the Hidden Cloud Village. His legendary resilience and fortitude earned him the title of Strongest Shield."
+    [CloudVillage, Kabuto, Kage, Lightning, Earth, Fire]
     [ [ Skill.new
         { Skill.name      = "Piercing Four-Fingered"
         , Skill.desc      = "A switches to his four-fingered style, increasing the damage of [Lightning Straight] by 5. For the rest of the game, enemies who use skills on A or his allies will be marked for 1 turn. If A uses [Lightning Straight] on a marked target, they will be stunned for 1 turn and immune to being marked for 4 turns. Once used, this skill becomes [Three-Fingered Assault][r][r]."
@@ -386,7 +392,8 @@ characters =
     150
   , Character
     "Mū"
-    "Reanimated by Kabuto, Mū was the second Tsuchikage of the Hidden Rock Village. Unfailingly polite, he intends to ensure that his village benefits from the war. By manipulating matter at the atomic level, he disintegrates the defenses of his enemies."
+    "Reanimated by Kabuto, Mū was the second Tsuchikage of the Hidden Stone Village. Unfailingly polite, he intends to ensure that his village benefits from the war. By manipulating matter at the atomic level, he disintegrates the defenses of his enemies."
+    [StoneVillage, Kabuto, Kage, Sensor, Earth, Water, Fire, Wind, Lightning, Yang]
     [ [ Skill.new
         { Skill.name      = "Particle Beam"
         , Skill.desc      = "A ray of high-energy atomic particles blasts an enemy, dealing 25 piercing damage. Deals 10 additional damage if the target is invulnerable. Deals 5 fewer damage and costs 1 ninjutsu chakra during [Fragmentation]."
@@ -441,6 +448,7 @@ characters =
   , Character
     "Gengetsu Hōzuki"
     "Reanimated by Kabuto, Gengetsu was the second Mizukage of the Hidden Mist Village. Charismatic and carefree, he cheerfully offers tips to his opponents on how to beat him. He is especially fond of one-on-one duels."
+    [MistVillage, Kabuto, Kage, Water, Fire, Lightning, Earth, Yin, Yang, Hozuki]
     [ [ Skill.new
         { Skill.name      = "Major Summoning: Giant Clam"
         , Skill.desc      = "Gengetsu summons a huge clam that exudes illusory mist for 4 turns. Each turn, a random member of his team becomes a mirage, reflecting the first skill an enemy uses on them next turn, and a random member of his team gains 80 destructible defense for 1 turn. If the clam's destructible defense is destroyed, this skill is canceled."

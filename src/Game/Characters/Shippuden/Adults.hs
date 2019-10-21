@@ -12,6 +12,7 @@ characters =
   [ Character
     "Kakashi Hatake"
     "For most of his life, Kakashi has avoided using Kamui—his Sharingan's ultimate ability—unless absolutely necessary, due to the mental and physical strain. Those days are over. With years of practice and refinement behind him, Kakashi can now rely on Kamui's dimensional warping to torture his enemies and make his allies intangible."
+    [LeafVillage, AlliedForces, Jonin, TeamLeader, Lightning, Water, Earth, Fire, Wind, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Lightning Beast Fang"
         , Skill.desc      = "Kakashi creates a lightning hound out of his Lightning Blade, which deals 25 piercing damage to an enemy. If the target is damaged, they will be stunned for 1 turn. During the next turn, this skill becomes [Lightning Blade Finisher][n][r]."
@@ -73,6 +74,7 @@ characters =
   , Character
     "Asuma Sarutobi"
     "Having somehow managed to avoid lung cancer, Asuma remains the leader of Team 10. Using techniques he learned from the Fire Temple, he hinders his opponents and instantly executes weak enemies."
+    [LeafVillage, Jonin, TeamLeader, Wind, Fire, Sarutobi]
     [ [ Skill.new
         { Skill.name      = "Thousand Hand Strike"
         , Skill.desc      = "Asuma summons Kannon, the Fire Temple's patron spirit, which provides him with 40 permanent destructible defense and deals 25 damage to an enemy. The following turn, this skill becomes [Kannon Strike][r]. When [Kannon Strike] ends, this skill is disabled for 1 turn."
@@ -145,6 +147,7 @@ characters =
   , Character
     "Might Guy"
     "Over the past few years, Guy has learned restraint. By gradually opening his Gates in sequence, he avoids the risk of burning out before the battle is won."
+    [LeafVillage, AlliedForces, Jonin, TeamLeader, Fire, Lightning]
     [ [ Skill.new
         { Skill.name      = "Nunchaku"
         , Skill.desc      = "Using his signature Twin Fangs weapons, Guy deals 10 damage to an enemy for 3 turns. While active, if an enemy uses a physical skill on him, he will deal 10 damage to them. Deals 5 additional damage on the first turn per stack of [Single Gate Release]."
@@ -219,6 +222,7 @@ characters =
   , Character
     "Maki"
     "A jōnin from the Hidden Sand Village, Maki studied under Pakura, the Hero of the Hidden Sand. As a member of the Allied Shinobi Forces Sealing Team, Maki must put aside her long-held grudge against the Hidden Stone Village for killing her teacher."
+    [SandVillage, AlliedForces, Jonin]
     [ [ Skill.new
         { Skill.name      = "Binding Cloth"
         , Skill.desc      = "Maki deploys a roll of cloth from within a seal and wraps it around herself, gaining 50% damage reduction for 1 turn. If an enemy uses a skill on Maki, the cloth wraps around them, stunning their physical and melee skills for 1 turn."
@@ -261,6 +265,7 @@ characters =
   , Character
     "Chiyo"
     "A widely-respected puppeteer and former leader of the Hidden Sand Village's Puppet Brigade, Elder Chiyo has a lifetime of combat experience. Her numerous puppets sow chaos among her enemies and shield her from harm, allowing her to use her other skills with impunity."
+    [SandVillage]
     [ [ Skill.new
         { Skill.name      = "Assault Blade"
         , Skill.desc      = "Hovering kunai deal 15 piercing damage to a targeted enemy and a random enemy. During [Ten Puppets Collection], this skill becomes [Three Treasure Suction Crush][r][r]."
@@ -335,7 +340,8 @@ characters =
     ]
   , Character
     "Akatsuchi"
-    "A jōnin from the Hidden Rock Village, Akatsuchi is cheerful and excitable. He uses brute strength and rock golems to pummel his enemies to the ground."
+    "A jōnin from the Hidden Stone Village, Akatsuchi is cheerful and excitable. He uses brute strength and rock golems to pummel his enemies to the ground."
+    [StoneVillage, AlliedForces, Jonin, Earth]
     [ [ Skill.new
         { Skill.name      = "High-Speed Assault"
         , Skill.desc      = "Akatsuchi punches an enemy with all his might, dealing 25 damage. Costs 1 taijutsu chakra during [Stone Golem]."
@@ -376,7 +382,8 @@ characters =
     ]
   , Character
     "Kurotsuchi"
-    "A jōnin from the Hidden Rock Village, Kurotsuchi is the Third Tsuchikage's granddaughter. Witty and self-assured, Kurotsuchi is famed for her unflinching resolve in the face of danger."
+    "A jōnin from the Hidden Stone Village, Kurotsuchi is the Third Tsuchikage's granddaughter. Witty and self-assured, Kurotsuchi is famed for her unflinching resolve in the face of danger."
+    [StoneVillage, AlliedForces, Jonin, Fire, Earth, Water, Yin, Kamizuru]
     [ [ Skill.new
         { Skill.name      = "Lava Quicklime"
         , Skill.desc      = "Kurotsuchi expels a mass of quicklime from her mouth, dealing 25 damage to an enemy and gaining 50% damage reduction for 1 turn."
@@ -421,7 +428,8 @@ characters =
     ]
   , Character
     "Ittan"
-    "A chūnin from the Hidden Rock Village, Ittan is battle-hardened and level-headed. By reshaping the terrain, Ittan turns the battlefield to his advantage."
+    "A chūnin from the Hidden Stone Village, Ittan is battle-hardened and level-headed. By reshaping the terrain, Ittan turns the battlefield to his advantage."
+    [StoneVillage, AlliedForces, Chunin, Earth]
     [ [ Skill.new
         { Skill.name      = "Battlefield Trenches"
         , Skill.desc      = "By raising and lowering ground levels, Ittan alters the battlefield in his favor. For 2 turns, all enemies receive 20% more damage and Ittan gains 15 points of damage reduction."
@@ -462,7 +470,8 @@ characters =
     ]
   , Character
     "Kitsuchi"
-    "A jōnin from the Hidden Rock Village, Kitsuchi is the Third Tsuchikage's son and Kurotsuchi's father. He commands the Allied Shinobi Forces Second Division, a responsibility he takes with the utmost seriousness."
+    "A jōnin from the Hidden Stone Village, Kitsuchi is the Third Tsuchikage's son and Kurotsuchi's father. He commands the Allied Shinobi Forces Second Division, a responsibility he takes with the utmost seriousness."
+    [StoneVillage, AlliedForces, Jonin, Earth]
     [ [ Skill.new
         { Skill.name      = "Rock Fist"
         , Skill.desc      = "A massive stone hand punches an enemy, dealing 35 damage and disabling the countering and reflecting effects of their skills for 1 turn."
@@ -516,6 +525,7 @@ characters =
   , Character
     "C"
     "A jōnin from the Hidden Cloud Village, C is one of the Raikage's bodyguards. Reliable and dutiful, C supports his allies with healing and sensing."
+    [CloudVillage, AlliedForces, Jonin, Sensor, Lightning, Yin]
     [ [ Skill.new
         { Skill.name      = "Sensory Technique"
         , Skill.desc      = "C strikes a random enemy while detecting the flow of chakra, dealing 20 damage to them. If an enemy uses a skill on C next turn, he will become invulnerable for 1 turn."
@@ -555,6 +565,7 @@ characters =
   , Character
     "Atsui"
     "A chūnin from the Hidden Cloud Village, Atsui is a hot-headed hotshot whose favorite word is 'hot' and whose name literally means 'Hot'. A staggeringly complex character with hidden depths, Atsui's skills are as diverse as his multifaceted personality."
+    [CloudVillage, AlliedForces, Chunin, Fire]
     [ [ Skill.new
         { Skill.name      = "Burning Blade"
         , Skill.desc      = "Fire envelops Atsui's sword and surrounds him, providing him with 10 points of damage reduction for 3 turns. While active, enemies who use skills on Atsui will take 10 affliction damage."
@@ -597,6 +608,7 @@ characters =
   , Character
     "Omoi"
     "A chūnin from the Hidden Cloud Village, Omoi has an overactive imagination that feeds into his pessimism. A master swordsman, Omoi is quick to spot vulnerabilities in his opponents' defenses."
+    [CloudVillage, AlliedForces, Chunin, Lightning]
     [ [ Skill.new
         { Skill.name      = "Back Slice"
         , Skill.desc      = "Omoi sets up a feint technique, preparing to spin and catch his enemies off-balance. Next turn, enemies who use a skill on Omoi will be countered and receive 20 piercing damage. Once used, this skill becomes [Crescent Moon Slice][t][r]."
@@ -658,6 +670,7 @@ characters =
   , Character
     "Dodai"
     "A jōnin from the Hidden Cloud Village, Dodai is an impassive utilitarian with decades of experience as a sensor. He possesses the unusual ability to create rubbery lava by combining fire and earth chakra."
+    [CloudVillage, AlliedForces, AlliedForces, Jonin, Fire, Earth]
     [ [ Skill.new
         { Skill.name      = "Rubber Wall"
         , Skill.desc      = "A force-absorbing barrier springs up in front of Dodai's team, reducing damage to them by 20% for 3 turns and causing them to ignore stuns and disabling effects."
@@ -704,6 +717,7 @@ characters =
   , Character
     "Darui"
     "A jōnin of the Hidden Cloud Village, Darui is the fourth Raikage's right hand. Despite his laid-back attitude and characteristic slouch, he fights with incredible speed and ferocity."
+    [CloudVillage, AlliedForces, Jonin, Lightning, Water, Wind]
     [ [ Skill.new
         { Skill.name      = "Laser Circus"
         , Skill.desc      = "Energy beams shoot out of Darui's hand, stunning an enemy's mental and ranged skills and dealing 20 piercing damage to all other enemies. Deals 5 additional damage to targets affected by [Water Wall]."
@@ -749,6 +763,7 @@ characters =
   , Character
     "Ao"
     "A jōnin from the Hidden Mist Village, Ao is a veteran with a proclivity for body modification. His expertise as a sensor and tracker is aided by the Byakugan he stole from a defeated Hyūga."
+    [MistVillage, AlliedForces, Jonin, Sensor, Water, Yin]
     [ [ Skill.new
         { Skill.name      = "Byakugan"
         , Skill.desc      = "Using the power of the eye he stole from a Hyūga, Ao gains 5 points of damage reduction for 3 turns. While active, enemies who use non-mental skills on Ao will take 10 damage."
@@ -789,6 +804,7 @@ characters =
   , Character
     "Chōjūrō"
     "One of the Seven Swordsmen of the Mist, Chōjūrō is a jōnin who serves as the Mizukage's retainer. Wielding the legendary twin-sword Hiramekarei, Chōjūrō overpowers the defenses of his enemies with its battering-ram chakra blasts."
+    [MistVillage, AlliedForces, SevenSwordsmen, Jonin, Water]
     [ [ Skill.new
         { Skill.name      = "Hiramekarei Longsword"
         , Skill.desc      = "Chōjūrō combines the blades of his sword into a long, sweeping weapon, and uses it to deal 10 piercing damage to all enemies."

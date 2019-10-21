@@ -23,6 +23,7 @@ a, a sup, .skill {
 a:hover {
     text-decoration: underline;
 }
+
 a:active, a:focus {
     outline-style: none;
 }

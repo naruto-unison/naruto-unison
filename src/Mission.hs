@@ -34,6 +34,7 @@ import           Handler.Client.Reward (Reward(Reward))
 import qualified Handler.Client.Reward as Reward
 import           Handler.Play.Match (Outcome(..))
 import qualified Handler.Play.Queue as Queue
+import           Handler.Play.War (War)
 import           Mission.Goal (Goal, Span(..))
 import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
@@ -248,14 +249,14 @@ resetGoal _ _ _ = return ()
 
 -- | Awards DNA upon completing a match and returns a list of DNA gains,
 -- paired with textual descriptions of why each was awarded.
-awardDNA :: Queue.Section -> Outcome -> Handler [Reward]
-awardDNA Queue.Private _     = return []
-awardDNA Queue.Quick outcome = do
+awardDNA :: Queue.Section -> Outcome -> Maybe War -> Handler [Reward]
+awardDNA Queue.Private _     _   = return []
+awardDNA Queue.Quick outcome war = do
     (who, user)   <- Auth.requireAuthPair
     dnaConf       <- getsYesod $ Settings.dnaConf . App.settings
     UTCTime day _ <- liftIO getCurrentTime
     let jDay       = Just day
-    let tallies    = tallyDNA Queue.Quick outcome dnaConf jDay user
+    let tallies    = tallyDNA Queue.Quick outcome war dnaConf jDay user
     runDB . Sql.update who $ updateLatestWin outcome jDay
         [UserLatestGame =. jDay, UserDna +=. sum (Reward.amount <$> tallies)]
     return tallies
@@ -267,13 +268,14 @@ updateLatestWin Victory day xs = (UserLatestWin =. day) : xs
 updateLatestWin _       _   xs = xs
 
 -- | Processes DNA gains for 'awardDNA'.
-tallyDNA :: Queue.Section -> Outcome -> Settings.DNA -> Maybe Day -> User
-         -> [Reward]
-tallyDNA section outcome dnaConf day user = filter ((> 0) . Reward.amount)
+tallyDNA :: Queue.Section -> Outcome -> Maybe War -> Settings.DNA -> Maybe Day
+         -> User -> [Reward]
+tallyDNA section outcome war dnaConf day user = filter ((> 0) . Reward.amount)
     [ Reward (tshow outcome) $       outcomeDNA section outcome dnaConf
     , Reward "First Game of the Day" dailyGame
     , Reward "First Win of the Day " dailyWin
     , Reward "Win Streak"            winStreak
+    , Reward "War Bonus"             warWin
     ]
   where
     dailyGame
@@ -289,6 +291,10 @@ tallyDNA section outcome dnaConf day user = filter ((> 0) . Reward.amount)
       | Settings.useStreak dnaConf = floor . sqrt @Float . fromIntegral $
                                      userStreak user - 1
       | otherwise                  = 0
+    warWin
+      | outcome /= Victory         = 0
+      | isNothing war              = 0
+      | otherwise                  = Settings.warWin dnaConf
 
 -- | DNA rewards for completing games, as configured in
 --  [config/settings.yml](config.settings.yml).

@@ -1,0 +1,7 @@
+<h1>#{title}
+$forall group <- groups
+  <h2>
+    #{display' group}
+  $forall char <- filter (inGroup group) Characters.list
+    <a .block href=@{CharacterR char}>
+      <img .char.head src=/img/ninja/#{Character.ident char}/icon.jpg>

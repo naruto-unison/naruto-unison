@@ -29,6 +29,7 @@ import qualified Game.Model.Character as Character
 import qualified Game.Model.Class as Class
 import qualified Game.Model.Skill as Skill
 import qualified Handler.Play as Play
+import qualified Handler.Play.War as War
 import qualified Mission
 import           Mission.Goal (Goal)
 import qualified Mission.Goal as Goal
@@ -110,6 +111,7 @@ getPlayR :: Handler Html
 getPlayR = do
     muser       <- (entityVal <$>) <$> Auth.maybeAuth
     unlocked    <- Mission.unlocked
+    (red,blue)  <- War.today <$> liftIO getCurrentTime
     when (isJust muser) Play.gameSocket
     let team     = maybe []
                    (mapMaybe Characters.lookup . filter (∈ unlocked)) $

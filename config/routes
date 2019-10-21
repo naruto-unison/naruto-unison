@@ -26,6 +26,7 @@
 /topic/#TopicId         TopicR       GET POST
 /guide                  GuideR       GET
 /guide/game-mechanics   MechanicsR   GET
+/guide/groups           GroupsR      GET
 /characters             CharactersR  GET
 /characters/#Character  CharacterR   GET
 !/                      StaticR      Static static

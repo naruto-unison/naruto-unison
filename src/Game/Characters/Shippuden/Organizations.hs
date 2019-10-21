@@ -12,6 +12,7 @@ characters =
   [ Character
     "Shisui Uchiha"
     "An operative of the Hidden Leaf Village, Shisui gained the rare Mangekyō Sharingan after witnessing his friend die on a mission. Known as Shisui the Teleporter for his perfect mastery of the Teleportation Technique, the former jōnin prodigy is compassionate and open-minded to a fault. His signature technique makes him all but impossible to flank and allows him to beleaguer his opponents without leaving himself vulnerable."
+    [LeafVillage, Anbu, TeamLeader, Fire, Wind, Lightning, Yin, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Susanoo"
         , Skill.desc      = "Shisui encases himself in spectral armor that provides him with 45 permanent destructible defense. While Shisui has destructible defense from this skill, he gains a stack of Susanoo every turn and this skill becomes [Tsukumo][b]. Stacks of Susanoo last as long as he has destructible defense from this skill."
@@ -90,6 +91,7 @@ characters =
   , Character
     "Sai"
     "An operative of the Hidden Leaf Village's elite Root division, Sai is quietly expressive and artistic. He uses a set of brushes with chakra-infused ink to give life to his illustrations, which usually take the form of powerful black-and-white beasts."
+    [LeafVillage, AlliedForces, Anbu, Earth, Water, Fire, Yang, Yamanaka]
     [ [ Skill.new
         { Skill.name      = "Super Beast Scroll: Lions"
         , Skill.desc      = "Sai draws a pack of lions that attack an enemy, dealing 30 damage to them and providing 20 destructible defense to Sai for 1 turn."
@@ -143,6 +145,7 @@ characters =
   , Character
     "Yamato"
     "An operative of the Hidden Leaf Village's elite Root division, Yamato has had many identities, also going by the names Kinoe and Tenzō. The sole survivor of Orochimaru's horrifying experiments on children, he carries the first Hokage's wood-manipulation abilities along with his DNA. His mastery of power supppression makes him a grave threat against hosts of tailed beasts and others who accumulate power gradually."
+    [LeafVillage, AlliedForces, Anbu, Earth, Water, Yang]
     [ [ Skill.new
         { Skill.name      = "Tenth Edict on Enlightenment"
         , Skill.desc      = "Using the legendary chakra-suppression technique with which Hashirama subdued tailed beasts, Yamato negates all power an enemy has accumulated. They completely reset to their state at the start of the game, except that their health is not restored."
@@ -190,6 +193,7 @@ characters =
   , Character
     "Torune Aburame"
     "An operative of the Hidden Leaf Village's elite Root division, Torune was born with rare venom-resistant antibodies that allow him to carry the Aburame clan's most dangerous species of beetle. The venom beetles cover his skin like armor, protecting him and infesting anyone who dares to touch him."
+    [LeafVillage, Anbu, Aburame]
     [ [ Skill.new
         { Skill.name      = "Nano-Sized Venom Beetles"
         , Skill.desc      = "Torune applies a Venom Beetle to an enemy, dealing 5 affliction damage for 5 turns, and gains 15 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 1 arbitrary chakra but does not provide any destructible defense."
@@ -247,6 +251,7 @@ characters =
   , Character
     "Fū Yamanaka"
     "An operative of the Hidden Leaf Village's elite Root division, Fū is emotionless and ruthlessly straightforward. His only drive is unswerving loyalty to Danzō. His combination of long-distance Yamanaka genjutsu and his personal form of taijutsu makes him a formidable threat in any situation, but his trump card is the ability to swap his consciousness into the body of an opponent and make use of all their skills."
+    [LeafVillage, Anbu, Sensor, Yamanaka]
     [ [ Skill.new
         { Skill.name      = "Tantō Slash"
         , Skill.desc      = "Fū slashes an enemy with his tantō, dealing 25 damage. Deals 15 additional damage if the target is affected by [Mind Transfer]."
@@ -316,6 +321,7 @@ characters =
   , Character
     "Danzō Shimura"
     "The founder and leader of the Hidden Leaf Village's elite Root division, Danzō has had a hand in almost every important global event since he came to power. His numerous implanted Sharingans allow him to repeatedly cheat death."
+    [LeafVillage, Anbu, Wind, Earth, Water, Fire, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Izanagi"
         , Skill.desc      = "Danzō gains 10 Sharingan and loses 1 each turn. If his health reaches 0, he regains 10 health per Sharingan and loses all Sharingan. When he has no Sharingan remaining, this skill becomes [Reverse Tetragram Sealing][r][r][r]."
@@ -406,6 +412,7 @@ characters =
   , Character
     "Suigetsu Hōzuki"
     "A member of Sasuke's strike team, Suigetsu is a sadistic murderer from the Hidden Mist Village known as the Second Coming of the Demon for his desire to follow in Zabuza's footsteps. He uses his clan's unique water-manipulation abilities to strengthen and replenish his body, making himself as tough as he is cruel."
+    [MistVillage, Orochimaru, Water, Wind, Hozuki]
     [ [ Skill.new
         { Skill.name      = "Great Water Arm"
         , Skill.desc      = "Suigetsu pumps up his arm with water, gaining 10 destructible defense for 1 turn, and deals 20 damage to an enemy."
@@ -451,6 +458,7 @@ characters =
   , Character
     "Karin"
     "A member of Sasuke's strike team, Karin is a genin from the Hidden Grass Village, Karin has the unique ability to sense chakra signatures automatically. She is all but omniscient within her range, able to detect hidden individuals, penetrate illusions, and even tell when someone is lying."
+    [Orochimaru, Genin, Sensor, Earth, Water, Yin, Yang, Uzumaki]
     [ [ Skill.new
         { Skill.name     = "Mind's Eye"
         , Skill.desc     = "Karin predicts attacks using her chakra detection. Enemies who use skills on her next turn will be countered, and enemies use skills on their allies next turn will have the costs of their skills increased by 1 additional arbitrary chakra."
@@ -492,6 +500,7 @@ characters =
   , Character
     "Jūgo"
     "A member of Sasuke's strike team, Jūgo suffers from uncontrollable fits of rage. In his normal state, he is compassionate and conflict-averse, but in battle his psychotic second nature overtakes him."
+    [Orochimaru, Sage, Wind, Earth, Water, Yang]
     [ [ Skill.new
         { Skill.name      = "Piston Fist"
         , Skill.desc      = "Boosting jets form on the back of Jūgo's and propel his fist into an enemy, dealing 40 damage and stunning their physical and melee skills for 1 turn."

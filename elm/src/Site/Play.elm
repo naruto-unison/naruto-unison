@@ -17,7 +17,7 @@ import Game.Chakra as Chakra exposing (none)
 import Game.Detail as Detail exposing (Detail)
 import Game.Game as Game exposing (Act)
 import Import.Flags exposing (Characters, Flags, printFailure)
-import Import.Model as Model exposing (Barrier, Chakras, Channeling(..), Character, Defense, Effect, GameInfo, Message(..), Ninja, Player(..), Requirement(..), Reward, Skill, Turn, User)
+import Import.Model as Model exposing (Barrier, Chakras, Channeling(..), Character, Defense, Effect, GameInfo, Message(..), Ninja, Player(..), Requirement(..), Reward, Skill, Turn, User, War(..))
 import Ports exposing (Ports)
 import Site.Render as Render exposing (icon)
 import Sound exposing (Sound)
@@ -62,6 +62,7 @@ type alias Model =
     , acts       : List Act
     , dna        : List Reward
     , visibles   : Set String
+    , war        : Maybe War
     , error      : String
     }
 
@@ -114,6 +115,7 @@ component ports =
             , acts       = []
             , dna        = []
             , visibles   = flags.visibles
+            , war        = info.war
             , error      = ""
             }
 
@@ -384,14 +386,26 @@ renderTop st characters =
           [ H.text <| Game.rank st.user ]
         , H.p [A.class "inactive"] << List.repeat playerInactive <| H.text "X"
         ]
-      , H.img [ A.class "charicon", A.src st.user.avatar ] []
+      , H.div [ A.class "charWrapper" ]
+        [ H.img [ A.class "charicon", A.src st.user.avatar ] []
+        , case st.war of
+              Just Red  -> H.div [A.class "red"] []
+              Just Blue -> H.div [A.class "blue"] []
+              Nothing   -> H.div [] []
+        ]
       ]
     , lazy3 renderView st.visibles characters st.viewing
     , H.section
       [ A.id "account1"
       , E.onMouseOver << View <| ViewUser st.vs
       ]
-      [ H.img [ A.class "charicon", A.src st.vs.avatar ] []
+      [ H.div [ A.class "charWrapper" ]
+        [ H.img [ A.class "charicon", A.src st.vs.avatar ] []
+        , case st.war of
+              Just Blue -> H.div [A.class "red"] []
+              Just Red  -> H.div [A.class "blue"] []
+              Nothing   -> H.div [] []
+        ]
       , H.section []
         [ H.h3 []
           [ H.text st.vs.name ]

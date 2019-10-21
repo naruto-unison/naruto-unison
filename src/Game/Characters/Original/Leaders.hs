@@ -12,6 +12,7 @@ characters =
   [ Character
     "Orochimaru"
     "One of three legendary sannin, Orochimaru intends to learn every technique in existence. Driven by an insatiable hunger for power, he gathers chakra any way he can, even if it means harming his allies."
+    [LeafVillage, Orochimaru, Anbu, Sannin, Rogue, TeamLeader, Wind, Lightning, Earth, Water, Fire, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Kusanagi"
         , Skill.desc      = "Striking swiftly, Orochimaru demolishes an enemy's destructible defense and his own destructible barrier, then deals 25 piercing damage to the target."
@@ -68,6 +69,7 @@ characters =
   , Character
     "Jiraiya"
     "One of three legendary sannin, Jiraiya is a lecherous frog hermit who travels the world in search of knowledge. His toad summoning techniques and fire manipulation wreak destruction upon enemy teams."
+    [LeafVillage, Jonin, Sannin, Sage, TeamLeader, Fire, Wind, Earth, Water, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Giant Flame Bomb"
         , Skill.desc      = "Jiraiya spits out a burst of fire that deals 20 affliction damage to an enemy and 10 to the rest of their team."
@@ -122,6 +124,7 @@ characters =
   , Character
     "Tsunade"
     "One of three legendary sannin, Tsunade is a gambler and sake enthusiast with a short temper and terrible luck. Her abilities require large amounts of chakra, but their healing power is unrivaled."
+    [LeafVillage, Sannin, Lightning, Earth, Water, Fire, Yin, Yang, Senju]
     [ [ Skill.new
         { Skill.name      = "Heavenly Kick of Pain"
         , Skill.desc      = "Tsunade performs an axe kick on an enemy, dealing 30 damage and stunning their physical and mental skills for 1 turn."
@@ -179,6 +182,7 @@ characters =
   , Character
     "Hiruzen Sarutobi"
     "Called the Supreme Shinobi, Hiruzen is the third Hokage. During his prime, he was considered the strongest ninja in history. His trump card ability brings certain doom to both Hiruzen and his enemy."
+    [LeafVillage, Kage, Sensor, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Sarutobi]
     [ [ Skill.new
         { Skill.name      = "Dragon Flame Bomb"
         , Skill.desc      = "Hiruzen engulfs an enemy in flame, dealing 30 affliction damage and causing them to receive 10 additional damage from affliction skills for 1 turn."

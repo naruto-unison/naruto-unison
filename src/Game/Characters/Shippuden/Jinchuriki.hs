@@ -12,6 +12,7 @@ characters =
   [ Character
     "Yugito Nii"
     "A jōnin from the Hidden Cloud Village, Yugito is the expert jinchūriki of Matatabi, the two-tailed beast. Having trained as a tailed-beast host since infancy, Yugito can effortlessly transform into Matatabi at will and has access to its full power."
+    [CloudVillage, Jonin, Jinchuriki, Fire]
     [ [ Skill.new
         { Skill.name      = "Two-Tailed Transformation"
         , Skill.desc      = "Matatabi's chakra envelops Yugito, transforming her into a huge two-tailed cat of blue flame. Yugito gains 50% damage reduction and can use her other skills."
@@ -60,6 +61,7 @@ characters =
   , Character
     "Utakata"
     "An exile from the Hidden Mist Village, Utakata is the jinchūriki of Saiken, the six-tailed beast. He abandoned his home during its Blood Mist era, and has had to fend off tracker ninjas ever since."
+    [MistVillage, Jinchuriki, Rogue, Sensor, Water]
     [ [ Skill.new
         { Skill.name      = "Soap Bubble"
         , Skill.desc      = "Utakata blows bubbles from his pipe that burst on an enemy, demolishing their destructible defense and his own destructible barrier, then dealing 15 piercing damage to the target."
@@ -100,6 +102,7 @@ characters =
   , Character
     "Killer B"
     "You know his name, you know his fame, don't be lame!\nMakin' beats and rhymes, and makin' 'em' live, is what a jinchūriki needs to survive!\nWin after win is the way that it's done, and when he's done, you'll wish you never met, son!"
+    [CloudVillage, Jinchuriki, Lightning, Water, Fire, Yang]
     [ [ Skill.new
         { Skill.name      = "Acrobat"
         , Skill.desc      = "For 4 turns, Killer B prepares for attacks. If you mess with the Bee, he'll sting ya right back!\n15 piercing damage back at any aggressor—it's the school of hard knocks, and B's the professor!"
@@ -142,6 +145,7 @@ characters =
   , Character
     "Eight-Tailed B"
     "Killer B works in perfect harmony with Gyūki, maintaining control of its immense quantities of tailed-beast chakra. With its bulk and might, B in jinchūriki mode is practically unassailable."
+    [CloudVillage, Jinchuriki, Lightning, Water, Fire, Yang]
     [ [ Skill.new
         { Skill.name      = "Chakra Bones"
         , Skill.desc      = "Skeletal armor manifests from Gyūki's chakra, increasing B's damage by 5 and providing him with 10% damage reduction to all types of damage, including piercing and affliction."
@@ -183,6 +187,7 @@ characters =
     in Character
     "Nine-Tailed Naruto"
     "Rage has triggered the beast within Naruto to emerge. As his hatred grows, so does the nine-tailed beast's power. If left unchecked, Kurama may break free of his seal, and Naruto himself will cease to exist."
+    [LeafVillage, Eleven, Genin, Jinchuriki, Sage, Sensor, Wind, Lightning, Earth, Water, Fire, Yin, Yang, Uzumaki]
     [ [ Skill.new
         { Skill.name      = "Four-Tailed Transformation"
         , Skill.desc      = "Naruto's rage takes over. He loses 5 health down to a minimum of 1 and gains 10 points of damage reduction and 10 permanent destructible defense. He permanently ignores all healing. His other skills become usable, and will increase in strength as his transformation progresses through further stages. Once used, this skill becomes [Six-Tailed Transformation][b][r]."

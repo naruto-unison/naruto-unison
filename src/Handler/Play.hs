@@ -55,6 +55,7 @@ import qualified Handler.Play.Match as Match
 import qualified Handler.Play.Queue as Queue
 import qualified Handler.Play.Rating as Rating
 import           Handler.Play.Turn (Turn)
+import qualified Handler.Play.War as War
 import           Handler.Play.Wrapper (Wrapper(Wrapper))
 import qualified Handler.Play.Wrapper as Wrapper
 import qualified Mission
@@ -114,6 +115,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
                 returnJson GameInfo { vsWho  = who
                                     , vsUser = bot
                                     , player = Player.A
+                                    , war    = Nothing
                                     , game
                                     , ninjas
                                     }
@@ -195,19 +197,21 @@ makeGame :: ∀ m. (MonadRandom m, MonadIO m)
 makeGame queueWrite who user team vsWho vsUser vsTeam = do
     player <- R.player
     game   <- Game.newWithChakras
-    let ninjas = fromList $ zipWith Ninja.new Slot.all case player of
-            Player.A -> team ++ vsTeam
-            Player.B -> vsTeam ++ team
-    mvar <- newEmptyMVar
-    liftIO $ atomically do
-        writeTChan queueWrite $
+    liftIO do
+        let ninjas = fromList $ zipWith Ninja.new Slot.all case player of
+                Player.A -> team ++ vsTeam
+                Player.B -> vsTeam ++ team
+        war  <- War.match team vsTeam . War.today <$> getCurrentTime
+        mvar <- newEmptyMVar
+        atomically . writeTChan queueWrite $
             Queue.Respond vsWho mvar GameInfo { vsWho  = who
                                               , vsUser = user
                                               , player = Player.opponent player
+                                              , war    = War.opponent <$> war
                                               , game
                                               , ninjas
                                               }
-        return (mvar, GameInfo { vsWho, vsUser, player, game, ninjas })
+        return (mvar, GameInfo { vsWho, vsUser, player, game, ninjas, war })
 
 queue :: ∀ m.
         (MonadRandom m, MonadSockets m, MonadHandler m, App ~ HandlerSite m)
@@ -329,7 +333,8 @@ gameSocket = webSockets do
             if outcome == Defeat && Game.forfeit (Wrapper.game game) then
                 sendClient $ Rewards [Reward "Forfeit" 0]
             else do
-                dnaReward <- liftHandler $ Mission.awardDNA Queue.Quick outcome
+                dnaReward <- liftHandler .
+                    Mission.awardDNA Queue.Quick outcome $ GameInfo.war info
                 sendClient $ Rewards dnaReward
             liftHandler do
                 case outcome of

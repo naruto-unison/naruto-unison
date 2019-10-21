@@ -12,6 +12,7 @@ characters =
   [ Character
     "Pakura"
     "Reanimated by Kabuto, Pakura was a jōnin diplomat known as the Hero of the Hidden Sand until she was betrayed and ambushed by the Hidden Mist Village. Her unique scorch style combines fire and wind elements to create heat orbs that mummify her enemies."
+    [SandVillage, Kabuto, Jonin, Fire, Wind]
     [ [ Skill.new
         { Skill.name      = "Scorch Style"
         , Skill.desc      = "Miniature suns orbit Pakura and attack an enemy, dealing 20 affliction damage. For 2 turns, enemies who use skills on Pakura will take 10 affliction damage."
@@ -52,6 +53,7 @@ characters =
   , Character
     "Gari"
     "Reanimated by Kabuto, Gari was a jōnin member of the Hidden Stone Village's Demolitions Unit. Augmented with explosive force, his taijutsu attacks overwhelm enemies who meet them head-on."
+    [StoneVillage, Kabuto, Jonin, Earth, Lightning]
     [ [ Skill.new
         { Skill.name      = "Exploding Palm"
         , Skill.desc      = "Gari strikes an enemy and sets off an explosion at the moment of contact. The next time they use a skill on Gari or his allies, they will take 20 piercing damage. This skill stacks."
@@ -98,6 +100,7 @@ characters =
   , Character
     "Ginkaku"
     "The word \"Silver\" tattooed on his shoulder marks Ginkaku as one half of the Silver and Gold Brothers, the most notorious criminals in the history of the Hidden Cloud Village. Ginkaku and Kinkaku use tailed-beast chakra to wield the revered arsenal of their ancestor, the Sage of the Six Paths. When they fight together, they make a terrifying pair."
+    [CloudVillage, Kabuto]
     [ [ Skill.new
         { Skill.name      = "Seven Stars Blade"
         , Skill.desc      = "Using a legendary sword that records a person's most frequently used word, Ginkaku slashes at an enemy's soul, dealing 25 piercing damage and extracting a Spirit Word from them."
@@ -142,6 +145,7 @@ characters =
   , Character
     "Kinkaku"
     "The word \"Gold\" tattooed on his shoulder marks Kinkaku as one half of the Silver and Gold Brothers, the most notorious criminals in the history of the Hidden Cloud Village. Ginkaku and Kinkaku use tailed-beast chakra to wield the revered arsenal of their ancestor, the Sage of the Six Paths. When they fight together, they make a terrifying pair."
+    [CloudVillage, Kabuto]
     [ [ Skill.new
         { Skill.name      = "Leaf Fan"
         , Skill.desc      = "Using a legendary fan that can generate any of the five elements, Kinkaku deals 25 affliction damage to an enemy, extracts a Spirit Word from them, and gains 50% damage reduction for 1 turn."
@@ -188,6 +192,7 @@ characters =
   , Character
     "Toroi"
     "Reanimated by Kabuto, Toroi was a jōnin from the Hidden Cloud Village with the rare ability to manipulate magnetic fields. His weapons are magnetized, and as their magnetic field accumulates on targets, they become harder and harder to avoid."
+    [CloudVillage, Kabuto, Jonin, Wind, Earth]
     [ [ Skill.new
         { Skill.name      = "Demon Wind Shuriken"
         , Skill.desc      = "Toroi deals 20 damage to an enemy with a giant shuriken and defends himself with several others. For 2 turns, enemies who use skills on Toroi will become permanently unable to be healed or cured."
@@ -246,6 +251,7 @@ characters =
   , Character
     "Fukai"
     "Reanimated by Kabuto, Fukai was the previous jinchūriki of Gyūki, the eight-tailed beast. Also known as Blue B, Fukai was unable to control Gyūki, which led to his downfall and the deaths of his comrades."
+    [CloudVillage, Kabuto, Jinchuriki, Sensor, Lightning]
     [ [ Skill.new
         { Skill.name      = "Chakra Arms"
         , Skill.desc      = "Manifesting limbs of tailed-beast chakra, Fukai deals 10 affliction damage to all enemies and increases the damage of [Tailed Beast Bomb Barrage] and [Lariat] to the targets by 5."
@@ -293,6 +299,7 @@ characters =
   , Character
     "Chiyo"
     "Reanimated by Kabuto, Chiyo was the leader of the Hidden Sand Village's Puppet Brigade. Her expertise with chakra threads allows her to control numerous puppets at once."
+    [SandVillage, Kabuto]
     [ [ Skill.new
         { Skill.name      = "Ten Puppets Collection"
         , Skill.desc      = "Commanding a brigade of puppets, Chiyo stuns an enemy's physical and ranged skills for 1 turn and deals 20 damage to a random enemy for 2 turns."
@@ -337,6 +344,7 @@ characters =
   , Character
     "Chūkichi"
     "Reanimated by Kabuto, Chūkichi was a jōnin renowned as the Hidden Mist Village's most talented sensor. Due to his refusal to serve Akatsuki, Chūkichi had his personality completely erased by Kabuto, transforming him into a mere killing machine."
+    [MistVillage, Kabuto, Jonin, Sensor, Water]
     [ [ Skill.new
         { Skill.name      = "Hidden Frost"
         , Skill.desc      = "A cloud of frost conceals Chūkichi, rendering him effectively invisible. For 2 turns, he is invulnerable to ranged skills."

@@ -16,6 +16,7 @@ module Game.Game exposing
 
 import Dict
 import List.Extra as List
+import Set
 
 import Import.Flags exposing (Characters)
 import Import.Model as Player exposing (Category(..), Channel, Channeling(..), Character, Effect, Ninja, Player(..), Privilege(..), Skill, Target(..), Turn, User)
@@ -131,7 +132,13 @@ forfeit player game =
 
 unknown : Character
 unknown =
-    { name = "unknown", bio = "", skills = [], category = Original, price = 0 }
+    { name     = "unknown"
+    , bio      = ""
+    , skills   = []
+    , category = Original
+    , groups   = Set.empty
+    , price    = 0
+    }
 
 
 get : List Character -> Int -> Character
