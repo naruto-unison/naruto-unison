@@ -64,6 +64,8 @@ body {
 }
 
 #breadcrumb {
+    text-align: left !important;
+
     margin-bottom: 1.25em;
     color: #666;
 
