@@ -129,7 +129,7 @@ instance Display Group where
     display Yang = "Yang Style Users"
     display Yin = "Yin Style Users"
 
-    display BloodlineUser = "Bloodline User"
-    display GenjutsuUser = "Genjutsu User"
-    display NinjutsuUser = "Ninjutsu User"
-    display TaijutsuUser = "Taijutsu User"
+    display BloodlineUser = "Bloodline Users"
+    display GenjutsuUser = "Genjutsu Users"
+    display NinjutsuUser = "Ninjutsu Users"
+    display TaijutsuUser = "Taijutsu Users"
