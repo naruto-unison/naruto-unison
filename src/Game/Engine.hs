@@ -87,7 +87,7 @@ processTurn runner = do
     Hook.turn player initial =<< P.ninjas
   where
     getChannels n = map (Act.fromChannel n) .
-                    filter ((1 /=) . TurnBased.getDur) $
+                    filter ((/= 1) . TurnBased.getDur) $
                     Ninja.channels n
 
 -- | Runs 'Game.delays'.

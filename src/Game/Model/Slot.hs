@@ -50,19 +50,19 @@ instance Bounded Slot where
     maxBound = Slot maxVal
 
 all :: [Slot]
-all = Slot <$> [0 .. maxVal]
+all = Slot <$> [0..maxVal]
 
 -- | Slots with the same parity.
 allies :: ∀ a. Parity a => a -> [Slot]
 allies x
-  | Parity.even x = Slot <$> [0 .. teamSize - 1]
-  | otherwise     = Slot <$> [teamSize .. maxVal]
+  | Parity.even x = Slot <$> [0..teamSize - 1]
+  | otherwise     = Slot <$> [teamSize..maxVal]
 
 -- | Slots with opposite parity.
 enemies :: ∀ a. Parity a => a -> [Slot]
 enemies x
-  | Parity.even x = Slot <$> [teamSize .. maxVal]
-  | otherwise     = Slot <$> [0 .. teamSize - 1]
+  | Parity.even x = Slot <$> [teamSize..maxVal]
+  | otherwise     = Slot <$> [0..teamSize - 1]
 
 read :: Text -> Either String (Slot, Text)
 read s = case Read.decimal s of

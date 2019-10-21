@@ -79,10 +79,10 @@ censor player ninjas n
   where
     filt chan = not $ Invisible ∈ Skill.classes (Channel.skill chan)
     n'   = n { Ninja.statuses = mapMaybe mst $ Ninja.statuses n
-             , Ninja.traps    = [ trap | trap <- Ninja.traps n
-                                , Parity.allied player (Trap.user trap)
-                                  || Invisible ∉ Trap.classes trap
-                                  || revealed (Trap.user trap) ]
+             , Ninja.traps    = [trap | trap <- Ninja.traps n
+                                      , Parity.allied player (Trap.user trap)
+                                        || Invisible ∉ Trap.classes trap
+                                        || revealed (Trap.user trap)]
              }
     revealed slot = ninjas !! Slot.toInt slot `is` Reveal
     mst st

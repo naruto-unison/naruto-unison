@@ -116,4 +116,4 @@ character x = Characters.lookup =<< user (objective x)
 
 -- | True if the @Goal@ belongs to a Character, as given by 'Character.ident'.
 belongsTo :: Text -> Goal -> Bool
-belongsTo name x = maybe False (name ==) . user $ objective x
+belongsTo name x = maybe False (== name) . user $ objective x

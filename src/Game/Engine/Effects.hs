@@ -44,9 +44,9 @@ import           Util ((!!), (∈), intersects)
 
 totalBase :: [(Amount, Int)] -> Amount -> Float
 totalBase xs Flat    = fromIntegral . sum . map snd $
-                       filter ((Flat ==) . fst) xs
+                       filter ((== Flat) . fst) xs
 totalBase xs Percent = product . (1 :) . map ((/ 100) . fromIntegral . snd) $
-                       filter ((Percent ==) . fst) xs
+                       filter ((== Percent) . fst) xs
 
 -- | Adds 'Flat' amounts and multiplies by 'Percent' amounts.
 posTotal :: [(Amount, Int)] -> Amount -> Float

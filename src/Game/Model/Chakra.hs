@@ -61,10 +61,9 @@ instance PathPiece Chakras where
       where
         pieces              = Text.splitOn "," raw
         makeChakras b g n t = [Chakras b' g' n' t' 0 | (b',_) <- Read.decimal b
-                                                    , (g',_) <- Read.decimal g
-                                                    , (n',_) <- Read.decimal n
-                                                    , (t',_) <- Read.decimal t
-                                                    ]
+                                                     , (g',_) <- Read.decimal g
+                                                     , (n',_) <- Read.decimal n
+                                                     , (t',_) <- Read.decimal t]
 
 map1 :: (Int -> Int) -> Chakras -> Chakras
 map1 f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)

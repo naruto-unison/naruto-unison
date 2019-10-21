@@ -25,7 +25,7 @@ import Game.Model.Player (Player)
 -- | A monad capable of nondeterministic behavior.
 --
 -- Instances should satisfy the following laws:
--- * @random x y ∈ [x .. y]@
+-- * @random x y ∈ [x..y]@
 -- * @sort (shuffle xs) == sort xs@
 class Monad m => MonadRandom m where
     -- | Selects an integer in an inclusive range.
@@ -74,6 +74,8 @@ instance (MonadRandom m, Monoid w) => MonadRandom (AccumT w m)
 
 -- | Randomly selects an element from a finite list.
 -- Returns @Nothing@ on an empty list.
-choose :: ∀ m a. MonadRandom m => [a] -> m (Maybe a)
-choose [] = return Nothing
-choose xs = index xs <$> random 0 (length xs - 1)
+choose :: ∀ m o. (MonadRandom m, Int ~ Index o, IsSequence o)
+       => o -> m (Maybe (Element o))
+choose xs
+  | null xs   = return Nothing
+  | otherwise = index xs <$> random 0 (length xs - 1)

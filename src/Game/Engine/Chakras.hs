@@ -49,8 +49,8 @@ remove1 permitted = do
     user     <- P.user
     target   <- P.target
     P.trigger user [OnChakra]
-    chakras  <- filter (∈ permitted) . Chakra.toSequence . Parity.getOf target .
-                Game.chakra <$> P.game
+    chakras  <- filter (∈ permitted) . Chakra.toSequence @[_] .
+                Parity.getOf target . Game.chakra <$> P.game
     mRemoved <- R.choose chakras
     case mRemoved of
         Nothing                            -> return 0

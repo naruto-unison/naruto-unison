@@ -68,7 +68,7 @@ is n ef = ef ∈ effects n
 -- | Searches 'channels'.
 isChanneling :: Text -- ^ 'Skill.name'.
              -> Ninja -> Bool
-isChanneling name n = any ((name ==) . Skill.name . Channel.skill) $ channels n
+isChanneling name n = any ((== name) . Skill.name . Channel.skill) $ channels n
 
 -- | Searches 'statuses'.
 has :: Text -- ^ 'Status.name'.
@@ -87,10 +87,9 @@ defenseAmount :: Text -- ^ 'Defense.name'.
               -> Slot -- ^ 'Defense.user'.
               -> Ninja -> Int
 defenseAmount name user n =
-    sum [ Defense.amount d | d <- defense n
-                           , Defense.user d == user
-                           , Defense.name d == name
-                           ]
+    sum [Defense.amount d | d <- defense n
+                          , Defense.user d == user
+                          , Defense.name d == name]
 
 -- | Sums 'Defense.amount' of all 'defense'.
 totalDefense :: Ninja -> Int
@@ -130,7 +129,7 @@ numStacks name user n =
 numAnyStacks :: Text -- ^ 'Status.name'.
              -> Ninja -> Int
 numAnyStacks name n =
-    sum $ Status.amount <$> filter ((name ==) . Status.name) (statuses n)
+    sum $ Status.amount <$> filter ((== name) . Status.name) (statuses n)
 
 -- | Counts all 'Effect.helpful' effects in 'statuses' from allies.
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.

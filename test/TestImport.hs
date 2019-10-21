@@ -84,7 +84,7 @@ useSkill char target skillName f =
         Just (context -> ctx) ->
             runIdentity $ evalStateT (runReaderT f ctx) $ testGame char
   where
-    findSkill x   = find ((x ==) . Skill.name) . join . Character.skills
+    findSkill x   = find ((== x) . Skill.name) . join . Character.skills
     context skill = Context { Context.skill  = skill
                             , Context.user   = unsafeHead Slot.all
                             , Context.target = targetSlot

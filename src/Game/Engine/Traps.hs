@@ -51,7 +51,7 @@ run user trap = launch trap case Trap.direction trap of
 getOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
       => Slot -> Trigger -> Ninja -> [m ()]
 getOf user trigger n =
-    run user <$> filter ((trigger ==) . Trap.trigger) (Ninja.traps n)
+    run user <$> filter ((== trigger) . Trap.trigger) (Ninja.traps n)
 
 get :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> [m ()]

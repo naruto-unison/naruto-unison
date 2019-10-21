@@ -91,7 +91,7 @@ alternate n = findAlt <$> toList (Character.skills $ character n)
     findAlt (base:|alts) = headOr 0 do
         Alternate name alt <- effects n
         guard $ name == Skill.name base
-        maybeToList $ (+1) <$> findIndex ((alt ==) . Skill.name) alts
+        maybeToList $ (+1) <$> findIndex ((== alt) . Skill.name) alts
 
 processAlternates :: Ninja -> Ninja
 processAlternates n = n { alternates = fromList $ alternate n }
@@ -99,7 +99,7 @@ processAlternates n = n { alternates = fromList $ alternate n }
 -- | Cycles a skill through its list of alternates.
 nextAlternate :: Text -> Ninja -> Maybe Text
 nextAlternate baseName n = do
-    alts <- find ((baseName ==) . Skill.name . head) .
+    alts <- find ((== baseName) . Skill.name . head) .
             toList . Character.skills $ character n
     alt  <- filterAlt $ tail alts
     return $ Skill.name alt
@@ -107,7 +107,7 @@ nextAlternate baseName n = do
     filterAlt = headOr headMay do
         Alternate name alt <- effects n
         guard $ name == baseName
-        return $ headMay . drop 1 . dropWhile ((alt /=) . Skill.name)
+        return $ headMay . drop 1 . dropWhile ((/= alt) . Skill.name)
 
 -- | Applies 'skill' to a @Skill@ and further modifies it due to 'Ninja.copies'
 -- and 'Skill.require'ments.
@@ -120,7 +120,7 @@ getSkill (Left s)      n = Requirement.usable True n .
 
 -- | All four skill slots of a @Ninja@ modified by 'skill'.
 skills :: Ninja -> [Skill]
-skills n = flip getSkill n . Left <$> [0 .. Ninja.skillSize - 1]
+skills n = flip getSkill n . Left <$> [0..Ninja.skillSize - 1]
 
 -- | Modifies @Effect@s when they are first added to a @Ninja@ due to @Effect@s
 -- already added.
@@ -262,7 +262,7 @@ clearTrap name user n =
 
 -- | Deletes 'traps' with matching 'Trap.trigger'.
 clearTraps :: Trigger -> Ninja -> Ninja
-clearTraps tr n = n { traps = filter ((tr /=) . Trap.trigger) $ traps n }
+clearTraps tr n = n { traps = filter ((/= tr) . Trap.trigger) $ traps n }
 
 -- | Adds channels with a specific target.
 addChannels :: Skill -> Slot -> Ninja -> Ninja
@@ -284,7 +284,7 @@ cancelChannel name n = n { channels = f $ channels n
                          , newChans = f $ newChans n
                          }
   where
-    f = filter $ (name /=) . Skill.name . Channel.skill
+    f = filter $ (/= name) . Skill.name . Channel.skill
 
 -- | Acquires 'Alternate' effects when copying a target's skills.
 copyAlternates :: Duration -- ^ 'Copy.dur'.
@@ -308,7 +308,7 @@ copy :: Duration -- ^ 'Copy.dur'.
      -> Skill -- ^ Skill.
      -> Ninja -> Ninja
 copy dur name skill n = fromMaybe n do
-      s <- findIndex (any $ (name ==) . Skill.name) . toList .
+      s <- findIndex (any $ (== name) . Skill.name) . toList .
            Character.skills $ character n
       return n { copies = copier s $ copies n }
   where
