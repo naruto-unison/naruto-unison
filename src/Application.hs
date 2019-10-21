@@ -91,8 +91,8 @@ makeFoundation settings = do
         (Sql.pgConnStr  $ Settings.databaseConf settings)
         (Sql.pgPoolSize $ Settings.databaseConf settings)
 
-    conn <- Logger.runLoggingT (Sql.runSqlPool initDB pool) logFunc
-    return $ mkFoundation pool conn
+    charIDs <- Logger.runLoggingT (Sql.runSqlPool initDB pool) logFunc
+    return $ mkFoundation pool charIDs
   where
     staticMode
       | Settings.mutableStatic settings = Static.staticDevel

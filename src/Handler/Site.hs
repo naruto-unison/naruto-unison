@@ -57,7 +57,7 @@ getHomeR :: Handler Html
 getHomeR = do
     newsList <- runDB $ traverse withAuthor
                         =<< selectList [] [Desc NewsDate, LimitTo 5]
-    topics   <- Forum.selectWithAuthors [] [Desc TopicTime, LimitTo 10]
+    topics   <- Forum.selectWithAuthors [] [Desc ForumTopicTime, LimitTo 10]
     citelink <- liftIO Link.cite
     defaultLayout do
         setTitle "Naruto Unison"
@@ -86,8 +86,11 @@ separate = nubBy ((==) `on` Skill.name) . toList
 
 getChangelog :: Bool -> LogType -> Text -> Character.Category -> Widget
 getChangelog long logType name category = case Characters.lookup tagName of
-    Nothing -> [whamlet|Error: character #{tagName} not found!|]
-    Just char -> $(widgetFile "home/change")
+    Just char ->
+        $(widgetFile "home/change")
+    Nothing ->
+        error $ "Site.getChangelog: character " ++ unpack tagName
+                ++ " not found"
   where
     change  = logLabel long
     tagName = Character.identFrom category name

@@ -97,7 +97,7 @@ trackAction1 skill ns x = do
     user = snd $ ns !! Slot.toInt (slot x)
     consec used (i, match)
       | match == sort (zipWith const used match) =
-          MVector.unsafeModify (progress x) (+1) i
+          MVector.unsafeModify (progress x) (+ 1) i
       | otherwise = return ()
     tracker (n, n') (i, f) = addProgress x i $ f skill user n n'
     tracker' (n, n') (i, f) = trackStore x i $ f skill user n n'

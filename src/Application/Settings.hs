@@ -136,8 +136,8 @@ instance FromJSON Settings where
 
         allowVsSelf            <- o .:? "allow-vs-self"    .!= dev
         unlockAll              <- o .:? "unlock-all"       .!= dev
-        turnLength             <- (1e6 *) <$> o .: "turn-length"
-        practiceCacheExpiry    <- (1e9 *) <$> o .: "practice-cache-expiry"
+        turnLength             <- (* 1e6) <$> o .: "turn-length"
+        practiceCacheExpiry    <- (* 1e9) <$> o .: "practice-cache-expiry"
         forfeitAfterSkips      <- o .: "forfeit-after-skips"
         return Settings{..}
 

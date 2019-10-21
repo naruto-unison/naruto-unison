@@ -90,4 +90,4 @@ match pTeam vsTeam (red, blue)
 today :: UTCTime -> (EnumSet Group, EnumSet Group)
 today (UTCTime (ModifiedJulianDay day) _) = wars !! i
   where
-    (i, _) = Random.randomR (0, length wars) . Random.mkStdGen $ fromInteger day
+    (i, _) = Random.randomR (0, length wars) . Random.mkStdGen . (+ 1) $ fromInteger day

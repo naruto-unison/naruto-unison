@@ -4,9 +4,9 @@ $forall cite <- posts
     <aside>
       <img .char src=#{userAvatar $ citeAuthor cite}>
       ^{Link.user $ citeAuthor cite}
-      ^{timestamp $ postTime $ citeVal cite}
+      ^{timestamp $ forumPostTime $ citeVal cite}
     <section>
-      $forall paragraph <- postBody $ citeVal cite
+      $forall paragraph <- forumPostBody $ citeVal cite
         <p>
           #{paragraph}
 <article>

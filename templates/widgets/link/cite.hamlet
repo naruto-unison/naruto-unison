@@ -4,4 +4,4 @@
   by
   ^{user citeLatest}
   at
-  ^{timestamp $ topicTime citeVal}
+  ^{timestamp $ forumTopicTime citeVal}

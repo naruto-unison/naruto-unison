@@ -24,8 +24,8 @@
               by
               ^{Link.user $ citeAuthor topic}
         <td>
-          #{topicPosts $ citeVal topic}
+          #{forumTopicPosts $ citeVal topic}
         <td>
           ^{Link.user $ citeLatest topic}
           at
-          ^{timestamp $ topicTime $ citeVal topic}
+          ^{timestamp $ forumTopicTime $ citeVal topic}

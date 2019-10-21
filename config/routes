@@ -23,7 +23,7 @@
 /forums                 ForumsR      GET
 /forum/#ForumBoard      BoardR       GET
 /topic/#ForumBoard/new  NewTopicR    GET POST
-/topic/#TopicId         TopicR       GET POST
+/topic/#ForumTopicId    TopicR       GET POST
 /guide                  GuideR       GET
 /guide/game-mechanics   MechanicsR   GET
 /guide/groups           GroupsR      GET

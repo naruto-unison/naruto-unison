@@ -16,13 +16,12 @@ module Handler.Link
   ) where
 
 import ClassyPrelude
-import Yesod
 
 import qualified Data.Time.Format as Format
 import qualified Data.Time.LocalTime as LocalTime
 
 import           Application.App (Route(..), Widget)
-import           Application.Model (Cite(..), Topic(..), User(..))
+import           Application.Model (Cite(..), ForumTopic(..), User(..))
 import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
 import           Game.Model.Character (Category, Character)
@@ -34,7 +33,7 @@ character :: Character -> Widget
 character char = $(widgetFile "widgets/link/character")
 
 -- | Link to a forum post or thread.
-cite :: IO (Cite Topic -> Widget)
+cite :: IO (Cite ForumTopic -> Widget)
 cite = do
     timestamp <- makeTimestamp
     return \citation@Cite{..} -> $(widgetFile "widgets/link/cite")
@@ -43,17 +42,18 @@ cite = do
 -- page, and the skill name shows skill details when hovered over.
 skill :: Text -> Category -> Text -> Widget
 skill charName category name = case Characters.lookup tagName of
-      Nothing -> [whamlet|Error: character #{tagName} not found!|]
-      Just char
-        | any (any $ (== name) . Skill.name) $ Character.skills char ->
-            $(widgetFile "widgets/link/skill")
-        | otherwise ->
-            [whamlet|Error: skill #{name} not found for character #{tagName}!|]
+      Nothing ->
+          error $ "Link.skill: character " ++ unpack tagName ++ " not found"
+      Just char | any (any $ (== name) . Skill.name) $ Character.skills char ->
+          $(widgetFile "widgets/link/skill")
+      Just _ ->
+            error $ "Link.skill: skill " ++ unpack name ++ " not found for "
+                    ++ unpack tagName
   where
     tagName = Character.identFrom category charName
 
 -- | Link to a forum topic.
-topic :: Cite Topic -> Widget
+topic :: Cite ForumTopic -> Widget
 topic Cite{..} = $(widgetFile "widgets/link/topic")
 
 -- | Link to a user's profile.

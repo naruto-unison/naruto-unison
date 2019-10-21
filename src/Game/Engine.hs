@@ -209,7 +209,7 @@ skipTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
          => Int -> Player -> m ()
 skipTurn threshold player = do
     P.alter \g ->
-        g { Game.inactive = Parity.modifyOf player (+1) $ Game.inactive g }
+        g { Game.inactive = Parity.modifyOf player (+ 1) $ Game.inactive g }
     inactive <- Parity.getOf player . Game.inactive <$> P.game
     if inactive >= threshold then
         forfeit player

@@ -3,7 +3,7 @@
 
 module Game.Characters.Original.Teachers (characters) where
 
-import Game.Characters.Base
+import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 

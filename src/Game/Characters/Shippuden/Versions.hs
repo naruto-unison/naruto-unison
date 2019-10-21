@@ -3,7 +3,7 @@
 
 module Game.Characters.Shippuden.Versions (characters) where
 
-import Game.Characters.Base
+import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 

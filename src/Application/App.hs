@@ -43,7 +43,7 @@ import qualified Yesod.Default.Util as YesodUtil
 import           Yesod.Static hiding (static)
 
 import           Application.Fields (ForumBoard, Privilege(..), boardName)
-import           Application.Model (CharacterId, EntityField(..), Topic(..), TopicId, User(..), UserId, Unique(..))
+import           Application.Model (CharacterId, EntityField(..), ForumTopic(..), ForumTopicId, User(..), UserId, Unique(..))
 import qualified Application.Model as Model
 import           Application.Settings (Settings, widgetFile)
 import qualified Application.Settings as Settings
@@ -100,7 +100,7 @@ unchanged304 = whenM (isNothing <$> getMessage) $
                setEtag . toStrict . display'
                =<< maybeAdd <$> getsYesod timestamp <*> maybeAuthId
   where
-    maybeAdd x = maybe x $ (x +) . Sql.fromSqlKey
+    maybeAdd x = maybe x $ (+ x) . Sql.fromSqlKey
 
 -- | A convenient synonym for creating forms.
 type Form x = Html -> MForm (HandlerFor App) (FormResult x, Widget)
@@ -225,8 +225,8 @@ instance YesodBreadcrumbs App where
     breadcrumb (ProfileR x)   = return ("User: " ++ x, Just HomeR)
     breadcrumb UsageR         = return ("Character Usage", Just AdminR)
     breadcrumb (TopicR x)     = do
-        Topic{topicTitle, topicBoard} <- runDB $ get404 x
-        return (topicTitle, Just $ BoardR topicBoard)
+        ForumTopic{forumTopicTitle, forumTopicBoard} <- runDB $ get404 x
+        return (forumTopicTitle, Just $ BoardR forumTopicBoard)
 
     breadcrumb FaviconR = return (mempty, Nothing)
     breadcrumb RobotsR = return (mempty, Nothing)

@@ -91,7 +91,7 @@ alternate n = findAlt <$> toList (Character.skills $ character n)
     findAlt (base:|alts) = headOr 0 do
         Alternate name alt <- effects n
         guard $ name == Skill.name base
-        maybeToList $ (+1) <$> findIndex ((== alt) . Skill.name) alts
+        maybeToList $ (+ 1) <$> findIndex ((== alt) . Skill.name) alts
 
 processAlternates :: Ninja -> Ninja
 processAlternates n = n { alternates = fromList $ alternate n }

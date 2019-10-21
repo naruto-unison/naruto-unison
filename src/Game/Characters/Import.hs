@@ -1,6 +1,6 @@
 {-# OPTIONS_HADDOCK prune #-}
 
-module Game.Characters.Base
+module Game.Characters.Import
   ( module Import
   , invuln
   , user, target, userHas, targetHas

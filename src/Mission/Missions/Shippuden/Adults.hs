@@ -3,7 +3,7 @@
 
 module Mission.Missions.Shippuden.Adults (missions) where
 
-import Mission.Missions.Base
+import Mission.Missions.Import
 
 missions :: [Mission]
 missions =

@@ -1,7 +1,7 @@
 <a href=@{TopicR citeKey}>
-  $if topicStaff citeVal
+  $if forumTopicStaff citeVal
     <span class=#{userPrivilege citeAuthor}>
       #{staffTag}
-    #{topicTitle citeVal}
+    #{forumTopicTitle citeVal}
   $else
-    #{topicTitle citeVal}
+    #{forumTopicTitle citeVal}

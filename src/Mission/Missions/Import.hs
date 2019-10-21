@@ -1,7 +1,7 @@
 {-# OPTIONS_HADDOCK prune #-}
 
 -- Base import for modules in @Mission.Missions@.
-module Mission.Missions.Base
+module Mission.Missions.Import
   ( module Import
   , win, winConsecutive
   -- * Action hooks

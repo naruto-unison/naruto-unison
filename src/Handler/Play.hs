@@ -13,6 +13,8 @@ import Yesod
 import           Control.Monad.Logger
 import           Control.Monad.Loops (untilJust)
 import           Control.Monad.Trans.Except (ExceptT, runExceptT, throwE)
+import           Data.Aeson (ToJSON, toEncoding)
+import qualified Data.Aeson.Encoding as Encoding
 import qualified Data.Cache as Cache
 import qualified Data.Text as Text
 import           Network.WebSockets (ConnectionException(..))
@@ -62,7 +64,7 @@ import qualified Mission
 import           Util ((∉), duplic, liftST, whileM)
 
 -- | A message sent through the websocket to the client.
--- This definition is xported so that @elm-bridge@ sends it over to the client.
+-- This definition is exported so that @elm-bridge@ sends it over to the client.
 data Message
     = Fail Queue.Failure
     | Info GameInfo
@@ -78,13 +80,13 @@ ratingThreshold = 1/0 -- i.e. infinity
 
 bot :: User
 bot = (Model.newUser "Bot" Nothing $ ModifiedJulianDay 0)
-    { userName       = "Bot"
-    , userAvatar     = "/img/icon/bot.jpg"
-    , userVerified   = True
+    { userName     = "Bot"
+    , userAvatar   = "/img/icon/bot.jpg"
+    , userVerified = True
     }
 
 sendClient :: ∀ m. MonadSockets m => Message -> m ()
-sendClient = Sockets.sendJson
+sendClient x = Sockets.send . Encoding.encodingToLazyByteString $ toEncoding x
 
 -- * HANDLERS
 
@@ -120,7 +122,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
                                     , ninjas
                                     }
 getPracticeQueueR _ = invalidArgs ["Wrong number of characters"]
- --zipWith Ninja.new Slot.all
+
 -- | Wrapper for 'getPracticeActR' with no actions.
 getPracticeWaitR :: Chakras -> Chakras -> Handler Value
 getPracticeWaitR actChakra xChakra = getPracticeActR actChakra xChakra []
@@ -135,9 +137,9 @@ getPracticeActR spend exchange acts = do
     case mGame of
         Nothing   -> notFound
         Just game -> do
-          random  <- liftIO Random.createSystemRandom
-          wrapper <- liftST $ Wrapper.thaw game
-          runReaderT (runReaderT (enactPractice who practice) wrapper) random
+            random  <- liftIO Random.createSystemRandom
+            wrapper <- liftST $ Wrapper.thaw game
+            runReaderT (runReaderT (enactPractice who practice) wrapper) random
   where
     enactPractice who practice = do
         res <- enact $ Enact{spend, exchange, acts}

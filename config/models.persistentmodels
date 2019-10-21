@@ -3,6 +3,22 @@ Character
     UniqueName name
     deriving Eq
 
+ForumPost
+    author  UserId
+    time    UTCTime  default=current_timestamp
+    body    [Text]
+    topic   ForumTopicId
+    deriving Eq
+
+ForumTopic
+    board   ForumBoard
+    author  UserId
+    staff   Bool
+    title   Text
+    posts   Int  default=1
+    time    UTCTime  default=current_timestamp
+    latest  UserId
+
 Mission
     user       UserId
     character  CharacterId
@@ -15,22 +31,6 @@ News
     date     Day  default=current_date
     title    Text
     content  Text
-
-Post
-    author  UserId
-    time    UTCTime  default=current_timestamp
-    body    [Text]
-    topic   TopicId
-    deriving Eq
-
-Topic
-    board   ForumBoard
-    author  UserId
-    staff   Bool
-    title   Text
-    posts   Int  default=1
-    time    UTCTime  default=current_timestamp
-    latest  UserId
 
 Unlocked
     user       UserId

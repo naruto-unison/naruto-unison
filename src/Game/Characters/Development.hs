@@ -4,7 +4,7 @@
 
 module Game.Characters.Development (characters) where
 
-import Game.Characters.Base
+import Game.Characters.Import
 
 #ifdef DEVELOPMENT
 import           Game.Model.Character (Category(Original))

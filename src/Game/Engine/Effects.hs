@@ -51,7 +51,7 @@ totalBase xs Percent = product . (1 :) . map ((/ 100) . fromIntegral . snd) $
 -- | Adds 'Flat' amounts and multiplies by 'Percent' amounts.
 posTotal :: [(Amount, Int)] -> Amount -> Float
 posTotal xs Flat    = totalBase xs Flat
-posTotal xs Percent = totalBase (second (100 +) <$> xs) Percent
+posTotal xs Percent = totalBase (second (+ 100) <$> xs) Percent
 
 -- | 'posTotal' for negative effects such as damage reduction.
 negTotal :: [(Amount, Int)] -> Amount -> Float

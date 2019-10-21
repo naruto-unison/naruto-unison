@@ -17,8 +17,8 @@ import Application.Fields (ForumBoard, Privilege(..))
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
     $(persistFileWith Quasi.lowerCaseSettings "config/models.persistentmodels")
 
-instance Ord Post where
-    compare = comparing postTime
+instance Ord ForumPost where
+    compare = comparing forumPostTime
 
 instance Hashable (Key User) where
     hashWithSalt salt = hashWithSalt salt . fromEnum . Sql.fromSqlKey
@@ -74,13 +74,13 @@ class HasAuthor a where
     getAuthor :: a -> UserId
     getLatest :: a -> UserId
 
-instance HasAuthor Topic where
-    getAuthor = topicAuthor
-    getLatest = topicLatest
+instance HasAuthor ForumPost where
+    getAuthor = forumPostAuthor
+    getLatest = forumPostAuthor
 
-instance HasAuthor Post where
-    getAuthor = postAuthor
-    getLatest = postAuthor
+instance HasAuthor ForumTopic where
+    getAuthor = forumTopicAuthor
+    getLatest = forumTopicLatest
 
 -- | A summary with a link, name, and oldest and most recent users to post.
 data Cite a = Cite { citeKey    :: Key a
