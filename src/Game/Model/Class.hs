@@ -93,6 +93,7 @@ visiblesList = toJSON $ filter visible [minBound..maxBound]
 {-# NOINLINE visiblesList #-}
 
 visiblesMap :: Value
-visiblesMap = toJSON . mapFromKeyed @(Map _ _) (name, const True) $
+visiblesMap = (toJSON :: Map Text Bool -> Value) .
+              mapFromKeyed (name, const True) $
               filter visible [minBound..maxBound]
 {-# NOINLINE visiblesMap #-}

@@ -212,7 +212,7 @@ default-extensions:
 - PartialTypeSignatures
 - PatternSynonyms
 - RankNTypes
-- TypeApplications
+# - TypeApplications
 - TypeOperators
 # Literals
 - BinaryLiterals

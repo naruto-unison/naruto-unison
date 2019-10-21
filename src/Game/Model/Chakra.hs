@@ -146,5 +146,5 @@ classes (Chakras b g n t r) = fromList $ fst <$> filter snd
 
 -- | Randomly selects a @Chakra@.
 random :: ∀ m. MonadRandom m => m Chakra
-random = toEnum <$> R.random (fromEnum @Chakra minBound)
-                             (fromEnum @Chakra maxBound - 1)
+random = toEnum <$> R.random (fromEnum (minBound :: Chakra))
+                             (fromEnum (maxBound :: Chakra) - 1)

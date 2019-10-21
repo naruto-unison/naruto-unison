@@ -122,6 +122,7 @@ testNinja slot = Ninja.new slot $ Character
     , Character.bio      = ""
     , Character.skills   = [[Skill.new], [Skill.new], [Skill.new], [Skill.new]]
     , Character.category = Original
+    , Character.groups   = []
     , Character.price    = 0
     }
 
