@@ -2,7 +2,7 @@
 
 module Game.Characters.Original.OrganizationsSpec (spec) where
 
-import TestImport
+import Import
 
 import qualified Class.Play as P
 import qualified Game.Model.Ninja as Ninja

@@ -1,6 +1,6 @@
 module Mission.MissionsSpec (spec) where
 
-import TestImport
+import Import
 
 import qualified Game.Characters as Characters
 import qualified Game.Model.Character as Character

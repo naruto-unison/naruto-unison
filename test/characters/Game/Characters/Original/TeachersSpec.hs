@@ -2,7 +2,7 @@
 
 module Game.Characters.Original.TeachersSpec (spec) where
 
-import TestImport
+import Import
 
 import qualified Class.Play as P
 import qualified Game.Engine.Effects as Effects

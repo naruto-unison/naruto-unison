@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedLists #-}
 
-module TestImport
-  ( module Import
+module Import
+  ( module X
   , describeCategory
   , act
   , turns
@@ -11,23 +11,23 @@ module TestImport
   , withClass
   ) where
 
-import ClassyPrelude as Import hiding ((\\), fromList, toList)
-import Game.Action.Chakra as Import
-import Game.Action.Channel as Import
-import Game.Action.Combat as Import
-import Game.Action.Skill as Import
-import Game.Action.Status as Import
-import Game.Action.Trap as Import
-import Game.Characters.Base as Import (self, targetHas, userHas)
-import Game.Model.Chakra as Import (Chakra(..))
-import Game.Model.Character as Import (Category(..), Character)
-import Game.Model.Class as Import (Class(..))
-import Game.Model.Effect as Import (Amount(..), Effect(..))
-import Game.Model.Ninja as Import (is, totalDefense)
-import Game.Model.Skill as Import (Target(..))
-import Game.Model.Trigger as Import (Trigger(..))
-import GHC.Exts as Import (fromList, toList)
-import Test.Hspec as Import hiding (context)
+import ClassyPrelude as X hiding ((\\), fromList, toList)
+import Game.Action.Chakra as X
+import Game.Action.Channel as X
+import Game.Action.Combat as X
+import Game.Action.Skill as X
+import Game.Action.Status as X
+import Game.Action.Trap as X
+import Game.Characters.Import as X (self, targetHas, userHas)
+import Game.Model.Chakra as X (Chakra(..))
+import Game.Model.Character as X (Category(..), Character)
+import Game.Model.Class as X (Class(..))
+import Game.Model.Effect as X (Amount(..), Effect(..))
+import Game.Model.Ninja as X (is, totalDefense)
+import Game.Model.Skill as X (Target(..))
+import Game.Model.Trigger as X (Trigger(..))
+import GHC.Exts as X (fromList, toList)
+import Test.Hspec as X hiding (context)
 
 import Control.Monad.Trans.State.Strict (StateT, evalStateT)
 

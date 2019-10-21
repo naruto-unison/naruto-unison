@@ -137,8 +137,8 @@ executables:
       buildable: false
 
 tests:
-  yesod-test:
-    source-dirs: test
+  test-characters:
+    source-dirs: test/characters
     main: Spec.hs
     dependencies:
     - naruto-unison
@@ -156,6 +156,34 @@ tests:
       - -fwarn-incomplete-patterns
       - -fwarn-incomplete-uni-patterns
       - -funbox-small-strict-fields
+      - -O0
+  test-yesod:
+    source-dirs: test/yesod
+    main: Spec.hs
+    dependencies:
+    - naruto-unison
+    - base
+    - hspec
+    - persistent
+    - shakespeare
+    - transformers
+    - yesod
+    - yesod-auth
+    - yesod-core
+    - yesod-test
+    ghc-options:
+      - -Wall
+      - -Wincomplete-uni-patterns
+      - -Wcompat
+      - -Wincomplete-record-updates
+      - -Wredundant-constraints
+      - -Wpartial-type-signatures
+      - -fwarn-tabs
+      - -fwarn-incomplete-patterns
+      - -fwarn-incomplete-uni-patterns
+      - -funbox-small-strict-fields
+      - -O0
+
 
 # Define flags used by "yesod devel" to make compilation faster
 flags:

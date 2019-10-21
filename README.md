@@ -73,7 +73,23 @@ In order to run the server in production mode, which has significantly better pe
 
 ### Tests
 
-The test suite can be run with `stack test`, or `stack test --test-arguments=--format=failed-examples` to hide successes.
+To run the characters test suite:
+
+```bash
+stack test naruto-unison:test-characters
+```
+
+To run the web handler test suite, first create a separate test database and configure it in [config/test-settings.yml](config/test-settings.yml), then run:
+
+```bash
+stack test naruto-unison:test-yesod
+```
+
+To run all tests and show only failures:
+
+```bash
+stack test --test-arguments --format=failed-examples
+```
 
 ### Documentation
 
