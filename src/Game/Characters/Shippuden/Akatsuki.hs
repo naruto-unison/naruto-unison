@@ -265,18 +265,19 @@ characters =
         }
       , Skill.new
         { Skill.name      = "First Blood"
-        , Skill.desc      = "Searching for a victim to join him in his ritual of death, Hidan deals 5 damage to an opponent and marks them for 2 turns. For 2 turns, this skill becomes [Blood Curse Ritual][g]."
+        , Skill.desc      = "Searching for a victim to join him in his ritual of death, Hidan deals 5 damage to an opponent and marks them for 2 turns. For 2 turns, this skill becomes [Blood Curse][g]."
         , Skill.classes   = [Bane, Physical, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
                 damage 5
-                apply 2 [Alternate "Jashin Sigil" "Blood Curse"]
+                tag 2
+                self $ apply 2 [Alternate "Jashin Sigil" "Blood Curse"]
           ]
         }
       , Skill.new
-        { Skill.name      = "Blood Curse Ritual"
-        , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, skills used on Hidan and the target by their opponents are also reflected to each other, and this skill becomes [Death Blow][t][g]. Hidan ignores status effects from enemies except chakra cost changes, although his target does not. Damage that Hidan deals to himself while linked to a living target heals him instead."
+        { Skill.name      = "Blood Curse"
+        , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, skills used on Hidan and the target by their opponents are also reflected to each other, and this skill becomes [Death Blow][t][g]. Hidan ignores status effects from enemies except chakra cost changes, although his target does not. Damage that Hidan deals to himself while linked to a living target does not harm him."
         , Skill.require   = HasU 1 "First Blood"
         , Skill.classes   = [Chakra, Soulbound, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Gen]
@@ -292,7 +293,11 @@ characters =
                 trap 3 OnDeath $ self $ remove "bloodlink"
                 self do
                     hide' "bloodlink" 3 []
-                    bomb' "Blood Curse" 3 [Enrage, Share targetSlot]
+                    bomb' "Blood Curse" 3
+                        [ Enrage
+                        , Share targetSlot
+                        , Alternate "Jashin Sigil" "Death Blow"
+                        ]
                         [ To Done do
                               remove "Jashin Sigil"
                               remove "bloodlink"
@@ -307,8 +312,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 has <- userHas "bloodlink"
-                if has then do
-                    heal 50
+                if has then
                     enemies $ whenM (targetHas "Blood Curse") $ pierce 50
                 else
                   sacrifice 0 50
@@ -324,8 +328,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 has <- userHas "bloodlink"
-                if has then do
-                    heal 35
+                if has then
                     enemies $ whenM (targetHas "Blood Curse") $ pierce 35
                 else
                     sacrifice 0 35

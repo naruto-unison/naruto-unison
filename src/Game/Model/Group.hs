@@ -96,7 +96,7 @@ instance Display Group where
     display Chunin = "Chūnin"
     display Jonin = "Jōnin"
     display Anbu = "Anbu"
-    display Sannin = "Legendary Sannin"
+    display Sannin = "Sannin"
     display Kage = "Kage"
 
     display Jinchuriki = "Jinchūriki"

@@ -429,7 +429,7 @@ characters =
             withMode \m x ->
                 x { Skill.effects = To Self (gain [m, m]) : Skill.effects x
                   , Skill.desc    = Skill.desc x ++ " Kabuto gains 2 "
-                                    ++ chakraDesc m ++ " chakras."
+                                    ++ chakraDesc m ++ " chakra."
                   }
         }
       ]
