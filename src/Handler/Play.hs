@@ -11,7 +11,7 @@ import ClassyPrelude
 import Yesod
 
 import           Control.Monad.Logger
-import           Control.Monad.Loops (untilJust)
+import           Control.Monad.Loops (untilJust, whileM)
 import           Control.Monad.Trans.Except (ExceptT, runExceptT, throwE)
 import           Data.Aeson (ToJSON, toEncoding)
 import qualified Data.Aeson.Encoding as Encoding
@@ -62,7 +62,7 @@ import qualified Handler.Play.War as War
 import           Handler.Play.Wrapper (Wrapper(Wrapper))
 import qualified Handler.Play.Wrapper as Wrapper
 import qualified Mission
-import           Util ((∉), duplic, liftST, whileM)
+import           Util ((∉), duplic, liftST)
 
 -- | A message sent through the websocket to the client.
 -- This definition is exported so that @elm-bridge@ sends it over to the client.
@@ -308,7 +308,7 @@ gameSocket = webSockets do
         let player = GameInfo.player info
         game <- liftST (Wrapper.fromInfo info) >>= runReaderT do
             when (player == Player.A) $ tryEnact settings player mvar
-            whileM do
+            whileM (null . Game.victor <$> P.game) do
                 wrapper <- takeMVar mvar
                 if null . Game.victor $ Wrapper.game wrapper then do
                     sendClient . Play $ Wrapper.toTurn player wrapper
@@ -316,17 +316,13 @@ gameSocket = webSockets do
                     liftST $ Wrapper.replace wrapper newWrapper
                     tryEnact settings player mvar
                     game <- P.game
-                    if null $ Game.victor game then
-                        return True
-                    else do
-                        let match = Match.fromGame game player who $
-                                    GameInfo.vsWho info
-                        liftHandler . runDB . void . forkIO $
-                            mapM_ Rating.update =<< Match.load match
-                        return False
-                else do
+                    when (not . null $ Game.victor game) . liftHandler .
+                      runDB . void $ forkIO do
+                          match <- Match.load . Match.fromGame game player who $
+                                   GameInfo.vsWho info
+                          mapM_ Rating.update match
+                else
                     liftST . Wrapper.replace wrapper =<< ask
-                    return False
             -- Because the STWrapper is confined to its ReaderT, it may safely
             -- be deconstructed as the final step.
             liftST . Wrapper.unsafeFreeze =<< ask

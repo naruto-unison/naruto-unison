@@ -10,7 +10,6 @@ module Util
   , mapFromKeyed
   , commas
   , shorten, unaccent
-  , whileM
   ) where
 
 import ClassyPrelude
@@ -113,13 +112,6 @@ unaccent 'Ū' = 'U'
 unaccent 'ä' = 'a'
 unaccent x   = x
 {-# INLINE unaccent #-}
-
--- | Repeats a monadic action until it returns @False@.
-whileM :: Monad m => m Bool -> m ()
-whileM act = go
-  where
-    go = whenM act go
-{-# INLINABLE whileM #-}
 
 -- | A metaconstraint for liftable functions.
 -- Useful for default signatures of MTL classes:
