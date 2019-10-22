@@ -40,6 +40,7 @@ module Game.Engine.Ninjas
   , prolong
   , prolong'
   , prolongChannel
+  , renameChannels
   , refresh
 
   , kabuto
@@ -57,6 +58,7 @@ import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import qualified Class.TurnBased as TurnBased
 import qualified Game.Engine.Effects as Effects
+import qualified Game.Engine.Skills as Skills
 import           Game.Model.Channel (Channel(Channel), Channeling(..))
 import qualified Game.Model.Channel as Channel
 import qualified Game.Model.Character as Character
@@ -114,7 +116,7 @@ nextAlternate baseName n = do
 -- Invariant: for @Left x@, @x < 'Ninja.skillSize'@.
 getSkill :: Either Int Skill -> Ninja -> Skill
 getSkill (Right skill) n = Requirement.usable False n skill
-getSkill (Left s)      n = Requirement.usable True n .
+getSkill (Left s)      n = Skills.change n . Requirement.usable True n .
                            maybe (Ninja.baseSkill s n) Copy.skill .
                            join . (!? s) $ copies n
 
@@ -267,7 +269,7 @@ clearTraps tr n = n { traps = filter ((/= tr) . Trap.trigger) $ traps n }
 -- | Adds channels with a specific target.
 addChannels :: Skill -> Slot -> Ninja -> Ninja
 addChannels skill target n
-  | chan == Instant || dur == 1 || dur == 2 = n
+  | chan == Instant || dur == 1 = n
   | otherwise = n { newChans = chan' : newChans n }
   where
     chan  = Skill.dur skill
@@ -386,8 +388,16 @@ prolongChannel dur name n = n { channels = f <$> channels n }
     dur' chan = TurnBased.getDur chan + sync dur
     f chan
       | TurnBased.getDur chan <= 0              = chan
-      | Skill.name (Channel.skill chan) /= name = chan
+      | name /= Skill.name (Channel.skill chan) = chan
       | otherwise = TurnBased.setDur (dur' chan) chan
+
+renameChannels :: (Text -> Text) -> Ninja -> Ninja
+renameChannels rename n = n { channels = f <$> channels n }
+  where
+    f chan = chan
+        { Channel.skill = skill { Skill.name = rename $ Skill.name skill } }
+      where
+        skill = Channel.skill chan
 
 -- | Removes all helpful effects.
 purge :: Ninja -> Ninja
@@ -429,38 +439,3 @@ recharge :: Text -> Slot -> Ninja -> Ninja
 recharge name owner n = n { charges = key `deleteMap` charges n }
   where
     key = Skill.Key name owner
-
--- | With my... ninja info cards
-kabuto :: Skill -> Ninja -> Ninja
-kabuto skill n =
-    n { statuses   = newmode : filter (not . getMode) (statuses n)
-      , alternates = fromList [m + 1, m, m, m]
-      , channels   = toList (init nChannels') ++ [swaps (last nChannels')]
-      }
-  where
-    target     = slot n
-    nChannels' = case channels n of
-        x:xs -> x :| xs
-        []   -> Channel { skill, target, dur = Skill.dur skill } :| []
-    sage       = " Sage"
-    sLen       = length sage
-    (mode, m)  = advance . maybe "" (dropEnd sLen . Status.name) .
-                 find getMode $ statuses n
-    name       = mode ++ sage
-    newmode    = Status { amount  = 1
-                        , name
-                        , user    = target
-                        , skill
-                        , effects = []
-                        , classes = setFromList [Hidden, Unremovable]
-                        , bombs   = []
-                        , maxDur  = 0
-                        , dur     = 0
-                        }
-    getMode st = Status.user st == target
-                 && sage == Text.takeEnd sLen (Status.name st)
-    advance "Bloodline" = ("Genjutsu" , 2)
-    advance "Genjutsu"  = ("Ninjutsu" , 3)
-    advance "Ninjutsu"  = ("Taijutsu" , 4)
-    advance _           = ("Bloodline", 1)
-    swaps ch = ch { Channel.skill = (Channel.skill ch) { Skill.name = name } }

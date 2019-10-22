@@ -1,6 +1,6 @@
 -- | 'Game.chakra' processing.
 module Game.Engine.Chakras
-  ( remove, remove1
+  ( remove, removeFrom, remove1
   , gain
   ) where
 
@@ -8,6 +8,7 @@ import ClassyPrelude
 
 import Data.Enum.Set.Class (EnumSet)
 
+import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Play as P
@@ -26,17 +27,22 @@ import           Util ((—), (∈))
 -- Removed 'Chakra's are collected into a 'Chakras' object and returned.
 remove :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m Chakras
 remove amount = do
-    user    <- P.user
+    user   <- P.user
+    target <- P.target
     P.trigger user [OnChakra]
-    if amount <= 0 then
-        return 0
-    else do
-        target  <- P.target
-        chakras :: Vector Chakra <- Chakra.toSequence . removeRandoms . Parity.getOf target .
-                   Game.chakra <$> P.game
-        removed <- Chakra.collect . take amount <$> R.shuffle chakras
-        P.alter $ Game.adjustChakra target (— removed)
-        return removed
+    removeFrom target amount
+
+-- | 'removeChakra' with a specified target.
+removeFrom :: ∀ m p. (MonadGame m, MonadRandom m, Parity p)
+           => p -> Int -> m Chakras
+removeFrom target amount
+  | amount <= 0 = return 0
+  | otherwise   = do
+      chakras <- Chakra.toSequence . removeRandoms . Parity.getOf target .
+                 Game.chakra <$> P.game
+      removed <- Chakra.collect . take amount <$> R.shuffle chakras
+      P.alter $ Game.adjustChakra target (— removed)
+      return removed
   where
     removeRandoms x = x { Chakra.rand = 0 }
 
@@ -49,8 +55,9 @@ remove1 permitted = do
     user     <- P.user
     target   <- P.target
     P.trigger user [OnChakra]
-    chakras :: [Chakra] <- filter (∈ permitted) . Chakra.toSequence .
-                           Parity.getOf target . Game.chakra <$> P.game
+    chakras :: [Chakra]
+             <- filter (∈ permitted) . Chakra.toSequence . Parity.getOf target .
+                Game.chakra <$> P.game
     mRemoved <- R.choose chakras
     case mRemoved of
         Nothing                            -> return 0
@@ -64,5 +71,6 @@ gain :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 gain = do
     player  <- Player.opponent <$> P.player
     living  <- length . filter Ninja.alive <$> P.allies player
-    randoms :: [Chakra] <- replicateM living Chakra.random
+    randoms :: [Chakra]
+            <- replicateM living Chakra.random
     P.alter $ Game.adjustChakra player (+ Chakra.collect randoms)

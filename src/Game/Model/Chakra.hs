@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 
 module Game.Model.Chakra
-  ( Chakra(..)
+  ( Chakra(..), chakraDesc
   , Chakras(..)
   , total
   , collect
@@ -116,6 +116,14 @@ instance ToMarkup Chakra where
     toMarkup Nin   = HTML.div ! HTML.class_ "chakra nin"   $ mempty
     toMarkup Tai   = HTML.div ! HTML.class_ "chakra tai"   $ mempty
     toMarkup Rand  = HTML.div ! HTML.class_ "chakra rand"  $ mempty
+
+-- | Lower-case name of chakra for use in descriptions, etc.
+chakraDesc :: Chakra -> Text
+chakraDesc Blood = "bloodline"
+chakraDesc Gen   = "genjutsu"
+chakraDesc Nin   = "ninjutsu"
+chakraDesc Tai   = "taijutsu"
+chakraDesc Rand  = "random"
 
 toChakras :: Chakra -> Chakras
 toChakras Blood = 0 { blood = 1 }

@@ -69,7 +69,7 @@ characters =
   , Character
     "Jiraiya"
     "One of three legendary sannin, Jiraiya is a lecherous frog hermit who travels the world in search of knowledge. His toad summoning techniques and fire manipulation wreak destruction upon enemy teams."
-    [LeafVillage, Jonin, Sannin, Sage, TeamLeader, Fire, Wind, Earth, Water, Yin, Yang]
+    [LeafVillage, Sannin, Sage, TeamLeader, Fire, Wind, Earth, Water, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Giant Flame Bomb"
         , Skill.desc      = "Jiraiya spits out a burst of fire that deals 20 affliction damage to an enemy and 10 to the rest of their team."

@@ -326,7 +326,22 @@ characters =
       ]
     , [ invuln "Puppet Distraction" "Kankurō" [Physical] ]
     ]
-  , Character
+  , let
+        rename "Sage Transformation" = "Bloodline Sage"
+        rename "Bloodline Sage" = "Genjutsu Sage"
+        rename "Genjutsu Sage"  = "Ninjutsu Sage"
+        rename "Ninjutsu Sage"  = "Taijutsu Sage"
+        rename "Taijutsu Sage"  = "Bloodline Sage"
+        rename x                = x
+
+        withMode f n x
+          | isChanneling "Bloodline Sage" n = f Blood x
+          | isChanneling "Genjutsu Sage"  n = f Gen x
+          | isChanneling "Ninjutsu Sage"  n = f Nin x
+          | isChanneling "Taijutsu Sage"  n = f Tai x
+          | otherwise                       = f Rand x
+    in
+    Character
     "Sage Mode Kabuto"
     "Unable to find an identity of his own, Kabuto has spent his life taking on the traits of others. Years of research and experiments upon himself have reached their conclusion, and now Kabuto prepares for his final metamorphosis."
     [LeafVillage, Rogue, Sage, TeamLeader, Earth, Water, Wind, Yin, Yang]
@@ -336,92 +351,34 @@ characters =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.dur       = Ongoing 0
-        , Skill.effects   = [ To Self $ delay (-1) kabuto ]
+        , Skill.start     =
+          [ To Self $ hide 0 [Alternate "Sage Transformation"
+                                        "DNA Transmission Shadow"]
+          ]
+        , Skill.effects   =
+          [ To Self $ delay (-1) $ renameChannels rename ]
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
-        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
+        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned or interrupted during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. The clone remains attached to Kabuto and will be destroyed if he dies. Using this skill again destroys the current clone."
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = [Rand, Rand, Rand]
-        , Skill.dur       = Control 1
+        , Skill.dur       = Control (-1)
         , Skill.start     =
           [ To Self do
                 hide 1 []
-                everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
+                everyone $
+                    whenM (targetHas "DNA Transmission Shadow") killHard
+                trap' 0 OnDeath $ everyone $
+                    whenM (targetHas "DNA Transmission Shadow") killHard
           , To XAlly $ delay (-1) $ whenM (userHas "dna transmission shadow") do
                 factory
-                apply 1 [Stun All]
+                tag 0
           ]
         , Skill.interrupt  =
-          [ To Self $ remove "dna" ]
-        }
-      , Skill.new
-        { Skill.name      = "DNA Transmission Shadow"
-        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
-        , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
-        , Skill.cost      = [Blood, Blood, Blood]
-        , Skill.dur       = Control 1
-        , Skill.start     =
-          [ To Self do
-                hide 1 []
-                everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , To XAlly $ delay (-1) $ whenM (userHas "dna transmission shadow") do
-                factory
-                apply 1 [Stun All]
-          ]
-        , Skill.interrupt  =
-          [ To Self $ remove "dna" ]
-        }
-      , Skill.new
-        { Skill.name      = "DNA Transmission Shadow"
-        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
-        , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
-        , Skill.cost      = [Gen, Gen, Gen]
-        , Skill.dur       = Control 1
-        , Skill.start     =
-          [ To Self do
-                hide 1 []
-                everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , To XAlly $ delay (-1) $ whenM (userHas "dna transmission shadow") do
-                factory
-                apply 1 [Stun All]
-          ]
-        , Skill.interrupt  =
-          [ To Self $ remove "dna" ]
-        }
-      , Skill.new
-        { Skill.name      = "DNA Transmission Shadow"
-        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
-        , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
-        , Skill.cost      = [Nin, Nin, Nin]
-        , Skill.dur       = Control 1
-        , Skill.start     =
-          [ To Self do
-                hide 1 []
-                everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , To XAlly $ delay (-1) $ whenM (userHas "dna transmission shadow") do
-                factory
-                apply 1 [Stun All]
-          ]
-        , Skill.interrupt  =
-          [ To Self $ remove "dna" ]
-        }
-      , Skill.new
-        { Skill.name      = "DNA Transmission Shadow"
-        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. They are stunned for the first turn after being created. Using this skill again destroys the current clone."
-        , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
-        , Skill.cost      = [Tai, Tai, Tai]
-        , Skill.dur       = Control 1
-        , Skill.start     =
-          [ To Self do
-                hide 1 []
-                everyone $ whenM (targetHas "DNA Transmission Shadow") killHard
-          , To XAlly $ delay (-1) $ whenM (userHas "dna transmission shadow") do
-                factory
-                apply 1 [Stun All]
-          ]
-        , Skill.interrupt  =
-          [ To Self $ remove "dna" ]
+          [ To Self $ remove "dna transmission" ]
+        , Skill.changes   =
+            withMode \m x -> x { Skill.cost = [m, m, m] }
         }
       ]
     , [ Skill.new
@@ -435,59 +392,13 @@ characters =
                 enemies $ apply 1 [Restrict]
           , To Enemies $ damage 10
           ]
-        }
-      , Skill.new
-        { Skill.name      = "Inorganic Animation"
-        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, Kabuto's skills are recharged."
-        , Skill.classes   = [Physical, Ranged, Unreflectable]
-        , Skill.cost      = [Blood]
-        , Skill.effects   =
-          [ To Self do
-                trap' (-1) OnDamage rechargeAll
-                enemies $ apply 1 [Restrict]
-          , To Enemies $ damage 10
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Inorganic Animation"
-        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, Kabuto's skills are recharged."
-        , Skill.classes   = [Physical, Ranged, Unreflectable]
-        , Skill.cost      = [Gen]
-        , Skill.effects   =
-          [ To Self do
-                trap' (-1) OnDamage rechargeAll
-                enemies $ apply 1 [Restrict]
-          , To Enemies $ damage 10
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Inorganic Animation"
-        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, Kabuto's skills are recharged."
-        , Skill.classes   = [Physical, Ranged, Unreflectable]
-        , Skill.cost      = [Nin]
-        , Skill.effects   =
-          [ To Self do
-                trap' (-1) OnDamage rechargeAll
-                enemies $ apply 1 [Restrict]
-          , To Enemies $ damage 10
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Inorganic Animation"
-        , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, Kabuto's skills are recharged."
-        , Skill.classes   = [Physical, Ranged, Unreflectable]
-        , Skill.cost      = [Tai]
-        , Skill.effects   =
-          [ To Self do
-                trap' (-1) OnDamage rechargeAll
-                enemies $ apply 1 [Restrict]
-          , To Enemies $ damage 10
-          ]
+        , Skill.changes   =
+            withMode \m x -> x { Skill.cost = [m] }
         }
       ]
     , [ Skill.new
         { Skill.name      = "Transfusion"
-        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns, resetting the target's cooldowns, and curing them of bane effects. While being healed, the target is invulnerable to bane skills. Kabuto gains 1 random chakra."
+        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns, resetting the target's cooldowns, and curing them of bane effects. While being healed, the target is invulnerable to bane skills."
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.charges   = 1
         , Skill.effects   =
@@ -495,121 +406,31 @@ characters =
                 resetAll
                 cureBane
                 apply 3 [Heal 15, Invulnerable Bane]
-          , To Self $ gain [Rand]
           ]
-        }
-      , Skill.new
-        { Skill.name      = "Transfusion"
-        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns, resetting the target's cooldowns, and curing them of bane effects. While being healed, the target is invulnerable to bane skills. Kabuto gains 1 bloodline chakra."
-        , Skill.classes   = [Chakra, Unremovable]
-        , Skill.charges   = 1
-        , Skill.effects   =
-          [ To Ally do
-                resetAll
-                cureBane
-                apply 3 [Heal 15, Invulnerable Bane]
-          , To Self $ gain [Blood]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Transfusion"
-        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns, resetting the target's cooldowns, and curing them of bane effects. While being healed, the target is invulnerable to bane skills. Kabuto gains 1 genjutsu chakra."
-        , Skill.classes   = [Chakra, Unremovable]
-        , Skill.charges   = 1
-        , Skill.effects   =
-          [ To Ally do
-                resetAll
-                cureBane
-                apply 3 [Heal 15, Invulnerable Bane]
-          , To Self $ gain [Gen]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Transfusion"
-        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns, resetting the target's cooldowns, and curing them of bane effects. While being healed, the target is invulnerable to bane skills. Kabuto gains 1 ninjutsu chakra."
-        , Skill.classes   = [Chakra, Unremovable]
-        , Skill.charges   = 1
-        , Skill.effects   =
-          [ To Ally do
-                resetAll
-                cureBane
-                apply 3 [Heal 15, Invulnerable Bane]
-          , To Self $ gain [Nin]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Transfusion"
-        , Skill.desc      = "Kabuto administers chakra-rich blood to himself or an ally, restoring 15 health for 3 turns, resetting the target's cooldowns, and curing them of bane effects. While being healed, the target is invulnerable to bane skills. Kabuto gains 1 taijutsu chakra."
-        , Skill.classes   = [Chakra, Unremovable]
-        , Skill.charges   = 1
-        , Skill.effects   =
-          [ To Ally do
-                resetAll
-                cureBane
-                apply 3 [Heal 15, Invulnerable Bane]
-          , To Self $ gain [Tai]
-          ]
+        , Skill.changes   =
+            withMode \m x ->
+                x { Skill.effects = To Self (gain [m]) : Skill.effects x
+                  , Skill.desc    = Skill.desc x ++ " Kabuto gains 1 "
+                                    ++ chakraDesc m ++ " chakra."
+                  }
         }
       ]
     , [ Skill.new
         { Skill.name      = "White Extreme Attack"
-        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth that explodes in a flash of light and stuns all allies and enemies for 1 turn. Kabuto gains 2 random chakras."
+        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth that explodes in a flash of light and stuns all allies and enemies for 1 turn."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cooldown  = 3
         , Skill.charges   = 1
         , Skill.effects   =
-          [ To Self $ gain [Rand, Rand]
-          , To XAllies $ apply 1 [Stun All]
+          [ To XAllies $ apply 1 [Stun All]
           , To Enemies $ apply 1 [Stun All]
           ]
-        }
-      , Skill.new
-        { Skill.name      = "White Extreme Attack"
-        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth that explodes in a flash of light and stuns all allies and enemies for 1 turn. Kabuto gains 2 bloodline chakras."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cooldown  = 3
-        , Skill.charges   = 1
-        , Skill.effects   =
-          [ To Self $ gain [Blood, Blood]
-          , To XAllies $ apply 1 [Stun All]
-          , To Enemies $ apply 1 [Stun All]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "White Extreme Attack"
-        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth that explodes in a flash of light and stuns all allies and enemies for 1 turn. Kabuto gains 2 genjutsu chakras."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cooldown  = 3
-        , Skill.charges   = 1
-        , Skill.effects   =
-          [ To Self $ gain [Gen, Gen]
-          , To XAllies $ apply 1 [Stun All]
-          , To Enemies $ apply 1 [Stun All]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "White Extreme Attack"
-        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth that explodes in a flash of light and stuns all allies and enemies for 1 turn. Kabuto gains 2 ninjutsu chakras."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cooldown  = 3
-        , Skill.charges   = 1
-        , Skill.effects   =
-          [ To Self $ gain [Nin, Nin]
-          , To XAllies $ apply 1 [Stun All]
-          , To Enemies $ apply 1 [Stun All]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "White Extreme Attack"
-        , Skill.desc      = "Shuttering the brille over his eyes, Kabuto shoots a chakra dragon from his mouth that explodes in a flash of light and stuns all allies and enemies for 1 turn. Kabuto gains 2 taijutsu chakras."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cooldown  = 3
-        , Skill.charges   = 1
-        , Skill.effects   =
-          [ To Self $ gain [Tai, Tai]
-          , To XAllies $ apply 1 [Stun All]
-          , To Enemies $ apply 1 [Stun All]
-          ]
+        , Skill.changes   =
+            withMode \m x ->
+                x { Skill.effects = To Self (gain [m, m]) : Skill.effects x
+                  , Skill.desc    = Skill.desc x ++ " Kabuto gains 2 "
+                                    ++ chakraDesc m ++ " chakras."
+                  }
         }
       ]
     ]

@@ -436,11 +436,14 @@ button.scroll:hover {
 .stunned .charmove,
 .unable.charmove,
 .oncd,
-#player0 .noChakra,
-.dead img
+#player0 .noChakra
 {
     filter: grayscale(0.8);
     border-color: #000 !important;
+}
+.dead img
+{
+    filter: grayscale(0.8);
 }
 .unable .player > section > section img,
 .stunned .player > section > section img
@@ -714,7 +717,7 @@ dl dt {
 }
 
 #game.over > section, #bg.over {
-    filter: blur(5px) contrast(0.5) brightness(1.3);
+    filter: blur(1px) contrast(0.5) brightness(1.3);
 }
 
 .inactive {
@@ -1303,6 +1306,7 @@ svg {
     margin-top: 15px;
     margin-bottom: -9px;
     padding: 10px;
+    min-height: 75px;
 
     nav {
         display: flex;
