@@ -13,7 +13,7 @@ const getSkill = (char, name) => char.skills.flat().filter(x => x.name == name)[
 const visible = #{Class.visiblesMap}
 const filterClasses = x => x.filter(y => visible[y])
 
-const showChar = x => {
+function showChar(x) {
   switch (x.category) {
     case "Shippuden":  return x.name + " (S)";
     case "Reanimated": return x.name + " (R)";
@@ -21,7 +21,7 @@ const showChar = x => {
   }
 }
 
-const showDur = x => {
+function showDur(x) {
   switch (x) {
     case "Passive": return "Instant";
     default:        return x;

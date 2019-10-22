@@ -283,7 +283,7 @@ instance Display Effect where
         "Gains chakra equal to the chakra cost of skills received from enemies."
 
     display (Afflict x) =
-        "Receives " ++ display x ++ " affliction damage each turn."
+        "Receives " ++ display x ++ " affliction damage every turn."
 
     display Alone =
         "Invulnerable to allies."

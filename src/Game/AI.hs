@@ -42,7 +42,7 @@ vendettaRatio = 5
 
 run :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Ninja -> m (Maybe Act)
 run vendetta n = runMaybeT do
-    aggression <- R.random 0 aggressionThreshold 
+    aggression <- R.random 0 aggressionThreshold
     guard $ aggression /= 0
     ninjas  <- P.ninjas
     choices <- MaybeT . R.choose $ (focusVendetta =<<) <$> skillOptions ninjas n

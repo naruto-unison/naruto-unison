@@ -863,7 +863,12 @@ vsBox st =
             else
                 [ A.class "parchment playButton" ]
     in
-    H.section [ A.id "vs", A.class "parchment" ]
+    H.section [ A.id "vs"
+              , A.classList
+                [ ("parchment", True)
+                , ("vsPractice", st.stage == Practicing)
+                ]
+              ]
       [ H.nav []
         [ H.button meta
           [ H.text "Ready" ]

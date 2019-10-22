@@ -131,7 +131,7 @@ formula atk classes nUser nTarget = limit . truncate .
         Attack.Damage | nUser `is` Pierce -> Attack.Pierce
         _                                 -> atk
     limit i = case Effects.limit nTarget of
-        Just x | atk /= Attack.Afflict -> min x i
+        Just x | atk' == Attack.Afflict -> min x i
         _                              -> i
 
 -- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce',

@@ -718,11 +718,6 @@ dl dt {
     color: #e00;
 }
 
-/*
-#game.over > section, #bg.over {
-    filter: blur(1px) contrast(0.5) brightness(1.3);
-}*/
-
 .inactive {
     color: #e00;
     font-size: 2em;
@@ -1304,7 +1299,6 @@ svg {
 }
 
 #vs {
-    border-bottom: none;
     display: flex;
     margin-top: 15px;
     margin-bottom: -9px;
@@ -1326,6 +1320,9 @@ svg {
     span {
         margin: 0 0.5em 0 1em;
     }
+}
+#vs.vsPractice {
+    border-bottom: none;
 }
 
 .war {
