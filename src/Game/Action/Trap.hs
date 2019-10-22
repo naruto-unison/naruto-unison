@@ -7,7 +7,7 @@ module Game.Action.Trap
   ) where
 import ClassyPrelude
 
-import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
+import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Enum.Set.Class (EnumSet)
 
 import qualified Class.Classed as Classed

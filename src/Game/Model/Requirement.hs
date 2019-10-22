@@ -3,9 +3,12 @@ module Game.Model.Requirement
   , targetable
   , usable
   , succeed
+  , targets
   ) where
 
 import ClassyPrelude
+
+import Data.Enum.Set.Class (EnumSet)
 
 import qualified Class.Parity as Parity
 import qualified Game.Engine.Effects as Effects
@@ -15,7 +18,8 @@ import           Game.Model.Effect (Effect(..))
 import           Game.Model.Internal (Requirement(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
-import           Game.Model.Skill (Skill)
+import qualified Game.Model.Runnable as Runnable
+import           Game.Model.Skill (Skill, Target(..))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Util ((∈), (∉), intersects)
@@ -70,17 +74,17 @@ targetable :: Skill -- ^ @Skill@ to check.
            -> Bool
 targetable skill n nt
   | not $ succeed (Skill.require skill) user nt = False
-  | not (Ninja.alive nt) && not necro     = False
-  | user == target                        = True
-  | Ninja.alive nt && necro               = False
-  | harm && n `is` BlockEnemies           = False
-  | not harm && n `is` BlockAllies        = False
-  | harm && invuln && not bypass          = False
-  | not harm && nt `is` Alone             = False
-  | notIn user $ Effects.duel nt          = False
-  | notIn target $ Effects.taunt n        = False
-  | target ∈ Effects.block n              = False
-  | otherwise                             = True
+  | not (Ninja.alive nt) && not necro = False
+  | user == target                    = True
+  | Ninja.alive nt && necro           = False
+  | harm && n `is` BlockEnemies       = False
+  | not harm && n `is` BlockAllies    = False
+  | harm && invuln && not bypass      = False
+  | not harm && nt `is` Alone         = False
+  | notIn user $ Effects.duel nt      = False
+  | notIn target $ Effects.taunt n    = False
+  | target ∈ Effects.block n          = False
+  | otherwise                         = True
   where
     classes = Skill.classes skill
     user    = Ninja.slot n
@@ -90,3 +94,26 @@ targetable skill n nt
     invuln  = classes `intersects` Effects.invulnerable nt
     bypass  = Bypassing ∈ classes || n `is` Bypass
     notIn a xs = not (null xs) && a ∉ xs
+
+-- | All targets that a @Skill@ from a a specific 'Ninja' affects.
+targets :: [Ninja] -> Ninja -> Skill -> [Ninja]
+targets ns n skill = filter filt ns
+  where
+    filt nt = targetSlot (Ninja.slot nt) && targetable skill n nt
+    user    = Ninja.slot n
+    ts      = setFromList $
+              Runnable.target <$> Skill.start skill ++ Skill.effects skill
+    targetSlot t
+      | Everyone ∈ ts                = True
+      | not $ Parity.allied user t   = ts `intersects` harmTargets
+      | ts `intersects` xAllyTargets = user /= t
+      | ts `intersects` allyTargets  = True
+      | user == t                    = not $ ts `intersects` harmTargets
+      | otherwise                    = False
+
+harmTargets  :: EnumSet Target
+harmTargets   = setFromList [Enemy, Enemies, REnemy, XEnemies]
+xAllyTargets :: EnumSet Target
+xAllyTargets  = setFromList [XAlly, XAllies]
+allyTargets  :: EnumSet Target
+allyTargets   = setFromList [Ally, Allies, RAlly]

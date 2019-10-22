@@ -18,7 +18,7 @@ module Game.Action.Status
 
 import ClassyPrelude
 
-import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
+import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Enum.Set.Class (EnumSet)
 
 import           Class.Play (MonadPlay)

@@ -4,7 +4,6 @@ module Game.Action.Chakra
   , deplete, deplete1
   , gain
   , healFromChakra
-  , kabuto
   ) where
 
 import ClassyPrelude
@@ -82,11 +81,3 @@ healFromChakra amount = P.unsilenced do
             P.modify user $ Ninjas.adjustHealth (+ amount')
             healed <- (— Ninja.health nUser) . Ninja.health <$> P.nUser
             when (healed > 0) $ P.trigger user [OnHeal]
-
--- | Cycles Kabuto Yakushi's chakra mode through the four types of 'Chakra'.
--- Uses 'Ninjas.kabuto' internally.
-kabuto :: ∀ m. MonadPlay m => m ()
-kabuto = do
-    skill  <- P.skill
-    target <- P.target
-    P.modify target $ Ninjas.kabuto skill

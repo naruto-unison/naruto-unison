@@ -22,14 +22,13 @@ import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Requirement as Requirement
-import           Game.Model.Skill (Skill, Target(..))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import           OrphanInstances.Ninja ()
-import           Util ((!!), (∈), (∉), intersects)
+import           Util ((!!), (∈), (∉))
 
 -- | Intermediate type for marshaling to JSON.
 -- Includes censorship of 'Invisible' 'Status.Status'es, enemy cooldowns, etc.
@@ -58,13 +57,10 @@ new player ninjas game = Turn { chakra  = Parity.getOf player $ Game.chakra game
     targets  = do
         n <- censored
         return do
-            skill    <- Ninjas.skills n
-            let targs = skillTargets skill $ Ninja.slot n
+            skill <- Ninjas.skills n
             return do
-                nt   <- censored
-                let t = Ninja.slot nt
-                guard $ Requirement.targetable skill n nt && t ∈ targs
-                return t
+                nt <- Requirement.targets censored n skill
+                return $ Ninja.slot nt
 
 censor :: Player -> [Ninja] -> Ninja -> Ninja
 censor player ninjas n
@@ -94,18 +90,3 @@ censor player ninjas n
           [Reveal] -> Nothing
           _        -> Just st
                           { Status.effects = Reveal `delete` Status.effects st }
--- | All targets that a @Skill@ from a a specific 'Ninja' affects.
-skillTargets :: Skill -> Slot -> [Slot]
-skillTargets skill c = filter target Slot.all
-  where
-    ts = Skill.targets skill
-    target t
-      | Everyone ∈ ts                = True
-      | not $ Parity.allied c t      = ts `intersects` harmTargets
-      | ts `intersects` xAllyTargets = c /= t
-      | ts `intersects` allyTargets  = True
-      | c == t                       = not $ ts `intersects` harmTargets
-      | otherwise                    = False
-    harmTargets  = setFromList [Enemy, Enemies, REnemy, XEnemies]
-    xAllyTargets = setFromList [XAlly, XAllies]
-    allyTargets  = setFromList [Ally, Allies, RAlly]

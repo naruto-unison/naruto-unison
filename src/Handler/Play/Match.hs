@@ -11,7 +11,7 @@ module Handler.Play.Match
 
 import ClassyPrelude hiding (map, traverse_)
 
-import           Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
+import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Database.Persist.Sql (Entity(..), SqlPersistT)
 import qualified Database.Persist.Sql as Sql
 

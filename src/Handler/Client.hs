@@ -16,7 +16,7 @@ module Handler.Client
 import ClassyPrelude
 import Yesod
 
-import           Control.Monad.Trans.Maybe (runMaybeT)
+import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Data.List (nub)
 import qualified Yesod.Auth as Auth
 

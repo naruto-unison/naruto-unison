@@ -1,5 +1,5 @@
 module Game.Model.Skill
-  ( Skill(..), new, targets, chakraClasses
+  ( Skill(..), new, chakraClasses
   , Target(..)
   , Key(..), key
   , Transform
@@ -7,12 +7,10 @@ module Game.Model.Skill
   ) where
 
 import ClassyPrelude
-import Data.Enum.Set.Class (EnumSet)
 
 import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Internal (Key(..), Ninja, Skill(..), Requirement(..), Target(..))
-import qualified Game.Model.Runnable as Runnable
 import qualified Game.Model.Slot as Slot
 
 -- | The type signature of 'changes'.
@@ -35,10 +33,6 @@ new = Skill { name      = "Unnamed"
             , changes   = const id
             , owner     = headEx Slot.all
             }
-
-targets :: Skill -> EnumSet Target
-targets x = setFromList $
-            Runnable.target <$> start x ++ effects x ++ interrupt x
 
 -- | Adds 'Model.Class.Bloodline', 'Model.Class.Genjutsu',
 -- 'Model.Class.Ninjutsu', 'Model.Class.Taijutsu', and 'Model.Class.Random'

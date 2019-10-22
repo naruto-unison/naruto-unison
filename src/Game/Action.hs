@@ -10,7 +10,7 @@ module Game.Action
 
 import ClassyPrelude hiding ((<|))
 
-import Control.Monad.Trans.Maybe (runMaybeT)
+import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Bits (setBit, testBit)
 import Data.Either (isLeft)
 import Data.Enum.Set.Class (EnumSet, AsEnumSet(..))

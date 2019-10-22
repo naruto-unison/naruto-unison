@@ -37,6 +37,7 @@ import           Class.Random (MonadRandom)
 import qualified Class.Random as R
 import           Class.Sockets (MonadSockets)
 import qualified Class.Sockets as Sockets
+import qualified Game.AI as AI
 import qualified Game.Characters as Characters
 import qualified Game.Engine as Engine
 import           Game.Model.Act (Act)
@@ -150,7 +151,7 @@ getPracticeActR spend exchange acts = do
               P.alter \g -> g { Game.chakra  = (fst $ Game.chakra g, 100)
                               , Game.playing = Player.B
                               }
-              Engine.runTurn =<< Act.randoms
+              AI.runTurn
               game'B <- Wrapper.freeze
               liftIO if null . Game.victor $ Wrapper.game game'B then
                   Cache.insert practice who game'B

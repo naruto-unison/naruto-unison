@@ -14,7 +14,6 @@ import           Control.Monad.Trans.Maybe (MaybeT)
 import           Control.Monad.Trans.Select (SelectT)
 import           Control.Monad.Trans.Writer (WriterT)
 import           Data.Bits ((.&.))
-import qualified Data.Vector.Generic as Generic
 import qualified System.Random.MWC as Random
 import qualified System.Random.MWC.Distributions as Random
 import           Yesod.WebSockets (WebSocketsT)
@@ -31,7 +30,7 @@ class Monad m => MonadRandom m where
     -- | Selects an integer in an inclusive range.
     random  :: Int -> Int -> m Int
     -- | Randomly shuffles elements in a list.
-    shuffle :: ∀ v a. Generic.Vector v a => v a -> m (v a)
+    shuffle :: Vector a -> m (Vector a)
     -- | Randomly chooses 'Player.A' or 'Player.B'. A coin toss.
     player :: m Player
 
@@ -40,7 +39,7 @@ class Monad m => MonadRandom m where
     random a = lift . random a
     {-# INLINE random #-}
     default shuffle :: Lift MonadRandom m
-                    => Generic.Vector v a => v a -> m (v a)
+                    => Vector a -> m (Vector a)
     shuffle = lift . shuffle
     {-# INLINE shuffle #-}
     default player :: Lift MonadRandom m

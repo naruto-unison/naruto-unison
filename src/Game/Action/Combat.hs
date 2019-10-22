@@ -16,7 +16,7 @@ module Game.Action.Combat
 
 import ClassyPrelude
 
-import Control.Monad.Trans.Maybe (runMaybeT)
+import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Enum.Set.Class (EnumSet)
 
 import qualified Class.Classed as Classed

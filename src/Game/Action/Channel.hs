@@ -3,6 +3,7 @@ module Game.Action.Channel
   ( cancelChannel
   , prolongChannel
   , interrupt
+  , renameChannels
   ) where
 
 import ClassyPrelude
@@ -52,3 +53,7 @@ onInterrupt chan = P.with chanContext $
 prolongChannel :: ∀ m. MonadPlay m => Turns -> Text -> m ()
 prolongChannel (Duration -> dur) name =
     P.toTarget $ Ninjas.prolongChannel dur name
+
+-- | Modify all channel names.
+renameChannels :: ∀ m. MonadPlay m => (Text -> Text) -> m ()
+renameChannels rename = P.toTarget $ Ninjas.renameChannels rename

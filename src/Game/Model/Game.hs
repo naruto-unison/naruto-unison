@@ -12,6 +12,7 @@ import           Game.Model.Chakra (Chakra, Chakras)
 import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
+import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 
 -- | Game state.
@@ -25,6 +26,8 @@ data Game = Game { chakra   :: (Chakras, Chakras)
                  -- ^ Starts at @(0, 0)@.
                  , forfeit  :: Bool
                  -- ^ Starts at @False@.
+                 , vendetta  :: Maybe Slot
+                 -- ^ Used by AI.
                  } deriving (Eq, Show, Read)
 
 new :: Game
@@ -33,14 +36,15 @@ new = Game { chakra   = (0, 0)
            , victor   = []
            , inactive = (0, 0)
            , forfeit  = False
+           , vendetta = Nothing
            }
 
 newWithChakras :: ∀ m. MonadRandom m => m Game
 newWithChakras = do
-    randomA              <- Chakra.random
-    randomsB :: [Chakra] <- replicateM Slot.teamSize Chakra.random
-    return
-        new { chakra = (Chakra.toChakras randomA, Chakra.collect randomsB) }
+    randA <- Chakra.random
+    randsB :: [Chakra]
+          <- replicateM Slot.teamSize Chakra.random
+    return new { chakra = (Chakra.toChakras randA, Chakra.collect randsB) }
 
 setChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
 setChakra p x game = game { chakra = Parity.setOf p x $ chakra game }

@@ -15,7 +15,7 @@ module Mission
 import ClassyPrelude hiding ((\\))
 import Yesod
 
-import           Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
+import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Data.Bimap (Bimap)
 import qualified Data.Bimap as Bimap
 import           Data.List ((\\))

@@ -4,7 +4,6 @@ module Game.Model.Act
   ( Act(..)
   , fromChannel
   , illegal
-  , randoms
   ) where
 
 import ClassyPrelude
@@ -16,14 +15,11 @@ import           Text.Read (Read(..))
 import           Yesod.Core.Dispatch (PathPiece(..))
 
 import qualified Class.Parity as Parity
-import           Class.Random (MonadRandom)
-import qualified Class.Random as R
 import           Game.Model.Channel (Channel)
 import qualified Game.Model.Channel as Channel
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
-import qualified Game.Model.Player as Player
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
@@ -47,16 +43,6 @@ instance Show Act where
     showsPrec i = showsPrec i . fromAct
 instance Read Act where
     readPrec = toAct <$> readPrec
-
-random :: ∀ m. MonadRandom m => Slot -> m Act
-random user = do
-    skill  <- R.random 0 $ Ninja.skillSize - 1
-    target <- Slot.random
-    return $ Act user (Left skill) target
-
--- | Random acts for the practice-mode AI.
-randoms :: ∀ m. MonadRandom m => m [Act]
-randoms = traverse random $ Slot.allies Player.B
 
 -- | A 'Player' attempts to control a 'Ninja' not on their team.
 illegal :: Player -> Act -> Bool

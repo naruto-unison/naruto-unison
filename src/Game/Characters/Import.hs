@@ -22,7 +22,7 @@ import Game.Action.Trap as Import
 import Game.Engine.Effects as Import (stunned)
 import Game.Engine.Ninjas as Import (addOwnStacks, addOwnDefense)
 import Game.Engine.Skills as Import
-import Game.Model.Chakra as Import (Chakra(..), Chakras)
+import Game.Model.Chakra as Import (Chakra(..), Chakras, chakraDesc)
 import Game.Model.Channel as Import (Channeling(..))
 import Game.Model.Character as Import (Character(..), Category)
 import Game.Model.Class as Import (Class(..))

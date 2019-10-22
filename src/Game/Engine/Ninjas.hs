@@ -42,8 +42,6 @@ module Game.Engine.Ninjas
   , prolongChannel
   , renameChannels
   , refresh
-
-  , kabuto
   ) where
 
 import ClassyPrelude
@@ -51,7 +49,6 @@ import ClassyPrelude
 import           Data.List (findIndex)
 import           Data.List.NonEmpty ((!!))
 import qualified Data.Sequence as Seq
-import qualified Data.Text as Text
 
 import qualified Class.Classed as Classed
 import qualified Class.Labeled as Labeled
