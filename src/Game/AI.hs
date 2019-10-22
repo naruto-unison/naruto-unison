@@ -3,7 +3,6 @@ module Game.AI (runTurn) where
 import ClassyPrelude
 
 import Control.Monad.Trans.Maybe (MaybeT(..))
-import Data.Ratio (Ratio, (%), numerator, denominator)
 
 import           Class.Hook (MonadHook)
 import qualified Class.Parity as Parity
@@ -14,69 +13,44 @@ import qualified Class.Random as R
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Act (Act(Act))
 import qualified Game.Model.Act as Act
-import           Game.Model.Chakra (Chakras)
-import qualified Game.Model.Chakra as Chakra
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Player as Player
 import qualified Game.Engine as Engine
-import qualified Game.Engine.Chakras as Chakras
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Requirement as Requirement
-import           Game.Model.Skill (Skill(Skill))
-import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
-import           Util ((—))
 
-afford :: Chakras -> Skill -> Bool
-afford chaks Skill{cost} =
-    not (Chakra.lack diff)
-    && Chakra.total diff { Chakra.rand = 0 } >= Chakra.rand cost
+targetOptions :: [Ninja] -> Ninja -> Int -> [Act]
+targetOptions ns n (Left -> i) = Act (Ninja.slot n) i . Ninja.slot <$> nTargets
   where
-    diff = chaks - cost
+    nTargets = Requirement.targets ns n $ Ninjas.getSkill i n
 
-targetOptions :: [Ninja] -> Ninja -> Chakras -> Int -> [Act]
-targetOptions ns n chaks (Left -> i)
-  | afford chaks skill = Act (Ninja.slot n) i . Ninja.slot <$> nTargets
-  | otherwise          = []
-  where
-    skill    = Ninjas.getSkill i n
-    nTargets = Requirement.targets ns n skill
-
-skillOptions :: [Ninja] -> Ninja -> Chakras -> [[Act]]
-skillOptions ns n chaks =
-    filter (not . null) $ targetOptions ns n chaks <$> [0..Ninja.skillSize - 1]
+skillOptions :: [Ninja] -> Ninja -> [[Act]]
+skillOptions ns n =
+    filter (not . null) $ targetOptions ns n <$> [0..Ninja.skillSize - 1]
 
 -- | The higher this is, the more likely AI is to attack. Lower values allow it
 -- to pool mana. At 0, the AI is disabled. This will certainly end up as a
 -- file configuration once I figure out what I'm doing.
 aggressionThreshold :: Int
-aggressionThreshold = 4
+aggressionThreshold = 2
 
 -- | The higher this is, the more likely AI is to attack the vendetta target.
-vendettaRatio :: Ratio Int
-vendettaRatio = 9 % 2
+vendettaRatio :: Int
+vendettaRatio = 5
 
 run :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Ninja -> m (Maybe Act)
 run vendetta n = runMaybeT do
-    aggression <- R.random 0 aggressionThreshold
+    aggression <- R.random 0 aggressionThreshold 
     guard $ aggression /= 0
-    ninjas     <- P.ninjas
-    (_, chaks) <- Game.chakra <$> P.game
-    let options = (focusVendetta =<<) <$> skillOptions ninjas n chaks
-    choices    <- MaybeT $ R.choose options
-    choice     <- MaybeT $ R.choose choices
-    let skill   = Ninjas.getSkill (Act.skill choice) n
-        cost    = Skill.cost skill
-        rand    = Chakra.rand cost
-        unrand  = cost { Chakra.rand = 0 }
-    P.alter $ Game.adjustChakra Player.B (— unrand)
-    void $ Chakras.removeFrom Player.B rand
-    return choice
+    ninjas  <- P.ninjas
+    choices <- MaybeT . R.choose $ (focusVendetta =<<) <$> skillOptions ninjas n
+    MaybeT $ R.choose choices
   where
     focusVendetta act
-      | Act.target act == vendetta = replicate (numerator vendettaRatio) act
-      | otherwise                  = replicate (denominator vendettaRatio) act
+      | Act.target act == vendetta = replicate vendettaRatio act
+      | otherwise                  = singleton act
 
 -- | Returns @Nothing@ only if all enemies are dead.
 chooseVendetta :: ∀ m. (MonadGame m, MonadRandom m) => m (Maybe Slot)

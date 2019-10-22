@@ -318,7 +318,6 @@ button.scroll:hover {
 
     div {
         border-radius: 100%;
-        border: 2px solid #000;
         width: 15px;
         height: 15px;
         position: absolute;
@@ -328,12 +327,15 @@ button.scroll:hover {
 
     .redblue {
         background: purple;
+        border: 2px solid #000;
     }
     .red {
         background: #e00;
+        border: 2px solid #000;
     }
     .blue {
         background: #007acc;
+        border: 2px solid #000;
     }
 }
 .redblue {
@@ -716,9 +718,10 @@ dl dt {
     color: #e00;
 }
 
+/*
 #game.over > section, #bg.over {
     filter: blur(1px) contrast(0.5) brightness(1.3);
-}
+}*/
 
 .inactive {
     color: #e00;

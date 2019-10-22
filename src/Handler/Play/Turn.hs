@@ -50,7 +50,7 @@ new player ninjas game = Turn { chakra  = Parity.getOf player $ Game.chakra game
                               , targets
                               }
   where
-    censored = censor player ninjas <$> ninjas
+    censored = censor (Game.vendetta game) player ninjas <$> ninjas
     inactive = case player of
         Player.A -> Game.inactive game
         Player.B -> swap $ Game.inactive game
@@ -62,23 +62,25 @@ new player ninjas game = Turn { chakra  = Parity.getOf player $ Game.chakra game
                 nt <- Requirement.targets censored n skill
                 return $ Ninja.slot nt
 
-censor :: Player -> [Ninja] -> Ninja -> Ninja
-censor player ninjas n
+censor :: (Maybe Slot) -> Player -> [Ninja] -> Ninja -> Ninja
+censor vendetta player ninjas n
   | Parity.allied player n = n'
   | n `is` Reveal          = n'
+  | isJust vendetta        = n'
+      { Ninja.channels  = filter filt $ Ninja.channels n }
   | otherwise              = n'
       { Ninja.cooldowns = mempty
       , Ninja.charges   = mempty
       , Ninja.channels  = filter filt $ Ninja.channels n
-      , Ninja.lastSkill = Nothing
       }
   where
     filt chan = not $ Invisible ∈ Skill.classes (Channel.skill chan)
-    n'   = n { Ninja.statuses = mapMaybe mst $ Ninja.statuses n
-             , Ninja.traps    = [trap | trap <- Ninja.traps n
-                                      , Parity.allied player (Trap.user trap)
-                                        || Invisible ∉ Trap.classes trap
-                                        || revealed (Trap.user trap)]
+    n'   = n { Ninja.statuses  = mapMaybe mst $ Ninja.statuses n
+             , Ninja.lastSkill = Nothing
+             , Ninja.traps     = [trap | trap <- Ninja.traps n
+                                       , Parity.allied player (Trap.user trap)
+                                         || Invisible ∉ Trap.classes trap
+                                         || revealed (Trap.user trap)]
              }
     revealed slot = ninjas !! Slot.toInt slot `is` Reveal
     mst st
