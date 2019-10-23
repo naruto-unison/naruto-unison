@@ -145,11 +145,12 @@ characterName char =
 makeShortName : Character -> String
 makeShortName char =
     case char.name of
-        "Nagato"           -> "Pain"
-        "Sage Mode Kabuto" -> "Kabuto"
-        "Shukaku Gaara"    -> "Gaara"
-        "Tobi"             -> "Obito"
         "Killer B"         -> "B"
+        "Shukaku Gaara"    -> "Gaara"
+        "Sage Mode Kabuto" -> "Kabuto"
+        "Tobi"             -> "Obito"
+        "Masked Man"       -> "Obito"
+        "Nagato"           -> "Pain"
         _                  ->
             char.skills
                 |> List.getAt 3
