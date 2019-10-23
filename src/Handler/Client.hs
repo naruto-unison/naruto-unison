@@ -111,7 +111,7 @@ getPlayR :: Handler Html
 getPlayR = do
     muser       <- (entityVal <$>) <$> Auth.maybeAuth
     unlocked    <- Mission.unlocked
-    (red,blue)  <- War.today <$> liftIO getCurrentTime
+    (red,blue)  <- liftIO War.today
     when (isJust muser) Play.gameSocket
     let team     = maybe []
                    (mapMaybe Characters.lookup . filter (∈ unlocked)) $

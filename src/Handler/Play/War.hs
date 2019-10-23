@@ -12,7 +12,7 @@ import ClassyPrelude
 
 import           Data.Aeson (ToJSON)
 import           Data.Enum.Set.Class (EnumSet)
-import           Data.Time.Clock (addUTCTime)
+import           Data.Time.LocalTime (LocalTime(LocalTime), getCurrentTimeZone, utcToLocalTime)
 import           Data.List (tails)
 import qualified System.Random as Random
 
@@ -87,9 +87,13 @@ match pTeam vsTeam (red, blue)
 -- performance isn't really the concern, but this function is the only reason
 -- the project depends on the "random" package, so it could otherwise be taken
 -- out.
--- | Obtains today's war. Intended to be paired with 'getCurrentTime'.
-today :: UTCTime -> (EnumSet Group, EnumSet Group)
-today (addUTCTime (-7 * 3600) -> UTCTime (ModifiedJulianDay day) _) = wars !! i
+fromDay :: LocalTime -> (EnumSet Group, EnumSet Group)
+fromDay (LocalTime (ModifiedJulianDay day) _) = wars !! i
   where
     (i, _) = Random.randomR (0, length wars) . Random.mkStdGen . (+ 1) $
              fromInteger day
+
+-- | Obtains today's war as a pseudorandom choice seeded from the
+-- 'localDay' of the current @LocalTime@.
+today :: IO (EnumSet Group, EnumSet Group)
+today = fromDay <$> liftA2 utcToLocalTime getCurrentTimeZone getCurrentTime

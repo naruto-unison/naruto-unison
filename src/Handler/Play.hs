@@ -204,7 +204,7 @@ makeGame queueWrite who user team vsWho vsUser vsTeam = do
         let ninjas = fromList $ zipWith Ninja.new Slot.all case player of
                 Player.A -> team ++ vsTeam
                 Player.B -> vsTeam ++ team
-        war  <- War.match team vsTeam . War.today <$> getCurrentTime
+        war  <- War.match team vsTeam <$> War.today
         mvar <- newEmptyMVar
         atomically . writeTChan queueWrite $
             Queue.Respond vsWho mvar GameInfo { vsWho  = who
