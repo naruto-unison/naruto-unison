@@ -111,7 +111,7 @@ wrap affected f = void $ runMaybeT do
             when (allow Reflected) . P.withTargets (Effects.share nTarget) $
                 wrap (Reflected `insertSet` affected) f
         $ do
-            guard $ allow Redirected && Unreflectable ∉ classes 
+            guard $ allow Redirected && Unreflectable ∉ classes
             t <- Trigger.redirect nTarget
             return . P.withTarget t $ wrap (Redirected `insertSet` affected) f
         <|> do

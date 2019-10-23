@@ -150,4 +150,6 @@ getMechanicsR :: Handler Html
 getMechanicsR = do
     App.unchanged304
     (title, _) <- breadcrumbs
-    defaultLayout $(widgetFile "guide/mechanics")
+    defaultLayout do
+        $(widgetFile "tooltip/tooltip")
+        $(widgetFile "guide/mechanics")

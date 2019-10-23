@@ -129,3 +129,111 @@
   Most skills have a type class: <strong>Chakra</strong>, <strong>Mental</strong>, <strong>Physical</strong>, or <strong>Summon</strong>.
 <p>
   Many skills have a distance class: <strong>Melee</strong> or <strong>Ranged</strong>.
+
+<h2 #terms>
+  Terms
+<ul><dl>
+  <li #health>
+    <dt>
+      Health
+    <dd>
+      Starts at 100 and decreases from damage. If a character's health reaches 0, they die and can no longer be affected. Health never exceeds 100.
+  <li #damage>
+    <dt>
+      Damage
+    <dd>
+     Decreases the target's health by an amount. The amount is increased by the user's strengthening effects and the target's vulnerability effects, and decreased by the user's weakening effects and the target's damage reduction effects.
+  <li #piercing-damage>
+    <dt>
+      Piercing Damage
+    <dd>
+      Unaffected by the target's damage reduction effects.
+  <li #affliction-damage>
+    <dt>
+      Affliction Damage
+    <dd>
+      Unaffected by the target's damage reduction effects and the user's weakening effects. Affliction damage also ignores the target's destructible defense and the user's destructible barrier.
+  <li #destructible-defense>
+    <dt>
+      Destructible Defense
+    <dd>
+      Appends to the target's health bar and takes damage instead of the target. Temporary destructible defense disappears after some number of turns, but permanent destructible defense remains until it is fully destroyed. Losing destructible defense does not count as taking damage.
+  <li #destructible-barrier>
+    <dt>
+      Destructible Barrier
+    <dd>
+      When the target attempts to damage others, their destructible barrier takes damage instead. Destructible barriers may apply an effect every turn until the target fully destroys them. When destructible barriers expire, they may apply effects strengthened by the amount of barrier remaining.
+  <li #status-effects>
+    <dt>
+      Status Effects
+    <dd>
+      Lasting effects represented by icons underneath their subject. Status effects may be temporary or permanent. Invisible effects are semi-transparent, removable effects are blue, and traps are red.
+  <li #traps>
+    <dt>
+      Traps
+    <dd>
+      Effects that only activate if the subject triggers them.
+  <li #counters>
+    <dt>
+      Counters
+    <dd>
+      A special kind of trap that triggers when an enemy uses a skill and negates that skill.
+  <li #chakra-depletion>
+    <dt>
+      Chakra Depletion
+    <dd>
+      Decreases the enemy team's chakra.
+  <li #chakra-absorption>
+    <dt>
+      Chakra Absorption
+    <dd>
+      Transfers chakra from the enemy team to the user's team.
+  <li #health-stealing>
+    <dt>
+      Health Stealing
+    <dd>
+      Transfers health from the target to the user. Health stealing is a direct transfer, unaffected by status effects or destructible constructs.
+  <li #copied-replaced-skills>
+    <dt>
+      Copied/Replaced Skills
+    <dd>
+      Acquired from a target. Copied skills cannot copy other skills or transform into other skills.
+
+<h2 #status-effects>
+  Status Effects
+<p>
+  Status effects are self-descriptive, so there are only a few worth pointing out specifically.
+<ul>
+  <li #afflict>
+    <strong>
+      "Receives &lt;X&gt; affliction damage every turn."
+    Affliction damage over time is affected by its source's strengthening status effects and its subject's vulnerability status effects. Affliction damage over time is always classified as <i>Bane</i>, meaning it can be cured by healers.
+  <li #endure>
+    <strong>
+      "Prevents health from dropping below 1."
+    The subject cannot die, except by killing themselves with skills such as ^{Link.skill "Deidara" Shippuden "C0: Ultimate Art"}.
+  <li #expose>
+    <strong>
+      "Unable to reduce damage or become invulnerable."
+    Damage to the subject ignores their damage reduction status effects, and they cannot apply invulnerability affects to themselves. Does not negate invulnerability that the subject already had.
+  <li #invulnerable>
+    <strong>
+      "Invulnerable to &lt;X&gt; skills."
+    Invulnerability prevents its subject from being affected by certain types of skills. By default, invulnerability only affects skills from enemies, but some skills specify that they make the subject invulnerable to allies.
+    <i>
+      Bypassing
+    skills ignore invulnerability.
+  <li #reflect>
+    <strong>
+      "Reflects &ltX&gt;."
+    By default, if an enemy uses a skill on the subject, the skill will affect the enemy instead of the subject. Some reflects cause skills to affect a specific target rather than their user.
+    <i>
+      Unreflectable
+    skills ignore reflects. If a status effect specifies that it only reflects the first skill, it does not count
+    <i>
+      Unreflectable
+    skills.
+  <li #snare>
+    <strong>
+      "Increases cooldowns by &ltX&gt;."
+    If the subject uses a skill, that skill will go on cooldown for X additional turns. Does not increase the remaining duration of skills that are already on cooldown.
