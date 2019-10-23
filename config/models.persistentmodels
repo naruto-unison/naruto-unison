@@ -5,7 +5,7 @@ Character
 
 ForumPost
     author  UserId
-    time    UTCTime  default=current_timestamp
+    time    UTCTime
     body    [Text]
     topic   ForumTopicId
     deriving Eq
@@ -15,8 +15,8 @@ ForumTopic
     author  UserId
     staff   Bool
     title   Text
-    posts   Int  default=1
-    time    UTCTime  default=current_timestamp
+    posts   Int
+    time    UTCTime
     latest  UserId
 
 Mission
@@ -24,11 +24,11 @@ Mission
     character  CharacterId
     objective  Int
     UniqueMission user character objective
-    progress   Int  default=0
+    progress   Int
 
 News
     author   UserId
-    date     Day  default=current_date
+    date     Day
     title    Text
     content  Text
 
@@ -50,26 +50,26 @@ User
     UniqueUser ident
     password    Text  Maybe
     verkey      Text  Maybe
-    verified    Bool  default=TRUE
-    joined      Day  default=current_date
+    verified    Bool
+    joined      Day
     privilege   Privilege
     name        Text
     avatar      Text
     background  Text Maybe
-    xp          Int  default=0
-    wins        Int  default=0
-    losses      Int  default=0
-    streak      Int  default=0
-    record      Int  default=0
+    xp          Int
+    wins        Int
+    losses      Int
+    streak      Int
+    record      Int
     latestWin   Day  Maybe
     latestGame  Day  Maybe
     clan        Text  Maybe
     team        [Text]  Maybe
     practice    [Text]
-    muted       Bool  default=False
-    condense    Bool  default=False
-    rating      Double  default=0
-    deviation   Double  default=2.0148
-    volatility  Double  default=0.06
-    dna         Int  default=0
+    muted       Bool
+    condense    Bool
+    rating      Double
+    deviation   Double
+    volatility  Double
+    dna         Int
     deriving Typeable
