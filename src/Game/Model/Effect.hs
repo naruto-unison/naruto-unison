@@ -403,7 +403,7 @@ instance Display Effect where
         "Reflects " ++ lower cla ++ " skills."
 
     display Reveal =
-        "Reveals invisible skills to the enemy team."
+        "Reveals cooldowns and invisible effects to the enemy team."
 
     display Restrict =
         "Skills that normally affect all opponents must be targeted."

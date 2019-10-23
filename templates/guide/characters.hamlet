@@ -4,7 +4,7 @@
 <p>
   <a href=@{PlayR}>
     Practice games against AI
-  are a great way to try out characters and experiment with skill combinations!
+  are a great way to try out characters and experiment with skill combinations.
 <nav .jump>
   Jump to:
   $forall category <- categories

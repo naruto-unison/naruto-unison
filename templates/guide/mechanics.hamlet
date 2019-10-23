@@ -2,11 +2,11 @@
 <p>
   <a href=@{PlayR}>
     Practice games against AI
-  are a great way to become accustomed to Naruto Unison's combat system!
+  are a great way to become accustomed to Naruto Unison's combat system.
 
 <h2 #skills>Skills
 <p>
-  Every character has four skills. You can read about specific skills in the <a href=@{CharactersR}>character guide</a>. Skill entries are formatted as such:
+  Every character has #{Ninja.skillSize} skills, which are listed in the <a href=@{CharactersR}>character guide</a>. Entries are formatted as such:
 <blockquote>
   <p>
     &lt;Skill description&gt;
@@ -24,6 +24,8 @@
 
 <h3 #duration>
   Duration
+<p>
+  While active, skills that last for multiple turns are indicated by an icon above their user, along with their remaining duration. Status effects and traps that are applied every turn by a skill have their duration represented by • instead of 1, to indicate that they will be refreshed next turn.
 <ul><dl>
   <li #instant>
     <dt>
@@ -97,7 +99,7 @@
     <dt>
       Invisible
     <dd>
-      Cannot be seen by the enemy team. Status effects and traps applied by the skill are visible only to the skill's user, who sees them as partially transparent icons. If the skill lasts for multiple turns, the active skill icon is also hidden from the enemy team.
+      Cannot be seen by the enemy team. Status effects and traps applied by the skill are visible only to the skill's user, who sees them as partially transparent icons. If the skill lasts for multiple turns, the active skill icon above its user is also hidden from the enemy team.
   <li #necromancy>
     <dt>
       Necromancy
