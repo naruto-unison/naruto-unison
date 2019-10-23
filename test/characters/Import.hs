@@ -173,7 +173,8 @@ enemySkill = Skill.new
     , Skill.classes = [All]
     }
 
-enemyTurn :: ∀ m. (MonadPlay m, MonadHook m, MonadRandom m) => RunConstraint () -> m ()
+enemyTurn :: ∀ m. (MonadPlay m, MonadHook m, MonadRandom m)
+          => RunConstraint () -> m ()
 enemyTurn f = do
     P.with with . Engine.processTurn $ wrap Player.B
     P.alter \g -> g { Game.playing = Player.A }
@@ -184,7 +185,8 @@ enemyTurn f = do
         , Context.skill  = enemySkill
             { Skill.effects = [To Enemy f]
             , Skill.classes = Skill.classes enemySkill
-                              ++ Skill.classes (Context.skill ctx)
+                              ++ Skill.classes (Context.skill ctx) `difference`
+                                 [Uncounterable, Unreflectable, Unremovable]
             }
         }
       where
