@@ -235,6 +235,8 @@ characters =
           [ To Enemies $ trap 1 OnHarm $ apply' "Pinned" (-1) [Expose]
           , To Self $ hide 1 [Alternate "Thousand Arms" "Poison Gas"]
           ]
+        , Skill.interrupt =
+          [ To Self $ remove "thousand arms" ]
         }
       , Skill.new
         { Skill.name      = "Poison Gas"
@@ -286,7 +288,7 @@ characters =
                 stacks <- userStacks "jashin"
                 apply' "Prayer" (1 + stacks) [Endure]
                 hide' "jashin" 0 []
-          ,  To Enemies do
+          ,  To Enemy do
                 userSlot   <- user slot
                 targetSlot <- target slot
                 apply' "Blood Curse" 3 [Share userSlot]
@@ -486,6 +488,8 @@ characters =
           [ To Self $ hide 1
                 [Alternate "Exploding Water Shockwave" "Shark Dance", Face]
           ]
+        , Skill.interrupt =
+          [ To Self $ remove "exploding water shockwave" ]
         }
       , Skill.new
         { Skill.name      = "Shark Dance"
@@ -1120,7 +1124,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Preta Drain"
-        , Skill.desc      = "Pain absorbs an enemy's energy, dealing 25 damage and regaining 10 health per chakra that they spent on their most recent skill."
+        , Skill.desc      = "Pain absorbs an enemy's energy, dealing 25 damage and regaining 10 health per chakra that the target spent on their most recent skill."
         , Skill.classes   = [Melee, Chakra]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1

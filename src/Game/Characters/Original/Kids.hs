@@ -695,6 +695,8 @@ characters =
           [ To Self $ hide 1 [Alternate "Sand Coffin" "Sand Burial"]
           , To Enemy $ apply 1 [Expose, Stun NonMental]
           ]
+        , Skill.interrupt =
+          [ To Self $ remove "sand coffin" ]
         }
       , Skill.new
         { Skill.name      = "Sand Burial"
@@ -703,7 +705,7 @@ characters =
         , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable]
         , Skill.cost      = [Nin, Nin]
         , Skill.effects   =
-          [ To Enemies kill ]
+          [ To Enemy kill ]
         }
       ]
     , [ Skill.new

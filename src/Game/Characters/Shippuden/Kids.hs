@@ -288,6 +288,8 @@ characters =
           ]
         , Skill.stunned   =
           [ To Self $ hide 1 [Alternate "Insect Swarm" "Chakra Leech"] ]
+        , Skill.interrupt =
+          [ To Self $ remove "insect swarm" ]
         }
       , Skill.new
         { Skill.name       = "Chakra Leech"
@@ -413,7 +415,7 @@ characters =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ To Enemies do
+          [ To Enemy do
                 damage 20
                 prolong 1 "Shadow Sewing"
                 hide' "final" 1 []
@@ -899,6 +901,8 @@ characters =
           ]
         , Skill.stunned   =
           [ To Self $ hide 1 [Alternate "Sanshōuo Shield" "Salamander Puppet"] ]
+        , Skill.interrupt =
+          [ To Self $ remove "sanshōuo shield" ]
         }
       , Skill.new
         { Skill.name      = "Salamander Puppet"

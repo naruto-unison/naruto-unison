@@ -139,7 +139,7 @@ characters =
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemies kill
+          [ To Enemy kill
           , To Self killHard
           ]
         }
@@ -289,6 +289,8 @@ characters =
                 hide 1 [Alternate "Demonic Illusion: Sylvan Fetters"
                                   "Sylvan Fetters Attack"]
           ]
+        , Skill.interrupt =
+          [ To Self $ remove "demonic illusion: sylvan fetters" ]
         }
       , Skill.new
         { Skill.name      = "Sylvan Fetters Attack"
@@ -297,7 +299,7 @@ characters =
         , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Enemies $ pierce 30 ]
+          [ To Enemy $ pierce 30 ]
         }
       ]
     , [ invuln "Vanish" "Kurenai" [Mental] ]

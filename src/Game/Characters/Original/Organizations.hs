@@ -287,7 +287,7 @@ characters =
         , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Enemies do
+          [ To Enemy do
                 pierce 45
                 prolong 1 "Chain Wrap"
           ]

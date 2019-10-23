@@ -113,6 +113,8 @@ characters =
           ]
         , Skill.stunned   =
           [ To Self $ hide 1 [Alternate "Burning Ash" "Burning Ash: Ignite"] ]
+        , Skill.interrupt =
+          [ To Self $ remove "burning ash" ]
         }
       , Skill.new
         { Skill.name      = "Burning Ash: Ignite"
