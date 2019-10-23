@@ -12,6 +12,7 @@ import ClassyPrelude
 
 import           Data.Aeson (ToJSON)
 import           Data.Enum.Set.Class (EnumSet)
+import           Data.Time.Clock (addUTCTime)
 import           Data.List (tails)
 import qualified System.Random as Random
 
@@ -88,6 +89,7 @@ match pTeam vsTeam (red, blue)
 -- out.
 -- | Obtains today's war. Intended to be paired with 'getCurrentTime'.
 today :: UTCTime -> (EnumSet Group, EnumSet Group)
-today (UTCTime (ModifiedJulianDay day) _) = wars !! i
+today (addUTCTime (-7 * 3600) -> UTCTime (ModifiedJulianDay day) _) = wars !! i
   where
-    (i, _) = Random.randomR (0, length wars) . Random.mkStdGen . (+ 1) $ fromInteger day
+    (i, _) = Random.randomR (0, length wars) . Random.mkStdGen . (+ 1) $
+             fromInteger day
