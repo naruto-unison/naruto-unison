@@ -609,50 +609,85 @@ characters =
     , [ invuln "Block" "Sasori" [Physical] ]
     ]
     100
-  , Character
+  , let
+        preta = Skill.new
+          { Skill.name      = "Preta Path"
+          , Skill.desc      = "Nagato drains an enemy's energy, absorbing 2 random chakra and regaining 10 health per chakra that the target spent on their most recent skill. When Nagato's health is at or above 50, this skill becomes [Asura Path][t][r]."
+          , Skill.classes   = [Melee, Chakra]
+          , Skill.cost      = [Rand]
+          , Skill.cooldown  = 1
+          , Skill.effects   =
+            [ To Enemy do
+                  healFromChakra 10
+                  absorb 2
+            ]
+          }
+    in
+    Character
     "Nagato"
-    "Reanimated by Kabuto, Nagato is as much a pawn in the schemes of others as he was in life. With the full power of the Rinnegan, he has all six Paths at his disposal."
+    "Reanimated by Kabuto, Nagato is as much a pawn in the schemes of others as he was in life. With the full power of the Rinnegan, all six Paths are at his disposal."
     [RainVillage, Kabuto, Akatsuki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yang, Uzumaki]
     [ [ Skill.new
+        { Skill.name      = "Deva Path"
+        , Skill.desc      = "Nagato creates a gravitational anchor that pulls in the enemy team and accumulates a rough sphere of rock and debris around them, applying 25 destructible barrier for 3 turns. While enemies have destructible barrier from this skill, the non-damage effects of their skills on allies and enemies are disabled. At the end of the 3 turns, enemies take damage equal to the remaining destructible barrier from this skil1l."
+        , Skill.classes    = [Physical, Ranged]
+        , Skill.cost       = [Blood, Gen, Tai]
+        , Skill.cooldown   = 3
+        , Skill.effects    =
+          [ To Enemies $ barrierDoes 3 damage (apply 1 [Silence]) 25 ]
+        }
+      ]
+    , [ Skill.new
         { Skill.name      = "Human Path"
-        , Skill.desc      = "Nagato attacks the soul of an enemy, dealing 30 damage and preventing them from affecting Nagato's team for 1 turn."
-        , Skill.classes   = [Mental, Melee]
+        , Skill.desc      = "Nagato draws out the lifeforce of an enemy, revealing invisible effects from the target and the target's cooldowns. While active, this skill becomes [Naraka Path][g][r]."
+        , Skill.classes   = [Mental, Melee, Unreflectable]
+        , Skill.cost      = [Rand]
+        , Skill.dur       = Control 0
+        , Skill.effects   =
+          [ To Self $ hide 1 [Alternate "Human Path" "Naraka Path"]
+          , To Enemy do
+                damage 15
+                apply 1 [Reveal]
+          ]
+        , Skill.interrupt =
+          [ To Self $ remove "human path" ]
+        }
+      , Skill.new
+        { Skill.name      = "Naraka Path"
+        , Skill.desc      = "Judging the target of [Human Path] unworthy, the King of Hell absorbs 20 of their health and converts it into destructible defense."
+        , Skill.require   = HasU 1 "Human Path"
+        , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen, Rand]
-        , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                damage 30
-                apply 1 [BlockEnemies]
+                has <- user $ hasOwn "Naraka Path"
+                leech 20 $ self .
+                    if has then addDefense "Naraka Path" else defend 0
           ]
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Preta Path"
-        , Skill.desc      = "Nagato absorbs an enemy's energy, stealing 10 health and absorbing a bloodline or taijutsu chakra."
-        , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 1
+        { Skill.name      = "Asura Path"
+        , Skill.desc      = "Nagato unfolds an extra mechanical arm and seizes an enemy by the neck, preventing them from reducing damage or becoming invulnerable until one of their allies uses a skill on them, and dealing 15 damage. When Nagato's health is below 50, this skill becomes [Preta Path][t][r]."
+        , Skill.classes   = [Bane, Physical, Melee, Nonstacking]
+        , Skill.cost      = [Tai, Rand]
+        , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                absorb1 [Blood, Tai]
-                leech 10 $ self . heal
+                apply 0 [Expose]
+                pierce 15
+                trap 0 OnHelped $ remove "Asura Path"
           ]
+        , Skill.changes   =
+            \n x ->
+                if health n < 50 then
+                    preta { Skill.owner = Skill.owner x }
+                else
+                    x
         }
+      , preta
       ]
-    , [ Skill.new
-        { Skill.name      = "Animal Path"
-        , Skill.desc      = "Nagato summons a horde of beasts that deal 10 damage to all enemies for 2 turns. While active, enemies who use skills on Nagato will take 10 damage."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = [Blood, Rand]
-        , Skill.cooldown  = 3
-        , Skill.dur       = Ongoing 2
-        , Skill.effects   =
-          [ To Enemies $ damage 10
-          , To Self $ trapFrom 1 (OnHarmed All) $ damage 10
-          ]
-        }
-      ]
-    , [ invuln "Asura Path" "Nagato" [Physical] ]
+    , [ invuln "Animal Path" "Nagato" [Summon, Invisible] ]
     ]
     125
   ]
