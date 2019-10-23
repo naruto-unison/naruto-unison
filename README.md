@@ -127,18 +127,18 @@ Haskell is excellent at parallel computing. Naruto Unison is built on top of the
 
 Unless quarantined in specific monads, Haskell functions are referentially transparent, meaning they always produce the same output if given the same inputs and do not cause side-effects. This is ideal for a game in which the game engine is an independent, quasi-mathematical process that can (and should!) be separate from all the effectful work of HTTP handling and websockets and so on. Separating pure and impure functions makes the codebase much easier to test, prevents numerous bugs that could otherwise occur, and promotes healthy concurrency.
 
-As an example, all the functions in [Engine.Ninjas](src/Engine/Ninjas.hs) are guaranteed to be pure. This one modifies a Ninja's health constrained within a range:
+As an example, all the functions in [Game.Engine.Ninjas](src/Game/Engine/Ninjas.hs) are guaranteed to be pure. This one modifies a Ninja's health constrained within a range:
 
 ```haskell
 adjustHealth :: (Int -> Int) -> Ninja -> Ninja
 adjustHealth f n = n { health = min 100 . max (Ninja.minHealth n) . f $ health n }
 ```
 
-It is a simple transformation of data. Because `adjustHealth` is pure, `Ninja.minHealth` is also guaranteed to be pure. These functions have consistent output and cannot modify shared state, perform network operations, or anything else that might cause problems in a multi-threaded environment.
+It is a simple transformation of data. Because `adjustHealth` is pure, `Ninja.minHealth` is also guaranteed to be pure. These functions have consistent output and cannot modify shared state, perform network operations, or do anything else that might cause problems in a multi-threaded environment.
 
 #### Clear and Concise Math
 
-Haskell's mathematical background lends itself to defining game calculations. For example, [Engine.Effects](src/Engine/Effects.hs) has functions like this one:
+Haskell's mathematical background lends itself to defining game calculations. For example, [Game.Engine.Effects](src/Game/Engine/Effects.hs) has functions like this one:
 
 ```haskell
 snare :: Ninja -> Int
@@ -149,7 +149,7 @@ This function does exactly what it looks like: sums up all effects with the `Sna
 
 #### Monads
 
-Another cool thing Haskell can do is define custom procedural contexts. Naruto Unison's `MonadPlay` monad typeclass is a purity-agnostic game-state transformation that provides the context of the current user and target. What that means in practice is that character implementations, even fairly complex ones, can be written very simply. For example, [Chiyo's Self-Sacrifice Reanimation](src/Characters/Shippuden/Family.hs) skill has the description, *"Chiyo prepares to use her forbidden healing technique on an ally. The next time their health reaches 0, their health is fully restored, they are cured of harmful effects, and Chiyo's health is reduced to 1."* This is its implementation:
+Another cool thing Haskell can do is define custom procedural contexts. Naruto Unison's `MonadPlay` monad typeclass is a purity-agnostic game-state transformation that provides the context of the current user and target. What that means in practice is that character implementations, even fairly complex ones, can be written very simply. For example, [Chiyo's Self-Sacrifice Reanimation](src/Game/Characters/Shippuden/Family.hs) skill has the description, *"Chiyo prepares to use her forbidden healing technique on an ally. The next time their health reaches 0, their health is fully restored, they are cured of harmful effects, and Chiyo's health is reduced to 1."* This is its implementation:
 
 ```haskell
 trap 0 OnRes do
@@ -158,11 +158,11 @@ trap 0 OnRes do
     self $ setHealth 1
 ```
 
-Haskell's brevity and readability in this regard are clear winners over other languages. There isn't any hidden complexity behind the scenes, either: `setHealth` is just a thin wrapper around `adjustHealth . const`, the function earlier in this README!
+Haskell's brevity and readability in this regard are clear winners over other languages. There isn't any hidden complexity behind the scenes, either: `setHealth` is just a wrapper around `adjustHealth`, the function from earlier in this README.
 
 #### Most Importantly
 
-[It's fun.](src/Core/Util.hs)
+[It's fun.](src/Util.hs)
 
 ```haskell
 type Lift mClass m = (MonadTrans (Tran m), mClass (Base m), m ~ Tran m (Base m))
