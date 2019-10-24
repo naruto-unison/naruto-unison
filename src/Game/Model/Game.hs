@@ -1,6 +1,7 @@
 module Game.Model.Game
   ( Game(..), new, newWithChakras
   , setChakra, adjustChakra
+  , inProgress
   ) where
 
 import ClassyPrelude
@@ -51,3 +52,7 @@ setChakra p x game = game { chakra = Parity.setOf p x $ chakra game }
 
 adjustChakra :: ∀ a. Parity a => a -> (Chakras -> Chakras) -> Game -> Game
 adjustChakra p f game = game { chakra = Parity.modifyOf p f $ chakra game }
+
+-- | The game has not yet ended.
+inProgress :: Game -> Bool
+inProgress x = null $ victor x

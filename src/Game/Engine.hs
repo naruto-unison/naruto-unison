@@ -186,7 +186,7 @@ doHpOverTime slot = do
 
 -- | Updates 'Game.victor'.
 yieldVictor :: ∀ m. MonadGame m => m ()
-yieldVictor = whenM (null . Game.victor <$> P.game) do
+yieldVictor = whenM (Game.inProgress <$> P.game) do
     ninjas <- P.ninjas
     let splitNs = splitAt (length ninjas `quot` 2) ninjas
     P.alter \g ->
@@ -196,7 +196,7 @@ yieldVictor = whenM (null . Game.victor <$> P.game) do
     victor (ninjas, _) Player.B = not $ any Ninja.alive ninjas
 
 forfeit :: ∀ m. MonadGame m => Player -> m ()
-forfeit player = whenM (null . Game.victor <$> P.game) do
+forfeit player = whenM (Game.inProgress <$> P.game) do
     P.modifyAll suicide
     P.alter \g -> g { Game.victor  = [Player.opponent player]
                     , Game.forfeit = True

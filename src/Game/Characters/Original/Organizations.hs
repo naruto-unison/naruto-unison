@@ -127,7 +127,7 @@ characters =
               allies  $ apply 4 [Reduce [All] Flat 5]
           ]
         , Skill.effects   =
-          [ To Enemies $ whenM (not <$> targetHas "swarmed") do
+          [ To Enemies $ unlessM (targetHas "swarmed") do
                 stacks <- targetStacks "Scattering Crow Swarm"
                 damage (5 * stacks)
                 flag' "swarmed"
