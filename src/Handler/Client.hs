@@ -18,6 +18,7 @@ import Yesod
 
 import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Data.List (nub)
+import qualified System.Random.MWC as Random
 import qualified Yesod.Auth as Auth
 
 import           Application.App (Handler)
@@ -112,7 +113,8 @@ getPlayR = do
     muser       <- (entityVal <$>) <$> Auth.maybeAuth
     unlocked    <- Mission.unlocked
     (red,blue)  <- liftIO War.today
-    when (isJust muser) Play.gameSocket
+    when (isJust muser) $
+        liftIO Random.createSystemRandom >>= runReaderT Play.gameSocket
     let team     = maybe []
                    (mapMaybe Characters.lookup . filter (∈ unlocked)) $
                    muser >>= userTeam

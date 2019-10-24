@@ -2,9 +2,9 @@
 
 -- | Handles API routes and WebSockets related to gameplay.
 module Handler.Play
-    ( gameSocket
-    , getPracticeActR, getPracticeQueueR, getPracticeWaitR
+    ( getPracticeActR, getPracticeQueueR, getPracticeWaitR
     , Message(..)
+    , gameSocket
     ) where
 
 import ClassyPrelude
@@ -23,7 +23,7 @@ import           UnliftIO.Concurrent (forkIO, threadDelay)
 import qualified Yesod.Auth as Auth
 import           Yesod.WebSockets (webSockets)
 
-import           Application.App (App, Handler)
+import           Application.App (App, Handler, liftDB)
 import qualified Application.App as App
 import           Application.Model (EntityField(..), User(..))
 import qualified Application.Model as Model
@@ -64,6 +64,11 @@ import qualified Handler.Play.Wrapper as Wrapper
 import qualified Mission
 import           Util ((∉), duplic, liftST)
 
+-- | If the difference in skill rating between two players exceeds this
+-- threshold, they will not be matched together.
+ratingThreshold :: Double
+ratingThreshold = 1/0 -- i.e. infinity
+
 -- | A message sent through the websocket to the client.
 -- This definition is exported so that @elm-bridge@ sends it over to the client.
 data Message
@@ -74,93 +79,10 @@ data Message
     | Rewards [Reward]
     deriving (Generic, ToJSON)
 
--- | If the difference in skill rating between two players exceeds this
--- threshold, they will not be matched together.
-ratingThreshold :: Double
-ratingThreshold = 1/0 -- i.e. infinity
-
-bot :: User
-bot = (Model.newUser "Bot" Nothing $ ModifiedJulianDay 0)
-    { userName     = "Bot"
-    , userAvatar   = "/img/icon/bot.jpg"
-    , userVerified = True
-    }
-
 sendClient :: ∀ m. MonadSockets m => Message -> m ()
 sendClient x = Sockets.send . Encoding.encodingToLazyByteString $ toEncoding x
 
--- * HANDLERS
-
--- | Joins the practice-match queue with a given team. Requires authentication.
-getPracticeQueueR :: [Text] -> Handler Value
-getPracticeQueueR [a1, b1, c1, a2, b2, c2] =
-    case zipWith Ninja.new Slot.all
-         <$> traverse Characters.lookup [c1, b1, a1, a2, b2, c2] of
-    Nothing -> invalidArgs ["Unknown character(s)"]
-    Just ninjas -> do
-        who      <- Auth.requireAuthId
-        unlocked <- Mission.unlocked
-        if any (∉ unlocked) [a1, b1, c1] then
-            invalidArgs ["Locked character(s)"]
-        else do
-            runDB $ update who [ UserTeam     =. Just [a1, b1, c1]
-                               , UserPractice =. [a2, b2, c2]
-                               ]
-            liftIO Random.createSystemRandom >>= runReaderT do
-                rand     <- ask
-                game     <- runReaderT Game.newWithChakras rand
-                practice <- getsYesod App.practice
-                liftIO do
-                    -- TODO: Move to a recurring timer?
-                    Cache.purgeExpired practice
-                    Cache.insert practice who . Wrapper mempty game $
-                        fromList ninjas
-                returnJson GameInfo { vsWho  = who
-                                    , vsUser = bot
-                                    , player = Player.A
-                                    , war    = Nothing
-                                    , game
-                                    , ninjas
-                                    }
-getPracticeQueueR _ = invalidArgs ["Wrong number of characters"]
-
--- | Wrapper for 'getPracticeActR' with no actions.
-getPracticeWaitR :: Chakras -> Chakras -> Handler Value
-getPracticeWaitR actChakra xChakra = getPracticeActR actChakra xChakra []
-
--- | Handles a turn for a practice game. Requires authentication.
--- Practice games are not time-limited and use GET requests instead of sockets.
-getPracticeActR :: Chakras -> Chakras -> [Act] -> Handler Value
-getPracticeActR spend exchange acts = do
-    who      <- Auth.requireAuthId
-    practice <- getsYesod App.practice
-    mGame    <- liftIO $ Cache.lookup practice who
-    case mGame of
-        Nothing   -> notFound
-        Just game -> do
-            random  <- liftIO Random.createSystemRandom
-            wrapper <- liftST $ Wrapper.thaw game
-            runReaderT (runReaderT (enactPractice who practice) wrapper) random
-  where
-    enactPractice who practice = do
-        res <- enact $ Enact{spend, exchange, acts}
-        case res of
-          Left errorMsg -> invalidArgs [tshow errorMsg]
-          Right ()      -> do
-              game'A <- Wrapper.freeze
-              P.alter \g -> g { Game.chakra  = (fst $ Game.chakra g, 100)
-                              , Game.playing = Player.B
-                              }
-              AI.runTurn
-              game'B <- Wrapper.freeze
-              liftIO if null . Game.victor $ Wrapper.game game'B then
-                  Cache.insert practice who game'B
-              else
-                  Cache.delete practice who
-              lift . returnJson $
-                  Wrapper.toTurn Player.A <$> [game'A, game'B]
-
-data Team = Team Queue.Section [Character]
+-- * INPUT PARSING
 
 parseTeam :: [Text] -> Maybe Team
 parseTeam ("quick"  :team) = Team Queue.Quick   <$> formTeam team
@@ -185,6 +107,88 @@ formEnact (spend':exchange':acts') = Enact
                                      <*> fromPathPiece exchange'
                                      <*> traverse fromPathPiece acts'
 formEnact _ = Nothing -- willywonka.gif
+
+-- * HANDLERS
+
+-- | Joins the practice-match queue with a given team. Requires authentication.
+getPracticeQueueR :: [Text] -> Handler Value
+getPracticeQueueR [a1, b1, c1, a2, b2, c2] = do
+    when (duplic [a1, b1, c1] || duplic [a2, b2, c2]) $
+        invalidArgs ["Duplicate characters"]
+
+    ninjas   <- case traverse Characters.lookup [c1, b1, a1, a2, b2, c2] of
+        Nothing    -> invalidArgs ["Character(s) not found"]
+        Just chars -> return $ zipWith Ninja.new Slot.all chars
+
+    who      <- Auth.requireAuthId
+    unlocked <- Mission.unlocked
+    when (any (∉ unlocked) [a1, b1, c1]) $ invalidArgs ["Character(s) locked"]
+
+    runDB $ update who [ UserTeam     =. Just [a1, b1, c1]
+                       , UserPractice =. [a2, b2, c2]
+                       ]
+
+    liftIO Random.createSystemRandom >>= runReaderT do
+        rand     <- ask
+        game     <- runReaderT Game.newWithChakras rand
+        practice <- getsYesod App.practice
+
+        liftIO do
+            -- TODO: Move to a recurring timer?
+            Cache.purgeExpired practice
+            Cache.insert practice who . Wrapper mempty game $
+                fromList ninjas
+
+        returnJson GameInfo { vsWho  = who
+                            , vsUser = bot
+                            , player = Player.A
+                            , war    = Nothing
+                            , game
+                            , ninjas
+                            }
+  where
+    bot = (Model.newUser "Bot" Nothing $ ModifiedJulianDay 0)
+          { userName     = "Bot"
+          , userAvatar   = "/img/icon/bot.jpg"
+          , userVerified = True
+          }
+
+getPracticeQueueR _ = invalidArgs ["Wrong number of characters"]
+
+-- | Wrapper for 'getPracticeActR' with no actions.
+getPracticeWaitR :: Chakras -> Chakras -> Handler Value
+getPracticeWaitR actChakra xChakra = getPracticeActR actChakra xChakra []
+
+-- | Handles a turn for a practice game. Requires authentication.
+-- Practice games are not time-limited and use GET requests instead of sockets.
+getPracticeActR :: Chakras -> Chakras -> [Act] -> Handler Value
+getPracticeActR spend exchange acts = do
+    who      <- Auth.requireAuthId
+    practice <- getsYesod App.practice
+    mGame    <- liftIO $ Cache.lookup practice who
+    game     <- maybe notFound return mGame
+    rand     <- liftIO Random.createSystemRandom
+    wrapper  <- liftST $ Wrapper.thaw game
+
+    flip runReaderT rand $ flip runReaderT wrapper do
+        res  <- enact $ Enact{spend, exchange, acts}
+        case res of
+          Left errorMsg -> invalidArgs [tshow errorMsg]
+          Right ()      -> do
+              game'A <- Wrapper.freeze
+              P.alter \g -> g { Game.chakra  = (fst $ Game.chakra g, 100)
+                              , Game.playing = Player.B
+                              }
+              AI.runTurn
+              game'B <- Wrapper.freeze
+              liftIO
+                  if Game.inProgress $ Wrapper.game game'B then
+                      Cache.insert practice who game'B
+                  else
+                      Cache.delete practice who
+              returnJson $ Wrapper.toTurn Player.A <$> [game'A, game'B]
+
+data Team = Team Queue.Section [Character]
 
 pingSocket :: ∀ m. MonadSockets m => ExceptT Queue.Failure m ()
 pingSocket = do
@@ -216,21 +220,24 @@ makeGame queueWrite who user team vsWho vsUser vsTeam = do
                                               }
         return (mvar, GameInfo { vsWho, vsUser, player, game, ninjas, war })
 
-queue :: ∀ m.
-        (MonadRandom m, MonadSockets m, MonadHandler m, App ~ HandlerSite m)
-      => Queue.Section -> [Character]
-      -> ExceptT Queue.Failure m (MVar Wrapper, GameInfo)
+queue :: ∀ m. ( MonadHandler m, App ~ HandlerSite m
+              , MonadRandom m
+              , MonadSockets m
+              ) => Queue.Section -> [Character]
+                -> ExceptT Queue.Failure m (MVar Wrapper, GameInfo)
 queue Queue.Quick team = do
     (who, user) <- Auth.requireAuthPair
     let rating = userRating user
     queueWrite  <- getsYesod App.queue
     allowVsSelf <- getsYesod $ Settings.allowVsSelf . App.settings
     userMVar    <- newEmptyMVar
+
     -- TODO use userMVar in some kind of periodic timeout check based on its
     -- UTCTime contents? or else just a semaphore
     queueRead <- liftIO $ atomically do
         writeTChan queueWrite $ Queue.Announce who user team userMVar
         dupTChan queueWrite
+
     untilJust do
       msg <- liftIO . atomically $ readTChan queueRead
       pingSocket
@@ -255,7 +262,7 @@ queue Queue.Private team = do
     allowVsSelf         <- getsYesod $ Settings.allowVsSelf . App.settings
     Entity vsWho vsUser <- do
         vsName <- Sockets.receive
-        mVs    <- liftHandler . runDB $ selectFirst [UserName ==. vsName] []
+        mVs    <- liftDB $ selectFirst [UserName ==. vsName] []
         case mVs of
             Just (Entity vsWho _)
               | vsWho == who && not allowVsSelf -> throwE Queue.NotFound
@@ -266,6 +273,7 @@ queue Queue.Private team = do
     queueRead  <- liftIO $ atomically do
         writeTChan queueWrite $ Queue.Request who vsWho team
         dupTChan queueWrite
+
     untilJust do
       msg <- liftIO . atomically $ readTChan queueRead
       pingSocket
@@ -283,64 +291,72 @@ handleFailures (Right val) = return $ Just val
 handleFailures (Left msg)  = Nothing <$ sendClient (Fail msg)
 
 -- | Sends messages through 'TChan's in 'App.App'. Requires authentication.
-gameSocket :: Handler ()
+gameSocket :: ∀ m. ( MonadHandler m, App ~ HandlerSite m
+                   , MonadUnliftIO m
+                   , MonadRandom m
+                   ) => m ()
 gameSocket = webSockets do
     who      <- Auth.requireAuthId
     settings <- getsYesod App.settings
     unlocked <- liftHandler Mission.unlocked
-    liftIO Random.createSystemRandom >>= runReaderT do
-        (section, team, mvar, info) <- untilJust $
-            handleFailures =<< runExceptT do
-                teamNames <- Text.split (=='/') <$> Sockets.receive
-                Team section team <- case parseTeam teamNames of
-                    Nothing   -> throwE Queue.InvalidTeam
-                    Just vals -> return vals
 
-                let teamTail = tailEx teamNames
+    (section, team, (mvar, info)) <- untilJust $
+        handleFailures =<< runExceptT do
+            teamNames <- Text.split (=='/') <$> Sockets.receive
+            Team section team <- case parseTeam teamNames of
+                Nothing   -> throwE Queue.InvalidTeam
+                Just vals -> return vals
 
-                when (any (∉ unlocked) teamTail) $ throwE Queue.Locked
+            let teamTail = tailEx teamNames
+            when (any (∉ unlocked) teamTail) $ throwE Queue.Locked
+            liftDB $ update who [UserTeam =. Just teamTail]
 
-                liftHandler . runDB $ update who [UserTeam =. Just teamTail]
-                (mvar, info) <- queue section team
-                return (section, teamTail, mvar, info)
+            queued <- queue section team
+            return (section, teamTail, queued)
 
-        sendClient $ Info info
-        let player = GameInfo.player info
-        game <- liftST (Wrapper.fromInfo info) >>= runReaderT do
-            when (player == Player.A) $ tryEnact settings player mvar
-            whileM (null . Game.victor <$> P.game) do
-                wrapper <- takeMVar mvar
-                if null . Game.victor $ Wrapper.game wrapper then do
-                    sendClient . Play $ Wrapper.toTurn player wrapper
-                    newWrapper <- ask
-                    liftST $ Wrapper.replace wrapper newWrapper
-                    tryEnact settings player mvar
-                    game <- P.game
-                    when (not . null $ Game.victor game) . liftHandler .
-                      runDB . void $ forkIO do
-                          match <- Match.load . Match.fromGame game player who $
-                                   GameInfo.vsWho info
-                          mapM_ Rating.update match
-                else
-                    liftST . Wrapper.replace wrapper =<< ask
-            -- Because the STWrapper is confined to its ReaderT, it may safely
-            -- be deconstructed as the final step.
-            liftST . Wrapper.unsafeFreeze =<< ask
-        sendClient . Play $ Wrapper.toTurn player game
-        when (section == Queue.Quick) do -- eventually, || Queue.Ladder
-            let outcome = Match.outcome (Wrapper.game game) player
-            if outcome == Defeat && Game.forfeit (Wrapper.game game) then
-                sendClient $ Rewards [Reward "Forfeit" 0]
-            else do
-                dnaReward <- liftHandler .
-                    Mission.awardDNA Queue.Quick outcome $ GameInfo.war info
-                sendClient $ Rewards dnaReward
-            liftHandler do
-                case outcome of
-                    Victory -> Mission.processWin team
-                    _       -> Mission.processDefeat team
-                Mission.processUnpicked team
-                traverse_ Mission.progress $ Wrapper.progress game
+    sendClient $ Info info
+    let player = GameInfo.player info
+
+    game <- liftST (Wrapper.fromInfo info) >>= runReaderT do
+        when (player == Player.A) $ tryEnact settings player mvar
+
+        whileM (Game.inProgress <$> P.game) do
+            wrapper <- takeMVar mvar
+
+            if Game.inProgress $ Wrapper.game wrapper then do
+                sendClient . Play $ Wrapper.toTurn player wrapper
+                liftST . Wrapper.replace wrapper =<< ask
+                tryEnact settings player mvar
+                game <- P.game
+
+                unless (Game.inProgress game) . liftDB . void $ forkIO do
+                    match <- Match.load . Match.fromGame game player who $
+                              GameInfo.vsWho info
+                    mapM_ Rating.update match
+            else
+                liftST . Wrapper.replace wrapper =<< ask
+
+        -- Because the STWrapper is confined to its ReaderT, it may safely
+        -- be deconstructed as the final step.
+        liftST . Wrapper.unsafeFreeze =<< ask
+
+    sendClient . Play $ Wrapper.toTurn player game
+
+    when (section == Queue.Quick) do -- eventually, || Queue.Ladder
+        let outcome = Match.outcome (Wrapper.game game) player
+        if outcome == Defeat && Game.forfeit (Wrapper.game game) then
+            sendClient $ Rewards [Reward "Forfeit" 0]
+        else do
+            dnaReward <- liftHandler .
+                Mission.awardDNA Queue.Quick outcome $ GameInfo.war info
+            sendClient $ Rewards dnaReward
+
+        liftHandler do
+            case outcome of
+                Victory -> Mission.processWin team
+                _       -> Mission.processDefeat team
+            Mission.processUnpicked team
+            traverse_ Mission.progress $ Wrapper.progress game
 
 data ClientResponse
     = Received [Text]
@@ -355,8 +371,7 @@ tryEnact :: ∀ m. ( MonadGame m
                  , MonadSockets m
                  , MonadUnliftIO m
                  , MonadLogger m
-                 )
-         => Settings -> Player -> MVar Wrapper -> m ()
+                 ) => Settings -> Player -> MVar Wrapper -> m ()
 tryEnact settings player mvar = do
     -- This is necessary because interrupting Sockets.receive closes the socket
     -- connection, which means that a naive timeout will break the connection.
@@ -422,11 +437,14 @@ enact Enact{spend, exchange, acts} = runExceptT do
     player     <- P.player
     gameChakra <- Parity.getOf player . Game.chakra <$> P.game
     let chakra  = gameChakra + exchange - spend
-    when (length acts > Slot.teamSize)         $ throwE "Too many actions"
-    when (duplic $ Act.user <$> acts)          $ throwE "Duplicate actors"
-    when (randTotal < 0 || Chakra.lack chakra) $ throwE "Insufficient chakra"
-    when (any (Act.illegal player) acts)       $ throwE "Character out of range"
+    mapM_ throwE $ illegal player chakra
     P.alter . Game.setChakra player $ chakra { Chakra.rand = randTotal }
     Engine.runTurn acts
   where
     randTotal = Chakra.total spend - 5 * Chakra.total exchange
+    illegal player chakra
+      | length acts > Slot.teamSize         = Just "Too many actions"
+      | duplic $ Act.user <$> acts          = Just "Duplicate actors"
+      | randTotal < 0 || Chakra.lack chakra = Just "Insufficient chakra"
+      | any (Act.illegal player) acts       = Just "Character out of range"
+      | otherwise                           = Nothing

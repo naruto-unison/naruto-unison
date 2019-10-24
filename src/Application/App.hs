@@ -9,6 +9,7 @@ module Application.App
   , Handler, Widget
   , Route(..)
   , AppPersistEntity
+  , liftDB
   , unchanged304
   , unsafeHandler
   , resourcesApp
@@ -244,6 +245,12 @@ instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend
     runDB :: ∀ a. SqlPersistT Handler a -> Handler a
     runDB action = Sql.runSqlPool action =<< getsYesod connPool
+    {-# INLINE runDB #-}
+
+liftDB :: ∀ m a. (MonadHandler m, App ~ HandlerSite m)
+       => SqlPersistT Handler a -> m a
+liftDB = liftHandler . runDB
+{-# INLINE liftDB #-}
 
 instance YesodPersistRunner App where
     getDBRunner :: Handler (DBRunner App, Handler ())
@@ -262,7 +269,7 @@ instance YesodAuth App where
 
     authenticate :: ∀ m. (MonadHandler m, App ~ HandlerSite m)
                  => Auth.Creds App -> m (AuthenticationResult App)
-    authenticate creds = liftHandler $ runDB do
+    authenticate creds = liftDB do
         x <- getBy $ UniqueUser ident
         case x of
             Just (Entity uid _) -> return $ Authenticated uid
@@ -309,7 +316,7 @@ instance YesodAuthEmail App where
 
     addUnverified email verkey = do
         UTCTime day _ <- liftIO getCurrentTime
-        liftHandler . runDB . insert $ Model.newUser email (Just verkey) day
+        liftDB . insert $ Model.newUser email (Just verkey) day
 
     sendVerifyEmail email _ verurl =
         liftIO $ Mail.renderSendMail
@@ -340,18 +347,18 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
 |]
             , partHeaders = []
             }
-    getVerifyKey = liftHandler . runDB . fmap (join . fmap userVerkey) . get
-    setVerifyKey uid key = liftHandler . runDB $ update uid [UserVerkey =. Just key]
-    verifyAccount uid = liftHandler $ runDB do
+    getVerifyKey = liftDB . fmap (join . fmap userVerkey) . get
+    setVerifyKey uid key = liftDB $ update uid [UserVerkey =. Just key]
+    verifyAccount uid = liftDB do
         mu <- get uid
         case mu of
           Nothing -> return Nothing
           Just _  -> do
                 update uid [UserVerified =. True]
                 return $ Just uid
-    getPassword = liftHandler . runDB . fmap (join . fmap userPassword) . get
-    setPassword uid pass = liftHandler . runDB $ update uid [UserPassword =. Just pass]
-    getEmailCreds email = liftHandler $ runDB do
+    getPassword = liftDB . fmap (join . fmap userPassword) . get
+    setPassword uid pass = liftDB $ update uid [UserPassword =. Just pass]
+    getEmailCreds email = liftDB do
         mu <- getBy . UniqueUser $ toLower email
         return $ mu <&> \(Entity uid u) -> AuthEmail.EmailCreds
                 { emailCredsId = uid
@@ -360,4 +367,4 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
                 , emailCredsVerkey = userVerkey u
                 , emailCredsEmail = toLower email
                 }
-    getEmail = liftHandler . runDB . fmap (fmap userIdent) . get
+    getEmail = liftDB . fmap (fmap userIdent) . get
