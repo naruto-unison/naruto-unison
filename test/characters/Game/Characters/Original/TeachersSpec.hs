@@ -232,7 +232,7 @@ spec = parallel do
         useOn Self "Illusory Tree Meld" do
             addStacks "Illusion" stacks
             act
-            defense <- totalDefense <$> P.nUser
+            defense <- Ninja.totalDefense <$> P.nUser
             userStacks <- Ninja.numStacks "Illusion" <$> P.user <*> P.nUser
             return do
                 it "defends user" $
@@ -361,7 +361,7 @@ spec = parallel do
                     100 - targetHealth `shouldBe` 40
         useOn Ally "Flak Jacket" do
             act
-            defense <- totalDefense <$> P.nTarget
+            defense <- Ninja.totalDefense <$> P.nTarget
             enemyTurn $ apply 0 [Plague]
             harmed <- (`is` Plague) <$> P.nTarget
             return do

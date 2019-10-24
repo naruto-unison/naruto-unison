@@ -139,9 +139,10 @@ processEffects n = n { effects = baseStatuses >>= process }
     nSlot         = slot n
     baseStatuses  = statuses n
     unmodEffects  = baseStatuses >>= Status.effects
+    noIgnore      = NoIgnore ∈ unmodEffects
     baseEffects
-      | NoIgnore ∈ unmodEffects = filter (not . Effect.isIgnore) unmodEffects
-      | otherwise               = unmodEffects
+      | noIgnore  = filter (not . Effect.isIgnore) unmodEffects
+      | otherwise = unmodEffects
     enraged       = Enrage ∈ baseEffects
     sealed        = not enraged && Seal ∈ baseEffects
     boostAmount
@@ -162,6 +163,7 @@ processEffects n = n { effects = baseStatuses >>= process }
         allow (Reduce _ _ x) = x <= 0 || enraged || not (Expose ∈ baseEffects)
         allow (Bleed _ _ x)  = x >= 0 || enraged || not (Expose ∈ baseEffects)
         allow (Effect.isDisable -> True) = sealed || not (Focus ∈ baseEffects)
+        allow (Effect.isIgnore -> True) = not noIgnore
         allow _ = True
 
 -- | Alters 'statuses' and then calls 'processEffects'.

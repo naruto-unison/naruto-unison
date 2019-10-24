@@ -126,6 +126,7 @@ testNinja slot = Ninja.new slot $ Character
     , Character.price    = 0
     }
 
+-- | A mock engine based on 'Game.Action.act'.
 wrap :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => Player -> m ()
 wrap player = do
     user       <- P.user

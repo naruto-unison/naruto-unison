@@ -189,7 +189,7 @@ spec = parallel do
                   targetDmg - (100 - userHealth) `shouldBe` 5 * stacks
         useOn Allies "Wall of Insects" do
             act
-            defense <- totalDefense <$> P.nTarget
+            defense <- Ninja.totalDefense <$> P.nTarget
             return do
                 it "defends user's team" $
                     defense `shouldBe` 20
@@ -213,7 +213,7 @@ spec = parallel do
         useOn Enemies "Eight Trigrams Sixty-Four Palms" do
             act
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
-            defense <- totalDefense <$> (allyOf =<< P.user)
+            defense <- Ninja.totalDefense <$> (allyOf =<< P.user)
             factory
             self $ tag' "Byakugan" 0
             act
@@ -239,7 +239,7 @@ spec = parallel do
     describeCharacter "Shikamaru Nara" \useOn -> do
         useOn Enemy "Meditate" do
             act
-            tagged <- targetHas "Meditate"
+            tagged <- Ninja.has "Meditate" <$> P.user <*> P.nTarget
             return do
                 it "tags target"
                     tagged
@@ -537,7 +537,7 @@ spec = parallel do
                     harmed'
         useOn Self "Sand Armor" do
             act
-            defense <- totalDefense <$> P.nUser
+            defense <- Ninja.totalDefense <$> P.nUser
             return do
                 it "defends user" $
                     defense `shouldBe` 40
@@ -556,7 +556,7 @@ spec = parallel do
                     100 - targetHealth `shouldBe` 10
         useOn Enemy "Puppet Technique" do
             act
-            defense <- totalDefense <$> P.nUser
+            defense <- Ninja.totalDefense <$> P.nUser
             damage targetDmg
             targetHealth <- Ninja.health <$> P.nTarget
             return do

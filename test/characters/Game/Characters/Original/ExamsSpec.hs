@@ -94,7 +94,7 @@ spec = parallel do
             act
             targetHealth <- Ninja.health <$> P.nTarget
             setHealth 100
-            targetExhaust <- Effects.exhaust [All] <$> P.nTarget
+            targetExhausted <- Effects.exhaust [All] <$> P.nTarget
             damage targetDmg
             targetHealth' <- Ninja.health <$> P.nTarget
             return do
@@ -103,7 +103,7 @@ spec = parallel do
                 it "adds to damage against target" $
                    (100 - targetHealth') - targetDmg `shouldBe` 5
                 it "adds a random chakra to target's skills" $
-                    toList targetExhaust `shouldBe` [Rand]
+                    toList targetExhausted `shouldBe` [Rand]
         useOn Self "Pre-Healing Technique" do
             let initialHealth = 10
             withClass Bane $ enemyTurn $ apply 0 [Reveal]
@@ -303,7 +303,7 @@ spec = parallel do
         useOn Enemy "Fog Clone" do
             act
             tagged <- Ninja.hasOwn "Fog Clone" <$> P.nUser
-            defense <- totalDefense <$> P.nUser
+            defense <- Ninja.totalDefense <$> P.nUser
             withClass Mental $ enemyTurn $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             return do
@@ -402,7 +402,7 @@ spec = parallel do
                     100 - targetHealth `shouldBe` targetDmg
         useOn Enemy "Tighten Joints" do
             act
-            defense <- totalDefense <$> P.nUser
+            defense <- Ninja.totalDefense <$> P.nUser
             tag' "Soft Physique Modification" 0
             act
             targetHealth <- Ninja.health <$> P.nTarget

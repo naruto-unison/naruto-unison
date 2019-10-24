@@ -40,26 +40,32 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Devastate"
-        , Skill.desc      = "Izumo flanks an enemy from the left, making them vulnerable to Kotetsu's [Annihilate] for 3 turns. If the target is affected by [Annihilate], Izumo deals 65 damage to them. If Izumo uses [Tag Team], this skill becomes [Annihilate][t]."
+        , Skill.desc      = "Izumo flanks an enemy from the left, making them vulnerable to Kotetsu's [Annihilate] for 3 turns. If the target is affected by [Annihilate], Izumo instead deals 65 damage to them. If Izumo uses [Tag Team], this skill becomes [Annihilate][t]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                tag 3
-                whenM (targetHas "Annihilate") $ damage 65
+                has <- targetHas "Annihilate"
+                if has then
+                    damage 65
+                else
+                    tag 3
           ]
         }
       , Skill.new
         { Skill.name      = "Annihilate"
-        , Skill.desc      = "Kotetsu flanks an enemy from the right, making them vulnerable to Izumo's [Devastate] for 3 turns. If the target is affected by [Devastate], Kotetsu deals 65 damage to them. If Kotetsu uses [Tag Team], this skill becomes [Devastate][t]."
+        , Skill.desc      = "Kotetsu flanks an enemy from the right, making them vulnerable to Izumo's [Devastate] for 3 turns. If the target is affected by [Devastate], Kotetsu instead deals 65 damage to them. If Kotetsu uses [Tag Team], this skill becomes [Devastate][t]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                tag 3
-                whenM (targetHas "Devastate") $ damage 65
+                has <- targetHas "Devastate"
+                if has then
+                    damage 65
+                else
+                    tag 3
           ]
         }
       ]
@@ -120,11 +126,11 @@ characters =
         , Skill.desc      = "A flock of self-duplicating crows swarms the enemy team for 4 turns, dealing 5 damage each turn and providing 5 points of damage reduction to Aoba and his allies."
         , Skill.classes   = [Mental, Ranged, Resource]
         , Skill.cost      = [Gen]
-        , Skill.dur       = Ongoing 4
+        , Skill.dur       = Ongoing (-4)
         , Skill.start     =
           [ To Self do
-              enemies $ apply 4 []
-              allies  $ apply 4 [Reduce [All] Flat 5]
+              enemies $ apply (-4) []
+              allies  $ apply (-4) [Reduce [All] Flat 5]
           ]
         , Skill.effects   =
           [ To Enemies $ unlessM (targetHas "swarmed") do
@@ -256,7 +262,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sealing Technique"
-        , Skill.desc      = "Yūgao places a powerful and thorough seal on an enemy. For 2 turns, they do not benefit from damage reduction, destructible defense, counters, reflects, invulnerabilities, and ignores."
+        , Skill.desc      = "Yūgao places a powerful and thorough seal on an enemy. For 2 turns, they cannot become invulnerable and do not benefit from damage reduction, destructible defense, counters, reflects, or effects that ignore other effects."
         , Skill.classes   = [Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
@@ -417,15 +423,17 @@ characters =
     [LeafVillage, Akatsuki, Rogue, SRank, Fire, Wind, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Mangekyō Sharingan"
-        , Skill.desc      = "Itachi becomes invulnerable but loses 15 health each turn. While active, the cooldowns and chakra costs of his other skills are doubled. This skill can be used again with no chakra cost to cancel its effect."
+        , Skill.desc      = "Itachi becomes invulnerable, but loses 15 health every turn and cannot be healed or cured. While active, the cooldowns and chakra costs of his other skills are doubled. This skill can be used again with no chakra cost to cancel its effect."
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Blood]
+        , Skill.dur       = Ongoing 0
         , Skill.effects   =
-          [ To Self $ apply 0
-                [ Invulnerable All
-                , Afflict 15
-                , Alternate "Mangekyō Sharingan" "Mangekyō Sharingan "
-                ]
+          [ To Self do
+                sacrifice 0 15
+                apply 1 [ Invulnerable All
+                        , Plague
+                        , Alternate "Mangekyō Sharingan" "Mangekyō Sharingan "
+                        ]
           ]
         }
       , Skill.new
@@ -433,18 +441,18 @@ characters =
         , Skill.desc      = "Ends the effect of [Mangekyō Sharingan], halving Itachi's cooldowns and chakra costs."
         , Skill.classes   = [Mental]
         , Skill.effects   =
-          [ To Self $ remove "Mangekyō Sharingan" ]
+          [ To Self $ cancelChannel "Mangekyō Sharingan" ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Amaterasu"
-        , Skill.desc      = "Itachi sets an enemy on fire, dealing 15 affliction damage and 5 affliction damage each turn. Targets all enemies and deals double damage during [Mangekyō Sharingan]. Does not stack."
+        , Skill.desc      = "Itachi sets an enemy on fire, dealing 10 instant affliction damage and 5 affliction damage every turn. Targets all enemies and deals double damage during [Mangekyō Sharingan]. Does not stack."
         , Skill.classes   = [Bane, Ranged, Soulbound, Nonstacking, Unreflectable]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                damage 15
+                afflict 10
                 apply 0 [Afflict 5]
           ]
         , Skill.changes =
@@ -453,7 +461,7 @@ characters =
                   , Skill.cost     = 2 * Skill.cost x
                   , Skill.effects  =
                     [ To Enemies do
-                          damage 30
+                          afflict 20
                           apply 0 [Afflict 10]
                     ]
                   }
@@ -549,13 +557,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sphere of Graves"
-        , Skill.desc      = "Jirōbō lifts the ground up and hurls it forward, dealing 20 damage to all enemies. Deals 10 additional damage if [Crushing Palm] was used last turn."
+        , Skill.desc      = "Jirōbō lifts the ground up and hurls it forward, dealing 20 damage to all enemies. Deals 5 additional damage if [Crushing Palm] was used last turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Self $ tag 1
           , To Enemies do
-                bonus <- 10 `bonusIf` userHas "Crushing Palm"
+                bonus <- 5 `bonusIf` userHas "Crushing Palm"
                 damage (20 + bonus)
           ]
         }
@@ -636,8 +644,8 @@ characters =
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Demon Flute: Phantom Wave"
-        , Skill.desc      = "Illusory ghosts pour out of the Doki demons, dealing 10 affliction damage to an enemy and depleting 1 random chakra. Requires [Summoning: Doki]."
+        { Skill.name      = "Demon Revolution"
+        , Skill.desc      = "Illusory ghost-worms pour out of the Doki demons, dealing 10 affliction damage to an enemy and depleting 1 random chakra. Requires [Summoning: Doki]."
         , Skill.require   = HasI 1 "Summoning: Doki"
         , Skill.classes   = [Ranged]
         , Skill.cost      = [Rand]
@@ -649,8 +657,8 @@ characters =
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Demon Flute"
-        , Skill.desc      = "Playing a hypnotizing melody on her flute, Tayuya stuns all enemies' skills for 1 turn."
+        { Skill.name      = "Chains of Fantasia"
+        , Skill.desc      = "Playing a hypnotizing melody on her demonic flute, Tayuya stuns all enemies' skills for 1 turn."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 4
@@ -754,7 +762,9 @@ characters =
           [ To Enemies do
                 damage 30
                 apply 1 [Weaken [Physical, Chakra, Summon] Flat 20]
-          , To Self $ apply (-2) [Afflict 15]
+          , To Self do
+                sacrifice 0 15
+                delay 1 $ sacrifice 0 15
           ]
         }
       ]

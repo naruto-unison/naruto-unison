@@ -83,7 +83,7 @@ enemies = targetWithUser Slot.enemies
 -- | Directly applies an effect to all other Ninjas, both living and dead,
 -- ignoring invulnerabilities and traps.
 everyone :: ∀ m. MonadPlay m => m () -> m ()
-everyone = targetWithUser (`delete` Slot.all)
+everyone = P.withTargets Slot.all
 
 -- | Returns the bonus if the monadic condition succeeds, otherwise returns 0.
 bonusIf :: ∀ m. MonadPlay m => Int -> m Bool -> m Int

@@ -262,7 +262,7 @@ displayAmt Percent = (++ "%") . display
 
 -- | Effect is displayed to the client.
 visible :: Effect -> Bool
-visible (Alternate x y) = x /= y
+visible (Alternate x y) = not $ x `isPrefixOf` y
 visible Face            = False
 visible _               = True
 
