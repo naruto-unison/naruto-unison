@@ -251,10 +251,10 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sand Burial Prison"
-        , Skill.desc      = "Gaara traps all enemies in a sinking pit of sand, increasing the costs of their non-mental skills by 1 arbitrary chakra for 1 turn. If an enemy uses a non-mental skill, they are freed from [Sand Burial Prison]. While active, this skill becomes [Giant Sand Burial][n][n]."
+        , Skill.desc      = "Gaara traps all enemies in a sinking pit of sand, increasing the costs of their non-mental skills by 1 arbitrary chakra for 1 turn. If an enemy uses a non-mental skill, they are freed from [Sand Burial Prison]. Next turn, this skill becomes [Giant Sand Burial][n][n]."
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin]
-        , Skill.dur       = Control 1
+        , Skill.dur       = Instant
         , Skill.effects   =
           [ To Enemies do
                 apply 1 [Exhaust [NonMental]]
@@ -273,7 +273,6 @@ characters =
           [ To Enemies do
                 demolishAll
                 pierce 40
-          , To Self $ cancelChannel "Sand Burial Prison"
           ]
         }
       ]

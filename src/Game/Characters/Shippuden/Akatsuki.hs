@@ -225,18 +225,16 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Thousand Arms"
-        , Skill.desc      = "Countless concealed arms lash out from Sasori's Kazekage puppet and flail wildly for 1 turn, pinning down anyone they catch. Enemies who do not use skills on Sasori or his allies next turn will be pinned for 1 turn, unable to reduce damage or become invulnerable. While active, this skill becomes [Poison Gas][r][r]."
+        , Skill.desc      = "Countless concealed arms lash out from Sasori's Kazekage puppet and flail wildly for 1 turn, pinning down anyone they catch. Enemies who do not use skills on Sasori or his allies next turn will be pinned for 1 turn, unable to reduce damage or become invulnerable. Next turn, this skill becomes [Poison Gas][r][r]."
         , Skill.require   = HasI 1 "Iron Sand"
         , Skill.classes   = [Physical, Melee, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
-        , Skill.dur       = Control 1
+        , Skill.dur       = Instant
         , Skill.effects   =
           [ To Enemies $ trap 1 OnHarm $ apply' "Pinned" (-1) [Expose]
           , To Self $ hide 1 [Alternate "Thousand Arms" "Poison Gas"]
           ]
-        , Skill.interrupt =
-          [ To Self $ remove "thousand arms" ]
         }
       , Skill.new
         { Skill.name      = "Poison Gas"
