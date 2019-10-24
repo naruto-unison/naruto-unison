@@ -76,7 +76,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Drowning Bubble"
-        , Skill.desc      = "Soap bubbles surround an enemy's head and prevent them from breathing, dealing 10 affliction damage each turn. Cannot be used on an enemy already affected by this skill."
+        , Skill.desc      = "Soap bubbles surround an enemy's head and prevent them from breathing, dealing 10 affliction damage every turn. Cannot be used on an enemy already affected by this skill."
         , Skill.require   = HasU 0 "Drowning Bubble"
         , Skill.classes   = [Chakra, Ranged, Bane, Soulbound]
         , Skill.cost      = [Nin]

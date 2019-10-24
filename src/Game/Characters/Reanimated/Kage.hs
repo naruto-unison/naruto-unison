@@ -164,7 +164,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Rasen-Flash Super-Circle Dance Howl (Stage III)"
-        , Skill.desc      = "Minato teleports behind an enemy and slams a Rasengan orb into them, dealing 20 damage. Wreathed in yellow lightning, he teleports in quick succession to every enemy affected by [Space-Time Marking], dealing 20 damage for every stack of [Space-Time Marking] on them."
+        , Skill.desc      = "Minato teleports behind an enemy and slams a Rasengan orb into them, dealing 20 damage. Wreathed in yellow lightning, he teleports in quick succession to each enemy affected by [Space-Time Marking], dealing 20 damage for every stack of [Space-Time Marking] on them."
         , Skill.classes   = [Chakra, Melee, Bypassing]
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
@@ -236,7 +236,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 15
-                apply 2 [Afflict 15]
+                apply 2 [Afflict 5]
                 whenM (userHas "Major Summoning: Ibuse") do
                     afflict 10
                     apply 1 [Stun All]
@@ -259,7 +259,7 @@ characters =
                       alterCd "Major Summoning: Ibuse" (-2)
                       cancelChannel "Poison Fog"
                   else self $
-                      apply 0 [Afflict 20]
+                      apply 0 [Afflict 10]
             ]
         }
       ]
@@ -272,7 +272,7 @@ characters =
     [SandVillage, Kabuto, Kage, Wind, Earth, Water, Yin, SandClan]
     [ [ Skill.new
         { Skill.name      = "Magnet Technique"
-        , Skill.desc      = "Waves of gold flood the enemy team, dealing 10 damage to them and applying 10 permanent destructible barrier to each. The skills of enemies who have destructible barrier from this skill cost 1 additional arbitrary chakra."
+        , Skill.desc      = "Waves of gold flood the enemy team, dealing 10 damage to them and applying 10 permanent destructible barrier to all. The skills of enemies who have destructible barrier from this skill cost 1 additional arbitrary chakra."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1

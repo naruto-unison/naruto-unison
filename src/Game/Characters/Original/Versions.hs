@@ -179,7 +179,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Monstrous Sand Arm"
-        , Skill.desc      = "Shukaku squeezes an enemy in a fist of sand, dealing 10 damage to them each turn. If they use a skill, the skill will be countered and this effect will end. During [Tailed Beast Form], this skill becomes [Wind Bullet][b][b]."
+        , Skill.desc      = "Shukaku squeezes an enemy in a fist of sand, dealing 10 damage to them every turn. If they use a skill, the skill will be countered and this effect will end. During [Tailed Beast Form], this skill becomes [Wind Bullet][b][b]."
         , Skill.require   = HasI 0 "Monstrous Sand Arm"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
@@ -202,7 +202,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sand Transformation"
-        , Skill.desc      = "Shukaku gradually accumulates sand around Gaara's body, gaining 10 permanent destructible defense each turn for 5 turns. At the end of the 5 turns, Shukaku enters Tailed Beast Form for 3 turns. During [Tailed Beast Form], this skill becomes [Shukaku Full Release][b]."
+        , Skill.desc      = "Shukaku gradually accumulates sand around Gaara's body, gaining 10 permanent destructible defense every turn for 5 turns. At the end of the 5 turns, Shukaku enters Tailed Beast Form for 3 turns. During [Tailed Beast Form], this skill becomes [Shukaku Full Release][b]."
         , Skill.require   = HasI 0 "Sand Transformation"
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand, Rand]
@@ -238,7 +238,7 @@ characters =
     [SandVillage, Genin, Jinchuriki, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new
         { Skill.name      = "Sand Shower"
-        , Skill.desc      = "A stream of sand flows around Gaara toward an enemy, providing him with 35 destructible defense for 3 turns and dealing 15 damage to the target each 3 turn."
+        , Skill.desc      = "A stream of sand flows around Gaara toward an enemy, providing him with 35 destructible defense for 3 turns and dealing 15 damage to the target each turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3

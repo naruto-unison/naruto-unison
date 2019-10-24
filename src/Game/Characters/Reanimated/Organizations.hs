@@ -629,7 +629,7 @@ characters =
     [RainVillage, Kabuto, Akatsuki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yang, Uzumaki]
     [ [ Skill.new
         { Skill.name      = "Deva Path"
-        , Skill.desc      = "Nagato creates a gravitational anchor that pulls in the enemy team and accumulates a rough sphere of rock and debris around them, applying 25 destructible barrier for 3 turns. While enemies have destructible barrier from this skill, the non-damage effects of their skills on allies and enemies are disabled. At the end of the 3 turns, enemies take damage equal to the remaining destructible barrier from this skil1l."
+        , Skill.desc      = "Nagato creates a gravitational anchor that pulls in the enemy team and accumulates a rough sphere of rock and debris around them, applying 25 destructible barrier for 3 turns. While enemies have destructible barrier from this skill, the non-damage effects of their skills on allies and enemies are disabled. At the end of the 3 turns, enemies take damage equal to the remaining destructible barrier from this skill."
         , Skill.classes    = [Physical, Ranged]
         , Skill.cost       = [Blood, Gen, Tai]
         , Skill.cooldown   = 3

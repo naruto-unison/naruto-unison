@@ -36,7 +36,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Susanoo"
-        , Skill.desc      = "Madara encases himself in spectral armor that provides him with 70 permanent destructible defense. While Madara has destructible defense from this skill, he gains a stack of [Susanoo] each turn and this skill becomes [Armored Susanoo Assault][b][r]."
+        , Skill.desc      = "Madara encases himself in spectral armor that provides him with 70 permanent destructible defense. While Madara has destructible defense from this skill, he gains a stack of [Susanoo] every turn and this skill becomes [Armored Susanoo Assault][b][r]."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 6
@@ -151,7 +151,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "C4: Karura"
-        , Skill.desc      = "A cloud of microscopic bombs enter an enemy's bloodstream and repeatedly detonate, dealing 10 affliction damage to the target each turn for the rest of the game and weakening their damage by 5. Once used, this skill becomes [C0: Ultimate Art][b][n][n]."
+        , Skill.desc      = "A cloud of microscopic bombs enter an enemy's bloodstream and repeatedly detonate, dealing 10 affliction damage to the target every turn for the rest of the game and weakening their damage by 5. Once used, this skill becomes [C0: Ultimate Art][b][n][n]."
         , Skill.classes   = [Bane, Chakra, Ranged, Uncounterable, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =
@@ -427,7 +427,7 @@ characters =
     [MistVillage, Akatsuki, SevenSwordsmen, Rogue, SRank, Water, Fire, Wind, Earth]
     [ [ Skill.new
         { Skill.name      = "Thousand Hungry Sharks"
-        , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Each turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage to each enemy during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
+        , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Each turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
         , Skill.require   = HasI 0 "Thousand Hungry Sharks"
         , Skill.classes   = [Chakra, Ranged, Unreflectable, Resource]
         , Skill.cost      = [Nin]
@@ -606,7 +606,7 @@ characters =
     [Akatsuki, Sensor, SRank, Earth, Water, Fire, Wind, Lightning, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "White Zetsu"
-        , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense each turn. Once used, this skill becomes [Black Zetsu]."
+        , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense every turn. Once used, this skill becomes [Black Zetsu]."
         , Skill.classes   = [Chakra]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
@@ -792,7 +792,7 @@ characters =
     [RainVillage, Akatsuki, SRank, Water, Fire, Wind, Lightning, Earth, Water]
     [ [ Skill.new
         { Skill.name      = "Almighty Push"
-        , Skill.desc      = "Pain targets himself or an ally. The first skill an enemy uses on them next turn will be countered, and the person countered will take 20 damage. Once used, this skill alternates between [Universal Pull] and [Almighty Push] each turn. "
+        , Skill.desc      = "Pain targets himself or an ally. The first skill an enemy uses on them next turn will be countered, and the person countered will take 20 damage. Once used, this skill alternates between [Universal Pull] and [Almighty Push] every turn. "
         , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.dur       = Passive
@@ -871,7 +871,7 @@ characters =
     [Akatsuki, SRank]
     [ [ Skill.new
         { Skill.name      = "Metal Blade"
-        , Skill.desc      = "Pain gouges an enemy with a blade that unfolds from his body, dealing 15 piercing damage and inflicting a deep wound. The target takes 10 affliction damage each turn until one of their allies uses a skill on them. Does not stack."
+        , Skill.desc      = "Pain gouges an enemy with a blade that unfolds from his body, dealing 15 piercing damage and inflicting a deep wound. The target takes 10 affliction damage every turn until one of their allies uses a skill on them. Does not stack."
         , Skill.classes   = [Bane, Physical, Melee, Nonstacking]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
@@ -969,7 +969,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemies $ pierce 30
-          ,  To Self do
+          , To Self do
                 cancelChannel "Guided Missile"
                 everyone $ remove "Guided Missile"
           ]

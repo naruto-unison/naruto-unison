@@ -168,7 +168,7 @@ characters =
     [LeafVillage, Kage, Sage, Earth, Water, Fire, Wind, Lightning, Yin, Yang, Senju]
     [ [ Skill.new
         { Skill.name      = "Wooden Dragon"
-        , Skill.desc      = "A vampiric dragon made of wood drains chakra from Hashirama's enemies, making him invulnerable to chakra skills for 2 turns. While active, Hashirama absorbs 1 random chakra from his enemies each turn."
+        , Skill.desc      = "A vampiric dragon made of wood drains chakra from Hashirama's enemies, making him invulnerable to chakra skills for 2 turns. Each turn, Hashirama absorbs 1 random  chakra from his enemies."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2
@@ -184,7 +184,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Wood Golem"
-        , Skill.desc      = "A giant humanoid statue attacks an enemy for 2 turns, dealing 20 damage each turn. While active, Hashirama is invulnerable to physical skills."
+        , Skill.desc      = "A giant humanoid statue attacks an enemy, dealing 20 damage for 2 turns. While active, Hashirama is invulnerable to physical skills."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2

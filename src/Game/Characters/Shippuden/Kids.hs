@@ -378,7 +378,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Sixty-Four Palms"
-        , Skill.desc      = "For 4 turns, each time an enemy affected by [Pressure Point Strike] uses a skill on Hinata or her allies, Hinata's next [Pressure Point Strike] will last 1 additional turn on them."
+        , Skill.desc      = "For 4 turns, every time an enemy affected by [Pressure Point Strike] uses a skill on Hinata or her allies, Hinata's next [Pressure Point Strike] will last 1 additional turn on them."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
@@ -425,7 +425,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Long-Range Tactics"
-        , Skill.desc      = "Shikamaru goes long. For 4 turns, every time Shikamaru uses a skill on an enemy, he will become invulnerable for 1 turn. However, if an enemy uses a skill that deals non-affliction damage to him, he will not become invulnerable during the next turn. While Shikamaru is invulnerable from this skill, it becomes [Final Explosion][r][r]."
+        , Skill.desc      = "Shikamaru goes long. For 4 turns, whenever Shikamaru uses a skill on an enemy, he will become invulnerable for 1 turn. However, if an enemy uses a skill that deals non-affliction damage to him, he will not become invulnerable during the next turn. While Shikamaru is invulnerable from this skill, it becomes [Final Explosion][r][r]."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 5

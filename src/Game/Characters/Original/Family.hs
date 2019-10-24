@@ -319,7 +319,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Sensory Radar: Collate"
-        , Skill.desc      = "Inoichi compiles all the information he has gathered and puts it to use. For every stack of [Sensory Radar], he gains 1 random chakra. Ends [Sensory Radar]."
+        , Skill.desc      = "Inoichi compiles all the information he has gathered and puts it to use. For each stack of [Sensory Radar], he gains 1 random chakra. Ends [Sensory Radar]."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =

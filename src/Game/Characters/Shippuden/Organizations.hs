@@ -215,7 +215,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Jar of Poison"
-        , Skill.desc      = "Torune applies a Venom Beetle to all enemies, dealing 5 affliction damage to each for 5 turns, and gains 30 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 2 arbitrary chakra but does not provide any destructible defense."
+        , Skill.desc      = "Torune applies a Venom Beetle to every enemy, which deals 5 affliction damage for 5 turns. Torune gains 30 permanent destructible defense. Whoever destroys his destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 2 arbitrary chakra but does not provide any destructible defense."
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 0
@@ -324,7 +324,7 @@ characters =
     [LeafVillage, Anbu, Wind, Earth, Water, Fire, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Izanagi"
-        , Skill.desc      = "Danzō gains 10 Sharingan and loses 1 each turn. If his health reaches 0, he regains 10 health per Sharingan and loses all Sharingan. When he has no Sharingan remaining, this skill becomes [Reverse Tetragram Sealing][r][r][r]."
+        , Skill.desc      = "Danzō gains 10 Sharingan and loses 1 every turn. If his health reaches 0, he regains 10 health per Sharingan and loses all Sharingan. When he has no Sharingan remaining, this skill becomes [Reverse Tetragram Sealing][r][r][r]."
         , Skill.classes   = [Mental, Resource]
         , Skill.cost      = [Blood]
         , Skill.dur       = Ongoing 0

@@ -152,7 +152,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Two-Headed Wolf"
-        , Skill.desc      = "Kiba and Akamaru transform into giant beasts, gaining 15 points of damage reduction and dealing 15 damage to all enemies for 3 turns. Deals 5 additional damage each turn to enemies affected by [Dynamic Marking]."
+        , Skill.desc      = "Kiba and Akamaru transform into giant beasts, gaining 15 points of damage reduction and dealing 15 damage to all enemies for 3 turns. Deals 5 additional damage to enemies affected by [Dynamic Marking]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Tai]
         , Skill.cooldown  = 3
