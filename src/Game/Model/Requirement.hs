@@ -28,17 +28,18 @@ import           Util ((∈), (∉), intersects)
 usable :: Bool -- ^ New.
        -> Ninja -> Skill -> Skill
 usable new n x
-  | Skill.charges x > 0 && uncharged                   = unusable
-  | maybe False (> 0) $ key `lookup` Ninja.cooldowns n = unusable
-  | not $ Skill.classes x `intersects` Effects.stun n  = x'
-  | new                                                = unusable
-  | Channel.ignoreStun $ Skill.dur x                   = x'
+  | charges > 0 && Ninja.charges `atLeast` charges    = unusable
+  | new && Ninja.cooldowns `atLeast` 1                = unusable
+  | not $ Skill.classes x `intersects` Effects.stun n = x'
+  | new                                               = unusable
+  | Channel.ignoreStun $ Skill.dur x                  = x'
   | otherwise = x' { Skill.effects = Skill.stunned x' }
   where
-    key       = Skill.key x
-    uncharged = maybe False (>= Skill.charges x) $ key `lookup` Ninja.charges n
-    unusable  = x { Skill.require = Unusable }
-    x'        = x { Skill.require = isUsable $ Skill.require x }
+    getter `atLeast` limit = maybe False (>= limit) $ key `lookup` getter n
+    charges  = Skill.charges x
+    key      = Skill.key x
+    unusable = x { Skill.require = Unusable }
+    x'       = x { Skill.require = isUsable $ Skill.require x }
     isUsable req@HasI{}
       | not new                      = Usable
       | succeed req (Ninja.slot n) n = Usable
