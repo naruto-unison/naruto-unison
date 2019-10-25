@@ -147,16 +147,20 @@ doDeath slot = do
     let res
           | n `is` Plague = mempty
           | otherwise     = Traps.getOf slot OnRes n
-    if | Ninja.health n > 0 -> return ()
-       | null res           -> do
-            P.modify slot $ Ninjas.clearTraps OnDeath
-            sequence_ $ Traps.getOf slot OnDeath n
-            traverse_ (doBomb Done slot) .
-                filter ((Necromancy ∉) . Status.classes) $ Ninja.statuses n
-            P.modifyAll $ unSoulbound slot
-       | otherwise          -> do
-            P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps OnRes
-            sequence_ res
+
+    if Ninja.health n > 0 then
+        return ()
+
+    else if null res  then do
+        P.modify slot $ Ninjas.clearTraps OnDeath
+        sequence_ $ Traps.getOf slot OnDeath n
+        traverse_ (doBomb Done slot) .
+            filter ((Necromancy ∉) . Status.classes) $ Ninja.statuses n
+        P.modifyAll $ unSoulbound slot
+
+    else do
+        P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps OnRes
+        sequence_ res
 
 -- | Removes 'Soulbound' effects. Applied when a Ninja dies or is factory-reset.
 unSoulbound :: Slot -> Ninja -> Ninja

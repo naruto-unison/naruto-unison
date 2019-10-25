@@ -106,17 +106,18 @@ wrap' affected f = void $ runMaybeT do
 
     else
         lift . fromMaybe finish
-          $ do
-            guard $ allow Redirected && Unreflectable ∉ classes
-            t <- Trigger.redirect nTarget
-            return . P.withTarget t $ wrap' (Redirected `insertSet` affected) f
-        <|> do
-            guard $ allow Reflected && Unreflectable ∉ classes
-                    && Effects.reflect classes nTarget
-            return do
-                P.trigger target [OnReflect]
-                P.with Context.reflect $
-                    wrap' (Reflected `insertSet` affected) f
+            $ do
+              guard $ allow Redirected && Unreflectable ∉ classes
+              t <- Trigger.redirect nTarget
+              return .
+                  P.withTarget t $ wrap' (Redirected `insertSet` affected) f
+          <|> do
+              guard $ allow Reflected && Unreflectable ∉ classes
+                      && Effects.reflect classes nTarget
+              return do
+                  P.trigger target [OnReflect]
+                  P.with Context.reflect $
+                      wrap' (Reflected `insertSet` affected) f
 
     P.zipWith Traps.broken ninjas
 
@@ -168,11 +169,14 @@ targetEffect :: ∀ m. (MonadPlay m, MonadRandom m)
 targetEffect affected f = do
     user   <- P.user
     target <- P.target
+
     if user == target then
         f
+
     else if Parity.allied user target then do
         wrap' affected f
         P.trigger target [OnHelped]
+
     else do
         wrap' affected f
         P.trigger user [OnHarm]

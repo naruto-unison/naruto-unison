@@ -149,8 +149,10 @@ selectWithAuthors selectors opts = runDB do
   where
     go (Entity citeKey citeVal) = do
         citeAuthor <- get404 author
-        citeLatest <- if | author == latest -> return citeAuthor
-                         | otherwise        -> get404 latest
+        citeLatest <- if author == latest then
+                          return citeAuthor
+                      else
+                          get404 latest
         return Cite {citeKey, citeAuthor, citeLatest, citeVal}
       where
         author = getAuthor citeVal

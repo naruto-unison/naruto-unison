@@ -34,20 +34,20 @@ instance ToMarkup Duration where
 -- Returns Nothing if the duration is reduced to 0.
 throttle :: Int -> Duration -> Maybe Duration
 throttle 0 dur = Just dur
-throttle amount dur@(Duration d)
-  | d > 0     = makeDur . max 0 $ d - amount
-  | d < 0     = makeDur . min 0 $ d + amount
-  | otherwise = Just dur
+throttle amount dur@(Duration d) = case d `compare` 0 of
+    EQ -> Just dur
+    GT -> makeDur . max 0 $ d - amount
+    LT -> makeDur . min 0 $ d + amount
   where
     makeDur 0 = Nothing
     makeDur x = Just $ Duration x
 
 -- | Increments a number's magnitude unless it is 0.
 incr :: ∀ a. (Ord a, Num a) => a -> a
-incr x
-  | x > 0     = x + 1
-  | x < 0     = x - 1
-  | otherwise = x
+incr x = case x `compare` 0 of
+    EQ -> x
+    GT -> x + 1
+    LT -> x - 1
 
 -- | Converts from turns to sub-turns. Output is always positive.
 -- Each turn consists of two sub-turns, one for each player.
