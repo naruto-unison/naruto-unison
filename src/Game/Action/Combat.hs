@@ -22,7 +22,6 @@ import Data.Enum.Set.Class (EnumSet)
 import qualified Class.Classed as Classed
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
-import           Game.Action (Affected(..))
 import qualified Game.Action as Action
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
@@ -45,7 +44,7 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((—), (∈))
+import           Util ((—))
 
 -- | Reduces incoming damage by depleting the user's 'Ninja.barrier'.
 absorbBarrier :: Int -> [Barrier] -> (Int, [Barrier])
@@ -147,8 +146,6 @@ attack atk dmg = void $ runMaybeT do
     nUser      <- P.nUser
     let classes = atkClass `insertSet` Skill.classes skill
 
-    guard $ Direct ∈ classes || not (nUser `is` Stun atkClass)
-
     user       <- P.user
     target     <- P.target
     let dmgCalc = formula atk classes nUser nTarget dmg
@@ -249,9 +246,10 @@ barrierDoes (sync . Duration -> dur) finish while amount = P.unsilenced do
     amount'    <- (+ amount) . Effects.build <$> P.nUser
     let skill   = Context.skill context
         target  = Context.target context
-        barr    = Barrier.new context dur finish' while' amount'
+        barr    = Barrier.new context dur
+                  (Action.wrap . finish) (Action.wrap while) amount'
     if amount' < 0 then do
-        user       <- P.user
+        user   <- P.user
         let defense = Defense { user
                               , dur
                               , amount = (-amount')
@@ -262,11 +260,6 @@ barrierDoes (sync . Duration -> dur) finish while amount = P.unsilenced do
           n { Ninja.defense = Classed.nonStack skill defense $ Ninja.defense n }
     else when (amount' > 0) $ P.modify target \n ->
         n { Ninja.barrier = Classed.nonStack skill barr $ Ninja.barrier n }
-  where
-    finish' :: Int -> RunConstraint ()
-    finish' = Action.wrap (singletonSet Trapped) . finish
-    while' :: RunConstraint ()
-    while' = Action.wrap (singletonSet Trapped) while
 
 killFull :: ∀ m. MonadPlay m => Bool -> m ()
 killFull endure = whenM (Ninja.alive <$> P.nTarget) do
@@ -340,7 +333,7 @@ leech hp f = do
     when (damaged > 0) do
         f damaged
         P.trigger user [OnDamage]
-        P.trigger target $ OnDamaged <$> toList classes
+        P.trigger target $ OnDamaged <$> NonAffliction : toList classes
         P.modify target $ Traps.track PerDamaged damaged
 
 -- | Sacrifices some amount of the target's 'Ninja.health' down to a minimum.

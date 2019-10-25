@@ -1,7 +1,6 @@
 -- | Action processing. The core of the game engine.
 module Game.Action
   ( wrap
-  , Affected(..)
   , act
   , run, addChannels
   , chooseTargets, filterCounters
@@ -56,84 +55,70 @@ import           Util ((!!), (—), (∈), (∉), intersects)
 -- Permits passive effects to bypass steps in the process and prevents infinite
 -- recursion of 'Reflect's, 'Redirect's, etc.
 data Affected
-    = Channeled
-    | Delayed
-    | Interrupted
-    | Redirected
+    = Redirected
     | Reflected
-    | Swapped
     | Targeted
-    | Trapped
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 instance AsEnumSet Affected where
     type EnumSetRep Affected = Word8
 
-data Exit
-    = Break
-    | Done
-    | Completed
-    deriving (Bounded, Enum, Eq, Ord, Show, Read)
-
 -- | Processes an action before it can be applied to the game. This is where
 -- invincibility, usability, reflects, etc. all come into play.
 -- If an action is applied directly instead of passing it to this function,
 -- its exact effects will occur and nothing else.
-wrap :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Affected -> m () -> m ()
-wrap affected f = void $ runMaybeT do
-    skill       <- P.skill
-    user        <- P.user
-    target      <- P.target
-    nUser       <- P.nUser
-    nTarget     <- P.nTarget
-    let classes  = Skill.classes skill
+wrap :: ∀ m. (MonadPlay m, MonadRandom m) => m () -> m ()
+wrap = wrap' mempty
+
+wrap' :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Affected -> m () -> m ()
+wrap' affected f = void $ runMaybeT do
+    new        <- P.new
+    skill      <- P.skill
+    user       <- P.user
+    target     <- P.target
+    nUser      <- P.nUser
+    nTarget    <- P.nTarget
+    ninjas     <- P.ninjas
+    let classes = Skill.classes skill
+
     guard $ Bypassing ∈ classes || not (nTarget `is` Nullify)
-    startNinjas <- P.ninjas
-    let targeted = Targeted ∈ affected
-                   || Requirement.targetable (bypass skill) nUser nTarget
-        exit     = if | Direct ∈ classes       -> Done
-                      | Trapped ∈ affected     -> Done
-                      | not targeted           -> Break
-                      | not new                -> Done
-                      | nTarget `is` Uncounter -> Done
-                      | otherwise              -> Completed
 
-    guard $ exit /= Break
+    guard $ Targeted ∈ affected -- already checked Requirement.targetable
+            || Requirement.targetable skill nUser nTarget
 
-    let harm      = not $ Parity.allied user target
-        allow aff = harm && not (nUser `is` AntiCounter) && aff ∉ affected
+    guard $ user == target
+            || Targeted ∉ affected
+            || (Ninja.alive nTarget /= (Necromancy ∈ classes))
 
-    if exit == Done then
-        lift $ withDirect skill f
-    else lift . fromMaybe
-        do
+    let harm    = not $ Parity.allied user target
+        allow x = harm && x ∉ affected
+
+    let finish  = do
             f
             when (allow Reflected) . P.withTargets (Effects.share nTarget) $
-                wrap (Reflected `insertSet` affected) f
-        $ do
+                wrap' (Reflected `insertSet` affected) f
+
+    if not new then
+        lift f
+
+    else if nUser `is` AntiCounter || nTarget `is` Uncounter then
+        lift finish
+
+    else
+        lift . fromMaybe finish
+          $ do
             guard $ allow Redirected && Unreflectable ∉ classes
             t <- Trigger.redirect nTarget
-            return . P.withTarget t $ wrap (Redirected `insertSet` affected) f
+            return . P.withTarget t $ wrap' (Redirected `insertSet` affected) f
         <|> do
             guard $ allow Reflected && Unreflectable ∉ classes
                     && Effects.reflect classes nTarget
             return do
                 P.trigger target [OnReflect]
-                P.with Context.reflect $ wrap (Reflected `insertSet` affected) f
-    P.zipWith Traps.broken startNinjas
-  where
-    new = not $ setFromList [Channeled, Delayed, Trapped] `intersects` affected
-    bypass skill
-      | Trapped ∈ affected =
-          skill { Skill.classes = Bypassing `insertSet` Skill.classes skill }
-      | otherwise = skill
-    withDirect skill
-      | new       = id
-      | otherwise =
-          P.with \ctx -> ctx
-            { Context.skill =
-                skill { Skill.classes = Direct `insertSet` Skill.classes skill }
-            }
+                P.with Context.reflect $
+                    wrap' (Reflected `insertSet` affected) f
+
+    P.zipWith Traps.broken ninjas
 
 -- | Transforms @Target@s into @Slot@s. 'RAlly' and 'REnemy' targets are chosen
 -- at random.
@@ -141,13 +126,16 @@ chooseTargets :: ∀ m. (MonadPlay m, MonadRandom m)
               => [Runnable Target] -> m [[Runnable Slot]]
 chooseTargets targets = do
     skill  <- P.skill
+    user   <- P.user
     nUser  <- P.nUser
     ninjas <- P.ninjas
     forM targets \target -> do
         choices <- chooseTarget $ Runnable.target target
         return [ target { Runnable.target = t }
                    | t <- choices
-                   , Requirement.targetable skill nUser $ ninjas !! Slot.toInt t
+                   , let nTarget = ninjas !! Slot.toInt t
+                   , Requirement.succeed (Skill.require skill) user nTarget
+                   , Requirement.targetable skill nUser nTarget
                    ]
 
 -- | Transforms a @Target@ into @Slot@s. 'RAlly' and 'REnemy' targets are chosen
@@ -183,18 +171,21 @@ targetEffect affected f = do
     if user == target then
         f
     else if Parity.allied user target then do
-        wrap affected f
+        wrap' affected f
         P.trigger target [OnHelped]
     else do
-        wrap affected f
+        wrap' affected f
         P.trigger user [OnHarm]
         classes <- Skill.classes <$> P.skill
         P.trigger target $ OnHarmed <$> toList classes
 
 -- | Handles effects in a 'Skill'. Uses 'targetEffect' internally.
-run :: ∀ m. (MonadPlay m, MonadRandom m)
+run :: ∀ m. (MonadPlay m, MonadRandom m) => [[Runnable Slot]] -> m ()
+run = run' mempty
+
+run' :: ∀ m. (MonadPlay m, MonadRandom m)
         => EnumSet Affected -> [[Runnable Slot]] -> m ()
-run affected xs = do
+run' affected xs = do
     skill            <- P.skill
     let local t ctx   = ctx { Context.skill = skill, Context.target = t }
         exec (To t r) = P.with (local t) $ targetEffect affected r
@@ -230,7 +221,7 @@ act a = do
     nUser      <- P.ninja user
     chakras    <- Game.chakra <$> P.game
     initial    <- P.ninjas
-    let (affected, skill) = swapped nUser
+    let skill   = swapped nUser
         classes = Skill.classes skill
         cost    = Skill.cost skill
         valid   = Ninja.alive nUser
@@ -239,7 +230,7 @@ act a = do
 
     when valid $ P.withContext (ctx skill) do
         if not new then
-            run affected =<< chooseTargets (Skill.effects skill)
+            run' (singletonSet Targeted) =<< chooseTargets (Skill.effects skill)
         else do
             P.trigger user $ OnAction <$> toList classes
             when (Skill.charges skill > 0) .
@@ -266,7 +257,7 @@ act a = do
                 P.modifyAll uncounter
                 sequence_ counters
             else do
-                run affected efs
+                run' (singletonSet Targeted) efs
                 addChannels
             P.modify user \n -> n { Ninja.lastSkill = Just skill }
             P.modify user $ Cooldown.update skill . setActed
@@ -277,12 +268,12 @@ act a = do
         P.modifyAll $ unreflect . \n -> n { Ninja.triggers = mempty }
         breakControls
   where
-    s       = Act.skill a
-    new     = isLeft s
-    user    = Act.user a
+    s    = Act.skill a
+    new  = isLeft s
+    user = Act.user a
     swapped nUser
-      | nUser `is` Swap = (setFromList [Swapped, Targeted], Skills.swap skill)
-      | otherwise       = (singletonSet Targeted, skill)
+      | nUser `is` Swap = Skills.swap skill
+      | otherwise       = skill
       where
         skill = Ninjas.getSkill s nUser
     ctx skill = Context { skill, user, new, target = Act.target a }
@@ -324,7 +315,7 @@ breakControl user stuns Channel{ dur = Control{}, skill, target }
   where
     doBreak = do
         interruptTargets <- chooseTargets $ interruptions skill
-        run (setFromList [Channeled, Interrupted]) interruptTargets
+        run interruptTargets
         P.modify user . Ninjas.cancelChannel $ Skill.name skill
     chanContext = Context { skill, user, target, new = False }
 breakControl _ _ _ = return ()

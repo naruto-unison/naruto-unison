@@ -20,7 +20,6 @@ import qualified Data.Sequence as Seq
 
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
-import           Class.Random (MonadRandom)
 import           Game.Action.Status (applyWith')
 import           Game.Engine (unSoulbound)
 import qualified Game.Engine.Cooldown as Cooldown
@@ -67,7 +66,7 @@ alternateClasses :: EnumSet Class
 alternateClasses = setFromList [Hidden, Nonstacking, Unremovable]
 
 -- | Adjusts all 'Ninja.alternates' at once.
-alternate :: ∀ m. (MonadPlay m, MonadRandom m)
+alternate :: ∀ m. MonadPlay m
           => [Int] -- ^ Index offsets.
           -> Int   -- ^ Counter added to all 'Ninja.alternates' slots.
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
@@ -80,7 +79,7 @@ alternate loadout i =
 
 -- | Cycles a skill through its list of alternates.
 -- | Uses 'Ninjas.nextAlternate' internally.
-nextAlternate :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> m ()
+nextAlternate :: ∀ m. MonadPlay m => Text -> m ()
 nextAlternate name = mapM_ alt . Ninjas.nextAlternate name =<< P.nTarget
   where
     alt x = applyWith' alternateClasses "nextAlternate" 1 [Alternate name x]

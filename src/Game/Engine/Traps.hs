@@ -55,7 +55,9 @@ getOf user trigger n =
 
 get :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> [m ()]
-get user n = hooks : (run user <$> traps)
+get user n
+  | Ninja.alive n = hooks : (run user <$> traps)
+  | otherwise     = []
   where
       hooks = traverse_ (`Hook.trigger` n) $ Ninja.triggers n
       traps = filter ((∈ Ninja.triggers n) . Trap.trigger) $ Ninja.traps n
@@ -98,6 +100,7 @@ getTurnPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
            -> Ninja -- ^ New.
            -> [m ()]
 getTurnPer player n n'
+  | not $ Ninja.alive n' = mempty
   | hp > 0 && not allied = getPer True PerDamaged hp n'
   | otherwise            = mempty
   where
@@ -110,7 +113,8 @@ getTurnNot :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
            -> [m ()]
 getTurnNot n
   | Ninja.acted n = mempty
-  | otherwise     = getOf (Ninja.slot n) OnNoAction n
+  | Ninja.alive n = getOf (Ninja.slot n) OnNoAction n
+  | otherwise     = mempty
 
 -- | Processes and runs all 'Trap.Trap's at the end of a turn.
 runTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => [Ninja] -> m ()

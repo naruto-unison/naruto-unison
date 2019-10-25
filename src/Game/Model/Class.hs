@@ -35,20 +35,18 @@ data Class
     | Uncounterable
     | Unreflectable
     | Unremovable
-    -- Fake (Hidden)
-    | All
+    -- Hidden
     | Hidden
+    | Resource -- ^ Display stacks separately
+    | Nonstacking
+    | Extending
+    -- Fake (don't put these in Skill.classes manually)
+    | All
     | Affliction
     | NonAffliction
     | NonBane
     | NonMental
     | NonRanged
-    | Resource -- ^ Display stacks separately
-    | Direct
-    -- Limits (Hidden)
-    | Nonstacking
-    | Extending
-    -- Chakra (Hidden)
     | Bloodline
     | Genjutsu
     | Ninjutsu
@@ -74,7 +72,7 @@ instance Display Class where
     {-# NOINLINE display #-}
 
 visible :: Class -> Bool
-visible = (< All)
+visible = (< Hidden)
 
 name :: Class -> Text
 name Nonstacking    = "Non-stacking"

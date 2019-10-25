@@ -19,7 +19,7 @@ import           Game.Model.Internal (Requirement(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Runnable as Runnable
-import           Game.Model.Skill (Skill, Target(..))
+import           Game.Model.Skill (Skill(Skill), Target(..))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Util ((∈), (∉), intersects)
@@ -73,27 +73,23 @@ targetable :: Skill -- ^ @Skill@ to check.
            -> Ninja -- ^ User.
            -> Ninja -- ^ Target.
            -> Bool
-targetable skill n nt
-  | not $ succeed (Skill.require skill) user nt = False
-  | not (Ninja.alive nt) && not necro = False
-  | user == target                    = True
-  | Ninja.alive nt && necro           = False
-  | harm && n `is` BlockEnemies       = False
-  | not harm && n `is` BlockAllies    = False
-  | harm && invuln && not bypass      = False
-  | not harm && nt `is` Alone         = False
-  | notIn user $ Effects.duel nt      = False
-  | notIn target $ Effects.taunt n    = False
-  | target ∈ Effects.block n          = False
-  | otherwise                         = True
+targetable Skill{require = Unusable} _ _ = False
+targetable Skill{classes} n nt
+  | user == target                 = True
+  | harm && n `is` BlockEnemies    = False
+  | not harm && n `is` BlockAllies = False
+  | harm && invuln && not bypass   = False
+  | not harm && nt `is` Alone      = False
+  | notIn user $ Effects.duel nt   = False
+  | notIn target $ Effects.taunt n = False
+  | target ∈ Effects.block n       = False
+  | otherwise                      = True
   where
-    classes = Skill.classes skill
-    user    = Ninja.slot n
-    target  = Ninja.slot nt
-    necro   = Necromancy ∈ classes
-    harm    = not $ Parity.allied user target
-    invuln  = classes `intersects` Effects.invulnerable nt
-    bypass  = Bypassing ∈ classes || n `is` Bypass
+    user   = Ninja.slot n
+    target = Ninja.slot nt
+    harm   = not $ Parity.allied user target
+    invuln = classes `intersects` Effects.invulnerable nt
+    bypass = Bypassing ∈ classes || n `is` Bypass
     notIn a xs = not (null xs) && a ∉ xs
 
 -- | All targets that a @Skill@ from a a specific 'Ninja' affects.
@@ -101,6 +97,7 @@ targets :: [Ninja] -> Ninja -> Skill -> [Ninja]
 targets ns n skill = filter filt ns
   where
     filt nt = targetSlot (Ninja.slot nt) && targetable skill n nt
+              && ((Necromancy ∈ Skill.classes skill) /= Ninja.alive nt)
     user    = Ninja.slot n
     ts      = setFromList $
               Runnable.target <$> Skill.start skill ++ Skill.effects skill

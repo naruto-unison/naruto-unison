@@ -143,7 +143,7 @@ wrap player = do
                 Trigger.userCounters harm user classes nUser
                 ++ (Trigger.targetCounters user classes =<< countering)
         if null counters then do
-            Action.run [] efs
+            Action.run efs
             when (player == Player.A) Action.addChannels
         else do
             let countered = Ninja.slot <$> countering
@@ -187,7 +187,7 @@ enemyTurn f = do
             { Skill.effects = [To Enemy f]
             , Skill.classes = Skill.classes enemySkill
                               ++ Skill.classes (Context.skill ctx) `difference`
-                                 [Uncounterable, Unreflectable, Unremovable]
+                                 [Bypassing, Uncounterable, Unreflectable, Unremovable]
             }
         }
       where
@@ -197,7 +197,7 @@ enemyTurn f = do
           | Parity.allied ctxTarget user = Context.user ctx
           | otherwise                    = ctxTarget
 
-targetIsExposed :: ∀ m. (MonadPlay m, MonadRandom m) => m Bool
+targetIsExposed :: ∀ m. MonadPlay m => m Bool
 targetIsExposed = do
     target <- P.target
     P.with (\ctx -> ctx { Context.user = target }) $ apply 0 [Invulnerable All]

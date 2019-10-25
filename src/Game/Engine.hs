@@ -21,7 +21,6 @@ import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Class.TurnBased as TurnBased
-import           Game.Action (Affected(..))
 import qualified Game.Action as Action
 import qualified Game.Engine.Chakras as Chakras
 import qualified Game.Engine.Effects as Effects
@@ -105,10 +104,8 @@ doBomb bomb target st = traverse_ detonate $ Status.bombs st
   where
     ctx = (Context.fromStatus st) { Context.target = target }
     detonate x
-      | bomb == Runnable.target x = P.withContext ctx .
-                                    Action.wrap (singletonSet Trapped) $
-                                    Runnable.run x
-      | otherwise                 = return ()
+      | bomb /= Runnable.target x = return ()
+      | otherwise = P.withContext ctx . Action.wrap $ Runnable.run x
 
 -- | Executes 'Status.bombs' of all 'Status'es that were removed.
 doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> [Ninja] -> m ()

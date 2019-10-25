@@ -11,7 +11,6 @@ import ClassyPrelude
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import           Game.Action (Affected(..))
 import qualified Game.Action as Action
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Channel (Channel)
@@ -39,7 +38,7 @@ interrupt = P.unsilenced do
 -- | Triggers 'Skill.interrupt' effects of a @Channel@.
 onInterrupt :: ∀ m. (MonadPlay m, MonadRandom m) => Channel -> m ()
 onInterrupt chan = P.with chanContext $
-    Action.run (setFromList [Channeled, Interrupted]) =<<
+    Action.run =<<
     Action.chooseTargets (Action.interruptions $ Channel.skill chan)
   where
     chanContext ctx = Context { skill  = Channel.skill chan

@@ -323,8 +323,8 @@ characters =
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Enemies $ removeTrap "Sensory Radar"
-          ,  To Self do
+          [ To Self do
+                everyone $ removeTrap "Sensory Radar"
                 stacks <- userStacks "Sensory Radar"
                 gain $ replicate stacks Rand
                 remove "Sensory Radar"

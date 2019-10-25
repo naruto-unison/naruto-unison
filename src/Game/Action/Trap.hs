@@ -13,7 +13,6 @@ import Data.Enum.Set.Class (EnumSet)
 import qualified Class.Classed as Classed
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
-import           Game.Action (Affected(..))
 import qualified Game.Action as Action
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
@@ -124,7 +123,7 @@ makeTrap skill nUser target direction classes dur trigger f = Trap
     , user
     , name    = Skill.name skill
     , effect  = \i -> To { target = Context { skill, user, target, new = False }
-                         , run    = Action.wrap (singletonSet Trapped) $ f i
+                         , run    = Action.wrap $ f i
                          }
     , classes = classes ++ Skill.classes skill
     , tracker = 0
@@ -140,7 +139,7 @@ delay 0 _ = return () -- A Delay that lasts forever would be pointless!
 delay (Duration -> dur) f = do
     context  <- P.context
     let user  = Context.user context
-        del   = Delay.new context dur $ Action.wrap (singletonSet Delayed) f
+        del   = Delay.new context dur $ Action.wrap f
     P.modify user \n -> n { Ninja.delays = del : Ninja.delays n }
 
 -- | Removes 'Ninja.traps' with matching 'Trap.name'.
