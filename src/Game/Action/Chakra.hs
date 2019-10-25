@@ -38,7 +38,7 @@ gain chakras = P.unsilenced do
   where
     (rands, nonrands) = partition (== Rand) chakras
 
--- | Removes some number of @Chakra@s from the 'Game.chakra' of the target's team
+-- | Removes some number of @Chakra@s from the 'Game.chakra' of the target's
 -- team. 'Chakra's are selected at random by 'Chakras.remove'.
 deplete :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 deplete amount = P.unsilenced . void $ Chakras.remove amount

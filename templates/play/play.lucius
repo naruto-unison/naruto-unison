@@ -504,7 +504,7 @@ button.scroll:hover {
         }
 
         h4 {
-            margin-bottom: 0 !important;
+            margin-bottom: -0.1em !important;
         }
         h3 {
             margin-top: 0.2em !important;
@@ -523,6 +523,9 @@ button.scroll:hover {
             margin-top: 0;
         }
 
+        p {
+            line-height: 1.3em;
+        }
         > p {
             min-height: 40px;
         }

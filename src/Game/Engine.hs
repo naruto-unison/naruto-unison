@@ -102,10 +102,10 @@ doDelays = traverse_ delay . filter Ninja.alive =<< P.ninjas
 doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
 doBomb bomb target st = traverse_ detonate $ Status.bombs st
   where
-    ctx = (Context.fromStatus st) { Context.target = target }
+    context = (Context.fromStatus st) { Context.target = target }
     detonate x
       | bomb /= Runnable.target x = return ()
-      | otherwise = P.withContext ctx . Action.wrap $ Runnable.run x
+      | otherwise = P.withContext context . Action.wrap $ Runnable.run x
 
 -- | Executes 'Status.bombs' of all 'Status'es that were removed.
 doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> [Ninja] -> m ()

@@ -17,6 +17,7 @@ module Class.Play
   -- * Transformation
   , withContext
   , withTarget, withTargets
+  , withContinues
   , uncopied, unsilenced
   -- * Lifting
   , toTarget, fromUser
@@ -102,6 +103,10 @@ withTarget x = with \ctx -> ctx { Context.target = x }
 -- | Runs an action against each 'target'.
 withTargets :: ∀ m. MonadPlay m => [Slot] -> m () -> m ()
 withTargets xs f = traverse_ (`withTarget` f) xs
+
+-- | Sets 'Context.continues' to @True@.
+withContinues :: ∀ m. MonadPlay m => m () -> m ()
+withContinues = with \ctx -> ctx { Context.continues = True }
 
 -- | Forbid actions if the user is 'Silence'd.
 unsilenced :: ∀ m. MonadPlay m => m () -> m ()

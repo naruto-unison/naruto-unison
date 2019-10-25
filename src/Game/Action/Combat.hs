@@ -248,11 +248,11 @@ barrier dur = barrierDoes dur (const $ return ()) (return ())
 barrierDoes :: ∀ m. MonadPlay m => Turns -> (Int -> RunConstraint ())
             -> RunConstraint () -> Int -> m ()
 barrierDoes (sync . Duration -> dur) finish while amount = P.unsilenced do
-    context    <- P.context
-    amount'    <- (+ amount) . Effects.build <$> P.nUser
-    let skill   = Context.skill context
-        target  = Context.target context
-        barr    = Barrier.new context dur
+    context   <- P.context
+    amount'   <- (+ amount) . Effects.build <$> P.nUser
+    let skill  = Context.skill context
+        target = Context.target context
+        barr   = Barrier.new context dur
                   (Action.wrap . finish) (Action.wrap while) amount'
     case amount' `compare` 0 of
         EQ -> return ()

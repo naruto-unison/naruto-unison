@@ -23,12 +23,10 @@ import qualified Game.Model.Delay as Delay
 import           Game.Model.Duration (Duration(..), Turns, incr, sync)
 import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Constructor(..), Effect(..))
-import           Game.Model.Ninja (Ninja, is)
+import           Game.Model.Ninja (is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Runnable (Runnable(..), RunConstraint)
-import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
-import           Game.Model.Slot (Slot)
 import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
@@ -96,41 +94,44 @@ trapFull :: ∀ m. MonadPlay m
          -> (Int -> RunConstraint ()) -> m ()
 trapFull direction classes (Duration -> unthrottled) trigger f =
     void $ runMaybeT do
-        skill      <- P.skill
-        target     <- P.target
-        nUser      <- P.nUser
-        nTarget    <- P.nTarget
-        dur        <- MaybeT . return $ throttle nUser
-        let newTrap = makeTrap skill nUser target
-                      direction classes dur trigger f
-        guard $ newTrap ∉ Ninja.traps nTarget
+        context <- P.context
+        target  <- P.target
+        nUser   <- P.nUser
+        nTarget <- P.nTarget
+        dur     <- if not $ Context.new context then return unthrottled else
+                   MaybeT . return $ throttle nUser
+        let tr = makeTrap context direction classes dur trigger f
+        guard $ tr ∉ Ninja.traps nTarget
         guard . not $ isCounter && nUser `is` Disable Counters
         P.modify target \n ->
-            n { Ninja.traps = Classed.nonStack newTrap newTrap $ Ninja.traps n }
+            n { Ninja.traps = Classed.nonStack tr tr $ Ninja.traps n }
   where
     isCounter = Trigger.isCounter trigger
     throttle n
       | isCounter = Duration.throttle (Effects.throttleCounters n) unthrottled
       | otherwise = Just unthrottled
 
-makeTrap :: Skill -> Ninja -> Slot
-         -> Trap.Direction -> EnumSet Class -> Duration -> Trigger
-         -> (Int -> RunConstraint ()) -> Trap
-makeTrap skill nUser target direction classes dur trigger f = Trap
+makeTrap :: Context -> Trap.Direction -> EnumSet Class -> Duration
+         -> Trigger -> (Int -> RunConstraint ()) -> Trap
+makeTrap Context{skill, user, target, continues, new}
+         direction classes dur trigger f =
+    Trap
     { trigger
     , direction
     , skill
     , user
     , name    = Skill.name skill
-    , effect  = \i -> To { target = Context { skill, user, target, new = False }
-                         , run    = Action.wrap $ f i
-                         }
-    , classes = classes ++ Skill.classes skill
+    , effect  = \i -> To { target = context, run = Action.wrap $ f i }
+    , classes = classes' ++ Skill.classes skill
     , tracker = 0
     , dur     = incr $ sync dur
     }
   where
-    user = Ninja.slot nUser
+    context = Context { skill, user, target, continues = False, new = False }
+    classes'
+      | continues && dur <= 1 = insertSet Continues classes
+      | continues || new      = classes
+      | otherwise             = deleteSet Invisible classes
 
 -- | Saves an effect to a 'Delay.Delay', which is stored in 'Game.delays' and
 -- triggered when it expires.
@@ -139,7 +140,8 @@ delay 0 _ = return () -- A Delay that lasts forever would be pointless!
 delay (Duration -> dur) f = do
     context  <- P.context
     let user  = Context.user context
-        del   = Delay.new context dur $ Action.wrap f
+        del   = Delay.new context { Context.continues = False } dur $
+                Action.wrap f
     P.modify user \n -> n { Ninja.delays = del : Ninja.delays n }
 
 -- | Removes 'Ninja.traps' with matching 'Trap.name'.

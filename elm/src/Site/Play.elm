@@ -727,7 +727,7 @@ renderDetail team slot characters detail =
         [ H.div [] <|
           amount [ icon (Game.get characters detail.source) detail.name [] ]
         , H.p [] <|
-          if detail.chan && (detail.dur == 1 || detail.dur == 2) then
+          if Set.member "Continues" detail.classes then
               [ H.text "\u{2022}"]
 
           else

@@ -47,6 +47,7 @@ data Class
     | NonBane
     | NonMental
     | NonRanged
+    | Continues
     | Bloodline
     | Genjutsu
     | Ninjutsu

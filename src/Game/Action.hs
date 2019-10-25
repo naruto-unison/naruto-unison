@@ -190,9 +190,9 @@ run = run' mempty
 run' :: ∀ m. (MonadPlay m, MonadRandom m)
         => EnumSet Affected -> [[Runnable Slot]] -> m ()
 run' affected xs = do
-    skill            <- P.skill
-    let local t ctx   = ctx { Context.skill = skill, Context.target = t }
-        exec (To t r) = P.with (local t) $ targetEffect affected r
+    skill              <- P.skill
+    let local t context = context { Context.skill = skill, Context.target = t }
+        exec (To t r)   = P.with (local t) $ targetEffect affected r
     traverse_ (traverse_ exec) xs
 
 -- | If 'Skill.dur' is long enough to last for multiple turns, the 'Skill'
@@ -221,7 +221,7 @@ setActed n = n { Ninja.acted = True }
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Act -> m ()
 act Act{skill = Left s} | s >= Ninja.skillSize = return ()
-act a = do
+act Act{skill = s, user, target} = do
     nUser      <- P.ninja user
     chakras    <- Game.chakra <$> P.game
     initial    <- P.ninjas
@@ -234,15 +234,18 @@ act a = do
 
     when valid $ P.withContext (ctx skill) do
         if not new then
+            P.withContinues $
             run' (singletonSet Targeted) =<< chooseTargets (Skill.effects skill)
         else do
             P.trigger user $ OnAction <$> toList classes
             when (Skill.charges skill > 0) .
                 P.modify user $ Cooldown.spendCharge skill
             P.alter $ Game.adjustChakra user (— cost)
-            efs <- chooseTargets (Skill.start skill ++ Skill.effects skill)
+            startEfs   <- chooseTargets $ Skill.start skill
+            contEfs    <- chooseTargets $ Skill.effects skill
+            let bothEfs = startEfs ++ contEfs
 
-            countering  <- filterCounters efs . toList <$> P.enemies user
+            countering  <- filterCounters bothEfs . toList <$> P.enemies user
             traverse_ Trigger.absorb countering
             let counters = Trigger.userCounters (not $ null countering)
                            user classes nUser ++
@@ -260,9 +263,13 @@ act a = do
                         slot = Ninja.slot n
                 P.modifyAll uncounter
                 sequence_ counters
-            else do
-                run' (singletonSet Targeted) efs
-                addChannels
+            else case Skill.dur skill of
+                Instant -> run' (singletonSet Targeted) bothEfs
+                _       -> do
+                    run' (singletonSet Targeted) startEfs
+                    P.withContinues $ run' (singletonSet Targeted) contEfs
+                    addChannels
+
             P.modify user \n -> n { Ninja.lastSkill = Just skill }
             P.modify user $ Cooldown.update skill . setActed
         P.uncopied $ Hook.action skill initial =<< P.ninjas
@@ -272,15 +279,13 @@ act a = do
         P.modifyAll $ unreflect . \n -> n { Ninja.triggers = mempty }
         breakControls
   where
-    s    = Act.skill a
-    new  = isLeft s
-    user = Act.user a
+    new = isLeft s
     swapped nUser
       | nUser `is` Swap = Skills.swap skill
       | otherwise       = skill
       where
         skill = Ninjas.getSkill s nUser
-    ctx skill = Context { skill, user, new, target = Act.target a }
+    ctx skill = Context { skill, user, new, target, continues = False }
     unreflect n
       | OnReflect ∈ Ninja.triggers n =
           Ninjas.modifyStatuses (Status.removeEffect Reflect) n
@@ -311,8 +316,8 @@ breakControls = traverse_ breakN =<< P.ninjas
 breakControl :: ∀ m. (MonadGame m, MonadRandom m)
              => Slot -> EnumSet Class -> Channel -> m ()
 breakControl user stuns Channel{ dur = Control{}, skill, target }
-  | stuns `intersects` Skill.classes skill = P.withContext chanContext doBreak
-  | otherwise = P.withContext chanContext do
+  | stuns `intersects` Skill.classes skill = P.withContext context doBreak
+  | otherwise = P.withContext context do
       targets <- chooseTargets . filter (nonRandom . Runnable.target) $
                 Skill.effects skill
       when (any null targets) doBreak
@@ -321,5 +326,5 @@ breakControl user stuns Channel{ dur = Control{}, skill, target }
         interruptTargets <- chooseTargets $ interruptions skill
         run interruptTargets
         P.modify user . Ninjas.cancelChannel $ Skill.name skill
-    chanContext = Context { skill, user, target, new = False }
+    context = Context { skill, user, target, new = False, continues = False }
 breakControl _ _ _ = return ()

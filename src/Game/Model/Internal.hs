@@ -337,10 +337,11 @@ instance Classed Trap where
 
 
 -- | Gameplay context. This promotes a 'MonadGame' to 'MonadPlay'.
-data Context = Context { skill   :: Skill
-                       , user    :: Slot
-                       , target  :: Slot
-                       , new     :: Bool
+data Context = Context { skill     :: Skill
+                       , user      :: Slot
+                       , target    :: Slot
+                       , new       :: Bool
+                       , continues :: Bool -- ^ Cosmetic: continuous effect.
                        } deriving (Generic, ToJSON)
 
 instance MonadRandom m => MonadRandom (ReaderT Context m)

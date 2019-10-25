@@ -43,6 +43,7 @@ import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Trigger as Trigger
+import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Context (Context(Context))
@@ -81,15 +82,16 @@ useSkill :: Character -> TestRun
 useSkill char target skillName f =
     describe (unpack skillName) case findSkill skillName char of
         Nothing  -> it "exists in the database" False
-        Just (context -> ctx) ->
-            runIdentity $ evalStateT (runReaderT f ctx) $ testGame char
+        Just (ctx -> context) ->
+            runIdentity $ evalStateT (runReaderT f context) $ testGame char
   where
-    findSkill x   = find ((== x) . Skill.name) . join . Character.skills
-    context skill = Context { Context.skill  = skill
-                            , Context.user   = unsafeHead Slot.all
-                            , Context.target = targetSlot
-                            , Context.new    = True
-                            }
+    findSkill x = find ((== x) . Skill.name) . join . Character.skills
+    ctx skill   = Context { Context.skill     = skill
+                          , Context.user      = unsafeHead Slot.all
+                          , Context.target    = targetSlot
+                          , Context.new       = True
+                          , Context.continues = False
+                          }
     targetSlot    = (Slot.all !!) case target of
         Self       -> 0
         Ally       -> 1
@@ -133,18 +135,22 @@ wrap player = do
     nUser      <- P.nUser
     skill      <- Skills.change nUser <$> P.skill
     let classes = Skill.classes skill
-    P.with (\ctx -> ctx { Context.skill = skill }) do
+    P.with (\context -> context { Context.skill = skill }) do
         P.trigger user $ OnAction <$> toList (Skill.classes skill)
-        efs        <- Action.chooseTargets
-                      (Skill.start skill ++ Skill.effects skill)
-        countering <- Action.filterCounters efs . toList <$> P.enemies user
+        startEfs   <- Action.chooseTargets $ Skill.start skill
+        midEfs     <- Action.chooseTargets $ Skill.effects skill
+        let allEfs  = startEfs ++ midEfs
+        countering <- Action.filterCounters allEfs . toList <$> P.enemies user
         let harm     = not $ null countering
             counters =
                 Trigger.userCounters harm user classes nUser
                 ++ (Trigger.targetCounters user classes =<< countering)
-        if null counters then do
-            Action.run efs
-            when (player == Player.A) Action.addChannels
+        if null counters then case Skill.dur skill of
+            Instant -> Action.run allEfs
+            _       -> do
+                Action.run startEfs
+                P.withContinues $ Action.run midEfs
+                when (player == Player.A) Action.addChannels
         else do
             let countered = Ninja.slot <$> countering
                 uncounter n
@@ -180,34 +186,35 @@ enemyTurn f = do
     P.with with . Engine.processTurn $ wrap Player.B
     P.alter \g -> g { Game.playing = Player.A }
   where
-    with ctx = ctx
+    with context = context
         { Context.user   = user
         , Context.target = target
-        , Context.skill  = enemySkill
-            { Skill.effects = [To Enemy f]
-            , Skill.classes = Skill.classes enemySkill
-                              ++ Skill.classes (Context.skill ctx) `difference`
-                                 [Bypassing, Uncounterable, Unreflectable, Unremovable]
-            }
+        , Context.skill  = enemySkill { Skill.effects = [To Enemy f]
+                                      , Skill.classes
+                                      }
         }
       where
         user = Slot.all !! 3
-        ctxTarget = Context.target ctx
+        ctxTarget = Context.target context
         target
-          | Parity.allied ctxTarget user = Context.user ctx
+          | Parity.allied ctxTarget user = Context.user context
           | otherwise                    = ctxTarget
+        classes = Skill.classes enemySkill
+                  ++ Skill.classes (Context.skill context) `difference`
+                      [Bypassing, Uncounterable, Unreflectable, Unremovable]
 
 targetIsExposed :: ∀ m. MonadPlay m => m Bool
 targetIsExposed = do
     target <- P.target
-    P.with (\ctx -> ctx { Context.user = target }) $ apply 0 [Invulnerable All]
+    P.with (\context -> context { Context.user = target }) $
+        apply 0 [Invulnerable All]
     null . Effects.invulnerable <$> P.nTarget
 
 allyOf :: ∀ m. MonadGame m => Slot -> m Ninja
 allyOf target = P.ninja $ Slot.all !! (Slot.toInt target + 1)
 
 withClass :: ∀ m. MonadPlay m => Class -> m () -> m ()
-withClass cla = P.with withContext
+withClass cla = P.with ctx
   where
-    withContext ctx = ctx { Context.skill = withSkill $ Context.skill ctx }
+    ctx context = context { Context.skill = withSkill $ Context.skill context }
     withSkill sk = sk { Skill.classes = cla `insertSet` Skill.classes sk }

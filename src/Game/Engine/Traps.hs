@@ -35,18 +35,19 @@ import           Util ((∈))
 
 launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        => Trap -> Runnable Context -> m ()
-launch trap ctx = do
-    P.launch ctx
-    nTarget <- P.ninja . Context.target $ Runnable.target ctx
+launch trap runner = do
+    P.launch runner
+    nTarget <- P.ninja . Context.target $ Runnable.target runner
     when (Trap.uncopied trap) $ Hook.trap trap nTarget
 
 run :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Trap -> m ()
 run user trap = launch trap case Trap.direction trap of
-    Trap.From -> Runnable.retarget (\ctx -> ctx { Context.target = user }) play
+    Trap.From -> Runnable.retarget ctx play
     _         -> play
   where
-    play = Trap.effect trap $ Trap.tracker trap
+    play        = Trap.effect trap $ Trap.tracker trap
+    ctx context = context { Context.target = user }
 
 getOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
       => Slot -> Trigger -> Ninja -> [m ()]

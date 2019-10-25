@@ -21,8 +21,8 @@ new :: Context
 new context dur finish while amount = Barrier
     { user   = Context.user context
     , name   = Skill.name skill
-    , finish = \i -> To saved $ finish i
-    , while  = To saved while
+    , finish = \i -> To saved { Context.continues = False } $ finish i
+    , while  = To saved { Context.continues = True } while
     , amount
     , dur
     }

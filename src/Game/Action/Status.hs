@@ -27,6 +27,8 @@ import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
+import          Game.Model.Context (Context(Context))
+import qualified Game.Model.Context as Context
 import           Game.Model.Duration (Duration(..), Turns, sync)
 import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Constructor(..), Effect(..))
@@ -34,7 +36,6 @@ import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Runnable (Runnable(To))
-import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Bomb(..), Status)
 import qualified Game.Model.Status as Status
@@ -151,41 +152,41 @@ bombWith classes = bombWith' classes ""
 bombWith' :: ∀ m. MonadPlay m
           => EnumSet Class -> Text -> Turns -> [Effect] -> [Runnable Bomb]
           -> m ()
-bombWith' classes name dur fs bombs =
-    P.unsilenced $ applyFull 1 classes bombs name dur fs
+bombWith' classes name dur effects bombs =
+    P.unsilenced $ applyFull 1 classes bombs name dur effects
 
 -- | 'addStacks' with 'Status.effect's.
 applyStacks :: ∀ m. MonadPlay m
             => Text -> Int -> [Effect]
             -> m ()
-applyStacks name amount fs =
-    applyFull amount (setFromList [Unremovable]) mempty name 0 fs
+applyStacks name amount =
+    applyFull amount (setFromList [Unremovable]) mempty name 0
 
 -- | Status engine.
 -- Uses 'Ninjas.addStatus' internally.
 applyFull :: ∀ m. MonadPlay m
           => Int -> EnumSet Class -> [Runnable Bomb] -> Text -> Turns
           -> [Effect] -> m ()
-applyFull amount classes bombs name (Duration -> unthrottled) fs =
+applyFull amount classes bombs name (Duration -> unthrottled) effects =
     void $ runMaybeT do
-        new         <- P.new
-        skill       <- P.skill
-        user        <- P.user
-        target      <- P.target
-        nUser       <- P.nUser
-        nTarget     <- P.nTarget
-        dur         <- MaybeT . return $ Duration.throttle
-                       (Effects.throttle fs nUser) unthrottled
-        let st       = makeStatus amount new skill nUser nTarget
-                       classes bombs name dur fs
-            classes' = Status.classes st
-            prolong' = mapMaybe .
-                       Ninjas.prolong' (Status.dur st) name $ Status.user st
-        if Ninja.has name user nTarget && Extending ∈ classes' then
+        context <- P.context
+        user    <- P.user
+        target  <- P.target
+        nUser   <- P.nUser
+        nTarget <- P.nTarget
+        dur     <- if not $ Context.new context then return unthrottled else
+                   MaybeT . return $ Duration.throttle
+                   (Effects.throttle effects nUser) unthrottled
+        let st   = makeStatus context amount nUser nTarget
+                   classes bombs name dur effects
+        if Ninja.has name user nTarget && Extending ∈ Status.classes st then
+            let prolong' = mapMaybe .
+                           Ninjas.prolong' (Status.dur st) name $ Status.user st
+            in
             P.modify target \n ->
                 n { Ninja.statuses = prolong' $ Ninja.statuses n }
         else do
-            guard $ null fs || not (null $ Status.effects st)
+            guard $ null effects || not (null $ Status.effects st)
             P.modify target $ Ninjas.addStatus st
             when (any isInvulnerable $ Status.effects st) $
                 P.trigger user [OnInvulnerable]
@@ -203,30 +204,30 @@ applyFull amount classes bombs name (Duration -> unthrottled) fs =
     isInvulnerable Invulnerable{} = True
     isInvulnerable _              = False
 
-makeStatus :: Int -> Bool -> Skill -> Ninja -> Ninja
+makeStatus :: Context -> Int -> Ninja -> Ninja
            -> EnumSet Class -> [Runnable Bomb] -> Text -> Duration
            -> [Effect] -> Status
-makeStatus amount new skill nUser nTarget classes bombs name dur fs =
-    newSt
+makeStatus Context{skill, user, continues, new}
+           amount nUser nTarget classes bombs name dur effects =
+    (Status.new user dur skill)
     { Status.name    = Skill.defaultName name skill
-    , Status.user    = user
-    , Status.effects = filterDmg . filter disable $ Ninjas.apply nTarget fs
+    , Status.user
+    , Status.effects = filterDmg . filter disable $ Ninjas.apply nTarget effects
     , Status.classes = classes'
-    , Status.amount  = amount
-    , Status.bombs   = bombs
+    , Status.amount
+    , Status.bombs
     }
   where
-    user  = Ninja.slot nUser
-    newSt = Status.new user dur skill
-    self  = user == user && user == Ninja.slot nTarget
     skillClasses
-      | new       = Skill.classes skill
-      | otherwise = deleteSet Invisible $ Skill.classes skill
-    noremove = null fs && Bane ∉ skillClasses
+      | continues && dur <= 1 = insertSet Continues $ Skill.classes skill
+      | continues || new      = Skill.classes skill
+      | otherwise             = deleteSet Invisible $ Skill.classes skill
+    noremove = null effects && Bane ∉ skillClasses
                || dur == Duration 1 && Skill.dur skill /= Instant
-               || self && any (not . Effect.helpful) fs
+               || user == Ninja.slot nTarget
+                  && any (not . Effect.helpful) effects
     extra    = setFromList $ fst <$> filter snd
-               [ (Soulbound,   any bind fs)
+               [ (Soulbound,   any bind effects)
                , (Unremovable, noremove)
                ]
     classes' = extra ++ classes ++ skillClasses
