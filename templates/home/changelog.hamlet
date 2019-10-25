@@ -110,42 +110,64 @@
 <h3>Minor Adjustments
 <ul>
   <li>
+    Skills that sacrifice the user's health, such as
+    ^{Link.skill "Rock Lee" Original "Fifth Gate Opening"}
+    and
+    ^{Link.skill "Itachi Uchiha" Original "Mangekyō Sharingan"},
+    are treated as a direct sacrifice of health rather than self-directed affliction damage. The main difference is that if a character gains a status effect that increases all affliction damage they deal, it will not cause them to sacrifice more health.
+  <li>
     ^{Link.skill "Anko Mitarashi" Original "Dragon Flame"}
     adds 5 to all bane damage that the target receives, rather than only damage from Anko's skills.
   <li>
-    ^{Link.skill "Anko Mitarashi" Original "Twin Snake Sacrifice"} bypasses invulnerability.
+    ^{Link.skill "Anko Mitarashi" Original "Twin Snake Sacrifice"}
+    bypasses invulnerability.
   <li>
     The weak-to-affliction status effect from
     ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}
-    ends when Jiraiya dies, in order to be consistent with
-    ^{Link.skill "Tsunade" Original "Major Summoning: Katsuyu"},
-    ^{Link.skill "Orochimaru" Original "Major Summoning: Manda"}, and
-    ^{Link.skill "Hiruzen Sarutobi" Original "Major Summoning: Enma"}.
+    ends when Jiraiya dies, in order to be consistent with the other Sannin.
   <li>
-    ^{Link.skill "Jiraiya" Original "Toad Oil Bomb"} deals affliction damage, in order to be consistent with other damage-over-time fire attacks and to benefit from ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}.
+    ^{Link.skill "Jiraiya" Original "Toad Oil Bomb"}
+    deals affliction damage, in order to be consistent with other damage-over-time fire attacks and to benefit from
+    ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}.
   <li>
-    ^{Link.skill "Hiruzen Sarutobi" Original "Reaper Death Seal"} bypasses invulnerability.
+    ^{Link.skill "Hiruzen Sarutobi" Original "Reaper Death Seal"}
+    bypasses invulnerability.
   <li>
-    ^{Link.skill "Hiashi Hyūga" Original "Eight Trigrams Air Palm Wall"} reflects skills onto their user, rather than a random enemy.
+    ^{Link.skill "Hiashi Hyūga" Original "Eight Trigrams Air Palm Wall"}
+    reflects skills onto their user, rather than a random enemy.
   <li>
-    ^{Link.skill "Hinata Hyūga" Shippuden "Gentle Step Twin Lion Fists"} bypasses invulnerability and ends if Hinata dies.
+    ^{Link.skill "Hinata Hyūga" Shippuden "Gentle Step Twin Lion Fists"}
+    bypasses invulnerability and ends if Hinata dies.
   <li>
-    Instead of merely alerting when skills are used, ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"} reveals enemy cooldowns and invisible effects.
+    Instead of merely alerting when skills are used,
+    ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"}
+    reveals enemy cooldowns and invisible effects.
   <li>
     Applying negative destructible defense (which can occur due to ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"} or ^{Link.skill "Rehabilitated Gaara" Original "Sand Tsunami"}) causes destructible barrier rather than negative damage reduction.
   <li>
-    ^{Link.skill "Kabuto Yakushi" Shippuden "Chakra Absorbing Snakes"} no longer stuns healing effects for 1 turn. Instead, if the target heals next turn, all of their skills will be stunned for 2 turns.
+    ^{Link.skill "Kabuto Yakushi" Shippuden "Chakra Absorbing Snakes"}
+    no longer stuns healing effects for 1 turn. Instead, if the target heals next turn, all of their skills will be stunned for 2 turns.
   <li>
-    ^{Link.skill "Maki" Shippuden "Humidified Cloth"} and ^{Link.skill "Nagato" Reanimated "Human Path"} block the target from affecting the user's team at all.
+    ^{Link.skill "Maki" Shippuden "Humidified Cloth"}
+    and
+    ^{Link.skill "Nagato" Reanimated "Human Path"}
+    block the target from affecting the user's team at all.
   <li>
-    The cost of ^{Link.skill "Omoi" Shippuden "Crescent Moon Slice"} has been changed from 1 genjutsu chakra and 1 arbitrary chakra to 1 taijutsu chakra and 1 arbitrary chakra.
+    The cost of
+    ^{Link.skill "Omoi" Shippuden "Crescent Moon Slice"}
+    has been changed from 1 genjutsu chakra and 1 arbitrary chakra to 1 taijutsu chakra and 1 arbitrary chakra.
   <li>
-    ^{Link.skill "Omoi" Shippuden "Thunderbolt"} blocks its target from affecting their allies at all.
+    ^{Link.skill "Omoi" Shippuden "Thunderbolt"}blocks its targe
+    t from affecting their allies at all.
   <li>
-    ^{Link.skill "Sai" Shippuden "Ink Mist"} bypasses invulnerability.
+    ^{Link.skill "Sai" Shippuden "Ink Mist"}
+    bypasses invulnerability.
   <li>
-    ^{Link.skill "Danzō Shimura" Shippuden "Kotoamatsukami"} cannot counter uncounterable skills. If it copies a skill, the copy retains its chakra cost.
+    ^{Link.skill "Danzō Shimura" Shippuden "Kotoamatsukami"}
+    cannot counter uncounterable skills. If it copies a skill, the copy retains its chakra cost.
   <li>
-    ^{Link.skill "Jiraiya" Shippuden "Toad Oil Bomb"} interrupts <i>action</i> skills as well as <i>control</i> skills.
+    ^{Link.skill "Jiraiya" Shippuden "Toad Oil Bomb"}
+    interrupts <i>action</i> skills as well as <i>control</i> skills.
   <li>
-    ^{Link.skill "Chukichi" Reanimated "Hidden Frost"} makes Chukichi invulnerable to all ranged skills.
+    ^{Link.skill "Chukichi" Reanimated "Hidden Frost"}
+    makes Chukichi invulnerable to all ranged skills.

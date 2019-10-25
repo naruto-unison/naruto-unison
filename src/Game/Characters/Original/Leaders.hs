@@ -152,7 +152,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Major Summoning: Katsuyu"
-        , Skill.desc      = "Tsunade summons the great slug Katsuyu, who heals her team for 40 health. Once used, this skill becomes [Slug Division][n]. Every turn that Tsunade is alive, Katsuyu restores 5 health to her team."
+        , Skill.desc      = "Tsunade summons the great slug Katsuyu, who heals her team for 35 health. Once used, this skill becomes [Slug Division][n]. Every turn that Tsunade is alive, Katsuyu restores 5 health to her team."
         , Skill.classes   = [Summon, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Gen, Nin]
         , Skill.dur       = Ongoing 0

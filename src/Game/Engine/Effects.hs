@@ -227,7 +227,7 @@ afflict1 ninjas player nThreshold t st
       | otherwise              = strengthen classes n  Flat
                                  + bleed    classes nt Flat
     scale
-      | t == user              = 0
+      | t == user              = 1
       | not $ Ninja.alive n    = bleed      classes nt Percent
       | otherwise              = strengthen classes n  Percent
                                  * bleed    classes nt Percent
