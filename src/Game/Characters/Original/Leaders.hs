@@ -42,7 +42,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Major Summoning: Manda"
-        , Skill.desc      = "Orochimaru summons the great serpent Manda, who deals 45 damage to an enemy. Once used, this skill becomes [Paralyzing Bite][r][r]. Every turn that Orochimaru is alive, he gains 1 random chakra."
+        , Skill.desc      = "Orochimaru summons the great serpent Manda, who deals 45 damage to an enemy. Once used, this skill becomes [Paralyzing Bite][r][r]. Every turn that Orochimaru is alive, Manda grants 1 random chakra."
         , Skill.classes   = [Summon, Melee, Unreflectable]
         , Skill.cost      = [Blood, Nin, Tai]
         , Skill.dur       = Ongoing 0
@@ -87,11 +87,10 @@ characters =
         , Skill.classes   = [Summon, Ranged, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
-        , Skill.dur       = Ongoing 2
         , Skill.effects   =
-          [ To Enemies $ apply 1 [Expose]
+          [ To Enemies $ apply 2 [Expose]
           , To Allies $
-                trap 1 (OnDamaged NonAffliction) $ apply 1 [Invulnerable All]
+                trap 2 (OnDamaged NonAffliction) $ apply 1 [Invulnerable All]
           ]
         }
       ]

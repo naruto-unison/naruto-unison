@@ -111,7 +111,6 @@ characters =
         { Skill.name      = "Dual Pin"
         , Skill.desc      = "Anko pins herself to an enemy by stabbing a kunai through her hand, preventing the target from reducing damage or becoming invulnerable for 1 turn and dealing 5 damage. Deals 5 additional damage if the target is affected by [Dragon Flame]."
         , Skill.classes   = [Physical, Melee]
-        , Skill.dur       = Instant
         , Skill.effects   =
           [ To Enemy do
                 apply 1 [Expose]

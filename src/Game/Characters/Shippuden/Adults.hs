@@ -429,48 +429,6 @@ characters =
     , [ invuln "Dodge" "Kurotsuchi" [Physical] ]
     ]
   , Character
-    "Ittan"
-    "A chūnin from the Hidden Stone Village, Ittan is battle-hardened and level-headed. By reshaping the terrain, Ittan turns the battlefield to his advantage."
-    [StoneVillage, AlliedForces, Chunin, Earth]
-    [ [ Skill.new
-        { Skill.name      = "Battlefield Trenches"
-        , Skill.desc      = "By raising and lowering ground levels, Ittan alters the battlefield in his favor. For 2 turns, all enemies receive 20% more damage and Ittan gains 15 points of damage reduction."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Blood, Rand]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To Self $ apply 2 [Reduce [All] Flat 15]
-          , To Enemies $ apply 2 [Bleed [All] Percent 20]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Mobile Core"
-        , Skill.desc      = "Ittan disrupts the ground under an enemy, dealing 30 damage to them and weakening their damage by 10 for 1 turn."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Rand, Rand]
-        , Skill.effects   =
-          [ To Enemy do
-                damage 30
-                apply 1 [Weaken [All] Flat 10]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Earth Dome"
-        , Skill.desc      = "A shield of rock protects Ittan and one of his allies, making them invulnerable to ranged skills for 1 turn."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Self $ apply 1 [Invulnerable Ranged]
-          , To Ally $ apply 1 [Invulnerable Ranged]
-          ]
-        }
-      ]
-    , [ invuln "Trench Defense" "Ittan" [Physical] ]
-    ]
-  , Character
     "Kitsuchi"
     "A jōnin from the Hidden Stone Village, Kitsuchi is the Third Tsuchikage's son and Kurotsuchi's father. He commands the Allied Shinobi Forces Second Division, a responsibility he takes with the utmost seriousness."
     [StoneVillage, AlliedForces, Jonin, Earth]
@@ -514,7 +472,6 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 2
-        , Skill.dur       = Control 2
         , Skill.effects   =
           [ To Enemy do
                 damage 45
@@ -523,6 +480,48 @@ characters =
         }
       ]
     , [ invuln "Rock Shelter" "Kitsuchi" [Physical] ]
+    ]
+  , Character
+    "Ittan"
+    "A chūnin from the Hidden Stone Village, Ittan is battle-hardened and level-headed. By reshaping the terrain, Ittan turns the battlefield to his advantage."
+    [StoneVillage, AlliedForces, Chunin, Earth]
+    [ [ Skill.new
+        { Skill.name      = "Battlefield Trenches"
+        , Skill.desc      = "By raising and lowering ground levels, Ittan alters the battlefield in his favor. For 2 turns, all enemies receive 20% more damage and Ittan gains 15 points of damage reduction."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Self $ apply 2 [Reduce [All] Flat 15]
+          , To Enemies $ apply 2 [Bleed [All] Percent 20]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Mobile Core"
+        , Skill.desc      = "Ittan disrupts the ground under an enemy, dealing 30 damage to them and weakening their damage by 10 for 1 turn."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 30
+                apply 1 [Weaken [All] Flat 10]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Earth Dome"
+        , Skill.desc      = "A shield of rock protects Ittan and one of his allies, making them invulnerable to ranged skills for 1 turn."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Self $ apply 1 [Invulnerable Ranged]
+          , To Ally $ apply 1 [Invulnerable Ranged]
+          ]
+        }
+      ]
+    , [ invuln "Trench Defense" "Ittan" [Physical] ]
     ]
   , Character
     "C"

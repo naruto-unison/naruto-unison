@@ -69,10 +69,11 @@ characters =
     [LeafVillage, Jonin, Hyuga]
     [ [ Skill.new
         { Skill.name      = "Gentle Fist"
-        , Skill.desc      = "Hiashi slams an enemy, dealing 20 damage and depleting 1 random chakra. The following turn, he repeats the attack on a random enemy."
+        , Skill.desc      = "Hiashi slams an enemy, dealing 20 damage and depleting 1 random chakra. Next turn, he repeats the attack on a random enemy."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
+        , Skill.dur       = Action 2
         , Skill.start     =
           [ To Self flag
           , To Enemy do
@@ -122,13 +123,12 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
-        , Skill.dur       = Ongoing 4
         , Skill.effects   =
           [ To Self do
-                apply 1 [ Reduce [All] Flat 10
+                apply 4 [ Reduce [All] Flat 10
                         , Alternate "Call Kuromaru" "Fierce Bite"
                         ]
-                trapFrom 1 (OnHarmed NonBane) $ damage 10
+                trapFrom 4 (OnHarmed NonBane) $ damage 10
           ]
         }
       , Skill.new
@@ -305,14 +305,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sensory Radar"
-        , Skill.desc      = "Inoichi steps back and focuses on the tide of battle. Each time an enemy uses a skill on Inoichi or his allies, Inoichi will recover 10 health and gain a stack of [Sensory Radar]. While active, this skill becomes [Sensory Radar: Collate][r]."
+        , Skill.desc      = "Inoichi steps back and focuses on the tide of battle. Whenever an enemy uses a skill on Inoichi or his allies, Inoichi will recover 10 health and gain a stack of [Sensory Radar]. While active, this skill becomes [Sensory Radar: Collate][r]."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Nin]
-        , Skill.dur       = Ongoing 0
         , Skill.effects   =
           [ To Self $
-                hide 1 [Alternate "Sensory Radar" "Sensory Radar: Collate"]
-          , To Enemies $ trap 1 OnHarm $ self do
+                hide 0 [Alternate "Sensory Radar" "Sensory Radar: Collate"]
+          , To Enemies $ trap 0 OnHarm $ self do
                 heal 10
                 addStack
           ]
@@ -338,10 +337,11 @@ characters =
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
+        , Skill.dur       = Control 4
         , Skill.effects   =
           [ To Enemy do
-              apply 4 [Throttle 1 $ Any Invulnerable]
-              trapFrom 4 (OnHarmed Mental) $ apply 1 [Invulnerable All]
+              apply 1 [Throttle 1 $ Any Invulnerable]
+              trapFrom 1 (OnHarmed Mental) $ apply 1 [Invulnerable All]
           ]
         }
       ]

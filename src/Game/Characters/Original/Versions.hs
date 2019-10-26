@@ -207,7 +207,7 @@ characters =
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6
-        , Skill.dur       = Action (-5)
+        , Skill.dur       = Ongoing (-5)
         , Skill.start     =
           [ To Self $ bombWith [Hidden] (-5) [] [ To Expire $
                 apply' "Tailed Beast Form" 3
@@ -218,8 +218,6 @@ characters =
           ]
         , Skill.effects   =
           [ To Self $ defend 0 10 ]
-        , Skill.interrupt =
-          [ To Self $ remove "Sand Transformation" ]
         }
       , Skill.new
         { Skill.name      = "Shukaku Full Release"
@@ -254,7 +252,6 @@ characters =
         , Skill.desc      = "Gaara traps all enemies in a sinking pit of sand, increasing the costs of their non-mental skills by 1 arbitrary chakra for 1 turn. If an enemy uses a non-mental skill, they are freed from [Sand Burial Prison]. Next turn, this skill becomes [Giant Sand Burial][n][n]."
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin]
-        , Skill.dur       = Instant
         , Skill.effects   =
           [ To Enemies do
                 apply 1 [Exhaust [NonMental]]

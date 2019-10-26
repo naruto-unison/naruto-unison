@@ -40,7 +40,7 @@ characters =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 6
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Passive
         , Skill.start     =
           [ To Self do
                 defend 0 70
@@ -182,7 +182,7 @@ characters =
     [SandVillage, Akatsuki, Rogue]
     [ [ Skill.new
         { Skill.name      = "Kazekage Puppet Summoning"
-        , Skill.desc      = "Sasori summons his most prized puppet, gaining 15 permanent destructible defense and enabling his other skills. Once used, this skill becomes [Iron Sand: World Order][b][n]. Each turn, Sasori gains a stack of Iron Sand."
+        , Skill.desc      = "Sasori summons his most prized puppet, gaining 15 permanent destructible defense and enabling his other skills. Once used, this skill becomes [Iron Sand: World Order][b][n]. Every turn, Sasori gains a stack of Iron Sand."
         , Skill.classes   = [Physical]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
@@ -534,7 +534,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend 0 5
-                hide 0 [ Alternate "Susanoo" "Susanoo"
+                hide 1 [ Alternate "Susanoo" "Susanoo"
                        , Alternate "Amaterasu" "Totsuka Blade"
                        , Alternate "Mirage Crow" "Yata Mirror"
                        ]
@@ -662,7 +662,7 @@ characters =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2
-        , Skill.dur       = Action 2
+        , Skill.dur       = Control 2
         , Skill.effects   =
           [ To Enemy do
                 damage 20
@@ -892,7 +892,8 @@ characters =
           [ To Enemy purge
           , To Self $ hide 0 [Alternate "Missile Salvo" "Head Cannon"]
           ]
-        , Skill.effects   = [ To Enemy $ damage 10 ]
+        , Skill.effects   =
+          [ To Enemy $ damage 10 ]
         }
       , Skill.new
         { Skill.name      = "Head Cannon"

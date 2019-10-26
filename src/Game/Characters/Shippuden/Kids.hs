@@ -198,16 +198,11 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
-        , Skill.dur       = Action 4
         , Skill.effects   =
-          [ To Self $ apply 1 [ Focus
+          [ To Self $ apply 4 [ Focus
                               , Reduce [All] Flat 15
                               , Alternate "Man-Beast Clone" "Three-Headed Wolf"
                               ]
-          ]
-        , Skill.stunned   =
-          [ To Self $
-                apply 1 [Alternate "Man-Beast Clone" "Three-Headed Wolf"]
           ]
         }
       , Skill.new
@@ -218,7 +213,6 @@ characters =
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Self do
-                cancelChannel "Man-Beast Clone"
                 remove "Man-Beast Clone"
                 apply 3 [ Reduce [All] Flat 30
                         , Focus
@@ -501,12 +495,12 @@ characters =
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.dur       = Action 2
-        , Skill.start     =
+        , Skill.effects   =
           [ To Enemy $ damage 15
           , To Self do
-                trap 2 (CounterAll Physical) $ return ()
-                trap 2 (CounterAll Chakra) $ return ()
-                trap 2 (CounterAll Summon) $ return ()
+                trap 1 (CounterAll Physical) $ return ()
+                trap 1 (CounterAll Chakra) $ return ()
+                trap 1 (CounterAll Summon) $ return ()
                 hide' "calories" 0 [Exhaust [All]]
           ]
         }
@@ -516,17 +510,17 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.dur       = Action 2
-        , Skill.start     =
+        , Skill.effects   =
           [ To Enemy $ damage 15
           ,  To Self do
-                trap 2 (CounterAll NonMental) $ return ()
+                trap 1 (CounterAll NonMental) $ return ()
                 hide' "calories" 0 [Exhaust [All]]
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Butterfly Mode"
-        , Skill.desc      = "Performing an advanced Akimichi technique that would be lethal without precise control over his body, Chōji converts calories into jets of chakra energy that grow from his back like butterfly wings. Once used, this skill becomes [Super-Slam][n][r][r]. Each turn after [Butterfly Mode] is activated, the costs of Chōji's skills decrease by 1 arbitrary chakra."
+        , Skill.desc      = "Performing an advanced Akimichi technique that would be lethal without precise control over his body, Chōji converts calories into jets of chakra energy that grow from his back like butterfly wings. Once used, this skill becomes [Super-Slam][n][r][r]. Every turn after [Butterfly Mode] is activated, the costs of Chōji's skills decrease by 1 arbitrary chakra."
         , Skill.classes   = [Chakra]
         , Skill.dur       = Ongoing 0
         , Skill.start     =
@@ -581,18 +575,20 @@ characters =
         , Skill.classes   = [Mental, Invisible, Uncounterable, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
+        , Skill.dur       = Control 3
         , Skill.effects   =
-          [ To Enemies $ apply 3 [Reveal, Build (-15), Unreduce 15] ]
+          [ To Enemies $ apply 1 [Reveal, Build (-15), Unreduce 15] ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Mind Transfer Clone"
         , Skill.desc      = "Ino takes control of her allies, forcing them to fight on no matter their condition. For 2 turns, her allies ignore status effects from enemies except chakra cost changes."
-        , Skill.classes   = [Mental, Invisible, Soulbound]
+        , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
+        , Skill.dur       = Control 2
         , Skill.effects   =
-          [ To XAllies $ apply 2 [Enrage] ]
+          [ To XAllies $ apply 1 [Enrage] ]
         }
       ]
     , [ invuln "Hide" "Ino" [Mental] ]

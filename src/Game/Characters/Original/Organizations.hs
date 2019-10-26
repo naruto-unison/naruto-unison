@@ -129,14 +129,14 @@ characters =
         , Skill.dur       = Ongoing (-4)
         , Skill.start     =
           [ To Self do
-              enemies $ apply (-4) []
-              allies  $ apply (-4) [Reduce [All] Flat 5]
+                enemies $ apply (-4) []
+                allies  $ apply (-4) [Reduce [All] Flat 5]
           ]
         , Skill.effects   =
-          [ To Enemies $ unlessM (targetHas "swarmed") do
+          [ To Enemies $ unlessM (targetHas "scattering crow swarm") do
                 stacks <- targetStacks "Scattering Crow Swarm"
                 damage (5 * stacks)
-                flag' "swarmed"
+                flag
           ]
         , Skill.interrupt =
           [ To Self do
@@ -423,17 +423,16 @@ characters =
     [LeafVillage, Akatsuki, Rogue, SRank, Fire, Wind, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Mangekyō Sharingan"
-        , Skill.desc      = "Itachi becomes invulnerable, but loses 15 health every turn and cannot be healed or cured. While active, the cooldowns and chakra costs of his other skills are doubled. This skill can be used again with no chakra cost to cancel its effect."
+        , Skill.desc      = "Itachi becomes invulnerable, but takes 15 affliction damage every turn and cannot be healed or cured. While active, the cooldowns and chakra costs of his other skills are doubled. This skill can be used again with no chakra cost to cancel its effect."
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Blood]
-        , Skill.dur       = Ongoing 0
         , Skill.effects   =
-          [ To Self do
-                sacrifice 0 15
-                apply 1 [ Invulnerable All
-                        , Plague
-                        , Alternate "Mangekyō Sharingan" "Mangekyō Sharingan "
-                        ]
+          [ To Self $ apply 0 [ Invulnerable All
+                              , Afflict 15
+                              , Plague
+                              , Alternate "Mangekyō Sharingan"
+                                          "Mangekyō Sharingan "
+                              ]
           ]
         }
       , Skill.new
@@ -441,7 +440,7 @@ characters =
         , Skill.desc      = "Ends the effect of [Mangekyō Sharingan], halving Itachi's cooldowns and chakra costs."
         , Skill.classes   = [Mental]
         , Skill.effects   =
-          [ To Self $ cancelChannel "Mangekyō Sharingan" ]
+          [ To Self $ remove "Mangekyō Sharingan" ]
         }
       ]
     , [ Skill.new

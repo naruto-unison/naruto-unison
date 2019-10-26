@@ -288,7 +288,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Shadow Possession"
-        , Skill.desc      = "Shikamaru captures all enemies in shadows, stunning their non-mental skills for 1 turn. Enemies affected by [Meditate] are stunned for 2 turns."
+        , Skill.desc      = "Shikamaru captures all enemies in shadows, stunning their non-mental skills for 1 turn. Lasts 1 additional turn on enemies affected by [Meditate]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 3
@@ -309,13 +309,15 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Spinach Pill"
         , Skill.desc      = "Chōji eats the mildest Akimichi pill, losing 5 health down to a minimum of 1 and gaining the strength he needs to protect his friends. While alive, he provides 5 points of damage reduction to his allies."
-        , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
-        , Skill.effects   =
-          [ To XAllies $ apply' "Protected" 0 [Reduce [All] Flat 5]
-          , To Self do
+        , Skill.classes   = [Chakra, Nonstacking]
+        , Skill.dur       = Action 0
+        , Skill.start     =
+          [ To Self do
                 sacrifice 1 5
                 alternate loadout 1
           ]
+        , Skill.effects   =
+          [ To XAllies $ apply' "Protected" 1 [Reduce [All] Flat 5] ]
         }
       , Skill.new
         { Skill.name      = "Obstructing Tackle"
@@ -353,14 +355,17 @@ characters =
     , [ Skill.new
         { Skill.name      = "Curry Pill"
         , Skill.desc      = "Chōji eats the first two Akimichi pills in one go, losing 15 health down to a minimum of 1 and unlocking huge reserves of chakra in addition to immense physical strength. While alive, he provides 10 points of damage reduction to his allies."
-        , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
+        , Skill.classes   = [Chakra, Nonstacking]
         , Skill.cost      = [Rand]
+        , Skill.dur       = Action 0
+        , Skill.start     =
+          [ To Self do
+                cancelChannel "Spinach Pill"
+                sacrifice 1 15
+                alternate loadout 2
+          ]
         , Skill.effects   =
-            [ To XAllies $ apply' "Protected" 0 [Reduce [All] Flat 10]
-            , To Self do
-                  sacrifice 1 15
-                  alternate loadout 2
-            ]
+          [ To XAllies $ apply' "Protected" 1 [Reduce [All] Flat 10] ]
         }
       , Skill.new
         { Skill.name      = "Human Boulder"
@@ -406,43 +411,61 @@ characters =
     , [ Skill.new
         { Skill.name      = "Chili Pill"
         , Skill.desc      = "Chōji swallows all three Akimichi pills, losing 10 health down to a minimum of 1 and gaining so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns and disabling effects."
-        , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
+        , Skill.classes   = [Chakra, Nonstacking]
         , Skill.cost      = [Rand, Rand]
-        , Skill.dur       = Passive
+        , Skill.dur       = Action 0
         , Skill.start     =
-          [ To XAllies $ apply' "Protected" 0 [Reduce [All] Flat 15]
-          ,  To Self do
+          [ To Self do
                 sacrifice 1 10
                 alternate loadout 3
-                apply 0 [Focus, Alternate "Block" "Block", Face]
           ]
         , Skill.effects   =
-          [ To Self $ unlessM (userHas "unchili") $ sacrifice 0 15 ]
+          [ To XAllies $ apply' "Protected" 1 [Reduce [All] Flat 15]
+          , To Self do
+                unlessM (userHas "unchili") $ sacrifice 0 15
+                apply 1 [Focus, Alternate "Block" "Block", Face]
+          ]
+        , Skill.interrupt =
+          [ To Self do
+                unlessM (userHas "unchili") $ sacrifice 0 15
+                apply 1 [Alternate "Block" "Block", Face]
+          ]
         }
       , Skill.new
         { Skill.name      = "Curry Pill"
         , Skill.desc      = "Chōji eats the second Akimichi pill, losing 5 health down to a minimum of 1 and unlocking huge reserves of chakra. While alive, he provides 10 points of damage reduction to his allies."
-        , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
-        , Skill.effects   =
-          [ To XAllies $ apply' "Protected" 0 [Reduce [All] Flat 10]
-          , To Self do
+        , Skill.classes   = [Chakra, Nonstacking]
+        , Skill.dur       = Action 0
+        , Skill.start     =
+          [ To Self do
+                cancelChannel "Spinach Pill"
                 sacrifice 1 5
                 alternate loadout 2
           ]
+        , Skill.effects   =
+          [ To XAllies $ apply' "Protected" 1 [Reduce [All] Flat 10] ]
         }
       , Skill.new
         { Skill.name      = "Chili Pill"
         , Skill.desc      = "Chōji eats the third Akimichi pill and gains so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns and disabling effects."
-        , Skill.classes   = [Chakra, Soulbound, Nonstacking, Unreflectable, Unremovable]
-        , Skill.dur       = Passive
+        , Skill.classes   = [Chakra, Nonstacking]
+        , Skill.dur       = Action 0
         , Skill.start     =
-          [ To XAllies $ apply' "Protected" 0 [Reduce [All] Flat 15]
-          , To Self do
+          [ To Self do
+                cancelChannel "Curry Pill"
                 alternate loadout 3
-                apply 0 [Focus, Alternate "Block" "Block", Face]
           ]
         , Skill.effects   =
-          [ To Self $ unlessM (userHas "unchili") $ sacrifice 0 15 ]
+          [ To XAllies $ apply' "Protected" 1 [Reduce [All] Flat 15]
+          , To Self do
+                unlessM (userHas "unchili") $ sacrifice 0 15
+                apply 1 [Focus, Alternate "Block" "Block", Face]
+          ]
+        , Skill.interrupt =
+          [ To Self do
+                unlessM (userHas "unchili") $ sacrifice 0 15
+                apply 1 [Alternate "Block" "Block", Face]
+          ]
         }
       , Skill.new
         { Skill.name      = "Butterfly Bombing"
@@ -495,10 +518,10 @@ characters =
         , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 3
         , Skill.dur       = Control 4
-        , Skill.start     =
-          [ To Self $ hide 0 [Alternate "Mind Transfer" "Art of the Valentine"] ]
         , Skill.effects   =
-          [ To Enemy $ apply 1 [Stun All, Expose] ]
+          [ To Enemy $ apply 1 [Stun All, Expose]
+          , To Self $ hide 1 [Alternate "Mind Transfer" "Art of the Valentine"]
+          ]
         }
       , Skill.new
         { Skill.name      = "Art of the Valentine"

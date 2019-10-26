@@ -330,8 +330,7 @@ cure match n
   | n `is` Plague = n
   | otherwise     = modifyStatuses (mapMaybe cure') n
   where
-    keep Reveal = True
-    keep a      = Effect.helpful a || not (match a)
+    keep a = Effect.helpful a || not (match a)
     cure' st
       | Status.user st == slot n           = Just st
       | null $ Status.effects st           = Just st

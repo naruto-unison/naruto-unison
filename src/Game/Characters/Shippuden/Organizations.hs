@@ -19,7 +19,7 @@ characters =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Passive
         , Skill.start     =
           [ To Self do
                 defend 0 45
@@ -327,7 +327,7 @@ characters =
         , Skill.desc      = "Danzō gains 10 Sharingan and loses 1 every turn. If his health reaches 0, he regains 10 health per Sharingan and loses all Sharingan. When he has no Sharingan remaining, this skill becomes [Reverse Tetragram Sealing][r][r][r]."
         , Skill.classes   = [Mental, Resource]
         , Skill.cost      = [Blood]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Passive
         , Skill.start     =
           [ To Self $
                 applyStacks "Sharingan" 10 [Alternate "Izanagi" "Izanagi"]
