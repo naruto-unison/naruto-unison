@@ -512,7 +512,7 @@ characters =
                 trap 1 (Countered Chakra) flag
                 trap 1 (Countered Mental) flag
                 delay (-1) do
-                    bonus <- 20 `bonusIf` targetHas "Super Shark Bomb"
+                    bonus <- 20 `bonusIf` targetHas "super shark bomb"
                     damage (30 + bonus)
           ]
         }

@@ -106,7 +106,7 @@ addStacks' (Duration -> dur) name i = do
 
 -- | Adds a hidden @Status@ with no effects that immediately expires.
 flag :: ∀ m. MonadPlay m => m ()
-flag = flag' ""
+flag = flag' . toLower . Skill.name =<< P.skill
 -- | 'flag' with a 'Status.name'.
 flag' :: ∀ m. MonadPlay m => Text -> m ()
 flag' name =

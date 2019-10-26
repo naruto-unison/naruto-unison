@@ -158,11 +158,11 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Action 3
         , Skill.start     =
-          [ To Self $ flag' "first" ]
+          [ To Self flag ]
         , Skill.effects   =
           [ To Self $ trapFrom 1 (OnHarmed Physical) $ damage 10
           , To Enemy do
-                firstTurn <- userHas "first"
+                firstTurn <- userHas "nunchaku"
                 if firstTurn then do
                     stacks <- userStacks "Single Gate Release"
                     damage (10 + 5 * stacks)

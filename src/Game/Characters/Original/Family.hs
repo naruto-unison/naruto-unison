@@ -80,7 +80,7 @@ characters =
                 damage 20
           ]
         , Skill.effects   =
-          [ To REnemy $ unlessM (userHas "Gentle Fist") do
+          [ To REnemy $ unlessM (userHas "gentle fist") do
                 damage 20
                 deplete 1
           ]

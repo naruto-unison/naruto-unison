@@ -281,7 +281,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 5 `bonusIf` targetHas "Chakra Leech"
+                bonus <- 5 `bonusIf` targetHas "chakra leech"
                 afflict (15 + bonus)
                 apply 1 [Alone]
           , To Self $ hide 1 [Alternate "Insect Swarm" "Chakra Leech"]
@@ -1033,12 +1033,15 @@ characters =
         , Skill.classes   = [Chakra, Melee, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
+        , Skill.dur       = Action (-2)
+        , Skill.start     =
+          [ To Enemy $ trap (-1) (OnAction All) $ applyWith [Invisible] 1 []
+          , To Self flag
+          ]
         , Skill.effects   =
-          [ To Enemy do
-                trap 1 (OnAction All) flag
-                delay (-1) do
-                    bonus <- 15 `bonusIf` targetHas "Rasengan"
-                    pierce (25 + bonus)
+          [ To Enemy $ unlessM (userHas "rasengan") do
+                bonus <- 15 `bonusIf` targetHas "Rasengan"
+                pierce (25 + bonus)
           ]
         }
       ]

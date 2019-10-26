@@ -279,7 +279,7 @@ characters =
           , To Enemy do
                 trap 1 (OnAction All) flag
                 delay (-1) do
-                    bonus <- 15 `bonusIf` targetHas "Pit Trap"
+                    bonus <- 15 `bonusIf` targetHas "pit trap"
                     pierce (15 + bonus)
           ]
         }
