@@ -914,8 +914,10 @@ renderView visibles characters viewing =
                 , H.dd [] << Render.duration "Permanent" <| x.dur
                 ]
               ]
-            , H.ul [] <| List.map (Render.effect characters removable) x.effects
-            , H.p [] <| Render.desc x.desc
+            , x.effects
+                |> List.filter .visible
+                >> List.map (Render.effect characters removable)
+                >> H.ul []
             ]
 
         ViewSkill user _ charge x ->
