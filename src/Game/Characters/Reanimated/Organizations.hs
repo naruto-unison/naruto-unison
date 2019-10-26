@@ -10,49 +10,6 @@ import qualified Game.Model.Skill as Skill
 characters :: [Category -> Character]
 characters =
   [ Character
-    "Kimimaro"
-    "Reanimated by Kabuto, Kimimaro was a member of the Sound Five until he was claimed by illness. Loyal to Orochimaru, Kimimaro now follows Kabuto, who carries Orochimaru's chakra and shares similar ambitions."
-    [SoundVillage, Kabuto, Orochimaru]
-    [ [ Skill.new
-        { Skill.name      = "Clematis Dance"
-        , Skill.desc      = "Kimimaro attacks the enemy team with long, sharp bone spears, dealing 20 damage and killing them if their health reaches 5 or lower."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Blood, Rand]
-        , Skill.cooldown  = 2
-        , Skill.effects   =
-          [ To Enemies do
-                damage 20
-                hp <- target health
-                when (hp < 5) kill
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Macabre Bone Pulse"
-        , Skill.desc      = "Kimimmaro warps his skeleton into blades and attacks an enemy, dealing 45 piercing damage."
-        , Skill.classes   = [Physical, Melee, Uncounterable]
-        , Skill.cost      = [Blood, Tai]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy $ pierce 45 ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Digital Shrapnel"
-        , Skill.desc      = "A volley of bullets shoot forth from Kimimaro's fingertips, providing him with 50% damage reduction for 1 turn. Next turn, enemies who use skills will take 20 damage."
-        , Skill.classes   = [Physical, Ranged, Bypassing, Invisible]
-        , Skill.cooldown  = 2
-        , Skill.cost      = [Blood]
-        , Skill.effects   =
-          [ To Enemies $ trap 1 (OnAction All) $ damage 20
-          , To Self $ apply 1 [Reduce [All] Percent 50]
-          ]
-        }
-      ]
-    , [ invuln "Block" "Kimimaro" [Physical] ]
-    ]
-    75
-  , Character
     "Jirōbō"
     "Reanimated by Kabuto, Jirōbō was a member of the Sound Five. No longer concealing his anger beneath a facade of politeness, Jirōbō has only one thing on his mind: revenge."
     [SoundVillage, Kabuto, Orochimaru, Earth]
@@ -118,7 +75,7 @@ characters =
                 removeStacks "Scattered Rock" 2
                 defend 2 35
                 trapFrom 2 (OnHarmed All) do
-                    leech 20 (self . heal)
+                    leech 20 $ self . heal
                     self $ tag' "Earth Dome Prison" 1
                 onBreak $ everyone do
                     remove "Rivalry"
@@ -128,6 +85,49 @@ characters =
       ]
     ]
     50
+  , Character
+    "Kimimaro"
+    "Reanimated by Kabuto, Kimimaro was a member of the Sound Five until he was claimed by illness. Loyal to Orochimaru, Kimimaro now follows Kabuto, who carries Orochimaru's chakra and shares similar ambitions."
+    [SoundVillage, Kabuto, Orochimaru]
+    [ [ Skill.new
+        { Skill.name      = "Clematis Dance"
+        , Skill.desc      = "Kimimaro attacks the enemy team with long, sharp bone spears, dealing 20 damage and killing them if their health reaches 5 or lower."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemies do
+                damage 20
+                hp <- target health
+                when (hp < 5) kill
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Macabre Bone Pulse"
+        , Skill.desc      = "Kimimmaro warps his skeleton into blades and attacks an enemy, dealing 45 piercing damage."
+        , Skill.classes   = [Physical, Melee, Uncounterable]
+        , Skill.cost      = [Blood, Tai]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ pierce 45 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Digital Shrapnel"
+        , Skill.desc      = "A volley of bullets shoot forth from Kimimaro's fingertips, providing him with 50% damage reduction for 1 turn. Next turn, enemies who use skills will take 20 damage."
+        , Skill.classes   = [Physical, Ranged, Bypassing, Invisible]
+        , Skill.cooldown  = 2
+        , Skill.cost      = [Blood]
+        , Skill.effects   =
+          [ To Enemies $ trap 1 (OnAction All) $ damage 20
+          , To Self $ apply 1 [Reduce [All] Percent 50]
+          ]
+        }
+      ]
+    , [ invuln "Block" "Kimimaro" [Physical] ]
+    ]
+    75
   , Character
     "Haku"
     "Reanimated by Kabuto, Haku remains as loyal to Zabuza as he was in life. With his inherited ice manipulation techniques, he disrupts his enemies while hiding safely behind crystalline mirrors."
@@ -177,8 +177,7 @@ characters =
         , Skill.cooldown  = 6
         , Skill.dur       = Ongoing 3
         , Skill.start     =
-          [ To Self $ defend 0 20
-          ]
+          [ To Self $ defend 0 20 ]
         , Skill.effects   =
           [ To Self do
                 defense <- userDefense "Crystal Ice Mirrors"

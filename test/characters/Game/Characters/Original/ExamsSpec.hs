@@ -344,11 +344,13 @@ spec = parallel do
                     targetChakra `shouldBe` [Gen]
         useOn Enemy "Draining Assault" do
             gain [Blood, Gen, Nin, Tai]
+            self $ apply 0 [Seal]
             act
             enemyTurn $ damage targetDmg
             turns 5
             userHealth <- Ninja.health <$> P.nUser
             targetHealth <- Ninja.health <$> P.nTarget
+            self factory
             factory
             self $ tag' "Chakra Focus" 0
             act

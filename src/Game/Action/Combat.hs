@@ -327,14 +327,14 @@ heal hp = P.unsilenced do
 -- | Damages the target and passes the amount of damage dealt to another action.
 -- Typically paired with @self . 'heal'@ to effectively drain the target's
 -- 'Ninja.health' into that of the user.
--- Uses 'Ninjas.adjustHealth' internally.
+-- Uses 'afflict' internally.
 leech :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
 leech hp f = do
     user     <- P.user
     target   <- P.target
     classes  <- Skill.classes <$> P.skill
     hpBefore <- Ninja.health <$> P.nTarget
-    P.modify target $ Ninjas.adjustHealth (— hp)
+    afflict hp
     damaged <- (hpBefore -) . Ninja.health <$> P.nTarget
     when (damaged > 0) do
         f damaged

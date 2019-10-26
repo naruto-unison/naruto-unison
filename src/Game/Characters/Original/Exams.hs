@@ -51,9 +51,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 2
-                     [Endure, Focus, Strengthen [All] Flat 5]
-          ]
+          [ To Self $ apply 2 [Endure, Focus, Strengthen [All] Flat 5] ]
         }
       ]
     , [ invuln "Byakugan Foresight" "Hanabi" [Mental] ]
@@ -348,7 +346,7 @@ characters =
     [SoundVillage, Orochimaru, Genin, Rogue, Water, Yin]
     [ [ Skill.new
         { Skill.name      = "Energy Drain"
-        , Skill.desc      = "Yoroi touches an enemy, stealing 20 health. For 2 turns, their damage is weakened by 5 and Yoroi's damage is increased by 5."
+        , Skill.desc      = "Yoroi makes physical contact with an enemy and steals 20 health from them. For 2 turns, their damage is weakened by 5 and Yoroi's damage is increased by 5."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
