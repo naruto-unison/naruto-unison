@@ -9,6 +9,7 @@ module Import
   , targetIsExposed
   , allyOf
   , withClass
+  , channel
   ) where
 
 import ClassyPrelude as X hiding ((\\), fromList, toList)
@@ -43,7 +44,8 @@ import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Trigger as Trigger
-import           Game.Model.Channel (Channeling(..))
+import           Game.Model.Channel (Channel(Channel), Channeling(..))
+import qualified Game.Model.Channel
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Context (Context(Context))
@@ -218,3 +220,13 @@ withClass cla = P.with ctx
   where
     ctx context = context { Context.skill = withSkill $ Context.skill context }
     withSkill sk = sk { Skill.classes = cla `insertSet` Skill.classes sk }
+
+channel :: ∀ m. MonadPlay m => Text -> m ()
+channel name = do
+    user <- P.user
+    target <- P.target
+    let chan = Channel { target
+                       , skill = Skill.new { Skill.name }
+                       , dur   = Passive
+                       }
+    P.modify user \n -> n { Ninja.channels = chan : Ninja.channels n }
