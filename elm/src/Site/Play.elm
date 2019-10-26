@@ -922,6 +922,9 @@ renderView visibles characters viewing =
 
         ViewSkill user _ charge x ->
             let
+                character =
+                    Game.get characters user
+
                 cooldown =
                     case x.cooldown of
                         0 ->
@@ -986,7 +989,7 @@ renderView visibles characters viewing =
                 varyButtons =
                     List.find
                     (List.any match)
-                    (Game.root characters x).skills
+                    character.skills
                     |> Maybe.andThen (\matches ->
                       List.findIndex match matches
                     |> Maybe.map (\i ->
@@ -1010,7 +1013,7 @@ renderView visibles characters viewing =
             in
             [ H.section []
               [ H.div [] <|
-                icon (Game.root characters x) x.name [ A.class "char" ]
+                icon character x.name [ A.class "char" ]
                 :: Maybe.withDefault [] varyButtons
               , H.dl []
                 [ H.h4 []
