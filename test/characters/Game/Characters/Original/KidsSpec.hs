@@ -36,7 +36,7 @@ spec = parallel do
         useOn Enemy "Shadow Clones" do
             act
             tagged <- Ninja.hasOwn "Shadow Clones" <$> P.nUser
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             return do
                 it "tags user"
@@ -70,7 +70,7 @@ spec = parallel do
         useOn Self "Inner Sakura" do
             act
             tagged <- Ninja.hasOwn "Inner Sakura" <$> P.nUser
-            enemyTurn do
+            as Enemy do
                 damage targetDmg
                 apply 0 [Stun All]
             userHealth <- Ninja.health <$> P.nUser
@@ -111,7 +111,7 @@ spec = parallel do
         useOn Enemy "Sharingan" do
             act
             tagged <- Ninja.has "Sharingan" <$> P.user <*> P.nTarget
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             exposed <- targetIsExposed
             return do
@@ -137,7 +137,7 @@ spec = parallel do
                     targetHealth - targetHealth' `shouldBe` 5
         useOn Enemies "Two-Headed Wolf" do
             act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             turns 5
             userHealth   <- Ninja.health <$> P.nUser
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
@@ -182,7 +182,7 @@ spec = parallel do
                     chakras `shouldBe` ([Nin], [Tai])
         useOn Enemy "Parasite" do
             replicateM_ stacks act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             return do
                 it "weakens target damage" $
@@ -228,7 +228,7 @@ spec = parallel do
         useOn Self "Byakugan" do
             act
             tagged <- Ninja.hasOwn "Byakugan" <$> P.nUser
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             return do
                 it "tags user"
@@ -262,7 +262,7 @@ spec = parallel do
     describeCharacter "Chōji Akimichi" \useOn -> do
         useOn Enemy "Obstructing Tackle" do
             act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             targetHealth <- Ninja.health <$> P.nTarget
             return do
@@ -290,7 +290,7 @@ spec = parallel do
                     exposed
         useOn Enemy "Human Boulder" do
             act
-            enemyTurn do
+            as Enemy do
                 damage targetDmg
                 apply 2 [Stun All]
             userStunned <- Effects.stun <$> P.nUser
@@ -314,7 +314,7 @@ spec = parallel do
                 it "stuns targets" $
                     targetStunned `shouldBe` [All]
         useOn Enemy "Chakra Wings" do
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             act
             turns 5
             userHealth <- Ninja.health <$> P.nUser
@@ -366,7 +366,7 @@ spec = parallel do
                     100 - targetHealth `shouldBe` 25
         useOn Enemy "Chakra Hair Trap" do
             act
-            enemyTurn $ damage 5
+            as Enemy $ damage 5
             snared <- Effects.snare <$> P.nTarget
             return do
                 it "snares target" $
@@ -375,7 +375,7 @@ spec = parallel do
     describeCharacter "Rock Lee" \useOn -> do
         useOn Enemy "Ferocious Fist" do
             act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             turns 5
             targetHealth <- Ninja.health <$> P.nTarget
@@ -406,7 +406,7 @@ spec = parallel do
         useOn Self "Fifth Gate Opening" do
             act
             tagged <- Ninja.hasOwn "Fifth Gate Opening" <$> P.nUser
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             userHealth <- Ninja.health <$> P.nUser
             act
@@ -454,7 +454,7 @@ spec = parallel do
                 addStacks "Unsealing Technique" stacks
                 tag' "Rising Twin Dragons" 0
             act
-            withClass Physical $ enemyTurn $ damage targetDmg
+            withClass Physical $ as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
             tagged <- Ninja.hasOwn "Rising Twin Dragons" <$> P.nUser
@@ -475,7 +475,7 @@ spec = parallel do
     describeCharacter "Neji Hyūga" \useOn -> do
         useOn Enemy "Gentle Fist" do
             act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             turns 4
             userHealth <- Ninja.health <$> P.nUser
             targetHealth <- Ninja.health <$> P.nTarget
@@ -486,7 +486,7 @@ spec = parallel do
                     targetDmg - (100 - userHealth) `shouldBe` 5
         useOn Enemies "Eight Trigrams Palm Rotation" do
             act
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
             return do
@@ -524,9 +524,9 @@ spec = parallel do
                     targetHealth `shouldBe` 0
         useOn Self "Sand Clone" do
             act
-            enemyTurn $ apply 0 [Plague]
+            as Enemy $ apply 0 [Plague]
             harmed <- (`is` Plague) <$> P.nUser
-            enemyTurn do
+            as Enemy do
                 damage targetDmg
                 apply 0 [Plague]
             harmed' <- (`is` Plague) <$> P.nUser
@@ -568,7 +568,7 @@ spec = parallel do
     describeCharacter "Temari" \useOn -> do
         useOn Enemy "Cyclone Scythe" do
             act
-            withClass NonMental $ enemyTurn $ apply 0 [Reveal]
+            withClass NonMental $ as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             targetHealth <- Ninja.health <$> P.nTarget
             return do
@@ -584,10 +584,10 @@ spec = parallel do
                     100 - targetHealth `shouldBe` 35
         useOn Enemies "Sandstorm" do
             act
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             turns 1
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             return do
                 it "makes user's team invulnerable" $

@@ -5,7 +5,7 @@ module Import
   , describeCategory
   , act
   , turns
-  , enemyTurn
+  , as
   , targetIsExposed
   , allyOf
   , withClass
@@ -57,7 +57,6 @@ import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import           Game.Model.Runnable (Runnable(..), RunConstraint)
-import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
@@ -90,22 +89,23 @@ useSkill char target skillName f =
     findSkill x = find ((== x) . Skill.name) . join . Character.skills
     ctx skill   = Context { Context.skill     = skill
                           , Context.user      = unsafeHead Slot.all
-                          , Context.target    = targetSlot
+                          , Context.target    = targetSlot target
                           , Context.new       = True
                           , Context.continues = False
                           }
-    targetSlot    = (Slot.all !!) case target of
-        Self       -> 0
-        Ally       -> 1
-        Allies     -> 1
-        RAlly      -> 1
-        XAlly      -> 2
-        XAllies    -> 2
-        Enemy      -> 3
-        Enemies    -> 3
-        REnemy     -> 3
-        XEnemies   -> 4
-        Everyone   -> 0
+
+targetSlot :: Target -> Slot
+targetSlot Self = Slot.all !! 0
+targetSlot Ally = Slot.all !! 1
+targetSlot Allies = Slot.all !! 1
+targetSlot RAlly = Slot.all !! 1
+targetSlot XAlly = Slot.all !! 2
+targetSlot XAllies = Slot.all !! 2
+targetSlot Enemy = Slot.all !! 3
+targetSlot Enemies = Slot.all !! 3
+targetSlot REnemy = Slot.all !! 3
+targetSlot XEnemies = Slot.all !! 4
+targetSlot Everyone = Slot.all !! 0
 
 testBase :: Wrapper
 testBase = Wrapper
@@ -176,34 +176,27 @@ turns (Duration -> i) = do
     replicateM_ (sync i) . Engine.processTurn $ return ()
     P.alter \g -> g { Game.playing = Player.A }
 
-enemySkill :: Skill
-enemySkill = Skill.new
-    { Skill.start   = []
-    , Skill.classes = [All]
-    }
-
-enemyTurn :: ∀ m. (MonadPlay m, MonadHook m, MonadRandom m)
-          => RunConstraint () -> m ()
-enemyTurn f = do
+as :: ∀ m. (MonadPlay m, MonadHook m, MonadRandom m)
+   => Target -> RunConstraint () -> m ()
+as t f = do
     P.with with . Engine.processTurn $ wrap Player.B
     P.alter \g -> g { Game.playing = Player.A }
   where
-    with context = context
-        { Context.user   = user
-        , Context.target = target
-        , Context.skill  = enemySkill { Skill.effects = [To Enemy f]
-                                      , Skill.classes
-                                      }
-        }
+    with context = Context {user, target, skill, new = True, continues = False}
       where
-        user = Slot.all !! 3
+        skill = Skill.new { Skill.effects = [To t' f], Skill.classes }
+        user = targetSlot t
         ctxTarget = Context.target context
         target
-          | Parity.allied ctxTarget user = Context.user context
-          | otherwise                    = ctxTarget
-        classes = Skill.classes enemySkill
-                  ++ Skill.classes (Context.skill context) `difference`
-                      [Bypassing, Uncounterable, Unreflectable, Unremovable]
+          | ctxTarget == user = Context.user context
+          | otherwise         = ctxTarget
+        t'
+          | ctxTarget == user            = Enemy
+          | Parity.allied user ctxTarget = Ally
+          | otherwise                    = Enemy
+        classes = All `insertSet`
+                  Skill.classes (Context.skill context) `difference`
+                  [Bypassing, Uncounterable, Unreflectable, Unremovable]
 
 targetIsExposed :: ∀ m. MonadPlay m => m Bool
 targetIsExposed = do

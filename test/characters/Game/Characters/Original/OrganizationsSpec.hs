@@ -29,11 +29,11 @@ spec = parallel do
 
         useOn Enemies "Syrup Trap" do
             act
-            withClass Mental $ enemyTurn $ return ()
+            withClass Mental $ as Enemy $ return ()
             targetStunned <- Effects.stun <$> P.nTarget
             factory
             act
-            withClass Physical $ enemyTurn $ return ()
+            withClass Physical $ as Enemy $ return ()
             targetStunned' <- Effects.stun <$> P.nTarget
             return do
                 it "stuns type class" $
@@ -80,12 +80,12 @@ spec = parallel do
                     100 - targetHealth' `shouldBe` 65
 
         useOn Self "Tag Team" do
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             act
             userHealth <- Ninja.health <$> P.nUser
             userStacks <- Ninja.numStacks "Izumo's Health"
                           <$> P.user <*> P.nUser
-            enemyTurn kill
+            as Enemy kill
             userHealth' <- Ninja.health <$> P.nUser
             return do
                 it "transfers health..." $
@@ -98,7 +98,7 @@ spec = parallel do
     describeCharacter "Aoba Yamashiro" \useOn -> do
         useOn Enemy "Scattering Crow Swarm" do
             replicateM_ stacks act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             turns 5
             targetHealth <- Ninja.health <$> P.nTarget
@@ -110,7 +110,7 @@ spec = parallel do
 
         useOn Ally "Revenge of the Murder" do
             act
-            enemyTurn kill
+            as Enemy kill
             targetHealth <- Ninja.health <$> P.nTarget
             skill <- Skill.name . Ninjas.getSkill (Left 1) <$> P.nTarget
             turns 1
@@ -139,9 +139,9 @@ spec = parallel do
     describeCharacter "Ibiki Morino" \useOn -> do
         useOn Self "Biding Time" do
             act
-            enemyTurn $ damage targetDmg
-            enemyTurn $ damage targetDmg
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ damage targetDmg
+            as Enemy $ damage targetDmg
+            as Enemy $ apply 0 [Reveal]
             userHealth <- Ninja.health <$> P.nUser
             userStacks <- Ninja.numStacks "Payback" <$> P.user <*> P.nUser
             return do
@@ -168,7 +168,7 @@ spec = parallel do
             defense <- Ninja.totalDefense <$> P.nUser
             turns 1
             targetHealth <- Ninja.health <$> P.nTarget
-            enemyTurn $ return ()
+            as Enemy $ return ()
             targetHealth' <- Ninja.health <$> P.nTarget
             return do
                 it "defends user" $
@@ -181,7 +181,7 @@ spec = parallel do
         useOn Enemy "Summoning: Torture Chamber" do
             act
             defense <- Ninja.totalDefense <$> P.nUser
-            enemyTurn $ return ()
+            as Enemy $ return ()
             turns 5
             targetHealth <- Ninja.health <$> P.nTarget
             factory
@@ -327,7 +327,7 @@ spec = parallel do
 
         useOn Self "Crystal Ice Mirrors" do
             act
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             return do
                 it "makes user invulnerable" $
@@ -360,7 +360,7 @@ spec = parallel do
         useOn Enemies "Hidden Mist" do
             act
             targetExhausted <- Effects.exhaust [Mental] <$> (allyOf =<< P.target)
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             return do
                 it "adds a random chakra to enemy skills" $
@@ -495,7 +495,7 @@ spec = parallel do
               P.alter $ const savedChakra
               act
               turns 1
-              enemyTurn $ damage targetDmg
+              as Enemy $ damage targetDmg
               turns 4
               (chakra', _) <- Game.chakra <$> P.game
               return do
@@ -518,7 +518,7 @@ spec = parallel do
         useOn Enemies "Summoning: Kyodaigumo" do
             act
             targetSnared <- Effects.snare <$> P.nTarget
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             turns 8
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
@@ -532,7 +532,7 @@ spec = parallel do
 
         useOn Ally "Spiral Web" do
             act
-            withClass Physical $ enemyTurn $ apply 0 [Reveal]
+            withClass Physical $ as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nTarget
             return do
                 it "counters harm to target" $
@@ -541,7 +541,7 @@ spec = parallel do
     describeCharacter "Tayuya" \useOn -> do
         useOn Enemies "Summoning: Doki" do
             act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             turns 3
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
@@ -587,13 +587,13 @@ spec = parallel do
             act
             turns stacks
             targetHealth <- Ninja.health <$> P.nTarget
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             self factory
             factory
             act
             has <- Ninja.hasOwn "Demon Parasite" <$> P.nUser
-            enemyTurn $ self $ kill
+            as Enemy $ self $ kill
             has' <- Ninja.hasOwn "Demon Parasite" <$> P.nUser
             return do
                 it "reduces damage" $
@@ -606,7 +606,7 @@ spec = parallel do
                     not has'
 
         useOn Self "Regeneration" do
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             act
             userHealth <- Ninja.health <$> P.nUser
             factory
@@ -647,7 +647,7 @@ spec = parallel do
             act
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
             userHealth <- Ninja.health <$> P.nUser
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth' <- Ninja.health <$> P.nUser
             turns 3
             userHealth'' <- Ninja.health <$> P.nUser

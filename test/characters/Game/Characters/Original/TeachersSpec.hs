@@ -20,7 +20,7 @@ spec = parallel do
                     100 - targetHealth `shouldBe` 20 + 10 * healthInterval
         useOn Ally "Ally Shield" do
             act
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nTarget
             return do
                 it "makes target invulnerable" $
@@ -28,7 +28,7 @@ spec = parallel do
         useOn Enemy "Capture and Arrest" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             targetHealth' <- Ninja.health <$> P.nTarget
             setHealth 100
             damage targetDmg
@@ -75,14 +75,14 @@ spec = parallel do
                     targetHealth' - targetHealth'' `shouldBe` 30
         useOn Self "Genjutsu Ambush Tactics" do
             act
-            enemyTurn $ apply 0 [Exhaust [All]]
+            as Enemy $ apply 0 [Exhaust [All]]
             harmedBefore <- (`is` Exhaust [All]) <$> P.nUser
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             harmedAfter <- (`is` Reveal) <$> P.nUser
             self factory
             act
-            enemyTurn $ damage targetDmg
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ damage targetDmg
+            as Enemy $ apply 0 [Reveal]
             harmedInterrupted <- (`is` Reveal) <$> P.nUser
             return do
                 it "waits 1 turn"
@@ -95,7 +95,7 @@ spec = parallel do
     describeCharacter "Kakashi Hatake" \useOn -> do
         useOn Enemy "Sharingan" do
             self act
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             userHarmed <- (`is` Reveal) <$> P.nUser
             targetHarmed <- (`is` Reveal) <$> P.nTarget
             return do
@@ -180,7 +180,7 @@ spec = parallel do
                     (100 - targetHealth') - targetDmg `shouldBe` 5
         useOn Enemy "Crescent Moon Dance" do
             act
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             targetHealth <- Ninja.health <$> P.nTarget
             harmed <- (`is` Reveal) <$> P.nUser
             return do
@@ -198,8 +198,8 @@ spec = parallel do
             self factory
             act
             replicateM_ damageTurns do
-                enemyTurn $ damage lessTargetDmg
-                enemyTurn $ return ()
+                as Enemy $ damage lessTargetDmg
+                as Enemy $ return ()
             userHealth <- Ninja.health <$> P.nUser
             return do
                 it "reduces damage" $
@@ -214,7 +214,7 @@ spec = parallel do
             act
             targetHealth <- Ninja.health <$> P.nTarget
             exposed <- targetIsExposed
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             targetExhausted <- Effects.exhaust [All] <$> P.nTarget
             userStacks <- Ninja.numStacks "Illusion" <$> P.user <*> P.nUser
@@ -262,7 +262,7 @@ spec = parallel do
             self $ addStacks "Sharpen Blades" stacks
             act
             userStacks <- Ninja.numStacks "Sharpen Blades" <$> P.user <*> P.nUser
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             turns $ 8 + stacks
             targetHealth <- Ninja.health <$> (allyOf =<< P.target)
@@ -293,7 +293,7 @@ spec = parallel do
                     100 - targetHealth `shouldBe` 35
         useOn Ally "Self-Sacrifice" do
             act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             targetHealth <- Ninja.health <$> P.nTarget
             return do
@@ -319,7 +319,7 @@ spec = parallel do
             act
             userHealth <- Ninja.health <$> P.nUser
             tagged <- Ninja.hasOwn "Sixth Gate Opening" <$> P.nUser
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             self do
                 factory
@@ -337,7 +337,7 @@ spec = parallel do
                     not harmed
         useOn Enemy "Counter Punch" do
             act
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             targetHealth <- Ninja.health <$> P.nTarget
             return do
@@ -362,7 +362,7 @@ spec = parallel do
         useOn Ally "Flak Jacket" do
             act
             defense <- Ninja.totalDefense <$> P.nTarget
-            enemyTurn $ apply 0 [Plague]
+            as Enemy $ apply 0 [Plague]
             harmed <- (`is` Plague) <$> P.nTarget
             return do
                 it "defends target" $
@@ -385,7 +385,7 @@ spec = parallel do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 3 * 10
         useOn Ally "Regenerative Healing Technique" do
-            withClass Bane $ enemyTurn do
+            withClass Bane $ as Enemy do
                 apply 0 [Expose]
                 damage targetDmg
             act

@@ -14,7 +14,7 @@ spec = parallel do
     describeCharacter "Hanabi Hyūga" \useOn -> do
         useOn Enemy "Gentle Fist" do
             act
-            enemyTurn $ self $ gain [Blood, Gen]
+            as Enemy $ self $ gain [Blood, Gen]
             turns 4
             targetHealth <- Ninja.health <$> P.nTarget
             (_, targetChakra) <- Game.chakra <$> P.game
@@ -30,7 +30,7 @@ spec = parallel do
             factory
             self factory
             act
-            enemyTurn $ apply 0 [Stun All]
+            as Enemy $ apply 0 [Stun All]
             targetStunned <- Effects.stun <$> P.nTarget
             return do
                 it "damages target" $
@@ -40,9 +40,9 @@ spec = parallel do
         useOn Self "Unyielding Tenacity" do
             act
             damage targetDmg
-            enemyTurn $ apply 0 [Stun All]
+            as Enemy $ apply 0 [Stun All]
             userStunned <- Effects.stun <$> P.nUser
-            enemyTurn kill
+            as Enemy kill
             userHealth <- Ninja.health <$> P.nUser
             return do
                 it "prevents death" $
@@ -60,7 +60,7 @@ spec = parallel do
         useOn Self "Umbrella Gathering" do
             self $ addStacks "Umbrella" stacks
             act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             userStacks <- Ninja.numActive "Umbrella" <$> P.nUser
             return do
@@ -106,7 +106,7 @@ spec = parallel do
                     toList targetExhausted `shouldBe` [Rand]
         useOn Self "Pre-Healing Technique" do
             let initialHealth = 10
-            withClass Bane $ enemyTurn $ apply 0 [Reveal]
+            withClass Bane $ as Enemy $ apply 0 [Reveal]
             self $ setHealth initialHealth
             act
             uncured <- (`is` Reveal) <$> P.nTarget
@@ -119,7 +119,7 @@ spec = parallel do
                     userHealth `shouldBe` initialHealth + 5 * 15
         useOn Enemies "Temple of Nirvana" do
             act
-            enemyTurn $ damage 5
+            as Enemy $ damage 5
             enemyStunned <- Effects.stun <$> P.nTarget
             othersStunned <- Effects.stun <$> (allyOf =<< P.target)
             factory
@@ -159,7 +159,7 @@ spec = parallel do
             targetHealth <- Ninja.health <$> P.nTarget
             setHealth 100
             damage targetDmg
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             targetHealth' <- Ninja.health <$> P.nTarget
             factory
@@ -195,7 +195,7 @@ spec = parallel do
                 factory
                 tag' "Shadow Senbon" 0
             act
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             return do
                 it "tags user"
@@ -267,7 +267,7 @@ spec = parallel do
                     100 - targetHealth `shouldBe` 25
         useOn XAlly "Wall of Air" do
             act
-            withClass NonMental $ enemyTurn $ apply 0 [Reveal]
+            withClass NonMental $ as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nTarget
             return do
                 it "counters a skill" $
@@ -304,7 +304,7 @@ spec = parallel do
             act
             tagged <- Ninja.hasOwn "Fog Clone" <$> P.nUser
             defense <- Ninja.totalDefense <$> P.nUser
-            withClass Mental $ enemyTurn $ apply 0 [Reveal]
+            withClass Mental $ as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             return do
                 it "tags user"
@@ -317,7 +317,7 @@ spec = parallel do
     describeCharacter "Yoroi Akadō" \useOn -> do
         useOn Enemy "Energy Drain" do
             gain [Blood, Gen]
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             act
             userHealth <- Ninja.health <$> P.nUser
             targetHealth <- Ninja.health <$> P.nTarget
@@ -326,7 +326,7 @@ spec = parallel do
             targetHealth' <- Ninja.health <$> P.nTarget
             self factory
             act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth' <- Ninja.health <$> P.nUser
             self $ tag' "Chakra Focus" 0
             act
@@ -346,7 +346,7 @@ spec = parallel do
             gain [Blood, Gen, Nin, Tai]
             self $ apply 0 [Seal]
             act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             turns 5
             userHealth <- Ninja.health <$> P.nUser
             targetHealth <- Ninja.health <$> P.nTarget
@@ -378,7 +378,7 @@ spec = parallel do
     describeCharacter "Misumi Tsurugi" \useOn -> do
         useOn Ally "Flexible Twisting Joints" do
             act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             targetHealth <- Ninja.health <$> P.nTarget
             return do
                 it "reduces damage" $
@@ -392,7 +392,7 @@ spec = parallel do
         useOn Enemy "Soft Physique Modification" do
             act
             exposed <- targetIsExposed
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             targetHealth <- Ninja.health <$> P.nTarget
             return do

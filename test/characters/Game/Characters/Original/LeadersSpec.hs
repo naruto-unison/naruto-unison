@@ -13,7 +13,7 @@ spec :: Spec
 spec = parallel do
     describeCharacter "Orochimaru" \useOn -> do
         useOn Enemy "Kusanagi" do
-            enemyTurn $ barrier 0 30
+            as Enemy $ barrier 0 30
             defend 0 20
             act
             defense <- Ninja.totalDefense <$> P.nTarget
@@ -83,14 +83,14 @@ spec = parallel do
         useOn Enemy "Summoning: Toad Mouth Trap" do
             act
             exposed <- targetIsExposed
-            enemyTurn $ damage targetDmg
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ damage targetDmg
+            as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             factory
             self factory
             act
-            enemyTurn $ afflict 5
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ afflict 5
+            as Enemy $ apply 0 [Reveal]
             harmed' <- (`is` Reveal) <$> P.nUser
             return do
                 it "exposes target"
@@ -133,7 +133,7 @@ spec = parallel do
 
         useOn Self "Mitotic Regeneration" do
             setHealth 2
-            enemyTurn $ apply 0 [Expose]
+            as Enemy $ apply 0 [Expose]
             act
             userHealth <- Ninja.health <$> P.nUser
             userHarmed <- (`is` Expose) <$> P.nUser
@@ -144,11 +144,11 @@ spec = parallel do
                     not userHarmed
 
         useOn Allies "Major Summoning: Katsuyu" do
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             act
             targetHealth <- Ninja.health <$> P.nTarget
             setHealth 100
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             turns stacks
             targetHealth' <- Ninja.health <$> P.nTarget
             return do
@@ -158,7 +158,7 @@ spec = parallel do
                     targetDmg - (100 - targetHealth') `shouldBe` 5 * stacks
 
         useOn Allies "Slug Division" do
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             act
             targetHealth <- Ninja.health <$> P.nTarget
             defense <- Ninja.totalDefense <$> P.nTarget

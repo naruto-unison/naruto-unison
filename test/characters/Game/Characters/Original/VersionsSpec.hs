@@ -52,7 +52,7 @@ spec = parallel do
             userHealth <- Ninja.health <$> P.nUser
             factory
             act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             userHealth' <- Ninja.health <$> P.nUser
             return do
                 it "heals user" $
@@ -63,7 +63,7 @@ spec = parallel do
     describeCharacter "Curse Mark Sasuke" \useOn -> do
         useOn Enemy "Chidori" do
             act
-            enemyTurn $ damage targetDmg
+            as Enemy $ damage targetDmg
             enemyHealth <- Ninja.health <$> P.nTarget
             userHealth <- Ninja.health <$> P.nUser
             return do
@@ -77,7 +77,8 @@ spec = parallel do
             targetStunned <- Effects.stun <$> P.nTarget
             targetHealth <- Ninja.health <$> P.nTarget
             isInvuln <- Effects.invulnerable <$> P.nTarget
-            isAlone <- (`is` Alone) <$> P.nTarget
+            as XEnemies $ apply 0 [Focus]
+            helped <- (`is` Focus) <$> P.nTarget
             turns 3
             targetHealth' <- Ninja.health <$> P.nTarget
             return do
@@ -85,8 +86,8 @@ spec = parallel do
                     targetStunned `shouldBe` [All]
                 it "makes target invulnerable" $
                     isInvuln `shouldBe` [All]
-                it "isolates target"
-                    isAlone
+                it "isolates target" $
+                    not helped
                 it "deals no damage initially" $
                     targetHealth `shouldBe` 100
                 it "damages target after 2 turns" $
@@ -95,7 +96,7 @@ spec = parallel do
         useOn Self "Curse Mark" do
             act
             userHealth <- Ninja.health <$> P.nUser
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             return do
                 it "damages user" $
@@ -126,7 +127,7 @@ spec = parallel do
         useOn Ally "Drunken Counter" do
             act
             usedSkill <- Ninja.hasOwn "Unpredictable Assault" <$> P.nUser
-            withClass Physical $ enemyTurn $ apply 0 [Reveal]
+            withClass Physical $ as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nTarget
             usedSkill' <- Ninja.hasOwn "Unpredictable Assault" <$> P.nUser
             return do
@@ -138,7 +139,7 @@ spec = parallel do
                     not usedSkill
 
         useOn Enemy "Drunken Fist" do
-            enemyTurn $ apply 0 [Plague]
+            as Enemy $ apply 0 [Plague]
             act
             harmed <- (`is` Plague) <$> P.nUser
             turns 5
@@ -164,7 +165,7 @@ spec = parallel do
             act
             turns stacks
             targetHealth <- Ninja.health <$> P.nTarget
-            enemyTurn $ apply 0 [Reveal]
+            as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
             turns stacks
             targetHealth' <- Ninja.health <$> P.nTarget
@@ -216,7 +217,7 @@ spec = parallel do
 
         useOn Enemies "Sand Burial Prison" do
             act
-            withClass NonMental $ enemyTurn $ return ()
+            withClass NonMental $ as Enemy $ return ()
             targetExhausted <- Effects.exhaust [NonMental] <$> P.nTarget
             otherExhausted <- Effects.exhaust [NonMental] <$> (allyOf =<< P.target)
             return do
@@ -246,7 +247,7 @@ spec = parallel do
             act
             cancelChannel "Sand Tsunami"
             self $ defend 0 targetDmg
-            enemyTurn $ self $ defend 0 targetDmg
+            as Enemy $ self $ defend 0 targetDmg
             userDefense <- Ninja.totalDefense <$> P.nUser
             targetDefense <- Ninja.totalDefense <$> P.nTarget
             return do
