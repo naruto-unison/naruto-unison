@@ -404,7 +404,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Soft Physique Modification"
         , Skill.desc      = "Misumi wraps around an enemy. For 2 turns, skills that enemies use on Misumi are reflected onto the target. During this time, the target cannot reduce damage or become invulnerable."
-        , Skill.classes   = [Physical, Melee, Soulbound, Uncounterable, Unreflectable]
+        , Skill.classes   = [Physical, Melee, Soulbound, Unremovable, Uncounterable, Unreflectable]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =

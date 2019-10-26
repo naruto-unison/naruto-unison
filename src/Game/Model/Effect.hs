@@ -220,18 +220,11 @@ helpful Weaken{}        = False
 
 -- | Effect cannot be removed.
 sticky :: Effect -> Bool
-sticky Alternate{}    = True
-sticky Block{}        = True
-sticky Enrage         = True
-sticky Face           = True
-sticky Invulnerable{} = True
-sticky Redirect{}     = True
-sticky Reflect        = True
-sticky ReflectAll{}   = True
-sticky Restrict       = True
-sticky Share{}        = True
-sticky Swap           = True
-sticky _              = False
+sticky Alternate{}  = True
+sticky Face         = True
+sticky Reflect      = True
+sticky ReflectAll{} = True
+sticky _            = False
 
 -- | Effect is affected by 'Focus'.
 isDisable :: Effect -> Bool

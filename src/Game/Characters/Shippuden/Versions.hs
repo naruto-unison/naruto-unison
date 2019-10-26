@@ -384,7 +384,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Inorganic Animation"
         , Skill.desc      = "Kabuto brings his surroundings to life, dealing 10 damage to all enemies. The shifting obstacles protect Kabuto's team, forcing enemies to target specific opponents with skills that would normally affect all opponents. If this skill damages any enemies, Kabuto's skills are recharged."
-        , Skill.classes   = [Physical, Ranged, Unreflectable]
+        , Skill.classes   = [Physical, Ranged, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do

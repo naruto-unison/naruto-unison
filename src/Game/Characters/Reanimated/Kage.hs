@@ -143,7 +143,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Reciprocal Round-Robin"
         , Skill.desc      = "Minato prepares to switch places with an ally. If enemies use skills on Minato next turn, the skills will be reflected onto the target, and Minato's skills next turn will bypass invulnerability, counters, reflects, and damage reduction. If enemies use skills on the target next turn, the skills will be reflected onto Minato, and the target's skills next turn will bypass invulnerability, counters, reflects, and damage reduction."
-        , Skill.classes   = [Chakra, Ranged, Invisible]
+        , Skill.classes   = [Chakra, Ranged, Invisible, Unremovable]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
