@@ -40,7 +40,7 @@ spec = parallel do
         useOn Enemies "Tailed Beast Chakra Arms" do
             act
             turns 5
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 15 * 3
@@ -219,7 +219,7 @@ spec = parallel do
             act
             withClass NonMental $ as Enemy $ return ()
             targetExhausted <- Effects.exhaust [NonMental] <$> P.nTarget
-            otherExhausted <- Effects.exhaust [NonMental] <$> (allyOf =<< P.target)
+            otherExhausted <- Effects.exhaust [NonMental] <$> get XEnemies
             return do
                 it "exhausts enemies" $
                     otherExhausted `shouldBe` [Rand]
@@ -241,7 +241,7 @@ spec = parallel do
         useOn Enemies "Sand Tsunami" do
             act
             turns 8
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             factory
             self factory
             act

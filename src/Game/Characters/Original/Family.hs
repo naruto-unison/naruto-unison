@@ -15,14 +15,13 @@ characters =
     [LeafVillage, Fire, Wind, Lightning, Yang, Sarutobi]
     [ [ Skill.new
         { Skill.name      = "Refocus"
-        , Skill.desc      = "Konohamaru tries his best to concentrate on the fight. For 3 turns, effects from his allies on him are twice as powerful. While active, this skill becomes [Unsexy Technique][n]."
+        , Skill.desc      = "Konohamaru tries his best to concentrate on the fight. For 3 turns, status effects from his allies on him are twice as powerful, and allies who graint him health or destructible defense will grant twice as much. While active, this skill becomes [Unsexy Technique][n]."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self do
-                apply 3 [Alternate "Refocus" "Unsexy Technique"]
-                allies . self $ hide 3 [Boost 2]
+          [ To Self $
+                apply 3 [Alternate "Refocus" "Unsexy Technique", Boost 2]
           ]
         }
       , Skill.new
@@ -267,14 +266,14 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Problem Analysis"
-        , Skill.desc      = "By predicting enemy attacks and using them as opportunities, Shikaku protects himself or an ally. The first skill used on them next turn that deals damage will instead have its damage converted into destructible defense."
+        , Skill.desc      = "By predicting enemy attacks and using them as opportunities, Shikaku protects himself or an ally. The first skill used on them next turn that deals non-affliction damage will instead have its damage converted into destructible defense."
         , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Ally do
                 apply 1 [DamageToDefense]
-                trap 1 (OnDamaged All) do
+                trap 1 (OnDamaged NonAffliction) do
                     remove "Problem Analysis"
                     removeTrap "Problem Analysis"
           ]
@@ -341,7 +340,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
               apply 1 [Throttle 1 $ Any Invulnerable]
-              trapFrom 1 (OnHarmed Mental) $ apply 1 [Invulnerable All]
+              delay (-1) $
+                  trapFrom 1 (OnHarmed Mental) $ apply 1 [Invulnerable All]
           ]
         }
       ]

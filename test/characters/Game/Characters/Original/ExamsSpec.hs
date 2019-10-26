@@ -71,7 +71,7 @@ spec = parallel do
         useOn Enemies "Senbon Shower" do
             self $ addStacks "Umbrella" stacks
             act
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             userStacks <- Ninja.numActive "Umbrella" <$> P.nUser
             return do
                 it "damages targets" $
@@ -121,7 +121,7 @@ spec = parallel do
             act
             as Enemy $ damage 5
             enemyStunned <- Effects.stun <$> P.nTarget
-            othersStunned <- Effects.stun <$> (allyOf =<< P.target)
+            othersStunned <- Effects.stun <$> get XEnemies
             factory
             act
             turns 1
@@ -274,7 +274,7 @@ spec = parallel do
                     not harmed
         useOn Enemies "Supersonic Slicing Wave" do
             act
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 45
@@ -282,7 +282,7 @@ spec = parallel do
     describeCharacter "Oboro" \useOn -> do
         useOn Enemies "Exploding Kunai" do
             act
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 15
@@ -292,7 +292,7 @@ spec = parallel do
             targetStunned <- Effects.stun <$> P.nTarget
             self $ tag' "Fog Clone" 0
             act
-            targetHealth' <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth' <- Ninja.health <$> get XEnemies
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 20

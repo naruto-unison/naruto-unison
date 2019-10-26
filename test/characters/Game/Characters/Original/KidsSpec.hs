@@ -140,7 +140,7 @@ spec = parallel do
             as Enemy $ damage targetDmg
             turns 5
             userHealth   <- Ninja.health <$> P.nUser
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             factory
             tag' "Dynamic Marking" 0
             act
@@ -212,8 +212,8 @@ spec = parallel do
                     targetChakras `shouldBe` [Nin, Tai]
         useOn Enemies "Eight Trigrams Sixty-Four Palms" do
             act
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
-            defense <- Ninja.totalDefense <$> (allyOf =<< P.user)
+            targetHealth <- Ninja.health <$> get XEnemies
+            defense <- Ninja.totalDefense <$> get XAlly
             factory
             self $ tag' "Byakugan" 0
             act
@@ -245,7 +245,7 @@ spec = parallel do
                     tagged
         useOn Enemies "Shadow Strangle" do
             act
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             exposed <- targetIsExposed
             return do
                 it "damages targgets" $
@@ -254,7 +254,7 @@ spec = parallel do
                     exposed
         useOn Enemies "Shadow Possession" do
             act
-            targetStunned <- Effects.stun <$> (allyOf =<< P.target)
+            targetStunned <- Effects.stun <$> get XEnemies
             return do
                 it "stuns targets" $
                     targetStunned `shouldBe` [NonMental]
@@ -272,7 +272,7 @@ spec = parallel do
                     100 - userHealth `shouldBe` targetDmg - 20
         useOn Enemies "Partial Expansion" do
             act
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 20
@@ -306,8 +306,8 @@ spec = parallel do
                     null userStunned
         useOn Enemies "Full Expansion" do
             act
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
-            targetStunned <- Effects.stun <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
+            targetStunned <- Effects.stun <$> get XEnemies
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 30
@@ -431,7 +431,7 @@ spec = parallel do
         useOn Enemy "Unsealing Technique" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            otherEnemyHealth <- Ninja.health <$> (allyOf =<< P.target)
+            otherEnemyHealth <- Ninja.health <$> get XEnemies
             userStacks <- Ninja.numActive "Unsealing Technique" <$> P.nUser
             self factory
             self $ tag' "Rising Twin Dragons" 0
@@ -456,7 +456,7 @@ spec = parallel do
             act
             withClass Physical $ as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             tagged <- Ninja.hasOwn "Rising Twin Dragons" <$> P.nUser
             return do
                 it "damages targets" $
@@ -488,7 +488,7 @@ spec = parallel do
             act
             as Enemy $ apply 0 [Reveal]
             harmed <- (`is` Reveal) <$> P.nUser
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 15
@@ -550,7 +550,7 @@ spec = parallel do
                     100 - targetHealth `shouldBe` 30
         useOn Enemies "Poison Bomb" do
             act
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 10
@@ -578,7 +578,7 @@ spec = parallel do
                     not harmed
         useOn Enemies "Summoning: Blade Dance" do
             act
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 35

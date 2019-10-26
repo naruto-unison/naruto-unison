@@ -73,7 +73,7 @@ spec = parallel do
         useOn Enemy "Giant Flame Bomb" do
             act
             targetHealth <- Ninja.health <$> P.nTarget
-            allyHealth <- Ninja.health <$> (allyOf =<< P.target)
+            allyHealth <- Ninja.health <$> get XEnemies
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 20
@@ -115,7 +115,7 @@ spec = parallel do
         useOn Enemies "Toad Oil Bomb" do
             act
             turns 5
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 15 * 2

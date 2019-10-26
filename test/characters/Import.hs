@@ -7,9 +7,9 @@ module Import
   , turns
   , as
   , targetIsExposed
-  , allyOf
   , withClass
   , channel
+  , get
   ) where
 
 import ClassyPrelude as X hiding ((\\), fromList, toList)
@@ -19,7 +19,7 @@ import Game.Action.Combat as X
 import Game.Action.Skill as X
 import Game.Action.Status as X
 import Game.Action.Trap as X
-import Game.Characters.Import as X (self, targetHas, userHas)
+import Game.Characters.Import as X (self, targetHas, userHas, everyone)
 import Game.Model.Chakra as X (Chakra(..))
 import Game.Model.Character as X (Category(..), Character)
 import Game.Model.Class as X (Class(..))
@@ -106,6 +106,9 @@ targetSlot Enemies = Slot.all !! 3
 targetSlot REnemy = Slot.all !! 3
 targetSlot XEnemies = Slot.all !! 4
 targetSlot Everyone = Slot.all !! 0
+
+get :: ∀ m. MonadGame m => Target -> m Ninja
+get target = P.ninja $ targetSlot target
 
 testBase :: Wrapper
 testBase = Wrapper
@@ -205,14 +208,11 @@ targetIsExposed = do
         apply 0 [Invulnerable All]
     null . Effects.invulnerable <$> P.nTarget
 
-allyOf :: ∀ m. MonadGame m => Slot -> m Ninja
-allyOf target = P.ninja $ Slot.all !! (Slot.toInt target + 1)
-
 withClass :: ∀ m. MonadPlay m => Class -> m () -> m ()
 withClass cla = P.with ctx
   where
-    ctx context = context { Context.skill = withSkill $ Context.skill context }
-    withSkill sk = sk { Skill.classes = cla `insertSet` Skill.classes sk }
+    ctx context  = context { Context.skill = withSkill $ Context.skill context }
+    withSkill sk = sk { Skill.classes = [cla, All] }
 
 channel :: ∀ m. MonadPlay m => Text -> m ()
 channel name = do

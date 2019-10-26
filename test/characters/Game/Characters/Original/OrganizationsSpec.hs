@@ -291,7 +291,7 @@ spec = parallel do
             targetHealth <- Ninja.health <$> P.nTarget
             self $ tag' "Crystal Ice Mirrors" 0
             act
-            targetHealth' <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth' <- Ninja.health <$> get XEnemies
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 30
@@ -313,10 +313,10 @@ spec = parallel do
         useOn Enemy "Acupuncture" do
             act
             stunned <- Effects.stun <$> P.nTarget
-            allyHas <- Ninja.has "Acupuncture" <$> P.user <*> (allyOf =<< P.user)
+            allyHas <- Ninja.has "Acupuncture" <$> P.user <*> get XAlly
             self $ tag' "Crystal Ice Mirrors" 0
             act
-            allyHas' <- Ninja.has "Acupuncture" <$> P.user <*> (allyOf =<< P.user)
+            allyHas' <- Ninja.has "Acupuncture" <$> P.user <*> get XAlly
             return do
                 it "stuns target" $
                     stunned `shouldBe` [All]
@@ -349,8 +349,8 @@ spec = parallel do
 
         useOn Enemies "Water Dragon" do
             act
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
-            stunned <- Effects.stun <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
+            stunned <- Effects.stun <$> get XEnemies
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 10
@@ -359,7 +359,7 @@ spec = parallel do
 
         useOn Enemies "Hidden Mist" do
             act
-            targetExhausted <- Effects.exhaust [Mental] <$> (allyOf =<< P.target)
+            targetExhausted <- Effects.exhaust [Mental] <$> get XEnemies
             as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             return do
@@ -389,7 +389,7 @@ spec = parallel do
             self $ tag' "Mangekyō Sharingan" 0
             act
             turns stacks
-            targetHealth' <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth' <- Ninja.health <$> get XEnemies
             return do
                 it "damages target" $
                     100 - targetHealth `shouldBe` 10 + 5 * (1 + stacks)
@@ -487,7 +487,7 @@ spec = parallel do
               gain [Blood, Gen, Nin, Tai]
               savedChakra <- P.game
               act
-              defense <- Ninja.totalDefense <$> (allyOf =<< P.user)
+              defense <- Ninja.totalDefense <$> get XAlly
               turns 5
               (chakra, _) <- Game.chakra <$> P.game
               factory
@@ -521,7 +521,7 @@ spec = parallel do
             as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             turns 8
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             return do
                 it "reduces damage" $
                     targetDmg - (100 - userHealth) `shouldBe` 10
@@ -544,7 +544,7 @@ spec = parallel do
             as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             turns 3
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` 15 * 2
@@ -564,7 +564,7 @@ spec = parallel do
 
         useOn Enemies "Chains of Fantasia" do
             act
-            targetStunned <- Effects.stun <$> (allyOf =<< P.target)
+            targetStunned <- Effects.stun <$> get XEnemies
             return do
                 it "stuns targets" $
                     targetStunned `shouldBe` [All]
@@ -645,7 +645,7 @@ spec = parallel do
 
         useOn Enemies "Bracken Dance" do
             act
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             userHealth <- Ninja.health <$> P.nUser
             as Enemy $ damage targetDmg
             userHealth' <- Ninja.health <$> P.nUser

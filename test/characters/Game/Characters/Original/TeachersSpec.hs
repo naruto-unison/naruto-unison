@@ -142,7 +142,7 @@ spec = parallel do
             act
             tagged <- Ninja.has "Dragon Flame" <$> P.user <*> P.nTarget
             turns 4
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             return do
                 it "tags targets"
                     tagged
@@ -265,7 +265,7 @@ spec = parallel do
             as Enemy $ damage targetDmg
             userHealth <- Ninja.health <$> P.nUser
             turns $ 8 + stacks
-            targetHealth <- Ninja.health <$> (allyOf =<< P.target)
+            targetHealth <- Ninja.health <$> get XEnemies
             return do
                 it "damages targets" $
                     100 - targetHealth `shouldBe` (2 + stacks) * 15

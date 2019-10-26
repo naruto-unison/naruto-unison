@@ -157,7 +157,7 @@ attack atk dmg = void $ runMaybeT do
 
     guard $ dmgCalc > Effects.threshold nTarget -- Always 0 or higher
 
-    if nTarget `is` DamageToDefense then
+    if atk /= Attack.Afflict && nTarget `is` DamageToDefense then
         let damageDefense = Defense { amount = dmgCalc
                                     , user
                                     , name   = Skill.name skill
