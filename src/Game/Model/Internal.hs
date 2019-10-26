@@ -127,7 +127,7 @@ instance TurnBased Channeling where
 
 instance ToMarkup Channeling where
     toMarkup Instant     = "Instant"
-    toMarkup Passive     = "Passive"
+    toMarkup Passive     = "Instant"
     toMarkup (Action 0)  = "Action"
     toMarkup (Control 0) = "Control"
     toMarkup (Ongoing 0) = "Ongoing"

@@ -229,7 +229,6 @@ sticky Redirect{}     = True
 sticky Reflect        = True
 sticky ReflectAll{}   = True
 sticky Restrict       = True
-sticky Reveal         = True
 sticky Share{}        = True
 sticky Swap           = True
 sticky _              = False
@@ -245,7 +244,6 @@ isDisable _         = False
 bypassEnrage :: Effect -> Bool
 bypassEnrage Bleed{}   = True
 bypassEnrage Exhaust{} = True
-bypassEnrage Reveal    = True
 bypassEnrage Share{}   = True
 bypassEnrage ef        = helpful ef
 

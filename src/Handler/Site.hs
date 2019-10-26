@@ -19,6 +19,7 @@ import Yesod
 
 import           Data.List (nubBy)
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Data.Text as Text
 import           Text.Blaze.Html (preEscapedToHtml)
 import qualified Yesod.Auth as Auth
 
@@ -82,7 +83,7 @@ logLabel True  Rework  = "Character rework:"
 logLabel False Rework  = "Rework:"
 
 separate :: NonEmpty Skill -> [Skill]
-separate = nubBy ((==) `on` Skill.name) . toList
+separate = nubBy ((==) `on` Text.strip . Skill.name) . toList
 
 getChangelog :: Bool -> LogType -> Text -> Character.Category -> Widget
 getChangelog long logType name category = case Characters.lookup tagName of

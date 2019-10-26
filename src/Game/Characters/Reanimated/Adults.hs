@@ -73,7 +73,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Ground Pound"
-        , Skill.desc      = "An explosive shockwave destabilizes the ground around Gari. If an enemy uses a skill on Gari next turn, they will take 25 damage, and Gari will gain 2 turns of 25% damage reduction and restore 15 health each turn."
+        , Skill.desc      = "An explosive shockwave destabilizes the ground around Gari. If an enemy uses a skill on Gari next turn, they will take 25 damage, and Gari will gain 2 turns of 25% damage reduction and regain 15 health each turn."
         , Skill.classes   = [Chakra, Melee, Invisible]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
