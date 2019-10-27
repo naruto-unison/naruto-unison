@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP             #-}
 {-# LANGUAGE NoStrictData    #-}
 {-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -48,7 +49,6 @@ import           Application.Model (CharacterId, EntityField(..), ForumTopic(..)
 import qualified Application.Model as Model
 import           Application.Settings (Settings, widgetFile)
 import qualified Application.Settings as Settings
-import           Class.Display (display')
 import           Game.Model.Act (Act)
 import           Game.Model.Chakra (Chakras)
 import           Game.Model.Character (Character)
@@ -56,6 +56,10 @@ import qualified Game.Model.Character as Character
 import qualified Handler.Play.Queue as Queue
 import           Handler.Play.Wrapper (Wrapper)
 import           OrphanInstances.Character ()
+
+#ifndef DEVELOPMENT
+import           Class.Display (display')
+#endif
 
 -- | App environment.
 data App = App
@@ -97,11 +101,15 @@ mkYesodData "App" $(parseRoutesFile "config/routes")
 -- Incorrect usage will lead to clients seeing outdated cached versions of pages
 -- because the server refuses to send them updates.
 unchanged304 :: Handler ()
+#ifdef DEVELOPMENT
+unchanged304 = return ()
+#else
 unchanged304 = whenM (isNothing <$> getMessage) $
                setEtag . toStrict . display'
                =<< maybeAdd <$> getsYesod timestamp <*> maybeAuthId
   where
     maybeAdd x = maybe x $ (+ x) . Sql.fromSqlKey
+#endif
 
 -- | A convenient synonym for creating forms.
 type Form x = Html -> MForm (HandlerFor App) (FormResult x, Widget)
