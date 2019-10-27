@@ -1,6 +1,6 @@
 <h1>#{title}
-<h2>Changes at Launch
-<h3>Career
+<h2 #changes-at-launch>Changes at Launch
+<h3 #career>Career
 <ul>
   <li>
     Reanimated (#{Reanimated}) characters are purchased with DNA, which is obtained from:
@@ -17,7 +17,7 @@
         Participating in wars.
       <li>
         Defeating A.I. boss challenges. (unimplemented)
-<h3>Mechanics
+<h3 #mechanics>Mechanics
 <ul>
   <li>
     Several classes have been added for clarity:
@@ -57,12 +57,12 @@
   <li>
     New mechanic: destructible barrier, a counterpart to destructible defense. Destructible barrier is a negative effect that absorbs some amount of outgoing damage. It is represented by a red bar next to the health bar, after the blue destructible defense bar.
 
-<h3>Original
+<h3 #original>Original
 <ul>
   ^{change New "Konohamaru Sarutobi" Original}
   ^{change New "Masked Man" Original}
   ^{change Rework "Chōji Akimichi" Original}
-<h3>Shippūden
+<h3 #shippuden>Shippūden
 <ul>
   ^{change New "Ōnoki" Shippuden}
   ^{change New "Mei Terumi" Shippuden}
@@ -90,7 +90,7 @@
   ^{change Rework "Fukasaku and Shima" Shippuden}
   ^{change Rework "Nine-Tailed Naruto" Shippuden}
   ^{change Rework "Mangekyō Sasuke" Shippuden}
-<h3>Reanimated
+<h3 #reanimated>Reanimated
 <ul>
   ^{change New "Jirōbō" Reanimated}
   ^{change New "Minato Namikaze" Reanimated}
@@ -107,7 +107,8 @@
   ^{change Rework "Fuguki Suikazan" Reanimated}
   ^{change Rework "Nagato" Reanimated}
 
-<h3>Minor Adjustments
+<h3 #minor-adjustments>
+  Minor Adjustments
 <ul>
   <li>
     Skills that sacrifice the user's health, such as
@@ -116,8 +117,12 @@
     ^{Link.skill "Karin" Shippuden "Heal Bite"},
     are treated as a direct sacrifice of health rather than self-directed affliction damage. The main distinction is that if a character gains a status effect that increases all affliction damage they deal, it will not cause them to sacrifice more health.
   <li>
+    ^{Link.skill "Yoroi Akadō" Original "Draining Assault"}
+    applies its weakening and strengthening status effects for 1 turn every turn
+    of its duration, rather than for 2 turns at the start of its 3 turn duration.
+  <li>
     ^{Link.skill "Anko Mitarashi" Original "Dragon Flame"}
-    adds 5 to all bane damage that the target receives, rather than only damage from Anko's skills.
+    adds 5 to all <i>bane</i> damage that the target receives, rather than only damage from Anko's skills.
   <li>
     ^{Link.skill "Anko Mitarashi" Original "Twin Snake Sacrifice"}
     bypasses invulnerability.
@@ -169,83 +174,84 @@
   <li>
     ^{Link.skill "Chukichi" Reanimated "Hidden Frost"}
     makes Chukichi invulnerable to all ranged skills.
-<h3>Duration changes:
-  <ul>
-    <li>
-      ^{Link.skill "Kidōmaru" Original "Summoning: Kyodaigumo"}:
-      was <i>Action</i>, now <i>Ongoing</i>.
-    <li>
-      ^{Link.skill "Tayuya" Original "Summoning: Doki"}:
-      was <i>Action</i>, now <i>Ongoing</i>.
-    <li>
-      ^{Link.skill "Aoba Yamashiro" Original "Scattering Crow Swarm"}:
-      was <i>Action</i>, now <i>Ongoing</i>.
-    <li>
-      ^{Link.skill "Tsunade" Original "Major Summoning: Katsuyu"}:
-      was <i>Instant</i>, now <i>Ongoing</i>.
-    <li>
-      ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}:
-      was <i>Instant</i>, now <i>Ongoing</i>.
-    <li>
-      ^{Link.skill "Orochimaru" Original "Major Summoning: Manda"}:
-      was <i>Instant</i>, now <i>Ongoing</i>.
-    <li>
-      ^{Link.skill "Hiruzen Sarutobi" Original "Major Summoning: Enma"}:
-      was <i>Instant</i>, now <i>Ongoing</i>.
-    <li>
-      ^{Link.skill "Shukaku Gaara" Original "Sand Transformation"}:
-      was <i>Instant</i>, now <i>Ongoing</i>.
-    <li>
-      ^{Link.skill "Itachi Uchiha" Shippuden "Susanoo"}:
-      was <i>Instant</i>, now <i>Ongoing</i>.
-    <li>
-      ^{Link.skill "Tobirama Senju" Reanimated "Water Shockwave"}:
-      was <i>Action</i>, now <i>Ongoing</i>.
-    <li>
-      ^{Link.skill "Shikamaru Nara" Original "Shadow Strangle"}:
-      was <i>Action</i>, now <i>Instant</i>.
-    <li>
-      ^{Link.skill "Shikamaru Nara" Original "Shadow Possession"}:
-      was <i>Control</i>, now <i>Instant</i>.
-    <li>
-      ^{Link.skill "Inoichi Yamanaka" Original "Psycho Mind Transmission"}:
-      was <i>Action</i>, now <i>Control</i>.
-    <li>
-      ^{Link.skill "Inoichi Yamanaka" Original "Mental Invasion"}:
-      was <i>Instant</i>, now <i>Control</i>.
-    <li>
-      ^{Link.skill "Kakashi Hatake" Original "Summoning: Ninja Hounds"}:
-      was <i>Control</i>, now <i>Instant</i>.
-    <li>
-      ^{Link.skill "Kurenai Yuhi" Original "Demonic Illusion: Sylvan Fetters"}:
-      was <i>Instant</i>, now <i>Control</i>.
-    <li>
-      ^{Link.skill "Jirōbō" Original "Earth Dome Prison"}:
-      was <i>Instant</i>, now <i>Action</i>.
-    <li>
-      ^{Link.skill "Shukaku Gaara" Original "Monstrous Sand Arm"}:
-      was <i>Instant</i>, now <i>Control</i>.
-    <li>
-      ^{Link.skill "Shikaku Nara" Original "Shadow Possession"}:
-      was <i>Control</i>, now <i>Instant</i>.
-    <li>
-      ^{Link.skill "Kazekage Gaara" Shippuden "Sand Prison"}:
-      was <i>Control</i>, now <i>Instant</i>.
-    <li>
-      ^{Link.skill "Kankūrō" Shippuden "Kuroari Trap"}:
-      was <i>Control</i>, now <i>Instant</i>.
-    <li>
-      ^{Link.skill "Kitsuchi" Shippuden "Sandwiching Mountain"}:
-      was <i>Control</i>, now <i>Instant</i>.
-    <li>
-      ^{Link.skill "Darui" Shippuden "Laser Circus"}:
-      was <i>Control</i>, now <i>Instant</i>.
-    <li>
-      ^{Link.skill "Jiraiya" Shippuden "Toad Subjugation Shadow Manipulation"}:
-      was <i>Control</i>, now <i>Instant</i>.
-    <li>
-      ^{Link.skill "Itachi Uchiha" Shippuden "Mirage Crow"}:
-      was <i>Control</i>, now <i>Instant</i>.
-    <li>
-      ^{Link.skill "Pakura" Reanimated "Searing Combat"}:
-      was <i>Action</i>, now <i>Instant</i>.
+
+<h3 #duration-changes>Duration changes:
+<ul>
+  <li>
+    ^{Link.skill "Kidōmaru" Original "Summoning: Kyodaigumo"}:
+    was <i>Action</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Tayuya" Original "Summoning: Doki"}:
+    was <i>Action</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Aoba Yamashiro" Original "Scattering Crow Swarm"}:
+    was <i>Action</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Tsunade" Original "Major Summoning: Katsuyu"}:
+    was <i>Instant</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}:
+    was <i>Instant</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Orochimaru" Original "Major Summoning: Manda"}:
+    was <i>Instant</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Hiruzen Sarutobi" Original "Major Summoning: Enma"}:
+    was <i>Instant</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Shukaku Gaara" Original "Sand Transformation"}:
+    was <i>Instant</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Itachi Uchiha" Shippuden "Susanoo"}:
+    was <i>Instant</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Tobirama Senju" Reanimated "Water Shockwave"}:
+    was <i>Action</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Shikamaru Nara" Original "Shadow Strangle"}:
+    was <i>Action</i>, now <i>Instant</i>.
+  <li>
+    ^{Link.skill "Shikamaru Nara" Original "Shadow Possession"}:
+    was <i>Control</i>, now <i>Instant</i>.
+  <li>
+    ^{Link.skill "Inoichi Yamanaka" Original "Psycho Mind Transmission"}:
+    was <i>Action</i>, now <i>Control</i>.
+  <li>
+    ^{Link.skill "Inoichi Yamanaka" Original "Mental Invasion"}:
+    was <i>Instant</i>, now <i>Control</i>.
+  <li>
+    ^{Link.skill "Kakashi Hatake" Original "Summoning: Ninja Hounds"}:
+    was <i>Control</i>, now <i>Instant</i>.
+  <li>
+    ^{Link.skill "Kurenai Yuhi" Original "Demonic Illusion: Sylvan Fetters"}:
+    was <i>Instant</i>, now <i>Control</i>.
+  <li>
+    ^{Link.skill "Jirōbō" Original "Earth Dome Prison"}:
+    was <i>Instant</i>, now <i>Action</i>.
+  <li>
+    ^{Link.skill "Shukaku Gaara" Original "Monstrous Sand Arm"}:
+    was <i>Instant</i>, now <i>Control</i>.
+  <li>
+    ^{Link.skill "Shikaku Nara" Original "Shadow Possession"}:
+    was <i>Control</i>, now <i>Instant</i>.
+  <li>
+    ^{Link.skill "Kazekage Gaara" Shippuden "Sand Prison"}:
+    was <i>Control</i>, now <i>Instant</i>.
+  <li>
+    ^{Link.skill "Kankūrō" Shippuden "Kuroari Trap"}:
+    was <i>Control</i>, now <i>Instant</i>.
+  <li>
+    ^{Link.skill "Kitsuchi" Shippuden "Sandwiching Mountain"}:
+    was <i>Control</i>, now <i>Instant</i>.
+  <li>
+    ^{Link.skill "Darui" Shippuden "Laser Circus"}:
+    was <i>Control</i>, now <i>Instant</i>.
+  <li>
+    ^{Link.skill "Jiraiya" Shippuden "Toad Subjugation Shadow Manipulation"}:
+    was <i>Control</i>, now <i>Instant</i>.
+  <li>
+    ^{Link.skill "Itachi Uchiha" Shippuden "Mirage Crow"}:
+    was <i>Control</i>, now <i>Instant</i>.
+  <li>
+    ^{Link.skill "Pakura" Reanimated "Searing Combat"}:
+    was <i>Action</i>, now <i>Instant</i>.
