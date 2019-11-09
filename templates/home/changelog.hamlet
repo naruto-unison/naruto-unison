@@ -32,13 +32,13 @@
     The <i>Affliction</i> class has been renamed to <i>Bane</i> in order to avoid confusion with affliction damage.
     For example,
     ^{Link.skill "Shino Aburame" Shippuden "Gigantic Beetle Infestation"},
-    which does not deal any affliction damage, was a skill classified as <i>Affliction</i>.
+    which does not deal any affliction damage, was classified as <i>Affliction</i>.
   <li>
     A few other skills have also been classified as <i>Bane</i>.
   <li>
     The <i>Unique</i> class has been removed.
   <li>
-    All parts of a skill have the same classes as each other.
+    Classes always apply to the entire skill.
   <li>
     In addition to <i>Chakra</i>, <i>Mental</i>, and <i>Physical</i> skills, there are now <i>Summon</i> skills. <i>Summon</i> skills are difficult to stun, but easy to avoid.
   <li>
@@ -74,6 +74,7 @@
   ^{change Rework "Chiyo" Shippuden}
   ^{change Rework "Yamato" Shippuden}
   ^{change Rework "Fū Yamanaka" Shippuden}
+  ^{change Rework "Danzō Shimura" Shippuden}
   ^{change Rework "Deidara" Shippuden}
   ^{change Rework "Sasori" Shippuden}
   ^{change Rework "Hidan" Shippuden}
@@ -92,8 +93,8 @@
   ^{change Rework "Mangekyō Sasuke" Shippuden}
 <h3 #reanimated>Reanimated
 <ul>
-  ^{change New "Jirōbō" Reanimated}
   ^{change New "Minato Namikaze" Reanimated}
+  ^{change New "Jirōbō" Reanimated}
   ^{change Rework "Hanzō" Reanimated}
   ^{change Rework "Rasa" Reanimated}
   ^{change Rework "A" Reanimated}
@@ -115,17 +116,23 @@
     ^{Link.skill "Rock Lee" Original "Fifth Gate Opening"}
     and
     ^{Link.skill "Karin" Shippuden "Heal Bite"},
-    are treated as a direct sacrifice of health rather than self-directed affliction damage. The main distinction is that if a character gains a status effect that increases all affliction damage they deal, it will not cause them to sacrifice more health.
+    are treated as a direct loss of health rather than self-directed affliction damage. The main distinction is that if a character gains a status effect that increases all affliction damage they deal, it will not cause them to sacrifice more health.
+  <li>
+    Chakra cost changes are affected by skills that negate harmful effects, such as
+    ^{Link.skill "Sakura Haruno" Original "Inner Sakura"}.
   <li>
     ^{Link.skill "Yoroi Akadō" Original "Draining Assault"}
-    applies its weakening and strengthening status effects for 1 turn every turn
-    of its duration, rather than for 2 turns at the start of its 3 turn duration.
+    applies its weakening and strengthening status effects for all turns of its duration, rather than for 2 turns at the start of its 3 turn duration.
   <li>
     ^{Link.skill "Anko Mitarashi" Original "Dragon Flame"}
     adds 5 to all <i>bane</i> damage that the target receives, rather than only damage from Anko's skills.
   <li>
     ^{Link.skill "Anko Mitarashi" Original "Twin Snake Sacrifice"}
     bypasses invulnerability.
+  <li>
+    The
+    ^{Link.skill "Demon Brothers" Original "Poison Gauntlet"}
+    applies a weak, slow-acting poison that can easily be cured by stabbing oneself (or getting someone else to do it).
   <li>
     The weak-to-affliction status effect from
     ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}
@@ -166,11 +173,11 @@
     ^{Link.skill "Sai" Shippuden "Ink Mist"}
     bypasses invulnerability.
   <li>
-    ^{Link.skill "Danzō Shimura" Shippuden "Kotoamatsukami"}
-    cannot counter uncounterable skills. If it copies a skill, the copy retains its chakra cost.
-  <li>
     ^{Link.skill "Jiraiya" Shippuden "Toad Oil Bomb"}
     interrupts <i>action</i> skills as well as <i>control</i> skills.
+  <li>
+    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"}
+    increases the cooldown of mental skills as well as non-mental skills.
   <li>
     ^{Link.skill "Chukichi" Reanimated "Hidden Frost"}
     makes Chukichi invulnerable to all ranged skills.
