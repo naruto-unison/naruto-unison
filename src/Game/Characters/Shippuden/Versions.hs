@@ -215,7 +215,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Mother's Embrace"
-        , Skill.desc      = "The soul of Gaara's deceased mother protects him with a shield of sand, providing 40 destructible defense for 3 turns. As long as Gaara has destructible defense from this skill, he ignores status effects from enemies except chakra cost changes."
+        , Skill.desc      = "The soul of Gaara's deceased mother protects him with a shield of sand, providing 40 destructible defense for 3 turns. As long as Gaara has destructible defense from this skill, he ignores harmful status effects."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 4
@@ -458,7 +458,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Battle Stance"
-        , Skill.desc      = "Next turn, Guy will deal double damage and ignores status effects from enemies except chakra cost changes. Guy loses 10 health down to a minimum of 1."
+        , Skill.desc      = "Next turn, Guy deals double damage and ignores harmful status effects. Guy loses 10 health down to a minimum of 1."
         , Skill.classes   = [Physical, Unremovable]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
@@ -536,7 +536,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Flamethrower Jets"
-        , Skill.desc      = "Using fuel stored in a sealing scroll, Sasori shoots flames at an enemy for 3 turns, dealing 10 affliction damage each turn. While active, Sasori is invulnerable to all other enemies and ignores status effects from enemies except chakra cost changes. If Sasori uses any skill, [Flamethrower Jets] is canceled. After use, this skill becomes [Cutting Water Jets][n]."
+        , Skill.desc      = "Using fuel stored in a sealing scroll, Sasori shoots flames at an enemy for 3 turns, dealing 10 affliction damage each turn. While active, Sasori is invulnerable to all other enemies and ignores harmful status effects. If Sasori uses any skill, [Flamethrower Jets] is canceled. After use, this skill becomes [Cutting Water Jets][n]."
         , Skill.classes   = [Bane, Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3

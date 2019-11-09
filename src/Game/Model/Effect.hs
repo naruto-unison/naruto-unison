@@ -237,10 +237,11 @@ isDisable _         = False
 
 -- | Not canceled by 'Enrage'.
 bypassEnrage :: Effect -> Bool
-bypassEnrage Bleed{}   = True
-bypassEnrage Exhaust{} = True
-bypassEnrage Share{}   = True
-bypassEnrage ef        = helpful ef
+bypassEnrage Alone{}  = True
+-- bypassEnrage Bleed{}  = True
+bypassEnrage Reveal{} = True
+bypassEnrage Share{}  = True
+bypassEnrage ef       = helpful ef
 
 -- | Effect is affected by 'NoIgnore'.
 isIgnore :: Effect -> Bool
@@ -332,7 +333,7 @@ instance Display Effect where
         "Prevents health from dropping below 1."
 
     display Enrage =
-        "Ignores status effects from enemies except chakra cost changes."
+        "Ignores harmful status effects from others."
 
     display (Exhaust classes) =
         "Adds 1 arbitrary chakra to the costs of " ++ list classes ++ " skills."

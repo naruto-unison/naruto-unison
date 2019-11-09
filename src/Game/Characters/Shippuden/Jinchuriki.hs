@@ -202,7 +202,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Six-Tailed Transformation"
-        , Skill.desc      = "Naruto's fury drives him to the brink of madness. He loses 10 health down to a minimum of 1 and gains 20 points of damage reduction and 20 permanent destructible defense. He permanently ignores status effects from enemies except chakra cost changes and is invulnerable to allies. The power of his other skills continues to grow. Once used, this skill becomes [Nine-Tailed Transformation][b][b]."
+        , Skill.desc      = "Naruto's fury drives him to the brink of madness. He loses 10 health down to a minimum of 1 and gains 20 points of damage reduction and 20 permanent destructible defense. He permanently ignores harmful status effects and is invulnerable to allies. The power of his other skills continues to grow. Once used, this skill becomes [Nine-Tailed Transformation][b][b]."
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =

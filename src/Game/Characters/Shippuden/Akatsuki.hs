@@ -27,7 +27,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Eternal Mangekyō Sharingan"
-        , Skill.desc      = "By predicting enemy attacks, Madara ignores status effects from enemies except chakra cost changes for 1 turn."
+        , Skill.desc      = "By predicting enemy attacks, Madara ignores harmful status effects for 1 turn."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -277,7 +277,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Blood Curse"
-        , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, skills used on Hidan and the target by their opponents are also reflected to each other, and this skill becomes [Death Blow][t][g]. Hidan ignores status effects from enemies except chakra cost changes, although his target does not. Damage that Hidan deals to himself while linked to a living target does not harm him."
+        , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, skills used on Hidan and the target by their opponents are also reflected to each other, and this skill becomes [Death Blow][t][g]. Hidan ignores harmful status effects, although his target does not. Damage that Hidan deals to himself with his own skills while linked to a living target does not harm him."
         , Skill.require   = HasU 1 "First Blood"
         , Skill.classes   = [Chakra, Soulbound, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Gen]

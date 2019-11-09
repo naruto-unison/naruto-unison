@@ -207,7 +207,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Three-Headed Wolf"
-        , Skill.desc      = "Akamaru and Kiba fuse together, ending [Man-Beast Clone]. For 3 turns, Kiba gains 30 points of damage reduction and ignores ignores status effects from enemies except chakra cost changes. While active, this skill becomes [Giant Rotating Fang][t][b][b]."
+        , Skill.desc      = "Akamaru and Kiba fuse together, ending [Man-Beast Clone]. For 3 turns, Kiba gains 30 points of damage reduction and ignores harmful status effects. While active, this skill becomes [Tail Chasing Rotating Fang][t][b][b]."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 5
@@ -465,7 +465,7 @@ characters =
     [LeafVillage, Eleven, AlliedForces, Chunin, Earth, Fire, Yang, Akimichi]
     [ [ Skill.new
         { Skill.name      = "Butterfly Bombing"
-        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring status effects from enemies except chakra cost changes and dealing 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
+        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring harmful status effects and dealing 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
         , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Tai, Rand, Rand]
         , Skill.effects   =
@@ -477,7 +477,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Butterfly Bombing"
-        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring status effects from enemies except chakra cost changes. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
+        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring harmful status effects. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
