@@ -3,9 +3,9 @@ module Game.Model.Ninja
   , skillSize
   , alive, minHealth
   , is, isChanneling
-  , has, hasOwn, hasDefense, hasTrap
+  , has, hasBarrier, hasDefense, hasOwnDefense, hasOwn
   , numActive, numStacks, numAnyStacks, numHelpful, numHarmful
-  , defenseAmount, totalDefense
+  , defenseAmount, totalDefense, totalBarrier
   , baseSkill
   ) where
 
@@ -15,6 +15,7 @@ import Data.List.NonEmpty ((!!))
 
 import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
+import qualified Game.Model.Barrier as Barrier
 import qualified Game.Model.Channel as Channel
 import           Game.Model.Character (Character, skills)
 import           Game.Model.Class (Class(..))
@@ -76,6 +77,12 @@ has :: Text -- ^ 'Status.name'.
     -> Ninja -> Bool
 has name user n = any (Labeled.match name user) $ statuses n
 
+-- | Searches 'barrier'.
+hasBarrier :: Text -- ^ 'Barrier.name'.
+           -> Slot -- ^ 'Barrier.user'.
+           -> Ninja -> Bool
+hasBarrier name user n = any (Labeled.match name user) $ barrier n
+
 -- | Searches 'defense'.
 hasDefense :: Text -- ^ 'Defense.name'.
            -> Slot -- ^ 'Defense.user'.
@@ -95,26 +102,26 @@ defenseAmount name user n =
 totalDefense :: Ninja -> Int
 totalDefense n = sum $ Defense.amount <$> defense n
 
--- | Searches 'traps'.
-hasTrap :: Text -- ^ 'Trap.name'.
-        -> Slot -- ^ 'Trap.user'.
-        -> Ninja -- ^ 'traps' owner.
-        -> Bool
-hasTrap name user n = any (Labeled.match name user) $ traps n
+-- | Sums 'Barrier.amount' of all 'barrier'.
+totalBarrier :: Ninja -> Int
+totalBarrier n = sum $ Barrier.amount <$> barrier n
 
--- | Matches a 'Status.Status', 'Channel.Channel', or 'Defense.Defense'.
+-- | Matches a 'Defense.Defense'.
+hasOwnDefense :: Text -> Ninja -> Bool
+hasOwnDefense name n = hasDefense name (slot n) n
+
+-- | Matches a 'Status.Status'.
 hasOwn :: Text -> Ninja -> Bool
 hasOwn name n = has name (slot n) n
-                || isChanneling name n
-                || hasDefense name (slot n) n
 
 -- | Number of stacks of matching self-applied 'statuses'.
 numActive :: Text -- ^ 'Status.name'.
           -> Ninja -> Int
 numActive name n
-  | stacks > 0    = stacks
-  | hasOwn name n = 1
-  | otherwise     = 0
+  | stacks > 0           = stacks
+  | isChanneling name n  = 1
+  | hasOwnDefense name n = 1
+  | otherwise            = 0
   where
     stacks = numStacks name (slot n) n
 

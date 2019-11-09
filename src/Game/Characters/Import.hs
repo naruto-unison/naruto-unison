@@ -3,7 +3,7 @@
 module Game.Characters.Import
   ( module Import
   , invuln
-  , user, target, userHas, targetHas
+  , user, target, userHas, targetHas, userHas', targetHas'
   , userStacks, targetStacks, userDefense
   , channeling, invulnerable
   , self, allies, enemies, everyone
@@ -28,7 +28,7 @@ import Game.Model.Character as Import (Character(..), Category)
 import Game.Model.Class as Import (Class(..))
 import Game.Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
 import Game.Model.Group as Import (Group(..))
-import Game.Model.Ninja as Import (Ninja(health, slot), alive, hasDefense, hasOwn, isChanneling, numActive, numAnyStacks, numHelpful)
+import Game.Model.Ninja as Import (Ninja(barrier, defense, health, slot, statuses, traps), alive, hasBarrier, hasDefense, hasOwnDefense, hasOwn, is, isChanneling, numActive, numAnyStacks, numHelpful)
 import Game.Model.Requirement as Import (Requirement(..))
 import Game.Model.Runnable as Import (RunConstraint, Runnable(To))
 import Game.Model.Skill as Import (Target(..))
@@ -38,6 +38,8 @@ import Game.Model.Trigger as Import (Trigger(..))
 
 import Data.Enum.Set (EnumSet)
 
+import           Class.Labeled (Labeled)
+import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Engine.Effects as Effects
@@ -99,13 +101,29 @@ user f = f <$> P.nUser
 target :: ∀ m a. MonadPlay m => (Ninja -> a) -> m a
 target f = f <$> P.nTarget
 
+has' :: ∀ m a. (MonadPlay m, Labeled a)
+     => m Ninja -> (Ninja -> [a]) -> Text -> m Bool
+has' subjectGetter fieldGetter name = has <$> P.user <*> subjectGetter
+  where
+    has from to = any (Labeled.match name from) $ fieldGetter to
+
+-- | Generic 'userHas'.
+userHas' :: ∀ m a. (MonadPlay m, Labeled a)
+         => (Ninja -> [a]) -> Text -> m Bool
+userHas' = has' P.nUser
+
+-- | Generic 'targetHas'.
+targetHas' :: ∀ m a. (MonadPlay m, Labeled a)
+           => (Ninja -> [a]) -> Text -> m Bool
+targetHas' = has' P.nTarget
+
 -- | True if user 'Ninja.hasOwn'.
 userHas :: ∀ m. MonadPlay m => Text -> m Bool
-userHas name = Ninja.hasOwn name <$> P.nUser
+userHas = userHas' Ninja.statuses
 
 -- | True if target 'Ninja.has'.
 targetHas :: ∀ m. MonadPlay m => Text -> m Bool
-targetHas name = Ninja.has name <$> P.user <*> P.nTarget
+targetHas = targetHas' Ninja.statuses
 
 -- | 'Ninja.numStacks' of the user, from the user.
 userStacks :: ∀ m. MonadPlay m => Text -> m Int

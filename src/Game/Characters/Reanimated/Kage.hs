@@ -471,7 +471,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 10 `bonusIf` userHas "Major Summoning: Giant Clam"
+                bonus <- 10 `bonusIf` channeling "Major Summoning: Giant Clam"
                 pierce (10 + bonus)
                 targetHealth <- target health
                 when (targetHealth <= 10) kill

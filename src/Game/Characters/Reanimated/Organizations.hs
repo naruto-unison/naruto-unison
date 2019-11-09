@@ -311,7 +311,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 5 `bonusIf` userHas "Stitching Spider"
+                bonus <- 5 `bonusIf` channeling "Stitching Spider"
                 pierce (20 + bonus)
                 tag 1
           , To XEnemies $ whenM (targetHas "Stitching Spider") do
@@ -331,7 +331,7 @@ characters =
           [ To Enemies do
                 prolong 1 "Stitching Spider"
                 trap 2 (OnAction Physical) $
-                    whenM (userHas "Stitching Spider") do
+                    whenM (channeling "Stitching Spider") do
                         pierce 10
                         tag 1
           ]
@@ -449,7 +449,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 apply 1 [Stun NonMental]
-                has <- userHas "Chakra Weave"
+                has <- channeling "Chakra Weave"
                 if has then pierce 15 else damage 10
           ]
         }
@@ -659,7 +659,7 @@ characters =
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
           [ To Enemy do
-                has <- user $ hasOwn "Naraka Path"
+                has <- userHas' defense "Naraka Path"
                 leech 20 $ self .
                     if has then addDefense "Naraka Path" else defend 0
           ]

@@ -151,14 +151,14 @@ killAffected name _ user target target' = fromEnum $
     && not (alive target')
     && hasFrom user name target
 
--- | 1 if the target died after an action while the use r had a @Status@,
+-- | 1 if the target died after an action while the user had a @Status@,
 -- otherwise 0.
 killDuring :: Text -> ActionHook
 killDuring name _ user target target' = fromEnum $
     not (allied user target)
     && alive target
     && not (alive target')
-    && hasOwn name user
+    && Ninja.numActive name user /= 0
 
 -- | Number of target's 'Ninja.channels' canceled due to an action.
 interrupt :: ActionHook
@@ -176,7 +176,7 @@ use _ _ _ _ = 1
 -- | 1 if the action was used while the user was affected by a @Status@,
 -- otherwise 0.
 useDuring :: Text -> ActionHook
-useDuring name _ user _ _ = fromEnum $ hasOwn name user
+useDuring name _ user _ _ = fromEnum $ Ninja.numActive name user /= 0
 
 -- | Number of user's stacks of a @Status@ after an action.
 useDuringStacks :: Text -> ActionHook
@@ -235,7 +235,7 @@ killUniqueDuring name = compareUnique \_ user target target' ->
     not (allied user target)
     && alive target
     && not (alive target')
-    && hasOwn name user
+    && Ninja.numActive name user /= 0
 
 -- | Stun an enemy.
 stunUnique :: StoreHook
@@ -297,7 +297,7 @@ maintain :: Text -> TurnHook
 maintain name player user _ target store
   | Ninja.slot user /= Ninja.slot target = (store, 0)
   | not $ alive target                   = (store, resetToZero)
-  | not $ hasOwn name user               = (store, resetToZero)
+  | Ninja.numActive name user == 0       = (store, resetToZero)
   | allied player user                   = (store, 1)
   | otherwise                            = (store, 0)
 
