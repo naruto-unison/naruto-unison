@@ -540,7 +540,7 @@ characters =
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Mystical Palm Healing"
+        { Skill.name      = "Healing Technique"
         , Skill.desc      = "C restores 25 health to himself or an ally."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]

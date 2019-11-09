@@ -69,7 +69,7 @@ characters =
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Mystical Palm Healing"
+        { Skill.name      = "Healing Technique"
         , Skill.desc      = "Using basic healing techniques, Sakura restores 25 health to herself or an ally."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]

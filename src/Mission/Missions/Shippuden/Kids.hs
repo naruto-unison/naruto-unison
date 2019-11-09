@@ -36,8 +36,8 @@ missions =
       damageWithStacks "KO Punch"
 
     , Reach 10 Career
-      "Heal 10 allies under 30 health with [Mystical Palm Healing]." .
-      HookAction "Sakura Haruno" "Mystical Palm Healing" $
+      "Heal 10 allies under 30 health with [Healing Technique]." .
+      HookAction "Sakura Haruno" "Healing Technique" $
       check \user target target' ->
           allied user target
           && health target < 30
