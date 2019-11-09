@@ -35,17 +35,22 @@ import           Util ((∉))
 
 -- | Adds a @Trap@ to 'Ninja.traps' that targets the person it was used on.
 trap :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
-trap = trapWith Trap.Toward mempty
+trap = trapConst Trap.Toward mempty
 -- | 'Hidden' 'trap'.
 trap' :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
-trap' = trapWith Trap.Toward $ singletonSet Hidden
+trap' = trapConst Trap.Toward $ setFromList [Bypassing, Hidden]
 
 -- | Adds a @Trap@ to 'Ninja.traps' that targets the person who triggers it.
 trapFrom :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
-trapFrom = trapWith Trap.From mempty
+trapFrom = trapConst Trap.From mempty
 -- | 'Hidden' 'trapFrom'.
 trapFrom' :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
-trapFrom' = trapWith Trap.From $ singletonSet Hidden
+trapFrom' = trapConst Trap.From $ setFromList [Bypassing, Hidden]
+
+-- | Adds a @Trap@ to 'Ninja.traps' with additional 'Class'es.
+trapWith :: ∀ m. MonadPlay m
+         => EnumSet Class -> Turns -> Trigger -> RunConstraint () -> m ()
+trapWith = trapConst Trap.Toward
 
 -- | Adds a @Trap@ to 'Ninja.traps' with an effect that depends on a number
 -- accumulated while the trap is in play and tracked with its 'Trap.tracker'.
@@ -55,7 +60,7 @@ trapPer  = trapFull Trap.Per mempty
 -- | 'Hidden' 'trapPer'.
 trapPer' :: ∀ m. MonadPlay m
          => Turns -> Trigger -> (Int -> RunConstraint ()) -> m ()
-trapPer' = trapFull Trap.Per $ singletonSet Hidden
+trapPer' = trapFull Trap.Per $ setFromList [Bypassing, Hidden]
 
 -- | Adds an 'OnBreak' @Trap@ for the used 'Skill.Skill' to 'Ninja.traps'.
 -- @OnBreak@ traps are triggered when a 'Defense.Defense' with the same
@@ -83,10 +88,10 @@ onBreak' = do
         P.modifyAll $ Ninjas.clear name user . Ninjas.clear (toLower name) user
 
 -- | Adds a @Trap@ to 'Ninja.traps'.
-trapWith :: ∀ m. MonadPlay m
+trapConst :: ∀ m. MonadPlay m
          => Trap.Direction -> EnumSet Class -> Turns -> Trigger
          -> RunConstraint () -> m ()
-trapWith trapType clas dur tr f = trapFull trapType clas dur tr $ const f
+trapConst trapType clas dur tr f = trapFull trapType clas dur tr $ const f
 
 -- | Trap engine.
 trapFull :: ∀ m. MonadPlay m
@@ -118,20 +123,27 @@ makeTrap Context{skill, user, target, continues, new}
     Trap
     { trigger
     , direction
-    , skill
+    , skill   = skill'
     , user
     , name    = Skill.name skill
     , effect  = \i -> To { target = context, run = Action.wrap $ f i }
-    , classes = classes' ++ Skill.classes skill
+    , classes = classes'
     , tracker = 0
     , dur     = incr $ sync dur
     }
   where
-    context = Context { skill, user, target, continues = False, new = False }
-    classes'
-      | continues && dur <= 1 = insertSet Continues classes
-      | continues || new      = classes
-      | otherwise             = deleteSet Invisible classes
+    modClasses
+      | continues && dur <= 1 = insertSet Continues
+      | continues || new      = id
+      | otherwise             = deleteSet Invisible
+    classes' = modClasses $ classes ++ Skill.classes skill
+    skill'   = skill { Skill.classes = classes' }
+    context  = Context { user
+                       , target
+                       , skill     = skill'
+                       , continues = False
+                       , new       = False
+                       }
 
 -- | Saves an effect to a 'Delay.Delay', which is stored in 'Game.delays' and
 -- triggered when it expires.
