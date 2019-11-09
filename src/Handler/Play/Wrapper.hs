@@ -53,32 +53,32 @@ data STWrapper s = STWrapper { tracker   :: Tracker s
 type IOWrapper = STWrapper RealWorld
 
 instance MonadGame (ReaderT (STWrapper s) (ST s)) where
-    game        = asks gameRef
-                  >>= lift . readRef
-    alter f     = asks gameRef
-                  >>= lift . flip modifyRef' f
-    ninjas      = asks ninjasRef
-                  >>= (toList <$>) . lift . Vector.freeze
-    ninja i     = asks ninjasRef
-                  >>= lift . flip MVector.unsafeRead (Slot.toInt i)
-    write i x   = asks ninjasRef
-                  >>= \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
-    modify i f  = asks ninjasRef
-                  >>= \xs -> MVector.unsafeModify xs f $ Slot.toInt i
+    game       = asks gameRef
+                 >>= lift . readRef
+    alter f    = asks gameRef
+                 >>= lift . flip modifyRef' f
+    ninjas     = asks ninjasRef
+                 >>= (toList <$>) . lift . Vector.freeze
+    ninja i    = asks ninjasRef
+                 >>= lift . flip MVector.unsafeRead (Slot.toInt i)
+    write i x  = asks ninjasRef
+                 >>= \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
+    modify i f = asks ninjasRef
+                 >>= \xs -> MVector.unsafeModify xs f $ Slot.toInt i
 
 instance MonadIO m => MonadGame (ReaderT IOWrapper m) where
-    game        = asks gameRef
-                  >>= liftST . readRef
-    alter f     = asks gameRef
-                  >>= liftST . flip modifyRef' f
-    ninjas      = asks ninjasRef
-                  >>= (toList <$>) . liftIO . Vector.freeze
-    ninja i     = asks ninjasRef
-                  >>= liftIO . flip MVector.unsafeRead (Slot.toInt i)
-    write i x   = asks ninjasRef
-                  >>= liftIO . \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
-    modify i f  = asks ninjasRef
-                  >>= liftIO . \xs -> MVector.unsafeModify xs f $ Slot.toInt i
+    game       = asks gameRef
+                 >>= liftST . readRef
+    alter f    = asks gameRef
+                 >>= liftST . flip modifyRef' f
+    ninjas     = asks ninjasRef
+                 >>= (toList <$>) . liftIO . Vector.freeze
+    ninja i    = asks ninjasRef
+                 >>= liftIO . flip MVector.unsafeRead (Slot.toInt i)
+    write i x  = asks ninjasRef
+                 >>= liftIO . \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
+    modify i f = asks ninjasRef
+                 >>= liftIO . \xs -> MVector.unsafeModify xs f $ Slot.toInt i
 
 trackAction :: ∀ s. Skill -> [Ninja] -> [Ninja] -> STWrapper s -> ST s ()
 trackAction skill ns ns' x =
