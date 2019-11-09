@@ -12,6 +12,8 @@ module Game.Action.Combat
     -- * Special effects
   , sacrifice
   , kill, killHard
+    -- * Internals
+  , formula, attack
   ) where
 
 import ClassyPrelude
@@ -36,7 +38,6 @@ import           Game.Model.Defense (Defense(Defense))
 import qualified Game.Model.Defense as Defense
 import           Game.Model.Duration (Duration(..), Turns, incr, sync)
 import           Game.Model.Effect (Amount(..), Effect(..))
-import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Runnable (RunConstraint)
@@ -89,30 +90,27 @@ demolishAll = do
 
 userAdjust :: Attack -> EnumSet Class -> Ninja -> Float -> Float
 userAdjust atk classes nUser x = x
-    * strengthen Percent
-    * weaken Percent
+    * max 0 (1 + strengthen Percent - weaken Percent)
     + strengthen Flat
     - weaken Flat
   where
     strengthen = Effects.strengthen classes nUser
     weaken
-      | atk == Attack.Afflict = Effect.identity
+      | atk == Attack.Afflict = const 0
       | otherwise             = Effects.weaken classes nUser
 
 targetAdjust :: Attack -> EnumSet Class -> Ninja -> Float -> Float
 targetAdjust atk classes nTarget x = x
-    * bleed Percent
-    * reduceAfflic Percent
-    * reduce Percent
+    * max 0 (1 + bleed Percent - reduceAfflic Percent - reduce Percent)
     + bleed Flat
     - reduceAfflic Flat
     - reduce Flat
   where
-    bleed         = Effects.bleed classes nTarget
-    reduceAfflic  = Effects.reduce (singletonSet Affliction) nTarget
-    reduce
-      | atk /= Attack.Damage = Effect.identity
-      | otherwise            = Effects.reduce classes nTarget
+    bleed        = Effects.bleed classes nTarget
+    reduceAfflic = Effects.reduce (singletonSet Affliction) nTarget
+    reduce = case atk of
+        Attack.Damage -> Effects.reduce classes nTarget
+        _             -> const 0
 
 -- | Damage formula.
 formula :: Attack -- ^ Attack type.
@@ -121,7 +119,7 @@ formula :: Attack -- ^ Attack type.
         -> Ninja -- ^ Target.
         -> Int -- ^ Base damage.
         -> Int
-formula atk classes nUser nTarget = limit . truncate .
+formula atk classes nUser nTarget = limit . round .
                                     targetAdjust atk' classes nTarget .
                                     userAdjust atk' classes nUser .
                                     fromIntegral
@@ -130,8 +128,8 @@ formula atk classes nUser nTarget = limit . truncate .
         Attack.Damage | nUser `is` Pierce -> Attack.Pierce
         _                                 -> atk
     limit i = case Effects.limit nTarget of
-        Just x | atk' == Attack.Afflict -> min x i
-        _                              -> i
+        Just x | atk' /= Attack.Afflict -> min x i
+        _                               -> i
 
 -- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce',
 -- 'Attack.Damage', or 'Attack.Demolish' attack.
@@ -140,7 +138,10 @@ attack :: ∀ m. MonadPlay m => Attack -> Int -> m ()
 attack atk dmg = void $ runMaybeT do
     nTarget    <- P.nTarget
 
-    guard .not $ nTarget `is` Invulnerable atkClass
+    guard . not $ nTarget `is` Invulnerable atkClass
+
+    channeled <- isChanneled <$> P.context
+    guard . not $ channeled && nTarget `is` AntiChannel
 
     skill      <- P.skill
     nUser      <- P.nUser
@@ -157,7 +158,7 @@ attack atk dmg = void $ runMaybeT do
 
     guard $ dmgCalc > Effects.threshold nTarget -- Always 0 or higher
 
-    if atk /= Attack.Afflict && nTarget `is` DamageToDefense then
+    if atk > Attack.Afflict && nTarget `is` DamageToDefense then
         let damageDefense = Defense { amount = dmgCalc
                                     , user
                                     , name   = Skill.name skill
@@ -172,10 +173,8 @@ attack atk dmg = void $ runMaybeT do
 
     else do
         P.modify user \n -> n { Ninja.barrier = barr }
-        if atk == Attack.Demolish || dmg'Def < 0 then
+        if atk == Attack.Demolish || dmg'Def <= 0 then
             P.modify target \n -> n { Ninja.defense = defense }
-        else if dmg'Def == 0 then
-            return ()
         else
             P.modify target $ Ninjas.adjustHealth (— dmg'Def) . \n ->
                 n { Ninja.defense = defense }
@@ -187,6 +186,7 @@ attack atk dmg = void $ runMaybeT do
         P.modify target $ Traps.track PerDamaged damaged
 
   where
+    isChanneled context = Context.continues context && not (Context.new context)
     atkClass = case atk of
         Attack.Afflict -> Affliction
         _              -> NonAffliction

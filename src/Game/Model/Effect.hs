@@ -7,7 +7,6 @@ module Game.Model.Effect
   , sticky
   , isDisable, isIgnore
   , bypassEnrage
-  , identity
   ) where
 
 import ClassyPrelude
@@ -21,78 +20,6 @@ import           Class.Display (Display(..))
 import           Game.Model.Class (Class(..), lower)
 import           Game.Model.Slot (Slot)
 import           Util ((∈), commas)
-
-data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show, Read)
-
-identity :: ∀ a. Num a => Amount -> a
-identity Flat    = 0
-identity Percent = 1
-
-data Constructor
-    = Only Effect
-    | Any (Class -> Effect)
-    | Counters
-    | Stuns
-
-instance Eq Constructor where
-    Only x == Only y = x == y
-    Any  x == Any  y = x All == y All
-    Any  x == Only y = y ∈ (x <$> [minBound..maxBound])
-    Only x == Any  y = x ∈ (y <$> [minBound..maxBound])
-
-    Counters == Counters = True
-    Stuns    == Stuns    = True
-    _        == _        = False
-    {-# INLINE (==) #-}
-
-instance Show Constructor where
-    show (Only x) = show x
-    show (Any xs) = fromMaybe shown $ stripSuffix (' ' : show All) shown
-      where
-        shown = show $ xs All
-    show Counters = "Counters"
-    show Stuns    = "Stuns"
-
-instance Display Constructor where
-    display Counters       = "counters"
-    display Stuns          = "stuns and disabling effects"
-    display (Any x) = case ($ All) x of
-        Invulnerable All  -> "invulnerability"
-        ReflectAll All    -> "reflects"
-        Stun All          -> "stuns"
-        _                 -> "certain effects"
-    display (Only Bypass)  = "effects that grant invulnerability-bypassing"
-    display (Only Expose)  = "prevention of invulnerability and damage reduction"
-    display (Only Pierce)  = "effects that grant piercing damage"
-    display (Only Reflect) = "reflects"
-    display (Only x) = (++ " effects") case x of
-        Absorb            -> "chakra-absorbing"
-        Alone             -> "isolating"
-        AntiCounter       -> "anti-countering"
-        BlockAllies       -> "ally-blocking"
-        BlockEnemies      -> "enemy-blocking"
-        DamageToDefense   -> "damage-conversion"
-        Endure            -> "immortality"
-        Enrage            -> "anti-harm"
-        Face              -> "appearance changes"
-        Focus             -> "anti-stun"
-        NoIgnore          -> "anti-ignore"
-        Nullify           -> "nullifying"
-        Plague            -> "anti-heal"
-        Restrict          -> "target-restricting"
-        Reveal            -> "anti-invisible"
-        Seal              -> "anti-helpful"
-        Silence           -> "anti-effect"
-        Swap              -> "target-swapping"
-        Undefend          -> "anti-defense"
-        Uncounter         -> "anti-countering" -- yeah, yeah, I know
-        _                 -> "certain"
-
-construct :: Constructor -> [Effect]
-construct (Only x) = [x]
-construct (Any x)  = x <$> [minBound..maxBound]
-construct Counters = []
-construct Stuns    = []
 
 -- | Effects of 'Game.Model.Status.Status'es.
 data Effect
@@ -168,6 +95,78 @@ instance ToJSON Effect where
         , "visible" .= visible x
         , "slot"    .= slot x
         ]
+
+data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show, Read)
+
+displayAmt :: Amount -> Int -> TextBuilder
+displayAmt Flat    = display
+displayAmt Percent = (++ "%") . display
+
+data Constructor
+    = Only Effect
+    | Any (Class -> Effect)
+    | Counters
+    | Stuns
+
+instance Eq Constructor where
+    Only x == Only y = x == y
+    Any  x == Any  y = x All == y All
+    Any  x == Only y = y ∈ (x <$> [minBound..maxBound])
+    Only x == Any  y = x ∈ (y <$> [minBound..maxBound])
+
+    Counters == Counters = True
+    Stuns    == Stuns    = True
+    _        == _        = False
+    {-# INLINE (==) #-}
+
+instance Show Constructor where
+    show (Only x) = show x
+    show (Any xs) = fromMaybe shown $ stripSuffix (' ' : show All) shown
+      where
+        shown = show $ xs All
+    show Counters = "Counters"
+    show Stuns    = "Stuns"
+
+instance Display Constructor where
+    display Counters       = "counters"
+    display Stuns          = "stuns and disabling effects"
+    display (Any x) = case ($ All) x of
+        Invulnerable All  -> "invulnerability"
+        ReflectAll All    -> "reflects"
+        Stun All          -> "stuns"
+        _                 -> "certain effects"
+    display (Only Bypass)  = "effects that grant invulnerability-bypassing"
+    display (Only Expose)  = "prevention of invulnerability and damage reduction"
+    display (Only Pierce)  = "effects that grant piercing damage"
+    display (Only Reflect) = "reflects"
+    display (Only x) = (++ " effects") case x of
+        Absorb            -> "chakra-absorbing"
+        Alone             -> "isolating"
+        AntiCounter       -> "anti-countering"
+        BlockAllies       -> "ally-blocking"
+        BlockEnemies      -> "enemy-blocking"
+        DamageToDefense   -> "damage-conversion"
+        Endure            -> "immortality"
+        Enrage            -> "anti-harm"
+        Face              -> "appearance changes"
+        Focus             -> "anti-stun"
+        NoIgnore          -> "anti-ignore"
+        Nullify           -> "nullifying"
+        Plague            -> "anti-heal"
+        Restrict          -> "target-restricting"
+        Reveal            -> "anti-invisible"
+        Seal              -> "anti-helpful"
+        Silence           -> "anti-effect"
+        Swap              -> "target-swapping"
+        Undefend          -> "anti-defense"
+        Uncounter         -> "anti-countering" -- yeah, yeah, I know
+        _                 -> "certain"
+
+construct :: Constructor -> [Effect]
+construct (Only x) = [x]
+construct (Any x)  = x <$> [minBound..maxBound]
+construct Counters = []
+construct Stuns    = []
 
 helpful :: Effect -> Bool
 helpful Absorb          = True
@@ -249,10 +248,6 @@ isIgnore Enrage  = True
 isIgnore Focus   = True
 isIgnore Nullify = True
 isIgnore _       = False
-
-displayAmt :: Amount -> Int -> TextBuilder
-displayAmt Flat    = display
-displayAmt Percent = (++ "%") . display
 
 -- | Effect is displayed to the client.
 visible :: Effect -> Bool

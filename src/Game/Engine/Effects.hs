@@ -42,26 +42,17 @@ import           Game.Model.Status (Status)
 import qualified Game.Model.Status as Status
 import           Util ((!!), (∈), intersects)
 
-totalBase :: [(Amount, Int)] -> Amount -> Float
-totalBase xs Flat    = fromIntegral . sum . map snd $
-                       filter ((== Flat) . fst) xs
-totalBase xs Percent = product . (1 :) . map ((/ 100) . fromIntegral . snd) $
-                       filter ((== Percent) . fst) xs
-
 -- | Adds 'Flat' amounts and multiplies by 'Percent' amounts.
-posTotal :: [(Amount, Int)] -> Amount -> Float
-posTotal xs Flat    = totalBase xs Flat
-posTotal xs Percent = totalBase (second (+ 100) <$> xs) Percent
-
--- | 'posTotal' for negative effects such as damage reduction.
-negTotal :: [(Amount, Int)] -> Amount -> Float
-negTotal xs Flat    = totalBase xs Flat
-negTotal xs Percent = totalBase (second (100 -) <$> xs) Percent
+total :: Amount -> Int -> Float
+total Flat x    = fromIntegral x
+total Percent x = fromIntegral x / 100
 
 -- | 'Bleed' sum.
 bleed :: EnumSet Class -> Ninja -> Amount -> Float
-bleed classes n = posTotal [(amt, x) | Bleed cla amt x <- Ninja.effects n
-                                     , cla `intersects` classes]
+bleed classes n amount = total amount $
+                         sum [x | Bleed cla amt x <- Ninja.effects n
+                                , amount == amt
+                                , cla `intersects` classes]
 
 -- | 'Block' collection.
 block :: Ninja -> [Slot]
@@ -101,14 +92,17 @@ limit n = minimumMay [x | Limit x <- Ninja.effects n]
 
 -- | 'Reduce' sum.
 reduce :: EnumSet Class -> Ninja -> Amount -> Float
-reduce classes n
+reduce classes n amount
     | classes == singletonSet Affliction =
-        negTotal [(amt, x) | Reduce cla amt x <- Ninja.effects n
-                           , Affliction ∈ cla
-                           ]
+        total amount $
+        sum [x | Reduce cla amt x <- Ninja.effects n
+               , amount == amt
+               , Affliction ∈ cla]
     | otherwise =
-        negTotal [(amt, x) | Reduce cla amt x <- Ninja.effects n
-                           , Affliction `deleteSet` cla `intersects` classes]
+        total amount $
+        sum [x | Reduce cla amt x <- Ninja.effects n
+               , amt == amount
+               , Affliction `deleteSet` cla `intersects` classes]
 
 -- | 'Share' collection.
 share :: Ninja -> [Slot]
@@ -120,10 +114,10 @@ snare n = sum [x | Snare x <- Ninja.effects n]
 
 -- | 'Strengthen' sum.
 strengthen :: EnumSet Class -> Ninja -> Amount -> Float
-strengthen classes n =
-    posTotal [(amt, x) | Strengthen cla amt x <- Ninja.effects n
-                       , cla `intersects` classes
-                       ]
+strengthen classes n amount = total amount $
+                              sum [x | Strengthen cla amt x <- Ninja.effects n
+                                     , amt == amount
+                                     , cla `intersects` classes]
 
 -- | 'Stun' collection.
 stun :: Ninja -> EnumSet Class
@@ -137,7 +131,7 @@ stunned n = not . null $ stun n
 taunt :: Ninja -> [Slot]
 taunt n = [slot | Taunt slot <- Ninja.effects n, slot /= Ninja.slot n]
 
--- | 'Threshold' max.
+-- | 'Threshold' max. Always ≥ 0.
 threshold :: Ninja -> Int
 threshold n = maximum $ 0 :| [x | Threshold x <- Ninja.effects n]
 
@@ -158,8 +152,10 @@ unreduce n = sum [x | Unreduce x <- Ninja.effects n]
 
 -- | 'Weaken' sum.
 weaken :: EnumSet Class -> Ninja -> Amount -> Float
-weaken classes n = negTotal [(amt, x) | Weaken cla amt x <- Ninja.effects n
-                                      , cla `intersects` classes]
+weaken classes n amount = total amount $
+                          sum [x | Weaken cla amt x <- Ninja.effects n
+                                 , amount == amt
+                                 , cla `intersects` classes]
 
 -- | 'Disable' collection.
 disabled :: Ninja -> [Effect]
@@ -173,13 +169,15 @@ reflect classes n =
 -- | 'Afflict' sum minus 'Heal' sum.
 hp :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
    => Player -> Ninja -> o -> Int
-hp player n ninjas = afflict ninjas player n - heal ninjas player n
+hp player n ninjas
+  | Ninja.alive n = afflict ninjas player n - heal ninjas player n
+  | otherwise     = 0
 
 -- | 'Heal' sum.
 heal :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
      => o -> Player -> Ninja -> Int
 heal ninjas player n
-  | not $ Ninja.alive n || n `is` Plague || n `is` Seal = 0
+  | n `is` Plague || n `is` Seal = 0
   | otherwise = sum $ heal1 ninjas player n <$> Ninja.statuses n
 
 -- | Calculates the total 'Heal' of a single @Status@.
@@ -223,13 +221,12 @@ afflict1 ninjas player nThreshold t st
       | Bane ∈ Status.classes st = Bane `insertSet` afflictClasses
       | otherwise                = afflictClasses
     ext
-      | t == user              = 0
-      | not $ Ninja.alive n    = bleed      classes nt Flat
-      | otherwise              = strengthen classes n  Flat
-                                 + bleed    classes nt Flat
+      | t == user     = 0
+      | Ninja.alive n = bleed classes nt Flat + strengthen classes n Flat
+      | otherwise     = bleed classes nt Flat
+    scale :: Float
     scale
-      | t == user              = 1
-      | not $ Ninja.alive n    = bleed      classes nt Percent
-      | otherwise              = strengthen classes n  Percent
-                                 * bleed    classes nt Percent
-
+      | t == user     = 1
+      | Ninja.alive n = (1 + strengthen classes n Percent)
+                        * (1 + bleed classes nt Percent)
+      | otherwise     =    1 + bleed classes nt Percent
