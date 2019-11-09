@@ -13,7 +13,7 @@ module Game.Action.Status
   -- * Removing statuses
   , cure, cureAll, cureBane, cureStun, purge, remove, removeStack, removeStacks
   -- * Specialized
-  , makeRewind, commandeer
+  , commandeer
   ) where
 
 import ClassyPrelude
@@ -35,7 +35,7 @@ import           Game.Model.Effect (Constructor(..), Effect(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
-import           Game.Model.Runnable (Runnable(To))
+import           Game.Model.Runnable (Runnable)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Bomb(..), Status)
 import qualified Game.Model.Status as Status
@@ -212,7 +212,8 @@ makeStatus Context{skill, user, continues, new}
     (Status.new user dur skill)
     { Status.name    = Skill.defaultName name skill
     , Status.user
-    , Status.effects = filterDmg . filter disable $ Ninjas.apply nTarget effects
+    , Status.effects = filterDmg . filter disable $
+                       Ninjas.apply nUser nTarget effects
     , Status.classes = classes'
     , Status.amount
     , Status.bombs
@@ -269,7 +270,7 @@ cureStun = P.unsilenced $ cure Effect.isDisable
 -- | Cures all 'Effect.helpful' effects from 'Ninja.statuses'.
 -- Uses 'Ninjas.purge' internally.
 purge :: ∀ m. MonadPlay m => m ()
-purge = P.toTarget Ninjas.purge
+purge = P.unsilenced $ P.toTarget Ninjas.purge
 
 -- | Removes all @Status@es with matching 'Status.name' and whose 'Status.user'
 -- is the one performing the action.
@@ -290,14 +291,6 @@ removeStack name = P.toTarget $ Ninjas.removeStack name
 removeStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
 removeStacks name i = P.fromUser $ Ninjas.removeStacks name i
 
--- | In some number of turns from now, restores the target to their state at the
--- current moment.
-makeRewind :: ∀ m. MonadPlay m => m (Bomb -> Runnable Bomb)
-makeRewind = rewind <$> P.nTarget
-  where
-    rewind n b   = To b $ P.toTarget $ replace n
-    replace n n' = n { Ninja.charges = Ninja.charges n' }
-
 -- | Steals all of the target's 'Effect.helpful' 'Effect's.
 commandeer :: ∀ m. MonadPlay m => m ()
 commandeer = P.unsilenced do
@@ -306,13 +299,13 @@ commandeer = P.unsilenced do
     user    <- P.user
     P.modify user $ Ninjas.modifyStatuses
         (mapMaybe gainHelpful (Ninja.statuses nTarget) ++) . \n ->
-        n { Ninja.defense  = Ninja.defense nTarget ++ Ninja.defense n
-          , Ninja.barrier  = []
+        n { Ninja.defense = Ninja.defense nTarget ++ Ninja.defense n
+          , Ninja.barrier = []
           }
     target  <- P.target
     P.modify target $ Ninjas.modifyStatuses (mapMaybe loseHelpful) . \n ->
-        n { Ninja.defense  = []
-          , Ninja.barrier  = Ninja.barrier nUser
+        n { Ninja.defense = []
+          , Ninja.barrier = Ninja.barrier nUser
          }
   where
     lose ef = Effect.helpful ef && not (Effect.sticky ef)

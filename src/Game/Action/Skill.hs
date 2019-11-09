@@ -10,7 +10,7 @@ module Game.Action.Skill
   , alternate, nextAlternate
 
   -- * Other
-  , factory
+  , factory, replaceWith
   ) where
 
 import ClassyPrelude
@@ -30,6 +30,7 @@ import           Game.Model.Copy (Copy(Copy))
 import qualified Game.Model.Copy as Copy
 import           Game.Model.Duration (Duration(..), Turns, sync)
 import           Game.Model.Effect (Effect(..))
+import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Skill as Skill
 import           Util ((!?))
@@ -139,3 +140,7 @@ factory = do
     target <- P.target
     P.toTarget Ninjas.factory
     P.modifyAll $ unSoulbound target
+
+-- | Restores a target to an earlier state. Charges are preserved.
+replaceWith :: ∀ m. MonadPlay m => Ninja -> m ()
+replaceWith n = P.toTarget \n' -> n { Ninja.charges = Ninja.charges n' }
