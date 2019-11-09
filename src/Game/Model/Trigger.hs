@@ -30,11 +30,13 @@ data Trigger
     | OnHarm
     | OnHarmed Class
     | OnHeal
+    | OnHelp
     | OnHelped
     | OnInvulnerable
     | OnReduce
     | OnReflect
     | OnRes
+    | OnSacrifice
     | OnStun
     | OnStunned
     | PerDamaged
@@ -77,12 +79,14 @@ instance Display Trigger where
     display (OnHarmed All)     = "Trigger: Be affected by a new skill from an enemy."
     display (OnHarmed cla)     = "Trigger: Be affected by a new " ++ lower cla ++ " skill from an enemy."
     display OnHeal             = "Trigger: Restore health."
+    display OnHelp             = "Trigger: Use a skill on an ally."
     display OnHelped           = "Trigger: Be affected by a new skill from an ally."
     display OnInvulnerable     = "Trigger: Become invulnerable."
     display OnNoAction         = "Trigger: Do not use a new skill."
     display OnReduce           = "Trigger: Apply damage reduction."
     display OnReflect          = "Trigger: Reflect a skill."
     display OnRes              = "Trigger: Reach 0 health."
+    display OnSacrifice        = "Trigger: Use a skill that sacrifices the user's health."
     display OnStun             = "Trigger: Apply a stun or disabling effect."
     display OnStunned          = "Trigger: Stunned."
     display PerDamaged         = "Trigger: Receive damage."

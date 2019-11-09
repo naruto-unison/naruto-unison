@@ -293,6 +293,7 @@ kill :: ∀ m. MonadPlay m => m ()
 kill = killFull True
 
 -- | Kills the target. The target cannot survive by any means.
+-- It's a good day for it!
 -- Uses 'Ninjas.kill' internally.
 killHard :: ∀ m. MonadPlay m => m ()
 killHard = killFull False
@@ -304,9 +305,15 @@ setHealth amt = do
     nHealth <- Ninja.health <$> P.nTarget
     P.toTarget $ Ninjas.setHealth amt
     nHealth' <- Ninja.health <$> P.nTarget
-    when (nHealth' > nHealth) do
-        user <- P.user
-        P.trigger user [OnHeal]
+    user <- P.user
+    case nHealth' `compare` nHealth of
+        EQ -> return ()
+        GT -> P.trigger user [OnHeal]
+        LT -> do
+            skill <- P.skill
+            target <- P.target
+            P.trigger user [OnDamage]
+            P.trigger target $ OnDamaged <$> toList (Skill.classes skill)
 
 -- | Adds a flat amount of 'Ninja.health'.
 -- Uses 'Ninjas.adjustHealth' internally.
@@ -349,4 +356,9 @@ sacrifice :: ∀ m. MonadPlay m
           => Int  -- ^ Minimum 'Ninja.health'.
           -> Int  -- ^ Amount of 'Ninja.health' to sacrifice.
           -> m ()
-sacrifice minhp hp = P.toTarget $ Ninjas.sacrifice minhp hp
+sacrifice _ 0 = return ()
+sacrifice minhp hp = do
+    user   <- P.user
+    target <- P.target
+    when (user == target) $ P.trigger user [OnSacrifice]
+    P.toTarget $ Ninjas.sacrifice minhp hp

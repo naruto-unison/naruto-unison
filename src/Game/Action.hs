@@ -199,6 +199,7 @@ targetEffect affected f = do
 
     else if Parity.allied user target then do
         wrap' affected f
+        P.trigger user [OnHelp]
         P.trigger target [OnHelped]
 
     else do

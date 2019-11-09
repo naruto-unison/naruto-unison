@@ -189,7 +189,7 @@ applyFull amount classes bombs name (Duration -> unthrottled) effects =
             guard $ null effects || not (null $ Status.effects st)
             P.modify target $ Ninjas.addStatus st
             when (any isInvulnerable $ Status.effects st) $
-                P.trigger user [OnInvulnerable]
+                P.trigger target [OnInvulnerable]
             when (any isReduce $ Status.effects st) $
                 P.trigger user [OnReduce]
             when (any Effect.isDisable $ Status.effects st) do
