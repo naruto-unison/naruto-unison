@@ -307,7 +307,7 @@ gameSocket = webSockets do
                 Nothing   -> throwE Queue.InvalidTeam
                 Just vals -> return vals
 
-            let teamTail = tailEx teamNames
+            let teamTail = unsafeTail teamNames
             when (any (∉ unlocked) teamTail) $ throwE Queue.Locked
             liftDB $ update who [UserTeam =. Just teamTail]
 

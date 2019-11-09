@@ -41,4 +41,4 @@ spec = withApp do
             get MechanicsR
             statusIs 200
   where
-    char = headEx Characters.list
+    char = unsafeHead Characters.list

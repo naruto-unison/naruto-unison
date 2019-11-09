@@ -131,7 +131,7 @@ trackTurn1 p ns x = do
   where
     user = snd $ ns !! Slot.toInt (slot x)
     safeInit [] = []
-    safeInit xs = initEx xs
+    safeInit xs = unsafeInit xs
     tracker (n, n') (i, f) = trackStore x i $ f p user n n'
 
 new :: ∀ s. Ninja -> ST s (Track s)

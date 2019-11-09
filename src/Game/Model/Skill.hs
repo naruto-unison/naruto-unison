@@ -33,7 +33,7 @@ new = Skill { name      = "Unnamed"
             , stunned   = []
             , interrupt = []
             , changes   = const id
-            , owner     = headEx Slot.all
+            , owner     = unsafeHead Slot.all
             }
 
 -- | Adds 'Model.Class.Bloodline', 'Model.Class.Genjutsu',
