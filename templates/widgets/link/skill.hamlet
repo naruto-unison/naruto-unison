@@ -1,4 +1,4 @@
 $newline never
-<a href=@{CharacterR char}>#{Character.name char}#{Character.category char}</a>'s #
+<a href=@{CharacterR char}>#{Character.name char}#{Character.category char}</a>'#{suffix} #
   <em .skill data-name=#{tagName}>
     #{name}

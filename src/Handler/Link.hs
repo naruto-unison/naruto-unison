@@ -8,6 +8,7 @@
 module Handler.Link
   ( character
   , cite
+  , head
   , topic
   , user
   , makeTimestamp
@@ -15,7 +16,7 @@ module Handler.Link
   , staffTag
   ) where
 
-import ClassyPrelude
+import ClassyPrelude hiding (head)
 
 import qualified Data.Time.Format as Format
 import qualified Data.Time.LocalTime as LocalTime
@@ -38,6 +39,10 @@ cite = do
     timestamp <- makeTimestamp
     return \citation@Cite{..} -> $(widgetFile "widgets/link/cite")
 
+-- | Link to a character's detail page using their icon.
+head :: Character -> Widget
+head char = $(widgetFile "widgets/link/head")
+
 -- | Link to a character's skill. The character's name links to their detail
 -- page, and the skill name shows skill details when hovered over.
 skill :: Text -> Category -> Text -> Widget
@@ -51,6 +56,10 @@ skill charName category name = case Characters.lookup tagName of
                     ++ unpack tagName
   where
     tagName = Character.identFrom category charName
+    suffix :: Text
+    suffix  = case charName of
+        "Demon Brothers" -> "" -- to avoid "Demon Brothers's"
+        _                -> "s"
 
 -- | Link to a forum topic.
 topic :: Cite ForumTopic -> Widget

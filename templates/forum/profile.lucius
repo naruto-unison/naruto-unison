@@ -44,6 +44,10 @@ p.label {
     display: flex;
     margin-left: 1px;
 
+    a {
+        display: contents;
+    }
+
     img {
         outline-color: #333 !important;
         margin: 0;

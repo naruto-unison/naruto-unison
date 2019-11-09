@@ -26,19 +26,18 @@ import           Application.Fields (ForumBoard, ForumCategory(..), Privilege(..
 import           Application.Model (Cite(..), EntityField(..), ForumPost(..), ForumTopic(..), ForumTopicId, HasAuthor(..), User(..), UserId)
 import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
-import qualified Game.Model.Class as Class
 import qualified Handler.Link as Link
 import           Util ((!?))
 
 -- | Renders a 'User' profile.
 getProfileR :: Text -> Handler Html
 getProfileR name = do
-    muser                  <- runDB $ selectFirst [UserName ==. name] []
-    Entity _ user@User{..} <- maybe notFound return muser
-    let (level, xp)         = quotRem userXp 5000
-    defaultLayout do
-        $(widgetFile "tooltip/tooltip")
-        $(widgetFile "forum/profile")
+    muser          <- runDB $ selectFirst [UserName ==. name] []
+    Entity _ user  <- maybe notFound return muser
+    let User{..}    = user
+        team        = maybe [] (mapMaybe Characters.lookup) userTeam
+        (level, xp) = quotRem userXp 5000
+    defaultLayout $(widgetFile "forum/profile")
 
 data BoardIndex = BoardIndex ForumBoard Int (Maybe (Cite ForumTopic))
 inCategory :: ForumCategory -> BoardIndex -> Bool

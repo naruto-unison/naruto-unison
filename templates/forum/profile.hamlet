@@ -1,10 +1,10 @@
 <article>
   <section>
     <img .char.avatar src=#{userAvatar}>
-    $maybe team <- userTeam
+    $if not $ null team
       <div .team>
-        $forall name <- team
-          <img .char.head data-name=#{name} src=/img/ninja/#{name}/icon.jpg>
+        $forall char <- team
+          ^{Link.head char}
   <dl>
     <h3>#{userName}
     <dt>Rank

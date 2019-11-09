@@ -1,0 +1,2 @@
+<a href=@{CharacterR char}>
+      <img .char.head src=/img/ninja/#{Character.ident char}/icon.jpg alt="#{Character.format char}" title="#{Character.format char}">
