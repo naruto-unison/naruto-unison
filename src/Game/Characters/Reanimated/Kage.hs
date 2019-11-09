@@ -272,43 +272,43 @@ characters =
     [SandVillage, Kabuto, Kage, Wind, Earth, Water, Yin, SandClan]
     [ [ Skill.new
         { Skill.name      = "Magnet Technique"
-        , Skill.desc      = "Waves of gold flood the enemy team, dealing 10 damage to them and applying 10 permanent destructible barrier to all. The skills of enemies who have destructible barrier from this skill cost 1 additional arbitrary chakra."
+        , Skill.desc      = "Waves of gold flood the enemy team, dealing 10 damage and applying 10 permanent destructible barrier to them. The skills of enemies who have destructible barrier from this skill cost 1 additional arbitrary chakra. Applies 5 additional destructible barrier to targets with destructible barrier from [Gold Dust Waterfall]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies do
                 damage 10
-                bonus <- 10 `bonusIf` targetHas "Gold Dust Waterfall"
-                barrierDoes 0 (const $ return ()) (apply 1 [Exhaust [All]])
+                bonus <- 5 `bonusIf` targetHas' barrier "Gold Dust Waterfall"
+                barricade' 0 (const $ return ()) (apply 1 [Exhaust [All]])
                     (10 + bonus)
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Gold Dust Waterfall"
-        , Skill.desc      = "A towering tidal wave of gold slams down on an enemy, dealing 35 damage and applying 30 permanent destructible barrier. The following turn, [Gold Dust Wave] and [24-Karat Barricade] will apply twice as much destructible barrier to them."
+        , Skill.desc      = "A towering tidal wave of gold slams down on an enemy, dealing 35 damage and applying 30 permanent destructible barrier."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
                 damage 35
-                barrier 0 30
+                barricade 0 30
                 tag 1
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "24-Karat Barricade"
-        , Skill.desc      = "Rasa constructs a golden blockade in front of an enemy. If they use a skill on Rasa or his allies next turn, it will be countered and they will gain 20 permanent destructible barrier."
+        , Skill.desc      = "Rasa constructs a golden blockade in front of an enemy. If they use a skill on Rasa or his allies next turn, it will be countered and they will gain 20 permanent destructible barrier. Applies 10 additional destructible barrier if the target has destructible barrier from [Gold Dust Waterfall]."
         , Skill.classes   = [Physical, Ranged, Invisible]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ trap 1 (Countered All) do
-                bonus <- 20 `bonusIf` targetHas "Gold Dust Waterfall"
-                barrier 0 (20 + bonus)
+                bonus <- 10 `bonusIf` targetHas' barrier "Gold Dust Waterfall"
+                barricade 0 (20 + bonus)
           ]
         }
       ]

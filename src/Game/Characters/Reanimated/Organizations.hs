@@ -633,7 +633,7 @@ characters =
         , Skill.cost       = [Blood, Gen, Tai]
         , Skill.cooldown   = 3
         , Skill.effects    =
-          [ To Enemies $ barrierDoes 3 damage (apply 1 [Silence]) 25 ]
+          [ To Enemies $ barricade' 3 damage (apply 1 [Silence]) 25 ]
         }
       ]
     , [ Skill.new

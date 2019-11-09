@@ -842,7 +842,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 15
-                barrierDoes 0 (const $ return ()) (do
+                barricade' 0 (const $ return ()) (do
                     has <- targetHas "chakra receiver"
                     if has then apply 1 [Stun All] else hide 1 []
                   ) 10
@@ -857,7 +857,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy $
-                barrierDoes 3 damage (apply 1 [Alone, Invulnerable All]) 80
+                barricade' 3 damage (apply 1 [Alone, Invulnerable All]) 80
           ]
         }
       ]

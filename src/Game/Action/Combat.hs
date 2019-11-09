@@ -5,7 +5,7 @@ module Game.Action.Combat
     afflict, pierce, damage, demolish, demolishAll
     -- * Defending
   , defend, addDefense, removeDefense
-  , barrier, barrierDoes
+  , barricade, barricade'
     -- * Healing
   , heal, setHealth
   , leech
@@ -230,6 +230,7 @@ addDefense name amount =
     P.unsilenced . P.fromUser $ Ninjas.addDefense amount name
 
 -- | Clears all 'Defense' with matching name and user.
+-- Uses 'Ninjas.removeDefense' internally.
 removeDefense :: ∀ m. MonadPlay m => Text -> m ()
 removeDefense name = P.unsilenced . P.fromUser $ Ninjas.removeDefense name
 
@@ -238,16 +239,16 @@ removeDefense name = P.unsilenced . P.fromUser $ Ninjas.removeDefense name
 -- of a 'Ninja.Ninja'. All attacks except for 'afflict' attacks must damage and
 -- destroy the user's 'Ninja.barrier' before they can damage the target.
 -- Destructible barrier can be temporary or permanent.
-barrier :: ∀ m. MonadPlay m => Turns -> Int -> m ()
-barrier dur = barrierDoes dur (const $ return ()) (return ())
+barricade :: ∀ m. MonadPlay m => Turns -> Int -> m ()
+barricade dur = barricade' dur (const $ return ()) (return ())
 
 -- | Adds a 'Barrier' with an effect that occurs when its duration
 -- 'Barrier.finish'es, which is passed as an argument the 'Barrier.amount' of
 -- barrier remaining, and an effect that occurs each turn 'Barrier.while' it
 -- exists.
-barrierDoes :: ∀ m. MonadPlay m => Turns -> (Int -> RunConstraint ())
+barricade' :: ∀ m. MonadPlay m => Turns -> (Int -> RunConstraint ())
             -> RunConstraint () -> Int -> m ()
-barrierDoes (sync . Duration -> dur) finish while amount = P.unsilenced do
+barricade' (sync . Duration -> dur) finish while amount = P.unsilenced do
     context   <- P.context
     amount'   <- (+ amount) . Effects.build <$> P.nUser
     let skill  = Context.skill context

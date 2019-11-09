@@ -184,7 +184,7 @@ characters =
         , Skill.effects   =
           [ To Self $ recharge "Tenth Edict on Enlightenment"
           , To XAlly $ allies $ defend 0 20
-          , To Enemy $ enemies $ barrier 0 20
+          , To Enemy $ enemies $ barricade 0 20
           ]
         }
       ]
