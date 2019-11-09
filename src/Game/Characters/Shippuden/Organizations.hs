@@ -23,9 +23,7 @@ characters =
         , Skill.start     =
           [ To Self do
                 defend 0 45
-                onBreak do
-                    cancelChannel "Tsukumo"
-                    remove "Susanoo"
+                onBreak'
           ]
         , Skill.effects   =
           [ To Self $ apply 0 [Alternate "Susanoo" "Tsukumo"] ]
@@ -265,32 +263,32 @@ characters =
     ]
   , Character
     "Danzō Shimura"
-    "The founder and leader of the Hidden Leaf Village's elite Root division, Danzō has had a hand in almost every important global event since he came to power. His numerous implanted Sharingans allow him to repeatedly cheat death."
+    "The founder and leader of the Hidden Leaf Village's elite Root division, Danzō has had a hand in almost every important global event since he came to power. He collects Sharingan, implants them in his arm, and uses them to cheat death."
     [LeafVillage, Anbu, Wind, Earth, Water, Fire, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Izanagi"
-        , Skill.desc      = "Danzō gains 10 Sharingan and loses 1 every turn. If his health reaches 0, he regains 10 health per Sharingan and loses all Sharingan. When he has no Sharingan remaining, this skill becomes [Reverse Tetragram Sealing][r][r][r]."
+        , Skill.desc      = "Danzō gains 10 Sharingan and loses 1 every turn. If his health reaches 0, his condition is completely restored to its state at the start of the turn and he loses an extra Sharingan. While active, he can use this skill again with no cost to pause its effect. When he has no Sharingan remaining, this skill becomes [Reverse Tetragram Sealing][r][r][r]."
         , Skill.classes   = [Mental, Resource]
         , Skill.cost      = [Blood]
         , Skill.dur       = Passive
         , Skill.start     =
           [ To Self $
-                applyStacks "Sharingan" 10 [Alternate "Izanagi" "Izanagi"]
+                applyStacks "Sharingan" 11 [Alternate "Izanagi" "Izanagi"]
           ]
         , Skill.effects   =
-          [ To Self do
-                unlessM (userHas "paused") do
-                  removeStack "Sharingan"
-                  has <- userHas "Sharingan"
-                  if has then trap' 1 OnRes do
-                      cancelChannel "Izanagi"
-                      hide 0 [Alternate "Izanagi" "Reverse Tetragram Sealing"]
-                      stacks <- userStacks "Sharingan"
-                      setHealth (10 * stacks)
-                      remove "Sharingan"
-                  else do
-                      cancelChannel "Izanagi"
-                      hide 0 [Alternate "Izanagi" "Reverse Tetragram Sealing"]
+          [ To Self $ unlessM (userHas "paused") do
+                removeStack "Sharingan"
+                has <- userHas "Sharingan"
+                rewind <- user id
+                if has then trap' 1 OnRes do
+                    replaceWith rewind
+                    removeStacks "Sharingan" 2
+                    unlessM (userHas "Sharingan") do
+                        cancelChannel "Izanagi"
+                        hide 0 [Alternate "Izanagi" "Reverse Tetragram Sealing"]
+                else do
+                    cancelChannel "Izanagi"
+                    hide 0 [Alternate "Izanagi" "Reverse Tetragram Sealing"]
           ]
         }
       , Skill.new
@@ -302,14 +300,16 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Reverse Tetragram Sealing"
-        , Skill.desc      = "Out of options, Danzō seals his enemies and prepares to blow himself up. In 3 turns, Danzō will die, as will all enemies who are not invulnerable. If Danzō dies before the 3 turns are up, the effect is canceled."
-        , Skill.classes   = [Mental, Bypassing, Soulbound]
+        , Skill.desc      = "Out of options, Danzō seals his enemies and prepares to blow himself up. At the end of the next turn, Danzō will die, as will enemies who are not invulnerable to this skill."
+        , Skill.classes   = [Mental]
         , Skill.cost      = [Blood, Gen]
+        , Skill.dur       = Control (-2)
         , Skill.charges   = 1
+        , Skill.start     =
+          [ To Self flag ]
         , Skill.effects   =
-          [ To Self $ bomb (-3) [] [ To Expire do
-                enemies $ unlessM (target invulnerable) kill
-                killHard ]
+          [ To Self $ unlessM (userHas "reverse tetragram sealing") killHard
+          , To Enemies $ unlessM (userHas "reverse tetragram sealing") kill
           ]
         }
       ]
@@ -406,13 +406,14 @@ characters =
     [Orochimaru, Genin, Sensor, Earth, Water, Yin, Yang, Uzumaki]
     [ [ Skill.new
         { Skill.name     = "Mind's Eye"
-        , Skill.desc     = "Karin predicts attacks using her chakra detection. Enemies who use skills on her next turn will be countered, and enemies use skills on their allies next turn will have the costs of their skills increased by 1 additional arbitrary chakra."
+        , Skill.desc     = "Karin uses her chakra detection to predict an enemy's action next turn. If they use a skill on Karin or her allies, it will be countered. If they use a skill on one of their allies, their skill costs will be increased by 1 arbitrary chakra for 3 turns."
         , Skill.classes  = [Mental, Ranged, Invisible]
         , Skill.cost     = [Rand]
         , Skill.cooldown = 2
         , Skill.effects  =
-          [ To Self $ trap 1 (CounterAll All) $ return ()
-          , To Enemies $ trapFrom 1 OnHelped $ apply 3 [Exhaust [All]]
+          [ To Enemy do
+                trap 1 (Countered All) $ return ()
+                trap 1 OnHelp $ apply 3 [Exhaust [All]]
           ]
         }
       ]

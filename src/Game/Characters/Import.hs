@@ -147,13 +147,12 @@ channeling name = Ninja.isChanneling name <$> P.nUser
 invulnerable :: Ninja -> Bool
 invulnerable n = not . null $ Effects.invulnerable n
 
-filterOthers :: ∀ m. MonadPlay m => (Ninja -> Bool) -> m Int
-filterOthers match = length . filter match <$> (P.allies =<< P.user)
-
--- | Number of user's allies who are affected by a 'Model.Game.Status.Status'.
+-- | Number of users affected by a 'Model.Game.Status.Status'.
 numAffected :: ∀ m. MonadPlay m => Text -> m Int
-numAffected name = filterOthers =<< Ninja.has name <$> P.user
+numAffected name = do
+    usr <- P.user
+    length . filter (Ninja.has name usr) <$> P.ninjas
 
 -- | Number of user's allies who are dead.
 numDeadAllies :: ∀ m. MonadPlay m => m Int
-numDeadAllies = filterOthers $ not . alive
+numDeadAllies = length . filter (not . alive) <$> (P.allies =<< P.user)

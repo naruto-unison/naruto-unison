@@ -188,7 +188,9 @@ characters =
         , Skill.start     =
           [ To Self $ defend 0 15 ]
         , Skill.effects   =
-          [ To Self $ apply' "Iron Sand" 0 [] ]
+          [ To Self $ apply' "Iron Sand" 0
+                [Alternate "Kazekage Puppet Summoning" "Iron Sand: World Order"]
+          ]
         }
       , Skill.new
         { Skill.name      = "Iron Sand: World Order"
@@ -232,7 +234,9 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Instant
         , Skill.effects   =
-          [ To Enemies $ trap 1 OnHarm $ apply' "Pinned" (-1) [Expose]
+          [ To Enemies do
+                bomb (-1) [] [ To Expire $ apply' "Pinned" (-1) [Expose] ]
+                trap (-1) OnHarm $ remove "Thousand Arms"
           , To Self $ hide 1 [Alternate "Thousand Arms" "Poison Gas"]
           ]
         }
@@ -328,10 +332,14 @@ characters =
         , Skill.effects   =
           [ To Self do
                 has <- userHas "bloodlink"
-                if has then
-                    enemies $ whenM (targetHas "Blood Curse") $ pierce 35
-                else
+                if has then do
+                    apply 1 []
+                    enemies $ whenM (targetHas "Blood Curse") do
+                        pierce 35
+                        apply 1 [Stun All]
+                else do
                     sacrifice 0 35
+                    apply 1 [Stun All]
           ]
         }
       ]
@@ -440,10 +448,13 @@ characters =
                     self $ removeTrap "Thousand Hungry Sharks"
           ]
         , Skill.effects   =
-          [ To Enemies $ unlessM (targetHas "ignored") do
-                bonus <- 5 `bonusIf` channeling "Exploding Water Shockwave"
-                pierce (5 + bonus)
-                self $ removeStack "Hundred Hungry Sharks"
+          [ To Enemies do
+                sharks  <- userHas "Hundred Hungry Sharks"
+                ignored <- targetHas "ignored"
+                when (sharks && not ignored) do
+                    bonus <- 5 `bonusIf` channeling "Exploding Water Shockwave"
+                    pierce (5 + bonus)
+                    self $ removeStack "Hundred Hungry Sharks"
           , To Self $ unlessM (userHas "Hundred Hungry Sharks") do
                 cancelChannel "Thousand Hungry Sharks"
                 everyone do
@@ -776,8 +787,8 @@ characters =
         , Skill.charges    = 2
         , Skill.effects    =
           [ To Self do
-                rewind <- makeRewind
-                bombWith [Necromancy] 4 [] [ rewind Expire ]
+                rewind <- user id
+                bombWith [Necromancy] 4 [] [ To Expire $ replaceWith rewind ]
           ]
         }
       ]
@@ -1038,7 +1049,7 @@ characters =
         , Skill.start     =
           [ To Enemy do
                 trap 2 (OnAction All) do
-                    remove "Summoming: Giant Centipede"
+                    remove "Summoning: Giant Centipede"
                     removeTrap "Summoning: Giant Centipede"
                 bomb 2 []
                     [ To Expire $ apply' "Giant Centipede Stun" 1 [Stun All] ]
@@ -1084,23 +1095,24 @@ characters =
         { Skill.name      = "Summoning: Giant Multi-Headed Dog"
         , Skill.desc      = "Pain summons a huge Cerberus hound that deals 10 piercing damage to all enemies for 2 turns. The first enemy to use a skill on Pain or her allies will extend the effect of this skill on them by 2 turns. Cannot be used while active."
         , Skill.require   = HasI 0 "Summoning: Giant Multi-Headed Dog"
-        , Skill.classes   = [Summon, Melee, Bypassing, Unreflectable]
-        , Skill.cost      = [Blood, Rand ]
-        , Skill.dur       = Ongoing 0
+        , Skill.classes   = [Summon, Melee, Bypassing, Unreflectable, Unremovable]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.dur       = Ongoing 2
         , Skill.start     =
-          [ To Enemies $ tag 2
-          , To Allies $ trapFrom 0 (OnHarmed All) do
-                unlessM (targetHas "already") do
-                    prolong 2 "Summoning: Giant Multi-Headed Dog"
-                    flag' "already"
-                allies $ removeTrap "Summoning: Giant Multi-Headed Dog"
+          [ To Enemies do
+                tag (-2)
+                trap (-2) OnHarm $
+                  unlessM (userHas "summoning: giant multi-headed dog") do
+                      self do
+                          flag
+                          prolongChannel 2  "Summoning: Giant Multi-Headed Dog"
+                      prolong 2             "Summoning: Giant Multi-Headed Dog"
+                      everyone $ removeTrap "Summoning: Giant Multi-Headed Dog"
           ]
-        , Skill.effects   =
-          [ To Enemies $ whenM (targetHas "Summoning: Giant Multi-Headed Dog") do
+          , Skill.effects =
+            [ To Enemies $
+                whenM (targetHas "Summoning: Giant Multi-Headed Dog") $
                 pierce 10
-                self $ flag' "keep going"
-          , To Self $ unlessM (userHas "keep going") $
-                cancelChannel "Summoning: Giant Multi-Headed Dog"
           ]
         }
       ]
@@ -1124,7 +1136,6 @@ characters =
         { Skill.name      = "Preta Drain"
         , Skill.desc      = "Pain absorbs an enemy's energy, dealing 25 damage and regaining 10 health per chakra that the target spent on their most recent skill."
         , Skill.classes   = [Melee, Chakra]
-        , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
@@ -1200,7 +1211,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 20 `bonusIf` targetHas "Choke Hold"
-                leech (20 + bonus) $ self . addDefense "Summoning: King of Pain"
+                leech (20 + bonus) $ self . addDefense "Summoning: King of Hell"
           ]
         }
       ]
@@ -1219,15 +1230,15 @@ characters =
         , Skill.dur       = Control (-4)
         , Skill.start     =
           [ To Self do
-                remove "gedo"
+                remove "control"
                 remove "dragon"
           ]
         , Skill.effects   =
           [ To Self do
                 dragonStacks <- userStacks "dragon"
                 addStacks' 1 "Control" dragonStacks
-                gedoStacks   <- userStacks "gedo"
-                apply 1 [ Reduce [All] Flat (10 + 5 * gedoStacks)
+                controlStacks <- userStacks "control"
+                apply 1 [ Reduce [All] Flat (10 + 5 * controlStacks)
                         , Alternate "Summoning: Gedo Statue" "Control"
                         ]
           ]

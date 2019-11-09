@@ -251,6 +251,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
+                whenM (userHas "Sharingan Stun") $ apply 1 [Stun All]
                 trap 2 OnChakra do
                     removeTrap "Sharingan"
                     self $ gain [Rand]
@@ -388,10 +389,10 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 2 `bonusIf` targetHas "Kamui Chain Combo"
-                pierce (20 * bonus)
+                bonus <- 1 `bonusIf` targetHas "Kamui Chain Combo"
+                pierce (20 + 20 * bonus)
                 userSlot <- user slot
-                apply (1 * bonus) [Alone, Taunt userSlot]
+                apply (1 + bonus) [Alone, Taunt userSlot]
           ]
         }
       ]

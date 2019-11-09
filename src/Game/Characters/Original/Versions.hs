@@ -84,8 +84,9 @@ characters =
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Enemy $ bomb 2 [Stun All, Alone, Invulnerable All]
-                             [ To Expire $ damage 55 ]
+          [ To Enemy $
+                bombWith [Bypassing] 2 [Stun All, Alone, Invulnerable All]
+                    [ To Expire $ damage 55 ]
           ]
         , Skill.changes   =
             changeWith "Curse Mark" \x -> x { Skill.cost = [Rand, Rand] }
@@ -140,7 +141,7 @@ characters =
         , Skill.effects   =
           [ To Ally $ trapFrom 1 (Counter Physical) do
                 stacks <- userStacks "Unpredictable Assault"
-                damage (20 + 5 + 5 * stacks)
+                damage (20 + 5 * stacks)
                 self $ addStack' "Unpredictable Assault"
           ]
         }

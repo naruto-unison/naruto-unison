@@ -64,13 +64,14 @@ characters =
     [MistVillage, Jinchuriki, Rogue, Sensor, Water]
     [ [ Skill.new
         { Skill.name      = "Soap Bubble"
-        , Skill.desc      = "Utakata blows bubbles from his pipe that burst on an enemy, demolishing their destructible defense and his own destructible barrier, then dealing 15 piercing damage to the target."
+        , Skill.desc      = "Utakata blows bubbles from his pipe that burst on an enemy, demolishing their destructible defense and his own destructible barrier, then dealing 15 piercing damage to the target. Deals 5 additional damage if the target is affected by [Drowning Bubble]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
                 demolishAll
-                pierce 15
+                bonus <- 5 `bonusIf` targetHas "Drowning Bubble"
+                pierce (15 + bonus)
           ]
         }
       ]
@@ -110,7 +111,10 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ trapFrom 4 (OnHarmed All) $ pierce 15 ]
+          [ To Self do
+                tag 4
+                trapFrom 4 (OnHarmed All) $ pierce 15
+          ]
         }
       ]
     , [ Skill.new
@@ -183,8 +187,8 @@ characters =
       ]
     , [ invuln "Chakra Barrier" "B" [Chakra] ]
     ]
-  , let loadout = [1, 0, 0, 0]
-    in Character
+  , let loadout = [1, 0, 0, 0] in
+    Character
     "Nine-Tailed Naruto"
     "Rage has triggered the beast within Naruto to emerge. As his hatred grows, so does the nine-tailed beast's power. If left unchecked, Kurama may break free of his seal, and Naruto himself will cease to exist."
     [LeafVillage, Eleven, Genin, Jinchuriki, Sage, Sensor, Wind, Lightning, Earth, Water, Fire, Yin, Yang, Uzumaki]
@@ -266,15 +270,14 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Massive Tailed Beast Bomb"
-        , Skill.desc      = "Kurama fires a gigantic sphere of condensed chakra at an enemy, dealing 60 piercing damage. Deals 40 additional damage if [Chakra Gathering] was used last turn."
+        , Skill.desc      = "Kurama fires a gigantic sphere of condensed chakra at an enemy, dealing 60 piercing damage. Targets all enemies if [Chakra Gathering] was used last turn."
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy do
-                bonus <- 40 `bonusIf` userHas "Chakra Gathering"
-                pierce (60 + bonus)
-          ]
+          [ To Enemy $ pierce 60 ]
+        , Skill.changes   =
+            changeWith "Chakra Gathering" targetAll
         }
       ]
     , [ Skill.new

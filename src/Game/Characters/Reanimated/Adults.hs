@@ -136,6 +136,7 @@ characters =
                 stacks <- target $ numAnyStacks "Spirit Word"
                 afflict (10 + 5 * stacks)
                 addStack' "Scroll of Fire"
+                addStack' "Spirit Word"
           ]
         }
       ]
@@ -161,14 +162,18 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Gold Rope"
-        , Skill.desc      = "Kinkaku binds an enemy with the Sage of the Six Path's soul-stealing rope. The next time they use a skill on Kinkaku or his allies, they will take 35 damage and a Spirit Word will be extracted from them."
+        , Skill.desc      = "Kinkaku binds an enemy with the Sage of the Six Path's soul-stealing rope. The next time they use a skill on Kinkaku or his allies, they will take 35 damage and a Spirit Word will be extracted from them. This skill stacks."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 0 OnHarm do
-                damage 35
-                addStack' "Spirit Word"
+          [ To Enemy do
+                addStack
+                trap 0 OnHarm do
+                    stacks <- targetStacks "Gold Rope"
+                    damage (35 * stacks)
+                    addStacks "Spirit Word" stacks
+                    remove "Gold Rope"
           ]
         }
       ]
@@ -320,7 +325,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 0 OnHarm do
+          [ To Enemy $ trap 0 (Countered All) do
                 damage 20
                 apply 1 [Stun Physical]
           ]

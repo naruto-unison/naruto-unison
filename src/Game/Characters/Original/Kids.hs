@@ -349,8 +349,8 @@ characters =
       ]
     , [ invuln "Hide" "Shikamaru" [Mental] ]
     ]
-  , let loadout = [0, 0, 0]
-    in Character
+  , let loadout = [0, 0, 0] in
+    Character
     "Chōji Akimichi"
     "A genin from Team 10, Chōji is a voracious eater and loyal friend. His clan's special pills immensely magnify his innate strength and unlock different abilities, but the toll they take on his body can kill him if he pushes himself too far, too fast."
     [LeafVillage, Eleven, Genin, Earth, Fire, Yang, Akimichi]
@@ -473,7 +473,7 @@ characters =
                 unlessM (userHas "unchili") $ sacrifice 0 15
                 apply 1 [Focus, Alternate "Block" "Block", Face]
           ]
-        , Skill.interrupt =
+        , Skill.stunned   =
           [ To Self do
                 unlessM (userHas "unchili") $ sacrifice 0 15
                 apply 1 [Alternate "Block" "Block", Face]
@@ -608,16 +608,16 @@ characters =
     [LeafVillage, Eleven, Genin]
     [ [ Skill.new
         { Skill.name      = "Unsealing Technique"
-        , Skill.desc      = "Tenten launches a barrage of weapons at an enemy, dealing 20 damage to them and 10 damage to the rest of their team. Each use of [Unsealing Technique] further empowers her next [Rising Dragon Control]."
+        , Skill.desc      = "Tenten launches a barrage of weapons at an enemy, dealing 20 damage to them and 10 damage to the rest of their team. All enemies are further weakened to Tenten's next [Rising Dragon Control]."
         , Skill.classes   = [Physical, Ranged, Uncounterable]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy $ damage 20
           , To XEnemies $ damage 10
-          , To Self do
+          , To Enemies do
                 addStack
                 whenM (userHas "Rising Twin Dragons") addStack
-                remove "Rising Twin Dragons"
+          , To Self $ remove "Rising Twin Dragons"
           ]
         }
       ]
@@ -628,14 +628,13 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemies do
-                stacks <- userStacks "Unsealing Technique"
+                stacks <- targetStacks "Unsealing Technique"
                 damage (5 + 10 * stacks)
                 bonus <- 1 `bonusIf` userHas "Rising Twin Dragons"
                 apply (1 + bonus)
                     [Weaken [Physical, Chakra, Summon] Flat (5 + 10 * stacks)]
-          ,  To Self do
                 remove "Unsealing Technique"
-                remove "Rising Twin Dragons"
+          ,  To Self $ remove "Rising Twin Dragons"
           ]
         }
       ]
@@ -649,7 +648,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 tag 0
-                apply' "Twin Dragons Defense" 1 [Invulnerable Physical
+                apply' "Twin Dragons Defense" 1 [ Invulnerable Physical
                                                 , Invulnerable Chakra
                                                 , Invulnerable Summon
                                                 ]

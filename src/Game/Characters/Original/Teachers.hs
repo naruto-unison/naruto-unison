@@ -95,9 +95,8 @@ characters =
           [ To Self do
                 trap (-1) (OnDamaged All) $ remove "Genjutsu Ambush Tactics"
                 bombWith [Hidden] (-1) []
-                  [ To Expire $ self $
-                        apply' "Successful Ambush" (-1) [Invulnerable All]
-                  ]
+                  [ To Expire $
+                        apply' "Successful Ambush" (-1) [Invulnerable All] ]
           ]
         }
       ]

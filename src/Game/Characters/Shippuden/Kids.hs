@@ -216,8 +216,8 @@ characters =
           [ To Self do
                 remove "Man-Beast Clone"
                 apply 3 [ Reduce [All] Flat 30
-                        , Focus
-                        , Alternate "Man-Beast Clone" "Giant Rotating Fang"
+                        , Enrage
+                        , Alternate "Man-Beast Clone" "Tail Chasing Rotating Fang"
                         ]
           ]
         }
@@ -241,8 +241,8 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy $ damage 30
+          , To REnemy $ whenM (userHas "Man-Beast Clone") $ damage 20
           , To XEnemies $ whenM (userHas "Three-Headed Wolf")  $ damage 20
-          , To REnemy $ whenM (channeling "Man-Beast Clone") $ damage 20
           ]
         }
       ]
@@ -304,8 +304,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ bomb' "Barricaded" (-1) []
-                           [ To Expire $ self $ gain [Blood] ]
+          [ To Self $ bomb' "Barricaded" (-1) [] [ To Expire $ gain [Blood] ]
           ,  To Ally $ trapFrom 1 (Counter All) do
                 stacks <- targetStacks "Gigantic Beetle Infestation"
                 damage (25 + 25 * stacks)
@@ -362,12 +361,10 @@ characters =
                 addStacks "Chakra Lion" (2 + bonus)
           , To Enemies $ trap' 0 OnHarm do
                 self $ removeStack "Chakra Lion"
-                has <- userHas "Chakra Lion"
-                if has then do
-                    deplete 1
-                    damage 30
-                else
-                    removeTrap "Gentle Step Twin Lion Fists"
+                deplete 1
+                damage 30
+                unlessM (userHas "Chakra Lion") $
+                    everyone $ removeTrap "Gentle Step Twin Lion Fists"
           ]
         }
       ]
@@ -481,8 +478,7 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ damage 100
-          ]
+          [ To Enemy $ damage 100 ]
         }
       ]
     , [ Skill.new
@@ -619,10 +615,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
               dead  <- numDeadAllies
-              bonus <- 10 `bonusIf` userHas "Leaf Great Whirlwind"
+              bonus <- 10 `bonusIf` userHas "Leaf Hurricane"
               damage (20 + bonus + 10 * dead)
           , To Self do
-                bonus <- 10 `bonusIf` userHas "Leaf Great Whirlwind"
+                bonus <- 10 `bonusIf` userHas "Leaf Hurricane"
                 apply 1 [Reduce [All] Flat (10 + bonus)]
           ]
         }
@@ -643,8 +639,8 @@ characters =
       ]
     , [ invuln "Dodge" "Lee" [Physical] ]
     ]
-  , let loadout = [0, 0, 0]
-    in Character
+  , let loadout = [0, 0, 0] in
+    Character
     "Tenten"
     "Now a chūnin, Tenten's arsenal has expanded to a prodigious stockpile of some of the most powerful weapons in existence, including the legendary fan of the Sage of the Six Paths. Taking any excuse to show off the size and variety of her collection, she has assembled multiple item sets to switch out at a moment's notice."
     [LeafVillage, Eleven, AlliedForces, Chunin]
@@ -720,8 +716,8 @@ characters =
           ]
         }
       , Skill.new
-        { Skill.name      = "Switch Loadout"
-        , Skill.desc      = "Scrolling through her scrolls to the next item set, Tenten gains 5 permanent destructible defense and replaces her other skills. Tenten has 3 item sets."
+        { Skill.name      = "Switch Loadout "
+        , Skill.desc      = "Scrolling to the next item set, Tenten gains 5 permanent destructible defense and replaces her other skills. Tenten has 3 item sets."
         , Skill.classes   = [Physical]
         , Skill.effects   =
           [ To Self do
@@ -774,12 +770,12 @@ characters =
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Sixty-Four Palms"
         , Skill.desc      = "For 2 turns, enemies are prevented from reducing damage or becoming invulnerable. If an enemy uses a skill on Neji during the first turn, it is countered and this skill is replaced for 1 turn by [Pressure Point Strike]."
-        , Skill.classes   = [Physical, Mental, Invisible]
+        , Skill.classes   = [Physical, Mental, Invisible, Nonstacking]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies $ apply 2 [Expose]
-          , To Self $ trap 1 (Counter All) $ bomb 1
+          , To Self $ trap 1 (CounterAll All) $ bomb 1
                 [Alternate "Eight Trigrams Sixty-Four Palms"
                            "Pressure Point Strike"]
                 [ To Expire $ remove "Pressure Point Strike" ]
@@ -809,13 +805,13 @@ characters =
     [SandVillage, Kage, Jinchuriki, Sensor, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new
         { Skill.name      = "Monstrous Sand Arm"
-        , Skill.desc      = "Gaara shapes sand into an enormous hand that slams into an enemy, dealing 5 piercing damage and weakening their damage by 5 for 1 turn."
+        , Skill.desc      = "Gaara shapes sand into an enormous hand that slams into an enemy, dealing 5 piercing damage and weakening their damage by 10 for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemy do
                 pierce 5
-                apply 1 [Weaken [All] Flat 5]
+                apply 1 [Weaken [All] Flat 10]
           ]
         }
       ]
@@ -841,14 +837,8 @@ characters =
         , Skill.charges   = 2
         , Skill.effects   =
           [ To XAllies $ defend 0 15
-          , To Self do
-                has <- userHas "Sand Summoning"
-                if has then do
-                    remove "Sand Summoning"
-                    apply 0 [Strengthen [All] Percent 400, Reduce [All] Flat 10]
-                else
-                    apply 0 [Strengthen [All] Percent 200, Reduce [All] Flat 10]
-
+          , To Self $
+                apply 0 [Strengthen [All] Percent 200, Reduce [All] Flat 10]
           ]
         }
       ]

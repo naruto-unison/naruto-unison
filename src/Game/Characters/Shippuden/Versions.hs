@@ -238,18 +238,20 @@ characters =
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
-        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. If he is not stunned or interrupted during the next turn, the ally comes back to life at full health, removing all effects from them and resetting their cooldowns. The clone remains attached to Kabuto and will be destroyed if he dies. Using this skill again destroys the current clone."
+        , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. At the end of the next turn, the target comes back to life at full health, removing all effects from them and resetting their cooldowns. The clone remains attached to Kabuto and will be destroyed if he dies. Using this skill again destroys the current clone."
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = [Rand, Rand, Rand]
-        , Skill.dur       = Control (-1)
+        , Skill.dur       = Control (-2)
         , Skill.start     =
           [ To Self do
-                hide 1 []
+                flag
                 everyone $
                     whenM (targetHas "DNA Transmission Shadow") killHard
                 trap' 0 OnDeath $ everyone $
                     whenM (targetHas "DNA Transmission Shadow") killHard
-          , To XAlly $ delay (-1) $ whenM (userHas "dna transmission shadow") do
+          ]
+        , Skill.effects   =
+          [ To XAlly $ unlessM (userHas "dna transmission shadow") do
                 factory
                 tag 0
           ]
@@ -361,7 +363,7 @@ characters =
           , To Self do
                 sacrifice 1 30
                 addStack
-                apply 2 [Plague]
+                apply' "Blood Mist" 2 [Plague]
           ]
         , Skill.changes   =
             costPer "Night Guy" [Tai]
@@ -633,7 +635,7 @@ characters =
       , Skill.new
         { Skill.name      = "Barrage of a Hundred Puppets"
         , Skill.desc      = "Sasori commands his puppet army to attack an enemy, dealing 30 damage and applying [Complex Toxin] to the target, which stuns them after 2 turns."
-        , Skill.classes   = [Physical, Ranged]
+        , Skill.classes   = [Bane, Physical, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Enemy do
@@ -730,7 +732,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Immortality Transference"
-        , Skill.desc      = "Orochimaru forces his soul on an enemy, dealing 15 damage to them for 3 turns and stunning their non-mental skills. If Orochimaru acquires a new body, this skill becomes [Eight-Headed Serpent][b][t]."
+        , Skill.desc      = "Orochimaru forces his soul on an enemy, dealing 15 damage to them for 3 turns and stunning their non-mental skills. If the target dies while affected by this skill, Orochimaru regains all lost health. If Orochimaru acquires a new body, this skill becomes [Eight-Headed Serpent][b][t]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 3

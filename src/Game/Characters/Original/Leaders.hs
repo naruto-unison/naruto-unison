@@ -36,7 +36,7 @@ characters =
                 afflict 15
           , To XAlly do
                 gain [Rand]
-                sacrifice 0 15
+                afflict 15
           ]
         }
       ]
@@ -184,13 +184,13 @@ characters =
     [LeafVillage, Kage, Sensor, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Sarutobi]
     [ [ Skill.new
         { Skill.name      = "Dragon Flame Bomb"
-        , Skill.desc      = "Hiruzen engulfs an enemy in flame, dealing 30 affliction damage and causing them to receive 10 additional damage from affliction skills for 1 turn."
+        , Skill.desc      = "Hiruzen engulfs an enemy in flame, dealing 20 affliction damage instantly and 10 affliction damage for 2 turns."
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
-                afflict 30
-                apply 1 [Bleed [Affliction] Flat 10]
+                afflict 20
+                apply 2 [Afflict 10]
           ]
         }
       ]

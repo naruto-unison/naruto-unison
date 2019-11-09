@@ -41,13 +41,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Kamui"
-        , Skill.desc      = "If used on an enemy, deals 45 piercing damage to them, increases their cooldowns by 1 turn, and increases the costs of their skills by 1 arbitrary chakra. If used on an ally, cures them of enemy effects and makes them invulnerable for 1 turn."
+        , Skill.desc      = "If used on an enemy, deals 40 piercing damage to them, increases their cooldowns by 1 turn, and increases the costs of their skills by 1 arbitrary chakra. If used on an ally, cures them of enemy effects and makes them invulnerable for 1 turn."
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                pierce 45
+                pierce 40
                 apply 1 [Snare 1, Exhaust [All]]
           , To XAlly do
                 cureAll
@@ -213,8 +213,8 @@ characters =
                 sacrifice 0 5
                 stacks <- userStacks "Single Gate Release"
                 apply 0 $ Reduce [All] Flat 5 : case stacks of
-                    6 -> [Alternate "Fiery Kick" "Asakujaku"]
-                    7 -> [Alternate "Fiery Kick" "Hirudora"]
+                    5 -> [Alternate "Fiery Kick" "Asakujaku"]
+                    6 -> [Alternate "Fiery Kick" "Hirudora"]
                     _ -> []
           ]
         }
@@ -300,6 +300,11 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 5
         , Skill.dur       = Action 0
+        , Skill.start     =
+          [ To Self do
+                defend 0 50
+                onBreak'
+          ]
         , Skill.effects   =
           [ To REnemy $ damage 10
           , To Self $ hide 1
@@ -327,7 +332,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Self-Sacrifice Reanimation"
         , Skill.desc      = "Chiyo prepares to use her forbidden healing technique on an ally. The next time their health reaches 0, their health is fully restored, they are cured of harmful effects, and Chiyo's health is reduced to 1."
-        , Skill.classes   = [Chakra, Invisible]
+        , Skill.classes   = [Chakra, Invisible, Soulbound]
         , Skill.cost      = [Blood, Nin]
         , Skill.charges   = 1
         , Skill.effects   =
@@ -582,12 +587,12 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Fire Wall"
-        , Skill.desc      = "Fire erupts around Atsui's enemies. Next turn, enemies who use skills will take 10 affliction damage. Costs 1 ninjutsu chakra during [Burning Blade]."
+        , Skill.desc      = "Fire erupts around Atsui's enemies. Next turn, enemies who use skills will take 20 affliction damage. Costs 1 ninjutsu chakra during [Burning Blade]."
         , Skill.classes   = [Bane, Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemies $ trap 1 (OnAction All) $ afflict 10 ]
+          [ To Enemies $ trap 1 (OnAction All) $ afflict 20 ]
         , Skill.changes   =
             changeWith "Burning Blade" \x -> x { Skill.cost = [Nin] }
         }
@@ -774,7 +779,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 3 [Reduce [All] Flat 5]
-                trap 3 (OnHarmed NonMental) $ damage 10
+                trapFrom 3 (OnHarmed NonMental) $ damage 10
           ]
         }
       ]
@@ -836,7 +841,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ trap 1 (CounterAll Physical) $ pierce 20 ]
+          [ To Self $ trapFrom 1 (CounterAll Physical) $ pierce 20 ]
         }
       ]
     , [ invuln "Dodge " "Chōjūrō" [Physical] ]

@@ -279,7 +279,8 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemies do
-                bomb 3 [] [ To Done $ removeTrap "Black Spider Lily" ]
+                bombWith [Bypassing] 3 []
+                    [ To Done $ removeTrap "Black Spider Lily" ]
                 trap 3 OnStun $ apply' "Ensnared" 3 []
           ]
         }

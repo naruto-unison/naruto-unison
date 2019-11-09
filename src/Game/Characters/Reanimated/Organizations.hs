@@ -31,13 +31,13 @@ characters =
     , [ Skill.new
         { Skill.name      = "Sphere of Graves"
         , Skill.desc      = "Jirōbō lifts the ground up and hurls it forward, dealing 30 damage to an enemy and gaining a Scattered Rock. Costs one taijutsu chakra if [Earth Dome Prison] affected any enemies last turn."
-        , Skill.classes   = [Physical, Ranged]
+        , Skill.classes   = [Physical, Ranged, Resource]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
                 damage 30
                 unlessM (targetHas "Rivalry") . everyone $ remove "Rivalry"
-          , To Self $ apply' "Scattered Rock" 0 []
+          , To Self $ addStack' "Scattered Rock"
           ]
         , Skill.changes   =
             changeWith "Earth Dome Prison" \x -> x { Skill.cost = [Tai] }
@@ -202,8 +202,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.dur       = Action 2
         , Skill.effects   =
-          [ To Self $ apply' "Demon Shroud " 1
-                [Reduce [All] Flat 10, Focus]
+          [ To Self $ apply' "Demon Shroud " 1 [Reduce [All] Flat 10, Focus]
           , To REnemy do
                 pierce 30
                 tag' "Executioner's Butchering" 1
@@ -239,7 +238,18 @@ characters =
     , [ invuln "Block" "Zabuza" [Physical] ]
     ]
     75
-  , Character
+  , let
+        electrocute :: RunConstraint ()
+        electrocute =
+            unlessM (targetHas "electrocuted") do
+                hide' "electrocuted" 0 []
+                trap' 0 (OnAction All) $
+                    whenM (targetHas "Electricity") do
+                        refresh "Electricity"
+                        everyone $
+                            whenM (targetHas "Electricity") $ afflict 5
+    in
+    Character
     "Ameyuri Ringo"
     "Reanimated by Kabuto, Ameyuri was one of the Seven Swordsmen of the Mist. Wielding Baki, the legendary twin lightning blades, Ameyuri cuts down her enemies using paralyzing electricity."
     [MistVillage, Kabuto, SevenSwordsmen, Jonin, Lightning]
@@ -252,13 +262,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 apply' "Electricity" 2 []
-                unlessM (targetHas "electrocuted") do
-                    hide' "electrocuted" 0 []
-                    trap' 0 (OnAction All) $
-                        whenM (targetHas "Electricity") do
-                            refresh "Electricity"
-                            everyone $
-                                whenM (targetHas "Electricity") $ afflict 5
+                electrocute
           ]
         }
       ]
@@ -273,13 +277,7 @@ characters =
                 if has then afflict 30 else damage 30
           , To Self $ trapFrom 1 (OnHarmed All) do
                 apply' "Electricity" 1 []
-                unlessM (targetHas "electrocuted") do
-                    hide' "electrocuted" 0 []
-                    trap' 0 (OnAction All) $
-                        whenM (targetHas "Electricity") do
-                            refresh "Electricity"
-                            everyone $
-                                whenM (targetHas "Electricity") $ afflict 5
+                electrocute
            ]
         }
       ]
@@ -423,7 +421,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Chakra Weave"
-        , Skill.desc      = "Fuguki weaves strands of chakra into his hair to defend himself. During each of the next 4 turns, if he does not take any damage, he regains 10 health. Each time he uses a skill that damages an opponent, he gains 5 points of damage reduction that end when this skill ends."
+        , Skill.desc      = "Fuguki weaves strands of chakra into his hair to defend himself. During each of the next 4 turns, if he does not take any damage, he regains 10 health. Whenever he uses a skill that damages an opponent, he gains 5 points of damage reduction that end when this skill ends."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 5
@@ -482,7 +480,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 25
-                whenM (targetHas "Axe Slash") $ apply 4 [Expose]
+                whenM (targetHas "Axe Chop") $ apply 4 [Expose]
           ]
         }
       ]
@@ -611,14 +609,13 @@ characters =
   , let
         preta = Skill.new
           { Skill.name      = "Preta Path"
-          , Skill.desc      = "Nagato drains an enemy's energy, absorbing 2 random chakra and regaining 10 health per chakra that the target spent on their most recent skill. When Nagato's health is at or above 50, this skill becomes [Asura Path][t][r]."
+          , Skill.desc      = "Nagato drains an enemy's energy, regaining 10 health per chakra that the target spent on their most recent skill and absorbing 3 random chakra. When Nagato's health is at or above 50, this skill becomes [Asura Path][t][r]."
           , Skill.classes   = [Melee, Chakra]
-          , Skill.cost      = [Rand]
           , Skill.cooldown  = 1
           , Skill.effects   =
             [ To Enemy do
                   healFromChakra 10
-                  absorb 2
+                  absorb 3
             ]
           }
     in

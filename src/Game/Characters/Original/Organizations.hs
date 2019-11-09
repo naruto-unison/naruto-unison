@@ -156,8 +156,9 @@ characters =
                 resetAll
                 setHealth 5
                 teach 1 2
-                bomb (-1) [Face, Invulnerable All, Alone, Seal, Enrage, Focus]
-                          [ To Done killHard ]
+                bombWith [Bypassing] (-1)
+                    [Face, Invulnerable All, Alone, Seal, Enrage, Focus]
+                    [ To Done killHard ]
           ]
         }
       ]
@@ -726,7 +727,10 @@ characters =
         , Skill.classes   = [Summon]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ everyone $ remove "Demon Parasite" ]
+          [ To Self do
+                apply 1 [Invulnerable All]
+                everyone $ remove "Demon Parasite"
+          ]
         }
       ]
     ]
