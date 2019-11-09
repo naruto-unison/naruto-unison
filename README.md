@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.com/naruto-unison/naruto-unison.svg?branch=master)](https://travis-ci.com/naruto-unison/naruto-unison)
+[![License: BSD-3-Clause](https://img.shields.io/github/license/naruto-unison/naruto-unison)](https://opensource.org/licenses/BSD-3-Clause)
+
 # Naruto Unison
 
 The next generation of Naruto Arena, built from the ground up in Haskell and Elm.
