@@ -124,7 +124,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2] = do
     unlocked <- Mission.unlocked
     when (any (∉ unlocked) [a1, b1, c1]) $ invalidArgs ["Character(s) locked"]
 
-    runDB $ update who [ UserTeam     =. Just [c1, b1, a1]
+    runDB $ update who [ UserTeam     =. Just [a1, b1, c1]
                        , UserPractice =. [a2, b2, c2]
                        ]
 
