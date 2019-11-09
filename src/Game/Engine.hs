@@ -58,7 +58,7 @@ runTurn :: ∀ m o. ( MonadGame m, MonadHook m, MonadRandom m
                   , MonoTraversable o, Act ~ Element o
                   ) => o -> m ()
 runTurn acts = do
-    processTurn $ traverse_ Action.act acts
+    processTurn $ traverse_ (Action.act True) acts
     Chakras.gain
 
 -- | The underlying mechanism of 'runTurn'.
@@ -71,7 +71,7 @@ processTurn runner = do
     let opponent = Player.opponent player
     runner
     channels <- concatMap getChannels . filter Ninja.alive <$> P.allies player
-    traverse_ Action.act channels
+    traverse_ (Action.act False) channels
     Traps.runTurn initial
     doBombs Remove initial
     doBarriers
@@ -151,7 +151,7 @@ doDeath slot = do
     if Ninja.health n > 0 then
         return ()
 
-    else if null res  then do
+    else if null res then do
         P.modify slot $ Ninjas.clearTraps OnDeath
         sequence_ $ Traps.getOf slot OnDeath n
         traverse_ (doBomb Done slot) .

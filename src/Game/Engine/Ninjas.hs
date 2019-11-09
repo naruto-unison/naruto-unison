@@ -78,7 +78,7 @@ import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((—), (!?), (∈), (∉))
+import           Util ((—), (!?), (∈), (∉), intersects)
 
 headOr :: ∀ a. a -> [a] -> a
 headOr x []    = x
@@ -90,7 +90,7 @@ alternate n = findAlt <$> toList (Character.skills $ character n)
     findAlt (base:|alts) = headOr 0 do
         Alternate name alt <- effects n
         guard $ name == Skill.name base
-        maybeToList $ (+ 1) <$> findIndex ((== alt) . Skill.name) alts
+        maybe empty (return . (+ 1)) $ findIndex ((== alt) . Skill.name) alts
 
 processAlternates :: Ninja -> Ninja
 processAlternates n = n { alternates = fromList $ alternate n }
@@ -113,9 +113,12 @@ nextAlternate baseName n = do
 -- Invariant: for @Left x@, @x < 'Ninja.skillSize'@.
 getSkill :: Either Int Skill -> Ninja -> Skill
 getSkill (Right skill) n = Requirement.usable False n skill
-getSkill (Left s)      n = Skills.change n . Requirement.usable True n .
-                           maybe (Ninja.baseSkill s n) Copy.skill .
-                           join . (!? s) $ copies n
+getSkill (Left s) n
+  | n `is` Swap = Skills.swap base
+  | otherwise   = base
+  where
+    base = Skills.change n . Requirement.usable True n .
+           maybe (Ninja.baseSkill s n) Copy.skill . join . (!? s) $ copies n
 
 -- | All four skill slots of a @Ninja@ modified by 'skill'.
 skills :: Ninja -> [Skill]
@@ -123,12 +126,12 @@ skills n = flip getSkill n . Left <$> [0..Ninja.skillSize - 1]
 
 -- | Modifies @Effect@s when they are first added to a @Ninja@ due to @Effect@s
 -- already added.
-apply :: Ninja -> [Effect] -> [Effect]
-apply n = map adjustEffect . filter keepEffects
+apply :: Ninja -> Ninja -> [Effect] -> [Effect]
+apply n nt = map adjustEffect . filter keepEffects
   where
     adjustEffect (Reduce cla Flat x) = Reduce cla Flat $ x - Effects.unreduce n
     adjustEffect f                   = f
-    keepEffects Invulnerable{}       = not $ n `is` Expose
+    keepEffects Invulnerable{}       = not $ nt `is` Expose
     keepEffects _                    = True
 
 -- | Fills 'Ninja.effects' with the effects of 'Ninja.statuses', modified by
@@ -265,7 +268,8 @@ clearTraps tr n = n { traps = filter ((/= tr) . Trap.trigger) $ traps n }
 -- | Adds channels with a specific target.
 addChannels :: Skill -> Slot -> Ninja -> Ninja
 addChannels skill target n
-  | chan == Instant || dur == 1 = n
+  | chan == Instant || dur == 1                     = n
+  | Effects.stun n `intersects` Skill.classes skill = n
   | otherwise = n { newChans = chan' : newChans n }
   where
     chan  = Skill.dur skill
@@ -398,10 +402,10 @@ renameChannels rename n = n { channels = f <$> channels n }
 purge :: Ninja -> Ninja
 purge = modifyStatuses (doPurge <$>)
   where
-    canPurge ef = Effect.helpful ef || not (Effect.sticky ef)
+    keep ef = Effect.sticky ef || not (Effect.helpful ef)
     doPurge st
       | Unremovable ∈ Status.classes st = st
-      | otherwise = st { Status.effects = filter canPurge $ Status.effects st }
+      | otherwise = st { Status.effects = filter keep $ Status.effects st }
 
 -- | Resets the duration of matching 'statuses' to their 'Status.maxDur'.
 refresh :: Text -- ^ 'Status.name'.

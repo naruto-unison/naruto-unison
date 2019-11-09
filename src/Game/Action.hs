@@ -24,7 +24,6 @@ import qualified Class.Random as R
 import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
-import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Trigger as Trigger
 import           Game.Model.Act (Act(Act))
@@ -238,19 +237,15 @@ filterCounters slots = filter $ (testBit targetSet . Slot.toInt) . Ninja.slot
     targetSet = foldl' go (0 :: Word8) $ join slots
     go x      = setBit x . Slot.toInt . Runnable.target
 
--- | Sets 'Ninja.acted' to @True@.
-setActed :: Ninja -> Ninja
-setActed n = n { Ninja.acted = True }
-
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
-act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Act -> m ()
-act Act{skill = Left s} | s >= Ninja.skillSize = return ()
-act Act{skill = s, user, target} = do
+act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Bool -> Act -> m ()
+act _ Act{skill = Left s} | s >= Ninja.skillSize = return ()
+act new Act{skill = s, user, target} = do
     nUser      <- P.ninja user
     chakras    <- Game.chakra <$> P.game
     initial    <- P.ninjas
-    let skill   = swapped nUser
+    let skill   = Ninjas.getSkill s nUser
         classes = Skill.classes skill
         cost    = Skill.cost skill
         valid   = Ninja.alive nUser
@@ -262,6 +257,7 @@ act Act{skill = s, user, target} = do
             P.withContinues $
             run' (singletonSet Targeted) =<< chooseTargets (Skill.effects skill)
         else do
+            P.modify user \n -> n { Ninja.lastSkill = Just skill }
             P.trigger user $ OnAction <$> toList classes
             when (Skill.charges skill > 0) .
                 P.modify user $ Cooldown.spendCharge skill
@@ -294,9 +290,8 @@ act Act{skill = s, user, target} = do
                     run' (singletonSet Targeted) startEfs
                     P.withContinues $ run' (singletonSet Targeted) contEfs
                     addChannels
-
-            P.modify user \n -> n { Ninja.lastSkill = Just skill }
-            P.modify user $ Cooldown.update skill . setActed
+            P.modify user \n -> n { Ninja.acted = True }
+            when (isLeft s) . P.modify user $ Cooldown.update skill
         P.uncopied $ Hook.action skill initial =<< P.ninjas
         P.uncopied $ Hook.chakra skill chakras . Game.chakra =<< P.game
         traverse_ (sequence_ . Traps.get user) =<< P.ninjas
@@ -304,12 +299,6 @@ act Act{skill = s, user, target} = do
         P.modifyAll $ unreflect . \n -> n { Ninja.triggers = mempty }
         breakControls
   where
-    new = isLeft s
-    swapped nUser
-      | nUser `is` Swap = Skills.swap skill
-      | otherwise       = skill
-      where
-        skill = Ninjas.getSkill s nUser
     ctx skill = Context { skill, user, new, target, continues = False }
     unreflect n
       | OnReflect ∈ Ninja.triggers n =
