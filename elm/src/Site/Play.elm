@@ -29,7 +29,7 @@ type Viewable
     | ViewCharacter Character
     | ViewDefense Defense
     | ViewDetail (Effect -> Bool) Detail
-    | ViewSkill Int (List Int) Int Skill
+    | ViewSkill (List Int) Int Skill
     | ViewUser User
 
 
@@ -218,7 +218,7 @@ component ports =
                     { st | toggled = Nothing }
             in
             case msg of
-                View ((ViewSkill _ targets _ _) as viewing) ->
+                View ((ViewSkill targets _ _) as viewing) ->
                     pure { st | viewing = viewing, highlight = targets }
 
                 View viewing ->
@@ -637,21 +637,16 @@ renderSkill user chakras able characters button targets skill =
             else
                 0
         charge =
-            if user.health > 0 then
-                Dict.get key user.charges
-                    |> Maybe.withDefault 0
+            Dict.get key user.charges
+                |> Maybe.withDefault 0
 
-            else
-                0
     in
-    if charge > 0
-        || not able
-        || skill.require == Unusable
+    if not able
         || List.isEmpty targets
         || Chakra.lacks chakras skill.cost
     then
         H.div [ A.class "charmove noclick"
-              , E.onMouseOver << View <| ViewSkill user.slot [] charge skill
+              , E.onMouseOver << View <| ViewSkill [] charge skill
               , E.onMouseLeave Unhighlight
               ] <|
         image ::
@@ -673,7 +668,7 @@ renderSkill user chakras able characters button targets skill =
         in
         H.div
         [ A.class "charmove click"
-        , E.onMouseOver << View <| ViewSkill user.slot targets charge skill
+        , E.onMouseOver << View <| ViewSkill targets charge skill
         , E.onMouseLeave Unhighlight
         , E.onClick <|
             toggler
@@ -895,24 +890,22 @@ renderView visibles characters viewing =
             ]
 
         ViewDetail removable x ->
-            let
-                count =
-                    if x.amount > 1 then
-                        x.name ++ " (" ++ String.fromInt x.amount ++ ")"
-
-                    else
-                        x.name
-            in
             [ H.section []
-              [ icon (Game.get characters x.source) "icon" [ A.class "char" ]
-              , H.dl []
-                [ H.h4 [] [ H.span [] [ H.text count ] ]
+              [ icon (Game.get characters x.source) x.name [ A.class "char" ]
+              , H.dl [] <|
+                [ H.h4 [] [ H.span [] [ H.text x.name ] ]
                 , Render.classes True <| Set.intersect visibles x.classes
                 , H.dt [] [ H.text "Source" ]
                 , H.dd [] << Render.name <| Game.get characters x.user
                 , H.dt [] [ H.text "Duration" ]
                 , H.dd [] << Render.duration "Permanent" <| x.dur
-                ]
+                ] ++
+                if x.amount > 0 then
+                    [ H.dt [] [ H.text "Amount" ]
+                    , H.dd [] [ H.text <| String.fromInt x.amount ]
+                    ]
+                else
+                    []
               ]
             , x.effects
                 |> List.filter .visible
@@ -920,10 +913,10 @@ renderView visibles characters viewing =
                 >> H.ul []
             ]
 
-        ViewSkill user _ charge x ->
+        ViewSkill _ charge x ->
             let
                 character =
-                    Game.get characters user
+                    Game.get characters x.owner
 
                 cooldown =
                     case x.cooldown of
@@ -998,13 +991,15 @@ renderView visibles characters viewing =
                         |> Maybe.map (\v ->
                           H.a
                           [ A.class "prevSkill click"
-                          , E.onClick << View <| ViewSkill user [] charge v
+                          , E.onClick << View <| ViewSkill [] charge
+                            { v | owner = x.owner }
                           ] []
                         )
                       , vNext matches i
                         |> Maybe.map (\v ->
                           H.a [ A.class "nextSkill click"
-                              , E.onClick << View <| ViewSkill user [] charge v
+                              , E.onClick << View <| ViewSkill [] charge
+                                { v | owner = x.owner }
                               ] []
                         )
                       ]

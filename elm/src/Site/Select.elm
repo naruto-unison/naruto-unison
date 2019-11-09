@@ -244,16 +244,22 @@ component ports =
                     let
                         wrapping =
                             st.index + st.pageSize >= size st
+                        wrap =
+                            if st.stage == Practicing then
+                                identity
+
+                            else
+                                wraparound wrapping st.index
 
                         displays =
                             if st.condense then
                                 st.chars.groupList
-                                    |> wraparound wrapping st.index
+                                    |> wrap
                                     >> List.map Nonempty.head
 
                             else
                                 st.chars.list
-                                    |> wraparound wrapping st.index
+                                    |> wrap
 
                         charClass char =
                             -- god I wish this language had pattern guards
@@ -453,15 +459,19 @@ component ports =
                                 else
                                     { st | toggled = Nothing }
 
-                Team Delete char ->
-                    let
-                        team = List.remove char st.team
-                    in
-                    withSound Sound.Cancel
-                        { st
-                            | team  = team
-                            , costs = teamCosts st.chars team
-                        }
+                Team Delete char -> case st.stage of
+                    Practicing ->
+                        pure st
+
+                    _ ->
+                        let
+                            team = List.remove char st.team
+                        in
+                        withSound Sound.Cancel
+                            { st
+                                | team  = team
+                                , costs = teamCosts st.chars team
+                            }
 
                 Vs Add char ->
                     withSound Sound.Click <|

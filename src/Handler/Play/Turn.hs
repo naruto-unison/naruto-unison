@@ -47,31 +47,30 @@ new player ninjas game = Turn { chakra  = Parity.getOf player $ Game.chakra game
                               , victor  = Game.victor game
                               , inactive
                               , ninjas  = censored
-                              , targets
+                              , targets = targets <$> censored
                               }
   where
     censored = censor (Game.vendetta game) player ninjas <$> ninjas
     inactive = case player of
         Player.A -> Game.inactive game
         Player.B -> swap $ Game.inactive game
-    targets  = do
-        n <- censored
-        return do
-            skill <- Ninjas.skills n
-            return do
-                nt <- Requirement.targets censored n skill
-                return $ Ninja.slot nt
+    targets n
+      | Parity.allied player n = (Ninja.slot <$>) .
+                                 Requirement.targets censored n <$>
+                                 Ninjas.skills n
+      | otherwise              = replicate Ninja.skillSize []
 
 censor :: (Maybe Slot) -> Player -> [Ninja] -> Ninja -> Ninja
 censor vendetta player ninjas n
   | Parity.allied player n = n'
   | n `is` Reveal          = n'
   | isJust vendetta        = n'
-      { Ninja.channels  = filter filt $ Ninja.channels n }
+      { Ninja.channels = filter filt $ Ninja.channels n }
   | otherwise              = n'
-      { Ninja.cooldowns = mempty
-      , Ninja.charges   = mempty
-      , Ninja.channels  = filter filt $ Ninja.channels n
+      { Ninja.cooldowns  = mempty
+      , Ninja.charges    = mempty
+      , Ninja.channels   = filter filt $ Ninja.channels n
+      , Ninja.alternates = 0 <$ Ninja.alternates n
       }
   where
     filt chan = not $ Invisible ∈ Skill.classes (Channel.skill chan)

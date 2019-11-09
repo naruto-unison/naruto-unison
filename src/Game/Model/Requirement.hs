@@ -85,11 +85,11 @@ targetable Skill{classes} n nt
   | target ∈ Effects.block n       = False
   | otherwise                      = True
   where
-    user   = Ninja.slot n
-    target = Ninja.slot nt
-    harm   = not $ Parity.allied user target
-    invuln = classes `intersects` Effects.invulnerable nt
-    bypass = Bypassing ∈ classes || n `is` Bypass
+    user       = Ninja.slot n
+    target     = Ninja.slot nt
+    harm       = not $ Parity.allied user target
+    invuln     = classes `intersects` Effects.invulnerable nt
+    bypass     = Bypassing ∈ classes || n `is` Bypass
     notIn a xs = not (null xs) && a ∉ xs
 
 -- | All targets that a @Skill@ from a a specific 'Ninja' affects.
@@ -99,8 +99,7 @@ targets ns n skill = filter filt ns
     filt nt = targetSlot (Ninja.slot nt) && targetable skill n nt
               && ((Necromancy ∈ Skill.classes skill) /= Ninja.alive nt)
     user    = Ninja.slot n
-    ts      = setFromList $
-              Runnable.target <$> Skill.start skill ++ Skill.effects skill
+    ts      = Skill.targets skill
     targetSlot t
       | Everyone ∈ ts                = True
       | not $ Parity.allied user t   = ts `intersects` harmTargets

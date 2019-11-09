@@ -192,7 +192,7 @@ sacrifice minhp hp = adjustHealth $ max minhp . (— hp)
 decr :: Ninja -> Ninja
 decr n@Ninja{..} = processAlternates $ processEffects n
     { defense   = mapMaybe TurnBased.decr defense
-    , statuses  = foldStats $ mapMaybe TurnBased.decr statuses
+    , statuses  = mapMaybe TurnBased.decr statuses
     , barrier   = mapMaybe TurnBased.decr barrier
     , channels  = decrChannels
     , traps     = mapMaybe TurnBased.decr traps
@@ -204,9 +204,6 @@ decr n@Ninja{..} = processAlternates $ processEffects n
     }
   where
     decrChannels       = mapMaybe TurnBased.decr $ newChans ++ channels
-    foldStats xs       = foldStat <$> group (sort xs)
-    foldStat   (x:|[]) = x
-    foldStat xs@(x:|_) = x { Status.amount = sum $ Status.amount <$> xs }
 
 addStatus :: Status -> Ninja -> Ninja
 addStatus st = modifyStatuses $ Classed.nonStack st st

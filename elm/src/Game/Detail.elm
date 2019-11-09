@@ -60,14 +60,25 @@ get n =
 eq : Detail -> Detail -> Bool
 eq x y =
     x.dur == y.dur
-    && x.desc == y.desc
+    && x.name == y.name
     && ignoreClasses x.classes == ignoreClasses y.classes
 
 
+ignoredClasses : Set String
+ignoredClasses =
+    Set.fromList
+        [ "Bypassing"
+        , "Non-stacking"
+        , "Soulbound"
+        , "Uncounterable"
+        , "Unreflectable"
+        , "Unremovable"
+        ]
+
+
 ignoreClasses : Set String -> Set String
-ignoreClasses =
-    Set.remove "Soulbound"
-    >> Set.remove "Unremovable"
+ignoreClasses xs =
+    Set.diff xs ignoredClasses
 
 
 allied : Int -> Detail -> Bool
