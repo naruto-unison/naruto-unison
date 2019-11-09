@@ -7,16 +7,18 @@ module Game.Model.Context
 import ClassyPrelude
 
 import           Game.Model.Internal (Context(..))
-import           Game.Model.Status (Status)
+import qualified Game.Model.Skill as Skill
+import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
 
 fromStatus :: Status -> Context
-fromStatus st = Context { skill     = Status.skill st
-                        , user      = Status.user st
-                        , target    = Status.user st
-                        , new       = False
-                        , continues = False
-                        }
+fromStatus Status{skill, user, classes} = Context
+    { skill     = skill { Skill.classes = Skill.classes skill ++ classes }
+    , user
+    , target    = user
+    , new       = False
+    , continues = False
+    }
 
 reflect :: Context -> Context
 reflect context = context { target = user context }

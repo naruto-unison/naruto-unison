@@ -27,7 +27,7 @@ update :: Skill -> Ninja -> Ninja
 update skill n =
     n { Ninja.cooldowns = insertMap (Skill.key skill) cd $ Ninja.cooldowns n }
   where
-    cd = sync (Skill.cooldown skill) + 2 + 2 * Effects.snare n
+    cd = max 0 $ sync (Skill.cooldown skill) + 2 + 2 * Effects.snare n
 
 -- | 'update's a corresponding @Ninja@ when they use a new @Skill@.
 spendCharge :: Skill -> Ninja -> Ninja
