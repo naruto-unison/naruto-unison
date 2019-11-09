@@ -10,36 +10,10 @@ library:
   when:
   - condition: (flag(dev)) || (flag(library-only))
     then:
-      ghc-options:
-      - -Wall
-      - -Wcompat
-      - -Widentities
-      - -Wincomplete-record-updates
-      - -Wincomplete-uni-patterns
-      - -Wpartial-fields
-      - -Wpartial-type-signatures
-      - -Wredundant-constraints
-      - -fwarn-tabs
-      - -fwarn-incomplete-patterns
-      - -fwarn-incomplete-uni-patterns
-      - -funbox-small-strict-fields
-      - -ferror-spans
-      - -O0
+      ghc-options: -O0
       cpp-options: -DDEVELOPMENT
     else:
-      ghc-options:
-      - -Wall
-      - -Wincomplete-uni-patterns
-      - -Wcompat
-      - -Wincomplete-record-updates
-      - -Wredundant-constraints
-      - -Wpartial-type-signatures
-      - -fwarn-tabs
-      - -fwarn-incomplete-patterns
-      - -fwarn-incomplete-uni-patterns
-      - -funbox-small-strict-fields
-      - -ferror-spans
-      - -O2
+      ghc-options: -O2
   dependencies:
   - aeson
   - attoparsec
@@ -113,17 +87,6 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-    - -Wall
-    - -Wincomplete-uni-patterns
-    - -Wcompat
-    - -Wincomplete-record-updates
-    - -Wredundant-constraints
-    - -Wpartial-type-signatures
-    - -fwarn-tabs
-    - -fwarn-incomplete-patterns
-    - -fwarn-incomplete-uni-patterns
-    - -funbox-small-strict-fields
-    - -ferror-spans
     dependencies:
     - naruto-unison
     - aeson
@@ -137,26 +100,24 @@ executables:
       buildable: false
 
 tests:
-  test-characters:
-    source-dirs: test/characters
+  test-game:
+    source-dirs: test/game
+    main: Spec.hs
+    dependencies:
+    - naruto-unison
+    - base
+    - bounded-enum
+    - hspec
+    - hspec-core
+    - QuickCheck
+    - transformers
+  test-missions:
+    source-dirs: test/missions
     main: Spec.hs
     dependencies:
     - naruto-unison
     - base
     - hspec
-    - transformers
-    ghc-options:
-      - -Wall
-      - -Wincomplete-uni-patterns
-      - -Wcompat
-      - -Wincomplete-record-updates
-      - -Wredundant-constraints
-      - -Wpartial-type-signatures
-      - -fwarn-tabs
-      - -fwarn-incomplete-patterns
-      - -fwarn-incomplete-uni-patterns
-      - -funbox-small-strict-fields
-      - -O0
   test-yesod:
     source-dirs: test/yesod
     main: Spec.hs
@@ -171,19 +132,6 @@ tests:
     - yesod-auth
     - yesod-core
     - yesod-test
-    ghc-options:
-      - -Wall
-      - -Wincomplete-uni-patterns
-      - -Wcompat
-      - -Wincomplete-record-updates
-      - -Wredundant-constraints
-      - -Wpartial-type-signatures
-      - -fwarn-tabs
-      - -fwarn-incomplete-patterns
-      - -fwarn-incomplete-uni-patterns
-      - -funbox-small-strict-fields
-      - -O0
-
 
 # Define flags used by "yesod devel" to make compilation faster
 flags:
@@ -195,6 +143,19 @@ flags:
     description: Turn on development settings, like auto-reload templates.
     manual: false
     default: false
+
+ghc-options:
+- -Wall
+- -Wincomplete-uni-patterns
+- -Wcompat
+- -Wincomplete-record-updates
+- -Wredundant-constraints
+- -Wpartial-type-signatures
+- -ferror-spans
+- -fwarn-tabs
+- -fwarn-incomplete-patterns
+- -fwarn-incomplete-uni-patterns
+- -funbox-small-strict-fields
 
 default-extensions:
 # Package-specific

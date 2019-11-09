@@ -73,10 +73,10 @@ In order to run the server in production mode, which has significantly better pe
 
 ### Tests
 
-To run the characters test suite:
+To run the game test suite:
 
 ```
-stack test naruto-unison:test-characters
+stack test naruto-unison:test-game
 ```
 
 To run the web handler test suite, first create a separate test database and configure it in [config/test-settings.yml](config/test-settings.yml), then run:
@@ -145,7 +145,7 @@ snare :: Ninja -> Int
 snare n = sum [x | Snare x <- Ninja.effects n]
 ```
 
-This function does exactly what it looks like: sums up all effects with the `Snare Int`  constructor. Pattern matching inside list comprehensions is another distinguishing feature of Haskell. `Snare` happens to be a unary constructor; other constructors in the `Effect` sum type have multiple arguments, and they can be matched just as easily.
+This function does exactly what it looks like: sums up all effects with the `Snare Int`  constructor. Haskell makes it easy and legible to pattern match against a union type within a list comprehension, as in the larger domain of all effects. `Snare` happens to be a unary constructor; other constructors in the `Effect` union type have multiple arguments, and they can be matched just as easily.
 
 #### Monads
 

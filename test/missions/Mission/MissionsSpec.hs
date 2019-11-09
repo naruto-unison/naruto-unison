@@ -1,8 +1,11 @@
 module Mission.MissionsSpec (spec) where
 
-import Import
+import ClassyPrelude
+
+import Test.Hspec
 
 import qualified Game.Characters as Characters
+import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Skill as Skill
 import           Mission.Goal (Goal(..), Mission(..), Objective(..))
