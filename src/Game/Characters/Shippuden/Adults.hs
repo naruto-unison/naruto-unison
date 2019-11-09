@@ -709,7 +709,7 @@ characters =
           [ To Enemy do
                 damage 35
                 tag 4
-          , To RAlly $ apply 1 [Invulnerable All]
+          , To RXAlly $ apply 1 [Invulnerable All]
           ]
         }
       ]

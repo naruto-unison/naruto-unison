@@ -114,4 +114,4 @@ harmTargets   = setFromList [Enemy, Enemies, REnemy, XEnemies]
 xAllyTargets :: EnumSet Target
 xAllyTargets  = setFromList [XAlly, XAllies]
 allyTargets  :: EnumSet Target
-allyTargets   = setFromList [Ally, Allies, RAlly]
+allyTargets   = setFromList [Ally, Allies, RAlly, RXAlly]

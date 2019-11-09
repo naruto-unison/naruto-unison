@@ -288,9 +288,10 @@ data Target
     = Self    -- ^ User of 'Skill'
     | Ally    -- ^ Specific ally
     | Allies  -- ^ All allies
-    | RAlly   -- ^ Random ally
     | XAlly   -- ^ Specific ally excluding 'Self'
     | XAllies -- ^ 'Allies' excluding 'Self'
+    | RAlly   -- ^ Random ally
+    | RXAlly -- ^ Random ally excluding 'Self'
     | Enemy   -- ^ Specific enemy
     | Enemies -- ^ All enemies
     | REnemy  -- ^ Random enemy

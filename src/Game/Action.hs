@@ -120,8 +120,8 @@ wrap' affected f = void $ runMaybeT do
 
     P.zipWith Traps.broken ninjas
 
--- | Transforms @Target@s into @Slot@s. 'RAlly' and 'REnemy' targets are chosen
--- at random.
+-- | Transforms @Target@s into @Slot@s.
+-- 'REnemy', 'RAlly', and 'RXAlly' targets are chosen at random.
 chooseTargets :: ∀ m. (MonadPlay m, MonadRandom m)
               => [Runnable Target] -> m [[Runnable Slot]]
 chooseTargets targets = do
@@ -138,28 +138,53 @@ chooseTargets targets = do
                    , Requirement.targetable skill nUser nTarget
                    ]
 
--- | Transforms a @Target@ into @Slot@s. 'RAlly' and 'REnemy' targets are chosen
--- at random.
+-- | Transforms a @Target@ into @Slot@s.
+-- 'REnemy', 'RAlly', and 'RXAlly' targets are chosen at random.
 chooseTarget :: ∀ m. (MonadPlay m, MonadRandom m) => Target -> m [Slot]
-chooseTarget Self = singleton <$> P.user
+
+chooseTarget Self =
+    singleton <$> P.user
+
 chooseTarget Ally = do
     user   <- P.user
     target <- P.target
     return [target | Parity.allied user target]
-chooseTarget Allies  = Slot.allies <$> P.user
-chooseTarget RAlly   = maybeToList <$> (chooseTarget Allies >>= R.choose)
-chooseTarget XAllies = delete <$> P.user <*> chooseTarget Allies
-chooseTarget XAlly   = do
+
+chooseTarget XAlly = do
     user   <- P.user
     target <- P.target
     return [target | user /= target && Parity.allied user target]
+
+chooseTarget Allies =
+    Slot.allies <$> P.user
+
+chooseTarget RAlly =
+    maybeToList <$> (Slot.allies <$> P.user >>= R.choose)
+
+chooseTarget XAllies = do
+    user <- P.user
+    return . delete user $ Slot.allies user
+
+chooseTarget RXAlly = do
+    user <- P.user
+    maybeToList <$> R.choose (delete user $ Slot.allies user)
+
 chooseTarget Enemy = do
     user   <- P.user
     target <- P.target
     return [target | not $ Parity.allied user target]
-chooseTarget Enemies  = Slot.enemies <$> P.user
-chooseTarget XEnemies = delete <$> P.target <*> chooseTarget Enemies
-chooseTarget REnemy   = maybeToList <$> (chooseTarget Enemies >>= R.choose)
+
+chooseTarget Enemies =
+    Slot.enemies <$> P.user
+
+chooseTarget XEnemies = do
+    user   <- P.user
+    target <- P.target
+    return . delete target $ Slot.enemies user
+
+chooseTarget REnemy =
+    maybeToList <$> (Slot.enemies <$> P.user >>= R.choose)
+
 chooseTarget Everyone = return Slot.all
 
 -- | Directs an effect tuple in a 'Skill' to a target. Uses 'wrap' internally.
@@ -297,9 +322,10 @@ interruptions skill = To Enemy clear : To Ally clear : Skill.interrupt skill
     clear :: ∀ m. MonadPlay m => m ()
     clear = P.fromUser . Ninjas.clear $ Skill.name skill
 
--- | True for all targets except 'RAlly' and 'REnemy'.
+-- | True for all targets except 'REnemy', 'RAlly', and 'RXAlly'.
 nonRandom :: Target -> Bool
 nonRandom RAlly  = False
+nonRandom RXAlly = False
 nonRandom REnemy = False
 nonRandom _      = True
 

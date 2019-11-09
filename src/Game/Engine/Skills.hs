@@ -92,7 +92,6 @@ restrict :: Skill -> Skill
 restrict = changeEffects $ mapMaybe f
   where
     f (To XEnemies _)  = Nothing
-    f (To REnemy   _)  = Nothing
     f (To Everyone ef) = Just $ To Allies ef
     f (To Enemies  ef) = Just $ To Enemy ef
     f x                  = Just x
@@ -113,9 +112,10 @@ swap = changeEffects . map $ Runnable.retarget f
     f Self         = Self
     f Ally         = REnemy
     f XAlly        = REnemy
-    f RAlly        = REnemy
     f Allies       = Enemies
     f XAllies      = Enemies
+    f RAlly        = REnemy
+    f RXAlly       = REnemy
     f Enemy        = Self
     f REnemy       = RAlly
     f Enemies      = Allies
