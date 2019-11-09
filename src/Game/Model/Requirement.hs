@@ -18,7 +18,6 @@ import           Game.Model.Effect (Effect(..))
 import           Game.Model.Internal (Requirement(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
-import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Skill (Skill(Skill), Target(..))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
@@ -28,18 +27,22 @@ import           Util ((∈), (∉), intersects)
 usable :: Bool -- ^ New.
        -> Ninja -> Skill -> Skill
 usable new n x
-  | charges > 0 && Ninja.charges `atLeast` charges    = unusable
-  | new && Ninja.cooldowns `atLeast` 1                = unusable
-  | not $ Skill.classes x `intersects` Effects.stun n = x'
-  | new                                               = unusable
-  | Channel.ignoreStun $ Skill.dur x                  = x'
-  | otherwise = x' { Skill.effects = Skill.stunned x' }
+  | not new                         = x'
+  | Ninja.cooldowns `atLeast` 1     = unusable
+  | charges == 0                    = x'
+  | Ninja.charges `atLeast` charges = unusable
+  | otherwise                       = x'
   where
     getter `atLeast` limit = maybe False (>= limit) $ key `lookup` getter n
     charges  = Skill.charges x
     key      = Skill.key x
     unusable = x { Skill.require = Unusable }
-    x'       = x { Skill.require = isUsable $ Skill.require x }
+    required = x { Skill.require = isUsable $ Skill.require x }
+    x'
+      | Channel.ignoreStun $ Skill.dur x = required
+      | not $ Skill.classes x `intersects` Effects.stun n = required
+      | new = unusable
+      | otherwise = required { Skill.effects = Skill.stunned required }
     isUsable req@HasI{}
       | not new                      = Usable
       | succeed req (Ninja.slot n) n = Usable
@@ -73,8 +76,8 @@ targetable :: Skill -- ^ @Skill@ to check.
            -> Ninja -- ^ User.
            -> Ninja -- ^ Target.
            -> Bool
-targetable Skill{require = Unusable} _ _ = False
-targetable Skill{classes} n nt
+targetable Skill{classes, require} n nt
+  | not $ succeed require user nt  = False
   | user == target                 = True
   | harm && n `is` BlockEnemies    = False
   | not harm && n `is` BlockAllies = False
