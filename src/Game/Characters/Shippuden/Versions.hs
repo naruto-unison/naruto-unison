@@ -72,128 +72,6 @@ characters =
     , [ invuln "Parry" "Naruto" [Physical] ]
     ]
   , Character
-    "Mangekyō Sasuke"
-    "The trauma of Itachi's death has awakened Sasuke's Mangekyō Sharingan. With it, he has access to the most powerful techniques of the Uchiha clan. Although his sibling rivalry is at an end, Sasuke's need for vengeance has only grown stronger."
-    [LeafVillage, Orochimaru, Orochimaru, Genin, Rogue, Lightning, Fire, Wind, Earth, Water, Yin, Uchiha]
-    [ [ Skill.new
-        { Skill.name      = "Susanoo"
-        , Skill.desc      = "Using the mangekyō sharingan's signature ability, Sasuke creates a colossus of chakra around himself. For 3 turns, all damage to Sasuke—including piercing and affliction—is reduced by 15 points."
-        , Skill.classes   = [Chakra]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To Self $ apply 3 [ Reduce [Affliction] Flat 15
-                              , Alternate "Chidori" "Blazing Arrow"
-                              , Alternate "Amaterasu" "Yasaka Beads"
-                              , Face
-                              ]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Chidori"
-        , Skill.desc      = "Sasuke hurls lightning energy at an enemy, dealing 20 piercing damage and stunning their melee skills for 1 turn. Next turn, Sasuke gains 15 points of physical damage reduction. If no physical skills are used on Sasuke by the end of the turn, the cost of this skill becomes 1 ninjutsu chakra and its cooldown resets. During [Susanoo], this skill becomes [Blazing Arrow][b][r]."
-        , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = [Nin, Rand]
-        , Skill.cooldown  = 2
-        , Skill.effects   =
-          [ To Enemy do
-                pierce 20
-                apply 1 [Stun All]
-          , To Self do
-                trap (-1) (OnDamaged Physical) $ remove "Chidori"
-                bomb (-1) [Reduce [Physical] Flat 15]
-                    [ To Expire do
-                          hide 1 []
-                          reset "Chidori"
-                    ]
-          ]
-        , Skill.changes   =
-            changeWith "Chidori" \x -> x { Skill.cost = [Nin] }
-        }
-      , Skill.new
-        { Skill.name      = "Blazing Arrow"
-        , Skill.desc      = "Sasuke forges three arrows out of flame and shoots them one after another at an enemy, dealing 15 damage for 3 turns. If this skill is stunned, Sasuke deals the remaining damage instantly and the cooldown of this skill resets."
-        , Skill.classes   = [Bane, Chakra, Ranged, Resource]
-        , Skill.cost      = [Blood, Rand]
-        , Skill.cooldown  = 3
-        , Skill.dur       = Action 3
-        , Skill.start     =
-          [ To Self do
-                remove "Blazing Arrow"
-                addStacks "Blazing Arrow" 3
-          ]
-        , Skill.effects   =
-          [ To Enemy $ damage 15
-          , To Self $ removeStack "Blazing Arrow"
-          ]
-        , Skill.stunned   =
-          [ To Enemy do
-                stacks <- userStacks "Blazing Arrow"
-                damage (15 * stacks)
-          , To Self do
-                remove "Blazing Arrow"
-                cancelChannel "Blazing Arrow"
-                reset "Blazing Arrow"
-          ]
-        , Skill.interrupt  =
-          [ To Enemy do
-                stacks <- userStacks "Blazing Arrow"
-                damage (15 * stacks)
-          , To Self do
-                remove "Blazing Arrow"
-                reset "Blazing Arrow"
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Amaterasu"
-        , Skill.desc      = "Sasuke ignites an enemy, dealing 5 affliction damage to them for 4 turns. If the target becomes invulnerable, they are cured of the effect. If an ally of the target uses a skill on them while they are affected, [Amaterasu] will spread to the ally. Every time an enemy is cured of [Amaterasu], the damage of [Amaterasu] and [Yasaka Beads] increases by 5. During [Susanoo], this skill becomes [Yasaka Beads][n]."
-        , Skill.classes   = [Bane, Chakra, Ranged, Unreflectable]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          let
-              amaterasu :: RunConstraint ()
-              amaterasu = do
-                  trap 4 OnInvulnerable $ remove "Amaterasu"
-                  stacks <- userStacks "Amaterasu"
-                  bomb 4 [Afflict (5 + 5 * stacks)]
-                      [ To Remove $ self $ addStack
-                      , To Done $ removeTrap "Amaterasu"
-                      ]
-                  trapFrom 4 OnHelped amaterasu
-          in
-          [ To Enemy amaterasu ]
-        }
-      , Skill.new
-        { Skill.name      = "Yasaka Beads"
-        , Skill.desc      = "Sasuke attacks an enemy with a Magatama of black flame, dealing 10 affliction damage. Damage increases by 5 every time an enemy is cured of [Amaterasu]. If the target uses a skill next turn, they take 20 additional affliction damage."
-        , Skill.classes   = [Bane, Chakra, Ranged]
-        , Skill.cost      = [Nin]
-        , Skill.effects   =
-          [ To Enemy do
-                stacks <- userStacks "Amaterasu"
-                afflict (10 + 5 * stacks)
-                trap 1 (OnAction All) $ afflict 20
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Mangekyō Foresight"
-        , Skill.desc      = "Sasuke becomes invulnerable for 1 turn. Extends the duration of [Susanoo] by 1 turn."
-        , Skill.classes   = [Mental]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To Self do
-                apply 1 [Invulnerable All]
-                prolong 1 "Susanoo"
-
-          ]
-        }
-      ]
-    ]
-  , Character
     "Commander Gaara"
     "Coordinating the Allied Shinobi Forces and personally commanding the Fourth Division, Gaara has proven to be an inspiring leader and talented strategist. His attacks scatter sand particles around the battlefield, which he draws back in with explosive force."
     [SandVillage, AlliedForces, Kage, Jinchuriki, Sensor, Wind, Earth, Lightning, SandClan]
@@ -492,6 +370,166 @@ characters =
     , [ invuln "Dodge" "Guy" [Physical] ]
     ]
   , Character
+    "Curse Mark Jūgo"
+    "No longer recognizably human, Jūgo has been transformed by bloodlust into a terrifying monster. Tapping into limitless chakra, he is an unstoppable and uncontrollable force."
+    [Orochimaru, Sage, Wind, Earth, Water, Yang]
+    [ [ Skill.new
+        { Skill.name      = "Psychotic Break"
+        , Skill.desc      = "Jūgo fixates obsessively on an enemy, dealing 10 damage to them for 3 turns and gaining 20% damage reduction."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 4
+        , Skill.dur       = Action 3
+        , Skill.effects   =
+          [ To Enemy $ damage 10
+          , To Self $ apply 1 [Reduce [All] Percent 20]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Connected Cannons"
+        , Skill.desc      = "A powerful chakra blast deals 50 damage to an enemy."
+        , Skill.classes   = [Chakra, Ranged]
+        , Skill.cost      = [Nin, Nin]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ damage 50 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Cellular Absorption"
+        , Skill.desc      = "Jūgo drains the lifeforce from an enemy with a needle-like appendage, stealing 15 health from them."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ leech 15 $ self . heal ]
+        }
+      ]
+    , [ invuln "Block" "Jūgo" [Physical] ]
+    ]
+  , Character
+    "Mangekyō Sasuke"
+    "The trauma of Itachi's death has awakened Sasuke's Mangekyō Sharingan. With it, he has access to the most powerful techniques of the Uchiha clan. Although his sibling rivalry is at an end, Sasuke's need for vengeance has only grown stronger."
+    [LeafVillage, Orochimaru, Orochimaru, Genin, Rogue, Lightning, Fire, Wind, Earth, Water, Yin, Uchiha]
+    [ [ Skill.new
+        { Skill.name      = "Susanoo"
+        , Skill.desc      = "Using the mangekyō sharingan's signature ability, Sasuke creates a colossus of chakra around himself. For 3 turns, all damage to Sasuke—including piercing and affliction—is reduced by 15 points."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Self $ apply 3 [ Reduce [Affliction] Flat 15
+                              , Alternate "Chidori" "Blazing Arrow"
+                              , Alternate "Amaterasu" "Yasaka Beads"
+                              , Face
+                              ]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Chidori"
+        , Skill.desc      = "Sasuke hurls lightning energy at an enemy, dealing 20 piercing damage and stunning their melee skills for 1 turn. Next turn, Sasuke gains 15 points of physical damage reduction. If no physical skills are used on Sasuke by the end of the turn, the cost of this skill becomes 1 ninjutsu chakra and its cooldown resets. During [Susanoo], this skill becomes [Blazing Arrow][b][r]."
+        , Skill.classes   = [Chakra, Melee]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.cooldown  = 2
+        , Skill.effects   =
+          [ To Enemy do
+                pierce 20
+                apply 1 [Stun All]
+          , To Self do
+                trap (-1) (OnDamaged Physical) $ remove "Chidori"
+                bomb (-1) [Reduce [Physical] Flat 15]
+                    [ To Expire do
+                          hide 1 []
+                          reset "Chidori" ]
+          ]
+        , Skill.changes   =
+            changeWith "Chidori" \x -> x { Skill.cost = [Nin] }
+        }
+      , Skill.new
+        { Skill.name      = "Blazing Arrow"
+        , Skill.desc      = "Sasuke forges three arrows out of flame and shoots them one after another at an enemy, dealing 15 damage for 3 turns. If this skill is stunned, Sasuke deals the remaining damage instantly and the cooldown of this skill resets."
+        , Skill.classes   = [Bane, Chakra, Ranged, Resource]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 3
+        , Skill.dur       = Action 3
+        , Skill.start     =
+          [ To Self do
+                remove "Blazing Arrow"
+                addStacks "Blazing Arrow" 3
+          ]
+        , Skill.effects   =
+          [ To Enemy $ damage 15
+          , To Self $ removeStack "Blazing Arrow"
+          ]
+        , Skill.stunned   =
+          [ To Enemy do
+                stacks <- userStacks "Blazing Arrow"
+                damage (15 * stacks)
+          , To Self do
+                remove "Blazing Arrow"
+                cancelChannel "Blazing Arrow"
+                reset "Blazing Arrow"
+          ]
+        , Skill.interrupt  =
+          [ To Enemy do
+                stacks <- userStacks "Blazing Arrow"
+                damage (15 * stacks)
+          , To Self do
+                remove "Blazing Arrow"
+                reset "Blazing Arrow"
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Amaterasu"
+        , Skill.desc      = "Sasuke ignites an enemy, dealing 5 affliction damage to them for 4 turns. If the target becomes invulnerable, they are cured of the effect. If an ally of the target uses a skill on them while they are affected, [Amaterasu] will spread to the ally. Every time an enemy is cured of [Amaterasu], the damage of [Amaterasu] and [Yasaka Beads] increases by 5. During [Susanoo], this skill becomes [Yasaka Beads][n]."
+        , Skill.classes   = [Bane, Chakra, Ranged, Unreflectable]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          let
+              amaterasu :: RunConstraint ()
+              amaterasu = do
+                  trapWith [Bypassing] 4 OnInvulnerable $ remove "Amaterasu"
+                  stacks <- userStacks "Amaterasu"
+                  bombWith [Bypassing] 4 [Afflict (5 + 5 * stacks)]
+                      [ To Remove $ self $ addStack
+                      , To Done $ removeTrap "Amaterasu"
+                      ]
+                  trapFrom 4 OnHelped amaterasu
+          in
+          [ To Enemy amaterasu ]
+        }
+      , Skill.new
+        { Skill.name      = "Yasaka Beads"
+        , Skill.desc      = "Sasuke attacks an enemy with a Magatama of black flame, dealing 10 affliction damage. Damage increases by 5 every time an enemy is cured of [Amaterasu]. If the target uses a skill next turn, they take 20 additional affliction damage."
+        , Skill.classes   = [Bane, Chakra, Ranged]
+        , Skill.cost      = [Nin]
+        , Skill.effects   =
+          [ To Enemy do
+                stacks <- userStacks "Amaterasu"
+                afflict (10 + 5 * stacks)
+                trap 1 (OnAction All) $ afflict 20
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Mangekyō Foresight"
+        , Skill.desc      = "Sasuke becomes invulnerable for 1 turn. Extends the duration of [Susanoo] by 1 turn."
+        , Skill.classes   = [Mental]
+        , Skill.cooldown  = 4
+        , Skill.effects   =
+          [ To Self do
+                apply 1 [Invulnerable All]
+                prolong 1 "Susanoo"
+
+          ]
+        }
+      ]
+    ]
+  , Character
     "True Form Sasori"
     "Having invented and perfected the art of human puppetry, Sasori accomplished its ultimate act: transforming himself into a living puppet. His immortal core now resides in an unnaturally youthful simulacrum filled to the brim with tools of slaughter, each of which he switches out for another as soon as he uses it."
     [SandVillage, Rogue]
@@ -610,45 +648,6 @@ characters =
         }
       ]
     , [ invuln "Heart Switch" "Sasori" [Physical] ]
-    ]
-  , Character
-    "Curse Mark Jūgo"
-    "No longer recognizably human, Jūgo has been transformed by bloodlust into a terrifying monster. Tapping into limitless chakra, he is an unstoppable and uncontrollable force."
-    [Orochimaru, Sage, Wind, Earth, Water, Yang]
-    [ [ Skill.new
-        { Skill.name      = "Psychotic Break"
-        , Skill.desc      = "Jūgo fixates obsessively on an enemy, dealing 10 damage to them for 3 turns and gaining 20% damage reduction."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 4
-        , Skill.dur       = Action 3
-        , Skill.effects   =
-          [ To Enemy $ damage 10
-          , To Self $ apply 1 [Reduce [All] Percent 20]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Connected Cannons"
-        , Skill.desc      = "A powerful chakra blast deals 50 damage to an enemy."
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = [Nin, Nin]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy $ damage 50 ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Cellular Absorption"
-        , Skill.desc      = "Jūgo drains the lifeforce from an enemy with a needle-like appendage, stealing 15 health from them."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy $ leech 15 $ self . heal ]
-        }
-      ]
-    , [ invuln "Block" "Jūgo" [Physical] ]
     ]
   , Character
     "Konan of the Rain"

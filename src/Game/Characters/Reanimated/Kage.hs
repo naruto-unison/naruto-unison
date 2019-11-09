@@ -188,85 +188,6 @@ characters =
     ]
     150
   , Character
-    "Hanzō"
-    "Reanimated by Kabuto, Hanzō the Salamander was the leader of the Hidden Rain Village. In combination with his unrivaled combat prowess, the lethal venom sac implanted in his body makes him a feared legend throughout the world."
-    [RainVillage, Kabuto, Kage, Fire]
-    [ [ Skill.new
-        { Skill.name      = "Major Summoning: Ibuse"
-        , Skill.desc      = "Hanzō summons his fabled salamander to the battlefield. Ibuse starts with 30 health and redirects half of all damage against Hanzō to itself until it dies. While active, this skill becomes [Poison Fog][b][b]."
-        , Skill.classes   = [Summon, Unreflectable, Unremovable]
-        , Skill.cost      = [Rand, Rand, Rand]
-        , Skill.cooldown  = 6
-        , Skill.effects   =
-          [ To Self do
-                has <- userHas "Venom Sac"
-                if has then do
-                    remove "Venom Sac"
-                    alterCd "Major Summoning: Ibuse" (-2)
-                else do
-                    hide 0 [Reduce [Affliction] Percent 50]
-                    applyStacks "Major Summoning: Ibuse" 30
-                        [Alternate "Major Summoning: Ibuse" "Poison Fog"]
-                    trapPer' 0 PerDamaged $
-                        removeStacks "Major Summoning: Ibuse"
-                    trap' 0 (OnDamaged All) $
-                        unlessM (userHas "Major Summoning: Ibuse") do
-                            removeTrap "Major Summoning: Ibuse"
-                            remove "major summoning: ibuse"
-                            cancelChannel "Poison Fog"
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Poison Fog"
-        , Skill.desc      = "Ibuse opens its mouth to reveal a noxious cloud of deadly poison, dealing 10 affliction damage to all enemies until Ibuse dies. Cannot be used while active."
-        , Skill.require   = HasI 0 "Poison Fog"
-        , Skill.classes   = [Physical, Bane, Ranged, Unreflectable]
-        , Skill.cost      = [Blood, Blood]
-        , Skill.dur       = Ongoing 0
-        , Skill.effects   =
-          [ To Enemies $ afflict 10 ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Sickle Dance"
-        , Skill.desc      = "Hanzō gouges an enemy with his sickle, dealing 15 piercing damage to them immediately and 5 affliction damage for 2 turns. During [Major Summoning: Ibuse], Ibuse swallows the target, stunning their non-mental skills for 1 turn and dealing 10 additional affliction damage."
-        , Skill.classes   = [Bane, Physical, Melee]
-        , Skill.cost      = [Tai]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy do
-                pierce 15
-                apply 2 [Afflict 5]
-                whenM (userHas "Major Summoning: Ibuse") do
-                    afflict 10
-                    apply 1 [Stun All]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Venom Sac"
-        , Skill.desc      = "The first enemy to use a non-mental skill on Hanzō next turn will rupture his implanted venom sac, taking 20 affliction damage every turn and causing Hanzō to take 10 affliction damage every turn. When Hanzō summons Ibuse or if [Major Summoning: Ibuse] is already active, Hanzō will replace his venom sac with Ibuse's, ending [Major Summoning: Ibuse], curing himself of this skill, and decreasing the current cooldown of [Major Summoning: Ibuse] by 3."
-        , Skill.classes   = [Physical, Bane, Invisible]
-        , Skill.cost      = [Blood]
-        , Skill.effects   =
-            [ To Self $ trapFrom 1 (OnHarmed NonMental) do
-                  apply 0 [Afflict 20]
-                  self $ removeTrap "Venom Sac"
-                  has <- userHas "major summoning: ibuse"
-                  if has then self do
-                      remove "Major Summoning Ibuse"
-                      remove "major summoning: ibuse"
-                      alterCd "Major Summoning: Ibuse" (-2)
-                      cancelChannel "Poison Fog"
-                  else self $
-                      apply 0 [Afflict 10]
-            ]
-        }
-      ]
-    , [ invuln "Block" "Hanzō" [Physical] ]
-    ]
-    200
-  , Character
     "Rasa"
     "Reanimated by Kabuto, Rasa was the fourth Kazekage of the Hidden Sand Village and the father of the Sand Siblings. Cold and calculating, Rasa buries his enemies beneath crushingly heavy gold dust that they must fight their way out of to survive."
     [SandVillage, Kabuto, Kage, Wind, Earth, Water, Yin, SandClan]
@@ -506,4 +427,86 @@ characters =
     , [ invuln "Mirage" "Gengetsu" [Mental] ]
     ]
     150
+  , Character
+    "Hanzō"
+    "Reanimated by Kabuto, Hanzō the Salamander was the leader of the Hidden Rain Village. In combination with his unrivaled combat prowess, the lethal venom sac implanted in his body makes him a feared legend throughout the world."
+    [RainVillage, Kabuto, Kage, Fire]
+    [ [ Skill.new
+        { Skill.name      = "Major Summoning: Ibuse"
+        , Skill.desc      = "Hanzō summons his fabled salamander to the battlefield. Ibuse starts with 30 health and redirects half of all damage against Hanzō to itself until it dies. While active, this skill becomes [Poison Fog][b][b]."
+        , Skill.classes   = [Summon, Unreflectable, Unremovable]
+        , Skill.cost      = [Rand, Rand, Rand]
+        , Skill.cooldown  = 6
+        , Skill.effects   =
+          [ To Self do
+                has <- userHas "Venom Sac"
+                if has then do
+                    remove "Venom Sac"
+                    alterCd "Major Summoning: Ibuse" (-2)
+                else do
+                    hide 0 [Reduce [Affliction] Percent 50]
+                    applyStacks "Major Summoning: Ibuse" 30
+                        [Alternate "Major Summoning: Ibuse" "Poison Fog"]
+                    trapPer' 0 PerDamaged \i -> do
+                        stacks <- userStacks "Major Summoning: Ibuse"
+                        if stacks - i > 0 then
+                            removeStacks "Major Summoning: Ibuse" i
+                        else do
+                            remove "Major Summoning: Ibuse"
+                            remove "major summoning: ibuse"
+                            removeTrap "Major Summoning: Ibuse"
+                            cancelChannel "Poison Fog"
+                            sacrifice 0 (i - stacks)
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Poison Fog"
+        , Skill.desc      = "Ibuse opens its mouth to reveal a noxious cloud of deadly poison, dealing 10 affliction damage to all enemies until Ibuse dies. Cannot be used while active."
+        , Skill.require   = HasI 0 "Poison Fog"
+        , Skill.classes   = [Physical, Bane, Ranged, Unreflectable]
+        , Skill.cost      = [Blood, Blood]
+        , Skill.dur       = Ongoing 0
+        , Skill.effects   =
+          [ To Enemies $ afflict 10 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Sickle Dance"
+        , Skill.desc      = "Hanzō gouges an enemy with his sickle, dealing 15 piercing damage to them immediately and 5 affliction damage for 2 turns. During [Major Summoning: Ibuse], Ibuse swallows the target, stunning their non-mental skills for 1 turn and dealing 10 additional affliction damage."
+        , Skill.classes   = [Bane, Physical, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy do
+                pierce 15
+                apply 2 [Afflict 5]
+                whenM (userHas "Major Summoning: Ibuse") do
+                    afflict 10
+                    apply 1 [Stun All]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Venom Sac"
+        , Skill.desc      = "The first enemy to use a non-mental skill on Hanzō next turn will rupture his implanted venom sac, taking 20 affliction damage every turn and causing Hanzō to take 10 affliction damage every turn. When Hanzō summons Ibuse or if [Major Summoning: Ibuse] is already active, Hanzō will replace his venom sac with Ibuse's, ending [Major Summoning: Ibuse], curing himself of this skill, and decreasing the current cooldown of [Major Summoning: Ibuse] by 3."
+        , Skill.classes   = [Physical, Bane, Invisible]
+        , Skill.cost      = [Blood]
+        , Skill.effects   =
+            [ To Self $ trapFrom 1 (OnHarmed NonMental) do
+                  apply 0 [Afflict 20]
+                  self $ removeTrap "Venom Sac"
+                  has <- userHas "major summoning: ibuse"
+                  if has then self do
+                      remove "Major Summoning Ibuse"
+                      remove "major summoning: ibuse"
+                      alterCd "Major Summoning: Ibuse" (-2)
+                      cancelChannel "Poison Fog"
+                  else self $
+                      apply 0 [Afflict 10]
+            ]
+        }
+      ]
+    , [ invuln "Block" "Hanzō" [Physical] ]
+    ]
+    200
   ]

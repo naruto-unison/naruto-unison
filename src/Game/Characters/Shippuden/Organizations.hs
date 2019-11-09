@@ -86,61 +86,6 @@ characters =
         }
       ]
     , [ invuln "Block" "Shisui" [Physical] ]
-
-    ]
-  , Character
-    "Sai"
-    "An operative of the Hidden Leaf Village's elite Root division, Sai is quietly expressive and artistic. He uses a set of brushes with chakra-infused ink to give life to his illustrations, which usually take the form of powerful black-and-white beasts."
-    [LeafVillage, AlliedForces, Anbu, Earth, Water, Fire, Yang, Yamanaka]
-    [ [ Skill.new
-        { Skill.name      = "Super Beast Scroll: Lions"
-        , Skill.desc      = "Sai draws a pack of lions that attack an enemy, dealing 30 damage to them and providing 20 destructible defense to Sai for 1 turn."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Gen, Rand]
-        , Skill.effects   =
-          [ To Enemy $ damage 30
-          , To Self $ defend 1 20
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Super Beast Scroll: Snake"
-        , Skill.desc      = "Sai draws a snake that paralyzes an enemy with its bite, stunning their physical and chakra skills for 1 turn and preventing them from reducing damage or becoming invulnerable. During [Ink Mist], this skill becomes [Super Beast Scroll: Bird][g]."
-        , Skill.classes   = [Physical, Melee, Bypassing]
-        , Skill.cost      = [Gen]
-        , Skill.effects   =
-          [ To Enemy $ apply 1 [Stun Physical, Stun Chakra, Expose] ]
-        }
-      , Skill.new
-        { Skill.name      = "Super Beast Scroll: Bird"
-        , Skill.desc      = "Sai draws a bird in the air, which deals 25 damage to an enemy and stuns their physical and chakra skills for 1 turn."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Gen]
-        , Skill.effects   =
-          [ To Enemy do
-                damage 25
-                apply 1 [Stun Physical, Stun Chakra]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Ink Mist"
-        , Skill.desc      = "Streams of ink coil in the air around Sai and his allies for 3 turns, obscuring them from enemies and allowing Sai to draw three-dimensionally. If an enemy uses a skill to stun someone on Sai's team, their target becomes invulnerable for 1 turn. If an enemy uses a skill that gains, depletes, or absorbs chakra, Sai's team gains 1 random chakra. If an enemy uses a skill that deals non-affliction damage to someone on Sai's team, Sai's damage increases by 10 for 1 turn."
-        , Skill.classes   = [Mental, Bypassing]
-        , Skill.cost      = [Rand, Rand]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Enemies $ trap 3 OnChakra $ self $ gain [Rand]
-          , To Allies do
-                trap 3 OnStunned $ apply 1 [Invulnerable All]
-                trap 3 (OnDamaged NonAffliction) $
-                    self $ apply 1 [Strengthen [All] Flat 10]
-          , To Self $ apply 3 [Alternate "Super Beast Scroll: Snake"
-                                         "Super Beast Scroll: Bird"]
-          ]
-        }
-      ]
-    , [ invuln "Ink Clone" "Sai" [Chakra] ]
     ]
   , Character
     "Yamato"
@@ -543,5 +488,58 @@ characters =
         }
       ]
     , [ invuln "Hide" "Jūgo" [Mental] ]
+    ]
+  , Character
+    "Sasuke Uchiha"
+    "Sasuke's years of training under Orochimaru have made him a master of his elemental aspects. Cold and ruthless, he is regarded as one of the most dangerous ninjas alive."
+    [LeafVillage, Orochimaru, Genin, Rogue, Lightning, Fire, Wind, Earth, Water, Yin, Uchiha]
+    [ [ Skill.new
+        { Skill.name      = "Chidori Stream"
+        , Skill.desc      = "An electric field surrounds Sasuke. Enemies who use non-mental skills on Sasuke next turn will be countered and will take 10 affliction damage. Once used, this skill becomes [Chidori Spear][t]."
+        , Skill.classes   = [Bane, Chakra, Melee, Invisible]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.effects   =
+          [ To Self do
+                trapFrom 1 (CounterAll NonMental) $ afflict 10
+                hide 0 [Alternate "Chidori Stream" "Chidori Spear"]
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Chidori Spear"
+        , Skill.desc      = "Employing his swordsmanship to wield an energy beam like a weapon, Sasuke deals 15 damage to an enemy and stuns their physical and mental skills with electricity for 1 turn. Once used, this skill becomes [Chidori Stream][n][r]."
+        , Skill.classes   = [Bane, Chakra, Melee]
+        , Skill.cost      = [Tai]
+        , Skill.effects   =
+          [ To Enemy do
+                damage 15
+                apply 1 [Stun Physical, Stun Mental]
+          , To Self $ remove "chidori stream"
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Dragon Flame"
+        , Skill.desc      = "Draconic fireballs sear an enemy, dealing 10 damage to them for 4 turns. While active, enemies who use skills on Sasuke will take 5 affliction damage."
+        , Skill.classes   = [Bane, Chakra, Ranged, Bane]
+        , Skill.cost      = [Nin, Rand]
+        , Skill.cooldown  = 4
+        , Skill.dur       = Action 4
+        , Skill.effects   =
+          [ To Enemy $ damage 10
+          , To Self $ trapFrom 1 (OnHarmed All) $ afflict 5
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Kirin"
+        , Skill.desc      = "A pillar of lightning strikes an enemy, dealing 45 piercing damage."
+        , Skill.classes   = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
+        , Skill.cost      = [Nin, Nin]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ pierce 45 ]
+        }
+      ]
+    , [ invuln "Summoning: Serpent" "Sasuke" [Summon] ]
     ]
   ]

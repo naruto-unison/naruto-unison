@@ -260,6 +260,54 @@ characters =
     , [ invuln "Block" "Hinata" [Physical] ]
     ]
   , Character
+    "Ino Yamanaka"
+    "A genin from Team 10, Ino is as confident as she is vain. She projects the strength of her will directly into the minds of her opponents, bypassing their physical defenses and rendering them helpless."
+    [LeafVillage, Eleven, Genin, Sensor, Earth, Water, Fire, Yin, Yang, Yamanaka]
+    [ [ Skill.new
+        { Skill.name      = "Mind Destruction"
+        , Skill.desc      = "Ino launches a mental assault on an enemy, stunning their non-mental skills and preventing them from reducing damage or becoming invulnerable for 1 turn. Acting through them, she lashes out and deals 30 piercing damage to a random enemy."
+        , Skill.classes   = [Mental, Ranged, Bypassing]
+        , Skill.cost      = [Gen, Rand]
+        , Skill.effects   =
+          [ To Enemy $ apply 1 [Stun NonMental, Expose]
+          , To REnemy $ pierce 30
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Mind Transfer"
+        , Skill.desc      = "Ino takes over the mind of an enemy, stunning them and preventing them from reducing damage or becoming invulnerable for 4 turns. While active, this skill becomes [Art of the Valentine][r]."
+        , Skill.classes   = [Mental, Ranged]
+        , Skill.cost      = [Gen, Gen]
+        , Skill.cooldown  = 3
+        , Skill.dur       = Control 4
+        , Skill.effects   =
+          [ To Enemy $ apply 1 [Stun All, Expose]
+          , To Self $ hide 1 [Alternate "Mind Transfer" "Art of the Valentine"]
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Art of the Valentine"
+        , Skill.desc      = "Acting through her victim's body, Ino deals 25 damage to an enemy."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Enemy $ damage 25 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Chakra Hair Trap"
+        , Skill.desc      = "Ino endows a strand of hair with chakra to create an ensnaring trap near an enemy. If they use a skill on Ino or her allies during their next turn, their cooldowns will increase by 1 turn for 2 turns."
+        , Skill.classes   = [Chakra, Ranged, Invisible]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ trap 1 OnHarm $ apply 2 [Snare 1] ]
+        }
+      ]
+    , [ invuln "Block" "Ino" [Physical] ]
+    ]
+  , Character
     "Shikamaru Nara"
     "A genin from Team 10, Shikamaru is considered the smartest of the Konoha 11. He manipulates shadows to disable and attack his enemies. Whomever he fights, it's only a matter of time before he comes up with the perfect plan to defeat them."
     [LeafVillage, Eleven, Genin, Fire, Earth, Yin, Nara]
@@ -495,54 +543,6 @@ characters =
           ]
         }
       ]
-    ]
-  , Character
-    "Ino Yamanaka"
-    "A genin from Team 10, Ino is as confident as she is vain. She projects the strength of her will directly into the minds of her opponents, bypassing their physical defenses and rendering them helpless."
-    [LeafVillage, Eleven, Genin, Sensor, Earth, Water, Fire, Yin, Yang, Yamanaka]
-    [ [ Skill.new
-        { Skill.name      = "Mind Destruction"
-        , Skill.desc      = "Ino launches a mental assault on an enemy, stunning their non-mental skills and preventing them from reducing damage or becoming invulnerable for 1 turn. Acting through them, she lashes out and deals 30 piercing damage to a random enemy."
-        , Skill.classes   = [Mental, Ranged, Bypassing]
-        , Skill.cost      = [Gen, Rand]
-        , Skill.effects   =
-          [ To Enemy $ apply 1 [Stun NonMental, Expose]
-          , To REnemy $ pierce 30
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Mind Transfer"
-        , Skill.desc      = "Ino takes over the mind of an enemy, stunning them and preventing them from reducing damage or becoming invulnerable for 4 turns. While active, this skill becomes [Art of the Valentine][r]."
-        , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = [Gen, Gen]
-        , Skill.cooldown  = 3
-        , Skill.dur       = Control 4
-        , Skill.effects   =
-          [ To Enemy $ apply 1 [Stun All, Expose]
-          , To Self $ hide 1 [Alternate "Mind Transfer" "Art of the Valentine"]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Art of the Valentine"
-        , Skill.desc      = "Acting through her victim's body, Ino deals 25 damage to an enemy."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Rand]
-        , Skill.effects   =
-          [ To Enemy $ damage 25 ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Chakra Hair Trap"
-        , Skill.desc      = "Ino endows a strand of hair with chakra to create an ensnaring trap near an enemy. If they use a skill on Ino or her allies during their next turn, their cooldowns will increase by 1 turn for 2 turns."
-        , Skill.classes   = [Chakra, Ranged, Invisible]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy $ trap 1 OnHarm $ apply 2 [Snare 1] ]
-        }
-      ]
-    , [ invuln "Block" "Ino" [Physical] ]
     ]
   , Character
     "Rock Lee"

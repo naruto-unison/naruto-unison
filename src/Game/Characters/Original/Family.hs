@@ -63,56 +63,6 @@ characters =
     , [ invuln "Hide?" "Konohamaru" [Mental] ]
     ]
   , Character
-    "Hiashi Hyūga"
-    "A jōnin from the Hidden Leaf Village and father to Hinata and Hanabi, Hiashi does not tolerate weakness or failure. All of the Hyūga clan's secret techniques have been passed down to him, and he wields them with unmatched expertise."
-    [LeafVillage, Jonin, Hyuga]
-    [ [ Skill.new
-        { Skill.name      = "Gentle Fist"
-        , Skill.desc      = "Hiashi slams an enemy, dealing 20 damage and depleting 1 random chakra. Next turn, he repeats the attack on a random enemy."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Tai, Rand]
-        , Skill.cooldown  = 2
-        , Skill.dur       = Action 2
-        , Skill.start     =
-          [ To Self flag
-          , To Enemy do
-                deplete 1
-                damage 20
-          ]
-        , Skill.effects   =
-          [ To REnemy $ unlessM (userHas "gentle fist") do
-                damage 20
-                deplete 1
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Eight Trigrams Palm Rotation"
-        , Skill.desc      = "Hiashi spins toward an enemy, becoming invulnerable for 2 turns and dealing 15 damage to the target and 10 to all other enemies each turn."
-        , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = [Blood, Rand]
-        , Skill.cooldown  = 3
-        , Skill.dur       = Action 2
-        , Skill.effects   =
-          [ To Self $ apply 1 [Invulnerable All]
-          , To Enemy $ damage 15
-          , To XEnemies $ damage 10
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Eight Trigrams Air Palm Wall"
-        , Skill.desc      = "Targeting himself or an ally, Hiashi prepares to blast an enemy's attack back. The first skill that an enemy uses on the target next turn will be reflected."
-        , Skill.classes   = [Chakra, Melee]
-        , Skill.cost      = [Blood]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Ally $ apply 1 [Reflect] ]
-        }
-      ]
-    , [ invuln "Byakugan Foresight" "Hiashi" [Mental] ]
-    ]
-  , Character
     "Tsume Inuzuka"
     "A jōnin from the Hidden Leaf Village and mother to Kiba, Tsume shares his wild temperament, impatience, and odd sense of humor. Kuromaru, her animal companion, keeps her enemies at bay and strikes back at any who dare to attack her."
     [LeafVillage, Jonin, Inuzuka]
@@ -171,50 +121,120 @@ characters =
     , [ invuln "Dodge" "Tsume" [Physical] ]
     ]
   , Character
-    "Chōza Akimichi"
-    "A jōnin from the Hidden Leaf Village and Chōji's father, Chōza instills confidence in his comrades with his bravery and wisdom. Never one to back down from a fight, he defends his allies and forces the attention of his enemies to himself."
-    [LeafVillage, AlliedForces, Jonin, TeamLeader, Yang, Akimichi]
+    "Hiashi Hyūga"
+    "A jōnin from the Hidden Leaf Village and father to Hinata and Hanabi, Hiashi does not tolerate weakness or failure. All of the Hyūga clan's secret techniques have been passed down to him, and he wields them with unmatched expertise."
+    [LeafVillage, Jonin, Hyuga]
     [ [ Skill.new
-        { Skill.name      = "Chain Bind"
-        , Skill.desc      = "Chōza slows an enemy, dealing 5 damage and weakening their physical, chakra, and summon damage by 10 for 1 turn. Chōza's team gains 5 permanent destructible defense."
+        { Skill.name      = "Gentle Fist"
+        , Skill.desc      = "Hiashi slams an enemy, dealing 20 damage and depleting 1 random chakra. Next turn, he repeats the attack on a random enemy."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Rand]
+        , Skill.cost      = [Tai, Rand]
+        , Skill.cooldown  = 2
+        , Skill.dur       = Action 2
+        , Skill.start     =
+          [ To Self flag
+          , To Enemy do
+                deplete 1
+                damage 20
+          ]
         , Skill.effects   =
-          [ To Enemy do
-                damage 5
-                apply 1 [Weaken [Physical, Chakra, Summon] Flat 10]
-          , To Allies $ defend 0 5
+          [ To REnemy $ unlessM (userHas "gentle fist") do
+                damage 20
+                deplete 1
           ]
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Human Boulder"
-        , Skill.desc      = "Chōza transforms into a rolling juggernaut. For 3 turns, he deals 15 damage to an enemy and provides 10 destructible defense to himself and his allies for 1 turn. Each turn, if the target is affected by [Chain Bind], it lasts 1 additional turn on them."
-        , Skill.classes   = [Physical, Melee]
+        { Skill.name      = "Eight Trigrams Palm Rotation"
+        , Skill.desc      = "Hiashi spins toward an enemy, becoming invulnerable for 2 turns and dealing 15 damage to the target and 10 to all other enemies each turn."
+        , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
-        , Skill.dur       = Action 3
+        , Skill.dur       = Action 2
         , Skill.effects   =
-          [ To Allies $ defend 1 10
-          , To Enemy do
-                damage 15
-                prolong 1 "Chain Bind"
+          [ To Self $ apply 1 [Invulnerable All]
+          , To Enemy $ damage 15
+          , To XEnemies $ damage 10
           ]
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Partial Expansion"
-        , Skill.desc      = "If used on an enemy, the next non-mental skill they use on Chōza or his allies will be countered. If used on an ally, the next non-mental skill an enemy uses on them will be countered. The person countered will take 10 damage."
-        , Skill.classes   = [Physical, Melee, Invisible, Unreflectable, Nonstacking, Bypassing]
+        { Skill.name      = "Eight Trigrams Air Palm Wall"
+        , Skill.desc      = "Targeting himself or an ally, Hiashi prepares to blast an enemy's attack back. The first skill that an enemy uses on the target next turn will be reflected."
+        , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Blood]
-        , Skill.cooldown  = 2
+        , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To XAlly $ trapFrom 0 (Counter NonMental) $ damage 10
-          , To Enemy $ trap 0 (Countered NonMental) $ damage 10
+          [ To Ally $ apply 1 [Reflect] ]
+        }
+      ]
+    , [ invuln "Byakugan Foresight" "Hiashi" [Mental] ]
+    ]
+  , Character
+    "Inoichi Yamanaka"
+    "A jōnin from the Hidden Leaf Village and Ino's father, Inoichi can solve practically any dilemma with his analytical perspective. Under his watchful gaze, every move made by his enemies only adds to his strength."
+    [LeafVillage, Jonin, Sensor, Water, Yamanaka]
+    [ [ Skill.new
+        { Skill.name      = "Psycho Mind Transmission"
+        , Skill.desc      = "Inoichi invades the mind of an enemy, dealing 20 damage to them for 2 turns and disabling the countering and reflecting effects of their skills."
+        , Skill.classes   = [Mental, Melee, Uncounterable, Unreflectable]
+        , Skill.cost      = [Nin]
+        , Skill.cooldown  = 1
+        , Skill.dur       = Control 2
+        , Skill.effects   =
+          [ To Enemy do
+                damage 20
+                apply 1 [ Disable Counters
+                        , Disable $ Only Reflect
+                        , Disable $ Any ReflectAll
+                        ]
           ]
         }
       ]
-    , [ invuln "Block" "Chōza" [Physical] ]
+    , [ Skill.new
+        { Skill.name      = "Sensory Radar"
+        , Skill.desc      = "Inoichi steps back and focuses on the tide of battle. Whenever an enemy uses a skill on Inoichi or his allies, Inoichi recovers 10 health and gains a stack of [Sensory Radar]. While active, this skill becomes [Sensory Radar: Collate][r]."
+        , Skill.classes   = [Mental, Ranged]
+        , Skill.cost      = [Nin]
+        , Skill.effects   =
+          [ To Self $
+                hide 0 [Alternate "Sensory Radar" "Sensory Radar: Collate"]
+          , To Enemies $ trap 0 OnHarm $ self do
+                heal 10
+                addStack
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Sensory Radar: Collate"
+        , Skill.desc      = "Inoichi compiles all the information he has gathered and puts it to use. For each stack of [Sensory Radar], he gains 1 random chakra. Ends [Sensory Radar]."
+        , Skill.classes   = [Mental, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Self do
+                everyone $ removeTrap "Sensory Radar"
+                stacks <- userStacks "Sensory Radar"
+                gain $ replicate stacks Rand
+                remove "Sensory Radar"
+                cancelChannel "Sensory Radar"
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Mental Invasion"
+        , Skill.desc      = "Inoichi preys on an enemy's weaknesses. For 4 turns, all invulnerability effects applied by the target will have their duration reduced by 1 turn. While active, members of Inoichi's team who use a mental skill on the target will become invulnerable for 1 turn."
+        , Skill.classes   = [Mental, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 4
+        , Skill.dur       = Control 4
+        , Skill.effects   =
+          [ To Enemy do
+              apply 1 [Throttle 1 $ Any Invulnerable]
+              delay (-1) $
+                  trapFrom 1 (OnHarmed Mental) $ apply 1 [Invulnerable All]
+          ]
+        }
+      ]
+    , [ invuln "Mobile Barrier" "Inoichi" [Chakra] ]
     ]
   , Character
     "Shikaku Nara"
@@ -282,69 +302,49 @@ characters =
     , [ invuln "Team Formation" "Shikaku" [Physical] ]
     ]
   , Character
-    "Inoichi Yamanaka"
-    "A jōnin from the Hidden Leaf Village and Ino's father, Inoichi can solve practically any dilemma with his analytical perspective. Under his watchful gaze, every move made by his enemies only adds to his strength."
-    [LeafVillage, Jonin, Sensor, Water, Yamanaka]
+    "Chōza Akimichi"
+    "A jōnin from the Hidden Leaf Village and Chōji's father, Chōza instills confidence in his comrades with his bravery and wisdom. Never one to back down from a fight, he defends his allies and forces the attention of his enemies to himself."
+    [LeafVillage, AlliedForces, Jonin, TeamLeader, Yang, Akimichi]
     [ [ Skill.new
-        { Skill.name      = "Psycho Mind Transmission"
-        , Skill.desc      = "Inoichi invades the mind of an enemy, dealing 20 damage to them for 2 turns and disabling the countering and reflecting effects of their skills."
-        , Skill.classes   = [Mental, Melee, Uncounterable, Unreflectable]
-        , Skill.cost      = [Nin]
-        , Skill.cooldown  = 1
-        , Skill.dur       = Control 2
+        { Skill.name      = "Chain Bind"
+        , Skill.desc      = "Chōza slows an enemy, dealing 5 damage and weakening their physical, chakra, and summon damage by 10 for 1 turn. Chōza's team gains 5 permanent destructible defense."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                damage 20
-                apply 1 [ Disable Counters
-                        , Disable $ Only Reflect
-                        , Disable $ Any ReflectAll
-                        ]
+                damage 5
+                apply 1 [Weaken [Physical, Chakra, Summon] Flat 10]
+          , To Allies $ defend 0 5
           ]
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Sensory Radar"
-        , Skill.desc      = "Inoichi steps back and focuses on the tide of battle. Whenever an enemy uses a skill on Inoichi or his allies, Inoichi will recover 10 health and gain a stack of [Sensory Radar]. While active, this skill becomes [Sensory Radar: Collate][r]."
-        , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = [Nin]
+        { Skill.name      = "Human Boulder"
+        , Skill.desc      = "Chōza transforms into a rolling juggernaut. For 3 turns, he deals 15 damage to an enemy and provides 10 destructible defense to himself and his allies for 1 turn. Each turn, if the target is affected by [Chain Bind], it lasts 1 additional turn on them."
+        , Skill.classes   = [Physical, Melee]
+        , Skill.cost      = [Blood, Rand]
+        , Skill.cooldown  = 3
+        , Skill.dur       = Action 3
         , Skill.effects   =
-          [ To Self $
-                hide 0 [Alternate "Sensory Radar" "Sensory Radar: Collate"]
-          , To Enemies $ trap 0 OnHarm $ self do
-                heal 10
-                addStack
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Sensory Radar: Collate"
-        , Skill.desc      = "Inoichi compiles all the information he has gathered and puts it to use. For each stack of [Sensory Radar], he gains 1 random chakra. Ends [Sensory Radar]."
-        , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = [Rand]
-        , Skill.effects   =
-          [ To Self do
-                everyone $ removeTrap "Sensory Radar"
-                stacks <- userStacks "Sensory Radar"
-                gain $ replicate stacks Rand
-                remove "Sensory Radar"
-                cancelChannel "Sensory Radar"
+          [ To Allies $ defend 1 10
+          , To Enemy do
+                damage 15
+                prolong 1 "Chain Bind"
           ]
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Mental Invasion"
-        , Skill.desc      = "Inoichi preys on an enemy's weaknesses. For 4 turns, all invulnerability effects applied by the target will have their duration reduced by 1 turn. While active, members of Inoichi's team who use a mental skill on the target will become invulnerable for 1 turn."
-        , Skill.classes   = [Mental, Ranged]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 4
-        , Skill.dur       = Control 4
+        { Skill.name      = "Partial Expansion"
+        , Skill.desc      = "If used on an enemy, the next non-mental skill they use on Chōza or his allies will be countered. If used on an ally, the next non-mental skill an enemy uses on them will be countered. The person countered will take 10 damage."
+        , Skill.classes   = [Physical, Melee, Invisible, Unreflectable, Nonstacking, Bypassing]
+        , Skill.cost      = [Blood]
+        , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy do
-              apply 1 [Throttle 1 $ Any Invulnerable]
-              delay (-1) $
-                  trapFrom 1 (OnHarmed Mental) $ apply 1 [Invulnerable All]
+          [ To XAlly $ trapFrom 0 (Counter NonMental) $ damage 10
+          , To Enemy $ trap 0 (Countered NonMental) $ damage 10
           ]
         }
       ]
-    , [ invuln "Mobile Barrier" "Inoichi" [Chakra] ]
+    , [ invuln "Block" "Chōza" [Physical] ]
     ]
   ]
