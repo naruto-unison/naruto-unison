@@ -337,9 +337,8 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Prayer"
-        , Skill.desc      = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for 1 turn. Every time this skill is used, it costs 1 additional arbitrary chakra and its effect lasts 1 additional turn. Cannot be used while active."
-        , Skill.require   = HasI 0 "Prayer"
-        , Skill.classes   = [Mental, Uncounterable, Unreflectable, Unremovable]
+        , Skill.desc      = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for 1 turn. Every time this skill is used, it costs 1 additional arbitrary chakra and its effect lasts 1 additional turn."
+        , Skill.classes   = [Mental, Uncounterable, Unreflectable, Unremovable, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
@@ -425,7 +424,7 @@ characters =
     [MistVillage, Akatsuki, SevenSwordsmen, Rogue, SRank, Water, Fire, Wind, Earth]
     [ [ Skill.new
         { Skill.name      = "Thousand Hungry Sharks"
-        , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Each turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
+        , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Every turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
         , Skill.require   = HasI 0 "Thousand Hungry Sharks"
         , Skill.classes   = [Chakra, Ranged, Unreflectable, Resource]
         , Skill.cost      = [Nin]
@@ -724,7 +723,7 @@ characters =
     [LeafVillage, Akatsuki, SRank, Jinchuriki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Sharingan"
-        , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time a harmful skill is used on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
+        , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time an enemy uses a skill on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
         , Skill.require   = HasI 0 "Sharingan"
         , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Blood]
@@ -1113,7 +1112,7 @@ characters =
     [Akatsuki, SRank]
     [ [ Skill.new
         { Skill.name      = "Chakra Shield"
-        , Skill.desc      = "Pain creates a protective barrier around himself that absorbs chakra. Next turn, enemy skills used on him will be nullified, and Pain will gain chakra equal to the chakra cost of the nullified skill."
+        , Skill.desc      = "Pain creates a protective barrier around himself that absorbs chakra. Next turn, enemy skills used on him will be nullified, and Pain will gain chakra equal to the chakra cost of nullified skills."
         , Skill.classes   = [Chakra, Ranged, Invisible, Nonstacking, Unreflectable]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2

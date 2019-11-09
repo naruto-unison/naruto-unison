@@ -276,17 +276,17 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Demonic Illusion: Sylvan Fetters"
-        , Skill.desc      = "Kurenai traps an enemy in a powerful genjutsu, stunning them for 2 turns. Adds 5 destructible defense to Kurenai's next [Illusory Tree Meld] each turn. While active, this skill becomes [Sylvan Fetters Attack][r]."
+        , Skill.desc      = "Kurenai traps an enemy in a powerful genjutsu, stunning them for 2 turns. Adds 5 destructible defense to Kurenai's next [Illusory Tree Meld]. While active, this skill becomes [Sylvan Fetters Attack][r]."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 4
         , Skill.dur       = Control 2
+        , Skill.start     =
+          [ To Enemy $ addStack' "Illusion" ]
         , Skill.effects   =
           [ To Enemy $ apply 1 [Stun All]
-          , To Self do
-                addStack' "Illusion"
-                hide 1 [Alternate "Demonic Illusion: Sylvan Fetters"
-                                  "Sylvan Fetters Attack"]
+          , To Self $ hide 1 [Alternate "Demonic Illusion: Sylvan Fetters"
+                                        "Sylvan Fetters Attack"]
           ]
         , Skill.interrupt =
           [ To Self $ remove "demonic illusion: sylvan fetters" ]
@@ -344,7 +344,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sharpen Blades"
-        , Skill.desc      = "Asuma sharpens his blades, increasing the duration of his next [Flying Swallow] by 1 additional turn."
+        , Skill.desc      = "Asuma hones his blades with a coating of wind chakra, increasing the duration of his next [Flying Swallow] by 1 additional turn."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
         , Skill.effects   =

@@ -667,7 +667,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Asura Path"
-        , Skill.desc      = "Nagato unfolds an extra mechanical arm and seizes an enemy by the neck, preventing them from reducing damage or becoming invulnerable until one of their allies uses a skill on them, and dealing 15 damage. When Nagato's health is below 50, this skill becomes [Preta Path][t][r]."
+        , Skill.desc      = "Nagato unfolds an extra mechanical arm and seizes an enemy by the neck, preventing them from reducing damage or becoming invulnerable until one of their allies uses a skill on them, then deals 15 damage. When Nagato's health is below 50, this skill becomes [Preta Path][t][r]."
         , Skill.classes   = [Bane, Physical, Melee, Nonstacking]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2

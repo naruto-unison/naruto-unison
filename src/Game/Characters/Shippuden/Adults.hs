@@ -103,7 +103,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Burning Ash"
-        , Skill.desc      = "Asuma continually exhales a cloud of combustible ash upon his enemies, increasing the cooldowns of their skills by 1 turn. While active, this skill becomes [Burning Ash: Ignite][b]."
+        , Skill.desc      = "Asuma continually exhales a cloud of combustible ash upon his enemies, increasing the cooldowns of their skills by 1 turn every turn. While active, this skill becomes [Burning Ash: Ignite][b]."
         , Skill.classes   = [Bane, Ranged, Unreflectable]
         , Skill.cost      = [Gen, Rand]
         , Skill.dur       = Action 0
@@ -594,7 +594,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Flame Slice"
-        , Skill.desc      = "Atsui slashes at an enemy with his fiery blade, sending an arc of flame in their direction that deals 25 piercing damage. Deals 10 additional damage during [Burning Blade]."
+        , Skill.desc      = "With a slash of his blade, Atsui creates an arc of flame that deals 25 piercing damage to an enemy. Deals 10 additional damage during [Burning Blade]."
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -721,7 +721,7 @@ characters =
     [CloudVillage, AlliedForces, Jonin, Lightning, Water, Wind]
     [ [ Skill.new
         { Skill.name      = "Laser Circus"
-        , Skill.desc      = "Energy beams shoot out of Darui's hand, stunning an enemy's mental and ranged skills and dealing 20 piercing damage to all other enemies. Deals 5 additional damage to targets affected by [Water Wall]."
+        , Skill.desc      = "Energy beams shoot out of Darui's hand, stunning an enemy's mental and ranged skills and dealing 20 piercing damage to all other enemies. Deals 5 additional damage to other enemies affected by [Water Wall]."
         , Skill.classes   = [Bane, Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1

@@ -231,8 +231,8 @@ characters =
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Amateur Lightning Blade"
-        , Skill.desc      = "Using an early form of his signature technique, Kakashi deals 20 piercing damage to one enemy. For 1 turn, the target's damage is weakened by 5 and Kakashi's damage is increased by 5."
+        { Skill.name      = "Lightning Blade"
+        , Skill.desc      = "Using an amateurish early form of his signature technique, Kakashi deals 20 piercing damage to one enemy. For 1 turn, the target's damage is weakened by 5 and Kakashi's damage is increased by 5."
         , Skill.classes   = [Bane, Chakra, Melee]
         , Skill.cost      = [Nin]
         , Skill.effects   =

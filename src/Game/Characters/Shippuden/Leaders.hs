@@ -15,7 +15,7 @@ characters =
     [LeafVillage, Orochimaru, Sannin, Rogue, TeamLeader, Wind, Lightning, Earth, Water, Fire, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Body Replacement Substitution"
-        , Skill.desc      = "This skill can only be used when Orochimaru's health is at or below 20. Having sustained grievous injuries, Orochimaru's body has reached the end of its usefulness. He sheds it like a second skin, restoring his health to 60."
+        , Skill.desc      = "Having sustained grievous injuries, Orochimaru's body has reached the end of its usefulness. He sheds it like a second skin, restoring his health to 60. Requires Orochimaru's health to be at or below 20."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2

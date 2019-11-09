@@ -182,7 +182,7 @@ characters =
     [LeafVillage, Jonin]
     [ [ Skill.new
         { Skill.name      = "Biding Time"
-        , Skill.desc      = "Provides 10 points of permanent damage reduction to Ibiki. Each time an enemy uses a skill that deals damage to Ibiki, he will gain a stack of [Payback]. Once used, this skill becomes [Payback][r]."
+        , Skill.desc      = "Provides 10 points of permanent damage reduction to Ibiki. Whenever an enemy uses a skill that deals damage to Ibiki, he gains a stack of [Payback]. Once used, this skill becomes [Payback][r]."
         , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -300,14 +300,22 @@ characters =
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Bladed Gauntlet"
-        , Skill.desc      = "Gōzu and Meizu attack an enemy with their gauntlets, dealing 30 damage. Deals 10 additional damage if the target is affected by [Chain Wrap]."
-        , Skill.classes   = [Physical, Melee]
+        { Skill.name      = "Poison Gauntlet"
+        , Skill.desc      = "Gōzu and Meizu attack an enemy with their gauntlets, dealing 30 damage. Deals 10 additional damage if the target is affected by [Chain Wrap]. The metal claws leave behind a slow poison that deals 1 affliction damage every turn until the target takes new non-affliction damage or uses a skill that sacrifices their own health."
+        , Skill.classes   = [Physical, Melee, Bane]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 10 `bonusIf` targetHas "Chain Wrap"
                 damage (30 + bonus)
+                apply 0 [Afflict 1]
+                trap 0 OnSacrifice do
+                    remove "Poison Gauntlet"
+                    removeTrap "Poison Gauntlet"
+                delay (-1) $ whenM (targetHas "Poison Gauntlet") $
+                    trap 0 (OnDamaged NonAffliction) do
+                        remove "Poison Gauntlet"
+                        removeTrap "Poison Gauntlet"
           ]
         }
       ]
@@ -376,7 +384,7 @@ characters =
     "One of the Seven Swordsmen of the Mist, Zabuza is a rogue operative who specializes in silent assassination. Wielding Kubikiribōchō, the legendary executioner's broadsword, he uses concealing mist to catch his enemies off-guard, bypassing their defenses."
     [MistVillage, SevenSwordsmen, Rogue, Water]
     [ [ Skill.new
-        { Skill.name      = "Soundless Murder"
+        { Skill.name      = "Silent Killing"
         , Skill.desc      = "Zabuza emerges from mist behind an enemy's defenses to deal 30 piercing damage to them. Deals 15 additional damage and bypasses invulnerability during [Hidden Mist]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]

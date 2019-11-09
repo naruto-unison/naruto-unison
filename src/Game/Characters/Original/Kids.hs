@@ -222,7 +222,7 @@ characters =
     [LeafVillage, Eleven, Genin, Fire, Lightning, Hyuga, Uzumaki]
     [ [ Skill.new
         { Skill.name      = "Gentle Fist"
-        , Skill.desc      = "Using the Hyūga clan's signature taijutsu style, Hinata deals 20 damage to an enemy for 2 turns. During [Byakugan], depletes 1 random chakra of the opposing team each turn."
+        , Skill.desc      = "Using the Hyūga clan's signature taijutsu style, Hinata deals 20 damage to an enemy for 2 turns. During [Byakugan], this skill depletes 1 random chakra of the opposing team each turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1

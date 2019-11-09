@@ -15,7 +15,7 @@ characters =
     [LeafVillage, Genin, Hyuga]
     [ [ Skill.new
         { Skill.name      = "Gentle Fist"
-        , Skill.desc      = "With a series of blows, Hanabi deals 15 damage to an enemy for 2 turns. Each time they use a skill that gains, depletes, or absorbs chakra, their team will be depleted of 1 random chakra."
+        , Skill.desc      = "With a relentless series of blows, Hanabi deals 15 damage to an enemy for 2 turns. Every time the target uses a skill that gains, depletes, or absorbs chakra, their team will be depleted of 1 random chakra."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1

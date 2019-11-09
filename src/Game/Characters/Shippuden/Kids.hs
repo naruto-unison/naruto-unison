@@ -461,7 +461,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Long-Range Tactics"
-        , Skill.desc      = "Shikamaru goes long. For 4 turns, whenever Shikamaru uses a skill on an enemy, he will become invulnerable for 1 turn. However, if an enemy uses a skill that deals non-affliction damage to him, he will not become invulnerable during the next turn. While Shikamaru is invulnerable from this skill, it becomes [Final Explosion][r][r]."
+        , Skill.desc      = "Shikamaru goes long. For 4 turns, whenever Shikamaru uses a skill on an enemy, he becomes invulnerable for 1 turn. However, if an enemy uses a skill that deals non-affliction damage to him, he will not become invulnerable during the next turn. While Shikamaru is invulnerable from this skill, it becomes [Final Explosion][r][r]."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 5
@@ -660,7 +660,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Tensasai"
-        , Skill.desc      = "Using an advanced form of her Rising Twin Dragons technique, Tenten rains blindingly fast projectiles upon the battlefield, dealing 25 piercing damage to all enemies."
+        , Skill.desc      = "Using an advanced form of her Rising Twin Dragons technique, Tenten rains blindingly fast projectiles upon the battlefield, dealing 25 damage to all enemies."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
@@ -711,7 +711,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Switch Loadout"
-        , Skill.desc      = "Scrolling through her scrolls to the next item set, Tenten gains 5 permanent destructible defense and replaces her other skills. Tenten has 3 item sets."
+        , Skill.desc      = "Scrolling to the next item set, Tenten gains 5 permanent destructible defense and replaces her other skills. Tenten has 3 item sets."
         , Skill.classes   = [Physical]
         , Skill.effects   =
           [ To Self do
@@ -730,8 +730,8 @@ characters =
           ]
         }
       , Skill.new
-        { Skill.name      = "Switch Loadout"
-        , Skill.desc      = "Scrolling through her scrolls to the next item set, Tenten gains 5 permanent destructible defense and replaces her other skills. Tenten has 3 item sets."
+        { Skill.name      = "Switch Loadout  "
+        , Skill.desc      = "Scrolling to the next item set, Tenten gains 5 permanent destructible defense and replaces her other skills. Tenten has 3 item sets."
         , Skill.classes   = [Physical]
         , Skill.effects   =
           [ To Self do
