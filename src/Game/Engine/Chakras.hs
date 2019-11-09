@@ -6,7 +6,7 @@ module Game.Engine.Chakras
 
 import ClassyPrelude
 
-import Data.Enum.Set.Class (EnumSet)
+import Data.Enum.Set (EnumSet)
 
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity

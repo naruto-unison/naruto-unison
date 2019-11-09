@@ -15,7 +15,7 @@ import ClassyPrelude hiding (fromList, sum, toList)
 import Prelude (sum)
 
 import           Data.Aeson (ToJSON)
-import           Data.Enum.Set.Class (AsEnumSet(..), EnumSet)
+import           Data.Enum.Set (AsEnumSet(..), EnumSet)
 import qualified Data.Text as Text
 import qualified Data.Text.Read as Read
 import           GHC.Exts (IsList(..))
@@ -107,8 +107,7 @@ data Chakra
     | Rand -- ^ Random
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
-instance AsEnumSet Chakra where
-    type EnumSetRep Chakra = Word8
+instance AsEnumSet Chakra
 
 instance ToMarkup Chakra where
     toMarkup Blood = HTML.div ! HTML.class_ "chakra blood" $ mempty

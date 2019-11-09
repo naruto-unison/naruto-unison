@@ -11,7 +11,7 @@ module Handler.Play.War
 import ClassyPrelude
 
 import           Data.Aeson (ToJSON)
-import           Data.Enum.Set.Class (EnumSet)
+import           Data.Enum.Set (EnumSet)
 import           Data.Time.LocalTime (LocalTime(LocalTime), getCurrentTimeZone, utcToLocalTime)
 import           Data.List (tails)
 import qualified System.Random as Random

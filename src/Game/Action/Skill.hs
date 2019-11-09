@@ -15,7 +15,7 @@ module Game.Action.Skill
 
 import ClassyPrelude
 
-import           Data.Enum.Set.Class (EnumSet)
+import           Data.Enum.Set (EnumSet)
 import qualified Data.Sequence as Seq
 
 import           Class.Play (MonadPlay)

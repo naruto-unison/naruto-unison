@@ -8,7 +8,7 @@ module Game.Action.Trap
 import ClassyPrelude
 
 import Control.Monad.Trans.Maybe (MaybeT(..))
-import Data.Enum.Set.Class (EnumSet)
+import Data.Enum.Set (EnumSet)
 
 import qualified Class.Classed as Classed
 import           Class.Play (MonadPlay)

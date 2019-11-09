@@ -5,7 +5,7 @@ module Class.Classed
 
 import ClassyPrelude
 
-import Data.Enum.Set.Class (EnumSet)
+import Data.Enum.Set (EnumSet)
 
 import           Class.Labeled (Labeled)
 import qualified Class.Labeled as Labeled

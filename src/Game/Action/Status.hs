@@ -19,7 +19,7 @@ module Game.Action.Status
 import ClassyPrelude
 
 import Control.Monad.Trans.Maybe (MaybeT(..))
-import Data.Enum.Set.Class (EnumSet)
+import Data.Enum.Set (EnumSet)
 
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P

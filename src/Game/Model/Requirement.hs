@@ -8,7 +8,7 @@ module Game.Model.Requirement
 
 import ClassyPrelude
 
-import Data.Enum.Set.Class (EnumSet)
+import Data.Enum.Set (EnumSet)
 
 import qualified Class.Parity as Parity
 import qualified Game.Engine.Effects as Effects

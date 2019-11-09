@@ -3,7 +3,7 @@ module Game.Model.Group (Group(..)) where
 import ClassyPrelude
 
 import Data.Aeson (ToJSON(..))
-import Data.Enum.Set.Class (AsEnumSet(..))
+import Data.Enum.Set (AsEnumSet(..))
 import Text.Julius (ToJavascript(..))
 
 import Class.Display (Display(..))

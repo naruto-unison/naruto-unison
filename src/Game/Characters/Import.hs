@@ -36,7 +36,7 @@ import Game.Model.Status as Import (Bomb(..))
 import Game.Model.Trap as Import (Direction(..))
 import Game.Model.Trigger as Import (Trigger(..))
 
-import Data.Enum.Set.Class (EnumSet)
+import Data.Enum.Set (EnumSet)
 
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P

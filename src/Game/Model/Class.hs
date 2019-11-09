@@ -8,7 +8,7 @@ import ClassyPrelude
 
 import           Data.Aeson (ToJSON(..), Value)
 import qualified Data.Enum.Memo as Enum
-import           Data.Enum.Set.Class (AsEnumSet(..))
+import           Data.Enum.Set (AsEnumSet(..))
 import           Text.Blaze (ToMarkup(..))
 
 import Class.Display (Display(..))

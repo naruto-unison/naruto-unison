@@ -9,7 +9,7 @@ module Game.Engine.Trigger
 
 import ClassyPrelude hiding (swap)
 
-import Data.Enum.Set.Class (EnumSet)
+import Data.Enum.Set (EnumSet)
 
 import           Class.Hook (MonadHook)
 import           Class.Play (MonadPlay)

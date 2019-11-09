@@ -13,7 +13,7 @@ module Game.Model.Effect
 import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), object)
-import Data.Enum.Set.Class (EnumSet)
+import Data.Enum.Set (EnumSet)
 
 import           Class.Classed (Classed)
 import qualified Class.Classed

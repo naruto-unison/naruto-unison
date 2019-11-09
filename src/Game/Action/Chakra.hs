@@ -8,7 +8,7 @@ module Game.Action.Chakra
 
 import ClassyPrelude
 
-import Data.Enum.Set.Class (EnumSet)
+import Data.Enum.Set (EnumSet)
 
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P

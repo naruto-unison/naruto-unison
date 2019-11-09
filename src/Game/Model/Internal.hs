@@ -16,8 +16,7 @@ import Control.Monad.Trans.Maybe (MaybeT, mapMaybeT)
 import Control.Monad.Trans.Select (SelectT, mapSelectT)
 import Control.Monad.Trans.Writer (WriterT, mapWriterT)
 import Data.Aeson.Types ((.=), ToJSON(..), ToJSONKey(..), object, toJSONKeyText)
-import Data.Enum.Set.Class (AsEnumSet(..), EnumSet)
-import Data.Word (Word16)
+import Data.Enum.Set (AsEnumSet(..), EnumSet)
 import Text.Blaze (ToMarkup(..))
 import Yesod.Core.Dispatch (PathPiece(..))
 import Yesod.WebSockets (WebSocketsT)
@@ -299,8 +298,7 @@ data Target
     | Everyone -- ^ All 'Ninja's
     deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
 
-instance AsEnumSet Target where
-    type EnumSetRep Target = Word16
+instance AsEnumSet Target
 
 -- | A trap which gets triggered when a 'Ninja' meets the conditions of a 'Trigger'.
 data Trap = Trap { direction :: Direction

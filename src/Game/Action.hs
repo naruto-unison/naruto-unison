@@ -12,7 +12,7 @@ import ClassyPrelude hiding ((<|))
 import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Bits (setBit, testBit)
 import Data.Either (isLeft)
-import Data.Enum.Set.Class (EnumSet, AsEnumSet(..))
+import Data.Enum.Set (EnumSet, AsEnumSet(..))
 
 import           Class.Hook (MonadHook)
 import qualified Class.Hook as Hook
@@ -60,8 +60,7 @@ data Affected
     | Targeted
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
-instance AsEnumSet Affected where
-    type EnumSetRep Affected = Word8
+instance AsEnumSet Affected
 
 -- | Processes an action before it can be applied to the game. This is where
 -- invincibility, usability, reflects, etc. all come into play.

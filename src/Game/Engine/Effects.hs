@@ -26,7 +26,7 @@ module Game.Engine.Effects
 
 import ClassyPrelude hiding (link)
 
-import Data.Enum.Set.Class (EnumSet)
+import Data.Enum.Set (EnumSet)
 
 import qualified Class.Parity as Parity
 import           Game.Model.Chakra (Chakras(..))

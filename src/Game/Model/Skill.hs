@@ -8,6 +8,8 @@ module Game.Model.Skill
 
 import ClassyPrelude
 
+import Data.Enum.Set (EnumSet)
+
 import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Internal (Key(..), Ninja, Skill(..), Requirement(..), Target(..))
