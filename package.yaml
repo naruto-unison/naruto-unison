@@ -26,6 +26,7 @@ library:
   - cache
   - case-insensitive
   - classy-prelude
+  - cmark
   - containers
   - data-default
   - esqueleto

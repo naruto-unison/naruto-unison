@@ -8,23 +8,23 @@ const shorten = x => x.replace(/ \(\d+\)/g, '')
                       .replace(/ō/g,'o')
                       .replace(/ū/g,'u')
 
-const getSkill = (char, name) => char.skills.flat().filter(x => x.name == name)[0]
+const getSkill = (char, name) => char.skills.flat().filter(x => x.name === name)[0]
 
 const visible = #{Class.visiblesMap}
 const filterClasses = x => x.filter(y => visible[y])
 
 function showChar(x) {
   switch (x.category) {
-    case "Shippuden":  return x.name + " (S)";
-    case "Reanimated": return x.name + " (R)";
-    default:           return x.name;
+    case "Shippuden":  return x.name + " (S)"
+    case "Reanimated": return x.name + " (R)"
+    default:           return x.name
   }
 }
 
 function showDur(x) {
   switch (x) {
-    case "Passive": return "Instant";
-    default:        return x;
+    case "Passive": return "Instant"
+    default:        return x
   }
 }
 

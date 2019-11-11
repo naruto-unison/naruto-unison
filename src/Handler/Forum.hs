@@ -13,21 +13,26 @@ module Handler.Forum
     , getNewTopicR
     , postNewTopicR
     , selectWithAuthors
+    , filterTopics
     ) where
 
-import ClassyPrelude
+import ClassyPrelude hiding (delete)
 import Yesod
 
-import qualified Data.Text as Text
 import qualified Yesod.Auth as Auth
+import           Database.Persist.Sql (SqlPersistT)
 
 import           Application.App (AppPersistEntity, Handler, Route(..))
-import           Application.Fields (ForumBoard, ForumCategory(..), Privilege(..), boardCategory, boardDesc, boardName)
-import           Application.Model (Cite(..), EntityField(..), ForumPost(..), ForumTopic(..), ForumTopicId, HasAuthor(..), User(..), UserId)
+import qualified Application.App as App
+import           Application.Fields (ForumBoard, ForumCategory(..), Privilege(..), TopicState(..), boardCategory, boardDesc, boardName)
+import           Application.Model (Cite(..), EntityField(..), ForumPost(..), ForumTopic(..), HasAuthor(..), User(..))
 import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
+import           Handler.Forum.API (getLike)
+import           Handler.Forum.Markdown (Markdown(..))
+import qualified Handler.Forum.Markdown as Markdown
 import qualified Handler.Link as Link
-import           Util ((!?))
+import           Util ((!?), mapFromKeyed)
 
 -- | Renders a 'User' profile.
 getProfileR :: Text -> Handler Html
@@ -46,65 +51,98 @@ inCategory category (BoardIndex x _ _) = category == boardCategory x
 -- | Renders the forums.
 getForumsR :: Handler Html
 getForumsR = do
-    citelink <- liftIO Link.cite
-    allBoards <- traverse indexBoard [minBound..maxBound]
+    privilege <- App.getPrivilege
+    citelink  <- liftIO Link.cite
+    allBoards <- runDB $ traverse (indexBoard privilege) [minBound..maxBound]
     let boards category = filter (inCategory category) allBoards
     defaultLayout $(widgetFile "forum/browse")
   where
     categories = [minBound..maxBound]
-    indexBoard board = do
-        posts <- selectWithAuthors [ForumTopicBoard ==. board]
-                                   [Desc ForumTopicTime]
-        pure $ BoardIndex board (length posts) (headMay posts)
+    indexBoard privilege board = do
+        size <- count [ForumTopicBoard ==. board, ForumTopicState !=. Deleted]
+        post <- selectWithAuthors
+                (filterTopics privilege [ForumTopicBoard ==. board])
+                [Desc ForumTopicTime, LimitTo 1]
+        return . BoardIndex board size $ headMay post
 
 -- | Renders a 'ForumBoard'.
 getBoardR :: ForumBoard -> Handler Html
 getBoardR board = do
+    privilege  <- App.getPrivilege
     timestamp  <- liftIO Link.makeTimestamp
-    topics     <- selectWithAuthors [ForumTopicBoard ==. board] []
+    topics     <- runDB $ selectWithAuthors
+                  (filterTopics privilege [ForumTopicBoard ==. board])
+                  [Desc ForumTopicTime]
     defaultLayout $(widgetFile "forum/board")
 
 -- | Renders a 'ForumTopic'.
-getTopicR :: ForumTopicId -> Handler Html
+getTopicR :: Key ForumTopic -> Handler Html
 getTopicR topicId = do
     mwho           <- Auth.maybeAuthId
+    privilege      <- App.getPrivilege
+    ForumTopic{..} <- runDB $ get404 topicId
     (title, _)     <- breadcrumbs
     time           <- liftIO getCurrentTime
     timestamp      <- liftIO Link.makeTimestamp
-    ForumTopic{..} <- runDB $ get404 topicId
-    posts          <- selectWithAuthors [ForumPostTopic ==. topicId] []
-    mwidget        <- forM mwho $
+    posts          <- runDB $ traverse (getLikes mwho) =<<
+                      selectWithAuthors
+                      (filterPosts privilege [ForumPostTopic ==. topicId])
+                      [Asc ForumPostTime]
+    mwidget        <- forM (guard (forumTopicState == Open) >> mwho) $
                       generateFormPost . renderTable . newPostForm topicId time
     defaultLayout $(widgetFile "forum/topic")
+  where
+    topicKey = toPathPiece topicId
 
 -- | Adds to a 'ForumTopic'. Requires authentication.
-postTopicR :: ForumTopicId -> Handler Html
+postTopicR :: Key ForumTopic -> Handler Html
 postTopicR topicId = do
-    who        <- Auth.requireAuthId
-    (title, _) <- breadcrumbs
-    time       <- liftIO getCurrentTime
-    timestamp  <- liftIO Link.makeTimestamp
-    ((result, widget), enctype) <- runFormPost . renderTable $
-                                   newPostForm topicId time who
-    case result of
-        FormSuccess post -> runDB do
-            insert400_ post
-            update topicId [ ForumTopicPosts +=. 1
-                           , ForumTopicTime   =. time
-                           , ForumTopicLatest =. who
-                           ]
-        _ -> return ()
     ForumTopic{..} <- runDB $ get404 topicId
-    posts          <- selectWithAuthors [ForumPostTopic ==. topicId] []
-    let mwidget     = Just (widget, enctype)
-    defaultLayout $(widgetFile "forum/topic")
+    if forumTopicState /= Open then redirect $ TopicR topicId else do
+        who        <- Auth.requireAuthId
+        privilege  <- App.getPrivilege
+        (title, _) <- breadcrumbs
+        time       <- liftIO getCurrentTime
+        timestamp  <- liftIO Link.makeTimestamp
+        ((result, widget), enctype) <- runFormPost . renderTable $
+                                      newPostForm topicId time who
+        case result of
+            FormSuccess post -> do
+                runDB do
+                    insert400_ post
+                    update topicId [ ForumTopicPosts +=. 1
+                                   , ForumTopicTime   =. time
+                                   , ForumTopicLatest =. who
+                                   ]
+                    update who [ UserPosts +=. 1 ]
+                redirect $ TopicR topicId
+            _ -> do
+                posts <- runDB $ traverse (getLikes $ Just who) =<<
+                         selectWithAuthors
+                         (filterPosts privilege [ForumPostTopic ==. topicId])
+                         [Asc ForumPostTime]
+                let mwho    = Just who
+                    mwidget = Just (widget, enctype)
+                defaultLayout $(widgetFile "forum/topic")
+  where
+    topicKey = toPathPiece topicId
+
+filterPosts :: Privilege -> [Filter ForumPost] -> [Filter ForumPost]
+filterPosts p xs
+  | p > Normal = xs
+  | otherwise  = (ForumPostDeleted ==. False) : xs
+
+filterTopics :: Privilege -> [Filter ForumTopic] -> [Filter ForumTopic]
+filterTopics p xs
+  | p > Normal = xs
+  | otherwise  = (ForumTopicState !=. Deleted) : xs
 
 -- | Renders a page for creating a new 'ForumTopic'. Requires authentication.
 getNewTopicR :: ForumBoard -> Handler Html
 getNewTopicR board = do
-    (who, user) <- Auth.requireAuthPair
-    time        <- liftIO getCurrentTime
-    (title, _)  <- breadcrumbs
+    (who, user)       <- Auth.requireAuthPair
+    time              <- liftIO getCurrentTime
+    (title, _)        <- breadcrumbs
     (widget, enctype) <- generateFormPost . renderTable $
                          newTopicForm user board time who
     defaultLayout $(widgetFile "forum/new")
@@ -125,6 +163,15 @@ postNewTopicR board = do
             redirect $ TopicR topicId
         _ -> defaultLayout $(widgetFile "forum/new")
 
+canDelete :: Maybe (Key User) -> Privilege -> ForumPost -> Bool
+canDelete Nothing _ _ = False
+canDelete (Just who) privilege post = forumPostAuthor post == who
+                                      || privilege > Normal
+
+canLike :: Maybe (Key User) -> ForumPost -> Bool
+canLike Nothing _ = False
+canLike (Just who) post = who /= forumPostAuthor post
+
 userRanks :: [Text]
 userRanks = [ "Academy Student"
             , "Genin"
@@ -139,10 +186,20 @@ userRanks = [ "Academy Student"
             , "Hokage"
             ]
 
+data LikedPost = LikedPost { likedPost :: Cite ForumPost
+                           , likes     :: Int
+                           , liked     :: Bool
+                           }
+
+quoteMap :: [LikedPost] -> HashMap Text Markdown
+quoteMap posts = mapFromKeyed ( toPathPiece . citeKey
+                              , Markdown.quote . forumPostBody . citeVal
+                              ) $ likedPost <$> posts
+
 -- | Fills out author information from the database.
-selectWithAuthors :: ∀ a. (HasAuthor a, AppPersistEntity a)
-                  => [Filter a] -> [SelectOpt a] -> Handler [Cite a]
-selectWithAuthors selectors opts = runDB do
+selectWithAuthors :: ∀ m a. (MonadIO m, HasAuthor a, AppPersistEntity a)
+                  => [Filter a] -> [SelectOpt a] -> SqlPersistT m [Cite a]
+selectWithAuthors selectors opts = do
     selected <- selectList selectors opts
     traverse go selected
   where
@@ -157,18 +214,26 @@ selectWithAuthors selectors opts = runDB do
         author = getAuthor citeVal
         latest = getLatest citeVal
 
+getLikes :: Maybe (Key User) -> Cite ForumPost -> SqlPersistT Handler LikedPost
+getLikes mwho likedPost =
+    LikedPost likedPost
+    <$> count [ForumLikePost ==. likedPostId]
+    <*> maybe (return False) ((isJust <$>) . getLike likedPostId) mwho
+  where
+    likedPostId = citeKey likedPost
+
 -- | Displays a user's rank, or their 'Privilege' level if higher than 'Normal'.
 userRank :: User -> Text
 userRank user = case userPrivilege user of
     Normal -> fromMaybe "Hokage" $ userRanks !? (userXp user `quot` 5000)
     _      -> tshow $ userPrivilege user
 
-data NewTopic = NewTopic ForumTopic (ForumTopicId -> ForumPost)
+data NewTopic = NewTopic ForumTopic (Key ForumTopic -> ForumPost)
 
-toBody :: Textarea -> [Text]
-toBody (Textarea area) = Text.splitOn "\n" area
+toBody :: Textarea -> Markdown
+toBody (Textarea area) = Markdown area
 
-newTopicForm :: User -> ForumBoard -> UTCTime -> UserId
+newTopicForm :: User -> ForumBoard -> UTCTime -> Key User
              -> AForm Handler NewTopic
 newTopicForm User{..} forumTopicBoard forumPostTime forumPostAuthor =
     makeNewTopic
@@ -178,16 +243,21 @@ newTopicForm User{..} forumTopicBoard forumPostTime forumPostAuthor =
     forumTopicAuthor = forumPostAuthor
     forumTopicLatest = forumPostAuthor
     forumTopicTime   = forumPostTime
-    forumTopicStaff  = userPrivilege /= Normal
+    forumTopicStaff  = userPrivilege > Normal
+    forumTopicState  = Open
     forumTopicPosts  = 1
+    forumPostLikes   = 0
+    forumPostDeleted = False
     makeNewTopic rawTitle area = NewTopic ForumTopic{..}
                                  \forumPostTopic -> ForumPost{..}
       where
         forumTopicTitle = filter (/= Link.staffTag) rawTitle
         forumPostBody = toBody area
 
-newPostForm :: ForumTopicId -> UTCTime -> UserId -> AForm Handler ForumPost
+newPostForm :: Key ForumTopic -> UTCTime -> Key User -> AForm Handler ForumPost
 newPostForm forumPostTopic forumPostTime forumPostAuthor =
     makePost . toBody <$> areq textareaField "" Nothing
   where
+    forumPostLikes   = 0
+    forumPostDeleted = False
     makePost forumPostBody = ForumPost{..}

@@ -12,7 +12,8 @@ import Yesod
 import qualified Database.Persist.Quasi as Quasi
 import qualified Database.Persist.Sql as Sql
 
-import Application.Fields (ForumBoard, Privilege(..))
+import Application.Fields (ForumBoard, Privilege(..), TopicState(..))
+import Handler.Forum.Markdown (Markdown(..))
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
     $(persistFileWith Quasi.lowerCaseSettings "config/models.persistentmodels")
@@ -67,6 +68,7 @@ newUser ident verkey day = User
     , userDeviation  = 350.0 / 173.7178
     , userVolatility = 0.06
     , userDna        = 0
+    , userPosts      = 0
     }
 
 -- | Types that can be summarized with oldest and most recent users to post.

@@ -6,7 +6,7 @@ td {
 }
 
 td:first-child, th:first-child {
-    width: 25em;
+    width: 100%;
 }
 
 td:last-child div:last-child {
@@ -14,8 +14,16 @@ td:last-child div:last-child {
 }
 
 td:first-child, th:first-child, td:last-child, th:last-child {
-    min-width: 9em;
     text-align: left;
-    padding-left: 1em;
     position: initial;
 }
+
+td:first-child, th:first-child {
+    padding-left: 1em;
+}
+
+td:last-child, th:last-child {
+    padding-left: 3em;
+    min-width: 17em;
+}
+

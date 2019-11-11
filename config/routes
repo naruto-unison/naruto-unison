@@ -6,6 +6,8 @@
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 
+-- GAME API
+
 /api/mission/#Character                     MissionR        GET
 /api/mute/#Bool                             MuteR           GET
 /api/practicequeue/*[Text]                  PracticeQueueR  GET
@@ -13,6 +15,15 @@
 !/api/practiceact/#Chakras/#Chakras/*[Act]  PracticeActR    GET
 /api/reanimate/#Character                   ReanimateR      GET
 /api/update/#Text/#Bool/#Text/#Text         UpdateR         GET
+
+-- FORUMS API
+
+/api/post/delete/#ForumPostId    DeletePostR   GET
+/api/post/like/#ForumPostId      LikePostR     GET
+/api/topic/delete/#ForumTopicId  DeleteTopicR  GET
+/api/topic/lock/#ForumTopicId    LockTopicR    GET
+
+-- WEBPAGES
 
 /admin                  AdminR       GET POST
 /admin/usage            UsageR       GET

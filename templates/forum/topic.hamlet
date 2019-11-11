@@ -1,17 +1,76 @@
 <h1>#{title}
-$forall cite <- posts
+$if privilege > Normal
+  <footer>
+    $case forumTopicState
+      $of Open
+        <button .delete onclick="deleteTopic()">
+          ⊗
+          <span>
+            Delete
+        <button onclick="lockTopic()">
+          🔒
+          <span>
+            Lock
+
+      $of Locked
+        <span>
+          Locked
+        <button .delete onclick="deleteTopic()">
+          ⊗
+          <span>
+            Delete
+
+      $of Deleted
+        Deleted
+
+$forall LikedPost{likedPost=Cite{citeAuthor, citeKey, citeVal}, likes, liked} <- posts
+  <article ##{toPathPiece citeKey}>
+    <aside>
+      <img .char src=#{userAvatar citeAuthor}>
+      ^{Link.user citeAuthor}
+      #{userRank citeAuthor}
+      <dl>
+        <dt>Clan
+        <dd>#{fromMaybe "Clanless" $ userClan citeAuthor}
+        <dt>Joined
+        <dd>#{show $ userJoined citeAuthor}
+        <dt>Posts
+        <dd>#{userPosts citeAuthor}
+    <section>
+      <header>
+        ^{timestamp $ forumPostTime citeVal}
+      #{forumPostBody citeVal}
+      <footer>
+        <button disabled=#{fromEnum $ canLike mwho citeVal} onclick="likePost(this, #{toPathPiece citeKey})">
+          $if liked
+            ♥
+          $else
+            ♡
+        <span id=likes-#{toPathPiece citeKey}>
+          $if likes > 0
+            #{likes}
+        <a href=@{TopicR topicId}##{toPathPiece citeKey}>
+          🔗
+        $if isJust mwho
+          $if forumTopicState == Open
+            <button onclick="quotePost(#{toPathPiece citeKey})">
+              ↰
+              <span>
+                Reply
+        $if forumPostDeleted citeVal
+          <span .delete>
+            Deleted Post
+        $elseif canDelete mwho privilege citeVal
+          <button .delete onclick="deletePost(#{toPathPiece citeKey})">
+            ⊗
+            <span>
+              Delete
+
+$maybe (widget, enctype) <- mwidget
   <article>
     <aside>
-      <img .char src=#{userAvatar $ citeAuthor cite}>
-      ^{Link.user $ citeAuthor cite}
-      ^{timestamp $ forumPostTime $ citeVal cite}
-    <section>
-      $forall paragraph <- forumPostBody $ citeVal cite
-        <p>
-          #{paragraph}
-<article>
-  <aside>
-  $maybe (widget, enctype) <- mwidget
     <form .full method=post action=@{TopicR topicId} enctype=#{enctype} autocomplete=off>
         ^{widget}
         <button>Reply
+        <a href=https://commonmark.org/help/>
+          Markdown reference

@@ -13,6 +13,8 @@
     <dd>#{fromMaybe "Clanless" userClan}
     <dt>Joined
     <dd>#{show userJoined}
+    <dt>Posts
+    <dd>#{userPosts}
     <dt>Level
     <dd>
       <div .levelBg style="width: #{quot xp 5000}%;">

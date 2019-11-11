@@ -56,10 +56,13 @@ getChangelogR = do
 -- | Renders the homepage of the website.
 getHomeR :: Handler Html
 getHomeR = do
-    newsList <- runDB $ traverse withAuthor
-                        =<< selectList [] [Desc NewsDate, LimitTo 5]
-    topics   <- Forum.selectWithAuthors [] [Desc ForumTopicTime, LimitTo 10]
-    citelink <- liftIO Link.cite
+    privilege <- App.getPrivilege
+    newsList  <- runDB $ traverse withAuthor
+                         =<< selectList [] [Desc NewsDate, LimitTo 5]
+    topics    <- runDB $ Forum.selectWithAuthors
+                 (Forum.filterTopics privilege [])
+                 [Desc ForumTopicTime, LimitTo 10]
+    citelink  <- liftIO Link.cite
     defaultLayout do
         setTitle "Naruto Unison"
         $(widgetFile "tooltip/tooltip")

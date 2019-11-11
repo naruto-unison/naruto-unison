@@ -10,6 +10,7 @@ module Application.App
   , Handler, Widget
   , Route(..)
   , AppPersistEntity
+  , getPrivilege
   , liftDB
   , unchanged304
   , unsafeHandler
@@ -45,7 +46,7 @@ import qualified Yesod.Default.Util as YesodUtil
 import           Yesod.Static hiding (static)
 
 import           Application.Fields (ForumBoard, Privilege(..), boardName)
-import           Application.Model (CharacterId, EntityField(..), ForumTopic(..), ForumTopicId, User(..), UserId, Unique(..))
+import           Application.Model (CharacterId, EntityField(..), ForumPostId, ForumTopic(..), ForumTopicId, User(..), UserId, Unique(..))
 import qualified Application.Model as Model
 import           Application.Settings (Settings, widgetFile)
 import qualified Application.Settings as Settings
@@ -111,6 +112,10 @@ unchanged304 = whenM (isNothing <$> getMessage) $
     maybeAdd x = maybe x $ (+ x) . Sql.fromSqlKey
 #endif
 
+getPrivilege :: ∀ m. (MonadHandler m, App ~ HandlerSite m) => m Privilege
+getPrivilege = liftHandler . cached $
+               maybe Guest (userPrivilege . snd) <$> Auth.maybeAuthPair
+
 -- | A convenient synonym for creating forms.
 type Form x = Html -> MForm (HandlerFor App) (FormResult x, Widget)
 
@@ -165,7 +170,7 @@ instance Yesod App where
         mmsg             <- getMessage
         mcurrentRoute    <- getCurrentRoute
         (title, parents) <- breadcrumbs
-        muser            <- (entityVal <$>) <$> Auth.maybeAuth
+        muser            <- (snd <$>) <$> Auth.maybeAuthPair
         navLinks         <- getNavLinks
 
         pc <- widgetToPageContent do
@@ -241,6 +246,11 @@ instance YesodBreadcrumbs App where
     breadcrumb RobotsR = return (mempty, Nothing)
     breadcrumb StaticR{} = return (mempty, Nothing)
 
+    -- API routes.
+    breadcrumb DeleteTopicR{} = return (mempty, Nothing)
+    breadcrumb LockTopicR{} = return (mempty, Nothing)
+    breadcrumb DeletePostR{} = return (mempty, Nothing)
+    breadcrumb LikePostR{} = return (mempty, Nothing)
     breadcrumb MissionR{} = return (mempty, Nothing)
     breadcrumb MuteR{} = return (mempty, Nothing)
     breadcrumb PracticeActR{} = return (mempty, Nothing)

@@ -61,9 +61,9 @@ app.ports.sound.subscribe(sound => {
 
 let queuedProgress
 const progress = args => {
-  const duration = args[0];
-  const from     = args[1];
-  const to       = args[2];
+  const duration = args[0]
+  const from     = args[1]
+  const to       = args[2]
   if (prog === undefined)
     return queuedProgress = args
 

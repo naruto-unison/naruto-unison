@@ -1,0 +1,59 @@
+"use strict";
+
+const quotes = #{toJSON $ quoteMap posts}
+
+function likePost(button, post) {
+    button.disabled = true
+    const req = new XMLHttpRequest()
+    req.onreadystatechange = function() {
+        if (req.readyState === XMLHttpRequest.DONE && req.status === 200) {
+            const display = document.getElementById("likes-" + post)
+            const liked = JSON.parse(req.responseText)
+            button.innerText = liked ? "❤️" : "♡"
+            const total = (display.innerText ? parseInt(display.innerText) : 0)
+                        + (liked ? 1 : -1)
+            display.innerText = total > 0 ? total : ""
+            button.disabled = false
+        }
+    }
+    req.open("GET", "/api/post/like/" + post)
+    req.send()
+}
+
+function deletePost(post) {
+    const req = new XMLHttpRequest()
+    req.onreadystatechange = function() {
+        if (req.readyState === XMLHttpRequest.DONE && req.status === 200 && JSON.parse(req.responseText)) {
+            document.getElementById(post).remove()
+        }
+    }
+    req.open("GET", "/api/post/delete/" + post)
+    req.send()
+}
+
+function quotePost(post) {
+    document.getElementsByTagName("textarea")[0].value = quotes[post]
+    window.scrollTo(0,document.body.scrollHeight)
+}
+
+function deleteTopic() {
+    const req = new XMLHttpRequest()
+    req.onreadystatechange = function() {
+        if (req.readyState === XMLHttpRequest.DONE && req.status === 200 && JSON.parse(req.responseText)) {
+            document.location.replace("@{BoardR forumTopicBoard}")
+        }
+    }
+    req.open("GET", "/api/topic/delete/" + #{topicKey})
+    req.send()
+}
+
+function lockTopic() {
+    const req = new XMLHttpRequest()
+    req.onreadystatechange = function() {
+        if (req.readyState === XMLHttpRequest.DONE && req.status === 200 && JSON.parse(req.responseText)) {
+            document.location.reload()
+        }
+    }
+    req.open("GET", "/api/topic/lock/" + #{topicKey})
+    req.send()
+}

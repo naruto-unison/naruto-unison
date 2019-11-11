@@ -1,14 +1,60 @@
-article, .container {
-    background-color: #eee !important;
-}
-
 article {
     display: flex;
     border: 1px solid #d3d3d3;
-    margin: 0 -2.5em -1px -2.5em;
+    margin-right: 1px;
+
+    aside {
+        width: 10em;
+        padding: 5px 20px;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        box-shadow: 3px 0 5px #ddd;
+        border-right: 1px solid #ccc;
+        line-height: 1em;
+
+        a {
+            font-weight: bold;
+        }
+
+        .char {
+            margin: 5px auto;
+        }
+
+        dl {
+            text-align: left;
+            margin-top: 0.6em;
+            margin-bottom: 0;
+        }
+
+        dt {
+            width: unset;
+            margin-right: 0.4em;
+        }
+
+        dd {
+            margin-left: 0;
+        }
+
+        img {
+            width: 60px;
+        }
+    }
+
+    footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+
+    header {
+        margin-bottom: -0.5em;
+    }
 
     section {
-        padding: 5px;
+        flex-grow: 1;
+        padding: 7px 17px 2.75em 17px;
     }
 
     p:first-child {
@@ -16,39 +62,99 @@ article {
     }
 }
 
-aside {
-    width: 100px;
-    padding: 5px;
+blockquote {
+    border-left: 4px solid rgba(0, 0, 0, 0.5);
+    margin: 1em 0 1em 5px;
+    padding-left: 0.5em;
+}
+
+#breadcrumb {
+    margin: 0 2.5em 1em 2.5em;
+}
+
+.container  {
     display: flex;
     flex-direction: column;
-    text-align: center;
-    margin-right: 10px;
-    box-shadow: 3px 0 5px #ddd;
-    border-right: 1px solid #ccc;
+    padding: 0 !important;
 
-    .char {
-        margin: 5px auto;
+    > h1 {
+        margin-top: 0;
     }
 
-    img {
-        width: 60px;
+    > article:last-child {
+        flex-grow: 1;
     }
 }
 
-.container > section:last-child {
-    margin-bottom: -2em;
+.delete {
+    float: right;
+}
+button.delete:hover {
+    color: #ff0000;
+}
+
+footer {
+    padding: 0 1.5em 0.5em 1.5em;
+
+    a {
+        font-size: 1.5em;
+        display:inline-block;
+        min-width: 1.75em;
+    }
+    a:hover {
+        text-decoration: none;
+        filter: brightness(0);
+    }
+
+    button {
+        font-size: 2em;
+        filter: saturate(0);
+
+        span {
+            font-size: 0.5em;
+            margin-left: -0.5em;
+        }
+    }
+    button, button:hover {
+        border: unset;
+        background: unset;
+        padding: unset;
+    }
+
+    span {
+        min-width: 1em;
+        display: inline-block;
+        position: relative;
+        bottom: 0.25em;
+    }
+}
+
+form a {
+    float: right;
 }
 
 .full {
     padding: 1em;
+    margin: -2px;
 
     textarea {
         max-height: 10em;
     }
 }
 
-.time {
+section {
+    position: relative;
+    h1, h2, h3, h4, h5, h6 {
+        text-align: unset;
+        font-size: unset;
+        text-transform: unset;
+        text-decoration: underline;
+    }
+}
+
+.time, footer {
     font-size: 0.9em;
-    display: block;
+}
+.time, footer, button {
     color: #606060;
 }

@@ -373,12 +373,10 @@ td:last-child a span {
     font-size: 1.6em;
     line-height: 0.625em;
     vertical-align: text-bottom;
-    margin-right: -0.2em;
+    margin-right: -0.1em;
 }
 th {
-    color: #666;
     vertical-align: baseline;
-    display: none;
 
     h3 a {
         font-weight: normal;

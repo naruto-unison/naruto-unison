@@ -45,6 +45,7 @@ import           Handler.Admin
 import           Handler.Client
 import           Handler.Embed
 import           Handler.Forum
+import           Handler.Forum.API
 import           Handler.Play
 import           Handler.Site
 import qualified Mission

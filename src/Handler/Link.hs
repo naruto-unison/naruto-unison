@@ -71,20 +71,15 @@ user User{..} = $(widgetFile "widgets/link/user")
 
 -- | Current time widget.
 makeTimestamp :: IO (UTCTime -> Widget)
-makeTimestamp = do
-    time   <- getCurrentTime
-    zone   <- LocalTime.getCurrentTimeZone
-    return . pureTimestamp zone $ utctDay time
+makeTimestamp = pureTimestamp <$> LocalTime.getCurrentTimeZone
 
 -- | Parses the current time into a widget.
-pureTimestamp :: LocalTime.TimeZone -> Day -> UTCTime -> Widget
-pureTimestamp zone today unzoned = $(widgetFile "widgets/timestamp")
+pureTimestamp :: LocalTime.TimeZone -> UTCTime -> Widget
+pureTimestamp zone unzoned = $(widgetFile "widgets/timestamp")
   where
     zoned = LocalTime.utcToLocalTime zone unzoned
     time  = Format.formatTime Format.defaultTimeLocale format zoned
-    format
-      | utctDay unzoned == today = "%l:%M %p"
-      | otherwise                = "%m/%d/%y"
+    format = "%l:%M %p %m/%d/%y"
 
 -- | Appended to titles of posts and threads by staff.
 staffTag :: Char

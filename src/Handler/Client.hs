@@ -36,7 +36,7 @@ import           Mission.Goal (Goal)
 import qualified Mission.Goal as Goal
 import           Util ((∈), (∉), shorten)
 
--- | Updates a user's profile. Requires authentication.
+-- | Updates a user's profile and returns it. Requires authentication.
 getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
 getUpdateR updateName updateCondense updateBackground updateAvatar
   | not $ "/img/icon/" `isPrefixOf` updateAvatar =
@@ -76,12 +76,13 @@ unzipGoal (goal, progress) =
                       , progress
                       }
 
--- | Returns progress on a character's mission.
+-- | Returns progress on a character's mission as a list of 'ObjectiveProgress'.
 getMissionR :: Character -> Handler Value
 getMissionR char =
-    returnJson . maybe mempty (unzipGoal <$>) =<< Mission.userMission (Character.ident char)
+    returnJson . maybe mempty (unzipGoal <$>)
+    =<< Mission.userMission (Character.ident char)
 
--- | Updates a user's muted status. Requires authentication.
+-- | Updates a user's muted status and returns it. Requires authentication.
 getMuteR :: Bool -> Handler Value
 getMuteR mute = do
     who <- Auth.requireAuthId
@@ -110,7 +111,7 @@ getReanimateR char = do
 -- | Renders the gameplay client.
 getPlayR :: Handler Html
 getPlayR = do
-    muser       <- (entityVal <$>) <$> Auth.maybeAuth
+    muser       <- (snd <$>) <$> Auth.maybeAuthPair
     unlocked    <- Mission.unlocked
     (red,blue)  <- liftIO War.today
     when (isJust muser) $

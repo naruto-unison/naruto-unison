@@ -6,8 +6,8 @@ module Application.Fields
     ( Privilege(..)
     -- * Forums
     , ForumCategory(..)
-    , ForumBoard(..)
-    , boardName, boardDesc, boardCategory
+    , ForumBoard(..), boardName, boardDesc, boardCategory
+    , TopicState(..)
     ) where
 
 import ClassyPrelude
@@ -18,7 +18,8 @@ import Text.Read
 
 -- | User privilege. Determines authorization level.
 data Privilege
-    = Normal
+    = Guest
+    | Normal
     | Moderator
     | Admin
   deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, FromJSON, ToJSON)
@@ -52,7 +53,7 @@ data ForumBoard
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 derivePersistField "ForumBoard"
 instance PathPiece ForumBoard where
-    toPathPiece = tshow
+    toPathPiece   = tshow
     fromPathPiece = readMaybe . unpack
 
 boardCategory :: ForumBoard -> ForumCategory
@@ -75,3 +76,10 @@ boardName x = tshow x
 
 boardDesc :: ForumBoard -> Text
 boardDesc board = "Sample description for " ++ boardName board ++ "."
+
+data TopicState
+    = Open
+    | Locked
+    | Deleted
+    deriving (Bounded, Enum, Eq, Ord, Show, Read)
+derivePersistField "TopicState"
