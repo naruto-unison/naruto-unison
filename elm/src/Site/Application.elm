@@ -99,7 +99,7 @@ app websocket ports =
 
                 contents els =
                     if st.selectModel.stage == Select.Queued then
-                        H.main_ [ A.class "queueing" ] <|
+                        H.div [ A.id "main", A.class "queueing" ] <|
                             [ H.div [ A.id "searching" ]
                                 [ H.img [ A.src "/img/spin.gif" ] [] ]
                             , H.button
@@ -112,7 +112,7 @@ app websocket ports =
                                 ++ els
 
                     else
-                        H.main_ []
+                        H.div [ A.id "main" ]
                             els
             in
             Document "Naruto Unison"

@@ -730,13 +730,13 @@ li sup {
     margin-left: -0.3em !important;
 }
 
-main {
+#main {
     height: 100%;
     box-sizing: border-box;
     margin: 0 3em;
 }
 
-main, #accountSettings {
+#main, #accountSettings {
     -webkit-user-select: none;
     user-select: none;
 }

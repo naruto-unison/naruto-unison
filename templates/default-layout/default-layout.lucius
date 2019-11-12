@@ -125,23 +125,6 @@ button:hover {
     color: rgb(200, 0, 0);
 }
 
-.container {
-    line-height: 1.4em;
-    flex-grow: 1;
-    align-self: center;
-    width: 100%;
-    max-width: 800px;
-    padding: 0 2.5em 1em 2.5em;
-    box-sizing: border-box;
-    background-color: #fff;
-    font-size: 13px;
-
-    > form {
-        padding: 10px;
-        margin: auto;
-    }
-}
-
 dl {
     margin-top: 0;
 }
@@ -218,6 +201,23 @@ i {
 input, textarea {
     background-color: #ddd;
     border: 1px solid #888;
+}
+
+main {
+    line-height: 1.4em;
+    flex-grow: 1;
+    align-self: center;
+    width: 100%;
+    max-width: 800px;
+    padding: 0 2.5em 1em 2.5em;
+    box-sizing: border-box;
+    background-color: #fff;
+    font-size: 13px;
+
+    > form {
+        padding: 10px;
+        margin: auto;
+    }
 }
 
 nav.jump {
@@ -451,7 +451,7 @@ ul {
 }
 
 @media (max-width: 640px) {
-    .container {
+    main {
         font-size: 0.8em;
         padding: 1em 1.5em 0em 1.5em;
     }

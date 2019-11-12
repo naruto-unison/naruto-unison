@@ -38,7 +38,7 @@ $else
         <button>
           Play Now
 
-  <div .container>
+  <main>
 
     $if mcurrentRoute /= Just HomeR
       <nav #breadcrumb>

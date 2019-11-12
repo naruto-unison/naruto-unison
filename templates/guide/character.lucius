@@ -4,16 +4,16 @@
     margin: 3px 0 10px 10px;
 }
 
-.container > section {
-    border-top: 3px solid #ddd;
-}
-
 dl {
     margin-bottom: 0;
 }
 
 h1 {
     margin-bottom: -0.25em;
+}
+
+main > section {
+    border-top: 3px solid #ddd;
 }
 
 section {

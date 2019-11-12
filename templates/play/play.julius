@@ -105,7 +105,7 @@ new MutationObserver(mutations => {
                         queuedProgress = undefined
                     }
                 }
-}).observe(document.getElementsByTagName("main")[0], { childList: true })
+}).observe(document.getElementById("main"), { childList: true })
 
 app.ports.websocketSend.subscribe(msg => {
     if (conn !== undefined && conn.readyState !== 1) {

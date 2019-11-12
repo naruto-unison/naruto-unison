@@ -1,4 +1,4 @@
-body, .container {
+body, main {
     background-color: #1b4e66 !important;
 }
 
@@ -6,7 +6,26 @@ body {
     padding: 0 !important;
 }
 
-.container {
+#changelog {
+    padding-right: 1em;
+    padding-bottom: 1em;
+
+    li {
+        margin: 0;
+    }
+}
+
+.char {
+    width: 50px;
+    float: right;
+    margin: 1px 0px 2px 2px !important;
+}
+
+#forums {
+    padding-left: 1em;
+}
+
+main {
     padding-bottom: 0 !important;
     margin-top: 0 !important;
     padding-top: 0 !important;
@@ -55,25 +74,6 @@ body {
     }
 }
 
-#changelog {
-    padding-right: 1em;
-    padding-bottom: 1em;
-
-    li {
-        margin: 0;
-    }
-}
-
-.char {
-    width: 50px;
-    float: right;
-    margin: 1px 0px 2px 2px !important;
-}
-
-#forums {
-    padding-left: 1em;
-}
-
 section > aside {
     color: #606060;
     margin-bottom: -0.5em;
@@ -88,7 +88,7 @@ section > aside {
     #changelog .char {
         display: none;
     }
-    .container {
+    main {
         padding: 1em 1.5em 5em 1.5em;
 
         > aside {
@@ -102,7 +102,7 @@ section > aside {
 }
 
 @media (max-width: 885px) {
-    .container {
+    main {
         max-width: 800px !important;
 
         > aside {

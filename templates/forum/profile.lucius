@@ -11,15 +11,15 @@ article {
     outline-width: 2px;
 }
 
-.container > section {
-    flex-grow: 0;
-    padding: 0;
-    padding-left: 1em;
-}
-
 dl {
     margin-left: 25px;
     flex-grow: 1;
+}
+
+main > section {
+    flex-grow: 0;
+    padding: 0;
+    padding-left: 1em;
 }
 
 p {
