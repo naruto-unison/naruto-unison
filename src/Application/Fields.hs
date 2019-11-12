@@ -1,9 +1,9 @@
-{-# LANGUAGE DeriveAnyClass  #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 -- | Fields for persistent types in 'Application.Model'.
 module Application.Fields
     ( Privilege(..)
+    , Markdown(..)
     -- * Forums
     , ForumCategory(..)
     , ForumBoard(..), boardName, boardDesc, boardCategory
@@ -13,8 +13,11 @@ module Application.Fields
 import ClassyPrelude
 import Yesod
 
-import Text.Blaze (ToMarkup(..))
-import Text.Read
+import qualified CMark
+import           Data.Aeson (FromJSON, ToJSON)
+import           Database.Persist.Sql (PersistField(..), PersistFieldSql(..))
+import           Text.Blaze (ToMarkup(..))
+import           Text.Read
 
 -- | User privilege. Determines authorization level.
 data Privilege
@@ -22,11 +25,25 @@ data Privilege
     | Normal
     | Moderator
     | Admin
-  deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, FromJSON, ToJSON)
+  deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+instance FromJSON Privilege
+instance ToJSON Privilege
 derivePersistField "Privilege"
 
 instance ToMarkup Privilege where
     toMarkup = toMarkup . show
+
+newtype Markdown = Markdown Text deriving ( Eq, Ord, Show, Read, IsString
+                                          , FromJSON, ToJSON
+                                          , Semigroup, Monoid
+                                          , PersistField, PersistFieldSql
+                                          )
+instance ToMarkup Markdown where
+    toMarkup (Markdown x) =
+        preEscapedToMarkup $ CMark.commonmarkToHtml
+        [CMark.optNormalize, CMark.optHardBreaks, CMark.optSmart, CMark.optSafe]
+        x
+    {-# INLINE toMarkup #-}
 
 data ForumCategory
     = Official

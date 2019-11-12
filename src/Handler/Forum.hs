@@ -24,13 +24,11 @@ import           Database.Persist.Sql (SqlPersistT)
 
 import           Application.App (AppPersistEntity, Handler, Route(..))
 import qualified Application.App as App
-import           Application.Fields (ForumBoard, ForumCategory(..), Privilege(..), TopicState(..), boardCategory, boardDesc, boardName)
+import           Application.Fields (ForumBoard, ForumCategory(..), Markdown(..), Privilege(..), TopicState(..), boardCategory, boardDesc, boardName)
 import           Application.Model (Cite(..), EntityField(..), ForumPost(..), ForumTopic(..), HasAuthor(..), User(..))
 import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
 import           Handler.Forum.API (getLike)
-import           Handler.Forum.Markdown (Markdown(..))
-import qualified Handler.Forum.Markdown as Markdown
 import qualified Handler.Link as Link
 import           Util ((!?), mapFromKeyed)
 
@@ -191,10 +189,10 @@ data LikedPost = LikedPost { likedPost :: Cite ForumPost
                            , liked     :: Bool
                            }
 
-quoteMap :: [LikedPost] -> HashMap Text Markdown
-quoteMap posts = mapFromKeyed ( toPathPiece . citeKey
-                              , Markdown.quote . forumPostBody . citeVal
-                              ) $ likedPost <$> posts
+markdowns :: [LikedPost] -> HashMap Text Markdown
+markdowns posts = mapFromKeyed ( toPathPiece . citeKey
+                               , forumPostBody . citeVal
+                               ) $ likedPost <$> posts
 
 -- | Fills out author information from the database.
 selectWithAuthors :: ∀ m a. (MonadIO m, HasAuthor a, AppPersistEntity a)

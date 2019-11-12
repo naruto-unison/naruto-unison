@@ -1,6 +1,7 @@
 "use strict";
 
-const quotes = #{toJSON $ quoteMap posts}
+/** @type {Object.<string, string>} */
+const markdowns = #{toJSON $ markdowns posts}
 
 /**
  * @param {HTMLButtonElement} button
@@ -38,7 +39,7 @@ function deletePost(post) {
 
 /** @param {string} post */
 function quotePost(post) {
-    document.getElementsByTagName("textarea")[0].value = quotes[post]
+    document.getElementsByTagName("textarea")[0].value = "> " + markdowns[post].replace("\n", "\n >")
     window.scrollTo(0,document.body.scrollHeight)
 }
 

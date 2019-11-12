@@ -12,8 +12,7 @@ import Yesod
 import qualified Database.Persist.Quasi as Quasi
 import qualified Database.Persist.Sql as Sql
 
-import Application.Fields (ForumBoard, Privilege(..), TopicState(..))
-import Handler.Forum.Markdown (Markdown(..))
+import Application.Fields (ForumBoard, Markdown(..), Privilege(..), TopicState(..))
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
     $(persistFileWith Quasi.lowerCaseSettings "config/models.persistentmodels")
