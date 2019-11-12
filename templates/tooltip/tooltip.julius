@@ -1,35 +1,77 @@
+/**
+ * @typedef Skill
+ * @property {string}   name
+ * @property {string}   desc
+ * @property {string[]} classes
+ * @property {number}   cooldown
+ * @property {number}   charges
+ * @property {number}   dur
+ * @property {Object.<string, number>} cost
+ */
+
+/**
+ * @typedef Character
+ * @property {string}    name
+ * @property {string}    bio
+ * @property {string[]}  groups
+ * @property {Skill[][]} skills
+ * @property {number}    price
+ * @property {string}    category
+ */
+
+/** @type {Object.<string, Character>} */
 const chars = #{Characters.mapJSON}
 
 const cTypes  = [ "blood", "gen", "nin", "tai", "rand" ]
 const tcTypes = [ "blood", "gen", "nin", "tai" ]
 
-const shorten = x => x.replace(/ \(\d+\)/g, '')
-                      .replace(/[- :()']/g,'')
-                      .replace(/ō/g,'o')
-                      .replace(/ū/g,'u')
+/** @param {string} x */
+const shorten = x => x
+    .replace(/ \(\d+\)/g, '')
+    .replace(/[- :()']/g,'')
+    .replace(/ō/g,'o')
+    .replace(/ū/g,'u')
 
-const getSkill = (char, name) => char.skills.flat().filter(x => x.name === name)[0]
+/**
+ * @param {Character} char
+ * @param {string}    name
+ *
+ * @returns {Skill}
+ */
+const getSkill = (char, name) =>
+    char.skills.flat().filter(x => x.name === name)[0]
 
+/** @type {Object.<string, boolean>} */
 const visible = #{Class.visiblesMap}
+
+/** @param {string[]} x */
 const filterClasses = x => x.filter(y => visible[y])
 
+/** @param {Character} x */
 function showChar(x) {
-  switch (x.category) {
-    case "Shippuden":  return x.name + " (S)"
-    case "Reanimated": return x.name + " (R)"
-    default:           return x.name
-  }
+    switch (x.category) {
+        case "Shippuden":  return x.name + " (S)"
+        case "Reanimated": return x.name + " (R)"
+        default:           return x.name
+    }
 }
 
+/** @param {string} x */
 function showDur(x) {
-  switch (x) {
-    case "Passive": return "Instant"
-    default:        return x
-  }
+    switch (x) {
+        case "Passive": return "Instant"
+        default:        return x
+    }
 }
 
+/** @type {HTMLElement} */
 let cur
 
+/**
+ * @param {jQuery}      tooltip
+ * @param {MouseEvent}  ev
+ * @param {HTMLElement} el
+ */
 const popup = (tooltip, ev, el) => tooltip
     .stop()
     .css("left", Math.min(ev.pageX, document.body.scrollWidth - tooltip[0].clientWidth - 10))
@@ -39,19 +81,23 @@ const popup = (tooltip, ev, el) => tooltip
     .css("left", Math.min(ev.pageX, document.body.scrollWidth - tooltip[0].clientWidth - 10))
     .css("top", Math.min(el.offsetTop, document.body.scrollHeight - tooltip[0].clientHeight - 10))
 
+/**
+ * @param {number}      i
+ * @param {HTMLElement} el
+ */
 const hoverChar = (i, el) => {
-  const tooltip = $("#tooltip")
-  const src = $(el)
-  const usr = chars[src.data("name")]
-  if (usr === undefined) return
-  src.mouseover(ev => {
-      if (tooltip.css("display") !== "none" && cur === src) return
-      cur = el
-      tooltip.stop()
-      tooltip.find("header").text(showChar(usr))
-      tooltip.find("article").text(usr.bio)
-      popup(tooltip, ev, el)
-  }).mouseleave(() => $("#tooltip").fadeOut(100))
+    const tooltip = $("#tooltip")
+    const src = $(el)
+    const usr = chars[src.data("name")]
+    if (usr === undefined) return
+    src.mouseover(ev => {
+        if (tooltip.css("display") !== "none" && cur === src) return
+        cur = el
+        tooltip.stop()
+        tooltip.find("header").text(showChar(usr))
+        tooltip.find("article").text(usr.bio)
+        popup(tooltip, ev, el)
+    }).mouseleave(() => $("#tooltip").fadeOut(100))
 }
 
 $(() => {
@@ -59,30 +105,41 @@ $(() => {
     $("a.name").each(hoverChar)
     $("li").find("sup").each(hoverChar)
     $(".head").each(hoverChar)
-    $(".skill").each((i, el) => {
+    $(".skill").each((i, /** @type {HTMLElement} */ el) => {
         const src = $(el)
         const usr = chars[src.data("name")]
-        if (usr === undefined) return
+        if (usr === undefined)
+            return
         const skill = getSkill(usr, src.text())
-        if (skill === undefined) return
+        if (skill === undefined)
+            return
+
+        const classes =
+                $( '<br/><p class="skillClasses">'
+                 + [showDur(skill.dur.tag)].concat(filterClasses(skill.classes)).join(", ")
+                 + '</div>'
+                 )
+
+        const renderCost = cType => Array
+            .from(Array(skill.cost[cType]))
+            .map(()=> $(`<div class=" chakra ${cType}"></div>`))
+
+        const costs   = [].concat(...cTypes.map(renderCost))
+        const charges = skill.charges
+        const desc    = skill.desc.replace(/\[.\]/g,"").replace(/\[/g,"<i>").replace(/\]/g,"</i>")
+
         src.mouseover(ev => {
-            if (tooltip.css("display") !== "none" && cur === src) return
+            if (tooltip.css("display") !== "none" && cur === src)
+                return
             cur = src
-            tooltip.stop()
-            tooltip.find("header").text(skill.name).append([].concat(
-              ...cTypes.map(cType => Array.from(Array(skill.cost[cType]))
-              .map(()=> $(`<div class=" chakra ${cType}"></div>`) ))
-            )).append($('<br/><p class="skillClasses">' +
-              [showDur(skill.dur.tag)].concat(filterClasses(skill.classes)).join(", ") +
-              '</div>'))
-            desc = tooltip.find("article").html(skill.desc.replace(/\[.\]/g,"").replace(/\[/g,"<i>").replace(/\]/g,"</i>"))
-            const charges = skill.charges
+            tooltip.stop().find("header").text(skill.name).append(costs).append(classes)
+            descEl = tooltip.find("article").html(desc)
             if (charges === 1)
-                desc.append(`<span class="extra">1 charge.</span>`)
+                descEl.append(`<span class="extra">1 charge.</span>`)
             else if (charges > 1)
-                desc.append(`<span class="extra">${charges} charges.</span>`)
+                descEl.append(`<span class="extra">${charges} charges.</span>`)
             if (skill.cooldown > 0)
-                desc.append(`<span class="extra">CD: ${skill.cooldown / 2 | 0}</span>`)
+                descEl.append(`<span class="extra">CD: ${skill.cooldown / 2 | 0}</span>`)
             popup(tooltip, ev, el)
         }).mouseleave(() => $("#tooltip").fadeOut(100))
     })

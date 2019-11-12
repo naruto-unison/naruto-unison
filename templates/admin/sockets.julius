@@ -1,7 +1,13 @@
+/** @type {HTMLDivElement} */
 const output = document.getElementById("output")
-const form   = document.getElementById("form")
-const input  = document.getElementById("input")
-const conn   = new WebSocket(document.URL.replace(/^http/g, "ws"))
+
+/** @type {HTMLFormElement} */
+const form = document.getElementById("form")
+
+/** @type {HTMLInputElement} */
+const input = document.getElementById("input")
+
+const conn = new WebSocket(document.URL.replace(/^http/g, "ws"))
 
 conn.onmessage = e => {
     const p = document.createElement("p")
