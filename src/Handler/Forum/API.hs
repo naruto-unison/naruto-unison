@@ -46,6 +46,7 @@ getDeletePostR postId = attemptMaybeT do
     lift $ runDB do
         update postId [ForumPostDeleted =. True]
         update (forumPostAuthor post) [UserPosts -=. 1]
+        deleteWhere [ForumLikePost ==. postId]
         modifyTopic $ forumPostTopic post
 
 -- | Likes or unlikes a 'ForumPost', altering its 'forumPostLikes'.
@@ -54,7 +55,7 @@ getLikePostR :: Key ForumPost -> Handler Value
 getLikePostR forumLikePost = attemptMaybeT do
     who   <- MaybeT Auth.maybeAuthId
     post  <- lift . runDB $ get404 forumLikePost
-    guard $ forumPostAuthor post /= who
+    guard $ forumPostAuthor post /= who && not (forumPostDeleted post)
     liked <- lift . runDB $ getLike forumLikePost who
     case liked of
         Just (Entity likeId _) ->
