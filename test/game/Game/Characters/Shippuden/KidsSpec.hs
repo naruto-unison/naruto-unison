@@ -78,7 +78,7 @@ spec = parallel do
                 100 - targetHealth `shouldBe` 10
             it "alternates" do
                 act
-                hasSkill "Chidori Spear" <$> nUser
+                hasSkill "Kusanagi" <$> nUser
 
         useOn Enemy "Dragon Flame" do
             it "damages attackers" do

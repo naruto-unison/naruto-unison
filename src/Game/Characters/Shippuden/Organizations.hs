@@ -496,18 +496,18 @@ characters =
     [LeafVillage, Orochimaru, Genin, Rogue, Lightning, Fire, Wind, Earth, Water, Yin, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Chidori Stream"
-        , Skill.desc      = "An electric field surrounds Sasuke. Enemies who use non-mental skills on Sasuke next turn will be countered and will take 10 affliction damage. Once used, this skill becomes [Chidori Spear][t]."
+        , Skill.desc      = "An electric field surrounds Sasuke. Enemies who use non-mental skills on Sasuke next turn will be countered and will take 10 affliction damage. Once used, this skill becomes [Kusanagi][t]."
         , Skill.classes   = [Bane, Chakra, Melee, Invisible]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Self do
                 trapFrom 1 (CounterAll NonMental) $ afflict 10
-                hide 0 [Alternate "Chidori Stream" "Chidori Spear"]
+                hide 0 [Alternate "Chidori Stream" "Kusanagi"]
           ]
         }
       , Skill.new
-        { Skill.name      = "Chidori Spear"
-        , Skill.desc      = "Employing his swordsmanship to wield an energy beam like a weapon, Sasuke deals 15 damage to an enemy and stuns their physical and mental skills with electricity for 1 turn. Once used, this skill becomes [Chidori Stream][n][r]."
+        { Skill.name      = "Kusanagi"
+        , Skill.desc      = "Sasuke runs Chidori's electric current through a sword and impales an enemy with it, dealing 15 damage and stunning the target's physical and mental skills for 1 turn. Once used, this skill becomes [Chidori Stream][n][r]."
         , Skill.classes   = [Bane, Chakra, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
