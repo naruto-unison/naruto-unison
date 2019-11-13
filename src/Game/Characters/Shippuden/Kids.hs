@@ -631,9 +631,9 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                dead <- numDeadAllies
-                hp   <- user health
-                damage $ 20 + 20 * dead + 20 * ((100 - hp) `quot` 30)
+                dead       <- numDeadAllies
+                userHealth <- user health
+                damage $ 20 + 20 * dead + 20 * ((100 - userHealth) `quot` 30)
           ]
         }
       ]

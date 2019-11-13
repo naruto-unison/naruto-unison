@@ -134,14 +134,12 @@ characters =
     , [ Skill.new
         { Skill.name      = "Decapitate"
         , Skill.desc      = "Asuma mercilessly slaughters an enemy whose health is at or below 25."
+        , Skill.require   = HealthU 25
         , Skill.classes   = [Physical, Melee, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy do
-                health <- target health
-                when (health <= 25) kill
-          ]
+          [ To Enemy kill ]
         }
       ]
     , [ invuln "Dodge" "Asuma" [Physical] ]

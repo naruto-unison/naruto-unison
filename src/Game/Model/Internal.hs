@@ -221,6 +221,8 @@ data Requirement
     | Unusable
     | HasI Int Text
     | HasU Int Text
+    | HealthI Int
+    | HealthU Int
     | DefenseI Int Text
     deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 

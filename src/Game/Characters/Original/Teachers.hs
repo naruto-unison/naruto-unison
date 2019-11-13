@@ -20,8 +20,8 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                hp <- user health
-                damage $ 20 + 10 * ((100 - hp) `quot` 25)
+                userHealth <- user health
+                damage $ 20 + 10 * ((100 - userHealth) `quot` 25)
           ]
         }
       ]
@@ -79,9 +79,9 @@ characters =
         , Skill.charges   = 2
         , Skill.effects   =
           [ To Enemy do
-                hp     <- target health
-                bonus  <- 30 `bonusIf` userHas "Successful Ambush"
-                damage $ 10 + bonus + 10 * ((100 - hp) `quot` 20)
+                targetHealth <- target health
+                bonus        <- 30 `bonusIf` userHas "Successful Ambush"
+                damage $ 10 + bonus + 10 * ((100 - targetHealth) `quot` 20)
           ]
         }
       ]

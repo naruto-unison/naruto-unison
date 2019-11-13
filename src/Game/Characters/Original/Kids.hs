@@ -524,8 +524,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 45
-                hp <- target health
-                when (hp <= 20) kill
+                targetHealth <- target health
+                when (targetHealth <= 20) kill
           ]
         }
       ]

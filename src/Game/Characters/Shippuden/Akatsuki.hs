@@ -161,16 +161,13 @@ characters =
         }
       , Skill.new
         { Skill.name      = "C0: Ultimate Art"
-        , Skill.desc      = "Deidara fills his veins with explosives and becomes art. If his health is at or below 40, he deals 35 affliction damage to all enemies and dies."
+        , Skill.desc      = "Deidara fills his veins with explosives and becomes art. He deals 35 affliction damage to all enemies and dies. Requires Deidara's health to be at or below 40."
+        , Skill.require   = HealthI 40
         , Skill.classes   = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Blood, Nin, Nin]
         , Skill.effects   =
-          [ To Enemies do
-                hp <- user health
-                when (hp <= 40) $ afflict 35
-          , To Self do
-                hp <- user health
-                when (hp <= 40) killHard
+          [ To Enemies $ afflict 35
+          , To Self killHard
           ]
         }
       ]
@@ -411,16 +408,15 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Earth Grudge"
-        , Skill.desc      = "Black thread-like tendrils rip apart an enemy whose health is at 20 or lower, killing the target and restoring 35 health to Kakuzu if successful."
+        , Skill.desc      = "Black thread-like tendrils tear the heart from an enemy whose health is at 20 or lower, killing the target and restoring 35 health to Kakuzu if successful."
+        , Skill.require   = HealthU 20
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Enemy do
-                targetHealth <- target health
-                when (targetHealth <= 20) do
-                    kill
-                    unlessM (target alive) $ self $ heal 35
+                kill
+                unlessM (target alive) $ self $ heal 35
           ]
         }
       ]
@@ -1028,8 +1024,8 @@ characters =
           [ To Enemy do
                 apply 1 [Stun All, Reveal]
                 leech 30 $ self . heal
-                hp <- target health
-                if hp <= 30 then kill else absorb 1
+                targetHealth <- target health
+                if targetHealth <= 30 then kill else absorb 1
           ]
         }
       ]

@@ -484,18 +484,20 @@ jsonEncPlayer  val =
 
 
 type Privilege  =
-    Normal
+    Guest
+    | Normal
     | Moderator
     | Admin
 
 jsonDecPrivilege : Json.Decode.Decoder ( Privilege )
 jsonDecPrivilege =
-    let jsonDecDictPrivilege = Dict.fromList [("Normal", Normal), ("Moderator", Moderator), ("Admin", Admin)]
+    let jsonDecDictPrivilege = Dict.fromList [("Guest", Guest), ("Normal", Normal), ("Moderator", Moderator), ("Admin", Admin)]
     in  decodeSumUnaries "Privilege" jsonDecDictPrivilege
 
 jsonEncPrivilege : Privilege -> Value
 jsonEncPrivilege  val =
     case val of
+        Guest -> Json.Encode.string "Guest"
         Normal -> Json.Encode.string "Normal"
         Moderator -> Json.Encode.string "Moderator"
         Admin -> Json.Encode.string "Admin"
@@ -507,6 +509,8 @@ type Requirement  =
     | Unusable
     | HasI Int String
     | HasU Int String
+    | HealthI Int
+    | HealthU Int
     | DefenseI Int String
 
 jsonDecRequirement : Json.Decode.Decoder ( Requirement )
@@ -516,6 +520,8 @@ jsonDecRequirement =
             , ("Unusable", Json.Decode.lazy (\_ -> Json.Decode.succeed Unusable))
             , ("HasI", Json.Decode.lazy (\_ -> Json.Decode.map2 HasI (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.string))))
             , ("HasU", Json.Decode.lazy (\_ -> Json.Decode.map2 HasU (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.string))))
+            , ("HealthI", Json.Decode.lazy (\_ -> Json.Decode.map HealthI (Json.Decode.int)))
+            , ("HealthU", Json.Decode.lazy (\_ -> Json.Decode.map HealthU (Json.Decode.int)))
             , ("DefenseI", Json.Decode.lazy (\_ -> Json.Decode.map2 DefenseI (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.string))))
             ]
         jsonDecObjectSetRequirement = Set.fromList []
@@ -528,6 +534,8 @@ jsonEncRequirement  val =
                     Unusable  -> ("Unusable", encodeValue (Json.Encode.list identity []))
                     HasI v1 v2 -> ("HasI", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.string v2]))
                     HasU v1 v2 -> ("HasU", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.string v2]))
+                    HealthI v1 -> ("HealthI", encodeValue (Json.Encode.int v1))
+                    HealthU v1 -> ("HealthU", encodeValue (Json.Encode.int v1))
                     DefenseI v1 v2 -> ("DefenseI", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.string v2]))
     in encodeSumTaggedObject "tag" "contents" keyval val
 

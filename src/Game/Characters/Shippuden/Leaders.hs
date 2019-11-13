@@ -16,13 +16,12 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Body Replacement Substitution"
         , Skill.desc      = "Having sustained grievous injuries, Orochimaru's body has reached the end of its usefulness. He sheds it like a second skin, restoring his health to 60. Requires Orochimaru's health to be at or below 20."
+        , Skill.require   = HealthI 20
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self $ setHealth 60 ]
-        , Skill.changes   =
-            \n x -> if health n > 20 then x { Skill.require = Unusable } else x
         }
       ]
     , [ Skill.new

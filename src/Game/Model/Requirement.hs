@@ -53,22 +53,24 @@ usable new n x
 succeed :: Requirement -> Slot -> Ninja -> Bool
 succeed Usable      _ _ = True
 succeed Unusable    _ _ = False
-succeed (HasU i name) t n
-  | t == Ninja.slot n = True
-  | i > 0             = Ninja.numStacks name t n >= i
-  | i < 0             = Ninja.numStacks name t n < (-i)
-  | otherwise         = not $ Ninja.has name t n
 succeed (HasI i name) t n
   | t /= Ninja.slot n = True
   | i == 1            = Ninja.has name t n || Ninja.isChanneling name n
   | i > 0             = Ninja.numStacks name t n >= i
-  | i < 0             = Ninja.numStacks name t n < (-i)
-                        && not (Ninja.isChanneling name n)
   | otherwise         = not $ Ninja.has name t n || Ninja.isChanneling name n
+succeed (HasU i name) t n
+  | t == Ninja.slot n = True
+  | i > 0             = Ninja.numStacks name t n >= i
+  | otherwise         = not $ Ninja.has name t n
+succeed (HealthI i) t n
+  | t /= Ninja.slot n = True
+  | otherwise         = Ninja.health n <= i
+succeed (HealthU i) t n
+  | t == Ninja.slot n = True
+  | otherwise         = Ninja.health n <= i
 succeed (DefenseI i name) t n
   | t /= Ninja.slot n = True
   | i > 0             = Ninja.defenseAmount name t n >= i
-  | i < 0             = Ninja.defenseAmount name t n < (-i)
   | otherwise         = not $ Ninja.hasDefense name t n
 
 -- | Checks whether a @Skill@ can be used on a target.

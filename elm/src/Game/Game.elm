@@ -182,6 +182,9 @@ toggles x =
 rank : User -> String
 rank user =
     case user.privilege of
+        Guest ->
+            "Guest"
+
         Normal ->
             ranks
                 |> List.getAt (user.xp // 5000)
