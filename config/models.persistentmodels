@@ -9,23 +9,25 @@ ForumLike
     UniqueForumLike user post
 
 ForumPost
-    author  UserId
-    time    UTCTime
-    body    Markdown
-    topic   ForumTopicId
-    likes   Int
+    author   UserId
+    time     UTCTime
+    body     Markdown
+    topic    ForumTopicId
+    likes    Int
     deleted  Bool
+    edited   UTCTime Maybe
     deriving Eq
 
 ForumTopic
-    board   ForumBoard
-    author  UserId
-    staff   Bool
-    title   Text
-    state   TopicState
-    posts   Int
-    time    UTCTime
-    latest  UserId
+    board     ForumBoard
+    author    UserId
+    staff     Bool
+    title     Text
+    state     TopicState
+    posts     Int
+    time      UTCTime
+    latest    UserId
+    modified  UTCTime
 
 Mission
     user       UserId
@@ -36,7 +38,7 @@ Mission
 
 News
     author   UserId
-    date     Day
+    time     UTCTime
     title    Text
     content  Text
 
@@ -63,7 +65,7 @@ User
     privilege   Privilege
     name        Text
     avatar      Text
-    background  Text Maybe
+    background  Text  Maybe
     xp          Int
     wins        Int
     losses      Int

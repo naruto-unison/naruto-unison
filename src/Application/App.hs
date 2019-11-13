@@ -13,6 +13,7 @@ module Application.App
   , getPrivilege
   , liftDB
   , unchanged304
+  , lastModified
   , unsafeHandler
   , resourcesApp
   ) where
@@ -26,6 +27,8 @@ import           Data.Cache (Cache)
 import qualified Data.CaseInsensitive as CaseInsensitive
 import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Lazy.Encoding as LazyEncoding
+import qualified Data.Time.Format as Format
+import qualified Data.Time.LocalTime as LocalTime
 import qualified Database.Persist.Sql as Sql
 import           Database.Persist.Sql (ConnectionPool, SqlBackend, SqlPersistT)
 import           Network.HTTP.Client.Conduit (HasHttpManager(..), Manager)
@@ -33,6 +36,7 @@ import qualified Network.Mail.Mime as Mail
 import qualified Text.Blaze.Html.Renderer.Utf8 as Blaze
 import           Text.Hamlet (hamletFile)
 import qualified Text.Jasmine as Jasmine
+import           Text.Read (read)
 import           Text.Shakespeare.Text (stext)
 import           Yesod.Auth (Auth, YesodAuth(..), YesodAuthPersist, AuthenticationResult(..), AuthPlugin)
 import qualified Yesod.Auth as Auth
@@ -64,7 +68,8 @@ import           Class.Display (display')
 
 -- | App environment.
 data App = App
-    { timestamp   :: Int64
+    { startup     :: UTCTime
+    , timestamp   :: Int64
     , settings    :: Settings
       -- ^ Settings loaded from a local file.
     , static      :: Static
@@ -88,29 +93,6 @@ data App = App
 -- type Handler = HandlerT App IO
 -- type Widget = WidgetT App IO ()
 mkYesodData "App" $(parseRoutesFile "config/routes")
-
--- | This function should only be used in handlers with completely static
--- content. It sets an
--- [ETag](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag)
--- based on the time when the server started up and the user currently logged
--- in, if there is one. The server respects
--- [If-None-Match](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match):
--- if the client sends the same ETag, the server sends 304 Not Modified instead
--- of the web page's body. The client then loads their cached version of the
--- page.
--- Correct usage of this function can save a lot of bandwidth.
--- Incorrect usage will lead to clients seeing outdated cached versions of pages
--- because the server refuses to send them updates.
-unchanged304 :: Handler ()
-#ifdef DEVELOPMENT
-unchanged304 = return ()
-#else
-unchanged304 = whenM (isNothing <$> getMessage) $
-               setEtag . toStrict . display'
-               =<< maybeAdd <$> getsYesod timestamp <*> maybeAuthId
-  where
-    maybeAdd x = maybe x $ (+ x) . Sql.fromSqlKey
-#endif
 
 getPrivilege :: ∀ m. (MonadHandler m, App ~ HandlerSite m) => m Privilege
 getPrivilege = liftHandler . cached $
@@ -149,6 +131,47 @@ origin ProfileR{}   = ForumsR
 origin TopicR{}     = ForumsR
 origin UsageR       = AdminR
 origin x            = x
+
+-- | This function should only be used in handlers with completely static
+-- content. It sets an
+-- [ETag](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag)
+-- based on the time when the server started up and the user currently logged
+-- in, if there is one. The server respects
+-- [If-None-Match](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match):
+-- if the client sends the same ETag, the server sends 304 Not Modified instead
+-- of the web page's body. The client then loads their cached version of the
+-- page.
+-- Correct usage of this function can save a lot of bandwidth.
+-- Incorrect usage will lead to clients seeing outdated cached versions of pages
+-- because the server refuses to send them updates.
+unchanged304 :: Handler ()
+#ifdef DEVELOPMENT
+unchanged304 = return ()
+#else
+unchanged304 = whenM (isNothing <$> getMessage) $
+               setEtag . toStrict . display'
+               =<< maybeAdd <$> getsYesod timestamp <*> maybeAuthId
+  where
+    maybeAdd x = maybe x $ (+ x) . Sql.fromSqlKey
+#endif
+
+-- | Sets the
+-- [Last-Modified](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Last-Modified)
+-- header and
+-- [ETag](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag)
+-- to a given time.
+-- As with 'unchanged304', the browser can respond with its latest timestamp.
+-- If the timestamp matches, the server sends Unchanged 304.
+lastModified :: UTCTime -> Handler ()
+lastModified time = do
+    timestamp <- max time <$> getsYesod startup
+    whenM (isNothing <$> getMessage) . setEtag $ tshow timestamp
+    replaceOrAddHeader "Last-Modified" . pack $ formatAsLastModified timestamp
+
+formatAsLastModified :: UTCTime -> String
+formatAsLastModified time = Format.formatTime Format.defaultTimeLocale
+                            "%a, %d %b %Y %H:%M:%S GMT" $
+                            LocalTime.utcToLocalTime (read "GMT") time
 
 instance Yesod App where
     approot :: Approot App

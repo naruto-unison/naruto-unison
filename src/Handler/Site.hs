@@ -25,7 +25,7 @@ import qualified Yesod.Auth as Auth
 
 import           Application.App (Handler, Route(..), Widget)
 import qualified Application.App as App
-import           Application.Model (EntityField(..), News(..), User(..))
+import           Application.Model (Cite(..), EntityField(..), ForumTopic(..), News(..), User(..))
 import           Application.Settings (widgetFile)
 import           Class.Display (Display(..))
 import qualified Game.Characters as Characters
@@ -40,7 +40,7 @@ import qualified Handler.Link as Link
 import qualified Handler.Parse as Parse
 import qualified Mission
 import qualified Mission.Goal as Goal
-import           Util ((∈), shorten)
+import           Util ((∈), epoch, shorten)
 
 -- | Renders the changelog.
 getChangelogR :: Handler Html
@@ -58,11 +58,14 @@ getHomeR :: Handler Html
 getHomeR = do
     privilege <- App.getPrivilege
     newsList  <- runDB $ traverse withAuthor
-                         =<< selectList [] [Desc NewsDate, LimitTo 5]
+                         =<< selectList [] [Desc NewsTime, LimitTo 5]
     topics    <- runDB $ Forum.selectWithAuthors
                  (Forum.filterTopics privilege [])
                  [Desc ForumTopicTime, LimitTo 10]
     citelink  <- liftIO Link.cite
+    App.lastModified $
+        max (maybe epoch (forumTopicTime . citeVal) $ headMay topics)
+            (maybe epoch (newsTime . fst) $ headMay newsList)
     defaultLayout do
         setTitle "Naruto Unison"
         $(widgetFile "tooltip/tooltip")
@@ -129,7 +132,7 @@ getCharactersR = do
 -- | Renders a character's details and the user's progress on their mission.
 getCharacterR :: Character -> Handler Html
 getCharacterR char = do
-    -- content does change if logged in, due to mission objectives
+    -- due to mission objectives, content does change if logged in
     whenM (isNothing <$> Auth.maybeAuthId) App.unchanged304
     mmission <- Mission.userMission name
     defaultLayout $(widgetFile "guide/character")

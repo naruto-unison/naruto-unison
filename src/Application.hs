@@ -75,6 +75,7 @@ makeFoundation settings = do
     practice    <- Cache.newCache . Just . fromInteger $
                    Settings.practiceCacheExpiry settings
 
+    startup                  <- getCurrentTime
     MkSystemTime timestamp _ <- getSystemTime
 
     -- We need a log function to create a connection pool. We need a connection

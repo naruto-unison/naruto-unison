@@ -3,6 +3,9 @@
 /** @type {Object.<string, string>} */
 const markdowns = #{toJSON $ markdowns posts}
 
+/** @type {Object.<string, boolean>} */
+const editing = {}
+
 /**
  * @param {HTMLButtonElement} button
  * @param {string} post
@@ -10,14 +13,14 @@ const markdowns = #{toJSON $ markdowns posts}
 function likePost(button, post) {
     button.disabled = true
     const req = new XMLHttpRequest()
-    req.onreadystatechange = () => {
+    req.onreadystatechange = function() {
         if (req.readyState === XMLHttpRequest.DONE && req.status === 200) {
             /** @type {boolean} */
             const liked = JSON.parse(req.responseText)
             const display = document.getElementById("likes-" + post)
             button.innerText = liked ? "❤️" : "♡"
             const total = (display.innerText ? parseInt(display.innerText) : 0)
-            + (liked ? 1 : -1)
+                          + (liked ? 1 : -1)
             display.innerText = total > 0 ? total : ""
             button.disabled = false
         }
@@ -29,12 +32,41 @@ function likePost(button, post) {
 /** @param {string} post */
 function deletePost(post) {
     const req = new XMLHttpRequest()
-    req.onreadystatechange = () => {
+    req.onreadystatechange = function() {
         if (req.readyState === XMLHttpRequest.DONE && req.status === 200 && JSON.parse(req.responseText))
             document.getElementById(post).remove()
     }
     req.open("GET", "/api/post/delete/" + post)
     req.send()
+}
+
+/** @param {string} post */
+function editPost(post) {
+    const article  = document.getElementById("body-" + post)
+    const editForm = document.getElementById("edit-" + post)
+    const button   = document.getElementById("button-" + post)
+
+    if (button.innerText === "Cancel") {
+        button.innerText = "Edit"
+        article.style.display = "block"
+        editForm.style.display = "none"
+    } else {
+        button.innerText = "Cancel"
+
+        for (const child of editForm.children) {
+            switch (child.getAttribute("name")) {
+                case "f1":
+                    child.value = post
+                    break
+                case "f2":
+                    child.value = markdowns[post]
+                    break
+            }
+        }
+
+        article.style.display = "none"
+        editForm.style.display = "block"
+    }
 }
 
 /** @param {string} post */
@@ -45,7 +77,7 @@ function quotePost(post) {
 
 function deleteTopic() {
     const req = new XMLHttpRequest()
-    req.onreadystatechange = () => {
+    req.onreadystatechange = function() {
         if (req.readyState === XMLHttpRequest.DONE && req.status === 200 && JSON.parse(req.responseText))
             document.location.replace("@{BoardR forumTopicBoard}")
     }
@@ -55,7 +87,7 @@ function deleteTopic() {
 
 function lockTopic() {
     const req = new XMLHttpRequest()
-    req.onreadystatechange = () => {
+    req.onreadystatechange = function() {
         if (req.readyState === XMLHttpRequest.DONE && req.status === 200 && JSON.parse(req.responseText))
             document.location.reload()
     }

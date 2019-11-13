@@ -31,6 +31,7 @@ import qualified Mission.UsageRate as UsageRate
 -- | Behind-the-scenes utilities for admin accounts. Requires authorization.
 getAdminR :: Handler Html
 getAdminR = do
+    App.unchanged304
     app <- getYesod
     (newsForm, enctype) <- generateFormPost =<< getNewsForm
     liftIO Random.createSystemRandom >>= runReaderT Play.gameSocket
@@ -67,7 +68,7 @@ getUsageR = do
 getNewsForm :: Handler (Form News)
 getNewsForm = do
     author <- Auth.requireAuthId
-    UTCTime date _ <- liftIO getCurrentTime
-    return . renderDivs $ News author date
+    time   <- liftIO getCurrentTime
+    return . renderDivs $ News author time
         <$> areq textField "" Nothing
         <*> (unTextarea <$> areq textareaField "" Nothing)

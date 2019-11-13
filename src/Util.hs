@@ -4,6 +4,7 @@ module Util
   , (—), (∈), (∉)
   , Lift
   , duplic
+  , epoch
   , getCurrentWeek
   , intersects
   , liftST
@@ -73,6 +74,10 @@ duplic = go []
       | x ∈ seen  = True
       | otherwise = go (x:seen) xs
 {-# INLINABLE duplic #-}
+
+-- | @UTCTime 0 0@.
+epoch :: UTCTime
+epoch = UTCTime (ModifiedJulianDay 0) 0
 
 -- | This number uses 'getCurrentTime' and increments by 1 every Sunday.
 getCurrentWeek :: IO Integer

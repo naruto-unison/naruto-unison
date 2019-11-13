@@ -24,7 +24,7 @@ $if privilege > Normal
         Deleted
 
 $forall LikedPost{likedPost=Cite{citeAuthor, citeKey, citeVal}, likes, liked} <- posts
-  <article ##{toPathPiece citeKey}>
+  <section ##{toPathPiece citeKey}>
     <aside>
       <img .char src=#{userAvatar citeAuthor}>
       ^{Link.user citeAuthor}
@@ -39,32 +39,47 @@ $forall LikedPost{likedPost=Cite{citeAuthor, citeKey, citeVal}, likes, liked} <-
     <section>
       <header>
         ^{timestamp $ forumPostTime citeVal}
-      #{forumPostBody citeVal}
+      <article #body-#{toPathPiece citeKey}>
+        #{forumPostBody citeVal}
+
+      $maybe (widget, enctype) <- mwidget
+        <form #edit-#{toPathPiece citeKey} .full method=post action=@{TopicR topicId} enctype=#{enctype} autocomplete=off>
+            ^{widget}
+            <button>Submit
+
       <footer>
-        <button disabled=#{fromEnum $ canLike mwho citeVal} onclick="likePost(this, #{toPathPiece citeKey})">
-          $if liked
-            ♥
-          $else
-            ♡
-        <span id=likes-#{toPathPiece citeKey}>
-          $if likes > 0
-            #{likes}
-        <a href=@{TopicR topicId}##{toPathPiece citeKey}>
-          🔗
-        $if isJust mwho
-          $if forumTopicState == Open
-            <button onclick="quotePost(#{toPathPiece citeKey})">
-              ↰
-              <span>
-                Reply
         $if forumPostDeleted citeVal
           <span .delete>
             Deleted Post
-        $elseif canDelete mwho privilege citeVal
-          <button .delete onclick="deletePost(#{toPathPiece citeKey})">
-            ⊗
-            <span>
-              Delete
+        $else
+          $if forumTopicState == Open
+            <button disabled=#{fromEnum $ canLike mwho citeVal} onclick="likePost(this, #{toPathPiece citeKey})">
+              $if liked
+                ♥
+              $else
+                ♡
+            <span #likes-#{toPathPiece citeKey}>
+              $if likes > 0
+                #{likes}
+          <a href=@{TopicR topicId}##{toPathPiece citeKey}>
+            🔗
+          $maybe who <- mwho
+            $if forumTopicState == Open
+              $if forumPostAuthor citeVal == who
+                  <button onclick="editPost(#{toPathPiece citeKey})">
+                    ✎
+                    <span #button-#{toPathPiece citeKey}>
+                      Edit
+              $else
+                <button onclick="quotePost(#{toPathPiece citeKey})">
+                  ↰
+                  <span>
+                    Reply
+            $if canDelete who privilege citeVal
+              <button .delete onclick="deletePost(#{toPathPiece citeKey})">
+                ⊗
+                <span>
+                  Delete
 
 $maybe (widget, enctype) <- mwidget
   <article>

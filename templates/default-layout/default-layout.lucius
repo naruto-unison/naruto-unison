@@ -33,7 +33,7 @@ a:active, a:focus {
     animation: fadeOut 0.5s linear 3s 1 normal forwards;
     padding: 10px 30px;
     color: #e00;
-    position: absolute;
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;

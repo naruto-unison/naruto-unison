@@ -34,7 +34,7 @@ instance ToMarkup Privilege where
     toMarkup = toMarkup . show
 
 newtype Markdown = Markdown Text deriving ( Eq, Ord, Show, Read, IsString
-                                          , FromJSON, ToJSON
+                                          , FromJSON, ToJSON, PathPiece
                                           , Semigroup, Monoid
                                           , PersistField, PersistFieldSql
                                           )

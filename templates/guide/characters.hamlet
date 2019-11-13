@@ -11,7 +11,7 @@
     <a href=##{show category}>
       #{heading category}
 $forall category <- categories
-  <h2 id=#{show category}>#{heading category}
+  <h2 ##{show category}>#{heading category}
   $forall char <- categoryChars category
     <div>
       <section>
