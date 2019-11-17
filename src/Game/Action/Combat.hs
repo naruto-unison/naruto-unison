@@ -312,7 +312,6 @@ setHealth amt = do
         LT -> do
             skill <- P.skill
             target <- P.target
-            P.trigger user [OnDamage]
             P.trigger target $ OnDamaged <$> toList (Skill.classes skill)
 
 -- | Adds a flat amount of 'Ninja.health'.
