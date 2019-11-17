@@ -15,3 +15,6 @@ findSkills f = toStrict . builderToLazy . mconcat $ drop 1 do
     ["\n", toBuilder $ Character.ident character, ": "]
       ++ intersperse ", " skills
 
+not4Skills :: [Text]
+not4Skills = Character.format
+             <$> filter ((/= 4) . length . Character.skills) Characters.list
