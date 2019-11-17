@@ -98,7 +98,7 @@ restrict = changeEffects $ mapMaybe f
 
 -- | Turns single-target effects into AoE effects.
 targetAll :: Skill -> Skill
-targetAll = changeEffects . map $ Runnable.retarget f
+targetAll = changeEffects (Runnable.retarget f <$>)
   where
     f Enemy = Enemies
     f Ally  = Allies
@@ -107,17 +107,17 @@ targetAll = changeEffects . map $ Runnable.retarget f
 
 -- | Affects enemies instead of allies and allies instead of enemies.
 swap :: Skill -> Skill
-swap = changeEffects . map $ Runnable.retarget f
+swap = changeEffects (Runnable.retarget f <$>)
   where
-    f Self         = Self
-    f Ally         = REnemy
-    f XAlly        = REnemy
-    f Allies       = Enemies
-    f XAllies      = Enemies
-    f RAlly        = REnemy
-    f RXAlly       = REnemy
-    f Enemy        = Self
-    f REnemy       = RAlly
-    f Enemies      = Allies
-    f XEnemies     = XAllies
-    f Everyone     = Everyone
+    f Self     = Self
+    f Ally     = REnemy
+    f XAlly    = REnemy
+    f Allies   = Enemies
+    f XAllies  = Enemies
+    f RAlly    = REnemy
+    f RXAlly   = REnemy
+    f Enemy    = Self
+    f REnemy   = RAlly
+    f Enemies  = Allies
+    f XEnemies = XAllies
+    f Everyone = Everyone

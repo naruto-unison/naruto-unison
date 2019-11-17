@@ -51,7 +51,7 @@ wipeDB app = runDBWithApp app do
     tables <- getTables
     sqlBackend <- ask
 
-    let escapedTables = map (connEscapeName sqlBackend . DBName) tables
+    let escapedTables = connEscapeName sqlBackend . DBName <$> tables
         query = "TRUNCATE TABLE " ++ intercalate ", " escapedTables
     rawExecute query []
 
@@ -63,7 +63,7 @@ getTables = do
         WHERE table_schema = 'public';
     |] []
 
-    return $ map unSingle tables
+    return $ unSingle <$> tables
 
 -- | Authenticate as a user. This relies on the `auth-dummy-login: true` flag
 -- being set in test-settings.yaml, which enables dummy authentication in

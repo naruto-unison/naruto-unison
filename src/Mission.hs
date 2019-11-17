@@ -41,14 +41,14 @@ import qualified Mission.Missions as Missions
 import           Mission.Progress (Progress(..))
 import           Mission.UsageRate (UsageRate)
 import qualified Mission.UsageRate as UsageRate
-import           Util ((!?), (∉))
+import           Util ((<$><$>), (!?), (∉))
 
 -- | Starts up the mission database by mapping every Character to a database
 -- ID. Returns the map, which goes into 'App.characterIDs'.
 -- 'Character.ident' is used as the key.
 initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do
-    chars    <- (entityVal <$>) <$> selectList [] []
+    chars    <- entityVal <$><$> selectList [] []
     insertMany_ .
         filter (∉ chars) $ Character . Character.ident <$> Characters.list
     newChars <- selectList [] []
@@ -161,7 +161,7 @@ progress :: Progress -> Handler Bool
 progress Progress{amount = 0} = return False
 progress Progress{character, objective, amount} =
     fromMaybe False <$> runMaybeT do
-        who     <- MaybeT Auth.maybeAuthId
+        who   <- MaybeT Auth.maybeAuthId
         goals <- MaybeT . return $ lookup character Missions.map
         guard $ objective < length goals
         char  <- characterID character

@@ -27,7 +27,7 @@ import           Game.Model.Skill (Skill(owner))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Status as Status
-import           Util ((∈), (∉))
+import           Util ((<$><$>), (∈), (∉), (!?))
 
 -- | Number of 'Skill' slots. This number is the boundary on quite a few things,
 -- most notably action messages from the client (in 'Game.Action.act').
@@ -38,7 +38,7 @@ skillSize = 4
 new :: Slot -> Character -> Ninja
 new slot c = Ninja { slot
                    , health     = 100
-                   , character  = c { skills = (own <$>) <$> skills c }
+                   , character  = c { skills = own <$><$> skills c }
                    , defense    = mempty
                    , barrier    = mempty
                    , statuses   = mempty

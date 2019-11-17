@@ -37,7 +37,7 @@ wars = fromList $
   replicate 6
       ([AlliedForces], [Akatsuki, Kabuto])
   ++ replicate 4
-      ([LeafVillage], LeafVillage `deleteSet` [CloudVillage .. StoneVillage ])
+      ([LeafVillage], deleteSet LeafVillage [CloudVillage .. StoneVillage ])
   ++ replicate 4
       ([Eleven], [Orochimaru])
   ++ replicate 2
@@ -47,11 +47,11 @@ wars = fromList $
            ]
   ++ vsAll [[Genin], [Chunin], [Jonin], [Anbu, Sannin, Kage]]
   ++ vsEach
-  [ LeafVillage `delete` [CloudVillage .. StoneVillage]
+  [ delete LeafVillage [CloudVillage .. StoneVillage]
   , [Earth .. Yin]
   , [BloodlineUser .. TaijutsuUser]
-  , AlliedForces `delete` [Akatsuki .. SevenSwordsmen]
-  , Sage `delete` [Rogue .. TeamLeader]
+  , delete AlliedForces [Akatsuki .. SevenSwordsmen]
+  , delete Sage [Rogue .. TeamLeader]
   ]
 {-# NOINLINE wars #-}
 

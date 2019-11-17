@@ -140,7 +140,7 @@ withClasses :: ∀ m. MonadPlay m => EnumSet Class -> m () -> m ()
 withClasses classes = P.with ctx
   where
     ctx context  = context { Context.skill = withSkill $ Context.skill context }
-    withSkill sk = sk { Skill.classes = All `insertSet` classes }
+    withSkill sk = sk { Skill.classes = insertSet All classes }
 
 statusDur :: Text -> Ninja -> Duration
 statusDur name n = maybe 0 (unsync . Status.dur) .

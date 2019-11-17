@@ -102,7 +102,7 @@ reduce classes n amount
         total amount $
         sum [x | Reduce cla amt x <- Ninja.effects n
                , amt == amount
-               , Affliction `deleteSet` cla `intersects` classes]
+               , deleteSet Affliction cla `intersects` classes]
 
 -- | 'Share' collection.
 share :: Ninja -> [Slot]
@@ -218,7 +218,7 @@ afflict1 ninjas player nThreshold t st
     summed = fromIntegral $ sum [hp' | Afflict hp' <- Status.effects st]
     damage = truncate $ scale * (summed + ext)
     classes
-      | Bane ∈ Status.classes st = Bane `insertSet` afflictClasses
+      | Bane ∈ Status.classes st = insertSet Bane afflictClasses
       | otherwise                = afflictClasses
     ext
       | t == user     = 0

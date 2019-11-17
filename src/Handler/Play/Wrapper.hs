@@ -41,7 +41,7 @@ import qualified Handler.Play.Tracker as Tracker
 import           Handler.Play.Turn (Turn)
 import qualified Handler.Play.Turn as Turn
 import           Mission.Progress (Progress)
-import           Util ((!!), liftST)
+import           Util ((<$>.), (!!), liftST)
 
 -- | This type is the core of the entire program. It is the environment of game
 -- processes and implements all of the user-defined monads.
@@ -58,7 +58,7 @@ instance MonadGame (ReaderT (STWrapper s) (ST s)) where
     alter f    = asks gameRef
                  >>= lift . flip modifyRef' f
     ninjas     = asks ninjasRef
-                 >>= (toList <$>) . lift . Vector.freeze
+                 >>= toList <$>. lift . Vector.freeze
     ninja i    = asks ninjasRef
                  >>= lift . flip MVector.unsafeRead (Slot.toInt i)
     write i x  = asks ninjasRef
@@ -72,7 +72,7 @@ instance MonadIO m => MonadGame (ReaderT IOWrapper m) where
     alter f    = asks gameRef
                  >>= liftST . flip modifyRef' f
     ninjas     = asks ninjasRef
-                 >>= (toList <$>) . liftIO . Vector.freeze
+                 >>= toList <$>. liftIO . Vector.freeze
     ninja i    = asks ninjasRef
                  >>= liftIO . flip MVector.unsafeRead (Slot.toInt i)
     write i x  = asks ninjasRef

@@ -45,7 +45,7 @@ import           Game.Model.Status (Bomb(..), Status)
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((—), (∈), (∉))
+import           Util ((<$>.), (—), (∈), (∉))
 
 -- | The game engine's main function.
 -- Performs 'Act's and 'Model.Channel.Channel's;
@@ -87,8 +87,8 @@ processTurn runner = do
     yieldVictor
     Hook.turn player initial =<< P.ninjas
   where
-    getChannels n = map (Act.fromChannel n) .
-                    filter ((/= 1) . TurnBased.getDur) $
+    getChannels n = Act.fromChannel n <$>.
+                    filter ((/= -1) . TurnBased.getDur) $
                     Ninja.channels n
 
 -- | Runs 'Game.delays'.
@@ -125,7 +125,7 @@ doBarriers :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 doBarriers = do
     player <- P.player
     ninjas <- P.ninjas
-    traverse_ (doBarrier player) $ concatMap ((head <$>) . collect) ninjas
+    traverse_ (doBarrier player) $ concatMap (head <$>. collect) ninjas
   where
     collect n = groupBy Labeled.eq . sortWith Barrier.name $ Ninja.barrier n
     doBarrier p b

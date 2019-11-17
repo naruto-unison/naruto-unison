@@ -20,7 +20,7 @@ import           Game.Model.Class (Class(..))
 import           Game.Model.Group (Group(..))
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
-import           Util ((∉), mapFromKeyed)
+import           Util ((<$><$>), (∉), mapFromKeyed)
 
 import qualified Game.Characters.Development
 import qualified Game.Characters.Original
@@ -65,7 +65,7 @@ addGroups char =
 
 addClasses :: Character -> Character
 addClasses char =
-    char { Character.skills = (addClass <$>) <$> Character.skills char }
+    char { Character.skills = addClass <$><$> Character.skills char }
 
 addClass :: Skill -> Skill
 addClass skill = skill { Skill.classes = added ++ Skill.classes skill }

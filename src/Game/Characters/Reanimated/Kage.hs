@@ -399,7 +399,7 @@ characters =
           ]
         , Skill.changes   =
             changeWithChannel "Major Summoning: Giant Clam" \x ->
-                x { Skill.classes = Bypassing `insertSet` Skill.classes x }
+                x { Skill.classes = insertSet Bypassing $ Skill.classes x }
         }
       ]
     , [ Skill.new

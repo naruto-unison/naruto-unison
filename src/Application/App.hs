@@ -61,6 +61,7 @@ import qualified Game.Model.Character as Character
 import qualified Handler.Play.Queue as Queue
 import           Handler.Play.Wrapper (Wrapper)
 import           OrphanInstances.Character ()
+import           Util ((<$><$>), (<$>.))
 
 #ifndef DEVELOPMENT
 import           Class.Display (display')
@@ -193,7 +194,7 @@ instance Yesod App where
         mmsg             <- getMessage
         mcurrentRoute    <- getCurrentRoute
         (title, parents) <- breadcrumbs
-        muser            <- (snd <$>) <$> Auth.maybeAuthPair
+        muser            <- snd <$><$> Auth.maybeAuthPair
         navLinks         <- getNavLinks
 
         pc <- widgetToPageContent do
@@ -388,7 +389,7 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
 |]
             , partHeaders = []
             }
-    getVerifyKey = liftDB . fmap (join . fmap userVerkey) . get
+    getVerifyKey = liftDB . (join . (userVerkey <$>) <$>) . get
     setVerifyKey uid key = liftDB $ update uid [UserVerkey =. Just key]
     verifyAccount uid = liftDB do
         mu <- get uid
@@ -397,7 +398,7 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
           Just _  -> do
                 update uid [UserVerified =. True]
                 return $ Just uid
-    getPassword = liftDB . fmap (join . fmap userPassword) . get
+    getPassword = liftDB . (join . (userPassword <$>) <$>) . get
     setPassword uid pass = liftDB $ update uid [UserPassword =. Just pass]
     getEmailCreds email = liftDB do
         mu <- getBy . UniqueUser $ toLower email
@@ -408,4 +409,4 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
                 , emailCredsVerkey = userVerkey u
                 , emailCredsEmail = toLower email
                 }
-    getEmail = liftDB . fmap (fmap userIdent) . get
+    getEmail = liftDB . (userIdent <$>) <$>. get

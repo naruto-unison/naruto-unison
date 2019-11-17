@@ -195,7 +195,7 @@ deplete (_, chak) (_, chak') = max 0 $ Chakra.total chak' - Chakra.total chak
 checkUnique :: (Text -> Ninja -> Ninja -> Bool) -> StoreHook
 checkUnique f name user _ target' store
   | targetSlot ∈ store  = (store, 0)
-  | f name user target' = (targetSlot `insertSet` store, 1)
+  | f name user target' = (insertSet targetSlot store, 1)
   | otherwise           = (store, 0)
   where
     targetSlot = Slot.toInt $ Ninja.slot target'
@@ -204,7 +204,7 @@ checkUnique f name user _ target' store
 compareUnique :: (Text -> Ninja -> Ninja -> Ninja -> Bool) -> StoreHook
 compareUnique f name user target target' store
   | targetSlot ∈ store         = (store, 0)
-  | f name user target target' = (targetSlot `insertSet` store, 1)
+  | f name user target target' = (insertSet targetSlot store, 1)
   | otherwise                  = (store, 0)
   where
     targetSlot = Slot.toInt $ Ninja.slot target'
@@ -247,7 +247,7 @@ stunUnique = checkUnique \name user target ->
 -- | Use an action on a target.
 useUnique :: StoreHook
 useUnique _ _ target _ store =
-    (targetSlot `insertSet` store, fromEnum $ targetSlot ∉ store)
+    (insertSet targetSlot store, fromEnum $ targetSlot ∉ store)
   where
     targetSlot = Slot.toInt $ Ninja.slot target
 
@@ -256,7 +256,7 @@ useUnique _ _ target _ store =
 -- | Tallies the number of unique targets who trigger a trap.
 trapUnique :: TrapHook
 trapUnique _ target store =
-    (targetSlot `insertSet` store, fromEnum $ targetSlot ∉ store)
+    (insertSet targetSlot store, fromEnum $ targetSlot ∉ store)
   where
     targetSlot = Slot.toInt $ Ninja.slot target
 
@@ -305,9 +305,9 @@ maintain name player user _ target store
 maintainOnAlly :: Text -> TurnHook
 maintainOnAlly name player user _ target store
   | not $ allied user target       = (store, 0)
-  | not $ alive target             = (targetSlot `deleteSet` store, reset)
-  | not $ hasFrom user name target = (targetSlot `deleteSet` store, reset)
-  | otherwise = (targetSlot `insertSet` store, fromEnum $ allied player user)
+  | not $ alive target             = (deleteSet targetSlot store, reset)
+  | not $ hasFrom user name target = (deleteSet targetSlot store, reset)
+  | otherwise = (insertSet targetSlot store, fromEnum $ allied player user)
   where
     targetSlot = Slot.toInt $ Ninja.slot target
     reset

@@ -28,7 +28,7 @@ import qualified Game.Model.Slot as Slot
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import           OrphanInstances.Ninja ()
-import           Util ((!!), (∈), (∉))
+import           Util ((<$>.), (!!), (∈), (∉))
 
 -- | Intermediate type for marshaling to JSON.
 -- Includes censorship of 'Invisible' 'Status.Status'es, enemy cooldowns, etc.
@@ -55,7 +55,7 @@ new player ninjas game = Turn { chakra  = Parity.getOf player $ Game.chakra game
         Player.A -> Game.inactive game
         Player.B -> swap $ Game.inactive game
     targets n
-      | Parity.allied player n = (Ninja.slot <$>) .
+      | Parity.allied player n = Ninja.slot <$>.
                                  Requirement.targets censored n <$>
                                  Ninjas.skills n
       | otherwise              = replicate Ninja.skillSize []
@@ -90,4 +90,4 @@ censor vendetta player ninjas n
           []       -> Just st
           [Reveal] -> Nothing
           _        -> Just st
-                          { Status.effects = Reveal `delete` Status.effects st }
+                          { Status.effects = delete Reveal $ Status.effects st }

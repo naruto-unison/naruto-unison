@@ -145,7 +145,7 @@ attack atk dmg = void $ runMaybeT do
 
     skill      <- P.skill
     nUser      <- P.nUser
-    let classes = atkClass `insertSet` Skill.classes skill
+    let classes = insertSet atkClass $ Skill.classes skill
 
     user       <- P.user
     target     <- P.target

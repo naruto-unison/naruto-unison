@@ -78,7 +78,7 @@ import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((—), (!?), (∈), (∉), intersects)
+import           Util ((<$>.), (—), (!?), (∈), (∉), intersects)
 
 headOr :: ∀ a. a -> [a] -> a
 headOr x []    = x
@@ -127,7 +127,7 @@ skills n = flip getSkill n . Left <$> [0..Ninja.skillSize - 1]
 -- | Modifies @Effect@s when they are first added to a @Ninja@ due to @Effect@s
 -- already added.
 apply :: Ninja -> Ninja -> [Effect] -> [Effect]
-apply n nt = map adjustEffect . filter keepEffects
+apply n nt = adjustEffect <$>. filter keepEffects
   where
     adjustEffect (Reduce cla Flat x) = Reduce cla Flat $ x - Effects.unreduce n
     adjustEffect f                   = f
@@ -219,7 +219,7 @@ addOwnStacks :: Duration -- ^ 'Status.dur'.
              -> Ninja -> Ninja
 addOwnStacks dur name s alt i n =
     addStatus st { Status.name    = name
-                 , Status.classes = Unremovable `insertSet` Status.classes st
+                 , Status.classes = insertSet Unremovable $ Status.classes st
                  , Status.amount  = i
                  } n
   where
@@ -435,6 +435,6 @@ rechargeAll n = n { charges = mempty }
 
 -- | Resets an element in 'charges'.
 recharge :: Text -> Slot -> Ninja -> Ninja
-recharge name owner n = n { charges = key `deleteMap` charges n }
+recharge name owner n = n { charges = deleteMap key $ charges n }
   where
     key = Skill.Key name owner

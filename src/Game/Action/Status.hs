@@ -101,7 +101,8 @@ addStacks' (Duration -> dur) name i = do
         st { Status.name    = name
            , Status.amount  = i
            , Status.user    = user
-           , Status.classes = Unremovable `insertSet` Status.classes st
+           , Status.classes = deleteSet Continues .
+                              insertSet Unremovable $ Status.classes st
            }
 
 -- | Adds a hidden @Status@ with no effects that immediately expires.
@@ -221,8 +222,9 @@ makeStatus Context{skill, user, continues, new}
   where
     skillClasses
       | continues && dur <= 1 = insertSet Continues $ Skill.classes skill
-      | continues || new      = Skill.classes skill
-      | otherwise             = deleteSet Invisible $ Skill.classes skill
+      | continues || new      = deleteSet Continues $ Skill.classes skill
+      | otherwise             = deleteSet Continues .
+                                deleteSet Invisible $ Skill.classes skill
     noremove = null effects && Bane ∉ skillClasses
                || dur == Duration 1 && Skill.dur skill /= Instant
                || user == Ninja.slot nTarget

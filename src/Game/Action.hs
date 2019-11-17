@@ -94,7 +94,7 @@ wrap' affected f = void $ runMaybeT do
     let finish  = do
             f
             when (allow Reflected) . P.withTargets (Effects.share nTarget) $
-                wrap' (Reflected `insertSet` affected) f
+                wrap' (insertSet Reflected affected) f
 
     if not new then
         lift f
@@ -108,14 +108,14 @@ wrap' affected f = void $ runMaybeT do
               guard $ allow Redirected && Unreflectable ∉ classes
               t <- Trigger.redirect nTarget
               return .
-                  P.withTarget t $ wrap' (Redirected `insertSet` affected) f
+                  P.withTarget t $ wrap' (insertSet Redirected affected) f
           <|> do
               guard $ allow Reflected && Unreflectable ∉ classes
                       && Effects.reflect classes nTarget
               return do
                   P.trigger target [OnReflect]
                   P.with Context.reflect $
-                      wrap' (Reflected `insertSet` affected) f
+                      wrap' (insertSet Reflected affected) f
 
     P.zipWith Traps.broken ninjas
 

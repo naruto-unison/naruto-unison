@@ -34,7 +34,7 @@ import qualified Handler.Play.War as War
 import qualified Mission
 import           Mission.Goal (Goal)
 import qualified Mission.Goal as Goal
-import           Util ((∈), (∉), shorten)
+import           Util ((<$><$>), (∈), (∉), shorten)
 
 -- | Updates a user's profile and returns it. Requires authentication.
 getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
@@ -111,7 +111,7 @@ getReanimateR char = do
 -- | Renders the gameplay client.
 getPlayR :: Handler Html
 getPlayR = do
-    muser       <- (snd <$>) <$> Auth.maybeAuthPair
+    muser       <- snd <$><$> Auth.maybeAuthPair
     unlocked    <- Mission.unlocked
     (red,blue)  <- liftIO War.today
     when (isJust muser) $

@@ -134,8 +134,8 @@ makeTrap Context{skill, user, target, continues, new}
   where
     modClasses
       | continues && dur <= 1 = insertSet Continues
-      | continues || new      = id
-      | otherwise             = deleteSet Invisible
+      | continues || new      = deleteSet Continues
+      | otherwise             = deleteSet Continues . deleteSet Invisible
     classes' = modClasses $ classes ++ Skill.classes skill
     skill'   = skill { Skill.classes = classes' }
     context  = Context { user
