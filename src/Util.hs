@@ -20,6 +20,7 @@ import ClassyPrelude
 import Control.Monad.ST (ST, stToIO)
 import Control.Monad.Trans.Class (MonadTrans)
 import Data.Attoparsec.Text (notInClass)
+import Data.Kind (Type)
 
 -- If a function doesn't seem like it should be inlined, it probably doesn't go
 -- here.
@@ -146,5 +147,5 @@ unaccent x   = x
 -- superfluous @tran@ and @base@ parameters.
 
 type Lift mClass m = (MonadTrans (Tran m), mClass (Base m), m ~ Tran m (Base m))
-type family Tran m :: (* -> *) -> * -> * where Tran (t n) = t
-type family Base (m :: * -> *) :: * -> * where Base (t n) = n
+type family Tran m :: (Type -> Type) -> Type -> Type where Tran (t n) = t
+type family Base (m :: Type -> Type) :: Type -> Type where Base (t n) = n

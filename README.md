@@ -169,8 +169,8 @@ Haskell's brevity and readability in this regard are clear winners over other la
 
 ```haskell
 type Lift mClass m = (MonadTrans (Tran m), mClass (Base m), m ~ Tran m (Base m))
-type family Tran m :: (* -> *) -> * -> * where Tran (t n) = t
-type family Base (m :: * -> *) :: * -> * where Base (t n) = n
+type family Tran m :: (Type -> Type) -> Type -> Type where Tran (t n) = t
+type family Base (m :: Type -> Type) :: Type -> Type where Base (t n) = n
 ```
 
 This is a hobby project, after all.

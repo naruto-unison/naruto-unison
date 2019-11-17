@@ -166,6 +166,8 @@ ghc-options:
 - -funbox-small-strict-fields
 
 default-extensions:
+# Manual disabling
+- NoStarIsType
 # Package-specific
 - NoImplicitPrelude
 # Removing artificial limitations
