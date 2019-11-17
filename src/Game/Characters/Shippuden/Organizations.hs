@@ -51,7 +51,7 @@ characters =
         , Skill.effects   =
           [ To Self $ trapFrom 2 (CounterAll All) do
                 damage 15
-                self $ apply (-1) [Invulnerable All]
+                self $ apply -1 [Invulnerable All]
           ]
         }
       ]
@@ -230,7 +230,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Ally $ trapFrom 2 (Counter NonMental) do
-                apply (-4) [Face]
+                apply -4 [Face]
                 copyAll 4
                 teach 4 4
                 teachOne 4 3 5
@@ -303,7 +303,7 @@ characters =
         , Skill.desc      = "Out of options, Danzō seals his enemies and prepares to blow himself up. At the end of the next turn, Danzō will die, as will enemies who are not invulnerable to this skill."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Blood, Gen]
-        , Skill.dur       = Control (-2)
+        , Skill.dur       = Control -2
         , Skill.charges   = 1
         , Skill.start     =
           [ To Self flag ]

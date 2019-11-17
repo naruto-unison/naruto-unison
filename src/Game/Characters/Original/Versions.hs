@@ -23,7 +23,7 @@ characters =
           [ To Enemy do
                 apply 1 [Stun All]
                 arms  <- 10 `bonusIf` channeling "Tailed Beast Chakra Arms"
-                inner <- (-10) `bonusIf` channeling "Inner Chakra Mode"
+                inner <- -10 `bonusIf` channeling "Inner Chakra Mode"
                 damage (35 + arms + inner)
           , To Self $ sacrifice 0 5
           ]
@@ -208,9 +208,9 @@ characters =
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6
-        , Skill.dur       = Ongoing (-5)
+        , Skill.dur       = Ongoing -5
         , Skill.start     =
-          [ To Self $ bombWith [Hidden] (-5) [] [ To Expire $
+          [ To Self $ bombWith [Hidden] -5 [] [ To Expire $
                 apply' "Tailed Beast Form" 3
                     [ Face
                     , Alternate "Monstrous Sand Arm" "Wind Bullet"
@@ -284,7 +284,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 15
-                apply 1 [Build (-10)]
+                apply 1 [Build -10]
           , To Allies $ apply 1 [Build 10]
           ]
         }

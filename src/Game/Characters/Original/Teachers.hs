@@ -93,10 +93,10 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                trap (-1) (OnDamaged All) $ remove "Genjutsu Ambush Tactics"
-                bombWith [Hidden] (-1) []
+                trap -1 (OnDamaged All) $ remove "Genjutsu Ambush Tactics"
+                bombWith [Hidden] -1 []
                   [ To Expire $
-                        apply' "Successful Ambush" (-1) [Invulnerable All] ]
+                        apply' "Successful Ambush" -1 [Invulnerable All] ]
           ]
         }
       ]

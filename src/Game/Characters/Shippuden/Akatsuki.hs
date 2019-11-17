@@ -232,8 +232,8 @@ characters =
         , Skill.dur       = Instant
         , Skill.effects   =
           [ To Enemies do
-                bomb (-1) [] [ To Expire $ apply' "Pinned" (-1) [Expose] ]
-                trap (-1) OnHarm $ remove "Thousand Arms"
+                bomb -1 [] [ To Expire $ apply' "Pinned" -1 [Expose] ]
+                trap -1 OnHarm $ remove "Thousand Arms"
           , To Self $ hide 1 [Alternate "Thousand Arms" "Poison Gas"]
           ]
         }
@@ -517,7 +517,7 @@ characters =
           [ To Enemy do
                 trap 1 (Countered Chakra) flag
                 trap 1 (Countered Mental) flag
-                delay (-1) do
+                delay -1 do
                     bonus <- 20 `bonusIf` targetHas "super shark bomb"
                     damage (30 + bonus)
           ]
@@ -1220,10 +1220,11 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Summoning: Gedo Statue"
         , Skill.desc      = "Nagato summons the empty vessel of the ten-tailed beast, which provides 10 points of damage reduction to him for 3 turns. While active, this skill becomes [Control][r]."
+        , Skill.require   = HasI 0 "Rinne Rebirth"
         , Skill.classes   = [Summon, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
-        , Skill.dur       = Control (-4)
+        , Skill.dur       = Control -4
         , Skill.start     =
           [ To Self do
                 remove "control"

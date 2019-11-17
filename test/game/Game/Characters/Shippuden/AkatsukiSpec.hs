@@ -110,7 +110,7 @@ spec = parallel do
         useOn Enemies "Thousand Arms" do
             it "exposes targets" do
                 act
-                turns (-1)
+                turns -1
                 targetIsExposed
             it "does not expose with harm" do
                 act
@@ -134,7 +134,7 @@ spec = parallel do
                 use "Kazekage Puppet Summoning"
                 turns 1
                 use "Thousand Arms"
-                turns (-1)
+                turns -1
                 act
                 turns 1
                 targetExhausted <- Effects.exhaust [All] <$> nTarget

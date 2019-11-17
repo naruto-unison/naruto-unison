@@ -279,7 +279,7 @@ characters =
           [ To Self $ apply 1 [Reduce [All] Flat 15]
           , To Enemy do
                 trap 1 (OnAction All) flag
-                delay (-1) do
+                delay -1 do
                     bonus <- 15 `bonusIf` targetHas "pit trap"
                     pierce (15 + bonus)
           ]

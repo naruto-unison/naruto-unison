@@ -144,7 +144,7 @@ characters =
           [ To XAlly do
                 has <- userHas "Strength of One Hundred Seal"
                 heal (30 + if has then 10 else 0)
-                apply (if has then (-3) else (-2)) [Heal 10]
+                apply (if has then -3 else -2) [Heal 10]
           , To Self $ remove "Strength of One Hundred Seal"
           ]
         }

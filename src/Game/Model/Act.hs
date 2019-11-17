@@ -78,7 +78,7 @@ data Act' = Act' { user'   :: Slot
 
 fromAct :: Act -> Act'
 fromAct (Act u (Left s) t)  = Act' u s t
-fromAct (Act u (Right _) t) = Act' u (-1) t
+fromAct (Act u (Right _) t) = Act' u -1 t
 
 toAct :: Act' -> Act
 toAct (Act' u s t) = Act u (Left s) t

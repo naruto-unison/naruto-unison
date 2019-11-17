@@ -452,7 +452,7 @@ characters =
           [ To Self do
                 heal 15
                 gain [Rand]
-                hide' "unchili" (-1) []
+                hide' "unchili" -1 []
           ]
         }
       ]
@@ -539,7 +539,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 1 [Invulnerable All]
-                hide' "unchili" (-1) []
+                hide' "unchili" -1 []
           ]
         }
       ]

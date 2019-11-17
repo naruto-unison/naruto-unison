@@ -87,7 +87,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                trap' (-1) OnDeath $ self $
+                trap' -1 OnDeath $ self $
                     apply 2 [Strengthen [All] Flat 10, Endure, Focus]
                 damage 25
           ]
@@ -229,7 +229,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
               apply 1 [Throttle 1 $ Any Invulnerable]
-              delay (-1) $
+              delay -1 $
                   trapFrom 1 (OnHarmed Mental) $ apply 1 [Invulnerable All]
           ]
         }

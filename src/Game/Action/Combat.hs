@@ -261,7 +261,7 @@ barricade' (sync . Duration -> dur) finish while amount = P.unsilenced do
             user   <- P.user
             let defense = Defense { user
                                   , dur
-                                  , amount = (-amount')
+                                  , amount = -amount'
                                   , name   = Skill.name skill
                                   }
             P.trigger user [OnDefend]

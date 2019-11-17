@@ -234,14 +234,15 @@ characters =
                                         "DNA Transmission Shadow"]
           ]
         , Skill.effects   =
-          [ To Self $ delay (-1) $ renameChannels rename ]
+          [ To Self $ delay -1 $ renameChannels rename ]
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
         , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. At the end of the next turn, the target comes back to life at full health, removing all effects from them and resetting their cooldowns. The clone remains attached to Kabuto and will be destroyed if he dies. Using this skill again destroys the current clone."
+        , Skill.require   = HealthU 0
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = [Rand, Rand, Rand]
-        , Skill.dur       = Control (-2)
+        , Skill.dur       = Control -2
         , Skill.start     =
           [ To Self do
                 flag
@@ -268,7 +269,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                trap' (-1) OnDamage rechargeAll
+                trap' -1 OnDamage rechargeAll
                 enemies $ apply 1 [Restrict]
           , To Enemies $ damage 10
           ]
@@ -440,8 +441,8 @@ characters =
                 pierce 20
                 apply 1 [Stun All]
           , To Self do
-                trap (-1) (OnDamaged Physical) $ remove "Chidori"
-                bomb (-1) [Reduce [Physical] Flat 15]
+                trap -1 (OnDamaged Physical) $ remove "Chidori"
+                bomb -1 [Reduce [Physical] Flat 15]
                     [ To Expire do
                           hide 1 []
                           reset "Chidori" ]

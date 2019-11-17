@@ -304,7 +304,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ bomb' "Barricaded" (-1) [] [ To Expire $ gain [Blood] ]
+          [ To Self $ bomb' "Barricaded" -1 [] [ To Expire $ gain [Blood] ]
           ,  To Ally $ trapFrom 1 (Counter All) do
                 stacks <- targetStacks "Gigantic Beetle Infestation"
                 damage (25 + 25 * stacks)
@@ -395,7 +395,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 trap 1 (Countered All) $ copyLast 1
-                delay (-1) $ damage 15
+                delay -1 $ damage 15
           ]
         }
       ]
@@ -407,7 +407,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Control 3
         , Skill.effects   =
-          [ To Enemies $ apply 1 [Reveal, Build (-15), Unreduce 15] ]
+          [ To Enemies $ apply 1 [Reveal, Build -15, Unreduce 15] ]
         }
       ]
     , [ Skill.new
@@ -464,7 +464,7 @@ characters =
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Self do
-                delay (-1) $ trap' (-4) OnHarm $
+                delay -1 $ trap' -4 OnHarm $
                     unlessM (userHas "What a Drag") $
                     apply 1 [Invulnerable All, Alternate "Long-Range Tactics" "Final Explosion"]
                 trap' 4 (OnDamaged NonAffliction) $ tag' "What a Drag" 1
@@ -519,7 +519,7 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Enemy $ delay (-1) $ damage 30
+          [ To Enemy $ delay -1 $ damage 30
           , To Self do
                 apply 1 [Enrage]
                 replicateM_ 2 $ hide' "calories" 0 [Exhaust [All]]
@@ -1020,9 +1020,9 @@ characters =
         , Skill.classes   = [Chakra, Melee, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
-        , Skill.dur       = Action (-2)
+        , Skill.dur       = Action -2
         , Skill.start     =
-          [ To Enemy $ trap (-1) (OnAction All) $ applyWith [Invisible] 1 []
+          [ To Enemy $ trap -1 (OnAction All) $ applyWith [Invisible] 1 []
           , To Self flag
           ]
         , Skill.effects   =

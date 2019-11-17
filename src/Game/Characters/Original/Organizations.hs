@@ -126,11 +126,11 @@ characters =
         , Skill.desc      = "A flock of self-duplicating crows swarms the enemy team for 4 turns, dealing 5 damage each turn and providing 5 points of damage reduction to Aoba and his allies."
         , Skill.classes   = [Mental, Ranged, Resource]
         , Skill.cost      = [Gen]
-        , Skill.dur       = Ongoing (-4)
+        , Skill.dur       = Ongoing -4
         , Skill.start     =
           [ To Self do
-                enemies $ apply (-4) []
-                allies  $ apply (-4) [Reduce [All] Flat 5]
+                enemies $ apply -4 []
+                allies  $ apply -4 [Reduce [All] Flat 5]
           ]
         , Skill.effects   =
           [ To Enemies $ unlessM (targetHas "scattering crow swarm") do
@@ -313,7 +313,7 @@ characters =
                 trap 0 OnSacrifice do
                     remove "Poison Gauntlet"
                     removeTrap "Poison Gauntlet"
-                delay (-1) $ whenM (targetHas "Poison Gauntlet") $
+                delay -1 $ whenM (targetHas "Poison Gauntlet") $
                     trap 0 (OnDamaged NonAffliction) do
                         remove "Poison Gauntlet"
                         removeTrap "Poison Gauntlet"
@@ -687,7 +687,7 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- (-20) `bonusIf` userHas "Demon Parasite"
+                bonus <- -20 `bonusIf` userHas "Demon Parasite"
                 damage (40 + bonus)
           ]
         , Skill.changes   =

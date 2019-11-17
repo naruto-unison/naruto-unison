@@ -131,12 +131,12 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To XAllies $ trap (-1) OnNoAction do
+          [ To XAllies $ trap -1 OnNoAction do
                 applyWith [Invisible] 4 []
                 self $ applyWith [Invisible] 4 [Reduce [All] Flat 5]
-          , To Enemies $ trap (-1) OnNoAction do
-                applyWith [Invisible] (-4) []
-                self $ applyWith [Invisible] (-4) [Reduce [All] Flat 5]
+          , To Enemies $ trap -1 OnNoAction do
+                applyWith [Invisible] -4 []
+                self $ applyWith [Invisible] -4 [Reduce [All] Flat 5]
           ]
         }
       ]
@@ -150,14 +150,14 @@ characters =
           [ To XAlly do
                 userSlot   <- user slot
                 targetSlot <- target slot
-                apply (-1) [Redirect userSlot]
-                trap (-1) (OnHarmed All) $ self $
-                    apply' "Round-Robin Surprise Attack" (-1)
+                apply -1 [Redirect userSlot]
+                trap -1 (OnHarmed All) $ self $
+                    apply' "Round-Robin Surprise Attack" -1
                     [AntiCounter, Bypass, Pierce]
                 self do
-                    apply (-1) [Redirect targetSlot]
-                    trap (-1) (OnHarmed All) $ withTarget targetSlot $
-                        apply' "Round-Robin Surprise Attack" (-1)
+                    apply -1 [Redirect targetSlot]
+                    trap -1 (OnHarmed All) $ withTarget targetSlot $
+                        apply' "Round-Robin Surprise Attack" -1
                         [AntiCounter, Bypass, Pierce]
           ]
         }
@@ -258,7 +258,7 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Self do
-                trap 0 (OnDamaged All) $ alterCd "Lightning Armor" (-1)
+                trap 0 (OnDamaged All) $ alterCd "Lightning Armor" -1
                 hide 0
                     [Alternate "Piercing Four-Fingered" "One-Fingered Assault"]
           ]
@@ -292,7 +292,7 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Self $ trap' (-1) OnDamage $ alterCd "Lightning Armor" (-1)
+          [ To Self $ trap' -1 OnDamage $ alterCd "Lightning Armor" -1
           , To Enemy do
                 bonus4 <- 5 `bonusIf` userHas "piercing four-fingered"
                 bonus3 <- 5 `bonusIf` userHas "three-fingered assault"
@@ -442,7 +442,7 @@ characters =
                 has <- userHas "Venom Sac"
                 if has then do
                     remove "Venom Sac"
-                    alterCd "Major Summoning: Ibuse" (-2)
+                    alterCd "Major Summoning: Ibuse" -2
                 else do
                     hide 0 [Reduce [Affliction] Percent 50]
                     applyStacks "Major Summoning: Ibuse" 30
@@ -499,7 +499,7 @@ characters =
                   if has then self do
                       remove "Major Summoning Ibuse"
                       remove "major summoning: ibuse"
-                      alterCd "Major Summoning: Ibuse" (-2)
+                      alterCd "Major Summoning: Ibuse" -2
                       cancelChannel "Poison Fog"
                   else self $
                       apply 0 [Afflict 10]

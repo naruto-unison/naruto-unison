@@ -140,7 +140,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 pierce 10
-                trapPer' (-1) PerDamaged \i ->
+                trapPer' -1 PerDamaged \i ->
                     when (i >= 50) $ apply 1 [Stun All]
           ]
         , Skill.changes   =
@@ -148,7 +148,7 @@ characters =
               x { Skill.effects =
                   [ To Enemy do
                         pierce 30
-                        trapPer' (-1) PerDamaged \i ->
+                        trapPer' -1 PerDamaged \i ->
                             when (i >= 50) $ apply 1 [Stun All] ]
                 }
         }
@@ -181,7 +181,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defense <- userDefense "Crystal Ice Mirrors"
-                when (defense > 0) $ trapPer (-1) PerDamaged \i -> do
+                when (defense > 0) $ trapPer -1 PerDamaged \i -> do
                     defense' <- userDefense "Crystal Ice Mirrors"
                     when (defense' == 0) $ defend 0 i
           ]
@@ -429,12 +429,12 @@ characters =
         , Skill.start     =
           [ To Self do
                 bombWith [Hidden] 4 [] [ To Done $ remove "Chakra Weave" ]
-                trap' 4 (OnDamaged All) $ hide' "hair" (-1) []
+                trap' 4 (OnDamaged All) $ hide' "hair" -1 []
           ]
         , Skill.effects   =
           [ To Self do
                 trap 1 OnDamage $ apply 0 [Reduce [All] Flat 5]
-                delay (-1) $ unlessM (userHas "hair") $ heal 10
+                delay -1 $ unlessM (userHas "hair") $ heal 10
           ]
         }
       ]

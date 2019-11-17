@@ -62,7 +62,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To XAllies $ apply 3 [Snare (-1)]
+          [ To XAllies $ apply 3 [Snare -1]
           , To Enemies $ trap 3 (OnAction All) do
                 copyLast 1
                 everyone $ removeTrap "Team Tactics"

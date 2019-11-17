@@ -111,7 +111,7 @@ flag = flag' . toLower . Skill.name =<< P.skill
 -- | 'flag' with a 'Status.name'.
 flag' :: ∀ m. MonadPlay m => Text -> m ()
 flag' name =
-    applyWith' (setFromList [Hidden, Unremovable, Nonstacking]) name (-1) []
+    applyWith' (setFromList [Hidden, Unremovable, Nonstacking]) name -1 []
 -- | Applies a @Status@ with no effects, used as a marker for other
 -- 'Skill.Skill's.
 tag :: ∀ m. MonadPlay m => Turns -> m ()
