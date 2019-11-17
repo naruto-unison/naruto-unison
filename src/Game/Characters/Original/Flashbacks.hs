@@ -370,26 +370,27 @@ characters =
     "As the nine-tailed beast rampages across the Hidden Leaf Village, a mysterious masked man appears and attempts to bend it to his will. The legendary beast demolishes house after house, laying waste to the defenses of its enemies."
     [LeafVillage, Jinchuriki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
-        { Skill.name      = "Kamui Chain Combo"
-        , Skill.desc      = "The masked man snares an enemy in sealing chains and phases through them, becoming invulnerable for 1 turn."
+        { Skill.name      = "Kusari Chains"
+        , Skill.desc      = "The masked man snares an enemy in sealing chains, stunning their physical skills and preventing them from reducing damage or becoming invulnerable for 1 turn."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ apply 1 [Invulnerable All]
-          , To Enemy $ tag 1
+          [ To Self $ tag' "Corporeal" 1
+          , To Enemy $ apply 1 [Stun Physical, Expose]
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Kamui Banishment"
-        , Skill.desc      = "The masked man uses a rare space-time technique to warp an enemy to his pocket dimension, dealing 20 piercing damage and making them invulnerable to their allies for 1 turn. While active, the target can only target the masked man or themselves. Deals 20 additional damage and lasts 1 additional turn if the target is affected by [Kamui Chain Combo]."
-        , Skill.classes   = [Chakra, Melee, Unreflectable]
+        , Skill.desc      = "The masked man uses a rare space-time technique to banish an enemy to his pocket dimension, dealing 20 piercing damage and making them invulnerable to their allies for 1 turn. While active, the target can only target the masked man or themselves. Deals 20 additional damage and lasts 1 additional turn if the target is affected by [Kusari Chains]."
+        , Skill.classes   = [Chakra, Melee, Unreflectable, Soulbound]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy do
-                bonus <- 1 `bonusIf` targetHas "Kamui Chain Combo"
+          [ To Self $ tag' "Corporeal" 1
+          , To Enemy do
+                bonus <- 1 `bonusIf` targetHas "Kusari Chains"
                 pierce (20 + 20 * bonus)
                 userSlot <- user slot
                 apply (1 + bonus) [Alone, Taunt userSlot]
@@ -398,19 +399,28 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Major Summoning: Kurama"
-        , Skill.desc      = "The masked man summons the nine-tailed beast to the battlefield to wreak havoc, demolishing the enemy team's destructible defenses and his own destructible barrier. For 3 turns, it deals 25 damage to a random enemy. While active, the masked man and his allies ignore harmful status effects."
+        , Skill.desc      = "The masked man summons the nine-tailed beast to the battlefield to wreak havoc. For 3 turns, it demolishes the enemy team's destructible defense and the masked man's own destructible barrier, then deals 25 damage to a random enemy."
         , Skill.classes   = [Summon, Melee, Bypassing]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.cooldown  = 5
         , Skill.dur       = Ongoing 3
-        , Skill.start     =
-          [ To Enemies demolishAll ]
         , Skill.effects   =
-          [ To Allies $ apply 1 [Enrage]
+          [ To Self $ tag' "Corporeal" 1
+          , To Enemies demolishAll
           , To REnemy $ damage 25
           ]
         }
       ]
-    , [ invuln "Teleportation" "The masked man" [Chakra] ]
+    , [ (invuln "Kamui Phase" "The masked man" [Chakra])
+        { Skill.desc     = "The masked man becomes invulnerable for 1 turn. Cannot be used if any skills were used last turn."
+        , Skill.require  = HasI 0 "Corporeal"
+        , Skill.cooldown = 0
+        , Skill.effects  =
+          [ To Self do
+                tag' "Corporeal" 1
+                apply 1 [Invulnerable All]
+          ]
+        }
+      ]
     ]
   ]

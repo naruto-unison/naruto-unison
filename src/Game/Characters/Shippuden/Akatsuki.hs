@@ -4,6 +4,7 @@
 module Game.Characters.Shippuden.Akatsuki (characters) where
 
 import Game.Characters.Import
+import Data.Bits (bit)
 
 import qualified Game.Model.Skill as Skill
 
@@ -544,6 +545,7 @@ characters =
                        , Alternate "Amaterasu" "Totsuka Blade"
                        , Alternate "Mirage Crow" "Yata Mirror"
                        ]
+                everyone $ remove "Amaterasu"
           ]
         }
       , Skill.new
@@ -559,12 +561,12 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Amaterasu"
-        , Skill.desc      = "Itachi sets an enemy on fire, dealing 15 affliction damage to them for 2 turns. During [Susanoo], this skill becomes [Totsuka Blade][g]."
-        , Skill.classes   = [Bane, Chakra, Ranged]
+        , Skill.desc      = "Itachi sets an enemy on fire, dealing 15 affliction damage to them every turn until he uses [Susanoo]. Does not stack. During [Susanoo], this skill becomes [Totsuka Blade][g]."
+        , Skill.classes   = [Bane, Chakra, Ranged, Nonstacking]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ apply 2 [Afflict 15] ]
+          [ To Enemy $ apply 0 [Afflict 15] ]
         }
       , Skill.new
         { Skill.name      = "Totsuka Blade"
@@ -726,7 +728,7 @@ characters =
     ]
   , Character
     "Tobi"
-    "A peculiar new member of the Akatsuki, Tobi claims to be Madara Uchiha, even though Madara has been dead for years. Using his Izanagi, he can rewind his state to an earlier point and even come back from the dead."
+    "A peculiar new member of the Akatsuki who rarely takes anything seriously, Tobi claims to be Madara Uchiha despite all evidence to the contrary. Using his Izanagi, he can rewind his state to an earlier point and even come back from the dead."
     [LeafVillage, Akatsuki, SRank, Jinchuriki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Sharingan"
@@ -742,7 +744,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Kamui"
-        , Skill.desc      = "Tobi banishes a target to his pocket dimension for 3 turns, making them invulnerable to allies as well as enemies and unable to affect anyone else. If used on an ally, cures all harmful effects on them. If used on an enemy, deals 20 piercing damage, purges them of helpful effects, and prevents them from reducing damage or becoming invulnerable. Ends if Tobi uses [Kamui] or [Kamui Strike] on someone else."
+        , Skill.desc      = "Tobi uses a rare space-time technique to banish a target to his pocket dimension for 3 turns, making them invulnerable to allies as well as enemies and unable to affect anyone else. If used on an ally, cures all harmful effects on them. If used on an enemy, deals 20 piercing damage, purges them of helpful effects, and prevents them from reducing damage or becoming invulnerable. Ends if Tobi uses [Kamui] or [Kamui Strike] on someone else."
         , Skill.classes   = [Chakra, Ranged, Unreflectable, Unremovable]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
@@ -1058,7 +1060,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Summoning: Giant Crustacean"
-        , Skill.desc      = "Pain summons a huge foaming lobster that sprays spittle over the battlefield. For 2 turns, all enemies take 10 damage and their cooldowns are increased by 1 turn. While active, the lobster provides 10 points of damage reduction to Pain and her team. Once used, this skill becomes [Summoning: Giant Centipede][n]."
+        , Skill.desc      = "Pain summons a huge foaming lobster that sprays spittle over the battlefield, washing away oil, toxins, and the like. For 2 turns, all enemies take 10 damage and their cooldowns are increased by 1 turn. While active, the lobster provides 10 points of damage reduction to Pain and her team and makes them invulnerable to bane skills. Once used, this skill becomes [Summoning: Giant Centipede][n]."
         , Skill.classes   = [Summon, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 2
@@ -1069,7 +1071,7 @@ characters =
           [ To Enemies do
                 damage 10
                 apply 1 [Exhaust [All]]
-          , To Allies $ apply 1 [Reduce [All] Flat 10]
+          , To Allies $ apply 1 [Reduce [All] Flat 10, Invulnerable Bane]
           ]
         }
       ]
@@ -1089,30 +1091,28 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Summoning: Giant Multi-Headed Dog"
-        , Skill.desc      = "Pain summons a huge Cerberus hound that deals 10 piercing damage to all enemies for 2 turns. The first enemy to use a skill on Pain or her allies will extend the effect of this skill on them by 2 turns. Cannot be used while active."
-        , Skill.require   = HasI 0 "Summoning: Giant Multi-Headed Dog"
+        , Skill.desc      = "Pain summons a huge Cerberus hound that deals 10 damage to all enemies for 3 turns. Whenever an enemy uses a skill on Pain or her allies, the beast's heads multiply and their damage doubles."
         , Skill.classes   = [Summon, Melee, Bypassing, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Rand]
-        , Skill.dur       = Ongoing 2
+        , Skill.dur       = Ongoing 3
+        , Skill.cooldown  = 3
         , Skill.start     =
-          [ To Enemies do
-                tag (-2)
-                trap (-2) OnHarm $
-                  unlessM (userHas "summoning: giant multi-headed dog") do
-                      self do
-                          flag
-                          prolongChannel 2  "Summoning: Giant Multi-Headed Dog"
-                      prolong 2             "Summoning: Giant Multi-Headed Dog"
-                      everyone $ removeTrap "Summoning: Giant Multi-Headed Dog"
+          [ To Self $
+                bombWith' [Hidden] "summoning: giant multi-headed dog" -1 []
+                    [ To Done $ remove "Summoning: Giant Multi-Headed Dog" ]
           ]
-          , Skill.effects =
-            [ To Enemies $
-                whenM (targetHas "Summoning: Giant Multi-Headed Dog") $
-                pierce 10
+        , Skill.effects   =
+          [ To Self $ prolong 1 "summoning: giant multi-headed dog"
+          , To Allies $ trap -1 (OnHarmed All) $ self addStack
+          , To Enemies do
+                stacks <- userStacks "Summoning: Giant Multi-Headed Dog"
+                damage (10 * bit stacks)
           ]
+        , Skill.interrupt =
+          [ To Self $ remove "summoning: giant multi-headed dog" ]
         }
       ]
-    , [ invuln "Summoning: Giant Chameleon" "Pain" [Summon] ]
+    , [ invuln "Summoning: Giant Chameleon" "Pain" [Summon, Invisible] ]
     ]
   , Character
     "Preta Path Pain"
@@ -1248,6 +1248,7 @@ characters =
       , Skill.new
         { Skill.name      = "Control"
         , Skill.desc      = "Nagato attempts to maintain control over the Gedo statue for a little longer, prolonging [Summoning: Gedo Statue] for 2 additional turns. Until it ends, [Summoning: Gedo Statue] provides 5 additional points of damage reduction up to a maximum of 25 and [Phantom Dragon] deals 5 additional damage. This skill has no chakra cost if [Phantom Dragon] was used last turn."
+        , Skill.require   = HasI 0 "Rinne Rebirth"
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
@@ -1265,6 +1266,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Phantom Dragon"
         , Skill.desc      = "Nagato summons a dragon to attack an enemy for 20 piercing damage. Costs 1 genjutsu chakra during [Summoning: Gedo Statue]."
+        , Skill.require   = HasI 0 "Rinne Rebirth"
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
@@ -1286,25 +1288,35 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Rinne Rebirth"
-        , Skill.desc      = "Nagato draws on the strength of the Outer Path to infuse life into himself and his allies. During each of the next 3 turns, Nagato restores 15 health to his team, resets their cooldowns, and gains 1 random chakra. Requires [Summoning: Gedo Statue]."
-        , Skill.require   = HasI 1 "Summoning: Gedo Statue"
-        , Skill.classes   = [Mental]
+        , Skill.desc      = "Nagato draws on the strength of the Outer Path to infuse life into his comrades at the cost of his own. He restores 15 health to both living and dead allies for 3 turns, during which he cannot use his other skills. Resurrected allies are cleared of all effects and their cooldowns are reset. When this skill ends, Nagato dies."
+        , Skill.classes   = [Mental, Necromancy]
         , Skill.cost      = [Blood, Gen, Nin]
-        , Skill.cooldown  = 6
         , Skill.dur       = Control 3
-        , Skill.effects   =
-          [ To Allies do
-                heal 15
-                resetAll
-          , To Self $ gain [Rand]
+        , Skill.start     =
+          [ To Self $
+                bombWith' [Hidden] "rinne rebirth" -1 [] [ To Done killHard ]
           ]
+        , Skill.effects   =
+          [ To Self $ prolong 1 "rinne rebirth"
+          , To XAllies do
+                targetAlive <- target alive
+                if targetAlive then
+                    heal 15
+                else do
+                    factory
+                    setHealth 15
+          ]
+        , Skill.interrupt =
+          [ To Self $ remove "rinne rebirth" ]
         }
       ]
-    , [ invuln "Rinnegan Foresight" "Nagato" [Mental] ]
+    , [ (invuln "Rinnegan Foresight" "Nagato" [Mental])
+        { Skill.require = HasI 0 "Rinne Rebirth" }
+      ]
     ]
   , Character
     "Konan"
-    "One of the founding members of Akatsuki, Konan is an elegant origamist from the Hidden Rain Village. Her ability to fly with paper wings has earned her the title of Angel. Although Akatsuki has strayed far from its original methodologies, Konan holds fast to her goal of bringing peace to the world."
+    "One of the founding members of Akatsuki, Konan is an elegant origamist from the Hidden Rain Village. Along with her closeness to god-like Nagato, her ability to fly with paper wings has earned her the title of Angel. Although Akatsuki has strayed far from its original methodologies, Konan holds fast to her goal of bringing peace to the world."
     [RainVillage, Akatsuki, Sensor, SRank, Wind, Earth, Water, Yang]
     [ [ Skill.new
         { Skill.name      = "Paper Cut"

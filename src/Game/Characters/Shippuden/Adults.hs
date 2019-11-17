@@ -553,13 +553,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Flash Pillar"
-        , Skill.desc      = "A flash of lightning blinds and disorients an enemy, dealing 35 damage to them and making them invulnerable to allies for 1 turn."
+        , Skill.desc      = "A flash of lightning blinds and disorients an enemy, dealing 35 piercing damage to them and making them invulnerable to allies for 1 turn."
         , Skill.classes   = [Bane, Mental, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                damage 35
+                pierce 35
                 apply 1 [Alone]
           ]
         }

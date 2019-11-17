@@ -17,6 +17,8 @@
         Participating in wars.
       <li>
         Defeating A.I. boss challenges. (unimplemented)
+  <li>
+    In addition to requiring victories with specific characters, missions also require completing specific objectives, such as killing some number of enemies with a certain skill. Missions no longer depend on rank.
 <h3 #mechanics>Mechanics
 <ul>
   <li>
@@ -75,6 +77,7 @@
   ^{change Rework "Yamato" Shippuden}
   ^{change Rework "Fū Yamanaka" Shippuden}
   ^{change Rework "Danzō Shimura" Shippuden}
+  ^{change Rework "Sasuke Uchiha" Shippuden}
   ^{change Rework "Deidara" Shippuden}
   ^{change Rework "Sasori" Shippuden}
   ^{change Rework "Hidan" Shippuden}
@@ -148,6 +151,11 @@
     ^{Link.skill "Hiashi Hyūga" Original "Eight Trigrams Air Palm Wall"}
     reflects skills onto their user, rather than a random enemy.
   <li>
+    ^{Link.skill "Naruto Uzumaki" Shippuden "Rasen Shuriken"}
+    and
+    ^{Link.skill "Sage Mode Naruto" Shippuden "Rasen Shuriken"}
+    permanently weaken the target's chakra damage.
+  <li>
     ^{Link.skill "Hinata Hyūga" Shippuden "Gentle Step Twin Lion Fists"}
     bypasses invulnerability and ends if Hinata dies.
   <li>
@@ -163,6 +171,9 @@
     ^{Link.skill "Maki" Shippuden "Humidified Cloth"}
     block the target from affecting the user's team at all.
   <li>
+    ^{Link.skill "C" Shippuden "Flash Pillar"}
+    deals piercing damage, in order to be consistent with other lightning attacks.
+  <li>
     The cost of
     ^{Link.skill "Omoi" Shippuden "Crescent Moon Slice"}
     has been changed from 1 genjutsu chakra and 1 arbitrary chakra to 1 taijutsu chakra and 1 arbitrary chakra.
@@ -173,8 +184,14 @@
     ^{Link.skill "Sai" Shippuden "Ink Mist"}
     bypasses invulnerability.
   <li>
+    ^{Link.skill "Itachi Uchiha" Shippuden "Amaterasu"}
+    lasts until he uses <i>Susanoo</i>.
+  <li>
     ^{Link.skill "Jiraiya" Shippuden "Toad Oil Bomb"}
     interrupts <i>action</i> skills as well as <i>control</i> skills.
+  <li>
+    ^{Link.skill "Killer B" Shippuden "Lariat"}
+    makes him invulnerable to skills that cost genjutsu chakra for one turn.
   <li>
     ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"}
     increases the cooldown of mental skills as well as non-mental skills.

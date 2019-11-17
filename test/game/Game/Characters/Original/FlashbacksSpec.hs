@@ -184,21 +184,47 @@ spec = parallel do
 
     describeCharacter "Masked Man" do
         useOn Enemy "Kamui Banishment" do
-            it "deals bonus damage if target has Kamui Chain Combo" do
+            it "deals bonus damage if target has Kusari Chains" do
                 act
                 targetHealth <- health <$> nTarget
                 factory
                 self factory
-                use "Kamui Chain Combo"
+                use "Kusari Chains"
                 act
                 targetHealth' <- health <$> nTarget
                 targetHealth - targetHealth' `shouldBe` 20
-            it "lasts an additional turn if target has Kamui Chain Combo" do
-                use "Kamui Chain Combo"
+            it "lasts an additional turn if target has Kusari Chains" do
+                use "Kusari Chains"
                 act
                 turns 1
                 as XEnemies $ apply 0 [Focus]
                 not . (`is` Focus) <$> nTarget
+
+        useOn Self "Kamui Phase" do
+            it "works on its own" do
+                use "Kamui Phase"
+                as Enemy $ apply 0 [Reveal]
+                not . (`is` Reveal) <$> nUser
+            it "does not work after Kusari Chains" do
+                use "Kusari Chains"
+                use "Kamui Phase"
+                as Enemy $ apply 0 [Reveal]
+                (`is` Reveal) <$> nUser
+            it "does not work after Kamui Banishment" do
+                use "Kamui Banishment"
+                use "Kamui Phase"
+                as Enemy $ apply 0 [Reveal]
+                (`is` Reveal) <$> nUser
+            it "does not work after Major Summoning: Kurama" do
+                use "Major Summoning: Kurama"
+                use "Kamui Phase"
+                as Enemy $ apply 0 [Reveal]
+                (`is` Reveal) <$> nUser
+            it "does not work after itself" do
+                use "Kamui Phase"
+                use "Kamui Phase"
+                as Enemy $ apply 0 [Reveal]
+                (`is` Reveal) <$> nUser
   where
     describeCharacter = describeCategory Original
     dmg = 55

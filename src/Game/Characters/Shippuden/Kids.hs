@@ -24,14 +24,15 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Rasen Shuriken"
-        , Skill.desc      = "Deals 50 piercing damage. Deals 25 additional damage if [Multi Shadow Clone] countered the target last turn."
-        , Skill.classes   = [Chakra, Melee, Bypassing]
+        , Skill.desc      = "A vortex of microscopic wind-chakra blades destroys an enemy's chakra circulatory system at a cellular level, dealing 50 piercing damage and weakening their chakra damage by 10%. Deals 25 additional damage if [Multi Shadow Clone] countered the target last turn."
+        , Skill.classes   = [Bane, Chakra, Melee, Bypassing]
         , Skill.cost      = [Nin, Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 25 `bonusIf` targetHas "Multi Shadow Clone"
                 pierce (50 + bonus)
+                apply 0 [Weaken [Chakra] Percent 10]
           ]
         }
       ]
@@ -614,9 +615,9 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-              dead  <- numDeadAllies
-              bonus <- 10 `bonusIf` userHas "Leaf Hurricane"
-              damage (20 + bonus + 10 * dead)
+                dead  <- numDeadAllies
+                bonus <- 10 `bonusIf` userHas "Leaf Hurricane"
+                damage (20 + bonus + 10 * dead)
           , To Self do
                 bonus <- 10 `bonusIf` userHas "Leaf Hurricane"
                 apply 1 [Reduce [All] Flat (10 + bonus)]

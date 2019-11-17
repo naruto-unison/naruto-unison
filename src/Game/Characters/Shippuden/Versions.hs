@@ -27,11 +27,13 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Rasen Shuriken"
-        , Skill.desc      = "Using his ultimate attack, Naruto deals 50 piercing damage to an enemy. Once used, this skill becomes [Frog Kumite][t]."
-        , Skill.classes   = [Chakra, Ranged, Uncounterable]
+        , Skill.desc      = "A vortex of microscopic wind-chakra blades destroys an enemy's chakra circulatory system at a cellular level, dealing 50 piercing damage and weakening their chakra damage by 10%. Once used, this skill becomes [Frog Kumite][t]."
+        , Skill.classes   = [Bane, Chakra, Ranged, Uncounterable]
         , Skill.cost      = [Nin, Tai]
         , Skill.effects   =
-          [ To Enemy $ pierce 50
+          [ To Enemy do
+                pierce 50
+                apply 0 [Weaken [Chakra] Percent 10]
           , To Self $ remove "frog kumite"
           ]
         }
@@ -487,7 +489,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Amaterasu"
-        , Skill.desc      = "Sasuke ignites an enemy, dealing 5 affliction damage to them for 4 turns. If the target becomes invulnerable, they are cured of the effect. If an ally of the target uses a skill on them while they are affected, [Amaterasu] will spread to the ally. Every time an enemy is cured of [Amaterasu], the damage of [Amaterasu] and [Yasaka Beads] increases by 5. During [Susanoo], this skill becomes [Yasaka Beads][n]."
+        , Skill.desc      = "Sasuke sets an enemy on fire, dealing 5 affliction damage to them until they become invulnerable. If an ally of the target uses a skill on them while they are affected, [Amaterasu] will spread to that ally. Every time [Amaterasu] ends on an enemy, the damage of [Yasaka Beads] increases by 5. During [Susanoo], this skill becomes [Yasaka Beads][n]."
         , Skill.classes   = [Bane, Chakra, Ranged, Unreflectable]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
@@ -495,13 +497,12 @@ characters =
           let
               amaterasu :: RunConstraint ()
               amaterasu = do
-                  trapWith [Bypassing] 4 OnInvulnerable $ remove "Amaterasu"
-                  stacks <- userStacks "Amaterasu"
-                  bombWith [Bypassing] 4 [Afflict (5 + 5 * stacks)]
-                      [ To Remove $ self $ addStack
-                      , To Done $ removeTrap "Amaterasu"
-                      ]
-                  trapFrom 4 OnHelped amaterasu
+                  trapWith [Bypassing] 0 OnInvulnerable do
+                      remove "Amaterasu"
+                      removeTrap "Amaterasu"
+                  bombWith [Bypassing] 0 [Afflict 5]
+                      [ To Done $ self $ addStack ]
+                  trapFrom 0 OnHelped amaterasu
           in
           [ To Enemy amaterasu ]
         }
@@ -546,12 +547,7 @@ characters =
                 apply 3 [Afflict 5]
                 userSlot <- user slot
                 apply 1 [Taunt userSlot]
-          , To Self do
-                hide 0 [Alternate "Poisonous Chain Skewer" "Impale"]
-                cancelChannel "Flamethrower Jets"
-                everyone do
-                    remove "Flame Blast"
-                    remove "Flamethrower Jets"
+          , To Self $ hide 0 [Alternate "Poisonous Chain Skewer" "Impale"]
           ]
         }
       , Skill.new
@@ -560,12 +556,7 @@ characters =
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Self do
-                remove "poisonous chain skewer"
-                cancelChannel "Flamethrower Jets"
-                everyone do
-                    remove "Flame Blast"
-                    remove "Flamethrower Jets"
+          [ To Self $ remove "poisonous chain skewer"
           ,  To Enemy do
                   pierce 15
                   apply 2 [Afflict 5]
@@ -583,33 +574,35 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
         , Skill.start     =
-          [ To Self $
+          [ To Self do
                 hide 0 [Alternate "Flamethrower Jets" "Cutting Water Jets"]
+                flag' "first"
           ]
         , Skill.effects   =
-          [ To Self $ apply 1 [Enrage]
+          [ To Self do
+                apply 1 [Enrage]
+                unlessM (userHas "first") $ trap' 1 (OnAction All) do
+                    cancelChannel "Flamethrower Jets"
+                    everyone do
+                        remove "Flame Blast"
+                        remove "Flamethrower Jets"
           , To Enemy do
                 afflict 10
                 tag 1
-                userSlot <- user slot
-                self $ apply' "Flame Blast" 1 [Duel userSlot]
+                targetSlot <- target slot
+                self $ apply' "Flame Blast" 1 [Duel targetSlot]
           ]
         }
       , Skill.new
         { Skill.name      = "Cutting Water Jets"
-        , Skill.desc      = "Sasori shoots a high-pressure jet of water at an enemy, dealing 20 piercing damage. Deals 10 additional damage if the target is affected by [Flamethrower Jets]. Ends [Flamethrower Jets]. Once used, this skill becomes [Flamethrower Jets][n][r]."
+        , Skill.desc      = "Sasori shoots a high-pressure jet of water at an enemy, dealing 20 piercing damage. Deals 10 additional damage if the target is affected by [Flamethrower Jets]. Once used, this skill becomes [Flamethrower Jets][n][r]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 10 `bonusIf` targetHas "Flamethrower Jets"
                 pierce (20 + bonus)
-          , To Self do
-                remove "flamethrower jets"
-                cancelChannel "Flamethrower Jets"
-                everyone do
-                    remove "Flame Blast"
-                    remove "Flamethrower Jets"
+          , To Self $ remove "flamethrower jets"
           ]
         }
       ]
@@ -764,7 +757,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name    = "Curse Mark Release"
-        , Skill.desc    = "By giving an ally a curse mark, Orochimaru uses their body as an anchor for his soul after death. If the target's health reaches 25 or lower while Orochimaru is dead, Orochimaru will be resurrected into their body with full health and all status effects removed. Cannot be used while active. If Orochimaru acquires a new body, this skill becomes [Regeneration][g][n]."
+        , Skill.desc    = "By giving an ally a curse mark, Orochimaru uses their body as an anchor for his soul after death. If the target's health reaches 25 or lower while Orochimaru is dead, Orochimaru will be resurrected into their body with full health and all status effects removed, and will become invulnerable to bane skills. Cannot be used while active. If Orochimaru acquires a new body, this skill becomes [Regeneration][g][n]."
         , Skill.require = HasI 0 "curse"
         , Skill.classes = [Physical, Unremovable, Bypassing, Uncounterable, Unreflectable, Invisible, Melee]
         , Skill.cost    = [Blood, Nin]
@@ -779,6 +772,7 @@ characters =
                         self do
                             setHealth 100
                             alternate [0, 0, 0, 0] 1
+                            apply 0 [Invulnerable Bane]
           ]
         }
       , Skill.new
@@ -798,7 +792,7 @@ characters =
     ]
   , Character
     "Sage Mode Jiraiya"
-    "By absorbing natural energy, Jiraiya has enhanced his speed, strength, and skills. Unfortunately, the process gives him a distinctly toady appearance, which does no good for the lecherous sage's chances with women."
+    "By fusing with the Toad Sages and absorbing natural energy, Jiraiya has enhanced his speed, strength, and skills. Unfortunately, the process gives him a distinctly toady appearance, which does no good for the lecherous sage's chances with women."
     [LeafVillage, Sannin, Sage, TeamLeader, Fire, Wind, Earth, Water, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Bath of Burning Oil"

@@ -544,25 +544,24 @@ spec = parallel do
                 act
                 hasSkill "Summoning: Giant Crustacean" <$> nUser
 
-        useOn Enemies "Summoning: Giant Multi-Headed Dog" do
-            it "extends damage on first harm" do
+        useOn Enemy "Summoning: Giant Multi-Headed Dog" do
+            it "doubles in damage per harm" do
                 act
                 as Enemy $ return ()
-                turns 5
-                targetHealth <- health <$> nTarget
-                100 - targetHealth `shouldBe` 4 * 10
-            it "does not extend others" do
-                act
                 as Enemy $ return ()
-                self $ as XEnemies $ return ()
-                turns 5
+                turns 3
                 targetHealth <- health <$> get XEnemies
-                100 - targetHealth `shouldBe` 2 * 10
-            it "does not extend if no one harms" do
+                100 - targetHealth `shouldBe` 10 + 10 * 2 + 10 * 2 * 2
+            it "does not carry over stacks" do
                 act
-                turns 6
+                replicateM_ 4 do
+                    unlessM (isChanneling "Summoning: Giant Multi-Headed Dog" <$> nUser) do
+                        factory
+                        act
+                    turns 1
+                turns 3
                 targetHealth <- health <$> nTarget
-                100 - targetHealth `shouldBe` 2 * 10
+                100 - targetHealth `shouldBe` 10 * 3
 
     describeCharacter "Naraka Path Pain" do
         useOn Enemy "Summoning: King of Hell" do

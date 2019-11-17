@@ -53,25 +53,25 @@ spec = parallel do
         useOn Enemy "Amaterasu" do
             it "is cured when target becomes invulnerable" do
                 act
-                turns 2
+                turns stacks
                 as Enemy $ self $ apply 0 [Invulnerable Physical]
                 turns 5
                 targetHealth <- health <$> nTarget
-                100 - targetHealth `shouldBe` 3 * 5
+                100 - targetHealth `shouldBe` 5 * (stacks + 1)
             it "spreads if helped" do
                 act
                 as XEnemies $ return ()
-                turns 5
+                turns stacks
                 targetHealth <- health <$> get XEnemies
-                100 - targetHealth `shouldBe` 4 * 5
+                100 - targetHealth `shouldBe` 5 * (stacks + 1)
             it "spreads back" do
                 act
                 as XEnemies $ return ()
                 factory
                 at XEnemies $ as Enemy $ return ()
-                turns 5
+                turns stacks
                 targetHealth <- health <$> nTarget
-                100 - targetHealth `shouldBe` 4 * 5
+                100 - targetHealth `shouldBe` 5 * (stacks + 1)
 
         useOn Enemy "Yasaka Beads" do
             it "increases damage when Amaterasu is cured" do
@@ -299,6 +299,7 @@ spec = parallel do
 
             let cancelAfter skill = do
                     act
+                    turns 1
                     use skill
                     not . isChanneling "Flamethrower Jets" <$> nUser
 

@@ -102,7 +102,7 @@ targets :: [Ninja] -> Ninja -> Skill -> [Ninja]
 targets ns n skill = filter filt ns
   where
     filt nt = targetSlot (Ninja.slot nt) && targetable skill n nt
-              && ((Necromancy ∈ Skill.classes skill) /= Ninja.alive nt)
+              && (Ninja.alive nt || Necromancy ∈ Skill.classes skill)
     user    = Ninja.slot n
     ts      = Skill.targets skill
     targetSlot t

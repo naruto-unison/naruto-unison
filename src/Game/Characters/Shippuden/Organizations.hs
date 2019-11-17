@@ -224,7 +224,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Mind Transfer Puppet Curse"
-        , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a non-mental skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack] for 4 turns. Copied skills cannot copy other skills and do not transform into alternates."
+        , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a non-mental skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack][r] and [Puppet Curse: Defend][r] for 4 turns. Copied skills cannot copy other skills and do not transform into alternates."
         , Skill.classes   = [Mental, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
@@ -516,25 +516,30 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Dragon Flame"
-        , Skill.desc      = "Draconic fireballs sear an enemy, dealing 10 damage to them for 4 turns. While active, enemies who use skills on Sasuke will take 5 affliction damage."
+        , Skill.desc      = "Draconic fireballs sear an enemy, dealing 10 damage to them for 4 turns. While active, enemies who use skills on Sasuke will take 5 affliction damage and create a [Thunder Cloud]. Using this skill creates 2 [Thunder Cloud]s."
         , Skill.classes   = [Bane, Chakra, Ranged, Bane]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 4
         , Skill.dur       = Action 4
+        , Skill.start     =
+          [ To Self $ addStacks "Thunder Cloud" 2 ]
         , Skill.effects   =
           [ To Enemy $ damage 10
-          , To Self $ trapFrom 1 (OnHarmed All) $ afflict 5
+          , To Self $ trapFrom 1 (OnHarmed All) do
+                afflict 5
+                self $ addStack' "Thunder Cloud"
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Kirin"
-        , Skill.desc      = "A pillar of lightning strikes an enemy, dealing 45 piercing damage."
+        , Skill.desc      = "A pillar of lightning strikes an enemy, dealing 60 piercing damage. Requires 3 [Thunder Cloud]s. Spends all [Thunder Cloud]s."
+        , Skill.require   = HasI 3 "Thunder Cloud"
         , Skill.classes   = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
-        , Skill.cost      = [Nin, Nin]
-        , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ pierce 45 ]
+          [ To Enemy $ pierce 60
+          , To Self $ remove "Thunder Cloud"
+          ]
         }
       ]
     , [ invuln "Summoning: Serpent" "Sasuke" [Summon] ]

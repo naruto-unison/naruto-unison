@@ -65,28 +65,36 @@ spec = parallel do
                 userStacks <- numAnyStacks "Seal" <$> nUser
                 userStacks `shouldBe` stacks - 1
 
-    describeCharacter "Sasuke Uchiha" do
-        useOn Enemy "Chidori Stream" do
-            it "counters enemies" do
+    describeCharacter "Sai" do
+        useOn Allies "Ink Mist" do
+            it "makes stunned allies invulnerable" do
                 act
-                withClass NonMental $ as XEnemies $ apply 0 [Reveal]
-                not . (`is` Reveal) <$> nUser
-            it "damages countered" do
+                as Enemy $ apply 0 [Stun All]
+                as Enemy $ apply 0 [Reveal]
+                not . (`is` Reveal) <$> nTarget
+            it "gains chakra when depleted" do
                 act
-                withClass NonMental $ as Enemies $ apply 0 [Reveal]
-                targetHealth <- health <$> get Enemies
-                100 - targetHealth `shouldBe` 10
+                gain [Gen, Tai]
+                as Enemy $ absorb 1
+                chakras <- chakra <$> game
+                chakras `shouldBe` ([Blood, Tai], [Gen])
+            it "strengthens user when target damaged" do
+                act
+                as Enemy $ damage 5
+                setHealth 100
+                damage dmg
+                targetHealth <- health <$> nTarget
+                (100 - targetHealth) - dmg `shouldBe` 10
+            it "does not strengthen with affliction" do
+                act
+                as Enemy $ afflict 5
+                setHealth 100
+                damage dmg
+                targetHealth <- health <$> nTarget
+                (100 - targetHealth) - dmg `shouldBe` 0
             it "alternates" do
                 act
-                hasSkill "Kusanagi" <$> nUser
-
-        useOn Enemy "Dragon Flame" do
-            it "damages attackers" do
-                act
-                setHealth 100
-                as Enemy $ apply 0 [Reveal]
-                targetHealth <- health <$> nTarget
-                100 - targetHealth `shouldBe` 5
+                hasSkill "Super Beast Scroll: Bird" <$> nUser
 
     describeCharacter "Kiba Inuzuka" do
         useOn Self "Man-Beast Clone" do

@@ -225,12 +225,12 @@ characters =
     [MistVillage, AlliedForces, Kage, Water, Fire, Lightning, Earth]
     [ [ Skill.new
         { Skill.name      = "Solid Fog"
-        , Skill.desc      = "Mei exhales a cloud of acid mist that deals 15 affliction damage to an enemy for 3 turns."
+        , Skill.desc      = "Mei exhales a cloud of corrosive acid mist that deals 15 affliction damage to an enemy for 3 turns. While active, the target cannot benefit from destructible defense."
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ apply 3 [Afflict 15] ]
+          [ To Enemy $ apply 3 [Afflict 15, Undefend] ]
         }
       ]
     , [ Skill.new
@@ -308,6 +308,7 @@ characters =
           ]
         }
       ]
-    , [ invuln "Reverse Summoning" "Fukasaku and Shima" [Summon] ]
+    , [ (invuln "Reverse Summoning" "Fukasaku and Shima" [Summon])
+        { Skill.desc = "Fukasaku and Shima become invulnerable for 1 turn." }]
     ]
   ]
