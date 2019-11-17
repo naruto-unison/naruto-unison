@@ -79,13 +79,13 @@ In order to run the server in production mode, which has significantly better pe
 To run the game test suite:
 
 ```
-stack test naruto-unison:test-game
+stack test :test-game
 ```
 
 To run the web handler test suite, first create a separate test database and configure it in [config/test-settings.yml](config/test-settings.yml), then run:
 
 ```
-stack test naruto-unison:test-yesod
+stack test :test-yesod
 ```
 
 To run all tests and show only failures:
