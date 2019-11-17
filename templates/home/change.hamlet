@@ -7,7 +7,7 @@ $if not long
   <ul>
     $if long
       <img data-name=#{tagName} .char.head src=/img/ninja/#{tagName}/icon.jpg>
-    $forall skills <- NonEmpty.take Ninja.skillSize $ Character.skills char
+    $forall skills <- Character.skills char
       <li>
         $forall skill <- separate skills
           <span .skill data-name=#{tagName}>

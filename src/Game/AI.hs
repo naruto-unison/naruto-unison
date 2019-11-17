@@ -24,11 +24,11 @@ import           Game.Model.Slot (Slot)
 targetOptions :: [Ninja] -> Ninja -> Int -> [Act]
 targetOptions ns n (Left -> i) = Act (Ninja.slot n) i . Ninja.slot <$> nTargets
   where
-    nTargets = Requirement.targets ns n $ Ninjas.getSkill i n
+    nTargets = maybe [] (Requirement.targets ns n) $ Ninjas.getSkill i n
 
 skillOptions :: [Ninja] -> Ninja -> [[Act]]
 skillOptions ns n =
-    filter (not . null) $ targetOptions ns n <$> [0..Ninja.skillSize - 1]
+    filter (not . null) $ targetOptions ns n <$> [0..Ninja.numSkills n - 1]
 
 -- | The higher this is, the more likely AI is to attack. Lower values allow it
 -- to pool mana. At 0, the AI is disabled. This will certainly end up as a

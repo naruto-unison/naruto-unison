@@ -86,24 +86,25 @@ wrap' affected f = void $ runMaybeT do
 
     guard $ user == target
             || Targeted ∉ affected
-            || (Ninja.alive nTarget /= (Necromancy ∈ classes))
+            || Ninja.alive nTarget
+            || Necromancy ∈ classes
 
     let harm    = not $ Parity.allied user target
         allow x = harm && x ∉ affected
 
-    let finish  = do
+    let finish = do
             f
             when (allow Reflected) . P.withTargets (Effects.share nTarget) $
                 wrap' (insertSet Reflected affected) f
 
-    if not new then
-        lift f
+    lift if not new then
+        f
 
     else if nUser `is` AntiCounter || nTarget `is` Uncounter then
-        lift finish
+        finish
 
     else
-        lift . fromMaybe finish
+        fromMaybe finish
             $ do
               guard $ allow Redirected && Unreflectable ∉ classes
               t <- Trigger.redirect nTarget
@@ -240,19 +241,19 @@ filterCounters slots = filter $ (testBit targetSet . Slot.toInt) . Ninja.slot
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Bool -> Act -> m ()
-act _ Act{skill = Left s} | s >= Ninja.skillSize = return ()
-act new Act{skill = s, user, target} = do
+act new Act{skill = s, user, target} = void $ runMaybeT do
     nUser      <- P.ninja user
+    guard $ either (< Ninja.numSkills nUser) (const True) s
     chakras    <- Game.chakra <$> P.game
     initial    <- P.ninjas
-    let skill   = Ninjas.getSkill s nUser
-        classes = Skill.classes skill
+    skill      <- MaybeT . return $ Ninjas.getSkill s nUser
+    let classes = Skill.classes skill
         cost    = Skill.cost skill
-        valid   = Ninja.alive nUser
-                  && Skill.require skill /= Unusable
-                  && not (new && Chakra.lack (Parity.getOf user chakras - cost))
 
-    when valid $ P.withContext (ctx skill) do
+    guard $ Ninja.alive nUser && Skill.require skill /= Unusable
+            && not (new && Chakra.lack (Parity.getOf user chakras - cost))
+
+    lift $ P.withContext (ctx skill) do
         if not new then
             P.withContinues $
             run' (singletonSet Targeted) =<< chooseTargets (Skill.effects skill)

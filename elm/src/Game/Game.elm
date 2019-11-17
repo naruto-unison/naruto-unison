@@ -8,7 +8,6 @@ module Game.Game exposing
     , rank
     , removable
     , root
-    , skillSize
     , targets
     , teamSize
     , toggles
@@ -35,11 +34,6 @@ type alias Act =
 died : Player -> Turn -> Turn -> Bool
 died player turn1 turn2 =
     living player turn1 > living player turn2
-
-
-skillSize : Int
-skillSize =
-    4
 
 
 teamSize : Int

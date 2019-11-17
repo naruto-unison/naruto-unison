@@ -36,7 +36,7 @@ import           Game.Model.Class (Class(..))
 import qualified Game.Model.Context as Context
 import           Game.Model.Defense (Defense(Defense))
 import qualified Game.Model.Defense as Defense
-import           Game.Model.Duration (Duration(..), Turns, incr, sync)
+import           Game.Model.Duration (Turns, incr)
 import           Game.Model.Effect (Amount(..), Effect(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
@@ -197,7 +197,7 @@ attack atk dmg = void $ runMaybeT do
 -- destroy the target's 'Ninja.defense' before they can damage the target.
 -- Destructible defense can be temporary or permanent.
 defend :: ∀ m. MonadPlay m => Turns -> Int -> m ()
-defend (incr . sync . Duration -> dur) amount = P.unsilenced do
+defend (incr . fromIntegral -> dur) amount = P.unsilenced do
     skill      <- P.skill
     user       <- P.user
     target     <- P.target
@@ -248,7 +248,7 @@ barricade dur = barricade' dur (const $ return ()) (return ())
 -- exists.
 barricade' :: ∀ m. MonadPlay m => Turns -> (Int -> RunConstraint ())
             -> RunConstraint () -> Int -> m ()
-barricade' (sync . Duration -> dur) finish while amount = P.unsilenced do
+barricade' (fromIntegral -> dur) finish while amount = P.unsilenced do
     context   <- P.context
     amount'   <- (+ amount) . Effects.build <$> P.nUser
     let skill  = Context.skill context

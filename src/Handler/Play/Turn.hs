@@ -58,7 +58,7 @@ new player ninjas game = Turn { chakra  = Parity.getOf player $ Game.chakra game
       | Parity.allied player n = Ninja.slot <$>.
                                  Requirement.targets censored n <$>
                                  Ninjas.skills n
-      | otherwise              = replicate Ninja.skillSize []
+      | otherwise              = replicate (Ninja.numSkills n) []
 
 censor :: (Maybe Slot) -> Player -> [Ninja] -> Ninja -> Ninja
 censor vendetta player ninjas n

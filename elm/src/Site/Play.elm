@@ -605,7 +605,7 @@ renderDefense slot anchor track barriers defenses =
 
         Just ( x, xs ) ->
             H.div [ A.classList [ ( "chardefense", True )
-                                , ( "ghost", x.dur == 1 )
+                                , ( "ghost", x.dur == -1 )
                                 ]
                   , A.style anchor <| String.fromInt track ++ "%"
                   , A.style "width" <| String.fromInt x.amount ++ "%"
@@ -708,7 +708,7 @@ renderDetail team slot characters detail =
               , detail.trap
               )
             , ( "ghost"
-              , detail.dur == 1
+              , detail.dur == -1
               )
             , ( "remove"
               , List.any removable detail.effects
@@ -826,7 +826,7 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
             , H.div [ A.class "charmoves" ]
                 <| List.map3
                     (renderSkill b.ninja chakras active characters)
-                    (List.range 0 <| Game.skillSize - 1)
+                    (List.range 0 10) -- doesn't matter, not the limiting factor
                     b.targets
                     b.ninja.skills
             ]
@@ -924,7 +924,7 @@ renderView visibles characters viewing =
                             "None"
 
                         y ->
-                            String.fromInt <| y // 2
+                            String.fromInt <| abs y
 
                 cost =
                     case Chakra.total x.cost of
@@ -952,13 +952,13 @@ renderView visibles characters viewing =
                             "Ongoing"
 
                         Action y ->
-                            "Action " ++ String.fromInt ((y + 1) // 2)
+                            "Action " ++ String.fromInt (abs y)
 
                         Control y ->
-                            "Control " ++ String.fromInt ((y + 1) // 2)
+                            "Control " ++ String.fromInt (abs y)
 
                         Ongoing y ->
-                            "Ongoing " ++ String.fromInt ((y + 1) // 2)
+                            "Ongoing " ++ String.fromInt (abs y)
 
                 charges =
                     if x.charges == 0 then

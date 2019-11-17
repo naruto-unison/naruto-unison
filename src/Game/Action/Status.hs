@@ -29,7 +29,7 @@ import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
 import          Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import           Game.Model.Duration (Duration(..), Turns, sync)
+import           Game.Model.Duration (Duration, Turns)
 import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Constructor(..), Effect(..))
 import qualified Game.Model.Effect as Effect
@@ -51,13 +51,13 @@ refresh name = P.unsilenced . P.fromUser $ Ninjas.refresh name
 -- | Increases the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 prolong :: ∀ m. MonadPlay m => Turns -> Text -> m ()
-prolong (sync . Duration -> dur) name =
+prolong (fromIntegral -> dur) name =
     P.unsilenced . P.fromUser $ Ninjas.prolong dur name
 
 -- | Reduces the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 hasten :: ∀ m. MonadPlay m => Turns -> Text -> m ()
-hasten (sync . Duration -> dur) name =
+hasten (fromIntegral -> dur) name =
     P.unsilenced . P.fromUser $ Ninjas.prolong (negate dur) name
 
 -- | Adds a @Status@ to 'Ninja.statuses'.
@@ -93,7 +93,7 @@ addStacks = addStacks' 0
 -- | 'addStack' with a 'Status.dur', 'Status.name', and 'Status.amount'.
 -- Uses 'Ninjas.addStatus' internally.
 addStacks' :: ∀ m. MonadPlay m => Turns -> Text -> Int -> m ()
-addStacks' (Duration -> dur) name i = do
+addStacks' (fromIntegral -> dur) name i = do
     user   <- P.user
     st     <- Status.new user dur <$> P.skill
     target <- P.target
@@ -168,7 +168,7 @@ applyStacks name amount =
 applyFull :: ∀ m. MonadPlay m
           => Int -> EnumSet Class -> [Runnable Bomb] -> Text -> Turns
           -> [Effect] -> m ()
-applyFull amount classes bombs name (Duration -> unthrottled) effects =
+applyFull amount classes bombs name (fromIntegral -> unthrottled) effects =
     void $ runMaybeT do
         context <- P.context
         user    <- P.user
@@ -226,7 +226,8 @@ makeStatus Context{skill, user, continues, new}
       | otherwise             = deleteSet Continues .
                                 deleteSet Invisible $ Skill.classes skill
     noremove = null effects && Bane ∉ skillClasses
-               || dur == Duration 1 && Skill.dur skill /= Instant
+               || Hidden ∈ classes ++ skillClasses
+               || dur == 1 && Skill.dur skill /= Instant
                || user == Ninja.slot nTarget
                   && any (not . Effect.helpful) effects
     extra    = setFromList $ fst <$> filter snd

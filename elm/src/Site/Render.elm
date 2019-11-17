@@ -136,7 +136,7 @@ duration ifEmpty x =
             [ H.text ifEmpty ]
 
         _ ->
-            [ H.text << String.fromInt <| (x + 1) // 2 ]
+            [ H.text << String.fromInt <| abs x ]
 
 
 class : Channel -> String -> H.Attribute msg

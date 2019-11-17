@@ -5,7 +5,7 @@ module Game.Action.Skill
   , reset, resetAll, recharge, rechargeAll
   -- * Changing face icons
   -- * Copying
-  , copyAll, copyLast, teach, teachOne
+  , copyAll, copyLast, teach
   -- * Alternates
   , alternate, nextAlternate
 
@@ -15,8 +15,9 @@ module Game.Action.Skill
 
 import ClassyPrelude
 
+import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Data.Enum.Set (EnumSet)
-import qualified Data.Sequence as Seq
+import           Data.List (findIndex)
 
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
@@ -26,13 +27,12 @@ import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
-import           Game.Model.Copy (Copy(Copy))
-import qualified Game.Model.Copy as Copy
-import           Game.Model.Duration (Duration(..), Turns, sync)
+import           Game.Model.Duration (Turns, incr)
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Skill as Skill
+import           Game.Model.Trigger (Trigger(..))
 import           Util ((!?))
 
 -- | Changes the 'Skill.cooldown' of a @Skill@ by 'Skill.name'.
@@ -88,7 +88,7 @@ nextAlternate name = mapM_ alt . Ninjas.nextAlternate name =<< P.nTarget
 -- | Copies all @Skill@s from the target into the user's 'Ninja.copies'.
 -- Uses 'Ninjas.copyAll' internally.
 copyAll :: ∀ m. MonadPlay m => Turns -> m ()
-copyAll (Duration -> dur) = P.uncopied do
+copyAll (fromIntegral -> dur) = P.uncopied do
     nTarget <- P.nTarget
     user    <- P.user
     P.modify user $ Ninjas.copyAll dur nTarget
@@ -96,50 +96,36 @@ copyAll (Duration -> dur) = P.uncopied do
 -- | Copies the 'Ninja.lastSkill' of the target into a specific skill slot
 -- of the user's 'Ninja.copies'. Uses 'Execute.copy' internally.
 copyLast :: ∀ m. MonadPlay m => Turns -> m ()
-copyLast (Duration -> dur) = P.uncopied do
-    name   <- Skill.name <$> P.skill
-    user   <- P.user
-    mapM_ (P.modify user . Ninjas.copy dur name) . Ninja.lastSkill =<< P.nTarget
+copyLast (incr . fromIntegral -> dur) = P.uncopied . void $ runMaybeT do
+    name  <- Skill.name <$> P.skill
+    s     <- MaybeT $ findIndex (any $ (== name) . Skill.name) . toList .
+             Character.skills . Ninja.character <$> P.nUser
+    skill <- MaybeT $ Ninja.lastSkill <$> P.nTarget
+    user  <- P.user
+    P.modify user $ Ninjas.copy dur [s] skill
 
--- | Copies a @Skill@ from the user into all of the target's 'Ninja.copies'
--- skill slots.
 teach :: ∀ m. MonadPlay m
-      => Turns -- ^ 'Copy.dur'.
-      -> Int -- ^ User's skill slot of the @Skill@ to copy.
-      -> m ()
-teach = teacher $ map . const
-
--- | Copies a @Skill@ from the user into a specific skill slot of the target's
--- 'Ninja.copies'.
-teachOne :: ∀ m. MonadPlay m
-         => Turns -- ^ 'Copy.dur'.
-         -> Int -- ^ Target's skill slot to copy into.
-         -> Int -- ^ User's skill slot of the @Skill@ to copy.
-         -> m ()
-teachOne dur s = teacher (Seq.update s) dur
-
--- | Copies a @Skill@ from the user into the target.
-teacher :: ∀ m. MonadPlay m
-        => (Maybe Copy -> Seq (Maybe Copy) -> Seq (Maybe Copy))
-        -- ^ Determines how to modify the target's 'Ninja.copies' skill slots.
-        -> Turns -- ^ 'Copy.dur'.
-        -> Int -- ^ User's skill slot of the @Skill@ to copy.
-        -> m ()
-teacher f (sync . Duration -> dur) s = P.uncopied do
-    nUser  <- P.nUser
-    target <- P.target
-    let copied = Just $ Copy { skill = Ninjas.getSkill (Left s) nUser
-                             , dur   = dur + dur `rem` 2
-                             }
-    P.modify target \n -> n { Ninja.copies = f copied $ Ninja.copies n }
+       => Turns -- ^ 'Copy.dur'.
+       -> Text
+       -> [Int]
+       -> m ()
+teach (fromIntegral -> dur) name slots =
+    mapM_ (P.toTarget . Ninjas.copy dur slots) .
+    find ((== name) . Skill.name) .
+    concatMap toList . Character.skills . Ninja.character =<< P.nUser
 
 -- | Resets a 'Ninja.Ninja' to their initial state.
 -- Uses 'Ninjas.factory' internally.
 factory :: ∀ m. MonadPlay m => m ()
 factory = do
     target <- P.target
+    alive  <- Ninja.alive <$> P.nTarget
     P.toTarget Ninjas.factory
     P.modifyAll $ unSoulbound target
+    alive' <- Ninja.alive <$> P.nTarget
+    when (alive' && not alive) do
+        user <- P.user
+        P.trigger user [OnHeal]
 
 -- | Restores a target to an earlier state. Charges are preserved.
 replaceWith :: ∀ m. MonadPlay m => Ninja -> m ()

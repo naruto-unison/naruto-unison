@@ -20,7 +20,7 @@ import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Delay as Delay
-import           Game.Model.Duration (Duration(..), Turns, incr, sync)
+import           Game.Model.Duration (Duration, Turns, incr)
 import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Constructor(..), Effect(..))
 import           Game.Model.Ninja (is)
@@ -97,7 +97,7 @@ trapConst trapType clas dur tr f = trapFull trapType clas dur tr $ const f
 trapFull :: ∀ m. MonadPlay m
          => Trap.Direction -> EnumSet Class -> Turns -> Trigger
          -> (Int -> RunConstraint ()) -> m ()
-trapFull direction classes (Duration -> unthrottled) trigger f =
+trapFull direction classes (fromIntegral -> unthrottled) trigger f =
     void $ runMaybeT do
         context <- P.context
         target  <- P.target
@@ -129,7 +129,7 @@ makeTrap Context{skill, user, target, continues, new}
     , effect  = \i -> To { target = context, run = Action.wrap $ f i }
     , classes = classes'
     , tracker = 0
-    , dur     = incr $ sync dur
+    , dur     = incr dur
     }
   where
     modClasses
@@ -149,7 +149,7 @@ makeTrap Context{skill, user, target, continues, new}
 -- triggered when it expires.
 delay :: ∀ m. MonadPlay m => Turns -> RunConstraint () -> m ()
 delay 0 _ = return () -- A Delay that lasts forever would be pointless!
-delay (Duration -> dur) f = do
+delay (fromIntegral -> dur) f = do
     context  <- P.context
     let user  = Context.user context
         del   = Delay.new context { Context.continues = False } dur $

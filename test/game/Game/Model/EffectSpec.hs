@@ -4,6 +4,7 @@ import ClassyPrelude
 
 import Control.Monad.Trans.State.Strict (StateT, evalStateT)
 import Data.Enum.Set (EnumSet)
+import Data.Maybe (fromJust)
 import Test.Hspec
 import Test.QuickCheck
 import Test.Hspec.QuickCheck
@@ -558,7 +559,8 @@ unreduces damage reduce unreduce = simAt Enemy do
     return $ 100 - targetHealth === healthBound (damage + unreduce - reduce)
 
 getSkill :: [Effect] -> Skill
-getSkill effects = Ninjas.getSkill (Left 0) ninja { Ninja.effects = effects }
+getSkill effects = fromJust $
+                   Ninjas.getSkill (Left 0) ninja { Ninja.effects = effects }
   where
     targets = (`To` return ()) <$> [minBound..maxBound]
     skill   = Skill.new { Skill.effects = targets } :| []

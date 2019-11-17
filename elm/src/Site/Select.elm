@@ -1105,7 +1105,7 @@ previewBox st =
                       ]
           ] ++
           List.map3 (previewSkill st.visibles char)
-          (List.range 0 <| Game.skillSize - 1)
+          (List.range 0 10) -- doesn't matter, not the limiting factor
           char.skills
           st.alternates
 

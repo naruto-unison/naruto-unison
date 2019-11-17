@@ -6,7 +6,7 @@
 
 <h2 #skills>Skills
 <p>
-  Every character has #{Ninja.skillSize} skills, which are listed in the <a href=@{CharactersR}>character guide</a>. Entries are formatted as such:
+  Every character has their own skills, which are listed in the <a href=@{CharactersR}>character guide</a>. Entries are formatted as such:
 <blockquote>
   <p>
     &lt;Skill description&gt;

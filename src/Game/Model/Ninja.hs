@@ -1,6 +1,6 @@
 module Game.Model.Ninja
   ( Ninja(..), new
-  , skillSize
+  , numSkills
   , alive, minHealth
   , is, isChanneling
   , has, hasBarrier, hasDefense, hasOwnDefense, hasOwn
@@ -11,7 +11,7 @@ module Game.Model.Ninja
 
 import ClassyPrelude
 
-import Data.List.NonEmpty ((!!))
+import qualified  Data.List.NonEmpty as NonEmpty
 
 import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
@@ -31,8 +31,8 @@ import           Util ((<$><$>), (∈), (∉), (!?))
 
 -- | Number of 'Skill' slots. This number is the boundary on quite a few things,
 -- most notably action messages from the client (in 'Game.Action.act').
-skillSize :: Int
-skillSize = 4
+numSkills :: Ninja -> Int
+numSkills n = length . skills $ character n
 
 -- | Constructs a @Ninja@ with starting values from a character and an index.
 new :: Slot -> Character -> Ninja
@@ -56,7 +56,8 @@ new slot c = Ninja { slot
                    , acted      = False
                    }
   where
-    own x = x { owner = slot }
+    own x     = x { owner = slot }
+    skillSize = length $ skills c
 
 -- | @alive n = health n > 0@
 alive :: Ninja -> Bool
@@ -167,7 +168,13 @@ minHealth n
   | n `is` Endure = 1
   | otherwise     = 0
 
--- | Obtains a @Skill@ from 'skills' by slot index.
--- Invariant: for @baseSkill x@, @x < 'skillSize'@.
-baseSkill :: Int -> Ninja -> Skill
-baseSkill s n = skills (character n) !! s !! (alternates n `indexEx` s)
+-- | Obtains a @Skill@ from 'skills' by slot index, if it exists.
+baseSkill :: Int -> Ninja -> Maybe Skill
+baseSkill s n = do
+    skill     <- skills (character n) !:? s
+    alternate <- alternates n !? s
+    skill !:? alternate
+  where
+    -- (!?) for NonEmpty
+    xs !:? i = headMay $ NonEmpty.drop i xs
+    {-# INLINE (!:?) #-}
