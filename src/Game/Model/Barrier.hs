@@ -6,6 +6,7 @@ import           Game.Model.Context (Context)
 import qualified Game.Model.Context as Context
 import           Game.Model.Internal (Barrier(..))
 import           Game.Model.Runnable (Runnable(To), RunConstraint)
+import           Game.Model.Duration (Duration)
 import qualified Game.Model.Skill as Skill
 
 -- | Adds a 'Barrier' with an effect that occurs when its duration
@@ -13,7 +14,7 @@ import qualified Game.Model.Skill as Skill
 -- barrier remaining, and an effect that occurs each turn 'Barrier.while' it
 -- exists.
 new :: Context
-    -> Int -- ^ Duration.
+    -> Duration
     -> (Int -> RunConstraint ()) -- ^ Applied at end with amount remaining.
     -> RunConstraint () -- ^ Applied every turn.
     -> Int -- ^ Initial amount.

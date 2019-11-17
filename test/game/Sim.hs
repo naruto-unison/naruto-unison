@@ -35,7 +35,7 @@ import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import           Game.Model.Duration (Duration(..), Turns, sync, unsync)
+import           Game.Model.Duration (Duration(..), Turns)
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as Ninja
@@ -101,7 +101,7 @@ actWith actSkill = do
                              }
 
 turns :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Turns -> m ()
-turns (Duration -> i) = do
+turns (fromIntegral -> i) = do
     player <- P.player
     replicateM_ (sync i + 1 - fromEnum player) . Engine.processTurn $ return ()
 
@@ -143,5 +143,5 @@ withClasses classes = P.with ctx
     withSkill sk = sk { Skill.classes = insertSet All classes }
 
 statusDur :: Text -> Ninja -> Duration
-statusDur name n = maybe 0 (unsync . Status.dur) .
+statusDur name n = maybe 0 Status.dur .
                    find ((== name) . Status.name) $ Ninja.statuses n

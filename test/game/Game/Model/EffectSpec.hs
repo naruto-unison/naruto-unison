@@ -33,7 +33,6 @@ import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context)
 import qualified Game.Model.Context as Context
-import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Amount(..), Constructor(..), Effect(..))
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja, is)
@@ -572,7 +571,7 @@ ninjaWithCooldown cooldown =
     Ninja.new (unsafeHead Slot.all)
     Blank.character { Character.skills = sk :| [sk, sk, sk] }
   where
-    sk = Skill.new { Skill.cooldown = Duration cooldown } :| []
+    sk = Skill.new { Skill.cooldown = fromIntegral cooldown } :| []
 
 simCooldown :: Ninja -> Int
 simCooldown n = simOf game Self do

@@ -232,16 +232,12 @@ characters =
           [ To Ally $ trapFrom 2 (Counter NonMental) do
                 apply -4 [Face]
                 copyAll 4
-                teach 4 4
-                teachOne 4 3 5
-                self do
-                    resetAll
-                    bomb (-4) [] [ To Done resetAll ]
+                targetNumSkills <- target numSkills
+                teach 4 "Puppet Curse: Attack" [0..targetNumSkills - 2]
+                teach 4 "Puppet Curse: Defend" [targetNumSkills - 1]
           ]
         }
-      ]
-    , [ invuln "Dodge" "Fū" [Physical] ]
-    , [ Skill.new
+      , Skill.new
         { Skill.name      = "Puppet Curse: Attack"
         , Skill.desc      = "Trapped in a puppet, little can be done but flail about and hope to hit someone! Deals 15 damage to an enemy."
         , Skill.classes   = [Physical, Melee]
@@ -249,8 +245,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ damage 15 ]
         }
-      ]
-    , [ Skill.new
+      , Skill.new
         { Skill.name      = "Puppet Curse: Defend"
         , Skill.desc      = "Trapped in a puppet, little can be done but flail about and hope to block an attack! The puppet becomes invulnerable for 1 turn."
         , Skill.classes   = [Physical, Melee]
@@ -260,6 +255,7 @@ characters =
           [ To Self $ apply 1 [Invulnerable All] ]
         }
       ]
+    , [ invuln "Dodge" "Fū" [Physical] ]
     ]
   , Character
     "Danzō Shimura"

@@ -9,13 +9,14 @@ import Data.Aeson (ToJSON)
 import qualified Class.Labeled
 import           Class.Labeled (Labeled)
 import           Class.TurnBased (TurnBased(..))
+import           Game.Model.Duration (Duration)
 import           Game.Model.Slot (Slot)
 
 -- | Destructible defense.
 data Defense = Defense { amount :: Int
                        , user   :: Slot
                        , name   :: Text
-                       , dur    :: Int
+                       , dur    :: Duration
                        } deriving (Eq, Show, Read, Generic, ToJSON)
 instance TurnBased Defense where
     getDur     = dur

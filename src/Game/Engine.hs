@@ -96,7 +96,7 @@ doDelays :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 doDelays = traverse_ delay . filter Ninja.alive =<< P.ninjas
   where
     delay n = traverse_ (P.launch . Delay.effect) .
-              filter ((<= 1) . Delay.dur) $ Ninja.delays n
+              filter ((<= -1) . Delay.dur) $ Ninja.delays n
 
 -- | Executes 'Status.bombs' of a @Status@.
 doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
@@ -129,7 +129,7 @@ doBarriers = do
   where
     collect n = groupBy Labeled.eq . sortWith Barrier.name $ Ninja.barrier n
     doBarrier p b
-      | Barrier.dur b == 1 = P.launch . Barrier.finish b $ Barrier.amount b
+      | Barrier.dur b == -1 = P.launch . Barrier.finish b $ Barrier.amount b
       | Parity.allied p $ Barrier.user b = P.launch $ Barrier.while b
       | otherwise = return ()
 

@@ -121,7 +121,7 @@ spec = parallel do
             it "extends duration" do
                 replicateM_ stacks act
                 electricDur <- statusDur "Electricity" <$> nTarget
-                electricDur `shouldBe` 1 + fromIntegral stacks
+                electricDur `shouldBe` fromIntegral (1 + stacks)
             it "damages on action" do
                 act
                 as Enemy $ return ()

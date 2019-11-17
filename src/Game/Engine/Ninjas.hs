@@ -64,7 +64,7 @@ import           Game.Model.Copy (Copy(Copy))
 import qualified Game.Model.Copy as Copy
 import           Game.Model.Defense (Defense(Defense))
 import qualified Game.Model.Defense as Defense
-import           Game.Model.Duration (Duration, incr, sync)
+import           Game.Model.Duration (Duration(..), incr)
 import           Game.Model.Effect (Amount(..), Effect(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja(..), is)
@@ -230,7 +230,7 @@ addOwnDefense :: Duration -- ^ 'Defense.dur'.
               -> Ninja -> Ninja
 addOwnDefense dur name amount n = n { defense = d : defense n }
   where
-    d = Defense { amount, name, user = slot n, dur = incr $ sync dur }
+    d = Defense { amount, name, user = slot n, dur = incr dur }
 
 addDefense :: Int -- ^ 'Defense.amount'.
            -> Text -- ^ 'Defense.name'.
@@ -295,7 +295,7 @@ copyAlternates :: Duration -- ^ 'Copy.dur'.
 copyAlternates dur skill source n = n { statuses = alts ++ statuses n }
   where
     alts = filter (not . null . Status.effects) $ alt <$> statuses source
-    dur' = sync if dur < -1 then dur + 1 else dur
+    dur' = if sync dur < 0 then incr dur else dur
     isAlt (Alternate _ name) = Skill.name skill == name
     isAlt _                  = False
     alt st = st { Status.dur     = min dur' $ Status.dur st
@@ -303,26 +303,25 @@ copyAlternates dur skill source n = n { statuses = alts ++ statuses n }
                 , Status.effects = filter isAlt $ Status.effects st
                 }
 
--- | Adds a 'Copy.Copy' to copies'.
-copy :: Duration -- ^ 'Copy.dur'.
-     -> Text -- ^ Replacing 'Skill.name'.
-     -> Skill -- ^ Skill.
-     -> Ninja -> Ninja
-copy dur name skill n = fromMaybe n do
-      s <- findIndex (any $ (== name) . Skill.name) . toList .
-           Character.skills $ character n
-      return n { copies = copier s $ copies n }
-  where
-    copier s = Seq.update s $ Just Copy { skill, dur = incr $ sync dur }
-
--- | Copies all @Skill@s from a source into 'Ninja.copies'.
+-- | Copies all 'Skill's from a source into 'Ninja.copies'.
 copyAll :: Duration -- ^ 'Copy.dur'.
         -> Ninja -- ^ Person whose skills are being copied.
         -> Ninja -> Ninja
 copyAll dur source n = n { copies = fromList $ cop <$> skills source }
   where
-    synced    = sync dur
-    cop skill = Just Copy { skill, dur = synced + synced `rem` 2 }
+    dur'
+      | Parity.even dur = dur
+      | otherwise       = incr dur
+    cop skill = Just Copy { skill, dur = dur' }
+
+-- | Copies a matching 'Skill' from a source into 'Ninja.copies'.
+copy :: Duration -- ^ 'Copy.dur'.
+      -> [Int] -- ^ Skill slots, in the range @[0, 'Ninja.numSkills')@.
+      -> Skill -- ^ 'Copy.skill'.
+      -> Ninja -> Ninja
+copy dur slots skill n = n { copies = foldl' go (copies n) slots }
+  where
+    go acc slot = Seq.update slot (Just Copy { skill, dur }) acc
 
 -- | Removes harmful effects. Does not work if the target has 'Plague'.
 cure :: (Effect -> Bool) -> Ninja -> Ninja
@@ -353,7 +352,7 @@ kill endurable n
   | otherwise = clearTraps OnRes $ n { health = 0 }
 
 -- | Extends the duration of matching 'statuses'.
-prolong :: Int -- ^ Added to 'Status.dur'.
+prolong :: Duration -- ^ Added to 'Status.dur'.
         -> Text -- ^ 'Status.name'.
         -> Slot -- ^ 'Status.user'.
         -> Ninja -> Ninja
@@ -361,31 +360,31 @@ prolong dur name src n =
     n { statuses = mapMaybe (prolong' dur name src) $ statuses n }
 
 -- | Extends the duration of a single 'Status'.
-prolong' :: Int -- ^ Added to 'Status.dur'.
+prolong' :: Duration -- ^ Added to 'Status.dur'.
          -> Text -- ^ 'Status.name'.
          -> Slot -- ^ 'Status.user'.
          -> Status -> Maybe Status
-prolong' dur name user st
+prolong' (Duration dur) name user st
   | Status.dur st == 0               = Just st
   | not $ Labeled.match name user st = Just st
-  | statusDur' <= 0                  = Nothing
+  | sync statusDur' < 0              = Nothing
   | otherwise                        = Just st
       { Status.dur    = statusDur'
       , Status.maxDur = max (Status.maxDur st) statusDur'
       }
     where
-      statusDur' = Status.dur st + dur'
+      statusDur' = Status.dur st + Duration dur'
       dur'
-        | odd (Status.dur st + dur) = dur
-        | dur < 0                   = dur + 1
-        | otherwise                 = dur - 1
+        | odd $ sync (Status.dur st) + dur = dur
+        | dur < 0                          = dur + 1
+        | otherwise                        = dur - 1
 
 prolongChannel :: Duration -> Text -> Ninja -> Ninja
 prolongChannel dur name n = n { channels = f <$> channels n }
   where
-    dur' chan = TurnBased.getDur chan + sync dur
+    dur' chan = TurnBased.getDur chan + dur
     f chan
-      | TurnBased.getDur chan <= 0              = chan
+      | sync (TurnBased.getDur chan) <= 0       = chan
       | name /= Skill.name (Channel.skill chan) = chan
       | otherwise = TurnBased.setDur (dur' chan) chan
 

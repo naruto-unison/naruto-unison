@@ -716,7 +716,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 absorb 1
-                copyLast 1
+                copyLast -2
                 apply 1 [Stun NonMental]
                 damage 20
           ]

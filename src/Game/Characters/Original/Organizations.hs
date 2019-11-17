@@ -155,8 +155,9 @@ characters =
           [ To XAlly $ trap 3 OnRes do
                 resetAll
                 setHealth 5
-                teach 1 2
-                bombWith [Bypassing] (-1)
+                targetNumSkills <- target numSkills
+                teach 1 "Converging Murder" [0..targetNumSkills - 1]
+                bombWith [Bypassing] -1
                     [Face, Invulnerable All, Alone, Seal, Enrage, Focus]
                     [ To Done killHard ]
           ]

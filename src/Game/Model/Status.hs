@@ -7,7 +7,7 @@ module Game.Model.Status
 
 import ClassyPrelude
 
-import           Game.Model.Duration (Duration, incr, sync)
+import           Game.Model.Duration (Duration, incr)
 import           Game.Model.Effect (Effect)
 import           Game.Model.Internal (Bomb(..), Status(..))
 import           Game.Model.Skill (Skill)
@@ -23,8 +23,8 @@ new user dur skill =
            , effects = mempty
            , classes = Skill.classes skill
            , bombs   = []
-           , maxDur  = incr $ sync dur
-           , dur     = incr $ sync dur
+           , maxDur  = incr dur
+           , dur     = incr dur
            }
 
 remove :: Int -- ^ 'amount'

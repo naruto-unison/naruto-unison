@@ -18,7 +18,6 @@ import ClassyPrelude
 import Yesod
 
 import           Data.List (nubBy)
-import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Text as Text
 import           Text.Blaze.Html (preEscapedToHtml)
 import qualified Yesod.Auth as Auth
@@ -32,7 +31,6 @@ import qualified Game.Characters as Characters
 import           Game.Model.Character (Category(..), Character)
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Class as Class
-import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import qualified Handler.Forum as Forum

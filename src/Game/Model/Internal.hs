@@ -32,7 +32,7 @@ import           Class.TurnBased (TurnBased(..))
 import           Game.Model.Chakra (Chakras(..))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Defense (Defense(..))
-import           Game.Model.Duration (Duration, sync, unsync)
+import           Game.Model.Duration (Duration)
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game)
 import           Game.Model.Group (Group)
@@ -47,7 +47,7 @@ data Barrier = Barrier { amount :: Int
                        , name   :: Text
                        , while  :: Runnable Context
                        , finish :: Int -> Runnable Context
-                       , dur    :: Int
+                       , dur    :: Duration
                        }
 instance ToJSON Barrier where
     toJSON Barrier{..} = object
@@ -115,14 +115,14 @@ data Channeling
 instance TurnBased Channeling where
     getDur Instant     = 0
     getDur Passive     = 0
-    getDur (Action d)  = sync d
-    getDur (Control d) = sync d
-    getDur (Ongoing d) = sync d
+    getDur (Action d)  = d
+    getDur (Control d) = d
+    getDur (Ongoing d) = d
     setDur _ Instant   = Instant
     setDur _ Passive   = Passive
-    setDur d Action{}  = Action $ unsync d
-    setDur d Control{} = Control $ unsync d
-    setDur d Ongoing{} = Ongoing $ unsync d
+    setDur d Action{}  = Action d
+    setDur d Control{} = Control d
+    setDur d Ongoing{} = Ongoing d
 
 instance ToMarkup Channeling where
     toMarkup Instant     = "Instant"
@@ -148,7 +148,7 @@ instance Eq Character where
 
 -- | A 'Skill' copied from a different character.
 data Copy = Copy { skill :: Skill
-                 , dur   :: Int
+                 , dur   :: Duration
                  } deriving (Generic, ToJSON)
 
 instance Classed Copy where
@@ -160,7 +160,7 @@ instance TurnBased Copy where
 
 -- | Applies an effect after several turns.
 data Delay = Delay { effect :: Runnable Context
-                   , dur    :: Int
+                   , dur    :: Duration
                    }
 
 instance Classed Delay where
@@ -269,8 +269,8 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
                      , effects :: [Effect]
                      , classes :: EnumSet Class
                      , bombs   :: [Runnable Bomb]
-                     , maxDur  :: Int
-                     , dur     :: Int
+                     , maxDur  :: Duration
+                     , dur     :: Duration
                      } deriving (Generic, ToJSON)
 instance Eq Status where
     (==) = (==) `on` \Status{..} -> (name, user, classes, dur)
@@ -312,7 +312,7 @@ data Trap = Trap { direction :: Direction
                  , effect    :: Int -> Runnable Context
                  , classes   :: EnumSet Class
                  , tracker   :: Int
-                 , dur       :: Int
+                 , dur       :: Duration
                  }
 instance ToJSON Trap where
     toJSON Trap{..} = object
