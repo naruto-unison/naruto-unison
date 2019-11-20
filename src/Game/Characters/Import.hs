@@ -5,7 +5,7 @@ module Game.Characters.Import
   , invuln
   , user, target, userHas, targetHas, userHas', targetHas'
   , userStacks, targetStacks, userDefense
-  , channeling, invulnerable
+  , channeling, invulnerable, inGroup
   , self, allies, enemies, everyone
   , bonusIf, numAffected, numDeadAllies
   ) where
@@ -32,6 +32,7 @@ import Game.Model.Ninja as Import (Ninja(barrier, defense, health, slot, statuse
 import Game.Model.Requirement as Import (Requirement(..))
 import Game.Model.Runnable as Import (RunConstraint, Runnable(To))
 import Game.Model.Skill as Import (Target(..))
+import Game.Model.Slot as Import (toInt, teamSize)
 import Game.Model.Status as Import (Bomb(..))
 import Game.Model.Trap as Import (Direction(..))
 import Game.Model.Trigger as Import (Trigger(..))
@@ -43,12 +44,14 @@ import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Engine.Effects as Effects
+import qualified Game.Model.Character as Character
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
+import           Util ((∈))
 
 -- | Baseline fourth skill that makes the character invulnerable for one turn.
 invuln :: Text -- ^ 'Skill.name'.
@@ -146,6 +149,10 @@ channeling name = Ninja.isChanneling name <$> P.nUser
 -- | True if the subject is 'Invulnerable' to any 'Model.Game.Class.Class'.
 invulnerable :: Ninja -> Bool
 invulnerable n = not . null $ Effects.invulnerable n
+
+-- | True if 'Ninja.character' has a 'Group'.
+inGroup :: Group -> Ninja -> Bool
+inGroup x n = x ∈ Character.groups (Ninja.character n)
 
 -- | Number of users affected by a 'Model.Game.Status.Status'.
 numAffected :: ∀ m. MonadPlay m => Text -> m Int

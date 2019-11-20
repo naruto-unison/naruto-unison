@@ -72,9 +72,46 @@ characters =
         }
       ]
     , [ invuln "Parry" "Naruto" [Physical] ]
-    ]
+    ]{-
   , Character
-    "Commander Gaara"
+    "Proxy Commander Shikamaru"
+    "TODO"
+    [LeafVillage, Eleven, AlliedForces, Chunin, Fire, Earth, Yin, Nara]
+    let
+        formation :: (Int -> RunConstraint()) -> RunConstraint ()
+        formation withAmount = do
+            formingStacks <- user $ numAnyStacks "forming"
+            if formingStacks > 0 then
+                allies $ addStack' "formed"
+            else do
+                allies $ addStack' "forming"
+                delay -1 do
+                    formedStacks <- user $ numAnyStacks "formed"
+                    when (formedStacks > 0) $ withAmount formedStacks
+    in
+    [ [ Skill.new
+        { Skill.name      = "Team Formation"
+        , Skill.desc      = "TODO"
+        , Skill.classes   = [All, Mental] 
+        , Skill.effects   =
+          [ To Self $ allies do
+                targetSlot      <- target slot
+                targetNumSkills <- target numSkills
+                let skill = case toInt targetSlot `rem` teamSize of
+                                0 -> "Formation C"
+                                1 -> "Formation D"
+                                _ -> "Formation E"
+                teach 1 skill [targetNumSkills - 1]
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Formation C"
+        , Skill.effects   =
+          [ To Self $ formation \i -> return () ]
+        }
+    ] ] -}
+  , Character
+    "Regimental Commander Gaara"
     "Coordinating the Allied Shinobi Forces and personally commanding the Fourth Division, Gaara has proven to be an inspiring leader and talented strategist. His attacks scatter sand particles around the battlefield, which he draws back in with explosive force."
     [SandVillage, AlliedForces, Kage, Jinchuriki, Sensor, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new

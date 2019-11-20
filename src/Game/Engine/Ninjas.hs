@@ -34,7 +34,7 @@ module Game.Engine.Ninjas
   , addChannels
   , cancelChannel
 
-  , copy, copyAll, copyAlternates
+  , copy, copyAll
   , recharge, rechargeAll
 
   , prolong

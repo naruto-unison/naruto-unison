@@ -92,7 +92,7 @@ spec = parallel do
                 targetHealth - targetHealth' `shouldBe` 5 * (stacks + 1)
 
 
-    describeCharacter "Commander Gaara" do
+    describeCharacter "Regimental Commander Gaara" do
         useOn Enemy "Sand Grasp" do
             it "adds Sand Bombs" do
                 replicateM_ stacks act
