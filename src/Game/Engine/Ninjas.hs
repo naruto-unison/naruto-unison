@@ -287,22 +287,6 @@ cancelChannel name n = n { channels = f $ channels n
   where
     f = filter $ (/= name) . Skill.name . Channel.skill
 
--- | Acquires 'Alternate' effects when copying a target's skills.
-copyAlternates :: Duration -- ^ 'Copy.dur'.
-               -> Skill -- ^ Skill being copied.
-               -> Ninja -- ^ Person whose skills are being copied.
-               -> Ninja -> Ninja
-copyAlternates dur skill source n = n { statuses = alts ++ statuses n }
-  where
-    alts = filter (not . null . Status.effects) $ alt <$> statuses source
-    dur' = if sync dur < 0 then incr dur else dur
-    isAlt (Alternate _ name) = Skill.name skill == name
-    isAlt _                  = False
-    alt st = st { Status.dur     = min dur' $ Status.dur st
-                , Status.user    = slot n
-                , Status.effects = filter isAlt $ Status.effects st
-                }
-
 -- | Copies all 'Skill's from a source into 'Ninja.copies'.
 copyAll :: Duration -- ^ 'Copy.dur'.
         -> Ninja -- ^ Person whose skills are being copied.

@@ -379,7 +379,7 @@ tryEnact settings player mvar = do
     -- must not be canceled.
     lock <- newEmptyMVar
 
-    forkIO do
+    liftIO $ forkIO do
         threadDelay $ Settings.turnLength settings
         void $ tryPutMVar lock TimedOut
 

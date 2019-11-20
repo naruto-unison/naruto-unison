@@ -200,9 +200,7 @@ filterTopics p xs
 -- | Fills out author information from the database.
 selectWithAuthors :: ∀ m a. (MonadIO m, HasAuthor a, AppPersistEntity a)
                   => [Filter a] -> [SelectOpt a] -> SqlPersistT m [Cite a]
-selectWithAuthors selectors opts = do
-    selected <- selectList selectors opts
-    traverse go selected
+selectWithAuthors selectors opts = traverse go =<< selectList selectors opts
   where
     go (Entity citeKey citeVal) = do
         citeAuthor <- get404 author

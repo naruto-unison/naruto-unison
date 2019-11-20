@@ -31,6 +31,8 @@ import qualified Game.Model.Act as Act
 import qualified Game.Model.Barrier as Barrier
 import           Game.Model.Class (Class(..))
 import qualified Game.Model.Context as Context
+import           Game.Model.Copy (Copy(Copy))
+import qualified Game.Model.Copy
 import qualified Game.Model.Delay as Delay
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
@@ -39,6 +41,7 @@ import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Runnable as Runnable
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Status (Bomb(..), Status)
@@ -171,8 +174,12 @@ unSoulbound user n = Ninjas.modifyStatuses
         n { Ninja.traps = [trap | trap <- Ninja.traps n
                                 , user /= Trap.user trap
                                   || Soulbound ∉ Trap.classes trap]
+          , Ninja.copies = filter keep $ Ninja.copies n
           }
-
+  where
+    keep Nothing = True
+    keep (Just Copy{skill}) = user /= Skill.owner skill
+                              || Soulbound ∉ Skill.classes skill
 -- | Executes 'Model.Effect.Afflict' and 'Model.Effect.Heal'
 -- 'Model.Effect.Effect's.
 doHpsOverTime :: ∀ m. MonadGame m => m ()

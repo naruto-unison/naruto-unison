@@ -65,6 +65,12 @@ instance MonadGame (ReaderT (STWrapper s) (ST s)) where
                  >>= \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
     modify i f = asks ninjasRef
                  >>= \xs -> MVector.unsafeModify xs f $ Slot.toInt i
+    {-# INLINE game #-}
+    {-# INLINE alter #-}
+    {-# INLINE ninjas #-}
+    {-# INLINE ninja #-}
+    {-# INLINE write #-}
+    {-# INLINE modify #-}
 
 instance MonadIO m => MonadGame (ReaderT IOWrapper m) where
     game       = asks gameRef
@@ -79,6 +85,12 @@ instance MonadIO m => MonadGame (ReaderT IOWrapper m) where
                  >>= liftIO . \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
     modify i f = asks ninjasRef
                  >>= liftIO . \xs -> MVector.unsafeModify xs f $ Slot.toInt i
+    {-# INLINE game #-}
+    {-# INLINE alter #-}
+    {-# INLINE ninjas #-}
+    {-# INLINE ninja #-}
+    {-# INLINE write #-}
+    {-# INLINE modify #-}
 
 trackAction :: ∀ s. Skill -> [Ninja] -> [Ninja] -> STWrapper s -> ST s ()
 trackAction skill ns ns' x =

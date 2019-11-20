@@ -4,7 +4,7 @@ module Application.Logger (makeLogWare) where
 
 import ClassyPrelude
 
-import qualified Control.Concurrent as Concurrent
+import           Control.Concurrent (forkIO, threadDelay)
 import           Data.Default (def)
 import           Network.HTTP.Types (Status(Status))
 import           Network.Wai (Middleware)
@@ -24,8 +24,8 @@ import qualified Application.Settings as Settings
 getDateGetter :: IO () -> IO (IO ByteString)
 getDateGetter flusher = do
     (getter, updater) <- WaiLogger.clockDateCacher
-    _ <- Concurrent.forkIO $ forever $ do
-        Concurrent.threadDelay 1e6
+    _                 <- forkIO . forever $ do
+        threadDelay 1e6
         updater
         flusher
     return getter
