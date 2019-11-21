@@ -22,7 +22,7 @@ characters =
           [ To Enemy do
                 damage 20
                 apply 1 [Stun Physical, Stun Melee]
-          , To Self $ hide 0 [Alternate "Frog Kumite" "Rasen Shuriken"]
+          , To Self $ hide Permanent [Alternate "Frog Kumite" "Rasen Shuriken"]
           ]
         }
       , Skill.new
@@ -33,7 +33,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 50
-                apply 0 [Weaken [Chakra] Percent 10]
+                apply Permanent [Weaken [Chakra] Percent 10]
           , To Self $ remove "frog kumite"
           ]
         }
@@ -55,8 +55,8 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemies $ apply 1 [Disable Stuns]
-          , To Self $
-                hide 0 [Alternate "Natural Energy Assault" "Rasengan Barrage"]
+          , To Self $ hide Permanent
+                [Alternate "Natural Energy Assault" "Rasengan Barrage"]
           ]
         }
       , Skill.new
@@ -92,7 +92,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Team Formation"
         , Skill.desc      = "TODO"
-        , Skill.classes   = [All, Mental] 
+        , Skill.classes   = [All, Mental]
         , Skill.effects   =
           [ To Self $ allies do
                 targetSlot      <- target slot
@@ -123,7 +123,7 @@ characters =
           [ To Enemy do
                 stacks <- targetStacks "Sand Bomb"
                 damage (15 + 5 * stacks)
-                apply' "Sand Bomb" 0 []
+                apply' "Sand Bomb" Permanent []
           ]
         , Skill.changes   =
             changeWithDefense "Mother's Embrace" targetAll `also`
@@ -203,7 +203,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Self $ hide 0 [Alternate "Kuroari Trap" "Iron Maiden"]
+          [ To Self $ hide Permanent [Alternate "Kuroari Trap" "Iron Maiden"]
           , To Enemy $ bomb 5 []
                 [ To Done do
                     userSlot <- user slot
@@ -233,11 +233,11 @@ characters =
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Self do
-                defend 0 40
+                defend Permanent 40
                 onBreak'
           , To XAllies do
                 userSlot <- user slot
-                apply 0 [Redirect userSlot]
+                apply Permanent [Redirect userSlot]
           ]
         }
       ]
@@ -267,10 +267,10 @@ characters =
         , Skill.desc      = "By synthesizing rare genetic traits from other bloodlines inside his body, Kabuto becomes attuned to the flow of natural energy. Each turn, the chakra costs and type of chakra gained from his other skills cycle through the different types of chakra. Once used, this skill becomes [DNA Transmission Shadow][r][r][r]."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand, Rand, Rand]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
-          [ To Self $ hide 0 [Alternate "Sage Transformation"
-                                        "DNA Transmission Shadow"]
+          [ To Self $ hide Permanent [Alternate "Sage Transformation"
+                                                "DNA Transmission Shadow"]
           ]
         , Skill.effects   =
           [ To Self $ delay -1 $ renameChannels rename ]
@@ -287,13 +287,13 @@ characters =
                 flag
                 everyone $
                     whenM (targetHas "DNA Transmission Shadow") killHard
-                trap' 0 OnDeath $ everyone $
+                trap' Permanent OnDeath $ everyone $
                     whenM (targetHas "DNA Transmission Shadow") killHard
           ]
         , Skill.effects   =
           [ To XAlly $ unlessM (userHas "dna transmission shadow") do
                 factory
-                tag 0
+                tag Permanent
           ]
         , Skill.interrupt  =
           [ To Self $ remove "dna transmission" ]
@@ -534,12 +534,12 @@ characters =
           let
               amaterasu :: RunConstraint ()
               amaterasu = do
-                  trapWith [Bypassing] 0 OnInvulnerable do
+                  trapWith [Bypassing] Permanent OnInvulnerable do
                       remove "Amaterasu"
                       removeTrap "Amaterasu"
-                  bombWith [Bypassing] 0 [Afflict 5]
+                  bombWith [Bypassing] Permanent [Afflict 5]
                       [ To Done $ self $ addStack ]
-                  trapFrom 0 OnHelped amaterasu
+                  trapFrom Permanent OnHelped amaterasu
           in
           [ To Enemy amaterasu ]
         }
@@ -584,7 +584,8 @@ characters =
                 apply 3 [Afflict 5]
                 userSlot <- user slot
                 apply 1 [Taunt userSlot]
-          , To Self $ hide 0 [Alternate "Poisonous Chain Skewer" "Impale"]
+          , To Self $ hide Permanent
+                [Alternate "Poisonous Chain Skewer" "Impale"]
           ]
         }
       , Skill.new
@@ -612,7 +613,8 @@ characters =
         , Skill.dur       = Action 3
         , Skill.start     =
           [ To Self do
-                hide 0 [Alternate "Flamethrower Jets" "Cutting Water Jets"]
+                hide Permanent
+                    [Alternate "Flamethrower Jets" "Cutting Water Jets"]
                 flag' "first"
           ]
         , Skill.effects   =
@@ -655,12 +657,12 @@ characters =
                 everyone do
                     remove "Flame Blast"
                     remove "Flamethrower Jets"
-                hide 0 [Alternate "Performance of a Hundred Puppets"
+                hide Permanent [Alternate "Performance of a Hundred Puppets"
                                   "Barrage of a Hundred Puppets"]
-                defend 0 50
+                defend Permanent 50
                 onBreak $ self $
                     remove "performance of a hundred puppets"
-          , To XAllies $ defend 0 25
+          , To XAllies $ defend Permanent 25
           ]
         }
       , Skill.new
@@ -716,7 +718,7 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self $ hide 0 [Alternate "Paper Bomb" "Paper Shuriken"]
+          [ To Self $ hide Permanent [Alternate "Paper Bomb" "Paper Shuriken"]
           , To Enemy do
                 stacks <- targetStacks "Paper Shuriken"
                 damage (15 + 10 * stacks)
@@ -800,16 +802,17 @@ characters =
         , Skill.cost    = [Blood, Nin]
         , Skill.effects =
           [ To Ally do
-                self $ hide 0 []
-                bomb 0 [] [ To Done $ self $ remove "curse mark release" ]
-                trap' 0 (OnDamaged All) $ unlessM (user alive) do
+                self $ hide Permanent []
+                bomb Permanent []
+                    [ To Done $ self $ remove "curse mark release" ]
+                trap' Permanent (OnDamaged All) $ unlessM (user alive) do
                     targetHealth <- target health
                     when (25 >= targetHealth && targetHealth > 0) do
                         killHard
                         self do
                             setHealth 100
                             alternate [0, 0, 0, 0] 1
-                            apply 0 [Invulnerable Bane]
+                            apply Permanent [Invulnerable Bane]
           ]
         }
       , Skill.new

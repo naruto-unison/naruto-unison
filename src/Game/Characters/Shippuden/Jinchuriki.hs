@@ -19,7 +19,7 @@ characters =
         , Skill.require   = HasI 0 "Two-Tailed Transformation"
         , Skill.classes   = [Chakra]
         , Skill.effects   =
-          [ To Self $ apply 0 [Reduce [All] Percent 50, Face] ]
+          [ To Self $ apply Permanent [Reduce [All] Percent 50, Face] ]
         }
       ]
     , [ Skill.new
@@ -82,7 +82,7 @@ characters =
         , Skill.classes   = [Chakra, Ranged, Bane, Soulbound]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Enemy $ apply 0 [Afflict 10] ]
+          [ To Enemy $ apply Permanent [Afflict 10] ]
         }
       ]
     , [ Skill.new
@@ -158,7 +158,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.charges   = 5
         , Skill.effects   =
-          [ To Self $ apply 0
+          [ To Self $ apply Permanent
                 [Strengthen [All] Flat 5, Reduce [Affliction] Percent 10]
           ]
         }
@@ -200,9 +200,9 @@ characters =
         , Skill.effects   =
           [ To Self do
                 sacrifice 1 5
-                defend 0 10
+                defend Permanent 10
                 alternate loadout 0
-                apply 0 [Reduce [All] Flat 10, Plague, Face]
+                apply Permanent [Reduce [All] Flat 10, Plague, Face]
           ]
         }
       , Skill.new
@@ -212,10 +212,11 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ To Self do
-                apply 0 [Reduce [All] Flat 20, Plague, Alone, Enrage, Face]
+                apply Permanent
+                    [Reduce [All] Flat 20, Plague, Alone, Enrage, Face]
                 remove "Four-Tailed Transformation"
                 sacrifice 1 10
-                defend 0 20
+                defend Permanent 20
                 alternate loadout 1
           ]
         }
@@ -226,10 +227,11 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Self do
-                apply 0 [Reduce [All] Flat 30, Plague, Alone, Enrage, Face]
+                apply Permanent
+                    [Reduce [All] Flat 30, Plague, Alone, Enrage, Face]
                 remove "Six-Tailed Transformation"
                 sacrifice 1 15
-                defend 0 30
+                defend Permanent 30
                 alternate loadout 2
           ]
         }

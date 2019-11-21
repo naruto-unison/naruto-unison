@@ -25,7 +25,7 @@ characters =
                 deplete 1
                 pierce 15
                 apply 1 [Stun All]
-                apply 0 [Weaken [All] Flat 5]
+                apply Permanent [Weaken [All] Flat 5]
           ]
         }
       ]
@@ -155,7 +155,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 afflict 25
-                apply 0 [Weaken [All] Flat 5]
+                apply Permanent [Weaken [All] Flat 5]
           , To Self $ sacrifice 0 15
           ]
         }
@@ -205,7 +205,7 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Allies $ defend 0 30
+          [ To Allies $ defend Permanent 30
           , To Self $ tag 3
           ]
         }
@@ -356,7 +356,7 @@ characters =
                         , Alternate "Grand Fireball" "Grand Fireball "
                         ]
                 trap 4 OnDeath $ everyone $ whenM (targetHas "Sharingan") $
-                    apply' "Borrowed Sharingan" 0
+                    apply' "Borrowed Sharingan" Permanent
                         [ Reduce [All] Flat 5
                         , Strengthen [NonAffliction] Flat 5
                         ]
@@ -393,7 +393,7 @@ characters =
                 bonus <- 1 `bonusIf` targetHas "Kusari Chains"
                 pierce (20 + 20 * bonus)
                 userSlot <- user slot
-                apply (1 + bonus) [Alone, Taunt userSlot]
+                apply (fromIntegral $ 1 + bonus) [Alone, Taunt userSlot]
           ]
         }
       ]

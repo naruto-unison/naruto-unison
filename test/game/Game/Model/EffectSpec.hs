@@ -33,6 +33,7 @@ import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context)
 import qualified Game.Model.Context as Context
+import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Amount(..), Constructor(..), Effect(..))
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja, is)
@@ -66,13 +67,13 @@ spec = parallel do
 
     describe "Afflict" do
         prop "damages every turn" \amount (Positive turns) -> simAt Enemy do
-            apply 0 [Afflict amount]
+            apply Permanent [Afflict amount]
             Sim.turns $ turns - 1
             targetHealth <- Ninja.health <$> P.nTarget
             return $ 100 - targetHealth === healthBound (amount * turns)
 
     describe "Alone" do
-        let tryTarget = apply 0 [Alone] >> canTarget
+        let tryTarget = apply Permanent [Alone] >> canTarget
 
         it "blocks allies"    . not $ simAt Ally  tryTarget
         it "does not block enemies" $ simAt Enemy tryTarget
@@ -83,12 +84,12 @@ spec = parallel do
 
     describe "AntiCounter" do
         it "ignores counters and reflects" $ simAt Enemy do
-            apply 0 [Reflect, ReflectAll All]
-            trap 0 (Counter All) $ return ()
-            trap 0 (CounterAll All) $ return ()
+            apply Permanent [Reflect, ReflectAll All]
+            trap Permanent (Counter All) $ return ()
+            trap Permanent (CounterAll All) $ return ()
             self do
-                trap 0 (Countered All) $ return ()
-                apply 0 [AntiCounter]
+                trap Permanent (Countered All) $ return ()
+                apply Permanent [AntiCounter]
             canTarget
 
     describe "Bleed" do
@@ -103,21 +104,21 @@ spec = parallel do
             return $ targetHealth === healthBound (1 + hp + bless)
 
     describe "Block" do
-        let tryTarget t = do apply 0 [Block $ Sim.targetSlot t]
+        let tryTarget t = do apply Permanent [Block $ Sim.targetSlot t]
                              at XEnemies $ canTargetAs Enemy
 
         it "blocks vs. subject"  . not . simAt Enemy $ tryTarget XEnemies
         it "does not block vs. others" $ simAt Enemy $ tryTarget REnemy
 
     describe "BlockAllies" do
-        let tryTarget = self (apply 0 [BlockAllies]) >> canTarget
+        let tryTarget = self (apply Permanent [BlockAllies]) >> canTarget
 
         it "blocks vs. allies"    . not $ simAt Ally  tryTarget
         it "does not block vs. enemies" $ simAt Enemy tryTarget
         it "does not block vs. self"    $ simAt Self  tryTarget
 
     describe "BlockEnemies" do
-        let tryTarget = self (apply 0 [BlockEnemies]) >> canTarget
+        let tryTarget = self (apply Permanent [BlockEnemies]) >> canTarget
 
         it "blocks vs. enemies"  . not $ simAt Enemy tryTarget
         it "does not block vs. allies" $ simAt Ally  tryTarget
@@ -128,21 +129,21 @@ spec = parallel do
             reduce      = 3
 
         it "boosts effects from allies" $ simAt Self do
-            as Ally $ apply 0 [Reduce (singletonSet All) Flat reduce]
-            self $ apply 0 [Boost boostAmount]
+            as Ally $ apply Permanent [Reduce (singletonSet All) Flat reduce]
+            self $ apply Permanent [Boost boostAmount]
             as Enemy $ Combat.damage damage
             userHealth <- Ninja.health <$> P.nUser
             return $ damage - (100 - userHealth) `shouldBe` boostAmount * reduce
 
         it "does not boost own effects" $ simAt Self do
-            apply 0 [Reduce (singletonSet All) Flat reduce, Boost boostAmount]
+            apply Permanent [Reduce (singletonSet All) Flat reduce, Boost boostAmount]
             as Enemy $ Combat.damage damage
             userHealth <- Ninja.health <$> P.nUser
             return $ damage - (100 - userHealth) `shouldBe` reduce
 
     describe "Build" do
         prop "adds to barrier" \build hp -> simEffects [Build build] [] Ally do
-            Combat.barricade 0 hp
+            Combat.barricade Permanent hp
             if build + hp >= 0 then do
                 targetBarrier <- Ninja.totalBarrier <$> P.nTarget
                 return $ targetBarrier === build + hp
@@ -151,7 +152,7 @@ spec = parallel do
                 return $ targetDefense === negate (build + hp)
 
         prop "adds to defense" \build hp -> simEffects [Build build] [] Ally do
-            Combat.defend 0 hp
+            Combat.defend Permanent hp
             if build + hp >= 0 then do
                 targetDefense <- Ninja.totalDefense <$> P.nTarget
                 return $ targetDefense === build + hp
@@ -161,8 +162,8 @@ spec = parallel do
 
     describe "Bypass" do
         it "makes all skills bypass" $ simAt Enemy do
-            self $ apply 0 [Bypass]
-            apply 0 [Invulnerable All]
+            self $ apply Permanent [Bypass]
+            apply Permanent [Invulnerable All]
             canTarget
 
     describe "DamageToDefense" do
@@ -171,27 +172,27 @@ spec = parallel do
 
     describe "Disable" do
         it "stuns stuns" $ simAt Enemy do
-            apply 0 [Disable Stuns]
-            as Enemy $ apply 0 [Stun All]
+            apply Permanent [Disable Stuns]
+            as Enemy $ apply Permanent [Stun All]
             userStunned <- Effects.stun <$> P.nUser
             return $ userStunned `shouldBe` mempty
 
         it "stuns counters" $ simAt Enemy do
-            apply 0 [Disable Counters]
+            apply Permanent [Disable Counters]
             as Enemy do
                 self do
-                    trap 0 (Counter All) $ return ()
-                    trap 0 (CounterAll All) $ return ()
-                trap 0 (Countered All) $ return ()
+                    trap Permanent (Counter All) $ return ()
+                    trap Permanent (CounterAll All) $ return ()
+                trap Permanent (Countered All) $ return ()
             canTarget
 
         it "stuns others" $ simAt Enemy do
-            apply 0 [Disable $ Any ReflectAll]
-            as Enemy $ self $ apply 0 $ ReflectAll <$> [minBound..maxBound]
+            apply Permanent [Disable $ Any ReflectAll]
+            as Enemy $ self $ apply Permanent $ ReflectAll <$> [minBound..maxBound]
             canTarget
 
     describe "Duel" do
-        let tryTarget t = do as XAlly $ apply 0 [Duel $ Sim.targetSlot t]
+        let tryTarget t = do as XAlly $ apply Permanent [Duel $ Sim.targetSlot t]
                              canTarget
 
         it "invulnerable to enemies" . not . simAt Enemy $ tryTarget XEnemies
@@ -202,9 +203,9 @@ spec = parallel do
         prop "constraints health" constrainsHealth
 
     describe "Enrage" do
-        let tryApply effect = do apply' "1" 0 [effect]
-                                 apply' "2" 0 [Enrage]
-                                 apply' "3" 0 [effect]
+        let tryApply effect = do apply' "1" Permanent [effect]
+                                 apply' "2" Permanent [Enrage]
+                                 apply' "3" Permanent [effect]
                                  (`is` effect) <$> P.nTarget
 
         it "ignores negative effects" . not  . simAt Ally $ tryApply Plague
@@ -218,12 +219,12 @@ spec = parallel do
 
     describe "Expose" do
         it "prevents target from becoming invulnerable" $ simAt Enemy do
-            apply 0 [Expose]
-            as Enemy $ self $ apply 0 [Invulnerable All]
+            apply Permanent [Expose]
+            as Enemy $ self $ apply Permanent [Invulnerable All]
             canTarget
 
         it "prevents target from reducing damage" $ simAt Enemy do
-            apply 0 [Reduce (singletonSet All) Flat 100, Expose]
+            apply Permanent [Reduce (singletonSet All) Flat 100, Expose]
             Combat.damage 1
             targetHealth <- Ninja.health <$> P.nTarget
             return $ 100 - targetHealth `shouldBe` 1
@@ -232,20 +233,20 @@ spec = parallel do
 
     describe "Focus" do
         it "ignores stuns" $ simAt Enemy do
-            self $ apply 0 [Focus, Disable $ Only Reveal, Silence, Stun All]
-            apply 0 [Reveal]
+            self $ apply Permanent [Focus, Disable $ Only Reveal, Silence, Stun All]
+            apply Permanent [Reveal]
             (`is` Reveal) <$> P.nTarget
 
     describe "Heal" do
         prop "heals every turn" \amount (Positive turns) -> simAt Enemy do
             setHealth 1
-            apply 0 [Heal amount]
+            apply Permanent [Heal amount]
             Sim.turns $ turns - 1
             targetHealth <- Ninja.health <$> P.nTarget
             return $ targetHealth === healthBound (1 + amount * turns)
 
     describe "Invulnerable" do
-        let ignore atk dmg = do apply 0 [Invulnerable atk]
+        let ignore atk dmg = do apply Permanent [Invulnerable atk]
                                 dmg 50
                                 targetHealth <- Ninja.health <$> P.nTarget
                                 return $ targetHealth `shouldBe` 100
@@ -259,7 +260,7 @@ spec = parallel do
 
     describe "NoIgnore" do
         it "ignores ignores" $ simAt Enemy do
-            apply 0 [Focus, NoIgnore, Stun All]
+            apply Permanent [Focus, NoIgnore, Stun All]
             targetStunned <- Effects.stun <$> P.nTarget
             return $ targetStunned `shouldBe` singletonSet All
 
@@ -269,8 +270,8 @@ spec = parallel do
 
     describe "Pierce" do
         it "ignores damage reduction" $ simAt Enemy do
-            self $ apply 0 [Pierce]
-            apply 0 [Reduce (singletonSet All) Flat 100]
+            self $ apply Permanent [Pierce]
+            apply Permanent [Reduce (singletonSet All) Flat 100]
             Combat.damage 1
             targetHealth <- Ninja.health <$> P.nTarget
             return $ 100 - targetHealth `shouldBe` 1
@@ -278,13 +279,13 @@ spec = parallel do
     describe "Plague" do
         it "blocks healing" $ simAt Enemy do
             setHealth 1
-            apply 0 [Plague, Heal 100]
+            apply Permanent [Plague, Heal 100]
             heal 100
             targetHealth <- Ninja.health <$> P.nTarget
             return $ targetHealth `shouldBe` 1
 
         it "blocks curing" $ simAt Enemy do
-            apply 0 [Plague]
+            apply Permanent [Plague]
             cureAll
             (`is` Plague) <$> P.nTarget
 
@@ -315,16 +316,16 @@ spec = parallel do
     -- describe "Reveal" (nothing to test)
 
     describe "Seal" do
-        let tryApply effect = do apply' "1" 0 [effect]
-                                 apply' "2" 0 [Seal]
-                                 apply' "3" 0 [effect]
+        let tryApply effect = do apply' "1" Permanent [effect]
+                                 apply' "2" Permanent [Seal]
+                                 apply' "3" Permanent [effect]
                                  (`is` effect) <$> P.nTarget
         it "ignores helpful effects"   . not . simAt Self $ tryApply Focus
         it "does not ignore harmful effects" . simAt Self $ tryApply Reveal
 
     describe "Share" do
-        let harms target = do apply 0 [Share $ Sim.targetSlot Enemy]
-                              as target $ apply 0 [Reveal]
+        let harms target = do apply Permanent [Share $ Sim.targetSlot Enemy]
+                              as target $ apply Permanent [Reveal]
                               (`is` Reveal) <$> Sim.get Enemy
 
         it "shares harm"                . simAt Ally $ harms XEnemies
@@ -332,7 +333,7 @@ spec = parallel do
 
     describe "Silence" do
         it "blocks non-damage" $ simAt Enemy do
-            self $ apply 0 [Silence]
+            self $ apply Permanent [Silence]
             Combat.damage 1
             Combat.heal 100
             targetHealth <- Ninja.health <$> P.nTarget
@@ -357,7 +358,7 @@ spec = parallel do
             `shouldBe` Skill.targets (Skills.swap $ getSkill [])
 
     describe "Taunt" do
-        let tryTarget = do self $ apply 0 [Taunt $ Sim.targetSlot Enemy]
+        let tryTarget = do self $ apply Permanent [Taunt $ Sim.targetSlot Enemy]
                            canTarget
 
         it "does not block against subject" $ simAt Enemy    tryTarget
@@ -369,55 +370,55 @@ spec = parallel do
 
     describe "Throttle" do
         it "throttles counters" $ simAt Enemy do
-            apply 0 [Throttle 1 Counters]
-            as Enemy $ trap 5 (Countered All) $ apply 0 [Reveal]
+            apply Permanent [Throttle 1 Counters]
+            as Enemy $ trap 5 (Countered All) $ apply Permanent [Reveal]
             Sim.turns $ 5 - 2
             as Self $ return ()
             not . (`is` Reveal) <$> P.nUser
         it "does not remove counters" $ simAt Enemy do
-            apply 0 [Throttle 1 Counters]
-            as Enemy $ trap 5 (Countered All) $ apply 0 [Reveal]
+            apply Permanent [Throttle 1 Counters]
+            as Enemy $ trap 5 (Countered All) $ apply Permanent [Reveal]
             Sim.turns $ 5 - 3
             as Self $ return ()
             (`is` Reveal) <$> P.nUser
 
         it "throttles stuns" $ simAt Enemy do
-            apply 0 [Throttle 1 Stuns]
+            apply Permanent [Throttle 1 Stuns]
             as Enemy $ apply 5 [Stun All]
             Sim.turns $ 5 - 1
             userStunned <- Effects.stun <$> P.nUser
             return $ userStunned `shouldBe` mempty
         it "does not remove stuns" $ simAt Enemy do
-            apply 0 [Throttle 1 Stuns]
+            apply Permanent [Throttle 1 Stuns]
             as Enemy $ apply 5 [Stun All]
             Sim.turns $ 5 - 2
             userStunned <- Effects.stun <$> P.nUser
             return $ userStunned `shouldBe` singletonSet All
 
         it "throttles others" $ simAt Enemy do
-            apply 0 [Throttle 1 $ Only Reveal]
+            apply Permanent [Throttle 1 $ Only Reveal]
             as Enemy $ apply 5 [Reveal]
             Sim.turns $ 5 - 1
             not . (`is` Reveal) <$> P.nUser
         it "does not remove others" $ simAt Enemy do
-            apply 0 [Throttle 1 $ Only Reveal]
+            apply Permanent [Throttle 1 $ Only Reveal]
             as Enemy $ apply 5 [Reveal]
             Sim.turns $ 5 - 2
             (`is` Reveal) <$> P.nUser
 
     describe "Undefend" do
         it "ignores own defense" $ simAt Enemy do
-            apply 0 [Undefend]
-            Combat.defend 0 100
+            apply Permanent [Undefend]
+            Combat.defend Permanent 100
             Combat.damage 1
             targetHealth <- Ninja.health <$> P.nTarget
             return $ 100 - targetHealth `shouldBe` 1
 
     describe "Uncounter" do
         it "ignores own counters and reflects" $ simAt Enemy do
-            apply 0 [Reflect, ReflectAll All, Uncounter]
-            trap 0 (Counter All) $ return ()
-            trap 0 (CounterAll All) $ return ()
+            apply Permanent [Reflect, ReflectAll All, Uncounter]
+            trap Permanent (Counter All) $ return ()
+            trap Permanent (CounterAll All) $ return ()
             canTarget
 
     describe "Unreduce" do
@@ -448,7 +449,7 @@ simOf game target action =
 harmedWith :: Effect -> ReaderT Context (StateT Wrapper Identity) Ninja -> Bool
 harmedWith effect target = simAt Enemy do
     self $ apply 2 [effect]
-    as Enemy $ apply 0 [Reveal]
+    as Enemy $ apply Permanent [Reveal]
     (`is` Reveal) <$> target
 
 healthBound :: Int -> Int
@@ -529,7 +530,7 @@ complements effectA effectB amount damage val = atk effects === atk []
 tryAbsorb :: Target -> Chakras -> Chakras
 tryAbsorb target cost = simAt target do
     P.alter $ Game.setChakra True cost
-    apply 0 [Absorb]
+    apply Permanent [Absorb]
     Action.act True Act { user = Sim.targetSlot Self, target = t, skill }
     Parity.getOf t . Game.chakra <$> P.game
   where
@@ -551,8 +552,8 @@ thresholdConstrains attackType damage v = simEffects [] [Threshold v] Enemy do
 
 unreduces :: Int -> Int -> Int -> Property
 unreduces damage reduce unreduce = simAt Enemy do
-    self $ apply 0 [Unreduce unreduce]
-    apply 0 [Reduce (singletonSet All) Flat reduce]
+    self $ apply Permanent [Unreduce unreduce]
+    apply Permanent [Reduce (singletonSet All) Flat reduce]
     Combat.damage damage
     targetHealth <- Ninja.health <$> P.nTarget
     return $ 100 - targetHealth === healthBound (damage + unreduce - reduce)

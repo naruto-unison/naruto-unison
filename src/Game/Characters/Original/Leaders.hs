@@ -45,7 +45,7 @@ characters =
         , Skill.desc      = "Orochimaru summons the great serpent Manda, who deals 45 damage to an enemy. Once used, this skill becomes [Paralyzing Bite][r][r]. Every turn that Orochimaru is alive, Manda grants 1 random chakra."
         , Skill.classes   = [Summon, Melee, Unreflectable]
         , Skill.cost      = [Blood, Nin, Tai]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Enemy $ damage 45 ]
         , Skill.effects   =
@@ -99,7 +99,7 @@ characters =
         , Skill.desc      = "Jiraiya summons the great toad Gamabunta, who deals 25 affliction damage to all enemies. Once used, this skill becomes [Toad Oil Bomb][n][r]. Every turn that Jiraiya is alive, Gamabunta causes all enemies to receive 5 additional damage from affliction skills."
         , Skill.classes   = [Bane, Summon, Ranged, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Gen, Tai]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Enemies $ afflict 25 ]
         , Skill.effects   =
@@ -154,7 +154,7 @@ characters =
         , Skill.desc      = "Tsunade summons the great slug Katsuyu, who heals her team for 35 health. Once used, this skill becomes [Slug Division][n]. Every turn that Tsunade is alive, Katsuyu restores 5 health to her team."
         , Skill.classes   = [Summon, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Gen, Nin]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Allies $ heal 40 ]
         , Skill.effects   =
@@ -172,7 +172,7 @@ characters =
         , Skill.effects   =
           [ To Allies do
                 heal 10
-                defend 0 10
+                defend Permanent 10
           ]
         }
       ]
@@ -200,8 +200,8 @@ characters =
         , Skill.classes   = [Ranged, Unreflectable, Unremovable, Soulbound, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
-          [ To Enemy $ apply 0 [Afflict 40, Stun All, Expose]
-          , To Self $ apply 0 [Afflict 20, Stun All]
+          [ To Enemy $ apply Permanent [Afflict 40, Stun All, Expose]
+          , To Self $ apply Permanent [Afflict 20, Stun All]
           ]
         }
       ]
@@ -210,7 +210,7 @@ characters =
         , Skill.desc      = "Hiruzen summons the great monkey Enma, who makes his team invulnerable for 1 turn. Once used, this skill becomes [Adamantine Prison][n]. Every turn that Hiruzen is alive, Enma deals 5 damage to all enemies and provides 5 points of damage reduction to Hiruzen's team."
         , Skill.classes   = [Summon, Melee, Unreflectable, Unremovable]
         , Skill.cost      = [Gen, Nin, Tai]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Allies $ apply 1 [Invulnerable All] ]
         , Skill.effects   =

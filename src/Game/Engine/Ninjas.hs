@@ -64,7 +64,7 @@ import           Game.Model.Copy (Copy(Copy))
 import qualified Game.Model.Copy as Copy
 import           Game.Model.Defense (Defense(Defense))
 import qualified Game.Model.Defense as Defense
-import           Game.Model.Duration (Duration(..), incr)
+import           Game.Model.Duration (Duration(..), sync)
 import           Game.Model.Effect (Amount(..), Effect(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja(..), is)
@@ -230,7 +230,7 @@ addOwnDefense :: Duration -- ^ 'Defense.dur'.
               -> Ninja -> Ninja
 addOwnDefense dur name amount n = n { defense = d : defense n }
   where
-    d = Defense { amount, name, user = slot n, dur = incr dur }
+    d = Defense { amount, name, user = slot n, dur = succ dur }
 
 addDefense :: Int -- ^ 'Defense.amount'.
            -> Text -- ^ 'Defense.name'.
@@ -272,7 +272,7 @@ addChannels skill target n
   | otherwise = n { newChans = chan' : newChans n }
   where
     chan  = Skill.dur skill
-    dur   = incr $ TurnBased.getDur chan
+    dur   = succ $ TurnBased.getDur chan
     chan' = Channel { target
                     , skill = skill { Skill.require = Usable }
                     , dur   = TurnBased.setDur dur chan
@@ -295,7 +295,7 @@ copyAll dur source n = n { copies = fromList $ cop <$> skills source }
   where
     dur'
       | Parity.even dur = dur
-      | otherwise       = incr dur
+      | otherwise       = succ dur
     cop skill = Just Copy { skill, dur = dur' }
 
 -- | Copies a matching 'Skill' from a source into 'Ninja.copies'.
@@ -348,10 +348,11 @@ prolong' :: Duration -- ^ Added to 'Status.dur'.
          -> Text -- ^ 'Status.name'.
          -> Slot -- ^ 'Status.user'.
          -> Status -> Maybe Status
+prolong' Permanent _ _ st = Just st { Status.dur = Permanent }
 prolong' (Duration dur) name user st
-  | Status.dur st == 0               = Just st
+  | Status.dur st == Permanent       = Just st
   | not $ Labeled.match name user st = Just st
-  | sync statusDur' < 0              = Nothing
+  | statusDur' < 0                   = Nothing
   | otherwise                        = Just st
       { Status.dur    = statusDur'
       , Status.maxDur = max (Status.maxDur st) statusDur'
@@ -368,7 +369,7 @@ prolongChannel dur name n = n { channels = f <$> channels n }
   where
     dur' chan = TurnBased.getDur chan + dur
     f chan
-      | sync (TurnBased.getDur chan) <= 0       = chan
+      | TurnBased.getDur chan <= 0              = chan
       | name /= Skill.name (Channel.skill chan) = chan
       | otherwise = TurnBased.setDur (dur' chan) chan
 

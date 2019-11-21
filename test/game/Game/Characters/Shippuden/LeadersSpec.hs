@@ -78,7 +78,7 @@ spec = parallel do
                 targetHealth - targetHealth' `shouldBe` 20
             it "demolishes with Seal" do
                 use "Strength of One Hundred Seal"
-                as Enemy $ defend 0 100
+                as Enemy $ defend Permanent 100
                 act
                 targetDefense <- totalDefense <$> nTarget
                 targetDefense `shouldBe` 0
@@ -89,7 +89,7 @@ spec = parallel do
 
         useOn Ally "Heaven Spear Kick" do
             it "makes target of Healing Wave immortal" do
-                apply 0 [Plague]
+                apply Permanent [Plague]
                 use "Healing Wave"
                 act
                 as Enemy kill

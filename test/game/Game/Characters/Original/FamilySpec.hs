@@ -16,8 +16,9 @@ spec = parallel do
 
         useOn Enemy "Throw a Fit" do
             it "damages target per helpful effect from allies" do
-                self $ apply 0 [Focus]
-                as Ally $ everyone $ replicateM_ stacks $ apply 0 [Focus]
+                self $ apply Permanent [Focus]
+                as Ally $ everyone $
+                    replicateM_ stacks $ apply Permanent [Focus]
                 act
                 turns 5
                 targetHealth <- health <$> nTarget
@@ -25,8 +26,9 @@ spec = parallel do
 
         useOn Enemy "Throw a Shuriken" do
             it "damages target per helpful effect from allies" do
-                self $ apply 0 [Focus]
-                as Ally $ everyone $ replicateM_ stacks $ apply 0 [Focus]
+                self $ apply Permanent [Focus]
+                as Ally $ everyone $
+                    replicateM_ stacks $ apply Permanent [Focus]
                 act
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 10 + 10 * stacks
@@ -59,7 +61,7 @@ spec = parallel do
             it "ignores stuns if target dies" do
                 act
                 as XEnemies kill
-                self $ as XEnemies $ apply 0 [Stun All]
+                self $ as XEnemies $ apply Permanent [Stun All]
                 userStunned <- Effects.stun <$> nUser
                 userStunned `shouldBe` []
             it "makes user immortal if target dies" do
@@ -93,7 +95,7 @@ spec = parallel do
         useOn XAlly "Partial Expansion" do
             it "counters on ally" do
                 act
-                withClass NonMental $ as Enemy $ apply 0 [Reveal]
+                withClass NonMental $ as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nTarget
         useOn Enemy "Partial Expansion" do
             it "counters against enemy" do
@@ -118,7 +120,7 @@ spec = parallel do
                 targetHealth' <- health <$> nTarget
                 targetHealth - targetHealth' `shouldBe` 10
             it "stuns an additional turn if target has Ensnared" do
-                tag' "Ensnared" 0
+                tag' "Ensnared" Permanent
                 act
                 turns 2
                 targetStunned <- Effects.stun <$> nTarget
@@ -149,7 +151,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 30
             it "stuns an additional turn if target has Ensnared" do
-                tag' "Ensnared" 0
+                tag' "Ensnared" Permanent
                 act
                 turns 1
                 targetStunned <- Effects.stun <$> nTarget
@@ -163,11 +165,11 @@ spec = parallel do
         useOn Enemies "Black Spider Lily" do
             it "tags target if they stun" do
                 act
-                as Enemy $ apply 0 [Stun All]
+                as Enemy $ apply Permanent [Stun All]
                 has "Ensnared" <$> user <*> nTarget
             it "does not tag otherwise" do
                 act
-                as Enemy $ apply 0 [Focus]
+                as Enemy $ apply Permanent [Focus]
                 not <$> (has "Ensnared" <$> user <*> nTarget)
 
     describeCharacter "Inoichi Yamanaka" do
@@ -204,13 +206,13 @@ spec = parallel do
                 act
                 withClass Mental $ as Self $ return ()
                 withClass Mental $ as Self $ return ()
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "does not provide invulnerability otherwise" do
                 act
                 withClass Physical $ as Self $ return ()
                 withClass Physical $ as Self $ return ()
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
   where
     describeCharacter = describeCategory Original

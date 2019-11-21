@@ -85,11 +85,11 @@ characters =
                     [ Alternate "Devastate" "Annihilate"
                     , Alternate "Tag Team" "Tag Team"
                     ]
-                trap' 0 OnRes do
+                trap' Permanent OnRes do
                     tagHealth' <- userStacks "Izumo's Health"
                     setHealth tagHealth'
                     remove "Izumo's Health"
-                    hide' "solo" 0 []
+                    hide' "solo" Permanent []
           ]
         }
       , Skill.new
@@ -105,14 +105,14 @@ characters =
                 setHealth if tagHealth == 0 then 100 else tagHealth
                 remove "Izumo's Health"
                 addStacks "Kotetsu's Health" userHealth
-                trap' 0 OnRes do
+                trap' Permanent OnRes do
                     tagHealth' <- userStacks "Kotetsu's Health"
                     setHealth tagHealth'
                     remove "Kotetsu's Health"
-                    hide' "solo" 0 []
-                    hide 0 [ Alternate "Devastate" "Annihilate"
-                           , Alternate "Tag Team" "Tag Team"
-                           ]
+                    hide' "solo" Permanent []
+                    hide Permanent [ Alternate "Devastate" "Annihilate"
+                                   , Alternate "Tag Team" "Tag Team"
+                                   ]
           ]
         }
       ]
@@ -189,8 +189,9 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                apply 0 [Reduce [All] Flat 10, Alternate "Biding Time" "Payback"]
-                trap 0 (OnDamaged All) $ addStack' "Payback"
+                apply Permanent
+                    [Reduce [All] Flat 10, Alternate "Biding Time" "Payback"]
+                trap Permanent (OnDamaged All) $ addStack' "Payback"
           ]
         }
      , Skill.new
@@ -214,7 +215,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy $ trap 3 OnHarm $ pierce 25
-          , To Self $ defend 0 30
+          , To Self $ defend Permanent 30
           ]
         }
       ]
@@ -226,7 +227,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy $ trap 3 OnNoAction $ pierce 25
-          , To Self $ defend 0 30
+          , To Self $ defend Permanent 30
           ]
         }
       ]
@@ -310,12 +311,12 @@ characters =
           [ To Enemy do
                 bonus <- 10 `bonusIf` targetHas "Chain Wrap"
                 damage (30 + bonus)
-                apply 0 [Afflict 1]
-                trap 0 OnSacrifice do
+                apply Permanent [Afflict 1]
+                trap Permanent OnSacrifice do
                     remove "Poison Gauntlet"
                     removeTrap "Poison Gauntlet"
                 delay -1 $ whenM (targetHas "Poison Gauntlet") $
-                    trap 0 (OnDamaged NonAffliction) do
+                    trap Permanent (OnDamaged NonAffliction) do
                         remove "Poison Gauntlet"
                         removeTrap "Poison Gauntlet"
           ]
@@ -329,7 +330,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                defend 0 20
+                defend Permanent 20
                 gain [Tai]
           ]
         }
@@ -437,12 +438,12 @@ characters =
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Self $ apply 0 [ Invulnerable All
-                              , Afflict 15
-                              , Plague
-                              , Alternate "Mangekyō Sharingan"
-                                          "Mangekyō Sharingan "
-                              ]
+          [ To Self $ apply Permanent [ Invulnerable All
+                                      , Afflict 15
+                                      , Plague
+                                      , Alternate "Mangekyō Sharingan"
+                                                  "Mangekyō Sharingan "
+                                      ]
           ]
         }
       , Skill.new
@@ -462,7 +463,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 afflict 10
-                apply 0 [Afflict 5]
+                apply Permanent [Afflict 5]
           ]
         , Skill.changes =
             changeWith "Mangekyō Sharingan" \x ->
@@ -471,7 +472,7 @@ characters =
                   , Skill.effects  =
                     [ To Enemies do
                           afflict 20
-                          apply 0 [Afflict 10]
+                          apply Permanent [Afflict 10]
                     ]
                   }
         }
@@ -630,7 +631,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Ally $ trap 0 (Counter Physical) $ return () ]
+          [ To Ally $ trap Permanent (Counter Physical) $ return () ]
         }
       ]
     , [ invuln "Spider Thread Armor" "Kidōmaru" [Chakra] ]
@@ -703,9 +704,9 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Enemy do
-                bomb 0 [Afflict 20]
+                bomb Permanent [Afflict 20]
                        [ To Done $ everyone $ remove "Demon Parasite" ]
-                self $ apply 0 [Reduce [All] Flat 15]
+                self $ apply Permanent [Reduce [All] Flat 15]
           ]
         }
       ]

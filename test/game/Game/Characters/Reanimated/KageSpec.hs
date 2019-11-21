@@ -28,7 +28,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 factory
                 self factory
-                apply 0 [Enrage, AntiChannel]
+                apply Permanent [Enrage, AntiChannel]
                 use "Water Shockwave"
                 setHealth 100
                 act
@@ -193,7 +193,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 factory
                 self factory
-                apply 0 [Invulnerable All]
+                apply Permanent [Invulnerable All]
                 act
                 targetHealth' <- health <$> nTarget
                 targetHealth - targetHealth' `shouldBe` 10

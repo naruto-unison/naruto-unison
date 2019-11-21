@@ -21,7 +21,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 30 + 5 * stacks
             it "weakens target" do
-                self $ tag' "Two-Tailed Transformation" 0
+                self $ tag' "Two-Tailed Transformation" Permanent
                 act
                 setHealth 100
                 as Enemy $ damage dmg
@@ -51,7 +51,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 factory
                 self factory
-                apply 0 [Invulnerable Affliction]
+                apply Permanent [Invulnerable Affliction]
                 use "Drowning Bubble"
                 act
                 targetHealth' <- health <$> nTarget
@@ -72,11 +72,11 @@ spec = parallel do
         useOn Enemies "Octopus Hold" do
             it "counters on user" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nTarget
             it "damages countered" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 20
 

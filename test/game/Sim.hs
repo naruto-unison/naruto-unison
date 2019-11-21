@@ -35,7 +35,7 @@ import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import           Game.Model.Duration (Duration(..), Turns)
+import           Game.Model.Duration (Duration(..), sync)
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as Ninja
@@ -100,7 +100,7 @@ actWith actSkill = do
                              , Skill.cooldown = 0
                              }
 
-turns :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Turns -> m ()
+turns :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Int -> m ()
 turns (fromIntegral -> i) = do
     player <- P.player
     replicateM_ (sync i + 1 - fromEnum player) . Engine.processTurn $ return ()
@@ -127,7 +127,7 @@ targetIsExposed :: ∀ m. MonadPlay m => m Bool
 targetIsExposed = do
     target <- P.target
     P.with (\context -> context { Context.user = target }) $
-        apply 0 [Invulnerable All]
+        apply Permanent [Invulnerable All]
     null . Effects.invulnerable <$> P.nTarget
 
 hasSkill :: Text -> Ninja -> Bool
@@ -143,5 +143,5 @@ withClasses classes = P.with ctx
     withSkill sk = sk { Skill.classes = insertSet All classes }
 
 statusDur :: Text -> Ninja -> Duration
-statusDur name n = maybe 0 Status.dur .
+statusDur name n = maybe Permanent Status.dur .
                    find ((== name) . Status.name) $ Ninja.statuses n

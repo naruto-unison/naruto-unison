@@ -24,7 +24,7 @@ characters =
           [ To Enemy do
                 everyone $ remove "Rivalry"
                 userSlot <- user slot
-                trap 1 (Countered All) $ apply 0 [Taunt userSlot]
+                trap 1 (Countered All) $ apply Permanent [Taunt userSlot]
           ]
         }
       ]
@@ -177,13 +177,13 @@ characters =
         , Skill.cooldown  = 6
         , Skill.dur       = Ongoing 3
         , Skill.start     =
-          [ To Self $ defend 0 20 ]
+          [ To Self $ defend Permanent 20 ]
         , Skill.effects   =
           [ To Self do
                 defense <- userDefense "Crystal Ice Mirrors"
                 when (defense > 0) $ trapPer -1 PerDamaged \i -> do
                     defense' <- userDefense "Crystal Ice Mirrors"
-                    when (defense' == 0) $ defend 0 i
+                    when (defense' == 0) $ defend Permanent i
           ]
         }
       ]
@@ -217,7 +217,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ leech 10 $ self . defend 0
+          [ To Enemy $ leech 10 $ self . defend Permanent
           , To Self $ prolongChannel 1 "Demon Shroud"
           ]
         }
@@ -242,8 +242,8 @@ characters =
         electrocute :: RunConstraint ()
         electrocute =
             unlessM (targetHas "electrocuted") do
-                hide' "electrocuted" 0 []
-                trap' 0 (OnAction All) $
+                hide' "electrocuted" Permanent []
+                trap' Permanent (OnAction All) $
                     whenM (targetHas "Electricity") do
                         refresh "Electricity"
                         everyone $
@@ -375,7 +375,7 @@ characters =
         , Skill.desc      = "Jinpachi adds a Paper Bomb to his sword. In addition to fueling his other attacks, Paper Bombs provides 5 points of damage reduction each."
         , Skill.classes   = [Physical]
         , Skill.effects   =
-          [ To Self $ apply' "Paper Bomb" 0 [Reduce [All] Flat 5] ]
+          [ To Self $ apply' "Paper Bomb" Permanent [Reduce [All] Flat 5] ]
         }
       ]
     , [ Skill.new
@@ -433,7 +433,7 @@ characters =
           ]
         , Skill.effects   =
           [ To Self do
-                trap 1 OnDamage $ apply 0 [Reduce [All] Flat 5]
+                trap 1 OnDamage $ apply Permanent [Reduce [All] Flat 5]
                 delay -1 $ unlessM (userHas "hair") $ heal 10
           ]
         }
@@ -527,7 +527,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 0 OnHarm do
+          [ To Enemy $ trap Permanent OnHarm do
                 pierce 20
                 addStack
           ]
@@ -542,7 +542,7 @@ characters =
           [ To Enemies do
                 afflict 10
                 addStack
-          , To Self $ hide 0
+          , To Self $ hide Permanent
                 [Alternate "Sonar Bat Bombs" "Jellyfish Explosives"]
           ]
         }
@@ -638,7 +638,7 @@ characters =
         , Skill.desc      = "Nagato draws out the lifeforce of an enemy, revealing invisible effects from the target and the target's cooldowns. While active, this skill becomes [Naraka Path][g][r]."
         , Skill.classes   = [Mental, Melee, Unreflectable]
         , Skill.cost      = [Rand]
-        , Skill.dur       = Control 0
+        , Skill.dur       = Control Permanent
         , Skill.effects   =
           [ To Self $ hide 1 [Alternate "Human Path" "Naraka Path"]
           , To Enemy do
@@ -658,7 +658,7 @@ characters =
           [ To Enemy do
                 has <- userHas' defense "Naraka Path"
                 leech 20 $ self .
-                    if has then addDefense "Naraka Path" else defend 0
+                    if has then addDefense "Naraka Path" else defend Permanent
           ]
         }
       ]
@@ -670,9 +670,9 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                apply 0 [Expose]
+                apply Permanent [Expose]
                 pierce 15
-                trap 0 OnHelped $ remove "Asura Path"
+                trap Permanent OnHelped $ remove "Asura Path"
           ]
         , Skill.changes   =
             \n x ->

@@ -197,9 +197,9 @@ characters =
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Self $
-                hide 0 [Alternate "Sensory Radar" "Sensory Radar: Collate"]
-          , To Enemies $ trap 0 OnHarm $ self do
+          [ To Self $ hide Permanent
+                [Alternate "Sensory Radar" "Sensory Radar: Collate"]
+          , To Enemies $ trap Permanent OnHarm $ self do
                 heal 10
                 addStack
           ]
@@ -253,7 +253,7 @@ characters =
                 bonus <- 10 `bonusIf` targetHas "Black Spider Lily"
                 damage (20 + bonus)
                 bonusDur <- targetStacks "Ensnared"
-                apply (2 + bonusDur) [Stun NonMental]
+                apply (fromIntegral $ 2 + bonusDur) [Stun NonMental]
           ]
         }
       , Skill.new
@@ -267,7 +267,7 @@ characters =
                 bonus <- 10 `bonusIf` targetHas "Black Spider Lily"
                 damage (20 + bonus)
                 bonusDur <- targetStacks "Ensnared"
-                apply (1 + bonusDur) [Stun NonMental]
+                apply (fromIntegral $ 1 + bonusDur) [Stun NonMental]
           ]
         }
       ]
@@ -315,7 +315,7 @@ characters =
           [ To Enemy do
                 damage 5
                 apply 1 [Weaken [Physical, Chakra, Summon] Flat 10]
-          , To Allies $ defend 0 5
+          , To Allies $ defend Permanent 5
           ]
         }
       ]
@@ -341,8 +341,8 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To XAlly $ trapFrom 0 (Counter NonMental) $ damage 10
-          , To Enemy $ trap 0 (Countered NonMental) $ damage 10
+          [ To XAlly $ trapFrom Permanent (Counter NonMental) $ damage 10
+          , To Enemy $ trap Permanent (Countered NonMental) $ damage 10
           ]
         }
       ]

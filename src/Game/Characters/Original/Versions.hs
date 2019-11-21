@@ -172,7 +172,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To Self $ defend 0 10
+          , To Self $ defend Permanent 10
           ]
         , Skill.changes   =
             changeWith "Tailed Beast Form" \x -> x { Skill.cost = [Blood] }
@@ -185,9 +185,11 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
-        , Skill.dur       = Control 0
+        , Skill.dur       = Control Permanent
         , Skill.start     =
-          [ To Enemy $ trap 0 Nullified $ cancelChannel "Monstrous Sand Arm" ]
+          [ To Enemy $
+                trap Permanent Nullified $ cancelChannel "Monstrous Sand Arm"
+          ]
         , Skill.effects   =
           [ To Enemy $ damage 10 ]
         }
@@ -218,7 +220,7 @@ characters =
                     ] ]
           ]
         , Skill.effects   =
-          [ To Self $ defend 0 10 ]
+          [ To Self $ defend Permanent 10 ]
         }
       , Skill.new
         { Skill.name      = "Shukaku Full Release"

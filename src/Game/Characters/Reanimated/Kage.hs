@@ -21,7 +21,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies $ damage 10
-          , To Allies $ defend 0 5
+          , To Allies $ defend Permanent 5
           ]
         }
       , Skill.new
@@ -31,7 +31,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemies $ damage 10
-          , To Allies $ defend 0 5
+          , To Allies $ defend Permanent 5
           ]
         }
       ]
@@ -68,7 +68,7 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Allies do
-                defend 0 30
+                defend Permanent 30
                 resetAll
           ]
         }
@@ -201,7 +201,8 @@ characters =
           [ To Enemies do
                 damage 10
                 bonus <- 5 `bonusIf` targetHas' barrier "Gold Dust Waterfall"
-                barricade' 0 (const $ return ()) (apply 1 [Exhaust [All]])
+                barricade' Permanent
+                    (const $ return ()) (apply 1 [Exhaust [All]])
                     (10 + bonus)
           ]
         }
@@ -215,7 +216,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 35
-                barricade 0 30
+                barricade Permanent 30
                 tag 1
           ]
         }
@@ -229,7 +230,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ trap 1 (Countered All) do
                 bonus <- 10 `bonusIf` targetHas' barrier "Gold Dust Waterfall"
-                barricade 0 (20 + bonus)
+                barricade Permanent (20 + bonus)
           ]
         }
       ]
@@ -246,8 +247,8 @@ characters =
         , Skill.classes   = [Chakra, Melee, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Allies $ trapFrom 0 (OnHarmed All) $ tag 1
-          , To Self $ hide 0
+          [ To Allies $ trapFrom Permanent (OnHarmed All) $ tag 1
+          , To Self $ hide Permanent
                 [Alternate "Piercing Four-Fingered" "Three-Fingered Assault"]
           ]
         }
@@ -258,8 +259,8 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Self do
-                trap 0 (OnDamaged All) $ alterCd "Lightning Armor" -1
-                hide 0
+                trap Permanent (OnDamaged All) $ alterCd "Lightning Armor" -1
+                hide Permanent
                     [Alternate "Piercing Four-Fingered" "One-Fingered Assault"]
           ]
         }
@@ -271,8 +272,8 @@ characters =
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Self do
-                hide' "finger" 0 []
-                apply 0 [Invulnerable Affliction]
+                hide' "finger" Permanent []
+                apply Permanent [Invulnerable Affliction]
           ]
         }
       ]
@@ -444,10 +445,10 @@ characters =
                     remove "Venom Sac"
                     alterCd "Major Summoning: Ibuse" -2
                 else do
-                    hide 0 [Reduce [Affliction] Percent 50]
+                    hide Permanent [Reduce [Affliction] Percent 50]
                     applyStacks "Major Summoning: Ibuse" 30
                         [Alternate "Major Summoning: Ibuse" "Poison Fog"]
-                    trapPer' 0 PerDamaged \i -> do
+                    trapPer' Permanent PerDamaged \i -> do
                         stacks <- userStacks "Major Summoning: Ibuse"
                         if stacks - i > 0 then
                             removeStacks "Major Summoning: Ibuse" i
@@ -465,7 +466,7 @@ characters =
         , Skill.require   = HasI 0 "Poison Fog"
         , Skill.classes   = [Physical, Bane, Ranged, Unreflectable]
         , Skill.cost      = [Blood, Blood]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Ongoing Permanent
         , Skill.effects   =
           [ To Enemies $ afflict 10 ]
         }
@@ -493,7 +494,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
             [ To Self $ trapFrom 1 (OnHarmed NonMental) do
-                  apply 0 [Afflict 20]
+                  apply Permanent [Afflict 20]
                   self $ removeTrap "Venom Sac"
                   has <- userHas "major summoning: ibuse"
                   if has then self do
@@ -502,7 +503,7 @@ characters =
                       alterCd "Major Summoning: Ibuse" -2
                       cancelChannel "Poison Fog"
                   else self $
-                      apply 0 [Afflict 10]
+                      apply Permanent [Afflict 10]
             ]
         }
       ]

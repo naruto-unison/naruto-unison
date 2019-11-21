@@ -211,7 +211,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ defend 0 20 ]
+          [ To Allies $ defend Permanent 20 ]
         }
       ]
     , [ invuln "Hide" "Shino" [Mental] ]
@@ -358,7 +358,7 @@ characters =
         { Skill.name      = "Spinach Pill"
         , Skill.desc      = "Chōji eats the mildest Akimichi pill, losing 5 health down to a minimum of 1 and gaining the strength he needs to protect his friends. While alive, he provides 5 points of damage reduction to his allies."
         , Skill.classes   = [Chakra, Nonstacking]
-        , Skill.dur       = Action 0
+        , Skill.dur       = Action Permanent
         , Skill.start     =
           [ To Self do
                 sacrifice 1 5
@@ -405,7 +405,7 @@ characters =
         , Skill.desc      = "Chōji eats the first two Akimichi pills in one go, losing 15 health down to a minimum of 1 and unlocking huge reserves of chakra in addition to immense physical strength. While alive, he provides 10 points of damage reduction to his allies."
         , Skill.classes   = [Chakra, Nonstacking]
         , Skill.cost      = [Rand]
-        , Skill.dur       = Action 0
+        , Skill.dur       = Action Permanent
         , Skill.start     =
           [ To Self do
                 cancelChannel "Spinach Pill"
@@ -461,7 +461,7 @@ characters =
         , Skill.desc      = "Chōji swallows all three Akimichi pills, losing 10 health down to a minimum of 1 and gaining so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns and disabling effects."
         , Skill.classes   = [Chakra, Nonstacking]
         , Skill.cost      = [Rand, Rand]
-        , Skill.dur       = Action 0
+        , Skill.dur       = Action Permanent
         , Skill.start     =
           [ To Self do
                 sacrifice 1 10
@@ -483,7 +483,7 @@ characters =
         { Skill.name      = "Curry Pill"
         , Skill.desc      = "Chōji eats the second Akimichi pill, losing 5 health down to a minimum of 1 and unlocking huge reserves of chakra. While alive, he provides 10 points of damage reduction to his allies."
         , Skill.classes   = [Chakra, Nonstacking]
-        , Skill.dur       = Action 0
+        , Skill.dur       = Action Permanent
         , Skill.start     =
           [ To Self do
                 cancelChannel "Spinach Pill"
@@ -497,7 +497,7 @@ characters =
         { Skill.name      = "Chili Pill"
         , Skill.desc      = "Chōji eats the third Akimichi pill and gains so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns and disabling effects."
         , Skill.classes   = [Chakra, Nonstacking]
-        , Skill.dur       = Action 0
+        , Skill.dur       = Action Permanent
         , Skill.start     =
           [ To Self do
                 cancelChannel "Curry Pill"
@@ -647,7 +647,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                tag 0
+                tag Permanent
                 apply' "Twin Dragons Defense" 1 [ Invulnerable Physical
                                                 , Invulnerable Chakra
                                                 , Invulnerable Summon
@@ -738,8 +738,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                apply 0 [Enrage]
-                trap' 0 (OnDamaged NonAffliction) do
+                apply Permanent [Enrage]
+                trap' Permanent (OnDamaged NonAffliction) do
                     remove "Sand Clone"
                     removeTrap "Sand Clone"
           ]
@@ -752,7 +752,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ defend 0 40 ]
+          [ To Self $ defend Permanent 40 ]
         }
       ]
     , [ invuln "Sand Shield" "Gaara" [Physical] ]
@@ -788,7 +788,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                defend 0 15
+                defend Permanent 15
                 apply 4 [Strengthen [All] Flat 5]
           ]
         }

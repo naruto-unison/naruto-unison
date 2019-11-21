@@ -3,12 +3,10 @@ module Game.Model.Channel
   , interruptible
   , Channeling(..)
   , ignoreStun
-  , turnDur
   ) where
 
 import ClassyPrelude
 
-import Game.Model.Duration (Duration)
 import Game.Model.Internal (Channel(..), Channeling(..))
 
 -- | 'Control' and 'Action' 'Model.Skill.Skill's can be interrupted.
@@ -23,9 +21,3 @@ ignoreStun :: Channeling -> Bool
 ignoreStun Passive   = True
 ignoreStun Ongoing{} = True
 ignoreStun _         = False
-
-turnDur :: Channeling -> Duration
-turnDur (Action d)  = d
-turnDur (Control d) = d
-turnDur (Ongoing d) = d
-turnDur _           = 0

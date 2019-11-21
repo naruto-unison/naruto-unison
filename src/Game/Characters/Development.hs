@@ -28,9 +28,9 @@ characters = (\x -> x 0 Original) <$>
         , Skill.desc    = "Permanently stuns the entire enemy team. Once used, this skill becomes [Could've Had a V8]."
         , Skill.classes = [Bypassing, Uncounterable, Unreflectable]
         , Skill.effects =
-          [ To Enemies $ apply 0 [Stun All]
-          , To Self $
-              hide 0 [Alternate "The Funk Wasn't With You" "Could've Had a V8"]
+          [ To Enemies $ apply Permanent [Stun All]
+          , To Self $ hide Permanent
+                [Alternate "The Funk Wasn't With You" "Could've Had a V8"]
           ]
         }
       , Skill.new

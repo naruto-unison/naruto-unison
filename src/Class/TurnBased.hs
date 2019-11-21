@@ -19,11 +19,10 @@ class TurnBased a where
     -- | Updates the remaining number of turns after a turn has passed.
     setDur :: Duration -> a -> a
 
--- | If @'getDur' == Duration 0@, has no effect.
+-- | If @'getDur' == 'Permanent'@, has no effect.
 -- If @'getDur' == Duration 1@, deletes the structure; it has expired.
 -- Otherwise, decrements the remaining duration by 1.
 decr :: ∀ a. TurnBased a => a -> Maybe a
-decr x = case sync $ getDur x of
-    0 -> Just x
-    1 -> Nothing
-    d -> Just $ setDur (Duration $ d - 1) x
+decr x = case getDur x of
+    Duration 1 -> Nothing
+    dur        -> Just $ setDur (pred dur) x -- @Pred Permanent == Permanent@

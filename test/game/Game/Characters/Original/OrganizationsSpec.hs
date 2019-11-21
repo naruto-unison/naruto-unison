@@ -11,7 +11,7 @@ spec = parallel do
     describeCharacter "Izumo and Kotetsu" do
         useOn Enemy "Mace Crush" do
             it "deals bonus damage if target has Syrup Trap" do
-                tag' "Syrup Trap" 0
+                tag' "Syrup Trap" Permanent
                 act
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 30 + 10
@@ -37,12 +37,12 @@ spec = parallel do
                 act
                 has "Devastate" <$> user <*> nTarget
             it "deals damage if target has Annihilate" do
-                tag' "Annihilate" 0
+                tag' "Annihilate" Permanent
                 act
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 65
             it "does not tag if target has Annihilate" do
-                tag' "Annihilate" 0
+                tag' "Annihilate" Permanent
                 act
                 not <$> (has "Devastate" <$> user <*> nTarget)
 
@@ -51,12 +51,12 @@ spec = parallel do
                 act
                 has "Annihilate" <$> user <*> nTarget
             it "deals damage if target has Devastate" do
-                tag' "Devastate" 0
+                tag' "Devastate" Permanent
                 act
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 65
             it "does not tag if target has Devastate" do
-                tag' "Devastate" 0
+                tag' "Devastate" Permanent
                 act
                 not <$> (has "Annihilate" <$> user <*> nTarget)
 
@@ -104,7 +104,7 @@ spec = parallel do
                 targetHealth `shouldBe` 5
             it "ignores harm" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 as Enemy kill
                 not . (`is` Reveal) <$> nUser
             it "ignores help and dies" do
@@ -121,7 +121,7 @@ spec = parallel do
 
         useOn Enemy "Converging Murder" do
             it "damages target per Scattering Crow Swarm" do
-                apply 0 [AntiChannel]
+                apply Permanent [AntiChannel]
                 replicateM_ stacks $ use "Scattering Crow Swarm"
                 setHealth 100
                 act
@@ -326,7 +326,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 factory
                 self factory
-                apply 0 [Invulnerable Affliction]
+                apply Permanent [Invulnerable Affliction]
                 use "Demon Parasite"
                 act
                 targetHealth' <- health <$> nTarget
@@ -347,7 +347,7 @@ spec = parallel do
         useOn Enemy "Summoning: Rashōmon" do
             it "makes user invulnerable" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "ends Demon Parasite" do
                 use "Demon Parasite"

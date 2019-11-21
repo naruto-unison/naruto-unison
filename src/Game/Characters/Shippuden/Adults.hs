@@ -84,7 +84,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ damage 25
           , To Self do
-                defend 0 40
+                defend Permanent 40
                 apply 1 [Alternate "Thousand Hand Strike" "Kannon Strike"]
           ]
         }
@@ -106,9 +106,9 @@ characters =
         , Skill.desc      = "Asuma continually exhales a cloud of combustible ash upon his enemies, increasing the cooldowns of their skills by 1 turn every turn. While active, this skill becomes [Burning Ash: Ignite][b]."
         , Skill.classes   = [Bane, Ranged, Unreflectable]
         , Skill.cost      = [Gen, Rand]
-        , Skill.dur       = Action 0
+        , Skill.dur       = Action Permanent
         , Skill.effects   =
-          [ To Enemies $ apply 0 [Snare 1]
+          [ To Enemies $ apply Permanent [Snare 1]
           , To Self $ hide 1 [Alternate "Burning Ash" "Burning Ash: Ignite"]
           ]
         , Skill.stunned   =
@@ -210,7 +210,7 @@ characters =
           [ To Self do
                 sacrifice 0 5
                 stacks <- userStacks "Single Gate Release"
-                apply 0 $ Reduce [All] Flat 5 : case stacks of
+                apply Permanent $ Reduce [All] Flat 5 : case stacks of
                     5 -> [Alternate "Fiery Kick" "Asakujaku"]
                     6 -> [Alternate "Fiery Kick" "Hirudora"]
                     _ -> []
@@ -297,10 +297,10 @@ characters =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 5
-        , Skill.dur       = Action 0
+        , Skill.dur       = Action Permanent
         , Skill.start     =
           [ To Self do
-                defend 0 50
+                defend Permanent 50
                 onBreak'
           ]
         , Skill.effects   =
@@ -334,7 +334,7 @@ characters =
         , Skill.cost      = [Blood, Nin]
         , Skill.charges   = 1
         , Skill.effects   =
-          [ To XAlly $ trap 0 OnRes do
+          [ To XAlly $ trap Permanent OnRes do
                 cureAll
                 setHealth 100
                 self $ setHealth 1
@@ -621,7 +621,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 trapFrom 1 (CounterAll All) $ pierce 20
-                hide 0 [Alternate "Back Slice" "Crescent Moon Slice"]
+                hide Permanent [Alternate "Back Slice" "Crescent Moon Slice"]
           ]
         }
       , Skill.new
@@ -660,10 +660,10 @@ characters =
           [ To Ally do
                 addStack
                 targetSlot <- target slot
-                trap 0 (OnHarmed All) do
+                trap Permanent (OnHarmed All) do
                     removeTrap "Paper Bomb"
                     remove "Paper Bomb"
-                trapFrom 0 (OnHarmed All) do
+                trapFrom Permanent (OnHarmed All) do
                     stacks <- withTarget targetSlot $ targetStacks "Paper Bomb"
                     damage (20 * stacks)
           ]

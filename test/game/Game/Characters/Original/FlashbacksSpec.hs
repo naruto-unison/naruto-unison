@@ -12,14 +12,16 @@ spec = parallel do
         useOn Enemy "Life Link" do
             it "kills target if user dies" do
                 act
-                apply 0 [Endure, Invulnerable All, Nullify, Reflect]
+                apply Permanent
+                    [Endure, Invulnerable All, Nullify, Reflect]
                 self kill
                 turns 1
                 targetHealth <- health <$> nTarget
                 targetHealth `shouldBe` 0
             it "kills user if target dies" do
                 act
-                self $ apply 0 [Endure, Invulnerable All, Nullify, Reflect]
+                self $ apply Permanent
+                    [Endure, Invulnerable All, Nullify, Reflect]
                 as Self kill
                 turns 1
                 userHealth <- health <$> nUser
@@ -44,12 +46,12 @@ spec = parallel do
                 act
                 has "Space-Time Marking" <$> user <*> nTarget
             it "deals bonus damage with Space-Time Marking" do
-                everyone $ tag' "Space-Time Marking" 0
+                everyone $ tag' "Space-Time Marking" Permanent
                 act
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 30 + 30
             it "damages all with Space-Time Marking" do
-                everyone $ tag' "Space-Time Marking" 0
+                everyone $ tag' "Space-Time Marking" Permanent
                 remove "Space-Time Marking"
                 act
                 targetHealth <- health <$> get XEnemies
@@ -60,7 +62,7 @@ spec = parallel do
                 act
                 has "Space-Time Marking" <$> user <*> nTarget
             it "makes all invulnerable with Space-Time Marking" do
-                everyone $ tag' "Space-Time Marking" 0
+                everyone $ tag' "Space-Time Marking" Permanent
                 remove "Space-Time Marking"
                 act
                 targetInvuln <- Effects.invulnerable <$> get XAlly
@@ -72,20 +74,20 @@ spec = parallel do
                 use "Veritable 1000-Armed Kannon"
                 act
                 turns 2
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
 
     describeCharacter "Young Kakashi" do
         useOn Enemy "White Light Blade" do
             it "stuns if user has Sharingan Stun" do
-                self $ tag' "Sharingan Stun" 0
+                self $ tag' "Sharingan Stun" Permanent
                 act
                 targetStunned <- Effects.stun <$> nTarget
                 targetStunned `shouldBe` [All]
 
         useOn Enemy "Lightning Blade" do
             it "stuns if user has Sharingan Stun" do
-                self $ tag' "Sharingan Stun" 0
+                self $ tag' "Sharingan Stun" Permanent
                 act
                 targetStunned <- Effects.stun <$> nTarget
                 targetStunned `shouldBe` [All]
@@ -113,32 +115,32 @@ spec = parallel do
                 chakras `shouldBe` ([], [])
             it "stuns if enemy stuns" do
                 act
-                as Enemy $ apply 0 [Stun Physical]
+                as Enemy $ apply Permanent [Stun Physical]
                 hasOwn "Sharingan Stun" <$> nUser
             it "stuns if enemy disables" do
                 act
-                as Enemy $ apply 0 [Disable Counters]
+                as Enemy $ apply Permanent [Disable Counters]
                 hasOwn "Sharingan Stun" <$> nUser
             it "does not stun otherwise" do
                 act
-                as Enemy $ apply 0 [Throttle 1 Counters]
+                as Enemy $ apply Permanent [Throttle 1 Counters]
                 not . hasOwn "Sharingan Stun" <$> nUser
             it "strengthens if target damages" do
-                self $ apply 0 [Reduce [All] Flat 5]
+                self $ apply Permanent [Reduce [All] Flat 5]
                 act
                 as Enemy $ damage 6
                 damage dmg
                 targetHealth <- health <$> nTarget
                 (100 - targetHealth) - dmg `shouldBe` 10
             it "does not strengthen otherwise" do
-                self $ apply 0 [Reduce [All] Flat 5]
+                self $ apply Permanent [Reduce [All] Flat 5]
                 act
                 as Enemy $ damage 5
                 damage dmg
                 targetHealth <- health <$> nTarget
                 (100 - targetHealth) - dmg `shouldBe` 0
             it "stuns if user has Sharingan Stun" do
-                self $ tag' "Sharingan Stun" 0
+                self $ tag' "Sharingan Stun" Permanent
                 act
                 targetStunned <- Effects.stun <$> nTarget
                 targetStunned `shouldBe` [All]
@@ -197,33 +199,33 @@ spec = parallel do
                 use "Kusari Chains"
                 act
                 turns 1
-                as XEnemies $ apply 0 [Focus]
+                as XEnemies $ apply Permanent [Focus]
                 not . (`is` Focus) <$> nTarget
 
         useOn Self "Kamui Phase" do
             it "works on its own" do
                 use "Kamui Phase"
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "does not work after Kusari Chains" do
                 use "Kusari Chains"
                 use "Kamui Phase"
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
             it "does not work after Kamui Banishment" do
                 use "Kamui Banishment"
                 use "Kamui Phase"
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
             it "does not work after Major Summoning: Kurama" do
                 use "Major Summoning: Kurama"
                 use "Kamui Phase"
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
             it "does not work after itself" do
                 use "Kamui Phase"
                 use "Kamui Phase"
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
   where
     describeCharacter = describeCategory Original

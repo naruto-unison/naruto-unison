@@ -32,13 +32,13 @@ spec = parallel do
             it "damages on defense" do
                 act
                 setHealth 100
-                as Enemy $ defend 0 10
+                as Enemy $ defend Permanent 10
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 10
             it "damages on reduce" do
                 act
                 setHealth 100
-                as Enemy $ apply 0 [Reduce [All] Flat 10]
+                as Enemy $ apply Permanent [Reduce [All] Flat 10]
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 10
             it "does not damage otherwise" do
@@ -271,7 +271,7 @@ spec = parallel do
                 100 - targetHealth `shouldBe` 30
             it "counters target" do
                 act
-                withClass Chakra $ as Enemy $ apply 0 [Reveal]
+                withClass Chakra $ as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "damages countered" do
                 act
@@ -319,22 +319,22 @@ spec = parallel do
         useOn Enemy "Mirage Crow" do
             it "counters target" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "stuns countered" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 targetStunned <- Effects.stun <$> nTarget
                 targetStunned `shouldBe` [Physical, Ranged]
 
         useOn Self "Yata Mirror" do
             it "ignores harm" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "exhausts attackers" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 targetExhausted <- Effects.exhaust [All] <$> get Enemy
                 targetExhausted `shouldBe` [Rand]
 
@@ -345,7 +345,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 factory
                 self factory
-                apply 0 [AntiChannel]
+                apply Permanent [AntiChannel]
                 use "Dance of the Shikigami"
                 setHealth 100
                 act
@@ -392,7 +392,7 @@ spec = parallel do
                 not . hasSkill "Kamui" <$> nUser
             it "counters on user" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "alternates when countered" do
                 act
@@ -448,13 +448,13 @@ spec = parallel do
             it "applies Almighty Push to user if used last turn" do
                 use "Almighty Push"
                 use "Universal Pull"
-                self $ as Enemy $ apply 0 [Reveal]
+                self $ as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "does not apply Almighty Push otherwise" do
                 use "Almighty Push"
                 turns 2
                 use "Universal Pull"
-                self $ as Enemy $ apply 0 [Reveal]
+                self $ as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
 
         useOn Enemy "Chakra Receiver" do

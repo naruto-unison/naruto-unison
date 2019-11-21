@@ -32,7 +32,7 @@ import           Class.TurnBased (TurnBased(..))
 import           Game.Model.Chakra (Chakras(..))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Defense (Defense(..))
-import           Game.Model.Duration (Duration)
+import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game)
 import           Game.Model.Group (Group)
@@ -113,8 +113,8 @@ data Channeling
     | Ongoing Duration
     deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 instance TurnBased Channeling where
-    getDur Instant     = 0
-    getDur Passive     = 0
+    getDur Instant     = 1
+    getDur Passive     = Permanent
     getDur (Action d)  = d
     getDur (Control d) = d
     getDur (Ongoing d) = d
@@ -125,11 +125,11 @@ instance TurnBased Channeling where
     setDur d Ongoing{} = Ongoing d
 
 instance ToMarkup Channeling where
+    toMarkup (Action Permanent)  = "Action"
+    toMarkup (Control Permanent) = "Control"
+    toMarkup (Ongoing Permanent) = "Ongoing"
     toMarkup Instant     = "Instant"
     toMarkup Passive     = "Instant"
-    toMarkup (Action 0)  = "Action"
-    toMarkup (Control 0) = "Control"
-    toMarkup (Ongoing 0) = "Ongoing"
     toMarkup (Action x)  = "Action " ++ toMarkup x
     toMarkup (Control x) = "Control " ++ toMarkup x
     toMarkup (Ongoing x) = "Ongoing " ++ toMarkup x

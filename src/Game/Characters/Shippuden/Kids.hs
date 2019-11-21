@@ -32,7 +32,7 @@ characters =
           [ To Enemy do
                 bonus <- 25 `bonusIf` targetHas "Multi Shadow Clone"
                 pierce (50 + bonus)
-                apply 0 [Weaken [Chakra] Percent 10]
+                apply Permanent [Weaken [Chakra] Percent 10]
           ]
         }
       ]
@@ -255,7 +255,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                apply 0 [Weaken [All] Flat 10]
+                apply Permanent [Weaken [All] Flat 10]
                 cloneBonus <- 10 `bonusIf` userHas "Man-Beast Clone"
                 wolfBonus  <- 20 `bonusIf` userHas "Three-Headed Wolf"
                 damage (40 + cloneBonus + wolfBonus)
@@ -345,7 +345,7 @@ characters =
                 bonus <- 10 `bonusIf` userHas "Eight Trigrams Sixty-Four Palms"
                 damage (10 + bonus)
                 stacks <- targetStacks "Eight Trigrams Sixty-Four Palms"
-                apply (1 + stacks) [Exhaust [All]]
+                apply (fromIntegral $ 1 + stacks) [Exhaust [All]]
                 remove "Eight Trigrams Sixty-Four Palms"
           ]
         }
@@ -360,7 +360,7 @@ characters =
           [ To Self do
                 bonus <- 1 `bonusIf` userHas "Eight Trigrams Sixty-Four Palms"
                 addStacks "Chakra Lion" (2 + bonus)
-          , To Enemies $ trap' 0 OnHarm do
+          , To Enemies $ trap' Permanent OnHarm do
                 self $ removeStack "Chakra Lion"
                 deplete 1
                 damage 30
@@ -510,7 +510,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 1 [Enrage]
-                replicateM_ 2 $ hide' "calories" 0 [Exhaust [All]]
+                replicateM_ 2 $ hide' "calories" Permanent [Exhaust [All]]
           , To Enemy $ damage 30
           ]
         }
@@ -523,7 +523,7 @@ characters =
           [ To Enemy $ delay -1 $ damage 30
           , To Self do
                 apply 1 [Enrage]
-                replicateM_ 2 $ hide' "calories" 0 [Exhaust [All]]
+                replicateM_ 2 $ hide' "calories" Permanent [Exhaust [All]]
           ]
         }
       ]
@@ -540,7 +540,7 @@ characters =
                 trap 1 (CounterAll Physical) $ return ()
                 trap 1 (CounterAll Chakra) $ return ()
                 trap 1 (CounterAll Summon) $ return ()
-                hide' "calories" 0 [Exhaust [All]]
+                hide' "calories" Permanent [Exhaust [All]]
           ]
         }
       , Skill.new
@@ -553,7 +553,7 @@ characters =
           [ To Enemy $ damage 15
           ,  To Self do
                 trap 1 (CounterAll NonMental) $ return ()
-                hide' "calories" 0 [Exhaust [All]]
+                hide' "calories" Permanent [Exhaust [All]]
           ]
         }
       ]
@@ -561,15 +561,16 @@ characters =
         { Skill.name      = "Butterfly Mode"
         , Skill.desc      = "Performing an advanced Akimichi technique that would be lethal without precise control over his body, Chōji converts calories into jets of chakra energy that grow from his back like butterfly wings. Once used, this skill becomes [Super-Slam][n][r][r]. Every turn after [Butterfly Mode] is activated, the costs of Chōji's skills decrease by 1 arbitrary chakra."
         , Skill.classes   = [Chakra]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self do
-                replicateM_ 3 $ hide' "calories" 0 [Exhaust [All]]
-                hide 0 [ Alternate "Butterfly Bombing"   "Butterfly Bombing"
-                       , Alternate "Spiky Human Boulder" "Spiky Human Boulder"
-                       , Alternate "Butterfly Mode"      "Super-Slam"
-                       , Alternate "Block"               "Block"
-                       ]
+                replicateM_ 3 $ hide' "calories" Permanent [Exhaust [All]]
+                hide Permanent
+                    [ Alternate "Butterfly Bombing"   "Butterfly Bombing"
+                    , Alternate "Spiky Human Boulder" "Spiky Human Boulder"
+                    , Alternate "Butterfly Mode"      "Super-Slam"
+                    , Alternate "Block"               "Block"
+                    ]
           ]
         , Skill.effects   =
           [ To Self $ removeStack "calories"]
@@ -582,7 +583,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 cureAll
-                replicateM_ 2 $ hide' "calories" 0 [Exhaust [All]]
+                replicateM_ 2 $ hide' "calories" Permanent [Exhaust [All]]
           , To Enemy $ damage 30
           ]
         }
@@ -604,7 +605,7 @@ characters =
           [ To Enemy do
                 dead <- numDeadAllies
                 damage (15 + 10 * dead)
-                apply (2 + dead) [Weaken [All] Flat 15]
+                apply (fromIntegral $ 2 + dead) [Weaken [All] Flat 15]
           ]
         }
       ]
@@ -694,7 +695,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ defend 0 20 ]
+          [ To Allies $ defend Permanent 20 ]
         }
       , Skill.new
         { Skill.name      = "Scroll of Wind"
@@ -712,7 +713,7 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.effects   =
           [ To Self do
-                defend 0 5
+                defend Permanent 5
                 alternate loadout 1
           ]
         }
@@ -722,7 +723,7 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.effects   =
           [ To Self do
-                defend 0 5
+                defend Permanent 5
                 alternate loadout 2
           ]
         }
@@ -732,7 +733,7 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.effects   =
           [ To Self do
-                defend 0 5
+                defend Permanent 5
                 alternate loadout 0
           ]
         }
@@ -837,9 +838,9 @@ characters =
         , Skill.cooldown  = 2
         , Skill.charges   = 2
         , Skill.effects   =
-          [ To XAllies $ defend 0 15
-          , To Self $
-                apply 0 [Strengthen [All] Percent 200, Reduce [All] Flat 10]
+          [ To XAllies $ defend Permanent 15
+          , To Self $ apply Permanent
+                [Strengthen [All] Percent 200, Reduce [All] Flat 10]
           ]
         }
       ]
@@ -911,9 +912,9 @@ characters =
         , Skill.desc      = "Snapping open her fan to reveal the first marking on it, Temari gains 25% damage reduction. Once used, this skill becomes [Second Moon][r]."
         , Skill.classes   = [Physical, Ranged, Unremovable]
         , Skill.effects   =
-          [ To Self $ apply 0 [ Reduce [All] Percent 25
-                              , Alternate "First Moon" "Second Moon"
-                              ]
+          [ To Self $ apply Permanent [ Reduce [All] Percent 25
+                                      , Alternate "First Moon" "Second Moon"
+                                      ]
           ]
         }
       , Skill.new
@@ -924,9 +925,9 @@ characters =
         , Skill.effects   =
           [ To Self do
                 remove "First Moon"
-                apply 0 [ Reduce [All] Percent 50
-                        , Alternate "First Moon" "Third Moon"
-                        ]
+                apply Permanent [ Reduce [All] Percent 50
+                                , Alternate "First Moon" "Third Moon"
+                                ]
           ]
         }
       , Skill.new
@@ -1040,8 +1041,8 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                trap 0 (Counter NonMental) $ return ()
-                hide 0 []
+                trap Permanent (Counter NonMental) $ return ()
+                hide Permanent []
           ]
         , Skill.changes   =
             costPer "agile backflip" [Rand]

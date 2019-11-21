@@ -143,7 +143,7 @@ spec = parallel do
             it "pauses damage during unchili" do
                 act
                 turns stacks
-                self $ tag' "unchili" 0
+                self $ tag' "unchili" Permanent
                 turns 10
                 userHealth <- health <$> nUser
                 100 - userHealth `shouldBe` 10 + (stacks + 1) * 15
@@ -173,7 +173,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 factory
                 self factory
-                self $ tag' "Fifth Gate Opening" 0
+                self $ tag' "Fifth Gate Opening" Permanent
                 act
                 turns 5
                 targetHealth' <- health <$> nTarget
@@ -202,7 +202,7 @@ spec = parallel do
 
         useOn Enemy "Hidden Lotus" do
             it "damages target" do
-                apply 0 [Reduce [All] Flat stacks]
+                apply Permanent [Reduce [All] Flat stacks]
                 act
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 100 - stacks
@@ -266,12 +266,12 @@ spec = parallel do
 
         useOn Self "Sand Clone" do
             it "blocks harmful effects" do
-                as Enemy $ apply 0 [Plague]
+                as Enemy $ apply Permanent [Plague]
                 act
                 as Enemy $ afflict 5
                 not . (`is` Plague) <$> nUser
             it "ends with new non-affliction damage" do
-                as Enemy $ apply 0 [Plague]
+                as Enemy $ apply Permanent [Plague]
                 act
                 as Enemy $ damage 5
                 (`is` Plague) <$> nUser

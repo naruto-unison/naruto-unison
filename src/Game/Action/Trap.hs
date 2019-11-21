@@ -20,7 +20,7 @@ import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Delay as Delay
-import           Game.Model.Duration (Duration, Turns, incr)
+import           Game.Model.Duration (Duration(..))
 import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Constructor(..), Effect(..))
 import           Game.Model.Ninja (is)
@@ -34,32 +34,32 @@ import qualified Game.Model.Trigger as Trigger
 import           Util ((∉))
 
 -- | Adds a @Trap@ to 'Ninja.traps' that targets the person it was used on.
-trap :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
+trap :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
 trap = trapConst Trap.Toward mempty
 -- | 'Hidden' 'trap'.
-trap' :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
+trap' :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
 trap' = trapConst Trap.Toward $ setFromList [Bypassing, Hidden]
 
 -- | Adds a @Trap@ to 'Ninja.traps' that targets the person who triggers it.
-trapFrom :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
+trapFrom :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
 trapFrom = trapConst Trap.From mempty
 -- | 'Hidden' 'trapFrom'.
-trapFrom' :: ∀ m. MonadPlay m => Turns -> Trigger -> RunConstraint () -> m ()
+trapFrom' :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
 trapFrom' = trapConst Trap.From $ setFromList [Bypassing, Hidden]
 
 -- | Adds a @Trap@ to 'Ninja.traps' with additional 'Class'es.
 trapWith :: ∀ m. MonadPlay m
-         => EnumSet Class -> Turns -> Trigger -> RunConstraint () -> m ()
+         => EnumSet Class -> Duration -> Trigger -> RunConstraint () -> m ()
 trapWith = trapConst Trap.Toward
 
 -- | Adds a @Trap@ to 'Ninja.traps' with an effect that depends on a number
 -- accumulated while the trap is in play and tracked with its 'Trap.tracker'.
 trapPer  :: ∀ m. MonadPlay m
-         => Turns -> Trigger -> (Int -> RunConstraint ()) -> m ()
+         => Duration -> Trigger -> (Int -> RunConstraint ()) -> m ()
 trapPer  = trapFull Trap.Per mempty
 -- | 'Hidden' 'trapPer'.
 trapPer' :: ∀ m. MonadPlay m
-         => Turns -> Trigger -> (Int -> RunConstraint ()) -> m ()
+         => Duration -> Trigger -> (Int -> RunConstraint ()) -> m ()
 trapPer' = trapFull Trap.Per $ setFromList [Bypassing, Hidden]
 
 -- | Adds an 'OnBreak' @Trap@ for the used 'Skill.Skill' to 'Ninja.traps'.
@@ -71,7 +71,7 @@ onBreak f = do
     user    <- P.user
     nTarget <- P.nTarget
     when (Ninja.hasDefense name user nTarget) $
-        trapFrom' 0 (OnBreak name) do
+        trapFrom' Permanent (OnBreak name) do
             f
             user' <- P.user
             P.modify user' . Ninjas.clearTraps $ OnBreak name
@@ -89,15 +89,15 @@ onBreak' = do
 
 -- | Adds a @Trap@ to 'Ninja.traps'.
 trapConst :: ∀ m. MonadPlay m
-         => Trap.Direction -> EnumSet Class -> Turns -> Trigger
+         => Trap.Direction -> EnumSet Class -> Duration -> Trigger
          -> RunConstraint () -> m ()
 trapConst trapType clas dur tr f = trapFull trapType clas dur tr $ const f
 
 -- | Trap engine.
 trapFull :: ∀ m. MonadPlay m
-         => Trap.Direction -> EnumSet Class -> Turns -> Trigger
+         => Trap.Direction -> EnumSet Class -> Duration -> Trigger
          -> (Int -> RunConstraint ()) -> m ()
-trapFull direction classes (fromIntegral -> unthrottled) trigger f =
+trapFull direction classes unthrottled trigger f =
     void $ runMaybeT do
         context <- P.context
         target  <- P.target
@@ -129,7 +129,7 @@ makeTrap Context{skill, user, target, continues, new}
     , effect  = \i -> To { target = context, run = Action.wrap $ f i }
     , classes = classes'
     , tracker = 0
-    , dur     = incr dur
+    , dur     = succ dur
     }
   where
     modClasses
@@ -147,9 +147,9 @@ makeTrap Context{skill, user, target, continues, new}
 
 -- | Saves an effect to a 'Delay.Delay', which is stored in 'Game.delays' and
 -- triggered when it expires.
-delay :: ∀ m. MonadPlay m => Turns -> RunConstraint () -> m ()
-delay 0 _ = return () -- A Delay that lasts forever would be pointless!
-delay (fromIntegral -> dur) f = do
+delay :: ∀ m. MonadPlay m => Duration -> RunConstraint () -> m ()
+delay Permanent _ = return () -- A Delay that lasts forever would be pointless!
+delay dur f = do
     context  <- P.context
     let user  = Context.user context
         del   = Delay.new context { Context.continues = False } dur $

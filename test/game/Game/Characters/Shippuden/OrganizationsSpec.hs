@@ -42,7 +42,7 @@ spec = parallel do
         useOn Ally "Wood Clone" do
             it "counters on target" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nTarget
             it "counters with defense" do
                 act
@@ -136,7 +136,7 @@ spec = parallel do
         useOn Ally "Mind Transfer Puppet Curse" do
             it "counters on target" do
                 act
-                withClass NonMental $ as Enemy $ apply 0 [Reveal]
+                withClass NonMental $ as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nTarget
             it "teaches countered" do
                 act
@@ -155,11 +155,11 @@ spec = parallel do
         useOn Enemy "Chidori Stream" do
             it "counters enemies" do
                 act
-                withClass NonMental $ as XEnemies $ apply 0 [Reveal]
+                withClass NonMental $ as XEnemies $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "damages countered" do
                 act
-                withClass NonMental $ as Enemies $ apply 0 [Reveal]
+                withClass NonMental $ as Enemies $ apply Permanent [Reveal]
                 targetHealth <- health <$> get Enemies
                 100 - targetHealth `shouldBe` 10
             it "alternates" do
@@ -170,7 +170,7 @@ spec = parallel do
             it "damages attackers" do
                 act
                 setHealth 100
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 5
 
@@ -181,7 +181,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 targetHealth `shouldBe` 100
             it "can be used after Dragon Flame" do
-                apply 0 [AntiChannel]
+                apply Permanent [AntiChannel]
                 use "Dragon Flame"
                 as Enemy $ return ()
                 setHealth 100
@@ -189,7 +189,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 targetHealth `shouldNotBe` 100
             it "can only be used once after Dragon Flame" do
-                apply 0 [AntiChannel]
+                apply Permanent [AntiChannel]
                 use "Dragon Flame"
                 setHealth 100
                 as Enemy $ return ()

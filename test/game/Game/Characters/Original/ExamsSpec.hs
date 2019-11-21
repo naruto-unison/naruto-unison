@@ -130,12 +130,12 @@ spec = parallel do
                 targetHealth - targetHealth' `shouldBe` 25
             it "does not make user invulnerable normally" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
             it "makes user invulnerable during Shadow Senbon" do
                 use "Shadow Senbon"
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
 
         useOn Enemy "Shadow Senbon" do

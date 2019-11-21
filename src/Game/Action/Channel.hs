@@ -17,7 +17,7 @@ import           Game.Model.Channel (Channel)
 import qualified Game.Model.Channel as Channel
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import           Game.Model.Duration (Turns)
+import           Game.Model.Duration (Duration)
 import qualified Game.Model.Ninja as Ninja
 
 -- | Cancels 'Ninja.channels' with a matching 'Channel.name'.
@@ -50,8 +50,8 @@ onInterrupt chan =
 
 -- | Increases the duration of 'Ninja.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.prolongChannel' internally.
-prolongChannel :: ∀ m. MonadPlay m => Turns -> Text -> m ()
-prolongChannel (fromIntegral -> dur) name =
+prolongChannel :: ∀ m. MonadPlay m => Duration -> Text -> m ()
+prolongChannel dur name =
     P.toTarget $ Ninjas.prolongChannel dur name
 
 -- | Modify all channel names.

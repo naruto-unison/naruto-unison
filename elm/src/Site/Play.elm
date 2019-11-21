@@ -605,7 +605,7 @@ renderDefense slot anchor track barriers defenses =
 
         Just ( x, xs ) ->
             H.div [ A.classList [ ( "chardefense", True )
-                                , ( "ghost", x.dur == -1 )
+                                , ( "ghost", x.dur == 1 )
                                 ]
                   , A.style anchor <| String.fromInt track ++ "%"
                   , A.style "width" <| String.fromInt x.amount ++ "%"
@@ -708,7 +708,7 @@ renderDetail team slot characters detail =
               , detail.trap
               )
             , ( "ghost"
-              , detail.dur == -1
+              , detail.dur == 1
               )
             , ( "remove"
               , List.any removable detail.effects
@@ -860,7 +860,7 @@ bar source name amount dur =
         , H.dt [] [ H.text "Amount" ]
         , H.dd [] [ H.text <| String.fromInt amount ]
         , H.dt [] [ H.text "Duration" ]
-        , H.dd [] << Render.duration "Permanent" <| dur
+        , H.dd [] <| Render.duration "Permanent" dur
         , H.dt [] [ H.text "Source" ]
         , H.dd [] <| Render.name source
         ]
@@ -898,7 +898,7 @@ renderView visibles characters viewing =
                 , H.dt [] [ H.text "Source" ]
                 , H.dd [] << Render.name <| Game.get characters x.user
                 , H.dt [] [ H.text "Duration" ]
-                , H.dd [] << Render.duration "Permanent" <| x.dur
+                , H.dd [] <| Render.duration "Permanent" x.dur
                 ] ++
                 if x.amount > 0 then
                     [ H.dt [] [ H.text "Amount" ]
@@ -924,7 +924,7 @@ renderView visibles characters viewing =
                             "None"
 
                         y ->
-                            String.fromInt <| abs y
+                            String.fromInt <| y // 2
 
                 cost =
                     case Chakra.total x.cost of
@@ -952,13 +952,13 @@ renderView visibles characters viewing =
                             "Ongoing"
 
                         Action y ->
-                            "Action " ++ String.fromInt (abs y)
+                            "Action " ++ String.fromInt ((y + 1) // 2)
 
                         Control y ->
-                            "Control " ++ String.fromInt (abs y)
+                            "Control " ++ String.fromInt ((y + 1) // 2)
 
                         Ongoing y ->
-                            "Ongoing " ++ String.fromInt (abs y)
+                            "Ongoing " ++ String.fromInt ((y + 1) // 2)
 
                 charges =
                     if x.charges == 0 then

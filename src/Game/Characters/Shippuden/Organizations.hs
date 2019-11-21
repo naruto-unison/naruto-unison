@@ -22,11 +22,11 @@ characters =
         , Skill.dur       = Passive
         , Skill.start     =
           [ To Self do
-                defend 0 45
+                defend Permanent 45
                 onBreak'
           ]
         , Skill.effects   =
-          [ To Self $ apply 0 [Alternate "Susanoo" "Tsukumo"] ]
+          [ To Self $ apply Permanent [Alternate "Susanoo" "Tsukumo"] ]
         }
       , Skill.new
         { Skill.name      = "Tsukumo"
@@ -38,7 +38,7 @@ characters =
           [ To Enemies do
                 damage 15
                 stacks <- userStacks "Susanoo"
-                apply stacks [Weaken [All] Flat 5]
+                apply (fromIntegral stacks) [Weaken [All] Flat 5]
           ]
         }
       ]
@@ -62,11 +62,12 @@ characters =
         , Skill.cost      = [Blood, Gen]
         , Skill.effects   =
           [ To Enemy do
-                self $ hide 0 [Alternate "Kotoamatsukami" "Kotoamatsukami"]
-                trap 0 (OnAction All) do
+                self $ hide Permanent
+                    [Alternate "Kotoamatsukami" "Kotoamatsukami"]
+                trap Permanent (OnAction All) do
                     self $ remove "kotoamatsukami"
                     deplete 1
-                trap 0 OnDeath $ self $ remove "kotoamatsukami"
+                trap Permanent OnDeath $ self $ remove "kotoamatsukami"
           ]
         }
       , Skill.new
@@ -77,7 +78,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 everyone $ removeTrap "Kotoamatsukami"
-                trap 0 (OnAction All) do
+                trap Permanent (OnAction All) do
                     self $ remove "kotoamatsukami"
                     deplete 1
           ]
@@ -113,7 +114,7 @@ characters =
           [ To Ally do
                 trapFrom 1 (Counter NonMental) $ damage 20
                 trap 1 (Counter NonMental) do
-                    defend 0 20
+                    defend Permanent 20
                     self $ recharge "Tenth Edict on Enlightenment"
           ]
         }
@@ -126,8 +127,8 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self $ recharge "Tenth Edict on Enlightenment"
-          , To XAlly $ allies $ defend 0 20
-          , To Enemy $ enemies $ barricade 0 20
+          , To XAlly $ allies $ defend Permanent 20
+          , To Enemy $ enemies $ barricade Permanent 20
           ]
         }
       ]
@@ -142,11 +143,11 @@ characters =
         , Skill.desc      = "Torune applies a Venom Beetle to an enemy, dealing 5 affliction damage for 5 turns, and gains 15 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 1 arbitrary chakra but does not provide any destructible defense."
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood]
-        , Skill.cooldown  = 0
+        , Skill.cooldown  = Permanent
         , Skill.effects   =
           [ To Enemy $ apply' "Venom Beetle" 5 [Afflict 5]
           , To Self do
-                defend 0 15
+                defend Permanent 15
                 onBreak $ addStack' "Venom Beetle"
           ]
         , Skill.changes   =
@@ -161,11 +162,11 @@ characters =
         , Skill.desc      = "Torune applies a Venom Beetle to every enemy, which deals 5 affliction damage for 5 turns. Torune gains 30 permanent destructible defense. Whoever destroys his destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 2 arbitrary chakra but does not provide any destructible defense."
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood, Blood]
-        , Skill.cooldown  = 0
+        , Skill.cooldown  = Permanent
         , Skill.effects   =
           [ To Enemies $ apply' "Venom Beetle" 5 [Afflict 5]
           , To Self do
-                defend 0 30
+                defend Permanent 30
                 onBreak $ addStack' "Venom Beetle"
           ]
         , Skill.changes   =
@@ -281,10 +282,12 @@ characters =
                     removeStacks "Sharingan" 2
                     unlessM (userHas "Sharingan") do
                         cancelChannel "Izanagi"
-                        hide 0 [Alternate "Izanagi" "Reverse Tetragram Sealing"]
+                        hide Permanent
+                            [Alternate "Izanagi" "Reverse Tetragram Sealing"]
                 else do
                     cancelChannel "Izanagi"
-                    hide 0 [Alternate "Izanagi" "Reverse Tetragram Sealing"]
+                    hide Permanent
+                        [Alternate "Izanagi" "Reverse Tetragram Sealing"]
           ]
         }
       , Skill.new
@@ -316,7 +319,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ hide 0 [Alternate "Vacuum Bullets" "Vacuum Blade"]
+          [ To Self $ hide Permanent [Alternate "Vacuum Bullets" "Vacuum Blade"]
           , To Enemy $ damage 10
           , To XEnemies $ damage 5
           ]
@@ -388,7 +391,7 @@ characters =
           [ To Self do
                 apply 1 [Invulnerable Mental, Face]
                 gain [Rand]
-                defend 0 10
+                defend Permanent 10
           ]
         , Skill.stunned   =
           [ To Self $ apply 1 [Face] ]
@@ -479,7 +482,7 @@ characters =
         , Skill.effects   =
           [ To XAlly do
                 heal 20
-                defend 0 20
+                defend Permanent 20
           , To Self $ apply 4 [Snare 1]
           ]
         }
@@ -498,7 +501,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 trapFrom 1 (CounterAll NonMental) $ afflict 10
-                hide 0 [Alternate "Chidori Stream" "Kusanagi"]
+                hide Permanent [Alternate "Chidori Stream" "Kusanagi"]
           ]
         }
       , Skill.new

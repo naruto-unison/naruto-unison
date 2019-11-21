@@ -36,7 +36,7 @@ import           Game.Model.Class (Class(..))
 import qualified Game.Model.Context as Context
 import           Game.Model.Defense (Defense(Defense))
 import qualified Game.Model.Defense as Defense
-import           Game.Model.Duration (Turns, incr)
+import           Game.Model.Duration (Duration)
 import           Game.Model.Effect (Amount(..), Effect(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
@@ -196,8 +196,8 @@ attack atk dmg = void $ runMaybeT do
 -- of a 'Ninja.Ninja'. All attacks except for 'afflict' attacks must damage and
 -- destroy the target's 'Ninja.defense' before they can damage the target.
 -- Destructible defense can be temporary or permanent.
-defend :: ∀ m. MonadPlay m => Turns -> Int -> m ()
-defend (incr . fromIntegral -> dur) amount = P.unsilenced do
+defend :: ∀ m. MonadPlay m => Duration -> Int -> m ()
+defend (succ -> dur) amount = P.unsilenced do
     skill      <- P.skill
     user       <- P.user
     target     <- P.target
@@ -239,16 +239,16 @@ removeDefense name = P.unsilenced . P.fromUser $ Ninjas.removeDefense name
 -- of a 'Ninja.Ninja'. All attacks except for 'afflict' attacks must damage and
 -- destroy the user's 'Ninja.barrier' before they can damage the target.
 -- Destructible barrier can be temporary or permanent.
-barricade :: ∀ m. MonadPlay m => Turns -> Int -> m ()
+barricade :: ∀ m. MonadPlay m => Duration -> Int -> m ()
 barricade dur = barricade' dur (const $ return ()) (return ())
 
 -- | Adds a 'Barrier' with an effect that occurs when its duration
 -- 'Barrier.finish'es, which is passed as an argument the 'Barrier.amount' of
 -- barrier remaining, and an effect that occurs each turn 'Barrier.while' it
 -- exists.
-barricade' :: ∀ m. MonadPlay m => Turns -> (Int -> RunConstraint ())
+barricade' :: ∀ m. MonadPlay m => Duration -> (Int -> RunConstraint ())
             -> RunConstraint () -> Int -> m ()
-barricade' (fromIntegral -> dur) finish while amount = P.unsilenced do
+barricade' dur finish while amount = P.unsilenced do
     context   <- P.context
     amount'   <- (+ amount) . Effects.build <$> P.nUser
     let skill  = Context.skill context

@@ -66,7 +66,8 @@ characters =
                 damage 20
                 stacks <- targetStacks "Toad Oil Bomb"
                 afflict (10 * stacks)
-          , To Self $ hide 0 [Alternate "Giant Flame Bomb" "Toad Oil Bomb"]
+          , To Self $ hide Permanent
+                [Alternate "Giant Flame Bomb" "Toad Oil Bomb"]
           ]
         }
       , Skill.new
@@ -158,8 +159,8 @@ characters =
         , Skill.effects   =
           [ To Self do
                 heal 25
-                apply 0 [Alternate "Strength of One Hundred Seal"
-                                   "Strength of One Hundred Seal"]
+                apply Permanent [Alternate "Strength of One Hundred Seal"
+                                           "Strength of One Hundred Seal"]
           ]
         }
       , Skill.new
@@ -189,7 +190,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Allies $ defend 0 104
+          [ To Allies $ defend Permanent 104
           , To Enemies $ damage 10
           ]
         }

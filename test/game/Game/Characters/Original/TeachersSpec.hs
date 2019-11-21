@@ -26,12 +26,12 @@ spec = parallel do
                 100 - targetHealth `shouldBe` 0
             it "damages target if they harm" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 40
             it "makes target vulnerable if they harm" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 setHealth 100
                 withClass Physical $ damage dmg
                 targetHealth <- health <$> nTarget
@@ -44,7 +44,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 15
             it "damages instantly during Successful Ambush" do
-                self $ tag' "Successful Ambush" 0
+                self $ tag' "Successful Ambush" Permanent
                 act
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 30
@@ -60,7 +60,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 20 * 2 + 10 + 2 * 10
             it "deals bonus damage during Successful Ambush" do
-                self $ tag' "Successful Ambush" 0
+                self $ tag' "Successful Ambush" Permanent
                 act
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 10 + 30
@@ -68,19 +68,19 @@ spec = parallel do
         useOn Self "Genjutsu Ambush Tactics" do
             it "does not make invulnerable instantly" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
             it "does not make invulnerable if harmed" do
                 act
                 as Enemy $ damage dmg
                 turns 1
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
             it "makes invulnerable if not harmed" do
                 act
-                as Enemy $ apply 0 [Plague]
+                as Enemy $ apply Permanent [Plague]
                 turns 1
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
             it "tags user if not harmed" do
                 act
@@ -101,7 +101,7 @@ spec = parallel do
                 targetHealth `shouldBe` 0
             it "kills user" do
                 use "Dual Pin"
-                self $ apply 0 [Endure]
+                self $ apply Permanent [Endure]
                 act
                 userHealth <- health <$> nUser
                 userHealth `shouldBe` 0
@@ -155,11 +155,11 @@ spec = parallel do
         useOn Ally "Self-Sacrifice" do
             it "redirects from ally" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nTarget
             it "redirects to user" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
 
     describeCharacter "Might Guy" do
@@ -171,11 +171,11 @@ spec = parallel do
         useOn Enemy "Counter Punch" do
             it "counters target" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "damages countered target" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 30
 
@@ -186,11 +186,11 @@ spec = parallel do
                 targetDefense <- totalDefense <$> nTarget
                 targetDefense `shouldBe` 50
             it "protects target from effects" do
-                as Enemy $ apply 0 [Plague]
+                as Enemy $ apply Permanent [Plague]
                 act
                 not . (`is` Plague) <$> nTarget
             it "ends when defense is destroyed" do
-                as Enemy $ apply 0 [Plague]
+                as Enemy $ apply Permanent [Plague]
                 act
                 as Enemy demolishAll
                 (`is` Plague) <$> nTarget

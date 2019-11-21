@@ -22,11 +22,11 @@ spec = parallel do
         useOn Enemies "Rasengan Barrage" do
             it "counters on user" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "damages countered" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 30
 
@@ -54,7 +54,7 @@ spec = parallel do
             it "is cured when target becomes invulnerable" do
                 act
                 turns stacks
-                as Enemy $ self $ apply 0 [Invulnerable Physical]
+                as Enemy $ self $ apply Permanent [Invulnerable Physical]
                 turns 5
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 5 * (stacks + 1)
@@ -117,11 +117,11 @@ spec = parallel do
 
         useOn Self "Mother's Embrace" do
             it "ignores harmful effects" do
-                as Enemy $ apply 0 [Plague]
+                as Enemy $ apply Permanent [Plague]
                 act
                 not . (`is` Plague) <$> nUser
             it "ends when destroyed" do
-                as Enemy $ apply 0 [Plague]
+                as Enemy $ apply Permanent [Plague]
                 act
                 as Enemy demolishAll
                 (`is` Plague) <$> nUser
@@ -170,7 +170,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 factory
                 self factory
-                apply 0 [AntiChannel]
+                apply Permanent [AntiChannel]
                 use "Sasori Surrogate"
                 use "Kuroari Trap"
                 use "Hidden Coil Strike"
@@ -182,16 +182,16 @@ spec = parallel do
         useOn Allies "Salamander Shield" do
             it "redirects from targets" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nTarget
             it "redirects to user" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
             it "ends when destroyed" do
                 act
                 self $ as Enemy demolishAll
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nTarget
 
     describeCharacter "Sage Mode Kabuto" do
@@ -421,18 +421,18 @@ spec = parallel do
         useOn Enemies "Eight-Headed Serpent" do
             it "stuns stunners" do
                 act
-                as Enemy $ apply 0 [Stun Mental]
+                as Enemy $ apply Permanent [Stun Mental]
                 targetStunned <- Effects.stun <$> nTarget
                 targetStunned `shouldBe` [All]
             it "removes stuns" do
                 act
-                as Enemy $ apply 0 [Stun Mental]
+                as Enemy $ apply Permanent [Stun Mental]
                 userStunned <- Effects.stun <$> nUser
                 userStunned `shouldBe` []
             it "damages stunners" do
                 act
                 setHealth 100
-                as Enemy $ apply 0 [Stun Mental]
+                as Enemy $ apply Permanent [Stun Mental]
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 20
   where

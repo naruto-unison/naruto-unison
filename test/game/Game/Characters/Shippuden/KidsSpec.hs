@@ -12,14 +12,14 @@ spec = parallel do
         useOn Enemy "Multi Shadow Clone" do
             it "counters enemy" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "alternates" do
                 act
                 hasSkill "Rasen Shuriken" <$> nUser
             it "tags enemy if countered" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 has "Multi Shadow Clone" <$> user <*> nTarget
             it "does not tag enemy otherwise" do
                 act
@@ -31,7 +31,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 factory
                 self factory
-                tag' "Multi Shadow Clone" 0
+                tag' "Multi Shadow Clone" Permanent
                 act
                 targetHealth' <- health <$> nTarget
                 targetHealth - targetHealth' `shouldBe` 25
@@ -69,8 +69,8 @@ spec = parallel do
         useOn Allies "Ink Mist" do
             it "makes stunned allies invulnerable" do
                 act
-                as Enemy $ apply 0 [Stun All]
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Stun All]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nTarget
             it "gains chakra when depleted" do
                 act
@@ -156,7 +156,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 factory
                 self factory
-                tag' "chakra leech" 0
+                tag' "chakra leech" Permanent
                 act
                 turns 5
                 targetHealth' <- health <$> nTarget
@@ -170,17 +170,17 @@ spec = parallel do
         useOn Ally "Insect Barricade" do
             it "counters on target" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nTarget
             it "counters with Gigantic Beetle Infestation" do
                 everyone $ addStacks "Gigantic Beetle Infestation" 2
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 targetHealth <- health <$> get Enemy
                 100 - targetHealth `shouldBe` 3 * 25
             it "does not gain chakra normally" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 turns 2
                 chakras <- chakra <$> game
                 chakras `shouldBe` ([], [])
@@ -225,7 +225,7 @@ spec = parallel do
                 targetHealth' <- health <$> nTarget
                 targetHealth - targetHealth' `shouldBe` 10
             it "removes Eight Trigrams Sixty-Four Palms" do
-                tag' "Eight Trigrams Sixty-Four Palms" 0
+                tag' "Eight Trigrams Sixty-Four Palms" Permanent
                 act
                 not <$>
                     (has "Eight Trigrams Sixty-Four Palms" <$> user <*> nTarget)
@@ -270,13 +270,13 @@ spec = parallel do
                 act
                 as Enemy $ afflict dmg
                 as Self $ return ()
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "pauses from non-affliction damage" do
                 act
                 as Enemy $ pierce dmg
                 as Self $ return ()
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
             it "alternates" do
                 act
@@ -286,15 +286,15 @@ spec = parallel do
 
         useOn Enemy "Expert Analysis" do
             it "undoes counters" do
-                trap 0 (Counter All) $ return ()
+                trap Permanent (Counter All) $ return ()
                 act
                 as Enemy $ return ()
-                as Self $ apply 0 [Reveal]
+                as Self $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nTarget
             it "does nothing if target does nothing" do
-                trap 0 (Counter All) $ return ()
+                trap Permanent (Counter All) $ return ()
                 act
-                as Self $ apply 0 [Reveal]
+                as Self $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nTarget
 
     describeCharacter "Chōji Akimichi" do
@@ -307,17 +307,17 @@ spec = parallel do
         useOn Enemy "Mind Destruction" do
             it "counters target" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "copies countered target" do
                 act
-                withClass All $ as Enemy $ apply 0 [Reveal]
+                withClass All $ as Enemy $ apply Permanent [Reveal]
                 hasSkill "Unnamed" <$> nUser
 
         useOn Enemies "Proxy Surveillance" do
             it "reduces damage reduction" do
                 act
-                as Enemy $ self $ apply 0 [Reduce [All] Flat stacks]
+                as Enemy $ self $ apply Permanent [Reduce [All] Flat stacks]
                 damage dmg
                 targetHealth <- health <$> nTarget
                 (100 - targetHealth) - dmg + stacks `shouldBe` 15
@@ -425,11 +425,11 @@ spec = parallel do
         useOn Enemies "Eight Trigrams Sixty-Four Palms" do
             it "counters" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nTarget
             it "alternates when countered" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 hasSkill "Pressure Point Strike" <$> nUser
 
         useOn Enemy "Pressure Point Strike" do
@@ -473,11 +473,11 @@ spec = parallel do
         useOn Enemy "Kuroari Trap" do
             it "counters enemy" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "tags countered enemy" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 has "Kuroari Trap" <$> user <*> nTarget
 
         useOn Enemy "Karasu Knives" do
@@ -487,7 +487,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 20 + 10
             it "deals bonus damage with Kuroari Trap" do
-                tag' "Kuroari Trap" 0
+                tag' "Kuroari Trap" Permanent
                 act
                 turns 3
                 targetHealth <- health <$> nTarget

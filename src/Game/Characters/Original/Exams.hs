@@ -231,7 +231,8 @@ characters =
                 targetBonus <- 10 `bonusIf` targetHas "Echoing Sound"
                 userBonus   <- 10 `bonusIf` userHas "Echo Speaker Tuning"
                 damage (10 + targetBonus + userBonus)
-                apply 0 [Bleed [NonAffliction] Flat 5, Weaken [All] Flat 5]
+                apply Permanent
+                    [Bleed [NonAffliction] Flat 5, Weaken [All] Flat 5]
           ]
         }
       ]
@@ -422,7 +423,7 @@ characters =
         , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self $ defend 0 15
+          [ To Self $ defend Permanent 15
           , To Enemies do
                 damage 20
                 apply 1 [Stun All]

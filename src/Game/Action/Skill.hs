@@ -27,7 +27,7 @@ import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
-import           Game.Model.Duration (Turns, incr)
+import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as Ninja
@@ -72,8 +72,9 @@ alternate :: ∀ m. MonadPlay m
           -> Int   -- ^ Counter added to all 'Ninja.alternates' slots.
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
 alternate loadout i =
-    applyWith' alternateClasses "loadout" 0 . catMaybes . zipWith load loadout .
-    toList . Character.skills . Ninja.character =<< P.nTarget
+    applyWith' alternateClasses "loadout" Permanent . catMaybes .
+    zipWith load loadout . toList . Character.skills .
+    Ninja.character =<< P.nTarget
   where
     load alt (x:|xs) =
         Alternate (Skill.name x) . Skill.name <$> xs !? (alt + i - 1)
@@ -87,16 +88,16 @@ nextAlternate name = mapM_ alt . Ninjas.nextAlternate name =<< P.nTarget
 
 -- | Copies all @Skill@s from the target into the user's 'Ninja.copies'.
 -- Uses 'Ninjas.copyAll' internally.
-copyAll :: ∀ m. MonadPlay m => Turns -> m ()
-copyAll (fromIntegral -> dur) = P.uncopied do
+copyAll :: ∀ m. MonadPlay m => Duration -> m ()
+copyAll dur = P.uncopied do
     nTarget <- P.nTarget
     user    <- P.user
     P.modify user $ Ninjas.copyAll dur nTarget
 
 -- | Copies the 'Ninja.lastSkill' of the target into a specific skill slot
 -- of the user's 'Ninja.copies'. Uses 'Execute.copy' internally.
-copyLast :: ∀ m. MonadPlay m => Turns -> m ()
-copyLast (incr . fromIntegral -> dur) = P.uncopied . void $ runMaybeT do
+copyLast :: ∀ m. MonadPlay m => Duration -> m ()
+copyLast (succ -> dur) = P.uncopied . void $ runMaybeT do
     name  <- Skill.name <$> P.skill
     s     <- MaybeT $ findIndex (any $ (== name) . Skill.name) . toList .
              Character.skills . Ninja.character <$> P.nUser
@@ -105,11 +106,11 @@ copyLast (incr . fromIntegral -> dur) = P.uncopied . void $ runMaybeT do
     P.modify user $ Ninjas.copy dur [s] skill
 
 teach :: ∀ m. MonadPlay m
-       => Turns -- ^ 'Copy.dur'.
+       => Duration -- ^ 'Copy.dur'.
        -> Text
        -> [Int]
        -> m ()
-teach (fromIntegral -> dur) name slots =
+teach dur name slots =
     mapM_ (P.toTarget . Ninjas.copy dur slots) .
     find ((== name) . Skill.name) .
     concatMap toList . Character.skills . Ninja.character =<< P.nUser

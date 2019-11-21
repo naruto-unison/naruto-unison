@@ -13,19 +13,19 @@ spec = parallel do
             it "counters with taunt" do
                 act
                 at XAlly $ as Enemy do
-                    apply 0 [Reveal]
-                    apply 0 [Reveal]
+                    apply Permanent [Reveal]
+                    apply Permanent [Reveal]
                 not . (`is` Reveal) <$> get XAlly
             it "taunts to user" do
                 act
-                at XAlly $ as Enemy $ apply 0 [Reveal]
-                as Enemy $ apply 0 [Reveal]
+                at XAlly $ as Enemy $ apply Permanent [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
             it "ends if user uses a skill on a different target" do
                 act
-                at XAlly $ as Enemy $ apply 0 [Reveal]
+                at XAlly $ as Enemy $ apply Permanent [Reveal]
                 at XEnemies $ use "Sphere of Graves"
-                at XAlly $ as Enemy $ apply 0 [Reveal]
+                at XAlly $ as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> get XAlly
 
         useOn Enemy "Earth Dome Prison" do
@@ -61,12 +61,12 @@ spec = parallel do
                 targetHealth <- health <$> get XEnemies
                 100 - targetHealth `shouldBe` 0
             it "stuns if target loses 50 health" do
-                self $ apply 0 [Strengthen [All] Flat 40]
+                self $ apply Permanent [Strengthen [All] Flat 40]
                 act
                 targetStunned <- Effects.stun <$> nTarget
                 targetStunned `shouldBe` [All]
             it "does not stun otherwise" do
-                self $ apply 0 [Strengthen [All] Flat 39]
+                self $ apply Permanent [Strengthen [All] Flat 39]
                 act
                 targetStunned <- Effects.stun <$> nTarget
                 targetStunned `shouldBe` []
@@ -135,13 +135,13 @@ spec = parallel do
 
         useOn Enemy "Depth Charge" do
             it "deals normal damage normally" do
-                apply 0 [Reduce [All] Flat stacks]
+                apply Permanent [Reduce [All] Flat stacks]
                 act
                 targetHealth <- health <$> nTarget
                 30 - (100 - targetHealth) `shouldBe` stacks
             it "deals affliction damage if target has Electricity" do
                 use "Lightning Fang"
-                apply 0 [Reduce [All] Flat stacks]
+                apply Permanent [Reduce [All] Flat stacks]
                 act
                 targetHealth <- health <$> nTarget
                 30 - (100 - targetHealth) `shouldBe` 0
@@ -208,7 +208,7 @@ spec = parallel do
         useOn Enemy "Chakra Clay Trap" do
             it "counters target" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nTarget
             it "increases the damage of Detonating Clay" do
                 replicateM_ stacks do

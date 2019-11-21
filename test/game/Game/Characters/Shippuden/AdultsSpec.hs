@@ -15,7 +15,7 @@ spec = parallel do
                 targetStunned <- Effects.stun <$> nTarget
                 targetStunned `shouldBe` [All]
             it "does not stun otherwise" do
-                apply 0 [Reduce [Affliction] Flat 25]
+                apply Permanent [Reduce [Affliction] Flat 25]
                 act
                 targetStunned <- Effects.stun <$> nTarget
                 targetStunned `shouldBe` []
@@ -39,7 +39,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 factory
                 self factory
-                apply 0 [Stun All]
+                apply Permanent [Stun All]
                 act
                 targetHealth' <- health <$> nTarget
                 targetHealth - targetHealth' `shouldBe` 10
@@ -48,7 +48,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 factory
                 self factory
-                apply 0 [Stun All]
+                apply Permanent [Stun All]
                 use "Lightning Beast Fang"
                 setHealth 100
                 act
@@ -153,14 +153,14 @@ spec = parallel do
 
         useOn XEnemies "Three Treasure Suction Crush" do
             it "deals normal damage normally" do
-                defend 0 stacks
+                defend Permanent stacks
                 act
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 30 - stacks
             it "deals affliction damage if target has Lion Roar Sealing" do
                 use "Ten Puppets Collection"
                 setHealth 100
-                defend 0 stacks
+                defend Permanent stacks
                 use "Lion Roar Sealing"
                 act
                 targetHealth <- health <$> nTarget
@@ -170,7 +170,7 @@ spec = parallel do
             it "cures harm on death" do
                 act
                 as Enemy do
-                    apply 0 [Reveal]
+                    apply Permanent [Reveal]
                     kill
                 not . (`is` Reveal) <$> nTarget
             it "heals target on death" do
@@ -223,7 +223,7 @@ spec = parallel do
             it "makes user invulnerable if harmed" do
                 act
                 as Enemy $ return ()
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
 
     describeCharacter "Atsui" do
@@ -253,11 +253,11 @@ spec = parallel do
         useOn Enemies "Back Slice" do
             it "counters" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "damages countered" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 20
             it "alternates" do
@@ -282,7 +282,7 @@ spec = parallel do
         useOn Ally "Rubber Sphere and Rope" do
             it "makes random ally invulnerable" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nTarget
 
     describeCharacter "Darui" do
@@ -317,7 +317,7 @@ spec = parallel do
         useOn Enemy "Barrier Talisman" do
             it "counters on user" do
                 act
-                withClass NonMental $ as Enemy $ apply 0 [Reveal]
+                withClass NonMental $ as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "exhausts countered" do
                 act
@@ -329,11 +329,11 @@ spec = parallel do
         useOn Enemy "Hiramekarei Twinswords" do
             it "counters on user" do
                 act
-                withClass Physical $ as Enemy $ apply 0 [Reveal]
+                withClass Physical $ as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "damages countered" do
                 act
-                withClass Physical $ as Enemy $ apply 0 [Reveal]
+                withClass Physical $ as Enemy $ apply Permanent [Reveal]
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 20
   where

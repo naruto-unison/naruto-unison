@@ -63,7 +63,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 addStack
-                trap 0 OnHarm do
+                trap Permanent OnHarm do
                     stacks <- targetStacks "Exploding Palm"
                     pierce (20 * stacks)
                     removeTrap "Exploding Palm"
@@ -169,7 +169,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 addStack
-                trap 0 OnHarm do
+                trap Permanent OnHarm do
                     stacks <- targetStacks "Gold Rope"
                     damage (35 * stacks)
                     addStacks "Spirit Word" stacks
@@ -204,7 +204,7 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self $ trapFrom 2 (OnHarmed All) $ apply 0 [Plague]
+          [ To Self $ trapFrom 2 (OnHarmed All) $ apply Permanent [Plague]
           , To Enemy do
                 stacksA <- targetStacks "Conserving Bee Twin Blades"
                 stacksB <- targetStacks "Magnetic Current"
@@ -277,7 +277,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ apply 0 [Reduce [Affliction] Percent 10]
+          [ To Self $ apply Permanent [Reduce [Affliction] Percent 10]
           , To Enemy do
                 stacks <- targetStacks "Chakra Arms"
                 damage (30 + 5 * stacks)
@@ -325,7 +325,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 0 (Countered All) do
+          [ To Enemy $ trap Permanent (Countered All) do
                 damage 20
                 apply 1 [Stun Physical]
           ]

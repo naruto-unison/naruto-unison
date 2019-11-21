@@ -167,7 +167,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy $ damage 15
-          , To Self $ apply 0 [Strengthen [All] Flat 5]
+          , To Self $ apply Permanent [Strengthen [All] Flat 5]
           ]
         }
       ]
@@ -268,7 +268,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 stacks <- userStacks "Illusion"
-                defend 0 (10 + 5 * stacks)
+                defend Permanent (10 + 5 * stacks)
                 remove "Illusion"
           ]
         }
@@ -369,9 +369,10 @@ characters =
         , Skill.effects   =
           [ To XAlly do
                 userSlot <- user slot
-                bomb 0 [Redirect userSlot]
+                bomb Permanent [Redirect userSlot]
                     [ To Done $ self $ remove "self-sacrifice" ]
-          , To Self $ hide 0 [Alternate "Self-Sacrifice" "Self-Sacrifice "]
+          , To Self $ hide Permanent
+                [Alternate "Self-Sacrifice" "Self-Sacrifice "]
           ]
         }
       , Skill.new

@@ -53,12 +53,12 @@ spec = parallel do
             it "grants invulnerability if damaged" do
                 act
                 as Enemy $ damage 5
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "does not affect affliction damage" do
                 act
                 as Enemy $ afflict 5
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 (`is` Reveal) <$> nUser
 
         useOn Enemies "Major Summoning: Gamabunta" do

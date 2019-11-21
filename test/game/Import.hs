@@ -12,6 +12,7 @@ import Game.Characters.Import as X (self, targetHas, userHas, allies, enemies, e
 import Game.Model.Chakra as X (Chakra(..))
 import Game.Model.Character as X (Category(..), Character)
 import Game.Model.Class as X (Class(..))
+import Game.Model.Duration as X (Duration(..))
 import Game.Model.Effect as X (Amount(..), Constructor(..), Effect(..))
 import Game.Model.Game as X (chakra)
 import Game.Model.Ninja as X (Ninja(charges, health), has, hasOwn, numAnyStacks, is, isChanneling, totalBarrier, totalDefense)

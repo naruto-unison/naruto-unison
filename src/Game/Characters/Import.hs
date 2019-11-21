@@ -26,6 +26,7 @@ import Game.Model.Chakra as Import (Chakra(..), Chakras, chakraDesc)
 import Game.Model.Channel as Import (Channeling(..))
 import Game.Model.Character as Import (Character(..), Category)
 import Game.Model.Class as Import (Class(..))
+import Game.Model.Duration as Import (Duration(..))
 import Game.Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
 import Game.Model.Group as Import (Group(..))
 import Game.Model.Ninja as Import (Ninja(barrier, defense, health, slot, statuses, traps), alive, hasBarrier, hasDefense, hasOwnDefense, hasOwn, is, isChanneling, numActive, numAnyStacks, numHelpful, numSkills)
@@ -91,7 +92,7 @@ everyone :: ∀ m. MonadPlay m => m () -> m ()
 everyone = P.withTargets Slot.all
 
 -- | Returns the bonus if the monadic condition succeeds, otherwise returns 0.
-bonusIf :: ∀ m. MonadPlay m => Int -> m Bool -> m Int
+bonusIf :: ∀ m a. (MonadPlay m, Num a) => a -> m Bool -> m a
 bonusIf amount condition = do
     succeed <- condition
     return if succeed then amount else 0

@@ -11,7 +11,7 @@ spec = parallel do
     describeCharacter "One-Tailed Naruto" do
         useOn Enemy "Tailed Beast Rasengan" do
             it "deals bonus damage during Tailed Beast Chakra Arms" do
-                apply 0 [AntiChannel]
+                apply Permanent [AntiChannel]
                 use "Tailed Beast Chakra Arms"
                 setHealth 100
                 act
@@ -50,7 +50,7 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 20 + 5 * stacks
             it "deals bonus damage during Drunken Fist" do
-                apply 0 [AntiChannel]
+                apply Permanent [AntiChannel]
                 use "Drunken Fist"
                 setHealth 100
                 act
@@ -60,28 +60,28 @@ spec = parallel do
         useOn Enemy "Drunken Counter" do
             it "counters on target" do
                 self act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "damages with Unpredictable Assault if countered" do
                 self act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 20
             it "adds Unpredictable Assault if countered" do
                 self act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 hasOwn "Unpredictable Assault" <$> nUser
 
     describeCharacter "Shukaku Gaara" do
         useOn Enemy "Monstrous Sand Arm" do
             it "counters target" do
                 act
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> nUser
             it "damages target until target acts" do
                 act
                 turns stacks
-                as Enemy $ apply 0 [Reveal]
+                as Enemy $ apply Permanent [Reveal]
                 turns 5
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 10 * (stacks + 1)

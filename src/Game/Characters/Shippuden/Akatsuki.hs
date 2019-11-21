@@ -44,11 +44,13 @@ characters =
         , Skill.dur       = Passive
         , Skill.start     =
           [ To Self do
-                defend 0 70
+                defend Permanent 70
                 onBreak'
           ]
         , Skill.effects   =
-          [ To Self $ apply 0 [Alternate "Susanoo" "Armored Susanoo Assault"] ]
+          [ To Self $ apply Permanent
+                [Alternate "Susanoo" "Armored Susanoo Assault"]
+          ]
         }
       , Skill.new
         { Skill.name      = "Armored Susanoo Assault"
@@ -94,7 +96,8 @@ characters =
           [ To Enemy do
                 damage 15
                 apply 4 [ Weaken [All] Flat 5]
-          , To Self $ hide 0 [Alternate "C1: Bird Bomb" "C3: Megaton Sculpture"]
+          , To Self $ hide Permanent
+                [Alternate "C1: Bird Bomb" "C3: Megaton Sculpture"]
           ]
         }
       , Skill.new
@@ -156,8 +159,8 @@ characters =
         , Skill.classes   = [Bane, Chakra, Ranged, Uncounterable, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =
-          [ To Enemy $ apply 0 [Afflict 10, Weaken [All] Flat 5]
-          , To Self $ hide 0 [Alternate "C4: Karura" "C0: Ultimate Art"]
+          [ To Enemy $ apply Permanent [Afflict 10, Weaken [All] Flat 5]
+          , To Self $ hide Permanent [Alternate "C4: Karura" "C0: Ultimate Art"]
           ]
         }
       , Skill.new
@@ -182,11 +185,11 @@ characters =
         { Skill.name      = "Kazekage Puppet Summoning"
         , Skill.desc      = "Sasori summons his most prized puppet, gaining 15 permanent destructible defense and enabling his other skills. Once used, this skill becomes [Iron Sand: World Order][b][n]. Every turn, Sasori gains a stack of Iron Sand."
         , Skill.classes   = [Physical]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
-          [ To Self $ defend 0 15 ]
+          [ To Self $ defend Permanent 15 ]
         , Skill.effects   =
-          [ To Self $ apply' "Iron Sand" 0
+          [ To Self $ apply' "Iron Sand" Permanent
                 [Alternate "Kazekage Puppet Summoning" "Iron Sand: World Order"]
           ]
         }
@@ -263,7 +266,7 @@ characters =
         , Skill.desc      = "Hidan prepares for his ritual by drawing an insignia on the ground in blood. Once used, this skill becomes [First Blood][r]."
         , Skill.classes   = [Physical, Unremovable, Uncounterable, Unreflectable]
         , Skill.effects   =
-          [ To Self $ apply 0 [Alternate "Jashin Sigil" "First Blood"] ]
+          [ To Self $ apply Permanent [Alternate "Jashin Sigil" "First Blood"] ]
         }
       , Skill.new
         { Skill.name      = "First Blood"
@@ -286,8 +289,8 @@ characters =
         , Skill.effects   =
           [ To Self do
                 stacks <- userStacks "jashin"
-                apply' "Prayer" (1 + stacks) [Endure]
-                hide' "jashin" 0 []
+                apply' "Prayer" (fromIntegral $ 1 + stacks) [Endure]
+                hide' "jashin" Permanent []
           ,  To Enemy do
                 userSlot   <- user slot
                 targetSlot <- target slot
@@ -349,8 +352,8 @@ characters =
         , Skill.effects   =
           [ To Self do
                 stacks <- userStacks "jashin"
-                apply (1 + stacks) [Endure]
-                hide' "jashin" 0 []
+                apply (fromIntegral $ 1 + stacks) [Endure]
+                hide' "jashin" Permanent []
           ]
         , Skill.changes   =
             costPer "jashin" [Rand]
@@ -371,7 +374,8 @@ characters =
           [ To Enemy do
                 damage 30
                 apply 1 [Stun Chakra, Stun Ranged]
-          , To Self $ hide 0 [Alternate "Pressure Damage" "Searing Migraine"]
+          , To Self $
+                hide Permanent [Alternate "Pressure Damage" "Searing Migraine"]
           ]
         }
       , Skill.new
@@ -392,7 +396,7 @@ characters =
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
           [ To Enemy $ pierce 30
-          , To Self $ hide 0 [Alternate "False Darkness" "Blast Flames"]
+          , To Self $ hide Permanent [Alternate "False Darkness" "Blast Flames"]
           ]
         }
       , Skill.new
@@ -433,15 +437,15 @@ characters =
         , Skill.require   = HasI 0 "Thousand Hungry Sharks"
         , Skill.classes   = [Chakra, Ranged, Unreflectable, Resource]
         , Skill.cost      = [Nin]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self do
                 addStacks "Hundred Hungry Sharks" 10
-                trapFrom' 0 (OnHarmed All) do
-                    enemies $ hide' "ignored" 0 []
+                trapFrom' Permanent (OnHarmed All) do
+                    enemies $ hide' "ignored" Permanent []
                     remove "ignored"
-                    tag 0
-                    trap' 0 OnDeath $ everyone $ remove "ignored"
+                    tag Permanent
+                    trap' Permanent OnDeath $ everyone $ remove "ignored"
                     self $ removeTrap "Thousand Hungry Sharks"
           ]
         , Skill.effects   =
@@ -535,12 +539,12 @@ characters =
         , Skill.desc      = "Itachi loses 10 health and encases himself in spectral armor that provides him with 5 permanent destructible defense every turn. This skill can be used again with no chakra cost to cancel its effect and remove its destructible defense."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self $ sacrifice 0 10 ]
         , Skill.effects   =
           [ To Self do
-                defend 0 5
+                defend Permanent 5
                 hide 1 [ Alternate "Susanoo" "Susanoo"
                        , Alternate "Amaterasu" "Totsuka Blade"
                        , Alternate "Mirage Crow" "Yata Mirror"
@@ -566,7 +570,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ apply 0 [Afflict 15] ]
+          [ To Enemy $ apply Permanent [Afflict 15] ]
         }
       , Skill.new
         { Skill.name      = "Totsuka Blade"
@@ -614,12 +618,12 @@ characters =
         { Skill.name      = "White Zetsu"
         , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense every turn. Once used, this skill becomes [Black Zetsu]."
         , Skill.classes   = [Chakra]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self $ cancelChannel "Black Zetsu" ]
         , Skill.effects   =
           [ To Self do
-                defend 0 5
+                defend Permanent 5
                 hide 1 [ Alternate "White Zetsu" "Black Zetsu"
                        , Alternate "Black Zetsu" "White Army"
                        , Alternate "Doppelgänger / Body Coating" "Doppelgänger"
@@ -631,7 +635,7 @@ characters =
         { Skill.name      = "Black Zetsu"
         , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [White Zetsu]."
         , Skill.classes   = [Chakra]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self $ cancelChannel "White Zetsu" ]
         , Skill.effects   =
@@ -650,7 +654,7 @@ characters =
         { Skill.name      = "Black Zetsu"
         , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [Underground Roots][b][r]. As White Zetsu, this skill becomes [White Army][g]."
         , Skill.classes   = [Chakra]
-        , Skill.dur       = Ongoing 0
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self $ cancelChannel "White Zetsu" ]
         , Skill.effects   =
@@ -703,8 +707,8 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy do
-                apply 0 [Swap]
-                trap' 0 (OnAction All) do
+                apply Permanent [Swap]
+                trap' Permanent (OnAction All) do
                     remove "Body Coating"
                     removeTrap "Body Coating"
           ]
@@ -738,8 +742,8 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $
-                trap 0 (Counter All) $ apply 2 [Alternate "Sharingan" "Kamui"]
+          [ To Self $ trap Permanent (Counter All) $
+                apply 2 [Alternate "Sharingan" "Kamui"]
           ]
         }
       , Skill.new
@@ -850,7 +854,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 15
-                barricade' 0 (const $ return ()) (do
+                barricade' Permanent (const $ return ()) (do
                     has <- targetHas "chakra receiver"
                     if has then apply 1 [Stun All] else hide 1 []
                   ) 10
@@ -884,8 +888,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 15
-                apply 0 [Afflict 10]
-                trap 0 OnHelped $ remove "Metal Blade"
+                apply Permanent [Afflict 10]
+                trap Permanent OnHelped $ remove "Metal Blade"
           ]
         }
       ]
@@ -898,7 +902,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.start     =
           [ To Enemy purge
-          , To Self $ hide 0 [Alternate "Missile Salvo" "Head Cannon"]
+          , To Self $ hide Permanent [Alternate "Missile Salvo" "Head Cannon"]
           ]
         , Skill.effects   =
           [ To Enemy $ damage 10 ]
@@ -1084,7 +1088,7 @@ characters =
         , Skill.dur       = Ongoing 2
         , Skill.start     =
           [ To Ally do
-                defend 0 20
+                defend Permanent 20
                 apply 1 [Invulnerable All]
           ]
         }
@@ -1167,8 +1171,9 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                hide 0 [Alternate "Summoning: King of Hell" "Energy Transfer"]
-                defend 0 20
+                hide Permanent
+                    [Alternate "Summoning: King of Hell" "Energy Transfer"]
+                defend Permanent 20
                 onBreak'
           ]
         }
@@ -1255,9 +1260,9 @@ characters =
         , Skill.effects   =
           [ To Self do
                 prolongChannel 2 "Summoning: Gedo Statue"
-                hide' "dragon" 0 []
+                hide' "dragon" Permanent []
                 stacks <- userStacks "control"
-                when (stacks < 3) $ hide 0 []
+                when (stacks < 3) $ hide Permanent []
           ]
         , Skill.changes   =
             changeWith "Phantom Dragon" \x -> x { Skill.cost = [] }

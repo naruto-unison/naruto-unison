@@ -29,7 +29,7 @@ import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
 import          Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import           Game.Model.Duration (Duration, Turns)
+import           Game.Model.Duration (Duration(..))
 import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Constructor(..), Effect(..))
 import qualified Game.Model.Effect as Effect
@@ -50,29 +50,29 @@ refresh name = P.unsilenced . P.fromUser $ Ninjas.refresh name
 
 -- | Increases the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
-prolong :: ∀ m. MonadPlay m => Turns -> Text -> m ()
-prolong (fromIntegral -> dur) name =
+prolong :: ∀ m. MonadPlay m => Duration -> Text -> m ()
+prolong dur name =
     P.unsilenced . P.fromUser $ Ninjas.prolong dur name
 
 -- | Reduces the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
-hasten :: ∀ m. MonadPlay m => Turns -> Text -> m ()
-hasten (fromIntegral -> dur) name =
+hasten :: ∀ m. MonadPlay m => Duration -> Text -> m ()
+hasten dur name =
     P.unsilenced . P.fromUser $ Ninjas.prolong (negate dur) name
 
 -- | Adds a @Status@ to 'Ninja.statuses'.
-apply :: ∀ m. MonadPlay m => Turns -> [Effect] -> m ()
+apply :: ∀ m. MonadPlay m => Duration -> [Effect] -> m ()
 apply = apply' ""
 -- | 'apply' with a 'Status.name'.
-apply' :: ∀ m. MonadPlay m => Text -> Turns -> [Effect] -> m ()
+apply' :: ∀ m. MonadPlay m => Text -> Duration -> [Effect] -> m ()
 apply' = applyWith' mempty
 -- | 'apply' with extra 'Status.classes'.
 applyWith :: ∀ m. MonadPlay m
-          => EnumSet Class -> Turns -> [Effect] -> m ()
+          => EnumSet Class -> Duration -> [Effect] -> m ()
 applyWith classes = applyWith' classes ""
 -- | 'applyWith' with a 'Status.name'.
 applyWith' :: ∀ m. MonadPlay m
-           => EnumSet Class -> Text -> Turns -> [Effect] -> m ()
+           => EnumSet Class -> Text -> Duration -> [Effect] -> m ()
 applyWith' classes turns efs = P.unsilenced . applyFull 1 classes [] turns efs
 
 -- | Adds a simple @Status@ with no 'Status.effects' or 'Status.dur'
@@ -80,20 +80,20 @@ applyWith' classes turns efs = P.unsilenced . applyFull 1 classes [] turns efs
 addStack :: ∀ m. MonadPlay m => m ()
 addStack = do
     name <- Skill.name <$> P.skill
-    addStacks' 0 name 1
+    addStacks' Permanent name 1
 
 -- | 'addStack' with a 'Status.name'.
 addStack' :: ∀ m. MonadPlay m => Text -> m ()
-addStack' name = addStacks' 0 name 1
+addStack' name = addStacks' Permanent name 1
 
 -- | 'addStack' with a 'Status.name' and 'Status.amount'.
 addStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
-addStacks = addStacks' 0
+addStacks = addStacks' Permanent
 
 -- | 'addStack' with a 'Status.dur', 'Status.name', and 'Status.amount'.
 -- Uses 'Ninjas.addStatus' internally.
-addStacks' :: ∀ m. MonadPlay m => Turns -> Text -> Int -> m ()
-addStacks' (fromIntegral -> dur) name i = do
+addStacks' :: ∀ m. MonadPlay m => Duration -> Text -> Int -> m ()
+addStacks' dur name i = do
     user   <- P.user
     st     <- Status.new user dur <$> P.skill
     target <- P.target
@@ -114,20 +114,20 @@ flag' name =
     applyWith' (setFromList [Hidden, Unremovable, Nonstacking]) name -1 []
 -- | Applies a @Status@ with no effects, used as a marker for other
 -- 'Skill.Skill's.
-tag :: ∀ m. MonadPlay m => Turns -> m ()
+tag :: ∀ m. MonadPlay m => Duration -> m ()
 tag = tag' ""
 -- | 'tag' with a 'Status.name'.
-tag' :: ∀ m. MonadPlay m => Text -> Turns -> m ()
+tag' :: ∀ m. MonadPlay m => Text -> Duration -> m ()
 tag' name dur = applyWith' (setFromList [Unremovable, Nonstacking]) name dur []
 
 -- | Applies a 'Hidden' and 'Unremovable' @Status@.
-hide :: ∀ m. MonadPlay m => Turns -> [Effect] -> m ()
+hide :: ∀ m. MonadPlay m => Duration -> [Effect] -> m ()
 hide dur efs = do
     skill <- P.skill
     hide' (toLower $ Skill.name skill) dur efs
 
 -- | 'hide' with a 'Status.name'.
-hide' :: ∀ m. MonadPlay m => Text -> Turns -> [Effect] -> m ()
+hide' :: ∀ m. MonadPlay m => Text -> Duration -> [Effect] -> m ()
 hide' = applyWith' $ setFromList [Unremovable, Hidden]
 
 -- | Adds a @Status@ with 'Status.bombs' to 'Ninja.statuses'.
@@ -138,20 +138,20 @@ hide' = applyWith' $ setFromList [Unremovable, Hidden]
 -- 'Status.dur'. If the @Bomb@ type is 'Status.Done', the bomb activates in both
 -- situations.
 bomb :: ∀ m. MonadPlay m
-     => Turns -> [Effect] -> [Runnable Bomb] -> m ()
+     => Duration -> [Effect] -> [Runnable Bomb] -> m ()
 bomb = bomb' ""
 -- | @Bomb@ with a 'Status.name'.
 bomb' :: ∀ m. MonadPlay m
-      => Text -> Turns -> [Effect] -> [Runnable Bomb] -> m ()
+      => Text -> Duration -> [Effect] -> [Runnable Bomb] -> m ()
 bomb' = bombWith' mempty
 -- | @Bomb@ with extra 'Status.classes'.
 bombWith :: MonadPlay m
-         => EnumSet Class -> Turns -> [Effect] -> [Runnable Bomb]
+         => EnumSet Class -> Duration -> [Effect] -> [Runnable Bomb]
          -> m ()
 bombWith classes = bombWith' classes ""
 -- | 'bombWith' with a 'Status.name'.
 bombWith' :: ∀ m. MonadPlay m
-          => EnumSet Class -> Text -> Turns -> [Effect] -> [Runnable Bomb]
+          => EnumSet Class -> Text -> Duration -> [Effect] -> [Runnable Bomb]
           -> m ()
 bombWith' classes name dur effects bombs =
     P.unsilenced $ applyFull 1 classes bombs name dur effects
@@ -161,14 +161,14 @@ applyStacks :: ∀ m. MonadPlay m
             => Text -> Int -> [Effect]
             -> m ()
 applyStacks name amount =
-    applyFull amount (setFromList [Unremovable]) mempty name 0
+    applyFull amount (setFromList [Unremovable]) mempty name Permanent
 
 -- | Status engine.
 -- Uses 'Ninjas.addStatus' internally.
 applyFull :: ∀ m. MonadPlay m
-          => Int -> EnumSet Class -> [Runnable Bomb] -> Text -> Turns
+          => Int -> EnumSet Class -> [Runnable Bomb] -> Text -> Duration
           -> [Effect] -> m ()
-applyFull amount classes bombs name (fromIntegral -> unthrottled) effects =
+applyFull amount classes bombs name unthrottled effects =
     void $ runMaybeT do
         context <- P.context
         user    <- P.user
