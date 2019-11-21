@@ -86,7 +86,7 @@ cure _ user target target' = fromEnum $
 damage :: ActionHook
 damage _ user target target'
   | allied user target = 0
-  | otherwise = max 0 $ health target - health target'
+  | otherwise          = max 0 $ health target - health target'
 
 -- | Damage received by the target after an action while the user has some
 -- number of stacks of a @Status@.

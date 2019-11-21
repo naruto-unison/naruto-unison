@@ -170,7 +170,7 @@ shortFromInvuln x =
 characterCosts : Character -> Chakras
 characterCosts char =
     char.skills
-        |> List.concat
+        |> List.filterMap List.head
         >> List.map .cost
         >> Chakra.sum
 

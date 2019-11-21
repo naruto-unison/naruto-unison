@@ -52,7 +52,8 @@ getUpdateR updateName updateCondense updateBackground updateAvatar
                                     ]
     returnJson user
   where
-    legalChars = ['0'..'9'] ++ ['a'..'z'] ++ ['A'..'z']
+    legalChars :: HashSet Char
+    legalChars = setFromList $ ['0'..'9'] ++ ['a'..'z'] ++ ['A'..'z']
     updateBackground'  = fromMaybe "" $ tailMay updateBackground
     updateBackground''
       | null updateBackground' = Nothing

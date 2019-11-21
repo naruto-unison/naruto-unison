@@ -2,7 +2,7 @@
 
 module Game.Characters.Shippuden (characters) where
 
-import Prelude ((<$>), (++))
+import ClassyPrelude
 
 import Game.Model.Character (Character, Category(Shippuden))
 

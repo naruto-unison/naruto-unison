@@ -1,6 +1,7 @@
 module Handler.Play.GameInfo (GameInfo(..)) where
 
-import Prelude (Maybe)
+import ClassyPrelude
+
 import Data.Aeson ((.=), ToJSON(..), object)
 
 import           Application.Model (Key, User)

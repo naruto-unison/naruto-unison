@@ -1110,6 +1110,7 @@ svg {
 
 #teamButtons {
     width: 256px;
+    height: 75px;
     margin: 2px 0 9px 0;
 }
 
@@ -1547,9 +1548,13 @@ svg {
         font-size: 0.8em;
     }
 
-    .select img {
-        width: 60px;
+    #teamButtons {
         height: 60px;
+
+        img {
+            width: 60px;
+            height: 60px;
+        }
     }
 
     #userBox, #underTeam {

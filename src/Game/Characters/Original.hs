@@ -2,7 +2,7 @@
 
 module Game.Characters.Original (characters) where
 
-import Prelude ((<$>), (++))
+import ClassyPrelude
 
 import Game.Model.Character (Character, Category(Original))
 

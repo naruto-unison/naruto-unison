@@ -198,8 +198,8 @@ applyFull amount classes bombs name unthrottled effects =
                 P.trigger target [OnStunned]
             when (any isHeal $ Status.effects st) $ P.trigger user [OnHeal]
   where
-    isHeal (Heal x) = x > 0
-    isHeal _        = False
+    isHeal (Heal x)   = x > 0
+    isHeal _          = False
     isReduce Reduce{} = True
     isReduce _        = False
     isInvulnerable Invulnerable{} = True

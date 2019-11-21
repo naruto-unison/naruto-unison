@@ -15,9 +15,9 @@ module Game.Action.Skill
 
 import ClassyPrelude
 
-import           Control.Monad.Trans.Maybe (MaybeT(..))
-import           Data.Enum.Set (EnumSet)
-import           Data.List (findIndex)
+import Control.Monad.Trans.Maybe (MaybeT(..))
+import Data.Enum.Set (EnumSet)
+import Data.List (findIndex)
 
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
