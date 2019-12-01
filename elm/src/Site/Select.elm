@@ -715,7 +715,10 @@ userBox red blue mUser csrf csrfParam showLogin costs team =
                       , A.class "parchment loggedin"
                       , E.onMouseOver << Preview <| PreviewUser user
                       ]
-                [ H.img [ A.class "userimg", A.src user.avatar ] []
+                [ H.img [ A.class "userimg"
+                        , A.src user.avatar
+                        , A.title "User avatar"
+                        ] []
                 , H.h4 []
                   [ H.aside [ A.class "dna" ]
                     [ H.text <| String.fromInt user.dna ]

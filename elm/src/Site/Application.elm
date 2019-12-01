@@ -101,7 +101,10 @@ app websocket ports =
                     if st.selectModel.stage == Select.Queued then
                         H.div [ A.id "main", A.class "queueing" ] <|
                             [ H.div [ A.id "searching" ]
-                                [ H.img [ A.src "/img/spin.gif" ] [] ]
+                                [ H.img [ A.src "/img/spin.gif"
+                                        , A.title "Loading"
+                                        ] []
+                                ]
                             , H.button
                                 [ A.id "cancel"
                                 , A.class "parchment playButton click"

@@ -387,7 +387,9 @@ renderTop st characters =
         , H.p [A.class "inactive"] << List.repeat playerInactive <| H.text "X"
         ]
       , H.div [ A.class "charWrapper" ]
-        [ H.img [ A.class "charicon", A.src st.user.avatar ] []
+        [ H.img [ A.class "charicon"
+                , A.src st.user.avatar, A.title "user avatar"
+                ] []
         , case st.war of
               Just Red  -> H.div [A.class "red"] []
               Just Blue -> H.div [A.class "blue"] []
@@ -400,7 +402,10 @@ renderTop st characters =
       , E.onMouseOver << View <| ViewUser st.vs
       ]
       [ H.div [ A.class "charWrapper" ]
-        [ H.img [ A.class "charicon", A.src st.vs.avatar ] []
+        [ H.img [ A.class "charicon"
+                , A.src st.vs.avatar
+                , A.title "User avatar"
+                ] []
         , case st.war of
               Just Blue -> H.div [A.class "red"] []
               Just Red  -> H.div [A.class "blue"] []
@@ -1028,7 +1033,10 @@ renderView visibles characters viewing =
 
         ViewUser x ->
             [ H.section []
-              [ H.img [ A.class "char", A.src x.avatar ] []
+              [ H.img [ A.class "char"
+                      , A.src x.avatar
+                      , A.title "User avatar"
+                      ] []
               , H.dl []
                 [ H.h4 []
                   [ H.text x.name ]

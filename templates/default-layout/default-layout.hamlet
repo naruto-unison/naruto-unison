@@ -9,7 +9,7 @@ $else
 
   <header #sitenav>
     <aside>
-      <img src=/img/logo.png>
+      <img src=/img/logo.png title="Naruto Unison logo">
     <nav>
       $maybe currentRoute <- mcurrentRoute
         $forall (dest, name) <- navLinks
