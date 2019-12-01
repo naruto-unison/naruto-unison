@@ -49,7 +49,7 @@ missions =
 
     {-
   , Mission
-    "Commander Gaara"
+    "Regimental Commander Gaara"
     [ winConsecutive 5 ["Kazekage Gaara (S)"]
 
     , Reach 3 Turn
