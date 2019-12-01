@@ -71,7 +71,7 @@ makeFoundation settings = do
     logger      <- DefaultConfig.makeYesodLogger
                    =<< FastLogger.newStdoutLoggerSet FastLogger.defaultBufSize
     static      <- staticMode $ Settings.staticDir settings
-    queue       <- newTChanIO
+    queue       <- newBroadcastTChanIO
     practice    <- Cache.newCache . Just . fromInteger $
                    Settings.practiceCacheExpiry settings
 
