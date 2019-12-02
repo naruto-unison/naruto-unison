@@ -1,6 +1,6 @@
 <article>
   <section>
-    <img .char.avatar src=#{userAvatar} title="User avatar">
+    <img .char.avatar src=#{userAvatar} alt="User avatar">
     $if not $ null team
       <div .team>
         $forall char <- team

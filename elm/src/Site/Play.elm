@@ -388,7 +388,7 @@ renderTop st characters =
         ]
       , H.div [ A.class "charWrapper" ]
         [ H.img [ A.class "charicon"
-                , A.src st.user.avatar, A.title "user avatar"
+                , A.src st.user.avatar, A.alt "user avatar"
                 ] []
         , case st.war of
               Just Red  -> H.div [A.class "red"] []
@@ -404,7 +404,7 @@ renderTop st characters =
       [ H.div [ A.class "charWrapper" ]
         [ H.img [ A.class "charicon"
                 , A.src st.vs.avatar
-                , A.title "User avatar"
+                , A.alt "User avatar"
                 ] []
         , case st.war of
               Just Blue -> H.div [A.class "red"] []
@@ -1035,7 +1035,7 @@ renderView visibles characters viewing =
             [ H.section []
               [ H.img [ A.class "char"
                       , A.src x.avatar
-                      , A.title "User avatar"
+                      , A.alt "User avatar"
                       ] []
               , H.dl []
                 [ H.h4 []

@@ -1,4 +1,4 @@
-<img .char.head src=/img/ninja/#{name}/icon.jpg title="Character icon">
+<img .char.head src=/img/ninja/#{name}/icon.jpg alt="Character icon">
 <h1>
   #{Character.name char}#{Character.category char}
 <p>
@@ -24,7 +24,7 @@ $forall skills <- Character.skills char
     $forall skill <- separate skills
       <section>
         <aside>
-          <img .char src=/img/ninja/#{name}/#{shorten(Skill.name skill)}.jpg title="Skill icon">
+          <img .char src=/img/ninja/#{name}/#{shorten(Skill.name skill)}.jpg alt="Skill icon">
         <div>
           <h3>
             #{Skill.name skill}

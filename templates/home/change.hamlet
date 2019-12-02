@@ -1,12 +1,12 @@
 $if not long
-  <img data-name=#{tagName} .char.head src=/img/ninja/#{tagName}/icon.jpg title="Character icon">
+  <img data-name=#{tagName} .char.head src=/img/ninja/#{tagName}/icon.jpg alt="Character icon">
 <li>
   #{change logType}
   <a .name data-name=#{tagName} href=@{CharacterR char}>
     #{name}#{Character.category char}
   <ul>
     $if long
-      <img data-name=#{tagName} .char.head src=/img/ninja/#{tagName}/icon.jpg title="Character icon">
+      <img data-name=#{tagName} .char.head src=/img/ninja/#{tagName}/icon.jpg alt="Character icon">
     $forall skills <- Character.skills char
       <li>
         $forall skill <- separate skills

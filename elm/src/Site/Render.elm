@@ -106,14 +106,14 @@ icon char path attrs =
                 ++ "/"
                 ++ shorten path
                 ++ ".jpg"
-        title =
+        alt =
             if path == "icon" then
                 "Character icon"
-            
+
             else
                 "Skill icon"
     in
-    H.img ([ A.src src, A.title title ] ++ attrs) []
+    H.img ([ A.src src, A.alt alt ] ++ attrs) []
 
 
 name : Character -> List (Html msg)

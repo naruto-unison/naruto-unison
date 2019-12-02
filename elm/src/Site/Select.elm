@@ -717,7 +717,7 @@ userBox red blue mUser csrf csrfParam showLogin costs team =
                       ]
                 [ H.img [ A.class "userimg"
                         , A.src user.avatar
-                        , A.title "User avatar"
+                        , A.alt "User avatar"
                         ] []
                 , H.h4 []
                   [ H.aside [ A.class "dna" ]
