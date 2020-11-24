@@ -143,7 +143,7 @@ article button {
 }
 
 body {
-    background: url('/img/bg/silhouette.jpg') no-repeat center center !important;
+    background: url('/img/bg/silhouette.jpg') no-repeat center center/cover !important;
     font-family: "Trebuchet MS", sans-serif;
     overflow: hidden !important;
 }
