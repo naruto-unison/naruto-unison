@@ -8,6 +8,7 @@ module Util
   , duplic
   , epoch
   , getCurrentWeek
+  , hushedParse
   , intersects
   , liftST
   , mapFromKeyed
@@ -19,7 +20,7 @@ import ClassyPrelude
 
 import Control.Monad.ST (ST, stToIO)
 import Control.Monad.Trans.Class (MonadTrans)
-import Data.Attoparsec.Text (notInClass)
+import Data.Attoparsec.Text (Parser, notInClass, parseOnly)
 import Data.Kind (Type)
 
 -- If a function doesn't seem like it should be inlined, it probably doesn't go
@@ -117,6 +118,11 @@ mapFromKeyed :: ∀ map a. IsMap map
              => (a -> ContainerKey map, a -> MapValue map) -> [a] -> map
 mapFromKeyed (toKey, toVal) xs = mapFromList $ (\x -> (toKey x, toVal x)) <$> xs
 {-# INLINE mapFromKeyed #-}
+
+-- | Runs a parser and silently discards errors.
+hushedParse :: Parser a -> Text -> Maybe a
+hushedParse x = either (const Nothing) Just . parseOnly x
+{-# INLINE hushedParse #-}
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text

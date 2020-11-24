@@ -1,7 +1,7 @@
 -- DO NOT EXPOSE ANY FUNCTION THAT COULD BE USED TO CONSTRUCT OR ALTER A SLOT.
 -- It must be guaranteed that all Slots are within their 'Bounded' range.
 module Game.Model.Slot
-  ( Slot, toInt, read
+  ( Slot, toInt, parse
   , teamSize
   , all, allies, enemies
   , random
@@ -11,7 +11,8 @@ module Game.Model.Slot
 import ClassyPrelude hiding (all)
 
 import           Data.Aeson (ToJSON)
-import qualified Data.Text.Read as Read
+import           Data.Attoparsec.Text (Parser)
+import qualified Data.Attoparsec.Text as Parser
 import           Text.Read hiding (read)
 import           Text.Read.Lex (numberToInteger)
 
@@ -64,11 +65,11 @@ enemies x
   | Parity.even x = Slot <$> [teamSize..maxVal]
   | otherwise     = Slot <$> [0..teamSize - 1]
 
-read :: Text -> Either String (Slot, Text)
-read s = case Read.decimal s of
-    Right (val, _)
-      | val < 0 || val > maxVal -> Left "input is out of range"
-    x                           -> first Slot <$> x
+parse :: Parser Slot
+parse = do
+    i <- Parser.decimal
+    guard $ i >= 0 && i <= maxVal
+    return $ Slot i
 
 random :: ∀ m. MonadRandom m => m Slot
 random = Slot <$> R.random 0 maxVal
