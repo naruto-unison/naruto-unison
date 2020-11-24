@@ -11,7 +11,6 @@ import ClassyPrelude hiding ((<|))
 
 import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Bits (setBit, testBit)
-import Data.Either (isLeft)
 import Data.Enum.Set (EnumSet, AsEnumSet(..))
 
 import           Class.Hook (MonadHook)
@@ -26,9 +25,6 @@ import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Trigger as Trigger
-import           Game.Model.Act (Act(Act))
-import qualified Game.Model.Act as Act
-import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Channel (Channel(Channel), Channeling(..))
 import qualified Game.Model.Channel as Channel
 import           Game.Model.Class (Class(..))
@@ -48,7 +44,7 @@ import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((!!), (—), (∈), (∉), intersects)
+import           Util ((!!), (∈), (∉), intersects)
 
 -- | Conditions that have already affected an action in progress.
 -- Permits passive effects to bypass steps in the process and prevents infinite
@@ -233,27 +229,23 @@ addChannels = do
 -- | Filters a list of targets to those capable of countering a skill.
 filterCounters :: [[Runnable Slot]] -- ^ Effects of the skill to be countered.
                -> [Ninja] -> [Ninja]
-filterCounters slots = filter $ (testBit targetSet . Slot.toInt) . Ninja.slot
+filterCounters slots = filter $ testBit targetSet . Slot.toInt . Ninja.slot
   where
     targetSet = foldl' go (0 :: Word8) $ join slots
     go x      = setBit x . Slot.toInt . Runnable.target
 
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
-act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Bool -> Act -> m ()
-act new Act{skill = s, user, target} = void $ runMaybeT do
+act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Context -> m ()
+act ctx@Context { user, skill, new } = void $ runMaybeT do
     nUser      <- P.ninja user
-    guard $ either (< Ninja.numSkills nUser) (const True) s
     chakras    <- Game.chakra <$> P.game
     initial    <- P.ninjas
-    skill      <- MaybeT . return $ Ninjas.getSkill s nUser
     let classes = Skill.classes skill
-        cost    = Skill.cost skill
 
     guard $ Ninja.alive nUser && Skill.require skill /= Unusable
-            && not (new && Chakra.lack (Parity.getOf user chakras - cost))
 
-    lift $ P.withContext (ctx skill) do
+    lift $ P.withContext ctx do
         if not new then
             P.withContinues $
             run' (singletonSet Targeted) =<< chooseTargets (Skill.effects skill)
@@ -262,7 +254,6 @@ act new Act{skill = s, user, target} = void $ runMaybeT do
             P.trigger user $ OnAction <$> toList classes
             when (Skill.charges skill > 0) .
                 P.modify user $ Cooldown.spendCharge skill
-            P.alter $ Game.adjustChakra user (— cost)
             startEfs   <- chooseTargets $ Skill.start skill
             contEfs    <- chooseTargets $ Skill.effects skill
             let bothEfs = startEfs ++ contEfs
@@ -275,7 +266,8 @@ act new Act{skill = s, user, target} = void $ runMaybeT do
             if not $
               Uncounterable ∈ classes
               || nUser `is` AntiCounter
-              || null counters then do
+              || null counters
+            then do
                 let countered = Ninja.slot <$> countering
                     uncounter n
                       | slot == user     = Trigger.userUncounter classes n
@@ -292,15 +284,15 @@ act new Act{skill = s, user, target} = void $ runMaybeT do
                     P.withContinues $ run' (singletonSet Targeted) contEfs
                     addChannels
             P.modify user \n -> n { Ninja.acted = True }
-            when (isLeft s) . P.modify user $ Cooldown.update skill
-        P.uncopied $ Hook.action skill initial =<< P.ninjas
-        P.uncopied $ Hook.chakra skill chakras . Game.chakra =<< P.game
+            when new . P.modify user $ Cooldown.update skill
+        P.uncopied do
+            Hook.action skill initial =<< P.ninjas
+            Hook.chakra skill chakras . Game.chakra =<< P.game
         traverse_ (sequence_ . Traps.get user) =<< P.ninjas
 
         P.modifyAll $ unreflect . \n -> n { Ninja.triggers = mempty }
         breakControls
   where
-    ctx skill = Context { skill, user, new, target, continues = False }
     unreflect n
       | OnReflect ∈ Ninja.triggers n =
           Ninjas.modifyStatuses (Status.removeEffect Reflect) n

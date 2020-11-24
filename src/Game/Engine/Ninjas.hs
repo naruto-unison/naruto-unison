@@ -110,9 +110,8 @@ nextAlternate baseName n = do
 
 -- | Applies 'skill' to a @Skill@ and further modifies it due to 'Ninja.copies'
 -- and 'Skill.require'ments.
-getSkill :: Either Int Skill -> Ninja -> Maybe Skill
-getSkill (Right skill) n = Just $ Requirement.usable False n skill
-getSkill (Left s) n
+getSkill :: Int -> Ninja -> Maybe Skill
+getSkill s n
   | n `is` Swap = Skills.swap <$> base
   | otherwise   = base
   where
@@ -121,7 +120,7 @@ getSkill (Left s) n
 
 -- | All four skill slots of a @Ninja@ modified by 'skill'.
 skills :: Ninja -> [Skill]
-skills n = catMaybes $ flip getSkill n . Left <$> [0..Ninja.numSkills n - 1]
+skills n = catMaybes $ flip getSkill n <$> [0..Ninja.numSkills n - 1]
 
 -- | Modifies @Effect@s when they are first added to a @Ninja@ due to @Effect@s
 -- already added.

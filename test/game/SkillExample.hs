@@ -1,4 +1,4 @@
-module SkillExample (it, useOn) where
+module SkillExample (SkillExample, it, useOn) where
 
 import ClassyPrelude
 
@@ -51,7 +51,7 @@ useOn target skillName f =
         Nothing -> error "useOn" <$ expectationFailure "invalid skill"
         Just (ctx -> context) -> return (char, context)
     findSkill x = find ((== x) . Skill.name) . join . Character.skills
-    ctx skill   = Context { skill     = skill { Skill.cost = 0 }
+    ctx skill   = Context { skill
                           , user      = targetSlot Self
                           , target    = targetSlot target
                           , new       = True

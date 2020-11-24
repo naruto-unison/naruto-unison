@@ -28,8 +28,6 @@ import qualified Game.Engine as Engine
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
-import           Game.Model.Act (Act(Act))
-import qualified Game.Model.Act
 import           Game.Model.Character (Category(..), Character)
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
@@ -60,7 +58,7 @@ describeCategory category name specs =
 use :: ∀ m. (HasCallStack, MonadHook m, MonadPlay m, MonadRandom m)
     => Text -> m ()
 use skillName =
-    actWith . fromMaybe notFoundError . find ((== skillName) . Skill.name) .
+    maybe notFoundError actWith . find ((== skillName) . Skill.name) .
     Ninjas.skills . unsafeHead =<< P.ninjas
   where
     notFoundError = error $ "invalid skill: " ++ unpack skillName
@@ -69,16 +67,16 @@ at :: ∀ m a. MonadPlay m => Target -> m a -> m a
 at target = P.withTarget $ targetSlot target
 
 targetSlot :: Target -> Slot
-targetSlot Self = Slot.all !! 0
-targetSlot Ally = Slot.all !! 1
-targetSlot Allies = Slot.all !! 1
-targetSlot RAlly = Slot.all !! 1
-targetSlot RXAlly = Slot.all !! 2
-targetSlot XAlly = Slot.all !! 2
-targetSlot XAllies = Slot.all !! 2
-targetSlot Enemy = Slot.all !! 3
-targetSlot Enemies = Slot.all !! 3
-targetSlot REnemy = Slot.all !! 3
+targetSlot Self     = Slot.all !! 0
+targetSlot Ally     = Slot.all !! 1
+targetSlot Allies   = Slot.all !! 1
+targetSlot RAlly    = Slot.all !! 1
+targetSlot RXAlly   = Slot.all !! 2
+targetSlot XAlly    = Slot.all !! 2
+targetSlot XAllies  = Slot.all !! 2
+targetSlot Enemy    = Slot.all !! 3
+targetSlot Enemies  = Slot.all !! 3
+targetSlot REnemy   = Slot.all !! 3
 targetSlot XEnemies = Slot.all !! 4
 targetSlot Everyone = Slot.all !! 0
 
@@ -89,16 +87,14 @@ act :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => m ()
 act = actWith =<< Skills.change <$> P.nUser <*> P.skill
 
 actWith :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => Skill -> m ()
-actWith actSkill = do
+actWith skill = do
     user   <- P.user
     target <- P.target
     player <- P.player
     unless (Parity.allied user player) $ Engine.processTurn $ return ()
-    Engine.processTurn $ Action.act True Act { user, target, skill }
-  where
-    skill = Right $ actSkill { Skill.cost     = 0
-                             , Skill.cooldown = 0
-                             }
+    Engine.processTurn $ Action.act
+        Context { new = True, user, target, skill, continues = False }
+    P.modify user \n -> n { Ninja.cooldowns = mempty }
 
 turns :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Int -> m ()
 turns (fromIntegral -> i) = do

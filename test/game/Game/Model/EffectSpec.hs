@@ -23,15 +23,13 @@ import qualified Game.Engine.Skills as Skills
 import           Game.Action.Status (addStack', apply, apply', cureAll)
 import           Game.Action.Trap (trap)
 import           Game.Characters.Import (self)
-import           Game.Model.Act (Act(Act))
-import qualified Game.Model.Act
 import           Game.Model.Attack (Attack)
 import qualified Game.Model.Attack as Attack
 import           Game.Model.Chakra (Chakras)
 import qualified Game.Model.Chakra as Chakra
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
-import           Game.Model.Context (Context)
+import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Amount(..), Constructor(..), Effect(..))
@@ -529,15 +527,20 @@ complements effectA effectB amount damage val = atk effects === atk []
 
 tryAbsorb :: Target -> Chakras -> Chakras
 tryAbsorb target cost = simAt target do
-    P.alter $ Game.setChakra True cost
     apply Permanent [Absorb]
-    Action.act True Act { user = Sim.targetSlot Self, target = t, skill }
+    Action.act ctx
     Parity.getOf t . Game.chakra <$> P.game
   where
     t     = Sim.targetSlot target
-    skill = Right Skill.new { Skill.cost    = cost
-                            , Skill.effects = [ To target $ return () ]
-                            }
+    skill = Skill.new { Skill.cost    = cost
+                      , Skill.effects = [ To target $ return () ]
+                      }
+    ctx   = Context { new = True
+                    , user = Sim.targetSlot Self
+                    , target = t
+                    , skill
+                    , continues = False
+                    }
 
 thresholdConstrains :: Attack -> Int -> Int -> Property
 thresholdConstrains attackType damage v = simEffects [] [Threshold v] Enemy do
@@ -560,7 +563,7 @@ unreduces damage reduce unreduce = simAt Enemy do
 
 getSkill :: [Effect] -> Skill
 getSkill effects = fromJust $
-                   Ninjas.getSkill (Left 0) ninja { Ninja.effects = effects }
+                   Ninjas.getSkill 0 ninja { Ninja.effects = effects }
   where
     targets = (`To` return ()) <$> [minBound..maxBound]
     skill   = Skill.new { Skill.effects = targets } :| []
@@ -576,8 +579,14 @@ ninjaWithCooldown cooldown =
 
 simCooldown :: Ninja -> Int
 simCooldown n = simOf game Self do
-    Action.act True Act { user = slot, target = slot, skill = Left 0 }
+    Action.act ctx
     snd . unsafeHead . mapToList . Ninja.cooldowns <$> P.nUser
   where
     slot = Ninja.slot n
     game = Blank.gameOf $ n : (Blank.ninjaWithSlot <$> unsafeTail Slot.all)
+    ctx  = Context { new       = True
+                   , user      = slot
+                   , target    = slot
+                   , skill     = Skill.new
+                   , continues = False
+                   }

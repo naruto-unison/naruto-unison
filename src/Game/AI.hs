@@ -11,8 +11,8 @@ import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Class.Random as R
 import qualified Game.Engine.Ninjas as Ninjas
-import           Game.Model.Act (Act(Act))
-import qualified Game.Model.Act as Act
+import           Game.Model.Context (Context(Context))
+import qualified Game.Model.Context as Context
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Player as Player
 import qualified Game.Engine as Engine
@@ -21,12 +21,20 @@ import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Slot (Slot)
 
-targetOptions :: [Ninja] -> Ninja -> Int -> [Act]
-targetOptions ns n (Left -> i) = Act (Ninja.slot n) i . Ninja.slot <$> nTargets
+targetOptions :: [Ninja] -> Ninja -> Int -> [Context]
+targetOptions ns n i = case Ninjas.getSkill i n of
+    Nothing    -> []
+    Just skill -> makeOption skill <$> Requirement.targets ns n skill
   where
-    nTargets = maybe [] (Requirement.targets ns n) $ Ninjas.getSkill i n
+    makeOption skill target = Context { new = True
+                                      , user = Ninja.slot n
+                                      , skill
+                                      , target = Ninja.slot target
+                                      , continues = False
+                                      }
 
-skillOptions :: [Ninja] -> Ninja -> [[Act]]
+
+skillOptions :: [Ninja] -> Ninja -> [[Context]]
 skillOptions ns n =
     filter (not . null) $ targetOptions ns n <$> [0..Ninja.numSkills n - 1]
 
@@ -40,7 +48,7 @@ aggressionThreshold = 2
 vendettaRatio :: Int
 vendettaRatio = 5
 
-run :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Ninja -> m (Maybe Act)
+run :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Ninja -> m (Maybe Context)
 run vendetta n = runMaybeT do
     aggression <- R.random 0 aggressionThreshold
     guard $ aggression /= 0
@@ -49,8 +57,8 @@ run vendetta n = runMaybeT do
     MaybeT $ R.choose choices
   where
     focusVendetta act
-      | Act.target act == vendetta = replicate vendettaRatio act
-      | otherwise                  = singleton act
+      | Context.target act == vendetta = replicate vendettaRatio act
+      | otherwise                      = singleton act
 
 -- | Returns @Nothing@ only if all enemies are dead.
 chooseVendetta :: ∀ m. (MonadGame m, MonadRandom m) => m (Maybe Slot)

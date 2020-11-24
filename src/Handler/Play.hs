@@ -40,17 +40,18 @@ import qualified Class.Sockets as Sockets
 import qualified Game.AI as AI
 import qualified Game.Characters as Characters
 import qualified Game.Engine as Engine
-import           Game.Model.Act (Act)
-import qualified Game.Model.Act as Act
 import           Game.Model.Chakra (Chakras)
 import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Character (Character)
+import qualified Game.Model.Context as Context
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Slot as Slot
 import           Handler.Client.Reward (Reward(Reward))
+import           Handler.Play.Act (Act)
+import qualified Handler.Play.Act as Act
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
 import qualified Handler.Play.GameInfo as GameInfo
 import           Handler.Play.Match (Outcome(..))
@@ -97,15 +98,15 @@ formTeam _ = Nothing
 
 data Enact = Enact { spend    :: Chakras
                    , exchange :: Chakras
-                   , acts     :: [Act]
+                   , actions  :: [Act]
                    }
 
 formEnact :: [Text] -> Maybe Enact
 formEnact (_:_: _:_:_: _:_) = Nothing -- No more than 3 actions!
-formEnact (spend':exchange':acts') = Enact
-                                     <$> fromPathPiece spend'
-                                     <*> fromPathPiece exchange'
-                                     <*> traverse fromPathPiece acts'
+formEnact (spend:exchange:actions) = Enact
+                                     <$> fromPathPiece spend
+                                     <*> fromPathPiece exchange
+                                     <*> traverse fromPathPiece actions
 formEnact _ = Nothing -- willywonka.gif
 
 -- * HANDLERS
@@ -162,7 +163,7 @@ getPracticeWaitR actChakra xChakra = getPracticeActR actChakra xChakra []
 -- | Handles a turn for a practice game. Requires authentication.
 -- Practice games are not time-limited and use GET requests instead of sockets.
 getPracticeActR :: Chakras -> Chakras -> [Act] -> Handler Value
-getPracticeActR spend exchange acts = do
+getPracticeActR spend exchange actions = do
     who      <- Auth.requireAuthId
     practice <- getsYesod App.practice
     mGame    <- liftIO $ Cache.lookup practice who
@@ -171,7 +172,7 @@ getPracticeActR spend exchange acts = do
     wrapper  <- liftST $ Wrapper.thaw game
 
     flip runReaderT rand $ flip runReaderT wrapper do
-        res  <- enact $ Enact{spend, exchange, acts}
+        res  <- enact Enact{spend, exchange, actions}
         case res of
           Left errorMsg -> invalidArgs [tshow errorMsg]
           Right ()      -> do
@@ -433,18 +434,22 @@ tryEnact settings player mvar = do
 -- | Processes a user's actions and passes them to 'Engine.run'.
 enact :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
       => Enact -> m (Either LByteString ())
-enact Enact{spend, exchange, acts} = runExceptT do
+enact Enact{spend, exchange, actions} = runExceptT do
+    contexts   <- traverse Act.toContext actions
     player     <- P.player
     gameChakra <- Parity.getOf player . Game.chakra <$> P.game
-    let chakra  = gameChakra + exchange - spend
-    mapM_ throwE $ illegal player chakra
-    P.alter . Game.setChakra player $ chakra { Chakra.rand = randTotal }
-    Engine.runTurn acts
+    let actCosts  = sum $ Skill.cost . Context.skill <$> contexts
+        adjChakra = gameChakra + exchange - spend
+        chakra    = adjChakra { Chakra.rand = randTotal } - actCosts
+
+    mapM_ throwE $ illegal player chakra contexts
+    P.alter $ Game.setChakra player chakra
+    Engine.runTurn contexts
   where
     randTotal = Chakra.total spend - 5 * Chakra.total exchange
-    illegal player chakra
-      | length acts > Slot.teamSize         = Just "Too many actions"
-      | duplic $ Act.user <$> acts          = Just "Duplicate actors"
-      | randTotal < 0 || Chakra.lack chakra = Just "Insufficient chakra"
-      | any (Act.illegal player) acts       = Just "Character out of range"
-      | otherwise                           = Nothing
+    illegal player chakra contexts
+      | length contexts > Slot.teamSize       = Just "Too many actions"
+      | duplic $ Context.user <$> contexts    = Just "Duplicate actors"
+      | randTotal < 0 || Chakra.lack chakra   = Just "Insufficient chakra"
+      | any (Context.illegal player) contexts = Just "Character out of range"
+      | otherwise                             = Nothing

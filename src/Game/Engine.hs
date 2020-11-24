@@ -25,11 +25,12 @@ import qualified Game.Action as Action
 import qualified Game.Engine.Chakras as Chakras
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
+import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
-import           Game.Model.Act (Act)
-import qualified Game.Model.Act as Act
 import qualified Game.Model.Barrier as Barrier
+import qualified Game.Model.Channel as Channel
 import           Game.Model.Class (Class(..))
+import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Copy (Copy(Copy))
 import qualified Game.Model.Copy
@@ -58,10 +59,10 @@ import           Util ((<$>.), (—), (∈), (∉))
 -- and resolves 'Model.Chakra.Chakras' for the next turn.
 -- Uses 'processTurn' internally.
 runTurn :: ∀ m o. ( MonadGame m, MonadHook m, MonadRandom m
-                  , MonoTraversable o, Act ~ Element o
+                  , MonoTraversable o, Context ~ Element o
                   ) => o -> m ()
 runTurn acts = do
-    processTurn $ traverse_ (Action.act True) acts
+    processTurn $ traverse_ Action.act acts
     Chakras.gain
 
 -- | The underlying mechanism of 'runTurn'.
@@ -74,7 +75,7 @@ processTurn runner = do
     let opponent = Player.opponent player
     runner
     channels <- concatMap getChannels . filter Ninja.alive <$> P.allies player
-    traverse_ (Action.act False) channels
+    traverse_ Action.act channels
     Traps.runTurn initial
     doBombs Remove initial
     doBarriers
@@ -90,9 +91,17 @@ processTurn runner = do
     yieldVictor
     Hook.turn player initial =<< P.ninjas
   where
-    getChannels n = Act.fromChannel n <$>.
-                    filter ((/= -1) . TurnBased.getDur) $
-                    Ninja.channels n
+    getChannels n =
+        fromChannel n <$>.
+        filter ((/= -1) . TurnBased.getDur) $
+        Ninja.channels n
+    fromChannel n chan =
+        Context { new       = False
+                , user      = Ninja.slot n
+                , target    = Channel.target chan
+                , skill     = Skills.change n $ Channel.skill chan
+                , continues = False
+                }
 
 -- | Runs 'Game.delays'.
 doDelays :: ∀ m. (MonadGame m, MonadRandom m) => m ()

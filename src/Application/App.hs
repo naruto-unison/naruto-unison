@@ -54,11 +54,11 @@ import           Application.Model (CharacterId, EntityField(..), ForumPostId, F
 import qualified Application.Model as Model
 import           Application.Settings (Settings, widgetFile)
 import qualified Application.Settings as Settings
-import           Game.Model.Act (Act)
 import           Game.Model.Chakra (Chakras)
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
 import qualified Handler.Play.Queue as Queue
+import           Handler.Play.Act (Act)
 import           Handler.Play.Wrapper (Wrapper)
 import           OrphanInstances.Character ()
 import           Util ((<$><$>), (<$>.))
