@@ -3,7 +3,6 @@
 -- | Handles API routes and WebSockets related to gameplay.
 module Handler.Play
     ( getPracticeActR, getPracticeQueueR, getPracticeWaitR
-    , Message(..)
     , gameSocket
     ) where
 
@@ -12,9 +11,7 @@ import Yesod
 
 import           Control.Monad.Logger
 import           Control.Monad.Loops (untilJust, whileM)
-import           Control.Monad.Trans.Except (ExceptT, runExceptT, throwE)
-import           Data.Aeson (ToJSON, toEncoding)
-import qualified Data.Aeson.Encoding as Encoding
+import           Control.Monad.Trans.Except (runExceptT, throwE)
 import qualified Data.Cache as Cache
 import qualified Data.Text as Text
 import           Network.WebSockets (ConnectionException(..))
@@ -34,7 +31,6 @@ import qualified Class.Parity as Parity
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import qualified Class.Random as R
 import           Class.Sockets (MonadSockets)
 import qualified Class.Sockets as Sockets
 import qualified Game.AI as AI
@@ -48,7 +44,9 @@ import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
+import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Slot as Slot
+import qualified Handler.Client.Message as Client
 import           Handler.Client.Reward (Reward(Reward))
 import           Handler.Play.Act (Act)
 import qualified Handler.Play.Act as Act
@@ -56,32 +54,13 @@ import           Handler.Play.GameInfo (GameInfo(GameInfo))
 import qualified Handler.Play.GameInfo as GameInfo
 import           Handler.Play.Match (Outcome(..))
 import qualified Handler.Play.Match as Match
-import qualified Handler.Play.Queue as Queue
 import qualified Handler.Play.Rating as Rating
-import           Handler.Play.Turn (Turn)
-import qualified Handler.Play.War as War
 import           Handler.Play.Wrapper (Wrapper(Wrapper))
 import qualified Handler.Play.Wrapper as Wrapper
+import qualified Handler.Queue as Queue
+import           Handler.Queue.Message (Response(Response))
 import qualified Mission
 import           Util ((∉), duplic, liftST)
-
--- | If the difference in skill rating between two players exceeds this
--- threshold, they will not be matched together.
-ratingThreshold :: Double
-ratingThreshold = 1/0 -- i.e. infinity
-
--- | A message sent through the websocket to the client.
--- This definition is exported so that @elm-bridge@ sends it over to the client.
-data Message
-    = Fail Queue.Failure
-    | Info GameInfo
-    | Ping
-    | Play Turn
-    | Rewards [Reward]
-    deriving (Generic, ToJSON)
-
-sendClient :: ∀ m. MonadSockets m => Message -> m ()
-sendClient x = Sockets.send . Encoding.encodingToLazyByteString $ toEncoding x
 
 -- * INPUT PARSING
 
@@ -191,105 +170,9 @@ getPracticeActR spend exchange actions = do
 
 data Team = Team Queue.Section [Character]
 
-pingSocket :: ∀ m. MonadSockets m => ExceptT Queue.Failure m ()
-pingSocket = do
-    sendClient Ping
-    pong <- Sockets.receive
-    when (pong == "cancel") $ throwE Queue.Canceled
-
-makeGame :: ∀ m. (MonadRandom m, MonadIO m)
-         => TChan Queue.Message
-         -> Key User -> User -> [Character]
-         -> Key User -> User -> [Character]
-         -> m (MVar Wrapper, GameInfo)
-makeGame queueWrite who user team vsWho vsUser vsTeam = do
-    player <- R.player
-    game   <- Game.newWithChakras
-    liftIO do
-        let ninjas = fromList $ zipWith Ninja.new Slot.all case player of
-                Player.A -> team ++ vsTeam
-                Player.B -> vsTeam ++ team
-        war  <- War.match team vsTeam <$> War.today
-        mvar <- newEmptyMVar
-        atomically . writeTChan queueWrite $
-            Queue.Respond vsWho mvar GameInfo { vsWho  = who
-                                              , vsUser = user
-                                              , player = Player.opponent player
-                                              , war    = War.opponent <$> war
-                                              , game
-                                              , ninjas
-                                              }
-        return (mvar, GameInfo { vsWho, vsUser, player, game, ninjas, war })
-
-queue :: ∀ m. ( MonadHandler m, App ~ HandlerSite m
-              , MonadRandom m
-              , MonadSockets m
-              ) => Queue.Section -> [Character]
-                -> ExceptT Queue.Failure m (MVar Wrapper, GameInfo)
-queue Queue.Quick team = do
-    (who, user) <- Auth.requireAuthPair
-    let rating = userRating user
-    queueWrite  <- getsYesod App.queue
-    allowVsSelf <- getsYesod $ Settings.allowVsSelf . App.settings
-    userMVar    <- newEmptyMVar
-
-    -- TODO use userMVar in some kind of periodic timeout check based on its
-    -- UTCTime contents? or else just a semaphore
-    queueRead <- liftIO $ atomically do
-        writeTChan queueWrite $ Queue.Announce who user team userMVar
-        dupTChan queueWrite
-
-    untilJust do
-      msg <- liftIO . atomically $ readTChan queueRead
-      pingSocket
-      case msg of
-        Queue.Respond mWho mvar info
-          | mWho == who -> return $ Just (mvar, info)
-        Queue.Announce vsWho vsUser vsTeam vsMVar
-          | abs (rating - userRating vsUser) > ratingThreshold ->
-              return Nothing
-          | vsWho == who && not allowVsSelf -> throwE Queue.AlreadyQueued
-          | otherwise -> do
-              time    <- liftIO getCurrentTime
-              matched <- tryPutMVar vsMVar time
-              if matched then
-                  Just <$> makeGame queueWrite who user team vsWho vsUser vsTeam
-              else
-                  return Nothing
-        _ -> return Nothing
-
-queue Queue.Private team = do
-    (who, user)         <- Auth.requireAuthPair
-    allowVsSelf         <- getsYesod $ Settings.allowVsSelf . App.settings
-    Entity vsWho vsUser <- do
-        vsName <- Sockets.receive
-        mVs    <- liftDB $ selectFirst [UserName ==. vsName] []
-        case mVs of
-            Just (Entity vsWho _)
-              | vsWho == who && not allowVsSelf -> throwE Queue.NotFound
-            Just vs -> return vs
-            Nothing -> throwE Queue.NotFound
-
-    queueWrite <- getsYesod App.queue
-    queueRead  <- liftIO $ atomically do
-        writeTChan queueWrite $ Queue.Request who vsWho team
-        dupTChan queueWrite
-
-    untilJust do
-      msg <- liftIO . atomically $ readTChan queueRead
-      pingSocket
-      case msg of
-        Queue.Respond mWho mvar info
-          | mWho == who && GameInfo.vsWho info == vsWho ->
-              return $ Just (mvar, info)
-        Queue.Request vsWho' requestWho vsTeam
-          | vsWho' == vsWho && requestWho == who ->
-              Just <$> makeGame queueWrite who user team vsWho vsUser vsTeam
-        _ -> return Nothing
-
-handleFailures :: ∀ m a. MonadSockets m => Either Queue.Failure a -> m (Maybe a)
+handleFailures :: ∀ m a. MonadSockets m => Either Client.Failure a -> m (Maybe a)
 handleFailures (Right val) = return $ Just val
-handleFailures (Left msg)  = Nothing <$ sendClient (Fail msg)
+handleFailures (Left msg)  = Nothing <$ Client.send (Client.Fail msg)
 
 -- | Sends messages through 'TChan's in 'App.App'. Requires authentication.
 gameSocket :: ∀ m. ( MonadHandler m, App ~ HandlerSite m
@@ -301,21 +184,21 @@ gameSocket = webSockets do
     settings <- getsYesod App.settings
     unlocked <- liftHandler Mission.unlocked
 
-    (section, team, (mvar, info)) <- untilJust $
+    (section, team, Response mvar info) <- untilJust $
         handleFailures =<< runExceptT do
             teamNames <- Text.split (=='/') <$> Sockets.receive
             Team section team <- case parseTeam teamNames of
-                Nothing   -> throwE Queue.InvalidTeam
+                Nothing   -> throwE Client.InvalidTeam
                 Just vals -> return vals
 
             let teamTail = unsafeTail teamNames
-            when (any (∉ unlocked) teamTail) $ throwE Queue.Locked
+            when (any (∉ unlocked) teamTail) $ throwE Client.Locked
             liftDB $ update who [UserTeam =. Just teamTail]
 
-            queued <- queue section team
+            queued <- Queue.queue section team
             return (section, teamTail, queued)
 
-    sendClient $ Info info
+    Client.send $ Client.Info info
     let player = GameInfo.player info
 
     game <- liftST (Wrapper.fromInfo info) >>= runReaderT do
@@ -325,7 +208,7 @@ gameSocket = webSockets do
             wrapper <- takeMVar mvar
 
             if Game.inProgress $ Wrapper.game wrapper then do
-                sendClient . Play $ Wrapper.toTurn player wrapper
+                Client.send . Client.Play $ Wrapper.toTurn player wrapper
                 liftST . Wrapper.replace wrapper =<< ask
                 tryEnact settings player mvar
                 game <- P.game
@@ -341,16 +224,16 @@ gameSocket = webSockets do
         -- be deconstructed as the final step.
         liftST . Wrapper.unsafeFreeze =<< ask
 
-    sendClient . Play $ Wrapper.toTurn player game
+    Client.send . Client.Play $ Wrapper.toTurn player game
 
     when (section == Queue.Quick) do -- eventually, || Queue.Ladder
         let outcome = Match.outcome (Wrapper.game game) player
         if outcome == Defeat && Game.forfeit (Wrapper.game game) then
-            sendClient $ Rewards [Reward "Forfeit" 0]
+            Client.send $ Client.Rewards [Reward "Forfeit" 0]
         else do
             dnaReward <- liftHandler .
                 Mission.awardDNA Queue.Quick outcome $ GameInfo.war info
-            sendClient $ Rewards dnaReward
+            Client.send $ Client.Rewards dnaReward
 
         liftHandler do
             case outcome of
@@ -358,6 +241,9 @@ gameSocket = webSockets do
                 _       -> Mission.processDefeat team
             Mission.processUnpicked team
             traverse_ Mission.progress $ Wrapper.progress game
+
+  `finally`
+      Queue.leave
 
 data ClientResponse
     = Received [Text]
@@ -428,7 +314,7 @@ tryEnact settings player mvar = do
             logErrorN $ "Malformed client input: " ++ pack malformed
 
     wrapper <- Wrapper.freeze
-    sendClient . Play $ Wrapper.toTurn player wrapper
+    Client.send . Client.Play $ Wrapper.toTurn player wrapper
     putMVar mvar wrapper
 
 -- | Processes a user's actions and passes them to 'Engine.run'.

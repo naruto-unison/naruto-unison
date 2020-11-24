@@ -42,6 +42,7 @@ database:
 copyright: BSD-3
 #analytics: UA-YOURCODE
 
+queue-table-size-hint: "_env:NU_QUEUE_MAP_SIZE:10"
 turn-length:           "_env:NU_TURN_LENGTH:60" # seconds
 practice-cache-expiry: "_env:NU_EXPIRY:3600" # seconds
 

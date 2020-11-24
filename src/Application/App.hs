@@ -25,6 +25,7 @@ import           Control.Monad.Logger (LogSource)
 import           Data.Bimap (Bimap)
 import           Data.Cache (Cache)
 import qualified Data.CaseInsensitive as CaseInsensitive
+import           Data.HashTable (HashTable)
 import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Lazy.Encoding as LazyEncoding
 import qualified Data.Time.Format as Format
@@ -57,9 +58,10 @@ import qualified Application.Settings as Settings
 import           Game.Model.Chakra (Chakras)
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
-import qualified Handler.Play.Queue as Queue
 import           Handler.Play.Act (Act)
 import           Handler.Play.Wrapper (Wrapper)
+import qualified Handler.Queue.Message as Message
+import           Handler.Queue.UserInfo (UserInfo)
 import           OrphanInstances.Character ()
 import           Util ((<$><$>), (<$>.))
 
@@ -69,24 +71,24 @@ import           Class.Display (display')
 
 -- | App environment.
 data App = App
-    { startup     :: UTCTime
-    , timestamp   :: Int64
-    , settings    :: Settings
+    { startup      :: UTCTime
+    , timestamp    :: Int64
+    , settings     :: Settings
       -- ^ Settings loaded from a local file.
-    , static      :: Static
+    , static       :: Static
       -- ^ Server for static files.
-    , connPool    :: ConnectionPool
+    , connPool     :: ConnectionPool
       -- ^ Database connection.
-    , httpManager :: Manager
+    , httpManager  :: Manager
       -- ^ Web request manager.
-    , logger      :: Logger
+    , logger       :: Logger
       -- ^ See https://www.yesodweb.com/blog/2014/01/new-fast-logger
-    , practice    :: Cache (Key User) Wrapper
+    , practice     :: Cache (Key User) Wrapper
       -- ^ Saved state of Practice Games. Games expire after one hour or as soon
       -- as they yield a victor.
+    , private      :: TChan Message.Private
+    , quick        :: HashTable (Key User) UserInfo
       -- All other games are stored in their websocket threads.
-    , queue        :: TChan Queue.Message
-      -- ^ Broadcast channel for users to queue and be matched with each other.
     , characterIDs :: Bimap CharacterId Text
     }
 

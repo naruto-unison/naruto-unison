@@ -19,9 +19,11 @@ module Application
 import ClassyPrelude
 import Yesod
 
+import           Control.Concurrent (forkIO)
 import qualified Control.Monad.Logger as Logger
 import           Data.Bimap (Bimap)
 import qualified Data.Cache as Cache
+import qualified Data.HashTable as HashTable
 import qualified Database.Persist.Postgresql as Sql
 import           Database.Persist.Sql (SqlBackend, SqlPersistT)
 import           Data.Time.Clock.System (SystemTime(..), getSystemTime)
@@ -47,6 +49,7 @@ import           Handler.Embed
 import           Handler.Forum
 import           Handler.Forum.API
 import           Handler.Play
+import qualified Handler.Queue as Queue
 import           Handler.Site
 import qualified Mission
 
@@ -71,7 +74,9 @@ makeFoundation settings = do
     logger      <- DefaultConfig.makeYesodLogger
                    =<< FastLogger.newStdoutLoggerSet FastLogger.defaultBufSize
     static      <- staticMode $ Settings.staticDir settings
-    queue       <- newBroadcastTChanIO
+    quick       <- HashTable.newWithDefaults $
+                   Settings.queueTableSizeHint settings
+    private     <- newBroadcastTChanIO
     practice    <- Cache.newCache . Just . fromInteger $
                    Settings.practiceCacheExpiry settings
 
@@ -94,7 +99,9 @@ makeFoundation settings = do
         (Sql.pgPoolSize $ Settings.databaseConf settings)
 
     charIDs <- Logger.runLoggingT (Sql.runSqlPool initDB pool) logFunc
-    return $ mkFoundation pool charIDs
+    let foundation = mkFoundation pool charIDs
+    void .forkIO $ Queue.quickManager foundation
+    return foundation
   where
     staticMode
       | Settings.mutableStatic settings = Static.staticDevel

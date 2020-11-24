@@ -49,7 +49,7 @@ import           Util ((∈), (∉), commas)
 
 -- | Add this to mission progress in order to reset it to 0.
 resetToZero :: Int
-resetToZero = -10000
+resetToZero = minBound
 
 --  | True if target has a 'Status' from the user with matching 'Status.name'.
 hasFrom :: Ninja -> Text -> Ninja -> Bool

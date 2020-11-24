@@ -55,9 +55,7 @@ instance FromJSON DNA where
         return DNA{..}
 
 data Settings = Settings
-    { allowVsSelf            :: Bool
-    -- ^ Allow players to queue against themselves.
-    , unlockAll              :: Bool
+    { unlockAll              :: Bool
     -- ^ Allow players to use characters they have not unlocked.
     , turnLength             :: Int
     -- ^ Duration of a game turn.
@@ -66,6 +64,8 @@ data Settings = Settings
     , forfeitAfterSkips      :: Int
     -- ^ If a character goes past @turnLength@ this many times, they
     -- automatically forfeit.
+    , queueTableSizeHint     :: Int
+    -- ^ Initial size of the queue user info 'Data.HashTable.HashTable'.
 
     , staticDir              :: String
     -- ^ Directory from which to serve static files.
@@ -134,11 +134,11 @@ instance FromJSON Settings where
 
         authDummyLogin         <- o .:? "auth-dummy-login" .!= dev
 
-        allowVsSelf            <- o .:? "allow-vs-self"    .!= dev
         unlockAll              <- o .:? "unlock-all"       .!= dev
         turnLength             <- (* 1e6) <$> o .: "turn-length"
         practiceCacheExpiry    <- (* 1e9) <$> o .: "practice-cache-expiry"
         forfeitAfterSkips      <- o .: "forfeit-after-skips"
+        queueTableSizeHint     <- o .: "queue-table-size-hint"
         return Settings{..}
 
 -- | Settings for 'widgetFile', such as which template languages to support and

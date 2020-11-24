@@ -20,12 +20,13 @@ import           Data.Bimap (Bimap)
 import qualified Data.Bimap as Bimap
 import           Data.List ((\\))
 import qualified Data.Sequence as Seq
-import           Database.Persist.Sql (Entity(..), SqlPersistT)
+import           Database.Persist.Sql (SqlPersistT)
 import qualified Database.Persist.Sql as Sql
 import qualified Yesod.Auth as Auth
 
 import           Application.App (Handler)
 import qualified Application.App as App
+import           Application.Fields (Privilege(..))
 import           Application.Model (Character(..), CharacterId, EntityField(..), Mission(..), Unlocked(..), Usage(..), User(..))
 import qualified Application.Settings as Settings
 import qualified Game.Characters as Characters
@@ -33,8 +34,8 @@ import qualified Game.Model.Character as Character
 import           Handler.Client.Reward (Reward(Reward))
 import qualified Handler.Client.Reward as Reward
 import           Handler.Play.Match (Outcome(..))
-import qualified Handler.Play.Queue as Queue
 import           Handler.Play.War (War)
+import qualified Handler.Queue as Queue
 import           Mission.Goal (Goal, Span(..))
 import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
@@ -78,8 +79,9 @@ unlocked :: Handler Unlocks
 unlocked = cached do
     unlockAll <- getsYesod $ Settings.unlockAll . App.settings
     mwho <- Auth.maybeAuthId
+    privilege <- App.getPrivilege
     case mwho of
-        Just who | not unlockAll -> do
+        Just who | not unlockAll && privilege < Moderator -> do
             ids     <- getsYesod App.characterIDs
             unlocks <- runDB $ selectList [UnlockedUser ==. who] []
             return . Unlocks $ getUnlocked ids unlocks
