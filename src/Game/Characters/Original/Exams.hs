@@ -287,7 +287,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Unnerving Bells"
-        , Skill.desc      = "A cacophony of bell tones saps the strength of an enemy, depleting 1 random chakra. If [Bell Ring Illusion] was used last turn, the target takes 15 more damage from chakra skills for 1 turn. If [Shadow Senbon] was used last turn, the target takes 15 more damage from physical skills for 1 turn."
+        , Skill.desc      = "A cacophony of bell tones saps the strength of an enemy, depleting 1 random chakra. If [Bell Ring Illusion] was used last turn, the target receives 15 more damage from chakra skills for 1 turn. If [Shadow Senbon] was used last turn, the target receives 15 more damage from physical skills for 1 turn."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2

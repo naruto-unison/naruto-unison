@@ -164,16 +164,42 @@ spec = parallel do
                 electricDur `shouldBe` fromIntegral stacks - 1
 
     describeCharacter "Kushimaru Kuriarare" do
-        useOn Enemy "Needle and Thread" do
-            it "deals bonus damage during Stitching Spider" do
+        useOn Enemy "Needle Stitching" do
+            it "deals bonus damage per target affected" do
                 act
                 targetHealth <- health <$> nTarget
-                factory
                 self factory
-                use "Stitching Spider"
+                enemies act
+                factory
                 act
                 targetHealth' <- health <$> nTarget
-                targetHealth - targetHealth' `shouldBe` 5
+                targetHealth - targetHealth' `shouldBe` 5 * 2
+            it "extends duration" do
+                act
+                at XEnemies act
+                targetHas "Needle Stitching"
+            it "does not overextend duration" do
+                act
+                turns 1
+                at XEnemies act
+                not <$> targetHas "Needle Stitching"
+        useOn Enemy "Eviscerate" do
+            it "extends Needle Stitching" do
+                use "Needle Stitching"
+                act
+                targetHas "Needle Stitching"
+            it "extends Wire Crucifixion" do
+                use "Needle Stitching"
+                use "Wire Crucifixion"
+                act
+                targetHas "Wire Crucifixion"
+        useOn Enemy "Wire Crucifixion" do
+            it "only affects enemies affected by [Needle Stitching]" do
+                enemies $ use "Needle Stitching"
+                remove "Needle Stitching"
+                act
+                affected <- numAffected "Wire Crucifixion"
+                affected `shouldBe` 2
 
     describeCharacter "Fuguki Suikazan" do
         useOn Enemy "Chakra Weave" do

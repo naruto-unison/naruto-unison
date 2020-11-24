@@ -8,7 +8,7 @@ import Game.Action.Combat as X
 import Game.Action.Skill as X
 import Game.Action.Status as X
 import Game.Action.Trap as X
-import Game.Characters.Import as X (self, targetHas, userHas, allies, enemies, everyone)
+import Game.Characters.Import as X (self, targetHas, userHas, allies, enemies, everyone, numAffected)
 import Game.Model.Chakra as X (Chakra(..))
 import Game.Model.Character as X (Category(..), Character)
 import Game.Model.Class as X (Class(..))

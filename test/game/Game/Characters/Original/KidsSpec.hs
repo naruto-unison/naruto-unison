@@ -264,17 +264,19 @@ spec = parallel do
                 targetHealth <- health <$> nTarget
                 targetHealth `shouldBe` 0
 
-        useOn Self "Sand Clone" do
+        focus $ useOn Self "Sand Clone" do
             it "blocks harmful effects" do
                 as Enemy $ apply Permanent [Plague]
                 act
                 as Enemy $ afflict 5
-                not . (`is` Plague) <$> nUser
+                --not . (`is` Plague) <$> nUser
+                hasOwn "Sand Clone" <$> nUser
             it "ends with new non-affliction damage" do
                 as Enemy $ apply Permanent [Plague]
                 act
                 as Enemy $ damage 5
-                (`is` Plague) <$> nUser
+                --(`is` Plague) <$> nUser
+                not . hasOwn "Sand Clone" <$> nUser
 
     describeCharacter "Kankurō" do
         useOn Enemy "Puppet Technique" do

@@ -303,49 +303,52 @@ characters =
     "Reanimated by Kabuto, Kushimaru was one of the Seven Swordsmen of the Mist. Wielding Nuibari, the legendary razor-wire longsword, Kushimaru stitches together his enemies to prevent them from acting."
     [MistVillage, Kabuto, SevenSwordsmen, Jonin]
     [ [ Skill.new
-        { Skill.name      = "Needle and Thread"
-        , Skill.desc      = "Nuibari skewers an enemy, dealing 20 piercing damage and marking them for 1 turn. During [Stitching Spider], this skill deals 5 additional damage and also targets all other enemies affected by [Stitching Spider]."
+        { Skill.name      = "Needle Stitching"
+        , Skill.desc      = "Nuibari skewers an enemy and pulls a wire through them, dealing piercing 20 damage and preventing them from affecting him for 1 turn. Deals 5 additional damage per person affected by [Needle Stitching] and extends its duration on them by 1 turn. Cannot be used on an enemy already affected by this skill."
+        , Skill.require   = HasU 0 "Needle Stitching"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 5 `bonusIf` channeling "Stitching Spider"
-                pierce (20 + bonus)
-                tag 1
-          , To XEnemies $ whenM (targetHas "Stitching Spider") do
-                pierce 25
-                tag 1
+                affected <- numAffected "Needle Stitching"
+                everyone $ whenM (targetHas "Needle Stitching") do
+                    damage 5
+                    prolong 1 "Needle Stitching"
+                pierce (20 + 5 * affected)
+                userSlot <- user slot
+                bomb 1 [Block userSlot]
+                    [To Done $ self $ removeStack "needle stitching"]
+                self $ hide Permanent []
           ]
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Stitching Spider"
-        , Skill.desc      = "Kushimaru lays a trap of wires on the ground. For 3 turns, enemies who use physical skills will take 10 piercing damage and be marked until after this skill ends."
-        , Skill.classes   = [Physical, Ranged, Invisible]
-        , Skill.cost      = [Tai, Rand]
-        , Skill.cooldown  = 2
-        , Skill.dur       = Control 3
+        { Skill.name      = "Eviscerate"
+        , Skill.desc      = "Using Nuibaru's razor wire, Kushimaru deals 20 piercing damage to all enemies and prolongs every [Needle Stitching] and [Wire Cruxifixion] by 1 turn."
+        , Skill.classes   = [Physical, Ranged]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemies do
-                prolong 1 "Stitching Spider"
-                trap 2 (OnAction Physical) $
-                    whenM (channeling "Stitching Spider") do
-                        pierce 10
-                        tag 1
+                pierce 20
+                prolong 1 "Needle Stitching"
+                prolong 1 "Wire Crucifixion"
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Wire Crucifixion"
-        , Skill.desc      = "Kushimaru stitches up all enemies affected by [Needle and Thread], dealing 15 piercing damage and ending their Action and Control skills in progress."
-        , Skill.require   = HasU 1 "Needle and Thread"
+        , Skill.desc      = "Kushimaru stitches up his victims and suspends them in air, dealing 15 damage to all enemies affected by [Needle Stitching] and stunning them for 1 turn. While active, targets cannot reduce damage or become invulnerable. Costs 1 arbitrary chakra per [Needle Stitching] active."
+        , Skill.require   = HasU 1 "Needle Stitching"
         , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Tai]
+        , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies do
                 pierce 15
-                interrupt
+                apply 1 [Stun All, Expose]
           ]
+        , Skill.changes   =
+            costPer "needle stitching" [Rand]
         }
       ]
     , [ invuln "Block" "Kushimaru" [Physical] ]
@@ -353,48 +356,63 @@ characters =
     75
   , Character
     "Jinpachi Munashi"
-    "Reanimated by Kabuto, Jinpachi was one of the Seven Swordsmen of the Mist. Wielding Shibuki, the legendary explosive blade, Jinpachi builds up stockpiles of paper bombs that he can detonate simultaneously."
+    "Reanimated by Kabuto, Jinpachi was one of the Seven Swordsmen of the Mist. Wielding Shibuki, the legendary explosive blade, Jinpachi sets off unrelenting chain reactions of paper bombs that deploy endlessly from its scroll."
     [MistVillage, Kabuto, SevenSwordsmen, Jonin]
     [ [ Skill.new
-        { Skill.name      = "Blast Sword"
-        , Skill.desc      = "Jinpachi swings his sword at an enemy, dealing 30 damage and making them ignore helpful effects for 1 turn. If Jinpachi does not have any Paper Bombs, he loses 15 health. Otherwise, he spends one Paper Bomb."
-        , Skill.classes   = [Chakra, Melee]
+        { Skill.name      = "Splatter"
+        , Skill.desc      = "Jinpachi swings his sword at an enemy and detonates numerous paper bombs on contact, dealing 30 affliction damage. For 1 turn, the target receives 5 additional damage from non-affliction skills. Deals 10 additional damage and lasts 1 additional turn if [Bomb Reload] was used last turn."
+        , Skill.classes   = [Chakra, Melee, Bane]
         , Skill.cost      = [Tai]
+        , Skill.charges   = 1
         , Skill.effects   =
           [ To Enemy do
-                damage 30
-                apply 1 [Seal]
-          , To Self do
-                unlessM (userHas "Paper Bomb") $ sacrifice 0 15
-                removeStack "Paper Bomb"
+                bonusDmg <- 10 `bonusIf` userHas "Bomb Reload"
+                afflict (30 + bonusDmg)
+                bonusDur <- 1 `bonusIf` userHas "Bomb Reload"
+                apply (1 + bonusDur) [Bleed [NonAffliction] Flat 5]
           ]
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Shibuki Bomb Reload"
-        , Skill.desc      = "Jinpachi adds a Paper Bomb to his sword. In addition to fueling his other attacks, Paper Bombs provides 5 points of damage reduction each."
+        { Skill.name      = "Bomb Reload"
+        , Skill.desc      = "The next row of paper bombs slides out from Shibuki's integrated scroll, recharging [Splatter] and providing Jinpachi with 10 permanent destructible defense."
         , Skill.classes   = [Physical]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ apply' "Paper Bomb" Permanent [Reduce [All] Flat 5] ]
+          [ To Self do
+                defend 0 10
+                recharge "Splatter"
+                tag 1
+          ]
         }
       ]
     , [ Skill.new
-        { Skill.name      = "Multiple Explosions of Death"
-        , Skill.desc      = "Jinpachi sets off a chain reaction of bombs around himself, dealing 40 damage to an enemy and 40 damage to a random enemy. Requires at least two Paper Bombs. If Jinpachi only has two Paper Bombs, he loses 30 health. Spends all Paper Bombs."
-        , Skill.require   = HasI 2 "Paper Bomb"
-        , Skill.classes   = [Chakra, Ranged]
-        , Skill.cost      = [Tai, Rand]
+        { Skill.name      = "Scroll Unraveling"
+        , Skill.desc      = "Jinpachi fully unwinds the sheet of bombs around his sword in preparation for an attack. For 1 turn, enemies who use skills on Jinpachi will take 10 affliction damage every turn for the rest of the game. Next turn, this skill becomes [Multiple Explosions of Death][t][r][r]."
+        , Skill.classes   = [Physical, Invisible, Bane]
+        , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ damage 40
-          , To REnemy $ damage 40
-          , To Self do
-              stacks <- userStacks "Paper Bomb"
-              when (stacks <= 2) $ sacrifice 0 30
+          [ To Self do
+                trapFrom 1 (OnHarmed All) $ apply Permanent [Afflict 10]
+                apply 1
+                  [Alternate "Scroll Unraveling" "Multiple Explosions of Death"]
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Multiple Explosions of Death"
+        , Skill.desc      = "Jinpachi sets off a cascading chain reaction of bombs around himself, dealing 25 affliction damage to the enemy team. All targets take 5 affliction damage every turn for the rest of the game."
+        , Skill.classes   = [Physical, Ranged, Bane]
+        , Skill.cost      = [Tai, Rand, Rand]
+        , Skill.effects   =
+          [ To Enemies do
+                afflict 25
+                apply Permanent [Afflict 5]
           ]
         }
       ]
-    , [ invuln "Parry" "Jinpachi" [Physical] ]
+    , [ invuln "Block" "Jinpachi" [Physical] ]
     ]
     75
   , Character

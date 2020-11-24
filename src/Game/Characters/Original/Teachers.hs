@@ -122,7 +122,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Dragon Flame"
-        , Skill.desc      = "Fire scorches the battlefield, dealing 10 affliction damage to all enemies for 2 turns and causing them to take 5 additional damage from bane effects. During [Dual Pin], this skill becomes [Twin Snake Sacrifice][n][n]."
+        , Skill.desc      = "Fire scorches the battlefield, dealing 10 affliction damage to all enemies for 2 turns and causing them to receive 5 additional damage from bane effects. During [Dual Pin], this skill becomes [Twin Snake Sacrifice][n][n]."
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2

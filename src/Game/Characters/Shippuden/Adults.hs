@@ -250,7 +250,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Cloth Paralysis"
-        , Skill.desc      = "Maki binds an enemy in rolls of cloth, stunning their chakra and ranged skills for 2 turns. While active, melee skills deal 5 additional damage to the target."
+        , Skill.desc      = "Maki binds an enemy in rolls of cloth, stunning their chakra and ranged skills for 2 turns. While active, the target receives 5 additional damage from melee skills."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Gen]
         , Skill.cooldown  = 3

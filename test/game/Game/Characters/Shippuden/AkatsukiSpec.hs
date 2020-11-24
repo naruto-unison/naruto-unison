@@ -96,11 +96,13 @@ spec = parallel do
 
         useOn Enemy "Poison Blade Assault" do
             it "damages repeatedly" do
+                use "Kazekage Puppet Summoning"
                 act
                 turns 4
                 targetHealth <- health <$> nTarget
                 100 - targetHealth `shouldBe` 20 * 2
             it "ends when destroyed" do
+                use "Kazekage Puppet Summoning"
                 act
                 as Enemy demolishAll
                 turns stacks
@@ -109,14 +111,17 @@ spec = parallel do
 
         useOn Enemies "Thousand Arms" do
             it "exposes targets" do
+                use "Kazekage Puppet Summoning"
                 act
                 turns -1
                 targetIsExposed
             it "does not expose with harm" do
+                use "Kazekage Puppet Summoning"
                 act
                 as Enemy $ return ()
                 not <$> targetIsExposed
             it "alternates" do
+                use "Kazekage Puppet Summoning"
                 act
                 hasSkill "Poison Gas" <$> nUser
 
