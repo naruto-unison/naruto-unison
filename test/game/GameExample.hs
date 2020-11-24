@@ -2,16 +2,15 @@ module GameExample (sim) where
 
 import ClassyPrelude
 
-import           Control.Monad.Trans.State.Strict (StateT, evalStateT)
-import qualified Test.Hspec as Hspec
-import           Test.Hspec hiding (context, it)
-import           Test.Hspec.Core.Spec hiding (context, it)
+import Control.Monad.Trans.State.Strict (StateT, evalStateT)
+import Test.Hspec hiding (context, it)
+import Test.Hspec.Core.Spec hiding (context, it)
 
-import           Class.Hook (MonadHook)
-import           Class.Play (MonadGame, MonadPlay)
-import           Class.Random (MonadRandom)
-import           Game.Model.Context (Context)
-import           Handler.Play.Wrapper (Wrapper)
+import Class.Hook (MonadHook)
+import Class.Play (MonadGame, MonadPlay)
+import Class.Random (MonadRandom)
+import Game.Model.Context (Context)
+import Handler.Play.Wrapper (Wrapper)
 
 import qualified Blank
 

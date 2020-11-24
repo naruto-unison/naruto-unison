@@ -19,14 +19,15 @@ library:
   - attoparsec
   - base
   - bimap
+  - bitwise-enum
   - blaze-html
   - blaze-markup
-  - bounded-enum
   - bytestring
   - cache
   - case-insensitive
   - classy-prelude
   - cmark
+  - concurrent-hashtable
   - containers
   - data-default
   - esqueleto
@@ -54,6 +55,7 @@ library:
   - unliftio
   - unordered-containers
   - vector
+  - vector-algorithms
   - wai
   - wai-extra
   - wai-logger
@@ -111,7 +113,7 @@ tests:
     dependencies:
     - naruto-unison
     - base
-    - bounded-enum
+    - bitwise-enum
     - hspec
     - hspec-core
     - QuickCheck
@@ -192,7 +194,6 @@ default-extensions:
 # More powerful types
 - TypeFamilies
 # More powerful deriving
-- AutoDeriveTypeable
 - DeriveDataTypeable
 - DeriveFoldable
 - DeriveFunctor

@@ -10,8 +10,8 @@ module ClassyPrelude
   , foldl1, foldl1', foldr1, maximum, minimum, maximumBy, minimumBy
   ) where
 
-import "classy-prelude" ClassyPrelude as CP hiding (Handler, head, last, group, groupBy, map, maximum, minimum, maximumBy, minimumBy, init, tail)
-import Prelude (map)
+import "classy-prelude" ClassyPrelude as CP hiding (Handler, head, last, group, groupBy, map, maximum, minimum, maximumBy, minimumBy, init, tail, sum, product)
+import Prelude (map, sum, product)
 import Data.List.NonEmpty (NonEmpty(..), head, last, init, tail, group, groupBy, groupWith, groupAllWith, group1, groupBy1, groupWith1, groupAllWith1)
 import qualified Data.List as List
 

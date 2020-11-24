@@ -1,5 +1,5 @@
-resolver: lts-14.14
+resolver: lts-16.23
 
 extra-deps:
-- git: https://github.com/jnbooth/bounded-enum.git
-  commit: 3b56cc80ead30e50eb9e4304e8871bb56fa68755
+- concurrent-hashtable-0.1.8
+- bitwise-enum-1.0.0.1

@@ -9,7 +9,6 @@ module Game.Characters
 import ClassyPrelude hiding (link, lookup, map)
 
 import           Data.Aeson (Value, toJSON)
-import           Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
 
 import           Game.Model.Character (Character)

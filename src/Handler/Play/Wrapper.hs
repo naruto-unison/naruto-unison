@@ -10,7 +10,7 @@ module Handler.Play.Wrapper
 
 import ClassyPrelude
 
-import           Control.Monad.ST (RealWorld, ST)
+import           Control.Monad.ST (ST)
 import           Control.Monad.Trans.State.Strict (StateT, gets, modify')
 import           Data.Vector ((//))
 import qualified Data.Vector as Vector

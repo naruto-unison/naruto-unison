@@ -5,22 +5,22 @@
 
 packages:
 - completed:
-    cabal-file:
-      size: 1831
-      sha256: 22a74abfb0646ddac150856b1355dd1d15e241f4fd03c1f360e6a36b3f9dbe3c
-    name: bounded-enum
-    version: 0.1.0.0
-    git: https://github.com/jnbooth/bounded-enum.git
+    hackage: concurrent-hashtable-0.1.8@sha256:c9ddedc2904e81655e9d50736d3e038239536980833358fc87f576903c120f55,2648
     pantry-tree:
-      size: 557
-      sha256: f960d2b26f5487b5389f1cfd8ab1cd9ff4d2f9b2303456cba8db3e7070f0a58c
-    commit: 3b56cc80ead30e50eb9e4304e8871bb56fa68755
+      size: 510
+      sha256: 5b51d7f76c644ac72fd942fb63846428362cf64064156aa197f9f2fdcf038100
   original:
-    git: https://github.com/jnbooth/bounded-enum.git
-    commit: 3b56cc80ead30e50eb9e4304e8871bb56fa68755
+    hackage: concurrent-hashtable-0.1.8
+- completed:
+    hackage: bitwise-enum-1.0.0.1@sha256:ba6ec1181970c2dc36c2e731e30c63a09e998b6950f8c0e0a84c972dadf5934d,2833
+    pantry-tree:
+      size: 461
+      sha256: d2d60b9e3a93eed56067f7022e1833ed36ddd75594e73bcacfa9684d20d141ac
+  original:
+    hackage: bitwise-enum-1.0.0.1
 snapshots:
 - completed:
-    size: 525663
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/14.yaml
-    sha256: 6edc48df46eb8bf7b861e98dd30d021a92c2e1820c9bb6528aac5d997b0e14ef
-  original: lts-14.14
+    size: 532832
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/23.yaml
+    sha256: fbb2a0519008533924c7753bd7164ddd1009f09504eb06674acad6049b46db09
+  original: lts-16.23

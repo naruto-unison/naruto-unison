@@ -14,8 +14,7 @@ import ClassyPrelude
 import Yesod
 
 import qualified CMark
-import           Data.Aeson (FromJSON, ToJSON)
-import           Database.Persist.Sql (PersistField(..), PersistFieldSql(..))
+import           Database.Persist.Sql (PersistFieldSql(..))
 import           Text.Blaze (ToMarkup(..))
 import           Text.Read
 
