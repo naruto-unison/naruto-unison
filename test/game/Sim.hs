@@ -9,10 +9,12 @@ module Sim
   , hasSkill
   , withClass, withClasses
   , get
+  , simOf, simAt
   ) where
 
 import ClassyPrelude
 
+import Control.Monad.Trans.State.Strict (StateT, evalStateT)
 import Data.Enum.Set (EnumSet)
 import Test.Hspec hiding (context)
 
@@ -44,7 +46,10 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import qualified Game.Model.Status as Status
+import           Handler.Play.Wrapper (Wrapper)
 import           Util ((!!))
+
+import qualified Blank
 
 describeCategory :: HasCallStack
                  => Category -> Text -> (SpecWith Character) -> SpecWith ()
@@ -93,7 +98,7 @@ actWith skill = do
     player <- P.player
     unless (Parity.allied user player) $ Engine.processTurn $ return ()
     Engine.processTurn $ Action.act
-        Context { new = True, user, target, skill, continues = False }
+        Context { new = True, user, target, skill = skill, continues = False }
     P.modify user \n -> n { Ninja.cooldowns = mempty }
 
 turns :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Int -> m ()
@@ -106,7 +111,7 @@ as :: ∀ m. (MonadPlay m, MonadHook m, MonadRandom m)
 as t f = P.with ctx $ actWith =<< P.skill
   where
     user        = targetSlot t
-    ctx context = Context {user, target, skill, new = True, continues = False}
+    ctx context = Context { user, target, skill, new = True, continues = False }
       where
         skill = Skill.new { Skill.effects = effects, Skill.classes }
         ctxTarget = Context.target context
@@ -118,6 +123,16 @@ as t f = P.with ctx $ actWith =<< P.skill
           | otherwise = [To XAlly f, To Enemy f]
         classes = Skill.classes (Context.skill context) `difference` setFromList
                   [Bypassing, Uncounterable, Unreflectable, Unremovable]
+
+simOf :: ∀ a. Wrapper -> Target -> ReaderT Context (StateT Wrapper Identity) a
+      -> a
+simOf game target action =
+    runIdentity $ evalStateT (runReaderT action targeted) game
+  where
+    targeted = Blank.context { Context.target = Sim.targetSlot target }
+
+simAt :: ∀ a. Target -> ReaderT Context (StateT Wrapper Identity) a -> a
+simAt = simOf Blank.game
 
 targetIsExposed :: ∀ m. MonadPlay m => m Bool
 targetIsExposed = do

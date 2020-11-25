@@ -2,7 +2,7 @@ module Game.Model.EffectSpec (spec) where
 
 import ClassyPrelude
 
-import Control.Monad.Trans.State.Strict (StateT, evalStateT)
+import Control.Monad.Trans.State.Strict (StateT)
 import Data.Enum.Set (EnumSet)
 import Data.Maybe (fromJust)
 import Test.Hspec
@@ -45,7 +45,7 @@ import           Handler.Play.Wrapper (Wrapper)
 
 import qualified Blank
 import           OrphanInstances ()
-import           Sim (as, at)
+import           Sim (as, at, simOf, simAt)
 import qualified Sim as Sim
 
 chunk :: ∀ a. (Int -> a) -> Int -> Int -> [a]
@@ -61,7 +61,7 @@ spec = parallel do
         it "gains chakra from enemy skills" $
             tryAbsorb Enemy 1 `shouldBe` 1
         it "does not gain chakra from friendly skills" $
-            tryAbsorb Ally 1 `shouldBe` 0
+            tryAbsorb Ally 2 `shouldBe` 0
 
     describe "Afflict" do
         prop "damages every turn" \amount (Positive turns) -> simAt Enemy do
@@ -437,13 +437,6 @@ canTargetAs target = do
 canTarget :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => m Bool
 canTarget = canTargetAs Self
 
-simOf :: ∀ a. Wrapper -> Target -> ReaderT Context (StateT Wrapper Identity) a
-      -> a
-simOf game target action =
-    runIdentity $ evalStateT (runReaderT action targeted) game
-  where
-    targeted = Blank.context { Context.target = Sim.targetSlot target }
-
 harmedWith :: Effect -> ReaderT Context (StateT Wrapper Identity) Ninja -> Bool
 harmedWith effect target = simAt Enemy do
     self $ apply 2 [effect]
@@ -452,9 +445,6 @@ harmedWith effect target = simAt Enemy do
 
 healthBound :: Int -> Int
 healthBound x = max 0 $ min 100 x
-
-simAt :: ∀ a. Target -> ReaderT Context (StateT Wrapper Identity) a -> a
-simAt = simOf Blank.game
 
 simEffects :: ∀ a. [Effect] -- ^ User.
            -> [Effect] -- ^ Target.
