@@ -25,6 +25,7 @@ import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Constructor(..), Effect(..))
 import           Game.Model.Ninja (is)
 import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Requirement (Requirement(..))
 import           Game.Model.Runnable (Runnable(..), RunConstraint)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Trap (Trap(Trap))
@@ -118,8 +119,7 @@ trapFull direction classes unthrottled trigger f =
 
 makeTrap :: Context -> Trap.Direction -> EnumSet Class -> Duration
          -> Trigger -> (Int -> RunConstraint ()) -> Trap
-makeTrap Context{skill, user, target, continues, new}
-         direction classes dur trigger f =
+makeTrap Context{..} direction classes dur trigger f =
     Trap
     { trigger
     , direction
@@ -137,7 +137,7 @@ makeTrap Context{skill, user, target, continues, new}
       | continues || new      = deleteSet Continues
       | otherwise             = deleteSet Continues . deleteSet Invisible
     classes' = modClasses $ classes ++ Skill.classes skill
-    skill'   = skill { Skill.classes = classes' }
+    skill'   = skill { Skill.classes = classes', Skill.require = Usable }
     context  = Context { user
                        , target
                        , skill     = skill'
