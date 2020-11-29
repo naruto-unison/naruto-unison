@@ -4,12 +4,10 @@
   "description": "Naruto Unison",
   "main": "naruto-unison-elm.js",
   "scripts": {
-    "build": "rimraf elm-stuff && elm make src/Main.elm --output=elm-stuff/naruto-unison-elm.js --optimize",
-    "publish": "uglifyjs elm-stuff/naruto-unison-elm.js --compress | uglifyjs --mangle --output=../templates/play/elm.julius && rimraf elm-stuff",
-    "install": "npm run build && npm run publish",
-    "unmangled": "rimraf elm-stuff && elm make src/Main.elm --output=naruto-unison-elm.js && mv naruto-unison-elm.js ../templates/play/elm.julius",
-    "dev": "npm run build && cd publish && (sleep 2 && opener http://localhost:8000/200.html) & elm reactor",
-    "scrape": "cd scraper && rimraf elm-stuff && elm make scraper.elm --output=scraper.js && (sleep 2 && opener http://localhost:8000/scraper.html) & elm reactor"
+    "compile": "rimraf elm-stuff && elm make src/Main.elm --output=elm-stuff/naruto-unison-elm.js --optimize",
+    "compress": "uglifyjs elm-stuff/naruto-unison-elm.js --compress | uglifyjs --mangle --output ../templates/play/elm.julius && rimraf elm-stuff",
+    "build": "rimraf elm-stuff && elm make src/Main.elm --output=elm-stuff/naruto-unison-elm.js --optimize && uglifyjs elm-stuff/naruto-unison-elm.js --compress | uglifyjs --mangle --output ../templates/play/elm.julius",
+    "unmangled": "rimraf elm-stuff && elm make src/Main.elm --output=naruto-unison-elm.js && mv naruto-unison-elm.js ../templates/play/elm.julius"
   },
   "repository": {
     "type": "git",
