@@ -58,17 +58,14 @@ quickManager App{quick} = forever do
     usersV <- unsafeFreeze usersM
     let users = toList usersV
     forConcurrently_ (chunkPairs users) \((whoA, infoA), (whoB, infoB)) -> do
-        let userA = UserInfo.user infoA
-            userB = UserInfo.user infoB
-            teamA = UserInfo.team infoA
-            teamB = UserInfo.team infoB
-            chanA = UserInfo.chan infoA
-            chanB = UserInfo.chan infoB
+        let userA = UserInfo.user infoA; userB = UserInfo.user infoB
+            teamA = UserInfo.team infoA; teamB = UserInfo.team infoB
+            chanA = UserInfo.chan infoA; chanB = UserInfo.chan infoB
+
         (mvar, gameA, gameB) <- Random.createSystemRandom >>= runReaderT
                                 (makeGame whoA userA teamA whoB userB teamB)
-        atomically do
-            writeTChan chanA $ Message.Response mvar gameA
-            writeTChan chanB $ Message.Response mvar gameB
+        putMVar chanA $ Message.Response mvar gameA
+        putMVar chanB $ Message.Response mvar gameB
         HashTable.delete quick whoA
         HashTable.delete quick whoB
 
@@ -85,12 +82,12 @@ queue :: ∀ m. ( MonadHandler m, App ~ HandlerSite m
                 -> ExceptT Client.Failure m Message.Response
 queue Quick team = do
     (who, user) <- Auth.requireAuthPair
-    reader      <- newTChanIO
-    time        <- liftIO getSystemTime
     quick       <- getsYesod App.quick
-    void . liftIO $ HashTable.insert quick who
-        UserInfo { user, team, joined = time, chan = reader }
-    atomically $ readTChan reader
+    liftIO do
+        chan   <- newEmptyMVar
+        joined <- getSystemTime
+        void $ HashTable.insert quick who UserInfo { user, team, joined, chan }
+        takeMVar chan
 
 queue Private team = do
     (who, user)         <- Auth.requireAuthPair
