@@ -184,10 +184,10 @@ printFailure x =
         Canceled ->
             "Queue canceled"
 
-        Locked ->
-            "Character not unlocked"
+        Locked chars ->
+            "Characters not unlocked: " ++ String.join ", " chars
 
-        InvalidTeam ->
+        InvalidTeam _ ->
             "Invalid team"
 
         NotFound ->

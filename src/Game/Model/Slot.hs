@@ -12,7 +12,7 @@ import ClassyPrelude hiding (all)
 
 import           Data.Aeson (ToJSON)
 import           Data.Attoparsec.Text (Parser)
-import qualified Data.Attoparsec.Text as Parser
+import qualified Data.Attoparsec.Text as Parse
 import           Text.Read hiding (read)
 import           Text.Read.Lex (numberToInteger)
 
@@ -67,7 +67,7 @@ enemies x
 
 parse :: Parser Slot
 parse = do
-    i <- Parser.decimal
+    i <- Parse.decimal
     guard $ i >= 0 && i <= maxVal
     return $ Slot i
 

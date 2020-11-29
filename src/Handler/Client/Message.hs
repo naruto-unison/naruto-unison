@@ -24,10 +24,10 @@ import           Handler.Play.Turn (Turn)
 data Failure
     = AlreadyQueued
     | Canceled
-    | InvalidTeam
-    | Locked
+    | InvalidTeam String
+    | Locked [Text]
     | NotFound
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
+    deriving (Eq, Ord, Show, Read, Generic, ToJSON)
 
 -- | A message sent through the websocket to the client.
 -- This definition is exported so that @elm-bridge@ sends it over to the client.

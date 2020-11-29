@@ -9,11 +9,13 @@ module Handler.Play
 import ClassyPrelude
 import Yesod
 
+import           Control.Monad (fail)
 import           Control.Monad.Logger
 import           Control.Monad.Loops (untilJust, whileM)
 import           Control.Monad.Trans.Except (runExceptT, throwE)
+import qualified Data.Attoparsec.Text as Parse
+import           Data.Attoparsec.Text (Parser)
 import qualified Data.Cache as Cache
-import qualified Data.Text as Text
 import           Network.WebSockets (ConnectionException(..))
 import qualified System.Random.MWC as Random
 import           UnliftIO.Concurrent (forkIO, threadDelay)
@@ -38,6 +40,7 @@ import qualified Game.Characters as Characters
 import qualified Game.Engine as Engine
 import           Game.Model.Chakra (Chakras)
 import qualified Game.Model.Chakra as Chakra
+import qualified Game.Model.Character as Character
 import           Game.Model.Character (Character)
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Game as Game
@@ -64,29 +67,62 @@ import           Util ((∉), duplic, liftST)
 
 -- * INPUT PARSING
 
-parseTeam :: [Text] -> Maybe Team
-parseTeam ("quick"  :team) = Team Queue.Quick   <$> formTeam team
-parseTeam ("private":team) = Team Queue.Private <$> formTeam team
-parseTeam _                = Nothing
+separator :: Char
+separator = '/'
 
-formTeam :: [Text] -> Maybe [Character]
-formTeam team@[_,_,_]
-  | duplic team = Nothing
-  | otherwise   = traverse Characters.lookup team
-formTeam _ = Nothing
+separate :: Parser Char
+separate = Parse.char separator
+
+data Team = Team Queue.Section [Character]
+
+parseTeam :: Parser Team
+parseTeam = Team
+    <$> parseSection
+    <*> parseCharacters
+  where
+    parseSection =
+        Parse.string "private" $> Queue.Private
+        <|> Parse.string "quick" $> Queue.Quick
+
+    parseCharacters =
+        Parse.count 3 $
+            separate
+            >> Parse.takeWhile (/= separator) <|> Parse.takeText
+            >>= parseCharacter
+
+    parseCharacter text =
+        case Characters.lookup text of
+            Just c -> return c
+            Nothing -> fail $ show (text ++ " is not a character")
+
 
 data Enact = Enact { spend    :: Chakras
                    , exchange :: Chakras
                    , actions  :: [Act]
                    }
+  deriving (Eq, Show)
 
-formEnact :: [Text] -> Maybe Enact
-formEnact (_:_: _:_:_: _:_) = Nothing -- No more than 3 actions!
-formEnact (spend:exchange:actions) = Enact
-                                     <$> fromPathPiece spend
-                                     <*> fromPathPiece exchange
-                                     <*> traverse fromPathPiece actions
-formEnact _ = Nothing -- willywonka.gif
+parseActs :: Parser [Act]
+parseActs = separate >> Parse.sepBy Act.parse separate >>= guardLength
+  where
+    guardLength (_:_:_:_:_) = fail "No more than 3 actions"
+    guardLength xs          = return xs
+
+parseEnact :: Parser Enact
+parseEnact = Enact
+    <$> Chakra.parse
+    <*> (separate >> Chakra.parse)
+    <*> (parseActs <|> (Parse.endOfInput >> return []))
+
+data ClientMessage
+    = Forfeit
+    | EnactMsg Enact
+    deriving (Eq, Show)
+
+parseMessage :: Parser ClientMessage
+parseMessage =
+    (Parse.string "forfeit" >> return Forfeit)
+    <|> EnactMsg <$> parseEnact
 
 -- * HANDLERS
 
@@ -168,8 +204,6 @@ getPracticeActR spend exchange actions = do
                       Cache.delete practice who
               returnJson $ Wrapper.toTurn Player.A <$> [game'A, game'B]
 
-data Team = Team Queue.Section [Character]
-
 handleFailures :: ∀ m a. MonadSockets m => Either Client.Failure a -> m (Maybe a)
 handleFailures (Right val) = return $ Just val
 handleFailures (Left msg)  = Nothing <$ Client.send (Client.Fail msg)
@@ -186,17 +220,17 @@ gameSocket = webSockets do
 
     (section, team, Response mvar info) <- untilJust $
         handleFailures =<< runExceptT do
-            teamNames <- Text.split (=='/') <$> Sockets.receive
-            Team section team <- case parseTeam teamNames of
-                Nothing   -> throwE Client.InvalidTeam
-                Just vals -> return vals
+            Team section team <- either (throwE . Client.InvalidTeam)
+                                 return . Parse.parseOnly parseTeam =<<
+                                 Sockets.receive
 
-            let teamTail = unsafeTail teamNames
-            when (any (∉ unlocked) teamTail) $ throwE Client.Locked
-            liftDB $ update who [UserTeam =. Just teamTail]
+            let teamNames = Character.ident <$> team
+                locked = filter (∉ unlocked) teamNames
+            when (not $ null locked) . throwE $ Client.Locked locked
+            liftDB $ update who [UserTeam =. Just teamNames]
 
             queued <- Queue.queue section team
-            return (section, teamTail, queued)
+            return (section, teamNames, queued)
 
     Client.send $ Client.Info info
     let player = GameInfo.player info
@@ -246,7 +280,8 @@ gameSocket = webSockets do
       Queue.leave
 
 data ClientResponse
-    = Received [Text]
+    = Received ClientMessage
+    | Malformed Text
     | TimedOut
     | SocketException ConnectionException
     deriving (Eq, Show)
@@ -273,18 +308,19 @@ tryEnact settings player mvar = do
     forkIO do
         tryMessage <- try Sockets.receive
         void $ tryPutMVar lock case tryMessage of
-            Right message -> Received $ Text.split (== '/') message
             Left err      -> SocketException err
+            Right message -> either (const $ Malformed message) Received $
+                             Parse.parseOnly parseMessage message
 
     enactMessage <- readMVar lock
 
     case enactMessage of
-        Received ["forfeit"] ->
+        Received Forfeit ->
             Engine.forfeit player
 
-        Received (formEnact -> Just formedEnact) -> do
+        Received (EnactMsg enactMsg) -> do
             Engine.resetInactive player
-            res <- enact formedEnact
+            res <- enact enactMsg
             case res of
                 Right ()      -> return ()
                 Left errorMsg -> do
@@ -292,8 +328,8 @@ tryEnact settings player mvar = do
                                 ++ toStrict (decodeUtf8 errorMsg)
                     Sockets.send errorMsg
 
-        Received malformed ->
-            logErrorN $ "Malformed client input: " ++ intercalate "/" malformed
+        Malformed malformed ->
+            logErrorN $ "Malformed client input: " ++ malformed
 
         TimedOut ->
             Engine.skipTurn (Settings.forfeitAfterSkips settings) player

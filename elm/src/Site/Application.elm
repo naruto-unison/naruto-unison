@@ -190,8 +190,8 @@ app websocket ports =
                         Ok (Fail NotFound) ->
                             failTo Select.Searching NotFound st
 
-                        Ok (Fail Locked) ->
-                            failTo Select.Browsing Locked st
+                        Ok (Fail (Locked a)) ->
+                            failTo Select.Browsing (Locked a) st
 
                         Ok (Info info) ->
                             let

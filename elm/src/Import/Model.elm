@@ -307,23 +307,31 @@ jsonEncFace  val =
 type Failure  =
     AlreadyQueued
     | Canceled
-    | InvalidTeam
-    | Locked
+    | InvalidTeam String
+    | Locked (List String)
     | NotFound
 
 jsonDecFailure : Json.Decode.Decoder ( Failure )
 jsonDecFailure =
-    let jsonDecDictFailure = Dict.fromList [("AlreadyQueued", AlreadyQueued), ("Canceled", Canceled), ("InvalidTeam", InvalidTeam), ("Locked", Locked), ("NotFound", NotFound)]
-    in  decodeSumUnaries "Failure" jsonDecDictFailure
+    let jsonDecDictFailure = Dict.fromList
+            [ ("AlreadyQueued", Json.Decode.lazy (\_ -> Json.Decode.succeed AlreadyQueued))
+            , ("Canceled", Json.Decode.lazy (\_ -> Json.Decode.succeed Canceled))
+            , ("InvalidTeam", Json.Decode.lazy (\_ -> Json.Decode.map InvalidTeam (Json.Decode.string)))
+            , ("Locked", Json.Decode.lazy (\_ -> Json.Decode.map Locked (Json.Decode.list (Json.Decode.string))))
+            , ("NotFound", Json.Decode.lazy (\_ -> Json.Decode.succeed NotFound))
+            ]
+        jsonDecObjectSetFailure = Set.fromList []
+    in  decodeSumTaggedObject "Failure" "tag" "contents" jsonDecDictFailure jsonDecObjectSetFailure
 
 jsonEncFailure : Failure -> Value
 jsonEncFailure  val =
-    case val of
-        AlreadyQueued -> Json.Encode.string "AlreadyQueued"
-        Canceled -> Json.Encode.string "Canceled"
-        InvalidTeam -> Json.Encode.string "InvalidTeam"
-        Locked -> Json.Encode.string "Locked"
-        NotFound -> Json.Encode.string "NotFound"
+    let keyval v = case v of
+                    AlreadyQueued  -> ("AlreadyQueued", encodeValue (Json.Encode.list identity []))
+                    Canceled  -> ("Canceled", encodeValue (Json.Encode.list identity []))
+                    InvalidTeam v1 -> ("InvalidTeam", encodeValue (Json.Encode.string v1))
+                    Locked v1 -> ("Locked", encodeValue ((Json.Encode.list Json.Encode.string) v1))
+                    NotFound  -> ("NotFound", encodeValue (Json.Encode.list identity []))
+    in encodeSumTaggedObject "tag" "contents" keyval val
 
 
 
@@ -425,8 +433,8 @@ jsonEncNinja  val =
    [ ("slot", Json.Encode.int val.slot)
    , ("character", Json.Encode.string val.character)
    , ("health", Json.Encode.int val.health)
-   , ("cooldowns", (encodeMap (Json.Encode.string) (Json.Encode.int)) val.cooldowns)
-   , ("charges", (encodeMap (Json.Encode.string) (Json.Encode.int)) val.charges)
+   , ("cooldowns", (Json.Encode.dict identity (Json.Encode.int)) val.cooldowns)
+   , ("charges", (Json.Encode.dict identity (Json.Encode.int)) val.charges)
    , ("defense", (Json.Encode.list jsonEncDefense) val.defense)
    , ("barrier", (Json.Encode.list jsonEncBarrier) val.barrier)
    , ("statuses", (Json.Encode.list jsonEncStatus) val.statuses)

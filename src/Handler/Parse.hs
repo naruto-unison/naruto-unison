@@ -8,7 +8,7 @@ import ClassyPrelude
 import Yesod
 
 import           Data.Attoparsec.Text (Parser)
-import qualified Data.Attoparsec.Text as Parser
+import qualified Data.Attoparsec.Text as Parse
 import qualified Text.Blaze.Html5 as HTML
 
 import Game.Model.Chakra (Chakra(..))
@@ -16,23 +16,23 @@ import Game.Model.Character (Category(..))
 
 -- | Parses a 'Model.Skill.desc' into HTML.
 desc :: Text -> Html
-desc s = case Parser.parseOnly (Parser.many' parseSegment) s of
+desc s = case Parse.parseOnly (Parse.many' parseSegment) s of
     Left  _    -> HTML.toMarkup s
     Right html -> mconcat html
 
 parseSegment :: Parser Html
-parseSegment = Parser.choice
+parseSegment = Parse.choice
     [ " (S)"           $> HTML.toMarkup Shippuden
     , " (R)"           $> HTML.toMarkup Reanimated
-    , Parser.char '\n' $> HTML.br
-    , Parser.choice    $  parseChakra <$> [minBound..maxBound]
+    , Parse.char '\n' $> HTML.br
+    , Parse.choice    $  parseChakra <$> [minBound..maxBound]
     , parseName
-    , HTML.toMarkup   <$> Parser.takeWhile1 (Parser.notInClass " [\n")
-    , HTML.toMarkup   <$> Parser.char ' '
+    , HTML.toMarkup   <$> Parse.takeWhile1 (Parse.notInClass " [\n")
+    , HTML.toMarkup   <$> Parse.char ' '
     ]
 
 parseChakra :: Chakra -> Parser Html
-parseChakra kind = Parser.string (token kind) $> HTML.toMarkup kind
+parseChakra kind = Parse.string (token kind) $> HTML.toMarkup kind
   where
     token Blood = "[b]"
     token Gen   = "[g]"
@@ -42,7 +42,7 @@ parseChakra kind = Parser.string (token kind) $> HTML.toMarkup kind
 
 parseName :: Parser Html
 parseName = do
-    void $ Parser.char '['
-    name <- Parser.takeWhile (/= ']')
-    void $ Parser.char ']'
+    void $ Parse.char '['
+    name <- Parse.takeWhile (/= ']')
+    void $ Parse.char ']'
     return . HTML.i $ HTML.toMarkup name

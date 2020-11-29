@@ -3,6 +3,7 @@
 module Game.Model.Chakra
   ( Chakra(..), chakraDesc
   , Chakras(..)
+  , parse
   , total
   , collect
   , classes
@@ -15,7 +16,8 @@ import ClassyPrelude hiding (fromList, sum, toList)
 import Prelude (sum)
 
 import           Data.Aeson (ToJSON)
-import qualified Data.Attoparsec.Text as Parser
+import qualified Data.Attoparsec.Text as Parse
+import           Data.Attoparsec.Text (Parser)
 import           Data.Enum.Set (AsEnumSet(..), EnumSet)
 import           GHC.Exts (IsList(..))
 import           Text.Blaze ((!))
@@ -51,18 +53,18 @@ instance IsList Chakras where
 instance ToMarkup Chakras where
     toMarkup = concatMap toMarkup . toList
 
+parse :: Parser Chakras
+parse = Chakras
+    <$> Parse.decimal
+    <*> (Parse.char ',' >> Parse.decimal)
+    <*> (Parse.char ',' >> Parse.decimal)
+    <*> (Parse.char ',' >> Parse.decimal)
+    <*> return 0
 
 instance PathPiece Chakras where
     toPathPiece Chakras{..} = intercalate "," $ tshow <$> [blood, gen, nin, tai]
 
-    fromPathPiece =
-        hushedParse $ Chakras
-            <$> Parser.decimal
-            <*> (Parser.char ',' >> Parser.decimal)
-            <*> (Parser.char ',' >> Parser.decimal)
-            <*> (Parser.char ',' >> Parser.decimal)
-            <*> return 0
-            <* Parser.endOfInput
+    fromPathPiece = hushedParse parse
 
 map1 :: (Int -> Int) -> Chakras -> Chakras
 map1 f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)

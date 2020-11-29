@@ -2,6 +2,7 @@
 
 module Handler.Play.Act
   ( Act(..)
+  , parse
   , toContext
   ) where
 
@@ -9,7 +10,8 @@ import ClassyPrelude
 
 import           Control.Monad.Trans.Except (ExceptT, throwE)
 import           Data.Aeson (ToJSON)
-import qualified Data.Attoparsec.Text as Parser
+import qualified Data.Attoparsec.Text as Parse
+import           Data.Attoparsec.Text (Parser)
 import           Yesod.Core.Dispatch (PathPiece(..))
 
 import           Class.Play (MonadGame)
@@ -30,6 +32,12 @@ data Act = Act { user   :: Slot
                -- ^ Target index in 'Model.Game.ninjas' (0-5)
                } deriving (Eq, Show, Read, Generic, ToJSON)
 
+parse :: Parser Act
+parse = Act
+    <$> Slot.parse
+    <*> (Parse.char ',' >> Parse.decimal)
+    <*> (Parse.char ',' >> Slot.parse)
+
 instance PathPiece Act where
     toPathPiece Act{user, skill, target} =
         intercalate "," [ tshow user
@@ -37,11 +45,7 @@ instance PathPiece Act where
                         , tshow target
                         ]
     fromPathPiece =
-        hushedParse $ Act
-            <$> Slot.parse
-            <*> (Parser.char ',' >> Parser.decimal)
-            <*> (Parser.char ',' >> Slot.parse)
-            <* Parser.endOfInput
+        hushedParse parse
 
 toContext :: ∀ m. MonadGame m => Act -> ExceptT LByteString m Context
 toContext Act { user, skill, target } = do
