@@ -34,8 +34,7 @@ clean (Mission char goals) =
 
 -- | All missions.
 list :: [Mission]
-list = clean
-       <$> Mission.Missions.Shippuden.missions
+list = clean <$> Mission.Missions.Shippuden.missions
 {-# NOINLINE list #-}
 
 -- | Map of all missions objectives, from 'Character.ident's to 'Goal.goal's.

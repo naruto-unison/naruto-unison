@@ -16,10 +16,8 @@ data UsageRate = UsageRate { character :: Character
 instance Ord UsageRate where
     x `compare` y = mconcat [ winCompare
                             , pickRate y `compare` pickRate x
-                            , Character.category (character x) `compare`
-                              Character.category (character y)
-                            , Character.name (character x) `compare`
-                              Character.name (character y)
+                            , (compare `on` Character.category . character) x y
+                            , (compare `on` Character.name . character) x y
                             ]
       where
         xNaN = isNaN $ winRate x
