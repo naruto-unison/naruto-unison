@@ -115,7 +115,12 @@ app.ports.websocketSend.subscribe(msg => {
     if (conn === undefined) {
         conn = new WebSocket(document.URL.replace(/^http/g, "ws"))
         conn.onopen = x => conn.send(msg)
-        conn.onmessage = x => app.ports.websocketReceive.send(x.data)
+        conn.onmessage = x => {
+            const data = JSON.parse(x.data)
+            if (data.tag === "Fail")
+                console.log(`Received ${data.contents.tag}: ${data.contents.contents}`)
+            app.ports.websocketReceive.send(x.data)
+        }
     } else {
         conn.send(msg)
     }
