@@ -208,7 +208,7 @@ handleFailures :: ∀ m a. MonadSockets m => Either Client.Failure a -> m (Maybe
 handleFailures (Right val) = return $ Just val
 handleFailures (Left msg)  = Nothing <$ Client.send (Client.Fail msg)
 
--- | Sends messages through 'TChan's in 'App.App'. Requires authentication.
+-- | Sends messages through 'MVar's in 'App.App'. Requires authentication.
 gameSocket :: ∀ m. ( MonadHandler m, App ~ HandlerSite m
                    , MonadUnliftIO m
                    , MonadRandom m
