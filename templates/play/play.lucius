@@ -936,11 +936,13 @@ a.playButton::after {
 }
 
 #player0 {
-    left: 25px;
+    right: 50%;
+    padding-right: 200px;
     text-align: left;
 }
 #player1 {
-    right: 25px;
+    left: 50%;
+    padding-left: 200px;
     text-align: right;
 }
 #account1 .charicon, #player1 .charicon {
@@ -1131,6 +1133,8 @@ svg {
     left: 0;
     right: 0;
     text-align: center;
+    max-width: 1746px;
+    margin: auto;
 
     article {
         text-align: left;
@@ -1356,7 +1360,7 @@ svg {
     color: #fff !important;
 }
 
-@media (max-width: 1065px) {
+@media (max-width: 1173px) {
     .player {
         top: 125px;
 
@@ -1365,7 +1369,14 @@ svg {
         }
     }
 
+    #player0 {
+      right: unset;
+      left: 25px;
+    }
+
     #player1 {
+        left: unset;
+        right: 25px;
         width: 200px;
 
         .charhealth {
