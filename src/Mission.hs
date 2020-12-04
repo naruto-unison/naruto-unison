@@ -49,7 +49,7 @@ import           Util ((<$><$>), (!?), (∉))
 -- 'Character.ident' is used as the key.
 initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do
-    chars    <- entityVal <$><$> selectList [] []
+    chars <- entityVal <$><$> selectList [] []
     insertMany_ .
         filter (∉ chars) $ Character . Character.ident <$> Characters.list
     newChars <- selectList [] []
@@ -80,13 +80,12 @@ unlocked = cached do
     unlockAll <- getsYesod $ Settings.unlockAll . App.settings
     mwho <- Auth.maybeAuthId
     privilege <- App.getPrivilege
-    case mwho of
-        Just who | not unlockAll && privilege < Moderator -> do
-            ids     <- getsYesod App.characterIDs
-            unlocks <- runDB $ selectList [UnlockedUser ==. who] []
-            return . Unlocks $ getUnlocked ids unlocks
+    Unlocks <$> case mwho of
+        Just who | not unlockAll && privilege < Moderator ->
+            getUnlocked <$> getsYesod App.characterIDs
+                        <*> runDB (selectList [UnlockedUser ==. who] [])
         _ ->
-            return . Unlocks $ keysSet Characters.map
+            return $ keysSet Characters.map
 
 -- | 'Character.ident's of all Characters without DNA 'Character.price's.
 freeChars :: HashSet Text
@@ -134,23 +133,25 @@ updateProgress :: ∀ m. MonadIO m
                -> GoalIndex
                -> SqlPersistT m Bool -- ^ Returns True if the character unlocks.
 updateProgress who amount GoalIndex{goals, char, i} = case goals !? i of
-    Nothing   -> return False
+    Nothing -> return False
     Just goal
-      | Goal.spanning goal /= Career && amount < Goal.reach goal -> return False
+      | Goal.spanning goal /= Career && amount < Goal.reach goal ->
+          return False
+
       | otherwise -> do
-        alreadyUnlocked <- isJust <$> selectFirst unlockedChar []
-        if alreadyUnlocked then
-            return True
-        else do
-            void $
-                upsert (Mission who char i amount) [MissionProgress +=. amount]
-            objectives <- selectList missionChar []
-            if completed goals objectives then do
-                deleteWhere missionChar
-                insertUnique $ Unlocked who char
-                return True
-            else
-                return False
+          alreadyUnlocked <- isJust <$> selectFirst unlockedChar []
+          if alreadyUnlocked then
+              return True
+          else do
+              void $ upsert (Mission who char i amount)
+                            [MissionProgress +=. amount]
+              objectives <- selectList missionChar []
+              if completed goals objectives then do
+                  deleteWhere missionChar
+                  insertUnique $ Unlocked who char
+                  return True
+              else
+                  return False
   where
     unlockedChar = [UnlockedUser ==. who, UnlockedCharacter ==. char]
     missionChar  = [MissionUser ==. who, MissionCharacter ==. char]
@@ -308,10 +309,9 @@ outcomeDNA Queue.Quick Tie     = Settings.quickTie
 
 -- | Returns usage stats about all characters in the database.
 getUsageRates :: Handler [UsageRate]
-getUsageRates = do
-    ids <- getsYesod App.characterIDs
-    usages <- runDB $ selectList [] []
-    return $ mapMaybe (findUsage ids) usages
+getUsageRates =
+    mapMaybe . findUsage <$> getsYesod App.characterIDs
+                         <*> runDB (selectList [] [])
 
 -- | Matches a @Usage@ with a 'Character' from 'Characters.map'.
 findUsage :: Bimap CharacterId Text -> Entity Usage -> Maybe UsageRate

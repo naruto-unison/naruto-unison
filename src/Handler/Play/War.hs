@@ -25,9 +25,7 @@ vsAll :: ∀ a. [a] -> [(a, a)]
 vsAll xs = [(x,y) | x:ys <- tails xs, y <- ys]
 
 vsEach :: [[Group]] -> [(EnumSet Group, EnumSet Group)]
-vsEach xs = vs =<< xs
-  where
-    vs ys = vsAll $ singletonSet <$> ys
+vsEach xs = vsAll . (singletonSet <$>) =<< xs
 
 -- | Represented as an unboxed Vector not because it is direly
 -- performance-critical, but because unboxed Vectors have a neat trick of

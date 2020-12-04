@@ -58,8 +58,8 @@ getHomeR = do
     newsList  <- runDB $ traverse withAuthor
                          =<< selectList [] [Desc NewsTime, LimitTo 5]
     topics    <- runDB $ Forum.selectWithAuthors
-                 (Forum.filterTopics privilege [])
-                 [Desc ForumTopicTime, LimitTo 10]
+                         (Forum.filterTopics privilege [])
+                         [Desc ForumTopicTime, LimitTo 10]
     citelink  <- liftIO Link.cite
     App.lastModified $
         max (maybe epoch (forumTopicTime . citeVal) $ headMay topics)

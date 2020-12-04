@@ -135,11 +135,11 @@ apply n nt = adjustEffect <$>. filter keepEffects
 -- | Fills 'Ninja.effects' with the effects of 'Ninja.statuses', modified by
 -- 'NoIgnore', 'Seal', 'Boost', and so on.
 processEffects :: Ninja -> Ninja
-processEffects n = n { effects = baseStatuses >>= process }
+processEffects n = n { effects = process =<< baseStatuses }
   where
     nSlot         = slot n
     baseStatuses  = statuses n
-    unmodEffects  = baseStatuses >>= Status.effects
+    unmodEffects  = Status.effects =<< baseStatuses
     noIgnore      = NoIgnore ∈ unmodEffects
     baseEffects
       | noIgnore  = filter (not . Effect.isIgnore) unmodEffects
@@ -199,7 +199,7 @@ decr n@Ninja{..} = processAlternates $ processEffects n
     , traps     = mapMaybe TurnBased.decr traps
     , delays    = mapMaybe TurnBased.decr delays
     , newChans  = mempty
-    , copies    = (>>= TurnBased.decr) <$> copies
+    , copies    = (TurnBased.decr =<<) <$> copies
     , cooldowns = (max 0 . subtract 1) `omap` cooldowns
     , acted     = False
     }

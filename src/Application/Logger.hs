@@ -20,11 +20,12 @@ import qualified Yesod.Core.Types as YesodTypes
 import           Application.App (App(..))
 import qualified Application.App as App
 import qualified Application.Settings as Settings
+import           Util ((<$>.))
 
 getDateGetter :: IO () -> IO (IO ByteString)
 getDateGetter flusher = do
     (getter, updater) <- WaiLogger.clockDateCacher
-    _                 <- forkIO . forever $ do
+    void . forkIO . forever $ do
         threadDelay 1e6
         updater
         flusher
@@ -38,10 +39,8 @@ makeLogWare foundation
         , RequestLogger.destination =
             Logger . YesodTypes.loggerSet $ App.logger foundation
         }
-  | otherwise = do
-      dateGetter <- getDateGetter flusher
-      apache     <- WaiLogger.initLogger ipSrc callback dateGetter
-      return $ apacheMiddleware apache
+  | otherwise = apacheMiddleware <$>. WaiLogger.initLogger ipSrc callback
+                                  =<< getDateGetter flusher
   where
     ipSrc
       | Settings.ipFromHeader $ App.settings foundation = FromFallback
@@ -55,5 +54,6 @@ apacheMiddleware ala app req sendResponse = app req $ \res -> do
     case Wai.responseStatus res of
         Status 200 _ -> return ()
         Status 304 _ -> return ()
-        status       -> WaiLogger.apacheLogger ala req status . Header.contentLength $ Wai.responseHeaders res
+        status       -> WaiLogger.apacheLogger ala req status .
+                        Header.contentLength $ Wai.responseHeaders res
     sendResponse res

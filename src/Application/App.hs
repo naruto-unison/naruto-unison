@@ -116,16 +116,14 @@ type AppPersistEntity a = ( PersistEntity a
                           )
 
 getNavLinks :: Handler [(Route App, Html)]
-getNavLinks = do
-    showAdmin <- isAuthenticated Admin
-    return $ admin showAdmin
-      [ (HomeR,   "Home")
-      , (GuideR,  "Guide")
-      , (ForumsR, "Forums")
-      ]
+getNavLinks =
+    withAdmin [ (HomeR,   "Home")
+              , (GuideR,  "Guide")
+              , (ForumsR, "Forums")
+              ] <$> isAuthenticated Admin
   where
-    admin Authorized xs = xs ++ [(AdminR, "Admin")]
-    admin _          xs = xs
+    withAdmin xs Authorized = xs ++ [(AdminR, "Admin")]
+    withAdmin xs _          = xs
 
 origin :: Route App -> Route App
 origin BoardR{}     = ForumsR
@@ -157,8 +155,8 @@ unchanged304 :: Handler ()
 unchanged304 = return ()
 #else
 unchanged304 = whenM (isNothing <$> getMessage) $
-               setEtag . toStrict . display'
-               =<< maybeAdd <$> getsYesod timestamp <*> maybeAuthId
+               setEtag . toStrict . display' =<<
+               maybeAdd <$> getsYesod timestamp <*> maybeAuthId
   where
     maybeAdd x = maybe x $ (+ x) . Sql.fromSqlKey
 #endif
@@ -293,7 +291,7 @@ instance YesodBreadcrumbs App where
 instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend
     runDB :: ∀ a. SqlPersistT Handler a -> Handler a
-    runDB action = Sql.runSqlPool action =<< getsYesod connPool
+    runDB action = getsYesod connPool >>= Sql.runSqlPool action
     {-# INLINE runDB #-}
 
 liftDB :: ∀ m a. (MonadHandler m, App ~ HandlerSite m)
@@ -318,16 +316,14 @@ instance YesodAuth App where
 
     authenticate :: ∀ m. (MonadHandler m, App ~ HandlerSite m)
                  => Auth.Creds App -> m (AuthenticationResult App)
-    authenticate creds = liftDB do
-        x <- getBy $ UniqueUser ident
-        case x of
+    authenticate (Auth.credsIdent -> ident) = liftDB do
+        muser <- getBy $ UniqueUser ident
+        case muser of
             Just (Entity uid _) -> return $ Authenticated uid
-            Nothing -> do
-                UTCTime day _ <- liftIO getCurrentTime
-                who           <- insert $ Model.newUser ident Nothing day
-                return $ Authenticated who
-      where
-        ident = Auth.credsIdent creds
+            Nothing             -> Authenticated <$>.
+                                   insert . Model.newUser ident Nothing .
+                                   utctDay =<< liftIO getCurrentTime
+
     authPlugins :: App -> [AuthPlugin App]
     authPlugins app = AuthEmail.authEmail : extraAuthPlugins
         -- Enable authDummy login if enabled.
@@ -341,9 +337,8 @@ isAuthenticated level = do
     return case muser of
         Just (_, user)
           | userPrivilege user >= level -> Authorized
-        -- Should this maybe just return a 404?
-        Just _  -> Unauthorized "You are not authorized to access this page."
-        Nothing -> Unauthorized "You must login to access this page."
+          | otherwise -> Unauthorized "Access to this page is restricted."
+        Nothing -> AuthenticationRequired
 
 instance YesodAuthPersist App
 
@@ -401,21 +396,22 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
     getVerifyKey = liftDB . (join . (userVerkey <$>) <$>) . get
     setVerifyKey uid key = liftDB $ update uid [UserVerkey =. Just key]
     verifyAccount uid = liftDB do
-        mu <- get uid
-        case mu of
+        muser <- get uid
+        case muser of
           Nothing -> return Nothing
           Just _  -> do
                 update uid [UserVerified =. True]
                 return $ Just uid
     getPassword = liftDB . (join . (userPassword <$>) <$>) . get
     setPassword uid pass = liftDB $ update uid [UserPassword =. Just pass]
-    getEmailCreds email = liftDB do
-        mu <- getBy . UniqueUser $ toLower email
-        return $ mu <&> \(Entity uid u) -> AuthEmail.EmailCreds
-                { emailCredsId = uid
-                , emailCredsAuthId = Just uid
-                , emailCredsStatus = isJust $ userPassword u
-                , emailCredsVerkey = userVerkey u
-                , emailCredsEmail = toLower email
-                }
+    getEmailCreds email = liftDB $ makeCreds <$><$>
+                          (getBy . UniqueUser $ toLower email)
+      where
+        makeCreds (Entity uid u) =
+            AuthEmail.EmailCreds { emailCredsId = uid
+                                 , emailCredsAuthId = Just uid
+                                 , emailCredsStatus = isJust $ userPassword u
+                                 , emailCredsVerkey = userVerkey u
+                                 , emailCredsEmail = toLower email
+                                 }
     getEmail = liftDB . (userIdent <$>) <$>. get

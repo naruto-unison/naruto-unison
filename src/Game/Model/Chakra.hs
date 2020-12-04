@@ -54,12 +54,11 @@ instance ToMarkup Chakras where
     toMarkup = concatMap toMarkup . toList
 
 parse :: Parser Chakras
-parse = Chakras
-    <$> Parse.decimal
-    <*> (Parse.char ',' >> Parse.decimal)
-    <*> (Parse.char ',' >> Parse.decimal)
-    <*> (Parse.char ',' >> Parse.decimal)
-    <*> return 0
+parse = Chakras <$> Parse.decimal
+                <*> (Parse.char ',' >> Parse.decimal)
+                <*> (Parse.char ',' >> Parse.decimal)
+                <*> (Parse.char ',' >> Parse.decimal)
+                <*> return 0
 
 instance PathPiece Chakras where
     toPathPiece Chakras{..} = intercalate "," $ tshow <$> [blood, gen, nin, tai]

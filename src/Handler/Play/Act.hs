@@ -33,10 +33,9 @@ data Act = Act { user   :: Slot
                } deriving (Eq, Show, Read, Generic, ToJSON)
 
 parse :: Parser Act
-parse = Act
-    <$> Slot.parse
-    <*> (Parse.char ',' >> Parse.decimal)
-    <*> (Parse.char ',' >> Slot.parse)
+parse = Act <$> Slot.parse
+            <*> (Parse.char ',' >> Parse.decimal)
+            <*> (Parse.char ',' >> Slot.parse)
 
 instance PathPiece Act where
     toPathPiece Act{user, skill, target} =

@@ -61,9 +61,9 @@ getLikePostR forumLikePost = attemptMaybeT do
         Just (Entity likeId _) ->
             lift . runDB $ delete likeId
         Nothing -> do
-            lift . runDB . void $ insert ForumLike{ forumLikePost
-                                                  , forumLikeUser = who
-                                                  }
+            lift . runDB . void $ insert ForumLike { forumLikePost
+                                                   , forumLikeUser = who
+                                                   }
             empty
 
 getLike :: ∀ m. MonadIO m

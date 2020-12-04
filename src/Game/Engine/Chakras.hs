@@ -60,10 +60,10 @@ remove1 permitted = do
                 Game.chakra <$> P.game
     mRemoved <- R.choose chakras
     case mRemoved of
-        Nothing                            -> return 0
         Just (Chakra.toChakras -> removed) -> do
             P.alter $ Game.adjustChakra target (— removed)
             return removed
+        Nothing -> return 0
 
 -- | Adds as many random 'Chakra's as the number of living 'Ninja.Ninja's on the
 -- player's team to the player's 'Game.chakra'.

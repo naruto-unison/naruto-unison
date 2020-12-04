@@ -215,12 +215,11 @@ selectWithAuthors selectors opts = traverse go =<< selectList selectors opts
 
 getLikes :: ∀ m. MonadIO m
          => Maybe (Key User) -> Cite ForumPost -> SqlPersistT m LikedPost
-getLikes mwho likedPost =
-    LikedPost likedPost
-    <$> count [ForumLikePost ==. likedPostId]
-    <*> maybe (return False) ((isJust <$>) . getLike likedPostId) mwho
+getLikes mwho post = LikedPost post <$> count [ForumLikePost ==. likedPostId]
+                                    <*> maybe (return False) justLike mwho
   where
-    likedPostId = citeKey likedPost
+    likedPostId = citeKey post
+    justLike who = isJust <$> getLike likedPostId who
 
 -- | Displays a user's rank, or their 'Privilege' level if higher than 'Normal'.
 userRank :: User -> Text

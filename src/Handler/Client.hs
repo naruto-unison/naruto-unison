@@ -46,10 +46,10 @@ getUpdateR updateName updateCondense updateBackground updateAvatar
   | otherwise = do
     accId <- Auth.requireAuthId
     user  <- runDB $ updateGet accId [ UserName      =. updateName
-                                    , UserCondense   =. updateCondense
-                                    , UserBackground =. updateBackground''
-                                    , UserAvatar     =. updateAvatar
-                                    ]
+                                     , UserCondense   =. updateCondense
+                                     , UserBackground =. updateBackground''
+                                     , UserAvatar     =. updateAvatar
+                                     ]
     returnJson user
   where
     legalChars :: HashSet Char
@@ -119,10 +119,10 @@ getPlayR = do
         liftIO Random.createSystemRandom >>= runReaderT Play.gameSocket
     let team     = maybe []
                    (mapMaybe Characters.lookup . filter (∈ unlocked)) $
-                   muser >>= userTeam
+                   userTeam =<< muser
         practice = maybe [] (mapMaybe Characters.lookup . userPractice)
                    muser
-        bg       = fromMaybe "/img/bg/valley2.jpg" $ muser >>= userBackground
+        bg       = fromMaybe "/img/bg/valley2.jpg" $ userBackground =<< muser
         vol :: Text
         vol
           | isMuted muser = "click muted"

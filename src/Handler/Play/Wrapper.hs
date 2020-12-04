@@ -81,9 +81,10 @@ instance (MonadST m, s ~ PrimState m) => MonadHook (ReaderT (STWrapper s) m) whe
                        Tracker.trackTurn p ns ns'
 
 fromInfo :: ∀ s. GameInfo -> ST s (STWrapper s)
-fromInfo info = STWrapper <$> Tracker.fromInfo info
-                          <*> newRef (GameInfo.game info)
-                          <*> Vector.thaw (fromList $ GameInfo.ninjas info)
+fromInfo info =
+    STWrapper <$> Tracker.fromInfo info
+              <*> newRef (GameInfo.game info)
+              <*> Vector.thaw (fromList $ GameInfo.ninjas info)
 
 -- | Replaces 'gameRef' and 'ninjasRef' of the former with the latter.
 -- Does not affect 'tracker'.
@@ -134,15 +135,14 @@ freeze = Wrapper mempty <$> P.game <*> (fromList <$> P.ninjas)
 -- | The STWrapper may not be used after this operation.
 unsafeFreeze :: ∀ s. STWrapper s -> ST s Wrapper
 unsafeFreeze STWrapper{tracker, gameRef, ninjasRef} =
-    Wrapper
-    <$> Tracker.unsafeFreeze tracker
-    <*> readRef gameRef
-    <*> Vector.unsafeFreeze ninjasRef
+    Wrapper <$> Tracker.unsafeFreeze tracker
+            <*> readRef gameRef
+            <*> Vector.unsafeFreeze ninjasRef
 
 thaw :: ∀ s. Wrapper -> ST s (STWrapper s)
-thaw Wrapper{game, ninjas} = STWrapper Tracker.empty
-                             <$> newRef game
-                             <*> Vector.thaw ninjas
+thaw Wrapper{game, ninjas} =
+    STWrapper Tracker.empty <$> newRef game
+                            <*> Vector.thaw ninjas
 
 --  | Encodes game state into a form suitable for sending to the client.
 toTurn :: Player -> Wrapper -> Turn

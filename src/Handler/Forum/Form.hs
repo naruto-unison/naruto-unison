@@ -25,9 +25,8 @@ toBody (Textarea area) = Markdown area
 topic :: User -> ForumBoard -> UTCTime -> Key User
              -> AForm Handler NewTopic
 topic User{..} forumTopicBoard forumPostTime forumPostAuthor =
-    makeNewTopic
-    <$> areq textField "Title" Nothing
-    <*> areq textareaField "Post" Nothing
+    makeNewTopic <$> areq textField "Title" Nothing
+                 <*> areq textareaField "Post" Nothing
   where
     forumTopicAuthor   = forumPostAuthor
     forumTopicLatest   = forumPostAuthor
@@ -51,9 +50,8 @@ data PostForm
 
 post :: Key ForumTopic -> UTCTime -> Key User -> AForm Handler PostForm
 post forumPostTopic forumPostTime forumPostAuthor =
-    makePost
-    <$> aopt hiddenField "" Nothing
-    <*> areq textareaField "" Nothing
+    makePost <$> aopt hiddenField "" Nothing
+             <*> areq textareaField "" Nothing
   where
     forumPostLikes   = 0
     forumPostDeleted = False

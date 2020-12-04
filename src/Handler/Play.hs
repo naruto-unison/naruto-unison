@@ -77,9 +77,7 @@ separate = Parse.char separator
 data Team = Team Queue.Section [Character]
 
 parseTeam :: Parser Team
-parseTeam = Team
-    <$> parseSection
-    <*> parseCharacters
+parseTeam = Team <$> parseSection <*> parseCharacters
   where
     parseSection =
         Parse.string "private" $> Queue.Private
@@ -110,10 +108,9 @@ parseActs = separate >> Parse.sepBy Act.parse separate >>= guardLength
     guardLength xs          = return xs
 
 parseEnact :: Parser Enact
-parseEnact = Enact
-    <$> Chakra.parse
-    <*> (separate >> Chakra.parse)
-    <*> (parseActs <|> (Parse.endOfInput >> return []))
+parseEnact = Enact <$> Chakra.parse
+                   <*> (separate >> Chakra.parse)
+                   <*> (parseActs <|> (Parse.endOfInput >> return []))
 
 data ClientMessage
     = Forfeit
@@ -188,7 +185,7 @@ getPracticeActR spend exchange actions = do
     wrapper  <- liftST $ Wrapper.thaw game
 
     flip runReaderT rand $ flip runReaderT wrapper do
-        res  <- enact Enact{spend, exchange, actions}
+        res <- enact Enact{spend, exchange, actions}
         case res of
           Left errorMsg -> invalidArgs [tshow errorMsg]
           Right ()      -> do
