@@ -242,121 +242,21 @@ component ports =
 
                 _ ->
                     let
-                        wrapping =
-                            st.index + st.pageSize >= size st
-                        wrap =
-                            if st.stage == Practicing then
-                                identity
-
-                            else
-                                wraparound wrapping st.index
-
-                        displays =
-                            if st.condense then
-                                st.chars.groupList
-                                    |> wrap
-                                    >> List.map Nonempty.head
-
-                            else
-                                st.chars.list
-                                    |> wrap
-
-                        charClass char =
-                            -- god I wish this language had pattern guards
-                            let
-                                select =
-                                    case st.toggled of
-                                        Nothing ->
-                                            ""
-
-                                        Just toggled ->
-                                            if toggled == char then
-                                                "selected"
-
-                                            else
-                                                "deselected"
-
-                                lock =
-                                    if st.stage == Practicing then
-                                        ""
-
-                                    else if locked st.unlocked char then
-                                        if affordable st.user char then
-                                            "locked buy"
-
-                                        else
-                                            "locked"
-
-                                    else if
-                                        List.member char <|
-                                            case st.stage of
-                                                Practicing ->
-                                                    st.vs
-
-                                                _ ->
-                                                    st.team
-                                    then
-                                        "disabled"
-
-                                    else
-                                        ""
-                            in
-                            if String.isEmpty select && String.isEmpty lock then
-                                "char click"
-
-                            else
-                                String.join " " [ "char", select, lock ]
-
-                        ( topModule, teamOp ) =
+                        topModule =
                             case st.stage of
                                 Practicing ->
-                                    ( vsBox st, Vs )
+                                    vsBox
 
                                 Searching ->
-                                    ( searchBox st, Team )
+                                    searchBox
 
                                 _ ->
-                                    ( previewBox st, Team )
-
-                        displayChar char =
-                            let
-                                isRed = char |> belongsTo st.red
-                                isBlue = char |> belongsTo st.blue
-                            in
-                            ( characterName char
-                            , H.div [ A.class "charWrapper" ] <|
-                                icon char "icon"
-                                [ E.onMouseOver << Preview <| PreviewChar char
-                                , E.onClick <| teamOp Add char
-                                , A.class <| charClass char
-                                ] ::
-                                    if isRed && isBlue then
-                                        [ H.div [ A.class "redblue" ] [] ]
-                                    else if isRed then
-                                        [ H.div [ A.class "red"]  [] ]
-                                    else if isBlue then
-                                        [ H.div [ A.class "blue" ] [] ]
-                                    else
-                                        []
-                            )
+                                    previewBox
 
                     in
-                    [ topModule
-                    , H.section [ A.id "characterButtons"
-                                , A.classList
-                                  [ ( "parchment", True )
-                                  , ( "full", st.stage == Practicing )
-                                  ]
-                                ]
-                      [ Render.scroll "prevPage"
-                        (if st.index == 0 then "close" else "left") <| Page -1
-                      , Render.scroll "nextPage"
-                        (if wrapping then "close" else "right") <| Page 1
-                      , Keyed.node "div" [ A.id "charScroll"
-                                         , E.onMouseLeave Untoggle
-                                         ] <|
-                        List.map displayChar displays
-                        ]
+                    [ topModule st
+                    , listChars st
+                    , listVs st
                     ]
 
         withSound : Sound -> Model -> ( Model, Cmd Msg )
@@ -907,19 +807,11 @@ vsBox st =
 
 searchBox : Model -> Html Msg
 searchBox st =
-    let
-        meta =
-            if List.length st.vs == Game.teamSize then
-                [ A.class "parchment playButton click"
-                , E.onClick <| Enqueue Private
-                ]
-
-            else
-                [ A.class "parchment playButton" ]
-    in
     H.section [ A.id "vs", A.class "parchment" ] <|
     failWarning st.error
-    [ H.button meta
+    [ H.button [ A.class "parchment playButton click"
+               , E.onClick <| Enqueue Private
+               ]
       [ H.text "Ready" ]
     , H.button [ A.class "parchment playButton click"
                , E.onClick <| SetStage Browsing
@@ -1211,6 +1103,143 @@ previewSkill visibles char slot skills i =
             ]
 
 
+listChars : Model -> Html Msg
+listChars st =
+    let
+        wrapping =
+            st.index + st.pageSize >= size st
+        wrap =
+            wraparound wrapping st.index
+
+        displays =
+            if st.condense then
+                st.chars.groupList
+                    |> wrap
+                    >> List.map Nonempty.head
+
+            else
+                st.chars.list
+                    |> wrap
+
+        charClass char =
+            -- god I wish this language had pattern guards
+            let
+                select =
+                    case st.toggled of
+                        Nothing ->
+                            ""
+
+                        Just toggled ->
+                            if toggled == char then
+                                "selected"
+
+                            else
+                                "deselected"
+
+                lock =
+                    if locked st.unlocked char then
+                        if affordable st.user char then
+                            "locked buy"
+
+                        else
+                            "locked"
+
+                    else if
+                        List.member char st.team
+                    then
+                        "disabled"
+
+                    else
+                        ""
+            in
+            if String.isEmpty select && String.isEmpty lock then
+                "char click"
+
+            else
+                String.join " " [ "char", select, lock ]
+
+        displayChar char =
+            let
+                isRed = char |> belongsTo st.red
+                isBlue = char |> belongsTo st.blue
+            in
+            ( characterName char
+            , H.div [ A.class "charWrapper" ] <|
+                icon char "icon"
+                [ E.onMouseOver << Preview <| PreviewChar char
+                , E.onClick <| Team Add char
+                , A.class <| charClass char
+                ] ::
+                    if isRed && isBlue then
+                        [ H.div [ A.class "redblue" ] [] ]
+                    else if isRed then
+                        [ H.div [ A.class "red"]  [] ]
+                    else if isBlue then
+                        [ H.div [ A.class "blue" ] [] ]
+                    else
+                        []
+            )
+
+        baseAttrs =
+            [ A.class "chars", A.class "parchment", A.id "forTeam" ]
+
+        attrs =
+            if st.stage == Practicing then
+                A.style "display" "none" :: baseAttrs
+            else
+                baseAttrs
+
+    in
+    H.section attrs
+    [ Render.scroll "prevPage"
+      (if st.index == 0 then "close" else "left") <| Page -1
+    , Render.scroll "nextPage"
+      (if wrapping then "close" else "right") <| Page 1
+    , Keyed.node "div" [ A.id "teamScroll"
+                       , A.class "charScroll"
+                       , E.onMouseLeave Untoggle
+                       ] <|
+      List.map displayChar displays
+    ]
+
+
+listVs : Model -> Html Msg
+listVs st =
+    let
+        charClass char =
+            if List.member char st.vs then
+                "char disabled"
+
+            else
+                "char click"
+
+        displayChar char =
+            ( characterName char
+            , H.div [ A.class "charWrapper", A.title char.name ]
+                [ icon char "icon"
+                  [ E.onClick <| Vs Add char
+                  , A.class <| charClass char
+                  ]
+                ]
+            )
+
+        baseAttrs =
+            [ A.class "chars", A.class "parchment full", A.id "forVs" ]
+
+        attrs =
+            if st.stage /= Practicing then
+                A.style "display" "none" :: baseAttrs
+            else
+                baseAttrs
+    in
+    H.section attrs
+    [ Keyed.node "div" [ A.class "charScroll"
+                       , E.onMouseLeave Untoggle
+                       ] <|
+      List.map displayChar st.chars.list
+    ]
+
+
 calcSize : Dom.Viewport -> Int
 calcSize dom =
     floor (dom.viewport.width / 68) * floor (dom.viewport.height / 64)
@@ -1218,7 +1247,7 @@ calcSize dom =
 
 scrollTask : Int -> Task Dom.Error Int
 scrollTask signum =
-    Dom.getViewportOf "charScroll"
+    Dom.getViewportOf "teamScroll"
         |> Task.map ((*) signum << calcSize)
 
 

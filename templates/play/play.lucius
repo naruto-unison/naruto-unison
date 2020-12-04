@@ -1,8 +1,8 @@
-#characterButtons .selected, #characterButtons .char.click:hover, #charSelect > article > aside .char:hover {
+.chars .selected, .chars .char.click:hover, #charSelect > article > aside .char:hover {
     outline: 2px solid #0099ff !important;
     filter: none;
 }
-#characterButtons .selected, #characterButtons .char.click.selected:hover {
+.chars .selected, .chars .char.click.selected:hover {
     outline: 2px solid #ff0000 !important;
     filter: none;
 }
@@ -230,18 +230,15 @@ button.scroll:hover {
     outline-width: 2px;
 }
 
-#characterButtons, #vs {
+.chars, #vs {
     border: 9px solid #dc2e3c;
     -webkit-user-select: none;
     user-select: none;
 }
-#characterButtons {
-    border-left: none;
-    border-right: none;
+.chars {
     text-align: center;
     position: absolute;
     bottom: 30px;
-    height: 202px;
     left: 55px;
     right: 55px;
     padding: 5px;
@@ -266,19 +263,19 @@ button.scroll:hover {
         top: -17px;
     }
 }
-#characterButtons.full {
+#forTeam {
+    border-left: none;
+    border-right: none;
+    height: 202px;
+}
+#forVs {
     top: 250px;
     left: 0;
     right: 0;
-    height: revert;
 
-    #charScroll {
+    .charScroll {
         overflow-y: unset;
         margin-top: -3px;
-    }
-
-    button {
-        display: none;
     }
 }
 
@@ -452,7 +449,7 @@ button.scroll:hover {
 {
     filter: grayscale(0.8);
 }
-#charScroll {
+.charScroll {
     height: 100%;
     text-align: center;
     overflow: hidden;
@@ -1463,7 +1460,7 @@ svg {
     }
 }
 @media (max-height: 770px) {
-    #characterButtons {
+    .characters {
         bottom: 5px;
         height: 173px;
 
@@ -1510,21 +1507,21 @@ svg {
         line-height: 0.8em;
     }
 
-    #characterButtons {
+    .chars .char {
+        width: 45px;
+        height: 45px;
+    }
+
+    #forTeam {
         height: 104px;
         bottom: 10px;
 
         nav {
             display: none;
         }
-
-        .char {
-            width: 45px;
-            height: 45px;
-        }
     }
 
-    #charScroll {
+    .charScroll {
         overflow-y: scroll;
     }
 

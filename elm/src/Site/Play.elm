@@ -905,7 +905,7 @@ renderView visibles characters viewing =
                 , H.dt [] [ H.text "Duration" ]
                 , H.dd [] <| Render.duration "Permanent" x.dur
                 ] ++
-                if x.amount > 0 then
+                if x.amount > 1 then
                     [ H.dt [] [ H.text "Amount" ]
                     , H.dd [] [ H.text <| String.fromInt x.amount ]
                     ]

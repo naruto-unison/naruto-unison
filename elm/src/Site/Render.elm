@@ -108,10 +108,10 @@ icon char path attrs =
                 ++ ".jpg"
         alt =
             if path == "icon" then
-                "Character icon"
+                char.name
 
             else
-                "Skill icon"
+                path
     in
     H.img ([ A.src src, A.alt alt ] ++ attrs) []
 
