@@ -2,7 +2,7 @@
 {-# OPTIONS_HADDOCK hide     #-}
 
 -- | The [classy-prelude](https://hackage.haskell.org/package/classy-prelude)
--- package, but with "Data.NonNull" replaced by "Data.List.NonEmpty".
+-- package, but using "Data.List.NonEmpty" instead of "Data.NonNull".
 module ClassyPrelude
   ( module CP
   , module Data.List.NonEmpty

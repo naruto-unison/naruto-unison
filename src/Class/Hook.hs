@@ -43,7 +43,7 @@ class Monad m => MonadHook m where
     default trigger :: Lift MonadHook m
                     => Trigger -> Ninja -> m ()
     trigger x = lift . trigger x
-    {--# INLINE trigger #-}
+    {-# INLINE trigger #-}
     default turn :: Lift MonadHook m
                  => Player -> [Ninja] -> [Ninja] -> m ()
     turn p ns = lift . turn p ns
