@@ -22,6 +22,7 @@ import ClassyPrelude
 import Yesod
 
 import           Control.Monad.Logger (LogSource)
+import           Control.Monad.ST (stToIO)
 import           Data.Bimap (Bimap)
 import           Data.Cache (Cache)
 import qualified Data.CaseInsensitive as CaseInsensitive
@@ -44,7 +45,7 @@ import qualified Yesod.Auth as Auth
 import qualified Yesod.Auth.Dummy as Dummy
 import qualified Yesod.Auth.Email as AuthEmail
 import           Yesod.Auth.Email (YesodAuthEmail(..))
-import           Yesod.Core.Types (Logger)
+import           Yesod.Core.Types (HandlerFor(..), Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import qualified Yesod.Default.Util as YesodUtil
 -- Used only when [auth-dummy-login](config/settings.yml) setting is enabled.
@@ -55,6 +56,7 @@ import           Application.Model (CharacterId, EntityField(..), ForumPostId, F
 import qualified Application.Model as Model
 import           Application.Settings (Settings, widgetFile)
 import qualified Application.Settings as Settings
+import           Class.ST (MonadST(..))
 import           Game.Model.Chakra (Chakras)
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
@@ -96,6 +98,9 @@ data App = App
 -- type Handler = HandlerT App IO
 -- type Widget = WidgetT App IO ()
 mkYesodData "App" $(parseRoutesFile "config/routes")
+
+instance MonadST Handler where
+    liftST = HandlerFor . const . stToIO
 
 getPrivilege :: ∀ m. (MonadHandler m, App ~ HandlerSite m) => m Privilege
 getPrivilege = liftHandler . cached $

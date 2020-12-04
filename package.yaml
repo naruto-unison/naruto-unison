@@ -46,6 +46,7 @@ library:
   - persistent
   - persistent-postgresql
   - persistent-template
+  - primitive
   - random
   - shakespeare
   - template-haskell

@@ -35,6 +35,7 @@ import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import           Class.Sockets (MonadSockets)
 import qualified Class.Sockets as Sockets
+import           Class.ST (MonadST(..))
 import qualified Game.AI as AI
 import qualified Game.Characters as Characters
 import qualified Game.Engine as Engine
@@ -63,7 +64,7 @@ import qualified Handler.Play.Wrapper as Wrapper
 import qualified Handler.Queue as Queue
 import           Handler.Queue.Message (Response(Response))
 import qualified Mission
-import           Util ((∉), duplic, liftST)
+import           Util ((∉), duplic)
 
 -- * INPUT PARSING
 
@@ -212,6 +213,7 @@ handleFailures (Left msg)  = Nothing <$ Client.send (Client.Fail msg)
 gameSocket :: ∀ m. ( MonadHandler m, App ~ HandlerSite m
                    , MonadUnliftIO m
                    , MonadRandom m
+                   , MonadST m
                    ) => m ()
 gameSocket = webSockets do
     who      <- Auth.requireAuthId

@@ -23,17 +23,14 @@ import qualified Class.Play as P
 import qualified Class.Random
 import           Class.Random (MonadRandom)
 import           Class.Sockets (MonadSockets)
-import           Game.Model.Chakra (Chakras)
+import           Class.ST (MonadST(..))
 import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
-import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Slot as Slot
-import           Game.Model.Trap (Trap)
 import qualified Game.Model.Trap as Trap
-import           Game.Model.Trigger (Trigger)
 import           Handler.Play.GameInfo (GameInfo)
 import qualified Handler.Play.GameInfo as GameInfo
 import           Handler.Play.Tracker (Tracker)
@@ -41,7 +38,7 @@ import qualified Handler.Play.Tracker as Tracker
 import           Handler.Play.Turn (Turn)
 import qualified Handler.Play.Turn as Turn
 import           Mission.Progress (Progress)
-import           Util ((<$>.), (!!), liftST)
+import           Util ((!!))
 
 -- | This type is the core of the entire program. It is the environment of game
 -- processes and implements all of the user-defined monads.
@@ -52,19 +49,18 @@ data STWrapper s = STWrapper { tracker   :: Tracker s
 
 type IOWrapper = STWrapper RealWorld
 
-instance MonadGame (ReaderT (STWrapper s) (ST s)) where
-    game       = asks gameRef
-                 >>= lift . readRef
-    alter f    = asks gameRef
-                 >>= lift . flip modifyRef' f
-    ninjas     = asks ninjasRef
-                 >>= toList <$>. lift . Vector.freeze
-    ninja i    = asks ninjasRef
-                 >>= lift . flip MVector.unsafeRead (Slot.toInt i)
-    write i x  = asks ninjasRef
-                 >>= \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
-    modify i f = asks ninjasRef
-                 >>= \xs -> MVector.unsafeModify xs f $ Slot.toInt i
+askST :: ∀ m r a b. MonadST m
+      => (r -> a) -> (a -> ST (PrimState m) b) -> ReaderT r m b
+askST asker f = asks asker >>= liftST . f
+{-# INLINE askST #-}
+
+instance (MonadST m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) where
+    game       = askST gameRef readRef
+    alter f    = askST gameRef $ flip modifyRef' f
+    ninjas     = askST ninjasRef Vector.freeze <&> toList
+    ninja i    = askST ninjasRef $ flip MVector.unsafeRead (Slot.toInt i)
+    write i x  = askST ninjasRef \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
+    modify i f = askST ninjasRef \xs -> MVector.unsafeModify xs f $ Slot.toInt i
     {-# INLINE game #-}
     {-# INLINE alter #-}
     {-# INLINE ninjas #-}
@@ -72,68 +68,17 @@ instance MonadGame (ReaderT (STWrapper s) (ST s)) where
     {-# INLINE write #-}
     {-# INLINE modify #-}
 
-instance MonadIO m => MonadGame (ReaderT IOWrapper m) where
-    game       = asks gameRef
-                 >>= liftST . readRef
-    alter f    = asks gameRef
-                 >>= liftST . flip modifyRef' f
-    ninjas     = asks ninjasRef
-                 >>= toList <$>. liftIO . Vector.freeze
-    ninja i    = asks ninjasRef
-                 >>= liftIO . flip MVector.unsafeRead (Slot.toInt i)
-    write i x  = asks ninjasRef
-                 >>= liftIO . \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
-    modify i f = asks ninjasRef
-                 >>= liftIO . \xs -> MVector.unsafeModify xs f $ Slot.toInt i
-    {-# INLINE game #-}
-    {-# INLINE alter #-}
-    {-# INLINE ninjas #-}
-    {-# INLINE ninja #-}
-    {-# INLINE write #-}
-    {-# INLINE modify #-}
-
-trackAction :: ∀ s. Skill -> [Ninja] -> [Ninja] -> STWrapper s -> ST s ()
-trackAction skill ns ns' x =
-    Tracker.trackAction (Skill.name skill) ns ns' $ tracker x
-
-trackChakra :: ∀ s. Skill -> (Chakras, Chakras) -> (Chakras, Chakras)
-            -> STWrapper s -> ST s ()
-trackChakra skill chaks chaks' x =
-    Tracker.trackChakra (Skill.name skill) chaks chaks' $ tracker x
-
-trackTrap :: ∀ s. Trap -> Ninja -> STWrapper s -> ST s ()
-trackTrap tr n x =
-    Tracker.trackTrap (Trap.name tr) (Trap.user tr) n $ tracker x
-
-trackTrigger :: ∀ s. Trigger -> Ninja -> STWrapper s -> ST s ()
-trackTrigger tr n x = Tracker.trackTrigger tr n $ tracker x
-
-trackTurn :: ∀ s. Player -> [Ninja] -> [Ninja] -> STWrapper s -> ST s ()
-trackTurn p ns ns' x = Tracker.trackTurn p ns ns' $ tracker x
-
-lift2 :: ∀ m r a b c d. MonadReader r m
-         => (c -> m d) -> (a -> b -> r -> c) -> a -> b -> m d
-lift2 lifter f x y = ask >>= lifter . f x y
-{-# INLINE lift2 #-}
-
-lift3 :: ∀ m r a b c d e. MonadReader r m
-         => (d -> m e) -> (a -> b -> c -> r -> d) -> a -> b -> c -> m e
-lift3 lifter f x y z = ask >>= lifter . f x y z
-{-# INLINE lift3 #-}
-
-instance MonadHook (ReaderT (STWrapper s) (ST s)) where
-    action  = lift3 lift trackAction
-    chakra  = lift3 lift trackChakra
-    trap    = lift2 lift trackTrap
-    trigger = lift2 lift trackTrigger
-    turn    = lift3 lift trackTurn
-
-instance MonadIO m => MonadHook (ReaderT IOWrapper m) where
-    action  = lift3 liftST trackAction
-    chakra  = lift3 liftST trackChakra
-    trap    = lift2 liftST trackTrap
-    trigger = lift2 liftST trackTrigger
-    turn    = lift3 liftST trackTurn
+instance (MonadST m, s ~ PrimState m) => MonadHook (ReaderT (STWrapper s) m) where
+    action sk ns ns' = askST tracker $
+                       Tracker.trackAction (Skill.name sk) ns ns'
+    chakra sk ch ch' = askST tracker $
+                       Tracker.trackChakra (Skill.name sk) ch ch'
+    trap tr targ     = askST tracker $
+                       Tracker.trackTrap (Trap.name tr) (Trap.user tr) targ
+    trigger tr targ  = askST tracker $
+                       Tracker.trackTrigger tr targ
+    turn p ns ns'    = askST tracker $
+                       Tracker.trackTurn p ns ns'
 
 fromInfo :: ∀ s. GameInfo -> ST s (STWrapper s)
 fromInfo info = STWrapper <$> Tracker.fromInfo info

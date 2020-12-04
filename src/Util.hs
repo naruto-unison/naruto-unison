@@ -10,7 +10,6 @@ module Util
   , getCurrentWeek
   , hushedParse
   , intersects
-  , liftST
   , mapFromKeyed
   , commas
   , shorten, unaccent
@@ -18,7 +17,6 @@ module Util
 
 import ClassyPrelude
 
-import Control.Monad.ST (ST, stToIO)
 import Control.Monad.Trans.Class (MonadTrans)
 import Data.Attoparsec.Text (Parser, notInClass, parseOnly)
 import Data.Kind (Type)
@@ -107,11 +105,6 @@ getCurrentWeek = getWeek <$> getCurrentTime
 intersects :: ∀ a. SetContainer a => a -> a -> Bool
 xs `intersects` ys = not . null $ intersection xs ys
 {-# INLINE intersects #-}
-
--- | @'liftIO' . 'stToIO'
-liftST :: ∀ m a. MonadIO m => ST RealWorld a -> m a
-liftST = liftIO . stToIO
-{-# INLINE liftST #-}
 
 -- | Creates a map from a list using a projection function.
 mapFromKeyed :: ∀ map a. IsMap map
