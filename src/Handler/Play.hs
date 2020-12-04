@@ -222,34 +222,34 @@ gameSocket = webSockets do
         handleFailures =<< runExceptT do
             Team section team <- either (throwE . Client.InvalidTeam)
                                  return . Parse.parseOnly parseTeam =<<
-                                 Sockets.receive
+                                 Sockets.receive {-! BLOCKS !-}
 
             let teamNames = Character.ident <$> team
                 locked = filter (∉ unlocked) teamNames
             when (not $ null locked) . throwE $ Client.Locked locked
             liftDB $ update who [UserTeam =. Just teamNames]
 
-            queued <- Queue.queue section team
+            queued <- Queue.queue section team {-! BLOCKS !-}
             return (section, teamNames, queued)
 
     Client.send $ Client.Info info
     let player = GameInfo.player info
 
     game <- liftST (Wrapper.fromInfo info) >>= runReaderT do
-        when (player == Player.A) $ tryEnact settings player mvar
+        when (player == Player.A) $ tryEnact settings player mvar {-! BLOCKS !-}
 
         whileM (Game.inProgress <$> P.game) do
-            wrapper <- takeMVar mvar
+            wrapper <- takeMVar mvar {-! BLOCKS !-}
 
             if Game.inProgress $ Wrapper.game wrapper then do
                 Client.send . Client.Play $ Wrapper.toTurn player wrapper
                 liftST . Wrapper.replace wrapper =<< ask
-                tryEnact settings player mvar
+                tryEnact settings player mvar {-! BLOCKS !-}
                 game <- P.game
 
                 unless (Game.inProgress game) . liftDB . void $ forkIO do
                     match <- Match.load . Match.fromGame game player who $
-                              GameInfo.vsWho info
+                             GameInfo.vsWho info
                     mapM_ Rating.update match
             else
                 liftST . Wrapper.replace wrapper =<< ask
@@ -302,17 +302,17 @@ tryEnact settings player mvar = do
     lock <- newEmptyMVar
 
     liftIO $ forkIO do
-        threadDelay $ Settings.turnLength settings
+        threadDelay $ Settings.turnLength settings {-! BLOCKS !-}
         void $ tryPutMVar lock TimedOut
 
     forkIO do
-        tryMessage <- try Sockets.receive
+        tryMessage <- try Sockets.receive {-! BLOCKS !-}
         void $ tryPutMVar lock case tryMessage of
             Left err      -> SocketException err
             Right message -> either (const $ Malformed message) Received $
                              Parse.parseOnly parseMessage message
 
-    enactMessage <- readMVar lock
+    enactMessage <- readMVar lock {-! BLOCKS !-}
 
     case enactMessage of
         Received Forfeit ->
@@ -351,7 +351,7 @@ tryEnact settings player mvar = do
 
     wrapper <- Wrapper.freeze
     Client.send . Client.Play $ Wrapper.toTurn player wrapper
-    putMVar mvar wrapper
+    putMVar mvar wrapper -- this should never block
 
 -- | Processes a user's actions and passes them to 'Engine.run'.
 enact :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)

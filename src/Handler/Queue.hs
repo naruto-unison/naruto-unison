@@ -64,8 +64,8 @@ quickManager App{quick} = forever do
 
         (mvar, gameA, gameB) <- Random.createSystemRandom >>= runReaderT
                                 (makeGame whoA userA teamA whoB userB teamB)
-        putMVar chanA $ Message.Response mvar gameA
-        putMVar chanB $ Message.Response mvar gameB
+        putMVar chanA $ Message.Response mvar gameA -- this will not block
+        putMVar chanB $ Message.Response mvar gameB -- this will not block
         HashTable.delete quick whoA
         HashTable.delete quick whoB
 
@@ -87,12 +87,12 @@ queue Quick team = do
         chan   <- newEmptyMVar
         joined <- getSystemTime
         void $ HashTable.insert quick who UserInfo { user, team, joined, chan }
-        takeMVar chan
+        takeMVar chan {-! BLOCKS !-}
 
 queue Private team = do
     (who, user)         <- Auth.requireAuthPair
     Entity vsWho vsUser <- do
-        vsName <- Sockets.receive
+        vsName <- Sockets.receive {-! BLOCKS !-}
         mVs    <- liftDB $ selectFirst [UserName ==. vsName] []
         case mVs of
             Just (Entity vsWho _) | vsWho == who -> throwE Client.NotFound
@@ -105,8 +105,8 @@ queue Private team = do
         dupTChan writer
 
     untilJust do
-      msg <- liftIO . atomically $ readTChan reader
-      Client.ping
+      msg <- liftIO . atomically $ readTChan reader {-! BLOCKS !-}
+      Client.ping {-! BLOCKS !-}
       case msg of
         Message.Respond mWho response
           | mWho == who && GameInfo.vsWho (Message.info response) == vsWho ->
