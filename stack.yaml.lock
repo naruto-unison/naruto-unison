@@ -12,15 +12,15 @@ packages:
   original:
     hackage: concurrent-hashtable-0.1.8
 - completed:
-    hackage: bitwise-enum-1.0.0.1@sha256:ba6ec1181970c2dc36c2e731e30c63a09e998b6950f8c0e0a84c972dadf5934d,2833
+    hackage: bitwise-enum-1.0.0.3@sha256:065c85312dd9fb2e3b2a4205d0ce29a3e80cf831efb76ab3b60f4f0bb37a39e6,2833
     pantry-tree:
-      size: 461
-      sha256: d2d60b9e3a93eed56067f7022e1833ed36ddd75594e73bcacfa9684d20d141ac
+      size: 508
+      sha256: 0b655ba37460897e5f14ddc9beb87ca26fafa44946a05774328e52417e17c301
   original:
-    hackage: bitwise-enum-1.0.0.1
+    hackage: bitwise-enum-1.0.0.3
 snapshots:
 - completed:
-    size: 532832
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/23.yaml
-    sha256: fbb2a0519008533924c7753bd7164ddd1009f09504eb06674acad6049b46db09
-  original: lts-16.23
+    size: 533053
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/28.yaml
+    sha256: a9c01d860ac8dfb3a1b6f7ec4a36dd9504a95392b89c99b0877da63fa36a8e97
+  original: lts-16.28

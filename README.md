@@ -110,7 +110,7 @@ This postscript was added because several of the people interacting with this pr
 
 #### IDEs
 
-The recommended IDE is [Visual Studio Code](https://code.visualstudio.com/)  with the [Haskell Language Server](https://marketplace.visualstudio.com/items?itemName=alanz.vscode-hie-server) extension for [haskell-ide-engine](https://github.com/haskell/haskell-ide-engine). Alternatively, Emacs has [various Haskell plugins](https://wiki.haskell.org/Emacs).
+The recommended IDE is [Visual Studio Code](https://code.visualstudio.com/)  with the [Haskell](https://marketplace.visualstudio.com/items?itemName=haskell.haskell) extension. Alternatively, Emacs has [various Haskell plugins](https://wiki.haskell.org/Emacs).
 
 #### Getting Started with Haskell
 
