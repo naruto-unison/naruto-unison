@@ -70,8 +70,8 @@ initDB = do
 makeFoundation :: Settings -> IO App
 makeFoundation settings = do
     httpManager <- TLS.getGlobalManager
-    logger      <- DefaultConfig.makeYesodLogger
-                   =<< FastLogger.newStdoutLoggerSet FastLogger.defaultBufSize
+    loggerSet   <- FastLogger.newStdoutLoggerSet FastLogger.defaultBufSize
+    logger      <- DefaultConfig.makeYesodLogger loggerSet
     static      <- staticMode $ Settings.staticDir settings
     quick       <- HashTable.newWithDefaults $
                    Settings.queueTableSizeHint settings

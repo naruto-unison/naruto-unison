@@ -65,7 +65,6 @@ import           Handler.Play.Wrapper (Wrapper)
 import qualified Handler.Queue.Message as Message
 import           Handler.Queue.UserInfo (UserInfo)
 import           OrphanInstances.Character ()
-import           Util ((<$><$>), (<$>.))
 
 #ifndef DEVELOPMENT
 import           Class.Display (display')
@@ -199,8 +198,10 @@ instance Yesod App where
         mmsg             <- getMessage
         mcurrentRoute    <- getCurrentRoute
         (title, parents) <- breadcrumbs
-        muser            <- snd <$><$> Auth.maybeAuthPair
+        mauth            <- Auth.maybeAuthPair
         navLinks         <- getNavLinks
+
+        let muser = snd <$> mauth
 
         pc <- widgetToPageContent do
             setTitle . toHtml $ title ++ " - Naruto Unison"
@@ -320,9 +321,10 @@ instance YesodAuth App where
         muser <- getBy $ UniqueUser ident
         case muser of
             Just (Entity uid _) -> return $ Authenticated uid
-            Nothing             -> Authenticated <$>.
-                                   insert . Model.newUser ident Nothing .
-                                   utctDay =<< liftIO getCurrentTime
+            Nothing -> do
+                time <- liftIO getCurrentTime
+                user <- insert $ Model.newUser ident Nothing (utctDay time)
+                return $ Authenticated user
 
     authPlugins :: App -> [AuthPlugin App]
     authPlugins app = AuthEmail.authEmail : extraAuthPlugins

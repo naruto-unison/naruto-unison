@@ -42,14 +42,15 @@ import qualified Mission.Missions as Missions
 import           Mission.Progress (Progress(..))
 import           Mission.UsageRate (UsageRate)
 import qualified Mission.UsageRate as UsageRate
-import           Util ((<$><$>), (!?), (∉))
+import           Util ((!?), (∉))
 
 -- | Starts up the mission database by mapping every Character to a database
 -- ID. Returns the map, which goes into 'App.characterIDs'.
 -- 'Character.ident' is used as the key.
 initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do
-    chars <- entityVal <$><$> selectList [] []
+    charEntities <- selectList [] []
+    let chars = entityVal <$> charEntities
     insertMany_ .
         filter (∉ chars) $ Character . Character.ident <$> Characters.list
     newChars <- selectList [] []
@@ -62,7 +63,7 @@ characterID name = Bimap.lookupR name =<< getsYesod App.characterIDs
 -- | Processes the database list of characters into a map between IDs and
 -- 'Character.ident'.
 makeMap :: [Entity Character] -> Bimap CharacterId Text
-makeMap chars = Bimap.fromList . mapMaybe maybePair $ chars
+makeMap chars = Bimap.fromList $ mapMaybe maybePair chars
   where
     maybePair (Entity charId Character{characterName}) =
         (charId, ) . Character.ident <$> Characters.lookup characterName
@@ -111,7 +112,7 @@ userMission char = fromMaybe mempty <$> runMaybeT do
     who     <- MaybeT Auth.maybeAuthId
     charID  <- characterID char
     mission <- MaybeT . return $ lookup char Missions.map
-    (Just . zip mission <$>) . lift $ runDB do
+    objectives <- lift $ runDB do
         alreadyUnlocked <-
             selectFirst [UnlockedUser ==. who, UnlockedCharacter ==. charID] []
         if isJust alreadyUnlocked then
@@ -119,6 +120,7 @@ userMission char = fromMaybe mempty <$> runMaybeT do
         else
             setObjectives mission <$>
                 selectList [MissionUser ==. who, MissionCharacter ==. charID] []
+    return . Just $ zip mission objectives
 
 -- | If @i >= length goals@, this will do nothing.
 data GoalIndex = GoalIndex { goals :: Seq Goal

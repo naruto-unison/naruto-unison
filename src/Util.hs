@@ -1,7 +1,6 @@
 -- | Lightweight helper functions.
 module Util
   ( (!?), (!!)
-  , (<$>.), (<$><$>)
   , (—)
   , (∈), (∉)
   , Lift
@@ -36,12 +35,6 @@ infixl 9 !!
 (!!) = unsafeIndex
 {-# INLINE (!!) #-}
 
--- | @('.') . 'fmap'@
-infixr 9 <$>.
-(<$>.) :: ∀ f a b c. Functor f => (a -> c) -> (b -> f a) -> b -> f c
-(<$>.) = (.) . (<$>)
-{-# INLINE (<$>.) #-}
-
 -- | '-' allowing for sections.
 infixl 6 —
 (—) :: ∀ a. Num a => a -> a -> a
@@ -59,12 +52,6 @@ infix 4 ∉
 (∉) :: ∀ o. (MonoFoldable o, Eq (Element o)) => Element o -> o -> Bool
 (∉) = notElem
 {-# INLINE (∉) #-}
-
--- | @'fmap' . 'fmap'@.
-infixl 4 <$><$>
-(<$><$>) :: ∀ f g a b. (Functor f, Functor g) => (a -> b) -> f (g a) -> f (g b)
-(<$><$>) = fmap . fmap
-{-# INLINE (<$><$>) #-}
 
 -- | Divides a list of @Text@s into a single, comma-separated @Text@ ended
 -- with a provided conjunction.

@@ -20,7 +20,6 @@ import qualified Yesod.Core.Types as YesodTypes
 import           Application.App (App(..))
 import qualified Application.App as App
 import qualified Application.Settings as Settings
-import           Util ((<$>.))
 
 getDateGetter :: IO () -> IO (IO ByteString)
 getDateGetter flusher = do
@@ -39,8 +38,10 @@ makeLogWare foundation
         , RequestLogger.destination =
             Logger . YesodTypes.loggerSet $ App.logger foundation
         }
-  | otherwise = apacheMiddleware <$>. WaiLogger.initLogger ipSrc callback
-                                  =<< getDateGetter flusher
+  | otherwise = do
+        dateGetter <- getDateGetter flusher
+        wai        <- WaiLogger.initLogger ipSrc callback dateGetter
+        return $ apacheMiddleware wai
   where
     ipSrc
       | Settings.ipFromHeader $ App.settings foundation = FromFallback

@@ -32,7 +32,7 @@ import qualified Handler.Play.War as War
 import qualified Mission
 import           Mission.Goal (Goal)
 import qualified Mission.Goal as Goal
-import           Util ((<$><$>), (∈), (∉), shorten)
+import           Util ((∈), (∉), shorten)
 
 -- | Updates a user's profile and returns it. Requires authentication.
 getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
@@ -77,9 +77,9 @@ unzipGoal (goal, progress) =
 
 -- | Returns progress on a character's mission as a list of 'ObjectiveProgress'.
 getMissionR :: Character -> Handler Value
-getMissionR char =
-    returnJson . maybe mempty (unzipGoal <$>)
-    =<< Mission.userMission (Character.ident char)
+getMissionR char = do
+    mission <- Mission.userMission $ Character.ident char
+    returnJson $ maybe mempty (unzipGoal <$>) mission
 
 -- | Updates a user's muted status and returns it. Requires authentication.
 getMuteR :: Bool -> Handler Value
@@ -110,9 +110,10 @@ getReanimateR char = do
 -- | Renders the gameplay client.
 getPlayR :: Handler Html
 getPlayR = do
-    muser       <- snd <$><$> Auth.maybeAuthPair
+    mauth       <- Auth.maybeAuthPair
     unlocked    <- Mission.unlocked
     (red,blue)  <- liftIO War.today
+    let muser = snd <$> mauth
     when (isJust muser) $
         liftIO Random.createSystemRandom >>= runReaderT Play.gameSocket
     let team     = maybe []

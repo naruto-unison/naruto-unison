@@ -78,7 +78,7 @@ import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((<$>.), (—), (!?), (∈), (∉), intersects)
+import           Util ((—), (!?), (∈), (∉), intersects)
 
 headOr :: ∀ a. a -> [a] -> a
 headOr x []    = x
@@ -125,7 +125,7 @@ skills n = catMaybes $ flip getSkill n <$> [0..Ninja.numSkills n - 1]
 -- | Modifies @Effect@s when they are first added to a @Ninja@ due to @Effect@s
 -- already added.
 apply :: Ninja -> Ninja -> [Effect] -> [Effect]
-apply n nt = adjustEffect <$>. filter keepEffects
+apply n nt fs = adjustEffect <$> filter keepEffects fs
   where
     adjustEffect (Reduce cla Flat x) = Reduce cla Flat $ x - Effects.unreduce n
     adjustEffect f                   = f

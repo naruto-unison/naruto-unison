@@ -36,7 +36,7 @@ import qualified Handler.Link as Link
 import qualified Handler.Parse as Parse
 import qualified Mission
 import qualified Mission.Goal as Goal
-import           Util ((<$><$>), (∈), epoch, shorten)
+import           Util ((∈), epoch, shorten)
 
 -- | Renders the changelog.
 getChangelogR :: Handler Html
@@ -68,7 +68,9 @@ getHomeR = do
         $(widgetFile "home/home")
   where
     change = getChangelog False
-    withAuthor (Entity _ new) = (new, ) <$><$> get $ newsAuthor new
+    withAuthor (Entity _ new) = do
+        author <- get $ newsAuthor new
+        return (new, author)
 
 data LogType
     = Balance
