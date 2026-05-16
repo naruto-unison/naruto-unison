@@ -186,7 +186,6 @@ default-extensions:
 - DefaultSignatures
 # Literals
 - NegativeLiterals
-- NumDecimals
 # Unfortunate necessities
 - OverloadedStrings
 # Here Be Dragons

@@ -124,7 +124,7 @@ instance FromJSON Settings where
         databaseConf           <- o .: "database"
         dnaConf                <- o .: "dna"
         root                   <- o .:? "approot"
-        host                   <- fromString <$> o .: "host"
+        host                   <- o .: "host"
         port                   <- o .: "port"
         ipFromHeader           <- o .: "ip-from-header"
 
@@ -142,21 +142,21 @@ instance FromJSON Settings where
         authDummyLogin         <- o .:? "auth-dummy-login" .!= dev
 
         unlockAll              <- o .:? "unlock-all"       .!= dev
-        turnLength             <- (* 1e6) <$> o .: "turn-length"
-        practiceCacheExpiry    <- (* 1e9) <$> o .: "practice-cache-expiry"
+        turnLength             <- o .: "turn-length"
+        practiceCacheExpiry    <- o .: "practice-cache-expiry"
         forfeitAfterSkips      <- o .: "forfeit-after-skips"
         queueTableSizeHint     <- o .: "queue-table-size-hint"
         return Settings
             { unlockAll
-            , turnLength
-            , practiceCacheExpiry
+            , turnLength          = 1_000_000 * turnLength
+            , practiceCacheExpiry = 1_000_000_000 * practiceCacheExpiry
+            , host                = fromString host
             , forfeitAfterSkips
             , queueTableSizeHint
             , staticDir
             , databaseConf
             , dnaConf
             , root
-            , host
             , port
             , ipFromHeader
             , detailedRequestLogging
