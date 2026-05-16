@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-{-# LANGUAGE DeriveAnyClass #-}
 
 -- | 'Ninja' is defined in "Game.Model.Internal" as the basis for the majority
 -- of functions in other @Game.Model@ modules, but its JSON encoding requires
@@ -28,7 +27,9 @@ import           Util ((∈), (∉))
 -- | From 'Effect.Face'. Used only as an encoding intermediary.
 data Face = Face { icon :: Text
                  , user :: Slot
-                 } deriving (Eq, Show, Read, Generic, ToJSON)
+                 } deriving (Eq, Show, Read, Generic)
+
+instance ToJSON Face
 
 -- | Generates a 'Face' from the most recent 'Effect.Face' in 'statuses'.
 statusFace :: Status -> Face

@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveAnyClass  #-}
 {-# LANGUAGE OverloadedLists #-}
 
 module Handler.Play.War
@@ -58,7 +57,9 @@ participant war char = war `intersects` Character.groups char
 
 -- | You ever wonder why we're here?
 data War = Red | Blue
-           deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
+           deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+
+instance ToJSON War
 
 opponent :: War -> War
 opponent Red  = Blue

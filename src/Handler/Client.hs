@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveAnyClass  #-}
 {-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
 
@@ -64,7 +63,9 @@ data ObjectiveProgress =
                       , desc      :: Text
                       , goal      :: Int
                       , progress  :: Int
-                      } deriving (Eq, Ord, Show, Read, Generic, ToJSON)
+                      } deriving (Eq, Ord, Show, Read, Generic)
+
+instance ToJSON ObjectiveProgress
 
 -- | Unpacks the output of 'Mission.userMission'.
 unzipGoal :: (Goal, Int) -> ObjectiveProgress

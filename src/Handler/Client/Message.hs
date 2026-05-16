@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-
 -- | Handles API routes and WebSockets related to gameplay.
 module Handler.Client.Message
     ( Failure(..)
@@ -27,7 +25,9 @@ data Failure
     | InvalidTeam String
     | Locked [Text]
     | NotFound
-    deriving (Eq, Ord, Show, Read, Generic, ToJSON)
+    deriving (Eq, Ord, Show, Read, Generic)
+
+instance ToJSON Failure
 
 -- | A message sent through the websocket to the client.
 -- This definition is exported so that @elm-bridge@ sends it over to the client.
@@ -37,7 +37,9 @@ data Message
     | Ping
     | Play Turn
     | Rewards [Reward]
-    deriving (Generic, ToJSON)
+    deriving (Generic)
+
+instance ToJSON Message
 
 send :: ∀ m. MonadSockets m => Message -> m ()
 send x = Sockets.send . Encoding.encodingToLazyByteString $ toEncoding x

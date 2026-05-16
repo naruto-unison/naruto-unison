@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-
 -- | Handles API routes and WebSockets related to gameplay.
 module Handler.Play
     ( getPracticeActR, getPracticeQueueR, getPracticeWaitR

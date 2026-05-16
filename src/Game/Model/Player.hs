@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-
 module Game.Model.Player
   ( Player(..)
   , opponent
@@ -14,7 +12,9 @@ import qualified Class.Parity as Parity
 
 data Player
     = A | B
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+
+instance ToJSON Player
 
 instance Parity Player where
     even A = True

@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
 
 module Game.Model.Trigger
   ( Trigger(..)
@@ -39,7 +38,9 @@ data Trigger
     | OnStun
     | OnStunned
     | PerDamaged
-    deriving (Eq, Ord, Show, Read, Generic, Hashable)
+    deriving (Eq, Ord, Show, Read, Generic)
+
+instance Hashable Trigger
 
 instance ToJSON Trigger where
     toJSON = toJSON . display'

@@ -1,5 +1,4 @@
 {-# OPTIONS_HADDOCK hide, not-home #-}
-{-# LANGUAGE DeriveAnyClass        #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 
 module Game.Model.Internal where
@@ -44,6 +43,7 @@ data Barrier = Barrier { amount :: Int
                        , finish :: Int -> Runnable Context
                        , dur    :: Duration
                        }
+
 instance ToJSON Barrier where
     toJSON Barrier { amount, user, name, dur } = object
         [ "amount" .= amount
@@ -57,14 +57,18 @@ data Bomb
     = Done   -- ^ Applied with both 'Expire' and 'Remove'
     | Expire -- ^ Applied when a 'Status' reaches the end of its duration.
     | Remove -- ^ Applied when a 'Status' is removed prematurely
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+
+instance ToJSON Bomb
 
 -- | 'Original', 'Shippuden', or 'Reanimated'.
 data Category
     = Original
     | Shippuden
     | Reanimated
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+
+instance ToJSON Category
 
 instance ToMarkup Category where
     toMarkup Original   = mempty
@@ -84,7 +88,9 @@ instance PathPiece Category where
 data Channel = Channel { skill  :: Skill
                        , target :: Slot
                        , dur    :: Channeling
-                       } deriving (Generic, ToJSON)
+                       } deriving (Generic)
+
+instance ToJSON Channel
 
 -- | Types of channeling for 'Skill's.
 data Channeling
@@ -93,7 +99,9 @@ data Channeling
     | Action  Duration
     | Control Duration
     | Ongoing Duration
-    deriving (Eq, Ord, Show, Read, Generic, ToJSON)
+    deriving (Eq, Ord, Show, Read, Generic)
+
+instance ToJSON Channeling
 
 instance ToMarkup Channeling where
     toMarkup (Action Permanent)  = "Action"
@@ -112,7 +120,9 @@ data Character = Character { name     :: Text
                            , skills   :: NonEmpty (NonEmpty Skill)
                            , price    :: Int
                            , category :: Category
-                           } deriving (Generic, ToJSON)
+                           } deriving (Generic)
+
+instance ToJSON Character
 
 instance Eq Character where
     (==) = (==) `on` \Character{ name, category } -> (name, category)
@@ -120,7 +130,9 @@ instance Eq Character where
 -- | A 'Skill' copied from a different character.
 data Copy = Copy { skill :: Skill
                  , dur   :: Duration
-                 } deriving (Generic, ToJSON)
+                 } deriving (Generic)
+
+instance ToJSON Copy
 
 -- | Applies an effect after several turns.
 data Delay = Delay { effect :: Runnable Context
@@ -131,21 +143,28 @@ data Direction
     = Toward
     | From
     | Per
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+
+instance ToJSON Direction
 
  -- Used for 'Game.Ninja.cooldowns' and 'Game.Ninja.charges'.
  -- Generated from a 'Skill'.
 data Key = Key Text Slot
-           deriving (Eq, Ord, Show, Read, Generic, Hashable)
+           deriving (Eq, Ord, Show, Read, Generic)
+
+instance Hashable Key
+
 toText :: Key -> Text
 toText (Key x y) = Slot.toChar y `cons` x
 {-# INLINE toText #-}
+
 instance ToJSON Key where
-  toJSON = toJSON . toText
-  {-# INLINE toJSON #-}
+    toJSON = toJSON . toText
+    {-# INLINE toJSON #-}
+
 instance ToJSONKey Key where
-  toJSONKey = toJSONKeyText toText
-  {-# INLINE toJSONKey #-}
+    toJSONKey = toJSONKeyText toText
+    {-# INLINE toJSONKey #-}
 
 -- | In-game character, indexed between 0 and 5.
 data Ninja = Ninja { slot       :: Slot             -- ^ 'Model.Game.Ninjas' index (0-5)
@@ -167,6 +186,7 @@ data Ninja = Ninja { slot       :: Slot             -- ^ 'Model.Game.Ninjas' ind
                    , effects    :: ~[Effect]        -- ^ Processed automatically
                    , acted      :: Bool             -- ^ False at the start of each turn
                    }
+
 instance Parity Ninja where
     even = Parity.even . slot
     {-# INLINE even #-}
@@ -179,7 +199,9 @@ data Requirement
     | HealthI Int
     | HealthU Int
     | DefenseI Int Text
-    deriving (Eq, Ord, Show, Read, Generic, ToJSON)
+    deriving (Eq, Ord, Show, Read, Generic)
+
+instance ToJSON Requirement
 
 -- | A move that a 'Character' can perform.
 data Skill = Skill { name      :: Text              -- ^ Name
@@ -197,6 +219,7 @@ data Skill = Skill { name      :: Text              -- ^ Name
                    , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'
                    , owner     :: Slot
                    }
+
 instance ToJSON Skill where
     toJSON Skill { name
                  , desc
@@ -237,10 +260,14 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
                      , bombs   :: [Runnable Bomb]
                      , maxDur  :: Duration
                      , dur     :: Duration
-                     } deriving (Generic, ToJSON)
+                     } deriving (Generic)
+
+instance ToJSON Status
+
 instance Eq Status where
     (==) = (==) `on` \Status{ name, user, classes, dur } ->
         (name, user, classes, dur)
+
 instance Ord Status where
     compare = comparing \Status{ name } -> name
 
@@ -258,7 +285,9 @@ data Target
     | REnemy  -- ^ Random enemy
     | XEnemies -- ^ Enemies excluding 'Enemy'
     | Everyone -- ^ All 'Ninja's
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic, ToJSON)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+
+instance ToJSON Target
 
 instance AsEnumSet Target
 
@@ -273,6 +302,7 @@ data Trap = Trap { direction :: Direction
                  , tracker   :: Int
                  , dur       :: Duration
                  }
+
 instance ToJSON Trap where
     toJSON Trap { direction
                 , trigger
@@ -292,6 +322,7 @@ instance ToJSON Trap where
         , "tracker"   .= tracker
         , "dur"       .= dur
         ]
+
 instance Eq Trap where
     (==) = (==) `on` \Trap { direction, trigger, name, user, classes, dur } ->
         (direction, trigger, name, user, classes, dur)
@@ -302,7 +333,9 @@ data Context = Context { skill     :: Skill
                        , target    :: Slot
                        , new       :: Bool
                        , continues :: Bool -- ^ Cosmetic: continuous effect.
-                       } deriving (Generic, ToJSON)
+                       } deriving (Generic)
+
+instance ToJSON Context
 
 instance MonadRandom m => MonadRandom (ReaderT Context m)
 

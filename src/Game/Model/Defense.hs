@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-
 module Game.Model.Defense (Defense(..)) where
 
 import ClassyPrelude
@@ -14,4 +12,6 @@ data Defense = Defense { amount :: Int
                        , user   :: Slot
                        , name   :: Text
                        , dur    :: Duration
-                       } deriving (Eq, Show, Read, Generic, ToJSON)
+                       } deriving (Eq, Show, Read, Generic)
+
+instance ToJSON Defense

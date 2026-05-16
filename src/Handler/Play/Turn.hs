@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-
 module Handler.Play.Turn
   ( Turn(..)
   , new
@@ -38,7 +36,9 @@ data Turn = Turn { chakra   :: Chakras
                  , inactive :: (Int, Int)
                  , ninjas   :: [Ninja]
                  , targets  :: [[[Slot]]]
-                 } deriving (Generic, ToJSON)
+                 } deriving (Generic)
+
+instance ToJSON Turn
 
 --  | Encodes game state into a form suitable for sending to the client.
 new :: Player -> [Ninja] -> Game -> Turn

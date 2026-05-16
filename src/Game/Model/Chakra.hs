@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-
 module Game.Model.Chakra
   ( Chakra(..), chakraDesc
   , Chakras(..)
@@ -37,7 +35,7 @@ data Chakras = Chakras { blood :: Int -- ^ Bloodline
                        , nin   :: Int -- ^ Ninjutsu
                        , tai   :: Int -- ^ Taijutsu
                        , rand  :: Int -- ^ Random
-                       } deriving (Eq, Show, Read, Generic, ToJSON)
+                       } deriving (Eq, Show, Read, Generic)
 
 instance Ord Chakras where
     compare = comparing total
@@ -49,6 +47,8 @@ instance IsList Chakras where
     {-# INLINE toList #-}
     fromList = collect
     {-# INLINE fromList #-}
+
+instance ToJSON Chakras
 
 instance ToMarkup Chakras where
     toMarkup = concatMap toMarkup . toList

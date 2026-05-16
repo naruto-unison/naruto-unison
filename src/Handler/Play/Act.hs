@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-
 module Handler.Play.Act
   ( Act(..)
   , parse
@@ -30,7 +28,9 @@ data Act = Act { user   :: Slot
                -- ^ Skill by index in 'Character.skills' of 'Ninja.character' (0-3)
                , target :: Slot
                -- ^ Target index in 'Model.Game.ninjas' (0-5)
-               } deriving (Eq, Show, Read, Generic, ToJSON)
+               } deriving (Eq, Show, Read, Generic)
+
+instance ToJSON Act
 
 parse :: Parser Act
 parse = Act <$> Slot.parse
