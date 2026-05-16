@@ -34,7 +34,7 @@ character char = $(widgetFile "widgets/link/character")
 cite :: IO (Cite ForumTopic -> Widget)
 cite = do
     timestamp <- makeTimestamp
-    return \citation@Cite{ citeLatest, citeVal } ->
+    return \citation@Cite{citeLatest, citeVal} ->
         $(widgetFile "widgets/link/cite")
 
 -- | Link to a character's detail page using their icon.
@@ -61,11 +61,11 @@ skill charName category name = case Characters.lookup tagName of
 
 -- | Link to a forum topic.
 topic :: Cite ForumTopic -> Widget
-topic Cite{ citeAuthor, citeKey, citeVal } = $(widgetFile "widgets/link/topic")
+topic Cite{citeAuthor, citeKey, citeVal} = $(widgetFile "widgets/link/topic")
 
 -- | Link to a user's profile.
 user :: User -> Widget
-user User{ userName, userPrivilege } = $(widgetFile "widgets/link/user")
+user User{userName, userPrivilege} = $(widgetFile "widgets/link/user")
 
 -- | Current time widget.
 makeTimestamp :: IO (UTCTime -> Widget)

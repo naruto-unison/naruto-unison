@@ -102,7 +102,7 @@ getTopicR topicId = do
                   [Asc ForumPostTime]
     mwidget    <- forM (guard (forumTopicState topic == Open) >> mwho) $
                   generateFormPost . renderTable . Form.post topicId time
-    let ForumTopic { forumTopicBoard, forumTopicState } = topic
+    let ForumTopic{forumTopicBoard, forumTopicState} = topic
     defaultLayout $(widgetFile "forum/topic")
   where
     topicKey = toPathPiece topicId
@@ -111,7 +111,7 @@ getTopicR topicId = do
 -- | Adds to a 'ForumTopic'. Requires authentication.
 postTopicR :: Key ForumTopic -> Handler Html
 postTopicR topicId = do
-    ForumTopic { forumTopicBoard, forumTopicState } <- runDB $ get404 topicId
+    ForumTopic{forumTopicBoard, forumTopicState} <- runDB $ get404 topicId
     if forumTopicState /= Open then redirect $ TopicR topicId else do
         who        <- Auth.requireAuthId
         privilege  <- App.getPrivilege

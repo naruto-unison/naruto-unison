@@ -171,7 +171,7 @@ progress Progress{character, objective, amount} =
         guard $ objective < length goals
         char  <- characterID character
         lift . runDB $
-            updateProgress who amount GoalIndex{ goals, char, i = objective }
+            updateProgress who amount GoalIndex { goals, char, i = objective }
 
 -- | Using a list of database mission entries for a user, maps goals onto the
 -- user's progress toward those goals.
@@ -195,7 +195,7 @@ winners ids team unlocks = do
     (i, Goal.Win _ team') <- zip [0..] $ Goal.objective <$> toList goals
     guard . null $ team' \\ team
     charID <- Bimap.lookupR char ids
-    return GoalIndex{ goals, char = charID, i }
+    return GoalIndex { goals, char = charID, i }
 
 newUsage :: CharacterId -> Usage
 newUsage x = Usage x 0 0 0 0

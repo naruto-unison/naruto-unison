@@ -131,7 +131,7 @@ makeTrap ctx direction classes dur trigger f = Trap
     , dur     = succ dur
     }
   where
-    Context { continues, new, skill, user } = ctx
+    Context{continues, new, skill, user} = ctx
     modClasses
       | continues && dur <= 1 = insertSet Continues
       | continues || new      = deleteSet Continues

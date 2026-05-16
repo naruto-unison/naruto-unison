@@ -100,7 +100,7 @@ getChangelog long logType name category = case Characters.lookup tagName of
     tagName = Character.identFrom category name
 
 news :: (News, Maybe User) -> Widget
-news (News { newsContent, newsTime, newsTitle }, author) =
+news (News{newsContent, newsTime, newsTitle}, author) =
     $(widgetFile "home/news")
 
 -- Renders the game guide, which includes the list of characters as well as

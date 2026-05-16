@@ -237,7 +237,7 @@ filterCounters slots = filter $ testBit targetSet . Slot.toInt . Ninja.slot
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Context -> m ()
-act ctx@Context { user, skill, new } = void $ runMaybeT do
+act ctx@Context{user, skill, new} = void $ runMaybeT do
     nUser      <- P.ninja user
     chakras    <- Game.chakra <$> P.game
     initial    <- P.ninjas
@@ -323,7 +323,7 @@ breakControls = traverse_ breakN =<< P.ninjas
 
 breakControl :: ∀ m. (MonadGame m, MonadRandom m)
              => Slot -> EnumSet Class -> Channel -> m ()
-breakControl user stuns Channel{ dur = Control{}, skill, target }
+breakControl user stuns Channel{dur = Control{}, skill, target}
   | stuns `intersects` Skill.classes skill = P.withContext context doBreak
   | otherwise = P.withContext context do
       targets <- chooseTargets . filter (nonRandom . Runnable.target) $

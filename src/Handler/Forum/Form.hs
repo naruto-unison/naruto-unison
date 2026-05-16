@@ -22,7 +22,7 @@ toBody (Textarea area) = Markdown area
 
 topic :: User -> ForumBoard -> UTCTime -> Key User
              -> AForm Handler NewTopic
-topic User{ userPrivilege } forumTopicBoard forumPostTime forumPostAuthor =
+topic User{userPrivilege} forumTopicBoard forumPostTime forumPostAuthor =
     makeNewTopic <$> areq textField "Title" Nothing
                  <*> areq textareaField "Post" Nothing
   where

@@ -45,7 +45,7 @@ data Barrier = Barrier { amount :: Int
                        }
 
 instance ToJSON Barrier where
-    toJSON Barrier { amount, user, name, dur } = object
+    toJSON Barrier{amount, user, name, dur} = object
         [ "amount" .= amount
         , "user"   .= user
         , "name"   .= name
@@ -125,7 +125,7 @@ data Character = Character { name     :: Text
 instance ToJSON Character
 
 instance Eq Character where
-    (==) = (==) `on` \Character{ name, category } -> (name, category)
+    (==) = (==) `on` \Character{name, category} -> (name, category)
 
 -- | A 'Skill' copied from a different character.
 data Copy = Copy { skill :: Skill
@@ -265,7 +265,7 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
 instance ToJSON Status
 
 instance Eq Status where
-    (==) = (==) `on` \Status{ name, user, classes, dur } ->
+    (==) = (==) `on` \Status{name, user, classes, dur} ->
         (name, user, classes, dur)
 
 instance Ord Status where
@@ -324,7 +324,7 @@ instance ToJSON Trap where
         ]
 
 instance Eq Trap where
-    (==) = (==) `on` \Trap { direction, trigger, name, user, classes, dur } ->
+    (==) = (==) `on` \Trap{direction, trigger, name, user, classes, dur} ->
         (direction, trigger, name, user, classes, dur)
 
 -- | Gameplay context. This promotes a 'MonadGame' to 'MonadPlay'.
