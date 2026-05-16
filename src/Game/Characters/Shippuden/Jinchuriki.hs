@@ -1,5 +1,5 @@
+{-# OPTIONS_HADDOCK hide #-}
 {-# LANGUAGE OverloadedLists #-}
-{-# OPTIONS_HADDOCK hide     #-}
 
 module Game.Characters.Shippuden.Jinchuriki (characters) where
 

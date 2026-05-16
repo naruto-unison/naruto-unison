@@ -1,6 +1,6 @@
+{-# OPTIONS_HADDOCK hide, not-home #-}
 {-# LANGUAGE DeriveAnyClass        #-}
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# OPTIONS_HADDOCK hide, not-home #-}
 
 module Game.Model.Internal where
 

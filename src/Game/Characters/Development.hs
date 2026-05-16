@@ -1,6 +1,6 @@
-{-# LANGUAGE OverloadedLists #-}
+{-# OPTIONS_HADDOCK hide #-}
 {-# LANGUAGE CPP             #-}
-{-# OPTIONS_HADDOCK hide     #-}
+{-# LANGUAGE OverloadedLists #-}
 
 module Game.Characters.Development (characters) where
 

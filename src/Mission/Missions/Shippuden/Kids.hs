@@ -1,5 +1,5 @@
+{-# OPTIONS_HADDOCK hide #-}
 {-# LANGUAGE OverloadedLists #-}
-{-# OPTIONS_HADDOCK hide     #-}
 
 module Mission.Missions.Shippuden.Kids (missions) where
 
