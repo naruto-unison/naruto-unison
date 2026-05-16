@@ -4,6 +4,7 @@ github:     "naruto-unison/naruto-unison"
 license:    BSD3
 author:     "Naruto Unison"
 maintainer: "joshua.n.booth@gmail.com"
+language:   GHC2024
 
 library:
   source-dirs: src

@@ -228,7 +228,7 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
 instance Eq Status where
     (==) = (==) `on` \Status{..} -> (name, user, classes, dur)
 instance Ord Status where
-    compare = comparing \Status{..} -> name
+    compare = comparing \Status{name} -> name
 
 -- | Target destinations of 'Skill's.
 data Target

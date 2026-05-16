@@ -393,7 +393,9 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
 |]
             , partHeaders = []
             }
-    getVerifyKey = liftDB . (join . (userVerkey <$>) <$>) . get
+    getVerifyKey uid = liftDB do
+        muser <- get uid
+        return $ userVerkey =<< muser
     setVerifyKey uid key = liftDB $ update uid [UserVerkey =. Just key]
     verifyAccount uid = liftDB do
         muser <- get uid
@@ -402,10 +404,13 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
           Just _  -> do
                 update uid [UserVerified =. True]
                 return $ Just uid
-    getPassword = liftDB . (join . (userPassword <$>) <$>) . get
+    getPassword uid = liftDB do
+        muser <- get uid
+        return $ userPassword =<< muser
     setPassword uid pass = liftDB $ update uid [UserPassword =. Just pass]
-    getEmailCreds email = liftDB $ makeCreds <$><$>
-                          (getBy . UniqueUser $ toLower email)
+    getEmailCreds email = liftDB do
+        muser <- getBy . UniqueUser $ toLower email
+        return $ makeCreds <$> muser
       where
         makeCreds (Entity uid u) =
             AuthEmail.EmailCreds { emailCredsId = uid
@@ -414,4 +419,6 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
                                  , emailCredsVerkey = userVerkey u
                                  , emailCredsEmail = toLower email
                                  }
-    getEmail = liftDB . (userIdent <$>) <$>. get
+    getEmail uid = liftDB do
+        muser <- get uid
+        return $ userIdent <$> muser

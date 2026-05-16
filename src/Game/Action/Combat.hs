@@ -254,7 +254,7 @@ barricade' dur finish while amount = P.unsilenced do
     let skill  = Context.skill context
         target = Context.target context
         barr   = Barrier.new context dur
-                  (Action.wrap . finish) (Action.wrap while) amount'
+                  (\n -> Action.wrap $ finish n) (Action.wrap while) amount'
     case amount' `compare` 0 of
         EQ -> return ()
         LT -> do

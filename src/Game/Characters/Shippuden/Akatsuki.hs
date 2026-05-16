@@ -869,7 +869,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy $
-                barricade' 3 damage (apply 1 [Alone, Invulnerable All]) 80
+                barricade' 3 (\n -> damage n) (apply 1 [Alone, Invulnerable All]) 80
           ]
         }
       ]
