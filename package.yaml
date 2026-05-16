@@ -181,13 +181,9 @@ default-extensions:
 - ViewPatterns
 - MonadComprehensions
 - BlockArguments
-- MagicHash
 # More powerful types
 - TypeFamilies
-# Unlikely to be used, but no drawbacks
 - DefaultSignatures
-- PartialTypeSignatures
-- PatternSynonyms
 # Literals
 - NegativeLiterals
 - NumDecimals
@@ -196,4 +192,3 @@ default-extensions:
 # Here Be Dragons
 - ApplicativeDo
 - StrictData
-- UnboxedTuples
