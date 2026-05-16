@@ -29,24 +29,24 @@ module ElmDerive
     )
 where
 
-import Elm.TyRep
+import           Elm.TyRep
 
-import Control.Monad
-import Data.Aeson.TH (deriveJSON, SumEncoding(..))
-import qualified Data.Aeson.TH as A
-import Data.Maybe (mapMaybe)
-import Language.Haskell.TH
-import Language.Haskell.TH.Syntax
-import Data.Char (toLower)
-import Control.Applicative
-import Prelude
+import           Control.Applicative
+import           Control.Monad
+import           Data.Aeson.TH              (SumEncoding (..), deriveJSON, tagSingleConstructors)
+import qualified Data.Aeson.TH              as A
+import           Data.Char                  (toLower)
+import           Data.Maybe                 (mapMaybe)
+import           Language.Haskell.TH
+import           Language.Haskell.TH.Syntax
+import           Prelude
 
 -- | Note that This default set of options is distinct from that in
 -- the @aeson@ package.
 defaultOptions :: A.Options
 defaultOptions
   = A.defaultOptions
-  { A.sumEncoding             = A.defaultTaggedObject
+  { A.sumEncoding             = A.ObjectWithSingleField
   , A.fieldLabelModifier      = id
   , A.constructorTagModifier  = id
   , A.allNullaryToStringTag   = True
@@ -55,7 +55,7 @@ defaultOptions
   }
 
 unwrapUnaryRecords :: A.Options -> Bool
-unwrapUnaryRecords opts = A.unwrapUnaryRecords opts
+unwrapUnaryRecords = A.unwrapUnaryRecords
 
 {-| This generates a default set of options. The parameter represents the
 number of characters that must be dropped from the Haskell field names.
@@ -71,7 +71,7 @@ Will be encoded as:
 defaultOptionsDropLower :: Int -> A.Options
 defaultOptionsDropLower n = defaultOptions { A.fieldLabelModifier = lower . drop n }
     where
-        lower "" = ""
+        lower ""     = ""
         lower (x:xs) = toLower x : xs
 
 -- EDITED FROM :: Type -> Q Exp
@@ -98,12 +98,12 @@ compileType ty =
 optSumType :: SumEncoding -> Q Exp
 optSumType se =
     case se of
-        TwoElemArray -> [|SumEncoding' TwoElemArray|]
+        TwoElemArray          -> [|SumEncoding' TwoElemArray|]
         ObjectWithSingleField -> [|SumEncoding' ObjectWithSingleField|]
-        TaggedObject tn cn -> [|SumEncoding' (TaggedObject tn cn)|]
-        UntaggedValue -> [|SumEncoding' UntaggedValue|]
+        TaggedObject tn cn    -> [|SumEncoding' (TaggedObject tn cn)|]
+        UntaggedValue         -> [|SumEncoding' UntaggedValue|]
 
-runDerive :: Name -> [TyVarBndr BndrVis] -> (Q Exp -> Q Exp) -> Q [Dec]
+runDerive :: Name -> [TyVarBndr a] -> (Q Exp -> Q Exp) -> Q [Dec]
 runDerive name vars mkBody =
     liftM (:[]) elmDefInst
     where
@@ -131,10 +131,10 @@ runDerive name vars mkBody =
       argNames =
           flip map vars $ \v ->
               case v of
-                PlainTV tv _ -> tv
+                PlainTV tv _  -> tv
                 KindedTV tv _ _ -> tv
 
-deriveAlias :: Bool -> A.Options -> Name -> [TyVarBndr BndrVis] -> [VarStrictType] -> Q [Dec]
+deriveAlias :: Bool -> A.Options -> Name -> [TyVarBndr a] -> [VarStrictType] -> Q [Dec]
 deriveAlias isNewtype opts name vars conFields =
         runDerive name vars $ \typeName ->
                 [|ETypeAlias (EAlias $typeName $fields omitNothing isNewtype unwrapUnary)|] -- default to no newtype
@@ -196,7 +196,7 @@ deriveElmDef opts name =
          DataD _ _ tyVars _ constrs _ ->
              case constrs of
                [] -> fail "Can not derive empty data decls"
-               [RecC _ conFields] -> deriveAlias False opts name tyVars conFields
+               [RecC _ conFields] | not (tagSingleConstructors opts) -> deriveAlias False opts name tyVars conFields
                _ -> deriveSum opts name tyVars constrs
          NewtypeD [] _ [] Nothing (NormalC _ [(Bang NoSourceUnpackedness NoSourceStrictness, otherTy)]) [] ->
             deriveSynonym opts name [] otherTy
