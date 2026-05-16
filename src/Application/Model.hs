@@ -23,7 +23,20 @@ instance Hashable (Key User) where
     hashWithSalt salt = hashWithSalt salt . fromEnum . Sql.fromSqlKey
 
 instance ToJSON User where
-    toJSON User{..} = object
+    toJSON User { userAvatar
+                , userBackground
+                , userClan
+                , userCondense
+                , userDna
+                , userLosses
+                , userMuted
+                , userName
+                , userPrivilege
+                , userRecord
+                , userStreak
+                , userWins
+                , userXp
+                } = object
         [ "privilege"  .= userPrivilege
         , "name"       .= userName
         , "avatar"     .= userAvatar

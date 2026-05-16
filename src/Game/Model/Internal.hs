@@ -45,7 +45,7 @@ data Barrier = Barrier { amount :: Int
                        , dur    :: Duration
                        }
 instance ToJSON Barrier where
-    toJSON Barrier{..} = object
+    toJSON Barrier { amount, user, name, dur } = object
         [ "amount" .= amount
         , "user"   .= user
         , "name"   .= name
@@ -115,7 +115,7 @@ data Character = Character { name     :: Text
                            } deriving (Generic, ToJSON)
 
 instance Eq Character where
-    (==) = (==) `on` \Character{..} -> (name, category)
+    (==) = (==) `on` \Character{ name, category } -> (name, category)
 
 -- | A 'Skill' copied from a different character.
 data Copy = Copy { skill :: Skill
@@ -198,7 +198,20 @@ data Skill = Skill { name      :: Text              -- ^ Name
                    , owner     :: Slot
                    }
 instance ToJSON Skill where
-    toJSON Skill{..} = object
+    toJSON Skill { name
+                 , desc
+                 , require
+                 , classes
+                 , cost
+                 , cooldown
+                 , charges
+                 , dur
+                 , start
+                 , effects
+                 , stunned
+                 , interrupt
+                 , owner
+                 } = object
         [ "name"      .= name
         , "desc"      .= desc
         , "require"   .= require
@@ -226,9 +239,10 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
                      , dur     :: Duration
                      } deriving (Generic, ToJSON)
 instance Eq Status where
-    (==) = (==) `on` \Status{..} -> (name, user, classes, dur)
+    (==) = (==) `on` \Status{ name, user, classes, dur } ->
+        (name, user, classes, dur)
 instance Ord Status where
-    compare = comparing \Status{name} -> name
+    compare = comparing \Status{ name } -> name
 
 -- | Target destinations of 'Skill's.
 data Target
@@ -260,7 +274,15 @@ data Trap = Trap { direction :: Direction
                  , dur       :: Duration
                  }
 instance ToJSON Trap where
-    toJSON Trap{..} = object
+    toJSON Trap { direction
+                , trigger
+                , name
+                , skill
+                , user
+                , classes
+                , tracker
+                , dur
+                } = object
         [ "direction" .= direction
         , "trigger"   .= trigger
         , "name"      .= name
@@ -271,7 +293,8 @@ instance ToJSON Trap where
         , "dur"       .= dur
         ]
 instance Eq Trap where
-    (==) = (==) `on` \Trap{..} -> (direction, trigger, name, user, classes, dur)
+    (==) = (==) `on` \Trap { direction, trigger, name, user, classes, dur } ->
+        (direction, trigger, name, user, classes, dur)
 
 -- | Gameplay context. This promotes a 'MonadGame' to 'MonadPlay'.
 data Context = Context { skill     :: Skill

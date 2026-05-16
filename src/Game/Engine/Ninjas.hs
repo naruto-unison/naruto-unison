@@ -191,20 +191,18 @@ sacrifice minhp hp = adjustHealth $ max minhp . (— hp)
 -- | Applies 'Class.TurnBased.decr' to all of a @Ninja@'s 'Class.TurnBased'
 -- types.
 decr :: Ninja -> Ninja
-decr n@Ninja{..} = processAlternates $ processEffects n
-    { defense   = mapMaybe TurnBased.decr defense
-    , statuses  = mapMaybe TurnBased.decr statuses
-    , barrier   = mapMaybe TurnBased.decr barrier
-    , channels  = decrChannels
-    , traps     = mapMaybe TurnBased.decr traps
-    , delays    = mapMaybe TurnBased.decr delays
+decr n = processAlternates $ processEffects n
+    { defense   = mapMaybe TurnBased.decr $ defense n
+    , statuses  = mapMaybe TurnBased.decr $ statuses n
+    , barrier   = mapMaybe TurnBased.decr $ barrier n
+    , channels  = mapMaybe TurnBased.decr $ newChans n ++ channels n
+    , traps     = mapMaybe TurnBased.decr $ traps n
+    , delays    = mapMaybe TurnBased.decr $ delays n
     , newChans  = mempty
-    , copies    = (TurnBased.decr =<<) <$> copies
-    , cooldowns = (max 0 . subtract 1) `omap` cooldowns
+    , copies    = (TurnBased.decr =<<) <$> copies n
+    , cooldowns = (max 0 . subtract 1) `omap` cooldowns n
     , acted     = False
     }
-  where
-    decrChannels       = mapMaybe TurnBased.decr $ newChans ++ channels
 
 addStatus :: Status -> Ninja -> Ninja
 addStatus st = modifyStatuses $ Classed.nonStack st st

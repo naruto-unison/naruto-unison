@@ -51,7 +51,15 @@ instance FromJSON DNA where
         quickTie  <- o .: "quick-tie"
         warWin    <- o .: "war-win"
         useStreak <- o .: "use-streak"
-        return DNA{..}
+        return DNA
+            { dailyGame
+            , dailyWin
+            , quickWin
+            , quickLose
+            , quickTie
+            , warWin
+            , useStreak
+            }
 
 data Settings = Settings
     { unlockAll              :: ~Bool
@@ -138,7 +146,28 @@ instance FromJSON Settings where
         practiceCacheExpiry    <- (* 1e9) <$> o .: "practice-cache-expiry"
         forfeitAfterSkips      <- o .: "forfeit-after-skips"
         queueTableSizeHint     <- o .: "queue-table-size-hint"
-        return Settings{..}
+        return Settings
+            { unlockAll
+            , turnLength
+            , practiceCacheExpiry
+            , forfeitAfterSkips
+            , queueTableSizeHint
+            , staticDir
+            , databaseConf
+            , dnaConf
+            , root
+            , host
+            , port
+            , ipFromHeader
+            , detailedRequestLogging
+            , shouldLogAll
+            , reloadTemplates
+            , mutableStatic
+            , skipCombining
+            , copyright
+            , analytics
+            , authDummyLogin
+            }
 
 -- | Settings for 'widgetFile', such as which template languages to support and
 -- default Hamlet settings.

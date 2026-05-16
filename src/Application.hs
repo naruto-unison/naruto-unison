@@ -88,7 +88,19 @@ makeFoundation settings = do
     -- logging function. To get out of this loop, we initially create a
     -- temporary foundation without a real connection pool, get a log function
     -- from there, and then create the real foundation.
-    let mkFoundation characterIDs connPool = App{..}
+    let mkFoundation characterIDs connPool = App
+            { startup
+            , timestamp
+            , settings
+            , static
+            , connPool
+            , httpManager
+            , logger
+            , practice
+            , private
+            , quick
+            , characterIDs
+            }
         tempFoundation =
             mkFoundation Bimap.empty $ error "connPool forced in tempFoundation"
         logFunc = messageLoggerSource tempFoundation logger

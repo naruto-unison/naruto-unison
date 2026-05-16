@@ -176,7 +176,6 @@ default-extensions:
 - NoImplicitPrelude
 # Syntactic sugar
 - MultiWayIf
-- RecordWildCards
 - ParallelListComp
 - UnicodeSyntax
 - ViewPatterns

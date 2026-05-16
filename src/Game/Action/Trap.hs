@@ -119,31 +119,31 @@ trapFull direction classes unthrottled trigger f =
 
 makeTrap :: Context -> Trap.Direction -> EnumSet Class -> Duration
          -> Trigger -> (Int -> RunConstraint ()) -> Trap
-makeTrap Context{..} direction classes dur trigger f =
-    Trap
+makeTrap ctx direction classes dur trigger f = Trap
     { trigger
     , direction
     , skill   = skill'
     , user
-    , name    = Skill.name skill
+    , name    = Skill.name skill'
     , effect  = \i -> To { target = context, run = Action.wrap $ f i }
     , classes = classes'
     , tracker = 0
     , dur     = succ dur
     }
   where
+    Context { continues, new, skill, user } = ctx
     modClasses
       | continues && dur <= 1 = insertSet Continues
       | continues || new      = deleteSet Continues
       | otherwise             = deleteSet Continues . deleteSet Invisible
     classes' = modClasses $ classes ++ Skill.classes skill
-    skill'   = skill { Skill.classes = classes', Skill.require = Usable }
-    context  = Context { user
-                       , target
-                       , skill     = skill'
-                       , continues = False
-                       , new       = False
-                       }
+    skill'   = skill { Skill.classes = classes'
+                     , Skill.require = Usable
+                     }
+    context  = ctx { Context.skill     = skill'
+                   , Context.continues = False
+                   , Context.new       = False
+                   }
 
 -- | Saves an effect to a 'Delay.Delay', which is stored in 'Game.delays' and
 -- triggered when it expires.

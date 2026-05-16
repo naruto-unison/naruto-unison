@@ -21,7 +21,7 @@ data GameInfo = GameInfo { vsWho  :: Key User
                          }
 
 instance ToJSON GameInfo where
-    toJSON GameInfo{..} = object
+    toJSON GameInfo { game, player, ninjas, war, vsUser } = object
         [ "opponent" .= vsUser
         , "player"   .= player
         , "war"      .= war

@@ -36,7 +36,18 @@ getProfileR :: Text -> Handler Html
 getProfileR name = do
     muser          <- runDB $ selectFirst [UserName ==. name] []
     Entity _ user  <- maybe notFound return muser
-    let User{..}    = user
+    let User { userAvatar
+             , userClan
+             , userJoined
+             , userLosses
+             , userName
+             , userPosts
+             , userRecord
+             , userStreak
+             , userTeam
+             , userXp
+             , userWins
+             }      = user
         team        = maybe [] (mapMaybe Characters.lookup) userTeam
         (level, xp) = quotRem userXp 5000
     defaultLayout $(widgetFile "forum/profile")
@@ -79,18 +90,19 @@ getBoardR board = do
 -- | Renders a 'ForumTopic'.
 getTopicR :: Key ForumTopic -> Handler Html
 getTopicR topicId = do
-    mwho           <- Auth.maybeAuthId
-    privilege      <- App.getPrivilege
-    ForumTopic{..} <- runDB $ get404 topicId
-    (title, _)     <- breadcrumbs
-    time           <- liftIO getCurrentTime
-    timestamp      <- liftIO Link.makeTimestamp
-    posts          <- runDB $ traverse (getLikes mwho) =<<
-                      selectWithAuthors
-                      (filterPosts privilege [ForumPostTopic ==. topicId])
-                      [Asc ForumPostTime]
-    mwidget        <- forM (guard (forumTopicState == Open) >> mwho) $
-                      generateFormPost . renderTable . Form.post topicId time
+    mwho       <- Auth.maybeAuthId
+    privilege  <- App.getPrivilege
+    topic      <- runDB $ get404 topicId
+    (title, _) <- breadcrumbs
+    time       <- liftIO getCurrentTime
+    timestamp  <- liftIO Link.makeTimestamp
+    posts      <- runDB $ traverse (getLikes mwho) =<<
+                  selectWithAuthors
+                  (filterPosts privilege [ForumPostTopic ==. topicId])
+                  [Asc ForumPostTime]
+    mwidget    <- forM (guard (forumTopicState topic == Open) >> mwho) $
+                  generateFormPost . renderTable . Form.post topicId time
+    let ForumTopic { forumTopicBoard, forumTopicState } = topic
     defaultLayout $(widgetFile "forum/topic")
   where
     topicKey = toPathPiece topicId
@@ -99,15 +111,15 @@ getTopicR topicId = do
 -- | Adds to a 'ForumTopic'. Requires authentication.
 postTopicR :: Key ForumTopic -> Handler Html
 postTopicR topicId = do
-    ForumTopic{..} <- runDB $ get404 topicId
+    ForumTopic { forumTopicBoard, forumTopicState } <- runDB $ get404 topicId
     if forumTopicState /= Open then redirect $ TopicR topicId else do
         who        <- Auth.requireAuthId
         privilege  <- App.getPrivilege
         (title, _) <- breadcrumbs
         time       <- liftIO getCurrentTime
         timestamp  <- liftIO Link.makeTimestamp
-        ((result, widget), enctype) <- runFormPost . renderTable $
-                                       Form.post topicId time who
+        let form    = renderTable $ Form.post topicId time who
+        ((result, widget), enctype) <- runFormPost form
 
         case result of
             FormSuccess (Form.NewPost post) -> do

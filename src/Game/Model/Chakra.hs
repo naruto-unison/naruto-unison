@@ -61,7 +61,8 @@ parse = Chakras <$> Parse.decimal
                 <*> return 0
 
 instance PathPiece Chakras where
-    toPathPiece Chakras{..} = intercalate "," $ tshow <$> [blood, gen, nin, tai]
+    toPathPiece Chakras { blood, gen, nin, tai } =
+        intercalate "," $ tshow <$> [blood, gen, nin, tai]
 
     fromPathPiece = hushedParse parse
 

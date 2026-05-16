@@ -22,25 +22,31 @@ toBody (Textarea area) = Markdown area
 
 topic :: User -> ForumBoard -> UTCTime -> Key User
              -> AForm Handler NewTopic
-topic User{..} forumTopicBoard forumPostTime forumPostAuthor =
+topic User{ userPrivilege } forumTopicBoard forumPostTime forumPostAuthor =
     makeNewTopic <$> areq textField "Title" Nothing
                  <*> areq textareaField "Post" Nothing
   where
-    forumTopicAuthor   = forumPostAuthor
-    forumTopicLatest   = forumPostAuthor
-    forumTopicTime     = forumPostTime
-    forumTopicStaff    = userPrivilege > Normal
-    forumTopicState    = Open
-    forumTopicPosts    = 1
-    forumTopicModified = forumPostTime
-    forumPostLikes     = 0
-    forumPostDeleted   = False
-    forumPostEdited    = Nothing
-    makeNewTopic rawTitle area = NewTopic ForumTopic{..}
-                                 \forumPostTopic -> ForumPost{..}
-      where
-        forumTopicTitle = filter (/= Link.staffTag) rawTitle
-        forumPostBody = toBody area
+    makeTopic rawTitle =
+        ForumTopic { forumTopicAuthor = forumPostAuthor
+                   , forumTopicBoard
+                   , forumTopicLatest = forumPostAuthor
+                   , forumTopicModified = forumPostTime
+                   , forumTopicPosts = 1
+                   , forumTopicStaff = userPrivilege > Normal
+                   , forumTopicState = Open
+                   , forumTopicTime = forumPostTime
+                   , forumTopicTitle = filter (/= Link.staffTag) rawTitle
+                   }
+    makePost area forumPostTopic =
+        ForumPost { forumPostAuthor
+                  , forumPostBody = toBody area
+                  , forumPostLikes = 0
+                  , forumPostDeleted = False
+                  , forumPostEdited = Nothing
+                  , forumPostTime
+                  , forumPostTopic
+                  }
+    makeNewTopic rawTitle area = NewTopic (makeTopic rawTitle) $ makePost area
 
 data PostForm
     = NewPost ForumPost
@@ -51,9 +57,14 @@ post forumPostTopic forumPostTime forumPostAuthor =
     makePost <$> aopt hiddenField "" Nothing
              <*> areq textareaField "" Nothing
   where
-    forumPostLikes   = 0
-    forumPostDeleted = False
-    forumPostEdited  = Nothing
-    makePost mPostId (toBody -> forumPostBody) = case mPostId of
-        Nothing     -> NewPost ForumPost{..}
-        Just postId -> EditPost postId forumPostBody
+    makePost mPostId area = case mPostId of
+        Nothing -> NewPost ForumPost
+            { forumPostAuthor
+            , forumPostTopic
+            , forumPostTime
+            , forumPostLikes = 0
+            , forumPostDeleted = False
+            , forumPostEdited = Nothing
+            , forumPostBody = toBody area
+            }
+        Just postId -> EditPost postId $ toBody area
