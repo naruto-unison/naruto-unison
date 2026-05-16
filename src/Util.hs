@@ -22,7 +22,7 @@ import Data.Kind (Type)
 -- If a function doesn't seem like it should be inlined, it probably doesn't go
 -- here.
 
--- | 'unsafeIndex'.
+-- | 'index'.
 infixl 9 !?
 (!?) :: ∀ o. IsSequence o => o -> Index o -> Maybe (Element o)
 (!?) = index
