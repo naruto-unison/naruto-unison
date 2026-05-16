@@ -1,4 +1,3 @@
-{-# LANGUAGE NoBangPatterns  #-}
 {-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
 
