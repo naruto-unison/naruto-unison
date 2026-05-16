@@ -16,9 +16,6 @@ import Application.Fields (ForumBoard, Markdown(..), Privilege(..), TopicState(.
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
     $(persistFileWith Quasi.lowerCaseSettings "config/models.persistentmodels")
 
-instance Ord ForumPost where
-    compare = comparing forumPostTime
-
 instance Hashable (Key User) where
     hashWithSalt salt = hashWithSalt salt . fromEnum . Sql.fromSqlKey
 

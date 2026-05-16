@@ -127,6 +127,9 @@ instance ToJSON Character
 instance Eq Character where
     (==) = (==) `on` \Character{name, category} -> (name, category)
 
+instance Ord Character where
+    compare = comparing \Character{category, name} -> (category, name)
+
 -- | A 'Skill' copied from a different character.
 data Copy = Copy { skill :: Skill
                  , dur   :: Duration
@@ -269,7 +272,8 @@ instance Eq Status where
         (name, user, classes, dur)
 
 instance Ord Status where
-    compare = comparing \Status{ name } -> name
+    compare = comparing \Status{name, user, classes, dur} ->
+        (name, user, classes, dur)
 
 -- | Target destinations of 'Skill's.
 data Target

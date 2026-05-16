@@ -36,11 +36,11 @@ instance (Example a, () ~ Arg a) => Example (SkillExample a) where
         ref <- newIORef (Result "" Success)
         action (action' >=> writeIORef ref)
         readIORef ref
-        where
-          action' (char, ctx) = evaluateExample inner params ($ ()) callback
-            where
-              inner = runIdentity . evalStateT (runReaderT (runGame e) ctx) $
-                      testGame char
+      where
+        action' (char, ctx) = evaluateExample inner params ($ ()) callback
+          where
+            inner = runIdentity . evalStateT (runReaderT (runGame e) ctx) $
+                    testGame char
 
 useOn :: HasCallStack
       => Target -> Text -> SpecWith SkillArg -> SpecWith Character

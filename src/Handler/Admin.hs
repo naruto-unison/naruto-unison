@@ -24,6 +24,7 @@ import qualified Application.Settings as Settings
 import qualified Handler.Link as Link
 import qualified Handler.Play as Play
 import qualified Mission as Mission
+import           Mission.UsageRate (UsageRate)
 import qualified Mission.UsageRate as UsageRate
 
 -- | Behind-the-scenes utilities for admin accounts. Requires authorization.
@@ -55,9 +56,16 @@ postAdminR = do
 -- | Displays 'Usage' stats of characters.
 getUsageR :: Handler Html
 getUsageR = do
-    usageRates <- sort <$> Mission.getUsageRates
+    usageRates <- sortBy compareRates <$> Mission.getUsageRates
     defaultLayout $(widgetFile "admin/usage")
   where
+    compareRates :: UsageRate -> UsageRate -> Ordering
+    compareRates x y = comparing nanToNegInf y x
+      where
+        nanToNegInf rate
+            | isNaN $ UsageRate.winRate rate = rate { UsageRate.winRate = -1/0 }
+            | otherwise                      = rate
+
     showRate :: Float -> String
     showRate x
       |isNaN x    = "——"

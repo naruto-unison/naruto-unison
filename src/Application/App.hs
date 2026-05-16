@@ -327,10 +327,10 @@ instance YesodAuth App where
 
     authPlugins :: App -> [AuthPlugin App]
     authPlugins app = AuthEmail.authEmail : extraAuthPlugins
+      where
         -- Enable authDummy login if enabled.
-        where
-          extraAuthPlugins =
-              [Dummy.authDummy | Settings.authDummyLogin $ settings app]
+        extraAuthPlugins =
+            [Dummy.authDummy | Settings.authDummyLogin $ settings app]
 
 isAuthenticated :: Privilege -> Handler AuthResult
 isAuthenticated level = do

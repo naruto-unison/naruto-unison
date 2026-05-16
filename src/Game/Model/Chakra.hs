@@ -38,7 +38,10 @@ data Chakras = Chakras { blood :: Int -- ^ Bloodline
                        } deriving (Eq, Show, Read, Generic)
 
 instance Ord Chakras where
-    compare = comparing total
+    compare x y = comparing total x y <> comparing projection x y
+      where
+        projection Chakras{blood, gen, nin, tai, rand} =
+            (blood, gen, nin, tai, rand)
     {-# INLINE compare #-}
 
 instance IsList Chakras where
