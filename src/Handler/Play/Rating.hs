@@ -1,5 +1,3 @@
-{-# LANGUAGE Strict #-}
-
 -- | Uses win/loss records to estimate skill ratings for players.
 -- These ratings are internal and should not be exposed in any way to players.
 -- They are useful for matchmaking, but should not otherwise affect ranking.
@@ -18,7 +16,7 @@ import           Handler.Play.Match (Match, Outcome(..))
 import qualified Handler.Play.Match as Match
 
 square :: Double -> Double
-square x = x * x
+square !x = x * x
 
 -- | Updates fields in the user table based on the end of a game.
 -- Win record fields: 'userWins', 'userLosses', 'userStreak'.
@@ -91,19 +89,19 @@ updateUser player opponent outcome =
 -- | Iteratively calculates the value of σ.
 -- Based on the "Illinois algorithm," a variant of the regula falsi procedure.
 sigma :: Double -> Double -> Double -> Double -> Double
-sigma 𝛿 φ σ v = go a b (f a) (f b)
+sigma !𝛿 !φ !σ !v = go a b (f a) (f b)
   where
     a = log $ square σ
-    f x = (exp x * (square 𝛿 - square φ - v - exp x))
-         / (2 * square (square φ + v + exp x))
-         - (x - a) / square τ
+    f !x = (exp x * (square 𝛿 - square φ - v - exp x))
+           / (2 * square (square φ + v + exp x))
+           - (x - a) / square τ
     b
       | square 𝛿 > square φ + v = log $ square 𝛿 - square φ - v
       | otherwise               = bracketB 1
-    bracketB k
+    bracketB !k
       | f (a - k * τ) < 0 = bracketB $ k + 1
       | otherwise         = a - k * τ
-    go a' b' fA fB
+    go !a' !b' !fA !fB
       | abs (b' - a') <= ε = exp $ a' / 2
       | fC * fB        < 0 = go b' c fB       fC
       | otherwise          = go a' c (fA / 2) fC
