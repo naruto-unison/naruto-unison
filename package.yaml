@@ -175,6 +175,7 @@ default-extensions:
 # Package-specific
 - NoImplicitPrelude
 # Syntactic sugar
+- LexicalNegation
 - MultiWayIf
 - ParallelListComp
 - UnicodeSyntax
@@ -184,8 +185,6 @@ default-extensions:
 # More powerful types
 - TypeFamilies
 - DefaultSignatures
-# Literals
-- NegativeLiterals
 # Unfortunate necessities
 - OverloadedStrings
 # Here Be Dragons

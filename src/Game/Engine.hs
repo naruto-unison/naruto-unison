@@ -49,7 +49,7 @@ import           Game.Model.Status (Bomb(..), Status)
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((—), (∈), (∉))
+import           Util ((∈), (∉))
 
 -- | The game engine's main function.
 -- Performs 'Act's and 'Model.Channel.Channel's;
@@ -197,7 +197,7 @@ doHpOverTime slot = do
     player <- P.player
     n      <- P.ninja slot
     hp     <- Effects.hp player n <$> P.ninjas
-    when (Ninja.alive n) . P.modify slot $ Ninjas.adjustHealth (— hp)
+    when (Ninja.alive n) . P.modify slot $ Ninjas.adjustHealth (- hp)
 
 -- | Updates 'Game.victor'.
 yieldVictor :: ∀ m. MonadGame m => m ()

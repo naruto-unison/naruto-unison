@@ -65,7 +65,7 @@ updateUser player opponent outcome =
     φ₁ = userDeviation  opponent
 
     g = 1 / sqrt (1 + 3 * square φ₁ / square pi)
-    e = 1 / (1 + exp (- g * (µ - µ₁)))
+    e = 1 / (1 + exp (-g * (µ - µ₁)))
     v = 1 / (square g * e * (1 - e))
 
     perf = g * (s - e)

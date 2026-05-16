@@ -23,7 +23,6 @@ import           Game.Model.Ninja (is)
 import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((—))
 
 -- ** CHAKRA
 -- | Adds a finite amount of @Chakra@ to the 'Game.chakra' of the target's team.
@@ -79,5 +78,5 @@ healFromChakra amount = P.unsilenced do
         let amount' = amount * maybe 0 (Chakra.total . Skill.cost) lastSkill
         when (amount' > 0) do
             P.modify user $ Ninjas.adjustHealth (+ amount')
-            healed <- (— Ninja.health nUser) . Ninja.health <$> P.nUser
+            healed <- (- Ninja.health nUser) . Ninja.health <$> P.nUser
             when (healed > 0) $ P.trigger user [OnHeal]

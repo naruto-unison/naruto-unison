@@ -78,7 +78,7 @@ import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((—), (!?), (∈), (∉), intersects)
+import           Util ((!?), (∈), (∉), intersects)
 
 headOr :: ∀ a. a -> [a] -> a
 headOr x []    = x
@@ -186,7 +186,7 @@ setHealth = adjustHealth . const
 
 -- | Sacrifices some amount of the target's 'Ninja.health' down to a minimum.
 sacrifice :: Int -> Int -> Ninja -> Ninja
-sacrifice minhp hp = adjustHealth $ max minhp . (— hp)
+sacrifice minhp hp = adjustHealth $ max minhp . (- hp)
 
 -- | Applies 'Class.TurnBased.decr' to all of a @Ninja@'s 'Class.TurnBased'
 -- types.

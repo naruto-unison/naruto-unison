@@ -20,7 +20,7 @@ import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Player as Player
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((—), (∈))
+import           Util ((∈))
 
 -- | Removes some number of 'Chakra's from the target's team.
 -- 'Chakra's are chosen randomly from the available pool of 'Game.chakra'.
@@ -41,7 +41,7 @@ removeFrom target amount
       chakras <- Chakra.toSequence . removeRandoms . Parity.getOf target .
                  Game.chakra <$> P.game
       removed <- Chakra.collect . take amount <$> R.shuffle chakras
-      P.alter $ Game.adjustChakra target (— removed)
+      P.alter $ Game.adjustChakra target (- removed)
       return removed
   where
     removeRandoms x = x { Chakra.rand = 0 }
@@ -61,7 +61,7 @@ remove1 permitted = do
     mRemoved <- R.choose chakras
     case mRemoved of
         Just (Chakra.toChakras -> removed) -> do
-            P.alter $ Game.adjustChakra target (— removed)
+            P.alter $ Game.adjustChakra target (- removed)
             return removed
         Nothing -> return 0
 

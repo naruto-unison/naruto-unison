@@ -1,7 +1,6 @@
 -- | Lightweight helper functions.
 module Util
   ( (!?), (!!)
-  , (—)
   , (∈), (∉)
   , Lift
   , duplic
@@ -34,12 +33,6 @@ infixl 9 !!
 (!!) :: ∀ o. IsSequence o => o -> Index o -> Element o
 (!!) = unsafeIndex
 {-# INLINE (!!) #-}
-
--- | '-' allowing for sections.
-infixl 6 —
-(—) :: ∀ a. Num a => a -> a -> a
-(—) = (-)
-{-# INLINE (—) #-}
 
 -- | 'elem'.
 infix 4 ∈

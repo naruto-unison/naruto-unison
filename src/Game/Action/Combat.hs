@@ -45,7 +45,6 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((—))
 
 -- | Reduces incoming damage by depleting the user's 'Ninja.barrier'.
 absorbBarrier :: Int -> [Barrier] -> (Int, [Barrier])
@@ -169,14 +168,14 @@ attack atk dmg = void $ runMaybeT do
             n { Ninja.defense = damageDefense : Ninja.defense n }
 
     else if atk == Attack.Afflict then
-        P.modify target $ Ninjas.adjustHealth (— dmgCalc)
+        P.modify target $ Ninjas.adjustHealth (- dmgCalc)
 
     else do
         P.modify user \n -> n { Ninja.barrier = barr }
         if atk == Attack.Demolish || dmg'Def <= 0 then
             P.modify target \n -> n { Ninja.defense = defense }
         else
-            P.modify target $ Ninjas.adjustHealth (— dmg'Def) . \n ->
+            P.modify target $ Ninjas.adjustHealth (- dmg'Def) . \n ->
                 n { Ninja.defense = defense }
 
     damaged <- (Ninja.health nTarget -) . Ninja.health <$> P.nTarget
