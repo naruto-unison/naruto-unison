@@ -8,7 +8,7 @@ module Handler.Play.War
   , today
   ) where
 
-import ClassyPrelude
+import ClassyPrelude hiding (tails)
 
 import           Data.Aeson (ToJSON)
 import           Data.Enum.Set (EnumSet)

@@ -1,10 +1,9 @@
+{-# OPTIONS_HADDOCK hide #-}
 --  https://github.com/agrafix/elm-bridge/blob/master/src/Elm/Derive.hs
 -- with a modified 'compileType' to omit fields that cannot be handled instead
 -- of crashing.
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP             #-}
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TupleSections #-}
-{-# OPTIONS_HADDOCK hide #-}
 {-| This module should be used to derive the Elm instance alongside the
  JSON ones. The prefered usage is to convert statements such as :
 
@@ -104,7 +103,7 @@ optSumType se =
         TaggedObject tn cn -> [|SumEncoding' (TaggedObject tn cn)|]
         UntaggedValue -> [|SumEncoding' UntaggedValue|]
 
-runDerive :: Name -> [TyVarBndr] -> (Q Exp -> Q Exp) -> Q [Dec]
+runDerive :: Name -> [TyVarBndr BndrVis] -> (Q Exp -> Q Exp) -> Q [Dec]
 runDerive name vars mkBody =
     liftM (:[]) elmDefInst
     where
@@ -132,10 +131,10 @@ runDerive name vars mkBody =
       argNames =
           flip map vars $ \v ->
               case v of
-                PlainTV tv -> tv
-                KindedTV tv _ -> tv
+                PlainTV tv _ -> tv
+                KindedTV tv _ _ -> tv
 
-deriveAlias :: Bool -> A.Options -> Name -> [TyVarBndr] -> [VarStrictType] -> Q [Dec]
+deriveAlias :: Bool -> A.Options -> Name -> [TyVarBndr BndrVis] -> [VarStrictType] -> Q [Dec]
 deriveAlias isNewtype opts name vars conFields =
         runDerive name vars $ \typeName ->
                 [|ETypeAlias (EAlias $typeName $fields omitNothing isNewtype unwrapUnary)|] -- default to no newtype
@@ -149,7 +148,7 @@ deriveAlias isNewtype opts name vars conFields =
         where
           fldName = A.fieldLabelModifier opts $ nameBase fname
 
-deriveSum :: A.Options -> Name -> [TyVarBndr] -> [Con] -> Q [Dec]
+deriveSum :: A.Options -> Name -> [TyVarBndr BndrVis] -> [Con] -> Q [Dec]
 deriveSum opts name vars constrs =
     runDerive name vars $ \typeName ->
         [|ETypeSum (ESum $typeName $sumOpts $sumEncOpts omitNothing allNullary)|]
@@ -175,7 +174,7 @@ deriveSum opts name vars constrs =
                 in [|STC b n (Named $tyArgs)|]
             _ -> fail ("Can't derive this sum: " ++ show c)
 
-deriveSynonym :: A.Options -> Name -> [TyVarBndr] -> Type -> Q [Dec]
+deriveSynonym :: A.Options -> Name -> [TyVarBndr BndrVis] -> Type -> Q [Dec]
 deriveSynonym _ name vars (compileType -> Just otherType) =
     runDerive name vars $ \typeName ->
         [|ETypePrimAlias (EPrimAlias $typeName $otherType)|]

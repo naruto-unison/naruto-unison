@@ -21,14 +21,9 @@ import Text.Blaze (ToMarkup(..))
 import Yesod.Core.Dispatch (PathPiece(..))
 import Yesod.WebSockets (WebSocketsT)
 
-import           Class.Classed (Classed)
-import qualified Class.Classed as Classed
-import qualified Class.Labeled
-import           Class.Labeled (Labeled)
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
-import           Class.TurnBased (TurnBased(..))
 import           Game.Model.Chakra (Chakras(..))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Defense (Defense(..))
@@ -56,12 +51,6 @@ instance ToJSON Barrier where
         , "name"   .= name
         , "dur"    .= dur
         ]
-instance TurnBased Barrier where
-    getDur     = dur
-    setDur d x = x { dur = d }
-instance Labeled Barrier where
-    name   = name
-    user = user
 
 -- | Applies actions when a 'Status' ends.
 data Bomb
@@ -97,13 +86,6 @@ data Channel = Channel { skill  :: Skill
                        , dur    :: Channeling
                        } deriving (Generic, ToJSON)
 
-instance Classed Channel where
-    classes = Classed.classes . (skill :: Channel -> Skill)
-
-instance TurnBased Channel where
-    getDur     = getDur . (dur :: Channel -> Channeling)
-    setDur d x = x { dur = setDur d $ (dur :: Channel -> Channeling) x }
-
 -- | Types of channeling for 'Skill's.
 data Channeling
     = Instant
@@ -112,17 +94,6 @@ data Channeling
     | Control Duration
     | Ongoing Duration
     deriving (Eq, Ord, Show, Read, Generic, ToJSON)
-instance TurnBased Channeling where
-    getDur Instant     = 1
-    getDur Passive     = Permanent
-    getDur (Action d)  = d
-    getDur (Control d) = d
-    getDur (Ongoing d) = d
-    setDur _ Instant   = Instant
-    setDur _ Passive   = Passive
-    setDur d Action{}  = Action d
-    setDur d Control{} = Control d
-    setDur d Ongoing{} = Ongoing d
 
 instance ToMarkup Channeling where
     toMarkup (Action Permanent)  = "Action"
@@ -151,26 +122,10 @@ data Copy = Copy { skill :: Skill
                  , dur   :: Duration
                  } deriving (Generic, ToJSON)
 
-instance Classed Copy where
-    classes = Classed.classes . (skill :: Copy -> Skill)
-
-instance TurnBased Copy where
-    getDur = dur
-    setDur d x = x { dur = d }
-
 -- | Applies an effect after several turns.
 data Delay = Delay { effect :: Runnable Context
                    , dur    :: Duration
                    }
-
-instance Classed Delay where
-    classes = Classed.classes . (skill :: Context -> Skill) .
-              (target :: Runnable Context -> Context) .
-              (effect :: Delay -> Runnable Context)
-
-instance TurnBased Delay where
-    getDur     = dur
-    setDur d x = x { dur = d }
 
 data Direction
     = Toward
@@ -258,8 +213,6 @@ instance ToJSON Skill where
         , "interrupt" .= interrupt
         , "owner"     .= owner
         ]
-instance Classed Skill where
-    classes = classes
 
 -- | A status effect affecting a 'Ninja'.
 data Status = Status { amount  :: Int  -- ^ Starts at 1
@@ -275,15 +228,7 @@ data Status = Status { amount  :: Int  -- ^ Starts at 1
 instance Eq Status where
     (==) = (==) `on` \Status{..} -> (name, user, classes, dur)
 instance Ord Status where
-    compare = comparing (name :: Status -> Text)
-instance TurnBased Status where
-    getDur     = dur
-    setDur d x = x { dur = d }
-instance Labeled Status where
-    name   = name
-    user = user
-instance Classed Status where
-    classes = classes
+    compare = comparing \Status{..} -> name
 
 -- | Target destinations of 'Skill's.
 data Target
@@ -327,15 +272,6 @@ instance ToJSON Trap where
         ]
 instance Eq Trap where
     (==) = (==) `on` \Trap{..} -> (direction, trigger, name, user, classes, dur)
-instance TurnBased Trap where
-    getDur     = dur
-    setDur d x = x { dur = d }
-instance Labeled Trap where
-    name = name
-    user = user
-instance Classed Trap where
-    classes = classes
-
 
 -- | Gameplay context. This promotes a 'MonadGame' to 'MonadPlay'.
 data Context = Context { skill     :: Skill
@@ -414,9 +350,9 @@ data Runnable a = To { target :: a
                      , run    :: RunConstraint ()
                      }
 instance Show a => Show (Runnable a) where
-    showsPrec i = showsPrec i . (target :: Runnable a -> a)
+    showsPrec i (To target _) = showsPrec i target
 instance ToJSON a => ToJSON (Runnable a) where
-    toJSON = toJSON . (target :: Runnable a -> a)
+    toJSON (To target _) = toJSON target
     {-# INLINE toJSON #-}
 
 instance MonadGame m => MonadGame (ExceptT e m)

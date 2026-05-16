@@ -1,5 +1,4 @@
-resolver: lts-16.28
+resolver: lts-24.40
 
 extra-deps:
 - concurrent-hashtable-0.1.8
-- bitwise-enum-1.0.0.3

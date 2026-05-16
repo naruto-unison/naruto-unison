@@ -7,8 +7,8 @@ module Handler.Play.Rating (update) where
 
 import ClassyPrelude
 
-import           Database.Esqueleto ((>.), (^.), (==.))
-import qualified Database.Esqueleto as ESQL
+import           Database.Esqueleto.Legacy ((>.), (^.), (==.))
+import qualified Database.Esqueleto.Legacy as ESQL
 import           Database.Persist.Sql ((=.), (+=.), Entity(..), SqlPersistT)
 import qualified Database.Persist.Sql as Sql
 import           Database.Persist.Types (Update)

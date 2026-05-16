@@ -14,8 +14,6 @@ import ClassyPrelude
 import Data.Aeson ((.=), ToJSON(..), object)
 import Data.Enum.Set (EnumSet)
 
-import           Class.Classed (Classed)
-import qualified Class.Classed
 import           Class.Display (Display(..))
 import           Game.Model.Class (Class(..), lower)
 import           Game.Model.Slot (Slot)
@@ -74,17 +72,6 @@ data Effect
     | Unreduce     Int                        -- ^ Reduces damage reduction 'Game.Model.Skill.Skill's
     | Weaken       (EnumSet Class) Amount Int -- ^ Lessens damage dealt
     deriving (Eq, Show)
-
-instance Classed Effect where
-    classes (Bleed classes _ _)      = classes
-    classes (Exhaust classes)        = classes
-    classes (Invulnerable cla)       = singletonSet cla
-    classes (Reduce classes _ _)     = classes
-    classes (ReflectAll cla)         = singletonSet cla
-    classes (Strengthen classes _ _) = classes
-    classes (Stun cla)               = singletonSet cla
-    classes (Weaken classes _ _)     = classes
-    classes _                        = mempty
 
 instance ToJSON Effect where
     toJSON x = object

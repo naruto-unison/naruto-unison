@@ -32,7 +32,6 @@ import qualified Network.HTTP.Client.TLS as TLS
 import qualified Network.Wai.Handler.Warp as Warp
 import qualified System.Log.FastLogger as FastLogger
 import qualified Yesod.Auth as Auth
-import qualified Yesod.Core.Types as YesodTypes
 import qualified Yesod.Default.Config2 as DefaultConfig
 import qualified Yesod.Static as Static
 
