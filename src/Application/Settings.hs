@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP             #-}
-{-# LANGUAGE NoStrictData    #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 -- | Yesod settings.
@@ -55,50 +54,50 @@ instance FromJSON DNA where
         return DNA{..}
 
 data Settings = Settings
-    { unlockAll              :: Bool
+    { unlockAll              :: ~Bool
     -- ^ Allow players to use characters they have not unlocked.
-    , turnLength             :: Int
+    , turnLength             :: ~Int
     -- ^ Duration of a game turn.
-    , practiceCacheExpiry    :: Integer
+    , practiceCacheExpiry    :: ~Integer
     -- ^ Expiration duration of the cache that holds practice matches.
-    , forfeitAfterSkips      :: Int
+    , forfeitAfterSkips      :: ~Int
     -- ^ If a character goes past @turnLength@ this many times, they
     -- automatically forfeit.
-    , queueTableSizeHint     :: Int
+    , queueTableSizeHint     :: ~Int
     -- ^ Initial size of the queue user info 'Data.HashTable.HashTable'.
 
-    , staticDir              :: String
+    , staticDir              :: ~String
     -- ^ Directory from which to serve static files.
-    , databaseConf           :: PostgresConf
+    , databaseConf           :: ~PostgresConf
     -- ^ Configuration settings for accessing the database.
-    , dnaConf                :: DNA
+    , dnaConf                :: ~DNA
     -- ^ Configuration settings for rewarding DNA.
-    , root                   :: Maybe Text
+    , root                   :: ~(Maybe Text)
     -- ^ Base for all generated URLs. If @Nothing@, determined
     -- from the request headers.
-    , host                   :: Warp.HostPreference
+    , host                   :: ~Warp.HostPreference
     -- ^ Host/interface the server should bind to.
-    , port                   :: Int
+    , port                   :: ~Int
     -- ^ Port to listen on.
-    , ipFromHeader           :: Bool
+    , ipFromHeader           :: ~Bool
     -- ^ Get the IP address from the header when logging. Useful when sitting
     -- behind a reverse proxy.
 
-    , detailedRequestLogging :: Bool
+    , detailedRequestLogging :: ~Bool
     -- ^ Use detailed request logging system.
-    , shouldLogAll           :: Bool
+    , shouldLogAll           :: ~Bool
     -- ^ Should all log messages be displayed?
-    , reloadTemplates        :: Bool
+    , reloadTemplates        :: ~Bool
     -- ^ Use the reload version of templates.
-    , mutableStatic          :: Bool
+    , mutableStatic          :: ~Bool
     -- ^ Assume that files in the static dir may change after compilation.
-    , skipCombining          :: Bool
+    , skipCombining          :: ~Bool
     -- ^ Perform no stylesheet/script combining.
 
     -- Example app-specific configuration values.
-    , copyright              :: Text
+    , copyright              :: ~Text
     -- ^ Copyright text to appear in the footer of the page.
-    , analytics              :: Maybe Text
+    , analytics              :: ~(Maybe Text)
     -- ^ Google Analytics code.
 
     , authDummyLogin         :: Bool

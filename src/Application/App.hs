@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP             #-}
-{-# LANGUAGE NoStrictData    #-}
 {-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
 
@@ -74,15 +73,15 @@ import           Class.Display (display')
 data App = App
     { startup      :: UTCTime
     , timestamp    :: Int64
-    , settings     :: Settings
+    , settings     :: ~Settings
       -- ^ Settings loaded from a local file.
-    , static       :: Static
+    , static       :: ~Static
       -- ^ Server for static files.
-    , connPool     :: ConnectionPool
+    , connPool     :: ~ConnectionPool
       -- ^ Database connection.
-    , httpManager  :: Manager
+    , httpManager  :: ~Manager
       -- ^ Web request manager.
-    , logger       :: Logger
+    , logger       :: ~Logger
       -- ^ See https://www.yesodweb.com/blog/2014/01/new-fast-logger
     , practice     :: Cache (Key User) Wrapper
       -- ^ Saved state of Practice Games. Games expire after one hour or as soon

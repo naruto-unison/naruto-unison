@@ -22,6 +22,7 @@ import Yesod
 import           Control.Concurrent (forkIO)
 import qualified Control.Monad.Logger as Logger
 import           Data.Bimap (Bimap)
+import qualified Data.Bimap as Bimap
 import qualified Data.Cache as Cache
 import qualified Data.HashTable as HashTable
 import qualified Database.Persist.Postgresql as Sql
@@ -87,10 +88,9 @@ makeFoundation settings = do
     -- logging function. To get out of this loop, we initially create a
     -- temporary foundation without a real connection pool, get a log function
     -- from there, and then create the real foundation.
-    let mkFoundation connPool characterIDs = App{..}
-        tempFoundation = mkFoundation
-            (error "connPool forced in tempFoundation")
-            (error "characterIDs forced in tempFoundation")
+    let mkFoundation characterIDs connPool = App{..}
+        tempFoundation =
+            mkFoundation Bimap.empty $ error "connPool forced in tempFoundation"
         logFunc = messageLoggerSource tempFoundation logger
 
     pool <- flip Logger.runLoggingT logFunc $ Sql.createPostgresqlPool
@@ -98,7 +98,7 @@ makeFoundation settings = do
         (Sql.pgPoolSize $ Settings.databaseConf settings)
 
     charIDs <- Logger.runLoggingT (Sql.runSqlPool initDB pool) logFunc
-    let foundation = mkFoundation pool charIDs
+    let foundation = mkFoundation charIDs pool
     void . forkIO $ Queue.quickManager foundation
     return foundation
   where
