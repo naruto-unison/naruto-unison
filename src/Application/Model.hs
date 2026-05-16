@@ -1,6 +1,3 @@
-{-# LANGUAGE EmptyDataDecls       #-}
-{-# LANGUAGE GADTs                #-}
-{-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE NoStrictData         #-}
 {-# LANGUAGE TemplateHaskell      #-}
 {-# LANGUAGE UndecidableInstances #-}

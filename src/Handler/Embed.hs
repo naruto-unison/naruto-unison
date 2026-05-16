@@ -1,6 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskell       #-}
-{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 -- | These handlers embed files in the executable at compile time to avoid runtime dependencies and improve efficiency.
 module Handler.Embed

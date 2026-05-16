@@ -174,20 +174,10 @@ default-extensions:
 - NoStarIsType
 # Package-specific
 - NoImplicitPrelude
-# Removing artificial limitations
-- ConstraintKinds
-- EmptyCase
-- FlexibleContexts
-- FlexibleInstances
-- InstanceSigs
-- MultiParamTypeClasses
 # Syntactic sugar
-- LambdaCase
 - MultiWayIf
-- NamedFieldPuns
 - RecordWildCards
 - ParallelListComp
-- TupleSections
 - UnicodeSyntax
 - ViewPatterns
 - MonadComprehensions
@@ -195,29 +185,11 @@ default-extensions:
 - MagicHash
 # More powerful types
 - TypeFamilies
-# More powerful deriving
-- DeriveDataTypeable
-- DeriveFoldable
-- DeriveFunctor
-- DeriveGeneric
-- DeriveLift
-- DeriveTraversable
-- DerivingStrategies
-- GeneralizedNewtypeDeriving
-- StandaloneDeriving
-- ScopedTypeVariables
 # Unlikely to be used, but no drawbacks
-- BangPatterns
 - DefaultSignatures
-- EmptyDataDecls
-- KindSignatures
 - PartialTypeSignatures
 - PatternSynonyms
-- RankNTypes
-# - TypeApplications
-- TypeOperators
 # Literals
-- BinaryLiterals
 - NegativeLiterals
 - NumDecimals
 # Unfortunate necessities

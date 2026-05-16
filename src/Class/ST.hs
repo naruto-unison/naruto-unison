@@ -1,6 +1,5 @@
 {-# OPTIONS_HADDOCK hide #-}
-
-{-# LANGUAGE TypeFamilies, FlexibleInstances, UndecidableInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
 -- | A patch for Edward Kmett's [monad-st](https://hackage.haskell.org/package/monad-st) library to use [primitive](https://hackage.haskell.org/package/primitive)'s standard 'PrimState' instead of defining its own @World@ type.
 module Class.ST (MonadST(..)) where
 
