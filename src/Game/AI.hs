@@ -26,17 +26,17 @@ targetOptions ns n i = case Ninjas.getSkill i n of
     Nothing    -> []
     Just skill -> makeOption skill <$> Requirement.targets ns n skill
   where
-    makeOption skill target = Context { new = True
-                                      , user = Ninja.slot n
-                                      , skill
-                                      , target = Ninja.slot target
-                                      , continues = False
-                                      }
-
+    makeOption skill target = Context
+        { new = True
+        , user = Ninja.slot n
+        , skill
+        , target = Ninja.slot target
+        , continues = False
+        }
 
 skillOptions :: [Ninja] -> Ninja -> [[Context]]
-skillOptions ns n =
-    filter (not . null) $ targetOptions ns n <$> [0..Ninja.numSkills n - 1]
+skillOptions ns n = filter (not . null)
+    $ targetOptions ns n <$> [0..Ninja.numSkills n - 1]
 
 -- | The higher this is, the more likely AI is to attack. Lower values allow it
 -- to pool mana. At 0, the AI is disabled. This will certainly end up as a

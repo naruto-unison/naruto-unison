@@ -38,8 +38,8 @@ removeFrom :: ∀ m p. (MonadGame m, MonadRandom m, Parity p)
 removeFrom target amount
   | amount <= 0 = return 0
   | otherwise   = do
-      chakras <- Chakra.toSequence . removeRandoms . Parity.getOf target .
-                 Game.chakra <$> P.game
+      chakras <- Chakra.toSequence . removeRandoms . Parity.getOf target
+               . Game.chakra <$> P.game
       removed <- Chakra.collect . take amount <$> R.shuffle chakras
       P.alter $ Game.adjustChakra target (- removed)
       return removed
@@ -55,10 +55,9 @@ remove1 permitted = do
     user     <- P.user
     target   <- P.target
     P.trigger user [OnChakra]
-    chakras :: [Chakra]
-             <- filter (∈ permitted) . Chakra.toSequence . Parity.getOf target .
-                Game.chakra <$> P.game
-    mRemoved <- R.choose chakras
+    chakras  <- filter (∈ permitted) . Chakra.toSequence . Parity.getOf target
+              . Game.chakra <$> P.game
+    mRemoved <- R.choose (chakras :: [Chakra])
     case mRemoved of
         Just (Chakra.toChakras -> removed) -> do
             P.alter $ Game.adjustChakra target (- removed)
@@ -71,6 +70,5 @@ gain :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 gain = do
     player  <- Player.opponent <$> P.player
     living  <- length . filter Ninja.alive <$> P.allies player
-    randoms :: [Chakra]
-            <- replicateM living Chakra.random
-    P.alter $ Game.adjustChakra player (+ Chakra.collect randoms)
+    randoms <- replicateM living Chakra.random
+    P.alter $ Game.adjustChakra player (+ Chakra.collect (randoms :: [Chakra]))

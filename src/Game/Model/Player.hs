@@ -10,8 +10,7 @@ import Data.Aeson (ToJSON)
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 
-data Player
-    = A | B
+data Player = A | B
     deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
 
 instance ToJSON Player

@@ -34,10 +34,11 @@ inverse Tie     = Tie
 
 -- | Some piece of information compared for both players, along with the
 -- outcome of the game from the perspective of 'playerA'.
-data Match a = Match { outcomeA :: Outcome
-                     , playerA  :: a
-                     , playerB  :: a
-                     } deriving (Eq, Show, Read)
+data Match a = Match
+    { outcomeA :: Outcome
+    , playerA  :: a
+    , playerB  :: a
+    } deriving (Eq, Show, Read)
 
 -- | Outcome of a game from a player's perspective, based on 'victor'.
 outcome :: Game -> Player -> Outcome
@@ -47,10 +48,9 @@ outcome Game{victor = [victor]} player
 outcome _ _          = Tie
 
 map :: ∀ a b. (Outcome -> a -> a -> b) -> Match a -> Match b
-map f Match{outcomeA, playerA, playerB} =
-    Match outcomeA
-    (f outcomeA playerA playerB) $
-    f (inverse outcomeA) playerA playerB
+map f Match{outcomeA, playerA, playerB} = Match outcomeA
+    (f outcomeA playerA playerB)
+    $ f (inverse outcomeA) playerA playerB
 
 traverse_ :: ∀ f a b. Applicative f
           => (Outcome -> a -> a -> f b) -> Match a -> f ()

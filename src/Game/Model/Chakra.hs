@@ -30,12 +30,13 @@ import           Game.Model.Class (Class(..))
 import           Util (hushedParse)
 
 -- | Collection of all chakra types.
-data Chakras = Chakras { blood :: Int -- ^ Bloodline
-                       , gen   :: Int -- ^ Genjutsu
-                       , nin   :: Int -- ^ Ninjutsu
-                       , tai   :: Int -- ^ Taijutsu
-                       , rand  :: Int -- ^ Random
-                       } deriving (Eq, Show, Read, Generic)
+data Chakras = Chakras
+    { blood :: Int -- ^ Bloodline
+    , gen   :: Int -- ^ Genjutsu
+    , nin   :: Int -- ^ Ninjutsu
+    , tai   :: Int -- ^ Taijutsu
+    , rand  :: Int -- ^ Random
+    } deriving (Eq, Show, Read, Generic)
 
 instance Ord Chakras where
     compare x y = comparing total x y <> comparing projection x y
@@ -57,15 +58,16 @@ instance ToMarkup Chakras where
     toMarkup = concatMap toMarkup . toList
 
 parse :: Parser Chakras
-parse = Chakras <$> Parse.decimal
-                <*> (Parse.char ',' >> Parse.decimal)
-                <*> (Parse.char ',' >> Parse.decimal)
-                <*> (Parse.char ',' >> Parse.decimal)
-                <*> return 0
+parse = Chakras
+    <$> Parse.decimal
+    <*> (Parse.char ',' >> Parse.decimal)
+    <*> (Parse.char ',' >> Parse.decimal)
+    <*> (Parse.char ',' >> Parse.decimal)
+    <*> return 0
 
 instance PathPiece Chakras where
-    toPathPiece Chakras{blood, gen, nin, tai} =
-        intercalate "," $ tshow <$> [blood, gen, nin, tai]
+    toPathPiece Chakras{blood, gen, nin, tai} = intercalate ","
+        $ tshow <$> [blood, gen, nin, tai]
 
     fromPathPiece = hushedParse parse
 
@@ -148,12 +150,12 @@ collect xs = sum $ toChakras <$> xs
 
 classes :: Chakras -> EnumSet Class
 classes (Chakras b g n t r) = fromList $ fst <$> filter snd
-                              [ (Bloodline, b > 0)
-                              , (Genjutsu,  g > 0)
-                              , (Ninjutsu,  n > 0)
-                              , (Taijutsu,  t > 0)
-                              , (Random,    r > 0)
-                              ]
+    [ (Bloodline, b > 0)
+    , (Genjutsu,  g > 0)
+    , (Ninjutsu,  n > 0)
+    , (Taijutsu,  t > 0)
+    , (Random,    r > 0)
+    ]
 
 -- | Randomly selects a @Chakra@.
 random :: ∀ m. MonadRandom m => m Chakra

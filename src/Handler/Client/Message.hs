@@ -48,4 +48,5 @@ ping :: ∀ m. MonadSockets m => ExceptT Failure m ()
 ping = do
     send Ping
     pong <- Sockets.receive {-! BLOCKS !-}
-    when (pong == "cancel") $ throwE Canceled
+    when (pong == "cancel")
+        $ throwE Canceled

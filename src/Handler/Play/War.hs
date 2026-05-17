@@ -30,26 +30,26 @@ vsEach xs = vsAll . (singletonSet <$>) =<< xs
 -- performance-critical, but because unboxed Vectors have a neat trick of
 -- converting vectors of pairs into pairs of vectors, so why not?
 wars :: UVector (EnumSet Group, EnumSet Group)
-wars = fromList $
-  replicate 6
-      ([AlliedForces], [Akatsuki, Kabuto])
-  ++ replicate 4
-      ([LeafVillage], deleteSet LeafVillage [CloudVillage .. StoneVillage ])
-  ++ replicate 4
-      ([Eleven], [Orochimaru])
-  ++ replicate 2
-      ([Jinchuriki, Sage], [Anbu, Rogue])
-  ++ vsAll [ [Akimichi, Nara, Yamanaka], [Sarutobi, Senju]
-           , [SandClan], [Uchiha], [Uzumaki]
-           ]
-  ++ vsAll [[Genin], [Chunin], [Jonin], [Anbu, Sannin, Kage]]
-  ++ vsEach
-  [ delete LeafVillage [CloudVillage .. StoneVillage]
-  , [Earth .. Yin]
-  , [BloodlineUser .. TaijutsuUser]
-  , delete AlliedForces [Akatsuki .. SevenSwordsmen]
-  , delete Sage [Rogue .. TeamLeader]
-  ]
+wars = fromList
+    $ replicate 6
+        ([AlliedForces], [Akatsuki, Kabuto])
+    ++ replicate 4
+        ([LeafVillage], deleteSet LeafVillage [CloudVillage .. StoneVillage ])
+    ++ replicate 4
+        ([Eleven], [Orochimaru])
+    ++ replicate 2
+        ([Jinchuriki, Sage], [Anbu, Rogue])
+    ++ vsAll [ [Akimichi, Nara, Yamanaka], [Sarutobi, Senju]
+             , [SandClan], [Uchiha], [Uzumaki]
+             ]
+    ++ vsAll [[Genin], [Chunin], [Jonin], [Anbu, Sannin, Kage]]
+    ++ vsEach
+    [ delete LeafVillage [CloudVillage .. StoneVillage]
+    , [Earth .. Yin]
+    , [BloodlineUser .. TaijutsuUser]
+    , delete AlliedForces [Akatsuki .. SevenSwordsmen]
+    , delete Sage [Rogue .. TeamLeader]
+    ]
 {-# NOINLINE wars #-}
 
 participant :: EnumSet Group -> Character -> Bool
@@ -89,8 +89,8 @@ match pTeam vsTeam (red, blue)
 fromDay :: LocalTime -> (EnumSet Group, EnumSet Group)
 fromDay (LocalTime (ModifiedJulianDay day) _) = wars !! i
   where
-    (i, _) = Random.randomR (0, length wars) . Random.mkStdGen . (+ 1) $
-             fromInteger day
+    (i, _) = Random.randomR (0, length wars) . Random.mkStdGen . (+ 1)
+           $ fromInteger day
 
 -- | Obtains today's war as a pseudorandom choice seeded from the
 -- 'localDay' of the current @LocalTime@.

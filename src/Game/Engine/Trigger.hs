@@ -52,9 +52,7 @@ getCounters f from classes n = mapMaybe g $ Ninja.traps n
 userCounters :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
              => Bool -- ^ Enemies were targeted
              -> Slot -> EnumSet Class -> Ninja -> [m ()]
-userCounters harmed = getCounters f
-  where
-    f tr = case Trap.trigger tr of
+userCounters harmed = getCounters \tr -> case Trap.trigger tr of
         Nullified              -> Just All
         Countered cla | harmed -> Just cla
         _                      -> Nothing

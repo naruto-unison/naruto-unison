@@ -51,14 +51,12 @@ refresh name = P.unsilenced . P.fromUser $ Ninjas.refresh name
 -- | Increases the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 prolong :: ∀ m. MonadPlay m => Duration -> Text -> m ()
-prolong dur name =
-    P.unsilenced . P.fromUser $ Ninjas.prolong dur name
+prolong dur name = P.unsilenced . P.fromUser $ Ninjas.prolong dur name
 
 -- | Reduces the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 hasten :: ∀ m. MonadPlay m => Duration -> Text -> m ()
-hasten dur name =
-    P.unsilenced . P.fromUser $ Ninjas.prolong (negate dur) name
+hasten dur name = P.unsilenced . P.fromUser $ Ninjas.prolong (negate dur) name
 
 -- | Adds a @Status@ to 'Ninja.statuses'.
 apply :: ∀ m. MonadPlay m => Duration -> [Effect] -> m ()
@@ -101,8 +99,8 @@ addStacks' dur name i = do
         st { Status.name    = name
            , Status.amount  = i
            , Status.user    = user
-           , Status.classes = deleteSet Continues .
-                              insertSet Unremovable $ Status.classes st
+           , Status.classes = deleteSet Continues . insertSet Unremovable
+                            $ Status.classes st
            }
 
 -- | Adds a hidden @Status@ with no effects that immediately expires.
@@ -153,8 +151,8 @@ bombWith classes = bombWith' classes ""
 bombWith' :: ∀ m. MonadPlay m
           => EnumSet Class -> Text -> Duration -> [Effect] -> [Runnable Bomb]
           -> m ()
-bombWith' classes name dur effects bombs =
-    P.unsilenced $ applyFull 1 classes bombs name dur effects
+bombWith' classes name dur effects bombs = P.unsilenced
+    $ applyFull 1 classes bombs name dur effects
 
 -- | 'addStacks' with 'Status.effect's.
 applyStacks :: ∀ m. MonadPlay m
@@ -181,22 +179,23 @@ applyFull amount classes bombs name unthrottled effects =
         let st   = makeStatus context amount nUser nTarget
                    classes bombs name dur effects
         if Ninja.has name user nTarget && Extending ∈ Status.classes st then
-            let prolong' = mapMaybe .
-                           Ninjas.prolong' (Status.dur st) name $ Status.user st
+            let prolong' = mapMaybe . Ninjas.prolong' (Status.dur st) name
+                         $ Status.user st
             in
             P.modify target \n ->
                 n { Ninja.statuses = prolong' $ Ninja.statuses n }
         else do
             guard $ null effects || not (null $ Status.effects st)
             P.modify target $ Ninjas.addStatus st
-            when (any isInvulnerable $ Status.effects st) $
-                P.trigger target [OnInvulnerable]
-            when (any isReduce $ Status.effects st) $
-                P.trigger user [OnReduce]
+            when (any isInvulnerable $ Status.effects st)
+                $ P.trigger target [OnInvulnerable]
+            when (any isReduce $ Status.effects st)
+                $ P.trigger user [OnReduce]
             when (any Effect.isDisable $ Status.effects st) do
                 P.trigger user [OnStun]
                 P.trigger target [OnStunned]
-            when (any isHeal $ Status.effects st) $ P.trigger user [OnHeal]
+            when (any isHeal $ Status.effects st)
+                $ P.trigger user [OnHeal]
   where
     isHeal (Heal x)   = x > 0
     isHeal _          = False
@@ -213,18 +212,18 @@ makeStatus Context{skill, user, continues, new}
     (Status.new user dur skill)
     { Status.name    = Skill.defaultName name skill
     , Status.user
-    , Status.effects = filterDmg . filter disable $
-                       Ninjas.apply nUser nTarget effects
+    , Status.effects = filterDmg . filter disable
+                     $ Ninjas.apply nUser nTarget effects
     , Status.classes = classes'
     , Status.amount
     , Status.bombs
     }
   where
-    skillClasses
-      | continues && dur <= 1 = insertSet Continues $ Skill.classes skill
-      | continues || new      = deleteSet Continues $ Skill.classes skill
-      | otherwise             = deleteSet Continues .
-                                deleteSet Invisible $ Skill.classes skill
+    modClasses
+      | continues && dur <= 1 = insertSet Continues
+      | continues || new      = deleteSet Continues
+      | otherwise             = deleteSet Continues . deleteSet Invisible
+    skillClasses = modClasses $ Skill.classes skill
     noremove = null effects && Bane ∉ skillClasses
                || Hidden ∈ classes ++ skillClasses
                || dur == 1 && Skill.dur skill /= Instant
@@ -306,10 +305,11 @@ commandeer = P.unsilenced do
           , Ninja.barrier = []
           }
     target  <- P.target
-    P.modify target $ Ninjas.modifyStatuses (mapMaybe loseHelpful) . \n ->
-        n { Ninja.defense = []
-          , Ninja.barrier = Ninja.barrier nUser
-         }
+    P.modify target $ Ninjas.modifyStatuses
+        (mapMaybe loseHelpful) . \n ->
+            n { Ninja.defense = []
+            , Ninja.barrier = Ninja.barrier nUser
+            }
   where
     lose ef = Effect.helpful ef && not (Effect.sticky ef)
     loseHelpful st
@@ -317,12 +317,12 @@ commandeer = P.unsilenced do
       | null $ Status.effects st           = Just st
       | not . any lose $ Status.effects st = Just st
       | all lose $ Status.effects st       = Nothing
-      | otherwise = Just st
-          { Status.effects = filter (not . lose) $ Status.effects st }
+      | otherwise =
+            Just st { Status.effects = filter (not . lose) $ Status.effects st }
     gainHelpful st
       | Unremovable ∈ Status.classes st    = Nothing
       | null $ Status.effects st           = Nothing
       | not . any lose $ Status.effects st = Nothing
       | all lose $ Status.effects st       = Just st
-      | otherwise = Just
-          st { Status.effects = filter lose $ Status.effects st }
+      | otherwise =
+            Just st { Status.effects = filter lose $ Status.effects st }

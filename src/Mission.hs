@@ -51,8 +51,8 @@ initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do
     charEntities <- selectList [] []
     let chars = entityVal <$> charEntities
-    insertMany_ .
-        filter (∉ chars) $ Character . Character.ident <$> Characters.list
+    insertMany_ . filter (∉ chars)
+        $ Character . Character.ident <$> Characters.list
     newChars <- selectList [] []
     return $ makeMap newChars
 
@@ -70,7 +70,7 @@ makeMap chars = Bimap.fromList $ mapMaybe maybePair chars
 
 type instance Element Unlocks = Text
 newtype Unlocks = Unlocks (HashSet Text)
-                 deriving (Show, Read, Semigroup, Monoid, MonoFoldable, ToJSON)
+    deriving (Show, Read, Semigroup, Monoid, MonoFoldable, ToJSON)
 
 -- | 'Character.ident' collection of all Characters that the user has unlocked.
 -- If not logged in, all Characters are returned.
@@ -123,10 +123,11 @@ userMission char = fromMaybe mempty <$> runMaybeT do
     return . Just $ zip mission objectives
 
 -- | If @i >= length goals@, this will do nothing.
-data GoalIndex = GoalIndex { goals :: Seq Goal
-                           , char  :: CharacterId
-                           , i     :: Int
-                           }
+data GoalIndex = GoalIndex
+    { goals :: Seq Goal
+    , char  :: CharacterId
+    , i     :: Int
+    }
 
 -- | Inserts progress on a mission into the database.
 updateProgress :: ∀ m. MonadIO m
@@ -170,8 +171,8 @@ progress Progress{character, objective, amount} =
         goals <- MaybeT . return $ lookup character Missions.map
         guard $ objective < length goals
         char  <- characterID character
-        lift . runDB $
-            updateProgress who amount GoalIndex { goals, char, i = objective }
+        lift . runDB
+            $ updateProgress who amount GoalIndex { goals, char, i = objective }
 
 -- | Using a list of database mission entries for a user, maps goals onto the
 -- user's progress toward those goals.
@@ -182,8 +183,8 @@ setObjectives xs objectives = foldl' f (0 <$ xs) objectives
 
 -- | Returns true if a user has completed a given mission.
 completed :: Seq Goal -> [Entity Mission] -> Bool
-completed mission objectives = and . zipWith ((<=) . Goal.reach) mission $
-                               setObjectives mission objectives
+completed mission objectives = and . zipWith ((<=) . Goal.reach) mission
+    $ setObjectives mission objectives
 
 -- | Extracts 'Goal.Win' progress from a winning user's team.
 winners :: Bimap CharacterId Text
@@ -235,8 +236,8 @@ processUnpicked :: [Text] -> Handler ()
 processUnpicked team = do
     ids             <- getsYesod App.characterIDs
     Unlocks unlocks <- unlocked
-    runDB . traverse_ ups . mapMaybe (`Bimap.lookupR` ids) . toList $
-        unlocks `difference` setFromList team
+    runDB . traverse_ ups . mapMaybe (`Bimap.lookupR` ids) . toList
+        $ unlocks `difference` setFromList team
   where
     ups char = upsert (newUsage char){ usageUnpicked = 1 }
                [UsageUnpicked +=. 1]
@@ -293,8 +294,8 @@ tallyDNA section outcome war dnaConf day user = filter ((> 0) . Reward.amount)
     winStreak
       | outcome /= Victory         = 0
       | userStreak user < 1        = 0
-      | Settings.useStreak dnaConf = floor . (sqrt :: Float -> Float) .
-                                     fromIntegral $ userStreak user - 1
+      | Settings.useStreak dnaConf = floor . (sqrt :: Float -> Float)
+                                   . fromIntegral $ userStreak user - 1
       | otherwise                  = 0
     warWin
       | outcome /= Victory         = 0
@@ -311,9 +312,9 @@ outcomeDNA Queue.Quick Tie     = Settings.quickTie
 
 -- | Returns usage stats about all characters in the database.
 getUsageRates :: Handler [UsageRate]
-getUsageRates =
-    mapMaybe . findUsage <$> getsYesod App.characterIDs
-                         <*> runDB (selectList [] [])
+getUsageRates = mapMaybe . findUsage
+    <$> getsYesod App.characterIDs
+    <*> runDB (selectList [] [])
 
 -- | Matches a @Usage@ with a 'Character' from 'Characters.map'.
 findUsage :: Bimap CharacterId Text -> Entity Usage -> Maybe UsageRate

@@ -26,26 +26,26 @@ topic User{userPrivilege} forumTopicBoard forumPostTime forumPostAuthor =
     makeNewTopic <$> areq textField "Title" Nothing
                  <*> areq textareaField "Post" Nothing
   where
-    makeTopic rawTitle =
-        ForumTopic { forumTopicAuthor = forumPostAuthor
-                   , forumTopicBoard
-                   , forumTopicLatest = forumPostAuthor
-                   , forumTopicModified = forumPostTime
-                   , forumTopicPosts = 1
-                   , forumTopicStaff = userPrivilege > Normal
-                   , forumTopicState = Open
-                   , forumTopicTime = forumPostTime
-                   , forumTopicTitle = filter (/= Link.staffTag) rawTitle
-                   }
-    makePost area forumPostTopic =
-        ForumPost { forumPostAuthor
-                  , forumPostBody = toBody area
-                  , forumPostLikes = 0
-                  , forumPostDeleted = False
-                  , forumPostEdited = Nothing
-                  , forumPostTime
-                  , forumPostTopic
-                  }
+    makeTopic rawTitle = ForumTopic
+        { forumTopicAuthor = forumPostAuthor
+        , forumTopicBoard
+        , forumTopicLatest = forumPostAuthor
+        , forumTopicModified = forumPostTime
+        , forumTopicPosts = 1
+        , forumTopicStaff = userPrivilege > Normal
+        , forumTopicState = Open
+        , forumTopicTime = forumPostTime
+        , forumTopicTitle = filter (/= Link.staffTag) rawTitle
+        }
+    makePost area forumPostTopic = ForumPost
+        { forumPostAuthor
+        , forumPostBody = toBody area
+        , forumPostLikes = 0
+        , forumPostDeleted = False
+        , forumPostEdited = Nothing
+        , forumPostTime
+        , forumPostTopic
+        }
     makeNewTopic rawTitle area = NewTopic (makeTopic rawTitle) $ makePost area
 
 data PostForm

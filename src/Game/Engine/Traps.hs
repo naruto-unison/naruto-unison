@@ -38,7 +38,8 @@ launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
 launch trap runner = do
     P.launch runner
     nTarget <- P.ninja . Context.target $ Runnable.target runner
-    when (Trap.uncopied trap) $ Hook.trap trap nTarget
+    when (Trap.uncopied trap)
+        $ Hook.trap trap nTarget
 
 run :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Trap -> m ()
@@ -51,8 +52,8 @@ run user trap = launch trap case Trap.direction trap of
 
 getOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
       => Slot -> Trigger -> Ninja -> [m ()]
-getOf user trigger n =
-    run user <$> filter ((== trigger) . Trap.trigger) (Ninja.traps n)
+getOf user trigger n = run user
+    <$> filter ((== trigger) . Trap.trigger) (Ninja.traps n)
 
 get :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> [m ()]
@@ -79,8 +80,9 @@ broken :: Ninja -- ^ Old.
 broken n n' =
     n' { Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n') triggers }
   where
-    triggers = OnBreak <$> nub (Defense.name <$> Ninja.defense n)
-                        \\ nub (Defense.name <$> Ninja.defense n')
+    triggers = OnBreak
+        <$> nub (Defense.name <$> Ninja.defense n)
+        \\ nub (Defense.name <$> Ninja.defense n')
 
 -- | Conditionally returns 'Trap.Trap's that accept a numeric value.
 getPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)

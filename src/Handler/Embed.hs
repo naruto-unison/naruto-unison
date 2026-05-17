@@ -15,11 +15,12 @@ import Application.App (Handler)
 
 -- | From [config/favicon.ico](config/favicon.ico).
 getFaviconR :: Handler TypedContent
-getFaviconR = do cacheSeconds $ 60 * 60 * 24 * 30 -- cache for a month
-                 return $ TypedContent "image/x-icon" $
-                    toContent $(FileEmbed.embedFile "config/favicon.ico")
+getFaviconR = do
+    cacheSeconds $ 60 * 60 * 24 * 30 -- cache for a month
+    return $ TypedContent "image/x-icon"
+        $ toContent $(FileEmbed.embedFile "config/favicon.ico")
 
 -- | From [config/robots.txt](config/robots.txt).
 getRobotsR :: Handler TypedContent
-getRobotsR = return $ TypedContent typePlain $
-                toContent $(FileEmbed.embedFile "config/robots.txt")
+getRobotsR = return $ TypedContent typePlain
+                $ toContent $(FileEmbed.embedFile "config/robots.txt")

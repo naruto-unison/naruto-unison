@@ -90,8 +90,9 @@ wrap' affected f = void $ runMaybeT do
 
     let finish = do
             f
-            when (allow Reflected) . P.withTargets (Effects.share nTarget) $
-                wrap' (insertSet Reflected affected) f
+            when (allow Reflected)
+                . P.withTargets (Effects.share nTarget)
+                $ wrap' (insertSet Reflected affected) f
 
     lift if not new then
         f
@@ -104,15 +105,14 @@ wrap' affected f = void $ runMaybeT do
             $ do
               guard $ allow Redirected && Unreflectable ∉ classes
               t <- Trigger.redirect nTarget
-              return .
-                  P.withTarget t $ wrap' (insertSet Redirected affected) f
+              return . P.withTarget t $ wrap' (insertSet Redirected affected) f
           <|> do
               guard $ allow Reflected && Unreflectable ∉ classes
                       && Effects.reflect classes nTarget
               return do
                   P.trigger target [OnReflect]
-                  P.with Context.reflect $
-                      wrap' (insertSet Reflected affected) f
+                  P.with Context.reflect
+                    $ wrap' (insertSet Reflected affected) f
 
     P.zipWith Traps.broken ninjas
 
@@ -247,13 +247,13 @@ act ctx@Context{user, skill, new} = void $ runMaybeT do
 
     lift $ P.withContext ctx do
         if not new then
-            P.withContinues $
-            run' (singletonSet Targeted) =<< chooseTargets (Skill.effects skill)
+            P.withContinues $ run' (singletonSet Targeted)
+              =<< chooseTargets (Skill.effects skill)
         else do
             P.modify user \n -> n { Ninja.lastSkill = Just skill }
             P.trigger user $ OnAction <$> toList classes
-            when (Skill.charges skill > 0) .
-                P.modify user $ Cooldown.spendCharge skill
+            when (Skill.charges skill > 0)
+                . P.modify user $ Cooldown.spendCharge skill
             startEfs   <- chooseTargets $ Skill.start skill
             contEfs    <- chooseTargets $ Skill.effects skill
             let bothEfs = startEfs ++ contEfs
@@ -263,10 +263,9 @@ act ctx@Context{user, skill, new} = void $ runMaybeT do
             let counters = Trigger.userCounters (not $ null countering)
                            user classes nUser ++
                            (Trigger.targetCounters user classes =<< countering)
-            if not $
-              Uncounterable ∈ classes
-              || nUser `is` AntiCounter
-              || null counters
+            if not $ Uncounterable ∈ classes
+                  || nUser `is` AntiCounter
+                  || null counters
             then do
                 let countered = Ninja.slot <$> countering
                     uncounter n
@@ -284,7 +283,8 @@ act ctx@Context{user, skill, new} = void $ runMaybeT do
                     P.withContinues $ run' (singletonSet Targeted) contEfs
                     addChannels
             P.modify user \n -> n { Ninja.acted = True }
-            when new . P.modify user $ Cooldown.update skill
+            when new
+                . P.modify user $ Cooldown.update skill
         P.uncopied do
             Hook.action skill initial =<< P.ninjas
             Hook.chakra skill chakras . Game.chakra =<< P.game
@@ -318,17 +318,18 @@ nonRandom _      = True
 breakControls :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 breakControls = traverse_ breakN =<< P.ninjas
   where
-    breakN n = traverse_ (breakControl (Ninja.slot n) $ Effects.stun n) $
-               Ninja.newChans n ++ Ninja.channels n
+    breakN n = traverse_ (breakControl (Ninja.slot n) $ Effects.stun n)
+             $ Ninja.newChans n ++ Ninja.channels n
 
 breakControl :: ∀ m. (MonadGame m, MonadRandom m)
              => Slot -> EnumSet Class -> Channel -> m ()
 breakControl user stuns Channel{dur = Control{}, skill, target}
   | stuns `intersects` Skill.classes skill = P.withContext context doBreak
   | otherwise = P.withContext context do
-      targets <- chooseTargets . filter (nonRandom . Runnable.target) $
-                Skill.effects skill
-      when (any null targets) doBreak
+      targets <- chooseTargets . filter (nonRandom . Runnable.target)
+               $ Skill.effects skill
+      when (any null targets)
+        doBreak
   where
     doBreak = do
         interruptTargets <- chooseTargets $ interruptions skill

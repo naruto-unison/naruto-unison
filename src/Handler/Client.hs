@@ -42,7 +42,7 @@ getUpdateR updateName updateCondense updateBackground updateAvatar
       invalidArgs ["Name can only contain letters and numbers"]
   | otherwise = do
     accId <- Auth.requireAuthId
-    user  <- runDB $ updateGet accId [ UserName      =. updateName
+    user  <- runDB $ updateGet accId [ UserName       =. updateName
                                      , UserCondense   =. updateCondense
                                      , UserBackground =. updateBackground''
                                      , UserAvatar     =. updateAvatar
@@ -51,30 +51,30 @@ getUpdateR updateName updateCondense updateBackground updateAvatar
   where
     legalChars :: HashSet Char
     legalChars = setFromList $ ['0'..'9'] ++ ['a'..'z'] ++ ['A'..'z']
-    updateBackground'  = fromMaybe "" $ tailMay updateBackground
+    updateBackground' = fromMaybe "" $ tailMay updateBackground
     updateBackground''
       | null updateBackground' = Nothing
       | otherwise              = Just updateBackground'
 
 -- | Used for displaying mission progress when viewing a character in the
 -- character selection screen.
-data ObjectiveProgress =
-    ObjectiveProgress { character :: Maybe Text
-                      , desc      :: Text
-                      , goal      :: Int
-                      , progress  :: Int
-                      } deriving (Eq, Ord, Show, Read, Generic)
+data ObjectiveProgress = ObjectiveProgress
+    { character :: Maybe Text
+    , desc      :: Text
+    , goal      :: Int
+    , progress  :: Int
+    } deriving (Eq, Ord, Show, Read, Generic)
 
 instance ToJSON ObjectiveProgress
 
 -- | Unpacks the output of 'Mission.userMission'.
 unzipGoal :: (Goal, Int) -> ObjectiveProgress
-unzipGoal (goal, progress) =
-    ObjectiveProgress { character = Character.format <$> Goal.character goal
-                      , desc      = Goal.desc goal
-                      , goal      = Goal.reach goal
-                      , progress
-                      }
+unzipGoal (goal, progress) = ObjectiveProgress
+    { character = Character.format <$> Goal.character goal
+    , desc      = Goal.desc goal
+    , goal      = Goal.reach goal
+    , progress
+    }
 
 -- | Returns progress on a character's mission as a list of 'ObjectiveProgress'.
 getMissionR :: Character -> Handler Value
@@ -93,11 +93,11 @@ getMuteR mute = do
 getReanimateR :: Character -> Handler Value
 getReanimateR char = do
     (who, user) <- Auth.requireAuthPair
-    when (userDna user < price) $
-        invalidArgs ["Unaffordable"]
+    when (userDna user < price)
+        $ invalidArgs ["Unaffordable"]
     unlocks <- Mission.unlocked
-    when (Character.ident char ∈ unlocks) $
-        invalidArgs ["Character already unlocked"]
+    when (Character.ident char ∈ unlocks)
+        $ invalidArgs ["Character already unlocked"]
     mCharID <- runMaybeT . Mission.characterID $ Character.ident char
     case mCharID of
         Nothing -> invalidArgs ["Character not found"]
@@ -115,11 +115,10 @@ getPlayR = do
     unlocked    <- Mission.unlocked
     (red,blue)  <- liftIO War.today
     let muser = snd <$> mauth
-    when (isJust muser) $
-        liftIO Random.createSystemRandom >>= runReaderT Play.gameSocket
-    let team     = maybe []
-                   (mapMaybe Characters.lookup . filter (∈ unlocked)) $
-                   userTeam =<< muser
+    when (isJust muser)
+        $ liftIO Random.createSystemRandom >>= runReaderT Play.gameSocket
+    let team     = maybe [] (mapMaybe Characters.lookup . filter (∈ unlocked))
+                 $ userTeam =<< muser
         practice = maybe [] (mapMaybe Characters.lookup . userPractice)
                    muser
         bg       = fromMaybe "/img/bg/valley2.jpg" $ userBackground =<< muser
@@ -150,12 +149,12 @@ charAvatars char = toFile <$> "icon" : skills
 avatars :: Value
 avatars = toJSON $ icons ++ concatMap charAvatars Characters.list
   where
-    icons = ("/img/icon/" ++) <$>
-        [ "default.jpg"
-        , "gaaraofthefunk.jpg"
-        , "ninjainfocards.jpg"
-        , "kabugrin.jpg"
-        ]
+    icons = ("/img/icon/" ++)
+        <$> [ "default.jpg"
+            , "gaaraofthefunk.jpg"
+            , "ninjainfocards.jpg"
+            , "kabugrin.jpg"
+            ]
 {-# NOINLINE avatars #-}
 
 isMuted :: Maybe User -> Bool

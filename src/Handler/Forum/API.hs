@@ -66,8 +66,8 @@ getLikePostR forumLikePost = attemptMaybeT do
 
 getLike :: ∀ m. MonadIO m
         => Key ForumPost -> Key User -> SqlPersistT m (Maybe (Entity ForumLike))
-getLike post who =
-    selectFirst [ForumLikePost ==. post, ForumLikeUser ==. who] []
+getLike post who = selectFirst
+    [ForumLikePost ==. post, ForumLikeUser ==. who] []
 
 -- | Marks a forum topic as 'Deleted'.
 -- Deleted topics are visible only to Moderators and Admins.

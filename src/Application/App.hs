@@ -101,8 +101,8 @@ instance MonadST Handler where
     liftST = HandlerFor . const . stToIO
 
 getPrivilege :: ∀ m. (MonadHandler m, App ~ HandlerSite m) => m Privilege
-getPrivilege = liftHandler . cached $
-               maybe Guest (userPrivilege . snd) <$> Auth.maybeAuthPair
+getPrivilege = liftHandler . cached
+    $ maybe Guest (userPrivilege . snd) <$> Auth.maybeAuthPair
 
 -- | A convenient synonym for creating forms.
 type Form x = Html -> MForm (HandlerFor App) (FormResult x, Widget)
@@ -114,14 +114,15 @@ type AppPersistEntity a = ( PersistEntity a
                           )
 
 getNavLinks :: Handler [(Route App, Html)]
-getNavLinks =
-    withAdmin [ (HomeR,   "Home")
-              , (GuideR,  "Guide")
-              , (ForumsR, "Forums")
-              ] <$> isAuthenticated Admin
+getNavLinks = routesForAuth <$> isAuthenticated Admin
   where
-    withAdmin xs Authorized = xs ++ [(AdminR, "Admin")]
-    withAdmin xs _          = xs
+    userRoutes  = [ (HomeR,   "Home")
+                  , (GuideR,  "Guide")
+                  , (ForumsR, "Forums")
+                  ]
+    adminRoutes = [ (AdminR,  "Admin") ]
+    routesForAuth Authorized = userRoutes ++ adminRoutes
+    routesForAuth _          = userRoutes
 
 origin :: Route App -> Route App
 origin BoardR{}     = ForumsR
@@ -152,11 +153,12 @@ unchanged304 :: Handler ()
 #ifdef DEVELOPMENT
 unchanged304 = return ()
 #else
-unchanged304 = whenM (isNothing <$> getMessage) $
-               setEtag . toStrict . display' =<<
-               maybeAdd <$> getsYesod timestamp <*> maybeAuthId
+unchanged304 = whenM (isNothing <$> getMessage)
+    $ setEtag . toStrict . display'
+    =<< maybeAdd <$> getsYesod timestamp <*> maybeAuthId
   where
-    maybeAdd x = maybe x $ (+ x) . Sql.fromSqlKey
+    maybeAdd x (Just key) = Sql.fromSqlKey key + x
+    maybeAdd x Nothing = x
 #endif
 
 -- | Sets the
@@ -173,15 +175,15 @@ lastModified time = do
     replaceOrAddHeader "Last-Modified" . pack $ formatAsLastModified timestamp
 
 formatAsLastModified :: UTCTime -> String
-formatAsLastModified time = Format.formatTime Format.defaultTimeLocale
-                            "%a, %d %b %Y %H:%M:%S GMT" $
-                            LocalTime.utcToLocalTime (read "GMT") time
+formatAsLastModified time =
+    Format.formatTime Format.defaultTimeLocale "%a, %d %b %Y %H:%M:%S GMT"
+    $ LocalTime.utcToLocalTime (read "GMT") time
 
 instance Yesod App where
     approot :: Approot App
     approot = ApprootRequest \app req ->
-        fromMaybe (getApprootText guessApproot app req) .
-        Settings.root $ settings app
+        fromMaybe (getApprootText guessApproot app req)
+        . Settings.root $ settings app
 
     makeSessionBackend :: App -> IO (Maybe SessionBackend)
     makeSessionBackend _ = Just <$> defaultClientSessionBackend
@@ -413,13 +415,13 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
         muser <- getBy . UniqueUser $ toLower email
         return $ makeCreds <$> muser
       where
-        makeCreds (Entity uid u) =
-            AuthEmail.EmailCreds { emailCredsId = uid
-                                 , emailCredsAuthId = Just uid
-                                 , emailCredsStatus = isJust $ userPassword u
-                                 , emailCredsVerkey = userVerkey u
-                                 , emailCredsEmail = toLower email
-                                 }
+        makeCreds (Entity uid u) = AuthEmail.EmailCreds
+            { emailCredsId = uid
+            , emailCredsAuthId = Just uid
+            , emailCredsStatus = isJust $ userPassword u
+            , emailCredsVerkey = userVerkey u
+            , emailCredsEmail = toLower email
+            }
     getEmail uid = liftDB do
         muser <- get uid
         return $ userIdent <$> muser

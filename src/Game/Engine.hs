@@ -91,8 +91,8 @@ processTurn runner = do
     yieldVictor
     Hook.turn player initial =<< P.ninjas
   where
-    getChannels n =
-        fromChannel n <$> filter ((/= -1) . TurnBased.getDur) (Ninja.channels n)
+    getChannels n = fromChannel n
+        <$> filter ((/= -1) . TurnBased.getDur) (Ninja.channels n)
     fromChannel n chan =
         Context { new       = False
                 , user      = Ninja.slot n
@@ -105,8 +105,8 @@ processTurn runner = do
 doDelays :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 doDelays = traverse_ delay . filter Ninja.alive =<< P.ninjas
   where
-    delay n = traverse_ (P.launch . Delay.effect) .
-              filter ((<= -1) . Delay.dur) $ Ninja.delays n
+    delay n = traverse_ (P.launch . Delay.effect) . filter ((<= -1) . Delay.dur)
+        $ Ninja.delays n
 
 -- | Executes 'Status.bombs' of a @Status@.
 doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
@@ -121,14 +121,13 @@ doBomb bomb target st = traverse_ detonate $ Status.bombs st
 doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> [Ninja] -> m ()
 doBombs bomb ninjas = zipWithM_ comp ninjas =<< P.ninjas
   where
-    comp n n' = sequence $
-                doBomb bomb (Ninja.slot n) <$> deleteFirstsBy Labeled.eq
-                (stats n) (stats n')
+    comp n n' = sequence
+              $ doBomb bomb (Ninja.slot n)
+              <$> deleteFirstsBy Labeled.eq (stats n) (stats n')
       where
         stats
           | Ninja.alive n' = Ninja.statuses
-          | otherwise      = filter ((Necromancy ∈) . Status.classes) .
-                             Ninja.statuses
+          | otherwise = filter ((Necromancy ∈) . Status.classes) . Ninja.statuses
 
 -- | Executes 'Barrier.while' and 'Barrier.finish' effects.
 doBarriers :: ∀ m. (MonadGame m, MonadRandom m) => m ()
@@ -164,8 +163,8 @@ doDeath slot = do
     else if null res then do
         P.modify slot $ Ninjas.clearTraps OnDeath
         sequence_ $ Traps.getOf slot OnDeath n
-        traverse_ (doBomb Done slot) .
-            filter ((Necromancy ∉) . Status.classes) $ Ninja.statuses n
+        traverse_ (doBomb Done slot) . filter ((Necromancy ∉) . Status.classes)
+            $ Ninja.statuses n
         P.modifyAll $ unSoulbound slot
 
     else do
@@ -175,14 +174,13 @@ doDeath slot = do
 -- | Removes 'Soulbound' effects. Applied when a Ninja dies or is factory-reset.
 unSoulbound :: Slot -> Ninja -> Ninja
 unSoulbound user n = Ninjas.modifyStatuses
-        (const [st | st <- Ninja.statuses n
-                   , user /= Status.user st
-                     || Soulbound ∉ Status.classes st]) $
-        n { Ninja.traps = [trap | trap <- Ninja.traps n
-                                , user /= Trap.user trap
-                                  || Soulbound ∉ Trap.classes trap]
-          , Ninja.copies = filter keep $ Ninja.copies n
-          }
+    (const [st | st <- Ninja.statuses n
+              , user /= Status.user st || Soulbound ∉ Status.classes st])
+    $ n { Ninja.traps = [trap | trap <- Ninja.traps n
+                              , user /= Trap.user trap
+                                || Soulbound ∉ Trap.classes trap]
+        , Ninja.copies = filter keep $ Ninja.copies n
+        }
   where
     keep Nothing = True
     keep (Just Copy{skill}) = user /= Skill.owner skill
@@ -197,7 +195,8 @@ doHpOverTime slot = do
     player <- P.player
     n      <- P.ninja slot
     hp     <- Effects.hp player n <$> P.ninjas
-    when (Ninja.alive n) . P.modify slot $ Ninjas.adjustHealth (- hp)
+    when (Ninja.alive n)
+        . P.modify slot $ Ninjas.adjustHealth (- hp)
 
 -- | Updates 'Game.victor'.
 yieldVictor :: ∀ m. MonadGame m => m ()

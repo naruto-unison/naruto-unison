@@ -71,8 +71,8 @@ onBreak f = do
     name    <- Skill.name <$> P.skill
     user    <- P.user
     nTarget <- P.nTarget
-    when (Ninja.hasDefense name user nTarget) $
-        trapFrom' Permanent (OnBreak name) do
+    when (Ninja.hasDefense name user nTarget)
+        $ trapFrom' Permanent (OnBreak name) do
             f
             user' <- P.user
             P.modify user' . Ninjas.clearTraps $ OnBreak name
@@ -152,8 +152,8 @@ delay Permanent _ = return () -- A Delay that lasts forever would be pointless!
 delay dur f = do
     context  <- P.context
     let user  = Context.user context
-        del   = Delay.new context { Context.continues = False } dur $
-                Action.wrap f
+        del   = Delay.new context { Context.continues = False } dur
+              $ Action.wrap f
     P.modify user \n -> n { Ninja.delays = del : Ninja.delays n }
 
 -- | Removes 'Ninja.traps' with matching 'Trap.name'.

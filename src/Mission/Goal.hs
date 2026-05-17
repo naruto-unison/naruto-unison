@@ -96,16 +96,18 @@ user (HookTrigger name _ _) = Just name
 user (HookTurn name _)      = Just name
 
 -- | Schema component in use in @Mission.Missions@ modules.
-data Goal = Reach { reach     :: Int
-                  , spanning  :: Span
-                  , desc      :: Text
-                  , objective :: Objective
-                  }
+data Goal = Reach
+    { reach     :: Int
+    , spanning  :: Span
+    , desc      :: Text
+    , objective :: Objective
+    }
 
 -- | Main schema in @Mission.Missions@ modules.
-data Mission = Mission { char  :: Text
-                       , goals :: Seq Goal
-                       }
+data Mission = Mission
+    { char  :: Text
+    , goals :: Seq Goal
+    }
 
 instance Eq Mission where
     (==) = (==) `on` char

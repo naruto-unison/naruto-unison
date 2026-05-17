@@ -23,21 +23,22 @@ type Transform = (Ninja -> Skill -> Skill)
 
 -- | Default values.
 new :: Skill
-new = Skill { name      = "Unnamed"
-            , desc      = ""
-            , require   = Usable
-            , classes   = singletonSet All
-            , cost      = 0
-            , cooldown  = 0
-            , charges   = 0
-            , dur       = Instant
-            , start     = []
-            , effects   = []
-            , stunned   = []
-            , interrupt = []
-            , changes   = const id
-            , owner     = unsafeHead Slot.all
-            }
+new = Skill
+    { name      = "Unnamed"
+    , desc      = ""
+    , require   = Usable
+    , classes   = singletonSet All
+    , cost      = 0
+    , cooldown  = 0
+    , charges   = 0
+    , dur       = Instant
+    , start     = []
+    , effects   = []
+    , stunned   = []
+    , interrupt = []
+    , changes   = const id
+    , owner     = unsafeHead Slot.all
+    }
 
 -- | Adds 'Model.Class.Bloodline', 'Model.Class.Genjutsu',
 -- 'Model.Class.Ninjutsu', 'Model.Class.Taijutsu', and 'Model.Class.Random'

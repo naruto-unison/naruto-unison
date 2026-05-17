@@ -36,25 +36,26 @@ numSkills n = length . skills $ character n
 
 -- | Constructs a @Ninja@ with starting values from a character and an index.
 new :: Slot -> Character -> Ninja
-new slot c = Ninja { slot
-                   , health     = 100
-                   , character  = c { skills = (own <$>) <$> skills c }
-                   , defense    = mempty
-                   , barrier    = mempty
-                   , statuses   = mempty
-                   , charges    = mempty
-                   , cooldowns  = mempty
-                   , alternates = replicate skillSize 0
-                   , copies     = replicate skillSize Nothing
-                   , channels   = mempty
-                   , newChans   = mempty
-                   , traps      = mempty
-                   , delays     = mempty
-                   , lastSkill  = Nothing
-                   , triggers   = mempty
-                   , effects    = mempty
-                   , acted      = False
-                   }
+new slot c = Ninja
+    { slot
+    , health     = 100
+    , character  = c { skills = (own <$>) <$> skills c }
+    , defense    = mempty
+    , barrier    = mempty
+    , statuses   = mempty
+    , charges    = mempty
+    , cooldowns  = mempty
+    , alternates = replicate skillSize 0
+    , copies     = replicate skillSize Nothing
+    , channels   = mempty
+    , newChans   = mempty
+    , traps      = mempty
+    , delays     = mempty
+    , lastSkill  = Nothing
+    , triggers   = mempty
+    , effects    = mempty
+    , acted      = False
+    }
   where
     own x     = x { owner = slot }
     skillSize = length $ skills c
@@ -130,37 +131,39 @@ numActive name n
 numStacks :: Text -- ^ 'Status.name'.
           -> Slot -- ^ 'Status.user'.
           -> Ninja -> Int
-numStacks name user n =
-    sum $ Status.amount <$> filter (Labeled.match name user) (statuses n)
+numStacks name user n = sum
+    $ Status.amount <$> filter (Labeled.match name user) (statuses n)
 
 -- | Number of stacks of 'statuses' from any source.
 numAnyStacks :: Text -- ^ 'Status.name'.
              -> Ninja -> Int
-numAnyStacks name n =
-    sum $ Status.amount <$> filter ((== name) . Status.name) (statuses n)
+numAnyStacks name n = sum
+    $ Status.amount <$> filter ((== name) . Status.name) (statuses n)
 
 -- | Counts all 'Effect.helpful' effects in 'statuses' from allies.
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.
 -- Each status counts for @(number of helpful effects) * (Status.amount)@.
 numHelpful :: Ninja -> Int
-numHelpful n = sum [Status.amount st | st <- statuses n
-                                     , let user = Status.user st
-                                     , slot n /= user
-                                     , Parity.allied n user
-                                     , Hidden ∉ Status.classes st
-                                     , ef <- Status.effects st
-                                     , Effect.helpful ef]
+numHelpful n = sum
+    [Status.amount st | st <- statuses n
+                      , let user = Status.user st
+                      , slot n /= user
+                      , Parity.allied n user
+                      , Hidden ∉ Status.classes st
+                      , ef <- Status.effects st
+                      , Effect.helpful ef]
 
 -- | Counts all non-'Effect.helpful' effects in 'statuses'.
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.
 -- Each status counts for @(number of harmful effects) * (Status.amount)@.
 numHarmful :: Ninja -> Int
-numHarmful n = sum [Status.amount st | st <- statuses n
-                                     , let user = Status.user st
-                                     , slot n /= user
-                                     , Hidden ∉ Status.classes st
-                                     , ef <- Status.effects st
-                                     , not $ Effect.helpful ef]
+numHarmful n = sum
+    [Status.amount st | st <- statuses n
+                      , let user = Status.user st
+                      , slot n /= user
+                      , Hidden ∉ Status.classes st
+                      , ef <- Status.effects st
+                      , not $ Effect.helpful ef]
 
 -- | @1@ if affected by 'Endure', otherwise @0@.
 minHealth :: Ninja -> Int

@@ -20,20 +20,21 @@ instance Hashable (Key User) where
     hashWithSalt salt = hashWithSalt salt . fromEnum . Sql.fromSqlKey
 
 instance ToJSON User where
-    toJSON User { userAvatar
-                , userBackground
-                , userClan
-                , userCondense
-                , userDna
-                , userLosses
-                , userMuted
-                , userName
-                , userPrivilege
-                , userRecord
-                , userStreak
-                , userWins
-                , userXp
-                } = object
+    toJSON User
+        { userAvatar
+        , userBackground
+        , userClan
+        , userCondense
+        , userDna
+        , userLosses
+        , userMuted
+        , userName
+        , userPrivilege
+        , userRecord
+        , userStreak
+        , userWins
+        , userXp
+        } = object
         [ "privilege"  .= userPrivilege
         , "name"       .= userName
         , "avatar"     .= userAvatar
@@ -93,8 +94,9 @@ instance HasAuthor ForumTopic where
     getLatest = forumTopicLatest
 
 -- | A summary with a link, name, and oldest and most recent users to post.
-data Cite a = Cite { citeKey    :: Key a
-                   , citeVal    :: a
-                   , citeAuthor :: User
-                   , citeLatest :: User
-                   }
+data Cite a = Cite
+    { citeKey    :: Key a
+    , citeVal    :: a
+    , citeAuthor :: User
+    , citeLatest :: User
+    }

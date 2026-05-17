@@ -182,10 +182,10 @@ widgetFileSettings = def
 -- user.
 
 widgetFile :: String -> TH.Q TH.Exp
-widgetFile = (if reloadTemplates compileTimeAppSettings
-                then Util.widgetFileReload
-                else Util.widgetFileNoReload)
-              widgetFileSettings
+widgetFile
+    | reloadTemplates compileTimeAppSettings =
+                  Util.widgetFileReload widgetFileSettings
+    | otherwise = Util.widgetFileNoReload widgetFileSettings
 
 -- | Raw bytes at compile time of @config/settings.yml@
 configSettingsYmlBS :: ByteString
@@ -194,14 +194,13 @@ configSettingsYmlBS = $(FileEmbed.embedFile DefaultConfig.configSettingsYml)
 -- | @config/settings.yml@, parsed to a @Value@.
 configSettingsYmlValue :: Value
 configSettingsYmlValue = either Exception.throw id
-                       $ Yaml.decodeEither' configSettingsYmlBS
+    $ Yaml.decodeEither' configSettingsYmlBS
 
 -- | A version of @Settings@ parsed at compile time from @config/settings.yml@.
 compileTimeAppSettings :: Settings
-compileTimeAppSettings =
-    case Aeson.fromJSON json of
-        Error e -> error e
-        Success settings -> settings
+compileTimeAppSettings = case Aeson.fromJSON json of
+    Error e -> error e
+    Success settings -> settings
   where
     json = DefaultConfig.applyEnvValue False mempty configSettingsYmlValue
 

@@ -77,27 +77,23 @@ data Team = Team Queue.Section [Character]
 parseTeam :: Parser Team
 parseTeam = Team <$> parseSection <*> parseCharacters
   where
-    parseSection =
-        Parse.string "private" $> Queue.Private
-        <|> Parse.string "quick" $> Queue.Quick
+    parseSection = Parse.string "private" $> Queue.Private
+               <|> Parse.string "quick"   $> Queue.Quick
 
-    parseCharacters =
-        Parse.count 3 $
-            separate
+    parseCharacters = Parse.count 3 $ separate
             >> Parse.takeWhile (/= separator) <|> Parse.takeText
             >>= parseCharacter
 
-    parseCharacter text =
-        case Characters.lookup text of
-            Just c -> return c
-            Nothing -> fail $ show (text ++ " is not a character")
+    parseCharacter text = case Characters.lookup text of
+        Just c -> return c
+        Nothing -> fail $ show (text ++ " is not a character")
 
 
-data Enact = Enact { spend    :: Chakras
-                   , exchange :: Chakras
-                   , actions  :: [Act]
-                   }
-  deriving (Eq, Show)
+data Enact = Enact
+    { spend    :: Chakras
+    , exchange :: Chakras
+    , actions  :: [Act]
+    } deriving (Eq, Show)
 
 parseActs :: Parser [Act]
 parseActs = separate >> Parse.sepBy Act.parse separate >>= guardLength
@@ -106,9 +102,10 @@ parseActs = separate >> Parse.sepBy Act.parse separate >>= guardLength
     guardLength xs          = return xs
 
 parseEnact :: Parser Enact
-parseEnact = Enact <$> Chakra.parse
-                   <*> (separate >> Chakra.parse)
-                   <*> (parseActs <|> (Parse.endOfInput >> return []))
+parseEnact = Enact
+    <$> Chakra.parse
+    <*> (separate >> Chakra.parse)
+    <*> (parseActs <|> (Parse.endOfInput >> return []))
 
 data ClientMessage
     = Forfeit
@@ -116,17 +113,17 @@ data ClientMessage
     deriving (Eq, Show)
 
 parseMessage :: Parser ClientMessage
-parseMessage =
-    (Parse.string "forfeit" >> return Forfeit)
-    <|> EnactMsg <$> parseEnact
+parseMessage = (Parse.string "forfeit" >> return Forfeit)
+    <|> EnactMsg
+    <$> parseEnact
 
 -- * HANDLERS
 
 -- | Joins the practice-match queue with a given team. Requires authentication.
 getPracticeQueueR :: [Text] -> Handler Value
 getPracticeQueueR [a1, b1, c1, a2, b2, c2] = do
-    when (duplic [a1, b1, c1] || duplic [a2, b2, c2]) $
-        invalidArgs ["Duplicate characters"]
+    when (duplic [a1, b1, c1] || duplic [a2, b2, c2])
+        $ invalidArgs ["Duplicate characters"]
 
     ninjas   <- case traverse Characters.lookup [c1, b1, a1, a2, b2, c2] of
         Nothing    -> invalidArgs ["Character(s) not found"]
@@ -148,8 +145,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2] = do
         liftIO do
             -- TODO: Move to a recurring timer?
             Cache.purgeExpired practice
-            Cache.insert practice who . Wrapper mempty game $
-                fromList ninjas
+            Cache.insert practice who . Wrapper mempty game $ fromList ninjas
 
         returnJson GameInfo { vsWho  = who
                             , vsUser = bot
@@ -215,15 +211,16 @@ gameSocket = webSockets do
     settings <- getsYesod App.settings
     unlocked <- liftHandler Mission.unlocked
 
-    (section, team, Response mvar info) <- untilJust $
-        handleFailures =<< runExceptT do
+    (section, team, Response mvar info) <- untilJust
+        $ handleFailures =<< runExceptT do
             Team section team <- either (throwE . Client.InvalidTeam)
-                                 return . Parse.parseOnly parseTeam =<<
-                                 Sockets.receive {-! BLOCKS !-}
+                                 return . Parse.parseOnly parseTeam
+                                 =<< Sockets.receive {-! BLOCKS !-}
 
             let teamNames = Character.ident <$> team
-                locked = filter (∉ unlocked) teamNames
-            when (not $ null locked) . throwE $ Client.Locked locked
+                locked    = filter (∉ unlocked) teamNames
+            when (not $ null locked)
+                . throwE $ Client.Locked locked
             liftDB $ update who [UserTeam =. Just teamNames]
 
             queued <- Queue.queue section team {-! BLOCKS !-}
@@ -233,7 +230,8 @@ gameSocket = webSockets do
     let player = GameInfo.player info
 
     game <- liftST (Wrapper.fromInfo info) >>= runReaderT do
-        when (player == Player.A) $ tryEnact settings player mvar {-! BLOCKS !-}
+        when (player == Player.A)
+            $ tryEnact settings player mvar {-! BLOCKS !-}
 
         whileM (Game.inProgress <$> P.game) do
             wrapper <- takeMVar mvar {-! BLOCKS !-}
@@ -245,8 +243,8 @@ gameSocket = webSockets do
                 game <- P.game
 
                 unless (Game.inProgress game) . liftDB . void $ forkIO do
-                    match <- Match.load . Match.fromGame game player who $
-                             GameInfo.vsWho info
+                    match <- Match.load . Match.fromGame game player who
+                           $ GameInfo.vsWho info
                     mapM_ Rating.update match
             else
                 liftST . Wrapper.replace wrapper =<< ask
@@ -262,8 +260,8 @@ gameSocket = webSockets do
         if outcome == Defeat && Game.forfeit (Wrapper.game game) then
             Client.send $ Client.Rewards [Reward "Forfeit" 0]
         else do
-            dnaReward <- liftHandler .
-                Mission.awardDNA Queue.Quick outcome $ GameInfo.war info
+            dnaReward <- liftHandler . Mission.awardDNA Queue.Quick outcome
+                $ GameInfo.war info
             Client.send $ Client.Rewards dnaReward
 
         liftHandler do
@@ -306,8 +304,8 @@ tryEnact settings player mvar = do
         tryMessage <- try Sockets.receive {-! BLOCKS !-}
         void $ tryPutMVar lock case tryMessage of
             Left err      -> SocketException err
-            Right message -> either (const $ Malformed message) Received $
-                             Parse.parseOnly parseMessage message
+            Right message -> either (const $ Malformed message) Received
+                           $ Parse.parseOnly parseMessage message
 
     enactMessage <- readMVar lock {-! BLOCKS !-}
 

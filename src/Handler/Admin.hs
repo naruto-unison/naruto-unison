@@ -47,7 +47,7 @@ postAdminR = do
         FormSuccess news -> do
             runDB $ insert400_ news
             defaultLayout [whamlet|<p>"News posted"|]
-        _             -> defaultLayout [whamlet|<p>"Invalid post"|]
+        _ -> defaultLayout [whamlet|<p>"Invalid post"|]
     liftIO Random.createSystemRandom >>= runReaderT Play.gameSocket
     defaultLayout do
         $(widgetFile "admin/admin")
@@ -75,6 +75,6 @@ getNewsForm :: Handler (Form News)
 getNewsForm = do
     author <- Auth.requireAuthId
     time   <- liftIO getCurrentTime
-    return . renderDivs $
-        News author time <$> areq textField "" Nothing
-                         <*> (unTextarea <$> areq textareaField "" Nothing)
+    return . renderDivs $ News author time
+        <$> areq textField "" Nothing
+        <*> (unTextarea <$> areq textareaField "" Nothing)

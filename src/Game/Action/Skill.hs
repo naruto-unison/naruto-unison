@@ -71,10 +71,9 @@ alternate :: ∀ m. MonadPlay m
           => [Int] -- ^ Index offsets.
           -> Int   -- ^ Counter added to all 'Ninja.alternates' slots.
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
-alternate loadout i =
-    applyWith' alternateClasses "loadout" Permanent . catMaybes .
-    zipWith load loadout . toList . Character.skills .
-    Ninja.character =<< P.nTarget
+alternate loadout i = applyWith' alternateClasses "loadout" Permanent
+    . catMaybes . zipWith load loadout . toList . Character.skills
+    . Ninja.character =<< P.nTarget
   where
     load alt (x:|xs) =
         Alternate (Skill.name x) . Skill.name <$> xs !? (alt + i - 1)
@@ -99,8 +98,8 @@ copyAll dur = P.uncopied do
 copyLast :: ∀ m. MonadPlay m => Duration -> m ()
 copyLast (succ -> dur) = P.uncopied . void $ runMaybeT do
     name  <- Skill.name <$> P.skill
-    s     <- MaybeT $ findIndex (any $ (== name) . Skill.name) . toList .
-             Character.skills . Ninja.character <$> P.nUser
+    s     <- MaybeT $ findIndex (any $ (== name) . Skill.name) . toList
+           . Character.skills . Ninja.character <$> P.nUser
     skill <- MaybeT $ Ninja.lastSkill <$> P.nTarget
     user  <- P.user
     P.modify user $ Ninjas.copy dur [s] skill
@@ -110,10 +109,9 @@ teach :: ∀ m. MonadPlay m
        -> Text
        -> [Int]
        -> m ()
-teach dur name slots =
-    mapM_ (P.toTarget . Ninjas.copy dur slots) .
-    find ((== name) . Skill.name) .
-    concatMap toList . Character.skills . Ninja.character =<< P.nUser
+teach dur name slots = mapM_ (P.toTarget . Ninjas.copy dur slots)
+    . find ((== name) . Skill.name)
+    . concatMap toList . Character.skills . Ninja.character =<< P.nUser
 
 -- | Resets a 'Ninja.Ninja' to their initial state.
 -- Uses 'Ninjas.factory' internally.

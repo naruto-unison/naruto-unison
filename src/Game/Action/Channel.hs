@@ -37,22 +37,21 @@ interrupt = P.unsilenced do
 
 -- | Triggers 'Skill.interrupt' effects of a @Channel@.
 onInterrupt :: ∀ m. (MonadPlay m, MonadRandom m) => Channel -> m ()
-onInterrupt chan =
-    P.with ctx $ Action.run
+onInterrupt chan = P.with ctx $ Action.run
     =<< Action.chooseTargets (Action.interruptions $ Channel.skill chan)
   where
-    ctx context = Context { skill     = Channel.skill chan
-                          , user      = Context.target context
-                          , target    = Channel.target chan
-                          , new       = False
-                          , continues = False
-                          }
+    ctx context = Context
+        { skill     = Channel.skill chan
+        , user      = Context.target context
+        , target    = Channel.target chan
+        , new       = False
+        , continues = False
+        }
 
 -- | Increases the duration of 'Ninja.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.prolongChannel' internally.
 prolongChannel :: ∀ m. MonadPlay m => Duration -> Text -> m ()
-prolongChannel dur name =
-    P.toTarget $ Ninjas.prolongChannel dur name
+prolongChannel dur name = P.toTarget $ Ninjas.prolongChannel dur name
 
 -- | Modify all channel names.
 renameChannels :: ∀ m. MonadPlay m => (Text -> Text) -> m ()

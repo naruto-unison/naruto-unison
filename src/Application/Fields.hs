@@ -32,11 +32,10 @@ derivePersistField "Privilege"
 instance ToMarkup Privilege where
     toMarkup = toMarkup . show
 
-newtype Markdown = Markdown Text deriving ( Eq, Ord, Show, Read, IsString
-                                          , FromJSON, ToJSON, PathPiece
-                                          , Semigroup, Monoid
-                                          , PersistField, PersistFieldSql
-                                          )
+newtype Markdown = Markdown Text
+    deriving ( Eq, Ord, Show, Read, IsString, FromJSON, ToJSON, PathPiece
+             , Semigroup, Monoid, PersistField, PersistFieldSql
+             )
 instance ToMarkup Markdown where
     toMarkup (Markdown x) =
         preEscapedToMarkup $ CMark.commonmarkToHtml

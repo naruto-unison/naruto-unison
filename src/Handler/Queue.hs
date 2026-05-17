@@ -61,9 +61,8 @@ quickManager App{quick} = forever do
         let userA = UserInfo.user infoA; userB = UserInfo.user infoB
             teamA = UserInfo.team infoA; teamB = UserInfo.team infoB
             chanA = UserInfo.chan infoA; chanB = UserInfo.chan infoB
-
-        (mvar, gameA, gameB) <- Random.createSystemRandom >>= runReaderT
-                                (makeGame whoA userA teamA whoB userB teamB)
+            game  = makeGame whoA userA teamA whoB userB teamB
+        (mvar, gameA, gameB) <- Random.createSystemRandom >>= runReaderT game
         putMVar chanA $ Message.Response mvar gameA -- this will not block
         putMVar chanB $ Message.Response mvar gameB -- this will not block
         HashTable.delete quick whoA
@@ -114,8 +113,8 @@ queue Private team = do
         Message.Request vsWho' requestWho vsTeam
           | vsWho' == vsWho && requestWho == who -> do
               (mvar, gameA, gameB) <- makeGame who user team vsWho vsUser vsTeam
-              atomically . writeTChan writer $
-                  Message.Respond vsWho' $ Message.Response mvar gameB
+              atomically . writeTChan writer
+                  $ Message.Respond vsWho' $ Message.Response mvar gameB
               return . Just $ Message.Response mvar gameA
         _ -> return Nothing
 
@@ -133,11 +132,12 @@ makeGame who user team vsWho vsUser vsTeam = do
         war  <- War.match team vsTeam <$> War.today
         mvar <- newEmptyMVar
         let gameInfoA = GameInfo { vsWho, vsUser, player, game, ninjas, war }
-            gameInfoB = GameInfo { vsWho  = who
-                                 , vsUser = user
-                                 , player = Player.opponent player
-                                 , war    = War.opponent <$> war
-                                 , game
-                                 , ninjas
-                                 }
+            gameInfoB = GameInfo
+                { vsWho  = who
+                , vsUser = user
+                , player = Player.opponent player
+                , war    = War.opponent <$> war
+                , game
+                , ninjas
+                }
         return (mvar, gameInfoA, gameInfoB)

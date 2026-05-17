@@ -45,7 +45,7 @@ makeLogWare foundation
   where
     ipSrc
       | Settings.ipFromHeader $ App.settings foundation = FromFallback
-      | otherwise                                          = FromSocket
+      | otherwise                                       = FromSocket
     logger   = YesodTypes.loggerSet $ App.logger foundation
     flusher  = FastLogger.flushLogStr logger
     callback = FastLogger.LogCallback (FastLogger.pushLogStr logger) flusher
@@ -55,6 +55,6 @@ apacheMiddleware ala app req sendResponse = app req $ \res -> do
     case Wai.responseStatus res of
         Status 200 _ -> return ()
         Status 304 _ -> return ()
-        status       -> WaiLogger.apacheLogger ala req status .
-                        Header.contentLength $ Wai.responseHeaders res
+        status -> WaiLogger.apacheLogger ala req status . Header.contentLength
+                $ Wai.responseHeaders res
     sendResponse res

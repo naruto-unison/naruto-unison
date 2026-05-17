@@ -42,23 +42,24 @@ missionKeys :: Text -> Mission -> [Int -> Progress]
 missionKeys name mission =
     Progress (Goal.char mission) . fst <$> objectives
   where
-    objectives = filter (Goal.belongsTo name . snd) .
-                 zip [0..] . toList $ Goal.goals mission
+    objectives = filter (Goal.belongsTo name . snd) . zip [0..] . toList
+               $ Goal.goals mission
 
-data Track s = Track { slot     :: Slot
-                     , key      :: [(Int -> Progress)]
-                     , actions  :: MultiMap Text (Int, ActionHook)
-                     , chakras  :: MultiMap Text (Int, ChakraHook)
-                     , stores   :: MultiMap Text (Int, StoreHook)
-                     , traps    :: MultiMap Text (Int, TrapHook)
-                     , triggers :: MultiMap Trigger (Int, TriggerHook)
-                     , turns    :: [(Int, TurnHook)]
-                     , consecs  :: [(Int, [Text])]
-                     , goals    :: Vector Goal
-                     , skills   :: STRef s [Text]
-                     , store    :: MVector s Store
-                     , progress :: MVector s Int
-                     }
+data Track s = Track
+    { slot     :: Slot
+    , key      :: [(Int -> Progress)]
+    , actions  :: MultiMap Text (Int, ActionHook)
+    , chakras  :: MultiMap Text (Int, ChakraHook)
+    , stores   :: MultiMap Text (Int, StoreHook)
+    , traps    :: MultiMap Text (Int, TrapHook)
+    , triggers :: MultiMap Trigger (Int, TriggerHook)
+    , turns    :: [(Int, TurnHook)]
+    , consecs  :: [(Int, [Text])]
+    , goals    :: Vector Goal
+    , skills   :: STRef s [Text]
+    , store    :: MVector s Store
+    , progress :: MVector s Int
+    }
 
 resetGoal :: Goal -> Int -> Int
 resetGoal x amt
@@ -96,9 +97,8 @@ trackAction1 skill ns x = do
   where
     user = snd $ ns !! Slot.toInt (slot x)
     consec used (i, match)
-      | match == sort (zipWith const used match) =
-          MVector.unsafeModify (progress x) (+ 1) i
-      | otherwise = return ()
+      | match /= sort (zipWith const used match) = return ()
+      | otherwise = MVector.unsafeModify (progress x) (+ 1) i
     tracker (n, n') (i, f) = addProgress x i $ f skill user n n'
     tracker' (n, n') (i, f) = trackStore x i $ f skill user n n'
 
@@ -139,21 +139,21 @@ new n = do
     skills   <- newRef mempty
     store    <- MVector.replicate (length objectives) mempty
     progress <- MVector.replicate (length objectives) 0
-    return $ foldl' go
-        Track { slot     = Ninja.slot n
-              , key      = missionKeys name =<< missions
-              , actions  = MultiMap.empty
-              , chakras  = MultiMap.empty
-              , stores   = MultiMap.empty
-              , traps    = MultiMap.empty
-              , triggers = MultiMap.empty
-              , turns    = mempty
-              , consecs  = mempty
-              , goals    = fromList goals
-              , skills
-              , store
-              , progress
-              }
+    return $ foldl' go Track
+        { slot     = Ninja.slot n
+        , key      = missionKeys name =<< missions
+        , actions  = MultiMap.empty
+        , chakras  = MultiMap.empty
+        , stores   = MultiMap.empty
+        , traps    = MultiMap.empty
+        , triggers = MultiMap.empty
+        , turns    = mempty
+        , consecs  = mempty
+        , goals    = fromList goals
+        , skills
+        , store
+        , progress
+        }
         objectives
   where
     char       = Ninja.character n

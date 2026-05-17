@@ -22,20 +22,22 @@ import qualified Game.Model.Slot as Slot
 import           Util (hushedParse)
 
 -- | A single action of a 'Ninja'.
-data Act = Act { user   :: Slot
-               -- ^ User index in 'Model.Game.ninjas' (0-5)
-               , skill  :: Int
-               -- ^ Skill by index in 'Character.skills' of 'Ninja.character' (0-3)
-               , target :: Slot
-               -- ^ Target index in 'Model.Game.ninjas' (0-5)
-               } deriving (Eq, Show, Read, Generic)
+data Act = Act
+    { user   :: Slot
+    -- ^ User index in 'Model.Game.ninjas' (0-5)
+    , skill  :: Int
+    -- ^ Skill by index in 'Character.skills' of 'Ninja.character' (0-3)
+    , target :: Slot
+    -- ^ Target index in 'Model.Game.ninjas' (0-5)
+    } deriving (Eq, Show, Read, Generic)
 
 instance ToJSON Act
 
 parse :: Parser Act
-parse = Act <$> Slot.parse
-            <*> (Parse.char ',' >> Parse.decimal)
-            <*> (Parse.char ',' >> Slot.parse)
+parse = Act
+    <$> Slot.parse
+    <*> (Parse.char ',' >> Parse.decimal)
+    <*> (Parse.char ',' >> Slot.parse)
 
 instance PathPiece Act where
     toPathPiece Act{user, skill, target} =
@@ -43,17 +45,17 @@ instance PathPiece Act where
                         , tshow skill
                         , tshow target
                         ]
-    fromPathPiece =
-        hushedParse parse
+    fromPathPiece = hushedParse parse
 
 toContext :: ∀ m. MonadGame m => Act -> ExceptT LByteString m Context
 toContext Act{user, skill, target} = do
     nUser <- P.ninja user
     case Ninjas.getSkill skill nUser of
         Nothing -> throwE "Invalid skill"
-        Just sk -> return Context { new = True
-                                  , user
-                                  , skill = sk
-                                  , target
-                                  , continues = False
-                                  }
+        Just sk -> return Context
+            { new = True
+            , user
+            , skill = sk
+            , target
+            , continues = False
+            }

@@ -62,9 +62,8 @@ describeCategory category name specs =
 
 use :: ∀ m. (HasCallStack, MonadHook m, MonadPlay m, MonadRandom m)
     => Text -> m ()
-use skillName =
-    maybe notFoundError actWith . find ((== skillName) . Skill.name) .
-    Ninjas.skills . unsafeHead =<< P.ninjas
+use skillName = maybe notFoundError actWith . find ((== skillName) . Skill.name)
+    . Ninjas.skills . unsafeHead =<< P.ninjas
   where
     notFoundError = error $ "invalid skill: " ++ unpack skillName
 
@@ -137,8 +136,8 @@ simAt = simOf Blank.game
 targetIsExposed :: ∀ m. MonadPlay m => m Bool
 targetIsExposed = do
     target <- P.target
-    P.with (\context -> context { Context.user = target }) $
-        apply Permanent [Invulnerable All]
+    P.with (\context -> context { Context.user = target })
+        $ apply Permanent [Invulnerable All]
     null . Effects.invulnerable <$> P.nTarget
 
 hasSkill :: Text -> Ninja -> Bool
@@ -154,5 +153,5 @@ withClasses classes = P.with ctx
     withSkill sk = sk { Skill.classes = insertSet All classes }
 
 statusDur :: Text -> Ninja -> Duration
-statusDur name n = maybe Permanent Status.dur .
-                   find ((== name) . Status.name) $ Ninja.statuses n
+statusDur name n = maybe Permanent Status.dur
+    . find ((== name) . Status.name) $ Ninja.statuses n

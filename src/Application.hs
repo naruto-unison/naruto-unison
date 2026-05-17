@@ -74,11 +74,11 @@ makeFoundation settings = do
     loggerSet   <- FastLogger.newStdoutLoggerSet FastLogger.defaultBufSize
     logger      <- DefaultConfig.makeYesodLogger loggerSet
     static      <- staticMode $ Settings.staticDir settings
-    quick       <- HashTable.newWithDefaults $
-                   Settings.queueTableSizeHint settings
+    quick       <- HashTable.newWithDefaults
+                 $ Settings.queueTableSizeHint settings
     private     <- newBroadcastTChanIO
-    practice    <- Cache.newCache . Just . fromInteger $
-                   Settings.practiceCacheExpiry settings
+    practice    <- Cache.newCache . Just . fromInteger
+                 $ Settings.practiceCacheExpiry settings
 
     startup                  <- getCurrentTime
     MkSystemTime timestamp _ <- getSystemTime
@@ -101,8 +101,8 @@ makeFoundation settings = do
             , quick
             , characterIDs
             }
-        tempFoundation =
-            mkFoundation Bimap.empty $ error "connPool forced in tempFoundation"
+        tempFoundation = mkFoundation Bimap.empty
+            $ error "connPool forced in tempFoundation"
         logFunc = messageLoggerSource tempFoundation logger
 
     pool <- flip Logger.runLoggingT logFunc $ Sql.createPostgresqlPool
@@ -131,29 +131,29 @@ warpSettings :: App -> Warp.Settings
 warpSettings foundation =
       Warp.setPort (Settings.port $ App.settings foundation)
     $ Warp.setHost (Settings.host $ App.settings foundation)
-    $ Warp.setOnException (\_req e ->
-        when (Warp.defaultShouldDisplayException e) $ messageLoggerSource
-            foundation
-            (App.logger foundation)
-            $(Logger.liftLoc =<< TH.qLocation)
-            "yesod"
-            LevelError
-            (FastLogger.toLogStr $ "Exception from Warp: " ++ show e))
+    $ Warp.setOnException exceptionHandler
       Warp.defaultSettings
+  where
+    exceptionHandler _req e = when (Warp.defaultShouldDisplayException e)
+        $ messageLoggerSource foundation (App.logger foundation)
+              $(Logger.liftLoc =<< TH.qLocation)
+              "yesod"
+              LevelError
+              (FastLogger.toLogStr $ "Exception from Warp: " ++ show e)
 
 -- | Warp settings and WAI Application for @yesod devel@.
 getApplicationDev :: IO (Warp.Settings, Application)
 getApplicationDev = do
-    settings <- getAppSettings
+    settings   <- getAppSettings
     foundation <- makeFoundation settings
-    wsettings <- DefaultConfig.getDevSettings $ warpSettings foundation
-    app <- makeApplication foundation
+    wsettings  <- DefaultConfig.getDevSettings $ warpSettings foundation
+    app        <- makeApplication foundation
     return (wsettings, app)
 
 -- | Loads config settings from environment variables and config files.
 getAppSettings :: IO Settings
 getAppSettings = DefaultConfig.loadYamlSettings
-                 [DefaultConfig.configSettingsYml] [] DefaultConfig.useEnv
+    [DefaultConfig.configSettingsYml] [] DefaultConfig.useEnv
 
 -- | Main function for use by @yesod devel@.
 develMain :: IO ()

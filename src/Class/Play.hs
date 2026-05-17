@@ -123,7 +123,8 @@ uncopied :: ∀ m. MonadPlay m => m () -> m ()
 uncopied f = do
     sk  <- skill
     usr <- user
-    when (Skill.owner sk == usr) f
+    when (Skill.owner sk == usr)
+        f
 
 -- | Applies a @Ninja@ transformation to the 'target'.
 toTarget :: ∀ m. MonadPlay m => (Ninja -> Ninja) -> m ()

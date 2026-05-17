@@ -22,6 +22,7 @@ import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Enum.Set (EnumSet)
 
 import qualified Class.Classed as Classed
+import           Class.Labeled (Labeled)
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Action as Action
@@ -118,10 +119,10 @@ formula :: Attack -- ^ Attack type.
         -> Ninja -- ^ Target.
         -> Int -- ^ Base damage.
         -> Int
-formula atk classes nUser nTarget = limit . round .
-                                    targetAdjust atk' classes nTarget .
-                                    userAdjust atk' classes nUser .
-                                    fromIntegral
+formula atk classes nUser nTarget = limit . round
+    . targetAdjust atk' classes nTarget
+    . userAdjust atk' classes nUser
+    . fromIntegral
   where
     atk' = case atk of
         Attack.Damage | nUser `is` Pierce -> Attack.Pierce
@@ -148,7 +149,7 @@ attack atk dmg = void $ runMaybeT do
 
     user       <- P.user
     target     <- P.target
-    let dmgCalc = formula atk classes nUser nTarget dmg
+    let dmgCalc             = formula atk classes nUser nTarget dmg
         (dmg'Barrier, barr) = absorbBarrier dmgCalc $ Ninja.barrier nUser
         handleDefense
           | nTarget `is` Undefend = (,)
@@ -158,11 +159,12 @@ attack atk dmg = void $ runMaybeT do
     guard $ dmgCalc > Effects.threshold nTarget -- Always 0 or higher
 
     if atk > Attack.Afflict && nTarget `is` DamageToDefense then
-        let damageDefense = Defense { amount = dmgCalc
-                                    , user
-                                    , name   = Skill.name skill
-                                    , dur    = 0
-                                    }
+        let damageDefense = Defense
+                { amount = dmgCalc
+                , user
+                , name   = Skill.name skill
+                , dur    = 0
+                }
         in
         P.modify target \n ->
             n { Ninja.defense = damageDefense : Ninja.defense n }
@@ -203,30 +205,34 @@ defend (succ -> dur) amount = P.unsilenced do
     nUser      <- P.nUser
     nTarget    <- P.nTarget
     let amount' = Effects.boost user nTarget * amount + Effects.build nUser
+        addNonStack :: ∀ a. Labeled a => a -> [a] -> [a]
+        addNonStack = Classed.nonStack skill
     case amount' `compare` 0 of
         EQ -> return ()
         LT -> do
             context <- P.context
-            let barr = Classed.nonStack skill $ Barrier.new context dur
+            let barr = Barrier.new context dur
                       (const $ return ()) (return ()) (-amount')
-            P.modify target \n -> n { Ninja.barrier = barr $ Ninja.barrier n }
+            P.modify target \n ->
+                n { Ninja.barrier = addNonStack barr $ Ninja.barrier n }
         GT -> do
             P.trigger user [OnDefend]
-            let defen = Classed.nonStack skill Defense
-                        { user
-                        , dur
-                        , amount = amount'
-                        , name   = Skill.name skill
-                        }
-            P.modify target \n -> n { Ninja.defense = defen $ Ninja.defense n }
+            let defense = Defense
+                    { user
+                    , dur
+                    , amount = amount'
+                    , name   = Skill.name skill
+                    }
+            P.modify target \n ->
+                n { Ninja.defense = addNonStack defense $ Ninja.defense n }
 
 -- | Adds an amount to a 'Defense' that the target already has.
 -- If the target does not have any 'Ninja.defense' with a matching
 -- 'Defense.name', nothing happens.
 -- Uses 'Ninjas.addDefense' internally.
 addDefense :: ∀ m. MonadPlay m => Text -> Int -> m ()
-addDefense name amount =
-    P.unsilenced . P.fromUser $ Ninjas.addDefense amount name
+addDefense name amount = P.unsilenced . P.fromUser
+    $ Ninjas.addDefense amount name
 
 -- | Clears all 'Defense' with matching name and user.
 -- Uses 'Ninjas.removeDefense' internally.
@@ -254,26 +260,29 @@ barricade' dur finish while amount = P.unsilenced do
         target = Context.target context
         barr   = Barrier.new context dur
                   (\n -> Action.wrap $ finish n) (Action.wrap while) amount'
+        addNonStack :: ∀ a. Labeled a => a -> [a] -> [a]
+        addNonStack = Classed.nonStack skill
     case amount' `compare` 0 of
         EQ -> return ()
         LT -> do
             user   <- P.user
-            let defense = Defense { user
-                                  , dur
-                                  , amount = -amount'
-                                  , name   = Skill.name skill
-                                  }
+            let defense = Defense
+                    { user
+                    , dur
+                    , amount = -amount'
+                    , name   = Skill.name skill
+                    }
             P.trigger user [OnDefend]
             P.modify target \n ->
-              n { Ninja.defense = Classed.nonStack skill defense $ Ninja.defense n }
+              n { Ninja.defense = addNonStack defense $ Ninja.defense n }
         GT -> P.modify target \n ->
-            n { Ninja.barrier = Classed.nonStack skill barr $ Ninja.barrier n }
+            n { Ninja.barrier = addNonStack barr $ Ninja.barrier n }
 
 killFull :: ∀ m. MonadPlay m => Bool -> m ()
 killFull endure = whenM (Ninja.alive <$> P.nTarget) do
     P.toTarget $ Ninjas.kill endure
-    unlessM (Ninja.alive <$> P.nTarget) $
-        P.toTarget . Ninjas.addStatus =<< execute <$> P.user <*> P.skill
+    unlessM (Ninja.alive <$> P.nTarget)
+        $ P.toTarget . Ninjas.addStatus =<< execute <$> P.user <*> P.skill
   where
     execute user skill = Status { amount = 1
                                 , name   = "executed"
@@ -358,5 +367,6 @@ sacrifice _ 0 = return ()
 sacrifice minhp hp = do
     user   <- P.user
     target <- P.target
-    when (user == target) $ P.trigger user [OnSacrifice]
+    when (user == target)
+        $ P.trigger user [OnSacrifice]
     P.toTarget $ Ninjas.sacrifice minhp hp

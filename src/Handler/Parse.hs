@@ -22,13 +22,13 @@ desc s = case Parse.parseOnly (Parse.many' parseSegment) s of
 
 parseSegment :: Parser Html
 parseSegment = Parse.choice
-    [ " (S)"           $> HTML.toMarkup Shippuden
-    , " (R)"           $> HTML.toMarkup Reanimated
+    [ " (S)"          $> HTML.toMarkup Shippuden
+    , " (R)"          $> HTML.toMarkup Reanimated
     , Parse.char '\n' $> HTML.br
     , Parse.choice    $  parseChakra <$> [minBound..maxBound]
     , parseName
-    , HTML.toMarkup   <$> Parse.takeWhile1 (Parse.notInClass " [\n")
-    , HTML.toMarkup   <$> Parse.char ' '
+    , HTML.toMarkup  <$> Parse.takeWhile1 (Parse.notInClass " [\n")
+    , HTML.toMarkup  <$> Parse.char ' '
     ]
 
 parseChakra :: Chakra -> Parser Html

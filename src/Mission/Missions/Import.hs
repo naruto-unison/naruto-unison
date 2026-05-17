@@ -58,9 +58,9 @@ hasFrom user name = Ninja.has name $ Ninja.slot user
 winFull :: WinType -> Int -> [Text] -> Goal
 winFull winType reach chars = Reach reach Career desc $ Win winType chars
   where
-    desc = toStrict . builderToLazy $
-           "Win " ++ display reach ++ " matches with "
-           ++ commas "and" (display <$> chars) ++ " together."
+    desc = toStrict . builderToLazy
+        $ "Win " ++ display reach ++ " matches with "
+        ++ commas "and" (display <$> chars) ++ " together."
 
 -- | 'WinTotal' objective, given a goal and a team of Characters.
 win :: Int -> [Text] -> Goal
@@ -78,8 +78,8 @@ check f _ x y z = fromEnum $ f x y z
 
 -- | 1 if the user cured the target, otherwise 0.
 cure :: ActionHook
-cure _ user target target' = fromEnum $
-    allied user target
+cure _ user target target' = fromEnum
+    $ allied user target
     && Ninja.numHelpful target' < Ninja.numHelpful target
 
 -- | Damage received by the target after an action.
@@ -122,8 +122,8 @@ demolish _ user target target'
 
 -- | 1 if the user killed the target with an instant-kill effect, otherwise 0.
 execute :: ActionHook
-execute _ user target target' = fromEnum $
-    not (allied user target)
+execute _ user target target' = fromEnum
+    $ not (allied user target)
     && alive target
     && not (alive target')
     && hasFrom user "executed" target'
@@ -137,16 +137,16 @@ heal _ user target target'
 
 -- | 1 if the target died after an action, otherwise 0.
 kill :: ActionHook
-kill _ user target target' = fromEnum $
-    not (allied user target)
+kill _ user target target' = fromEnum
+    $ not (allied user target)
     && alive target
     && not (alive target')
 
 -- | 1 if the target died after an action while affected by a @Status@,
 -- otherwise 0.
 killAffected :: Text -> ActionHook
-killAffected name _ user target target' = fromEnum $
-    not (allied user target)
+killAffected name _ user target target' = fromEnum
+    $ not (allied user target)
     && alive target
     && not (alive target')
     && hasFrom user name target
@@ -154,8 +154,8 @@ killAffected name _ user target target' = fromEnum $
 -- | 1 if the target died after an action while the user had a @Status@,
 -- otherwise 0.
 killDuring :: Text -> ActionHook
-killDuring name _ user target target' = fromEnum $
-    not (allied user target)
+killDuring name _ user target target' = fromEnum
+    $ not (allied user target)
     && alive target
     && not (alive target')
     && Ninja.numActive name user /= 0
@@ -284,8 +284,8 @@ checkEnemyStatus name player user _ target store
 
 -- | 1 if an enemy dies with a @Status@ at the end of the turn, otherwise 0.
 killWith :: Text -> TurnHook
-killWith name player user target target' store = (store, ) . fromEnum $
-    allied player user
+killWith name player user target target' store = (store, ) . fromEnum
+    $ allied player user
     && not (allied user target)
     && alive target
     && not (alive target')

@@ -7,8 +7,9 @@ import Application.Model (User)
 import Game.Model.Character (Character)
 import Handler.Queue.Message (Response)
 
-data UserInfo = UserInfo { user   :: User
-                         , team   :: [Character]
-                         , joined :: SystemTime
-                         , chan   :: MVar Response
-                         }
+data UserInfo = UserInfo
+    { user   :: User
+    , team   :: [Character]
+    , joined :: SystemTime
+    , chan   :: MVar Response
+    }

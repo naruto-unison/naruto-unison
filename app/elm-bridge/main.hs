@@ -48,18 +48,20 @@ data Ninja = Ninja
     }
 
 -- From the ToJSON instance of GameInfo in Model.GameInfo
-data GameInfo = GameInfo { opponent   :: User
-                         , turn       :: Turn
-                         , player     :: Player
-                         , war        :: Maybe War
-                         }
+data GameInfo = GameInfo
+    { opponent   :: User
+    , turn       :: Turn
+    , player     :: Player
+    , war        :: Maybe War
+    }
 
 -- From the ToJSON instance of Barrier in Model.Internal
-data Barrier = Barrier { amount :: Int
-                       , user   :: Slot
-                       , name   :: Text
-                       , dur    :: Int
-                       }
+data Barrier = Barrier
+    { amount :: Int
+    , user   :: Slot
+    , name   :: Text
+    , dur    :: Int
+    }
 
 -- From the ToJSON instance of Effect in Model.Effect
 data Effect = Effect
@@ -72,20 +74,21 @@ data Effect = Effect
     }
 
 -- From the ToJSON instance of User in Application.Model
-data User = User { privilege  :: Privilege
-                 , name       :: Text
-                 , avatar     :: Text
-                 , background :: Maybe Text
-                 , xp         :: Int
-                 , wins       :: Int
-                 , losses     :: Int
-                 , streak     :: Int
-                 , record     :: Int
-                 , clan       :: Maybe Text
-                 , muted      :: Bool
-                 , condense   :: Bool
-                 , dna        :: Int
-                 }
+data User = User
+    { privilege  :: Privilege
+    , name       :: Text
+    , avatar     :: Text
+    , background :: Maybe Text
+    , xp         :: Int
+    , wins       :: Int
+    , losses     :: Int
+    , streak     :: Int
+    , record     :: Int
+    , clan       :: Maybe Text
+    , muted      :: Bool
+    , condense   :: Bool
+    , dna        :: Int
+    }
 
 alterations :: ETypeDef -> ETypeDef
 alterations = recAlterType typeAlterations
@@ -93,8 +96,8 @@ alterations = recAlterType typeAlterations
 typeAlterations :: EType -> EType
 typeAlterations t = case t of
     ETyApp (ETyCon (ETCon "Runnable")) x -> typeAlterations x
-    ETyApp (ETyCon (ETCon "EnumSet")) x  -> ETyApp (ETyCon (ETCon "Set")) $
-                                            typeAlterations x
+    ETyApp (ETyCon (ETCon "EnumSet")) x  -> ETyApp (ETyCon (ETCon "Set"))
+                                          $ typeAlterations x
     ETyCon (ETCon "Class")     -> ETyCon (ETCon "String")
     ETyCon (ETCon "Duration")  -> ETyCon (ETCon "Int")
     ETyCon (ETCon "Group")     -> ETyCon (ETCon "String")
@@ -139,9 +142,8 @@ trimAll :: String -> String
 trimAll s = unlines $ dropWhileEnd isSpace <$> lines s
 
 main :: IO ()
-main =
-    writeFile "elm/src/Import/Model.elm" . trimAll $
-    "module Import.Model exposing (..)\n\
+main = writeFile "elm/src/Import/Model.elm" . trimAll
+    $ "module Import.Model exposing (..)\n\
 \\n\
 \import Json.Decode\n\
 \import Json.Encode exposing (Value)\n\

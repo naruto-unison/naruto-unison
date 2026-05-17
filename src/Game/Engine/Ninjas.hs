@@ -98,8 +98,8 @@ processAlternates n = n { alternates = fromList $ alternate n }
 -- | Cycles a skill through its list of alternates.
 nextAlternate :: Text -> Ninja -> Maybe Text
 nextAlternate baseName n = do
-    alts <- find ((== baseName) . Skill.name . head) .
-            toList . Character.skills $ character n
+    alts <- find ((== baseName) . Skill.name . head) . toList . Character.skills
+          $ character n
     alt  <- filterAlt $ tail alts
     return $ Skill.name alt
   where
@@ -116,7 +116,7 @@ getSkill s n
   | otherwise   = base
   where
     base = Skills.change n . Requirement.usable True n
-           <$> ((Copy.skill <$> join (copies n !? s)) <|> Ninja.baseSkill s n)
+         <$> ((Copy.skill <$> join (copies n !? s)) <|> Ninja.baseSkill s n)
 
 -- | All four skill slots of a @Ninja@ modified by 'skill'.
 skills :: Ninja -> [Skill]
@@ -191,18 +191,18 @@ sacrifice minhp hp = adjustHealth $ max minhp . (- hp)
 -- | Applies 'Class.TurnBased.decr' to all of a @Ninja@'s 'Class.TurnBased'
 -- types.
 decr :: Ninja -> Ninja
-decr n = processAlternates $ processEffects n
-    { defense   = mapMaybe TurnBased.decr $ defense n
-    , statuses  = mapMaybe TurnBased.decr $ statuses n
-    , barrier   = mapMaybe TurnBased.decr $ barrier n
-    , channels  = mapMaybe TurnBased.decr $ newChans n ++ channels n
-    , traps     = mapMaybe TurnBased.decr $ traps n
-    , delays    = mapMaybe TurnBased.decr $ delays n
-    , newChans  = mempty
-    , copies    = (TurnBased.decr =<<) <$> copies n
-    , cooldowns = (max 0 . subtract 1) `omap` cooldowns n
-    , acted     = False
-    }
+decr n = processAlternates $ processEffects
+    n { defense   = mapMaybe TurnBased.decr $ defense n
+      , statuses  = mapMaybe TurnBased.decr $ statuses n
+      , barrier   = mapMaybe TurnBased.decr $ barrier n
+      , channels  = mapMaybe TurnBased.decr $ newChans n ++ channels n
+      , traps     = mapMaybe TurnBased.decr $ traps n
+      , delays    = mapMaybe TurnBased.decr $ delays n
+      , newChans  = mempty
+      , copies    = (TurnBased.decr =<<) <$> copies n
+      , cooldowns = (max 0 . subtract 1) `omap` cooldowns n
+      , acted     = False
+      }
 
 addStatus :: Status -> Ninja -> Ninja
 addStatus st = modifyStatuses $ Classed.nonStack st st
@@ -213,13 +213,13 @@ addOwnStacks :: Duration -- ^ 'Status.dur'.
              -> Int -- ^ Index in skill in 'Character.skills'.
              -> Int -- ^ 'Status.amount'.
              -> Ninja -> Ninja
-addOwnStacks dur name s alt i n =
-    addStatus st { Status.name    = name
-                 , Status.classes = insertSet Unremovable $ Status.classes st
-                 , Status.amount  = i
-                 } n
+addOwnStacks dur name s alt i n = addStatus st n
   where
-    st = Status.new (slot n) dur $ Character.skills (character n) !! s !! alt
+    st = (Status.new (slot n) dur $ Character.skills (character n) !! s !! alt)
+            { Status.name    = name
+            , Status.classes = insertSet Unremovable $ Status.classes st
+            , Status.amount  = i
+            }
 
 addOwnDefense :: Duration -- ^ 'Defense.dur'.
               -> Text -- ^ 'Defense.name'.
@@ -270,10 +270,11 @@ addChannels skill target n
   where
     chan  = Skill.dur skill
     dur   = succ $ TurnBased.getDur chan
-    chan' = Channel { target
-                    , skill = skill { Skill.require = Usable }
-                    , dur   = TurnBased.setDur dur chan
-                    }
+    chan' = Channel
+        { target
+        , skill = skill { Skill.require = Usable }
+        , dur   = TurnBased.setDur dur chan
+        }
 
 -- | Deletes matching 'channels'.
 cancelChannel :: Text -- ^ 'Skill.name'.
@@ -350,10 +351,10 @@ prolong' (Duration dur) name user st
   | Status.dur st == Permanent       = Just st
   | not $ Labeled.match name user st = Just st
   | statusDur' < 0                   = Nothing
-  | otherwise                        = Just st
-      { Status.dur    = statusDur'
-      , Status.maxDur = max (Status.maxDur st) statusDur'
-      }
+  | otherwise                        = Just
+        st { Status.dur    = statusDur'
+           , Status.maxDur = max (Status.maxDur st) statusDur'
+           }
     where
       statusDur' = Status.dur st + Duration dur'
       dur'

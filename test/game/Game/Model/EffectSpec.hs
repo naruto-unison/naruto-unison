@@ -552,8 +552,8 @@ unreduces damage reduce unreduce = simAt Enemy do
     return $ 100 - targetHealth === healthBound (damage + unreduce - reduce)
 
 getSkill :: [Effect] -> Skill
-getSkill effects = fromJust $
-                   Ninjas.getSkill 0 ninja { Ninja.effects = effects }
+getSkill effects = fromJust
+    $ Ninjas.getSkill 0 ninja { Ninja.effects = effects }
   where
     targets = (`To` return ()) <$> [minBound..maxBound]
     skill   = Skill.new { Skill.effects = targets } :| []

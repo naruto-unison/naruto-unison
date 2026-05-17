@@ -83,8 +83,8 @@ getBoardR board = do
     topics    <- runDB $ selectWithAuthors
                  (filterTopics privilege [ForumTopicBoard ==. board])
                  [Desc ForumTopicTime]
-    App.lastModified . maximum $
-        epoch :| (forumTopicModified . citeVal <$> topics)
+    App.lastModified . maximum
+        $ epoch :| (forumTopicModified . citeVal <$> topics)
     defaultLayout $(widgetFile "forum/board")
 
 -- | Renders a 'ForumTopic'.
@@ -100,8 +100,8 @@ getTopicR topicId = do
                   selectWithAuthors
                   (filterPosts privilege [ForumPostTopic ==. topicId])
                   [Asc ForumPostTime]
-    mwidget    <- forM (guard (forumTopicState topic == Open) >> mwho) $
-                  generateFormPost . renderTable . Form.post topicId time
+    mwidget    <- forM (guard (forumTopicState topic == Open) >> mwho)
+                $ generateFormPost . renderTable . Form.post topicId time
     let ForumTopic{forumTopicBoard, forumTopicState} = topic
     defaultLayout $(widgetFile "forum/topic")
   where
@@ -138,7 +138,8 @@ postTopicR topicId = do
                 when ( forumTopicState == Open
                        && not (forumPostDeleted post)
                        && (forumPostAuthor post == who || privilege > Normal)
-                     ) . runDB $ update postId [ForumPostBody =. postBody]
+                     )
+                    . runDB $ update postId [ForumPostBody =. postBody]
                 redirect $ TopicR topicId
 
             _ -> do
@@ -158,8 +159,8 @@ getNewTopicR board = do
     (who, user)       <- Auth.requireAuthPair
     time              <- liftIO getCurrentTime
     (title, _)        <- breadcrumbs
-    (widget, enctype) <- generateFormPost . renderTable $
-                         Form.topic user board time who
+    (widget, enctype) <- generateFormPost . renderTable
+                       $ Form.topic user board time who
     defaultLayout $(widgetFile "forum/new")
 
 -- | Creates a new 'ForumTopic'. Requires authentication.
@@ -168,8 +169,8 @@ postNewTopicR board = do
     (who, user) <- Auth.requireAuthPair
     time        <- liftIO getCurrentTime
     (title, _)  <- breadcrumbs
-    ((result, widget), enctype) <- runFormPost . renderTable $
-                                   Form.topic user board time who
+    ((result, widget), enctype) <- runFormPost . renderTable
+                                 $ Form.topic user board time who
     case result of
         FormSuccess (Form.NewTopic topic makePost) -> do
             topicId <- runDB $ insert400 topic
@@ -187,15 +188,15 @@ canLike :: Maybe (Key User) -> ForumPost -> Bool
 canLike Nothing _ = False
 canLike (Just who) post = who /= forumPostAuthor post
 
-data LikedPost = LikedPost { likedPost :: Cite ForumPost
-                           , likes     :: Int
-                           , liked     :: Bool
-                           }
+data LikedPost = LikedPost
+    { likedPost :: Cite ForumPost
+    , likes     :: Int
+    , liked     :: Bool
+    }
 
 markdowns :: [LikedPost] -> HashMap Text Markdown
-markdowns posts = mapFromKeyed ( toPathPiece . citeKey
-                               , forumPostBody . citeVal
-                               ) $ likedPost <$> posts
+markdowns posts = mapFromKeyed (toPathPiece . citeKey, forumPostBody . citeVal)
+    $ likedPost <$> posts
 
 filterPosts :: Privilege -> [Filter ForumPost] -> [Filter ForumPost]
 filterPosts p xs
@@ -225,8 +226,9 @@ selectWithAuthors selectors opts = traverse go =<< selectList selectors opts
 
 getLikes :: ∀ m. MonadIO m
          => Maybe (Key User) -> Cite ForumPost -> SqlPersistT m LikedPost
-getLikes mwho post = LikedPost post <$> count [ForumLikePost ==. likedPostId]
-                                    <*> maybe (return False) justLike mwho
+getLikes mwho post = LikedPost post
+    <$> count [ForumLikePost ==. likedPostId]
+    <*> maybe (return False) justLike mwho
   where
     likedPostId = citeKey post
     justLike who = isJust <$> getLike likedPostId who

@@ -38,21 +38,20 @@ updateRecord Defeat  = [UserLosses +=. 1, UserStreak =. 0]
 updateRecord Tie     = [UserStreak =. 0]
 
 updateStreak :: ∀ m. MonadIO m => Key User -> SqlPersistT m ()
-updateStreak who =
-    ESQL.update \p -> do
-        ESQL.set p [ UserRecord ESQL.=. p ^. UserStreak ]
-        ESQL.where_ $ p ^. UserId ==. ESQL.val who
-        ESQL.where_ $ p ^. UserStreak >. p ^. UserRecord
+updateStreak who = ESQL.update \p -> do
+    ESQL.set p [ UserRecord ESQL.=. p ^. UserStreak ]
+    ESQL.where_ $ p ^. UserId ==. ESQL.val who
+    ESQL.where_ $ p ^. UserStreak >. p ^. UserRecord
 
 -- | Updates skill ratings.
 -- Uses the [Glicko-2 algorithm](http://glicko.net/glicko/glicko2.pdf)
 -- by Dr. Mark E. Glickman.
 updateUser :: User -> User -> Outcome -> [Update User]
-updateUser player opponent outcome =
-    updateRecord outcome ++ [ UserDeviation  =. φ'
-                            , UserRating     =. µ'
-                            , UserVolatility =. σ'
-                            ]
+updateUser player opponent outcome = updateRecord outcome
+    ++ [ UserDeviation  =. φ'
+       , UserRating     =. µ'
+       , UserVolatility =. σ'
+       ]
   where
     s  = case outcome of
         Victory -> 1

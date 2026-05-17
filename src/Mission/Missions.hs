@@ -19,10 +19,9 @@ import qualified Mission.Missions.Shippuden
 -- | Uses 'Character.clean' to turn character names in 'Objective's into
 -- 'Character.ident' format.
 clean :: Mission -> Mission
-clean (Mission char goals) =
-    Mission (Character.clean char) $ cleanGoal <$> goals
+clean (Mission char goals) = Mission (Character.clean char) $ cleanup <$> goals
   where
-    cleanGoal goal = goal { objective = f $ objective goal }
+    cleanup goal = goal { objective = f $ objective goal }
     f (Win winType names)        = Win winType $ Character.clean <$> names
     f (HookAction name skill fn) = HookAction (Character.clean name) skill fn
     f (HookChakra name skill fn) = HookChakra (Character.clean name) skill fn

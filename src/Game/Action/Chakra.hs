@@ -79,4 +79,5 @@ healFromChakra amount = P.unsilenced do
         when (amount' > 0) do
             P.modify user $ Ninjas.adjustHealth (+ amount')
             healed <- (- Ninja.health nUser) . Ninja.health <$> P.nUser
-            when (healed > 0) $ P.trigger user [OnHeal]
+            when (healed > 0)
+                $ P.trigger user [OnHeal]

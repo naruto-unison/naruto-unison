@@ -42,10 +42,11 @@ import           Util ((!!))
 
 -- | This type is the core of the entire program. It is the environment of game
 -- processes and implements all of the user-defined monads.
-data STWrapper s = STWrapper { tracker   :: Tracker s
-                             , gameRef   :: STRef s Game
-                             , ninjasRef :: STVector s Ninja
-                             }
+data STWrapper s = STWrapper
+    { tracker   :: Tracker s
+    , gameRef   :: STRef s Game
+    , ninjasRef :: STVector s Ninja
+    }
 
 type IOWrapper = STWrapper RealWorld
 
@@ -69,22 +70,22 @@ instance (MonadST m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) whe
     {-# INLINE modify #-}
 
 instance (MonadST m, s ~ PrimState m) => MonadHook (ReaderT (STWrapper s) m) where
-    action sk ns ns' = askST tracker $
-                       Tracker.trackAction (Skill.name sk) ns ns'
-    chakra sk ch ch' = askST tracker $
-                       Tracker.trackChakra (Skill.name sk) ch ch'
-    trap tr targ     = askST tracker $
-                       Tracker.trackTrap (Trap.name tr) (Trap.user tr) targ
-    trigger tr targ  = askST tracker $
-                       Tracker.trackTrigger tr targ
-    turn p ns ns'    = askST tracker $
-                       Tracker.trackTurn p ns ns'
+    action sk ns ns' = askST tracker
+                     $ Tracker.trackAction (Skill.name sk) ns ns'
+    chakra sk ch ch' = askST tracker
+                     $ Tracker.trackChakra (Skill.name sk) ch ch'
+    trap tr targ     = askST tracker
+                     $ Tracker.trackTrap (Trap.name tr) (Trap.user tr) targ
+    trigger tr targ  = askST tracker
+                     $ Tracker.trackTrigger tr targ
+    turn p ns ns'    = askST tracker
+                     $ Tracker.trackTurn p ns ns'
 
 fromInfo :: ∀ s. GameInfo -> ST s (STWrapper s)
-fromInfo info =
-    STWrapper <$> Tracker.fromInfo info
-              <*> newRef (GameInfo.game info)
-              <*> Vector.thaw (fromList $ GameInfo.ninjas info)
+fromInfo info = STWrapper
+    <$> Tracker.fromInfo info
+    <*> newRef (GameInfo.game info)
+    <*> Vector.thaw (fromList $ GameInfo.ninjas info)
 
 -- | Replaces 'gameRef' and 'ninjasRef' of the former with the latter.
 -- Does not affect 'tracker'.
@@ -103,10 +104,11 @@ adjustVec f i = Vector.modify \xs -> MVector.modify xs f i
 updateVec :: ∀ a. Int -> a -> Vector a -> Vector a
 updateVec i x xs = xs // [(i, x)]
 
-data Wrapper = Wrapper { progress :: [Progress]
-                       , game     :: Game
-                       , ninjas   :: Vector Ninja
-                       }
+data Wrapper = Wrapper
+    { progress :: [Progress]
+    , game     :: Game
+    , ninjas   :: Vector Ninja
+    }
 
 instance MonadGame (StateT Wrapper Identity) where
     game        = gets game
@@ -134,15 +136,15 @@ freeze = Wrapper mempty <$> P.game <*> (fromList <$> P.ninjas)
 
 -- | The STWrapper may not be used after this operation.
 unsafeFreeze :: ∀ s. STWrapper s -> ST s Wrapper
-unsafeFreeze STWrapper{tracker, gameRef, ninjasRef} =
-    Wrapper <$> Tracker.unsafeFreeze tracker
-            <*> readRef gameRef
-            <*> Vector.unsafeFreeze ninjasRef
+unsafeFreeze STWrapper{tracker, gameRef, ninjasRef} = Wrapper
+    <$> Tracker.unsafeFreeze tracker
+    <*> readRef gameRef
+    <*> Vector.unsafeFreeze ninjasRef
 
 thaw :: ∀ s. Wrapper -> ST s (STWrapper s)
-thaw Wrapper{game, ninjas} =
-    STWrapper Tracker.empty <$> newRef game
-                            <*> Vector.thaw ninjas
+thaw Wrapper{game, ninjas} = STWrapper Tracker.empty
+    <$> newRef game
+    <*> Vector.thaw ninjas
 
 --  | Encodes game state into a form suitable for sending to the client.
 toTurn :: Player -> Wrapper -> Turn

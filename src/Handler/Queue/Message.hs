@@ -16,6 +16,7 @@ data Private
     = Request ~(Key User) ~(Key User) ~[Character]
     | Respond ~(Key User) ~Response
 
-data Response = Response { mvar :: ~(MVar Wrapper)
-                         , info :: ~GameInfo
-                         }
+data Response = Response
+    { mvar :: ~(MVar Wrapper)
+    , info :: ~GameInfo
+    }

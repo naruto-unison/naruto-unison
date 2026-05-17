@@ -39,8 +39,8 @@ instance (Example a, () ~ Arg a) => Example (SkillExample a) where
       where
         action' (char, ctx) = evaluateExample inner params ($ ()) callback
           where
-            inner = runIdentity . evalStateT (runReaderT (runGame e) ctx) $
-                    testGame char
+            inner = runIdentity . evalStateT (runReaderT (runGame e) ctx)
+                  $ testGame char
 
 useOn :: HasCallStack
       => Target -> Text -> SpecWith SkillArg -> SpecWith Character

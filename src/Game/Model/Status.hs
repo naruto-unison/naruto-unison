@@ -15,17 +15,17 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 
 new :: Slot -> Duration -> Skill -> Status
-new user dur skill =
-    Status { amount  = 1
-           , name    = Skill.name skill
-           , user
-           , skill
-           , effects = mempty
-           , classes = Skill.classes skill
-           , bombs   = []
-           , maxDur  = succ dur
-           , dur     = succ dur
-           }
+new user dur skill = Status
+    { amount  = 1
+    , name    = Skill.name skill
+    , user
+    , skill
+    , effects = mempty
+    , classes = Skill.classes skill
+    , bombs   = []
+    , maxDur  = succ dur
+    , dur     = succ dur
+    }
 
 remove :: Int -- ^ 'amount'
        -> Text -- ^ 'name'

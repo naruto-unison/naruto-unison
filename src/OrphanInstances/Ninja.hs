@@ -25,9 +25,10 @@ import qualified Game.Model.Trap as Trap
 import           Util ((∈), (∉))
 
 -- | From 'Effect.Face'. Used only as an encoding intermediary.
-data Face = Face { icon :: Text
-                 , user :: Slot
-                 } deriving (Eq, Show, Read, Generic)
+data Face = Face
+    { icon :: Text
+    , user :: Slot
+    } deriving (Eq, Show, Read, Generic)
 
 instance ToJSON Face
 

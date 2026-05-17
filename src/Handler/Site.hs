@@ -58,9 +58,9 @@ getHomeR = do
                          (Forum.filterTopics privilege [])
                          [Desc ForumTopicTime, LimitTo 10]
     citelink  <- liftIO Link.cite
-    App.lastModified $
-        max (maybe epoch (forumTopicTime . citeVal) $ headMay topics)
-            (maybe epoch (newsTime . fst) $ headMay newsList)
+    App.lastModified
+        $ max (maybe epoch (forumTopicTime . citeVal) $ headMay topics)
+              (maybe epoch (newsTime . fst) $ headMay newsList)
     defaultLayout do
         setTitle "Naruto Unison"
         $(widgetFile "tooltip/tooltip")
@@ -124,8 +124,8 @@ getCharactersR = do
     heading Original   = "Original"
     heading Shippuden  = "Shippūden"
     heading Reanimated = "Reanimated"
-    categoryChars category =
-        filter ((== category) . Character.category) Characters.list
+    categoryChars category = filter ((== category) . Character.category)
+                             Characters.list
 
 -- | Renders a character's details and the user's progress on their mission.
 getCharacterR :: Character -> Handler Html
@@ -136,9 +136,8 @@ getCharacterR char = do
     defaultLayout $(widgetFile "guide/character")
   where
     name = Character.ident char
-    skillClasses sk =
-        intercalate ", " $
-        display <$> filter Class.visible (toList $ Skill.classes sk)
+    skillClasses sk = intercalate ", "
+        $ display <$> filter Class.visible (toList $ Skill.classes sk)
 
 -- | Renders character groups.
 getGroupsR :: Handler Html
