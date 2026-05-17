@@ -180,7 +180,6 @@ default-extensions:
 - ParallelListComp
 - UnicodeSyntax
 - ViewPatterns
-- MonadComprehensions
 - BlockArguments
 # More powerful types
 - TypeFamilies
