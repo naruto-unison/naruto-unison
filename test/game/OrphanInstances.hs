@@ -4,7 +4,7 @@ module OrphanInstances where
 
 import ClassyPrelude
 
-import Test.QuickCheck
+import Test.QuickCheck hiding (shrinkBoundedEnum)
 
 import Game.Model.Attack
 import Game.Model.Effect
