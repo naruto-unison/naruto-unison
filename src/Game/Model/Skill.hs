@@ -15,7 +15,7 @@ import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Internal (Key(..), Ninja, Skill(..), Requirement(..), Target(..))
-import qualified Game.Model.Runnable as Runnable
+import           Game.Model.Runnable(Runnable(To))
 import qualified Game.Model.Slot as Slot
 
 -- | The type signature of 'changes'.
@@ -44,8 +44,8 @@ new = Skill
 -- 'Model.Class.Ninjutsu', 'Model.Class.Taijutsu', and 'Model.Class.Random'
 -- to the 'classes' of a @Skill@ if they are included in its 'cost'.
 chakraClasses :: Skill -> Skill
-chakraClasses skill =
-    skill { classes = Chakra.classes (cost skill) ++ classes skill }
+chakraClasses skill@Skill{classes, cost} =
+    skill { classes = Chakra.classes cost ++ classes }
 
 -- | Replaces an empty string with a 'name'.
 defaultName :: Text -> Skill -> Text
@@ -60,4 +60,4 @@ key Skill{name, owner} = Key name owner
 targets :: Skill -> EnumSet Target
 targets Skill{effects, start} = addTargets (addTargets mempty start) effects
   where
-    addTargets = foldl' \acc t -> insertSet (Runnable.target t) acc
+    addTargets = foldl' \acc (To target _) -> insertSet target acc

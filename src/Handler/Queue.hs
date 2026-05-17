@@ -26,7 +26,8 @@ import qualified Game.Model.Player as Player
 import qualified Game.Model.Slot as Slot
 import qualified Handler.Client.Message as Client
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
-import qualified Handler.Play.GameInfo as GameInfo
+import qualified Handler.Play.GameInfo
+import           Handler.Queue.Message (Response(Response))
 import qualified Handler.Queue.Message as Message
 import           Handler.Queue.UserInfo (UserInfo(UserInfo))
 import qualified Handler.Queue.UserInfo as UserInfo
@@ -107,9 +108,8 @@ queue Private team = do
       msg <- liftIO . atomically $ readTChan reader {-! BLOCKS !-}
       Client.ping {-! BLOCKS !-}
       case msg of
-        Message.Respond mWho response
-          | mWho == who && GameInfo.vsWho (Message.info response) == vsWho ->
-              return $ Just response
+        Message.Respond mWho response@Response{info = GameInfo{vsWho = vsWho'}}
+          | vsWho' == vsWho && mWho == who -> return $ Just response
         Message.Request vsWho' requestWho vsTeam
           | vsWho' == vsWho && requestWho == who -> do
               (mvar, gameA, gameB) <- makeGame who user team vsWho vsUser vsTeam

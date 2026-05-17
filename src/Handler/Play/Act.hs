@@ -40,11 +40,8 @@ parse = Act
     <*> (Parse.char ',' >> Slot.parse)
 
 instance PathPiece Act where
-    toPathPiece Act{user, skill, target} =
-        intercalate "," [ tshow user
-                        , tshow skill
-                        , tshow target
-                        ]
+    toPathPiece Act{user, skill, target} = intercalate ","
+        [ tshow user, tshow skill, tshow target ]
     fromPathPiece = hushedParse parse
 
 toContext :: ∀ m. MonadGame m => Act -> ExceptT LByteString m Context

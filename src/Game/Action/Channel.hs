@@ -13,10 +13,10 @@ import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Game.Action as Action
 import qualified Game.Engine.Ninjas as Ninjas
-import           Game.Model.Channel (Channel)
+import           Game.Model.Channel (Channel(Channel))
 import qualified Game.Model.Channel as Channel
 import           Game.Model.Context (Context(Context))
-import qualified Game.Model.Context as Context
+import qualified Game.Model.Context
 import           Game.Model.Duration (Duration)
 import qualified Game.Model.Ninja as Ninja
 
@@ -37,13 +37,13 @@ interrupt = P.unsilenced do
 
 -- | Triggers 'Skill.interrupt' effects of a @Channel@.
 onInterrupt :: ∀ m. (MonadPlay m, MonadRandom m) => Channel -> m ()
-onInterrupt chan = P.with ctx $ Action.run
-    =<< Action.chooseTargets (Action.interruptions $ Channel.skill chan)
+onInterrupt Channel{skill, target} = P.with ctx $ Action.run
+    =<< Action.chooseTargets (Action.interruptions skill)
   where
-    ctx context = Context
-        { skill     = Channel.skill chan
-        , user      = Context.target context
-        , target    = Channel.target chan
+    ctx Context{target = user} = Context
+        { skill
+        , user
+        , target
         , new       = False
         , continues = False
         }

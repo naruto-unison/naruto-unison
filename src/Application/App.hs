@@ -51,7 +51,7 @@ import qualified Yesod.Default.Util as YesodUtil
 import           Yesod.Static hiding (static)
 
 import           Application.Fields (ForumBoard, Privilege(..), boardName)
-import           Application.Model (CharacterId, EntityField(..), ForumPostId, ForumTopic(..), ForumTopicId, User(..), UserId, Unique(..))
+import           Application.Model (CharacterId, EntityField(..), ForumPostId, ForumTopic(ForumTopic), ForumTopicId, User(..), UserId, Unique(..))
 import qualified Application.Model as Model
 import           Application.Settings (Settings, widgetFile)
 import qualified Application.Settings as Settings

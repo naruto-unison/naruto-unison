@@ -17,7 +17,7 @@ import qualified Network.Wai.Middleware.RequestLogger as RequestLogger
 import qualified System.Log.FastLogger as FastLogger
 import qualified Yesod.Core.Types as YesodTypes
 
-import           Application.App (App(..))
+import           Application.App (App)
 import qualified Application.App as App
 import qualified Application.Settings as Settings
 

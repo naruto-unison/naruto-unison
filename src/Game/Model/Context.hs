@@ -12,7 +12,7 @@ import           Game.Model.Internal (Context(..))
 import           Game.Model.Player (Player)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Status(Status))
-import qualified Game.Model.Status as Status
+import qualified Game.Model.Status
 
 fromStatus :: Status -> Context
 fromStatus Status{skill, user, classes} = Context

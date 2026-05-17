@@ -2,7 +2,7 @@ module Game.Model.Barrier (Barrier(..), new) where
 
 import ClassyPrelude
 
-import           Game.Model.Context (Context)
+import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Internal (Barrier(..))
 import           Game.Model.Runnable (Runnable(To), RunConstraint)
@@ -19,14 +19,19 @@ new :: Context
     -> RunConstraint () -- ^ Applied every turn.
     -> Int -- ^ Initial amount.
     -> Barrier
-new context dur finish while amount = Barrier
-    { user   = Context.user context
+new Context{skill, target, user} dur finish while amount = Barrier
+    { user
     , name   = Skill.name skill
-    , finish = \i -> To saved { Context.continues = False } $ finish i
-    , while  = To saved { Context.continues = True } while
+    , finish = \i -> To (saved False) $ finish i
+    , while  = To (saved True) while
     , amount
     , dur
     }
   where
-    saved = context { Context.new = False }
-    skill = Context.skill context
+    saved continues = Context
+        { new = False
+        , continues
+        , skill
+        , target
+        , user
+        }

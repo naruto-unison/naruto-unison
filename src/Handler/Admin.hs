@@ -23,7 +23,7 @@ import           Application.Settings (widgetFile)
 import qualified Application.Settings as Settings
 import qualified Handler.Link as Link
 import qualified Handler.Play as Play
-import qualified Mission as Mission
+import qualified Mission
 import           Mission.UsageRate (UsageRate)
 import qualified Mission.UsageRate as UsageRate
 

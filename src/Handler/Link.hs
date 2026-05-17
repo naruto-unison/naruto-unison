@@ -48,7 +48,7 @@ skill charName category name = case Characters.lookup tagName of
       Nothing -> error
         $ "Link.skill: character " ++ unpack tagName ++ " not found"
       Just char | any (any $ (== name) . Skill.name) $ Character.skills char ->
-          $(widgetFile "widgets/link/skill")
+        $(widgetFile "widgets/link/skill")
       Just _ -> error
         $ "Link.skill: skill " ++ unpack name ++ " not found for "
           ++ unpack tagName

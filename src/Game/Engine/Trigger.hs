@@ -21,7 +21,8 @@ import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
-import qualified Game.Model.Skill as Skill
+import           Game.Model.Skill (Skill(Skill))
+import qualified Game.Model.Skill
 import           Game.Model.Slot (Slot)
 import           Game.Model.Trap (Trap)
 import qualified Game.Model.Trap as Trap
@@ -32,7 +33,7 @@ import           Util ((∈), (∉))
 absorb :: ∀ m. MonadPlay m => Ninja -> m ()
 absorb n
   | n `is` Absorb = do
-      cost <- Skill.cost <$> P.skill
+      Skill{cost} <- P.skill
       P.alter $ Game.adjustChakra n (+ cost)
   | otherwise = return ()
 
@@ -52,10 +53,11 @@ getCounters f from classes n = mapMaybe g $ Ninja.traps n
 userCounters :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
              => Bool -- ^ Enemies were targeted
              -> Slot -> EnumSet Class -> Ninja -> [m ()]
-userCounters harmed = getCounters \tr -> case Trap.trigger tr of
-        Nullified              -> Just All
-        Countered cla | harmed -> Just cla
-        _                      -> Nothing
+userCounters harmed = getCounters (f . Trap.trigger)
+  where
+    f Nullified                = Just All
+    f (Countered cla) | harmed = Just cla
+    f _                        = Nothing
 
 -- | Removes 'Countered' traps matching the specified @Class@es.
 userUncounter :: EnumSet Class -> Ninja -> Ninja
@@ -70,12 +72,11 @@ targetCounters :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
                => Slot -> EnumSet Class -> Ninja -> [m ()]
 targetCounters from classes n
   | n `is` Uncounter = []
-  | otherwise        = getCounters f from classes n
+  | otherwise        = getCounters (f . Trap.trigger) from classes n
   where
-    f tr = case Trap.trigger tr of
-        CounterAll cla -> Just cla
-        Counter cla    -> Just cla
-        _              -> Nothing
+    f (CounterAll cla) = Just cla
+    f (Counter    cla) = Just cla
+    f _                = Nothing
 
 -- | Removes 'Counter' traps matching the specified @Class@es.
 targetUncounter :: EnumSet Class -> Ninja -> Ninja

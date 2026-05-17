@@ -27,7 +27,7 @@ import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
-import          Game.Model.Context (Context(Context))
+import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Duration (Duration(..))
 import qualified Game.Model.Duration as Duration
@@ -36,6 +36,7 @@ import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Runnable (Runnable)
+import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Bomb(..), Status)
 import qualified Game.Model.Status as Status
@@ -77,7 +78,7 @@ applyWith' classes turns efs = P.unsilenced . applyFull 1 classes [] turns efs
 -- 'Ninja.statuses'. Stacks are unremovable.
 addStack :: ∀ m. MonadPlay m => m ()
 addStack = do
-    name <- Skill.name <$> P.skill
+    Skill{name} <- P.skill
     addStacks' Permanent name 1
 
 -- | 'addStack' with a 'Status.name'.
@@ -121,8 +122,8 @@ tag' name dur = applyWith' (setFromList [Unremovable, Nonstacking]) name dur []
 -- | Applies a 'Hidden' and 'Unremovable' @Status@.
 hide :: ∀ m. MonadPlay m => Duration -> [Effect] -> m ()
 hide dur efs = do
-    skill <- P.skill
-    hide' (toLower $ Skill.name skill) dur efs
+    Skill{name} <- P.skill
+    hide' (toLower name) dur efs
 
 -- | 'hide' with a 'Status.name'.
 hide' :: ∀ m. MonadPlay m => Text -> Duration -> [Effect] -> m ()

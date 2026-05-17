@@ -53,9 +53,9 @@ data PostForm
     | EditPost (Key ForumPost) Markdown
 
 post :: Key ForumTopic -> UTCTime -> Key User -> AForm Handler PostForm
-post forumPostTopic forumPostTime forumPostAuthor =
-    makePost <$> aopt hiddenField "" Nothing
-             <*> areq textareaField "" Nothing
+post forumPostTopic forumPostTime forumPostAuthor = makePost
+    <$> aopt hiddenField "" Nothing
+    <*> areq textareaField "" Nothing
   where
     makePost mPostId area = case mPostId of
         Nothing -> NewPost ForumPost

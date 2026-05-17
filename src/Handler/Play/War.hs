@@ -15,8 +15,8 @@ import           Data.Time.LocalTime (LocalTime(LocalTime), getCurrentTimeZone, 
 import           Data.List (tails)
 import qualified System.Random as Random
 
-import           Game.Model.Character (Character)
-import qualified Game.Model.Character as Character
+import           Game.Model.Character (Character(Character))
+import qualified Game.Model.Character
 import           Game.Model.Group (Group(..))
 import           Util ((!!), intersects)
 
@@ -53,7 +53,7 @@ wars = fromList
 {-# NOINLINE wars #-}
 
 participant :: EnumSet Group -> Character -> Bool
-participant war char = war `intersects` Character.groups char
+participant war Character{groups} = war `intersects` groups
 
 -- | You ever wonder why we're here?
 data War = Red | Blue

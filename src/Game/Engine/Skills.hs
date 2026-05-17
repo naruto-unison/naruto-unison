@@ -16,8 +16,9 @@ import qualified Game.Engine.Effects as Effects
 import           Game.Model.Chakra (Chakras)
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (is)
+import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as Ninja
-import           Game.Model.Runnable (Runnable(..))
+import           Game.Model.Runnable (Runnable(To))
 import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Skill (Skill, Target(..))
 import qualified Game.Model.Skill as Skill
@@ -28,9 +29,9 @@ also :: Skill.Transform -> Skill.Transform -> Skill.Transform
 
 -- | Applies a 'Skill.Transform' conditional upon 'Ninja.has'.
 changeWith :: Text -> (Skill -> Skill) -> Skill.Transform
-changeWith name f n
-  | Ninja.has name (Ninja.slot n) n = f
-  | otherwise                       = id
+changeWith name f n@Ninja{slot}
+  | Ninja.has name slot n = f
+  | otherwise             = id
 
 -- | Applies a 'Skill.Transform' conditional upon 'Ninja.isChanneling'.
 changeWithChannel :: Text -> (Skill -> Skill) -> Skill.Transform
@@ -40,9 +41,9 @@ changeWithChannel name f n
 
 -- | Applies a 'Skill.Transform' conditional upon 'Ninja.hasDefense'.
 changeWithDefense :: Text -> (Skill -> Skill) -> Skill.Transform
-changeWithDefense name f n
-  | Ninja.hasDefense name (Ninja.slot n) n = f
-  | otherwise                              = id
+changeWithDefense name f n@Ninja{slot}
+  | Ninja.hasDefense name slot n = f
+  | otherwise                    = id
 
 -- | Multiplies @Chakras@ by 'Ninja.numActive' and adds the total to
 -- 'Skill.cost'.

@@ -15,9 +15,10 @@ import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Database.Persist.Sql (Entity(..), SqlPersistT)
 import qualified Database.Persist.Sql as Sql
 
-import Application.Model (Key, User)
-import Game.Model.Game (Game(..))
-import Game.Model.Player (Player)
+import           Application.Model (Key, User)
+import           Game.Model.Game (Game(Game))
+import qualified Game.Model.Game
+import           Game.Model.Player (Player)
 
 -- | Result of a game from the perspective of one of its players.
 data Outcome

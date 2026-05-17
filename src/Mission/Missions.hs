@@ -10,7 +10,7 @@ import ClassyPrelude hiding ((\\), map)
 
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
-import           Mission.Goal (Goal(..), Mission(..), Objective(..), WinType(..))
+import           Mission.Goal (Goal(Reach), Mission(Mission), Objective(..), WinType(..))
 import qualified Mission.Goal as Goal
 import           Util (mapFromKeyed)
 
@@ -21,7 +21,7 @@ import qualified Mission.Missions.Shippuden
 clean :: Mission -> Mission
 clean (Mission char goals) = Mission (Character.clean char) $ cleanup <$> goals
   where
-    cleanup goal = goal { objective = f $ objective goal }
+    cleanup goal = goal { Goal.objective = f $ Goal.objective goal }
     f (Win winType names)        = Win winType $ Character.clean <$> names
     f (HookAction name skill fn) = HookAction (Character.clean name) skill fn
     f (HookChakra name skill fn) = HookChakra (Character.clean name) skill fn

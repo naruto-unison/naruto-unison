@@ -52,8 +52,8 @@ getDeletePostR postId = attemptMaybeT do
 getLikePostR :: Key ForumPost -> Handler Value
 getLikePostR forumLikePost = attemptMaybeT do
     who   <- MaybeT Auth.maybeAuthId
-    ForumPost {forumPostAuthor, forumPostDeleted}  <- lift . runDB $
-                                                      get404 forumLikePost
+    ForumPost {forumPostAuthor, forumPostDeleted} <- lift . runDB
+                                                   $ get404 forumLikePost
     guard $ forumPostAuthor /= who && not forumPostDeleted
     liked <- lift . runDB $ getLike forumLikePost who
     case liked of
@@ -96,8 +96,8 @@ setTopicState :: TopicState -> Key ForumTopic -> Handler Value
 setTopicState state topicId = attemptMaybeT do
     privilege <- App.getPrivilege
     guard $ privilege > Normal
-    topic <- MaybeT . runDB $ get topicId
-    guard $ forumTopicState topic /= Deleted && forumTopicState topic /= state
+    ForumTopic{forumTopicState} <- MaybeT . runDB $ get topicId
+    guard $ forumTopicState /= Deleted && forumTopicState /= state
     lift $ runDB do
         update topicId [ForumTopicState =. state]
         modifyTopic topicId

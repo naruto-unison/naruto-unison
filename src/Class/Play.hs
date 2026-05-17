@@ -33,18 +33,17 @@ import Control.Monad (zipWithM_)
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
-import           Game.Model.Context (Context)
+import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
 import           Game.Model.Internal (MonadGame(..), MonadPlay(..))
-import           Game.Model.Ninja (Ninja, is)
+import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
-import           Game.Model.Runnable (Runnable)
-import qualified Game.Model.Runnable as Runnable
-import           Game.Model.Skill (Skill)
-import qualified Game.Model.Skill as Skill
+import           Game.Model.Runnable (Runnable(To))
+import           Game.Model.Skill (Skill(Skill))
+import qualified Game.Model.Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger(..))
@@ -55,7 +54,7 @@ withContext ctx f = runReaderT f ctx
 
 -- | Runs a @Runnable@ with its associated @Context@.
 launch :: ∀ m. (MonadGame m, MonadRandom m) => Runnable Context -> m ()
-launch x = runReaderT (Runnable.run x) $ Runnable.target x
+launch (To runTarget run) = runReaderT run runTarget
 
 -- | @Skill@ used to perform an action.
 skill :: ∀ m. MonadPlay m => m Skill
@@ -111,8 +110,8 @@ withContinues = with \ctx -> ctx { Context.continues = True }
 -- | Forbid actions if the user is 'Silence'd.
 unsilenced :: ∀ m. MonadPlay m => m () -> m ()
 unsilenced f = do
-    ctx <- context
-    if Context.user ctx == Context.target ctx then
+    Context{target = ctxTarget, user = ctxUser} <- context
+    if ctxTarget == ctxUser then
         f
     else
         unlessM ((`is` Silence) <$> nUser) f
@@ -121,9 +120,9 @@ unsilenced f = do
 -- someone else.
 uncopied :: ∀ m. MonadPlay m => m () -> m ()
 uncopied f = do
-    sk  <- skill
-    usr <- user
-    when (Skill.owner sk == usr)
+    Skill{owner} <- skill
+    usr          <- user
+    when (owner == usr)
         f
 
 -- | Applies a @Ninja@ transformation to the 'target'.
@@ -138,12 +137,11 @@ fromUser f = do
     usr <- user
     modify t $ f usr
 
-zipWith :: ∀ m. (MonadGame m)
-        => (Ninja -> Ninja -> Ninja) -> [Ninja] -> m ()
+zipWith :: ∀ m. (MonadGame m) => (Ninja -> Ninja -> Ninja) -> [Ninja] -> m ()
 zipWith f = zipWithM_ (\i -> modify i . f) Slot.all
 
 -- | Adds to 'Ninja.triggers' if 'Context.user' is not 'Context.target' and
 -- 'Context.new' is @True@.
 trigger :: ∀ m. MonadPlay m => Slot -> [Trigger] -> m ()
-trigger i xs = whenM new $ modify i \n ->
-    n { Ninja.triggers = foldl' (flip insertSet) (Ninja.triggers n) xs }
+trigger i xs = whenM new $ modify i \n@Ninja{triggers} ->
+    n { Ninja.triggers = foldl' (flip insertSet) triggers xs }

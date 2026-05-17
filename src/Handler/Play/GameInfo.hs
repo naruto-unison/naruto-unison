@@ -5,7 +5,7 @@ import ClassyPrelude
 import Data.Aeson ((.=), ToJSON(..), object)
 
 import           Application.Model (Key, User)
-import           Game.Model.Game (Game(..))
+import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
 import           Game.Model.Player (Player)
 import           Handler.Play.War (War)

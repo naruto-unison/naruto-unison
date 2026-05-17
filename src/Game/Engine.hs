@@ -13,9 +13,12 @@ import ClassyPrelude
 import Control.Monad (zipWithM_)
 import Data.List (deleteFirstsBy)
 
+import           Class.Classed (Classed)
+import qualified Class.Classed as Classed
 import           Class.Hook (MonadHook)
 import qualified Class.Hook as Hook
-import qualified Class.Labeled as  Labeled
+import           Class.Labeled (Labeled)
+import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
@@ -27,27 +30,25 @@ import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
+import           Game.Model.Barrier (Barrier(Barrier))
 import qualified Game.Model.Barrier as Barrier
-import qualified Game.Model.Channel as Channel
+import           Game.Model.Channel (Channel(Channel))
+import qualified Game.Model.Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import           Game.Model.Copy (Copy(Copy))
-import qualified Game.Model.Copy
 import qualified Game.Model.Delay as Delay
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
-import           Game.Model.Ninja (Ninja, is)
+import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
-import qualified Game.Model.Runnable as Runnable
-import qualified Game.Model.Skill as Skill
+import           Game.Model.Runnable (Runnable(To))
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
-import           Game.Model.Status (Bomb(..), Status)
+import           Game.Model.Status (Bomb(..), Status(Status))
 import qualified Game.Model.Status as Status
-import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉))
 
@@ -93,29 +94,29 @@ processTurn runner = do
   where
     getChannels n = fromChannel n
         <$> filter ((/= -1) . TurnBased.getDur) (Ninja.channels n)
-    fromChannel n chan =
-        Context { new       = False
-                , user      = Ninja.slot n
-                , target    = Channel.target chan
-                , skill     = Skills.change n $ Channel.skill chan
-                , continues = False
-                }
+    fromChannel n Channel{skill, target} = Context
+        { new       = False
+        , user      = Ninja.slot n
+        , skill     = Skills.change n skill
+        , continues = False
+        , target
+        }
 
 -- | Runs 'Game.delays'.
 doDelays :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 doDelays = traverse_ delay . filter Ninja.alive =<< P.ninjas
   where
-    delay n = traverse_ (P.launch . Delay.effect) . filter ((<= -1) . Delay.dur)
-        $ Ninja.delays n
+    delay Ninja{delays} = traverse_ (P.launch . Delay.effect)
+        $ filter ((<= -1) . Delay.dur) delays
 
 -- | Executes 'Status.bombs' of a @Status@.
 doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
-doBomb bomb target st = traverse_ detonate $ Status.bombs st
+doBomb bomb target st@Status{bombs} = traverse_ detonate bombs
   where
     context = (Context.fromStatus st) { Context.target = target }
-    detonate x
-      | bomb /= Runnable.target x = return ()
-      | otherwise = P.withContext context . Action.wrap $ Runnable.run x
+    detonate (To targ run)
+      | bomb /= targ = return ()
+      | otherwise    = P.withContext context $ Action.wrap run
 
 -- | Executes 'Status.bombs' of all 'Status'es that were removed.
 doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> [Ninja] -> m ()
@@ -127,7 +128,8 @@ doBombs bomb ninjas = zipWithM_ comp ninjas =<< P.ninjas
       where
         stats
           | Ninja.alive n' = Ninja.statuses
-          | otherwise = filter ((Necromancy ∈) . Status.classes) . Ninja.statuses
+          | otherwise      = filter ((Necromancy ∈) . Status.classes)
+                           . Ninja.statuses
 
 -- | Executes 'Barrier.while' and 'Barrier.finish' effects.
 doBarriers :: ∀ m. (MonadGame m, MonadRandom m) => m ()
@@ -136,11 +138,11 @@ doBarriers = do
     ninjas <- P.ninjas
     traverse_ (doBarrier player) $ concatMap ((head <$>) . collect) ninjas
   where
-    collect n = groupBy Labeled.eq . sortWith Barrier.name $ Ninja.barrier n
-    doBarrier p b
-      | Barrier.dur b == -1 = P.launch . Barrier.finish b $ Barrier.amount b
-      | Parity.allied p $ Barrier.user b = P.launch $ Barrier.while b
-      | otherwise = return ()
+    collect Ninja{barrier} = groupBy Labeled.eq $ sortWith Barrier.name barrier
+    doBarrier p Barrier{amount, dur, finish, user, while}
+      | dur == -1            = P.launch $ finish amount
+      | Parity.allied p user = P.launch while
+      | otherwise            = return ()
 
 -- | Executes 'Trigger.death'.
 doDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
@@ -152,19 +154,19 @@ doDeaths = traverse_ doDeath Slot.all
 -- If they die, their 'Soulbound' effects are canceled.
 doDeath :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Slot -> m ()
 doDeath slot = do
-    n <- P.ninja slot
+    n@Ninja{health, statuses} <- P.ninja slot
     let res
           | n `is` Plague = mempty
           | otherwise     = Traps.getOf slot OnRes n
 
-    if Ninja.health n > 0 then
+    if health > 0 then
         return ()
 
     else if null res then do
         P.modify slot $ Ninjas.clearTraps OnDeath
         sequence_ $ Traps.getOf slot OnDeath n
-        traverse_ (doBomb Done slot) . filter ((Necromancy ∉) . Status.classes)
-            $ Ninja.statuses n
+        traverse_ (doBomb Done slot)
+            $ filter ((Necromancy ∉) . Status.classes) statuses
         P.modifyAll $ unSoulbound slot
 
     else do
@@ -173,18 +175,15 @@ doDeath slot = do
 
 -- | Removes 'Soulbound' effects. Applied when a Ninja dies or is factory-reset.
 unSoulbound :: Slot -> Ninja -> Ninja
-unSoulbound user n = Ninjas.modifyStatuses
-    (const [st | st <- Ninja.statuses n
-              , user /= Status.user st || Soulbound ∉ Status.classes st])
-    $ n { Ninja.traps = [trap | trap <- Ninja.traps n
-                              , user /= Trap.user trap
-                                || Soulbound ∉ Trap.classes trap]
-        , Ninja.copies = filter keep $ Ninja.copies n
+unSoulbound user n@Ninja{copies, statuses, traps} = Ninjas.modifyStatuses
+    (const $ filter notSoulbound statuses)
+    $ n { Ninja.traps  = filter notSoulbound traps
+        , Ninja.copies = filter (maybe True notSoulbound) copies
         }
   where
-    keep Nothing = True
-    keep (Just Copy{skill}) = user /= Skill.owner skill
-                              || Soulbound ∉ Skill.classes skill
+    notSoulbound :: ∀ a. (Classed a, Labeled a) => a -> Bool
+    notSoulbound x = Soulbound ∉ Classed.classes x || Labeled.user x /= user
+
 -- | Executes 'Model.Effect.Afflict' and 'Model.Effect.Heal'
 -- 'Model.Effect.Effect's.
 doHpsOverTime :: ∀ m. MonadGame m => m ()

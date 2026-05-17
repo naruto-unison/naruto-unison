@@ -82,7 +82,7 @@ broken n n' =
   where
     triggers = OnBreak
         <$> nub (Defense.name <$> Ninja.defense n)
-        \\ nub (Defense.name <$> Ninja.defense n')
+         \\ nub (Defense.name <$> Ninja.defense n')
 
 -- | Conditionally returns 'Trap.Trap's that accept a numeric value.
 getPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)

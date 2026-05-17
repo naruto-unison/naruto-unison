@@ -42,7 +42,7 @@ import Mission.Goal as Import
 
 import           Class.Display (Display(..))
 import qualified Game.Model.Chakra as Chakra
-import           Game.Model.Ninja (Ninja)
+import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as Ninja
 import qualified Game.Model.Slot as Slot
 import           Util ((∈), (∉), commas)
@@ -53,10 +53,10 @@ resetToZero = minBound
 
 --  | True if target has a 'Status' from the user with matching 'Status.name'.
 hasFrom :: Ninja -> Text -> Ninja -> Bool
-hasFrom user name = Ninja.has name $ Ninja.slot user
+hasFrom Ninja{slot} name = Ninja.has name slot
 
 winFull :: WinType -> Int -> [Text] -> Goal
-winFull winType reach chars = Reach reach Career desc $ Win winType chars
+winFull winType reach chars = Reach Career reach desc $ Win winType chars
   where
     desc = toStrict . builderToLazy
         $ "Win " ++ display reach ++ " matches with "
@@ -91,28 +91,27 @@ damage _ user target target'
 -- | Damage received by the target after an action while the user has some
 -- number of stacks of a @Status@.
 damageDuringStacks :: Text -> ActionHook
-damageDuringStacks name _ user target target'
+damageDuringStacks name _ user@Ninja{slot} target target'
   | allied user target              = 0
   | health target' >= health target = 0
-  | otherwise = Ninja.numStacks name (Ninja.slot user) user
+  | otherwise = Ninja.numStacks name slot user
 
 -- | Damage received by the target after an action while the target has some
 -- number of stacks of a @Status@.
 damageWithStacks :: Text -> ActionHook
-damageWithStacks name _ user target target'
+damageWithStacks name _ user@Ninja{slot} target target'
   | allied user target              = 0
   | health target' >= health target = 0
-  | otherwise = Ninja.numStacks name (Ninja.slot user) target
+  | otherwise = Ninja.numStacks name slot target
 
 -- | 'Ninja.defense' added to the target after an action.
 defend :: ActionHook
-defend name user target target'
+defend name Ninja{slot} target target'
   | alive target = max 0 addedDefense
   | otherwise    = 0
   where
-    userSlot     = Ninja.slot user
-    addedDefense = Ninja.defenseAmount name userSlot target'
-                   - Ninja.defenseAmount name userSlot target
+    getDefense   = Ninja.defenseAmount name slot
+    addedDefense = getDefense target' - getDefense target
 
 -- | 'Ninja.defense' destroyed after an action.
 demolish :: ActionHook
@@ -131,8 +130,7 @@ execute _ user target target' = fromEnum
 -- | Healing received by a target after an action.
 heal :: ActionHook
 heal _ user target target'
-  | not $ alive target = 0
-  | not $ allied user target = 0
+  | not (alive target) || not (allied user target) = 0
   | otherwise = max 0 $ health target' - health target
 
 -- | 1 if the target died after an action, otherwise 0.
@@ -166,8 +164,8 @@ interrupt _ user target target'
   | allied user target = 0
   | otherwise          = max 0 interrupted
   where
-    numChannels n = length (Ninja.channels n) + length (Ninja.newChans n)
-    interrupted   = numChannels target - numChannels target'
+    numChannels Ninja{channels, newChans} = length channels + length newChans
+    interrupted = numChannels target - numChannels target'
 
 -- Always 1.
 use :: ActionHook
@@ -180,7 +178,7 @@ useDuring name _ user _ _ = fromEnum $ Ninja.numActive name user /= 0
 
 -- | Number of user's stacks of a @Status@ after an action.
 useDuringStacks :: Text -> ActionHook
-useDuringStacks name _ user _ _ = Ninja.numStacks name (Ninja.slot user) user
+useDuringStacks name _ user@Ninja{slot} _ _ = Ninja.numStacks name slot user
 
 -- CHAKRA HOOKS
 
@@ -246,8 +244,9 @@ stunUnique = checkUnique \name user target ->
 
 -- | Use an action on a target.
 useUnique :: StoreHook
-useUnique _ _ target _ store =
-    (insertSet targetSlot store, fromEnum $ targetSlot ∉ store)
+useUnique _ _ target _ store = ( insertSet targetSlot store
+                               , fromEnum $ targetSlot ∉ store
+                               )
   where
     targetSlot = Slot.toInt $ Ninja.slot target
 
@@ -255,8 +254,9 @@ useUnique _ _ target _ store =
 
 -- | Tallies the number of unique targets who trigger a trap.
 trapUnique :: TrapHook
-trapUnique _ target store =
-    (insertSet targetSlot store, fromEnum $ targetSlot ∉ store)
+trapUnique _ target store = ( insertSet targetSlot store
+                            , fromEnum $ targetSlot ∉ store
+                            )
   where
     targetSlot = Slot.toInt $ Ninja.slot target
 

@@ -11,13 +11,13 @@ import ClassyPrelude hiding (link, lookup, map)
 import           Data.Aeson (Value, toJSON)
 import qualified Data.HashMap.Strict as HashMap
 
-import           Game.Model.Character (Character)
+import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Chakra (Chakra(..))
 import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Class (Class(..))
 import           Game.Model.Group (Group(..))
-import           Game.Model.Skill (Skill)
+import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Util ((∉), mapFromKeyed)
 
@@ -50,11 +50,11 @@ lookup :: Text -> Maybe Character
 lookup k = HashMap.lookup k map
 
 addGroups :: Character -> Character
-addGroups char =
-    char { Character.groups = groups `union` Character.groups char }
+addGroups char@Character{groups, skills} =
+    char { Character.groups = added `union` groups }
   where
-    costs  = Skill.cost <$> concatMap toList (Character.skills char)
-    groups = setFromList $ filter is [minBound..maxBound]
+    costs = Skill.cost <$> concatMap toList skills
+    added = setFromList $ filter is [minBound..maxBound]
     uses chakra chakras = not . Chakra.lack $ chakras - Chakra.toChakras chakra
     is BloodlineUser = any (uses Blood) costs
     is GenjutsuUser  = any (uses Gen)   costs
@@ -63,15 +63,15 @@ addGroups char =
     is _             = False
 
 addClasses :: Character -> Character
-addClasses char =
-    char { Character.skills = (addClass <$>) <$> Character.skills char }
+addClasses char@Character{skills} =
+    char { Character.skills = (addClass <$>) <$> skills }
 
 addClass :: Skill -> Skill
-addClass skill = skill { Skill.classes = added ++ Skill.classes skill }
+addClass skill@Skill{classes} = skill { Skill.classes = added ++ classes }
   where
     added = setFromList $ fst <$> filter snd
             [ (All,       True)
-            , (NonBane,   Bane ∉ Skill.classes skill)
-            , (NonMental, Mental ∉ Skill.classes skill)
-            , (NonRanged, Ranged ∉ Skill.classes skill)
+            , (NonBane,   Bane ∉ classes)
+            , (NonMental, Mental ∉ classes)
+            , (NonRanged, Ranged ∉ classes)
             ]

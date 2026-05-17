@@ -182,11 +182,12 @@ postNewTopicR board = do
         _ -> defaultLayout $(widgetFile "forum/new")
 
 canDelete :: Key User -> Privilege -> ForumPost -> Bool
-canDelete who privilege post = forumPostAuthor post == who || privilege > Normal
+canDelete who privilege ForumPost{forumPostAuthor} = who == forumPostAuthor
+                                                    || privilege > Normal
 
 canLike :: Maybe (Key User) -> ForumPost -> Bool
-canLike Nothing _ = False
-canLike (Just who) post = who /= forumPostAuthor post
+canLike (Just who) ForumPost{forumPostAuthor} = who /= forumPostAuthor
+canLike Nothing    _                          = False
 
 data LikedPost = LikedPost
     { likedPost :: Cite ForumPost

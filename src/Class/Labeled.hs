@@ -10,8 +10,12 @@ import ClassyPrelude
 import Game.Model.Slot (Slot)
 import           Game.Model.Barrier (Barrier)
 import qualified Game.Model.Barrier as Barrier
+import           Game.Model.Copy (Copy)
+import qualified Game.Model.Copy as Copy
 import           Game.Model.Defense (Defense)
 import qualified Game.Model.Defense as Defense
+import           Game.Model.Skill (Skill)
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Status)
 import qualified Game.Model.Status as Status
 import           Game.Model.Trap (Trap)
@@ -47,9 +51,17 @@ instance Labeled Barrier where
     name = Barrier.name
     user = Barrier.user
 
+instance Labeled Copy where
+    name = name . Copy.skill
+    user = user . Copy.skill
+
 instance Labeled Defense where
     name = Defense.name
     user = Defense.user
+
+instance Labeled Skill where
+    name = Skill.name
+    user = Skill.owner
 
 instance Labeled Status where
     name = Status.name

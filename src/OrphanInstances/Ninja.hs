@@ -19,7 +19,7 @@ import           Game.Model.Requirement (Requirement(..))
 import qualified Game.Model.Requirement as Requirement
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
-import           Game.Model.Status (Status)
+import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import           Util ((∈), (∉))
@@ -34,7 +34,7 @@ instance ToJSON Face
 
 -- | Generates a 'Face' from the most recent 'Effect.Face' in 'statuses'.
 statusFace :: Status -> Face
-statusFace x = Face (toLower $ Status.name x) $ Status.user x
+statusFace Status{name, user} = Face (toLower name) user
 
 instance ToJSON Ninja where
     toJSON n@Ninja { barrier

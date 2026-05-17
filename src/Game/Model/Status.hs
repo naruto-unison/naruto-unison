@@ -10,18 +10,18 @@ import ClassyPrelude
 import           Game.Model.Duration (Duration)
 import           Game.Model.Effect (Effect)
 import           Game.Model.Internal (Bomb(..), Status(..))
-import           Game.Model.Skill (Skill)
-import qualified Game.Model.Skill as Skill
+import           Game.Model.Skill (Skill(Skill))
+import qualified Game.Model.Skill
 import           Game.Model.Slot (Slot)
 
 new :: Slot -> Duration -> Skill -> Status
-new user dur skill = Status
+new user dur skill@Skill{classes, name} = Status
     { amount  = 1
-    , name    = Skill.name skill
+    , name
     , user
     , skill
     , effects = mempty
-    , classes = Skill.classes skill
+    , classes
     , bombs   = []
     , maxDur  = succ dur
     , dur     = succ dur

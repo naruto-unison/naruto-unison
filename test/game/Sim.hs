@@ -39,7 +39,7 @@ import           Game.Model.Duration (Duration(..), sync)
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as Ninja
-import           Game.Model.Runnable (Runnable(..), RunConstraint)
+import           Game.Model.Runnable (Runnable(To), RunConstraint)
 import           Game.Model.Skill (Target(..))
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill

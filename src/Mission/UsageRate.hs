@@ -5,7 +5,8 @@ module Mission.UsageRate
 
 import ClassyPrelude
 
-import           Application.Model (Usage(..))
+import           Application.Model (Usage(Usage))
+import qualified Application.Model
 import           Game.Model.Character (Character)
 
 data UsageRate = UsageRate

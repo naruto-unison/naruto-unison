@@ -24,26 +24,24 @@ import qualified Data.Vector.Mutable as MVector
 import qualified Class.Parity as Parity
 import           Game.Model.Chakra (Chakras)
 import qualified Game.Model.Character as Character
-import           Game.Model.Ninja (Ninja)
-import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Ninja (Ninja(Ninja))
+import qualified Game.Model.Ninja
 import           Game.Model.Player (Player)
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger)
-import           Handler.Play.GameInfo (GameInfo)
-import qualified Handler.Play.GameInfo as GameInfo
-import           Mission.Goal (Goal, Mission, Objective(..), Span(..), Store, ActionHook, ChakraHook, StoreHook, TrapHook, TriggerHook, TurnHook)
+import           Handler.Play.GameInfo (GameInfo(GameInfo))
+import qualified Handler.Play.GameInfo
+import           Mission.Goal (Goal(Reach), Mission(Mission), Objective(..), Span(..), Store, ActionHook, ChakraHook, StoreHook, TrapHook, TriggerHook, TurnHook)
 import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
 import           Mission.Progress (Progress(Progress))
 import           Util ((!!))
 
 missionKeys :: Text -> Mission -> [Int -> Progress]
-missionKeys name mission =
-    Progress (Goal.char mission) . fst <$> objectives
+missionKeys name Mission{char, goals} = Progress char . fst <$> objectives
   where
-    objectives = filter (Goal.belongsTo name . snd) . zip [0..] . toList
-               $ Goal.goals mission
+    objectives = filter (Goal.belongsTo name . snd) . zip [0..] $ toList goals
 
 data Track s = Track
     { slot     :: Slot
@@ -62,24 +60,22 @@ data Track s = Track
     }
 
 resetGoal :: Goal -> Int -> Int
-resetGoal x amt
-  | amt < Goal.reach x = 0
-  | otherwise          = amt
+resetGoal Reach{reach} amt
+  | amt < reach = 0
+  | otherwise   = amt
 
 reset :: ∀ s. Track s -> ST s ()
 reset Track{goals, progress} = traverse_ f . zip [0..] $ toList goals
   where
-    f (i, goal) = case Goal.spanning goal of
-        Turn -> MVector.unsafeModify progress (resetGoal goal) i
-        _    -> return ()
+    f (i, goal@(Reach Turn _ _ _)) = MVector.unsafeModify progress
+                                         (resetGoal goal) i
+    f _ = return ()
 
 addProgress :: ∀ s. Track s -> Int -> Int -> ST s ()
 addProgress _ _ 0   = return ()
-addProgress Track{goals, progress} i amt = case Goal.spanning goal of
-    Moment | amt < Goal.reach goal -> return ()
+addProgress Track{goals, progress} i amt = case goals !! i of
+    Reach Moment amount _ _ | amt < amount -> return ()
     _ -> MVector.unsafeModify progress (max 0 . (+ amt)) i
-  where
-    goal = goals !! i
 
 trackStore :: ∀ s. Track s -> Int -> (Store -> (Store, Int)) -> ST s ()
 trackStore x@Track{store} i f = do
@@ -88,7 +84,13 @@ trackStore x@Track{store} i f = do
     addProgress x i progress'
 
 trackAction1 :: ∀ s. Text -> [(Ninja, Ninja)] -> Track s -> ST s ()
-trackAction1 skill ns x@Track{actions, consecs, progress, skills, slot, stores} = do
+trackAction1 skill ns track@Track { actions
+                                  , consecs
+                                  , progress
+                                  , skills
+                                  , slot
+                                  , stores
+                                  } = do
     sequence_ $ tracker <$> ns <*> actions ! skill
     sequence_ $ tracker' <$> ns <*> stores ! skill
     modifyRef' (skills) (skill :)
@@ -99,8 +101,8 @@ trackAction1 skill ns x@Track{actions, consecs, progress, skills, slot, stores} 
     consec used (i, match)
       | match /= sort (zipWith const used match) = return ()
       | otherwise = MVector.unsafeModify progress (+ 1) i
-    tracker (n, n') (i, f) = addProgress x i $ f skill user n n'
-    tracker' (n, n') (i, f) = trackStore x i $ f skill user n n'
+    tracker (n, n') (i, f)  = addProgress track i $ f skill user n n'
+    tracker' (n, n') (i, f) = trackStore track i $ f skill user n n'
 
 trackChakra1 :: ∀ s. Text -> (Chakras, Chakras) -> (Chakras, Chakras) -> Track s
              -> ST s ()
@@ -135,12 +137,12 @@ trackTurn1 p ns x@Track{skills, slot, turns} = do
     tracker (n, n') (i, f) = trackStore x i $ f p user n n'
 
 new :: ∀ s. Ninja -> ST s (Track s)
-new n = do
+new Ninja{character, slot} = do
     skills   <- newRef mempty
     store    <- MVector.replicate (length objectives) mempty
     progress <- MVector.replicate (length objectives) 0
     return $ foldl' go Track
-        { slot     = Ninja.slot n
+        { slot
         , key      = missionKeys name =<< missions
         , actions  = MultiMap.empty
         , chakras  = MultiMap.empty
@@ -156,9 +158,8 @@ new n = do
         }
         objectives
   where
-    char       = Ninja.character n
-    name       = Character.ident char
-    missions   = Missions.characterMissions char
+    name       = Character.ident character
+    missions   = Missions.characterMissions character
     goals      = [x | mission <- missions
                     , x       <- toList $ Goal.goals mission
                     , Goal.belongsTo name x]
@@ -195,10 +196,8 @@ unsafeFreeze (Tracker xs) = concat <$> traverse freeze xs
 
 -- | Initializes a @Tracker@.
 fromInfo :: ∀ s. GameInfo -> ST s (Tracker s)
-fromInfo info = Tracker <$> mapM new ninjas
-  where
-    player = GameInfo.player info
-    ninjas = fromList . Parity.half player $ GameInfo.ninjas info
+fromInfo GameInfo{ninjas, player} = Tracker
+    <$> mapM new (fromList $ Parity.half player ninjas)
 
 -- | 'HookAction'.
 trackAction :: ∀ s. Text -> [Ninja] -> [Ninja] -> Tracker s -> ST s ()

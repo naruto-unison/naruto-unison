@@ -26,20 +26,21 @@ import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Trigger as Trigger
 import           Game.Model.Channel (Channel(Channel), Channeling(..))
-import qualified Game.Model.Channel as Channel
+import qualified Game.Model.Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Effect (Effect(..))
+import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
-import           Game.Model.Ninja (Ninja, is)
+import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Requirement (Requirement(..))
 import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Runnable (Runnable(To))
 import qualified Game.Model.Runnable as Runnable
-import           Game.Model.Skill (Skill, Target(..))
-import qualified Game.Model.Skill as Skill
+import           Game.Model.Skill (Skill(Skill), Target(..))
+import qualified Game.Model.Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import qualified Game.Model.Status as Status
@@ -66,14 +67,13 @@ wrap = wrap' mempty
 
 wrap' :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Affected -> m () -> m ()
 wrap' affected f = void $ runMaybeT do
-    new        <- P.new
-    skill      <- P.skill
-    user       <- P.user
-    target     <- P.target
-    nUser      <- P.nUser
-    nTarget    <- P.nTarget
-    ninjas     <- P.ninjas
-    let classes = Skill.classes skill
+    new     <- P.new
+    user    <- P.user
+    target  <- P.target
+    nUser   <- P.nUser
+    nTarget <- P.nTarget
+    ninjas  <- P.ninjas
+    skill@Skill{classes} <- P.skill
 
     guard $ Bypassing ∈ classes || not (nTarget `is` Nullify)
 
@@ -121,16 +121,16 @@ wrap' affected f = void $ runMaybeT do
 chooseTargets :: ∀ m. (MonadPlay m, MonadRandom m)
               => [Runnable Target] -> m [[Runnable Slot]]
 chooseTargets targets = do
-    skill  <- P.skill
     user   <- P.user
     nUser  <- P.nUser
     ninjas <- P.ninjas
+    skill@Skill{require} <- P.skill
     forM targets \target -> do
         choices <- chooseTarget $ Runnable.target target
         return [ target { Runnable.target = t }
                    | t <- choices
                    , let nTarget = ninjas !! Slot.toInt t
-                   , Requirement.succeed (Skill.require skill) user nTarget
+                   , Requirement.succeed require user nTarget
                    , Requirement.targetable skill nUser nTarget
                    ]
 
@@ -201,7 +201,7 @@ targetEffect affected f = do
     else do
         wrap' affected f
         P.trigger user [OnHarm]
-        classes <- Skill.classes <$> P.skill
+        Skill{classes} <- P.skill
         P.trigger target $ OnHarmed <$> toList classes
 
 -- | Handles effects in a 'Skill'. Uses 'targetEffect' internally.
@@ -237,25 +237,25 @@ filterCounters slots = filter $ testBit targetSet . Slot.toInt . Ninja.slot
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Context -> m ()
-act ctx@Context{user, skill, new} = void $ runMaybeT do
+act ctx@Context{user, new, skill} = void $ runMaybeT do
+    let Skill{charges, classes, dur, effects, require, start} = skill
     nUser      <- P.ninja user
-    chakras    <- Game.chakra <$> P.game
+    Game{chakra} <- P.game
     initial    <- P.ninjas
-    let classes = Skill.classes skill
 
-    guard $ Ninja.alive nUser && Skill.require skill /= Unusable
+    guard $ Ninja.alive nUser && require /= Unusable
 
     lift $ P.withContext ctx do
         if not new then
             P.withContinues $ run' (singletonSet Targeted)
-              =<< chooseTargets (Skill.effects skill)
+              =<< chooseTargets effects
         else do
             P.modify user \n -> n { Ninja.lastSkill = Just skill }
             P.trigger user $ OnAction <$> toList classes
-            when (Skill.charges skill > 0)
+            when (charges > 0)
                 . P.modify user $ Cooldown.spendCharge skill
-            startEfs   <- chooseTargets $ Skill.start skill
-            contEfs    <- chooseTargets $ Skill.effects skill
+            startEfs   <- chooseTargets start
+            contEfs    <- chooseTargets effects
             let bothEfs = startEfs ++ contEfs
 
             countering  <- filterCounters bothEfs . toList <$> P.enemies user
@@ -276,7 +276,7 @@ act ctx@Context{user, skill, new} = void $ runMaybeT do
                         slot = Ninja.slot n
                 P.modifyAll uncounter
                 sequence_ counters
-            else case Skill.dur skill of
+            else case dur of
                 Instant -> run' (singletonSet Targeted) bothEfs
                 _       -> do
                     run' (singletonSet Targeted) startEfs
@@ -287,23 +287,24 @@ act ctx@Context{user, skill, new} = void $ runMaybeT do
                 . P.modify user $ Cooldown.update skill
         P.uncopied do
             Hook.action skill initial =<< P.ninjas
-            Hook.chakra skill chakras . Game.chakra =<< P.game
+            Hook.chakra skill chakra . Game.chakra =<< P.game
         traverse_ (sequence_ . Traps.get user) =<< P.ninjas
 
         P.modifyAll $ unreflect . \n -> n { Ninja.triggers = mempty }
         breakControls
   where
-    unreflect n
-      | OnReflect ∈ Ninja.triggers n =
-          Ninjas.modifyStatuses (Status.removeEffect Reflect) n
-      | otherwise = n
+    unreflect n@Ninja{triggers}
+      | OnReflect ∈ triggers = Ninjas.modifyStatuses
+                               (Status.removeEffect Reflect) n
+      | otherwise            = n
 
 -- | Effects to run when a channeled skill is canceled.
 interruptions :: Skill -> [Runnable Target]
-interruptions skill = To Enemy clear : To Ally clear : Skill.interrupt skill
+interruptions Skill{interrupt, name} =
+    To Enemy clear : To Ally clear : interrupt
   where
     clear :: ∀ m. MonadPlay m => m ()
-    clear = P.fromUser . Ninjas.clear $ Skill.name skill
+    clear = P.fromUser $ Ninjas.clear name
 
 -- | True for all targets except 'REnemy', 'RAlly', and 'RXAlly'.
 nonRandom :: Target -> Bool
@@ -318,22 +319,25 @@ nonRandom _      = True
 breakControls :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 breakControls = traverse_ breakN =<< P.ninjas
   where
-    breakN n = traverse_ (breakControl (Ninja.slot n) $ Effects.stun n)
-             $ Ninja.newChans n ++ Ninja.channels n
+    breakN n@Ninja{channels, newChans, slot} = traverse_
+        (breakControl slot $ Effects.stun n)
+        $ newChans ++ channels
 
 breakControl :: ∀ m. (MonadGame m, MonadRandom m)
              => Slot -> EnumSet Class -> Channel -> m ()
-breakControl user stuns Channel{dur = Control{}, skill, target}
-  | stuns `intersects` Skill.classes skill = P.withContext context doBreak
+breakControl user stuns Channel { dur = Control{}
+                                , skill = skill@Skill{name, classes, effects}
+                                , target
+                                }
+  | stuns `intersects` classes = P.withContext context doBreak
   | otherwise = P.withContext context do
-      targets <- chooseTargets . filter (nonRandom . Runnable.target)
-               $ Skill.effects skill
+      targets <- chooseTargets $ filter (nonRandom . Runnable.target) effects
       when (any null targets)
         doBreak
   where
     doBreak = do
         interruptTargets <- chooseTargets $ interruptions skill
         run interruptTargets
-        P.modify user . Ninjas.cancelChannel $ Skill.name skill
+        P.modify user $ Ninjas.cancelChannel name
     context = Context { skill, user, target, new = False, continues = False }
 breakControl _ _ _ = return ()

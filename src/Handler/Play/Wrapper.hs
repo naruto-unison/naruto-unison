@@ -28,11 +28,13 @@ import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
-import qualified Game.Model.Skill as Skill
+import           Game.Model.Skill (Skill(Skill))
+import qualified Game.Model.Skill
 import qualified Game.Model.Slot as Slot
-import qualified Game.Model.Trap as Trap
-import           Handler.Play.GameInfo (GameInfo)
-import qualified Handler.Play.GameInfo as GameInfo
+import           Game.Model.Trap (Trap(Trap))
+import qualified Game.Model.Trap
+import           Handler.Play.GameInfo (GameInfo(GameInfo))
+import qualified Handler.Play.GameInfo
 import           Handler.Play.Tracker (Tracker)
 import qualified Handler.Play.Tracker as Tracker
 import           Handler.Play.Turn (Turn)
@@ -70,22 +72,22 @@ instance (MonadST m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) whe
     {-# INLINE modify #-}
 
 instance (MonadST m, s ~ PrimState m) => MonadHook (ReaderT (STWrapper s) m) where
-    action sk ns ns' = askST tracker
-                     $ Tracker.trackAction (Skill.name sk) ns ns'
-    chakra sk ch ch' = askST tracker
-                     $ Tracker.trackChakra (Skill.name sk) ch ch'
-    trap tr targ     = askST tracker
-                     $ Tracker.trackTrap (Trap.name tr) (Trap.user tr) targ
-    trigger tr targ  = askST tracker
-                     $ Tracker.trackTrigger tr targ
-    turn p ns ns'    = askST tracker
-                     $ Tracker.trackTurn p ns ns'
+    action Skill{name} ns ns'  = askST tracker
+        $ Tracker.trackAction name ns ns'
+    chakra Skill{name} ch ch'  = askST tracker
+        $ Tracker.trackChakra name ch ch'
+    trap Trap{name, user} targ = askST tracker
+        $ Tracker.trackTrap name user targ
+    trigger tr targ            = askST tracker
+        $ Tracker.trackTrigger tr targ
+    turn p ns ns'              = askST tracker
+        $ Tracker.trackTurn p ns ns'
 
 fromInfo :: ∀ s. GameInfo -> ST s (STWrapper s)
-fromInfo info = STWrapper
+fromInfo info@GameInfo{game, ninjas} = STWrapper
     <$> Tracker.fromInfo info
-    <*> newRef (GameInfo.game info)
-    <*> Vector.thaw (fromList $ GameInfo.ninjas info)
+    <*> newRef game
+    <*> Vector.thaw (fromList ninjas)
 
 -- | Replaces 'gameRef' and 'ninjasRef' of the former with the latter.
 -- Does not affect 'tracker'.

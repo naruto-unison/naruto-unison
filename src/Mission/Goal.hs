@@ -97,8 +97,8 @@ user (HookTurn name _)      = Just name
 
 -- | Schema component in use in @Mission.Missions@ modules.
 data Goal = Reach
-    { reach     :: Int
-    , spanning  :: Span
+    { spanning  :: Span
+    , reach     :: Int
     , desc      :: Text
     , objective :: Objective
     }

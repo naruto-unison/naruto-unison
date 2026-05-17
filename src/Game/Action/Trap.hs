@@ -26,7 +26,8 @@ import           Game.Model.Effect (Constructor(..), Effect(..))
 import           Game.Model.Ninja (is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Requirement (Requirement(..))
-import           Game.Model.Runnable (Runnable(..), RunConstraint)
+import           Game.Model.Runnable (Runnable(To), RunConstraint)
+import qualified Game.Model.Runnable
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap

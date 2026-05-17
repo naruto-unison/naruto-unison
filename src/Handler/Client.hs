@@ -29,7 +29,7 @@ import qualified Game.Model.Skill as Skill
 import qualified Handler.Play as Play
 import qualified Handler.Play.War as War
 import qualified Mission
-import           Mission.Goal (Goal)
+import           Mission.Goal (Goal(Reach))
 import qualified Mission.Goal as Goal
 import           Util ((∈), (∉), shorten)
 
@@ -69,10 +69,10 @@ instance ToJSON ObjectiveProgress
 
 -- | Unpacks the output of 'Mission.userMission'.
 unzipGoal :: (Goal, Int) -> ObjectiveProgress
-unzipGoal (goal, progress) = ObjectiveProgress
+unzipGoal (goal@Reach{desc, reach}, progress) = ObjectiveProgress
     { character = Character.format <$> Goal.character goal
-    , desc      = Goal.desc goal
-    , goal      = Goal.reach goal
+    , goal      = reach
+    , desc
     , progress
     }
 

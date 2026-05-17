@@ -39,8 +39,8 @@ import qualified Game.Characters as Characters
 import qualified Game.Engine as Engine
 import           Game.Model.Chakra (Chakras)
 import qualified Game.Model.Chakra as Chakra
-import qualified Game.Model.Character as Character
 import           Game.Model.Character (Character)
+import qualified Game.Model.Character as Character
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as Ninja
@@ -53,7 +53,7 @@ import           Handler.Client.Reward (Reward(Reward))
 import           Handler.Play.Act (Act)
 import qualified Handler.Play.Act as Act
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
-import qualified Handler.Play.GameInfo as GameInfo
+import qualified Handler.Play.GameInfo
 import           Handler.Play.Match (Outcome(..))
 import qualified Handler.Play.Match as Match
 import qualified Handler.Play.Rating as Rating
@@ -78,7 +78,7 @@ parseTeam :: Parser Team
 parseTeam = Team <$> parseSection <*> parseCharacters
   where
     parseSection = Parse.string "private" $> Queue.Private
-               <|> Parse.string "quick"   $> Queue.Quick
+                 <|> Parse.string "quick" $> Queue.Quick
 
     parseCharacters = Parse.count 3 $ separate
             >> Parse.takeWhile (/= separator) <|> Parse.takeText
@@ -211,8 +211,8 @@ gameSocket = webSockets do
     settings <- getsYesod App.settings
     unlocked <- liftHandler Mission.unlocked
 
-    (section, team, Response mvar info) <- untilJust
-        $ handleFailures =<< runExceptT do
+    (section, team, Response mvar info@GameInfo{player, war, vsWho}) <-
+        untilJust $ handleFailures =<< runExceptT do
             Team section team <- either (throwE . Client.InvalidTeam)
                                  return . Parse.parseOnly parseTeam
                                  =<< Sockets.receive {-! BLOCKS !-}
@@ -227,7 +227,6 @@ gameSocket = webSockets do
             return (section, teamNames, queued)
 
     Client.send $ Client.Info info
-    let player = GameInfo.player info
 
     game <- liftST (Wrapper.fromInfo info) >>= runReaderT do
         when (player == Player.A)
@@ -243,8 +242,7 @@ gameSocket = webSockets do
                 game <- P.game
 
                 unless (Game.inProgress game) . liftDB . void $ forkIO do
-                    match <- Match.load . Match.fromGame game player who
-                           $ GameInfo.vsWho info
+                    match <- Match.load $ Match.fromGame game player who vsWho
                     mapM_ Rating.update match
             else
                 liftST . Wrapper.replace wrapper =<< ask
@@ -260,8 +258,7 @@ gameSocket = webSockets do
         if outcome == Defeat && Game.forfeit (Wrapper.game game) then
             Client.send $ Client.Rewards [Reward "Forfeit" 0]
         else do
-            dnaReward <- liftHandler . Mission.awardDNA Queue.Quick outcome
-                $ GameInfo.war info
+            dnaReward <- liftHandler $ Mission.awardDNA Queue.Quick outcome war
             Client.send $ Client.Rewards dnaReward
 
         liftHandler do

@@ -31,10 +31,11 @@ import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
 import           Game.Model.Attack (Attack)
 import qualified Game.Model.Attack as Attack
-import           Game.Model.Barrier (Barrier)
+import           Game.Model.Barrier (Barrier(Barrier))
 import qualified Game.Model.Barrier as Barrier
 import           Game.Model.Class (Class(..))
-import qualified Game.Model.Context as Context
+import           Game.Model.Context (Context(Context))
+import qualified Game.Model.Context
 import           Game.Model.Defense (Defense(Defense))
 import qualified Game.Model.Defense as Defense
 import           Game.Model.Duration (Duration)
@@ -42,24 +43,25 @@ import           Game.Model.Effect (Amount(..), Effect(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as Ninja
 import           Game.Model.Runnable (RunConstraint)
+import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Status(Status))
-import qualified Game.Model.Status as Status
+import qualified Game.Model.Status
 import           Game.Model.Trigger (Trigger(..))
 
 -- | Reduces incoming damage by depleting the user's 'Ninja.barrier'.
 absorbBarrier :: Int -> [Barrier] -> (Int, [Barrier])
 absorbBarrier hp [] = (hp, [])
-absorbBarrier hp (x:xs)
-  | Barrier.amount x <= hp = absorbBarrier (hp - Barrier.amount x) xs
-  | otherwise = (0, x { Barrier.amount = Barrier.amount x - hp } : xs)
+absorbBarrier hp (x@Barrier{amount}:xs)
+  | amount <= hp = absorbBarrier (hp - amount) xs
+  | otherwise    = (0, x { Barrier.amount = amount - hp } : xs)
 
 -- | Reduces incoming damage by depleting the target's 'Ninja.defense'.
 absorbDefense :: Int -> [Defense] -> (Int, [Defense])
 absorbDefense hp [] = (hp, [])
-absorbDefense hp (x:xs)
-  | Defense.amount x <= hp = absorbDefense (hp - Defense.amount x) xs
-  | otherwise = (0, x { Defense.amount = Defense.amount x - hp } : xs)
+absorbDefense hp (x@Defense{amount}:xs)
+  | amount <= hp = absorbDefense (hp - amount) xs
+  | otherwise    = (0, x { Defense.amount = amount - hp } : xs)
 
 -- | Deals damage that ignores 'Reduce' effects, 'Ninja.barrier',
 -- and 'Ninja.defense'.
@@ -143,13 +145,12 @@ attack atk dmg = void $ runMaybeT do
     channeled <- isChanneled <$> P.context
     guard . not $ channeled && nTarget `is` AntiChannel
 
-    skill      <- P.skill
-    nUser      <- P.nUser
-    let classes = insertSet atkClass $ Skill.classes skill
-
-    user       <- P.user
-    target     <- P.target
-    let dmgCalc             = formula atk classes nUser nTarget dmg
+    Skill{classes, name} <- P.skill
+    nUser                <- P.nUser
+    user                 <- P.user
+    target               <- P.target
+    let classes'            = insertSet atkClass classes
+        dmgCalc             = formula atk classes' nUser nTarget dmg
         (dmg'Barrier, barr) = absorbBarrier dmgCalc $ Ninja.barrier nUser
         handleDefense
           | nTarget `is` Undefend = (,)
@@ -162,7 +163,7 @@ attack atk dmg = void $ runMaybeT do
         let damageDefense = Defense
                 { amount = dmgCalc
                 , user
-                , name   = Skill.name skill
+                , name
                 , dur    = 0
                 }
         in
@@ -187,7 +188,7 @@ attack atk dmg = void $ runMaybeT do
         P.modify target $ Traps.track PerDamaged damaged
 
   where
-    isChanneled context = Context.continues context && not (Context.new context)
+    isChanneled Context{continues, new} = continues && not new
     atkClass = case atk of
         Attack.Afflict -> Affliction
         _              -> NonAffliction
@@ -254,12 +255,10 @@ barricade dur = barricade' dur (const $ return ()) (return ())
 barricade' :: ∀ m. MonadPlay m => Duration -> (Int -> RunConstraint ())
             -> RunConstraint () -> Int -> m ()
 barricade' dur finish while amount = P.unsilenced do
-    context   <- P.context
-    amount'   <- (+ amount) . Effects.build <$> P.nUser
-    let skill  = Context.skill context
-        target = Context.target context
-        barr   = Barrier.new context dur
-                  (\n -> Action.wrap $ finish n) (Action.wrap while) amount'
+    context@Context{skill, target} <- P.context
+    amount' <- (+ amount) . Effects.build <$> P.nUser
+    let barr = Barrier.new context dur
+               (\n -> Action.wrap $ finish n) (Action.wrap while) amount'
         addNonStack :: ∀ a. Labeled a => a -> [a] -> [a]
         addNonStack = Classed.nonStack skill
     case amount' `compare` 0 of
@@ -318,9 +317,9 @@ setHealth amt = do
         EQ -> return ()
         GT -> P.trigger user [OnHeal]
         LT -> do
-            skill <- P.skill
+            Skill{classes} <- P.skill
             target <- P.target
-            P.trigger target $ OnDamaged <$> toList (Skill.classes skill)
+            P.trigger target $ OnDamaged <$> toList classes
 
 -- | Adds a flat amount of 'Ninja.health'.
 -- Uses 'Ninjas.adjustHealth' internally.
@@ -345,12 +344,12 @@ heal hp = P.unsilenced do
 -- Uses 'afflict' internally.
 leech :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
 leech hp f = do
-    user     <- P.user
-    target   <- P.target
-    classes  <- Skill.classes <$> P.skill
-    hpBefore <- Ninja.health <$> P.nTarget
+    user           <- P.user
+    target         <- P.target
+    Skill{classes} <- P.skill
+    hpBefore       <- Ninja.health <$> P.nTarget
     afflict hp
-    damaged <- (hpBefore -) . Ninja.health <$> P.nTarget
+    damaged        <- (hpBefore -) . Ninja.health <$> P.nTarget
     when (damaged > 0) do
         f damaged
         P.trigger user [OnDamage]

@@ -41,7 +41,7 @@ import qualified Application.App as App
 import qualified Application.Logger as AppLogger
 import           Application.Model (CharacterId)
 import qualified Application.Model as Model
-import           Application.Settings (Settings)
+import           Application.Settings (Settings(Settings))
 import qualified Application.Settings as Settings
 import           Handler.Admin
 import           Handler.Client
@@ -69,16 +69,19 @@ initDB = do
 
 -- | Initializes the core of the app with a logger and a database.
 makeFoundation :: Settings -> IO App
-makeFoundation settings = do
+makeFoundation settings@Settings { databaseConf
+                                 , mutableStatic
+                                 , practiceCacheExpiry
+                                 , queueTableSizeHint
+                                 , staticDir
+                                 } = do
     httpManager <- TLS.getGlobalManager
     loggerSet   <- FastLogger.newStdoutLoggerSet FastLogger.defaultBufSize
     logger      <- DefaultConfig.makeYesodLogger loggerSet
-    static      <- staticMode $ Settings.staticDir settings
-    quick       <- HashTable.newWithDefaults
-                 $ Settings.queueTableSizeHint settings
+    static      <- staticMode staticDir
+    quick       <- HashTable.newWithDefaults queueTableSizeHint
     private     <- newBroadcastTChanIO
-    practice    <- Cache.newCache . Just . fromInteger
-                 $ Settings.practiceCacheExpiry settings
+    practice    <- Cache.newCache . Just $ fromInteger practiceCacheExpiry
 
     startup                  <- getCurrentTime
     MkSystemTime timestamp _ <- getSystemTime
@@ -106,8 +109,8 @@ makeFoundation settings = do
         logFunc = messageLoggerSource tempFoundation logger
 
     pool <- flip Logger.runLoggingT logFunc $ Sql.createPostgresqlPool
-        (Sql.pgConnStr  $ Settings.databaseConf settings)
-        (Sql.pgPoolSize $ Settings.databaseConf settings)
+        (Sql.pgConnStr  databaseConf)
+        (Sql.pgPoolSize databaseConf)
 
     charIDs <- Logger.runLoggingT (Sql.runSqlPool initDB pool) logFunc
     let foundation = mkFoundation charIDs pool
@@ -115,8 +118,8 @@ makeFoundation settings = do
     return foundation
   where
     staticMode
-      | Settings.mutableStatic settings = Static.staticDevel
-      | otherwise                          = Static.static
+      | mutableStatic = Static.staticDevel
+      | otherwise     = Static.static
 
 -- | Convert foundation to a WAI Application by calling @toWaiAppPlain@ and
 -- applying some additional middlewares.
@@ -128,14 +131,14 @@ makeApplication foundation = do
 
 -- | Warp settings from app settings.
 warpSettings :: App -> Warp.Settings
-warpSettings foundation =
-      Warp.setPort (Settings.port $ App.settings foundation)
-    $ Warp.setHost (Settings.host $ App.settings foundation)
-    $ Warp.setOnException exceptionHandler
-      Warp.defaultSettings
+warpSettings foundation@App{logger, settings = Settings{host, port}} =
+    Warp.setPort port
+        . Warp.setHost host
+        . Warp.setOnException exceptionHandler
+        $ Warp.defaultSettings
   where
     exceptionHandler _req e = when (Warp.defaultShouldDisplayException e)
-        $ messageLoggerSource foundation (App.logger foundation)
+        $ messageLoggerSource foundation logger
               $(Logger.liftLoc =<< TH.qLocation)
               "yesod"
               LevelError

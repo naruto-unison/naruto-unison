@@ -15,7 +15,8 @@ import Data.Aeson ((.=), ToJSON(..), object)
 import Data.Enum.Set (EnumSet)
 
 import           Class.Display (Display(..))
-import           Game.Model.Class (Class(..), lower)
+import           Game.Model.Class (Class(..))
+import qualified Game.Model.Class as Class
 import           Game.Model.Slot (Slot)
 import           Util ((∈), commas)
 
@@ -253,7 +254,7 @@ slot (Taunt x)    = Just x
 slot _            = Nothing
 
 list :: ∀ o. (MonoFoldable o, Element o ~ Class) => o -> TextBuilder
-list classes = commas "and" $ lower <$> toList classes
+list classes = commas "and" $ Class.lower <$> toList classes
 
 instance Display Effect where
     display Absorb =
@@ -341,7 +342,7 @@ instance Display Effect where
         "Unable to ignore harm."
 
     display (Invulnerable cla) =
-        "Invulnerable to " ++ lower cla ++ " skills."
+        "Invulnerable to " ++ Class.lower cla ++ " skills."
 
     display (Limit x) =
         "Reduces non-affliction damage received to at most " ++ display x ++ "."
@@ -380,7 +381,7 @@ instance Display Effect where
         "Reflects the first harmful skill."
 
     display (ReflectAll cla) =
-        "Reflects " ++ lower cla ++ " skills."
+        "Reflects " ++ Class.lower cla ++ " skills."
 
     display Reveal =
         "Reveals cooldowns and invisible effects to the enemy team."
@@ -408,7 +409,7 @@ instance Display Effect where
         ++ list classes ++ " skills."
 
     display (Stun cla) =
-        "Disables " ++ lower cla ++ " skills."
+        "Disables " ++ Class.lower cla ++ " skills."
 
     display Swap =
         "Next skill will target allies instead of enemies and enemies instead of allies."

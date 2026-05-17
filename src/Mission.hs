@@ -27,7 +27,8 @@ import qualified Yesod.Auth as Auth
 import           Application.App (Handler)
 import qualified Application.App as App
 import           Application.Fields (Privilege(..))
-import           Application.Model (Character(..), CharacterId, EntityField(..), Mission(..), Unlocked(..), Usage(..), User(..))
+import           Application.Model (Character(Character), CharacterId, EntityField(..), Mission(Mission), Unlocked(Unlocked), Usage(..), User(User))
+import qualified Application.Model
 import qualified Application.Settings as Settings
 import qualified Game.Characters as Characters
 import qualified Game.Model.Character as Character
@@ -39,7 +40,8 @@ import qualified Handler.Queue as Queue
 import           Mission.Goal (Goal, Span(..))
 import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
-import           Mission.Progress (Progress(..))
+import           Mission.Progress (Progress(Progress))
+import qualified Mission.Progress
 import           Mission.UsageRate (UsageRate)
 import qualified Mission.UsageRate as UsageRate
 import           Util ((!?), (∉))
@@ -51,10 +53,11 @@ initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do
     charEntities <- selectList [] []
     let chars = entityVal <$> charEntities
-    insertMany_ . filter (∉ chars)
-        $ Character . Character.ident <$> Characters.list
+    insertMany_ $ filter (∉ chars) charList
     newChars <- selectList [] []
     return $ makeMap newChars
+  where
+    charList = Character . Character.ident <$> Characters.list
 
 -- | Looks up a Character's ID in 'App.characterIDs' using 'Character.ident'.
 characterID :: Text -> MaybeT Handler CharacterId
@@ -277,7 +280,10 @@ updateLatestWin _       _   xs = xs
 -- | Processes DNA gains for 'awardDNA'.
 tallyDNA :: Queue.Section -> Outcome -> Maybe War -> Settings.DNA -> Maybe Day
          -> User -> [Reward]
-tallyDNA section outcome war dnaConf day user = filter ((> 0) . Reward.amount)
+tallyDNA section outcome war dnaConf day User { userLatestGame
+                                              , userLatestWin
+                                              , userStreak
+                                              } = filter ((> 0) . Reward.amount)
     [ Reward (tshow outcome) $       outcomeDNA section outcome dnaConf
     , Reward "First Game of the Day" dailyGame
     , Reward "First Win of the Day " dailyWin
@@ -286,22 +292,22 @@ tallyDNA section outcome war dnaConf day user = filter ((> 0) . Reward.amount)
     ]
   where
     dailyGame
-      | userLatestGame user == day = 0
-      | otherwise                  = Settings.dailyGame dnaConf
+      | userLatestGame == day = 0
+      | otherwise             = Settings.dailyGame dnaConf
     dailyWin
-      | outcome /= Victory        = 0
-      | userLatestWin user == day = 0
-      | otherwise                 = Settings.dailyWin dnaConf
+      | outcome /= Victory    = 0
+      | userLatestWin == day  = 0
+      | otherwise             = Settings.dailyWin dnaConf
     winStreak
-      | outcome /= Victory         = 0
-      | userStreak user < 1        = 0
+      | outcome /= Victory    = 0
+      | userStreak < 1        = 0
       | Settings.useStreak dnaConf = floor . (sqrt :: Float -> Float)
-                                   . fromIntegral $ userStreak user - 1
-      | otherwise                  = 0
+                                   . fromIntegral $ userStreak - 1
+      | otherwise             = 0
     warWin
-      | outcome /= Victory         = 0
-      | isNothing war              = 0
-      | otherwise                  = Settings.warWin dnaConf
+      | outcome /= Victory    = 0
+      | isNothing war         = 0
+      | otherwise             = Settings.warWin dnaConf
 
 -- | DNA rewards for completing games, as configured in
 --  [config/settings.yml](config.settings.yml).

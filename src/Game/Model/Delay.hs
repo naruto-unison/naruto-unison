@@ -6,7 +6,7 @@ import           Game.Model.Context (Context)
 import           Game.Model.Duration (Duration)
 import           Game.Model.Internal (Delay(..))
 import           Game.Model.Runnable (RunConstraint, Runnable(To))
-import qualified Game.Model.Runnable as Runnable
+import qualified Game.Model.Runnable
 
 new :: Context -> Duration -> RunConstraint () -> Delay
 new target dur run = Delay

@@ -23,4 +23,4 @@ getFaviconR = do
 -- | From [config/robots.txt](config/robots.txt).
 getRobotsR :: Handler TypedContent
 getRobotsR = return $ TypedContent typePlain
-                $ toContent $(FileEmbed.embedFile "config/robots.txt")
+    $ toContent $(FileEmbed.embedFile "config/robots.txt")
