@@ -42,8 +42,8 @@ spec = parallel do
             it "spends Scattered Rocks" do
                 replicateM_ 3  $ Sim.use "Sphere of Graves"
                 Sim.act
-                userStacks <- user $ numAnyStacks "Scattered Rock"
-                userStacks `shouldBe` 1
+                numStacks <- userStacks "Scattered Rock"
+                numStacks `shouldBe` 1
 
     describeCharacter "Haku" do
         useOn Enemies "Thousand Needles of Death" do
@@ -85,27 +85,27 @@ spec = parallel do
             it "regains health from damage" do
                 Sim.act
                 Sim.as Enemy $ damage dmg
-                userDefense <- user totalDefense
-                userDefense `shouldBe` dmg - 20
+                defense <- user totalDefense
+                defense `shouldBe` dmg - 20
 
     describeCharacter "Zabuza Momochi" do
         useOn Enemy "Blood Harvest" do
             it "drains into defense" do
                 Sim.use "Executioner's Butchering"
                 Sim.act
-                userDefense <- user totalDefense
-                userDefense `shouldBe` 10
+                defense <- user totalDefense
+                defense `shouldBe` 10
             it "also counts Demon Shroud" do
                 Sim.use "Demon Shroud"
                 Sim.act
-                userDefense <- user totalDefense
-                userDefense `shouldBe` 10
+                defense <- user totalDefense
+                defense `shouldBe` 10
             it "does not defend more" do
                 Sim.use "Executioner's Butchering"
                 setHealth stacks
                 Sim.act
-                userDefense <- user totalDefense
-                userDefense `shouldBe` stacks
+                defense <- user totalDefense
+                defense `shouldBe` stacks
             it "extends Demon Shroud" do
                 Sim.use "Demon Shroud"
                 replicateM_ 8 Sim.act

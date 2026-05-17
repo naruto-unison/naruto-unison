@@ -123,15 +123,15 @@ spec = parallel do
         useOn Enemy "Demonic Illusion: Entrap" do
             it "adds stacks" do
                 replicateM_ stacks Sim.act
-                userStacks <- user $ numAnyStacks "Illusion"
-                userStacks `shouldBe` 3
+                numStacks <- userStacks "Illusion"
+                numStacks `shouldBe` 3
 
         useOn Self "Illusory Tree Meld" do
             it "adds destructible defense per Illusion" do
                 self $ addStacks "Illusion" stacks
                 Sim.act
-                userDefense <- user $ totalDefense
-                userDefense `shouldBe` 10 + 5 * stacks
+                defense <- user $ totalDefense
+                defense `shouldBe` 10 + 5 * stacks
 
         useOn Enemy "Demonic Illusion: Sylvan Fetters" do
             it "alternates" do

@@ -184,8 +184,8 @@ spec = parallel do
             it "adds stacks when enemy acts" do
                 Sim.act
                 replicateM_ stacks $ Sim.as Enemy $ return ()
-                userStacks <- user $ numAnyStacks "Sensory Radar"
-                userStacks `shouldBe` stacks
+                numStacks <- userStacks "Sensory Radar"
+                numStacks `shouldBe` stacks
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Sensory Radar: Collate"
@@ -199,8 +199,8 @@ spec = parallel do
             it "spends all Sensory Radar" do
                 addStacks "Sensory Radar" stacks
                 Sim.act
-                userStacks <- user $ numAnyStacks "Sensory Radar"
-                userStacks `shouldBe` 0
+                numStacks <- userStacks "Sensory Radar"
+                numStacks `shouldBe` 0
 
         useOn Enemy "Mental Invasion" do
             it "provides invulnerability with mental harm" do

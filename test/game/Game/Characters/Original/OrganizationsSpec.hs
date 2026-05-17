@@ -68,8 +68,8 @@ spec = parallel do
             it "transfers health to stacks" do
                 Sim.as Enemy $ damage dmg
                 Sim.act
-                userStacks <- user $ numAnyStacks "Izumo's Health"
-                100 - userStacks `shouldBe` dmg
+                numStacks <- userStacks "Izumo's Health"
+                100 - numStacks `shouldBe` dmg
             it "transfers health from stacks" do
                 Sim.as Enemy $ damage dmg
                 Sim.act
@@ -135,8 +135,8 @@ spec = parallel do
                 Sim.act
                 replicateM_ stacks $ Sim.as Enemy $ damage 15
                 replicateM_ (stacks * 2) $ Sim.as Enemy $ damage 10
-                userStacks <- user $ numAnyStacks "Payback"
-                userStacks `shouldBe` stacks
+                numStacks <- userStacks "Payback"
+                numStacks `shouldBe` stacks
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Payback"
@@ -231,8 +231,8 @@ spec = parallel do
             it "ignores stuns" do
                 Sim.act
                 apply 5 [Stun All]
-                stunned <- target Effects.stun
-                stunned `shouldBe` []
+                targetStunned <- target Effects.stun
+                targetStunned `shouldBe` []
             it "is normally single-target" do
                 Sim.act
                 Sim.at XAlly $ not <$> targetHas "Acupuncture"

@@ -20,14 +20,12 @@ import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
 import           Game.Model.Attack (Attack)
 import qualified Game.Model.Attack as Attack
-import           Game.Model.Chakra (Chakras)
 import qualified Game.Model.Chakra as Chakra
 import qualified Game.Model.Character as Character
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as N
-import           Game.Model.Runnable (Runnable(To))
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Slot as Slot
@@ -426,7 +424,7 @@ canTargetAs :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
             => Target -> m Bool
 canTargetAs t = do
     Sim.as t $ addStack' fakeStatus
-    target $ (== 1) . numAnyStacks fakeStatus
+    target $ N.has fakeStatus (Sim.targetSlot t)
   where
     fakeStatus = ""
 

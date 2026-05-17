@@ -67,7 +67,7 @@ spec = parallel do
             it "spends Ibuse's health" do
                 Sim.act
                 Sim.as Enemy $ damage dmg
-                ibuseHealth <- user $ numAnyStacks "Major Summoning: Ibuse"
+                ibuseHealth <- userStacks "Major Summoning: Ibuse"
                 30 - ibuseHealth `shouldBe` dmg `quot` 2
             it "spends all health" do
                 Sim.act

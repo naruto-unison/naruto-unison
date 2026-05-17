@@ -56,15 +56,15 @@ spec = parallel do
             it "spends a Seal" do
                 self $ addStacks "Seal" stacks
                 Sim.act
-                userStacks <- user $ numAnyStacks "Seal"
-                userStacks `shouldBe` stacks - 1
+                numStacks <- userStacks "Seal"
+                numStacks `shouldBe` stacks - 1
 
         useOn Self "Seal Release" do
             it "spends a Seal" do
                 self $ addStacks "Seal" stacks
                 Sim.act
-                userStacks <- user $ numAnyStacks "Seal"
-                userStacks `shouldBe` stacks - 1
+                numStacks <- userStacks "Seal"
+                numStacks `shouldBe` stacks - 1
 
     describeCharacter "Sai" do
         useOn Allies "Ink Mist" do
@@ -248,8 +248,8 @@ spec = parallel do
             it "tags harm" do
                 Sim.act
                 replicateM_ stacks $ Sim.as Enemy $ return ()
-                targetStacks <- target $ numAnyStacks "Eight Trigrams Sixty-Four Palms"
-                targetStacks `shouldBe` stacks
+                numStacks <- targetStacks "Eight Trigrams Sixty-Four Palms"
+                numStacks `shouldBe` stacks
 
     describeCharacter "Shikamaru Nara" do
         useOn Enemy "Shadow Sewing" do
@@ -381,8 +381,8 @@ spec = parallel do
         useOn Self "Switch Loadout" do
             it "defends user" do
                 Sim.act
-                userDefense <- user totalDefense
-                userDefense `shouldBe` 5
+                defense <- user totalDefense
+                defense `shouldBe` 5
             it "alternates 1" do
                 Sim.act
                 user $ hasSkill "Tensasai"
@@ -395,8 +395,8 @@ spec = parallel do
         useOn Self "Switch Loadout " do
             it "defends user" do
                 Sim.act
-                userDefense <- user totalDefense
-                userDefense `shouldBe` 5
+                defense <- user totalDefense
+                defense `shouldBe` 5
             it "alternates 1" do
                 Sim.act
                 user $ hasSkill "Scroll of Fire"
@@ -409,8 +409,8 @@ spec = parallel do
         useOn Self "Switch Loadout  " do
             it "defends user" do
                 Sim.act
-                userDefense <- user totalDefense
-                userDefense `shouldBe` 5
+                defense <- user totalDefense
+                defense `shouldBe` 5
             it "alternates 1" do
                 Sim.act
                 user $ hasSkill "Kunai Grenade"

@@ -58,36 +58,36 @@ spec = parallel do
         useOn Enemy "Seven Stars Blade" do
             it "adds Spirit Words" do
                 replicateM_ stacks Sim.act
-                targetStacks <- target $ numAnyStacks "Spirit Word"
-                targetStacks `shouldBe` stacks
+                numStacks <- targetStacks "Spirit Word"
+                numStacks `shouldBe` stacks
 
         useOn Enemy "Amber Purification Jar" do
             it "adds Spirit Words" do
                 replicateM_ stacks Sim.act
-                targetStacks <- target $ numAnyStacks "Spirit Word"
-                targetStacks `shouldBe` stacks
+                numStacks <- targetStacks "Spirit Word"
+                numStacks `shouldBe` stacks
 
         useOn Enemy "Benihisago" do
             it "damages target per stack" do
-                Sim.as XEnemies $ addStacks "Spirit Word" stacks
+                addStacks "Spirit Word" stacks
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 10 + 5 * stacks
             it "adds Spirit Words" do
                 replicateM_ stacks Sim.act
-                targetStacks <- target $ numAnyStacks "Spirit Word"
-                targetStacks `shouldBe` stacks
+                numStacks <- targetStacks "Spirit Word"
+                numStacks `shouldBe` stacks
             it "increases Scroll of Fire" do
                 replicateM_ stacks Sim.act
-                targetStacks <- target $ numAnyStacks "Scroll of Fire"
-                targetStacks `shouldBe` stacks
+                numStacks <- targetStacks "Scroll of Fire"
+                numStacks `shouldBe` stacks
 
     describeCharacter "Kinkaku" do
         useOn Enemy "Leaf Fan" do
             it "adds Spirit Words" do
                 replicateM_ stacks Sim.act
-                targetStacks <- target $ numAnyStacks "Spirit Word"
-                targetStacks `shouldBe` stacks
+                numStacks <- targetStacks "Spirit Word"
+                numStacks `shouldBe` stacks
 
         useOn Enemy "Gold Rope" do
             it "damages on harm stacking" do
@@ -98,20 +98,20 @@ spec = parallel do
             it "adds Spirit Words" do
                 replicateM_ stacks Sim.act
                 Sim.as Enemy $ return ()
-                targetStacks <- target $ numAnyStacks "Spirit Word"
-                targetStacks `shouldBe` stacks
+                numStacks <- targetStacks "Spirit Word"
+                numStacks `shouldBe` stacks
 
         useOn Enemies "Scroll of Fire" do
             it "adds Spirit Words" do
                 replicateM_ stacks Sim.act
-                targetStacks <- target $ numAnyStacks "Spirit Word"
-                targetStacks `shouldBe` stacks
+                numStacks <- targetStacks "Spirit Word"
+                numStacks `shouldBe` stacks
             it "deals bonus damage from stacks" do
                 Sim.act
                 targetHealth <- target health
                 factory
                 self factory
-                Sim.as XEnemies $ addStacks "Scroll of Fire" stacks
+                addStacks "Scroll of Fire" stacks
                 Sim.act
                 targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 5 * stacks

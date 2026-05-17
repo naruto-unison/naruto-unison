@@ -80,13 +80,13 @@ characters =
     let
         formation :: (Int -> RunConstraint()) -> RunConstraint ()
         formation withAmount = do
-            formingStacks <- user $ numAnyStacks "forming"
+            formingStacks <- userStacks "forming"
             if formingStacks > 0 then
                 allies $ addStack' "formed"
             else do
                 allies $ addStack' "forming"
                 delay -1 do
-                    formedStacks <- user $ numAnyStacks "formed"
+                    formedStacks <- userStacks "formed"
                     when (formedStacks > 0) $ withAmount formedStacks
     in
     [ [ Skill.new

@@ -23,8 +23,8 @@ spec = parallel do
         useOn Self "Umbrella Toss" do
             it "adds stacks" do
                 Sim.act
-                userStacks <- user $ numAnyStacks "Umbrella"
-                userStacks `shouldBe` 4
+                numStacks <- userStacks "Umbrella"
+                numStacks `shouldBe` 4
 
         useOn Self "Umbrella Gathering" do
             it "reduces damage per Umbrella" do
@@ -42,8 +42,8 @@ spec = parallel do
             it "spends an Umbrella" do
                 self $ addStacks "Umbrella" stacks
                 Sim.act
-                userStacks <- user $ numAnyStacks "Umbrella"
-                userStacks `shouldBe` stacks - 1
+                numStacks <- userStacks "Umbrella"
+                numStacks `shouldBe` stacks - 1
 
         useOn Enemy "Senbon Barrage" do
             it "damages enemy per Umbrella" do

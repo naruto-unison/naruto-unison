@@ -36,8 +36,8 @@ spec = parallel do
         useOn Enemy "Toad Oil Bomb" do
             it "adds a stack" do
                 replicateM_ stacks Sim.act
-                targetStacks <- target $ numAnyStacks "Toad Oil Bomb"
-                targetStacks `shouldBe` stacks
+                numStacks <- targetStacks "Toad Oil Bomb"
+                numStacks `shouldBe` stacks
 
         useOn Ally "Raging Lion's Mane" do
             it "counters Physical Melee" do

@@ -133,7 +133,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- target $ numAnyStacks "Spirit Word"
+                stacks <- targetStacks "Spirit Word"
                 afflict (10 + 5 * stacks)
                 addStack' "Scroll of Fire"
                 addStack' "Spirit Word"
@@ -185,7 +185,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies do
-                stacks <- target $ numAnyStacks "Scroll of Fire"
+                stacks <- targetStacks "Scroll of Fire"
                 damage (20 + 5 * stacks)
                 addStack' "Spirit Word"
           ]
