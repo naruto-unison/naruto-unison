@@ -179,7 +179,8 @@ progress Progress{character, objective, amount} =
 setObjectives :: Seq Goal -> [Entity Mission] -> Seq Int
 setObjectives xs objectives = foldl' f (0 <$ xs) objectives
   where
-    f acc (Entity _ x) = Seq.update (missionObjective x) (missionProgress x) acc
+    f acc (Entity _ Mission{missionObjective, missionProgress}) =
+        Seq.update missionObjective missionProgress acc
 
 -- | Returns true if a user has completed a given mission.
 completed :: Seq Goal -> [Entity Mission] -> Bool
@@ -318,7 +319,7 @@ getUsageRates = mapMaybe . findUsage
 
 -- | Matches a @Usage@ with a 'Character' from 'Characters.map'.
 findUsage :: Bimap CharacterId Text -> Entity Usage -> Maybe UsageRate
-findUsage ids (Entity _ usage) = do
-    name <- Bimap.lookup (usageCharacter usage) ids
+findUsage ids (Entity _ usage@Usage{usageCharacter}) = do
+    name <- Bimap.lookup usageCharacter ids
     char <- Characters.lookup name
     return $ UsageRate.new char usage

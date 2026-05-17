@@ -39,21 +39,22 @@ attemptMaybeT m = returnJson . isJust =<< runMaybeT m
 getDeletePostR :: Key ForumPost -> Handler Value
 getDeletePostR postId = attemptMaybeT do
     (who, user) <- MaybeT Auth.maybeAuthPair
-    post        <- lift . runDB $ get404 postId
-    guard $ forumPostAuthor post == who || userPrivilege user > Normal
+    ForumPost{forumPostAuthor, forumPostTopic} <- lift . runDB $ get404 postId
+    guard $ forumPostAuthor == who || userPrivilege user > Normal
     lift $ runDB do
         update postId [ForumPostDeleted =. True]
-        update (forumPostAuthor post) [UserPosts -=. 1]
+        update forumPostAuthor [UserPosts -=. 1]
         deleteWhere [ForumLikePost ==. postId]
-        modifyTopic $ forumPostTopic post
+        modifyTopic forumPostTopic
 
 -- | Likes or unlikes a 'ForumPost', altering its 'forumPostLikes'.
 -- Returns @True@ if successful, otherwise @False@.
 getLikePostR :: Key ForumPost -> Handler Value
 getLikePostR forumLikePost = attemptMaybeT do
     who   <- MaybeT Auth.maybeAuthId
-    post  <- lift . runDB $ get404 forumLikePost
-    guard $ forumPostAuthor post /= who && not (forumPostDeleted post)
+    ForumPost {forumPostAuthor, forumPostDeleted}  <- lift . runDB $
+                                                      get404 forumLikePost
+    guard $ forumPostAuthor /= who && not forumPostDeleted
     liked <- lift . runDB $ getLike forumLikePost who
     case liked of
         Just (Entity likeId _) ->

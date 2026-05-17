@@ -30,8 +30,8 @@ identFrom category name = clean $ formatFull category name
 
 -- | Used in website links.
 ident :: Character -> Text
-ident x = identFrom (category x) $ name x
+ident Character{category, name} = identFrom category name
 
 -- | Pretty-prints a @Character@'s 'name' and 'category'.
 format :: Character -> Text
-format x = formatFull (category x) $ name x
+format Character{category, name} = formatFull category name

@@ -134,7 +134,7 @@ postTopicR topicId = do
                 redirect $ TopicR topicId
 
             FormSuccess (Form.EditPost postId postBody) -> do
-                post        <- runDB $ get404 postId
+                post <- runDB $ get404 postId
                 when ( forumTopicState == Open
                        && not (forumPostDeleted post)
                        && (forumPostAuthor post == who || privilege > Normal)
@@ -235,9 +235,9 @@ getLikes mwho post = LikedPost post
 
 -- | Displays a user's rank, or their 'Privilege' level if higher than 'Normal'.
 userRank :: User -> Text
-userRank user = case userPrivilege user of
-    Normal -> fromMaybe "Hokage" $ userRanks !? (userXp user `quot` 5000)
-    _      -> tshow $ userPrivilege user
+userRank User{userPrivilege, userXp} = case userPrivilege of
+    Normal -> fromMaybe "Hokage" $ userRanks !? (userXp `quot` 5000)
+    rank   -> tshow rank
   where
     userRanks = [ "Academy Student"
                 , "Genin"

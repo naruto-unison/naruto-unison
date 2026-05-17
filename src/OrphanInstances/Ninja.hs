@@ -37,29 +37,41 @@ statusFace :: Status -> Face
 statusFace x = Face (toLower $ Status.name x) $ Status.user x
 
 instance ToJSON Ninja where
-    toJSON n = object
-        [ "slot"      .= slot n
-        , "character" .= Character.ident (character n)
-        , "health"    .= health n
-        , "cooldowns" .= cooldowns n
-        , "charges"   .= charges n
-        , "defense"   .= defense n
-        , "barrier"   .= barrier n
+    toJSON n@Ninja { barrier
+                   , channels
+                   , character
+                   , charges
+                   , cooldowns
+                   , copies
+                   , defense
+                   , health
+                   , lastSkill
+                   , slot
+                   , statuses
+                   , traps
+                   } = object
+        [ "slot"      .= slot
+        , "character" .= Character.ident character
+        , "health"    .= health
+        , "cooldowns" .= cooldowns
+        , "charges"   .= charges
+        , "defense"   .= defense
+        , "barrier"   .= barrier
         , "statuses"  .= foldStats
-                         (filter ((Hidden ∉) . Status.classes) (statuses n))
-        , "copies"    .= copies n
-        , "channels"  .= channels n
-        , "traps"     .= filter ((Hidden ∉) . Trap.classes) (traps n)
+                         (filter ((Hidden ∉) . Status.classes) statuses)
+        , "copies"    .= copies
+        , "channels"  .= channels
+        , "traps"     .= filter ((Hidden ∉) . Trap.classes) traps
         , "face"      .= (statusFace <$> mFace)
-        , "lastSkill" .= lastSkill n
+        , "lastSkill" .= lastSkill
         , "skills"    .= (usable <$> Ninjas.skills n)
         ]
       where
-        mFace = find ((Effect.Face ∈) . Status.effects) $ statuses n
+        mFace = find ((Effect.Face ∈) . Status.effects) statuses
         usable skill = skill { Skill.require = fulfill $ Skill.require skill }
         fulfill req@HasI{}
-          | Requirement.succeed req (slot n) n = Usable
-          | otherwise                          = Unusable
+          | Requirement.succeed req slot n = Usable
+          | otherwise                      = Unusable
         fulfill x = x
         foldStats xs       = foldStat <$> group (sort xs)
         foldStat   (x:|[]) = x

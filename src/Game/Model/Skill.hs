@@ -54,10 +54,10 @@ defaultName name _     = name
 
 -- | Generates a 'Key' used for 'Game.Ninja.cooldowns' and 'Game.Ninja.charges'.
 key :: Skill -> Key
-key x = Key (name x) $ owner x
+key Skill{name, owner} = Key name owner
 
 -- | All targets that a @Skill@ effects.
 targets :: Skill -> EnumSet Target
-targets x = insertTargets (insertTargets mempty $ start x) $ effects x
+targets Skill{effects, start} = addTargets (addTargets mempty start) effects
   where
-    insertTargets = foldl' \acc t -> insertSet (Runnable.target t) acc
+    addTargets = foldl' \acc t -> insertSet (Runnable.target t) acc

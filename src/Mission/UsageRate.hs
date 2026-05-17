@@ -16,10 +16,11 @@ data UsageRate = UsageRate
 
 
 new :: Character -> Usage -> UsageRate
-new character usage = UsageRate
+new character Usage{usageWins, usageLosses, usagePicked, usageUnpicked} =
+    UsageRate
     { character
-    , winRate  = toRate (usageWins usage)   (usageLosses usage)
-    , pickRate = toRate (usagePicked usage) (usageUnpicked usage)
+    , winRate  = toRate usageWins usageLosses
+    , pickRate = toRate usagePicked usageUnpicked
     }
   where
     toRate x y = 100 * fromIntegral x / (fromIntegral x + fromIntegral y)

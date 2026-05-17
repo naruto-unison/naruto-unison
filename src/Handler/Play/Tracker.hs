@@ -67,38 +67,38 @@ resetGoal x amt
   | otherwise          = amt
 
 reset :: ∀ s. Track s -> ST s ()
-reset x = traverse_ f . zip [0..] . toList $ goals x
+reset Track{goals, progress} = traverse_ f . zip [0..] $ toList goals
   where
     f (i, goal) = case Goal.spanning goal of
-        Turn -> MVector.unsafeModify (progress x) (resetGoal goal) i
+        Turn -> MVector.unsafeModify progress (resetGoal goal) i
         _    -> return ()
 
 addProgress :: ∀ s. Track s -> Int -> Int -> ST s ()
 addProgress _ _ 0   = return ()
-addProgress x i amt = case Goal.spanning goal of
+addProgress Track{goals, progress} i amt = case Goal.spanning goal of
     Moment | amt < Goal.reach goal -> return ()
-    _ -> MVector.unsafeModify (progress x) (max 0 . (+ amt)) i
+    _ -> MVector.unsafeModify progress (max 0 . (+ amt)) i
   where
-    goal = goals x !! i
+    goal = goals !! i
 
 trackStore :: ∀ s. Track s -> Int -> (Store -> (Store, Int)) -> ST s ()
-trackStore x i f = do
-    (store', progress') <- f <$> MVector.unsafeRead (store x) i
-    MVector.unsafeWrite (store x) i store'
+trackStore x@Track{store} i f = do
+    (store', progress') <- f <$> MVector.unsafeRead store i
+    MVector.unsafeWrite store i store'
     addProgress x i progress'
 
 trackAction1 :: ∀ s. Text -> [(Ninja, Ninja)] -> Track s -> ST s ()
-trackAction1 skill ns x = do
-    sequence_ $ tracker <$> ns <*> actions x ! skill
-    sequence_ $ tracker' <$> ns <*> stores x ! skill
-    modifyRef' (skills x) (skill :)
-    used <- readRef $ skills x
-    traverse_ (consec used) $ consecs x
+trackAction1 skill ns x@Track{actions, consecs, progress, skills, slot, stores} = do
+    sequence_ $ tracker <$> ns <*> actions ! skill
+    sequence_ $ tracker' <$> ns <*> stores ! skill
+    modifyRef' (skills) (skill :)
+    used <- readRef $ skills
+    traverse_ (consec used) consecs
   where
-    user = snd $ ns !! Slot.toInt (slot x)
+    user = snd $ ns !! Slot.toInt slot
     consec used (i, match)
       | match /= sort (zipWith const used match) = return ()
-      | otherwise = MVector.unsafeModify (progress x) (+ 1) i
+      | otherwise = MVector.unsafeModify progress (+ 1) i
     tracker (n, n') (i, f) = addProgress x i $ f skill user n n'
     tracker' (n, n') (i, f) = trackStore x i $ f skill user n n'
 
@@ -124,12 +124,12 @@ trackTrigger1 trigger n x = sequence_ $ tracker <$> triggers x ! trigger
       | otherwise = return ()
 
 trackTurn1 :: ∀ s. Player -> [(Ninja, Ninja)] -> Track s -> ST s ()
-trackTurn1 p ns x = do
-      sequence_ $ tracker <$> ns <*> turns x
-      unless (Parity.allied p user) $ modifyRef' (skills x) safeInit
+trackTurn1 p ns x@Track{skills, slot, turns} = do
+      sequence_ $ tracker <$> ns <*> turns
+      unless (Parity.allied p user) $ modifyRef' skills safeInit
       reset x
   where
-    user = snd $ ns !! Slot.toInt (slot x)
+    user = snd $ ns !! Slot.toInt slot
     safeInit [] = []
     safeInit xs = unsafeInit xs
     tracker (n, n') (i, f) = trackStore x i $ f p user n n'
@@ -190,8 +190,8 @@ trackAll f (Tracker xs) = traverse_ f xs
 unsafeFreeze :: ∀ s. Tracker s -> ST s [Progress]
 unsafeFreeze (Tracker xs) = concat <$> traverse freeze xs
   where
-    freeze x = (zipWith ($) $ key x) . toList
-               <$> Vector.unsafeFreeze (progress x)
+    freeze Track{key, progress} = (zipWith ($) key) . toList
+                                  <$> Vector.unsafeFreeze progress
 
 -- | Initializes a @Tracker@.
 fromInfo :: ∀ s. GameInfo -> ST s (Tracker s)
