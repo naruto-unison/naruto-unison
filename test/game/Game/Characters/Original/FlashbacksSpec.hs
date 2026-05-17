@@ -76,7 +76,7 @@ spec = parallel do
                 Sim.act
                 Sim.turns 2
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
 
     describeCharacter "Young Kakashi" do
         useOn Enemy "White Light Blade" do
@@ -201,13 +201,13 @@ spec = parallel do
                 Sim.act
                 Sim.turns 1
                 Sim.as XEnemies $ apply Permanent [Focus]
-                target $ not . (`is` Focus)
+                not <$> target (`is` Focus)
 
         useOn Self "Kamui Phase" do
             it "works on its own" do
                 Sim.use "Kamui Phase"
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "does not work after Kusari Chains" do
                 Sim.use "Kusari Chains"
                 Sim.use "Kamui Phase"

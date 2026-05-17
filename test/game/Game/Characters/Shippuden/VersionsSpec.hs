@@ -24,7 +24,7 @@ spec = parallel do
             it "counters on user" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
@@ -120,7 +120,7 @@ spec = parallel do
             it "ignores harmful effects" do
                 Sim.as Enemy $ apply Permanent [Plague]
                 Sim.act
-                user $ not . (`is` Plague)
+                not <$> user (`is` Plague)
             it "ends when destroyed" do
                 Sim.as Enemy $ apply Permanent [Plague]
                 Sim.act
@@ -184,7 +184,7 @@ spec = parallel do
             it "redirects from targets" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                target $ not . (`is` Reveal)
+                not <$> target (`is` Reveal)
             it "redirects to user" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]

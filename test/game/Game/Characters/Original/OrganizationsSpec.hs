@@ -107,7 +107,7 @@ spec = parallel do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
                 Sim.as Enemy kill
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "ignores help and dies" do
                 Sim.act
                 Sim.as Enemy kill
@@ -349,7 +349,7 @@ spec = parallel do
             it "makes user invulnerable" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "ends Demon Parasite" do
                 Sim.use "Demon Parasite"
                 Sim.act

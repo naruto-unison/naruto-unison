@@ -45,7 +45,7 @@ spec = parallel do
             it "counters on target" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                target $ not . (`is` Reveal)
+                not <$> target (`is` Reveal)
             it "counters with defense" do
                 Sim.act
                 Sim.as Enemy $ return ()
@@ -139,7 +139,7 @@ spec = parallel do
             it "counters on target" do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as Enemy $ apply Permanent [Reveal]
-                target $ not . (`is` Reveal)
+                not <$> target (`is` Reveal)
             it "teaches countered" do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as Enemy $ return ()
@@ -158,7 +158,7 @@ spec = parallel do
             it "counters enemies" do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as XEnemies $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as Enemies $ apply Permanent [Reveal]

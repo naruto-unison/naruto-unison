@@ -198,7 +198,7 @@ spec = parallel do
             it "counters target" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
                 Sim.as Enemy $ return ()

@@ -173,7 +173,7 @@ spec = parallel do
                 Sim.as Enemy do
                     apply Permanent [Reveal]
                     kill
-                target $ not . (`is` Reveal)
+                not <$> target (`is` Reveal)
             it "heals target on death" do
                 Sim.act
                 Sim.as Enemy kill
@@ -225,7 +225,7 @@ spec = parallel do
                 Sim.act
                 Sim.as Enemy $ return ()
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
 
     describeCharacter "Atsui" do
         useOn Enemy "Burning Blade" do
@@ -255,7 +255,7 @@ spec = parallel do
             it "counters" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
@@ -284,7 +284,7 @@ spec = parallel do
             it "makes random ally invulnerable" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                target $ not . (`is` Reveal)
+                not <$> target (`is` Reveal)
 
     describeCharacter "Darui" do
         useOn Enemy "Laser Circus" do
@@ -319,7 +319,7 @@ spec = parallel do
             it "counters on user" do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "exhausts countered" do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as Enemy $ return ()
@@ -331,7 +331,7 @@ spec = parallel do
             it "counters on user" do
                 Sim.act
                 Sim.withClass Physical $ Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
                 Sim.withClass Physical $ Sim.as Enemy $ apply Permanent [Reveal]

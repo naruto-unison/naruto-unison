@@ -62,7 +62,7 @@ spec = parallel do
             it "counters on target" do
                 self Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "damages with Unpredictable Assault if countered" do
                 self Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
@@ -78,7 +78,7 @@ spec = parallel do
             it "counters target" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "damages target until target acts" do
                 Sim.act
                 Sim.turns stacks

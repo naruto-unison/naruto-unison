@@ -236,7 +236,7 @@ spec = parallel do
             it "counters target" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                target $ not . (`is` Reveal)
+                not <$> target (`is` Reveal)
             it "increases the damage of Detonating Clay" do
                 replicateM_ stacks do
                     Sim.act

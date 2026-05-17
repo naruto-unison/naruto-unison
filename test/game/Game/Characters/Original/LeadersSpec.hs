@@ -55,7 +55,7 @@ spec = parallel do
                 Sim.act
                 Sim.as Enemy $ damage 5
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "does not affect affliction damage" do
                 Sim.act
                 Sim.as Enemy $ afflict 5

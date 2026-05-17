@@ -269,7 +269,7 @@ spec = parallel do
                 Sim.as Enemy $ apply Permanent [Plague]
                 Sim.act
                 Sim.as Enemy $ afflict 5
-                user $ not . (`is` Plague)
+                not <$> user (`is` Plague)
             it "ends with new non-affliction damage" do
                 Sim.as Enemy $ apply Permanent [Plague]
                 Sim.act

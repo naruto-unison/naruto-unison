@@ -137,7 +137,7 @@ spec = parallel do
                 Sim.use "Shadow Senbon"
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
 
         useOn Enemy "Shadow Senbon" do
             it "does not stun normally" do

@@ -97,7 +97,7 @@ spec = parallel do
             it "counters on ally" do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as Enemy $ apply Permanent [Reveal]
-                target $ not . (`is` Reveal)
+                not <$> target (`is` Reveal)
         useOn Enemy "Partial Expansion" do
             it "counters against enemy" do
                 Sim.act
@@ -208,7 +208,7 @@ spec = parallel do
                 Sim.withClass Mental $ Sim.as Self $ return ()
                 Sim.withClass Mental $ Sim.as Self $ return ()
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "does not provide invulnerability otherwise" do
                 Sim.act
                 Sim.withClass Physical $ Sim.as Self $ return ()

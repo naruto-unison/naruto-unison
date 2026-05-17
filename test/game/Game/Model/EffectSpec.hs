@@ -366,7 +366,7 @@ spec = parallel do
             Sim.as Enemy $ trap 5 (Countered All) $ apply Permanent [Reveal]
             Sim.turns $ 5 - 2
             Sim.as Self $ return ()
-            user $ not . (`is` Reveal)
+            not <$> user (`is` Reveal)
         it "does not remove counters" $ simAt Enemy do
             apply Permanent [Throttle 1 Counters]
             Sim.as Enemy $ trap 5 (Countered All) $ apply Permanent [Reveal]
@@ -391,7 +391,7 @@ spec = parallel do
             apply Permanent [Throttle 1 $ Only Reveal]
             Sim.as Enemy $ apply 5 [Reveal]
             Sim.turns $ 5 - 1
-            user $ not . (`is` Reveal)
+            not <$> user (`is` Reveal)
         it "does not remove others" $ simAt Enemy do
             apply Permanent [Throttle 1 $ Only Reveal]
             Sim.as Enemy $ apply 5 [Reveal]

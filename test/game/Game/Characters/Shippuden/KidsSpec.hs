@@ -14,7 +14,7 @@ spec = parallel do
             it "counters enemy" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Rasen Shuriken"
@@ -72,7 +72,7 @@ spec = parallel do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Stun All]
                 Sim.as Enemy $ apply Permanent [Reveal]
-                target $ not . (`is` Reveal)
+                not <$> target (`is` Reveal)
             it "gains chakra when depleted" do
                 Sim.act
                 gain [Gen, Tai]
@@ -172,7 +172,7 @@ spec = parallel do
             it "counters on target" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                target $ not . (`is` Reveal)
+                not <$> target (`is` Reveal)
             it "counters with Gigantic Beetle Infestation" do
                 everyone $ addStacks "Gigantic Beetle Infestation" 2
                 Sim.act
@@ -271,7 +271,7 @@ spec = parallel do
                 Sim.as Enemy $ afflict dmg
                 Sim.as Self $ return ()
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "pauses from non-affliction damage" do
                 Sim.act
                 Sim.as Enemy $ pierce dmg
@@ -308,7 +308,7 @@ spec = parallel do
             it "counters target" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "copies countered target" do
                 Sim.act
                 Sim.withClass All $ Sim.as Enemy $ apply Permanent [Reveal]
@@ -426,7 +426,7 @@ spec = parallel do
             it "counters" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                target $ not . (`is` Reveal)
+                not <$> target (`is` Reveal)
             it "alternates when countered" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
@@ -474,7 +474,7 @@ spec = parallel do
             it "counters enemy" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "tags countered enemy" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]

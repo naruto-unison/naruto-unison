@@ -278,7 +278,7 @@ spec = parallel do
             it "counters target" do
                 Sim.act
                 Sim.withClass Chakra $ Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
                 Sim.withClass Chakra $ Sim.as Enemy $ return ()
@@ -326,7 +326,7 @@ spec = parallel do
             it "counters target" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "stuns countered" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
@@ -337,7 +337,7 @@ spec = parallel do
             it "ignores harm" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "exhausts attackers" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
@@ -399,7 +399,7 @@ spec = parallel do
             it "counters on user" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "alternates when countered" do
                 Sim.act
                 Sim.as Enemy $ return ()
@@ -455,7 +455,7 @@ spec = parallel do
                 Sim.use "Almighty Push"
                 Sim.use "Universal Pull"
                 self $ Sim.as Enemy $ apply Permanent [Reveal]
-                user $ not . (`is` Reveal)
+                not <$> user (`is` Reveal)
             it "does not apply Almighty Push otherwise" do
                 Sim.use "Almighty Push"
                 Sim.turns 2
