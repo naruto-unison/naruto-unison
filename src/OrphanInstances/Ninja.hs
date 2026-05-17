@@ -14,7 +14,8 @@ import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import qualified Game.Model.Effect as Effect
-import           Game.Model.Ninja (Ninja(..))
+import           Game.Model.Ninja (Ninja(Ninja))
+import qualified Game.Model.Ninja
 import           Game.Model.Requirement (Requirement(..))
 import qualified Game.Model.Requirement as Requirement
 import qualified Game.Model.Skill as Skill

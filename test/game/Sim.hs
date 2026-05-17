@@ -38,7 +38,7 @@ import qualified Game.Model.Context as Context
 import           Game.Model.Duration (Duration(..), sync)
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (Ninja)
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable(To), RunConstraint)
 import           Game.Model.Skill (Target(..))
 import           Game.Model.Skill (Skill)
@@ -98,7 +98,7 @@ actWith skill = do
     unless (Parity.allied user player) $ Engine.processTurn $ return ()
     Engine.processTurn $ Action.act
         Context { new = True, user, target, skill = skill, continues = False }
-    P.modify user \n -> n { Ninja.cooldowns = mempty }
+    P.modify user \n -> n { N.cooldowns = mempty }
 
 turns :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Int -> m ()
 turns (fromIntegral -> i) = do
@@ -153,5 +153,5 @@ withClasses classes = P.with ctx
     withSkill sk = sk { Skill.classes = insertSet All classes }
 
 statusDur :: Text -> Ninja -> Duration
-statusDur name n = maybe Permanent Status.dur
-    . find ((== name) . Status.name) $ Ninja.statuses n
+statusDur name n = maybe Permanent Status.dur . find ((== name) . Status.name)
+    $ N.statuses n

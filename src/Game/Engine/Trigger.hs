@@ -19,8 +19,8 @@ import qualified Game.Engine.Traps as Traps
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
-import           Game.Model.Ninja (Ninja, is)
-import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Ninja (Ninja(Ninja), is)
+import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill
 import           Game.Model.Slot (Slot)
@@ -39,11 +39,11 @@ absorb n
 
 -- | Trigger a 'Redirect'.
 redirect :: Ninja -> Maybe Slot
-redirect n = headMay [slot | Redirect slot <- Ninja.effects n]
+redirect Ninja{effects} = headMay [slot | Redirect slot <- effects]
 
 getCounters :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
            => (Trap -> Maybe Class) -> Slot -> EnumSet Class -> Ninja -> [m ()]
-getCounters f from classes n = mapMaybe g $ Ninja.traps n
+getCounters f from classes Ninja{traps} = mapMaybe g traps
   where
     g tr = case f tr of
         Just cla | cla ∈ classes -> Just $ Traps.run from tr
@@ -62,7 +62,7 @@ userCounters harmed = getCounters (f . Trap.trigger)
 -- | Removes 'Countered' traps matching the specified @Class@es.
 userUncounter :: EnumSet Class -> Ninja -> Ninja
 userUncounter classes n =
-    n { Ninja.traps = filter (keep . Trap.trigger) $ Ninja.traps n }
+    n { N.traps = filter (keep . Trap.trigger) $ N.traps n }
   where
     keep (Countered cla) = cla ∉ classes
     keep _               = True
@@ -83,7 +83,7 @@ targetUncounter :: EnumSet Class -> Ninja -> Ninja
 targetUncounter classes n
   | n `is` Uncounter = n
   | otherwise        =
-    n { Ninja.traps = filter (keep . Trap.trigger) $ Ninja.traps n }
+    n { N.traps = filter (keep . Trap.trigger) $ N.traps n }
   where
     keep (Counter cla) = cla ∉ classes
     keep _             = True

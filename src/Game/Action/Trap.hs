@@ -24,7 +24,7 @@ import           Game.Model.Duration (Duration(..))
 import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Constructor(..), Effect(..))
 import           Game.Model.Ninja (is)
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import           Game.Model.Requirement (Requirement(..))
 import           Game.Model.Runnable (Runnable(To), RunConstraint)
 import qualified Game.Model.Runnable
@@ -35,26 +35,26 @@ import           Game.Model.Trigger (Trigger(..))
 import qualified Game.Model.Trigger as Trigger
 import           Util ((∉))
 
--- | Adds a @Trap@ to 'Ninja.traps' that targets the person it was used on.
+-- | Adds a @Trap@ to 'N.traps' that targets the person it was used on.
 trap :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
 trap = trapConst Trap.Toward mempty
 -- | 'Hidden' 'trap'.
 trap' :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
 trap' = trapConst Trap.Toward $ setFromList [Bypassing, Hidden]
 
--- | Adds a @Trap@ to 'Ninja.traps' that targets the person who triggers it.
+-- | Adds a @Trap@ to 'N.traps' that targets the person who triggers it.
 trapFrom :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
 trapFrom = trapConst Trap.From mempty
 -- | 'Hidden' 'trapFrom'.
 trapFrom' :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
 trapFrom' = trapConst Trap.From $ setFromList [Bypassing, Hidden]
 
--- | Adds a @Trap@ to 'Ninja.traps' with additional 'Class'es.
+-- | Adds a @Trap@ to 'N.traps' with additional 'Class'es.
 trapWith :: ∀ m. MonadPlay m
          => EnumSet Class -> Duration -> Trigger -> RunConstraint () -> m ()
 trapWith = trapConst Trap.Toward
 
--- | Adds a @Trap@ to 'Ninja.traps' with an effect that depends on a number
+-- | Adds a @Trap@ to 'N.traps' with an effect that depends on a number
 -- accumulated while the trap is in play and tracked with its 'Trap.tracker'.
 trapPer  :: ∀ m. MonadPlay m
          => Duration -> Trigger -> (Int -> RunConstraint ()) -> m ()
@@ -64,7 +64,7 @@ trapPer' :: ∀ m. MonadPlay m
          => Duration -> Trigger -> (Int -> RunConstraint ()) -> m ()
 trapPer' = trapFull Trap.Per $ setFromList [Bypassing, Hidden]
 
--- | Adds an 'OnBreak' @Trap@ for the used 'Skill.Skill' to 'Ninja.traps'.
+-- | Adds an 'OnBreak' @Trap@ for the used 'Skill.Skill' to 'N.traps'.
 -- @OnBreak@ traps are triggered when a 'Defense.Defense' with the same
 -- 'Defense.name' is broken.
 onBreak :: ∀ m. MonadPlay m => RunConstraint () -> m ()
@@ -72,7 +72,7 @@ onBreak f = do
     name    <- Skill.name <$> P.skill
     user    <- P.user
     nTarget <- P.nTarget
-    when (Ninja.hasDefense name user nTarget)
+    when (N.hasDefense name user nTarget)
         $ trapFrom' Permanent (OnBreak name) do
             f
             user' <- P.user
@@ -89,7 +89,7 @@ onBreak' = do
         P.modify user $ Ninjas.cancelChannel name
         P.modifyAll $ Ninjas.clear name user . Ninjas.clear (toLower name) user
 
--- | Adds a @Trap@ to 'Ninja.traps'.
+-- | Adds a @Trap@ to 'N.traps'.
 trapConst :: ∀ m. MonadPlay m
          => Trap.Direction -> EnumSet Class -> Duration -> Trigger
          -> RunConstraint () -> m ()
@@ -108,10 +108,10 @@ trapFull direction classes unthrottled trigger f =
         dur     <- if not $ Context.new context then return unthrottled else
                    MaybeT . return $ throttle nUser
         let tr = makeTrap context direction classes dur trigger f
-        guard $ tr ∉ Ninja.traps nTarget
+        guard $ tr ∉ N.traps nTarget
         guard . not $ isCounter && nUser `is` Disable Counters
         P.modify target \n ->
-            n { Ninja.traps = Classed.nonStack tr tr $ Ninja.traps n }
+            n { N.traps = Classed.nonStack tr tr $ N.traps n }
   where
     isCounter = Trigger.isCounter trigger
     throttle n
@@ -155,9 +155,9 @@ delay dur f = do
     let user  = Context.user context
         del   = Delay.new context { Context.continues = False } dur
               $ Action.wrap f
-    P.modify user \n -> n { Ninja.delays = del : Ninja.delays n }
+    P.modify user \n -> n { N.delays = del : N.delays n }
 
--- | Removes 'Ninja.traps' with matching 'Trap.name'.
+-- | Removes 'N.traps' with matching 'Trap.name'.
 -- Uses 'Ninjas.clearTrap' internally.
 removeTrap :: ∀ m. MonadPlay m => Text -> m ()
 removeTrap name = P.fromUser $ Ninjas.clearTrap name

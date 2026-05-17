@@ -18,9 +18,9 @@ import qualified Game.Model.Channel as Channel
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
 import           Game.Model.Duration (Duration)
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 
--- | Cancels 'Ninja.channels' with a matching 'Channel.name'.
+-- | Cancels 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.cancelChannel' internally.
 cancelChannel :: ∀ m. MonadPlay m => Text -> m ()
 cancelChannel name = do
@@ -30,10 +30,10 @@ cancelChannel name = do
 -- | Prematurely ends a channeled action.
 interrupt :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 interrupt = P.unsilenced do
-    (yay, nay) <- partition Channel.interruptible . Ninja.channels <$> P.nTarget
+    (yay, nay) <- partition Channel.interruptible . N.channels <$> P.nTarget
     traverse_ onInterrupt yay
     target <- P.target
-    P.modify target \n -> n { Ninja.channels = nay }
+    P.modify target \n -> n { N.channels = nay }
 
 -- | Triggers 'Skill.interrupt' effects of a @Channel@.
 onInterrupt :: ∀ m. (MonadPlay m, MonadRandom m) => Channel -> m ()
@@ -48,7 +48,7 @@ onInterrupt Channel{skill, target} = P.with ctx $ Action.run
         , continues = False
         }
 
--- | Increases the duration of 'Ninja.channels' with a matching 'Channel.name'.
+-- | Increases the duration of 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.prolongChannel' internally.
 prolongChannel :: ∀ m. MonadPlay m => Duration -> Text -> m ()
 prolongChannel dur name = P.toTarget $ Ninjas.prolongChannel dur name

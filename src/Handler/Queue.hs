@@ -21,7 +21,7 @@ import           Class.Sockets (MonadSockets)
 import qualified Class.Sockets as Sockets
 import           Game.Model.Character (Character)
 import qualified Game.Model.Game as Game
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Slot as Slot
 import qualified Handler.Client.Message as Client
@@ -126,7 +126,7 @@ makeGame who user team vsWho vsUser vsTeam = do
     player <- R.player
     game   <- Game.newWithChakras
     liftIO do
-        let ninjas = fromList $ zipWith Ninja.new Slot.all case player of
+        let ninjas = fromList $ zipWith N.new Slot.all case player of
                 Player.A -> team ++ vsTeam
                 Player.B -> vsTeam ++ team
         war  <- War.match team vsTeam <$> War.today

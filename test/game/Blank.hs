@@ -13,7 +13,7 @@ import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja)
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
@@ -42,7 +42,7 @@ character = Character
     newSkill = Skill.new :| []
 
 ninjaWithSlot :: Slot -> Ninja
-ninjaWithSlot slot = Ninja.new slot character
+ninjaWithSlot slot = N.new slot character
 
 ninja :: Ninja
 ninja = ninjaWithSlot $ unsafeHead Slot.all

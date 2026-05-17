@@ -16,8 +16,8 @@ import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game
-import           Game.Model.Ninja (Ninja(Ninja), is)
-import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Ninja (Ninja, is)
+import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Requirement as Requirement
@@ -60,28 +60,28 @@ new player ninjas Game{chakra, inactive, playing, vendetta, victor} = Turn
     swapInactive Player.A = id
     swapInactive Player.B = swap
     targets n
-      | Parity.allied player n = (Ninja.slot <$>)
+      | Parity.allied player n = (N.slot <$>)
                                . Requirement.targets censored n
                                <$> Ninjas.skills n
-      | otherwise              = replicate (Ninja.numSkills n) []
+      | otherwise              = replicate (N.numSkills n) []
 
 censor :: (Maybe Slot) -> Player -> [Ninja] -> Ninja -> Ninja
-censor vendetta player ninjas n@Ninja{alternates, channels, statuses, traps}
+censor vendetta player ninjas n
   | Parity.allied player n = n'
   | n `is` Reveal          = n'
   | isJust vendetta        = n'
-      { Ninja.channels = filter filt channels }
+      { N.channels = filter filt $ N.channels n' }
   | otherwise              = n'
-      { Ninja.cooldowns  = mempty
-      , Ninja.charges    = mempty
-      , Ninja.channels   = filter filt channels
-      , Ninja.alternates = 0 <$ alternates
+      { N.channels   = filter filt $ N.channels n'
+      , N.charges    = mempty
+      , N.cooldowns  = mempty
+      , N.alternates = 0 <$ N.alternates n'
       }
   where
     filt Channel{skill = Skill{classes}} = not $ Invisible ∈ classes
-    n' = n { Ninja.statuses  = mapMaybe mst statuses
-           , Ninja.lastSkill = Nothing
-           , Ninja.traps     = [trap | trap@Trap{classes, user} <- traps
+    n' = n { N.statuses  = mapMaybe mst $ N.statuses n
+           , N.lastSkill = Nothing
+           , N.traps     = [trap | trap@Trap{classes, user} <- N.traps n
                                      , Parity.allied player user
                                        || Invisible ∉ classes
                                        || revealed user]

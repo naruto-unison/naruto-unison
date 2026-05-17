@@ -20,7 +20,7 @@ import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (is)
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
 
@@ -74,10 +74,10 @@ healFromChakra amount = P.unsilenced do
     nUser <- P.nUser
     unless (nUser `is` Plague) do
         user      <- P.user
-        lastSkill <- Ninja.lastSkill <$> P.nTarget
+        lastSkill <- N.lastSkill <$> P.nTarget
         let amount' = amount * maybe 0 (Chakra.total . Skill.cost) lastSkill
         when (amount' > 0) do
             P.modify user $ Ninjas.adjustHealth (+ amount')
-            healed <- (- Ninja.health nUser) . Ninja.health <$> P.nUser
+            healed <- (- N.health nUser) . N.health <$> P.nUser
             when (healed > 0)
                 $ P.trigger user [OnHeal]

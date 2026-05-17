@@ -35,7 +35,7 @@ import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Amount(..), Constructor(..), Effect(..))
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja, is)
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable(To))
 import           Game.Model.Skill (Skill, Target(..))
 import qualified Game.Model.Skill as Skill
@@ -67,7 +67,7 @@ spec = parallel do
         prop "damages every turn" \amount (Positive turns) -> simAt Enemy do
             apply Permanent [Afflict amount]
             Sim.turns $ turns - 1
-            targetHealth <- Ninja.health <$> P.nTarget
+            targetHealth <- N.health <$> P.nTarget
             return $ 100 - targetHealth === healthBound (amount * turns)
 
     describe "Alone" do
@@ -98,7 +98,7 @@ spec = parallel do
         prop "adds to healing" \bless hp -> simEffects [Bless bless] [] Ally do
             setHealth 1
             heal hp
-            targetHealth <- Ninja.health <$> P.nTarget
+            targetHealth <- N.health <$> P.nTarget
             return $ targetHealth === healthBound (1 + hp + bless)
 
     describe "Block" do
@@ -130,32 +130,32 @@ spec = parallel do
             as Ally $ apply Permanent [Reduce (singletonSet All) Flat reduce]
             self $ apply Permanent [Boost boostAmount]
             as Enemy $ Combat.damage damage
-            userHealth <- Ninja.health <$> P.nUser
+            userHealth <- N.health <$> P.nUser
             return $ damage - (100 - userHealth) `shouldBe` boostAmount * reduce
 
         it "does not boost own effects" $ simAt Self do
             apply Permanent [Reduce (singletonSet All) Flat reduce, Boost boostAmount]
             as Enemy $ Combat.damage damage
-            userHealth <- Ninja.health <$> P.nUser
+            userHealth <- N.health <$> P.nUser
             return $ damage - (100 - userHealth) `shouldBe` reduce
 
     describe "Build" do
         prop "adds to barrier" \build hp -> simEffects [Build build] [] Ally do
             Combat.barricade Permanent hp
             if build + hp >= 0 then do
-                targetBarrier <- Ninja.totalBarrier <$> P.nTarget
+                targetBarrier <- N.totalBarrier <$> P.nTarget
                 return $ targetBarrier === build + hp
             else do
-                targetDefense <- Ninja.totalDefense <$> P.nTarget
+                targetDefense <- N.totalDefense <$> P.nTarget
                 return $ targetDefense === negate (build + hp)
 
         prop "adds to defense" \build hp -> simEffects [Build build] [] Ally do
             Combat.defend Permanent hp
             if build + hp >= 0 then do
-                targetDefense <- Ninja.totalDefense <$> P.nTarget
+                targetDefense <- N.totalDefense <$> P.nTarget
                 return $ targetDefense === build + hp
             else do
-                targetBarrier <- Ninja.totalBarrier <$> P.nTarget
+                targetBarrier <- N.totalBarrier <$> P.nTarget
                 return $ targetBarrier === negate (build + hp)
 
     describe "Bypass" do
@@ -224,7 +224,7 @@ spec = parallel do
         it "prevents target from reducing damage" $ simAt Enemy do
             apply Permanent [Reduce (singletonSet All) Flat 100, Expose]
             Combat.damage 1
-            targetHealth <- Ninja.health <$> P.nTarget
+            targetHealth <- N.health <$> P.nTarget
             return $ 100 - targetHealth `shouldBe` 1
 
     -- describe "Face" (nothing to test)
@@ -240,13 +240,13 @@ spec = parallel do
             setHealth 1
             apply Permanent [Heal amount]
             Sim.turns $ turns - 1
-            targetHealth <- Ninja.health <$> P.nTarget
+            targetHealth <- N.health <$> P.nTarget
             return $ targetHealth === healthBound (1 + amount * turns)
 
     describe "Invulnerable" do
         let ignore atk dmg = do apply Permanent [Invulnerable atk]
                                 dmg 50
-                                targetHealth <- Ninja.health <$> P.nTarget
+                                targetHealth <- N.health <$> P.nTarget
                                 return $ targetHealth `shouldBe` 100
 
         it "ignores damage"   . simAt Enemy $ ignore NonAffliction Combat.damage
@@ -271,7 +271,7 @@ spec = parallel do
             self $ apply Permanent [Pierce]
             apply Permanent [Reduce (singletonSet All) Flat 100]
             Combat.damage 1
-            targetHealth <- Ninja.health <$> P.nTarget
+            targetHealth <- N.health <$> P.nTarget
             return $ 100 - targetHealth `shouldBe` 1
 
     describe "Plague" do
@@ -279,7 +279,7 @@ spec = parallel do
             setHealth 1
             apply Permanent [Plague, Heal 100]
             heal 100
-            targetHealth <- Ninja.health <$> P.nTarget
+            targetHealth <- N.health <$> P.nTarget
             return $ targetHealth `shouldBe` 1
 
         it "blocks curing" $ simAt Enemy do
@@ -334,13 +334,13 @@ spec = parallel do
             self $ apply Permanent [Silence]
             Combat.damage 1
             Combat.heal 100
-            targetHealth <- Ninja.health <$> P.nTarget
+            targetHealth <- N.health <$> P.nTarget
             return $ 100 - targetHealth `shouldBe` 1
 
     describe "Snare" do
         prop "increases cooldowns" \cd snare ->
             let n  = ninjaWithCooldown cd
-                n' = n { Ninja.effects = [Snare snare] }
+                n' = n { N.effects = [Snare snare] }
             in
             simCooldown n' === max 0 (simCooldown n + 2 * snare)
 
@@ -409,7 +409,7 @@ spec = parallel do
             apply Permanent [Undefend]
             Combat.defend Permanent 100
             Combat.damage 1
-            targetHealth <- Ninja.health <$> P.nTarget
+            targetHealth <- N.health <$> P.nTarget
             return $ 100 - targetHealth `shouldBe` 1
 
     describe "Uncounter" do
@@ -430,7 +430,7 @@ canTargetAs :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
             => Target -> m Bool
 canTargetAs target = do
     as target $ addStack' fakeStatus
-    (== 1) . Ninja.numAnyStacks fakeStatus <$> P.nTarget
+    (== 1) . N.numAnyStacks fakeStatus <$> P.nTarget
   where
     fakeStatus = ""
 
@@ -452,14 +452,14 @@ simEffects :: ∀ a. [Effect] -- ^ User.
            -> ReaderT Context (StateT Wrapper Identity) a
            -> a
 simEffects userEffects targetEffects = simOf $ Blank.gameOf
-    [ Blank.ninja { Ninja.effects = userEffects },   Blank.ninja, Blank.ninja
-    , Blank.ninja { Ninja.effects = targetEffects }, Blank.ninja, Blank.ninja
+    [ Blank.ninja { N.effects = userEffects },   Blank.ninja, Blank.ninja
+    , Blank.ninja { N.effects = targetEffects }, Blank.ninja, Blank.ninja
     ]
 
 damageToDefense :: Attack -> Int -> Property
 damageToDefense attackType damage = simEffects [] [DamageToDefense] Enemy do
     Combat.attack attackType damage
-    targetHealth <- Ninja.health <$> P.nTarget
+    targetHealth <- N.health <$> P.nTarget
     return $ 100 - targetHealth === case attackType of
         Attack.Afflict -> healthBound damage
         _              -> 0
@@ -467,7 +467,7 @@ damageToDefense attackType damage = simEffects [] [DamageToDefense] Enemy do
 damageFromDefense :: Attack -> Int -> Property
 damageFromDefense attackType damage = simEffects [] [DamageToDefense] Enemy do
     Combat.attack attackType damage
-    targetDefense <- Ninja.totalDefense <$> P.nTarget
+    targetDefense <- N.totalDefense <$> P.nTarget
     return $ targetDefense === case attackType of
         Attack.Afflict  -> 0
         Attack.Demolish -> 0
@@ -480,17 +480,17 @@ attack :: Attack   -- ^ Attack type.
        -> Int      -- ^ Result.
 attack attackType damage attacker defender =
     Combat.formula attackType (singletonSet All)
-    Blank.ninja { Ninja.effects = attacker }
-    Blank.ninja { Ninja.effects = defender }
+    Blank.ninja { N.effects = attacker }
+    Blank.ninja { N.effects = defender }
     damage
 
 constrainsHealth :: Bool -> Int -> Property
 constrainsHealth endurable health =
-    Ninja.health (Ninjas.setHealth health ninja) ===
+    N.health (Ninjas.setHealth health ninja) ===
     max (fromEnum endurable) (min 100 health)
   where
     ninja
-      | endurable = Blank.ninja { Ninja.effects = [Endure] }
+      | endurable = Blank.ninja { N.effects = [Endure] }
       | otherwise = Blank.ninja
 
 type Con = EnumSet Class -> Amount -> Int -> Effect
@@ -535,7 +535,7 @@ tryAbsorb target cost = simAt target do
 thresholdConstrains :: Attack -> Int -> Int -> Property
 thresholdConstrains attackType damage v = simEffects [] [Threshold v] Enemy do
     Combat.attack attackType damage
-    targetHealth <- Ninja.health <$> P.nTarget
+    targetHealth <- N.health <$> P.nTarget
     return $ 100 - targetHealth === damageOutput
   where
     damageOutput
@@ -548,21 +548,21 @@ unreduces damage reduce unreduce = simAt Enemy do
     self $ apply Permanent [Unreduce unreduce]
     apply Permanent [Reduce (singletonSet All) Flat reduce]
     Combat.damage damage
-    targetHealth <- Ninja.health <$> P.nTarget
+    targetHealth <- N.health <$> P.nTarget
     return $ 100 - targetHealth === healthBound (damage + unreduce - reduce)
 
 getSkill :: [Effect] -> Skill
 getSkill effects = fromJust
-    $ Ninjas.getSkill 0 ninja { Ninja.effects = effects }
+    $ Ninjas.getSkill 0 ninja { N.effects = effects }
   where
     targets = (`To` return ()) <$> [minBound..maxBound]
     skill   = Skill.new { Skill.effects = targets } :| []
-    ninja   = Ninja.new (unsafeHead Slot.all) Blank.character
+    ninja   = N.new (unsafeHead Slot.all) Blank.character
               { Character.skills = skill :| [skill, skill, skill] }
 
 ninjaWithCooldown :: Int -> Ninja
 ninjaWithCooldown cooldown =
-    Ninja.new (unsafeHead Slot.all)
+    N.new (unsafeHead Slot.all)
     Blank.character { Character.skills = sk :| [sk, sk, sk] }
   where
     sk = Skill.new { Skill.cooldown = fromIntegral cooldown } :| []
@@ -570,9 +570,9 @@ ninjaWithCooldown cooldown =
 simCooldown :: Ninja -> Int
 simCooldown n = simOf game Self do
     Action.act ctx
-    snd . unsafeHead . mapToList . Ninja.cooldowns <$> P.nUser
+    snd . unsafeHead . mapToList . N.cooldowns <$> P.nUser
   where
-    slot = Ninja.slot n
+    slot = N.slot n
     game = Blank.gameOf $ n : (Blank.ninjaWithSlot <$> unsafeTail Slot.all)
     ctx  = Context { new       = True
                    , user      = slot

@@ -47,7 +47,7 @@ import qualified Class.Play as P
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Context as Context
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
@@ -121,45 +121,45 @@ targetHas' :: ∀ m a. (MonadPlay m, Labeled a)
            => (Ninja -> [a]) -> Text -> m Bool
 targetHas' = has' P.nTarget
 
--- | True if user 'Ninja.hasOwn'.
+-- | True if user 'N.hasOwn'.
 userHas :: ∀ m. MonadPlay m => Text -> m Bool
-userHas = userHas' Ninja.statuses
+userHas = userHas' N.statuses
 
--- | True if target 'Ninja.has'.
+-- | True if target 'N.has'.
 targetHas :: ∀ m. MonadPlay m => Text -> m Bool
-targetHas = targetHas' Ninja.statuses
+targetHas = targetHas' N.statuses
 
--- | 'Ninja.numStacks' of the user, from the user.
+-- | 'N.numStacks' of the user, from the user.
 userStacks :: ∀ m. MonadPlay m => Text -> m Int
-userStacks name = Ninja.numStacks name <$> P.user <*> P.nUser
+userStacks name = N.numStacks name <$> P.user <*> P.nUser
 
--- | 'Ninja.numStacks' of the target, from the user.
+-- | 'N.numStacks' of the target, from the user.
 targetStacks :: ∀ m. MonadPlay m => Text -> m Int
-targetStacks name = Ninja.numStacks name <$> P.user <*> P.nTarget
+targetStacks name = N.numStacks name <$> P.user <*> P.nTarget
 
--- | Returns 'Ninja.defense' of the user's own defense.
+-- | Returns 'N.defense' of the user's own defense.
 userDefense :: ∀ m. MonadPlay m => Text -> m Int
 userDefense name = defense <$> P.nUser
   where
-    defense n = Ninja.defenseAmount name (slot n) n
+    defense n = N.defenseAmount name (slot n) n
 
--- | True if user 'Ninja.isChanneling'.
+-- | True if user 'N.isChanneling'.
 channeling :: ∀ m. MonadPlay m => Text -> m Bool
-channeling name = Ninja.isChanneling name <$> P.nUser
+channeling name = N.isChanneling name <$> P.nUser
 
 -- | True if the subject is 'Invulnerable' to any 'Model.Game.Class.Class'.
 invulnerable :: Ninja -> Bool
 invulnerable n = not . null $ Effects.invulnerable n
 
--- | True if 'Ninja.character' has a 'Group'.
+-- | True if 'N.character' has a 'Group'.
 inGroup :: Group -> Ninja -> Bool
-inGroup x n = x ∈ Character.groups (Ninja.character n)
+inGroup x n = x ∈ Character.groups (N.character n)
 
 -- | Number of users affected by a 'Model.Game.Status.Status'.
 numAffected :: ∀ m. MonadPlay m => Text -> m Int
 numAffected name = do
     usr <- P.user
-    length . filter (Ninja.has name usr) <$> P.ninjas
+    length . filter (N.has name usr) <$> P.ninjas
 
 -- | Number of user's allies who are dead.
 numDeadAllies :: ∀ m. MonadPlay m => m Int

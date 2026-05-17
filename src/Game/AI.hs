@@ -17,7 +17,7 @@ import qualified Game.Model.Game as Game
 import qualified Game.Model.Player as Player
 import qualified Game.Engine as Engine
 import           Game.Model.Ninja (Ninja)
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Slot (Slot)
 
@@ -28,15 +28,15 @@ targetOptions ns n i = case Ninjas.getSkill i n of
   where
     makeOption skill target = Context
         { new = True
-        , user = Ninja.slot n
+        , user = N.slot n
         , skill
-        , target = Ninja.slot target
+        , target = N.slot target
         , continues = False
         }
 
 skillOptions :: [Ninja] -> Ninja -> [[Context]]
 skillOptions ns n = filter (not . null)
-    $ targetOptions ns n <$> [0..Ninja.numSkills n - 1]
+    $ targetOptions ns n <$> [0..N.numSkills n - 1]
 
 -- | The higher this is, the more likely AI is to attack. Lower values allow it
 -- to pool mana. At 0, the AI is disabled. This will certainly end up as a
@@ -64,8 +64,8 @@ run vendetta n = runMaybeT do
 chooseVendetta :: ∀ m. (MonadGame m, MonadRandom m) => m (Maybe Slot)
 chooseVendetta = do
     ninjas <- P.ninjas
-    ninja  <- R.choose . filter Ninja.alive $ Parity.half Player.A ninjas
-    let v   = Ninja.slot <$> ninja
+    ninja  <- R.choose . filter N.alive $ Parity.half Player.A ninjas
+    let v   = N.slot <$> ninja
     P.alter \game -> game { Game.vendetta = v }
     return v
 
@@ -77,7 +77,7 @@ getVendetta = do
         Nothing -> chooseVendetta
         Just v  -> do
             ninja <- P.ninja v
-            if Ninja.alive ninja then
+            if N.alive ninja then
                 return vendetta
             else
                 chooseVendetta

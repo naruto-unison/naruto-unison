@@ -34,7 +34,7 @@ import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja(Ninja), is)
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import           Game.Model.Requirement (Requirement(..))
 import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Runnable (Runnable(To))
@@ -82,7 +82,7 @@ wrap' affected f = void $ runMaybeT do
 
     guard $ user == target
             || Targeted ∉ affected
-            || Ninja.alive nTarget
+            || N.alive nTarget
             || Necromancy ∈ classes
 
     let harm    = not $ Parity.allied user target
@@ -217,7 +217,7 @@ run' affected xs = do
     traverse_ (traverse_ exec) xs
 
 -- | If 'Skill.dur' is long enough to last for multiple turns, the 'Skill'
--- is added to 'Ninja.channels'.
+-- is added to 'N.channels'.
 -- Uses 'Ninjas.addChannels' internally.
 addChannels :: ∀ m. MonadPlay m => m ()
 addChannels = do
@@ -229,7 +229,7 @@ addChannels = do
 -- | Filters a list of targets to those capable of countering a skill.
 filterCounters :: [[Runnable Slot]] -- ^ Effects of the skill to be countered.
                -> [Ninja] -> [Ninja]
-filterCounters slots = filter $ testBit targetSet . Slot.toInt . Ninja.slot
+filterCounters slots = filter $ testBit targetSet . Slot.toInt . N.slot
   where
     targetSet = foldl' go (0 :: Word8) $ join slots
     go x      = setBit x . Slot.toInt . Runnable.target
@@ -243,14 +243,14 @@ act ctx@Context{user, new, skill} = void $ runMaybeT do
     Game{chakra} <- P.game
     initial    <- P.ninjas
 
-    guard $ Ninja.alive nUser && require /= Unusable
+    guard $ N.alive nUser && require /= Unusable
 
     lift $ P.withContext ctx do
         if not new then
             P.withContinues $ run' (singletonSet Targeted)
               =<< chooseTargets effects
         else do
-            P.modify user \n -> n { Ninja.lastSkill = Just skill }
+            P.modify user \n -> n { N.lastSkill = Just skill }
             P.trigger user $ OnAction <$> toList classes
             when (charges > 0)
                 . P.modify user $ Cooldown.spendCharge skill
@@ -267,13 +267,13 @@ act ctx@Context{user, new, skill} = void $ runMaybeT do
                   || nUser `is` AntiCounter
                   || null counters
             then do
-                let countered = Ninja.slot <$> countering
+                let countered = N.slot <$> countering
                     uncounter n
                       | slot == user     = Trigger.userUncounter classes n
                       | slot ∈ countered = Trigger.targetUncounter classes n
                       | otherwise        = n
                       where
-                        slot = Ninja.slot n
+                        slot = N.slot n
                 P.modifyAll uncounter
                 sequence_ counters
             else case dur of
@@ -282,7 +282,7 @@ act ctx@Context{user, new, skill} = void $ runMaybeT do
                     run' (singletonSet Targeted) startEfs
                     P.withContinues $ run' (singletonSet Targeted) contEfs
                     addChannels
-            P.modify user \n -> n { Ninja.acted = True }
+            P.modify user \n -> n { N.acted = True }
             when new
                 . P.modify user $ Cooldown.update skill
         P.uncopied do
@@ -290,7 +290,7 @@ act ctx@Context{user, new, skill} = void $ runMaybeT do
             Hook.chakra skill chakra . Game.chakra =<< P.game
         traverse_ (sequence_ . Traps.get user) =<< P.ninjas
 
-        P.modifyAll $ unreflect . \n -> n { Ninja.triggers = mempty }
+        P.modifyAll $ unreflect . \n -> n { N.triggers = mempty }
         breakControls
   where
     unreflect n@Ninja{triggers}

@@ -41,7 +41,7 @@ import qualified Game.Model.Delay as Delay
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja(Ninja), is)
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import           Game.Model.Runnable (Runnable(To))
@@ -75,7 +75,7 @@ processTurn runner = do
     player      <- Game.playing <$> P.game
     let opponent = Player.opponent player
     runner
-    channels <- concatMap getChannels . filter Ninja.alive <$> P.allies player
+    channels <- concatMap getChannels . filter N.alive <$> P.allies player
     traverse_ Action.act channels
     Traps.runTurn initial
     doBombs Remove initial
@@ -93,10 +93,10 @@ processTurn runner = do
     Hook.turn player initial =<< P.ninjas
   where
     getChannels n = fromChannel n
-        <$> filter ((/= -1) . TurnBased.getDur) (Ninja.channels n)
+        <$> filter ((/= -1) . TurnBased.getDur) (N.channels n)
     fromChannel n Channel{skill, target} = Context
         { new       = False
-        , user      = Ninja.slot n
+        , user      = N.slot n
         , skill     = Skills.change n skill
         , continues = False
         , target
@@ -104,7 +104,7 @@ processTurn runner = do
 
 -- | Runs 'Game.delays'.
 doDelays :: ∀ m. (MonadGame m, MonadRandom m) => m ()
-doDelays = traverse_ delay . filter Ninja.alive =<< P.ninjas
+doDelays = traverse_ delay . filter N.alive =<< P.ninjas
   where
     delay Ninja{delays} = traverse_ (P.launch . Delay.effect)
         $ filter ((<= -1) . Delay.dur) delays
@@ -123,13 +123,13 @@ doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> [Ninja] -> m ()
 doBombs bomb ninjas = zipWithM_ comp ninjas =<< P.ninjas
   where
     comp n n' = sequence
-              $ doBomb bomb (Ninja.slot n)
+              $ doBomb bomb (N.slot n)
               <$> deleteFirstsBy Labeled.eq (stats n) (stats n')
       where
         stats
-          | Ninja.alive n' = Ninja.statuses
-          | otherwise      = filter ((Necromancy ∈) . Status.classes)
-                           . Ninja.statuses
+          | N.alive n' = N.statuses
+          | otherwise  = filter ((Necromancy ∈) . Status.classes)
+                       . N.statuses
 
 -- | Executes 'Barrier.while' and 'Barrier.finish' effects.
 doBarriers :: ∀ m. (MonadGame m, MonadRandom m) => m ()
@@ -148,7 +148,7 @@ doBarriers = do
 doDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
 doDeaths = traverse_ doDeath Slot.all
 
--- | If the 'Ninja.health' of a 'Ninja' reaches 0,
+-- | If the 'N.health' of a 'Ninja' reaches 0,
 -- they are either resurrected by triggering 'OnRes'
 -- or they die and trigger 'OnDeath'.
 -- If they die, their 'Soulbound' effects are canceled.
@@ -177,8 +177,8 @@ doDeath slot = do
 unSoulbound :: Slot -> Ninja -> Ninja
 unSoulbound user n@Ninja{copies, statuses, traps} = Ninjas.modifyStatuses
     (const $ filter notSoulbound statuses)
-    $ n { Ninja.traps  = filter notSoulbound traps
-        , Ninja.copies = filter (maybe True notSoulbound) copies
+    $ n { N.traps  = filter notSoulbound traps
+        , N.copies = filter (maybe True notSoulbound) copies
         }
   where
     notSoulbound :: ∀ a. (Classed a, Labeled a) => a -> Bool
@@ -194,7 +194,7 @@ doHpOverTime slot = do
     player <- P.player
     n      <- P.ninja slot
     hp     <- Effects.hp player n <$> P.ninjas
-    when (Ninja.alive n)
+    when (N.alive n)
         . P.modify slot $ Ninjas.adjustHealth (- hp)
 
 -- | Updates 'Game.victor'.
@@ -205,8 +205,8 @@ yieldVictor = whenM (Game.inProgress <$> P.game) do
     P.alter \g ->
         g { Game.victor = filter (victor splitNs) [Player.A, Player.B] }
   where
-    victor (_, ninjas) Player.A = not $ any Ninja.alive ninjas
-    victor (ninjas, _) Player.B = not $ any Ninja.alive ninjas
+    victor (_, ninjas) Player.A = not $ any N.alive ninjas
+    victor (ninjas, _) Player.B = not $ any N.alive ninjas
 
 forfeit :: ∀ m. MonadGame m => Player -> m ()
 forfeit player = whenM (Game.inProgress <$> P.game) do
@@ -216,7 +216,7 @@ forfeit player = whenM (Game.inProgress <$> P.game) do
                     }
   where
     suicide n
-      | Parity.allied player n = n { Ninja.health = 0 }
+      | Parity.allied player n = n { N.health = 0 }
       | otherwise              = n
 
 -- | Adds to 'Game.inactive', and forfeits if a threshold is reached.

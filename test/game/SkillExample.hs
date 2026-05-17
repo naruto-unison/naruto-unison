@@ -14,7 +14,7 @@ import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Target(..))
 import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Slot as Slot
@@ -64,5 +64,5 @@ it = Hspec.it
 
 testGame :: Character -> Wrapper
 testGame char = Blank.gameOf
-                    $ Ninja.new (unsafeHead Slot.all) char
+                    $ N.new (unsafeHead Slot.all) char
                     : (Blank.ninjaWithSlot <$> unsafeTail Slot.all)

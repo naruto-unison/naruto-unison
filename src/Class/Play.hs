@@ -38,8 +38,8 @@ import qualified Game.Model.Context as Context
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
 import           Game.Model.Internal (MonadGame(..), MonadPlay(..))
-import           Game.Model.Ninja (Ninja(Ninja), is)
-import qualified Game.Model.Ninja as Ninja
+import           Game.Model.Ninja (Ninja, is)
+import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import           Game.Model.Runnable (Runnable(To))
 import           Game.Model.Skill (Skill(Skill))
@@ -140,8 +140,8 @@ fromUser f = do
 zipWith :: ∀ m. (MonadGame m) => (Ninja -> Ninja -> Ninja) -> [Ninja] -> m ()
 zipWith f = zipWithM_ (\i -> modify i . f) Slot.all
 
--- | Adds to 'Ninja.triggers' if 'Context.user' is not 'Context.target' and
+-- | Adds to 'N.triggers' if 'Context.user' is not 'Context.target' and
 -- 'Context.new' is @True@.
 trigger :: ∀ m. MonadPlay m => Slot -> [Trigger] -> m ()
-trigger i xs = whenM new $ modify i \n@Ninja{triggers} ->
-    n { Ninja.triggers = foldl' (flip insertSet) triggers xs }
+trigger i xs = whenM new $ modify i \n ->
+    n { N.triggers = foldl' (flip insertSet) (N.triggers n) xs }

@@ -35,7 +35,7 @@ import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Amount(..), Constructor(..), Effect(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja(Ninja), is)
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
@@ -173,8 +173,8 @@ reflect classes n@Ninja{effects} = n `is` Reflect
 hp :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
    => Player -> Ninja -> o -> Int
 hp player n ninjas
-  | Ninja.alive n = afflict ninjas player n - heal ninjas player n
-  | otherwise     = 0
+  | N.alive n = afflict ninjas player n - heal ninjas player n
+  | otherwise = 0
 
 -- | 'Heal' sum.
 heal :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
@@ -221,12 +221,12 @@ afflict1 ninjas player nThreshold t Status{classes, effects, user}
       | Bane ∈ classes = insertSet Bane afflictClasses
       | otherwise      = afflictClasses
     ext
-      | t == user     = 0
-      | Ninja.alive n = bleed classes' nt Flat + strengthen classes' n Flat
-      | otherwise     = bleed classes' nt Flat
+      | t == user = 0
+      | N.alive n = bleed classes' nt Flat + strengthen classes' n Flat
+      | otherwise = bleed classes' nt Flat
     scale :: Float
     scale
-      | t == user     = 1
-      | Ninja.alive n = (1 + strengthen classes' n Percent)
-                      * (1 + bleed classes' nt Percent)
-      | otherwise     = 1 + bleed classes' nt Percent
+      | t == user = 1
+      | N.alive n = (1 + strengthen classes' n Percent)
+                  * (1 + bleed classes' nt Percent)
+      | otherwise = 1 + bleed classes' nt Percent

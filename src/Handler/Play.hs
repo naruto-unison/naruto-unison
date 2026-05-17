@@ -43,7 +43,7 @@ import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Game as Game
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Skill as Skill
@@ -127,7 +127,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2] = do
 
     ninjas   <- case traverse Characters.lookup [c1, b1, a1, a2, b2, c2] of
         Nothing    -> invalidArgs ["Character(s) not found"]
-        Just chars -> return $ zipWith Ninja.new Slot.all chars
+        Just chars -> return $ zipWith N.new Slot.all chars
 
     who      <- Auth.requireAuthId
     unlocked <- Mission.unlocked

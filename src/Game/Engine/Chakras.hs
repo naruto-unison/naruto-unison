@@ -17,7 +17,7 @@ import qualified Class.Random as R
 import           Game.Model.Chakra (Chakra(..), Chakras)
 import qualified Game.Model.Chakra as Chakra
 import qualified Game.Model.Game as Game
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import qualified Game.Model.Player as Player
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈))
@@ -64,11 +64,11 @@ remove1 permitted = do
             return removed
         Nothing -> return 0
 
--- | Adds as many random 'Chakra's as the number of living 'Ninja.Ninja's on the
+-- | Adds as many random 'Chakra's as the number of living 'N.Ninja's on the
 -- player's team to the player's 'Game.chakra'.
 gain :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 gain = do
     player  <- Player.opponent <$> P.player
-    living  <- length . filter Ninja.alive <$> P.allies player
+    living  <- length . filter N.alive <$> P.allies player
     randoms <- replicateM living Chakra.random
     P.alter $ Game.adjustChakra player (+ Chakra.collect (randoms :: [Chakra]))

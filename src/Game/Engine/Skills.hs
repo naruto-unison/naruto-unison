@@ -17,7 +17,7 @@ import           Game.Model.Chakra (Chakras)
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (is)
 import           Game.Model.Ninja (Ninja(Ninja))
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable(To))
 import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Skill (Skill, Target(..))
@@ -27,46 +27,46 @@ import qualified Game.Model.Skill as Skill
 also :: Skill.Transform -> Skill.Transform -> Skill.Transform
 (f `also` g) n = g n . f n
 
--- | Applies a 'Skill.Transform' conditional upon 'Ninja.has'.
+-- | Applies a 'Skill.Transform' conditional upon 'N.has'.
 changeWith :: Text -> (Skill -> Skill) -> Skill.Transform
 changeWith name f n@Ninja{slot}
-  | Ninja.has name slot n = f
-  | otherwise             = id
+  | N.has name slot n = f
+  | otherwise         = id
 
--- | Applies a 'Skill.Transform' conditional upon 'Ninja.isChanneling'.
+-- | Applies a 'Skill.Transform' conditional upon 'N.isChanneling'.
 changeWithChannel :: Text -> (Skill -> Skill) -> Skill.Transform
 changeWithChannel name f n
-  | Ninja.isChanneling name n = f
-  | otherwise                 = id
+  | N.isChanneling name n = f
+  | otherwise             = id
 
--- | Applies a 'Skill.Transform' conditional upon 'Ninja.hasDefense'.
+-- | Applies a 'Skill.Transform' conditional upon 'N.hasDefense'.
 changeWithDefense :: Text -> (Skill -> Skill) -> Skill.Transform
 changeWithDefense name f n@Ninja{slot}
-  | Ninja.hasDefense name slot n = f
-  | otherwise                    = id
+  | N.hasDefense name slot n = f
+  | otherwise                = id
 
--- | Multiplies @Chakras@ by 'Ninja.numActive' and adds the total to
+-- | Multiplies @Chakras@ by 'N.numActive' and adds the total to
 -- 'Skill.cost'.
 costPer :: Text -> Chakras -> Skill.Transform
 costPer name chaks n skill = skill { Skill.cost = Skill.cost skill + added }
   where
-    added = chaks * fromIntegral (Ninja.numActive name n)
+    added = chaks * fromIntegral (N.numActive name n)
 
--- | Multiplies @Chakras@ by 'Ninja.numActive' and subtracts the total from
+-- | Multiplies @Chakras@ by 'N.numActive' and subtracts the total from
 -- 'Skill.cost'.
 reduceCostPer :: Text -> Chakras -> Skill.Transform
 reduceCostPer name chaks n skill =
     skill { Skill.cost = Skill.cost skill - added }
   where
-    added = chaks * fromIntegral (Ninja.numActive name n)
+    added = chaks * fromIntegral (N.numActive name n)
 
--- | Multiplies some number of turns by 'Ninja.numActive' and adds the total to
+-- | Multiplies some number of turns by 'N.numActive' and adds the total to
 -- 'Skill.channel'.
 extendWith :: Text -> Int -> Skill.Transform
 extendWith name i n skill = skill { Skill.dur = TurnBased.setDur dur chan }
   where
     chan  = Skill.dur skill
-    added = fromIntegral $ i * Ninja.numActive name n
+    added = fromIntegral $ i * N.numActive name n
     dur   = TurnBased.getDur chan + added
 
 -- | Applies a transformation to 'Skill.effects', 'Skill.start', and

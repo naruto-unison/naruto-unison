@@ -34,7 +34,7 @@ import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Constructor(..), Effect(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja, is)
-import qualified Game.Model.Ninja as Ninja
+import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable)
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
@@ -43,23 +43,23 @@ import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉))
 
--- | Refreshes the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'
+-- | Refreshes the 'Status.dur' of 'N.statuses' with matching 'Status.name'
 -- to 'Status.maxDur'.
 -- Uses 'Ninjas.refresh' internally.
 refresh :: ∀ m. MonadPlay m => Text -> m ()
 refresh name = P.unsilenced . P.fromUser $ Ninjas.refresh name
 
--- | Increases the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
+-- | Increases the 'Status.dur' of 'N.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 prolong :: ∀ m. MonadPlay m => Duration -> Text -> m ()
 prolong dur name = P.unsilenced . P.fromUser $ Ninjas.prolong dur name
 
--- | Reduces the 'Status.dur' of 'Ninja.statuses' with matching 'Status.name'.
+-- | Reduces the 'Status.dur' of 'N.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 hasten :: ∀ m. MonadPlay m => Duration -> Text -> m ()
 hasten dur name = P.unsilenced . P.fromUser $ Ninjas.prolong (negate dur) name
 
--- | Adds a @Status@ to 'Ninja.statuses'.
+-- | Adds a @Status@ to 'N.statuses'.
 apply :: ∀ m. MonadPlay m => Duration -> [Effect] -> m ()
 apply = apply' ""
 -- | 'apply' with a 'Status.name'.
@@ -75,7 +75,7 @@ applyWith' :: ∀ m. MonadPlay m
 applyWith' classes turns efs = P.unsilenced . applyFull 1 classes [] turns efs
 
 -- | Adds a simple @Status@ with no 'Status.effects' or 'Status.dur'
--- 'Ninja.statuses'. Stacks are unremovable.
+-- 'N.statuses'. Stacks are unremovable.
 addStack :: ∀ m. MonadPlay m => m ()
 addStack = do
     Skill{name} <- P.skill
@@ -129,7 +129,7 @@ hide dur efs = do
 hide' :: ∀ m. MonadPlay m => Text -> Duration -> [Effect] -> m ()
 hide' = applyWith' $ setFromList [Unremovable, Hidden]
 
--- | Adds a @Status@ with 'Status.bombs' to 'Ninja.statuses'.
+-- | Adds a @Status@ with 'Status.bombs' to 'N.statuses'.
 -- @Bomb@s apply an effect when the @Status@ ends. If the @Bomb@ type is
 -- 'Status.Expire', the bomb activates if the @Status@ naturally reaches the end
 -- of its 'Status.dur'. If the @Bomb@ type is 'Status.Remove', the @Bomb@
@@ -179,12 +179,12 @@ applyFull amount classes bombs name unthrottled effects =
                    (Effects.throttle effects nUser) unthrottled
         let st   = makeStatus context amount nUser nTarget
                    classes bombs name dur effects
-        if Ninja.has name user nTarget && Extending ∈ Status.classes st then
+        if N.has name user nTarget && Extending ∈ Status.classes st then
             let prolong' = mapMaybe . Ninjas.prolong' (Status.dur st) name
                          $ Status.user st
             in
             P.modify target \n ->
-                n { Ninja.statuses = prolong' $ Ninja.statuses n }
+                n { N.statuses = prolong' $ N.statuses n }
         else do
             guard $ null effects || not (null $ Status.effects st)
             P.modify target $ Ninjas.addStatus st
@@ -228,8 +228,7 @@ makeStatus Context{skill, user, continues, new}
     noremove = null effects && Bane ∉ skillClasses
                || Hidden ∈ classes ++ skillClasses
                || dur == 1 && Skill.dur skill /= Instant
-               || user == Ninja.slot nTarget
-                  && any (not . Effect.helpful) effects
+               || user == N.slot nTarget && any (not . Effect.helpful) effects
     extra    = setFromList $ fst <$> filter snd
                [ (Soulbound,   any bind effects)
                , (Unremovable, noremove)
@@ -249,28 +248,28 @@ makeStatus Context{skill, user, continues, new}
     isDmg _           = False
 
 
--- | Removes non-'Effect.helpful' effects in 'Ninja.statuses' that match a
+-- | Removes non-'Effect.helpful' effects in 'N.statuses' that match a
 -- predicate.
 -- Uses 'Ninjas.cure' internally.
 cure :: ∀ m. MonadPlay m => (Effect -> Bool) -> m ()
 cure match = P.unsilenced . P.toTarget $ Ninjas.cure match
 
--- | Removes all non-'Effect.helpful' 'effects in 'Ninja.statuses'.
+-- | Removes all non-'Effect.helpful' 'effects in 'N.statuses'.
 -- Uses 'Ninjas.cure' internally.
 cureAll :: ∀ m. MonadPlay m => m ()
 cureAll = P.unsilenced . cure $ const True
 
--- | Removes all 'Ninja.statuses' with 'Bane' in their 'Status.classes'.
+-- | Removes all 'N.statuses' with 'Bane' in their 'Status.classes'.
 -- Uses 'Ninjas.cureBane' internally.
 cureBane :: ∀ m. MonadPlay m => m ()
 cureBane = P.unsilenced $ P.toTarget Ninjas.cureBane
 
--- | Cures all 'Stun' effects from 'Ninja.statuses'.
+-- | Cures all 'Stun' effects from 'N.statuses'.
 -- Uses 'Ninjas.cure' internally.
 cureStun :: ∀ m. MonadPlay m => m ()
 cureStun = P.unsilenced $ cure Effect.isDisable
 
--- | Cures all 'Effect.helpful' effects from 'Ninja.statuses'.
+-- | Cures all 'Effect.helpful' effects from 'N.statuses'.
 -- Uses 'Ninjas.purge' internally.
 purge :: ∀ m. MonadPlay m => m ()
 purge = P.unsilenced $ P.toTarget Ninjas.purge
@@ -301,16 +300,16 @@ commandeer = P.unsilenced do
     nTarget <- P.nTarget
     user    <- P.user
     P.modify user $ Ninjas.modifyStatuses
-        (mapMaybe gainHelpful (Ninja.statuses nTarget) ++) . \n ->
-        n { Ninja.defense = Ninja.defense nTarget ++ Ninja.defense n
-          , Ninja.barrier = []
-          }
+        (mapMaybe gainHelpful (N.statuses nTarget) ++) . \n ->
+            n { N.defense = N.defense nTarget ++ N.defense n
+            , N.barrier = []
+            }
     target  <- P.target
     P.modify target $ Ninjas.modifyStatuses
         (mapMaybe loseHelpful) . \n ->
-            n { Ninja.defense = []
-            , Ninja.barrier = Ninja.barrier nUser
-            }
+            n { N.defense = []
+              , N.barrier = N.barrier nUser
+              }
   where
     lose ef = Effect.helpful ef && not (Effect.sticky ef)
     loseHelpful st
