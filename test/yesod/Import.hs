@@ -8,7 +8,7 @@ import Application.Logger    (makeLogWare)
 import Application           (makeFoundation)
 import ClassyPrelude         as X hiding (delete, deleteBy)
 import Database.Persist      as X hiding (get)
-import Database.Persist.Sql  (SqlBackend, SqlPersistM, runSqlPersistMPool, rawExecute, rawSql, unSingle, connEscapeName)
+import Database.Persist.Sql  (SqlPersistM, runSqlPersistMPool, rawExecute, rawSql, unSingle)
 import Application.App       as X
 import Application.Fields    as X
 import Application.Model     as X
@@ -48,22 +48,13 @@ withApp = before do
 -- spec to run in.
 wipeDB :: App -> IO ()
 wipeDB app = runDBWithApp app do
-    tables <- getTables
-    sqlBackend <- ask
-
-    let escapedTables = connEscapeName sqlBackend . DBName <$> tables
-        query = "TRUNCATE TABLE " ++ intercalate ", " escapedTables
-    rawExecute query []
-
-getTables :: ∀ m. MonadIO m => ReaderT SqlBackend m [Text]
-getTables = do
     tables <- rawSql [st|
-        SELECT table_name
+        SELECT '"' || table_name || '"'
         FROM information_schema.tables
         WHERE table_schema = 'public';
     |] []
-
-    return $ unSingle <$> tables
+    let query = "TRUNCATE TABLE " ++ intercalate ", " (unSingle <$> tables)
+    rawExecute query []
 
 -- | Authenticate as a user. This relies on the `auth-dummy-login: true` flag
 -- being set in test-settings.yaml, which enables dummy authentication in

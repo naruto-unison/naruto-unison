@@ -1,6 +1,6 @@
 -- | 'Ninja' processing.
 module Game.Engine.Ninjas
-  ( skills, getSkill
+  ( skills, getSkill, hasSkill
   , modifyStatuses
   , apply
   , processEffects
@@ -117,6 +117,11 @@ getSkill s n
   where
     base = Skills.change n . Requirement.usable True n
          <$> ((Copy.skill <$> join (N.copies n !? s)) <|> N.baseSkill s n)
+
+-- | Searches 'skills'.
+hasSkill :: Text -- ^ `Skill.name`.
+         -> Ninja -> Bool
+hasSkill name n = any ((== name) . Skill.name) $ skills n
 
 -- | All four skill slots of a @Ninja@ modified by 'skill'.
 skills :: Ninja -> [Skill]

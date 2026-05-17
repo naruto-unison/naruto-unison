@@ -6,607 +6,608 @@ import Import
 
 import qualified Class.Play as P
 import qualified Game.Engine.Effects as Effects
+import qualified Sim as Sim
 
 spec :: Spec
 spec = parallel do
     describeCharacter "Madara Uchiha" do
         useOn Self "Mangekyō Sharingan" do
             it "alternates" do
-                act
-                hasSkill "Eternal Mangekyō Sharingan" <$> nUser
+                Sim.act
+                user $ hasSkill "Eternal Mangekyō Sharingan"
 
         useOn Self "Susanoo" do
             it "alternates" do
-                act
-                hasSkill "Armored Susanoo Assault" <$> nUser
+                Sim.act
+                user $ hasSkill "Armored Susanoo Assault"
 
         useOn Enemy "Armored Susanoo Assault" do
             it "deals damage per stack of Susanoo" do
-                use "Susanoo"
-                turns stacks
-                act
-                targetHealth <- health <$> nTarget
+                Sim.use "Susanoo"
+                Sim.turns stacks
+                Sim.act
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 30 + 5 * (stacks + 1)
 
         useOn Enemy "Majestic Destroyer Flame" do
             it "damages on defense" do
-                act
+                Sim.act
                 setHealth 100
-                as Enemy $ defend Permanent 10
-                targetHealth <- health <$> nTarget
+                Sim.as Enemy $ defend Permanent 10
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 10
             it "damages on reduce" do
-                act
+                Sim.act
                 setHealth 100
-                as Enemy $ apply Permanent [Reduce [All] Flat 10]
-                targetHealth <- health <$> nTarget
+                Sim.as Enemy $ apply Permanent [Reduce [All] Flat 10]
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 10
             it "does not damage otherwise" do
-                act
+                Sim.act
                 setHealth 100
-                as Enemy $ damage dmg
-                targetHealth <- health <$> nTarget
+                Sim.as Enemy $ damage dmg
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 0
 
     describeCharacter "Deidara" do
         useOn Enemy "C1: Bird Bomb" do
             it "alternates" do
-                act
-                hasSkill "C3: Megaton Sculpture" <$> nUser
+                Sim.act
+                user $ hasSkill "C3: Megaton Sculpture"
 
         useOn Enemy "C2: Clay Dragon" do
             it "alternates" do
-                act
-                hasSkill "C2: Minefield" <$> nUser
+                Sim.act
+                user $ hasSkill "C2: Minefield"
             it "alternates other" do
-                act
-                hasSkill "C2: Dragon Missile" <$> nUser
+                Sim.act
+                user $ hasSkill "C2: Dragon Missile"
 
         useOn Enemy "C2: Minefield" do
             it "damages attacker" do
-                act
-                withClass NonMental $ as Enemy $ return ()
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.withClass NonMental $ Sim.as Enemy $ return ()
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 10
             it "weakens attacker" do
-                act
-                withClass NonMental $ as Enemy $ return ()
-                as Enemy $ damage dmg
-                userHealth <- health <$> nUser
+                Sim.act
+                Sim.withClass NonMental $ Sim.as Enemy $ return ()
+                Sim.as Enemy $ damage dmg
+                userHealth <- user health
                 dmg - (100 - userHealth) `shouldBe` 5
 
         useOn Enemy "C4: Karura" do
             it "alternates" do
-                act
-                hasSkill "C0: Ultimate Art" <$> nUser
+                Sim.act
+                user $ hasSkill "C0: Ultimate Art"
 
     describeCharacter "Sasori" do
         useOn Self "Kazekage Puppet Summoning" do
             it "alternates" do
-                act
-                hasSkill "Iron Sand: World Order" <$> nUser
+                Sim.act
+                user $ hasSkill "Iron Sand: World Order"
 
         useOn Enemies "Iron Sand: World Order" do
             it "damages per Iron Sand" do
-                use "Kazekage Puppet Summoning"
-                turns stacks
-                act
-                targetHealth <- health <$> get XEnemies
+                Sim.use "Kazekage Puppet Summoning"
+                Sim.turns stacks
+                Sim.act
+                targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 10 + 5 * (stacks + 1)
 
         useOn Enemy "Poison Blade Assault" do
             it "damages repeatedly" do
-                use "Kazekage Puppet Summoning"
-                act
-                turns 4
-                targetHealth <- health <$> nTarget
+                Sim.use "Kazekage Puppet Summoning"
+                Sim.act
+                Sim.turns 4
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 20 * 2
             it "ends when destroyed" do
-                use "Kazekage Puppet Summoning"
-                act
-                as Enemy demolishAll
-                turns stacks
-                targetHealth <- health <$> nTarget
+                Sim.use "Kazekage Puppet Summoning"
+                Sim.act
+                Sim.as Enemy demolishAll
+                Sim.turns stacks
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 20
 
         useOn Enemies "Thousand Arms" do
             it "exposes targets" do
-                use "Kazekage Puppet Summoning"
-                act
-                turns -1
-                targetIsExposed
+                Sim.use "Kazekage Puppet Summoning"
+                Sim.act
+                Sim.turns -1
+                Sim.targetIsExposed
             it "does not expose with harm" do
-                use "Kazekage Puppet Summoning"
-                act
-                as Enemy $ return ()
-                not <$> targetIsExposed
+                Sim.use "Kazekage Puppet Summoning"
+                Sim.act
+                Sim.as Enemy $ return ()
+                not <$> Sim.targetIsExposed
             it "alternates" do
-                use "Kazekage Puppet Summoning"
-                act
-                hasSkill "Poison Gas" <$> nUser
+                Sim.use "Kazekage Puppet Summoning"
+                Sim.act
+                user $ hasSkill "Poison Gas"
 
         useOn Enemies "Poison Gas" do
             it "lasts 1 turn normally" do
-                use "Kazekage Puppet Summoning"
-                turns 1
-                use "Thousand Arms"
-                as Enemy $ return ()
-                act
-                turns 1
-                targetExhausted <- Effects.exhaust [All] <$> nTarget
+                Sim.use "Kazekage Puppet Summoning"
+                Sim.turns 1
+                Sim.use "Thousand Arms"
+                Sim.as Enemy $ return ()
+                Sim.act
+                Sim.turns 1
+                targetExhausted <- target $ Effects.exhaust [All]
                 targetExhausted `shouldBe` []
             it "lasts 2 turns if target is Pinned" do
-                use "Kazekage Puppet Summoning"
-                turns 1
-                use "Thousand Arms"
-                turns -1
-                act
-                turns 1
-                targetExhausted <- Effects.exhaust [All] <$> nTarget
+                Sim.use "Kazekage Puppet Summoning"
+                Sim.turns 1
+                Sim.use "Thousand Arms"
+                Sim.turns -1
+                Sim.act
+                Sim.turns 1
+                targetExhausted <- target $ Effects.exhaust [All]
                 targetExhausted `shouldBe` [Rand]
 
     describeCharacter "Hidan" do
-        let ritual = traverse_ use
+        let ritual = traverse_ Sim.use
                      (["Jashin Sigil", "First Blood", "Blood Curse"] :: [Text])
         useOn Enemy "Blood Curse" do
             it "performs the ritual" do
                 ritual
-                use "Death Blow"
-                targetHealth <- health <$> nTarget
+                Sim.use "Death Blow"
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 50 + 5
             it "negates damage" do
                 ritual
-                use "Death Blow"
-                userHealth <- health <$> nUser
+                Sim.use "Death Blow"
+                userHealth <- user health
                 100 - userHealth `shouldBe` 0
 
         useOn Enemy "Death Blow" do
             it "damages user without ritual" do
-                act
-                userHealth <- health <$> nUser
+                Sim.act
+                userHealth <- user health
                 100 - userHealth `shouldBe` 50
 
         useOn Enemy "Self-Mutilation" do
             it "stuns self normally" do
-                act
-                userStunned <- Effects.stun <$> nUser
+                Sim.act
+                userStunned <- user Effects.stun
                 userStunned `shouldBe` [All]
             it "does not stun if ritual is ongoing" do
                 ritual
-                act
-                userStunned <- Effects.stun <$> nUser
+                Sim.act
+                userStunned <- user Effects.stun
                 userStunned `shouldBe` []
 
     describeCharacter "Kakuzu" do
         useOn Enemy "Pressure Damage" do
             it "alternates" do
-                act
-                hasSkill "Searing Migraine" <$> nUser
+                Sim.act
+                user $ hasSkill "Searing Migraine"
 
         useOn Enemy "False Darkness" do
             it "alternates" do
-                act
-                hasSkill "Blast Flames" <$> nUser
+                Sim.act
+                user $ hasSkill "Blast Flames"
 
         useOn Enemy "Earth Grudge" do
             it "does nothing if enemy is above 20 health" do
                 setHealth 21
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 targetHealth `shouldBe` 21
             it "executes target" do
                 setHealth 20
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 targetHealth `shouldBe` 0
             it "heals user" do
                 setHealth 20
-                as Enemy $ damage dmg
-                act
-                userHealth <- health <$> nUser
+                Sim.as Enemy $ damage dmg
+                Sim.act
+                userHealth <- user health
                 dmg - (100 - userHealth) `shouldBe` 35
 
     describeCharacter "Kisame Hoshigaki" do
         useOn Enemies "Thousand Hungry Sharks" do
             it "damages enemies" do
-                act
-                turns 10
+                Sim.act
+                Sim.turns 10
                 targets <- P.enemies =<< P.user
                 let totalDamage = sum $ (100 -) . health <$> targets
                 totalDamage `shouldBe` 10 * 5
             it "damages per stack" do
-                act
-                turns 10
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.turns 10
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 5 * 4
             it "marks target" do
-                act
-                as Enemy $ return ()
-                as XEnemies $ return ()
-                turns 10
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.as Enemy $ return ()
+                Sim.as XEnemies $ return ()
+                Sim.turns 10
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 8 * 5
             it "ignores others once marked" do
-                act
-                turns stacks
-                as Enemy $ return ()
-                as XEnemies $ return ()
-                turns 10
-                targetHealth <- health <$> get XEnemies
+                Sim.act
+                Sim.turns stacks
+                Sim.as Enemy $ return ()
+                Sim.as XEnemies $ return ()
+                Sim.turns 10
+                targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 5 * stacks
             it "un-ignores if target dies" do
-                act
-                as Enemy $ return ()
-                as XEnemies $ return ()
-                turns 2
+                Sim.act
+                Sim.as Enemy $ return ()
+                Sim.as XEnemies $ return ()
+                Sim.turns 2
                 kill
-                turns 10
-                targetHealth <- health <$> get XEnemies
+                Sim.turns 10
+                targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 5 * 3
             it "picks a new target if target dies" do
-                act
-                as Enemy $ return ()
+                Sim.act
+                Sim.as Enemy $ return ()
                 kill
-                as XEnemies $ return ()
-                turns 10
-                targetHealth <- health <$> get XEnemies
+                Sim.as XEnemies $ return ()
+                Sim.turns 10
+                targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 5 * 5
             it "deals bonus damage during Exploding Water Shockwave" do
-                use "Exploding Water Shockwave"
-                act
-                turns 10
+                Sim.use "Exploding Water Shockwave"
+                Sim.act
+                Sim.turns 10
                 targets <- P.enemies =<< P.user
                 let totalDamage = sum $ (100 -) . health <$> targets
                 totalDamage `shouldBe` 10 * 5 + 3 * 3 * 5
 
         useOn Enemies "Exploding Water Shockwave" do
             it "alternates" do
-                act
-                hasSkill "Shark Dance" <$> nUser
+                Sim.act
+                user $ hasSkill "Shark Dance"
 
         useOn Enemy "Super Shark Bomb" do
             it "deals no damage initially" do
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 0
             it "damages after 1 turn" do
-                act
-                turns 1
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.turns 1
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 30
             it "counters target" do
-                act
-                withClass Chakra $ as Enemy $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nUser
+                Sim.act
+                Sim.withClass Chakra $ Sim.as Enemy $ apply Permanent [Reveal]
+                user $ not . (`is` Reveal)
             it "damages countered" do
-                act
-                withClass Chakra $ as Enemy $ return ()
-                turns 1
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.withClass Chakra $ Sim.as Enemy $ return ()
+                Sim.turns 1
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 30 + 20
 
     describeCharacter "Itachi Uchiha" do
         useOn Self "Susanoo" do
             it "sacrifices health" do
-                act
-                turns 4
-                userHealth <- health <$> nUser
+                Sim.act
+                Sim.turns 4
+                userHealth <- user health
                 100 - userHealth `shouldBe` 10
             it "defends user" do
-                act
-                turns stacks
-                userDefense <- totalDefense <$> nUser
+                Sim.act
+                Sim.turns stacks
+                userDefense <- user totalDefense
                 userDefense `shouldBe` 5 * (stacks + 1)
             it "alternates A" do
-                act
-                hasSkill "Totsuka Blade" <$> nUser
+                Sim.act
+                user $ hasSkill "Totsuka Blade"
             it "alternates B" do
-                act
-                hasSkill "Yata Mirror" <$> nUser
+                Sim.act
+                user $ hasSkill "Yata Mirror"
 
         useOn Enemy "Totsuka Blade" do
             it "drains bloodline" do
                 gain [Tai, Blood]
-                act
-                chakras <- chakra <$> game
+                Sim.act
+                chakras <- gameChakras
                 chakras `shouldBe` ([], [Tai])
             it "drains genjutsu" do
                 gain [Tai, Gen]
-                act
-                chakras <- chakra <$> game
+                Sim.act
+                chakras <- gameChakras
                 chakras `shouldBe` ([], [Tai])
             it "does not drain other" do
                 gain [Tai, Nin]
-                act
-                chakras <- chakra <$> game
+                Sim.act
+                chakras <- gameChakras
                 chakras `shouldBe` ([], [Tai, Nin])
 
         useOn Enemy "Mirage Crow" do
             it "counters target" do
-                act
-                as Enemy $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nUser
+                Sim.act
+                Sim.as Enemy $ apply Permanent [Reveal]
+                user $ not . (`is` Reveal)
             it "stuns countered" do
-                act
-                as Enemy $ apply Permanent [Reveal]
-                targetStunned <- Effects.stun <$> nTarget
+                Sim.act
+                Sim.as Enemy $ apply Permanent [Reveal]
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [Physical, Ranged]
 
         useOn Self "Yata Mirror" do
             it "ignores harm" do
-                act
-                as Enemy $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nUser
+                Sim.act
+                Sim.as Enemy $ apply Permanent [Reveal]
+                user $ not . (`is` Reveal)
             it "exhausts attackers" do
-                act
-                as Enemy $ apply Permanent [Reveal]
-                targetExhausted <- Effects.exhaust [All] <$> get Enemy
+                Sim.act
+                Sim.as Enemy $ apply Permanent [Reveal]
+                targetExhausted <- Effects.exhaust [All] <$> Sim.targets Enemy
                 targetExhausted `shouldBe` [Rand]
 
     describeCharacter "Konan" do
         useOn Enemy "Paper Cut" do
             it "deals bonus damage if target has Dance of the Shikigami" do
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 factory
                 self factory
                 apply Permanent [AntiChannel]
-                use "Dance of the Shikigami"
+                Sim.use "Dance of the Shikigami"
                 setHealth 100
-                act
-                targetHealth' <- health <$> nTarget
+                Sim.act
+                targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 5
 
     describeCharacter "Zetsu" do
         useOn Self "White Zetsu" do
             it "alternates A" do
-                act
-                use "Black Zetsu"
-                hasSkill "White Zetsu" <$> nUser
+                Sim.act
+                Sim.use "Black Zetsu"
+                user $ hasSkill "White Zetsu"
             it "alternates B" do
-                act
-                hasSkill "White Army" <$> nUser
+                Sim.act
+                user $ hasSkill "White Army"
             it "alternates C" do
-                act
-                hasSkill "Doppelgänger" <$> nUser
+                Sim.act
+                user $ hasSkill "Doppelgänger"
 
         useOn Self "Black Zetsu" do
             it "alternates A" do
-                act
-                hasSkill "White Zetsu" <$> nUser
+                Sim.act
+                user $ hasSkill "White Zetsu"
             it "alternates B" do
-                act
-                hasSkill "Underground Roots" <$> nUser
+                Sim.act
+                user $ hasSkill "Underground Roots"
             it "alternates C" do
-                act
-                hasSkill "Body Coating" <$> nUser
+                Sim.act
+                user $ hasSkill "Body Coating"
 
         useOn Enemy "Doppelgänger" do
             it "does nothing if the target has not used a skill yet" do
-                act
-                not . hasSkill "Unnamed" <$> nUser
+                Sim.act
+                user $ not . hasSkill "Unnamed"
             it "copies after target uses skill" do
-                as Enemy $ return ()
-                act
-                hasSkill "Unnamed" <$> nUser
+                Sim.as Enemy $ return ()
+                Sim.act
+                user $ hasSkill "Unnamed"
 
     describeCharacter "Tobi" do
         useOn Self "Sharingan" do
             it "does not alternate immediately" do
-                act
-                not . hasSkill "Kamui" <$> nUser
+                Sim.act
+                user $ not . hasSkill "Kamui"
             it "counters on user" do
-                act
-                as Enemy $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nUser
+                Sim.act
+                Sim.as Enemy $ apply Permanent [Reveal]
+                user $ not . (`is` Reveal)
             it "alternates when countered" do
-                act
-                as Enemy $ return ()
-                hasSkill "Kamui" <$> nUser
+                Sim.act
+                Sim.as Enemy $ return ()
+                user $ hasSkill "Kamui"
 
         let testKamui against = useOn against "Kamui" do
                 it "applies itself" do
-                    act
-                    has "Kamui" <$> user <*> nTarget
+                    Sim.act
+                    targetHas "Kamui"
                 it "cancels if Kamui is used on another" do
-                    act
-                    at XAlly act
-                    not <$> (has "Kamui" <$> user <*> nTarget)
+                    Sim.act
+                    Sim.at XAlly Sim.act
+                    not <$> targetHas "Kamui"
                 it "cancels if Kamui Strike is used on another" do
-                    act
-                    at XEnemies $ use "Kamui Strike"
-                    not <$> (has "Kamui" <$> user <*> nTarget)
+                    Sim.act
+                    Sim.at XEnemies  $ Sim.use "Kamui Strike"
+                    not <$> targetHas "Kamui"
         testKamui Ally
         testKamui Enemy
 
         useOn Enemy "Kamui Strike" do
             it "deals bonus damge if target has Kamui" do
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 factory
                 self factory
-                use "Sharingan"
-                as Enemy $ return ()
-                use "Kamui"
+                Sim.use "Sharingan"
+                Sim.as Enemy $ return ()
+                Sim.use "Kamui"
                 setHealth 100
-                act
-                targetHealth' <- health <$> nTarget
+                Sim.act
+                targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 20
 
         useOn Self "Izanagi" do
             it "restores condition" do
-                as Enemy $ apply 1 [Reveal]
-                act
-                turns 4
-                (`is` Reveal) <$> nUser
+                Sim.as Enemy $ apply 1 [Reveal]
+                Sim.act
+                Sim.turns 4
+                user (`is` Reveal)
 
     describeCharacter "Deva Path Pain" do
         useOn Self "Almighty Push" do
             it "alternates back and forth" do
-                use "Almighty Push"
-                use "Universal Pull"
-                use "Almighty Push"
-                use "Universal Pull"
+                Sim.use "Almighty Push"
+                Sim.use "Universal Pull"
+                Sim.use "Almighty Push"
+                Sim.use "Universal Pull"
                 return True
 
         useOn Ally "Universal Pull" do
             it "applies Almighty Push to user if used last turn" do
-                use "Almighty Push"
-                use "Universal Pull"
-                self $ as Enemy $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nUser
+                Sim.use "Almighty Push"
+                Sim.use "Universal Pull"
+                self $ Sim.as Enemy $ apply Permanent [Reveal]
+                user $ not . (`is` Reveal)
             it "does not apply Almighty Push otherwise" do
-                use "Almighty Push"
-                turns 2
-                use "Universal Pull"
-                self $ as Enemy $ apply Permanent [Reveal]
-                (`is` Reveal) <$> nUser
+                Sim.use "Almighty Push"
+                Sim.turns 2
+                Sim.use "Universal Pull"
+                self $ Sim.as Enemy $ apply Permanent [Reveal]
+                user (`is` Reveal)
 
         useOn Enemy "Chakra Receiver" do
             it "stuns once every pair of turns" do
-                act
-                turns 3
-                targetStunned <- Effects.stun <$> nTarget
+                Sim.act
+                Sim.turns 3
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
             it "does not stun once every pair of turns" do
-                act
-                turns 4
-                targetStunned <- Effects.stun <$> nTarget
+                Sim.act
+                Sim.turns 4
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` []
 
     describeCharacter "Asura Path Pain" do
         useOn Enemy "Missile Salvo" do
             it "alternates" do
-                act
-                hasSkill "Head Cannon" <$> nUser
+                Sim.act
+                user $ hasSkill "Head Cannon"
         useOn Enemy "Guided Missile" do
             it "cycles to Bloodline" do
-                act
-                hasSkill "Bloodline Missile" <$> nUser
+                Sim.act
+                user $ hasSkill "Bloodline Missile"
             it "cycles to Genjutsu" do
-                act
-                turns 1
-                hasSkill "Genjutsu Missile" <$> nUser
+                Sim.act
+                Sim.turns 1
+                user $ hasSkill "Genjutsu Missile"
             it "cycles to Ninjutsu" do
-                act
-                turns 2
-                hasSkill "Ninjutsu Missile" <$> nUser
+                Sim.act
+                Sim.turns 2
+                user $ hasSkill "Ninjutsu Missile"
             it "cycles to Taijutsu" do
-                act
-                turns 3
-                hasSkill "Taijutsu Missile" <$> nUser
+                Sim.act
+                Sim.turns 3
+                user $ hasSkill "Taijutsu Missile"
             it "ends afterward" do
-                act
-                turns 4
-                not . isChanneling "Guided Missile" <$> nUser
+                Sim.act
+                Sim.turns 4
+                user $ not . isChanneling "Guided Missile"
 
     describeCharacter "Human Path Pain" do
         useOn Enemy "Soul Rip" do
             it "executes at or below 30 health" do
-                use "Mind Invasion"
+                Sim.use "Mind Invasion"
                 setHealth 60
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 targetHealth `shouldBe` 0
             it "does not execute otherwise" do
-                use "Mind Invasion"
-                act
-                targetHealth <- health <$> nTarget
+                Sim.use "Mind Invasion"
+                Sim.act
+                targetHealth <- target health
                 targetHealth `shouldNotBe` 0
             it "absorbs chakra above 30 health" do
-                use "Mind Invasion"
+                Sim.use "Mind Invasion"
                 gain [Blood, Gen]
-                act
-                chakras <- chakra <$> game
+                Sim.act
+                chakras <- gameChakras
                 chakras `shouldBe` ([Blood], [Gen])
             it "does not absorb otherwise" do
-                use "Mind Invasion"
+                Sim.use "Mind Invasion"
                 gain [Blood, Gen]
                 setHealth 60
-                act
-                chakras <- chakra <$> game
+                Sim.act
+                chakras <- gameChakras
                 chakras `shouldBe` ([], [Blood, Gen])
 
     describeCharacter "Animal Path Pain" do
         useOn Enemy "Summoning: Giant Centipede" do
             it "stuns on inaction" do
-                act
-                turns 2
-                targetStunned <- Effects.stun <$> nTarget
+                Sim.act
+                Sim.turns 2
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
             it "does not stun during" do
-                act
-                turns 1
-                targetStunned <- Effects.stun <$> nTarget
+                Sim.act
+                Sim.turns 1
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` []
             it "does not stun on action" do
-                act
-                as Enemy $ return ()
-                turns 1
-                targetStunned <- Effects.stun <$> nTarget
+                Sim.act
+                Sim.as Enemy $ return ()
+                Sim.turns 1
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` []
             it "alternates" do
-                act
-                hasSkill "Summoning: Giant Crustacean" <$> nUser
+                Sim.act
+                user $ hasSkill "Summoning: Giant Crustacean"
 
         useOn Enemy "Summoning: Giant Multi-Headed Dog" do
             it "doubles in damage per harm" do
-                act
-                as Enemy $ return ()
-                as Enemy $ return ()
-                turns 3
-                targetHealth <- health <$> get XEnemies
+                Sim.act
+                Sim.as Enemy $ return ()
+                Sim.as Enemy $ return ()
+                Sim.turns 3
+                targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 10 + 10 * 2 + 10 * 2 * 2
             it "does not carry over stacks" do
-                act
+                Sim.act
                 replicateM_ 4 do
-                    unlessM (isChanneling "Summoning: Giant Multi-Headed Dog" <$> nUser) do
+                    unlessM (user $ isChanneling "Summoning: Giant Multi-Headed Dog") do
                         factory
-                        act
-                    turns 1
-                turns 3
-                targetHealth <- health <$> nTarget
+                        Sim.act
+                    Sim.turns 1
+                Sim.turns 3
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 10 * 3
 
     describeCharacter "Naraka Path Pain" do
         useOn Enemy "Summoning: King of Hell" do
             it "alternates" do
-                act
-                hasSkill "Energy Transfer" <$> nUser
+                Sim.act
+                user $ hasSkill "Energy Transfer"
 
         useOn Enemy "Judgment" do
             it "adds to Summoning: King of Hell defense" do
-                use "Summoning: King of Hell"
-                userDefense <- totalDefense <$> nUser
-                act
-                userDefense' <- totalDefense <$> nUser
+                Sim.use "Summoning: King of Hell"
+                userDefense <- user totalDefense
+                Sim.act
+                userDefense' <- user totalDefense
                 userDefense' - userDefense `shouldBe` 20
             it "does not add otherwise" do
-                use "Summoning: King of Hell"
+                Sim.use "Summoning: King of Hell"
                 self demolishAll
-                act
-                userDefense <- totalDefense <$> nUser
+                Sim.act
+                userDefense <- user totalDefense
                 userDefense `shouldBe` 0
             it "deals bonus damage if target has Choke Hold" do
-                use "Summoning: King of Hell"
-                use "Choke Hold"
-                userDefense <- totalDefense <$> nUser
-                act
-                userDefense' <- totalDefense <$> nUser
+                Sim.use "Summoning: King of Hell"
+                Sim.use "Choke Hold"
+                userDefense <- user totalDefense
+                Sim.act
+                userDefense' <- user totalDefense
                 userDefense' - userDefense `shouldBe` 20 + 20
 
     describeCharacter "Nagato" do
         useOn Enemy "Summoning: Gedo Statue" do
             it "alternates" do
-                act
-                hasSkill "Control" <$> nUser
+                Sim.act
+                user $ hasSkill "Control"
 
         useOn Self "Control" do
             it "reduces damage by up to 25" do
-                use "Summoning: Gedo Statue"
-                replicateM_ 6 $ use "Control"
-                as Enemy $ damage dmg
-                userHealth <- health <$> nUser
+                Sim.use "Summoning: Gedo Statue"
+                replicateM_ 6  $ Sim.use "Control"
+                Sim.as Enemy $ damage dmg
+                userHealth <- user health
                 dmg - (100 - userHealth) `shouldBe` 25
   where
     describeCharacter = describeCategory Shippuden

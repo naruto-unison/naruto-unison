@@ -5,228 +5,229 @@ module Game.Characters.Original.FlashbacksSpec (spec) where
 import Import
 
 import qualified Game.Engine.Effects as Effects
+import qualified Sim as Sim
 
 spec :: Spec
 spec = parallel do
     describeCharacter "Kushina Uzumaki" do
         useOn Enemy "Life Link" do
             it "kills target if user dies" do
-                act
+                Sim.act
                 apply Permanent
                     [Endure, Invulnerable All, Nullify, Reflect]
                 self kill
-                turns 1
-                targetHealth <- health <$> nTarget
+                Sim.turns 1
+                targetHealth <- target health
                 targetHealth `shouldBe` 0
             it "kills user if target dies" do
-                act
+                Sim.act
                 self $ apply Permanent
                     [Endure, Invulnerable All, Nullify, Reflect]
-                as Self kill
-                turns 1
-                userHealth <- health <$> nUser
+                Sim.as Self kill
+                Sim.turns 1
+                userHealth <- user health
                 userHealth `shouldBe` 0
             it "alternates" do
-                act
-                hasSkill "Life Transfer" <$> nUser
+                Sim.act
+                user $ hasSkill "Life Transfer"
 
         useOn Enemy "Adamantine Sealing Chains" do
             it "purges helpful effects" do
                 apply 10 [Build stacks]
-                as Enemy $ self $ apply 10 [Build stacks]
-                as XEnemies $ apply 10 [Build stacks]
-                act
-                targetBuild <- Effects.build <$> nTarget
+                Sim.as Enemy $ self $ apply 10 [Build stacks]
+                Sim.as XEnemies $ apply 10 [Build stacks]
+                Sim.act
+                targetBuild <- target $ Effects.build
                 targetBuild `shouldBe` 0
 
     describeCharacter "Minato Namikaze" do
         useOn Enemy "Flying Raijin" do
             it "tags enemy during Space-Time Marking" do
-                use "Space-Time Marking"
-                act
-                has "Space-Time Marking" <$> user <*> nTarget
+                Sim.use "Space-Time Marking"
+                Sim.act
+                targetHas "Space-Time Marking"
             it "deals bonus damage with Space-Time Marking" do
                 everyone $ tag' "Space-Time Marking" Permanent
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 30 + 30
             it "damages all with Space-Time Marking" do
                 everyone $ tag' "Space-Time Marking" Permanent
                 remove "Space-Time Marking"
-                act
-                targetHealth <- health <$> get XEnemies
+                Sim.act
+                targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 30
         useOn Ally "Flying Raijin" do
             it "tags enemy during Space-Time Marking" do
-                use "Space-Time Marking"
-                act
-                has "Space-Time Marking" <$> user <*> nTarget
+                Sim.use "Space-Time Marking"
+                Sim.act
+                targetHas "Space-Time Marking"
             it "makes all invulnerable with Space-Time Marking" do
                 everyone $ tag' "Space-Time Marking" Permanent
                 remove "Space-Time Marking"
-                act
-                targetInvuln <- Effects.invulnerable <$> get XAlly
+                Sim.act
+                targetInvuln <- Effects.invulnerable <$> Sim.targets XAlly
                 targetInvuln `shouldBe` [All]
 
     describeCharacter "Hashirama Senju" do
         useOn Enemy "Wood Golem" do
             it "lasts 1 additional turn during Veritable 1000-Armed Kannon" do
-                use "Veritable 1000-Armed Kannon"
-                act
-                turns 2
-                as Enemy $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nUser
+                Sim.use "Veritable 1000-Armed Kannon"
+                Sim.act
+                Sim.turns 2
+                Sim.as Enemy $ apply Permanent [Reveal]
+                user $ not . (`is` Reveal)
 
     describeCharacter "Young Kakashi" do
         useOn Enemy "White Light Blade" do
             it "stuns if user has Sharingan Stun" do
                 self $ tag' "Sharingan Stun" Permanent
-                act
-                targetStunned <- Effects.stun <$> nTarget
+                Sim.act
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
 
         useOn Enemy "Lightning Blade" do
             it "stuns if user has Sharingan Stun" do
                 self $ tag' "Sharingan Stun" Permanent
-                act
-                targetStunned <- Effects.stun <$> nTarget
+                Sim.act
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
 
         useOn Enemy "Sharingan" do
             it "gains chakra on chakra gain" do
-                act
-                as Enemy $ self $ gain [Nin]
-                chakras <- chakra <$> game
+                Sim.act
+                Sim.as Enemy $ self $ gain [Nin]
+                chakras <- gameChakras
                 chakras `shouldBe` ([Blood], [Nin])
             it "gains chakra on chakra deplete" do
-                act
-                as Enemy $ deplete 1
-                chakras <- chakra <$> game
+                Sim.act
+                Sim.as Enemy $ deplete 1
+                chakras <- gameChakras
                 chakras `shouldBe` ([Blood], [])
             it "gains chakra on chakra steal" do
-                act
-                as Enemy $ absorb 1
-                chakras <- chakra <$> game
+                Sim.act
+                Sim.as Enemy $ absorb 1
+                chakras <- gameChakras
                 chakras `shouldBe` ([Blood], [])
             it "gains no chakra otherwise" do
-                act
-                as Enemy $ return ()
-                chakras <- chakra <$> game
+                Sim.act
+                Sim.as Enemy $ return ()
+                chakras <- gameChakras
                 chakras `shouldBe` ([], [])
             it "stuns if enemy stuns" do
-                act
-                as Enemy $ apply Permanent [Stun Physical]
-                hasOwn "Sharingan Stun" <$> nUser
+                Sim.act
+                Sim.as Enemy $ apply Permanent [Stun Physical]
+                userHas "Sharingan Stun"
             it "stuns if enemy disables" do
-                act
-                as Enemy $ apply Permanent [Disable Counters]
-                hasOwn "Sharingan Stun" <$> nUser
+                Sim.act
+                Sim.as Enemy $ apply Permanent [Disable Counters]
+                userHas "Sharingan Stun"
             it "does not stun otherwise" do
-                act
-                as Enemy $ apply Permanent [Throttle 1 Counters]
-                not . hasOwn "Sharingan Stun" <$> nUser
+                Sim.act
+                Sim.as Enemy $ apply Permanent [Throttle 1 Counters]
+                not <$> userHas "Sharingan Stun"
             it "strengthens if target damages" do
                 self $ apply Permanent [Reduce [All] Flat 5]
-                act
-                as Enemy $ damage 6
+                Sim.act
+                Sim.as Enemy $ damage 6
                 damage dmg
-                targetHealth <- health <$> nTarget
+                targetHealth <- target health
                 (100 - targetHealth) - dmg `shouldBe` 10
             it "does not strengthen otherwise" do
                 self $ apply Permanent [Reduce [All] Flat 5]
-                act
-                as Enemy $ damage 5
+                Sim.act
+                Sim.as Enemy $ damage 5
                 damage dmg
-                targetHealth <- health <$> nTarget
+                targetHealth <- target health
                 (100 - targetHealth) - dmg `shouldBe` 0
             it "stuns if user has Sharingan Stun" do
                 self $ tag' "Sharingan Stun" Permanent
-                act
-                targetStunned <- Effects.stun <$> nTarget
+                Sim.act
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
 
     describeCharacter "Rin Nohara" do
         useOn Enemy "Pit Trap" do
             it "damages target" do
-                act
-                turns 2
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.turns 2
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 15
             it "deals bonus damage if target acts" do
-                act
-                as Enemy $ return ()
-                turns 2
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.as Enemy $ return ()
+                Sim.turns 2
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 15 + 15
 
     describeCharacter "Obito Uchiha" do
         useOn Enemy "Piercing Stab" do
             it "deals bonus damage during Sharingan" do
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 factory
                 self factory
-                use "Sharingan"
-                act
-                targetHealth' <- health <$> nTarget
+                Sim.use "Sharingan"
+                Sim.act
+                targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 10
 
         useOn Ally "Sharingan" do
             it "reduces damage if user dies" do
-                act
-                as Self $ self kill
-                as Enemy $ damage dmg
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.as Self $ self kill
+                Sim.as Enemy $ damage dmg
+                targetHealth <- target health
                 dmg - (100 - targetHealth) `shouldBe` 5
             it "does not reduce damage otherwise" do
-                act
-                as Enemy $ damage dmg
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.as Enemy $ damage dmg
+                targetHealth <- target health
                 dmg - (100 - targetHealth) `shouldBe` 0
 
     describeCharacter "Masked Man" do
         useOn Enemy "Kamui Banishment" do
             it "deals bonus damage if target has Kusari Chains" do
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 factory
                 self factory
-                use "Kusari Chains"
-                act
-                targetHealth' <- health <$> nTarget
+                Sim.use "Kusari Chains"
+                Sim.act
+                targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 20
             it "lasts an additional turn if target has Kusari Chains" do
-                use "Kusari Chains"
-                act
-                turns 1
-                as XEnemies $ apply Permanent [Focus]
-                not . (`is` Focus) <$> nTarget
+                Sim.use "Kusari Chains"
+                Sim.act
+                Sim.turns 1
+                Sim.as XEnemies $ apply Permanent [Focus]
+                target $ not . (`is` Focus)
 
         useOn Self "Kamui Phase" do
             it "works on its own" do
-                use "Kamui Phase"
-                as Enemy $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nUser
+                Sim.use "Kamui Phase"
+                Sim.as Enemy $ apply Permanent [Reveal]
+                user $ not . (`is` Reveal)
             it "does not work after Kusari Chains" do
-                use "Kusari Chains"
-                use "Kamui Phase"
-                as Enemy $ apply Permanent [Reveal]
-                (`is` Reveal) <$> nUser
+                Sim.use "Kusari Chains"
+                Sim.use "Kamui Phase"
+                Sim.as Enemy $ apply Permanent [Reveal]
+                user (`is` Reveal)
             it "does not work after Kamui Banishment" do
-                use "Kamui Banishment"
-                use "Kamui Phase"
-                as Enemy $ apply Permanent [Reveal]
-                (`is` Reveal) <$> nUser
+                Sim.use "Kamui Banishment"
+                Sim.use "Kamui Phase"
+                Sim.as Enemy $ apply Permanent [Reveal]
+                user (`is` Reveal)
             it "does not work after Major Summoning: Kurama" do
-                use "Major Summoning: Kurama"
-                use "Kamui Phase"
-                as Enemy $ apply Permanent [Reveal]
-                (`is` Reveal) <$> nUser
+                Sim.use "Major Summoning: Kurama"
+                Sim.use "Kamui Phase"
+                Sim.as Enemy $ apply Permanent [Reveal]
+                user (`is` Reveal)
             it "does not work after itself" do
-                use "Kamui Phase"
-                use "Kamui Phase"
-                as Enemy $ apply Permanent [Reveal]
-                (`is` Reveal) <$> nUser
+                Sim.use "Kamui Phase"
+                Sim.use "Kamui Phase"
+                Sim.as Enemy $ apply Permanent [Reveal]
+                user (`is` Reveal)
   where
     describeCharacter = describeCategory Original
     dmg = 55

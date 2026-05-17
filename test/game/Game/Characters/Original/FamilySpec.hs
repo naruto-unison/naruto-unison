@@ -5,215 +5,216 @@ module Game.Characters.Original.FamilySpec (spec) where
 import Import
 
 import qualified Game.Engine.Effects as Effects
+import qualified Sim as Sim
 
 spec :: Spec
 spec = parallel do
     describeCharacter "Konohamaru Sarutobi" do
         useOn Self "Refocus" do
             it "alternates" do
-                act
-                hasSkill "Unsexy Technique" <$> nUser
+                Sim.act
+                user $ hasSkill "Unsexy Technique"
 
         useOn Enemy "Throw a Fit" do
             it "damages target per helpful effect from allies" do
                 self $ apply Permanent [Focus]
-                as Ally $ everyone $
+                Sim.as Ally $ everyone $
                     replicateM_ stacks $ apply Permanent [Focus]
-                act
-                turns 5
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.turns 5
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 3 * (10 + 5 * stacks)
 
         useOn Enemy "Throw a Shuriken" do
             it "damages target per helpful effect from allies" do
                 self $ apply Permanent [Focus]
-                as Ally $ everyone $
+                Sim.as Ally $ everyone $
                     replicateM_ stacks $ apply Permanent [Focus]
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 10 + 10 * stacks
 
     describeCharacter "Tsume Inuzuka" do
         useOn Enemy "Call Kuromaru" do
             it "damages attackers" do
-                act
-                withClass NonBane $ as Enemy $ return ()
-                turns 4
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.withClass NonBane $ Sim.as Enemy $ return ()
+                Sim.turns 4
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 10
             it "does not damage bane attackers" do
-                act
-                withClass Bane $ as Enemy $ return ()
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.withClass Bane $ Sim.as Enemy $ return ()
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 0
             it "alternates" do
-                act
-                hasSkill "Fierce Bite" <$> nUser
+                Sim.act
+                user $ hasSkill "Fierce Bite"
 
         useOn Enemy "Fierce Bite" do
             it "strengthens user if target dies" do
-                act
-                as XEnemies kill
+                Sim.act
+                Sim.as XEnemies kill
                 factory
                 damage dmg
-                targetHealth <- health <$> nTarget
+                targetHealth <- target health
                 (100 - targetHealth) - dmg `shouldBe` 10
             it "ignores stuns if target dies" do
-                act
-                as XEnemies kill
-                self $ as XEnemies $ apply Permanent [Stun All]
-                userStunned <- Effects.stun <$> nUser
+                Sim.act
+                Sim.as XEnemies kill
+                self $ Sim.as XEnemies $ apply Permanent [Stun All]
+                userStunned <- user Effects.stun
                 userStunned `shouldBe` []
             it "makes user immortal if target dies" do
-                act
-                as XEnemies kill
-                self $ as XEnemies kill
-                userHealth <- health <$> nUser
+                Sim.act
+                Sim.as XEnemies kill
+                self $ Sim.as XEnemies kill
+                userHealth <- user health
                 userHealth `shouldBe` 1
 
         useOn Enemy "Tunneling Fang" do
             it "deals bonus damage during Call Kuromaru" do
-                act
-                turns 5
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.turns 5
+                targetHealth <- target health
                 factory
                 self factory
-                use "Call Kuromaru"
-                act
-                turns 5
-                targetHealth' <- health <$> nTarget
+                Sim.use "Call Kuromaru"
+                Sim.act
+                Sim.turns 5
+                targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 2 * 5
 
     describeCharacter "Chōza Akimichi" do
         useOn Enemy "Human Boulder" do
             it "prolongs Chain Bind" do
-                use "Chain Bind"
-                act
-                turns 2
-                has "Chain Bind" <$> user <*> nTarget
+                Sim.use "Chain Bind"
+                Sim.act
+                Sim.turns 2
+                targetHas "Chain Bind"
 
         useOn XAlly "Partial Expansion" do
             it "counters on ally" do
-                act
-                withClass NonMental $ as Enemy $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nTarget
+                Sim.act
+                Sim.withClass NonMental $ Sim.as Enemy $ apply Permanent [Reveal]
+                target $ not . (`is` Reveal)
         useOn Enemy "Partial Expansion" do
             it "counters against enemy" do
-                act
-                withClass NonMental $ as Enemy $ return ()
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.withClass NonMental $ Sim.as Enemy $ return ()
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 10
 
 
     describeCharacter "Shikaku Nara" do
         useOn Enemy "Shadow Possession" do
             it "alternates" do
-                act
-                hasSkill "Shadow Dispersion" <$> nUser
+                Sim.act
+                user $ hasSkill "Shadow Dispersion"
             it "deals bonus damage if target has Black Spider Lily" do
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 factory
                 self factory
-                use "Black Spider Lily"
-                act
-                targetHealth' <- health <$> nTarget
+                Sim.use "Black Spider Lily"
+                Sim.act
+                targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 10
             it "stuns an additional turn if target has Ensnared" do
                 tag' "Ensnared" Permanent
-                act
-                turns 2
-                targetStunned <- Effects.stun <$> nTarget
+                Sim.act
+                Sim.turns 2
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [NonMental]
             it "does not stun an additional turn otherwise" do
-                act
-                turns 2
-                targetStunned <- Effects.stun <$> nTarget
+                Sim.act
+                Sim.turns 2
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` []
 
         useOn Enemies "Shadow Dispersion" do
             it "does not damage target of Shadow Possession" do
-                use "Shadow Possession"
+                Sim.use "Shadow Possession"
                 setHealth 100
-                use "Black Spider Lily"
-                act
-                targetHealth <- health <$> nTarget
+                Sim.use "Black Spider Lily"
+                Sim.act
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 0
             it "damages others" do
-                use "Shadow Possession"
+                Sim.use "Shadow Possession"
                 setHealth 100
-                act
-                targetHealth <- health <$> get XEnemies
+                Sim.act
+                targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 20
             it "deals bonus damage if target has Black Spider Lily" do
-                use "Black Spider Lily"
-                act
-                targetHealth <- health <$> nTarget
+                Sim.use "Black Spider Lily"
+                Sim.act
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 30
             it "stuns an additional turn if target has Ensnared" do
                 tag' "Ensnared" Permanent
-                act
-                turns 1
-                targetStunned <- Effects.stun <$> nTarget
+                Sim.act
+                Sim.turns 1
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [NonMental]
             it "does not stun an additional turn otherwise" do
-                act
-                turns 1
-                targetStunned <- Effects.stun <$> nTarget
+                Sim.act
+                Sim.turns 1
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` []
 
         useOn Enemies "Black Spider Lily" do
             it "tags target if they stun" do
-                act
-                as Enemy $ apply Permanent [Stun All]
-                has "Ensnared" <$> user <*> nTarget
+                Sim.act
+                Sim.as Enemy $ apply Permanent [Stun All]
+                targetHas "Ensnared"
             it "does not tag otherwise" do
-                act
-                as Enemy $ apply Permanent [Focus]
-                not <$> (has "Ensnared" <$> user <*> nTarget)
+                Sim.act
+                Sim.as Enemy $ apply Permanent [Focus]
+                not <$> targetHas "Ensnared"
 
     describeCharacter "Inoichi Yamanaka" do
         useOn Self "Sensory Radar" do
             it "restores health when enemy acts" do
                 damage dmg
-                act
-                replicateM_ stacks $ as Enemy $ return ()
-                userHealth <- health <$> nUser
+                Sim.act
+                replicateM_ stacks $ Sim.as Enemy $ return ()
+                userHealth <- user health
                 dmg - (100 - userHealth) `shouldBe` 10 * stacks
             it "adds stacks when enemy acts" do
-                act
-                replicateM_ stacks $ as Enemy $ return ()
-                userStacks <- numAnyStacks "Sensory Radar" <$> nUser
+                Sim.act
+                replicateM_ stacks $ Sim.as Enemy $ return ()
+                userStacks <- user $ numAnyStacks "Sensory Radar"
                 userStacks `shouldBe` stacks
             it "alternates" do
-                act
-                hasSkill "Sensory Radar: Collate" <$> nUser
+                Sim.act
+                user $ hasSkill "Sensory Radar: Collate"
 
         useOn Self "Sensory Radar: Collate" do
             it "gains chakra per Sensory Radar" do
                 addStacks "Sensory Radar" 3
-                act
-                chakras <- chakra <$> game
+                Sim.act
+                chakras <- gameChakras
                 chakras `shouldBe` ([Blood, Blood, Blood], [])
             it "spends all Sensory Radar" do
                 addStacks "Sensory Radar" stacks
-                act
-                userStacks <- numAnyStacks "Sensory Radar" <$> nUser
+                Sim.act
+                userStacks <- user $ numAnyStacks "Sensory Radar"
                 userStacks `shouldBe` 0
 
         useOn Enemy "Mental Invasion" do
             it "provides invulnerability with mental harm" do
-                act
-                withClass Mental $ as Self $ return ()
-                withClass Mental $ as Self $ return ()
-                as Enemy $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nUser
+                Sim.act
+                Sim.withClass Mental $ Sim.as Self $ return ()
+                Sim.withClass Mental $ Sim.as Self $ return ()
+                Sim.as Enemy $ apply Permanent [Reveal]
+                user $ not . (`is` Reveal)
             it "does not provide invulnerability otherwise" do
-                act
-                withClass Physical $ as Self $ return ()
-                withClass Physical $ as Self $ return ()
-                as Enemy $ apply Permanent [Reveal]
-                (`is` Reveal) <$> nUser
+                Sim.act
+                Sim.withClass Physical $ Sim.as Self $ return ()
+                Sim.withClass Physical $ Sim.as Self $ return ()
+                Sim.as Enemy $ apply Permanent [Reveal]
+                user (`is` Reveal)
   where
     describeCharacter = describeCategory Original
     dmg = 55

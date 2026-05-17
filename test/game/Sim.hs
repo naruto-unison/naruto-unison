@@ -6,9 +6,8 @@ module Sim
   , as, at, use
   , targetIsExposed
   , statusDur
-  , hasSkill
   , withClass, withClasses
-  , get
+  , targets
   , simOf, simAt
   ) where
 
@@ -84,8 +83,8 @@ targetSlot REnemy   = Slot.all !! 3
 targetSlot XEnemies = Slot.all !! 4
 targetSlot Everyone = Slot.all !! 0
 
-get :: ∀ m. MonadGame m => Target -> m Ninja
-get target = P.ninja $ targetSlot target
+targets :: ∀ m. MonadGame m => Target -> m Ninja
+targets target = P.ninja $ targetSlot target
 
 act :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => m ()
 act = actWith =<< Skills.change <$> P.nUser <*> P.skill
@@ -139,9 +138,6 @@ targetIsExposed = do
     P.with (\context -> context { Context.user = target })
         $ apply Permanent [Invulnerable All]
     null . Effects.invulnerable <$> P.nTarget
-
-hasSkill :: Text -> Ninja -> Bool
-hasSkill name n = any ((== name) . Skill.name) $ Ninjas.skills n
 
 withClass :: ∀ m. MonadPlay m => Class -> m () -> m ()
 withClass cla = withClasses $ singletonSet cla

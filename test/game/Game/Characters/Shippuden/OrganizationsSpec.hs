@@ -4,200 +4,202 @@ module Game.Characters.Shippuden.OrganizationsSpec (spec) where
 
 import Import
 
+import qualified Sim as Sim
+
 spec :: Spec
 spec = parallel do
     describeCharacter "Shisui Uchiha" do
         useOn Self "Susanoo" do
             it "adds stacks" do
-                act
-                turns stacks
-                userStacks <- numAnyStacks "Susanoo" <$> nUser
+                Sim.act
+                Sim.turns stacks
+                userStacks <- user $ numAnyStacks "Susanoo"
                 userStacks `shouldBe` 1 + stacks
             it "alternates" do
-                act
-                hasSkill "Tsukumo" <$> nUser
+                Sim.act
+                user $ hasSkill "Tsukumo"
             it "clears stacks when broken" do
-                act
-                turns stacks
-                as Enemy demolishAll
-                userDefense <- totalDefense <$> nUser
+                Sim.act
+                Sim.turns stacks
+                Sim.as Enemy demolishAll
+                userDefense <- user totalDefense
                 userDefense `shouldBe` 0
 
         useOn Self "Teleportation Technique" do
             it "damages harm" do
-                act
-                as Enemy $ return ()
-                targetHealth <- health <$> get Enemy
+                Sim.act
+                Sim.as Enemy $ return ()
+                targetHealth <- health <$> Sim.targets Enemy
                 100 - targetHealth `shouldBe` 15
 
         useOn Enemy "Kotoamatsukami" do
             it "depletes on harm" do
                 gain [Blood, Gen]
-                act
-                as Enemy $ return ()
-                chakras <- chakra <$> game
+                Sim.act
+                Sim.as Enemy $ return ()
+                chakras <- gameChakras
                 chakras `shouldBe` ([], [Gen])
 
     describeCharacter "Yamato" do
         useOn Ally "Wood Clone" do
             it "counters on target" do
-                act
-                as Enemy $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nTarget
+                Sim.act
+                Sim.as Enemy $ apply Permanent [Reveal]
+                target $ not . (`is` Reveal)
             it "counters with defense" do
-                act
-                as Enemy $ return ()
-                targetDefense <- totalDefense <$> nTarget
+                Sim.act
+                Sim.as Enemy $ return ()
+                targetDefense <- target totalDefense
                 targetDefense `shouldBe` 20
             it "damages countered" do
-                act
-                as Enemy $ return ()
-                targetHealth <- health <$> get Enemy
+                Sim.act
+                Sim.as Enemy $ return ()
+                targetHealth <- health <$> Sim.targets Enemy
                 100 - targetHealth `shouldBe` 20
             it "recharges if countered" do
-                use "Tenth Edict on Enlightenment"
-                act
-                as Enemy $ return ()
-                userCharges <- charges <$> nUser
+                Sim.use "Tenth Edict on Enlightenment"
+                Sim.act
+                Sim.as Enemy $ return ()
+                userCharges <- user charges
                 userCharges `shouldBe` mempty
             it "does not recharge otherwise" do
-                use "Tenth Edict on Enlightenment"
-                act
-                turns 1
-                userCharges <- charges <$> nUser
+                Sim.use "Tenth Edict on Enlightenment"
+                Sim.act
+                Sim.turns 1
+                userCharges <- user charges
                 userCharges `shouldNotBe` mempty
 
         useOn Ally "Four-Pillar Architecture" do
             it "recharges" do
-                use "Tenth Edict on Enlightenment"
-                act
-                userCharges <- charges <$> nUser
+                Sim.use "Tenth Edict on Enlightenment"
+                Sim.act
+                userCharges <- user charges
                 userCharges `shouldBe` mempty
         useOn Enemy "Four-Pillar Architecture" do
             it "recharges" do
-                use "Tenth Edict on Enlightenment"
-                act
-                userCharges <- charges <$> nUser
+                Sim.use "Tenth Edict on Enlightenment"
+                Sim.act
+                userCharges <- user charges
                 userCharges `shouldBe` mempty
 
     describeCharacter "Torune Aburame" do
         useOn Enemy "Nano-Sized Venom Beetles" do
             it "does not defend user again" do
-                act
-                userDefense <- totalDefense <$> nUser
-                act
-                userDefense' <- totalDefense <$> nUser
+                Sim.act
+                userDefense <- user totalDefense
+                Sim.act
+                userDefense' <- user totalDefense
                 userDefense' `shouldBe` userDefense
             it "applies a Venom Beetle" do
-                act
-                has "Venom Beetle" <$> user <*> nTarget
+                Sim.act
+                targetHas "Venom Beetle"
             it "applies a Venom Beetle to destroyer of defense" do
-                act
-                as Enemy demolishAll
-                numStacks <- numAnyStacks "Venom Beetle" <$> nTarget
+                Sim.act
+                Sim.as Enemy demolishAll
+                numStacks <- target $ numAnyStacks "Venom Beetle"
                 numStacks `shouldBe` 2
 
         useOn Enemies "Jar of Poison" do
             it "does not defend user again" do
-                act
-                userDefense <- totalDefense <$> nUser
-                act
-                userDefense' <- totalDefense <$> nUser
+                Sim.act
+                userDefense <- user totalDefense
+                Sim.act
+                userDefense' <- user totalDefense
                 userDefense' `shouldBe` userDefense
             it "applies a Venom Beetle to targets" do
-                act
-                has "Venom Beetle" <$> user <*> get XEnemies
+                Sim.act
+                Sim.at XEnemies $ targetHas "Venom Beetle"
             it "applies a Venom Beetle to destroyer of defense" do
-                act
-                as Enemy demolishAll
-                numStacks <- numAnyStacks "Venom Beetle" <$> nTarget
+                Sim.act
+                Sim.as Enemy demolishAll
+                numStacks <- target $ numAnyStacks "Venom Beetle"
                 numStacks `shouldBe` 2
 
         useOn Enemy "Venom Explosion" do
             it "depletes chakra per Venom Beetle" do
                 gain [Blood, Gen, Nin, Tai]
                 addStacks "Venom Beetle" 2
-                act
-                chakras <- chakra <$> game
+                Sim.act
+                chakras <- gameChakras
                 chakras `shouldBe` ([], [Nin, Tai])
 
     describeCharacter "Fū Yamanaka" do
         useOn Enemy "Tantō Slash" do
             it "deals bonus damage if target has Mind Transfer" do
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 factory
                 self factory
-                use "Mind Transfer"
-                act
-                targetHealth' <- health <$> nTarget
+                Sim.use "Mind Transfer"
+                Sim.act
+                targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 15
 
         useOn Ally "Mind Transfer Puppet Curse" do
             it "counters on target" do
-                act
-                withClass NonMental $ as Enemy $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nTarget
+                Sim.act
+                Sim.withClass NonMental $ Sim.as Enemy $ apply Permanent [Reveal]
+                target $ not . (`is` Reveal)
             it "teaches countered" do
-                act
-                withClass NonMental $ as Enemy $ return ()
-                hasSkill "Puppet Curse: Attack" <$> get Enemy
+                Sim.act
+                Sim.withClass NonMental $ Sim.as Enemy $ return ()
+                hasSkill "Puppet Curse: Attack" <$> Sim.targets Enemy
             it "teaches countered B" do
-                act
-                withClass NonMental $ as Enemy $ return ()
-                hasSkill "Puppet Curse: Defend" <$> get Enemy
+                Sim.act
+                Sim.withClass NonMental $ Sim.as Enemy $ return ()
+                hasSkill "Puppet Curse: Defend" <$> Sim.targets Enemy
             it "teaches user" do
-                act
-                withClass NonMental $ as Enemy $ return ()
-                hasSkill "Unnamed" <$> nUser
+                Sim.act
+                Sim.withClass NonMental $ Sim.as Enemy $ return ()
+                user $ hasSkill "Unnamed"
 
     describeCharacter "Sasuke Uchiha" do
         useOn Enemy "Chidori Stream" do
             it "counters enemies" do
-                act
-                withClass NonMental $ as XEnemies $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nUser
+                Sim.act
+                Sim.withClass NonMental $ Sim.as XEnemies $ apply Permanent [Reveal]
+                user $ not . (`is` Reveal)
             it "damages countered" do
-                act
-                withClass NonMental $ as Enemies $ apply Permanent [Reveal]
-                targetHealth <- health <$> get Enemies
+                Sim.act
+                Sim.withClass NonMental $ Sim.as Enemies $ apply Permanent [Reveal]
+                targetHealth <- health <$> Sim.targets Enemies
                 100 - targetHealth `shouldBe` 10
             it "alternates" do
-                act
-                hasSkill "Kusanagi" <$> nUser
+                Sim.act
+                user $ hasSkill "Kusanagi"
 
         useOn Enemy "Dragon Flame" do
             it "damages attackers" do
-                act
+                Sim.act
                 setHealth 100
-                as Enemy $ apply Permanent [Reveal]
-                targetHealth <- health <$> nTarget
+                Sim.as Enemy $ apply Permanent [Reveal]
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 5
 
         useOn Enemy "Kirin" do
             it "cannot be used without Dragon Flame" do
-                as Enemy $ return ()
-                use "Kirin"
-                targetHealth <- health <$> nTarget
+                Sim.as Enemy $ return ()
+                Sim.use "Kirin"
+                targetHealth <- target health
                 targetHealth `shouldBe` 100
             it "can be used after Dragon Flame" do
                 apply Permanent [AntiChannel]
-                use "Dragon Flame"
-                as Enemy $ return ()
+                Sim.use "Dragon Flame"
+                Sim.as Enemy $ return ()
                 setHealth 100
-                use "Kirin"
-                targetHealth <- health <$> nTarget
+                Sim.use "Kirin"
+                targetHealth <- target health
                 targetHealth `shouldNotBe` 100
             it "can only be used once after Dragon Flame" do
                 apply Permanent [AntiChannel]
-                use "Dragon Flame"
+                Sim.use "Dragon Flame"
                 setHealth 100
-                as Enemy $ return ()
-                use "Kirin"
-                as Enemy $ return ()
+                Sim.as Enemy $ return ()
+                Sim.use "Kirin"
+                Sim.as Enemy $ return ()
                 setHealth 100
-                use "Kirin"
-                targetHealth <- health <$> nTarget
+                Sim.use "Kirin"
+                targetHealth <- target health
                 targetHealth `shouldBe` 100
   where
     describeCharacter = describeCategory Shippuden

@@ -5,6 +5,7 @@ module Game.Characters.Original.VersionsSpec (spec) where
 import Import
 
 import qualified Game.Engine.Effects as Effects
+import qualified Sim as Sim
 
 spec :: Spec
 spec = parallel do
@@ -12,117 +13,117 @@ spec = parallel do
         useOn Enemy "Tailed Beast Rasengan" do
             it "deals bonus damage during Tailed Beast Chakra Arms" do
                 apply Permanent [AntiChannel]
-                use "Tailed Beast Chakra Arms"
+                Sim.use "Tailed Beast Chakra Arms"
                 setHealth 100
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 35 + 10
             it "deals less damage during Inner Chakra Mode" do
-                use "Inner Chakra Mode"
-                act
-                targetHealth <- health <$> nTarget
+                Sim.use "Inner Chakra Mode"
+                Sim.act
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 35 - 10
 
     describeCharacter "Curse Mark Sasuke" do
         useOn Enemy "Dark Void" do
             it "deals no damage initially" do
-                act
-                turns 1
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.turns 1
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 0
             it "deals damage at end" do
-                act
-                turns 3
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.turns 3
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 55
 
         useOn Self "Curse Mark" do
             it "tags user" do
-                act
-                hasOwn "Curse Mark" <$> nUser
+                Sim.act
+                userHas "Curse Mark"
 
     describeCharacter "Drunken Lee" do
         useOn Enemy "Unpredictable Assault" do
             it "damages target per Unpredictable Assault" do
-                replicateM_ stacks act
+                replicateM_ stacks Sim.act
                 setHealth 100
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 20 + 5 * stacks
             it "deals bonus damage during Drunken Fist" do
                 apply Permanent [AntiChannel]
-                use "Drunken Fist"
+                Sim.use "Drunken Fist"
                 setHealth 100
-                act
-                targetHealth <- health <$> nTarget
+                Sim.act
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 20 + 5
 
         useOn Enemy "Drunken Counter" do
             it "counters on target" do
-                self act
-                as Enemy $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nUser
+                self Sim.act
+                Sim.as Enemy $ apply Permanent [Reveal]
+                user $ not . (`is` Reveal)
             it "damages with Unpredictable Assault if countered" do
-                self act
-                as Enemy $ apply Permanent [Reveal]
-                targetHealth <- health <$> nTarget
+                self Sim.act
+                Sim.as Enemy $ apply Permanent [Reveal]
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 20
             it "adds Unpredictable Assault if countered" do
-                self act
-                as Enemy $ apply Permanent [Reveal]
-                hasOwn "Unpredictable Assault" <$> nUser
+                self Sim.act
+                Sim.as Enemy $ apply Permanent [Reveal]
+                userHas "Unpredictable Assault"
 
     describeCharacter "Shukaku Gaara" do
         useOn Enemy "Monstrous Sand Arm" do
             it "counters target" do
-                act
-                as Enemy $ apply Permanent [Reveal]
-                not . (`is` Reveal) <$> nUser
+                Sim.act
+                Sim.as Enemy $ apply Permanent [Reveal]
+                user $ not . (`is` Reveal)
             it "damages target until target acts" do
-                act
-                turns stacks
-                as Enemy $ apply Permanent [Reveal]
-                turns 5
-                targetHealth <- health <$> nTarget
+                Sim.act
+                Sim.turns stacks
+                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.turns 5
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 10 * (stacks + 1)
 
         useOn Self "Sand Transformation" do
             it "defends user" do
-                act
-                turns 6
-                userDefense <- totalDefense <$> nUser
+                Sim.act
+                Sim.turns 6
+                userDefense <- user totalDefense
                 userDefense `shouldBe` 5 * 10
             it "alternates" do
-                act
-                turns 6
-                hasSkill "Shukaku Full Release" <$> nUser
+                Sim.act
+                Sim.turns 6
+                user $ hasSkill "Shukaku Full Release"
             it "alternates other" do
-                act
-                turns 6
-                hasSkill "Wind Bullet" <$> nUser
+                Sim.act
+                Sim.turns 6
+                user $ hasSkill "Wind Bullet"
 
         useOn Enemy "Shukaku Full Release" do
             it "strengthens user" do
-                act
+                Sim.act
                 damage stacks
-                targetHealth <- health <$> nTarget
+                targetHealth <- target health
                 100 - targetHealth `shouldBe` 2 * stacks
 
     describeCharacter "Rehabilitated Gaara" do
         useOn Enemies "Sand Burial Prison" do
             it "exhausts targets" do
-                act
-                withClass Mental $ as XEnemies $ return ()
-                targetExhausted <- Effects.exhaust [NonMental] <$> get XEnemies
+                Sim.act
+                Sim.withClass Mental $ Sim.as XEnemies $ return ()
+                targetExhausted <- Effects.exhaust [NonMental] <$> Sim.targets XEnemies
                 targetExhausted `shouldBe` [Rand]
             it "ends if target uses non-mental" do
-                act
-                withClass NonMental $ as XEnemies $ return ()
-                targetExhausted <- Effects.exhaust [NonMental] <$> get XEnemies
+                Sim.act
+                Sim.withClass NonMental $ Sim.as XEnemies $ return ()
+                targetExhausted <- Effects.exhaust [NonMental] <$> Sim.targets XEnemies
                 targetExhausted `shouldBe` []
             it "alternates" do
-                act
-                hasSkill "Giant Sand Burial" <$> nUser
+                Sim.act
+                user $ hasSkill "Giant Sand Burial"
   where
     describeCharacter = describeCategory Original
     stacks = 3
