@@ -183,7 +183,7 @@ attack atk dmg = void $ runMaybeT do
     damaged <- (N.health nTarget -) . N.health <$> P.nTarget
     when (damaged > 0) do
         P.trigger user [OnDamage]
-        P.trigger target $ OnDamaged <$> toList classes
+        P.trigger target $ OnDamaged <$> toList classes'
         P.modify target $ Traps.track PerDamaged damaged
 
   where
