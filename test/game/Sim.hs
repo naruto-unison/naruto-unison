@@ -41,7 +41,7 @@ import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable(To), RunConstraint)
 import           Game.Model.Skill (Target(..))
-import           Game.Model.Skill (Skill)
+import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
@@ -115,21 +115,26 @@ turns (fromIntegral -> i) = do
 
 as :: ∀ m. (MonadPlay m, MonadHook m, MonadRandom m)
    => Target -> RunConstraint () -> m ()
-as t f = P.with ctx $ actWith =<< (Context.skill <$> P.context)
+as simUser f = P.with (createContext (targetSlot simUser) f) do
+    Context{skill} <- P.context
+    actWith skill
+
+createContext :: Slot -> RunConstraint () -> Context -> Context
+createContext simUser f Context{target, user, skill = Skill{classes}} = Context
+    { user      = simUser
+    , target    = if target == simUser then user else target
+    , new       = True
+    , continues = False
+    , skill     = Skill.new { Skill.classes = classes `difference` removeClasses
+                            , Skill.effects = effects
+                            }
+    }
   where
-    user        = targetSlot t
-    ctx context = Context { user, target, skill, new = True, continues = False }
-      where
-        skill = Skill.new { Skill.effects = effects, Skill.classes }
-        ctxTarget = Context.target context
-        target
-          | ctxTarget == user = Context.user context
-          | otherwise         = ctxTarget
-        effects
-          | Context.user context == user && ctxTarget == user = [To Self f]
-          | otherwise = [To XAlly f, To Enemy f]
-        classes = Skill.classes (Context.skill context) `difference` setFromList
-                  [Bypassing, Uncounterable, Unreflectable, Unremovable]
+    removeClasses = setFromList
+                    [Bypassing, Uncounterable, Unreflectable, Unremovable]
+    effects
+        | target == simUser && user == simUser = [To Self f]
+        | otherwise                            = [To XAlly f, To Enemy f]
 
 simOf :: ∀ a. Wrapper -> Target -> ReaderT Context (StateT Wrapper Identity) a
       -> a
