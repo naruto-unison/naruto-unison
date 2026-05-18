@@ -85,9 +85,8 @@ demolish = attack Attack.Demolish
 -- target.
 demolishAll :: ∀ m. MonadPlay m => m ()
 demolishAll = do
-    user <- P.user
+    Context{target, user} <- P.context
     P.modify user \n -> n { N.barrier = [] }
-    target <- P.target
     P.modify target \n -> n { N.defense = [] }
 
 userAdjust :: Attack -> EnumSet Class -> Ninja -> Float -> Float
@@ -145,10 +144,8 @@ attack atk dmg = void $ runMaybeT do
     channeled <- isChanneled <$> P.context
     guard . not $ channeled && nTarget `is` AntiChannel
 
-    Skill{classes, name} <- P.skill
-    nUser                <- P.nUser
-    user                 <- P.user
-    target               <- P.target
+    Context{target, user, skill = Skill{classes, name}} <- P.context
+    nUser <- P.nUser
     let classes'            = insertSet atkClass classes
         dmgCalc             = formula atk classes' nUser nTarget dmg
         (dmg'Barrier, barr) = absorbBarrier dmgCalc $ N.barrier nUser
@@ -199,11 +196,9 @@ attack atk dmg = void $ runMaybeT do
 -- Destructible defense can be temporary or permanent.
 defend :: ∀ m. MonadPlay m => Duration -> Int -> m ()
 defend (succ -> dur) amount = P.unsilenced do
-    skill      <- P.skill
-    user       <- P.user
-    target     <- P.target
-    nUser      <- P.nUser
-    nTarget    <- P.nTarget
+    Context{skill, target, user} <- P.context
+    nUser   <- P.nUser
+    nTarget <- P.nTarget
     let amount' = Effects.boost user nTarget * amount + Effects.build nUser
         addNonStack :: ∀ a. Labeled a => a -> [a] -> [a]
         addNonStack = Classed.nonStack skill
@@ -263,7 +258,7 @@ barricade' dur finish while amount = P.unsilenced do
     case amount' `compare` 0 of
         EQ -> return ()
         LT -> do
-            user   <- P.user
+            Context{user} <- P.context
             let defense = Defense
                     { user
                     , dur
@@ -279,19 +274,21 @@ barricade' dur finish while amount = P.unsilenced do
 killFull :: ∀ m. MonadPlay m => Bool -> m ()
 killFull endure = whenM (N.alive <$> P.nTarget) do
     P.toTarget $ Ninjas.kill endure
-    unlessM (N.alive <$> P.nTarget)
-        $ P.toTarget . Ninjas.addStatus =<< execute <$> P.user <*> P.skill
+    unlessM (N.alive <$> P.nTarget) do
+        Context{user, skill} <- P.context
+        P.toTarget . Ninjas.addStatus $ execute user skill
   where
-    execute user skill = Status { amount = 1
-                                , name   = "executed"
-                                , user
-                                , skill
-                                , effects = mempty
-                                , classes = setFromList [Unremovable, Hidden]
-                                , bombs   = []
-                                , maxDur  = 1
-                                , dur     = 1
-                                }
+    execute user skill = Status
+        { amount = 1
+        , name   = "executed"
+        , user
+        , skill
+        , effects = mempty
+        , classes = setFromList [Unremovable, Hidden]
+        , bombs   = []
+        , maxDur  = 1
+        , dur     = 1
+        }
 
 -- | Kills the target. The target can survive if it has the 'Endure' effect.
 -- Uses 'Ninjas.kill' internally.
@@ -311,14 +308,11 @@ setHealth amt = do
     nHealth <- N.health <$> P.nTarget
     P.toTarget $ Ninjas.setHealth amt
     nHealth' <- N.health <$> P.nTarget
-    user <- P.user
+    Context{target, user, skill = Skill{classes}} <- P.context
     case nHealth' `compare` nHealth of
         EQ -> return ()
         GT -> P.trigger user [OnHeal]
-        LT -> do
-            Skill{classes} <- P.skill
-            target <- P.target
-            P.trigger target $ OnDamaged <$> toList classes
+        LT -> P.trigger target $ OnDamaged <$> toList classes
 
 -- | Adds a flat amount of 'N.health'.
 -- Uses 'Ninjas.adjustHealth' internally.
@@ -326,10 +320,9 @@ heal :: ∀ m. MonadPlay m => Int -> m ()
 heal hp = P.unsilenced do
     nTarget <- P.nTarget
     unless (nTarget `is` Plague || not (N.alive nTarget)) do
-        user   <- P.user
-        target <- P.target
-        nUser  <- P.nUser
-        let hp'  = Effects.boost user nTarget * hp + Effects.bless nUser
+        Context{target, user} <- P.context
+        nUser <- P.nUser
+        let hp' = Effects.boost user nTarget * hp + Effects.bless nUser
         P.modify target $ Ninjas.adjustHealth (+ hp')
         damaged <- (N.health nTarget -) . N.health <$> P.nTarget
         case damaged `compare` 0 of
@@ -343,12 +336,10 @@ heal hp = P.unsilenced do
 -- Uses 'afflict' internally.
 leech :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
 leech hp f = do
-    user           <- P.user
-    target         <- P.target
-    Skill{classes} <- P.skill
-    hpBefore       <- N.health <$> P.nTarget
+    Context{target, user, skill = Skill{classes}} <- P.context
+    hpBefore <- N.health <$> P.nTarget
     afflict hp
-    damaged        <- (hpBefore -) . N.health <$> P.nTarget
+    damaged <- (hpBefore -) . N.health <$> P.nTarget
     when (damaged > 0) do
         f damaged
         P.trigger user [OnDamage]
@@ -361,10 +352,9 @@ sacrifice :: ∀ m. MonadPlay m
           => Int  -- ^ Minimum 'N.health'.
           -> Int  -- ^ Amount of 'N.health' to sacrifice.
           -> m ()
-sacrifice _ 0 = return ()
+sacrifice _     0  = return ()
 sacrifice minhp hp = do
-    user   <- P.user
-    target <- P.target
+    Context{target, user} <- P.context
     when (user == target)
         $ P.trigger user [OnSacrifice]
     P.toTarget $ Ninjas.sacrifice minhp hp

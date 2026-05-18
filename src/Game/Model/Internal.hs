@@ -286,16 +286,16 @@ instance Ord Status where
 
 -- | Target destinations of 'Skill's.
 data Target
-    = Self    -- ^ User of 'Skill'
-    | Ally    -- ^ Specific ally
-    | Allies  -- ^ All allies
-    | XAlly   -- ^ Specific ally excluding 'Self'
-    | XAllies -- ^ 'Allies' excluding 'Self'
-    | RAlly   -- ^ Random ally
-    | RXAlly -- ^ Random ally excluding 'Self'
-    | Enemy   -- ^ Specific enemy
-    | Enemies -- ^ All enemies
-    | REnemy  -- ^ Random enemy
+    = Self     -- ^ User of 'Skill'
+    | Ally     -- ^ Specific ally
+    | Allies   -- ^ All allies
+    | XAlly    -- ^ Specific ally excluding 'Self'
+    | XAllies  -- ^ 'Allies' excluding 'Self'
+    | RAlly    -- ^ Random ally
+    | RXAlly   -- ^ Random ally excluding 'Self'
+    | Enemy    -- ^ Specific enemy
+    | Enemies  -- ^ All enemies
+    | REnemy   -- ^ Random enemy
     | XEnemies -- ^ Enemies excluding 'Enemy'
     | Everyone -- ^ All 'Ninja's
     deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
@@ -345,10 +345,18 @@ instance Eq Trap where
 -- | Gameplay context. This promotes a 'MonadGame' to 'MonadPlay'.
 data Context = Context
     { skill     :: Skill
+      -- ^ @Skill@ used to perform an action.
     , user      :: Slot
+      -- ^ User of the action.
     , target    :: Slot
+      -- ^ Target of the action. When an action affects  multiple 'Ninja's, the
+      -- @target@ field is the only part of the 'Context' that changes.
     , new       :: Bool
-    , continues :: Bool -- ^ Cosmetic: continuous effect.
+      -- ^ When new actions are used, they can trigger traps and counters.
+      -- All other actions, such as channeled actions past the first turn,
+      -- delays, and effects of traps, cannot.
+    , continues :: Bool
+      -- ^ Cosmetic: continuous effect.
     } deriving (Generic)
 
 instance ToJSON Context

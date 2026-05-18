@@ -54,6 +54,9 @@ import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import           Util ((∈))
 
+userSlot :: ∀ m. MonadPlay m => m Slot
+userSlot = Context.user <$> P.context
+
 -- | Baseline fourth skill that makes the character invulnerable for one turn.
 invuln :: Text -- ^ 'Skill.name'.
        -> Text -- ^ Character name/nickname; first phrase in 'Skill.desc'.
@@ -73,8 +76,8 @@ self = P.with Context.reflect
 
 targetWithUser :: ∀ m. MonadPlay m => (Slot -> [Slot]) -> m () -> m ()
 targetWithUser targeter f = do
-    targets <- targeter <$> P.user
-    P.withTargets targets f
+    slot <- userSlot
+    P.withTargets (targeter slot) f
 
 -- | Directly applies an effect to all allies, both living and dead,
 -- ignoring invulnerabilities and traps.
@@ -93,9 +96,10 @@ everyone = P.withTargets Slot.all
 
 -- | Returns the bonus if the monadic condition succeeds, otherwise returns 0.
 bonusIf :: ∀ m a. (MonadPlay m, Num a) => a -> m Bool -> m a
-bonusIf amount condition = do
-    succeed <- condition
-    return if succeed then amount else 0
+bonusIf amount condition = getBonus <$> condition
+  where
+    getBonus True  = amount
+    getBonus False = 0
 
 -- | Applies a pure function to 'P.nUser'.
 user :: ∀ m a. MonadPlay m => (Ninja -> a) -> m a
@@ -107,9 +111,10 @@ target f = f <$> P.nTarget
 
 has' :: ∀ m a. (MonadPlay m, Labeled a)
      => m Ninja -> (Ninja -> [a]) -> Text -> m Bool
-has' subjectGetter fieldGetter name = has <$> P.user <*> subjectGetter
+has' subjectGetter fieldGetter name = getHas <$> userSlot <*> subjectGetter
   where
-    has from to = any (Labeled.match name from) $ fieldGetter to
+    getHas :: Slot -> Ninja -> Bool
+    getHas from to = any (Labeled.match name from) $ fieldGetter to
 
 -- | Generic 'userHas'.
 userHas' :: ∀ m a. (MonadPlay m, Labeled a)
@@ -131,17 +136,18 @@ targetHas = targetHas' N.statuses
 
 -- | 'N.numStacks' of the user, from the user.
 userStacks :: ∀ m. MonadPlay m => Text -> m Int
-userStacks name = N.numStacks name <$> P.user <*> P.nUser
+userStacks name = N.numStacks name <$> userSlot <*> P.nUser
 
 -- | 'N.numStacks' of the target, from the user.
 targetStacks :: ∀ m. MonadPlay m => Text -> m Int
-targetStacks name = N.numStacks name <$> P.user <*> P.nTarget
+targetStacks name = N.numStacks name <$> userSlot <*> P.nTarget
 
 -- | Returns 'N.defense' of the user's own defense.
 userDefense :: ∀ m. MonadPlay m => Text -> m Int
-userDefense name = defense <$> P.nUser
+userDefense name = getUserDefense <$> P.nUser
   where
-    defense n = N.defenseAmount name (slot n) n
+    getUserDefense :: Ninja -> Int
+    getUserDefense n = N.defenseAmount name (slot n) n
 
 -- | True if user 'N.isChanneling'.
 channeling :: ∀ m. MonadPlay m => Text -> m Bool
@@ -157,10 +163,13 @@ inGroup x n = x ∈ Character.groups (N.character n)
 
 -- | Number of users affected by a 'Model.Game.Status.Status'.
 numAffected :: ∀ m. MonadPlay m => Text -> m Int
-numAffected name = do
-    usr <- P.user
-    length . filter (N.has name usr) <$> P.ninjas
+numAffected name = getNumAffected <$> userSlot <*> P.ninjas
+  where
+    getNumAffected :: Slot -> [Ninja] -> Int
+    getNumAffected slot ninjas = length $ filter (N.has name slot) ninjas
 
 -- | Number of user's allies who are dead.
 numDeadAllies :: ∀ m. MonadPlay m => m Int
-numDeadAllies = length . filter (not . alive) <$> (P.allies =<< P.user)
+numDeadAllies = do
+    slot <- userSlot
+    length . filter (not.alive) <$> P.allies slot

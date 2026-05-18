@@ -4,7 +4,6 @@ module Game.Characters.Shippuden.AkatsukiSpec (spec) where
 
 import Import
 
-import qualified Class.Play as P
 import qualified Game.Engine.Effects as Effects
 import qualified Sim as Sim
 
@@ -212,9 +211,8 @@ spec = parallel do
             it "damages enemies" do
                 Sim.act
                 Sim.turns 10
-                targets <- P.enemies =<< P.user
-                let totalDamage = sum $ (100 -) . health <$> targets
-                totalDamage `shouldBe` 10 * 5
+                totalDamage <- Sim.enemies $ (100 -) . health
+                sum totalDamage `shouldBe` 10 * 5
             it "damages per stack" do
                 Sim.act
                 Sim.turns 10
@@ -256,9 +254,8 @@ spec = parallel do
                 Sim.use "Exploding Water Shockwave"
                 Sim.act
                 Sim.turns 10
-                targets <- P.enemies =<< P.user
-                let totalDamage = sum $ (100 -) . health <$> targets
-                totalDamage `shouldBe` 10 * 5 + 3 * 3 * 5
+                totalDamage <- Sim.enemies $ (100 -) . health
+                sum totalDamage `shouldBe` 10 * 5 + 3 * 3 * 5
 
         useOn Enemies "Exploding Water Shockwave" do
             it "alternates" do

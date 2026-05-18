@@ -28,6 +28,7 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Requirement (Requirement(..))
 import           Game.Model.Runnable (Runnable(To), RunConstraint)
 import qualified Game.Model.Runnable
+import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
@@ -69,13 +70,12 @@ trapPer' = trapFull Trap.Per $ setFromList [Bypassing, Hidden]
 -- 'Defense.name' is broken.
 onBreak :: ∀ m. MonadPlay m => RunConstraint () -> m ()
 onBreak f = do
-    name    <- Skill.name <$> P.skill
-    user    <- P.user
+    Context{user, skill = Skill{name}} <- P.context
     nTarget <- P.nTarget
     when (N.hasDefense name user nTarget)
         $ trapFrom' Permanent (OnBreak name) do
             f
-            user' <- P.user
+            Context{user = user'} <- P.context
             P.modify user' . Ninjas.clearTraps $ OnBreak name
 
 -- | Default 'onBreak': remove 'Model.Status.Status'es and
@@ -83,8 +83,7 @@ onBreak f = do
 -- 'Defense.Defense's that apply an effect or empower some action while active.
 onBreak' :: ∀ m. MonadPlay m => m ()
 onBreak' = do
-    user <- P.user
-    name <- Skill.name <$> P.skill
+    Context{user, skill = Skill{name}} <- P.context
     onBreak do
         P.modify user $ Ninjas.cancelChannel name
         P.modifyAll $ Ninjas.clear name user . Ninjas.clear (toLower name) user
@@ -101,11 +100,10 @@ trapFull :: ∀ m. MonadPlay m
          -> (Int -> RunConstraint ()) -> m ()
 trapFull direction classes unthrottled trigger f =
     void $ runMaybeT do
-        context <- P.context
-        target  <- P.target
+        context@Context{new, target} <- P.context
         nUser   <- P.nUser
         nTarget <- P.nTarget
-        dur     <- if not $ Context.new context then return unthrottled else
+        dur     <- if not new then return unthrottled else
                    MaybeT . return $ throttle nUser
         let tr = makeTrap context direction classes dur trigger f
         guard $ tr ∉ N.traps nTarget

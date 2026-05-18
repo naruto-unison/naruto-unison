@@ -117,7 +117,7 @@ defend name Ninja{slot} target target'
 demolish :: ActionHook
 demolish _ user target target'
   | allied user target = 0
-  | otherwise = max 0 $ N.totalDefense target - N.totalDefense target'
+  | otherwise          = max 0 $ N.totalDefense target - N.totalDefense target'
 
 -- | 1 if the user killed the target with an instant-kill effect, otherwise 0.
 execute :: ActionHook

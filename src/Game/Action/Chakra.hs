@@ -17,6 +17,8 @@ import qualified Game.Engine.Chakras as Chakras
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Chakra (Chakra(..))
 import qualified Game.Model.Chakra as Chakra
+import           Game.Model.Context (Context(Context))
+import qualified Game.Model.Context
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (is)
@@ -29,9 +31,8 @@ import           Game.Model.Trigger (Trigger(..))
 -- 'Rand's are replaced by other @Chakra@ types selected by 'Chakras.random'.
 gain :: ∀ m. (MonadPlay m, MonadRandom m) => [Chakra] -> m ()
 gain chakras = P.unsilenced do
-    user   <- P.user
-    target <- P.target
-    rand   <- replicateM (length rands) Chakra.random
+    Context{user, target} <- P.context
+    rand <- replicateM (length rands) Chakra.random
     P.alter $ Game.adjustChakra target (+ Chakra.collect (rand ++ nonrands))
     P.trigger user [OnChakra]
   where
@@ -53,7 +54,7 @@ deplete1 chakras = P.unsilenced . void $ Chakras.remove1 chakras
 -- random by 'Chakras.remove'.
 absorb :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 absorb amount = P.unsilenced do
-    user    <- P.user
+    Context{user} <- P.context
     chakras <- Chakras.remove amount
     P.alter $ Game.adjustChakra user (+ chakras)
 
@@ -63,7 +64,7 @@ absorb amount = P.unsilenced do
 -- only the ones passed in the parameter.
 absorb1 :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Chakra -> m ()
 absorb1 chakras = P.unsilenced do
-    user   <- P.user
+    Context{user} <- P.context
     chakra <- Chakras.remove1 chakras
     P.alter $ Game.adjustChakra user (+ chakra)
 
@@ -73,7 +74,7 @@ healFromChakra :: ∀ m. MonadPlay m => Int -> m ()
 healFromChakra amount = P.unsilenced do
     nUser <- P.nUser
     unless (nUser `is` Plague) do
-        user      <- P.user
+        Context{user} <- P.context
         lastSkill <- N.lastSkill <$> P.nTarget
         let amount' = amount * maybe 0 (Chakra.total . Skill.cost) lastSkill
         when (amount' > 0) do

@@ -16,6 +16,8 @@ import           Class.Random (MonadRandom)
 import qualified Class.Random as R
 import           Game.Model.Chakra (Chakra(..), Chakras)
 import qualified Game.Model.Chakra as Chakra
+import           Game.Model.Context (Context(Context))
+import qualified Game.Model.Context
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Player as Player
@@ -27,8 +29,7 @@ import           Util ((∈))
 -- Removed 'Chakra's are collected into a 'Chakras' object and returned.
 remove :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m Chakras
 remove amount = do
-    user   <- P.user
-    target <- P.target
+    Context{target, user} <- P.context
     P.trigger user [OnChakra]
     removeFrom target amount
 
@@ -52,8 +53,7 @@ removeFrom target amount
 -- Removed 'Chakra's are collected into a 'Chakras' object and returned.
 remove1 :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Chakra -> m Chakras
 remove1 permitted = do
-    user     <- P.user
-    target   <- P.target
+    Context{target, user} <- P.context
     P.trigger user [OnChakra]
     chakras  <- filter (∈ permitted) . Chakra.toSequence . Parity.getOf target
               . Game.chakra <$> P.game

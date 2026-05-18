@@ -78,7 +78,7 @@ applyWith' classes turns efs = P.unsilenced . applyFull 1 classes [] turns efs
 -- 'N.statuses'. Stacks are unremovable.
 addStack :: ∀ m. MonadPlay m => m ()
 addStack = do
-    Skill{name} <- P.skill
+    Context{skill = Skill{name}} <- P.context
     addStacks' Permanent name 1
 
 -- | 'addStack' with a 'Status.name'.
@@ -93,9 +93,8 @@ addStacks = addStacks' Permanent
 -- Uses 'Ninjas.addStatus' internally.
 addStacks' :: ∀ m. MonadPlay m => Duration -> Text -> Int -> m ()
 addStacks' dur name i = do
-    user   <- P.user
-    st     <- Status.new user dur <$> P.skill
-    target <- P.target
+    Context{skill, target, user} <- P.context
+    let st = Status.new user dur skill
     P.modify target $ Ninjas.addStatus
         st { Status.name    = name
            , Status.amount  = i
@@ -106,7 +105,7 @@ addStacks' dur name i = do
 
 -- | Adds a hidden @Status@ with no effects that immediately expires.
 flag :: ∀ m. MonadPlay m => m ()
-flag = flag' . toLower . Skill.name =<< P.skill
+flag = flag' . toLower . Skill.name . Context.skill =<< P.context
 -- | 'flag' with a 'Status.name'.
 flag' :: ∀ m. MonadPlay m => Text -> m ()
 flag' name =
@@ -122,7 +121,7 @@ tag' name dur = applyWith' (setFromList [Unremovable, Nonstacking]) name dur []
 -- | Applies a 'Hidden' and 'Unremovable' @Status@.
 hide :: ∀ m. MonadPlay m => Duration -> [Effect] -> m ()
 hide dur efs = do
-    Skill{name} <- P.skill
+    Context{skill = Skill{name}} <- P.context
     hide' (toLower name) dur efs
 
 -- | 'hide' with a 'Status.name'.
@@ -169,12 +168,11 @@ applyFull :: ∀ m. MonadPlay m
           -> [Effect] -> m ()
 applyFull amount classes bombs name unthrottled effects =
     void $ runMaybeT do
+        Context{new, target, user} <- P.context
         context <- P.context
-        user    <- P.user
-        target  <- P.target
         nUser   <- P.nUser
         nTarget <- P.nTarget
-        dur     <- if not $ Context.new context then return unthrottled else
+        dur     <- if not new then return unthrottled else
                    MaybeT . return $ Duration.throttle
                    (Effects.throttle effects nUser) unthrottled
         let st   = makeStatus context amount nUser nTarget
@@ -296,15 +294,14 @@ removeStacks name i = P.fromUser $ Ninjas.removeStacks name i
 -- | Steals all of the target's 'Effect.helpful' 'Effect's.
 commandeer :: ∀ m. MonadPlay m => m ()
 commandeer = P.unsilenced do
+    Context{target, user} <- P.context
     nUser   <- P.nUser
     nTarget <- P.nTarget
-    user    <- P.user
     P.modify user $ Ninjas.modifyStatuses
         (mapMaybe gainHelpful (N.statuses nTarget) ++) . \n ->
             n { N.defense = N.defense nTarget ++ N.defense n
             , N.barrier = []
             }
-    target  <- P.target
     P.modify target $ Ninjas.modifyStatuses
         (mapMaybe loseHelpful) . \n ->
             n { N.defense = []

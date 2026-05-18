@@ -17,6 +17,8 @@ import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Game.Engine.Traps as Traps
 import           Game.Model.Class (Class(..))
+import           Game.Model.Context (Context(Context))
+import qualified Game.Model.Context
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja(Ninja), is)
@@ -33,7 +35,7 @@ import           Util ((∈), (∉))
 absorb :: ∀ m. MonadPlay m => Ninja -> m ()
 absorb n
   | n `is` Absorb = do
-      Skill{cost} <- P.skill
+      Context{skill = Skill{cost}} <- P.context
       P.alter $ Game.adjustChakra n (+ cost)
   | otherwise = return ()
 

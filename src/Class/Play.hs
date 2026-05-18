@@ -5,10 +5,6 @@ module Class.Play
     -- * Actions stored in data structures
   , launch
     -- * Context
-    -- ** From monad
-  , skill
-  , user, target
-  , new
     -- ** From game
   , nUser, nTarget
   , player
@@ -56,32 +52,13 @@ withContext ctx f = runReaderT f ctx
 launch :: ∀ m. (MonadGame m, MonadRandom m) => Runnable Context -> m ()
 launch (To runTarget run) = runReaderT run runTarget
 
--- | @Skill@ used to perform an action.
-skill :: ∀ m. MonadPlay m => m Skill
-skill = Context.skill <$> context
-
--- | User of the action.
-user :: ∀ m. MonadPlay m => m Slot
-user = Context.user <$> context
-
--- | Target of the action. When an action affects multiple 'Ninja's, the
--- @target@ field is the only part of the 'Context' that changes.
-target :: ∀ m. MonadPlay m => m Slot
-target = Context.target <$> context
-
--- | When new actions are used, they can trigger traps and counters.
--- All other actions, such as channeled actions past the first turn, delays,
--- and effects of traps, cannot.
-new :: ∀ m. MonadPlay m => m Bool
-new = Context.new <$> context
-
 -- | The 'Game.ninja' indexed by 'user'.
 nUser :: ∀ m. MonadPlay m => m Ninja
-nUser = ninja =<< user
+nUser = ninja =<< Context.user <$> context
 
 -- | The 'Game.ninja' indexed by 'target'.
 nTarget :: ∀ m. MonadPlay m => m Ninja
-nTarget = ninja =<< target
+nTarget = ninja =<< Context.target <$> context
 
 -- | The @Player@ whose turn it is.
 player :: ∀ m. MonadGame m => m Player
@@ -109,33 +86,29 @@ withContinues = with \ctx -> ctx { Context.continues = True }
 
 -- | Forbid actions if the user is 'Silence'd.
 unsilenced :: ∀ m. MonadPlay m => m () -> m ()
-unsilenced f = do
-    Context{target = ctxTarget, user = ctxUser} <- context
-    if ctxTarget == ctxUser then
-        f
-    else
-        unlessM ((`is` Silence) <$> nUser) f
+unsilenced = whenM (isUnsilenced =<< context)
+  where
+    isUnsilenced Context{target, user}
+        | target == user = return True
+        | otherwise      = not . (`is` Silence) <$> nUser
 
 -- | Performs an action only if the skill being used is not copied from
 -- someone else.
 uncopied :: ∀ m. MonadPlay m => m () -> m ()
-uncopied f = do
-    Skill{owner} <- skill
-    usr          <- user
-    when (owner == usr)
-        f
+uncopied = whenM (isUncopied <$> context)
+  where
+    isUncopied Context{user, skill = Skill{owner}} = owner == user
 
 -- | Applies a @Ninja@ transformation to the 'target'.
 toTarget :: ∀ m. MonadPlay m => (Ninja -> Ninja) -> m ()
-toTarget f = flip modify f =<< target
+toTarget f = flip modify f =<< Context.target <$> context
 
 -- | Applies a @Ninja@ transformation to the 'target', passing it the 'user' as
 -- an argument.
 fromUser :: ∀ m. MonadPlay m => (Slot -> Ninja -> Ninja) -> m ()
 fromUser f = do
-    t   <- target
-    usr <- user
-    modify t $ f usr
+    Context{target, user} <- context
+    modify target $ f user
 
 zipWith :: ∀ m. (MonadGame m) => (Ninja -> Ninja -> Ninja) -> [Ninja] -> m ()
 zipWith f = zipWithM_ (\i -> modify i . f) Slot.all
@@ -143,5 +116,6 @@ zipWith f = zipWithM_ (\i -> modify i . f) Slot.all
 -- | Adds to 'N.triggers' if 'Context.user' is not 'Context.target' and
 -- 'Context.new' is @True@.
 trigger :: ∀ m. MonadPlay m => Slot -> [Trigger] -> m ()
-trigger i xs = whenM new $ modify i \n ->
-    n { N.triggers = foldl' (flip insertSet) (N.triggers n) xs }
+trigger i xs = whenM (Context.new <$> context)
+    $ modify i \n ->
+        n { N.triggers = foldl' (flip insertSet) (N.triggers n) xs }

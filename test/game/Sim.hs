@@ -2,6 +2,7 @@ module Sim
   ( targetSlot
   , describeCategory
   , act
+  , enemies
   , turns
   , as, at, use
   , targetIsExposed
@@ -87,17 +88,25 @@ targets :: ∀ m. MonadGame m => Target -> m Ninja
 targets target = P.ninja $ targetSlot target
 
 act :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => m ()
-act = actWith =<< Skills.change <$> P.nUser <*> P.skill
+act = do
+    Context{skill} <- P.context
+    nUser <- P.nUser
+    actWith $ Skills.change nUser skill
 
 actWith :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => Skill -> m ()
 actWith skill = do
-    user   <- P.user
-    target <- P.target
+    Context{user, target} <- P.context
     player <- P.player
     unless (Parity.allied user player) $ Engine.processTurn $ return ()
     Engine.processTurn $ Action.act
         Context { new = True, user, target, skill = skill, continues = False }
     P.modify user \n -> n { N.cooldowns = mempty }
+
+enemies :: ∀ m a. (MonadPlay m) => (Ninja -> a) -> m [a]
+enemies f = do
+    Context{user} <- P.context
+    ninjas <- P.enemies user
+    return $ f <$> ninjas
 
 turns :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Int -> m ()
 turns (fromIntegral -> i) = do
@@ -106,7 +115,7 @@ turns (fromIntegral -> i) = do
 
 as :: ∀ m. (MonadPlay m, MonadHook m, MonadRandom m)
    => Target -> RunConstraint () -> m ()
-as t f = P.with ctx $ actWith =<< P.skill
+as t f = P.with ctx $ actWith =<< (Context.skill <$> P.context)
   where
     user        = targetSlot t
     ctx context = Context { user, target, skill, new = True, continues = False }
@@ -134,8 +143,7 @@ simAt = simOf Blank.game
 
 targetIsExposed :: ∀ m. MonadPlay m => m Bool
 targetIsExposed = do
-    target <- P.target
-    P.with (\context -> context { Context.user = target })
+    P.with (\context -> context { Context.user = Context.target context })
         $ apply Permanent [Invulnerable All]
     null . Effects.invulnerable <$> P.nTarget
 

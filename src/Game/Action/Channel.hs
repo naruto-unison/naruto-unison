@@ -24,15 +24,15 @@ import qualified Game.Model.Ninja as N
 -- Uses 'Ninjas.cancelChannel' internally.
 cancelChannel :: ∀ m. MonadPlay m => Text -> m ()
 cancelChannel name = do
-    user <- P.user
+    Context{user} <- P.context
     P.modify user $ Ninjas.cancelChannel name
 
 -- | Prematurely ends a channeled action.
 interrupt :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 interrupt = P.unsilenced do
+    Context{target} <- P.context
     (yay, nay) <- partition Channel.interruptible . N.channels <$> P.nTarget
     traverse_ onInterrupt yay
-    target <- P.target
     P.modify target \n -> n { N.channels = nay }
 
 -- | Triggers 'Skill.interrupt' effects of a @Channel@.

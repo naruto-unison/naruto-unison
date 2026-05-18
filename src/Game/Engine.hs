@@ -70,8 +70,8 @@ runTurn acts = do
 -- Using 'runTurn' is generally preferable to invoking this function directly.
 processTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m () -> m ()
 processTurn runner = do
-    initial     <- P.ninjas
-    player      <- Game.playing <$> P.game
+    initial <- P.ninjas
+    player  <- Game.playing <$> P.game
     let opponent = Player.opponent player
     runner
     channels <- concatMap getChannels . filter N.alive <$> P.allies player
