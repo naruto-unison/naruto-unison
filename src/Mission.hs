@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
 -- | Database handling for character missions, which users complete in order to
 -- unlock new characters.
 module Mission
