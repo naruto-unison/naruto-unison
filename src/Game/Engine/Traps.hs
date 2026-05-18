@@ -22,6 +22,8 @@ import           Class.Random (MonadRandom)
 import           Game.Model.Context (Context)
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Defense as Defense
+import           Game.Model.Game (Game(Game))
+import qualified Game.Model.Game
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
@@ -122,7 +124,7 @@ getTurnNot n
 -- | Processes and runs all 'Trap.Trap's at the end of a turn.
 runTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => [Ninja] -> m ()
 runTurn ninjas = do
-    player  <- P.player
+    Game{playing = player} <- P.game
     ninjas' <- P.ninjas
     traverse_ sequence_ $ zipWith (getTurnPer player) ninjas ninjas'
     traverse_ sequence_ $ getTurnNot <$> Parity.half player ninjas'

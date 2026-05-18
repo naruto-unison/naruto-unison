@@ -42,6 +42,7 @@ import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Context as Context
+import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
@@ -350,14 +351,14 @@ enact :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
       => Enact -> m (Either LByteString ())
 enact Enact{spend, exchange, actions} = runExceptT do
     contexts   <- traverse Act.toContext actions
-    player     <- P.player
-    gameChakra <- Parity.getOf player . Game.chakra <$> P.game
+    Game{chakra, playing = player} <- P.game
+    let gameChakra = Parity.getOf player chakra
     let actCosts  = sum $ Skill.cost . Context.skill <$> contexts
         adjChakra = gameChakra + exchange - spend
-        chakra    = adjChakra { Chakra.rand = randTotal } - actCosts
+        newChakra = adjChakra { Chakra.rand = randTotal } - actCosts
 
-    mapM_ throwE $ illegal player chakra contexts
-    P.alter $ Game.setChakra player chakra
+    mapM_ throwE $ illegal player newChakra contexts
+    P.alter $ Game.setChakra player newChakra
     Engine.runTurn contexts
   where
     randTotal = Chakra.total spend - 5 * Chakra.total exchange

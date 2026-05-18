@@ -13,6 +13,7 @@ import qualified Class.Random as R
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
+import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Player as Player
 import qualified Game.Engine as Engine
@@ -72,7 +73,7 @@ chooseVendetta = do
 -- | Returns @Nothing@ only if all enemies are dead.
 getVendetta :: ∀ m. (MonadGame m, MonadRandom m) => m (Maybe Slot)
 getVendetta = do
-    vendetta <- Game.vendetta <$> P.game
+    Game{vendetta} <- P.game
     case vendetta of
         Nothing -> chooseVendetta
         Just v  -> do

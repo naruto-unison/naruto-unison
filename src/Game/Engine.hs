@@ -38,6 +38,7 @@ import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Delay as Delay
 import           Game.Model.Effect (Effect(..))
+import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
@@ -71,7 +72,7 @@ runTurn acts = do
 processTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m () -> m ()
 processTurn runner = do
     initial <- P.ninjas
-    player  <- Game.playing <$> P.game
+    Game{playing = player} <- P.game
     let opponent = Player.opponent player
     runner
     channels <- concatMap getChannels . filter N.alive <$> P.allies player
@@ -133,7 +134,7 @@ doBombs bomb ninjas = zipWithM_ comp ninjas =<< P.ninjas
 -- | Executes 'Barrier.while' and 'Barrier.finish' effects.
 doBarriers :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 doBarriers = do
-    player <- P.player
+    Game{playing = player} <- P.game
     ninjas <- P.ninjas
     traverse_ (doBarrier player) $ concatMap ((head <$>) . collect) ninjas
   where
@@ -190,9 +191,9 @@ doHpsOverTime = traverse_ doHpOverTime Slot.all
 
 doHpOverTime :: ∀ m. MonadGame m => Slot -> m ()
 doHpOverTime slot = do
-    player <- P.player
-    n      <- P.ninja slot
-    hp     <- Effects.hp player n <$> P.ninjas
+    Game{playing = player} <- P.game
+    n  <- P.ninja slot
+    hp <- Effects.hp player n <$> P.ninjas
     when (N.alive n)
         . P.modify slot $ Ninjas.adjustHealth (- hp)
 
@@ -224,8 +225,8 @@ skipTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
 skipTurn threshold player = do
     P.alter \g ->
         g { Game.inactive = Parity.modifyOf player (+ 1) $ Game.inactive g }
-    inactive <- Parity.getOf player . Game.inactive <$> P.game
-    if inactive >= threshold then
+    Game{inactive} <- P.game
+    if Parity.getOf player inactive >= threshold then
         forfeit player
     else
         runTurn []

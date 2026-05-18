@@ -271,7 +271,9 @@ act ctx@Context{user, new, skill} = void $ runMaybeT do
                 . P.modify user $ Cooldown.update skill
         P.uncopied do
             Hook.action skill initial =<< P.ninjas
-            Hook.chakra skill chakra . Game.chakra =<< P.game
+            Game{chakra = chakra'} <- P.game
+            Hook.chakra skill chakra chakra'
+        
         traverse_ (sequence_ . Traps.get user) =<< P.ninjas
 
         P.modifyAll $ unreflect . \n -> n { N.triggers = mempty }

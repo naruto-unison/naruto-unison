@@ -37,6 +37,8 @@ import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Duration (Duration(..), sync)
 import           Game.Model.Effect (Effect(..))
+import           Game.Model.Game (Game(Game))
+import qualified Game.Model.Game
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable(To), RunConstraint)
@@ -96,7 +98,7 @@ act = do
 actWith :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => Skill -> m ()
 actWith skill = do
     Context{user, target} <- P.context
-    player <- P.player
+    Game{playing = player} <- P.game
     unless (Parity.allied user player) $ Engine.processTurn $ return ()
     Engine.processTurn $ Action.act
         Context { new = True, user, target, skill = skill, continues = False }
@@ -110,7 +112,7 @@ enemies f = do
 
 turns :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Int -> m ()
 turns (fromIntegral -> i) = do
-    player <- P.player
+    Game{playing = player} <- P.game
     replicateM_ (sync i + 1 - fromEnum player) . Engine.processTurn $ return ()
 
 as :: ∀ m. (MonadPlay m, MonadHook m, MonadRandom m)

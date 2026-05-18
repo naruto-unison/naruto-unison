@@ -7,7 +7,6 @@ module Class.Play
     -- * Context
     -- ** From game
   , nUser, nTarget
-  , player
   , allies
   , enemies
   -- * Transformation
@@ -32,11 +31,9 @@ import           Class.Random (MonadRandom)
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Effect (Effect(..))
-import qualified Game.Model.Game as Game
 import           Game.Model.Internal (MonadGame(..), MonadPlay(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
-import           Game.Model.Player (Player)
 import           Game.Model.Runnable (Runnable(To))
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill
@@ -58,11 +55,7 @@ nUser = ninja =<< Context.user <$> context
 
 -- | The 'Game.ninja' indexed by 'target'.
 nTarget :: ∀ m. MonadPlay m => m Ninja
-nTarget = ninja =<< Context.target <$> context
-
--- | The @Player@ whose turn it is.
-player :: ∀ m. MonadGame m => m Player
-player = Game.playing <$> game
+nTarget = Context.target <$> context >>= ninja
 
 -- | Returns the half of 'ninjas' allied with an argument.
 allies :: ∀ p m. (MonadGame m, Parity p) => p -> m [Ninja]
