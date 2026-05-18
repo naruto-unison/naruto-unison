@@ -43,23 +43,14 @@ data DNA = DNA
     } deriving (Eq, Ord, Show, Read)
 
 instance FromJSON DNA where
-    parseJSON = Aeson.withObject "DNA" \o -> do
-        dailyGame <- o .: "daily-game"
-        dailyWin  <- o .: "daily-win"
-        quickWin  <- o .: "quick-win"
-        quickLose <- o .: "quick-lose"
-        quickTie  <- o .: "quick-tie"
-        warWin    <- o .: "war-win"
-        useStreak <- o .: "use-streak"
-        return DNA
-            { dailyGame
-            , dailyWin
-            , quickWin
-            , quickLose
-            , quickTie
-            , warWin
-            , useStreak
-            }
+    parseJSON = Aeson.withObject "DNA" \o -> DNA
+        <$> o .: "daily-game"
+        <*> o .: "daily-win"
+        <*> o .: "quick-win"
+        <*> o .: "quick-lose"
+        <*> o .: "quick-tie"
+        <*> o .: "war-win"
+        <*> o .: "use-streak"
 
 data Settings = Settings
     { unlockAll              :: ~Bool
