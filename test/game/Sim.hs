@@ -23,7 +23,7 @@ import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Game.Action as Action
-import           Game.Action.Status
+import           Game.Action.Status (apply)
 import qualified Game.Characters as Characters
 import qualified Game.Engine as Engine
 import qualified Game.Engine.Effects as Effects

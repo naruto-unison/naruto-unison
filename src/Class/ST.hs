@@ -4,9 +4,9 @@
 module Class.ST (MonadST(..)) where
 
 import Prelude
-import Control.Monad.ST
-import Control.Monad.Primitive
-import Control.Monad.Trans.Class
+import Control.Monad.ST (ST, stToIO)
+import Control.Monad.Primitive (PrimMonad, PrimState)
+import Control.Monad.Trans.Class (MonadTrans(..))
 
 class PrimMonad m => MonadST m where
   liftST :: ST (PrimState m) a -> m a

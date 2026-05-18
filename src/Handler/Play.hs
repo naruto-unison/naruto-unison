@@ -8,7 +8,7 @@ import ClassyPrelude
 import Yesod
 
 import           Control.Monad (fail)
-import           Control.Monad.Logger
+import           Control.Monad.Logger (logErrorN)
 import           Control.Monad.Loops (untilJust, whileM)
 import           Control.Monad.Trans.Except (runExceptT, throwE)
 import qualified Data.Attoparsec.Text as Parse

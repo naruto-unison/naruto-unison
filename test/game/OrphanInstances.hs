@@ -4,10 +4,10 @@ module OrphanInstances where
 
 import ClassyPrelude
 
-import Test.QuickCheck hiding (shrinkBoundedEnum)
+import Test.QuickCheck (Arbitrary(..), arbitraryBoundedEnum)
 
-import Game.Model.Attack
-import Game.Model.Effect
+import Game.Model.Effect (Amount)
+import Game.Model.Attack (Attack)
 
 shrinkBoundedEnum :: ∀ a. (Bounded a, Enum a, Eq a) => a -> [a]
 shrinkBoundedEnum x

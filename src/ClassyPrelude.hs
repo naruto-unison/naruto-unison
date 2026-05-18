@@ -7,14 +7,12 @@ module ClassyPrelude
   ( module CP
   , module Data.List.NonEmpty
   , type (~)
-  , module GHC.Records
   , foldl1, foldr1, maximum, minimum, maximumBy, minimumBy
   ) where
 
 import "classy-prelude" ClassyPrelude as CP hiding (Handler, head, last, group, groupBy, maximum, minimum, maximumBy, minimumBy, init, tail)
 import Data.List.NonEmpty (NonEmpty(..), head, last, init, tail, group, groupBy, groupWith, groupAllWith, group1, groupBy1, groupWith1, groupAllWith1)
 import Data.Type.Equality (type (~))
-import GHC.Records
 import qualified Data.Foldable as F
 
 foldl1 :: ∀ a. (a -> a -> a) -> NonEmpty a -> a
