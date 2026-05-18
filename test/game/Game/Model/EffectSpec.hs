@@ -515,16 +515,16 @@ tryAbsorb t cost = simAt t do
     Action.act ctx
     Parity.getOf slot . Game.chakra <$> P.game
   where
-    slot  = Sim.targetSlot t
-    skill = Skill.new { Skill.cost    = cost
-                      , Skill.effects = [ To t $ return () ]
-                      }
-    ctx   = Context { new = True
-                    , user = Sim.targetSlot Self
-                    , target = slot
-                    , skill
-                    , continues = False
-                    }
+    slot = Sim.targetSlot t
+    ctx  = Context
+        { new = True
+        , user = Sim.targetSlot Self
+        , target = slot
+        , continues = False
+        , skill = Skill.new { Skill.cost    = cost
+                            , Skill.effects = [ To t $ return () ]
+                            }
+        }
 
 thresholdConstrains :: Attack -> Int -> Int -> Property
 thresholdConstrains attackType dmg v = simEffects [] [Threshold v] Enemy do
