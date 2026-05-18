@@ -64,10 +64,11 @@ describeCategory category name specs =
 
 use :: ∀ m. (HasCallStack, MonadHook m, MonadPlay m, MonadRandom m)
     => Text -> m ()
-use skillName = maybe notFoundError actWith . find ((== skillName) . Skill.name)
-    . Ninjas.skills . unsafeHead =<< P.ninjas
-  where
-    notFoundError = error $ "invalid skill: " ++ unpack skillName
+use name = do
+    ninjas <- P.ninjas
+    case find ((== name) . Skill.name) . Ninjas.skills $ unsafeHead ninjas of
+        Nothing -> error $ "invalid skill: " ++ unpack name
+        Just skill -> actWith skill
 
 at :: ∀ m a. MonadPlay m => Target -> m a -> m a
 at target = P.withTarget $ targetSlot target

@@ -40,8 +40,7 @@ makeLogWare foundation
         }
   | otherwise = do
         dateGetter <- getDateGetter flusher
-        wai        <- WaiLogger.initLogger ipSrc callback dateGetter
-        return $ apacheMiddleware wai
+        apacheMiddleware <$> WaiLogger.initLogger ipSrc callback dateGetter
   where
     ipSrc
       | Settings.ipFromHeader $ App.settings foundation = FromFallback

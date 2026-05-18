@@ -3,7 +3,7 @@
 module Mission
   ( initDB
   , progress
-  , unlocked
+  , Unlocks, allUnlocked, unlocked
   , characterID
   , userMission
   , processWin, processDefeat, processUnpicked
@@ -36,7 +36,7 @@ import qualified Handler.Client.Reward as Reward
 import           Handler.Play.Match (Outcome(..))
 import           Handler.Play.War (War)
 import qualified Handler.Queue as Queue
-import           Mission.Goal (Goal, Span(..))
+import           Mission.Goal (Goal(Reach), Span(..))
 import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
 import           Mission.Progress (Progress(Progress))
@@ -53,8 +53,7 @@ initDB = do
     charEntities <- selectList [] []
     let chars = entityVal <$> charEntities
     insertMany_ $ filter (∉ chars) charList
-    newChars <- selectList [] []
-    return $ makeMap newChars
+    makeMap <$> selectList [] []
   where
     charList = Character . Character.ident <$> Characters.list
 
@@ -70,25 +69,32 @@ makeMap chars = Bimap.fromList $ mapMaybe maybePair chars
     maybePair (Entity charId Character{characterName}) =
         (charId, ) . Character.ident <$> Characters.lookup characterName
 
-type instance Element Unlocks = Text
 newtype Unlocks = Unlocks (HashSet Text)
     deriving (Show, Read, Semigroup, Monoid, MonoFoldable, ToJSON)
+
+type instance Element Unlocks = Text
+
+allUnlocked :: Unlocks
+allUnlocked = Unlocks $ keysSet Characters.map
 
 -- | 'Character.ident' collection of all Characters that the user has unlocked.
 -- If not logged in, all Characters are returned.
 -- If @unlock-all@ in [config/settings.yml](config/settings.yml) is set to true,
 -- all Characters will always be returned.
 unlocked :: Handler Unlocks
-unlocked = cached do
+unlocked = cached $ maybe allUnlocked Unlocks <$> runMaybeT do
     unlockAll <- getsYesod $ Settings.unlockAll . App.settings
-    mwho <- Auth.maybeAuthId
+    guard unlockAll
+    who <- MaybeT Auth.maybeAuthId
     privilege <- App.getPrivilege
-    Unlocks <$> case mwho of
-        Just who | not unlockAll && privilege < Moderator ->
-            getUnlocked <$> getsYesod App.characterIDs
-                        <*> runDB (selectList [UnlockedUser ==. who] [])
-        _ ->
-            return $ keysSet Characters.map
+    guard $ privilege < Moderator
+    getUnlocked <$> getsYesod App.characterIDs
+                <*> lift (runDB (selectList [UnlockedUser ==. who] []))
+  where
+    getUnlocked ids unlocks = freeChars `union` setFromList
+                              (mapMaybe (look ids) unlocks)
+    look ids (Entity _ Unlocked{unlockedCharacter}) =
+        Bimap.lookup unlockedCharacter ids
 
 -- | 'Character.ident's of all Characters without DNA 'Character.price's.
 freeChars :: HashSet Text
@@ -96,14 +102,6 @@ freeChars = setFromList dna `difference` keysSet Missions.map
   where
     dna = Character.ident <$> filter ((== 0) . Character.price) Characters.list
 {-# NOINLINE freeChars #-}
-
--- | 'Character.ident's of all Characters who can be used from the start.
--- Specifically, characters without missions and without DNA 'Character.price's.
-getUnlocked :: Bimap CharacterId Text -> [Entity Unlocked] -> HashSet Text
-getUnlocked ids unlocks = freeChars `union` setFromList (mapMaybe look unlocks)
-  where
-    look (Entity _ Unlocked{unlockedCharacter}) =
-        Bimap.lookup unlockedCharacter ids
 
 -- | Returns the user's progress on a single Character's mission.
 -- Returns @Nothing@ if the user is not logged in, the Character does not
@@ -137,27 +135,23 @@ updateProgress :: ∀ m. MonadIO m
                -> Int -- ^ Progress to add.
                -> GoalIndex
                -> SqlPersistT m Bool -- ^ Returns True if the character unlocks.
-updateProgress who amount GoalIndex{goals, char, i} = case goals !? i of
-    Nothing -> return False
-    Just goal
-      | Goal.spanning goal /= Career && amount < Goal.reach goal ->
-          return False
-
-      | otherwise -> do
-          alreadyUnlocked <- isJust <$> selectFirst unlockedChar []
-          if alreadyUnlocked then
-              return True
-          else do
-              void $ upsert (Mission who char i amount)
-                            [MissionProgress +=. amount]
-              objectives <- selectList missionChar []
-              if completed goals objectives then do
-                  deleteWhere missionChar
-                  insertUnique $ Unlocked who char
-                  return True
-              else
-                  return False
+updateProgress who amount GoalIndex{goals, char, i} =
+    if not canUpdate then return False else do
+        alreadyUnlocked <- isJust <$> selectFirst unlockedChar []
+        if alreadyUnlocked then
+            return True
+        else do
+            upsert (Mission who char i amount)
+                   [MissionProgress +=. amount]
+            complete <- completed goals <$> selectList missionChar []
+            when complete $ void do
+                deleteWhere missionChar
+                insertUnique $ Unlocked who char
+            return complete
   where
+    canUpdate = case goals !? i of
+        Just Reach{spanning, reach} -> spanning == Career || amount >= reach
+        Nothing                     -> False
     unlockedChar = [UnlockedUser ==. who, UnlockedCharacter ==. char]
     missionChar  = [MissionUser ==. who, MissionCharacter ==. char]
 

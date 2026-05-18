@@ -48,9 +48,12 @@ getProfileR name = do
              , userXp
              , userWins
              }      = user
-        team        = maybe [] (mapMaybe Characters.lookup) userTeam
+        team        = getTeam userTeam
         (level, xp) = quotRem userXp 5000
     defaultLayout $(widgetFile "forum/profile")
+  where
+    getTeam (Just names) = Characters.lookupAll names
+    getTeam Nothing      = []
 
 data BoardIndex = BoardIndex ForumBoard Int (Maybe (Cite ForumTopic))
 inCategory :: ForumCategory -> BoardIndex -> Bool
@@ -80,12 +83,14 @@ getBoardR :: ForumBoard -> Handler Html
 getBoardR board = do
     privilege <- App.getPrivilege
     timestamp <- liftIO Link.makeTimestamp
-    topics    <- runDB $ selectWithAuthors
-                 (filterTopics privilege [ForumTopicBoard ==. board])
-                 [Desc ForumTopicTime]
+    topics    <- runDB $ getTopics privilege
     App.lastModified . maximum
         $ epoch :| (forumTopicModified . citeVal <$> topics)
     defaultLayout $(widgetFile "forum/board")
+  where
+    getTopics privilege = selectWithAuthors
+                          (filterTopics privilege [ForumTopicBoard ==. board])
+                          [Desc ForumTopicTime]
 
 -- | Renders a 'ForumTopic'.
 getTopicR :: Key ForumTopic -> Handler Html
@@ -96,16 +101,17 @@ getTopicR topicId = do
     (title, _) <- breadcrumbs
     time       <- liftIO getCurrentTime
     timestamp  <- liftIO Link.makeTimestamp
-    posts      <- runDB $ traverse (getLikes mwho) =<<
-                  selectWithAuthors
-                  (filterPosts privilege [ForumPostTopic ==. topicId])
-                  [Asc ForumPostTime]
+    posts      <- runDB do posts <- getPosts privilege
+                           traverse (getLikes mwho) posts
     mwidget    <- forM (guard (forumTopicState topic == Open) >> mwho)
                 $ generateFormPost . renderTable . Form.post topicId time
     let ForumTopic{forumTopicBoard, forumTopicState} = topic
     defaultLayout $(widgetFile "forum/topic")
   where
     topicKey = toPathPiece topicId
+    getPosts privilege = selectWithAuthors
+                         (filterPosts privilege [ForumPostTopic ==. topicId])
+                         [Asc ForumPostTime]
 
 
 -- | Adds to a 'ForumTopic'. Requires authentication.
@@ -134,24 +140,26 @@ postTopicR topicId = do
                 redirect $ TopicR topicId
 
             FormSuccess (Form.EditPost postId postBody) -> do
-                post <- runDB $ get404 postId
-                when ( forumTopicState == Open
-                       && not (forumPostDeleted post)
-                       && (forumPostAuthor post == who || privilege > Normal)
-                     )
-                    . runDB $ update postId [ForumPostBody =. postBody]
+                runDB do
+                    post <- get404 postId
+                    when (permit who privilege post)
+                        $ update postId [ForumPostBody =. postBody]
                 redirect $ TopicR topicId
 
             _ -> do
-                posts <- runDB $ traverse (getLikes $ Just who) =<<
-                         selectWithAuthors
-                         (filterPosts privilege [ForumPostTopic ==. topicId])
-                         [Asc ForumPostTime]
+                posts <- runDB do posts <- getPosts privilege
+                                  traverse (getLikes $ Just who) posts
                 let mwho    = Just who
                     mwidget = Just (widget, enctype)
                 defaultLayout $(widgetFile "forum/topic")
   where
     topicKey = toPathPiece topicId
+    getPosts privilege = selectWithAuthors
+                         (filterPosts privilege [ForumPostTopic ==. topicId])
+                         [Asc ForumPostTime]
+    permit who privilege ForumPost{forumPostAuthor, forumPostDeleted} =
+        not forumPostDeleted && (forumPostAuthor == who || privilege > Normal)
+
 
 -- | Renders a page for creating a new 'ForumTopic'. Requires authentication.
 getNewTopicR :: ForumBoard -> Handler Html
@@ -173,11 +181,10 @@ postNewTopicR board = do
                                  $ Form.topic user board time who
     case result of
         FormSuccess (Form.NewTopic topic makePost) -> do
-            topicId <- runDB $ insert400 topic
-            let post = makePost topicId
-            runDB do
-                insert400_ post
-                modifyTopic topicId
+            topicId <- runDB do topicId <- insert400 topic
+                                insert400_ $ makePost topicId
+                                modifyTopic topicId
+                                return topicId
             redirect $ TopicR topicId
         _ -> defaultLayout $(widgetFile "forum/new")
 

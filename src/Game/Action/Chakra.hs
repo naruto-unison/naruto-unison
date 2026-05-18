@@ -21,8 +21,9 @@ import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
-import           Game.Model.Ninja (is)
+import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
+import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
 
@@ -71,14 +72,16 @@ absorb1 chakras = P.unsilenced do
 -- | Restores health to the user multiplied by the chakra cost of the target's
 -- last skill.
 healFromChakra :: ∀ m. MonadPlay m => Int -> m ()
-healFromChakra amount = P.unsilenced do
-    nUser <- P.nUser
+healFromChakra perChakra = P.unsilenced do
+    nUser@Ninja{health} <- P.nUser
     unless (nUser `is` Plague) do
-        Context{user} <- P.context
-        lastSkill <- N.lastSkill <$> P.nTarget
-        let amount' = amount * maybe 0 (Chakra.total . Skill.cost) lastSkill
-        when (amount' > 0) do
-            P.modify user $ Ninjas.adjustHealth (+ amount')
-            healed <- (- N.health nUser) . N.health <$> P.nUser
-            when (healed > 0)
+        healAmount <- forSkill <$> P.nTarget
+        when (healAmount > 0) do
+            Context{user} <- P.context
+            P.modify user $ Ninjas.adjustHealth (+ healAmount)
+            Ninja{health = health'} <- P.nUser
+            when (health' > health)
                 $ P.trigger user [OnHeal]
+  where
+    forSkill Ninja{lastSkill = Just Skill{cost}} = perChakra * Chakra.total cost
+    forSkill _ = 0

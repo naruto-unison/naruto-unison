@@ -51,13 +51,15 @@ getChangelogR = do
 -- | Renders the homepage of the website.
 getHomeR :: Handler Html
 getHomeR = do
-    privilege <- App.getPrivilege
-    newsList  <- runDB $ traverse withAuthor
-                         =<< selectList [] [Desc NewsTime, LimitTo 5]
-    topics    <- runDB $ Forum.selectWithAuthors
-                         (Forum.filterTopics privilege [])
-                         [Desc ForumTopicTime, LimitTo 10]
-    citelink  <- liftIO Link.cite
+    privilege          <- App.getPrivilege
+    citelink           <- liftIO Link.cite
+    (newsList, topics) <- runDB do
+        newsPlain <- selectList [] [Desc NewsTime, LimitTo 5]
+        newsList  <- traverse withAuthor newsPlain
+        topics    <- Forum.selectWithAuthors
+                     (Forum.filterTopics privilege [])
+                     [Desc ForumTopicTime, LimitTo 10]
+        return (newsList, topics)
     App.lastModified
         $ max (maybe epoch (forumTopicTime . citeVal) $ headMay topics)
               (maybe epoch (newsTime . fst) $ headMay newsList)
@@ -67,9 +69,7 @@ getHomeR = do
         $(widgetFile "home/home")
   where
     change = getChangelog False
-    withAuthor (Entity _ new) = do
-        author <- get $ newsAuthor new
-        return (new, author)
+    withAuthor (Entity _ new) = (new, ) <$> get (newsAuthor new)
 
 data LogType
     = Balance

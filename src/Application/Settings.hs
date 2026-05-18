@@ -184,8 +184,9 @@ configSettingsYmlBS = $(FileEmbed.embedFile DefaultConfig.configSettingsYml)
 
 -- | @config/settings.yml@, parsed to a @Value@.
 configSettingsYmlValue :: Value
-configSettingsYmlValue = either Exception.throw id
-    $ Yaml.decodeEither' configSettingsYmlBS
+configSettingsYmlValue = case Yaml.decodeEither' configSettingsYmlBS of
+    Left decodeError -> Exception.throw decodeError
+    Right decoded    -> decoded
 
 -- | A version of @Settings@ parsed at compile time from @config/settings.yml@.
 compileTimeAppSettings :: Settings

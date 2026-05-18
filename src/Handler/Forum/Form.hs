@@ -58,7 +58,8 @@ post forumPostTopic forumPostTime forumPostAuthor = makePost
     <*> areq textareaField "" Nothing
   where
     makePost mPostId area = case mPostId of
-        Nothing -> NewPost ForumPost
+        Just postId -> EditPost postId $ toBody area
+        Nothing     -> NewPost ForumPost
             { forumPostAuthor
             , forumPostTopic
             , forumPostTime
@@ -67,4 +68,3 @@ post forumPostTopic forumPostTime forumPostAuthor = makePost
             , forumPostEdited = Nothing
             , forumPostBody = toBody area
             }
-        Just postId -> EditPost postId $ toBody area

@@ -24,8 +24,8 @@ import           Game.Model.Slot (Slot)
 
 targetOptions :: [Ninja] -> Ninja -> Int -> [Context]
 targetOptions ns n i = case Ninjas.getSkill i n of
-    Nothing    -> []
     Just skill -> makeOption skill <$> Requirement.targets ns n skill
+    Nothing    -> []
   where
     makeOption skill target = Context
         { new = True
@@ -54,7 +54,7 @@ run vendetta n = runMaybeT do
     aggression <- R.random 0 aggressionThreshold
     guard $ aggression /= 0
     ninjas  <- P.ninjas
-    choices <- MaybeT . R.choose $ (focusVendetta =<<) <$> skillOptions ninjas n
+    choices <- MaybeT . R.choose $ (>>= focusVendetta) <$> skillOptions ninjas n
     MaybeT $ R.choose choices
   where
     focusVendetta act
@@ -92,4 +92,5 @@ runTurn = do
         Just v  -> do
             ninjas <- P.ninjas
             acts   <- traverse (run v) . Parity.half Player.B $ fromList ninjas
-            Engine.runTurn =<< R.shuffle (catMaybes acts)
+            contexts <- R.shuffle (catMaybes acts)
+            Engine.runTurn contexts

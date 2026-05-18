@@ -19,7 +19,7 @@ import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
-import           Util (hushedParse)
+import           Util (rightToMaybe)
 
 -- | A single action of a 'Ninja'.
 data Act = Act
@@ -42,7 +42,7 @@ parse = Act
 instance PathPiece Act where
     toPathPiece (Act user skill target) = intercalate ","
         [ tshow user, tshow skill, tshow target ]
-    fromPathPiece = hushedParse parse
+    fromPathPiece piece = rightToMaybe $ Parse.parseOnly parse piece
 
 toContext :: ∀ m. MonadGame m => Act -> ExceptT LByteString m Context
 toContext (Act user skill target) = do

@@ -33,7 +33,9 @@ usable new n x
   | N.charges `atLeast` charges = unusable
   | otherwise                   = x'
   where
-    getter `atLeast` limit = maybe False (>= limit) $ key `lookup` getter n
+    getter `atLeast` limit = case key `lookup` getter n of
+                                Just value -> value >= limit
+                                Nothing    -> False
     charges  = Skill.charges x
     key      = Skill.key x
     unusable = x { Skill.require = Unusable }

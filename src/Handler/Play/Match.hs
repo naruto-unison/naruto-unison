@@ -65,7 +65,9 @@ fromGame g playerX = Match $ outcome g playerX
 
 load :: ∀ m. MonadIO m
      => Match (Key User) -> SqlPersistT m (Maybe (Match (Entity User)))
-load Match{outcomeA, playerA, playerB} = runMaybeT do
-    userA <- MaybeT $ Sql.get playerA
-    userB <- MaybeT $ Sql.get playerB
-    return $ Match outcomeA (Entity playerA userA) (Entity playerB userB)
+load Match{outcomeA, playerA, playerB} = runMaybeT
+    $ loaded <$> MaybeT (Sql.get playerA) <*> MaybeT (Sql.get playerB)
+  where
+    loaded userA userB = Match outcomeA
+                         (Entity playerA userA)
+                         (Entity playerB userB)

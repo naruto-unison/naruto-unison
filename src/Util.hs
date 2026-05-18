@@ -9,6 +9,7 @@ module Util
   , hushedParse
   , intersects
   , mapFromKeyed
+  , rightToMaybe
   , commas
   , shorten, unaccent
   ) where
@@ -96,6 +97,10 @@ mapFromKeyed (toKey, toVal) xs = mapFromList $ (\x -> (toKey x, toVal x)) <$> xs
 hushedParse :: Parser a -> Text -> Maybe a
 hushedParse x = either (const Nothing) Just . parseOnly x
 {-# INLINE hushedParse #-}
+
+rightToMaybe :: Either a b -> Maybe b
+rightToMaybe (Left _)  = Nothing
+rightToMaybe (Right x) = Just x
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text

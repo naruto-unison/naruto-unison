@@ -86,7 +86,7 @@ parseTeam = Team <$> parseSection <*> parseCharacters
             >>= parseCharacter
 
     parseCharacter text = case Characters.lookup text of
-        Just c -> return c
+        Just c  -> return c
         Nothing -> fail $ show (text ++ " is not a character")
 
 
@@ -198,8 +198,8 @@ getPracticeActR spend exchange actions = do
               returnJson $ Wrapper.toTurn Player.A <$> [game'A, game'B]
 
 handleFailures :: ∀ m a. MonadSockets m => Either Client.Failure a -> m (Maybe a)
-handleFailures (Right val) = return $ Just val
 handleFailures (Left msg)  = Nothing <$ Client.send (Client.Fail msg)
+handleFailures (Right val) = return $ Just val
 
 -- | Sends messages through 'MVar's in 'App.App'. Requires authentication.
 gameSocket :: ∀ m. ( MonadHandler m, App ~ HandlerSite m
@@ -214,9 +214,10 @@ gameSocket = webSockets do
 
     (section, team, Response mvar info@GameInfo{player, war, vsWho}) <-
         untilJust $ handleFailures =<< runExceptT do
-            Team section team <- either (throwE . Client.InvalidTeam)
-                                 return . Parse.parseOnly parseTeam
-                                 =<< Sockets.receive {-! BLOCKS !-}
+            message <- Sockets.receive {-! BLOCKS !-}
+            Team section team <- case Parse.parseOnly parseTeam message of
+                Left parseError -> throwE $ Client.InvalidTeam parseError
+                Right parsed    -> return parsed
 
             let teamNames = Character.ident <$> team
                 locked    = filter (∉ unlocked) teamNames
@@ -302,8 +303,9 @@ tryEnact settings player mvar = do
         tryMessage <- try Sockets.receive {-! BLOCKS !-}
         void $ tryPutMVar lock case tryMessage of
             Left err      -> SocketException err
-            Right message -> either (const $ Malformed message) Received
-                           $ Parse.parseOnly parseMessage message
+            Right message -> case Parse.parseOnly parseMessage message of
+                                Left _       -> Malformed message
+                                Right parsed -> Received parsed
 
     enactMessage <- readMVar lock {-! BLOCKS !-}
 
@@ -315,11 +317,11 @@ tryEnact settings player mvar = do
             Engine.resetInactive player
             res <- enact enactMsg
             case res of
-                Right ()      -> return ()
                 Left errorMsg -> do
                     logErrorN $ "Client error: "
                                 ++ toStrict (decodeUtf8 errorMsg)
                     Sockets.send errorMsg
+                Right ()      -> return ()
 
         Malformed malformed ->
             logErrorN $ "Malformed client input: " ++ malformed

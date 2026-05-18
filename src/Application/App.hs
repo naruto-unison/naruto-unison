@@ -102,8 +102,10 @@ instance MonadST Handler where
     liftST = HandlerFor . const . stToIO
 
 getPrivilege :: ∀ m. (MonadHandler m, App ~ HandlerSite m) => m Privilege
-getPrivilege = liftHandler . cached
-    $ maybe Guest (userPrivilege . snd) <$> Auth.maybeAuthPair
+getPrivilege = liftHandler . cached $ privilege <$> Auth.maybeAuthPair
+  where
+    privilege (Just (_, User{userPrivilege})) = userPrivilege
+    privilege Nothing                         = Guest
 
 -- | A convenient synonym for creating forms.
 type Form x = Html -> MForm (HandlerFor App) (FormResult x, Widget)
@@ -306,12 +308,11 @@ instance YesodAuth App where
                  => Auth.Creds App -> m (AuthenticationResult App)
     authenticate (Auth.credsIdent -> ident) = liftDB do
         muser <- getBy $ UniqueUser ident
-        case muser of
-            Just (Entity uid _) -> return $ Authenticated uid
-            Nothing -> do
+        Authenticated <$> case muser of
+            Just (Entity uid _) -> return uid
+            Nothing             -> do
                 time <- liftIO getCurrentTime
-                user <- insert $ Model.newUser ident Nothing (utctDay time)
-                return $ Authenticated user
+                insert $ Model.newUser ident Nothing (utctDay time)
 
     authPlugins :: App -> [AuthPlugin App]
     authPlugins app = AuthEmail.authEmail : extraAuthPlugins
@@ -412,6 +413,4 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
             , emailCredsEmail = toLower email
             }
 
-    getEmail uid = liftDB do
-        muser <- get uid
-        return $ userIdent <$> muser
+    getEmail uid = liftDB $ (userIdent <$>) <$> get uid

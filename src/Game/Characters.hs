@@ -2,7 +2,7 @@
 -- Contains everything in the [Characters](src/Characters/) folder.
 module Game.Characters
   ( list, map
-  , lookup
+  , lookup, lookupAll
   , listJSON, mapJSON
   ) where
 
@@ -48,6 +48,9 @@ mapJSON = toJSON map
 
 lookup :: Text -> Maybe Character
 lookup k = HashMap.lookup k map
+
+lookupAll :: [Text] -> [Character]
+lookupAll ks = mapMaybe lookup ks
 
 addGroups :: Character -> Character
 addGroups char@Character{groups, skills} =

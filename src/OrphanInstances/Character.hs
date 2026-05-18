@@ -24,4 +24,6 @@ instance Show Character where
 instance Read Character where
     readPrec = parens $ prec 10 do
         String s <- lexP
-        maybe empty return . Characters.lookup $ pack s
+        case Characters.lookup (pack s) of
+            Just character -> return character
+            Nothing        -> empty

@@ -223,16 +223,16 @@ filterCounters slots = filter $ testBit targetSet . Slot.toInt . N.slot
 act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Context -> m ()
 act ctx@Context{user, new, skill} = void $ runMaybeT do
     let Skill{charges, classes, dur, effects, require, start} = skill
-    nUser      <- P.ninja user
     Game{chakra} <- P.game
-    initial    <- P.ninjas
+    nUser   <- P.ninja user
+    initial <- P.ninjas
 
     guard $ N.alive nUser && require /= Unusable
 
     lift $ P.withContext ctx do
-        if not new then
-            P.withContinues $ run' (singletonSet Targeted)
-              =<< chooseTargets effects
+        if not new then do
+            contEfs <- chooseTargets effects
+            P.withContinues $ run' (singletonSet Targeted) contEfs
         else do
             P.modify user \n -> n { N.lastSkill = Just skill }
             P.trigger user $ OnAction <$> toList classes

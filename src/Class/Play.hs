@@ -94,7 +94,9 @@ uncopied = whenM (isUncopied <$> context)
 
 -- | Applies a @Ninja@ transformation to the 'target'.
 toTarget :: ∀ m. MonadPlay m => (Ninja -> Ninja) -> m ()
-toTarget f = flip modify f =<< Context.target <$> context
+toTarget f = do
+    Context{target} <- context
+    modify target f
 
 -- | Applies a @Ninja@ transformation to the 'target', passing it the 'user' as
 -- an argument.

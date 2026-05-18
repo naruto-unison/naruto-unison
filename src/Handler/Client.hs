@@ -22,7 +22,7 @@ import           Application.App (Handler)
 import           Application.Model (EntityField(..), Unlocked(..), User(..))
 import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
-import           Game.Model.Character (Character)
+import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Class as Class
 import qualified Game.Model.Skill as Skill
@@ -67,20 +67,20 @@ data ObjectiveProgress = ObjectiveProgress
 
 instance ToJSON ObjectiveProgress
 
--- | Unpacks the output of 'Mission.userMission'.
-unzipGoal :: (Goal, Int) -> ObjectiveProgress
-unzipGoal (goal@Reach{desc, reach}, progress) = ObjectiveProgress
-    { character = Character.format <$> Goal.character goal
-    , goal      = reach
-    , desc
-    , progress
-    }
-
 -- | Returns progress on a character's mission as a list of 'ObjectiveProgress'.
 getMissionR :: Character -> Handler Value
 getMissionR char = do
     mission <- Mission.userMission $ Character.ident char
-    returnJson $ maybe mempty (unzipGoal <$>) mission
+    returnJson $ case mission of
+        Just m  -> unzipGoal <$> m
+        Nothing -> mempty
+  where
+    unzipGoal (goal@Reach{desc, reach}, progress) = ObjectiveProgress
+        { character = Character.format <$> Goal.character goal
+        , goal      = reach
+        , desc
+        , progress
+        }
 
 -- | Updates a user's muted status and returns it. Requires authentication.
 getMuteR :: Bool -> Handler Value
@@ -100,7 +100,7 @@ getReanimateR char = do
         $ invalidArgs ["Character already unlocked"]
     mCharID <- runMaybeT . Mission.characterID $ Character.ident char
     case mCharID of
-        Nothing -> invalidArgs ["Character not found"]
+        Nothing     -> invalidArgs ["Character not found"]
         Just charID -> runDB do
             insertUnique $ Unlocked who charID
             user' <- updateGet who [UserDna -=. price]
@@ -112,20 +112,16 @@ getReanimateR char = do
 getPlayR :: Handler Html
 getPlayR = do
     mauth       <- Auth.maybeAuthPair
-    unlocked    <- Mission.unlocked
     (red,blue)  <- liftIO War.today
     let muser = snd <$> mauth
+    PlayParams { bg
+               , practice
+               , team
+               , unlocked
+               , vol
+               } <- getPlayParams muser
     when (isJust muser)
         $ liftIO Random.createSystemRandom >>= runReaderT Play.gameSocket
-    let team     = maybe [] (mapMaybe Characters.lookup . filter (∈ unlocked))
-                 $ userTeam =<< muser
-        practice = maybe [] (mapMaybe Characters.lookup . userPractice)
-                   muser
-        bg       = fromMaybe "/img/bg/valley2.jpg" $ userBackground =<< muser
-        vol :: Text
-        vol
-          | isMuted muser = "click muted"
-          | otherwise     = "click unmuted"
     setCsrfCookie
     token <- reqToken <$> getRequest
     defaultLayout do
@@ -136,26 +132,55 @@ getPlayR = do
         $(widgetFile "include/normalize")
         $(widgetFile "play/elm")
         $(widgetFile "play/play")
+  where
+    getPlayParams (Just user) = userPlayParams user <$> Mission.unlocked
+    getPlayParams Nothing     = return guestPlayParams
+
+data PlayParams = PlayParams
+    { bg       :: Text
+    , practice :: [Character]
+    , team     :: [Character]
+    , unlocked :: Mission.Unlocks
+    , vol      :: Text
+    }
+
+guestPlayParams :: PlayParams
+guestPlayParams = PlayParams
+    { bg       = "/img/bg/valley2.jpg"
+    , practice = []
+    , team     = []
+    , unlocked = Mission.allUnlocked
+    , vol      = "click unmuted"
+    }
+
+userPlayParams :: User -> Mission.Unlocks -> PlayParams
+userPlayParams User { userBackground
+                    , userMuted
+                    , userPractice
+                    , userTeam
+                    } unlocked = PlayParams
+    { bg       = fromMaybe (bg guestPlayParams) userBackground
+    , practice = Characters.lookupAll userPractice
+    , team     = maybe []
+                 (Characters.lookupAll . filter (∈ unlocked)) userTeam
+    , unlocked
+    , vol      = if userMuted then "click muted" else vol guestPlayParams
+    }
 
 -- | Icons from all of a character's skills.
 charAvatars :: Character -> [Text]
-charAvatars char = toFile <$> "icon" : skills
+charAvatars char@Character{skills} = toFile . shorten
+    <$> "icon" : (nub $ Skill.name <$> concatMap toList skills)
   where
-    skills      = nub $ Skill.name <$> concatMap toList (Character.skills char)
-    toFile path = "/img/ninja/" ++ Character.ident char ++ "/"
-                  ++ shorten path ++ ".jpg"
+    toFile path = "/img/ninja/" ++ Character.ident char ++ "/" ++ path ++ ".jpg"
 
 -- | Icons that users can set as their avatars.
 avatars :: Value
 avatars = toJSON $ icons ++ concatMap charAvatars Characters.list
   where
-    icons = ("/img/icon/" ++)
-        <$> [ "default.jpg"
-            , "gaaraofthefunk.jpg"
-            , "ninjainfocards.jpg"
-            , "kabugrin.jpg"
-            ]
-{-# NOINLINE avatars #-}
-
-isMuted :: Maybe User -> Bool
-isMuted = maybe False userMuted
+    icons = toFile <$> [ "default.jpg"
+                       , "gaaraofthefunk.jpg"
+                       , "ninjainfocards.jpg"
+                       , "kabugrin.jpg"
+                       ]
+    toFile path = "/img/icon/" ++ path
