@@ -59,34 +59,29 @@ instance Enum Duration where
     succ (Duration x) = Duration $ x + 1
     {-# INLINE succ #-}
 
+map1 :: (Int -> Int) -> Duration -> Duration
+map1 f (Duration x) = Duration (f x)
+map1 _ _            = Permanent
+{-# INLINE map1 #-}
+
+map2 :: (Int -> Int -> Int) -> Duration -> Duration -> Duration
+map2 f (Duration x) (Duration y) = Duration (f x y)
+map2 _ _            _            = Permanent
+{-# INLINE map2 #-}
+
 instance Num Duration where
-    Permanent + _ = Permanent
-    _ + Permanent = Permanent
-    (Duration x) + (Duration y) = Duration (x + y)
+    (+) = map2 (+)
     {-# INLINE (+) #-}
-
-    Permanent - _ = Permanent
-    _ - Permanent = Permanent
-    (Duration x) - (Duration y) = Duration (x - y)
+    (-) = map2 (-)
     {-# INLINE (-) #-}
-
-    Permanent * _ = Permanent
-    _ * Permanent = Permanent
-    (Duration x) * (Duration y) = Duration ( x * y)
+    (*) = map2 (*)
     {-# INLINE (*) #-}
-
-    negate Permanent = Permanent
-    negate (Duration x) = Duration (negate x)
+    negate = map1 negate
     {-# INLINE negate #-}
-
-    abs Permanent = Permanent
-    abs (Duration x) = Duration (abs x)
+    abs = map1 abs
     {-# INLINE abs #-}
-
-    signum Permanent = Permanent
-    signum (Duration x) = Duration (signum x)
+    signum = map1 signum
     {-# INLINE signum #-}
-
     fromInteger = toEnum . fromInteger
     {-# INLINE fromInteger #-}
 
