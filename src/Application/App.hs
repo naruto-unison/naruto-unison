@@ -266,29 +266,13 @@ instance YesodBreadcrumbs App where
     breadcrumb HomeR          = return ("Home", Nothing)
     breadcrumb MechanicsR     = return ("Game Mechanics", Just GuideR)
     breadcrumb (NewTopicR x)  = return ("New Topic", Just $ BoardR x)
-    breadcrumb PlayR          = return (mempty, Nothing)
     breadcrumb (ProfileR x)   = return ("User: " ++ x, Just HomeR)
     breadcrumb UsageR         = return ("Character Usage", Just AdminR)
-    breadcrumb (TopicR x)     = do
-        ForumTopic{forumTopicTitle, forumTopicBoard} <- runDB $ get404 x
-        return (forumTopicTitle, Just $ BoardR forumTopicBoard)
-
-    breadcrumb FaviconR = return (mempty, Nothing)
-    breadcrumb RobotsR = return (mempty, Nothing)
-    breadcrumb StaticR{} = return (mempty, Nothing)
-
-    -- API routes.
-    breadcrumb DeleteTopicR{} = return (mempty, Nothing)
-    breadcrumb LockTopicR{} = return (mempty, Nothing)
-    breadcrumb DeletePostR{} = return (mempty, Nothing)
-    breadcrumb LikePostR{} = return (mempty, Nothing)
-    breadcrumb MissionR{} = return (mempty, Nothing)
-    breadcrumb MuteR{} = return (mempty, Nothing)
-    breadcrumb PracticeActR{} = return (mempty, Nothing)
-    breadcrumb PracticeQueueR{} = return (mempty, Nothing)
-    breadcrumb PracticeWaitR{} = return (mempty, Nothing)
-    breadcrumb ReanimateR{} = return (mempty, Nothing)
-    breadcrumb UpdateR{} = return (mempty, Nothing)
+    breadcrumb (TopicR x)     = crumb <$> runDB (get404 x)
+      where
+        crumb ForumTopic{forumTopicTitle, forumTopicBoard} =
+            (forumTopicTitle, Just $ BoardR forumTopicBoard)
+    breadcrumb _anchorName    = return (mempty, Nothing)
 
 instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend
