@@ -22,6 +22,7 @@ import Yesod
 
 import           Control.Monad.Logger (LogSource)
 import           Control.Monad.ST (stToIO)
+import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Data.Bimap (Bimap)
 import           Data.Cache (Cache)
 import qualified Data.CaseInsensitive as CaseInsensitive
@@ -153,9 +154,9 @@ unchanged304 :: Handler ()
 #ifdef DEVELOPMENT
 unchanged304 = return ()
 #else
-unchanged304 = whenM (isNothing <$> getMessage)
-    $ setEtag . toStrict . display'
-    =<< maybeAdd <$> getsYesod timestamp <*> maybeAuthId
+unchanged304 = whenM (isNothing <$> getMessage) do
+    tag <- maybeAdd <$> getsYesod timestamp <*> maybeAuthId
+    setEtag . toStrict $ display' tag
   where
     maybeAdd x (Just key) = Sql.fromSqlKey key + x
     maybeAdd x Nothing = x
@@ -175,9 +176,10 @@ lastModified time = do
     replaceOrAddHeader "Last-Modified" . pack $ formatAsLastModified timestamp
 
 formatAsLastModified :: UTCTime -> String
-formatAsLastModified time =
-    Format.formatTime Format.defaultTimeLocale "%a, %d %b %Y %H:%M:%S GMT"
+formatAsLastModified time = Format.formatTime Format.defaultTimeLocale format
     $ LocalTime.utcToLocalTime (read "GMT") time
+  where
+    format = "%a, %d %b %Y %H:%M:%S GMT"
 
 instance Yesod App where
     approot :: Approot App
@@ -319,13 +321,12 @@ instance YesodAuth App where
             [Dummy.authDummy | Settings.authDummyLogin $ settings app]
 
 isAuthenticated :: Privilege -> Handler AuthResult
-isAuthenticated level = do
-    muser <- Auth.maybeAuthPair
-    return case muser of
-        Just (_, user)
-          | userPrivilege user >= level -> Authorized
-          | otherwise -> Unauthorized "Access to this page is restricted."
-        Nothing -> AuthenticationRequired
+isAuthenticated level = authenticated <$> Auth.maybeAuthPair
+  where
+    authenticated (Just (_, user))
+        | userPrivilege user >= level = Authorized
+        | otherwise = Unauthorized "Access to this page is restricted."
+    authenticated Nothing = AuthenticationRequired
 
 instance YesodAuthPersist App
 
@@ -380,24 +381,28 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
 |]
             , partHeaders = []
             }
-    getVerifyKey uid = liftDB do
-        muser <- get uid
-        return $ userVerkey =<< muser
-    setVerifyKey uid key = liftDB $ update uid [UserVerkey =. Just key]
-    verifyAccount uid = liftDB do
-        muser <- get uid
-        case muser of
-          Nothing -> return Nothing
-          Just _  -> do
-                update uid [UserVerified =. True]
-                return $ Just uid
-    getPassword uid = liftDB do
-        muser <- get uid
-        return $ userPassword =<< muser
-    setPassword uid pass = liftDB $ update uid [UserPassword =. Just pass]
-    getEmailCreds email = liftDB do
-        muser <- getBy . UniqueUser $ toLower email
-        return $ makeCreds <$> muser
+    getVerifyKey uid = liftDB $ runMaybeT do
+        User{userVerkey} <- MaybeT $ get uid
+        MaybeT $ return userVerkey
+
+    setVerifyKey uid key = liftDB
+        $ update uid [UserVerkey =. Just key]
+
+    verifyAccount uid = liftDB $ runMaybeT do
+        MaybeT $ get uid
+        lift $ update uid [UserVerified =. True]
+        return uid
+
+    getPassword uid = liftDB $ runMaybeT do
+        User{userPassword} <- MaybeT $ get uid
+        MaybeT $ return userPassword
+
+    setPassword uid pass = liftDB
+        $ update uid [UserPassword =. Just pass]
+
+    getEmailCreds email = liftDB $ runMaybeT do
+        user <- MaybeT $ getBy . UniqueUser $ toLower email
+        return $ makeCreds user
       where
         makeCreds (Entity uid u) = AuthEmail.EmailCreds
             { emailCredsId = uid
@@ -406,6 +411,7 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
             , emailCredsVerkey = userVerkey u
             , emailCredsEmail = toLower email
             }
+
     getEmail uid = liftDB do
         muser <- get uid
         return $ userIdent <$> muser

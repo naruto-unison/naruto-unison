@@ -52,9 +52,9 @@ makeLogWare foundation
 
 apacheMiddleware :: ApacheLoggerActions -> Middleware
 apacheMiddleware ala app req sendResponse = app req $ \res -> do
-    case Wai.responseStatus res of
-        Status 200 _ -> return ()
-        Status 304 _ -> return ()
-        status -> WaiLogger.apacheLogger ala req status . Header.contentLength
-                $ Wai.responseHeaders res
+    let headers    = Wai.responseHeaders res
+        status     = Wai.responseStatus res
+        Status n _ = status
+    when (n /= 200 && n /= 304)
+        . WaiLogger.apacheLogger ala req status $ Header.contentLength headers
     sendResponse res
