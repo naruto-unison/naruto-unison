@@ -55,11 +55,11 @@ instance TurnBased Channeling where
     getDur (Action d)  = d
     getDur (Control d) = d
     getDur (Ongoing d) = d
-    setDur _ Instant   = Instant
-    setDur _ Passive   = Passive
-    setDur d Action{}  = Action d
-    setDur d Control{} = Control d
-    setDur d Ongoing{} = Ongoing d
+    setDur _ Instant     = Instant
+    setDur _ Passive     = Passive
+    setDur d (Action _)  = Action d
+    setDur d (Control _) = Control d
+    setDur d (Ongoing _) = Ongoing d
 
 instance TurnBased Copy where
     getDur = Copy.dur

@@ -33,7 +33,6 @@ import qualified Game.Engine.Traps as Traps
 import           Game.Model.Barrier (Barrier(Barrier))
 import qualified Game.Model.Barrier as Barrier
 import           Game.Model.Channel (Channel(Channel))
-import qualified Game.Model.Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -94,7 +93,7 @@ processTurn runner = do
   where
     getChannels n = fromChannel n
         <$> filter ((/= -1) . TurnBased.getDur) (N.channels n)
-    fromChannel n Channel{skill, target} = Context
+    fromChannel n (Channel skill target _) = Context
         { new       = False
         , user      = N.slot n
         , skill     = Skills.change n skill

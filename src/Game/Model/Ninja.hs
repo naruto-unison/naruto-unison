@@ -17,7 +17,6 @@ import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import qualified Game.Model.Barrier as Barrier
 import           Game.Model.Channel (Channel(Channel))
-import qualified Game.Model.Channel
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
@@ -77,7 +76,7 @@ isChanneling :: Text -- ^ 'Skill.name'.
              -> Ninja -> Bool
 isChanneling name n = any matches $ channels n
   where
-    matches Channel{skill = Skill{name = skillName}} = name == skillName
+    matches (Channel Skill{name = skillName} _ _) = name == skillName
 
 -- | Searches 'statuses'.
 has :: Text -- ^ 'Status.name'.

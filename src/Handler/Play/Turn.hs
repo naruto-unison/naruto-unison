@@ -11,7 +11,6 @@ import qualified Class.Parity as Parity
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Chakra (Chakras)
 import           Game.Model.Channel (Channel(Channel))
-import qualified Game.Model.Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
@@ -78,7 +77,7 @@ censor vendetta player ninjas n
       , N.alternates = 0 <$ N.alternates n'
       }
   where
-    filt Channel{skill = Skill{classes}} = not $ Invisible ∈ classes
+    filt (Channel Skill{classes} _ _) = not $ Invisible ∈ classes
     n' = n { N.statuses  = mapMaybe mst $ N.statuses n
            , N.lastSkill = Nothing
            , N.traps     = [trap | trap@Trap{classes, user} <- N.traps n

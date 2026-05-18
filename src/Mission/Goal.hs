@@ -86,7 +86,7 @@ data Objective
 
 -- | Most 'Objective's are specific to a character.
 user :: Objective -> Maybe Text
-user Win{}                  = Nothing
+user (Win _ _)              = Nothing
 user (Consecutive name _)   = Just name
 user (HookAction name _ _)  = Just name
 user (HookChakra name _ _)  = Just name

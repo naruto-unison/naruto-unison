@@ -40,12 +40,12 @@ parse = Act
     <*> (Parse.char ',' >> Slot.parse)
 
 instance PathPiece Act where
-    toPathPiece Act{user, skill, target} = intercalate ","
+    toPathPiece (Act user skill target) = intercalate ","
         [ tshow user, tshow skill, tshow target ]
     fromPathPiece = hushedParse parse
 
 toContext :: ∀ m. MonadGame m => Act -> ExceptT LByteString m Context
-toContext Act{user, skill, target} = do
+toContext (Act user skill target) = do
     nUser <- P.ninja user
     case Ninjas.getSkill skill nUser of
         Nothing -> throwE "Invalid skill"

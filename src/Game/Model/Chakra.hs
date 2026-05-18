@@ -41,8 +41,7 @@ data Chakras = Chakras
 instance Ord Chakras where
     compare x y = comparing total x y <> comparing projection x y
       where
-        projection Chakras{blood, gen, nin, tai, rand} =
-            (blood, gen, nin, tai, rand)
+        projection (Chakras b g n t r) = (b, g, n, t, r)
     {-# INLINE compare #-}
 
 instance IsList Chakras where
@@ -66,9 +65,7 @@ parse = Chakras
     <*> return 0
 
 instance PathPiece Chakras where
-    toPathPiece Chakras{blood, gen, nin, tai} = intercalate ","
-        $ tshow <$> [blood, gen, nin, tai]
-
+    toPathPiece (Chakras b g n t _) = intercalate "," $ tshow <$> [b, g, n, t]
     fromPathPiece = hushedParse parse
 
 map1 :: (Int -> Int) -> Chakras -> Chakras
@@ -131,11 +128,11 @@ chakraDesc Tai   = "taijutsu"
 chakraDesc Rand  = "random"
 
 toChakras :: Chakra -> Chakras
-toChakras Blood = 0 { blood = 1 }
-toChakras Gen   = 0 { gen   = 1 }
-toChakras Nin   = 0 { nin   = 1 }
-toChakras Tai   = 0 { tai   = 1 }
-toChakras Rand  = 0 { rand  = 1 }
+toChakras Blood = Chakras 1 0 0 0 0
+toChakras Gen   = Chakras 0 1 0 0 0
+toChakras Nin   = Chakras 0 0 1 0 0
+toChakras Tai   = Chakras 0 0 0 1 0
+toChakras Rand  = Chakras 0 0 0 0 1
 
 toSequence :: ∀ m. (IsSequence m, Index m ~ Int, Element m ~ Chakra)
            => Chakras -> m
