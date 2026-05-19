@@ -48,6 +48,7 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Skill as Skill
+import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import qualified Handler.Client.Message as Client
 import           Handler.Client.Reward (Reward(Reward))
@@ -63,7 +64,7 @@ import qualified Handler.Play.Wrapper as Wrapper
 import qualified Handler.Queue as Queue
 import           Handler.Queue.Message (Response(Response))
 import qualified Mission
-import           Util ((∉), duplic)
+import           Util ((∈), (∉))
 
 -- * INPUT PARSING
 
@@ -123,12 +124,12 @@ parseMessage = (Parse.string "forfeit" >> return Forfeit)
 -- | Joins the practice-match queue with a given team. Requires authentication.
 getPracticeQueueR :: [Text] -> Handler Value
 getPracticeQueueR [a1, b1, c1, a2, b2, c2] = do
-    when (duplic [a1, b1, c1] || duplic [a2, b2, c2])
+    when (hasDuplicates a1 b1 c1 || hasDuplicates a2 b2 c2)
         $ invalidArgs ["Duplicate characters"]
 
     ninjas   <- case traverse Characters.lookup [c1, b1, a1, a2, b2, c2] of
-        Nothing    -> invalidArgs ["Character(s) not found"]
         Just chars -> return $ zipWith N.new Slot.all chars
+        Nothing    -> invalidArgs ["Character(s) not found"]
 
     who      <- Auth.requireAuthId
     unlocked <- Mission.unlocked
@@ -156,6 +157,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2] = do
                             , ninjas
                             }
   where
+    hasDuplicates a b c = a == b || a == c || b == c
     bot = (Model.newUser "Bot" Nothing $ ModifiedJulianDay 0)
           { userName     = "Bot"
           , userAvatar   = "/img/icon/bot.jpg"
@@ -366,7 +368,13 @@ enact Enact{spend, exchange, actions} = runExceptT do
     randTotal = Chakra.total spend - 5 * Chakra.total exchange
     illegal player chakra contexts
       | length contexts > Slot.teamSize       = Just "Too many actions"
-      | duplic $ Context.user <$> contexts    = Just "Duplicate actors"
+      | nonUnique $ Context.user <$> contexts = Just "Duplicate actors"
       | randTotal < 0 || Chakra.lack chakra   = Just "Insufficient chakra"
       | any (Context.illegal player) contexts = Just "Character out of range"
       | otherwise                             = Nothing
+    nonUnique :: [Slot] -> Bool
+    nonUnique slots = go mempty slots
+      where
+        go :: IntSet -> [Slot] -> Bool
+        go set ((Slot.toInt -> x):xs) = x ∈ set || go (insertSet x set) xs
+        go _   []                     = False

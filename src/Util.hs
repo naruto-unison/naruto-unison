@@ -3,7 +3,6 @@ module Util
   ( (!?), (!!)
   , (∈), (∉)
   , Lift
-  , duplic
   , epoch
   , getCurrentWeek
   , hushedParse
@@ -59,16 +58,6 @@ commas conj = go
     go [x,y,z] = x ++ ", " ++ y ++ "," ++ conj' ++ z
     go (x:xs)  = x ++ ", " ++ go xs
 {-# INLINE commas #-}
-
--- | True if a list contains multiple identical values.
-duplic :: ∀ a. Eq a => [a] -> Bool
-duplic = go []
-  where
-    go _ [] = False
-    go seen (x:xs)
-      | x ∈ seen  = True
-      | otherwise = go (x:seen) xs
-{-# INLINABLE duplic #-}
 
 -- | @UTCTime 0 0@.
 epoch :: UTCTime
