@@ -37,8 +37,8 @@ import           Class.ST (MonadST(..))
 import qualified Game.AI as AI
 import qualified Game.Characters as Characters
 import qualified Game.Engine as Engine
-import           Game.Model.Chakra (Chakras(Chakras))
-import qualified Game.Model.Chakra as Chakra
+import           Game.Model.Chakras (Chakras(Chakras))
+import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Context as Context
@@ -105,8 +105,8 @@ parseActs = separate >> Parse.sepBy Act.parse separate >>= guardLength
 
 parseEnact :: Parser Enact
 parseEnact = Enact
-    <$> Chakra.parse
-    <*> (separate >> Chakra.parse)
+    <$> Chakras.parse
+    <*> (separate >> Chakras.parse)
     <*> (parseActs <|> (Parse.endOfInput >> return []))
 
 data ClientMessage
@@ -364,9 +364,9 @@ enact Enact{spend, exchange, actions}
 
     let gameChakra = Parity.getOf player chakra
         actCosts   = concatMap (Skill.cost . Context.skill) contexts
-        mAdjChakra = Chakra.checkedSpend spend $ gameChakra ++ exchange
-        mNewChakra = mAdjChakra >>= \ch -> Chakra.checkedSpend actCosts
-                                           (ch { Chakra.rand = randTotal })
+        mAdjChakra = Chakras.checkedSpend spend $ gameChakra ++ exchange
+        mNewChakra = mAdjChakra >>= \ch -> Chakras.checkedSpend actCosts
+                                           (ch { Chakras.rand = randTotal })
 
     newChakra <- maybe (throwE "Insufficient chakra") return mNewChakra
     P.alter $ Game.setChakra player newChakra

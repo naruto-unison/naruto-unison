@@ -9,7 +9,7 @@ import Data.Aeson (ToJSON)
 
 import qualified Class.Parity as Parity
 import qualified Game.Engine.Ninjas as Ninjas
-import           Game.Model.Chakra (Chakras)
+import           Game.Model.Chakras (Chakras)
 import           Game.Model.Channel (Channel(Channel))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))

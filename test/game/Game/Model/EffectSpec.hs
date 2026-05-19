@@ -20,8 +20,8 @@ import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
 import           Game.Model.Attack (Attack)
 import qualified Game.Model.Attack as Attack
-import           Game.Model.Chakra (Chakras(Chakras))
-import qualified Game.Model.Chakra as Chakra
+import           Game.Model.Chakras (Chakras(Chakras))
+import qualified Game.Model.Chakras as Chakras
 import qualified Game.Model.Character as Character
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -204,7 +204,7 @@ spec = parallel do
     describe "Exhaust" do
         prop "increases skill costs" \(Positive exhaust) ->
             let effects = replicate exhaust . Exhaust $ singletonSet All in
-            Skill.cost (getSkill effects) === mempty { Chakra.rand = exhaust }
+            Skill.cost (getSkill effects) === mempty { Chakras.rand = exhaust }
 
     describe "Expose" do
         it "prevents target from becoming invulnerable" $ simAt Enemy do

@@ -15,7 +15,7 @@ import ElmDerive
 import Data.Char (isSpace)
 import Data.Map.Strict (Map)
 import Data.Text (Text)
-import Game.Model.Chakra (Chakras)
+import Game.Model.Chakras (Chakras)
 import Game.Model.Channel (Channel, Channeling)
 import Game.Model.Character (Category, Character)
 import Game.Model.Copy (Copy)

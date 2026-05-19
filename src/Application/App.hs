@@ -57,7 +57,7 @@ import qualified Application.Model as Model
 import           Application.Settings (Settings, widgetFile)
 import qualified Application.Settings as Settings
 import           Class.ST (MonadST(..))
-import           Game.Model.Chakra (Chakras)
+import           Game.Model.Chakras (Chakras)
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
 import           Handler.Play.Act (Act)

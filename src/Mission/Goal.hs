@@ -11,7 +11,7 @@ module Mission.Goal
 import ClassyPrelude
 
 import qualified Game.Characters as Characters
-import           Game.Model.Chakra (Chakras)
+import           Game.Model.Chakras (Chakras)
 import           Game.Model.Character (Character)
 import           Game.Model.Ninja (Ninja)
 import           Game.Model.Player (Player)

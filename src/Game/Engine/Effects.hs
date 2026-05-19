@@ -29,8 +29,8 @@ import ClassyPrelude hiding (link)
 import Data.Enum.Set (EnumSet)
 
 import qualified Class.Parity as Parity
-import           Game.Model.Chakra (Chakras(Chakras))
-import qualified Game.Model.Chakra
+import           Game.Model.Chakras (Chakras(Chakras))
+import qualified Game.Model.Chakras
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Amount(..), Constructor(..), Effect(..))
 import qualified Game.Model.Effect as Effect

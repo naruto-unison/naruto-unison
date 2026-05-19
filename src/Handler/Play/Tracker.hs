@@ -22,7 +22,7 @@ import           Data.Vector.Mutable (MVector)
 import qualified Data.Vector.Mutable as MVector
 
 import qualified Class.Parity as Parity
-import           Game.Model.Chakra (Chakras)
+import           Game.Model.Chakras (Chakras)
 import qualified Game.Model.Character as Character
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja

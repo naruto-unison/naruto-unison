@@ -11,7 +11,7 @@ import ClassyPrelude
 
 import Data.Enum.Set (EnumSet)
 
-import qualified Game.Model.Chakra as Chakra
+import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Internal (Key(..), Ninja, Skill(..), Requirement(..), Target(..))
@@ -45,7 +45,7 @@ new = Skill
 -- to the 'classes' of a @Skill@ if they are included in its 'cost'.
 chakraClasses :: Skill -> Skill
 chakraClasses skill@Skill{classes, cost} =
-    skill { classes = Chakra.classes cost ++ classes }
+    skill { classes = Chakras.classes cost ++ classes }
 
 -- | Replaces an empty string with a 'name'.
 defaultName :: Text -> Skill -> Text

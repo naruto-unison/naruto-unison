@@ -13,10 +13,10 @@ import Data.Enum.Set (EnumSet)
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import qualified Game.Engine.Chakras as Chakras
+import qualified Game.Engine.Chakra as Chakra
 import qualified Game.Engine.Ninjas as Ninjas
-import           Game.Model.Chakra (Chakra(..), Chakras)
-import qualified Game.Model.Chakra as Chakra
+import           Game.Model.Chakras (Chakra(..), Chakras)
+import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
 import           Game.Model.Effect (Effect(..))
@@ -33,30 +33,30 @@ import           Game.Model.Trigger (Trigger(..))
 gain :: ∀ m. (MonadPlay m, MonadRandom m) => Chakras -> m ()
 gain chakras = P.unsilenced do
     Context{user, target} <- P.context
-    rand <- replicateM (length rands) Chakra.random
+    rand <- replicateM (length rands) Chakras.random
     P.alter $ Game.addChakra target $ rand ++ nonrands
     P.trigger user [OnChakra]
   where
     (rands, nonrands) = partition (== Rand) chakras
 
 -- | Removes some number of @Chakra@s from the 'Game.chakra' of the target's
--- team. 'Chakra's are selected at random by 'Chakras.remove'.
+-- team. 'Chakra's are selected at random by 'Chakra.remove'.
 deplete :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
-deplete amount = P.unsilenced . void $ Chakras.remove amount
+deplete amount = P.unsilenced . void $ Chakra.remove amount
 
 -- | Removes a single 'Chakra' from the enemy team that is one of several types.
 -- 'Chakra's are chosen randomly from the available pool of 'Game.chakra', but
 -- only the ones passed in the parameter.
 deplete1 :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Chakra -> m ()
-deplete1 chakras = P.unsilenced . void $ Chakras.remove1 chakras
+deplete1 chakras = P.unsilenced . void $ Chakra.remove1 chakras
 
 -- | Transfers some number of @Chakra@s from the 'Game.chakra' of the target's
 -- team to the 'Game.chakra' of the user's team. @Chakra@s are selected at
--- random by 'Chakras.remove'.
+-- random by 'Chakra.remove'.
 absorb :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 absorb amount = P.unsilenced do
     Context{user} <- P.context
-    chakras <- Chakras.remove amount
+    chakras <- Chakra.remove amount
     P.alter $ Game.addChakra user chakras
 
 -- | Transfers a single 'Chakra' that is one of several types from the
@@ -66,7 +66,7 @@ absorb amount = P.unsilenced do
 absorb1 :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Chakra -> m ()
 absorb1 chakras = P.unsilenced do
     Context{user} <- P.context
-    chakra <- Chakras.remove1 chakras
+    chakra <- Chakra.remove1 chakras
     P.alter $ Game.addChakra user chakra
 
 -- | Restores health to the user multiplied by the chakra cost of the target's

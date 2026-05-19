@@ -13,8 +13,8 @@ import qualified Data.HashMap.Strict as HashMap
 
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
-import           Game.Model.Chakra (Chakras(Chakras))
-import qualified Game.Model.Chakra as Chakra
+import           Game.Model.Chakras (Chakras(Chakras))
+import qualified Game.Model.Chakras
 import           Game.Model.Class (Class(..))
 import           Game.Model.Group (Group(..))
 import           Game.Model.Skill (Skill(Skill))

@@ -9,8 +9,8 @@ import ClassyPrelude
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
-import           Game.Model.Chakra (Chakras)
-import qualified Game.Model.Chakra as Chakra
+import           Game.Model.Chakras (Chakras)
+import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import           Game.Model.Slot (Slot)
@@ -44,8 +44,8 @@ new = Game
 
 newWithChakras :: ∀ m. MonadRandom m => m Game
 newWithChakras = do
-    randA  <- Chakra.random
-    randsB <- replicateM Slot.teamSize Chakra.random
+    randA  <- Chakras.random
+    randsB <- replicateM Slot.teamSize Chakras.random
     return new { chakra = (singleton randA, fromList randsB) }
 
 setChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
@@ -58,7 +58,7 @@ addChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
 addChakra p chakras game = adjustChakra p (++ chakras) game
 
 removeChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
-removeChakra p chakras game = adjustChakra p (Chakra.spend chakras) game
+removeChakra p chakras game = adjustChakra p (Chakras.spend chakras) game
 
 -- | The game has not yet ended.
 inProgress :: Game -> Bool

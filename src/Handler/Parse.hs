@@ -11,7 +11,7 @@ import           Data.Attoparsec.Text (Parser)
 import qualified Data.Attoparsec.Text as Parse
 import qualified Text.Blaze.Html5 as HTML
 
-import Game.Model.Chakra (Chakra(..))
+import Game.Model.Chakras (Chakra(..))
 import Game.Model.Character (Category(..))
 
 -- | Parses a 'Model.Skill.desc' into HTML.

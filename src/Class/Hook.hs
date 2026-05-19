@@ -10,7 +10,7 @@ import Control.Monad.Trans.Select (SelectT)
 import Control.Monad.Trans.Writer (WriterT)
 import Yesod.WebSockets (WebSocketsT)
 
-import Game.Model.Chakra (Chakras)
+import Game.Model.Chakras (Chakras)
 import Game.Model.Context (Context)
 import Game.Model.Ninja (Ninja)
 import Game.Model.Player (Player)

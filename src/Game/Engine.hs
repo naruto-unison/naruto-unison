@@ -25,7 +25,7 @@ import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Class.TurnBased as TurnBased
 import qualified Game.Action as Action
-import qualified Game.Engine.Chakras as Chakras
+import qualified Game.Engine.Chakra as Chakra
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
@@ -64,7 +64,7 @@ runTurn :: ∀ m o. ( MonadGame m, MonadHook m, MonadRandom m
                   ) => o -> m ()
 runTurn acts = do
     processTurn $ traverse_ Action.act acts
-    Chakras.gain
+    Chakra.gain
 
 -- | The underlying mechanism of 'runTurn'.
 -- Performs posteffects such as 'Model.Channel.Channel's and 'Model.Trap.Trap's.

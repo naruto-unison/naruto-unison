@@ -23,7 +23,7 @@ import Yesod.WebSockets (WebSocketsT)
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
-import           Game.Model.Chakra (Chakras(..))
+import           Game.Model.Chakras (Chakras(..))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Defense (Defense(..))
 import           Game.Model.Duration (Duration(..))
