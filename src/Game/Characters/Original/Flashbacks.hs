@@ -38,11 +38,13 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 tag 4
-                trap 4 OnDeath $ self killHard
+                trap 4 OnDeath $
+                    self killHard
                 self do
                     apply 4 [Alternate "Life Link" "Life Transfer"]
-                    trap 4 OnDeath $
-                        everyone $ whenM (targetHas "Life Link") killHard
+                    trap 4 OnDeath $ everyone $
+                        whenM (targetHas "Life Link")
+                            killHard
           ]
         }
       , Skill.new
@@ -82,16 +84,18 @@ characters =
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
         [ To Self $ apply 1 [Invulnerable All]
-        , To XAllies $
-              whenM (targetHas "Space-Time Marking") $
-                  apply 1 [Invulnerable All]
-        , To Enemies $ whenM (targetHas "Space-Time Marking") $ damage 30
+        , To XAllies $ whenM (targetHas "Space-Time Marking") $
+                apply 1 [Invulnerable All]
+        , To Enemies $ whenM (targetHas "Space-Time Marking") $
+                damage 30
         , To XAlly do
               apply 1 [Invulnerable All]
-              whenM (userHas "Space-Time Marking") $ tag' "Space-Time Marking" 1
+              whenM (userHas "Space-Time Marking") $
+                tag' "Space-Time Marking" 1
         , To Enemy do
               damage 30
-              whenM (userHas "Space-Time Marking") $ tag' "Space-Time Marking" 1
+              whenM (userHas "Space-Time Marking") $
+                tag' "Space-Time Marking" 1
           ]
         }
       ]
@@ -225,7 +229,8 @@ characters =
           [ To Enemy do
                 pierce 20
                 apply 1 [Weaken [All] Flat 5]
-                whenM (userHas "Sharingan Stun") $ apply 1 [Stun All]
+                whenM (userHas "Sharingan Stun") $
+                    apply 1 [Stun All]
           , To Self $ apply 1 [Strengthen [All] Flat 5]
           ]
         }
@@ -239,7 +244,8 @@ characters =
           [ To Enemy do
                 pierce 20
                 apply 1 [Weaken [All] Flat 5]
-                whenM (userHas "Sharingan Stun") $ apply 1 [Stun All]
+                whenM (userHas "Sharingan Stun") $
+                    apply 1 [Stun All]
           , To Self $ apply 1 [Strengthen [All] Flat 5]
           ]
         }
@@ -251,7 +257,8 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                whenM (userHas "Sharingan Stun") $ apply 1 [Stun All]
+                whenM (userHas "Sharingan Stun") $
+                    apply 1 [Stun All]
                 trap 2 OnChakra do
                     removeTrap "Sharingan"
                     self $ gain [Rand]
@@ -278,7 +285,8 @@ characters =
         , Skill.effects   =
           [ To Self $ apply 1 [Reduce [All] Flat 15]
           , To Enemy do
-                trap 1 (OnAction All) flag
+                trap 1 (OnAction All)
+                    flag
                 delay -1 do
                     bonus <- 15 `bonusIf` targetHas "pit trap"
                     pierce (15 + bonus)
@@ -355,11 +363,12 @@ characters =
                 apply 4 [ Reduce [All] Flat 15
                         , Alternate "Grand Fireball" "Grand Fireball "
                         ]
-                trap 4 OnDeath $ everyone $ whenM (targetHas "Sharingan") $
-                    apply' "Borrowed Sharingan" Permanent
-                        [ Reduce [All] Flat 5
-                        , Strengthen [NonAffliction] Flat 5
-                        ]
+                trap 4 OnDeath $ everyone $
+                    whenM (targetHas "Sharingan") $
+                        apply' "Borrowed Sharingan" Permanent
+                            [ Reduce [All] Flat 5
+                            , Strengthen [NonAffliction] Flat 5
+                            ]
           ]
         }
       ]

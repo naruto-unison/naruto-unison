@@ -777,7 +777,8 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 3 [Reduce [All] Flat 5]
-                trapFrom 3 (OnHarmed NonMental) $ damage 10
+                trapFrom 3 (OnHarmed NonMental) $
+                    damage 10
           ]
         }
       ]
@@ -800,7 +801,9 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ trapFrom 1 (CounterAll All) $ apply 1 [Exhaust [All]] ]
+          [ To Self $ trapFrom 1 (CounterAll All) $
+                apply 1 [Exhaust [All]]
+          ]
         }
       ]
     , [ invuln "Block" "Ao" [Physical] ]
@@ -839,7 +842,9 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ trapFrom 1 (CounterAll Physical) $ pierce 20 ]
+          [ To Self $ trapFrom 1 (CounterAll Physical) $
+                pierce 20
+          ]
         }
       ]
     , [ invuln "Dodge " "Chōjūrō" [Physical] ]

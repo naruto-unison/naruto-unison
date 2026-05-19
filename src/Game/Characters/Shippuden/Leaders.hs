@@ -105,12 +105,15 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Ally do
-                trapFrom 3 (OnHarmed Melee) $ whenM (targetHas "mane") $
-                    damage 25
-                trapFrom 3 (OnHarmed Ranged) $ whenM (targetHas "mane") do
-                    damage 15
-                    apply 1 [Stun Melee, Stun Physical]
-                trapFrom 3 (OnHarmed Physical) $ flag' "mane"
+                trapFrom 3 (OnHarmed Melee) $
+                    whenM (targetHas "mane") $
+                        damage 25
+                trapFrom 3 (OnHarmed Ranged) $
+                    whenM (targetHas "mane") do
+                        damage 15
+                        apply 1 [Stun Melee, Stun Physical]
+                trapFrom 3 (OnHarmed Physical) $
+                    flag' "mane"
           ]
         }
       ]
@@ -128,9 +131,11 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 has <- userHas "Strength of One Hundred Seal"
-                when has demolishAll
+                when has
+                    demolishAll
                 pierce (20 + if has then 20 else 0)
-          , To Allies $ whenM (targetHas "Healing Wave") $ apply 1 [Endure]
+          , To Allies $ whenM (targetHas "Healing Wave") $
+                apply 1 [Endure]
           , To Self $ remove "Strength of One Hundred Seal"
           ]
         }
@@ -305,7 +310,8 @@ characters =
           , To Enemies do
                 remove "Demonic Illusion: Gamarinsho"
                 stacks <- userStacks "Harmony"
-                when (stacks == 3) $ apply 2 [Stun All]
+                when (stacks == 3) $
+                    apply 2 [Stun All]
           ]
         }
       ]

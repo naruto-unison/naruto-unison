@@ -23,8 +23,9 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 everyone $ remove "Rivalry"
-                userSlot <- user slot
-                trap 1 (Countered All) $ apply Permanent [Taunt userSlot]
+                trap 1 (Countered All) do
+                    slot <- user slot
+                    apply Permanent [Taunt slot]
           ]
         }
       ]
@@ -36,7 +37,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 30
-                unlessM (targetHas "Rivalry") . everyone $ remove "Rivalry"
+                unlessM (targetHas "Rivalry") $ everyone $
+                    remove "Rivalry"
           , To Self $ addStack' "Scattered Rock"
           ]
         , Skill.changes   =
@@ -140,7 +142,8 @@ characters =
           [ To Enemies do
                 pierce 10
                 trapPer' -1 PerDamaged \i ->
-                    when (i >= 50) $ apply 1 [Stun All]
+                    when (i >= 50) $
+                        apply 1 [Stun All]
           ]
         , Skill.changes   =
             changeWithChannel "Crystal Ice Mirrors" \x ->
@@ -148,7 +151,8 @@ characters =
                   [ To Enemy do
                         pierce 30
                         trapPer' -1 PerDamaged \i ->
-                            when (i >= 50) $ apply 1 [Stun All] ]
+                            when (i >= 50) $
+                                apply 1 [Stun All] ]
                 }
         }
       ]
@@ -178,11 +182,10 @@ characters =
         , Skill.start     =
           [ To Self $ defend Permanent 20 ]
         , Skill.effects   =
-          [ To Self do
-                defense <- userDefense "Crystal Ice Mirrors"
-                when (defense > 0) $ trapPer -1 PerDamaged \i -> do
-                    defense' <- userDefense "Crystal Ice Mirrors"
-                    when (defense' == 0) $ defend Permanent i
+          [ To Self $ whenM (user $ hasOwnDefense "Crystal Ice Mirrors") $
+                trapPer -1 PerDamaged \i ->
+                    whenM (not <$> user (hasOwnDefense "Crystal Ice Mirrors")) $
+                        defend Permanent i
           ]
         }
       ]
@@ -239,14 +242,13 @@ characters =
     75
   , let
         electrocute :: RunConstraint ()
-        electrocute =
-            unlessM (targetHas "electrocuted") do
-                hide' "electrocuted" Permanent []
-                trap' Permanent (OnAction All) $
-                    whenM (targetHas "Electricity") do
-                        refresh "Electricity"
-                        everyone $
-                            whenM (targetHas "Electricity") $ afflict 5
+        electrocute = unlessM (targetHas "electrocuted") do
+            hide' "electrocuted" Permanent []
+            trap' Permanent (OnAction All) $
+                whenM (targetHas "Electricity") do
+                    refresh "Electricity"
+                    everyone $ whenM (targetHas "Electricity") $
+                        afflict 5
     in
     Character
     "Ameyuri Ringo"
@@ -446,12 +448,15 @@ characters =
         , Skill.start     =
           [ To Self do
                 bombWith [Hidden] 4 [] [ To Done $ remove "Chakra Weave" ]
-                trap' 4 (OnDamaged All) $ hide' "hair" -1 []
+                trap' 4 (OnDamaged All) $
+                    hide' "hair" -1 []
           ]
         , Skill.effects   =
           [ To Self do
                 trap 1 OnDamage $ apply Permanent [Reduce [All] Flat 5]
-                delay -1 $ unlessM (userHas "hair") $ heal 10
+                delay -1 $
+                    unlessM (userHas "hair") $
+                        heal 10
           ]
         }
       ]
@@ -497,7 +502,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 25
-                whenM (targetHas "Axe Chop") $ apply 4 [Expose]
+                whenM (targetHas "Axe Chop") $
+                    apply 4 [Expose]
           ]
         }
       ]

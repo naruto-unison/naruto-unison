@@ -86,15 +86,15 @@ targetable Skill{classes, require} n@Ninja{slot = user} nt@Ninja{slot = target}
   | not harm && n `is` BlockAllies = False
   | harm && invuln && not bypass   = False
   | not harm && nt `is` Alone      = False
-  | notIn user $ Effects.duel nt   = False
-  | notIn target $ Effects.taunt n = False
+  | user `notIn` Effects.duel nt   = False
+  | target `notIn` Effects.taunt n = False
   | target ∈ Effects.block n       = False
   | otherwise                      = True
   where
-    harm       = not $ Parity.allied user target
-    invuln     = classes `intersects` Effects.invulnerable nt
-    bypass     = Bypassing ∈ classes || n `is` Bypass
-    notIn a xs = not (null xs) && a ∉ xs
+    harm         = not $ Parity.allied user target
+    invuln       = classes `intersects` Effects.invulnerable nt
+    bypass       = Bypassing ∈ classes || n `is` Bypass
+    a `notIn` xs = not (null xs) && a ∉ xs
 
 -- | All targets that a @Skill@ from a a specific 'Ninja' affects.
 targets :: [Ninja] -> Ninja -> Skill -> [Ninja]

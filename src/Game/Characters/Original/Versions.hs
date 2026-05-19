@@ -187,8 +187,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Control Permanent
         , Skill.start     =
-          [ To Enemy $
-                trap Permanent Nullified $ cancelChannel "Monstrous Sand Arm"
+          [ To Enemy $ trap Permanent Nullified $
+                cancelChannel "Monstrous Sand Arm"
           ]
         , Skill.effects   =
           [ To Enemy $ damage 10 ]
@@ -258,7 +258,8 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 apply 1 [Exhaust [NonMental]]
-                trap 1 (OnAction NonMental) $ remove "Sand Burial Prison"
+                trap 1 (OnAction NonMental) $
+                    remove "Sand Burial Prison"
           , To Self $ apply' "Giant Sand Burial" 1
                 [Alternate "Sand Burial Prison" "Giant Sand Burial"]
           ]

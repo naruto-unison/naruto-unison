@@ -33,8 +33,10 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies do
-                trap 2 (OnAction Chakra)   $ apply 1 [Stun Chakra]
-                trap 2 (OnAction Physical) $ apply 1 [Stun Physical]
+                trap 2 (OnAction Chakra) $
+                    apply 1 [Stun Chakra]
+                trap 2 (OnAction Physical) $
+                    apply 1 [Stun Physical]
           ]
         }
       ]
@@ -191,7 +193,8 @@ characters =
           [ To Self do
                 apply Permanent
                     [Reduce [All] Flat 10, Alternate "Biding Time" "Payback"]
-                trap Permanent (OnDamaged All) $ addStack' "Payback"
+                trap Permanent (OnDamaged All) $
+                    addStack' "Payback"
           ]
         }
      , Skill.new
@@ -214,7 +217,8 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ trap 3 OnHarm $ pierce 25
+          [ To Enemy $ trap 3 OnHarm $
+                pierce 25
           , To Self $ defend Permanent 30
           ]
         }
@@ -226,7 +230,8 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ trap 3 OnNoAction $ pierce 25
+          [ To Enemy $ trap 3 OnNoAction $
+                pierce 25
           , To Self $ defend Permanent 30
           ]
         }
@@ -315,10 +320,11 @@ characters =
                 trap Permanent OnSacrifice do
                     remove "Poison Gauntlet"
                     removeTrap "Poison Gauntlet"
-                delay -1 $ whenM (targetHas "Poison Gauntlet") $
-                    trap Permanent (OnDamaged NonAffliction) do
-                        remove "Poison Gauntlet"
-                        removeTrap "Poison Gauntlet"
+                delay -1 $
+                    whenM (targetHas "Poison Gauntlet") $
+                        trap Permanent (OnDamaged NonAffliction) do
+                            remove "Poison Gauntlet"
+                            removeTrap "Poison Gauntlet"
           ]
         }
       ]
@@ -777,7 +783,8 @@ characters =
                 apply 1 [Weaken [Physical, Chakra, Summon] Flat 20]
           , To Self do
                 sacrifice 0 15
-                delay 1 $ sacrifice 0 15
+                delay 1 $
+                    sacrifice 0 15
           ]
         }
       ]

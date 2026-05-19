@@ -229,8 +229,9 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
             [ To Enemy do
-                  whenM (userHas "Byakugan") $ deplete 1
-                  damage 20
+                whenM (userHas "Byakugan") $
+                    deplete 1
+                damage 20
             ]
         }
       ]
@@ -302,7 +303,9 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ trap 1 OnHarm $ apply 2 [Snare 1] ]
+          [ To Enemy $ trap 1 OnHarm $
+                apply 2 [Snare 1]
+          ]
         }
       ]
     , [ invuln "Block" "Ino" [Physical] ]
@@ -470,12 +473,14 @@ characters =
         , Skill.effects   =
           [ To XAllies $ apply' "Protected" 1 [Reduce [All] Flat 15]
           , To Self do
-                unlessM (userHas "unchili") $ sacrifice 0 15
+                unlessM (userHas "unchili") $
+                    sacrifice 0 15
                 apply 1 [Focus, Alternate "Block" "Block", Face]
           ]
         , Skill.stunned   =
           [ To Self do
-                unlessM (userHas "unchili") $ sacrifice 0 15
+                unlessM (userHas "unchili") $
+                    sacrifice 0 15
                 apply 1 [Alternate "Block" "Block", Face]
           ]
         }
@@ -506,12 +511,14 @@ characters =
         , Skill.effects   =
           [ To XAllies $ apply' "Protected" 1 [Reduce [All] Flat 15]
           , To Self do
-                unlessM (userHas "unchili") $ sacrifice 0 15
+                unlessM (userHas "unchili") $
+                    sacrifice 0 15
                 apply 1 [Focus, Alternate "Block" "Block", Face]
           ]
         , Skill.interrupt =
           [ To Self do
-                unlessM (userHas "unchili") $ sacrifice 0 15
+                unlessM (userHas "unchili") $
+                    sacrifice 0 15
                 apply 1 [Alternate "Block" "Block", Face]
           ]
         }
@@ -615,7 +622,8 @@ characters =
           , To XEnemies $ damage 10
           , To Enemies do
                 addStack
-                whenM (userHas "Rising Twin Dragons") addStack
+                whenM (userHas "Rising Twin Dragons")
+                    addStack
           , To Self $ remove "Rising Twin Dragons"
           ]
         }

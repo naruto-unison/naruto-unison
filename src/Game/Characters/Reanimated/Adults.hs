@@ -22,7 +22,8 @@ characters =
         , Skill.effects   =
           [ To Enemy $ afflict 20
           , To Self do
-                trapFrom 2 (OnHarmed All) $ afflict 10
+                trapFrom 2 (OnHarmed All) $
+                    afflict 10
                 tag 2
           ]
         }
@@ -204,7 +205,8 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self $ trapFrom 2 (OnHarmed All) $ apply Permanent [Plague]
+          [ To Self $ trapFrom 2 (OnHarmed All) $
+                apply Permanent [Plague]
           , To Enemy do
                 stacksA <- targetStacks "Conserving Bee Twin Blades"
                 stacksB <- targetStacks "Magnetic Current"

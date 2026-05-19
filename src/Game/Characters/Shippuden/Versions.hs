@@ -66,7 +66,8 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Self do
-                trapFrom 1 (Counter All) $ damage 30
+                trapFrom 1 (Counter All) $
+                    damage 30
                 remove "natural energy assault"
           ]
         }
@@ -273,7 +274,9 @@ characters =
                                                 "DNA Transmission Shadow"]
           ]
         , Skill.effects   =
-          [ To Self $ delay -1 $ renameChannels rename ]
+          [ To Self $ delay -1 $
+                renameChannels rename
+          ]
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
@@ -285,10 +288,11 @@ characters =
         , Skill.start     =
           [ To Self do
                 flag
-                everyone $
-                    whenM (targetHas "DNA Transmission Shadow") killHard
+                everyone $ whenM (targetHas "DNA Transmission Shadow")
+                    killHard
                 trap' Permanent OnDeath $ everyone $
-                    whenM (targetHas "DNA Transmission Shadow") killHard
+                    whenM (targetHas "DNA Transmission Shadow")
+                        killHard
           ]
         , Skill.effects   =
           [ To XAlly $ unlessM (userHas "dna transmission shadow") do
@@ -308,7 +312,8 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                trap' -1 OnDamage rechargeAll
+                trap' -1 OnDamage
+                    rechargeAll
                 enemies $ apply 1 [Restrict]
           , To Enemies $ damage 10
           ]
@@ -480,7 +485,8 @@ characters =
                 pierce 20
                 apply 1 [Stun All]
           , To Self do
-                trap -1 (OnDamaged Physical) $ remove "Chidori"
+                trap -1 (OnDamaged Physical) $
+                    remove "Chidori"
                 bomb -1 [Reduce [Physical] Flat 15]
                     [ To Expire do
                           hide 1 []
@@ -539,7 +545,8 @@ characters =
                       removeTrap "Amaterasu"
                   bombWith [Bypassing] Permanent [Afflict 5]
                       [ To Done $ self $ addStack ]
-                  trapFrom Permanent OnHelped amaterasu
+                  trapFrom Permanent OnHelped
+                    amaterasu
           in
           [ To Enemy amaterasu ]
         }
@@ -552,7 +559,8 @@ characters =
           [ To Enemy do
                 stacks <- userStacks "Amaterasu"
                 afflict (10 + 5 * stacks)
-                trap 1 (OnAction All) $ afflict 20
+                trap 1 (OnAction All) $
+                    afflict 20
           ]
         }
       ]
@@ -620,11 +628,12 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 1 [Enrage]
-                unlessM (userHas "first") $ trap' 1 (OnAction All) do
-                    cancelChannel "Flamethrower Jets"
-                    everyone do
-                        remove "Flame Blast"
-                        remove "Flamethrower Jets"
+                unlessM (userHas "first") $
+                    trap' 1 (OnAction All) do
+                        cancelChannel "Flamethrower Jets"
+                        everyone do
+                            remove "Flame Blast"
+                            remove "Flamethrower Jets"
           , To Enemy do
                 afflict 10
                 tag 1
@@ -774,7 +783,8 @@ characters =
           [ To Enemy do
                 damage 15
                 apply 1 [Stun NonMental]
-                trap 1 OnDeath $ self $ setHealth 100
+                trap 1 OnDeath $ self $
+                    setHealth 100
           ]
         }
       , Skill.new
@@ -805,14 +815,15 @@ characters =
                 self $ hide Permanent []
                 bomb Permanent []
                     [ To Done $ self $ remove "curse mark release" ]
-                trap' Permanent (OnDamaged All) $ unlessM (user alive) do
-                    targetHealth <- target health
-                    when (25 >= targetHealth && targetHealth > 0) do
-                        killHard
-                        self do
-                            setHealth 100
-                            alternate [0, 0, 0, 0] 1
-                            apply Permanent [Invulnerable Bane]
+                trap' Permanent (OnDamaged All) $
+                    unlessM (user alive) do
+                        targetHealth <- target health
+                        when (25 >= targetHealth && targetHealth > 0) do
+                            killHard
+                            self do
+                                setHealth 100
+                                alternate [0, 0, 0, 0] 1
+                                apply Permanent [Invulnerable Bane]
           ]
         }
       , Skill.new

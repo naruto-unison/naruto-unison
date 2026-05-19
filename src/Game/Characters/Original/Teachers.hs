@@ -93,7 +93,8 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                trap -1 (OnDamaged All) $ remove "Genjutsu Ambush Tactics"
+                trap -1 (OnDamaged All) $
+                    remove "Genjutsu Ambush Tactics"
                 bombWith [Hidden] -1 []
                   [ To Expire $
                         apply' "Successful Ambush" -1 [Invulnerable All] ]
@@ -191,12 +192,11 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Self do
-                apply 1
-                    [Strengthen [All] Flat 10, Reduce [All] Flat 25]
-                delay 1 $ apply 1
-                    [Strengthen [All] Flat 10, Reduce [All] Flat 15]
-                delay 2 $ apply 1
-                    [Strengthen [All] Flat 10, Reduce [All] Flat 5]
+                apply 1 [Strengthen [All] Flat 10, Reduce [All] Flat 25]
+                delay 1 $
+                    apply 1 [Strengthen [All] Flat 10, Reduce [All] Flat 15]
+                delay 2 $
+                    apply 1 [Strengthen [All] Flat 10, Reduce [All] Flat 5]
           ]
         }
       ]
@@ -235,7 +235,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 50
-                whenM (targetHas "Summoning: Ninja Hounds") kill
+                whenM (targetHas "Summoning: Ninja Hounds")
+                    kill
           ]
         }
       ]
@@ -428,7 +429,9 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 1 (Countered All) $ damage 30 ]
+          [ To Enemy $ trap 1 (Countered All) $
+                damage 30
+          ]
         }
       ]
     , [ invuln "Dodge" "Guy" [Physical] ]

@@ -77,7 +77,8 @@ characters =
                 apply 4 [ Reduce [All] Flat 10
                         , Alternate "Call Kuromaru" "Fierce Bite"
                         ]
-                trapFrom 4 (OnHarmed NonBane) $ damage 10
+                trapFrom 4 (OnHarmed NonBane) $
+                    damage 10
           ]
         }
       , Skill.new
@@ -230,7 +231,8 @@ characters =
           [ To Enemy do
               apply 1 [Throttle 1 $ Any Invulnerable]
               delay -1 $
-                  trapFrom 1 (OnHarmed Mental) $ apply 1 [Invulnerable All]
+                  trapFrom 1 (OnHarmed Mental) $
+                    apply 1 [Invulnerable All]
           ]
         }
       ]
@@ -281,7 +283,8 @@ characters =
           [ To Enemies do
                 bombWith [Bypassing] 3 []
                     [ To Done $ removeTrap "Black Spider Lily" ]
-                trap 3 OnStun $ apply' "Ensnared" 3 []
+                trap 3 OnStun $
+                    apply' "Ensnared" 3 []
           ]
         }
       ]
@@ -341,8 +344,10 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To XAlly $ trapFrom Permanent (Counter NonMental) $ damage 10
-          , To Enemy $ trap Permanent (Countered NonMental) $ damage 10
+          [ To XAlly $ trapFrom Permanent (Counter NonMental) $
+                damage 10
+          , To Enemy $ trap Permanent (Countered NonMental) $
+                damage 10
           ]
         }
       ]

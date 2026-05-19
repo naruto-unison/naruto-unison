@@ -247,7 +247,8 @@ characters =
         , Skill.classes   = [Chakra, Melee, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Allies $ trapFrom Permanent (OnHarmed All) $ tag 1
+          [ To Allies $ trapFrom Permanent (OnHarmed All) $
+                tag 1
           , To Self $ hide Permanent
                 [Alternate "Piercing Four-Fingered" "Three-Fingered Assault"]
           ]
@@ -259,7 +260,8 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Self do
-                trap Permanent (OnDamaged All) $ alterCd "Lightning Armor" -1
+                trap Permanent (OnDamaged All) $
+                    alterCd "Lightning Armor" -1
                 hide Permanent
                     [Alternate "Piercing Four-Fingered" "One-Fingered Assault"]
           ]
@@ -293,7 +295,8 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Self $ trap' -1 OnDamage $ alterCd "Lightning Armor" -1
+          [ To Self $ trap' -1 OnDamage $
+                alterCd "Lightning Armor" -1
           , To Enemy do
                 bonus4 <- 5 `bonusIf` userHas "piercing four-fingered"
                 bonus3 <- 5 `bonusIf` userHas "three-fingered assault"

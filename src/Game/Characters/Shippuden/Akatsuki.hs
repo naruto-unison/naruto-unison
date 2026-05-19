@@ -237,7 +237,8 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 bomb -1 [] [ To Expire $ apply' "Pinned" -1 [Expose] ]
-                trap -1 OnHarm $ remove "Thousand Arms"
+                trap -1 OnHarm $
+                    remove "Thousand Arms"
           , To Self $ hide 1 [Alternate "Thousand Arms" "Poison Gas"]
           ]
         }
@@ -295,7 +296,8 @@ characters =
                 userSlot   <- user slot
                 targetSlot <- target slot
                 apply' "Blood Curse" 3 [Share userSlot]
-                trap 3 OnDeath $ self $ remove "bloodlink"
+                trap 3 OnDeath $ self $
+                    remove "bloodlink"
                 self do
                     hide' "bloodlink" 3 []
                     bomb' "Blood Curse" 3
@@ -318,7 +320,8 @@ characters =
           [ To Self do
                 has <- userHas "bloodlink"
                 if has then
-                    enemies $ whenM (targetHas "Blood Curse") $ pierce 50
+                    enemies $ whenM (targetHas "Blood Curse") $
+                        pierce 50
                 else
                   sacrifice 0 50
           ]
@@ -421,7 +424,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 kill
-                unlessM (target alive) $ self $ heal 35
+                unlessM (target alive) $ self $
+                    heal 35
           ]
         }
       ]
@@ -445,7 +449,8 @@ characters =
                     enemies $ hide' "ignored" Permanent []
                     remove "ignored"
                     tag Permanent
-                    trap' Permanent OnDeath $ everyone $ remove "ignored"
+                    trap' Permanent OnDeath $ everyone $
+                        remove "ignored"
                     self $ removeTrap "Thousand Hungry Sharks"
           ]
         , Skill.effects   =
@@ -520,8 +525,10 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Enemy do
-                trap 1 (Countered Chakra) flag
-                trap 1 (Countered Mental) flag
+                trap 1 (Countered Chakra)
+                    flag
+                trap 1 (Countered Mental)
+                    flag
                 delay -1 do
                     bonus <- 20 `bonusIf` targetHas "super shark bomb"
                     damage (30 + bonus)
@@ -592,7 +599,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $
-                trap 1 (Countered All) $ apply 2 [Stun Physical, Stun Ranged]
+                trap 1 (Countered All) $
+                    apply 2 [Stun Physical, Stun Ranged]
           ]
         }
       , Skill.new
@@ -603,7 +611,8 @@ characters =
         , Skill.cooldown   = 2
         , Skill.effects    =
           [ To Self do
-                trapFrom 1 (OnHarmed All) $ apply 1 [Exhaust [All]]
+                trapFrom 1 (OnHarmed All) $
+                    apply 1 [Exhaust [All]]
                 apply 1 [Nullify]
           ]
         }
@@ -807,7 +816,8 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.dur       = Passive
         , Skill.start     =
-          [ To Ally $ trapFrom 1 (Counter All) $ damage 20
+          [ To Ally $ trapFrom 1 (Counter All) $
+                damage 20
           , To Self $ tag' "Tidal Force" 1
           ]
         , Skill.effects   =
@@ -826,7 +836,8 @@ characters =
         , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ To Ally $ trapFrom 1 (Counter All) $ damage 20
+          [ To Ally $ trapFrom 1 (Counter All) $
+                damage 20
           , To Self $ tag' "Tidal Force" 1
           ]
         }
@@ -841,7 +852,8 @@ characters =
                 userSlot <- user slot
                 apply 1 [Taunt userSlot]
           , To Self $ whenM (userHas "Tidal Force") $
-                trapFrom 1 (Counter All) $ damage 20
+                trapFrom 1 (Counter All) $
+                        damage 20
           ]
         }
       ]
@@ -889,7 +901,8 @@ characters =
           [ To Enemy do
                 pierce 15
                 apply Permanent [Afflict 10]
-                trap Permanent OnHelped $ remove "Metal Blade"
+                trap Permanent OnHelped $
+                    remove "Metal Blade"
           ]
         }
       ]
@@ -935,7 +948,8 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Enemies $ whenM (targetHas "Guided Missile") $ damage 25
+          [ To Enemies $ whenM (targetHas "Guided Missile") $
+                damage 25
           , To REnemy $ damage 25
           , To Self do
                 cancelChannel "Guided Missile"
@@ -1107,7 +1121,8 @@ characters =
           ]
         , Skill.effects   =
           [ To Self $ prolong 1 "summoning: giant multi-headed dog"
-          , To Allies $ trap -1 (OnHarmed All) $ self addStack
+          , To Allies $ trap -1 (OnHarmed All) $ self
+                addStack
           , To Enemies do
                 stacks <- userStacks "Summoning: Giant Multi-Headed Dog"
                 damage (10 * bit stacks)
@@ -1262,7 +1277,8 @@ characters =
                 prolongChannel 2 "Summoning: Gedo Statue"
                 hide' "dragon" Permanent []
                 stacks <- userStacks "control"
-                when (stacks < 3) $ hide Permanent []
+                when (stacks < 3) $
+                    hide Permanent []
           ]
         , Skill.changes   =
             changeWith "Phantom Dragon" \x -> x { Skill.cost = [] }

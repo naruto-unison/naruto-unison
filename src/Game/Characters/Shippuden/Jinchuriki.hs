@@ -113,7 +113,8 @@ characters =
         , Skill.effects   =
           [ To Self do
                 tag 4
-                trapFrom 4 (OnHarmed All) $ pierce 15
+                trapFrom 4 (OnHarmed All) $
+                    pierce 15
           ]
         }
       ]
@@ -139,7 +140,9 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ trapFrom 1 (CounterAll NonMental) $ pierce 20 ]
+          [ To Self $ trapFrom 1 (CounterAll NonMental) $
+                pierce 20
+          ]
         }
       ]
     , [ (invuln "Octopus Leg Clone" "Killer B" [Chakra])

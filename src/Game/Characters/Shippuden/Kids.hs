@@ -44,7 +44,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                trapFrom 1 (Counter All) $ tag 1
+                trapFrom 1 (Counter All) $
+                    tag 1
                 apply 1 [Alternate "Giant Rasengan" "Rasen Shuriken"]
           ]
         }
@@ -75,7 +76,8 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To XEnemies $ whenM (userHas "Seal") $ damage 10
+          [ To XEnemies $ whenM (userHas "Seal") $
+                damage 10
           ,  To Enemy do
                 bonus <- 10 `bonusIf` userHas "Seal"
                 damage (25 + bonus)
@@ -178,9 +180,11 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemies $ trap 3 OnChakra $ self $ gain [Rand]
+          [ To Enemies $ trap 3 OnChakra $ self $
+                gain [Rand]
           , To Allies do
-                trap 3 OnStunned $ apply 1 [Invulnerable All]
+                trap 3 OnStunned $
+                    apply 1 [Invulnerable All]
                 trap 3 (OnDamaged NonAffliction) $
                     self $ apply 1 [Strengthen [All] Flat 10]
           , To Self $ apply 3 [Alternate "Super Beast Scroll: Snake"
@@ -242,8 +246,10 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To REnemy $ whenM (userHas "Man-Beast Clone") $ damage 20
-          , To XEnemies $ whenM (userHas "Three-Headed Wolf")  $ damage 20
+          , To REnemy $ whenM (userHas "Man-Beast Clone") $
+                damage 20
+          , To XEnemies $ whenM (userHas "Three-Headed Wolf") $
+                damage 20
           ]
         }
       ]
@@ -377,7 +383,8 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self $ tag 4
-          , To Enemies $ trap 4 OnHarm addStack
+          , To Enemies $ trap 4 OnHarm
+                addStack
           ]
         }
       ]
@@ -395,8 +402,10 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                trap 1 (Countered All) $ copyLast 1
-                delay -1 $ damage 15
+                trap 1 (Countered All) $
+                    copyLast 1
+                delay -1 $
+                    damage 15
           ]
         }
       ]
@@ -465,10 +474,12 @@ characters =
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Self do
-                delay -1 $ trap' -4 OnHarm $
-                    unlessM (userHas "What a Drag") $
-                    apply 1 [Invulnerable All, Alternate "Long-Range Tactics" "Final Explosion"]
-                trap' 4 (OnDamaged NonAffliction) $ tag' "What a Drag" 1
+                delay -1 $
+                    trap' -4 OnHarm $
+                        unlessM (userHas "What a Drag") $
+                            apply 1 [Invulnerable All, Alternate "Long-Range Tactics" "Final Explosion"]
+                trap' 4 (OnDamaged NonAffliction) $
+                    tag' "What a Drag" 1
           ]
         }
       , Skill.new
@@ -489,10 +500,9 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy do
-                trap 3 (OnAction All) do
-                    apply 1 [Expose, Uncounter]
-                    hide' "final" 1 []
+          [ To Enemy $ trap 3 (OnAction All) do
+                apply 1 [Expose, Uncounter]
+                hide' "final" 1 []
           ]
         }
       ]
@@ -520,7 +530,8 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Enemy $ delay -1 $ damage 30
+          [ To Enemy $ delay -1 $
+                damage 30
           , To Self do
                 apply 1 [Enrage]
                 replicateM_ 2 $ hide' "calories" Permanent [Exhaust [All]]
@@ -538,8 +549,8 @@ characters =
           [ To Enemy $ damage 15
           , To Self do
                 trap 1 (CounterAll Physical) $ return ()
-                trap 1 (CounterAll Chakra) $ return ()
-                trap 1 (CounterAll Summon) $ return ()
+                trap 1 (CounterAll Chakra)  $ return ()
+                trap 1 (CounterAll Summon)  $ return ()
                 hide' "calories" Permanent [Exhaust [All]]
           ]
         }
@@ -777,10 +788,11 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies $ apply 2 [Expose]
-          , To Self $ trap 1 (CounterAll All) $ bomb 1
-                [Alternate "Eight Trigrams Sixty-Four Palms"
-                           "Pressure Point Strike"]
-                [ To Expire $ remove "Pressure Point Strike" ]
+          , To Self $ trap 1 (CounterAll All) $
+                bomb 1
+                    [Alternate "Eight Trigrams Sixty-Four Palms"
+                            "Pressure Point Strike"]
+                    [ To Expire $ remove "Pressure Point Strike" ]
           ]
         }
       , Skill.new
@@ -857,7 +869,9 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 1 (Countered All) $ tag 1 ]
+          [ To Enemy $ trap 1 (Countered All) $
+                tag 1
+          ]
         }
       ]
     , [ Skill.new
@@ -1024,7 +1038,8 @@ characters =
         , Skill.cooldown  = 1
         , Skill.dur       = Action -2
         , Skill.start     =
-          [ To Enemy $ trap -1 (OnAction All) $ applyWith [Invisible] 1 []
+          [ To Enemy $ trap -1 (OnAction All) $
+                applyWith [Invisible] 1 []
           , To Self flag
           ]
         , Skill.effects   =
@@ -1055,7 +1070,9 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To XAlly $ trap 1 OnRes $ setHealth 15 ]
+          [ To XAlly $ trap 1 OnRes $
+                setHealth 15
+          ]
         }
       ]
     , [ invuln "Hide" "Konohamaru" [Mental] ]

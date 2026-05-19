@@ -67,7 +67,8 @@ characters =
                 trap Permanent (OnAction All) do
                     self $ remove "kotoamatsukami"
                     deplete 1
-                trap Permanent OnDeath $ self $ remove "kotoamatsukami"
+                trap Permanent OnDeath $ self $
+                    remove "kotoamatsukami"
           ]
         }
       , Skill.new
@@ -307,8 +308,10 @@ characters =
         , Skill.start     =
           [ To Self flag ]
         , Skill.effects   =
-          [ To Self $ unlessM (userHas "reverse tetragram sealing") killHard
-          , To Enemies $ unlessM (userHas "reverse tetragram sealing") kill
+          [ To Self $ unlessM (userHas "reverse tetragram sealing")
+                killHard
+          , To Enemies $ unlessM (userHas "reverse tetragram sealing")
+                kill
           ]
         }
       ]
@@ -412,7 +415,8 @@ characters =
         , Skill.effects  =
           [ To Enemy do
                 trap 1 (Countered All) $ return ()
-                trap 1 OnHelp $ apply 3 [Exhaust [All]]
+                trap 1 OnHelp $
+                    apply 3 [Exhaust [All]]
           ]
         }
       ]
@@ -500,7 +504,8 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Self do
-                trapFrom 1 (CounterAll NonMental) $ afflict 10
+                trapFrom 1 (CounterAll NonMental) $
+                    afflict 10
                 hide Permanent [Alternate "Chidori Stream" "Kusanagi"]
           ]
         }

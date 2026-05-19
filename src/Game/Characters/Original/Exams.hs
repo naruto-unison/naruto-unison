@@ -23,7 +23,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 15
-                trap 1 OnChakra $ deplete 1
+                trap 1 OnChakra $
+                    deplete 1
           ]
         }
       ]
@@ -37,7 +38,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 15
-                trap 1 OnStun $ apply 1 [Stun All]
+                trap 1 OnStun $
+                    apply 1 [Stun All]
           ]
         , Skill.changes   =
             changeWith "Unyielding Tenacity" \x -> x { Skill.cost = [Rand] }
@@ -65,9 +67,8 @@ characters =
         , Skill.desc      = "Shigure tosses his umbrellas upward, gaining four Umbrellas. While Shigure has Umbrellas, this skill becomes [Umbrella Gathering]."
         , Skill.classes   = [Physical, Resource]
         , Skill.effects   =
-          [ To Self do
-                applyStacks "Umbrella" 4
-                    [Alternate "Umbrella Toss" "Umbrella Gathering"]
+          [ To Self $ applyStacks "Umbrella" 4
+                [Alternate "Umbrella Toss" "Umbrella Gathering"]
           ]
         }
       , Skill.new
@@ -280,8 +281,10 @@ characters =
           [ To Self $ tag 1
           ,  To Enemy do
                 apply 2 [Expose]
-                whenM (userHas "Bell Ring Illusion") $ damage 10
-                whenM (userHas "Unnerving Bells") $ apply 1 [Stun All]
+                whenM (userHas "Bell Ring Illusion") $
+                    damage 10
+                whenM (userHas "Unnerving Bells") $
+                    apply 1 [Stun All]
           ]
         }
       ]
@@ -352,7 +355,8 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
-                whenM (userHas "Chakra Focus") $ absorb 1
+                whenM (userHas "Chakra Focus") $
+                    absorb 1
                 apply 2 [Weaken [All] Flat 5]
                 leech 20 $ self . heal
           , To Self $ apply 2 [Strengthen [All] Flat 5]
@@ -368,7 +372,8 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy do
-                whenM (userHas "Chakra Focus") $ absorb 1
+                whenM (userHas "Chakra Focus") $
+                    absorb 1
                 apply 1 [Weaken [All] Flat 5]
                 leech 15 $ self . heal
           , To Self $ apply 1 [Strengthen [All] Flat 5]

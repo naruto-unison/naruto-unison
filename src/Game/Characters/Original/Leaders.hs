@@ -89,8 +89,8 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemies $ apply 2 [Expose]
-          , To Allies $
-                trap 2 (OnDamaged NonAffliction) $ apply 1 [Invulnerable All]
+          , To Allies $ trap 2 (OnDamaged NonAffliction) $
+                apply 1 [Invulnerable All]
           ]
         }
       ]
