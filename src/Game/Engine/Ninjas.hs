@@ -111,7 +111,6 @@ nextAlternate baseName Ninja{character = Character{skills = sk}, effects} = do
             , name == baseName
             ]
 
-
 -- | Applies 'skill' to a @Skill@ and further modifies it due to 'N.copies'
 -- and 'Skill.require'ments.
 getSkill :: Int -> Ninja -> Maybe Skill
