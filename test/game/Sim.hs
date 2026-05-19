@@ -102,7 +102,7 @@ actWith skill = do
     Game{playing = player} <- P.game
     unless (Parity.allied user player) $ Engine.processTurn $ return ()
     Engine.processTurn $ Action.act
-        Context { new = True, user, target, skill = skill, continues = False }
+        Context { new = True, user, target, skill, continues = False }
     P.modify user \n -> n { N.cooldowns = mempty }
 
 enemies :: ∀ m a. (MonadPlay m) => (Ninja -> a) -> m [a]

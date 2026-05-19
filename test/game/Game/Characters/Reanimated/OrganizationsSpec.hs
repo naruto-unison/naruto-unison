@@ -11,15 +11,24 @@ spec :: Spec
 spec = parallel do
     describeCharacter "Jirōbō" do
         useOn Enemy "Rivalry" do
+            it "counters target" do
+                Sim.act
+                Sim.at XAlly $ Sim.as Enemy $ apply Permanent [Reveal]
+                not . (`is` Reveal) <$> Sim.targets XAlly
+            it "does not taunt if target is not countered" do
+                Sim.act
+                Sim.as XEnemies $ return ()
+                Sim.at XAlly $ Sim.as Enemy $ apply Permanent [Reveal]
+                (`is` Reveal) <$> Sim.targets XAlly
             it "counters with taunt" do
                 Sim.act
-                Sim.at XAlly $ Sim.as Enemy do
-                    apply Permanent [Reveal]
-                    apply Permanent [Reveal]
+                Sim.at XAlly do
+                    Sim.as Enemy $ return ()
+                    Sim.as Enemy $ apply Permanent [Reveal]
                 not . (`is` Reveal) <$> Sim.targets XAlly
             it "taunts to user" do
                 Sim.act
-                Sim.at XAlly $ Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.at XAlly $ Sim.as Enemy $ return ()
                 Sim.as Enemy $ apply Permanent [Reveal]
                 user (`is` Reveal)
             it "ends if user uses a skill on a different target" do
