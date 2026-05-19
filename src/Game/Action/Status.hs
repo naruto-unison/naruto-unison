@@ -308,17 +308,15 @@ commandeer = P.unsilenced do
               }
   where
     lose ef = Effect.helpful ef && not (Effect.sticky ef)
-    loseHelpful st
-      | Unremovable ∈ Status.classes st    = Just st
-      | null $ Status.effects st           = Just st
-      | not . any lose $ Status.effects st = Just st
-      | all lose $ Status.effects st       = Nothing
-      | otherwise =
-            Just st { Status.effects = filter (not . lose) $ Status.effects st }
-    gainHelpful st
-      | Unremovable ∈ Status.classes st    = Nothing
-      | null $ Status.effects st           = Nothing
-      | not . any lose $ Status.effects st = Nothing
-      | all lose $ Status.effects st       = Just st
-      | otherwise =
-            Just st { Status.effects = filter lose $ Status.effects st }
+    loseHelpful st@Status{classes, effects}
+      | Unremovable ∈ classes   = Just st
+      | null effects            = Just st
+      | not $ any lose effects  = Just st
+      | all lose effects        = Nothing
+      | otherwise = Just st { Status.effects = filter (not . lose) effects }
+    gainHelpful st@Status{classes, effects}
+      | Unremovable ∈ classes  = Nothing
+      | null effects           = Nothing
+      | not $ any lose effects = Nothing
+      | all lose effects       = Just st
+      | otherwise = Just st { Status.effects = filter lose effects }

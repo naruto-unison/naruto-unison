@@ -24,7 +24,7 @@ import qualified Game.Model.Context as Context
 import qualified Game.Model.Defense as Defense
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game
-import           Game.Model.Ninja (Ninja)
+import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import           Game.Model.Runnable (Runnable)
@@ -55,17 +55,17 @@ run _ trap@Trap{effect, tracker} = launch trap $ effect tracker
 
 getOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
       => Slot -> Trigger -> Ninja -> [m ()]
-getOf user trigger n = run user
-    <$> filter ((== trigger) . Trap.trigger) (N.traps n)
+getOf user trigger Ninja{traps} = run user
+    <$> filter ((== trigger) . Trap.trigger) traps
 
 get :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> [m ()]
-get user n
-  | N.alive n = hooks : (run user <$> traps)
-  | otherwise     = []
+get user n@Ninja{traps, triggers}
+  | N.alive n = hooks : (run user <$> traps')
+  | otherwise = []
   where
-      hooks = traverse_ (`Hook.trigger` n) $ N.triggers n
-      traps = filter ((∈ N.triggers n) . Trap.trigger) $ N.traps n
+      hooks = traverse_ (`Hook.trigger` n) triggers
+      traps' = filter ((∈ triggers) . Trap.trigger) traps
 
 -- | Adds a value to 'Trap.tracker' of 'N.traps' with a certain @Trigger@.
 track :: Trigger -> Int -> Ninja -> Ninja
@@ -95,8 +95,8 @@ getPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        -> Ninja -- 'N.traps' owner.
        -> [m ()]
 getPer False _  _   _ = mempty
-getPer True  tr amt n =
-    [launch trap $ effect amt | trap@Trap{effect, trigger} <- N.traps n
+getPer True  tr amt Ninja{traps} =
+    [launch trap $ effect amt | trap@Trap{effect, trigger} <- traps
                                , trigger == tr]
 
 -- | Tallies 'PerDamaged' traps.
@@ -117,9 +117,9 @@ getTurnPer player n n'
 getTurnNot :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
            => Ninja -- ^ 'N.flags' owner.
            -> [m ()]
-getTurnNot n
-  | N.acted n = mempty
-  | N.alive n = getOf (N.slot n) OnNoAction n
+getTurnNot n@Ninja{acted, slot}
+  | acted     = mempty
+  | N.alive n = getOf slot OnNoAction n
   | otherwise = mempty
 
 -- | Processes and runs all 'Trap.Trap's at the end of a turn.

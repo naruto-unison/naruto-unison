@@ -58,6 +58,7 @@ import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Skills as Skills
 import           Game.Model.Channel (Channel(Channel), Channeling(..))
 import qualified Game.Model.Channel as Channel
+import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Copy (Copy(Copy))
@@ -67,7 +68,7 @@ import qualified Game.Model.Defense as Defense
 import           Game.Model.Duration (Duration(..), sync)
 import           Game.Model.Effect (Amount(..), Effect(..))
 import qualified Game.Model.Effect as Effect
-import           Game.Model.Ninja (Ninja, is)
+import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Requirement (Requirement(..))
 import qualified Game.Model.Requirement as Requirement
@@ -85,10 +86,11 @@ headOr x []    = x
 headOr _ (x:_) = x
 
 alternate :: Ninja -> [Int]
-alternate n = findAlt <$> toList (Character.skills $ N.character n)
+alternate Ninja{character = Character{skills = sk}, effects} =
+    findAlt <$> toList sk
   where
     findAlt (base:|alts) = headOr 0
-        [i + 1 | Alternate name alt <- N.effects n
+        [i + 1 | Alternate name alt <- effects
                , name == Skill.name base
                , i <- maybeToList $ findIndex ((== alt) . Skill.name) alts
                ]
@@ -98,15 +100,14 @@ processAlternates n = n { N.alternates = fromList $ alternate n }
 
 -- | Cycles a skill through its list of alternates.
 nextAlternate :: Text -> Ninja -> Maybe Text
-nextAlternate baseName n = do
-    alts <- find ((== baseName) . Skill.name . head) . toList . Character.skills
-          $ N.character n
+nextAlternate baseName Ninja{character = Character{skills = sk}, effects} = do
+    alts <- find ((== baseName) . Skill.name . head) $ toList sk
     alt  <- filterAlt $ tail alts
     return $ Skill.name alt
   where
     filterAlt = headOr headMay
         [ headMay . drop 1 . dropWhile ((/= alt) . Skill.name)
-            | Alternate name alt <- N.effects n
+            | Alternate name alt <- effects
             , name == baseName
             ]
 
@@ -143,10 +144,9 @@ apply n nt fs = adjustEffect <$> filter keepEffects fs
 -- | Fills 'N.effects' with the effects of 'N.statuses', modified by
 -- 'NoIgnore', 'Seal', 'Boost', and so on.
 processEffects :: Ninja -> Ninja
-processEffects n = n { N.effects = process =<< baseStatuses }
+processEffects n@Ninja{slot = nSlot, statuses = baseStatuses} =
+    n { N.effects = process =<< baseStatuses }
   where
-    nSlot         = N.slot n
-    baseStatuses  = N.statuses n
     unmodEffects  = Status.effects =<< baseStatuses
     noIgnore      = NoIgnore ∈ unmodEffects
     baseEffects
@@ -221,10 +221,11 @@ addOwnStacks :: Duration -- ^ 'Status.dur'.
              -> Int -- ^ Index in skill in 'Character.skills'.
              -> Int -- ^ 'Status.amount'.
              -> Ninja -> Ninja
-addOwnStacks dur name s alt i n = addStatus st n
+addOwnStacks dur name s alt i n@Ninja{slot, character = Character{skills = sk}}
+    = addStatus st n
   where
-    skill = Character.skills (N.character n) !! s !! alt
-    st = (Status.new (N.slot n) dur skill)
+    skill = sk !! s !! alt
+    st = (Status.new slot dur skill)
             { Status.name    = name
             , Status.classes = insertSet Unremovable $ Status.classes st
             , Status.amount  = i
@@ -316,25 +317,25 @@ copy dur slots skill n = n { N.copies = foldl' go (N.copies n) slots }
 
 -- | Removes harmful effects. Does not work if the target has 'Plague'.
 cure :: (Effect -> Bool) -> Ninja -> Ninja
-cure match n
+cure match n@Ninja{slot}
   | n `is` Plague = n
   | otherwise     = modifyStatuses (mapMaybe cure') n
   where
     keep a = Effect.helpful a || not (match a)
-    cure' st
-      | Status.user st == N.slot n         = Just st
-      | null $ Status.effects st           = Just st
-      | Unremovable ∈ Status.classes st    = Just st
-      | not $ any keep $ Status.effects st = Nothing
-      | otherwise = Just st { Status.effects = filter keep $ Status.effects st }
+    cure' st@Status{classes, effects, user}
+      | user == slot           = Just st
+      | null effects           = Just st
+      | Unremovable ∈ classes  = Just st
+      | not $ any keep effects = Nothing
+      | otherwise = Just st { Status.effects = filter keep effects }
 
 -- | Cures 'Bane' 'statuses'.
 cureBane :: Ninja -> Ninja
-cureBane n
+cureBane n@Ninja{slot}
   | n `is` Plague = n
   | otherwise     = modifyStatuses (filter keep) n
   where
-    keep st = Bane ∉ Status.classes st || N.slot n == Status.user st
+    keep Status{classes, user} = Bane ∉ classes || slot == user
 
 kill :: Bool -- ^ Can be prevented by 'Endure'.
      -> Ninja -> Ninja
