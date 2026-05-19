@@ -467,8 +467,8 @@ characters =
           ]
         , Skill.changes =
             changeWith "Mangekyō Sharingan" \x ->
-                x { Skill.cooldown = 2 * Skill.cooldown x
-                  , Skill.cost     = 2 * Skill.cost x
+                x { Skill.cooldown = Skill.cooldown x + Skill.cooldown x
+                  , Skill.cost     = Skill.cost x ++ Skill.cost x
                   , Skill.effects  =
                     [ To Enemies do
                           afflict 20
@@ -490,8 +490,8 @@ characters =
           ]
         , Skill.changes =
             changeWith "Mangekyō Sharingan" \x ->
-                x { Skill.cooldown = 2 * Skill.cooldown x
-                  , Skill.cost     = 2 * Skill.cost x
+                x { Skill.cooldown = Skill.cooldown x + Skill.cooldown x
+                  , Skill.cost     = Skill.cost x ++ Skill.cost x
                   , Skill.effects  =
                     [ To Enemies do
                           damage 40

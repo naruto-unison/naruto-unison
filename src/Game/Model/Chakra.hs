@@ -4,6 +4,9 @@ module Game.Model.Chakra
   , parse
   , classes
   , random
+  , scale
+  , spend
+  , checkedSpend
   ) where
 
 import ClassyPrelude
@@ -34,6 +37,11 @@ data Chakras = Chakras
     , rand  :: Int -- ^ Random
     } deriving (Eq, Show, Read, Generic)
 
+naiveSubtract :: Chakras -> Chakras -> Chakras
+naiveSubtract (Chakras b g n t r) (Chakras b' g' n' t' r') =
+    Chakras (b - b') (g - g') (n - n') (t - t') (r - r')
+{-# INLINE naiveSubtract #-}
+
 instance Ord Chakras where
     compare x y = comparing length x y <> comparing projection x y
       where
@@ -53,7 +61,8 @@ instance ToMarkup Chakras where
     toMarkup = concatMap toMarkup . toList
 
 instance Semigroup Chakras where
-    (<>) = (+)
+    Chakras b g n t r <> Chakras b' g' n' t' r' =
+        Chakras (b + b') (g + g') (n + n') (t + t') (r + r')
     {-# INLINE (<>) #-}
 
 instance Monoid Chakras where
@@ -101,10 +110,10 @@ instance MonoFoldable Chakras where
 
 instance MonoFunctor Chakras where
     omap f (Chakras b g n t r) = replicate b (f Blood)
-                               + replicate g (f Gen)
-                               + replicate n (f Nin)
-                               + replicate t (f Tai)
-                               + replicate r (f Rand)
+                              ++ replicate g (f Gen)
+                              ++ replicate n (f Nin)
+                              ++ replicate t (f Tai)
+                              ++ replicate r (f Rand)
     {-# INLINABLE omap #-}
 
 instance MonoPointed Chakras where
@@ -200,7 +209,7 @@ instance IsSequence Chakras where
             | otherwise               = 0
     {-# INLINABLE filter #-}
 
-    partition f chakras = (yays, chakras - yays)
+    partition f chakras = (yays, chakras `naiveSubtract` yays)
       where
         yays = filter f chakras
     {-# INLINABLE partition #-}
@@ -246,31 +255,6 @@ instance PathPiece Chakras where
     toPathPiece (Chakras b g n t _) = intercalate "," $ tshow <$> [b, g, n, t]
     fromPathPiece piece = rightToMaybe $ Parse.parseOnly parse piece
 
-map1 :: (Int -> Int) -> Chakras -> Chakras
-map1 f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
-{-# INLINE map1 #-}
-
-map2 :: (Int -> Int -> Int) -> Chakras -> Chakras -> Chakras
-map2 f (Chakras b g n t r) (Chakras b' g' n' t' r') =
-    Chakras (f b b') (f g g') (f n n') (f t t') (f r r')
-{-# INLINE map2 #-}
-
-instance Num Chakras where
-    (+)    = map2 (+)
-    {-# INLINE (+) #-}
-    (-)    = map2 (-)
-    {-# INLINE (-) #-}
-    (*)    = map2 (*)
-    {-# INLINE (*) #-}
-    negate = map1 negate
-    {-# INLINE negate #-}
-    abs    = map1 abs
-    {-# INLINE abs #-}
-    signum = map1 signum
-    {-# INLINE signum #-}
-    fromInteger (fromInteger -> x) = Chakras x x x x x
-    {-# INLINE fromInteger #-}
-
 -- | Units of @Game.Model.Skill.cost@.
 data Chakra
     = Blood -- ^ Bloodline
@@ -309,3 +293,21 @@ classes (Chakras b g n t r) = setFromList $ fst <$> filter snd
 -- | Randomly selects a @Chakra@.
 random :: ∀ m. MonadRandom m => m Chakra
 random = toEnum <$> R.random (fromEnum Blood) (fromEnum Tai)
+
+mapAmounts :: (Int -> Int) -> Chakras -> Chakras
+mapAmounts f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
+{-# INLINE mapAmounts #-}
+
+scale :: Int -> Chakras -> Chakras
+scale scalar = mapAmounts (* scalar)
+
+spend :: Chakras -> Chakras -> Chakras
+spend cost chakras = mapAmounts (max 0) $ chakras `naiveSubtract` cost
+
+checkedSpend :: Chakras -> Chakras -> Maybe Chakras
+checkedSpend cost before
+    | insufficient = Nothing
+    | otherwise    = Just after
+  where
+    after@(Chakras b g n t r) = before `naiveSubtract` cost
+    insufficient = b < 0 || g < 0 || n < 0 || t < 0 || r < 0

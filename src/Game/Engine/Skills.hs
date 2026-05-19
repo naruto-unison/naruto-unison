@@ -14,6 +14,7 @@ import ClassyPrelude hiding (swap)
 import           Class.TurnBased as TurnBased
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Chakra (Chakras)
+import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (is)
 import           Game.Model.Ninja (Ninja(Ninja))
@@ -48,17 +49,17 @@ changeWithDefense name f n@Ninja{slot}
 -- | Multiplies @Chakras@ by 'N.numActive' and adds the total to
 -- 'Skill.cost'.
 costPer :: Text -> Chakras -> Skill.Transform
-costPer name chaks n skill = skill { Skill.cost = Skill.cost skill + added }
+costPer name chaks n skill = skill { Skill.cost = Skill.cost skill ++ added }
   where
-    added = chaks * fromIntegral (N.numActive name n)
+    added = Chakra.scale (N.numActive name n) chaks
 
 -- | Multiplies @Chakras@ by 'N.numActive' and subtracts the total from
 -- 'Skill.cost'.
 reduceCostPer :: Text -> Chakras -> Skill.Transform
 reduceCostPer name chaks n skill =
-    skill { Skill.cost = Skill.cost skill - added }
+    skill { Skill.cost = Chakra.spend added $ Skill.cost skill }
   where
-    added = chaks * fromIntegral (N.numActive name n)
+    added = Chakra.scale (N.numActive name n) chaks
 
 -- | Multiplies some number of turns by 'N.numActive' and adds the total to
 -- 'Skill.channel'.
@@ -82,7 +83,7 @@ changeEffects f skill =
 -- | Modifies a 'Skill' by its 'Skill.change' and any other effects on it.
 change :: Skill.Transform
 change n sk =
-    sk' { Skill.cost = Effects.exhaust (Skill.classes sk') n + Skill.cost sk' }
+    sk' { Skill.cost = Effects.exhaust (Skill.classes sk') n ++ Skill.cost sk' }
   where
     prestrict = Skill.chakraClasses $ Skill.changes sk n sk
     sk'

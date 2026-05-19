@@ -34,7 +34,7 @@ gain :: ∀ m. (MonadPlay m, MonadRandom m) => [Chakra] -> m ()
 gain chakras = P.unsilenced do
     Context{user, target} <- P.context
     rand <- replicateM (length rands) Chakra.random
-    P.alter $ Game.adjustChakra target (+ fromList (rand ++ nonrands))
+    P.alter $ Game.addChakra target $ fromList $ rand ++ nonrands
     P.trigger user [OnChakra]
   where
     (rands, nonrands) = partition (== Rand) chakras
@@ -57,7 +57,7 @@ absorb :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 absorb amount = P.unsilenced do
     Context{user} <- P.context
     chakras <- Chakras.remove amount
-    P.alter $ Game.adjustChakra user (+ chakras)
+    P.alter $ Game.addChakra user chakras
 
 -- | Transfers a single 'Chakra' that is one of several types from the
 -- 'Game.chakra' of the target's team to the 'Game.chakra' of the user's team.
@@ -67,7 +67,7 @@ absorb1 :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Chakra -> m ()
 absorb1 chakras = P.unsilenced do
     Context{user} <- P.context
     chakra <- Chakras.remove1 chakras
-    P.alter $ Game.adjustChakra user (+ chakra)
+    P.alter $ Game.addChakra user chakra
 
 -- | Restores health to the user multiplied by the chakra cost of the target's
 -- last skill.

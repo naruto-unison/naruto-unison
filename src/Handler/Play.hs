@@ -187,7 +187,7 @@ getPracticeActR spend exchange actions = do
           Left errorMsg -> invalidArgs [tshow errorMsg]
           Right ()      -> do
               game'A <- Wrapper.freeze
-              P.alter \g -> g { Game.chakra  = (fst $ Game.chakra g, 100)
+              P.alter \g -> g { Game.chakra  = (fst $ Game.chakra g, baseChakra)
                               , Game.playing = Player.B
                               }
               AI.runTurn
@@ -198,6 +198,8 @@ getPracticeActR spend exchange actions = do
                   else
                       Cache.delete practice who
               returnJson $ Wrapper.toTurn Player.A <$> [game'A, game'B]
+  where
+    baseChakra = Chakras 100 100 100 100 100
 
 handleFailures :: ∀ m a. MonadSockets m => Either Client.Failure a -> m (Maybe a)
 handleFailures (Left msg)  = Nothing <$ Client.send (Client.Fail msg)
@@ -353,26 +355,29 @@ tryEnact settings player mvar = do
 -- | Processes a user's actions and passes them to 'Engine.run'.
 enact :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
       => Enact -> m (Either LByteString ())
-enact Enact{spend, exchange, actions} = runExceptT do
-    contexts   <- traverse Act.toContext actions
+enact Enact{spend, exchange, actions}
+    | randTotal < 0 = return $ Left "Insufficient chakra"
+    | otherwise = runExceptT do
+    contexts <- traverse Act.toContext actions
     Game{chakra, playing = player} <- P.game
-    let gameChakra = Parity.getOf player chakra
-    let actCosts  = sum $ Skill.cost . Context.skill <$> contexts
-        adjChakra = gameChakra + exchange - spend
-        newChakra = adjChakra { Chakra.rand = randTotal } - actCosts
+    mapM_ throwE $ illegal player contexts
 
-    mapM_ throwE $ illegal player newChakra contexts
+    let gameChakra = Parity.getOf player chakra
+        actCosts   = concatMap (Skill.cost . Context.skill) contexts
+        mAdjChakra = Chakra.checkedSpend spend $ gameChakra ++ exchange
+        mNewChakra = mAdjChakra >>= \ch -> Chakra.checkedSpend actCosts
+                                           (ch { Chakra.rand = randTotal })
+
+    newChakra <- maybe (throwE "Insufficient chakra") return mNewChakra
     P.alter $ Game.setChakra player newChakra
     Engine.runTurn contexts
   where
     randTotal = length spend - 5 * length exchange
-    illegal player chakra contexts
+    illegal player contexts
       | length contexts > Slot.teamSize       = Just "Too many actions"
       | nonUnique $ Context.user <$> contexts = Just "Duplicate actors"
-      | randTotal < 0 || insufficient chakra  = Just "Insufficient chakra"
       | any (Context.illegal player) contexts = Just "Character out of range"
       | otherwise                             = Nothing
-    insufficient (Chakras b g n t r) = b < 0 || g < 0 || n < 0 || t < 0 || r < 0
     nonUnique :: [Slot] -> Bool
     nonUnique slots = go mempty slots
       where

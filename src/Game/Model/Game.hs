@@ -1,6 +1,6 @@
 module Game.Model.Game
   ( Game(..), new, newWithChakras
-  , setChakra, adjustChakra
+  , setChakra, addChakra, removeChakra
   , inProgress
   ) where
 
@@ -53,6 +53,12 @@ setChakra p x game = game { chakra = Parity.setOf p x $ chakra game }
 
 adjustChakra :: ∀ a. Parity a => a -> (Chakras -> Chakras) -> Game -> Game
 adjustChakra p f game = game { chakra = Parity.modifyOf p f $ chakra game }
+
+addChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
+addChakra p chakras game = adjustChakra p (++ chakras) game
+
+removeChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
+removeChakra p chakras game = adjustChakra p (Chakra.spend chakras) game
 
 -- | The game has not yet ended.
 inProgress :: Game -> Bool

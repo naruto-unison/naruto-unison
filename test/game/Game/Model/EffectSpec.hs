@@ -20,6 +20,7 @@ import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
 import           Game.Model.Attack (Attack)
 import qualified Game.Model.Attack as Attack
+import           Game.Model.Chakra (Chakras(Chakras))
 import qualified Game.Model.Chakra as Chakra
 import qualified Game.Model.Character as Character
 import           Game.Model.Context (Context(Context))
@@ -46,9 +47,9 @@ spec :: Spec
 spec = parallel do
     describe "Absorb" do
         it "gains chakra from enemy skills" $
-            tryAbsorb Enemy 1 `shouldBe` 1
+            tryAbsorb Enemy (Chakras 1 1 1 1 1) `shouldBe` (Chakras 1 1 1 1 1)
         it "does not gain chakra from friendly skills" $
-            tryAbsorb Ally 2 `shouldBe` 0
+            tryAbsorb Ally (Chakras 2 2 2 2 2) `shouldBe` mempty
 
     describe "Afflict" do
         prop "damages every turn" \amount (Positive turns) -> simAt Enemy do

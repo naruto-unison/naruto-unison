@@ -44,7 +44,7 @@ removeFrom target amount
       let chakras = fromList . toList . removeRandoms
                   $ Parity.getOf target chakra
       removed <- fromList . toList . take amount <$> R.shuffle chakras
-      P.alter $ Game.adjustChakra target (- removed)
+      P.alter $ Game.removeChakra target removed
       return removed
   where
     removeRandoms x = x { Chakra.rand = 0 }
@@ -62,7 +62,7 @@ remove1 permitted = do
     mRemoved <- R.choose chakras
     case mRemoved of
         Just (singleton -> removed) -> do
-            P.alter $ Game.adjustChakra target (- removed)
+            P.alter $ Game.removeChakra target removed
             return removed
         Nothing -> return mempty
 
@@ -74,4 +74,4 @@ gain = do
     let player = Player.opponent playing
     living  <- length . filter N.alive <$> P.allies player
     randoms <- replicateM living Chakra.random
-    P.alter $ Game.adjustChakra player (+ fromList randoms)
+    P.alter $ Game.addChakra player $ fromList randoms

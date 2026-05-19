@@ -56,7 +56,7 @@ addGroups :: Character -> Character
 addGroups char@Character{groups, skills} =
     char { Character.groups = added `union` groups }
   where
-    Chakras{blood, gen, nin, tai} = sum $ Skill.cost <$> concatMap toList skills
+    Chakras{blood, gen, nin, tai} = concatMap (Skill.cost) $ concatMap toList skills
     added = setFromList $ fst <$> filter snd [ (BloodlineUser, blood /= 0)
                                              , (GenjutsuUser,  gen   /= 0)
                                              , (NinjutsuUser,  nin   /= 0)

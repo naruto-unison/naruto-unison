@@ -36,7 +36,7 @@ absorb :: ∀ m. MonadPlay m => Ninja -> m ()
 absorb n
   | n `is` Absorb = do
       Context{skill = Skill{cost}} <- P.context
-      P.alter $ Game.adjustChakra n (+ cost)
+      P.alter $ Game.addChakra n cost
   | otherwise = return ()
 
 -- | Trigger a 'Redirect'.
