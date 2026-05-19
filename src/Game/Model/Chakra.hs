@@ -27,7 +27,7 @@ import           Yesod.Core.Dispatch (PathPiece(..))
 import           Class.Random (MonadRandom)
 import qualified Class.Random as R
 import           Game.Model.Class (Class(..))
-import           Util (hushedParse)
+import           Util (rightToMaybe)
 
 -- | Collection of all chakra types.
 data Chakras = Chakras
@@ -66,7 +66,7 @@ parse = Chakras
 
 instance PathPiece Chakras where
     toPathPiece (Chakras b g n t _) = intercalate "," $ tshow <$> [b, g, n, t]
-    fromPathPiece = hushedParse parse
+    fromPathPiece piece = rightToMaybe $ Parse.parseOnly parse piece
 
 map1 :: (Int -> Int) -> Chakras -> Chakras
 map1 f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
