@@ -86,7 +86,7 @@ demolish = attack Attack.Demolish
 demolishAll :: ∀ m. MonadPlay m => m ()
 demolishAll = do
     Context{target, user} <- P.context
-    P.modify user \n -> n { N.barrier = [] }
+    P.modify user   \n -> n { N.barrier = [] }
     P.modify target \n -> n { N.defense = [] }
 
 userAdjust :: Attack -> EnumSet Class -> Ninja -> Float -> Float
@@ -139,8 +139,7 @@ formula atk classes nUser nTarget = limit . round
 -- Uses 'Ninjas.adjustHealth' internally.
 attack :: ∀ m. MonadPlay m => Attack -> Int -> m ()
 attack atk dmg = void $ runMaybeT do
-    nTarget    <- P.nTarget
-
+    nTarget <- P.nTarget
     guard . not $ nTarget `is` Invulnerable atkClass
 
     channeled <- isChanneled <$> P.context

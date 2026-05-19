@@ -85,7 +85,7 @@ unlocked :: Handler Unlocks
 unlocked = cached $ maybe allUnlocked Unlocks <$> runMaybeT do
     unlockAll <- getsYesod $ Settings.unlockAll . App.settings
     guard unlockAll
-    who <- MaybeT Auth.maybeAuthId
+    who       <- MaybeT Auth.maybeAuthId
     privilege <- App.getPrivilege
     guard $ privilege < Moderator
     getUnlocked <$> getsYesod App.characterIDs
@@ -109,9 +109,9 @@ freeChars = setFromList dna `difference` keysSet Missions.map
 -- Otherwise, returns a list of goals paired with the user's progress on each.
 userMission :: Text -> Handler (Maybe (Seq (Goal, Int)))
 userMission char = fromMaybe mempty <$> runMaybeT do
-    who     <- MaybeT Auth.maybeAuthId
-    charID  <- characterID char
-    mission <- MaybeT . return $ lookup char Missions.map
+    who        <- MaybeT Auth.maybeAuthId
+    charID     <- characterID char
+    mission    <- MaybeT . return $ lookup char Missions.map
     objectives <- lift $ runDB do
         alreadyUnlocked <-
             selectFirst [UnlockedUser ==. who, UnlockedCharacter ==. charID] []
@@ -259,7 +259,7 @@ awardDNA Queue.Quick outcome war = do
     dnaConf       <- getsYesod $ Settings.dnaConf . App.settings
     UTCTime day _ <- liftIO getCurrentTime
     let jDay       = Just day
-    let tallies    = tallyDNA Queue.Quick outcome war dnaConf jDay user
+        tallies    = tallyDNA Queue.Quick outcome war dnaConf jDay user
     runDB . Sql.update who $ updateLatestWin outcome jDay
         [UserLatestGame =. jDay, UserDna +=. sum (Reward.amount <$> tallies)]
     return tallies

@@ -93,9 +93,9 @@ instance Read Duration where
     readPrec = parens $ prec 10 do
         lx <- lexP
         case lx of
-            String "Permanent" -> return Permanent
+            String "Permanent"                 -> return Permanent
             Number (numberToInteger -> Just d) -> return $ fromInteger d
-            _ -> empty
+            _                                  -> empty
 
 instance Display Duration where
     display Permanent = "Permanent"
