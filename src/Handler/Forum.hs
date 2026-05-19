@@ -243,9 +243,8 @@ getLikes mwho post = LikedPost post
 
 -- | Displays a user's rank, or their 'Privilege' level if higher than 'Normal'.
 userRank :: User -> Text
-userRank User{userPrivilege, userXp} = case userPrivilege of
-    Normal -> fromMaybe "Hokage" $ userRanks !? (userXp `quot` 5000)
-    rank   -> tshow rank
+userRank User{userXp, userPrivilege = Normal} = fromMaybe "Hokage"
+    $ userRanks !? (userXp `quot` 5000)
   where
     userRanks = [ "Academy Student"
                 , "Genin"
@@ -259,3 +258,4 @@ userRank User{userPrivilege, userXp} = case userPrivilege of
                 , "Kage"
                 , "Hokage"
                 ]
+userRank User{userPrivilege} = tshow userPrivilege

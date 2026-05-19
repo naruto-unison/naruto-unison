@@ -47,12 +47,13 @@ instance PathPiece Act where
 toContext :: ∀ m. MonadGame m => Act -> ExceptT LByteString m Context
 toContext (Act user skill target) = do
     nUser <- P.ninja user
-    case Ninjas.getSkill skill nUser of
-        Nothing -> throwE "Invalid skill"
-        Just sk -> return Context
-            { new = True
-            , user
-            , skill = sk
-            , target
-            , continues = False
-            }
+    sk    <- maybe (throwE "Invalid skill") return $ Ninjas.getSkill skill nUser
+    return $ skillCtx sk
+  where
+    skillCtx sk = Context
+        { new = True
+        , user
+        , skill = sk
+        , target
+        , continues = False
+        }

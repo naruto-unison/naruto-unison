@@ -95,9 +95,8 @@ queue Private team = do
         vsName <- Sockets.receive {-! BLOCKS !-}
         mVs    <- liftDB $ selectFirst [UserName ==. vsName] []
         case mVs of
-            Just (Entity vsWho _) | vsWho == who -> throwE Client.NotFound
-            Just vs -> return vs
-            Nothing -> throwE Client.NotFound
+            Just vs@(Entity vsWho _) | vsWho /= who -> return vs
+            _ -> throwE Client.NotFound
 
     writer <- getsYesod App.private
     reader <- liftIO $ atomically do

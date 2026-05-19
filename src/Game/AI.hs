@@ -23,9 +23,10 @@ import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Slot (Slot)
 
 targetOptions :: [Ninja] -> Ninja -> Int -> [Context]
-targetOptions ns n i = case Ninjas.getSkill i n of
-    Just skill -> makeOption skill <$> Requirement.targets ns n skill
-    Nothing    -> []
+targetOptions ns n i =
+    [ makeOption skill target | skill  <- maybeToList $ Ninjas.getSkill i n
+                              , target <- Requirement.targets ns n skill
+                              ]
   where
     makeOption skill target = Context
         { new = True
@@ -74,14 +75,11 @@ chooseVendetta = do
 getVendetta :: ∀ m. (MonadGame m, MonadRandom m) => m (Maybe Slot)
 getVendetta = do
     Game{vendetta} <- P.game
-    case vendetta of
-        Nothing -> chooseVendetta
-        Just v  -> do
-            ninja <- P.ninja v
-            if N.alive ninja then
-                return vendetta
-            else
-                chooseVendetta
+    fromMaybe <$> chooseVendetta <*> runMaybeT do
+        v <- MaybeT $ return vendetta
+        ninja <- lift $ P.ninja v
+        guard $ N.alive ninja
+        return vendetta
 
 
 runTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()

@@ -7,7 +7,7 @@ module Util
   , getCurrentWeek
   , intersects
   , mapFromKeyed
-  , rightToMaybe
+  , leftToMaybe, rightToMaybe
   , commas
   , shorten, unaccent
   ) where
@@ -80,6 +80,10 @@ mapFromKeyed :: ∀ map a. IsMap map
              => (a -> ContainerKey map, a -> MapValue map) -> [a] -> map
 mapFromKeyed (toKey, toVal) xs = mapFromList $ (\x -> (toKey x, toVal x)) <$> xs
 {-# INLINE mapFromKeyed #-}
+
+leftToMaybe :: Either a b -> Maybe a
+leftToMaybe (Left x)  = Just x
+leftToMaybe (Right _) = Nothing
 
 rightToMaybe :: Either a b -> Maybe b
 rightToMaybe (Left _)  = Nothing

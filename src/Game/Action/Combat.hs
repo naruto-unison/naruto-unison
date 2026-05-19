@@ -109,9 +109,9 @@ targetAdjust atk classes nTarget x = x
   where
     bleed        = Effects.bleed classes nTarget
     reduceAfflic = Effects.reduce (singletonSet Affliction) nTarget
-    reduce = case atk of
-        Attack.Damage -> Effects.reduce classes nTarget
-        _             -> const 0
+    reduce amt
+      | atk == Attack.Damage = Effects.reduce classes nTarget amt
+      | otherwise            = 0
 
 -- | Damage formula.
 formula :: Attack -- ^ Attack type.
@@ -125,12 +125,14 @@ formula atk classes nUser nTarget = limit . round
     . userAdjust atk' classes nUser
     . fromIntegral
   where
-    atk' = case atk of
-        Attack.Damage | nUser `is` Pierce -> Attack.Pierce
-        _                                 -> atk
-    limit i = case Effects.limit nTarget of
-        Just x | atk' /= Attack.Afflict -> min x i
-        _                               -> i
+    atk'
+      | atk == Attack.Damage && nUser `is` Pierce = Attack.Pierce
+      | otherwise = atk
+    limit i
+      | atk == Attack.Afflict = i
+      | otherwise = case Effects.limit nTarget of
+        Just x  -> min x i
+        Nothing -> i
 
 -- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce',
 -- 'Attack.Damage', or 'Attack.Demolish' attack.
@@ -185,9 +187,9 @@ attack atk dmg = void $ runMaybeT do
 
   where
     isChanneled Context{continues, new} = continues && not new
-    atkClass = case atk of
-        Attack.Afflict -> Affliction
-        _              -> NonAffliction
+    atkClass
+      | atk == Attack.Afflict = Affliction
+      | otherwise             = NonAffliction
 
 -- | Adds new destructible 'Defense'.
 -- Destructible defense acts as an extra bar in front of the 'N.health'

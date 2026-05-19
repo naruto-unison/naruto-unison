@@ -51,19 +51,16 @@ getDeletePostR postId = attemptMaybeT do
 -- Returns @True@ if successful, otherwise @False@.
 getLikePostR :: Key ForumPost -> Handler Value
 getLikePostR forumLikePost = attemptMaybeT do
-    who   <- MaybeT Auth.maybeAuthId
+    who <- MaybeT Auth.maybeAuthId
     ForumPost {forumPostAuthor, forumPostDeleted} <- lift . runDB
                                                    $ get404 forumLikePost
     guard $ forumPostAuthor /= who && not forumPostDeleted
     liked <- lift . runDB $ getLike forumLikePost who
-    case liked of
-        Just (Entity likeId _) ->
-            lift . runDB $ delete likeId
-        Nothing -> do
-            lift . runDB . void $ insert ForumLike { forumLikePost
-                                                   , forumLikeUser = who
-                                                   }
-            empty
+    lift $ runDB case liked of
+        Just (Entity likeId _) -> delete likeId
+        Nothing -> void $ insert ForumLike { forumLikePost
+                                           , forumLikeUser = who
+                                           }
 
 getLike :: ∀ m. MonadIO m
         => Key ForumPost -> Key User -> SqlPersistT m (Maybe (Entity ForumLike))

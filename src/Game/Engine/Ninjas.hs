@@ -87,12 +87,11 @@ headOr _ (x:_) = x
 alternate :: Ninja -> [Int]
 alternate n = findAlt <$> toList (Character.skills $ N.character n)
   where
-    findAlt (base:|alts) = headOr 0 do
-        Alternate name alt <- N.effects n
-        guard $ name == Skill.name base
-        case findIndex ((== alt) . Skill.name) alts of
-            Just i  -> return $ i + 1
-            Nothing -> empty
+    findAlt (base:|alts) = headOr 0
+        [i + 1 | Alternate name alt <- N.effects n
+               , name == Skill.name base
+               , i <- maybeToList $ findIndex ((== alt) . Skill.name) alts
+               ]
 
 processAlternates :: Ninja -> Ninja
 processAlternates n = n { N.alternates = fromList $ alternate n }
@@ -105,10 +104,12 @@ nextAlternate baseName n = do
     alt  <- filterAlt $ tail alts
     return $ Skill.name alt
   where
-    filterAlt = headOr headMay do
-        Alternate name alt <- N.effects n
-        guard $ name == baseName
-        return $ headMay . drop 1 . dropWhile ((/= alt) . Skill.name)
+    filterAlt = headOr headMay
+        [ headMay . drop 1 . dropWhile ((/= alt) . Skill.name)
+            | Alternate name alt <- N.effects n
+            , name == baseName
+            ]
+
 
 -- | Applies 'skill' to a @Skill@ and further modifies it due to 'N.copies'
 -- and 'Skill.require'ments.

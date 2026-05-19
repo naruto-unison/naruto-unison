@@ -53,14 +53,13 @@ update :: IO ()
 update = do
     mtidStore <- lookupStore tidStoreNum
     case mtidStore of
-      -- no server running
-      Nothing -> do
-          done <- storeAction doneStore newEmptyMVar
-          tid <- start done
-          _ <- storeAction (Store tidStoreNum) (newIORef tid)
-          return ()
       -- server is already running
       Just tidStore -> restartAppInNewThread tidStore
+      -- no server running
+      Nothing       -> do
+          done <- storeAction doneStore newEmptyMVar
+          tid  <- start done
+          void $ storeAction (Store tidStoreNum) (newIORef tid)
   where
     doneStore :: Store (MVar ())
     doneStore = Store 0
@@ -90,7 +89,7 @@ shutdown = do
     mtidStore <- lookupStore tidStoreNum
     case mtidStore of
       -- no server running
-      Nothing -> putStrLn "no Yesod app running"
+      Nothing       -> putStrLn "no Yesod app running"
       Just tidStore -> do
           withStore tidStore $ readIORef >=> killThread
           putStrLn "Yesod app is shutdown"

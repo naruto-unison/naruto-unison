@@ -42,9 +42,9 @@ instance Parity Slot where
 instance Read Slot where
     readPrec = parens $ prec 10 do
         Number n <- lexP
-        case numberToInteger n of
-            Just (fromInteger -> i) | i >= 0 && i <= maxVal -> return $ Slot i
-            _                                               -> empty
+        Just i   <- return $ fromInteger <$> numberToInteger n
+        guard $ i >= 0 && i <= maxVal
+        return $ Slot i
 
 instance Bounded Slot where
     minBound = Slot 0

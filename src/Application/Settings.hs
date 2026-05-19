@@ -191,7 +191,7 @@ configSettingsYmlValue = case Yaml.decodeEither' configSettingsYmlBS of
 -- | A version of @Settings@ parsed at compile time from @config/settings.yml@.
 compileTimeAppSettings :: Settings
 compileTimeAppSettings = case Aeson.fromJSON json of
-    Error e -> error e
+    Error e          -> error e
     Success settings -> settings
   where
     json = DefaultConfig.applyEnvValue False mempty configSettingsYmlValue

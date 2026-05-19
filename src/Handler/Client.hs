@@ -91,7 +91,7 @@ getMuteR mute = do
 
 -- | Buys a Reanimated character with DNA. Returns the new 'UserDna' balance.
 getReanimateR :: Character -> Handler Value
-getReanimateR char = do
+getReanimateR char@Character{price} = do
     (who, user) <- Auth.requireAuthPair
     when (userDna user < price)
         $ invalidArgs ["Unaffordable"]
@@ -99,14 +99,11 @@ getReanimateR char = do
     when (Character.ident char ∈ unlocks)
         $ invalidArgs ["Character already unlocked"]
     mCharID <- runMaybeT . Mission.characterID $ Character.ident char
-    case mCharID of
-        Nothing     -> invalidArgs ["Character not found"]
-        Just charID -> runDB do
-            insertUnique $ Unlocked who charID
-            user' <- updateGet who [UserDna -=. price]
-            returnJson $ userDna user'
-  where
-    price = Character.price char
+    charID  <- maybe (invalidArgs ["Character not found"]) return mCharID
+    runDB do
+        insertUnique $ Unlocked who charID
+        user' <- updateGet who [UserDna -=. price]
+        returnJson $ userDna user'
 
 -- | Renders the gameplay client.
 getPlayR :: Handler Html

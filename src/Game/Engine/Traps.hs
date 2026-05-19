@@ -45,12 +45,12 @@ launch trap runner = do
 
 run :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Trap -> m ()
-run user trap = launch trap case Trap.direction trap of
-    Trap.From -> Runnable.retarget ctx play
-    _         -> play
+run user trap@Trap{direction = Trap.From, effect, tracker} =
+    launch trap $ Runnable.retarget ctx $ effect tracker
   where
-    play        = Trap.effect trap $ Trap.tracker trap
     ctx context = context { Context.target = user }
+
+run _ trap@Trap{effect, tracker} = launch trap $ effect tracker
 
 getOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
       => Slot -> Trigger -> Ninja -> [m ()]

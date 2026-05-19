@@ -25,13 +25,14 @@ import           Game.Action.Status (applyWith')
 import           Game.Engine (unSoulbound)
 import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Ninjas as Ninjas
+import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
-import           Game.Model.Ninja (Ninja)
+import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
@@ -88,9 +89,10 @@ alternate loadout i = applyWith' alternateClasses "loadout" Permanent
 -- | Cycles a skill through its list of alternates.
 -- | Uses 'Ninjas.nextAlternate' internally.
 nextAlternate :: ∀ m. MonadPlay m => Text -> m ()
-nextAlternate name = mapM_ alt . Ninjas.nextAlternate name =<< P.nTarget
-  where
-    alt x = applyWith' alternateClasses "nextAlternate" 1 [Alternate name x]
+nextAlternate name = do
+    nTarget <- P.nTarget
+    forM_ (Ninjas.nextAlternate name nTarget) \alt ->
+        applyWith' alternateClasses "nextAlternate" 1 [Alternate name alt]
 
 -- | Copies all @Skill@s from the target into the user's 'N.copies'.
 -- Uses 'Ninjas.copyAll' internally.
@@ -116,9 +118,10 @@ teach :: ∀ m. MonadPlay m
        -> Text
        -> [Int]
        -> m ()
-teach dur name slots = mapM_ (P.toTarget . Ninjas.copy dur slots)
-    . find ((== name) . Skill.name) . concatMap toList . Character.skills
-    . N.character =<< P.nUser
+teach dur name slots = do
+    Ninja{character = Character{skills}} <- P.nUser
+    let mskill = find ((== name) . Skill.name) $ concatMap toList skills
+    forM_ mskill $ P.toTarget . Ninjas.copy dur slots
 
 -- | Resets a 'N.Ninja' to their initial state.
 -- Uses 'Ninjas.factory' internally.
