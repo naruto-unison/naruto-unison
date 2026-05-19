@@ -64,7 +64,7 @@ import qualified Handler.Play.Wrapper as Wrapper
 import qualified Handler.Queue as Queue
 import           Handler.Queue.Message (Response(Response))
 import qualified Mission
-import           Util ((∈), (∉))
+import           Util ((∈), (∉), leftToMaybe)
 
 -- * INPUT PARSING
 
@@ -82,13 +82,12 @@ parseTeam = Team <$> parseSection <*> parseCharacters
     parseSection = Parse.string "private" $> Queue.Private
                  <|> Parse.string "quick" $> Queue.Quick
 
-    parseCharacters = Parse.count 3 $ separate
-            >> Parse.takeWhile (/= separator) <|> Parse.takeText
-            >>= parseCharacter
-
-    parseCharacter text = case Characters.lookup text of
-        Just c  -> return c
-        Nothing -> fail $ show (text ++ " is not a character")
+    parseCharacters = Parse.count 3 do
+        separate
+        text <- Parse.takeWhile (/= separator) <|> Parse.takeText
+        case Characters.lookup text of
+            Just c  -> return c
+            Nothing -> fail $ show (text ++ " is not a character")
 
 
 data Enact = Enact
@@ -98,16 +97,20 @@ data Enact = Enact
     } deriving (Eq, Show)
 
 parseActs :: Parser [Act]
-parseActs = separate >> Parse.sepBy Act.parse separate >>= guardLength
-  where
-    guardLength (_:_:_:_:_) = fail "No more than 3 actions"
-    guardLength xs          = return xs
+parseActs = do
+    separate
+    acts <- Parse.sepBy Act.parse separate
+    case acts of
+        (_:_:_:_:_) -> fail "No more than 3 actions"
+        _           -> return acts
 
 parseEnact :: Parser Enact
 parseEnact = Enact
     <$> Chakras.parse
     <*> (separate >> Chakras.parse)
-    <*> (parseActs <|> (Parse.endOfInput >> return []))
+    <*> (parseActs <|> parseEnd)
+  where
+    parseEnd = Parse.endOfInput >> return []
 
 data ClientMessage
     = Forfeit
@@ -123,11 +126,11 @@ parseMessage = (Parse.string "forfeit" >> return Forfeit)
 
 -- | Joins the practice-match queue with a given team. Requires authentication.
 getPracticeQueueR :: [Text] -> Handler Value
-getPracticeQueueR [a1, b1, c1, a2, b2, c2] = do
-    when (hasDuplicates a1 b1 c1 || hasDuplicates a2 b2 c2)
-        $ invalidArgs ["Duplicate characters"]
-
-    ninjas   <- case traverse Characters.lookup [c1, b1, a1, a2, b2, c2] of
+getPracticeQueueR [a1, b1, c1, a2, b2, c2]
+  | hasDuplicates a1 b1 c1 || hasDuplicates a2 b2 c2 =
+    invalidArgs ["Duplicate characters"]
+  | otherwise = do
+    ninjas <- case traverse Characters.lookup [c1, b1, a1, a2, b2, c2] of
         Just chars -> return $ zipWith N.new Slot.all chars
         Nothing    -> invalidArgs ["Character(s) not found"]
 
@@ -183,21 +186,19 @@ getPracticeActR spend exchange actions = do
 
     flip runReaderT rand $ flip runReaderT wrapper do
         res <- enact Enact{spend, exchange, actions}
-        case res of
-          Left errorMsg -> invalidArgs [tshow errorMsg]
-          Right ()      -> do
-              game'A <- Wrapper.freeze
-              P.alter \g -> g { Game.chakra  = (fst $ Game.chakra g, baseChakra)
-                              , Game.playing = Player.B
-                              }
-              AI.runTurn
-              game'B <- Wrapper.freeze
-              liftIO
-                  if Game.inProgress $ Wrapper.game game'B then
-                      Cache.insert practice who game'B
-                  else
-                      Cache.delete practice who
-              returnJson $ Wrapper.toTurn Player.A <$> [game'A, game'B]
+        forM_ (leftToMaybe res) \errorMsg -> invalidArgs [tshow errorMsg]
+        game'A <- Wrapper.freeze
+        P.alter \g -> g { Game.chakra  = (fst $ Game.chakra g, baseChakra)
+                        , Game.playing = Player.B
+                        }
+        AI.runTurn
+        game'B <- Wrapper.freeze
+        liftIO
+            if Game.inProgress $ Wrapper.game game'B then
+                Cache.insert practice who game'B
+            else
+                Cache.delete practice who
+        returnJson $ Wrapper.toTurn Player.A <$> [game'A, game'B]
   where
     baseChakra = Chakras 100 100 100 100 100
 
@@ -320,12 +321,10 @@ tryEnact settings player mvar = do
         Received (EnactMsg enactMsg) -> do
             Engine.resetInactive player
             res <- enact enactMsg
-            case res of
-                Left errorMsg -> do
-                    logErrorN $ "Client error: "
-                                ++ toStrict (decodeUtf8 errorMsg)
-                    Sockets.send errorMsg
-                Right ()      -> return ()
+            forM_ (leftToMaybe res) \errorMsg -> do
+                logErrorN $ "Client error: "
+                            ++ toStrict (decodeUtf8 errorMsg)
+                Sockets.send errorMsg
 
         Malformed malformed ->
             logErrorN $ "Malformed client input: " ++ malformed
@@ -356,11 +355,11 @@ tryEnact settings player mvar = do
 enact :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
       => Enact -> m (Either LByteString ())
 enact Enact{spend, exchange, actions}
-    | randTotal < 0 = return $ Left "Insufficient chakra"
-    | otherwise = runExceptT do
+  | randTotal < 0 = return $ Left "Insufficient chakra"
+  | otherwise     = runExceptT do
     contexts <- traverse Act.toContext actions
     Game{chakra, playing = player} <- P.game
-    mapM_ throwE $ illegal player contexts
+    validate player contexts
 
     let gameChakra = Parity.getOf player chakra
         actCosts   = concatMap (Skill.cost . Context.skill) contexts
@@ -373,11 +372,11 @@ enact Enact{spend, exchange, actions}
     Engine.runTurn contexts
   where
     randTotal = length spend - 5 * length exchange
-    illegal player contexts
-      | length contexts > Slot.teamSize       = Just "Too many actions"
-      | nonUnique $ Context.user <$> contexts = Just "Duplicate actors"
-      | any (Context.illegal player) contexts = Just "Character out of range"
-      | otherwise                             = Nothing
+    validate player contexts
+      | length contexts > Slot.teamSize       = throwE "Too many actions"
+      | nonUnique $ Context.user <$> contexts = throwE "Duplicate actors"
+      | any (Context.illegal player) contexts = throwE "Character out of range"
+      | otherwise                             = return ()
     nonUnique :: [Slot] -> Bool
     nonUnique slots = go mempty slots
       where

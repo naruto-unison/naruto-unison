@@ -154,12 +154,12 @@ doDeaths = traverse_ doDeath Slot.all
 -- If they die, their 'Soulbound' effects are canceled.
 doDeath :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Slot -> m ()
 doDeath slot = do
-    n@Ninja{health, statuses} <- P.ninja slot
+    n@Ninja{statuses} <- P.ninja slot
     let res
           | n `is` Plague = mempty
           | otherwise     = Traps.getOf slot OnRes n
 
-    if health > 0 then
+    if N.alive n then
         return ()
 
     else if null res then do

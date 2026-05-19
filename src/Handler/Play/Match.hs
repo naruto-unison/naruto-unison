@@ -55,10 +55,10 @@ map f Match{outcomeA, playerA, playerB} = Match outcomeA
 
 traverse_ :: ∀ f a b. Applicative f
           => (Outcome -> a -> a -> f b) -> Match a -> f ()
-traverse_ f Match{outcomeA, playerA, playerB} = do
+traverse_ f Match{outcomeA, playerA, playerB} =
     f outcomeA playerA playerB
-    f (inverse outcomeA) playerB playerA
-    pure ()
+    *> f (inverse outcomeA) playerB playerA
+    *> pure ()
 
 fromGame :: ∀ a. Game -> Player -> a -> a -> Match a
 fromGame g playerX = Match $ outcome g playerX

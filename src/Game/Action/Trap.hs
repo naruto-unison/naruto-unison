@@ -71,8 +71,7 @@ trapPer' = trapFull Trap.Per $ setFromList [Bypassing, Hidden]
 onBreak :: ∀ m. MonadPlay m => RunConstraint () -> m ()
 onBreak f = do
     Context{user, skill = Skill{name}} <- P.context
-    nTarget <- P.nTarget
-    when (N.hasDefense name user nTarget)
+    whenM (N.hasDefense name user <$> P.nTarget)
         $ trapFrom' Permanent (OnBreak name) do
             f
             Context{user = user'} <- P.context
@@ -98,18 +97,17 @@ trapConst trapType clas dur tr f = trapFull trapType clas dur tr \_ -> f
 trapFull :: ∀ m. MonadPlay m
          => Trap.Direction -> EnumSet Class -> Duration -> Trigger
          -> (Int -> RunConstraint ()) -> m ()
-trapFull direction classes unthrottled trigger f =
-    void $ runMaybeT do
-        context@Context{new, target} <- P.context
-        nUser   <- P.nUser
-        nTarget <- P.nTarget
-        dur     <- if not new then return unthrottled else
-                   MaybeT . return $ throttle nUser
-        let tr = makeTrap context direction classes dur trigger f
-        guard $ tr ∉ N.traps nTarget
-        guard . not $ isCounter && nUser `is` Disable Counters
-        P.modify target \n ->
-            n { N.traps = Classed.nonStack tr tr $ N.traps n }
+trapFull direction classes unthrottled trigger f = void $ runMaybeT do
+    context@Context{new, target} <- P.context
+    nUser   <- P.nUser
+    nTarget <- P.nTarget
+    dur     <- if not new then return unthrottled else
+               MaybeT . return $ throttle nUser
+    let tr = makeTrap context direction classes dur trigger f
+    guard $ tr ∉ N.traps nTarget
+    guard . not $ isCounter && nUser `is` Disable Counters
+    P.modify target \n ->
+        n { N.traps = Classed.nonStack tr tr $ N.traps n }
   where
     isCounter = Trigger.isCounter trigger
     throttle n
@@ -149,10 +147,9 @@ makeTrap ctx direction classes dur trigger f = Trap
 delay :: ∀ m. MonadPlay m => Duration -> RunConstraint () -> m ()
 delay Permanent _ = return () -- A Delay that lasts forever would be pointless!
 delay dur f = do
-    context  <- P.context
-    let user  = Context.user context
-        del   = Delay.new context { Context.continues = False } dur
-              $ Action.wrap f
+    context@Context{user} <- P.context
+    let del = Delay.new context { Context.continues = False } dur
+            $ Action.wrap f
     P.modify user \n -> n { N.delays = del : N.delays n }
 
 -- | Removes 'N.traps' with matching 'Trap.name'.

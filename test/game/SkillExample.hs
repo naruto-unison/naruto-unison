@@ -48,8 +48,8 @@ useOn target skillName f =
     describe (unpack skillName) $ beforeWith withChar $ parallel f
   where
     withChar char = case findSkill skillName char of
-        Nothing -> error "useOn" <$ expectationFailure "invalid skill"
-        Just (ctx -> context) -> return (char, context)
+        Nothing    -> error "useOn" <$ expectationFailure "invalid skill"
+        Just skill -> return (char, ctx skill)
     findSkill x = find ((== x) . Skill.name) . join . Character.skills
     ctx skill   = Context { skill
                           , user      = targetSlot Self

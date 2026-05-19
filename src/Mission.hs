@@ -137,8 +137,8 @@ updateProgress :: ∀ m. MonadIO m
                -> SqlPersistT m Bool -- ^ Returns True if the character unlocks.
 updateProgress who amount GoalIndex{goals, char, i} =
     if not canUpdate then return False else do
-        alreadyUnlocked <- isJust <$> selectFirst unlockedChar []
-        if alreadyUnlocked then
+        alreadyUnlocked <- selectFirst unlockedChar []
+        if isJust alreadyUnlocked then
             return True
         else do
             upsert (Mission who char i amount)
@@ -161,14 +161,13 @@ updateProgress who amount GoalIndex{goals, char, i} =
 -- mission, or the Character not existing in the character ID database.
 progress :: Progress -> Handler Bool
 progress Progress{amount = 0} = return False
-progress Progress{character, objective, amount} =
-    fromMaybe False <$> runMaybeT do
-        who   <- MaybeT Auth.maybeAuthId
-        goals <- MaybeT . return $ lookup character Missions.map
-        guard $ objective < length goals
-        char  <- characterID character
-        lift . runDB
-            $ updateProgress who amount GoalIndex { goals, char, i = objective }
+progress Progress{character, objective, amount} = fromMaybe False <$> runMaybeT do
+    who   <- MaybeT Auth.maybeAuthId
+    goals <- MaybeT . return $ lookup character Missions.map
+    guard $ objective < length goals
+    char  <- characterID character
+    lift . runDB
+        $ updateProgress who amount GoalIndex { goals, char, i = objective }
 
 -- | Using a list of database mission entries for a user, maps goals onto the
 -- user's progress toward those goals.

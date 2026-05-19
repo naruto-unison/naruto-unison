@@ -38,7 +38,7 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable)
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
-import           Game.Model.Status (Bomb(..), Status)
+import           Game.Model.Status (Bomb(..), Status(Status))
 import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉))
@@ -166,35 +166,34 @@ applyStacks name amount =
 applyFull :: ∀ m. MonadPlay m
           => Int -> EnumSet Class -> [Runnable Bomb] -> Text -> Duration
           -> [Effect] -> m ()
-applyFull amount classes bombs name unthrottled effects =
-    void $ runMaybeT do
-        Context{new, target, user} <- P.context
-        context <- P.context
-        nUser   <- P.nUser
-        nTarget <- P.nTarget
-        dur     <- if not new then return unthrottled else
-                   MaybeT . return $ Duration.throttle
-                   (Effects.throttle effects nUser) unthrottled
-        let st   = makeStatus context amount nUser nTarget
-                   classes bombs name dur effects
-        if N.has name user nTarget && Extending ∈ Status.classes st then
-            let prolong' = mapMaybe . Ninjas.prolong' (Status.dur st) name
-                         $ Status.user st
-            in
-            P.modify target \n ->
-                n { N.statuses = prolong' $ N.statuses n }
-        else do
-            guard $ null effects || not (null $ Status.effects st)
-            P.modify target $ Ninjas.addStatus st
-            when (any isInvulnerable $ Status.effects st)
-                $ P.trigger target [OnInvulnerable]
-            when (any isReduce $ Status.effects st)
-                $ P.trigger user [OnReduce]
-            when (any Effect.isDisable $ Status.effects st) do
-                P.trigger user [OnStun]
-                P.trigger target [OnStunned]
-            when (any isHeal $ Status.effects st)
-                $ P.trigger user [OnHeal]
+applyFull amount classes bombs name unthrottled effects = void $ runMaybeT do
+    context@Context{new, target, user} <- P.context
+    nUser   <- P.nUser
+    nTarget <- P.nTarget
+    dur     <- if not new then return unthrottled else
+                MaybeT . return $ Duration.throttle
+                (Effects.throttle effects nUser) unthrottled
+    let st   = makeStatus context amount nUser nTarget
+               classes bombs name dur effects
+    if N.has name user nTarget && Extending ∈ Status.classes st then
+        let prolong' = mapMaybe . Ninjas.prolong' (Status.dur st) name
+                     $ Status.user st
+        in
+        P.modify target \n ->
+            n { N.statuses = prolong' $ N.statuses n }
+    else do
+        let Status{effects = efs} = st
+        guard $ null effects || not (null efs)
+        P.modify target $ Ninjas.addStatus st
+        when (any isInvulnerable efs)
+            $ P.trigger target [OnInvulnerable]
+        when (any isReduce efs)
+            $ P.trigger user [OnReduce]
+        when (any Effect.isDisable efs) do
+            P.trigger user [OnStun]
+            P.trigger target [OnStunned]
+        when (any isHeal efs)
+            $ P.trigger user [OnHeal]
   where
     isHeal (Heal x)   = x > 0
     isHeal _          = False

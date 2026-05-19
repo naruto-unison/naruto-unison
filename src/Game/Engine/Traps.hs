@@ -30,18 +30,19 @@ import           Game.Model.Player (Player)
 import           Game.Model.Runnable (Runnable)
 import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Slot (Slot)
-import           Game.Model.Trap (Trap)
+import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger(Trigger(..))
 import           Util ((∈))
 
 launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        => Trap -> Runnable Context -> m ()
-launch trap runner = do
-    P.launch runner
+launch trap runner
+  | not $ Trap.uncopied trap = P.launch runner
+  | otherwise                = do
     nTarget <- P.ninja . Context.target $ Runnable.target runner
-    when (Trap.uncopied trap)
-        $ Hook.trap trap nTarget
+    P.launch runner
+    Hook.trap trap nTarget
 
 run :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Trap -> m ()
@@ -95,8 +96,8 @@ getPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        -> [m ()]
 getPer False _  _   _ = mempty
 getPer True  tr amt n =
-    [launch trap $ Trap.effect trap amt | trap <- N.traps n
-                                        , Trap.trigger trap == tr]
+    [launch trap $ effect amt | trap@Trap{effect, trigger} <- N.traps n
+                               , trigger == tr]
 
 -- | Tallies 'PerDamaged' traps.
 getTurnPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)

@@ -90,6 +90,6 @@ censor vendetta player ninjas n
       | Parity.allied player user                  = Just st
       | Invisible ∈ classes && not (revealed user) = Nothing
       | otherwise = case effects of
-          []       -> Just st
           [Reveal] -> Nothing
+          []       -> Just st
           _        -> Just st { Status.effects = delete Reveal effects }

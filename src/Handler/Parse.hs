@@ -42,7 +42,7 @@ parseChakra kind = Parse.string (token kind) $> HTML.toMarkup kind
 
 parseName :: Parser Html
 parseName = do
-    void $ Parse.char '['
+    Parse.char '['
     name <- Parse.takeWhile (/= ']')
-    void $ Parse.char ']'
+    Parse.char ']'
     return . HTML.i $ HTML.toMarkup name

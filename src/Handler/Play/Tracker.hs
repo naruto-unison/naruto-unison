@@ -137,11 +137,12 @@ trackTurn1 p ns x@Track{skills, slot, turns} = do
     tracker (n, n') (i, f) = trackStore x i $ f p user n n'
 
 new :: ∀ s. Ninja -> ST s (Track s)
-new Ninja{character, slot} = do
-    skills   <- newRef mempty
-    store    <- MVector.replicate (length objectives) mempty
-    progress <- MVector.replicate (length objectives) 0
-    return $ foldl' go Track
+new Ninja{character, slot} = makeTrack
+    <$> newRef mempty
+    <*> MVector.replicate (length objectives) mempty
+    <*> MVector.replicate (length objectives) 0
+  where
+    makeTrack skills store progress = foldl' go Track
         { slot
         , key      = missionKeys name =<< missions
         , actions  = MultiMap.empty
@@ -155,9 +156,7 @@ new Ninja{character, slot} = do
         , skills
         , store
         , progress
-        }
-        objectives
-  where
+        } objectives
     name       = Character.ident character
     missions   = Missions.characterMissions character
     goals      = [x | mission <- missions

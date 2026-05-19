@@ -55,7 +55,7 @@ nUser = ninja =<< Context.user <$> context
 
 -- | The 'Game.ninja' indexed by 'target'.
 nTarget :: ∀ m. MonadPlay m => m Ninja
-nTarget = Context.target <$> context >>= ninja
+nTarget = ninja =<< Context.target <$> context
 
 -- | Returns the half of 'ninjas' allied with an argument.
 allies :: ∀ p m. (MonadGame m, Parity p) => p -> m [Ninja]
