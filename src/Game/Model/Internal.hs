@@ -203,11 +203,11 @@ instance Parity Ninja where
 data Requirement
     = Usable
     | Unusable
-    | HasI Int Text
-    | HasU Int Text
-    | HealthI Int
-    | HealthU Int
-    | DefenseI Int Text
+    | UserHas Int Text
+    | TargetHas Int Text
+    | UserHealth Int
+    | TargetHealth Int
+    | UserDefense Int Text
     deriving (Eq, Ord, Show, Read, Generic)
 
 instance ToJSON Requirement

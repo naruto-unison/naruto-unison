@@ -228,7 +228,7 @@ characters =
         { Skill.name      = "Salamander Shield"
         , Skill.desc      = "Kankurō's Sanshōuo puppet shields him and his allies, providing Kankurō with 40 permanent destructible defense. While Kankurō has destructible defense from this skill, damage against his allies is reflected to him. Cannot be used while active."
         , Skill.classes   = [Physical, Soulbound, Unremovable, Unreflectable]
-        , Skill.require   = DefenseI 0 "Salamander Shield"
+        , Skill.require   = UserDefense 0 "Salamander Shield"
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
@@ -278,7 +278,7 @@ characters =
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"
         , Skill.desc      = "Kabuto focuses his attention on producing a clone of a dead ally. At the end of the next turn, the target comes back to life at full health, removing all effects from them and resetting their cooldowns. The clone remains attached to Kabuto and will be destroyed if he dies. Using this skill again destroys the current clone."
-        , Skill.require   = HealthU 0
+        , Skill.require   = TargetHealth 0
         , Skill.classes   = [Chakra, Necromancy, Unremovable, Unreflectable]
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.dur       = Control -2
@@ -797,7 +797,7 @@ characters =
     , [ Skill.new
         { Skill.name    = "Curse Mark Release"
         , Skill.desc    = "By giving an ally a curse mark, Orochimaru uses their body as an anchor for his soul after death. If the target's health reaches 25 or lower while Orochimaru is dead, Orochimaru will be resurrected into their body with full health and all status effects removed, and will become invulnerable to bane skills. Cannot be used while active. If Orochimaru acquires a new body, this skill becomes [Regeneration][g][n]."
-        , Skill.require = HasI 0 "curse"
+        , Skill.require = UserHas 0 "curse"
         , Skill.classes = [Physical, Unremovable, Bypassing, Uncounterable, Unreflectable, Invisible, Melee]
         , Skill.cost    = [Blood, Nin]
         , Skill.effects =

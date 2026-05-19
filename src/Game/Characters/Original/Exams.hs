@@ -85,7 +85,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Senbon Shower"
         , Skill.desc      = "Shigure's umbrellas rain down needles, dealing 15 damage to all enemies. Uses up one Umbrella."
-        , Skill.require   = HasI 1 "Umbrella"
+        , Skill.require   = UserHas 1 "Umbrella"
         , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -97,7 +97,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Senbon Barrage"
         , Skill.desc      = "Shigure hurls all of his needles at a single target, dealing 15 damage per Umbrella. Costs 1 fewer arbitrary chakra per Umbrella. Uses up all Umbrellas."
-        , Skill.require   = HasI 1 "Umbrella"
+        , Skill.require   = UserHas 1 "Umbrella"
         , Skill.cost      = [Rand, Rand, Rand, Rand]
         , Skill.classes   = [Physical, Ranged]
         , Skill.effects   =
@@ -332,7 +332,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Supersonic Slicing Wave"
         , Skill.desc      = "Zaku boosts his airwaves to terrifying volume, dealing 45 damage to all enemies. Requires [Slicing Sound Wave]."
-        , Skill.require   = HasI 1 "Slicing Sound Wave"
+        , Skill.require   = UserHas 1 "Slicing Sound Wave"
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.effects   =
@@ -419,7 +419,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Tighten Joints"
         , Skill.desc      = "By stiffening his joints, Misumi gains 15 non-stacking permanent destructible defense. If an enemy is affected by [Soft Physique Modification], they take 20 damage and are stunned for 1 turn."
-        , Skill.require   = HasU 1 "Soft Physique Modification"
+        , Skill.require   = TargetHas 1 "Soft Physique Modification"
         , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =

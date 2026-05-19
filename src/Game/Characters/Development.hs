@@ -56,7 +56,7 @@ characters = (\x -> x 0 Original) <$>
     , [ Skill.new
         { Skill.name    = "Dance Dance Resurrection"
         , Skill.desc    = "Revives a dead target to full health."
-        , Skill.require = HealthU 0
+        , Skill.require = TargetHealth 0
         , Skill.classes = [Necromancy, Bypassing, Uncounterable, Unreflectable]
         , Skill.effects =
           [ To Enemy factory

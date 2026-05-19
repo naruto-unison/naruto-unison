@@ -44,7 +44,7 @@ usable new n@Ninja{slot} x@Skill{charges, classes}
       | not $ classes `intersects` Effects.stun n = required
       | new                                       = unusable
       | otherwise = required { Skill.effects = Skill.stunned required }
-    isUsable req@HasI{}
+    isUsable req@UserHas{}
       | not new            = Usable
       | succeed req slot n = Usable
       | otherwise          = Unusable
@@ -54,22 +54,22 @@ usable new n@Ninja{slot} x@Skill{charges, classes}
 succeed :: Requirement -> Slot -> Ninja -> Bool
 succeed Usable      _ _ = True
 succeed Unusable    _ _ = False
-succeed (HasI i name) t n@Ninja{slot}
+succeed (UserHas i name) t n@Ninja{slot}
   | t /= slot = True
   | i == 1    = N.has name t n || N.isChanneling name n
   | i > 0     = N.numStacks name t n >= i
   | otherwise = not $ N.has name t n || N.isChanneling name n
-succeed (HasU i name) t n@Ninja{slot}
+succeed (TargetHas i name) t n@Ninja{slot}
   | t == slot = True
   | i > 0     = N.numStacks name t n >= i
   | otherwise = not $ N.has name t n
-succeed (HealthI i) t Ninja{health, slot}
+succeed (UserHealth i) t Ninja{health, slot}
   | t /= slot = True
   | otherwise = health <= i
-succeed (HealthU i) t Ninja{health, slot}
+succeed (TargetHealth i) t Ninja{health, slot}
   | t == slot = True
   | otherwise = health <= i
-succeed (DefenseI i name) t n@Ninja{slot}
+succeed (UserDefense i name) t n@Ninja{slot}
   | t /= slot = True
   | i > 0     = N.defenseAmount name t n >= i
   | otherwise = not $ N.hasDefense name t n

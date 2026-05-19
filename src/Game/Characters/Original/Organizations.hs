@@ -74,7 +74,7 @@ characters =
         , Skill.desc      = "Izumo tags out, swapping his health with Kotetsu's. Once used, if Kotetsu dies, Izumo will immediately take over."
         , Skill.classes   = [Nonstacking, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
-        , Skill.require   = HasI 0 "solo"
+        , Skill.require   = UserHas 0 "solo"
         , Skill.effects   =
           [ To Self do
                 userHealth <- user health
@@ -97,7 +97,7 @@ characters =
         , Skill.desc      = "Kotetsu tags out, swapping his health with Izumo's. Once used, if Izumo dies, Kotetsu will immediately take over."
         , Skill.classes   = [Nonstacking, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
-        , Skill.require   = HasI 0 "solo"
+        , Skill.require   = UserHas 0 "solo"
         , Skill.effects   =
           [ To Self do
                 userHealth <- user health
@@ -292,7 +292,7 @@ characters =
       , Skill.new
         { Skill.name      = "Chain Shred"
         , Skill.desc      = "Meizu tears his chains through the target of [Chain Wrap], dealing 45 piercing damage and reapplying [Chain Wrap], stunning the target's non-mental skills for 1 turn."
-        , Skill.require   = HasU 1 "Chain Wrap"
+        , Skill.require   = TargetHas 1 "Chain Wrap"
         , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -656,7 +656,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Demon Revolution"
         , Skill.desc      = "Illusory ghost-worms pour out of the Doki demons, dealing 10 affliction damage to an enemy and depleting 1 random chakra. Requires [Summoning: Doki]."
-        , Skill.require   = HasI 1 "Summoning: Doki"
+        , Skill.require   = UserHas 1 "Summoning: Doki"
         , Skill.classes   = [Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -699,7 +699,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Demon Parasite"
         , Skill.desc      = "Ukon transfers into an enemy's body, dealing 20 affliction damage to them every turn until they die. While active, Sakon gains 15 points of damage reduction. Cannot be used while active."
-        , Skill.require   = HasI 0 "Demon Parasite"
+        , Skill.require   = UserHas 0 "Demon Parasite"
         , Skill.classes   = [Bane, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =

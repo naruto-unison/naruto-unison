@@ -178,7 +178,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Chakra-Arm Raijin"
         , Skill.desc      = "Minato and allies affected by [Space-Time Marking] become invulnerable for 1 turn."
-        , Skill.require   = HasU 1 "Space-Time Marking"
+        , Skill.require   = TargetHas 1 "Space-Time Marking"
         , Skill.classes   = [Chakra, Bypassing]
         , Skill.cooldown  = 4
         , Skill.effects   =
@@ -462,7 +462,7 @@ characters =
       , Skill.new
         { Skill.name      = "Poison Fog"
         , Skill.desc      = "Ibuse opens its mouth to reveal a noxious cloud of deadly poison, dealing 10 affliction damage to all enemies until Ibuse dies. Cannot be used while active."
-        , Skill.require   = HasI 0 "Poison Fog"
+        , Skill.require   = UserHas 0 "Poison Fog"
         , Skill.classes   = [Physical, Bane, Ranged, Unreflectable]
         , Skill.cost      = [Blood, Blood]
         , Skill.dur       = Ongoing Permanent

@@ -16,7 +16,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Two-Tailed Transformation"
         , Skill.desc      = "Matatabi's chakra envelops Yugito, transforming her into a huge two-tailed cat of blue flame. Yugito gains 50% damage reduction and can use her other skills."
-        , Skill.require   = HasI 0 "Two-Tailed Transformation"
+        , Skill.require   = UserHas 0 "Two-Tailed Transformation"
         , Skill.classes   = [Chakra]
         , Skill.effects   =
           [ To Self $ apply Permanent [Reduce [All] Percent 50, Face] ]
@@ -25,7 +25,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Flaming Cat Roar"
         , Skill.desc      = "A fireball engulfs an enemy, dealing 30 damage to them and weakening their damage by 10 for 1 turn. Every time this skill is used, its damage increases by 5."
-        , Skill.require   = HasI 1 "Two-Tailed Transformation"
+        , Skill.require   = UserHas 1 "Two-Tailed Transformation"
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
@@ -41,7 +41,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Cat Claws"
         , Skill.desc      = "Yugito rakes the enemy team with her claws, dealing 15 damage to an enemy and 5 damage to all other enemies. Every time this skill is used, its damage increases by 5."
-        , Skill.require   = HasI 1 "Two-Tailed Transformation"
+        , Skill.require   = UserHas 1 "Two-Tailed Transformation"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
@@ -78,7 +78,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Drowning Bubble"
         , Skill.desc      = "Soap bubbles surround an enemy's head and prevent them from breathing, dealing 10 affliction damage every turn. Cannot be used on an enemy already affected by this skill."
-        , Skill.require   = HasU 0 "Drowning Bubble"
+        , Skill.require   = TargetHas 0 "Drowning Bubble"
         , Skill.classes   = [Chakra, Ranged, Bane, Soulbound]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -250,7 +250,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Tailed Beast Bomb"
         , Skill.desc      = "Naruto launches a sphere of condensed chakra at an opponent, dealing 30 piercing damage."
-        , Skill.require   = HasI 1 "Four-Tailed Transformation"
+        , Skill.require   = UserHas 1 "Four-Tailed Transformation"
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
@@ -286,7 +286,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Chakra Hand"
         , Skill.desc      = "Naruto extends a limb made of chakra to reach out and grab an enemy, dealing 20 damage and weakening their damage by 5 for 1 turn."
-        , Skill.require   = HasI 1 "Four-Tailed Transformation"
+        , Skill.require   = UserHas 1 "Four-Tailed Transformation"
         , Skill.classes   = [Chakra, Melee, Bypassing]
         , Skill.cost      = [Blood]
         , Skill.effects   =

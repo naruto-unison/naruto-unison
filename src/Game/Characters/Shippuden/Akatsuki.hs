@@ -166,7 +166,7 @@ characters =
       , Skill.new
         { Skill.name      = "C0: Ultimate Art"
         , Skill.desc      = "Deidara fills his veins with explosives and becomes art. He deals 35 affliction damage to all enemies and dies. Requires Deidara's health to be at or below 40."
-        , Skill.require   = HealthI 40
+        , Skill.require   = UserHealth 40
         , Skill.classes   = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Blood, Nin, Nin]
         , Skill.effects   =
@@ -209,7 +209,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Poison Blade Assault"
         , Skill.desc      = "Sasori directs the Kazekage puppet to single out an enemy and gains 20 destructible defense for 2 turns. While Sasori has destructible defense from this skill, he deals 10 damage and 10 affliction damage to the target."
-        , Skill.require   = HasI 1 "Iron Sand"
+        , Skill.require   = UserHas 1 "Iron Sand"
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
@@ -229,7 +229,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Thousand Arms"
         , Skill.desc      = "Countless concealed arms lash out from Sasori's Kazekage puppet and flail wildly for 1 turn, pinning down anyone they catch. Enemies who do not use skills on Sasori or his allies next turn will be pinned for 1 turn, unable to reduce damage or become invulnerable. Next turn, this skill becomes [Poison Gas][r][r]."
-        , Skill.require   = HasI 1 "Iron Sand"
+        , Skill.require   = UserHas 1 "Iron Sand"
         , Skill.classes   = [Physical, Melee, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
@@ -262,7 +262,7 @@ characters =
     [Akatsuki, Rogue, SRank]
     [ [ Skill.new
         { Skill.name      = "Jashin Sigil"
-        , Skill.require   = HasI 0 "Jashin Sigil"
+        , Skill.require   = UserHas 0 "Jashin Sigil"
         , Skill.desc      = "Hidan prepares for his ritual by drawing an insignia on the ground in blood. Once used, this skill becomes [First Blood][r]."
         , Skill.classes   = [Physical, Unremovable, Uncounterable, Unreflectable]
         , Skill.effects   =
@@ -283,7 +283,7 @@ characters =
       , Skill.new
         { Skill.name      = "Blood Curse"
         , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, skills used on Hidan and the target by their opponents are also reflected to each other, and this skill becomes [Death Blow][t][g]. Hidan ignores harmful status effects, although his target does not. Damage that Hidan deals to himself with his own skills while linked to a living target does not harm him."
-        , Skill.require   = HasU 1 "First Blood"
+        , Skill.require   = TargetHas 1 "First Blood"
         , Skill.classes   = [Chakra, Soulbound, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Gen]
         , Skill.effects   =
@@ -414,7 +414,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Earth Grudge"
         , Skill.desc      = "Black thread-like tendrils tear the heart from an enemy whose health is at 20 or lower, killing the target and restoring 35 health to Kakuzu if successful."
-        , Skill.require   = HealthU 20
+        , Skill.require   = TargetHealth 20
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
@@ -434,7 +434,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Thousand Hungry Sharks"
         , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Every turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
-        , Skill.require   = HasI 0 "Thousand Hungry Sharks"
+        , Skill.require   = UserHas 0 "Thousand Hungry Sharks"
         , Skill.classes   = [Chakra, Ranged, Unreflectable, Resource]
         , Skill.cost      = [Nin]
         , Skill.dur       = Ongoing Permanent
@@ -701,7 +701,7 @@ characters =
       , Skill.new
         { Skill.name      = "Body Coating"
         , Skill.desc      = "Zetsu melts and flows over an enemy, taking control of their body. The next skill they use will target allies instead of enemies and enemies instead of allies. As White Zetsu, this skill becomes [Doppelgänger][t][r]."
-        , Skill.require   = HasU 0 "Body Coating"
+        , Skill.require   = TargetHas 0 "Body Coating"
         , Skill.classes   = [Mental, Melee, Invisible, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 3
@@ -737,7 +737,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time an enemy uses a skill on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
-        , Skill.require   = HasI 0 "Sharingan"
+        , Skill.require   = UserHas 0 "Sharingan"
         , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
@@ -783,7 +783,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Izanagi"
         , Skill.desc      = "Tobi sacrifices one of his eyes to take control of reality on a local scale, reversing the flow of time. In 4 turns, he will be restored to his condition at the moment of using this skill. Cannot be used while active."
-        , Skill.require    = HasI 0 "Izanagi"
+        , Skill.require    = UserHas 0 "Izanagi"
         , Skill.classes    = [Mental, Invisible, Unremovable]
         , Skill.cost       = [Blood, Blood]
         , Skill.charges    = 2
@@ -945,7 +945,7 @@ characters =
       , Skill.new
         { Skill.name      = "Genjutsu Missile"
         , Skill.desc      = "Prevents the target of [Guided Missile] from reducing damage or becoming invulnerable for 2 turns and deals 25 damage."
-        , Skill.require   = HasU 1 "Guided Missile"
+        , Skill.require   = TargetHas 1 "Guided Missile"
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Gen]
         , Skill.effects   =
@@ -960,7 +960,7 @@ characters =
       , Skill.new
         { Skill.name      = "Ninjutsu Missile"
         , Skill.desc      = "Deals 25 damage to the target of [Guided Missile] and stuns them for 1 turn."
-        , Skill.require   = HasU 1 "Guided Missile"
+        , Skill.require   = TargetHas 1 "Guided Missile"
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -975,7 +975,7 @@ characters =
       , Skill.new
         { Skill.name      = "Taijutsu Missile"
         , Skill.desc      = "Deals 30 piercing damage to the target of [Guided Missile]."
-        , Skill.require   = HasU 1 "Guided Missile"
+        , Skill.require   = TargetHas 1 "Guided Missile"
         , Skill.classes   = [Physical, Ranged, Bypassing]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -1007,7 +1007,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Spirit Absorption"
         , Skill.desc      = "Pain draws out the lifeforce of an enemy affected by [Mind Invasion], stealing 20 health and absorbing 1 random chakra. Reveals invisible effects from the target and the target's cooldowns for 1 turn."
-        , Skill.require   = HasU 1 "Mind Invasion"
+        , Skill.require   = TargetHas 1 "Mind Invasion"
         , Skill.classes   = [Mental, Melee, Unreflectable]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 2
@@ -1022,7 +1022,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Soul Rip"
         , Skill.desc      = "Pain pulls out the soul of an enemy affected by [Mind Invasion], stealing 30 health. If their health reaches 30 or lower, they die; if not, he absorbs 1 random chakra from them and stuns them for 1 turn. Reveals invisible effects from the target and the target's cooldowns for 1 turn."
-        , Skill.require   = HasU 1 "Mind Invasion"
+        , Skill.require   = TargetHas 1 "Mind Invasion"
         , Skill.classes   = [Mental, Melee, Unreflectable]
         , Skill.cost      = [Gen, Tai]
         , Skill.cooldown  = 2
@@ -1225,7 +1225,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Summoning: Gedo Statue"
         , Skill.desc      = "Nagato summons the empty vessel of the ten-tailed beast, which provides 10 points of damage reduction to him for 3 turns. While active, this skill becomes [Control][r]."
-        , Skill.require   = HasI 0 "Rinne Rebirth"
+        , Skill.require   = UserHas 0 "Rinne Rebirth"
         , Skill.classes   = [Summon, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
@@ -1253,7 +1253,7 @@ characters =
       , Skill.new
         { Skill.name      = "Control"
         , Skill.desc      = "Nagato attempts to maintain control over the Gedo statue for a little longer, prolonging [Summoning: Gedo Statue] for 2 additional turns. Until it ends, [Summoning: Gedo Statue] provides 5 additional points of damage reduction up to a maximum of 25 and [Phantom Dragon] deals 5 additional damage. This skill has no chakra cost if [Phantom Dragon] was used last turn."
-        , Skill.require   = HasI 0 "Rinne Rebirth"
+        , Skill.require   = UserHas 0 "Rinne Rebirth"
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
@@ -1271,7 +1271,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Phantom Dragon"
         , Skill.desc      = "Nagato summons a dragon to attack an enemy for 20 piercing damage. Costs 1 genjutsu chakra during [Summoning: Gedo Statue]."
-        , Skill.require   = HasI 0 "Rinne Rebirth"
+        , Skill.require   = UserHas 0 "Rinne Rebirth"
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
@@ -1316,7 +1316,7 @@ characters =
         }
       ]
     , [ (invuln "Rinnegan Foresight" "Nagato" [Mental])
-        { Skill.require = HasI 0 "Rinne Rebirth" }
+        { Skill.require = UserHas 0 "Rinne Rebirth" }
       ]
     ]
   , Character

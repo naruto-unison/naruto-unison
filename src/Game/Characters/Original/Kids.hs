@@ -28,7 +28,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Rasengan"
         , Skill.desc      = "Naruto hits an enemy with an orb of chakra, dealing 45 damage to them and stunning their skills for 1 turn. Requires [Shadow Clones]."
-        , Skill.require   = HasI 1 "Shadow Clones"
+        , Skill.require   = UserHas 1 "Shadow Clones"
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
@@ -168,7 +168,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Dynamic Marking"
         , Skill.desc      = "Akamaru sprays urine on an enemy, preventing them from reducing damage or becoming invulnerable for 3 turns. Cannot be used on an enemy already affected by this skill."
-        , Skill.require   = HasU 0 "Dynamic Marking"
+        , Skill.require   = TargetHas 0 "Dynamic Marking"
         , Skill.classes   = [Bane, Ranged]
         , Skill.effects   =
           [ To Enemy $ apply 3 [Expose] ]
@@ -314,7 +314,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Meditate"
         , Skill.desc      = "Shikamaru sits down and contemplates an enemy. Over the next 5 turns, he composes a strategy against them. Cannot be used on an enemy already affected by this skill."
-        , Skill.require   = HasU 0 "Meditate"
+        , Skill.require   = TargetHas 0 "Meditate"
         , Skill.classes   = [Mental, Ranged, Uncounterable, Unreflectable]
         , Skill.effects   =
           [ To Enemy $ tag 5 ]
@@ -640,7 +640,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Rising Twin Dragons"
         , Skill.desc      = "Summoning scrolls conceal Tenten in a cloud of smoke, rendering her invulnerable to physical, chakra, and summon skills for 1 turn. The scrolls aid her the next time she uses one of her other skills. If she uses [Unsealing Technique], it adds 1 additional stack of [Unsealing Technique]. If she uses [Rising Dragon Control], the duration of its effect is increased by 1 turn. Cannot be used while active."
-        , Skill.require   = HasI 0 "Rising Twin Dragons"
+        , Skill.require   = UserHas 0 "Rising Twin Dragons"
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
@@ -722,7 +722,7 @@ characters =
       , Skill.new
         { Skill.name      = "Sand Burial"
         , Skill.desc      = "With a clenched fist, Gaara crushes the target of [Sand Coffin] into nothingness, killing them."
-        , Skill.require   = HasU 1 "Sand Coffin"
+        , Skill.require   = TargetHas 1 "Sand Coffin"
         , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable]
         , Skill.cost      = [Nin, Nin]
         , Skill.effects   =
@@ -732,7 +732,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Sand Clone"
         , Skill.desc      = "Gaara creates a clone of sand that mimics him and provides defense. Until an enemy uses a skill that deals non-affliction damage to him, Gaara ignores harmful status effects. Cannot be used while active."
-        , Skill.require   = HasI 0 "Sand Clone"
+        , Skill.require   = UserHas 0 "Sand Clone"
         , Skill.classes   = [Physical, Unremovable]
         , Skill.cooldown  = 2
         , Skill.effects   =

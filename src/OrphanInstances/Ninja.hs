@@ -70,7 +70,7 @@ instance ToJSON Ninja where
       where
         mFace = find ((Effect.Face ∈) . Status.effects) statuses
         usable skill = skill { Skill.require = fulfill $ Skill.require skill }
-        fulfill req@HasI{}
+        fulfill req@UserHas{}
           | Requirement.succeed req slot n = Usable
           | otherwise                      = Unusable
         fulfill x = x

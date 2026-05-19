@@ -30,7 +30,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Searing Combat"
         , Skill.desc      = "Pakura ignites an enemy, dealing 20 affliction damage to them for 2 turns. Cannot be used on an enemy already affected by this skill."
-        , Skill.require   = HasU 0 "Searing Combat"
+        , Skill.require   = TargetHas 0 "Searing Combat"
         , Skill.classes   = [Physical, Melee, Bane]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
@@ -40,7 +40,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Super Steam Kill"
         , Skill.desc      = "One of Pakura's orbs contacts an enemy and evaporates the water inside their body, mummifying them and dealing 40 affliction damage. Requires [Scorch Style]."
-        , Skill.require   = HasI 1 "Scorch Style"
+        , Skill.require   = UserHas 1 "Scorch Style"
         , Skill.classes   = [Chakra, Melee, Bane]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
