@@ -34,7 +34,7 @@ $forall skills <- Character.skills char
           <dl>
             <dt>Duration
             <dd>#{Skill.dur skill}
-            $if Skill.cost skill /= 0
+            $if Skill.cost skill /= mempty
               <dt>Cost
               <dd>#{Skill.cost skill}
             $if Skill.cooldown skill /= 0

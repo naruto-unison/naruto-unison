@@ -203,7 +203,7 @@ spec = parallel do
     describe "Exhaust" do
         prop "increases skill costs" \(Positive exhaust) ->
             let effects = replicate exhaust . Exhaust $ singletonSet All in
-            Skill.cost (getSkill effects) === 0 { Chakra.rand = exhaust }
+            Skill.cost (getSkill effects) === mempty { Chakra.rand = exhaust }
 
     describe "Expose" do
         it "prevents target from becoming invulnerable" $ simAt Enemy do

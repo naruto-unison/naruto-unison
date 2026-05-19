@@ -37,7 +37,7 @@ import           Class.ST (MonadST(..))
 import qualified Game.AI as AI
 import qualified Game.Characters as Characters
 import qualified Game.Engine as Engine
-import           Game.Model.Chakra (Chakras)
+import           Game.Model.Chakra (Chakras(Chakras))
 import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
@@ -365,13 +365,14 @@ enact Enact{spend, exchange, actions} = runExceptT do
     P.alter $ Game.setChakra player newChakra
     Engine.runTurn contexts
   where
-    randTotal = Chakra.total spend - 5 * Chakra.total exchange
+    randTotal = length spend - 5 * length exchange
     illegal player chakra contexts
       | length contexts > Slot.teamSize       = Just "Too many actions"
       | nonUnique $ Context.user <$> contexts = Just "Duplicate actors"
-      | randTotal < 0 || Chakra.lack chakra   = Just "Insufficient chakra"
+      | randTotal < 0 || insufficient chakra  = Just "Insufficient chakra"
       | any (Context.illegal player) contexts = Just "Character out of range"
       | otherwise                             = Nothing
+    insufficient (Chakras b g n t r) = b < 0 || g < 0 || n < 0 || t < 0 || r < 0
     nonUnique :: [Slot] -> Bool
     nonUnique slots = go mempty slots
       where

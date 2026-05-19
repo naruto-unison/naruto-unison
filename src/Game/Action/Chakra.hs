@@ -34,7 +34,7 @@ gain :: ∀ m. (MonadPlay m, MonadRandom m) => [Chakra] -> m ()
 gain chakras = P.unsilenced do
     Context{user, target} <- P.context
     rand <- replicateM (length rands) Chakra.random
-    P.alter $ Game.adjustChakra target (+ Chakra.collect (rand ++ nonrands))
+    P.alter $ Game.adjustChakra target (+ fromList (rand ++ nonrands))
     P.trigger user [OnChakra]
   where
     (rands, nonrands) = partition (== Rand) chakras
@@ -83,5 +83,5 @@ healFromChakra perChakra = P.unsilenced do
             when (health' > health)
                 $ P.trigger user [OnHeal]
   where
-    forSkill Ninja{lastSkill = Just Skill{cost}} = perChakra * Chakra.total cost
+    forSkill Ninja{lastSkill = Just Skill{cost}} = perChakra * length cost
     forSkill _ = 0

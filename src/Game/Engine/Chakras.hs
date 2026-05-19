@@ -38,12 +38,12 @@ remove amount = do
 removeFrom :: ∀ m p. (MonadGame m, MonadRandom m, Parity p)
            => p -> Int -> m Chakras
 removeFrom target amount
-  | amount <= 0 = return 0
+  | amount <= 0 = return mempty
   | otherwise   = do
       Game{chakra} <- P.game
-      let chakras = Chakra.toSequence . removeRandoms
+      let chakras = fromList . toList . removeRandoms
                   $ Parity.getOf target chakra
-      removed <- Chakra.collect . take amount <$> R.shuffle chakras
+      removed <- fromList . toList . take amount <$> R.shuffle chakras
       P.alter $ Game.adjustChakra target (- removed)
       return removed
   where
@@ -58,14 +58,13 @@ remove1 permitted = do
     Context{target, user} <- P.context
     P.trigger user [OnChakra]
     Game{chakra} <- P.game
-    let chakras = filter (∈ permitted) . Chakra.toSequence
-                $ Parity.getOf target chakra
-    mRemoved <- R.choose (chakras :: [Chakra])
+    let chakras = filter (∈ permitted) . toList $ Parity.getOf target chakra
+    mRemoved <- R.choose chakras
     case mRemoved of
-        Just (Chakra.toChakras -> removed) -> do
+        Just (singleton -> removed) -> do
             P.alter $ Game.adjustChakra target (- removed)
             return removed
-        Nothing -> return 0
+        Nothing -> return mempty
 
 -- | Adds as many random 'Chakra's as the number of living 'N.Ninja's on the
 -- player's team to the player's 'Game.chakra'.
@@ -75,4 +74,4 @@ gain = do
     let player = Player.opponent playing
     living  <- length . filter N.alive <$> P.allies player
     randoms <- replicateM living Chakra.random
-    P.alter $ Game.adjustChakra player (+ Chakra.collect (randoms :: [Chakra]))
+    P.alter $ Game.adjustChakra player (+ fromList randoms)

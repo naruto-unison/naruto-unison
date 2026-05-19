@@ -41,7 +41,6 @@ import Game.Engine.Effects as Import (stunned)
 import Mission.Goal as Import
 
 import           Class.Display (Display(..))
-import qualified Game.Model.Chakra as Chakra
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Slot as Slot
@@ -184,7 +183,7 @@ useDuringStacks name _ user@Ninja{slot} _ _ = N.numStacks name slot user
 
 -- | Number of 'Chakra.Chakra's depleted.
 deplete :: ChakraHook
-deplete (_, chak) (_, chak') = max 0 $ Chakra.total chak' - Chakra.total chak
+deplete (_, chak) (_, chak') = max 0 $ length chak' - length chak
 
 -- STORE HOOKS
 
