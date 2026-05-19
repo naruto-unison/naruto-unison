@@ -395,8 +395,7 @@ characters =
           [ To Enemy do
                 bonus <- 10 `bonusIf` channeling "Major Summoning: Giant Clam"
                 pierce (10 + bonus)
-                targetHealth <- target health
-                when (targetHealth <= 10) kill
+                executeAt 10
           ]
         , Skill.changes   =
             changeWithChannel "Major Summoning: Giant Clam" \x ->

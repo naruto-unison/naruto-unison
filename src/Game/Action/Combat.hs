@@ -11,6 +11,7 @@ module Game.Action.Combat
   , leech
     -- * Special effects
   , sacrifice
+  , executeAt
   , kill, killHard
     -- * Internals
   , formula, attack
@@ -40,7 +41,7 @@ import           Game.Model.Defense (Defense(Defense))
 import qualified Game.Model.Defense as Defense
 import           Game.Model.Duration (Duration)
 import           Game.Model.Effect (Amount(..), Effect(..))
-import           Game.Model.Ninja (Ninja, is)
+import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (RunConstraint)
 import           Game.Model.Skill (Skill(Skill))
@@ -272,14 +273,22 @@ barricade' dur finish while amount = P.unsilenced do
         GT -> P.modify target \n ->
             n { N.barrier = addNonStack barr $ N.barrier n }
 
+-- | Kills the target if their health is below a threshold.
+-- The target can survive if it has the 'Endure' effect.
+-- Uses 'Ninjas.kill' internally.
+executeAt :: ∀ m. MonadPlay m => Int -> m ()
+executeAt threshold = whenM (shouldExecute <$> P.nTarget) kill
+  where
+    shouldExecute Ninja{health} = health > 0 && health <= threshold
+
 killFull :: ∀ m. MonadPlay m => Bool -> m ()
 killFull endure = whenM (N.alive <$> P.nTarget) do
     P.toTarget $ Ninjas.kill endure
     unlessM (N.alive <$> P.nTarget) do
         Context{user, skill} <- P.context
-        P.toTarget . Ninjas.addStatus $ execute user skill
+        P.toTarget . Ninjas.addStatus $ executed user skill
   where
-    execute user skill = Status
+    executed user skill = Status
         { amount = 1
         , name   = "executed"
         , user
