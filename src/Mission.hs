@@ -85,7 +85,7 @@ unlocked :: Handler Unlocks
 unlocked = cached $ maybe allUnlocked Unlocks <$> runMaybeT do
     unlockAll <- getsYesod $ Settings.unlockAll . App.settings
     guard unlockAll
-    who       <- MaybeT Auth.maybeAuthId
+    Just who  <- Auth.maybeAuthId
     privilege <- App.getPrivilege
     guard $ privilege < Moderator
     getUnlocked <$> getsYesod App.characterIDs
@@ -109,10 +109,10 @@ freeChars = setFromList dna `difference` keysSet Missions.map
 -- Otherwise, returns a list of goals paired with the user's progress on each.
 userMission :: Text -> Handler (Maybe (Seq (Goal, Int)))
 userMission char = fromMaybe mempty <$> runMaybeT do
-    who        <- MaybeT Auth.maybeAuthId
-    charID     <- characterID char
-    mission    <- MaybeT . return $ lookup char Missions.map
-    objectives <- lift $ runDB do
+    Just who     <- Auth.maybeAuthId
+    charID       <- characterID char
+    Just mission <- return $ lookup char Missions.map
+    objectives   <- lift $ runDB do
         alreadyUnlocked <-
             selectFirst [UnlockedUser ==. who, UnlockedCharacter ==. charID] []
         if isJust alreadyUnlocked then
@@ -162,10 +162,10 @@ updateProgress who amount GoalIndex{goals, char, i} =
 progress :: Progress -> Handler Bool
 progress Progress{amount = 0} = return False
 progress Progress{character, objective, amount} = fromMaybe False <$> runMaybeT do
-    who   <- MaybeT Auth.maybeAuthId
-    goals <- MaybeT . return $ lookup character Missions.map
+    Just who   <- Auth.maybeAuthId
+    Just goals <- return $ lookup character Missions.map
     guard $ objective < length goals
-    char  <- characterID character
+    char <- characterID character
     lift . runDB
         $ updateProgress who amount GoalIndex { goals, char, i = objective }
 

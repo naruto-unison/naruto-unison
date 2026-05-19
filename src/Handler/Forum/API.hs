@@ -38,7 +38,7 @@ attemptMaybeT m = returnJson . isJust =<< runMaybeT m
 -- Returns @True@ if successful, otherwise @False@.
 getDeletePostR :: Key ForumPost -> Handler Value
 getDeletePostR postId = attemptMaybeT do
-    (who, user) <- MaybeT Auth.maybeAuthPair
+    Just (who, user) <- Auth.maybeAuthPair
     ForumPost{forumPostAuthor, forumPostTopic} <- lift . runDB $ get404 postId
     guard $ forumPostAuthor == who || userPrivilege user > Normal
     lift $ runDB do
@@ -51,7 +51,7 @@ getDeletePostR postId = attemptMaybeT do
 -- Returns @True@ if successful, otherwise @False@.
 getLikePostR :: Key ForumPost -> Handler Value
 getLikePostR forumLikePost = attemptMaybeT do
-    who <- MaybeT Auth.maybeAuthId
+    Just who <- Auth.maybeAuthId
     ForumPost {forumPostAuthor, forumPostDeleted} <- lift . runDB
                                                    $ get404 forumLikePost
     guard $ forumPostAuthor /= who && not forumPostDeleted
@@ -93,7 +93,7 @@ setTopicState :: TopicState -> Key ForumTopic -> Handler Value
 setTopicState state topicId = attemptMaybeT do
     privilege <- App.getPrivilege
     guard $ privilege > Normal
-    ForumTopic{forumTopicState} <- MaybeT . runDB $ get topicId
+    Just ForumTopic{forumTopicState} <- lift $ runDB $ get topicId
     guard $ forumTopicState /= Deleted && forumTopicState /= state
     lift $ runDB do
         update topicId [ForumTopicState =. state]

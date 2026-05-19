@@ -107,9 +107,9 @@ copyAll dur = P.uncopied do
 copyLast :: ∀ m. MonadPlay m => Duration -> m ()
 copyLast (succ -> dur) = P.uncopied . void $ runMaybeT do
     Context{skill = Skill{name}} <- P.context
-    s     <- MaybeT $ findIndex (any $ (== name) . Skill.name) . toList
-           . Character.skills . N.character <$> P.nUser
-    skill <- MaybeT $ N.lastSkill <$> P.nTarget
+    Just s     <- findIndex (any $ (== name) . Skill.name) . toList
+                . Character.skills . N.character <$> P.nUser
+    Just skill <- N.lastSkill <$> P.nTarget
     Context{user} <- P.context
     P.modify user $ Ninjas.copy dur [s] skill
 

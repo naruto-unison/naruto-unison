@@ -401,11 +401,11 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
     setPassword uid pass = liftDB
         $ update uid [UserPassword =. Just pass]
 
-    getEmailCreds email = liftDB $ runMaybeT do
-        user <- MaybeT $ getBy . UniqueUser $ toLower email
-        return $ makeCreds user
+    getEmailCreds email = liftDB
+        $ makeCreds <$> (getBy . UniqueUser $ toLower email)
       where
-        makeCreds (Entity uid u) = AuthEmail.EmailCreds
+        makeCreds Nothing               = Nothing
+        makeCreds (Just (Entity uid u)) = Just $ AuthEmail.EmailCreds
             { emailCredsId = uid
             , emailCredsAuthId = Just uid
             , emailCredsStatus = isJust $ userPassword u

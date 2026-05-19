@@ -55,7 +55,7 @@ run vendetta n = runMaybeT do
     aggression <- R.random 0 aggressionThreshold
     guard $ aggression /= 0
     ninjas  <- P.ninjas
-    choices <- MaybeT . R.choose $ (>>= focusVendetta) <$> skillOptions ninjas n
+    Just choices <- R.choose $ (>>= focusVendetta) <$> skillOptions ninjas n
     MaybeT $ R.choose choices
   where
     focusVendetta act
@@ -76,8 +76,8 @@ getVendetta :: ∀ m. (MonadGame m, MonadRandom m) => m (Maybe Slot)
 getVendetta = do
     Game{vendetta} <- P.game
     fromMaybe <$> chooseVendetta <*> runMaybeT do
-        v <- MaybeT $ return vendetta
-        ninja <- lift $ P.ninja v
+        Just v <- return vendetta
+        ninja  <- lift $ P.ninja v
         guard $ N.alive ninja
         return vendetta
 
