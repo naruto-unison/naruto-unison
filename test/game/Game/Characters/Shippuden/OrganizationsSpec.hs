@@ -122,6 +122,11 @@ spec = parallel do
                 Sim.act
                 chakras <- gameChakras
                 chakras `shouldBe` ([], [Nin, Tai])
+            it "removes all stacks of Venom Beetle" do
+                addStacks "Venom Beetle" 2
+                Sim.act
+                numStacks <- targetStacks "Venom Beetle"
+                numStacks `shouldBe` 0
 
     describeCharacter "Fū Yamanaka" do
         useOn Enemy "Tantō Slash" do

@@ -191,6 +191,7 @@ characters =
           [ To Enemy do
                 stacks <- targetStacks "Venom Beetle"
                 deplete stacks
+                remove "Venom Beetle"
           ]
         }
       ]
