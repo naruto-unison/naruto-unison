@@ -606,7 +606,8 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 3 [ Reduce [All] Flat 10 ]
-                trapFrom 3 (OnHarmed All) $ afflict 10
+                trapFrom 3 (OnHarmed All) $
+                    afflict 10
           ]
         }
       ]
@@ -646,7 +647,8 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Self do
-                trapFrom 1 (CounterAll All) $ pierce 20
+                trapFrom 1 (CounterAll All) $
+                    pierce 20
                 hide Permanent [ Alternate "Back Slice"
                                            "Crescent Moon Slice"
                                ]
