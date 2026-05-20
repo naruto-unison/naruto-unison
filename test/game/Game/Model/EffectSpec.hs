@@ -15,6 +15,7 @@ import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Game.Action as Action
+import qualified Game.Engine.Combat as Combat
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
@@ -453,7 +454,7 @@ simEffects userEffects targetEffects = simOf $ Blank.gameOf
 
 damageToDefense :: Attack -> Int -> Property
 damageToDefense attackType dmg = simEffects [] [DamageToDefense] Enemy do
-    attack attackType dmg
+    Combat.attack attackType dmg
     targetHealth <- target health
     return $ 100 - targetHealth === case attackType of
         Attack.Afflict -> healthBound dmg
@@ -461,7 +462,7 @@ damageToDefense attackType dmg = simEffects [] [DamageToDefense] Enemy do
 
 damageFromDefense :: Attack -> Int -> Property
 damageFromDefense attackType dmg = simEffects [] [DamageToDefense] Enemy do
-    attack attackType dmg
+    Combat.attack attackType dmg
     targetDefense <- target totalDefense
     return $ targetDefense === case attackType of
         Attack.Afflict  -> 0
@@ -474,7 +475,7 @@ attackAmount :: Attack   -- ^ Attack type.
        -> [Effect] -- ^ Defender.
        -> Int      -- ^ Result.
 attackAmount attackType dmg attacker defender =
-    formula attackType (singletonSet All)
+    Combat.formula attackType (singletonSet All)
     Blank.ninja { effects = attacker }
     Blank.ninja { effects = defender }
     dmg
@@ -529,7 +530,7 @@ tryAbsorb t cost = simAt t do
 
 thresholdConstrains :: Attack -> Int -> Int -> Property
 thresholdConstrains attackType dmg v = simEffects [] [Threshold v] Enemy do
-    attack attackType dmg
+    Combat.attack attackType dmg
     targetHealth <- target health
     return $ 100 - targetHealth === damageOutput
   where

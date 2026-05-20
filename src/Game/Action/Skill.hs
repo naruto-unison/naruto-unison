@@ -3,7 +3,6 @@ module Game.Action.Skill
   ( -- * Cooldowns and charges
     alterCd
   , reset, resetAll, recharge, rechargeAll
-  -- * Changing face icons
   -- * Copying
   , copyAll, copyLast, teach
   -- * Alternates

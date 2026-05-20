@@ -383,10 +383,8 @@ prolongChannel dur name n = n { N.channels = f <$> N.channels n }
 renameChannels :: (Text -> Text) -> Ninja -> Ninja
 renameChannels rename n = n { N.channels = f <$> N.channels n }
   where
-    f chan = chan
+    f chan@Channel{skill} = chan
         { Channel.skill = skill { Skill.name = rename $ Skill.name skill } }
-      where
-        skill = Channel.skill chan
 
 -- | Removes all helpful effects.
 purge :: Ninja -> Ninja

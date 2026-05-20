@@ -7,34 +7,24 @@ module Game.Action.Trap
   ) where
 import ClassyPrelude
 
-import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Enum.Set (EnumSet)
 
-import qualified Class.Classed as Classed
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Action as Action
-import qualified Game.Engine.Effects as Effects
+import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Delay as Delay
 import           Game.Model.Duration (Duration(..))
-import qualified Game.Model.Duration as Duration
-import           Game.Model.Effect (Constructor(..), Effect(..))
-import           Game.Model.Ninja (is)
 import qualified Game.Model.Ninja as N
-import           Game.Model.Requirement (Requirement(..))
-import           Game.Model.Runnable (Runnable(To), RunConstraint)
-import qualified Game.Model.Runnable
+import           Game.Model.Runnable (RunConstraint)
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
-import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
-import qualified Game.Model.Trigger as Trigger
-import           Util ((∉))
 
 -- | Adds a @Trap@ to 'N.traps' that targets the person it was used on.
 trap :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
@@ -96,50 +86,8 @@ trapConst trapType clas dur tr f = trapFull trapType clas dur tr \_ -> f
 trapFull :: ∀ m. MonadPlay m
          => Trap.Direction -> EnumSet Class -> Duration -> Trigger
          -> (Int -> RunConstraint ()) -> m ()
-trapFull direction classes unthrottled trigger f = void $ runMaybeT do
-    context@Context{new, target} <- P.context
-    nUser   <- P.nUser
-    nTarget <- P.nTarget
-    dur     <- if not new then return unthrottled else
-               MaybeT . return $ throttle nUser
-    let tr = makeTrap context direction classes dur trigger f
-    guard $ tr ∉ N.traps nTarget
-    guard . not $ isCounter && nUser `is` Disable Counters
-    P.modify target \n ->
-        n { N.traps = Classed.nonStack tr tr $ N.traps n }
-  where
-    isCounter = Trigger.isCounter trigger
-    throttle n
-      | isCounter = Duration.throttle (Effects.throttleCounters n) unthrottled
-      | otherwise = Just unthrottled
-
-makeTrap :: Context -> Trap.Direction -> EnumSet Class -> Duration
-         -> Trigger -> (Int -> RunConstraint ()) -> Trap
-makeTrap ctx direction classes dur trigger f = Trap
-    { trigger
-    , direction
-    , skill   = skill'
-    , user
-    , name    = Skill.name skill'
-    , effect  = \i -> To { target = context, run = Action.wrap $ f i }
-    , classes = classes'
-    , tracker = 0
-    , dur     = succ dur
-    }
-  where
-    Context{continues, new, skill, user} = ctx
-    modClasses
-      | continues && dur <= 1 = insertSet Continues
-      | continues || new      = deleteSet Continues
-      | otherwise             = deleteSet Continues . deleteSet Invisible
-    classes' = modClasses $ classes ++ Skill.classes skill
-    skill'   = skill { Skill.classes = classes'
-                     , Skill.require = Usable
-                     }
-    context  = ctx { Context.skill     = skill'
-                   , Context.continues = False
-                   , Context.new       = False
-                   }
+trapFull direction classes unthrottled trigger f =
+    Traps.apply direction classes unthrottled trigger \i -> Action.wrap $ f i
 
 -- | Saves an effect to a 'Delay.Delay', which is stored in 'Game.delays' and
 -- triggered when it expires.

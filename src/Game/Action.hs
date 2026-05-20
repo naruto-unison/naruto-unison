@@ -246,7 +246,7 @@ act ctx@Context{user, new, skill} = void $ runMaybeT do
             traverse_ Trigger.absorb countering
             let counters = Trigger.userCounters (not $ null countering)
                            user classes nUser ++
-                           (Trigger.targetCounters user classes =<< countering)
+                           (countering >>= Trigger.targetCounters user classes)
             if not $ Uncounterable ∈ classes
                   || nUser `is` AntiCounter
                   || null counters
@@ -273,7 +273,7 @@ act ctx@Context{user, new, skill} = void $ runMaybeT do
             Hook.action skill initial =<< P.ninjas
             Game{chakra = chakra'} <- P.game
             Hook.chakra skill chakra chakra'
-        
+
         traverse_ (sequence_ . Traps.get user) =<< P.ninjas
 
         P.modifyAll $ unreflect . \n -> n { N.triggers = mempty }
