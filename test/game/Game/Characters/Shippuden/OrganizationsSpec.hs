@@ -44,7 +44,7 @@ spec = parallel do
         useOn Ally "Wood Clone" do
             it "counters on target" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> target (`is` Reveal)
             it "counters with defense" do
                 Sim.act
@@ -143,7 +143,8 @@ spec = parallel do
         useOn Ally "Mind Transfer Puppet Curse" do
             it "counters on target" do
                 Sim.act
-                Sim.withClass NonMental $ Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.withClass NonMental $ Sim.as Enemy $
+                    apply Permanent [ Reveal ]
                 not <$> target (`is` Reveal)
             it "teaches countered" do
                 Sim.act
@@ -162,11 +163,13 @@ spec = parallel do
         useOn Enemy "Chidori Stream" do
             it "counters enemies" do
                 Sim.act
-                Sim.withClass NonMental $ Sim.as XEnemies $ apply Permanent [Reveal]
+                Sim.withClass NonMental $ Sim.as XEnemies $
+                    apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
-                Sim.withClass NonMental $ Sim.as Enemies $ apply Permanent [Reveal]
+                Sim.withClass NonMental $ Sim.as Enemies $
+                    apply Permanent [ Reveal ]
                 targetHealth <- health <$> Sim.targets Enemies
                 100 - targetHealth `shouldBe` 10
             it "alternates" do
@@ -177,7 +180,7 @@ spec = parallel do
             it "damages attackers" do
                 Sim.act
                 setHealth 100
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 5
 
@@ -188,7 +191,7 @@ spec = parallel do
                 targetHealth <- target health
                 targetHealth `shouldBe` 100
             it "can be used after Dragon Flame" do
-                apply Permanent [AntiChannel]
+                apply Permanent [ AntiChannel ]
                 Sim.use "Dragon Flame"
                 Sim.as Enemy $ return ()
                 setHealth 100
@@ -196,7 +199,7 @@ spec = parallel do
                 targetHealth <- target health
                 targetHealth `shouldNotBe` 100
             it "can only be used once after Dragon Flame" do
-                apply Permanent [AntiChannel]
+                apply Permanent [ AntiChannel ]
                 Sim.use "Dragon Flame"
                 setHealth 100
                 Sim.as Enemy $ return ()

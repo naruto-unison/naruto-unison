@@ -53,7 +53,7 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 self factory
-                apply Permanent [Invulnerable Affliction]
+                apply Permanent [ Invulnerable Affliction ]
                 Sim.use "Drowning Bubble"
                 Sim.act
                 targetHealth' <- target health
@@ -74,11 +74,11 @@ spec = parallel do
         useOn Enemies "Octopus Hold" do
             it "counters on user" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> target (`is` Reveal)
             it "damages countered" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20
 

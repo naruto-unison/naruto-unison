@@ -203,7 +203,7 @@ spec = parallel do
 
         useOn Enemy "Hidden Lotus" do
             it "damages target" do
-                apply Permanent [Reduce [All] Flat stacks]
+                apply Permanent [ Reduce [All] Flat stacks ]
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 100 - stacks
@@ -266,12 +266,12 @@ spec = parallel do
 
         useOn Self "Sand Clone" do
             it "blocks harmful effects" do
-                Sim.as Enemy $ apply Permanent [Plague]
+                Sim.as Enemy $ apply Permanent [ Plague ]
                 Sim.act
                 Sim.as Enemy $ afflict 5
                 not <$> user (`is` Plague)
             it "ends with new non-affliction damage" do
-                Sim.as Enemy $ apply Permanent [Plague]
+                Sim.as Enemy $ apply Permanent [ Plague ]
                 Sim.act
                 Sim.as Enemy $ damage 5
                 user (`is` Plague)

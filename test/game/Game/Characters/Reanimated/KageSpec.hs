@@ -29,7 +29,9 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 self factory
-                apply Permanent [Enrage, AntiChannel]
+                apply Permanent [ Enrage
+                                , AntiChannel
+                                ]
                 Sim.use "Water Shockwave"
                 setHealth 100
                 Sim.act
@@ -194,7 +196,7 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 self factory
-                apply Permanent [Invulnerable All]
+                apply Permanent [ Invulnerable All ]
                 Sim.act
                 targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 10

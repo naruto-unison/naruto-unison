@@ -90,7 +90,7 @@ spec = parallel do
 
         useOn Ally "Heaven Spear Kick" do
             it "makes target of Healing Wave immortal" do
-                apply Permanent [Plague]
+                apply Permanent [ Plague ]
                 Sim.use "Healing Wave"
                 Sim.act
                 Sim.as Enemy kill

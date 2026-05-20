@@ -17,9 +17,9 @@ spec = parallel do
 
         useOn Enemy "Throw a Fit" do
             it "damages target per helpful effect from allies" do
-                self $ apply Permanent [Focus]
+                self $ apply Permanent [ Focus ]
                 Sim.as Ally $ everyone $
-                    replicateM_ stacks $ apply Permanent [Focus]
+                    replicateM_ stacks $ apply Permanent [ Focus ]
                 Sim.act
                 Sim.turns 5
                 targetHealth <- target health
@@ -27,9 +27,9 @@ spec = parallel do
 
         useOn Enemy "Throw a Shuriken" do
             it "damages target per helpful effect from allies" do
-                self $ apply Permanent [Focus]
+                self $ apply Permanent [ Focus ]
                 Sim.as Ally $ everyone $
-                    replicateM_ stacks $ apply Permanent [Focus]
+                    replicateM_ stacks $ apply Permanent [ Focus ]
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 10 + 10 * stacks
@@ -62,7 +62,7 @@ spec = parallel do
             it "ignores stuns if target dies" do
                 Sim.act
                 Sim.as XEnemies kill
-                self $ Sim.as XEnemies $ apply Permanent [Stun All]
+                self $ Sim.as XEnemies $ apply Permanent [ Stun All ]
                 userStunned <- user Effects.stun
                 userStunned `shouldBe` []
             it "makes user immortal if target dies" do
@@ -96,7 +96,8 @@ spec = parallel do
         useOn XAlly "Partial Expansion" do
             it "counters on ally" do
                 Sim.act
-                Sim.withClass NonMental $ Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.withClass NonMental $ Sim.as Enemy $
+                    apply Permanent [ Reveal ]
                 not <$> target (`is` Reveal)
         useOn Enemy "Partial Expansion" do
             it "counters against enemy" do
@@ -125,7 +126,7 @@ spec = parallel do
                 Sim.act
                 Sim.turns 2
                 targetStunned <- target Effects.stun
-                targetStunned `shouldBe` [NonMental]
+                targetStunned `shouldBe` [ NonMental ]
             it "does not stun an additional turn otherwise" do
                 Sim.act
                 Sim.turns 2
@@ -166,11 +167,11 @@ spec = parallel do
         useOn Enemies "Black Spider Lily" do
             it "tags target if they stun" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Stun All]
+                Sim.as Enemy $ apply Permanent [ Stun All ]
                 targetHas "Ensnared"
             it "does not tag otherwise" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Focus]
+                Sim.as Enemy $ apply Permanent [ Focus ]
                 not <$> targetHas "Ensnared"
 
     describeCharacter "Inoichi Yamanaka" do
@@ -207,13 +208,13 @@ spec = parallel do
                 Sim.act
                 Sim.withClass Mental $ Sim.as Self $ return ()
                 Sim.withClass Mental $ Sim.as Self $ return ()
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "does not provide invulnerability otherwise" do
                 Sim.act
                 Sim.withClass Physical $ Sim.as Self $ return ()
                 Sim.withClass Physical $ Sim.as Self $ return ()
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 user (`is` Reveal)
   where
     describeCharacter = describeCategory Original

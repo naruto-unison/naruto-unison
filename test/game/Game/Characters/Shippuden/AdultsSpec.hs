@@ -16,7 +16,7 @@ spec = parallel do
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
             it "does not stun otherwise" do
-                apply Permanent [Reduce [Affliction] Flat 25]
+                apply Permanent [ Reduce [Affliction] Flat 25 ]
                 Sim.act
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` []
@@ -40,7 +40,7 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 self factory
-                apply Permanent [Stun All]
+                apply Permanent [ Stun All ]
                 Sim.act
                 targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 10
@@ -49,7 +49,7 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 self factory
-                apply Permanent [Stun All]
+                apply Permanent [ Stun All ]
                 Sim.use "Lightning Beast Fang"
                 setHealth 100
                 Sim.act
@@ -171,7 +171,7 @@ spec = parallel do
             it "cures harm on death" do
                 Sim.act
                 Sim.as Enemy do
-                    apply Permanent [Reveal]
+                    apply Permanent [ Reveal ]
                     kill
                 not <$> target (`is` Reveal)
             it "heals target on death" do
@@ -224,7 +224,7 @@ spec = parallel do
             it "makes user invulnerable if harmed" do
                 Sim.act
                 Sim.as Enemy $ return ()
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
 
     describeCharacter "Atsui" do
@@ -254,11 +254,11 @@ spec = parallel do
         useOn Enemies "Back Slice" do
             it "counters" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20
             it "alternates" do
@@ -283,7 +283,7 @@ spec = parallel do
         useOn Ally "Rubber Sphere and Rope" do
             it "makes random ally invulnerable" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> target (`is` Reveal)
 
     describeCharacter "Darui" do
@@ -318,7 +318,8 @@ spec = parallel do
         useOn Enemy "Barrier Talisman" do
             it "counters on user" do
                 Sim.act
-                Sim.withClass NonMental $ Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.withClass NonMental $ Sim.as Enemy $
+                    apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "exhausts countered" do
                 Sim.act
@@ -330,11 +331,13 @@ spec = parallel do
         useOn Enemy "Hiramekarei Twinswords" do
             it "counters on user" do
                 Sim.act
-                Sim.withClass Physical $ Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.withClass Physical $ Sim.as Enemy $
+                    apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
-                Sim.withClass Physical $ Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.withClass Physical $ Sim.as Enemy $
+                    apply Permanent [ Reveal ]
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20
   where

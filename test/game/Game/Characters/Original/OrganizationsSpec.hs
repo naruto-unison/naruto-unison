@@ -105,7 +105,7 @@ spec = parallel do
                 targetHealth `shouldBe` 5
             it "ignores harm" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 Sim.as Enemy kill
                 not <$> user (`is` Reveal)
             it "ignores help and dies" do
@@ -122,7 +122,7 @@ spec = parallel do
 
         useOn Enemy "Converging Murder" do
             it "damages target per Scattering Crow Swarm" do
-                apply Permanent [AntiChannel]
+                apply Permanent [ AntiChannel ]
                 replicateM_ stacks  $ Sim.use "Scattering Crow Swarm"
                 setHealth 100
                 Sim.act
@@ -327,7 +327,7 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 self factory
-                apply Permanent [Invulnerable Affliction]
+                apply Permanent [ Invulnerable Affliction ]
                 Sim.use "Demon Parasite"
                 Sim.act
                 targetHealth' <- target health
@@ -348,7 +348,7 @@ spec = parallel do
         useOn Enemy "Summoning: Rashōmon" do
             it "makes user invulnerable" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "ends Demon Parasite" do
                 Sim.use "Demon Parasite"

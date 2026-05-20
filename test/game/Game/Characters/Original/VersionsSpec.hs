@@ -12,7 +12,7 @@ spec = parallel do
     describeCharacter "One-Tailed Naruto" do
         useOn Enemy "Tailed Beast Rasengan" do
             it "deals bonus damage during Tailed Beast Chakra Arms" do
-                apply Permanent [AntiChannel]
+                apply Permanent [ AntiChannel ]
                 Sim.use "Tailed Beast Chakra Arms"
                 setHealth 100
                 Sim.act
@@ -51,7 +51,7 @@ spec = parallel do
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20 + 5 * stacks
             it "deals bonus damage during Drunken Fist" do
-                apply Permanent [AntiChannel]
+                apply Permanent [ AntiChannel ]
                 Sim.use "Drunken Fist"
                 setHealth 100
                 Sim.act
@@ -61,28 +61,28 @@ spec = parallel do
         useOn Enemy "Drunken Counter" do
             it "counters on target" do
                 self Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages with Unpredictable Assault if countered" do
                 self Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20
             it "adds Unpredictable Assault if countered" do
                 self Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 userHas "Unpredictable Assault"
 
     describeCharacter "Shukaku Gaara" do
         useOn Enemy "Monstrous Sand Arm" do
             it "counters target" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages target until target acts" do
                 Sim.act
                 Sim.turns stacks
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 Sim.turns 5
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 10 * (stacks + 1)
@@ -114,12 +114,14 @@ spec = parallel do
             it "exhausts targets" do
                 Sim.act
                 Sim.withClass Mental $ Sim.as XEnemies $ return ()
-                targetExhausted <- Effects.exhaust [NonMental] <$> Sim.targets XEnemies
+                targetExhausted <- Effects.exhaust [NonMental]
+                                   <$> Sim.targets XEnemies
                 targetExhausted `shouldBe` [Rand]
             it "ends if target uses non-mental" do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as XEnemies $ return ()
-                targetExhausted <- Effects.exhaust [NonMental] <$> Sim.targets XEnemies
+                targetExhausted <- Effects.exhaust [NonMental] <$>
+                                   Sim.targets XEnemies
                 targetExhausted `shouldBe` []
             it "alternates" do
                 Sim.act

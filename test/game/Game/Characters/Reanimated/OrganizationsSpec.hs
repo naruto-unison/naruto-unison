@@ -13,29 +13,29 @@ spec = parallel do
         useOn Enemy "Rivalry" do
             it "counters target" do
                 Sim.act
-                Sim.at XAlly $ Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.at XAlly $ Sim.as Enemy $ apply Permanent [ Reveal ]
                 not . (`is` Reveal) <$> Sim.targets XAlly
             it "does not taunt if target is not countered" do
                 Sim.act
                 Sim.as XEnemies $ return ()
-                Sim.at XAlly $ Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.at XAlly $ Sim.as Enemy $ apply Permanent [ Reveal ]
                 (`is` Reveal) <$> Sim.targets XAlly
             it "counters with taunt" do
                 Sim.act
                 Sim.at XAlly do
                     Sim.as Enemy $ return ()
-                    Sim.as Enemy $ apply Permanent [Reveal]
+                    Sim.as Enemy $ apply Permanent [ Reveal ]
                 not . (`is` Reveal) <$> Sim.targets XAlly
             it "taunts to user" do
                 Sim.act
                 Sim.at XAlly $ Sim.as Enemy $ return ()
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 user (`is` Reveal)
             it "ends if user uses a skill on a different target" do
                 Sim.act
-                Sim.at XAlly $ Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.at XAlly $ Sim.as Enemy $ apply Permanent [ Reveal ]
                 Sim.at XEnemies  $ Sim.use "Sphere of Graves"
-                Sim.at XAlly $ Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.at XAlly $ Sim.as Enemy $ apply Permanent [ Reveal ]
                 (`is` Reveal) <$> Sim.targets XAlly
 
         useOn Enemy "Earth Dome Prison" do
@@ -71,12 +71,12 @@ spec = parallel do
                 targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 0
             it "stuns if target loses 50 health" do
-                self $ apply Permanent [Strengthen [All] Flat 40]
+                self $ apply Permanent [ Strengthen [All] Flat 40 ]
                 Sim.act
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
             it "does not stun otherwise" do
-                self $ apply Permanent [Strengthen [All] Flat 39]
+                self $ apply Permanent [ Strengthen [All] Flat 39 ]
                 Sim.act
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` []
@@ -151,7 +151,7 @@ spec = parallel do
                 30 - (100 - targetHealth) `shouldBe` stacks
             it "deals affliction damage if target has Electricity" do
                 Sim.use "Lightning Fang"
-                apply Permanent [Reduce [All] Flat stacks]
+                apply Permanent [ Reduce [All] Flat stacks ]
                 Sim.act
                 targetHealth <- target health
                 30 - (100 - targetHealth) `shouldBe` 0
@@ -244,7 +244,7 @@ spec = parallel do
         useOn Enemy "Chakra Clay Trap" do
             it "counters target" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> target (`is` Reveal)
             it "increases the damage of Detonating Clay" do
                 replicateM_ stacks do
@@ -280,7 +280,7 @@ spec = parallel do
                 setHealth 50
                 Sim.act
                 targetStunned <- target Effects.stun
-                targetStunned `shouldBe` [Physical, Chakra]
+                targetStunned `shouldBe` [ Physical, Chakra ]
             it "does not stun otherwise" do
                 Sim.act
                 targetStunned <- target Effects.stun

@@ -23,11 +23,11 @@ spec = parallel do
         useOn Enemies "Rasengan Barrage" do
             it "counters on user" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 30
 
@@ -40,13 +40,13 @@ spec = parallel do
         useOn Enemy "Blazing Arrow" do
             it "damages immediately if interrupted" do
                 Sim.act
-                Sim.as Enemy $ apply 1 [Stun All]
+                Sim.as Enemy $ apply 1 [ Stun All ]
                 Sim.turns 1
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 3 * 15
             it "does not continue to damage if interrupted" do
                 Sim.act
-                Sim.as Enemy $ apply 1 [Stun All]
+                Sim.as Enemy $ apply 1 [ Stun All ]
                 Sim.turns 5
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 3 * 15
@@ -55,7 +55,7 @@ spec = parallel do
             it "is cured when target becomes invulnerable" do
                 Sim.act
                 Sim.turns stacks
-                Sim.as Enemy $ self $ apply Permanent [Invulnerable Physical]
+                Sim.as Enemy $ self $ apply Permanent [ Invulnerable Physical ]
                 Sim.turns 5
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 5 * (stacks + 1)
@@ -82,7 +82,7 @@ spec = parallel do
                 self factory
                 replicateM_ stacks do
                     Sim.use "Amaterasu"
-                    Sim.as Enemy $ self $ apply 1 [Invulnerable Physical]
+                    Sim.as Enemy $ self $ apply 1 [ Invulnerable Physical ]
                     Sim.turns 1
                 Sim.use "Amaterasu"
                 Sim.as Enemy $ self cureAll
@@ -118,11 +118,11 @@ spec = parallel do
 
         useOn Self "Mother's Embrace" do
             it "ignores harmful effects" do
-                Sim.as Enemy $ apply Permanent [Plague]
+                Sim.as Enemy $ apply Permanent [ Plague ]
                 Sim.act
                 not <$> user (`is` Plague)
             it "ends when destroyed" do
-                Sim.as Enemy $ apply Permanent [Plague]
+                Sim.as Enemy $ apply Permanent [ Plague ]
                 Sim.act
                 Sim.as Enemy demolishAll
                 user (`is` Plague)
@@ -171,7 +171,7 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 self factory
-                apply Permanent [AntiChannel]
+                apply Permanent [ AntiChannel ]
                 Sim.use "Sasori Surrogate"
                 Sim.use "Kuroari Trap"
                 Sim.use "Hidden Coil Strike"
@@ -183,16 +183,16 @@ spec = parallel do
         useOn Allies "Salamander Shield" do
             it "redirects from targets" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> target (`is` Reveal)
             it "redirects to user" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 user (`is` Reveal)
             it "ends when destroyed" do
                 Sim.act
                 self $ Sim.as Enemy demolishAll
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 target (`is` Reveal)
 
     describeCharacter "Sage Mode Kabuto" do
@@ -422,18 +422,18 @@ spec = parallel do
         useOn Enemies "Eight-Headed Serpent" do
             it "stuns stunners" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Stun Mental]
+                Sim.as Enemy $ apply Permanent [ Stun Mental ]
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
             it "removes stuns" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Stun Mental]
+                Sim.as Enemy $ apply Permanent [ Stun Mental ]
                 userStunned <- user Effects.stun
                 userStunned `shouldBe` []
             it "damages stunners" do
                 Sim.act
                 setHealth 100
-                Sim.as Enemy $ apply Permanent [Stun Mental]
+                Sim.as Enemy $ apply Permanent [ Stun Mental ]
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20
   where

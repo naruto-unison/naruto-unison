@@ -19,7 +19,7 @@ spec = parallel do
 
         useOn Enemy "Super Steam Kill" do
             it "damages target" do
-                apply Permanent [AntiChannel]
+                apply Permanent [ AntiChannel ]
                 Sim.use "Scorch Style"
                 setHealth 100
                 Sim.act
@@ -197,7 +197,7 @@ spec = parallel do
         useOn Enemy "Possum" do
             it "counters target" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act

@@ -13,16 +13,22 @@ spec = parallel do
         useOn Enemy "Life Link" do
             it "kills target if user dies" do
                 Sim.act
-                apply Permanent
-                    [Endure, Invulnerable All, Nullify, Reflect]
+                apply Permanent [ Endure
+                                , Invulnerable All
+                                , Nullify
+                                , Reflect
+                                ]
                 self kill
                 Sim.turns 1
                 targetHealth <- target health
                 targetHealth `shouldBe` 0
             it "kills user if target dies" do
                 Sim.act
-                self $ apply Permanent
-                    [Endure, Invulnerable All, Nullify, Reflect]
+                self $ apply Permanent [ Endure
+                                       , Invulnerable All
+                                       , Nullify
+                                       , Reflect
+                                       ]
                 Sim.as Self kill
                 Sim.turns 1
                 userHealth <- user health
@@ -33,9 +39,9 @@ spec = parallel do
 
         useOn Enemy "Adamantine Sealing Chains" do
             it "purges helpful effects" do
-                apply 10 [Build stacks]
-                Sim.as Enemy $ self $ apply 10 [Build stacks]
-                Sim.as XEnemies $ apply 10 [Build stacks]
+                apply 10 [ Build stacks ]
+                Sim.as Enemy $ self $ apply 10 [ Build stacks ]
+                Sim.as XEnemies $ apply 10 [ Build stacks ]
                 Sim.act
                 targetBuild <- target $ Effects.build
                 targetBuild `shouldBe` 0
@@ -75,7 +81,7 @@ spec = parallel do
                 Sim.use "Veritable 1000-Armed Kannon"
                 Sim.act
                 Sim.turns 2
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
 
     describeCharacter "Young Kakashi" do
@@ -116,25 +122,25 @@ spec = parallel do
                 chakras `shouldBe` ([], [])
             it "stuns if enemy stuns" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Stun Physical]
+                Sim.as Enemy $ apply Permanent [ Stun Physical ]
                 userHas "Sharingan Stun"
             it "stuns if enemy disables" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Disable Counters]
+                Sim.as Enemy $ apply Permanent [ Disable Counters ]
                 userHas "Sharingan Stun"
             it "does not stun otherwise" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [Throttle 1 Counters]
+                Sim.as Enemy $ apply Permanent [ Throttle 1 Counters ]
                 not <$> userHas "Sharingan Stun"
             it "strengthens if target damages" do
-                self $ apply Permanent [Reduce [All] Flat 5]
+                self $ apply Permanent [ Reduce [All] Flat 5 ]
                 Sim.act
                 Sim.as Enemy $ damage 6
                 damage dmg
                 targetHealth <- target health
                 (100 - targetHealth) - dmg `shouldBe` 10
             it "does not strengthen otherwise" do
-                self $ apply Permanent [Reduce [All] Flat 5]
+                self $ apply Permanent [ Reduce [All] Flat 5 ]
                 Sim.act
                 Sim.as Enemy $ damage 5
                 damage dmg
@@ -200,33 +206,33 @@ spec = parallel do
                 Sim.use "Kusari Chains"
                 Sim.act
                 Sim.turns 1
-                Sim.as XEnemies $ apply Permanent [Focus]
+                Sim.as XEnemies $ apply Permanent [ Focus ]
                 not <$> target (`is` Focus)
 
         useOn Self "Kamui Phase" do
             it "works on its own" do
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "does not work after Kusari Chains" do
                 Sim.use "Kusari Chains"
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 user (`is` Reveal)
             it "does not work after Kamui Banishment" do
                 Sim.use "Kamui Banishment"
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 user (`is` Reveal)
             it "does not work after Major Summoning: Kurama" do
                 Sim.use "Major Summoning: Kurama"
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 user (`is` Reveal)
             it "does not work after itself" do
                 Sim.use "Kamui Phase"
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent [Reveal]
+                Sim.as Enemy $ apply Permanent [ Reveal ]
                 user (`is` Reveal)
   where
     describeCharacter = describeCategory Original
