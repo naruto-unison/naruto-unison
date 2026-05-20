@@ -681,8 +681,7 @@ characters =
       ]
     , [ invuln "Dodge" "Lee" [Physical] ]
     ]
-  , let loadout = [0, 0, 0] in
-    Character
+  , Character
     "Tenten"
     "Now a chūnin, Tenten's arsenal has expanded to a prodigious stockpile of some of the most powerful weapons in existence, including the legendary fan of the Sage of the Six Paths. Taking any excuse to show off the size and variety of her collection, she has assembled multiple item sets to switch out at a moment's notice."
     [LeafVillage, Eleven, AlliedForces, Chunin]
@@ -754,7 +753,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend Permanent 5
-                alternate loadout 1
+                setAlternates [1, 1, 1]
           ]
         }
       , Skill.new
@@ -764,7 +763,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend Permanent 5
-                alternate loadout 2
+                setAlternates [2, 2, 2]
           ]
         }
       , Skill.new
@@ -774,7 +773,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend Permanent 5
-                alternate loadout 0
+                setAlternates [0, 0, 0]
           ]
         }
       ]

@@ -195,8 +195,7 @@ characters =
       ]
     , [ invuln "Chakra Barrier" "B" [Chakra] ]
     ]
-  , let loadout = [1, 0, 0, 0] in
-    Character
+  , Character
     "Nine-Tailed Naruto"
     "Rage has triggered the beast within Naruto to emerge. As his hatred grows, so does the nine-tailed beast's power. If left unchecked, Kurama may break free of his seal, and Naruto himself will cease to exist."
     [LeafVillage, Eleven, Genin, Jinchuriki, Sage, Sensor, Wind, Lightning, Earth, Water, Fire, Yin, Yang, Uzumaki]
@@ -208,7 +207,7 @@ characters =
           [ To Self do
                 sacrifice 1 5
                 defend Permanent 10
-                alternate loadout 0
+                setAlternates [1, 0, 0, 0]
                 apply Permanent [ Reduce [All] Flat 10
                                 , Plague
                                 , Face
@@ -231,7 +230,7 @@ characters =
                 remove "Four-Tailed Transformation"
                 sacrifice 1 10
                 defend Permanent 20
-                alternate loadout 1
+                setAlternates [2, 1, 1, 1]
           ]
         }
       , Skill.new
@@ -250,7 +249,7 @@ characters =
                 remove "Six-Tailed Transformation"
                 sacrifice 1 15
                 defend Permanent 30
-                alternate loadout 2
+                setAlternates [3, 2, 2, 2]
           ]
         }
       , Skill.new

@@ -846,7 +846,7 @@ characters =
                             killHard
                             self do
                                 setHealth 100
-                                alternate [0, 0, 0, 0] 1
+                                setAlternates [1, 1, 1, 1]
                                 apply Permanent [ Invulnerable Bane ]
           ]
         }

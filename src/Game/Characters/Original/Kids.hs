@@ -363,8 +363,7 @@ characters =
       ]
     , [ invuln "Hide" "Shikamaru" [Mental] ]
     ]
-  , let loadout = [0, 0, 0] in
-    Character
+  , Character
     "Chōji Akimichi"
     "A genin from Team 10, Chōji is a voracious eater and loyal friend. His clan's special pills immensely magnify his innate strength and unlock different abilities, but the toll they take on his body can kill him if he pushes himself too far, too fast."
     [LeafVillage, Eleven, Genin, Earth, Fire, Yang, Akimichi]
@@ -376,7 +375,7 @@ characters =
         , Skill.start     =
           [ To Self do
                 sacrifice 1 5
-                alternate loadout 1
+                setAlternates [1, 1, 1]
           ]
         , Skill.effects   =
           [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 5 ] ]
@@ -426,7 +425,7 @@ characters =
           [ To Self do
                 cancelChannel "Spinach Pill"
                 sacrifice 1 15
-                alternate loadout 2
+                setAlternates [2, 2, 2]
           ]
         , Skill.effects   =
           [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 10 ] ]
@@ -483,7 +482,7 @@ characters =
         , Skill.start     =
           [ To Self do
                 sacrifice 1 10
-                alternate loadout 3
+                setAlternates [3, 3, 3]
           ]
         , Skill.effects   =
           [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 15 ]
@@ -515,7 +514,7 @@ characters =
           [ To Self do
                 cancelChannel "Spinach Pill"
                 sacrifice 1 5
-                alternate loadout 2
+                setAlternates [2, 2, 2]
           ]
         , Skill.effects   =
           [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 10 ] ]
@@ -528,7 +527,7 @@ characters =
         , Skill.start     =
           [ To Self do
                 cancelChannel "Curry Pill"
-                alternate loadout 3
+                setAlternates [3, 3, 3]
           ]
         , Skill.effects   =
           [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 15 ]

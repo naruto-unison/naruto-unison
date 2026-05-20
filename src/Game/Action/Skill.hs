@@ -6,7 +6,7 @@ module Game.Action.Skill
   -- * Copying
   , copyAll, copyLast, teach
   -- * Alternates
-  , alternate, nextAlternate
+  , setAlternates, nextAlternate
 
   -- * Other
   , factory, replaceWith
@@ -74,16 +74,15 @@ alternateClasses :: EnumSet Class
 alternateClasses = setFromList [Hidden, Nonstacking, Unremovable]
 
 -- | Adjusts all 'N.alternates' at once.
-alternate :: ∀ m. MonadPlay m
+setAlternates :: ∀ m. MonadPlay m
           => [Int] -- ^ Index offsets.
-          -> Int   -- ^ Counter added to all 'N.alternates' slots.
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
-alternate loadout i = applyWith' alternateClasses "loadout" Permanent
+setAlternates loadout = applyWith' alternateClasses "loadout" Permanent
     . catMaybes . zipWith load loadout . toList . Character.skills
     . N.character =<< P.nTarget
   where
     load alt (x:|xs) =
-        Alternate (Skill.name x) . Skill.name <$> xs !? (alt + i - 1)
+        Alternate (Skill.name x) . Skill.name <$> xs !? (alt - 1)
 
 -- | Cycles a skill through its list of alternates.
 -- | Uses 'Ninjas.nextAlternate' internally.
