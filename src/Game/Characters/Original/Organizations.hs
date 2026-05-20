@@ -466,12 +466,12 @@ characters =
                                       , Afflict 15
                                       , Plague
                                       , Alternate "Mangekyō Sharingan"
-                                                  "Mangekyō Sharingan "
+                                                  "Mangekyō Sharingan"
                                       ]
           ]
         }
       , Skill.new
-        { Skill.name      = "Mangekyō Sharingan "
+        { Skill.name      = "Mangekyō Sharingan"
         , Skill.desc      = "Ends the effect of [Mangekyō Sharingan], halving Itachi's cooldowns and chakra costs."
         , Skill.classes   = [Mental]
         , Skill.effects   =

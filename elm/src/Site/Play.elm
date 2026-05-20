@@ -635,7 +635,7 @@ renderSkill user chakras able characters button targets skill =
         image =
             icon (Game.root characters skill) skill.name []
         cooldown =
-            if user.health > 0 then
+            if user.health > 0 and skill.cooldown > 0 then
                 Dict.get key user.cooldowns
                     |> Maybe.withDefault 0
 

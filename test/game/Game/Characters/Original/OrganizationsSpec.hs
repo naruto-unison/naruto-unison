@@ -256,31 +256,31 @@ spec = parallel do
     describeCharacter "Itachi Uchiha" do
         useOn Enemy "Amaterasu" do
             it "damages target" do
-                Sim.act
+                Sim.use "Amaterasu"
                 Sim.turns stacks
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 15 + 5 * stacks
             it "is normally single-target" do
-                Sim.act
+                Sim.use "Amaterasu"
                 Sim.turns stacks
                 targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 0
             it "damages all targets and deals double damage during Mangekyō Sharingan" do
                 Sim.use "Mangekyō Sharingan"
-                Sim.act
+                Sim.use "Amaterasu"
                 Sim.turns stacks
                 targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 30 + 10 * stacks
 
         useOn Enemy "Tsukuyomi" do
             it "lasts 1 turn normally" do
-                Sim.act
+                Sim.use "Tsukuyomi"
                 Sim.turns 1
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` []
             it "lasts 3 turns during Mangekyō Sharingan" do
                 Sim.use "Mangekyō Sharingan"
-                Sim.act
+                Sim.use "Tsukuyomi"
                 Sim.turns 2
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]

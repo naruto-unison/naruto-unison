@@ -101,7 +101,7 @@ characters =
           ]
         }
       , Skill.new
-        { Skill.name     = "Healing Technique "
+        { Skill.name     = "Healing Technique"
         , Skill.desc     = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures the target of bane effects. Spends a Seal if available to have no cooldown and cost 1 arbitrary chakra."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand]
@@ -121,8 +121,10 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self $ applyStacks "Seal" 3
-                [ Alternate "Healing Technique" "Healing Technique "
-                , Alternate "Strength of One Hundred Seal" "Seal Release"
+                [ Alternate "Healing Technique"
+                            "Healing Technique"
+                , Alternate "Strength of One Hundred Seal"
+                            "Seal Release"
                 ]
           ]
         }

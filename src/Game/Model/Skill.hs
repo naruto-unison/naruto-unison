@@ -49,8 +49,8 @@ chakraClasses skill@Skill{classes, cost} =
 
 -- | Replaces an empty string with a 'name'.
 defaultName :: Text -> Skill -> Text
-defaultName ""   skill = name skill
-defaultName name _     = name
+defaultName ""   Skill{name} = name
+defaultName name _           = name
 
 -- | Generates a 'Key' used for 'Game.Ninja.cooldowns' and 'Game.Ninja.charges'.
 key :: Skill -> Key

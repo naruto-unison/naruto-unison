@@ -147,7 +147,7 @@ spec = parallel do
                 Sim.act
                 user $ hasSkill "Flying Kick"
             it "lasts longer per Sharpen Blades" do
-                replicateM_ stacks  $ Sim.use "Sharpen Blades"
+                replicateM_ stacks $ Sim.use "Sharpen Blades"
                 Sim.act
                 Sim.turns $ 5 + stacks
                 targetHealth <- target health

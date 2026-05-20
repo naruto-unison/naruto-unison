@@ -25,7 +25,7 @@ characters =
           ]
         }
       , Skill.new
-        { Skill.name      = "Tree Wave Destruction "
+        { Skill.name      = "Tree Wave Destruction"
         , Skill.desc      = "Sending out trees in all directions, Hashirama deals 10 damage to all enemies and provides 5 permanent destructible defense to his team. Has no cooldown during [Deep Forest Creation]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]

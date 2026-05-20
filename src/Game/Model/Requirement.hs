@@ -26,12 +26,12 @@ import           Util ((∈), (∉), intersects)
 -- | Processes 'Skill.require'.
 usable :: Bool -- ^ New.
        -> Ninja -> Skill -> Skill
-usable new n@Ninja{slot} x@Skill{charges, classes}
-  | not new                     = x'
-  | N.cooldowns `atLeast` 1     = unusable
-  | charges == 0                = x'
-  | N.charges `atLeast` charges = unusable
-  | otherwise                   = x'
+usable new n@Ninja{slot} x@Skill{charges, cooldown, classes}
+  | not new                                  = x'
+  | cooldown /= 0 && N.cooldowns `atLeast` 1 = unusable
+  | charges == 0                             = x'
+  | N.charges `atLeast` charges              = unusable
+  | otherwise                                = x'
   where
     getter `atLeast` limit = case key `lookup` getter n of
                                 Just value -> value >= limit
