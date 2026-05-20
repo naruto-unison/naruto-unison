@@ -450,7 +450,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ leech 15 $ self . heal ]
+          [ To Enemy $ leech 15 heal ]
         }
       ]
     , [ invuln "Block" "Jūgo" [Physical] ]
@@ -758,7 +758,7 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Tai]
         , Skill.effects   =
-          [ To Enemy $ leech 35 $ self . heal ]
+          [ To Enemy $ leech 35 heal ]
         }
       , Skill.new
         { Skill.name      = "Kusanagi"

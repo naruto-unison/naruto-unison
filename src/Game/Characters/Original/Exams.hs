@@ -358,7 +358,7 @@ characters =
                 whenM (userHas "Chakra Focus") $
                     absorb 1
                 apply 2 [Weaken [All] Flat 5]
-                leech 20 $ self . heal
+                leech 20 heal
           , To Self $ apply 2 [Strengthen [All] Flat 5]
           ]
         }
@@ -375,7 +375,7 @@ characters =
                 whenM (userHas "Chakra Focus") $
                     absorb 1
                 apply 1 [Weaken [All] Flat 5]
-                leech 15 $ self . heal
+                leech 15 heal
           , To Self $ apply 1 [Strengthen [All] Flat 5]
           ]
         }

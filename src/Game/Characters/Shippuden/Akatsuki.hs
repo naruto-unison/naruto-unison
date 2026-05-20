@@ -1029,7 +1029,7 @@ characters =
           [ To Enemy do
                 absorb 1
                 apply 1 [Reveal]
-                leech 20 $ self . heal
+                leech 20 heal
           ]
         }
       ]
@@ -1043,7 +1043,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 apply 1 [Stun All, Reveal]
-                leech 30 $ self . heal
+                leech 30 heal
                 targetHealth <- target health
                 if targetHealth <= 30 then kill else absorb 1
           ]
@@ -1227,7 +1227,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 20 `bonusIf` targetHas "Choke Hold"
-                leech (20 + bonus) $ self . addDefense "Summoning: King of Hell"
+                leech (20 + bonus) $ addDefense "Summoning: King of Hell"
           ]
         }
       ]

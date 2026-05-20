@@ -8,7 +8,7 @@ module Game.Action.Combat
   , barricade, barricade'
     -- * Healing
   , heal, setHealth
-  , leech
+  , leech, leech'
     -- * Special effects
   , sacrifice
   , executeAt
@@ -36,7 +36,7 @@ import           Game.Model.Barrier (Barrier(Barrier))
 import qualified Game.Model.Barrier as Barrier
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
-import qualified Game.Model.Context
+import qualified Game.Model.Context as Context
 import           Game.Model.Defense (Defense(Defense))
 import qualified Game.Model.Defense as Defense
 import           Game.Model.Duration (Duration)
@@ -340,12 +340,17 @@ heal hp = P.unsilenced do
             GT -> P.modify target $ Traps.track PerDamaged damaged
             LT -> P.trigger user [OnHeal]
 
--- | Damages the target and passes the amount of damage dealt to another action.
--- Typically paired with @self . 'heal'@ to effectively drain the target's
--- 'N.health' into that of the user.
+
+-- | Damages the target and passes the amount of damage dealt to another action,
+-- retargeted toward the user. Typically paired with @'heal'@ to effectively
+-- drain the target's 'N.health' into that of the user.
 -- Uses 'afflict' internally.
 leech :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
-leech hp f = do
+leech hp f = leech' hp $ P.with Context.reflect . f
+
+-- | Like @'leech'@, but does not retarget the effect toward the user.
+leech' :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
+leech' hp f = do
     Context{target, user, skill = Skill{classes}} <- P.context
     hpBefore <- N.health <$> P.nTarget
     afflict hp

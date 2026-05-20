@@ -53,7 +53,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 has <- targetHas "Rivalry"
-                if has then leech 20 $ self . heal
+                if has then
+                    leech 20 heal
                 else do
                     afflict 20
                     everyone $ remove "Rivalry"
@@ -77,7 +78,7 @@ characters =
                 removeStacks "Scattered Rock" 2
                 defend 2 35
                 trapFrom 2 (OnHarmed All) do
-                    leech 20 $ self . heal
+                    leech 20 heal
                     self $ tag' "Earth Dome Prison" 1
                 onBreak $ everyone do
                     remove "Rivalry"
@@ -219,7 +220,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ leech 10 $ self . defend Permanent
+          [ To Enemy $ leech 10 $ defend Permanent
           , To Self $ prolongChannel 1 "Demon Shroud"
           ]
         }
@@ -680,8 +681,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 has <- userHas' defense "Naraka Path"
-                leech 20 $ self .
-                    if has then addDefense "Naraka Path" else defend Permanent
+                leech 20 if has then
+                    addDefense "Naraka Path"
+                else
+                    defend Permanent
           ]
         }
       ]
