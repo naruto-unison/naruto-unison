@@ -49,8 +49,8 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy do
-              helpful <- user numHelpful
-              damage (10 + 5 * helpful)
+                helpful <- user numHelpful
+                damage (10 + 5 * helpful)
           ]
         }
       ]
@@ -61,8 +61,8 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-              helpful <- user numHelpful
-              damage (10 + 10 * helpful)
+                helpful <- user numHelpful
+                damage (10 + 10 * helpful)
           ]
         }
       ]
@@ -240,10 +240,10 @@ characters =
         , Skill.dur       = Control 4
         , Skill.effects   =
           [ To Enemy do
-              apply 1 [ Throttle 1 $ Any Invulnerable ]
-              delay -1 $
-                  trapFrom 1 (OnHarmed Mental) $
-                    apply 1 [ Invulnerable All ]
+                apply 1 [ Throttle 1 $ Any Invulnerable ]
+                delay -1 $
+                    trapFrom 1 (OnHarmed Mental) $
+                        apply 1 [ Invulnerable All ]
           ]
         }
       ]

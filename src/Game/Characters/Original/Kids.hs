@@ -163,8 +163,8 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemies do
-              bonus <- 5 `bonusIf` targetHas "Dynamic Marking"
-              damage (15 + bonus)
+                bonus <- 5 `bonusIf` targetHas "Dynamic Marking"
+                damage (15 + bonus)
           , To Self $ apply 1 [ Reduce [All] Flat 15 ]
           ]
         }
@@ -232,11 +232,11 @@ characters =
         , Skill.cooldown  = 1
         , Skill.dur       = Action 2
         , Skill.effects   =
-            [ To Enemy do
+          [ To Enemy do
                 whenM (userHas "Byakugan") $
                     deplete 1
                 damage 20
-            ]
+          ]
         }
       ]
     , [ Skill.new
@@ -340,11 +340,11 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
-            [ To Enemies do
+          [ To Enemies do
                   bonus <- 1 `bonusIf` targetHas "Meditate"
                   apply (1 + bonus) [ Expose ]
                   damage 15
-            ]
+          ]
         }
       ]
     , [ Skill.new
@@ -704,10 +704,10 @@ characters =
         , Skill.cooldown  = 1
         , Skill.dur       = Action 2
         , Skill.effects   =
-            [ To Enemy do
+          [ To Enemy do
                 damage 25
                 apply 1 [ Weaken [All] Flat 5 ]
-            ]
+          ]
         }
       ]
     , [ Skill.new
@@ -717,9 +717,9 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-            [ To Self $ apply 1 [ Invulnerable All ]
-            , To Enemies $ damage 15
-            ]
+          [ To Self $ apply 1 [ Invulnerable All ]
+          , To Enemies $ damage 15
+          ]
         }
       ]
     , [ Skill.new

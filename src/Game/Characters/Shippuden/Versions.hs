@@ -551,14 +551,14 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           let
-              amaterasu :: RunConstraint ()
-              amaterasu = do
-                  trapWith [Bypassing] Permanent OnInvulnerable do
-                      remove "Amaterasu"
-                      removeTrap "Amaterasu"
-                  bombWith [Bypassing] Permanent [ Afflict 5 ]
-                      [ To Done $ self $ addStack ]
-                  trapFrom Permanent OnHelped
+            amaterasu :: RunConstraint ()
+            amaterasu = do
+                trapWith [Bypassing] Permanent OnInvulnerable do
+                    remove "Amaterasu"
+                    removeTrap "Amaterasu"
+                bombWith [Bypassing] Permanent [ Afflict 5 ]
+                    [ To Done $ self $ addStack ]
+                trapFrom Permanent OnHelped
                     amaterasu
           in
           [ To Enemy amaterasu ]

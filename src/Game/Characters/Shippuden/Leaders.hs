@@ -273,8 +273,8 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemies do
-              demolish 20
-              afflict 10
+                demolish 20
+                afflict 10
           ]
         }
       ]

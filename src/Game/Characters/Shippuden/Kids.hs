@@ -913,10 +913,9 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
         , Skill.effects   =
-          [ To Allies $
-              apply 1 [ Reduce [All] Percent 25
-                      , Invulnerable Affliction
-                      ]
+          [ To Allies $ apply 1 [ Reduce [All] Percent 25
+                                , Invulnerable Affliction
+                                ]
           , To Self $ hide 1 [ Alternate "Sanshōuo Shield"
                                          "Salamander Puppet"
                              ]

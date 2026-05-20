@@ -152,11 +152,11 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-              defend 3 30
-              apply 3 [ Invulnerable Mental
-                      , Invulnerable Physical
-                      , Invulnerable Summon
-                      ]
+                defend 3 30
+                apply 3 [ Invulnerable Mental
+                        , Invulnerable Physical
+                        , Invulnerable Summon
+                        ]
           ]
         }
       ]
@@ -188,8 +188,8 @@ characters =
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Self do
-              cureBane
-              apply 5 [ Heal 15 ]
+                cureBane
+                apply 5 [ Heal 15 ]
           ]
         }
       ]
@@ -267,11 +267,11 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-              has <- userHas "Shadow Senbon"
-              if has then
-                  apply 1 [ Invulnerable All ]
-              else
-                  tag 1
+                has <- userHas "Shadow Senbon"
+                if has then
+                    apply 1 [ Invulnerable All ]
+                else
+                    tag 1
           , To Enemy do
                 bonus <- 25 `bonusIf` userHas "Unnerving Bells"
                 damage (15 + bonus)

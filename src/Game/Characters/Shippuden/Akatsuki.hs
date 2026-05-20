@@ -1025,8 +1025,8 @@ characters =
                 apply 2 [ Expose ]
                 damage 25
           , To Self do
-              cancelChannel "Guided Missile"
-              everyone $ remove "Guided Missile"
+                cancelChannel "Guided Missile"
+                everyone $ remove "Guided Missile"
           ]
         }
       , Skill.new

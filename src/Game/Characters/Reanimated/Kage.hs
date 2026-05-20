@@ -507,7 +507,7 @@ characters =
         , Skill.classes   = [Physical, Bane, Invisible]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-            [ To Self $ trapFrom 1 (OnHarmed NonMental) do
+          [ To Self $ trapFrom 1 (OnHarmed NonMental) do
                   apply Permanent [ Afflict 20 ]
                   self $ removeTrap "Venom Sac"
                   has <- userHas "major summoning: ibuse"
@@ -519,6 +519,7 @@ characters =
                   else self $
                       apply Permanent [Afflict 10]
             ]
+          ]
         }
       ]
     , [ invuln "Block" "Hanzō" [Physical] ]

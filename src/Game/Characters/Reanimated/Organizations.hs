@@ -432,8 +432,8 @@ characters =
         , Skill.dur       = Action 2
         , Skill.start     =
           [ To Enemy $ trapFrom 2 OnHarm do
-              targetSlot <- target slot
-              apply 2 [ Taunt targetSlot ]
+                targetSlot <- target slot
+                apply 2 [ Taunt targetSlot ]
           ]
         , Skill.effects   =
           [ To Enemy $ pierce 15 ]
