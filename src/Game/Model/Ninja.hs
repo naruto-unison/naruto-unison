@@ -6,6 +6,7 @@ module Game.Model.Ninja
   , has, hasBarrier, hasDefense, hasOwnDefense, hasOwn
   , numActive, numStacks, numHelpful, numHarmful
   , defenseAmount, totalDefense, totalBarrier
+  , lastChakraSpent
   , baseSkill
   ) where
 
@@ -17,6 +18,7 @@ import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import qualified Game.Model.Barrier as Barrier
 import           Game.Model.Channel (Channel(Channel))
+import           Game.Model.Chakras (Chakras)
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
@@ -103,6 +105,11 @@ defenseAmount :: Text -- ^ 'Defense.name'.
 defenseAmount name user Ninja{defense} = sum
     [amount | d@Defense{amount} <- defense
             , Labeled.match name user d]
+
+-- | Chakra spent on 'lastSkill'.
+lastChakraSpent :: Ninja -> Chakras
+lastChakraSpent Ninja{lastSkill = Just Skill{cost}} = cost
+lastChakraSpent _                                   = mempty
 
 -- | Sums 'Defense.amount' of all 'defense'.
 totalDefense :: Ninja -> Int

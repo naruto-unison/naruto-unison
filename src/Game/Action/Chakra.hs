@@ -1,9 +1,8 @@
 -- | Actions that characters can use to manipulate 'Chakra'.
 module Game.Action.Chakra
-  ( absorb, absorb1
+  ( absorb
   , deplete, deplete1
   , gain
-  , healFromChakra
   ) where
 
 import ClassyPrelude
@@ -14,17 +13,11 @@ import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Game.Engine.Chakra as Chakra
-import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Chakras (Chakra(..), Chakras)
 import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
-import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
-import           Game.Model.Ninja (Ninja(Ninja), is)
-import qualified Game.Model.Ninja as N
-import           Game.Model.Skill (Skill(Skill))
-import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
 
 -- ** CHAKRA
@@ -58,30 +51,3 @@ absorb amount = P.unsilenced do
     Context{user} <- P.context
     chakras <- Chakra.remove amount
     P.alter $ Game.addChakra user chakras
-
--- | Transfers a single 'Chakra' that is one of several types from the
--- 'Game.chakra' of the target's team to the 'Game.chakra' of the user's team.
--- 'Chakra's are chosen randomly from the available pool of 'Game.chakra', but
--- only the ones passed in the parameter.
-absorb1 :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Chakra -> m ()
-absorb1 chakras = P.unsilenced do
-    Context{user} <- P.context
-    chakra <- Chakra.remove1 chakras
-    P.alter $ Game.addChakra user chakra
-
--- | Restores health to the user multiplied by the chakra cost of the target's
--- last skill.
-healFromChakra :: ∀ m. MonadPlay m => Int -> m ()
-healFromChakra perChakra = P.unsilenced do
-    nUser@Ninja{health} <- P.nUser
-    unless (nUser `is` Plague) do
-        healAmount <- forSkill <$> P.nTarget
-        when (healAmount > 0) do
-            Context{user} <- P.context
-            P.modify user $ Ninjas.adjustHealth (+ healAmount)
-            Ninja{health = health'} <- P.nUser
-            when (health' > health)
-                $ P.trigger user [OnHeal]
-  where
-    forSkill Ninja{lastSkill = Just Skill{cost}} = perChakra * length cost
-    forSkill _ = 0

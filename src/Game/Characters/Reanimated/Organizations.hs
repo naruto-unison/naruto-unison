@@ -638,8 +638,9 @@ characters =
           , Skill.cooldown  = 1
           , Skill.effects   =
             [ To Enemy do
-                  healFromChakra 10
-                  absorb 3
+                chakra <- target lastChakraSpent
+                self $ heal $ 10 * length chakra
+                absorb 3
             ]
           }
     in
