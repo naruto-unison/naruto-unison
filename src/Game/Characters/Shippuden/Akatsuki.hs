@@ -336,14 +336,14 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen, Tai]
         , Skill.effects   =
-          [ To Self do
-                has <- userHas "bloodlink"
-                if has then
-                    enemies $ whenM (targetHas "Blood Curse") $
-                        pierce 50
-                else
-                  sacrifice 0 50
+          [ To Self $ sacrifice 0 50
           ]
+        , Skill.changes   = changeWith "bloodlink" \x -> x
+                { Skill.effects =
+                  [ To Self $ enemies $ whenM (targetHas "Blood Curse") $
+                        pierce 50
+                  ]
+                }
         }
       ]
     , [ Skill.new
@@ -354,16 +354,18 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                has <- userHas "bloodlink"
-                if has then do
-                    apply 1 []
-                    enemies $ whenM (targetHas "Blood Curse") do
-                        pierce 35
-                        apply 1 [Stun All]
-                else do
-                    sacrifice 0 35
-                    apply 1 [Stun All]
+                sacrifice 0 35
+                apply 1 [Stun All]
           ]
+        , Skill.changes   = changeWith "bloodlink" \x -> x
+                { Skill.effects =
+                  [ To Self $ do
+                        apply 1 []
+                        enemies $ whenM (targetHas "Blood Curse") do
+                            pierce 35
+                            apply 1 [Stun All]
+                  ]
+                }
         }
       ]
     , [ Skill.new
@@ -377,8 +379,7 @@ characters =
                 apply (fromIntegral $ 1 + stacks) [Endure]
                 hide' "jashin" Permanent []
           ]
-        , Skill.changes   =
-            costPer "jashin" [Rand]
+        , Skill.changes   = costPer "jashin" [Rand]
         }
       ]
     , [ invuln "Block" "Hidan" [Physical] ]
@@ -1350,8 +1351,7 @@ characters =
                 when (stacks < 3) $
                     hide Permanent []
           ]
-        , Skill.changes   =
-            changeWith "Phantom Dragon" \x -> x { Skill.cost = [] }
+        , Skill.changes   = changeWith "Phantom Dragon" $ setCost []
         }
       ]
     , [ Skill.new
@@ -1364,12 +1364,11 @@ characters =
           [ To Self $ tag 1
           , To Enemy $ pierce 20
           ]
-        , Skill.changes   =
-            changeWithChannel "Summoning: Gedo Statue" \x ->
-              x { Skill.cost    = [Gen]
-                , Skill.effects =
-                  [ To Self $ tag 1
-                  , To Enemy do
+        , Skill.changes   = changeWithChannel "Summoning: Gedo Statue" \x -> x
+              { Skill.cost    = [Gen]
+              , Skill.effects =
+                [ To Self $ tag 1
+                , To Enemy do
                         stacks <- userStacks "dragon"
                         pierce (20 + 5 * stacks)
                   ]

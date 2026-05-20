@@ -4,17 +4,23 @@ module Game.Engine.Skills
   , swap
   , targetAll
   , also
+  , addClasses
+  , setCooldown
   , changeWith, changeWithChannel, changeWithDefense
-  , extendWith
-  , costPer, reduceCostPer
+  , extendBy, extendWith
+  , costPer, reduceCostPer, setCost
   ) where
 
 import ClassyPrelude hiding (swap)
+
+import Data.Enum.Set (EnumSet)
 
 import           Class.TurnBased as TurnBased
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Chakras (Chakras)
 import qualified Game.Model.Chakras as Chakras
+import           Game.Model.Class (Class)
+import           Game.Model.Duration (Duration)
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (is)
 import           Game.Model.Ninja (Ninja(Ninja))
@@ -46,12 +52,17 @@ changeWithDefense name f n@Ninja{slot}
   | N.hasDefense name slot n = f
   | otherwise                = id
 
+addClasses :: EnumSet Class -> Skill -> Skill
+addClasses classes skill =
+    skill { Skill.classes = classes ++ Skill.classes skill }
+
 -- | Multiplies @Chakras@ by 'N.numActive' and adds the total to
 -- 'Skill.cost'.
 costPer :: Text -> Chakras -> Skill.Transform
-costPer name chaks n skill = skill { Skill.cost = Skill.cost skill ++ added }
+costPer name chakras n skill =
+    skill { Skill.cost = added ++ Skill.cost skill }
   where
-    added = Chakras.scale (N.numActive name n) chaks
+    added = Chakras.scale (N.numActive name n) chakras
 
 -- | Multiplies @Chakras@ by 'N.numActive' and subtracts the total from
 -- 'Skill.cost'.
@@ -60,6 +71,18 @@ reduceCostPer name chaks n skill =
     skill { Skill.cost = Chakras.spend added $ Skill.cost skill }
   where
     added = Chakras.scale (N.numActive name n) chaks
+
+setCooldown :: Duration -> Skill -> Skill
+setCooldown cooldown skill = skill { Skill.cooldown = cooldown }
+
+setCost :: Chakras -> Skill -> Skill
+setCost cost skill = skill { Skill.cost = cost }
+
+extendBy :: Int -> Skill -> Skill
+extendBy n skill = skill { Skill.dur = TurnBased.setDur dur chan }
+  where
+    chan  = Skill.dur skill
+    dur   = TurnBased.getDur chan + fromIntegral n
 
 -- | Multiplies some number of turns by 'N.numActive' and adds the total to
 -- 'Skill.channel'.

@@ -142,8 +142,7 @@ characters =
           [ To Enemy $ damage 35
           , To Self $ tag 1
           ]
-        , Skill.changes   =
-            changeWith "Rasengan" \x -> x { Skill.cost = [Nin] }
+        , Skill.changes   = changeWith "Rasengan" $ setCost [Nin]
         }
       ]
     , [ Skill.new
@@ -186,9 +185,8 @@ characters =
           [ To Self $ apply 1 [ Invulnerable Chakra ]
           , To REnemy $ absorb 1
           ]
-        , Skill.changes   =
-            changeWith "Veritable 1000-Armed Kannon"
-            \x -> x { Skill.dur = Action 3, Skill.cost = [Blood] }
+        , Skill.changes   = changeWith "Veritable 1000-Armed Kannon" $
+                            setCost [Blood] . extendBy 1
         }
       ]
     , [ Skill.new
@@ -202,9 +200,8 @@ characters =
           [ To Enemy $ damage 20
           , To Self $ apply 1 [ Invulnerable Physical ]
           ]
-        , Skill.changes   =
-            changeWith "Veritable 1000-Armed Kannon"
-            \x -> x { Skill.dur = Action 3, Skill.cost = [Blood] }
+        , Skill.changes   = changeWith "Veritable 1000-Armed Kannon" $
+                            setCost [Blood] . extendBy 1
         }
       ]
     , [ Skill.new
@@ -349,14 +346,11 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ apply 2 [ Afflict 15 ] ]
-        }
-      , Skill.new
-        { Skill.name      = "Grand Fireball"
-        , Skill.desc      = "Obito breathes searing fire on an enemy, dealing 15 affliction damage for 2 turns. During [Sharingan], this skill deals the full 30 affliction damage instantly and has no cooldown."
-        , Skill.classes   = [Bane, Ranged]
-        , Skill.cost      = [Nin]
-        , Skill.effects   =
-          [ To Enemy $ afflict 30 ]
+        , Skill.changes   = changeWith "Sharingan" \x -> x
+                { Skill.cooldown = 0
+                , Skill.effects =
+                  [ To Enemy $ afflict 30 ]
+                }
         }
       ]
     , [ Skill.new
@@ -368,10 +362,7 @@ characters =
         , Skill.effects   =
           [ To XAlly $ tag 4
           ,  To Self do
-                apply 4 [ Reduce [All] Flat 15
-                        , Alternate "Grand Fireball"
-                                    "Grand Fireball"
-                        ]
+                apply 4 [ Reduce [All] Flat 15 ]
                 trap 4 OnDeath $ everyone $
                     whenM (targetHas "Sharingan") $
                         apply' "Borrowed Sharingan" Permanent

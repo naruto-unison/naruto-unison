@@ -99,19 +99,11 @@ characters =
                 targetHealth <- target health
                 heal $ (100 - targetHealth) `quot` 2
           ]
-        }
-      , Skill.new
-        { Skill.name     = "Healing Technique"
-        , Skill.desc     = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures the target of bane effects. Spends a Seal if available to have no cooldown and cost 1 arbitrary chakra."
-        , Skill.classes   = [Chakra]
-        , Skill.cost      = [Rand]
-        , Skill.effects   =
-          [ To XAlly do
-                cureBane
-                targetHealth <- target health
-                heal $ (100 - targetHealth) `quot` 2
-          , To Self $ removeStack "Seal"
-          ]
+        , Skill.changes   = changeWith "Seal" \x -> x
+                { Skill.cost     = [Rand]
+                , Skill.cooldown = 0
+                , Skill.effects  = To Self (removeStack "Seal") : Skill.effects x
+                }
         }
       ]
     , [ Skill.new
@@ -121,9 +113,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self $ applyStacks "Seal" 3
-                [ Alternate "Healing Technique"
-                            "Healing Technique"
-                , Alternate "Strength of One Hundred Seal"
+                [ Alternate "Strength of One Hundred Seal"
                             "Seal Release"
                 ]
           ]
@@ -1104,8 +1094,7 @@ characters =
                 trap Permanent (Counter NonMental) $ return ()
                 hide Permanent []
           ]
-        , Skill.changes   =
-            costPer "agile backflip" [Rand]
+        , Skill.changes   = costPer "agile backflip" [Rand]
         }
       ]
     , [ Skill.new

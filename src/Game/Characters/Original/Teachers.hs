@@ -63,9 +63,8 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy $ damage 15 ]
-        , Skill.changes   =
-            changeWith "Successful Ambush" \x ->
-              x { Skill.dur     = Instant
+        , Skill.changes   = changeWith "Successful Ambush" \x -> x
+                { Skill.dur     = Instant
                 , Skill.effects =
                   [ To Enemy $ damage 30 ]
                 }

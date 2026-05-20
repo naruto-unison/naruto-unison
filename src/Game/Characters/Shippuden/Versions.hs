@@ -131,9 +131,8 @@ characters =
                 damage (15 + 5 * stacks)
                 apply' "Sand Bomb" Permanent []
           ]
-        , Skill.changes   =
-            changeWithDefense "Mother's Embrace" targetAll `also`
-            changeWith "Sand Mausoleum Seal" \x -> x { Skill.cost = [] }
+        , Skill.changes   = changeWithDefense "Mother's Embrace" targetAll
+                            `also` changeWith "Sand Mausoleum Seal" (setCost [])
         }
       ]
     , [ Skill.new
@@ -265,12 +264,12 @@ characters =
         rename "Taijutsu Sage"       = "Bloodline Sage"
         rename x                     = x
 
-        withMode f n x
-          | isChanneling "Bloodline Sage" n = f Blood x
-          | isChanneling "Genjutsu Sage"  n = f Gen x
-          | isChanneling "Ninjutsu Sage"  n = f Nin x
-          | isChanneling "Taijutsu Sage"  n = f Tai x
-          | otherwise                       = f Rand x
+        withMode f n
+          | isChanneling "Bloodline Sage" n = f Blood
+          | isChanneling "Genjutsu Sage"  n = f Gen
+          | isChanneling "Ninjutsu Sage"  n = f Nin
+          | isChanneling "Taijutsu Sage"  n = f Tai
+          | otherwise                       = f Rand
     in
     Character
     "Sage Mode Kabuto"
@@ -314,8 +313,7 @@ characters =
           ]
         , Skill.interrupt  =
           [ To Self $ remove "dna transmission" ]
-        , Skill.changes   =
-            withMode \m x -> x { Skill.cost = [m, m, m] }
+        , Skill.changes   = withMode \m -> setCost [m, m, m]
         }
       ]
     , [ Skill.new
@@ -330,8 +328,7 @@ characters =
                 enemies $ apply 1 [ Restrict ]
           , To Enemies $ damage 10
           ]
-        , Skill.changes   =
-            withMode \m x -> x { Skill.cost = [m] }
+        , Skill.changes   = withMode \m -> setCost [m]
         }
       ]
     , [ Skill.new
@@ -343,14 +340,15 @@ characters =
           [ To Ally do
                 resetAll
                 cureBane
-                apply 3 [Heal 15, Invulnerable Bane]
+                apply 3 [ Heal 15
+                        , Invulnerable Bane
+                        ]
           ]
-        , Skill.changes   =
-            withMode \m x ->
-                x { Skill.effects = To Self (gain [m]) : Skill.effects x
-                  , Skill.desc    = Skill.desc x ++ " Kabuto gains 1 "
-                                    ++ chakraDesc m ++ " chakra."
-                  }
+        , Skill.changes   = withMode \m x -> x
+                { Skill.effects = To Self (gain [m]) : Skill.effects x
+                , Skill.desc    = Skill.desc x ++ " Kabuto gains 1 "
+                                  ++ chakraDesc m ++ " chakra."
+                }
         }
       ]
     , [ Skill.new
@@ -363,8 +361,7 @@ characters =
           [ To XAllies $ apply 1 [Stun All]
           , To Enemies $ apply 1 [Stun All]
           ]
-        , Skill.changes   =
-            withMode \m x ->
+        , Skill.changes   = withMode \m x ->
                 x { Skill.effects = To Self (gain [m, m]) : Skill.effects x
                   , Skill.desc    = Skill.desc x ++ " Kabuto gains 2 "
                                     ++ chakraDesc m ++ " chakra."
@@ -392,8 +389,7 @@ characters =
                 sacrifice 1 20
                 addStack
           ]
-        , Skill.changes   =
-            costPer "Evening Elephant" [Rand]
+        , Skill.changes   = costPer "Evening Elephant" [Rand]
         }
       ]
     , [ Skill.new
@@ -427,8 +423,7 @@ characters =
                 addStack
                 apply' "Blood Mist" 2 [ Plague ]
           ]
-        , Skill.changes   =
-            costPer "Night Guy" [Tai]
+        , Skill.changes   = costPer "Night Guy" [Tai]
         }
       ]
     , [ invuln "Dodge" "Guy" [Physical] ]
@@ -511,8 +506,7 @@ characters =
                           hide 1 []
                           reset "Chidori" ]
           ]
-        , Skill.changes   =
-            changeWith "Chidori" \x -> x { Skill.cost = [Nin] }
+        , Skill.changes   = changeWith "Chidori" $ setCost [Nin]
         }
       , Skill.new
         { Skill.name      = "Blazing Arrow"

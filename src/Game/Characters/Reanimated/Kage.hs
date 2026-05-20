@@ -23,16 +23,7 @@ characters =
           [ To Enemies $ damage 10
           , To Allies $ defend Permanent 5
           ]
-        }
-      , Skill.new
-        { Skill.name      = "Tree Wave Destruction"
-        , Skill.desc      = "Sending out trees in all directions, Hashirama deals 10 damage to all enemies and provides 5 permanent destructible defense to his team. Has no cooldown during [Deep Forest Creation]."
-        , Skill.classes   = [Physical, Ranged]
-        , Skill.cost      = [Rand]
-        , Skill.effects   =
-          [ To Enemies $ damage 10
-          , To Allies $ defend Permanent 5
-          ]
+        , Skill.changes   = changeWith "Deep Forest Creation" $ setCooldown 0
         }
       ]
     , [ Skill.new
@@ -62,9 +53,7 @@ characters =
           [ To Enemies $ apply 2 [ Snare 1
                                  , Exhaust [NonMental]
                                  ]
-          , To Self $ apply 2 [ Alternate "Tree Wave Destruction"
-                                           "Tree Wave Destruction"
-                              , Alternate "Deep Forest Creation"
+          , To Self $ apply 2 [ Alternate "Deep Forest Creation"
                                           "Deep Forest Flourishing"
                               ]
           ]
@@ -266,8 +255,11 @@ characters =
         , Skill.effects   =
           [ To Allies $ trapFrom Permanent (OnHarmed All) $
                 tag 1
-          , To Self $ hide Permanent
-                [Alternate "Piercing Four-Fingered" "Three-Fingered Assault"]
+          , To Self do
+                addStack' "finger"
+                hide Permanent [ Alternate "Piercing Four-Fingered"
+                                           "Three-Fingered Assault"
+                               ]
           ]
         }
       , Skill.new
@@ -277,6 +269,7 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Self do
+                addStack' "finger"
                 trap Permanent (OnDamaged All) $
                     alterCd "Lightning Armor" -1
                 hide Permanent
@@ -291,7 +284,7 @@ characters =
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Self do
-                hide' "finger" Permanent []
+                addStack' "finger"
                 apply Permanent [ Invulnerable Affliction ]
           ]
         }
@@ -315,18 +308,15 @@ characters =
           [ To Self $ trap' -1 OnDamage $
                 alterCd "Lightning Armor" -1
           , To Enemy do
-                bonus4 <- 5 `bonusIf` userHas "piercing four-fingered"
-                bonus3 <- 5 `bonusIf` userHas "three-fingered assault"
-                bonus1 <- 5 `bonusIf` userHas "One-Fingered Assault"
-                damage (20 + bonus4 + bonus3 + bonus1)
+                stacks <- userStacks "finger"
+                damage (20 + 5 * stacks)
                 unlessM (targetHas "Aftershocks") do
                     apply 1 [Stun All]
                     bonus <- 1 `bonusIf` userHas "One-Fingered Assault"
                     tag' "Aftershocks" (4 - bonus)
           ]
-        , Skill.changes   =
-            \n x ->
-              x { Skill.desc = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing " ++ tshow (20 + 5 * numActive "finger" n) ++ " damage. If this skill deals damage, the cooldown of [Lightning Armor] decreases by 1 additional turn." }
+        , Skill.changes   = \n x -> x
+                { Skill.desc = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing " ++ tshow (20 + 5 * numActive "finger" n) ++ " damage. If this skill deals damage, the cooldown of [Lightning Armor] decreases by 1 additional turn." }
         }
       ]
     , [ invuln "Strongest Shield" "A" [Physical] ]
@@ -346,8 +336,7 @@ characters =
                 bonus <- 10 `bonusIf` target invulnerable
                 pierce (25 + bonus)
           ]
-        , Skill.changes   =
-            changeWith "Fragmentation" \x -> x { Skill.cost = [Nin] }
+        , Skill.changes   = changeWith "Fragmentation" $ setCost [Nin]
         }
       ]
     , [ Skill.new
@@ -380,8 +369,7 @@ characters =
                 demolishAll
                 pierce 40
           ]
-        , Skill.changes   =
-            changeWith "Fragmentation" \x -> x { Skill.cost = [Nin, Rand] }
+        , Skill.changes   = changeWith "Fragmentation" $ setCost [Nin, Rand]
         }
       ]
     , [ invuln "Dustless Bewildering Cover" "Mū" [Chakra] ]
@@ -417,9 +405,8 @@ characters =
                 pierce (10 + bonus)
                 executeAt 10
           ]
-        , Skill.changes   =
-            changeWithChannel "Major Summoning: Giant Clam" \x ->
-                x { Skill.classes = insertSet Bypassing $ Skill.classes x }
+        , Skill.changes   = changeWithChannel "Major Summoning: Giant Clam" $
+                            addClasses [Bypassing]
         }
       ]
     , [ Skill.new
@@ -463,25 +450,29 @@ characters =
         , Skill.cooldown  = 6
         , Skill.effects   =
           [ To Self do
-                has <- userHas "Venom Sac"
-                if has then do
-                    remove "Venom Sac"
-                    alterCd "Major Summoning: Ibuse" -2
-                else do
-                    hide Permanent [Reduce [Affliction] Percent 50]
-                    applyStacks "Major Summoning: Ibuse" 30
-                        [Alternate "Major Summoning: Ibuse" "Poison Fog"]
-                    trapPer' Permanent PerDamaged \i -> do
-                        stacks <- userStacks "Major Summoning: Ibuse"
-                        if stacks - i > 0 then
-                            removeStacks "Major Summoning: Ibuse" i
-                        else do
-                            remove "Major Summoning: Ibuse"
-                            remove "major summoning: ibuse"
-                            removeTrap "Major Summoning: Ibuse"
-                            cancelChannel "Poison Fog"
-                            sacrifice 0 (i - stacks)
+                hide Permanent [Reduce [Affliction] Percent 50]
+                applyStacks "Major Summoning: Ibuse" 30
+                    [ Alternate "Major Summoning: Ibuse"
+                                "Poison Fog"
+                    ]
+                trapPer' Permanent PerDamaged \i -> do
+                    stacks <- userStacks "Major Summoning: Ibuse"
+                    if stacks - i > 0 then
+                        removeStacks "Major Summoning: Ibuse" i
+                    else do
+                        remove "Major Summoning: Ibuse"
+                        remove "major summoning: ibuse"
+                        removeTrap "Major Summoning: Ibuse"
+                        cancelChannel "Poison Fog"
+                        sacrifice 0 (i - stacks)
           ]
+        , Skill.changes   = changeWith "Venomc Sac" \x -> x
+                { Skill.effects =
+                  [ To Self do
+                        remove "Venom Sac"
+                        alterCd "Major Summoning: Ibuse" -2
+                  ]
+                }
         }
       , Skill.new
         { Skill.name      = "Poison Fog"

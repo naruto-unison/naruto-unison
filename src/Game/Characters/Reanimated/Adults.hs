@@ -380,8 +380,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies $ apply 1 [Exhaust [All]] ]
-        , Skill.changes   =
-            changeWith "Hidden Frost" \x -> x { Skill.cost = [Rand] }
+        , Skill.changes   = changeWith "Hidden Frost" $ setCost [Rand]
         }
       ]
     , [ Skill.new
@@ -395,8 +394,7 @@ characters =
                 bonus <- 10 `bonusIf` userHas "Hidden Frost"
                 pierce (30 + bonus)
           ]
-        , Skill.changes   =
-            changeWith "Hidden Frost" \x -> x { Skill.cost = [Rand] }
+        , Skill.changes   = changeWith "Hidden Frost" $ setCost [Rand]
         }
       ]
     , [ invuln "Hide" "Chūkichi" [Mental] ]

@@ -151,8 +151,7 @@ characters =
                 bonus <- 5 `bonusIf` targetHas "Dynamic Marking"
                 damage (30 + bonus)
           ]
-        , Skill.changes   =
-            changeWithChannel "Two-Headed Wolf" \x -> x { Skill.cost = [Tai] }
+        , Skill.changes   = changeWithChannel "Two-Headed Wolf" $ setCost [Tai]
         }
       ]
     , [ Skill.new

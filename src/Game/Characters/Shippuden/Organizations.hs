@@ -156,9 +156,8 @@ characters =
                 defend Permanent 15
                 onBreak $ addStack' "Venom Beetle"
           ]
-        , Skill.changes   =
-            changeWithDefense "Nano-Sized Venom Beetles" \x ->
-              x { Skill.cost = [Rand]
+        , Skill.changes   = changeWithDefense "Nano-Sized Venom Beetles" \x -> x
+                { Skill.cost    = [Rand]
                 , Skill.effects = take 1 $ Skill.effects x
                 }
         }
@@ -175,9 +174,8 @@ characters =
                 defend Permanent 30
                 onBreak $ addStack' "Venom Beetle"
           ]
-        , Skill.changes   =
-            changeWithDefense "Jar of Poison" \x ->
-              x { Skill.cost    = [Rand, Rand]
+        , Skill.changes   = changeWithDefense "Jar of Poison" \x -> x
+                { Skill.cost    = [Rand, Rand]
                 , Skill.effects = take 1 $ Skill.effects x
                 }
         }

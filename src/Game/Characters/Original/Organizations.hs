@@ -374,8 +374,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ To Enemy $ damage 30 ]
-        , Skill.changes   =
-            changeWith "Crystal Ice Mirrors" targetAll
+        , Skill.changes   = changeWith "Crystal Ice Mirrors" targetAll
         }
       ]
     , [ Skill.new
@@ -390,8 +389,7 @@ characters =
                 cureStun
                 apply 1 [ Focus ]
           ]
-        , Skill.changes   =
-            changeWith "Crystal Ice Mirrors" targetAll
+        , Skill.changes   = changeWith "Crystal Ice Mirrors" targetAll
         }
       ]
     , [ Skill.new
@@ -420,9 +418,7 @@ characters =
                 bonus <- 15 `bonusIf` userHas "Hidden Mist"
                 pierce (30 + bonus)
           ]
-        , Skill.changes   =
-            changeWith "Hidden Mist" \x ->
-                x { Skill.classes = insertSet Bypassing $ Skill.classes x }
+        , Skill.changes   = changeWith "Hidden Mist" $ addClasses [Bypassing]
         }
       ]
     , [ Skill.new
@@ -489,16 +485,15 @@ characters =
                 afflict 10
                 apply Permanent [ Afflict 5 ]
           ]
-        , Skill.changes =
-            changeWith "Mangekyō Sharingan" \x ->
-                x { Skill.cooldown = Skill.cooldown x + Skill.cooldown x
-                  , Skill.cost     = Skill.cost x ++ Skill.cost x
-                  , Skill.effects  =
-                    [ To Enemies do
-                          afflict 20
-                          apply Permanent [Afflict 10]
-                    ]
-                  }
+        , Skill.changes = changeWith "Mangekyō Sharingan" \x -> x
+                { Skill.cost     = [Nin, Nin]
+                , Skill.cooldown = 2
+                , Skill.effects  =
+                  [ To Enemies do
+                        afflict 20
+                        apply Permanent [ Afflict 10 ]
+                  ]
+                }
         }
       ]
     , [ Skill.new
@@ -512,16 +507,15 @@ characters =
                 damage 20
                 apply 1 [ Stun All ]
           ]
-        , Skill.changes =
-            changeWith "Mangekyō Sharingan" \x ->
-                x { Skill.cooldown = Skill.cooldown x + Skill.cooldown x
-                  , Skill.cost     = Skill.cost x ++ Skill.cost x
-                  , Skill.effects  =
-                    [ To Enemies do
-                          damage 40
-                          apply 3 [Stun All]
-                    ]
-                  }
+        , Skill.changes = changeWith "Mangekyō Sharingan" \x -> x
+                { Skill.cost     = [Gen, Gen]
+                , Skill.cooldown = 2
+                , Skill.effects  =
+                  [ To Enemies do
+                        damage 20
+                        apply 3 [Stun All]
+                  ]
+                }
         }
       ]
     , [ invuln "Sharingan Foresight" "Itachi" [Mental] ]
@@ -720,8 +714,7 @@ characters =
                 bonus <- -20 `bonusIf` userHas "Demon Parasite"
                 damage (40 + bonus)
           ]
-        , Skill.changes   =
-            changeWith "Demon Parasite" $ \x -> x { Skill.cost = [Tai] }
+        , Skill.changes   = changeWith "Demon Parasite" $ setCost [Tai]
         }
       ]
     , [ Skill.new

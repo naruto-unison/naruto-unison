@@ -132,8 +132,7 @@ characters =
                 pierce (20 + bonus)
           , To Self $ apply 1 [ Invulnerable Genjutsu ]
           ]
-        , Skill.changes   =
-            changeWith "Acrobat" \x -> x { Skill.cost = [Tai, Rand] }
+        , Skill.changes   = changeWith "Acrobat" $ setCost [Tai, Rand]
         }
       ]
     , [ Skill.new
@@ -296,8 +295,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ pierce 60 ]
-        , Skill.changes   =
-            changeWith "Chakra Gathering" targetAll
+        , Skill.changes   = changeWith "Chakra Gathering" targetAll
         }
       ]
     , [ Skill.new

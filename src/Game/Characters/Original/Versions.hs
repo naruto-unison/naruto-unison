@@ -73,8 +73,7 @@ characters =
                 pierce 45
                 apply 2 [ Weaken [All] Flat 20 ]
           ]
-        , Skill.changes   =
-            changeWith "Curse Mark" \x -> x { Skill.cost = [Rand] }
+        , Skill.changes   = changeWith "Curse Mark" $ setCost [Rand]
         }
       ]
     , [ Skill.new
@@ -90,8 +89,7 @@ characters =
                                               ]
                                               [ To Expire $ damage 55 ]
           ]
-        , Skill.changes   =
-            changeWith "Curse Mark" \x -> x { Skill.cost = [Rand, Rand] }
+        , Skill.changes   = changeWith "Curse Mark" $ setCost [Rand, Rand]
         }
       ]
     , [ Skill.new
@@ -123,13 +121,12 @@ characters =
                 damage (20 + 5 * stacks)
           , To Self addStack
           ]
-        , Skill.changes   =
-            changeWithChannel "Drunken Fist" \x ->
-              x { Skill.effects =
+        , Skill.changes   = changeWithChannel "Drunken Fist" \x -> x
+                { Skill.effects =
                   [ To Enemy do
                         stacks <- userStacks "Unpredictable Assault"
                         damage (25 + 5 * stacks)
-                  , To Self addStack
+                    , To Self addStack
                   ]
                 }
         }
@@ -176,8 +173,7 @@ characters =
           [ To Enemy $ damage 30
           , To Self $ defend Permanent 10
           ]
-        , Skill.changes   =
-            changeWith "Tailed Beast Form" \x -> x { Skill.cost = [Blood] }
+        , Skill.changes   = changeWith "Tailed Beast Form" $ setCost [Blood]
         }
       ]
     , [ Skill.new

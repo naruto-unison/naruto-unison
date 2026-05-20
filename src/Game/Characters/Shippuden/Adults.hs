@@ -377,8 +377,7 @@ characters =
         , Skill.classes   = [Physical, Melee, Uncounterable]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   = [ To Enemy $ damage 25 ]
-        , Skill.changes   =
-            changeWithChannel "Stone Golem" \x -> x { Skill.cost = [Tai] }
+        , Skill.changes   = changeWithChannel "Stone Golem" $ setCost [Tai]
         }
       ]
     , [ Skill.new
@@ -619,8 +618,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies $ trap 1 (OnAction All) $ afflict 20 ]
-        , Skill.changes   =
-            changeWith "Burning Blade" \x -> x { Skill.cost = [Nin] }
+        , Skill.changes   = changeWith "Burning Blade" $ setCost [Nin]
         }
       ]
     , [ Skill.new

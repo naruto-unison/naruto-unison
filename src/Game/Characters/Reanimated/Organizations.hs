@@ -41,8 +41,7 @@ characters =
                     remove "Rivalry"
           , To Self $ addStack' "Scattered Rock"
           ]
-        , Skill.changes   =
-            changeWith "Earth Dome Prison" \x -> x { Skill.cost = [Tai] }
+        , Skill.changes   = changeWith "Earth Dome Prison" $ setCost [Tai]
         }
       ]
     , [ Skill.new
@@ -146,14 +145,14 @@ characters =
                     when (i >= 50) $
                         apply 1 [ Stun All ]
           ]
-        , Skill.changes   =
-            changeWithChannel "Crystal Ice Mirrors" \x ->
-              x { Skill.effects =
+        , Skill.changes   = changeWithChannel "Crystal Ice Mirrors" \x -> x
+                { Skill.effects =
                   [ To Enemy do
                         pierce 30
                         trapPer' -1 PerDamaged \i ->
                             when (i >= 50) $
-                                apply 1 [Stun All] ]
+                                apply 1 [ Stun All ]
+                  ]
                 }
         }
       ]
@@ -165,11 +164,9 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ apply 2 [Silence] ]
-        , Skill.changes   =
-            changeWithChannel "Crystal Ice Mirrors" \x ->
-              targetAll
-              x { Skill.classes = insertSet Bypassing $ Skill.classes x }
+          [ To Enemy $ apply 2 [ Silence ] ]
+        , Skill.changes   = changeWithChannel "Crystal Ice Mirrors" $
+                            targetAll . addClasses [Bypassing]
         }
       ]
     , [ Skill.new
@@ -353,8 +350,7 @@ characters =
                         , Expose
                         ]
           ]
-        , Skill.changes   =
-            costPer "needle stitching" [Rand]
+        , Skill.changes   = costPer "needle stitching" [Rand]
         }
       ]
     , [ invuln "Block" "Kushimaru" [Physical] ]
@@ -441,8 +437,7 @@ characters =
           ]
         , Skill.effects   =
           [ To Enemy $ pierce 15 ]
-        , Skill.changes   =
-            changeWithChannel "Chakra Weave" \x -> x { Skill.cost = [Rand] }
+        , Skill.changes   = changeWithChannel "Chakra Weave" $ setCost [Rand]
         }
       ]
     , [ Skill.new
@@ -644,21 +639,7 @@ characters =
     , [ invuln "Block" "Sasori" [Physical] ]
     ]
     100
-  , let
-        preta = Skill.new
-          { Skill.name      = "Preta Path"
-          , Skill.desc      = "Nagato drains an enemy's energy, regaining 10 health per chakra that the target spent on their most recent skill and absorbing 3 random chakra. When Nagato's health is at or above 50, this skill becomes [Asura Path][t][r]."
-          , Skill.classes   = [Melee, Chakra]
-          , Skill.cooldown  = 1
-          , Skill.effects   =
-            [ To Enemy do
-                chakra <- target lastChakraSpent
-                self $ heal $ 10 * length chakra
-                absorb 3
-            ]
-          }
-    in
-    Character
+  , Character
     "Nagato"
     "Reanimated by Kabuto, Nagato is as much a pawn in the schemes of others as he was in life. With the full power of the Rinnegan, all six Paths are at his disposal."
     [RainVillage, Kabuto, Akatsuki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yang, Uzumaki]
@@ -705,7 +686,20 @@ characters =
           ]
         }
       ]
-    , [ Skill.new
+    , let preta = Skill.new
+            { Skill.name      = "Preta Path"
+            , Skill.desc      = "Nagato drains an enemy's energy, regaining 10 health per chakra that the target spent on their most recent skill and absorbing 3 random chakra. When Nagato's health is at or above 50, this skill becomes [Asura Path][t][r]."
+            , Skill.classes   = [Melee, Chakra]
+            , Skill.cooldown  = 1
+            , Skill.effects   =
+                [ To Enemy do
+                    chakra <- target lastChakraSpent
+                    self $ heal $ 10 * length chakra
+                    absorb 3
+                ]
+            }
+      in
+      [ Skill.new
         { Skill.name      = "Asura Path"
         , Skill.desc      = "Nagato unfolds an extra mechanical arm and seizes an enemy by the neck, preventing them from reducing damage or becoming invulnerable until one of their allies uses a skill on them, then deals 15 damage. When Nagato's health is below 50, this skill becomes [Preta Path][t][r]."
         , Skill.classes   = [Bane, Physical, Melee, Nonstacking]
@@ -717,12 +711,10 @@ characters =
                 pierce 15
                 trap Permanent OnHelped $ remove "Asura Path"
           ]
-        , Skill.changes   =
-            \n x ->
-                if health n < 50 then
-                    preta { Skill.owner = Skill.owner x }
-                else
-                    x
+        , Skill.changes   = \n x -> if health n < 50 then
+                                preta { Skill.owner = Skill.owner x }
+                            else
+                                x
         }
       , preta
       ]
