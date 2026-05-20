@@ -54,7 +54,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Chakra Boost"
-        , Skill.desc      = "Naruto cycles his chakra to transform 2 chakra of any type into 1 ninjutsu chakra and 1 taijutsu chakra. The flow of power cures him of enemy effects and provides 10 points of damage reduction for 1 turn."
+        , Skill.desc      = "Naruto cycles his chakra to output 1 ninjutsu chakra and 1 taijutsu chakra. The flow of power cures him of enemy effects and provides 10 points of damage reduction for 1 turn."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
