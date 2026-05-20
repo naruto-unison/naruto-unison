@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP             #-}
 -- | The character database.
 -- Contains everything in the [Characters](src/Characters/) folder.
 module Game.Characters
@@ -21,17 +22,21 @@ import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Util ((∉), mapFromKeyed)
 
+#ifdef DEVELOPMENT
 import qualified Game.Characters.Development
+#endif
 import qualified Game.Characters.Original
 import qualified Game.Characters.Reanimated
 import qualified Game.Characters.Shippuden
 
 list :: [Character]
-list = addGroups . addClasses
-    <$> Game.Characters.Development.characters
-    ++ Game.Characters.Original.characters
-    ++ Game.Characters.Shippuden.characters
-    ++ Game.Characters.Reanimated.characters
+list = addGroups . addClasses <$>
+#ifdef DEVELOPMENT
+    Game.Characters.Development.characters ++
+#endif
+    Game.Characters.Original.characters ++
+    Game.Characters.Shippuden.characters ++
+    Game.Characters.Reanimated.characters
 {-# NOINLINE list #-}
 
 listJSON :: Value

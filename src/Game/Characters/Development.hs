@@ -1,13 +1,11 @@
 {-# OPTIONS_HADDOCK hide #-}
-{-# LANGUAGE CPP             #-}
 {-# LANGUAGE OverloadedLists #-}
 
 module Game.Characters.Development (characters) where
 
 import Game.Characters.Import
 
-#ifdef DEVELOPMENT
-import           Game.Model.Character (Category(Original))
+import qualified Game.Model.Chakras as Chakras
 import qualified Game.Model.Skill as Skill
 
 characters :: [Character]
@@ -20,7 +18,7 @@ characters = (\x -> x 0 Original) <$>
         { Skill.name    = "Nchk-Nchk-Nchk-Nchk"
         , Skill.desc    = "The power of beatboxing grants 50 of each chakra type."
         , Skill.effects =
-          [ To Self $ gain $ replicate 50 =<< [Blood, Gen, Nin, Tai] ]
+          [ To Self $ gain $ Chakras.scale 50 [Blood, Gen, Nin, Tai] ]
         }
       ]
     , [ Skill.new
@@ -67,7 +65,3 @@ characters = (\x -> x 0 Original) <$>
       ]
     ]
   ]
-#else
-characters :: [Character]
-characters = []
-#endif
