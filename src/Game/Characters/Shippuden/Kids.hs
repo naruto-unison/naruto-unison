@@ -594,18 +594,10 @@ characters =
         , Skill.start     =
           [ To Self do
                 replicateM_ 3 $ hide' "calories" Permanent [ Exhaust [All] ]
-                hide Permanent [ Alternate "Butterfly Bombing"
-                                           "Butterfly Bombing"
-                               , Alternate "Spiky Human Boulder"
-                                           "Spiky Human Boulder"
-                               , Alternate "Butterfly Mode"
-                                           "Super-Slam"
-                               , Alternate "Block"
-                                           "Block"
-                               ]
+                setAlternates [1, 1, 1, 1]
           ]
         , Skill.effects   =
-          [ To Self $ removeStack "calories"]
+          [ To Self $ removeStack "calories" ]
         }
       , Skill.new
         { Skill.name      = "Super-Slam"
