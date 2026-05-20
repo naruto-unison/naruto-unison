@@ -35,7 +35,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 45
-                apply 1 [Stun All]
+                apply 1 [ Stun All ]
           ]
         }
       ]
@@ -46,7 +46,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Self $ apply 4 [Reduce [All] Flat 15] ]
+          [ To Self $ apply 4 [ Reduce [All] Flat 15 ] ]
         }
       ]
     , [ invuln "Sexy Technique" "Naruto" [Chakra] ]
@@ -64,7 +64,9 @@ characters =
           [ To Enemy do
                 bonus <- 10 `bonusIf` userHas "Inner Sakura"
                 damage (20 + bonus)
-                apply 1 [Stun Mental, Stun Physical]
+                apply 1 [ Stun Mental
+                        , Stun Physical
+                        ]
           ]
         }
       ]
@@ -84,7 +86,10 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 4 [Enrage, Reduce [All] Flat 10] ]
+          [ To Self $ apply 4 [ Enrage
+                              , Reduce [All] Flat 10
+                              ]
+          ]
         }
       ]
     , [ invuln "Substitution Technique" "Sakura" [Chakra] ]
@@ -125,8 +130,8 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 4 [Reduce [All] Flat 15]
-          , To Enemy $ apply 4 [Expose]
+          [ To Self $ apply 4 [ Reduce [All] Flat 15 ]
+          , To Enemy $ apply 4 [ Expose ]
           ]
         }
       ]
@@ -161,7 +166,7 @@ characters =
           [ To Enemies do
               bonus <- 5 `bonusIf` targetHas "Dynamic Marking"
               damage (15 + bonus)
-          , To Self $ apply 1 [Reduce [All] Flat 15]
+          , To Self $ apply 1 [ Reduce [All] Flat 15 ]
           ]
         }
       ]
@@ -171,7 +176,7 @@ characters =
         , Skill.require   = TargetHas 0 "Dynamic Marking"
         , Skill.classes   = [Bane, Ranged]
         , Skill.effects   =
-          [ To Enemy $ apply 3 [Expose] ]
+          [ To Enemy $ apply 3 [ Expose ] ]
         }
       ]
     , [ invuln "Smoke Bomb" "Kiba" [Physical] ]
@@ -201,7 +206,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ apply 4 [Weaken [All] Flat 5] ]
+          [ To Enemy $ apply 4 [ Weaken [All] Flat 5 ] ]
         }
       ]
     , [ Skill.new
@@ -255,7 +260,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 4 [Reduce [All] Flat 15] ]
+          [ To Self $ apply 4 [ Reduce [All] Flat 15 ] ]
         }
       ]
     , [ invuln "Block" "Hinata" [Physical] ]
@@ -270,7 +275,9 @@ characters =
         , Skill.classes   = [Mental, Ranged, Bypassing]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-          [ To Enemy $ apply 1 [Stun NonMental, Expose]
+          [ To Enemy $ apply 1 [ Stun NonMental
+                               , Expose
+                               ]
           , To REnemy $ pierce 30
           ]
         }
@@ -283,8 +290,12 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Control 4
         , Skill.effects   =
-          [ To Enemy $ apply 1 [Stun All, Expose]
-          , To Self $ hide 1 [Alternate "Mind Transfer" "Art of the Valentine"]
+          [ To Enemy $ apply 1 [ Stun All
+                               , Expose
+                               ]
+          , To Self $ hide 1 [ Alternate "Mind Transfer"
+                                         "Art of the Valentine"
+                             ]
           ]
         }
       , Skill.new
@@ -304,7 +315,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ trap 1 OnHarm $
-                apply 2 [Snare 1]
+                apply 2 [ Snare 1 ]
           ]
         }
       ]
@@ -332,7 +343,7 @@ characters =
         , Skill.effects   =
             [ To Enemies do
                   bonus <- 1 `bonusIf` targetHas "Meditate"
-                  apply (1 + bonus) [Expose]
+                  apply (1 + bonus) [ Expose ]
                   damage 15
             ]
         }
@@ -346,7 +357,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 bonus <- 1 `bonusIf` targetHas "Meditate"
-                apply (1 + bonus) [Stun NonMental]
+                apply (1 + bonus) [ Stun NonMental ]
           ]
         }
       ]
@@ -368,7 +379,7 @@ characters =
                 alternate loadout 1
           ]
         , Skill.effects   =
-          [ To XAllies $ apply' "Protected" 1 [Reduce [All] Flat 5] ]
+          [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 5 ] ]
         }
       , Skill.new
         { Skill.name      = "Obstructing Tackle"
@@ -379,7 +390,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [Weaken [All] Flat 20]
+                apply 1 [ Weaken [All] Flat 20 ]
           ]
         }
       , Skill.new
@@ -398,7 +409,9 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                apply 1 [Stun All, Expose]
+                apply 1 [ Stun All
+                        , Expose
+                        ]
                 damage 25
           ]
         }
@@ -416,7 +429,7 @@ characters =
                 alternate loadout 2
           ]
         , Skill.effects   =
-          [ To XAllies $ apply' "Protected" 1 [Reduce [All] Flat 10] ]
+          [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 10 ] ]
         }
       , Skill.new
         { Skill.name      = "Human Boulder"
@@ -429,7 +442,9 @@ characters =
           [ To Enemy do
                 damage 10
                 pierce 5
-          , To Self $ apply 1 [Focus, Reduce [All] Flat 15]
+          , To Self $ apply 1 [ Focus
+                              , Reduce [All] Flat 15
+                              ]
           ]
         }
       , Skill.new
@@ -441,7 +456,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 30
-                apply 1 [Stun All]
+                apply 1 [ Stun All ]
           ]
         }
       , Skill.new
@@ -471,17 +486,24 @@ characters =
                 alternate loadout 3
           ]
         , Skill.effects   =
-          [ To XAllies $ apply' "Protected" 1 [Reduce [All] Flat 15]
+          [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 15 ]
           , To Self do
                 unlessM (userHas "unchili") $
                     sacrifice 0 15
-                apply 1 [Focus, Alternate "Block" "Block", Face]
+                apply 1 [ Focus
+                        , Alternate "Block"
+                                    "Block"
+                        , Face
+                        ]
           ]
         , Skill.stunned   =
           [ To Self do
                 unlessM (userHas "unchili") $
                     sacrifice 0 15
-                apply 1 [Alternate "Block" "Block", Face]
+                apply 1 [ Alternate "Block"
+                                    "Block"
+                        , Face
+                        ]
           ]
         }
       , Skill.new
@@ -496,7 +518,7 @@ characters =
                 alternate loadout 2
           ]
         , Skill.effects   =
-          [ To XAllies $ apply' "Protected" 1 [Reduce [All] Flat 10] ]
+          [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 10 ] ]
         }
       , Skill.new
         { Skill.name      = "Chili Pill"
@@ -509,17 +531,24 @@ characters =
                 alternate loadout 3
           ]
         , Skill.effects   =
-          [ To XAllies $ apply' "Protected" 1 [Reduce [All] Flat 15]
+          [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 15 ]
           , To Self do
                 unlessM (userHas "unchili") $
                     sacrifice 0 15
-                apply 1 [Focus, Alternate "Block" "Block", Face]
+                apply 1 [ Focus
+                        , Alternate "Block"
+                                    "Block"
+                        , Face
+                        ]
           ]
         , Skill.interrupt =
           [ To Self do
                 unlessM (userHas "unchili") $
                     sacrifice 0 15
-                apply 1 [Alternate "Block" "Block", Face]
+                apply 1 [ Alternate "Block"
+                                    "Block"
+                        , Face
+                        ]
           ]
         }
       , Skill.new
@@ -544,7 +573,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                apply 1 [Invulnerable All]
+                apply 1 [ Invulnerable All ]
                 hide' "unchili" -1 []
           ]
         }
@@ -565,7 +594,7 @@ characters =
                 bonus <- 15 `bonusIf` userHas "Fifth Gate Opening"
                 damage (10 + bonus)
                 tag 1
-          , To Self $ apply 1 [Reduce [All] Flat 10]
+          , To Self $ apply 1 [ Reduce [All] Flat 10 ]
           ]
         }
       ]
@@ -592,7 +621,8 @@ characters =
           [ To Self do
                 cureAll
                 apply 2 [ Invulnerable All
-                        , Alternate "Fifth Gate Opening" "Hidden Lotus"
+                        , Alternate "Fifth Gate Opening"
+                                    "Hidden Lotus"
                         ]
                 sacrifice 1 50
           ]
@@ -639,7 +669,7 @@ characters =
                 damage (5 + 10 * stacks)
                 bonus <- 1 `bonusIf` userHas "Rising Twin Dragons"
                 apply (1 + bonus)
-                    [Weaken [Physical, Chakra, Summon] Flat (5 + 10 * stacks)]
+                    [ Weaken [Physical, Chakra, Summon] Flat (5 + 10 * stacks) ]
                 remove "Unsealing Technique"
           ,  To Self $ remove "Rising Twin Dragons"
           ]
@@ -678,7 +708,7 @@ characters =
         , Skill.effects   =
             [ To Enemy do
                 damage 25
-                apply 1 [Weaken [All] Flat 5]
+                apply 1 [ Weaken [All] Flat 5 ]
             ]
         }
       ]
@@ -689,7 +719,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-            [ To Self $ apply 1 [Invulnerable All]
+            [ To Self $ apply 1 [ Invulnerable All ]
             , To Enemies $ damage 15
             ]
         }
@@ -721,8 +751,12 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Control 2
         , Skill.effects   =
-          [ To Self $ hide 1 [Alternate "Sand Coffin" "Sand Burial"]
-          , To Enemy $ apply 1 [Expose, Stun NonMental]
+          [ To Self $ hide 1 [ Alternate "Sand Coffin"
+                                         "Sand Burial"
+                             ]
+          , To Enemy $ apply 1 [ Expose
+                               , Stun NonMental
+                               ]
           ]
         , Skill.interrupt =
           [ To Self $ remove "sand coffin" ]
@@ -745,7 +779,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                apply Permanent [Enrage]
+                apply Permanent [ Enrage ]
                 trap' Permanent (OnDamaged NonAffliction) do
                     remove "Sand Clone"
                     removeTrap "Sand Clone"
@@ -796,7 +830,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend Permanent 15
-                apply 4 [Strengthen [All] Flat 5]
+                apply 4 [ Strengthen [All] Flat 5 ]
           ]
         }
       ]
@@ -813,7 +847,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy $ damage 20
-          , To Self $ apply 1 [Invulnerable NonMental]
+          , To Self $ apply 1 [ Invulnerable NonMental ]
           ]
         }
       ]
@@ -834,8 +868,8 @@ characters =
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Allies $ apply 1 [Invulnerable All]
-          , To Enemies $ apply 2 [Weaken [All] Flat 15]
+          [ To Allies $ apply 1 [ Invulnerable All ]
+          , To Enemies $ apply 2 [ Weaken [All] Flat 15 ]
           ]
         }
       ]

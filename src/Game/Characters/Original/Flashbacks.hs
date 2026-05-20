@@ -24,8 +24,8 @@ characters =
                 demolishAll
                 deplete 1
                 pierce 15
-                apply 1 [Stun All]
-                apply Permanent [Weaken [All] Flat 5]
+                apply 1 [ Stun All ]
+                apply Permanent [ Weaken [All] Flat 5 ]
           ]
         }
       ]
@@ -41,7 +41,9 @@ characters =
                 trap 4 OnDeath $
                     self killHard
                 self do
-                    apply 4 [Alternate "Life Link" "Life Transfer"]
+                    apply 4 [ Alternate "Life Link"
+                                        "Life Transfer"
+                            ]
                     trap 4 OnDeath $ everyone $
                         whenM (targetHas "Life Link")
                             killHard
@@ -67,7 +69,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 purge
-                apply 2 [Stun All, Alone, Invulnerable All]
+                apply 2 [ Stun All
+                        , Alone
+                        , Invulnerable All
+                        ]
           ]
         }
       ]
@@ -83,19 +88,19 @@ characters =
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-        [ To Self $ apply 1 [Invulnerable All]
+        [ To Self $ apply 1 [ Invulnerable All ]
         , To XAllies $ whenM (targetHas "Space-Time Marking") $
-                apply 1 [Invulnerable All]
+                apply 1 [ Invulnerable All ]
         , To Enemies $ whenM (targetHas "Space-Time Marking") $
                 damage 30
         , To XAlly do
-              apply 1 [Invulnerable All]
-              whenM (userHas "Space-Time Marking") $
-                tag' "Space-Time Marking" 1
+                apply 1 [ Invulnerable All ]
+                whenM (userHas "Space-Time Marking") $
+                    tag' "Space-Time Marking" 1
         , To Enemy do
-              damage 30
-              whenM (userHas "Space-Time Marking") $
-                tag' "Space-Time Marking" 1
+                damage 30
+                whenM (userHas "Space-Time Marking") $
+                    tag' "Space-Time Marking" 1
           ]
         }
       ]
@@ -107,7 +112,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Control 2
         , Skill.effects   =
-          [ To Enemies $ apply 1 [Expose]
+          [ To Enemies $ apply 1 [ Expose ]
           , To Self $ gain [Rand]
           ]
         }
@@ -148,7 +153,7 @@ characters =
         , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Ally $ apply 2 [Reflect] ]
+          [ To Ally $ apply 2 [ Reflect ] ]
         }
       ]
     , [ Skill.new
@@ -159,7 +164,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 afflict 25
-                apply Permanent [Weaken [All] Flat 5]
+                apply Permanent [ Weaken [All] Flat 5 ]
           , To Self $ sacrifice 0 15
           ]
         }
@@ -172,13 +177,13 @@ characters =
     [LeafVillage, Kage, Sage, Earth, Water, Fire, Wind, Lightning, Yin, Yang, Senju]
     [ [ Skill.new
         { Skill.name      = "Wooden Dragon"
-        , Skill.desc      = "A vampiric dragon made of wood drains chakra from Hashirama's enemies, making him invulnerable to chakra skills for 2 turns. Each turn, Hashirama absorbs 1 random  chakra from his enemies."
+        , Skill.desc      = "A vampiric dragon made of wood drains chakra from Hashirama's enemies, making him invulnerable to chakra skills for 2 turns. Each turn, Hashirama absorbs 1 random chakra from his enemies."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2
         , Skill.dur       = Action 2
         , Skill.effects   =
-          [ To Self $ apply 1 [Invulnerable Chakra]
+          [ To Self $ apply 1 [ Invulnerable Chakra ]
           , To REnemy $ absorb 1
           ]
         , Skill.changes   =
@@ -195,7 +200,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy $ damage 20
-          , To Self $ apply 1 [Invulnerable Physical]
+          , To Self $ apply 1 [ Invulnerable Physical ]
           ]
         , Skill.changes   =
             changeWith "Veritable 1000-Armed Kannon"
@@ -228,10 +233,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 20
-                apply 1 [Weaken [All] Flat 5]
+                apply 1 [ Weaken [All] Flat 5 ]
                 whenM (userHas "Sharingan Stun") $
-                    apply 1 [Stun All]
-          , To Self $ apply 1 [Strengthen [All] Flat 5]
+                    apply 1 [ Stun All ]
+          , To Self $ apply 1 [ Strengthen [All] Flat 5 ]
           ]
         }
       ]
@@ -243,10 +248,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 20
-                apply 1 [Weaken [All] Flat 5]
+                apply 1 [ Weaken [All] Flat 5 ]
                 whenM (userHas "Sharingan Stun") $
-                    apply 1 [Stun All]
-          , To Self $ apply 1 [Strengthen [All] Flat 5]
+                    apply 1 [ Stun All ]
+          , To Self $ apply 1 [ Strengthen [All] Flat 5 ]
           ]
         }
       ]
@@ -258,7 +263,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 whenM (userHas "Sharingan Stun") $
-                    apply 1 [Stun All]
+                    apply 1 [ Stun All ]
                 trap 2 OnChakra do
                     removeTrap "Sharingan"
                     self $ gain [Rand]
@@ -267,7 +272,7 @@ characters =
                     self $ tag' "Sharingan Stun" 1
                 trap 2 OnDamage do
                     removeTrap "Sharingan"
-                    self $ apply 1 [Strengthen [All] Flat 10]
+                    self $ apply 1 [ Strengthen [All] Flat 10 ]
           ]
         }
       ]
@@ -283,7 +288,7 @@ characters =
         , Skill.classes   = [Physical, Ranged, Invisible, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ To Self $ apply 1 [Reduce [All] Flat 15]
+          [ To Self $ apply 1 [ Reduce [All] Flat 15 ]
           , To Enemy do
                 trap 1 (OnAction All)
                     flag
@@ -312,7 +317,10 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Ally $ apply 3 [Bless 10, Heal 10] ]
+          [ To Ally $ apply 3 [ Bless 10
+                              , Heal 10
+                              ]
+          ]
         }
       ]
     , [ invuln "Flee" "Rin" [Physical] ]
@@ -340,7 +348,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ apply 2 [Afflict 15] ]
+          [ To Enemy $ apply 2 [ Afflict 15 ] ]
         }
       , Skill.new
         { Skill.name      = "Grand Fireball "
@@ -386,7 +394,9 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self $ tag' "Corporeal" 1
-          , To Enemy $ apply 1 [Stun Physical, Expose]
+          , To Enemy $ apply 1 [ Stun Physical
+                               , Expose
+                               ]
           ]
         }
       ]
@@ -402,7 +412,9 @@ characters =
                 bonus <- 1 `bonusIf` targetHas "Kusari Chains"
                 pierce (20 + 20 * bonus)
                 userSlot <- user slot
-                apply (fromIntegral $ 1 + bonus) [Alone, Taunt userSlot]
+                apply (fromIntegral $ 1 + bonus) [ Alone
+                                                 , Taunt userSlot
+                                                 ]
           ]
         }
       ]
@@ -427,7 +439,7 @@ characters =
         , Skill.effects  =
           [ To Self do
                 tag' "Corporeal" 1
-                apply 1 [Invulnerable All]
+                apply 1 [ Invulnerable All ]
           ]
         }
       ]

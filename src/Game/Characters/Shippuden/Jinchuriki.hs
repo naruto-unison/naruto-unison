@@ -19,7 +19,10 @@ characters =
         , Skill.require   = UserHas 0 "Two-Tailed Transformation"
         , Skill.classes   = [Chakra]
         , Skill.effects   =
-          [ To Self $ apply Permanent [Reduce [All] Percent 50, Face] ]
+          [ To Self $ apply Permanent [ Reduce [All] Percent 50
+                                      , Face
+                                      ]
+          ]
         }
       ]
     , [ Skill.new
@@ -33,7 +36,7 @@ characters =
           [ To Enemy do
                 stacks <- userStacks "Flaming Cat Roar"
                 damage (30 + 5 * stacks)
-                apply 1 [Weaken [All] Flat 10]
+                apply 1 [ Weaken [All] Flat 10 ]
           , To Self addStack
           ]
         }
@@ -82,7 +85,7 @@ characters =
         , Skill.classes   = [Chakra, Ranged, Bane, Soulbound]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Enemy $ apply Permanent [Afflict 10] ]
+          [ To Enemy $ apply Permanent [ Afflict 10 ] ]
         }
       ]
     , [ Skill.new
@@ -94,7 +97,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 heal 25
-                apply 1 [Reduce [Affliction] Percent 50]
+                apply 1 [ Reduce [Affliction] Percent 50 ]
           ]
         }
       ]
@@ -127,7 +130,7 @@ characters =
           [ To Enemy do
                 bonus <- 20 `bonusIf` userHas "Acrobat"
                 pierce (20 + bonus)
-          , To Self $ apply 1 [Invulnerable Genjutsu]
+          , To Self $ apply 1 [ Invulnerable Genjutsu ]
           ]
         , Skill.changes   =
             changeWith "Acrobat" \x -> x { Skill.cost = [Tai, Rand] }
@@ -161,8 +164,9 @@ characters =
         , Skill.cooldown  = 1
         , Skill.charges   = 5
         , Skill.effects   =
-          [ To Self $ apply Permanent
-                [Strengthen [All] Flat 5, Reduce [Affliction] Percent 10]
+          [ To Self $ apply Permanent [ Strengthen [All] Flat 5
+                                      , Reduce [Affliction] Percent 10
+                                      ]
           ]
         }
       ]
@@ -175,7 +179,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [Snare 1]
+                apply 1 [ Snare 1 ]
           ]
         }
       ]
@@ -205,7 +209,10 @@ characters =
                 sacrifice 1 5
                 defend Permanent 10
                 alternate loadout 0
-                apply Permanent [Reduce [All] Flat 10, Plague, Face]
+                apply Permanent [ Reduce [All] Flat 10
+                                , Plague
+                                , Face
+                                ]
           ]
         }
       , Skill.new
@@ -215,8 +222,12 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ To Self do
-                apply Permanent
-                    [Reduce [All] Flat 20, Plague, Alone, Enrage, Face]
+                apply Permanent [ Reduce [All] Flat 20
+                                , Plague
+                                , Alone
+                                , Enrage
+                                , Face
+                                ]
                 remove "Four-Tailed Transformation"
                 sacrifice 1 10
                 defend Permanent 20
@@ -230,8 +241,12 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Self do
-                apply Permanent
-                    [Reduce [All] Flat 30, Plague, Alone, Enrage, Face]
+                apply Permanent [ Reduce [All] Flat 30
+                                , Plague
+                                , Alone
+                                , Enrage
+                                , Face
+                                ]
                 remove "Six-Tailed Transformation"
                 sacrifice 1 15
                 defend Permanent 30
@@ -247,7 +262,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 afflict 20
-                apply 1 [Weaken [All] Flat 10] ]
+                apply 1 [ Weaken [All] Flat 10 ] ]
         }
       ]
     , [ Skill.new
@@ -271,7 +286,7 @@ characters =
                 if has then
                     afflict 30
                 else
-                    apply 3 [Afflict 10]
+                    apply 3 [ Afflict 10 ]
           ]
         }
       , Skill.new
@@ -295,7 +310,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [Weaken [All] Flat 5]
+                apply 1 [ Weaken [All] Flat 5 ]
           ]
         }
       , Skill.new
@@ -307,7 +322,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 10
-                apply 1 [Stun NonMental]
+                apply 1 [ Stun NonMental ]
           ]
         }
       , Skill.new

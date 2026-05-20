@@ -26,7 +26,10 @@ characters =
                 onBreak endBroken
           ]
         , Skill.effects   =
-          [ To Self $ apply Permanent [Alternate "Susanoo" "Tsukumo"] ]
+          [ To Self $ apply Permanent [ Alternate "Susanoo"
+                                                  "Tsukumo"
+                                      ]
+          ]
         }
       , Skill.new
         { Skill.name      = "Tsukumo"
@@ -38,7 +41,7 @@ characters =
           [ To Enemies do
                 damage 15
                 stacks <- userStacks "Susanoo"
-                apply (fromIntegral stacks) [Weaken [All] Flat 5]
+                apply (fromIntegral stacks) [ Weaken [All] Flat 5 ]
           ]
         }
       ]
@@ -51,7 +54,7 @@ characters =
         , Skill.effects   =
           [ To Self $ trapFrom 2 (CounterAll All) do
                 damage 15
-                self $ apply -1 [Invulnerable All]
+                self $ apply -1 [ Invulnerable All ]
           ]
         }
       ]
@@ -62,8 +65,9 @@ characters =
         , Skill.cost      = [Blood, Gen]
         , Skill.effects   =
           [ To Enemy do
-                self $ hide Permanent
-                    [Alternate "Kotoamatsukami" "Kotoamatsukami"]
+                self $ hide Permanent [ Alternate "Kotoamatsukami"
+                                                  "Kotoamatsukami"
+                                      ]
                 trap Permanent (OnAction All) do
                     self $ remove "kotoamatsukami"
                     deplete 1
@@ -113,7 +117,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Ally do
-                trapFrom 1 (Counter NonMental) $ damage 20
+                trapFrom 1 (Counter NonMental) $
+                    damage 20
                 trap 1 (Counter NonMental) do
                     defend Permanent 20
                     self $ recharge "Tenth Edict on Enlightenment"
@@ -146,7 +151,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = Permanent
         , Skill.effects   =
-          [ To Enemy $ apply' "Venom Beetle" 5 [Afflict 5]
+          [ To Enemy $ apply' "Venom Beetle" 5 [ Afflict 5 ]
           , To Self do
                 defend Permanent 15
                 onBreak $ addStack' "Venom Beetle"
@@ -220,7 +225,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 tag 1
-                enemies $ hide 1 [Reveal]
+                enemies $ hide 1 [ Reveal ]
           ]
         }
       ]
@@ -232,7 +237,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Ally $ trapFrom 2 (Counter NonMental) do
-                apply -4 [Face]
+                apply -4 [ Face ]
                 copyAll 4
                 targetNumSkills <- target numSkills
                 teach 4 "Puppet Curse: Attack" [0..targetNumSkills - 2]
@@ -254,7 +259,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 1 [Invulnerable All] ]
+          [ To Self $ apply 1 [ Invulnerable All ] ]
         }
       ]
     , [ invuln "Dodge" "Fū" [Physical] ]
@@ -271,7 +276,9 @@ characters =
         , Skill.dur       = Passive
         , Skill.start     =
           [ To Self $
-                applyStacks "Sharingan" 11 [Alternate "Izanagi" "Izanagi"]
+                applyStacks "Sharingan" 11 [ Alternate "Izanagi"
+                                                       "Izanagi"
+                                           ]
           ]
         , Skill.effects   =
           [ To Self $ unlessM (userHas "paused") do
@@ -283,12 +290,14 @@ characters =
                     removeStacks "Sharingan" 2
                     unlessM (userHas "Sharingan") do
                         cancelChannel "Izanagi"
-                        hide Permanent
-                            [Alternate "Izanagi" "Reverse Tetragram Sealing"]
+                        hide Permanent [ Alternate "Izanagi"
+                                                   "Reverse Tetragram Sealing"
+                                       ]
                 else do
                     cancelChannel "Izanagi"
-                    hide Permanent
-                        [Alternate "Izanagi" "Reverse Tetragram Sealing"]
+                    hide Permanent [ Alternate "Izanagi"
+                                               "Reverse Tetragram Sealing"
+                                   ]
           ]
         }
       , Skill.new
@@ -296,7 +305,7 @@ characters =
         , Skill.desc      = "Pauses the effect of [Izanagi] for 1 turn."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Blood]
-        , Skill.effects   = [ To Self $ flag' "paused"]
+        , Skill.effects   = [ To Self $ flag' "paused" ]
         }
       , Skill.new
         { Skill.name      = "Reverse Tetragram Sealing"
@@ -322,7 +331,9 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ hide Permanent [Alternate "Vacuum Bullets" "Vacuum Blade"]
+          [ To Self $ hide Permanent [ Alternate "Vacuum Bullets"
+                                                 "Vacuum Blade"
+                                     ]
           , To Enemy $ damage 10
           , To XEnemies $ damage 5
           ]
@@ -349,7 +360,7 @@ characters =
           [ To Enemy $ trap 2 Nullified do
                 remove "Kotoamatsukami"
                 removeTrap "Kotoamatsukami"
-                apply' "Kotoamatsukami Stun" 2 [Stun All]
+                apply' "Kotoamatsukami Stun" 2 [ Stun All ]
                 copyLast 2
           ]
         }
@@ -379,7 +390,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ pierce 40
-          , To Self $ apply 1 [Reduce [All] Percent 25]
+          , To Self $ apply 1 [ Reduce [All] Percent 25 ]
           ]
         }
       ]
@@ -397,7 +408,7 @@ characters =
                 defend Permanent 10
           ]
         , Skill.stunned   =
-          [ To Self $ apply 1 [Face] ]
+          [ To Self $ apply 1 [ Face ] ]
         }
       ]
     , [ invuln "Parry" "Suigetsu" [Physical] ]
@@ -416,7 +427,7 @@ characters =
           [ To Enemy do
                 trap 1 (Countered All) $ return ()
                 trap 1 OnHelp $
-                    apply 3 [Exhaust [All]]
+                    apply 3 [ Exhaust [All] ]
           ]
         }
       ]
@@ -428,7 +439,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 30
-                apply 1 [Disable Stuns]
+                apply 1 [ Disable Stuns ]
           ]
         }
       ]
@@ -458,7 +469,9 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 40
-                apply 1 [Stun Physical, Stun Melee]
+                apply 1 [ Stun Physical
+                        , Stun Melee
+                        ]
           ]
         }
       ]
@@ -471,10 +484,12 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To REnemy $ pierce 25
-          , To Self $ apply 1 [Reduce [All] Percent 75, Face]
+          , To Self $ apply 1 [ Reduce [All] Percent 75
+                              , Face
+                              ]
           ]
         , Skill.stunned   =
-          [ To Self $ apply 1 [Face] ]
+          [ To Self $ apply 1 [ Face ] ]
         }
       ]
     , [ Skill.new
@@ -487,7 +502,7 @@ characters =
           [ To XAlly do
                 heal 20
                 defend Permanent 20
-          , To Self $ apply 4 [Snare 1]
+          , To Self $ apply 4 [ Snare 1 ]
           ]
         }
       ]
@@ -506,7 +521,9 @@ characters =
           [ To Self do
                 trapFrom 1 (CounterAll NonMental) $
                     afflict 10
-                hide Permanent [Alternate "Chidori Stream" "Kusanagi"]
+                hide Permanent [ Alternate "Chidori Stream"
+                                           "Kusanagi"
+                               ]
           ]
         }
       , Skill.new
@@ -517,7 +534,9 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 15
-                apply 1 [Stun Physical, Stun Mental]
+                apply 1 [ Stun Physical
+                        , Stun Mental
+                        ]
           , To Self $ remove "chidori stream"
           ]
         }

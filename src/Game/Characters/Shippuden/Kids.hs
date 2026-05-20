@@ -32,7 +32,7 @@ characters =
           [ To Enemy do
                 bonus <- 25 `bonusIf` targetHas "Multi Shadow Clone"
                 pierce (50 + bonus)
-                apply Permanent [Weaken [Chakra] Percent 10]
+                apply Permanent [ Weaken [Chakra] Percent 10 ]
           ]
         }
       ]
@@ -46,7 +46,9 @@ characters =
           [ To Self do
                 trapFrom 1 (Counter All) $
                     tag 1
-                apply 1 [Alternate "Giant Rasengan" "Rasen Shuriken"]
+                apply 1 [ Alternate "Giant Rasengan"
+                                    "Rasen Shuriken"
+                        ]
           ]
         }
       ]
@@ -60,7 +62,7 @@ characters =
           [ To Self do
                 cureAll
                 gain [Nin, Tai]
-                apply 1 [Reduce [All] Flat 10]
+                apply 1 [ Reduce [All] Flat 10 ]
           ]
         }
       ]
@@ -159,7 +161,11 @@ characters =
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ To Enemy $ apply 1 [Stun Physical, Stun Chakra, Expose] ]
+          [ To Enemy $ apply 1 [ Stun Physical
+                               , Stun Chakra
+                               , Expose
+                               ]
+          ]
         }
       , Skill.new
         { Skill.name      = "Super Beast Scroll: Bird"
@@ -169,7 +175,9 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 25
-                apply 1 [Stun Physical, Stun Chakra]
+                apply 1 [ Stun Physical
+                        , Stun Chakra
+                        ]
           ]
         }
       ]
@@ -184,11 +192,11 @@ characters =
                 gain [Rand]
           , To Allies do
                 trap 3 OnStunned $
-                    apply 1 [Invulnerable All]
+                    apply 1 [ Invulnerable All ]
                 trap 3 (OnDamaged NonAffliction) $
-                    self $ apply 1 [Strengthen [All] Flat 10]
-          , To Self $ apply 3 [Alternate "Super Beast Scroll: Snake"
-                                         "Super Beast Scroll: Bird"]
+                    self $ apply 1 [ Strengthen [All] Flat 10 ]
+          , To Self $ apply 3 [ Alternate "Super Beast Scroll: Snake"
+                                          "Super Beast Scroll: Bird" ]
           ]
         }
       ]
@@ -207,7 +215,8 @@ characters =
         , Skill.effects   =
           [ To Self $ apply 4 [ Focus
                               , Reduce [All] Flat 15
-                              , Alternate "Man-Beast Clone" "Three-Headed Wolf"
+                              , Alternate "Man-Beast Clone"
+                                          "Three-Headed Wolf"
                               ]
           ]
         }
@@ -222,7 +231,8 @@ characters =
                 remove "Man-Beast Clone"
                 apply 3 [ Reduce [All] Flat 30
                         , Enrage
-                        , Alternate "Man-Beast Clone" "Tail Chasing Rotating Fang"
+                        , Alternate "Man-Beast Clone"
+                                    "Tail Chasing Rotating Fang"
                         ]
           ]
         }
@@ -235,7 +245,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 40
-                apply 1 [Stun All]
+                apply 1 [ Stun All ]
           ]
         }
       ]
@@ -261,7 +271,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                apply Permanent [Weaken [All] Flat 10]
+                apply Permanent [ Weaken [All] Flat 10 ]
                 cloneBonus <- 10 `bonusIf` userHas "Man-Beast Clone"
                 wolfBonus  <- 20 `bonusIf` userHas "Three-Headed Wolf"
                 damage (40 + cloneBonus + wolfBonus)
@@ -286,10 +296,15 @@ characters =
                 bonus <- 5 `bonusIf` targetHas "chakra leech"
                 afflict (15 + bonus)
                 apply 1 [Alone]
-          , To Self $ hide 1 [Alternate "Insect Swarm" "Chakra Leech"]
+          , To Self $ hide 1 [ Alternate "Insect Swarm"
+                                         "Chakra Leech"
+                             ]
           ]
         , Skill.stunned   =
-          [ To Self $ hide 1 [Alternate "Insect Swarm" "Chakra Leech"] ]
+          [ To Self $ hide 1 [ Alternate "Insect Swarm"
+                                         "Chakra Leech"
+                             ]
+          ]
         , Skill.interrupt =
           [ To Self $ remove "insect swarm" ]
         }
@@ -351,7 +366,7 @@ characters =
                 bonus <- 10 `bonusIf` userHas "Eight Trigrams Sixty-Four Palms"
                 damage (10 + bonus)
                 stacks <- targetStacks "Eight Trigrams Sixty-Four Palms"
-                apply (fromIntegral $ 1 + stacks) [Exhaust [All]]
+                apply (fromIntegral $ 1 + stacks) [ Exhaust [All] ]
                 remove "Eight Trigrams Sixty-Four Palms"
           ]
         }
@@ -417,7 +432,11 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Control 3
         , Skill.effects   =
-          [ To Enemies $ apply 1 [Reveal, Build -15, Unreduce 15] ]
+          [ To Enemies $ apply 1 [ Reveal
+                                 , Build -15
+                                 , Unreduce 15
+                                 ]
+          ]
         }
       ]
     , [ Skill.new
@@ -428,7 +447,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Control 2
         , Skill.effects   =
-          [ To XAllies $ apply 1 [Enrage] ]
+          [ To XAllies $ apply 1 [ Enrage ] ]
         }
       ]
     , [ invuln "Hide" "Ino" [Mental] ]
@@ -446,9 +465,11 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 35
-                apply 1 [Stun NonMental]
+                apply 1 [ Stun NonMental ]
                 hide' "final" 1 []
-                self $ apply 1 [Alternate "Shadow Sewing" "Shadow Sewing: Hold"]
+                self $ apply 1 [ Alternate "Shadow Sewing"
+                                           "Shadow Sewing: Hold"
+                               ]
           ]
         }
       , Skill.new
@@ -477,7 +498,10 @@ characters =
                 delay -1 $
                     trap' -4 OnHarm $
                         unlessM (userHas "What a Drag") $
-                            apply 1 [Invulnerable All, Alternate "Long-Range Tactics" "Final Explosion"]
+                            apply 1 [ Invulnerable All
+                                    , Alternate "Long-Range Tactics"
+                                                "Final Explosion"
+                                    ]
                 trap' 4 (OnDamaged NonAffliction) $
                     tag' "What a Drag" 1
           ]
@@ -501,7 +525,9 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ trap 3 (OnAction All) do
-                apply 1 [Expose, Uncounter]
+                apply 1 [ Expose
+                        , Uncounter
+                        ]
                 hide' "final" 1 []
           ]
         }
@@ -519,8 +545,8 @@ characters =
         , Skill.cost      = [Tai, Rand, Rand]
         , Skill.effects   =
           [ To Self do
-                apply 1 [Enrage]
-                replicateM_ 2 $ hide' "calories" Permanent [Exhaust [All]]
+                apply 1 [ Enrage ]
+                replicateM_ 2 $ hide' "calories" Permanent [ Exhaust [All] ]
           , To Enemy $ damage 30
           ]
         }
@@ -534,7 +560,7 @@ characters =
                 damage 30
           , To Self do
                 apply 1 [Enrage]
-                replicateM_ 2 $ hide' "calories" Permanent [Exhaust [All]]
+                replicateM_ 2 $ hide' "calories" Permanent [ Exhaust [All] ]
           ]
         }
       ]
@@ -551,7 +577,7 @@ characters =
                 trap 1 (CounterAll Physical) $ return ()
                 trap 1 (CounterAll Chakra)  $ return ()
                 trap 1 (CounterAll Summon)  $ return ()
-                hide' "calories" Permanent [Exhaust [All]]
+                hide' "calories" Permanent [ Exhaust [All] ]
           ]
         }
       , Skill.new
@@ -564,7 +590,7 @@ characters =
           [ To Enemy $ damage 15
           ,  To Self do
                 trap 1 (CounterAll NonMental) $ return ()
-                hide' "calories" Permanent [Exhaust [All]]
+                hide' "calories" Permanent [ Exhaust [All] ]
           ]
         }
       ]
@@ -575,13 +601,16 @@ characters =
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self do
-                replicateM_ 3 $ hide' "calories" Permanent [Exhaust [All]]
-                hide Permanent
-                    [ Alternate "Butterfly Bombing"   "Butterfly Bombing"
-                    , Alternate "Spiky Human Boulder" "Spiky Human Boulder"
-                    , Alternate "Butterfly Mode"      "Super-Slam"
-                    , Alternate "Block"               "Block"
-                    ]
+                replicateM_ 3 $ hide' "calories" Permanent [ Exhaust [All] ]
+                hide Permanent [ Alternate "Butterfly Bombing"
+                                           "Butterfly Bombing"
+                               , Alternate "Spiky Human Boulder"
+                                           "Spiky Human Boulder"
+                               , Alternate "Butterfly Mode"
+                                           "Super-Slam"
+                               , Alternate "Block"
+                                           "Block"
+                               ]
           ]
         , Skill.effects   =
           [ To Self $ removeStack "calories"]
@@ -594,7 +623,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 cureAll
-                replicateM_ 2 $ hide' "calories" Permanent [Exhaust [All]]
+                replicateM_ 2 $ hide' "calories" Permanent [ Exhaust [All] ]
           , To Enemy $ damage 30
           ]
         }
@@ -616,7 +645,7 @@ characters =
           [ To Enemy do
                 dead <- numDeadAllies
                 damage (15 + 10 * dead)
-                apply (fromIntegral $ 2 + dead) [Weaken [All] Flat 15]
+                apply (fromIntegral $ 2 + dead) [ Weaken [All] Flat 15 ]
           ]
         }
       ]
@@ -632,7 +661,7 @@ characters =
                 damage (20 + bonus + 10 * dead)
           , To Self do
                 bonus <- 10 `bonusIf` userHas "Leaf Hurricane"
-                apply 1 [Reduce [All] Flat (10 + bonus)]
+                apply 1 [ Reduce [All] Flat $ 10 + bonus ]
           ]
         }
       ]
@@ -686,7 +715,7 @@ characters =
           [ To Enemies do
                 damage 10
                 afflict 10
-                apply 3 [Afflict 5]
+                apply 3 [ Afflict 5 ]
           ]
         }
       ]
@@ -697,7 +726,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ apply 1 [Invulnerable Physical] ]
+          [ To Allies $ apply 1 [ Invulnerable Physical ] ]
         }
       , Skill.new
         { Skill.name      = "Segmented Iron Dome"
@@ -715,7 +744,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ apply 1 [ReflectAll NonMental] ]
+          [ To Allies $ apply 1 [ ReflectAll NonMental ] ]
         }
       ]
     , [ Skill.new
@@ -789,9 +818,9 @@ characters =
         , Skill.effects   =
           [ To Enemies $ apply 2 [Expose]
           , To Self $ trap 1 (CounterAll All) $
-                bomb 1
-                    [Alternate "Eight Trigrams Sixty-Four Palms"
-                            "Pressure Point Strike"]
+                bomb 1 [ Alternate "Eight Trigrams Sixty-Four Palms"
+                                   "Pressure Point Strike"
+                       ]
                     [ To Expire $ remove "Pressure Point Strike" ]
           ]
         }
@@ -825,7 +854,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 5
-                apply 1 [Weaken [All] Flat 10]
+                apply 1 [ Weaken [All] Flat 10 ]
           ]
         }
       ]
@@ -838,7 +867,9 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 10
-                apply 1 [Stun Chakra, Stun Melee]
+                apply 1 [ Stun Chakra
+                        , Stun Melee
+                        ]
           ]
         }
       ]
@@ -851,8 +882,9 @@ characters =
         , Skill.charges   = 2
         , Skill.effects   =
           [ To XAllies $ defend Permanent 15
-          , To Self $ apply Permanent
-                [Strengthen [All] Percent 200, Reduce [All] Flat 10]
+          , To Self $ apply Permanent [ Strengthen [All] Percent 200
+                                      , Reduce [All] Flat 10
+                                      ]
           ]
         }
       ]
@@ -899,11 +931,18 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Allies $
-              apply 1 [Reduce [All] Percent 25, Invulnerable Affliction]
-          , To Self $ hide 1 [Alternate "Sanshōuo Shield" "Salamander Puppet"]
+              apply 1 [ Reduce [All] Percent 25
+                      , Invulnerable Affliction
+                      ]
+          , To Self $ hide 1 [ Alternate "Sanshōuo Shield"
+                                         "Salamander Puppet"
+                             ]
           ]
         , Skill.stunned   =
-          [ To Self $ hide 1 [Alternate "Sanshōuo Shield" "Salamander Puppet"] ]
+          [ To Self $ hide 1 [ Alternate "Sanshōuo Shield"
+                                         "Salamander Puppet"
+                             ]
+          ]
         , Skill.interrupt =
           [ To Self $ remove "sanshōuo shield" ]
         }
@@ -912,7 +951,7 @@ characters =
         , Skill.desc      = "The Sanshōuo puppet focuses its defense on Kankurō or one of his allies, providing them with 25% additional damage reduction for 1 turn."
         , Skill.classes   = [Physical]
         , Skill.effects   =
-          [ To Ally $ apply 1 [Reduce [All] Percent 25] ]
+          [ To Ally $ apply 1 [ Reduce [All] Percent 25 ] ]
         }
       ]
     , [ invuln "Puppet Distraction" "Kankurō" [Physical] ]
@@ -927,7 +966,8 @@ characters =
         , Skill.classes   = [Physical, Ranged, Unremovable]
         , Skill.effects   =
           [ To Self $ apply Permanent [ Reduce [All] Percent 25
-                                      , Alternate "First Moon" "Second Moon"
+                                      , Alternate "First Moon"
+                                                  "Second Moon"
                                       ]
           ]
         }
@@ -940,7 +980,8 @@ characters =
           [ To Self do
                 remove "First Moon"
                 apply Permanent [ Reduce [All] Percent 50
-                                , Alternate "First Moon" "Third Moon"
+                                , Alternate "First Moon"
+                                            "Third Moon"
                                 ]
           ]
         }
@@ -953,7 +994,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 20
-                apply 1 [Weaken [All] Flat 5]
+                apply 1 [ Weaken [All] Flat 5 ]
           ]
         }
       ]
@@ -964,7 +1005,10 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To XAlly $ apply 1 [Reduce [All] Percent 50, Endure] ]
+          [ To XAlly $ apply 1 [ Reduce [All] Percent 50
+                               , Endure
+                               ]
+          ]
         }
       ]
     , [ Skill.new
@@ -994,7 +1038,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                trap 1 OnHeal $ apply 2 [Stun All]
+                trap 1 OnHeal $ apply 2 [ Stun All ]
           ]
         }
       ]
@@ -1007,7 +1051,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 35
-                apply 2 [Plague]
+                apply 2 [ Plague ]
           ]
         }
       ]
@@ -1039,7 +1083,7 @@ characters =
         , Skill.dur       = Action -2
         , Skill.start     =
           [ To Enemy $ trap -1 (OnAction All) $
-                applyWith [Invisible] 1 []
+                applyWith [ Invisible ] 1 []
           , To Self flag
           ]
         , Skill.effects   =

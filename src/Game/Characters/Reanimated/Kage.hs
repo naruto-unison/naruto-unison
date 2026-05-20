@@ -42,9 +42,14 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ To Enemy do
-              damage 25
-              has <- userHas "Deep Forest Creation"
-              apply 1 if has then [Stun All] else [Stun Physical, Stun Chakra]
+                damage 25
+                has <- userHas "Deep Forest Creation"
+                apply 1 if has then
+                    [ Stun All ]
+                else
+                    [ Stun Physical
+                    , Stun Chakra
+                    ]
           ]
         }
       ]
@@ -54,11 +59,14 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
-          [ To Enemies $ apply 2 [Snare 1, Exhaust [NonMental]]
-          , To Self $ apply 2
-                [ Alternate "Tree Wave Destruction" "Tree Wave Destruction "
-                , Alternate "Deep Forest Creation" "Deep Forest Flourishing"
-                ]
+          [ To Enemies $ apply 2 [ Snare 1
+                                 , Exhaust [NonMental]
+                                 ]
+          , To Self $ apply 2 [ Alternate "Tree Wave Destruction"
+                                           "Tree Wave Destruction"
+                              , Alternate "Deep Forest Creation"
+                                          "Deep Forest Flourishing"
+                              ]
           ]
         }
       , Skill.new
@@ -89,7 +97,7 @@ characters =
           [ To Enemy do
                 bonus <- 15 `bonusIf` channeling "Water Shockwave"
                 damage (15 + bonus)
-                apply 1 [Seal]
+                apply 1 [ Seal ]
           ]
         }
       ]
@@ -103,7 +111,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 15
-                apply 1 [Stun Bane]
+                apply 1 [ Stun Bane ]
           ]
         }
       ]
@@ -114,7 +122,10 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ apply 1 [Invulnerable Physical, Invulnerable Mental] ]
+          [ To Allies $ apply 1 [ Invulnerable Physical
+                                , Invulnerable Mental
+                                ]
+          ]
         }
       ]
     , [ invuln "Water Wall" "Tobirama" [Physical] ]
@@ -133,10 +144,10 @@ characters =
         , Skill.effects   =
           [ To XAllies $ trap -1 OnNoAction do
                 applyWith [Invisible] 4 []
-                self $ applyWith [Invisible] 4 [Reduce [All] Flat 5]
+                self $ applyWith [Invisible] 4 [ Reduce [All] Flat 5 ]
           , To Enemies $ trap -1 OnNoAction do
                 applyWith [Invisible] -4 []
-                self $ applyWith [Invisible] -4 [Reduce [All] Flat 5]
+                self $ applyWith [Invisible] -4 [ Reduce [All] Flat 5 ]
           ]
         }
       ]
@@ -153,12 +164,18 @@ characters =
                 apply -1 [Redirect userSlot]
                 trap -1 (OnHarmed All) $ self $
                     apply' "Round-Robin Surprise Attack" -1
-                    [AntiCounter, Bypass, Pierce]
+                        [ AntiCounter
+                        , Bypass
+                        , Pierce
+                        ]
                 self do
-                    apply -1 [Redirect targetSlot]
+                    apply -1 [ Redirect targetSlot ]
                     trap -1 (OnHarmed All) $ withTarget targetSlot $
                         apply' "Round-Robin Surprise Attack" -1
-                        [AntiCounter, Bypass, Pierce]
+                            [ AntiCounter
+                            , Bypass
+                            , Pierce
+                            ]
           ]
         }
       ]
@@ -182,7 +199,7 @@ characters =
         , Skill.classes   = [Chakra, Bypassing]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Allies $ apply 1 [Invulnerable All] ]
+          [ To Allies $ apply 1 [ Invulnerable All ] ]
         }
       ]
     ]
@@ -202,7 +219,7 @@ characters =
                 damage 10
                 bonus <- 5 `bonusIf` targetHas' barrier "Gold Dust Waterfall"
                 barricade' Permanent
-                    (const $ return ()) (apply 1 [Exhaust [All]])
+                    (const $ return ()) (apply 1 [ Exhaust [All] ])
                     (10 + bonus)
           ]
         }
@@ -275,7 +292,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 hide' "finger" Permanent []
-                apply Permanent [Invulnerable Affliction]
+                apply Permanent [ Invulnerable Affliction ]
           ]
         }
       ]
@@ -286,7 +303,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 8
         , Skill.effects   =
-          [ To Self $ apply 3 [Limit 10] ]
+          [ To Self $ apply 3 [ Limit 10 ] ]
         }
       ]
     , [ Skill.new
@@ -347,7 +364,7 @@ characters =
                         ]
                 trap 2 OnRes do
                     setHealth 15
-                    remove      "Fragmentation"
+                    remove "Fragmentation"
                     removeTrap "Fragmentation"
           ]
         }
@@ -382,7 +399,7 @@ characters =
         , Skill.cooldown  = 5
         , Skill.dur       = Ongoing 4
         , Skill.effects   =
-          [ To RAlly $ apply 1 [Reflect]
+          [ To RAlly $ apply 1 [ Reflect ]
           , To RAlly do
                 defend 1 80
                 onBreak endBroken
@@ -417,11 +434,15 @@ characters =
                 targetSlot   <- target slot
                 userHealth   <- user health
                 targetHealth <- target health
-                bomb 2 [Duel userSlot, Taunt userSlot]
+                bomb 2 [ Duel userSlot
+                       , Taunt userSlot
+                       ]
                        [ To Expire $ setHealth targetHealth ]
                 setHealth 30
                 self do
-                    bomb 2 [Duel targetSlot, Taunt targetSlot]
+                    bomb 2 [ Duel targetSlot
+                           , Taunt targetSlot
+                           ]
                            [ To Expire $ setHealth userHealth ]
                     setHealth 30
           ]
@@ -482,10 +503,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 15
-                apply 2 [Afflict 5]
+                apply 2 [ Afflict 5 ]
                 whenM (userHas "Major Summoning: Ibuse") do
                     afflict 10
-                    apply 1 [Stun All]
+                    apply 1 [ Stun All ]
           ]
         }
       ]
@@ -496,7 +517,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
             [ To Self $ trapFrom 1 (OnHarmed NonMental) do
-                  apply Permanent [Afflict 20]
+                  apply Permanent [ Afflict 20 ]
                   self $ removeTrap "Venom Sac"
                   has <- userHas "major summoning: ibuse"
                   if has then self do

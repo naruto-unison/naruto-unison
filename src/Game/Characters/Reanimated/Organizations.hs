@@ -25,7 +25,7 @@ characters =
                 everyone $ remove "Rivalry"
                 trap 1 (Countered All) do
                     slot <- user slot
-                    apply Permanent [Taunt slot]
+                    apply Permanent [ Taunt slot ]
           ]
         }
       ]
@@ -74,7 +74,7 @@ characters =
                 userSlot <- user slot
                 enemies do
                     remove "Rivalry"
-                    apply' "Rivalry" 2 [Taunt userSlot]
+                    apply' "Rivalry" 2 [ Taunt userSlot ]
                 removeStacks "Scattered Rock" 2
                 defend 2 35
                 trapFrom 2 (OnHarmed All) do
@@ -123,7 +123,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemies $ trap 1 (OnAction All) $ damage 20
-          , To Self $ apply 1 [Reduce [All] Percent 50]
+          , To Self $ apply 1 [ Reduce [All] Percent 50 ]
           ]
         }
       ]
@@ -144,7 +144,7 @@ characters =
                 pierce 10
                 trapPer' -1 PerDamaged \i ->
                     when (i >= 50) $
-                        apply 1 [Stun All]
+                        apply 1 [ Stun All ]
           ]
         , Skill.changes   =
             changeWithChannel "Crystal Ice Mirrors" \x ->
@@ -205,7 +205,9 @@ characters =
         , Skill.cooldown  = 4
         , Skill.dur       = Action 2
         , Skill.effects   =
-          [ To Self $ apply' "Demon Shroud " 1 [Reduce [All] Flat 10, Focus]
+          [ To Self $ apply' "Demon Shroud " 1 [ Reduce [All] Flat 10
+                                               , Focus
+                                               ]
           , To REnemy do
                 pierce 30
                 tag' "Executioner's Butchering" 1
@@ -318,8 +320,8 @@ characters =
                     prolong 1 "Needle Stitching"
                 pierce (20 + 5 * affected)
                 userSlot <- user slot
-                bomb 1 [Block userSlot]
-                    [To Done $ self $ removeStack "needle stitching"]
+                bomb 1 [ Block userSlot ]
+                       [ To Done $ self $ removeStack "needle stitching" ]
                 self $ hide Permanent []
           ]
         }
@@ -347,7 +349,9 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 pierce 15
-                apply 1 [Stun All, Expose]
+                apply 1 [ Stun All
+                        , Expose
+                        ]
           ]
         , Skill.changes   =
             costPer "needle stitching" [Rand]
@@ -397,9 +401,11 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                trapFrom 1 (OnHarmed All) $ apply Permanent [Afflict 10]
-                apply 1
-                  [Alternate "Scroll Unraveling" "Multiple Explosions of Death"]
+                trapFrom 1 (OnHarmed All) $
+                    apply Permanent [ Afflict 10 ]
+                apply 1 [ Alternate "Scroll Unraveling"
+                                    "Multiple Explosions of Death"
+                        ]
           ]
         }
       , Skill.new
@@ -410,7 +416,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 afflict 25
-                apply Permanent [Afflict 5]
+                apply Permanent [ Afflict 5 ]
           ]
         }
       ]
@@ -431,7 +437,7 @@ characters =
         , Skill.start     =
           [ To Enemy $ trapFrom 2 OnHarm do
               targetSlot <- target slot
-              apply 2 [Taunt targetSlot]
+              apply 2 [ Taunt targetSlot ]
           ]
         , Skill.effects   =
           [ To Enemy $ pierce 15 ]
@@ -454,7 +460,7 @@ characters =
           ]
         , Skill.effects   =
           [ To Self do
-                trap 1 OnDamage $ apply Permanent [Reduce [All] Flat 5]
+                trap 1 OnDamage $ apply Permanent [ Reduce [All] Flat 5 ]
                 delay -1 $
                     unlessM (userHas "hair") $
                         heal 10
@@ -469,7 +475,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies do
-                apply 1 [Stun NonMental]
+                apply 1 [ Stun NonMental ]
                 has <- channeling "Chakra Weave"
                 if has then pierce 15 else damage 10
           ]
@@ -491,7 +497,9 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 15
-                apply 1 [Expose, Disable Counters]
+                apply 1 [ Expose
+                        , Disable Counters
+                        ]
           ]
         }
       ]
@@ -504,7 +512,7 @@ characters =
           [ To Enemy do
                 damage 25
                 whenM (targetHas "Axe Chop") $
-                    apply 4 [Expose]
+                    apply 4 [ Expose ]
           ]
         }
       ]
@@ -517,7 +525,9 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 35
-                apply 1 [Stun Chakra, Stun Melee]
+                apply 1 [ Stun Chakra
+                        , Stun Melee
+                        ]
           ]
         }
       ]
@@ -540,7 +550,7 @@ characters =
                 stacksB <- targetStacks "Sonar Bat Bombs"
                 stacksC <- targetStacks "Jellyfish Explosives"
                 pierce (20 + 5 * stacksA + 5 * stacksB + 10 * stacksC)
-          , To Self $ apply 1 [Invulnerable Mental]
+          , To Self $ apply 1 [ Invulnerable Mental ]
           ]
         }
       ]
@@ -566,8 +576,9 @@ characters =
           [ To Enemies do
                 afflict 10
                 addStack
-          , To Self $ hide Permanent
-                [Alternate "Sonar Bat Bombs" "Jellyfish Explosives"]
+          , To Self $ hide Permanent [ Alternate "Sonar Bat Bombs"
+                                                 "Jellyfish Explosives"
+                                     ]
           ]
         }
       , Skill.new
@@ -597,7 +608,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 4 [Reduce [All] Flat 10] ]
+          [ To Self $ apply 4 [ Reduce [All] Flat 10 ] ]
         }
       ]
     , [ Skill.new
@@ -607,7 +618,7 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To XAlly $ apply 1 [ReflectAll NonRanged] ]
+          [ To XAlly $ apply 1 [ ReflectAll NonRanged ] ]
         }
       ]
     , [ Skill.new
@@ -621,9 +632,12 @@ characters =
                 damage (15 + bonus)
                 targetHealth <- target health
                 if targetHealth <= 35 then
-                    apply 1 [Weaken [All] Flat 5, Stun Physical, Stun Chakra]
+                    apply 1 [ Weaken [All] Flat 5
+                            , Stun Physical
+                            , Stun Chakra
+                            ]
                 else
-                    apply 1 [Weaken [All] Flat 5]
+                    apply 1 [ Weaken [All] Flat 5 ]
           ]
         }
       ]
@@ -655,7 +669,7 @@ characters =
         , Skill.cost       = [Blood, Gen, Tai]
         , Skill.cooldown   = 3
         , Skill.effects    =
-          [ To Enemies $ barricade' 3 (\n -> damage n) (apply 1 [Silence]) 25 ]
+          [ To Enemies $ barricade' 3 (\n -> damage n) (apply 1 [ Silence ]) 25 ]
         }
       ]
     , [ Skill.new
@@ -665,10 +679,12 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.dur       = Control Permanent
         , Skill.effects   =
-          [ To Self $ hide 1 [Alternate "Human Path" "Naraka Path"]
+          [ To Self $ hide 1 [ Alternate "Human Path"
+                                         "Naraka Path"
+                             ]
           , To Enemy do
                 damage 15
-                apply 1 [Reveal]
+                apply 1 [ Reveal ]
           ]
         , Skill.interrupt =
           [ To Self $ remove "human path" ]
@@ -697,7 +713,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                apply Permanent [Expose]
+                apply Permanent [ Expose ]
                 pierce 15
                 trap Permanent OnHelped $ remove "Asura Path"
           ]

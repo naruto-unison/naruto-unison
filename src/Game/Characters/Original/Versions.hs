@@ -21,7 +21,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                apply 1 [Stun All]
+                apply 1 [ Stun All ]
                 arms  <- 10 `bonusIf` channeling "Tailed Beast Chakra Arms"
                 inner <- -10 `bonusIf` channeling "Inner Chakra Mode"
                 damage (35 + arms + inner)
@@ -52,7 +52,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 heal 15
-                apply 1 [Reduce [All] Flat 10]
+                apply 1 [ Reduce [All] Flat 10 ]
           ]
         }
       ]
@@ -71,7 +71,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 45
-                apply 2 [Weaken [All] Flat 20]
+                apply 2 [ Weaken [All] Flat 20 ]
           ]
         , Skill.changes   =
             changeWith "Curse Mark" \x -> x { Skill.cost = [Rand] }
@@ -84,9 +84,11 @@ characters =
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Enemy $
-                bombWith [Bypassing] 2 [Stun All, Alone, Invulnerable All]
-                    [ To Expire $ damage 55 ]
+          [ To Enemy $ bombWith [Bypassing] 2 [ Stun All
+                                              , Alone
+                                              , Invulnerable All
+                                              ]
+                                              [ To Expire $ damage 55 ]
           ]
         , Skill.changes   =
             changeWith "Curse Mark" \x -> x { Skill.cost = [Rand, Rand] }
@@ -100,7 +102,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                   sacrifice 0 20
-                  apply 1 [Invulnerable All]
+                  apply 1 [ Invulnerable All ]
           ]
         }
       ]
@@ -154,7 +156,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
         , Skill.effects   =
-          [ To Self $ apply 1 [Enrage]
+          [ To Self $ apply 1 [ Enrage ]
           , To Enemy $ damage 15
           ]
         }
@@ -215,8 +217,10 @@ characters =
           [ To Self $ bombWith [Hidden] -5 [] [ To Expire $
                 apply' "Tailed Beast Form" 3
                     [ Face
-                    , Alternate "Monstrous Sand Arm" "Wind Bullet"
-                    , Alternate "Sand Transformation" "Shukaku Full Release"
+                    , Alternate "Monstrous Sand Arm"
+                                "Wind Bullet"
+                    , Alternate "Sand Transformation"
+                                "Shukaku Full Release"
                     ] ]
           ]
         , Skill.effects   =
@@ -228,7 +232,7 @@ characters =
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Self $ apply 1 [Strengthen [All] Percent 100] ]
+          [ To Self $ apply 1 [ Strengthen [All] Percent 100 ] ]
         }
       ]
     , [ invuln "Thick Sand Coat" "Shukaku" [Physical] ]
@@ -257,11 +261,13 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemies do
-                apply 1 [Exhaust [NonMental]]
+                apply 1 [ Exhaust [NonMental] ]
                 trap 1 (OnAction NonMental) $
                     remove "Sand Burial Prison"
           , To Self $ apply' "Giant Sand Burial" 1
-                [Alternate "Sand Burial Prison" "Giant Sand Burial"]
+                    [ Alternate "Sand Burial Prison"
+                                "Giant Sand Burial"
+                    ]
           ]
         }
       , Skill.new
@@ -287,8 +293,8 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 15
-                apply 1 [Build -10]
-          , To Allies $ apply 1 [Build 10]
+                apply 1 [ Build -10 ]
+          , To Allies $ apply 1 [ Build 10 ]
           ]
         }
       ]

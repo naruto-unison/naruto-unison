@@ -67,7 +67,8 @@ applyWith classes = applyWith' classes ""
 -- | 'applyWith' with a 'Status.name'.
 applyWith' :: ∀ m. MonadPlay m
            => EnumSet Class -> Text -> Duration -> [Effect] -> m ()
-applyWith' classes turns efs = P.unsilenced . Statuses.apply 1 classes [] turns efs
+applyWith' classes turns efs =
+        P.unsilenced . Statuses.apply 1 classes [] turns efs
 
 -- | Adds a simple @Status@ with no 'Status.effects' or 'Status.dur'
 -- 'N.statuses'. Stacks are unremovable.

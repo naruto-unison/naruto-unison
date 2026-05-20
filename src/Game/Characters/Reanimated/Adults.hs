@@ -35,7 +35,7 @@ characters =
         , Skill.classes   = [Physical, Melee, Bane]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ To Enemy $ apply 2 [Afflict 20] ]
+          [ To Enemy $ apply 2 [ Afflict 20 ] ]
         }
       ]
     , [ Skill.new
@@ -81,7 +81,9 @@ characters =
         , Skill.effects   =
           [ To Self $ trapFrom 1 (OnHarmed All) do
                 damage 25
-                self $ apply 2 [Reduce [All] Percent 25, Heal 15]
+                self $ apply 2 [ Reduce [All] Percent 25
+                               , Heal 15
+                               ]
           ]
         }
       ]
@@ -121,7 +123,9 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                apply 1 [Stun Physical, Stun Melee]
+                apply 1 [ Stun Physical
+                        , Stun Melee
+                        ]
                 addStack' "Spirit Word"
           ]
         }
@@ -157,7 +161,7 @@ characters =
           [ To Enemy do
                 afflict 25
                 addStack' "Spirit Word"
-          , To Self $ apply 1 [Reduce [All] Percent 50]
+          , To Self $ apply 1 [ Reduce [All] Percent 50 ]
           ]
         }
       ]
@@ -206,7 +210,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self $ trapFrom 2 (OnHarmed All) $
-                apply Permanent [Plague]
+                apply Permanent [ Plague ]
           , To Enemy do
                 stacksA <- targetStacks "Conserving Bee Twin Blades"
                 stacksB <- targetStacks "Magnetic Current"
@@ -222,7 +226,8 @@ characters =
         , Skill.effects   =
           [ To Self $ apply 3
                 [ Reduce [All] Percent 50
-                , Alternate "Magnetic Field" "Conserving Bee Twin Blades"
+                , Alternate "Magnetic Field"
+                            "Conserving Bee Twin Blades"
                 ]
           ]
         }
@@ -296,7 +301,9 @@ characters =
           [ To Enemy do
                 stacks <- targetStacks "Chakra Arms"
                 pierce (15 + 5 * stacks)
-                apply 1 [Stun Chakra, Stun Ranged]
+                apply 1 [ Stun Chakra
+                        , Stun Ranged
+                        ]
           ]
         }
       ]
@@ -315,7 +322,10 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Action 2
         , Skill.start     =
-          [ To Enemy $ apply 1 [Stun Physical, Stun Ranged] ]
+          [ To Enemy $ apply 1 [ Stun Physical
+                               , Stun Ranged
+                               ]
+          ]
         , Skill.effects   =
           [ To REnemy $ damage 20 ]
         }
@@ -329,7 +339,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ trap Permanent (Countered All) do
                 damage 20
-                apply 1 [Stun Physical]
+                apply 1 [ Stun Physical ]
           ]
         }
       ]
@@ -341,7 +351,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ damage 20
-          , To Self $ apply 1 [Invulnerable NonRanged]
+          , To Self $ apply 1 [ Invulnerable NonRanged ]
           ]
         }
       ]
@@ -359,7 +369,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Self $ apply 2 [Invulnerable Ranged] ]
+          [ To Self $ apply 2 [ Invulnerable Ranged ] ]
         }
       ]
     , [ Skill.new
