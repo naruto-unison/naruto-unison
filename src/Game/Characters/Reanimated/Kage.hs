@@ -249,14 +249,14 @@ characters =
     [CloudVillage, Kabuto, Kage, Lightning, Earth, Fire]
     [ [ Skill.new
         { Skill.name      = "Piercing Four-Fingered"
-        , Skill.desc      = "A switches to his four-fingered style, increasing the damage of [Lightning Straight] by 5. For the rest of the game, enemies who use skills on A or his allies will be marked for 1 turn. If A uses [Lightning Straight] on a marked target, they will be stunned for 1 turn and immune to being marked for 4 turns. Once used, this skill becomes [Three-Fingered Assault][r][r]."
+        , Skill.desc      = "A switches to his four-fingered style, gaining a stack of [Hell Stab]. For the rest of the game, enemies who use skills on A or his allies will be marked for 1 turn. If A uses [Lightning Straight] on a marked target, they will be stunned for 1 turn and immune to being marked for 4 turns. Once used, this skill becomes [Three-Fingered Assault][r][r]."
         , Skill.classes   = [Chakra, Melee, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Allies $ trapFrom Permanent (OnHarmed All) $
                 tag 1
           , To Self do
-                addStack' "finger"
+                addStack' "Hell Stab"
                 hide Permanent [ Alternate "Piercing Four-Fingered"
                                            "Three-Fingered Assault"
                                ]
@@ -264,12 +264,12 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Three-Fingered Assault"
-        , Skill.desc      = "A switches to his three-fingered style, increasing the damage of [Lightning Straight] by 5. For the rest of the game, whenever A is damaged, the cooldown of [Lightning Armor] decreases by 1 turn. Once used, this skill becomes [One-Fingered Assault][r][r][r]."
+        , Skill.desc      = "A switches to his three-fingered style, gaining a stack of [Hell Stab]. For the rest of the game, whenever A is damaged, the cooldown of [Lightning Armor] decreases by 1 turn. Once used, this skill becomes [One-Fingered Assault][r][r][r]."
         , Skill.classes   = [Chakra, Melee, Unremovable]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Self do
-                addStack' "finger"
+                addStack' "Hell Stab"
                 trap Permanent (OnDamaged All) $
                     alterCd "Lightning Armor" -1
                 hide Permanent
@@ -278,13 +278,13 @@ characters =
         }
       , Skill.new
         { Skill.name      = "One-Fingered Assault"
-        , Skill.desc      = "A switches to his one-fingered style, increasing the damage of [Lightning Straight] by 5 and becoming invulnerable to affliction damage. Enemies who are stunned by [Lightning Straight] will only be immune to marking for 3 turns."
+        , Skill.desc      = "A switches to his one-fingered style, gaining a stack of [Hell Stab] and becoming invulnerable to affliction damage. Enemies who are stunned by [Lightning Straight] will only be immune to marking for 3 turns."
         , Skill.classes   = [Chakra, Melee, Unremovable]
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Self do
-                addStack' "finger"
+                addStack' "Hell Stab"
                 apply Permanent [ Invulnerable Affliction ]
           ]
         }
@@ -301,22 +301,20 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Lightning Straight"
-        , Skill.desc      = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing 20 damage. If this skill deals damage, the cooldown of [Lightning Armor] will decrease by 1 turn."
+        , Skill.desc      = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing 20 damage. Deals 5 additional damage per stack of [Hell Stab]. If this skill deals damage, the cooldown of [Lightning Armor] will decrease by 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Self $ trap' -1 OnDamage $
                 alterCd "Lightning Armor" -1
           , To Enemy do
-                stacks <- userStacks "finger"
+                stacks <- userStacks "Hell Stab"
                 damage (20 + 5 * stacks)
                 unlessM (targetHas "Aftershocks") do
                     apply 1 [Stun All]
                     bonus <- 1 `bonusIf` userHas "One-Fingered Assault"
                     tag' "Aftershocks" (4 - bonus)
           ]
-        , Skill.changes   = \n x -> x
-                { Skill.desc = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing " ++ tshow (20 + 5 * numActive "finger" n) ++ " damage. If this skill deals damage, the cooldown of [Lightning Armor] decreases by 1 additional turn." }
         }
       ]
     , [ invuln "Strongest Shield" "A" [Physical] ]
