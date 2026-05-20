@@ -468,7 +468,7 @@ characters =
           [ To Ally do
                 apply 4 [Enrage]
                 defend 4 50
-                onBreak'
+                onBreak endBroken
           ]
         }
       ]

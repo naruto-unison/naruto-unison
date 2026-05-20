@@ -45,7 +45,7 @@ characters =
         , Skill.start     =
           [ To Self do
                 defend Permanent 70
-                onBreak'
+                onBreak endBroken
           ]
         , Skill.effects   =
           [ To Self $ apply Permanent
@@ -217,7 +217,7 @@ characters =
         , Skill.start     =
           [ To Self do
                 defend 2 20
-                onBreak'
+                onBreak endBroken
           ]
         , Skill.effects   =
           [ To Enemy do
@@ -1190,7 +1190,7 @@ characters =
                 hide Permanent
                     [Alternate "Summoning: King of Hell" "Energy Transfer"]
                 defend Permanent 20
-                onBreak'
+                onBreak endBroken
           ]
         }
       , Skill.new

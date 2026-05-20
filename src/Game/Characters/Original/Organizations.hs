@@ -593,7 +593,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.start     =
           [ To Allies $ defend 3 35
-          , To Self onBreak'
+          , To Self $ onBreak endBroken
           ]
         , Skill.effects   =
           [ To REnemy $ absorb 1 ]

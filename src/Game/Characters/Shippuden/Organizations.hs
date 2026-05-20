@@ -23,7 +23,7 @@ characters =
         , Skill.start     =
           [ To Self do
                 defend Permanent 45
-                onBreak'
+                onBreak endBroken
           ]
         , Skill.effects   =
           [ To Self $ apply Permanent [Alternate "Susanoo" "Tsukumo"] ]

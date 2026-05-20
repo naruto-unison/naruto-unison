@@ -301,7 +301,7 @@ characters =
         , Skill.start     =
           [ To Self do
                 defend Permanent 50
-                onBreak'
+                onBreak endBroken
           ]
         , Skill.effects   =
           [ To REnemy $ damage 10

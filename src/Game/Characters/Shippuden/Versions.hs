@@ -141,7 +141,7 @@ characters =
           [ To Self do
                 apply 3 [Enrage]
                 defend 3 50
-                onBreak'
+                onBreak endBroken
           ]
         }
       ]
@@ -235,7 +235,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend Permanent 40
-                onBreak'
+                onBreak endBroken
           , To XAllies do
                 userSlot <- user slot
                 apply Permanent [Redirect userSlot]
@@ -246,11 +246,11 @@ characters =
     ]
   , let
         rename "Sage Transformation" = "Bloodline Sage"
-        rename "Bloodline Sage" = "Genjutsu Sage"
-        rename "Genjutsu Sage"  = "Ninjutsu Sage"
-        rename "Ninjutsu Sage"  = "Taijutsu Sage"
-        rename "Taijutsu Sage"  = "Bloodline Sage"
-        rename x                = x
+        rename "Bloodline Sage"      = "Genjutsu Sage"
+        rename "Genjutsu Sage"       = "Ninjutsu Sage"
+        rename "Ninjutsu Sage"       = "Taijutsu Sage"
+        rename "Taijutsu Sage"       = "Bloodline Sage"
+        rename x                     = x
 
         withMode f n x
           | isChanneling "Bloodline Sage" n = f Blood x

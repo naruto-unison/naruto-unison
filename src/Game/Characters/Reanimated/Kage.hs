@@ -385,7 +385,7 @@ characters =
           [ To RAlly $ apply 1 [Reflect]
           , To RAlly do
                 defend 1 80
-                onBreak'
+                onBreak endBroken
           ]
         }
       ]

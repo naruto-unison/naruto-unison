@@ -1,7 +1,7 @@
 -- | Actions that characters can use to affect @Trap@s.
 module Game.Action.Trap
   ( trap, trap', trapFrom, trapFrom', trapPer, trapPer', trapWith
-  , onBreak, onBreak'
+  , onBreak, endBroken
   , removeTrap
   , delay
   ) where
@@ -80,12 +80,11 @@ onBreak f = do
 -- | Default 'onBreak': remove 'Model.Status.Status'es and
 -- 'Model.Channel.Channel's that match 'Defense.name'. This is useful for
 -- 'Defense.Defense's that apply an effect or empower some action while active.
-onBreak' :: ∀ m. MonadPlay m => m ()
-onBreak' = do
+endBroken :: ∀ m. MonadPlay m => m ()
+endBroken = do
     Context{user, skill = Skill{name}} <- P.context
-    onBreak do
-        P.modify user $ Ninjas.cancelChannel name
-        P.modifyAll $ Ninjas.clear name user . Ninjas.clear (toLower name) user
+    P.modify user $ Ninjas.cancelChannel name
+    P.modifyAll $ Ninjas.clear name user . Ninjas.clear (toLower name) user
 
 -- | Adds a @Trap@ to 'N.traps'.
 trapConst :: ∀ m. MonadPlay m
