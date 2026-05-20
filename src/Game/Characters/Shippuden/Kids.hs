@@ -89,7 +89,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name     = "Healing Technique"
-        , Skill.desc     = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures the target of bane effects. Spends a Seal if available to have no cooldown and cost 1 arbitrary chakra."
+        , Skill.desc     = "Using advanced healing techniques, Sakura restores half of an ally's missing health and cures the target of bane effects. Spends a Seal if available to have no cooldown and cost [r]."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1

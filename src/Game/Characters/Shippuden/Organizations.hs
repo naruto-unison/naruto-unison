@@ -146,7 +146,7 @@ characters =
     [LeafVillage, Anbu, Aburame]
     [ [ Skill.new
         { Skill.name      = "Nano-Sized Venom Beetles"
-        , Skill.desc      = "Torune applies a Venom Beetle to an enemy, dealing 5 affliction damage for 5 turns, and gains 15 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 1 arbitrary chakra but does not provide any destructible defense."
+        , Skill.desc      = "Torune applies a Venom Beetle to an enemy, dealing 5 affliction damage for 5 turns, and gains 15 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs [r] but does not provide any destructible defense."
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = Permanent
@@ -164,7 +164,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Jar of Poison"
-        , Skill.desc      = "Torune applies a Venom Beetle to every enemy, which deals 5 affliction damage for 5 turns. Torune gains 30 permanent destructible defense. Whoever destroys his destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs 2 arbitrary chakra but does not provide any destructible defense."
+        , Skill.desc      = "Torune applies a Venom Beetle to every enemy, which deals 5 affliction damage for 5 turns. Torune gains 30 permanent destructible defense. Whoever destroys his destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs [r][r] but does not provide any destructible defense."
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = Permanent

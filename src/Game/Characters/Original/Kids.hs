@@ -143,7 +143,7 @@ characters =
     [LeafVillage, Eleven, Genin, Earth, Yang, Inuzuka]
     [ [ Skill.new
         { Skill.name      = "Wolf Fang"
-        , Skill.desc      = "Kiba projects a vacuum vortex at an enemy, dealing 30 damage. Deals 5 additional damage if the target is affected by [Dynamic Marking]. Costs 1 taijutsu chakra during [Two-Headed Wolf]."
+        , Skill.desc      = "Kiba projects a vacuum vortex at an enemy, dealing 30 damage. Deals 5 additional damage if the target is affected by [Dynamic Marking]. Costs [t] during [Two-Headed Wolf]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =

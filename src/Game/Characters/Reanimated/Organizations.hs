@@ -31,7 +31,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sphere of Graves"
-        , Skill.desc      = "Jirōbō lifts the ground up and hurls it forward, dealing 30 damage to an enemy and gaining a Scattered Rock. Costs one taijutsu chakra if [Earth Dome Prison] affected any enemies last turn."
+        , Skill.desc      = "Jirōbō lifts the ground up and hurls it forward, dealing 30 damage to an enemy and gaining a Scattered Rock. Costs [t] if [Earth Dome Prison] affected any enemies last turn."
         , Skill.classes   = [Physical, Ranged, Resource]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
@@ -427,7 +427,7 @@ characters =
     [MistVillage, Kabuto, SevenSwordsmen, Jonin]
     [ [ Skill.new
         { Skill.name      = "Needle Senbon"
-        , Skill.desc      = "Fuguki hardens his hair into needles and launches a barrage at an enemy, dealing 15 piercing damage for 2 turns. While active, if they use a skill on Fuguki or his allies, they will be unable to target anyone else for 2 turns. Costs 1 arbitrary chakra during [Chakra Weave]."
+        , Skill.desc      = "Fuguki hardens his hair into needles and launches a barrage at an enemy, dealing 15 piercing damage for 2 turns. While active, if they use a skill on Fuguki or his allies, they will be unable to target anyone else for 2 turns. Costs [r] during [Chakra Weave]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1

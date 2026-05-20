@@ -706,7 +706,7 @@ characters =
     [SoundVillage, Orochimaru]
     [ [ Skill.new
         { Skill.name      = "Demon Twin Attack"
-        , Skill.desc      = "Acting in unison, Sakon and Ukon punch an enemy, dealing 40 damage. Deals 20 damage and costs 1 taijutsu chakra during [Demon Parasite]."
+        , Skill.desc      = "Acting in unison, Sakon and Ukon punch an enemy, dealing 40 damage. Deals 20 damage and costs [t] during [Demon Parasite]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =

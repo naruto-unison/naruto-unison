@@ -135,7 +135,7 @@ characters =
     [LeafVillage, Kage, Sage, TeamLeader, Fire, Wind, Lightning, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Rasengan"
-        , Skill.desc      = "Minato teleports behind an enemy and slams an orb of chakra into them, dealing 35 damage. Costs 1 ninjutsu chakra if [Rasengan] was used last turn."
+        , Skill.desc      = "Minato teleports behind an enemy and slams an orb of chakra into them, dealing 35 damage. Costs [n] if [Rasengan] was used last turn."
         , Skill.classes   = [Chakra, Melee, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Gen, Nin]
         , Skill.effects   =
@@ -206,7 +206,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Veritable 1000-Armed Kannon"
-        , Skill.desc      = "A titanic many-handed Buddha statue looms over the battlefield, providing 30 permanent destructible defense to Hashirama and his allies. For the next 3 turns, [Wooden Dragon] and [Wood Golem] cost 1 fewer arbitrary chakra and last 1 additional turn."
+        , Skill.desc      = "A titanic many-handed Buddha statue looms over the battlefield, providing 30 permanent destructible defense to Hashirama and his allies. For the next 3 turns, [Wooden Dragon] and [Wood Golem] cost [b] and last 1 additional turn."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 5

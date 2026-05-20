@@ -326,7 +326,7 @@ characters =
     [StoneVillage, Kabuto, Kage, Sensor, Earth, Water, Fire, Wind, Lightning, Yang]
     [ [ Skill.new
         { Skill.name      = "Particle Beam"
-        , Skill.desc      = "A ray of high-energy atomic particles blasts an enemy, dealing 25 piercing damage. Deals 10 additional damage if the target is invulnerable. Costs 1 ninjutsu chakra during [Fragmentation]."
+        , Skill.desc      = "A ray of high-energy atomic particles blasts an enemy, dealing 25 piercing damage. Deals 10 additional damage if the target is invulnerable. Costs [n] during [Fragmentation]."
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
@@ -358,7 +358,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Atomic Dismantling"
-        , Skill.desc      = "The atomic bonds within an enemy shatter, dealing 40 piercing damage and demolishing their destructible defense and his own destructible barrier. Costs 1 ninjutsu chakra and 1 arbitrary chakra during [Fragmentation]."
+        , Skill.desc      = "The atomic bonds within an enemy shatter, dealing 40 piercing damage and demolishing their destructible defense and his own destructible barrier. Costs [n][r] during [Fragmentation]."
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin, Rand, Rand]
         , Skill.cooldown  = 1

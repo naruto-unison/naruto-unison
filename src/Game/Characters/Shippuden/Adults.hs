@@ -373,7 +373,7 @@ characters =
     [StoneVillage, AlliedForces, Jonin, Earth]
     [ [ Skill.new
         { Skill.name      = "High-Speed Assault"
-        , Skill.desc      = "Akatsuchi punches an enemy with all his might, dealing 25 damage. Costs 1 taijutsu chakra during [Stone Golem]."
+        , Skill.desc      = "Akatsuchi punches an enemy with all his might, dealing 25 damage. Costs [t] during [Stone Golem]."
         , Skill.classes   = [Physical, Melee, Uncounterable]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   = [ To Enemy $ damage 25 ]
@@ -613,7 +613,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Fire Wall"
-        , Skill.desc      = "Fire erupts around Atsui's enemies. Next turn, enemies who use skills will take 20 affliction damage. Costs 1 ninjutsu chakra during [Burning Blade]."
+        , Skill.desc      = "Fire erupts around Atsui's enemies. Next turn, enemies who use skills will take 20 affliction damage. Costs [n] during [Burning Blade]."
         , Skill.classes   = [Bane, Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1

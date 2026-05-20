@@ -64,7 +64,7 @@ characters =
     [LeafVillage, Genin, Lightning, Fire, Wind, Earth, Water, Yin, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Chidori"
-        , Skill.desc      = "Mixing a Chidori with his corrupt chakra, Sasuke deals 45 piercing damage to an enemy. Corruption enfeebles the target for 2 turns, weakening their damage by 20. Costs 1 arbitrary chakra during [Curse Mark]."
+        , Skill.desc      = "Mixing a Chidori with his corrupt chakra, Sasuke deals 45 piercing damage to an enemy. Corruption enfeebles the target for 2 turns, weakening their damage by 20. Costs [r] during [Curse Mark]."
         , Skill.classes   = [Bane, Chakra, Melee]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 1
@@ -78,7 +78,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Dark Void"
-        , Skill.desc      = "Corrupt chakra engulfs an enemy, stunning them for 2 turns. While active, the target is invulnerable to allies as well as enemies. At the end of the 2 turns, the enemy receives 55 damage. Costs 2 arbitrary chakra during [Curse Mark]."
+        , Skill.desc      = "Corrupt chakra engulfs an enemy, stunning them for 2 turns. While active, the target is invulnerable to allies as well as enemies. At the end of the 2 turns, the enemy receives 55 damage. Costs [r][r] during [Curse Mark]."
         , Skill.classes   = [Bane, Chakra, Ranged, Soulbound]
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 5
@@ -166,7 +166,7 @@ characters =
     [SandVillage, Genin, Jinchuriki, Sensor, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new
         { Skill.name      = "Desert Hand"
-        , Skill.desc      = "Shukaku attacks with a claw of dense sand, dealing 30 damage to an enemy and gaining 10 permanent destructible defense. Costs 1 bloodline chakra during [Tailed Beast Form]."
+        , Skill.desc      = "Shukaku attacks with a claw of dense sand, dealing 30 damage to an enemy and gaining 10 permanent destructible defense. Costs [b] during [Tailed Beast Form]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =

@@ -494,7 +494,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Man-Eating Sharks"
-        , Skill.desc      = "Spends all stacks of [Hundred Hungry Sharks] to deal 5 piercing damage per stack to an enemy. Costs 1 arbitrary chakra during [Exploding Water Shockwave]."
+        , Skill.desc      = "Spends all stacks of [Hundred Hungry Sharks] to deal 5 piercing damage per stack to an enemy. Costs [r] during [Exploding Water Shockwave]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -1357,7 +1357,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Phantom Dragon"
-        , Skill.desc      = "Nagato summons a dragon to attack an enemy for 20 piercing damage. Costs 1 genjutsu chakra during [Summoning: Gedo Statue]."
+        , Skill.desc      = "Nagato summons a dragon to attack an enemy for 20 piercing damage. Costs [g] during [Summoning: Gedo Statue]."
         , Skill.require   = UserHas 0 "Rinne Rebirth"
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]

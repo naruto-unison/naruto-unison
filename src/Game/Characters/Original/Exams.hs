@@ -30,7 +30,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Palm Rotation"
-        , Skill.desc      = "Hanabi spins at an enemy, dealing 15 damage to them for 2 turns. If they use a skill that stuns or disables, they will be stunned for 1 turn. Costs 1 arbitrary chakra during [Unyielding Tenacity]."
+        , Skill.desc      = "Hanabi spins at an enemy, dealing 15 damage to them for 2 turns. If they use a skill that stuns or disables, they will be stunned for 1 turn. Costs [r] during [Unyielding Tenacity]."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
@@ -121,7 +121,7 @@ characters =
     [RainVillage, Genin, TeamLeader, Earth, Yin, Water]
     [ [ Skill.new
         { Skill.name      = "Exploding Kunai"
-        , Skill.desc      = "Oboro throws a kunai attached to a paper bomb, dealing 15 damage to all enemies. Costs 1 arbitrary chakra during [Fog Clone]."
+        , Skill.desc      = "Oboro throws a kunai attached to a paper bomb, dealing 15 damage to all enemies. Costs [r] during [Fog Clone]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
@@ -131,7 +131,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Underground Move"
-        , Skill.desc      = "Emerging from the ground behind an enemy, Oboro deals 20 damage to them and stuns their physical and mental skills for 1 turn. Targets all enemies and costs 1 genjutsu chakra during [Fog Clone]."
+        , Skill.desc      = "Emerging from the ground behind an enemy, Oboro deals 20 damage to them and stuns their physical and mental skills for 1 turn. Targets all enemies and costs [g] during [Fog Clone]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =

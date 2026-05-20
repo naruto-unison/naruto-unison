@@ -385,7 +385,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Silent Killing"
-        , Skill.desc      = "Chūkichi ambushes an enemy, preventing them from reducing damage or becoming invulnerable for 1 turn and dealing 30 piercing damage. During [Hidden Frost], this skill deals 10 additional damage and costs 1 taijutsu chakra."
+        , Skill.desc      = "Chūkichi ambushes an enemy, preventing them from reducing damage or becoming invulnerable for 1 turn and dealing 30 piercing damage. During [Hidden Frost], this skill deals 10 additional damage and costs [t]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
