@@ -424,6 +424,9 @@ instance MonadGame m => MonadPlay (ReaderT Context m) where
 -- | Impredicatively-typed monad constraint.
 type RunConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
 
+-- | 'RunConstraint' with an argument.
+type IntRunConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => Int -> m a
+
 -- | Hides 'RunConstraint' behind a constructor so that only RankNTypes is
 -- needed.
 data Runnable a = To

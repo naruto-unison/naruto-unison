@@ -20,7 +20,7 @@ import qualified Game.Model.Context as Context
 import qualified Game.Model.Delay as Delay
 import           Game.Model.Duration (Duration(..))
 import qualified Game.Model.Ninja as N
-import           Game.Model.Runnable (RunConstraint)
+import           Game.Model.Runnable (IntRunConstraint, RunConstraint)
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Trap as Trap
@@ -48,11 +48,11 @@ trapWith = trapConst Trap.Toward
 -- | Adds a @Trap@ to 'N.traps' with an effect that depends on a number
 -- accumulated while the trap is in play and tracked with its 'Trap.tracker'.
 trapPer  :: ∀ m. MonadPlay m
-         => Duration -> Trigger -> (Int -> RunConstraint ()) -> m ()
+         => Duration -> Trigger -> IntRunConstraint () -> m ()
 trapPer  = trapFull Trap.Per mempty
 -- | 'Hidden' 'trapPer'.
 trapPer' :: ∀ m. MonadPlay m
-         => Duration -> Trigger -> (Int -> RunConstraint ()) -> m ()
+         => Duration -> Trigger -> IntRunConstraint () -> m ()
 trapPer' = trapFull Trap.Per $ setFromList [Bypassing, Hidden]
 
 -- | Adds an 'OnBreak' @Trap@ for the used 'Skill.Skill' to 'N.traps'.
@@ -85,9 +85,9 @@ trapConst trapType clas dur tr f = trapFull trapType clas dur tr \_ -> f
 -- | Trap engine.
 trapFull :: ∀ m. MonadPlay m
          => Trap.Direction -> EnumSet Class -> Duration -> Trigger
-         -> (Int -> RunConstraint ()) -> m ()
+         -> IntRunConstraint () -> m ()
 trapFull direction classes unthrottled trigger f =
-    Traps.apply direction classes unthrottled trigger \i -> Action.wrap $ f i
+    Traps.apply direction classes unthrottled trigger $ Action.wrap . f
 
 -- | Saves an effect to a 'Delay.Delay', which is stored in 'Game.delays' and
 -- triggered when it expires.

@@ -48,7 +48,7 @@ import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Constructor(..), Effect(..))
 import           Game.Model.Ninja (is)
 import           Game.Model.Requirement (Requirement(..))
-import           Game.Model.Runnable (Runnable(To), RunConstraint)
+import           Game.Model.Runnable (Runnable(To), IntRunConstraint)
 import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Trigger as Trigger
 import           Util ((∉))
@@ -151,7 +151,7 @@ runTurn ninjas = do
 -- | Trap engine.
 apply :: ∀ m. MonadPlay m
          => Trap.Direction -> EnumSet Class -> Duration -> Trigger
-         -> (Int -> RunConstraint ()) -> m ()
+         -> IntRunConstraint () -> m ()
 apply direction classes unthrottled trigger f = void $ runMaybeT do
     context@Context{new, target} <- P.context
     nUser   <- P.nUser
@@ -170,7 +170,7 @@ apply direction classes unthrottled trigger f = void $ runMaybeT do
       | otherwise = Just unthrottled
 
 makeTrap :: Context -> Trap.Direction -> EnumSet Class -> Duration
-         -> Trigger -> (Int -> RunConstraint ()) -> Trap
+         -> Trigger -> IntRunConstraint () -> Trap
 makeTrap ctx direction classes dur trigger f = Trap
     { trigger
     , direction

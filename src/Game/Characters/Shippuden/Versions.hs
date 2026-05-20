@@ -84,7 +84,7 @@ characters =
     "TODO"
     [LeafVillage, Eleven, AlliedForces, Chunin, Fire, Earth, Yin, Nara]
     let
-        formation :: (Int -> RunConstraint()) -> RunConstraint ()
+        formation :: IntRunConstraint () -> RunConstraint ()
         formation withAmount = do
             formingStacks <- userStacks "forming"
             if formingStacks > 0 then
@@ -113,7 +113,7 @@ characters =
       , Skill.new
         { Skill.name      = "Formation C"
         , Skill.effects   =
-          [ To Self $ formation \i -> return () ]
+          [ To Self $ formation $ const $ return () ]
         }
     ] ] -}
   , Character

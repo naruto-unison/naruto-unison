@@ -37,7 +37,7 @@ import           Game.Model.Duration (Duration)
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
-import           Game.Model.Runnable (RunConstraint)
+import           Game.Model.Runnable (IntRunConstraint, RunConstraint)
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Status(Status))
@@ -127,13 +127,13 @@ barricade dur = barricade' dur (const $ return ()) (return ())
 -- 'Barrier.finish'es, which is passed as an argument the 'Barrier.amount' of
 -- barrier remaining, and an effect that occurs each turn 'Barrier.while' it
 -- exists.
-barricade' :: ∀ m. MonadPlay m => Duration -> (Int -> RunConstraint ())
+barricade' :: ∀ m. MonadPlay m => Duration -> IntRunConstraint ()
             -> RunConstraint () -> Int -> m ()
 barricade' dur finish while amount = P.unsilenced do
     context@Context{skill, target} <- P.context
     amount' <- (+ amount) . Effects.build <$> P.nUser
     let barr = Barrier.new context dur
-               (\n -> Action.wrap $ finish n) (Action.wrap while) amount'
+               (Action.wrap . finish) (Action.wrap while) amount'
         addNonStack :: ∀ a. Labeled a => a -> [a] -> [a]
         addNonStack = Classed.nonStack skill
     case amount' `compare` 0 of

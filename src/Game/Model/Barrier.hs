@@ -5,7 +5,7 @@ import ClassyPrelude
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Internal (Barrier(..))
-import           Game.Model.Runnable (Runnable(To), RunConstraint)
+import           Game.Model.Runnable (Runnable(To), IntRunConstraint, RunConstraint)
 import           Game.Model.Duration (Duration)
 import qualified Game.Model.Skill as Skill
 
@@ -15,7 +15,7 @@ import qualified Game.Model.Skill as Skill
 -- exists.
 new :: Context
     -> Duration
-    -> (Int -> RunConstraint ()) -- ^ Applied at end with amount remaining.
+    -> IntRunConstraint () -- ^ Applied at end with amount remaining.
     -> RunConstraint () -- ^ Applied every turn.
     -> Int -- ^ Initial amount.
     -> Barrier
