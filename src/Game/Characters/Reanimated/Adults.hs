@@ -81,9 +81,9 @@ characters =
         , Skill.effects   =
           [ To Self $ trapFrom 1 (OnHarmed All) do
                 damage 25
-                self $ apply 2 [ Reduce [All] Percent 25
-                               , Heal 15
-                               ]
+                targeting Self $ apply 2 [ Reduce [All] Percent 25
+                                         , Heal 15
+                                         ]
           ]
         }
       ]

@@ -17,8 +17,8 @@ spec = parallel do
 
         useOn Enemy "Throw a Fit" do
             it "damages target per helpful effect from allies" do
-                self $ apply Permanent [ Focus ]
-                Sim.as Ally $ everyone $
+                targeting Self $ apply Permanent [ Focus ]
+                Sim.as Ally $ targeting Everyone $
                     replicateM_ stacks $ apply Permanent [ Focus ]
                 Sim.act
                 Sim.turns 5
@@ -27,8 +27,8 @@ spec = parallel do
 
         useOn Enemy "Throw a Shuriken" do
             it "damages target per helpful effect from allies" do
-                self $ apply Permanent [ Focus ]
-                Sim.as Ally $ everyone $
+                targeting Self $ apply Permanent [ Focus ]
+                Sim.as Ally $ targeting Everyone $
                     replicateM_ stacks $ apply Permanent [ Focus ]
                 Sim.act
                 targetHealth <- target health
@@ -62,13 +62,13 @@ spec = parallel do
             it "ignores stuns if target dies" do
                 Sim.act
                 Sim.as XEnemies kill
-                self $ Sim.as XEnemies $ apply Permanent [ Stun All ]
+                targeting Self $ Sim.as XEnemies $ apply Permanent [ Stun All ]
                 userStunned <- user Effects.stun
                 userStunned `shouldBe` []
             it "makes user immortal if target dies" do
                 Sim.act
                 Sim.as XEnemies kill
-                self $ Sim.as XEnemies kill
+                targeting Self $ Sim.as XEnemies kill
                 userHealth <- user health
                 userHealth `shouldBe` 1
 
@@ -78,7 +78,7 @@ spec = parallel do
                 Sim.turns 5
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Call Kuromaru"
                 Sim.act
                 Sim.turns 5
@@ -116,7 +116,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Black Spider Lily"
                 Sim.act
                 targetHealth' <- target health

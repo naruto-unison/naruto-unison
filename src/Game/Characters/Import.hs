@@ -6,7 +6,7 @@ module Game.Characters.Import
   , user, target, userHas, targetHas, userHas', targetHas'
   , userStacks, targetStacks, userDefense
   , channeling, invulnerable, inGroup
-  , self, allies, enemies, everyone
+  , targeting
   , bonusIf, numAffected, numDeadAllies
   ) where
 
@@ -44,6 +44,7 @@ import           Class.Labeled (Labeled)
 import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
+import qualified Game.Action as Action
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Context as Context
@@ -51,8 +52,8 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
-import qualified Game.Model.Slot as Slot
 import           Util ((∈))
+import Class.Random (MonadRandom)
 
 userSlot :: ∀ m. MonadPlay m => m Slot
 userSlot = Context.user <$> P.context
@@ -70,29 +71,10 @@ invuln skillName userName classes = Skill.new
     , Skill.effects   = [To Self $ apply 1 [Invulnerable All]]
     }
 
--- | Applies an effect to the user, rather than the target.
-self :: ∀ m a. MonadPlay m => m a -> m a
-self = P.with Context.reflect
-
-targetWithUser :: ∀ m. MonadPlay m => (Slot -> [Slot]) -> m () -> m ()
-targetWithUser targeter f = do
-    slot <- userSlot
-    P.withTargets (targeter slot) f
-
--- | Directly applies an effect to all allies, both living and dead,
--- ignoring invulnerabilities and traps.
-allies :: ∀ m. MonadPlay m => m () -> m ()
-allies = targetWithUser Slot.allies
-
--- | Directly applies an effect to all enemies, both living and dead,
--- ignoring invulnerabilities and traps.
-enemies :: ∀ m. MonadPlay m => m () -> m ()
-enemies = targetWithUser Slot.enemies
-
--- | Directly applies an effect to all other Ninjas, both living and dead,
--- ignoring invulnerabilities and traps.
-everyone :: ∀ m. MonadPlay m => m () -> m ()
-everyone = P.withTargets Slot.all
+targeting :: ∀ m. (MonadPlay m, MonadRandom m) => Target -> m () -> m ()
+targeting t f = do
+    targets <- Action.chooseTargets t
+    P.withTargets targets f
 
 -- | Returns the bonus if the monadic condition succeeds, otherwise returns 0.
 bonusIf :: ∀ m a. (MonadPlay m, Num a) => a -> m Bool -> m a

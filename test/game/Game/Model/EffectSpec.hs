@@ -216,7 +216,7 @@ spec = parallel do
     describe "Expose" do
         it "prevents target from becoming invulnerable" $ simAt Enemy do
             apply Permanent [ Expose ]
-            Sim.as Enemy $ self $ apply Permanent [ Invulnerable All ]
+            Sim.as Enemy $ targeting Self $ apply Permanent [ Invulnerable All ]
             canTarget
 
         it "prevents target from reducing damage" $ simAt Enemy do
@@ -231,11 +231,11 @@ spec = parallel do
 
     describe "Focus" do
         it "ignores stuns" $ simAt Enemy do
-            self $ apply Permanent [ Focus
-                                   , Disable $ Only Reveal
-                                   , Silence
-                                   , Stun All
-                                   ]
+            targeting Self $ apply Permanent [ Focus
+                                             , Disable $ Only Reveal
+                                             , Silence
+                                             , Stun All
+                                             ]
             apply Permanent [ Reveal ]
             target (`is` Reveal)
 
@@ -276,7 +276,7 @@ spec = parallel do
 
     describe "Pierce" do
         it "ignores damage reduction" $ simAt Enemy do
-            self $ apply Permanent [ Pierce ]
+            targeting Self $ apply Permanent [ Pierce ]
             apply Permanent [ Reduce (singletonSet All) Flat 100 ]
             damage 1
             targetHealth <- target health
@@ -343,7 +343,7 @@ spec = parallel do
 
     describe "Silence" do
         it "blocks non-damage" $ simAt Enemy do
-            self $ apply Permanent [ Silence ]
+            targeting Self $ apply Permanent [ Silence ]
             damage 1
             heal 100
             targetHealth <- target health
@@ -369,7 +369,8 @@ spec = parallel do
 
     describe "Taunt" do
         let tryTarget = do
-                self $ apply Permanent [ Taunt $ Sim.targetSlot Enemy ]
+                targeting Self $
+                    apply Permanent [ Taunt $ Sim.targetSlot Enemy ]
                 canTarget
 
         it "does not block against subject" $ simAt Enemy    tryTarget
@@ -455,7 +456,7 @@ canTarget = canTargetAs Self
 
 harmedWith :: Effect -> ReaderT Context (StateT Wrapper Identity) Ninja -> Bool
 harmedWith effect t = simAt Enemy do
-    self $ apply 2 [effect]
+    targeting Self $ apply 2 [ effect ]
     Sim.as Enemy $ apply Permanent [ Reveal ]
     (`is` Reveal) <$> t
 
@@ -561,7 +562,7 @@ thresholdConstrains attackType dmg v = simEffects [] [Threshold v] Enemy do
 
 unreduces :: Int -> Int -> Int -> Property
 unreduces dmg reduce unreduce = simAt Enemy do
-    self $ apply Permanent [ Unreduce unreduce ]
+    targeting Self $ apply Permanent [ Unreduce unreduce ]
     apply Permanent [ Reduce (singletonSet All) Flat reduce ]
     damage dmg
     targetHealth <- target health

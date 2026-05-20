@@ -39,12 +39,12 @@ characters =
           [ To Enemy do
                 tag 4
                 trap 4 OnDeath $
-                    self killHard
-                self do
+                    targeting Self killHard
+                targeting Self do
                     apply 4 [ Alternate "Life Link"
                                         "Life Transfer"
                             ]
-                    trap 4 OnDeath $ everyone $
+                    trap 4 OnDeath $ targeting Everyone $
                         whenM (targetHas "Life Link")
                             killHard
           ]
@@ -263,13 +263,13 @@ characters =
                     apply 1 [ Stun All ]
                 trap 2 OnChakra do
                     removeTrap "Sharingan"
-                    self $ gain [Rand]
+                    targeting Self $ gain [Rand]
                 trap 2 OnStun do
                     removeTrap "Sharingan"
-                    self $ tag' "Sharingan Stun" 1
+                    targeting Self $ tag' "Sharingan Stun" 1
                 trap 2 OnDamage do
                     removeTrap "Sharingan"
-                    self $ apply 1 [ Strengthen [All] Flat 10 ]
+                    targeting Self $ apply 1 [ Strengthen [All] Flat 10 ]
           ]
         }
       ]
@@ -363,7 +363,7 @@ characters =
           [ To XAlly $ tag 4
           ,  To Self do
                 apply 4 [ Reduce [All] Flat 15 ]
-                trap 4 OnDeath $ everyone $
+                trap 4 OnDeath $ targeting Everyone $
                     whenM (targetHas "Sharingan") $
                         apply' "Borrowed Sharingan" Permanent
                             [ Reduce [All] Flat 5

@@ -143,12 +143,12 @@ spec = parallel do
 
         useOn Enemy "Payback" do
             it "damages target per Payback" do
-                self $ addStacks "Payback" stacks
+                targeting Self $ addStacks "Payback" stacks
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 15 + 5 * stacks
             it "spends all Payback" do
-                self $ addStacks "Payback" stacks
+                targeting Self $ addStacks "Payback" stacks
                 Sim.act
                 not <$> userHas "Payback"
 
@@ -194,7 +194,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Chain Wrap"
                 Sim.act
                 targetHealth' <- target health
@@ -247,7 +247,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Hidden Mist"
                 Sim.act
                 targetHealth' <- target health
@@ -291,7 +291,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Sphere of Graves"
                 setHealth 100
                 Sim.act
@@ -303,7 +303,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Crushing Palm"
                 setHealth 100
                 Sim.act
@@ -326,7 +326,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 apply Permanent [ Invulnerable Affliction ]
                 Sim.use "Demon Parasite"
                 Sim.act

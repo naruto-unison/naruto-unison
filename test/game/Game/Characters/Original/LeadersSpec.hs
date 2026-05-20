@@ -95,7 +95,7 @@ spec = parallel do
                 100 - userHealth `shouldBe` 2 * 20
             it "ends if Hiruzen dies" do
                 Sim.act
-                self $ Sim.as XEnemies kill
+                targeting Self $ Sim.as XEnemies kill
                 targetHealth <- user health
                 targetHealth `shouldBe` 0
 

@@ -141,7 +141,7 @@ characters =
           [ To Ally $ trapFrom 1 (Counter Physical) do
                 stacks <- userStacks "Unpredictable Assault"
                 damage (20 + 5 * stacks)
-                self $ addStack' "Unpredictable Assault"
+                targeting Self $ addStack' "Unpredictable Assault"
           ]
         }
       ]

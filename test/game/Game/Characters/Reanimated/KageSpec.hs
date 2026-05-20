@@ -28,7 +28,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 apply Permanent [ Enrage
                                 , AntiChannel
                                 ]
@@ -56,7 +56,7 @@ spec = parallel do
                 userHas "Round-Robin Surprise Attack"
             it "tags target if user harmed" do
                 Sim.act
-                self $ Sim.as Enemy $ return ()
+                targeting Self $ Sim.as Enemy $ return ()
                 targetHas "Round-Robin Surprise Attack"
 
     describeCharacter "Hanzō" do
@@ -82,7 +82,7 @@ spec = parallel do
                 Sim.use "Major Summoning: Ibuse"
                 Sim.act
                 Sim.turns stacks
-                self $ Sim.as Enemy $ damage 80
+                targeting Self $ Sim.as Enemy $ damage 80
                 Sim.turns 3
                 targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 10 * (stacks + 1)
@@ -93,7 +93,7 @@ spec = parallel do
                 Sim.turns 3
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Major Summoning: Ibuse"
                 Sim.act
                 Sim.turns 3
@@ -106,7 +106,7 @@ spec = parallel do
                 Sim.act
                 targetBarrier <- target totalBarrier
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Gold Dust Waterfall"
                 targetBarrier' <- target totalBarrier
                 Sim.act
@@ -195,7 +195,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 apply Permanent [ Invulnerable All ]
                 Sim.act
                 targetHealth' <- target health
@@ -207,7 +207,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Major Summoning: Giant Clam"
                 Sim.act
                 targetHealth' <- target health

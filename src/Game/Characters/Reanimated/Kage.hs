@@ -133,10 +133,10 @@ characters =
         , Skill.effects   =
           [ To XAllies $ trap -1 OnNoAction do
                 applyWith [Invisible] 4 []
-                self $ applyWith [Invisible] 4 [ Reduce [All] Flat 5 ]
+                targeting Self $ applyWith [Invisible] 4 [ Reduce [All] Flat 5 ]
           , To Enemies $ trap -1 OnNoAction do
                 applyWith [Invisible] -4 []
-                self $ applyWith [Invisible] -4 [ Reduce [All] Flat 5 ]
+                targeting Self $ applyWith [Invisible] -4 [ Reduce [All] Flat 5 ]
           ]
         }
       ]
@@ -151,13 +151,13 @@ characters =
                 userSlot   <- user slot
                 targetSlot <- target slot
                 apply -1 [Redirect userSlot]
-                trap -1 (OnHarmed All) $ self $
+                trap -1 (OnHarmed All) $ targeting Self $
                     apply' "Round-Robin Surprise Attack" -1
                         [ AntiCounter
                         , Bypass
                         , Pierce
                         ]
-                self do
+                targeting Self do
                     apply -1 [ Redirect targetSlot ]
                     trap -1 (OnHarmed All) $ withTarget targetSlot $
                         apply' "Round-Robin Surprise Attack" -1
@@ -426,7 +426,7 @@ characters =
                        ]
                        [ To Expire $ setHealth targetHealth ]
                 setHealth 30
-                self do
+                targeting Self do
                     bomb 2 [ Duel targetSlot
                            , Taunt targetSlot
                            ]
@@ -509,14 +509,14 @@ characters =
         , Skill.effects   =
           [ To Self $ trapFrom 1 (OnHarmed NonMental) do
                   apply Permanent [ Afflict 20 ]
-                  self $ removeTrap "Venom Sac"
+                  targeting Self $ removeTrap "Venom Sac"
                   has <- userHas "major summoning: ibuse"
-                  if has then self do
+                  if has then targeting Self do
                       remove "Major Summoning Ibuse"
                       remove "major summoning: ibuse"
                       alterCd "Major Summoning: Ibuse" -2
                       cancelChannel "Poison Fog"
-                  else self $
+                  else targeting Self $
                       apply Permanent [Afflict 10]
           ]
         }

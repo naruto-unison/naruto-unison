@@ -18,17 +18,17 @@ spec = parallel do
                                 , Nullify
                                 , Reflect
                                 ]
-                self kill
+                targeting Self kill
                 Sim.turns 1
                 targetHealth <- target health
                 targetHealth `shouldBe` 0
             it "kills user if target dies" do
                 Sim.act
-                self $ apply Permanent [ Endure
-                                       , Invulnerable All
-                                       , Nullify
-                                       , Reflect
-                                       ]
+                targeting Self $ apply Permanent [ Endure
+                                                 , Invulnerable All
+                                                 , Nullify
+                                                 , Reflect
+                                                 ]
                 Sim.as Self kill
                 Sim.turns 1
                 userHealth <- user health
@@ -40,7 +40,7 @@ spec = parallel do
         useOn Enemy "Adamantine Sealing Chains" do
             it "purges helpful effects" do
                 apply 10 [ Build stacks ]
-                Sim.as Enemy $ self $ apply 10 [ Build stacks ]
+                Sim.as Enemy $ targeting Self $ apply 10 [ Build stacks ]
                 Sim.as XEnemies $ apply 10 [ Build stacks ]
                 Sim.act
                 targetBuild <- target $ Effects.build
@@ -53,12 +53,12 @@ spec = parallel do
                 Sim.act
                 targetHas "Space-Time Marking"
             it "deals bonus damage with Space-Time Marking" do
-                everyone $ tag' "Space-Time Marking" Permanent
+                targeting Everyone $ tag' "Space-Time Marking" Permanent
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 30 + 30
             it "damages all with Space-Time Marking" do
-                everyone $ tag' "Space-Time Marking" Permanent
+                targeting Everyone $ tag' "Space-Time Marking" Permanent
                 remove "Space-Time Marking"
                 Sim.act
                 targetHealth <- health <$> Sim.targets XEnemies
@@ -69,7 +69,7 @@ spec = parallel do
                 Sim.act
                 targetHas "Space-Time Marking"
             it "makes all invulnerable with Space-Time Marking" do
-                everyone $ tag' "Space-Time Marking" Permanent
+                targeting Everyone $ tag' "Space-Time Marking" Permanent
                 remove "Space-Time Marking"
                 Sim.act
                 targetInvuln <- Effects.invulnerable <$> Sim.targets XAlly
@@ -87,14 +87,14 @@ spec = parallel do
     describeCharacter "Young Kakashi" do
         useOn Enemy "White Light Blade" do
             it "stuns if user has Sharingan Stun" do
-                self $ tag' "Sharingan Stun" Permanent
+                targeting Self $ tag' "Sharingan Stun" Permanent
                 Sim.act
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
 
         useOn Enemy "Lightning Blade" do
             it "stuns if user has Sharingan Stun" do
-                self $ tag' "Sharingan Stun" Permanent
+                targeting Self $ tag' "Sharingan Stun" Permanent
                 Sim.act
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
@@ -102,7 +102,7 @@ spec = parallel do
         useOn Enemy "Sharingan" do
             it "gains chakra on chakra gain" do
                 Sim.act
-                Sim.as Enemy $ self $ gain [Nin]
+                Sim.as Enemy $ targeting Self $ gain [Nin]
                 chakras <- gameChakras
                 chakras `shouldBe` ([Blood], [Nin])
             it "gains chakra on chakra deplete" do
@@ -133,21 +133,21 @@ spec = parallel do
                 Sim.as Enemy $ apply Permanent [ Throttle 1 Counters ]
                 not <$> userHas "Sharingan Stun"
             it "strengthens if target damages" do
-                self $ apply Permanent [ Reduce [All] Flat 5 ]
+                targeting Self $ apply Permanent [ Reduce [All] Flat 5 ]
                 Sim.act
                 Sim.as Enemy $ damage 6
                 damage dmg
                 targetHealth <- target health
                 (100 - targetHealth) - dmg `shouldBe` 10
             it "does not strengthen otherwise" do
-                self $ apply Permanent [ Reduce [All] Flat 5 ]
+                targeting Self $ apply Permanent [ Reduce [All] Flat 5 ]
                 Sim.act
                 Sim.as Enemy $ damage 5
                 damage dmg
                 targetHealth <- target health
                 (100 - targetHealth) - dmg `shouldBe` 0
             it "stuns if user has Sharingan Stun" do
-                self $ tag' "Sharingan Stun" Permanent
+                targeting Self $ tag' "Sharingan Stun" Permanent
                 Sim.act
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
@@ -172,7 +172,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Sharingan"
                 Sim.act
                 targetHealth' <- target health
@@ -181,7 +181,7 @@ spec = parallel do
         useOn Ally "Sharingan" do
             it "reduces damage if user dies" do
                 Sim.act
-                Sim.as Self $ self kill
+                Sim.as Self $ targeting Self kill
                 Sim.as Enemy $ damage dmg
                 targetHealth <- target health
                 dmg - (100 - targetHealth) `shouldBe` 5
@@ -197,7 +197,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Kusari Chains"
                 Sim.act
                 targetHealth' <- target health

@@ -3,7 +3,8 @@ module Game.Action
   ( wrap
   , act
   , run, addChannels
-  , chooseTargets, filterCounters
+  , chooseTargets
+  , targeted, filterCounters
   , interruptions
   ) where
 
@@ -115,15 +116,15 @@ wrap' affected f = void $ runMaybeT do
 
 -- | Transforms @Target@s into @Slot@s.
 -- 'REnemy', 'RAlly', and 'RXAlly' targets are chosen at random.
-chooseTargets :: ∀ m. (MonadPlay m, MonadRandom m)
-              => [Runnable Target] -> m [[Runnable Slot]]
-chooseTargets targets = do
+targeted :: ∀ m. (MonadPlay m, MonadRandom m)
+         => [Runnable Target] -> m [[Runnable Slot]]
+targeted targets = do
     Context{user, skill = skill@Skill{require}} <- P.context
     nUser  <- P.nUser
     ninjas <- P.ninjas
-    forM targets \target -> do
-        choices <- chooseTarget $ Runnable.target target
-        return [ target { Runnable.target = t }
+    forM targets \(To target runner) -> do
+        choices <- chooseTargets target
+        return [ To t runner
                    | t <- choices
                    , let nTarget = ninjas !! Slot.toInt t
                    , Requirement.succeed require user nTarget
@@ -138,38 +139,38 @@ chooseRandomTarget slots = maybeToList <$> R.choose slots
 
 -- | Transforms a @Target@ into @Slot@s.
 -- 'REnemy', 'RAlly', and 'RXAlly' targets are chosen at random.
-chooseTarget :: ∀ m. (MonadPlay m, MonadRandom m) => Target -> m [Slot]
-chooseTarget Self = fromContext \Context{user} ->
+chooseTargets :: ∀ m. (MonadPlay m, MonadRandom m) => Target -> m [Slot]
+chooseTargets Self = fromContext \Context{user} ->
     singleton user
 
-chooseTarget Ally = fromContext \Context{target, user} ->
+chooseTargets Ally = fromContext \Context{target, user} ->
     [target | Parity.allied user target]
 
-chooseTarget XAlly = fromContext \Context{target, user} ->
+chooseTargets XAlly = fromContext \Context{target, user} ->
     [target | user /= target && Parity.allied user target]
 
-chooseTarget Allies = fromContext \Context{user} ->
+chooseTargets Allies = fromContext \Context{user} ->
     Slot.allies user
 
-chooseTarget RAlly = chooseRandomTarget =<< chooseTarget Allies
+chooseTargets RAlly = chooseRandomTarget =<< chooseTargets Allies
 
-chooseTarget XAllies = fromContext \Context{user} ->
+chooseTargets XAllies = fromContext \Context{user} ->
     delete user $ Slot.allies user
 
-chooseTarget RXAlly = chooseRandomTarget =<< chooseTarget XAllies
+chooseTargets RXAlly = chooseRandomTarget =<< chooseTargets XAllies
 
-chooseTarget Enemy = fromContext \Context{target, user} ->
+chooseTargets Enemy = fromContext \Context{target, user} ->
     [target | not $ Parity.allied user target]
 
-chooseTarget Enemies = fromContext \Context{user} ->
+chooseTargets Enemies = fromContext \Context{user} ->
     Slot.enemies user
 
-chooseTarget XEnemies = fromContext \Context{target, user} ->
+chooseTargets XEnemies = fromContext \Context{target, user} ->
     delete target $ Slot.enemies user
 
-chooseTarget REnemy = chooseRandomTarget =<< chooseTarget Enemies
+chooseTargets REnemy = chooseRandomTarget =<< chooseTargets Enemies
 
-chooseTarget Everyone = return Slot.all
+chooseTargets Everyone = return Slot.all
 
 -- | Directs an effect tuple in a 'Skill' to a target. Uses 'wrap' internally.
 targetEffect :: ∀ m. (MonadPlay m, MonadRandom m)
@@ -231,15 +232,15 @@ act ctx@Context{user, new, skill} = void $ runMaybeT do
 
     lift $ P.withContext ctx do
         if not new then do
-            contEfs <- chooseTargets effects
+            contEfs <- targeted effects
             P.withContinues $ run' (singletonSet Targeted) contEfs
         else do
             P.modify user \n -> n { N.lastSkill = Just skill }
             P.trigger user $ OnAction <$> toList classes
             when (charges > 0)
                 . P.modify user $ Cooldown.spendCharge skill
-            startEfs   <- chooseTargets start
-            contEfs    <- chooseTargets effects
+            startEfs   <- targeted start
+            contEfs    <- targeted effects
             let bothEfs = startEfs ++ contEfs
 
             countering  <- filterCounters bothEfs . toList <$> P.enemies user
@@ -321,13 +322,13 @@ breakControl user stuns Channel { dur = Control{}
         , new = False
         , continues = False
         } $ guardBreak $ do
-            interruptTargets <- chooseTargets $ interruptions skill
+            interruptTargets <- targeted $ interruptions skill
             run interruptTargets
             P.modify user $ Ninjas.cancelChannel name
   where
     targets = filter (nonRandom . Runnable.target) effects
     guardBreak
         | stuns `intersects` classes = id
-        | otherwise = whenM $ any null <$> chooseTargets targets
+        | otherwise = whenM $ any null <$> targeted targets
 
 breakControl _ _ _ = return ()

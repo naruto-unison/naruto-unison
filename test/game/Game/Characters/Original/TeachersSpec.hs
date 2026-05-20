@@ -13,8 +13,8 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
-                self . damage $ 25 * stacks
+                targeting Self factory
+                targeting Self . damage $ 25 * stacks
                 Sim.act
                 targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 10 * stacks
@@ -45,7 +45,7 @@ spec = parallel do
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 15
             it "damages instantly during Successful Ambush" do
-                self $ tag' "Successful Ambush" Permanent
+                targeting Self $ tag' "Successful Ambush" Permanent
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 30
@@ -61,7 +61,7 @@ spec = parallel do
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20 * 2 + 10 + 2 * 10
             it "deals bonus damage during Successful Ambush" do
-                self $ tag' "Successful Ambush" Permanent
+                targeting Self $ tag' "Successful Ambush" Permanent
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 10 + 30
@@ -102,7 +102,7 @@ spec = parallel do
                 targetHealth `shouldBe` 0
             it "kills user" do
                 Sim.use "Dual Pin"
-                self $ apply Permanent [ Endure ]
+                targeting Self $ apply Permanent [ Endure ]
                 Sim.act
                 userHealth <- user health
                 userHealth `shouldBe` 0
@@ -128,7 +128,7 @@ spec = parallel do
 
         useOn Self "Illusory Tree Meld" do
             it "adds destructible defense per Illusion" do
-                self $ addStacks "Illusion" stacks
+                targeting Self $ addStacks "Illusion" stacks
                 Sim.act
                 defense <- user $ totalDefense
                 defense `shouldBe` 10 + 5 * stacks

@@ -300,9 +300,9 @@ characters =
         , Skill.start     =
           [ To Self do
                 flag
-                everyone $ whenM (targetHas "DNA Transmission Shadow")
+                targeting Everyone $ whenM (targetHas "DNA Transmission Shadow")
                     killHard
-                trap' Permanent OnDeath $ everyone $
+                trap' Permanent OnDeath $ targeting Everyone $
                     whenM (targetHas "DNA Transmission Shadow")
                         killHard
           ]
@@ -325,7 +325,7 @@ characters =
           [ To Self do
                 trap' -1 OnDamage
                     rechargeAll
-                enemies $ apply 1 [ Restrict ]
+                targeting Enemies $ apply 1 [ Restrict ]
           , To Enemies $ damage 10
           ]
         , Skill.changes   = withMode \m -> setCost [m]
@@ -557,7 +557,7 @@ characters =
                     remove "Amaterasu"
                     removeTrap "Amaterasu"
                 bombWith [Bypassing] Permanent [ Afflict 5 ]
-                    [ To Done $ self $ addStack ]
+                    [ To Done $ targeting Self $ addStack ]
                 trapFrom Permanent OnHelped
                     amaterasu
           in
@@ -646,14 +646,14 @@ characters =
                 unlessM (userHas "first") $
                     trap' 1 (OnAction All) do
                         cancelChannel "Flamethrower Jets"
-                        everyone do
+                        targeting Everyone do
                             remove "Flame Blast"
                             remove "Flamethrower Jets"
           , To Enemy do
                 afflict 10
                 tag 1
                 targetSlot <- target slot
-                self $ apply' "Flame Blast" 1 [ Duel targetSlot ]
+                targeting Self $ apply' "Flame Blast" 1 [ Duel targetSlot ]
           ]
         }
       , Skill.new
@@ -678,14 +678,14 @@ characters =
         , Skill.effects   =
           [ To Self do
                 cancelChannel "Flamethrower Jets"
-                everyone do
+                targeting Everyone do
                     remove "Flame Blast"
                     remove "Flamethrower Jets"
                 hide Permanent [ Alternate "Performance of a Hundred Puppets"
                                            "Barrage of a Hundred Puppets"
                                ]
                 defend Permanent 50
-                onBreak $ self $
+                onBreak $ targeting Self $
                     remove "performance of a hundred puppets"
           , To XAllies $ defend Permanent 25
           ]
@@ -701,7 +701,7 @@ characters =
                 bomb' "Complex Toxin" 2 [] [ To Expire $ apply 1 [Stun All] ]
           , To Self do
                 cancelChannel "Flamethrower Jets"
-                everyone do
+                targeting Everyone do
                     remove "Flame Blast"
                     remove "Flamethrower Jets"
           ]
@@ -801,7 +801,7 @@ characters =
           [ To Enemy do
                 damage 15
                 apply 1 [ Stun NonMental ]
-                trap 1 OnDeath $ self $
+                trap 1 OnDeath $ targeting Self $
                     setHealth 100
           ]
         }
@@ -830,15 +830,15 @@ characters =
         , Skill.cost    = [Blood, Nin]
         , Skill.effects =
           [ To Ally do
-                self $ hide Permanent []
+                targeting Self $ hide Permanent []
                 bomb Permanent []
-                    [ To Done $ self $ remove "curse mark release" ]
+                    [ To Done $ targeting Self $ remove "curse mark release" ]
                 trap' Permanent (OnDamaged All) $
                     unlessM (user alive) do
                         targetHealth <- target health
                         when (25 >= targetHealth && targetHealth > 0) do
                             killHard
-                            self do
+                            targeting Self do
                                 setHealth 100
                                 setAlternates [1, 1, 1, 1]
                                 apply Permanent [ Invulnerable Bane ]

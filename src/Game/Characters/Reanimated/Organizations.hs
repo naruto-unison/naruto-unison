@@ -22,7 +22,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy do
-                everyone $ remove "Rivalry"
+                targeting Everyone $ remove "Rivalry"
                 trap 1 (Countered All) do
                     slot <- user slot
                     apply Permanent [ Taunt slot ]
@@ -37,7 +37,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 30
-                unlessM (targetHas "Rivalry") $ everyone $
+                unlessM (targetHas "Rivalry") $ targeting Everyone $
                     remove "Rivalry"
           , To Self $ addStack' "Scattered Rock"
           ]
@@ -56,8 +56,8 @@ characters =
                     leech 20 heal
                 else do
                     afflict 20
-                    everyone $ remove "Rivalry"
-                self $ tag 1
+                    targeting Everyone $ remove "Rivalry"
+                targeting Self $ tag 1
           ]
         }
       ]
@@ -71,15 +71,15 @@ characters =
         , Skill.effects   =
           [ To Self do
                 userSlot <- user slot
-                enemies do
+                targeting Enemies do
                     remove "Rivalry"
                     apply' "Rivalry" 2 [ Taunt userSlot ]
                 removeStacks "Scattered Rock" 2
                 defend 2 35
                 trapFrom 2 (OnHarmed All) do
                     leech 20 heal
-                    self $ tag' "Earth Dome Prison" 1
-                onBreak $ everyone do
+                    targeting Self $ tag' "Earth Dome Prison" 1
+                onBreak $ targeting Everyone do
                     remove "Rivalry"
                     removeTrap "Summoning: Earth Prison Golem"
           ]
@@ -247,7 +247,7 @@ characters =
             trap' Permanent (OnAction All) $
                 whenM (targetHas "Electricity") do
                     refresh "Electricity"
-                    everyone $ whenM (targetHas "Electricity") $
+                    targeting Everyone $ whenM (targetHas "Electricity") $
                         afflict 5
     in
     Character
@@ -292,7 +292,7 @@ characters =
           [ To Enemy do
                 affected <- numAffected "Electricity"
                 pierce (30 + 10 * affected)
-                everyone $ hasten 1 "Electricity"
+                targeting Everyone $ hasten 1 "Electricity"
           ]
         }
       ]
@@ -312,14 +312,16 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 affected <- numAffected "Needle Stitching"
-                everyone $ whenM (targetHas "Needle Stitching") do
+                targeting Everyone $ whenM (targetHas "Needle Stitching") do
                     damage 5
                     prolong 1 "Needle Stitching"
                 pierce (20 + 5 * affected)
                 userSlot <- user slot
                 bomb 1 [ Block userSlot ]
-                       [ To Done $ self $ removeStack "needle stitching" ]
-                self $ hide Permanent []
+                        [ To Done $ targeting Self $
+                            removeStack "needle stitching"
+                        ]
+                targeting Self $ hide Permanent []
           ]
         }
       ]
@@ -694,7 +696,7 @@ characters =
             , Skill.effects   =
                 [ To Enemy do
                     chakra <- target lastChakraSpent
-                    self $ heal $ 10 * length chakra
+                    targeting Self $ heal $ 10 * length chakra
                     absorb 3
                 ]
             }

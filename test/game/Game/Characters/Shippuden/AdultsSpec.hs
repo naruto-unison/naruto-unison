@@ -29,7 +29,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Lightning Beast Fang"
                 setHealth 100
                 Sim.act
@@ -39,7 +39,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 apply Permanent [ Stun All ]
                 Sim.act
                 targetHealth' <- target health
@@ -48,7 +48,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 apply Permanent [ Stun All ]
                 Sim.use "Lightning Beast Fang"
                 setHealth 100
@@ -292,7 +292,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- health <$> Sim.targets XEnemies
                 Sim.use "Water Wall"
-                everyone $ setHealth 100
+                targeting Everyone $ setHealth 100
                 Sim.act
                 targetHealth' <- health <$> Sim.targets XEnemies
                 targetHealth - targetHealth' `shouldBe` 5
@@ -302,7 +302,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 Sim.use "Water Wall"
-                everyone $ setHealth 100
+                targeting Everyone $ setHealth 100
                 Sim.act
                 targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 5

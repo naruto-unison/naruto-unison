@@ -68,7 +68,7 @@ characters =
           [ To XAllies $ apply 3 [ Snare -1 ]
           , To Enemies $ trap 3 (OnAction All) do
                 copyLast 1
-                everyone $ removeTrap "Team Tactics"
+                targeting Everyone $ removeTrap "Team Tactics"
           ]
         }
       ]
@@ -137,7 +137,7 @@ characters =
                 afflict (10 * stacks)
           , To Self do
                 cancelChannel "Burning Ash"
-                everyone $ remove "Burning Ash"
+                targeting Everyone $ remove "Burning Ash"
           ]
         }
       ]
@@ -361,7 +361,7 @@ characters =
           [ To XAlly $ trap Permanent OnRes do
                 cureAll
                 setHealth 100
-                self $ setHealth 1
+                targeting Self $ setHealth 1
           ]
         }
       ]

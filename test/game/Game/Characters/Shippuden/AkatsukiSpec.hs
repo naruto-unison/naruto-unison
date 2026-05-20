@@ -167,7 +167,7 @@ spec = parallel do
                 100 - userHealth `shouldBe` 50
 
         useOn Enemy "Self-Mutilation" do
-            it "stuns self normally" do
+            it "stuns user normally" do
                 Sim.act
                 userStunned <- user Effects.stun
                 userStunned `shouldBe` [All]
@@ -347,7 +347,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 apply Permanent [ AntiChannel ]
                 Sim.use "Dance of the Shikigami"
                 setHealth 100
@@ -422,7 +422,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Sharingan"
                 Sim.as Enemy $ return ()
                 Sim.use "Kamui"
@@ -451,13 +451,13 @@ spec = parallel do
             it "applies Almighty Push to user if used last turn" do
                 Sim.use "Almighty Push"
                 Sim.use "Universal Pull"
-                self $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                targeting Self $ Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "does not apply Almighty Push otherwise" do
                 Sim.use "Almighty Push"
                 Sim.turns 2
                 Sim.use "Universal Pull"
-                self $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                targeting Self $ Sim.as Enemy $ apply Permanent [ Reveal ]
                 user (`is` Reveal)
 
         useOn Enemy "Chakra Receiver" do
@@ -581,7 +581,7 @@ spec = parallel do
                 defense' - defense `shouldBe` 20
             it "does not add otherwise" do
                 Sim.use "Summoning: King of Hell"
-                self demolishAll
+                targeting Self demolishAll
                 Sim.act
                 defense <- user totalDefense
                 defense `shouldBe` 0

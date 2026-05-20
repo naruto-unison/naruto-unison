@@ -40,19 +40,19 @@ spec = parallel do
                 targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 15
             it "spends an Umbrella" do
-                self $ addStacks "Umbrella" stacks
+                targeting Self $ addStacks "Umbrella" stacks
                 Sim.act
                 numStacks <- userStacks "Umbrella"
                 numStacks `shouldBe` stacks - 1
 
         useOn Enemy "Senbon Barrage" do
             it "damages enemy per Umbrella" do
-                self $ addStacks "Umbrella" stacks
+                targeting Self $ addStacks "Umbrella" stacks
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 15 * stacks
             it "spends all Umbrellas" do
-                self $ addStacks "Umbrella" stacks
+                targeting Self $ addStacks "Umbrella" stacks
                 Sim.act
                 not <$> userHas "Umbrella"
 
@@ -91,7 +91,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Echo Speaker Tuning"
                 Sim.act
                 targetHealth' <- target health
@@ -102,7 +102,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Resonating Echo Drill"
                 setHealth 100
                 Sim.act
@@ -112,7 +112,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Echo Speaker Tuning"
                 Sim.act
                 targetHealth' <- target health
@@ -124,7 +124,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Unnerving Bells"
                 Sim.act
                 targetHealth' <- target health
@@ -197,7 +197,7 @@ spec = parallel do
         useOn Enemy "Draining Assault" do
             it "damages target" do
                 Sim.act
-                self $ remove "Draining Assault"
+                targeting Self $ remove "Draining Assault"
                 Sim.turns 5
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 3 * 15 + 5

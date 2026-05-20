@@ -38,7 +38,7 @@ interrupt = P.unsilenced do
 -- | Triggers 'Skill.interrupt' effects of a @Channel@.
 onInterrupt :: ∀ m. (MonadPlay m, MonadRandom m) => Channel -> m ()
 onInterrupt (Channel skill target _) = P.with ctx
-    $ Action.run =<< Action.chooseTargets (Action.interruptions skill)
+    $ Action.run =<< Action.targeted (Action.interruptions skill)
   where
     ctx Context{target = user} = Context
         { skill

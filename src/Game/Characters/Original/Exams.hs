@@ -424,7 +424,7 @@ characters =
           [ To Enemy do
                 apply 2 [ Expose ]
                 targetSlot <- target slot
-                self $ apply 2 [ Redirect targetSlot ]
+                targeting Self $ apply 2 [ Redirect targetSlot ]
           ]
         }
       ]

@@ -158,7 +158,7 @@ Another cool thing Haskell can do is define custom procedural contexts. Naruto U
 trap 0 OnRes do
     cureAll
     setHealth 100
-    self $ setHealth 1
+    targeting Self $ setHealth 1
 ```
 
 Haskell's brevity and readability in this regard are clear winners over other languages. There isn't any hidden complexity behind the scenes, either: `setHealth` is just a wrapper around `adjustHealth`, the function from earlier in this README.

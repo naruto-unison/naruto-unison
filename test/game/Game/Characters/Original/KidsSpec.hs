@@ -13,7 +13,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Shadow Clones"
                 Sim.act
                 targetHealth' <- target health
@@ -25,7 +25,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Inner Sakura"
                 Sim.act
                 targetHealth' <- target health
@@ -37,7 +37,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Sharingan"
                 Sim.act
                 targetHealth' <- target health
@@ -48,7 +48,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Sharingan"
                 Sim.act
                 targetHealth' <- target health
@@ -60,7 +60,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Dynamic Marking"
                 Sim.act
                 targetHealth' <- target health
@@ -72,7 +72,7 @@ spec = parallel do
                 Sim.turns 4
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Dynamic Marking"
                 Sim.act
                 Sim.turns 4
@@ -85,7 +85,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 replicateM_ stacks $ Sim.use "Parasite"
                 Sim.act
                 targetHealth' <- target health
@@ -144,7 +144,7 @@ spec = parallel do
             it "pauses damage during unchili" do
                 Sim.act
                 Sim.turns stacks
-                self $ tag' "unchili" Permanent
+                targeting Self $ tag' "unchili" Permanent
                 Sim.turns 10
                 userHealth <- user health
                 100 - userHealth `shouldBe` 10 + (stacks + 1) * 15
@@ -173,8 +173,8 @@ spec = parallel do
                 Sim.turns 5
                 targetHealth <- target health
                 factory
-                self factory
-                self $ tag' "Fifth Gate Opening" Permanent
+                targeting Self factory
+                targeting Self $ tag' "Fifth Gate Opening" Permanent
                 Sim.act
                 Sim.turns 5
                 targetHealth' <- target health
@@ -185,7 +185,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Fifth Gate Opening"
                 Sim.act
                 targetHealth' <- target health
@@ -223,20 +223,20 @@ spec = parallel do
         useOn Enemies "Rising Dragon Control" do
             it "damages enemies per Unsealing Technique" do
                 replicateM_ stacks $ Sim.use "Unsealing Technique"
-                everyone $ setHealth 100
+                targeting Everyone $ setHealth 100
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 5 + 10 * stacks
             it "weakens enemies per Unsealing Technique" do
                 replicateM_ stacks  $ Sim.use "Unsealing Technique"
-                everyone $ setHealth 100
+                targeting Everyone $ setHealth 100
                 Sim.act
                 Sim.withClass Physical $ Sim.as Enemy $ damage dmg
                 userHealth <- user health
                 dmg - (100 - userHealth) `shouldBe` 5 + 10 * stacks
             it "spends Unsealing Technique" do
                 replicateM_ stacks  $ Sim.use "Unsealing Technique"
-                everyone $ setHealth 100
+                targeting Everyone $ setHealth 100
                 Sim.act
                 not <$> targetHas "Unsealing Technique"
             it "lasts an additional turn during Rising Twin Dragons" do

@@ -55,7 +55,8 @@ spec = parallel do
             it "is cured when target becomes invulnerable" do
                 Sim.act
                 Sim.turns stacks
-                Sim.as Enemy $ self $ apply Permanent [ Invulnerable Physical ]
+                Sim.as Enemy $ targeting Self $
+                    apply Permanent [ Invulnerable Physical ]
                 Sim.turns 5
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 5 * (stacks + 1)
@@ -79,13 +80,14 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 replicateM_ stacks do
                     Sim.use "Amaterasu"
-                    Sim.as Enemy $ self $ apply 1 [ Invulnerable Physical ]
+                    Sim.as Enemy $ targeting Self $
+                        apply 1 [ Invulnerable Physical ]
                     Sim.turns 1
                 Sim.use "Amaterasu"
-                Sim.as Enemy $ self cureAll
+                Sim.as Enemy $ targeting Self cureAll
                 Sim.turns 1
                 factory
                 Sim.act
@@ -106,7 +108,7 @@ spec = parallel do
                 100 - targetHealth `shouldBe` 10 + 5 * (stacks + 1)
             it "deals single-target damage normally" do
                 Sim.use "Mother's Embrace"
-                self demolishAll
+                targeting Self demolishAll
                 Sim.act
                 targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 0
@@ -170,7 +172,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 apply Permanent [ AntiChannel ]
                 Sim.use "Sasori Surrogate"
                 Sim.use "Kuroari Trap"
@@ -191,7 +193,7 @@ spec = parallel do
                 user (`is` Reveal)
             it "ends when destroyed" do
                 Sim.act
-                self $ Sim.as Enemy demolishAll
+                targeting Self $ Sim.as Enemy demolishAll
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 target (`is` Reveal)
 
@@ -247,7 +249,7 @@ spec = parallel do
                 kill
                 Sim.act
                 Sim.turns 1
-                self kill
+                targeting Self kill
                 Sim.turns 1
                 targetHealth <- target health
                 targetHealth `shouldBe` 0
@@ -258,7 +260,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 replicateM_ stacks Sim.act
                 factory
                 Sim.act
@@ -327,7 +329,7 @@ spec = parallel do
                 user $ hasSkill "Barrage of a Hundred Puppets"
             it "ends when destroyed" do
                 Sim.act
-                self $ Sim.as Enemy demolishAll
+                targeting Self $ Sim.as Enemy demolishAll
                 user $ not . hasSkill "Barrage of a Hundred Puppets"
             it "does not end when ally defense destroyed" do
                 Sim.act
@@ -387,12 +389,12 @@ spec = parallel do
         useOn Ally "Curse Mark Release" do
             let resurrect = do
                     Sim.act
-                    self kill
+                    targeting Self kill
                     Sim.as XAlly $ setHealth 25
 
             it "does not revive when target is above 25" do
                 Sim.act
-                self kill
+                targeting Self kill
                 Sim.as XAlly $ setHealth 26
                 targetHealth <- target health
                 targetHealth `shouldBe` 26

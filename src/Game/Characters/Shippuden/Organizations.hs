@@ -54,7 +54,7 @@ characters =
         , Skill.effects   =
           [ To Self $ trapFrom 2 (CounterAll All) do
                 damage 15
-                self $ apply -1 [ Invulnerable All ]
+                targeting Self $ apply -1 [ Invulnerable All ]
           ]
         }
       ]
@@ -65,13 +65,13 @@ characters =
         , Skill.cost      = [Blood, Gen]
         , Skill.effects   =
           [ To Enemy do
-                self $ hide Permanent [ Alternate "Kotoamatsukami"
-                                                  "Kotoamatsukami"
-                                      ]
+                targeting Self $ hide Permanent [ Alternate "Kotoamatsukami"
+                                                            "Kotoamatsukami"
+                                                ]
                 trap Permanent (OnAction All) do
-                    self $ remove "kotoamatsukami"
+                    targeting Self $ remove "kotoamatsukami"
                     deplete 1
-                trap Permanent OnDeath $ self $
+                trap Permanent OnDeath $ targeting Self $
                     remove "kotoamatsukami"
           ]
         }
@@ -82,9 +82,9 @@ characters =
         , Skill.cost      = []
         , Skill.effects   =
           [ To Enemy do
-                everyone $ removeTrap "Kotoamatsukami"
+                targeting Everyone $ removeTrap "Kotoamatsukami"
                 trap Permanent (OnAction All) do
-                    self $ remove "kotoamatsukami"
+                    targeting Self $ remove "kotoamatsukami"
                     deplete 1
           ]
         }
@@ -121,7 +121,7 @@ characters =
                     damage 20
                 trap 1 (Counter NonMental) do
                     defend Permanent 20
-                    self $ recharge "Tenth Edict on Enlightenment"
+                    targeting Self $ recharge "Tenth Edict on Enlightenment"
           ]
         }
       ]
@@ -133,8 +133,8 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self $ recharge "Tenth Edict on Enlightenment"
-          , To XAlly $ allies $ defend Permanent 20
-          , To Enemy $ enemies $ barricade Permanent 20
+          , To XAlly $ targeting Allies $ defend Permanent 20
+          , To Enemy $ targeting Enemies $ barricade Permanent 20
           ]
         }
       ]
@@ -224,7 +224,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 tag 1
-                enemies $ hide 1 [ Reveal ]
+                targeting Enemies $ hide 1 [ Reveal ]
           ]
         }
       ]
@@ -553,7 +553,7 @@ characters =
           [ To Enemy $ damage 10
           , To Self $ trapFrom 1 (OnHarmed All) do
                 afflict 5
-                self $ addStack' "Thunder Cloud"
+                targeting Self $ addStack' "Thunder Cloud"
           ]
         }
       ]

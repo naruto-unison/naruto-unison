@@ -295,9 +295,9 @@ characters =
           [ To Enemy do
                 damage 5
                 tag 2
-                self $ apply 2 [ Alternate "Jashin Sigil"
-                                           "Blood Curse"
-                               ]
+                targeting Self $ apply 2 [ Alternate "Jashin Sigil"
+                                                     "Blood Curse"
+                                         ]
           ]
         }
       , Skill.new
@@ -315,9 +315,9 @@ characters =
                 userSlot   <- user slot
                 targetSlot <- target slot
                 apply' "Blood Curse" 3 [Share userSlot]
-                trap 3 OnDeath $ self $
+                trap 3 OnDeath $ targeting Self $
                     remove "bloodlink"
-                self do
+                targeting Self do
                     hide' "bloodlink" 3 []
                     bomb' "Blood Curse" 3 [ Enrage
                                           , Share targetSlot
@@ -340,8 +340,9 @@ characters =
           ]
         , Skill.changes   = changeWith "bloodlink" \x -> x
                 { Skill.effects =
-                  [ To Self $ enemies $ whenM (targetHas "Blood Curse") $
-                        pierce 50
+                  [ To Self $ targeting Enemies $
+                        whenM (targetHas "Blood Curse") $
+                            pierce 50
                   ]
                 }
         }
@@ -361,7 +362,7 @@ characters =
                 { Skill.effects =
                   [ To Self $ do
                         apply 1 []
-                        enemies $ whenM (targetHas "Blood Curse") do
+                        targeting Enemies $ whenM (targetHas "Blood Curse") do
                             pierce 35
                             apply 1 [Stun All]
                   ]
@@ -447,7 +448,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 kill
-                unlessM (target alive) $ self $
+                unlessM (target alive) $ targeting Self $
                     heal 35
           ]
         }
@@ -469,12 +470,12 @@ characters =
           [ To Self do
                 addStacks "Hundred Hungry Sharks" 10
                 trapFrom' Permanent (OnHarmed All) do
-                    enemies $ hide' "ignored" Permanent []
+                    targeting Enemies $ hide' "ignored" Permanent []
                     remove "ignored"
                     tag Permanent
-                    trap' Permanent OnDeath $ everyone $
+                    trap' Permanent OnDeath $ targeting Everyone $
                         remove "ignored"
-                    self $ removeTrap "Thousand Hungry Sharks"
+                    targeting Self $ removeTrap "Thousand Hungry Sharks"
           ]
         , Skill.effects   =
           [ To Enemies do
@@ -483,10 +484,10 @@ characters =
                 when (sharks && not ignored) do
                     bonus <- 5 `bonusIf` channeling "Exploding Water Shockwave"
                     pierce (5 + bonus)
-                    self $ removeStack "Hundred Hungry Sharks"
+                    targeting Self $ removeStack "Hundred Hungry Sharks"
           , To Self $ unlessM (userHas "Hundred Hungry Sharks") do
                 cancelChannel "Thousand Hungry Sharks"
-                everyone do
+                targeting Everyone do
                     remove "ignored"
                     remove "Thousand Hungry Sharks"
           ]
@@ -503,7 +504,7 @@ characters =
           , To Self do
                 cancelChannel "Thousand Hungry Sharks"
                 remove "Hundred Hungry Sharks"
-                everyone do
+                targeting Everyone do
                     remove "ignored"
                     remove "Thousand Hungry Sharks"
           ]
@@ -588,7 +589,7 @@ characters =
                        , Alternate "Mirage Crow"
                                    "Yata Mirror"
                        ]
-                everyone $ remove "Amaterasu"
+                targeting Everyone $ remove "Amaterasu"
           ]
         }
       , Skill.new
@@ -804,7 +805,7 @@ characters =
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
           [ To XAlly do
-                everyone $ remove "Kamui"
+                targeting Everyone $ remove "Kamui"
                 cureAll
                 apply 3 [ Alone
                         , Invulnerable All
@@ -812,7 +813,7 @@ characters =
                         , BlockEnemies
                         ]
           , To Enemy do
-                everyone $ remove "Kamui"
+                targeting Everyone $ remove "Kamui"
                 purge
                 apply 3 [ Expose
                         , Alone
@@ -834,7 +835,7 @@ characters =
                 if has then
                     pierce 40
                 else do
-                    everyone $ remove "Kamui"
+                    targeting Everyone $ remove "Kamui"
                     pierce 20
           ]
         }
@@ -1011,7 +1012,7 @@ characters =
           , To REnemy $ damage 25
           , To Self do
                 cancelChannel "Guided Missile"
-                everyone $ remove "Guided Missile"
+                targeting Everyone $ remove "Guided Missile"
           ]
         }
       , Skill.new
@@ -1026,7 +1027,7 @@ characters =
                 damage 25
           , To Self do
                 cancelChannel "Guided Missile"
-                everyone $ remove "Guided Missile"
+                targeting Everyone $ remove "Guided Missile"
           ]
         }
       , Skill.new
@@ -1041,7 +1042,7 @@ characters =
                 apply 1 [ Stun All ]
           , To Self do
                 cancelChannel "Guided Missile"
-                everyone $ remove "Guided Missile"
+                targeting Everyone $ remove "Guided Missile"
           ]
         }
       , Skill.new
@@ -1054,7 +1055,7 @@ characters =
           [ To Enemies $ pierce 30
           , To Self do
                 cancelChannel "Guided Missile"
-                everyone $ remove "Guided Missile"
+                targeting Everyone $ remove "Guided Missile"
           ]
         }
       ]
@@ -1184,7 +1185,7 @@ characters =
           ]
         , Skill.effects   =
           [ To Self $ prolong 1 "summoning: giant multi-headed dog"
-          , To Allies $ trap -1 (OnHarmed All) $ self
+          , To Allies $ trap -1 (OnHarmed All) $ targeting Self
                 addStack
           , To Enemies do
                 stacks <- userStacks "Summoning: Giant Multi-Headed Dog"
@@ -1221,7 +1222,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 chakra <- target lastChakraSpent
-                self $ heal $ 10 * length chakra
+                targeting Self $ heal $ 10 * length chakra
                 damage 25
           ]
         }

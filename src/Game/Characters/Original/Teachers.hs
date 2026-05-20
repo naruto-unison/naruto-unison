@@ -387,7 +387,7 @@ characters =
           [ To XAlly do
                 userSlot <- user slot
                 bomb Permanent [ Redirect userSlot ]
-                    [ To Done $ self $ remove "self-sacrifice" ]
+                    [ To Done $ targeting Self $ remove "self-sacrifice" ]
           , To Self $ hide Permanent [ Alternate "Self-Sacrifice"
                                                  "Self-Sacrifice"
                                      ]
@@ -398,7 +398,7 @@ characters =
         , Skill.desc      = "Ends the effect of [Self-Sacrifice]."
         , Skill.classes   = [Physical, Melee, Unreflectable]
         , Skill.effects   =
-          [ To Self $ everyone $ remove "Self-Sacrifice" ]
+          [ To Self $ targeting Everyone $ remove "Self-Sacrifice" ]
         }
       ]
     , [ invuln "Parry" "Asuma" [Physical] ]

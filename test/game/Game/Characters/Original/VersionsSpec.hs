@@ -60,16 +60,16 @@ spec = parallel do
 
         useOn Enemy "Drunken Counter" do
             it "counters on target" do
-                self Sim.act
+                targeting Self Sim.act
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages with Unpredictable Assault if countered" do
-                self Sim.act
+                targeting Self Sim.act
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20
             it "adds Unpredictable Assault if countered" do
-                self Sim.act
+                targeting Self Sim.act
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 userHas "Unpredictable Assault"
 

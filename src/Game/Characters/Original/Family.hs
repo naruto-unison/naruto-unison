@@ -95,7 +95,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                trap' -1 OnDeath $ self $
+                trap' -1 OnDeath $ targeting Self $
                     apply 2 [ Strengthen [All] Flat 10
                             , Endure
                             , Focus
@@ -211,7 +211,7 @@ characters =
           [ To Self $ hide Permanent [ Alternate "Sensory Radar"
                                                  "Sensory Radar: Collate"
                                      ]
-          , To Enemies $ trap Permanent OnHarm $ self do
+          , To Enemies $ trap Permanent OnHarm $ targeting Self do
                 heal 10
                 addStack
           ]
@@ -223,7 +223,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                everyone $ removeTrap "Sensory Radar"
+                targeting Everyone $ removeTrap "Sensory Radar"
                 stacks <- userStacks "Sensory Radar"
                 gain $ replicate stacks Rand
                 remove "Sensory Radar"

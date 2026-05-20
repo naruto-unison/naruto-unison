@@ -23,7 +23,7 @@ spec = parallel do
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 30 + 5 * stacks
             it "weakens target" do
-                self $ tag' "Two-Tailed Transformation" Permanent
+                targeting Self $ tag' "Two-Tailed Transformation" Permanent
                 Sim.act
                 setHealth 100
                 Sim.as Enemy $ damage dmg
@@ -41,7 +41,7 @@ spec = parallel do
             it "damages others per stack" do
                 Sim.use "Two-Tailed Transformation"
                 replicateM_ stacks Sim.act
-                everyone $ setHealth 100
+                targeting Everyone $ setHealth 100
                 Sim.act
                 targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 5 + 5 * stacks
@@ -52,7 +52,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 apply Permanent [ Invulnerable Affliction ]
                 Sim.use "Drowning Bubble"
                 Sim.act
@@ -65,7 +65,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Acrobat"
                 Sim.act
                 targetHealth' <- target health

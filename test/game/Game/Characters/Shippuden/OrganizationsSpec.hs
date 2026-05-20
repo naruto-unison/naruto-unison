@@ -134,7 +134,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Mind Transfer"
                 Sim.act
                 targetHealth' <- target health

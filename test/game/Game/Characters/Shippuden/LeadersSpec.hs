@@ -72,7 +72,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Strength of One Hundred Seal"
                 Sim.act
                 targetHealth' <- target health
@@ -121,7 +121,7 @@ spec = parallel do
                 Sim.as Enemy $ damage dmg
                 Sim.act
                 userHealth <- user health
-                self $ setHealth 100
+                targeting Self $ setHealth 100
                 Sim.as Enemy $ damage dmg
                 Sim.use "Strength of One Hundred Seal"
                 userHealth' <- user health
@@ -133,7 +133,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.at XEnemies $ replicateM_ stacks $ Sim.act
                 Sim.act
                 targetHealth' <- target health

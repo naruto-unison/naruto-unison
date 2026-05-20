@@ -31,7 +31,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 tag' "Multi Shadow Clone" Permanent
                 Sim.act
                 targetHealth' <- target health
@@ -43,7 +43,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Strength of One Hundred Seal"
                 Sim.act
                 targetHealth' <- target health
@@ -54,14 +54,14 @@ spec = parallel do
                 targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 10
             it "spends a Seal" do
-                self $ addStacks "Seal" stacks
+                targeting Self $ addStacks "Seal" stacks
                 Sim.act
                 numStacks <- userStacks "Seal"
                 numStacks `shouldBe` stacks - 1
 
         useOn Self "Seal Release" do
             it "spends a Seal" do
-                self $ addStacks "Seal" stacks
+                targeting Self $ addStacks "Seal" stacks
                 Sim.act
                 numStacks <- userStacks "Seal"
                 numStacks `shouldBe` stacks - 1
@@ -130,7 +130,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Man-Beast Clone"
                 Sim.act
                 targetHealth' <- target health
@@ -139,7 +139,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Man-Beast Clone"
                 Sim.use "Three-Headed Wolf"
                 Sim.act
@@ -156,7 +156,7 @@ spec = parallel do
                 Sim.turns 5
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 tag' "chakra leech" Permanent
                 Sim.act
                 Sim.turns 5
@@ -174,7 +174,7 @@ spec = parallel do
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> target (`is` Reveal)
             it "counters with Gigantic Beetle Infestation" do
-                everyone $ addStacks "Gigantic Beetle Infestation" 2
+                targeting Everyone $ addStacks "Gigantic Beetle Infestation" 2
                 Sim.act
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 targetHealth <- health <$> Sim.targets Enemy
@@ -220,7 +220,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Eight Trigrams Sixty-Four Palms"
                 Sim.act
                 targetHealth' <- target health
@@ -317,7 +317,7 @@ spec = parallel do
         useOn Enemies "Proxy Surveillance" do
             it "reduces damage reduction" do
                 Sim.act
-                Sim.as Enemy $ self $
+                Sim.as Enemy $ targeting Self $
                     apply Permanent [ Reduce [All] Flat stacks ]
                 damage dmg
                 targetHealth <- target health
@@ -329,9 +329,9 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
-                allies kill
-                self $ setHealth 100
+                targeting Self factory
+                targeting Allies kill
+                targeting Self $ setHealth 100
                 Sim.act
                 targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 2 * 10
@@ -345,9 +345,9 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
-                allies kill
-                self $ setHealth 100
+                targeting Self factory
+                targeting Allies kill
+                targeting Self $ setHealth 100
                 Sim.act
                 targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 2 * 10
@@ -372,8 +372,8 @@ spec = parallel do
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20 + 20 * stacks
             it "deals more damage with dead allies" do
-                allies kill
-                self $ setHealth 100
+                targeting Allies kill
+                targeting Self $ setHealth 100
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20 + 2 * 20
@@ -518,7 +518,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "First Moon"
                 Sim.act
                 targetHealth' <- target health
@@ -527,7 +527,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "First Moon"
                 Sim.use "Second Moon"
                 Sim.act
@@ -539,12 +539,12 @@ spec = parallel do
             it "does not stun if target does not heal" do
                 Sim.act
                 setHealth 100
-                Sim.as Enemy $ self $ heal 100
+                Sim.as Enemy $ targeting Self $ heal 100
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` []
             it "stuns if target heals" do
                 Sim.act
-                Sim.as Enemy $ self $ heal 100
+                Sim.as Enemy $ targeting Self $ heal 100
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
 
@@ -560,7 +560,7 @@ spec = parallel do
                 Sim.turns 2
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.act
                 Sim.as Enemy $ return ()
                 Sim.turns 2

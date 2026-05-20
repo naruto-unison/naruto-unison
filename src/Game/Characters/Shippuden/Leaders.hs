@@ -96,7 +96,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 targetSlot <- target slot
-                self $ apply 1 [ Redirect targetSlot ]
+                targeting Self $ apply 1 [ Redirect targetSlot ]
           ]
         }
       ]

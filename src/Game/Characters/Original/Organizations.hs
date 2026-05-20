@@ -134,8 +134,8 @@ characters =
         , Skill.dur       = Ongoing -4
         , Skill.start     =
           [ To Self do
-                enemies $ apply -4 []
-                allies  $ apply -4 [ Reduce [All] Flat 5 ]
+                targeting Enemies $ apply -4 []
+                targeting Allies $ apply -4 [ Reduce [All] Flat 5 ]
           ]
         , Skill.effects   =
           [ To Enemies $ unlessM (targetHas "scattering crow swarm") do
@@ -145,7 +145,7 @@ characters =
           ]
         , Skill.interrupt =
           [ To Self do
-                everyone $ remove "Scattering Crow Swarm"
+                targeting Everyone $ remove "Scattering Crow Swarm"
                 cancelChannel "Scattering Crow Swarm" -- just in case
           ]
         }
@@ -726,8 +726,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 bomb Permanent [ Afflict 20 ]
-                       [ To Done $ everyone $ remove "Demon Parasite" ]
-                self $ apply Permanent [ Reduce [All] Flat 15 ]
+                    [ To Done $ targeting Everyone $ remove "Demon Parasite" ]
+                targeting Self $ apply Permanent [ Reduce [All] Flat 15 ]
           ]
         }
       ]
@@ -740,7 +740,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 heal 30
-                everyone $ remove "Demon Parasite"
+                targeting Everyone $ remove "Demon Parasite"
           ]
         }
       ]
@@ -752,7 +752,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 1 [ Invulnerable All ]
-                everyone $ remove "Demon Parasite"
+                targeting Everyone $ remove "Demon Parasite"
           ]
         }
       ]

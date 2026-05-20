@@ -180,13 +180,13 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemies $ trap 3 OnChakra $ self $
+          [ To Enemies $ trap 3 OnChakra $ targeting Self $
                 gain [Rand]
           , To Allies do
                 trap 3 OnStunned $
                     apply 1 [ Invulnerable All ]
                 trap 3 (OnDamaged NonAffliction) $
-                    self $ apply 1 [ Strengthen [All] Flat 10 ]
+                    targeting Self $ apply 1 [ Strengthen [All] Flat 10 ]
           , To Self $ apply 3 [ Alternate "Super Beast Scroll: Snake"
                                           "Super Beast Scroll: Bird" ]
           ]
@@ -324,7 +324,7 @@ characters =
                 damage (25 + 25 * stacks)
                 remove "Gigantic Beetle Infestation"
                 remove "Chakra Leech"
-                self $ remove "Barricaded"
+                targeting Self $ remove "Barricaded"
           ]
         }
       ]
@@ -374,11 +374,11 @@ characters =
                 bonus <- 1 `bonusIf` userHas "Eight Trigrams Sixty-Four Palms"
                 addStacks "Chakra Lion" (2 + bonus)
           , To Enemies $ trap' Permanent OnHarm do
-                self $ removeStack "Chakra Lion"
+                targeting Self $ removeStack "Chakra Lion"
                 deplete 1
                 damage 30
-                unlessM (userHas "Chakra Lion") $
-                    everyone $ removeTrap "Gentle Step Twin Lion Fists"
+                unlessM (userHas "Chakra Lion") $ targeting Everyone $
+                    removeTrap "Gentle Step Twin Lion Fists"
           ]
         }
       ]
@@ -459,9 +459,9 @@ characters =
                 damage 35
                 apply 1 [ Stun NonMental ]
                 hide' "final" 1 []
-                self $ apply 1 [ Alternate "Shadow Sewing"
-                                           "Shadow Sewing: Hold"
-                               ]
+                targeting Self $ apply 1 [ Alternate "Shadow Sewing"
+                                                     "Shadow Sewing: Hold"
+                                         ]
           ]
         }
       , Skill.new
@@ -475,7 +475,7 @@ characters =
                 damage 20
                 prolong 1 "Shadow Sewing"
                 hide' "final" 1 []
-                self $ prolong 1 "Shadow Sewing"
+                targeting Self $ prolong 1 "Shadow Sewing"
           ]
         }
       ]

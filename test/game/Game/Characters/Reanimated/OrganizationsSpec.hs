@@ -71,12 +71,12 @@ spec = parallel do
                 targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 0
             it "stuns if target loses 50 health" do
-                self $ apply Permanent [ Strengthen [All] Flat 40 ]
+                targeting Self $ apply Permanent [ Strengthen [All] Flat 40 ]
                 Sim.act
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
             it "does not stun otherwise" do
-                self $ apply Permanent [ Strengthen [All] Flat 39 ]
+                targeting Self $ apply Permanent [ Strengthen [All] Flat 39 ]
                 Sim.act
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` []
@@ -161,7 +161,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Lightning Fang"
                 remove "Electricity"
                 Sim.act
@@ -178,8 +178,8 @@ spec = parallel do
             it "deals bonus damage per target affected" do
                 Sim.act
                 targetHealth <- target health
-                self factory
-                enemies Sim.act
+                targeting Self factory
+                targeting Enemies Sim.act
                 factory
                 Sim.act
                 targetHealth' <- target health
@@ -205,7 +205,7 @@ spec = parallel do
                 targetHas "Wire Crucifixion"
         useOn Enemy "Wire Crucifixion" do
             it "only affects enemies affected by [Needle Stitching]" do
-                enemies  $ Sim.use "Needle Stitching"
+                targeting Enemies $ Sim.use "Needle Stitching"
                 remove "Needle Stitching"
                 Sim.act
                 affected <- numAffected "Wire Crucifixion"
@@ -289,7 +289,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Chakra Threads"
                 Sim.act
                 targetHealth' <- target health

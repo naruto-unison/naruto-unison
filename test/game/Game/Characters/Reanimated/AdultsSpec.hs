@@ -13,7 +13,7 @@ spec = parallel do
         useOn Enemy "Scorch Style" do
             it "harms harm" do
                 Sim.act
-                self $ Sim.as XEnemies $ return ()
+                targeting Self $ Sim.as XEnemies $ return ()
                 targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 10
 
@@ -110,7 +110,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 addStacks "Scroll of Fire" stacks
                 Sim.act
                 targetHealth' <- target health
@@ -122,7 +122,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Magnetic Field"
                 replicateM_ stacks  $ Sim.use "Conserving Bee Twin Blades"
                 setHealth 100
@@ -133,7 +133,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 replicateM_ stacks  $ Sim.use "Magnetic Current"
                 setHealth 100
                 Sim.act
@@ -156,7 +156,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 replicateM_ stacks  $ Sim.use "Magnetic Current"
                 setHealth 100
                 Sim.act
@@ -168,7 +168,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Magnetic Field"
                 replicateM_ stacks  $ Sim.use "Conserving Bee Twin Blades"
                 setHealth 100
@@ -216,7 +216,7 @@ spec = parallel do
                 Sim.act
                 targetHealth <- target health
                 factory
-                self factory
+                targeting Self factory
                 Sim.use "Hidden Frost"
                 Sim.act
                 targetHealth' <- target health
