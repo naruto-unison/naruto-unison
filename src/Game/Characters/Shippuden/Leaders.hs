@@ -136,9 +136,11 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 has <- userHas "Strength of One Hundred Seal"
-                when has
+                if has then do
+                    pierce 40
                     demolishAll
-                pierce (20 + if has then 20 else 0)
+                else
+                    pierce 20
           , To Allies $ whenM (targetHas "Healing Wave") $
                 apply 1 [ Endure ]
           , To Self $ remove "Strength of One Hundred Seal"
@@ -154,8 +156,12 @@ characters =
         , Skill.effects   =
           [ To XAlly do
                 has <- userHas "Strength of One Hundred Seal"
-                heal (30 + if has then 10 else 0)
-                apply (if has then -3 else -2) [ Heal 10 ]
+                if has then do
+                    heal 40
+                    apply -3 [ Heal 10 ]
+                else do
+                    heal 30
+                    apply -2 [ Heal 10 ]
           , To Self $ remove "Strength of One Hundred Seal"
           ]
         }
@@ -168,23 +174,14 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Self do
-                heal 25
-                apply Permanent [ Alternate "Strength of One Hundred Seal"
-                                            "Strength of One Hundred Seal"
-                                ]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Strength of One Hundred Seal"
-        , Skill.desc      = "Tsunade activates her chakra-storing Seal, restoring 25 health and empowering her next skill. Spends a Seal if available to instead restore 50 health to Tsunade and gain 2 random chakra."
-        , Skill.classes   = [Chakra]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 3
-        , Skill.effects   =
-          [ To Self do
-                heal 50
-                gain [Rand, Rand]
-                remove "Strength of One Hundred Seal"
+                has <- userHas "Strength of One Hundred Seal"
+                if has then do
+                    heal 50
+                    gain [Rand, Rand]
+                    remove "Strength of One Hundred Seal"
+                else do
+                    heal 25
+                    tag Permanent
           ]
         }
       ]

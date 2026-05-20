@@ -457,7 +457,7 @@ characters =
                     ]
                 trapPer' Permanent PerDamaged \i -> do
                     stacks <- userStacks "Major Summoning: Ibuse"
-                    if stacks - i > 0 then
+                    if stacks > i then
                         removeStacks "Major Summoning: Ibuse" i
                     else do
                         remove "Major Summoning: Ibuse"
@@ -518,7 +518,6 @@ characters =
                       cancelChannel "Poison Fog"
                   else self $
                       apply Permanent [Afflict 10]
-            ]
           ]
         }
       ]
