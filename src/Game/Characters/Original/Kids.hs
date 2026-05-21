@@ -472,37 +472,38 @@ characters =
           ]
         }
       ]
-    , [ Skill.new
+    , let
+      chiliSkill = Skill.new
         { Skill.name      = "Chili Pill"
-        , Skill.desc      = "Chōji swallows all three Akimichi pills, losing 10 health down to a minimum of 1 and gaining so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns and disabling effects."
+        , Skill.desc      = "While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns and disabling effects."
         , Skill.classes   = [Chakra, Nonstacking]
-        , Skill.cost      = [Rand, Rand]
         , Skill.dur       = Action Permanent
         , Skill.start     =
           [ To Self do
-                sacrifice 1 10
-                setAlternates [3, 3, 3]
+                prepilled <- channeling "Curry Pill"
+                if prepilled then
+                    cancelChannel "Curry Pill"
+                else
+                    sacrifice 1 10
+                setAlternates [3, 3, 3, 1]
+                applyWith [Unremovable] Permanent [ Focus
+                                                  , Face
+                                                  ]
           ]
         , Skill.effects   =
           [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 15 ]
-          , To Self do
-                unlessM (userHas "unchili") $
-                    sacrifice 0 15
-                apply 1 [ Focus
-                        , Alternate "Block"
-                                    "Block"
-                        , Face
-                        ]
+          , To Self $ unlessM (userHas "unchili") $
+                sacrifice 0 15
           ]
         , Skill.stunned   =
-          [ To Self do
-                unlessM (userHas "unchili") $
-                    sacrifice 0 15
-                apply 1 [ Alternate "Block"
-                                    "Block"
-                        , Face
-                        ]
+          [ To Self $ unlessM (userHas "unchili") $
+                sacrifice 0 15
           ]
+        }
+      in
+      [ chiliSkill
+        { Skill.desc      = "Chōji swallows all three Akimichi pills, losing 10 health down to a minimum of 1 and gaining so much chakra that butterfly wings of pure energy erupt from his back. " ++ Skill.desc chiliSkill
+        , Skill.cost      = [Rand, Rand]
         }
       , Skill.new
         { Skill.name      = "Curry Pill"
@@ -518,36 +519,8 @@ characters =
         , Skill.effects   =
           [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 10 ] ]
         }
-      , Skill.new
-        { Skill.name      = "Chili Pill"
-        , Skill.desc      = "Chōji eats the third Akimichi pill and gains so much chakra that butterfly wings of pure energy erupt from his back. While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns and disabling effects."
-        , Skill.classes   = [Chakra, Nonstacking]
-        , Skill.dur       = Action Permanent
-        , Skill.start     =
-          [ To Self do
-                cancelChannel "Curry Pill"
-                setAlternates [3, 3, 3]
-          ]
-        , Skill.effects   =
-          [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 15 ]
-          , To Self do
-                unlessM (userHas "unchili") $
-                    sacrifice 0 15
-                apply 1 [ Focus
-                        , Alternate "Block"
-                                    "Block"
-                        , Face
-                        ]
-          ]
-        , Skill.interrupt =
-          [ To Self do
-                unlessM (userHas "unchili") $
-                    sacrifice 0 15
-                apply 1 [ Alternate "Block"
-                                    "Block"
-                        , Face
-                        ]
-          ]
+      , chiliSkill
+        { Skill.desc      = "Chōji eats the third Akimichi pill and gains so much chakra that butterfly wings of pure energy erupt from his back. " ++ Skill.desc chiliSkill
         }
       , Skill.new
         { Skill.name      = "Butterfly Bombing"
