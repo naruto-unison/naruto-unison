@@ -51,12 +51,10 @@ instance TurnBased Channel where
 
 instance TurnBased Channeling where
     getDur Instant     = 1
-    getDur Passive     = Permanent
     getDur (Action d)  = d
     getDur (Control d) = d
     getDur (Ongoing d) = d
     setDur _ Instant     = Instant
-    setDur _ Passive     = Passive
     setDur d (Action _)  = Action d
     setDur d (Control _) = Control d
     setDur d (Ongoing _) = Ongoing d

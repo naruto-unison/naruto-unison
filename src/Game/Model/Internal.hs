@@ -97,7 +97,6 @@ instance ToJSON Channel
 -- | Types of channeling for 'Skill's.
 data Channeling
     = Instant
-    | Passive
     | Action  Duration
     | Control Duration
     | Ongoing Duration
@@ -110,7 +109,6 @@ instance ToMarkup Channeling where
     toMarkup (Control Permanent) = "Control"
     toMarkup (Ongoing Permanent) = "Ongoing"
     toMarkup Instant     = "Instant"
-    toMarkup Passive     = "Instant"
     toMarkup (Action x)  = "Action " ++ toMarkup x
     toMarkup (Control x) = "Control " ++ toMarkup x
     toMarkup (Ongoing x) = "Ongoing " ++ toMarkup x

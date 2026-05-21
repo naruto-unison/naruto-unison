@@ -19,7 +19,7 @@ characters =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
-        , Skill.dur       = Passive
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self do
                 defend Permanent 45
@@ -272,7 +272,7 @@ characters =
         , Skill.desc      = "Danzō gains 10 Sharingan and loses 1 every turn. If his health reaches 0, his condition is completely restored to its state at the start of the turn and he loses an extra Sharingan. While active, he can use this skill again with no cost to pause its effect. When he has no Sharingan remaining, this skill becomes [Reverse Tetragram Sealing][r][r][r]."
         , Skill.classes   = [Mental, Resource]
         , Skill.cost      = [Blood]
-        , Skill.dur       = Passive
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self $
                 applyStacks "Sharingan" 11 [ Alternate "Izanagi"

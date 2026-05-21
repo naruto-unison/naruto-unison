@@ -16,8 +16,7 @@ interruptible (Channel _ _ Control{}) = True
 interruptible (Channel _ _ Action{})  = True
 interruptible _                       = False
 
--- | 'Passive' and 'Ongoing' effects are not affected by 'Model.Effect.Stun'.
+-- | 'Ongoing' effects are not affected by 'Model.Effect.Stun'.
 ignoreStun :: Channeling -> Bool
-ignoreStun Passive   = True
 ignoreStun Ongoing{} = True
 ignoreStun _         = False
