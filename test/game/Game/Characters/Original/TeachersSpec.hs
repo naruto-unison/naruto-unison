@@ -130,7 +130,7 @@ spec = parallel do
             it "adds destructible defense per Illusion" do
                 targeting Self $ addStacks "Illusion" stacks
                 Sim.act
-                defense <- user $ totalDefense
+                defense <- user totalDefense
                 defense `shouldBe` 10 + 5 * stacks
 
         useOn Enemy "Demonic Illusion: Sylvan Fetters" do

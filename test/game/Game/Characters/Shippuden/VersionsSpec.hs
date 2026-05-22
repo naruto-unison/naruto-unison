@@ -202,27 +202,27 @@ spec = parallel do
             it "cycles to Bloodline" do
                 Sim.act
                 Sim.turns 1
-                user $ isChanneling "Bloodline Sage"
+                channeling "Bloodline Sage"
             it "cycles to Genjutsu" do
                 Sim.act
                 Sim.turns 2
-                user $ isChanneling "Genjutsu Sage"
+                channeling "Genjutsu Sage"
             it "cycles to Ninjutsu" do
                 Sim.act
                 Sim.turns 3
-                user $ isChanneling "Ninjutsu Sage"
+                channeling "Ninjutsu Sage"
             it "cycles to Taijutsu" do
                 Sim.act
                 Sim.turns 4
-                user $ isChanneling "Taijutsu Sage"
+                channeling "Taijutsu Sage"
             it "goes one at a time" do
                 Sim.act
                 Sim.turns 4
-                user $ not . isChanneling "Bloodline Sage"
+                not <$> channeling "Bloodline Sage"
             it "cycles back to Bloodline" do
                 Sim.act
                 Sim.turns 5
-                user $ isChanneling "Bloodline Sage"
+                channeling "Bloodline Sage"
 
         useOn Ally "DNA Transmission Shadow" do
             it "does not resurrect immediately" do
@@ -304,7 +304,7 @@ spec = parallel do
                     Sim.act
                     Sim.turns 1
                     Sim.use skill
-                    user $ not . isChanneling "Flamethrower Jets"
+                    not <$> channeling "Flamethrower Jets"
 
             it "cancels after Poisonous Chain Skewer" $
                 cancelAfter "Poisonous Chain Skewer"

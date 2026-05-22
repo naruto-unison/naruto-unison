@@ -5,7 +5,7 @@ module Game.Characters.Import
   , invuln
   , user, target, userHas, targetHas, userHas', targetHas'
   , userStacks, targetStacks, userDefense
-  , channeling, invulnerable, inGroup
+  , channeling, inGroup
   , targeting
   , bonusIf, numAffected, numDeadAllies
   ) where
@@ -29,7 +29,7 @@ import Game.Model.Class as Import (Class(..))
 import Game.Model.Duration as Import (Duration(..))
 import Game.Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
 import Game.Model.Group as Import (Group(..))
-import Game.Model.Ninja as Import (Ninja(barrier, defense, health, slot, statuses, traps), alive, hasBarrier, hasDefense, hasOwnDefense, hasOwn, is, isChanneling, lastChakraSpent, numActive, numHelpful, numSkills)
+import Game.Model.Ninja as Import (Ninja(barrier, defense, health, slot, statuses, traps), alive, is, lastChakraSpent, numActive, numHelpful, numSkills)
 import Game.Model.Requirement as Import (Requirement(..))
 import Game.Model.Runnable as Import (IntRunConstraint, RunConstraint, Runnable(To))
 import Game.Model.Skill as Import (Target(..))
@@ -45,7 +45,6 @@ import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Action as Action
-import qualified Game.Engine.Effects as Effects
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Ninja as N
@@ -134,10 +133,6 @@ userDefense name = getUserDefense <$> P.nUser
 -- | True if user 'N.isChanneling'.
 channeling :: ∀ m. MonadPlay m => Text -> m Bool
 channeling name = N.isChanneling name <$> P.nUser
-
--- | True if the subject is 'Invulnerable' to any 'Model.Game.Class.Class'.
-invulnerable :: Ninja -> Bool
-invulnerable n = not . null $ Effects.invulnerable n
 
 -- | True if 'N.character' has a 'Group'.
 inGroup :: Group -> Ninja -> Bool

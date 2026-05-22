@@ -5,6 +5,7 @@ module Game.Characters.Shippuden.Versions (characters) where
 
 import Game.Characters.Import
 
+import           Game.Model.Ninja (isChanneling)
 import qualified Game.Model.Skill as Skill
 
 characters :: [Int -> Category -> Character]

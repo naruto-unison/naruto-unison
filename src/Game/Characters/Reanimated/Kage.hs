@@ -5,6 +5,7 @@ module Game.Characters.Reanimated.Kage (characters) where
 
 import Game.Characters.Import
 
+import qualified Game.Engine.Effects as Effects
 import qualified Game.Model.Skill as Skill
 
 characters :: [Category -> Character]
@@ -331,7 +332,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 10 `bonusIf` target invulnerable
+                bonus <- 10 `bonusIf` (not . null <$> target Effects.invulnerable)
                 pierce (25 + bonus)
           ]
         , Skill.changes   = changeWith "Fragmentation" $ setCost [Nin]

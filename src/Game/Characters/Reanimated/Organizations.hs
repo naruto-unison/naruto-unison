@@ -180,9 +180,9 @@ characters =
         , Skill.start     =
           [ To Self $ defend Permanent 20 ]
         , Skill.effects   =
-          [ To Self $ whenM (user $ hasOwnDefense "Crystal Ice Mirrors") $
+          [ To Self $ whenM (userHas' defense "Crystal Ice Mirrors") $
                 trapPer -1 PerDamaged \i ->
-                    whenM (not <$> user (hasOwnDefense "Crystal Ice Mirrors")) $
+                    unlessM (userHas' defense "Crystal Ice Mirrors") $
                         defend Permanent i
           ]
         }

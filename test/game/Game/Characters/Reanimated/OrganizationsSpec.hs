@@ -118,7 +118,7 @@ spec = parallel do
             it "extends Demon Shroud" do
                 Sim.use "Demon Shroud"
                 replicateM_ 8 Sim.act
-                user $ isChanneling "Demon Shroud"
+                channeling "Demon Shroud"
 
     describeCharacter "Ameyuri Ringo" do
         useOn Enemies "Lightning Fang" do

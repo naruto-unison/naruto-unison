@@ -496,7 +496,7 @@ spec = parallel do
             it "ends afterward" do
                 Sim.act
                 Sim.turns 4
-                user $ not . isChanneling "Guided Missile"
+                not <$> channeling "Guided Missile"
 
     describeCharacter "Human Path Pain" do
         useOn Enemy "Soul Rip" do
@@ -558,7 +558,7 @@ spec = parallel do
             it "does not carry over stacks" do
                 Sim.act
                 replicateM_ 4 do
-                    unlessM (user $ isChanneling "Summoning: Giant Multi-Headed Dog") do
+                    unlessM (channeling "Summoning: Giant Multi-Headed Dog") do
                         factory
                         Sim.act
                     Sim.turns 1

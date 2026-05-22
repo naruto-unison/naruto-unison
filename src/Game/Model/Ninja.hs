@@ -3,7 +3,7 @@ module Game.Model.Ninja
   , numSkills
   , alive, minHealth
   , is, isChanneling
-  , has, hasBarrier, hasDefense, hasOwnDefense, hasOwn
+  , has, hasDefense, hasOwn
   , numActive, numStacks, numHelpful, numHarmful
   , defenseAmount, totalDefense, totalBarrier
   , lastChakraSpent
@@ -14,6 +14,7 @@ import ClassyPrelude
 
 import qualified  Data.List.NonEmpty as NonEmpty
 
+import           Class.Labeled (Labeled)
 import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import qualified Game.Model.Barrier as Barrier
@@ -77,23 +78,34 @@ isChanneling name n = any matches $ channels n
   where
     matches (Channel Skill{name = skillName} _ _) = name == skillName
 
+has' :: ∀ a. Labeled a
+     => (Ninja -> [a])
+     -> Text -- ^ 'Status.name'.
+     -> Slot -- ^ 'Status.user'.
+     -> Ninja -> Bool
+has' getter name user n = any (Labeled.match name user) $ getter n
+
 -- | Searches 'statuses'.
 has :: Text -- ^ 'Status.name'.
     -> Slot -- ^ 'Status.user'.
     -> Ninja -> Bool
-has name user Ninja{statuses} = any (Labeled.match name user) statuses
-
--- | Searches 'barrier'.
-hasBarrier :: Text -- ^ 'Barrier.name'.
-           -> Slot -- ^ 'Barrier.user'.
-           -> Ninja -> Bool
-hasBarrier name user Ninja{barrier} = any (Labeled.match name user) barrier
+has = has' statuses
 
 -- | Searches 'defense'.
 hasDefense :: Text -- ^ 'Defense.name'.
            -> Slot -- ^ 'Defense.user'.
            -> Ninja -> Bool
-hasDefense name user Ninja{defense} = any (Labeled.match name user) defense
+hasDefense = has' defense
+
+hasOwn' :: ∀ a. Labeled a
+     => (Ninja -> [a])
+     -> Text -- ^ 'Status.name'.
+     -> Ninja -> Bool
+hasOwn' getter name n@Ninja{slot} = has' getter name slot n
+
+-- | Matches a 'Status.Status'.
+hasOwn :: Text -> Ninja -> Bool
+hasOwn = hasOwn' statuses
 
 -- | Sums 'Defense.amount' of all matching 'defense'.
 defenseAmount :: Text -- ^ 'Defense.name'.
@@ -116,22 +128,14 @@ totalDefense Ninja{defense} = sum $ Defense.amount <$> defense
 totalBarrier :: Ninja -> Int
 totalBarrier Ninja{barrier} = sum $ Barrier.amount <$> barrier
 
--- | Matches a 'Defense.Defense'.
-hasOwnDefense :: Text -> Ninja -> Bool
-hasOwnDefense name n = hasDefense name (slot n) n
-
--- | Matches a 'Status.Status'.
-hasOwn :: Text -> Ninja -> Bool
-hasOwn name n = has name (slot n) n
-
 -- | Number of stacks of matching self-applied 'statuses'.
 numActive :: Text -- ^ 'Status.name'.
           -> Ninja -> Int
 numActive name n
-  | stacks > 0           = stacks
-  | isChanneling name n  = 1
-  | hasOwnDefense name n = 1
-  | otherwise            = 0
+  | stacks > 0             = stacks
+  | isChanneling name n    = 1
+  | hasOwn' defense name n = 1
+  | otherwise              = 0
   where
     stacks = numStacks name (slot n) n
 
