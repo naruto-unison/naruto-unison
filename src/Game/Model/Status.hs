@@ -7,6 +7,7 @@ module Game.Model.Status
 
 import ClassyPrelude
 
+import qualified Class.Labeled as Labeled
 import           Game.Model.Duration (Duration)
 import           Game.Model.Effect (Effect)
 import           Game.Model.Internal (Bomb(..), Skill(Skill), Status(..))
@@ -32,10 +33,10 @@ remove :: Int -- ^ 'amount'
        -> [Status] -> [Status]
 remove 0 _ _ xs = xs
 remove _ _ _ [] = []
-remove i name' user' (x:xs)
-  | user x /= user' || name x /= name' = x : remove i name' user' xs
-  | amt > i                            = x { amount = amt - i } : xs
-  | otherwise                          = remove (i - amt) name' user' xs
+remove i name user (x:xs)
+  | not $ Labeled.match name user x = x : remove i name user xs
+  | amt > i                         = x { amount = amt - i } : xs
+  | otherwise                       = remove (i - amt) name user xs
   where
     amt = amount x
 
