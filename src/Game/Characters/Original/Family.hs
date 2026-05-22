@@ -143,13 +143,12 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Action 2
         , Skill.start     =
-          [ To Self flag
-          , To Enemy do
+          [ To Enemy do
                 deplete 1
                 damage 20
           ]
         , Skill.effects   =
-          [ To REnemy $ unlessM (userHas "gentle fist") do
+          [ To REnemy $ whenM (channeling "Gentle Fist") do
                 deplete 1
                 damage 20
           ]

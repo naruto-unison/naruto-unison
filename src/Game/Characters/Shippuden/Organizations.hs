@@ -274,10 +274,9 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
-          [ To Self $
-                applyStacks "Sharingan" 11 [ Alternate "Izanagi"
-                                                       "Izanagi"
-                                           ]
+          [ To Self $ applyStacks "Sharingan" 11 [ Alternate "Izanagi"
+                                                             "Izanagi"
+                                                 ]
           ]
         , Skill.effects   =
           [ To Self $ unlessM (userHas "paused") do
@@ -316,9 +315,9 @@ characters =
         , Skill.start     =
           [ To Self flag ]
         , Skill.effects   =
-          [ To Self $ unlessM (userHas "reverse tetragram sealing")
+          [ To Self $ whenM (channeling "Reverse Tetragram Sealing")
                 killHard
-          , To Enemies $ unlessM (userHas "reverse tetragram sealing")
+          , To Enemies $ whenM (channeling "Reverse Tetragram Sealing")
                 kill
           ]
         }

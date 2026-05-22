@@ -1066,10 +1066,9 @@ characters =
         , Skill.start     =
           [ To Enemy $ trap -1 (OnAction All) $
                 applyWith [ Invisible ] 1 []
-          , To Self flag
           ]
         , Skill.effects   =
-          [ To Enemy $ unlessM (userHas "rasengan") do
+          [ To Enemy $ whenM (channeling "Rasengan") do
                 bonus <- 15 `bonusIf` targetHas "Rasengan"
                 pierce (25 + bonus)
           ]

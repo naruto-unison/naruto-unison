@@ -165,17 +165,15 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.dur       = Action 3
-        , Skill.start     =
-          [ To Self flag ]
         , Skill.effects   =
           [ To Self $ trapFrom 1 (OnHarmed Physical) $ damage 10
           , To Enemy do
-                firstTurn <- userHas "nunchaku"
-                if firstTurn then do
+                afterFirstTurn <- channeling "Nunchaku"
+                if afterFirstTurn then
+                    damage 10
+                else do
                     stacks <- userStacks "Single Gate Release"
                     damage (10 + 5 * stacks)
-                else
-                    damage 10
           ]
         }
       ]

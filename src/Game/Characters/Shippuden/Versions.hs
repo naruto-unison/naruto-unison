@@ -300,7 +300,6 @@ characters =
         , Skill.dur       = Control -2
         , Skill.start     =
           [ To Self do
-                flag
                 targeting Everyone $ whenM (targetHas "DNA Transmission Shadow")
                     killHard
                 trap' Permanent OnDeath $ targeting Everyone $
@@ -308,12 +307,10 @@ characters =
                         killHard
           ]
         , Skill.effects   =
-          [ To XAlly $ unlessM (userHas "dna transmission shadow") do
+          [ To XAlly $ whenM (channeling "DNA Transmission Shadow") do
                 factory
                 tag Permanent
           ]
-        , Skill.interrupt  =
-          [ To Self $ remove "dna transmission" ]
         , Skill.changes   = withMode \m -> setCost [m, m, m]
         }
       ]
@@ -635,16 +632,14 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
         , Skill.start     =
-          [ To Self do
-                hide Permanent [ Alternate "Flamethrower Jets"
-                                           "Cutting Water Jets"
-                               ]
-                flag' "first"
+          [ To Self $ hide Permanent [ Alternate "Flamethrower Jets"
+                                                 "Cutting Water Jets"
+                                     ]
           ]
         , Skill.effects   =
           [ To Self do
                 apply 1 [ Enrage ]
-                unlessM (userHas "first") $
+                whenM (channeling "Flamethrower Jets") $
                     trap' 1 (OnAction All) do
                         cancelChannel "Flamethrower Jets"
                         targeting Everyone do
