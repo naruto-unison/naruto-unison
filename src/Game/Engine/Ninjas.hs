@@ -314,19 +314,27 @@ copy dur slots skill n = n { N.copies = foldl' go (N.copies n) slots }
   where
     go acc slot = Seq.update slot (Just Copy { skill, dur }) acc
 
+filterEffects :: (Slot -> Effect -> Bool) -> Ninja -> Ninja
+filterEffects predicate n = modifyStatuses (mapMaybe f) n
+  where
+    f st@Status{classes, effects, user}
+      | null effects          = Just st
+      | Unremovable ∈ classes = Just st
+      | null kept             = Nothing
+      | otherwise             = Just st { Status.effects = kept }
+      where
+        kept = filter (predicate user) effects
+
 -- | Removes harmful effects. Does not work if the target has 'Plague'.
 cure :: (Effect -> Bool) -> Ninja -> Ninja
 cure match n@Ninja{slot}
   | n `is` Plague = n
-  | otherwise     = modifyStatuses (mapMaybe cure') n
+  | otherwise     = filterEffects keep n
   where
-    keep a = Effect.helpful a || not (match a)
-    cure' st@Status{classes, effects, user}
-      | user == slot           = Just st
-      | null effects           = Just st
-      | Unremovable ∈ classes  = Just st
-      | not $ any keep effects = Nothing
-      | otherwise = Just st { Status.effects = filter keep effects }
+    keep user effect = user == slot
+                    || Effect.helpful effect
+                    || Effect.sticky effect
+                    || not (match effect)
 
 -- | Cures 'Bane' 'statuses'.
 cureBane :: Ninja -> Ninja
@@ -334,7 +342,9 @@ cureBane n@Ninja{slot}
   | n `is` Plague = n
   | otherwise     = modifyStatuses (filter keep) n
   where
-    keep Status{classes, user} = Bane ∉ classes || slot == user
+    keep Status{classes, user} = slot == user
+                                 || Bane ∉ classes
+                                 || Unremovable ∈ classes
 
 kill :: Bool -- ^ Can be prevented by 'Endure'.
      -> Ninja -> Ninja
@@ -388,12 +398,9 @@ renameChannels rename n = n { N.channels = f <$> N.channels n }
 
 -- | Removes all helpful effects.
 purge :: Ninja -> Ninja
-purge = modifyStatuses (doPurge <$>)
+purge = filterEffects keep
   where
-    keep ef = Effect.sticky ef || not (Effect.helpful ef)
-    doPurge st
-      | Unremovable ∈ Status.classes st = st
-      | otherwise = st { Status.effects = filter keep $ Status.effects st }
+    keep _ effect = Effect.sticky effect || not (Effect.helpful effect)
 
 -- | Resets the duration of matching 'statuses' to their 'Status.maxDur'.
 refresh :: Text -- ^ 'Status.name'.

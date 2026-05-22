@@ -208,6 +208,7 @@ commandeer = P.unsilenced do
     Context{target, user} <- P.context
     nUser   <- P.nUser
     nTarget <- P.nTarget
+
     P.modify user $ Ninjas.modifyStatuses
         (mapMaybe gainHelpful (N.statuses nTarget) ++) . \n ->
             n { N.defense = N.defense nTarget ++ N.defense n
@@ -219,16 +220,20 @@ commandeer = P.unsilenced do
               , N.barrier = N.barrier nUser
               }
   where
-    lose ef = Effect.helpful ef && not (Effect.sticky ef)
+    stealable ef = Effect.helpful ef && not (Effect.sticky ef)
+
     loseHelpful st@Status{classes, effects}
-      | Unremovable ∈ classes   = Just st
-      | null effects            = Just st
-      | not $ any lose effects  = Just st
-      | all lose effects        = Nothing
-      | otherwise = Just st { Status.effects = filter (not . lose) effects }
+      | null effects          = Just st
+      | Unremovable ∈ classes = Just st
+      | null kept             = Nothing
+      | otherwise             = Just st { Status.effects = kept }
+      where
+        kept = filter (not . stealable) effects
+
     gainHelpful st@Status{classes, effects}
-      | Unremovable ∈ classes  = Nothing
-      | null effects           = Nothing
-      | not $ any lose effects = Nothing
-      | all lose effects       = Just st
-      | otherwise = Just st { Status.effects = filter lose effects }
+      | null effects          = Nothing
+      | Unremovable ∈ classes = Nothing
+      | null stolen           = Nothing
+      | otherwise             = Just st { Status.effects = stolen }
+      where
+        stolen = filter stealable effects
