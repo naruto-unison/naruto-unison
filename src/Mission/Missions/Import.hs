@@ -163,7 +163,7 @@ interrupt _ user target target'
   | allied user target = 0
   | otherwise          = max 0 interrupted
   where
-    numChannels Ninja{channels, newChans} = length channels + length newChans
+    numChannels Ninja{channels} = length channels
     interrupted = numChannels target - numChannels target'
 
 -- Always 1.

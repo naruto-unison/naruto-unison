@@ -33,6 +33,7 @@ import qualified Game.Engine.Traps as Traps
 import           Game.Model.Barrier (Barrier(Barrier))
 import qualified Game.Model.Barrier as Barrier
 import           Game.Model.Channel (Channel(Channel))
+import qualified Game.Model.Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -92,9 +93,10 @@ processTurn runner = do
     yieldVictor
     Hook.turn player initial =<< P.ninjas
   where
-    getChannels n = fromChannel n
-        <$> filter ((/= -1) . TurnBased.getDur) (N.channels n)
-    fromChannel n (Channel skill target _) = Context
+    isActiveChannel Channel{new = True} = False
+    isActiveChannel channel = TurnBased.getDur channel /= -1
+    getChannels n = fromChannel n <$> filter isActiveChannel (N.channels n)
+    fromChannel n (Channel skill target _ _) = Context
         { new       = False
         , user      = N.slot n
         , skill     = Skills.change n skill

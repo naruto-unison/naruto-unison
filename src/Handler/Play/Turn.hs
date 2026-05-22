@@ -77,7 +77,7 @@ censor vendetta player ninjas n
       , N.alternates = 0 <$ N.alternates n'
       }
   where
-    filt (Channel Skill{classes} _ _) = not $ Invisible ∈ classes
+    filt (Channel Skill{classes} _ _ _) = not $ Invisible ∈ classes
     n' = n { N.statuses  = mapMaybe mst $ N.statuses n
            , N.lastSkill = Nothing
            , N.traps     = [trap | trap@Trap{classes, user} <- N.traps n

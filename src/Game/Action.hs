@@ -305,9 +305,8 @@ nonRandom _      = True
 breakControls :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 breakControls = traverse_ breakN =<< P.ninjas
   where
-    breakN n@Ninja{channels, newChans, slot} = traverse_
-        (breakControl slot $ Effects.stun n)
-        $ newChans ++ channels
+    breakN n@Ninja{channels, slot} =
+        traverse_ (breakControl slot $ Effects.stun n) channels
 
 breakControl :: ∀ m. (MonadGame m, MonadRandom m)
              => Slot -> EnumSet Class -> Channel -> m ()

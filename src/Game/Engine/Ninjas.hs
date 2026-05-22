@@ -202,14 +202,15 @@ decr n = processAlternates $ processEffects
     n { N.defense   = mapMaybe TurnBased.decr $ N.defense n
       , N.statuses  = mapMaybe TurnBased.decr $ N.statuses n
       , N.barrier   = mapMaybe TurnBased.decr $ N.barrier n
-      , N.channels  = mapMaybe TurnBased.decr $ N.newChans n ++ N.channels n
+      , N.channels  = mapMaybe (TurnBased.decr . setNotNew) $ N.channels n
       , N.traps     = mapMaybe TurnBased.decr $ N.traps n
       , N.delays    = mapMaybe TurnBased.decr $ N.delays n
-      , N.newChans  = mempty
       , N.copies    = (TurnBased.decr =<<) <$> N.copies n
       , N.cooldowns = (max 0 . subtract 1) `omap` N.cooldowns n
       , N.acted     = False
       }
+  where
+    setNotNew chan = chan { Channel.new = False }
 
 addStatus :: Status -> Ninja -> Ninja
 addStatus st = modifyStatuses $ Classed.nonStack st st
@@ -275,7 +276,7 @@ addChannels :: Skill -> Slot -> Ninja -> Ninja
 addChannels skill target n
   | chan == Instant || dur == 1                     = n
   | Effects.stun n `intersects` Skill.classes skill = n
-  | otherwise = n { N.newChans = chan' : N.newChans n }
+  | otherwise = n { N.channels = chan' : N.channels n }
   where
     chan  = Skill.dur skill
     dur   = succ $ TurnBased.getDur chan
@@ -283,14 +284,13 @@ addChannels skill target n
         { target
         , skill = skill { Skill.require = Usable }
         , dur   = TurnBased.setDur dur chan
+        , new   = True
         }
 
 -- | Deletes matching 'channels'.
 cancelChannel :: Text -- ^ 'Skill.name'.
               -> Ninja -> Ninja
-cancelChannel name n = n { N.channels = f $ N.channels n
-                         , N.newChans = f $ N.newChans n
-                         }
+cancelChannel name n = n { N.channels = f $ N.channels n }
   where
     f = filter $ (/= name) . Skill.name . Channel.skill
 

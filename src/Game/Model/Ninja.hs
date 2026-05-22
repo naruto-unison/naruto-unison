@@ -50,7 +50,6 @@ new slot c@Character{skills} = Ninja
     , alternates = replicate skillSize 0
     , copies     = replicate skillSize Nothing
     , channels   = mempty
-    , newChans   = mempty
     , traps      = mempty
     , delays     = mempty
     , lastSkill  = Nothing
@@ -75,7 +74,8 @@ isChanneling :: Text -- ^ 'Skill.name'.
              -> Ninja -> Bool
 isChanneling name n = any matches $ channels n
   where
-    matches (Channel Skill{name = skillName} _ _) = name == skillName
+    matches (Channel Skill{name = skillName} _ False _) = name == skillName
+    matches _                                           = False
 
 has' :: ∀ a. Labeled a
      => (Ninja -> [a])

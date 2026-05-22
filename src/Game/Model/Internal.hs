@@ -89,6 +89,7 @@ instance PathPiece Category where
 data Channel = Channel
     { skill  :: Skill
     , target :: Slot
+    , new    :: Bool
     , dur    :: Channeling
     } deriving (Generic)
 
@@ -185,7 +186,6 @@ data Ninja = Ninja
     , barrier    :: [Barrier]        -- ^ Starts empty
     , statuses   :: [Status]         -- ^ Starts empty
     , channels   :: [Channel]        -- ^ Starts empty
-    , newChans   :: [Channel]        -- ^ Starts empty
     , traps      :: [Trap]           -- ^ Starts empty
     , delays     :: [Delay]          -- ^ Starts empty
     , lastSkill  :: Maybe Skill      -- ^ Starts at @Nothing@
