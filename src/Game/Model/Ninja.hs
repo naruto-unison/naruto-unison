@@ -29,7 +29,6 @@ import qualified Game.Model.Internal
 import qualified Game.Model.Internal.Character as Character
 import qualified Game.Model.Internal.Skill as Skill
 import           Game.Model.Slot (Slot)
-import qualified Game.Model.Internal.Status as Status
 import           Util ((∈), (∉), (!?))
 
 -- | Number of 'Skill' slots. This number is the boundary on quite a few things,
@@ -144,7 +143,8 @@ numStacks :: Text -- ^ 'Status.name'.
           -> Slot -- ^ 'Status.user'.
           -> Ninja -> Int
 numStacks name user Ninja{statuses} = sum
-    $ Status.amount <$> filter (Labeled.match name user) statuses
+    [amount | st@Status{amount} <- statuses
+            , Labeled.match name user st]
 
 -- | Counts all 'Effect.helpful' effects in 'statuses' from allies.
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.

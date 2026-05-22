@@ -39,9 +39,10 @@ import           Mission.Progress (Progress(Progress))
 import           Util ((!!))
 
 missionKeys :: Text -> Mission -> [Int -> Progress]
-missionKeys name Mission{char, goals} = Progress char . fst <$> objectives
-  where
-    objectives = filter (Goal.belongsTo name . snd) . zip [0..] $ toList goals
+
+missionKeys name Mission{char, goals} =
+    [Progress char i | (i, goal) <- zip [0..] $ toList goals
+                     , Goal.belongsTo name goal]
 
 data Track s = Track
     { slot     :: Slot
