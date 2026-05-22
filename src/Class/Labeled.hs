@@ -7,19 +7,15 @@ module Class.Labeled
 
 import ClassyPrelude
 
-import Game.Model.Slot (Slot)
-import           Game.Model.Barrier (Barrier)
-import qualified Game.Model.Barrier as Barrier
-import           Game.Model.Copy (Copy)
-import qualified Game.Model.Copy as Copy
 import           Game.Model.Defense (Defense)
 import qualified Game.Model.Defense as Defense
-import           Game.Model.Skill (Skill)
-import qualified Game.Model.Skill as Skill
-import           Game.Model.Status (Status)
-import qualified Game.Model.Status as Status
-import           Game.Model.Trap (Trap)
-import qualified Game.Model.Trap as Trap
+import           Game.Model.Internal (Barrier, Copy, Skill, Status, Trap)
+import qualified Game.Model.Internal.Barrier as Barrier
+import qualified Game.Model.Internal.Copy as Copy
+import qualified Game.Model.Internal.Skill as Skill
+import qualified Game.Model.Internal.Status as Status
+import qualified Game.Model.Internal.Trap as Trap
+import           Game.Model.Slot (Slot)
 
 -- | Types with names and 'Model.Ninja.Ninja' sources.
 -- This is important because two different 'Model.Ninja.Ninja's might have

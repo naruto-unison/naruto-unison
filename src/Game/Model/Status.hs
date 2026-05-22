@@ -9,9 +9,8 @@ import ClassyPrelude
 
 import           Game.Model.Duration (Duration)
 import           Game.Model.Effect (Effect)
-import           Game.Model.Internal (Bomb(..), Status(..))
-import           Game.Model.Skill (Skill(Skill))
-import qualified Game.Model.Skill
+import           Game.Model.Internal (Bomb(..), Skill(Skill), Status(..))
+import qualified Game.Model.Internal
 import           Game.Model.Slot (Slot)
 
 new :: Slot -> Duration -> Skill -> Status

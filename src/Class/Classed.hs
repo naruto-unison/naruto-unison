@@ -9,22 +9,17 @@ import Data.Enum.Set (EnumSet)
 
 import           Class.Labeled (Labeled)
 import qualified Class.Labeled as Labeled
-import           Game.Model.Channel (Channel)
-import qualified Game.Model.Channel as Channel
 import           Game.Model.Class (Class(..))
-import qualified Game.Model.Context as Context
-import           Game.Model.Copy (Copy)
-import qualified Game.Model.Copy as Copy
-import           Game.Model.Delay (Delay)
-import qualified Game.Model.Delay as Delay
 import           Game.Model.Effect (Effect(..))
-import qualified Game.Model.Runnable as Runnable
-import           Game.Model.Skill (Skill)
-import qualified Game.Model.Skill as Skill
-import           Game.Model.Status (Status)
-import qualified Game.Model.Status as Status
-import           Game.Model.Trap (Trap)
-import qualified Game.Model.Trap as Trap
+import           Game.Model.Internal (Channel, Copy, Delay, Skill, Status, Trap)
+import qualified Game.Model.Internal.Channel as Channel
+import qualified Game.Model.Internal.Context as Context
+import qualified Game.Model.Internal.Copy as Copy
+import qualified Game.Model.Internal.Delay as Delay
+import qualified Game.Model.Internal.Runnable as Runnable
+import qualified Game.Model.Internal.Skill as Skill
+import qualified Game.Model.Internal.Status as Status
+import qualified Game.Model.Internal.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈))
 

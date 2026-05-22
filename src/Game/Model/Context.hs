@@ -8,11 +8,10 @@ module Game.Model.Context
 import ClassyPrelude
 
 import qualified Class.Parity as Parity
-import           Game.Model.Internal (Context(..))
+import           Game.Model.Internal (Context(..), Status(Status))
+import qualified Game.Model.Internal
 import           Game.Model.Player (Player)
-import qualified Game.Model.Skill as Skill
-import           Game.Model.Status (Status(Status))
-import qualified Game.Model.Status
+import qualified Game.Model.Internal.Skill as Skill
 
 fromStatus :: Status -> Context
 fromStatus Status{skill, user, classes} = Context

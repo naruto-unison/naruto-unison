@@ -17,21 +17,18 @@ import qualified  Data.List.NonEmpty as NonEmpty
 import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import qualified Game.Model.Barrier as Barrier
-import           Game.Model.Channel (Channel(Channel))
 import           Game.Model.Chakras (Chakras)
-import           Game.Model.Character (Character(Character))
-import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Defense (Defense(Defense))
 import qualified Game.Model.Defense as Defense
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Effect as Effect
-import           Game.Model.Internal (Ninja(..))
-import           Game.Model.Skill (Skill(Skill))
-import qualified Game.Model.Skill as Skill
+import           Game.Model.Internal (Ninja(..), Channel(Channel), Character(Character), Skill(Skill), Status(Status))
+import qualified Game.Model.Internal
+import qualified Game.Model.Internal.Character as Character
+import qualified Game.Model.Internal.Skill as Skill
 import           Game.Model.Slot (Slot)
-import           Game.Model.Status (Status(Status))
-import qualified Game.Model.Status as Status
+import qualified Game.Model.Internal.Status as Status
 import           Util ((∈), (∉), (!?))
 
 -- | Number of 'Skill' slots. This number is the boundary on quite a few things,

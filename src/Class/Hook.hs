@@ -11,11 +11,8 @@ import Control.Monad.Trans.Writer (WriterT)
 import Yesod.WebSockets (WebSocketsT)
 
 import Game.Model.Chakras (Chakras)
-import Game.Model.Context (Context)
-import Game.Model.Ninja (Ninja)
+import Game.Model.Internal (Context, Ninja, Skill, Trap)
 import Game.Model.Player (Player)
-import Game.Model.Skill (Skill)
-import Game.Model.Trap (Trap)
 import Game.Model.Trigger (Trigger)
 import Util (Lift)
 

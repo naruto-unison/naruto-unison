@@ -5,21 +5,16 @@ module Class.TurnBased
 
 import ClassyPrelude
 
-import           Game.Model.Barrier (Barrier)
-import qualified Game.Model.Barrier as Barrier
-import           Game.Model.Channel (Channeling(..), Channel)
-import qualified Game.Model.Channel as Channel
 import           Game.Model.Duration (Duration(..))
-import           Game.Model.Copy (Copy)
-import qualified Game.Model.Copy as Copy
 import           Game.Model.Defense (Defense)
 import qualified Game.Model.Defense as Defense
-import           Game.Model.Delay (Delay)
-import qualified Game.Model.Delay as Delay
-import           Game.Model.Status (Status)
-import qualified Game.Model.Status as Status
-import           Game.Model.Trap (Trap)
-import qualified Game.Model.Trap as Trap
+import           Game.Model.Internal (Barrier, Channeling(..), Channel, Copy, Delay, Status, Trap)
+import qualified Game.Model.Internal.Barrier as Barrier
+import qualified Game.Model.Internal.Channel as Channel
+import qualified Game.Model.Internal.Copy as Copy
+import qualified Game.Model.Internal.Delay as Delay
+import qualified Game.Model.Internal.Status as Status
+import qualified Game.Model.Internal.Trap as Trap
 
 -- | Typeclass for structures that expire after a set number of turns.
 --

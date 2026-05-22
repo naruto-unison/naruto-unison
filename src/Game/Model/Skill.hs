@@ -12,10 +12,8 @@ import ClassyPrelude
 import Data.Enum.Set (EnumSet)
 
 import qualified Game.Model.Chakras as Chakras
-import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
-import           Game.Model.Internal (Key(..), Ninja, Skill(..), Requirement(..), Target(..))
-import           Game.Model.Runnable(Runnable(To))
+import           Game.Model.Internal (Channeling(..), Key(..), Ninja, Skill(..), Requirement(..), Runnable(To), Target(..))
 import qualified Game.Model.Slot as Slot
 
 -- | The type signature of 'changes'.
