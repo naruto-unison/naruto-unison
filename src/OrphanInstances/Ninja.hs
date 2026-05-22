@@ -16,9 +16,6 @@ import           Game.Model.Class (Class(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja
-import           Game.Model.Requirement (Requirement(..))
-import qualified Game.Model.Requirement as Requirement
-import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
@@ -65,15 +62,10 @@ instance ToJSON Ninja where
         , "traps"     .= filter ((Hidden ∉) . Trap.classes) traps
         , "face"      .= (statusFace <$> mFace)
         , "lastSkill" .= lastSkill
-        , "skills"    .= (usable <$> Ninjas.skills n)
+        , "skills"    .= Ninjas.skills n
         ]
       where
         mFace = find ((Effect.Face ∈) . Status.effects) statuses
-        usable skill = skill { Skill.require = fulfill $ Skill.require skill }
-        fulfill req@UserHas{}
-          | Requirement.succeed req slot n = Usable
-          | otherwise                      = Unusable
-        fulfill x = x
         foldStats xs       = foldStat <$> group (sort xs)
         foldStat   (x:|[]) = x
         foldStat xs@(x:|_) = x { Status.amount = sum $ Status.amount <$> xs }
