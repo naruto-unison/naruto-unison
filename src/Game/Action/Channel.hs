@@ -32,7 +32,7 @@ interrupt :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 interrupt = P.unsilenced do
     Context{target} <- P.context
     (yay, nay) <- partition Channel.interruptible . N.channels <$> P.nTarget
-    traverse_ onInterrupt yay
+    mapM_ onInterrupt yay
     P.modify target \n -> n { N.channels = nay }
 
 -- | Triggers 'Skill.interrupt' effects of a @Channel@.

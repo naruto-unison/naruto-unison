@@ -89,8 +89,10 @@ setAlternates loadout = applyWith' alternateClasses "loadout" Permanent
 nextAlternate :: ∀ m. MonadPlay m => Text -> m ()
 nextAlternate name = do
     nTarget <- P.nTarget
-    forM_ (Ninjas.nextAlternate name nTarget) \alt ->
-        applyWith' alternateClasses "nextAlternate" 1 [Alternate name alt]
+    mapM_ applyNext $ Ninjas.nextAlternate name nTarget
+  where
+    applyNext alt = applyWith' alternateClasses "nextAlternate" 1
+                    [Alternate name alt]
 
 -- | Copies all @Skill@s from the target into the user's 'N.copies'.
 -- Uses 'Ninjas.copyAll' internally.
@@ -118,8 +120,8 @@ teach :: ∀ m. MonadPlay m
        -> m ()
 teach dur name slots = do
     Ninja{character = Character{skills}} <- P.nUser
-    let mskill = find ((== name) . Skill.name) $ concatMap toList skills
-    forM_ mskill $ P.toTarget . Ninjas.copy dur slots
+    mapM_ (P.toTarget . Ninjas.copy dur slots)
+        $ find ((== name) . Skill.name) $ concatMap toList skills
 
 -- | Resets a 'N.Ninja' to their initial state.
 -- Uses 'Ninjas.factory' internally.

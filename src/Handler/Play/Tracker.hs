@@ -66,7 +66,7 @@ resetGoal Reach{reach} amt
   | otherwise   = amt
 
 reset :: ∀ s. Track s -> ST s ()
-reset Track{goals, progress} = traverse_ f . zip [0..] $ toList goals
+reset Track{goals, progress} = mapM_ f . zip [0..] $ toList goals
   where
     f (i, goal@(Reach Turn _ _ _)) = MVector.unsafeModify progress
                                          (resetGoal goal) i
@@ -96,7 +96,7 @@ trackAction1 skill ns track@Track { actions
     sequence_ $ tracker' <$> ns <*> stores ! skill
     modifyRef' (skills) (skill :)
     used <- readRef $ skills
-    traverse_ (consec used) consecs
+    mapM_ (consec used) consecs
   where
     user = snd $ ns !! Slot.toInt slot
     consec used (i, match)
@@ -185,11 +185,11 @@ new Ninja{character, slot} = makeTrack
 newtype Tracker s = Tracker (Vector (Track s))
 
 trackAll :: ∀ s. (Track s -> ST s ()) -> Tracker s -> ST s ()
-trackAll f (Tracker xs) = traverse_ f xs
+trackAll f (Tracker xs) = mapM_ f xs
 
 -- | The mutable elements of the Tracker may not be used after this operation.
 unsafeFreeze :: ∀ s. Tracker s -> ST s [Progress]
-unsafeFreeze (Tracker xs) = concat <$> traverse freeze xs
+unsafeFreeze (Tracker xs) = concat <$> mapM freeze xs
   where
     freeze Track{key, progress} = (zipWith ($) key) . toList
                                   <$> Vector.unsafeFreeze progress

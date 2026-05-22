@@ -64,7 +64,7 @@ runTurn :: ∀ m o. ( MonadGame m, MonadHook m, MonadRandom m
                   , MonoTraversable o, Context ~ Element o
                   ) => o -> m ()
 runTurn acts = do
-    processTurn $ traverse_ Action.act acts
+    processTurn $ mapM_ Action.act acts
     Chakra.gain
 
 -- | The underlying mechanism of 'runTurn'.
@@ -77,7 +77,7 @@ processTurn runner = do
     let opponent = Player.opponent player
     runner
     channels <- concatMap getChannels . filter N.alive <$> P.allies player
-    traverse_ Action.act channels
+    mapM_ Action.act channels
     Traps.runTurn initial
     doBombs Remove initial
     doBarriers
@@ -106,14 +106,14 @@ processTurn runner = do
 
 -- | Runs 'Game.delays'.
 doDelays :: ∀ m. (MonadGame m, MonadRandom m) => m ()
-doDelays = traverse_ delay . filter N.alive =<< P.ninjas
+doDelays = mapM_ delay . filter N.alive =<< P.ninjas
   where
-    delay Ninja{delays} = traverse_ (P.launch . Delay.effect)
+    delay Ninja{delays} = mapM_ (P.launch . Delay.effect)
         $ filter TurnBased.expiring delays
 
 -- | Executes 'Status.bombs' of a @Status@.
 doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
-doBomb bomb target st@Status{bombs} = traverse_ detonate bombs
+doBomb bomb target st@Status{bombs} = mapM_ detonate bombs
   where
     context = (Context.fromStatus st) { Context.target = target }
     detonate (To targ run)
@@ -138,7 +138,7 @@ doBarriers :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 doBarriers = do
     Game{playing = player} <- P.game
     ninjas <- P.ninjas
-    traverse_ (doBarrier player) $ concatMap ((head <$>) . collect) ninjas
+    mapM_ (doBarrier player) $ concatMap ((head <$>) . collect) ninjas
   where
     collect Ninja{barrier} = groupBy Labeled.eq $ sortWith Barrier.name barrier
     doBarrier p b@Barrier{amount, finish, user, while}
@@ -148,7 +148,7 @@ doBarriers = do
 
 -- | Executes 'Trigger.death'.
 doDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
-doDeaths = traverse_ doDeath Slot.all
+doDeaths = mapM_ doDeath Slot.all
 
 -- | If the 'N.health' of a 'Ninja' reaches 0,
 -- they are either resurrected by triggering 'OnRes'
@@ -167,7 +167,7 @@ doDeath slot = do
     else if null res then do
         P.modify slot $ Ninjas.clearTraps OnDeath
         sequence_ $ Traps.getOf slot OnDeath n
-        traverse_ (doBomb Done slot)
+        mapM_ (doBomb Done slot)
             $ filter ((Necromancy ∉) . Status.classes) statuses
         P.modifyAll $ unSoulbound slot
 
@@ -189,7 +189,7 @@ unSoulbound user n@Ninja{copies, statuses, traps} = Ninjas.modifyStatuses
 -- | Executes 'Model.Effect.Afflict' and 'Model.Effect.Heal'
 -- 'Model.Effect.Effect's.
 doHpsOverTime :: ∀ m. MonadGame m => m ()
-doHpsOverTime = traverse_ doHpOverTime Slot.all
+doHpsOverTime = mapM_ doHpOverTime Slot.all
 
 doHpOverTime :: ∀ m. MonadGame m => Slot -> m ()
 doHpOverTime slot = do

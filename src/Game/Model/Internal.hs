@@ -371,7 +371,7 @@ class Monad m => MonadGame m where
     write     :: Slot -> Ninja -> m ()
     modify    :: Slot -> (Ninja -> Ninja) -> m ()
     modifyAll :: (Ninja -> Ninja) -> m ()
-    modifyAll f = traverse_ (`modify` f) Slot.all
+    modifyAll f = mapM_ (`modify` f) Slot.all
 
     default game :: Lift MonadGame m
                  => m Game

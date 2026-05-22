@@ -201,7 +201,7 @@ run' affected xs = do
     Context{skill} <- P.context
     let local t context = context { Context.skill = skill, Context.target = t }
         exec (To t r)   = P.with (local t) $ targetEffect affected r
-    traverse_ (traverse_ exec) xs
+    mapM_ (mapM_ exec) xs
 
 -- | If 'Skill.dur' is long enough to last for multiple turns, the 'Skill'
 -- is added to 'N.channels'.
@@ -244,7 +244,7 @@ act ctx@Context{user, new, skill} = void $ runMaybeT do
             let bothEfs = startEfs ++ contEfs
 
             countering  <- filterCounters bothEfs . toList <$> P.enemies user
-            traverse_ Trigger.absorb countering
+            mapM_ Trigger.absorb countering
             let counters = Trigger.userCounters (not $ null countering)
                            user classes nUser ++
                            (countering >>= Trigger.targetCounters user classes)
@@ -275,7 +275,7 @@ act ctx@Context{user, new, skill} = void $ runMaybeT do
             Game{chakra = chakra'} <- P.game
             Hook.chakra skill chakra chakra'
 
-        traverse_ (sequence_ . Traps.get user) =<< P.ninjas
+        mapM_ (sequence_ . Traps.get user) =<< P.ninjas
 
         P.modifyAll $ unreflect . \n -> n { N.triggers = mempty }
         breakControls
@@ -303,10 +303,10 @@ nonRandom _      = True
 -- For example, if a Control skill targets an enemy, the channel will end
 -- if the target becomes invulnerable or dies.
 breakControls :: ∀ m. (MonadGame m, MonadRandom m) => m ()
-breakControls = traverse_ breakN =<< P.ninjas
+breakControls = mapM_ breakN =<< P.ninjas
   where
     breakN n@Ninja{channels, slot} =
-        traverse_ (breakControl slot $ Effects.stun n) channels
+        mapM_ (breakControl slot $ Effects.stun n) channels
 
 breakControl :: ∀ m. (MonadGame m, MonadRandom m)
              => Slot -> EnumSet Class -> Channel -> m ()

@@ -206,10 +206,10 @@ processWin team = do
     unlocks  <- unlocked
     let chars = mapMaybe (`Bimap.lookupR` ids) team
     runDB do
-        traverse_ ups chars
-        traverse_ (updateProgress who 1) $ winners ids team unlocks
+        mapM_ ups chars
+        mapM_ (void . updateProgress who 1) $ winners ids team unlocks
   where
-    ups char = upsert (newUsage char){ usagePicked = 1, usageWins = 1 }
+    ups char = void $ upsert (newUsage char){ usagePicked = 1, usageWins = 1 }
                [UsagePicked +=. 1, UsageWins +=. 1]
 
 -- | Resets all 'Goal.WinConsecutive' win progress to 0.
@@ -220,10 +220,10 @@ processDefeat team = do
     who <- Auth.requireAuthId
     ids <- getsYesod App.characterIDs
     runDB do
-        traverse_ (resetGoal ids who) Missions.consecutiveWins
-        traverse_ ups $ mapMaybe (`Bimap.lookupR` ids) team
+        mapM_ (resetGoal ids who) Missions.consecutiveWins
+        mapM_ ups $ mapMaybe (`Bimap.lookupR` ids) team
   where
-    ups char = upsert (newUsage char){ usagePicked = 1, usageLosses = 1 }
+    ups char = void $ upsert (newUsage char){ usagePicked = 1, usageLosses = 1 }
                [UsagePicked +=. 1, UsageLosses +=. 1]
 
 -- | Updates usage stats after a game.
@@ -232,10 +232,10 @@ processUnpicked :: [Text] -> Handler ()
 processUnpicked team = do
     ids             <- getsYesod App.characterIDs
     Unlocks unlocks <- unlocked
-    runDB . traverse_ ups . mapMaybe (`Bimap.lookupR` ids) . toList
+    runDB . mapM_ ups . mapMaybe (`Bimap.lookupR` ids) . toList
         $ unlocks `difference` setFromList team
   where
-    ups char = upsert (newUsage char){ usageUnpicked = 1 }
+    ups char = void $ upsert (newUsage char){ usageUnpicked = 1 }
                [UsageUnpicked +=. 1]
 
 -- | Resets progress toward a goal to 0.

@@ -55,7 +55,7 @@ getHomeR = do
     citelink           <- liftIO Link.cite
     (newsList, topics) <- runDB do
         newsPlain <- selectList [] [Desc NewsTime, LimitTo 5]
-        newsList  <- traverse withAuthor newsPlain
+        newsList  <- mapM withAuthor newsPlain
         topics    <- Forum.selectWithAuthors
                      (Forum.filterTopics privilege [])
                      [Desc ForumTopicTime, LimitTo 10]

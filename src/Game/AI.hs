@@ -89,6 +89,6 @@ runTurn = do
         Nothing -> Engine.runTurn [] -- All enemies are dead
         Just v  -> do
             ninjas <- P.ninjas
-            acts   <- traverse (run v) . Parity.half Player.B $ fromList ninjas
+            acts   <- mapM (run v) . Parity.half Player.B $ fromList ninjas
             contexts <- R.shuffle (catMaybes acts)
             Engine.runTurn contexts

@@ -82,7 +82,7 @@ get user n@Ninja{traps, triggers}
   | N.alive n = hooks : (run user <$> traps')
   | otherwise = []
   where
-      hooks = traverse_ (`Hook.trigger` n) triggers
+      hooks = mapM_ (`Hook.trigger` n) triggers
       traps' = filter ((∈ triggers) . Trap.trigger) traps
 
 -- | Adds a value to 'Trap.tracker' of 'N.traps' with a certain @Trigger@.
@@ -145,8 +145,8 @@ runTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => [Ninja] -> m ()
 runTurn ninjas = do
     Game{playing = player} <- P.game
     ninjas' <- P.ninjas
-    traverse_ sequence_ $ zipWith (getTurnPer player) ninjas ninjas'
-    traverse_ sequence_ $ getTurnNot <$> Parity.half player ninjas'
+    mapM_ sequence_ $ zipWith (getTurnPer player) ninjas ninjas'
+    mapM_ sequence_ $ getTurnNot <$> Parity.half player ninjas'
 
 -- | Trap engine.
 apply :: ∀ m. MonadPlay m

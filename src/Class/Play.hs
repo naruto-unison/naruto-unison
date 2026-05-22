@@ -71,7 +71,7 @@ withTarget x = with \ctx -> ctx { Context.target = x }
 
 -- | Runs an action against each 'target'.
 withTargets :: ∀ m. MonadPlay m => [Slot] -> m () -> m ()
-withTargets xs f = traverse_ (`withTarget` f) xs
+withTargets xs f = mapM_ (`withTarget` f) xs
 
 -- | Sets 'Context.continues' to @True@.
 withContinues :: ∀ m. MonadPlay m => m () -> m ()

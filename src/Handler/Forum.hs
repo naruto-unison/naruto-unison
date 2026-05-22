@@ -66,7 +66,7 @@ getForumsR = do
     App.lastModified $ maybe epoch (forumTopicModified . entityVal) modified
     privilege <- App.getPrivilege
     citelink  <- liftIO Link.cite
-    allBoards <- runDB $ traverse (indexBoard privilege) [minBound..maxBound]
+    allBoards <- runDB $ mapM (indexBoard privilege) [minBound..maxBound]
     let boards category = filter (inCategory category) allBoards
     defaultLayout $(widgetFile "forum/browse")
   where
@@ -102,7 +102,7 @@ getTopicR topicId = do
     time       <- liftIO getCurrentTime
     timestamp  <- liftIO Link.makeTimestamp
     posts      <- runDB do posts <- getPosts privilege
-                           traverse (getLikes mwho) posts
+                           mapM (getLikes mwho) posts
     mwidget    <- forM (guard (forumTopicState topic == Open) >> mwho)
                 $ generateFormPost . renderTable . Form.post topicId time
     let ForumTopic{forumTopicBoard, forumTopicState} = topic
@@ -148,7 +148,7 @@ postTopicR topicId = do
 
             _ -> do
                 posts <- runDB do posts <- getPosts privilege
-                                  traverse (getLikes $ Just who) posts
+                                  mapM (getLikes $ Just who) posts
                 let mwho    = Just who
                     mwidget = Just (widget, enctype)
                 defaultLayout $(widgetFile "forum/topic")
@@ -219,7 +219,7 @@ filterTopics p xs
 -- | Fills out author information from the database.
 selectWithAuthors :: ∀ m a. (MonadIO m, HasAuthor a, AppPersistEntity a)
                   => [Filter a] -> [SelectOpt a] -> SqlPersistT m [Cite a]
-selectWithAuthors selectors opts = traverse go =<< selectList selectors opts
+selectWithAuthors selectors opts = mapM go =<< selectList selectors opts
   where
     go (Entity citeKey citeVal) = do
         citeAuthor <- get404 author

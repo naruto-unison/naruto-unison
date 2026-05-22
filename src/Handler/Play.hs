@@ -130,7 +130,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2]
   | hasDuplicates a1 b1 c1 || hasDuplicates a2 b2 c2 =
     invalidArgs ["Duplicate characters"]
   | otherwise = do
-    ninjas <- case traverse Characters.lookup [c1, b1, a1, a2, b2, c2] of
+    ninjas <- case mapM Characters.lookup [c1, b1, a1, a2, b2, c2] of
         Just chars -> return $ zipWith N.new Slot.all chars
         Nothing    -> invalidArgs ["Character(s) not found"]
 
@@ -273,7 +273,7 @@ gameSocket = webSockets do
                 Victory -> Mission.processWin team
                 _       -> Mission.processDefeat team
             Mission.processUnpicked team
-            traverse_ Mission.progress $ Wrapper.progress game
+            mapM_ (void . Mission.progress) $ Wrapper.progress game
 
   `finally`
       Queue.leave
@@ -357,7 +357,7 @@ enact :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
 enact Enact{spend, exchange, actions}
   | randTotal < 0 = return $ Left "Insufficient chakra"
   | otherwise     = runExceptT do
-    contexts <- traverse Act.toContext actions
+    contexts <- mapM Act.toContext actions
     Game{chakra, playing = player} <- P.game
     validate player contexts
 
