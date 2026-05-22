@@ -118,7 +118,7 @@ getSkill s n
   | n `is` Swap = Skills.swap <$> base
   | otherwise   = base
   where
-    base = Skills.change n . Requirement.usable True n
+    base = Requirement.usable True n . Skills.change n
          <$> ((Copy.skill <$> join (N.copies n !? s)) <|> N.baseSkill s n)
 
 -- | Searches 'skills'.
