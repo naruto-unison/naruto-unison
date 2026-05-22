@@ -1,6 +1,7 @@
 module Class.TurnBased
   ( TurnBased(..)
   , decr
+  , expiring
   ) where
 
 import ClassyPrelude
@@ -32,9 +33,14 @@ class TurnBased a where
 -- If @'getDur' == Duration 1@, deletes the structure; it has expired.
 -- Otherwise, decrements the remaining duration by 1.
 decr :: ∀ a. TurnBased a => a -> Maybe a
-decr x = case getDur x of
-    Duration 1 -> Nothing
-    dur        -> Just $ setDur (pred dur) x -- @Pred Permanent == Permanent@
+decr x
+  | dur < 1     = Nothing
+  | otherwise   = Just $ setDur (pred dur) x -- @pred Permanent == Permanent@
+  where
+    dur = getDur x
+
+expiring :: ∀ a. TurnBased a => a -> Bool
+expiring x = getDur x < 1
 
 instance TurnBased Barrier where
     getDur = Barrier.dur

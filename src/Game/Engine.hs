@@ -94,7 +94,7 @@ processTurn runner = do
     Hook.turn player initial =<< P.ninjas
   where
     isActiveChannel Channel{new = True} = False
-    isActiveChannel channel = TurnBased.getDur channel /= -1
+    isActiveChannel channel = not $ TurnBased.expiring channel
     getChannels n = fromChannel n <$> filter isActiveChannel (N.channels n)
     fromChannel n (Channel skill target _ _) = Context
         { new       = False
@@ -109,7 +109,7 @@ doDelays :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 doDelays = traverse_ delay . filter N.alive =<< P.ninjas
   where
     delay Ninja{delays} = traverse_ (P.launch . Delay.effect)
-        $ filter ((<= -1) . Delay.dur) delays
+        $ filter TurnBased.expiring delays
 
 -- | Executes 'Status.bombs' of a @Status@.
 doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
@@ -141,8 +141,8 @@ doBarriers = do
     traverse_ (doBarrier player) $ concatMap ((head <$>) . collect) ninjas
   where
     collect Ninja{barrier} = groupBy Labeled.eq $ sortWith Barrier.name barrier
-    doBarrier p Barrier{amount, dur, finish, user, while}
-      | dur == -1            = P.launch $ finish amount
+    doBarrier p b@Barrier{amount, finish, user, while}
+      | TurnBased.expiring b = P.launch $ finish amount
       | Parity.allied p user = P.launch while
       | otherwise            = return ()
 
