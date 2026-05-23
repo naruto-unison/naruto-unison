@@ -82,6 +82,7 @@ targetable :: Skill -- ^ @Skill@ to check.
 targetable Skill{classes, require} n@Ninja{slot = user} nt@Ninja{slot = target}
   | not $ succeed require user nt  = False
   | user == target                 = True
+  | not (N.alive nt) && Necromancy ∉ classes = False
   | harm && n `is` BlockEnemies    = False
   | not harm && n `is` BlockAllies = False
   | harm && invuln && not bypass   = False
@@ -101,7 +102,6 @@ targets :: [Ninja] -> Ninja -> Skill -> [Ninja]
 targets ns n@Ninja{slot = user} skill = filter filt ns
   where
     filt nt = targetSlot (N.slot nt) && targetable skill n nt
-              && (N.alive nt || Necromancy ∈ Skill.classes skill)
     ts      = Skill.targets skill
     targetSlot t
       | Everyone ∈ ts                = True

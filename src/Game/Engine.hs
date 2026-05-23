@@ -46,6 +46,7 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import           Game.Model.Runnable (Runnable(To))
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Status (Bomb(..), Status(Status))
@@ -113,9 +114,15 @@ doDelays = mapM_ delay . filter N.alive =<< P.ninjas
 
 -- | Executes 'Status.bombs' of a @Status@.
 doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
-doBomb bomb target st@Status{bombs} = mapM_ detonate bombs
+doBomb bomb target st@Status{bombs, skill} = mapM_ detonate bombs
   where
-    context = (Context.fromStatus st) { Context.target = target }
+    st'
+      | bomb == Done =
+            st { Status.skill = skill
+                  { Skill.classes = insertSet Necromancy $ Skill.classes skill }
+               }
+      | otherwise    = st
+    context = (Context.fromStatus st') { Context.target = target }
     detonate (To targ run)
       | bomb /= targ = return ()
       | otherwise    = P.withContext context $ Action.wrap run

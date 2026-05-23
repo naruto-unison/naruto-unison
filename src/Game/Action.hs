@@ -119,23 +119,27 @@ wrap' affected f = void $ runMaybeT do
 targeted :: ∀ m. (MonadPlay m, MonadRandom m)
          => [Runnable Target] -> m [[Runnable Slot]]
 targeted targets = do
-    Context{user, skill = skill@Skill{require}} <- P.context
-    nUser  <- P.nUser
+    Context{skill, user} <- P.context
     ninjas <- P.ninjas
+    let nUser = ninjas !! Slot.toInt user
     forM targets \(To target runner) -> do
         choices <- chooseTargets target
         return [ To t runner
                    | t <- choices
-                   , let nTarget = ninjas !! Slot.toInt t
-                   , Requirement.succeed require user nTarget
-                   , Requirement.targetable skill nUser nTarget
+                   , Requirement.targetable skill nUser $ ninjas !! Slot.toInt t
                    ]
 
 fromContext :: ∀ m a. MonadPlay m => (Context -> a) -> m a
 fromContext f = f <$> P.context
 
-chooseRandomTarget :: ∀ m. MonadRandom m => [Slot] -> m [Slot]
-chooseRandomTarget slots = maybeToList <$> R.choose slots
+chooseRandomTarget :: ∀ m. (MonadPlay m, MonadRandom m) => [Slot] -> m [Slot]
+chooseRandomTarget slots = do
+    Context{skill, user} <- P.context
+    ninjas <- P.ninjas
+    let nUser = ninjas !! Slot.toInt user
+    let isValidSlot slot = Requirement.targetable skill nUser
+                         $ ninjas !! Slot.toInt slot
+    maybeToList <$> R.choose (filter isValidSlot slots)
 
 -- | Transforms a @Target@ into @Slot@s.
 -- 'REnemy', 'RAlly', and 'RXAlly' targets are chosen at random.

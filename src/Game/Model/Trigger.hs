@@ -1,6 +1,7 @@
 
 module Game.Model.Trigger
   ( Trigger(..)
+  , affectsDead
   , isCounter
   ) where
 
@@ -81,6 +82,11 @@ instance Display Trigger where
     display OnStun             = "Trigger: Apply a stun or disabling effect."
     display OnStunned          = "Trigger: Stunned."
     display PerDamaged         = "Trigger: Receive damage."
+
+affectsDead :: Trigger -> Bool
+affectsDead OnDeath = True
+affectsDead OnRes   = True
+affectsDead _       = False
 
 isCounter :: Trigger -> Bool
 isCounter Counter{}    = True

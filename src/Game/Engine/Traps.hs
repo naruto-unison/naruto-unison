@@ -184,11 +184,14 @@ makeTrap ctx direction classes dur trigger f = Trap
     }
   where
     Context{continues, new, skill, user} = ctx
-    modClasses
+    setContinues
       | continues && dur <= 1 = insertSet Continues
       | continues || new      = deleteSet Continues
       | otherwise             = deleteSet Continues . deleteSet Invisible
-    classes' = modClasses $ classes ++ Skill.classes skill
+    setNecromancy
+      | Trigger.affectsDead trigger = insertSet Necromancy
+      | otherwise                   = id
+    classes' = setContinues . setNecromancy $ classes ++ Skill.classes skill
     skill'   = skill { Skill.classes = classes'
                      , Skill.require = Usable
                      }
