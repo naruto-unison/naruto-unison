@@ -7,13 +7,7 @@ module Class.Labeled
 
 import ClassyPrelude
 
-import           Game.Model.Internal (Destructible, Copy, Skill, Status, Trap)
-import qualified Game.Model.Internal.Copy as Copy
-import qualified Game.Model.Internal.Destructible as Destructible
-import qualified Game.Model.Internal.Skill as Skill
-import qualified Game.Model.Internal.Status as Status
-import qualified Game.Model.Internal.Trap as Trap
-import           Game.Model.Slot (Slot)
+import Game.Model.Slot (Slot)
 
 -- | Types with names and 'Model.Ninja.Ninja' sources.
 -- This is important because two different 'Model.Ninja.Ninja's might have
@@ -40,23 +34,3 @@ mapFirst _ _ _ [] = []
 mapFirst f name' user' (x:xs)
   | match name' user' x = f x : xs
   | otherwise           = x : mapFirst f name' user' xs
-
-instance Labeled Destructible where
-    name = name . Destructible.skill
-    user = Destructible.user
-
-instance Labeled Copy where
-    name = name . Copy.skill
-    user = user . Copy.skill
-
-instance Labeled Skill where
-    name = Skill.name
-    user = Skill.owner
-
-instance Labeled Status where
-    name = Status.name
-    user = Status.user
-
-instance Labeled Trap where
-    name = Trap.name
-    user = Trap.user

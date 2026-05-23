@@ -20,6 +20,10 @@ import Text.Blaze (ToMarkup(..))
 import Yesod.Core.Dispatch (PathPiece(..))
 import Yesod.WebSockets (WebSocketsT)
 
+import           Class.Classed (Classed)
+import qualified Class.Classed
+import           Class.Labeled (Labeled)
+import qualified Class.Labeled
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
@@ -42,6 +46,7 @@ data Bomb
     deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
 
 instance ToJSON Bomb
+
 
 -- | 'Original', 'Shippuden', or 'Reanimated'.
 data Category
@@ -66,6 +71,7 @@ instance PathPiece Category where
     fromPathPiece "reanimated" = Just Reanimated
     fromPathPiece _            = Nothing
 
+
 -- | An 'Model.Act.Act' channeled over multiple turns.
 data Channel = Channel
     { skill  :: Skill
@@ -75,6 +81,14 @@ data Channel = Channel
     } deriving (Generic)
 
 instance ToJSON Channel
+
+instance Classed Channel where
+    classes (Channel Skill{classes} _ _ _) = classes
+
+instance Labeled Channel where
+    name (Channel Skill{name} _ _ _)  = name
+    user (Channel Skill{owner} _ _ _) = owner
+
 
 -- | Types of channeling for 'Skill's.
 data Channeling
@@ -95,6 +109,7 @@ instance ToMarkup Channeling where
     toMarkup (Control x) = "Control " ++ toMarkup x
     toMarkup (Ongoing x) = "Ongoing " ++ toMarkup x
 
+
 -- | An out-of-game character.
 data Character = Character
     { name     :: Text
@@ -113,6 +128,7 @@ instance Eq Character where
 instance Ord Character where
     compare = comparing \Character{category, name} -> (category, name)
 
+
 -- | A 'Skill' copied from a different character.
 data Copy = Copy
     { skill :: Skill
@@ -121,11 +137,27 @@ data Copy = Copy
 
 instance ToJSON Copy
 
+instance Classed Copy where
+    classes (Copy Skill{classes} _) = classes
+
+instance Labeled Copy where
+    name (Copy Skill{name} _)  = name
+    user (Copy Skill{owner} _) = owner
+
+
 -- | Applies an effect after several turns.
 data Delay = Delay
     { effect :: Runnable Context
     , dur    :: Duration
     }
+
+instance Classed Delay where
+    classes (Delay (To Context{skill = Skill{classes}} _) _) = classes
+
+instance Labeled Delay where
+    name (Delay (To Context{skill = Skill{name}} _) _) = name
+    user (Delay (To Context{user} _) _)                = user
+
 
 -- | Destructible barrier or defense.
 data Destructible = Destructible
@@ -145,6 +177,14 @@ instance ToJSON Destructible where
         , "dur"    .= dur
         ]
 
+instance Classed Destructible where
+    classes Destructible{skill = Skill{classes}} = classes
+
+instance Labeled Destructible where
+    name Destructible{skill = Skill{name}} = name
+    user Destructible{user}                = user
+
+
 data Direction
     = Toward
     | From
@@ -152,6 +192,7 @@ data Direction
     deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
 
 instance ToJSON Direction
+
 
  -- Used for 'Game.Ninja.cooldowns' and 'Game.Ninja.charges'.
  -- Generated from a 'Skill'.
@@ -171,6 +212,7 @@ instance ToJSON Key where
 instance ToJSONKey Key where
     toJSONKey = toJSONKeyText toText
     {-# INLINE toJSONKey #-}
+
 
 -- | In-game character, indexed between 0 and 5.
 data Ninja = Ninja
@@ -197,6 +239,11 @@ instance Parity Ninja where
     even = Parity.even . slot
     {-# INLINE even #-}
 
+instance Labeled Ninja where
+    name Ninja{character = Character{name}} = name
+    user Ninja{slot}                        = slot
+
+
 data Requirement
     = Usable
     | Unusable
@@ -208,6 +255,7 @@ data Requirement
     deriving (Eq, Ord, Show, Read, Generic)
 
 instance ToJSON Requirement
+
 
 -- | A move that a 'Character' can perform.
 data Skill = Skill
@@ -258,6 +306,14 @@ instance ToJSON Skill where
         , "owner"     .= owner
         ]
 
+instance Classed Skill where
+    classes Skill{classes} = classes
+
+instance Labeled Skill where
+    name Skill{name}  = name
+    user Skill{owner} = owner
+
+
 -- | A status effect affecting a 'Ninja'.
 data Status = Status
     { amount  :: Int  -- ^ Starts at 1
@@ -281,6 +337,14 @@ instance Ord Status where
     compare = comparing \Status{name, user, classes, dur} ->
         (name, user, classes, dur)
 
+instance Classed Status where
+    classes Status{classes} = classes
+
+instance Labeled Status where
+    name Status{name} = name
+    user Status{user} = user
+
+
 -- | Target destinations of 'Skill's.
 data Target
     = Self     -- ^ User of 'Skill'
@@ -300,6 +364,7 @@ data Target
 instance ToJSON Target
 
 instance AsEnumSet Target
+
 
 -- | A trap which gets triggered when a 'Ninja' meets the conditions of a 'Trigger'.
 data Trap = Trap
@@ -339,6 +404,14 @@ instance Eq Trap where
     (==) = (==) `on` \Trap{direction, trigger, name, user, classes, dur} ->
         (direction, trigger, name, user, classes, dur)
 
+instance Classed Trap where
+    classes Trap{classes} = classes
+
+instance Labeled Trap where
+    name Trap{name} = name
+    user Trap{user} = user
+
+
 -- | Gameplay context. This promotes a 'MonadGame' to 'MonadPlay'.
 data Context = Context
     { skill     :: Skill
@@ -357,6 +430,14 @@ data Context = Context
     } deriving (Generic)
 
 instance ToJSON Context
+
+instance Classed Context where
+    classes Context{skill = Skill{classes}} = classes
+
+instance Labeled Context where
+    name Context{skill = Skill{name}} = name
+    user Context{user}                = user
+
 
 instance MonadRandom m => MonadRandom (ReaderT Context m)
 

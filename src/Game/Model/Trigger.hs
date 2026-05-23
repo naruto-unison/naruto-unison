@@ -9,8 +9,10 @@ import ClassyPrelude
 
 import Data.Aeson (ToJSON(..))
 
-import Class.Display (Display(..))
-import Game.Model.Class (Class(..), lower)
+import           Class.Classed (Classed)
+import qualified Class.Classed
+import           Class.Display (Display(..))
+import           Game.Model.Class (Class(..), lower)
 
 -- | Conditions to activate a 'Game.Model.Trap.Trap'
 data Trigger
@@ -46,6 +48,15 @@ instance Hashable Trigger
 instance ToJSON Trigger where
     toJSON = toJSON . display'
     {-# INLINE toJSON #-}
+
+instance Classed Trigger where
+    classes (Counter cla)      = singletonSet cla
+    classes (CounterAll cla)   = singletonSet cla
+    classes (Countered cla)    = singletonSet cla
+    classes (OnAction cla)     = singletonSet cla
+    classes (OnDamaged cla)    = singletonSet cla
+    classes (OnHarmed cla)     = singletonSet cla
+    classes _                  = mempty
 
 instance Display Trigger where
     display (Counter Uncounterable)    = "Next skill received from an enemy will be negated."

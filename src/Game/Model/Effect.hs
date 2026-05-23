@@ -14,6 +14,8 @@ import ClassyPrelude
 import Data.Aeson ((.=), ToJSON(..), object)
 import Data.Enum.Set (EnumSet)
 
+import           Class.Classed (Classed)
+import qualified Class.Classed
 import           Class.Display (Display(..))
 import           Game.Model.Class (Class(..))
 import qualified Game.Model.Class as Class
@@ -83,6 +85,17 @@ instance ToJSON Effect where
         , "visible" .= visible x
         , "slot"    .= slot x
         ]
+
+instance Classed Effect where
+    classes (Bleed c _ _)      = c
+    classes (Exhaust c)        = c
+    classes (Invulnerable c)   = singletonSet c
+    classes (Reduce c _ _)     = c
+    classes (ReflectAll c)     = singletonSet c
+    classes (Strengthen c _ _) = c
+    classes (Stun c)           = singletonSet c
+    classes (Weaken c _ _)     = c
+    classes _                  = mempty
 
 data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show, Read)
 

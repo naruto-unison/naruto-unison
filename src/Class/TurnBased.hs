@@ -7,7 +7,8 @@ module Class.TurnBased
 import ClassyPrelude
 
 import           Game.Model.Duration (Duration(..))
-import           Game.Model.Internal (Destructible, Channeling(..), Channel, Copy, Delay, Status, Trap)
+import           Game.Model.Internal (Channeling(..), Channel(Channel), Copy(Copy), Delay(Delay), Destructible(Destructible), Status(Status), Trap(Trap))
+import qualified Game.Model.Internal
 import qualified Game.Model.Internal.Channel as Channel
 import qualified Game.Model.Internal.Copy as Copy
 import qualified Game.Model.Internal.Delay as Delay
@@ -41,11 +42,11 @@ expiring :: ∀ a. TurnBased a => a -> Bool
 expiring x = getDur x < 1
 
 instance TurnBased Destructible where
-    getDur = Destructible.dur
+    getDur Destructible{dur} = dur
     setDur d x = x { Destructible.dur = d }
 
 instance TurnBased Channel where
-    getDur     = getDur . Channel.dur
+    getDur (Channel _ _ _ dur) = getDur dur
     setDur d x = x { Channel.dur = setDur d $ Channel.dur x }
 
 instance TurnBased Channeling where
@@ -59,17 +60,17 @@ instance TurnBased Channeling where
     setDur d (Ongoing _) = Ongoing d
 
 instance TurnBased Copy where
-    getDur = Copy.dur
+    getDur Copy{dur} = dur
     setDur d x = x { Copy.dur = d }
 
 instance TurnBased Delay where
-    getDur = Delay.dur
+    getDur Delay{dur} = dur
     setDur d x = x { Delay.dur = d }
 
 instance TurnBased Status where
-    getDur = Status.dur
+    getDur Status{dur} = dur
     setDur d x = x { Status.dur = d }
 
 instance TurnBased Trap where
-    getDur = Trap.dur
+    getDur Trap{dur} = dur
     setDur d x = x { Trap.dur = d }
