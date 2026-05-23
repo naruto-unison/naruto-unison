@@ -215,7 +215,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ defend Permanent 20 ]
+          [ To Allies $ defend Permanent =<< build 20 ]
         }
       ]
     , [ invuln "Hide" "Shino" [Mental] ]
@@ -248,7 +248,7 @@ characters =
           [ To Enemies do
                 bonus <- 5 `bonusIf` userHas "Byakugan"
                 damage (15 + bonus)
-          , To Allies $ defend 1 10
+          , To Allies $ defend 1 =<< build 10
           ]
         }
       ]
@@ -764,7 +764,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ defend Permanent 40 ]
+          [ To Self $ defend Permanent =<< build 40 ]
         }
       ]
     , [ invuln "Sand Shield" "Gaara" [Physical] ]
@@ -800,7 +800,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                defend Permanent 15
+                defend Permanent =<< build 15
                 apply 4 [ Strengthen [All] Flat 5 ]
           ]
         }

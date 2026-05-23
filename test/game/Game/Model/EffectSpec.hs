@@ -84,11 +84,12 @@ spec = parallel do
         prop "complements Reduce" $ Bleed `complements` Reduce
 
     describe "Bless" do
-        prop "adds to healing" \i hp -> simEffects [ Bless i ] [] Ally do
-            setHealth 1
-            heal hp
-            targetHealth <- target health
-            return $ targetHealth === healthBound (1 + hp + i)
+        prop "adds to healing" \(NonNegative i) (NonNegative hp) ->
+            simEffects [ Bless i ] [] Ally do
+                setHealth 1
+                heal hp
+                targetHealth <- target health
+                return $ targetHealth === healthBound (1 + hp + i)
 
     describe "Block" do
         let tryTarget t = do
@@ -135,23 +136,25 @@ spec = parallel do
             return $ dmg - (100 - userHealth) `shouldBe` reduce
 
     describe "Build" do
-        prop "adds to barrier" \i hp -> simEffects [ Build i ] [] Ally do
-            barricade Permanent hp
-            if i + hp >= 0 then do
-                targetBarrier <- target totalBarrier
-                return $ targetBarrier === i + hp
-            else do
-                targetDefense <- target totalDefense
-                return $ targetDefense === negate (i + hp)
+        prop "adds to barrier" \i (NonNegative hp) ->
+            simEffects [ Build i ] [] Ally do
+                barricade Permanent =<< build hp
+                if i + hp >= 0 then do
+                    targetBarrier <- target totalBarrier
+                    return $ targetBarrier === i + hp
+                else do
+                    targetDefense <- target totalDefense
+                    return $ targetDefense === negate (i + hp)
 
-        prop "adds to defense" \i hp -> simEffects [ Build i ] [] Ally do
-            defend Permanent hp
-            if i + hp >= 0 then do
-                targetDefense <- target totalDefense
-                return $ targetDefense === i + hp
-            else do
-                targetBarrier <- target totalBarrier
-                return $ targetBarrier === negate (i + hp)
+        prop "adds to defense" \i (NonNegative hp) ->
+            simEffects [ Build i ] [] Ally do
+                defend Permanent =<< build hp
+                if i + hp >= 0 then do
+                    targetDefense <- target totalDefense
+                    return $ targetDefense === i + hp
+                else do
+                    targetBarrier <- target totalBarrier
+                    return $ targetBarrier === negate (i + hp)
 
     describe "Bypass" do
         it "makes all skills bypass" $ simAt Enemy do
@@ -421,7 +424,7 @@ spec = parallel do
     describe "Undefend" do
         it "ignores own defense" $ simAt Enemy do
             apply Permanent [ Undefend ]
-            defend Permanent 100
+            defend Permanent =<< build 100
             damage 1
             targetHealth <- target health
             return $ 100 - targetHealth `shouldBe` 1

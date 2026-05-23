@@ -211,7 +211,7 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Allies $ defend Permanent 30
+          [ To Allies $ defend Permanent =<< build 30
           , To Self $ tag 3
           ]
         }

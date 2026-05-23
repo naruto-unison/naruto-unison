@@ -18,9 +18,10 @@ module Game.Engine.Ninjas
 
   , addStatus
   , addOwnStacks
-  , addOwnDefense
+  , addBarrier
   , addDefense
-  , removeDefense
+  , increaseDefense
+  , decreaseDefense
 
   , clear
   , clearTrap
@@ -63,8 +64,8 @@ import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Copy (Copy(Copy))
 import qualified Game.Model.Copy as Copy
-import           Game.Model.Defense (Defense(Defense))
-import qualified Game.Model.Defense as Defense
+import           Game.Model.Destructible (Destructible(Destructible))
+import qualified Game.Model.Destructible as Destructible
 import           Game.Model.Duration (Duration(..), sync)
 import           Game.Model.Effect (Amount(..), Effect(..))
 import qualified Game.Model.Effect as Effect
@@ -213,7 +214,7 @@ decr n = processAlternates $ processEffects
     setNotNew chan = chan { Channel.new = False }
 
 addStatus :: Status -> Ninja -> Ninja
-addStatus st = modifyStatuses $ Classed.nonStack st st
+addStatus st = modifyStatuses $ Classed.nonStack st
 
 addOwnStacks :: Duration -- ^ 'Status.dur'.
              -> Text -- ^ 'Status.name'.
@@ -231,27 +232,31 @@ addOwnStacks dur name s alt i n@Ninja{slot, character = Character{skills = sk}}
             , Status.amount  = i
             }
 
-addOwnDefense :: Duration -- ^ 'Defense.dur'.
-              -> Text -- ^ 'Defense.name'.
-              -> Int -- ^ 'Defense.amount'.
-              -> Ninja -> Ninja
-addOwnDefense dur name amount n = n { N.defense = d : N.defense n }
-  where
-    d = Defense { amount, name, user = N.slot n, dur = succ dur }
+addBarrier :: Destructible -> Ninja -> Ninja
+addBarrier b@Destructible{amount} n = case amount `compare` 0 of
+    LT -> n { N.defense = Classed.nonStack (Destructible.negate b) $ N.defense n }
+    EQ -> n
+    GT -> n { N.barrier = Classed.nonStack b $ N.barrier n }
 
-addDefense :: Int -- ^ 'Defense.amount'.
-           -> Text -- ^ 'Defense.name'.
-           -> Slot -- ^ 'Defense.user'.
+addDefense :: Destructible -> Ninja -> Ninja
+addDefense b@Destructible{amount} n = case amount `compare` 0 of
+    LT -> n { N.barrier = Classed.nonStack (Destructible.negate b) $ N.barrier n }
+    EQ -> n
+    GT -> n { N.defense = Classed.nonStack b $ N.defense n }
+
+increaseDefense :: Int -- ^ 'Destructible.amount'.
+           -> Text -- ^ 'Destructible.name'.
+           -> Slot -- ^ 'Destructible.user'.
            -> Ninja -> Ninja
-addDefense amount name user n =
+increaseDefense amount name user n =
     n { N.defense = Labeled.mapFirst addAmount name user $ N.defense n }
   where
-    addAmount x = x { Defense.amount = amount + Defense.amount x }
+    addAmount x = x { Destructible.amount = amount + Destructible.amount x }
 
-removeDefense :: Text -- ^ 'Defense.name'.
-              -> Slot -- ^ 'Defense.user'.
+decreaseDefense :: Text -- ^ 'Destructible.name'.
+              -> Slot -- ^ 'Destructible.user'.
               -> Ninja -> Ninja
-removeDefense name user n =
+decreaseDefense name user n =
     n { N.defense = filter (not . Labeled.match name user) $ N.defense n }
 
 -- | Deletes matching 'statuses'.

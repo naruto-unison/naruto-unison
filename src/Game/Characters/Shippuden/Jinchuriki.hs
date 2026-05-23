@@ -205,7 +205,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 sacrifice 1 5
-                defend Permanent 10
+                defend Permanent =<< build 10
                 setAlternates [1, 0, 0, 0]
                 apply Permanent [ Reduce [All] Flat 10
                                 , Plague
@@ -228,7 +228,7 @@ characters =
                                 ]
                 remove "Four-Tailed Transformation"
                 sacrifice 1 10
-                defend Permanent 20
+                defend Permanent =<< build 20
                 setAlternates [2, 1, 1, 1]
           ]
         }
@@ -247,7 +247,7 @@ characters =
                                 ]
                 remove "Six-Tailed Transformation"
                 sacrifice 1 15
-                defend Permanent 30
+                defend Permanent =<< build 30
                 setAlternates [3, 2, 2, 2]
           ]
         }

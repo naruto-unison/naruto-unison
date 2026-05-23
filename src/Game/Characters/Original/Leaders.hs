@@ -178,7 +178,7 @@ characters =
         , Skill.effects   =
           [ To Allies do
                 heal 10
-                defend Permanent 10
+                defend Permanent =<< build 10
           ]
         }
       ]

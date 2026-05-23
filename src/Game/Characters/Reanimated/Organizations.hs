@@ -75,7 +75,7 @@ characters =
                     remove "Rivalry"
                     apply' "Rivalry" 2 [ Taunt userSlot ]
                 removeStacks "Scattered Rock" 2
-                defend 2 35
+                defend 2 =<< build 35
                 trapFrom 2 (OnHarmed All) do
                     leech 20 heal
                     targeting Self $ tag' "Earth Dome Prison" 1
@@ -178,12 +178,12 @@ characters =
         , Skill.cooldown  = 6
         , Skill.dur       = Ongoing 3
         , Skill.start     =
-          [ To Self $ defend Permanent 20 ]
+          [ To Self $ defend Permanent =<< build 20 ]
         , Skill.effects   =
           [ To Self $ whenM (userHas' defense "Crystal Ice Mirrors") $
                 trapPer -1 PerDamaged \i ->
                     unlessM (userHas' defense "Crystal Ice Mirrors") $
-                        defend Permanent i
+                        defend Permanent =<< build i
           ]
         }
       ]
@@ -219,7 +219,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ leech 10 $ defend Permanent
+          [ To Enemy $ leech 10 \i -> defend Permanent =<< build i
           , To Self $ prolongChannel 1 "Demon Shroud"
           ]
         }
@@ -385,7 +385,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                defend 0 10
+                defend Permanent =<< build 10
                 recharge "Splatter"
                 tag 1
           ]
@@ -652,7 +652,12 @@ characters =
         , Skill.cost       = [Blood, Gen, Tai]
         , Skill.cooldown   = 3
         , Skill.effects    =
-          [ To Enemies $ barricade' 3 damage (apply 1 [ Silence ]) 25 ]
+          [ To Enemies $
+                barricade 3
+                    . setWhile (apply 1 [ Silence ])
+                    . setFinish damage
+                    =<< build 25
+          ]
         }
       ]
     , [ Skill.new
@@ -682,9 +687,9 @@ characters =
           [ To Enemy do
                 has <- userHas' defense "Naraka Path"
                 leech 20 if has then
-                    addDefense "Naraka Path"
+                    increaseDefense "Naraka Path"
                 else
-                    defend Permanent
+                    \i -> defend Permanent =<< build i
           ]
         }
       ]

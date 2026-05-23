@@ -25,7 +25,6 @@ import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
 import           Game.Model.Chakras (Chakras(..))
 import           Game.Model.Class (Class(..))
-import           Game.Model.Defense (Defense(..))
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game)
@@ -34,24 +33,6 @@ import           Game.Model.Slot (Slot(..))
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger(..))
 import           Util (Lift)
-
--- | Destructible barrier.
-data Barrier = Barrier
-    { amount :: Int
-    , user   :: Slot
-    , name   :: Text
-    , while  :: Runnable Context
-    , finish :: Int -> Runnable Context
-    , dur    :: Duration
-    }
-
-instance ToJSON Barrier where
-    toJSON Barrier{amount, user, name, dur} = object
-        [ "amount" .= amount
-        , "user"   .= user
-        , "name"   .= name
-        , "dur"    .= dur
-        ]
 
 -- | Applies actions when a 'Status' ends.
 data Bomb
@@ -146,6 +127,24 @@ data Delay = Delay
     , dur    :: Duration
     }
 
+-- | Destructible barrier or defense.
+data Destructible = Destructible
+    { amount :: Int
+    , user   :: Slot
+    , skill  :: Skill
+    , while  :: Maybe (Runnable ())
+    , finish :: Maybe (Int -> Runnable ())
+    , dur    :: Duration
+    }
+
+instance ToJSON Destructible where
+    toJSON Destructible{amount, user, skill, dur} = object
+        [ "amount" .= amount
+        , "user"   .= user
+        , "skill"  .= skill
+        , "dur"    .= dur
+        ]
+
 data Direction
     = Toward
     | From
@@ -182,8 +181,8 @@ data Ninja = Ninja
     , charges    :: HashMap Key Int  -- ^ Starts at @0@s
     , alternates :: Seq Int          -- ^ Starts at @0@s
     , copies     :: Seq (Maybe Copy) -- ^ Starts at @Nothing@s
-    , defense    :: [Defense]        -- ^ Starts empty
-    , barrier    :: [Barrier]        -- ^ Starts empty
+    , defense    :: [Destructible]   -- ^ Starts empty
+    , barrier    :: [Destructible]   -- ^ Starts empty
     , statuses   :: [Status]         -- ^ Starts empty
     , channels   :: [Channel]        -- ^ Starts empty
     , traps      :: [Trap]           -- ^ Starts empty

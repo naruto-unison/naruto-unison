@@ -17,16 +17,14 @@ import qualified  Data.List.NonEmpty as NonEmpty
 import           Class.Labeled (Labeled)
 import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
-import qualified Game.Model.Barrier as Barrier
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Class (Class(..))
-import           Game.Model.Defense (Defense(Defense))
-import qualified Game.Model.Defense as Defense
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Effect as Effect
-import           Game.Model.Internal (Ninja(..), Channel(Channel), Character(Character), Skill(Skill), Status(Status))
+import           Game.Model.Internal (Destructible(..), Ninja(..), Channel(Channel), Character(Character), Skill(Skill), Status(Status))
 import qualified Game.Model.Internal
 import qualified Game.Model.Internal.Character as Character
+import qualified Game.Model.Internal.Destructible as Destructible
 import qualified Game.Model.Internal.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Util ((∈), (∉), (!?))
@@ -91,8 +89,8 @@ has :: Text -- ^ 'Status.name'.
 has = has' statuses
 
 -- | Searches 'defense'.
-hasDefense :: Text -- ^ 'Defense.name'.
-           -> Slot -- ^ 'Defense.user'.
+hasDefense :: Text -- ^ 'Destructible.name'.
+           -> Slot -- ^ 'Destructible.user'.
            -> Ninja -> Bool
 hasDefense = has' defense
 
@@ -106,12 +104,12 @@ hasOwn' getter name n@Ninja{slot} = has' getter name slot n
 hasOwn :: Text -> Ninja -> Bool
 hasOwn = hasOwn' statuses
 
--- | Sums 'Defense.amount' of all matching 'defense'.
-defenseAmount :: Text -- ^ 'Defense.name'.
-              -> Slot -- ^ 'Defense.user'.
+-- | Sums 'Destructible.amount' of all matching 'defense'.
+defenseAmount :: Text -- ^ 'Destructible.name'.
+              -> Slot -- ^ 'Destructible.user'.
               -> Ninja -> Int
 defenseAmount name user Ninja{defense} = sum
-    [amount | d@Defense{amount} <- defense
+    [amount | d@Destructible{amount} <- defense
             , Labeled.match name user d]
 
 -- | Chakra spent on 'lastSkill'.
@@ -119,13 +117,13 @@ lastChakraSpent :: Ninja -> Chakras
 lastChakraSpent Ninja{lastSkill = Just Skill{cost}} = cost
 lastChakraSpent _                                   = mempty
 
--- | Sums 'Defense.amount' of all 'defense'.
+-- | Sums 'Destructible.amount' of all 'defense'.
 totalDefense :: Ninja -> Int
-totalDefense Ninja{defense} = sum $ Defense.amount <$> defense
+totalDefense Ninja{defense} = sum $ Destructible.amount <$> defense
 
--- | Sums 'Barrier.amount' of all 'barrier'.
+-- | Sums 'Destructible.amount' of all 'barrier'.
 totalBarrier :: Ninja -> Int
-totalBarrier Ninja{barrier} = sum $ Barrier.amount <$> barrier
+totalBarrier Ninja{barrier} = sum $ Destructible.amount <$> barrier
 
 -- | Number of stacks of matching self-applied 'statuses'.
 numActive :: Text -- ^ 'Status.name'.

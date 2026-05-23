@@ -20,12 +20,13 @@ import Game.Action.Skill as Import
 import Game.Action.Status as Import
 import Game.Action.Trap as Import
 import Game.Engine.Effects as Import (stunned)
-import Game.Engine.Ninjas as Import (addOwnStacks, addOwnDefense)
+import Game.Engine.Ninjas as Import (addOwnStacks)
 import Game.Engine.Skills as Import
 import Game.Model.Chakras as Import (Chakra(..), Chakras, chakraDesc)
 import Game.Model.Channel as Import (Channeling(..))
 import Game.Model.Character as Import (Character(..), Category(..))
 import Game.Model.Class as Import (Class(..))
+import Game.Model.Destructible as Import (setFinish, setWhile)
 import Game.Model.Duration as Import (Duration(..))
 import Game.Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
 import Game.Model.Group as Import (Group(..))

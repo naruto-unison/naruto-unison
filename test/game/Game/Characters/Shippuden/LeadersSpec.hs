@@ -79,7 +79,7 @@ spec = parallel do
                 targetHealth - targetHealth' `shouldBe` 20
             it "demolishes with Seal" do
                 Sim.use "Strength of One Hundred Seal"
-                Sim.as Enemy $ defend Permanent 100
+                Sim.as Enemy $ defend Permanent =<< build 100
                 Sim.act
                 targetDefense <- target totalDefense
                 targetDefense `shouldBe` 0

@@ -56,8 +56,8 @@ trapPer' :: ∀ m. MonadPlay m
 trapPer' = trapFull Trap.Per $ setFromList [Bypassing, Hidden]
 
 -- | Adds an 'OnBreak' @Trap@ for the used 'Skill.Skill' to 'N.traps'.
--- @OnBreak@ traps are triggered when a 'Defense.Defense' with the same
--- 'Defense.name' is broken.
+-- @OnBreak@ traps are triggered when a @Destructible@ in 'N.defense' with the
+-- same 'Destructible.name' is broken.
 onBreak :: ∀ m. MonadPlay m => RunConstraint () -> m ()
 onBreak f = do
     Context{user, skill = Skill{name}} <- P.context
@@ -68,8 +68,8 @@ onBreak f = do
             P.modify user' . Ninjas.clearTraps $ OnBreak name
 
 -- | Default 'onBreak': remove 'Model.Status.Status'es and
--- 'Model.Channel.Channel's that match 'Defense.name'. This is useful for
--- 'Defense.Defense's that apply an effect or empower some action while active.
+-- 'Model.Channel.Channel's that match 'Destructible.name'. This is useful for
+-- 'Destructible's that apply an effect or empower some action while active.
 endBroken :: ∀ m. MonadPlay m => m ()
 endBroken = do
     Context{user, skill = Skill{name}} <- P.context

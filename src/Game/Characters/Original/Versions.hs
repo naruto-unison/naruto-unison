@@ -171,7 +171,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To Self $ defend Permanent 10
+          , To Self $ defend Permanent =<< build 10
           ]
         , Skill.changes   = changeWith "Tailed Beast Form" $ setCost [Blood]
         }
@@ -220,7 +220,7 @@ characters =
                     ] ]
           ]
         , Skill.effects   =
-          [ To Self $ defend Permanent 10 ]
+          [ To Self $ defend Permanent =<< build 10 ]
         }
       , Skill.new
         { Skill.name      = "Shukaku Full Release"
@@ -245,7 +245,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
         , Skill.effects   =
-          [ To Self $ defend 1 35
+          [ To Self $ defend 1 =<< build 35
           , To Enemy $ damage 15
           ]
         }

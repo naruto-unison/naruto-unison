@@ -22,7 +22,7 @@ characters =
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self do
-                defend Permanent 45
+                defend Permanent =<< build 45
                 onBreak endBroken
           ]
         , Skill.effects   =
@@ -120,7 +120,7 @@ characters =
                 trapFrom 1 (Counter NonMental) $
                     damage 20
                 trap 1 (Counter NonMental) do
-                    defend Permanent 20
+                    defend Permanent =<< build 20
                     targeting Self $ recharge "Tenth Edict on Enlightenment"
           ]
         }
@@ -133,8 +133,8 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self $ recharge "Tenth Edict on Enlightenment"
-          , To XAlly $ targeting Allies $ defend Permanent 20
-          , To Enemy $ targeting Enemies $ barricade Permanent 20
+          , To XAlly $ targeting Allies $ defend Permanent =<< build 20
+          , To Enemy $ targeting Enemies $ barricade Permanent =<< build 20
           ]
         }
       ]
@@ -153,7 +153,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ apply' "Venom Beetle" 5 [ Afflict 5 ]
           , To Self do
-                defend Permanent 15
+                defend Permanent =<< build 15
                 onBreak $ addStack' "Venom Beetle"
           ]
         , Skill.changes   = changeWithDefense "Nano-Sized Venom Beetles" \x -> x
@@ -171,7 +171,7 @@ characters =
         , Skill.effects   =
           [ To Enemies $ apply' "Venom Beetle" 5 [Afflict 5]
           , To Self do
-                defend Permanent 30
+                defend Permanent =<< build 30
                 onBreak $ addStack' "Venom Beetle"
           ]
         , Skill.changes   = changeWithDefense "Jar of Poison" \x -> x
@@ -375,7 +375,7 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Self $ defend 1 10
+          [ To Self $ defend 1 =<< build 10
           , To Enemy $ damage 20
           ]
         }
@@ -403,7 +403,7 @@ characters =
           [ To Self do
                 apply 1 [Invulnerable Mental, Face]
                 gain [Rand]
-                defend Permanent 10
+                defend Permanent =<< build 10
           ]
         , Skill.stunned   =
           [ To Self $ apply 1 [ Face ] ]
@@ -499,7 +499,7 @@ characters =
         , Skill.effects   =
           [ To XAlly do
                 heal 20
-                defend Permanent 20
+                defend Permanent =<< build 20
           , To Self $ apply 4 [ Snare 1 ]
           ]
         }

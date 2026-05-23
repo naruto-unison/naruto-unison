@@ -282,7 +282,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 stacks <- userStacks "Illusion"
-                defend Permanent (10 + 5 * stacks)
+                defend Permanent =<< build (10 + 5 * stacks)
                 remove "Illusion"
           ]
         }
@@ -485,7 +485,7 @@ characters =
         , Skill.effects   =
           [ To Ally do
                 apply 4 [ Enrage ]
-                defend 4 50
+                defend 4 =<< build 50
                 onBreak endBroken
           ]
         }

@@ -44,7 +44,7 @@ characters =
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self do
-                defend Permanent 70
+                defend Permanent =<< build 70
                 onBreak endBroken
           ]
         , Skill.effects   =
@@ -135,7 +135,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                defend 3 35
+                defend 3 =<< build 35
                 apply 3 [ Alternate "C1: Bird Bomb"
                                     "C2: Dragon Missile"
                         , Alternate "C2: Clay Dragon"
@@ -195,7 +195,7 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
-          [ To Self $ defend Permanent 15 ]
+          [ To Self $ defend Permanent =<< build 15 ]
         , Skill.effects   =
           [ To Self $ apply' "Iron Sand" Permanent
                         [ Alternate "Kazekage Puppet Summoning"
@@ -226,7 +226,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.start     =
           [ To Self do
-                defend 2 20
+                defend 2 =<< build 20
                 onBreak endBroken
           ]
         , Skill.effects   =
@@ -581,7 +581,7 @@ characters =
           [ To Self $ sacrifice 0 10 ]
         , Skill.effects   =
           [ To Self do
-                defend Permanent 5
+                defend Permanent =<< build 5
                 hide 1 [ Alternate "Susanoo"
                                    "Susanoo"
                        , Alternate "Amaterasu"
@@ -599,7 +599,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 cancelChannel "Susanoo"
-                removeDefense "Susanoo"
+                decreaseDefense "Susanoo"
           ]
         }
       ]
@@ -666,7 +666,7 @@ characters =
           [ To Self $ cancelChannel "Black Zetsu" ]
         , Skill.effects   =
           [ To Self do
-                defend Permanent 5
+                defend Permanent =<< build 5
                 hide 1 [ Alternate "White Zetsu"
                                    "Black Zetsu"
                        , Alternate "Black Zetsu"
@@ -921,10 +921,11 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 15
-                barricade' Permanent (const $ return ()) (do
-                    has <- targetHas "chakra receiver"
-                    if has then apply 1 [Stun All] else hide 1 []
-                  ) 10
+                barricade Permanent
+                    . setWhile (do
+                        has <- targetHas "chakra receiver"
+                        if has then apply 1 [Stun All] else hide 1 [])
+                    =<< build 10
           ]
         }
       ]
@@ -936,9 +937,12 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy $
-                barricade' 3 damage (apply 1 [ Alone
-                                             , Invulnerable All
-                                             ]) 80
+                barricade 3
+                    . setWhile (apply 1 [ Alone
+                                        , Invulnerable All
+                                        ])
+                    . setFinish damage
+                    =<< build 80
           ]
         }
       ]
@@ -1166,7 +1170,7 @@ characters =
         , Skill.dur       = Ongoing 2
         , Skill.start     =
           [ To Ally do
-                defend Permanent 20
+                defend Permanent =<< build 20
                 apply 1 [ Invulnerable All ]
           ]
         }
@@ -1259,7 +1263,7 @@ characters =
                 hide Permanent [ Alternate "Summoning: King of Hell"
                                            "Energy Transfer"
                                ]
-                defend Permanent 20
+                defend Permanent =<< build 20
                 onBreak endBroken
           ]
         }
@@ -1298,7 +1302,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 20 `bonusIf` targetHas "Choke Hold"
-                leech (20 + bonus) $ addDefense "Summoning: King of Hell"
+                leech (20 + bonus) $ increaseDefense "Summoning: King of Hell"
           ]
         }
       ]

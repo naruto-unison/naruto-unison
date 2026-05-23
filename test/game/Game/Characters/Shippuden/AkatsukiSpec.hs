@@ -32,7 +32,7 @@ spec = parallel do
             it "damages on defense" do
                 Sim.act
                 setHealth 100
-                Sim.as Enemy $ defend Permanent 10
+                Sim.as Enemy $ defend Permanent =<< build 10
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 10
             it "damages on reduce" do

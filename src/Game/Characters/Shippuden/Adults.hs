@@ -87,7 +87,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ damage 25
           , To Self do
-                defend Permanent 40
+                defend Permanent =<< build 40
                 apply 1 [ Alternate "Thousand Hand Strike"
                                     "Kannon Strike"
                         ]
@@ -317,7 +317,7 @@ characters =
         , Skill.dur       = Action Permanent
         , Skill.start     =
           [ To Self do
-                defend Permanent 50
+                defend Permanent =<< build 50
                 onBreak endBroken
           ]
         , Skill.effects   =

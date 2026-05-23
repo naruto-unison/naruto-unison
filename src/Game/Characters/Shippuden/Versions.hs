@@ -145,7 +145,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 3 [ Enrage ]
-                defend 3 50
+                defend 3 =<< build 50
                 onBreak endBroken
           ]
         }
@@ -247,7 +247,7 @@ characters =
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Self do
-                defend Permanent 40
+                defend Permanent =<< build 40
                 onBreak endBroken
           , To XAllies do
                 userSlot <- user slot
@@ -680,10 +680,10 @@ characters =
                 hide Permanent [ Alternate "Performance of a Hundred Puppets"
                                            "Barrage of a Hundred Puppets"
                                ]
-                defend Permanent 50
+                defend Permanent =<< build 50
                 onBreak $ targeting Self $
                     remove "performance of a hundred puppets"
-          , To XAllies $ defend Permanent 25
+          , To XAllies $ defend Permanent =<< build 25
           ]
         }
       , Skill.new

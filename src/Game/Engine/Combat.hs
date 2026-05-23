@@ -16,13 +16,11 @@ import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
 import           Game.Model.Attack (Attack)
 import qualified Game.Model.Attack as Attack
-import           Game.Model.Barrier (Barrier(Barrier))
-import qualified Game.Model.Barrier as Barrier
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import           Game.Model.Defense (Defense(Defense))
-import qualified Game.Model.Defense as Defense
+import           Game.Model.Destructible (Destructible(Destructible))
+import qualified Game.Model.Destructible as Destructible
 import           Game.Model.Effect (Amount(..), Effect(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
@@ -31,18 +29,18 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
 
 -- | Reduces incoming damage by depleting the user's 'N.barrier'.
-absorbBarrier :: Int -> [Barrier] -> (Int, [Barrier])
+absorbBarrier :: Int -> [Destructible] -> (Int, [Destructible])
 absorbBarrier hp [] = (hp, [])
-absorbBarrier hp (x@Barrier{amount}:xs)
+absorbBarrier hp (x@Destructible{amount}:xs)
   | amount <= hp = absorbBarrier (hp - amount) xs
-  | otherwise    = (0, x { Barrier.amount = amount - hp } : xs)
+  | otherwise    = (0, x { Destructible.amount = amount - hp } : xs)
 
 -- | Reduces incoming damage by depleting the target's 'N.defense'.
-absorbDefense :: Int -> [Defense] -> (Int, [Defense])
+absorbDefense :: Int -> [Destructible] -> (Int, [Destructible])
 absorbDefense hp [] = (hp, [])
-absorbDefense hp (x@Defense{amount}:xs)
+absorbDefense hp (x@Destructible{amount}:xs)
   | amount <= hp = absorbDefense (hp - amount) xs
-  | otherwise    = (0, x { Defense.amount = amount - hp } : xs)
+  | otherwise    = (0, x { Destructible.amount = amount - hp } : xs)
 
 userAdjust :: Attack -> EnumSet Class -> Ninja -> Float -> Float
 userAdjust atk classes nUser x = x
@@ -100,25 +98,20 @@ attack atk dmg = void $ runMaybeT do
     channeled <- isChanneled <$> P.context
     guard . not $ channeled && nTarget `is` AntiChannel
 
-    Context{target, user, skill = Skill{classes, name}} <- P.context
+    context@Context{target, user, skill = Skill{classes}} <- P.context
     nUser <- P.nUser
     let classes'            = insertSet atkClass classes
         dmgCalc             = formula atk classes' nUser nTarget dmg
-        (dmg'Barrier, barr) = absorbBarrier dmgCalc $ N.barrier nUser
+        (dmg'Destructible, barr) = absorbBarrier dmgCalc $ N.barrier nUser
         handleDefense
           | nTarget `is` Undefend = (,)
           | otherwise             = absorbDefense
-        (dmg'Def, defense) = handleDefense dmg'Barrier $ N.defense nTarget
+        (dmg'Def, defense) = handleDefense dmg'Destructible $ N.defense nTarget
 
     guard $ dmgCalc > Effects.threshold nTarget -- Always 0 or higher
 
     if atk > Attack.Afflict && nTarget `is` DamageToDefense then
-        let damageDefense = Defense
-                { amount = dmgCalc
-                , user
-                , name
-                , dur    = 0
-                }
+        let damageDefense = Destructible.new context 0 dmgCalc
         in
         P.modify target \n -> n { N.defense = damageDefense : N.defense n }
 

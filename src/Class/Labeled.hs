@@ -7,11 +7,9 @@ module Class.Labeled
 
 import ClassyPrelude
 
-import           Game.Model.Defense (Defense)
-import qualified Game.Model.Defense as Defense
-import           Game.Model.Internal (Barrier, Copy, Skill, Status, Trap)
-import qualified Game.Model.Internal.Barrier as Barrier
+import           Game.Model.Internal (Destructible, Copy, Skill, Status, Trap)
 import qualified Game.Model.Internal.Copy as Copy
+import qualified Game.Model.Internal.Destructible as Destructible
 import qualified Game.Model.Internal.Skill as Skill
 import qualified Game.Model.Internal.Status as Status
 import qualified Game.Model.Internal.Trap as Trap
@@ -43,17 +41,13 @@ mapFirst f name' user' (x:xs)
   | match name' user' x = f x : xs
   | otherwise           = x : mapFirst f name' user' xs
 
-instance Labeled Barrier where
-    name = Barrier.name
-    user = Barrier.user
+instance Labeled Destructible where
+    name = name . Destructible.skill
+    user = Destructible.user
 
 instance Labeled Copy where
     name = name . Copy.skill
     user = user . Copy.skill
-
-instance Labeled Defense where
-    name = Defense.name
-    user = Defense.user
 
 instance Labeled Skill where
     name = Skill.name

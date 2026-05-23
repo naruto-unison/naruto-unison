@@ -198,7 +198,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Allies $ defend Permanent 104
+          [ To Allies $ defend Permanent =<< build 104
           , To Enemies $ damage 10
           ]
         }

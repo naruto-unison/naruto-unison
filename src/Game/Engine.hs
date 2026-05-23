@@ -30,14 +30,14 @@ import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
-import           Game.Model.Barrier (Barrier(Barrier))
-import qualified Game.Model.Barrier as Barrier
 import           Game.Model.Channel (Channel(Channel))
 import qualified Game.Model.Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Delay as Delay
+import           Game.Model.Destructible (Destructible(Destructible))
+import qualified Game.Model.Destructible as Destructible
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
@@ -46,6 +46,7 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import           Game.Model.Runnable (Runnable(To))
+import qualified Game.Model.Runnable as Runnable
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
@@ -56,7 +57,7 @@ import           Util ((∈), (∉))
 
 -- | The game engine's main function.
 -- Performs 'Act's and 'Model.Channel.Channel's;
--- applies effects from 'Bomb's, 'Barrier.Barrier's, 'Delay.Delay's, and
+-- applies effects from 'Bomb's, 'Destructible.Destructible's, 'Delay.Delay's, and
 -- 'Model.Trap.Trap's;
 -- decrements all 'TurnBased.TurnBased' data;
 -- and resolves 'Model.Chakra.Chakras' for the next turn.
@@ -140,18 +141,32 @@ doBombs bomb ninjas = zipWithM_ comp ninjas =<< P.ninjas
           | otherwise  = filter ((Necromancy ∈) . Status.classes)
                        . N.statuses
 
--- | Executes 'Barrier.while' and 'Barrier.finish' effects.
+-- | Executes 'Destructible.while' and 'Destructible.finish' effects.
 doBarriers :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 doBarriers = do
     Game{playing = player} <- P.game
     ninjas <- P.ninjas
-    mapM_ (doBarrier player) $ concatMap ((head <$>) . collect) ninjas
+    mapM_ (doNinjaBarriers player) ninjas
   where
-    collect Ninja{barrier} = groupBy Labeled.eq $ sortWith Barrier.name barrier
-    doBarrier p b@Barrier{amount, finish, user, while}
-      | TurnBased.expiring b = P.launch $ finish amount
-      | Parity.allied p user = P.launch while
-      | otherwise            = return ()
+    collect barriers = head
+                       <$> (groupBy Labeled.eq $ sortWith Labeled.name barriers)
+    doNinjaBarriers p Ninja{barrier, defense, slot} =
+        mapM_ (doBarrier p slot) $ collect barrier ++ collect defense
+
+doBarrier :: ∀ m. (MonadGame m, MonadRandom m) => Player -> Slot -> Destructible -> m ()
+doBarrier _ target b@Destructible{amount, skill, user, finish = Just finish}
+  | TurnBased.expiring b = P.launch $
+                           Runnable.retarget (const ctx) $ finish amount
+  where
+    ctx = Context { user, skill, target, new = False, continues = True }
+
+doBarrier p target Destructible{user, skill, while = Just while}
+  | Parity.allied p user = P.launch $
+                           Runnable.retarget (const ctx) while
+  where
+    ctx = Context { user, skill, target, new = False, continues = True }
+
+doBarrier _ _ _ = return ()
 
 -- | Executes 'Trigger.death'.
 doDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()

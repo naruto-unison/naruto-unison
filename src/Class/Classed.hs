@@ -11,11 +11,12 @@ import           Class.Labeled (Labeled)
 import qualified Class.Labeled as Labeled
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
-import           Game.Model.Internal (Channel, Copy, Delay, Skill, Status, Trap)
+import           Game.Model.Internal (Destructible, Channel, Copy, Delay, Skill, Status, Trap)
 import qualified Game.Model.Internal.Channel as Channel
 import qualified Game.Model.Internal.Context as Context
 import qualified Game.Model.Internal.Copy as Copy
 import qualified Game.Model.Internal.Delay as Delay
+import qualified Game.Model.Internal.Destructible as Destructible
 import qualified Game.Model.Internal.Runnable as Runnable
 import qualified Game.Model.Internal.Skill as Skill
 import qualified Game.Model.Internal.Status as Status
@@ -30,11 +31,14 @@ class Classed a where
 -- | Conditionally adds an item to a list of items depending on its classes.
 -- If it is classified as 'Nonstacking', it will remove older items with the
 -- same name and user.
-nonStack :: ∀ a b. (Labeled a, Classed b) => b -> a -> [a] -> [a]
-nonStack c x xs
-  | Hidden ∈ classes c      = x : xs
-  | Nonstacking ∈ classes c = x : filter (not . Labeled.eq x) xs
+nonStack :: ∀ a. (Labeled a, Classed a) => a -> [a] -> [a]
+nonStack x xs
+  | Hidden ∈ classes x      = x : xs
+  | Nonstacking ∈ classes x = x : filter (not . Labeled.eq x) xs
   | otherwise               = x : xs
+
+instance Classed Destructible where
+    classes = classes . Destructible.skill
 
 instance Classed Channel where
     classes = classes . Channel.skill

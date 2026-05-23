@@ -230,7 +230,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ trap 3 OnHarm $
                 pierce 25
-          , To Self $ defend Permanent 30
+          , To Self $ defend Permanent =<< build 30
           ]
         }
       ]
@@ -243,7 +243,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ trap 3 OnNoAction $
                 pierce 25
-          , To Self $ defend Permanent 30
+          , To Self $ defend Permanent =<< build 30
           ]
         }
       ]
@@ -274,7 +274,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Self do
-                defend 1 20
+                defend 1 =<< build 20
                 addStack
           ]
         }
@@ -354,7 +354,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                defend Permanent 20
+                defend Permanent =<< build 20
                 gain [Tai]
           ]
         }
@@ -608,7 +608,7 @@ characters =
         , Skill.cooldown  = 6
         , Skill.dur       = Action 3
         , Skill.start     =
-          [ To Allies $ defend 3 35
+          [ To Allies $ defend 3 =<< build 5
           , To Self $ onBreak endBroken
           ]
         , Skill.effects   =

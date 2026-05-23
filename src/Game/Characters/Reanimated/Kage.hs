@@ -22,7 +22,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies $ damage 10
-          , To Allies $ defend Permanent 5
+          , To Allies $ defend Permanent =<< build 5
           ]
         , Skill.changes   = changeWith "Deep Forest Creation" $ setCooldown 0
         }
@@ -66,7 +66,7 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Allies do
-                defend Permanent 30
+                defend Permanent =<< build 30
                 resetAll
           ]
         }
@@ -208,9 +208,9 @@ characters =
           [ To Enemies do
                 damage 10
                 bonus <- 5 `bonusIf` targetHas' barrier "Gold Dust Waterfall"
-                barricade' Permanent
-                    (const $ return ()) (apply 1 [ Exhaust [All] ])
-                    (10 + bonus)
+                barricade Permanent
+                    . setWhile (apply 1 [ Exhaust [All] ])
+                    =<< build (10 + bonus)
           ]
         }
       ]
@@ -223,7 +223,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 35
-                barricade Permanent 30
+                barricade Permanent =<< build 30
                 tag 1
           ]
         }
@@ -237,7 +237,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ trap 1 (Countered All) do
                 bonus <- 10 `bonusIf` targetHas' barrier "Gold Dust Waterfall"
-                barricade Permanent (20 + bonus)
+                barricade Permanent =<< build (20 + bonus)
           ]
         }
       ]
@@ -388,7 +388,7 @@ characters =
         , Skill.effects   =
           [ To RAlly $ apply 1 [ Reflect ]
           , To RAlly do
-                defend 1 80
+                defend 1 =<< build 80
                 onBreak endBroken
           ]
         }

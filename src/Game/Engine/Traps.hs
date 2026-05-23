@@ -18,13 +18,13 @@ import Data.Enum.Set (EnumSet)
 
 import           Class.Hook (MonadHook)
 import qualified Class.Hook as Hook
+import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import           Game.Model.Context (Context)
 import qualified Game.Model.Context as Context
-import qualified Game.Model.Defense as Defense
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game
 import           Game.Model.Ninja (Ninja(Ninja))
@@ -102,8 +102,8 @@ broken n n' =
     n' { N.triggers = foldl' (flip insertSet) (N.triggers n') triggers }
   where
     triggers = OnBreak
-        <$> nub (Defense.name <$> N.defense n)
-            \\ nub (Defense.name <$> N.defense n')
+        <$> nub (Labeled.name <$> N.defense n)
+            \\ nub (Labeled.name <$> N.defense n')
 
 -- | Conditionally returns 'Trap.Trap's that accept a numeric value.
 getPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
@@ -162,7 +162,7 @@ apply direction classes unthrottled trigger f = void $ runMaybeT do
     guard $ tr ∉ N.traps nTarget
     guard . not $ isCounter && nUser `is` Disable Counters
     P.modify target \n ->
-        n { N.traps = Classed.nonStack tr tr $ N.traps n }
+        n { N.traps = Classed.nonStack tr $ N.traps n }
   where
     isCounter = Trigger.isCounter trigger
     throttle n
