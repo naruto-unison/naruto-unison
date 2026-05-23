@@ -16,11 +16,11 @@ import Data.Enum.Set (EnumSet)
 
 import           Class.Classed (Classed)
 import qualified Class.Classed
-import           Class.Display (Display(..))
+import           Class.Display (Display(..), commas)
 import           Game.Model.Class (Class(..))
 import qualified Game.Model.Class as Class
 import           Game.Model.Slot (Slot)
-import           Util ((∈), commas)
+import           Util ((∈))
 
 -- | Effects of 'Game.Model.Status.Status'es.
 data Effect

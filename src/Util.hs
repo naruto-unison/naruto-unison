@@ -4,18 +4,14 @@ module Util
   , (∈), (∉)
   , Lift
   , epoch
-  , getCurrentWeek
   , intersects
   , mapFromKeyed
   , leftToMaybe, rightToMaybe
-  , commas
-  , shorten, unaccent
   ) where
 
 import ClassyPrelude
 
 import Control.Monad.Trans.Class (MonadTrans)
-import Data.Attoparsec.Text (notInClass)
 import Data.Kind (Type)
 
 -- If a function doesn't seem like it should be inlined, it probably doesn't go
@@ -45,30 +41,9 @@ infix 4 ∉
 (∉) = notElem
 {-# INLINE (∉) #-}
 
--- | Divides a list of @Text@s into a single, comma-separated @Text@ ended
--- with a provided conjunction.
-commas :: TextBuilder -> [TextBuilder] -> TextBuilder
-commas conj = go
-  where
-    conj'      = " " ++ conj ++ " "
-    go []      = mempty
-    go [x]     = x
-    go [x,y]   = x ++ conj' ++ y
-    go [x,y,z] = x ++ ", " ++ y ++ "," ++ conj' ++ z
-    go (x:xs)  = x ++ ", " ++ go xs
-{-# INLINE commas #-}
-
 -- | @UTCTime 0 0@.
 epoch :: UTCTime
 epoch = UTCTime (ModifiedJulianDay 0) 0
-
--- | This number uses 'getCurrentTime' and increments by 1 every Sunday.
-getCurrentWeek :: IO Integer
-getCurrentWeek = getWeek <$> getCurrentTime
-  where
-    getWeek (UTCTime (ModifiedJulianDay day) _) = (day + 3) `quot` 7
-    {-# INLINE getWeek #-}
-{-# INLINE getCurrentWeek #-}
 
 -- | True if any elements are shared by both collections.
 intersects :: ∀ a. SetContainer a => a -> a -> Bool
@@ -79,7 +54,7 @@ xs `intersects` ys = not . null $ intersection xs ys
 mapFromKeyed :: ∀ map a. IsMap map
              => (a -> ContainerKey map, a -> MapValue map) -> [a] -> map
 mapFromKeyed (toKey, toVal) xs = mapFromList $ (\x -> (toKey x, toVal x)) <$> xs
-{-# INLINE mapFromKeyed #-}
+{-# INLINABLE mapFromKeyed #-}
 
 leftToMaybe :: Either a b -> Maybe a
 leftToMaybe (Left x)  = Just x
@@ -88,21 +63,6 @@ leftToMaybe (Right _) = Nothing
 rightToMaybe :: Either a b -> Maybe b
 rightToMaybe (Left _)  = Nothing
 rightToMaybe (Right x) = Just x
-
--- | Removes spaces and special characters.
-shorten :: Text -> Text
-shorten xs = omap unaccent $ filter (notInClass "- _:()®'/?") xs
-{-# INLINE shorten #-}
-
--- | Turns special characters into ordinary characters.
-unaccent :: Char -> Char
-unaccent 'ō' = 'o'
-unaccent 'Ō' = 'O'
-unaccent 'ū' = 'u'
-unaccent 'Ū' = 'U'
-unaccent 'ä' = 'a'
-unaccent x   = x
-{-# INLINE unaccent #-}
 
 -- | A metaconstraint for liftable functions.
 -- Useful for default signatures of MTL classes:

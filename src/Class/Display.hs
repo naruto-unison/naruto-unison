@@ -1,9 +1,12 @@
-module Class.Display (Display(..)) where
+module Class.Display
+  ( Display(..)
+  , commas
+  , shorten, unaccent
+  ) where
 
-import Prelude
+import ClassyPrelude hiding (Builder)
 
-import           Data.Int (Int64)
-import           Data.Text (Text)
+import           Data.Attoparsec.Text (notInClass)
 import qualified Data.Text.Lazy as Lazy
 import           Data.Text.Lazy.Builder (Builder)
 import qualified Data.Text.Lazy.Builder as Builder
@@ -62,3 +65,29 @@ instance Display Int where
 instance Display Int64 where
     display = IntBuilder.decimal
     {-# INLINE display #-}
+
+-- | Divides a list of @Text@s into a single, comma-separated @Text@ ended
+-- with a provided conjunction.
+commas :: Builder -> [Builder] -> Builder
+commas conj = go
+  where
+    conj'      = " " <> conj <> " "
+    go []      = mempty
+    go [x]     = x
+    go [x,y]   = x <> conj' <> y
+    go [x,y,z] = x <> ", " <> y <> "," <> conj' <> z
+    go (x:xs)  = x <> ", " <> go xs
+
+-- | Removes spaces and special characters.
+shorten :: Text -> Text
+shorten xs = omap unaccent $ filter (notInClass "- _:()®'/?") xs
+
+-- | Turns special characters into ordinary characters.
+unaccent :: Char -> Char
+unaccent 'ō' = 'o'
+unaccent 'Ō' = 'O'
+unaccent 'ū' = 'u'
+unaccent 'Ū' = 'U'
+unaccent 'ä' = 'a'
+unaccent x   = x
+{-# INLINE unaccent #-}

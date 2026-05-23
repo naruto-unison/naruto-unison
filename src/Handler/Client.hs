@@ -21,6 +21,7 @@ import qualified Yesod.Auth as Auth
 import           Application.App (Handler)
 import           Application.Model (EntityField(..), Unlocked(..), User(..))
 import           Application.Settings (widgetFile)
+import           Class.Display (shorten)
 import qualified Game.Characters as Characters
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
@@ -31,7 +32,7 @@ import qualified Handler.Play.War as War
 import qualified Mission
 import           Mission.Goal (Goal(Reach))
 import qualified Mission.Goal as Goal
-import           Util ((∈), (∉), shorten)
+import           Util ((∈), (∉))
 
 -- | Updates a user's profile and returns it. Requires authentication.
 getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value

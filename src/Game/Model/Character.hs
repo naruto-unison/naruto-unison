@@ -9,8 +9,8 @@ module Game.Model.Character
 
 import ClassyPrelude
 
+import Class.Display (unaccent)
 import Game.Model.Internal (Character(..), Category(..))
-import Util (unaccent)
 
 -- | Turns 'format' output into 'ident'.
 clean :: Text -> Text

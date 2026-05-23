@@ -40,11 +40,11 @@ import Game.Model.Trigger as Import (Trigger(..))
 import Game.Engine.Effects as Import (stunned)
 import Mission.Goal as Import
 
-import           Class.Display (Display(..))
+import           Class.Display (Display(..), commas)
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Slot as Slot
-import           Util ((∈), (∉), commas)
+import           Util ((∈), (∉))
 
 -- | Add this to mission progress in order to reset it to 0.
 resetToZero :: Int

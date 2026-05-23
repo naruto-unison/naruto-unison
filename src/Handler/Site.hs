@@ -23,7 +23,7 @@ import           Application.App (Handler, Route(..), Widget)
 import qualified Application.App as App
 import           Application.Model (Cite(..), EntityField(..), ForumTopic(..), News(..), User(..))
 import           Application.Settings (widgetFile)
-import           Class.Display (Display(..))
+import           Class.Display (Display(..), shorten)
 import qualified Game.Characters as Characters
 import           Game.Model.Character (Category(..), Character)
 import qualified Game.Model.Character as Character
@@ -35,7 +35,7 @@ import qualified Handler.Link as Link
 import qualified Handler.Parse as Parse
 import qualified Mission
 import qualified Mission.Goal as Goal
-import           Util ((∈), epoch, shorten)
+import           Util ((∈), epoch)
 
 -- | Renders the changelog.
 getChangelogR :: Handler Html
