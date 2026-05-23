@@ -55,7 +55,7 @@ spec = parallel do
     describe "Afflict" do
         prop "damages every turn" \amount (Positive turns) -> simAt Enemy do
             apply Permanent [Afflict amount]
-            Sim.turns $ turns - 1
+            Sim.turns -turns
             targetHealth <- target health
             return $ 100 - targetHealth === healthBound (amount * turns)
 
@@ -243,7 +243,7 @@ spec = parallel do
         prop "heals every turn" \i (Positive turns) -> simAt Enemy do
             setHealth 1
             apply Permanent [ Heal i ]
-            Sim.turns $ turns - 1
+            Sim.turns -turns
             targetHealth <- target health
             return $ targetHealth === healthBound (1 + i * turns)
 

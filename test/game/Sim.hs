@@ -112,6 +112,7 @@ enemies f = do
     return $ f <$> ninjas
 
 turns :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Int -> m ()
+turns 0 = return ()
 turns (fromIntegral -> i) = do
     Game{playing = player} <- P.game
     replicateM_ (sync i + 1 - fromEnum player) . Engine.processTurn $ return ()
