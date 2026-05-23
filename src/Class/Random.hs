@@ -49,19 +49,19 @@ class Monad m => MonadRandom m where
 
 instance MonadRandom (ReaderT (Random.Gen s) (ST s)) where
     random a b = ask >>= lift . Random.uniformR (a, b)
-    {-# INLINE random #-}
+    {-# INLINABLE random #-}
     shuffle xs = ask >>= lift . Random.uniformShuffle xs
-    {-# INLINE shuffle #-}
+    {-# INLINABLE shuffle #-}
     player = toEnum . (.&. 1) <$> (ask >>= lift . Random.uniform)
-    {-# INLINE player #-}
+    {-# INLINABLE player #-}
 
 instance MonadIO m => MonadRandom (ReaderT (Random.Gen RealWorld) m) where
     random a b = ask >>= liftIO . Random.uniformR (a, b)
-    {-# INLINE random #-}
+    {-# INLINABLE random #-}
     shuffle xs = ask >>= liftIO . Random.uniformShuffle xs
-    {-# INLINE shuffle #-}
+    {-# INLINABLE shuffle #-}
     player = toEnum . (.&. 1) <$> (ask >>= liftIO . Random.uniform)
-    {-# INLINE player #-}
+    {-# INLINABLE player #-}
 
 instance MonadRandom m => MonadRandom (ExceptT e m)
 instance MonadRandom m => MonadRandom (IdentityT m)

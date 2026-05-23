@@ -40,7 +40,7 @@ instance MonadUnliftIO m => MonadSockets (WebSocketsT m) where
         ignore :: ConnectionException -> WebSocketsT m ()
         ignore = const $ return ()
         {-# INLINE ignore #-}
-    {-# INLINE send #-}
+    {-# INLINABLE send #-}
 
 instance MonadSockets m => MonadSockets (ExceptT e m)
 instance MonadSockets m => MonadSockets (IdentityT m)

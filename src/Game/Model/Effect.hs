@@ -118,7 +118,7 @@ instance Eq Constructor where
     Counters == Counters = True
     Stuns    == Stuns    = True
     _        == _        = False
-    {-# INLINE (==) #-}
+    {-# INLINABLE (==) #-}
 
 instance Show Constructor where
     show (Only x) = show x

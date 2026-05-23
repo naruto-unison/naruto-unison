@@ -90,4 +90,4 @@ unaccent 'ū' = 'u'
 unaccent 'Ū' = 'U'
 unaccent 'ä' = 'a'
 unaccent x   = x
-{-# INLINE unaccent #-}
+{-# INLINABLE unaccent #-}

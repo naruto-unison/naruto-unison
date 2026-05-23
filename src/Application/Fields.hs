@@ -41,7 +41,6 @@ instance ToMarkup Markdown where
         preEscapedToMarkup $ CMark.commonmarkToHtml
         [CMark.optNormalize, CMark.optHardBreaks, CMark.optSmart, CMark.optSafe]
         x
-    {-# INLINE toMarkup #-}
 
 data ForumCategory
     = Official

@@ -203,15 +203,13 @@ instance Hashable Key
 
 toText :: Key -> Text
 toText (Key x y) = Slot.toChar y `cons` x
-{-# INLINE toText #-}
+{-# INLINABLE toText #-}
 
 instance ToJSON Key where
     toJSON = toJSON . toText
-    {-# INLINE toJSON #-}
 
 instance ToJSONKey Key where
     toJSONKey = toJSONKeyText toText
-    {-# INLINE toJSONKey #-}
 
 
 -- | In-game character, indexed between 0 and 5.
@@ -515,7 +513,6 @@ instance Show a => Show (Runnable a) where
     showsPrec i (To target _) = showsPrec i target
 instance ToJSON a => ToJSON (Runnable a) where
     toJSON (To target _) = toJSON target
-    {-# INLINE toJSON #-}
 
 instance MonadGame m => MonadGame (ExceptT e m)
 instance MonadGame m => MonadGame (IdentityT m)

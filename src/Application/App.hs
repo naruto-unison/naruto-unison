@@ -282,12 +282,12 @@ instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend
     runDB :: ∀ a. SqlPersistT Handler a -> Handler a
     runDB action = getsYesod connPool >>= Sql.runSqlPool action
-    {-# INLINE runDB #-}
+    {-# INLINABLE runDB #-}
 
 liftDB :: ∀ m a. (MonadHandler m, App ~ HandlerSite m)
        => SqlPersistT Handler a -> m a
 liftDB = liftHandler . runDB
-{-# INLINE liftDB #-}
+{-# INLINABLE liftDB #-}
 
 instance YesodPersistRunner App where
     getDBRunner :: Handler (DBRunner App, Handler ())

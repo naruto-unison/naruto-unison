@@ -182,4 +182,3 @@ baseSkill s Ninja{alternates, character = Character{skills}} = do
   where
     -- (!?) for NonEmpty
     xs !:? i = headMay $ NonEmpty.drop i xs
-    {-# INLINE (!:?) #-}

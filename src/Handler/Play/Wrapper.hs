@@ -59,17 +59,17 @@ askST asker f = asks asker >>= liftST . f
 
 instance (MonadST m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) where
     game       = askST gameRef readRef
+    {-# INLINABLE game #-}
     alter f    = askST gameRef $ flip modifyRef' f
+    {-# INLINABLE alter #-}
     ninjas     = askST ninjasRef Vector.freeze <&> toList
+    {-# INLINABLE ninjas #-}
     ninja i    = askST ninjasRef $ flip MVector.unsafeRead (Slot.toInt i)
+    {-# INLINABLE ninja #-}
     write i x  = askST ninjasRef \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
+    {-# INLINABLE write #-}
     modify i f = askST ninjasRef \xs -> MVector.unsafeModify xs f $ Slot.toInt i
-    {-# INLINE game #-}
-    {-# INLINE alter #-}
-    {-# INLINE ninjas #-}
-    {-# INLINE ninja #-}
-    {-# INLINE write #-}
-    {-# INLINE modify #-}
+    {-# INLINABLE modify #-}
 
 instance (MonadST m, s ~ PrimState m) => MonadHook (ReaderT (STWrapper s) m) where
     action Skill{name} ns ns'  = askST tracker
