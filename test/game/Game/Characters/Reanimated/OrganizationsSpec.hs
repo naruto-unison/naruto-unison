@@ -98,7 +98,7 @@ spec = parallel do
                 defense `shouldBe` dmg - 20
 
     describeCharacter "Zabuza Momochi" do
-        useOn Enemy "Blood Harvest" do
+        useOn REnemy "Blood Harvest" do
             it "drains into defense" do
                 Sim.use "Executioner's Butchering"
                 Sim.act

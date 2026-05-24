@@ -77,14 +77,14 @@ targetSlot :: Target -> Slot
 targetSlot Self     = Slot.all !! 0
 targetSlot Ally     = Slot.all !! 1
 targetSlot Allies   = Slot.all !! 1
-targetSlot RAlly    = Slot.all !! 1
+targetSlot RAlly    = Slot.all !! 2
 targetSlot RXAlly   = Slot.all !! 2
 targetSlot XAlly    = Slot.all !! 2
 targetSlot XAllies  = Slot.all !! 2
 targetSlot Enemy    = Slot.all !! 3
 targetSlot Enemies  = Slot.all !! 3
-targetSlot REnemy   = Slot.all !! 3
 targetSlot XEnemies = Slot.all !! 4
+targetSlot REnemy   = Slot.all !! 5
 targetSlot Everyone = Slot.all !! 0
 
 targets :: ∀ m. MonadGame m => Target -> m Ninja

@@ -43,13 +43,15 @@ spec = parallel do
                 user has "Curse Mark"
 
     describeCharacter "Drunken Lee" do
-        useOn Enemy "Unpredictable Assault" do
+        useOn REnemy "Unpredictable Assault" do
             it "damages target per Unpredictable Assault" do
                 replicateM_ testStacks Sim.act
                 setHealth 100
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20 + 5 * testStacks
+
+        useOn Enemy "Unpredictable Assault" do
             it "deals bonus damage during Drunken Fist" do
                 apply Permanent [ AntiChannel ]
                 Sim.use "Drunken Fist"

@@ -123,9 +123,9 @@ instance MonadGame (StateT Wrapper Identity) where
         g { ninjas = adjustVec f (Slot.toInt i) $ ninjas g }
     modifyAll f = modify' \g -> g { ninjas = f <$> ninjas g }
 instance MonadRandom (StateT Wrapper Identity) where
-    random x = return . const x
-    shuffle  = return
-    player   = return Player.A
+    random _ x = return x
+    shuffle    = return
+    player     = return Player.A
 instance MonadHook (StateT Wrapper Identity) where
     action  = const . const . const $ return ()
     chakra  = const . const . const $ return ()

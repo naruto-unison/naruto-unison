@@ -280,7 +280,7 @@ spec = parallel do
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [Physical, Chakra]
 
-        useOn Ally "Rubber Sphere and Rope" do
+        useOn RAlly "Rubber Sphere and Rope" do
             it "makes random ally invulnerable" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [ Reveal ]

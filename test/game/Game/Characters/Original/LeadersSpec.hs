@@ -14,7 +14,7 @@ spec = parallel do
             it "grants chakra" do
                 Sim.act
                 chakras <- gameChakras
-                chakras `shouldBe` ([Blood], [])
+                chakras `shouldBe` ([Tai], [])
             it "sacrifices health" do
                 Sim.act
                 targetHealth <- target health
@@ -23,7 +23,7 @@ spec = parallel do
             it "grants chakra" do
                 Sim.act
                 chakras <- gameChakras
-                chakras `shouldBe` ([], [Blood])
+                chakras `shouldBe` ([], [Tai])
             it "sacrifices health" do
                 Sim.act
                 targetHealth <- target health

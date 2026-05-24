@@ -196,7 +196,7 @@ spec = parallel do
                 addStacks "Sensory Radar" 3
                 Sim.act
                 chakras <- gameChakras
-                chakras `shouldBe` ([Blood, Blood, Blood], [])
+                chakras `shouldBe` ([Tai, Tai, Tai], [])
             it "spends all Sensory Radar" do
                 addStacks "Sensory Radar" testStacks
                 Sim.act
