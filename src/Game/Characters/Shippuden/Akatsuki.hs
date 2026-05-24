@@ -41,7 +41,7 @@ characters =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 6
-        , Skill.dur       = Ongoing Permanent
+        , Skill.dur       = Passive
         , Skill.start     =
           [ To Self do
                 defend Permanent =<< build 70
@@ -865,7 +865,7 @@ characters =
         , Skill.desc      = "Pain targets himself or an ally. The first skill an enemy uses on them next turn will be countered, and the person countered will take 20 damage. Once used, this skill alternates between [Universal Pull] and [Almighty Push] every turn. "
         , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
-        , Skill.dur       = Ongoing Permanent
+        , Skill.dur       = Passive
         , Skill.start     =
           [ To Ally $ trapFrom 1 (Counter All) $
                 damage 20
