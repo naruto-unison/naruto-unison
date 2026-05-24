@@ -29,10 +29,10 @@ spec = parallel do
     describeCharacter "Gari" do
         useOn Enemy "Exploding Palm" do
             it "deals stacking damage" do
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 Sim.as Enemy $ return ()
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 20 * stacks
+                100 - targetHealth `shouldBe` 20 * testStacks
 
         useOn Enemy "Ground Pound" do
             it "damages on harm" do
@@ -57,37 +57,37 @@ spec = parallel do
     describeCharacter "Ginkaku" do
         useOn Enemy "Seven Stars Blade" do
             it "adds Spirit Words" do
-                replicateM_ stacks Sim.act
-                numStacks <- targetStacks "Spirit Word"
-                numStacks `shouldBe` stacks
+                replicateM_ testStacks Sim.act
+                stacks <- target numStacks "Spirit Word"
+                stacks `shouldBe` testStacks
 
         useOn Enemy "Amber Purification Jar" do
             it "adds Spirit Words" do
-                replicateM_ stacks Sim.act
-                numStacks <- targetStacks "Spirit Word"
-                numStacks `shouldBe` stacks
+                replicateM_ testStacks Sim.act
+                stacks <- target numStacks "Spirit Word"
+                stacks `shouldBe` testStacks
 
         useOn Enemy "Benihisago" do
             it "damages target per stack" do
-                addStacks "Spirit Word" stacks
+                addStacks "Spirit Word" testStacks
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 10 + 5 * stacks
+                100 - targetHealth `shouldBe` 10 + 5 * testStacks
             it "adds Spirit Words" do
-                replicateM_ stacks Sim.act
-                numStacks <- targetStacks "Spirit Word"
-                numStacks `shouldBe` stacks
+                replicateM_ testStacks Sim.act
+                stacks <- target numStacks "Spirit Word"
+                stacks `shouldBe` testStacks
             it "increases Scroll of Fire" do
-                replicateM_ stacks Sim.act
-                numStacks <- targetStacks "Scroll of Fire"
-                numStacks `shouldBe` stacks
+                replicateM_ testStacks Sim.act
+                stacks <- target numStacks "Scroll of Fire"
+                stacks `shouldBe` testStacks
 
     describeCharacter "Kinkaku" do
         useOn Enemy "Leaf Fan" do
             it "adds Spirit Words" do
-                replicateM_ stacks Sim.act
-                numStacks <- targetStacks "Spirit Word"
-                numStacks `shouldBe` stacks
+                replicateM_ testStacks Sim.act
+                stacks <- target numStacks "Spirit Word"
+                stacks `shouldBe` testStacks
 
         useOn Enemy "Gold Rope" do
             it "damages on harm stacking" do
@@ -96,25 +96,25 @@ spec = parallel do
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 2 * 35
             it "adds Spirit Words" do
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 Sim.as Enemy $ return ()
-                numStacks <- targetStacks "Spirit Word"
-                numStacks `shouldBe` stacks
+                stacks <- target numStacks "Spirit Word"
+                stacks `shouldBe` testStacks
 
         useOn Enemies "Scroll of Fire" do
             it "adds Spirit Words" do
-                replicateM_ stacks Sim.act
-                numStacks <- targetStacks "Spirit Word"
-                numStacks `shouldBe` stacks
+                replicateM_ testStacks Sim.act
+                stacks <- target numStacks "Spirit Word"
+                stacks `shouldBe` testStacks
             it "deals bonus damage from stacks" do
                 Sim.act
                 targetHealth <- target health
                 factory
                 targeting Self factory
-                addStacks "Scroll of Fire" stacks
+                addStacks "Scroll of Fire" testStacks
                 Sim.act
                 targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 5 * stacks
+                targetHealth - targetHealth' `shouldBe` 5 * testStacks
 
     describeCharacter "Toroi" do
         useOn Enemy "Demon Wind Shuriken" do
@@ -124,21 +124,21 @@ spec = parallel do
                 factory
                 targeting Self factory
                 Sim.use "Magnetic Field"
-                replicateM_ stacks  $ Sim.use "Conserving Bee Twin Blades"
+                replicateM_ testStacks  $ Sim.use "Conserving Bee Twin Blades"
                 setHealth 100
                 Sim.act
                 targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 5 * stacks
+                targetHealth - targetHealth' `shouldBe` 5 * testStacks
             it "deals bonus damage per Magnetic Current" do
                 Sim.act
                 targetHealth <- target health
                 factory
                 targeting Self factory
-                replicateM_ stacks  $ Sim.use "Magnetic Current"
+                replicateM_ testStacks  $ Sim.use "Magnetic Current"
                 setHealth 100
                 Sim.act
                 targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 5 * stacks
+                targetHealth - targetHealth' `shouldBe` 5 * testStacks
             it "causes harmers to ignore healing" do
                 Sim.act
                 Sim.as Enemy $ return ()
@@ -157,11 +157,11 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 targeting Self factory
-                replicateM_ stacks  $ Sim.use "Magnetic Current"
+                replicateM_ testStacks  $ Sim.use "Magnetic Current"
                 setHealth 100
                 Sim.act
                 targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 5 * stacks
+                targetHealth - targetHealth' `shouldBe` 5 * testStacks
 
         useOn Enemies "Magnetic Current" do
             it "deals bonus damage per Conserving Bee Twin Blades" do
@@ -170,28 +170,28 @@ spec = parallel do
                 factory
                 targeting Self factory
                 Sim.use "Magnetic Field"
-                replicateM_ stacks  $ Sim.use "Conserving Bee Twin Blades"
+                replicateM_ testStacks  $ Sim.use "Conserving Bee Twin Blades"
                 setHealth 100
                 Sim.act
                 targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 5 * stacks
+                targetHealth - targetHealth' `shouldBe` 5 * testStacks
 
     describeCharacter "Fukai" do
         useOn Enemy "Tailed Beast Bomb Barrage" do
             it "damages targets per Chakra Arms" do
-                replicateM_ stacks  $ Sim.use "Chakra Arms"
+                replicateM_ testStacks  $ Sim.use "Chakra Arms"
                 setHealth 100
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 30 + 5 * stacks
+                100 - targetHealth `shouldBe` 30 + 5 * testStacks
 
         useOn Enemy "Lariat" do
             it "damages targets per Chakra Arms" do
-                replicateM_ stacks  $ Sim.use "Chakra Arms"
+                replicateM_ testStacks  $ Sim.use "Chakra Arms"
                 setHealth 100
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 15 + 5 * stacks
+                100 - targetHealth `shouldBe` 15 + 5 * testStacks
 
     describeCharacter "Chiyo" do
         useOn Enemy "Possum" do
@@ -224,4 +224,4 @@ spec = parallel do
   where
     describeCharacter = describeCategory Reanimated
     dmg = 56
-    stacks = 3
+    testStacks = 3

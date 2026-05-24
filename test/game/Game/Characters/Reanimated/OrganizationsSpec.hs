@@ -51,8 +51,8 @@ spec = parallel do
             it "spends Scattered Rocks" do
                 replicateM_ 3  $ Sim.use "Sphere of Graves"
                 Sim.act
-                numStacks <- userStacks "Scattered Rock"
-                numStacks `shouldBe` 1
+                stacks <- user numStacks "Scattered Rock"
+                stacks `shouldBe` 1
 
     describeCharacter "Haku" do
         useOn Enemies "Thousand Needles of Death" do
@@ -111,10 +111,10 @@ spec = parallel do
                 defense `shouldBe` 10
             it "does not defend more" do
                 Sim.use "Executioner's Butchering"
-                setHealth stacks
+                setHealth testStacks
                 Sim.act
                 defense <- user totalDefense
-                defense `shouldBe` stacks
+                defense `shouldBe` testStacks
             it "extends Demon Shroud" do
                 Sim.use "Demon Shroud"
                 replicateM_ 8 Sim.act
@@ -129,9 +129,9 @@ spec = parallel do
                 electricDur <- target $ Sim.statusDur "Electricity"
                 electricDur `shouldBe` 2
             it "extends duration" do
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 electricDur <- target $ Sim.statusDur "Electricity"
-                electricDur `shouldBe` fromIntegral (1 + stacks)
+                electricDur `shouldBe` fromIntegral (1 + testStacks)
             it "damages on action" do
                 Sim.act
                 Sim.as Enemy $ return ()
@@ -145,13 +145,13 @@ spec = parallel do
 
         useOn Enemy "Depth Charge" do
             it "deals normal damage normally" do
-                apply Permanent [Reduce [All] Flat stacks]
+                apply Permanent [Reduce [All] Flat testStacks]
                 Sim.act
                 targetHealth <- target health
-                30 - (100 - targetHealth) `shouldBe` stacks
+                30 - (100 - targetHealth) `shouldBe` testStacks
             it "deals affliction damage if target has Electricity" do
                 Sim.use "Lightning Fang"
-                apply Permanent [ Reduce [All] Flat stacks ]
+                apply Permanent [ Reduce [All] Flat testStacks ]
                 Sim.act
                 targetHealth <- target health
                 30 - (100 - targetHealth) `shouldBe` 0
@@ -168,10 +168,10 @@ spec = parallel do
                 targetHealth' <- target health
                 targetHealth - targetHealth' `shouldBe` 2 * 10
             it "shortens Electricity" do
-                replicateM_ stacks  $ Sim.use "Lightning Fang"
+                replicateM_ testStacks  $ Sim.use "Lightning Fang"
                 Sim.act
                 electricDur <- target $ Sim.statusDur "Electricity"
-                electricDur `shouldBe` fromIntegral stacks - 1
+                electricDur `shouldBe` fromIntegral testStacks - 1
 
     describeCharacter "Kushimaru Kuriarare" do
         useOn Enemy "Needle Stitching" do
@@ -187,22 +187,22 @@ spec = parallel do
             it "extends duration" do
                 Sim.act
                 Sim.at XEnemies Sim.act
-                targetHas "Needle Stitching"
+                target has "Needle Stitching"
             it "does not overextend duration" do
                 Sim.act
                 Sim.turns 1
                 Sim.at XEnemies Sim.act
-                not <$> targetHas "Needle Stitching"
+                not <$> target has "Needle Stitching"
         useOn Enemy "Eviscerate" do
             it "extends Needle Stitching" do
                 Sim.use "Needle Stitching"
                 Sim.act
-                targetHas "Needle Stitching"
+                target has "Needle Stitching"
             it "extends Wire Crucifixion" do
                 Sim.use "Needle Stitching"
                 Sim.use "Wire Crucifixion"
                 Sim.act
-                targetHas "Wire Crucifixion"
+                target has "Wire Crucifixion"
         useOn Enemy "Wire Crucifixion" do
             it "only affects enemies affected by [Needle Stitching]" do
                 targeting Enemies $ Sim.use "Needle Stitching"
@@ -217,10 +217,10 @@ spec = parallel do
                 Sim.as Enemy $ damage dmg
                 Sim.act
                 Sim.turns 1
-                Sim.as Enemy $ afflict stacks
+                Sim.as Enemy $ afflict testStacks
                 Sim.turns 5
                 userHealth <- user health
-                dmg + stacks - (100 - userHealth) `shouldBe` 3 * 10
+                dmg + testStacks - (100 - userHealth) `shouldBe` 3 * 10
 
         useOn Enemies "Sharp Hair Spear" do
             it "deals bonus damage during Chakra Weave" do
@@ -247,32 +247,32 @@ spec = parallel do
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> target (`is` Reveal)
             it "increases the damage of Detonating Clay" do
-                replicateM_ stacks do
+                replicateM_ testStacks do
                     Sim.act
                     Sim.as Enemy $ return ()
                 setHealth 100
                 Sim.use "Detonating Clay"
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 20 + 5 * stacks
+                100 - targetHealth `shouldBe` 20 + 5 * testStacks
 
         useOn Enemies "Sonar Bat Bombs" do
             it "increases the damage of Detonating Clay" do
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 setHealth 100
                 Sim.use "Detonating Clay"
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 20 + 5 * stacks
+                100 - targetHealth `shouldBe` 20 + 5 * testStacks
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Jellyfish Explosives"
 
         useOn Enemy "Jellyfish Explosives" do
             it "increases the damage of Detonating Clay" do
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 setHealth 100
                 Sim.use "Detonating Clay"
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 20 + 10 * stacks
+                100 - targetHealth `shouldBe` 20 + 10 * testStacks
 
     describeCharacter "Sasori" do
         useOn Enemy "Puppet Manipulation" do
@@ -312,4 +312,4 @@ spec = parallel do
   where
     describeCharacter = describeCategory Reanimated
     dmg = 56
-    stacks = 3
+    testStacks = 3

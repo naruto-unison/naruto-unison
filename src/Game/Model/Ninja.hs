@@ -3,7 +3,7 @@ module Game.Model.Ninja
   , numSkills
   , alive, minHealth
   , is, isChanneling
-  , has, hasDefense, hasOwn
+  , has, has', hasDefense, hasOwn
   , numActive, numStacks, numHelpful, numHarmful
   , defenseAmount, totalDefense, totalBarrier
   , lastChakraSpent

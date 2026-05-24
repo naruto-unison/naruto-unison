@@ -66,7 +66,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                stacks <- targetStacks "Toad Oil Bomb"
+                stacks <- target numStacks "Toad Oil Bomb"
                 afflict (10 * stacks)
           , To Self $ hide Permanent [ Alternate "Giant Flame Bomb"
                                                  "Toad Oil Bomb"
@@ -109,10 +109,10 @@ characters =
         , Skill.effects   =
           [ To Ally do
                 trapFrom 3 (OnHarmed Melee) $
-                    whenM (targetHas "mane") $
+                    whenM (target has "mane") $
                         damage 25
                 trapFrom 3 (OnHarmed Ranged) $
-                    whenM (targetHas "mane") do
+                    whenM (target has "mane") do
                         damage 15
                         apply 1 [ Stun Melee
                                 , Stun Physical
@@ -135,13 +135,13 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                has <- userHas "Strength of One Hundred Seal"
-                if has then do
+                seal <- user has "Strength of One Hundred Seal"
+                if seal then do
                     pierce 40
                     demolishAll
                 else
                     pierce 20
-          , To Allies $ whenM (targetHas "Healing Wave") $
+          , To Allies $ whenM (target has "Healing Wave") $
                 apply 1 [ Endure ]
           , To Self $ remove "Strength of One Hundred Seal"
           ]
@@ -155,8 +155,8 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To XAlly do
-                has <- userHas "Strength of One Hundred Seal"
-                if has then do
+                seal <- user has "Strength of One Hundred Seal"
+                if seal then do
                     heal 40
                     apply -3 [ Heal 10 ]
                 else do
@@ -174,8 +174,8 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Self do
-                has <- userHas "Strength of One Hundred Seal"
-                if has then do
+                seal <- user has "Strength of One Hundred Seal"
+                if seal then do
                     heal 50
                     gain [Rand, Rand]
                     remove "Strength of One Hundred Seal"
@@ -223,7 +223,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Atomic Dismantling"
+                stacks <- user numStacks "Atomic Dismantling"
                 pierce (20 + 10 * stacks)
           , To Self addStack
           ]
@@ -312,13 +312,13 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Self do
-                stacks <- userStacks "Harmony"
+                stacks <- user numStacks "Harmony"
                 remove "Harmony"
                 addStacks' 1 "Harmony"
                     if stacks < 3 then stacks + 1 else 1
           , To Enemies do
                 remove "Demonic Illusion: Gamarinsho"
-                stacks <- userStacks "Harmony"
+                stacks <- user numStacks "Harmony"
                 when (stacks == 3) $
                     apply 2 [ Stun All ]
           ]

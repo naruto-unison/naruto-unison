@@ -80,7 +80,7 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.effects   =
           [ To Self do
-                stacks <- userStacks "Umbrella"
+                stacks <- user numStacks "Umbrella"
                 apply 1 [ Reduce [All] Flat (stacks * 10) ]
                 remove "Umbrella"
           ]
@@ -106,7 +106,7 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Umbrella"
+                stacks <- user numStacks "Umbrella"
                 damage (15 * stacks)
           , To Self $ remove "Umbrella"
           ]
@@ -221,7 +221,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 apply 2 [ Expose ]
-                bonus <- 20 `bonusIf` userHas "Echo Speaker Tuning"
+                bonus <- 20 `bonusIf` user has "Echo Speaker Tuning"
                 damage (20 + bonus)
                 tag' "Echoing Sound" 1
           ]
@@ -235,8 +235,8 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                targetBonus <- 10 `bonusIf` targetHas "Echoing Sound"
-                userBonus   <- 10 `bonusIf` userHas "Echo Speaker Tuning"
+                targetBonus <- 10 `bonusIf` target has "Echoing Sound"
+                userBonus   <- 10 `bonusIf` user has "Echo Speaker Tuning"
                 damage (10 + targetBonus + userBonus)
                 apply Permanent [ Bleed [NonAffliction] Flat 5
                                 , Weaken [All] Flat 5
@@ -267,13 +267,13 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                has <- userHas "Shadow Senbon"
-                if has then
+                senbon <- user has "Shadow Senbon"
+                if senbon then
                     apply 1 [ Invulnerable All ]
                 else
                     tag 1
           , To Enemy do
-                bonus <- 25 `bonusIf` userHas "Unnerving Bells"
+                bonus <- 25 `bonusIf` user has "Unnerving Bells"
                 damage (15 + bonus)
           ]
         }
@@ -288,9 +288,9 @@ characters =
           [ To Self $ tag 1
           ,  To Enemy do
                 apply 2 [ Expose ]
-                whenM (userHas "Bell Ring Illusion") $
+                whenM (user has "Bell Ring Illusion") $
                     damage 10
-                whenM (userHas "Unnerving Bells") $
+                whenM (user has "Unnerving Bells") $
                     apply 1 [ Stun All ]
           ]
         }
@@ -305,9 +305,9 @@ characters =
           [ To Self $ tag 1
           , To Enemy do
                 deplete 1
-                whenM (userHas "Bell Ring Illusion") $
+                whenM (user has "Bell Ring Illusion") $
                     apply 1 [ Bleed [Chakra] Flat 15 ]
-                whenM (userHas "Shadow Senbon") $
+                whenM (user has "Shadow Senbon") $
                     apply 1 [ Bleed [Physical] Flat 15 ]
           ]
         }
@@ -362,7 +362,7 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
-                whenM (userHas "Chakra Focus") $
+                whenM (user has "Chakra Focus") $
                     absorb 1
                 apply 2 [ Weaken [All] Flat 5 ]
                 leech 20 heal
@@ -379,7 +379,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy do
-                whenM (userHas "Chakra Focus") $
+                whenM (user has "Chakra Focus") $
                     absorb 1
                 apply 1 [ Weaken [All] Flat 5 ]
                 leech 15 heal

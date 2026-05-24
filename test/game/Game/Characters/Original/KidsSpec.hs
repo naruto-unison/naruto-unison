@@ -86,10 +86,10 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 targeting Self factory
-                replicateM_ stacks $ Sim.use "Parasite"
+                replicateM_ testStacks $ Sim.use "Parasite"
                 Sim.act
                 targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 5 * stacks
+                targetHealth - targetHealth' `shouldBe` 5 * testStacks
 
     describeCharacter "Hinata Hyūga" do
         useOn Enemy "Gentle Fist" do
@@ -117,37 +117,37 @@ spec = parallel do
                 Sim.use "Meditate"
                 Sim.act
                 Sim.turns 1
-                targetHas "Shadow Strangle"
+                target has "Shadow Strangle"
             it "lasts normally otherwise" do
                 Sim.act
                 Sim.turns 1
-                not <$> targetHas "Shadow Strangle"
+                not <$> target has "Shadow Strangle"
 
         useOn Enemies "Shadow Possession" do
             it "lasts longer if target has Meditate" do
                 Sim.use "Meditate"
                 Sim.act
                 Sim.turns 1
-                targetHas "Shadow Possession"
+                target has "Shadow Possession"
             it "lasts normally otherwise" do
                 Sim.act
                 Sim.turns 1
-                not <$> (targetHas "Shadow Possession")
+                not <$> (target has "Shadow Possession")
 
     describeCharacter "Chōji Akimichi" do
         useOn Self "Chakra Wings" do
             it "blocks Chili damage" do
                 Sim.act
-                userHas "unchili"
+                user has "unchili"
 
         useOn XAllies "Chili Pill" do
             it "pauses damage during unchili" do
                 Sim.act
-                Sim.turns stacks
+                Sim.turns testStacks
                 targeting Self $ tag' "unchili" Permanent
                 Sim.turns 10
                 userHealth <- user health
-                100 - userHealth `shouldBe` 10 + (stacks + 1) * 15
+                100 - userHealth `shouldBe` 10 + (testStacks + 1) * 15
 
         useOn Enemy "Butterfly Bombing" do
             it "damages target" do
@@ -203,42 +203,42 @@ spec = parallel do
 
         useOn Enemy "Hidden Lotus" do
             it "damages target" do
-                apply Permanent [ Reduce [All] Flat stacks ]
+                apply Permanent [ Reduce [All] Flat testStacks ]
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 100 - stacks
+                100 - targetHealth `shouldBe` 100 - testStacks
 
     describeCharacter "Tenten" do
         useOn Enemy "Unsealing Technique" do
             it "adds a bonus stack during Rising Twin Dragons" do
                 Sim.use "Rising Twin Dragons"
                 Sim.act
-                numStacks <- Sim.at XEnemies $ targetStacks "Unsealing Technique"
-                numStacks `shouldBe` 2
+                stacks <- Sim.at XEnemies $ target numStacks "Unsealing Technique"
+                stacks `shouldBe` 2
             it "spends Rising Twin Dragons" do
                 Sim.use "Rising Twin Dragons"
                 Sim.act
-                not <$> userHas "Rising Twin Dragons"
+                not <$> user has "Rising Twin Dragons"
 
         useOn Enemies "Rising Dragon Control" do
             it "damages enemies per Unsealing Technique" do
-                replicateM_ stacks $ Sim.use "Unsealing Technique"
+                replicateM_ testStacks $ Sim.use "Unsealing Technique"
                 targeting Everyone $ setHealth 100
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 5 + 10 * stacks
+                100 - targetHealth `shouldBe` 5 + 10 * testStacks
             it "weakens enemies per Unsealing Technique" do
-                replicateM_ stacks  $ Sim.use "Unsealing Technique"
+                replicateM_ testStacks  $ Sim.use "Unsealing Technique"
                 targeting Everyone $ setHealth 100
                 Sim.act
                 Sim.withClass Physical $ Sim.as Enemy $ damage dmg
                 userHealth <- user health
-                dmg - (100 - userHealth) `shouldBe` 5 + 10 * stacks
+                dmg - (100 - userHealth) `shouldBe` 5 + 10 * testStacks
             it "spends Unsealing Technique" do
-                replicateM_ stacks  $ Sim.use "Unsealing Technique"
+                replicateM_ testStacks  $ Sim.use "Unsealing Technique"
                 targeting Everyone $ setHealth 100
                 Sim.act
-                not <$> targetHas "Unsealing Technique"
+                not <$> target has "Unsealing Technique"
             it "lasts an additional turn during Rising Twin Dragons" do
                 Sim.use "Rising Twin Dragons"
                 Sim.act
@@ -249,7 +249,7 @@ spec = parallel do
             it "spends Rising Twin Dragons" do
                 Sim.use "Rising Twin Dragons"
                 Sim.act
-                not <$> userHas "Rising Twin Dragons"
+                not <$> user has "Rising Twin Dragons"
 
     describeCharacter "Gaara" do
         useOn Enemy "Sand Coffin" do
@@ -279,11 +279,11 @@ spec = parallel do
     describeCharacter "Kankurō" do
         useOn Enemy "Puppet Technique" do
             it "increases damage" do
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 damage dmg
                 targetHealth <- target health
-                (100 - targetHealth) - dmg `shouldBe` 5 * stacks
+                (100 - targetHealth) - dmg `shouldBe` 5 * testStacks
   where
     describeCharacter = describeCategory Original
     dmg = 55
-    stacks = 3
+    testStacks = 3

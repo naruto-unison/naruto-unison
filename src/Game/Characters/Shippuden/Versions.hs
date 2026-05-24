@@ -87,13 +87,13 @@ characters =
     let
         formation :: IntRunConstraint () -> RunConstraint ()
         formation withAmount = do
-            formingStacks <- userStacks "forming"
+            formingStacks <- user numStacks "forming"
             if formingStacks > 0 then
                 allies $ addStack' "formed"
             else do
                 allies $ addStack' "forming"
                 delay -1 do
-                    formedStacks <- userStacks "formed"
+                    formedStacks <- user numStacks "formed"
                     when (formedStacks > 0) $ withAmount formedStacks
     in
     [ [ Skill.new
@@ -128,7 +128,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- targetStacks "Sand Bomb"
+                stacks <- target numStacks "Sand Bomb"
                 damage (15 + 5 * stacks)
                 apply' "Sand Bomb" Permanent []
           ]
@@ -159,7 +159,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemies do
-                stacks <- targetStacks "Sand Bomb"
+                stacks <- target numStacks "Sand Bomb"
                 damage (15 + 5 * stacks)
                 apply 1 [ Exhaust [All] ]
           , To Everyone $ remove "Sand Bomb"
@@ -232,7 +232,7 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
             [ To Enemy do
-                  bonus <- 40 `bonusIf` targetHas "Kuroari Ambush"
+                  bonus <- 40 `bonusIf` target has "Kuroari Ambush"
                   pierce (20 + bonus)
             , To Self $ remove "kuroari trap"
             ]
@@ -300,10 +300,10 @@ characters =
         , Skill.dur       = Control -2
         , Skill.start     =
           [ To Self do
-                targeting Everyone $ whenM (targetHas "DNA Transmission Shadow")
+                targeting Everyone $ whenM (target has "DNA Transmission Shadow")
                     killHard
                 trap' Permanent OnDeath $ targeting Everyone $
-                    whenM (targetHas "DNA Transmission Shadow")
+                    whenM (target has "DNA Transmission Shadow")
                         killHard
           ]
         , Skill.effects   =
@@ -378,7 +378,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Evening Elephant"
+                stacks <- user numStacks "Evening Elephant"
                 damage (20 + 20 * stacks)
                 apply 1 [ Alone
                         , Stun NonMental
@@ -411,7 +411,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Night Guy"
+                stacks <- user numStacks "Night Guy"
                 pierce (50 + 25 * stacks)
                 apply 2 [ Seal
                         , Weaken [All] Flat 5
@@ -524,7 +524,7 @@ characters =
           ]
         , Skill.stunned   =
           [ To Enemy do
-                stacks <- userStacks "Blazing Arrow"
+                stacks <- user numStacks "Blazing Arrow"
                 damage (15 * stacks)
           , To Self do
                 remove "Blazing Arrow"
@@ -533,7 +533,7 @@ characters =
           ]
         , Skill.interrupt  =
           [ To Enemy do
-                stacks <- userStacks "Blazing Arrow"
+                stacks <- user numStacks "Blazing Arrow"
                 damage (15 * stacks)
           , To Self do
                 remove "Blazing Arrow"
@@ -568,7 +568,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Amaterasu"
+                stacks <- user numStacks "Amaterasu"
                 afflict (10 + 5 * stacks)
                 trap 1 (OnAction All) $
                     afflict 20
@@ -618,7 +618,7 @@ characters =
           ,  To Enemy do
                   pierce 15
                   apply 2 [ Afflict 5 ]
-                  whenM (targetHas "Poisonous Chain Skewer") $
+                  whenM (target has "Poisonous Chain Skewer") $
                       bomb' "Complex Toxin" 2 []
                             [ To Expire $ apply 1 [ Stun All ] ]
           ]
@@ -659,7 +659,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 10 `bonusIf` targetHas "Flamethrower Jets"
+                bonus <- 10 `bonusIf` target has "Flamethrower Jets"
                 pierce (20 + bonus)
           , To Self $ remove "flamethrower jets"
           ]
@@ -743,7 +743,7 @@ characters =
                                                  "Paper Shuriken"
                                      ]
           , To Enemy do
-                stacks <- targetStacks "Paper Shuriken"
+                stacks <- target numStacks "Paper Shuriken"
                 damage (15 + 10 * stacks)
           ]
         }

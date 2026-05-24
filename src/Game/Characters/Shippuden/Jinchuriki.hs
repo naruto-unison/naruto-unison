@@ -34,7 +34,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Flaming Cat Roar"
+                stacks <- user numStacks "Flaming Cat Roar"
                 damage (30 + 5 * stacks)
                 apply 1 [ Weaken [All] Flat 10 ]
           , To Self addStack
@@ -50,10 +50,10 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Cat Claws"
+                stacks <- user numStacks "Cat Claws"
                 damage (15 + 5 * stacks)
           , To XEnemies do
-                stacks <- userStacks "Cat Claws"
+                stacks <- user numStacks "Cat Claws"
                 damage (5 + 5 * stacks)
           , To Self addStack
           ]
@@ -73,7 +73,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 demolishAll
-                bonus <- 5 `bonusIf` targetHas "Drowning Bubble"
+                bonus <- 5 `bonusIf` target has "Drowning Bubble"
                 pierce (15 + bonus)
           ]
         }
@@ -128,7 +128,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 20 `bonusIf` userHas "Acrobat"
+                bonus <- 20 `bonusIf` user has "Acrobat"
                 pierce (20 + bonus)
           , To Self $ apply 1 [ Invulnerable Genjutsu ]
           ]
@@ -280,8 +280,8 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                has <- targetHas "Clasp"
-                if has then
+                clasp <- target has "Clasp"
+                if clasp then
                     afflict 30
                 else
                     apply 3 [ Afflict 10 ]

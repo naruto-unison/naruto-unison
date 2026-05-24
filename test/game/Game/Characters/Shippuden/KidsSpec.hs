@@ -21,10 +21,10 @@ spec = parallel do
             it "tags enemy if countered" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [ Reveal ]
-                targetHas "Multi Shadow Clone"
+                target has "Multi Shadow Clone"
             it "does not tag enemy otherwise" do
                 Sim.act
-                not <$> targetHas "Multi Shadow Clone"
+                not <$> target has "Multi Shadow Clone"
 
         useOn Enemy "Rasen Shuriken" do
             it "deals bonus damage if target has Multi Shadow Clone" do
@@ -54,17 +54,17 @@ spec = parallel do
                 targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 10
             it "spends a Seal" do
-                targeting Self $ addStacks "Seal" stacks
+                targeting Self $ addStacks "Seal" testStacks
                 Sim.act
-                numStacks <- userStacks "Seal"
-                numStacks `shouldBe` stacks - 1
+                stacks <- user numStacks "Seal"
+                stacks `shouldBe` testStacks - 1
 
         useOn Self "Seal Release" do
             it "spends a Seal" do
-                targeting Self $ addStacks "Seal" stacks
+                targeting Self $ addStacks "Seal" testStacks
                 Sim.act
-                numStacks <- userStacks "Seal"
-                numStacks `shouldBe` stacks - 1
+                stacks <- user numStacks "Seal"
+                stacks `shouldBe` testStacks - 1
 
     describeCharacter "Sai" do
         useOn Allies "Ink Mist" do
@@ -166,7 +166,7 @@ spec = parallel do
         useOn Enemy "Chakra Leech" do
             it "tags target" do
                 Sim.act
-                targetHas "chakra leech"
+                target has "chakra leech"
 
         useOn Ally "Insect Barricade" do
             it "counters on target" do
@@ -212,7 +212,7 @@ spec = parallel do
                 Sim.act
                 Sim.act
                 Sim.turns 3
-                not <$> userHas "Gigantic Beetle Infestation"
+                not <$> user has "Gigantic Beetle Infestation"
 
     describeCharacter "Hinata Hyūga" do
         useOn Enemy "Pressure Point Strike" do
@@ -229,7 +229,7 @@ spec = parallel do
                 tag' "Eight Trigrams Sixty-Four Palms" Permanent
                 Sim.act
                 not <$>
-                    targetHas "Eight Trigrams Sixty-Four Palms"
+                    target has "Eight Trigrams Sixty-Four Palms"
 
         useOn Enemy "Gentle Step Twin Lion Fists" do
             it "attacks enemies" do
@@ -247,9 +247,9 @@ spec = parallel do
         useOn Enemy "Eight Trigrams Sixty-Four Palms" do
             it "tags harm" do
                 Sim.act
-                replicateM_ stacks $ Sim.as Enemy $ return ()
-                numStacks <- targetStacks "Eight Trigrams Sixty-Four Palms"
-                numStacks `shouldBe` stacks
+                replicateM_ testStacks $ Sim.as Enemy $ return ()
+                stacks <- target numStacks "Eight Trigrams Sixty-Four Palms"
+                stacks `shouldBe` testStacks
 
     describeCharacter "Shikamaru Nara" do
         useOn Enemy "Shadow Sewing" do
@@ -318,10 +318,10 @@ spec = parallel do
             it "reduces damage reduction" do
                 Sim.act
                 Sim.as Enemy $ targeting Self $
-                    apply Permanent [ Reduce [All] Flat stacks ]
+                    apply Permanent [ Reduce [All] Flat testStacks ]
                 damage dmg
                 targetHealth <- target health
-                (100 - targetHealth) - dmg + stacks `shouldBe` 15
+                (100 - targetHealth) - dmg + testStacks `shouldBe` 15
 
     describeCharacter "Rock Lee" do
         useOn Enemy "Leaf Rising Wind" do
@@ -367,10 +367,10 @@ spec = parallel do
 
         useOn Enemy "Full Power of Youth" do
             it "damages target per health lost" do
-                Sim.as Enemy $ damage $ 30 * stacks
+                Sim.as Enemy $ damage $ 30 * testStacks
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 20 + 20 * stacks
+                100 - targetHealth `shouldBe` 20 + 20 * testStacks
             it "deals more damage with dead allies" do
                 targeting Allies kill
                 targeting Self $ setHealth 100
@@ -435,11 +435,11 @@ spec = parallel do
 
         useOn Enemy "Pressure Point Strike" do
             it "damages target per stack" do
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 setHealth 100
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 5 + 5 * stacks
+                100 - targetHealth `shouldBe` 5 + 5 * testStacks
 
     describeCharacter "Kazekage Gaara" do
         useOn Enemy "Sand Summoning" do
@@ -449,15 +449,15 @@ spec = parallel do
                 targetDefense `shouldBe` 15
             it "triples damage" do
                 Sim.act
-                damage stacks
+                damage testStacks
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 3 * stacks
+                100 - targetHealth `shouldBe` 3 * testStacks
             it "quintuples damage" do
                 Sim.act
                 Sim.act
-                damage stacks
+                damage testStacks
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 5 * stacks
+                100 - targetHealth `shouldBe` 5 * testStacks
             it "reduces damage" do
                 Sim.act
                 Sim.as Enemy $ damage dmg
@@ -479,7 +479,7 @@ spec = parallel do
             it "tags countered enemy" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [ Reveal ]
-                targetHas "Kuroari Trap"
+                target has "Kuroari Trap"
 
         useOn Enemy "Karasu Knives" do
             it "damages target" do
@@ -576,4 +576,4 @@ spec = parallel do
   where
     describeCharacter = describeCategory Shippuden
     dmg = 56
-    stacks = 3
+    testStacks = 3

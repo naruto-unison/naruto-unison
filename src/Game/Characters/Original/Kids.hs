@@ -20,7 +20,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 10 `bonusIf` userHas "Shadow Clones"
+                bonus <- 10 `bonusIf` user has "Shadow Clones"
                 damage (20 + bonus)
           ]
         }
@@ -62,7 +62,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 10 `bonusIf` userHas "Inner Sakura"
+                bonus <- 10 `bonusIf` user has "Inner Sakura"
                 damage (20 + bonus)
                 apply 1 [ Stun Mental
                         , Stun Physical
@@ -105,7 +105,7 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 15 `bonusIf` targetHas "Sharingan"
+                bonus <- 15 `bonusIf` target has "Sharingan"
                 damage (30 + bonus)
           ]
         }
@@ -118,7 +118,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 25 `bonusIf` targetHas "Sharingan"
+                bonus <- 25 `bonusIf` target has "Sharingan"
                 pierce (30 + bonus)
           ]
         }
@@ -148,7 +148,7 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 5 `bonusIf` targetHas "Dynamic Marking"
+                bonus <- 5 `bonusIf` target has "Dynamic Marking"
                 damage (30 + bonus)
           ]
         , Skill.changes   = changeWithChannel "Two-Headed Wolf" $ setCost [Tai]
@@ -163,7 +163,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemies do
-                bonus <- 5 `bonusIf` targetHas "Dynamic Marking"
+                bonus <- 5 `bonusIf` target has "Dynamic Marking"
                 damage (15 + bonus)
           , To Self $ apply 1 [ Reduce [All] Flat 15 ]
           ]
@@ -193,7 +193,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 absorb 1
-                stacks <- targetStacks "Parasite"
+                stacks <- target numStacks "Parasite"
                 afflict (20 + 5 * stacks)
           ]
         }
@@ -233,7 +233,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy do
-                whenM (userHas "Byakugan") $
+                whenM (user has "Byakugan") $
                     deplete 1
                 damage 20
           ]
@@ -246,7 +246,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemies do
-                bonus <- 5 `bonusIf` userHas "Byakugan"
+                bonus <- 5 `bonusIf` user has "Byakugan"
                 damage (15 + bonus)
           , To Allies $ defend 1 =<< build 10
           ]
@@ -341,7 +341,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies do
-                  bonus <- 1 `bonusIf` targetHas "Meditate"
+                  bonus <- 1 `bonusIf` target has "Meditate"
                   apply (1 + bonus) [ Expose ]
                   damage 15
           ]
@@ -355,7 +355,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemies do
-                bonus <- 1 `bonusIf` targetHas "Meditate"
+                bonus <- 1 `bonusIf` target has "Meditate"
                 apply (1 + bonus) [ Stun NonMental ]
           ]
         }
@@ -492,11 +492,11 @@ characters =
           ]
         , Skill.effects   =
           [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 15 ]
-          , To Self $ unlessM (userHas "unchili") $
+          , To Self $ unlessM (user has "unchili") $
                 sacrifice 0 15
           ]
         , Skill.stunned   =
-          [ To Self $ unlessM (userHas "unchili") $
+          [ To Self $ unlessM (user has "unchili") $
                 sacrifice 0 15
           ]
         }
@@ -562,7 +562,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 15 `bonusIf` userHas "Fifth Gate Opening"
+                bonus <- 15 `bonusIf` user has "Fifth Gate Opening"
                 damage (10 + bonus)
                 tag 1
           , To Self $ apply 1 [ Reduce [All] Flat 10 ]
@@ -576,8 +576,8 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
-                targetBonus <- 10 `bonusIf` targetHas "Ferocious Fist"
-                userBonus   <- 30 `bonusIf` userHas "Fifth Gate Opening"
+                targetBonus <- 10 `bonusIf` target has "Ferocious Fist"
+                userBonus   <- 30 `bonusIf` user has "Fifth Gate Opening"
                 damage (30 + targetBonus + userBonus)
           ]
         }
@@ -623,7 +623,7 @@ characters =
           , To XEnemies $ damage 10
           , To Enemies do
                 addStack
-                whenM (userHas "Rising Twin Dragons")
+                whenM (user has "Rising Twin Dragons")
                     addStack
           , To Self $ remove "Rising Twin Dragons"
           ]
@@ -636,9 +636,9 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemies do
-                stacks <- targetStacks "Unsealing Technique"
+                stacks <- target numStacks "Unsealing Technique"
                 damage (5 + 10 * stacks)
-                bonus <- 1 `bonusIf` userHas "Rising Twin Dragons"
+                bonus <- 1 `bonusIf` user has "Rising Twin Dragons"
                 apply (1 + bonus)
                     [ Weaken [Physical, Chakra, Summon] Flat (5 + 10 * stacks) ]
                 remove "Unsealing Technique"

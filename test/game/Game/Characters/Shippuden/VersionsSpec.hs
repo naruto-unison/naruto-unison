@@ -54,26 +54,26 @@ spec = parallel do
         useOn Enemy "Amaterasu" do
             it "is cured when target becomes invulnerable" do
                 Sim.act
-                Sim.turns stacks
+                Sim.turns testStacks
                 Sim.as Enemy $ targeting Self $
                     apply Permanent [ Invulnerable Physical ]
                 Sim.turns 5
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 5 * (stacks + 1)
+                100 - targetHealth `shouldBe` 5 * (testStacks + 1)
             it "spreads if helped" do
                 Sim.act
                 Sim.as XEnemies $ return ()
-                Sim.turns stacks
+                Sim.turns testStacks
                 targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 5 * (stacks + 1)
+                100 - targetHealth `shouldBe` 5 * (testStacks + 1)
             it "spreads back" do
                 Sim.act
                 Sim.as XEnemies $ return ()
                 factory
                 Sim.at XEnemies $ Sim.as Enemy $ return ()
-                Sim.turns stacks
+                Sim.turns testStacks
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 5 * (stacks + 1)
+                100 - targetHealth `shouldBe` 5 * (testStacks + 1)
 
         useOn Enemy "Yasaka Beads" do
             it "increases damage when Amaterasu is cured" do
@@ -81,7 +81,7 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 targeting Self factory
-                replicateM_ stacks do
+                replicateM_ testStacks do
                     Sim.use "Amaterasu"
                     Sim.as Enemy $ targeting Self $
                         apply 1 [ Invulnerable Physical ]
@@ -92,20 +92,20 @@ spec = parallel do
                 factory
                 Sim.act
                 targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 5 * (stacks + 1)
+                targetHealth - targetHealth' `shouldBe` 5 * (testStacks + 1)
 
 
     describeCharacter "Regimental Commander Gaara" do
         useOn Enemy "Sand Grasp" do
             it "adds Sand Bombs" do
-                replicateM_ stacks Sim.act
-                numStacks <- targetStacks "Sand Bomb"
-                numStacks `shouldBe` stacks
+                replicateM_ testStacks Sim.act
+                stacks <- target numStacks "Sand Bomb"
+                stacks `shouldBe` testStacks
             it "deals damage per Sand Bomb" do
-                addStacks "Sand Bomb" stacks
+                addStacks "Sand Bomb" testStacks
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 10 + 5 * (stacks + 1)
+                100 - targetHealth `shouldBe` 10 + 5 * (testStacks + 1)
             it "deals single-target damage normally" do
                 Sim.use "Mother's Embrace"
                 targeting Self demolishAll
@@ -131,14 +131,14 @@ spec = parallel do
 
         useOn Enemies "Sand Mausoleum Seal" do
             it "damages per Sand Bomb" do
-                addStacks "Sand Bomb" stacks
+                addStacks "Sand Bomb" testStacks
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 15 + 5 * stacks
+                100 - targetHealth `shouldBe` 15 + 5 * testStacks
             it "removes Sand Bombs" do
-                addStacks "Sand Bomb" stacks
+                addStacks "Sand Bomb" testStacks
                 Sim.act
-                not <$> targetHas "Sand Bomb"
+                not <$> target has "Sand Bomb"
 
     describeCharacter "Puppet Master Kankurō" do
         useOn Enemy "Sasori Surrogate" do
@@ -261,11 +261,11 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 targeting Self factory
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 factory
                 Sim.act
                 targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 20 * stacks
+                targetHealth - targetHealth' `shouldBe` 20 * testStacks
 
         useOn Enemy "Night Guy" do
             it "deals increasing damage" do
@@ -358,19 +358,19 @@ spec = parallel do
 
         useOn Enemy "Paper Bomb" do
             it "damages target per Paper Shuriken" do
-                addStacks "Paper Shuriken" stacks
+                addStacks "Paper Shuriken" testStacks
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 15 + 10 * stacks
+                100 - targetHealth `shouldBe` 15 + 10 * testStacks
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Paper Shuriken"
 
         useOn Enemy "Paper Shuriken" do
             it "adds a stack" do
-                replicateM_ stacks Sim.act
-                numStacks <- targetStacks "Paper Shuriken"
-                numStacks `shouldBe` stacks
+                replicateM_ testStacks Sim.act
+                stacks <- target numStacks "Paper Shuriken"
+                stacks `shouldBe` testStacks
 
     describeCharacter "White Snake Orochimaru" do
         useOn Enemy "Immortality Transference" do
@@ -441,4 +441,4 @@ spec = parallel do
   where
     describeCharacter = describeCategory Shippuden
     dmg = 56
-    stacks = 3
+    testStacks = 3

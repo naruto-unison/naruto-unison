@@ -37,7 +37,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 30
-                unlessM (targetHas "Rivalry") $ targeting Everyone $
+                unlessM (target has "Rivalry") $ targeting Everyone $
                     remove "Rivalry"
           , To Self $ addStack' "Scattered Rock"
           ]
@@ -51,8 +51,8 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
-                has <- targetHas "Rivalry"
-                if has then
+                rivalry <- target has "Rivalry"
+                if rivalry then
                     leech 20 heal
                 else do
                     afflict 20
@@ -180,9 +180,9 @@ characters =
         , Skill.start     =
           [ To Self $ defend Permanent =<< build 20 ]
         , Skill.effects   =
-          [ To Self $ whenM (userHas' defense "Crystal Ice Mirrors") $
+          [ To Self $ whenM (user has' defense "Crystal Ice Mirrors") $
                 trapPer -1 PerDamaged \i ->
-                    unlessM (userHas' defense "Crystal Ice Mirrors") $
+                    unlessM (user has' defense "Crystal Ice Mirrors") $
                         defend Permanent =<< build i
           ]
         }
@@ -242,12 +242,12 @@ characters =
     75
   , let
         electrocute :: RunConstraint ()
-        electrocute = unlessM (targetHas "electrocuted") do
+        electrocute = unlessM (target has "electrocuted") do
             hide' "electrocuted" Permanent []
             trap' Permanent (OnAction All) $
-                whenM (targetHas "Electricity") do
+                whenM (target has "Electricity") do
                     refresh "Electricity"
-                    targeting Everyone $ whenM (targetHas "Electricity") $
+                    targeting Everyone $ whenM (target has "Electricity") $
                         afflict 5
     in
     Character
@@ -274,8 +274,8 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
-                has <- targetHas "Electricity"
-                if has then afflict 30 else damage 30
+                electricity <- target has "Electricity"
+                if electricity then afflict 30 else damage 30
           , To Self $ trapFrom 1 (OnHarmed All) do
                 apply' "Electricity" 1 []
                 electrocute
@@ -312,7 +312,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 affected <- numAffected "Needle Stitching"
-                targeting Everyone $ whenM (targetHas "Needle Stitching") do
+                targeting Everyone $ whenM (target has "Needle Stitching") do
                     damage 5
                     prolong 1 "Needle Stitching"
                 pierce (20 + 5 * affected)
@@ -370,9 +370,9 @@ characters =
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Enemy do
-                bonusDmg <- 10 `bonusIf` userHas "Bomb Reload"
+                bonusDmg <- 10 `bonusIf` user has "Bomb Reload"
                 afflict (30 + bonusDmg)
-                bonusDur <- 1 `bonusIf` userHas "Bomb Reload"
+                bonusDur <- 1 `bonusIf` user has "Bomb Reload"
                 apply (1 + bonusDur) [Bleed [NonAffliction] Flat 5]
           ]
         }
@@ -459,7 +459,7 @@ characters =
           [ To Self do
                 trap 1 OnDamage $ apply Permanent [ Reduce [All] Flat 5 ]
                 delay -1 $
-                    unlessM (userHas "hair") $
+                    unlessM (user has "hair") $
                         heal 10
           ]
         }
@@ -473,8 +473,8 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 apply 1 [ Stun NonMental ]
-                has <- channeling "Chakra Weave"
-                if has then pierce 15 else damage 10
+                weave <- channeling "Chakra Weave"
+                if weave then pierce 15 else damage 10
           ]
         }
       ]
@@ -508,7 +508,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 25
-                whenM (targetHas "Axe Chop") $
+                whenM (target has "Axe Chop") $
                     apply 4 [ Expose ]
           ]
         }
@@ -543,9 +543,9 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacksA <- targetStacks "Chakra Clay Trap"
-                stacksB <- targetStacks "Sonar Bat Bombs"
-                stacksC <- targetStacks "Jellyfish Explosives"
+                stacksA <- target numStacks "Chakra Clay Trap"
+                stacksB <- target numStacks "Sonar Bat Bombs"
+                stacksC <- target numStacks "Jellyfish Explosives"
                 pierce (20 + 5 * stacksA + 5 * stacksB + 10 * stacksC)
           , To Self $ apply 1 [ Invulnerable Mental ]
           ]
@@ -625,7 +625,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 5 `bonusIf` userHas "Chakra Threads"
+                bonus <- 5 `bonusIf` user has "Chakra Threads"
                 damage (15 + bonus)
                 targetHealth <- target health
                 if targetHealth <= 35 then
@@ -653,10 +653,7 @@ characters =
         , Skill.cooldown   = 3
         , Skill.effects    =
           [ To Enemies $
-                barricade 3
-                    . setWhile (apply 1 [ Silence ])
-                    . setFinish damage
-                    =<< build 25
+                barricade 3 =<< build 25
           ]
         }
       ]
@@ -685,8 +682,8 @@ characters =
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
           [ To Enemy do
-                has <- userHas' defense "Naraka Path"
-                leech 20 if has then
+                defended <- user has' defense "Naraka Path"
+                leech 20 if defended then
                     increaseDefense "Naraka Path"
                 else
                     \i -> defend Permanent =<< build i

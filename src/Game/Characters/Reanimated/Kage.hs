@@ -35,8 +35,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 25
-                has <- userHas "Deep Forest Creation"
-                apply 1 if has then
+                forest <- user has "Deep Forest Creation"
+                apply 1 if forest then
                     [ Stun All ]
                 else
                     [ Stun Physical
@@ -177,7 +177,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ damage 20
           , To Enemies do
-                stacks <- targetStacks "Space-Time Marking"
+                stacks <- target numStacks "Space-Time Marking"
                 damage (20 * stacks)
           ]
         }
@@ -207,7 +207,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 10
-                bonus <- 5 `bonusIf` targetHas' barrier "Gold Dust Waterfall"
+                bonus <- 5 `bonusIf` target has' barrier "Gold Dust Waterfall"
                 barricade Permanent
                     . setWhile (apply 1 [ Exhaust [All] ])
                     =<< build (10 + bonus)
@@ -236,7 +236,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ trap 1 (Countered All) do
-                bonus <- 10 `bonusIf` targetHas' barrier "Gold Dust Waterfall"
+                bonus <- 10 `bonusIf` target has' barrier "Gold Dust Waterfall"
                 barricade Permanent =<< build (20 + bonus)
           ]
         }
@@ -309,11 +309,11 @@ characters =
           [ To Self $ trap' -1 OnDamage $
                 alterCd "Lightning Armor" -1
           , To Enemy do
-                stacks <- userStacks "Hell Stab"
+                stacks <- user numStacks "Hell Stab"
                 damage (20 + 5 * stacks)
-                unlessM (targetHas "Aftershocks") do
+                unlessM (target has "Aftershocks") do
                     apply 1 [Stun All]
-                    bonus <- 1 `bonusIf` userHas "One-Fingered Assault"
+                    bonus <- 1 `bonusIf` user has "One-Fingered Assault"
                     tag' "Aftershocks" (4 - bonus)
           ]
         }
@@ -455,7 +455,7 @@ characters =
                                 "Poison Fog"
                     ]
                 trapPer' Permanent PerDamaged \i -> do
-                    stacks <- userStacks "Major Summoning: Ibuse"
+                    stacks <- user numStacks "Major Summoning: Ibuse"
                     if stacks > i then
                         removeStacks "Major Summoning: Ibuse" i
                     else do
@@ -494,7 +494,7 @@ characters =
           [ To Enemy do
                 pierce 15
                 apply 2 [ Afflict 5 ]
-                whenM (userHas "Major Summoning: Ibuse") do
+                whenM (user has "Major Summoning: Ibuse") do
                     afflict 10
                     apply 1 [ Stun All ]
           ]
@@ -509,8 +509,8 @@ characters =
           [ To Self $ trapFrom 1 (OnHarmed NonMental) do
                   apply Permanent [ Afflict 20 ]
                   targeting Self $ removeTrap "Venom Sac"
-                  has <- userHas "major summoning: ibuse"
-                  if has then targeting Self do
+                  ibuse <- user has "major summoning: ibuse"
+                  if ibuse then targeting Self do
                       remove "Major Summoning Ibuse"
                       remove "major summoning: ibuse"
                       alterCd "Major Summoning: Ibuse" -2

@@ -112,7 +112,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 5 `bonusIf` userHas "Call Kuromaru"
+                bonus <- 5 `bonusIf` user has "Call Kuromaru"
                 pierce (15 + bonus)
                 apply 1 [ Throttle 2 Stuns ]
           ]
@@ -223,7 +223,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 targeting Everyone $ removeTrap "Sensory Radar"
-                stacks <- userStacks "Sensory Radar"
+                stacks <- user numStacks "Sensory Radar"
                 gain $ replicate stacks Rand
                 remove "Sensory Radar"
                 cancelChannel "Sensory Radar"
@@ -264,9 +264,9 @@ characters =
                                     "Shadow Dispersion"
                         ]
           , To Enemy do
-                bonus <- 10 `bonusIf` targetHas "Black Spider Lily"
+                bonus <- 10 `bonusIf` target has "Black Spider Lily"
                 damage (20 + bonus)
-                bonusDur <- targetStacks "Ensnared"
+                bonusDur <- target numStacks "Ensnared"
                 apply (fromIntegral $ 2 + bonusDur) [ Stun NonMental ]
           ]
         }
@@ -278,9 +278,9 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Enemies do
-                bonus <- 10 `bonusIf` targetHas "Black Spider Lily"
+                bonus <- 10 `bonusIf` target has "Black Spider Lily"
                 damage (20 + bonus)
-                bonusDur <- targetStacks "Ensnared"
+                bonusDur <- target numStacks "Ensnared"
                 apply (fromIntegral $ 1 + bonusDur) [Stun NonMental]
           ]
         }

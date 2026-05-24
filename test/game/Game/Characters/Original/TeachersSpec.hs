@@ -14,10 +14,10 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 targeting Self factory
-                targeting Self . damage $ 25 * stacks
+                targeting Self . damage $ 25 * testStacks
                 Sim.act
                 targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 10 * stacks
+                targetHealth - targetHealth' `shouldBe` 10 * testStacks
 
         useOn Enemy "Capture and Arrest" do
             it "does not damage normally" do
@@ -86,7 +86,7 @@ spec = parallel do
             it "tags user if not harmed" do
                 Sim.act
                 Sim.turns 1
-                userHas "Successful Ambush"
+                user has "Successful Ambush"
 
     describeCharacter "Anko Mitarashi" do
         useOn Enemy "Dual Pin" do
@@ -122,16 +122,16 @@ spec = parallel do
     describeCharacter "Kurenai Yuhi" do
         useOn Enemy "Demonic Illusion: Entrap" do
             it "adds stacks" do
-                replicateM_ stacks Sim.act
-                numStacks <- userStacks "Illusion"
-                numStacks `shouldBe` 3
+                replicateM_ testStacks Sim.act
+                stacks <- user numStacks "Illusion"
+                stacks `shouldBe` 3
 
         useOn Self "Illusory Tree Meld" do
             it "adds destructible defense per Illusion" do
-                targeting Self $ addStacks "Illusion" stacks
+                targeting Self $ addStacks "Illusion" testStacks
                 Sim.act
                 defense <- user totalDefense
-                defense `shouldBe` 10 + 5 * stacks
+                defense `shouldBe` 10 + 5 * testStacks
 
         useOn Enemy "Demonic Illusion: Sylvan Fetters" do
             it "alternates" do
@@ -147,11 +147,11 @@ spec = parallel do
                 Sim.act
                 user $ hasSkill "Flying Kick"
             it "lasts longer per Sharpen Blades" do
-                replicateM_ stacks $ Sim.use "Sharpen Blades"
+                replicateM_ testStacks $ Sim.use "Sharpen Blades"
                 Sim.act
-                Sim.turns $ 5 + stacks
+                Sim.turns $ 5 + testStacks
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` (2 + stacks) * 15
+                100 - targetHealth `shouldBe` (2 + testStacks) * 15
 
         useOn Ally "Self-Sacrifice" do
             it "redirects from ally" do
@@ -198,4 +198,4 @@ spec = parallel do
   where
     describeCharacter = describeCategory Original
     dmg = 55
-    stacks = 3
+    testStacks = 3

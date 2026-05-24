@@ -76,15 +76,15 @@ spec = parallel do
         useOn Enemies "Burning Ash: Ignite" do
             it "damages target per Burning Ash" do
                 Sim.use "Burning Ash"
-                Sim.turns stacks
+                Sim.turns testStacks
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 10 * (stacks + 1)
+                100 - targetHealth `shouldBe` 10 * (testStacks + 1)
             it "removes Burning Ash" do
                 Sim.use "Burning Ash"
-                Sim.turns stacks
+                Sim.turns testStacks
                 Sim.act
-                not <$> targetHas "Burning Ash"
+                not <$> target has "Burning Ash"
 
         useOn Enemy "Decapitate" do
             it "executes under 25" do
@@ -100,11 +100,11 @@ spec = parallel do
     describeCharacter "Might Guy" do
         useOn Enemy "Nunchaku" do
             it "damages target per Single Gate Release" do
-                replicateM_ stacks  $ Sim.use "Single Gate Release"
+                replicateM_ testStacks  $ Sim.use "Single Gate Release"
                 Sim.act
                 Sim.turns 4
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 3 * 10 + 5 * stacks
+                100 - targetHealth `shouldBe` 3 * 10 + 5 * testStacks
             it "damages attackers" do
                 Sim.act
                 setHealth 100
@@ -114,10 +114,10 @@ spec = parallel do
 
         useOn Enemy "Fiery Kick" do
             it "damages target per Single Gate Release" do
-                replicateM_ stacks  $ Sim.use "Single Gate Release"
+                replicateM_ testStacks  $ Sim.use "Single Gate Release"
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 35 + 5 * stacks
+                100 - targetHealth `shouldBe` 35 + 5 * testStacks
 
         useOn Self "Single Gate Release" do
             it "does not alternate pre 6" do
@@ -154,14 +154,14 @@ spec = parallel do
 
         useOn XEnemies "Three Treasure Suction Crush" do
             it "deals normal damage normally" do
-                defend Permanent =<< build stacks
+                defend Permanent =<< build testStacks
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 30 - stacks
+                100 - targetHealth `shouldBe` 30 - testStacks
             it "deals affliction damage if target has Lion Roar Sealing" do
                 Sim.use "Ten Puppets Collection"
                 setHealth 100
-                defend Permanent =<< build stacks
+                defend Permanent =<< build testStacks
                 Sim.use "Lion Roar Sealing"
                 Sim.act
                 targetHealth <- target health
@@ -267,10 +267,10 @@ spec = parallel do
 
         useOn Ally "Paper Bomb" do
             it "deals stacking damage" do
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 Sim.as Enemy $ return ()
                 targetHealth <- health <$> Sim.targets Enemy
-                100 - targetHealth `shouldBe` 20 * stacks
+                100 - targetHealth `shouldBe` 20 * testStacks
 
     describeCharacter "Dodai" do
         useOn Enemy "Sensory Technique" do
@@ -342,4 +342,4 @@ spec = parallel do
                 100 - targetHealth `shouldBe` 20
   where
     describeCharacter = describeCategory Shippuden
-    stacks = 3
+    testStacks = 3

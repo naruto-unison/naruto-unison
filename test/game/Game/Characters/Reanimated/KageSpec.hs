@@ -43,21 +43,21 @@ spec = parallel do
             it "marks on inaction" do
                 Sim.act
                 Sim.turns 1
-                targetHas "Space-Time Marking"
+                target has "Space-Time Marking"
             it "does not mark otherwise" do
                 Sim.act
                 Sim.as Enemy $ return ()
-                not <$> targetHas "Space-Time Marking"
+                not <$> target has "Space-Time Marking"
 
         useOn XAlly "Reciprocal Round-Robin" do
             it "tags user if target harmed" do
                 Sim.act
                 Sim.as Enemy $ return ()
-                userHas "Round-Robin Surprise Attack"
+                user has "Round-Robin Surprise Attack"
             it "tags target if user harmed" do
                 Sim.act
                 targeting Self $ Sim.as Enemy $ return ()
-                targetHas "Round-Robin Surprise Attack"
+                target has "Round-Robin Surprise Attack"
 
     describeCharacter "Hanzō" do
         useOn Self "Major Summoning: Ibuse" do
@@ -69,7 +69,7 @@ spec = parallel do
             it "spends Ibuse's health" do
                 Sim.act
                 Sim.as Enemy $ damage dmg
-                ibuseHealth <- userStacks "Major Summoning: Ibuse"
+                ibuseHealth <- user numStacks "Major Summoning: Ibuse"
                 30 - ibuseHealth `shouldBe` dmg `quot` 2
             it "spends all health" do
                 Sim.act
@@ -81,11 +81,11 @@ spec = parallel do
             it "ends when Ibuse dies" do
                 Sim.use "Major Summoning: Ibuse"
                 Sim.act
-                Sim.turns stacks
+                Sim.turns testStacks
                 targeting Self $ Sim.as Enemy $ damage 80
                 Sim.turns 3
                 targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 10 * (stacks + 1)
+                100 - targetHealth `shouldBe` 10 * (testStacks + 1)
 
         useOn Enemy "Sickle Dance" do
             it "deals bonus damage during Major Summoning: Ibuse" do
@@ -137,7 +137,7 @@ spec = parallel do
             it "marks harmers" do
                 Sim.act
                 Sim.as Enemy $ return ()
-                Sim.at Enemy $ targetHas "Piercing Four-Fingered"
+                Sim.at Enemy $ target has "Piercing Four-Fingered"
 
         useOn Enemy "Lightning Straight" do
             it "deals damage" do
@@ -220,4 +220,4 @@ spec = parallel do
   where
     describeCharacter = describeCategory Reanimated
     dmg = 56
-    stacks = 3
+    testStacks = 3

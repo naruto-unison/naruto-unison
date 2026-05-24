@@ -1,10 +1,10 @@
 {-# OPTIONS_HADDOCK prune #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module Game.Characters.Import
   ( module Import
   , invuln
-  , user, target, userHas, targetHas, userHas', targetHas'
-  , userStacks, targetStacks, userDefense
+  , user, target
   , channeling, inGroup
   , targeting
   , bonusIf, numAffected, numDeadAllies
@@ -30,7 +30,7 @@ import Game.Model.Destructible as Import (setFinish, setWhile)
 import Game.Model.Duration as Import (Duration(..))
 import Game.Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
 import Game.Model.Group as Import (Group(..))
-import Game.Model.Ninja as Import (Ninja(barrier, defense, health, slot, statuses, traps), alive, is, lastChakraSpent, numActive, numHelpful, numSkills)
+import Game.Model.Ninja as Import (Ninja(barrier, defense, health, slot, statuses, traps), alive, defenseAmount, has, has', is, lastChakraSpent, numActive, numHelpful, numSkills, numStacks)
 import Game.Model.Requirement as Import (Requirement(..))
 import Game.Model.Runnable as Import (IntRunConstraint, RunConstraint, Runnable(To))
 import Game.Model.Skill as Import (Target(..))
@@ -41,8 +41,6 @@ import Game.Model.Trigger as Import (Trigger(..))
 
 import Data.Enum.Set (EnumSet)
 
-import           Class.Labeled (Labeled)
-import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Action as Action
@@ -54,6 +52,7 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Util ((∈))
 import Class.Random (MonadRandom)
+import Data.Kind (Type)
 
 userSlot :: ∀ m. MonadPlay m => m Slot
 userSlot = Context.user <$> P.context
@@ -83,53 +82,30 @@ bonusIf amount condition = getBonus <$> condition
     getBonus True  = amount
     getBonus False = 0
 
--- | Applies a pure function to 'P.nUser'.
-user :: ∀ m a. MonadPlay m => (Ninja -> a) -> m a
-user f = f <$> P.nUser
+class NinjaGetter (m :: Type -> Type) a where
+    type Getter (m :: Type -> Type) a
+    target :: a -> Getter m a
+    user   :: a -> Getter m a
 
--- | Applies a pure function to 'P.nTarget'.
-target :: ∀ m a. MonadPlay m => (Ninja -> a) -> m a
-target f = f <$> P.nTarget
+instance MonadPlay m => NinjaGetter m () where
+    type Getter m () = m Ninja
+    target () = P.nTarget
+    user   () = P.nUser
 
-has' :: ∀ m a. (MonadPlay m, Labeled a)
-     => m Ninja -> (Ninja -> [a]) -> Text -> m Bool
-has' subjectGetter fieldGetter name = getHas <$> userSlot <*> subjectGetter
-  where
-    getHas :: Slot -> Ninja -> Bool
-    getHas from to = any (Labeled.match name from) $ fieldGetter to
+instance MonadPlay m => NinjaGetter m (Ninja -> a) where
+    type Getter m (Ninja -> a) = m a
+    target f = f <$> P.nTarget
+    user   f = f <$> P.nUser
 
--- | Generic 'userHas'.
-userHas' :: ∀ m a. (MonadPlay m, Labeled a)
-         => (Ninja -> [a]) -> Text -> m Bool
-userHas' = has' P.nUser
+instance MonadPlay m => NinjaGetter m (Text -> Slot -> Ninja -> a) where
+    type Getter m (Text -> Slot -> Ninja -> a) = Text -> m a
+    target f name = f name <$> userSlot <*> P.nTarget
+    user   f name = f name <$> userSlot <*> P.nUser
 
--- | Generic 'targetHas'.
-targetHas' :: ∀ m a. (MonadPlay m, Labeled a)
-           => (Ninja -> [a]) -> Text -> m Bool
-targetHas' = has' P.nTarget
-
--- | True if user 'N.hasOwn'.
-userHas :: ∀ m. MonadPlay m => Text -> m Bool
-userHas = userHas' N.statuses
-
--- | True if target 'N.has'.
-targetHas :: ∀ m. MonadPlay m => Text -> m Bool
-targetHas = targetHas' N.statuses
-
--- | 'N.numStacks' of the user, from the user.
-userStacks :: ∀ m. MonadPlay m => Text -> m Int
-userStacks name = N.numStacks name <$> userSlot <*> P.nUser
-
--- | 'N.numStacks' of the target, from the user.
-targetStacks :: ∀ m. MonadPlay m => Text -> m Int
-targetStacks name = N.numStacks name <$> userSlot <*> P.nTarget
-
--- | Returns 'N.defense' of the user's own defense.
-userDefense :: ∀ m. MonadPlay m => Text -> m Int
-userDefense name = getUserDefense <$> P.nUser
-  where
-    getUserDefense :: Ninja -> Int
-    getUserDefense n = N.defenseAmount name (slot n) n
+instance MonadPlay m => NinjaGetter m ((Ninja -> [b]) -> Text -> Slot -> Ninja -> a) where
+    type Getter m ((Ninja -> [b]) -> Text -> Slot -> Ninja -> a) = (Ninja -> [b]) -> Text -> m a
+    target f getter name = f getter name <$> userSlot <*> P.nTarget
+    user   f getter name = f getter name <$> userSlot <*> P.nUser
 
 -- | True if user 'N.isChanneling'.
 channeling :: ∀ m. MonadPlay m => Text -> m Bool

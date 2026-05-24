@@ -61,7 +61,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Susanoo"
+                stacks <- user numStacks "Susanoo"
                 damage (30 + 5 * stacks)
           ]
         }
@@ -211,7 +211,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemies do
-                stacks <- userStacks "Iron Sand"
+                stacks <- user numStacks "Iron Sand"
                 pierce (10 + 5 * stacks)
           ]
         }
@@ -262,7 +262,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 afflict 15
-                bonus <- 1 `bonusIf` targetHas "Pinned"
+                bonus <- 1 `bonusIf` target has "Pinned"
                 apply (1 + bonus) [ Snare 1
                                   , Exhaust [All]
                                   ]
@@ -308,7 +308,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Self do
-                stacks <- userStacks "jashin"
+                stacks <- user numStacks "jashin"
                 apply' "Prayer" (fromIntegral $ 1 + stacks) [ Endure ]
                 hide' "jashin" Permanent []
           ,  To Enemy do
@@ -341,7 +341,7 @@ characters =
         , Skill.changes   = changeWith "bloodlink" \x -> x
                 { Skill.effects =
                   [ To Self $ targeting Enemies $
-                        whenM (targetHas "Blood Curse") $
+                        whenM (target has "Blood Curse") $
                             pierce 50
                   ]
                 }
@@ -362,7 +362,7 @@ characters =
                 { Skill.effects =
                   [ To Self $ do
                         apply 1 []
-                        targeting Enemies $ whenM (targetHas "Blood Curse") do
+                        targeting Enemies $ whenM (target has "Blood Curse") do
                             pierce 35
                             apply 1 [Stun All]
                   ]
@@ -376,7 +376,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                stacks <- userStacks "jashin"
+                stacks <- user numStacks "jashin"
                 apply (fromIntegral $ 1 + stacks) [Endure]
                 hide' "jashin" Permanent []
           ]
@@ -479,13 +479,13 @@ characters =
           ]
         , Skill.effects   =
           [ To Enemies do
-                sharks  <- userHas "Hundred Hungry Sharks"
-                ignored <- targetHas "ignored"
+                sharks  <- user has "Hundred Hungry Sharks"
+                ignored <- target has "ignored"
                 when (sharks && not ignored) do
                     bonus <- 5 `bonusIf` channeling "Exploding Water Shockwave"
                     pierce (5 + bonus)
                     targeting Self $ removeStack "Hundred Hungry Sharks"
-          , To Self $ unlessM (userHas "Hundred Hungry Sharks") do
+          , To Self $ unlessM (user has "Hundred Hungry Sharks") do
                 cancelChannel "Thousand Hungry Sharks"
                 targeting Everyone do
                     remove "ignored"
@@ -499,7 +499,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Hundred Hungry Sharks"
+                stacks <- user numStacks "Hundred Hungry Sharks"
                 pierce (5 * stacks)
           , To Self do
                 cancelChannel "Thousand Hungry Sharks"
@@ -560,7 +560,7 @@ characters =
                 trap 1 (Countered Mental)
                     flag
                 delay -1 do
-                    bonus <- 20 `bonusIf` targetHas "super shark bomb"
+                    bonus <- 20 `bonusIf` target has "super shark bomb"
                     damage (30 + bonus)
           ]
         }
@@ -692,7 +692,7 @@ characters =
                                    "Body Coating"
                        , Face
                        ]
-                unlessM (userHas "chakra") do
+                unlessM (user has "chakra") do
                     gain [Rand]
                     hide' "chakra" 1 []
           ]
@@ -713,7 +713,7 @@ characters =
                                    "Body Coating"
                        , Face
                        ]
-                unlessM (userHas "chakra") do
+                unlessM (user has "chakra") do
                     gain [Rand]
                     hide' "chakra" 1 []
           ]
@@ -831,8 +831,8 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Enemy do
-                has <- targetHas "Kamui"
-                if has then
+                kamui <- target has "Kamui"
+                if kamui then
                     pierce 40
                 else do
                     targeting Everyone $ remove "Kamui"
@@ -849,7 +849,7 @@ characters =
         , Skill.charges    = 2
         , Skill.effects    =
           [ To Self do
-                rewind <- user id
+                rewind <- user ()
                 bombWith [Necromancy] 4 [] [ To Expire $ replaceWith rewind ]
           ]
         }
@@ -873,8 +873,8 @@ characters =
           ]
         , Skill.effects   =
           [ To Self do
-                has <- userHas "almighty push"
-                if has then
+                push <- user has "almighty push"
+                if push then
                     hide' "_" 1 [ Alternate "Almighty Push"
                                             "Almighty Push"
                                 ]
@@ -906,7 +906,7 @@ characters =
                 interrupt
                 userSlot <- user slot
                 apply 1 [ Taunt userSlot ]
-          , To Self $ whenM (userHas "Tidal Force") $
+          , To Self $ whenM (user has "Tidal Force") $
                 trapFrom 1 (Counter All) $
                         damage 20
           ]
@@ -923,8 +923,8 @@ characters =
                 pierce 15
                 barricade Permanent
                     . setWhile (do
-                        has <- targetHas "chakra receiver"
-                        if has then apply 1 [Stun All] else hide 1 [])
+                        notStunned <- target has "chakra receiver"
+                        if notStunned then apply 1 [Stun All] else hide 1 [])
                     =<< build 10
           ]
         }
@@ -1011,7 +1011,7 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Enemies $ whenM (targetHas "Guided Missile") $
+          [ To Enemies $ whenM (target has "Guided Missile") $
                 damage 25
           , To REnemy $ damage 25
           , To Self do
@@ -1192,7 +1192,7 @@ characters =
           , To Allies $ trap -1 (OnHarmed All) $ targeting Self
                 addStack
           , To Enemies do
-                stacks <- userStacks "Summoning: Giant Multi-Headed Dog"
+                stacks <- user numStacks "Summoning: Giant Multi-Headed Dog"
                 damage (10 * bit stacks)
           ]
         , Skill.interrupt =
@@ -1275,7 +1275,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Ally do
-                defense <- userDefense "Summoning: King of Hell"
+                defense <- user defenseAmount "Summoning: King of Hell"
                 heal defense
           ]
         }
@@ -1301,7 +1301,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 20 `bonusIf` targetHas "Choke Hold"
+                bonus <- 20 `bonusIf` target has "Choke Hold"
                 leech (20 + bonus) $ increaseDefense "Summoning: King of Hell"
           ]
         }
@@ -1327,9 +1327,9 @@ characters =
           ]
         , Skill.effects   =
           [ To Self do
-                dragonStacks <- userStacks "dragon"
+                dragonStacks <- user numStacks "dragon"
                 addStacks' 1 "Control" dragonStacks
-                controlStacks <- userStacks "control"
+                controlStacks <- user numStacks "control"
                 apply 1 [ Reduce [All] Flat (10 + 5 * controlStacks)
                         , Alternate "Summoning: Gedo Statue"
                                     "Control"
@@ -1352,7 +1352,7 @@ characters =
           [ To Self do
                 prolongChannel 2 "Summoning: Gedo Statue"
                 hide' "dragon" Permanent []
-                stacks <- userStacks "control"
+                stacks <- user numStacks "control"
                 when (stacks < 3) $
                     hide Permanent []
           ]
@@ -1374,7 +1374,7 @@ characters =
               , Skill.effects =
                 [ To Self $ tag 1
                 , To Enemy do
-                        stacks <- userStacks "dragon"
+                        stacks <- user numStacks "dragon"
                         pierce (20 + 5 * stacks)
                   ]
                 }
@@ -1419,7 +1419,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 5 `bonusIf` targetHas "Dance of the Shikigami"
+                bonus <- 5 `bonusIf` target has "Dance of the Shikigami"
                 pierce (25 + bonus)
           ]
         }

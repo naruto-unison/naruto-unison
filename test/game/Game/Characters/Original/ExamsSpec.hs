@@ -23,16 +23,16 @@ spec = parallel do
         useOn Self "Umbrella Toss" do
             it "adds stacks" do
                 Sim.act
-                numStacks <- userStacks "Umbrella"
-                numStacks `shouldBe` 4
+                stacks <- user numStacks "Umbrella"
+                stacks `shouldBe` 4
 
         useOn Self "Umbrella Gathering" do
             it "reduces damage per Umbrella" do
-                addStacks "Umbrella" stacks
+                addStacks "Umbrella" testStacks
                 Sim.act
                 Sim.as Enemy $ damage dmg
                 userHealth <- user health
-                dmg - (100 - userHealth) `shouldBe` 10 * stacks
+                dmg - (100 - userHealth) `shouldBe` 10 * testStacks
 
         useOn Enemies "Senbon Shower" do
             it "damages enemies" do
@@ -40,21 +40,21 @@ spec = parallel do
                 targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 15
             it "spends an Umbrella" do
-                targeting Self $ addStacks "Umbrella" stacks
+                targeting Self $ addStacks "Umbrella" testStacks
                 Sim.act
-                numStacks <- userStacks "Umbrella"
-                numStacks `shouldBe` stacks - 1
+                stacks <- user numStacks "Umbrella"
+                stacks `shouldBe` testStacks - 1
 
         useOn Enemy "Senbon Barrage" do
             it "damages enemy per Umbrella" do
-                targeting Self $ addStacks "Umbrella" stacks
+                targeting Self $ addStacks "Umbrella" testStacks
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 15 * stacks
+                100 - targetHealth `shouldBe` 15 * testStacks
             it "spends all Umbrellas" do
-                targeting Self $ addStacks "Umbrella" stacks
+                targeting Self $ addStacks "Umbrella" testStacks
                 Sim.act
-                not <$> userHas "Umbrella"
+                not <$> user has "Umbrella"
 
     describeCharacter "Oboro" do
         useOn Enemy "Underground Move" do
@@ -224,4 +224,4 @@ spec = parallel do
   where
     describeCharacter = describeCategory Original
     dmg = 55
-    stacks = 3
+    testStacks = 3

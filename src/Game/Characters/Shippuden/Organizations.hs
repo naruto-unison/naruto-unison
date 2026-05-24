@@ -40,7 +40,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 15
-                stacks <- userStacks "Susanoo"
+                stacks <- user numStacks "Susanoo"
                 apply (fromIntegral stacks) [ Weaken [All] Flat 5 ]
           ]
         }
@@ -189,7 +189,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                stacks <- targetStacks "Venom Beetle"
+                stacks <- target numStacks "Venom Beetle"
                 deplete stacks
                 remove "Venom Beetle"
           ]
@@ -208,7 +208,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 15 `bonusIf` targetHas "Mind Transfer"
+                bonus <- 15 `bonusIf` target has "Mind Transfer"
                 damage (25 + bonus)
           ]
         }
@@ -279,14 +279,14 @@ characters =
                                                  ]
           ]
         , Skill.effects   =
-          [ To Self $ unlessM (userHas "paused") do
+          [ To Self $ unlessM (user has "paused") do
                 removeStack "Sharingan"
-                has <- userHas "Sharingan"
-                rewind <- user id
-                if has then trap' 1 OnRes do
+                seal <- user has "Sharingan"
+                rewind <- user ()
+                if seal then trap' 1 OnRes do
                     replaceWith rewind
                     removeStacks "Sharingan" 2
-                    unlessM (userHas "Sharingan") do
+                    unlessM (user has "Sharingan") do
                         cancelChannel "Izanagi"
                         hide Permanent [ Alternate "Izanagi"
                                                    "Reverse Tetragram Sealing"

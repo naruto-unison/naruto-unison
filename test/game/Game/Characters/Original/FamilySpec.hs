@@ -19,20 +19,20 @@ spec = parallel do
             it "damages target per helpful effect from allies" do
                 targeting Self $ apply Permanent [ Focus ]
                 Sim.as Ally $ targeting Everyone $
-                    replicateM_ stacks $ apply Permanent [ Focus ]
+                    replicateM_ testStacks $ apply Permanent [ Focus ]
                 Sim.act
                 Sim.turns 5
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 3 * (10 + 5 * stacks)
+                100 - targetHealth `shouldBe` 3 * (10 + 5 * testStacks)
 
         useOn Enemy "Throw a Shuriken" do
             it "damages target per helpful effect from allies" do
                 targeting Self $ apply Permanent [ Focus ]
                 Sim.as Ally $ targeting Everyone $
-                    replicateM_ stacks $ apply Permanent [ Focus ]
+                    replicateM_ testStacks $ apply Permanent [ Focus ]
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 10 + 10 * stacks
+                100 - targetHealth `shouldBe` 10 + 10 * testStacks
 
     describeCharacter "Tsume Inuzuka" do
         useOn Enemy "Call Kuromaru" do
@@ -91,7 +91,7 @@ spec = parallel do
                 Sim.use "Chain Bind"
                 Sim.act
                 Sim.turns 2
-                targetHas "Chain Bind"
+                target has "Chain Bind"
 
         useOn XAlly "Partial Expansion" do
             it "counters on ally" do
@@ -168,25 +168,25 @@ spec = parallel do
             it "tags target if they stun" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [ Stun All ]
-                targetHas "Ensnared"
+                target has "Ensnared"
             it "does not tag otherwise" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [ Focus ]
-                not <$> targetHas "Ensnared"
+                not <$> target has "Ensnared"
 
     describeCharacter "Inoichi Yamanaka" do
         useOn Self "Sensory Radar" do
             it "restores health when enemy acts" do
                 damage dmg
                 Sim.act
-                replicateM_ stacks $ Sim.as Enemy $ return ()
+                replicateM_ testStacks $ Sim.as Enemy $ return ()
                 userHealth <- user health
-                dmg - (100 - userHealth) `shouldBe` 10 * stacks
+                dmg - (100 - userHealth) `shouldBe` 10 * testStacks
             it "adds stacks when enemy acts" do
                 Sim.act
-                replicateM_ stacks $ Sim.as Enemy $ return ()
-                numStacks <- userStacks "Sensory Radar"
-                numStacks `shouldBe` stacks
+                replicateM_ testStacks $ Sim.as Enemy $ return ()
+                stacks <- user numStacks "Sensory Radar"
+                stacks `shouldBe` testStacks
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Sensory Radar: Collate"
@@ -198,10 +198,10 @@ spec = parallel do
                 chakras <- gameChakras
                 chakras `shouldBe` ([Blood, Blood, Blood], [])
             it "spends all Sensory Radar" do
-                addStacks "Sensory Radar" stacks
+                addStacks "Sensory Radar" testStacks
                 Sim.act
-                numStacks <- userStacks "Sensory Radar"
-                numStacks `shouldBe` 0
+                stacks <- user numStacks "Sensory Radar"
+                stacks `shouldBe` 0
 
         useOn Enemy "Mental Invasion" do
             it "provides invulnerability with mental harm" do
@@ -219,4 +219,4 @@ spec = parallel do
   where
     describeCharacter = describeCategory Original
     dmg = 55
-    stacks = 3
+    testStacks = 3

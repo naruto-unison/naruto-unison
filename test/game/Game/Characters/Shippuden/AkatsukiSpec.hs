@@ -23,10 +23,10 @@ spec = parallel do
         useOn Enemy "Armored Susanoo Assault" do
             it "deals damage per stack of Susanoo" do
                 Sim.use "Susanoo"
-                Sim.turns stacks
+                Sim.turns testStacks
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 30 + 5 * (stacks + 1)
+                100 - targetHealth `shouldBe` 30 + 5 * (testStacks + 1)
 
         useOn Enemy "Majestic Destroyer Flame" do
             it "damages on defense" do
@@ -89,10 +89,10 @@ spec = parallel do
         useOn Enemies "Iron Sand: World Order" do
             it "damages per Iron Sand" do
                 Sim.use "Kazekage Puppet Summoning"
-                Sim.turns stacks
+                Sim.turns testStacks
                 Sim.act
                 targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 10 + 5 * (stacks + 1)
+                100 - targetHealth `shouldBe` 10 + 5 * (testStacks + 1)
 
         useOn Enemy "Poison Blade Assault" do
             it "damages repeatedly" do
@@ -105,7 +105,7 @@ spec = parallel do
                 Sim.use "Kazekage Puppet Summoning"
                 Sim.act
                 Sim.as Enemy demolishAll
-                Sim.turns stacks
+                Sim.turns testStacks
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20
 
@@ -227,12 +227,12 @@ spec = parallel do
                 100 - targetHealth `shouldBe` 8 * 5
             it "ignores others once marked" do
                 Sim.act
-                Sim.turns stacks
+                Sim.turns testStacks
                 Sim.as Enemy $ return ()
                 Sim.as XEnemies $ return ()
                 Sim.turns 10
                 targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 5 * stacks
+                100 - targetHealth `shouldBe` 5 * testStacks
             it "un-ignores if target dies" do
                 Sim.act
                 Sim.as Enemy $ return ()
@@ -292,9 +292,9 @@ spec = parallel do
                 100 - userHealth `shouldBe` 10
             it "defends user" do
                 Sim.act
-                Sim.turns stacks
+                Sim.turns testStacks
                 defense <- user totalDefense
-                defense `shouldBe` 5 * (stacks + 1)
+                defense `shouldBe` 5 * (testStacks + 1)
             it "alternates A" do
                 Sim.act
                 user $ hasSkill "Totsuka Blade"
@@ -405,15 +405,15 @@ spec = parallel do
         let testKamui against = useOn against "Kamui" do
                 it "applies itself" do
                     Sim.act
-                    targetHas "Kamui"
+                    target has "Kamui"
                 it "cancels if Kamui is used on another" do
                     Sim.act
                     Sim.at XAlly Sim.act
-                    not <$> targetHas "Kamui"
+                    not <$> target has "Kamui"
                 it "cancels if Kamui Strike is used on another" do
                     Sim.act
                     Sim.at XEnemies $ Sim.use "Kamui Strike"
-                    not <$> targetHas "Kamui"
+                    not <$> target has "Kamui"
         testKamui Ally
         testKamui Enemy
 
@@ -609,4 +609,4 @@ spec = parallel do
   where
     describeCharacter = describeCategory Shippuden
     dmg = 56
-    stacks = 3
+    testStacks = 3

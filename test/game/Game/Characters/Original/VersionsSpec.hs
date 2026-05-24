@@ -40,16 +40,16 @@ spec = parallel do
         useOn Self "Curse Mark" do
             it "tags user" do
                 Sim.act
-                userHas "Curse Mark"
+                user has "Curse Mark"
 
     describeCharacter "Drunken Lee" do
         useOn Enemy "Unpredictable Assault" do
             it "damages target per Unpredictable Assault" do
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 setHealth 100
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 20 + 5 * stacks
+                100 - targetHealth `shouldBe` 20 + 5 * testStacks
             it "deals bonus damage during Drunken Fist" do
                 apply Permanent [ AntiChannel ]
                 Sim.use "Drunken Fist"
@@ -71,7 +71,7 @@ spec = parallel do
             it "adds Unpredictable Assault if countered" do
                 targeting Self Sim.act
                 Sim.as Enemy $ apply Permanent [ Reveal ]
-                userHas "Unpredictable Assault"
+                user has "Unpredictable Assault"
 
     describeCharacter "Shukaku Gaara" do
         useOn Enemy "Monstrous Sand Arm" do
@@ -81,11 +81,11 @@ spec = parallel do
                 not <$> user (`is` Reveal)
             it "damages target until target acts" do
                 Sim.act
-                Sim.turns stacks
+                Sim.turns testStacks
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 Sim.turns 5
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 10 * (stacks + 1)
+                100 - targetHealth `shouldBe` 10 * (testStacks + 1)
 
         useOn Self "Sand Transformation" do
             it "defends user" do
@@ -105,9 +105,9 @@ spec = parallel do
         useOn Enemy "Shukaku Full Release" do
             it "strengthens user" do
                 Sim.act
-                damage stacks
+                damage testStacks
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 2 * stacks
+                100 - targetHealth `shouldBe` 2 * testStacks
 
     describeCharacter "Rehabilitated Gaara" do
         useOn Enemies "Sand Burial Prison" do
@@ -128,4 +128,4 @@ spec = parallel do
                 user $ hasSkill "Giant Sand Burial"
   where
     describeCharacter = describeCategory Original
-    stacks = 3
+    testStacks = 3

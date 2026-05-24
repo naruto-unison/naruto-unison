@@ -12,16 +12,16 @@ spec = parallel do
         useOn Self "Two-Tailed Transformation" do
             it "tags user" do
                 Sim.act
-                userHas "Two-Tailed Transformation"
+                user has "Two-Tailed Transformation"
 
         useOn Enemy "Flaming Cat Roar" do
             it "damages target per stack" do
                 Sim.use "Two-Tailed Transformation"
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 setHealth 100
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 30 + 5 * stacks
+                100 - targetHealth `shouldBe` 30 + 5 * testStacks
             it "weakens target" do
                 targeting Self $ tag' "Two-Tailed Transformation" Permanent
                 Sim.act
@@ -33,18 +33,18 @@ spec = parallel do
         useOn Enemy "Cat Claws" do
             it "damages target per stack" do
                 Sim.use "Two-Tailed Transformation"
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 setHealth 100
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 15 + 5 * stacks
+                100 - targetHealth `shouldBe` 15 + 5 * testStacks
             it "damages others per stack" do
                 Sim.use "Two-Tailed Transformation"
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 targeting Everyone $ setHealth 100
                 Sim.act
                 targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 5 + 5 * stacks
+                100 - targetHealth `shouldBe` 5 + 5 * testStacks
 
     describeCharacter "Utakata" do
         useOn Enemy "Soap Bubble" do
@@ -165,4 +165,4 @@ spec = parallel do
   where
     describeCharacter = describeCategory Shippuden
     dmg = 56
-    stacks = 3
+    testStacks = 3

@@ -34,7 +34,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonusA <- 10 `bonusIf` targetHas "Lightning Beast Fang"
+                bonusA <- 10 `bonusIf` target has "Lightning Beast Fang"
                 bonusB <- 10 `bonusIf` target stunned
                 pierce (35 + max bonusA bonusB)
           ]
@@ -133,7 +133,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemies do
-                stacks <- targetStacks "Burning Ash"
+                stacks <- target numStacks "Burning Ash"
                 afflict (10 * stacks)
           , To Self do
                 cancelChannel "Burning Ash"
@@ -172,7 +172,7 @@ characters =
                 if afterFirstTurn then
                     damage 10
                 else do
-                    stacks <- userStacks "Single Gate Release"
+                    stacks <- user numStacks "Single Gate Release"
                     damage (10 + 5 * stacks)
           ]
         }
@@ -184,7 +184,7 @@ characters =
         , Skill.cost      = [Blood, Tai]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Single Gate Release"
+                stacks <- user numStacks "Single Gate Release"
                 damage (35 + 5 * stacks)
                 apply 1 [ Weaken [All] Flat 20 ]
           ]
@@ -217,7 +217,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 sacrifice 0 5
-                stacks <- userStacks "Single Gate Release"
+                stacks <- user numStacks "Single Gate Release"
                 apply Permanent $ Reduce [All] Flat 5 : case stacks of
                     5 -> [ Alternate "Fiery Kick"
                                      "Asakujaku"
@@ -303,8 +303,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 apply 1 [ Stun NonMental ]
-                has <- targetHas "Lion Roar Sealing"
-                if has then afflict 30 else damage 30
+                sealed <- target has "Lion Roar Sealing"
+                if sealed then afflict 30 else damage 30
           ]
         }
       ]
@@ -432,7 +432,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                whenM (targetHas "Lava Quicklime") $
+                whenM (target has "Lava Quicklime") $
                     apply 1 [ Stun Physical
                             , Stun Chakra
                             ]
@@ -627,7 +627,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 10 `bonusIf` userHas "Burning Blade"
+                bonus <- 10 `bonusIf` user has "Burning Blade"
                 damage (25 + bonus)
           ]
         }
@@ -692,7 +692,7 @@ characters =
                     removeTrap "Paper Bomb"
                     remove "Paper Bomb"
                 trapFrom Permanent (OnHarmed All) do
-                    stacks <- withTarget targetSlot $ targetStacks "Paper Bomb"
+                    stacks <- withTarget targetSlot $ target numStacks "Paper Bomb"
                     damage (20 * stacks)
           ]
         }
@@ -725,8 +725,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 20
-                has <- targetHas "Rubber Sphere and Rope"
-                if has then
+                rubber <- target has "Rubber Sphere and Rope"
+                if rubber then
                     apply 1 [ Disable Stuns
                             , Stun Physical
                             , Stun Chakra
@@ -767,7 +767,7 @@ characters =
                                , Stun Ranged
                                ]
           , To XEnemies do
-                bonus <- 5 `bonusIf` targetHas "Water Wall"
+                bonus <- 5 `bonusIf` target has "Water Wall"
                 pierce (20 + bonus)
           ]
         }
@@ -793,7 +793,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 5 `bonusIf` targetHas "Water Wall"
+                bonus <- 5 `bonusIf` target has "Water Wall"
                 pierce (45 + bonus)
           ]
         }

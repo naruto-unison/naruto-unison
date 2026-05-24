@@ -12,15 +12,15 @@ spec = parallel do
         useOn Self "Susanoo" do
             it "adds stacks" do
                 Sim.act
-                Sim.turns stacks
-                numStacks <- userStacks "Susanoo"
-                numStacks `shouldBe` 1 + stacks
+                Sim.turns testStacks
+                stacks <- user numStacks "Susanoo"
+                stacks `shouldBe` 1 + testStacks
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Tsukumo"
             it "clears stacks when broken" do
                 Sim.act
-                Sim.turns stacks
+                Sim.turns testStacks
                 Sim.as Enemy demolishAll
                 defense <- user totalDefense
                 defense `shouldBe` 0
@@ -92,12 +92,12 @@ spec = parallel do
                 defense' `shouldBe` defense
             it "applies a Venom Beetle" do
                 Sim.act
-                targetHas "Venom Beetle"
+                target has "Venom Beetle"
             it "applies a Venom Beetle to destroyer of defense" do
                 Sim.act
                 Sim.as Enemy demolishAll
-                numStacks <- targetStacks "Venom Beetle"
-                numStacks `shouldBe` 2
+                stacks <- target numStacks "Venom Beetle"
+                stacks `shouldBe` 2
 
         useOn Enemies "Jar of Poison" do
             it "does not defend user again" do
@@ -108,12 +108,12 @@ spec = parallel do
                 defense' `shouldBe` defense
             it "applies a Venom Beetle to targets" do
                 Sim.act
-                Sim.at XEnemies $ targetHas "Venom Beetle"
+                Sim.at XEnemies $ target has "Venom Beetle"
             it "applies a Venom Beetle to destroyer of defense" do
                 Sim.act
                 Sim.as Enemy demolishAll
-                numStacks <- targetStacks "Venom Beetle"
-                numStacks `shouldBe` 2
+                stacks <- target numStacks "Venom Beetle"
+                stacks `shouldBe` 2
 
         useOn Enemy "Venom Explosion" do
             it "depletes chakra per Venom Beetle" do
@@ -125,8 +125,8 @@ spec = parallel do
             it "removes all stacks of Venom Beetle" do
                 addStacks "Venom Beetle" 2
                 Sim.act
-                numStacks <- targetStacks "Venom Beetle"
-                numStacks `shouldBe` 0
+                stacks <- target numStacks "Venom Beetle"
+                stacks `shouldBe` 0
 
     describeCharacter "Fū Yamanaka" do
         useOn Enemy "Tantō Slash" do
@@ -211,4 +211,4 @@ spec = parallel do
                 targetHealth `shouldBe` 100
   where
     describeCharacter = describeCategory Shippuden
-    stacks = 3
+    testStacks = 3

@@ -25,19 +25,19 @@ spec = parallel do
     describeCharacter "Jiraiya" do
         useOn Enemy "Giant Flame Bomb" do
             it "damages target per Toad Oil Bomb" do
-                addStacks "Toad Oil Bomb" stacks
+                addStacks "Toad Oil Bomb" testStacks
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 20 + 10 * stacks
+                100 - targetHealth `shouldBe` 20 + 10 * testStacks
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Toad Oil Bomb"
 
         useOn Enemy "Toad Oil Bomb" do
             it "adds a stack" do
-                replicateM_ stacks Sim.act
-                numStacks <- targetStacks "Toad Oil Bomb"
-                numStacks `shouldBe` stacks
+                replicateM_ testStacks Sim.act
+                stacks <- target numStacks "Toad Oil Bomb"
+                stacks `shouldBe` testStacks
 
         useOn Ally "Raging Lion's Mane" do
             it "counters Physical Melee" do
@@ -86,7 +86,7 @@ spec = parallel do
             it "spends a Seal" do
                 Sim.use "Strength of One Hundred Seal"
                 Sim.act
-                not <$> userHas "Strength of One Hundred Seal"
+                not <$> user has "Strength of One Hundred Seal"
 
         useOn Ally "Heaven Spear Kick" do
             it "makes target of Healing Wave immortal" do
@@ -114,7 +114,7 @@ spec = parallel do
             it "spends a Seal" do
                 Sim.use "Strength of One Hundred Seal"
                 Sim.act
-                not <$> userHas "Strength of One Hundred Seal"
+                not <$> user has "Strength of One Hundred Seal"
 
         useOn Self "Strength of One Hundred Seal" do
             it "heals more with a Seal" do
@@ -134,10 +134,10 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 targeting Self factory
-                Sim.at XEnemies $ replicateM_ stacks $ Sim.act
+                Sim.at XEnemies $ replicateM_ testStacks $ Sim.act
                 Sim.act
                 targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 10 * stacks
+                targetHealth - targetHealth' `shouldBe` 10 * testStacks
 
     describeCharacter "Fukasaku and Shima" do
         useOn Enemies "Demonic Illusion: Gamarinsho" do
@@ -160,4 +160,4 @@ spec = parallel do
   where
     describeCharacter = describeCategory Shippuden
     dmg = 56
-    stacks = 3
+    testStacks = 3

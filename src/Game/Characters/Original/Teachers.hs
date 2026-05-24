@@ -79,7 +79,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 targetHealth <- target health
-                bonus        <- 30 `bonusIf` userHas "Successful Ambush"
+                bonus        <- 30 `bonusIf` user has "Successful Ambush"
                 damage $ 10 + bonus + 10 * ((100 - targetHealth) `quot` 20)
           ]
         }
@@ -113,7 +113,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 apply 1 [ Expose ]
-                bonus <- 5 `bonusIf` targetHas "Dragon Flame"
+                bonus <- 5 `bonusIf` target has "Dragon Flame"
                 damage (5 + bonus)
           , To Self $ apply' "Twin Snake Sacrifice" 1
                         [ Alternate "Dragon Flame"
@@ -245,7 +245,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 50
-                whenM (targetHas "Summoning: Ninja Hounds")
+                whenM (target has "Summoning: Ninja Hounds")
                     kill
           ]
         }
@@ -281,7 +281,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                stacks <- userStacks "Illusion"
+                stacks <- user numStacks "Illusion"
                 defend Permanent =<< build (10 + 5 * stacks)
                 remove "Illusion"
           ]

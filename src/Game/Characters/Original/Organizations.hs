@@ -20,7 +20,7 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 10 `bonusIf` targetHas "Syrup Trap"
+                bonus <- 10 `bonusIf` target has "Syrup Trap"
                 damage (30 + bonus)
           ]
         }
@@ -48,8 +48,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                has <- targetHas "Annihilate"
-                if has then
+                annihilate <- target has "Annihilate"
+                if annihilate then
                     damage 65
                 else
                     tag 3
@@ -63,8 +63,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                has <- targetHas "Devastate"
-                if has then
+                devastate <- target has "Devastate"
+                if devastate then
                     damage 65
                 else
                     tag 3
@@ -80,7 +80,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 userHealth <- user health
-                tagHealth <- userStacks "Kotetsu's Health"
+                tagHealth <- user numStacks "Kotetsu's Health"
                 setHealth if tagHealth == 0 then 100 else tagHealth
                 remove "Kotetsu's Health"
                 applyStacks "Izumo's Health" userHealth [ Alternate "Devastate"
@@ -89,7 +89,7 @@ characters =
                                                                     "Tag Team"
                                                         ]
                 trap' Permanent OnRes do
-                    tagHealth' <- userStacks "Izumo's Health"
+                    tagHealth' <- user numStacks "Izumo's Health"
                     setHealth tagHealth'
                     remove "Izumo's Health"
                     hide' "solo" Permanent []
@@ -104,12 +104,12 @@ characters =
         , Skill.effects   =
           [ To Self do
                 userHealth <- user health
-                tagHealth <- userStacks "Izumo's Health"
+                tagHealth <- user numStacks "Izumo's Health"
                 setHealth if tagHealth == 0 then 100 else tagHealth
                 remove "Izumo's Health"
                 addStacks "Kotetsu's Health" userHealth
                 trap' Permanent OnRes do
-                    tagHealth' <- userStacks "Kotetsu's Health"
+                    tagHealth' <- user numStacks "Kotetsu's Health"
                     setHealth tagHealth'
                     remove "Kotetsu's Health"
                     hide' "solo" Permanent []
@@ -138,8 +138,8 @@ characters =
                 targeting Allies $ apply -4 [ Reduce [All] Flat 5 ]
           ]
         , Skill.effects   =
-          [ To Enemies $ unlessM (targetHas "scattering crow swarm") do
-                stacks <- targetStacks "Scattering Crow Swarm"
+          [ To Enemies $ unlessM (target has "scattering crow swarm") do
+                stacks <- target numStacks "Scattering Crow Swarm"
                 damage (5 * stacks)
                 flag
           ]
@@ -182,7 +182,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- targetStacks "Scattering Crow Swarm"
+                stacks <- target numStacks "Scattering Crow Swarm"
                 damage (45 + 5 * stacks)
           ]
         }
@@ -215,7 +215,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Payback"
+                stacks <- user numStacks "Payback"
                 damage (15 + 5 * stacks)
           , To Self $ remove "Payback"
           ]
@@ -261,7 +261,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Moon Haze"
+                stacks <- user numStacks "Moon Haze"
                 damage (50 + 25 * stacks)
           , To Self $ remove "Moon Haze"
           ]
@@ -332,14 +332,14 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 10 `bonusIf` targetHas "Chain Wrap"
+                bonus <- 10 `bonusIf` target has "Chain Wrap"
                 damage (30 + bonus)
                 apply Permanent [ Afflict 1 ]
                 trap Permanent OnSacrifice do
                     remove "Poison Gauntlet"
                     removeTrap "Poison Gauntlet"
                 delay -1 $
-                    whenM (targetHas "Poison Gauntlet") $
+                    whenM (target has "Poison Gauntlet") $
                         trap Permanent (OnDamaged NonAffliction) do
                             remove "Poison Gauntlet"
                             removeTrap "Poison Gauntlet"
@@ -415,7 +415,7 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 15 `bonusIf` userHas "Hidden Mist"
+                bonus <- 15 `bonusIf` user has "Hidden Mist"
                 pierce (30 + bonus)
           ]
         , Skill.changes   = changeWith "Hidden Mist" $ addClasses [Bypassing]
@@ -582,7 +582,7 @@ characters =
         , Skill.effects   =
           [ To Self $ tag 1
           , To Enemy do
-                bonus <- 10 `bonusIf` userHas "Sphere of Graves"
+                bonus <- 10 `bonusIf` user has "Sphere of Graves"
                 damage (30 + bonus)
           ]
         }
@@ -595,7 +595,7 @@ characters =
         , Skill.effects   =
           [ To Self $ tag 1
           , To Enemies do
-                bonus <- 5 `bonusIf` userHas "Crushing Palm"
+                bonus <- 5 `bonusIf` user has "Crushing Palm"
                 damage (20 + bonus)
           ]
         }
@@ -711,7 +711,7 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- -20 `bonusIf` userHas "Demon Parasite"
+                bonus <- -20 `bonusIf` user has "Demon Parasite"
                 damage (40 + bonus)
           ]
         , Skill.changes   = changeWith "Demon Parasite" $ setCost [Tai]

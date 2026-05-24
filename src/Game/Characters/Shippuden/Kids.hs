@@ -30,7 +30,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 25 `bonusIf` targetHas "Multi Shadow Clone"
+                bonus <- 25 `bonusIf` target has "Multi Shadow Clone"
                 pierce (50 + bonus)
                 apply Permanent [ Weaken [Chakra] Percent 10 ]
           ]
@@ -78,10 +78,10 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To XEnemies $ whenM (userHas "Seal") $
+          [ To XEnemies $ whenM (user has "Seal") $
                 damage 10
           ,  To Enemy do
-                bonus <- 10 `bonusIf` userHas "Seal"
+                bonus <- 10 `bonusIf` user has "Seal"
                 damage (25 + bonus)
           , To Self $ removeStack "Seal"
           ]
@@ -248,9 +248,9 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To REnemy $ whenM (userHas "Man-Beast Clone") $
+          , To REnemy $ whenM (user has "Man-Beast Clone") $
                 damage 20
-          , To XEnemies $ whenM (userHas "Three-Headed Wolf") $
+          , To XEnemies $ whenM (user has "Three-Headed Wolf") $
                 damage 20
           ]
         }
@@ -264,8 +264,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 apply Permanent [ Weaken [All] Flat 10 ]
-                cloneBonus <- 10 `bonusIf` userHas "Man-Beast Clone"
-                wolfBonus  <- 20 `bonusIf` userHas "Three-Headed Wolf"
+                cloneBonus <- 10 `bonusIf` user has "Man-Beast Clone"
+                wolfBonus  <- 20 `bonusIf` user has "Three-Headed Wolf"
                 damage (40 + cloneBonus + wolfBonus)
           ]
         }
@@ -285,7 +285,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 5 `bonusIf` targetHas "chakra leech"
+                bonus <- 5 `bonusIf` target has "chakra leech"
                 afflict (15 + bonus)
                 apply 1 [Alone]
           , To Self $ hide 1 [ Alternate "Insect Swarm"
@@ -320,7 +320,7 @@ characters =
         , Skill.effects   =
           [ To Self $ bomb' "Barricaded" -1 [] [ To Expire $ gain [Blood] ]
           ,  To Ally $ trapFrom 1 (Counter All) do
-                stacks <- targetStacks "Gigantic Beetle Infestation"
+                stacks <- target numStacks "Gigantic Beetle Infestation"
                 damage (25 + 25 * stacks)
                 remove "Gigantic Beetle Infestation"
                 remove "Chakra Leech"
@@ -335,7 +335,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemy $ bomb 3 [] [ To Expire do
-                stacks <- targetStacks "Gigantic Beetle Infestation"
+                stacks <- target numStacks "Gigantic Beetle Infestation"
                 damage (25 + 25 * stacks)
                 remove "Gigantic Beetle Infestation"
                 remove "Chakra Leech" ]
@@ -355,9 +355,9 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 10 `bonusIf` userHas "Eight Trigrams Sixty-Four Palms"
+                bonus <- 10 `bonusIf` user has "Eight Trigrams Sixty-Four Palms"
                 damage (10 + bonus)
-                stacks <- targetStacks "Eight Trigrams Sixty-Four Palms"
+                stacks <- target numStacks "Eight Trigrams Sixty-Four Palms"
                 apply (fromIntegral $ 1 + stacks) [ Exhaust [All] ]
                 remove "Eight Trigrams Sixty-Four Palms"
           ]
@@ -371,13 +371,13 @@ characters =
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =
           [ To Self do
-                bonus <- 1 `bonusIf` userHas "Eight Trigrams Sixty-Four Palms"
+                bonus <- 1 `bonusIf` user has "Eight Trigrams Sixty-Four Palms"
                 addStacks "Chakra Lion" (2 + bonus)
           , To Enemies $ trap' Permanent OnHarm do
                 targeting Self $ removeStack "Chakra Lion"
                 deplete 1
                 damage 30
-                unlessM (userHas "Chakra Lion") $ targeting Everyone $
+                unlessM (user has "Chakra Lion") $ targeting Everyone $
                     removeTrap "Gentle Step Twin Lion Fists"
           ]
         }
@@ -489,7 +489,7 @@ characters =
           [ To Self do
                 delay -1 $
                     trap' -4 OnHarm $
-                        unlessM (userHas "What a Drag") $
+                        unlessM (user has "What a Drag") $
                             apply 1 [ Invulnerable All
                                     , Alternate "Long-Range Tactics"
                                                 "Final Explosion"
@@ -641,10 +641,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 dead  <- numDeadAllies
-                bonus <- 10 `bonusIf` userHas "Leaf Hurricane"
+                bonus <- 10 `bonusIf` user has "Leaf Hurricane"
                 damage (20 + bonus + 10 * dead)
           , To Self do
-                bonus <- 10 `bonusIf` userHas "Leaf Hurricane"
+                bonus <- 10 `bonusIf` user has "Leaf Hurricane"
                 apply 1 [ Reduce [All] Flat $ 10 + bonus ]
           ]
         }
@@ -814,7 +814,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- userStacks "Pressure Point Strike"
+                stacks <- user numStacks "Pressure Point Strike"
                 damage (5 + 5 * stacks)
                 deplete 1
           , To Self do
@@ -897,10 +897,10 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 20 `bonusIf` targetHas "Kuroari Trap"
+                bonus <- 20 `bonusIf` target has "Kuroari Trap"
                 damage (20 + bonus)
                 bomb 1 [] [ To Expire do
-                    bonus' <- 10 `bonusIf` targetHas "Kuroari Trap"
+                    bonus' <- 10 `bonusIf` target has "Kuroari Trap"
                     afflict (10 + bonus') ]
           ]
         }
@@ -1000,8 +1000,8 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                bonusFirst  <-  5 `bonusIf` userHas "First Moon"
-                bonusSecond <- 10 `bonusIf` userHas "Second Moon"
+                bonusFirst  <-  5 `bonusIf` user has "First Moon"
+                bonusSecond <- 10 `bonusIf` user has "Second Moon"
                 damage (20 + bonusFirst + bonusSecond)
           ]
         }
@@ -1069,7 +1069,7 @@ characters =
           ]
         , Skill.effects   =
           [ To Enemy $ whenM (channeling "Rasengan") do
-                bonus <- 15 `bonusIf` targetHas "Rasengan"
+                bonus <- 15 `bonusIf` target has "Rasengan"
                 pierce (25 + bonus)
           ]
         }

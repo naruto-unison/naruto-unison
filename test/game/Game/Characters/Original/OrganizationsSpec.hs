@@ -31,12 +31,12 @@ spec = parallel do
             it "tags on stun" do
                 Sim.act
                 Sim.withClass Chakra $ Sim.as XEnemies $ return ()
-                Sim.at XEnemies $ targetHas "Syrup Trap"
+                Sim.at XEnemies $ target has "Syrup Trap"
 
         useOn Enemy "Devastate" do
             it "tags target" do
                 Sim.act
-                targetHas "Devastate"
+                target has "Devastate"
             it "deals damage if target has Annihilate" do
                 tag' "Annihilate" Permanent
                 Sim.act
@@ -45,12 +45,12 @@ spec = parallel do
             it "does not tag if target has Annihilate" do
                 tag' "Annihilate" Permanent
                 Sim.act
-                not <$> targetHas "Devastate"
+                not <$> target has "Devastate"
 
         useOn Enemy "Annihilate" do
             it "tags target" do
                 Sim.act
-                targetHas "Annihilate"
+                target has "Annihilate"
             it "deals damage if target has Devastate" do
                 tag' "Devastate" Permanent
                 Sim.act
@@ -59,7 +59,7 @@ spec = parallel do
             it "does not tag if target has Devastate" do
                 tag' "Devastate" Permanent
                 Sim.act
-                not <$> targetHas "Annihilate"
+                not <$> target has "Annihilate"
 
         useOn Self "Tag Team" do
             it "alternates" do
@@ -68,8 +68,8 @@ spec = parallel do
             it "transfers health to stacks" do
                 Sim.as Enemy $ damage dmg
                 Sim.act
-                numStacks <- userStacks "Izumo's Health"
-                100 - numStacks `shouldBe` dmg
+                stacks <- user numStacks "Izumo's Health"
+                100 - stacks `shouldBe` dmg
             it "transfers health from stacks" do
                 Sim.as Enemy $ damage dmg
                 Sim.act
@@ -78,7 +78,7 @@ spec = parallel do
             it "transfers upon death" do
                 Sim.as Enemy $ damage dmg
                 Sim.act
-                Sim.as Enemy $ damage stacks
+                Sim.as Enemy $ damage testStacks
                 Sim.as Enemy kill
                 userHealth <- target health
                 dmg - (100 - userHealth) `shouldBe` 0
@@ -86,16 +86,16 @@ spec = parallel do
     describeCharacter "Aoba Yamashiro" do
         useOn Enemies "Scattering Crow Swarm" do
             it "deals stacking damage" do
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 Sim.as Enemy $ damage dmg
                 Sim.turns 5
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 5 * 4 * stacks
+                100 - targetHealth `shouldBe` 5 * 4 * testStacks
             it "reduces damage" do
-                replicateM_ stacks Sim.act
+                replicateM_ testStacks Sim.act
                 Sim.as Enemy $ damage dmg
                 userHealth <- user health
-                dmg - (100 - userHealth) `shouldBe` 5 * stacks
+                dmg - (100 - userHealth) `shouldBe` 5 * testStacks
 
         useOn Ally "Revenge of the Murder" do
             it "resurrects target" do
@@ -123,34 +123,34 @@ spec = parallel do
         useOn Enemy "Converging Murder" do
             it "damages target per Scattering Crow Swarm" do
                 apply Permanent [ AntiChannel ]
-                replicateM_ stacks  $ Sim.use "Scattering Crow Swarm"
+                replicateM_ testStacks  $ Sim.use "Scattering Crow Swarm"
                 setHealth 100
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 45 + 5 * stacks
+                100 - targetHealth `shouldBe` 45 + 5 * testStacks
 
     describeCharacter "Ibiki Morino" do
         useOn Self "Biding Time" do
             it "adds a stack whenever Ibiki is damaged" do
                 Sim.act
-                replicateM_ stacks $ Sim.as Enemy $ damage 15
-                replicateM_ (stacks * 2) $ Sim.as Enemy $ damage 10
-                numStacks <- userStacks "Payback"
-                numStacks `shouldBe` stacks
+                replicateM_ testStacks $ Sim.as Enemy $ damage 15
+                replicateM_ (testStacks * 2) $ Sim.as Enemy $ damage 10
+                stacks <- user numStacks "Payback"
+                stacks `shouldBe` testStacks
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Payback"
 
         useOn Enemy "Payback" do
             it "damages target per Payback" do
-                targeting Self $ addStacks "Payback" stacks
+                targeting Self $ addStacks "Payback" testStacks
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 15 + 5 * stacks
+                100 - targetHealth `shouldBe` 15 + 5 * testStacks
             it "spends all Payback" do
-                targeting Self $ addStacks "Payback" stacks
+                targeting Self $ addStacks "Payback" testStacks
                 Sim.act
-                not <$> userHas "Payback"
+                not <$> user has "Payback"
 
         useOn Enemy "Summoning: Iron Maiden" do
             it "damages target on harm" do
@@ -187,7 +187,7 @@ spec = parallel do
             it "prolongs Chain Wrap" do
                 Sim.use "Chain Wrap"
                 Sim.act
-                targetHas "Chain Wrap"
+                target has "Chain Wrap"
 
         useOn Enemy "Poison Gauntlet" do
             it "deals bonus damage if target has Chain Wrap" do
@@ -227,7 +227,7 @@ spec = parallel do
             it "removes stun effects" do
                 apply' "stun" 5 [Stun All]
                 Sim.act
-                not <$> targetHas "stun"
+                not <$> target has "stun"
             it "ignores stuns" do
                 Sim.act
                 apply 5 [Stun All]
@@ -235,11 +235,11 @@ spec = parallel do
                 targetStunned `shouldBe` []
             it "is normally single-target" do
                 Sim.act
-                Sim.at XAlly $ not <$> targetHas "Acupuncture"
+                Sim.at XAlly $ not <$> target has "Acupuncture"
             it "targets all during Crystal Ice Mirrors" do
                 Sim.use "Crystal Ice Mirrors"
                 Sim.act
-                Sim.at XAlly $ targetHas "Acupuncture"
+                Sim.at XAlly $ target has "Acupuncture"
 
     describeCharacter "Zabuza Momochi" do
         useOn Enemy "Silent Killing" do
@@ -257,20 +257,20 @@ spec = parallel do
         useOn Enemy "Amaterasu" do
             it "damages target" do
                 Sim.use "Amaterasu"
-                Sim.turns stacks
+                Sim.turns testStacks
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 15 + 5 * stacks
+                100 - targetHealth `shouldBe` 15 + 5 * testStacks
             it "is normally single-target" do
                 Sim.use "Amaterasu"
-                Sim.turns stacks
+                Sim.turns testStacks
                 targetHealth <- health <$> Sim.targets XEnemies
                 100 - targetHealth `shouldBe` 0
             it "damages all targets and deals double damage during Mangekyō Sharingan" do
                 Sim.use "Mangekyō Sharingan"
                 Sim.use "Amaterasu"
-                Sim.turns stacks
+                Sim.turns testStacks
                 targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 30 + 10 * stacks
+                100 - targetHealth `shouldBe` 30 + 10 * testStacks
 
         useOn Enemy "Tsukuyomi" do
             it "lasts 1 turn normally" do
@@ -337,13 +337,13 @@ spec = parallel do
             it "ends when target dies" do
                 Sim.act
                 Sim.as Self kill
-                not <$> userHas "Demon Parasite"
+                not <$> user has "Demon Parasite"
 
         useOn Enemy "Regeneration" do
             it "ends Demon Parasite" do
                 Sim.use "Demon Parasite"
                 Sim.act
-                not <$> targetHas "Demon Parasite"
+                not <$> target has "Demon Parasite"
 
         useOn Enemy "Summoning: Rashōmon" do
             it "makes user invulnerable" do
@@ -353,8 +353,8 @@ spec = parallel do
             it "ends Demon Parasite" do
                 Sim.use "Demon Parasite"
                 Sim.act
-                not <$> targetHas "Demon Parasite"
+                not <$> target has "Demon Parasite"
   where
     describeCharacter = describeCategory Original
     dmg = 55
-    stacks = 3
+    testStacks = 3

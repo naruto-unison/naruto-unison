@@ -39,9 +39,9 @@ spec = parallel do
 
         useOn Enemy "Adamantine Sealing Chains" do
             it "purges helpful effects" do
-                apply 10 [ Build stacks ]
-                Sim.as Enemy $ targeting Self $ apply 10 [ Build stacks ]
-                Sim.as XEnemies $ apply 10 [ Build stacks ]
+                apply 10 [ Build testStacks ]
+                Sim.as Enemy $ targeting Self $ apply 10 [ Build testStacks ]
+                Sim.as XEnemies $ apply 10 [ Build testStacks ]
                 Sim.act
                 targetBuild <- target $ Effects.build
                 targetBuild `shouldBe` 0
@@ -51,7 +51,7 @@ spec = parallel do
             it "tags enemy during Space-Time Marking" do
                 Sim.use "Space-Time Marking"
                 Sim.act
-                targetHas "Space-Time Marking"
+                target has "Space-Time Marking"
             it "deals bonus damage with Space-Time Marking" do
                 targeting Everyone $ tag' "Space-Time Marking" Permanent
                 Sim.act
@@ -67,7 +67,7 @@ spec = parallel do
             it "tags enemy during Space-Time Marking" do
                 Sim.use "Space-Time Marking"
                 Sim.act
-                targetHas "Space-Time Marking"
+                target has "Space-Time Marking"
             it "makes all invulnerable with Space-Time Marking" do
                 targeting Everyone $ tag' "Space-Time Marking" Permanent
                 remove "Space-Time Marking"
@@ -123,15 +123,15 @@ spec = parallel do
             it "stuns if enemy stuns" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [ Stun Physical ]
-                userHas "Sharingan Stun"
+                user has "Sharingan Stun"
             it "stuns if enemy disables" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [ Disable Counters ]
-                userHas "Sharingan Stun"
+                user has "Sharingan Stun"
             it "does not stun otherwise" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [ Throttle 1 Counters ]
-                not <$> userHas "Sharingan Stun"
+                not <$> user has "Sharingan Stun"
             it "strengthens if target damages" do
                 targeting Self $ apply Permanent [ Reduce [All] Flat 5 ]
                 Sim.act
@@ -237,4 +237,4 @@ spec = parallel do
   where
     describeCharacter = describeCategory Original
     dmg = 55
-    stacks = 3
+    testStacks = 3
