@@ -399,7 +399,9 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                apply 1 [Enrage, Strengthen [All] Percent 100]
+                apply 1 [ Enrage
+                        , Strengthen [All] Percent 100
+                        ]
                 sacrifice 1 10
           ]
         }

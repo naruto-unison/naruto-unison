@@ -551,7 +551,7 @@ characters =
           [ To Enemy $ delay -1 $
                 damage 30
           , To Self do
-                apply 1 [Enrage]
+                apply 1 [ Enrage ]
                 replicateM_ 2 $ hide' "calories" Permanent [ Exhaust [All] ]
           ]
         }

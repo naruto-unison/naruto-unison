@@ -32,7 +32,7 @@ characters =
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self $ apply 1 [Enrage] ]
+          [ To Self $ apply 1 [ Enrage ] ]
         }
       ]
     , [ Skill.new
