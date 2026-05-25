@@ -134,19 +134,15 @@ characters =
         , Skill.dur       = Ongoing -4
         , Skill.start     =
           [ To Self do
+                cancelChannel
                 targeting Enemies $ apply -4 []
                 targeting Allies $ apply -4 [ Reduce [All] Flat 5 ]
           ]
         , Skill.effects   =
-          [ To Enemies $ unlessM (target has "scattering crow swarm") do
+          [ To Enemies do
                 stacks <- target numStacks "Scattering Crow Swarm"
                 damage (5 * stacks)
                 flag
-          ]
-        , Skill.interrupt =
-          [ To Self do
-                targeting Everyone $ remove "Scattering Crow Swarm"
-                cancelChannel -- just in case
           ]
         }
       ]
