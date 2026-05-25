@@ -453,17 +453,12 @@ characters =
         , Skill.cooldown  = 5
         , Skill.dur       = Action 4
         , Skill.start     =
-          [ To Self do
-                bombWith [Hidden] 4 [] [ To Done $ remove "Chakra Weave" ]
-                trap' 4 (OnDamaged All) $
-                    hide' "hair" -1 []
+          [ To Self $ trap' 4 (OnDamaged All) $
+                hide' "hair" -1 []
           ]
         , Skill.effects   =
-          [ To Self do
-                trap 1 OnDamage $ apply Permanent [ Reduce [All] Flat 5 ]
-                delay -1 $
-                    unlessM (user has "hair") $
-                        heal 10
+          [ To Self $ unlessM (user has "hair") $
+                heal 10
           ]
         }
       ]

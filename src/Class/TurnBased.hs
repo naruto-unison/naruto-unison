@@ -7,11 +7,10 @@ module Class.TurnBased
 import ClassyPrelude
 
 import           Game.Model.Duration (Duration(..))
-import           Game.Model.Internal (Channeling(..), Channel(Channel), Copy(Copy), Delay(Delay), Destructible(Destructible), Status(Status), Trap(Trap))
+import           Game.Model.Internal (Channeling(..), Channel(Channel), Copy(Copy), Destructible(Destructible), Status(Status), Trap(Trap))
 import qualified Game.Model.Internal
 import qualified Game.Model.Internal.Channel as Channel
 import qualified Game.Model.Internal.Copy as Copy
-import qualified Game.Model.Internal.Delay as Delay
 import qualified Game.Model.Internal.Destructible as Destructible
 import qualified Game.Model.Internal.Status as Status
 import qualified Game.Model.Internal.Trap as Trap
@@ -64,10 +63,6 @@ instance TurnBased Channeling where
 instance TurnBased Copy where
     getDur Copy{dur} = dur
     setDur d x = x { Copy.dur = d }
-
-instance TurnBased Delay where
-    getDur Delay{dur} = dur
-    setDur d x = x { Delay.dur = d }
 
 instance TurnBased Status where
     getDur Status{dur} = dur

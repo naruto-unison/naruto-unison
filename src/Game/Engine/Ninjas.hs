@@ -214,7 +214,6 @@ decr n = processAlternates $ processEffects
       , N.barrier   = mapMaybe TurnBased.decr $ N.barrier n
       , N.channels  = mapMaybe (TurnBased.decr . setNotNew) $ N.channels n
       , N.traps     = mapMaybe TurnBased.decr $ N.traps n
-      , N.delays    = mapMaybe TurnBased.decr $ N.delays n
       , N.copies    = (TurnBased.decr =<<) <$> N.copies n
       , N.cooldowns = (max 0 . subtract 1) `omap` N.cooldowns n
       , N.acted     = False

@@ -34,6 +34,7 @@ new = Skill
     , effects   = []
     , stunned   = []
     , interrupt = []
+    , end       = []
     , changes   = const id
     , owner     = unsafeHead Slot.all
     }

@@ -35,7 +35,6 @@ import qualified Game.Model.Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import qualified Game.Model.Delay as Delay
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
@@ -44,6 +43,7 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import           Game.Model.Runnable (Runnable(To))
+import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
@@ -79,7 +79,7 @@ processTurn runner = do
     mapM_ Action.act channels
     Traps.runTurn initial
     doBombs Remove initial
-    doDelays
+    doExpirations
     doDeaths
     Traps.runExpirations
     expired <- P.ninjas
@@ -103,16 +103,9 @@ processTurn runner = do
         , target
         }
 
--- | Runs 'Game.delays'.
-doDelays :: ∀ m. (MonadGame m, MonadRandom m) => m ()
-doDelays = mapM_ delay . filter N.alive =<< P.ninjas
-  where
-    delay Ninja{delays} = mapM_ (P.launch . Delay.effect)
-        $ filter TurnBased.expiring delays
-
 -- | Executes 'Status.bombs' of a @Status@.
 doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
-doBomb bomb target st@Status{bombs, skill} = mapM_ detonate bombs
+doBomb bomb target st@Status{bombs, skill} = mapM_ doEach bombs
   where
     st'
       | bomb == Done =
@@ -121,15 +114,15 @@ doBomb bomb target st@Status{bombs, skill} = mapM_ detonate bombs
                }
       | otherwise    = st
     context = (Context.fromStatus st') { Context.target = target }
-    detonate (To targ run)
+    doEach (To targ run)
       | bomb /= targ = return ()
       | otherwise    = P.withContext context $ Action.wrap run
 
 -- | Executes 'Status.bombs' of all 'Status'es that were removed.
 doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> [Ninja] -> m ()
-doBombs bomb ninjas = zipWithM_ comp ninjas =<< P.ninjas
+doBombs bomb ninjas = zipWithM_ doEach ninjas =<< P.ninjas
   where
-    comp n n' = sequence
+    doEach n n' = sequence
               $ doBomb bomb (N.slot n)
               <$> deleteFirstsBy Labeled.eq (stats n) (stats n')
       where
@@ -140,32 +133,27 @@ doBombs bomb ninjas = zipWithM_ comp ninjas =<< P.ninjas
 
 -- | Executes 'Trigger.death'.
 doDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
-doDeaths = mapM_ doDeath Slot.all
+doDeaths = mapM_ doEach Slot.all
+  where
+    doEach slot = do
+        n@Ninja{statuses} <- P.ninja slot
+        let res
+              | n `is` Plague = mempty
+              | otherwise     = Traps.getOf slot OnRes n
 
--- | If the 'N.health' of a 'Ninja' reaches 0,
--- they are either resurrected by triggering 'OnRes'
--- or they die and trigger 'OnDeath'.
--- If they die, their 'Soulbound' effects are canceled.
-doDeath :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Slot -> m ()
-doDeath slot = do
-    n@Ninja{statuses} <- P.ninja slot
-    let res
-          | n `is` Plague = mempty
-          | otherwise     = Traps.getOf slot OnRes n
+        if N.alive n then
+            return ()
 
-    if N.alive n then
-        return ()
+        else if null res then do
+            P.modify slot $ Ninjas.clearTraps OnDeath
+            sequence_ $ Traps.getOf slot OnDeath n
+            mapM_ (doBomb Done slot)
+                $ filter ((Necromancy ∉) . Status.classes) statuses
+            P.modifyAll $ unSoulbound slot
 
-    else if null res then do
-        P.modify slot $ Ninjas.clearTraps OnDeath
-        sequence_ $ Traps.getOf slot OnDeath n
-        mapM_ (doBomb Done slot)
-            $ filter ((Necromancy ∉) . Status.classes) statuses
-        P.modifyAll $ unSoulbound slot
-
-    else do
-        P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps OnRes
-        sequence_ res
+        else do
+            P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps OnRes
+            sequence_ res
 
 -- | Removes 'Soulbound' effects. Applied when a Ninja dies or is factory-reset.
 unSoulbound :: Slot -> Ninja -> Ninja
@@ -178,18 +166,37 @@ unSoulbound user n@Ninja{copies, statuses, traps} = Ninjas.modifyStatuses
     notSoulbound :: ∀ a. (Classed a, Labeled a) => a -> Bool
     notSoulbound x = Soulbound ∉ Classed.classes x || Labeled.user x /= user
 
+doExpirations :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
+doExpirations = do
+    Traps.runExpirations
+    mapM_ doEach =<< P.ninjas
+  where
+    doEach n@Ninja{channels} = mapM_ (runSkillEnd n)
+                             $ filter TurnBased.expiring channels
+
+
+runSkillEnd :: ∀ m. (MonadGame m, MonadRandom m) => Ninja -> Channel -> m ()
+runSkillEnd Ninja{slot} (Channel skill@Skill{end} target _ _) = P.launch $
+    To context $ Action.run =<< Action.targeted end
+  where
+    context = Context { skill
+                      , user      = slot
+                      , target
+                      , new       = False
+                      , continues = False
+                      }
+
 -- | Executes 'Model.Effect.Afflict' and 'Model.Effect.Heal'
 -- 'Model.Effect.Effect's.
 doHpsOverTime :: ∀ m. MonadGame m => m ()
-doHpsOverTime = mapM_ doHpOverTime Slot.all
-
-doHpOverTime :: ∀ m. MonadGame m => Slot -> m ()
-doHpOverTime slot = do
+doHpsOverTime = do
     Game{playing = player} <- P.game
-    n  <- P.ninja slot
-    hp <- Effects.hp player n <$> P.ninjas
-    when (N.alive n)
-        . P.modify slot $ Ninjas.adjustHealth (- hp)
+    mapM_ (doEach player) =<< P.ninjas
+  where
+    doEach player n@Ninja{slot} = do
+        hp <- Effects.hp player n <$> P.ninjas
+        when (N.alive n)
+            . P.modify slot $ Ninjas.adjustHealth (- hp)
 
 -- | Updates 'Game.victor'.
 yieldVictor :: ∀ m. MonadGame m => m ()

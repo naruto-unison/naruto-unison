@@ -407,12 +407,14 @@ characters =
         , Skill.classes   = [Mental, Ranged, Invisible, Unreflectable, Unremovable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
+        , Skill.dur       = Control 2
+        , Skill.start     =
+          [ To Enemy $ trap 1 (Countered All) $
+                copyLast 1
+          ]
         , Skill.effects   =
-          [ To Enemy do
-                trap 1 (Countered All) $
-                    copyLast 1
-                delay -1 $
-                    damage 15
+          [ To Enemy $ whenM (channeling "Mind Destruction") $
+                damage 15
           ]
         }
       ]
@@ -481,21 +483,20 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Long-Range Tactics"
-        , Skill.desc      = "Shikamaru goes long. For 4 turns, whenever Shikamaru uses a skill on an enemy, he becomes invulnerable for 1 turn. However, if an enemy uses a skill that deals non-affliction damage to him, he will not become invulnerable during the next turn. While Shikamaru is invulnerable from this skill, it becomes [Final Explosion][r][r]."
+        , Skill.desc      = "Shikamaru goes long. For the next 4 turns, whenever Shikamaru uses a skill on an enemy, he becomes invulnerable for 1 turn. However, if an enemy uses a skill that deals non-affliction damage to him, he will not become invulnerable during the next turn. While Shikamaru is invulnerable from this skill, it becomes [Final Explosion][r][r]."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 5
+        , Skill.dur       = Ongoing 4
         , Skill.effects   =
           [ To Self do
-                delay -1 $
-                    trap' -4 OnHarm $
-                        unlessM (user has "What a Drag") $
-                            apply 1 [ Invulnerable All
-                                    , Alternate "Long-Range Tactics"
-                                                "Final Explosion"
-                                    ]
-                trap' 4 (OnDamaged NonAffliction) $
+                trap 4 (OnDamaged NonAffliction) $
                     tag' "What a Drag" 1
+                trap 4 OnHarm $ unlessM (user has "What a Drag") $
+                    apply 1 [ Invulnerable All
+                            , Alternate "Long-Range Tactics"
+                                        "Final Explosion"
+                            ]
           ]
         }
       , Skill.new
@@ -547,13 +548,14 @@ characters =
         , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring harmful status effects. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
+        , Skill.dur       = Action 1
         , Skill.effects   =
-          [ To Enemy $ delay -1 $
-                damage 30
-          , To Self do
+          [ To Self do
                 apply 1 [ Enrage ]
                 replicateM_ 2 $ hide' "calories" Permanent [ Exhaust [All] ]
           ]
+        , Skill.end       =
+          [ To Enemy $ damage 30 ]
         }
       ]
     , [ Skill.new

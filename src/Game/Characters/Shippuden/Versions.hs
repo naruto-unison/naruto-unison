@@ -79,44 +79,7 @@ characters =
         }
       ]
     , [ invuln "Parry" "Naruto" [Physical] ]
-    ]{-
-  , Character
-    "Proxy Commander Shikamaru"
-    "TODO"
-    [LeafVillage, Eleven, AlliedForces, Chunin, Fire, Earth, Yin, Nara]
-    let
-        formation :: IntRunConstraint () -> RunConstraint ()
-        formation withAmount = do
-            formingStacks <- user numStacks "forming"
-            if formingStacks > 0 then
-                allies $ addStack' "formed"
-            else do
-                allies $ addStack' "forming"
-                delay -1 do
-                    formedStacks <- user numStacks "formed"
-                    when (formedStacks > 0) $ withAmount formedStacks
-    in
-    [ [ Skill.new
-        { Skill.name      = "Team Formation"
-        , Skill.desc      = "TODO"
-        , Skill.classes   = [All, Mental]
-        , Skill.effects   =
-          [ To Self $ allies do
-                targetSlot      <- target slot
-                targetNumSkills <- target numSkills
-                let skill = case toInt targetSlot `rem` teamSize of
-                                0 -> "Formation C"
-                                1 -> "Formation D"
-                                _ -> "Formation E"
-                teach 1 skill [targetNumSkills - 1]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Formation C"
-        , Skill.effects   =
-          [ To Self $ formation $ const $ return () ]
-        }
-    ] ] -}
+    ]
   , Character
     "Regimental Commander Gaara"
     "Coordinating the Allied Shinobi Forces and personally commanding the Fourth Division, Gaara has proven to be an inspiring leader and talented strategist. His attacks scatter sand particles around the battlefield, which he draws back in with explosive force."
@@ -288,9 +251,7 @@ characters =
                                                  "DNA Transmission Shadow" ]
           ]
         , Skill.effects   =
-          [ To Self $ delay -1 $
-                renameChannels rename
-          ]
+          [ To Self $ renameChannels rename ]
         }
       , Skill.new
         { Skill.name      = "DNA Transmission Shadow"

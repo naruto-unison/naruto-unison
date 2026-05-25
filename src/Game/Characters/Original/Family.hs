@@ -240,8 +240,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 apply 1 [ Throttle 1 $ Any Invulnerable ]
-                delay -1 $
-                    trapFrom 1 (OnHarmed Mental) $
+                flag
+                trapFrom 1 (OnHarmed Mental) $
+                    unlessM ((&&) <$> target has "mental invasion"
+                            <*> ((==) <$> user slot <*> target slot)) $
                         apply 1 [ Invulnerable All ]
           ]
         }

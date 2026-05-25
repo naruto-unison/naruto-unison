@@ -3,7 +3,6 @@ module Game.Action.Trap
   ( trap, trap', trapFrom, trapFrom', trapPer, trapPer', trapWith
   , onBreak
   , removeTrap
-  , delay
   ) where
 import ClassyPrelude
 
@@ -17,9 +16,7 @@ import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import qualified Game.Model.Delay as Delay
 import           Game.Model.Duration (Duration(..))
-import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (IntRunConstraint, RunConstraint)
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
@@ -78,16 +75,6 @@ trapFull :: ∀ m. MonadPlay m
          -> IntRunConstraint () -> m ()
 trapFull direction classes unthrottled trigger f =
     Traps.apply direction classes unthrottled trigger $ Action.wrap . f
-
--- | Saves an effect to a 'Delay.Delay', which is stored in 'Game.delays' and
--- triggered when it expires.
-delay :: ∀ m. MonadPlay m => Duration -> RunConstraint () -> m ()
-delay Permanent _ = return () -- A Delay that lasts forever would be pointless!
-delay dur f = do
-    context@Context{user} <- P.context
-    let del = Delay.new context { Context.continues = False } dur
-            $ Action.wrap f
-    P.modify user \n -> n { N.delays = del : N.delays n }
 
 -- | Removes 'N.traps' with matching 'Trap.name'.
 -- Uses 'Ninjas.clearTrap' internally.

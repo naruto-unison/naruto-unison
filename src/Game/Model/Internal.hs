@@ -147,20 +147,6 @@ instance Labeled Copy where
     user (Copy Skill{owner} _) = owner
 
 
--- | Applies an effect after several turns.
-data Delay = Delay
-    { effect :: Runnable Context
-    , dur    :: Duration
-    }
-
-instance Classed Delay where
-    classes (Delay (To Context{skill = Skill{classes}} _) _) = classes
-
-instance Labeled Delay where
-    name (Delay (To Context{skill = Skill{name}} _) _) = name
-    user (Delay (To Context{user} _) _)                = user
-
-
 -- | Destructible barrier or defense.
 data Destructible = Destructible
     { amount  :: Int
@@ -228,7 +214,6 @@ data Ninja = Ninja
     , statuses   :: [Status]         -- ^ Starts empty
     , channels   :: [Channel]        -- ^ Starts empty
     , traps      :: [Trap]           -- ^ Starts empty
-    , delays     :: [Delay]          -- ^ Starts empty
     , lastSkill  :: Maybe Skill      -- ^ Starts at @Nothing@
     , triggers   :: HashSet Trigger  -- ^ Empty at the start of each turn
     , effects    :: ~[Effect]        -- ^ Processed automatically
@@ -271,6 +256,7 @@ data Skill = Skill
     , effects   :: [Runnable Target] -- ^ Defaults to empty
     , stunned   :: [Runnable Target] -- ^ Defaults to empty
     , interrupt :: [Runnable Target] -- ^ Defaults to empty
+    , end       :: [Runnable Target] -- ^ Defaults to empty
     , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'
     , owner     :: Slot
     }
@@ -289,6 +275,7 @@ instance ToJSON Skill where
         , effects
         , stunned
         , interrupt
+        , end
         , owner
         } = object
         [ "name"      .= name
@@ -303,6 +290,7 @@ instance ToJSON Skill where
         , "effects"   .= effects
         , "stunned"   .= stunned
         , "interrupt" .= interrupt
+        , "end"       .= end
         , "owner"     .= owner
         ]
 

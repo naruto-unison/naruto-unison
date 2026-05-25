@@ -334,11 +334,11 @@ characters =
                 trap Permanent OnSacrifice do
                     remove "Poison Gauntlet"
                     removeTrap "Poison Gauntlet"
-                delay -1 $
-                    whenM (target has "Poison Gauntlet") $
-                        trap Permanent (OnDamaged NonAffliction) do
-                            remove "Poison Gauntlet"
-                            removeTrap "Poison Gauntlet"
+                flag
+                trap Permanent (OnDamaged NonAffliction) $
+                    unlessM (target has "poison gauntlet") do
+                        remove "Poison Gauntlet"
+                        removeTrap "Poison Gauntlet"
           ]
         }
       ]

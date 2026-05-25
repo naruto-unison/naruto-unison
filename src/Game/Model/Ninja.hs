@@ -49,7 +49,6 @@ new slot c@Character{skills} = Ninja
     , copies     = replicate skillSize Nothing
     , channels   = mempty
     , traps      = mempty
-    , delays     = mempty
     , lastSkill  = Nothing
     , triggers   = mempty
     , effects    = mempty

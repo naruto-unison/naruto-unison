@@ -553,15 +553,18 @@ characters =
         , Skill.classes   = [Chakra, Ranged, Bypassing, Invisible]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4
+        , Skill.dur       = Ongoing 1
         , Skill.effects   =
           [ To Enemy do
                 trap 1 (Countered Chakra)
                     flag
                 trap 1 (Countered Mental)
                     flag
-                delay -1 do
-                    bonus <- 20 `bonusIf` target has "super shark bomb"
-                    damage (30 + bonus)
+          ]
+        , Skill.end       =
+          [ To Enemy do
+                bonus <- 20 `bonusIf` target has "super shark bomb"
+                damage (30 + bonus)
           ]
         }
       ]
