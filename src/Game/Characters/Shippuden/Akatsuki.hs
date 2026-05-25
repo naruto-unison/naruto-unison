@@ -41,22 +41,18 @@ characters =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 6
-        , Skill.dur       = Passive
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self do
-                defend Permanent 70
+                defend' Permanent 70 [ Alternate "Susanoo"
+                                                 "Armored Susanoo Assault"
+                                     ]
                 onBreak do
-                    remove "susanoo"
                     remove "Susanoo"
                     cancelChannel
           ]
         , Skill.effects   =
-          [ To Self do
-                hide 1 [ Alternate "Susanoo"
-                                   "Armored Susanoo Assault"
-                       ]
-                addStack' "Susanoo"
-          ]
+          [ To Self $ addStack' "Susanoo" ]
         }
       , Skill.new
         { Skill.name      = "Armored Susanoo Assault"
@@ -140,12 +136,11 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                defend 3 35
-                apply 3 [ Alternate "C1: Bird Bomb"
-                                    "C2: Dragon Missile"
-                        , Alternate "C2: Clay Dragon"
-                                    "C2: Minefield"
-                        ]
+                defend' 3 35 [ Alternate "C1: Bird Bomb"
+                                         "C2: Dragon Missile"
+                             , Alternate "C2: Clay Dragon"
+                                         "C2: Minefield"
+                             ]
           ]
         }
       , Skill.new
@@ -926,12 +921,13 @@ characters =
         , Skill.dur       = Passive
         , Skill.start     =
           [ To Enemy do
+                cancelChannel
                 pierce 15
                 barricade Permanent 15
                 onBreak do
-                    remove "chakra receiver"
                     remove "Chakra Receiver"
-                    cancelChannel
+                    whenM ((== 0) <$> numAffected "Chakra Receiver")
+                        cancelChannel
           ]
         , Skill.effects   =
           [ To Self $ targeting Enemies $
@@ -940,7 +936,8 @@ characters =
                     if notStunned then
                         apply 1 [Stun All]
                     else
-                        hide 1 []
+                        applyWith' [Unremovable, Hidden, Nonstacking]
+                            "chakra receiver" 1 []
           ]
         }
       ]
@@ -950,17 +947,13 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.cooldown  = 3
-        , Skill.dur       = Ongoing 3
-        , Skill.start     =
-          [ To Enemy do
-                barricade 3 80
-                delay -3 $
-                    damage =<< target barrierAmount "Planetary Devastation"
-          ]
         , Skill.effects   =
-          [ To Self $ targeting Enemy $ apply 1 [ Alone
-                                                , Invulnerable All
-                                                ]
+          [ To Enemy do
+                barricade' 3 80 [ Alone, Invulnerable All ]
+                onBreak do
+                    dmg <- target barrierAmount "Planetary Devastation"
+                    when (dmg > 0) $
+                        damage dmg
           ]
         }
       ]
@@ -1185,11 +1178,10 @@ characters =
         , Skill.classes   = [Summon]
         , Skill.cost      = [Nin, Blood]
         , Skill.cooldown  = 4
-        , Skill.dur       = Ongoing 2
-        , Skill.start     =
+        , Skill.effects   =
           [ To Ally do
                 defend Permanent 20
-                apply 1 [ Invulnerable All ]
+                apply 2 [ Invulnerable All ]
           ]
         }
       ]
@@ -1276,18 +1268,11 @@ characters =
         , Skill.classes   = [Summon]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
-        , Skill.dur       = Passive
-        , Skill.start     =
-          [ To Self do
-                defend Permanent 20
-                onBreak do
-                    remove "summoning: king of hell"
-                    cancelChannel
-          ]
         , Skill.effects   =
-          [ To Self $ hide 1 [ Alternate "Summoning: King of Hell"
-                                         "Energy Transfer"
-                             ]
+          [ To Self $
+                defend' Permanent 20 [ Alternate "Summoning: King of Hell"
+                                                 "Energy Transfer"
+                                     ]
           ]
         }
       , Skill.new

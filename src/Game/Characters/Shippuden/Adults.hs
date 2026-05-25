@@ -314,22 +314,18 @@ characters =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 5
-        , Skill.dur       = Passive
+        , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self do
-                defend Permanent 50
-                onBreak do
-                    remove "ten puppets collection"
-                    cancelChannel
+                defend' Permanent 50  [ Alternate "Assault Blade"
+                                                  "Three Treasure Suction Crush"
+                                      , Alternate "Ten Puppets Collection"
+                                                  "Lion Roar Sealing"
+                                      ]
+                onBreak cancelChannel
           ]
         , Skill.effects   =
-          [ To REnemy $ damage 10
-          , To Self $ hide 1 [ Alternate "Assault Blade"
-                                         "Three Treasure Suction Crush"
-                             , Alternate "Ten Puppets Collection"
-                                         "Lion Roar Sealing"
-                             ]
-          ]
+          [ To REnemy $ damage 10 ]
         }
       , Skill.new
         { Skill.name      = "Lion Roar Sealing"

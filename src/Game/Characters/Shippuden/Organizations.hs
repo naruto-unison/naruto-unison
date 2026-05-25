@@ -22,19 +22,15 @@ characters =
         , Skill.dur       = Passive
         , Skill.start     =
           [ To Self do
-                defend Permanent 45
+                defend' Permanent 45 [ Alternate "Susanoo"
+                                                 "Tsukumo"
+                                     ]
                 onBreak do
                     remove "Susanoo"
-                    remove "susanoo"
                     cancelChannel
           ]
         , Skill.effects   =
-          [ To Self do
-                addStack
-                hide 1 [ Alternate "Susanoo"
-                                   "Tsukumo"
-                       ]
-          ]
+          [ To Self addStack ]
         }
       , Skill.new
         { Skill.name      = "Tsukumo"

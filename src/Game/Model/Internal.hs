@@ -163,18 +163,20 @@ instance Labeled Delay where
 
 -- | Destructible barrier or defense.
 data Destructible = Destructible
-    { amount :: Int
-    , user   :: Slot
-    , skill  :: Skill
-    , dur    :: Duration
+    { amount  :: Int
+    , user    :: Slot
+    , skill   :: Skill
+    , dur     :: Duration
+    , effects :: [Effect]
     }
 
 instance ToJSON Destructible where
-    toJSON Destructible{amount, user, skill, dur} = object
-        [ "amount" .= amount
-        , "user"   .= user
-        , "skill"  .= skill
-        , "dur"    .= dur
+    toJSON Destructible{amount, user, skill, dur, effects} = object
+        [ "amount"  .= amount
+        , "user"    .= user
+        , "skill"   .= skill
+        , "dur"     .= dur
+        , "effects" .= effects
         ]
 
 instance Classed Destructible where

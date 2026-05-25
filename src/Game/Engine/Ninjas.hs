@@ -144,10 +144,12 @@ apply n nt fs = adjustEffect <$> filter keepEffects fs
 -- | Fills 'N.effects' with the effects of 'N.statuses', modified by
 -- 'NoIgnore', 'Seal', 'Boost', and so on.
 processEffects :: Ninja -> Ninja
-processEffects n@Ninja{slot = nSlot, statuses = baseStatuses} =
-    n { N.effects = process =<< baseStatuses }
+processEffects n@Ninja{slot = nSlot, barrier, defense, statuses = baseStatuses} =
+    n { N.effects = (process =<< baseStatuses) ++ filter allow destEffects }
   where
-    unmodEffects  = Status.effects =<< baseStatuses
+    destEffects   = Destructible.effects =<< barrier ++ defense
+    unmodEffects  = (Status.effects =<< baseStatuses)
+                 ++ destEffects
     noIgnore      = NoIgnore ∈ unmodEffects
     baseEffects
       | noIgnore  = filter (not . Effect.isIgnore) unmodEffects
@@ -169,11 +171,11 @@ processEffects n@Ninja{slot = nSlot, statuses = baseStatuses} =
           | user == nSlot = effects
           | enraged       = filter Effect.bypassEnrage effects
           | otherwise     = effects
-        allow (Reduce _ _ x) = x <= 0 || enraged || not (Expose ∈ baseEffects)
-        allow (Bleed _ _ x)  = x >= 0 || enraged || not (Expose ∈ baseEffects)
-        allow (Effect.isDisable -> True) = sealed || not (Focus ∈ baseEffects)
-        allow (Effect.isIgnore -> True) = not noIgnore
-        allow _ = True
+    allow (Reduce _ _ x) = x <= 0 || enraged || not (Expose ∈ baseEffects)
+    allow (Bleed _ _ x)  = x >= 0 || enraged || not (Expose ∈ baseEffects)
+    allow (Effect.isDisable -> True) = sealed || not (Focus ∈ baseEffects)
+    allow (Effect.isIgnore -> True) = not noIgnore
+    allow _ = True
 
 -- | Alters 'statuses' and then calls 'processEffects'.
 modifyStatuses :: ([Status] -> [Status]) -> Ninja -> Ninja
@@ -232,17 +234,21 @@ addOwnStacks dur name s alt i n@Ninja{slot, character = Character{skills = sk}}
             , Status.amount  = i
             }
 
+checkEffects :: [Effect] -> Ninja -> Ninja
+checkEffects [] n = n
+checkEffects _ n = processEffects n
+
 addBarrier :: Destructible -> Ninja -> Ninja
-addBarrier b@Destructible{amount} n = case amount `compare` 0 of
+addBarrier b@Destructible{amount, effects} n = case amount `compare` 0 of
     LT -> n { N.defense = Classed.nonStack (Destructible.negate b) $ N.defense n }
     EQ -> n
-    GT -> n { N.barrier = Classed.nonStack b $ N.barrier n }
+    GT -> checkEffects effects n { N.barrier = Classed.nonStack b $ N.barrier n }
 
 addDefense :: Destructible -> Ninja -> Ninja
-addDefense b@Destructible{amount} n = case amount `compare` 0 of
+addDefense b@Destructible{amount, effects} n = case amount `compare` 0 of
     LT -> n { N.barrier = Classed.nonStack (Destructible.negate b) $ N.barrier n }
     EQ -> n
-    GT -> n { N.defense = Classed.nonStack b $ N.defense n }
+    GT -> checkEffects effects n { N.defense = Classed.nonStack b $ N.defense n }
 
 increaseDefense :: Int -- ^ 'Destructible.amount'.
            -> Text -- ^ 'Destructible.name'.
@@ -256,7 +262,7 @@ increaseDefense amount name user n =
 removeDefense :: Text -- ^ 'Destructible.name'.
               -> Slot -- ^ 'Destructible.user'.
               -> Ninja -> Ninja
-removeDefense name user n =
+removeDefense name user n = processEffects
     n { N.defense = filter (not . Labeled.match name user) $ N.defense n }
 
 -- | Deletes matching 'statuses'.

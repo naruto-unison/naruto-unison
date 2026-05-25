@@ -1,7 +1,7 @@
 -- | Actions that characters can use to affect @Trap@s.
 module Game.Action.Trap
   ( trap, trap', trapFrom, trapFrom', trapPer, trapPer', trapWith
-  , onBreak, endBroken
+  , onBreak
   , removeTrap
   , delay
   ) where
@@ -65,17 +65,6 @@ onBreak f = do
         f
         Context{user = user'} <- P.context
         P.modify user' . Ninjas.clearTraps $ OnBreak name
-
--- | Default 'onBreak': remove 'Model.Status.Status'es and
--- 'Model.Channel.Channel's that match 'Destructible.name'. This is useful for
--- 'Destructible's that apply an effect or empower some action while active.
-endBroken :: ∀ m. MonadPlay m => m ()
-endBroken = do
-    Context{user, skill = Skill{name}} <- P.context
-    P.modify user $ Ninjas.cancelChannel name
-    P.modifyAll $ Ninjas.clearTrap name user
-                . Ninjas.clear name user
-                . Ninjas.clear (toLower name) user
 
 -- | Adds a @Trap@ to 'N.traps'.
 trapConst :: ∀ m. MonadPlay m

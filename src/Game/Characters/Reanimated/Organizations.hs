@@ -657,13 +657,8 @@ characters =
         , Skill.dur        = Ongoing 3
         , Skill.start      =
           [ To Enemies do
-                barricade 3 25
+                barricade' 3 25 [ Silence ]
                 delay -3 $ damage =<< target barrierAmount "Deva Path"
-          ]
-        , Skill.effects    =
-          [ To Self $ targeting Enemies $
-                whenM (target has' barrier "Deva Path") $
-                    apply 1 [ Silence ]
           ]
         }
       ]

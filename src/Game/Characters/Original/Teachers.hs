@@ -482,16 +482,8 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6
-        , Skill.dur       = Passive
-        , Skill.start     =
-          [ To Ally do
-                defend 4 50
-                onBreak do
-                    remove "Flak Jacket"
-                    cancelChannel
-          ]
         , Skill.effects   =
-          [ To Ally $ apply 1 [ Enrage ] ]
+          [ To Ally $ defend' 4 50 [ Enrage ] ]
         }
       ]
     , [ invuln "Teleport" "Baki" [Chakra] ]

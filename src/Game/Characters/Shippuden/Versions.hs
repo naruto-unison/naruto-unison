@@ -142,16 +142,8 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 4
-        , Skill.dur       = Passive
-        , Skill.start     =
-          [ To Self do
-                defend 3 50
-                onBreak do
-                    remove "Mother's Embrace"
-                    cancelChannel
-          ]
         , Skill.effects   =
-          [ To Self $ apply 1 [ Enrage ] ]
+          [ To Self $ defend' 3 50 [ Enrage ] ]
         }
       ]
     , [ Skill.new
@@ -680,23 +672,19 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.cost      = [Tai, Rand, Rand]
         , Skill.cooldown  = 5
-        , Skill.dur       = Passive
-        , Skill.start     =
+        , Skill.effects   =
           [ To Self do
                 cancelChannel' "Flamethrower Jets"
                 targeting Everyone do
                     remove "Flame Blast"
                     remove "Flamethrower Jets"
-                defend Permanent 50
+                defend' Permanent 50 [ Alternate "Performance of a Hundred Puppets"
+                                                 "Barrage of a Hundred Puppets"
+                                     ]
                 onBreak do
                     remove "performance of a hundred puppets"
                     cancelChannel
           , To XAllies $ defend Permanent 25
-          ]
-        , Skill.effects   =
-          [ To Self $ hide 1 [ Alternate "Performance of a Hundred Puppets"
-                                          "Barrage of a Hundred Puppets"
-                             ]
           ]
         }
       , Skill.new

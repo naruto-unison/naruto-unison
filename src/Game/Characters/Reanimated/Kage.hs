@@ -208,13 +208,7 @@ characters =
           [ To Enemies do
                 damage 10
                 bonus <- 5 `bonusIf` target has' barrier "Gold Dust Waterfall"
-                barricade Permanent $ 10 + bonus
-                apply Permanent [ Exhaust [All] ]
-                trap' Permanent (OnBreak "Magnet Technique") do
-                    removeStack "Magnet Technique"
-                    remainingStacks <- target numStacks "Magnet Technique"
-                    when (remainingStacks == 0) $
-                        removeTrap "Magnet Technique"
+                barricade' Permanent (10 + bonus) [ Exhaust [All] ]
           ]
         }
       ]
@@ -241,7 +235,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ trap 1 (Countered All) do
                 bonus <- 10 `bonusIf` target has' barrier "Gold Dust Waterfall"
-                barricade Permanent $ 20 + bonus
+                barricade Permanent (20 + bonus)
           ]
         }
       ]

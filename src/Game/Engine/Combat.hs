@@ -118,8 +118,9 @@ attack atk dmg = void $ runMaybeT do
     if atk > Attack.Afflict && nTarget `is` DamageToDefense then
         let damageDefense = Destructible { user
                                          , skill
-                                         , amount = dmgCalc
-                                         , dur    = Permanent
+                                         , amount  = dmgCalc
+                                         , dur     = Permanent
+                                         , effects = []
                                          }
         in
         P.modify target \n -> n { N.defense = damageDefense : N.defense n }
@@ -128,13 +129,16 @@ attack atk dmg = void $ runMaybeT do
         P.modify target $ Ninjas.adjustHealth (- dmgCalc)
 
     else do
-        P.modify user \n -> n { N.barrier = remaining fromBarrier }
-        let setDefense n = n { N.defense = remaining fromDefense }
+        let setBarrier n = refreshEffects fromBarrier
+                           n { N.barrier = remaining fromBarrier }
+            setDefense n = refreshEffects fromDefense
+                           n { N.defense = remaining fromDefense }
+        P.modify user setBarrier
         if atk == Attack.Demolish || overflow fromDefense <= 0 then
             P.modify target setDefense
         else
-            P.modify target $ Ninjas.adjustHealth (- overflow fromDefense)
-                . setDefense
+            P.modify target
+                $ Ninjas.adjustHealth (- overflow fromDefense) . setDefense
 
     damaged <- (N.health nTarget -) . N.health <$> P.nTarget
 
@@ -147,6 +151,9 @@ attack atk dmg = void $ runMaybeT do
         P.modify target $ Traps.track PerDamaged damaged
 
   where
+    refreshEffects destructibles n
+      | all (null . Destructible.effects) $ broken destructibles = n
+      | otherwise = Ninjas.processEffects n
     isChanneled Context{continues, new} = continues && not new
     atkClass
       | atk == Attack.Afflict = Affliction

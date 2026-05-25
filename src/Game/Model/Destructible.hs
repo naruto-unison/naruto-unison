@@ -6,4 +6,4 @@ module Game.Model.Destructible
 import Game.Model.Internal (Destructible(..))
 
 negate :: Destructible -> Destructible
-negate b@Destructible{amount} = b { amount = -amount }
+negate b@Destructible{amount} = b { amount = -amount, effects = [] }
