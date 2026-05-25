@@ -56,7 +56,7 @@ spec = parallel do
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 10
             it "deals bonus damage per target health lost" do
-                damage $ 20 * 2
+                damage (20 * 2)
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20 * 2 + 10 + 2 * 10

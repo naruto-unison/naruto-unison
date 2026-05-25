@@ -142,12 +142,16 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 4
-        , Skill.effects   =
+        , Skill.dur       = Passive
+        , Skill.start     =
           [ To Self do
-                apply 3 [ Enrage ]
-                defend 3 =<< build 50
-                onBreak endBroken
+                defend 3 50
+                onBreak do
+                    remove "Mother's Embrace"
+                    cancelChannel
           ]
+        , Skill.effects   =
+          [ To Self $ apply 1 [ Enrage ] ]
         }
       ]
     , [ Skill.new
@@ -245,13 +249,18 @@ characters =
         , Skill.require   = UserDefense 0 "Salamander Shield"
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.cooldown  = 5
-        , Skill.effects   =
+        , Skill.dur       = Passive
+        , Skill.start     =
           [ To Self do
-                defend Permanent =<< build 40
-                onBreak endBroken
-          , To XAllies do
+                defend Permanent 40
+                onBreak do
+                    targeting XAllies $ remove "Salamander Shield"
+                    cancelChannel
+          ]
+        , Skill.effects   =
+          [ To XAllies do
                 userSlot <- user slot
-                apply Permanent [ Redirect userSlot ]
+                apply 1 [ Redirect userSlot ]
           ]
         }
       ]
@@ -528,7 +537,7 @@ characters =
                 damage (15 * stacks)
           , To Self do
                 remove "Blazing Arrow"
-                cancelChannel "Blazing Arrow"
+                cancelChannel
                 reset "Blazing Arrow"
           ]
         , Skill.interrupt  =
@@ -641,7 +650,7 @@ characters =
                 apply 1 [ Enrage ]
                 whenM (channeling "Flamethrower Jets") $
                     trap' 1 (OnAction All) do
-                        cancelChannel "Flamethrower Jets"
+                        cancelChannel
                         targeting Everyone do
                             remove "Flame Blast"
                             remove "Flamethrower Jets"
@@ -671,19 +680,23 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.cost      = [Tai, Rand, Rand]
         , Skill.cooldown  = 5
-        , Skill.effects   =
+        , Skill.dur       = Passive
+        , Skill.start     =
           [ To Self do
-                cancelChannel "Flamethrower Jets"
+                cancelChannel' "Flamethrower Jets"
                 targeting Everyone do
                     remove "Flame Blast"
                     remove "Flamethrower Jets"
-                hide Permanent [ Alternate "Performance of a Hundred Puppets"
-                                           "Barrage of a Hundred Puppets"
-                               ]
-                defend Permanent =<< build 50
-                onBreak $ targeting Self $
+                defend Permanent 50
+                onBreak do
                     remove "performance of a hundred puppets"
-          , To XAllies $ defend Permanent =<< build 25
+                    cancelChannel
+          , To XAllies $ defend Permanent 25
+          ]
+        , Skill.effects   =
+          [ To Self $ hide 1 [ Alternate "Performance of a Hundred Puppets"
+                                          "Barrage of a Hundred Puppets"
+                             ]
           ]
         }
       , Skill.new
@@ -696,7 +709,7 @@ characters =
                 damage 30
                 bomb' "Complex Toxin" 2 [] [ To Expire $ apply 1 [Stun All] ]
           , To Self do
-                cancelChannel "Flamethrower Jets"
+                cancelChannel' "Flamethrower Jets"
                 targeting Everyone do
                     remove "Flame Blast"
                     remove "Flamethrower Jets"

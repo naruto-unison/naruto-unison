@@ -44,13 +44,18 @@ characters =
         , Skill.dur       = Passive
         , Skill.start     =
           [ To Self do
-                defend Permanent =<< build 70
-                onBreak endBroken
+                defend Permanent 70
+                onBreak do
+                    remove "susanoo"
+                    remove "Susanoo"
+                    cancelChannel
           ]
         , Skill.effects   =
-          [ To Self $ apply Permanent [ Alternate "Susanoo"
-                                                  "Armored Susanoo Assault"
-                                      ]
+          [ To Self do
+                hide 1 [ Alternate "Susanoo"
+                                   "Armored Susanoo Assault"
+                       ]
+                addStack' "Susanoo"
           ]
         }
       , Skill.new
@@ -135,7 +140,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                defend 3 =<< build 35
+                defend 3 35
                 apply 3 [ Alternate "C1: Bird Bomb"
                                     "C2: Dragon Missile"
                         , Alternate "C2: Clay Dragon"
@@ -195,7 +200,7 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
-          [ To Self $ defend Permanent =<< build 15 ]
+          [ To Self $ defend Permanent 15 ]
         , Skill.effects   =
           [ To Self $ apply' "Iron Sand" Permanent
                         [ Alternate "Kazekage Puppet Summoning"
@@ -223,11 +228,11 @@ characters =
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
-        , Skill.dur       = Action 2
+        , Skill.dur       = Passive
         , Skill.start     =
           [ To Self do
-                defend 2 =<< build 20
-                onBreak endBroken
+                defend 2 20
+                onBreak cancelChannel
           ]
         , Skill.effects   =
           [ To Enemy do
@@ -486,7 +491,7 @@ characters =
                     pierce (5 + bonus)
                     targeting Self $ removeStack "Hundred Hungry Sharks"
           , To Self $ unlessM (user has "Hundred Hungry Sharks") do
-                cancelChannel "Thousand Hungry Sharks"
+                cancelChannel
                 targeting Everyone do
                     remove "ignored"
                     remove "Thousand Hungry Sharks"
@@ -502,7 +507,7 @@ characters =
                 stacks <- user numStacks "Hundred Hungry Sharks"
                 pierce (5 * stacks)
           , To Self do
-                cancelChannel "Thousand Hungry Sharks"
+                cancelChannel' "Thousand Hungry Sharks"
                 remove "Hundred Hungry Sharks"
                 targeting Everyone do
                     remove "ignored"
@@ -581,7 +586,7 @@ characters =
           [ To Self $ sacrifice 0 10 ]
         , Skill.effects   =
           [ To Self do
-                defend Permanent =<< build 5
+                defend Permanent 5
                 hide 1 [ Alternate "Susanoo"
                                    "Susanoo"
                        , Alternate "Amaterasu"
@@ -598,8 +603,8 @@ characters =
         , Skill.classes   = [Chakra]
         , Skill.effects   =
           [ To Self do
-                cancelChannel "Susanoo"
-                decreaseDefense "Susanoo"
+                cancelChannel
+                removeDefense "Susanoo"
           ]
         }
       ]
@@ -663,10 +668,10 @@ characters =
         , Skill.classes   = [Chakra]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
-          [ To Self $ cancelChannel "Black Zetsu" ]
+          [ To Self $ cancelChannel' "Black Zetsu" ]
         , Skill.effects   =
           [ To Self do
-                defend Permanent =<< build 5
+                defend Permanent 5
                 hide 1 [ Alternate "White Zetsu"
                                    "Black Zetsu"
                        , Alternate "Black Zetsu"
@@ -683,7 +688,7 @@ characters =
         , Skill.classes   = [Chakra]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
-          [ To Self $ cancelChannel "White Zetsu" ]
+          [ To Self $ cancelChannel' "White Zetsu" ]
         , Skill.effects   =
           [ To Self do
                 hide 1 [ Alternate "Black Zetsu"
@@ -704,7 +709,7 @@ characters =
         , Skill.classes   = [Chakra]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
-          [ To Self $ cancelChannel "White Zetsu" ]
+          [ To Self $ cancelChannel' "White Zetsu" ]
         , Skill.effects   =
           [ To Self do
                 hide 1 [ Alternate "Black Zetsu"
@@ -918,14 +923,24 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
-        , Skill.effects   =
+        , Skill.dur       = Passive
+        , Skill.start     =
           [ To Enemy do
                 pierce 15
-                barricade Permanent
-                    . setWhile (do
-                        notStunned <- target has "chakra receiver"
-                        if notStunned then apply 1 [Stun All] else hide 1 [])
-                    =<< build 10
+                barricade Permanent 15
+                onBreak do
+                    remove "chakra receiver"
+                    remove "Chakra Receiver"
+                    cancelChannel
+          ]
+        , Skill.effects   =
+          [ To Self $ targeting Enemies $
+                whenM (target has' barrier "Chakra Receiver") do
+                    notStunned <- target has "chakra receiver"
+                    if notStunned then
+                        apply 1 [Stun All]
+                    else
+                        hide 1 []
           ]
         }
       ]
@@ -935,14 +950,17 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.cooldown  = 3
+        , Skill.dur       = Ongoing 3
+        , Skill.start     =
+          [ To Enemy do
+                barricade 3 80
+                delay -3 $
+                    damage =<< target barrierAmount "Planetary Devastation"
+          ]
         , Skill.effects   =
-          [ To Enemy $
-                barricade 3
-                    . setWhile (apply 1 [ Alone
-                                        , Invulnerable All
-                                        ])
-                    . setFinish damage
-                    =<< build 80
+          [ To Self $ targeting Enemy $ apply 1 [ Alone
+                                                , Invulnerable All
+                                                ]
           ]
         }
       ]
@@ -1015,7 +1033,7 @@ characters =
                 damage 25
           , To REnemy $ damage 25
           , To Self do
-                cancelChannel "Guided Missile"
+                cancelChannel' "Guided Missile"
                 targeting Everyone $ remove "Guided Missile"
           ]
         }
@@ -1030,7 +1048,7 @@ characters =
                 apply 2 [ Expose ]
                 damage 25
           , To Self do
-                cancelChannel "Guided Missile"
+                cancelChannel' "Guided Missile"
                 targeting Everyone $ remove "Guided Missile"
           ]
         }
@@ -1045,7 +1063,7 @@ characters =
                 damage 25
                 apply 1 [ Stun All ]
           , To Self do
-                cancelChannel "Guided Missile"
+                cancelChannel' "Guided Missile"
                 targeting Everyone $ remove "Guided Missile"
           ]
         }
@@ -1058,7 +1076,7 @@ characters =
         , Skill.effects   =
           [ To Enemies $ pierce 30
           , To Self do
-                cancelChannel "Guided Missile"
+                cancelChannel' "Guided Missile"
                 targeting Everyone $ remove "Guided Missile"
           ]
         }
@@ -1170,7 +1188,7 @@ characters =
         , Skill.dur       = Ongoing 2
         , Skill.start     =
           [ To Ally do
-                defend Permanent =<< build 20
+                defend Permanent 20
                 apply 1 [ Invulnerable All ]
           ]
         }
@@ -1258,13 +1276,18 @@ characters =
         , Skill.classes   = [Summon]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
-        , Skill.effects   =
+        , Skill.dur       = Passive
+        , Skill.start     =
           [ To Self do
-                hide Permanent [ Alternate "Summoning: King of Hell"
-                                           "Energy Transfer"
-                               ]
-                defend Permanent =<< build 20
-                onBreak endBroken
+                defend Permanent 20
+                onBreak do
+                    remove "summoning: king of hell"
+                    cancelChannel
+          ]
+        , Skill.effects   =
+          [ To Self $ hide 1 [ Alternate "Summoning: King of Hell"
+                                         "Energy Transfer"
+                             ]
           ]
         }
       , Skill.new

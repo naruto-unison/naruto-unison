@@ -5,7 +5,7 @@ module Game.Action.Combat
     afflict, pierce, damage, demolish, demolishAll
     -- * Defending
   , build
-  , defend, increaseDefense, decreaseDefense
+  , defend, increaseDefense, removeDefense
   , barricade
     -- * Healing
   , heal, setHealth
@@ -18,8 +18,10 @@ module Game.Action.Combat
 
 import ClassyPrelude
 
+import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
+import           Class.Random (MonadRandom)
 import qualified Game.Engine.Combat as Combat
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
@@ -42,29 +44,33 @@ import           Game.Model.Trigger (Trigger(..))
 
 -- | Deals damage that ignores 'Reduce' effects, 'N.barrier',
 -- and 'N.defense'.
-afflict :: ∀ m. MonadPlay m => Int -> m ()
+afflict :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 afflict = Combat.attack Attack.Afflict
 
 -- | Deals damage that ignores 'Reduce' effects.
-pierce :: ∀ m. MonadPlay m => Int -> m ()
+pierce :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 pierce = Combat.attack Attack.Pierce
 
 -- | Deals damage.
-damage :: ∀ m. MonadPlay m => Int -> m ()
+damage :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 damage = Combat.attack Attack.Damage
 
 -- | Deals damage to the user's 'N.barrier' and the target's 'N.defense'
 -- without affecting the target's 'N.health'.
-demolish :: ∀ m. MonadPlay m => Int -> m ()
+demolish :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 demolish = Combat.attack Attack.Demolish
 
 -- | Removes all 'N.barrier' from the user and 'N.defense' from the
 -- target.
-demolishAll :: ∀ m. MonadPlay m => m ()
+demolishAll :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 demolishAll = do
     Context{target, user} <- P.context
+    barrier <- N.barrier <$> P.nUser
+    defense <- N.defense <$> P.nTarget
     P.modify user   \n -> n { N.barrier = [] }
     P.modify target \n -> n { N.defense = [] }
+    P.trigger user $ OnBreak . Labeled.name <$> barrier
+    P.trigger target $ OnBreak . Labeled.name <$> defense
 
 -- | Adds an amount to a 'Destructible' 'N.defense' that the target already has.
 -- If the target does not have any 'N.defense' with a matching
@@ -76,36 +82,43 @@ increaseDefense name amount = P.unsilenced . P.fromUser
 
 -- | Clears all 'Destructible' 'N.defense' with matching name and user.
 -- Uses 'Ninjas.decreaseDefense' internally.
-decreaseDefense :: ∀ m. MonadPlay m => Text -> m ()
-decreaseDefense name = P.unsilenced . P.fromUser $ Ninjas.decreaseDefense name
+removeDefense :: ∀ m. MonadPlay m => Text -> m ()
+removeDefense name = P.unsilenced do
+    P.fromUser $ Ninjas.removeDefense name
+    Context{user} <- P.context
+    P.trigger user [OnBreak name]
 
 -- | Adds new 'Destructible' 'N.barrier'.
 -- Destructible barrier acts as an extra bar in front of the 'N.health'
 -- of a 'Ninja'. All attacks except for 'afflict' attacks must damage and
 -- destroy the user's 'N.barrier' before they can damage the target.
 -- Destructible barrier can be temporary or permanent.
-barricade :: ∀ m. MonadPlay m => Duration -> Destructible -> m ()
-barricade dur barrier = do
+barricade :: ∀ m. MonadPlay m => Duration -> Int -> m ()
+barricade dur amount = do
     Context{target} <- P.context
-    P.modify target $ Ninjas.addBarrier $ Destructible.setDur dur barrier
+    P.modify target . Ninjas.addBarrier =<< build dur amount
 
 -- | Adds new 'Destructible' 'N.defense'.
 -- Destructible defense acts as an extra bar in front of the 'N.health'
 -- of a 'Ninja'. All attacks except for 'afflict' attacks must damage and
 -- destroy the target's 'N.defense' before they can damage the target.
 -- Destructible defense can be temporary or permanent.
-defend :: ∀ m. MonadPlay m => Duration -> Destructible -> m ()
-defend dur defense@Destructible{amount} = do
+defend :: ∀ m. MonadPlay m => Duration -> Int -> m ()
+defend dur amount = do
     Context{target, user} <- P.context
     when (amount > 0) $
         P.trigger user [OnDefend]
-    P.modify target $ Ninjas.addDefense $ Destructible.setDur dur defense
+    P.modify target . Ninjas.addDefense =<< build dur amount
 
-build :: ∀ m. MonadPlay m => Int -> m Destructible
-build amount = create <$> P.context <*> P.nUser
+build :: ∀ m. MonadPlay m => Duration -> Int -> m Destructible
+build dur amount = create <$> P.context <*> P.nUser
   where
-    create context n = Destructible.new context Permanent
-                     $ amount + Effects.build n
+    create Context{skill, user} n = Destructible
+        { user
+        , skill
+        , dur
+        , amount = amount + Effects.build n
+        }
 
 -- | Kills the target if their health is below a threshold.
 -- The target can survive if it has the 'Endure' effect.
@@ -179,11 +192,11 @@ heal hp = P.unsilenced do
 -- retargeted toward the user. Typically paired with @'heal'@ to effectively
 -- drain the target's 'N.health' into that of the user.
 -- Uses 'afflict' internally.
-leech :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
+leech :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> (Int -> m ()) -> m ()
 leech hp f = leech' hp $ P.with Context.reflect . f
 
 -- | Like @'leech'@, but does not retarget the effect toward the user.
-leech' :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
+leech' :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> (Int -> m ()) -> m ()
 leech' hp f = do
     Context{target, user, skill = Skill{classes}} <- P.context
     hpBefore <- N.health <$> P.nTarget

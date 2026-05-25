@@ -9,8 +9,10 @@ import ClassyPrelude
 import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Enum.Set (EnumSet)
 
+import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
+import           Class.Random (MonadRandom)
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
@@ -21,6 +23,7 @@ import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Destructible (Destructible(Destructible))
 import qualified Game.Model.Destructible as Destructible
+import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Amount(..), Effect(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
@@ -28,19 +31,20 @@ import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
 
--- | Reduces incoming damage by depleting the user's 'N.barrier'.
-absorbBarrier :: Int -> [Destructible] -> (Int, [Destructible])
-absorbBarrier hp [] = (hp, [])
-absorbBarrier hp (x@Destructible{amount}:xs)
-  | amount <= hp = absorbBarrier (hp - amount) xs
-  | otherwise    = (0, x { Destructible.amount = amount - hp } : xs)
+data DamageAbsorb = DamageAbsorb
+    { broken    :: [Destructible]
+    , overflow  :: Int
+    , remaining :: [Destructible]
+    }
 
--- | Reduces incoming damage by depleting the target's 'N.defense'.
-absorbDefense :: Int -> [Destructible] -> (Int, [Destructible])
-absorbDefense hp [] = (hp, [])
-absorbDefense hp (x@Destructible{amount}:xs)
-  | amount <= hp = absorbDefense (hp - amount) xs
-  | otherwise    = (0, x { Destructible.amount = amount - hp } : xs)
+absorbDamage :: Int -> [Destructible] -> DamageAbsorb
+absorbDamage damage destructible = absorb $ DamageAbsorb [] damage destructible
+  where
+    absorb d@(DamageAbsorb _ _ []) = d
+    absorb (DamageAbsorb broken dmg (x@Destructible{amount}:xs))
+      | amount > dmg = DamageAbsorb broken 0 (damaged:xs)
+      | otherwise    = absorb $ DamageAbsorb (damaged:broken) (dmg - amount) xs
+      where damaged = x { Destructible.amount = max 0 $ amount - dmg }
 
 userAdjust :: Attack -> EnumSet Class -> Ninja -> Float -> Float
 userAdjust atk classes nUser x = x
@@ -90,7 +94,7 @@ formula atk classes nUser nTarget = limit . round
 -- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce',
 -- 'Attack.Damage', or 'Attack.Demolish' attack.
 -- Uses 'Ninjas.adjustHealth' internally.
-attack :: ∀ m. MonadPlay m => Attack -> Int -> m ()
+attack :: ∀ m. (MonadPlay m, MonadRandom m) => Attack -> Int -> m ()
 attack atk dmg = void $ runMaybeT do
     nTarget <- P.nTarget
     guard . not $ nTarget `is` Invulnerable atkClass
@@ -98,20 +102,25 @@ attack atk dmg = void $ runMaybeT do
     channeled <- isChanneled <$> P.context
     guard . not $ channeled && nTarget `is` AntiChannel
 
-    context@Context{target, user, skill = Skill{classes}} <- P.context
+    Context{target, user, skill = skill@Skill{classes}} <- P.context
     nUser <- P.nUser
-    let classes'            = insertSet atkClass classes
-        dmgCalc             = formula atk classes' nUser nTarget dmg
-        (dmg'Destructible, barr) = absorbBarrier dmgCalc $ N.barrier nUser
-        handleDefense
-          | nTarget `is` Undefend = (,)
-          | otherwise             = absorbDefense
-        (dmg'Def, defense) = handleDefense dmg'Destructible $ N.defense nTarget
+    let classes'    = insertSet atkClass classes
+        dmgCalc     = formula atk classes' nUser nTarget dmg
+        fromBarrier = absorbDamage dmgCalc $ N.barrier nUser
+        fromDefense
+          | nTarget `is` Undefend = DamageAbsorb [] (overflow fromBarrier)
+                                  $ N.defense nTarget
+          | otherwise             = absorbDamage (overflow fromBarrier)
+                                  $ N.defense nTarget
 
     guard $ dmgCalc > Effects.threshold nTarget -- Always 0 or higher
 
     if atk > Attack.Afflict && nTarget `is` DamageToDefense then
-        let damageDefense = Destructible.new context 0 dmgCalc
+        let damageDefense = Destructible { user
+                                         , skill
+                                         , amount = dmgCalc
+                                         , dur    = Permanent
+                                         }
         in
         P.modify target \n -> n { N.defense = damageDefense : N.defense n }
 
@@ -119,14 +128,19 @@ attack atk dmg = void $ runMaybeT do
         P.modify target $ Ninjas.adjustHealth (- dmgCalc)
 
     else do
-        P.modify user \n -> n { N.barrier = barr }
-        if atk == Attack.Demolish || dmg'Def <= 0 then
-            P.modify target \n -> n { N.defense = defense }
+        P.modify user \n -> n { N.barrier = remaining fromBarrier }
+        let setDefense n = n { N.defense = remaining fromDefense }
+        if atk == Attack.Demolish || overflow fromDefense <= 0 then
+            P.modify target setDefense
         else
-            P.modify target $ Ninjas.adjustHealth (- dmg'Def) . \n ->
-                n { N.defense = defense }
+            P.modify target $ Ninjas.adjustHealth (- overflow fromDefense)
+                . setDefense
 
     damaged <- (N.health nTarget -) . N.health <$> P.nTarget
+
+    P.trigger user $ OnBreak . Labeled.name <$> broken fromBarrier
+    P.trigger target $ OnBreak . Labeled.name <$> broken fromDefense
+
     when (damaged > 0) do
         P.trigger user [OnDamage]
         P.trigger target $ OnDamaged <$> toList classes'

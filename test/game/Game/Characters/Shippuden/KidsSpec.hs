@@ -367,7 +367,7 @@ spec = parallel do
 
         useOn Enemy "Full Power of Youth" do
             it "damages target per health lost" do
-                Sim.as Enemy $ damage $ 30 * testStacks
+                Sim.as Enemy $ damage (30 * testStacks)
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 20 + 20 * testStacks

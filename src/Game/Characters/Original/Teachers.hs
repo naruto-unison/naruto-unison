@@ -282,7 +282,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 stacks <- user numStacks "Illusion"
-                defend Permanent =<< build (10 + 5 * stacks)
+                defend Permanent (10 + 5 * stacks)
                 remove "Illusion"
           ]
         }
@@ -482,12 +482,16 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6
-        , Skill.effects   =
+        , Skill.dur       = Passive
+        , Skill.start     =
           [ To Ally do
-                apply 4 [ Enrage ]
-                defend 4 =<< build 50
-                onBreak endBroken
+                defend 4 50
+                onBreak do
+                    remove "Flak Jacket"
+                    cancelChannel
           ]
+        , Skill.effects   =
+          [ To Ally $ apply 1 [ Enrage ] ]
         }
       ]
     , [ invuln "Teleport" "Baki" [Chakra] ]

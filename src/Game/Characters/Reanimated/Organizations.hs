@@ -68,20 +68,23 @@ characters =
         , Skill.classes   = [Summon, Soulbound]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
+        , Skill.dur       = Passive
+        , Skill.start     =
+          [ To Self do
+                removeStacks "Scattered Rock" 2
+                defend 2 35
+                onBreak do
+                    targeting Enemies $ remove "Rivalry"
+                    cancelChannel
+          ]
         , Skill.effects   =
           [ To Self do
                 userSlot <- user slot
                 targeting Enemies do
-                    remove "Rivalry"
-                    apply' "Rivalry" 2 [ Taunt userSlot ]
-                removeStacks "Scattered Rock" 2
-                defend 2 =<< build 35
-                trapFrom 2 (OnHarmed All) do
+                    apply' "Rivalry" 1 [ Taunt userSlot ]
+                trapFrom 1 (OnHarmed All) do
                     leech 20 heal
                     targeting Self $ tag' "Earth Dome Prison" 1
-                onBreak $ targeting Everyone do
-                    remove "Rivalry"
-                    removeTrap "Summoning: Earth Prison Golem"
           ]
         }
       ]
@@ -178,12 +181,12 @@ characters =
         , Skill.cooldown  = 6
         , Skill.dur       = Ongoing 3
         , Skill.start     =
-          [ To Self $ defend Permanent =<< build 20 ]
+          [ To Self $ defend Permanent 20 ]
         , Skill.effects   =
           [ To Self $ whenM (user has' defense "Crystal Ice Mirrors") $
                 trapPer -1 PerDamaged \i ->
                     unlessM (user has' defense "Crystal Ice Mirrors") $
-                        defend Permanent =<< build i
+                        defend Permanent i
           ]
         }
       ]
@@ -219,7 +222,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ leech 10 \i -> defend Permanent =<< build i
+          [ To Enemy $ leech 10 $ defend Permanent
           , To Self $ prolongChannel 1 "Demon Shroud"
           ]
         }
@@ -385,7 +388,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                defend Permanent =<< build 10
+                defend Permanent 10
                 recharge "Splatter"
                 tag 1
           ]
@@ -651,9 +654,16 @@ characters =
         , Skill.classes    = [Physical, Ranged]
         , Skill.cost       = [Blood, Gen, Tai]
         , Skill.cooldown   = 3
+        , Skill.dur        = Ongoing 3
+        , Skill.start      =
+          [ To Enemies do
+                barricade 3 25
+                delay -3 $ damage =<< target barrierAmount "Deva Path"
+          ]
         , Skill.effects    =
-          [ To Enemies $
-                barricade 3 =<< build 25
+          [ To Self $ targeting Enemies $
+                whenM (target has' barrier "Deva Path") $
+                    apply 1 [ Silence ]
           ]
         }
       ]
@@ -686,7 +696,7 @@ characters =
                 leech 20 if defended then
                     increaseDefense "Naraka Path"
                 else
-                    \i -> defend Permanent =<< build i
+                    defend Permanent
           ]
         }
       ]

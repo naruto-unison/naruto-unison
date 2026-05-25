@@ -8,7 +8,6 @@ import ClassyPrelude
 
 import Data.Enum.Set (EnumSet)
 
-import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Play as P
@@ -22,30 +21,26 @@ import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Player as Player
+import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈))
 
--- | Removes some number of 'Chakra's from the target's team.
+-- | Removes some number of 'Chakra's from the opponent's team.
 -- 'Chakra's are chosen randomly from the available pool of 'Game.chakra'.
 -- Removed 'Chakra's are collected into a 'Chakras' object and returned.
 remove :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m Chakras
-remove amount = do
-    Context{target, user} <- P.context
-    P.trigger user [OnChakra]
-    removeFrom target amount
-
--- | 'removeChakra' with a specified target.
-removeFrom :: ∀ m p. (MonadGame m, MonadRandom m, Parity p)
-           => p -> Int -> m Chakras
-removeFrom target amount
+remove amount
   | amount <= 0 = return mempty
-  | otherwise   = do
-      Game{chakra} <- P.game
-      let chakras = fromList . toList . removeRandoms
-                  $ Parity.getOf target chakra
-      removed <- fromList . toList . take amount <$> R.shuffle chakras
-      P.alter $ Game.removeChakra target removed
-      return removed
+  | otherwise = do
+        Context{user} <- P.context
+        P.trigger user [OnChakra]
+        let opponent = 1 + Slot.toInt user
+        Game{chakra} <- P.game
+        let chakras = fromList . toList . removeRandoms
+                    $ Parity.getOf opponent chakra
+        removed <- fromList . toList . take amount <$> R.shuffle chakras
+        P.alter $ Game.removeChakra opponent removed
+        return removed
   where
     removeRandoms x = x { Chakras.rand = 0 }
 

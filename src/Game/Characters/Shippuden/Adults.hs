@@ -87,7 +87,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ damage 25
           , To Self do
-                defend Permanent =<< build 40
+                defend Permanent 40
                 apply 1 [ Alternate "Thousand Hand Strike"
                                     "Kannon Strike"
                         ]
@@ -136,7 +136,7 @@ characters =
                 stacks <- target numStacks "Burning Ash"
                 afflict (10 * stacks)
           , To Self do
-                cancelChannel "Burning Ash"
+                cancelChannel' "Burning Ash"
                 targeting Everyone $ remove "Burning Ash"
           ]
         }
@@ -314,22 +314,17 @@ characters =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 5
-        , Skill.dur       = Action Permanent
+        , Skill.dur       = Passive
         , Skill.start     =
           [ To Self do
-                defend Permanent =<< build 50
-                onBreak endBroken
+                defend Permanent 50
+                onBreak do
+                    remove "ten puppets collection"
+                    cancelChannel
           ]
         , Skill.effects   =
           [ To REnemy $ damage 10
           , To Self $ hide 1 [ Alternate "Assault Blade"
-                                         "Three Treasure Suction Crush"
-                             , Alternate "Ten Puppets Collection"
-                                         "Lion Roar Sealing"
-                             ]
-          ]
-        , Skill.stunned   =
-          [ To Self $ hide 1 [ Alternate "Assault Blade"
                                          "Three Treasure Suction Crush"
                              , Alternate "Ten Puppets Collection"
                                          "Lion Roar Sealing"

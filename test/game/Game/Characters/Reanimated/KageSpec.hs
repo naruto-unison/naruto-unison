@@ -104,14 +104,14 @@ spec = parallel do
         useOn Enemies "Magnet Technique" do
             it "adds bonus barrier if target has Gold Dust Waterfall" do
                 Sim.act
-                targetBarrier <- target totalBarrier
+                amount <- target totalBarrier
                 factory
                 targeting Self factory
                 Sim.use "Gold Dust Waterfall"
-                targetBarrier' <- target totalBarrier
+                amount' <- target totalBarrier
                 Sim.act
-                targetBarrier'' <- target totalBarrier
-                targetBarrier'' - targetBarrier' - targetBarrier `shouldBe` 5
+                amount'' <- target totalBarrier
+                amount'' - amount' - amount `shouldBe` 5
 
         useOn Enemies "24-Karat Barricade" do
             it "counters with barrier" do
@@ -119,8 +119,8 @@ spec = parallel do
                 Sim.as Enemy demolishAll
                 Sim.act
                 Sim.as Enemy $ return ()
-                targetBarrier <- target totalBarrier
-                targetBarrier `shouldBe` 20
+                amount <- target totalBarrier
+                amount `shouldBe` 20
             it "adds bonus barrier if target has Gold Dust Waterfall" do
                 Sim.use "Gold Dust Waterfall"
                 targetBarrier <- target totalBarrier
@@ -202,6 +202,25 @@ spec = parallel do
                 targetHealth - targetHealth' `shouldBe` 10
 
     describeCharacter "Gengetsu Hōzuki" do
+        useOn RAlly "Major Summoning: Giant Clam" do
+            it "defends a random ally on its first turn" do
+                Sim.act
+                damage 30
+                amount <- target defenseAmount "Major Summoning: Giant Clam"
+                amount `shouldBe` 50
+            it "defends a random ally each turn" do
+                Sim.act
+                Sim.as Enemy $ targeting Enemies $ damage 30
+                Sim.turns 2
+                amount <- target defenseAmount "Major Summoning: Giant Clam"
+                amount `shouldBe` 80
+            it "cancels if the entire defense is broken" do
+                Sim.act
+                Sim.as Enemy $ targeting Enemies $ damage 90
+                Sim.turns 2
+                amount <- target defenseAmount "Major Summoning: Giant Clam"
+                amount `shouldBe` 0
+
         useOn Enemy "Water Pistol" do
             it "deals bonus damage during Major Summoning: Giant Clam" do
                 Sim.act

@@ -3,9 +3,9 @@ module Game.Model.Ninja
   , numSkills
   , alive, minHealth
   , is, isChanneling
-  , has, has', hasDefense, hasOwn
+  , has, has', hasBarrier, hasDefense, hasOwn
   , numActive, numStacks, numHelpful, numHarmful
-  , defenseAmount, totalDefense, totalBarrier
+  , barrierAmount, defenseAmount, totalDefense, totalBarrier
   , lastChakraSpent
   , baseSkill
   ) where
@@ -88,6 +88,12 @@ has :: Text -- ^ 'Status.name'.
     -> Ninja -> Bool
 has = has' statuses
 
+-- | Searches 'barrier'.
+hasBarrier :: Text -- ^ 'Destructible.name'.
+           -> Slot -- ^ 'Destructible.user'.
+           -> Ninja -> Bool
+hasBarrier = has' barrier
+
 -- | Searches 'defense'.
 hasDefense :: Text -- ^ 'Destructible.name'.
            -> Slot -- ^ 'Destructible.user'.
@@ -104,13 +110,26 @@ hasOwn' getter name n@Ninja{slot} = has' getter name slot n
 hasOwn :: Text -> Ninja -> Bool
 hasOwn = hasOwn' statuses
 
+-- | Sums 'Destructible.amount' of all matching 'barrier' or 'defense'.
+destructibleAmount :: (Ninja -> [Destructible]) -- ^ Getter.
+                   -> Text -- ^ 'Destructible.name'.
+                   -> Slot -- ^ 'Destructible.user'.
+                   -> Ninja -> Int
+destructibleAmount getter name user n = sum
+    [amount | d@Destructible{amount} <- getter n
+            , Labeled.match name user d]
+
+-- | Sums 'Destructible.amount' of all matching 'barrier'.
+barrierAmount :: Text -- ^ 'Destructible.name'.
+              -> Slot -- ^ 'Destructible.user'.
+              -> Ninja -> Int
+barrierAmount = destructibleAmount barrier
+
 -- | Sums 'Destructible.amount' of all matching 'defense'.
 defenseAmount :: Text -- ^ 'Destructible.name'.
               -> Slot -- ^ 'Destructible.user'.
               -> Ninja -> Int
-defenseAmount name user Ninja{defense} = sum
-    [amount | d@Destructible{amount} <- defense
-            , Labeled.match name user d]
+defenseAmount = destructibleAmount defense
 
 -- | Chakra spent on 'lastSkill'.
 lastChakraSpent :: Ninja -> Chakras

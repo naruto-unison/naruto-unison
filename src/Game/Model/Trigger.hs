@@ -3,6 +3,7 @@ module Game.Model.Trigger
   ( Trigger(..)
   , affectsDead
   , isCounter
+  , isSingleUse
   ) where
 
 import ClassyPrelude
@@ -103,3 +104,9 @@ isCounter Counter{}    = True
 isCounter CounterAll{} = True
 isCounter Countered{}  = True
 isCounter _            = False
+
+isSingleUse :: Trigger -> Bool
+isSingleUse Counter{} = True
+isSingleUse OnBreak{} = True
+isSingleUse OnRes{}   = True
+isSingleUse _         = False

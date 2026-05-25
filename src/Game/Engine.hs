@@ -36,8 +36,6 @@ import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Delay as Delay
-import           Game.Model.Destructible (Destructible(Destructible))
-import qualified Game.Model.Destructible as Destructible
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
@@ -46,7 +44,6 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import           Game.Model.Runnable (Runnable(To))
-import qualified Game.Model.Runnable as Runnable
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
@@ -82,9 +79,9 @@ processTurn runner = do
     mapM_ Action.act channels
     Traps.runTurn initial
     doBombs Remove initial
-    doBarriers
     doDelays
     doDeaths
+    Traps.runExpirations
     expired <- P.ninjas
     P.modifyAll Ninjas.decr
     doBombs Expire expired
@@ -140,33 +137,6 @@ doBombs bomb ninjas = zipWithM_ comp ninjas =<< P.ninjas
           | N.alive n' = N.statuses
           | otherwise  = filter ((Necromancy ∈) . Status.classes)
                        . N.statuses
-
--- | Executes 'Destructible.while' and 'Destructible.finish' effects.
-doBarriers :: ∀ m. (MonadGame m, MonadRandom m) => m ()
-doBarriers = do
-    Game{playing = player} <- P.game
-    ninjas <- P.ninjas
-    mapM_ (doNinjaBarriers player) ninjas
-  where
-    collect barriers = head
-                       <$> (groupBy Labeled.eq $ sortWith Labeled.name barriers)
-    doNinjaBarriers p Ninja{barrier, defense, slot} =
-        mapM_ (doBarrier p slot) $ collect barrier ++ collect defense
-
-doBarrier :: ∀ m. (MonadGame m, MonadRandom m) => Player -> Slot -> Destructible -> m ()
-doBarrier _ target b@Destructible{amount, skill, user, finish = Just finish}
-  | TurnBased.expiring b = P.launch $
-                           Runnable.retarget (const ctx) $ finish amount
-  where
-    ctx = Context { user, skill, target, new = False, continues = True }
-
-doBarrier p target Destructible{user, skill, while = Just while}
-  | Parity.allied p user = P.launch $
-                           Runnable.retarget (const ctx) while
-  where
-    ctx = Context { user, skill, target, new = False, continues = True }
-
-doBarrier _ _ _ = return ()
 
 -- | Executes 'Trigger.death'.
 doDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()

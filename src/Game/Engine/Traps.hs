@@ -3,22 +3,19 @@ module Game.Engine.Traps
   ( run
   , track
     -- Performing 'Trap.Trap's
-  , runTurn
+  , runTurn, runExpirations
     -- Collecting 'Trap.Trap's
-  , get, getOf
-  , broken
+  , runTriggers, getOf
   , apply
   ) where
 
 import ClassyPrelude hiding ((\\), toList)
 
-import Data.List ((\\), nub)
 import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Enum.Set (EnumSet)
 
 import           Class.Hook (MonadHook)
 import qualified Class.Hook as Hook
-import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
@@ -76,13 +73,14 @@ getOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
 getOf user trigger Ninja{traps} = run user
     <$> filter ((== trigger) . Trap.trigger) traps
 
-get :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
-    => Slot -> Ninja -> [m ()]
-get user n@Ninja{traps, triggers}
-  | N.alive n = hooks : (run user <$> traps')
-  | otherwise = []
+runTriggers :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+    => Slot -> Ninja -> m ()
+runTriggers user n@Ninja{traps, triggers}
+  | not $ N.alive n = return ()
+  | otherwise       = do
+        mapM_ (`Hook.trigger` n) triggers
+        mapM_ (run user) traps'
   where
-      hooks = mapM_ (`Hook.trigger` n) triggers
       traps' = filter ((∈ triggers) . Trap.trigger) traps
 
 -- | Adds a value to 'Trap.tracker' of 'N.traps' with a certain @Trigger@.
@@ -93,17 +91,6 @@ track trigger amount n = n { N.traps = tracked <$> N.traps n }
       | Trap.trigger trap == trigger =
           trap { Trap.tracker = amount + Trap.tracker trap }
       | otherwise = trap
-
--- | 'OnBreak' effects of 'N.defense' removed during a turn.
-broken :: Ninja -- ^ Old.
-       -> Ninja -- ^ New.
-       -> Ninja
-broken n n' =
-    n' { N.triggers = foldl' (flip insertSet) (N.triggers n') triggers }
-  where
-    triggers = OnBreak
-        <$> nub (Labeled.name <$> N.defense n)
-            \\ nub (Labeled.name <$> N.defense n')
 
 -- | Conditionally returns 'Trap.Trap's that accept a numeric value.
 getPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
@@ -147,6 +134,17 @@ runTurn ninjas = do
     ninjas' <- P.ninjas
     mapM_ sequence_ $ zipWith (getTurnPer player) ninjas ninjas'
     mapM_ sequence_ $ getTurnNot <$> Parity.half player ninjas'
+
+runExpirations :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
+runExpirations = mapM_ expire =<< P.ninjas
+  where
+    expire n@Ninja{slot, traps}
+      | null yays = return ()
+      | otherwise = do
+            P.modify slot \n' -> n' { N.traps = nays }
+            mapM_ (run slot) yays
+      where
+        (yays, nays) = partition (Trap.isExpiring n) traps
 
 -- | Trap engine.
 apply :: ∀ m. MonadPlay m

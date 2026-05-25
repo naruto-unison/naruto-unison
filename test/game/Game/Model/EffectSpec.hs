@@ -138,23 +138,23 @@ spec = parallel do
     describe "Build" do
         prop "adds to barrier" \i (NonNegative hp) ->
             simEffects [ Build i ] [] Ally do
-                barricade Permanent =<< build hp
+                barricade Permanent hp
                 if i + hp >= 0 then do
-                    targetBarrier <- target totalBarrier
-                    return $ targetBarrier === i + hp
+                    amount <- target totalBarrier
+                    return $ amount === i + hp
                 else do
-                    targetDefense <- target totalDefense
-                    return $ targetDefense === negate (i + hp)
+                    amount <- target totalDefense
+                    return $ amount === negate (i + hp)
 
         prop "adds to defense" \i (NonNegative hp) ->
             simEffects [ Build i ] [] Ally do
-                defend Permanent =<< build hp
+                defend Permanent hp
                 if i + hp >= 0 then do
-                    targetDefense <- target totalDefense
-                    return $ targetDefense === i + hp
+                    amount <- target totalDefense
+                    return $ amount === i + hp
                 else do
-                    targetBarrier <- target totalBarrier
-                    return $ targetBarrier === negate (i + hp)
+                    amount <- target totalBarrier
+                    return $ amount === negate (i + hp)
 
     describe "Bypass" do
         it "makes all skills bypass" $ simAt Enemy do
@@ -424,7 +424,7 @@ spec = parallel do
     describe "Undefend" do
         it "ignores own defense" $ simAt Enemy do
             apply Permanent [ Undefend ]
-            defend Permanent =<< build 100
+            defend Permanent 100
             damage 1
             targetHealth <- target health
             return $ 100 - targetHealth `shouldBe` 1

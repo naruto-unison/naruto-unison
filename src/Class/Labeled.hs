@@ -1,11 +1,12 @@
 module Class.Labeled
   ( Labeled(..)
   , eq
+  , group
   , match
   , mapFirst
   ) where
 
-import ClassyPrelude
+import ClassyPrelude hiding (group)
 
 import Game.Model.Slot (Slot)
 
@@ -23,6 +24,12 @@ class Labeled a where
 eq :: ∀ a. Labeled a => a -> a -> Bool
 eq x y = name x == name y && user x == user y
 {-# INLINABLE eq #-}
+
+group :: ∀ o. (IsSequence o, Labeled (Element o)) => o -> [NonEmpty (Element o)]
+group xs = groupBy eq . toList $ sortBy cmp xs
+  where
+    x `cmp` y = (name x `compare` name y) <> (user x `compare` user y)
+{-# INLINABLE group #-}
 
 -- Matching by both fields.
 match :: ∀ a. Labeled a => Text -> Slot -> a -> Bool

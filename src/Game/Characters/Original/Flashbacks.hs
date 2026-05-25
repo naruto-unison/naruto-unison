@@ -182,8 +182,9 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Action 2
         , Skill.effects   =
-          [ To Self $ apply 1 [ Invulnerable Chakra ]
-          , To REnemy $ absorb 1
+          [ To Self do
+                apply 1 [ Invulnerable Chakra ]
+                absorb 1
           ]
         , Skill.changes   = changeWith "Veritable 1000-Armed Kannon" $
                             setCost [Blood] . extendBy 1
@@ -211,7 +212,7 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Allies $ defend Permanent =<< build 30
+          [ To Allies $ defend Permanent 30
           , To Self $ tag 3
           ]
         }

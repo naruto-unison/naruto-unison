@@ -26,11 +26,10 @@ import Game.Model.Chakras as Import (Chakra(..), Chakras, chakraDesc)
 import Game.Model.Channel as Import (Channeling(..))
 import Game.Model.Character as Import (Character(..), Category(..))
 import Game.Model.Class as Import (Class(..))
-import Game.Model.Destructible as Import (setFinish, setWhile)
 import Game.Model.Duration as Import (Duration(..))
 import Game.Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
 import Game.Model.Group as Import (Group(..))
-import Game.Model.Ninja as Import (Ninja(barrier, defense, health, slot, statuses, traps), alive, defenseAmount, has, has', is, lastChakraSpent, numActive, numHelpful, numSkills, numStacks)
+import Game.Model.Ninja as Import (Ninja(barrier, defense, health, slot, statuses, traps), alive, barrierAmount, defenseAmount, has, has', is, lastChakraSpent, numActive, numHelpful, numSkills, numStacks)
 import Game.Model.Requirement as Import (Requirement(..))
 import Game.Model.Runnable as Import (IntRunConstraint, RunConstraint, Runnable(To))
 import Game.Model.Skill as Import (Target(..))
@@ -82,6 +81,27 @@ bonusIf amount condition = getBonus <$> condition
     getBonus True  = amount
     getBonus False = 0
 
+-- | True if user 'N.isChanneling'.
+channeling :: ∀ m. MonadPlay m => Text -> m Bool
+channeling name = N.isChanneling name <$> P.nUser
+
+-- | True if 'N.character' has a 'Group'.
+inGroup :: Group -> Ninja -> Bool
+inGroup x n = x ∈ Character.groups (N.character n)
+
+-- | Number of users affected by a 'Model.Game.Status.Status'.
+numAffected :: ∀ m. MonadPlay m => Text -> m Int
+numAffected name = getNumAffected <$> userSlot <*> P.ninjas
+  where
+    getNumAffected :: Slot -> [Ninja] -> Int
+    getNumAffected slot ninjas = length $ filter (N.has name slot) ninjas
+
+-- | Number of user's allies who are dead.
+numDeadAllies :: ∀ m. MonadPlay m => m Int
+numDeadAllies = do
+    slot <- userSlot
+    length . filter (not.alive) <$> P.allies slot
+
 class NinjaGetter (m :: Type -> Type) a where
     type Getter (m :: Type -> Type) a
     target :: a -> Getter m a
@@ -106,24 +126,3 @@ instance MonadPlay m => NinjaGetter m ((Ninja -> [b]) -> Text -> Slot -> Ninja -
     type Getter m ((Ninja -> [b]) -> Text -> Slot -> Ninja -> a) = (Ninja -> [b]) -> Text -> m a
     target f getter name = f getter name <$> userSlot <*> P.nTarget
     user   f getter name = f getter name <$> userSlot <*> P.nUser
-
--- | True if user 'N.isChanneling'.
-channeling :: ∀ m. MonadPlay m => Text -> m Bool
-channeling name = N.isChanneling name <$> P.nUser
-
--- | True if 'N.character' has a 'Group'.
-inGroup :: Group -> Ninja -> Bool
-inGroup x n = x ∈ Character.groups (N.character n)
-
--- | Number of users affected by a 'Model.Game.Status.Status'.
-numAffected :: ∀ m. MonadPlay m => Text -> m Int
-numAffected name = getNumAffected <$> userSlot <*> P.ninjas
-  where
-    getNumAffected :: Slot -> [Ninja] -> Int
-    getNumAffected slot ninjas = length $ filter (N.has name slot) ninjas
-
--- | Number of user's allies who are dead.
-numDeadAllies :: ∀ m. MonadPlay m => m Int
-numDeadAllies = do
-    slot <- userSlot
-    length . filter (not.alive) <$> P.allies slot

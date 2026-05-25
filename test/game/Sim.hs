@@ -136,8 +136,17 @@ createContext simUser f Context{target, user, skill = Skill{classes}} = Context
   where
     removeClasses = setFromList
                     [Bypassing, Uncounterable, Unreflectable, Unremovable]
+    randomAlly
+      | simUser >= targetSlot Enemy = REnemy
+      | otherwise                   = RAlly
+    randomEnemy
+      | simUser >= targetSlot Enemy = RAlly
+      | otherwise                   = REnemy
     effects
         | target == simUser && user == simUser = [To Self f]
+        | target == targetSlot RAlly           = [To randomAlly f]
+        | target == targetSlot RXAlly          = [To randomAlly f]
+        | target == targetSlot REnemy          = [To randomEnemy f]
         | otherwise                            = [To XAlly f, To Enemy f]
 
 simOf :: ∀ a. Wrapper -> Target -> ReaderT Context (StateT Wrapper Identity) a

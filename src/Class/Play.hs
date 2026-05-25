@@ -18,12 +18,9 @@ module Class.Play
   , toTarget, fromUser
   -- * Other
   , trigger
-  , zipWith
   ) where
 
 import ClassyPrelude hiding (zipWith)
-
-import Control.Monad (zipWithM_)
 
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
@@ -38,7 +35,6 @@ import           Game.Model.Runnable (Runnable(To))
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill
 import           Game.Model.Slot (Slot)
-import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger(..))
 
 -- | Alters the focus of the environment to a new @Context@.
@@ -104,9 +100,6 @@ fromUser :: ∀ m. MonadPlay m => (Slot -> Ninja -> Ninja) -> m ()
 fromUser f = do
     Context{target, user} <- context
     modify target $ f user
-
-zipWith :: ∀ m. (MonadGame m) => (Ninja -> Ninja -> Ninja) -> [Ninja] -> m ()
-zipWith f = zipWithM_ (\i -> modify i . f) Slot.all
 
 -- | Adds to 'N.triggers' if 'Context.user' is not 'Context.target' and
 -- 'Context.new' is @True@.

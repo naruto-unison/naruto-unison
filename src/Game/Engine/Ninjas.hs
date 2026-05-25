@@ -21,7 +21,7 @@ module Game.Engine.Ninjas
   , addBarrier
   , addDefense
   , increaseDefense
-  , decreaseDefense
+  , removeDefense
 
   , clear
   , clearTrap
@@ -253,10 +253,10 @@ increaseDefense amount name user n =
   where
     addAmount x = x { Destructible.amount = amount + Destructible.amount x }
 
-decreaseDefense :: Text -- ^ 'Destructible.name'.
+removeDefense :: Text -- ^ 'Destructible.name'.
               -> Slot -- ^ 'Destructible.user'.
               -> Ninja -> Ninja
-decreaseDefense name user n =
+removeDefense name user n =
     n { N.defense = filter (not . Labeled.match name user) $ N.defense n }
 
 -- | Deletes matching 'statuses'.

@@ -143,7 +143,7 @@ characters =
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To Self $ defend 1 =<< build 20
+          , To Self $ defend 1 20
           ]
         }
       ]
@@ -659,7 +659,7 @@ characters =
           [ To Enemy do
                 dead       <- numDeadAllies
                 userHealth <- user health
-                damage $ 20 + 20 * dead + 20 * ((100 - userHealth) `quot` 30)
+                damage (20 + 20 * dead + 20 * ((100 - userHealth) `quot` 30))
           ]
         }
       ]
@@ -718,7 +718,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ defend Permanent =<< build 20 ]
+          [ To Allies $ defend Permanent 20 ]
         }
       , Skill.new
         { Skill.name      = "Scroll of Wind"
@@ -736,7 +736,7 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.effects   =
           [ To Self do
-                defend Permanent =<< build 5
+                defend Permanent 5
                 setAlternates [1, 1, 1]
           ]
         }
@@ -746,7 +746,7 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.effects   =
           [ To Self do
-                defend Permanent =<< build 5
+                defend Permanent 5
                 setAlternates [2, 2, 2]
           ]
         }
@@ -756,7 +756,7 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.effects   =
           [ To Self do
-                defend Permanent =<< build 5
+                defend Permanent 5
                 setAlternates [0, 0, 0]
           ]
         }
@@ -864,7 +864,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.charges   = 2
         , Skill.effects   =
-          [ To XAllies $ defend Permanent =<< build 15
+          [ To XAllies $ defend Permanent 15
           , To Self $ apply Permanent [ Strengthen [All] Percent 200
                                       , Reduce [All] Flat 10
                                       ]

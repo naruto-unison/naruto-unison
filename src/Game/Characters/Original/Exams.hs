@@ -152,7 +152,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                defend 3 =<< build 30
+                defend 3 30
                 apply 3 [ Invulnerable Mental
                         , Invulnerable Physical
                         , Invulnerable Summon
@@ -435,7 +435,7 @@ characters =
         , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self $ defend Permanent =<< build 15
+          [ To Self $ defend Permanent 15
           , To Enemies do
                 damage 20
                 apply 1 [ Stun All ]

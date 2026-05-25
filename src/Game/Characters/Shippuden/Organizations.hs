@@ -22,13 +22,18 @@ characters =
         , Skill.dur       = Passive
         , Skill.start     =
           [ To Self do
-                defend Permanent =<< build 45
-                onBreak endBroken
+                defend Permanent 45
+                onBreak do
+                    remove "Susanoo"
+                    remove "susanoo"
+                    cancelChannel
           ]
         , Skill.effects   =
-          [ To Self $ apply Permanent [ Alternate "Susanoo"
-                                                  "Tsukumo"
-                                      ]
+          [ To Self do
+                addStack
+                hide 1 [ Alternate "Susanoo"
+                                   "Tsukumo"
+                       ]
           ]
         }
       , Skill.new
@@ -120,7 +125,7 @@ characters =
                 trapFrom 1 (Counter NonMental) $
                     damage 20
                 trap 1 (Counter NonMental) do
-                    defend Permanent =<< build 20
+                    defend Permanent 20
                     targeting Self $ recharge "Tenth Edict on Enlightenment"
           ]
         }
@@ -133,8 +138,8 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self $ recharge "Tenth Edict on Enlightenment"
-          , To XAlly $ targeting Allies $ defend Permanent =<< build 20
-          , To Enemy $ targeting Enemies $ barricade Permanent =<< build 20
+          , To XAlly $ targeting Allies $ defend Permanent 20
+          , To Enemy $ targeting Enemies $ barricade Permanent 20
           ]
         }
       ]
@@ -149,12 +154,13 @@ characters =
         , Skill.desc      = "Torune applies a Venom Beetle to an enemy, dealing 5 affliction damage for 5 turns, and gains 15 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs [r] but does not provide any destructible defense."
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood]
-        , Skill.cooldown  = Permanent
         , Skill.effects   =
           [ To Enemy $ apply' "Venom Beetle" 5 [ Afflict 5 ]
           , To Self do
-                defend Permanent =<< build 15
-                onBreak $ addStack' "Venom Beetle"
+                defend Permanent 15
+                trapFrom' Permanent (OnBreak "Nano-Sized Venom Beetles") do
+                    addStack' "Venom Beetle"
+                    removeTrap "Nano-Sized Venom Beetles"
           ]
         , Skill.changes   = changeWithDefense "Nano-Sized Venom Beetles" \x -> x
                 { Skill.cost    = [Rand]
@@ -171,8 +177,10 @@ characters =
         , Skill.effects   =
           [ To Enemies $ apply' "Venom Beetle" 5 [Afflict 5]
           , To Self do
-                defend Permanent =<< build 30
-                onBreak $ addStack' "Venom Beetle"
+                defend Permanent 30
+                trapFrom' Permanent (OnBreak "Jar of Poison") do
+                    addStack' "Venom Beetle"
+                    removeTrap "Jar of Poison"
           ]
         , Skill.changes   = changeWithDefense "Jar of Poison" \x -> x
                 { Skill.cost    = [Rand, Rand]
@@ -287,12 +295,12 @@ characters =
                     replaceWith rewind
                     removeStacks "Sharingan" 2
                     unlessM (user has "Sharingan") do
-                        cancelChannel "Izanagi"
+                        cancelChannel
                         hide Permanent [ Alternate "Izanagi"
                                                    "Reverse Tetragram Sealing"
                                        ]
                 else do
-                    cancelChannel "Izanagi"
+                    cancelChannel
                     hide Permanent [ Alternate "Izanagi"
                                                "Reverse Tetragram Sealing"
                                    ]
@@ -375,7 +383,7 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Self $ defend 1 =<< build 10
+          [ To Self $ defend 1 10
           , To Enemy $ damage 20
           ]
         }
@@ -403,7 +411,7 @@ characters =
           [ To Self do
                 apply 1 [Invulnerable Mental, Face]
                 gain [Rand]
-                defend Permanent =<< build 10
+                defend Permanent 10
           ]
         , Skill.stunned   =
           [ To Self $ apply 1 [ Face ] ]
@@ -499,7 +507,7 @@ characters =
         , Skill.effects   =
           [ To XAlly do
                 heal 20
-                defend Permanent =<< build 20
+                defend Permanent 20
           , To Self $ apply 4 [ Snare 1 ]
           ]
         }

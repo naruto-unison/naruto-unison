@@ -71,7 +71,6 @@ wrap' affected f = void $ runMaybeT do
     Context{new, target, user, skill = skill@Skill{classes}} <- P.context
     nUser   <- P.nUser
     nTarget <- P.nTarget
-    ninjas  <- P.ninjas
 
     guard $ Bypassing ∈ classes || not (nTarget `is` Nullify)
 
@@ -111,8 +110,6 @@ wrap' affected f = void $ runMaybeT do
                   P.trigger target [OnReflect]
                   P.with Context.reflect
                     $ wrap' (insertSet Reflected affected) f
-
-    P.zipWith Traps.broken ninjas
 
 -- | Transforms @Target@s into @Slot@s.
 -- 'REnemy', 'RAlly', and 'RXAlly' targets are chosen at random.
@@ -279,7 +276,7 @@ act ctx@Context{user, new, skill} = void $ runMaybeT do
             Game{chakra = chakra'} <- P.game
             Hook.chakra skill chakra chakra'
 
-        mapM_ (sequence_ . Traps.get user) =<< P.ninjas
+        mapM_ (Traps.runTriggers user) =<< P.ninjas
 
         P.modifyAll $ unreflect . \n -> n { N.triggers = mempty }
         breakControls

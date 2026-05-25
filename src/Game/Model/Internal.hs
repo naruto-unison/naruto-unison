@@ -166,8 +166,6 @@ data Destructible = Destructible
     { amount :: Int
     , user   :: Slot
     , skill  :: Skill
-    , while  :: Maybe (Runnable ())
-    , finish :: Maybe (Int -> Runnable ())
     , dur    :: Duration
     }
 

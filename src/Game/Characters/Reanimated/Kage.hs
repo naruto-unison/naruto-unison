@@ -22,7 +22,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies $ damage 10
-          , To Allies $ defend Permanent =<< build 5
+          , To Allies $ defend Permanent 5
           ]
         , Skill.changes   = changeWith "Deep Forest Creation" $ setCooldown 0
         }
@@ -66,7 +66,7 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Allies do
-                defend Permanent =<< build 30
+                defend Permanent 30
                 resetAll
           ]
         }
@@ -208,9 +208,13 @@ characters =
           [ To Enemies do
                 damage 10
                 bonus <- 5 `bonusIf` target has' barrier "Gold Dust Waterfall"
-                barricade Permanent
-                    . setWhile (apply 1 [ Exhaust [All] ])
-                    =<< build (10 + bonus)
+                barricade Permanent $ 10 + bonus
+                apply Permanent [ Exhaust [All] ]
+                trap' Permanent (OnBreak "Magnet Technique") do
+                    removeStack "Magnet Technique"
+                    remainingStacks <- target numStacks "Magnet Technique"
+                    when (remainingStacks == 0) $
+                        removeTrap "Magnet Technique"
           ]
         }
       ]
@@ -223,7 +227,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 35
-                barricade Permanent =<< build 30
+                barricade Permanent 30
                 tag 1
           ]
         }
@@ -237,7 +241,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ trap 1 (Countered All) do
                 bonus <- 10 `bonusIf` target has' barrier "Gold Dust Waterfall"
-                barricade Permanent =<< build (20 + bonus)
+                barricade Permanent $ 20 + bonus
           ]
         }
       ]
@@ -388,8 +392,11 @@ characters =
         , Skill.effects   =
           [ To RAlly $ apply 1 [ Reflect ]
           , To RAlly do
-                defend 1 =<< build 80
-                onBreak endBroken
+                defend 1 80
+                onBreak do
+                    amount <- target defenseAmount "Major Summoning: Giant Clam"
+                    when (amount == 0)
+                        cancelChannel
           ]
         }
       ]
@@ -462,7 +469,7 @@ characters =
                         remove "Major Summoning: Ibuse"
                         remove "major summoning: ibuse"
                         removeTrap "Major Summoning: Ibuse"
-                        cancelChannel "Poison Fog"
+                        cancelChannel' "Poison Fog"
                         sacrifice 0 (i - stacks)
           ]
         , Skill.changes   = changeWith "Venomc Sac" \x -> x
@@ -514,7 +521,7 @@ characters =
                       remove "Major Summoning Ibuse"
                       remove "major summoning: ibuse"
                       alterCd "Major Summoning: Ibuse" -2
-                      cancelChannel "Poison Fog"
+                      cancelChannel' "Poison Fog"
                   else targeting Self $
                       apply Permanent [Afflict 10]
           ]

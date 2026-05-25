@@ -226,7 +226,7 @@ characters =
                 stacks <- user numStacks "Sensory Radar"
                 gain $ replicate stacks Rand
                 remove "Sensory Radar"
-                cancelChannel "Sensory Radar"
+                cancelChannel' "Sensory Radar"
           ]
         }
       ]
@@ -330,7 +330,7 @@ characters =
           [ To Enemy do
                 damage 5
                 apply 1 [ Weaken [Physical, Chakra, Summon] Flat 10 ]
-          , To Allies $ defend Permanent =<< build 5
+          , To Allies $ defend Permanent 5
           ]
         }
       ]
@@ -342,7 +342,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
         , Skill.effects   =
-          [ To Allies $ defend 1 =<< build 10
+          [ To Allies $ defend 1 10
           , To Enemy do
                 damage 15
                 prolong 1 "Chain Bind"

@@ -154,14 +154,14 @@ spec = parallel do
 
         useOn XEnemies "Three Treasure Suction Crush" do
             it "deals normal damage normally" do
-                defend Permanent =<< build testStacks
+                defend Permanent testStacks
                 Sim.act
                 targetHealth <- target health
                 100 - targetHealth `shouldBe` 30 - testStacks
             it "deals affliction damage if target has Lion Roar Sealing" do
                 Sim.use "Ten Puppets Collection"
                 setHealth 100
-                defend Permanent =<< build testStacks
+                defend Permanent testStacks
                 Sim.use "Lion Roar Sealing"
                 Sim.act
                 targetHealth <- target health

@@ -146,7 +146,7 @@ characters =
         , Skill.interrupt =
           [ To Self do
                 targeting Everyone $ remove "Scattering Crow Swarm"
-                cancelChannel "Scattering Crow Swarm" -- just in case
+                cancelChannel -- just in case
           ]
         }
       ]
@@ -230,7 +230,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ trap 3 OnHarm $
                 pierce 25
-          , To Self $ defend Permanent =<< build 30
+          , To Self $ defend Permanent 30
           ]
         }
       ]
@@ -243,7 +243,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ trap 3 OnNoAction $
                 pierce 25
-          , To Self $ defend Permanent =<< build 30
+          , To Self $ defend Permanent 30
           ]
         }
       ]
@@ -274,7 +274,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Self do
-                defend 1 =<< build 20
+                defend 1 20
                 addStack
           ]
         }
@@ -354,7 +354,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                defend Permanent =<< build 20
+                defend Permanent 20
                 gain [Tai]
           ]
         }
@@ -606,13 +606,13 @@ characters =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 6
-        , Skill.dur       = Action 3
+        , Skill.dur       = Passive
         , Skill.start     =
-          [ To Allies $ defend 3 =<< build 5
-          , To Self $ onBreak endBroken
+          [ To Allies $ defend 3 5
+          , To Self $ onBreak cancelChannel
           ]
         , Skill.effects   =
-          [ To REnemy $ absorb 1 ]
+          [ To Self $ absorb 1 ]
         }
       ]
     , [ invuln "Terra Shield" "Jirōbō" [Physical] ]

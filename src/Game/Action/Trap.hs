@@ -60,12 +60,11 @@ trapPer' = trapFull Trap.Per $ setFromList [Bypassing, Hidden]
 -- same 'Destructible.name' is broken.
 onBreak :: ∀ m. MonadPlay m => RunConstraint () -> m ()
 onBreak f = do
-    Context{user, skill = Skill{name}} <- P.context
-    whenM (N.hasDefense name user <$> P.nTarget)
-        $ trapFrom' Permanent (OnBreak name) do
-            f
-            Context{user = user'} <- P.context
-            P.modify user' . Ninjas.clearTraps $ OnBreak name
+    Context{skill = Skill{name}} <- P.context
+    trap' Permanent (OnBreak name) do
+        f
+        Context{user = user'} <- P.context
+        P.modify user' . Ninjas.clearTraps $ OnBreak name
 
 -- | Default 'onBreak': remove 'Model.Status.Status'es and
 -- 'Model.Channel.Channel's that match 'Destructible.name'. This is useful for
@@ -74,7 +73,9 @@ endBroken :: ∀ m. MonadPlay m => m ()
 endBroken = do
     Context{user, skill = Skill{name}} <- P.context
     P.modify user $ Ninjas.cancelChannel name
-    P.modifyAll $ Ninjas.clear name user . Ninjas.clear (toLower name) user
+    P.modifyAll $ Ninjas.clearTrap name user
+                . Ninjas.clear name user
+                . Ninjas.clear (toLower name) user
 
 -- | Adds a @Trap@ to 'N.traps'.
 trapConst :: ∀ m. MonadPlay m

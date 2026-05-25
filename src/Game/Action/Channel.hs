@@ -1,6 +1,6 @@
 -- | Actions that characters can use to affect 'Channel's.
 module Game.Action.Channel
-  ( cancelChannel
+  ( cancelChannel, cancelChannel'
   , prolongChannel
   , interrupt
   , renameChannels
@@ -19,11 +19,20 @@ import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
 import           Game.Model.Duration (Duration)
 import qualified Game.Model.Ninja as N
+import           Game.Model.Skill (Skill(Skill))
+import qualified Game.Model.Skill
 
 -- | Cancels 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.cancelChannel' internally.
-cancelChannel :: ∀ m. MonadPlay m => Text -> m ()
-cancelChannel name = do
+cancelChannel :: ∀ m. MonadPlay m => m ()
+cancelChannel = do
+    Context{user, skill = Skill{name}} <- P.context
+    P.modify user $ Ninjas.cancelChannel name
+
+-- | Cancels 'N.channels' with a matching 'Channel.name'.
+-- Uses 'Ninjas.cancelChannel' internally.
+cancelChannel' :: ∀ m. MonadPlay m => Text -> m ()
+cancelChannel' name = do
     Context{user} <- P.context
     P.modify user $ Ninjas.cancelChannel name
 

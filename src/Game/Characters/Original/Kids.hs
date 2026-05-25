@@ -215,7 +215,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ defend Permanent =<< build 20 ]
+          [ To Allies $ defend Permanent 20 ]
         }
       ]
     , [ invuln "Hide" "Shino" [Mental] ]
@@ -248,7 +248,7 @@ characters =
           [ To Enemies do
                 bonus <- 5 `bonusIf` user has "Byakugan"
                 damage (15 + bonus)
-          , To Allies $ defend 1 =<< build 10
+          , To Allies $ defend 1 10
           ]
         }
       ]
@@ -422,7 +422,7 @@ characters =
         , Skill.dur       = Action Permanent
         , Skill.start     =
           [ To Self do
-                cancelChannel "Spinach Pill"
+                cancelChannel' "Spinach Pill"
                 sacrifice 1 15
                 setAlternates [2, 2, 2]
           ]
@@ -482,7 +482,7 @@ characters =
           [ To Self do
                 prepilled <- channeling "Curry Pill"
                 if prepilled then
-                    cancelChannel "Curry Pill"
+                    cancelChannel' "Curry Pill"
                 else
                     sacrifice 1 10
                 setAlternates [3, 3, 3, 1]
@@ -512,7 +512,7 @@ characters =
         , Skill.dur       = Action Permanent
         , Skill.start     =
           [ To Self do
-                cancelChannel "Spinach Pill"
+                cancelChannel' "Spinach Pill"
                 sacrifice 1 5
                 setAlternates [2, 2, 2]
           ]
@@ -764,7 +764,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ defend Permanent =<< build 40 ]
+          [ To Self $ defend Permanent 40 ]
         }
       ]
     , [ invuln "Sand Shield" "Gaara" [Physical] ]
@@ -800,7 +800,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                defend Permanent =<< build 15
+                defend Permanent 15
                 apply 4 [ Strengthen [All] Flat 5 ]
           ]
         }
