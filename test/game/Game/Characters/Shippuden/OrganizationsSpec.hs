@@ -191,21 +191,21 @@ spec = parallel do
                 targetHealth <- target health
                 targetHealth `shouldBe` 100
             it "can be used after Dragon Flame" do
-                apply Permanent [ AntiChannel ]
                 Sim.use "Dragon Flame"
                 Sim.as Enemy $ return ()
+                cancelChannel' "Dragon Flame"
                 setHealth 100
                 Sim.use "Kirin"
                 targetHealth <- target health
                 targetHealth `shouldNotBe` 100
             it "can only be used once after Dragon Flame" do
-                apply Permanent [ AntiChannel ]
                 Sim.use "Dragon Flame"
                 setHealth 100
                 Sim.as Enemy $ return ()
                 Sim.use "Kirin"
                 Sim.as Enemy $ return ()
                 setHealth 100
+                cancelChannel' "Dragon Flame"
                 Sim.use "Kirin"
                 targetHealth <- target health
                 targetHealth `shouldBe` 100

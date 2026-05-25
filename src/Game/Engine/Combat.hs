@@ -12,7 +12,6 @@ import Data.Enum.Set (EnumSet)
 import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
-import           Class.Random (MonadRandom)
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
@@ -94,13 +93,10 @@ formula atk classes nUser nTarget = limit . round
 -- | Internal combat engine. Performs an 'Attack.Afflict', 'Attack.Pierce',
 -- 'Attack.Damage', or 'Attack.Demolish' attack.
 -- Uses 'Ninjas.adjustHealth' internally.
-attack :: ∀ m. (MonadPlay m, MonadRandom m) => Attack -> Int -> m ()
+attack :: ∀ m. MonadPlay m => Attack -> Int -> m ()
 attack atk dmg = void $ runMaybeT do
     nTarget <- P.nTarget
     guard . not $ nTarget `is` Invulnerable atkClass
-
-    channeled <- isChanneled <$> P.context
-    guard . not $ channeled && nTarget `is` AntiChannel
 
     Context{target, user, skill = skill@Skill{classes}} <- P.context
     nUser <- P.nUser
@@ -154,7 +150,6 @@ attack atk dmg = void $ runMaybeT do
     refreshEffects destructibles n
       | all (null . Destructible.effects) $ broken destructibles = n
       | otherwise = Ninjas.processEffects n
-    isChanneled Context{continues, new} = continues && not new
     atkClass
       | atk == Attack.Afflict = Affliction
       | otherwise             = NonAffliction

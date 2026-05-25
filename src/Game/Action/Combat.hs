@@ -21,7 +21,6 @@ import ClassyPrelude
 import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
-import           Class.Random (MonadRandom)
 import qualified Game.Engine.Combat as Combat
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
@@ -44,25 +43,25 @@ import           Game.Model.Trigger (Trigger(..))
 
 -- | Deals damage that ignores 'Reduce' effects, 'N.barrier',
 -- and 'N.defense'.
-afflict :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
+afflict :: ∀ m. MonadPlay m => Int -> m ()
 afflict = Combat.attack Attack.Afflict
 
 -- | Deals damage that ignores 'Reduce' effects.
-pierce :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
+pierce :: ∀ m. MonadPlay m => Int -> m ()
 pierce = Combat.attack Attack.Pierce
 
 -- | Deals damage.
-damage :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
+damage :: ∀ m. MonadPlay m => Int -> m ()
 damage = Combat.attack Attack.Damage
 
 -- | Deals damage to the user's 'N.barrier' and the target's 'N.defense'
 -- without affecting the target's 'N.health'.
-demolish :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
+demolish :: ∀ m. MonadPlay m => Int -> m ()
 demolish = Combat.attack Attack.Demolish
 
 -- | Removes all 'N.barrier' from the user and 'N.defense' from the
 -- target.
-demolishAll :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
+demolishAll :: ∀ m. MonadPlay m => m ()
 demolishAll = do
     Context{target, user} <- P.context
     barrier <- N.barrier <$> P.nUser
@@ -209,11 +208,11 @@ heal hp = P.unsilenced do
 -- retargeted toward the user. Typically paired with @'heal'@ to effectively
 -- drain the target's 'N.health' into that of the user.
 -- Uses 'afflict' internally.
-leech :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> (Int -> m ()) -> m ()
+leech :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
 leech hp f = leech' hp $ P.with Context.reflect . f
 
 -- | Like @'leech'@, but does not retarget the effect toward the user.
-leech' :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> (Int -> m ()) -> m ()
+leech' :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
 leech' hp f = do
     Context{target, user, skill = Skill{classes}} <- P.context
     hpBefore <- N.health <$> P.nTarget

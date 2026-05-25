@@ -12,12 +12,11 @@ spec = parallel do
     describeCharacter "One-Tailed Naruto" do
         useOn Enemy "Tailed Beast Rasengan" do
             it "deals bonus damage during Tailed Beast Chakra Arms" do
-                apply Permanent [ AntiChannel ]
                 Sim.use "Tailed Beast Chakra Arms"
                 setHealth 100
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 35 + 10
+                100 - targetHealth - 15 `shouldBe` 35 + 10
             it "deals less damage during Inner Chakra Mode" do
                 Sim.use "Inner Chakra Mode"
                 Sim.act
@@ -53,12 +52,11 @@ spec = parallel do
 
         useOn Enemy "Unpredictable Assault" do
             it "deals bonus damage during Drunken Fist" do
-                apply Permanent [ AntiChannel ]
                 Sim.use "Drunken Fist"
                 setHealth 100
                 Sim.act
                 targetHealth <- target health
-                100 - targetHealth `shouldBe` 20 + 5
+                100 - targetHealth - 15 `shouldBe` 20 + 5
 
         useOn Enemy "Drunken Counter" do
             it "counters on target" do

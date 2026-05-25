@@ -122,8 +122,8 @@ spec = parallel do
 
         useOn Enemy "Converging Murder" do
             it "damages target per Scattering Crow Swarm" do
-                apply Permanent [ AntiChannel ]
-                replicateM_ testStacks  $ Sim.use "Scattering Crow Swarm"
+                replicateM_ testStacks $ Sim.use "Scattering Crow Swarm"
+                cancelChannel' "Scattering Crow Swarm"
                 setHealth 100
                 Sim.act
                 targetHealth <- target health

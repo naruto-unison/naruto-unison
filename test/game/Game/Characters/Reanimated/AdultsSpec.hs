@@ -19,7 +19,6 @@ spec = parallel do
 
         useOn Enemy "Super Steam Kill" do
             it "damages target" do
-                apply Permanent [ AntiChannel ]
                 Sim.use "Scorch Style"
                 setHealth 100
                 Sim.act

@@ -29,14 +29,11 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 targeting Self factory
-                apply Permanent [ Enrage
-                                , AntiChannel
-                                ]
                 Sim.use "Water Shockwave"
                 setHealth 100
                 Sim.act
                 targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 15
+                targetHealth - targetHealth' - 15 `shouldBe` 15
 
     describeCharacter "Minato Namikaze" do
         useOn Enemies "Space-Time Marking" do

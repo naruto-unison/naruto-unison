@@ -348,12 +348,11 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 targeting Self factory
-                apply Permanent [ AntiChannel ]
                 Sim.use "Dance of the Shikigami"
                 setHealth 100
                 Sim.act
                 targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 5
+                targetHealth - targetHealth' - 15 `shouldBe` 5
 
     describeCharacter "Zetsu" do
         useOn Self "White Zetsu" do

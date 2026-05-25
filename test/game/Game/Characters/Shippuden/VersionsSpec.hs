@@ -173,10 +173,10 @@ spec = parallel do
                 targetHealth <- target health
                 factory
                 targeting Self factory
-                apply Permanent [ AntiChannel ]
                 Sim.use "Sasori Surrogate"
                 Sim.use "Kuroari Trap"
                 Sim.use "Hidden Coil Strike"
+                cancelChannel' "Sasori Surrogate"
                 setHealth 100
                 Sim.act
                 targetHealth' <- target health

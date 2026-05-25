@@ -29,7 +29,6 @@ data Effect
     | Alone                                   -- ^ Cannot be targeted by allies
     | Alternate    Text Text                  -- ^ Modifies a skill to an alternate form
     | AntiCounter                             -- ^ Cannot be countered or reflected
-    | AntiChannel                             -- ^ No damage from non-new channels
     | Bleed        (EnumSet Class) Amount Int -- ^ Adds to damage received
     | Bless        Int                        -- ^ Adds to healing 'Game.Model.Skill.Skill's
     | Block        Slot                       -- ^ Treats user as 'Invulnerable'
@@ -174,7 +173,6 @@ helpful Absorb          = True
 helpful Afflict{}       = False
 helpful Alone           = False
 helpful Alternate{}     = True
-helpful AntiChannel     = True
 helpful AntiCounter     = True
 helpful (Bleed _ _ x)   = x < 0
 helpful Bless{}         = True
@@ -281,9 +279,6 @@ instance Display Effect where
 
     display (Alternate from to) =
         "[" ++ display from ++ "] becomes [" ++ display to ++ "]."
-
-    display AntiChannel =
-        "Ignores damage from skills past their first turn."
 
     display AntiCounter =
         "Cannot be countered or reflected."
