@@ -10,22 +10,28 @@ import Data.Proxy
 import Elm.Module
 import Elm.TyRep
 
-import ElmDerive
+import Elm.Derive hiding (defaultOptions)
 
+import Data.Aeson (defaultOptions)
 import Data.Char (isSpace)
+import Data.Enum.Set (EnumSet)
 import Data.Map.Strict (Map)
 import Data.Text (Text)
 import Game.Model.Chakras (Chakras)
 import Game.Model.Channel (Channel, Channeling)
 import Game.Model.Character (Category, Character)
 import Game.Model.Copy (Copy)
-import Game.Model.Defense (Defense)
+import Game.Model.Class (Class)
+import Game.Model.Destructible (Destructible)
+import Game.Model.Duration (Duration)
 import Game.Model.Player (Player(..))
 import Game.Model.Requirement (Requirement)
+import Game.Model.Runnable (Runnable)
 import Game.Model.Slot (Slot)
 import Game.Model.Status (Status, Bomb(..))
-import Game.Model.Trap (Trap, Direction)
-import Game.Model.Skill (Skill, Target)
+import Game.Model.Trap (Direction)
+import Game.Model.Trigger (Trigger)
+import Game.Model.Skill (Target)
 import Application.Fields (Privilege(..))
 import Handler.Client (ObjectiveProgress)
 import Handler.Client.Message (Failure(..), Message(..))
@@ -34,15 +40,45 @@ import Handler.Play.Turn (Turn)
 import Handler.Play.War (War(..))
 import OrphanInstances.Ninja (Face)
 
--- From Model.GameInfo.ninjaToJSON
+-- From Game.Model.Internal
+data Skill = Skill
+    { name      :: Text
+    , desc      :: Text
+    , require   :: Requirement
+    , classes   :: EnumSet Class
+    , cost      :: Chakras
+    , cooldown  :: Duration
+    , charges   :: Int
+    , dur       :: Channeling
+    , start     :: [Runnable Target]
+    , effects   :: [Runnable Target]
+    , stunned   :: [Runnable Target]
+    , interrupt :: [Runnable Target]
+    , end       :: [Runnable Target]
+    , owner     :: Slot
+    }
+
+-- From Game.Model.Internal
+data Trap = Trap
+    { direction :: Direction
+    , trigger   :: Trigger
+    , name      :: Text
+    , skill     :: Skill
+    , user      :: Slot
+    , classes   :: EnumSet Class
+    , tracker   :: Int
+    , dur       :: Duration
+    }
+
+-- From OrphanInstances
 data Ninja = Ninja
     { slot      :: Slot
     , character :: Text
     , health    :: Int
     , cooldowns :: Map Text Int
     , charges   :: Map Text Int
-    , defense   :: [Defense]
-    , barrier   :: [Barrier]
+    , defense   :: [Destructible]
+    , barrier   :: [Destructible]
     , statuses  :: [Status]
     , copies    :: Seq (Maybe Copy)
     , channels  :: [Channel]
@@ -58,14 +94,6 @@ data GameInfo = GameInfo
     , turn       :: Turn
     , player     :: Player
     , war        :: Maybe War
-    }
-
--- From the ToJSON instance of Barrier in Model.Internal
-data Barrier = Barrier
-    { amount :: Int
-    , user   :: Slot
-    , name   :: Text
-    , dur    :: Int
     }
 
 -- From the ToJSON instance of Effect in Model.Effect
@@ -118,7 +146,6 @@ deriveElmDef defaultOptions ''Failure
 
 deriveElmDef defaultOptions ''User
 deriveElmDef defaultOptions ''Privilege
-deriveElmDef defaultOptions ''Barrier
 deriveElmDef defaultOptions ''Bomb
 deriveElmDef defaultOptions ''Category
 deriveElmDef defaultOptions ''Channel
@@ -126,7 +153,7 @@ deriveElmDef defaultOptions ''Channeling
 deriveElmDef defaultOptions ''Chakras
 deriveElmDef defaultOptions ''Character
 deriveElmDef defaultOptions ''Copy
-deriveElmDef defaultOptions ''Defense
+deriveElmDef defaultOptions ''Destructible
 deriveElmDef defaultOptions ''Direction
 deriveElmDef defaultOptions ''Effect
 deriveElmDef defaultOptions ''Face
@@ -158,15 +185,14 @@ main = writeFile "elm/src/Import/Model.elm" . trimAll
 \\n\
 \import Import.Decode exposing (decodeSumTaggedObject)\n\n" ++
     makeModuleContentWithAlterations alterations
-    [ DefineElm (Proxy :: Proxy Barrier)
-    , DefineElm (Proxy :: Proxy Bomb)
+    [ DefineElm (Proxy :: Proxy Bomb)
     , DefineElm (Proxy :: Proxy Category)
     , DefineElm (Proxy :: Proxy Chakras)
     , DefineElm (Proxy :: Proxy Channel)
     , DefineElm (Proxy :: Proxy Channeling)
     , DefineElm (Proxy :: Proxy Character)
     , DefineElm (Proxy :: Proxy Copy)
-    , DefineElm (Proxy :: Proxy Defense)
+    , DefineElm (Proxy :: Proxy Destructible)
     , DefineElm (Proxy :: Proxy Direction)
     , DefineElm (Proxy :: Proxy Effect)
     , DefineElm (Proxy :: Proxy Face)

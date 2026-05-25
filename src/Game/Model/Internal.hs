@@ -154,16 +154,9 @@ data Destructible = Destructible
     , skill   :: Skill
     , dur     :: Duration
     , effects :: [Effect]
-    }
+    } deriving (Generic)
 
-instance ToJSON Destructible where
-    toJSON Destructible{amount, user, skill, dur, effects} = object
-        [ "amount"  .= amount
-        , "user"    .= user
-        , "skill"   .= skill
-        , "dur"     .= dur
-        , "effects" .= effects
-        ]
+instance ToJSON Destructible
 
 instance Classed Destructible where
     classes Destructible{skill = Skill{classes}} = classes

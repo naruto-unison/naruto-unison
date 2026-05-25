@@ -8,32 +8,6 @@ import Set exposing (Set)
 
 import Import.Decode exposing (decodeSumTaggedObject)
 
-type alias Barrier  =
-   { amount: Int
-   , user: Int
-   , name: String
-   , dur: Int
-   }
-
-jsonDecBarrier : Json.Decode.Decoder ( Barrier )
-jsonDecBarrier =
-   Json.Decode.succeed (\pamount puser pname pdur -> {amount = pamount, user = puser, name = pname, dur = pdur})
-   |> required "amount" (Json.Decode.int)
-   |> required "user" (Json.Decode.int)
-   |> required "name" (Json.Decode.string)
-   |> required "dur" (Json.Decode.int)
-
-jsonEncBarrier : Barrier -> Value
-jsonEncBarrier  val =
-   Json.Encode.object
-   [ ("amount", Json.Encode.int val.amount)
-   , ("user", Json.Encode.int val.user)
-   , ("name", Json.Encode.string val.name)
-   , ("dur", Json.Encode.int val.dur)
-   ]
-
-
-
 type Bomb  =
     Done
     | Expire
@@ -82,7 +56,7 @@ type alias Chakras  =
 
 jsonDecChakras : Json.Decode.Decoder ( Chakras )
 jsonDecChakras =
-   Json.Decode.succeed (\pblood pgen pnin ptai prand -> {blood = pblood, gen = pgen, nin = pnin, tai = ptai, rand = prand})
+   Json.Decode.succeed Chakras
    |> required "blood" (Json.Decode.int)
    |> required "gen" (Json.Decode.int)
    |> required "nin" (Json.Decode.int)
@@ -104,14 +78,16 @@ jsonEncChakras  val =
 type alias Channel  =
    { skill: Skill
    , target: Int
+   , new: Bool
    , dur: Channeling
    }
 
 jsonDecChannel : Json.Decode.Decoder ( Channel )
 jsonDecChannel =
-   Json.Decode.succeed (\pskill ptarget pdur -> {skill = pskill, target = ptarget, dur = pdur})
+   Json.Decode.succeed Channel
    |> required "skill" (jsonDecSkill)
    |> required "target" (Json.Decode.int)
+   |> required "new" (Json.Decode.bool)
    |> required "dur" (jsonDecChanneling)
 
 jsonEncChannel : Channel -> Value
@@ -119,6 +95,7 @@ jsonEncChannel  val =
    Json.Encode.object
    [ ("skill", jsonEncSkill val.skill)
    , ("target", Json.Encode.int val.target)
+   , ("new", Json.Encode.bool val.new)
    , ("dur", jsonEncChanneling val.dur)
    ]
 
@@ -140,7 +117,7 @@ jsonDecChanneling =
             , ("Control", Json.Decode.lazy (\_ -> Json.Decode.map Control (Json.Decode.int)))
             , ("Ongoing", Json.Decode.lazy (\_ -> Json.Decode.map Ongoing (Json.Decode.int)))
             ]
-        jsonDecObjectSetChanneling = Set.fromList []
+        jsonDecObjectSetChanneling = Set.fromList ["Instant", "Passive"]
     in  decodeSumTaggedObject "Channeling" "tag" "contents" jsonDecDictChanneling jsonDecObjectSetChanneling
 
 jsonEncChanneling : Channeling -> Value
@@ -166,7 +143,7 @@ type alias Character  =
 
 jsonDecCharacter : Json.Decode.Decoder ( Character )
 jsonDecCharacter =
-   Json.Decode.succeed (\pname pbio pgroups pskills pprice pcategory -> {name = pname, bio = pbio, groups = pgroups, skills = pskills, price = pprice, category = pcategory})
+   Json.Decode.succeed Character
    |> required "name" (Json.Decode.string)
    |> required "bio" (Json.Decode.string)
    |> required "groups" (decodeSet (Json.Decode.string))
@@ -194,7 +171,7 @@ type alias Copy  =
 
 jsonDecCopy : Json.Decode.Decoder ( Copy )
 jsonDecCopy =
-   Json.Decode.succeed (\pskill pdur -> {skill = pskill, dur = pdur})
+   Json.Decode.succeed Copy
    |> required "skill" (jsonDecSkill)
    |> required "dur" (Json.Decode.int)
 
@@ -207,28 +184,31 @@ jsonEncCopy  val =
 
 
 
-type alias Defense  =
+type alias Destructible  =
    { amount: Int
    , user: Int
-   , name: String
+   , skill: Skill
    , dur: Int
+   , effects: (List Effect)
    }
 
-jsonDecDefense : Json.Decode.Decoder ( Defense )
-jsonDecDefense =
-   Json.Decode.succeed (\pamount puser pname pdur -> {amount = pamount, user = puser, name = pname, dur = pdur})
+jsonDecDestructible : Json.Decode.Decoder ( Destructible )
+jsonDecDestructible =
+   Json.Decode.succeed Destructible
    |> required "amount" (Json.Decode.int)
    |> required "user" (Json.Decode.int)
-   |> required "name" (Json.Decode.string)
+   |> required "skill" (jsonDecSkill)
    |> required "dur" (Json.Decode.int)
+   |> required "effects" (Json.Decode.list (jsonDecEffect))
 
-jsonEncDefense : Defense -> Value
-jsonEncDefense  val =
+jsonEncDestructible : Destructible -> Value
+jsonEncDestructible  val =
    Json.Encode.object
    [ ("amount", Json.Encode.int val.amount)
    , ("user", Json.Encode.int val.user)
-   , ("name", Json.Encode.string val.name)
+   , ("skill", jsonEncSkill val.skill)
    , ("dur", Json.Encode.int val.dur)
+   , ("effects", (Json.Encode.list jsonEncEffect) val.effects)
    ]
 
 
@@ -263,7 +243,7 @@ type alias Effect  =
 
 jsonDecEffect : Json.Decode.Decoder ( Effect )
 jsonDecEffect =
-   Json.Decode.succeed (\pdesc phelpful psticky pvisible ptrap pslot -> {desc = pdesc, helpful = phelpful, sticky = psticky, visible = pvisible, trap = ptrap, slot = pslot})
+   Json.Decode.succeed Effect
    |> required "desc" (Json.Decode.string)
    |> required "helpful" (Json.Decode.bool)
    |> required "sticky" (Json.Decode.bool)
@@ -291,7 +271,7 @@ type alias Face  =
 
 jsonDecFace : Json.Decode.Decoder ( Face )
 jsonDecFace =
-   Json.Decode.succeed (\picon puser -> {icon = picon, user = puser})
+   Json.Decode.succeed Face
    |> required "icon" (Json.Decode.string)
    |> required "user" (Json.Decode.int)
 
@@ -320,7 +300,7 @@ jsonDecFailure =
             , ("Locked", Json.Decode.lazy (\_ -> Json.Decode.map Locked (Json.Decode.list (Json.Decode.string))))
             , ("NotFound", Json.Decode.lazy (\_ -> Json.Decode.succeed NotFound))
             ]
-        jsonDecObjectSetFailure = Set.fromList []
+        jsonDecObjectSetFailure = Set.fromList ["AlreadyQueued", "Canceled", "NotFound"]
     in  decodeSumTaggedObject "Failure" "tag" "contents" jsonDecDictFailure jsonDecObjectSetFailure
 
 jsonEncFailure : Failure -> Value
@@ -344,7 +324,7 @@ type alias GameInfo  =
 
 jsonDecGameInfo : Json.Decode.Decoder ( GameInfo )
 jsonDecGameInfo =
-   Json.Decode.succeed (\popponent pturn pplayer pwar -> {opponent = popponent, turn = pturn, player = pplayer, war = pwar})
+   Json.Decode.succeed GameInfo
    |> required "opponent" (jsonDecUser)
    |> required "turn" (jsonDecTurn)
    |> required "player" (jsonDecPlayer)
@@ -377,7 +357,7 @@ jsonDecMessage =
             , ("Play", Json.Decode.lazy (\_ -> Json.Decode.map Play (jsonDecTurn)))
             , ("Rewards", Json.Decode.lazy (\_ -> Json.Decode.map Rewards (Json.Decode.list (jsonDecReward))))
             ]
-        jsonDecObjectSetMessage = Set.fromList []
+        jsonDecObjectSetMessage = Set.fromList ["Ping"]
     in  decodeSumTaggedObject "Message" "tag" "contents" jsonDecDictMessage jsonDecObjectSetMessage
 
 jsonEncMessage : Message -> Value
@@ -398,8 +378,8 @@ type alias Ninja  =
    , health: Int
    , cooldowns: (Dict String Int)
    , charges: (Dict String Int)
-   , defense: (List Defense)
-   , barrier: (List Barrier)
+   , defense: (List Destructible)
+   , barrier: (List Destructible)
    , statuses: (List Status)
    , copies: (List (Maybe Copy))
    , channels: (List Channel)
@@ -411,14 +391,14 @@ type alias Ninja  =
 
 jsonDecNinja : Json.Decode.Decoder ( Ninja )
 jsonDecNinja =
-   Json.Decode.succeed (\pslot pcharacter phealth pcooldowns pcharges pdefense pbarrier pstatuses pcopies pchannels ptraps pface plastSkill pskills -> {slot = pslot, character = pcharacter, health = phealth, cooldowns = pcooldowns, charges = pcharges, defense = pdefense, barrier = pbarrier, statuses = pstatuses, copies = pcopies, channels = pchannels, traps = ptraps, face = pface, lastSkill = plastSkill, skills = pskills})
+   Json.Decode.succeed Ninja
    |> required "slot" (Json.Decode.int)
    |> required "character" (Json.Decode.string)
    |> required "health" (Json.Decode.int)
    |> required "cooldowns" (Json.Decode.dict (Json.Decode.int))
    |> required "charges" (Json.Decode.dict (Json.Decode.int))
-   |> required "defense" (Json.Decode.list (jsonDecDefense))
-   |> required "barrier" (Json.Decode.list (jsonDecBarrier))
+   |> required "defense" (Json.Decode.list (jsonDecDestructible))
+   |> required "barrier" (Json.Decode.list (jsonDecDestructible))
    |> required "statuses" (Json.Decode.list (jsonDecStatus))
    |> required "copies" (Json.Decode.list (Json.Decode.maybe (jsonDecCopy)))
    |> required "channels" (Json.Decode.list (jsonDecChannel))
@@ -435,8 +415,8 @@ jsonEncNinja  val =
    , ("health", Json.Encode.int val.health)
    , ("cooldowns", (Json.Encode.dict identity (Json.Encode.int)) val.cooldowns)
    , ("charges", (Json.Encode.dict identity (Json.Encode.int)) val.charges)
-   , ("defense", (Json.Encode.list jsonEncDefense) val.defense)
-   , ("barrier", (Json.Encode.list jsonEncBarrier) val.barrier)
+   , ("defense", (Json.Encode.list jsonEncDestructible) val.defense)
+   , ("barrier", (Json.Encode.list jsonEncDestructible) val.barrier)
    , ("statuses", (Json.Encode.list jsonEncStatus) val.statuses)
    , ("copies", (Json.Encode.list (maybeEncode (jsonEncCopy))) val.copies)
    , ("channels", (Json.Encode.list jsonEncChannel) val.channels)
@@ -457,7 +437,7 @@ type alias ObjectiveProgress  =
 
 jsonDecObjectiveProgress : Json.Decode.Decoder ( ObjectiveProgress )
 jsonDecObjectiveProgress =
-   Json.Decode.succeed (\pcharacter pdesc pgoal pprogress -> {character = pcharacter, desc = pdesc, goal = pgoal, progress = pprogress})
+   Json.Decode.succeed ObjectiveProgress
    |> fnullable "character" (Json.Decode.string)
    |> required "desc" (Json.Decode.string)
    |> required "goal" (Json.Decode.int)
@@ -532,7 +512,7 @@ jsonDecRequirement =
             , ("TargetHealth", Json.Decode.lazy (\_ -> Json.Decode.map TargetHealth (Json.Decode.int)))
             , ("UserDefense", Json.Decode.lazy (\_ -> Json.Decode.map2 UserDefense (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.string))))
             ]
-        jsonDecObjectSetRequirement = Set.fromList []
+        jsonDecObjectSetRequirement = Set.fromList ["Usable", "Unusable"]
     in  decodeSumTaggedObject "Requirement" "tag" "contents" jsonDecDictRequirement jsonDecObjectSetRequirement
 
 jsonEncRequirement : Requirement -> Value
@@ -556,7 +536,7 @@ type alias Reward  =
 
 jsonDecReward : Json.Decode.Decoder ( Reward )
 jsonDecReward =
-   Json.Decode.succeed (\preason pamount -> {reason = preason, amount = pamount})
+   Json.Decode.succeed Reward
    |> required "reason" (Json.Decode.string)
    |> required "amount" (Json.Decode.int)
 
@@ -582,12 +562,13 @@ type alias Skill  =
    , effects: (List Target)
    , stunned: (List Target)
    , interrupt: (List Target)
+   , end: (List Target)
    , owner: Int
    }
 
 jsonDecSkill : Json.Decode.Decoder ( Skill )
 jsonDecSkill =
-   Json.Decode.succeed (\pname pdesc prequire pclasses pcost pcooldown pcharges pdur pstart peffects pstunned pinterrupt powner -> {name = pname, desc = pdesc, require = prequire, classes = pclasses, cost = pcost, cooldown = pcooldown, charges = pcharges, dur = pdur, start = pstart, effects = peffects, stunned = pstunned, interrupt = pinterrupt, owner = powner})
+   Json.Decode.succeed Skill
    |> required "name" (Json.Decode.string)
    |> required "desc" (Json.Decode.string)
    |> required "require" (jsonDecRequirement)
@@ -600,6 +581,7 @@ jsonDecSkill =
    |> required "effects" (Json.Decode.list (jsonDecTarget))
    |> required "stunned" (Json.Decode.list (jsonDecTarget))
    |> required "interrupt" (Json.Decode.list (jsonDecTarget))
+   |> required "end" (Json.Decode.list (jsonDecTarget))
    |> required "owner" (Json.Decode.int)
 
 jsonEncSkill : Skill -> Value
@@ -617,6 +599,7 @@ jsonEncSkill  val =
    , ("effects", (Json.Encode.list jsonEncTarget) val.effects)
    , ("stunned", (Json.Encode.list jsonEncTarget) val.stunned)
    , ("interrupt", (Json.Encode.list jsonEncTarget) val.interrupt)
+   , ("end", (Json.Encode.list jsonEncTarget) val.end)
    , ("owner", Json.Encode.int val.owner)
    ]
 
@@ -636,7 +619,7 @@ type alias Status  =
 
 jsonDecStatus : Json.Decode.Decoder ( Status )
 jsonDecStatus =
-   Json.Decode.succeed (\pamount pname puser pskill peffects pclasses pbombs pmaxDur pdur -> {amount = pamount, name = pname, user = puser, skill = pskill, effects = peffects, classes = pclasses, bombs = pbombs, maxDur = pmaxDur, dur = pdur})
+   Json.Decode.succeed Status
    |> required "amount" (Json.Decode.int)
    |> required "name" (Json.Decode.string)
    |> required "user" (Json.Decode.int)
@@ -713,7 +696,7 @@ type alias Trap  =
 
 jsonDecTrap : Json.Decode.Decoder ( Trap )
 jsonDecTrap =
-   Json.Decode.succeed (\pdirection ptrigger pname pskill puser pclasses ptracker pdur -> {direction = pdirection, trigger = ptrigger, name = pname, skill = pskill, user = puser, classes = pclasses, tracker = ptracker, dur = pdur})
+   Json.Decode.succeed Trap
    |> required "direction" (jsonDecDirection)
    |> required "trigger" (Json.Decode.string)
    |> required "name" (Json.Decode.string)
@@ -749,7 +732,7 @@ type alias Turn  =
 
 jsonDecTurn : Json.Decode.Decoder ( Turn )
 jsonDecTurn =
-   Json.Decode.succeed (\pchakra pplaying pvictor pinactive pninjas ptargets -> {chakra = pchakra, playing = pplaying, victor = pvictor, inactive = pinactive, ninjas = pninjas, targets = ptargets})
+   Json.Decode.succeed Turn
    |> required "chakra" (jsonDecChakras)
    |> required "playing" (jsonDecPlayer)
    |> required "victor" (Json.Decode.list (jsonDecPlayer))
@@ -788,7 +771,7 @@ type alias User  =
 
 jsonDecUser : Json.Decode.Decoder ( User )
 jsonDecUser =
-   Json.Decode.succeed (\pprivilege pname pavatar pbackground pxp pwins plosses pstreak precord pclan pmuted pcondense pdna -> {privilege = pprivilege, name = pname, avatar = pavatar, background = pbackground, xp = pxp, wins = pwins, losses = plosses, streak = pstreak, record = precord, clan = pclan, muted = pmuted, condense = pcondense, dna = pdna})
+   Json.Decode.succeed User
    |> required "privilege" (jsonDecPrivilege)
    |> required "name" (Json.Decode.string)
    |> required "avatar" (Json.Decode.string)

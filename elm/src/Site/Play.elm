@@ -17,7 +17,7 @@ import Game.Chakra as Chakra exposing (none)
 import Game.Detail as Detail exposing (Detail)
 import Game.Game as Game exposing (Act)
 import Import.Flags exposing (Characters, Flags, printFailure)
-import Import.Model as Model exposing (Barrier, Chakras, Channeling(..), Character, Defense, Effect, GameInfo, Message(..), Ninja, Player(..), Requirement(..), Reward, Skill, Turn, User, War(..))
+import Import.Model as Model exposing (Chakras, Channeling(..), Character, Destructible, Effect, GameInfo, Message(..), Ninja, Player(..), Requirement(..), Reward, Skill, Turn, User, War(..))
 import Ports exposing (Ports)
 import Site.Render as Render exposing (icon)
 import Sound exposing (Sound)
@@ -25,9 +25,8 @@ import Util exposing (ListChange(..), elem, pure, showErr)
 
 
 type Viewable
-    = ViewBarrier Barrier
-    | ViewCharacter Character
-    | ViewDefense Defense
+    = ViewCharacter Character
+    | ViewDestructible Destructible
     | ViewDetail (Effect -> Bool) Detail
     | ViewSkill (List Int) Int Skill
     | ViewUser User
@@ -581,7 +580,7 @@ renderAct characters x =
     ]
 
 
-renderBarrier : Int -> String -> Int -> List Barrier -> List (Html Msg)
+renderBarrier : Int -> String -> Int -> List Destructible -> List (Html Msg)
 renderBarrier slot anchor track barriers =
     case List.uncons barriers of
         Nothing ->
@@ -591,7 +590,7 @@ renderBarrier slot anchor track barriers =
             H.div [ A.class "charbarrier"
                   , A.style anchor <| String.fromInt track ++ "%"
                   , A.style "width" <| String.fromInt x.amount ++ "%"
-                  , E.onMouseOver << View <| ViewBarrier x
+                  , E.onMouseOver << View <| ViewDestructible x
                   ] []
             :: renderBarrier slot anchor (track + x.amount) xs
 
@@ -600,8 +599,8 @@ renderDefense :
     Int
     -> String
     -> Int
-    -> List Barrier
-    -> List Defense
+    -> List Destructible
+    -> List Destructible
     -> List (Html Msg)
 renderDefense slot anchor track barriers defenses =
     case List.uncons defenses of
@@ -614,7 +613,7 @@ renderDefense slot anchor track barriers defenses =
                                 ]
                   , A.style anchor <| String.fromInt track ++ "%"
                   , A.style "width" <| String.fromInt x.amount ++ "%"
-                  , E.onMouseOver << View <| ViewDefense x
+                  , E.onMouseOver << View <| ViewDestructible x
                   ] []
             :: renderDefense slot anchor (track + x.amount) barriers xs
 
@@ -876,12 +875,6 @@ bar source name amount dur =
 renderView : Set String -> List Character -> Viewable -> Html Msg
 renderView visibles characters viewing =
     H.article [ A.class "parchment" ] <| case viewing of
-        ViewBarrier x ->
-            bar (Game.get characters x.user) x.name x.amount x.dur
-
-        ViewDefense x ->
-            bar (Game.get characters x.user) x.name x.amount x.dur
-
         ViewCharacter x ->
             [ H.section []
               [ icon x "icon" [ A.class "char" ]
@@ -893,6 +886,9 @@ renderView visibles characters viewing =
                 ]
               ]
             ]
+
+        ViewDestructible x ->
+            bar (Game.get characters x.user) x.skill.name x.amount x.dur
 
         ViewDetail removable x ->
             [ H.section []
