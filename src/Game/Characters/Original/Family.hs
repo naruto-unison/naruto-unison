@@ -15,7 +15,7 @@ characters =
     [LeafVillage, Fire, Wind, Lightning, Yang, Sarutobi]
     [ [ Skill.new
         { Skill.name      = "Refocus"
-        , Skill.desc      = "Konohamaru tries his best to concentrate on the fight. For 3 turns, status effects from his allies on him are twice as powerful, and allies who graint him health or destructible defense will grant twice as much. While active, this skill becomes [Unsexy Technique][n]."
+        , Skill.desc      = "Konohamaru tries his best to concentrate on the fight. For 3 turns, helpful status effects on him are twice as powerful, and allies who graint him health or destructible defense will grant twice as much. While active, this skill becomes [Unsexy Technique][n]."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4

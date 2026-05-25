@@ -4,8 +4,9 @@ module Game.Model.Effect
   , Effect(..)
   , construct
   , helpful
+  , adjust
   , sticky
-  , isDisable, isIgnore
+  , isDisable
   , bypassEnrage
   ) where
 
@@ -239,15 +240,23 @@ bypassEnrage :: Effect -> Bool
 bypassEnrage Alone{}  = True
 -- bypassEnrage Bleed{}  = True
 bypassEnrage Reveal{} = True
+bypassEnrage Seal{}   = True
 bypassEnrage Share{}  = True
 bypassEnrage ef       = helpful ef
 
--- | Effect is affected by 'NoIgnore'.
-isIgnore :: Effect -> Bool
-isIgnore Enrage  = True
-isIgnore Focus   = True
-isIgnore Nullify = True
-isIgnore _       = False
+adjust :: (Int -> Int) -> Effect -> Effect
+adjust f (Afflict i)            = Afflict $ f i
+adjust f (Bleed cla amt i)      = Bleed cla amt $ f i
+adjust f (Bless i)              = Bless $ f i
+adjust f (Build i)              = Build $ f i
+adjust f (Heal i)               = Heal $ f i
+adjust f (Reduce cla amt i)     = Reduce cla amt $ f i
+adjust f (Snare i)              = Snare $ f i
+adjust f (Strengthen cla amt i) = Strengthen cla amt $ f i
+adjust f (Throttle i constr)    = Throttle (f i) constr
+adjust f (Unreduce i)           = Unreduce $ f i
+adjust f (Weaken cla amt i)     = Weaken cla amt $ f i
+adjust _ ef                     = ef
 
 -- | Effect is displayed to the client.
 visible :: Effect -> Bool

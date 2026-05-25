@@ -144,38 +144,45 @@ apply n nt fs = adjustEffect <$> filter keepEffects fs
 -- | Fills 'N.effects' with the effects of 'N.statuses', modified by
 -- 'NoIgnore', 'Seal', 'Boost', and so on.
 processEffects :: Ninja -> Ninja
-processEffects n@Ninja{slot = nSlot, barrier, defense, statuses = baseStatuses} =
-    n { N.effects = (process =<< baseStatuses) ++ filter allow destEffects }
+processEffects n@Ninja{barrier, defense, statuses} = n { N.effects = processed }
   where
-    destEffects   = Destructible.effects =<< barrier ++ defense
-    unmodEffects  = (Status.effects =<< baseStatuses)
-                 ++ destEffects
-    noIgnore      = NoIgnore ∈ unmodEffects
-    baseEffects
-      | noIgnore  = filter (not . Effect.isIgnore) unmodEffects
-      | otherwise = unmodEffects
-    enraged       = Enrage ∈ baseEffects
-    sealed        = not enraged && Seal ∈ baseEffects
-    boostAmount
-      | sealed    = 1
-      | otherwise = product $ 1 : [x | Boost x <- baseEffects]
-    process Status{user, effects, amount} =
-        replicate (boost * amount) =<< filter allow efs
-      where
-        boost
-          | user == nSlot            = 1
-          | Parity.allied nSlot user = boostAmount
-          | otherwise                = 1
-        efs
-          | sealed        = filter (not . Effect.helpful) effects
-          | user == nSlot = effects
-          | enraged       = filter Effect.bypassEnrage effects
-          | otherwise     = effects
-    allow (Reduce _ _ x) = x <= 0 || enraged || not (Expose ∈ baseEffects)
-    allow (Bleed _ _ x)  = x >= 0 || enraged || not (Expose ∈ baseEffects)
-    allow (Effect.isDisable -> True) = sealed || not (Focus ∈ baseEffects)
-    allow (Effect.isIgnore -> True) = not noIgnore
+    flattenStatusEffects Status{effects, amount} = replicate amount =<< effects
+    allEffects = (flattenStatusEffects =<< statuses)
+              ++ (Destructible.effects =<< barrier ++ defense)
+
+    hasEffect ef = ef ∈ allEffects
+    hasNoIgnore  = hasEffect NoIgnore
+    hasEnrage    = not hasNoIgnore && hasEffect Enrage
+    hasSeal      = hasEffect Seal
+    hasExpose    = not hasEnrage && hasEffect Expose
+    hasFocus     = not hasSeal && not hasNoIgnore && hasEffect Focus
+
+    allow ef
+      | not (Effect.bypassEnrage ef) && hasEnrage = False
+      | Effect.helpful ef && hasSeal = False
+    allow Disable{} = not hasFocus
+    allow Silence   = not hasFocus
+    allow Stun{}    = not hasFocus
+    allow Enrage    = not hasNoIgnore
+    allow Focus     = not hasNoIgnore
+    allow Nullify   = not hasNoIgnore
+    allow (Bleed _ _ i)  = i >= 0 || not hasExpose
+    allow (Reduce _ _ i) = i <= 0 || not hasExpose
     allow _ = True
+
+    allowed = filter allow allEffects
+
+    boost
+      | hasSeal   = 1
+      | otherwise = product $ 1 : [x | Boost x <- allEffects]
+
+    processed
+      | boost == 1 = allowed
+      | otherwise  = map boostHelpful allowed
+      where
+        boostHelpful ef
+          | Effect.helpful ef = Effect.adjust (* boost) ef
+          | otherwise         = ef
 
 -- | Alters 'statuses' and then calls 'processEffects'.
 modifyStatuses :: ([Status] -> [Status]) -> Ninja -> Ninja

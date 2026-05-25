@@ -119,21 +119,13 @@ spec = parallel do
             dmg         = 70
             reduce      = 3
 
-        it "boosts effects from allies" $ simAt Self do
+        it "boosts helpful effects" $ simAt Self do
             Sim.as Ally $
                 apply Permanent [ Reduce (singletonSet All) Flat reduce ]
             targeting Self $ apply Permanent [ Boost boostAmount ]
             Sim.as Enemy $ damage dmg
             userHealth <- user health
             return $ dmg - (100 - userHealth) `shouldBe` boostAmount * reduce
-
-        it "does not boost own effects" $ simAt Self do
-            apply Permanent [ Reduce (singletonSet All) Flat reduce
-                            , Boost boostAmount
-                            ]
-            Sim.as Enemy $ damage dmg
-            userHealth <- user health
-            return $ dmg - (100 - userHealth) `shouldBe` reduce
 
     describe "Build" do
         prop "adds to barrier" \i (NonNegative hp) ->
@@ -209,7 +201,6 @@ spec = parallel do
 
         it "ignores negative effects" . not  . simAt Ally $ tryApply Plague
         it "does not ignore helpful effects" . simAt Ally $ tryApply Focus
-        it "does not ignore self-applied"    . simAt Self $ tryApply Plague
 
     describe "Exhaust" do
         prop "increases skill costs" \(Positive exhaust) ->
