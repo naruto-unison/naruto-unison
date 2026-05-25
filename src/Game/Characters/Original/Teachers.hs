@@ -190,23 +190,17 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Transparency Technique"
-        , Skill.desc      = "Hayate melds into shadows, increasing his damage by 10 for 3 turns. Each turn, he gains 1 turn of damage reduction: 25 points on the first turn, 15 points on the second, and 5 points on the third."
+        , Skill.desc      = "Hayate melds into shadows, increasing his damage by 10 for 3 turns. He gains 10 points of damage reduction for one turn, another 10 points of damage reduction for two turns, and another 5 points of damage reduction for three turns."
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Self do
-                apply 1 [ Strengthen [All] Flat 10
-                        , Reduce [All] Flat 25
+                apply 3 [ Strengthen [All] Flat 10
+                        , Reduce [All] Flat 5
                         ]
-                delay 1 $
-                    apply 1 [ Strengthen [All] Flat 10
-                            , Reduce [All] Flat 15
-                            ]
-                delay 2 $
-                    apply 1 [ Strengthen [All] Flat 10
-                            , Reduce [All] Flat 5
-                            ]
+                apply 2 [ Reduce [All] Flat 10 ]
+                apply 1 [ Reduce [All] Flat 10 ]
           ]
         }
       ]

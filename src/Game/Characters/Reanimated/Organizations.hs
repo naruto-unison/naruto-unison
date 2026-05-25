@@ -658,7 +658,8 @@ characters =
         , Skill.start      =
           [ To Enemies do
                 barricade' 3 25 [ Silence ]
-                delay -3 $ damage =<< target barrierAmount "Deva Path"
+                onBreak $
+                    damage =<< target barrierAmount "Deva Path"
           ]
         }
       ]

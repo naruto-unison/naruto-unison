@@ -788,15 +788,14 @@ characters =
         , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.cooldown  = 2
-        , Skill.effects   =
+        , Skill.dur       = Ongoing 2
+        , Skill.start     =
           [ To Enemies do
                 damage 30
                 apply 1 [ Weaken [Physical, Chakra, Summon] Flat 20 ]
-          , To Self do
-                sacrifice 0 15
-                delay 1 $
-                    sacrifice 0 15
           ]
+        , Skill.effects   =
+          [ To Self $ sacrifice 0 15 ]
         }
       ]
     , [ invuln "Larch Dance" "Kimimaro" [Physical] ]
