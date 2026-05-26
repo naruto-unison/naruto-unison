@@ -63,9 +63,8 @@ demolish = Combat.attack Attack.Demolish
 -- target.
 demolishAll :: ∀ m. MonadPlay m => m ()
 demolishAll = do
-    Context{target, user} <- P.context
-    barrier <- N.barrier <$> P.nUser
-    defense <- N.defense <$> P.nTarget
+    Ninja{barrier, slot = user}   <- P.nUser
+    Ninja{defense, slot = target} <- P.nTarget
     P.modify user   $ Ninjas.processEffects . \n -> n { N.barrier = [] }
     P.modify target $ Ninjas.processEffects . \n -> n { N.defense = [] }
     P.trigger user   $ OnBreak . Labeled.name <$> barrier
@@ -83,8 +82,8 @@ increaseDefense name amount = P.unsilenced . P.fromUser
 -- Uses 'Ninjas.decreaseDefense' internally.
 removeDefense :: ∀ m. MonadPlay m => Text -> m ()
 removeDefense name = P.unsilenced do
-    P.fromUser $ Ninjas.removeDefense name
-    Context{user} <- P.context
+    Context{target, user} <- P.context
+    P.modify target $ Ninjas.removeDefense name user
     P.trigger user [OnBreak name]
 
 -- | Adds new 'Destructible' 'N.barrier'.
@@ -101,9 +100,8 @@ barricade dur amount = barricade' dur amount []
 -- destroy the user's 'N.barrier' before they can damage the target.
 -- Destructible barrier can be temporary or permanent.
 barricade' :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> m ()
-barricade' dur amount effects = do
-    Context{target} <- P.context
-    P.modify target . Ninjas.addBarrier =<< build dur amount effects
+barricade' dur amount effects = P.toTarget
+    . Ninjas.addBarrier =<< build dur amount effects
 
 -- | Adds new 'Destructible' 'N.defense'.
 -- Destructible defense acts as an extra bar in front of the 'N.health'
@@ -120,10 +118,10 @@ defend dur amount = defend' dur amount []
 -- Destructible defense can be temporary or permanent.
 defend' :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> m ()
 defend' dur amount effects = do
-    Context{target, user} <- P.context
-    when (amount > 0) $
+    P.toTarget . Ninjas.addDefense =<< build dur amount effects
+    when (amount > 0) do
+        Context{user} <- P.context
         P.trigger user [OnDefend]
-    P.modify target . Ninjas.addDefense =<< build dur amount effects
 
 build :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> m Destructible
 build dur amount effects = create <$> P.context <*> P.nUser

@@ -60,8 +60,8 @@ onBreak f = do
     Context{skill = Skill{name}} <- P.context
     trap' Permanent (OnBreak name) do
         f
-        Context{user = user'} <- P.context
-        P.modify user' . Ninjas.clearTraps $ OnBreak name
+        Context{user} <- P.context
+        P.modify user . Ninjas.clearTraps $ OnBreak name
 
 -- | Adds a @Trap@ to 'N.traps'.
 trapConst :: ∀ m. MonadPlay m
