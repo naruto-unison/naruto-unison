@@ -239,7 +239,7 @@ act ctx@Context{user, new, skill, target} = void $ runMaybeT do
             contEfs <- targeted effects
             P.withContinues $ run' (singletonSet Targeted) contEfs
         else do
-            P.modify user \n -> n { N.lastSkill = Just skill }
+            P.modify user \n -> n { N.lastSkill = Just skill, N.acted = True }
             P.trigger user $ OnAction <$> toList classes
             when (charges > 0)
                 . P.modify user $ Cooldown.spendCharge skill
@@ -271,9 +271,7 @@ act ctx@Context{user, new, skill, target} = void $ runMaybeT do
                     run' (singletonSet Targeted) startEfs
                     P.withContinues $ run' (singletonSet Targeted) contEfs
                     P.modify user $ Ninjas.addChannels skill target
-            P.modify user \n -> n { N.acted = True }
-            when new
-                . P.modify user $ Cooldown.update skill
+            P.modify user $ Cooldown.update skill
         P.uncopied do
             Hook.action skill initial =<< P.ninjas
             Game{chakra = chakra'} <- P.game
