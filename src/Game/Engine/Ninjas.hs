@@ -93,7 +93,7 @@ alternate Ninja{character = Character{skills = sk}, effects} =
     findAlt (base:|alts) = headOr 0
         [i + 1 | Alternate name alt <- effects
                , name == Skill.name base
-               , i <- maybeToList $ findIndex ((== alt) . Skill.name) alts
+               , i <- maybeToList $ findIndex (Labeled.named alt) alts
                ]
 
 processAlternates :: Ninja -> Ninja
@@ -102,12 +102,12 @@ processAlternates n = n { N.alternates = fromList $ alternate n }
 -- | Cycles a skill through its list of alternates.
 nextAlternate :: Text -> Ninja -> Maybe Text
 nextAlternate baseName Ninja{character = Character{skills = sk}, effects} = do
-    alts <- find ((== baseName) . Skill.name . head) $ toList sk
+    alts <- find (Labeled.named baseName . head) $ toList sk
     alt  <- filterAlt $ tail alts
     return $ Skill.name alt
   where
     filterAlt = headOr headMay
-        [ headMay . drop 1 . dropWhile ((/= alt) . Skill.name)
+        [ headMay . drop 1 . dropWhile (not . Labeled.named alt)
             | Alternate name alt <- effects
             , name == baseName
             ]
@@ -125,7 +125,7 @@ getSkill s n
 -- | Searches 'skills'.
 hasSkill :: Text -- ^ `Skill.name`.
          -> Ninja -> Bool
-hasSkill name n = any ((== name) . Skill.name) $ skills n
+hasSkill name n = any (Labeled.named name) $ skills n
 
 -- | All four skill slots of a @Ninja@ modified by 'skill'.
 skills :: Ninja -> [Skill]
@@ -305,9 +305,8 @@ addChannels skill@Skill{classes, dur} target n
 -- | Deletes matching 'channels'.
 cancelChannel :: Text -- ^ 'Skill.name'.
               -> Ninja -> Ninja
-cancelChannel name n = n { N.channels = f $ N.channels n }
-  where
-    f = filter $ (/= name) . Skill.name . Channel.skill
+cancelChannel name n =
+    n { N.channels = filter (not . Labeled.named name) $ N.channels n }
 
 -- | Copies all 'Skill's from a source into 'N.copies'.
 copyAll :: Duration -- ^ 'Copy.dur'.

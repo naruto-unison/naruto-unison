@@ -18,6 +18,7 @@ import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Enum.Set (EnumSet)
 import Data.List (findIndex)
 
+import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import           Game.Action.Status (applyWith')
@@ -107,7 +108,7 @@ copyAll dur = P.uncopied do
 copyLast :: ∀ m. MonadPlay m => Duration -> m ()
 copyLast (succ -> dur) = P.uncopied . void $ runMaybeT do
     Context{skill = Skill{name}} <- P.context
-    Just s     <- findIndex (any $ (== name) . Skill.name) . toList
+    Just s     <- findIndex (any $ Labeled.named name) . toList
                 . Character.skills . N.character <$> P.nUser
     Just skill <- N.lastSkill <$> P.nTarget
     Context{user} <- P.context
@@ -122,7 +123,7 @@ teach dur name slots = do
     Context{target} <- P.context
     Ninja{character = Character{skills}} <- P.nUser
     mapM_ (P.modify target . Ninjas.copy dur slots)
-        $ find ((== name) . Skill.name) $ concatMap toList skills
+        . find (Labeled.named name) $ concatMap toList skills
 
 -- | Resets a 'N.Ninja' to their initial state.
 -- Uses 'Ninjas.factory' internally.

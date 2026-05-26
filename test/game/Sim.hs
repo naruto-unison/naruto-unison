@@ -18,6 +18,7 @@ import Data.Enum.Set (EnumSet)
 import Test.Hspec hiding (context)
 
 import           Class.Hook (MonadHook)
+import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Play as P
@@ -62,7 +63,7 @@ use :: ∀ m. (HasCallStack, MonadHook m, MonadPlay m, MonadRandom m)
     => Text -> m ()
 use name = do
     ninjas <- P.ninjas
-    case find ((== name) . Skill.name) . Ninjas.skills $ unsafeHead ninjas of
+    case find (Labeled.named name) . Ninjas.skills $ unsafeHead ninjas of
         Nothing -> error $ "invalid skill: " ++ unpack name
         Just skill -> actWith skill
 
@@ -165,5 +166,5 @@ withClasses classes = P.with ctx
     withSkill sk = sk { Skill.classes = insertSet All classes }
 
 statusDur :: Text -> Ninja -> Duration
-statusDur name n = maybe Permanent Status.dur . find ((== name) . Status.name)
+statusDur name n = maybe Permanent Status.dur . find (Labeled.named name)
     $ N.statuses n

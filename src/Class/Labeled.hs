@@ -2,7 +2,7 @@ module Class.Labeled
   ( Labeled(..)
   , eq
   , group
-  , match
+  , match, named
   , mapFirst
   ) where
 
@@ -35,6 +35,11 @@ group xs = groupBy eq . toList $ sortBy cmp xs
 match :: ∀ a. Labeled a => Text -> Slot -> a -> Bool
 match name' user' x = name x == name' && user x == user'
 {-# INLINABLE match #-}
+
+-- Matching by name.
+named :: ∀ a. Labeled a => Text -> a -> Bool
+named name' x = name x == name'
+{-# INLINABLE named #-}
 
 mapFirst :: ∀ a. Labeled a => (a -> a) -> Text -> Slot -> [a] -> [a]
 mapFirst _ _ _ [] = []

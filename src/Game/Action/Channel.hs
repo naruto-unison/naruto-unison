@@ -37,7 +37,7 @@ cancelChannel' name = do
     mapM_ (Action.runInterruptions user) yays
   where
     getCancelledChannels name' Ninja{channels} =
-        partition ((== name') . Labeled.name) channels
+        partition (Labeled.named name') channels
 
 -- | Prematurely ends a channeled action.
 interrupt :: ∀ m. (MonadPlay m, MonadRandom m) => m ()

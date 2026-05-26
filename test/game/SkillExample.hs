@@ -8,6 +8,7 @@ import           Test.Hspec hiding (context, it)
 import           Test.Hspec.Core.Spec hiding (context, it)
 
 import           Class.Hook (MonadHook)
+import qualified Class.Labeled as Labeled
 import           Class.Play (MonadGame, MonadPlay)
 import           Class.Random (MonadRandom)
 import           Game.Model.Character (Character)
@@ -16,7 +17,6 @@ import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Target(..))
-import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Slot as Slot
 import           Handler.Play.Wrapper (Wrapper)
 
@@ -50,7 +50,7 @@ useOn target skillName f =
     withChar char = case findSkill skillName char of
         Nothing    -> error "useOn" <$ expectationFailure "invalid skill"
         Just skill -> return (char, ctx skill)
-    findSkill x = find ((== x) . Skill.name) . join . Character.skills
+    findSkill x = find (Labeled.named x) . join . Character.skills
     ctx skill   = Context { skill
                           , user      = targetSlot Self
                           , target    = targetSlot target
