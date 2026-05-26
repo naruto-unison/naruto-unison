@@ -429,7 +429,6 @@ class Monad m => MonadGame m where
     write     :: Slot -> Ninja -> m ()
     modify    :: Slot -> (Ninja -> Ninja) -> m ()
     modifyAll :: (Ninja -> Ninja) -> m ()
-    modifyAll f = mapM_ (`modify` f) Slot.all
 
     default game :: Lift MonadGame m
                  => m Game
@@ -455,6 +454,10 @@ class Monad m => MonadGame m where
                    => Slot -> (Ninja -> Ninja) -> m ()
     modify i = lift . modify i
     {-# INLINE modify #-}
+    default modifyAll :: Lift MonadGame m
+                      => (Ninja -> Ninja) -> m ()
+    modifyAll = lift . modifyAll
+    {-# INLINE modifyAll #-}
 
 -- | The main typeclass of the game engine. @MonadPlay@ is built on top of
 -- @MonadGame@, but it also provides a "view" into the game: a @Context@ that

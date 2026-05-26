@@ -70,6 +70,9 @@ instance (MonadST m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) whe
     {-# INLINABLE write #-}
     modify i f = askST ninjasRef \xs -> MVector.unsafeModify xs f $ Slot.toInt i
     {-# INLINABLE modify #-}
+    modifyAll f = askST ninjasRef \xs ->
+        mapM_ (MVector.unsafeModify xs f . Slot.toInt) Slot.all
+    {-# INLINABLE modifyAll #-}
 
 instance (MonadST m, s ~ PrimState m) => MonadHook (ReaderT (STWrapper s) m) where
     action Skill{name} ns ns'  = askST tracker
