@@ -7,55 +7,45 @@ module Game.Action.Channel
   ) where
 
 import ClassyPrelude
-
+import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Game.Action as Action
 import qualified Game.Engine.Ninjas as Ninjas
-import           Game.Model.Channel (Channel(Channel))
 import qualified Game.Model.Channel as Channel
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
 import           Game.Model.Duration (Duration)
+import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
-import           Game.Model.Skill (Skill(Skill))
-import qualified Game.Model.Skill
+import qualified Game.Model.Skill as Skill
 
 -- | Cancels 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.cancelChannel' internally.
-cancelChannel :: ∀ m. MonadPlay m => m ()
-cancelChannel = do
-    Context{user, skill = Skill{name}} <- P.context
-    P.modify user $ Ninjas.cancelChannel name
+cancelChannel :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
+cancelChannel = cancelChannel' ""
 
 -- | Cancels 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.cancelChannel' internally.
-cancelChannel' :: ∀ m. MonadPlay m => Text -> m ()
+cancelChannel' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> m ()
 cancelChannel' name = do
-    Context{user} <- P.context
-    P.modify user $ Ninjas.cancelChannel name
+    Context{user, skill} <- P.context
+    let name' = Skill.defaultName name skill
+    (yays, nays) <- getCancelledChannels name' <$> P.nUser
+    P.modify user \n -> n { N.channels = nays }
+    mapM_ (Action.runInterruptions user) yays
+  where
+    getCancelledChannels name' Ninja{channels} =
+        partition ((== name') . Labeled.name) channels
 
 -- | Prematurely ends a channeled action.
 interrupt :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 interrupt = P.unsilenced do
     Context{target} <- P.context
     (yay, nay) <- partition Channel.interruptible . N.channels <$> P.nTarget
-    mapM_ onInterrupt yay
     P.modify target \n -> n { N.channels = nay }
-
--- | Triggers 'Skill.interrupt' effects of a @Channel@.
-onInterrupt :: ∀ m. (MonadPlay m, MonadRandom m) => Channel -> m ()
-onInterrupt (Channel skill target _ _) = P.with ctx
-    $ Action.run =<< Action.targeted (Action.interruptions skill)
-  where
-    ctx Context{target = user} = Context
-        { skill
-        , user
-        , target
-        , new       = False
-        , continues = False
-        }
+    mapM_ (Action.runInterruptions target) yay
 
 -- | Increases the duration of 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.prolongChannel' internally.

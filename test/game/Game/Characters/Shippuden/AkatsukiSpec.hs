@@ -113,13 +113,13 @@ spec = parallel do
             it "exposes targets" do
                 Sim.use "Kazekage Puppet Summoning"
                 Sim.act
-                Sim.turns -1
-                Sim.targetIsExposed
+                Sim.as REnemy $ return ()
+                target (`is` Expose)
             it "does not expose with harm" do
                 Sim.use "Kazekage Puppet Summoning"
                 Sim.act
                 Sim.as Enemy $ return ()
-                not <$> Sim.targetIsExposed
+                not <$> target (`is` Expose)
             it "alternates" do
                 Sim.use "Kazekage Puppet Summoning"
                 Sim.act

@@ -672,8 +672,6 @@ characters =
                 damage 15
                 apply 1 [ Reveal ]
           ]
-        , Skill.interrupt =
-          [ To Self $ remove "human path" ]
         }
       , Skill.new
         { Skill.name      = "Naraka Path"

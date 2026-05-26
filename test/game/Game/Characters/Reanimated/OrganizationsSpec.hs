@@ -238,7 +238,7 @@ spec = parallel do
                 Sim.use "Axe Chop"
                 Sim.act
                 Sim.turns 2
-                Sim.targetIsExposed
+                target (`is` Expose)
 
     describeCharacter "Deidara" do
         useOn Enemy "Chakra Clay Trap" do

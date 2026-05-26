@@ -297,8 +297,6 @@ characters =
                                          "Chakra Leech"
                              ]
           ]
-        , Skill.interrupt =
-          [ To Self $ remove "insect swarm" ]
         }
       , Skill.new
         { Skill.name       = "Chakra Leech"
@@ -548,7 +546,7 @@ characters =
         , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring harmful status effects. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
-        , Skill.dur       = Action 1
+        , Skill.dur       = Action -1
         , Skill.effects   =
           [ To Self do
                 apply 1 [ Enrage ]
@@ -927,8 +925,6 @@ characters =
                                          "Salamander Puppet"
                              ]
           ]
-        , Skill.interrupt =
-          [ To Self $ remove "sanshōuo shield" ]
         }
       , Skill.new
         { Skill.name      = "Salamander Puppet"

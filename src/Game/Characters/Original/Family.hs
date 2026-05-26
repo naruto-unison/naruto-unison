@@ -266,7 +266,7 @@ characters =
                                     "Shadow Dispersion"
                         ]
           , To Enemy do
-                bonus <- 10 `bonusIf` target has "Black Spider Lily"
+                bonus <- 10 `bonusIf` target has' traps "Black Spider Lily"
                 damage (20 + bonus)
                 bonusDur <- target numStacks "Ensnared"
                 apply (fromIntegral $ 2 + bonusDur) [ Stun NonMental ]
@@ -280,7 +280,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Enemies do
-                bonus <- 10 `bonusIf` target has "Black Spider Lily"
+                bonus <- 10 `bonusIf` target has' traps "Black Spider Lily"
                 damage (20 + bonus)
                 bonusDur <- target numStacks "Ensnared"
                 apply (fromIntegral $ 1 + bonusDur) [Stun NonMental]
@@ -294,11 +294,8 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemies do
-                bombWith [Bypassing] 3 []
-                    [ To Done $ removeTrap "Black Spider Lily" ]
-                trap 3 OnStun $
-                    apply' "Ensnared" 3 []
+          [ To Enemies $ trap 3 OnStun $
+                apply' "Ensnared" 3 []
           ]
         }
       ]

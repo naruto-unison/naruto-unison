@@ -73,7 +73,7 @@ import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Requirement (Requirement(..))
 import qualified Game.Model.Requirement as Requirement
-import           Game.Model.Skill (Skill)
+import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Game.Model.Status (Status(Status))
@@ -290,17 +290,15 @@ clearTraps tr n = n { N.traps = filter ((/= tr) . Trap.trigger) $ N.traps n }
 
 -- | Adds channels with a specific target.
 addChannels :: Skill -> Slot -> Ninja -> Ninja
-addChannels skill target n
-  | chan == Instant || dur == 1                     = n
-  | Effects.stun n `intersects` Skill.classes skill = n
-  | otherwise = n { N.channels = chan' : N.channels n }
+addChannels Skill{dur = Instant} _ n = n
+addChannels skill@Skill{classes, dur} target n
+  | Effects.stun n `intersects` classes = n
+  | otherwise = n { N.channels = chan : N.channels n }
   where
-    chan  = Skill.dur skill
-    dur   = succ $ TurnBased.getDur chan
-    chan' = Channel
+    chan = Channel
         { target
         , skill = skill { Skill.require = Usable }
-        , dur   = TurnBased.setDur dur chan
+        , dur   = TurnBased.incr dur
         , new   = True
         }
 

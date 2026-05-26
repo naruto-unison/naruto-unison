@@ -2,10 +2,10 @@
 module Game.Action
   ( wrap
   , act
-  , run, addChannels
+  , run, runTargeted
   , chooseTargets
-  , targeted, filterCounters
-  , interruptions
+  , filterCounters
+  , runInterruptions
   ) where
 
 import ClassyPrelude hiding ((<|))
@@ -14,13 +14,19 @@ import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Bits (setBit, testBit)
 import Data.Enum.Set (EnumSet, AsEnumSet(..))
 
+import           Class.Classed (Classed)
+import qualified Class.Classed as Classed
 import           Class.Hook (MonadHook)
 import qualified Class.Hook as Hook
+import           Class.Labeled (Labeled)
+import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Class.Random as R
+import           Class.TurnBased (TurnBased)
+import qualified Class.TurnBased as TurnBased
 import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
@@ -45,6 +51,8 @@ import qualified Game.Model.Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import qualified Game.Model.Status as Status
+import           Game.Model.Trap (Trap(Trap))
+import qualified Game.Model.Trap
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((!!), (∈), (∉), intersects)
 
@@ -204,13 +212,8 @@ run' affected xs = do
         exec (To t r)   = P.with (local t) $ targetEffect affected r
     mapM_ (mapM_ exec) xs
 
--- | If 'Skill.dur' is long enough to last for multiple turns, the 'Skill'
--- is added to 'N.channels'.
--- Uses 'Ninjas.addChannels' internally.
-addChannels :: ∀ m. MonadPlay m => m ()
-addChannels = do
-    Context{skill, target, user} <- P.context
-    P.modify user $ Ninjas.addChannels skill target
+runTargeted :: ∀ m. (MonadPlay m, MonadRandom m) => [Runnable Target] -> m ()
+runTargeted effects = run =<< targeted effects
 
 -- | Filters a list of targets to those capable of countering a skill.
 filterCounters :: [[Runnable Slot]] -- ^ Effects of the skill to be countered.
@@ -223,7 +226,7 @@ filterCounters slots = filter $ testBit targetSet . Slot.toInt . N.slot
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Context -> m ()
-act ctx@Context{user, new, skill} = void $ runMaybeT do
+act ctx@Context{user, new, skill, target} = void $ runMaybeT do
     let Skill{charges, classes, dur, effects, require, start} = skill
     Game{chakra} <- P.game
     nUser   <- P.ninja user
@@ -267,7 +270,7 @@ act ctx@Context{user, new, skill} = void $ runMaybeT do
                 _       -> do
                     run' (singletonSet Targeted) startEfs
                     P.withContinues $ run' (singletonSet Targeted) contEfs
-                    addChannels
+                    P.modify user $ Ninjas.addChannels skill target
             P.modify user \n -> n { N.acted = True }
             when new
                 . P.modify user $ Cooldown.update skill
@@ -287,11 +290,40 @@ act ctx@Context{user, new, skill} = void $ runMaybeT do
       | otherwise            = n
 
 -- | Effects to run when a channeled skill is canceled.
-interruptions :: Skill -> [Runnable Target]
-interruptions Skill{interrupt, name} = To Enemy clear : To Ally clear : interrupt
+runInterruptions :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Channel -> m ()
+runInterruptions user (Channel skill@Skill {end, name} target _ _) = do
+    P.withContext ctx $ runTargeted end
+    P.modifyAll removeInterrupted
   where
-    clear :: ∀ m. MonadPlay m => m ()
-    clear = P.fromUser $ Ninjas.clear name
+    ctx = Context { skill
+                  , user
+                  , target
+                  , new = False
+                  , continues = False
+                  }
+    removeInterrupted :: Ninja -> Ninja
+    removeInterrupted n@Ninja{barrier, defense, statuses, traps}
+      | hasInterrupted = Ninjas.processEffects
+                         n { N.defense  = filter uninterrupted defense
+                           , N.barrier  = filter uninterrupted barrier
+                           , N.statuses = filter uninterrupted statuses
+                           , N.traps    = filter uninterruptedTrap traps
+                           }
+      | otherwise      = n
+      where
+        hasInterrupted = any interrupted statuses
+                      || any interrupted traps
+                      || any interrupted defense
+                      || any interrupted barrier
+    interrupted :: ∀ a. (Classed a, Labeled a, TurnBased a) => a -> Bool
+    interrupted a = Continues ∈ Classed.classes a && TurnBased.getDur a <= 1
+                    && Labeled.match name user a
+    uninterrupted :: ∀ a. (Classed a, Labeled a, TurnBased a) => a -> Bool
+    uninterrupted = not . interrupted
+    uninterruptedTrap :: Trap -> Bool
+    uninterruptedTrap Trap{trigger = OnDeath} = True
+    uninterruptedTrap x = uninterrupted x
+
 
 -- | True for all targets except 'REnemy', 'RAlly', and 'RXAlly'.
 nonRandom :: Target -> Bool
@@ -311,8 +343,11 @@ breakControls = mapM_ breakN =<< P.ninjas
 
 breakControl :: ∀ m. (MonadGame m, MonadRandom m)
              => Slot -> EnumSet Class -> Channel -> m ()
-breakControl user stuns Channel { dur = Control{}
-                                , skill = skill@Skill{name, classes, effects}
+breakControl user stuns chan@Channel { dur = Control{}
+                                , skill = skill@Skill { name
+                                                      , classes
+                                                      , effects
+                                                      }
                                 , target
                                 } =
     P.withContext Context
@@ -322,9 +357,8 @@ breakControl user stuns Channel { dur = Control{}
         , new = False
         , continues = False
         } $ guardBreak $ do
-            interruptTargets <- targeted $ interruptions skill
-            run interruptTargets
             P.modify user $ Ninjas.cancelChannel name
+            runInterruptions user chan
   where
     targets = filter (nonRandom . Runnable.target) effects
     guardBreak

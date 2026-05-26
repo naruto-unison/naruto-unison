@@ -248,7 +248,6 @@ data Skill = Skill
     , start     :: [Runnable Target] -- ^ Defaults to empty
     , effects   :: [Runnable Target] -- ^ Defaults to empty
     , stunned   :: [Runnable Target] -- ^ Defaults to empty
-    , interrupt :: [Runnable Target] -- ^ Defaults to empty
     , end       :: [Runnable Target] -- ^ Defaults to empty
     , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'
     , owner     :: Slot
@@ -267,7 +266,6 @@ instance ToJSON Skill where
         , start
         , effects
         , stunned
-        , interrupt
         , end
         , owner
         } = object
@@ -282,7 +280,6 @@ instance ToJSON Skill where
         , "start"     .= start
         , "effects"   .= effects
         , "stunned"   .= stunned
-        , "interrupt" .= interrupt
         , "end"       .= end
         , "owner"     .= owner
         ]

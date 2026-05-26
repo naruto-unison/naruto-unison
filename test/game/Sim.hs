@@ -5,7 +5,6 @@ module Sim
   , enemies
   , turns
   , as, at, use
-  , targetIsExposed
   , statusDur
   , withClass, withClasses
   , targets
@@ -24,10 +23,8 @@ import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Game.Action as Action
-import           Game.Action.Status (apply)
 import qualified Game.Characters as Characters
 import qualified Game.Engine as Engine
-import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
 import           Game.Model.Character (Category(..), Character)
@@ -36,7 +33,6 @@ import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Duration (Duration(..), sync)
-import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game
 import           Game.Model.Ninja (Ninja)
@@ -158,12 +154,6 @@ simOf game target action =
 
 simAt :: ∀ a. Target -> ReaderT Context (StateT Wrapper Identity) a -> a
 simAt = simOf Blank.game
-
-targetIsExposed :: ∀ m. MonadPlay m => m Bool
-targetIsExposed = do
-    P.with (\context -> context { Context.user = Context.target context })
-        $ apply Permanent [Invulnerable All]
-    null . Effects.invulnerable <$> P.nTarget
 
 withClass :: ∀ m. MonadPlay m => Class -> m () -> m ()
 withClass cla = withClasses $ singletonSet cla

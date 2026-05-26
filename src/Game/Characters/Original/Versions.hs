@@ -209,18 +209,17 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6
         , Skill.dur       = Ongoing -5
-        , Skill.start     =
-          [ To Self $ bombWith [Hidden] -5 [] [ To Expire $
-                apply' "Tailed Beast Form" 3
-                    [ Face
-                    , Alternate "Monstrous Sand Arm"
-                                "Wind Bullet"
-                    , Alternate "Sand Transformation"
-                                "Shukaku Full Release"
-                    ] ]
-          ]
         , Skill.effects   =
           [ To Self $ defend Permanent 10 ]
+        , Skill.end       =
+          [ To Self $
+                apply' "Tailed Beast Form" 3 [ Face
+                                             , Alternate "Monstrous Sand Arm"
+                                                         "Wind Bullet"
+                                             , Alternate "Sand Transformation"
+                                                        "Shukaku Full Release"
+                                             ]
+          ]
         }
       , Skill.new
         { Skill.name      = "Shukaku Full Release"

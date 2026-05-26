@@ -114,17 +114,15 @@ characters =
         , Skill.dur       = Action Permanent
         , Skill.effects   =
           [ To Enemies $ apply Permanent [ Snare 1 ]
-          , To Self $ hide 1 [ Alternate "Burning Ash"
-                                         "Burning Ash: Ignite"
-                             ]
+          , To Self $ apply 1 [ Alternate "Burning Ash"
+                                          "Burning Ash: Ignite"
+                              ]
           ]
         , Skill.stunned   =
-          [ To Self $ hide 1 [ Alternate "Burning Ash"
-                                         "Burning Ash: Ignite"
-                             ]
+          [ To Self $ apply 1 [ Alternate "Burning Ash"
+                                          "Burning Ash: Ignite"
+                              ]
           ]
-        , Skill.interrupt =
-          [ To Self $ remove "burning ash" ]
         }
       , Skill.new
         { Skill.name      = "Burning Ash: Ignite"

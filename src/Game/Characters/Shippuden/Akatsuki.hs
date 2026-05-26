@@ -243,15 +243,17 @@ characters =
         , Skill.classes   = [Physical, Melee, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
-        , Skill.dur       = Instant
-        , Skill.effects   =
-          [ To Enemies do
-                bomb -1 [] [ To Expire $ apply' "Pinned" -1 [ Expose ] ]
-                trap -1 OnHarm $
-                    remove "Thousand Arms"
+        , Skill.dur       = Ongoing -1
+        , Skill.start     =
+          [ To Enemies $ trap -1 OnHarm
+                flag
           , To Self $ hide 1 [ Alternate "Thousand Arms"
                                          "Poison Gas"
                              ]
+          ]
+        , Skill.end       =
+          [ To Enemies $ unlessM (target has "thousand arms") $
+                apply' "Pinned" 1 [ Expose ]
           ]
         }
       , Skill.new
@@ -532,8 +534,6 @@ characters =
                 , Face
                 ]
           ]
-        , Skill.interrupt =
-          [ To Self $ remove "exploding water shockwave" ]
         }
       , Skill.new
         { Skill.name      = "Shark Dance"
@@ -553,7 +553,7 @@ characters =
         , Skill.classes   = [Chakra, Ranged, Bypassing, Invisible]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 4
-        , Skill.dur       = Ongoing 1
+        , Skill.dur       = Ongoing -1
         , Skill.effects   =
           [ To Enemy do
                 trap 1 (Countered Chakra)
@@ -1195,21 +1195,15 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.dur       = Ongoing 3
         , Skill.cooldown  = 3
-        , Skill.start     =
-          [ To Self $
-                bombWith' [Hidden] "summoning: giant multi-headed dog" -1 []
-                    [ To Done $ remove "Summoning: Giant Multi-Headed Dog" ]
-          ]
         , Skill.effects   =
-          [ To Self $ prolong 1 "summoning: giant multi-headed dog"
-          , To Allies $ trap -1 (OnHarmed All) $ targeting Self
+          [ To Allies $ trap -1 (OnHarmed All) $ targeting Self
                 addStack
           , To Enemies do
                 stacks <- user numStacks "Summoning: Giant Multi-Headed Dog"
                 damage (10 * bit stacks)
           ]
-        , Skill.interrupt =
-          [ To Self $ remove "summoning: giant multi-headed dog" ]
+        , Skill.end       =
+          [ To Self $ remove "Summoning: Giant Multi-Headed Dog" ]
         }
       ]
     , [ invuln "Summoning: Giant Chameleon" "Pain" [Summon, Invisible] ]
@@ -1331,11 +1325,6 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
         , Skill.dur       = Control -4
-        , Skill.start     =
-          [ To Self do
-                remove "control"
-                remove "dragon"
-          ]
         , Skill.effects   =
           [ To Self do
                 dragonStacks <- user numStacks "dragon"
@@ -1346,10 +1335,10 @@ characters =
                                     "Control"
                         ]
           ]
-        , Skill.interrupt =
+        , Skill.end       =
           [ To Self do
-                remove "Summoning: Gedo Statue"
-                remove "Control"
+                remove "control"
+                remove "dragon"
           ]
         }
       , Skill.new
@@ -1397,13 +1386,8 @@ characters =
         , Skill.classes   = [Mental, Necromancy]
         , Skill.cost      = [Blood, Gen, Nin]
         , Skill.dur       = Control 3
-        , Skill.start     =
-          [ To Self $
-                bombWith' [Hidden] "rinne rebirth" -1 [] [ To Done killHard ]
-          ]
         , Skill.effects   =
-          [ To Self $ prolong 1 "rinne rebirth"
-          , To XAllies do
+          [ To XAllies do
                 targetAlive <- target alive
                 if targetAlive then
                     heal 15
@@ -1411,8 +1395,8 @@ characters =
                     factory
                     setHealth 15
           ]
-        , Skill.interrupt =
-          [ To Self $ remove "rinne rebirth" ]
+        , Skill.end       =
+          [ To Self killHard ]
         }
       ]
     , [ (invuln "Rinnegan Foresight" "Nagato" [Mental])

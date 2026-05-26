@@ -10,6 +10,8 @@ import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), object)
 
+import           Class.Classed (Classed)
+import qualified Class.Classed as Classed
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
@@ -19,7 +21,6 @@ import qualified Game.Model.Ninja
 import           Game.Model.Slot (Slot)
 import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
-import qualified Game.Model.Trap as Trap
 import           Util ((∈), (∉))
 
 -- | From 'Effect.Face'. Used only as an encoding intermediary.
@@ -55,16 +56,17 @@ instance ToJSON Ninja where
         , "charges"   .= charges
         , "defense"   .= defense
         , "barrier"   .= barrier
-        , "statuses"  .= foldStats
-                         (filter ((Hidden ∉) . Status.classes) statuses)
+        , "statuses"  .= foldStats (hideHidden statuses)
         , "copies"    .= copies
         , "channels"  .= channels
-        , "traps"     .= filter ((Hidden ∉) . Trap.classes) traps
+        , "traps"     .= hideHidden traps
         , "face"      .= (statusFace <$> mFace)
         , "lastSkill" .= lastSkill
         , "skills"    .= Ninjas.skills n
         ]
       where
+        hideHidden :: ∀ a. Classed a => [a] -> [a]
+        hideHidden = filter $ (Hidden ∉) . Classed.classes
         mFace = find ((Effect.Face ∈) . Status.effects) statuses
         foldStats xs       = foldStat <$> group (sort xs)
         foldStat   (x:|[]) = x

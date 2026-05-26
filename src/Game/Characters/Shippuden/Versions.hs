@@ -487,21 +487,16 @@ characters =
           , To Self $ removeStack "Blazing Arrow"
           ]
         , Skill.stunned   =
+          [ To Self cancelChannel ]
+        , Skill.end       =
           [ To Enemy do
                 stacks <- user numStacks "Blazing Arrow"
-                damage (15 * stacks)
+                when (stacks > 0) $
+                    damage (15 * stacks)
           , To Self do
                 remove "Blazing Arrow"
-                cancelChannel
-                reset "Blazing Arrow"
-          ]
-        , Skill.interrupt  =
-          [ To Enemy do
-                stacks <- user numStacks "Blazing Arrow"
-                damage (15 * stacks)
-          , To Self do
-                remove "Blazing Arrow"
-                reset "Blazing Arrow"
+                whenM (user has "Blazing Arrow") $
+                    reset "Blazing Arrow"
           ]
         }
       ]
@@ -658,7 +653,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 30
-                bomb' "Complex Toxin" 2 [] [ To Expire $ apply 1 [Stun All] ]
+                bomb' "Complex Toxin" 2 [] [ To Expire $ apply 1 [ Stun All ] ]
           , To Self do
                 cancelChannel' "Flamethrower Jets"
                 targeting Everyone do

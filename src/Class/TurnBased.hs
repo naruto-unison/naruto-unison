@@ -2,6 +2,7 @@ module Class.TurnBased
   ( TurnBased(..)
   , decr
   , expiring
+  , incr
   ) where
 
 import ClassyPrelude
@@ -36,6 +37,11 @@ decr x
   | otherwise   = Just $ setDur (pred dur) x -- @pred Permanent == Permanent@
   where
     dur = getDur x
+
+-- | If @'getDur' == 'Permanent'@, has no effect.
+-- Otherwise, increases the remaining duration by 1.
+incr :: ∀ a. TurnBased a => a -> a
+incr x = setDur (succ $ getDur x) x -- @succ Permanent == Permanent@
 
 expiring :: ∀ a. TurnBased a => a -> Bool
 expiring x = getDur x < 1

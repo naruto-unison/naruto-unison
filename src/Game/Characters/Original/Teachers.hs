@@ -90,13 +90,14 @@ characters =
         , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Self do
-                trap -1 (OnDamaged All) $
-                    remove "Genjutsu Ambush Tactics"
-                bombWith [Hidden] -1 []
-                  [ To Expire $
-                        apply' "Successful Ambush" -1 [ Invulnerable All ] ]
+        , Skill.dur       = Action -1
+        , Skill.start     =
+          [ To Self $ trap -1 (OnDamaged All)
+                flag
+          ]
+        , Skill.end       =
+          [ To Self $ unlessM (user has "genjutsu ambush tactics") $
+                apply' "Successful Ambush" 1 [ Invulnerable All ]
           ]
         }
       ]
@@ -295,8 +296,6 @@ characters =
           , To Self $ hide 1 [ Alternate "Demonic Illusion: Sylvan Fetters"
                                          "Sylvan Fetters Attack" ]
           ]
-        , Skill.interrupt =
-          [ To Self $ remove "demonic illusion: sylvan fetters" ]
         }
       , Skill.new
         { Skill.name      = "Sylvan Fetters Attack"

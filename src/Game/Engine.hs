@@ -177,7 +177,7 @@ doExpirations = do
 
 runSkillEnd :: ∀ m. (MonadGame m, MonadRandom m) => Ninja -> Channel -> m ()
 runSkillEnd Ninja{slot} (Channel skill@Skill{end} target _ _) = P.launch $
-    To context $ Action.run =<< Action.targeted end
+    To context $ Action.runTargeted end
   where
     context = Context { skill
                       , user      = slot

@@ -94,13 +94,13 @@ extendWith name i n skill = skill { Skill.dur = TurnBased.setDur dur chan }
     dur   = TurnBased.getDur chan + added
 
 -- | Applies a transformation to 'Skill.effects', 'Skill.start', and
--- 'Skill.interrupt'.
+-- 'Skill.end'.
 changeEffects :: ([Runnable Target] -> [Runnable Target]) -> Skill -> Skill
 changeEffects f skill =
     skill { Skill.effects   = f $ Skill.effects skill
           , Skill.start     = f $ Skill.start skill
-          , Skill.interrupt = f $ Skill.interrupt skill
           , Skill.stunned   = f $ Skill.stunned skill
+          , Skill.end       = f $ Skill.end skill
           }
 
 -- | Modifies a 'Skill' by its 'Skill.change' and any other effects on it.

@@ -729,8 +729,6 @@ characters =
                                , Stun NonMental
                                ]
           ]
-        , Skill.interrupt =
-          [ To Self $ remove "sand coffin" ]
         }
       , Skill.new
         { Skill.name      = "Sand Burial"
