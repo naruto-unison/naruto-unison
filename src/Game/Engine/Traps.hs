@@ -159,8 +159,7 @@ apply direction classes unthrottled trigger f = void $ runMaybeT do
     let tr = makeTrap context direction classes dur trigger f
     guard $ tr ∉ N.traps nTarget
     guard . not $ isCounter && nUser `is` Disable Counters
-    P.modify target \n ->
-        n { N.traps = Classed.nonStack tr $ N.traps n }
+    P.modify target \n -> n { N.traps = Classed.nonStack tr $ N.traps n }
   where
     isCounter = Trigger.isCounter trigger
     throttle n

@@ -119,8 +119,9 @@ teach :: ∀ m. MonadPlay m
        -> [Int]
        -> m ()
 teach dur name slots = do
+    Context{target} <- P.context
     Ninja{character = Character{skills}} <- P.nUser
-    mapM_ (P.toTarget . Ninjas.copy dur slots)
+    mapM_ (P.modify target . Ninjas.copy dur slots)
         $ find ((== name) . Skill.name) $ concatMap toList skills
 
 -- | Resets a 'N.Ninja' to their initial state.
@@ -129,7 +130,7 @@ factory :: ∀ m. MonadPlay m => m ()
 factory = do
     Context{target, user} <- P.context
     alive <- N.alive <$> P.nTarget
-    P.toTarget Ninjas.factory
+    P.modify target Ninjas.factory
     P.modifyAll $ unSoulbound target
     alive' <- N.alive <$> P.nTarget
     when (alive' && not alive)

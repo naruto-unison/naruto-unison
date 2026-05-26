@@ -68,7 +68,7 @@ instance (MonadST m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) whe
     {-# INLINABLE ninja #-}
     write i x  = askST ninjasRef \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
     {-# INLINABLE write #-}
-    modify i f = askST ninjasRef \xs -> MVector.unsafeModify xs f $ Slot.toInt i
+    modify i f = askST ninjasRef \xs -> MVector.unsafeModify xs f (Slot.toInt i)
     {-# INLINABLE modify #-}
     modifyAll f = askST ninjasRef \xs ->
         mapM_ (MVector.unsafeModify xs f . Slot.toInt) Slot.all

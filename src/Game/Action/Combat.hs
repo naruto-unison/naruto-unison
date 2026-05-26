@@ -68,7 +68,7 @@ demolishAll = do
     defense <- N.defense <$> P.nTarget
     P.modify user   $ Ninjas.processEffects . \n -> n { N.barrier = [] }
     P.modify target $ Ninjas.processEffects . \n -> n { N.defense = [] }
-    P.trigger user $ OnBreak . Labeled.name <$> barrier
+    P.trigger user   $ OnBreak . Labeled.name <$> barrier
     P.trigger target $ OnBreak . Labeled.name <$> defense
 
 -- | Adds an amount to a 'Destructible' 'N.defense' that the target already has.
@@ -146,10 +146,10 @@ executeAt threshold = whenM (shouldExecute <$> P.nTarget) kill
 
 killFull :: ∀ m. MonadPlay m => Bool -> m ()
 killFull endure = whenM (N.alive <$> P.nTarget) do
-    P.toTarget $ Ninjas.kill endure
+    Context{target, user, skill} <- P.context
+    P.modify target $ Ninjas.kill endure
     unlessM (N.alive <$> P.nTarget) do
-        Context{user, skill} <- P.context
-        P.toTarget . Ninjas.addStatus $ executed user skill
+        P.modify target . Ninjas.addStatus $ executed user skill
   where
     executed user skill = Status
         { amount = 1
@@ -235,4 +235,4 @@ sacrifice minhp hp = do
     Context{target, user} <- P.context
     when (user == target)
         $ P.trigger user [OnSacrifice]
-    P.toTarget $ Ninjas.sacrifice minhp hp
+    P.modify target $ Ninjas.sacrifice minhp hp

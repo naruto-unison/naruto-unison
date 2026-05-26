@@ -226,7 +226,7 @@ filterCounters slots = filter $ testBit targetSet . Slot.toInt . N.slot
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Context -> m ()
-act ctx@Context{user, new, skill, target} = void $ runMaybeT do
+act ctx@Context{user, new, target, skill} = void $ runMaybeT do
     let Skill{charges, classes, dur, effects, require, start} = skill
     Game{chakra} <- P.game
     nUser   <- P.ninja user
@@ -341,23 +341,24 @@ breakControls = mapM_ breakN =<< P.ninjas
 
 breakControl :: ∀ m. (MonadGame m, MonadRandom m)
              => Slot -> EnumSet Class -> Channel -> m ()
-breakControl user stuns chan@Channel { dur = Control{}
-                                , skill = skill@Skill { name
-                                                      , classes
-                                                      , effects
-                                                      }
-                                , target
-                                } =
-    P.withContext Context
+breakControl user stuns chan@Channel { dur   = Control{}
+                                     , skill = skill@Skill { name
+                                                           , classes
+                                                           , effects
+                                                           }
+                                     , target
+                                     } =
+    P.withContext context $ guardBreak $ do
+            P.modify user $ Ninjas.cancelChannel name
+            runInterruptions user chan
+  where
+    context = Context
         { skill
         , user
         , target
         , new = False
         , continues = False
-        } $ guardBreak $ do
-            P.modify user $ Ninjas.cancelChannel name
-            runInterruptions user chan
-  where
+        }
     targets = filter (nonRandom . Runnable.target) effects
     guardBreak
         | stuns `intersects` classes = id

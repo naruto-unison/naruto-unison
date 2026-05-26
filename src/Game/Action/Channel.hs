@@ -42,10 +42,10 @@ cancelChannel' name = do
 -- | Prematurely ends a channeled action.
 interrupt :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 interrupt = P.unsilenced do
-    Context{target} <- P.context
-    (yay, nay) <- partition Channel.interruptible . N.channels <$> P.nTarget
-    P.modify target \n -> n { N.channels = nay }
-    mapM_ (Action.runInterruptions target) yay
+    Ninja{channels, slot} <- P.nTarget
+    let (yay, nay) = partition Channel.interruptible channels
+    P.modify slot \n -> n { N.channels = nay }
+    mapM_ (Action.runInterruptions slot) yay
 
 -- | Increases the duration of 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.prolongChannel' internally.
