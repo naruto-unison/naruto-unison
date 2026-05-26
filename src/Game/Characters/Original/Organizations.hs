@@ -303,9 +303,9 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy $ apply 1 [ Stun NonMental ]
-          , To Self $ apply 1 [ Alternate "Chain Wrap"
-                                          "Chain Shred"
-                              ]
+          , To Self $ hide 1 [ Alternate "Chain Wrap"
+                                         "Chain Shred"
+                             ]
           ]
         }
       , Skill.new

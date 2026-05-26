@@ -262,9 +262,9 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self $
-                apply 1 [ Alternate "Shadow Possession"
-                                    "Shadow Dispersion"
-                        ]
+                hide 1 [ Alternate "Shadow Possession"
+                                   "Shadow Dispersion"
+                       ]
           , To Enemy do
                 bonus <- 10 `bonusIf` target has' traps "Black Spider Lily"
                 damage (20 + bonus)

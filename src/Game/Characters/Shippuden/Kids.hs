@@ -459,9 +459,9 @@ characters =
                 damage 35
                 apply 1 [ Stun NonMental ]
                 hide' "final" 1 []
-                targeting Self $ apply 1 [ Alternate "Shadow Sewing"
+                targeting Self $ hide 1 [ Alternate "Shadow Sewing"
                                                      "Shadow Sewing: Hold"
-                                         ]
+                                        ]
           ]
         }
       , Skill.new
@@ -475,7 +475,7 @@ characters =
                 damage 20
                 prolong 1 "Shadow Sewing"
                 hide' "final" 1 []
-                targeting Self $ prolong 1 "Shadow Sewing"
+                targeting Self $ prolong 1 "shadow sewing"
           ]
         }
       ]
@@ -801,10 +801,9 @@ characters =
         , Skill.effects   =
           [ To Enemies $ apply 2 [Expose]
           , To Self $ trap 1 (CounterAll All) $
-                bomb 1 [ Alternate "Eight Trigrams Sixty-Four Palms"
+                hide 1 [ Alternate "Eight Trigrams Sixty-Four Palms"
                                    "Pressure Point Strike"
                        ]
-                    [ To Expire $ remove "Pressure Point Strike" ]
           ]
         }
       , Skill.new
@@ -821,6 +820,8 @@ characters =
                 addStack
                 prolong 1 "Eight Trigrams Sixty-Four Palms"
           ]
+          , Skill.end     =
+            [ To Self $ remove "Pressure Point Strike" ]
         }
       ]
     , [ invuln "Byakugan Foresight" "Neji" [Mental] ]

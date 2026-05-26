@@ -259,10 +259,9 @@ characters =
                 apply 1 [ Exhaust [NonMental] ]
                 trap 1 (OnAction NonMental) $
                     remove "Sand Burial Prison"
-          , To Self $ apply' "Giant Sand Burial" 1
-                    [ Alternate "Sand Burial Prison"
-                                "Giant Sand Burial"
-                    ]
+          , To Self $ hide 1 [ Alternate "Sand Burial Prison"
+                                         "Giant Sand Burial"
+                             ]
           ]
         }
       , Skill.new

@@ -22,9 +22,9 @@ characters =
           [ To Enemy do
                 trap' 1 (OnDamaged All) $ apply 1 [ Stun All ]
                 pierce 25
-          , To Self $ apply 1 [ Alternate "Lightning Beast Fang"
-                                          "Lightning Blade Finisher"
-                              ]
+          , To Self $ hide 1 [ Alternate "Lightning Beast Fang"
+                                         "Lightning Blade Finisher"
+                             ]
           ]
         }
       , Skill.new
@@ -88,9 +88,9 @@ characters =
           [ To Enemy $ damage 25
           , To Self do
                 defend Permanent 40
-                apply 1 [ Alternate "Thousand Hand Strike"
-                                    "Kannon Strike"
-                        ]
+                hide 1 [ Alternate "Thousand Hand Strike"
+                                   "Kannon Strike"
+                       ]
           ]
         }
       , Skill.new
@@ -114,14 +114,14 @@ characters =
         , Skill.dur       = Action Permanent
         , Skill.effects   =
           [ To Enemies $ apply Permanent [ Snare 1 ]
-          , To Self $ apply 1 [ Alternate "Burning Ash"
-                                          "Burning Ash: Ignite"
-                              ]
+          , To Self $ hide 1 [ Alternate "Burning Ash"
+                                         "Burning Ash: Ignite"
+                             ]
           ]
         , Skill.stunned   =
-          [ To Self $ apply 1 [ Alternate "Burning Ash"
-                                          "Burning Ash: Ignite"
-                              ]
+          [ To Self $ hide 1 [ Alternate "Burning Ash"
+                                         "Burning Ash: Ignite"
+                             ]
           ]
         }
       , Skill.new

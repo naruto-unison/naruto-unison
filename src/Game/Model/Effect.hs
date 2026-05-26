@@ -260,9 +260,9 @@ adjust _ ef                     = ef
 
 -- | Effect is displayed to the client.
 visible :: Effect -> Bool
-visible (Alternate x y) = not $ x `isPrefixOf` y
-visible Face            = False
-visible _               = True
+visible Alternate{} = False
+visible Face        = False
+visible _           = True
 
 -- | Slot component of an effect.
 slot :: Effect -> Maybe Slot

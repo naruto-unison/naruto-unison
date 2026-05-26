@@ -404,9 +404,9 @@ characters =
           [ To Self do
                 trapFrom 1 (OnHarmed All) $
                     apply Permanent [ Afflict 10 ]
-                apply 1 [ Alternate "Scroll Unraveling"
-                                    "Multiple Explosions of Death"
-                        ]
+                hide 1 [ Alternate "Scroll Unraveling"
+                                   "Multiple Explosions of Death"
+                       ]
           ]
         }
       , Skill.new

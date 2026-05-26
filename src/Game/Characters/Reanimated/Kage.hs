@@ -35,7 +35,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 25
-                forest <- user has "Deep Forest Creation"
+                forest <- channeling "Deep Forest Creation"
                 apply 1 if forest then
                     [ Stun All ]
                 else
@@ -50,13 +50,14 @@ characters =
         , Skill.desc      = "The battlefield transforms into a forest. For 2 turns, enemy cooldowns are increased by 1 turn and the cost of enemy non-mental skills is increased by 1 arbitrary chakra. While active, this skill becomes [Deep Forest Flourishing][b][b]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Blood]
+        , Skill.dur       = Ongoing 2
         , Skill.effects   =
-          [ To Enemies $ apply 2 [ Snare 1
+          [ To Enemies $ apply 1 [ Snare 1
                                  , Exhaust [NonMental]
                                  ]
-          , To Self $ apply 2 [ Alternate "Deep Forest Creation"
-                                          "Deep Forest Flourishing"
-                              ]
+          , To Self $ hide 1 [ Alternate "Deep Forest Creation"
+                                         "Deep Forest Flourishing"
+                             ]
           ]
         }
       , Skill.new
@@ -271,8 +272,9 @@ characters =
                 addStack' "Hell Stab"
                 trap Permanent (OnDamaged All) $
                     alterCd "Lightning Armor" -1
-                hide Permanent
-                    [Alternate "Piercing Four-Fingered" "One-Fingered Assault"]
+                hide Permanent [ Alternate "Piercing Four-Fingered"
+                                           "One-Fingered Assault"
+                               ]
           ]
         }
       , Skill.new

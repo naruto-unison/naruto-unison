@@ -290,16 +290,16 @@ characters =
         }
       , Skill.new
         { Skill.name      = "First Blood"
-        , Skill.desc      = "Searching for a victim to join him in his ritual of death, Hidan deals 5 damage to an opponent and marks them for 2 turns. For 2 turns, this skill becomes [Blood Curse][g]."
+        , Skill.desc      = "Searching for a victim to join him in his ritual of death, Hidan deals 5 damage to an opponent and marks them for 2 turns. While they are marked, this skill becomes [Blood Curse][g]."
         , Skill.classes   = [Bane, Physical, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
                 damage 5
-                tag 2
-                targeting Self $ apply 2 [ Alternate "Jashin Sigil"
-                                                     "Blood Curse"
-                                         ]
+                bomb 2 [] [ To Done $ targeting Self $ remove "first blood" ]
+                targeting Self $ hide Permanent [ Alternate "Jashin Sigil"
+                                                            "Blood Curse"
+                                                ]
           ]
         }
       , Skill.new
@@ -521,18 +521,16 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemies $ apply 1 [ Snare 1 ]
-          , To Self $ hide 1
-                [ Alternate "Exploding Water Shockwave"
-                            "Shark Dance"
-                , Face
-                ]
+          , To Self $ hide 1 [ Alternate "Exploding Water Shockwave"
+                                         "Shark Dance"
+                             , Face
+                             ]
           ]
         , Skill.stunned   =
-          [ To Self $ hide 1
-                [ Alternate "Exploding Water Shockwave"
-                            "Shark Dance"
-                , Face
-                ]
+          [ To Self $ hide 1 [ Alternate "Exploding Water Shockwave"
+                                         "Shark Dance"
+                             , Face
+                             ]
           ]
         }
       , Skill.new

@@ -116,10 +116,9 @@ characters =
                 apply 1 [ Expose ]
                 bonus <- 5 `bonusIf` target has "Dragon Flame"
                 damage (5 + bonus)
-          , To Self $ apply' "Twin Snake Sacrifice" 1
-                        [ Alternate "Dragon Flame"
-                                    "Twin Snake Sacrifice"
-                        ]
+          , To Self $ hide 1 [ Alternate "Dragon Flame"
+                                         "Twin Snake Sacrifice"
+                             ]
           ]
         }
       ]
