@@ -468,7 +468,6 @@ characters =
           [ To Self do
                 heal 15
                 gain [Rand]
-                hide' "unchili" -1 []
           ]
         }
       ]
@@ -492,11 +491,11 @@ characters =
           ]
         , Skill.effects   =
           [ To XAllies $ apply' "Protected" 1 [ Reduce [All] Flat 15 ]
-          , To Self $ unlessM (user has "unchili") $
+          , To Self $ unlessM (channeling "Chakra Wings") $
                 sacrifice 0 15
           ]
         , Skill.stunned   =
-          [ To Self $ unlessM (user has "unchili") $
+          [ To Self $ unlessM (channeling "Chakra Wings") $
                 sacrifice 0 15
           ]
         }
@@ -543,10 +542,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self do
-                apply 1 [ Invulnerable All ]
-                hide' "unchili" -1 []
-          ]
+          [ To Self $ apply 1 [ Invulnerable All ] ]
         }
       ]
     ]

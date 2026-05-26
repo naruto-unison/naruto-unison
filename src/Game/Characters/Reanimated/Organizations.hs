@@ -321,9 +321,9 @@ characters =
                 pierce (20 + 5 * affected)
                 userSlot <- user slot
                 bomb 1 [ Block userSlot ]
-                        [ To Done $ targeting Self $
+                       [ To Done $ targeting Self $
                             removeStack "needle stitching"
-                        ]
+                       ]
                 targeting Self $ hide Permanent []
           ]
         }
@@ -649,7 +649,6 @@ characters =
         , Skill.classes    = [Physical, Ranged]
         , Skill.cost       = [Blood, Gen, Tai]
         , Skill.cooldown   = 3
-        , Skill.dur        = Ongoing 3
         , Skill.start      =
           [ To Enemies do
                 barricade' 3 25 [ Silence ]

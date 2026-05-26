@@ -485,7 +485,6 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 5
-        , Skill.dur       = Ongoing 4
         , Skill.effects   =
           [ To Self do
                 trap 4 (OnDamaged NonAffliction) $

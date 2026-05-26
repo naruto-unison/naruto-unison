@@ -1141,17 +1141,18 @@ characters =
         , Skill.dur       = Ongoing 2
         , Skill.start     =
           [ To Enemy do
-                trap 2 (OnAction All) do
-                    remove "Summoning: Giant Centipede"
+                trap 2 (OnAction All) $
                     removeTrap "Summoning: Giant Centipede"
-                bomb 2 []
-                    [ To Expire $ apply' "Giant Centipede Stun" 1 [ Stun All ] ]
           ]
         , Skill.effects   =
           [ To Enemy $ damage 15
           , To Self $ hide 1 [ Alternate "Summoning: Giant Centipede"
                                          "Summoning: Giant Crustacean"
                              ]
+          ]
+        , Skill.end       =
+          [ To Enemy $ whenM (target has' traps "Summoning: Giant Centipede") $
+                    apply' "Giant Centipede Stun" 1 [ Stun All ]
           ]
         }
       , Skill.new

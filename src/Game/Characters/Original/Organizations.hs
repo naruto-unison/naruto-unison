@@ -602,7 +602,7 @@ characters =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 6
-        , Skill.dur       = Ongoing Permanent
+        , Skill.dur       = Passive
         , Skill.start     =
           [ To Allies $ defend 3 5
           , To Self $ onBreak cancelChannel

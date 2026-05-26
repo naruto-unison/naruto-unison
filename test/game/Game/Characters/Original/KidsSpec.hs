@@ -135,19 +135,24 @@ spec = parallel do
                 not <$> (target has "Shadow Possession")
 
     describeCharacter "Chōji Akimichi" do
-        useOn Self "Chakra Wings" do
-            it "blocks Chili damage" do
-                Sim.act
-                user has "unchili"
-
         useOn XAllies "Chili Pill" do
-            it "pauses damage during unchili" do
+            it "damages user each turn" do
                 Sim.act
-                Sim.turns testStacks
-                targeting Self $ tag' "unchili" Permanent
-                Sim.turns 10
+                targeting Self $ setHealth 100
+                Sim.turns 2
                 userHealth <- user health
-                100 - userHealth `shouldBe` 10 + (testStacks + 1) * 15
+                100 - userHealth `shouldBe` 2 * 15
+
+
+        useOn Self "Chakra Wings" do
+            it "pauses Chili Pill damage" do
+                Sim.use "Chili Pill"
+                Sim.act
+                targeting Self $ setHealth 100
+                targeting Self $ apply Permanent [Plague]
+                Sim.turns 2
+                userHealth <- user health
+                100 - userHealth `shouldBe` 0
 
         useOn Enemy "Butterfly Bombing" do
             it "damages target" do
