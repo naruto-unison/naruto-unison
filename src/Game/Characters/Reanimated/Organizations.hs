@@ -141,20 +141,13 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemies do
-                pierce 10
+                bonus <- 20 `bonusIf` channeling "Crystal Ice Mirrors"
+                pierce (10 + bonus)
                 trapPer' -1 PerDamaged \i ->
                     when (i >= 50) $
                         apply 1 [ Stun All ]
           ]
-        , Skill.changes   = changeWithChannel "Crystal Ice Mirrors" \x -> x
-                { Skill.effects =
-                  [ To Enemy do
-                        pierce 30
-                        trapPer' -1 PerDamaged \i ->
-                            when (i >= 50) $
-                                apply 1 [ Stun All ]
-                  ]
-                }
+        , Skill.changes   = changeWithChannel "Crystal Ice Mirrors" restrict
         }
       ]
     , [ Skill.new
@@ -182,9 +175,9 @@ characters =
           [ To Self $ defend Permanent 20 ]
         , Skill.effects   =
           [ To Self $ whenM (user has' defense "Crystal Ice Mirrors") $
-                trapPer -1 PerDamaged \i ->
-                    unlessM (user has' defense "Crystal Ice Mirrors") $
-                        defend Permanent i
+                trapPer -1 PerDamaged $
+                    unlessM (user has' defense "Crystal Ice Mirrors") .
+                        defend Permanent
           ]
         }
       ]
@@ -641,8 +634,10 @@ characters =
         , Skill.start      =
           [ To Enemies do
                 barricade' 3 25 [ Silence ]
-                onBreak $
-                    damage =<< target barrierAmount "Deva Path"
+                onBreak do
+                    remaining <- target barrierAmount "Deva Path"
+                    when (remaining > 0) $
+                        damage remaining
           ]
         }
       ]
@@ -685,7 +680,7 @@ characters =
             , Skill.effects   =
                 [ To Enemy do
                     chakra <- target lastChakraSpent
-                    targeting Self $ heal $ 10 * length chakra
+                    targeting Self $ heal (10 * length chakra)
                     absorb 3
                 ]
             }

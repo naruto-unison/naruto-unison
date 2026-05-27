@@ -66,28 +66,16 @@ characters =
         , Skill.cost      = [Blood, Gen]
         , Skill.effects   =
           [ To Enemy do
-                targeting Self $ hide Permanent [ Alternate "Kotoamatsukami"
-                                                            "Kotoamatsukami"
-                                                ]
+                targeting Everyone $ removeTrap "Kotoamatsukami"
+                targeting Self $ hide Permanent []
                 trap Permanent (OnAction All) do
                     targeting Self $ remove "kotoamatsukami"
+                    removeTrap "Kotoamatsukami"
                     deplete 1
                 trap Permanent OnDeath $ targeting Self $
                     remove "kotoamatsukami"
           ]
-        }
-      , Skill.new
-        { Skill.name      = "Kotoamatsukami"
-        , Skill.desc      = "Using his Mangekyō Sharingan, Shisui traps an enemy in a powerful genjutsu. The next time they use a skill, their team will lose 1 random chakra. Until they use a skill, Shisui can use this skill with no chakra cost to transfer Kotoamatsukami to a different enemy."
-        , Skill.classes   = [Mental, Ranged, Invisible]
-        , Skill.cost      = []
-        , Skill.effects   =
-          [ To Enemy do
-                targeting Everyone $ removeTrap "Kotoamatsukami"
-                trap Permanent (OnAction All) do
-                    targeting Self $ remove "kotoamatsukami"
-                    deplete 1
-          ]
+        , Skill.changes    = changeWith "Kotoamatsukami" $ setCost []
         }
       ]
     , [ invuln "Block" "Shisui" [Physical] ]
@@ -145,23 +133,26 @@ characters =
     "Torune Aburame" 0
     "An operative of the Hidden Leaf Village's elite Root division, Torune was born with rare venom-resistant antibodies that allow him to carry the Aburame clan's most dangerous species of beetle. The venom beetles cover his skin like armor, protecting him and infesting anyone who dares to touch him."
     [LeafVillage, Anbu, Aburame]
+    let
+        applyVenomBeetle :: RunConstraint ()
+        applyVenomBeetle = apply' "Venom Beetle" 5 [ Afflict 5 ]
+
+        applyBeetleDefense amount name = unlessM (user has' defense name) do
+            defend Permanent amount
+            trapFrom' Permanent (OnBreak name)
+                applyVenomBeetle
+    in
     [ [ Skill.new
         { Skill.name      = "Nano-Sized Venom Beetles"
         , Skill.desc      = "Torune applies a Venom Beetle to an enemy, dealing 5 affliction damage for 5 turns, and gains 15 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs [r] but does not provide any destructible defense."
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Enemy $ apply' "Venom Beetle" 5 [ Afflict 5 ]
-          , To Self do
-                defend Permanent 15
-                trapFrom' Permanent (OnBreak "Nano-Sized Venom Beetles") do
-                    addStack' "Venom Beetle"
-                    removeTrap "Nano-Sized Venom Beetles"
+          [ To Enemy applyVenomBeetle
+          , To Self $ applyBeetleDefense 15 "Nano-Sized Venom Beetles"
           ]
-        , Skill.changes   = changeWithDefense "Nano-Sized Venom Beetles" \x -> x
-                { Skill.cost    = [Rand]
-                , Skill.effects = take 1 $ Skill.effects x
-                }
+        , Skill.changes   = changeWithDefense "Nano-Sized Venom Beetles"
+                          $ setCost [Rand]
         }
       ]
     , [ Skill.new
@@ -171,22 +162,16 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = Permanent
         , Skill.effects   =
-          [ To Enemies $ apply' "Venom Beetle" 5 [Afflict 5]
-          , To Self do
-                defend Permanent 30
-                trapFrom' Permanent (OnBreak "Jar of Poison") do
-                    addStack' "Venom Beetle"
-                    removeTrap "Jar of Poison"
+          [ To Enemies applyVenomBeetle
+          , To Self $ applyBeetleDefense 30 "Jar of Poison"
           ]
-        , Skill.changes   = changeWithDefense "Jar of Poison" \x -> x
-                { Skill.cost    = [Rand, Rand]
-                , Skill.effects = take 1 $ Skill.effects x
-                }
+        , Skill.changes   = changeWithDefense "Jar of Poison"
+                          $ setCost [Rand, Rand]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Venom Explosion"
-        , Skill.desc      = "Torune detonates all Venom Beetles on an enemy, depleting 1 random chakra for each Venom Beetle destroyed. "
+        , Skill.desc      = "Torune detonates all Venom Beetles on an enemy, depleting 1 random chakra for each Venom Beetle destroyed."
         , Skill.require   = TargetHas 1 "Venom Beetle"
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood, Blood, Rand]
@@ -283,23 +268,24 @@ characters =
                                                  ]
           ]
         , Skill.effects   =
-          [ To Self $ unlessM (user has "paused") do
-                removeStack "Sharingan"
-                seal <- user has "Sharingan"
-                rewind <- user ()
-                if seal then trap' 1 OnRes do
-                    replaceWith rewind
-                    removeStacks "Sharingan" 2
-                    unlessM (user has "Sharingan") do
-                        cancelChannel
-                        hide Permanent [ Alternate "Izanagi"
-                                                   "Reverse Tetragram Sealing"
-                                       ]
-                else do
+          let
+            spendSharingans i = do
+                removeStacks "Sharingan" i
+                anyLeft <- user has "Sharingan"
+                unless (anyLeft)
                     cancelChannel
-                    hide Permanent [ Alternate "Izanagi"
-                                               "Reverse Tetragram Sealing"
-                                   ]
+                return anyLeft
+          in
+          [ To Self $ unlessM (user has "paused") $ whenM (spendSharingans 1) do
+                rewind <- user ()
+                trap' 1 OnRes do
+                    replaceWith rewind
+                    void $ spendSharingans 2
+          ]
+        , Skill.end       =
+          [ To Self $  hide Permanent [ Alternate "Izanagi"
+                                                  "Reverse Tetragram Sealing"
+                                      ]
           ]
         }
       , Skill.new

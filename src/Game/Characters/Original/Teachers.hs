@@ -62,12 +62,11 @@ characters =
         , Skill.cooldown  = 1
         , Skill.dur       = Action 2
         , Skill.effects   =
-          [ To Enemy $ damage 15 ]
-        , Skill.changes   = changeWith "Successful Ambush" \x -> x
-                { Skill.dur     = Instant
-                , Skill.effects =
-                  [ To Enemy $ damage 30 ]
-                }
+          [ To Enemy do
+                bonus <- 15 `bonusIf` user has "Successful Ambush"
+                damage (15 + bonus)
+          ]
+        , Skill.changes   = changeWith "Successful Ambush" $ setDur Instant
         }
       ]
     , [ Skill.new
@@ -93,10 +92,10 @@ characters =
         , Skill.dur       = Action -1
         , Skill.start     =
           [ To Self $ trap -1 (OnDamaged All)
-                flag
+                cancelChannel
           ]
         , Skill.end       =
-          [ To Self $ unlessM (user has "genjutsu ambush tactics") $
+          [ To Self $ whenM (channeling "Genjutsu Ambush Tactics") $
                 apply' "Successful Ambush" 1 [ Invulnerable All ]
           ]
         }

@@ -372,7 +372,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemies $ apply 1 [Exhaust [All]] ]
+          [ To Enemies $ apply 1 [ Exhaust [All] ] ]
         , Skill.changes   = changeWith "Hidden Frost" $ setCost [Rand]
         }
       ]

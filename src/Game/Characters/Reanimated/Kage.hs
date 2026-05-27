@@ -131,12 +131,13 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To XAllies $ trap -1 OnNoAction do
+          let
+            setTrap dur = trap dur OnNoAction do
                 applyWith [Invisible] 4 []
                 targeting Self $ applyWith [Invisible] 4 [ Reduce [All] Flat 5 ]
-          , To Enemies $ trap -1 OnNoAction do
-                applyWith [Invisible] -4 []
-                targeting Self $ applyWith [Invisible] -4 [ Reduce [All] Flat 5 ]
+          in
+          [ To XAllies $ setTrap -1
+          , To Enemies $ setTrap 1
           ]
         }
       ]
@@ -147,24 +148,21 @@ characters =
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To XAlly do
-                userSlot   <- user slot
-                targetSlot <- target slot
-                apply -1 [Redirect userSlot]
-                trap -1 (OnHarmed All) $ targeting Self $
+          let
+            setRoundRobin slot = do
+                apply -1 [Redirect slot]
+                trap -1 (OnHarmed All) $ withTarget slot $
                     apply' "Round-Robin Surprise Attack" -1
                         [ AntiCounter
                         , Bypass
                         , Pierce
                         ]
-                targeting Self do
-                    apply -1 [ Redirect targetSlot ]
-                    trap -1 (OnHarmed All) $ withTarget targetSlot $
-                        apply' "Round-Robin Surprise Attack" -1
-                            [ AntiCounter
-                            , Bypass
-                            , Pierce
-                            ]
+          in
+          [ To XAlly do
+                userSlot   <- user slot
+                targetSlot <- target slot
+                setRoundRobin userSlot
+                targeting Self $ setRoundRobin targetSlot
           ]
         }
       ]
@@ -383,9 +381,8 @@ characters =
           [ To RAlly $ apply 1 [ Reflect ]
           , To RAlly do
                 defend 1 80
-                onBreak do
-                    amount <- target defenseAmount "Major Summoning: Giant Clam"
-                    when (amount == 0)
+                onBreak $
+                    unlessM (target has' defense "Major Summoning: Giant Clam")
                         cancelChannel
           ]
         }
@@ -412,15 +409,17 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
+          let duel slot = do
+                health <- target health
+                setHealth 30
+                bomb 2 [ Duel slot
+                       , Taunt slot
+                       ]
+                       [ To Expire $ whenM (target alive) $
+                            setHealth health
+                       ]
+          in
           [ To Enemy do
-                let duel slot = do
-                        health <- target health
-                        setHealth 30
-                        bomb 2 [ Duel slot
-                               , Taunt slot
-                               ] [ To Expire $ whenM (target alive) $
-                                        setHealth health
-                                 ]
                 userSlot   <- user slot
                 targetSlot <- target slot
                 duel userSlot
@@ -442,7 +441,7 @@ characters =
         , Skill.cooldown  = 6
         , Skill.effects   =
           [ To Self do
-                hide Permanent [Reduce [Affliction] Percent 50]
+                hide Permanent [ Reduce [Affliction] Percent 50 ]
                 applyStacks "Major Summoning: Ibuse" 30
                     [ Alternate "Major Summoning: Ibuse"
                                 "Poison Fog"

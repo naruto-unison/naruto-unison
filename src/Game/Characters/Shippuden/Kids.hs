@@ -98,12 +98,9 @@ characters =
                 cureBane
                 targetHealth <- target health
                 heal $ (100 - targetHealth) `quot` 2
+          , To Self $ removeStack "Seal"
           ]
-        , Skill.changes   = changeWith "Seal" \x -> x
-                { Skill.cost     = [Rand]
-                , Skill.cooldown = 0
-                , Skill.effects  = To Self (removeStack "Seal") : Skill.effects x
-                }
+        , Skill.changes   = changeWith "Seal" $ setCost [Rand] . setCooldown 0
         }
       ]
     , [ Skill.new
@@ -276,6 +273,14 @@ characters =
     "Shino Aburame" 0
     "Shino's years of practice with his loyal bugs have deepened his connection with them. Having attained the rank of chūnin, Shino has learned to breed his insects to favor specific traits. His advanced parasites accumulate invisibly in targets before bursting out all at once."
     [LeafVillage, Eleven, AlliedForces, Chunin, Earth, Fire, Yang, Aburame]
+    let
+        triggerGiganticBeetle :: RunConstraint ()
+        triggerGiganticBeetle = do
+            stacks <- target numStacks "Gigantic Beetle Infestation"
+            remove "Gigantic Beetle Infestation"
+            remove "Chakra Leech"
+            damage (25 * (stacks + 1))
+    in
     [ [ Skill.new
         { Skill.name       = "Insect Swarm"
         , Skill.desc       = "A wave of insects attack an enemy, dealing 15 affliction damage to them for 3 turns and making them invulnerable to allies. While active, this skill becomes [Chakra Leech]."
@@ -318,10 +323,7 @@ characters =
         , Skill.effects   =
           [ To Self $ bomb' "Barricaded" -1 [] [ To Expire $ gain [Blood] ]
           ,  To Ally $ trapFrom 1 (Counter All) do
-                stacks <- target numStacks "Gigantic Beetle Infestation"
-                damage (25 + 25 * stacks)
-                remove "Gigantic Beetle Infestation"
-                remove "Chakra Leech"
+                triggerGiganticBeetle
                 targeting Self $ remove "Barricaded"
           ]
         }
@@ -332,12 +334,7 @@ characters =
         , Skill.classes   = [Bane, Melee, Invisible]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Enemy $ bomb 3 [] [ To Expire do
-                stacks <- target numStacks "Gigantic Beetle Infestation"
-                damage (25 + 25 * stacks)
-                remove "Gigantic Beetle Infestation"
-                remove "Chakra Leech" ]
-          ]
+          [ To Enemy $ bomb 3 [] [ To Expire $ triggerGiganticBeetle ] ]
         }
       ]
     , [ invuln "Insect Cocoon" "Shino" [Physical] ]
@@ -528,61 +525,39 @@ characters =
     "Chōji Akimichi" 0
     "Chōji's years of mastering his clan's techniques have ended the growing chūnin's dependence on Akimichi pills. Now that he can reshape his body at will without having to sacrifice his health, chakra expenditure is the only remaining limit to his physical power."
     [LeafVillage, Eleven, AlliedForces, Chunin, Earth, Fire, Yang, Akimichi]
+    let
+        addCalories i = replicateM_ i $
+                        hide' "calories" Permanent [ Exhaust [All] ]
+    in
     [ [ Skill.new
-        { Skill.name      = "Butterfly Bombing"
-        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring harmful status effects and dealing 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
-        , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
-        , Skill.cost      = [Tai, Rand, Rand]
-        , Skill.effects   =
-          [ To Self do
-                apply 1 [ Enrage ]
-                replicateM_ 2 $ hide' "calories" Permanent [ Exhaust [All] ]
-          , To Enemy $ damage 30
-          ]
-        }
-      , Skill.new
         { Skill.name      = "Butterfly Bombing"
         , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring harmful status effects. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Tai]
+        , Skill.cost      = [Tai, Rand, Rand]
         , Skill.dur       = Action -1
         , Skill.effects   =
           [ To Self do
                 apply 1 [ Enrage ]
-                replicateM_ 2 $ hide' "calories" Permanent [ Exhaust [All] ]
+                addCalories 2
           ]
         , Skill.end       =
           [ To Enemy $ damage 30 ]
+        , Skill.changes   = changeWith "Butterfly Mode" $ setCost [Tai]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Spiky Human Boulder"
-        , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters physical, chakra, and summon skills. Increases the cost of Chōji's skills by 1 arbitrary chakra each turn."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Blood, Rand, Rand]
-        , Skill.cooldown  = 2
-        , Skill.dur       = Action 2
-        , Skill.effects   =
-          [ To Enemy $ damage 15
-          , To Self do
-                trap 1 (CounterAll Physical) $ return ()
-                trap 1 (CounterAll Chakra)  $ return ()
-                trap 1 (CounterAll Summon)  $ return ()
-                hide' "calories" Permanent [ Exhaust [All] ]
-          ]
-        }
-      , Skill.new
-        { Skill.name      = "Spiky Human Boulder"
         , Skill.desc      = "Chōji rolls into a ball bristling with needle-like spikes and deals 15 damage to an enemy for 2 turns. While active, Chōji counters non-mental skills. Increases the cost of Chōji's skills by 1 arbitrary chakra each turn."
         , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Blood]
+        , Skill.cost      = [Blood, Rand, Rand]
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy $ damage 15
           ,  To Self do
                 trap 1 (CounterAll NonMental) $ return ()
-                hide' "calories" Permanent [ Exhaust [All] ]
+                addCalories 1
           ]
+        , Skill.changes   = changeWith "Butterfly Mode" $ setCost [Blood]
         }
       ]
     , [ Skill.new
@@ -592,8 +567,10 @@ characters =
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self do
-                replicateM_ 3 $ hide' "calories" Permanent [ Exhaust [All] ]
-                setAlternates [1, 1, 1, 1]
+                addCalories 3
+                hide Permanent [ Alternate "Butterfly Mode"
+                                           "Super-Slam"
+                               ]
           ]
         , Skill.effects   =
           [ To Self $ removeStack "calories" ]
@@ -606,7 +583,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 cureAll
-                replicateM_ 2 $ hide' "calories" Permanent [ Exhaust [All] ]
+                addCalories 2
           , To Enemy $ damage 30
           ]
         }

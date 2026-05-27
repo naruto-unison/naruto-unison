@@ -240,8 +240,8 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Allies $ apply 1 [ Endure
-                                 , Reduce [Affliction] Flat 20
-                                 ]
+                                , Reduce [Affliction] Flat 20
+                                ]
           ]
         }
       ]

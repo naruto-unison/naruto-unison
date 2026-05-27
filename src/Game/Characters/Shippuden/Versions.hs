@@ -238,12 +238,14 @@ characters =
         rename "Taijutsu Sage"       = "Bloodline Sage"
         rename x                     = x
 
-        withMode f n
-          | isChanneling "Bloodline Sage" n = f Blood
-          | isChanneling "Genjutsu Sage"  n = f Gen
-          | isChanneling "Ninjutsu Sage"  n = f Nin
-          | isChanneling "Taijutsu Sage"  n = f Tai
-          | otherwise                       = f Rand
+        modeChakra n
+          | isChanneling "Bloodline Sage" n = Blood
+          | isChanneling "Genjutsu Sage"  n = Gen
+          | isChanneling "Ninjutsu Sage"  n = Nin
+          | isChanneling "Taijutsu Sage"  n = Tai
+          | otherwise                       = Rand
+
+        withMode f n = f $ modeChakra n
     in
     [ [ Skill.new
         { Skill.name      = "Sage Transformation"
@@ -266,12 +268,15 @@ characters =
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.dur       = Control -2
         , Skill.start     =
-          [ To Self do
-                targeting Everyone $ whenM (target has "DNA Transmission Shadow")
+          let
+            killShadow :: RunConstraint ()
+            killShadow = targeting Everyone $
+                whenM (target has "DNA Transmission Shadow")
                     killHard
-                trap' Permanent OnDeath $ targeting Everyone $
-                    whenM (target has "DNA Transmission Shadow")
-                        killHard
+          in
+          [ To Self do
+                killShadow
+                trap' Permanent OnDeath $ killShadow
           ]
         , Skill.effects   =
           [ To XAlly $ whenM (channeling "DNA Transmission Shadow") do
@@ -287,11 +292,13 @@ characters =
         , Skill.classes   = [Physical, Ranged, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self do
-                trap' -1 OnDamage
+          [ To Self $ targeting Enemies $ apply 1 [ Restrict ]
+          , To Enemies do
+                targetHealth <- target health
+                damage 10
+                targetHealth' <- target health
+                when (targetHealth' < targetHealth)
                     rechargeAll
-                targeting Enemies $ apply 1 [ Restrict ]
-          , To Enemies $ damage 10
           ]
         , Skill.changes   = withMode \m -> setCost [m]
         }
@@ -302,7 +309,10 @@ characters =
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.charges   = 1
         , Skill.effects   =
-          [ To Ally do
+          [ To Self do
+                chakra <- user modeChakra
+                gain [chakra]
+          , To Ally do
                 resetAll
                 cureBane
                 apply 3 [ Heal 15
@@ -310,9 +320,8 @@ characters =
                         ]
           ]
         , Skill.changes   = withMode \m x -> x
-                { Skill.effects = To Self (gain [m]) : Skill.effects x
-                , Skill.desc    = Skill.desc x ++ " Kabuto gains 1 "
-                                  ++ chakraDesc m ++ " chakra."
+                { Skill.desc = Skill.desc x ++ " Kabuto gains 1 "
+                               ++ chakraDesc m ++ " chakra."
                 }
         }
       ]
@@ -323,13 +332,15 @@ characters =
         , Skill.cooldown  = 3
         , Skill.charges   = 1
         , Skill.effects   =
-          [ To XAllies $ apply 1 [Stun All]
+          [ To Self do
+                chakra <- user modeChakra
+                gain [chakra, chakra]
+          , To XAllies $ apply 1 [Stun All]
           , To Enemies $ apply 1 [Stun All]
           ]
         , Skill.changes   = withMode \m x ->
-                x { Skill.effects = To Self (gain [m, m]) : Skill.effects x
-                  , Skill.desc    = Skill.desc x ++ " Kabuto gains 2 "
-                                    ++ chakraDesc m ++ " chakra."
+                x { Skill.desc = Skill.desc x ++ " Kabuto gains 2 "
+                              ++ chakraDesc m ++ " chakra."
                   }
         }
       ]
@@ -499,9 +510,9 @@ characters =
                 when (stacks > 0) $
                     damage (15 * stacks)
           , To Self do
-                remove "Blazing Arrow"
                 whenM (user has "Blazing Arrow") $
                     reset "Blazing Arrow"
+                remove "Blazing Arrow"
           ]
         }
       ]
@@ -604,16 +615,18 @@ characters =
           [ To Self do
                 apply 1 [ Enrage ]
                 whenM (channeling "Flamethrower Jets") $
-                    trap' 1 (OnAction All) do
+                    trap' 1 (OnAction All)
                         cancelChannel
-                        targeting Everyone do
-                            remove "Flame Blast"
-                            remove "Flamethrower Jets"
           , To Enemy do
                 afflict 10
                 tag 1
                 targetSlot <- target slot
                 targeting Self $ apply' "Flame Blast" 1 [ Duel targetSlot ]
+          ]
+        , Skill.end       =
+          [ To Self $ targeting Everyone do
+                remove "Flame Blast"
+                remove "Flamethrower Jets"
           ]
         }
       , Skill.new
@@ -638,15 +651,10 @@ characters =
         , Skill.effects   =
           [ To Self do
                 cancelChannel' "Flamethrower Jets"
-                targeting Everyone do
-                    remove "Flame Blast"
-                    remove "Flamethrower Jets"
                 defend' Permanent 50 [ Alternate "Performance of a Hundred Puppets"
                                                  "Barrage of a Hundred Puppets"
                                      ]
-                onBreak do
-                    remove "performance of a hundred puppets"
-                    cancelChannel
+                onBreak cancelChannel
           , To XAllies $ defend Permanent 25
           ]
         }
@@ -659,11 +667,7 @@ characters =
           [ To Enemy do
                 damage 30
                 bomb' "Complex Toxin" 2 [] [ To Expire $ apply 1 [ Stun All ] ]
-          , To Self do
-                cancelChannel' "Flamethrower Jets"
-                targeting Everyone do
-                    remove "Flame Blast"
-                    remove "Flamethrower Jets"
+          , To Self $ cancelChannel' "Flamethrower Jets"
           ]
         }
       ]

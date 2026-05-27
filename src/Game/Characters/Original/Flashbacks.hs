@@ -404,9 +404,9 @@ characters =
                 bonus <- 1 `bonusIf` target has "Kusari Chains"
                 pierce (20 + 20 * bonus)
                 userSlot <- user slot
-                apply (fromIntegral $ 1 + bonus) [ Alone
-                                                 , Taunt userSlot
-                                                 ]
+                apply (1 + fromIntegral bonus) [ Alone
+                                               , Taunt userSlot
+                                               ]
           ]
         }
       ]

@@ -457,8 +457,8 @@ characters =
           [ To Enemy do
                 damage 35
                 apply 1 [ Disable Counters
-                        , Disable $ Only Reflect
-                        , Disable $ Any ReflectAll
+                        , Disable (Only Reflect)
+                        , Disable (Any ReflectAll)
                         ]
           ]
         }
@@ -474,8 +474,8 @@ characters =
           , To Enemies do
                 damage 10
                 apply 1 [ Throttle 1 Counters
-                        , Throttle 1 $ Only Reflect
-                        , Throttle 1 $ Any ReflectAll
+                        , Throttle 1 (Only Reflect)
+                        , Throttle 1 (Any ReflectAll)
                         , Throttle 1 Stuns
                         ]
           ]
@@ -552,7 +552,8 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To REnemy $ damage 20
-          , To Self $ trap 1 (OnHarmed All) $ apply 1 [ Invulnerable All ]
+          , To Self $ trap 1 (OnHarmed All) $
+                apply 1 [ Invulnerable All ]
           ]
         }
       ]
@@ -605,7 +606,9 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemies $ trap 1 (OnAction All) $ afflict 20 ]
+          [ To Enemies $ trap 1 (OnAction All) $
+                afflict 20
+          ]
         , Skill.changes   = changeWith "Burning Blade" $ setCost [Nin]
         }
       ]
@@ -676,12 +679,12 @@ characters =
         , Skill.effects   =
           [ To Ally do
                 addStack
-                targetSlot <- target slot
+                ally <- target slot
                 trap Permanent (OnHarmed All) do
                     removeTrap "Paper Bomb"
                     remove "Paper Bomb"
                 trapFrom Permanent (OnHarmed All) do
-                    stacks <- withTarget targetSlot $ target numStacks "Paper Bomb"
+                    stacks <- withTarget ally $ target numStacks "Paper Bomb"
                     damage (20 * stacks)
           ]
         }

@@ -2,11 +2,12 @@
 module Game.Engine.Skills
   ( change
   , swap
-  , targetAll
+  , targetAll, restrict
   , also
   , addClasses
-  , setCooldown
+  , setCooldown, setDur
   , changeWith, changeWithChannel, changeWithDefense
+  , changePer
   , extendBy, extendWith
   , costPer, reduceCostPer, setCost
   ) where
@@ -15,10 +16,11 @@ import ClassyPrelude hiding (swap)
 
 import Data.Enum.Set (EnumSet)
 
-import           Class.TurnBased as TurnBased
+import qualified Class.TurnBased as TurnBased
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Chakras (Chakras)
 import qualified Game.Model.Chakras as Chakras
+import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class)
 import           Game.Model.Duration (Duration)
 import           Game.Model.Effect (Effect(..))
@@ -39,6 +41,10 @@ changeWith :: Text -> (Skill -> Skill) -> Skill.Transform
 changeWith name f n@Ninja{slot}
   | N.has name slot n = f
   | otherwise         = id
+
+-- | Applies a 'Skill.Transform' conditional upon 'N.numStacks'.
+changePer :: Text -> (Int -> Skill -> Skill) -> Skill.Transform
+changePer name f n@Ninja{slot} = f $ N.numStacks name slot n
 
 -- | Applies a 'Skill.Transform' conditional upon 'N.isChanneling'.
 changeWithChannel :: Text -> (Skill -> Skill) -> Skill.Transform
@@ -71,6 +77,9 @@ reduceCostPer name chaks n@Ninja{slot} skill =
     skill { Skill.cost = Chakras.spend added $ Skill.cost skill }
   where
     added = Chakras.scale (N.numStacks name slot n) chaks
+
+setDur :: Channeling -> Skill -> Skill
+setDur dur skill = skill { Skill.dur = dur }
 
 setCooldown :: Duration -> Skill -> Skill
 setCooldown cooldown skill = skill { Skill.cooldown = cooldown }

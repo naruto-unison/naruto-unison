@@ -195,8 +195,8 @@ characters =
           [ To Enemy do
                 damage 20
                 apply 1 [ Disable Counters
-                        , Disable $ Only Reflect
-                        , Disable $ Any ReflectAll
+                        , Disable (Only Reflect)
+                        , Disable (Any ReflectAll)
                         ]
           ]
         }
@@ -237,13 +237,13 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.dur       = Control 4
+        , Skill.start     =
+          [ To Self $ hide 1 [] ]
         , Skill.effects   =
           [ To Enemy do
                 apply 1 [ Throttle 1 $ Any Invulnerable ]
-                flag
                 trapFrom 1 (OnHarmed Mental) $
-                    unlessM ((&&) <$> target has "mental invasion"
-                            <*> ((==) <$> user slot <*> target slot)) $
+                    unlessM (target has "mental invasion") $
                         apply 1 [ Invulnerable All ]
           ]
         }
@@ -261,15 +261,14 @@ characters =
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $
-                hide 1 [ Alternate "Shadow Possession"
-                                   "Shadow Dispersion"
-                       ]
+          [ To Self $ hide 1 [ Alternate "Shadow Possession"
+                                         "Shadow Dispersion"
+                             ]
           , To Enemy do
                 bonus <- 10 `bonusIf` target has' traps "Black Spider Lily"
                 damage (20 + bonus)
                 bonusDur <- target numStacks "Ensnared"
-                apply (fromIntegral $ 2 + bonusDur) [ Stun NonMental ]
+                apply (2 + fromIntegral bonusDur) [ Stun NonMental ]
           ]
         }
       , Skill.new
@@ -283,7 +282,7 @@ characters =
                 bonus <- 10 `bonusIf` target has' traps "Black Spider Lily"
                 damage (20 + bonus)
                 bonusDur <- target numStacks "Ensnared"
-                apply (fromIntegral $ 1 + bonusDur) [Stun NonMental]
+                apply (1 + fromIntegral bonusDur) [Stun NonMental]
           ]
         }
       ]

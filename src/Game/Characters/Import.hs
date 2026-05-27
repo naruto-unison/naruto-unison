@@ -33,7 +33,7 @@ import Game.Model.Ninja as Import (Ninja(barrier, defense, health, slot, statuse
 import Game.Model.Requirement as Import (Requirement(..))
 import Game.Model.Runnable as Import (IntRunConstraint, RunConstraint, Runnable(To))
 import Game.Model.Skill as Import (Target(..))
-import Game.Model.Slot as Import (toInt, teamSize)
+import Game.Model.Slot as Import (Slot, toInt, teamSize)
 import Game.Model.Status as Import (Bomb(..))
 import Game.Model.Trap as Import (Direction(..))
 import Game.Model.Trigger as Import (Trigger(..))
@@ -48,7 +48,6 @@ import qualified Game.Model.Context as Context
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
-import           Game.Model.Slot (Slot)
 import           Util ((∈))
 import Class.Random (MonadRandom)
 import Data.Kind (Type)

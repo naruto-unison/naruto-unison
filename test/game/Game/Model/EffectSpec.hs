@@ -226,7 +226,7 @@ spec = parallel do
     describe "Focus" do
         it "ignores stuns" $ simAt Enemy do
             targeting Self $ apply Permanent [ Focus
-                                             , Disable $ Only Reveal
+                                             , Disable (Only Reveal)
                                              , Silence
                                              , Stun All
                                              ]
@@ -402,12 +402,12 @@ spec = parallel do
             return $ userStunned `shouldBe` singletonSet All
 
         it "throttles others" $ simAt Enemy do
-            apply Permanent [ Throttle 1 $ Only Reveal ]
+            apply Permanent [ Throttle 1 (Only Reveal) ]
             Sim.as Enemy $ apply 5 [ Reveal ]
             Sim.turns $ 5 - 1
             not <$> user (`is` Reveal)
         it "does not remove others" $ simAt Enemy do
-            apply Permanent [ Throttle 1 $ Only Reveal ]
+            apply Permanent [ Throttle 1 (Only Reveal) ]
             Sim.as Enemy $ apply 5 [ Reveal ]
             Sim.turns $ 5 - 2
             user (`is` Reveal)

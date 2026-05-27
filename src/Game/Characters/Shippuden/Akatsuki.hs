@@ -338,15 +338,14 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Gen, Tai]
         , Skill.effects   =
-          [ To Self $ sacrifice 0 50
+          [ To Self do
+                linked <- user has "bloodlink"
+                if linked then
+                    targeting Enemies $ whenM (target has "Blood Curse") $
+                        pierce 50
+                else
+                    sacrifice 0 50
           ]
-        , Skill.changes   = changeWith "bloodlink" \x -> x
-                { Skill.effects =
-                  [ To Self $ targeting Enemies $
-                        whenM (target has "Blood Curse") $
-                            pierce 50
-                  ]
-                }
         }
       ]
     , [ Skill.new
@@ -357,18 +356,16 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
-                sacrifice 0 35
-                apply 1 [Stun All]
-          ]
-        , Skill.changes   = changeWith "bloodlink" \x -> x
-                { Skill.effects =
-                  [ To Self $ do
+                linked <- user has "bloodlink"
+                if linked then do
                         apply 1 []
                         targeting Enemies $ whenM (target has "Blood Curse") do
                             pierce 35
                             apply 1 [Stun All]
-                  ]
-                }
+                else do
+                    sacrifice 0 35
+                    apply 1 [Stun All]
+          ]
         }
       ]
     , [ Skill.new
@@ -483,10 +480,9 @@ characters =
                     targeting Self $ removeTrap "Thousand Hungry Sharks"
           ]
         , Skill.effects   =
-          [ To Enemies do
-                sharks  <- user has "Hundred Hungry Sharks"
-                ignored <- target has "ignored"
-                when (sharks && not ignored) do
+          [ To Enemies $
+                unlessM (target has "ignored") $
+                whenM (user has "Hundred Hungry Sharks") do
                     bonus <- 5 `bonusIf` channeling "Exploding Water Shockwave"
                     pierce (5 + bonus)
                     targeting Self $ removeStack "Hundred Hungry Sharks"
@@ -661,6 +657,27 @@ characters =
     "Zetsu" 0
     "After Madara turned the Gedo statue's mutated victims into an army of servants, he chose one to lead them. Imbuing the White Zetsu entity with materialized will in the form of Black Zetsu, he created a hybrid being who became an official member of Akatsuki. White Zetsu and Black Zetsu have different approaches to combat, but both are able to take control of an enemy's abilities."
     [Akatsuki, Sensor, SRank, Earth, Water, Fire, Wind, Lightning, Yin, Yang]
+    let
+      blackZetsuSkill = Skill.new
+        { Skill.name      = "Black Zetsu"
+        , Skill.classes   = [Chakra]
+        , Skill.dur       = Ongoing Permanent
+        , Skill.start     =
+          [ To Self $ cancelChannel' "White Zetsu" ]
+        , Skill.effects   =
+          [ To Self do
+                hide 1 [ Alternate "Black Zetsu"
+                                   "Underground Roots"
+                       , Alternate "Doppelgänger / Body Coating"
+                                   "Body Coating"
+                       , Face
+                       ]
+                unlessM (user has "chakra") do
+                    gain [Rand]
+                    hide' "chakra" 1 []
+          ]
+        }
+    in
     [ [ Skill.new
         { Skill.name      = "White Zetsu"
         , Skill.desc      = "Zetsu's white half takes over, canceling [Black Zetsu]. While active, Zetsu gains 5 permanent destructible defense every turn. Once used, this skill becomes [Black Zetsu]."
@@ -681,46 +698,12 @@ characters =
                        ]
           ]
         }
-      , Skill.new
-        { Skill.name      = "Black Zetsu"
-        , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [White Zetsu]."
-        , Skill.classes   = [Chakra]
-        , Skill.dur       = Ongoing Permanent
-        , Skill.start     =
-          [ To Self $ cancelChannel' "White Zetsu" ]
-        , Skill.effects   =
-          [ To Self do
-                hide 1 [ Alternate "Black Zetsu"
-                                   "Underground Roots"
-                       , Alternate "Doppelgänger / Body Coating"
-                                   "Body Coating"
-                       , Face
-                       ]
-                unlessM (user has "chakra") do
-                    gain [Rand]
-                    hide' "chakra" 1 []
-          ]
+      , blackZetsuSkill
+        { Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [White Zetsu]."
         }
       ]
-    , [ Skill.new
-        { Skill.name      = "Black Zetsu"
-        , Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [Underground Roots][b][r]. As White Zetsu, this skill becomes [White Army][g]."
-        , Skill.classes   = [Chakra]
-        , Skill.dur       = Ongoing Permanent
-        , Skill.start     =
-          [ To Self $ cancelChannel' "White Zetsu" ]
-        , Skill.effects   =
-          [ To Self do
-                hide 1 [ Alternate "Black Zetsu"
-                                   "Underground Roots"
-                       , Alternate "Doppelgänger / Body Coating"
-                                   "Body Coating"
-                       , Face
-                       ]
-                unlessM (user has "chakra") do
-                    gain [Rand]
-                    hide' "chakra" 1 []
-          ]
+    , [ blackZetsuSkill
+        { Skill.desc      = "Zetsu's black half takes over, canceling [White Zetsu]. While active, Zetsu gains 1 random chakra every other turn. Once used, this skill becomes [Underground Roots][b][r]. As White Zetsu, this skill becomes [White Army][g]."
         }
       , Skill.new
         { Skill.name      = "Underground Roots"
@@ -878,14 +861,9 @@ characters =
         , Skill.effects   =
           [ To Self do
                 push <- user has "almighty push"
-                if push then
-                    hide' "_" 1 [ Alternate "Almighty Push"
-                                            "Almighty Push"
-                                ]
-                else do
-                    hide' "_" 1 [ Alternate "Almighty Push"
-                                            "Universal Pull"
-                                ]
+                let alt = if push then "Almighty Push" else "Universal Pull"
+                hide' "_" 1 [ Alternate "Almighty Push" alt ]
+                unless (push) $
                     hide 1 []
           ]
         }
@@ -955,9 +933,9 @@ characters =
           [ To Enemy do
                 barricade' 3 80 [ Alone, Invulnerable All ]
                 onBreak do
-                    dmg <- target barrierAmount "Planetary Devastation"
-                    when (dmg > 0) $
-                        damage dmg
+                    remaining <- target barrierAmount "Planetary Devastation"
+                    when (remaining > 0) $
+                        damage remaining
           ]
         }
       ]
@@ -1019,6 +997,8 @@ characters =
           [ To Enemy $ tag 4 ]
         , Skill.effects   =
           [ To Self $ nextAlternate "Guided Missile" ]
+        , Skill.end       =
+          [ To Self $ targeting Everyone $ remove "Guided Missile" ]
         }
       , Skill.new
         { Skill.name      = "Bloodline Missile"
@@ -1029,9 +1009,7 @@ characters =
           [ To Enemies $ whenM (target has "Guided Missile") $
                 damage 25
           , To REnemy $ damage 25
-          , To Self do
-                cancelChannel' "Guided Missile"
-                targeting Everyone $ remove "Guided Missile"
+          , To Self $ cancelChannel' "Guided Missile"
           ]
         }
       , Skill.new
@@ -1044,9 +1022,7 @@ characters =
           [ To Enemies do
                 apply 2 [ Expose ]
                 damage 25
-          , To Self do
-                cancelChannel' "Guided Missile"
-                targeting Everyone $ remove "Guided Missile"
+          , To Self $ cancelChannel' "Guided Missile"
           ]
         }
       , Skill.new
@@ -1059,9 +1035,7 @@ characters =
           [ To Enemies do
                 damage 25
                 apply 1 [ Stun All ]
-          , To Self do
-                cancelChannel' "Guided Missile"
-                targeting Everyone $ remove "Guided Missile"
+          , To Self $ cancelChannel' "Guided Missile"
           ]
         }
       , Skill.new
@@ -1072,9 +1046,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemies $ pierce 30
-          , To Self do
-                cancelChannel' "Guided Missile"
-                targeting Everyone $ remove "Guided Missile"
+          , To Self $ cancelChannel' "Guided Missile"
           ]
         }
       ]
@@ -1113,19 +1085,20 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Soul Rip"
-        , Skill.desc      = "Pain pulls out the soul of an enemy affected by [Mind Invasion], stealing 30 health. If their health reaches 30 or lower, they die; if not, he absorbs 1 random chakra from them and stuns them for 1 turn. Reveals invisible effects from the target and the target's cooldowns for 1 turn."
+        , Skill.desc      = "Pain pulls out the soul of an enemy affected by [Mind Invasion], stealing 30 health. If their health reaches 30 or lower, they die. If they survive, he absorbs 1 random chakra from them and stuns them for 1 turn. Reveals invisible effects from the target and the target's cooldowns for 1 turn."
         , Skill.require   = TargetHas 1 "Mind Invasion"
         , Skill.classes   = [Mental, Melee, Unreflectable]
         , Skill.cost      = [Gen, Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                apply 1 [ Stun All
-                        , Reveal
-                        ]
                 leech 30 heal
-                targetHealth <- target health
-                if targetHealth <= 30 then kill else absorb 1
+                executeAt 30
+                whenM (target alive) do
+                    absorb 1
+                    apply 1 [ Stun All
+                            , Reveal
+                            ]
           ]
         }
       ]
@@ -1143,9 +1116,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Ongoing 2
         , Skill.start     =
-          [ To Enemy do
-                trap 2 (OnAction All) $
-                    removeTrap "Summoning: Giant Centipede"
+          [ To Enemy $ trap 2 (OnAction All) $
+                removeTrap "Summoning: Giant Centipede"
           ]
         , Skill.effects   =
           [ To Enemy $ damage 15
@@ -1235,7 +1207,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 chakra <- target lastChakraSpent
-                targeting Self $ heal $ 10 * length chakra
+                targeting Self $ heal (10 * length chakra)
                 damage 25
           ]
         }
@@ -1283,7 +1255,8 @@ characters =
         , Skill.effects   =
           [ To Ally do
                 defense <- user defenseAmount "Summoning: King of Hell"
-                heal defense
+                when (defense > 0) $
+                    heal defense
           ]
         }
       ]
@@ -1329,19 +1302,15 @@ characters =
         , Skill.dur       = Control -4
         , Skill.effects   =
           [ To Self do
-                dragonStacks <- user numStacks "dragon"
-                addStacks' 1 "Control" dragonStacks
-                controlStacks <- user numStacks "control"
-                apply 1 [ Reduce [All] Flat (10 + 5 * controlStacks)
+                controlStacks <- user numStacks "Control"
+                let maxReduce = min 25 $ 10 + 5 * controlStacks
+                apply 1 [ Reduce [All] Flat maxReduce
                         , Alternate "Summoning: Gedo Statue"
                                     "Control"
                         ]
           ]
         , Skill.end       =
-          [ To Self do
-                remove "control"
-                remove "dragon"
-          ]
+          [ To Self $ remove "Control" ]
         }
       , Skill.new
         { Skill.name      = "Control"
@@ -1352,11 +1321,8 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
+                addStack
                 prolongChannel 2 "Summoning: Gedo Statue"
-                hide' "dragon" Permanent []
-                stacks <- user numStacks "control"
-                when (stacks < 3) $
-                    hide Permanent []
           ]
         , Skill.changes   = changeWith "Phantom Dragon" $ setCost []
         }
@@ -1369,17 +1335,12 @@ characters =
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
           [ To Self $ tag 1
-          , To Enemy $ pierce 20
+          , To Enemy do
+                controlStacks <- user numStacks "Control"
+                pierce (20 + 5 * controlStacks)
           ]
-        , Skill.changes   = changeWithChannel "Summoning: Gedo Statue" \x -> x
-              { Skill.cost    = [Gen]
-              , Skill.effects =
-                [ To Self $ tag 1
-                , To Enemy do
-                        stacks <- user numStacks "dragon"
-                        pierce (20 + 5 * stacks)
-                  ]
-                }
+        , Skill.changes   = changeWithChannel "Summoning: Gedo Statue"
+                          $ setCost [Gen]
         }
       ]
     , [ Skill.new
@@ -1388,6 +1349,7 @@ characters =
         , Skill.classes   = [Mental, Necromancy]
         , Skill.cost      = [Blood, Gen, Nin]
         , Skill.dur       = Control 3
+        , Skill.charges   = 1
         , Skill.effects   =
           [ To XAllies do
                 targetAlive <- target alive
