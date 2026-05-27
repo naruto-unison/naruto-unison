@@ -31,7 +31,6 @@ import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
 import           Game.Model.Channel (Channel(Channel))
-import qualified Game.Model.Channel as Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -43,6 +42,7 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import           Game.Model.Runnable (Runnable(To))
+import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
@@ -78,28 +78,28 @@ processTurn runner = do
     channels <- concatMap getChannels . filter N.alive <$> P.allies player
     mapM_ Action.act channels
     Traps.runTurn initial
-    doBombs Remove initial
-    doExpirations
+    doSkillEnds
     doDeaths
     Traps.runExpirations
     expired <- P.ninjas
     P.modifyAll Ninjas.decr
-    doBombs Expire expired
-    doBombs Done initial
+    doExpiredBombs expired
+    doDoneBombs initial
     doHpsOverTime
     P.alter \g -> g { Game.playing = opponent }
     doDeaths
     yieldVictor
     Hook.turn player initial =<< P.ninjas
   where
-    getChannels n = fromChannel n <$> filter Channel.isOngoing (N.channels n)
-    fromChannel n (Channel skill target _ _) = Context
-        { new       = False
-        , user      = N.slot n
-        , skill     = Skills.change n skill
-        , continues = False
-        , target
-        }
+    getChannels n = mapMaybe (fromChannel n) $ N.channels n
+    fromChannel n (Channel skill target new dur)
+      | new || TurnBased.expiring dur = Nothing
+      | otherwise = Just Context { new       = False
+                                 , user      = N.slot n
+                                 , skill     = Skills.change n skill
+                                 , continues = False
+                                 , target
+                                 }
 
 -- | Executes 'Status.bombs' of a @Status@.
 doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
@@ -115,16 +115,21 @@ doBomb bomb target st@Status{bombs, skill} = mapM_ doEach bombs
       | otherwise    = P.withContext context $ Action.wrap run
 
 -- | Executes 'Status.bombs' of all 'Status'es that were removed.
-doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> [Ninja] -> m ()
-doBombs bomb ninjas = zipWithM_ doEach ninjas =<< P.ninjas
+doDoneBombs :: ∀ m. (MonadGame m, MonadRandom m) => [Ninja] -> m ()
+doDoneBombs ninjas = zipWithM_ doEach ninjas =<< P.ninjas
   where
-    doEach n n' = sequence $ doBomb bomb (N.slot n)
-                             <$> deleteFirstsBy Labeled.eq (stats n) (stats n')
+    doEach n n'
+      | null stats = return ()
+      | otherwise  = sequence_ $ doBomb Done (N.slot n)
+                             <$> deleteFirstsBy Labeled.eq stats stats'
       where
-        stats
-          | N.alive n' = N.statuses
-          | otherwise  = filter ((Necromancy ∈) . Status.classes)
-                       . N.statuses
+        stats  = getStatuses n
+        stats' = getStatuses n'
+        includeStatus Status{bombs = []} = False
+        includeStatus Status{bombs, classes} =
+            (N.alive n' || Necromancy ∈ classes)
+            && any ((== Done) . Runnable.target) bombs
+        getStatuses Ninja{statuses} = filter includeStatus statuses
 
 -- | Executes 'Trigger.death'.
 doDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
@@ -161,18 +166,21 @@ unSoulbound user n@Ninja{copies, statuses, traps} = Ninjas.modifyStatuses
     notSoulbound :: ∀ a. (Classed a, Labeled a) => a -> Bool
     notSoulbound x = Soulbound ∉ Classed.classes x || Labeled.user x /= user
 
-doExpirations :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
-doExpirations = do
-    Traps.runExpirations
-    mapM_ doEach =<< P.ninjas
+doExpiredBombs :: ∀ m. (MonadGame m, MonadRandom m) => [Ninja] -> m ()
+doExpiredBombs ninjas = mapM_ doEach ninjas
+  where
+    doEach Ninja{slot, statuses} = mapM_ (doBomb Expire slot)
+                                 $ filter TurnBased.expiring statuses
+
+doSkillEnds :: ∀ m. (MonadGame m, MonadRandom m) => m ()
+doSkillEnds = mapM_ doEach =<< P.ninjas
   where
     doEach n@Ninja{channels} = mapM_ (runSkillEnd n)
                              $ filter TurnBased.expiring channels
 
-
 runSkillEnd :: ∀ m. (MonadGame m, MonadRandom m) => Ninja -> Channel -> m ()
-runSkillEnd Ninja{slot} (Channel skill@Skill{end} target _ _) = P.launch $
-    To context $ Action.runTargeted end
+runSkillEnd Ninja{slot} (Channel skill@Skill{end} target _ _) = P.launch
+    $ To context $ Action.runTargeted end
   where
     context = Context { skill
                       , user      = slot

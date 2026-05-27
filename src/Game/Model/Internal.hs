@@ -40,9 +40,8 @@ import           Util (Lift)
 
 -- | Applies actions when a 'Status' ends.
 data Bomb
-    = Done   -- ^ Applied with both 'Expire' and 'Remove'
+    = Done   -- ^ Applied when a 'Status' is removed for any reason.
     | Expire -- ^ Applied when a 'Status' reaches the end of its duration.
-    | Remove -- ^ Applied when a 'Status' is removed prematurely.
     deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
 
 instance ToJSON Bomb

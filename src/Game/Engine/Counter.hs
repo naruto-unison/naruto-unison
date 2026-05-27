@@ -18,7 +18,7 @@ import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
-import           Game.Model.Runnable (Runnable(..))
+import           Game.Model.Runnable (Runnable)
 import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot

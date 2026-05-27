@@ -158,7 +158,7 @@ characters =
                 setHealth 5
                 targetNumSkills <- target numSkills
                 teach 1 "Converging Murder" [0..targetNumSkills - 1]
-                bombWith [Bypassing] -1
+                bombWith [Bypassing] 1
                     [ Face
                     , Invulnerable All
                     , Alone
@@ -166,7 +166,7 @@ characters =
                     , Enrage
                     , Focus
                     ]
-                    [ To Done killHard ]
+                    [ To Expire killHard ]
           ]
         }
       ]

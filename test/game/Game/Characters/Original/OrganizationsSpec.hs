@@ -108,10 +108,13 @@ spec = parallel do
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 Sim.as Enemy kill
                 not <$> user (`is` Reveal)
-            it "ignores help and dies" do
+            it "ignores help" do
                 Sim.act
                 Sim.as Enemy kill
-                Sim.as Self $ heal dmg
+                target (`is` Seal)
+            it "kills target" do
+                Sim.act
+                Sim.as Enemy kill
                 Sim.turns 1
                 targetHealth <- target health
                 targetHealth `shouldBe` 0

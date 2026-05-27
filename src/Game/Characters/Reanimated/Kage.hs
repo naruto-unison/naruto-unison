@@ -419,21 +419,18 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemy do
-                userSlot     <- user slot
-                targetSlot   <- target slot
-                userHealth   <- user health
-                targetHealth <- target health
-                bomb 2 [ Duel userSlot
-                       , Taunt userSlot
-                       ]
-                       [ To Expire $ setHealth targetHealth ]
-                setHealth 30
-                targeting Self do
-                    bomb 2 [ Duel targetSlot
-                           , Taunt targetSlot
-                           ]
-                           [ To Expire $ setHealth userHealth ]
-                    setHealth 30
+                let duel slot = do
+                        health <- target health
+                        setHealth 30
+                        bomb 2 [ Duel slot
+                               , Taunt slot
+                               ] [ To Expire $ whenM (target alive) $
+                                        setHealth health
+                                 ]
+                userSlot   <- user slot
+                targetSlot <- target slot
+                duel userSlot
+                targeting Self $ duel targetSlot
           ]
         }
       ]
