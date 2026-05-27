@@ -58,10 +58,7 @@ trapPer' = trapFull Trap.Per $ setFromList [Bypassing, Hidden]
 onBreak :: ∀ m. MonadPlay m => RunConstraint () -> m ()
 onBreak f = do
     Context{skill = Skill{name}} <- P.context
-    trap' Permanent (OnBreak name) do
-        f
-        Context{user} <- P.context
-        P.modify user . Ninjas.clearTraps $ OnBreak name
+    trap' Permanent (OnBreak name) f
 
 -- | Adds a @Trap@ to 'N.traps'.
 trapConst :: ∀ m. MonadPlay m
