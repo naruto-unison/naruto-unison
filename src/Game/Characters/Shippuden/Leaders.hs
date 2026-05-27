@@ -7,10 +7,10 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Orochimaru"
+    "Orochimaru" 0
     "One of three legendary sannin, Orochimaru has cheated death time and time again. As his body slowly rots away, he is forced to discard it and find a new host to possess."
     [LeafVillage, Orochimaru, Sannin, Rogue, TeamLeader, Wind, Lightning, Earth, Water, Fire, Yin, Yang]
     [ [ Skill.new
@@ -55,7 +55,7 @@ characters =
     , [ invuln "Summoning: Triple Rashōmon" "Orochimaru" [Summon] ]
     ]
   , Character
-    "Jiraiya"
+    "Jiraiya" 0
     "One of three legendary sannin, Jiraiya has accepted Naruto as his student. Famed as the Toad Sage, he believes that Naruto is the child spoken of in the prophecies, and that it is his responsibility to teach him to save the world rather than destroy it."
     [LeafVillage, Sannin, Sage, TeamLeader, Fire, Wind, Earth, Water, Yin, Yang]
     [ [ Skill.new
@@ -125,7 +125,7 @@ characters =
     , [ invuln "Summoning: Gamaken" "Jiraiya" [Summon] ]
     ]
   , Character
-    "Tsunade"
+    "Tsunade" 0
     "One of three legendary sannin, Tsunade has become the fifth Hokage. Knowing the Hidden Leaf Village's fate depends on her, she holds nothing back. Even if one of her allies is on the verge of dying, she can keep them alive long enough for her healing to get them back on their feet."
     [LeafVillage, AlliedForces, Sannin, Lightning, Earth, Water, Fire, Yin, Yang]
     [ [ Skill.new
@@ -188,7 +188,7 @@ characters =
     , [ invuln "Block" "Tsunade" [Physical] ]
     ]
   , Character
-    "Ōnoki"
+    "Ōnoki" 0
     "The third Tsuchikage of the Hidden Stone Village, Ōnoki is the oldest and most stubborn Kage. His remarkable ability to control matter on an atomic scale rapidly grows in strength until it can wipe out a foe in a single attack."
     [StoneVillage, AlliedForces, Kage, Earth, Fire, Wind, Lightning, Yang, Kamizuru]
     [ [ Skill.new
@@ -232,7 +232,7 @@ characters =
     , [ invuln "Flight" "Ōnoki" [Chakra] ]
     ]
   , Character
-    "Mei Terumi"
+    "Mei Terumi" 0
     "The third Mizukage of the Hidden Mist Village, Mei works tirelessly to help her village overcome its dark history and become a place of kindness and prosperity. Her corrosive attacks eat away at the defenses of her enemies."
     [MistVillage, AlliedForces, Kage, Water, Fire, Lightning, Earth]
     [ [ Skill.new
@@ -278,7 +278,7 @@ characters =
     , [ invuln "Flee" "Mei" [Physical] ]
     ]
   , Character
-    "Fukasaku and Shima"
+    "Fukasaku and Shima" 0
     "Revered as the Two Great Sage Toads, Fukasaku and Shima serve Lord Elder Gamamaru in administrating Mount Myōboku. They taught Jiraiya and Naruto how to absorb chakra from natural energy. If left uninterrupted, their sound-based genjutsu can disable their enemies with ease."
     [Sage, Wind, Water, Yin, Fire]
     [ [ Skill.new

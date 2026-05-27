@@ -11,7 +11,7 @@ import qualified Game.Model.Skill as Skill
 characters :: [Category -> Character]
 characters =
   [ Character
-    "Hashirama Senju"
+    "Hashirama Senju" 150
     "Reanimated by Orochimaru, Hashirama was the founder of the Hidden Leaf Village and its first Hokage. His unique ability to manipulate wood allows him give life to trees, which protect his allies and impair his enemies."
     [LeafVillage, Kage, Sage, Earth, Water, Fire, Wind, Lightning, Yin, Yang, Senju]
     [ [ Skill.new
@@ -74,9 +74,8 @@ characters =
       ]
     , [ invuln "Parry" "Hashirama" [Physical] ]
     ]
-    150
   , Character
-    "Tobirama Senju"
+    "Tobirama Senju" 150
     "Reanimated by Orochimaru, Hashirama was the second Hokage. His water-manipulating skills flood the battlefield, impairing and harming the enemy team."
     [LeafVillage, Kage, Sensor, TeamLeader, Water, Fire, Wind, Lightning, Earth, Yin, Yang, Senju]
     [ [ Skill.new
@@ -121,9 +120,8 @@ characters =
       ]
     , [ invuln "Water Wall" "Tobirama" [Physical] ]
     ]
-    150
   , Character
-    "Minato Namikaze"
+    "Minato Namikaze" 150
     "Reanimated by Orochimaru, Minato was the fourth Hokage. Free at last from the Reaper's eternal torment, Minato's soul carries the Yin half of Kurama, the nine-tailed beast. On his own, he was renowned as a legendary fighter and the fastest man in history; as an immortal jinchūriki, he is a threat unto gods."
     [LeafVillage, Kage, Jinchuriki, Sage, Sensor, TeamLeader, Fire, Wind, Lightning, Yin, Yang]
     [ [ Skill.new
@@ -194,9 +192,8 @@ characters =
         }
       ]
     ]
-    150
   , Character
-    "Rasa"
+    "Rasa" 150
     "Reanimated by Kabuto, Rasa was the fourth Kazekage of the Hidden Sand Village and the father of the Sand Siblings. Cold and calculating, Rasa buries his enemies beneath crushingly heavy gold dust that they must fight their way out of to survive."
     [SandVillage, Kabuto, Kage, Wind, Earth, Water, Yin, SandClan]
     [ [ Skill.new
@@ -242,9 +239,8 @@ characters =
       ]
     , [ invuln "Gold Dust Shield" "Rasa" [Physical] ]
     ]
-    150
   , Character
-    "A"
+    "A" 150
     "Reanimated by Kabuto, A was the third Raikage of the Hidden Cloud Village. His legendary resilience and fortitude earned him the title of Strongest Shield."
     [CloudVillage, Kabuto, Kage, Lightning, Earth, Fire]
     [ [ Skill.new
@@ -320,9 +316,8 @@ characters =
       ]
     , [ invuln "Strongest Shield" "A" [Physical] ]
     ]
-    150
   , Character
-    "Mū"
+    "Mū" 150
     "Reanimated by Kabuto, Mū was the second Tsuchikage of the Hidden Stone Village. Unfailingly polite, he intends to ensure that his village benefits from the war. By manipulating matter at the atomic level, he disintegrates the defenses of his enemies."
     [StoneVillage, Kabuto, Kage, Sensor, Earth, Water, Fire, Wind, Lightning, Yang]
     [ [ Skill.new
@@ -373,9 +368,8 @@ characters =
       ]
     , [ invuln "Dustless Bewildering Cover" "Mū" [Chakra] ]
     ]
-    150
   , Character
-    "Gengetsu Hōzuki"
+    "Gengetsu Hōzuki" 150
     "Reanimated by Kabuto, Gengetsu was the second Mizukage of the Hidden Mist Village. Charismatic and carefree, he cheerfully offers tips to his opponents on how to beat him. He is especially fond of one-on-one duels."
     [MistVillage, Kabuto, Kage, Water, Fire, Lightning, Earth, Yin, Yang, Hozuki]
     [ [ Skill.new
@@ -436,9 +430,8 @@ characters =
       ]
     , [ invuln "Mirage" "Gengetsu" [Mental] ]
     ]
-    150
   , Character
-    "Hanzō"
+    "Hanzō" 200
     "Reanimated by Kabuto, Hanzō the Salamander was the leader of the Hidden Rain Village. In combination with his unrivaled combat prowess, the lethal venom sac implanted in his body makes him a feared legend throughout the world."
     [RainVillage, Kabuto, Kage, Fire]
     [ [ Skill.new
@@ -522,5 +515,4 @@ characters =
       ]
     , [ invuln "Block" "Hanzō" [Physical] ]
     ]
-    200
   ]

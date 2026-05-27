@@ -7,10 +7,10 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Orochimaru"
+    "Orochimaru" 0
     "One of three legendary sannin, Orochimaru intends to learn every technique in existence. Driven by an insatiable hunger for power, he gathers chakra any way he can, even if it means harming his allies."
     [LeafVillage, Orochimaru, Anbu, Sannin, Rogue, TeamLeader, Wind, Lightning, Earth, Water, Fire, Yin, Yang]
     [ [ Skill.new
@@ -69,7 +69,7 @@ characters =
     , [ invuln "Earth Clone" "Orochimaru" [Chakra] ]
     ]
   , Character
-    "Jiraiya"
+    "Jiraiya" 0
     "One of three legendary sannin, Jiraiya is a lecherous frog hermit who travels the world in search of knowledge. His toad summoning techniques and fire manipulation wreak destruction upon enemy teams."
     [LeafVillage, Sannin, Sage, TeamLeader, Fire, Wind, Earth, Water, Yin, Yang]
     [ [ Skill.new
@@ -124,7 +124,7 @@ characters =
     , [ invuln "Needle Jizou" "Jiraiya" [Physical] ]
     ]
   , Character
-    "Tsunade"
+    "Tsunade" 0
     "One of three legendary sannin, Tsunade is a gambler and sake enthusiast with a short temper and terrible luck. Her abilities require large amounts of chakra, but their healing power is unrivaled."
     [LeafVillage, Sannin, Lightning, Earth, Water, Fire, Yin, Yang, Senju]
     [ [ Skill.new
@@ -185,7 +185,7 @@ characters =
     , [ invuln "Block" "Tsunade" [Physical] ]
     ]
   , Character
-    "Hiruzen Sarutobi"
+    "Hiruzen Sarutobi" 0
     "Called the Supreme Shinobi, Hiruzen is the third Hokage. During his prime, he was considered the strongest ninja in history. His trump card ability brings certain doom to both Hiruzen and his enemy."
     [LeafVillage, Kage, Sensor, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Sarutobi]
     [ [ Skill.new

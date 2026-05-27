@@ -7,10 +7,10 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Hanabi Hyūga"
+    "Hanabi Hyūga" 0
     "The younger sister of Hinata, Hanabi trains endlessly to prove herself. What she lacks in strength, she makes up for with speed and tenacity. Through sheer force of willpower, she endures attacks that would kill anyone else."
     [LeafVillage, Genin, Hyuga]
     [ [ Skill.new
@@ -61,7 +61,7 @@ characters =
     , [ invuln "Byakugan Foresight" "Hanabi" [Mental] ]
     ]
   , Character
-    "Shigure"
+    "Shigure" 0
     "A genin from the Hidden Rain Village, Shigure is strong but arrogant. He wields up to four needle-filled umbrellas at a time, choosing whether to use them on defense, widespread attacks, or focused damage."
     [RainVillage, Genin, TeamLeader]
     [ [ Skill.new
@@ -116,7 +116,7 @@ characters =
     , [ invuln "Umbrella Shield" "Shigure" [Physical] ]
     ]
   , Character
-    "Oboro"
+    "Oboro" 0
     "A genin from the Hidden Rain Village, Oboro is a vindictive specialist in genjutsu. He conceals himself within a crowd of illusory clones, making it almost impossible for enemies to locate and harm him."
     [RainVillage, Genin, TeamLeader, Earth, Yin, Water]
     [ [ Skill.new
@@ -163,7 +163,7 @@ characters =
     , [ invuln "Hide" "Oboro" [Mental] ]
     ]
   , Character
-    "Kabuto Yakushi"
+    "Kabuto Yakushi" 0
     "A genin and former operative of the Hidden Leaf Village's elite Root division, Kabuto is Orochimaru's close assistant and confidant. He hides his brilliance behind a genial façade, but under the surface he remains a cold and calculating spy. In combat, he uses his medical expertise to weaken and expose his opponents."
     [LeafVillage, Orochimaru, Anbu, Genin, Rogue, Sage, TeamLeader, Earth, Water, Wind, Yin, Yang]
     [ [ Skill.new
@@ -210,7 +210,7 @@ characters =
     , [ invuln "Dead Soul Technique" "Kabuto" [Chakra] ]
     ]
   , Character
-    "Dosu Kinuta"
+    "Dosu Kinuta" 0
     "One of the three sound genin, Dosu is patient and logical. His sound-projecting gauntlet shatters his opponents' hearing, making them more vulnerable to attacks."
     [SoundVillage, Orochimaru, Genin, TeamLeader]
     [ [ Skill.new
@@ -257,7 +257,7 @@ characters =
     , [ invuln "Dodge" "Dosu" [Physical] ]
     ]
   , Character
-    "Kin Tsuchi"
+    "Kin Tsuchi" 0
     "One of the three sound genin, Kin likes to defeat her enemies slowly and painfully, torturing them with her needles and bells. Her moves empower each other when strung together in disorienting harmony."
     [SoundVillage, Orochimaru, Genin, Yin]
     [ [ Skill.new
@@ -315,7 +315,7 @@ characters =
     , [ invuln "Foresight" "Kin" [Mental] ]
     ]
   , Character
-    "Zaku Abumi"
+    "Zaku Abumi" 0
     "One of the three sound genin, Zaku has a strong desire to win and succeed. The tubes implanted in his arm let him create powerful waves of chakra and protect his allies with air currents."
     [SoundVillage, Orochimaru, Genin]
     [ [ Skill.new
@@ -352,7 +352,7 @@ characters =
     , [ invuln "Deflect" "Zaku" [Chakra] ]
     ]
   , Character
-    "Yoroi Akadō"
+    "Yoroi Akadō" 0
     "A genin from the fake Hidden Sound Village, Yoroi was a resident of the Hidden Leaf Village before defecting to Orochimaru. Capable but brash, Yoroi likes to toy with his enemies, gradually stealing their strength and health for himself."
     [SoundVillage, Orochimaru, Genin, Rogue, Water, Yin]
     [ [ Skill.new
@@ -400,7 +400,7 @@ characters =
     , [ invuln "Deflect" "Yoroi" [Chakra] ]
     ]
   , Character
-    "Misumi Tsurugi"
+    "Misumi Tsurugi" 0
     "A genin from the fake Hidden Sound Village, Misumi was a resident of the Hidden Leaf Village before defecting to Orochimaru. He twists his muscles and bones to wrap around targets, shielding his allies or choking his opponents."
     [SoundVillage, Orochimaru, Genin, Rogue, Water]
     [ [ Skill.new

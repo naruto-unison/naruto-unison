@@ -7,10 +7,10 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Shisui Uchiha"
+    "Shisui Uchiha" 0
     "An operative of the Hidden Leaf Village, Shisui gained the rare Mangekyō Sharingan after witnessing his friend die on a mission. Known as Shisui the Teleporter for his perfect mastery of the Teleportation Technique, the former jōnin prodigy is compassionate and open-minded to a fault. His signature technique makes him all but impossible to flank and allows him to beleaguer his opponents without leaving himself vulnerable."
     [LeafVillage, Anbu, TeamLeader, Fire, Wind, Lightning, Yin, Uchiha]
     [ [ Skill.new
@@ -93,7 +93,7 @@ characters =
     , [ invuln "Block" "Shisui" [Physical] ]
     ]
   , Character
-    "Yamato"
+    "Yamato" 0
     "An operative of the Hidden Leaf Village's elite Root division, Yamato has had many identities, also going by the names Kinoe and Tenzō. The sole survivor of Orochimaru's horrifying experiments on children, he carries the first Hokage's wood-manipulation abilities along with his DNA. His mastery of power supppression makes him a grave threat against hosts of tailed beasts and others who accumulate power gradually."
     [LeafVillage, AlliedForces, Anbu, Earth, Water, Yang]
     [ [ Skill.new
@@ -142,7 +142,7 @@ characters =
     , [ invuln "Wood Wall" "Yamato" [Physical] ]
     ]
   , Character
-    "Torune Aburame"
+    "Torune Aburame" 0
     "An operative of the Hidden Leaf Village's elite Root division, Torune was born with rare venom-resistant antibodies that allow him to carry the Aburame clan's most dangerous species of beetle. The venom beetles cover his skin like armor, protecting him and infesting anyone who dares to touch him."
     [LeafVillage, Anbu, Aburame]
     [ [ Skill.new
@@ -202,7 +202,7 @@ characters =
     , [ invuln "Dodge" "Torune" [Physical] ]
     ]
   , Character
-    "Fū Yamanaka"
+    "Fū Yamanaka" 0
     "An operative of the Hidden Leaf Village's elite Root division, Fū is emotionless and ruthlessly straightforward. His only drive is unswerving loyalty to Danzō. His combination of long-distance Yamanaka genjutsu and his personal form of taijutsu makes him a formidable threat in any situation, but his trump card is the ability to swap his consciousness into the body of an opponent and make use of all their skills."
     [LeafVillage, Anbu, Sensor, Yamanaka]
     [ [ Skill.new
@@ -268,7 +268,7 @@ characters =
     , [ invuln "Dodge" "Fū" [Physical] ]
     ]
   , Character
-    "Danzō Shimura"
+    "Danzō Shimura" 0
     "The founder and leader of the Hidden Leaf Village's elite Root division, Danzō has had a hand in almost every important global event since he came to power. He collects Sharingan, implants them in his arm, and uses them to cheat death."
     [LeafVillage, Anbu, Wind, Earth, Water, Fire, Yin, Yang]
     [ [ Skill.new
@@ -370,7 +370,7 @@ characters =
     , [ invuln "Summoning: Baku" "Danzō" [Summon] ]
     ]
   , Character
-    "Suigetsu Hōzuki"
+    "Suigetsu Hōzuki" 0
     "A member of Sasuke's strike team, Suigetsu is a sadistic murderer from the Hidden Mist Village known as the Second Coming of the Demon for his desire to follow in Zabuza's footsteps. He uses his clan's unique water-manipulation abilities to strengthen and replenish his body, making himself as tough as he is cruel."
     [MistVillage, Orochimaru, Water, Wind, Hozuki]
     [ [ Skill.new
@@ -416,7 +416,7 @@ characters =
     , [ invuln "Parry" "Suigetsu" [Physical] ]
     ]
   , Character
-    "Karin"
+    "Karin" 0
     "A member of Sasuke's strike team, Karin is a genin from the Hidden Grass Village, Karin has the unique ability to sense chakra signatures automatically. She is all but omniscient within her range, able to detect hidden individuals, penetrate illusions, and even tell when someone is lying."
     [Orochimaru, Genin, Sensor, Earth, Water, Yin, Yang, Uzumaki]
     [ [ Skill.new
@@ -460,7 +460,7 @@ characters =
     , [ invuln "Dodge" "Karin" [Physical] ]
     ]
   , Character
-    "Jūgo"
+    "Jūgo" 0
     "A member of Sasuke's strike team, Jūgo suffers from uncontrollable fits of rage. In his normal state, he is compassionate and conflict-averse, but in battle his psychotic second nature overtakes him."
     [Orochimaru, Sage, Wind, Earth, Water, Yang]
     [ [ Skill.new
@@ -511,7 +511,7 @@ characters =
     , [ invuln "Hide" "Jūgo" [Mental] ]
     ]
   , Character
-    "Sasuke Uchiha"
+    "Sasuke Uchiha" 0
     "Sasuke's years of training under Orochimaru have made him a master of his elemental aspects. Cold and ruthless, he is regarded as one of the most dangerous ninjas alive."
     [LeafVillage, Orochimaru, Genin, Rogue, Lightning, Fire, Wind, Earth, Water, Yin, Uchiha]
     [ [ Skill.new

@@ -10,7 +10,7 @@ import qualified Game.Model.Skill as Skill
 characters :: [Category -> Character]
 characters =
   [ Character
-    "Pakura"
+    "Pakura" 75
     "Reanimated by Kabuto, Pakura was a jōnin diplomat known as the Hero of the Hidden Sand until she was betrayed and ambushed by the Hidden Mist Village. Her unique scorch style combines fire and wind elements to create heat orbs that mummify her enemies."
     [SandVillage, Kabuto, Jonin, Fire, Wind]
     [ [ Skill.new
@@ -50,9 +50,8 @@ characters =
       ]
     , [ invuln "Block" "Pakura" [Physical] ]
     ]
-    75
   , Character
-    "Gari"
+    "Gari" 75
     "Reanimated by Kabuto, Gari was a jōnin member of the Hidden Stone Village's Demolitions Unit. Augmented with explosive force, his taijutsu attacks overwhelm enemies who meet them head-on."
     [StoneVillage, Kabuto, Jonin, Earth, Lightning]
     [ [ Skill.new
@@ -99,9 +98,8 @@ characters =
       ]
     , [ invuln "Dodge" "Gari" [Physical] ]
     ]
-    75
   , Character
-    "Ginkaku"
+    "Ginkaku" 75
     "The word \"Silver\" tattooed on his shoulder marks Ginkaku as one half of the Silver and Gold Brothers, the most notorious criminals in the history of the Hidden Cloud Village. Ginkaku and Kinkaku use tailed-beast chakra to wield the revered arsenal of their ancestor, the Sage of the Six Paths. When they fight together, they make a terrifying pair."
     [CloudVillage, Kabuto]
     [ [ Skill.new
@@ -147,9 +145,8 @@ characters =
       ]
     , [ invuln "Parry" "Ginkaku" [Physical] ]
     ]
-    75
   , Character
-    "Kinkaku"
+    "Kinkaku" 75
     "The word \"Gold\" tattooed on his shoulder marks Kinkaku as one half of the Silver and Gold Brothers, the most notorious criminals in the history of the Hidden Cloud Village. Ginkaku and Kinkaku use tailed-beast chakra to wield the revered arsenal of their ancestor, the Sage of the Six Paths. When they fight together, they make a terrifying pair."
     [CloudVillage, Kabuto]
     [ [ Skill.new
@@ -198,9 +195,8 @@ characters =
       ]
     , [ invuln "Parry" "Kinkaku" [Physical] ]
     ]
-    75
   , Character
-    "Toroi"
+    "Toroi" 75
     "Reanimated by Kabuto, Toroi was a jōnin from the Hidden Cloud Village with the rare ability to manipulate magnetic fields. His weapons are magnetized, and as their magnetic field accumulates on targets, they become harder and harder to avoid."
     [CloudVillage, Kabuto, Jonin, Wind, Earth]
     [ [ Skill.new
@@ -259,9 +255,8 @@ characters =
       ]
     , [ invuln "Shuriken Threads" "Toroi" [Physical] ]
     ]
-    75
   , Character
-    "Fukai"
+    "Fukai" 75
     "Reanimated by Kabuto, Fukai was the previous jinchūriki of Gyūki, the eight-tailed beast. Also known as Blue B, Fukai was unable to control Gyūki, which led to his downfall and the deaths of his comrades."
     [CloudVillage, Kabuto, Jinchuriki, Sensor, Lightning]
     [ [ Skill.new
@@ -309,9 +304,8 @@ characters =
       ]
     , [ invuln "Dodge" "Fukai" [Physical] ]
     ]
-    75
   , Character
-    "Chiyo"
+    "Chiyo" 75
     "Reanimated by Kabuto, Chiyo was the leader of the Hidden Sand Village's Puppet Brigade. Her expertise with chakra threads allows her to control numerous puppets at once."
     [SandVillage, Kabuto]
     [ [ Skill.new
@@ -357,9 +351,8 @@ characters =
       ]
     , [ invuln "Puppet Distraction" "Chiyo" [Physical] ]
     ]
-    75
   , Character
-    "Chūkichi"
+    "Chūkichi" 75
     "Reanimated by Kabuto, Chūkichi was a jōnin renowned as the Hidden Mist Village's most talented sensor. Due to his refusal to serve Akatsuki, Chūkichi had his personality completely erased by Kabuto, transforming him into a mere killing machine."
     [MistVillage, Kabuto, Jonin, Sensor, Water]
     [ [ Skill.new
@@ -399,5 +392,4 @@ characters =
       ]
     , [ invuln "Hide" "Chūkichi" [Mental] ]
     ]
-    75
   ]

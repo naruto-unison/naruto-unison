@@ -7,10 +7,10 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Kushina Uzumaki"
+    "Kushina Uzumaki" 0
     "Known as the Red-Hot Habanero for her fiery hair and fierce temper, Naruto's mother possesses exceptional chakra necessary to become the nine-tailed fox's jinchūriki. Kushina specializes in unique sealing techniques that bind and incapacitate her enemies."
     [LeafVillage, Jinchuriki, Wind, Water, Yin, Uzumaki]
     [ [ Skill.new
@@ -79,7 +79,7 @@ characters =
     , [ invuln "Adamantine Covering Chains" "Kushina" [Chakra] ]
     ]
   , Character
-    "Minato Namikaze"
+    "Minato Namikaze" 0
     "Known as the Yellow Flash for his incredible speed and mastery of space-time techniques, Naruto's father is a jōnin squad leader from the Hidden Leaf Village. Minato fights using unique kunai that allow him to teleport arround the battlefield."
     [LeafVillage, Jonin, Jinchuriki, Sage, Sensor, TeamLeader, Fire, Wind, Lightning, Yin, Yang]
     [ [ Skill.new
@@ -130,7 +130,7 @@ characters =
     , [ invuln "Flying Light" "Minato" [Physical] ]
     ]
   , Character
-    "Yondaime Minato"
+    "Yondaime Minato" 0
     "As the fourth Hokage, Minato has been shaped by his responsibilities into a thoughtful and strategic leader. With his space-time jutsu, he redirects the attacks of his enemies and effortlessly passes through their defenses."
     [LeafVillage, Kage, Sage, TeamLeader, Fire, Wind, Lightning, Yin, Yang]
     [ [ Skill.new
@@ -171,7 +171,7 @@ characters =
     , [ invuln "Parry" "Minato" [Physical] ]
     ]
   , Character
-    "Hashirama Senju"
+    "Hashirama Senju" 0
     "The founder and first Hokage of the Hidden Leaf Village, Hashirama is headstrong and enthusiastic. He believes with all his heart that communities should behave as families, taking care of each other and protecting their children from the cruelties of war. Due to a unique genetic mutation, Hashirama is able shape wood into defensive barriers and constructs."
     [LeafVillage, Kage, Sage, Earth, Water, Fire, Wind, Lightning, Yin, Yang, Senju]
     [ [ Skill.new
@@ -220,7 +220,7 @@ characters =
     , [ invuln "Foresight" "Hashirama" [Mental] ]
     ]
   , Character
-    "Young Kakashi"
+    "Young Kakashi" 0
     "A member of Team Minato, Kakashi is the thirteen-year-old son of the legendary White Fang. His early ninjutsu and borrowed Sharingan make him the equal of any adult he faces."
     [LeafVillage, Jonin, TeamLeader, Lightning, Water, Earth, Fire, Wind, Yin, Yang]
     [ [ Skill.new
@@ -277,7 +277,7 @@ characters =
     , [ invuln "Parry" "Kakashi" [Physical] ]
     ]
   , Character
-    "Rin Nohara"
+    "Rin Nohara" 0
     "A chūnin on Team Minato, Rin is a quiet but strong-willed medical-nin. Her priority is always healing her teammates, though she can also defend herself with traps if necessary."
     [LeafVillage, Chunin, Jinchuriki, Fire, Water, Yang]
     [ [ Skill.new
@@ -323,7 +323,7 @@ characters =
     , [ invuln "Flee" "Rin" [Physical] ]
     ]
   , Character
-    "Obito Uchiha"
+    "Obito Uchiha" 0
     "A member of Team Minato, Obito is treated as a nobody despite his Uchiha heritage. He dreams of becoming Hokage so that people will finally acknowledge him. Accustomed to helping from the sidelines, if he falls in battle, he will lend his strength to his allies."
     [LeafVillage, Chunin, Jinchuriki, Sensor, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
@@ -375,7 +375,7 @@ characters =
     , [ invuln "Flee" "Obito" [Physical] ]
     ]
   , Character
-    "Masked Man"
+    "Masked Man" 0
     "As the nine-tailed beast rampages across the Hidden Leaf Village, a mysterious masked man appears and attempts to bend it to his will. The legendary beast demolishes house after house, laying waste to the defenses of its enemies."
     [LeafVillage, Jinchuriki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new

@@ -114,10 +114,10 @@ instance ToMarkup Channeling where
 -- | An out-of-game character.
 data Character = Character
     { name     :: Text
+    , price    :: Int
     , bio      :: Text
     , groups   :: EnumSet Group
     , skills   :: NonEmpty (NonEmpty Skill)
-    , price    :: Int
     , category :: Category
     } deriving (Generic)
 

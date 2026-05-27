@@ -8,10 +8,10 @@ import Data.Bits (bit)
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Madara Uchiha"
+    "Madara Uchiha" 0
     "The co-founder of the Hidden Leaf Village along with Hashirama Senju, Madara turned against his friend in pursuit of absolute, unrivaled power as a means to break the cycle of violence and establish lasting peace. Cynical and bitter, Madara works toward what he believes to be humanity's benefit without sparing a thought for those who get in his way."
     [LeafVillage, Akatsuki, Jinchuriki, Rogue, Sensor, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
@@ -86,7 +86,7 @@ characters =
     , [ invuln "Chakra Barrier" "Madara" [Chakra] ]
     ]
   , Character
-    "Deidara"
+    "Deidara" 0
     "An Akatsuki member who defected from the Hidden Stone Village's Demolitions Unit, Deidara posesses the unusual ability to turn clay into explosives by infusing it with lightning chakra. Most of his reckless decisions can be attributed to his pride and love of art, which usually outweigh any other priorities."
     [StoneVillage, Akatsuki, Rogue, SRank, Earth, Lightning]
     [ [ Skill.new
@@ -186,7 +186,7 @@ characters =
     , [ invuln "Clay Clone" "Deidara" [Chakra] ]
     ]
   , Character
-    "Sasori"
+    "Sasori" 0
     "An Akatsuki member who defected from the Hidden Sand Village's Puppet Brigade, Sasori of the Red Sand is as hollow and soullesss as his playthings. Obsessed with creating human puppets, Sasori prizes above all others the body of the Third Kazekage, through which he can wield magnetic abilities."
     [SandVillage, Akatsuki, Rogue]
     [ [ Skill.new
@@ -274,7 +274,7 @@ characters =
     , [ invuln "Chakra Barrier" "Sasori" [Chakra] ]
     ]
   , Character
-    "Hidan"
+    "Hidan" 0
     "An Akatsuki member who defected from the Hidden Hotspring Village, Hidan belongs to a cult that worships Jashin, a bloodthirsty and murderous god who blesses him with immortality. With no need to fear death, he binds his soul to his enemies and tortures himself endlessly."
     [Akatsuki, Rogue, SRank]
     [ [ Skill.new
@@ -388,7 +388,7 @@ characters =
     , [ invuln "Block" "Hidan" [Physical] ]
     ]
   , Character
-    "Kakuzu"
+    "Kakuzu" 0
     "The self-proclaimed Treasurer of the Akatsuki, Kakuzu is a money-obsessed bounty hunter who defected from the Hidden Waterfall Village in pursuit of wealth. With his anger usually going unchecked, he has a bad habit of ripping out the heart of anyone who annoys him. He stores extra hearts in masks, each of which grants different abilities."
     [Akatsuki, Rogue, SRank, Earth, Water, Fire, Wind, Lightning]
     [ [ Skill.new
@@ -458,7 +458,7 @@ characters =
     , [ invuln "Iron Skin" "Kakuzu" [Physical] ]
     ]
   , Character
-    "Kisame Hoshigaki"
+    "Kisame Hoshigaki" 0
     "An Akatsuki member and one of the Seven Swordsmen of the Mist, Kisame is a rogue operative who hunts and captures tailed beasts. His water techniques and legendary sword Samehada flood his enemies."
     [MistVillage, Akatsuki, SevenSwordsmen, Rogue, SRank, Water, Fire, Wind, Earth]
     [ [ Skill.new
@@ -572,7 +572,7 @@ characters =
     , [ invuln "Scale Shield" "Kisame" [Physical] ]
     ]
   , Character
-    "Itachi Uchiha"
+    "Itachi Uchiha" 0
     "An Akatsuki member who defected from the Hidden Leaf Village, Itachi is known as the Clan Killer for slaughtering the rest of the Uchihas, sparing only his brother. Plagued by a lethal disease that saps his strength, Itachi has been forced to go on the defensive. Out of other options, he now plays his trump card: the legendary armor Susanoo, created by the power of the mangekyō sharingan."
     [LeafVillage, Akatsuki, Rogue, SRank, Fire, Wind, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
@@ -658,7 +658,7 @@ characters =
     , [ invuln "Dodge" "Itachi" [Physical] ]
     ]
   , Character
-    "Zetsu"
+    "Zetsu" 0
     "After Madara turned the Gedo statue's mutated victims into an army of servants, he chose one to lead them. Imbuing the White Zetsu entity with materialized will in the form of Black Zetsu, he created a hybrid being who became an official member of Akatsuki. White Zetsu and Black Zetsu have different approaches to combat, but both are able to take control of an enemy's abilities."
     [Akatsuki, Sensor, SRank, Earth, Water, Fire, Wind, Lightning, Yin, Yang]
     [ [ Skill.new
@@ -785,7 +785,7 @@ characters =
     , [ invuln "Hide" "Zetsu" [Physical] ]
     ]
   , Character
-    "Tobi"
+    "Tobi" 0
     "A peculiar new member of the Akatsuki who rarely takes anything seriously, Tobi claims to be Madara Uchiha despite all evidence to the contrary. Using his Izanagi, he can rewind his state to an earlier point and even come back from the dead."
     [LeafVillage, Akatsuki, SRank, Jinchuriki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
@@ -861,7 +861,7 @@ characters =
     , [ invuln "Phase" "Tobi" [Chakra] ]
     ]
   , Character
-    "Deva Path Pain"
+    "Deva Path Pain" 0
     "Having taken over the body of Yahiko, his deceased best friend, Pain now acts through it as one of his Six Paths. To honor Yahiko's memory, Pain uses the Deva Path as the leader of the Six Paths and his main body when interacting with others. Deva Path's specialization is gravity manipulation, which he uses to impair and imprison his enemies."
     [RainVillage, Akatsuki, SRank, Water, Fire, Wind, Lightning, Earth, Water]
     [ [ Skill.new
@@ -964,7 +964,7 @@ characters =
     , [ invuln "Rinnegan Foresight" "Pain" [Mental] ]
     ]
   , Character
-    "Asura Path Pain"
+    "Asura Path Pain" 0
     "Having taken over the body of a wandering puppeteer, Pain now acts through it as one of his Six Paths. Asura Path's body is heavily augmented with ballistic and mechanical weaponry."
     [Akatsuki, SRank]
     [ [ Skill.new
@@ -1081,7 +1081,7 @@ characters =
     , [ invuln "Flee" "Pain" [Physical] ]
     ]
   , Character
-    "Human Path Pain"
+    "Human Path Pain" 0
     "Having taken over the body of a ninja from the Hidden Waterfall Village, Pain now acts through it as one of his Six Paths. Human Path's specialty is drawing the souls of his enemies from their bodies to reveal their secrets and drain their lifeforce."
     [Akatsuki, SRank]
     [ [ Skill.new
@@ -1132,7 +1132,7 @@ characters =
     , [ invuln "Rinnegan Foresight" "Pain" [Mental] ]
     ]
   , Character
-    "Animal Path Pain"
+    "Animal Path Pain" 0
     "Having taken over the body of a ninja from the Hidden Rain Village named Ajisai, Pain now acts through it as one of his Six Paths. Animal Path's specialization is summoning giant creatures that continue to fight for her even if she is immobilized."
     [RainVillage, Akatsuki, SRank]
     [ [ Skill.new
@@ -1211,7 +1211,7 @@ characters =
     , [ invuln "Summoning: Giant Chameleon" "Pain" [Summon, Invisible] ]
     ]
   , Character
-    "Preta Path Pain"
+    "Preta Path Pain" 0
     "Having taken over the body of a farmer from the Hidden Grass Village, Pain now acts through it as one of his Six Paths. Preta Path's specialization is absorbing chakra and nullifying ninjutsu abilities."
     [Akatsuki, SRank]
     [ [ Skill.new
@@ -1258,7 +1258,7 @@ characters =
       , [ invuln "Rinnegan Foresight" "Pain" [Mental] ]
     ]
   , Character
-    "Naraka Path Pain"
+    "Naraka Path Pain" 0
     "Having taken over the body of a priest, Pain now acts through it as one of his Six Paths. Naraka Path's specialty is summoning and controlling the King of Hell, which shields and supports his allies by draining the strength of those it considers unworthy."
     [Akatsuki, SRank]
     [ [ Skill.new
@@ -1316,7 +1316,7 @@ characters =
     , [ invuln "Block" "Pain" [Physical] ]
     ]
   , Character
-    "Nagato"
+    "Nagato" 0
     "Nagato leads the Akatsuki as the six-bodied Pain. His true body has remained safely hidden for years, acting through the Gedo statue. Though vulnerable without his Paths to defend him, Nagato's rinnegan makes him a formidable opponent."
     [RainVillage, Akatsuki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yang, Uzumaki]
     [ [ Skill.new
@@ -1406,7 +1406,7 @@ characters =
       ]
     ]
   , Character
-    "Konan"
+    "Konan" 0
     "One of the founding members of Akatsuki, Konan is an elegant origamist from the Hidden Rain Village. Along with her closeness to god-like Nagato, her ability to fly with paper wings has earned her the title of Angel. Although Akatsuki has strayed far from its original methodologies, Konan holds fast to her goal of bringing peace to the world."
     [RainVillage, Akatsuki, Sensor, SRank, Wind, Earth, Water, Yang]
     [ [ Skill.new

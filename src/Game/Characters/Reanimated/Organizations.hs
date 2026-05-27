@@ -10,7 +10,7 @@ import qualified Game.Model.Skill as Skill
 characters :: [Category -> Character]
 characters =
   [ Character
-    "Jirōbō"
+    "Jirōbō" 50
     "Reanimated by Kabuto, Jirōbō was a member of the Sound Five. No longer concealing his anger beneath a facade of politeness, Jirōbō has only one thing on his mind: revenge."
     [SoundVillage, Kabuto, Orochimaru, Earth]
     [ [ Skill.new
@@ -89,9 +89,8 @@ characters =
         }
       ]
     ]
-    50
   , Character
-    "Kimimaro"
+    "Kimimaro" 75
     "Reanimated by Kabuto, Kimimaro was a member of the Sound Five until he was claimed by illness. Loyal to Orochimaru, Kimimaro now follows Kabuto, who carries Orochimaru's chakra and shares similar ambitions."
     [SoundVillage, Kabuto, Orochimaru]
     [ [ Skill.new
@@ -131,9 +130,8 @@ characters =
       ]
     , [ invuln "Block" "Kimimaro" [Physical] ]
     ]
-    75
   , Character
-    "Haku"
+    "Haku" 50
     "Reanimated by Kabuto, Haku remains as loyal to Zabuza as he was in life. With his inherited ice manipulation techniques, he disrupts his enemies while hiding safely behind crystalline mirrors."
     [MistVillage, Kabuto, Wind, Water]
     [ [ Skill.new
@@ -192,9 +190,8 @@ characters =
       ]
     , [ invuln "Ice Dome" "Haku" [Chakra] ]
     ]
-    50
   , Character
-    "Zabuza Momochi"
+    "Zabuza Momochi" 75
     "Reanimated by Kabuto, Zabuza was one of the Seven Swordsmen of the Mist and a renowned mercenary. Although he has been reunited with Haku, Zabuza is furious at being forced to fight against his will. He still wields Kubikiribōchō, his legendary executioner's broadsword, which feeds on the blood it spills to strengthen itself."
     [MistVillage, Kabuto, SevenSwordsmen, Rogue, Water]
     [ [ Skill.new
@@ -242,8 +239,11 @@ characters =
       ]
     , [ invuln "Block" "Zabuza" [Physical] ]
     ]
-    75
-  , let
+  , Character
+    "Ameyuri Ringo" 75
+    "Reanimated by Kabuto, Ameyuri was one of the Seven Swordsmen of the Mist. Wielding Baki, the legendary twin lightning blades, Ameyuri cuts down her enemies using paralyzing electricity."
+    [MistVillage, Kabuto, SevenSwordsmen, Jonin, Lightning]
+    let
         electrocute :: RunConstraint ()
         electrocute = unlessM (target has "electrocuted") do
             hide' "electrocuted" Permanent []
@@ -253,10 +253,6 @@ characters =
                     targeting Everyone $ whenM (target has "Electricity") $
                         afflict 5
     in
-    Character
-    "Ameyuri Ringo"
-    "Reanimated by Kabuto, Ameyuri was one of the Seven Swordsmen of the Mist. Wielding Baki, the legendary twin lightning blades, Ameyuri cuts down her enemies using paralyzing electricity."
-    [MistVillage, Kabuto, SevenSwordsmen, Jonin, Lightning]
     [ [ Skill.new
         { Skill.name      = "Lightning Fang"
         , Skill.desc      = "Bolts of lightning cascade across the battlefield, applying 2 turns of Electricity to all enemies. Whenever someone affected by Electricity uses a skill, Electricity on them is refreshed to its maximum duration, and everyone affected by Electricity receives 5 affliction damage that bypasses invulnerability. Reapplying Electricity extends its duration instead of stacking."
@@ -301,9 +297,8 @@ characters =
       ]
     , [ invuln "Parry" "Ameyuri" [Physical] ]
     ]
-    75
   , Character
-    "Kushimaru Kuriarare"
+    "Kushimaru Kuriarare" 75
     "Reanimated by Kabuto, Kushimaru was one of the Seven Swordsmen of the Mist. Wielding Nuibari, the legendary razor-wire longsword, Kushimaru stitches together his enemies to prevent them from acting."
     [MistVillage, Kabuto, SevenSwordsmen, Jonin]
     [ [ Skill.new
@@ -360,9 +355,8 @@ characters =
       ]
     , [ invuln "Block" "Kushimaru" [Physical] ]
     ]
-    75
   , Character
-    "Jinpachi Munashi"
+    "Jinpachi Munashi" 75
     "Reanimated by Kabuto, Jinpachi was one of the Seven Swordsmen of the Mist. Wielding Shibuki, the legendary explosive blade, Jinpachi sets off unrelenting chain reactions of paper bombs that deploy endlessly from its scroll."
     [MistVillage, Kabuto, SevenSwordsmen, Jonin]
     [ [ Skill.new
@@ -423,9 +417,8 @@ characters =
       ]
     , [ invuln "Block" "Jinpachi" [Physical] ]
     ]
-    75
   , Character
-    "Fuguki Suikazan"
+    "Fuguki Suikazan" 75
     "Reanimated by Kabuto, Fuguki was one of the Seven Swordsmen of the Mist who wielded the legendary sentient sword Samehada. Without his sword, he relies on his chakra-enhanced hair to heal himself and ensnare his opponents."
     [MistVillage, Kabuto, SevenSwordsmen, Jonin]
     [ [ Skill.new
@@ -478,9 +471,8 @@ characters =
       ]
     , [ invuln "Block" "Fuguki" [Physical] ]
     ]
-    75
   , Character
-    "Jinin Akebino"
+    "Jinin Akebino" 75
     "Reanimated by Kabuto, Jinin was one of the Seven Swordsmen of the Mist. Wielding Kabutowari, the legendary blunt blade, Jinin cleaves the armor and protections of his enemies."
     [MistVillage, Kabuto, SevenSwordsmen, Jonin]
     [ [ Skill.new
@@ -528,9 +520,8 @@ characters =
       ]
     , [ invuln "Dodge" "Jinin" [Physical] ]
     ]
-    75
   , Character
-    "Deidara"
+    "Deidara" 100
     "Reanimated by Kabuto, Deidara was an Akatsuki member obsessed with art. His style remains largely as it was when he was alive, revolving around clay explosives that successively render its victims more vulnerable to subsequent explosions."
     [StoneVillage, Kabuto, Akatsuki, Rogue, SRank, Earth, Lightning]
     [ [ Skill.new
@@ -591,9 +582,8 @@ characters =
       ]
     , [ invuln "Clay Clone" "Deidara" [Chakra] ]
     ]
-    100
   , Character
-    "Sasori"
+    "Sasori" 100
     "Reanimated by Kabuto, Sasori was an Akatsuki member who crafted puppets from human corpses. Finally inhabiting the perfect, ageless body he strived for in life, Sasori uses his chakra threads to control enemies and allies alike."
     [SandVillage, Kabuto, Akatsuki, Rogue]
     [ [ Skill.new
@@ -638,9 +628,8 @@ characters =
       ]
     , [ invuln "Block" "Sasori" [Physical] ]
     ]
-    100
   , Character
-    "Nagato"
+    "Nagato" 125
     "Reanimated by Kabuto, Nagato is as much a pawn in the schemes of others as he was in life. With the full power of the Rinnegan, all six Paths are at his disposal."
     [RainVillage, Kabuto, Akatsuki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yang, Uzumaki]
     [ [ Skill.new
@@ -722,5 +711,4 @@ characters =
       ]
     , [ invuln "Animal Path" "Nagato" [Summon, Invisible] ]
     ]
-    125
   ]

@@ -7,10 +7,10 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Iruka Umino"
+    "Iruka Umino" 0
      "A chūnin from the Hidden Leaf Village, Iruka is a kind instructor who has mentored Naruto throughout his youth. He fights to keep his allies safe and protect them from harm, growing stronger out of desperation the closer to death he is."
     [LeafVillage, Chunin, Fire, Water, Yin]
     [ [ Skill.new
@@ -51,7 +51,7 @@ characters =
     , [ invuln "Parry" "Iruka" [Physical] ]
     ]
   , Character
-    "Mizuki"
+    "Mizuki" 0
     "A chūnin from the Hidden Leaf Village, Mizuki is an unpleasant instructor who betrays his allies without hesitation in order to succeed. Unless forced into direct combat, he slips into the shadows and ambushes his enemies at their weakest."
     [LeafVillage, Orochimaru, Chunin, Rogue, Earth, Yin]
     [ [ Skill.new
@@ -104,7 +104,7 @@ characters =
     , [ invuln "Dodge" "Mizuki" [Physical] ]
     ]
   , Character
-    "Anko Mitarashi"
+    "Anko Mitarashi" 0
     "A former student of Orochimaru who bears his Curse Mark, Anko is now a jōnin teacher in the Hidden Leaf Village. She uses various poisons and forbidden techniques learned from Orochimaru to dismantle her enemies."
     [LeafVillage, AlliedForces, Jonin, Fire, Yin]
     [ [ Skill.new
@@ -162,7 +162,7 @@ characters =
     , [ invuln "Dodge" "Anko" [Physical] ]
     ]
   , Character
-    "Hayate Gekkō"
+    "Hayate Gekkō" 0
     "A jōnin exam proctor from the Hidden Leaf Village, Hayate is calm and composed despite his poor health and chronic cough. He slips in and out of the shadows, gradually recovering his strength and honing his expert swordsmanship."
     [LeafVillage, Jonin]
     [ [ Skill.new
@@ -207,7 +207,7 @@ characters =
     , [ invuln "Dodge" "Hayate" [Physical] ]
     ]
   , Character
-    "Kakashi Hatake"
+    "Kakashi Hatake" 0
     "Team 7's jōnin squad leader, Kakashi puts the life of his teammates above all else. Known as the Copy Ninja, Kakashi analyzes and duplicates abilities used against him."
     [LeafVillage, Jonin, TeamLeader, Lightning, Water, Earth, Fire, Wind, Yin, Yang]
     [ [ Skill.new
@@ -247,7 +247,7 @@ characters =
     , [ invuln "Hide" "Kakashi" [Mental] ]
     ]
   , Character
-    "Kurenai Yuhi"
+    "Kurenai Yuhi" 0
     "Team 8's jōnin squad leader, Kurenai is caring and brave. A master of genjutsu, Kurenai traps her enemies in inescapable illusions."
     [LeafVillage, Jonin, Sensor, TeamLeader, Yin, Sarutobi]
     [ [ Skill.new
@@ -309,7 +309,7 @@ characters =
     , [ invuln "Vanish" "Kurenai" [Mental] ]
     ]
   , Character
-    "Asuma Sarutobi"
+    "Asuma Sarutobi" 0
     "Team 10's jōnin squad leader, Asuma is a chronic smoker and the third Hokage's son. He focuses on protecting his team, providing them with defense and taking blows in their stead."
     [LeafVillage, Jonin, TeamLeader, Wind, Fire, Sarutobi]
     [ [ Skill.new
@@ -396,7 +396,7 @@ characters =
     , [ invuln "Parry" "Asuma" [Physical] ]
     ]
   , Character
-    "Might Guy"
+    "Might Guy" 0
     "Team Guy's jōnin squad leader, Guy is passionate and strong-willed. He treats his teammates like family, especially Lee, who looks up to him as a father figure. His taijutsu prowess is unmatched. Although opening his inner Gates takes a heavy toll on his body, it empowers his blows with inescapable destruction."
     [LeafVillage, Jonin, TeamLeader, Fire, Lightning]
     [ [ Skill.new
@@ -447,7 +447,7 @@ characters =
     , [ invuln "Dodge" "Guy" [Physical] ]
     ]
   , Character
-    "Baki"
+    "Baki" 0
     "A jōnin from the Hidden Sand Village, Baki is a ruthlessly efficient squad leader. He cloaks his attacks in illusions to prevent his enemies from defending against them."
     [SandVillage, Jonin, TeamLeader, Wind]
     [ [ Skill.new
@@ -481,7 +481,7 @@ characters =
     , [ invuln "Teleport" "Baki" [Chakra] ]
     ]
   , Character
-    "Shizune"
+    "Shizune" 0
     "A jōnin from the Hidden Leaf Village, Shizune is a talented medical-nin apprenticed to Tsunade. She is agile and fast, fully capable of holding her own in a fight whenever she isn't healing one of her allies."
     [LeafVillage, AlliedForces, Jonin]
     [ [ Skill.new

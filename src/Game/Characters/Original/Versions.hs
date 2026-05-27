@@ -7,10 +7,10 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "One-Tailed Naruto"
+    "One-Tailed Naruto" 0
     "Naruto's anger and desperation has forced the nine-tailed beast's power to surface, unleashing Kurama's animalistic fury and boundless chakra. Overflowing with undirected power that could heal or destroy, Naruto has a choice to make: will he protect himself and stay in control, or give in to the beast within?"
     [LeafVillage, Eleven, Genin, Jinchuriki, Sage, Sensor, Wind, Lightning, Earth, Water, Fire, Yin, Yang, Uzumaki]
     [ [ Skill.new
@@ -59,7 +59,7 @@ characters =
     , [ invuln "Dodge" "Naruto" [Physical] ]
     ]
   , Character
-    "Curse Mark Sasuke"
+    "Curse Mark Sasuke" 0
     "Having acclimated to his Curse Mark, Sasuke draws Orochimaru's vile chakra through it to grow stronger and more monstrous. His powers have grown exponentially, allowing him to pierce or trap enemies with his corrupted chakra."
     [LeafVillage, Genin, Lightning, Fire, Wind, Earth, Water, Yin, Uchiha]
     [ [ Skill.new
@@ -107,7 +107,7 @@ characters =
     , [ invuln "Sharingan Foresight" "Sasuke" [Mental] ]
     ]
   , Character
-    "Drunken Lee"
+    "Drunken Lee" 0
     "Accidentally drinking sake has awakened Lee's hidden Drunken Fist powers, completely changing his fighting style. Lee's strength increases the longer he fights, though he is too drunk to focus his attacks on a single opponent."
     [LeafVillage, Eleven, Genin]
     [ [ Skill.new
@@ -161,7 +161,7 @@ characters =
     , [ invuln "Dodge" "Lee" [Physical] ]
     ]
   , Character
-    "Shukaku Gaara"
+    "Shukaku Gaara" 0
     "Gaara has spent his whole life struggling to contain Shukaku, the one-tailed beast, within himself. As his will fades and sleep rushes to claim him, Shukaku gleefully takes over, eager to wreak havoc."
     [SandVillage, Genin, Jinchuriki, Sensor, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new
@@ -233,7 +233,7 @@ characters =
     , [ invuln "Thick Sand Coat" "Shukaku" [Physical] ]
     ]
   , Character
-    "Rehabilitated Gaara"
+    "Rehabilitated Gaara" 0
     "Following his fateful encounter with Naruto, Gaara has become a kind and loyal friend. The sand that was once an extension of his fear and rage has become a versatile tool for shaping the battlefield."
     [SandVillage, Genin, Jinchuriki, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new

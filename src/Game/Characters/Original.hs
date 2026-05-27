@@ -16,7 +16,7 @@ import qualified Game.Characters.Original.Teachers
 import qualified Game.Characters.Original.Versions
 
 characters :: [Character]
-characters = (\x -> x 0 Original)
+characters = ($ Original)
     <$> Game.Characters.Original.Kids.characters
     ++ Game.Characters.Original.Exams.characters
     ++ Game.Characters.Original.Teachers.characters

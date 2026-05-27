@@ -7,10 +7,10 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Kakashi Hatake"
+    "Kakashi Hatake" 0
     "For most of his life, Kakashi has avoided using Kamui—his Sharingan's ultimate ability—unless absolutely necessary, due to the mental and physical strain. Those days are over. With years of practice and refinement behind him, Kakashi can now rely on Kamui's dimensional warping to torture his enemies and make his allies intangible."
     [LeafVillage, AlliedForces, Jonin, TeamLeader, Lightning, Water, Earth, Fire, Wind, Yin, Yang]
     [ [ Skill.new
@@ -75,7 +75,7 @@ characters =
     , [ invuln "Shadow Clone" "Kakashi" [Chakra] ]
     ]
   , Character
-    "Asuma Sarutobi"
+    "Asuma Sarutobi" 0
     "Having somehow managed to avoid lung cancer, Asuma remains the leader of Team 10. Using techniques he learned from the Fire Temple, he hinders his opponents and instantly executes weak enemies."
     [LeafVillage, Jonin, TeamLeader, Wind, Fire, Sarutobi]
     [ [ Skill.new
@@ -153,7 +153,7 @@ characters =
     , [ invuln "Dodge" "Asuma" [Physical] ]
     ]
   , Character
-    "Might Guy"
+    "Might Guy" 0
     "Over the past few years, Guy has learned restraint. By gradually opening his Gates in sequence, he avoids the risk of burning out before the battle is won."
     [LeafVillage, AlliedForces, Jonin, TeamLeader, Fire, Lightning]
     [ [ Skill.new
@@ -230,7 +230,7 @@ characters =
     , [ invuln "Block" "Guy" [Physical] ]
     ]
   , Character
-    "Maki"
+    "Maki" 0
     "A jōnin from the Hidden Sand Village, Maki studied under Pakura, the Hero of the Hidden Sand. As a member of the Allied Shinobi Forces Sealing Team, Maki must put aside her long-held grudge against the Hidden Stone Village for killing her teacher."
     [SandVillage, AlliedForces, Jonin]
     [ [ Skill.new
@@ -278,7 +278,7 @@ characters =
     , [ invuln "Cloth Shield" "Maki" [Physical] ]
     ]
   , Character
-    "Chiyo"
+    "Chiyo" 0
     "A widely-respected puppeteer and former leader of the Hidden Sand Village's Puppet Brigade, Elder Chiyo has a lifetime of combat experience. Her numerous puppets sow chaos among her enemies and shield her from harm, allowing her to use her other skills with impunity."
     [SandVillage]
     [ [ Skill.new
@@ -355,7 +355,7 @@ characters =
     , [ invuln "Chakra Barrier" "Chiyo" [Chakra] ]
     ]
   , Character
-    "Akatsuchi"
+    "Akatsuchi" 0
     "A jōnin from the Hidden Stone Village, Akatsuchi is cheerful and excitable. He uses brute strength and rock golems to pummel his enemies to the ground."
     [StoneVillage, AlliedForces, Jonin, Earth]
     [ [ Skill.new
@@ -396,7 +396,7 @@ characters =
     , [ invuln "Dodge" "Akatsuchi" [Physical] ]
     ]
   , Character
-    "Kurotsuchi"
+    "Kurotsuchi" 0
     "A jōnin from the Hidden Stone Village, Kurotsuchi is the Third Tsuchikage's granddaughter. Witty and self-assured, Kurotsuchi is famed for her unflinching resolve in the face of danger."
     [StoneVillage, AlliedForces, Jonin, Fire, Earth, Water, Yin, Kamizuru]
     [ [ Skill.new
@@ -444,7 +444,7 @@ characters =
     , [ invuln "Dodge" "Kurotsuchi" [Physical] ]
     ]
   , Character
-    "Kitsuchi"
+    "Kitsuchi" 0
     "A jōnin from the Hidden Stone Village, Kitsuchi is the Third Tsuchikage's son and Kurotsuchi's father. He commands the Allied Shinobi Forces Second Division, a responsibility he takes with the utmost seriousness."
     [StoneVillage, AlliedForces, Jonin, Earth]
     [ [ Skill.new
@@ -499,7 +499,7 @@ characters =
     , [ invuln "Rock Shelter" "Kitsuchi" [Physical] ]
     ]
   , Character
-    "Ittan"
+    "Ittan" 0
     "A chūnin from the Hidden Stone Village, Ittan is battle-hardened and level-headed. By reshaping the terrain, Ittan turns the battlefield to his advantage."
     [StoneVillage, AlliedForces, Chunin, Earth]
     [ [ Skill.new
@@ -541,7 +541,7 @@ characters =
     , [ invuln "Trench Defense" "Ittan" [Physical] ]
     ]
   , Character
-    "C"
+    "C" 0
     "A jōnin from the Hidden Cloud Village, C is one of the Raikage's bodyguards. Reliable and dutiful, C supports his allies with healing and sensing."
     [CloudVillage, AlliedForces, Jonin, Sensor, Lightning, Yin]
     [ [ Skill.new
@@ -581,7 +581,7 @@ characters =
     , [ invuln "Parry" "C" [Physical] ]
     ]
   , Character
-    "Atsui"
+    "Atsui" 0
     "A chūnin from the Hidden Cloud Village, Atsui is a hot-headed hotshot whose favorite word is 'hot' and whose name literally means 'Hot'. A staggeringly complex character with hidden depths, Atsui's skills are as diverse as his multifaceted personality."
     [CloudVillage, AlliedForces, Chunin, Fire]
     [ [ Skill.new
@@ -624,7 +624,7 @@ characters =
     , [ invuln "Parry" "Atsui" [Physical] ]
     ]
   , Character
-    "Omoi"
+    "Omoi" 0
     "A chūnin from the Hidden Cloud Village, Omoi has an overactive imagination that feeds into his pessimism. A master swordsman, Omoi is quick to spot vulnerabilities in his opponents' defenses."
     [CloudVillage, AlliedForces, Chunin, Lightning]
     [ [ Skill.new
@@ -689,7 +689,7 @@ characters =
     , [ invuln "Parry" "Omoi" [Physical] ]
     ]
   , Character
-    "Dodai"
+    "Dodai" 0
     "A jōnin from the Hidden Cloud Village, Dodai is an impassive utilitarian with decades of experience as a sensor. He possesses the unusual ability to create rubbery lava by combining fire and earth chakra."
     [CloudVillage, AlliedForces, AlliedForces, Jonin, Fire, Earth]
     [ [ Skill.new
@@ -742,7 +742,7 @@ characters =
     , [ invuln "Dodge" "Dodai" [Physical] ]
     ]
   , Character
-    "Darui"
+    "Darui" 0
     "A jōnin of the Hidden Cloud Village, Darui is the fourth Raikage's right hand. Despite his laid-back attitude and characteristic slouch, he fights with incredible speed and ferocity."
     [CloudVillage, AlliedForces, Jonin, Lightning, Water, Wind]
     [ [ Skill.new
@@ -790,7 +790,7 @@ characters =
     , [ invuln "Block" "Darui" [Physical] ]
     ]
   , Character
-    "Ao"
+    "Ao" 0
     "A jōnin from the Hidden Mist Village, Ao is a veteran with a proclivity for body modification. His expertise as a sensor and tracker is aided by the Byakugan he stole from a defeated Hyūga."
     [MistVillage, AlliedForces, Jonin, Sensor, Water, Yin]
     [ [ Skill.new
@@ -834,7 +834,7 @@ characters =
     , [ invuln "Block" "Ao" [Physical] ]
     ]
   , Character
-    "Chōjūrō"
+    "Chōjūrō" 0
     "One of the Seven Swordsmen of the Mist, Chōjūrō is a jōnin who serves as the Mizukage's retainer. Wielding the legendary twin-sword Hiramekarei, Chōjūrō overpowers the defenses of his enemies with its battering-ram chakra blasts."
     [MistVillage, AlliedForces, SevenSwordsmen, Jonin, Water]
     [ [ Skill.new

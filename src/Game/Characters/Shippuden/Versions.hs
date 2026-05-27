@@ -8,10 +8,10 @@ import Game.Characters.Import
 import           Game.Model.Ninja (isChanneling)
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Sage Mode Naruto"
+    "Sage Mode Naruto" 0
     "Naruto has trained on Mount Myōboku with Fukasaku and Shima, the Two Great Sage Toads. He has learned to absorb natural energy and use it to empower his attacks or heal himself."
     [LeafVillage, Eleven, AlliedForces, Genin, Jinchuriki, Sage, Sensor, Wind, Lightning, Earth, Water, Fire, Yin, Yang, Uzumaki]
     [ [ Skill.new
@@ -81,7 +81,7 @@ characters =
     , [ invuln "Parry" "Naruto" [Physical] ]
     ]
   , Character
-    "Regimental Commander Gaara"
+    "Regimental Commander Gaara" 0
     "Coordinating the Allied Shinobi Forces and personally commanding the Fourth Division, Gaara has proven to be an inspiring leader and talented strategist. His attacks scatter sand particles around the battlefield, which he draws back in with explosive force."
     [SandVillage, AlliedForces, Kage, Jinchuriki, Sensor, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new
@@ -128,7 +128,7 @@ characters =
     , [ invuln "Sand Shield" "Gaara" [Physical] ]
     ]
   , Character
-    "Puppet Master Kankurō"
+    "Puppet Master Kankurō" 0
     "After defeating Sasori, Kankurō considers himself one of the greatest puppeteers in history. Adding Sasori's body to his collection of puppets, Kankurō uses each puppet for a different purpose."
     [SandVillage, AlliedForces, Jonin, Wind, Lightning, Earth, Water, SandClan]
     [ [ Skill.new
@@ -226,7 +226,11 @@ characters =
       ]
     , [ invuln "Puppet Distraction" "Kankurō" [Physical] ]
     ]
-  , let
+  , Character
+    "Sage Mode Kabuto" 0
+    "Unable to find an identity of his own, Kabuto has spent his life taking on the traits of others. Years of research and experiments upon himself have reached their conclusion, and now Kabuto prepares for his final metamorphosis."
+    [LeafVillage, Rogue, Sage, TeamLeader, Earth, Water, Wind, Yin, Yang]
+    let
         rename "Sage Transformation" = "Bloodline Sage"
         rename "Bloodline Sage"      = "Genjutsu Sage"
         rename "Genjutsu Sage"       = "Ninjutsu Sage"
@@ -241,10 +245,6 @@ characters =
           | isChanneling "Taijutsu Sage"  n = f Tai
           | otherwise                       = f Rand
     in
-    Character
-    "Sage Mode Kabuto"
-    "Unable to find an identity of his own, Kabuto has spent his life taking on the traits of others. Years of research and experiments upon himself have reached their conclusion, and now Kabuto prepares for his final metamorphosis."
-    [LeafVillage, Rogue, Sage, TeamLeader, Earth, Water, Wind, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Sage Transformation"
         , Skill.desc      = "By synthesizing rare genetic traits from other bloodlines inside his body, Kabuto becomes attuned to the flow of natural energy. Each turn, the chakra costs and type of chakra gained from his other skills cycle through the different types of chakra. Once used, this skill becomes [DNA Transmission Shadow][r][r][r]."
@@ -335,7 +335,7 @@ characters =
       ]
     ]
   , Character
-    "Eight-Gates Guy"
+    "Eight-Gates Guy" 0
     "With the fate of the world at stake, Guy has opened all eight Gates and is holding nothing back. The effort will surely kill him, but while he lives, his strength outmatches even the legendary Madara Uchiha."
     [LeafVillage, AlliedForces, Jonin, TeamLeader, Fire, Lightning]
     [ [ Skill.new
@@ -396,7 +396,7 @@ characters =
     , [ invuln "Dodge" "Guy" [Physical] ]
     ]
   , Character
-    "Curse Mark Jūgo"
+    "Curse Mark Jūgo" 0
     "No longer recognizably human, Jūgo has been transformed by bloodlust into a terrifying monster. Tapping into limitless chakra, he is an unstoppable and uncontrollable force."
     [Orochimaru, Sage, Wind, Earth, Water, Yang]
     [ [ Skill.new
@@ -435,7 +435,7 @@ characters =
     , [ invuln "Block" "Jūgo" [Physical] ]
     ]
   , Character
-    "Mangekyō Sasuke"
+    "Mangekyō Sasuke" 0
     "The trauma of Itachi's death has awakened Sasuke's Mangekyō Sharingan. With it, he has access to the most powerful techniques of the Uchiha clan. Although his sibling rivalry is at an end, Sasuke's need for vengeance has only grown stronger."
     [LeafVillage, Orochimaru, Orochimaru, Genin, Rogue, Lightning, Fire, Wind, Earth, Water, Yin, Uchiha]
     [ [ Skill.new
@@ -554,7 +554,7 @@ characters =
       ]
     ]
   , Character
-    "True Form Sasori"
+    "True Form Sasori" 0
     "Having invented and perfected the art of human puppetry, Sasori accomplished its ultimate act: transforming himself into a living puppet. His immortal core now resides in an unnaturally youthful simulacrum filled to the brim with tools of slaughter, each of which he switches out for another as soon as he uses it."
     [SandVillage, Rogue]
     [ [ Skill.new
@@ -670,7 +670,7 @@ characters =
     , [ invuln "Heart Switch" "Sasori" [Physical] ]
     ]
   , Character
-    "Konan of the Rain"
+    "Konan of the Rain" 0
     "One of the founding members of Akatsuki, Konan has turned against her own organization in order to aid Naruto in his quest for peace. With Nagato dead, the young Uzumaki is her best hope for the future."
     [RainVillage, Akatsuki, Sensor, SRank, Wind, Earth, Water, Yang, Wind, Earth, Water, Yang]
     [ [ Skill.new
@@ -727,7 +727,7 @@ characters =
     , [ invuln "Paper Clone" "Konan" [Chakra] ]
     ]
   , Character
-    "White Snake Orochimaru"
+    "White Snake Orochimaru" 0
     "Orochimaru has cast off his body and revealed his true form as a giant serpent. Making use of the power he was granted by the White Sage Snake of Ryūchi Cave, Orochimaru transcends life and death in his endless hunger for knowledge and power."
     [LeafVillage, Orochimaru, Sannin, Rogue, TeamLeader, Wind, Lightning, Earth, Water, Fire, Yin, Yang]
     [ [ Skill.new
@@ -820,7 +820,7 @@ characters =
       ]
     ]
   , Character
-    "Sage Mode Jiraiya"
+    "Sage Mode Jiraiya" 0
     "By fusing with the Toad Sages and absorbing natural energy, Jiraiya has enhanced his speed, strength, and skills. Unfortunately, the process gives him a distinctly toady appearance, which does no good for the lecherous sage's chances with women."
     [LeafVillage, Sannin, Sage, TeamLeader, Fire, Wind, Earth, Water, Yin, Yang]
     [ [ Skill.new

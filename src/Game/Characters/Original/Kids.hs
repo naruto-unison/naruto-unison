@@ -7,10 +7,10 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Naruto Uzumaki"
+    "Naruto Uzumaki" 0
     "A genin from Team 7, Naruto is an orphan with the goal of becoming Hokage. His signature Shadow Clones copy his moves to perform powerful combos and wield the Rasengan."
     [LeafVillage, Eleven, Genin, Jinchuriki, Sage, Sensor, Wind, Lightning, Earth, Water, Fire, Yin, Yang, Uzumaki]
     [ [ Skill.new
@@ -52,7 +52,7 @@ characters =
     , [ invuln "Sexy Technique" "Naruto" [Chakra] ]
     ]
   , Character
-    "Sakura Haruno"
+    "Sakura Haruno" 0
     "A genin from Team 7, Sakura is intelligent but self-conscious. Her recent training from Tsunade has prepared her to heal her allies and knock back her enemies."
     [LeafVillage, Eleven, Genin, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
@@ -95,7 +95,7 @@ characters =
     , [ invuln "Substitution Technique" "Sakura" [Chakra] ]
     ]
   , Character
-    "Sasuke Uchiha"
+    "Sasuke Uchiha" 0
     "A genin from Team 7, Sasuke seeks vengeance against his brother for slaughtering the rest of their clan. Using his Sharingan, Sasuke targets his opponent's weak spots and anticipates their attacks."
     [LeafVillage, Genin, Uchiha]
     [ [ Skill.new
@@ -138,7 +138,7 @@ characters =
     , [ invuln "Block" "Sasuke" [Physical] ]
     ]
   , Character
-    "Kiba Inuzuka"
+    "Kiba Inuzuka" 0
     "A genin from Team 8, Kiba is short-tempered and impulsive. His powerful taijutsu skills are amplified when he fuses with his dog, Akamaru, and transforms into a double-headed monster."
     [LeafVillage, Eleven, Genin, Earth, Yang, Inuzuka]
     [ [ Skill.new
@@ -181,7 +181,7 @@ characters =
     , [ invuln "Smoke Bomb" "Kiba" [Physical] ]
     ]
   , Character
-    "Shino Aburame"
+    "Shino Aburame" 0
     "A genin from Team 8, Shino is reserved and tactical. He directs the insects living within his body to leech chakra from his enemies and protect his teammates."
     [LeafVillage, Eleven, Genin, Earth, Fire, Yang, Aburame]
     [ [ Skill.new
@@ -221,7 +221,7 @@ characters =
     , [ invuln "Hide" "Shino" [Mental] ]
     ]
   , Character
-    "Hinata Hyūga"
+    "Hinata Hyūga" 0
     "A genin from Team 8, Hinata is the shy and withdrawn heiress of the Hyūga clan. With her clan's signature Byakugan, she senses her opponent's energy flow and blocks it at key points to remove their chakra."
     [LeafVillage, Eleven, Genin, Fire, Lightning, Hyuga, Uzumaki]
     [ [ Skill.new
@@ -265,7 +265,7 @@ characters =
     , [ invuln "Block" "Hinata" [Physical] ]
     ]
   , Character
-    "Ino Yamanaka"
+    "Ino Yamanaka" 0
     "A genin from Team 10, Ino is as confident as she is vain. She projects the strength of her will directly into the minds of her opponents, bypassing their physical defenses and rendering them helpless."
     [LeafVillage, Eleven, Genin, Sensor, Earth, Water, Fire, Yin, Yang, Yamanaka]
     [ [ Skill.new
@@ -321,7 +321,7 @@ characters =
     , [ invuln "Block" "Ino" [Physical] ]
     ]
   , Character
-    "Shikamaru Nara"
+    "Shikamaru Nara" 0
     "A genin from Team 10, Shikamaru is considered the smartest of the Konoha 11. He manipulates shadows to disable and attack his enemies. Whomever he fights, it's only a matter of time before he comes up with the perfect plan to defeat them."
     [LeafVillage, Eleven, Genin, Fire, Earth, Yin, Nara]
     [ [ Skill.new
@@ -363,7 +363,7 @@ characters =
     , [ invuln "Hide" "Shikamaru" [Mental] ]
     ]
   , Character
-    "Chōji Akimichi"
+    "Chōji Akimichi" 0
     "A genin from Team 10, Chōji is a voracious eater and loyal friend. His clan's special pills immensely magnify his innate strength and unlock different abilities, but the toll they take on his body can kill him if he pushes himself too far, too fast."
     [LeafVillage, Eleven, Genin, Earth, Fire, Yang, Akimichi]
     [ [ Skill.new
@@ -547,7 +547,7 @@ characters =
       ]
     ]
   , Character
-    "Rock Lee"
+    "Rock Lee" 0
     "A member of team Guy, Lee is a genin whose inability to use ninjutsu and genjutsu has led him to devote his life to mastering taijutsu. His strength increases with every strike, building up unstoppable momentum as the fight goes on."
     [LeafVillage, Eleven, Genin]
     [ [ Skill.new
@@ -606,7 +606,7 @@ characters =
     , [ invuln "Block" "Lee" [Physical] ]
     ]
   , Character
-    "Tenten"
+    "Tenten" 0
     "A member of Team Guy, Tenten is a fiercely independent weapon specialist who intends to become a legendary kunoichi. She keeps an entire arsenal sealed in scrolls to rain down upon the battlefield, wounding and disabling her opponents."
     [LeafVillage, Eleven, Genin]
     [ [ Skill.new
@@ -662,7 +662,7 @@ characters =
     , [ invuln "Spiked Boulder Shield" "Tenten" [Physical] ]
     ]
   , Character
-    "Neji Hyūga"
+    "Neji Hyūga" 0
     "A member of team Guy, Neji is the cold and fatalistic prodigy of the Hyūga clan. He has mastered numerous techniques, from crippling blows to whirling invulnerability."
     [LeafVillage, Eleven, Genin, Fire, Earth, Water, Hyuga]
     [ [ Skill.new
@@ -707,7 +707,7 @@ characters =
     , [ invuln "Byakugan Foresight" "Neji" [Mental] ]
     ]
   , Character
-    "Gaara"
+    "Gaara" 0
     "The youngest of the sand siblings, Gaara is the unstable jinchūriki of Shukaku, the one-tailed beast. With its aid, Gaara manipulates the sand in his gourd to crush his enemies. The shell of sand around his body makes him invulnerable to all but the strongest of blows."
     [SandVillage, Genin, Jinchuriki, Sensor, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new
@@ -764,7 +764,7 @@ characters =
     , [ invuln "Sand Shield" "Gaara" [Physical] ]
     ]
   , Character
-    "Kankurō"
+    "Kankurō" 0
     "One of the three sand siblings, Kankurō is a master puppeteer. His strategically-placed poison bombs pierce through enemy defenses. In order to harm him, his enemies will have to go through his army of puppets first."
     [SandVillage, Genin, Wind, Lightning, Earth, Water, SandClan]
     [ [ Skill.new
@@ -802,7 +802,7 @@ characters =
     , [ invuln "Substitution Technique" "Kankurō" [Chakra] ]
     ]
   , Character
-    "Temari"
+    "Temari" 0
     "The older sister of Gaara and Kankurō, Temari is a cruel and blunt expert in war-fan combat. She uses her massive iron fan to generate powerful gusts of wind that repel attacks on her team."
     [SandVillage, Genin, Wind, SandClan]
     [ [ Skill.new

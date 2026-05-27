@@ -7,10 +7,10 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Izumo and Kotetsu"
+    "Izumo and Kotetsu" 0
     "A pair of chūnin from the Hidden Leaf Village assigned to hunt down members of Akatsuki, Izumo and Kotetsu are close friends and effective partners. Although their strength may be somewhat lacking as individuals, they have a significant advantage of their own: there are two of them."
     [LeafVillage, Chunin, Water, Yin]
     [ [ Skill.new
@@ -123,7 +123,7 @@ characters =
       ]
     ]
   , Character
-    "Aoba Yamashiro"
+    "Aoba Yamashiro" 0
     "A jōnin from the Hidden Leaf Village assigned to hunt down Akatsuki members, Aoba maintains a reserved and impassive demeanor in public that quickly disappears among friends. He uses his significant genjutsu prowess to summon numerous crows and spread his consciousness among them, controlling all of their actions simultaneously."
     [LeafVillage, AlliedForces, Jonin, Fire]
     [ [ Skill.new
@@ -186,7 +186,7 @@ characters =
     , [ invuln "Crow Barrier" "Aoba" [Chakra] ]
     ]
   , Character
-    "Ibiki Morino"
+    "Ibiki Morino" 0
     "A sadistic jōnin who specializes in extracting information, Ibiki commands the Hidden Leaf Village's Torture and Interrogation Force. Pain is his preferred method of communication, and his preferred approach to battle is ensuring all options available to his enemies will lead to their defeat."
     [LeafVillage, Jonin]
     [ [ Skill.new
@@ -246,7 +246,7 @@ characters =
     , [ invuln "Dodge" "Ibiki" [Physical] ]
     ]
   , Character
-    "Yūgao Uzuki"
+    "Yūgao Uzuki" 0
     "An operative of the Hidden Leaf Village, Yūgao is dedicated and thorough. Having grown close to Hayate, Yūgao combines his expert sword techniques with her sealing abilities."
     [LeafVillage, Anbu, Sensor]
     [ [ Skill.new
@@ -293,7 +293,7 @@ characters =
     , [ invuln "Parry" "Yūgao" [Physical] ]
     ]
   , Character
-    "Demon Brothers"
+    "Demon Brothers" 0
     "A pair of rogue chūnin from the Hidden Mist Village, the Demon Brothers are Zabuza's professional assassins. Armed with chain weapons, Gōzu and Meizu gang up on an enemy, disable them, and dispose of them in short order."
     [MistVillage, Chunin, Rogue, Earth, Water]
     [ [ Skill.new
@@ -360,7 +360,7 @@ characters =
       ]
     ]
   , Character
-    "Haku"
+    "Haku" 0
     "The sole survivor of the Yuki clan, Haku is Zabuza's young but remarkably strong subordinate. With his inherited ice manipulation techniques, he disrupts his enemies while hiding safely behind crystalline mirrors."
     [MistVillage, Wind, Water]
     [ [ Skill.new
@@ -401,7 +401,7 @@ characters =
     , [ invuln "Parry" "Haku" [Physical] ]
     ]
   , Character
-    "Zabuza Momochi"
+    "Zabuza Momochi" 0
     "One of the Seven Swordsmen of the Mist, Zabuza is a rogue operative who specializes in silent assassination. Wielding Kubikiribōchō, the legendary executioner's broadsword, he uses concealing mist to catch his enemies off-guard, bypassing their defenses."
     [MistVillage, SevenSwordsmen, Rogue, Water]
     [ [ Skill.new
@@ -445,7 +445,7 @@ characters =
     , [ invuln "Water Clone" "Zabuza" [Chakra] ]
     ]
   , Character
-    "Itachi Uchiha"
+    "Itachi Uchiha" 0
     "A master of Sharingan techniques, Itachi is a rogue operative from the Hidden Leaf Village who has joined Akatsuki. His power comes at a steep price: using his Sharingan causes him to gradually go blind. He intends to make the most of whatever time he has left."
     [LeafVillage, Akatsuki, Rogue, SRank, Fire, Wind, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
@@ -517,7 +517,7 @@ characters =
     , [ invuln "Sharingan Foresight" "Itachi" [Mental] ]
     ]
   , Character
-    "Kisame Hoshigaki"
+    "Kisame Hoshigaki" 0
     "One of the Seven Swordsmen of the Mist, Kisame is a rogue operative who has joined Akatsuki. Wielding the legendary sentient sword Samehada, Kisame disables his enemies while his eternally hungry sword eats their chakra."
     [MistVillage, Akatsuki, SevenSwordsmen, Rogue, SRank, Water, Fire, Wind, Earth]
     [ [ Skill.new
@@ -567,7 +567,7 @@ characters =
     , [ invuln "Scale Shield" "Kisame" [Physical] ]
     ]
   , Character
-    "Jirōbō"
+    "Jirōbō" 0
     "A member of the Sound Five, Jirōbō hides his arrogance and hot temper beneath a calm facade. His earth-rending attacks carry momentum from one to the next, making Jirōbō an absolute juggernaut."
     [SoundVillage, Orochimaru, Earth]
     [ [ Skill.new
@@ -614,7 +614,7 @@ characters =
     , [ invuln "Terra Shield" "Jirōbō" [Physical] ]
     ]
   , Character
-    "Kidōmaru"
+    "Kidōmaru" 0
     "A member of the Sound Five, Kidōmaru resembles a spider in both appearance and fighting style. His webs protect his allies and slow his enemies."
     [SoundVillage, Orochimaru, Sensor]
     [ [ Skill.new
@@ -655,7 +655,7 @@ characters =
     , [ invuln "Spider Thread Armor" "Kidōmaru" [Chakra] ]
     ]
   , Character
-    "Tayuya"
+    "Tayuya" 0
     "A member of the Sound Five, Tayuya is foul-mouthed and aggressive. She plays her flute to trap her enemies in genjutsu and control the beasts she summons."
     [SoundVillage, Orochimaru, Yin]
     [ [ Skill.new
@@ -697,7 +697,7 @@ characters =
     , [ invuln "Foresight" "Tayuya" [Mental] ]
     ]
   , Character
-    "Sakon and Ukon"
+    "Sakon and Ukon" 0
     "Members of the Sound Five, Sakon and Ukon are nearly identical twins with a bloodline that enables each brother to live within the body of the other."
     [SoundVillage, Orochimaru]
     [ [ Skill.new
@@ -754,7 +754,7 @@ characters =
       ]
     ]
   , Character
-    "Kimimaro"
+    "Kimimaro" 0
     "A member of the Sound Five, Kimimaro led the team before his illness. His bloodline grants him unstoppable offensive power, but his illness is slowly killing him, eroding the little time he has left."
     [SoundVillage, Orochimaru]
     [ [ Skill.new

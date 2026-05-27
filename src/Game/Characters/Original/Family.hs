@@ -7,10 +7,10 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Konohamaru Sarutobi"
+    "Konohamaru Sarutobi" 0
     "The overly bold grandson of the third Hokage, Konohamaru has a knack for getting into trouble and requiring others to bail him out. His usefulness in battle depends on how willing his teammates are to babysit him."
     [LeafVillage, Fire, Wind, Lightning, Yang, Sarutobi]
     [ [ Skill.new
@@ -69,7 +69,7 @@ characters =
     , [ invuln "Hide?" "Konohamaru" [Mental] ]
     ]
   , Character
-    "Tsume Inuzuka"
+    "Tsume Inuzuka" 0
     "A jōnin from the Hidden Leaf Village and mother to Kiba, Tsume shares his wild temperament, impatience, and odd sense of humor. Kuromaru, her animal companion, keeps her enemies at bay and strikes back at any who dare to attack her."
     [LeafVillage, Jonin, Inuzuka]
     [ [ Skill.new
@@ -132,7 +132,7 @@ characters =
     , [ invuln "Dodge" "Tsume" [Physical] ]
     ]
   , Character
-    "Hiashi Hyūga"
+    "Hiashi Hyūga" 0
     "A jōnin from the Hidden Leaf Village and father to Hinata and Hanabi, Hiashi does not tolerate weakness or failure. All of the Hyūga clan's secret techniques have been passed down to him, and he wields them with unmatched expertise."
     [LeafVillage, Jonin, Hyuga]
     [ [ Skill.new
@@ -181,7 +181,7 @@ characters =
     , [ invuln "Byakugan Foresight" "Hiashi" [Mental] ]
     ]
   , Character
-    "Inoichi Yamanaka"
+    "Inoichi Yamanaka" 0
     "A jōnin from the Hidden Leaf Village and Ino's father, Inoichi can solve practically any dilemma with his analytical perspective. Under his watchful gaze, every move made by his enemies only adds to his strength."
     [LeafVillage, Jonin, Sensor, Water, Yamanaka]
     [ [ Skill.new
@@ -251,7 +251,7 @@ characters =
     , [ invuln "Mobile Barrier" "Inoichi" [Chakra] ]
     ]
   , Character
-    "Shikaku Nara"
+    "Shikaku Nara" 0
     "A jōnin from the Hidden Leaf Village and Shikamaru's father, Shikaku is a master tactician capable of analyzing enormous quantities of information at lightning speed. Always one step ahead of his enemies, Shikaku spots the weaknesses in their actions and uses them as opportunities to take back control."
     [LeafVillage, Jonin, Yin, Nara]
     [ [ Skill.new
@@ -317,7 +317,7 @@ characters =
     , [ invuln "Team Formation" "Shikaku" [Physical] ]
     ]
   , Character
-    "Chōza Akimichi"
+    "Chōza Akimichi" 0
     "A jōnin from the Hidden Leaf Village and Chōji's father, Chōza instills confidence in his comrades with his bravery and wisdom. Never one to back down from a fight, he defends his allies and forces the attention of his enemies to himself."
     [LeafVillage, AlliedForces, Jonin, TeamLeader, Yang, Akimichi]
     [ [ Skill.new

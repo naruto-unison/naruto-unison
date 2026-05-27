@@ -7,10 +7,10 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Naruto Uzumaki"
+    "Naruto Uzumaki" 0
     "Naruto's years of training under Jiraiya have made him stronger, wiser, and far more effective at controlling his immense chakra. He has learned how to distribute his chakra efficiently across numerous shadow clones, and can harness the flow of energy within himself to transform and repurpose chakra."
     [LeafVillage, Eleven, AlliedForces, Genin, Jinchuriki, Sage, Sensor, Wind, Lightning, Earth, Water, Fire, Yin, Yang, Uzumaki]
     [ [ Skill.new
@@ -69,7 +69,7 @@ characters =
     , [ invuln "Shadow Clone Save" "Naruto" [Chakra] ]
     ]
   , Character
-    "Sakura Haruno"
+    "Sakura Haruno" 0
     "Sakura's years of training under Tsunade have provided her with an intricate understanding of healing and the human body. Now a chūnin, she has learned how to store her chakra in concentrated points and then unleash it in empowering waves."
     [LeafVillage, Eleven, AlliedForces, Chunin, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
@@ -133,7 +133,7 @@ characters =
       , [ invuln "Dodge" "Sakura" [Physical] ]
     ]
   , Character
-    "Sai"
+    "Sai" 0
     "An operative of the Hidden Leaf Village's elite Root division, Sai has joined Team 7 at Danzō's behest. He uses a set of brushes with chakra-infused ink to give life to his illustrations, which usually take the form of powerful black-and-white beasts."
     [LeafVillage, AlliedForces, Anbu, Earth, Water, Fire, Yang, Yamanaka]
     [ [ Skill.new
@@ -195,7 +195,7 @@ characters =
     , [ invuln "Ink Clone" "Sai" [Chakra] ]
     ]
   , Character
-    "Kiba Inuzuka"
+    "Kiba Inuzuka" 0
     "Kiba's years with Akamaru have enhanced their bond and teamwork. Now a chūnin, he has learned the alarming ability to transform Akamaru into a bestial humanoid resembling Kiba. As they progress through several stages of shapeshifting, they gradually transform into unstoppable rampaging beasts."
     [LeafVillage, Eleven, AlliedForces, Chunin, Earth, Yang, Inuzuka]
     [ [ Skill.new
@@ -273,7 +273,7 @@ characters =
     , [ invuln "Hide" "Kiba" [Mental] ]
     ]
   , Character
-    "Shino Aburame"
+    "Shino Aburame" 0
     "Shino's years of practice with his loyal bugs have deepened his connection with them. Having attained the rank of chūnin, Shino has learned to breed his insects to favor specific traits. His advanced parasites accumulate invisibly in targets before bursting out all at once."
     [LeafVillage, Eleven, AlliedForces, Chunin, Earth, Fire, Yang, Aburame]
     [ [ Skill.new
@@ -343,7 +343,7 @@ characters =
     , [ invuln "Insect Cocoon" "Shino" [Physical] ]
     ]
   , Character
-    "Hinata Hyūga"
+    "Hinata Hyūga" 0
     "With the Chūnin Exam behind her and Naruto's words deep in her heart, Hinata has grown and become stronger. Now that she has mastered the Hyūga clan tactics, she can give life to powerful chakra lions and hinder the chakra paths of her enemies."
     [LeafVillage, Eleven, AlliedForces, Chunin, Fire, Lightning, Hyuga, Uzumaki]
     [ [ Skill.new
@@ -396,7 +396,7 @@ characters =
     , [ invuln "Byakugan Foresight" "Hinata" [Mental] ]
     ]
   , Character
-    "Ino Yamanaka"
+    "Ino Yamanaka" 0
     "Now a chūnin, Ino takes control of every fight she faces. Her overpowering will steals the skills and secrets of her enemies and forces her allies to fight on no matter the cost. "
     [LeafVillage, Eleven, AlliedForces, Chunin, Sensor, Earth, Water, Fire, Yin, Yang, Yamanaka]
     [ [ Skill.new
@@ -445,7 +445,7 @@ characters =
     , [ invuln "Hide" "Ino" [Mental] ]
     ]
   , Character
-    "Shikamaru Nara"
+    "Shikamaru Nara" 0
     "Despite losing his match, Shikamaru was the only candidate promoted to chūnin after the exams that Orochimaru disrupted, and he has maintained that lead ever since. Once known for his laziness, Shikamaru has worked tirelessly to become a leader. With years of experience, his plans have become even more convoluted and intricate."
     [LeafVillage, Eleven, AlliedForces, Chunin, Fire, Earth, Yin, Nara]
     [ [ Skill.new
@@ -525,7 +525,7 @@ characters =
     , [ invuln "Dodge" "Shikamaru" [Physical] ]
     ]
   , Character
-    "Chōji Akimichi"
+    "Chōji Akimichi" 0
     "Chōji's years of mastering his clan's techniques have ended the growing chūnin's dependence on Akimichi pills. Now that he can reshape his body at will without having to sacrifice his health, chakra expenditure is the only remaining limit to his physical power."
     [LeafVillage, Eleven, AlliedForces, Chunin, Earth, Fire, Yang, Akimichi]
     [ [ Skill.new
@@ -616,7 +616,7 @@ characters =
       ]
     ]
   , Character
-    "Rock Lee"
+    "Rock Lee" 0
     "Lee's years of training with Gai have taught him not only new abilities, but what it truly means to fight. Now a chūnin, he gains strength as his allies fall, determined to honor them by finishing their battle."
     [LeafVillage, Eleven, AlliedForces, Chunin]
     [ [ Skill.new
@@ -665,7 +665,7 @@ characters =
     , [ invuln "Dodge" "Lee" [Physical] ]
     ]
   , Character
-    "Tenten"
+    "Tenten" 0
     "Now a chūnin, Tenten's arsenal has expanded to a prodigious stockpile of some of the most powerful weapons in existence, including the legendary fan of the Sage of the Six Paths. Taking any excuse to show off the size and variety of her collection, she has assembled multiple item sets to switch out at a moment's notice."
     [LeafVillage, Eleven, AlliedForces, Chunin]
     [ [ Skill.new
@@ -763,7 +763,7 @@ characters =
     , [ invuln "Dodge" "Tenten" [Physical] ]
     ]
   , Character
-    "Neji Hyūga"
+    "Neji Hyūga" 0
     "Having surpassed his peers to reach the rank of jōnin, Neji has spent the intervening years honing his skills. He has learned to supplement his precise pressure-point attacks with devastating chakra waves that demolish the defenses of his opponents."
     [LeafVillage, Eleven, AlliedForces, Jonin, Fire, Earth, Water, Hyuga]
     [ [ Skill.new
@@ -826,7 +826,7 @@ characters =
     , [ invuln "Byakugan Foresight" "Neji" [Mental] ]
     ]
   , Character
-    "Kazekage Gaara"
+    "Kazekage Gaara" 0
     "Gaara's years of soul-searching have made him ready to assume the title of Kazekage. Now a powerful force for good, he devotes himself to protecting his friends and the Hidden Sand Village."
     [SandVillage, Kage, Jinchuriki, Sensor, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new
@@ -874,7 +874,7 @@ characters =
     , [ invuln "Levitating Sand Shield" "Gaara" [Physical] ]
     ]
   , Character
-    "Kankurō"
+    "Kankurō" 0
     "Now a jōnin, Kankurō has crafted a third puppet for his collection and honed his skills as a puppetmaster. Each puppet has its own use, improving his overall versatility."
     [SandVillage, AlliedForces, Jonin, Wind, Lightning, Earth, Water, SandClan]
     [ [ Skill.new
@@ -937,7 +937,7 @@ characters =
     , [ invuln "Puppet Distraction" "Kankurō" [Physical] ]
     ]
   , Character
-    "Temari"
+    "Temari" 0
     "The Hidden Sand Village's official ambassador, Temari is a formidable jōnin who wields an equally formidable battle fan. She defends her team with chakra-infused whirlwinds that deflect attacks, and uses the metal fan itself to block anything that gets through."
     [SandVillage, AlliedForces, Jonin, Wind, SandClan, Nara]
     [ [ Skill.new
@@ -1007,7 +1007,7 @@ characters =
     , [ invuln "Block" "Temari" [Physical] ]
     ]
   , Character
-    "Kabuto Yakushi"
+    "Kabuto Yakushi" 0
     "A dangerous rogue operative from the Hidden Leaf Village, Kabuto is a calculating follower of Orochimaru whose healing expertise goes beyond the limits of medical techniques to outright necromancy."
     [LeafVillage, Orochimaru, Rogue, Sage, TeamLeader, Earth, Water, Wind, Yin, Yang]
     [ [ Skill.new
@@ -1051,7 +1051,7 @@ characters =
     , [ invuln "Dodge" "Kabuto" [Physical] ]
     ]
   , Character
-    "Konohamaru Sarutobi"
+    "Konohamaru Sarutobi" 0
     "The grandson of the Third Hokage, Konohamaru has spent his youth working hard to pursue his dream of one day following in his grandfather's steps. No longer a bumbling student, Konohamaru has become remarkably skillful as a genin. Agile and fast, he can rush in to save an ally on the brink of defeat."
     [LeafVillage, Genin, Fire, Wind, Lightning, Yang, Sarutobi]
     [ [ Skill.new

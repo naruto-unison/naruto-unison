@@ -7,10 +7,10 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Int -> Category -> Character]
+characters :: [Category -> Character]
 characters =
   [ Character
-    "Yugito Nii"
+    "Yugito Nii" 0
     "A jōnin from the Hidden Cloud Village, Yugito is the expert jinchūriki of Matatabi, the two-tailed beast. Having trained as a tailed-beast host since infancy, Yugito can effortlessly transform into Matatabi at will and has access to its full power."
     [CloudVillage, Jonin, Jinchuriki, Fire]
     [ [ Skill.new
@@ -62,7 +62,7 @@ characters =
     , [ invuln "Block" "Yugito" [Physical] ]
     ]
   , Character
-    "Utakata"
+    "Utakata" 0
     "An exile from the Hidden Mist Village, Utakata is the jinchūriki of Saiken, the six-tailed beast. He abandoned his home during its Blood Mist era, and has had to fend off tracker ninjas ever since."
     [MistVillage, Jinchuriki, Rogue, Sensor, Water]
     [ [ Skill.new
@@ -104,7 +104,7 @@ characters =
     , [ invuln "Bubble Dome" "Utakata" [Chakra] ]
     ]
   , Character
-    "Killer B"
+    "Killer B" 0
     "You know his name, you know his fame, don't be lame!\nMakin' beats and rhymes, and makin' 'em' live, is what a jinchūriki needs to survive!\nWin after win is the way that it's done, and when he's done, you'll wish you never met, son!"
     [CloudVillage, Jinchuriki, Lightning, Water, Fire, Yang]
     [ [ Skill.new
@@ -153,7 +153,7 @@ characters =
       ]
     ]
   , Character
-    "Eight-Tailed B"
+    "Eight-Tailed B" 0
     "Killer B works in perfect harmony with Gyūki, maintaining control of its immense quantities of tailed-beast chakra. With its bulk and might, B in jinchūriki mode is practically unassailable."
     [CloudVillage, Jinchuriki, Lightning, Water, Fire, Yang]
     [ [ Skill.new
@@ -195,7 +195,7 @@ characters =
     , [ invuln "Chakra Barrier" "B" [Chakra] ]
     ]
   , Character
-    "Nine-Tailed Naruto"
+    "Nine-Tailed Naruto" 0
     "Rage has triggered the beast within Naruto to emerge. As his hatred grows, so does the nine-tailed beast's power. If left unchecked, Kurama may break free of his seal, and Naruto himself will cease to exist."
     [LeafVillage, Eleven, Genin, Jinchuriki, Sage, Sensor, Wind, Lightning, Earth, Water, Fire, Yin, Yang, Uzumaki]
     [ [ Skill.new

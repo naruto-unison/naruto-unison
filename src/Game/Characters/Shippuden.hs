@@ -15,7 +15,7 @@ import qualified Game.Characters.Shippuden.Jinchuriki
 import qualified Game.Characters.Shippuden.Versions
 
 characters :: [Character]
-characters = (\x -> x 0 Shippuden)
+characters = ($ Shippuden)
     <$> Game.Characters.Shippuden.Kids.characters
     ++ Game.Characters.Shippuden.Adults.characters
     ++ Game.Characters.Shippuden.Organizations.characters
