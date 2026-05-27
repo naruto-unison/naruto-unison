@@ -851,7 +851,7 @@ characters =
         , Skill.effects    =
           [ To Self do
                 rewind <- user ()
-                bombWith [Necromancy] 4 [] [ To Done $ replaceWith rewind ]
+                bombWith [Necromancy] 4 [] [ To Expire $ replaceWith rewind ]
           ]
         }
       ]

@@ -160,7 +160,12 @@ characters =
                 pierce 10
                 userSlot <- user slot
                 apply 1 [ Taunt userSlot ]
-                remove "Kuroari Trap"
+                whenM (target has "Kuroari Trap") do
+                    remove "Kuroari Trap"
+                    apply' "Kuroari Ambush" 1 [ Stun All
+                                              , Alone
+                                              , Duel userSlot
+                                              ]
           ]
         }
       ]
@@ -175,7 +180,7 @@ characters =
                                                  "Iron Maiden"
                                      ]
           , To Enemy $ bomb 5 []
-                [ To Done do
+                [ To Expire do
                     userSlot <- user slot
                     apply' "Kuroari Ambush" 1 [ Stun All
                                               , Alone
@@ -514,7 +519,7 @@ characters =
                     remove "Amaterasu"
                     removeTrap "Amaterasu"
                 bombWith [Bypassing] Permanent [ Afflict 5 ]
-                    [ To Done $ targeting Self $ addStack ]
+                    [ To Done $ targeting Self addStack ]
                 trapFrom Permanent OnHelped
                     amaterasu
           in
