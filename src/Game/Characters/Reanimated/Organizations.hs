@@ -16,7 +16,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Rivalry"
         , Skill.desc      = "Jirōbō picks out an enemy as his rival. If they use a skill on Jirōbō or his allies next turn, they will be countered and forced to target Jirōbō. Effect ends if Jirōbō uses a skill on a different enemy or uses this skill again. Cannot be used during [Summoning: Earth Prison Golem]."
-        , Skill.require   = UserHas 0 "Summoning: Earth Prison Golem"
+        , Skill.require   = UserChannel False "Summoning: Earth Prison Golem"
         , Skill.classes   = [Mental, Melee, Invisible, Soulbound]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
@@ -230,7 +230,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Executioner's Butchering"
         , Skill.desc      = "Zabuza's sword carves into an enemy like the edge of a guillotine, dealing 30 piercing damage and marking them for 1 turn. Cannot be used during [Demon Shroud]."
-        , Skill.require   = UserHas 0 "Demon Shroud"
+        , Skill.require   = UserChannel False "Demon Shroud"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =

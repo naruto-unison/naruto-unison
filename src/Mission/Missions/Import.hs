@@ -151,11 +151,11 @@ killAffected name _ user target target' = fromEnum
 -- | 1 if the target died after an action while the user had a @Status@,
 -- otherwise 0.
 killDuring :: Text -> ActionHook
-killDuring name _ user target target' = fromEnum
+killDuring name _ user@Ninja{slot} target target' = fromEnum
     $ not (allied user target)
     && alive target
     && not (alive target')
-    && N.numActive name user /= 0
+    && N.numStacks name slot user /= 0
 
 -- | Number of target's 'N.channels' canceled due to an action.
 interrupt :: ActionHook
@@ -173,7 +173,8 @@ use _ _ _ _ = 1
 -- | 1 if the action was used while the user was affected by a @Status@,
 -- otherwise 0.
 useDuring :: Text -> ActionHook
-useDuring name _ user _ _ = fromEnum $ N.numActive name user /= 0
+useDuring name _ user@Ninja{slot} _ _ = fromEnum
+                                      $ N.numStacks name slot user /= 0
 
 -- | Number of user's stacks of a @Status@ after an action.
 useDuringStacks :: Text -> ActionHook
@@ -228,11 +229,11 @@ killUnique = compareUnique \_ user target target' ->
 
 -- | Kill an enemy while the user is affected by a @Status@.
 killUniqueDuring :: Text -> StoreHook
-killUniqueDuring name = compareUnique \_ user target target' ->
+killUniqueDuring name = compareUnique \_ user@Ninja{slot} target target' ->
     not (allied user target)
     && alive target
     && not (alive target')
-    && N.numActive name user /= 0
+    && N.numStacks name slot user /= 0
 
 -- | Stun an enemy.
 stunUnique :: StoreHook
@@ -293,12 +294,12 @@ killWith name player user target target' store = (store, ) . fromEnum
 -- | Increases while the target maintains a @Status@.
 -- Resets to 0 if they lose the @Status@.
 maintain :: Text -> TurnHook
-maintain name player user _ target store
-  | N.slot user /= N.slot target = (store, 0)
-  | not $ alive target           = (store, resetToZero)
-  | N.numActive name user == 0   = (store, resetToZero)
-  | allied player user           = (store, 1)
-  | otherwise                    = (store, 0)
+maintain name player user@Ninja{slot} _ target@Ninja{slot = targetSlot} store
+  | slot /= targetSlot              = (store, 0)
+  | not $ alive target              = (store, resetToZero)
+  | N.numStacks name slot user == 0 = (store, resetToZero)
+  | allied player user              = (store, 1)
+  | otherwise                       = (store, 0)
 
 -- | 'maintain' restricted to the user's team.
 maintainOnAlly :: Text -> TurnHook

@@ -50,29 +50,37 @@ usable new n@Ninja{slot} x@Skill{charges, cooldown, classes}
       | otherwise          = Unusable
     isUsable y = y
 
+meetStatusRequirements :: Int -> Text -> Slot -> Ninja -> Bool
+meetStatusRequirements 0 name t n = not $ N.has name t n
+meetStatusRequirements 1 name t n = N.has name t n
+meetStatusRequirements i name t n = N.numStacks name t n >= i
+
 -- | Checks whether a user passes the 'Skill.require' of a 'Skill'.
 succeed :: Requirement -> Slot -> Ninja -> Bool
 succeed Usable      _ _ = True
 succeed Unusable    _ _ = False
 succeed (UserHas i name) t n@Ninja{slot}
   | t /= slot = True
-  | i == 1    = N.has name t n || N.isChanneling name n
-  | i > 0     = N.numStacks name t n >= i
-  | otherwise = not $ N.has name t n || N.isChanneling name n
+  | otherwise = meetStatusRequirements i name t n
 succeed (TargetHas i name) t n@Ninja{slot}
   | t == slot = True
-  | i > 0     = N.numStacks name t n >= i
-  | otherwise = not $ N.has name t n
+  | otherwise = meetStatusRequirements i name t n
 succeed (UserHealth i) t Ninja{health, slot}
   | t /= slot = True
   | otherwise = health <= i
 succeed (TargetHealth i) t Ninja{health, slot}
   | t == slot = True
   | otherwise = health <= i
+succeed (UserChannel expected name) t n@Ninja{slot}
+  | t /= slot = True
+  | otherwise = expected == N.isChanneling name n
 succeed (UserDefense i name) t n@Ninja{slot}
   | t /= slot = True
   | i > 0     = N.defenseAmount name t n >= i
   | otherwise = not $ N.hasDefense name t n
+succeed (UserTrap expected name) t n@Ninja{slot}
+  | t /= slot = True
+  | otherwise = expected == N.hasOwn' N.traps name n
 
 -- | Checks whether a @Skill@ can be used on a target.
 targetable :: Skill -- ^ @Skill@ to check.

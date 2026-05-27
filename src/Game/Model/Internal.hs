@@ -228,7 +228,9 @@ data Requirement
     | TargetHas Int Text
     | UserHealth Int
     | TargetHealth Int
+    | UserChannel Bool Text
     | UserDefense Int Text
+    | UserTrap Bool Text
     deriving (Eq, Ord, Show, Read, Generic)
 
 instance ToJSON Requirement

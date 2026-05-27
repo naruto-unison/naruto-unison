@@ -197,7 +197,7 @@ characters =
         , Skill.start     =
           [ To Self $ defend Permanent 15 ]
         , Skill.effects   =
-          [ To Self $ apply' "Iron Sand" Permanent
+          [ To Self $ applyWith' [Unremovable] "Iron Sand" Permanent
                         [ Alternate "Kazekage Puppet Summoning"
                                     "Iron Sand: World Order"
                         ]
@@ -464,13 +464,16 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Thousand Hungry Sharks"
         , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Every turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
-        , Skill.require   = UserHas 0 "Thousand Hungry Sharks"
         , Skill.classes   = [Chakra, Ranged, Unreflectable, Resource]
         , Skill.cost      = [Nin]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self do
-                addStacks "Hundred Hungry Sharks" 10
+                addStacks' Permanent "Hundred Hungry Sharks" 10
+                hide' "Thousand Hungry Sharks" Permanent
+                    [ Alternate "Thousand Hungry Sharks"
+                                "Man-Eating Sharks"
+                    ]
                 trapFrom' Permanent (OnHarmed All) do
                     targeting Enemies $ hide' "ignored" Permanent []
                     remove "ignored"
@@ -788,7 +791,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time an enemy uses a skill on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
-        , Skill.require   = UserHas 0 "Sharingan"
+        , Skill.require   = UserTrap False "Sharingan"
         , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
@@ -1319,7 +1322,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Summoning: Gedo Statue"
         , Skill.desc      = "Nagato summons the empty vessel of the ten-tailed beast, which provides 10 points of damage reduction to him for 3 turns. While active, this skill becomes [Control][r]."
-        , Skill.require   = UserHas 0 "Rinne Rebirth"
+        , Skill.require   = UserChannel False "Rinne Rebirth"
         , Skill.classes   = [Summon, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
@@ -1343,7 +1346,7 @@ characters =
       , Skill.new
         { Skill.name      = "Control"
         , Skill.desc      = "Nagato attempts to maintain control over the Gedo statue for a little longer, prolonging [Summoning: Gedo Statue] for 2 additional turns. Until it ends, [Summoning: Gedo Statue] provides 5 additional points of damage reduction up to a maximum of 25 and [Phantom Dragon] deals 5 additional damage. This skill has no chakra cost if [Phantom Dragon] was used last turn."
-        , Skill.require   = UserHas 0 "Rinne Rebirth"
+        , Skill.require   = UserChannel False "Rinne Rebirth"
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
@@ -1361,7 +1364,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Phantom Dragon"
         , Skill.desc      = "Nagato summons a dragon to attack an enemy for 20 piercing damage. Costs [g] during [Summoning: Gedo Statue]."
-        , Skill.require   = UserHas 0 "Rinne Rebirth"
+        , Skill.require   = UserChannel False "Rinne Rebirth"
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
@@ -1399,7 +1402,7 @@ characters =
         }
       ]
     , [ (invuln "Rinnegan Foresight" "Nagato" [Mental])
-        { Skill.require = UserHas 0 "Rinne Rebirth" }
+        { Skill.require = UserChannel False "Rinne Rebirth" }
       ]
     ]
   , Character

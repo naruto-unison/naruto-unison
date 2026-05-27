@@ -56,21 +56,21 @@ addClasses :: EnumSet Class -> Skill -> Skill
 addClasses classes skill =
     skill { Skill.classes = classes ++ Skill.classes skill }
 
--- | Multiplies @Chakras@ by 'N.numActive' and adds the total to
+-- | Multiplies @Chakras@ by 'N.numStacks' and adds the total to
 -- 'Skill.cost'.
 costPer :: Text -> Chakras -> Skill.Transform
-costPer name chakras n skill =
+costPer name chakras n@Ninja{slot} skill =
     skill { Skill.cost = added ++ Skill.cost skill }
   where
-    added = Chakras.scale (N.numActive name n) chakras
+    added = Chakras.scale (N.numStacks name slot n) chakras
 
--- | Multiplies @Chakras@ by 'N.numActive' and subtracts the total from
+-- | Multiplies @Chakras@ by 'N.numStacks' and subtracts the total from
 -- 'Skill.cost'.
 reduceCostPer :: Text -> Chakras -> Skill.Transform
-reduceCostPer name chaks n skill =
+reduceCostPer name chaks n@Ninja{slot} skill =
     skill { Skill.cost = Chakras.spend added $ Skill.cost skill }
   where
-    added = Chakras.scale (N.numActive name n) chaks
+    added = Chakras.scale (N.numStacks name slot n) chaks
 
 setCooldown :: Duration -> Skill -> Skill
 setCooldown cooldown skill = skill { Skill.cooldown = cooldown }
@@ -84,13 +84,14 @@ extendBy n skill = skill { Skill.dur = TurnBased.setDur dur chan }
     chan  = Skill.dur skill
     dur   = TurnBased.getDur chan + fromIntegral n
 
--- | Multiplies some number of turns by 'N.numActive' and adds the total to
+-- | Multiplies some number of turns by 'N.numStacks' and adds the total to
 -- 'Skill.channel'.
 extendWith :: Text -> Int -> Skill.Transform
-extendWith name i n skill = skill { Skill.dur = TurnBased.setDur dur chan }
+extendWith name i n@Ninja{slot} skill =
+    skill { Skill.dur = TurnBased.setDur dur chan }
   where
     chan  = Skill.dur skill
-    added = fromIntegral $ i * N.numActive name n
+    added = fromIntegral $ i * N.numStacks name slot n
     dur   = TurnBased.getDur chan + added
 
 -- | Applies a transformation to 'Skill.effects', 'Skill.start', and

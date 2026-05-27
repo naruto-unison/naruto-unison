@@ -3,8 +3,8 @@ module Game.Model.Ninja
   , numSkills
   , alive, minHealth
   , is, isChanneling
-  , has, has', hasBarrier, hasDefense, hasOwn
-  , numActive, numStacks, numHelpful, numHarmful
+  , has, has', hasBarrier, hasDefense, hasOwn, hasOwn'
+  , numStacks, numHelpful, numHarmful
   , barrierAmount, defenseAmount, totalDefense, totalBarrier
   , lastChakraSpent
   , baseSkill
@@ -142,17 +142,6 @@ totalDefense Ninja{defense} = sum $ Destructible.amount <$> defense
 -- | Sums 'Destructible.amount' of all 'barrier'.
 totalBarrier :: Ninja -> Int
 totalBarrier Ninja{barrier} = sum $ Destructible.amount <$> barrier
-
--- | Number of stacks of matching self-applied 'statuses'.
-numActive :: Text -- ^ 'Status.name'.
-          -> Ninja -> Int
-numActive name n
-  | stacks > 0             = stacks
-  | isChanneling name n    = 1
-  | hasOwn' defense name n = 1
-  | otherwise              = 0
-  where
-    stacks = numStacks name (slot n) n
 
 -- | Number of stacks of matching 'statuses'.
 numStacks :: Text -- ^ 'Status.name'.
