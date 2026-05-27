@@ -82,15 +82,11 @@ import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((!?), (∈), (∉), intersects)
 
-headOr :: ∀ a. a -> [a] -> a
-headOr x []    = x
-headOr _ (x:_) = x
-
 alternate :: Ninja -> [Int]
 alternate Ninja{character = Character{skills = sk}, effects} =
     findAlt <$> toList sk
   where
-    findAlt (base:|alts) = headOr 0
+    findAlt (base:|alts) = fromMaybe 0 $ headMay
         [i + 1 | Alternate name alt <- effects
                , name == Skill.name base
                , i <- maybeToList $ findIndex (Labeled.named alt) alts
@@ -103,14 +99,14 @@ processAlternates n = n { N.alternates = fromList $ alternate n }
 nextAlternate :: Text -> Ninja -> Maybe Text
 nextAlternate baseName Ninja{character = Character{skills = sk}, effects} = do
     alts <- find (Labeled.named baseName . head) $ toList sk
-    alt  <- filterAlt $ tail alts
-    return $ Skill.name alt
+    headMay . dropUntilAlt . tail $ Skill.name <$> alts
   where
-    filterAlt = headOr headMay
-        [ headMay . drop 1 . dropWhile (not . Labeled.named alt)
-            | Alternate name alt <- effects
-            , name == baseName
-            ]
+    altNames = [alt | Alternate name alt <- effects
+                    , name == baseName
+                    ]
+    dropUntilAlt alts = case altNames of
+        (alt:_) -> drop 1 $ dropWhile ((/= alt)) alts
+        []      -> alts
 
 -- | Applies 'skill' to a @Skill@ and further modifies it due to 'N.copies'
 -- and 'Skill.require'ments.

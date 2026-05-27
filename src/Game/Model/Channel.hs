@@ -3,11 +3,13 @@ module Game.Model.Channel
   , interruptible
   , Channeling(..)
   , ignoreStun
+  , isOngoing
   ) where
 
 import ClassyPrelude
 
-import Game.Model.Internal (Channel(..), Channeling(..))
+import qualified Class.TurnBased as TurnBased
+import           Game.Model.Internal (Channel(..), Channeling(..))
 
 -- | 'Control' and 'Action' 'Model.Skill.Skill's can be interrupted.
 -- Others cannot, because they are not considered user actions.
@@ -21,3 +23,6 @@ ignoreStun :: Channeling -> Bool
 ignoreStun Passive   = True
 ignoreStun Ongoing{} = True
 ignoreStun _         = False
+
+isOngoing :: Channel -> Bool
+isOngoing (Channel _ _ new dur) = not new && not (TurnBased.expiring dur)

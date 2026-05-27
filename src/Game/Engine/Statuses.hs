@@ -70,14 +70,14 @@ apply amount classes bombs name unthrottled effects = void $ runMaybeT do
 makeStatus :: Context -> Int -> Ninja -> Ninja
            -> EnumSet Class -> [Runnable Bomb] -> Text -> Duration
            -> [Effect] -> Status
-makeStatus Context{skill, user, continues, new}
+makeStatus Context{skill, user, continues, new, target}
            amount nUser nTarget classes bombs name dur effects =
     (Status.new user dur skill)
     { Status.name    = Skill.defaultName name skill
     , Status.user
     , Status.effects = filterDmg . filter disable
                      $ Ninjas.apply nUser nTarget effects
-    , Status.classes = classes'
+    , Status.classes = modClasses $ extra ++ classes ++ Skill.classes skill
     , Status.amount
     , Status.bombs
     }
@@ -86,16 +86,15 @@ makeStatus Context{skill, user, continues, new}
       | continues && dur <= 1 = insertSet Continues
       | continues || new      = deleteSet Continues
       | otherwise             = deleteSet Continues . deleteSet Invisible
-    skillClasses = modClasses $ Skill.classes skill
-    noremove = null effects && Bane ∉ skillClasses
-               || Hidden ∈ classes ++ skillClasses
-               || dur == 1 && Skill.dur skill /= Instant
-               || user == N.slot nTarget && any (not . Effect.helpful) effects
-    extra    = setFromList $ fst <$> filter snd
-               [ (Soulbound,   any bind effects)
-               , (Unremovable, noremove)
-               ]
-    classes' = extra ++ classes ++ skillClasses
+    baseClasses = classes ++ Skill.classes skill
+    noremove    = null effects && Bane ∉ baseClasses
+                  || Hidden ∈ baseClasses
+                  || dur == 1 && Skill.dur skill /= Instant
+                  || user == target && any (not . Effect.helpful) effects
+    extra       = setFromList $ fst <$> filter snd
+                  [ (Soulbound,   any bind effects)
+                  , (Unremovable, noremove)
+                  ]
     silenced = nUser `is` Silence
     disabled = Effects.disabled nUser
     disable x

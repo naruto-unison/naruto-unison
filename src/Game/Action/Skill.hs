@@ -41,10 +41,14 @@ import           Game.Model.Trigger (Trigger(..))
 import           Util ((!?))
 
 alterTarget :: ∀ m. MonadPlay m => (Ninja -> Ninja) -> m ()
-alterTarget = P.unsilenced . P.toTarget
+alterTarget f = P.unsilenced do
+    Context{target} <- P.context
+    P.modify target f
 
 alterTarget' :: ∀ m. MonadPlay m => (Slot -> Ninja -> Ninja) -> m ()
-alterTarget' f = alterTarget . f . Skill.owner . Context.skill =<< P.context
+alterTarget' f = P.unsilenced do
+    Context{target, skill = Skill{owner}} <- P.context
+    P.modify target $ f owner
 
 -- | Changes the 'Skill.cooldown' of a @Skill@ by 'Skill.name'.
 -- Uses 'Cooldown.alter' internally.
@@ -74,26 +78,31 @@ rechargeAll = alterTarget Ninjas.rechargeAll
 alternateClasses :: EnumSet Class
 alternateClasses = setFromList [Hidden, Nonstacking, Unremovable]
 
+userSkills :: ∀ m. MonadPlay m => m [NonEmpty Skill]
+userSkills = getSkills <$> P.nUser
+  where
+    getSkills Ninja{character = Character{skills}} = toList skills
+
 -- | Adjusts all 'N.alternates' at once.
 setAlternates :: ∀ m. MonadPlay m
           => [Int] -- ^ Index offsets.
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
-setAlternates loadout = applyWith' alternateClasses "loadout" Permanent
-    . catMaybes . zipWith load loadout . toList . Character.skills
-    . N.character =<< P.nTarget
+setAlternates loadout = do
+    alternates <- zipWith load loadout <$> userSkills
+    applyWith' alternateClasses "loadout" Permanent $ catMaybes alternates
   where
-    load alt (x:|xs) =
-        Alternate (Skill.name x) . Skill.name <$> xs !? (alt - 1)
+    load alt (x:|xs) = Alternate (Skill.name x) . Skill.name <$> xs !? (alt - 1)
 
 -- | Cycles a skill through its list of alternates.
 -- | Uses 'Ninjas.nextAlternate' internally.
 nextAlternate :: ∀ m. MonadPlay m => Text -> m ()
 nextAlternate name = do
-    nTarget <- P.nTarget
-    mapM_ applyNext $ Ninjas.nextAlternate name nTarget
+    nUser <- P.nUser
+    mapM_ applyNext $ Ninjas.nextAlternate name nUser
   where
-    applyNext alt = applyWith' alternateClasses "nextAlternate" 1
-                    [Alternate name alt]
+    applyNext alt = P.with Context.reflect
+                  $ applyWith' alternateClasses "nextAlternate" 1
+                    [ Alternate name alt ]
 
 -- | Copies all @Skill@s from the target into the user's 'N.copies'.
 -- Uses 'Ninjas.copyAll' internally.
@@ -108,8 +117,7 @@ copyAll dur = P.uncopied do
 copyLast :: ∀ m. MonadPlay m => Duration -> m ()
 copyLast (succ -> dur) = P.uncopied . void $ runMaybeT do
     Context{skill = Skill{name}, user} <- P.context
-    Just s     <- findIndex (any $ Labeled.named name) . toList
-                . Character.skills . N.character <$> P.nUser
+    Just s     <- findIndex (any $ Labeled.named name) <$> userSkills
     Just skill <- N.lastSkill <$> P.nTarget
     P.modify user $ Ninjas.copy dur [s] skill
 
@@ -120,9 +128,8 @@ teach :: ∀ m. MonadPlay m
        -> m ()
 teach dur name slots = do
     Context{target} <- P.context
-    Ninja{character = Character{skills}} <- P.nUser
-    mapM_ (P.modify target . Ninjas.copy dur slots)
-        . find (Labeled.named name) $ concatMap toList skills
+    mskill <- find (Labeled.named name) . concatMap toList <$> userSkills
+    mapM_ (P.modify target . Ninjas.copy dur slots) mskill
 
 -- | Resets a 'N.Ninja' to their initial state.
 -- Uses 'Ninjas.factory' internally.

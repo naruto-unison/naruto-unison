@@ -1,7 +1,7 @@
 -- | Actions that characters can use to affect
 -- 'N.health', 'N.barrier', and 'N.defense'.
 module Game.Engine.Combat
-  ( formula, attack
+  ( build, adjustHealth, formula, attack
   ) where
 
 import ClassyPrelude
@@ -29,6 +29,28 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
+
+build :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> m Destructible
+build dur amount effects = create <$> P.context <*> P.nUser
+  where
+    create Context{skill, user} n = Destructible
+        { user
+        , skill
+        , dur
+        , amount = amount + Effects.build n
+        , effects
+        }
+
+adjustHealth :: ∀ m. MonadPlay m => (Int -> Int) -> m ()
+adjustHealth adjust = do
+    Context{target, user, skill = Skill{classes}} <- P.context
+    health <- N.health <$> P.nTarget
+    P.modify target $ Ninjas.adjustHealth adjust
+    health' <- N.health <$> P.nTarget
+    case health' `compare` health of
+        LT -> P.trigger target $ OnDamaged <$> toList classes
+        EQ -> return ()
+        GT -> P.trigger user [OnHeal]
 
 data DamageAbsorb = DamageAbsorb
     { broken    :: [Destructible]

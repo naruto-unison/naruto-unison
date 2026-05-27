@@ -11,6 +11,7 @@ module Game.Engine.Effects
   , hp
   , invulnerable
   , limit
+  , redirect
   , reduce
   , reflect
   , share
@@ -95,6 +96,10 @@ invulnerable Ninja{effects} = setFromList [x | Invulnerable x <- effects]
 -- | 'Limit' minimum.
 limit :: Ninja -> Maybe Int
 limit Ninja{effects} = minimumMay [x | Limit x <- effects]
+
+-- | First 'Redirect'.
+redirect :: Ninja -> Maybe Slot
+redirect Ninja{effects} = headMay [slot | Redirect slot <- effects]
 
 -- | 'Reduce' sum.
 reduce :: EnumSet Class -> Ninja -> Amount -> Float

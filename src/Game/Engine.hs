@@ -31,7 +31,7 @@ import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
 import           Game.Model.Channel (Channel(Channel))
-import qualified Game.Model.Channel
+import qualified Game.Model.Channel as Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -64,7 +64,7 @@ runTurn :: ∀ m o. ( MonadGame m, MonadHook m, MonadRandom m
                   ) => o -> m ()
 runTurn acts = do
     processTurn $ mapM_ Action.act acts
-    Chakra.gain
+    Chakra.gainPerAlive
 
 -- | The underlying mechanism of 'runTurn'.
 -- Performs posteffects such as 'Model.Channel.Channel's and 'Model.Trap.Trap's.
@@ -92,9 +92,7 @@ processTurn runner = do
     yieldVictor
     Hook.turn player initial =<< P.ninjas
   where
-    isActiveChannel Channel{new = True} = False
-    isActiveChannel channel = not $ TurnBased.expiring channel
-    getChannels n = fromChannel n <$> filter isActiveChannel (N.channels n)
+    getChannels n = fromChannel n <$> filter Channel.isOngoing (N.channels n)
     fromChannel n (Channel skill target _ _) = Context
         { new       = False
         , user      = N.slot n
@@ -107,11 +105,9 @@ processTurn runner = do
 doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
 doBomb bomb target st@Status{bombs, skill} = mapM_ doEach bombs
   where
+    classes' = insertSet Necromancy $ Skill.classes skill
     st'
-      | bomb == Done =
-            st { Status.skill = skill
-                  { Skill.classes = insertSet Necromancy $ Skill.classes skill }
-               }
+      | bomb == Done = st { Status.skill = skill { Skill.classes = classes' } }
       | otherwise    = st
     context = (Context.fromStatus st') { Context.target = target }
     doEach (To targ run)
@@ -122,9 +118,8 @@ doBomb bomb target st@Status{bombs, skill} = mapM_ doEach bombs
 doBombs :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> [Ninja] -> m ()
 doBombs bomb ninjas = zipWithM_ doEach ninjas =<< P.ninjas
   where
-    doEach n n' = sequence
-              $ doBomb bomb (N.slot n)
-              <$> deleteFirstsBy Labeled.eq (stats n) (stats n')
+    doEach n n' = sequence $ doBomb bomb (N.slot n)
+                             <$> deleteFirstsBy Labeled.eq (stats n) (stats n')
       where
         stats
           | N.alive n' = N.statuses

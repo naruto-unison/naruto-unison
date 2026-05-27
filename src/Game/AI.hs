@@ -54,7 +54,7 @@ run :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Ninja -> m (Maybe Context)
 run vendetta n = runMaybeT do
     aggression <- R.random 0 aggressionThreshold
     guard $ aggression /= 0
-    ninjas  <- P.ninjas
+    ninjas <- P.ninjas
     Just choices <- R.choose $ (>>= focusVendetta) <$> skillOptions ninjas n
     MaybeT $ R.choose choices
   where

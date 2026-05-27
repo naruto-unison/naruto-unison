@@ -1,7 +1,7 @@
 -- | 'Game.chakra' processing.
 module Game.Engine.Chakra
   ( remove, remove1
-  , gain
+  , gain, gainPerAlive
   ) where
 
 import ClassyPrelude
@@ -61,10 +61,22 @@ remove1 permitted = do
             return removed
         Nothing -> return mempty
 
+-- | Adds a finite amount of @Chakra@ to the 'Game.chakra' of the target's team.
+-- 'Rand's are replaced by other @Chakra@ types selected by 'Chakras.random'.
+gain :: ∀ m. (MonadPlay m, MonadRandom m) => Chakras -> m ()
+gain chakras = do
+    Context{user, target} <- P.context
+    rand <- replicateM (length rands) Chakras.random
+    P.alter $ Game.addChakra target $ rand ++ nonrands
+    P.trigger user [OnChakra]
+  where
+    (rands, nonrands) = partition (== Rand) chakras
+
+
 -- | Adds as many random 'Chakra's as the number of living 'N.Ninja's on the
 -- player's team to the player's 'Game.chakra'.
-gain :: ∀ m. (MonadGame m, MonadRandom m) => m ()
-gain = do
+gainPerAlive :: ∀ m. (MonadGame m, MonadRandom m) => m ()
+gainPerAlive = do
     Game{playing} <- P.game
     let player = Player.opponent playing
     living  <- length . filter N.alive <$> P.allies player

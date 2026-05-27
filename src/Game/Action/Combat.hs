@@ -4,7 +4,6 @@ module Game.Action.Combat
   ( -- * Attacking
     afflict, pierce, damage, demolish, demolishAll
     -- * Defending
-  , build
   , defend, defend', increaseDefense, removeDefense
   , barricade, barricade'
     -- * Healing
@@ -26,11 +25,9 @@ import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Model.Attack as Attack
-import           Game.Model.Destructible (Destructible(Destructible))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import qualified Game.Model.Destructible as Destructible
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (Ninja(Ninja), is)
@@ -101,7 +98,7 @@ barricade dur amount = barricade' dur amount []
 -- Destructible barrier can be temporary or permanent.
 barricade' :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> m ()
 barricade' dur amount effects = P.toTarget
-    . Ninjas.addBarrier =<< build dur amount effects
+    . Ninjas.addBarrier =<< Combat.build dur amount effects
 
 -- | Adds new 'Destructible' 'N.defense'.
 -- Destructible defense acts as an extra bar in front of the 'N.health'
@@ -118,21 +115,10 @@ defend dur amount = defend' dur amount []
 -- Destructible defense can be temporary or permanent.
 defend' :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> m ()
 defend' dur amount effects = do
-    P.toTarget . Ninjas.addDefense =<< build dur amount effects
+    P.toTarget . Ninjas.addDefense =<< Combat.build dur amount effects
     when (amount > 0) do
         Context{user} <- P.context
         P.trigger user [OnDefend]
-
-build :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> m Destructible
-build dur amount effects = create <$> P.context <*> P.nUser
-  where
-    create Context{skill, user} n = Destructible
-        { user
-        , skill
-        , dur
-        , amount = amount + Effects.build n
-        , effects
-        }
 
 -- | Kills the target if their health is below a threshold.
 -- The target can survive if it has the 'Endure' effect.
@@ -175,15 +161,7 @@ killHard = killFull False
 -- | Adjusts 'N.health'.
 -- Uses 'Ninjas.setHealth' internally.
 setHealth :: ∀ m. MonadPlay m => Int -> m ()
-setHealth amt = do
-    nHealth <- N.health <$> P.nTarget
-    P.toTarget $ Ninjas.setHealth amt
-    nHealth' <- N.health <$> P.nTarget
-    Context{target, user, skill = Skill{classes}} <- P.context
-    case nHealth' `compare` nHealth of
-        EQ -> return ()
-        GT -> P.trigger user [OnHeal]
-        LT -> P.trigger target $ OnDamaged <$> toList classes
+setHealth amount = Combat.adjustHealth $ const amount
 
 -- | Adds a flat amount of 'N.health'.
 -- Uses 'Ninjas.adjustHealth' internally.
@@ -191,15 +169,9 @@ heal :: ∀ m. MonadPlay m => Int -> m ()
 heal hp = P.unsilenced do
     nTarget <- P.nTarget
     unless (nTarget `is` Plague || not (N.alive nTarget)) do
-        Context{target, user} <- P.context
-        nUser <- P.nUser
+        nUser@Ninja{slot = user} <- P.nUser
         let hp' = Effects.boost user nTarget * hp + Effects.bless nUser
-        P.modify target $ Ninjas.adjustHealth (+ hp')
-        damaged <- (N.health nTarget -) . N.health <$> P.nTarget
-        case damaged `compare` 0 of
-            EQ -> return ()
-            GT -> P.modify target $ Traps.track PerDamaged damaged
-            LT -> P.trigger user [OnHeal]
+        Combat.adjustHealth (+ hp')
 
 
 -- | Damages the target and passes the amount of damage dealt to another action,

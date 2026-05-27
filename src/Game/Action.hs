@@ -4,14 +4,12 @@ module Game.Action
   , act
   , run, runTargeted
   , chooseTargets
-  , filterCounters
   , runInterruptions
   ) where
 
 import ClassyPrelude hiding ((<|))
 
 import Control.Monad.Trans.Maybe (MaybeT(..))
-import Data.Bits (setBit, testBit)
 import Data.Enum.Set (EnumSet, AsEnumSet(..))
 
 import           Class.Classed (Classed)
@@ -28,10 +26,10 @@ import qualified Class.Random as R
 import           Class.TurnBased (TurnBased)
 import qualified Class.TurnBased as TurnBased
 import qualified Game.Engine.Cooldown as Cooldown
+import qualified Game.Engine.Counter as Counter
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
-import qualified Game.Engine.Trigger as Trigger
 import           Game.Model.Channel (Channel(Channel), Channeling(..))
 import qualified Game.Model.Channel
 import           Game.Model.Class (Class(..))
@@ -109,7 +107,7 @@ wrap' affected f = void $ runMaybeT do
         fromMaybe finish
             $ do
               guard $ allow Redirected && Unreflectable ∉ classes
-              t <- Trigger.redirect nTarget
+              t <- Effects.redirect nTarget
               return . P.withTarget t $ wrap' (insertSet Redirected affected) f
           <|> do
               guard $ allow Reflected && Unreflectable ∉ classes
@@ -215,19 +213,11 @@ run' affected xs = do
 runTargeted :: ∀ m. (MonadPlay m, MonadRandom m) => [Runnable Target] -> m ()
 runTargeted effects = run =<< targeted effects
 
--- | Filters a list of targets to those capable of countering a skill.
-filterCounters :: [[Runnable Slot]] -- ^ Effects of the skill to be countered.
-               -> [Ninja] -> [Ninja]
-filterCounters slots = filter $ testBit targetSet . Slot.toInt . N.slot
-  where
-    targetSet = foldl' go (0 :: Word8) $ join slots
-    go x      = setBit x . Slot.toInt . Runnable.target
-
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Context -> m ()
 act ctx@Context{user, new, target, skill} = void $ runMaybeT do
-    let Skill{charges, classes, dur, effects, require, start} = skill
+    let Skill{charges, cost, classes, dur, effects, require, start} = skill
     Game{chakra} <- P.game
     nUser   <- P.ninja user
     initial <- P.ninjas
@@ -247,22 +237,23 @@ act ctx@Context{user, new, target, skill} = void $ runMaybeT do
             contEfs    <- targeted effects
             let bothEfs = startEfs ++ contEfs
 
-            countering  <- filterCounters bothEfs . toList <$> P.enemies user
-            mapM_ Trigger.absorb countering
-            let counters = Trigger.userCounters (not $ null countering)
+            countering  <- Counter.filterCounters bothEfs . toList
+                           <$> P.enemies user
+            forM_ countering \n ->
+                when (n `is` Absorb) $ P.alter $ Game.addChakra n cost
+
+            let counters = Counter.userCounters (not $ null countering)
                            user classes nUser ++
-                           (countering >>= Trigger.targetCounters user classes)
+                           (countering >>= Counter.targetCounters user classes)
             if not $ Uncounterable ∈ classes
                   || nUser `is` AntiCounter
                   || null counters
             then do
                 let countered = N.slot <$> countering
-                    uncounter n
-                      | slot == user     = Trigger.userUncounter classes n
-                      | slot ∈ countered = Trigger.targetUncounter classes n
+                    uncounter n@Ninja{slot}
+                      | slot == user     = Counter.userUncounter classes n
+                      | slot ∈ countered = Counter.targetUncounter classes n
                       | otherwise        = n
-                      where
-                        slot = N.slot n
                 P.modifyAll uncounter
                 sequence_ counters
             else case dur of
@@ -289,7 +280,7 @@ act ctx@Context{user, new, target, skill} = void $ runMaybeT do
 
 -- | Effects to run when a channeled skill is canceled.
 runInterruptions :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Channel -> m ()
-runInterruptions user (Channel skill@Skill {end, name} target _ _) = do
+runInterruptions user (Channel skill@Skill{end, name} target _ _) = do
     P.withContext ctx $ runTargeted end
     P.modifyAll removeInterrupted
   where
