@@ -28,7 +28,6 @@ import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as N
-import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Slot as Slot
 import           Handler.Play.Wrapper (Wrapper)
