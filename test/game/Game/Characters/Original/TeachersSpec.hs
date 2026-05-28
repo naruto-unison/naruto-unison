@@ -71,19 +71,17 @@ spec = parallel do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 user (`is` Reveal)
-            it "does not make invulnerable if harmed" do
+            it "does not make invulnerable if damaged" do
                 Sim.act
                 Sim.as Enemy $ damage dmg
-                Sim.turns 1
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 user (`is` Reveal)
-            it "makes invulnerable if not harmed" do
+            it "makes invulnerable if not damaged" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [ Plague ]
-                Sim.turns 1
                 Sim.as Enemy $ apply Permanent [ Reveal ]
-                user (`is` Reveal)
-            it "tags user if not harmed" do
+                not <$> user (`is` Reveal)
+            it "tags user if not damaged" do
                 Sim.act
                 Sim.turns 1
                 user has "Successful Ambush"

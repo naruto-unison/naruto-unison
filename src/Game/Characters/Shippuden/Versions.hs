@@ -480,7 +480,7 @@ characters =
                 pierce 20
                 apply 1 [Stun All]
           , To Self do
-                trap -1 (OnDamaged Physical) $
+                trap -1 (OnHarmed Physical) $
                     remove "Chidori"
                 bomb -1 [ Reduce [Physical] Flat 15 ]
                     [ To Expire do

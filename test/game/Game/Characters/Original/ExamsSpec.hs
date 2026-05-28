@@ -76,14 +76,14 @@ spec = parallel do
                 targetStunned `shouldBe` []
             it "stuns on inactive" do
                 Sim.act
-                Sim.turns 1
-                targetStunned <- Effects.stun <$> Sim.targets XEnemies
+                Sim.as REnemy $ return ()
+                targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
             it "does not stun active" do
                 Sim.act
                 Sim.as Enemy $ return ()
-                targetStunned <- Effects.stun <$> Sim.targets XEnemies
-                targetStunned `shouldBe` [All]
+                targetStunned <- target Effects.stun
+                targetStunned `shouldBe` []
 
     describeCharacter "Dosu Kinuta" do
         useOn Enemy "Resonating Echo Drill" do

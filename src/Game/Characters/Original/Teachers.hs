@@ -89,14 +89,13 @@ characters =
         , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
-        , Skill.dur       = Action -1
         , Skill.start     =
-          [ To Self $ trap -1 (OnDamaged All)
-                cancelChannel
-          ]
-        , Skill.end       =
-          [ To Self $ whenM (channeling "Genjutsu Ambush Tactics") $
-                apply' "Successful Ambush" 1 [ Invulnerable All ]
+          [ To Self do
+                bomb -1 [] [ To Expire $
+                              apply' "Successful Ambush" -1 [ Invulnerable All ]
+                          ]
+                trap -1 (OnDamaged All) $
+                    remove "Genjutsu Ambush Tactics"
           ]
         }
       ]

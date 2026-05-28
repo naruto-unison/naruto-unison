@@ -1046,15 +1046,12 @@ characters =
         , Skill.classes   = [Chakra, Melee, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
-        , Skill.dur       = Action -2
-        , Skill.start     =
-          [ To Enemy $ trap -1 (OnAction All) $
-                applyWith [ Invisible ] 1 []
-          ]
         , Skill.effects   =
-          [ To Enemy $ whenM (channeling "Rasengan") do
-                bonus <- 15 `bonusIf` target has "Rasengan"
-                pierce (25 + bonus)
+          [ To Enemy do
+                trap 1 (OnAction All) $
+                    damage 40
+                trap 1 OnNoAction $
+                    damage 25
           ]
         }
       ]

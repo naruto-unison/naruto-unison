@@ -302,7 +302,7 @@ characters =
         , Skill.desc      = "Out of options, Danzō seals his enemies and prepares to blow himself up. At the end of the next turn, Danzō will die, as will enemies who are not invulnerable to this skill."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Blood, Gen]
-        , Skill.dur       = Control -2
+        , Skill.dur       = Action 2
         , Skill.charges   = 1
         , Skill.start     =
           [ To Self flag ]
