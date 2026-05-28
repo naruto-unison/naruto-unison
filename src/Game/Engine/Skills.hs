@@ -9,7 +9,7 @@ module Game.Engine.Skills
   , changeWith, changeWithChannel, changeWithDefense
   , changePer
   , extendBy, extendWith
-  , costPer, reduceCostPer, setCost
+  , setCost
   ) where
 
 import ClassyPrelude hiding (swap)
@@ -19,7 +19,6 @@ import Data.Enum.Set (EnumSet)
 import qualified Class.TurnBased as TurnBased
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Chakras (Chakras)
-import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class)
 import           Game.Model.Duration (Duration)
@@ -61,22 +60,6 @@ changeWithDefense name f n@Ninja{slot}
 addClasses :: EnumSet Class -> Skill -> Skill
 addClasses classes skill =
     skill { Skill.classes = classes ++ Skill.classes skill }
-
--- | Multiplies @Chakras@ by 'N.numStacks' and adds the total to
--- 'Skill.cost'.
-costPer :: Text -> Chakras -> Skill.Transform
-costPer name chakras n@Ninja{slot} skill =
-    skill { Skill.cost = added ++ Skill.cost skill }
-  where
-    added = Chakras.scale (N.numStacks name slot n) chakras
-
--- | Multiplies @Chakras@ by 'N.numStacks' and subtracts the total from
--- 'Skill.cost'.
-reduceCostPer :: Text -> Chakras -> Skill.Transform
-reduceCostPer name chaks n@Ninja{slot} skill =
-    skill { Skill.cost = Chakras.spend added $ Skill.cost skill }
-  where
-    added = Chakras.scale (N.numStacks name slot n) chaks
 
 setDur :: Channeling -> Skill -> Skill
 setDur dur skill = skill { Skill.dur = dur }

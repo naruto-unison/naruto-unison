@@ -379,7 +379,8 @@ characters =
                 apply (fromIntegral $ 1 + stacks) [Endure]
                 hide' "jashin" Permanent []
           ]
-        , Skill.changes   = costPer "jashin" [Rand]
+        , Skill.changes   = changePer "jashin" \i ->
+                                setCost $ replicate (i + 1) Rand
         }
       ]
     , [ invuln "Block" "Hidan" [Physical] ]

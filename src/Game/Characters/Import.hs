@@ -3,6 +3,7 @@
 
 module Game.Characters.Import
   ( module Import
+  , SkillEffect
   , invuln
   , user, target
   , channeling, inGroup
@@ -50,6 +51,8 @@ import qualified Game.Model.Skill as Skill
 import           Util ((∈))
 import Class.Random (MonadRandom)
 import Data.Kind (Type)
+
+type SkillEffect = RunConstraint ()
 
 userSlot :: ∀ m. MonadPlay m => m Slot
 userSlot = Context.user <$> P.context

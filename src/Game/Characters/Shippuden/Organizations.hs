@@ -134,7 +134,7 @@ characters =
     "An operative of the Hidden Leaf Village's elite Root division, Torune was born with rare venom-resistant antibodies that allow him to carry the Aburame clan's most dangerous species of beetle. The venom beetles cover his skin like armor, protecting him and infesting anyone who dares to touch him."
     [LeafVillage, Anbu, Aburame]
     let
-        applyVenomBeetle :: RunConstraint ()
+        applyVenomBeetle :: SkillEffect
         applyVenomBeetle = apply' "Venom Beetle" 5 [ Afflict 5 ]
 
         applyBeetleDefense amount name = unlessM (user has' defense name) do

@@ -110,7 +110,8 @@ characters =
                 damage (15 * stacks)
           , To Self $ remove "Umbrella"
           ]
-        , Skill.changes   = reduceCostPer "Umbrella" [Rand]
+        , Skill.changes   = changePer "Umbrella" \i ->
+                                setCost $ replicate (4 - i) Rand
         }
       ]
     , [ invuln "Umbrella Shield" "Shigure" [Physical] ]

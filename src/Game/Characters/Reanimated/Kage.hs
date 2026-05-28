@@ -132,6 +132,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           let
+            setTrap :: Duration -> SkillEffect
             setTrap dur = trap dur OnNoAction do
                 applyWith [Invisible] 4 []
                 targeting Self $ applyWith [Invisible] 4 [ Reduce [All] Flat 5 ]
@@ -149,6 +150,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           let
+            setRoundRobin :: Slot -> SkillEffect
             setRoundRobin slot = do
                 apply -1 [Redirect slot]
                 trap -1 (OnHarmed All) $ withTarget slot $
@@ -409,7 +411,9 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          let duel slot = do
+          let
+            duel :: Slot -> SkillEffect
+            duel slot = do
                 health <- target health
                 setHealth 30
                 bomb 2 [ Duel slot

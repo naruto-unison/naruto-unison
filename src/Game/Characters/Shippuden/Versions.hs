@@ -269,7 +269,7 @@ characters =
         , Skill.dur       = Control -2
         , Skill.start     =
           let
-            killShadow :: RunConstraint ()
+            killShadow :: SkillEffect
             killShadow = targeting Everyone $
                 whenM (target has "DNA Transmission Shadow")
                     killHard
@@ -365,7 +365,8 @@ characters =
                 sacrifice 1 20
                 addStack
           ]
-        , Skill.changes   = costPer "Evening Elephant" [Rand]
+        , Skill.changes   = changePer "Evening Elephant" \i ->
+                                setCost $ [Tai] ++ replicate i Rand
         }
       ]
     , [ Skill.new
@@ -401,7 +402,8 @@ characters =
                 addStack
                 apply' "Blood Mist" 2 [ Plague ]
           ]
-        , Skill.changes   = costPer "Night Guy" [Tai]
+        , Skill.changes   = changePer "Night Guy" \i ->
+                                setCost $ replicate (i + 2) Tai
         }
       ]
     , [ invuln "Dodge" "Guy" [Physical] ]
@@ -524,7 +526,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           let
-            amaterasu :: RunConstraint ()
+            amaterasu :: SkillEffect
             amaterasu = do
                 trapWith [Bypassing] Permanent OnInvulnerable do
                     remove "Amaterasu"

@@ -275,7 +275,7 @@ characters =
     "Shino's years of practice with his loyal bugs have deepened his connection with them. Having attained the rank of chūnin, Shino has learned to breed his insects to favor specific traits. His advanced parasites accumulate invisibly in targets before bursting out all at once."
     [LeafVillage, Eleven, AlliedForces, Chunin, Earth, Fire, Yang, Aburame]
     let
-        triggerGiganticBeetle :: RunConstraint ()
+        triggerGiganticBeetle :: SkillEffect
         triggerGiganticBeetle = do
             stacks <- target numStacks "Gigantic Beetle Infestation"
             remove "Gigantic Beetle Infestation"
@@ -1068,7 +1068,8 @@ characters =
                 trap Permanent (Counter NonMental) $ return ()
                 hide Permanent []
           ]
-        , Skill.changes   = costPer "agile backflip" [Rand]
+        , Skill.changes   = changePer "agile backflip" \i ->
+                                setCost $ replicate (i + 1) Rand
         }
       ]
     , [ Skill.new

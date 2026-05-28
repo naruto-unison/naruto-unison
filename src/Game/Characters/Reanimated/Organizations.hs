@@ -237,7 +237,7 @@ characters =
     "Reanimated by Kabuto, Ameyuri was one of the Seven Swordsmen of the Mist. Wielding Baki, the legendary twin lightning blades, Ameyuri cuts down her enemies using paralyzing electricity."
     [MistVillage, Kabuto, SevenSwordsmen, Jonin, Lightning]
     let
-        electrocute :: RunConstraint ()
+        electrocute :: SkillEffect
         electrocute = unlessM (target has "electrocuted") do
             hide' "electrocuted" Permanent []
             trap' Permanent (OnAction All) $
@@ -343,7 +343,8 @@ characters =
                         , Expose
                         ]
           ]
-        , Skill.changes   = costPer "needle stitching" [Rand]
+        , Skill.changes   = changePer "needle stitching" \i ->
+                                setCost $ replicate i Rand
         }
       ]
     , [ invuln "Block" "Kushimaru" [Physical] ]
