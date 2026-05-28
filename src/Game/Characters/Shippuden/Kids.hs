@@ -562,7 +562,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ damage 15
           ,  To Self do
-                trap 1 (CounterAll NonMental) $ return ()
+                trap 1 (CounterAll NonMental) (return ())
                 addCalories 1
           ]
         , Skill.changes   = caloricCost
@@ -1062,7 +1062,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                trap Permanent (Counter NonMental) $ return ()
+                trap Permanent (Counter NonMental) (return ())
                 hide Permanent []
           ]
         , Skill.changes   = changePer "agile backflip" \i ->

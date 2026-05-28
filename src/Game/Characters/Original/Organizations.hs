@@ -648,7 +648,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Ally $ trap Permanent (Counter Physical) $ return () ]
+          [ To Ally $ trap Permanent (Counter Physical) (return ()) ]
         }
       ]
     , [ invuln "Spider Thread Armor" "Kidōmaru" [Chakra] ]
