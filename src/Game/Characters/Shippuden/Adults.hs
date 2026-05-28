@@ -67,8 +67,8 @@ characters =
         , Skill.effects   =
           [ To XAllies $ apply 3 [ Snare -1 ]
           , To Enemies $ trap 3 (OnAction All) do
+                targeting Everyone removeTrap
                 copyLast 1
-                targeting Everyone $ removeTrap "Team Tactics"
           ]
         }
       ]
@@ -682,7 +682,7 @@ characters =
                 ally <- target slot
                 trapFrom Permanent (OnHarmed All) do
                     stacks <- withTarget ally do
-                        removeTrap "Paper Bomb"
+                        removeTrap
                         stacks <- target numStacks "Paper Bomb"
                         remove "Paper Bomb"
                         return stacks

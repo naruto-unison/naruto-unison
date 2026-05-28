@@ -1,8 +1,8 @@
 -- | Actions that characters can use to affect @Skill@s.
 module Game.Action.Skill
   ( -- * Cooldowns and charges
-    alterCd
-  , reset, resetAll, recharge, rechargeAll
+    alterCooldown
+  , resetCooldown, resetCooldowns, recharge, rechargeAll
   -- * Copying
   , copyAll, copyLast, teach
   -- * Alternates
@@ -52,18 +52,18 @@ alterTarget' f = P.unsilenced do
 
 -- | Changes the 'Skill.cooldown' of a @Skill@ by 'Skill.name'.
 -- Uses 'Cooldown.alter' internally.
-alterCd :: ∀ m. MonadPlay m => Text -> Int -> m ()
-alterCd name cd = alterTarget' $ Cooldown.alter name cd
+alterCooldown :: ∀ m. MonadPlay m => Text -> Int -> m ()
+alterCooldown name cd = alterTarget' $ Cooldown.alter name cd
 
 -- | Resets 'N.cooldowns' with a matching 'Skill.name' of a @Ninja@.
 -- Uses 'Cooldown.reset' internally.
-reset :: ∀ m. MonadPlay m => Text -> m ()
-reset name = alterTarget' $ Cooldown.reset name
+resetCooldown :: ∀ m. MonadPlay m => Text -> m ()
+resetCooldown name = alterTarget' $ Cooldown.reset name
 
 -- | Resets all 'N.cooldowns' of a @Ninja@.
 -- Uses 'Cooldown.resetAll' internally.
-resetAll :: ∀ m. MonadPlay m => m ()
-resetAll = alterTarget Cooldown.resetAll
+resetCooldowns :: ∀ m. MonadPlay m => m ()
+resetCooldowns = alterTarget Cooldown.resetAll
 
 -- | Resets an element in 'N.charges' of a @Ninja@.
 -- Uses 'Ninjas.recharge' internally.

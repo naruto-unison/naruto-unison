@@ -373,8 +373,8 @@ characters =
                 targeting Self $ removeStack "Chakra Lion"
                 deplete 1
                 damage 30
-                unlessM (user has "Chakra Lion") $ targeting Everyone $
-                    removeTrap "Gentle Step Twin Lion Fists"
+                unlessM (user has "Chakra Lion") $ targeting Everyone
+                    removeTrap
           ]
         }
       ]

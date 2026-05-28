@@ -314,7 +314,7 @@ characters =
                 chakra <- user modeChakra
                 gain [chakra]
           , To Ally do
-                resetAll
+                resetCooldowns
                 cureBane
                 apply 3 [ Heal 15
                         , Invulnerable Bane
@@ -485,7 +485,7 @@ characters =
                 bomb -1 [ Reduce [Physical] Flat 15 ]
                     [ To Expire do
                           hide 1 []
-                          reset "Chidori" ]
+                          resetCooldown "Chidori" ]
           ]
         , Skill.changes   = changeWith "Chidori" $ setCost [Nin]
         }
@@ -514,7 +514,7 @@ characters =
                     damage (15 * stacks)
           , To Self do
                 whenM (user has "Blazing Arrow") $
-                    reset "Blazing Arrow"
+                    resetCooldown "Blazing Arrow"
                 remove "Blazing Arrow"
           ]
         }
@@ -530,8 +530,8 @@ characters =
             amaterasu :: SkillEffect
             amaterasu = do
                 trapWith [Bypassing] Permanent OnInvulnerable do
+                    removeTrap
                     remove "Amaterasu"
-                    removeTrap "Amaterasu"
                 bombWith [Bypassing] Permanent [ Afflict 5 ]
                     [ To Done $ targeting Self addStack ]
                 trapFrom Permanent OnHelped

@@ -83,8 +83,8 @@ characters =
                 trapFrom 1 (OnHarmed All) do
                     leech 20 heal
                     targeting Self do
+                        removeTrap
                         tag' "Earth Dome Prison" 1
-                        removeTrap "Summmoning: Earth Prison Golem"
           ]
         , Skill.end      =
           [ To Self $ targeting Enemies $ remove "Rivalry" ]
@@ -699,8 +699,8 @@ characters =
                 apply Permanent [ Expose ]
                 pierce 15
                 trap Permanent OnHelped do
+                    removeTrap
                     remove "Asura Path"
-                    removeTrap "Asura Path"
           ]
         , Skill.changes   = \n x -> if health n < 50 then
                                 preta { Skill.owner = Skill.owner x }

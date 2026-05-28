@@ -64,9 +64,9 @@ characters =
           [ To Enemy do
                 addStack
                 trap Permanent OnHarm do
+                    removeTrap
                     stacks <- target numStacks "Exploding Palm"
                     pierce (20 * stacks)
-                    removeTrap "Exploding Palm"
                     remove "Exploding Palm"
           ]
         }
@@ -172,11 +172,11 @@ characters =
           [ To Enemy do
                 addStack
                 trap Permanent OnHarm do
+                    removeTrap
                     stacks <- target numStacks "Gold Rope"
                     damage (35 * stacks)
                     addStacks "Spirit Word" stacks
                     remove "Gold Rope"
-                    removeTrap "Gold Rope"
           ]
         }
       ]

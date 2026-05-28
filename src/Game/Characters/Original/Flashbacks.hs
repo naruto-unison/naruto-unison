@@ -263,13 +263,13 @@ characters =
                 whenM (user has "Sharingan Stun") $
                     apply 1 [ Stun All ]
                 trap 2 OnChakra do
-                    removeTrap "Sharingan"
+                    removeTrap
                     targeting Self $ gain [Rand]
                 trap 2 OnStun do
-                    removeTrap "Sharingan"
+                    removeTrap
                     targeting Self $ tag' "Sharingan Stun" 1
                 trap 2 OnDamage do
-                    removeTrap "Sharingan"
+                    removeTrap
                     targeting Self $ apply 1 [ Strengthen [All] Flat 10 ]
           ]
         }

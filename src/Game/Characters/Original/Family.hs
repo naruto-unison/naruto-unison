@@ -222,7 +222,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                targeting Everyone $ removeTrap "Sensory Radar"
+                targeting Everyone $ removeTrap' "Sensory Radar"
                 stacks <- user numStacks "Sensory Radar"
                 gain $ replicate stacks Rand
                 remove "Sensory Radar"
@@ -308,8 +308,8 @@ characters =
           [ To Ally do
                 apply 1 [ DamageToDefense ]
                 trap 1 (OnDamaged NonAffliction) do
+                    removeTrap
                     remove "Problem Analysis"
-                    removeTrap "Problem Analysis"
           ]
         }
       ]

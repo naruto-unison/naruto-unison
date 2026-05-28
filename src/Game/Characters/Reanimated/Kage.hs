@@ -68,7 +68,7 @@ characters =
         , Skill.effects   =
           [ To Allies do
                 defend Permanent 30
-                resetAll
+                resetCooldowns
           ]
         }
       ]
@@ -267,7 +267,7 @@ characters =
           [ To Self do
                 addStack' "Hell Stab"
                 trap Permanent (OnDamaged All) $
-                    alterCd "Lightning Armor" -1
+                    alterCooldown "Lightning Armor" -1
                 hide Permanent [ Alternate "Piercing Four-Fingered"
                                            "One-Fingered Assault"
                                ]
@@ -308,7 +308,7 @@ characters =
                 damage (20 + 5 * stacks)
                 targetHealth' <- target health
                 when (targetHealth' < targetHealth) $
-                    alterCd "Lighting Armor" -1
+                    alterCooldown "Lighting Armor" -1
                 unlessM (target has "Aftershocks") do
                     apply 1 [Stun All]
                     bonus <- 1 `bonusIf` user has "One-Fingered Assault"
@@ -348,9 +348,9 @@ characters =
                         , Weaken [All] Flat 5
                         ]
                 trap 2 OnRes do
+                    removeTrap
                     setHealth 15
                     remove "Fragmentation"
-                    removeTrap "Fragmentation"
           ]
         }
       ]
@@ -457,9 +457,9 @@ characters =
                     if stacks > i then
                         removeStacks "Major Summoning: Ibuse" i
                     else do
+                        removeTrap
                         remove "Major Summoning: Ibuse"
                         remove "major summoning: ibuse"
-                        removeTrap "Major Summoning: Ibuse"
                         cancelChannel' "Poison Fog"
                         sacrifice 0 (i - stacks)
           ]
@@ -467,7 +467,7 @@ characters =
                 { Skill.effects =
                   [ To Self do
                         remove "Venom Sac"
-                        alterCd "Major Summoning: Ibuse" -2
+                        alterCooldown "Major Summoning: Ibuse" -2
                   ]
                 }
         }
@@ -505,13 +505,13 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Self $ trapFrom 1 (OnHarmed NonMental) do
+                  targeting Self removeTrap
                   apply Permanent [ Afflict 20 ]
-                  targeting Self $ removeTrap "Venom Sac"
                   ibuse <- user has "major summoning: ibuse"
                   if ibuse then targeting Self do
                       remove "Major Summoning Ibuse"
                       remove "major summoning: ibuse"
-                      alterCd "Major Summoning: Ibuse" -2
+                      alterCooldown "Major Summoning: Ibuse" -2
                       cancelChannel' "Poison Fog"
                   else targeting Self $
                       apply Permanent [Afflict 10]

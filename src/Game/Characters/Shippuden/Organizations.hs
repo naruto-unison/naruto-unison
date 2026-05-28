@@ -66,11 +66,11 @@ characters =
         , Skill.cost      = [Blood, Gen]
         , Skill.effects   =
           [ To Enemy do
-                targeting Everyone $ removeTrap "Kotoamatsukami"
+                targeting Everyone removeTrap
                 targeting Self $ hide Permanent []
                 trap Permanent (OnAction All) do
+                    removeTrap
                     targeting Self $ remove "kotoamatsukami"
-                    removeTrap "Kotoamatsukami"
                     deplete 1
                 trap Permanent OnDeath $ targeting Self $
                     remove "kotoamatsukami"
@@ -226,7 +226,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Ally $ trapFrom 2 (Counter NonMental) do
-                removeTrap "Mind Transfer Puppet Curse"
+                removeTrap
                 apply -4 [ Face ]
                 copyAll 4
                 targetNumSkills <- target numSkills
@@ -348,8 +348,8 @@ characters =
         , Skill.cooldown  = 9
         , Skill.effects   =
           [ To Enemy $ trap 2 Nullified do
+                removeTrap
                 remove "Kotoamatsukami"
-                removeTrap "Kotoamatsukami"
                 apply' "Kotoamatsukami Stun" 2 [ Stun All ]
                 copyLast 2
           ]

@@ -2,7 +2,7 @@
 module Game.Action.Trap
   ( trap, trap', trapFrom, trapFrom', trapPer, trapPer', trapWith
   , onBreak
-  , removeTrap
+  , removeTrap, removeTrap'
   ) where
 import ClassyPrelude
 
@@ -75,5 +75,14 @@ trapFull direction classes unthrottled trigger f =
 
 -- | Removes 'N.traps' with matching 'Trap.name'.
 -- Uses 'Ninjas.clearTrap' internally.
-removeTrap :: ∀ m. MonadPlay m => Text -> m ()
-removeTrap name = P.fromUser $ Ninjas.clearTrap name
+removeTrap :: ∀ m. MonadPlay m => m ()
+removeTrap = do
+    Context{target, user, skill = Skill{name}} <- P.context
+    P.modify target $ Ninjas.clearTrap name user
+
+-- | Removes 'N.traps' with matching 'Trap.name'.
+-- Uses 'Ninjas.clearTrap' internally.
+removeTrap' :: ∀ m. MonadPlay m => Text -> m ()
+removeTrap' name = do
+    Context{target, user} <- P.context
+    P.modify target $ Ninjas.clearTrap name user

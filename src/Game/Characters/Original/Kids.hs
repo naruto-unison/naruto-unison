@@ -746,8 +746,8 @@ characters =
           [ To Self do
                 apply Permanent [ Enrage ]
                 trap' Permanent (OnDamaged NonAffliction) do
+                    removeTrap
                     remove "Sand Clone"
-                    removeTrap "Sand Clone"
           ]
         }
       ]

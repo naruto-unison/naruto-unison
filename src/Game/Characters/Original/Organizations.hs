@@ -154,7 +154,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To XAlly $ trap 3 OnRes do
-                resetAll
+                resetCooldowns
                 setHealth 5
                 targetNumSkills <- target numSkills
                 teach 1 "Converging Murder" [0..targetNumSkills - 1]
@@ -331,13 +331,13 @@ characters =
                 damage (30 + bonus)
                 apply Permanent [ Afflict 1 ]
                 trap Permanent OnSacrifice do
+                    removeTrap
                     remove "Poison Gauntlet"
-                    removeTrap "Poison Gauntlet"
                 flag
                 trap Permanent (OnDamaged NonAffliction) $
                     unlessM (target has "poison gauntlet") do
+                        removeTrap
                         remove "Poison Gauntlet"
-                        removeTrap "Poison Gauntlet"
           ]
         }
       ]

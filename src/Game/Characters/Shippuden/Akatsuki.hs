@@ -151,7 +151,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ trap 2 (OnAction NonMental) do
-                removeTrap "C2: Minefield"
+                removeTrap
                 damage 10
                 apply 4 [ Weaken [All] Flat 5 ]
           ]
@@ -467,18 +467,17 @@ characters =
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self do
-                addStacks' Permanent "Hundred Hungry Sharks" 10
-                hide' "Thousand Hungry Sharks" Permanent
+                applyStacks "Hundred Hungry Sharks" 10
                     [ Alternate "Thousand Hungry Sharks"
                                 "Man-Eating Sharks"
                     ]
                 trapFrom' Permanent (OnHarmed All) do
+                    targeting Self removeTrap
                     targeting Enemies $ hide' "ignored" Permanent []
                     remove "ignored"
                     tag Permanent
                     trap' Permanent OnDeath $ targeting Everyone $
                         remove "ignored"
-                    targeting Self $ removeTrap "Thousand Hungry Sharks"
           ]
         , Skill.effects   =
           [ To Enemies $
@@ -487,11 +486,13 @@ characters =
                     bonus <- 5 `bonusIf` channeling "Exploding Water Shockwave"
                     pierce (5 + bonus)
                     targeting Self $ removeStack "Hundred Hungry Sharks"
-          , To Self $ unlessM (user has "Hundred Hungry Sharks") do
+          , To Self $ unlessM (user has "Hundred Hungry Sharks")
                 cancelChannel
-                targeting Everyone do
-                    remove "ignored"
-                    remove "Thousand Hungry Sharks"
+          ]
+        , Skill.end       =
+          [ To Self $ targeting Everyone do
+                remove "ignored"
+                remove "Thousand Hungry Sharks"
           ]
         }
       , Skill.new
@@ -504,11 +505,8 @@ characters =
                 stacks <- user numStacks "Hundred Hungry Sharks"
                 pierce (5 * stacks)
           , To Self do
-                cancelChannel' "Thousand Hungry Sharks"
                 remove "Hundred Hungry Sharks"
-                targeting Everyone do
-                    remove "ignored"
-                    remove "Thousand Hungry Sharks"
+                cancelChannel' "Thousand Hungry Sharks"
           ]
         }
       ]
@@ -748,8 +746,8 @@ characters =
           [ To Enemy do
                 apply Permanent [ Swap ]
                 trap' Permanent (OnAction All) do
+                    removeTrap
                     remove "Body Coating"
-                    removeTrap "Body Coating"
           ]
         }
       , Skill.new
@@ -958,8 +956,8 @@ characters =
                 pierce 15
                 apply Permanent [ Afflict 10 ]
                 trap Permanent OnHelped do
+                    removeTrap
                     remove "Metal Blade"
-                    removeTrap "Metal Blade"
           ]
         }
       ]
@@ -1119,8 +1117,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Ongoing 2
         , Skill.start     =
-          [ To Enemy $ trap 2 (OnAction All) $
-                removeTrap "Summoning: Giant Centipede"
+          [ To Enemy $ trap 2 (OnAction All)
+                removeTrap
           ]
         , Skill.effects   =
           [ To Enemy $ damage 15
