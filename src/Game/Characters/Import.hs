@@ -93,7 +93,6 @@ inGroup x n = x ∈ Character.groups (N.character n)
 numAffected :: ∀ m. MonadPlay m => Text -> m Int
 numAffected name = getNumAffected <$> userSlot <*> P.ninjas
   where
-    getNumAffected :: Slot -> [Ninja] -> Int
     getNumAffected slot ninjas = length $ filter (N.has name slot) ninjas
 
 -- | Number of user's allies who are dead.
