@@ -274,7 +274,7 @@ characters =
             spendSharingans i = do
                 removeStacks "Sharingan" i
                 anyLeft <- user has "Sharingan"
-                unless (anyLeft)
+                unless anyLeft
                     cancelChannel
                 return anyLeft
           in
