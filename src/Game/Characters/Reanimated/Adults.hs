@@ -176,6 +176,7 @@ characters =
                     damage (35 * stacks)
                     addStacks "Spirit Word" stacks
                     remove "Gold Rope"
+                    removeTrap "Gold Rope"
           ]
         }
       ]

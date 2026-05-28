@@ -956,8 +956,9 @@ characters =
           [ To Enemy do
                 pierce 15
                 apply Permanent [ Afflict 10 ]
-                trap Permanent OnHelped $
+                trap Permanent OnHelped do
                     remove "Metal Blade"
+                    removeTrap "Metal Blade"
           ]
         }
       ]

@@ -96,8 +96,8 @@ addStacks' dur name i = do
         st { Status.name    = name
            , Status.amount  = i
            , Status.user    = user
-           , Status.classes = deleteSet Continues . insertSet Unremovable
-                            $ Status.classes st
+           , Status.classes = deleteSet Nonstacking . deleteSet Continues
+                            . insertSet Unremovable $ Status.classes st
            }
 
 -- | Adds a hidden @Status@ with no effects that immediately expires.

@@ -680,11 +680,12 @@ characters =
           [ To Ally do
                 addStack
                 ally <- target slot
-                trap Permanent (OnHarmed All) do
-                    removeTrap "Paper Bomb"
-                    remove "Paper Bomb"
                 trapFrom Permanent (OnHarmed All) do
-                    stacks <- withTarget ally $ target numStacks "Paper Bomb"
+                    stacks <- withTarget ally do
+                        removeTrap "Paper Bomb"
+                        stacks <- target numStacks "Paper Bomb"
+                        remove "Paper Bomb"
+                        return stacks
                     damage (20 * stacks)
           ]
         }

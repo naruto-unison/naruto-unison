@@ -276,7 +276,8 @@ characters =
           in
           [ To Self do
                 killShadow
-                trap' Permanent OnDeath $ killShadow
+                trap' Permanent OnDeath
+                    killShadow
           ]
         , Skill.effects   =
           [ To XAlly $ whenM (channeling "DNA Transmission Shadow") do
@@ -801,7 +802,7 @@ characters =
                 trap' Permanent (OnDamaged All) $
                     unlessM (user alive) do
                         targetHealth <- target health
-                        when (25 >= targetHealth && targetHealth > 0) do
+                        when (targetHealth > 0 && targetHealth <= 25) do
                             killHard
                             targeting Self do
                                 setHealth 100

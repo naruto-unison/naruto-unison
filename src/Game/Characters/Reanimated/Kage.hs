@@ -302,11 +302,13 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Self $ trap' -1 OnDamage $
-                alterCd "Lightning Armor" -1
-          , To Enemy do
+          [ To Enemy do
                 stacks <- user numStacks "Hell Stab"
+                targetHealth <- target health
                 damage (20 + 5 * stacks)
+                targetHealth' <- target health
+                when (targetHealth' < targetHealth) $
+                    alterCd "Lighting Armor" -1
                 unlessM (target has "Aftershocks") do
                     apply 1 [Stun All]
                     bonus <- 1 `bonusIf` user has "One-Fingered Assault"

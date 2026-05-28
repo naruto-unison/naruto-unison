@@ -539,7 +539,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Chakra Clay Trap"
         , Skill.desc      = "Deidara plants an explosive mine near an enemy. The next time they use a skill on Deidara or his allies, they will take 20 piercing damage and [Detonating Clay] will deal 5 additional damage to them. The trap does not stack."
-        , Skill.classes   = [Chakra, Ranged, Invisible]
+        , Skill.classes   = [Chakra, Ranged, Invisible, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
@@ -698,7 +698,9 @@ characters =
           [ To Enemy do
                 apply Permanent [ Expose ]
                 pierce 15
-                trap Permanent OnHelped $ remove "Asura Path"
+                trap Permanent OnHelped do
+                    remove "Asura Path"
+                    removeTrap "Asura Path"
           ]
         , Skill.changes   = \n x -> if health n < 50 then
                                 preta { Skill.owner = Skill.owner x }

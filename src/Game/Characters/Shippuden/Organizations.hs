@@ -225,6 +225,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Ally $ trapFrom 2 (Counter NonMental) do
+                removeTrap "Mind Transfer Puppet Curse"
                 apply -4 [ Face ]
                 copyAll 4
                 targetNumSkills <- target numSkills
