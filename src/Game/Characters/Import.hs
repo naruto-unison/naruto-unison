@@ -21,7 +21,7 @@ import Game.Action.Skill as Import
 import Game.Action.Status as Import
 import Game.Action.Trap as Import
 import Game.Engine.Effects as Import (stunned)
-import Game.Engine.Skills as Import
+import Game.Engine.Skills as Import (targetAll, restrict, also, addClasses, setCooldown, setDur, changeWith, changeWithChannel, changeWithDefense, changePer, setCost)
 import Game.Model.Chakras as Import (Chakra(..), Chakras, chakraDesc)
 import Game.Model.Channel as Import (Channeling(..))
 import Game.Model.Character as Import (Character(..), Category(..))

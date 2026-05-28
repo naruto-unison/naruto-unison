@@ -338,7 +338,8 @@ characters =
                                    "Flying Kick"
                        ]
           ]
-        , Skill.changes   = extendWith "Sharpen Blades" 1
+        , Skill.changes   = changePer "Sharpen Blades" \i ->
+                                setDur $ Action (2 + fromIntegral i)
         }
       , Skill.new
         { Skill.name      = "Finishing Blow"

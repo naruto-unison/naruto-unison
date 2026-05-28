@@ -8,7 +8,6 @@ module Game.Engine.Skills
   , setCooldown, setDur
   , changeWith, changeWithChannel, changeWithDefense
   , changePer
-  , extendBy, extendWith
   , setCost
   ) where
 
@@ -16,7 +15,6 @@ import ClassyPrelude hiding (swap)
 
 import Data.Enum.Set (EnumSet)
 
-import qualified Class.TurnBased as TurnBased
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Channel (Channeling(..))
@@ -70,22 +68,6 @@ setCooldown cooldown skill = skill { Skill.cooldown = cooldown }
 setCost :: Chakras -> Skill -> Skill
 setCost cost skill = skill { Skill.cost = cost }
 
-extendBy :: Int -> Skill -> Skill
-extendBy n skill = skill { Skill.dur = TurnBased.setDur dur chan }
-  where
-    chan  = Skill.dur skill
-    dur   = TurnBased.getDur chan + fromIntegral n
-
--- | Multiplies some number of turns by 'N.numStacks' and adds the total to
--- 'Skill.channel'.
-extendWith :: Text -> Int -> Skill.Transform
-extendWith name i n@Ninja{slot} skill =
-    skill { Skill.dur = TurnBased.setDur dur chan }
-  where
-    chan  = Skill.dur skill
-    added = fromIntegral $ i * N.numStacks name slot n
-    dur   = TurnBased.getDur chan + added
-
 -- | Applies a transformation to 'Skill.effects', 'Skill.start', and
 -- 'Skill.end'.
 changeEffects :: ([Runnable Target] -> [Runnable Target]) -> Skill -> Skill
@@ -135,7 +117,7 @@ swap = changeEffects (Runnable.retarget f <$>)
     f XAllies  = Enemies
     f RAlly    = REnemy
     f RXAlly   = REnemy
-    f Enemy    = Self
+    f Enemy    = RAlly
     f REnemy   = RAlly
     f Enemies  = Allies
     f XEnemies = XAllies

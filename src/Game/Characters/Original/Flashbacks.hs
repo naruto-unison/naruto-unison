@@ -187,7 +187,7 @@ characters =
                 absorb 1
           ]
         , Skill.changes   = changeWith "Veritable 1000-Armed Kannon" $
-                            setCost [Blood] . extendBy 1
+                            setCost [Blood] . setDur (Action 3)
         }
       ]
     , [ Skill.new
@@ -202,7 +202,7 @@ characters =
           , To Self $ apply 1 [ Invulnerable Physical ]
           ]
         , Skill.changes   = changeWith "Veritable 1000-Armed Kannon" $
-                            setCost [Blood] . extendBy 1
+                            setCost [Blood] . setDur (Action 3)
         }
       ]
     , [ Skill.new
