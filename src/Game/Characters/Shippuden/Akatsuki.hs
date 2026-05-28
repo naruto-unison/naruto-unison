@@ -659,6 +659,7 @@ characters =
     "After Madara turned the Gedo statue's mutated victims into an army of servants, he chose one to lead them. Imbuing the White Zetsu entity with materialized will in the form of Black Zetsu, he created a hybrid being who became an official member of Akatsuki. White Zetsu and Black Zetsu have different approaches to combat, but both are able to take control of an enemy's abilities."
     [Akatsuki, Sensor, SRank, Earth, Water, Fire, Wind, Lightning, Yin, Yang]
     let
+        blackZetsuSkill :: Skill
         blackZetsuSkill = Skill.new
             { Skill.name      = "Black Zetsu"
             , Skill.classes   = [Chakra]

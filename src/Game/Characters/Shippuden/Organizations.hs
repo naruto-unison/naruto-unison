@@ -137,6 +137,7 @@ characters =
         applyVenomBeetle :: SkillEffect
         applyVenomBeetle = apply' "Venom Beetle" 5 [ Afflict 5 ]
 
+        applyBeetleDefense :: Int -> Text -> SkillEffect
         applyBeetleDefense amount name = unlessM (user has' defense name) do
             defend Permanent amount
             trapFrom' Permanent (OnBreak name)
