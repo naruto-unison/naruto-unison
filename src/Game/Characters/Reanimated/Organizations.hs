@@ -73,9 +73,7 @@ characters =
           [ To Self do
                 removeStacks "Scattered Rock" 2
                 defend 2 35
-                onBreak do
-                    targeting Enemies $ remove "Rivalry"
-                    cancelChannel
+                onBreak cancelChannel
           ]
         , Skill.effects   =
           [ To Self do
@@ -84,8 +82,12 @@ characters =
                     apply' "Rivalry" 1 [ Taunt userSlot ]
                 trapFrom 1 (OnHarmed All) do
                     leech 20 heal
-                    targeting Self $ tag' "Earth Dome Prison" 1
+                    targeting Self do
+                        tag' "Earth Dome Prison" 1
+                        removeTrap "Summmoning: Earth Prison Golem"
           ]
+        , Skill.end      =
+          [ To Self $ targeting Enemies $ remove "Rivalry" ]
         }
       ]
     ]

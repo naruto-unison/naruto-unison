@@ -25,12 +25,12 @@ characters =
                 defend' Permanent 45 [ Alternate "Susanoo"
                                                  "Tsukumo"
                                      ]
-                onBreak do
-                    remove "Susanoo"
-                    cancelChannel
+                onBreak cancelChannel
           ]
         , Skill.effects   =
           [ To Self addStack ]
+        , Skill.end       =
+          [ To Self $ remove "Susanoo" ]
         }
       , Skill.new
         { Skill.name      = "Tsukumo"
@@ -283,9 +283,9 @@ characters =
                     void $ spendSharingans 2
           ]
         , Skill.end       =
-          [ To Self $  hide Permanent [ Alternate "Izanagi"
-                                                  "Reverse Tetragram Sealing"
-                                      ]
+          [ To Self $ hide Permanent [ Alternate "Izanagi"
+                                                 "Reverse Tetragram Sealing"
+                                     ]
           ]
         }
       , Skill.new

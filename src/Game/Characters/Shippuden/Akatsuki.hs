@@ -47,12 +47,12 @@ characters =
                 defend' Permanent 70 [ Alternate "Susanoo"
                                                  "Armored Susanoo Assault"
                                      ]
-                onBreak do
-                    remove "Susanoo"
-                    cancelChannel
+                onBreak cancelChannel
           ]
         , Skill.effects   =
-          [ To Self $ addStack' "Susanoo" ]
+          [ To Self addStack ]
+        , Skill.end       =
+          [ To Self $ remove "Susanoo" ]
         }
       , Skill.new
         { Skill.name      = "Armored Susanoo Assault"
@@ -252,7 +252,7 @@ characters =
                              ]
           ]
         , Skill.end       =
-          [ To Enemies $ unlessM (target has "thousand arms") $
+          [ To Self $ targeting Enemies $ unlessM (target has "thousand arms") $
                 apply' "Pinned" 1 [ Expose ]
           ]
         }
@@ -1127,7 +1127,8 @@ characters =
                              ]
           ]
         , Skill.end       =
-          [ To Enemy $ whenM (target has' traps "Summoning: Giant Centipede") $
+          [ To Self $ targeting Enemies $
+                whenM (target has' traps "Summoning: Giant Centipede") $
                     apply' "Giant Centipede Stun" 1 [ Stun All ]
           ]
         }

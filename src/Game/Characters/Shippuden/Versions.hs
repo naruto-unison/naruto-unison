@@ -213,15 +213,15 @@ characters =
         , Skill.start     =
           [ To Self do
                 defend Permanent 40
-                onBreak do
-                    targeting XAllies $ remove "Salamander Shield"
-                    cancelChannel
+                onBreak cancelChannel
           ]
         , Skill.effects   =
           [ To XAllies do
                 userSlot <- user slot
                 apply 1 [ Redirect userSlot ]
           ]
+        , Skill.end       =
+          [ To Self $ targeting XAllies $ remove "Salamander Shield" ]
         }
       ]
     , [ invuln "Puppet Distraction" "Kankurō" [Physical] ]
@@ -656,7 +656,6 @@ characters =
                 defend' Permanent 50 [ Alternate "Performance of a Hundred Puppets"
                                                  "Barrage of a Hundred Puppets"
                                      ]
-                onBreak cancelChannel
           , To XAllies $ defend Permanent 25
           ]
         }
