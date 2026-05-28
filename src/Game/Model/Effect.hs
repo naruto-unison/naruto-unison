@@ -89,11 +89,11 @@ instance ToJSON Effect where
 instance Classed Effect where
     classes (Bleed c _ _)      = c
     classes (Exhaust c)        = c
-    classes (Invulnerable c)   = singletonSet c
+    classes (Invulnerable c)   = singleton c
     classes (Reduce c _ _)     = c
-    classes (ReflectAll c)     = singletonSet c
+    classes (ReflectAll c)     = singleton c
     classes (Strengthen c _ _) = c
-    classes (Stun c)           = singletonSet c
+    classes (Stun c)           = singleton c
     classes (Weaken c _ _)     = c
     classes _                  = mempty
 

@@ -157,7 +157,7 @@ simAt :: ∀ a. Target -> ReaderT Context (StateT Wrapper Identity) a -> a
 simAt = simOf Blank.game
 
 withClass :: ∀ m. MonadPlay m => Class -> m () -> m ()
-withClass cla = withClasses $ singletonSet cla
+withClass cla = withClasses $ singleton cla
 
 withClasses :: ∀ m. MonadPlay m => EnumSet Class -> m () -> m ()
 withClasses classes = P.with ctx

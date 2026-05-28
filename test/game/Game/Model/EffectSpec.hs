@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedLists #-}
+
 module Game.Model.EffectSpec (spec) where
 
 import Import hiding (it, shouldBe, shouldNotBe)
@@ -23,7 +25,6 @@ import           Game.Model.Attack (Attack)
 import qualified Game.Model.Attack as Attack
 import           Game.Model.Chakras (Chakras(Chakras))
 import qualified Game.Model.Chakras as Chakras
-import qualified Game.Model.Character as Character
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Game as Game
@@ -99,16 +100,18 @@ spec = parallel do
         it "does not block vs. others" $ simAt Enemy $ tryTarget REnemy
 
     describe "BlockAllies" do
-        let tryTarget = targeting Self (apply Permanent [ BlockAllies ])
-                        >> canTarget
+        let tryTarget = do
+                targeting Self $ apply Permanent [ BlockAllies ]
+                canTarget
 
         it "blocks vs. allies"    . not $ simAt Ally  tryTarget
         it "does not block vs. enemies" $ simAt Enemy tryTarget
         it "does not block vs. self"    $ simAt Self  tryTarget
 
     describe "BlockEnemies" do
-        let tryTarget = targeting Self (apply Permanent [BlockEnemies])
-                        >> canTarget
+        let tryTarget = do
+                targeting Self $ apply Permanent [BlockEnemies]
+                canTarget
 
         it "blocks vs. enemies"  . not $ simAt Enemy tryTarget
         it "does not block vs. allies" $ simAt Ally  tryTarget
@@ -120,7 +123,7 @@ spec = parallel do
 
         it "boosts helpful effects" $ simAt Self do
             Sim.as Ally $
-                apply Permanent [ Reduce (singletonSet All) Flat reduce ]
+                apply Permanent [ Reduce [All] Flat reduce ]
             targeting Self $ apply Permanent [ Boost boostAmount ]
             Sim.as Enemy $ damage dmg
             userHealth <- user health
@@ -203,7 +206,7 @@ spec = parallel do
 
     describe "Exhaust" do
         prop "increases skill costs" \(Positive exhaust) ->
-            let effects = replicate exhaust . Exhaust $ singletonSet All in
+            let effects = replicate exhaust $ Exhaust [All] in
             Skill.cost (getSkill effects) === mempty { Chakras.rand = exhaust }
 
     describe "Expose" do
@@ -213,7 +216,7 @@ spec = parallel do
             canTarget
 
         it "prevents target from reducing damage" $ simAt Enemy do
-            apply Permanent [ Reduce (singletonSet All) Flat 100
+            apply Permanent [ Reduce [All] Flat 100
                             , Expose
                             ]
             damage 1
@@ -261,7 +264,7 @@ spec = parallel do
                             , Stun All
                             ]
             targetStunned <- target Effects.stun
-            return $ targetStunned `shouldBe` singletonSet All
+            return $ targetStunned `shouldBe` [All]
 
     describe "Nullify" do
         it "nullifies harm"  . not $ simEffects [] [Nullify] Enemy canTarget
@@ -270,7 +273,7 @@ spec = parallel do
     describe "Pierce" do
         it "ignores damage reduction" $ simAt Enemy do
             targeting Self $ apply Permanent [ Pierce ]
-            apply Permanent [ Reduce (singletonSet All) Flat 100 ]
+            apply Permanent [ Reduce [All] Flat 100 ]
             damage 1
             targetHealth <- target health
             return $ 100 - targetHealth `shouldBe` 1
@@ -371,7 +374,7 @@ spec = parallel do
         it "blocks against others"    . not $ simAt XEnemies tryTarget
 
     describe "Threshold" do
-        prop "constraints damage" thresholdConstrains
+        prop "constrains damage" thresholdConstrains
 
     describe "Throttle" do
         it "throttles counters" $ simAt Enemy do
@@ -398,7 +401,7 @@ spec = parallel do
             Sim.as Enemy $ apply 5 [ Stun All ]
             Sim.turns $ 5 - 2
             userStunned <- user Effects.stun
-            return $ userStunned `shouldBe` singletonSet All
+            return $ userStunned `shouldBe` [All]
 
         it "throttles others" $ simAt Enemy do
             apply Permanent [ Throttle 1 (Only Reveal) ]
@@ -489,7 +492,7 @@ attackAmount :: Attack   -- ^ Attack type.
        -> [Effect] -- ^ Defender.
        -> Int      -- ^ Result.
 attackAmount attackType dmg attacker defender =
-    Combat.formula attackType (singletonSet All)
+    Combat.formula attackType [All]
     Blank.ninja { effects = attacker }
     Blank.ninja { effects = defender }
     dmg
@@ -516,14 +519,14 @@ isAdditive effect amount attackType dmg size val =
     atk [reducer val] === atk (chunk reducer size val)
   where
     atk efs = attackAmount attackType dmg efs efs
-    reducer = effect (singletonSet All) amount
+    reducer = effect [All] amount
 
 complements :: Con -> Con -> Amount -> Int -> Int -> Property
 complements effectA effectB amount dmg val = atk effects === atk []
   where
     effects  = [effect effectA val, effect effectB val]
     atk efs  = attackAmount Attack.Damage dmg efs efs
-    effect x = x (singletonSet All) amount
+    effect x = x [All] amount
 
 tryAbsorb :: Target -> Chakras -> Chakras
 tryAbsorb t cost = simAt t do
@@ -556,7 +559,7 @@ thresholdConstrains attackType dmg v = simEffects [] [Threshold v] Enemy do
 unreduces :: Int -> Int -> Int -> Property
 unreduces dmg reduce unreduce = simAt Enemy do
     targeting Self $ apply Permanent [ Unreduce unreduce ]
-    apply Permanent [ Reduce (singletonSet All) Flat reduce ]
+    apply Permanent [ Reduce [All] Flat reduce ]
     damage dmg
     targetHealth <- target health
     return $ 100 - targetHealth === healthBound (dmg + unreduce - reduce)
@@ -566,16 +569,11 @@ getSkill effects = fromJust
     $ Ninjas.getSkill 0 ninja { effects = effects }
   where
     targets = (`To` return ()) <$> [minBound..maxBound]
-    skill   = Skill.new { Skill.effects = targets } :| []
-    ninja   = N.new (unsafeHead Slot.all) Blank.character
-              { Character.skills = skill :| [skill, skill, skill] }
+    ninja   = Blank.ninjaWithSkill Skill.new { Skill.effects = targets }
 
 ninjaWithCooldown :: Int -> Ninja
-ninjaWithCooldown cooldown =
-    N.new (unsafeHead Slot.all)
-    Blank.character { Character.skills = sk :| [sk, sk, sk] }
-  where
-    sk = Skill.new { Skill.cooldown = fromIntegral cooldown } :| []
+ninjaWithCooldown cooldown = Blank.ninjaWithSkill
+    Skill.new { Skill.cooldown = fromIntegral cooldown }
 
 simCooldown :: Ninja -> Int
 simCooldown n@Ninja{slot} = simOf game Self do

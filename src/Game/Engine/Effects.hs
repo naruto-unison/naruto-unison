@@ -104,7 +104,7 @@ redirect Ninja{effects} = headMay [slot | Redirect slot <- effects]
 -- | 'Reduce' sum.
 reduce :: EnumSet Class -> Ninja -> Amount -> Float
 reduce classes Ninja{effects} amount
-    | classes == singletonSet Affliction = total amount $ sum
+    | classes == singleton Affliction = total amount $ sum
         [x | Reduce cla amt x <- effects
            , amount == amt
            , Affliction ∈ cla]

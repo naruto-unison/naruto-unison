@@ -86,7 +86,7 @@ targetAdjust atk classes nTarget x = x
     - reduce Flat
   where
     bleed        = Effects.bleed classes nTarget
-    reduceAfflic = Effects.reduce (singletonSet Affliction) nTarget
+    reduceAfflic = Effects.reduce (singleton Affliction) nTarget
     reduce amt
       | atk == Attack.Damage = Effects.reduce classes nTarget amt
       | otherwise            = 0

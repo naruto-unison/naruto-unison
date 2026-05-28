@@ -50,12 +50,12 @@ instance ToJSON Trigger where
     toJSON = toJSON . display'
 
 instance Classed Trigger where
-    classes (Counter cla)      = singletonSet cla
-    classes (CounterAll cla)   = singletonSet cla
-    classes (Countered cla)    = singletonSet cla
-    classes (OnAction cla)     = singletonSet cla
-    classes (OnDamaged cla)    = singletonSet cla
-    classes (OnHarmed cla)     = singletonSet cla
+    classes (Counter cla)      = singleton cla
+    classes (CounterAll cla)   = singleton cla
+    classes (Countered cla)    = singleton cla
+    classes (OnAction cla)     = singleton cla
+    classes (OnDamaged cla)    = singleton cla
+    classes (OnHarmed cla)     = singleton cla
     classes _                  = mempty
 
 instance Display Trigger where

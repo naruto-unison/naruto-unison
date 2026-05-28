@@ -227,7 +227,7 @@ act ctx@Context{user, new, target, skill} = void $ runMaybeT do
     lift $ P.withContext ctx do
         if not new then do
             contEfs <- targeted effects
-            P.withContinues $ run' (singletonSet Targeted) contEfs
+            P.withContinues $ run' (singleton Targeted) contEfs
         else do
             P.modify user \n -> n { N.lastSkill = Just skill, N.acted = True }
             P.trigger user $ OnAction <$> toList classes
@@ -257,10 +257,10 @@ act ctx@Context{user, new, target, skill} = void $ runMaybeT do
                 P.modifyAll uncounter
                 sequence_ counters
             else case dur of
-                Instant -> run' (singletonSet Targeted) bothEfs
+                Instant -> run' (singleton Targeted) bothEfs
                 _       -> do
-                    run' (singletonSet Targeted) startEfs
-                    P.withContinues $ run' (singletonSet Targeted) contEfs
+                    run' (singleton Targeted) startEfs
+                    P.withContinues $ run' (singleton Targeted) contEfs
                     P.modify user $ Ninjas.addChannels skill target
             P.modify user $ Cooldown.update skill
         P.uncopied do
