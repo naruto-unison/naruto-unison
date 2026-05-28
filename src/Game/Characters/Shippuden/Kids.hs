@@ -5,6 +5,7 @@ module Game.Characters.Shippuden.Kids (characters) where
 
 import Game.Characters.Import
 
+import           Game.Model.Ninja (isChanneling)
 import qualified Game.Model.Skill as Skill
 
 characters :: [Category -> Character]
@@ -526,8 +527,15 @@ characters =
     "Chōji's years of mastering his clan's techniques have ended the growing chūnin's dependence on Akimichi pills. Now that he can reshape his body at will without having to sacrifice his health, chakra expenditure is the only remaining limit to his physical power."
     [LeafVillage, Eleven, AlliedForces, Chunin, Earth, Fire, Yang, Akimichi]
     let
-        addCalories i = replicateM_ i $
-                        hide' "calories" Permanent [ Exhaust [All] ]
+        caloricCost n skill = skill { Skill.cost = baseCost ++ caloric }
+          where
+            baseCost = filter (/= Rand) $ Skill.cost skill
+            calories
+              | not $ isChanneling "Butterfly Mode" n = 2
+              | otherwise = numStacks "calories" (slot n) n
+            caloric = replicate calories Rand
+
+        addCalories i = replicateM_ i $ hide' "calories" Permanent []
     in
     [ [ Skill.new
         { Skill.name      = "Butterfly Bombing"
@@ -542,7 +550,7 @@ characters =
           ]
         , Skill.end       =
           [ To Enemy $ damage 30 ]
-        , Skill.changes   = changeWith "Butterfly Mode" $ setCost [Tai]
+        , Skill.changes   = caloricCost
         }
       ]
     , [ Skill.new
@@ -557,7 +565,7 @@ characters =
                 trap 1 (CounterAll NonMental) $ return ()
                 addCalories 1
           ]
-        , Skill.changes   = changeWith "Butterfly Mode" $ setCost [Blood]
+        , Skill.changes   = caloricCost
         }
       ]
     , [ Skill.new
@@ -586,6 +594,7 @@ characters =
                 addCalories 2
           , To Enemy $ damage 30
           ]
+        , Skill.changes   = caloricCost
         }
       ]
     , [ (invuln "Block" "Chōji" [Physical]) { Skill.cost = [Rand, Rand] }

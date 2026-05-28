@@ -17,7 +17,6 @@ module Game.Engine.Ninjas
   , kill
 
   , addStatus
-  , addOwnStacks
   , addBarrier
   , addDefense
   , increaseDefense
@@ -48,7 +47,6 @@ module Game.Engine.Ninjas
 import ClassyPrelude
 
 import           Data.List (findIndex)
-import           Data.List.NonEmpty ((!!))
 import qualified Data.Sequence as Seq
 
 import qualified Class.Classed as Classed
@@ -219,22 +217,6 @@ decr n = processAlternates $ processEffects
 
 addStatus :: Status -> Ninja -> Ninja
 addStatus st = modifyStatuses $ Classed.nonStack st
-
-addOwnStacks :: Duration -- ^ 'Status.dur'.
-             -> Text -- ^ 'Status.name'.
-             -> Int -- ^ Skill index in 'Character.skills'.
-             -> Int -- ^ Index in skill in 'Character.skills'.
-             -> Int -- ^ 'Status.amount'.
-             -> Ninja -> Ninja
-addOwnStacks dur name s alt i n@Ninja{slot, character = Character{skills = sk}}
-    = addStatus st n
-  where
-    skill = sk !! s !! alt
-    st = (Status.new slot dur skill)
-            { Status.name    = name
-            , Status.classes = insertSet Unremovable $ Status.classes st
-            , Status.amount  = i
-            }
 
 checkEffects :: [Effect] -> Ninja -> Ninja
 checkEffects [] n = n
