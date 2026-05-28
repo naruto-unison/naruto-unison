@@ -6,7 +6,6 @@ module Handler.Play.Act
 
 import ClassyPrelude
 
-import           Control.Monad.Trans.Except (ExceptT, throwE)
 import           Data.Aeson (ToJSON)
 import qualified Data.Attoparsec.Text as Parse
 import           Data.Attoparsec.Text (Parser)
@@ -19,7 +18,8 @@ import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
-import           Util (rightToMaybe)
+import           Util (tryFromJust, rightToMaybe)
+import Control.Monad.Error.Class (MonadError)
 
 -- | A single action of a 'Ninja'.
 data Act = Act
@@ -44,11 +44,13 @@ instance PathPiece Act where
         [ tshow user, tshow skill, tshow target ]
     fromPathPiece piece = rightToMaybe $ Parse.parseOnly parse piece
 
-toContext :: ∀ m. MonadGame m => Act -> ExceptT Text m Context
+toContext :: ∀ m. (MonadGame m, MonadError Text m) => Act -> m Context
 toContext (Act user skill target) = do
     nUser <- P.ninja user
-    sk    <- maybe (throwE "Invalid skill") return $ Ninjas.getSkill skill nUser
-    return Context
+    sk    <- tryFromJust "Invalid skill" $ Ninjas.getSkill skill nUser
+    return $ createContext sk
+  where
+    createContext sk = Context
         { new = True
         , user
         , skill = sk

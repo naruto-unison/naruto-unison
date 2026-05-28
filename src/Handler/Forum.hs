@@ -29,13 +29,13 @@ import qualified Game.Characters as Characters
 import           Handler.Forum.API (getLike, modifyTopic)
 import qualified Handler.Forum.Form as Form
 import qualified Handler.Link as Link
-import           Util ((!?), epoch, mapFromKeyed)
+import           Util ((!?), epoch, fromMaybeM, mapFromKeyed)
 
 -- | Renders a 'User' profile.
 getProfileR :: Text -> Handler Html
 getProfileR name = do
-    muser          <- runDB $ selectFirst [UserName ==. name] []
-    Entity _ user  <- maybe notFound return muser
+    Entity _ user  <- fromMaybeM notFound $ runDB
+                    $ selectFirst [UserName ==. name] []
     let User { userAvatar
              , userClan
              , userJoined
@@ -63,13 +63,15 @@ inCategory category (BoardIndex x _ _) = category == boardCategory x
 getForumsR :: Handler Html
 getForumsR = do
     modified  <- runDB $ selectFirst [] [Desc ForumTopicModified]
-    App.lastModified $ maybe epoch (forumTopicModified . entityVal) modified
+    App.lastModified $ getModified modified
     privilege <- App.getPrivilege
     citelink  <- liftIO Link.cite
     allBoards <- runDB $ mapM (indexBoard privilege) [minBound..maxBound]
     let boards category = filter (inCategory category) allBoards
     defaultLayout $(widgetFile "forum/browse")
   where
+    getModified (Just (Entity _ topic)) = forumTopicModified topic
+    getModified Nothing                 = epoch
     categories = [minBound..maxBound]
     indexBoard privilege board = do
         size <- count [ForumTopicBoard ==. board, ForumTopicState !=. Deleted]

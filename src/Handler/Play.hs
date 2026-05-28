@@ -8,9 +8,10 @@ import ClassyPrelude
 import Yesod
 
 import           Control.Monad (fail)
+import           Control.Monad.Error.Class (MonadError(..), modifyError)
 import           Control.Monad.Logger (logErrorN)
 import           Control.Monad.Loops (untilJust, whileM)
-import           Control.Monad.Trans.Except (runExceptT, throwE)
+import           Control.Monad.Trans.Except (runExceptT, except)
 import qualified Data.Attoparsec.Text as Parse
 import           Data.Attoparsec.Text (Parser)
 import qualified Data.Cache as Cache
@@ -48,7 +49,6 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Skill as Skill
-import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import qualified Handler.Client.Message as Client
 import           Handler.Client.Reward (Reward(Reward))
@@ -64,7 +64,7 @@ import qualified Handler.Play.Wrapper as Wrapper
 import qualified Handler.Queue as Queue
 import           Handler.Queue.Message (Response(Response))
 import qualified Mission
-import           Util ((∈), (∉), leftToMaybe)
+import           Util ((∈), (∉), leftToMaybe, fromMaybeM, tryFromJust)
 
 -- * INPUT PARSING
 
@@ -87,7 +87,7 @@ parseTeam = Team <$> parseSection <*> parseCharacters
         text <- Parse.takeWhile (/= separator) <|> Parse.takeText
         case Characters.lookup text of
             Just c  -> return c
-            Nothing -> fail $ show (text ++ " is not a character")
+            Nothing -> fail $ unpack (text ++ " is not a character")
 
 
 data Enact = Enact
@@ -108,9 +108,7 @@ parseEnact :: Parser Enact
 parseEnact = Enact
     <$> Chakras.parse
     <*> (separate >> Chakras.parse)
-    <*> (parseActs <|> parseEnd)
-  where
-    parseEnd = Parse.endOfInput >> return []
+    <*> (parseActs <|> Parse.endOfInput $> [])
 
 data ClientMessage
     = Forfeit
@@ -179,13 +177,12 @@ getPracticeActR :: Chakras -> Chakras -> [Act] -> Handler Value
 getPracticeActR spend exchange actions = do
     who      <- Auth.requireAuthId
     practice <- getsYesod App.practice
-    mGame    <- liftIO $ Cache.lookup practice who
-    game     <- maybe notFound return mGame
+    game     <- fromMaybeM notFound $ liftIO $ Cache.lookup practice who
     rand     <- liftIO Random.createSystemRandom
     wrapper  <- liftST $ Wrapper.thaw game
 
     flip runReaderT rand $ flip runReaderT wrapper do
-        res <- enact Enact{spend, exchange, actions}
+        res <- runExceptT $ enact Enact{spend, exchange, actions}
         forM_ (leftToMaybe res) \errorMsg -> invalidArgs [errorMsg]
         game'A <- Wrapper.freeze
         P.alter \g -> g { Game.chakra  = (fst $ Game.chakra g, baseChakra)
@@ -203,7 +200,7 @@ getPracticeActR spend exchange actions = do
     baseChakra = Chakras 100 100 100 100 100
 
 handleFailures :: ∀ m a. MonadSockets m => Either Client.Failure a -> m (Maybe a)
-handleFailures (Left msg)  = Nothing <$ Client.send (Client.Fail msg)
+handleFailures (Left msg)  = Client.send (Client.Fail msg) $> Nothing
 handleFailures (Right val) = return $ Just val
 
 -- | Sends messages through 'MVar's in 'App.App'. Requires authentication.
@@ -220,14 +217,13 @@ gameSocket = webSockets do
     (section, team, Response mvar info@GameInfo{player, war, vsWho}) <-
         untilJust $ handleFailures =<< runExceptT do
             message <- Sockets.receive {-! BLOCKS !-}
-            Team section team <- case Parse.parseOnly parseTeam message of
-                Left parseError -> throwE $ Client.InvalidTeam parseError
-                Right parsed    -> return parsed
+            Team section team <- modifyError Client.InvalidTeam
+                               $ except $ Parse.parseOnly parseTeam message
 
             let teamNames = Character.ident <$> team
                 locked    = filter (∉ unlocked) teamNames
             when (not $ null locked)
-                . throwE $ Client.Locked locked
+                . throwError $ Client.Locked locked
             liftDB $ update who [UserTeam =. Just teamNames]
 
             queued <- Queue.queue section team {-! BLOCKS !-}
@@ -320,7 +316,7 @@ tryEnact settings player mvar = do
 
         Received (EnactMsg enactMsg) -> do
             Engine.resetInactive player
-            res <- enact enactMsg
+            res <- runExceptT $ enact enactMsg
             forM_ (leftToMaybe res) \errorMsg -> do
                 logErrorN $ "Client error: " ++ errorMsg
                 Sockets.send $ fromStrict $ encodeUtf8 errorMsg
@@ -351,34 +347,35 @@ tryEnact settings player mvar = do
     putMVar mvar wrapper -- this should never block
 
 -- | Processes a user's actions and passes them to 'Engine.run'.
-enact :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
-      => Enact -> m (Either Text ())
+enact :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m, MonadError Text m)
+      => Enact -> m ()
 enact Enact{spend, exchange, actions}
-  | randTotal < 0 = return $ Left "Insufficient chakra"
-  | otherwise     = runExceptT do
+  | randTotal < 0 = throwError "Insufficient chakra"
+  | otherwise     = do
     contexts <- mapM Act.toContext actions
     Game{chakra, playing = player} <- P.game
     validate player contexts
 
-    let gameChakra = Parity.getOf player chakra
-        actCosts   = concatMap (Skill.cost . Context.skill) contexts
-        mAdjChakra = Chakras.checkedSpend spend $ gameChakra ++ exchange
-        mNewChakra = mAdjChakra >>= \ch -> Chakras.checkedSpend actCosts
-                                           (ch { Chakras.rand = randTotal })
-
-    newChakra <- maybe (throwE "Insufficient chakra") return mNewChakra
+    newChakra <- tryFromJust "Insufficient chakra"
+               $ getRemainingChakra contexts $ Parity.getOf player chakra
     P.alter $ Game.setChakra player newChakra
     Engine.runTurn contexts
   where
     randTotal = length spend - 5 * length exchange
-    validate player contexts
-      | length contexts > Slot.teamSize       = throwE "Too many actions"
-      | nonUnique $ Context.user <$> contexts = throwE "Duplicate actors"
-      | any (Context.illegal player) contexts = throwE "Character out of range"
-      | otherwise                             = return ()
-    nonUnique :: [Slot] -> Bool
-    nonUnique slots = go mempty slots
+
+    getRemainingChakra contexts chakra = do
+        exchanged <- Chakras.checkedSpend spend $ chakra ++ exchange
+        Chakras.checkedSpend actCosts $ exchanged { Chakras.rand = randTotal }
       where
-        go :: IntSet -> [Slot] -> Bool
+        actCosts = concatMap (Skill.cost . Context.skill) contexts
+
+    validate player contexts
+      | length contexts > Slot.teamSize       = throwError "Too many actions"
+      | nonUnique $ Context.user <$> contexts = throwError "Duplicate actors"
+      | any (Context.illegal player) contexts = throwError "Character out of range"
+      | otherwise                             = return ()
+
+    nonUnique = go (mempty :: IntSet)
+      where
         go set ((Slot.toInt -> x):xs) = x ∈ set || go (insertSet x set) xs
         go _   []                     = False

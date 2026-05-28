@@ -13,7 +13,6 @@ module Handler.Client
 import ClassyPrelude
 import Yesod
 
-import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Data.List (nub)
 import qualified System.Random.MWC as Random
 import qualified Yesod.Auth as Auth
@@ -32,7 +31,7 @@ import qualified Handler.Play.War as War
 import qualified Mission
 import           Mission.Goal (Goal(Reach))
 import qualified Mission.Goal as Goal
-import           Util ((∈), (∉))
+import           Util ((∈), (∉), fromMaybeT)
 
 -- | Updates a user's profile and returns it. Requires authentication.
 getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
@@ -99,8 +98,8 @@ getReanimateR Character{ident, price} = do
     unlocks <- Mission.unlocked
     when (ident ∈ unlocks)
         $ invalidArgs ["Character already unlocked"]
-    mCharID <- runMaybeT $ Mission.characterID ident
-    charID  <- maybe (invalidArgs ["Character not found"]) return mCharID
+    charID <- fromMaybeT (invalidArgs ["Character not found"])
+            $ Mission.characterID ident
     runDB do
         insertUnique $ Unlocked who charID
         user' <- updateGet who [UserDna -=. price]

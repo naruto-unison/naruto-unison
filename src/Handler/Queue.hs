@@ -3,8 +3,8 @@ module Handler.Queue where
 import ClassyPrelude
 import Yesod
 
+import           Control.Monad.Error.Class (MonadError(..))
 import           Control.Monad.Loops (untilJust)
-import           Control.Monad.Trans.Except (ExceptT, throwE)
 import qualified Data.HashTable as HashTable
 import           Data.Time.Clock.System (SystemTime(..), getSystemTime)
 import           Data.Vector (unsafeFreeze, unsafeThaw)
@@ -78,8 +78,9 @@ leave = do
 queue :: ∀ m. ( MonadHandler m, App ~ HandlerSite m
               , MonadRandom m
               , MonadSockets m
+              , MonadError Client.Failure m
               ) => Section -> [Character]
-                -> ExceptT Client.Failure m Message.Response
+                -> m Message.Response
 queue Quick team = do
     (who, user) <- Auth.requireAuthPair
     quick       <- getsYesod App.quick
@@ -96,7 +97,7 @@ queue Private team = do
         mVs    <- liftDB $ selectFirst [UserName ==. vsName] []
         case mVs of
             Just vs@(Entity vsWho _) | vsWho /= who -> return vs
-            _ -> throwE Client.NotFound
+            _ -> throwError Client.NotFound
 
     writer <- getsYesod App.private
     reader <- liftIO $ atomically do

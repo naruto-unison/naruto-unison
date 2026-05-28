@@ -6,13 +6,16 @@ module Util
   , epoch
   , intersects
   , mapFromKeyed
+  , tryFromJust, fromMaybeM, fromMaybeT
   , leftToMaybe, rightToMaybe
   ) where
 
 import ClassyPrelude
 
 import Control.Monad.Trans.Class (MonadTrans)
+import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Kind (Type)
+import Control.Monad.Error.Class (MonadError(..))
 
 -- If a function doesn't seem like it should be inlined, it probably doesn't go
 -- here.
@@ -56,13 +59,27 @@ mapFromKeyed :: ∀ map a. IsMap map
 mapFromKeyed (toKey, toVal) xs = mapFromList $ (\x -> (toKey x, toVal x)) <$> xs
 {-# INLINABLE mapFromKeyed #-}
 
+tryFromJust :: ∀ m a e. MonadError e m => e -> Maybe a -> m a
+tryFromJust e = maybe (throwError e) return
+{-# INLINABLE tryFromJust #-}
+
+fromMaybeM :: ∀ m a. Monad m => m a -> m (Maybe a) -> m a
+fromMaybeM e m = maybe e return =<< m
+{-# INLINABLE fromMaybeM #-}
+
+fromMaybeT :: ∀ m a. Monad m => m a -> MaybeT m a -> m a
+fromMaybeT e (MaybeT m) = fromMaybeM e m
+{-# INLINABLE fromMaybeT #-}
+
 leftToMaybe :: Either a b -> Maybe a
 leftToMaybe (Left x)  = Just x
 leftToMaybe (Right _) = Nothing
+{-# INLINABLE leftToMaybe #-}
 
 rightToMaybe :: Either a b -> Maybe b
 rightToMaybe (Left _)  = Nothing
 rightToMaybe (Right x) = Just x
+{-# INLINABLE rightToMaybe #-}
 
 -- | A metaconstraint for liftable functions.
 -- Useful for default signatures of MTL classes:

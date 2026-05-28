@@ -22,7 +22,7 @@ import Yesod
 
 import           Control.Monad.Logger (LogSource)
 import           Control.Monad.ST (stToIO)
-import           Control.Monad.Trans.Maybe (MaybeT(..))
+import           Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
 import           Data.Bimap (Bimap)
 import           Data.Cache (Cache)
 import qualified Data.CaseInsensitive as CaseInsensitive
@@ -161,7 +161,7 @@ unchanged304 = whenM (isNothing <$> getMessage) do
     setEtag . toStrict $ display' tag
   where
     maybeAdd x (Just key) = Sql.fromSqlKey key + x
-    maybeAdd x Nothing = x
+    maybeAdd x Nothing    = x
 #endif
 
 -- | Sets the
@@ -384,7 +384,7 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
             }
     getVerifyKey uid = liftDB $ runMaybeT do
         User{userVerkey} <- MaybeT $ get uid
-        MaybeT $ return userVerkey
+        hoistMaybe userVerkey
 
     setVerifyKey uid key = liftDB
         $ update uid [UserVerkey =. Just key]
@@ -396,7 +396,7 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
 
     getPassword uid = liftDB $ runMaybeT do
         User{userPassword} <- MaybeT $ get uid
-        MaybeT $ return userPassword
+        hoistMaybe userPassword
 
     setPassword uid pass = liftDB
         $ update uid [UserPassword =. Just pass]

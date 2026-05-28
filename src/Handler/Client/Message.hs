@@ -8,7 +8,6 @@ module Handler.Client.Message
 
 import ClassyPrelude
 
-import           Control.Monad.Trans.Except (ExceptT, throwE)
 import           Data.Aeson (ToJSON, toEncoding)
 import qualified Data.Aeson.Encoding as Encoding
 
@@ -17,6 +16,7 @@ import qualified Class.Sockets as Sockets
 import           Handler.Client.Reward (Reward)
 import           Handler.Play.GameInfo (GameInfo)
 import           Handler.Play.Turn (Turn)
+import Control.Monad.Error.Class (MonadError(..))
 
 -- | Error messages sent to the client.
 data Failure
@@ -44,9 +44,9 @@ instance ToJSON Message
 send :: ∀ m. MonadSockets m => Message -> m ()
 send x = Sockets.send . Encoding.encodingToLazyByteString $ toEncoding x
 
-ping :: ∀ m. MonadSockets m => ExceptT Failure m ()
+ping :: ∀ m. (MonadError Failure m, MonadSockets m) => m ()
 ping = do
     send Ping
     pong <- Sockets.receive {-! BLOCKS !-}
     when (pong == "cancel")
-        $ throwE Canceled
+        $ throwError Canceled
