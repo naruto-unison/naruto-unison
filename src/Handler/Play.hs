@@ -186,7 +186,7 @@ getPracticeActR spend exchange actions = do
 
     flip runReaderT rand $ flip runReaderT wrapper do
         res <- enact Enact{spend, exchange, actions}
-        forM_ (leftToMaybe res) \errorMsg -> invalidArgs [tshow errorMsg]
+        forM_ (leftToMaybe res) \errorMsg -> invalidArgs [errorMsg]
         game'A <- Wrapper.freeze
         P.alter \g -> g { Game.chakra  = (fst $ Game.chakra g, baseChakra)
                         , Game.playing = Player.B
@@ -322,9 +322,8 @@ tryEnact settings player mvar = do
             Engine.resetInactive player
             res <- enact enactMsg
             forM_ (leftToMaybe res) \errorMsg -> do
-                logErrorN $ "Client error: "
-                            ++ toStrict (decodeUtf8 errorMsg)
-                Sockets.send errorMsg
+                logErrorN $ "Client error: " ++ errorMsg
+                Sockets.send $ fromStrict $ encodeUtf8 errorMsg
 
         Malformed malformed ->
             logErrorN $ "Malformed client input: " ++ malformed
@@ -353,7 +352,7 @@ tryEnact settings player mvar = do
 
 -- | Processes a user's actions and passes them to 'Engine.run'.
 enact :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
-      => Enact -> m (Either LByteString ())
+      => Enact -> m (Either Text ())
 enact Enact{spend, exchange, actions}
   | randTotal < 0 = return $ Left "Insufficient chakra"
   | otherwise     = runExceptT do

@@ -44,13 +44,11 @@ instance PathPiece Act where
         [ tshow user, tshow skill, tshow target ]
     fromPathPiece piece = rightToMaybe $ Parse.parseOnly parse piece
 
-toContext :: ∀ m. MonadGame m => Act -> ExceptT LByteString m Context
+toContext :: ∀ m. MonadGame m => Act -> ExceptT Text m Context
 toContext (Act user skill target) = do
     nUser <- P.ninja user
     sk    <- maybe (throwE "Invalid skill") return $ Ninjas.getSkill skill nUser
-    return $ skillCtx sk
-  where
-    skillCtx sk = Context
+    return Context
         { new = True
         , user
         , skill = sk
