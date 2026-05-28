@@ -100,7 +100,7 @@ unlocked = cached $ maybe allUnlocked Unlocks <$> runMaybeT do
 freeChars :: HashSet Text
 freeChars = setFromList dna `difference` keysSet Missions.map
   where
-    dna = [Character.ident c | c@Character.Character{price = 0} <- Characters.list]
+    dna = [ident | Character.Character{price = 0, ident} <- Characters.list]
 {-# NOINLINE freeChars #-}
 
 -- | Returns the user's progress on a single Character's mission.

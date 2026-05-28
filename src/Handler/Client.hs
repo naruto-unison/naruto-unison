@@ -70,8 +70,8 @@ instance ToJSON ObjectiveProgress
 
 -- | Returns progress on a character's mission as a list of 'ObjectiveProgress'.
 getMissionR :: Character -> Handler Value
-getMissionR char = do
-    mission <- Mission.userMission $ Character.ident char
+getMissionR Character{ident} = do
+    mission <- Mission.userMission ident
     returnJson $ case mission of
         Just m  -> unzipGoal <$> m
         Nothing -> mempty
@@ -92,14 +92,14 @@ getMuteR mute = do
 
 -- | Buys a Reanimated character with DNA. Returns the new 'UserDna' balance.
 getReanimateR :: Character -> Handler Value
-getReanimateR char@Character{price} = do
+getReanimateR Character{ident, price} = do
     (who, user) <- Auth.requireAuthPair
     when (userDna user < price)
         $ invalidArgs ["Unaffordable"]
     unlocks <- Mission.unlocked
-    when (Character.ident char ∈ unlocks)
+    when (ident ∈ unlocks)
         $ invalidArgs ["Character already unlocked"]
-    mCharID <- runMaybeT . Mission.characterID $ Character.ident char
+    mCharID <- runMaybeT $ Mission.characterID ident
     charID  <- maybe (invalidArgs ["Character not found"]) return mCharID
     runDB do
         insertUnique $ Unlocked who charID
@@ -167,10 +167,10 @@ userPlayParams User { userBackground
 
 -- | Icons from all of a character's skills.
 charAvatars :: Character -> [Text]
-charAvatars char@Character{skills} = toFile . shorten
+charAvatars Character{ident, skills} = toFile . shorten
     <$> "icon" : (nub $ Skill.name <$> concatMap toList skills)
   where
-    toFile path = "/img/ninja/" ++ Character.ident char ++ "/" ++ path ++ ".jpg"
+    toFile path = "/img/ninja/" ++ ident ++ "/" ++ path ++ ".jpg"
 
 -- | Icons that users can set as their avatars.
 avatars :: Value

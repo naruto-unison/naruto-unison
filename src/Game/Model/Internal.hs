@@ -119,12 +119,13 @@ data Character = Character
     , groups   :: EnumSet Group
     , skills   :: NonEmpty (NonEmpty Skill)
     , category :: Category
+    , ident    :: Text
     } deriving (Generic)
 
 instance ToJSON Character
 
 instance Eq Character where
-    (==) = (==) `on` \Character{name, category} -> (name, category)
+    (==) = (==) `on` \Character{category, name} -> (category, name)
 
 instance Ord Character where
     compare = comparing \Character{category, name} -> (category, name)

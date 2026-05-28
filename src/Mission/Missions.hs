@@ -8,7 +8,7 @@ module Mission.Missions
 
 import ClassyPrelude hiding ((\\), map)
 
-import           Game.Model.Character (Character)
+import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Mission.Goal (Goal(Reach), Mission(Mission), Objective(..), WinType(..))
 import qualified Mission.Goal as Goal
@@ -43,8 +43,8 @@ map = mapFromKeyed (Goal.char, Goal.goals) list
 
 -- | Obtains all of a character's missions from 'list'.
 characterMissions :: Character -> [Mission]
-characterMissions (Character.ident -> name) =
-    filter (any (Goal.belongsTo name) . Goal.goals) list
+characterMissions Character{ident} =
+    filter (any (Goal.belongsTo ident) . Goal.goals) list
 
 -- | List of 'Character.ident's paired with 'WinConsecutive' indices within
 -- their missions.

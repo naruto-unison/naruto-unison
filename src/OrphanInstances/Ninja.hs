@@ -13,6 +13,7 @@ import Data.Aeson ((.=), ToJSON(..), object)
 import           Class.Classed (Classed)
 import qualified Class.Classed as Classed
 import qualified Game.Engine.Ninjas as Ninjas
+import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import qualified Game.Model.Effect as Effect
@@ -38,7 +39,7 @@ statusFace Status{name, user} = Face (toLower name) user
 instance ToJSON Ninja where
     toJSON n@Ninja { barrier
                    , channels
-                   , character
+                   , character = Character{ident}
                    , charges
                    , cooldowns
                    , copies
@@ -50,7 +51,7 @@ instance ToJSON Ninja where
                    , traps
                    } = object
         [ "slot"      .= slot
-        , "character" .= Character.ident character
+        , "character" .= ident
         , "health"    .= health
         , "cooldowns" .= cooldowns
         , "charges"   .= charges

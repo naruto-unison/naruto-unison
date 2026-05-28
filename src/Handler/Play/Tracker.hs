@@ -23,6 +23,7 @@ import qualified Data.Vector.Mutable as MVector
 
 import qualified Class.Parity as Parity
 import           Game.Model.Chakras (Chakras)
+import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja
@@ -138,14 +139,14 @@ trackTurn1 p ns x@Track{skills, slot, turns} = do
     tracker (n, n') (i, f) = trackStore x i $ f p user n n'
 
 new :: ∀ s. Ninja -> ST s (Track s)
-new Ninja{character, slot} = makeTrack
+new Ninja{character = character@Character{ident}, slot} = makeTrack
     <$> newRef mempty
     <*> MVector.replicate (length objectives) mempty
     <*> MVector.replicate (length objectives) 0
   where
     makeTrack skills store progress = foldl' go Track
         { slot
-        , key      = missionKeys name =<< missions
+        , key      = missionKeys ident =<< missions
         , actions  = MultiMap.empty
         , chakras  = MultiMap.empty
         , stores   = MultiMap.empty
@@ -158,11 +159,10 @@ new Ninja{character, slot} = makeTrack
         , store
         , progress
         } objectives
-    name       = Character.ident character
     missions   = Missions.characterMissions character
     goals      = [x | mission <- missions
                     , x       <- toList $ Goal.goals mission
-                    , Goal.belongsTo name x]
+                    , Goal.belongsTo ident x]
     objectives = zip [0..] $ Goal.objective <$> goals
 
     go x (i, Consecutive _ skills) =

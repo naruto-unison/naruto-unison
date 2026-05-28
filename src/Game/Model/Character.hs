@@ -1,6 +1,5 @@
 module Game.Model.Character
   ( Character(..)
-  , ident
   , Category(..)
   , identFrom
   , clean
@@ -27,10 +26,6 @@ formatFull Reanimated name = name ++ " (R)"
 -- | Used in website links.
 identFrom :: Category -> Text -> Text
 identFrom category name = clean $ formatFull category name
-
--- | Used in website links.
-ident :: Character -> Text
-ident Character{category, name} = identFrom category name
 
 -- | Pretty-prints a @Character@'s 'name' and 'category'.
 format :: Character -> Text

@@ -11,7 +11,7 @@ import           Text.Read hiding (read)
 import Yesod.Core.Dispatch (PathPiece(..))
 
 import qualified Game.Characters as Characters
-import           Game.Model.Character (Character)
+import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 
 instance PathPiece Character where
@@ -19,7 +19,7 @@ instance PathPiece Character where
     fromPathPiece = Characters.lookup
 
 instance Show Character where
-    showsPrec i = showsPrec i . Character.ident
+    showsPrec i Character{ident} = showsPrec i ident
 
 instance Read Character where
     readPrec = parens $ prec 10 do

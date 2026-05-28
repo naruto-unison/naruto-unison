@@ -4,7 +4,7 @@ module Game.Characters.Original (characters) where
 
 import ClassyPrelude
 
-import Game.Model.Character (Character, Category(Original))
+import Game.Model.Character (Character(..), Category(Original))
 
 import qualified Game.Characters.Original.Exams
 import qualified Game.Characters.Original.Family
@@ -16,7 +16,7 @@ import qualified Game.Characters.Original.Teachers
 import qualified Game.Characters.Original.Versions
 
 characters :: [Character]
-characters = ($ Original)
+characters = setIdent . (\c -> c Original "")
     <$> Game.Characters.Original.Kids.characters
     ++ Game.Characters.Original.Exams.characters
     ++ Game.Characters.Original.Teachers.characters
@@ -25,3 +25,5 @@ characters = ($ Original)
     ++ Game.Characters.Original.Versions.characters
     ++ Game.Characters.Original.Family.characters
     ++ Game.Characters.Original.Flashbacks.characters
+  where
+    setIdent c@Character{name} = c { ident = name }

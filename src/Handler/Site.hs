@@ -25,7 +25,7 @@ import           Application.Model (Cite(..), EntityField(..), ForumTopic(..), N
 import           Application.Settings (widgetFile)
 import           Class.Display (Display(..), shorten)
 import qualified Game.Characters as Characters
-import           Game.Model.Character (Category(..), Character)
+import           Game.Model.Character (Category(..), Character(Character))
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Class as Class
 import           Game.Model.Skill (Skill(Skill))
@@ -127,13 +127,12 @@ getCharactersR = do
 
 -- | Renders a character's details and the user's progress on their mission.
 getCharacterR :: Character -> Handler Html
-getCharacterR char = do
+getCharacterR char@Character{ident = name} = do
     -- due to mission objectives, content does change if logged in
     whenM (isNothing <$> Auth.maybeAuthId) App.unchanged304
     mmission <- Mission.userMission name
     defaultLayout $(widgetFile "guide/character")
   where
-    name = Character.ident char
     skillClasses Skill{classes} = intercalate ", "
         $ display <$> filter Class.visible (toList classes)
 

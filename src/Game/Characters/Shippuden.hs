@@ -4,7 +4,7 @@ module Game.Characters.Shippuden (characters) where
 
 import ClassyPrelude
 
-import Game.Model.Character (Character, Category(Shippuden))
+import Game.Model.Character (Character(..), Category(Shippuden))
 
 import qualified Game.Characters.Shippuden.Kids
 import qualified Game.Characters.Shippuden.Adults
@@ -15,7 +15,7 @@ import qualified Game.Characters.Shippuden.Jinchuriki
 import qualified Game.Characters.Shippuden.Versions
 
 characters :: [Character]
-characters = ($ Shippuden)
+characters = setIdent . (\c -> c Shippuden "")
     <$> Game.Characters.Shippuden.Kids.characters
     ++ Game.Characters.Shippuden.Adults.characters
     ++ Game.Characters.Shippuden.Organizations.characters
@@ -23,3 +23,5 @@ characters = ($ Shippuden)
     ++ Game.Characters.Shippuden.Leaders.characters
     ++ Game.Characters.Shippuden.Jinchuriki.characters
     ++ Game.Characters.Shippuden.Versions.characters
+  where
+    setIdent c@Character{name} = c { ident = name ++ " (S)" }

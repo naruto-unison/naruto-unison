@@ -7,7 +7,7 @@ import Game.Characters.Import
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Category -> Character]
+characters :: [Category -> Text -> Character]
 characters =
   [ Character
     "Kakashi Hatake" 0

@@ -4,14 +4,16 @@ module Game.Characters.Reanimated (characters) where
 
 import ClassyPrelude
 
-import Game.Model.Character (Character, Category(Reanimated))
+import Game.Model.Character (Character(..), Category(Reanimated))
 
 import qualified Game.Characters.Reanimated.Adults
 import qualified Game.Characters.Reanimated.Kage
 import qualified Game.Characters.Reanimated.Organizations
 
 characters :: [Character]
-characters = ($ Reanimated)
+characters = setIdent . (\c -> c Reanimated "")
     <$> Game.Characters.Reanimated.Kage.characters
      ++ Game.Characters.Reanimated.Adults.characters
      ++ Game.Characters.Reanimated.Organizations.characters
+  where
+    setIdent c@Character{name} = c { ident = name ++ " (R)" }

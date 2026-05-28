@@ -9,7 +9,7 @@ import qualified Game.Model.Chakras as Chakras
 import qualified Game.Model.Skill as Skill
 
 characters :: [Character]
-characters = ($ Original) <$>
+characters = (\c -> c Original "") <$>
   [ Character
     "Gaara of the Funk" 0
     "Gaara's life has been marked by abandonment. Shortly after he was born, his mother tragically died from severe funk poisoning. The only true friend he ever had was his uncle, Mr. Expendable, whom Gaara was later forced to murder in self-defense. He has nothing left but hatred, bloodlust, and incredible dance moves.\n[This development-only character exists in stack exec -- yesod devel, but not stack exec -- yesod keter.]"

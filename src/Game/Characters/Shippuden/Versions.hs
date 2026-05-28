@@ -8,7 +8,7 @@ import Game.Characters.Import
 import           Game.Model.Ninja (isChanneling)
 import qualified Game.Model.Skill as Skill
 
-characters :: [Category -> Character]
+characters :: [Category -> Text -> Character]
 characters =
   [ Character
     "Sage Mode Naruto" 0

@@ -8,7 +8,7 @@ import Data.Bits (bit)
 
 import qualified Game.Model.Skill as Skill
 
-characters :: [Category -> Character]
+characters :: [Category -> Text -> Character]
 characters =
   [ Character
     "Madara Uchiha" 0

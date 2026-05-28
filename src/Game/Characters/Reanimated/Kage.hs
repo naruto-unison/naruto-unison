@@ -8,7 +8,7 @@ import Game.Characters.Import
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Model.Skill as Skill
 
-characters :: [Category -> Character]
+characters :: [Category -> Text -> Character]
 characters =
   [ Character
     "Hashirama Senju" 150
