@@ -130,11 +130,11 @@ instance MonadRandom (StateT Wrapper Identity) where
     shuffle    = return
     player     = return Player.A
 instance MonadHook (StateT Wrapper Identity) where
-    action  = const . const . const $ return ()
-    chakra  = const . const . const $ return ()
-    trap    = const . const $ return ()
-    trigger = const . const $ return ()
-    turn    = const . const . const $ return ()
+    action _ _ _ = return ()
+    chakra _ _ _ = return ()
+    trap _ _     = return ()
+    trigger _ _  = return ()
+    turn _ _ _   = return ()
 
 freeze :: ∀ m. MonadGame m => m Wrapper
 freeze = Wrapper mempty <$> P.game <*> (fromList <$> P.ninjas)

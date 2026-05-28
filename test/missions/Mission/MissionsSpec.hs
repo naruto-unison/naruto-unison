@@ -20,9 +20,12 @@ lookupChar name f = case Characters.lookup name of
     Nothing   -> describe (unpack name) $ it "exists in the database" False
     Just char -> describe (unpack $ Character.name char) $ f char
 
+defaultPredicate :: Character -> SpecWith ()
+defaultPredicate = const $ return ()
+
 mission :: Mission -> SpecWith ()
 mission Mission{char, goals} = do
-    lookupChar char . const $ return ()
+    lookupChar char defaultPredicate
     traverse_ goal goals
 
 goal :: Goal -> SpecWith ()
@@ -32,10 +35,10 @@ goal Reach{desc, objective} = describe (unpack desc) $ f objective
     f (HookAction name skill _) = lookupChar name $ hasSkills [skill]
     f (HookChakra name skill _) = lookupChar name $ hasSkills [skill]
     f (HookStore name skill _)  = lookupChar name $ hasSkills [skill]
-    f (HookTrap name _ _)       = lookupChar name . const $ return ()
-    f (HookTrigger name _ _)    = lookupChar name . const $ return ()
-    f (HookTurn name _)         = lookupChar name . const $ return ()
-    f (Win _ names) = traverse_ (`lookupChar` const (return ())) names
+    f (HookTrap name _ _)       = lookupChar name defaultPredicate
+    f (HookTrigger name _ _)    = lookupChar name defaultPredicate
+    f (HookTurn name _)         = lookupChar name defaultPredicate
+    f (Win _ names) = traverse_ (`lookupChar` defaultPredicate) names
 
 hasSkills :: [Text] -> Character -> SpecWith ()
 hasSkills skills char = traverse_ hasSkill skills

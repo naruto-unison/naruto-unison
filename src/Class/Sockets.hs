@@ -38,7 +38,7 @@ instance MonadUnliftIO m => MonadSockets (WebSocketsT m) where
     send msg = catch (WebSockets.sendTextData msg) ignore
       where
         ignore :: ConnectionException -> WebSocketsT m ()
-        ignore = const $ return ()
+        ignore _ = return ()
         {-# INLINE ignore #-}
     {-# INLINABLE send #-}
 

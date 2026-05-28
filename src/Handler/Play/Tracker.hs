@@ -103,8 +103,8 @@ trackAction1 skill ns track@Track { actions
     consec used (i, match)
       | match /= sort (zipWith const used match) = return ()
       | otherwise = MVector.unsafeModify progress (+ 1) i
-    tracker (n, n') (i, f)  = addProgress track i $ f skill user n n'
-    tracker' (n, n') (i, f) = trackStore track i $ f skill user n n'
+    tracker  (n, n') (i, f) = addProgress track i $ f skill user n n'
+    tracker' (n, n') (i, f) = trackStore  track i $ f skill user n n'
 
 trackChakra1 :: ∀ s. Text -> (Chakras, Chakras) -> (Chakras, Chakras) -> Track s
              -> ST s ()
