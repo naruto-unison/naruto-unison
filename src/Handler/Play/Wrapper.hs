@@ -10,8 +10,6 @@ module Handler.Play.Wrapper
 
 import ClassyPrelude
 
-import           Control.Monad.Trans.State.Strict (StateT, gets, modify')
-import           Data.Vector ((//))
 import qualified Data.Vector as Vector
 import           Data.Vector.Mutable (STVector)
 import qualified Data.Vector.Mutable as MVector
@@ -19,13 +17,11 @@ import qualified Data.Vector.Mutable as MVector
 import           Class.Hook (MonadHook(..))
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
-import qualified Class.Random
 import           Class.Random (MonadRandom)
 import           Class.Sockets (MonadSockets)
 import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
 import           Game.Model.Player (Player)
-import qualified Game.Model.Player as Player
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill
 import qualified Game.Model.Slot as Slot
@@ -38,7 +34,6 @@ import qualified Handler.Play.Tracker as Tracker
 import           Handler.Play.Turn (Turn)
 import qualified Handler.Play.Turn as Turn
 import           Mission.Progress (Progress)
-import           Util ((!!))
 
 -- | This type is the core of the entire program. It is the environment of game
 -- processes and implements all of the user-defined monads.
@@ -59,9 +54,11 @@ instance (PrimMonad m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) w
     {-# INLINABLE ninjas #-}
     ninja i    = asks ninjasRef >>= flip MVector.unsafeRead (Slot.toInt i)
     {-# INLINABLE ninja #-}
-    write i x  = asks ninjasRef >>= \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
+    write i x  = asks ninjasRef >>= \xs ->
+        MVector.unsafeWrite xs (Slot.toInt i) x
     {-# INLINABLE write #-}
-    modify i f = asks ninjasRef >>= \xs -> MVector.unsafeModify xs f (Slot.toInt i)
+    modify i f = asks ninjasRef >>= \xs ->
+        MVector.unsafeModify xs f (Slot.toInt i)
     {-# INLINABLE modify #-}
     modifyAll f = asks ninjasRef >>= \xs ->
         mapM_ (MVector.unsafeModify xs f . Slot.toInt) Slot.all
@@ -98,42 +95,11 @@ replace Wrapper{game, ninjas} STWrapper{gameRef, ninjasRef} = do
     writeRef gameRef game
     MVector.unsafeCopy ninjasRef =<< Vector.thaw ninjas
 
--- Wrappers are pure and immutable, so these two functions are inefficient and a
--- bit silly. Test suites can make good use of them, but Wrappers elsewhere
--- are treated merely as frozen snapshots of game state.
-
-adjustVec :: ∀ a. (a -> a) -> Int -> Vector a -> Vector a
-adjustVec f i = Vector.modify \xs -> MVector.modify xs f i
-
-updateVec :: ∀ a. Int -> a -> Vector a -> Vector a
-updateVec i x xs = xs // [(i, x)]
-
 data Wrapper = Wrapper
     { progress :: [Progress]
     , game     :: Game
     , ninjas   :: Vector Ninja
     }
-
-instance MonadGame (StateT Wrapper Identity) where
-    game        = gets game
-    alter f     = modify' \x -> x { game = f $ game x }
-    ninjas      = toList <$> gets ninjas
-    ninja i     = (!! Slot.toInt i) <$> gets ninjas
-    write i x   = modify' \g ->
-        g { ninjas = updateVec (Slot.toInt i) x $ ninjas g }
-    modify i f  = modify' \g ->
-        g { ninjas = adjustVec f (Slot.toInt i) $ ninjas g }
-    modifyAll f = modify' \g -> g { ninjas = f <$> ninjas g }
-instance MonadRandom (StateT Wrapper Identity) where
-    random _ x = return x
-    shuffle    = return
-    player     = return Player.A
-instance MonadHook (StateT Wrapper Identity) where
-    action _ _ _ = return ()
-    chakra _ _ _ = return ()
-    trap _ _     = return ()
-    trigger _ _  = return ()
-    turn _ _ _   = return ()
 
 freeze :: ∀ m. MonadGame m => m Wrapper
 freeze = Wrapper mempty <$> P.game <*> (fromList <$> P.ninjas)

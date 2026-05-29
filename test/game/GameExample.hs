@@ -2,7 +2,7 @@ module GameExample (sim) where
 
 import ClassyPrelude
 
-import Control.Monad.Trans.State.Strict (StateT, evalStateT)
+import Control.Monad.Trans.State.Strict (evalStateT)
 import Test.Hspec hiding (context, it)
 import Test.Hspec.Core.Spec hiding (context, it)
 
@@ -10,12 +10,12 @@ import Class.Hook (MonadHook)
 import Class.Play (MonadGame, MonadPlay)
 import Class.Random (MonadRandom)
 import Game.Model.Context (Context)
-import Handler.Play.Wrapper (Wrapper)
 
 import qualified Blank
+import           Wrapper (WrapperM)
 
 newtype GameExample a =
-    GameExample { runGame :: ReaderT Context (StateT Wrapper Identity) a }
+    GameExample { runGame :: ReaderT Context WrapperM a }
     deriving (Monad, Functor, Applicative, MonadGame, MonadHook, MonadPlay, MonadRandom)
 
 instance (Example a, () ~ Arg a) => Example (GameExample a) where

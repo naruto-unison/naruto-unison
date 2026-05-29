@@ -2,7 +2,7 @@ module SkillExample (SkillExample, it, useOn) where
 
 import ClassyPrelude
 
-import           Control.Monad.Trans.State.Strict (StateT, evalStateT)
+import           Control.Monad.Trans.State.Strict (evalStateT)
 import qualified Test.Hspec as Hspec
 import           Test.Hspec hiding (context, it)
 import           Test.Hspec.Core.Spec hiding (context, it)
@@ -18,15 +18,16 @@ import qualified Game.Model.Context
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Target(..))
 import qualified Game.Model.Slot as Slot
-import           Handler.Play.Wrapper (Wrapper)
 
 import qualified Blank
 import           Sim (targetSlot)
+import           Wrapper (Wrapper, WrapperM)
+import qualified Wrapper
 
 type SkillArg = (Character, Context)
 
 newtype SkillExample a =
-    SkillExample { runGame :: ReaderT Context (StateT Wrapper Identity) a }
+    SkillExample { runGame :: ReaderT Context WrapperM a }
     deriving (Monad, Functor, Applicative, MonadGame, MonadHook, MonadPlay, MonadRandom)
 
 instance (Example a, () ~ Arg a) => Example (SkillExample a) where
@@ -63,6 +64,6 @@ it :: ∀ a. (HasCallStack, Example a, () ~ Arg a)
 it = Hspec.it
 
 testGame :: Character -> Wrapper
-testGame char = Blank.gameOf
+testGame char = Wrapper.new
                     $ N.new (unsafeHead Slot.all) char
                     : (Blank.ninjaWithSlot <$> unsafeTail Slot.all)

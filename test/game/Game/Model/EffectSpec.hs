@@ -4,7 +4,6 @@ module Game.Model.EffectSpec (spec) where
 
 import Import hiding (it, shouldBe, shouldNotBe)
 
-import Control.Monad.Trans.State.Strict (StateT)
 import Data.Enum.Set (EnumSet)
 import Data.Maybe (fromJust)
 import Test.QuickCheck
@@ -31,11 +30,12 @@ import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Slot as Slot
-import           Handler.Play.Wrapper (Wrapper)
 
 import qualified Blank
 import           OrphanInstances ()
 import qualified Sim as Sim
+import           Wrapper (WrapperM)
+import qualified Wrapper
 
 chunk :: ∀ a. (Int -> a) -> Int -> Int -> [a]
 chunk _ _ 0 = []
@@ -450,7 +450,7 @@ canTargetAs t = do
 canTarget :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => m Bool
 canTarget = canTargetAs Self
 
-harmedWith :: Effect -> ReaderT Context (StateT Wrapper Identity) Ninja -> Bool
+harmedWith :: Effect -> ReaderT Context WrapperM Ninja -> Bool
 harmedWith effect t = simAt Enemy do
     targeting Self $ apply 2 [ effect ]
     Sim.as Enemy $ apply Permanent [ Reveal ]
@@ -462,9 +462,9 @@ healthBound x = max 0 $ min 100 x
 simEffects :: ∀ a. [Effect] -- ^ User.
            -> [Effect] -- ^ Target.
            -> Target
-           -> ReaderT Context (StateT Wrapper Identity) a
+           -> ReaderT Context WrapperM a
            -> a
-simEffects userEffects targetEffects = simOf $ Blank.gameOf
+simEffects userEffects targetEffects = simOf $ Wrapper.new
     [ Blank.ninja { effects = userEffects },   Blank.ninja, Blank.ninja
     , Blank.ninja { effects = targetEffects }, Blank.ninja, Blank.ninja
     ]
@@ -580,7 +580,7 @@ simCooldown n@Ninja{slot} = simOf game Self do
     Action.act ctx
     user $ snd . unsafeHead . mapToList . cooldowns
   where
-    game = Blank.gameOf $ n : (Blank.ninjaWithSlot <$> unsafeTail Slot.all)
+    game = Wrapper.new $ n : (Blank.ninjaWithSlot <$> unsafeTail Slot.all)
     ctx  = Context { new       = True
                    , user      = slot
                    , target    = slot

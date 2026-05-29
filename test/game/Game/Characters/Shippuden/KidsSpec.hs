@@ -75,10 +75,10 @@ spec = parallel do
                 not <$> target (`is` Reveal)
             it "gains chakra when depleted" do
                 Sim.act
-                gain [Blood, Gen]
+                gain [Gen, Tai]
                 Sim.as Enemy $ absorb 1
                 chakras <- gameChakras
-                chakras `shouldBe` ([Gen, Tai], [Blood])
+                chakras `shouldBe` ([Blood, Tai], [Gen])
             it "strengthens user when target damaged" do
                 Sim.act
                 Sim.as Enemy $ damage 5

@@ -2,7 +2,7 @@ module Blank
   ( context
   , character
   , ninja, ninjaWithSlot, ninjaWithSkill
-  , game, gameOf
+  , game
   ) where
 
 import ClassyPrelude
@@ -11,16 +11,16 @@ import           Game.Model.Character (Category(..), Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
-import qualified Game.Model.Game as Game
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
-import           Handler.Play.Wrapper (Wrapper(Wrapper))
-import qualified Handler.Play.Wrapper
 import           Util ((!!))
+
+import           Wrapper (Wrapper)
+import qualified Wrapper
 
 context :: Context
 context = Context { skill     = Skill.new
@@ -59,10 +59,4 @@ ninjaWithSkill skill = N.new blankSlot character
     sk = skill :| []
 
 game :: Wrapper
-game = gameOf $ ninjaWithSlot <$> Slot.all
-
-gameOf :: [Ninja] -> Wrapper
-gameOf ninjas = Wrapper { progress = []
-                        , game     = Game.new
-                        , ninjas   = fromList ninjas
-                        }
+game = Wrapper.new $ ninjaWithSlot <$> Slot.all

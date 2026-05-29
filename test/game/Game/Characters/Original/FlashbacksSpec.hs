@@ -104,17 +104,17 @@ spec = parallel do
                 Sim.act
                 Sim.as Enemy $ targeting Self $ gain [Nin]
                 chakras <- gameChakras
-                chakras `shouldBe` ([Tai], [Nin])
+                chakras `shouldBe` ([Blood], [Nin])
             it "gains chakra on chakra deplete" do
                 Sim.act
                 Sim.as Enemy $ deplete 1
                 chakras <- gameChakras
-                chakras `shouldBe` ([Tai], [])
+                chakras `shouldBe` ([Blood], [])
             it "gains chakra on chakra steal" do
                 Sim.act
                 Sim.as Enemy $ absorb 1
                 chakras <- gameChakras
-                chakras `shouldBe` ([Tai], [])
+                chakras `shouldBe` ([Blood], [])
             it "gains no chakra otherwise" do
                 Sim.act
                 Sim.as Enemy $ return ()

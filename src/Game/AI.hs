@@ -52,7 +52,7 @@ vendettaRatio = 5
 
 run :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Ninja -> m (Maybe Context)
 run vendetta n = runMaybeT do
-    aggression <- R.random 0 aggressionThreshold
+    aggression <- R.range (0, aggressionThreshold)
     guard $ aggression /= 0
     ninjas <- P.ninjas
     Just choices <- R.choose $ (>>= focusVendetta) <$> skillOptions ninjas n
@@ -90,5 +90,5 @@ runTurn = do
         Just v  -> do
             ninjas <- P.ninjas
             acts   <- mapM (run v) . Parity.half Player.B $ fromList ninjas
-            contexts <- R.shuffle (catMaybes acts)
+            contexts <- R.shuffle $ catMaybes acts
             Engine.runTurn contexts

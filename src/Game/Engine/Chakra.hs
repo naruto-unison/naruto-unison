@@ -66,7 +66,7 @@ remove1 permitted = do
 gain :: ∀ m. (MonadPlay m, MonadRandom m) => Chakras -> m ()
 gain chakras = do
     Context{user, target} <- P.context
-    rand <- replicateM (length rands) Chakras.random
+    rand <- replicateM (length rands) R.random
     P.alter $ Game.addChakra target $ rand ++ nonrands
     P.trigger user [OnChakra]
   where
@@ -80,5 +80,5 @@ gainPerAlive = do
     Game{playing} <- P.game
     let player = Player.opponent playing
     living  <- length . filter N.alive <$> P.allies player
-    randoms <- replicateM living Chakras.random
+    randoms <- replicateM living R.random
     P.alter $ Game.addChakra player $ fromList randoms

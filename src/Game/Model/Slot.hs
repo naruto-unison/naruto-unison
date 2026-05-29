@@ -15,6 +15,7 @@ import           Data.Attoparsec.Text (Parser)
 import qualified Data.Attoparsec.Text as Parse
 import           Text.Read
 import           Text.Read.Lex (numberToInteger)
+import           System.Random.Stateful (Uniform(..), UniformRange(..))
 
 import           Class.Display (Display)
 import           Class.Parity (Parity)
@@ -50,6 +51,15 @@ instance Bounded Slot where
     minBound = Slot 0
     maxBound = Slot maxVal
 
+instance Uniform Slot where
+    uniformM = uniformRM (minBound, maxBound)
+    {-# INLINE uniformM #-}
+
+instance UniformRange Slot where
+    uniformRM (Slot a, Slot b) g = Slot . fromEnum
+                                  <$> uniformRM @Word32 (toEnum a, toEnum b) g
+    {-# INLINE uniformRM #-}
+
 all :: [Slot]
 all = Slot <$> [0..maxVal]
 
@@ -72,7 +82,7 @@ parse = do
     return $ Slot i
 
 random :: ∀ m. MonadRandom m => m Slot
-random = Slot <$> R.random 0 maxVal
+random = Slot <$> R.range (0, maxVal)
 
 toChar :: Slot -> Char
 toChar (Slot x) = toEnum $ x + 48

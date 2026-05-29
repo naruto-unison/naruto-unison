@@ -3,7 +3,6 @@ module Game.Model.Chakras
   , Chakras(..)
   , parse
   , classes
-  , random
   , scale
   , spend
   , checkedSpend
@@ -14,9 +13,12 @@ import ClassyPrelude
 import           Data.Aeson (ToJSON)
 import qualified Data.Attoparsec.Text as Parse
 import           Data.Attoparsec.Text (Parser)
+import           Data.Bits
 import           Data.Enum.Set (AsEnumSet(..), EnumSet)
 import           GHC.Exts (IsList)
 import qualified GHC.Exts
+import           System.Random.Stateful (Uniform(..), UniformRange(..))
+import qualified System.Random.Stateful as R
 import           Text.Blaze ((!))
 import           Text.Blaze (ToMarkup(..))
 import qualified Text.Blaze.Html5 as HTML
@@ -262,9 +264,19 @@ data Chakra
     | Nin   -- ^ Ninjutsu
     | Tai   -- ^ Taijutsu
     | Rand  -- ^ Random
-    deriving (Bounded, Enum, Eq, Ord, Show, Read)
+    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
 
 instance AsEnumSet Chakra
+
+instance Uniform Chakra where
+    uniformM g = fromWord <$> R.uniformWord32 g -- excludes Rand
+      where
+        fromWord w = toEnum $ fromEnum $ w .&. 3
+    {-# INLINE uniformM #-}
+
+instance UniformRange Chakra where
+    uniformRM = R.uniformEnumRM
+    {-# INLINE uniformRM #-}
 
 instance ToMarkup Chakra where
     toMarkup Blood = HTML.div ! HTML.class_ "chakra blood" $ mempty
@@ -289,10 +301,6 @@ classes (Chakras b g n t r) = setFromList $ fst <$> filter snd
     , (Taijutsu,  t /= 0)
     , (Random,    r /= 0)
     ]
-
--- | Randomly selects a @Chakra@.
-random :: ∀ m. MonadRandom m => m Chakra
-random = toEnum <$> R.random (fromEnum Blood) (fromEnum Tai)
 
 mapAmounts :: (Int -> Int) -> Chakras -> Chakras
 mapAmounts f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)

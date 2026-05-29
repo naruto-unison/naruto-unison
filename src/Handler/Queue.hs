@@ -131,7 +131,7 @@ makeGame :: ∀ m. (MonadRandom m, MonadIO m)
          -> Key User -> User -> [Character]
          -> m (MVar Wrapper, GameInfo, GameInfo)
 makeGame who user team vsWho vsUser vsTeam = do
-    player <- R.player
+    player <- R.random
     game   <- Game.newWithChakras
     liftIO do
         let ninjas = fromList $ zipWith N.new Slot.all case player of

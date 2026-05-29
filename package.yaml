@@ -116,9 +116,11 @@ tests:
     - naruto-unison
     - base
     - bitwise-enum
+    - bytestring
     - hspec
     - hspec-core
     - QuickCheck
+    - random
     - transformers
   test-missions:
     source-dirs: test/missions

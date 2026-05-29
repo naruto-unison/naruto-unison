@@ -13,13 +13,11 @@ import           Control.Monad.Trans.Identity (IdentityT)
 import           Control.Monad.Trans.Maybe (MaybeT)
 import           Control.Monad.Trans.Select (SelectT)
 import           Control.Monad.Trans.Writer (WriterT)
-import           Data.Bits ((.&.))
-import qualified System.Random.MWC as Random
+import           System.Random.MWC (Gen, Uniform(..), UniformRange(..))
 import qualified System.Random.MWC.Distributions as Random
 import           Yesod.WebSockets (WebSocketsT)
 
 import Util (Lift)
-import Game.Model.Player (Player)
 
 -- | A monad capable of nondeterministic behavior.
 --
@@ -27,41 +25,41 @@ import Game.Model.Player (Player)
 -- * @random x y ∈ [x..y]@
 -- * @sort (shuffle xs) == sort xs@
 class Monad m => MonadRandom m where
-    -- | Selects an integer in an inclusive range.
-    random  :: Int -> Int -> m Int
+    random :: ∀ a. Uniform a => m a
+    -- | Selects a value in an inclusive range.
+    range  :: ∀ a. UniformRange a => (a, a) -> m a
     -- | Randomly shuffles elements in a list.
     shuffle :: Vector a -> m (Vector a)
-    -- | Randomly chooses 'Player.A' or 'Player.B'. A coin toss.
-    player :: m Player
+    -- | Selects a value in a uniform range.
 
-    default random :: Lift MonadRandom m
-                   => Int -> Int -> m Int
-    random a = lift . random a
+    default random :: (Lift MonadRandom m, Uniform a)
+                   => m a
+    random = lift random
     {-# INLINE random #-}
+    default range :: (Lift MonadRandom m, UniformRange a)
+                  => (a, a) -> m a
+    range = lift . range
+    {-# INLINE range #-}
     default shuffle :: Lift MonadRandom m
                     => Vector a -> m (Vector a)
     shuffle = lift . shuffle
     {-# INLINE shuffle #-}
-    default player :: Lift MonadRandom m
-                   => m Player
-    player = lift player
-    {-# INLINE player #-}
 
-instance MonadRandom (ReaderT (Random.Gen s) (ST s)) where
-    random a b = ask >>= lift . Random.uniformR (a, b)
+instance MonadRandom (ReaderT (Gen s) (ST s)) where
+    random = ask >>= lift . uniformM
     {-# INLINABLE random #-}
+    range (a, b) = ask >>= lift . uniformRM (a, b)
+    {-# INLINABLE range #-}
     shuffle xs = ask >>= lift . Random.uniformShuffle xs
     {-# INLINABLE shuffle #-}
-    player = toEnum . (.&. 1) <$> (ask >>= lift . Random.uniform)
-    {-# INLINABLE player #-}
 
-instance MonadIO m => MonadRandom (ReaderT (Random.Gen RealWorld) m) where
-    random a b = ask >>= liftIO . Random.uniformR (a, b)
+instance MonadIO m => MonadRandom (ReaderT (Gen RealWorld) m) where
+    random = ask >>= liftIO . uniformM
     {-# INLINABLE random #-}
+    range (a, b) = ask >>= liftIO . uniformRM (a, b)
+    {-# INLINABLE range #-}
     shuffle xs = ask >>= liftIO . Random.uniformShuffle xs
     {-# INLINABLE shuffle #-}
-    player = toEnum . (.&. 1) <$> (ask >>= liftIO . Random.uniform)
-    {-# INLINABLE player #-}
 
 instance MonadRandom m => MonadRandom (ExceptT e m)
 instance MonadRandom m => MonadRandom (IdentityT m)
@@ -77,4 +75,4 @@ choose :: ∀ m o. (MonadRandom m, Int ~ Index o, IsSequence o)
        => o -> m (Maybe (Element o))
 choose xs
   | null xs   = return Nothing
-  | otherwise = index xs <$> random 0 (length xs - 1)
+  | otherwise = index xs <$> range (0, length xs - 1)
