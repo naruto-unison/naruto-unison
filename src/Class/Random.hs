@@ -6,31 +6,27 @@ module Class.Random
 
 import ClassyPrelude
 
-import           Control.Monad.ST (ST)
-import           Control.Monad.Trans.Accum (AccumT)
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Identity (IdentityT)
-import           Control.Monad.Trans.Maybe (MaybeT)
-import           Control.Monad.Trans.Select (SelectT)
-import           Control.Monad.Trans.Writer (WriterT)
-import           System.Random.MWC (Gen, Uniform(..), UniformRange(..))
-import qualified System.Random.MWC.Distributions as Random
-import           Yesod.WebSockets (WebSocketsT)
+import Control.Monad.ST (ST)
+import Control.Monad.Trans.Accum (AccumT)
+import Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Identity (IdentityT)
+import Control.Monad.Trans.Maybe (MaybeT)
+import Control.Monad.Trans.Select (SelectT)
+import Control.Monad.Trans.Writer (WriterT)
+import System.Random.MWC (Gen, Uniform(..), UniformRange(..))
+import System.Random.MWC.Distributions (uniformShuffle)
+import Yesod.WebSockets (WebSocketsT)
 
 import Util (Lift)
 
 -- | A monad capable of nondeterministic behavior.
---
--- Instances should satisfy the following laws:
--- * @random x y ∈ [x..y]@
--- * @sort (shuffle xs) == sort xs@
 class Monad m => MonadRandom m where
+    -- | Selects a value in a uniform range.
     random :: ∀ a. Uniform a => m a
     -- | Selects a value in an inclusive range.
     range  :: ∀ a. UniformRange a => (a, a) -> m a
     -- | Randomly shuffles elements in a list.
     shuffle :: Vector a -> m (Vector a)
-    -- | Selects a value in a uniform range.
 
     default random :: (Lift MonadRandom m, Uniform a)
                    => m a
@@ -50,7 +46,7 @@ instance MonadRandom (ReaderT (Gen s) (ST s)) where
     {-# INLINABLE random #-}
     range (a, b) = ask >>= lift . uniformRM (a, b)
     {-# INLINABLE range #-}
-    shuffle xs = ask >>= lift . Random.uniformShuffle xs
+    shuffle xs = ask >>= lift . uniformShuffle xs
     {-# INLINABLE shuffle #-}
 
 instance MonadIO m => MonadRandom (ReaderT (Gen RealWorld) m) where
@@ -58,7 +54,7 @@ instance MonadIO m => MonadRandom (ReaderT (Gen RealWorld) m) where
     {-# INLINABLE random #-}
     range (a, b) = ask >>= liftIO . uniformRM (a, b)
     {-# INLINABLE range #-}
-    shuffle xs = ask >>= liftIO . Random.uniformShuffle xs
+    shuffle xs = ask >>= liftIO . uniformShuffle xs
     {-# INLINABLE shuffle #-}
 
 instance MonadRandom m => MonadRandom (ExceptT e m)
