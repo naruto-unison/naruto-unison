@@ -11,16 +11,16 @@ import Yesod
 
 import qualified Data.FileEmbed as FileEmbed
 
-import Application.App (Handler)
+import qualified Application.App as App
 
 -- | From [config/favicon.ico](config/favicon.ico).
-getFaviconR :: Handler TypedContent
+getFaviconR :: App.Handler TypedContent
 getFaviconR = do
     cacheSeconds $ 60 * 60 * 24 * 30 -- cache for a month
     return $ TypedContent "image/x-icon"
            $ toContent $(FileEmbed.embedFile "config/favicon.ico")
 
 -- | From [config/robots.txt](config/robots.txt).
-getRobotsR :: Handler TypedContent
+getRobotsR :: App.Handler TypedContent
 getRobotsR = return $ TypedContent typePlain
     $ toContent $(FileEmbed.embedFile "config/robots.txt")

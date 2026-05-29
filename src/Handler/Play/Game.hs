@@ -17,10 +17,10 @@ import           Data.Attoparsec.Text (Parser)
 import           Network.WebSockets (ConnectionException(..))
 import           UnliftIO.Concurrent (forkIO, threadDelay)
 import qualified Yesod.Auth as Auth
-import           Yesod.Core (getsYesod, liftHandler, MonadHandler (HandlerSite))
+import           Yesod.Core (getsYesod, liftHandler)
 import           Yesod.WebSockets (webSockets)
 
-import           Application.App (liftDB, App)
+import           Application.App (liftDB)
 import qualified Application.App as App
 import           Application.Model (EntityField(..))
 import           Application.Settings (Settings)
@@ -122,7 +122,7 @@ handleFailures (Left msg)  = Client.send (Client.Fail msg) $> Nothing
 handleFailures (Right val) = return $ Just val
 
 -- | Sends messages through 'MVar's in 'App.App'. Requires authentication.
-gameSocket :: ∀ m. ( MonadHandler m, App ~ HandlerSite m
+gameSocket :: ∀ m. ( App.MonadHandler m
                    , MonadUnliftIO m
                    , MonadRandom m
                    , PrimMonad m
@@ -164,7 +164,7 @@ gameSocket = webSockets do
 
                 unless (Game.inProgress game) . liftDB . void $ forkIO do
                     match <- Match.load $ Match.fromGame game player who vsWho
-                    mapM_ Rating.update match
+                    mapM_ Rating.updatePostMatch match
             else
                 Wrapper.replace wrapper =<< ask
 

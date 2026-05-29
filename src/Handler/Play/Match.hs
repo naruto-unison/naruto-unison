@@ -3,6 +3,7 @@ module Handler.Play.Match
   ( Match
   , Outcome(..)
   , outcome
+  , victor
   , map
   , traverse_
   , fromGame
@@ -10,12 +11,12 @@ module Handler.Play.Match
   ) where
 
 import ClassyPrelude hiding (map, traverse_)
+import Database.Persist
 
-import           Control.Monad.Trans.Maybe (MaybeT(..))
-import           Database.Persist.Sql (Entity(..), SqlPersistT)
-import qualified Database.Persist.Sql as Sql
+import Control.Monad.Trans.Maybe (MaybeT(..))
+import Database.Persist.Sql (SqlPersistT)
 
-import           Application.Model (Key, User)
+import           Application.Model (User)
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game
 import           Game.Model.Player (Player)
@@ -41,12 +42,17 @@ data Match a = Match
     , playerB  :: a
     } deriving (Eq, Show, Read)
 
+victor :: ∀ a. Match a -> Maybe a
+victor (Match Victory a _) = Just a
+victor (Match Defeat _ a)  = Just a
+victor _                   = Nothing
+
 -- | Outcome of a game from a player's perspective, based on 'victor'.
 outcome :: Game -> Player -> Outcome
-outcome Game{victor = [victor]} player
-  | victor == player = Victory
-  | otherwise        = Defeat
-outcome _ _          = Tie
+outcome Game{victor = [v]} player
+  | v == player = Victory
+  | otherwise   = Defeat
+outcome _ _     = Tie
 
 map :: ∀ a b. (Outcome -> a -> a -> b) -> Match a -> Match b
 map f Match{outcomeA, playerA, playerB} = Match outcomeA
@@ -66,7 +72,7 @@ fromGame g playerX = Match $ outcome g playerX
 load :: ∀ m. MonadIO m
      => Match (Key User) -> SqlPersistT m (Maybe (Match (Entity User)))
 load Match{outcomeA, playerA, playerB} = runMaybeT
-    $ loaded <$> MaybeT (Sql.get playerA) <*> MaybeT (Sql.get playerB)
+    $ loaded <$> MaybeT (get playerA) <*> MaybeT (get playerB)
   where
     loaded userA userB = Match outcomeA
                          (Entity playerA userA)

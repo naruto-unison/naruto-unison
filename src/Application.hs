@@ -36,7 +36,7 @@ import qualified Yesod.Auth as Auth
 import qualified Yesod.Default.Config2 as DefaultConfig
 import qualified Yesod.Static as Static
 
-import           Application.App (App(..), Handler, Route(..))
+import           Application.App (App(..), Route(..))
 import qualified Application.App as App
 import qualified Application.Logger as AppLogger
 import           Application.Model (CharacterId)
@@ -197,9 +197,9 @@ shutdownApp _ = return ()
 ---------------------------------------------
 
 -- | Run a handler.
-handler :: Handler a -> IO a
+handler :: App.Handler a -> IO a
 handler h = getAppSettings >>= makeFoundation >>= flip App.unsafeHandler h
 
 -- | Run DB queries.
-db :: ReaderT SqlBackend Handler a -> IO a
+db :: ReaderT SqlBackend App.Handler a -> IO a
 db = handler . runDB

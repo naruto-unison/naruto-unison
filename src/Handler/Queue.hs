@@ -1,7 +1,12 @@
-module Handler.Queue where
+module Handler.Queue
+    ( Section(..)
+    , quickManager
+    , leave
+    , queue
+    ) where
 
 import ClassyPrelude
-import Yesod
+import Database.Persist
 
 import           Control.Monad.Error.Class (MonadError(..))
 import           Control.Monad.Loops (untilJust)
@@ -10,6 +15,7 @@ import           Data.Time.Clock.System (SystemTime(..), getSystemTime)
 import           Data.Vector (unsafeFreeze, unsafeThaw)
 import qualified Data.Vector.Algorithms.Intro as Algorithms
 import qualified System.Random.MWC as Random
+import           Yesod (getsYesod)
 import qualified Yesod.Auth as Auth
 
 import           Application.App (App(App), liftDB)
@@ -69,13 +75,13 @@ quickManager App{quick} = forever do
         HashTable.delete quick whoA
         HashTable.delete quick whoB
 
-leave :: ∀ m. (MonadHandler m, App ~ HandlerSite m) => m ()
+leave :: ∀ m. App.MonadHandler m => m ()
 leave = do
     who   <- Auth.requireAuthId
     quick <- getsYesod App.quick
     void . liftIO $ HashTable.delete quick who
 
-queue :: ∀ m. ( MonadHandler m, App ~ HandlerSite m
+queue :: ∀ m. ( App.MonadHandler m
               , MonadRandom m
               , MonadSockets m
               , MonadError Client.Failure m

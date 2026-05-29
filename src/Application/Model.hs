@@ -3,21 +3,36 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Types generated from @config/models.persistentmodels@.
-module Application.Model where
+module Application.Model
+    ( EntityField(..)
+    , Unique(..)
+    , Character(..), CharacterId
+    , ForumLike(..), ForumLikeId
+    , ForumPost(..), ForumPostId
+    , ForumTopic(..), ForumTopicId
+    , Mission(..), MissionId
+    , News(..), NewsId
+    , Unlocked(..), UnlockedId
+    , Usage(..), UsageId
+    , User(..), UserId, newUser
+    , Cite(..)
+    , HasAuthor(..)
+    , entityDefListFormigrateAll
+    , migrateAll) where
 
 import ClassyPrelude
 import Yesod
 
-import qualified Database.Persist.Quasi as Quasi
-import qualified Database.Persist.Sql as Sql
+import Database.Persist.Quasi (lowerCaseSettings)
+import Database.Persist.Sql (fromSqlKey)
 
 import Application.Fields (ForumBoard, Markdown(..), Privilege(..), TopicState(..))
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
-    $(persistFileWith Quasi.lowerCaseSettings "config/models.persistentmodels")
+    $(persistFileWith lowerCaseSettings "config/models.persistentmodels")
 
 instance Hashable (Key User) where
-    hashWithSalt salt = hashWithSalt salt . fromEnum . Sql.fromSqlKey
+    hashWithSalt salt = hashWithSalt salt . fromEnum . fromSqlKey
 
 instance ToJSON User where
     toJSON User

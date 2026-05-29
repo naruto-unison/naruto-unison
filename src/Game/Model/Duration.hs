@@ -9,7 +9,7 @@ import ClassyPrelude hiding (even)
 import Data.Aeson (ToJSON(..))
 
 import Text.Blaze (ToMarkup(..))
-import Text.Read hiding (read)
+import Text.Read
 import Text.Read.Lex (numberToInteger)
 
 import Class.Display (Display(..))

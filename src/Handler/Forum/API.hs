@@ -16,10 +16,9 @@ import ClassyPrelude hiding (delete)
 import Yesod
 
 import           Control.Monad.Trans.Maybe (MaybeT(..))
-import qualified Yesod.Auth as Auth
 import           Database.Persist.Sql (SqlPersistT)
+import qualified Yesod.Auth as Auth
 
-import           Application.App (Handler)
 import qualified Application.App as App
 import           Application.Fields (Privilege(..), TopicState(..))
 import           Application.Model (EntityField(..), ForumLike(..), ForumPost(..), ForumTopic(..), User(..))
@@ -36,7 +35,7 @@ attemptMaybeT m = returnJson . isJust =<< runMaybeT m
 -- | Marks a forum post as deleted.
 -- Deleted posts are visible only to Moderators and Admins.
 -- Returns @True@ if successful, otherwise @False@.
-getDeletePostR :: Key ForumPost -> Handler Value
+getDeletePostR :: Key ForumPost -> App.Handler Value
 getDeletePostR postId = attemptMaybeT do
     Just (who, user) <- Auth.maybeAuthPair
     ForumPost{forumPostAuthor, forumPostTopic} <- lift . runDB $ get404 postId
@@ -49,7 +48,7 @@ getDeletePostR postId = attemptMaybeT do
 
 -- | Likes or unlikes a 'ForumPost', altering its 'forumPostLikes'.
 -- Returns @True@ if successful, otherwise @False@.
-getLikePostR :: Key ForumPost -> Handler Value
+getLikePostR :: Key ForumPost -> App.Handler Value
 getLikePostR forumLikePost = attemptMaybeT do
     Just who <- Auth.maybeAuthId
     ForumPost {forumPostAuthor, forumPostDeleted} <- lift . runDB
@@ -70,7 +69,7 @@ getLike post who = selectFirst
 -- | Marks a forum topic as 'Deleted'.
 -- Deleted topics are visible only to Moderators and Admins.
 -- Returns @True@ if successful, otherwise @False@.
-getDeleteTopicR :: Key ForumTopic -> Handler Value
+getDeleteTopicR :: Key ForumTopic -> App.Handler Value
 getDeleteTopicR topicId = attemptMaybeT do
     privilege <- App.getPrivilege
     guard $ privilege > Normal
@@ -81,15 +80,15 @@ getDeleteTopicR topicId = attemptMaybeT do
 -- | Marks a forum topic as 'Locked'.
 -- New posts cannot be added to locked topics
 -- Returns @True@ if successful, otherwise @False@..
-getLockTopicR :: Key ForumTopic -> Handler Value
+getLockTopicR :: Key ForumTopic -> App.Handler Value
 getLockTopicR = setTopicState Locked
 
 -- | Unmarks a forum topic as 'Locked'. Topic must not be 'Deleted'.
 -- Returns @True@ if successful, otherwise @False@.
-getUnlockTopicR :: Key ForumTopic -> Handler Value
+getUnlockTopicR :: Key ForumTopic -> App.Handler Value
 getUnlockTopicR = setTopicState Open
 
-setTopicState :: TopicState -> Key ForumTopic -> Handler Value
+setTopicState :: TopicState -> Key ForumTopic -> App.Handler Value
 setTopicState state topicId = attemptMaybeT do
     privilege <- App.getPrivilege
     guard $ privilege > Normal

@@ -19,7 +19,7 @@ import qualified Data.Text as Text
 import           Text.Blaze.Html (preEscapedToHtml)
 import qualified Yesod.Auth as Auth
 
-import           Application.App (Handler, Route(..), Widget)
+import           Application.App (Route(..))
 import qualified Application.App as App
 import           Application.Model (Cite(..), EntityField(..), ForumTopic(..), News(..), User(..))
 import           Application.Settings (widgetFile)
@@ -38,7 +38,7 @@ import qualified Mission.Goal as Goal
 import           Util ((∈), epoch)
 
 -- | Renders the changelog.
-getChangelogR :: Handler Html
+getChangelogR :: App.Handler Html
 getChangelogR = do
     App.unchanged304
     (title, _) <- breadcrumbs
@@ -49,7 +49,7 @@ getChangelogR = do
     change = getChangelog True
 
 -- | Renders the homepage of the website.
-getHomeR :: Handler Html
+getHomeR :: App.Handler Html
 getHomeR = do
     privilege          <- App.getPrivilege
     citelink           <- liftIO Link.cite
@@ -88,7 +88,7 @@ logLabel False Rework  = "Rework:"
 separate :: NonEmpty Skill -> [Skill]
 separate skills = nubBy ((==) `on` Text.strip . Skill.name) $ toList skills
 
-getChangelog :: Bool -> LogType -> Text -> Character.Category -> Widget
+getChangelog :: Bool -> LogType -> Text -> Character.Category -> App.Widget
 getChangelog long logType name category = case Characters.lookup tagName of
     Just char -> $(widgetFile "home/change")
     Nothing   -> error
@@ -97,13 +97,13 @@ getChangelog long logType name category = case Characters.lookup tagName of
     change  = logLabel long
     tagName = Character.identFrom category name
 
-news :: (News, Maybe User) -> Widget
+news :: (News, Maybe User) -> App.Widget
 news (News{newsContent, newsTime, newsTitle}, author) =
     $(widgetFile "home/news")
 
 -- Renders the game guide, which includes the list of characters as well as
 -- introductions to game mechanics.
-getGuideR :: Handler Html
+getGuideR :: App.Handler Html
 getGuideR = do
     App.unchanged304
     loggedin   <- isJust <$> Auth.maybeAuthId
@@ -111,7 +111,7 @@ getGuideR = do
     defaultLayout $(widgetFile "guide/guide")
 
 -- Renders the list of all characters.
-getCharactersR :: Handler Html
+getCharactersR :: App.Handler Html
 getCharactersR = do
     App.unchanged304
     (title, _) <- breadcrumbs
@@ -126,7 +126,7 @@ getCharactersR = do
     heading Reanimated = "Reanimated"
 
 -- | Renders a character's details and the user's progress on their mission.
-getCharacterR :: Character -> Handler Html
+getCharacterR :: Character -> App.Handler Html
 getCharacterR char@Character{ident = name} = do
     -- due to mission objectives, content does change if logged in
     whenM (isNothing <$> Auth.maybeAuthId) App.unchanged304
@@ -137,7 +137,7 @@ getCharacterR char@Character{ident = name} = do
         $ display <$> filter Class.visible (toList classes)
 
 -- | Renders character groups.
-getGroupsR :: Handler Html
+getGroupsR :: App.Handler Html
 getGroupsR = do
     App.unchanged304
     (title, _) <- breadcrumbs
@@ -147,7 +147,7 @@ getGroupsR = do
     inGroup x = (x ∈) . Character.groups
 
 -- | Renders the game mechanics guide.
-getMechanicsR :: Handler Html
+getMechanicsR :: App.Handler Html
 getMechanicsR = do
     App.unchanged304
     (title, _) <- breadcrumbs

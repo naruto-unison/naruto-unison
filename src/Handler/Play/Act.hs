@@ -6,6 +6,7 @@ module Handler.Play.Act
 
 import ClassyPrelude
 
+import           Control.Monad.Error.Class (MonadError)
 import           Data.Aeson (ToJSON)
 import qualified Data.Attoparsec.Text as Parse
 import           Data.Attoparsec.Text (Parser)
@@ -19,7 +20,6 @@ import qualified Game.Model.Context
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import           Util (tryFromJust, rightToMaybe)
-import Control.Monad.Error.Class (MonadError)
 
 -- | A single action of a 'Ninja'.
 data Act = Act

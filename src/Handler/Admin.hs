@@ -16,7 +16,7 @@ import qualified System.Random.MWC as Random
 import           Text.Printf (printf)
 import qualified Yesod.Auth as Auth
 
-import           Application.App (Form, Handler, Route(..))
+import           Application.App (Route(..))
 import qualified Application.App as App
 import           Application.Model (News(..))
 import           Application.Settings (widgetFile)
@@ -28,7 +28,7 @@ import           Mission.UsageRate (UsageRate)
 import qualified Mission.UsageRate as UsageRate
 
 -- | Behind-the-scenes utilities for admin accounts. Requires authorization.
-getAdminR :: Handler Html
+getAdminR :: App.Handler Html
 getAdminR = do
     App.unchanged304
     app <- getYesod
@@ -39,7 +39,7 @@ getAdminR = do
         $(widgetFile "admin/sockets")
 
 -- | 'getAdminR' for creating news posts.
-postAdminR :: Handler Html
+postAdminR :: App.Handler Html
 postAdminR = do
     app <- getYesod
     ((result, newsForm), enctype) <- runFormPost =<< getNewsForm
@@ -54,7 +54,7 @@ postAdminR = do
         $(widgetFile "admin/sockets")
 
 -- | Displays 'Usage' stats of characters.
-getUsageR :: Handler Html
+getUsageR :: App.Handler Html
 getUsageR = do
     usageRates <- sortBy compareRates <$> Mission.getUsageRates
     defaultLayout $(widgetFile "admin/usage")
@@ -71,7 +71,7 @@ getUsageR = do
       |isNaN x    = "——"
       | otherwise = printf "%.2f%%" x
 
-getNewsForm :: Handler (Form News)
+getNewsForm :: App.Handler (Html -> App.MForm News)
 getNewsForm = return . renderDivs $ News
     <$> lift Auth.requireAuthId
     <*> lift (liftIO getCurrentTime)

@@ -49,7 +49,6 @@ import qualified Game.Model.Ninja as N
 import qualified Game.Model.Skill as Skill
 import           Util ((∈))
 import Class.Random (MonadRandom)
-import Data.Kind (Type)
 
 type SkillEffect = RunConstraint ()
 

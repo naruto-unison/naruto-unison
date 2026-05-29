@@ -5,10 +5,11 @@
 -- | Yesod app instance. @stack new@ was used to generate boilerplate.
 module Application.App
   ( App(..)
-  , Form
+  , AForm, MForm
   , Handler, Widget
+  , MonadHandler
   , Route(..)
-  , AppPersistEntity
+  , PersistEntity
   , getPrivilege
   , liftDB
   , unchanged304
@@ -17,8 +18,8 @@ module Application.App
   , resourcesApp
   ) where
 
-import ClassyPrelude
-import Yesod
+import ClassyPrelude hiding (Handler)
+import Yesod hiding (AForm, MForm, MonadHandler, PersistEntity)
 
 import           Control.Monad.Logger (LogSource)
 import           Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
@@ -30,8 +31,7 @@ import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Lazy.Encoding as LazyEncoding
 import qualified Data.Time.Format as Format
 import qualified Data.Time.LocalTime as LocalTime
-import qualified Database.Persist.Sql as Sql
-import           Database.Persist.Sql (ConnectionPool, SqlBackend, SqlPersistT)
+import           Database.Persist.Sql (ConnectionPool, SqlBackend, SqlPersistT, fromSqlKey, runSqlPool)
 import           Network.HTTP.Client.Conduit (HasHttpManager(..), Manager)
 import qualified Network.Mail.Mime as Mail
 import qualified Text.Blaze.Html.Renderer.Utf8 as Blaze
@@ -39,6 +39,7 @@ import           Text.Hamlet (hamletFile)
 import qualified Text.Jasmine as Jasmine
 import           Text.Read (read)
 import           Text.Shakespeare.Text (stext)
+import qualified Yesod
 import           Yesod.Auth (Auth, YesodAuth(..), YesodAuthPersist, AuthenticationResult(..), AuthPlugin)
 import qualified Yesod.Auth as Auth
 import qualified Yesod.Auth.Dummy as Dummy
@@ -51,7 +52,7 @@ import qualified Yesod.Default.Util as YesodUtil
 import           Yesod.Static hiding (static)
 
 import           Application.Fields (ForumBoard, Privilege(..), boardName)
-import           Application.Model (CharacterId, EntityField(..), ForumPostId, ForumTopic(ForumTopic), ForumTopicId, User(..), UserId, Unique(..))
+import           Application.Model (CharacterId, EntityField(..), ForumPostId, ForumTopic(ForumTopic), ForumTopicId, Unique(..), User(..), UserId)
 import qualified Application.Model as Model
 import           Application.Settings (Settings, widgetFile)
 import qualified Application.Settings as Settings
@@ -96,20 +97,22 @@ data App = App
 -- type Widget = WidgetT App IO ()
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
-getPrivilege :: ∀ m. (MonadHandler m, App ~ HandlerSite m) => m Privilege
+type MonadHandler m = (Yesod.MonadHandler m, App ~ HandlerSite m)
+
+getPrivilege :: ∀ m. MonadHandler m => m Privilege
 getPrivilege = liftHandler . cached $ privilege <$> Auth.maybeAuthPair
   where
     privilege (Just (_, User{userPrivilege})) = userPrivilege
     privilege Nothing                         = Guest
 
--- | A convenient synonym for creating forms.
-type Form x = Html -> MForm (HandlerFor App) (FormResult x, Widget)
+type AForm x = Yesod.AForm Handler x
+type MForm x = Yesod.MForm Handler (FormResult x, Widget)
 
 -- | The set of constraints for persisted types.
-type AppPersistEntity a = ( PersistEntity a
-                          , PersistRecordBackend a
-                            (BaseBackend (YesodPersistBackend App))
-                          )
+type PersistEntity a = ( Yesod.PersistEntity a
+                       , PersistRecordBackend a
+                         (BaseBackend (YesodPersistBackend App))
+                       )
 
 getNavLinks :: Handler [(Route App, Html)]
 getNavLinks = routesForAuth <$> isAuthenticated Admin
@@ -155,7 +158,7 @@ unchanged304 = whenM (isNothing <$> getMessage) do
     tag <- maybeAdd <$> getsYesod timestamp <*> maybeAuthId
     setEtag . toStrict $ display' tag
   where
-    maybeAdd x (Just key) = Sql.fromSqlKey key + x
+    maybeAdd x (Just key) = fromSqlKey key + x
     maybeAdd x Nothing    = x
 #endif
 
@@ -276,11 +279,10 @@ instance YesodBreadcrumbs App where
 instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend
     runDB :: ∀ a. SqlPersistT Handler a -> Handler a
-    runDB action = getsYesod connPool >>= Sql.runSqlPool action
+    runDB action = getsYesod connPool >>= runSqlPool action
     {-# INLINABLE runDB #-}
 
-liftDB :: ∀ m a. (MonadHandler m, App ~ HandlerSite m)
-       => SqlPersistT Handler a -> m a
+liftDB :: ∀ m a. MonadHandler m => SqlPersistT Handler a -> m a
 liftDB = liftHandler . runDB
 {-# INLINABLE liftDB #-}
 
@@ -299,7 +301,7 @@ instance YesodAuth App where
     redirectToReferer :: App -> Bool
     redirectToReferer _ = True
 
-    authenticate :: ∀ m. (MonadHandler m, App ~ HandlerSite m)
+    authenticate :: ∀ m. MonadHandler m
                  => Auth.Creds App -> m (AuthenticationResult App)
     authenticate (Auth.credsIdent -> ident) = liftDB do
         muser <- getBy $ UniqueUser ident
@@ -400,7 +402,7 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
         $ makeCreds <$> (getBy . UniqueUser $ toLower email)
       where
         makeCreds Nothing               = Nothing
-        makeCreds (Just (Entity uid u)) = Just $ AuthEmail.EmailCreds
+        makeCreds (Just (Entity uid u)) = Just AuthEmail.EmailCreds
             { emailCredsId = uid
             , emailCredsAuthId = Just uid
             , emailCredsStatus = isJust $ userPassword u

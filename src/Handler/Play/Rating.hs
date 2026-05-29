@@ -1,19 +1,17 @@
 -- | Uses win/loss records to estimate skill ratings for players.
 -- These ratings are internal and should not be exposed in any way to players.
 -- They are useful for matchmaking, but should not otherwise affect ranking.
-module Handler.Play.Rating (update) where
+module Handler.Play.Rating (updatePostMatch) where
 
 import ClassyPrelude
+import Database.Persist
 
-import           Database.Esqueleto.Legacy ((>.), (^.), (==.))
-import qualified Database.Esqueleto.Legacy as ESQL
-import           Database.Persist.Sql ((=.), (+=.), Entity(..), SqlPersistT)
-import qualified Database.Persist.Sql as Sql
-import           Database.Persist.Types (Update)
+import Database.Persist.Sql (SqlPersistT)
 
-import           Application.Model (EntityField(..), Key, User(..))
+import           Application.Model (EntityField(..), User(..))
 import           Handler.Play.Match (Match, Outcome(..))
 import qualified Handler.Play.Match as Match
+import qualified Handler.Play.Streak as Streak
 
 square :: Double -> Double
 square !x = x * x
@@ -21,12 +19,13 @@ square !x = x * x
 -- | Updates fields in the user table based on the end of a game.
 -- Win record fields: 'userWins', 'userLosses', 'userStreak'.
 -- Skill rating fields: 'userRating', 'userDeviation', 'userVolatility'.
-update :: ∀ m. MonadIO m => Match (Entity User) -> SqlPersistT m ()
-update match = Match.traverse_ go match
+updatePostMatch :: ∀ m. MonadIO m => Match (Entity User) -> SqlPersistT m ()
+updatePostMatch match = do
+    Match.traverse_ go match
+    mapM_ (Streak.updatePostMatch . entityKey) $ Match.victor match
   where
-    go outcome (Entity who player) (Entity _ opponent) = do
-        Sql.update who $ compute outcome player opponent
-        updateStreak who
+    go outcome (Entity who player) (Entity _ opponent) =
+        update who $ compute outcome player opponent
 
 compute :: Outcome -> User -> User -> [Update User]
 compute outcome player opponent = updateUser player opponent outcome
@@ -36,12 +35,6 @@ updateRecord :: Outcome -> [Update User]
 updateRecord Victory = [UserWins +=. 1, UserStreak +=. 1]
 updateRecord Defeat  = [UserLosses +=. 1, UserStreak =. 0]
 updateRecord Tie     = [UserStreak =. 0]
-
-updateStreak :: ∀ m. MonadIO m => Key User -> SqlPersistT m ()
-updateStreak who = ESQL.update \p -> do
-    ESQL.set p [ UserRecord ESQL.=. p ^. UserStreak ]
-    ESQL.where_ $ p ^. UserId ==. ESQL.val who
-    ESQL.where_ $ p ^. UserStreak >. p ^. UserRecord
 
 -- | Updates skill ratings.
 -- Uses the [Glicko-2 algorithm](http://glicko.net/glicko/glicko2.pdf)

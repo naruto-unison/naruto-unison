@@ -3,8 +3,9 @@ module Handler.Play.GameInfo (GameInfo(..)) where
 import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), object)
+import Database.Persist (Key)
 
-import           Application.Model (Key, User)
+import           Application.Model (User)
 import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
 import           Game.Model.Player (Player)

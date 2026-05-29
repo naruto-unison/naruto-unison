@@ -12,18 +12,18 @@ module Mission
   ) where
 
 import ClassyPrelude hiding ((\\))
-import Yesod
+import Database.Persist
 
 import           Control.Monad.Trans.Maybe (MaybeT(..))
+import           Data.Aeson (ToJSON(..))
 import           Data.Bimap (Bimap)
 import qualified Data.Bimap as Bimap
 import           Data.List ((\\))
 import qualified Data.Sequence as Seq
 import           Database.Persist.Sql (SqlPersistT)
-import qualified Database.Persist.Sql as Sql
+import           Yesod (cached, getsYesod, runDB)
 import qualified Yesod.Auth as Auth
 
-import           Application.App (Handler)
 import qualified Application.App as App
 import           Application.Fields (Privilege(..))
 import           Application.Model (Character(Character), CharacterId, EntityField(..), Mission(Mission), Unlocked(Unlocked), Usage(..), User(User))
@@ -58,7 +58,7 @@ initDB = do
     charList = Character . Character.ident <$> Characters.list
 
 -- | Looks up a Character's ID in 'App.characterIDs' using 'Character.ident'.
-characterID :: Text -> MaybeT Handler CharacterId
+characterID :: Text -> MaybeT App.Handler CharacterId
 characterID name = Bimap.lookupR name =<< getsYesod App.characterIDs
 
 -- | Processes the database list of characters into a map between IDs and
@@ -81,7 +81,7 @@ allUnlocked = Unlocks $ keysSet Characters.map
 -- If not logged in, all Characters are returned.
 -- If @unlock-all@ in [config/settings.yml](config/settings.yml) is set to true,
 -- all Characters will always be returned.
-unlocked :: Handler Unlocks
+unlocked :: App.Handler Unlocks
 unlocked = cached $ maybe allUnlocked Unlocks <$> runMaybeT do
     unlockAll <- getsYesod $ Settings.unlockAll . App.settings
     guard unlockAll
@@ -107,7 +107,7 @@ freeChars = setFromList dna `difference` keysSet Missions.map
 -- Returns @Nothing@ if the user is not logged in, the Character does not
 -- have a mission, or the user has already completed their mission.
 -- Otherwise, returns a list of goals paired with the user's progress on each.
-userMission :: Text -> Handler (Maybe (Seq (Goal, Int)))
+userMission :: Text -> App.Handler (Maybe (Seq (Goal, Int)))
 userMission char = fromMaybe mempty <$> runMaybeT do
     Just who     <- Auth.maybeAuthId
     charID       <- characterID char
@@ -159,7 +159,7 @@ updateProgress who amount GoalIndex{goals, char, i} =
 -- Fails if the user is not logged in. Also fails in the unlikely circumstances
 -- of the mission not existing, the objective index exceeding the size of the
 -- mission, or the Character not existing in the character ID database.
-progress :: Progress -> Handler Bool
+progress :: Progress -> App.Handler Bool
 progress Progress{amount = 0} = return False
 progress Progress{character, objective, amount} = fromMaybe False <$> runMaybeT do
     Just who   <- Auth.maybeAuthId
@@ -199,7 +199,7 @@ newUsage x = Usage x 0 0 0 0
 
 -- | Updates 'Goal.Win' progress with the user's team.
 -- This function should only be called when the user logged in wins a match.
-processWin :: [Text] -> Handler ()
+processWin :: [Text] -> App.Handler ()
 processWin team = do
     who      <- Auth.requireAuthId
     ids      <- getsYesod App.characterIDs
@@ -215,7 +215,7 @@ processWin team = do
 -- | Resets all 'Goal.WinConsecutive' win progress to 0.
 -- This function should only be called when the user logged in loses a match or
 -- ties.
-processDefeat :: [Text] -> Handler ()
+processDefeat :: [Text] -> App.Handler ()
 processDefeat team = do
     who <- Auth.requireAuthId
     ids <- getsYesod App.characterIDs
@@ -228,7 +228,7 @@ processDefeat team = do
 
 -- | Updates usage stats after a game.
 -- This function should always be called at the end of a game.
-processUnpicked :: [Text] -> Handler ()
+processUnpicked :: [Text] -> App.Handler ()
 processUnpicked team = do
     ids             <- getsYesod App.characterIDs
     Unlocks unlocks <- unlocked
@@ -243,7 +243,7 @@ resetGoal :: ∀ m. MonadIO m
           => Bimap CharacterId Text -> Key User -> (Text, Int)
           -> SqlPersistT m ()
 resetGoal ids who ((`Bimap.lookupR` ids) -> Just char, i) =
-    Sql.deleteWhere
+    deleteWhere
     [MissionUser ==. who, MissionCharacter ==. char, MissionObjective ==. i]
 resetGoal _ _ _ = return ()
 
@@ -251,7 +251,7 @@ resetGoal _ _ _ = return ()
 
 -- | Awards DNA upon completing a match and returns a list of DNA gains,
 -- paired with textual descriptions of why each was awarded.
-awardDNA :: Queue.Section -> Outcome -> Maybe War -> Handler [Reward]
+awardDNA :: Queue.Section -> Outcome -> Maybe War -> App.Handler [Reward]
 awardDNA Queue.Private _     _   = return []
 awardDNA Queue.Quick outcome war = do
     (who, user)   <- Auth.requireAuthPair
@@ -259,7 +259,7 @@ awardDNA Queue.Quick outcome war = do
     UTCTime day _ <- liftIO getCurrentTime
     let jDay       = Just day
         tallies    = tallyDNA Queue.Quick outcome war dnaConf jDay user
-    runDB . Sql.update who $ updateLatestWin outcome jDay
+    runDB . update who $ updateLatestWin outcome jDay
         [UserLatestGame =. jDay, UserDna +=. sum (Reward.amount <$> tallies)]
     return tallies
 
@@ -310,7 +310,7 @@ outcomeDNA Queue.Quick Defeat  = Settings.quickLose
 outcomeDNA Queue.Quick Tie     = Settings.quickTie
 
 -- | Returns usage stats about all characters in the database.
-getUsageRates :: Handler [UsageRate]
+getUsageRates :: App.Handler [UsageRate]
 getUsageRates = mapMaybe . findUsage
     <$> getsYesod App.characterIDs
     <*> runDB (selectList [] [])

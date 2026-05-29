@@ -5,10 +5,10 @@
 module Handler.Parse (desc) where
 
 import ClassyPrelude
-import Yesod
 
 import           Data.Attoparsec.Text (Parser)
 import qualified Data.Attoparsec.Text as Parse
+import           Text.Blaze.Html5 (Html)
 import qualified Text.Blaze.Html5 as HTML
 
 import Game.Model.Chakras (Chakra(..))

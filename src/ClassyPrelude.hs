@@ -6,22 +6,19 @@
 module ClassyPrelude
   ( module CP
   , module Data.List.NonEmpty
-  , type (~)
-  , foldl1, foldr1, maximum, minimum, maximumBy, minimumBy
+  , module Data.Type.Equality
+  , module Data.Foldable
+  , module Data.Kind
+  , maximum, minimum, maximumBy, minimumBy
   ) where
 
-import "classy-prelude" ClassyPrelude as CP hiding (Handler, head, last, group, groupBy, maximum, minimum, maximumBy, minimumBy, init, tail)
+import "classy-prelude" ClassyPrelude as CP hiding (head, last, group, groupBy, maximum, minimum, maximumBy, minimumBy, init, tail)
 import Data.List.NonEmpty (NonEmpty(..), head, last, init, tail, group, groupBy, groupWith, groupAllWith, group1, groupBy1, groupWith1, groupAllWith1)
-import Data.Type.Equality (type (~))
+import Data.Type.Equality (type (~), type (~~), (:~:), (:~~:))
+import Data.Foldable (foldl1, foldr1)
+import Data.Kind (Constraint, Type)
+
 import qualified Data.Foldable as F
-
-foldl1 :: ∀ a. (a -> a -> a) -> NonEmpty a -> a
-foldl1 = F.foldl1
-{-# INLINE foldl1 #-}
-
-foldr1 :: ∀ a. (a -> a -> a) -> NonEmpty a -> a
-foldr1 = F.foldr1
-{-# INLINE foldr1 #-}
 
 -- This isn't exported; it's a helper function for the following ones.
 foldl1' :: ∀ a. (a -> a -> a) -> NonEmpty a -> a
@@ -40,8 +37,10 @@ maximumBy :: ∀ a. (a -> a -> Ordering) -> NonEmpty a -> a
 maximumBy cmp = foldl1' \x y -> case cmp x y of
     GT -> x
     _  -> y
+{-# INLINABLE maximumBy #-}
 
 minimumBy :: ∀ a. (a -> a -> Ordering) -> NonEmpty a -> a
 minimumBy cmp = foldl1' \x y -> case cmp x y of
     GT -> y
     _  -> x
+{-# INLINABLE minimumBy #-}

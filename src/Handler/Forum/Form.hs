@@ -8,9 +8,11 @@ module Handler.Forum.Form
     ) where
 
 import ClassyPrelude hiding (delete)
-import Yesod
+import Yesod.Form
 
-import           Application.App (Handler)
+import Database.Persist (Key)
+
+import qualified Application.App as App
 import           Application.Fields (ForumBoard, Markdown(..), Privilege(..), TopicState(..))
 import           Application.Model (ForumPost(..), ForumTopic(..), User(..))
 import qualified Handler.Link as Link
@@ -20,8 +22,7 @@ data NewTopic = NewTopic ForumTopic (Key ForumTopic -> ForumPost)
 toBody :: Textarea -> Markdown
 toBody (Textarea area) = Markdown area
 
-topic :: User -> ForumBoard -> UTCTime -> Key User
-             -> AForm Handler NewTopic
+topic :: User -> ForumBoard -> UTCTime -> Key User -> App.AForm NewTopic
 topic User{userPrivilege} forumTopicBoard forumPostTime forumPostAuthor =
     makeNewTopic <$> areq textField "Title" Nothing
                  <*> areq textareaField "Post" Nothing
@@ -52,7 +53,7 @@ data PostForm
     = NewPost ForumPost
     | EditPost (Key ForumPost) Markdown
 
-post :: Key ForumTopic -> UTCTime -> Key User -> AForm Handler PostForm
+post :: Key ForumTopic -> UTCTime -> Key User -> App.AForm PostForm
 post forumPostTopic forumPostTime forumPostAuthor = makePost
     <$> aopt hiddenField "" Nothing
     <*> areq textareaField "" Nothing

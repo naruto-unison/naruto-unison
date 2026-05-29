@@ -17,7 +17,7 @@ import           Data.List (nub)
 import qualified System.Random.MWC as Random
 import qualified Yesod.Auth as Auth
 
-import           Application.App (Handler)
+import qualified Application.App as App
 import           Application.Model (EntityField(..), Unlocked(..), User(..))
 import           Application.Settings (widgetFile)
 import           Class.Display (shorten)
@@ -34,7 +34,7 @@ import qualified Mission.Goal as Goal
 import           Util ((∈), (∉), fromMaybeT)
 
 -- | Updates a user's profile and returns it. Requires authentication.
-getUpdateR :: Text -> Bool -> Text -> Text -> Handler Value
+getUpdateR :: Text -> Bool -> Text -> Text -> App.Handler Value
 getUpdateR updateName updateCondense updateBackground updateAvatar
   | not $ "/img/icon/" `isPrefixOf` updateAvatar =
       invalidArgs ["Invalid avatar"]
@@ -68,7 +68,7 @@ data ObjectiveProgress = ObjectiveProgress
 instance ToJSON ObjectiveProgress
 
 -- | Returns progress on a character's mission as a list of 'ObjectiveProgress'.
-getMissionR :: Character -> Handler Value
+getMissionR :: Character -> App.Handler Value
 getMissionR Character{ident} = do
     mission <- Mission.userMission ident
     returnJson $ case mission of
@@ -83,14 +83,14 @@ getMissionR Character{ident} = do
         }
 
 -- | Updates a user's muted status and returns it. Requires authentication.
-getMuteR :: Bool -> Handler Value
+getMuteR :: Bool -> App.Handler Value
 getMuteR mute = do
     who <- Auth.requireAuthId
     runDB $ update who [ UserMuted =. mute ]
     returnJson mute
 
 -- | Buys a Reanimated character with DNA. Returns the new 'UserDna' balance.
-getReanimateR :: Character -> Handler Value
+getReanimateR :: Character -> App.Handler Value
 getReanimateR Character{ident, price} = do
     (who, user) <- Auth.requireAuthPair
     when (userDna user < price)
@@ -106,7 +106,7 @@ getReanimateR Character{ident, price} = do
         returnJson $ userDna user'
 
 -- | Renders the gameplay client.
-getPlayR :: Handler Html
+getPlayR :: App.Handler Html
 getPlayR = do
     mauth       <- Auth.maybeAuthPair
     (red,blue)  <- liftIO War.today

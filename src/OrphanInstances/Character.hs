@@ -7,7 +7,7 @@ module OrphanInstances.Character () where
 
 import ClassyPrelude
 
-import           Text.Read hiding (read)
+import           Text.Read
 import Yesod.Core.Dispatch (PathPiece(..))
 
 import qualified Game.Characters as Characters

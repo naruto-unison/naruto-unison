@@ -13,7 +13,7 @@ import ClassyPrelude hiding (all)
 import           Data.Aeson (ToJSON)
 import           Data.Attoparsec.Text (Parser)
 import qualified Data.Attoparsec.Text as Parse
-import           Text.Read hiding (read)
+import           Text.Read
 import           Text.Read.Lex (numberToInteger)
 
 import           Class.Display (Display)

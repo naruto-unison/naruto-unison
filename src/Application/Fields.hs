@@ -16,7 +16,7 @@ import Yesod
 import qualified CMark
 import           Database.Persist.Sql (PersistFieldSql(..))
 import           Text.Blaze (ToMarkup(..))
-import           Text.Read (readMaybe)
+import           Text.Read
 
 -- | User privilege. Determines authorization level.
 data Privilege

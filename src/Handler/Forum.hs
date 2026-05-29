@@ -20,7 +20,7 @@ import Yesod
 import qualified Yesod.Auth as Auth
 import           Database.Persist.Sql (SqlPersistT)
 
-import           Application.App (AppPersistEntity, Handler, Route(..))
+import           Application.App (Route(..))
 import qualified Application.App as App
 import           Application.Fields (ForumBoard, ForumCategory(..), Markdown(..), Privilege(..), TopicState(..), boardCategory, boardDesc, boardName)
 import           Application.Model (Cite(..), EntityField(..), ForumPost(..), ForumTopic(..), HasAuthor(..), User(..))
@@ -32,7 +32,7 @@ import qualified Handler.Link as Link
 import           Util ((!?), epoch, fromMaybeM, mapFromKeyed)
 
 -- | Renders a 'User' profile.
-getProfileR :: Text -> Handler Html
+getProfileR :: Text -> App.Handler Html
 getProfileR name = do
     Entity _ user  <- fromMaybeM notFound $ runDB
                     $ selectFirst [UserName ==. name] []
@@ -60,7 +60,7 @@ inCategory :: ForumCategory -> BoardIndex -> Bool
 inCategory category (BoardIndex x _ _) = category == boardCategory x
 
 -- | Renders the forums.
-getForumsR :: Handler Html
+getForumsR :: App.Handler Html
 getForumsR = do
     modified  <- runDB $ selectFirst [] [Desc ForumTopicModified]
     App.lastModified $ getModified modified
@@ -81,7 +81,7 @@ getForumsR = do
         return . BoardIndex board size $ headMay post
 
 -- | Renders a 'ForumBoard'.
-getBoardR :: ForumBoard -> Handler Html
+getBoardR :: ForumBoard -> App.Handler Html
 getBoardR board = do
     privilege <- App.getPrivilege
     timestamp <- liftIO Link.makeTimestamp
@@ -95,7 +95,7 @@ getBoardR board = do
                           [Desc ForumTopicTime]
 
 -- | Renders a 'ForumTopic'.
-getTopicR :: Key ForumTopic -> Handler Html
+getTopicR :: Key ForumTopic -> App.Handler Html
 getTopicR topicId = do
     mwho       <- Auth.maybeAuthId
     privilege  <- App.getPrivilege
@@ -117,7 +117,7 @@ getTopicR topicId = do
 
 
 -- | Adds to a 'ForumTopic'. Requires authentication.
-postTopicR :: Key ForumTopic -> Handler Html
+postTopicR :: Key ForumTopic -> App.Handler Html
 postTopicR topicId = do
     ForumTopic{forumTopicBoard, forumTopicState} <- runDB $ get404 topicId
     if forumTopicState /= Open then redirect $ TopicR topicId else do
@@ -164,7 +164,7 @@ postTopicR topicId = do
 
 
 -- | Renders a page for creating a new 'ForumTopic'. Requires authentication.
-getNewTopicR :: ForumBoard -> Handler Html
+getNewTopicR :: ForumBoard -> App.Handler Html
 getNewTopicR board = do
     (who, user)       <- Auth.requireAuthPair
     time              <- liftIO getCurrentTime
@@ -174,7 +174,7 @@ getNewTopicR board = do
     defaultLayout $(widgetFile "forum/new")
 
 -- | Creates a new 'ForumTopic'. Requires authentication.
-postNewTopicR :: ForumBoard -> Handler Html
+postNewTopicR :: ForumBoard -> App.Handler Html
 postNewTopicR board = do
     (who, user) <- Auth.requireAuthPair
     time        <- liftIO getCurrentTime
@@ -219,7 +219,7 @@ filterTopics p xs
   | otherwise  = (ForumTopicState !=. Deleted) : xs
 
 -- | Fills out author information from the database.
-selectWithAuthors :: ∀ m a. (MonadIO m, HasAuthor a, AppPersistEntity a)
+selectWithAuthors :: ∀ m a. (MonadIO m, HasAuthor a, App.PersistEntity a)
                   => [Filter a] -> [SelectOpt a] -> SqlPersistT m [Cite a]
 selectWithAuthors selectors opts = mapM go =<< selectList selectors opts
   where

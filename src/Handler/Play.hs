@@ -12,7 +12,6 @@ import qualified Data.Cache as Cache
 import qualified System.Random.MWC as Random
 import qualified Yesod.Auth as Auth
 
-import           Application.App (Handler)
 import qualified Application.App as App
 import           Application.Model (EntityField(..), User(..))
 import qualified Application.Model as Model
@@ -34,7 +33,7 @@ import qualified Mission
 import           Util ((∉), leftToMaybe, fromMaybeM)
 
 -- | Joins the practice-match queue with a given team. Requires authentication.
-getPracticeQueueR :: [Text] -> Handler Value
+getPracticeQueueR :: [Text] -> App.Handler Value
 getPracticeQueueR [a1, b1, c1, a2, b2, c2]
   | hasDuplicates a1 b1 c1 || hasDuplicates a2 b2 c2 =
     invalidArgs ["Duplicate characters"]
@@ -79,12 +78,12 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2]
 getPracticeQueueR _ = invalidArgs ["Wrong number of characters"]
 
 -- | Wrapper for 'getPracticeActR' with no actions.
-getPracticeWaitR :: Chakras -> Chakras -> Handler Value
+getPracticeWaitR :: Chakras -> Chakras -> App.Handler Value
 getPracticeWaitR actChakra xChakra = getPracticeActR actChakra xChakra []
 
 -- | Handles a turn for a practice game. Requires authentication.
 -- Practice games are not time-limited and use GET requests instead of sockets.
-getPracticeActR :: Chakras -> Chakras -> [Act] -> Handler Value
+getPracticeActR :: Chakras -> Chakras -> [Act] -> App.Handler Value
 getPracticeActR spend exchange actions = do
     who      <- Auth.requireAuthId
     practice <- getsYesod App.practice

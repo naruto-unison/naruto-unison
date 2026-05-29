@@ -18,7 +18,8 @@ import ClassyPrelude hiding (head)
 import qualified Data.Time.Format as Format
 import qualified Data.Time.LocalTime as LocalTime
 
-import           Application.App (Route(..), Widget)
+import           Application.App (Route(..))
+import qualified Application.App as App
 import           Application.Model (Cite(..), ForumTopic(..), User(..))
 import           Application.Settings (widgetFile)
 import qualified Class.Labeled as Labeled
@@ -27,23 +28,23 @@ import           Game.Model.Character (Category, Character)
 import qualified Game.Model.Character as Character
 
 -- | Link to a character's detail page.
-character :: Character -> Widget
+character :: Character -> App.Widget
 character char = $(widgetFile "widgets/link/character")
 
 -- | Link to a forum post or thread.
-cite :: IO (Cite ForumTopic -> Widget)
+cite :: IO (Cite ForumTopic -> App.Widget)
 cite = do
     timestamp <- makeTimestamp
     return \citation@Cite{citeLatest, citeVal} ->
         $(widgetFile "widgets/link/cite")
 
 -- | Link to a character's detail page using their icon.
-head :: Character -> Widget
+head :: Character -> App.Widget
 head char = $(widgetFile "widgets/link/head")
 
 -- | Link to a character's skill. The character's name links to their detail
 -- page, and the skill name shows skill details when hovered over.
-skill :: Text -> Category -> Text -> Widget
+skill :: Text -> Category -> Text -> App.Widget
 skill charName category name = case Characters.lookup tagName of
       Nothing -> error
         $ "Link.skill: character " ++ unpack tagName ++ " not found"
@@ -60,19 +61,19 @@ skill charName category name = case Characters.lookup tagName of
         _                -> "s"
 
 -- | Link to a forum topic.
-topic :: Cite ForumTopic -> Widget
+topic :: Cite ForumTopic -> App.Widget
 topic Cite{citeAuthor, citeKey, citeVal} = $(widgetFile "widgets/link/topic")
 
 -- | Link to a user's profile.
-user :: User -> Widget
+user :: User -> App.Widget
 user User{userName, userPrivilege} = $(widgetFile "widgets/link/user")
 
 -- | Current time widget.
-makeTimestamp :: IO (UTCTime -> Widget)
+makeTimestamp :: IO (UTCTime -> App.Widget)
 makeTimestamp = pureTimestamp <$> LocalTime.getCurrentTimeZone
 
 -- | Parses the current time into a widget.
-pureTimestamp :: LocalTime.TimeZone -> UTCTime -> Widget
+pureTimestamp :: LocalTime.TimeZone -> UTCTime -> App.Widget
 pureTimestamp zone unzoned = $(widgetFile "widgets/timestamp")
   where
     zoned = LocalTime.utcToLocalTime zone unzoned

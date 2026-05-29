@@ -6,7 +6,9 @@ module Handler.Queue.Message
 
 import ClassyPrelude
 
-import Application.Model (Key, User)
+import Database.Persist (Key)
+
+import Application.Model (User)
 import Game.Model.Character (Character)
 import Handler.Play.Wrapper (Wrapper)
 import Handler.Play.GameInfo (GameInfo)

@@ -14,7 +14,6 @@ import ClassyPrelude
 
 import Control.Monad.Trans.Class (MonadTrans)
 import Control.Monad.Trans.Maybe (MaybeT(..))
-import Data.Kind (Type)
 import Control.Monad.Error.Class (MonadError(..))
 
 -- If a function doesn't seem like it should be inlined, it probably doesn't go
