@@ -6,7 +6,8 @@ module Game.Model.Duration
 
 import ClassyPrelude hiding (even)
 
-import Data.Aeson (ToJSON(..))
+import           Data.Aeson (ToJSON(..))
+import qualified Data.Aeson as A
 
 import Text.Blaze (ToMarkup(..))
 import Text.Read
@@ -102,8 +103,8 @@ instance Display Duration where
     display dur       = display $ fromEnum dur
 
 instance ToJSON Duration where
-    toJSON Permanent    = toJSON (0 :: Int)
-    toJSON (Duration x) = toJSON x
+    toJSON Permanent    = A.Number 0
+    toJSON (Duration x) = A.Number $ fromIntegral x
     {-# INLINE toJSON #-}
 
 instance ToMarkup Duration where

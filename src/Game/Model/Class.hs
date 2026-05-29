@@ -7,6 +7,7 @@ module Game.Model.Class
 import ClassyPrelude
 
 import           Data.Aeson (ToJSON(..), Value)
+import qualified Data.Aeson as A
 import qualified Data.Enum.Memo as Enum
 import           Data.Enum.Set (AsEnumSet(..))
 import           Text.Blaze (ToMarkup(..))
@@ -59,7 +60,7 @@ instance AsEnumSet Class where
     type EnumSetRep Class = Word64
 
 instance ToJSON Class where
-    toJSON = toJSON . name
+    toJSON = A.String . name
 
 instance ToMarkup Class where
     toMarkup = toMarkup . name
@@ -91,6 +92,9 @@ visiblesList = toJSON $ filter visible [minBound..maxBound]
 {-# NOINLINE visiblesList #-}
 
 visiblesMap :: Value
-visiblesMap = (toJSON :: Map Text Bool -> Value)
-    . mapFromKeyed (name, const True) $ filter visible [minBound..maxBound]
+visiblesMap = toJSON mapped
+  where
+    mapped :: Map Text Bool
+    mapped = mapFromKeyed (name, const True)
+           $ filter visible [minBound..maxBound]
 {-# NOINLINE visiblesMap #-}

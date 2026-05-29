@@ -309,7 +309,7 @@ tallyDNA section outcome war dnaConf day User { userLatestGame
     winStreak
       | outcome /= Victory    = 0
       | userStreak < 1        = 0
-      | Settings.useStreak dnaConf = floor . (sqrt :: Float -> Float)
+      | Settings.useStreak dnaConf = floor . sqrt @Float
                                    . fromIntegral $ userStreak - 1
       | otherwise             = 0
     warWin

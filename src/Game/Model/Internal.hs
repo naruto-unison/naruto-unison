@@ -175,8 +175,8 @@ data Direction
 instance ToJSON Direction
 
 
- -- Used for 'Game.Ninja.cooldowns' and 'Game.Ninja.charges'.
- -- Generated from a 'Skill'.
+-- Used for 'Game.Ninja.cooldowns' and 'Game.Ninja.charges'.
+-- Generated from a 'Skill'.
 data Key = Key Text Slot
            deriving (Eq, Ord, Show, Read, Generic)
 
