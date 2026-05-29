@@ -63,7 +63,7 @@ quickManager App{quick} = forever do
             teamA = UserInfo.team infoA; teamB = UserInfo.team infoB
             chanA = UserInfo.chan infoA; chanB = UserInfo.chan infoB
             game  = makeGame whoA userA teamA whoB userB teamB
-        (mvar, gameA, gameB) <- Random.createSystemRandom >>= runReaderT game
+        (mvar, gameA, gameB) <- runReaderT game =<< Random.createSystemRandom
         putMVar chanA $ Message.Response mvar gameA -- this will not block
         putMVar chanB $ Message.Response mvar gameB -- this will not block
         HashTable.delete quick whoA

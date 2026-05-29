@@ -14,7 +14,6 @@ module Handler.Play.Tracker
 
 import ClassyPrelude hiding (empty)
 
-import           Control.Monad.ST (ST)
 import           Data.MultiMap (MultiMap, (!))
 import qualified Data.MultiMap as MultiMap
 import qualified Data.Vector as Vector
@@ -66,26 +65,28 @@ resetGoal Reach{reach} amt
   | amt < reach = 0
   | otherwise   = amt
 
-reset :: ∀ s. Track s -> ST s ()
+reset :: ∀ m. PrimMonad m => Track (PrimState m) -> m ()
 reset Track{goals, progress} = mapM_ f . zip [0..] $ toList goals
   where
     f (i, goal@(Reach Turn _ _ _)) = MVector.unsafeModify progress
                                          (resetGoal goal) i
     f _ = return ()
 
-addProgress :: ∀ s. Track s -> Int -> Int -> ST s ()
+addProgress :: ∀ m. PrimMonad m => Track (PrimState m) -> Int -> Int -> m ()
 addProgress _ _ 0   = return ()
 addProgress Track{goals, progress} i amt = case goals !! i of
     Reach Moment amount _ _ | amt < amount -> return ()
     _ -> MVector.unsafeModify progress (max 0 . (+ amt)) i
 
-trackStore :: ∀ s. Track s -> Int -> (Store -> (Store, Int)) -> ST s ()
+trackStore :: ∀ m. PrimMonad m
+           => Track (PrimState m) -> Int -> (Store -> (Store, Int)) -> m ()
 trackStore x@Track{store} i f = do
     (store', progress') <- f <$> MVector.unsafeRead store i
     MVector.unsafeWrite store i store'
     addProgress x i progress'
 
-trackAction1 :: ∀ s. Text -> [(Ninja, Ninja)] -> Track s -> ST s ()
+trackAction1 :: ∀ m. PrimMonad m
+             => Text -> [(Ninja, Ninja)] -> Track (PrimState m) -> m ()
 trackAction1 skill ns track@Track { actions
                                   , consecs
                                   , progress
@@ -106,8 +107,9 @@ trackAction1 skill ns track@Track { actions
     tracker  (n, n') (i, f) = addProgress track i $ f skill user n n'
     tracker' (n, n') (i, f) = trackStore  track i $ f skill user n n'
 
-trackChakra1 :: ∀ s. Text -> (Chakras, Chakras) -> (Chakras, Chakras) -> Track s
-             -> ST s ()
+trackChakra1 :: ∀ m. PrimMonad m
+             => Text -> (Chakras, Chakras) -> (Chakras, Chakras)
+             -> Track (PrimState m) -> m ()
 trackChakra1 skill chaks chaks' x = sequence_ $ tracker <$> chakras x ! skill
   where
     tracker (i, f) = addProgress x i $ f (swapOwned chaks) (swapOwned chaks')
@@ -115,19 +117,22 @@ trackChakra1 skill chaks chaks' x = sequence_ $ tracker <$> chakras x ! skill
       | Parity.even $ slot x = id
       | otherwise            = swap
 
-trackTrap1 :: ∀ s. Text -> Slot -> Ninja -> Track s -> ST s ()
+trackTrap1 :: ∀ m. PrimMonad m
+           => Text -> Slot -> Ninja -> Track (PrimState m) -> m ()
 trackTrap1 trap user n x = sequence_ $ tracker <$> traps x ! trap
   where
     tracker (i, f) = trackStore x i $ f user n
 
-trackTrigger1 :: ∀ s. Trigger -> Ninja -> Track s -> ST s ()
+trackTrigger1 :: ∀ m. PrimMonad m
+              => Trigger -> Ninja -> Track (PrimState m) -> m ()
 trackTrigger1 trigger n x = sequence_ $ tracker <$> triggers x ! trigger
   where
     tracker (i, f)
       | f n       = addProgress x i 1
       | otherwise = return ()
 
-trackTurn1 :: ∀ s. Player -> [(Ninja, Ninja)] -> Track s -> ST s ()
+trackTurn1 :: ∀ m. PrimMonad m
+           => Player -> [(Ninja, Ninja)] -> Track (PrimState m) -> m ()
 trackTurn1 p ns x@Track{skills, slot, turns} = do
       sequence_ $ tracker <$> ns <*> turns
       unless (Parity.allied p user) $ modifyRef' skills safeInit
@@ -138,7 +143,7 @@ trackTurn1 p ns x@Track{skills, slot, turns} = do
     safeInit xs = unsafeInit xs
     tracker (n, n') (i, f) = trackStore x i $ f p user n n'
 
-new :: ∀ s. Ninja -> ST s (Track s)
+new :: ∀ m. PrimMonad m => Ninja -> m (Track (PrimState m))
 new Ninja{character = character@Character{ident}, slot} = makeTrack
     <$> newRef mempty
     <*> MVector.replicate (length objectives) mempty
@@ -184,40 +189,46 @@ new Ninja{character = character@Character{ident}, slot} = makeTrack
 
 newtype Tracker s = Tracker (Vector (Track s))
 
-trackAll :: ∀ s. (Track s -> ST s ()) -> Tracker s -> ST s ()
+trackAll :: ∀ m. PrimMonad m
+         => (Track (PrimState m) -> m ()) -> Tracker (PrimState m) -> m ()
 trackAll f (Tracker xs) = mapM_ f xs
 
 -- | The mutable elements of the Tracker may not be used after this operation.
-unsafeFreeze :: ∀ s. Tracker s -> ST s [Progress]
+unsafeFreeze :: ∀ m. PrimMonad m => Tracker (PrimState m) -> m [Progress]
 unsafeFreeze (Tracker xs) = concat <$> mapM freeze xs
   where
     freeze Track{key, progress} = (zipWith ($) key) . toList
                                   <$> Vector.unsafeFreeze progress
 
 -- | Initializes a @Tracker@.
-fromInfo :: ∀ s. GameInfo -> ST s (Tracker s)
+fromInfo :: ∀ m. PrimMonad m => GameInfo -> m (Tracker (PrimState m))
 fromInfo GameInfo{ninjas, player} = Tracker
     <$> mapM new (fromList $ Parity.half player ninjas)
 
 -- | 'HookAction'.
-trackAction :: ∀ s. Text -> [Ninja] -> [Ninja] -> Tracker s -> ST s ()
+trackAction :: ∀ m. PrimMonad m
+            => Text -> [Ninja] -> [Ninja] -> Tracker (PrimState m) -> m ()
 trackAction skill ns ns' = trackAll . trackAction1 skill . toList $ zip ns ns'
 
 -- | 'HookChakra'.
-trackChakra :: ∀ s. Text -> (Chakras, Chakras) -> (Chakras, Chakras)
-            -> Tracker s -> ST s ()
+trackChakra :: ∀ m. PrimMonad m
+            => Text -> (Chakras, Chakras) -> (Chakras, Chakras)
+            -> Tracker (PrimState m) -> m ()
 trackChakra skill chaks chaks' = trackAll $ trackChakra1 skill chaks chaks'
 
 -- | 'HookTrap'.
-trackTrap :: ∀ s. Text -> Slot -> Ninja -> Tracker s -> ST s ()
+trackTrap :: ∀ m. PrimMonad m
+          => Text -> Slot -> Ninja -> Tracker (PrimState m) -> m ()
 trackTrap trap user n = trackAll $ trackTrap1 trap user n
 
 -- | 'HookTrigger'.
-trackTrigger :: ∀ s. Trigger -> Ninja -> Tracker s -> ST s ()
+trackTrigger :: ∀ m. PrimMonad m
+             => Trigger -> Ninja -> Tracker (PrimState m) -> m ()
 trackTrigger trigger n = trackAll $ trackTrigger1 trigger n
 
 -- | 'HookTurn'.
-trackTurn :: ∀ s. Player -> [Ninja] -> [Ninja] -> Tracker s -> ST s ()
+trackTurn :: ∀ m. PrimMonad m
+          => Player -> [Ninja] -> [Ninja] -> Tracker (PrimState m) -> m ()
 trackTurn p ns ns' = trackAll . trackTurn1 p $ zip ns ns'
 
 empty :: ∀ s. Tracker s

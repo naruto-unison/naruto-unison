@@ -5,12 +5,11 @@
 module Handler.Play.Wrapper
   ( STWrapper(..), fromInfo, replace, thaw
   , IOWrapper
-  , Wrapper(..), freeze, unsafeFreeze, toTurn
+  , Wrapper(..), freeze, unsafeFreeze, toTurn, runGame
   ) where
 
 import ClassyPrelude
 
-import           Control.Monad.ST (ST)
 import           Control.Monad.Trans.State.Strict (StateT, gets, modify')
 import           Data.Vector ((//))
 import qualified Data.Vector as Vector
@@ -23,7 +22,6 @@ import qualified Class.Play as P
 import qualified Class.Random
 import           Class.Random (MonadRandom)
 import           Class.Sockets (MonadSockets)
-import           Class.ST (MonadST(..))
 import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
 import           Game.Model.Player (Player)
@@ -52,49 +50,50 @@ data STWrapper s = STWrapper
 
 type IOWrapper = STWrapper RealWorld
 
-askST :: ∀ m r a b. MonadST m
-      => (r -> a) -> (a -> ST (PrimState m) b) -> ReaderT r m b
-askST asker f = asks asker >>= liftST . f
-{-# INLINE askST #-}
-
-instance (MonadST m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) where
-    game       = askST gameRef readRef
+instance (PrimMonad m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) where
+    game       = asks gameRef >>= readRef
     {-# INLINABLE game #-}
-    alter f    = askST gameRef $ flip modifyRef' f
+    alter f    = asks gameRef >>= flip modifyRef' f
     {-# INLINABLE alter #-}
-    ninjas     = askST ninjasRef Vector.freeze <&> toList
+    ninjas     = asks ninjasRef >>= Vector.freeze <&> toList
     {-# INLINABLE ninjas #-}
-    ninja i    = askST ninjasRef $ flip MVector.unsafeRead (Slot.toInt i)
+    ninja i    = asks ninjasRef >>= flip MVector.unsafeRead (Slot.toInt i)
     {-# INLINABLE ninja #-}
-    write i x  = askST ninjasRef \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
+    write i x  = asks ninjasRef >>= \xs -> MVector.unsafeWrite xs (Slot.toInt i) x
     {-# INLINABLE write #-}
-    modify i f = askST ninjasRef \xs -> MVector.unsafeModify xs f (Slot.toInt i)
+    modify i f = asks ninjasRef >>= \xs -> MVector.unsafeModify xs f (Slot.toInt i)
     {-# INLINABLE modify #-}
-    modifyAll f = askST ninjasRef \xs ->
+    modifyAll f = asks ninjasRef >>= \xs ->
         mapM_ (MVector.unsafeModify xs f . Slot.toInt) Slot.all
     {-# INLINABLE modifyAll #-}
 
-instance (MonadST m, s ~ PrimState m) => MonadHook (ReaderT (STWrapper s) m) where
-    action Skill{name} ns ns'  = askST tracker
-        $ Tracker.trackAction name ns ns'
-    chakra Skill{name} ch ch'  = askST tracker
-        $ Tracker.trackChakra name ch ch'
-    trap Trap{name, user} targ = askST tracker
-        $ Tracker.trackTrap name user targ
-    trigger tr targ            = askST tracker
-        $ Tracker.trackTrigger tr targ
-    turn p ns ns'              = askST tracker
-        $ Tracker.trackTurn p ns ns'
+instance (PrimMonad m, s ~ PrimState m) => MonadHook (ReaderT (STWrapper s) m) where
+    action Skill{name} ns ns'  = asks tracker
+        >>= Tracker.trackAction name ns ns'
+    chakra Skill{name} ch ch'  = asks tracker
+        >>= Tracker.trackChakra name ch ch'
+    trap Trap{name, user} targ = asks tracker
+        >>= Tracker.trackTrap name user targ
+    trigger tr targ            = asks tracker
+        >>= Tracker.trackTrigger tr targ
+    turn p ns ns'              = asks tracker
+        >>= Tracker.trackTurn p ns ns'
 
-fromInfo :: ∀ s. GameInfo -> ST s (STWrapper s)
+fromInfo :: ∀ m. PrimMonad m => GameInfo -> m (STWrapper (PrimState m))
 fromInfo info@GameInfo{game, ninjas} = STWrapper
     <$> Tracker.fromInfo info
     <*> newRef game
     <*> Vector.thaw (fromList ninjas)
 
+runGame :: ∀ m. PrimMonad m
+        => GameInfo -> ReaderT (STWrapper (PrimState m)) m () -> m Wrapper
+runGame info f = (fromInfo info) >>= runReaderT do
+    f
+    unsafeFreeze =<< ask
+
 -- | Replaces 'gameRef' and 'ninjasRef' of the former with the latter.
 -- Does not affect 'tracker'.
-replace :: ∀ s. Wrapper -> STWrapper s -> ST s ()
+replace :: ∀ m. PrimMonad m => Wrapper -> STWrapper (PrimState m) -> m ()
 replace Wrapper{game, ninjas} STWrapper{gameRef, ninjasRef} = do
     writeRef gameRef game
     MVector.unsafeCopy ninjasRef =<< Vector.thaw ninjas
@@ -140,13 +139,13 @@ freeze :: ∀ m. MonadGame m => m Wrapper
 freeze = Wrapper mempty <$> P.game <*> (fromList <$> P.ninjas)
 
 -- | The STWrapper may not be used after this operation.
-unsafeFreeze :: ∀ s. STWrapper s -> ST s Wrapper
+unsafeFreeze :: ∀ m. PrimMonad m => STWrapper (PrimState m) -> m Wrapper
 unsafeFreeze STWrapper{tracker, gameRef, ninjasRef} = Wrapper
     <$> Tracker.unsafeFreeze tracker
     <*> readRef gameRef
     <*> Vector.unsafeFreeze ninjasRef
 
-thaw :: ∀ s. Wrapper -> ST s (STWrapper s)
+thaw :: ∀ m. PrimMonad m => Wrapper -> m (STWrapper (PrimState m))
 thaw Wrapper{game, ninjas} = STWrapper Tracker.empty
     <$> newRef game
     <*> Vector.thaw ninjas
