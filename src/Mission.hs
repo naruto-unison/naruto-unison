@@ -91,7 +91,7 @@ unlocked = cached $ maybe allUnlocked Unlocks <$> runMaybeT do
     privilege <- App.getPrivilege
     guard $ privilege < Moderator
     getUnlocked <$> getsYesod App.characterIDs
-                <*> liftDB (selectList [UnlockedUser ==. who] [])
+                <*> liftDB (selectList [ UnlockedUser ==. who ] [])
   where
     getUnlocked ids unlocks = freeChars `union` setFromList
                               (mapMaybe (look ids) unlocks)
@@ -115,13 +115,15 @@ userMission char = runMaybeT do
     Just charID <- characterID char
     mission     <- hoistMaybe $ lookup char Missions.map
     objectives  <- liftDB do
-        alreadyUnlocked <-
-            selectFirst [UnlockedUser ==. who, UnlockedCharacter ==. charID] []
+        alreadyUnlocked <- selectFirst [ UnlockedUser      ==. who
+                                       , UnlockedCharacter ==. charID
+                                       ] []
         if isJust alreadyUnlocked then
             return $ Goal.reach <$> mission
         else
-            setObjectives mission <$>
-                selectList [MissionUser ==. who, MissionCharacter ==. charID] []
+            setObjectives mission <$> selectList [ MissionUser      ==. who
+                                                 , MissionCharacter ==. charID
+                                                 ] []
     return $ zip mission objectives
 
 -- | If @i >= length goals@, this will do nothing.
@@ -144,7 +146,7 @@ updateProgress who amount GoalIndex{goals, char, i} =
             return True
         else do
             upsert (Mission who char i amount)
-                   [MissionProgress +=. amount]
+                   [ MissionProgress +=. amount ]
             complete <- completed goals <$> selectList missionChar []
             when complete $ void do
                 deleteWhere missionChar
@@ -154,8 +156,12 @@ updateProgress who amount GoalIndex{goals, char, i} =
     canUpdate = case goals !? i of
         Just Reach{spanning, reach} -> spanning == Career || amount >= reach
         Nothing                     -> False
-    unlockedChar = [UnlockedUser ==. who, UnlockedCharacter ==. char]
-    missionChar  = [MissionUser ==. who, MissionCharacter ==. char]
+    unlockedChar = [ UnlockedUser      ==. who
+                   , UnlockedCharacter ==. char
+                   ]
+    missionChar  = [ MissionUser      ==. who
+                   , MissionCharacter ==. char
+                   ]
 
 -- | Attempts to update the database with progress on a mission.
 -- Fails if the user is not logged in. Also fails in the unlikely circumstances
@@ -211,7 +217,9 @@ processWin team = do
         mapM_ (void . updateProgress who 1) $ winners ids team unlocks
   where
     ups char = void $ upsert (newUsage char){ usagePicked = 1, usageWins = 1 }
-               [UsagePicked +=. 1, UsageWins +=. 1]
+               [ UsagePicked +=. 1
+               , UsageWins   +=. 1
+               ]
 
 -- | Resets all 'Goal.WinConsecutive' win progress to 0.
 -- This function should only be called when the user logged in loses a match or
@@ -225,7 +233,9 @@ processDefeat team = do
         mapM_ ups $ mapMaybe (`Bimap.lookupR` ids) team
   where
     ups char = void $ upsert (newUsage char){ usagePicked = 1, usageLosses = 1 }
-               [UsagePicked +=. 1, UsageLosses +=. 1]
+               [ UsagePicked +=. 1
+               , UsageLosses +=. 1
+               ]
 
 -- | Updates usage stats after a game.
 -- This function should always be called at the end of a game.
@@ -237,7 +247,7 @@ processUnpicked team = do
         $ unlocks `difference` setFromList team
   where
     ups char = void $ upsert (newUsage char){ usageUnpicked = 1 }
-               [UsageUnpicked +=. 1]
+               [ UsageUnpicked +=. 1 ]
 
 -- | Resets progress toward a goal to 0.
 resetGoal :: ∀ m. MonadIO m
@@ -245,7 +255,10 @@ resetGoal :: ∀ m. MonadIO m
           -> SqlPersistT m ()
 resetGoal ids who ((`Bimap.lookupR` ids) -> Just char, i) =
     deleteWhere
-    [MissionUser ==. who, MissionCharacter ==. char, MissionObjective ==. i]
+    [ MissionUser      ==. who
+    , MissionCharacter ==. char
+    , MissionObjective ==. i
+    ]
 resetGoal _ _ _ = return ()
 
 -- When ladder matches are introduced, these two will become more complicated.
@@ -261,7 +274,9 @@ awardDNA Queue.Quick outcome war = do
     let jDay       = Just day
         tallies    = tallyDNA Queue.Quick outcome war dnaConf jDay user
     runDB . update who $ updateLatestWin outcome jDay
-        [UserLatestGame =. jDay, UserDna +=. sum (Reward.amount <$> tallies)]
+        [ UserLatestGame =. jDay
+        , UserDna       +=. sum (Reward.amount <$> tallies)
+        ]
     return tallies
 
 -- | Modifies 'UserLatestWin' to today if the user won.

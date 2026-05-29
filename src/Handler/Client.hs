@@ -102,7 +102,7 @@ getReanimateR Character{ident, price} = do
             $ Mission.characterID ident
     runDB do
         insertUnique $ Unlocked who charID
-        user' <- updateGet who [UserDna -=. price]
+        user' <- updateGet who [ UserDna -=. price ]
         returnJson $ userDna user'
 
 -- | Renders the gameplay client.

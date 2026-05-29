@@ -32,9 +32,13 @@ compute outcome player opponent = updateUser player opponent outcome
 
 -- | Updates the win/loss record.
 updateRecord :: Outcome -> [Update User]
-updateRecord Victory = [UserWins +=. 1, UserStreak +=. 1]
-updateRecord Defeat  = [UserLosses +=. 1, UserStreak =. 0]
-updateRecord Tie     = [UserStreak =. 0]
+updateRecord Victory = [ UserWins   +=. 1
+                       , UserStreak +=. 1
+                       ]
+updateRecord Defeat  = [ UserLosses +=. 1
+                       , UserStreak  =. 0
+                       ]
+updateRecord Tie     = [ UserStreak  =. 0 ]
 
 -- | Updates skill ratings.
 -- Uses the [Glicko-2 algorithm](http://glicko.net/glicko/glicko2.pdf)

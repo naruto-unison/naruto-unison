@@ -27,8 +27,10 @@ import           Application.Model (EntityField(..), ForumLike(..), ForumPost(..
 modifyTopic :: ∀ m. MonadIO m => Key ForumTopic -> SqlPersistT m ()
 modifyTopic topicId = do
     currentTime <- liftIO getCurrentTime
-    updateWhere [ForumTopicModified <. currentTime, ForumTopicId ==. topicId]
-                [ForumTopicModified =. currentTime]
+    updateWhere [ ForumTopicModified <. currentTime
+                , ForumTopicId      ==. topicId
+                ]
+                [ ForumTopicModified =. currentTime ]
 
 attemptMaybeT :: ∀ m. Monad m => MaybeT m () -> m Value
 attemptMaybeT m = return . Bool . isJust =<< runMaybeT m
@@ -42,9 +44,9 @@ getDeletePostR postId = attemptMaybeT do
     ForumPost{forumPostAuthor, forumPostTopic} <- liftDB $ get404 postId
     guard $ forumPostAuthor == who || userPrivilege user > Normal
     liftDB do
-        update postId [ForumPostDeleted =. True]
-        update forumPostAuthor [UserPosts -=. 1]
-        deleteWhere [ForumLikePost ==. postId]
+        update postId [ ForumPostDeleted =. True ]
+        update forumPostAuthor [ UserPosts -=. 1 ]
+        deleteWhere [ ForumLikePost ==. postId ]
         modifyTopic forumPostTopic
 
 -- | Likes or unlikes a 'ForumPost', altering its 'forumPostLikes'.
@@ -65,8 +67,9 @@ getLikePostR forumLikePost = attemptMaybeT do
 
 getLike :: ∀ m. MonadIO m
         => Key ForumPost -> Key User -> SqlPersistT m (Maybe (Entity ForumLike))
-getLike post who = selectFirst
-    [ForumLikePost ==. post, ForumLikeUser ==. who] []
+getLike post who = selectFirst [ ForumLikePost ==. post
+                               , ForumLikeUser ==. who
+                               ] []
 
 -- | Marks a forum topic as 'Deleted'.
 -- Deleted topics are visible only to Moderators and Admins.
@@ -76,7 +79,7 @@ getDeleteTopicR topicId = attemptMaybeT do
     privilege <- App.getPrivilege
     guard $ privilege > Normal
     liftDB do
-        update topicId [ForumTopicState =. Deleted]
+        update topicId [ ForumTopicState =. Deleted ]
         modifyTopic topicId
 
 -- | Marks a forum topic as 'Locked'.
@@ -97,6 +100,6 @@ setTopicState state topicId = attemptMaybeT do
     Just ForumTopic{forumTopicState} <- liftDB $ get topicId
     guard $ forumTopicState /= Deleted && forumTopicState /= state
     liftDB do
-        update topicId [ForumTopicState =. state]
+        update topicId [ ForumTopicState =. state ]
         modifyTopic topicId
     return ()

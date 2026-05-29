@@ -102,7 +102,7 @@ queue Private team = do
     (who, user)         <- Auth.requireAuthPair
     Entity vsWho vsUser <- do
         vsName <- Sockets.receive {-! BLOCKS !-}
-        mVs    <- liftDB $ selectFirst [UserName ==. vsName] []
+        mVs    <- liftDB $ selectFirst [ UserName ==. vsName ] []
         case mVs of
             Just vs@(Entity vsWho _) | vsWho /= who -> return vs
             _ -> throwError Client.NotFound

@@ -35,7 +35,7 @@ import           Util ((!?), epoch, fromMaybeM, mapFromKeyed)
 getProfileR :: Text -> App.Handler Html
 getProfileR name = do
     Entity _ user  <- fromMaybeM notFound $ runDB
-                    $ selectFirst [UserName ==. name] []
+                    $ selectFirst [ UserName ==. name ] []
     let User { userAvatar
              , userClan
              , userJoined
@@ -74,10 +74,14 @@ getForumsR = do
     getModified Nothing                 = epoch
     categories = [minBound..maxBound]
     indexBoard privilege board = do
-        size <- count [ForumTopicBoard ==. board, ForumTopicState !=. Deleted]
+        size <- count [ ForumTopicBoard ==. board
+                      , ForumTopicState !=. Deleted
+                      ]
         post <- selectWithAuthors
-                (filterTopics privilege [ForumTopicBoard ==. board])
-                [Desc ForumTopicTime, LimitTo 1]
+                (filterTopics privilege [ ForumTopicBoard ==. board ])
+                [ Desc ForumTopicTime
+                , LimitTo 1
+                ]
         return . BoardIndex board size $ headMay post
 
 -- | Renders a 'ForumBoard'.
@@ -91,8 +95,8 @@ getBoardR board = do
     defaultLayout $(widgetFile "forum/board")
   where
     getTopics privilege = selectWithAuthors
-                          (filterTopics privilege [ForumTopicBoard ==. board])
-                          [Desc ForumTopicTime]
+                          (filterTopics privilege [ ForumTopicBoard ==. board ])
+                          [ Desc ForumTopicTime ]
 
 -- | Renders a 'ForumTopic'.
 getTopicR :: Key ForumTopic -> App.Handler Html
@@ -112,8 +116,8 @@ getTopicR topicId = do
   where
     topicKey = toPathPiece topicId
     getPosts privilege = selectWithAuthors
-                         (filterPosts privilege [ForumPostTopic ==. topicId])
-                         [Asc ForumPostTime]
+                         (filterPosts privilege [ ForumPostTopic ==. topicId ])
+                         [ Asc ForumPostTime ]
 
 
 -- | Adds to a 'ForumTopic'. Requires authentication.
@@ -145,7 +149,7 @@ postTopicR topicId = do
                 runDB do
                     post <- get404 postId
                     when (permit who privilege post)
-                        $ update postId [ForumPostBody =. postBody]
+                        $ update postId [ ForumPostBody =. postBody ]
                 redirect $ TopicR topicId
 
             _ -> do
@@ -157,8 +161,8 @@ postTopicR topicId = do
   where
     topicKey = toPathPiece topicId
     getPosts privilege = selectWithAuthors
-                         (filterPosts privilege [ForumPostTopic ==. topicId])
-                         [Asc ForumPostTime]
+                         (filterPosts privilege [ ForumPostTopic ==. topicId ])
+                         [ Asc ForumPostTime ]
     permit who privilege ForumPost{forumPostAuthor, forumPostDeleted} =
         not forumPostDeleted && (forumPostAuthor == who || privilege > Normal)
 
@@ -237,7 +241,7 @@ selectWithAuthors selectors opts = mapM go =<< selectList selectors opts
 getLikes :: ∀ m. MonadIO m
          => Maybe (Key User) -> Cite ForumPost -> SqlPersistT m LikedPost
 getLikes mwho post = LikedPost post
-    <$> count [ForumLikePost ==. likedPostId]
+    <$> count [ ForumLikePost ==. likedPostId ]
     <*> maybe (return False) justLike mwho
   where
     likedPostId = citeKey post

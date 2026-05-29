@@ -142,7 +142,7 @@ gameSocket = webSockets do
                 locked    = filter (∉ unlocked) teamNames
             when (not $ null locked)
                 . throwError $ Client.Locked locked
-            liftDB $ update who [UserTeam =. Just teamNames]
+            liftDB $ update who [ UserTeam =. Just teamNames ]
 
             queued <- Queue.queue section team {-! BLOCKS !-}
             return (section, teamNames, queued)

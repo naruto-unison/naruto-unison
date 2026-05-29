@@ -384,11 +384,11 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
         hoistMaybe userVerkey
 
     setVerifyKey uid key = liftDB
-        $ update uid [UserVerkey =. Just key]
+        $ update uid [ UserVerkey =. Just key ]
 
     verifyAccount uid = liftDB $ runMaybeT do
         MaybeT $ get uid
-        lift $ update uid [UserVerified =. True]
+        lift $ update uid [ UserVerified =. True ]
         return uid
 
     getPassword uid = liftDB $ runMaybeT do
@@ -396,7 +396,7 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
         hoistMaybe userPassword
 
     setPassword uid pass = liftDB
-        $ update uid [UserPassword =. Just pass]
+        $ update uid [ UserPassword =. Just pass ]
 
     getEmailCreds email = liftDB
         $ makeCreds <$> (getBy . UniqueUser $ toLower email)
