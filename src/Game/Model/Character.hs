@@ -13,7 +13,7 @@ import Game.Model.Internal (Character(..), Category(..))
 
 -- | Turns 'format' output into 'ident'.
 clean :: Text -> Text
-clean name = omap f $ toLower name
+clean name = f `omap` toLower name
   where
     f ' ' = '-'
     f x   = unaccent x

@@ -117,7 +117,7 @@ getSkill s n
          <$> ((Copy.skill <$> join (N.copies n !? s)) <|> N.baseSkill s n)
 
 -- | Searches 'skills'.
-hasSkill :: Text -- ^ `Skill.name`.
+hasSkill :: Text -- ^ 'Skill.name'.
          -> Ninja -> Bool
 hasSkill name n = any (Labeled.named name) $ skills n
 
@@ -209,7 +209,7 @@ decr n = processAlternates $ processEffects
       , N.channels  = mapMaybe (TurnBased.decr . setNotNew) $ N.channels n
       , N.traps     = mapMaybe TurnBased.decr $ N.traps n
       , N.copies    = (TurnBased.decr =<<) <$> N.copies n
-      , N.cooldowns = (max 0 . subtract 1) `omap` N.cooldowns n
+      , N.cooldowns = (max 0 . subtract 1) <$> N.cooldowns n
       , N.acted     = False
       }
   where

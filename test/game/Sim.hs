@@ -126,7 +126,7 @@ createContext simUser f Context{target, user, skill = Skill{classes}} = Context
     , target    = if target == simUser then user else target
     , new       = True
     , continues = False
-    , skill     = Skill.new { Skill.classes = classes `difference` removeClasses
+    , skill     = Skill.new { Skill.classes = classes \\ removeClasses
                             , Skill.effects = effects
                             }
     }

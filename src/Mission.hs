@@ -11,14 +11,13 @@ module Mission
   , getUsageRates
   ) where
 
-import ClassyPrelude hiding ((\\))
+import ClassyPrelude
 import Database.Persist
 
 import           Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
 import           Data.Aeson (ToJSON(..))
 import           Data.Bimap (Bimap)
 import qualified Data.Bimap as Bimap
-import           Data.List ((\\))
 import qualified Data.Sequence as Seq
 import           Database.Persist.Sql (SqlPersistT)
 import           Yesod (cached, getsYesod, runDB)
@@ -45,7 +44,7 @@ import           Mission.Progress (Progress(Progress))
 import qualified Mission.Progress
 import           Mission.UsageRate (UsageRate)
 import qualified Mission.UsageRate as UsageRate
-import           Util ((!?), (∉))
+import           Util ((!?), (∈), (∉))
 
 -- | Starts up the mission database by mapping every Character to a database
 -- ID. Returns the map, which goes into 'App.characterIDs'.
@@ -101,7 +100,7 @@ unlocked = cached $ maybe allUnlocked Unlocks <$> runMaybeT do
 
 -- | 'Character.ident's of all Characters without DNA 'Character.price's.
 freeChars :: HashSet Text
-freeChars = setFromList dna `difference` keysSet Missions.map
+freeChars = setFromList dna \\ keysSet Missions.map
   where
     dna = [ident | Character.Character{price = 0, ident} <- Characters.list]
 {-# NOINLINE freeChars #-}
@@ -198,7 +197,7 @@ winners ids team unlocks = do
     Goal.Mission{char, goals} <- Missions.list
     guard $ char ∉ unlocks
     (i, Win _ team') <- zip [0..] $ Goal.objective <$> toList goals
-    guard . null $ team' \\ team
+    guard $ all (∈ team) team'
     charID <- Bimap.lookupR char ids
     return GoalIndex { goals, char = charID, i }
 
@@ -245,7 +244,7 @@ processUnpicked team = do
     ids             <- getsYesod App.characterIDs
     Unlocks unlocks <- unlocked
     runDB . mapM_ ups . mapMaybe (`Bimap.lookupR` ids) . toList
-        $ unlocks `difference` setFromList team
+        $ unlocks \\ setFromList team
   where
     ups char = void $ upsert (newUsage char){ usageUnpicked = 1 }
                [ UsageUnpicked +=. 1 ]

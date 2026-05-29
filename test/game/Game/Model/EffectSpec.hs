@@ -315,7 +315,7 @@ spec = parallel do
         it "restricts multi-target to single-target" $
             Skill.targets (getSkill [ Restrict ])
             `shouldBe` setFromList [minBound..maxBound]
-            `difference` setFromList [Enemies, XEnemies, Everyone]
+            \\ setFromList [Enemies, XEnemies, Everyone]
 
     -- describe "Reveal" (nothing to test)
 
