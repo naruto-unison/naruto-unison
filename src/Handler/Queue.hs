@@ -130,16 +130,18 @@ makeGame :: ∀ m. (MonadRandom m, MonadIO m)
          => Key User -> User -> [Character]
          -> Key User -> User -> [Character]
          -> m (MVar Wrapper, GameInfo, GameInfo)
-makeGame who user team vsWho vsUser vsTeam = do
-    player <- R.random
-    game   <- Game.newWithChakras
-    liftIO do
-        let ninjas = fromList $ zipWith N.new Slot.all case player of
-                Player.A -> team ++ vsTeam
-                Player.B -> vsTeam ++ team
-        war  <- War.match team vsTeam <$> War.today
-        mvar <- newEmptyMVar
-        let gameInfoA = GameInfo
+makeGame who user team vsWho vsUser vsTeam = makeGame' <$> R.random
+                                                       <*> Game.newWithChakras
+                                                       <*> liftIO War.today
+                                                       <*> newEmptyMVar
+  where
+    makeGame' player game warPair mvar = (mvar, gameInfoA, gameInfoB)
+      where
+        war = War.match team vsTeam warPair
+        ninjas = fromList $ zipWith N.new Slot.all case player of
+                 Player.A -> team ++ vsTeam
+                 Player.B -> vsTeam ++ team
+        gameInfoA = GameInfo
                 { vsWho
                 , vsUser
                 , player
@@ -147,12 +149,11 @@ makeGame who user team vsWho vsUser vsTeam = do
                 , game
                 , ninjas
                 }
-            gameInfoB = GameInfo
-                { vsWho  = who
-                , vsUser = user
-                , player = Player.opponent player
-                , war    = War.opponent <$> war
-                , game
-                , ninjas
-                }
-        return (mvar, gameInfoA, gameInfoB)
+        gameInfoB = GameInfo
+            { vsWho  = who
+            , vsUser = user
+            , player = Player.opponent player
+            , war    = War.opponent <$> war
+            , game
+            , ninjas
+            }
