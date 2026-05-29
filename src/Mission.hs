@@ -37,9 +37,10 @@ import qualified Handler.Client.Reward as Reward
 import           Handler.Play.Match (Outcome(..))
 import           Handler.Play.War (War)
 import qualified Handler.Queue as Queue
-import           Mission.Goal (Goal(Reach), Span(..))
+import           Mission.Goal (Goal(Reach))
 import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
+import           Mission.Objective (Objective(..), Span(..))
 import           Mission.Progress (Progress(Progress))
 import qualified Mission.Progress
 import           Mission.UsageRate (UsageRate)
@@ -196,7 +197,7 @@ winners :: Bimap CharacterId Text
 winners ids team unlocks = do
     Goal.Mission{char, goals} <- Missions.list
     guard $ char ∉ unlocks
-    (i, Goal.Win _ team') <- zip [0..] $ Goal.objective <$> toList goals
+    (i, Win _ team') <- zip [0..] $ Goal.objective <$> toList goals
     guard . null $ team' \\ team
     charID <- Bimap.lookupR char ids
     return GoalIndex { goals, char = charID, i }

@@ -32,9 +32,10 @@ import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger)
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
 import qualified Handler.Play.GameInfo
-import           Mission.Goal (Goal(Reach), Mission(Mission), Objective(..), Span(..), Store, ActionHook, ChakraHook, StoreHook, TrapHook, TriggerHook, TurnHook)
+import           Mission.Goal (Goal(Reach), Mission(Mission))
 import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
+import           Mission.Objective (Objective(..), Span(..), Store, ActionHook, ChakraHook, StoreHook, TrapHook, TriggerHook, TurnHook)
 import           Mission.Progress (Progress(Progress))
 import           Util ((!!))
 
