@@ -19,6 +19,7 @@ import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Database.Persist.Sql (SqlPersistT)
 import qualified Yesod.Auth as Auth
 
+import           Application.App (liftDB)
 import qualified Application.App as App
 import           Application.Fields (Privilege(..), TopicState(..))
 import           Application.Model (EntityField(..), ForumLike(..), ForumPost(..), ForumTopic(..), User(..))
@@ -30,7 +31,7 @@ modifyTopic topicId = do
                 [ForumTopicModified =. currentTime]
 
 attemptMaybeT :: ∀ m. Monad m => MaybeT m () -> m Value
-attemptMaybeT m = returnJson . isJust =<< runMaybeT m
+attemptMaybeT m = return . Bool . isJust =<< runMaybeT m
 
 -- | Marks a forum post as deleted.
 -- Deleted posts are visible only to Moderators and Admins.
@@ -38,9 +39,9 @@ attemptMaybeT m = returnJson . isJust =<< runMaybeT m
 getDeletePostR :: Key ForumPost -> App.Handler Value
 getDeletePostR postId = attemptMaybeT do
     Just (who, user) <- Auth.maybeAuthPair
-    ForumPost{forumPostAuthor, forumPostTopic} <- lift . runDB $ get404 postId
+    ForumPost{forumPostAuthor, forumPostTopic} <- liftDB $ get404 postId
     guard $ forumPostAuthor == who || userPrivilege user > Normal
-    lift $ runDB do
+    liftDB do
         update postId [ForumPostDeleted =. True]
         update forumPostAuthor [UserPosts -=. 1]
         deleteWhere [ForumLikePost ==. postId]
@@ -51,15 +52,16 @@ getDeletePostR postId = attemptMaybeT do
 getLikePostR :: Key ForumPost -> App.Handler Value
 getLikePostR forumLikePost = attemptMaybeT do
     Just who <- Auth.maybeAuthId
-    ForumPost {forumPostAuthor, forumPostDeleted} <- lift . runDB
+    ForumPost {forumPostAuthor, forumPostDeleted} <- liftDB
                                                    $ get404 forumLikePost
     guard $ forumPostAuthor /= who && not forumPostDeleted
-    liked <- lift . runDB $ getLike forumLikePost who
-    lift $ runDB case liked of
-        Just (Entity likeId _) -> delete likeId
-        Nothing -> void $ insert ForumLike { forumLikePost
-                                           , forumLikeUser = who
-                                           }
+    liftDB do
+        liked <- getLike forumLikePost who
+        case liked of
+            Just (Entity likeId _) -> delete likeId
+            Nothing -> void $ insert ForumLike { forumLikePost
+                                               , forumLikeUser = who
+                                               }
 
 getLike :: ∀ m. MonadIO m
         => Key ForumPost -> Key User -> SqlPersistT m (Maybe (Entity ForumLike))
@@ -73,7 +75,7 @@ getDeleteTopicR :: Key ForumTopic -> App.Handler Value
 getDeleteTopicR topicId = attemptMaybeT do
     privilege <- App.getPrivilege
     guard $ privilege > Normal
-    lift $ runDB do
+    liftDB do
         update topicId [ForumTopicState =. Deleted]
         modifyTopic topicId
 
@@ -92,9 +94,9 @@ setTopicState :: TopicState -> Key ForumTopic -> App.Handler Value
 setTopicState state topicId = attemptMaybeT do
     privilege <- App.getPrivilege
     guard $ privilege > Normal
-    Just ForumTopic{forumTopicState} <- lift $ runDB $ get topicId
+    Just ForumTopic{forumTopicState} <- liftDB $ get topicId
     guard $ forumTopicState /= Deleted && forumTopicState /= state
-    lift $ runDB do
+    liftDB do
         update topicId [ForumTopicState =. state]
         modifyTopic topicId
     return ()

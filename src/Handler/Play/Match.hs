@@ -13,7 +13,6 @@ module Handler.Play.Match
 import ClassyPrelude hiding (map, traverse_)
 import Database.Persist
 
-import Control.Monad.Trans.Maybe (MaybeT(..))
 import Database.Persist.Sql (SqlPersistT)
 
 import           Application.Model (User)
@@ -71,9 +70,9 @@ fromGame g playerX = Match $ outcome g playerX
 
 load :: ∀ m. MonadIO m
      => Match (Key User) -> SqlPersistT m (Maybe (Match (Entity User)))
-load Match{outcomeA, playerA, playerB} = runMaybeT
-    $ loaded <$> MaybeT (get playerA) <*> MaybeT (get playerB)
+load Match{outcomeA, playerA, playerB} = loaded <$> get playerA <*> get playerB
   where
-    loaded userA userB = Match outcomeA
-                         (Entity playerA userA)
-                         (Entity playerB userB)
+    loaded (Just userA) (Just userB) = Just $ Match outcomeA
+                                        (Entity playerA userA)
+                                        (Entity playerB userB)
+    loaded _ _ = Nothing

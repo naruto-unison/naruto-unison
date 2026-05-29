@@ -14,7 +14,7 @@ module Mission
 import ClassyPrelude hiding ((\\))
 import Database.Persist
 
-import           Control.Monad.Trans.Maybe (MaybeT(..))
+import           Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
 import           Data.Aeson (ToJSON(..))
 import           Data.Bimap (Bimap)
 import qualified Data.Bimap as Bimap
@@ -24,6 +24,7 @@ import           Database.Persist.Sql (SqlPersistT)
 import           Yesod (cached, getsYesod, runDB)
 import qualified Yesod.Auth as Auth
 
+import           Application.App (liftDB)
 import qualified Application.App as App
 import           Application.Fields (Privilege(..))
 import           Application.Model (Character(Character), CharacterId, EntityField(..), Mission(Mission), Unlocked(Unlocked), Usage(..), User(User))
@@ -58,8 +59,9 @@ initDB = do
     charList = Character . Character.ident <$> Characters.list
 
 -- | Looks up a Character's ID in 'App.characterIDs' using 'Character.ident'.
-characterID :: Text -> MaybeT App.Handler CharacterId
-characterID name = Bimap.lookupR name =<< getsYesod App.characterIDs
+characterID :: ∀ m. (App.MonadHandler m)
+            => Text -> m (Maybe CharacterId)
+characterID name = Bimap.lookupR name <$> getsYesod App.characterIDs
 
 -- | Processes the database list of characters into a map between IDs and
 -- 'Character.ident'.
@@ -89,7 +91,7 @@ unlocked = cached $ maybe allUnlocked Unlocks <$> runMaybeT do
     privilege <- App.getPrivilege
     guard $ privilege < Moderator
     getUnlocked <$> getsYesod App.characterIDs
-                <*> lift (runDB (selectList [UnlockedUser ==. who] []))
+                <*> liftDB (selectList [UnlockedUser ==. who] [])
   where
     getUnlocked ids unlocks = freeChars `union` setFromList
                               (mapMaybe (look ids) unlocks)
@@ -108,11 +110,11 @@ freeChars = setFromList dna `difference` keysSet Missions.map
 -- have a mission, or the user has already completed their mission.
 -- Otherwise, returns a list of goals paired with the user's progress on each.
 userMission :: Text -> App.Handler (Maybe (Seq (Goal, Int)))
-userMission char = fromMaybe mempty <$> runMaybeT do
-    Just who     <- Auth.maybeAuthId
-    charID       <- characterID char
-    Just mission <- return $ lookup char Missions.map
-    objectives   <- lift $ runDB do
+userMission char = runMaybeT do
+    Just who    <- Auth.maybeAuthId
+    Just charID <- characterID char
+    mission     <- hoistMaybe $ lookup char Missions.map
+    objectives  <- liftDB do
         alreadyUnlocked <-
             selectFirst [UnlockedUser ==. who, UnlockedCharacter ==. charID] []
         if isJust alreadyUnlocked then
@@ -120,7 +122,7 @@ userMission char = fromMaybe mempty <$> runMaybeT do
         else
             setObjectives mission <$>
                 selectList [MissionUser ==. who, MissionCharacter ==. charID] []
-    return . Just $ zip mission objectives
+    return $ zip mission objectives
 
 -- | If @i >= length goals@, this will do nothing.
 data GoalIndex = GoalIndex
@@ -162,12 +164,11 @@ updateProgress who amount GoalIndex{goals, char, i} =
 progress :: Progress -> App.Handler Bool
 progress Progress{amount = 0} = return False
 progress Progress{character, objective, amount} = fromMaybe False <$> runMaybeT do
-    Just who   <- Auth.maybeAuthId
-    Just goals <- return $ lookup character Missions.map
+    Just who  <- Auth.maybeAuthId
+    goals     <- hoistMaybe $ lookup character Missions.map
     guard $ objective < length goals
-    char <- characterID character
-    lift . runDB
-        $ updateProgress who amount GoalIndex { goals, char, i = objective }
+    Just char <- characterID character
+    liftDB $ updateProgress who amount GoalIndex { goals, char, i = objective }
 
 -- | Using a list of database mission entries for a user, maps goals onto the
 -- user's progress toward those goals.

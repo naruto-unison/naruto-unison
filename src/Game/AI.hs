@@ -2,7 +2,7 @@ module Game.AI (runTurn) where
 
 import ClassyPrelude
 
-import Control.Monad.Trans.Maybe (MaybeT(..))
+import Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
 
 import           Class.Hook (MonadHook)
 import qualified Class.Parity as Parity
@@ -76,8 +76,8 @@ getVendetta :: ∀ m. (MonadGame m, MonadRandom m) => m (Maybe Slot)
 getVendetta = do
     Game{vendetta} <- P.game
     fromMaybe <$> chooseVendetta <*> runMaybeT do
-        Just v <- return vendetta
-        ninja  <- lift $ P.ninja v
+        v     <- hoistMaybe vendetta
+        ninja <- lift $ P.ninja v
         guard $ N.alive ninja
         return vendetta
 

@@ -135,12 +135,10 @@ trackTurn1 :: ∀ m. PrimMonad m
            => Player -> [(Ninja, Ninja)] -> Track (PrimState m) -> m ()
 trackTurn1 p ns x@Track{skills, slot, turns} = do
       sequence_ $ tracker <$> ns <*> turns
-      unless (Parity.allied p user) $ modifyRef' skills safeInit
+      unless (Parity.allied p user) $ modifyRef' skills $ fromMaybe [] . initMay
       reset x
   where
     user = snd $ ns !! Slot.toInt slot
-    safeInit [] = []
-    safeInit xs = unsafeInit xs
     tracker (n, n') (i, f) = trackStore x i $ f p user n n'
 
 new :: ∀ m. PrimMonad m => Ninja -> m (Track (PrimState m))

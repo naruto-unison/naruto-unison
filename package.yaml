@@ -57,7 +57,6 @@ library:
   - unliftio
   - unordered-containers
   - vector
-  - vector-algorithms
   - wai
   - wai-extra
   - wai-logger

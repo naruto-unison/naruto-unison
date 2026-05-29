@@ -90,9 +90,10 @@ rightToMaybe (Right x) = Just x
 --
 -- > type Lift mClass tran base m = (MonadTrans tran, mClass base, m ~ tran base)
 --
--- Lift is a type family rather than a type alias in order to eliminate the
--- superfluous @tran@ and @base@ parameters.
-
+-- Lift uses type families in order to eliminate the superfluous @tran@ and
+-- @base@ parameters.
 type Lift mClass m = (MonadTrans (Tran m), mClass (Base m), m ~ Tran m (Base m))
+-- | > Tran (MaybeT IO) ~ MaybeT
 type family Tran m :: (Type -> Type) -> Type -> Type where Tran (t n) = t
+-- | > Base (MaybeT IO) ~ IO
 type family Base (m :: Type -> Type) :: Type -> Type where Base (t n) = n

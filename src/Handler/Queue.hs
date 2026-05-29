@@ -12,8 +12,6 @@ import           Control.Monad.Error.Class (MonadError(..))
 import           Control.Monad.Loops (untilJust)
 import qualified Data.HashTable as HashTable
 import           Data.Time.Clock.System (SystemTime(..), getSystemTime)
-import           Data.Vector (unsafeFreeze, unsafeThaw)
-import qualified Data.Vector.Algorithms.Intro as Algorithms
 import qualified System.Random.MWC as Random
 import           Yesod (getsYesod)
 import qualified Yesod.Auth as Auth
@@ -50,30 +48,34 @@ chunkPairs :: ∀ a. [a] -> [(a, a)]
 chunkPairs (x:y:xs) = (x, y) : chunkPairs xs
 chunkPairs _        = []
 
-readyWith :: Int -> SystemTime -> (Key User, UserInfo) -> Bool
-readyWith load (MkSystemTime time _) (_, user) = joined + delay < time
+getPairings :: Int -> SystemTime -> [(Key User, UserInfo)]
+            -> [((Key User, UserInfo), (Key User, UserInfo))]
+getPairings load (MkSystemTime time _) assocs = chunkPairs
+                                              $ sortWith rate
+                                              $ filter ready assocs
   where
+    ready (_, UserInfo{joined = MkSystemTime joined _}) = joined + delay < time
+    rate (_, (UserInfo User{userRating} _ _ _)) = userRating
     delay = truncate $ sqrt (fromIntegral load :: Float)
-    UserInfo{joined = MkSystemTime joined _} = user
 
 quickManager :: App -> IO ()
 quickManager App{quick} = forever do
-    ready  <- readyWith <$> HashTable.readLoad quick <*> getSystemTime
-    assocs <- atomically $ HashTable.readAssocs quick
-    usersM <- unsafeThaw . fromList $ filter ready assocs
-    Algorithms.sortBy (compare `on` userRating . UserInfo.user . snd) usersM
-    usersV <- unsafeFreeze usersM
-    let users = toList usersV
-    forConcurrently_ (chunkPairs users) \((whoA, infoA), (whoB, infoB)) -> do
-        let userA = UserInfo.user infoA; userB = UserInfo.user infoB
-            teamA = UserInfo.team infoA; teamB = UserInfo.team infoB
-            chanA = UserInfo.chan infoA; chanB = UserInfo.chan infoB
-            game  = makeGame whoA userA teamA whoB userB teamB
-        (mvar, gameA, gameB) <- runReaderT game =<< Random.createSystemRandom
+    pairings <- getPairings <$> HashTable.readLoad quick
+                            <*> getSystemTime
+                            <*> atomically (HashTable.readAssocs quick)
+    rand <- Random.createSystemRandom
+    mapM_ (runPair rand) pairings
+  where
+    runPair rand ( (whoA, UserInfo userA teamA _ chanA)
+                 , (whoB, UserInfo userB teamB _ chanB)
+                 ) = void do
+        (mvar, gameA, gameB) <- runReaderT makeGame' rand
         putMVar chanA $ Message.Response mvar gameA -- this will not block
         putMVar chanB $ Message.Response mvar gameB -- this will not block
         HashTable.delete quick whoA
         HashTable.delete quick whoB
+      where
+        makeGame' = makeGame whoA userA teamA whoB userB teamB
 
 leave :: ∀ m. App.MonadHandler m => m ()
 leave = do
@@ -137,7 +139,14 @@ makeGame who user team vsWho vsUser vsTeam = do
                 Player.B -> vsTeam ++ team
         war  <- War.match team vsTeam <$> War.today
         mvar <- newEmptyMVar
-        let gameInfoA = GameInfo { vsWho, vsUser, player, game, ninjas, war }
+        let gameInfoA = GameInfo
+                { vsWho
+                , vsUser
+                , player
+                , war
+                , game
+                , ninjas
+                }
             gameInfoB = GameInfo
                 { vsWho  = who
                 , vsUser = user

@@ -95,4 +95,4 @@ fromDay (LocalTime (ModifiedJulianDay day) _) = wars !! i
 -- | Obtains today's war as a pseudorandom choice seeded from the
 -- 'localDay' of the current @LocalTime@.
 today :: IO (EnumSet Group, EnumSet Group)
-today = fromDay <$> liftA2 utcToLocalTime getCurrentTimeZone getCurrentTime
+today = fromDay <$> (utcToLocalTime <$> getCurrentTimeZone <*> getCurrentTime)

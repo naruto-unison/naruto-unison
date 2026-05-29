@@ -31,7 +31,7 @@ import qualified Handler.Play.War as War
 import qualified Mission
 import           Mission.Goal (Goal(Reach))
 import qualified Mission.Goal as Goal
-import           Util ((∈), (∉), fromMaybeT)
+import           Util ((∈), (∉), fromMaybeM)
 
 -- | Updates a user's profile and returns it. Requires authentication.
 getUpdateR :: Text -> Bool -> Text -> Text -> App.Handler Value
@@ -98,7 +98,7 @@ getReanimateR Character{ident, price} = do
     unlocks <- Mission.unlocked
     when (ident ∈ unlocks)
         $ invalidArgs ["Character already unlocked"]
-    charID <- fromMaybeT (invalidArgs ["Character not found"])
+    charID <- fromMaybeM (invalidArgs ["Character not found"])
             $ Mission.characterID ident
     runDB do
         insertUnique $ Unlocked who charID
