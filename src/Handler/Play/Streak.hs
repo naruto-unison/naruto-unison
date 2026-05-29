@@ -11,5 +11,5 @@ import Application.Model (EntityField(..), User(..))
 updatePostMatch :: ∀ m. MonadIO m => Key User -> SqlPersistT m ()
 updatePostMatch who = update \row -> do
     set row [ UserRecord =. row ^. UserStreak ]
-    where_ $ row ^. UserId ==. val who
+    where_ $ row ^. UserId    ==. val who
     where_ $ row ^. UserStreak >. row ^. UserRecord

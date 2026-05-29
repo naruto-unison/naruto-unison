@@ -334,6 +334,6 @@ getUsageRates = mapMaybe . findUsage
 -- | Matches a @Usage@ with a 'Character' from 'Characters.map'.
 findUsage :: Bimap CharacterId Text -> Entity Usage -> Maybe UsageRate
 findUsage ids (Entity _ usage@Usage{usageCharacter}) = do
-    name <- Bimap.lookup usageCharacter ids
-    char <- Characters.lookup name
+    ident <- Bimap.lookup usageCharacter ids
+    char  <- Characters.lookup ident
     return $ UsageRate.new char usage
