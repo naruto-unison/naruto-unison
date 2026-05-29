@@ -77,7 +77,7 @@ commas conj = go
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text
-shorten xs = omap unaccent $ filter (notInClass "- _:()®'/?") xs
+shorten xs = unaccent `omap` filter (notInClass "- _:()®'/?") xs
 
 -- | Turns special characters into ordinary characters.
 unaccent :: Char -> Char
