@@ -25,7 +25,7 @@ import qualified Data.Text.Lazy.Builder.Int as IntBuilder
 --
 -- Instances should satisfy the following law:
 --
--- @display' x == 'Builder.toLazyText' (display x)
+-- @display' x == Builder.toLazyText (display x)@
 class Display a where
     display :: a -> Builder
     -- | Extracts a lazy @Text@ from the value of @display@.
@@ -36,9 +36,6 @@ class Display a where
     display' :: a -> Lazy.Text
     display' = Builder.toLazyText . display
     {-# INLINE display' #-}
-    -- Well, it also exists to shorten
-    -- import Class.Display (Display(..), display') to (Display(..))
-    -- (Insert joke re: laziness)
 
 instance Display Text where
     display = Builder.fromText

@@ -25,30 +25,22 @@ import qualified Text.Blaze.Html5 as HTML
 import qualified Text.Blaze.Html5.Attributes as HTML
 import           Yesod.Core.Dispatch (PathPiece(..))
 
-import           Class.Random (MonadRandom)
-import qualified Class.Random as R
 import           Game.Model.Class (Class(..))
 import           Util (rightToMaybe)
 
 -- | Collection of all chakra types.
 data Chakras = Chakras
-    { blood :: Int -- ^ Bloodline
-    , gen   :: Int -- ^ Genjutsu
-    , nin   :: Int -- ^ Ninjutsu
-    , tai   :: Int -- ^ Taijutsu
-    , rand  :: Int -- ^ Random
+    { blood :: {-# UNPACK #-} Int -- ^ Bloodline
+    , gen   :: {-# UNPACK #-} Int -- ^ Genjutsu
+    , nin   :: {-# UNPACK #-} Int -- ^ Ninjutsu
+    , tai   :: {-# UNPACK #-} Int -- ^ Taijutsu
+    , rand  :: {-# UNPACK #-} Int -- ^ Random
     } deriving (Eq, Show, Read, Generic)
 
 naiveSubtract :: Chakras -> Chakras -> Chakras
 naiveSubtract (Chakras b g n t r) (Chakras b' g' n' t' r') =
     Chakras (b - b') (g - g') (n - n') (t - t') (r - r')
 {-# INLINE naiveSubtract #-}
-
-instance Ord Chakras where
-    compare x y = comparing length x y <> comparing projection x y
-      where
-        projection (Chakras b g n t r) = (b, g, n, t, r)
-    {-# INLINE compare #-}
 
 instance IsList Chakras where
     type Item Chakras = Chakra
@@ -308,6 +300,7 @@ mapAmounts f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
 
 scale :: Int -> Chakras -> Chakras
 scale scalar = mapAmounts (* scalar)
+{-# INLINABLE scale #-}
 
 spend :: Chakras -> Chakras -> Chakras
 spend cost chakras = mapAmounts (max 0) $ chakras `naiveSubtract` cost
