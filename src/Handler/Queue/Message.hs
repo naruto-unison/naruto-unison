@@ -15,8 +15,8 @@ import Handler.Play.GameInfo (GameInfo)
 
 -- | Messages between all users queued for games.
 data Private
-    = Request ~(Key User) ~(Key User) ~[Character]
-    | Respond ~(Key User) ~Response
+    = Request (Key User) (Key User) ~[Character]
+    | Respond (Key User) Response
 
 data Response = Response
     { mvar :: ~(MVar Wrapper)
