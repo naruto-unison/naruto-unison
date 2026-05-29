@@ -33,11 +33,12 @@ context = Context { skill     = Skill.new
 character :: Character
 character = Character
     { name     = mempty
+    , price    = 0
     , bio      = mempty
     , skills   = newSkill :| [newSkill, newSkill, newSkill]
     , category = Original
     , groups   = mempty
-    , price    = 0
+    , ident    = mempty
     }
   where
     newSkill = Skill.new :| []
