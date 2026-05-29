@@ -15,7 +15,7 @@ import qualified Game.Characters.Shippuden.Jinchuriki
 import qualified Game.Characters.Shippuden.Versions
 
 characters :: [Character]
-characters = setIdent . (\c -> c Shippuden "")
+characters = (\c -> c Shippuden "")
     <$> Game.Characters.Shippuden.Kids.characters
     ++ Game.Characters.Shippuden.Adults.characters
     ++ Game.Characters.Shippuden.Organizations.characters
@@ -23,5 +23,3 @@ characters = setIdent . (\c -> c Shippuden "")
     ++ Game.Characters.Shippuden.Leaders.characters
     ++ Game.Characters.Shippuden.Jinchuriki.characters
     ++ Game.Characters.Shippuden.Versions.characters
-  where
-    setIdent c@Character{name} = c { ident = name ++ " (S)" }

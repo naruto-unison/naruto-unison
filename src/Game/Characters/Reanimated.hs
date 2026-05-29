@@ -11,9 +11,7 @@ import qualified Game.Characters.Reanimated.Kage
 import qualified Game.Characters.Reanimated.Organizations
 
 characters :: [Character]
-characters = setIdent . (\c -> c Reanimated "")
+characters = (\c -> c Reanimated "")
     <$> Game.Characters.Reanimated.Kage.characters
      ++ Game.Characters.Reanimated.Adults.characters
      ++ Game.Characters.Reanimated.Organizations.characters
-  where
-    setIdent c@Character{name} = c { ident = name ++ " (R)" }

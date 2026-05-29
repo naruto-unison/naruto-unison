@@ -30,7 +30,7 @@ import qualified Game.Characters.Reanimated
 import qualified Game.Characters.Shippuden
 
 list :: [Character]
-list = addGroups . addClasses <$>
+list = setIdent . addGroups . addClasses <$>
 #ifdef DEVELOPMENT
     Game.Characters.Development.characters ++
 #endif
@@ -57,9 +57,13 @@ lookup k = HashMap.lookup k map
 lookupAll :: [Text] -> [Character]
 lookupAll ks = mapMaybe lookup ks
 
+setIdent :: Character -> Character
+setIdent char@Character{category, name} =
+    char { Character.ident = Character.identFrom category name }
+
 addGroups :: Character -> Character
 addGroups char@Character{groups, skills} =
-    char { Character.groups = added `union` groups }
+    char { Character.groups = added ++ groups }
   where
     Chakras{blood, gen, nin, tai} = concatMap (Skill.cost)
                                   $ concatMap toList skills

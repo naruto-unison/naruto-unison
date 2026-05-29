@@ -16,7 +16,7 @@ import qualified Game.Characters.Original.Teachers
 import qualified Game.Characters.Original.Versions
 
 characters :: [Character]
-characters = setIdent . (\c -> c Original "")
+characters = (\c -> c Original "")
     <$> Game.Characters.Original.Kids.characters
     ++ Game.Characters.Original.Exams.characters
     ++ Game.Characters.Original.Teachers.characters
@@ -25,5 +25,3 @@ characters = setIdent . (\c -> c Original "")
     ++ Game.Characters.Original.Versions.characters
     ++ Game.Characters.Original.Family.characters
     ++ Game.Characters.Original.Flashbacks.characters
-  where
-    setIdent c@Character{name} = c { ident = name }

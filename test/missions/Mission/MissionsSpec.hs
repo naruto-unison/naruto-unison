@@ -8,7 +8,8 @@ import qualified Game.Characters as Characters
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Skill as Skill
-import           Mission.Goal (Goal(..), Mission(..), Objective(..))
+import           Mission.Goal (Goal(..), Mission(..))
+import           Mission.Objective (Objective(..))
 import qualified Mission.Missions as Missions
 import           Util ((∈))
 
@@ -31,14 +32,14 @@ mission Mission{char, goals} = do
 goal :: Goal -> SpecWith ()
 goal Reach{desc, objective} = describe (unpack desc) $ f objective
   where
-    f (Consecutive name skills) = lookupChar name $ hasSkills skills
-    f (HookAction name skill _) = lookupChar name $ hasSkills [skill]
-    f (HookChakra name skill _) = lookupChar name $ hasSkills [skill]
-    f (HookStore name skill _)  = lookupChar name $ hasSkills [skill]
-    f (HookTrap name _ _)       = lookupChar name defaultPredicate
-    f (HookTrigger name _ _)    = lookupChar name defaultPredicate
-    f (HookTurn name _)         = lookupChar name defaultPredicate
-    f (Win _ names) = traverse_ (`lookupChar` defaultPredicate) names
+    f (Consecutive ident skills) = lookupChar ident $ hasSkills skills
+    f (HookAction ident skill _) = lookupChar ident $ hasSkills [skill]
+    f (HookChakra ident skill _) = lookupChar ident $ hasSkills [skill]
+    f (HookStore ident skill _)  = lookupChar ident $ hasSkills [skill]
+    f (HookTrap ident _ _)       = lookupChar ident defaultPredicate
+    f (HookTrigger ident _ _)    = lookupChar ident defaultPredicate
+    f (HookTurn ident _)         = lookupChar ident defaultPredicate
+    f (Win _ idents) = traverse_ (`lookupChar` defaultPredicate) idents
 
 hasSkills :: [Text] -> Character -> SpecWith ()
 hasSkills skills char = traverse_ hasSkill skills
