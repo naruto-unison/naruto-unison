@@ -4,7 +4,6 @@ module Game.Model.Slot
   ( Slot, toInt, parse
   , teamSize
   , all, allies, enemies
-  , random
   , toChar
   ) where
 
@@ -20,8 +19,6 @@ import           System.Random.Stateful (Uniform(..), UniformRange(..))
 import           Class.Display (Display)
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
-import           Class.Random (MonadRandom)
-import qualified Class.Random as R
 
 teamSize :: Int
 teamSize = 3
@@ -80,9 +77,6 @@ parse = do
     i <- Parse.decimal
     guard $ i >= 0 && i <= maxVal
     return $ Slot i
-
-random :: ∀ m. MonadRandom m => m Slot
-random = Slot <$> R.range (0, maxVal)
 
 toChar :: Slot -> Char
 toChar (Slot x) = toEnum $ x + 48
