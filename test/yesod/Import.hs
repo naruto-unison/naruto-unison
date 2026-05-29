@@ -9,7 +9,7 @@ import Application           (makeFoundation)
 import ClassyPrelude         as X hiding (delete, deleteBy)
 import Database.Persist      as X hiding (get)
 import Database.Persist.Sql  (SqlPersistM, runSqlPersistMPool, rawExecute, rawSql, unSingle)
-import Application.App       as X
+import Application.App       as X hiding (Handler, PersistEntity)
 import Application.Fields    as X
 import Application.Model     as X
 import Test.Hspec            as X
@@ -19,6 +19,8 @@ import Yesod.Auth            as X
 import Yesod.Test            as X
 import Yesod.Core.Unsafe     (fakeHandlerGetLogger)
 
+import qualified Application.App as App
+
 runDB :: SqlPersistM a -> YesodExample App a
 runDB query = do
     app <- getTestYesod
@@ -27,7 +29,7 @@ runDB query = do
 runDBWithApp :: App -> SqlPersistM a -> IO a
 runDBWithApp app query = runSqlPersistMPool query (connPool app)
 
-runHandler :: Handler a -> YesodExample App a
+runHandler :: App.Handler a -> YesodExample App a
 runHandler handler = do
     app <- getTestYesod
     fakeHandlerGetLogger logger app handler
