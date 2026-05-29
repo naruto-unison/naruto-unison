@@ -10,8 +10,9 @@ import ClassyPrelude hiding ((\\), map)
 
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
-import           Mission.Goal (Goal(Reach), Mission(Mission), Objective(..), WinType(..))
+import           Mission.Goal (Goal(Reach), Mission(Mission))
 import qualified Mission.Goal as Goal
+import           Mission.Objective (Objective(..), WinType(..))
 import           Util (mapFromKeyed)
 
 import qualified Mission.Missions.Shippuden
@@ -22,14 +23,15 @@ clean :: Mission -> Mission
 clean (Mission char goals) = Mission (Character.clean char) $ cleanup <$> goals
   where
     cleanup goal = goal { Goal.objective = f $ Goal.objective goal }
-    f (Win winType names)        = Win winType $ Character.clean <$> names
-    f (HookAction name skill fn) = HookAction (Character.clean name) skill fn
-    f (HookChakra name skill fn) = HookChakra (Character.clean name) skill fn
-    f (HookStore name skill fn)  = HookStore (Character.clean name) skill fn
-    f (HookTrap name trap fn)    = HookTrap (Character.clean name) trap fn
-    f (HookTrigger name trig fn) = HookTrigger (Character.clean name) trig fn
-    f (HookTurn name fn)         = HookTurn (Character.clean name) fn
-    f (Consecutive x skills)     = Consecutive (Character.clean x) $ sort skills
+    f (Win winType idents)        = Win winType $ Character.clean <$> idents
+    f (HookAction ident skill fn) = HookAction  (Character.clean ident) skill fn
+    f (HookChakra ident skill fn) = HookChakra  (Character.clean ident) skill fn
+    f (HookStore ident skill fn)  = HookStore   (Character.clean ident) skill fn
+    f (HookTrap ident trap fn)    = HookTrap    (Character.clean ident) trap  fn
+    f (HookTrigger ident trig fn) = HookTrigger (Character.clean ident) trig  fn
+    f (HookTurn ident fn)         = HookTurn    (Character.clean ident)       fn
+    f (Consecutive ident skills)  = Consecutive (Character.clean ident)
+                                  $ sort skills
 
 -- | All missions.
 list :: [Mission]

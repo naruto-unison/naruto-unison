@@ -39,6 +39,7 @@ import Game.Model.Ninja as Import (alive, hasOwn, health)
 import Game.Model.Trigger as Import (Trigger(..))
 import Game.Engine.Effects as Import (stunned)
 import Mission.Goal as Import
+import Mission.Objective as Import
 
 import           Class.Display (Display(..), commas)
 import           Game.Model.Ninja (Ninja(Ninja))
