@@ -920,10 +920,7 @@ previewBox st =
             H.article [ A.class "parchment" ] <|
             [ Keyed.node "aside"
               [] <|
-              if not st.condense then
-                  []
-
-              else case Dict.get (st.chars.shortName char) st.chars.groupDict of
+              case Dict.get (st.chars.shortName char) st.chars.groupDict of
                   Nothing ->
                       []
 
