@@ -14,21 +14,17 @@ import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character
 import qualified Game.Model.Class as Class
 import qualified Game.Model.Skill as Skill
-import           Util (mapFromKeyed)
 
 dataJS :: ByteString
 dataJS = toStrict . builderToLazy
-    $ "chars=" ++ encodeBytes Characters.map
-    ++ ";visible=" ++ encodeBytes visibles
-    ++ ";avatars=" ++ encodeBytes avatars
-    ++ ";characters=Object.values(chars);visibles=Object.keys(visible);"
+    $ "characters=" ++ encodeBytes Characters.list
+    ++ ";\nvisibles=" ++ encodeBytes visibles
+    ++ ";\navatars=" ++ encodeBytes avatars
+    ++ ";"
   where
+    visibles = filter Class.visible [minBound..maxBound]
     encodeBytes:: ∀ a. ToJSON a => a -> BS.Builder
     encodeBytes = fromEncoding . toEncoding
-
-visibles :: Map Text Bool
-visibles = mapFromKeyed (Class.name, const True)
-         $ filter Class.visible [minBound..maxBound]
 
 addDataJS :: ∀ m. MonadWidget m => m ()
 addDataJS = addScriptRemote "/js/data.js"

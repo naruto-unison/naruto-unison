@@ -206,7 +206,6 @@ instance Yesod App where
 
         pc <- widgetToPageContent do
             setTitle . toHtml $ title ++ " - Naruto Unison"
-            addScriptRemote "https://code.jquery.com/jquery-4.0.0.slim.min.js"
             $(widgetFile "include/cookie.min")
             $(widgetFile "include/main")
             $(widgetFile "include/normalize")

@@ -1,3 +1,9 @@
+"use strict";
+
+/** @typedef {"blood" | "gen" | "nin" | "tai" | "rand"} Chakra */
+
+/** @typedef { [Chakra]: number } Chakras */
+
 /**
  * @typedef Skill
  * @property {string}   name
@@ -6,7 +12,7 @@
  * @property {number}   cooldown
  * @property {number}   charges
  * @property {number}   dur
- * @property {Object.<string, number>} cost
+ * @property {Chakras}  cost
  */
 
 /**
@@ -17,124 +23,198 @@
  * @property {Skill[][]} skills
  * @property {number}    price
  * @property {string}    category
+ * @property {string}    ident
  */
-
-const cTypes  = [ "blood", "gen", "nin", "tai", "rand" ]
-const tcTypes = cTypes.slice(0, 4)
-
-/** @param {string} x */
-const shorten = x => x
-    .replace(/ \(\d+\)/g, '')
-    .replace(/[- :()']/g,'')
-    .replace(/ō/g,'o')
-    .replace(/ū/g,'u')
 
 /**
- * @param {Character} char
- * @param {string}    name
- *
- * @returns {Skill}
+ * @typedef SkillElements
+ * @property {HTMLElement[]} header
+ * @property {HTMLElement[]} article
+ * @property {string}        desc
  */
-const getSkill = (char, name) =>
-    char.skills.flat().filter(x => x.name === name)[0]
 
-/** @param {string[]} x */
-const filterClasses = x => x.filter(y => visible[y])
+/**
+ * @typedef Tooltip
+ * @property {HTMLElement} header
+ * @property {HTMLElement} article
+ */
 
-/** @param {Character} x */
-function showChar(x) {
-    switch (x.category) {
-        case "Shippuden":  return x.name + " (S)"
-        case "Reanimated": return x.name + " (R)"
-        default:           return x.name
+document.addEventListener("DOMContentLoaded", () => {
+    const chars = new Map(characters.map((character) => [character.ident, character]));
+
+    /**
+     * @param {HTMLElement} el
+     * @return {Character|undefined}
+     */
+    function findCharacter(el) {
+        return chars.get(el.dataset.name);
     }
-}
 
-/** @param {string} x */
-function showDur(x) {
-    switch (x) {
-        case "Passive": return "Instant"
-        default:        return x
+    /**
+     * @param {HTMLElement} el
+     * @return {Skill|undefined}
+     */
+    function findSkill(el) {
+        const character = findCharacter(el);
+        const skillName = el.innerText;
+        return character && character.skills.flat().find(({ name }) => name == skillName);
     }
-}
 
-/** @type {HTMLElement} */
-let cur
+    /**
+     * @param {Character} x
+     * @returns {string}
+     */
+    function formatCharacterName({ category, name }) {
+        switch (category) {
+            case "Shippuden":
+                return name + " (S)";
+            case "Reanimated":
+                return name + " (R)";
+            default:
+                return name;
+        }
+    }
 
-/**
- * @param {jQuery}      tooltip
- * @param {MouseEvent}  ev
- * @param {HTMLElement} el
- */
-const popup = (tooltip, ev, el) => tooltip
-    .stop()
-    .css("left", Math.min(ev.pageX, document.body.scrollWidth - tooltip[0].clientWidth - 10))
-    .css("top", Math.min(el.offsetTop, document.body.scrollHeight - tooltip[0].clientHeight - 10))
-    .fadeIn(100)
-    .show()
-    .css("left", Math.min(ev.pageX, document.body.scrollWidth - tooltip[0].clientWidth - 10))
-    .css("top", Math.min(el.offsetTop, document.body.scrollHeight - tooltip[0].clientHeight - 10))
+    const visiblesSet = new Set(visibles);
+    /**
+     * @param {string[]} x
+     * @returns {string[]}
+     */
+    function filterClasses(x) {
+        return x.filter((y) => visiblesSet.has(y));
+    }
 
-/**
- * @param {number}      i
- * @param {HTMLElement} el
- */
-const hoverChar = (i, el) => {
-    const tooltip = $("#tooltip")
-    const src = $(el)
-    const usr = chars[src.data("name")]
-    if (usr === undefined) return
-    src.mouseover(ev => {
-        if (tooltip.css("display") !== "none" && cur === src) return
-        cur = el
-        tooltip.stop()
-        tooltip.find("header").text(showChar(usr))
-        tooltip.find("article").text(usr.bio)
-        popup(tooltip, ev, el)
-    }).mouseleave(() => $("#tooltip").fadeOut(100))
-}
+    /**
+     * @param {Chakra} chakra
+     * @return {HTMLElement}
+     */
+    function renderChakra(chakra) {
+        const el = document.createElement("div");
+        el.className = `chakra ${chakra}`;
+        return el;
+    }
 
-$(() => {
-    const tooltip = $("#tooltip")
-    $("a.name").each(hoverChar)
-    $("li").find("sup").each(hoverChar)
-    $(".head").each(hoverChar)
-    $(".skill").each((i, /** @type {HTMLElement} */ el) => {
-        const src = $(el)
-        const usr = chars[src.data("name")]
-        if (usr === undefined)
-            return
-        const skill = getSkill(usr, src.text())
-        if (skill === undefined)
-            return
+    /**
+     * @param {Chakras} cost
+     * @return {HTMLElement[]}
+     */
+    function renderCost(cost) {
+        return Object.entries(cost).flatMap(([chakra, amount]) =>
+            Array.from(Array(amount), () => renderChakra(chakra)),
+        );
+    }
 
-        const classes =
-                $( '<br/><p class="skillClasses">'
-                 + [showDur(skill.dur.tag)].concat(filterClasses(skill.classes)).join(", ")
-                 + '</div>'
-                 )
+    /**
+     * @param {Skill} skill
+     * @return {HTMLElement}
+     */
+    function renderClasses({ classes, dur: { tag } }) {
+        const el = document.createElement("p");
+        el.className = "skillClasses";
+        if (tag === "Passive") {
+            tag = "Instant";
+        }
+        el.innerText = [tag, ...filterClasses(classes)].join(", ");
+        return el;
+    }
 
-        const renderCost = cType => Array
-            .from(Array(skill.cost[cType]))
-            .map(()=> $(`<div class=" chakra ${cType}"></div>`))
+    /**
+     * @param {string} text
+     * @return {HTMLElement}
+     */
+    function renderExtra(text) {
+        const el = document.createElement("span");
+        el.className = "extra";
+        el.innerText = text;
+        return el;
+    }
 
-        const costs   = [].concat(...cTypes.map(renderCost))
-        const charges = skill.charges
-        const desc    = skill.desc.replace(/\[.\]/g,"").replace(/\[/g,"<i>").replace(/\]/g,"</i>")
+    /**
+     * @param {Skill} skill
+     * @return {SkillElements}
+     */
+    function renderSkillElements(skill) {
+        const { charges, cooldown, cost } = skill;
+        const header = [...renderCost(cost), document.createElement("br"), renderClasses(skill)];
 
-        src.mouseover(ev => {
-            if (tooltip.css("display") !== "none" && cur === src)
-                return
-            cur = src
-            tooltip.stop().find("header").text(skill.name).append(costs).append(classes)
-            descEl = tooltip.find("article").html(desc)
-            if (charges === 1)
-                descEl.append(`<span class="extra">1 charge.</span>`)
-            else if (charges > 1)
-                descEl.append(`<span class="extra">${charges} charges.</span>`)
-            if (skill.cooldown > 0)
-                descEl.append(`<span class="extra">CD: ${skill.cooldown / 2 | 0}</span>`)
-            popup(tooltip, ev, el)
-        }).mouseleave(() => $("#tooltip").fadeOut(100))
-    })
-})
+        const article = [];
+        if (charges === 1) {
+            article.push(renderExtra("1 charge."));
+        } else if (charges > 1) {
+            article.push(renderExtra(`${charges} charges.`));
+        }
+        if (cooldown > 0) {
+            article.push(renderExtra(`CD: ${(cooldown / 2) | 0}`));
+        }
+
+        const desc = skill.desc.replace(/\[.\]/g, "").replace(/\[/g, "<i>").replace(/\]/g, "</i>");
+
+        return { article, header, desc };
+    }
+
+    const tooltip = document.getElementById("tooltip");
+    tooltip.hidden = true;
+
+    /** @type {HTMLElement|undefined} */
+    let currentTooltip = undefined;
+
+    function hideTooltip() {
+        tooltip.hidden = true;
+    }
+
+    /**
+     * @param {(tooltip: Tooltip, el: HTMLElement) => void} render
+     * @returns {(ev: MouseEvent) => void}
+     */
+    function wrapTooltipRenderer(render) {
+        return (ev) => {
+            /** @type {HTMLElement} */
+            const el = ev.currentTarget;
+            if (!tooltip.hidden && currentTooltip === el) {
+                return;
+            }
+            tooltip.hidden = true;
+            currentTooltip = el;
+            const [header, article] = tooltip.children;
+            render({ header, article }, el);
+            tooltip.style.left =
+                Math.min(ev.pageX, document.body.scrollWidth - tooltip.clientWidth - 10) + "px";
+            tooltip.style.top =
+                Math.min(el.offsetTop, document.body.scrollHeight - tooltip.clientHeight - 10) +
+                "px";
+            tooltip.hidden = false;
+        };
+    }
+
+    const characterTooltipHandler = wrapTooltipRenderer(({ header, article }, el) => {
+        const character = findCharacter(el);
+        header.innerText = formatCharacterName(character);
+        article.innerText = character.bio;
+    });
+
+    const skillTooltipHandler = wrapTooltipRenderer(({ header, article }, el) => {
+        const skill = findSkill(el);
+        const elements = renderSkillElements(skill);
+        header.innerText = skill.name;
+        header.append(...elements.header);
+        article.innerHTML = elements.desc;
+        article.append(...elements.article);
+    });
+
+    const characterLinks = [
+        ...document.querySelectorAll("a.name"),
+        ...document.querySelector("li").querySelectorAll("sup"),
+        ...document.querySelectorAll(".head"),
+    ];
+    const skillLinks = document.querySelectorAll(".skill");
+
+    for (el of characterLinks) {
+        el.addEventListener("mouseover", characterTooltipHandler);
+        el.addEventListener("mouseleave", hideTooltip);
+    }
+
+    for (el of skillLinks) {
+        el.addEventListener("mouseover", skillTooltipHandler);
+        el.addEventListener("mouseleave", hideTooltip);
+    }
+});

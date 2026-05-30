@@ -1,22 +1,24 @@
-/** @type {HTMLDivElement} */
-const output = document.getElementById("output")
+document.addEventListener("DOMContentLoaded", () => {
+    /** @type {HTMLDivElement} */
+    const output = document.getElementById("output");
 
-/** @type {HTMLFormElement} */
-const form = document.getElementById("form")
+    /** @type {HTMLFormElement} */
+    const form = document.getElementById("form");
 
-/** @type {HTMLInputElement} */
-const input = document.getElementById("input")
+    /** @type {HTMLInputElement} */
+    const input = document.getElementById("input");
 
-const conn = new WebSocket(document.URL.replace(/^http/g, "ws"))
+    const conn = new WebSocket(document.URL.replace(/^http/g, "ws"));
 
-conn.onmessage = e => {
-    const p = document.createElement("p")
-    p.appendChild(document.createTextNode(e.data.substr(0, 100) + "\n\n"))
-    output.appendChild(p)
-}
+    conn.addEventListener("message", (e) => {
+        const p = document.createElement("p");
+        p.appendChild(document.createTextNode(e.data.substr(0, 100) + "\n\n"));
+        output.appendChild(p);
+    });
 
-form.addEventListener("submit", e => {
-    conn.send(input.value)
-    input.value = ""
-    e.preventDefault()
-})
+    form.addEventListener("submit", (e) => {
+        conn.send(input.value);
+        input.value = "";
+        e.preventDefault();
+    });
+});
