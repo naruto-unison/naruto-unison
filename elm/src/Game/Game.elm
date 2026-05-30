@@ -132,6 +132,7 @@ unknown =
     , category = Original
     , groups   = Set.empty
     , price    = 0
+    , ident    = ""
     }
 
 

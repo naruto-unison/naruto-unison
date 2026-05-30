@@ -11,11 +11,10 @@ import Import.Decode exposing (decodeSumTaggedObject)
 type Bomb  =
     Done
     | Expire
-    | Remove
 
 jsonDecBomb : Json.Decode.Decoder ( Bomb )
 jsonDecBomb =
-    let jsonDecDictBomb = Dict.fromList [("Done", Done), ("Expire", Expire), ("Remove", Remove)]
+    let jsonDecDictBomb = Dict.fromList [("Done", Done), ("Expire", Expire)]
     in  decodeSumUnaries "Bomb" jsonDecDictBomb
 
 jsonEncBomb : Bomb -> Value
@@ -23,7 +22,6 @@ jsonEncBomb  val =
     case val of
         Done -> Json.Encode.string "Done"
         Expire -> Json.Encode.string "Expire"
-        Remove -> Json.Encode.string "Remove"
 
 
 
@@ -134,32 +132,35 @@ jsonEncChanneling  val =
 
 type alias Character  =
    { name: String
+   , price: Int
    , bio: String
    , groups: (Set String)
    , skills: (List (List Skill))
-   , price: Int
    , category: Category
+   , ident: String
    }
 
 jsonDecCharacter : Json.Decode.Decoder ( Character )
 jsonDecCharacter =
    Json.Decode.succeed Character
    |> required "name" (Json.Decode.string)
+   |> required "price" (Json.Decode.int)
    |> required "bio" (Json.Decode.string)
    |> required "groups" (decodeSet (Json.Decode.string))
    |> required "skills" (Json.Decode.list (Json.Decode.list (jsonDecSkill)))
-   |> required "price" (Json.Decode.int)
    |> required "category" (jsonDecCategory)
+   |> required "ident" (Json.Decode.string)
 
 jsonEncCharacter : Character -> Value
 jsonEncCharacter  val =
    Json.Encode.object
    [ ("name", Json.Encode.string val.name)
+   , ("price", Json.Encode.int val.price)
    , ("bio", Json.Encode.string val.bio)
    , ("groups", (encodeSet Json.Encode.string) val.groups)
    , ("skills", (Json.Encode.list (Json.Encode.list jsonEncSkill)) val.skills)
-   , ("price", Json.Encode.int val.price)
    , ("category", jsonEncCategory val.category)
+   , ("ident", Json.Encode.string val.ident)
    ]
 
 
@@ -499,7 +500,9 @@ type Requirement  =
     | TargetHas Int String
     | UserHealth Int
     | TargetHealth Int
+    | UserChannel Bool String
     | UserDefense Int String
+    | UserTrap Bool String
 
 jsonDecRequirement : Json.Decode.Decoder ( Requirement )
 jsonDecRequirement =
@@ -510,7 +513,9 @@ jsonDecRequirement =
             , ("TargetHas", Json.Decode.lazy (\_ -> Json.Decode.map2 TargetHas (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.string))))
             , ("UserHealth", Json.Decode.lazy (\_ -> Json.Decode.map UserHealth (Json.Decode.int)))
             , ("TargetHealth", Json.Decode.lazy (\_ -> Json.Decode.map TargetHealth (Json.Decode.int)))
+            , ("UserChannel", Json.Decode.lazy (\_ -> Json.Decode.map2 UserChannel (Json.Decode.index 0 (Json.Decode.bool)) (Json.Decode.index 1 (Json.Decode.string))))
             , ("UserDefense", Json.Decode.lazy (\_ -> Json.Decode.map2 UserDefense (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.string))))
+            , ("UserTrap", Json.Decode.lazy (\_ -> Json.Decode.map2 UserTrap (Json.Decode.index 0 (Json.Decode.bool)) (Json.Decode.index 1 (Json.Decode.string))))
             ]
         jsonDecObjectSetRequirement = Set.fromList ["Usable", "Unusable"]
     in  decodeSumTaggedObject "Requirement" "tag" "contents" jsonDecDictRequirement jsonDecObjectSetRequirement
@@ -524,7 +529,9 @@ jsonEncRequirement  val =
                     TargetHas v1 v2 -> ("TargetHas", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.string v2]))
                     UserHealth v1 -> ("UserHealth", encodeValue (Json.Encode.int v1))
                     TargetHealth v1 -> ("TargetHealth", encodeValue (Json.Encode.int v1))
+                    UserChannel v1 v2 -> ("UserChannel", encodeValue (Json.Encode.list identity [Json.Encode.bool v1, Json.Encode.string v2]))
                     UserDefense v1 v2 -> ("UserDefense", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.string v2]))
+                    UserTrap v1 v2 -> ("UserTrap", encodeValue (Json.Encode.list identity [Json.Encode.bool v1, Json.Encode.string v2]))
     in encodeSumTaggedObject "tag" "contents" keyval val
 
 
@@ -561,7 +568,6 @@ type alias Skill  =
    , start: (List Target)
    , effects: (List Target)
    , stunned: (List Target)
-   , interrupt: (List Target)
    , end: (List Target)
    , owner: Int
    }
@@ -580,7 +586,6 @@ jsonDecSkill =
    |> required "start" (Json.Decode.list (jsonDecTarget))
    |> required "effects" (Json.Decode.list (jsonDecTarget))
    |> required "stunned" (Json.Decode.list (jsonDecTarget))
-   |> required "interrupt" (Json.Decode.list (jsonDecTarget))
    |> required "end" (Json.Decode.list (jsonDecTarget))
    |> required "owner" (Json.Decode.int)
 
@@ -598,7 +603,6 @@ jsonEncSkill  val =
    , ("start", (Json.Encode.list jsonEncTarget) val.start)
    , ("effects", (Json.Encode.list jsonEncTarget) val.effects)
    , ("stunned", (Json.Encode.list jsonEncTarget) val.stunned)
-   , ("interrupt", (Json.Encode.list jsonEncTarget) val.interrupt)
    , ("end", (Json.Encode.list jsonEncTarget) val.end)
    , ("owner", Json.Encode.int val.owner)
    ]

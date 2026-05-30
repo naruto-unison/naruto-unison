@@ -53,7 +53,6 @@ data Skill = Skill
     , start     :: [Runnable Target]
     , effects   :: [Runnable Target]
     , stunned   :: [Runnable Target]
-    , interrupt :: [Runnable Target]
     , end       :: [Runnable Target]
     , owner     :: Slot
     }
