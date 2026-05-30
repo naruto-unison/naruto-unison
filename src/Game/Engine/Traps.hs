@@ -188,7 +188,8 @@ makeTrap ctx direction classes dur trigger f = Trap
     setNecromancy
       | Trigger.affectsDead trigger = insertSet Necromancy
       | otherwise                   = id
-    classes' = setContinues . setNecromancy $ classes ++ Skill.classes skill
+    classes' = insertSet Nonstacking . setContinues . setNecromancy
+             $ classes ++ Skill.classes skill
     skill'   = skill { Skill.classes = classes'
                      , Skill.require = Usable
                      }

@@ -1,6 +1,5 @@
 module Class.Labeled
   ( Labeled(..)
-  , eq
   , group
   , match, named
   , mapFirst
@@ -19,11 +18,10 @@ class Labeled a where
     name :: a -> Text
     -- | 'Model.Ninja.Ninja' user
     user :: a -> Slot
-
--- Equality by both fields.
-eq :: ∀ a. Labeled a => a -> a -> Bool
-eq x y = name x == name y && user x == user y
-{-# INLINABLE eq #-}
+    -- Equality by both fields.
+    eq :: a -> a -> Bool
+    eq x y = name x == name y && user x == user y
+    {-# INLINABLE eq #-}
 
 group :: ∀ o. (IsSequence o, Labeled (Element o)) => o -> [NonEmpty (Element o)]
 group xs = groupBy eq . toList $ sortBy cmp xs

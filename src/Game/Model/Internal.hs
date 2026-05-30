@@ -390,6 +390,8 @@ instance Classed Trap where
 instance Labeled Trap where
     name Trap{name} = name
     user Trap{user} = user
+    eq = (==) `on` \Trap{direction, trigger, name, user} ->
+        (direction, trigger, name, user)
 
 
 -- | Gameplay context. This promotes a 'MonadGame' to 'MonadPlay'.
