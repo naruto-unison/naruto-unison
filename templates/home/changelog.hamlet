@@ -194,7 +194,10 @@
     makes him invulnerable to skills that cost genjutsu chakra for one turn.
   <li>
     ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"}
-    increases the cooldown of mental skills as well as non-mental skills.
+    increases the cooldown of all skills, not just non-mental skills.
+  <li>
+    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"}
+    only resets the cooldowns of [Instant] skills.
   <li>
     ^{Link.skill "Chukichi" Reanimated "Hidden Frost"}
     makes Chukichi invulnerable to all ranged skills.
@@ -256,6 +259,15 @@
     ^{Link.skill "Shikaku Nara" Original "Shadow Possession"}:
     was <i>Control</i>, now <i>Instant</i>.
   <li>
+    ^{Link.skill "Kimimaro" Original "Bracken Dance"}:
+    was <i>Instant</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Ino Yamanaka" Shippuden "Mind Destruction"}:
+    was <i>Instant</i>, now <i>Control</i>.
+  <li>
+    ^{Link.skill "Konohamaru Sarutobi" Shippuden "Rasengan"}:
+    was <i>Action</i>, now <i>Instant</i>.
+  <li>
     ^{Link.skill "Kazekage Gaara" Shippuden "Sand Prison"}:
     was <i>Control</i>, now <i>Instant</i>.
   <li>
@@ -276,3 +288,6 @@
   <li>
     ^{Link.skill "Pakura" Reanimated "Searing Combat"}:
     was <i>Action</i>, now <i>Instant</i>.
+  <li>
+    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"}:
+    was <i>Instant</i>, now <i>Ongoing</i>.
