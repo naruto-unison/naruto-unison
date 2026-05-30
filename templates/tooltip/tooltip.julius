@@ -165,12 +165,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const characterTooltipHandler = wrapTooltipRenderer(({ header, article }, el) => {
         const character = findCharacter(el);
+        if (!character) {
+            return;
+        }
         header.innerText = formatCharacterName(character);
         article.innerText = character.bio;
     });
 
     const skillTooltipHandler = wrapTooltipRenderer(({ header, article }, el) => {
         const skill = findSkill(el);
+        if (!skill) {
+            return;
+        }
         const { charges, cooldown, cost } = skill;
         header.innerText = skill.name;
         header.append(...renderCost(cost), document.createElement("br"), renderClasses(skill));
