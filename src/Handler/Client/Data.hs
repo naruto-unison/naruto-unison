@@ -14,13 +14,15 @@ import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character
 import qualified Game.Model.Class as Class
 import qualified Game.Model.Skill as Skill
+import           Mission (freeChars)
 
 dataJS :: ByteString
 dataJS = toStrict . builderToLazy
     $ "characters=" ++ encodeBytes Characters.list
     ++ ";\nvisibles=" ++ encodeBytes visibles
     ++ ";\navatars=" ++ encodeBytes avatars
-    ++ ";"
+    ++ ";\nalwaysUnlocked=" ++ encodeBytes freeChars
+    ++ ";\n"
   where
     visibles = filter Class.visible [minBound..maxBound]
     encodeBytes:: ∀ a. ToJSON a => a -> BS.Builder

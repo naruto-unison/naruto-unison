@@ -143,7 +143,7 @@ guestPlayParams = PlayParams
     { bg       = "/img/bg/valley2.jpg"
     , practice = []
     , team     = []
-    , unlocked = Mission.allUnlocked
+    , unlocked = mempty
     , vol      = "click unmuted"
     }
 
@@ -156,6 +156,6 @@ userPlayParams User { userBackground
     { bg       = fromMaybe (bg guestPlayParams) userBackground
     , practice = userPractice
     , team     = maybe [] (filter (∈ unlocked)) userTeam
-    , unlocked
+    , unlocked = unlocked \\ Mission.freeChars
     , vol      = if userMuted then "click muted" else vol guestPlayParams
     }

@@ -197,7 +197,6 @@ component ports =
             , costs      = teamCosts flags.characters team
             , vs         = vs
             , user       = flags.user
-            , unlocked   = flags.unlocked
             , chars      = flags.characters
             , avatars    = flags.avatars
             , visibles   = flags.visibles
@@ -214,6 +213,11 @@ component ports =
             , alternates = [ 0, 0, 0, 0 ]
             , pageSize   = 36
             , search     = ""
+            , unlocked   =
+                if Maybe.isJust flags.user then
+                    flags.unlocked
+                else
+                    Set.empty
             , condense   =
                 flags.user
                     |> Maybe.map .condense
@@ -551,7 +555,7 @@ size st =
 
 locked : Set String -> Character -> Bool
 locked set char =
-    not <| Set.member (characterName char) set
+    not <| Set.isEmpty set || Set.member (characterName char) set
 
 
 belongsTo : Set String -> Character -> Bool

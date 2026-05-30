@@ -3,7 +3,7 @@
 module Mission
   ( initDB
   , progress
-  , Unlocks, allUnlocked, unlocked
+  , Unlocks, unlocked, freeChars
   , characterID
   , userMission
   , processWin, processDefeat, processUnpicked
@@ -15,7 +15,6 @@ import ClassyPrelude
 import Database.Persist
 
 import           Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
-import           Data.Aeson (ToJSON(..))
 import           Data.Bimap (Bimap)
 import qualified Data.Bimap as Bimap
 import qualified Data.Sequence as Seq
@@ -70,20 +69,17 @@ makeMap chars = Bimap.fromList $ mapMaybe maybePair chars
     maybePair (Entity charId Character{characterName}) =
         (charId, ) . Character.ident <$> Characters.lookup characterName
 
-newtype Unlocks = Unlocks (HashSet Text)
-    deriving (Show, Read, Semigroup, Monoid, MonoFoldable, ToJSON)
-
-type instance Element Unlocks = Text
+type Unlocks = HashSet Text
 
 allUnlocked :: Unlocks
-allUnlocked = Unlocks $ keysSet Characters.map
+allUnlocked = keysSet Characters.map
 
 -- | 'Character.ident' collection of all Characters that the user has unlocked.
 -- If not logged in, all Characters are returned.
 -- If @unlock-all@ in [config/settings.yml](config/settings.yml) is set to true,
 -- all Characters will always be returned.
 unlocked :: App.Handler Unlocks
-unlocked = cached $ maybe allUnlocked Unlocks <$> runMaybeT do
+unlocked = cached $ fromMaybe allUnlocked <$> runMaybeT do
     unlockAll <- getsYesod $ Settings.unlockAll . App.settings
     guard unlockAll
     Just who  <- Auth.maybeAuthId
@@ -97,7 +93,8 @@ unlocked = cached $ maybe allUnlocked Unlocks <$> runMaybeT do
     look ids (Entity _ Unlocked{unlockedCharacter}) =
         Bimap.lookup unlockedCharacter ids
 
--- | 'Character.ident's of all Characters without DNA 'Character.price's.
+-- | 'Character.ident's of all Characters without missions or DNA
+-- 'Character.price's.
 freeChars :: HashSet Text
 freeChars = setFromList dna \\ keysSet Missions.map
   where
@@ -240,8 +237,8 @@ processDefeat team = do
 -- This function should always be called at the end of a game.
 processUnpicked :: [Text] -> App.Handler ()
 processUnpicked team = do
-    ids             <- getsYesod App.characterIDs
-    Unlocks unlocks <- unlocked
+    ids     <- getsYesod App.characterIDs
+    unlocks <- unlocked
     runDB . mapM_ ups . mapMaybe (`Bimap.lookupR` ids) . toList
         $ unlocks \\ setFromList team
   where
