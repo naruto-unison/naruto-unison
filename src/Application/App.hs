@@ -31,7 +31,10 @@ import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Lazy.Encoding as LazyEncoding
 import qualified Data.Time.Format as Format
 import qualified Data.Time.LocalTime as LocalTime
-import           Database.Persist.Sql (ConnectionPool, SqlBackend, SqlPersistT, fromSqlKey, runSqlPool)
+import           Database.Persist.Sql (ConnectionPool, SqlBackend, SqlPersistT, runSqlPool)
+#ifndef DEVELOPMENT
+import           Database.Persist.Sql (fromSqlKey)
+#endif
 import           Network.HTTP.Client.Conduit (HasHttpManager(..), Manager)
 import qualified Network.Mail.Mime as Mail
 import qualified Text.Blaze.Html.Renderer.Utf8 as Blaze

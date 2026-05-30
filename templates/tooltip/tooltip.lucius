@@ -3,6 +3,9 @@
     margin: -4px;
     cursor: default;
 }
+.skill:hover {
+  color: #59bdff;
+}
 
 #tooltip {
   position: absolute;

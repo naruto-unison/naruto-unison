@@ -24,7 +24,6 @@ import           Class.Display (shorten)
 import qualified Game.Characters as Characters
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
-import qualified Game.Model.Class as Class
 import qualified Game.Model.Skill as Skill
 import qualified Handler.Play as Play
 import qualified Handler.Play.War as War
@@ -124,6 +123,7 @@ getPlayR = do
     defaultLayout do
         setTitle "Naruto Unison"
         addStylesheetRemote "/css/embeds.css"
+        addScriptRemote "/js/data.js"
         $(widgetFile "include/progressbar.min")
         $(widgetFile "include/soundjs.min")
         $(widgetFile "include/normalize")

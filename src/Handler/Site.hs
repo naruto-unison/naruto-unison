@@ -127,10 +127,10 @@ getCharactersR = do
 
 -- | Renders a character's details and the user's progress on their mission.
 getCharacterR :: Character -> App.Handler Html
-getCharacterR char@Character{ident = name} = do
+getCharacterR char@Character{ident} = do
     -- due to mission objectives, content does change if logged in
     whenM (isNothing <$> Auth.maybeAuthId) App.unchanged304
-    mmission <- Mission.userMission name
+    mmission <- Mission.userMission ident
     defaultLayout $(widgetFile "guide/character")
   where
     skillClasses Skill{classes} = intercalate ", "

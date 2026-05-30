@@ -1,5 +1,6 @@
 dist*
 static/tmp/
+static/js/data.js
 static/combined/
 config/client_session_key.aes
 *.hi
