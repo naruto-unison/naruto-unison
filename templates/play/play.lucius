@@ -493,6 +493,7 @@ button.scroll:hover {
         > aside {
             width: 75px;
             position: absolute;
+            bottom: -1px;
             left: -65px;
 
             .char {
