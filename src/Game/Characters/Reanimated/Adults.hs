@@ -21,10 +21,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ afflict 20
-          , To Self do
-                trapFrom 2 (OnHarmed All) $
-                    afflict 10
-                tag 2
+          , To Self $ trapFrom 2 (OnHarmed All) $
+                afflict 10
           ]
         }
       ]
@@ -41,7 +39,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Super Steam Kill"
         , Skill.desc      = "One of Pakura's orbs contacts an enemy and evaporates the water inside their body, mummifying them and dealing 40 affliction damage. Requires [Scorch Style]."
-        , Skill.require   = UserHas 1 "Scorch Style"
+        , Skill.require   = UserTrap True "Scorch Style"
         , Skill.classes   = [Chakra, Melee, Bane]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
