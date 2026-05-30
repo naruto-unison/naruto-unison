@@ -182,14 +182,20 @@ component :
         }
 component ports =
     let
+
         init : Flags -> Model
         init flags =
+            let
+                getCharacter ident = Dict.get ident flags.characters.dict
+                team = List.filterMap getCharacter flags.userTeam
+                vs   = List.filterMap getCharacter flags.userPractice
+            in
             { error      = Nothing
             , stage      = Browsing
             , url        = flags.url
-            , team       = flags.userTeam
-            , costs      = teamCosts flags.characters flags.userTeam
-            , vs         = flags.userPractice
+            , team       = team
+            , costs      = teamCosts flags.characters team
+            , vs         = vs
             , user       = flags.user
             , unlocked   = flags.unlocked
             , chars      = flags.characters

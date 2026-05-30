@@ -30,6 +30,7 @@ import qualified Game.Model.Character as Character
 import qualified Game.Model.Class as Class
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
+import           Handler.Client.Data (addDataJS)
 import qualified Handler.Forum as Forum
 import qualified Handler.Link as Link
 import qualified Handler.Parse as Parse
@@ -43,6 +44,7 @@ getChangelogR = do
     App.unchanged304
     (title, _) <- breadcrumbs
     defaultLayout do
+        addDataJS
         $(widgetFile "tooltip/tooltip")
         $(widgetFile "home/changelog")
   where
@@ -65,6 +67,7 @@ getHomeR = do
               (maybe epoch (newsTime . fst) $ headMay newsList)
     defaultLayout do
         setTitle "Naruto Unison"
+        addDataJS
         $(widgetFile "tooltip/tooltip")
         $(widgetFile "home/home")
   where
@@ -152,5 +155,6 @@ getMechanicsR = do
     App.unchanged304
     (title, _) <- breadcrumbs
     defaultLayout do
+        addDataJS
         $(widgetFile "tooltip/tooltip")
         $(widgetFile "guide/mechanics")

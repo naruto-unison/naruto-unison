@@ -13,18 +13,15 @@ module Handler.Client
 import ClassyPrelude
 import Yesod
 
-import           Data.List (nub)
 import qualified System.Random.MWC as Random
 import qualified Yesod.Auth as Auth
 
 import qualified Application.App as App
 import           Application.Model (EntityField(..), Unlocked(..), User(..))
 import           Application.Settings (widgetFile)
-import           Class.Display (shorten)
-import qualified Game.Characters as Characters
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
-import qualified Game.Model.Skill as Skill
+import           Handler.Client.Data (addDataJS)
 import qualified Handler.Play as Play
 import qualified Handler.Play.War as War
 import qualified Mission
@@ -123,11 +120,11 @@ getPlayR = do
     defaultLayout do
         setTitle "Naruto Unison"
         addStylesheetRemote "/css/embeds.css"
-        addScriptRemote "/js/data.js"
+        addScriptRemote "/js/elm.js"
+        addDataJS
         $(widgetFile "include/progressbar.min")
         $(widgetFile "include/soundjs.min")
         $(widgetFile "include/normalize")
-        $(widgetFile "play/elm")
         $(widgetFile "play/play")
   where
     getPlayParams (Just user) = userPlayParams user <$> Mission.unlocked
@@ -135,8 +132,8 @@ getPlayR = do
 
 data PlayParams = PlayParams
     { bg       :: Text
-    , practice :: [Character]
-    , team     :: [Character]
+    , practice :: [Text]
+    , team     :: [Text]
     , unlocked :: Mission.Unlocks
     , vol      :: Text
     }
@@ -157,27 +154,8 @@ userPlayParams User { userBackground
                     , userTeam
                     } unlocked = PlayParams
     { bg       = fromMaybe (bg guestPlayParams) userBackground
-    , practice = Characters.lookupAll userPractice
-    , team     = maybe []
-                 (Characters.lookupAll . filter (∈ unlocked)) userTeam
+    , practice = userPractice
+    , team     = maybe [] (filter (∈ unlocked)) userTeam
     , unlocked
     , vol      = if userMuted then "click muted" else vol guestPlayParams
     }
-
--- | Icons from all of a character's skills.
-charAvatars :: Character -> [Text]
-charAvatars Character{ident, skills} = toFile . shorten
-    <$> "icon" : (nub $ Skill.name <$> concatMap toList skills)
-  where
-    toFile path = "/img/ninja/" ++ ident ++ "/" ++ path ++ ".jpg"
-
--- | Icons that users can set as their avatars.
-avatars :: Value
-avatars = toJSON $ icons ++ concatMap charAvatars Characters.list
-  where
-    icons = toFile <$> [ "default.jpg"
-                       , "gaaraofthefunk.jpg"
-                       , "ninjainfocards.jpg"
-                       , "kabugrin.jpg"
-                       ]
-    toFile path = "/img/icon/" ++ path

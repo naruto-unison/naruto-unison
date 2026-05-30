@@ -5,9 +5,9 @@
   "main": "naruto-unison-elm.js",
   "scripts": {
     "compile": "rimraf elm-stuff && elm make src/Main.elm --output=elm-stuff/naruto-unison-elm.js --optimize",
-    "compress": "uglifyjs elm-stuff/naruto-unison-elm.js --compress | uglifyjs --mangle --output ../templates/play/elm.julius && rimraf elm-stuff",
-    "build": "rimraf elm-stuff && elm make src/Main.elm --output=elm-stuff/naruto-unison-elm.js --optimize && uglifyjs elm-stuff/naruto-unison-elm.js --compress | uglifyjs --mangle --output ../templates/play/elm.julius",
-    "unmangled": "rimraf elm-stuff && elm make src/Main.elm --output=naruto-unison-elm.js && mv naruto-unison-elm.js ../templates/play/elm.julius"
+    "compress": "uglifyjs elm-stuff/naruto-unison-elm.js --compress | uglifyjs --mangle --output ../static/js/elm.js && rimraf elm-stuff",
+    "build": "rimraf elm-stuff && elm make src/Main.elm --output=elm-stuff/naruto-unison-elm.js --optimize && uglifyjs elm-stuff/naruto-unison-elm.js --compress | uglifyjs --mangle --output ../static/js/elm.js",
+    "unmangled": "rimraf elm-stuff && elm make src/Main.elm --output=naruto-unison-elm.js && mv naruto-unison-elm.js ../static/js/elm.js"
   },
   "repository": {
     "type": "git",

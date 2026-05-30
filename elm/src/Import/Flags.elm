@@ -23,8 +23,8 @@ import Util exposing (groupBy, unaccent)
 type alias Flags =
     { url          : String
     , bg           : String
-    , userTeam     : List Character
-    , userPractice : List Character
+    , userTeam     : List String
+    , userPractice : List String
     , unlocked     : Set String
     , user         : Maybe User
     , avatars      : List String
@@ -60,8 +60,8 @@ decode =
     D.succeed Flags
         |> D.required "url"          D.string
         >> D.required "bg"           D.string
-        >> D.required "userTeam"     (D.list Model.jsonDecCharacter)
-        >> D.required "userPractice" (D.list Model.jsonDecCharacter)
+        >> D.required "userTeam"     (D.list D.string)
+        >> D.required "userPractice" (D.list D.string)
         >> D.required "unlocked"     (D.list D.string |> D.map Set.fromList)
         >> D.required "user"         (D.maybe Model.jsonDecUser)
         >> D.required "avatars"      (D.list D.string)

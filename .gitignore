@@ -1,6 +1,7 @@
 dist*
 static/tmp/
 static/js/data.js
+static/js/elm.js
 static/combined/
 config/client_session_key.aes
 *.hi
@@ -26,7 +27,6 @@ naruto-unison.cabal
 
 elm-stuff/
 node_modules/
-elm.julius
 package-lock.json
 yarn.lock
 hie.yaml

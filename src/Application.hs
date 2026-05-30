@@ -19,7 +19,6 @@ module Application
 import ClassyPrelude
 import Yesod
 
-import           Data.Aeson (fromEncoding)
 import           Control.Concurrent (forkIO)
 import qualified Control.Monad.Logger as Logger
 import           Data.Bimap (Bimap)
@@ -44,10 +43,9 @@ import           Application.Model (CharacterId)
 import qualified Application.Model as Model
 import           Application.Settings (Settings(Settings))
 import qualified Application.Settings as Settings
-import qualified Game.Characters as Characters
-import qualified Game.Model.Class as Class
 import           Handler.Admin
 import           Handler.Client
+import           Handler.Client.Data (writeDataJS)
 import           Handler.Embed
 import           Handler.Forum
 import           Handler.Forum.API
@@ -55,15 +53,8 @@ import           Handler.Play
 import qualified Handler.Queue as Queue
 import           Handler.Site
 import qualified Mission
-import UnliftIO.Directory (createDirectoryIfMissing)
 
 mkYesodDispatch "App" App.resourcesApp
-
-dataJS :: ByteString
-dataJS = toStrict . builderToLazy
-    $ "characters=" ++ fromEncoding (toEncoding Characters.listJSON)
-    ++ ";visibles=" ++ fromEncoding (toEncoding Class.visiblesList) ++ ";"
-{-# NOINLINE dataJS #-}
 
 -- | Initializes the database:
 -- loads 'Application.Model',
@@ -85,8 +76,7 @@ makeFoundation settings@Settings { databaseConf
                                  , queueTableSizeHint
                                  , staticDir
                                  } = do
-    createDirectoryIfMissing True $ staticDir ++ "/js"
-    writeFile (staticDir ++ "/js/data.js") dataJS
+    writeDataJS staticDir
     httpManager <- TLS.getGlobalManager
     loggerSet   <- FastLogger.newStdoutLoggerSet FastLogger.defaultBufSize
     logger      <- DefaultConfig.makeYesodLogger loggerSet

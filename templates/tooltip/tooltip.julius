@@ -19,11 +19,8 @@
  * @property {string}    category
  */
 
-/** @type {Object.<string, Character>} */
-const chars = #{Characters.mapJSON}
-
 const cTypes  = [ "blood", "gen", "nin", "tai", "rand" ]
-const tcTypes = [ "blood", "gen", "nin", "tai" ]
+const tcTypes = cTypes.slice(0, 4)
 
 /** @param {string} x */
 const shorten = x => x
@@ -40,9 +37,6 @@ const shorten = x => x
  */
 const getSkill = (char, name) =>
     char.skills.flat().filter(x => x.name === name)[0]
-
-/** @type {Object.<string, boolean>} */
-const visible = #{Class.visiblesMap}
 
 /** @param {string[]} x */
 const filterClasses = x => x.filter(y => visible[y])

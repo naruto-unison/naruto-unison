@@ -1,19 +1,18 @@
 module Game.Model.Class
   ( Class(..)
   , name, lower
-  , visible, visiblesList, visiblesMap
+  , visible
   ) where
 
 import ClassyPrelude
 
-import           Data.Aeson (ToJSON(..), Value)
+import           Data.Aeson (ToJSON(..))
 import qualified Data.Aeson as A
 import qualified Data.Enum.Memo as Enum
 import           Data.Enum.Set (AsEnumSet(..))
 import           Text.Blaze (ToMarkup(..))
 
 import Class.Display (Display(..))
-import Util (mapFromKeyed)
 
 -- | Qualifiers of 'Model.Skill.Skill's and 'Model.Status.Status'es.
 data Class
@@ -86,15 +85,3 @@ name x              = tshow x
 lower :: Class -> TextBuilder
 lower = Enum.memoize $ display . toLower . name
 {-# NOINLINE lower #-}
-
-visiblesList :: Value
-visiblesList = toJSON $ filter visible [minBound..maxBound]
-{-# NOINLINE visiblesList #-}
-
-visiblesMap :: Value
-visiblesMap = toJSON mapped
-  where
-    mapped :: Map Text Bool
-    mapped = mapFromKeyed (name, const True)
-           $ filter visible [minBound..maxBound]
-{-# NOINLINE visiblesMap #-}

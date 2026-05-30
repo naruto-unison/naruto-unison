@@ -4,12 +4,10 @@
 module Game.Characters
   ( list, map
   , lookup, lookupAll
-  , listJSON, mapJSON
   ) where
 
 import ClassyPrelude hiding (link, lookup, map)
 
-import           Data.Aeson (Value, toJSON)
 import qualified Data.HashMap.Strict as HashMap
 
 import           Game.Model.Character (Character(Character))
@@ -39,17 +37,9 @@ list = setIdent . addGroups . addClasses <$>
     Game.Characters.Reanimated.characters
 {-# NOINLINE list #-}
 
-listJSON :: Value
-listJSON = toJSON list
-{-# NOINLINE listJSON #-}
-
 map :: HashMap Text Character
 map = mapFromKeyed (Character.ident, id) list
 {-# NOINLINE map #-}
-
-mapJSON :: Value
-mapJSON = toJSON map
-{-# NOINLINE mapJSON #-}
 
 lookup :: Text -> Maybe Character
 lookup k = HashMap.lookup k map
