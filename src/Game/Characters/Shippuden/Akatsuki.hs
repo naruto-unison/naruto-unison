@@ -41,7 +41,7 @@ characters =
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 6
-        , Skill.dur       = Ongoing Permanent
+        , Skill.dur       = Passive
         , Skill.start     =
           [ To Self do
                 defend' Permanent 70 [ Alternate "Susanoo"
@@ -78,8 +78,10 @@ characters =
           [ To Enemy $ damage 10
           , To XEnemies $ damage 5
           , To Enemies do
-                trap 1 OnDefend $ damage 10
-                trap 1 OnReduce $ damage 10
+                trap 1 OnDefend $
+                    damage 10
+                trap 1 OnReduce $
+                    damage 10
           ]
         }
       ]
@@ -226,6 +228,7 @@ characters =
         , Skill.dur       = Passive
         , Skill.start     =
           [ To Self do
+                cancelChannel -- in case cooldown was reset
                 defend 2 20
                 onBreak cancelChannel
           ]
@@ -243,17 +246,14 @@ characters =
         , Skill.classes   = [Physical, Melee, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
-        , Skill.dur       = Ongoing -1
         , Skill.start     =
-          [ To Enemies $ trap -1 OnHarm
-                flag
+          [ To Enemies do
+                bomb -1 [] [ To Expire $ apply' "Pinned" 1 [ Expose ] ]
+                trap -1 OnHarm $
+                    remove "Thousand Arms"
           , To Self $ hide 1 [ Alternate "Thousand Arms"
                                          "Poison Gas"
                              ]
-          ]
-        , Skill.end       =
-          [ To Self $ targeting Enemies $ unlessM (target has "thousand arms") $
-                apply' "Pinned" 1 [ Expose ]
           ]
         }
       , Skill.new

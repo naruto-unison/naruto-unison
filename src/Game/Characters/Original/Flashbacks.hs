@@ -360,7 +360,9 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To XAlly $ tag 4
+          [ To XAlly do
+                targeting Allies $ remove "Sharingan" -- in case cooldown resets
+                tag 4
           ,  To Self do
                 apply 4 [ Reduce [All] Flat 15 ]
                 trap 4 OnDeath $ targeting Everyone $

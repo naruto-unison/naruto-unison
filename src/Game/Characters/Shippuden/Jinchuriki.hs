@@ -114,10 +114,8 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self do
-                tag 4
-                trapFrom 4 (OnHarmed All) $
-                    pierce 15
+          [ To Self $ trapFrom 4 (OnHarmed All) $
+                pierce 15
           ]
         }
       ]
@@ -128,7 +126,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 20 `bonusIf` user has "Acrobat"
+                bonus <- 20 `bonusIf` user has' traps "Acrobat"
                 pierce (20 + bonus)
           , To Self $ apply 1 [ Invulnerable Genjutsu ]
           ]
@@ -325,7 +323,7 @@ characters =
       , Skill.new
         { Skill.name      = "Chakra Gathering"
         , Skill.desc      = "Kurama draws in chakra to improve his next [Tailed Beast Bomb]."
-        , Skill.classes   = [Chakra]
+        , Skill.classes   = [Chakra, Nonstacking]
         , Skill.cost      = [Rand, Rand, Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =

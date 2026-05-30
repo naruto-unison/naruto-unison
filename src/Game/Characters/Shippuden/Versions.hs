@@ -336,8 +336,8 @@ characters =
           [ To Self do
                 chakra <- user modeChakra
                 gain [chakra, chakra]
-          , To XAllies $ apply 1 [Stun All]
-          , To Enemies $ apply 1 [Stun All]
+          , To XAllies $ apply 1 [ Stun All ]
+          , To Enemies $ apply 1 [ Stun All ]
           ]
         , Skill.changes   = withMode \m x ->
                 x { Skill.desc = Skill.desc x ++ " Kabuto gains 2 "

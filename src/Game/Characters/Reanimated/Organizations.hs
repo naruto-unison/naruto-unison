@@ -373,7 +373,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Bomb Reload"
-        , Skill.desc      = "The next row of paper bombs slides out from Shibuki's integrated scroll, recharging [Splatter] and providing Jinpachi with 10 permanent destructible defense."
+        , Skill.desc      = "The next row of paper bombs slides out from Shibuki's integrated scroll, recharging [Splatter], and providing Jinpachi with 10 permanent destructible defense."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1

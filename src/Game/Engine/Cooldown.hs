@@ -51,6 +51,7 @@ resetAll n@Ninja{character = Character{skills}} =
     n { N.cooldowns = filterWithKey isInstantCooldown $ N.cooldowns n }
   where
     isNonInstant Skill{dur = Instant} = False
+    isNonInstant Skill{dur = Passive} = False
     isNonInstant _                    = True
     nonInstantSkills :: HashSet Skill.Key
     nonInstantSkills = setFromList $ Skill.key
