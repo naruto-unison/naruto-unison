@@ -2,9 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
     /** @type {HTMLDivElement} */
     const output = document.getElementById("output");
 
-    /** @type {HTMLFormElement} */
-    const form = document.getElementById("form");
-
     /** @type {HTMLInputElement} */
     const input = document.getElementById("input");
 
@@ -16,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
         output.appendChild(p);
     });
 
-    form.addEventListener("submit", (e) => {
+    document.getElementById("form").addEventListener("submit", (e) => {
         conn.send(input.value);
         input.value = "";
         e.preventDefault();

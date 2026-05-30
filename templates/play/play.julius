@@ -58,9 +58,9 @@ app.ports.sounds.subscribe((sounds) => {
             sounds.map((file) => ({ src: file + ".ogg", id: file })),
             "audio/",
         );
-        document.removeEventListener('click', registerSounds);
+        document.removeEventListener("click", registerSounds);
     }
-    document.addEventListener('click', registerSounds);
+    document.addEventListener("click", registerSounds);
 });
 app.ports.sound.subscribe((sound) => {
     if (vol && vol.className !== "click muted") {
@@ -68,10 +68,10 @@ app.ports.sound.subscribe((sound) => {
     }
 });
 
-/** @type {?number[]} */
+/** @type {[number, number, number]|undefined} */
 let queuedProgress;
 
-/** @param {number[]} args */
+/** @param {[number, number, number]} args */
 function progress(args) {
     const [duration, from, to] = args;
 

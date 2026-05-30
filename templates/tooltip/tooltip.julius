@@ -129,29 +129,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return el;
     }
 
-    /**
-     * @param {Skill} skill
-     * @return {SkillElements}
-     */
-    function renderSkillElements(skill) {
-        const { charges, cooldown, cost } = skill;
-        const header = [...renderCost(cost), document.createElement("br"), renderClasses(skill)];
-
-        const article = [];
-        if (charges === 1) {
-            article.push(renderExtra("1 charge."));
-        } else if (charges > 1) {
-            article.push(renderExtra(`${charges} charges.`));
-        }
-        if (cooldown > 0) {
-            article.push(renderExtra(`CD: ${(cooldown / 2) | 0}`));
-        }
-
-        const desc = skill.desc.replace(/\[.\]/g, "").replace(/\[/g, "<i>").replace(/\]/g, "</i>");
-
-        return { article, header, desc };
-    }
-
     const tooltip = document.getElementById("tooltip");
     tooltip.hidden = true;
 
@@ -194,11 +171,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const skillTooltipHandler = wrapTooltipRenderer(({ header, article }, el) => {
         const skill = findSkill(el);
-        const elements = renderSkillElements(skill);
+        const { charges, cooldown, cost } = skill;
         header.innerText = skill.name;
-        header.append(...elements.header);
-        article.innerHTML = elements.desc;
-        article.append(...elements.article);
+        header.append(...renderCost(cost), document.createElement("br"), renderClasses(skill));
+
+        article.innerHTML = skill.desc.replace(/(\[.\]|\[|\])/g, (text) => {
+            if (text === "[") {
+                return "<i>";
+            }
+            if (text === "]") {
+                return "</i>";
+            }
+            if (text === "[b]") {
+                return "<div class='chakra blood'></div>";
+            }
+            if (text === "[g]") {
+                return "<div class='chakra gen'></div>";
+            }
+            if (text === "[n]") {
+                return "<div class='chakra nin'></div>";
+            }
+            if (text === "[t]") {
+                return "<div class='chakra tai'></div>";
+            }
+            if (text === "[r]") {
+                return "<div class='chakra rand'></div>";
+            }
+            return text;
+        });
+
+        if (charges === 1) {
+            article.append(renderExtra("1 charge."));
+        } else if (charges > 1) {
+            article.append(renderExtra(`${charges} charges.`));
+        }
+        if (cooldown > 0) {
+            article.append(renderExtra(`CD: ${(cooldown / 2) | 0}`));
+        }
     });
 
     const characterLinks = [
