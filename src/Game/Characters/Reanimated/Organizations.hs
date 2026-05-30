@@ -125,7 +125,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Enemies $ trap 1 (OnAction All) $ damage 20
+          [ To Enemies $ trap 1 (OnAction All) $
+                damage 20
           , To Self $ apply 1 [ Reduce [All] Percent 50 ]
           ]
         }

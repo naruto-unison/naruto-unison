@@ -508,12 +508,12 @@ characters =
                   targeting Self removeTrap
                   apply Permanent [ Afflict 20 ]
                   ibuse <- user has "major summoning: ibuse"
-                  if ibuse then targeting Self do
+                  targeting Self $ if ibuse then do
                       remove "Major Summoning Ibuse"
                       remove "major summoning: ibuse"
                       alterCooldown "Major Summoning: Ibuse" -2
                       cancelChannel' "Poison Fog"
-                  else targeting Self $
+                  else
                       apply Permanent [Afflict 10]
           ]
         }
