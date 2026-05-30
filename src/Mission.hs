@@ -25,8 +25,7 @@ import qualified Yesod.Auth as Auth
 
 import           Application.App (liftDB)
 import qualified Application.App as App
-import           Application.Fields (Privilege(..))
-import           Application.Model (Character(Character), CharacterId, EntityField(..), Mission(Mission), Unlocked(Unlocked), Usage(..), User(User))
+import           Application.Model (Character(Character), CharacterId, EntityField(..), Mission(Mission), Privilege(..), Unlocked(Unlocked), Usage(..), User(User))
 import qualified Application.Model
 import qualified Application.Settings as Settings
 import qualified Game.Characters as Characters

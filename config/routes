@@ -16,13 +16,6 @@
 /api/reanimate/#Character                   ReanimateR      GET
 /api/update/#Text/#Bool/#Text/#Text         UpdateR         GET
 
--- FORUMS API
-
-/api/post/delete/#ForumPostId    DeletePostR   GET
-/api/post/like/#ForumPostId      LikePostR     GET
-/api/topic/delete/#ForumTopicId  DeleteTopicR  GET
-/api/topic/lock/#ForumTopicId    LockTopicR    GET
-
 -- WEBPAGES
 
 /admin                  AdminR       GET POST
@@ -31,10 +24,6 @@
 /changelog              ChangelogR   GET
 /home                   HomeR        GET
 /user/#Text             ProfileR     GET
-/forums                 ForumsR      GET
-/forum/#ForumBoard      BoardR       GET
-/topic/#ForumBoard/new  NewTopicR    GET POST
-/topic/#ForumTopicId    TopicR       GET POST
 /guide                  GuideR       GET
 /guide/game-mechanics   MechanicsR   GET
 /guide/groups           GroupsR      GET

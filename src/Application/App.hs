@@ -54,8 +54,7 @@ import qualified Yesod.Default.Util as YesodUtil
 -- Used only when [auth-dummy-login](config/settings.yml) setting is enabled.
 import           Yesod.Static hiding (static)
 
-import           Application.Fields (ForumBoard, Privilege(..), boardName)
-import           Application.Model (CharacterId, EntityField(..), ForumPostId, ForumTopic(ForumTopic), ForumTopicId, Unique(..), User(..), UserId)
+import           Application.Model (CharacterId, EntityField(..), Privilege(..), Unique(..), User(..), UserId)
 import qualified Application.Model as Model
 import           Application.Settings (Settings, widgetFile)
 import qualified Application.Settings as Settings
@@ -122,22 +121,18 @@ getNavLinks = routesForAuth <$> isAuthenticated Admin
   where
     userRoutes  = [ (HomeR,   "Home")
                   , (GuideR,  "Guide")
-                  , (ForumsR, "Forums")
                   ]
     adminRoutes = [ (AdminR,  "Admin") ]
     routesForAuth Authorized = userRoutes ++ adminRoutes
     routesForAuth _          = userRoutes
 
 origin :: Route App -> Route App
-origin BoardR{}     = ForumsR
 origin ChangelogR   = HomeR
 origin CharacterR{} = GuideR
 origin CharactersR  = GuideR
 origin GroupsR      = GuideR
 origin MechanicsR   = GuideR
-origin NewTopicR{}  = ForumsR
-origin ProfileR{}   = ForumsR
-origin TopicR{}     = ForumsR
+origin ProfileR{}   = HomeR
 origin UsageR       = AdminR
 origin x            = x
 
@@ -261,22 +256,15 @@ instance Yesod App where
 instance YesodBreadcrumbs App where
     breadcrumb AdminR         = return ("Admin", Just HomeR)
     breadcrumb AuthR{}        = return ("Login", Just HomeR)
-    breadcrumb (BoardR x)     = return (boardName x, Just ForumsR)
     breadcrumb ChangelogR     = return ("Changelog", Just HomeR)
     breadcrumb (CharacterR x) = return (Character.format x, Just CharactersR)
     breadcrumb CharactersR    = return ("Characters", Just GuideR)
-    breadcrumb ForumsR        = return ("Forums", Just HomeR)
     breadcrumb GroupsR        = return ("Groups", Just GuideR)
     breadcrumb GuideR         = return ("Guide", Just HomeR)
     breadcrumb HomeR          = return ("Home", Nothing)
     breadcrumb MechanicsR     = return ("Game Mechanics", Just GuideR)
-    breadcrumb (NewTopicR x)  = return ("New Topic", Just $ BoardR x)
     breadcrumb (ProfileR x)   = return ("User: " ++ x, Just HomeR)
     breadcrumb UsageR         = return ("Character Usage", Just AdminR)
-    breadcrumb (TopicR x)     = crumb <$> runDB (get404 x)
-      where
-        crumb ForumTopic{forumTopicTitle, forumTopicBoard} =
-            (forumTopicTitle, Just $ BoardR forumTopicBoard)
     breadcrumb _anchorName    = return (mempty, Nothing)
 
 instance YesodPersist App where

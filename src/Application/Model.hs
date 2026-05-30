@@ -7,16 +7,12 @@ module Application.Model
     ( EntityField(..)
     , Unique(..)
     , Character(..), CharacterId
-    , ForumLike(..), ForumLikeId
-    , ForumPost(..), ForumPostId
-    , ForumTopic(..), ForumTopicId
     , Mission(..), MissionId
     , News(..), NewsId
     , Unlocked(..), UnlockedId
     , Usage(..), UsageId
     , User(..), UserId, newUser
-    , Cite(..)
-    , HasAuthor(..)
+    , Privilege(..)
     , entityDefListFormigrateAll
     , migrateAll) where
 
@@ -25,8 +21,21 @@ import Yesod
 
 import Database.Persist.Quasi (lowerCaseSettings)
 import Database.Persist.Sql (fromSqlKey)
+import Text.Blaze (ToMarkup(..))
 
-import Application.Fields (ForumBoard, Markdown(..), Privilege(..), TopicState(..))
+-- | User privilege. Determines authorization level.
+data Privilege
+    = Guest
+    | Normal
+    | Moderator
+    | Admin
+  deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+instance FromJSON Privilege
+instance ToJSON Privilege
+derivePersistField "Privilege"
+
+instance ToMarkup Privilege where
+    toMarkup = toMarkup . show
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
     $(persistFileWith lowerCaseSettings "config/models.persistentmodels")
@@ -92,26 +101,4 @@ newUser ident verkey day = User
     , userDeviation  = 350.0 / 173.7178
     , userVolatility = 0.06
     , userDna        = 0
-    , userPosts      = 0
-    }
-
--- | Types that can be summarized with oldest and most recent users to post.
-class HasAuthor a where
-    getAuthor :: a -> UserId
-    getLatest :: a -> UserId
-
-instance HasAuthor ForumPost where
-    getAuthor = forumPostAuthor
-    getLatest = forumPostAuthor
-
-instance HasAuthor ForumTopic where
-    getAuthor = forumTopicAuthor
-    getLatest = forumTopicLatest
-
--- | A summary with a link, name, and oldest and most recent users to post.
-data Cite a = Cite
-    { citeKey    :: Key a
-    , citeVal    :: a
-    , citeAuthor :: User
-    , citeLatest :: User
     }

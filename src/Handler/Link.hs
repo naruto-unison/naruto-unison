@@ -4,9 +4,7 @@
 -- | Miscellaneous website handlers.
 module Handler.Link
   ( character
-  , cite
   , head
-  , topic
   , user
   , makeTimestamp
   , skill
@@ -20,7 +18,7 @@ import qualified Data.Time.LocalTime as LocalTime
 
 import           Application.App (Route(..))
 import qualified Application.App as App
-import           Application.Model (Cite(..), ForumTopic(..), User(..))
+import           Application.Model (User(..))
 import           Application.Settings (widgetFile)
 import qualified Class.Labeled as Labeled
 import qualified Game.Characters as Characters
@@ -30,13 +28,6 @@ import qualified Game.Model.Character as Character
 -- | Link to a character's detail page.
 character :: Character -> App.Widget
 character char = $(widgetFile "widgets/link/character")
-
--- | Link to a forum post or thread.
-cite :: IO (Cite ForumTopic -> App.Widget)
-cite = do
-    timestamp <- makeTimestamp
-    return \citation@Cite{citeLatest, citeVal} ->
-        $(widgetFile "widgets/link/cite")
 
 -- | Link to a character's detail page using their icon.
 head :: Character -> App.Widget
@@ -59,10 +50,6 @@ skill charName category name = case Characters.lookup tagName of
     suffix  = case charName of
         "Demon Brothers" -> "" -- to avoid "Demon Brothers's"
         _                -> "s"
-
--- | Link to a forum topic.
-topic :: Cite ForumTopic -> App.Widget
-topic Cite{citeAuthor, citeKey, citeVal} = $(widgetFile "widgets/link/topic")
 
 -- | Link to a user's profile.
 user :: User -> App.Widget

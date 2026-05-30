@@ -10,7 +10,6 @@ import ClassyPrelude         as X hiding (delete, deleteBy)
 import Database.Persist      as X hiding (get)
 import Database.Persist.Sql  (SqlPersistM, runSqlPersistMPool, rawExecute, rawSql, unSingle)
 import Application.App       as X hiding (Handler, PersistEntity)
-import Application.Fields    as X
 import Application.Model     as X
 import Test.Hspec            as X
 import Text.Shakespeare.Text (st)

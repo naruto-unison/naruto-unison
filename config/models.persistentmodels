@@ -3,32 +3,6 @@ Character
     UniqueName name
     deriving Eq
 
-ForumLike
-    user  UserId
-    post  ForumPostId
-    UniqueForumLike user post
-
-ForumPost
-    author   UserId
-    time     UTCTime
-    body     Markdown
-    topic    ForumTopicId
-    likes    Int
-    deleted  Bool
-    edited   UTCTime Maybe
-    deriving Eq
-
-ForumTopic
-    board     ForumBoard
-    author    UserId
-    staff     Bool
-    title     Text
-    state     TopicState
-    posts     Int
-    time      UTCTime
-    latest    UserId
-    modified  UTCTime
-
 Mission
     user       UserId
     character  CharacterId
@@ -82,5 +56,4 @@ User
     deviation   Double
     volatility  Double
     dna         Int
-    posts       Int  default=0
     deriving Typeable

@@ -24,10 +24,4 @@
   $forall new <- newsList
     ^{news new}
 
-<aside #forums>
-  <h1>Recent Activity
-  <a .refer href=@{ForumsR}>
-    Go to forums
-  $forall cite <- topics
-    <p>
-      ^{citelink cite}
+<aside>

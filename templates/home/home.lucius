@@ -21,10 +21,6 @@ body {
     margin: 1px 0px 2px 2px !important;
 }
 
-#forums {
-    padding-left: 1em;
-}
-
 main {
     padding-bottom: 0 !important;
     margin-top: 0 !important;

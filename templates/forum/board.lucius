@@ -1,8 +1,0 @@
-td:first-child, th:first-child {
-    width: 100%;
-}
-td:last-child, th:last-child {
-    min-width: 17em;
-    text-align: left;
-    padding-left: 3em;
-}

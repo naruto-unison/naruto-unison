@@ -1,7 +1,0 @@
-<div>
-  ^{topic citation}
-<div>
-  by
-  ^{user citeLatest}
-  at
-  ^{timestamp $ forumTopicTime citeVal}

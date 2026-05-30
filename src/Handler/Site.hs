@@ -21,7 +21,7 @@ import qualified Yesod.Auth as Auth
 
 import           Application.App (Route(..))
 import qualified Application.App as App
-import           Application.Model (Cite(..), EntityField(..), ForumTopic(..), News(..), User(..))
+import           Application.Model (EntityField(..), News(..), User(..))
 import           Application.Settings (widgetFile)
 import           Class.Display (Display(..), shorten)
 import qualified Game.Characters as Characters
@@ -31,7 +31,6 @@ import qualified Game.Model.Class as Class
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Handler.Client.Data (addDataJS)
-import qualified Handler.Forum as Forum
 import qualified Handler.Link as Link
 import qualified Handler.Parse as Parse
 import qualified Mission
@@ -53,18 +52,10 @@ getChangelogR = do
 -- | Renders the homepage of the website.
 getHomeR :: App.Handler Html
 getHomeR = do
-    privilege          <- App.getPrivilege
-    citelink           <- liftIO Link.cite
-    (newsList, topics) <- runDB do
-        newsPlain <- selectList [] [Desc NewsTime, LimitTo 5]
-        newsList  <- mapM withAuthor newsPlain
-        topics    <- Forum.selectWithAuthors
-                     (Forum.filterTopics privilege [])
-                     [Desc ForumTopicTime, LimitTo 10]
-        return (newsList, topics)
-    App.lastModified
-        $ max (maybe epoch (forumTopicTime . citeVal) $ headMay topics)
-              (maybe epoch (newsTime . fst) $ headMay newsList)
+    newsList <- runDB $ mapM withAuthor =<< selectList [] [ Desc NewsTime
+                                                          , LimitTo 5
+                                                          ]
+    App.lastModified . maybe epoch (newsTime . fst) $ headMay newsList
     defaultLayout do
         setTitle "Naruto Unison"
         addDataJS

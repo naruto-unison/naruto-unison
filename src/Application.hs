@@ -47,9 +47,8 @@ import           Handler.Admin
 import           Handler.Client
 import           Handler.Client.Data (writeDataJS)
 import           Handler.Embed
-import           Handler.Forum
-import           Handler.Forum.API
 import           Handler.Play
+import           Handler.Profile
 import qualified Handler.Queue as Queue
 import           Handler.Site
 import qualified Mission
