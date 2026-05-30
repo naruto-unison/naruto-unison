@@ -4,33 +4,32 @@
     cursor: default;
 }
 .skill:hover {
-  color: #59bdff;
+    color: #59bdff;
 }
 
 #tooltip {
-  position: absolute;
-  background-color: #fff;
-  width: 350px;
-  font-size: 13px;
-  padding: 4px 6px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
-  border: 1px solid rgba(0,0,0,0.2);
-  display: none;
-  margin-top: 5px;
-  margin-left: 2px;
-  pointer-events: none;
-  border-radius: 3px;
-  color: #000;
-  z-index: 2;
+    position: absolute;
+    background-color: #fff;
+    width: 350px;
+    font-size: 13px;
+    padding: 4px 6px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    margin-top: 5px;
+    margin-left: 2px;
+    pointer-events: none;
+    border-radius: 3px;
+    color: #000;
+    z-index: 2;
 
-  header {
-      font-weight: bold;
-  }
+    header {
+        font-weight: bold;
+    }
 
-  .skillClasses {
-    font-style: italic;
-    font-size: 12px;
-    display: inline;
-    margin: 0;
+    .skillClasses {
+        font-style: italic;
+        font-size: 12px;
+        display: inline;
+        margin: 0;
     }
 }

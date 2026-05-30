@@ -15,16 +15,19 @@
     }
 }
 
-a, a sup, .skill {
-  color: #007acc;
-  text-decoration: none;
+a,
+a sup,
+.skill {
+    color: #007acc;
+    text-decoration: none;
 }
 
 a:hover {
     text-decoration: underline;
 }
 
-a:active, a:focus {
+a:active,
+a:focus {
     outline-style: none;
 }
 
@@ -39,7 +42,7 @@ a:active, a:focus {
     right: 0;
     border-top: 1px solid #aaa;
     text-align: center;
-    background-color: rgba(255,255,255,0.9);
+    background-color: rgba(255, 255, 255, 0.9);
     margin: auto;
     height: 1.5em;
     align-content: center;
@@ -50,7 +53,8 @@ article sup {
     margin-left: 1px;
 }
 
-body, html {
+body,
+html {
     width: 100%;
     height: 100%;
 }
@@ -99,23 +103,33 @@ button:hover {
 }
 
 .chakra {
-  display: inline-block;
-  height: 0.6em;
-  width: 0.6em;
-  border: 1px solid #222;
-  margin-left: 3px;
+    display: inline-block;
+    height: 0.6em;
+    width: 0.6em;
+    border: 1px solid #222;
+    margin-left: 3px;
 }
-.chakra.blood { background-color:#f0000a; }
-.chakra.gen   { background-color:#ffffff; }
-.chakra.nin   { background-color:#00a9d5; }
-.chakra.tai   { background-color:#0cdd2c; }
-.chakra.rand  { background-color:#000000; }
+.chakra.blood {
+    background-color: #f0000a;
+}
+.chakra.gen {
+    background-color: #ffffff;
+}
+.chakra.nin {
+    background-color: #00a9d5;
+}
+.chakra.tai {
+    background-color: #0cdd2c;
+}
+.chakra.rand {
+    background-color: #000000;
+}
 
 .char {
-  display: inline-block;
-  outline: 1px solid #000;
-  margin: 5px;
-  vertical-align: top;
+    display: inline-block;
+    outline: 1px solid #000;
+    margin: 5px;
+    vertical-align: top;
 }
 
 .complete {
@@ -141,7 +155,8 @@ dd {
     margin-left: 6.5em;
 }
 
-.dna::after, .locked::after {
+.dna::after,
+.locked::after {
     margin-left: 0.15em;
     vertical-align: middle;
     filter: saturate(0) brightness(0);
@@ -156,14 +171,15 @@ dd {
 }
 
 .extra {
-  color: #606060;
-  margin-left: 0.4em;
+    color: #606060;
+    margin-left: 0.4em;
 }
 
 .full {
     flex-grow: 1;
 
-    input, textarea {
+    input,
+    textarea {
         display: block;
         width: 100%;
         resize: none;
@@ -176,19 +192,35 @@ dd {
     }
 }
 
-h1, h2 {
+h1,
+h2 {
     text-transform: uppercase;
 }
-h2, h3, h4 {
+h2,
+h3,
+h4 {
     margin-bottom: 0.3em;
 }
-h3, h4 {
+h3,
+h4 {
     margin-top: 0.5em;
 }
-h1 { font-size: 1.6em; text-align: center }
-h3 { font-size: 1.25em }
-h4 { font-size: 1.15em }
-h1 aside, h2 aside, h3 aside, h4 aside, h5 aside, h6 aside {
+h1 {
+    font-size: 1.6em;
+    text-align: center;
+}
+h3 {
+    font-size: 1.25em;
+}
+h4 {
+    font-size: 1.15em;
+}
+h1 aside,
+h2 aside,
+h3 aside,
+h4 aside,
+h5 aside,
+h6 aside {
     float: right;
     font-weight: normal !important;
     opacity: 0.9;
@@ -198,7 +230,8 @@ i {
     color: #600;
 }
 
-input, textarea {
+input,
+textarea {
     background-color: #ddd;
     border: 1px solid #888;
 }
@@ -240,8 +273,8 @@ li {
     margin-top: 0.5em;
     line-height: 1.4em;
 
-
-    > dt, > dd {
+    > dt,
+    > dd {
         display: contents;
     }
 }
@@ -255,7 +288,6 @@ li {
     background-color: #ddd;
     border-color: #999;
     padding: 0 1em;
-
 
     a {
         color: #59778a;
@@ -305,39 +337,44 @@ li {
         text-align: center;
         align-self: end;
 
-        a, span {
+        a,
+        span {
             margin: 0 0.2em -3px 0.2em;
             display: inline-block;
             box-sizing: content-box;
         }
     }
 
-    div, aside > a, nav a, nav span {
+    div,
+    aside > a,
+    nav a,
+    nav span {
         padding-bottom: 10px;
     }
-
 }
-#sitenav, #current {
+#sitenav,
+#current {
     border-bottom-width: 3px;
     border-bottom-style: solid;
 }
 #current {
     border-bottom-color: #666;
 }
-#sitenav, #sitenav button {
+#sitenav,
+#sitenav button {
     text-transform: uppercase;
 }
 
 .skillClasses {
-  font-weight: normal;
-  color: #606060;
+    font-weight: normal;
+    color: #606060;
 }
 
 sup {
-  font-style: italic;
-  font-size: 0.7em;
-  display: inline-block;
-  text-decoration: none !important;
+    font-style: italic;
+    font-size: 0.7em;
+    display: inline-block;
+    text-decoration: none !important;
 }
 
 .space {
@@ -362,7 +399,8 @@ table {
         margin-bottom: 0;
     }
 }
-td:first-child, th:first-child {
+td:first-child,
+th:first-child {
     text-align: left;
 }
 td header div {
@@ -414,8 +452,16 @@ ul {
     white-space: nowrap;
 }
 
-.Admin     { color: #151c77; border-color: #151c77; outline-color: #151c77; }
-.Moderator { color: #2d7715; border-color: #2d7715; outline-color: #2d7715; }
+.Admin {
+    color: #151c77;
+    border-color: #151c77;
+    outline-color: #151c77;
+}
+.Moderator {
+    color: #2d7715;
+    border-color: #2d7715;
+    outline-color: #2d7715;
+}
 
 @media (min-width: 824px) {
     #sitenav aside {
@@ -424,7 +470,8 @@ ul {
 }
 @media (min-width: 615px) {
     #sitenav nav {
-        a, span {
+        a,
+        span {
             margin: 0 0.5em -3px 0.5em;
         }
     }

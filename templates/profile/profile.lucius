@@ -51,6 +51,6 @@ p.label {
     img {
         outline-color: #333 !important;
         margin: 0;
-        width: calc(100%/3);
+        width: calc(100% / 3);
     }
 }

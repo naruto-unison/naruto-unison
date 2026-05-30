@@ -1,4 +1,5 @@
-body, main {
+body,
+main {
     background-color: #1b4e66 !important;
 }
 
@@ -28,7 +29,8 @@ main {
     max-width: 1500px !important;
     display: flex;
 
-    > aside, > section {
+    > aside,
+    > section {
         padding-top: 1em !important;
     }
 
@@ -38,7 +40,7 @@ main {
         border-top: none;
         border-bottom: none;
         border-width: 1px;
-        box-shadow: 0 10px 10px rgba(0,0,0,0.25);
+        box-shadow: 0 10px 10px rgba(0, 0, 0, 0.25);
         box-sizing: border-box;
         flex: 0 1 800px;
         padding: 0 1em;
@@ -64,7 +66,10 @@ main {
             margin-bottom: 0.2em;
         }
 
-        a, a sup, .name, .skill {
+        a,
+        a sup,
+        .name,
+        .skill {
             color: #0099ff;
         }
     }

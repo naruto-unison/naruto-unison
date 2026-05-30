@@ -1,13 +1,18 @@
-.chars .selected, .chars .char.click:hover, #charSelect > article > aside .char:hover {
+.chars .selected,
+.chars .char.click:hover,
+#charSelect > article > aside .char:hover {
     outline: 2px solid #0099ff !important;
     filter: none;
 }
-.chars .selected, .chars .char.click.selected:hover {
+.chars .selected,
+.chars .char.click.selected:hover {
     outline: 2px solid #ff0000 !important;
     filter: none;
 }
 
-.charmove.click:hover, .chakra.click:hover, #avatars img:hover {
+.charmove.click:hover,
+.chakra.click:hover,
+#avatars img:hover {
     border-color: #0099ff;
 }
 .toggled img {
@@ -17,7 +22,10 @@
     border-color: #0099ff !important;
     filter: grayscale(0.8);
 }
-.toggled img:hover, .chakra.click:hover, #avatars img:hover, .player > section > section.click:hover {
+.toggled img:hover,
+.chakra.click:hover,
+#avatars img:hover,
+.player > section > section.click:hover {
     border-color: #0099ff !important;
 }
 #avatars img.chosen {
@@ -29,7 +37,8 @@
 #ready.noChakra:hover {
     border-color: #000 !important;
 }
-.nextSkill:hover, .prevSkill:hover {
+.nextSkill:hover,
+.prevSkill:hover {
     color: #0099ff;
 }
 
@@ -44,7 +53,8 @@ a:hover {
 #playchakra a.click {
     color: #fff;
 }
-.userForm a, #playchakra a.click:hover {
+.userForm a,
+#playchakra a.click:hover {
     color: #00a;
 }
 .userForm a:hover {
@@ -92,7 +102,8 @@ a:hover {
     }
 }
 
-article, #userBox {
+article,
+#userBox {
     -webkit-user-select: text;
     user-select: text;
 }
@@ -143,7 +154,7 @@ article button {
 }
 
 body {
-    background: url('/img/bg/silhouette.jpg') no-repeat center center/cover !important;
+    background: url("/img/bg/silhouette.jpg") no-repeat center center/cover !important;
     font-family: "Trebuchet MS", sans-serif;
     overflow: hidden !important;
 }
@@ -201,7 +212,9 @@ button.scroll:hover {
     text-transform: uppercase;
     font-size: 20px;
     text-align: center;
-    font-family: Trebuchet MS, sans-serif;
+    font-family:
+        Trebuchet MS,
+        sans-serif;
     margin-left: -26px;
     margin-top: 6px;
     pointer-events: all;
@@ -230,7 +243,8 @@ button.scroll:hover {
     outline-width: 2px;
 }
 
-.chars, #vs {
+.chars,
+#vs {
     border: 9px solid #dc2e3c;
     -webkit-user-select: none;
     user-select: none;
@@ -279,16 +293,19 @@ button.scroll:hover {
     }
 }
 
-.chardefense, .charbarrier {
+.chardefense,
+.charbarrier {
     width: 0;
     border: 2px solid #000;
     margin: -2px 0;
     transition: 0.1s border;
 }
-#player1 .chardefense, #player1 .charbarrier {
+#player1 .chardefense,
+#player1 .charbarrier {
     border-right: none;
 }
-#player0 .chardefense, #player0 .charbarrier {
+#player0 .chardefense,
+#player0 .charbarrier {
     border-left: none;
 }
 .exposed .chardefense {
@@ -342,7 +359,7 @@ button.scroll:hover {
     color: #e00;
 }
 .blue {
-     color: #007acc;
+    color: #007acc;
 }
 
 #player0 .charhealth {
@@ -435,18 +452,15 @@ button.scroll:hover {
 .stunned .charmove,
 .unable.charmove,
 .oncd,
-#player0 .noChakra
-{
+#player0 .noChakra {
     filter: grayscale(0.8);
     border-color: #000 !important;
 }
-.dead img
-{
+.dead img {
     filter: grayscale(0.8);
 }
 .unable .player > section > section img,
-.stunned .player > section > section img
-{
+.stunned .player > section > section img {
     filter: grayscale(0.8);
 }
 .charScroll {
@@ -479,7 +493,6 @@ button.scroll:hover {
         > aside {
             width: 75px;
             position: absolute;
-            bottom: -3px;
             left: -65px;
 
             .char {
@@ -538,7 +551,6 @@ button.scroll:hover {
                 margin: 0.1em 0.1em 0 0.1em;
             }
         }
-
     }
 
     .chakra {
@@ -553,7 +565,8 @@ button.scroll:hover {
     }
 }
 
-#charSelect .chakra, #top .chakra {
+#charSelect .chakra,
+#top .chakra {
     margin-left: 0.2em;
     margin-right: 0;
     font-size: 0.75em;
@@ -602,13 +615,15 @@ button.scroll:hover {
 .ghost div {
     border-color: #666;
 }
-.detail.ghost img, .ghost.chardefense {
+.detail.ghost img,
+.ghost.chardefense {
     filter: grayscale(0.8);
 }
 .invis {
     opacity: 0.65;
 }
-.remove div, .action div {
+.remove div,
+.action div {
     border-color: #00a;
 }
 #top > article .remove {
@@ -617,7 +632,8 @@ button.scroll:hover {
 #top > article .trap {
     color: #e00;
 }
-.trap div, .control div {
+.trap div,
+.control div {
     border-color: #a00;
 }
 .fade {
@@ -669,7 +685,8 @@ dl dt {
         text-align: right;
     }
 
-    dd, dt {
+    dd,
+    dt {
         float: none;
         width: 49%;
         display: inline-block;
@@ -681,17 +698,50 @@ dl dt {
     }
 
     /* TODO there must be a better option */
-    dt:nth-child(1),  dd:nth-child(2)  { animation-delay: 0s }
-    dt:nth-child(3),  dd:nth-child(4)  { animation-delay: 0.5s }
-    dt:nth-child(5),  dd:nth-child(6)  { animation-delay: 1s }
-    dt:nth-child(7),  dd:nth-child(8)  { animation-delay: 1.5s }
-    dt:nth-child(9),  dd:nth-child(10) { animation-delay: 2s }
-    dt:nth-child(11), dd:nth-child(12) { animation-delay: 2.5s }
-    dt:nth-child(13), dd:nth-child(14) { animation-delay: 3s }
-    dt:nth-child(15), dd:nth-child(16) { animation-delay: 3.5s }
-    dt:nth-child(17), dd:nth-child(18) { animation-delay: 4s }
-    dt:nth-child(19), dd:nth-child(20) { animation-delay: 4.5s }
-    dt:nth-child(21), dd:nth-child(22) { animation-delay: 5s }
+    dt:nth-child(1),
+    dd:nth-child(2) {
+        animation-delay: 0s;
+    }
+    dt:nth-child(3),
+    dd:nth-child(4) {
+        animation-delay: 0.5s;
+    }
+    dt:nth-child(5),
+    dd:nth-child(6) {
+        animation-delay: 1s;
+    }
+    dt:nth-child(7),
+    dd:nth-child(8) {
+        animation-delay: 1.5s;
+    }
+    dt:nth-child(9),
+    dd:nth-child(10) {
+        animation-delay: 2s;
+    }
+    dt:nth-child(11),
+    dd:nth-child(12) {
+        animation-delay: 2.5s;
+    }
+    dt:nth-child(13),
+    dd:nth-child(14) {
+        animation-delay: 3s;
+    }
+    dt:nth-child(15),
+    dd:nth-child(16) {
+        animation-delay: 3.5s;
+    }
+    dt:nth-child(17),
+    dd:nth-child(18) {
+        animation-delay: 4s;
+    }
+    dt:nth-child(19),
+    dd:nth-child(20) {
+        animation-delay: 4.5s;
+    }
+    dt:nth-child(21),
+    dd:nth-child(22) {
+        animation-delay: 5s;
+    }
 
     p {
         font-size: 6em;
@@ -700,9 +750,7 @@ dl dt {
         -webkit-text-stroke: 2px #000;
         text-shadow: 0 0 5px #000;
         text-transform: uppercase;
-
     }
-
 }
 
 #error {
@@ -710,7 +758,7 @@ dl dt {
     position: absolute;
     bottom: 10px;
     left: 10px;
-    background-color: rgba(255,255,255,0.5);
+    background-color: rgba(255, 255, 255, 0.5);
     border: 1px solid #fff;
 }
 
@@ -733,17 +781,18 @@ li sup {
     margin: 0 3em;
 }
 
-#main, #accountSettings {
+#main,
+#accountSettings {
     -webkit-user-select: none;
     user-select: none;
 }
-
 
 #mainsite {
     padding-left: 1em;
     padding-right: 1em;
 }
-#mainsite::before, #mainsite::after {
+#mainsite::before,
+#mainsite::after {
     content: none;
 }
 
@@ -761,21 +810,36 @@ li sup {
     top: 186px;
 }
 
-#nextPage { right: -56px }
-#prevPage { left:  -56px }
+#nextPage {
+    right: -56px;
+}
+#prevPage {
+    left: -56px;
+}
 
-.nextSkill, .prevSkill {
+.nextSkill,
+.prevSkill {
     font-size: 15px;
     position: absolute;
     bottom: 5px;
     color: #000;
-    -webkit-text-stroke: 1px rgba(255,255,255,0.75);
-    text-shadow: 0 0 1px rgba(255,255,255,0.75);
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.75);
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.75);
 }
-.nextSkill { right: 5px }
-.prevSkill { left: 5px }
-.nextSkill::after { content: '▶'; font-weight: normal }
-.prevSkill::after { content: '◀'; font-weight: normal }
+.nextSkill {
+    right: 5px;
+}
+.prevSkill {
+    left: 5px;
+}
+.nextSkill::after {
+    content: "▶";
+    font-weight: normal;
+}
+.prevSkill::after {
+    content: "◀";
+    font-weight: normal;
+}
 
 p {
     margin: 0;
@@ -786,7 +850,9 @@ p {
     align-self: end;
     min-width: 5em;
 }
-.playButton, #updateButton, #logoutButton {
+.playButton,
+#updateButton,
+#logoutButton {
     margin: 3px;
     padding: 4px 3px 2px 3px;
     border: 2px solid #999;
@@ -794,15 +860,26 @@ p {
     text-transform: uppercase;
     font-size: 15px;
     text-align: center;
-    font-family: Trebuchet MS, sans-serif;
+    font-family:
+        Trebuchet MS,
+        sans-serif;
 }
-#updateButton, #logoutButton {
+#updateButton,
+#logoutButton {
     width: 6em;
     margin-top: 0.5em;
 }
-#updateButton { margin-left: 0; float: left; }
-#logoutButton { margin-right: 0; float: right; }
-.playButton.click, #updateButton.click, #logoutButton.click {
+#updateButton {
+    margin-left: 0;
+    float: left;
+}
+#logoutButton {
+    margin-right: 0;
+    float: right;
+}
+.playButton.click,
+#updateButton.click,
+#logoutButton.click {
     border: 2px solid #dc2e3c;
     color: #000 !important;
 }
@@ -817,7 +894,9 @@ a.playButton::before {
 a.playButton::after {
     content: " Match";
 }
-.playButton.click:hover, #updateButton.click:hover, #logoutButton.click:hover {
+.playButton.click:hover,
+#updateButton.click:hover,
+#logoutButton.click:hover {
     border: 2px solid #0099ff !important;
 }
 
@@ -855,7 +934,7 @@ a.playButton::after {
     }
 
     span {
-        font-family: 'Trebuchet MS', monospace;
+        font-family: "Trebuchet MS", monospace;
         display: inline-block;
         width: 1.6em;
     }
@@ -905,7 +984,7 @@ a.playButton::after {
             -webkit-text-stroke: 2px rgba(0, 0, 0, 0.8);
         }
 
-        >  section {
+        > section {
             display: inline-block;
             z-index: 5;
             position: relative;
@@ -942,7 +1021,8 @@ a.playButton::after {
     padding-left: 200px;
     text-align: right;
 }
-#account1 .charicon, #player1 .charicon {
+#account1 .charicon,
+#player1 .charicon {
     transform: rotateY(180deg);
 }
 
@@ -957,7 +1037,8 @@ a.playButton::after {
     }
 }
 
-#playqueuecont, #playchakra {
+#playqueuecont,
+#playchakra {
     pointer-events: none;
 }
 
@@ -1003,7 +1084,9 @@ a.playButton::after {
 .progressbar-text {
     color: #fff !important;
     font-size: 4em;
-    font-family: Courier New, monospace;
+    font-family:
+        Courier New,
+        monospace;
     transition: all 1s;
     left: 32% !important;
     top: 5% !important;
@@ -1024,7 +1107,7 @@ a.playButton::after {
     position: relative;
 }
 #ready::before {
-    content: "WAITING"
+    content: "WAITING";
 }
 #ready.click::before {
     content: "READY";
@@ -1043,7 +1126,8 @@ a.playButton::after {
     border: 2px solid #dc2e3c;
     padding-bottom: 0.5em;
 }
-#return::before, #return::after {
+#return::before,
+#return::after {
     content: none;
 }
 
@@ -1074,7 +1158,6 @@ a.playButton::after {
         outline: 2px solid #ff0000;
     }
 
-
     img {
         width: 75px;
         height: 75px;
@@ -1083,10 +1166,10 @@ a.playButton::after {
 }
 
 .skillClasses {
-  font-size: 12px;
-  display: inline;
-  margin: 0;
-  margin-left: 10px;
+    font-size: 12px;
+    display: inline;
+    margin: 0;
+    margin-left: 10px;
 }
 #game .skillClasses {
     display: block;
@@ -1210,7 +1293,8 @@ svg {
     }
 }
 
-#userBox, #underTeam {
+#userBox,
+#underTeam {
     border: 2px solid #000;
 }
 
@@ -1255,7 +1339,8 @@ svg {
         margin-left: 4.8em;
     }
 
-    h4, p {
+    h4,
+    p {
         margin: 0;
     }
 
@@ -1283,7 +1368,8 @@ svg {
         width: 100%;
     }
 }
-#registerForm, #loginForm {
+#registerForm,
+#loginForm {
     margin-top: 8px;
 }
 
@@ -1314,7 +1400,9 @@ svg {
         display: flex;
     }
 
-    button, input, span {
+    button,
+    input,
+    span {
         align-self: center;
     }
 
@@ -1343,7 +1431,8 @@ svg {
         padding: 0.67em 0;
     }
 
-    h1, div {
+    h1,
+    div {
         font-size: 1.75em;
     }
 
@@ -1367,8 +1456,8 @@ svg {
     }
 
     #player0 {
-      right: unset;
-      left: 25px;
+        right: unset;
+        left: 25px;
     }
 
     #player1 {
@@ -1386,7 +1475,8 @@ svg {
             display: none;
         }
     }
-    #playchakra, #playqueuecont {
+    #playchakra,
+    #playqueuecont {
         padding-left: 295px;
         margin-top: -21px;
     }
@@ -1400,7 +1490,8 @@ svg {
         > section {
             width: 100px;
 
-            p, > section {
+            p,
+            > section {
                 display: none;
             }
         }
@@ -1552,7 +1643,8 @@ svg {
             margin-top: -5px;
         }
     }
-    h4, #charSelect > article .skillClasses {
+    h4,
+    #charSelect > article .skillClasses {
         font-size: 0.8em;
     }
 
@@ -1565,7 +1657,8 @@ svg {
         }
     }
 
-    #userBox, #underTeam {
+    #userBox,
+    #underTeam {
         display: none;
     }
 
