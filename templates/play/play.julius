@@ -14,8 +14,6 @@ let vol;
 /** @type {WebSocket} */
 let conn;
 
-const user = #{toJSON muser};
-
 const app = Elm.Main.init({
     flags: {
         url:          document.location.origin + "/",
@@ -23,7 +21,7 @@ const app = Elm.Main.init({
         userTeam:     #{toJSON team},
         userPractice: #{toJSON practice},
         unlocked:     [...#{toJSON unlocked}, ...alwaysUnlocked],
-        user,
+        user:         #{toJSON muser},
         avatars,
         characters,
         red:          #{toJSON red},
