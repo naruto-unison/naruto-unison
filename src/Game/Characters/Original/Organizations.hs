@@ -43,7 +43,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Devastate"
         , Skill.desc      = "Izumo flanks an enemy from the left, making them vulnerable to Kotetsu's [Annihilate] for 3 turns. If the target is affected by [Annihilate], Izumo instead deals 65 damage to them. If Izumo uses [Tag Team], this skill becomes [Annihilate][t]."
-        , Skill.classes   = [Physical, Melee]
+        , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
@@ -58,7 +58,7 @@ characters =
       , Skill.new
         { Skill.name      = "Annihilate"
         , Skill.desc      = "Kotetsu flanks an enemy from the right, making them vulnerable to Izumo's [Devastate] for 3 turns. If the target is affected by [Devastate], Kotetsu instead deals 65 damage to them. If Kotetsu uses [Tag Team], this skill becomes [Devastate][t]."
-        , Skill.classes   = [Physical, Melee]
+        , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =

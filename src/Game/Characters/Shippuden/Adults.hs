@@ -413,7 +413,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Water Trumpet"
-        , Skill.desc      = "Kurotsuchi cups her hand to her mouth and expels a jet of water, dealing 20 damage to an enemy. If the target was damaged by Lava Quicklime last turn, their physical and chakra skills are stunned for 1 turn."
+        , Skill.desc      = "Kurotsuchi cups her hand to her mouth and expels a jet of water, dealing 20 damage to an enemy. If the target was damaged by [Lava Quicklime] last turn, their physical and chakra skills are stunned for 1 turn."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =

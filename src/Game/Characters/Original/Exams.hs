@@ -248,7 +248,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Echo Speaker Tuning"
         , Skill.desc      = "Dosu fine-tunes his Echo Speaker to produce debilitating sound vibrations, empowering his other skills for 4 turns."
-        , Skill.classes   = [Physical]
+        , Skill.classes   = [Physical, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
@@ -391,7 +391,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Chakra Focus"
         , Skill.desc      = "Yoroi infuses his attacks with a field of chakra. For 2 turns, using a skill causes it to absorb 1 random chakra from the enemy team each turn of its action duration."
-        , Skill.classes   = [Chakra]
+        , Skill.classes   = [Chakra, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =

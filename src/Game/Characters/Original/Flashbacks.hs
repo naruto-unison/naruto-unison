@@ -32,7 +32,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Life Link"
         , Skill.desc      = "Kushina binds her life-force to that of an enemy. For 4 turns, if either dies, the other will die as well. Effect cannot be avoided, prevented, or removed. While active, this skill becomes [Life Transfer][r]."
-        , Skill.classes   = [Mental, Ranged, Bypassing, Unremovable, Uncounterable, Unreflectable]
+        , Skill.classes   = [Mental, Ranged, Nonstacking, Bypassing, Unremovable, Uncounterable, Unreflectable]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
@@ -120,7 +120,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Space-Time Marking"
         , Skill.desc      = "For 3 turns, [Flying Raijen] marks its target for 1 turn. Using [Flying Raijen] causes marked allies to become invulnerable for 1 turn and deals 30 damage to marked enemies."
-        , Skill.classes   = [Physical, Melee]
+        , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 6
         , Skill.effects   =
@@ -208,7 +208,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Veritable 1000-Armed Kannon"
         , Skill.desc      = "A titanic many-handed Buddha statue looms over the battlefield, providing 30 permanent destructible defense to Hashirama and his allies. For the next 3 turns, [Wooden Dragon] and [Wood Golem] cost [b] and last 1 additional turn."
-        , Skill.classes   = [Physical]
+        , Skill.classes   = [Physical, Nonstacking]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 5
         , Skill.effects   =

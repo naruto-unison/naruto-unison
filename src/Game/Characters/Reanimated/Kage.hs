@@ -220,7 +220,6 @@ characters =
           [ To Enemy do
                 damage 35
                 barricade Permanent 30
-                tag 1
           ]
         }
       ]

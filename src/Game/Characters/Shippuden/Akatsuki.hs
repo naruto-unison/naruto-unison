@@ -992,7 +992,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Guided Missile"
         , Skill.desc      = "Pain fires a slow-moving but devastating missile at a target. Over the next four turns, the cost of this skill is 1 chakra that cycles through the different types of chakra. Each turn, it has a different effect on the target. Using the skill again resets it."
-        , Skill.classes   = [Physical, Ranged, Bypassing, Invisible]
+        , Skill.classes   = [Physical, Ranged, Bypassing, Invisible, Nonstacking]
         , Skill.dur       = Ongoing 4
         , Skill.start     =
           [ To Enemy $ tag 4 ]

@@ -381,7 +381,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Sixty-Four Palms"
         , Skill.desc      = "For 4 turns, every time an enemy affected by [Pressure Point Strike] uses a skill on Hinata or her allies, Hinata's next [Pressure Point Strike] will last 1 additional turn on them."
-        , Skill.classes   = [Physical, Melee]
+        , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
@@ -866,7 +866,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Kuroari Trap"
         , Skill.desc      = "The Kuroari puppet traps an enemy. If they use a skill on Kankurō or his allies next turn, they will be countered and will receive twice as much damage from [Karasu Knives] for 1 turn."
-        , Skill.classes   = [Physical, Ranged, Invisible]
+        , Skill.classes   = [Physical, Ranged, Invisible, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
