@@ -388,7 +388,7 @@ characters =
                 bonus <- 10 `bonusIf` user has "Hidden Frost"
                 pierce (30 + bonus)
           ]
-        , Skill.changes   = changeWith "Hidden Frost" $ setCost [Rand]
+        , Skill.changes   = changeWith "Hidden Frost" $ setCost [Tai]
         }
       ]
     , [ invuln "Hide" "Chūkichi" [Mental] ]
