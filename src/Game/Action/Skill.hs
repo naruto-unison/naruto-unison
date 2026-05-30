@@ -60,7 +60,7 @@ alterCooldown name cd = alterTarget' $ Cooldown.alter name cd
 resetCooldown :: ∀ m. MonadPlay m => Text -> m ()
 resetCooldown name = alterTarget' $ Cooldown.reset name
 
--- | Resets all 'N.cooldowns' of a @Ninja@.
+-- | Resets all Instant 'N.cooldowns' of a @Ninja@.
 -- Uses 'Cooldown.resetAll' internally.
 resetCooldowns :: ∀ m. MonadPlay m => m ()
 resetCooldowns = alterTarget Cooldown.resetAll
