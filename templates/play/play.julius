@@ -39,18 +39,14 @@ app.ports.sounds.subscribe((sounds) => {
     vol = document.createElement("div");
     vol.id = "volume";
     document.body.appendChild(vol);
-    vol.className = #{vol};
+    vol.className = localStorage.getItem("mute") === "true" ? "click muted" : "click unmuted";
     vol.addEventListener("click", (ev) => {
         const vol = ev.currentTarget;
         const muted = vol.className === "click muted";
+        localStorage.setItem("mute", String(!muted));
         vol.className = muted ? "click unmuted" : "click muted";
         if (muted) {
             createjs.Sound.play("Click");
-        }
-        if (user) {
-            const xmlhttp = new XMLHttpRequest();
-            xmlhttp.open("GET", "/api/mute/" + (muted ? "False" : "True"), true);
-            xmlhttp.send();
         }
     });
     function registerSounds() {

@@ -51,7 +51,6 @@ instance ToJSON User where
         , userCondense
         , userDna
         , userLosses
-        , userMuted
         , userName
         , userPrivilege
         , userRecord
@@ -69,7 +68,6 @@ instance ToJSON User where
         , "streak"     .= userStreak
         , "record"     .= userRecord
         , "clan"       .= userClan
-        , "muted"      .= userMuted
         , "condense"   .= userCondense
         , "dna"        .= userDna
         ]
@@ -95,7 +93,6 @@ newUser ident verkey day = User
     , userClan       = Nothing
     , userTeam       = Nothing
     , userPractice   = ["Naruto Uzumaki", "Sakura Haruno", "Sasuke Uchiha"]
-    , userMuted      = False
     , userCondense   = False
     , userRating     = 0.0
     , userDeviation  = 350.0 / 173.7178

@@ -5,7 +5,6 @@
 module Handler.Client
     ( getPlayR
     , getMissionR, ObjectiveProgress(..)
-    , getMuteR
     , getReanimateR
     , getUpdateR
     ) where
@@ -78,13 +77,6 @@ getMissionR Character{ident} = do
         , progress
         }
 
--- | Updates a user's muted status and returns it. Requires authentication.
-getMuteR :: Bool -> App.Handler Value
-getMuteR mute = do
-    who <- Auth.requireAuthId
-    runDB $ update who [ UserMuted =. mute ]
-    returnJson mute
-
 -- | Buys a Reanimated character with DNA. Returns the new 'UserDna' balance.
 getReanimateR :: Character -> App.Handler Value
 getReanimateR Character{ident, price} = do
@@ -107,12 +99,7 @@ getPlayR = do
     mauth       <- Auth.maybeAuthPair
     (red,blue)  <- liftIO War.today
     let muser = snd <$> mauth
-    PlayParams { bg
-               , practice
-               , team
-               , unlocked
-               , vol
-               } <- getPlayParams muser
+    PlayParams{bg, practice, team, unlocked} <- getPlayParams muser
     when (isJust muser)
         $ liftIO Random.createSystemRandom >>= runReaderT Play.gameSocket
     setCsrfCookie
@@ -135,7 +122,6 @@ data PlayParams = PlayParams
     , practice :: [Text]
     , team     :: [Text]
     , unlocked :: Mission.Unlocks
-    , vol      :: Text
     }
 
 guestPlayParams :: PlayParams
@@ -144,12 +130,10 @@ guestPlayParams = PlayParams
     , practice = []
     , team     = []
     , unlocked = mempty
-    , vol      = "click unmuted"
     }
 
 userPlayParams :: User -> Mission.Unlocks -> PlayParams
 userPlayParams User { userBackground
-                    , userMuted
                     , userPractice
                     , userTeam
                     } unlocked = PlayParams
@@ -157,5 +141,4 @@ userPlayParams User { userBackground
     , practice = userPractice
     , team     = maybe [] (filter (∈ unlocked)) userTeam
     , unlocked = unlocked \\ Mission.freeChars
-    , vol      = if userMuted then "click muted" else vol guestPlayParams
     }

@@ -9,7 +9,6 @@
 -- GAME API
 
 /api/mission/#Character                     MissionR        GET
-/api/mute/#Bool                             MuteR           GET
 /api/practicequeue/*[Text]                  PracticeQueueR  GET
 /api/practiceact/#Chakras/#Chakras          PracticeWaitR   GET
 !/api/practiceact/#Chakras/#Chakras/*[Act]  PracticeActR    GET

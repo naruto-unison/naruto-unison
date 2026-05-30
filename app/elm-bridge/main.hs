@@ -118,7 +118,6 @@ data User = User
     , streak     :: Int
     , record     :: Int
     , clan       :: Maybe Text
-    , muted      :: Bool
     , condense   :: Bool
     , dna        :: Int
     }
