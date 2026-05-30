@@ -41,7 +41,6 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     const chars = new Map(characters.map((character) => [character.ident, character]));
-
     /**
      * @param {HTMLElement} el
      * @return {Character|undefined}
@@ -60,28 +59,40 @@ document.addEventListener("DOMContentLoaded", () => {
         return character && character.skills.flat().find(({ name }) => name == skillName);
     }
 
+    const visibleClassesSet = new Set(visibles);
     /**
-     * @param {Character} x
-     * @returns {string}
+     * @param {string}
+     * @return {boolean}
      */
-    function formatCharacterName({ category, name }) {
-        switch (category) {
-            case "Shippuden":
-                return name + " (S)";
-            case "Reanimated":
-                return name + " (R)";
-            default:
-                return name;
-        }
+    function isClassVisible(className) {
+        return visibleClassesSet.has(className);
     }
 
-    const visiblesSet = new Set(visibles);
     /**
-     * @param {string[]} x
-     * @returns {string[]}
+     * @param {string}
+     * @returns {string}
      */
-    function filterClasses(x) {
-        return x.filter((y) => visiblesSet.has(y));
+    function parseDescription(desc) {
+        return desc.replace(/(\[.\]|\[|\])/g, (text) => {
+            switch (text) {
+                case "[":
+                    return "<i>";
+                case "]":
+                    return "</i>";
+                case "[b]":
+                    return "<div class='chakra blood'></div>";
+                case "[g]":
+                    return "<div class='chakra gen'></div>";
+                case "[n]":
+                    return "<div class='chakra nin'></div>";
+                case "[t]":
+                    return "<div class='chakra tai'></div>";
+                case "[r]":
+                    return "<div class='chakra rand'></div>";
+                default:
+                    return text;
+            }
+        });
     }
 
     /**
@@ -114,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (tag === "Passive") {
             tag = "Instant";
         }
-        el.innerText = [tag, ...filterClasses(classes)].join(", ");
+        el.innerText = [tag, ...classes.filter(isClassVisible)].join(", ");
         return el;
     }
 
@@ -165,46 +176,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const characterTooltipHandler = wrapTooltipRenderer(({ header, article }, el) => {
         const character = findCharacter(el);
-        if (!character) {
-            return;
-        }
-        header.innerText = formatCharacterName(character);
         article.innerText = character.bio;
+        header.innerText = character.name;
+        if (character.category === "Shippuden") {
+            header.appendChild(document.createElement("sup")).innerText = "𝕊";
+        } else if (character.category === "Reanimated") {
+            header.appendChild(document.createElement("sup")).innerText = "ℝ";
+        }
     });
 
     const skillTooltipHandler = wrapTooltipRenderer(({ header, article }, el) => {
         const skill = findSkill(el);
-        if (!skill) {
-            return;
-        }
-        const { charges, cooldown, cost } = skill;
-        header.innerText = skill.name;
+        const { charges, cooldown, cost, desc, name } = skill;
+        header.innerText = name;
         header.append(...renderCost(cost), document.createElement("br"), renderClasses(skill));
 
-        article.innerHTML = skill.desc.replace(/(\[.\]|\[|\])/g, (text) => {
-            if (text === "[") {
-                return "<i>";
-            }
-            if (text === "]") {
-                return "</i>";
-            }
-            if (text === "[b]") {
-                return "<div class='chakra blood'></div>";
-            }
-            if (text === "[g]") {
-                return "<div class='chakra gen'></div>";
-            }
-            if (text === "[n]") {
-                return "<div class='chakra nin'></div>";
-            }
-            if (text === "[t]") {
-                return "<div class='chakra tai'></div>";
-            }
-            if (text === "[r]") {
-                return "<div class='chakra rand'></div>";
-            }
-            return text;
-        });
+        article.innerHTML = parseDescription(desc);
 
         if (charges === 1) {
             article.append(renderExtra("1 charge."));

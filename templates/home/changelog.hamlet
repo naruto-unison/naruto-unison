@@ -185,10 +185,10 @@
     bypasses invulnerability.
   <li>
     ^{Link.skill "Itachi Uchiha" Shippuden "Amaterasu"}
-    lasts until he uses <i>Susanoo</i>.
+    lasts until ^{Link.skill "Itachi Uchiha" Shippuden "Susanoo"} is used.
   <li>
     ^{Link.skill "Jiraiya" Shippuden "Toad Oil Bomb"}
-    interrupts <i>action</i> skills as well as <i>control</i> skills.
+    interrupts <i>Action</i> skills as well as <i>Control</i> skills.
   <li>
     ^{Link.skill "Killer B" Shippuden "Lariat"}
     makes him invulnerable to skills that cost genjutsu chakra for one turn.
@@ -249,9 +249,6 @@
   <li>
     ^{Link.skill "Kurenai Yuhi" Original "Demonic Illusion: Sylvan Fetters"}:
     was <i>Instant</i>, now <i>Control</i>.
-  <li>
-    ^{Link.skill "Jirōbō" Original "Earth Dome Prison"}:
-    was <i>Instant</i>, now <i>Action</i>.
   <li>
     ^{Link.skill "Shukaku Gaara" Original "Monstrous Sand Arm"}:
     was <i>Instant</i>, now <i>Control</i>.
