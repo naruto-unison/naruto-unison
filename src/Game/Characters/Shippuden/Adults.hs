@@ -88,9 +88,9 @@ characters =
           [ To Enemy $ damage 25
           , To Self do
                 defend Permanent 40
-                hide 1 [ Alternate "Thousand Hand Strike"
-                                   "Kannon Strike"
-                       ]
+                bombWith [Hidden] 1 [ Alternate "Thousand Hand Strike"
+                                                "Kannon Strike"
+                                    ] [ To Done $ tag' "Overheating" 1 ]
           ]
         }
       , Skill.new
@@ -100,9 +100,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy $ damage 20
-          , To Self do
-                tag' "Overheating" 2
-                prolong 1 "Thousand Hand Strike"
+          , To Self $ prolong 1 "Thousand Hand Strike"
           ]
         }
       ]
