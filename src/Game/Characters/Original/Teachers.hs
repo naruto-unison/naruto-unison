@@ -474,7 +474,7 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6
         , Skill.effects   =
-          [ To Ally $ defend' 4 50 [ Enrage ] ]
+          [ To Ally $ defend' Permanent 50 [ Enrage ] ]
         }
       ]
     , [ invuln "Teleport" "Baki" [Chakra] ]
