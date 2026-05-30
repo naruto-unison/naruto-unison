@@ -13,6 +13,7 @@ config/client_session_key.aes
 cabal-dev/
 .stack-work/
 .stack-work-devel/
+.vscode/
 yesod-devel/
 .cabal-sandbox
 cabal.sandbox.config
