@@ -210,12 +210,12 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
     const skillLinks = document.querySelectorAll(".skill");
 
-    for (el of characterLinks) {
+    for (const el of characterLinks) {
         el.addEventListener("mouseover", characterTooltipHandler);
         el.addEventListener("mouseleave", hideTooltip);
     }
 
-    for (el of skillLinks) {
+    for (const el of skillLinks) {
         el.addEventListener("mouseover", skillTooltipHandler);
         el.addEventListener("mouseleave", hideTooltip);
     }
