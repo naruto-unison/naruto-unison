@@ -208,7 +208,6 @@ instance Yesod App where
 
         pc <- widgetToPageContent do
             setTitle . toHtml $ title ++ " - Naruto Unison"
-            addScript $ StaticR Static.js_include_cookie_min_js
             $(combineStylesheets 'StaticR [ Static.css_include_main_css
                                           , Static.css_include_normalize_css
                                           ])
