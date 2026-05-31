@@ -8,8 +8,8 @@ module Handler.Client.Message
 
 import ClassyPrelude
 
-import           Data.Aeson (ToJSON, toEncoding)
-import qualified Data.Aeson.Encoding as Encoding
+import Data.Aeson (ToJSON, toEncoding)
+import Data.Aeson.Encoding (encodingToLazyByteString)
 
 import           Class.Sockets (MonadSockets)
 import qualified Class.Sockets as Sockets
@@ -42,7 +42,7 @@ data Message
 instance ToJSON Message
 
 send :: ∀ m. MonadSockets m => Message -> m ()
-send x = Sockets.send . Encoding.encodingToLazyByteString $ toEncoding x
+send x = Sockets.send . encodingToLazyByteString $ toEncoding x
 
 ping :: ∀ m. (MonadError Failure m, MonadSockets m) => m ()
 ping = do

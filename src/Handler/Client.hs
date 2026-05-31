@@ -12,12 +12,16 @@ module Handler.Client
 import ClassyPrelude
 import Yesod
 
+import           Data.Aeson.Encoding (encodingToLazyByteString)
 import qualified System.Random.MWC as Random
+import           Text.Blaze (Markup)
+import qualified Text.Blaze as Markup
 import qualified Yesod.Auth as Auth
 
 import qualified Application.App as App
 import           Application.Model (EntityField(..), Unlocked(..), User(..))
-import           Application.Settings (widgetFile)
+import           Application.Settings (combineScripts, widgetFile)
+import qualified Application.Static as Static
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Handler.Client.Data (addDataJS)
@@ -106,16 +110,19 @@ getPlayR = do
     token <- reqToken <$> getRequest
     defaultLayout do
         setTitle "Naruto Unison"
-        addStylesheetRemote "/css/embeds.css"
-        addScriptRemote "/js/elm.js"
+        addStylesheet $ App.StaticR Static.css_embeds_css
+        $(combineScripts 'App.StaticR [ Static.js_include_progressbar_min_js
+                                      , Static.js_include_soundjs_min_js
+                                      ])
+        addScript $ App.StaticR Static.js_elm_js
         addDataJS
-        $(widgetFile "include/progressbar.min")
-        $(widgetFile "include/soundjs.min")
-        $(widgetFile "include/normalize")
         $(widgetFile "play/play")
   where
     getPlayParams (Just user) = userPlayParams user <$> Mission.unlocked
     getPlayParams Nothing     = return guestPlayParams
+    encodeJSON :: ∀ a. ToJSON a => a -> Markup
+    encodeJSON obj = Markup.preEscapedLazyText . decodeUtf8 . encodingToLazyByteString
+                   $ toEncoding obj
 
 data PlayParams = PlayParams
     { bg       :: Text

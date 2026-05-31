@@ -7,8 +7,10 @@ import qualified Data.ByteString.Builder as BS
 import           Data.List (nub)
 import           Class.Display (shorten)
 import           UnliftIO.Directory (createDirectoryIfMissing)
-import           Yesod (MonadWidget, addScriptRemote)
+import           Yesod (addScript)
+import           Yesod.Static (base64md5)
 
+import qualified Application.App as App
 import qualified Game.Characters as Characters
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character
@@ -28,8 +30,11 @@ dataJS = toStrict . builderToLazy
     encodeBytes:: ∀ a. ToJSON a => a -> BS.Builder
     encodeBytes = fromEncoding . toEncoding
 
-addDataJS :: ∀ m. MonadWidget m => m ()
-addDataJS = addScriptRemote "/js/data.js"
+addDataJS :: ∀ m. App.MonadWidget m => m ()
+addDataJS = addScript $ App.StaticR
+    $ App.StaticRoute ["js", "data.js"] [("etag", etag)]
+  where
+    etag = pack $ base64md5 $ fromStrict dataJS
 
 writeDataJS :: FilePath -> IO ()
 writeDataJS staticDir = do

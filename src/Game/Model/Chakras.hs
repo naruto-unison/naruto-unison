@@ -19,8 +19,7 @@ import           GHC.Exts (IsList)
 import qualified GHC.Exts
 import           System.Random.Stateful (Uniform(..), UniformRange(..))
 import qualified System.Random.Stateful as R
-import           Text.Blaze ((!))
-import           Text.Blaze (ToMarkup(..))
+import           Text.Blaze ((!), ToMarkup(..))
 import qualified Text.Blaze.Html5 as HTML
 import qualified Text.Blaze.Html5.Attributes as HTML
 import           Yesod.Core.Dispatch (PathPiece(..))

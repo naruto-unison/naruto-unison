@@ -7,9 +7,12 @@ module Application.Settings
   , configSettingsYmlValue
   , widgetFile
   , DNA(..)
+  , combineStylesheets
+  , combineScripts
   ) where
 
 import ClassyPrelude
+import Yesod.Static
 
 import qualified Control.Exception as Exception
 import           Data.Aeson ((.!=), (.:), (.:?), FromJSON, Result(..), Value)
@@ -196,25 +199,17 @@ compileTimeAppSettings = case Aeson.fromJSON json of
   where
     json = DefaultConfig.applyEnvValue False mempty configSettingsYmlValue
 
-{-
+
 -- | How static files should be combined.
 combineSettings :: CombineSettings
 combineSettings = def
 
--- The following two functions can be used to combine multiple CSS or JS files
--- at compile time to decrease the number of http requests.
--- Sample usage (inside a Widget):
---
--- > $(combineStylesheets 'StaticR [style1_css, style2_css])
-
 combineStylesheets :: TH.Name -> [Route Static] -> TH.Q TH.Exp
 combineStylesheets = combineStylesheets'
-    (Settings.skipCombining compileTimeAppSettings)
+    (skipCombining compileTimeAppSettings)
     combineSettings
 
 combineScripts :: TH.Name -> [Route Static] -> TH.Q TH.Exp
 combineScripts = combineScripts'
-    (Settings.skipCombining compileTimeAppSettings)
+    (skipCombining compileTimeAppSettings)
     combineSettings
-
--}

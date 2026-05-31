@@ -5,127 +5,114 @@
  * @property {SVGPathElement} path
  */
 
-/** @type {Line} */
-let prog;
+document.addEventListener("DOMContentLoaded", () => {
+    /** @type {Line} */
+    let prog;
 
-/** @type {HTMLDivElement} */
-let vol;
+    /** @type {HTMLDivElement} */
+    let vol;
 
-/** @type {WebSocket} */
-let conn;
+    /** @type {WebSocket} */
+    let conn;
 
-const app = Elm.Main.init({
-    flags: {
-        url:          document.location.origin + "/",
-        bg:           #{toJSON bg},
-        userTeam:     #{toJSON team},
-        userPractice: #{toJSON practice},
-        unlocked:     [...#{toJSON unlocked}, ...alwaysUnlocked],
-        user:         #{toJSON muser},
-        avatars,
-        characters,
-        red:          #{toJSON red},
-        blue:         #{toJSON blue},
-        visibles,
-        csrf:         #{fromMaybe "" token},
-        csrfParam:    #{defaultCsrfParamName} //Cookies.get("XSRF-TOKEN")
-    }
-});
+    const app = Elm.Main.init({
+        flags: getElmFlags(),
+    });
 
-
-app.ports.sounds.subscribe((sounds) => {
-    vol = document.createElement("div");
-    vol.id = "volume";
-    document.body.appendChild(vol);
-    vol.className = localStorage.getItem("mute") === "true" ? "click muted" : "click unmuted";
-    vol.addEventListener("click", (ev) => {
-        const vol = ev.currentTarget;
-        const muted = vol.className === "click muted";
-        localStorage.setItem("mute", String(!muted));
-        vol.className = muted ? "click unmuted" : "click muted";
-        if (muted) {
-            createjs.Sound.play("Click");
+    app.ports.sounds.subscribe((sounds) => {
+        vol = document.createElement("div");
+        vol.id = "volume";
+        document.body.appendChild(vol);
+        vol.className = localStorage.getItem("mute") === "true" ? "click muted" : "click unmuted";
+        vol.addEventListener("click", (ev) => {
+            const vol = ev.currentTarget;
+            const muted = vol.className === "click muted";
+            localStorage.setItem("mute", String(!muted));
+            vol.className = muted ? "click unmuted" : "click muted";
+            if (muted) {
+                createjs.Sound.play("Click");
+            }
+        });
+        function registerSounds() {
+            createjs.Sound.registerSounds(
+                sounds.map((file) => ({ src: file + ".ogg", id: file })),
+                "audio/",
+            );
+            document.removeEventListener("click", registerSounds);
+        }
+        document.addEventListener("click", registerSounds);
+    });
+    app.ports.sound.subscribe((sound) => {
+        if (vol && vol.className !== "click muted") {
+            createjs.Sound.play(sound);
         }
     });
-    function registerSounds() {
-        createjs.Sound.registerSounds(
-            sounds.map((file) => ({ src: file + ".ogg", id: file })),
-            "audio/",
-        );
-        document.removeEventListener("click", registerSounds);
+
+    /** @type {[number, number, number]|undefined} */
+    let queuedProgress;
+
+    /** @param {[number, number, number]} args */
+    function progress(args) {
+        const [duration, from, to] = args;
+
+        if (prog === undefined) {
+            return (queuedProgress = args);
+        }
+
+        prog.path.setAttribute("stroke", from < to ? "#555" : "#0099ff");
+        prog.set(from);
+
+        if (duration > 0) {
+            prog.animate(to, { duration });
+        }
     }
-    document.addEventListener("click", registerSounds);
-});
-app.ports.sound.subscribe((sound) => {
-    if (vol && vol.className !== "click muted") {
-        createjs.Sound.play(sound);
-    }
-});
+    app.ports.progress.subscribe(progress);
 
-/** @type {[number, number, number]|undefined} */
-let queuedProgress;
-
-/** @param {[number, number, number]} args */
-function progress(args) {
-    const [duration, from, to] = args;
-
-    if (prog === undefined) {
-        return (queuedProgress = args);
-    }
-
-    prog.path.setAttribute("stroke", from < to ? "#555" : "#0099ff");
-    prog.set(from);
-
-    if (duration > 0) {
-        prog.animate(to, { duration });
-    }
-}
-app.ports.progress.subscribe(progress);
-
-/**
- * @param {MutationRecord[]} mutations
- * @returns {boolean}
- */
-function wasGameAdded(mutations) {
-    for (const mutation of mutations) {
-        for (const node of mutation.addedNodes.values()) {
-            if (node.id === "game") {
-                return true;
+    /**
+     * @param {MutationRecord[]} mutations
+     * @returns {boolean}
+     */
+    function wasGameAdded(mutations) {
+        for (const mutation of mutations) {
+            for (const node of mutation.addedNodes.values()) {
+                if (node.id === "game") {
+                    return true;
+                }
             }
         }
+        return false;
     }
-    return false;
-}
 
-const barOpts = { color: "#0099ff", fill: "#111" };
-new MutationObserver((mutations) => {
-    if (!wasGameAdded(mutations)) {
-        return;
-    }
-    prog = new ProgressBar.Line("#ready", barOpts);
-    if (queuedProgress !== undefined) {
-        progress(queuedProgress);
-        queuedProgress = undefined;
-    }
-}).observe(document.getElementById("main"), { childList: true });
-
-app.ports.websocketSend.subscribe((msg) => {
-    if (conn?.readyState !== 1) {
-        conn.close();
-        conn = undefined;
-    }
-    if (conn) {
-        conn.send(msg);
-        return;
-    }
-    conn = new WebSocket(document.URL.replace(/^http/g, "ws"));
-    conn.addEventListener("open", () => conn.send(msg));
-    conn.addEventListener("message", ({ data }) => {
-        const obj = JSON.parse(data);
-        if (obj.tag === "Fail") {
-            const { tag, contents } = obj.contents;
-            console.log(`Received ${tag}: ${contents}`);
+    const barOpts = { color: "#0099ff", fill: "#111" };
+    new MutationObserver((mutations) => {
+        if (!wasGameAdded(mutations)) {
+            return;
         }
-        app.ports.websocketReceive.send(obj);
+        prog = new ProgressBar.Line("#ready", barOpts);
+        if (queuedProgress !== undefined) {
+            progress(queuedProgress);
+            queuedProgress = undefined;
+        }
+    }).observe(document.getElementById("main"), { childList: true });
+
+    app.ports.websocketSend.subscribe((msg) => {
+        if (conn?.readyState !== 1) {
+            conn.close();
+            conn = undefined;
+        }
+        if (conn) {
+            conn.send(msg);
+            return;
+        }
+        conn = new WebSocket(document.URL.replace(/^http/g, "ws"));
+        conn.addEventListener("open", () => conn.send(msg));
+        conn.addEventListener("message", ({ data }) => {
+            const obj = JSON.parse(data);
+            if (obj.tag === "Fail") {
+                const { tag, contents } = obj.contents;
+                console.log(`Received ${tag}: ${contents}`);
+            }
+            app.ports.websocketReceive.send(obj);
+        });
     });
 });

@@ -1,0 +1,18 @@
+<script>
+    function getElmFlags() {
+            return {
+            url:          document.location.origin + "/",
+            bg:           #{encodeJSON bg},
+            userTeam:     #{encodeJSON team},
+            userPractice: #{encodeJSON practice},
+            unlocked:     [...#{encodeJSON unlocked}, ...alwaysUnlocked],
+            user:         #{encodeJSON muser},
+            avatars,
+            characters,
+            red:          #{encodeJSON red},
+            blue:         #{encodeJSON blue},
+            visibles,
+            csrf:         "#{fromMaybe "" token}",
+            csrfParam:    "#{defaultCsrfParamName}",
+        };
+    };

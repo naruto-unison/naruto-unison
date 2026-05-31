@@ -7,7 +7,7 @@ module Application.App
   ( App(..)
   , AForm, MForm
   , Handler, Widget
-  , MonadHandler
+  , MonadHandler, MonadWidget
   , Route(..)
   , PersistEntity
   , getPrivilege
@@ -19,7 +19,7 @@ module Application.App
   ) where
 
 import ClassyPrelude hiding (Handler)
-import Yesod hiding (AForm, MForm, MonadHandler, PersistEntity)
+import Yesod hiding (AForm, MForm, MonadHandler, MonadWidget, PersistEntity)
 
 import           Control.Monad.Logger (LogSource)
 import           Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
@@ -56,7 +56,8 @@ import           Yesod.Static hiding (static)
 
 import           Application.Model (CharacterId, EntityField(..), Privilege(..), Unique(..), User(..), UserId)
 import qualified Application.Model as Model
-import           Application.Settings (Settings, widgetFile)
+import qualified Application.Static as Static
+import           Application.Settings (Settings, widgetFile, combineStylesheets)
 import qualified Application.Settings as Settings
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Character (Character)
@@ -100,6 +101,7 @@ data App = App
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
 type MonadHandler m = (Yesod.MonadHandler m, App ~ HandlerSite m)
+type MonadWidget m = (Yesod.MonadWidget m, App ~ HandlerSite m)
 
 getPrivilege :: ∀ m. MonadHandler m => m Privilege
 getPrivilege = liftHandler . cached $ privilege <$> Auth.maybeAuthPair
@@ -206,9 +208,10 @@ instance Yesod App where
 
         pc <- widgetToPageContent do
             setTitle . toHtml $ title ++ " - Naruto Unison"
-            $(widgetFile "include/cookie.min")
-            $(widgetFile "include/main")
-            $(widgetFile "include/normalize")
+            addScript $ StaticR Static.js_include_cookie_min_js
+            $(combineStylesheets 'StaticR [ Static.css_include_main_css
+                                          , Static.css_include_normalize_css
+                                          ])
             $(widgetFile "default-layout/default-layout")
         withUrlRenderer
           $(hamletFile "templates/default-layout/default-layout-wrapper.hamlet")
