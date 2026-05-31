@@ -373,9 +373,6 @@ spec = parallel do
         it "does not block against self"    $ simAt Self     tryTarget
         it "blocks against others"    . not $ simAt XEnemies tryTarget
 
-    describe "Threshold" do
-        prop "constrains damage" thresholdConstrains
-
     describe "Throttle" do
         it "throttles counters" $ simAt Enemy do
             apply Permanent [ Throttle 1 Counters ]
@@ -544,17 +541,6 @@ tryAbsorb t cost = simAt t do
                             , Skill.effects = [ To t $ return () ]
                             }
         }
-
-thresholdConstrains :: Attack -> Int -> Int -> Property
-thresholdConstrains attackType dmg v = simEffects [] [Threshold v] Enemy do
-    Combat.attack attackType dmg
-    targetHealth <- target health
-    return $ 100 - targetHealth === damageOutput
-  where
-    damageOutput
-      | attackType == Attack.Demolish = 0
-      | dmg <= v                      = 0
-      | otherwise                     = healthBound dmg
 
 unreduces :: Int -> Int -> Int -> Property
 unreduces dmg reduce unreduce = simAt Enemy do

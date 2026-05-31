@@ -68,7 +68,6 @@ data Effect
     | Stun         Class                      -- ^ Unable to use 'Game.Model.Skill.Skill's
     | Swap                                    -- ^ Target's skills swap enemies and allies
     | Taunt        Slot                       -- ^ Forced to attack a target
-    | Threshold    Int                        -- ^ Invulnerable to baseline damage below a threhold
     | Throttle     Int Constructor            -- ^ Applying an effect lasts fewer turns
     | Undefend                                -- ^ Does not benefit from destructible defense
     | Uncounter                               -- ^ Cannot counter or reflect
@@ -213,7 +212,6 @@ helpful Strengthen{}    = True
 helpful Stun{}          = False
 helpful Swap            = False
 helpful Taunt{}         = False
-helpful Threshold{}     = True
 helpful Throttle{}      = False
 helpful Uncounter       = False
 helpful Undefend        = False
@@ -433,10 +431,6 @@ instance Display Effect where
 
     display Taunt{} =
         "Can only affect "
-
-    display (Threshold x) =
-        "Nullifies the damage of attacks that deal " ++ display x
-        ++ " baseline damage or lower."
 
     display (Throttle x y) =
         "Skills will apply " ++ display x ++ " fewer turns of "

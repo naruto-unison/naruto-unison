@@ -131,8 +131,6 @@ attack atk dmg = void $ runMaybeT do
           | otherwise             = absorbDamage (overflow fromBarrier)
                                   $ N.defense nTarget
 
-    guard $ dmgCalc > Effects.threshold nTarget -- Always 0 or higher
-
     if atk > Attack.Afflict && nTarget `is` DamageToDefense then
         let damageDefense = Destructible { user
                                          , skill

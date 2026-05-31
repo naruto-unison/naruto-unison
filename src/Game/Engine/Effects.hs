@@ -18,7 +18,6 @@ module Game.Engine.Effects
   , snare
   , strengthen
   , stun, stunned
-  , threshold
   , throttle, throttleCounters
   , taunt
   , unreduce
@@ -140,10 +139,6 @@ stunned n = not . null $ stun n
 taunt :: Ninja -> [Slot]
 taunt Ninja{effects, slot} = [x | Taunt x <- effects, x /= slot]
 
--- | 'Threshold' max. Always ≥ 0.
-threshold :: Ninja -> Int
-threshold Ninja{effects} = maximum $ 0 :| [x | Threshold x <- effects]
-
 -- | 'Throttle' sum.
 throttle :: [Effect] -> Ninja -> Int
 throttle efs Ninja{effects} = sum [x | Throttle x f <- effects, throttled f]
@@ -207,15 +202,14 @@ afflict ninjas player n@Ninja{slot, statuses} = sum
     [aff st | st@Status{user} <- statuses
             , user == slot || not (afflictClasses `intersects` invulnerable n)]
   where
-    aff = afflict1 ninjas player (threshold n) slot
+    aff = afflict1 ninjas player slot
 
 -- | Calculates the total 'Afflict' of a single @Status@.
 afflict1 :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
-         => o -> Player -> Int -> Slot -> Status -> Int
-afflict1 ninjas player nThreshold t Status{classes, effects, user}
+         => o -> Player -> Slot -> Status -> Int
+afflict1 ninjas player t Status{classes, effects, user}
   | summed == 0                     = 0
   | not $ Parity.allied player user = 0
-  | damage < nThreshold             = 0
   | otherwise                       = damage
   where
     nt     = ninjas !! Slot.toInt t
