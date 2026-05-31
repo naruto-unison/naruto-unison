@@ -116,7 +116,9 @@ formula atk classes nUser nTarget = limit . round
 -- 'Attack.Damage', or 'Attack.Demolish' attack.
 -- Uses 'Ninjas.adjustHealth' internally.
 attack :: ∀ m. MonadPlay m => Attack -> Int -> m ()
-attack atk dmg = void $ runMaybeT do
+attack atk dmg
+  | dmg <= 0  = return ()
+  | otherwise = void $ runMaybeT do
     nTarget <- P.nTarget
     guard . not $ nTarget `is` Invulnerable atkClass
 

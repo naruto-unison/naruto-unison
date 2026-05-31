@@ -466,36 +466,38 @@ simEffects userEffects targetEffects = simOf $ Wrapper.new
     , Blank.ninja { effects = targetEffects }, Blank.ninja, Blank.ninja
     ]
 
-damageToDefense :: Attack -> Int -> Property
-damageToDefense attackType dmg = simEffects [] [DamageToDefense] Enemy do
-    Combat.attack attackType dmg
-    targetHealth <- target health
-    return $ 100 - targetHealth === case attackType of
-        Attack.Afflict -> healthBound dmg
-        _              -> 0
+damageToDefense :: Attack -> Positive Int -> Property
+damageToDefense attackType (Positive dmg) =
+    simEffects [] [DamageToDefense] Enemy do
+        Combat.attack attackType dmg
+        targetHealth <- target health
+        return $ 100 - targetHealth === case attackType of
+            Attack.Afflict -> healthBound dmg
+            _              -> 0
 
-damageFromDefense :: Attack -> Int -> Property
-damageFromDefense attackType dmg = simEffects [] [DamageToDefense] Enemy do
-    Combat.attack attackType dmg
-    targetDefense <- target totalDefense
-    return $ targetDefense === case attackType of
-        Attack.Afflict  -> 0
-        Attack.Demolish -> 0
-        _               -> max 0 dmg
+damageFromDefense :: Attack -> Positive Int -> Property
+damageFromDefense attackType (Positive dmg) =
+    simEffects [] [DamageToDefense] Enemy do
+        Combat.attack attackType dmg
+        targetDefense <- target totalDefense
+        return $ targetDefense === case attackType of
+            Attack.Afflict  -> 0
+            Attack.Demolish -> 0
+            _               -> dmg
 
 attackAmount :: Attack   -- ^ Attack type.
-       -> Int      -- ^ Amount.
-       -> [Effect] -- ^ Attacker.
-       -> [Effect] -- ^ Defender.
-       -> Int      -- ^ Result.
+             -> Int      -- ^ Amount.
+             -> [Effect] -- ^ Attacker.
+             -> [Effect] -- ^ Defender.
+             -> Int      -- ^ Result.
 attackAmount attackType dmg attacker defender =
     Combat.formula attackType [All]
     Blank.ninja { effects = attacker }
     Blank.ninja { effects = defender }
     dmg
 
-constrainsHealth :: Bool -> Int -> Property
-constrainsHealth endurable currentHealth =
+constrainsHealth :: Bool -> Positive Int -> Property
+constrainsHealth endurable (Positive currentHealth) =
     health (Ninjas.setHealth currentHealth ninja) ===
     max (fromEnum endurable) (min 100 currentHealth)
   where
@@ -505,21 +507,21 @@ constrainsHealth endurable currentHealth =
 
 type Con = EnumSet Class -> Amount -> Int -> Effect
 
-isLimited :: Attack -> Int -> Int -> Property
-isLimited attackType amount dmg =
+isLimited :: Attack -> Int -> Positive Int -> Property
+isLimited attackType amount (Positive dmg) =
     attackAmount attackType dmg [] [Limit amount] === case attackType of
         Attack.Afflict -> dmg
         _              -> min amount dmg
 
-isAdditive :: Con -> Amount -> Attack -> Int -> Int -> Int -> Property
-isAdditive effect amount attackType dmg size val =
+isAdditive :: Con -> Amount -> Attack -> Positive Int -> Int -> Int -> Property
+isAdditive effect amount attackType (Positive dmg) size val =
     atk [reducer val] === atk (chunk reducer size val)
   where
     atk efs = attackAmount attackType dmg efs efs
     reducer = effect [All] amount
 
-complements :: Con -> Con -> Amount -> Int -> Int -> Property
-complements effectA effectB amount dmg val = atk effects === atk []
+complements :: Con -> Con -> Amount -> Positive Int -> Int -> Property
+complements effectA effectB amount (Positive dmg) val = atk effects === atk []
   where
     effects  = [effect effectA val, effect effectB val]
     atk efs  = attackAmount Attack.Damage dmg efs efs
@@ -542,8 +544,8 @@ tryAbsorb t cost = simAt t do
                             }
         }
 
-unreduces :: Int -> Int -> Int -> Property
-unreduces dmg reduce unreduce = simAt Enemy do
+unreduces :: Positive Int -> Int -> Int -> Property
+unreduces (Positive dmg) reduce unreduce = simAt Enemy do
     targeting Self $ apply Permanent [ Unreduce unreduce ]
     apply Permanent [ Reduce [All] Flat reduce ]
     damage dmg

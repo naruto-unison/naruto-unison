@@ -76,7 +76,7 @@ increaseDefense name amount = P.unsilenced . P.fromUser
     $ Ninjas.increaseDefense amount name
 
 -- | Clears all 'Destructible' 'N.defense' with matching name and user.
--- Uses 'Ninjas.decreaseDefense' internally.
+-- Uses 'Ninjas.removeDefense' internally.
 removeDefense :: ∀ m. MonadPlay m => Text -> m ()
 removeDefense name = P.unsilenced do
     Context{target, user} <- P.context
@@ -166,7 +166,9 @@ setHealth amount = Combat.adjustHealth $ const amount
 -- | Adds a flat amount of 'N.health'.
 -- Uses 'Ninjas.adjustHealth' internally.
 heal :: ∀ m. MonadPlay m => Int -> m ()
-heal hp = P.unsilenced do
+heal hp
+  | hp <= 0 = return ()
+  | otherwise = P.unsilenced do
     nTarget <- P.nTarget
     unless (nTarget `is` Plague || not (N.alive nTarget)) do
         nUser@Ninja{slot = user} <- P.nUser
@@ -183,7 +185,9 @@ leech hp f = leech' hp $ P.with Context.reflect . f
 
 -- | Like @'leech'@, but does not retarget the effect toward the user.
 leech' :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
-leech' hp f = do
+leech' hp f
+  | hp <= 0   = return ()
+  | otherwise = do
     Context{target, user, skill = Skill{classes}} <- P.context
     hpBefore <- N.health <$> P.nTarget
     afflict hp
@@ -200,8 +204,9 @@ sacrifice :: ∀ m. MonadPlay m
           => Int  -- ^ Minimum 'N.health'.
           -> Int  -- ^ Amount of 'N.health' to sacrifice.
           -> m ()
-sacrifice _     0  = return ()
-sacrifice minhp hp = do
+sacrifice minhp hp
+  | hp <= 0   = return ()
+  | otherwise = do
     Context{target, user} <- P.context
     when (user == target)
         $ P.trigger user [OnSacrifice]
