@@ -417,7 +417,7 @@ instance Display Effect where
       | x >= 0 =
           "Increases cooldowns by " ++ display x ++ "."
       | otherwise =
-          "Decreases cooldowns by " ++ display (-x) ++ "."
+          "Decreases cooldowns by " ++ display (-x) ++ ". Non-instant skills cannot have their cooldown times reduced below their baseline amounts."
 
     display (Strengthen classes amt x) =
         "Deals " ++ displayAmt amt x ++ " additional damage with "

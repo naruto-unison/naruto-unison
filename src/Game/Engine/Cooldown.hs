@@ -28,10 +28,13 @@ alter skill cd owner n =
 
 -- | 'update's a corresponding @Ninja@ when they use a new @Skill@.
 update :: Skill -> Ninja -> Ninja
-update skill n =
+update skill@Skill{cooldown, dur} n =
     n { N.cooldowns = insertMap (Skill.key skill) cd $ N.cooldowns n }
   where
-    cd = max 0 $ sync (Skill.cooldown skill) + 2 + 2 * Effects.snare n
+    minim
+      | dur == Instant || dur == Passive = 0
+      | otherwise = sync cooldown + 2
+    cd = max minim $ sync cooldown + 2 + 2 * Effects.snare n
 
 -- | 'update's a corresponding @Ninja@ when they use a new @Skill@.
 spendCharge :: Skill -> Ninja -> Ninja

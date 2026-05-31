@@ -62,7 +62,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Deep Forest Flourishing"
-        , Skill.desc      = "Provides 30 permanent destructible defense to Hashirama's team and resets the cooldowns of their [Instant] skills."
+        , Skill.desc      = "Provides 30 permanent destructible defense to Hashirama's team and resets the cooldowns of their instant skills."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =

@@ -60,7 +60,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Team Tactics"
-        , Skill.desc      = "For 3 turns, the cooldowns of Kakashi's allies are decreased by 1 turn. While active, the first skill used by an enemy will replace this skill for 1 turn. Copied skills cannot copy other skills and do not transform into alternates."
+        , Skill.desc      = "For 3 turns, the cooldowns of Kakashi's allies are decreased by 1 turn. Cooldowns of non-instant skills cannot be decreased below their baseline cooldown amount. While active, the first skill used by an enemy will replace this skill for 1 turn. Copied skills cannot copy other skills and do not transform into alternates."
         , Skill.classes   = [Mental, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
