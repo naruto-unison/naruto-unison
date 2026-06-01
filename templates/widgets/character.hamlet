@@ -1,0 +1,12 @@
+<div .charbox>
+  <div>
+    <img data-name=#{tagName} .char.head src=/img/ninja/#{tagName}/icon.jpg alt="Character icon">
+  <div>
+    <a .name data-name=#{tagName} href=@{CharacterR char}>
+      #{name}#{Character.category char}
+    <ul>
+      $forall skills <- Character.skills char
+        <li>
+          $forall skill <- separate skills
+            <span .skill data-name=#{tagName}>
+              #{Skill.name skill}

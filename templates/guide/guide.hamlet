@@ -13,7 +13,9 @@
   <p>
     Each of Naruto Unison's #{length Characters.list} playable characters has their own skills and strategies.
   <a href=@{CharactersR} .guide>
-    Browse characters
+    Browse all characters
   <a href=@{GroupsR} .guide>
-    Browse groups
+    Browse characters by group
+  <a href=@{TeamBuildingR} .guide>
+    Browse characters by team support
 <aside>

@@ -9,6 +9,7 @@ module Handler.Site
   , getCharactersR, getCharacterR
   , getGroupsR
   , getMechanicsR
+  , getTeamBuildingR
   ) where
 
 import ClassyPrelude
@@ -84,11 +85,19 @@ separate skills = nubBy ((==) `on` Text.strip . Skill.name) $ toList skills
 
 getChangelog :: Bool -> LogType -> Text -> Character.Category -> App.Widget
 getChangelog long logType name category = case Characters.lookup tagName of
-    Just char -> $(widgetFile "home/change")
+    Just char -> $(widgetFile "widgets/change")
     Nothing   -> error
         $ "Site.getChangelog: character " ++ unpack tagName ++ " not found"
   where
     change  = logLabel long
+    tagName = Character.identFrom category name
+
+getCharacter :: Text -> Character.Category -> App.Widget
+getCharacter name category = case Characters.lookup tagName of
+    Just char -> $(widgetFile "widgets/character")
+    Nothing   -> error
+        $ "Site.getChangelog: character " ++ unpack tagName ++ " not found"
+  where
     tagName = Character.identFrom category name
 
 news :: (News, Maybe User) -> App.Widget
@@ -149,3 +158,15 @@ getMechanicsR = do
         addDataJS
         $(widgetFile "tooltip/tooltip")
         $(widgetFile "guide/mechanics")
+
+-- | Renders the team building guide.
+getTeamBuildingR :: App.Handler Html
+getTeamBuildingR = do
+    App.unchanged304
+    (title, _) <- breadcrumbs
+    defaultLayout do
+        addDataJS
+        $(widgetFile "tooltip/tooltip")
+        $(widgetFile "guide/teambuilding")
+  where
+    character = getCharacter

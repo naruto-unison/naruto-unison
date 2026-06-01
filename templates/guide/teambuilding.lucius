@@ -1,0 +1,31 @@
+.charbox {
+    display: flex;
+    margin-bottom: 0.5em;
+
+    div:last-child {
+        flex-grow: 1;
+    }
+
+    ul {
+        padding: 0 1.5em;
+        margin-top: -1px;
+    }
+
+    li {
+        line-height: 1em;
+        margin-top: 0.13em;
+    }
+
+    .char {
+        margin: 3px 7px 3px 5px;
+    }
+
+    .skill::after {
+        content: " / ";
+        color: black;
+    }
+
+    .skill:last-child::after {
+        content: unset;
+    }
+}

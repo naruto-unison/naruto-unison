@@ -1,0 +1,229 @@
+<h1>#{title}
+<p>
+  The key to building a successful team in Naruto Unison is choosing ninjas whose abilities work well together.
+<h2>
+  Chakra Generation
+<p>
+  Almost all skills cost chakra, and more powerful skills typically cost more chakra. These ninjas can generate chakra or steal it from the opposing team, making it easier for allies to use their most powerful skills.
+<details>
+  <summary>
+    View ninjas
+  ^{character "Choji Akimichi" Original}
+  ^{character "Inoichi Yamanaka" Original}
+  ^{character "Minato Namikaze" Original}
+  ^{character "Orochimaru" Original}
+  ^{character "Young Kakashi" Original}
+  ^{character "Preta Path Pain" Shippuden}
+  ^{character "Sage Mode Kabuto" Shippuden}
+  ^{character "Sai" Shippuden}
+  ^{character "Shino Aburame" Shippuden}
+  ^{character "Tsunade" Shippuden}
+  ^{character "Zetsu" Shippuden}
+  ^{character "Nagato" Reanimated}
+<h2>
+  Cooldown Reduction
+<p>
+  Cooldown reduction is a rare ability that shortens the active cooldowns of instant skills, meaning they can be used more often. These ninjas can reduce or reset the cooldowns of their allies.
+<details>
+  <summary>
+    View ninjas
+  ^{character "Kakashi Hatake" Shippuden}
+  ^{character "Sage Mode Kabuto" Shippuden}
+  ^{character "Hashirama Senju" Reanimated}
+<h2>
+  Countering
+<p>
+  To counter a skill means to negate its effects, and optionally retaliate against its user. These ninjas can protect their team from skills by apply countering effects to allies or enemies.
+<details>
+  <summary>
+    View ninjas
+  ^{character "Choza Akimichi" Original}
+  ^{character "Drunken Lee" Original}
+  ^{character "Kidomaru" Original}
+  ^{character "Might Guy" Original}
+  ^{character "Shukaku Gaara" Original}
+  ^{character "Zaku Abumi" Original}
+  ^{character "Danzo Shimura" Shippuden}
+  ^{character "Deva Path Pain" Shippuden}
+  ^{character "Fu Yamanaka" Shippuden}
+  ^{character "Ino Yamanaka" Shippuden}
+  ^{character "Itachi Uchiha" Shippuden}
+  ^{character "Kankuro" Shippuden}
+  ^{character "Karin" Shippuden}
+  ^{character "Kisame Hoshigaki" Shippuden}
+  ^{character "Shino Aburame" Shippuden}
+  ^{character "Yamato" Shippuden}
+  ^{character "Chiyo" Reanimated}
+  ^{character "Rasa" Reanimated}
+  ^{character "Jirobo" Reanimated}
+<h2>
+  Damage Reduction
+<p>
+  Damage reduction is a status effect that decreases the amount of damage taken from direct enemy attacks. Piercing and affliction damage are unaffected by damage reduction. These ninjas can protect their team by applying damage reduction to their allies.
+<details>
+  <summary>
+    View ninjas
+  ^{character "Aoba Yamashiro" Original}
+  ^{character "Asuma Sarutobi" Original}
+  ^{character "Choji Akimichi" Original}
+  ^{character "Hiruzen Sarutobi" Original}
+  ^{character "Misumi Tsurugi" Original}
+  ^{character "Animal Path Pain" Shippuden}
+  ^{character "Dodai" Shippuden}
+  ^{character "Kankuro" Shippuden}
+  ^{character "Konan of the Rain" Shippuden}
+  ^{character "Onoki" Shippuden}
+  ^{character "Temari" Shippuden}
+<h2>
+  Death Denial
+<p>
+  Normally, once a ninja's health reaches zero, they die and cannot be used for the rest of the match. These ninjas can prevent that from happening, either by protecting an ally from dying or by resurrecting them after death.
+<details>
+  <summary>
+    View ninjas
+  ^{character "Aoba Yamashiro" Original}
+  ^{character "Hiruzen Sarutobi" Original}
+  ^{character "Chiyo" Shippuden}
+  ^{character "Ittan" Shippuden}
+  ^{character "Konohamaru Sarutobi" Shippuden}
+  ^{character "Nagato" Shippuden}
+  ^{character "Sage Mode Kabuto" Shippuden}
+  ^{character "Temari" Shippuden}
+  ^{character "Tsunade" Shippuden}
+<h2>
+  Destructible Barrier
+<p>
+  Destructible barrier is the opposite of destructible defense. When the target attempts to damage others, their destructible barrier takes damage instead. These ninjas can protect their team from damage by applying destructible barrier to enemies.
+<details>
+  <summary>
+    View ninjas
+  ^{character "Deva Path Pain" Shippuden}
+  ^{character "Yamato" Shippuden}
+  ^{character "Nagato" Reanimated}
+  ^{character "Rasa" Reanimated}
+<h2>
+  Destructible Defense
+<p>
+  Destructible defense is the opposite of destructible barrier. It appends to the target's health bar and takes damage instead of the target. These ninjas can protect their team from damage by applying destructible defense to their allies.
+<details>
+  <summary>
+    View ninjas
+  ^{character "Baki" Original}
+  ^{character "Choza Akimichi" Original}
+  ^{character "Hashirama Senju" Original}
+  ^{character "Hinata Hyuga" Original}
+  ^{character "Jirobo" Original}
+  ^{character "Shikaku Nara" Original}
+  ^{character "Shino Aburame" Original}
+  ^{character "Tsunade" Original}
+  ^{character "Animal Path Pain" Shippuden}
+  ^{character "Jugo" Shippuden}
+  ^{character "Kazekage Gaara" Shippuden}
+  ^{character "Onoki" Shippuden}
+  ^{character "Puppet Master Kankuro" Shippuden}
+  ^{character "Tenten" Shippuden}
+  ^{character "True Form Sasori" Shippuden}
+  ^{character "Yamato" Shippuden}
+  ^{character "Gengetsu Hozuki" Reanimated}
+  ^{character "Hashirama Senju" Reanimated}
+<h2>
+  Healing
+<p>
+  Many ninjas have the ability to restore some of their own health, but not to do the same for others. These ninjas can support their team by restoring health to their allies.
+<details>
+  <summary>
+    View ninjas
+  ^{character "Kushina Uzumaki" Original}
+  ^{character "Rin Nohara" Original}
+  ^{character "Sakura Haruno" Original}
+  ^{character "Shizune" Original}
+  ^{character "Tsunade" Original}
+  ^{character "C" Shippuden}
+  ^{character "Chiyo" Shippuden}
+  ^{character "Jugo" Shippuden}
+  ^{character "Kabuto Yakushi" Shippuden}
+  ^{character "Karin" Shippuden}
+  ^{character "Nagato" Shippuden}
+  ^{character "Naraka Path Pain" Shippuden}
+  ^{character "Orochimaru" Shippuden}
+  ^{character "Sakura Haruno" Shippuden}
+  ^{character "Tsunade" Shippuden}
+<h2>
+  Invulnerability
+<p>
+  Invulnerability is a status effect that blocks harmful skills for a set number of turns. Ninjas with invulnerability cannot be targeted by enemies. These ninjas can protect their team from skills by applying invulnerability to their allies.
+<details>
+  <summary>
+    View ninjas
+  ^{character "Hiruzen Sarutobi" Original}
+  ^{character "Iruka Umino" Original}
+  ^{character "Jiraiya" Original}
+  ^{character "Minato Namikaze" Original}
+  ^{character "Temari" Original}
+  ^{character "Tsume Inuzuka" Original}
+  ^{character "Animal Path Pain" Shippuden}
+  ^{character "Fukasaku and Shima" Shippuden}
+  ^{character "Itachi Uchiha" Shippuden}
+  ^{character "Kakashi Hatake" Shippuden}
+  ^{character "Kankuro" Shippuden}
+  ^{character "Sai" Shippuden}
+  ^{character "Tenten" Shippuden}
+  ^{character "Tobi" Shippuden}
+  ^{character "Minato Namikaze" Reanimated}
+  ^{character "Tobirama Senju" Reanimated}
+<h2>
+  Redirection
+<p>
+  Redirection is a rare status effect that causes the effects of harmful skills to be redirected to other targets. These ninjas can protect their team from skills by applying redirection to their allies.
+<details>
+  <summary>
+    View ninjas
+  ^{character "Asuma Sarutobi" Original}
+  ^{character "Hiashi Hyuga" Original}
+  ^{character "Kakashi Hatake" Original}
+  ^{character "Misumi Tsurugi" Original}
+  ^{character "Yondaime Minato" Original}
+  ^{character "Jiraiya" Shippuden}
+  ^{character "Puppet Master Kankuro" Shippuden}
+  ^{character "Tenten" Shippuden}
+  ^{character "Zetsu" Shippuden}
+  ^{character "Minato Namikaze" Reanimated}
+  ^{character "Gengetsu Hozuki" Reanimated}
+  ^{character "Sasori" Reanimated}
+<h2>
+  Sensing
+<p>
+  Sensing is a rare status effect that reveals invisible effects and skill cooldowns of enemy ninjas. These ninjas can apply sensing to their enemies, making it easier to strategize against them and avoid triggering traps.
+<details>
+  <summary>
+    View ninjas
+  ^{character "Fu Yamanaka" Shippuden}
+  ^{character "Human Path Pain" Shippuden}
+  ^{character "Ino Yamanaka" Shippuden}
+  ^{character "Nagato" Reanimated}
+<h2>
+  Status Curing
+<p>
+  Certain status effects can be removed by skills. These ninjas can support their team by removing harmful status effects from them.
+<details>
+  <summary>
+    View ninjas
+  ^{character "Rin Nohara" Original}
+  ^{character "Shizune" Original}
+  ^{character "Chiyo" Shippuden}
+  ^{character "Kabuto Yakushi" Shippuden}
+  ^{character "Kakashi Hatake" Shippuden}
+  ^{character "Sage Mode Kabuto" Shippuden}
+  ^{character "Sakura Haruno" Shippuden}
+  ^{character "Tobi" Shippuden}
+<h2>
+  Status Prevention
+<p>
+  Status prevention is a rare status effect that blocks other effects, either by disabling active effects or by preventing new status effects from being applied to the target. These ninjas can protect their team from negative status effects.
+<details>
+  <summary>
+    View ninjas
+  ^{character "Baki" Original}
+  ^{character "Haku" Original}
+  ^{character "Dodai" Shippuden}
+  ^{character "Ino Yamanaka" Shippuden}

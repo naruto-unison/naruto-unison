@@ -129,14 +129,15 @@ getNavLinks = routesForAuth <$> isAuthenticated Admin
     routesForAuth _          = userRoutes
 
 origin :: Route App -> Route App
-origin ChangelogR   = HomeR
-origin CharacterR{} = GuideR
-origin CharactersR  = GuideR
-origin GroupsR      = GuideR
-origin MechanicsR   = GuideR
-origin ProfileR{}   = HomeR
-origin UsageR       = AdminR
-origin x            = x
+origin ChangelogR    = HomeR
+origin CharacterR{}  = GuideR
+origin CharactersR   = GuideR
+origin GroupsR       = GuideR
+origin MechanicsR    = GuideR
+origin TeamBuildingR = GuideR
+origin ProfileR{}    = HomeR
+origin UsageR        = AdminR
+origin x             = x
 
 -- | This function should only be used in handlers with completely static
 -- content. It sets an
@@ -264,9 +265,10 @@ instance YesodBreadcrumbs App where
     breadcrumb GuideR         = return ("Guide", Just HomeR)
     breadcrumb HomeR          = return ("Home", Nothing)
     breadcrumb MechanicsR     = return ("Game Mechanics", Just GuideR)
+    breadcrumb TeamBuildingR  = return ("Team Building", Just GuideR)
     breadcrumb (ProfileR x)   = return ("User: " ++ x, Just HomeR)
     breadcrumb UsageR         = return ("Character Usage", Just AdminR)
-    breadcrumb _anchorName    = return (mempty, Nothing)
+    breadcrumb _              = return (mempty, Nothing)
 
 instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend

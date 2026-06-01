@@ -17,15 +17,16 @@
 
 -- WEBPAGES
 
-/admin                  AdminR       GET POST
-/admin/usage            UsageR       GET
-!/                      PlayR        GET
-/changelog              ChangelogR   GET
-/home                   HomeR        GET
-/user/#Text             ProfileR     GET
-/guide                  GuideR       GET
-/guide/game-mechanics   MechanicsR   GET
-/guide/groups           GroupsR      GET
-/characters             CharactersR  GET
-/characters/#Character  CharacterR   GET
-!/                      StaticR      Static static
+/admin                  AdminR         GET POST
+/admin/usage            UsageR         GET
+!/                      PlayR          GET
+/changelog              ChangelogR     GET
+/home                   HomeR          GET
+/user/#Text             ProfileR       GET
+/guide                  GuideR         GET
+/guide/game-mechanics   MechanicsR     GET
+/guide/groups           GroupsR        GET
+/guide/team-building    TeamBuildingR  GET
+/characters             CharactersR    GET
+/characters/#Character  CharacterR     GET
+!/                      StaticR        Static static

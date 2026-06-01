@@ -40,5 +40,10 @@ spec = withApp do
         it "responds 200" do
             get MechanicsR
             statusIs 200
+
+    describe "TeamBuildingR" do
+        it "responds 200" do
+            get TeamBuildingR
+            statusIs 200
   where
     char = unsafeHead Characters.list
