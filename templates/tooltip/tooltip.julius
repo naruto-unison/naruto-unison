@@ -165,12 +165,12 @@ document.addEventListener("DOMContentLoaded", () => {
             currentTooltip = el;
             const [header, article] = tooltip.children;
             render({ header, article }, el);
+            tooltip.hidden = false;
             tooltip.style.left =
                 Math.min(ev.pageX, document.body.scrollWidth - tooltip.clientWidth - 10) + "px";
             tooltip.style.top =
                 Math.min(el.offsetTop, document.body.scrollHeight - tooltip.clientHeight - 10) +
                 "px";
-            tooltip.hidden = false;
         };
     }
 
