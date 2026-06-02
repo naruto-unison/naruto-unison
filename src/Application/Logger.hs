@@ -17,8 +17,9 @@ import qualified Network.Wai.Middleware.RequestLogger as RequestLogger
 import qualified System.Log.FastLogger as FastLogger
 import qualified Yesod.Core.Types as YesodTypes
 
-import           Application.App (App)
+import           Application.App (App(App))
 import qualified Application.App as App
+import           Application.Settings (Settings(Settings))
 import qualified Application.Settings as Settings
 
 getDateGetter :: IO () -> IO (IO ByteString)
@@ -31,23 +32,22 @@ getDateGetter flusher = do
     return getter
 
 makeLogWare :: App -> IO Middleware
-makeLogWare foundation
-  | Settings.detailedRequestLogging $ App.settings foundation =
+makeLogWare App{logger, settings = Settings{detailedRequestLogging = True}} =
     RequestLogger.mkRequestLogger def
         { RequestLogger.outputFormat = Detailed True
-        , RequestLogger.destination =
-            Logger . YesodTypes.loggerSet $ App.logger foundation
+        , RequestLogger.destination  = Logger $ YesodTypes.loggerSet logger
         }
-  | otherwise = do
+
+makeLogWare App{logger, settings = Settings{ipFromHeader}} = do
         dateGetter <- getDateGetter flusher
         apacheMiddleware <$> WaiLogger.initLogger ipSrc callback dateGetter
   where
     ipSrc
-      | Settings.ipFromHeader $ App.settings foundation = FromFallback
-      | otherwise                                       = FromSocket
-    logger   = YesodTypes.loggerSet $ App.logger foundation
-    flusher  = FastLogger.flushLogStr logger
-    callback = FastLogger.LogCallback (FastLogger.pushLogStr logger) flusher
+      | ipFromHeader = FromFallback
+      | otherwise    = FromSocket
+    logger'   = YesodTypes.loggerSet logger
+    flusher  = FastLogger.flushLogStr logger'
+    callback = FastLogger.LogCallback (FastLogger.pushLogStr logger') flusher
 
 apacheMiddleware :: ApacheLoggerActions -> Middleware
 apacheMiddleware ala app req sendResponse = app req $ \res -> do

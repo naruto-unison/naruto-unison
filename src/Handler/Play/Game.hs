@@ -21,7 +21,7 @@ import           Yesod.Core (getsYesod, liftHandler)
 import           Application.App (liftDB)
 import qualified Application.App as App
 import           Application.Model (EntityField(..))
-import           Application.Settings (Settings)
+import           Application.Settings (Settings(Settings))
 import qualified Application.Settings as Settings
 import           Class.Hook (MonadHook)
 import qualified Class.Parity as Parity
@@ -214,7 +214,7 @@ tryEnact :: ∀ m. ( MonadGame m
                  , MonadLogger m
                  )
          => Socket.Connection -> Settings -> Player -> MVar Wrapper -> m ()
-tryEnact socket settings player mvar = do
+tryEnact socket Settings{forfeitAfterSkips, turnLength} player mvar = do
     -- This is necessary because interrupting Sockets.receive closes the socket
     -- connection, which means that a naive timeout will break the connection.
     -- Even if the turn is over and its output will be ignored, Sockets.receive
@@ -224,7 +224,7 @@ tryEnact socket settings player mvar = do
         lock <- newEmptyMVar
 
         forkIO do
-            threadDelay $ Settings.turnLength settings {-! BLOCKS !-}
+            threadDelay turnLength {-! BLOCKS !-}
             void $ tryPutMVar lock TimedOut
 
         forkIO do
@@ -248,7 +248,7 @@ tryEnact socket settings player mvar = do
             logErrorN $ "Malformed client input: " ++ malformed
 
         TimedOut ->
-            Engine.skipTurn (Settings.forfeitAfterSkips settings) player
+            Engine.skipTurn forfeitAfterSkips player
 
         SocketException Socket.ConnectionClosed -> do
             logErrorN "Socket closed"
