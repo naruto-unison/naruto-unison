@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }).observe(document.getElementById("main"), { childList: true });
 
     app.ports.websocketSend.subscribe((msg) => {
-        if (conn?.readyState !== 1) {
+        if (conn && conn.readyState !== 1) {
             conn.close();
             conn = undefined;
         }
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const { tag, contents } = obj.contents;
                 console.log(`Received ${tag}: ${contents}`);
             }
-            app.ports.websocketReceive.send(obj);
+            app.ports.websocketReceive.send(data);
         });
     });
 });
