@@ -12,8 +12,6 @@ import           Control.Monad.Error.Class (MonadError(..), modifyError)
 import           Control.Monad.Logger (MonadLogger, logErrorN)
 import           Control.Monad.Loops (untilJust, whileM)
 import           Control.Monad.Trans.Except (runExceptT, except)
-import qualified Data.Attoparsec.Text as Parse
-import           Data.Attoparsec.Text (Parser)
 import           UnliftIO.Concurrent (forkIO, threadDelay)
 import qualified Yesod.Auth as Auth
 import           Yesod.Core (getsYesod, liftHandler)
@@ -25,6 +23,8 @@ import           Application.Settings (Settings(Settings))
 import qualified Application.Settings as Settings
 import           Class.Hook (MonadHook)
 import qualified Class.Parity as Parity
+import           Class.Parse (Parse(..), Parser)
+import qualified Class.Parse as Parse
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
@@ -68,18 +68,19 @@ separate = Parse.char separator
 
 data Team = Team Queue.Section [Character]
 
-parseTeam :: Parser Team
-parseTeam = Team <$> parseSection <*> parseCharacters
-  where
-    parseSection = Parse.string "private" $> Queue.Private
-                 <|> Parse.string "quick" $> Queue.Quick
+instance Parse Team where
+    parser = Team <$> parseSection <*> parseCharacters
+      where
+        parseSection = Parse.string "private" $> Queue.Private
+                    <|> Parse.string "quick" $> Queue.Quick
 
-    parseCharacters = Parse.count 3 do
-        separate
-        text <- Parse.takeWhile (/= separator) <|> Parse.takeText
-        case Characters.lookup text of
-            Just c  -> return c
-            Nothing -> fail $ unpack (text ++ " is not a character")
+        parseCharacters = Parse.count 3 do
+            separate
+            text <- Parse.takeWhile (/= separator) <|> Parse.takeByteString
+            let ident = decodeUtf8 text
+            case Characters.lookup ident of
+                Just c  -> return c
+                Nothing -> fail $ unpack (ident ++ " is not a character")
 
 
 data Enact = Enact
@@ -88,29 +89,28 @@ data Enact = Enact
     , actions  :: [Act]
     } deriving (Eq, Show)
 
-parseActs :: Parser [Act]
-parseActs = do
-    separate
-    acts <- Parse.sepBy Act.parse separate
-    case acts of
-        (_:_:_:_:_) -> fail "No more than 3 actions"
-        _           -> return acts
-
-parseEnact :: Parser Enact
-parseEnact = Enact
-    <$> Chakras.parse
-    <*> (separate >> Chakras.parse)
-    <*> (parseActs <|> Parse.endOfInput $> [])
+instance Parse Enact where
+    parser = Enact
+        <$> Parse.parser @Chakras
+        <*> (separate >> Parse.parser @Chakras)
+        <*> (parseActs <|> Parse.endOfInput $> [])
+      where
+        parseActs = do
+            separate
+            acts <- Parse.sepBy (Parse.parser @Act) separate
+            case acts of
+                (_:_:_:_:_) -> fail "No more than 3 actions"
+                _           -> return acts
 
 data ClientMessage
     = Forfeit
     | EnactMsg Enact
     deriving (Eq, Show)
 
-parseMessage :: Parser ClientMessage
-parseMessage = (Parse.string "forfeit" >> return Forfeit)
-    <|> EnactMsg
-    <$> parseEnact
+instance Parse ClientMessage where
+    parser = (Parse.string "forfeit" >> return Forfeit)
+        <|> EnactMsg
+        <$> Parse.parser @Enact
 
 -- * HANDLERS
 
@@ -134,9 +134,8 @@ gameSocket = Socket.withSocket \socket -> do
     (section, team, Response mvar info@GameInfo{player, war, vsWho}) <-
         untilJust $ handleFailures socket =<< runExceptT do
             message <- Socket.receiveData socket {-! BLOCKS !-}
-            Team section team <- modifyError Message.InvalidTeam
-                               . except . Parse.parseOnly parseTeam . toStrict
-                               $ decodeUtf8 message
+            Team section team <- modifyError Message.InvalidTeam . except
+                               . Parse.parseOnly @Team $ toStrict message
 
             let teamNames = Character.ident <$> team
                 locked    = filter (∉ unlocked) teamNames
@@ -193,18 +192,18 @@ gameSocket = Socket.withSocket \socket -> do
 
 data ClientResponse
     = Received ClientMessage
-    | Malformed Text
+    | Malformed ByteString
     | TimedOut
     | SocketException Socket.ConnectionException
     deriving (Eq, Show)
 
 decodeMessage :: Either Socket.ConnectionException LByteString -> ClientResponse
 decodeMessage (Left err) = SocketException err
-decodeMessage (Right bytes) = case Parse.parseOnly parseMessage message of
+decodeMessage (Right bytes) = case Parse.parseOnly @ClientMessage message of
     Left _       -> Malformed message
     Right parsed -> Received parsed
   where
-    message = toStrict $ decodeUtf8 bytes
+    message = toStrict bytes
 
 -- | Wraps @enact@ with error handling.
 tryEnact :: ∀ m. ( MonadGame m
@@ -245,7 +244,7 @@ tryEnact socket Settings{forfeitAfterSkips, turnLength} player mvar = do
                 Socket.sendTextData socket . fromStrict $ encodeUtf8 errorMsg
 
         Malformed malformed ->
-            logErrorN $ "Malformed client input: " ++ malformed
+            logErrorN $ "Malformed client input: " ++ decodeUtf8 malformed
 
         TimedOut ->
             Engine.skipTurn forfeitAfterSkips player

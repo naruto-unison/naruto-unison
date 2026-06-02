@@ -1,24 +1,23 @@
 module Handler.Play.Act
   ( Act(..)
-  , parse
   , toContext
   ) where
 
 import ClassyPrelude
 
+import           Control.Monad (fail)
 import           Control.Monad.Error.Class (MonadError)
 import           Data.Aeson (ToJSON)
-import qualified Data.Attoparsec.Text as Parse
-import           Data.Attoparsec.Text (Parser)
 import           Yesod.Core.Dispatch (PathPiece(..))
 
+import           Class.Parse (Parse(..))
+import qualified Class.Parse as Parse
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
 import           Game.Model.Slot (Slot)
-import qualified Game.Model.Slot as Slot
 import           Util (tryFromJust, rightToMaybe)
 
 -- | A single action of a 'Ninja'.
@@ -33,16 +32,26 @@ data Act = Act
 
 instance ToJSON Act
 
-parse :: Parser Act
-parse = Act
-    <$> Slot.parse
-    <*> (Parse.char ',' >> Parse.decimal)
-    <*> (Parse.char ',' >> Slot.parse)
+instance Parse Act where
+    parser = Act
+        <$> Parse.parser @Slot
+        <*> (Parse.char ',' >> Parse.parser @Int)
+        <*> (Parse.char ',' >> Parse.parser @Slot)
+
+instance Parse [Act] where
+    parser = do
+        separate
+        acts <- Parse.sepBy (Parse.parser @Act) separate
+        case acts of
+            (_:_:_:_:_) -> fail "No more than 3 actions"
+            _           -> return acts
+      where
+        separate = Parse.char '/'
 
 instance PathPiece Act where
     toPathPiece (Act user skill target) = intercalate ","
         [ tshow user, tshow skill, tshow target ]
-    fromPathPiece piece = rightToMaybe $ Parse.parseOnly parse piece
+    fromPathPiece piece = rightToMaybe $ Parse.parseOnly $ encodeUtf8 piece
 
 toContext :: ∀ m. (MonadGame m, MonadError Text m) => Act -> m Context
 toContext (Act user skill target) = do

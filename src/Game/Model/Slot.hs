@@ -1,7 +1,7 @@
 -- DO NOT EXPOSE ANY FUNCTION THAT COULD BE USED TO CONSTRUCT OR ALTER A SLOT.
 -- It must be guaranteed that all Slots are within their 'Bounded' range.
 module Game.Model.Slot
-  ( Slot, toInt, parse
+  ( Slot, toInt
   , teamSize
   , all, allies, enemies
   , toChar
@@ -10,8 +10,6 @@ module Game.Model.Slot
 import ClassyPrelude hiding (all)
 
 import           Data.Aeson (ToJSON)
-import           Data.Attoparsec.Text (Parser)
-import qualified Data.Attoparsec.Text as Parse
 import           Text.Read
 import           Text.Read.Lex (numberToInteger)
 import           System.Random.Stateful (Uniform(..), UniformRange(..))
@@ -19,6 +17,8 @@ import           System.Random.Stateful (Uniform(..), UniformRange(..))
 import           Class.Display (Display)
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
+import           Class.Parse (Parse(..))
+import qualified Class.Parse as Parse
 
 teamSize :: Int
 teamSize = 3
@@ -72,11 +72,11 @@ enemies x
   | Parity.even x = Slot <$> [teamSize..maxVal]
   | otherwise     = Slot <$> [0..teamSize - 1]
 
-parse :: Parser Slot
-parse = do
-    i <- Parse.decimal
-    guard $ i >= 0 && i <= maxVal
-    return $ Slot i
+instance Parse Slot where
+    parser = do
+        i <- Parse.decimal
+        guard $ i >= 0 && i <= maxVal
+        return $ Slot i
 
 toChar :: Slot -> Char
 toChar (Slot x) = toEnum $ x + 48

@@ -1,7 +1,6 @@
 module Game.Model.Chakras
   ( Chakra(..), chakraDesc
   , Chakras(..)
-  , parse
   , classes
   , scale
   , spend
@@ -11,8 +10,6 @@ module Game.Model.Chakras
 import ClassyPrelude
 
 import           Data.Aeson (ToJSON)
-import qualified Data.Attoparsec.Text as Parse
-import           Data.Attoparsec.Text (Parser)
 import           Data.Bits
 import           Data.Enum.Set (AsEnumSet(..), EnumSet)
 import           GHC.Exts (IsList)
@@ -24,6 +21,8 @@ import qualified Text.Blaze.Html5 as HTML
 import qualified Text.Blaze.Html5.Attributes as HTML
 import           Yesod.Core.Dispatch (PathPiece(..))
 
+import           Class.Parse (Parse(..))
+import qualified Class.Parse as Parse
 import           Game.Model.Class (Class(..))
 import           Util (rightToMaybe)
 
@@ -236,17 +235,17 @@ instance IsSequence Chakras where
     unsnoc (Chakras b g n t r) = Just (Chakras b g n t (r - 1), Rand)
     {-# INLINABLE unsnoc #-}
 
-parse :: Parser Chakras
-parse = Chakras
-    <$> Parse.decimal
-    <*> (Parse.char ',' >> Parse.decimal)
-    <*> (Parse.char ',' >> Parse.decimal)
-    <*> (Parse.char ',' >> Parse.decimal)
-    <*> return 0
+instance Parse Chakras where
+    parser = Chakras
+        <$> Parse.parser @Int
+        <*> (Parse.char ',' >> Parse.parser @Int)
+        <*> (Parse.char ',' >> Parse.parser @Int)
+        <*> (Parse.char ',' >> Parse.parser @Int)
+        <*> return 0
 
 instance PathPiece Chakras where
     toPathPiece (Chakras b g n t _) = intercalate "," $ tshow <$> [b, g, n, t]
-    fromPathPiece piece = rightToMaybe $ Parse.parseOnly parse piece
+    fromPathPiece piece = rightToMaybe $ Parse.parseOnly $ encodeUtf8 piece
 
 -- | Units of @Game.Model.Skill.cost@.
 data Chakra
