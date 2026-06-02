@@ -3,21 +3,28 @@ module Handler.Client.Socket
     , ConnectionException(..)
     , WebSocketsData(..)
     , receiveData
-    , connectionOptions
     , sendJSONData
     , sendPing
     , sendTextData
+    , withSocket
     ) where
 
 import ClassyPrelude
 
-import Data.Aeson (ToJSON(..))
+import           Data.Aeson (ToJSON(..))
+import           Data.Aeson.Encoding (encodingToLazyByteString)
 import qualified Network.WebSockets as WS
-import           Network.WebSockets (Connection, ConnectionException(..), ConnectionOptions(..), WebSocketsData(..))
-import Data.Aeson.Encoding (encodingToLazyByteString)
+import           Network.WebSockets (Connection, ConnectionException(..), ConnectionOptions(..), CompressionOptions(..), WebSocketsData(..))
+import           Yesod.Core (MonadHandler)
+import           Yesod.WebSockets (webSocketsOptions)
 
-connectionOptions :: ConnectionOptions
-connectionOptions = WS.defaultConnectionOptions
+withSocket :: ∀ m. (MonadUnliftIO m, MonadHandler m) => (Connection -> m ()) -> m ()
+withSocket f = webSocketsOptions options $ ask >>= lift . f
+  where
+    options = WS.defaultConnectionOptions
+        { connectionCompressionOptions = PermessageDeflateCompression
+                                         WS.defaultPermessageDeflate
+        }
 
 receiveData :: ∀ m. (MonadIO m) => Connection -> m LByteString
 receiveData socket = liftIO $ WS.receiveData socket

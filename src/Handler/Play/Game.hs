@@ -17,7 +17,6 @@ import           Data.Attoparsec.Text (Parser)
 import           UnliftIO.Concurrent (forkIO, threadDelay)
 import qualified Yesod.Auth as Auth
 import           Yesod.Core (getsYesod, liftHandler)
-import           Yesod.WebSockets (webSocketsOptions)
 
 import           Application.App (liftDB)
 import qualified Application.App as App
@@ -127,8 +126,7 @@ gameSocket :: ∀ m. ( App.MonadHandler m
                    , MonadRandom m
                    , PrimMonad m
                    ) => m ()
-gameSocket = webSocketsOptions Socket.connectionOptions do
-    socket   <- ask
+gameSocket = Socket.withSocket \socket -> do
     who      <- Auth.requireAuthId
     settings <- getsYesod App.settings
     unlocked <- liftHandler Mission.unlocked
