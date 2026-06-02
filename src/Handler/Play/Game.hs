@@ -23,12 +23,11 @@ import           Application.Settings (Settings(Settings))
 import qualified Application.Settings as Settings
 import           Class.Hook (MonadHook)
 import qualified Class.Parity as Parity
-import           Class.Parse (Parse(..), Parser)
+import           Class.Parse (Parse(..), Parser, Parsed)
 import qualified Class.Parse as Parse
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import qualified Game.Characters as Characters
 import qualified Game.Engine as Engine
 import           Game.Model.Chakras (Chakras)
 import qualified Game.Model.Chakras as Chakras
@@ -63,24 +62,23 @@ import           Util ((∈), (∉), leftToMaybe, tryFromJust)
 separator :: Char
 separator = '/'
 
-separate :: Parser Char
+separate :: ∀ i. Parsed i => Parser i Char
 separate = Parse.char separator
 
 data Team = Team Queue.Section [Character]
 
 instance Parse Team where
-    parser = Team <$> parseSection <*> parseCharacters
+    parser = Team <$> parseSection
+                  <*> (separate >> parseCharacters)
       where
         parseSection = Parse.string "private" $> Queue.Private
                     <|> Parse.string "quick" $> Queue.Quick
 
-        parseCharacters = Parse.count 3 do
-            separate
-            text <- Parse.takeWhile (/= separator) <|> Parse.takeByteString
-            let ident = decodeUtf8 text
-            case Characters.lookup ident of
-                Just c  -> return c
-                Nothing -> fail $ unpack (ident ++ " is not a character")
+        parseCharacters = do
+            chars <- Parse.sepBy (Parse.parser @Character) separate
+            case chars of
+                [_, _, _] -> return chars
+                _         -> fail "Must have 3 team members"
 
 
 data Enact = Enact
@@ -93,10 +91,9 @@ instance Parse Enact where
     parser = Enact
         <$> Parse.parser @Chakras
         <*> (separate >> Parse.parser @Chakras)
-        <*> (parseActs <|> Parse.endOfInput $> [])
+        <*> (separate >> parseActs <|> Parse.endOfInput $> [])
       where
         parseActs = do
-            separate
             acts <- Parse.sepBy (Parse.parser @Act) separate
             case acts of
                 (_:_:_:_:_) -> fail "No more than 3 actions"
@@ -108,7 +105,7 @@ data ClientMessage
     deriving (Eq, Show)
 
 instance Parse ClientMessage where
-    parser = (Parse.string "forfeit" >> return Forfeit)
+    parser = (Parse.string "forfeit" $> Forfeit)
         <|> EnactMsg
         <$> Parse.parser @Enact
 
@@ -135,7 +132,7 @@ gameSocket = Socket.withSocket \socket -> do
         untilJust $ handleFailures socket =<< runExceptT do
             message <- Socket.receiveData socket {-! BLOCKS !-}
             Team section team <- modifyError Message.InvalidTeam . except
-                               . Parse.parseOnly @Team $ toStrict message
+                               $ Parse.parseOnly @Team message
 
             let teamNames = Character.ident <$> team
                 locked    = filter (∉ unlocked) teamNames

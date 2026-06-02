@@ -74,7 +74,7 @@ enemies x
 
 instance Parse Slot where
     parser = do
-        i <- Parse.decimal
+        i <- Parse.parser @Int
         guard $ i >= 0 && i <= maxVal
         return $ Slot i
 

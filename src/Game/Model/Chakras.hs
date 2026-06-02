@@ -245,7 +245,7 @@ instance Parse Chakras where
 
 instance PathPiece Chakras where
     toPathPiece (Chakras b g n t _) = intercalate "," $ tshow <$> [b, g, n, t]
-    fromPathPiece piece = rightToMaybe $ Parse.parseOnly $ encodeUtf8 piece
+    fromPathPiece piece = rightToMaybe $ Parse.parseOnly piece
 
 -- | Units of @Game.Model.Skill.cost@.
 data Chakra

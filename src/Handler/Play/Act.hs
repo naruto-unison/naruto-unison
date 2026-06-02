@@ -5,7 +5,6 @@ module Handler.Play.Act
 
 import ClassyPrelude
 
-import           Control.Monad (fail)
 import           Control.Monad.Error.Class (MonadError)
 import           Data.Aeson (ToJSON)
 import           Yesod.Core.Dispatch (PathPiece(..))
@@ -38,20 +37,10 @@ instance Parse Act where
         <*> (Parse.char ',' >> Parse.parser @Int)
         <*> (Parse.char ',' >> Parse.parser @Slot)
 
-instance Parse [Act] where
-    parser = do
-        separate
-        acts <- Parse.sepBy (Parse.parser @Act) separate
-        case acts of
-            (_:_:_:_:_) -> fail "No more than 3 actions"
-            _           -> return acts
-      where
-        separate = Parse.char '/'
-
 instance PathPiece Act where
     toPathPiece (Act user skill target) = intercalate ","
         [ tshow user, tshow skill, tshow target ]
-    fromPathPiece piece = rightToMaybe $ Parse.parseOnly $ encodeUtf8 piece
+    fromPathPiece piece = rightToMaybe $ Parse.parseOnly piece
 
 toContext :: ∀ m. (MonadGame m, MonadError Text m) => Act -> m Context
 toContext (Act user skill target) = do

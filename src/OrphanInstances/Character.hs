@@ -7,22 +7,40 @@ module OrphanInstances.Character () where
 
 import ClassyPrelude
 
-import           Text.Read
+import Control.Monad (fail)
+import Text.Read
 import Yesod.Core.Dispatch (PathPiece(..))
 
+import           Class.Parse (Parse)
+import qualified Class.Parse as Parse
 import qualified Game.Characters as Characters
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
+import           Util ((∈))
+
+allValidChars :: IntSet
+allValidChars = concatMap identChars Characters.list
+  where
+    identChars Character{ident} = setFromList $ fromEnum <$> unpack ident
+
+instance Parse Character where
+    parser = getCharacter . Parse.toUtf8
+         =<< Parse.takeWhile isValidChar <|> Parse.takeStrict
+      where
+        isValidChar c = fromEnum c ∈ allValidChars
+        getCharacter ident = case Characters.lookup ident of
+            Just c -> return c
+            Nothing -> fail $ unpack (ident ++ " is not a character")
 
 instance PathPiece Character where
     toPathPiece   = Character.ident
     fromPathPiece = Characters.lookup
-
-instance Show Character where
-    showsPrec i Character{ident} = showsPrec i ident
 
 instance Read Character where
     readPrec = parens $ prec 10 do
         String s <- lexP
         Just character <- return $ Characters.lookup (pack s)
         return character
+
+instance Show Character where
+    showsPrec i Character{ident} = showsPrec i ident

@@ -49,6 +49,7 @@ library:
   - persistent-template
   - primitive
   - random
+  - scientific
   - shakespeare
   - template-haskell
   - text
