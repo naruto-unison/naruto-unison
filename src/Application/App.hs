@@ -342,15 +342,14 @@ instance YesodAuthEmail App where
         UTCTime day _ <- liftIO getCurrentTime
         liftDB . insert $ Model.newUser email (Just verkey) day
 
-    sendVerifyEmail email _ verurl =
-        liftIO do
-            putStrLn $ "VERIFICATION LINK: " ++ verurl
-            Mail.renderSendMail
-                (Mail.emptyMail $ Mail.Address Nothing "noreply")
-                { Mail.mailTo      = [Mail.Address Nothing email]
-                , Mail.mailHeaders = [("Subject", "Verify your email address")]
-                , Mail.mailParts   = [[vtextPart, vhtmlPart]]
-                }
+    sendVerifyEmail email _ verurl = liftIO do
+        putStrLn $ "VERIFICATION LINK: " ++ verurl
+        Mail.renderSendMail
+            (Mail.emptyMail $ Mail.Address Nothing "noreply")
+            { Mail.mailTo      = [Mail.Address Nothing email]
+            , Mail.mailHeaders = [("Subject", "Verify your email address")]
+            , Mail.mailParts   = [[vtextPart, vhtmlPart]]
+            }
       where
         vtextPart = Mail.Part
             { partType = "text/plain; charset=utf-8"

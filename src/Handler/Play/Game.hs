@@ -14,11 +14,10 @@ import           Control.Monad.Loops (untilJust, whileM)
 import           Control.Monad.Trans.Except (runExceptT, except)
 import qualified Data.Attoparsec.Text as Parse
 import           Data.Attoparsec.Text (Parser)
-import           Network.WebSockets (ConnectionException(..))
 import           UnliftIO.Concurrent (forkIO, threadDelay)
 import qualified Yesod.Auth as Auth
 import           Yesod.Core (getsYesod, liftHandler)
-import           Yesod.WebSockets (webSockets)
+import           Yesod.WebSockets (webSocketsOptions)
 
 import           Application.App (liftDB)
 import qualified Application.App as App
@@ -30,8 +29,6 @@ import qualified Class.Parity as Parity
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import           Class.Sockets (MonadSockets)
-import qualified Class.Sockets as Sockets
 import qualified Game.Characters as Characters
 import qualified Game.Engine as Engine
 import           Game.Model.Chakras (Chakras)
@@ -45,8 +42,9 @@ import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Slot as Slot
-import qualified Handler.Client.Message as Client
+import qualified Handler.Client.Message as Message
 import           Handler.Client.Reward (Reward(Reward))
+import qualified Handler.Client.Socket as Socket
 import           Handler.Play.Act (Act)
 import qualified Handler.Play.Act as Act
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
@@ -117,9 +115,11 @@ parseMessage = (Parse.string "forfeit" >> return Forfeit)
 
 -- * HANDLERS
 
-handleFailures :: ∀ m a. MonadSockets m => Either Client.Failure a -> m (Maybe a)
-handleFailures (Left msg)  = Client.send (Client.Fail msg) $> Nothing
-handleFailures (Right val) = return $ Just val
+handleFailures :: ∀ m a. MonadIO m
+               => Socket.Connection -> Either Message.Failure a -> m (Maybe a)
+handleFailures socket (Left msg)  = Socket.sendJSONData socket (Message.Fail msg)
+                                    $> Nothing
+handleFailures _      (Right val) = return $ Just val
 
 -- | Sends messages through 'MVar's in 'App.App'. Requires authentication.
 gameSocket :: ∀ m. ( App.MonadHandler m
@@ -127,39 +127,42 @@ gameSocket :: ∀ m. ( App.MonadHandler m
                    , MonadRandom m
                    , PrimMonad m
                    ) => m ()
-gameSocket = webSockets do
+gameSocket = webSocketsOptions Socket.connectionOptions do
+    socket   <- ask
     who      <- Auth.requireAuthId
     settings <- getsYesod App.settings
     unlocked <- liftHandler Mission.unlocked
 
     (section, team, Response mvar info@GameInfo{player, war, vsWho}) <-
-        untilJust $ handleFailures =<< runExceptT do
-            message <- Sockets.receive {-! BLOCKS !-}
-            Team section team <- modifyError Client.InvalidTeam
-                               $ except $ Parse.parseOnly parseTeam message
+        untilJust $ handleFailures socket =<< runExceptT do
+            message <- Socket.receiveData socket {-! BLOCKS !-}
+            Team section team <- modifyError Message.InvalidTeam
+                               . except . Parse.parseOnly parseTeam . toStrict
+                               $ decodeUtf8 message
 
             let teamNames = Character.ident <$> team
                 locked    = filter (∉ unlocked) teamNames
             when (not $ null locked)
-                . throwError $ Client.Locked locked
+                . throwError $ Message.Locked locked
             liftDB $ update who [ UserTeam =. Just teamNames ]
 
-            queued <- Queue.queue section team {-! BLOCKS !-}
+            queued <- Queue.queue socket section team {-! BLOCKS !-}
             return (section, teamNames, queued)
 
-    Client.send $ Client.Info info
+    liftIO $ Socket.sendJSONData socket $ Message.Info info
 
     game <- Wrapper.runGame info do
         when (player == Player.A)
-            $ tryEnact settings player mvar {-! BLOCKS !-}
+            $ tryEnact socket settings player mvar {-! BLOCKS !-}
 
         void $ whileM (Game.inProgress <$> P.game) do
             wrapper <- takeMVar mvar {-! BLOCKS !-}
 
             if Game.inProgress $ Wrapper.game wrapper then do
-                Client.send . Client.Play $ Wrapper.toTurn player wrapper
+                liftIO . Socket.sendJSONData socket
+                       . Message.Play $ Wrapper.toTurn player wrapper
                 Wrapper.replace wrapper =<< ask
-                tryEnact settings player mvar {-! BLOCKS !-}
+                tryEnact socket settings player mvar {-! BLOCKS !-}
                 game <- P.game
 
                 unless (Game.inProgress game) . liftDB . void $ forkIO do
@@ -168,15 +171,17 @@ gameSocket = webSockets do
             else
                 Wrapper.replace wrapper =<< ask
 
-    Client.send . Client.Play $ Wrapper.toTurn player game
+    liftIO . Socket.sendJSONData socket
+           . Message.Play $ Wrapper.toTurn player game
 
     when (section == Queue.Quick) do -- eventually, || Queue.Ladder
         let outcome = Match.outcome (Wrapper.game game) player
         if outcome == Defeat && Game.forfeit (Wrapper.game game) then
-            Client.send $ Client.Rewards [Reward "Forfeit" 0]
+            liftIO . Socket.sendJSONData socket
+                   $ Message.Rewards [Reward "Forfeit" 0]
         else do
             dnaReward <- liftHandler $ Mission.awardDNA Queue.Quick outcome war
-            Client.send $ Client.Rewards dnaReward
+            liftIO . Socket.sendJSONData socket $ Message.Rewards dnaReward
 
         liftHandler do
             case outcome of
@@ -192,37 +197,43 @@ data ClientResponse
     = Received ClientMessage
     | Malformed Text
     | TimedOut
-    | SocketException ConnectionException
+    | SocketException Socket.ConnectionException
     deriving (Eq, Show)
+
+decodeMessage :: Either Socket.ConnectionException LByteString -> ClientResponse
+decodeMessage (Left err) = SocketException err
+decodeMessage (Right bytes) = case Parse.parseOnly parseMessage message of
+    Left _       -> Malformed message
+    Right parsed -> Received parsed
+  where
+    message = toStrict $ decodeUtf8 bytes
 
 -- | Wraps @enact@ with error handling.
 tryEnact :: ∀ m. ( MonadGame m
                  , MonadHook m
                  , MonadRandom m
-                 , MonadSockets m
                  , MonadUnliftIO m
                  , MonadLogger m
-                 ) => Settings -> Player -> MVar Wrapper -> m ()
-tryEnact settings player mvar = do
+                 )
+         => Socket.Connection -> Settings -> Player -> MVar Wrapper -> m ()
+tryEnact socket settings player mvar = do
     -- This is necessary because interrupting Sockets.receive closes the socket
     -- connection, which means that a naive timeout will break the connection.
     -- Even if the turn is over and its output will be ignored, Sockets.receive
     -- must not be canceled.
-    lock <- newEmptyMVar
 
-    liftIO $ forkIO do
-        threadDelay $ Settings.turnLength settings {-! BLOCKS !-}
-        void $ tryPutMVar lock TimedOut
+    enactMessage <- liftIO do
+        lock <- newEmptyMVar
 
-    forkIO do
-        tryMessage <- try Sockets.receive {-! BLOCKS !-}
-        void $ tryPutMVar lock case tryMessage of
-            Left err      -> SocketException err
-            Right message -> case Parse.parseOnly parseMessage message of
-                                Left _       -> Malformed message
-                                Right parsed -> Received parsed
+        forkIO do
+            threadDelay $ Settings.turnLength settings {-! BLOCKS !-}
+            void $ tryPutMVar lock TimedOut
 
-    enactMessage <- readMVar lock {-! BLOCKS !-}
+        forkIO do
+            tryMessage <- try $ Socket.receiveData socket {-! BLOCKS !-}
+            void $ tryPutMVar lock $ decodeMessage tryMessage
+
+        readMVar lock {-! BLOCKS !-}
 
     case enactMessage of
         Received Forfeit ->
@@ -233,7 +244,7 @@ tryEnact settings player mvar = do
             res <- runExceptT $ enact enactMsg
             forM_ (leftToMaybe res) \errorMsg -> do
                 logErrorN $ "Client error: " ++ errorMsg
-                Sockets.send $ fromStrict $ encodeUtf8 errorMsg
+                Socket.sendTextData socket . fromStrict $ encodeUtf8 errorMsg
 
         Malformed malformed ->
             logErrorN $ "Malformed client input: " ++ malformed
@@ -241,23 +252,23 @@ tryEnact settings player mvar = do
         TimedOut ->
             Engine.skipTurn (Settings.forfeitAfterSkips settings) player
 
-        SocketException ConnectionClosed -> do
+        SocketException Socket.ConnectionClosed -> do
             logErrorN "Socket closed"
             Engine.forfeit player
 
-        SocketException (CloseRequest code why) -> do
+        SocketException (Socket.CloseRequest code why) -> do
             logErrorN $ "Socket closed: " ++ tshow code ++ " "
                         ++ toStrict (decodeUtf8 why)
             Engine.forfeit player
 
-        SocketException (ParseException malformed) ->
+        SocketException (Socket.ParseException malformed) ->
             logErrorN $ "Malformed client input: " ++ pack malformed
 
-        SocketException (UnicodeException malformed) ->
+        SocketException (Socket.UnicodeException malformed) ->
             logErrorN $ "Malformed client input: " ++ pack malformed
 
     wrapper <- Wrapper.freeze
-    Client.send . Client.Play $ Wrapper.toTurn player wrapper
+    Socket.sendJSONData socket . Message.Play $ Wrapper.toTurn player wrapper
     putMVar mvar wrapper -- this should never block
 
 -- | Processes a user's actions and passes them to 'Engine.run'.

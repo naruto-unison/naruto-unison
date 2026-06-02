@@ -2,21 +2,15 @@
 module Handler.Client.Message
     ( Failure(..)
     , Message(..)
-    , send
-    , ping
     ) where
 
 import ClassyPrelude
 
-import Data.Aeson (ToJSON, toEncoding)
-import Data.Aeson.Encoding (encodingToLazyByteString)
+import Data.Aeson (ToJSON)
 
-import           Class.Sockets (MonadSockets)
-import qualified Class.Sockets as Sockets
-import           Handler.Client.Reward (Reward)
-import           Handler.Play.GameInfo (GameInfo)
-import           Handler.Play.Turn (Turn)
-import Control.Monad.Error.Class (MonadError(..))
+import Handler.Client.Reward (Reward)
+import Handler.Play.GameInfo (GameInfo)
+import Handler.Play.Turn (Turn)
 
 -- | Error messages sent to the client.
 data Failure
@@ -40,13 +34,3 @@ data Message
     deriving (Generic)
 
 instance ToJSON Message
-
-send :: ∀ m. MonadSockets m => Message -> m ()
-send x = Sockets.send . encodingToLazyByteString $ toEncoding x
-
-ping :: ∀ m. (MonadError Failure m, MonadSockets m) => m ()
-ping = do
-    send Ping
-    pong <- Sockets.receive {-! BLOCKS !-}
-    when (pong == "cancel")
-        $ throwError Canceled

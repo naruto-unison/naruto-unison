@@ -18,7 +18,6 @@ import           Class.Hook (MonadHook(..))
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import           Class.Sockets (MonadSockets)
 import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
 import           Game.Model.Player (Player)
@@ -122,5 +121,3 @@ toTurn player Wrapper{ninjas, game} = Turn.new player (toList ninjas) game
 
 instance MonadRandom m => MonadRandom (ReaderT Wrapper m)
 instance MonadRandom m => MonadRandom (ReaderT (STWrapper s) m)
-instance MonadSockets m => MonadSockets (ReaderT Wrapper m)
-instance MonadSockets m => MonadSockets (ReaderT (STWrapper s) m)

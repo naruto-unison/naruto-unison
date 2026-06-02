@@ -21,14 +21,13 @@ import qualified Application.App as App
 import           Application.Model (EntityField(..), User(..))
 import           Class.Random (MonadRandom)
 import qualified Class.Random as R
-import           Class.Sockets (MonadSockets)
-import qualified Class.Sockets as Sockets
 import           Game.Model.Character (Character)
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Slot as Slot
-import qualified Handler.Client.Message as Client
+import qualified Handler.Client.Message as Message
+import qualified Handler.Client.Socket as Socket
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
 import qualified Handler.Play.GameInfo
 import           Handler.Queue.Message (Response(Response))
@@ -85,11 +84,10 @@ leave = do
 
 queue :: ∀ m. ( App.MonadHandler m
               , MonadRandom m
-              , MonadSockets m
-              , MonadError Client.Failure m
-              ) => Section -> [Character]
+              , MonadError Message.Failure m
+              ) => Socket.Connection -> Section -> [Character]
                 -> m Message.Response
-queue Quick team = do
+queue _ Quick team = do
     (who, user) <- Auth.requireAuthPair
     quick       <- getsYesod App.quick
     liftIO do
@@ -98,33 +96,36 @@ queue Quick team = do
         void $ HashTable.insert quick who UserInfo { user, team, joined, chan }
         takeMVar chan {-! BLOCKS !-}
 
-queue Private team = do
+queue socket Private team = do
     (who, user)         <- Auth.requireAuthPair
     Entity vsWho vsUser <- do
-        vsName <- Sockets.receive {-! BLOCKS !-}
-        mVs    <- liftDB $ selectFirst [ UserName ==. vsName ] []
+        vsName <- Socket.receiveData socket {-! BLOCKS !-}
+        mVs    <- liftDB $ selectFirst [ UserName ==. toStrict (decodeUtf8 vsName) ] []
         case mVs of
             Just vs@(Entity vsWho _) | vsWho /= who -> return vs
-            _ -> throwError Client.NotFound
+            _ -> throwError Message.NotFound
 
     writer <- getsYesod App.private
-    reader <- liftIO $ atomically do
+    reader <- atomically do
         writeTChan writer $ Message.Request who vsWho team
         dupTChan writer
 
     untilJust do
-      msg <- liftIO . atomically $ readTChan reader {-! BLOCKS !-}
-      Client.ping {-! BLOCKS !-}
-      case msg of
-        Message.Respond mWho response@Response{info = GameInfo{vsWho = vsWho'}}
-          | vsWho' == vsWho && mWho == who -> return $ Just response
-        Message.Request vsWho' requestWho vsTeam
-          | vsWho' == vsWho && requestWho == who -> do
+        msg <- atomically $ readTChan reader {-! BLOCKS !-}
+        Socket.sendJSONData socket Message.Ping
+        pong <- Socket.receiveData socket {-! BLOCKS !-}
+        when (pong == "cancel")
+            $ throwError Message.Canceled
+        case msg of
+            Message.Respond mWho response@Response{info = GameInfo{vsWho = vsWho'}}
+                | vsWho' == vsWho && mWho == who -> return $ Just response
+            Message.Request vsWho' requestWho vsTeam
+                | vsWho' == vsWho && requestWho == who -> do
               (mvar, gameA, gameB) <- makeGame who user team vsWho vsUser vsTeam
               atomically . writeTChan writer
                   $ Message.Respond vsWho' $ Message.Response mvar gameB
               return . Just $ Message.Response mvar gameA
-        _ -> return Nothing
+            _ -> return Nothing
 
 makeGame :: ∀ m. (MonadRandom m, MonadIO m)
          => Key User -> User -> [Character]
