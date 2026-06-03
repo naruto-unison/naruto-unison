@@ -105,9 +105,8 @@ data ClientMessage
     deriving (Eq, Show)
 
 instance Parse ClientMessage where
-    parser = (Parse.string "forfeit" $> Forfeit)
-        <|> EnactMsg
-        <$> Parse.parser @Enact
+    parser = Forfeit <$ Parse.string "forfeit"
+        <|> EnactMsg <$> Parse.parser @Enact
 
 -- * HANDLERS
 

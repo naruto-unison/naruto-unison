@@ -24,8 +24,7 @@ allValidChars = concatMap identChars Characters.list
     identChars Character{ident} = setFromList $ fromEnum <$> unpack ident
 
 instance Parse Character where
-    parser = getCharacter . Parse.toUtf8
-         =<< Parse.takeWhile isValidChar <|> Parse.takeStrict
+    parser = getCharacter . Parse.toUtf8 =<< Parse.takeWhile isValidChar
       where
         isValidChar c = fromEnum c ∈ allValidChars
         getCharacter ident = case Characters.lookup ident of
