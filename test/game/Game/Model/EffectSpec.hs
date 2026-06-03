@@ -84,7 +84,7 @@ spec = parallel do
         prop "complements Reduce" $ Bleed `complements` Reduce
 
     describe "Bless" do
-        prop "adds to healing" \(NonNegative i) (NonNegative hp) ->
+        prop "adds to healing" \(NonNegative i) (Positive hp) ->
             simEffects [ Bless i ] [] Ally do
                 setHealth 1
                 heal hp
@@ -130,7 +130,7 @@ spec = parallel do
             return $ dmg - (100 - userHealth) `shouldBe` boostAmount * reduce
 
     describe "Build" do
-        prop "adds to barrier" \i (NonNegative hp) ->
+        prop "adds to barrier" \i (Positive hp) ->
             simEffects [ Build i ] [] Ally do
                 barricade Permanent hp
                 if i + hp >= 0 then do
@@ -140,7 +140,7 @@ spec = parallel do
                     amount <- target totalDefense
                     return $ amount === negate (i + hp)
 
-        prop "adds to defense" \i (NonNegative hp) ->
+        prop "adds to defense" \i (Positive hp) ->
             simEffects [ Build i ] [] Ally do
                 defend Permanent hp
                 if i + hp >= 0 then do
