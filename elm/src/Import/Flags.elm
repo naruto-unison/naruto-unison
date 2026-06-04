@@ -190,5 +190,8 @@ printFailure x =
         InvalidTeam _ ->
             "Invalid team"
 
+        SocketError e ->
+            "Socket error: " ++ e
+
         NotFound ->
             "User not found"

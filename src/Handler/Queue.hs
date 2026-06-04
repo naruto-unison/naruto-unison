@@ -36,6 +36,7 @@ import           Handler.Queue.UserInfo (UserInfo(UserInfo))
 import qualified Handler.Queue.UserInfo as UserInfo
 import qualified Handler.Play.War as War
 import           Handler.Play.Wrapper (Wrapper)
+import Control.Monad.Trans.Maybe (MaybeT(..))
 
 -- | Queue section.
 data Section
@@ -99,7 +100,7 @@ queue _ Quick team = do
 queue socket Private team = do
     (who, user)         <- Auth.requireAuthPair
     Entity vsWho vsUser <- do
-        vsName <- Socket.receiveData socket {-! BLOCKS !-}
+        vsName <- trySocket $ Socket.receiveData socket {-! BLOCKS !-}
         mVs    <- liftDB $ selectFirst [ UserName ==. toStrict (decodeUtf8 vsName) ] []
         case mVs of
             Just vs@(Entity vsWho _) | vsWho /= who -> return vs
@@ -110,22 +111,31 @@ queue socket Private team = do
         writeTChan writer $ Message.Request who vsWho team
         dupTChan writer
 
-    untilJust do
+    untilJust $ runMaybeT do
         msg <- atomically $ readTChan reader {-! BLOCKS !-}
-        Socket.sendJSONData socket Message.Ping
-        pong <- Socket.receiveData socket {-! BLOCKS !-}
+        trySocket $ Socket.sendJSONData socket Message.Ping
+        pong <- trySocket $ Socket.receiveData socket {-! BLOCKS !-}
         when (pong == "cancel")
             $ throwError Message.Canceled
+
+        guard $ users msg == (who, vsWho)
+
         case msg of
-            Message.Respond mWho response@Response{info = GameInfo{vsWho = vsWho'}}
-                | vsWho' == vsWho && mWho == who -> return $ Just response
-            Message.Request vsWho' requestWho vsTeam
-                | vsWho' == vsWho && requestWho == who -> do
+            Message.Respond _ response -> return response
+
+            Message.Request vsWho' _who' vsTeam -> do
               (mvar, gameA, gameB) <- makeGame who user team vsWho vsUser vsTeam
               atomically . writeTChan writer
                   $ Message.Respond vsWho' $ Message.Response mvar gameB
-              return . Just $ Message.Response mvar gameA
-            _ -> return Nothing
+              return $ Message.Response mvar gameA
+  where
+    users (Message.Respond who Response{info = GameInfo{vsWho}}) = (who, vsWho)
+    users (Message.Request vsWho who _)                          = (who, vsWho)
+    trySocket m = f =<< m
+      where
+        f (Left err)     = throwError $ Message.SocketError
+                                      $ displayException err
+        f (Right result) = return result
 
 makeGame :: ∀ m. (MonadRandom m, MonadIO m)
          => Key User -> User -> [Character]

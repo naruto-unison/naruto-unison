@@ -291,6 +291,7 @@ type Failure  =
     | InvalidTeam String
     | Locked (List String)
     | NotFound
+    | SocketError String
 
 jsonDecFailure : Json.Decode.Decoder ( Failure )
 jsonDecFailure =
@@ -300,6 +301,7 @@ jsonDecFailure =
             , ("InvalidTeam", Json.Decode.lazy (\_ -> Json.Decode.map InvalidTeam (Json.Decode.string)))
             , ("Locked", Json.Decode.lazy (\_ -> Json.Decode.map Locked (Json.Decode.list (Json.Decode.string))))
             , ("NotFound", Json.Decode.lazy (\_ -> Json.Decode.succeed NotFound))
+            , ("SocketError", Json.Decode.lazy (\_ -> Json.Decode.map SocketError (Json.Decode.string)))
             ]
         jsonDecObjectSetFailure = Set.fromList ["AlreadyQueued", "Canceled", "NotFound"]
     in  decodeSumTaggedObject "Failure" "tag" "contents" jsonDecDictFailure jsonDecObjectSetFailure
@@ -312,6 +314,7 @@ jsonEncFailure  val =
                     InvalidTeam v1 -> ("InvalidTeam", encodeValue (Json.Encode.string v1))
                     Locked v1 -> ("Locked", encodeValue ((Json.Encode.list Json.Encode.string) v1))
                     NotFound  -> ("NotFound", encodeValue (Json.Encode.list identity []))
+                    SocketError v1 -> ("SocketError", encodeValue (Json.Encode.string v1))
     in encodeSumTaggedObject "tag" "contents" keyval val
 
 

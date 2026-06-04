@@ -4,8 +4,8 @@ module Handler.Client.Socket
     , WebSocketsData(..)
     , receiveData
     , sendJSONData
-    , sendPing
     , sendTextData
+    , sendPing
     , withSocket
     ) where
 
@@ -26,15 +26,15 @@ withSocket f = webSocketsOptions options $ ask >>= lift . f
                                          WS.defaultPermessageDeflate
         }
 
-receiveData :: ∀ m. (MonadIO m) => Connection -> m LByteString
-receiveData socket = liftIO $ WS.receiveData socket
+receiveData :: ∀ m. (MonadIO m) => Connection -> m (Either SomeException LByteString)
+receiveData socket = liftIO $ tryAny $ WS.receiveData socket
 
-sendJSONData :: ∀ m a. (MonadIO m, ToJSON a) => Connection -> a -> m ()
+sendTextData :: ∀ m. MonadIO m => Connection -> LByteString -> m (Either SomeException ())
+sendTextData socket message = liftIO $ tryAny $ WS.sendTextData socket message
+
+sendJSONData :: ∀ m a. (MonadIO m, ToJSON a) => Connection -> a -> m (Either SomeException ())
 sendJSONData socket x = sendTextData socket $ encodingToLazyByteString
                       $ toEncoding x
 
-sendTextData :: ∀ m. MonadIO m => Connection -> LByteString -> m ()
-sendTextData socket message = liftIO $ WS.sendTextData socket message
-
-sendPing :: ∀ m. MonadIO m => Connection -> LByteString -> m ()
-sendPing socket message = liftIO $ WS.sendPing socket message
+sendPing :: ∀ m. MonadIO m => Connection -> LByteString -> m (Either SomeException ())
+sendPing socket message = liftIO $ tryAny $ WS.sendPing socket message
