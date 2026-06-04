@@ -135,10 +135,11 @@ updateProgress :: ∀ m. MonadIO m
                -> Int -- ^ Progress to add.
                -> GoalIndex
                -> SqlPersistT m Bool -- ^ Returns True if the character unlocks.
-updateProgress who amount GoalIndex{goals, char, i} =
-    if not canUpdate then return False else do
-        alreadyUnlocked <- selectFirst unlockedChar []
-        if isJust alreadyUnlocked then
+updateProgress who amount GoalIndex{goals, char, i}
+  | not canUpdate = return False
+  | otherwise     = do
+        alreadyUnlocked <- exists unlockedChar
+        if alreadyUnlocked then
             return True
         else do
             upsert (Mission who char i amount)

@@ -3,7 +3,7 @@ module Game.Engine.Statuses (apply) where
 
 import ClassyPrelude
 
-import Control.Monad.Trans.Maybe (MaybeT(..))
+import Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
 import Data.Enum.Set (EnumSet)
 
 import           Class.Play (MonadPlay)
@@ -37,7 +37,7 @@ apply amount classes bombs name unthrottled effects = void $ runMaybeT do
     nUser   <- P.nUser
     nTarget <- P.nTarget
     dur     <- if not new then return unthrottled else
-                MaybeT . return $ Duration.throttle
+                hoistMaybe $ Duration.throttle
                 (Effects.throttle effects nUser) unthrottled
     let st   = makeStatus context amount nUser nTarget
                classes bombs name dur effects

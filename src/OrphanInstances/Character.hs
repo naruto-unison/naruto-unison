@@ -28,7 +28,7 @@ instance Parse Character where
       where
         isValidChar c = fromEnum c ∈ allValidChars
         getCharacter ident = case Characters.lookup ident of
-            Just c -> return c
+            Just c  -> return c
             Nothing -> fail $ unpack (ident ++ " is not a character")
 
 instance PathPiece Character where

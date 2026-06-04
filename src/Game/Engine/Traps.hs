@@ -11,7 +11,7 @@ module Game.Engine.Traps
 
 import ClassyPrelude hiding ((\\), toList)
 
-import Control.Monad.Trans.Maybe (MaybeT(..))
+import Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
 import Data.Enum.Set (EnumSet)
 
 import           Class.Hook (MonadHook)
@@ -155,7 +155,7 @@ apply direction classes unthrottled trigger f = void $ runMaybeT do
     nUser   <- P.nUser
     nTarget <- P.nTarget
     dur     <- if not new then return unthrottled else
-               MaybeT . return $ throttle nUser
+               hoistMaybe $ throttle nUser
     let tr = makeTrap context direction classes dur trigger f
     guard $ tr ∉ N.traps nTarget
     guard . not $ isCounter && nUser `is` Disable Counters

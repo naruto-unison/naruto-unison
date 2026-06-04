@@ -103,19 +103,17 @@ wrap' affected f = void $ runMaybeT do
     else if nUser `is` AntiCounter || nTarget `is` Uncounter then
         finish
 
-    else
-        fromMaybe finish
-            $ do
-              guard $ allow Redirected && Unreflectable ∉ classes
-              t <- Effects.redirect nTarget
-              return . P.withTarget t $ wrap' (insertSet Redirected affected) f
-          <|> do
-              guard $ allow Reflected && Unreflectable ∉ classes
-                      && Effects.reflect classes nTarget
-              return do
-                  P.trigger target [OnReflect]
-                  P.with Context.reflect
-                    $ wrap' (insertSet Reflected affected) f
+    else fromMaybe finish
+        $ do
+            guard $ allow Redirected && Unreflectable ∉ classes
+            t <- Effects.redirect nTarget
+            return . P.withTarget t $ wrap' (insertSet Redirected affected) f
+      <|> do
+            guard $ allow Reflected && Unreflectable ∉ classes
+                    && Effects.reflect classes nTarget
+            return do
+                P.trigger target [OnReflect]
+                P.with Context.reflect $ wrap' (insertSet Reflected affected) f
 
 -- | Transforms @Target@s into @Slot@s.
 -- 'REnemy', 'RAlly', and 'RXAlly' targets are chosen at random.
