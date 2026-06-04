@@ -8,7 +8,7 @@ module Sim
   , statusDur
   , withClass, withClasses
   , targets
-  , simOf, simAt
+  , simOf, simAt, simGame
   ) where
 
 import ClassyPrelude
@@ -155,6 +155,9 @@ simOf game target action =
 
 simAt :: ∀ a. Target -> ReaderT Context WrapperM a -> a
 simAt = simOf Blank.game
+
+simGame :: ∀ a. WrapperM a -> a
+simGame simulation = runIdentity $ evalStateT simulation Blank.game
 
 withClass :: ∀ m. MonadPlay m => Class -> m () -> m ()
 withClass cla = withClasses $ singleton cla

@@ -13,7 +13,7 @@ import ClassyPrelude
 import Yesod
 
 import           Data.Aeson.Encoding (encodingToLazyByteString)
-import qualified System.Random.MWC as Random
+import           System.Random.MWC (createSystemRandom)
 import           Text.Blaze (Markup)
 import qualified Text.Blaze as Markup
 import qualified Yesod.Auth as Auth
@@ -105,7 +105,7 @@ getPlayR = do
     let muser = snd <$> mauth
     PlayParams{bg, practice, team, unlocked} <- getPlayParams muser
     when (isJust muser)
-        $ liftIO Random.createSystemRandom >>= runReaderT Play.gameSocket
+        $ liftIO createSystemRandom >>= runReaderT Play.gameSocket
     setCsrfCookie
     token <- reqToken <$> getRequest
     defaultLayout do

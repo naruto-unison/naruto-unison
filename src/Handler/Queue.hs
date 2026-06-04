@@ -12,7 +12,7 @@ import           Control.Monad.Error.Class (MonadError(..))
 import           Control.Monad.Loops (untilJust)
 import qualified Data.HashTable as HashTable
 import           Data.Time.Clock.System (SystemTime(..), getSystemTime)
-import qualified System.Random.MWC as Random
+import           System.Random.MWC (createSystemRandom)
 import           Yesod (getsYesod)
 import qualified Yesod.Auth as Auth
 
@@ -63,7 +63,7 @@ quickManager App{quick} = forever do
     pairings <- getPairings <$> HashTable.readLoad quick
                             <*> getSystemTime
                             <*> atomically (HashTable.readAssocs quick)
-    rand <- Random.createSystemRandom
+    rand <- createSystemRandom
     mapM_ (runPair rand) pairings
   where
     runPair rand ( (whoA, UserInfo userA teamA _ chanA)

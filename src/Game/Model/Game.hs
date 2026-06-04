@@ -9,7 +9,6 @@ import ClassyPrelude
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
-import qualified Class.Random as R
 import           Game.Model.Chakras (Chakras)
 import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Player (Player)
@@ -45,10 +44,10 @@ new = Game
 
 newWithChakras :: ∀ m. MonadRandom m => m Game
 newWithChakras = newWith
-    <$> R.random
-    <*> replicateM Slot.teamSize R.random
+    <$> Chakras.random 1
+    <*> Chakras.random Slot.teamSize
   where
-    newWith randA randsB = new { chakra = (singleton randA, fromList randsB) }
+    newWith randsA randsB = new { chakra = (randsA, randsB) }
 
 setChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
 setChakra p x game = game { chakra = Parity.setOf p x $ chakra game }

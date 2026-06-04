@@ -114,7 +114,6 @@ thaw :: ∀ m. PrimMonad m => Wrapper -> m (STWrapper (PrimState m))
 thaw Wrapper{game, ninjas} = STWrapper Tracker.empty
     <$> newRef game
     <*> Vector.thaw ninjas
-
 --  | Encodes game state into a form suitable for sending to the client.
 toTurn :: Player -> Wrapper -> Turn
 toTurn player Wrapper{ninjas, game} = Turn.new player (toList ninjas) game

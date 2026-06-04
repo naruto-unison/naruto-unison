@@ -5,6 +5,7 @@ module Game.Model.Chakras
   , scale
   , spend
   , checkedSpend
+  , random
   ) where
 
 import ClassyPrelude
@@ -13,7 +14,7 @@ import           Data.Aeson (ToJSON)
 import           Data.Bits
 import           Data.Enum.Set (AsEnumSet(..), EnumSet)
 import           GHC.Exts (IsList)
-import qualified GHC.Exts
+import qualified GHC.Exts as GHC
 import           System.Random.Stateful (Uniform(..), UniformRange(..))
 import qualified System.Random.Stateful as R
 import           Text.Blaze ((!), ToMarkup(..))
@@ -23,6 +24,8 @@ import           Yesod.Core.Dispatch (PathPiece(..))
 
 import           Class.Parse (Parse(..))
 import qualified Class.Parse as Parse
+import           Class.Random (MonadRandom)
+import qualified Class.Random as Random
 import           Game.Model.Class (Class(..))
 import           Util (rightToMaybe)
 
@@ -154,6 +157,8 @@ instance IsSequence Chakras where
     lengthIndex      = length
     {-# INLINE lengthIndex #-}
 
+    replicate n _
+      | n <= 0        = Chakras 0 0 0 0 0
     replicate b Blood = Chakras b 0 0 0 0
     replicate g Gen   = Chakras 0 g 0 0 0
     replicate n Nin   = Chakras 0 0 n 0 0
@@ -310,3 +315,14 @@ checkedSpend cost before
   where
     after@(Chakras b g n t r) = before `naiveSubtract` cost
     insufficient = b < 0 || g < 0 || n < 0 || t < 0 || r < 0
+
+fromBits :: ∀ a. (Bits a, Enum a, Num a) => Int -> a -> Chakras
+fromBits 0 _ = mempty
+fromBits i n = toEnum (fromEnum $ n .&. 3) `cons` fromBits (i - 1) (n .>>. 2)
+
+random :: ∀ m. MonadRandom m => Int -> m Chakras
+random len
+  | len <= 0  = return mempty
+  | len <= 16 = fromBits @Word32 len <$> Random.random
+  | len <= 32 = fromBits @Word64 len <$> Random.random
+  | otherwise = (++) <$> random 32 <*> random (len - 32)

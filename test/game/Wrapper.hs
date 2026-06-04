@@ -6,19 +6,20 @@ module Wrapper
 
 import ClassyPrelude
 
-import Class.Play (MonadGame)
-import qualified Class.Play
-import Class.Hook (MonadHook)
+import           Control.Monad.Trans.State.Strict (StateT(..), gets, modify')
+import qualified Data.ByteString.Short as SBS
+import           System.Random.Stateful (StatefulGen(..), Uniform(..))
+
+import           Class.Hook (MonadHook)
 import qualified Class.Hook
-import qualified Data.ByteString.Short as BS
-import Class.Random (MonadRandom)
+import           Class.Play (MonadGame)
+import qualified Class.Play
+import           Class.Random (MonadRandom)
 import qualified Class.Random
-import Game.Model.Game (Game)
+import           Game.Model.Game (Game)
 import qualified Game.Model.Game as Game
-import Game.Model.Ninja (Ninja)
+import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Slot as Slot
-import Control.Monad.Trans.State.Strict (StateT(..), gets, modify')
-import System.Random.Stateful (StatefulGen(..), Uniform(..))
 
 data Ninjas = Ninjas { n0 :: Ninja
                      , n1 :: Ninja
@@ -85,7 +86,7 @@ instance MonadHook WrapperM where
 instance StatefulGen () WrapperM where
     uniformWord32 _ = return 0
     uniformWord64 _ = return 0
-    uniformShortByteString n _ = return $ BS.replicate n 0
+    uniformShortByteString n _ = return $ SBS.replicate n 0
 
 instance MonadRandom WrapperM where
     random       = uniformM ()

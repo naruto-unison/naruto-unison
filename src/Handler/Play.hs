@@ -9,7 +9,7 @@ import Yesod
 
 import           Control.Monad.Trans.Except (runExceptT)
 import qualified Data.Cache as Cache
-import qualified System.Random.MWC as Random
+import           System.Random.MWC (createSystemRandom)
 import qualified Yesod.Auth as Auth
 
 import qualified Application.App as App
@@ -50,7 +50,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2]
                        , UserPractice =. [a2, b2, c2]
                        ]
 
-    liftIO Random.createSystemRandom >>= runReaderT do
+    liftIO createSystemRandom >>= runReaderT do
         rand     <- ask
         game     <- runReaderT Game.newWithChakras rand
         practice <- getsYesod App.practice
@@ -88,7 +88,7 @@ getPracticeActR spend exchange actions = do
     who      <- Auth.requireAuthId
     practice <- getsYesod App.practice
     game     <- fromMaybeM notFound $ liftIO $ Cache.lookup practice who
-    rand     <- liftIO Random.createSystemRandom
+    rand     <- liftIO createSystemRandom
     wrapper  <- Wrapper.thaw game
 
     flip runReaderT rand $ flip runReaderT wrapper do

@@ -12,7 +12,7 @@ module Handler.Admin
 import ClassyPrelude
 import Yesod
 
-import qualified System.Random.MWC as Random
+import           System.Random.MWC (createSystemRandom)
 import           Text.Printf (printf)
 import qualified Yesod.Auth as Auth
 
@@ -33,7 +33,7 @@ getAdminR = do
     App.unchanged304
     app <- getYesod
     (newsForm, enctype) <- generateFormPost =<< getNewsForm
-    liftIO Random.createSystemRandom >>= runReaderT Play.gameSocket
+    liftIO createSystemRandom >>= runReaderT Play.gameSocket
     defaultLayout do
         $(widgetFile "admin/admin")
         $(widgetFile "admin/sockets")
@@ -48,7 +48,7 @@ postAdminR = do
             runDB $ insert400_ news
             defaultLayout [whamlet|<p>"News posted"|]
         _ -> defaultLayout [whamlet|<p>"Invalid post"|]
-    liftIO Random.createSystemRandom >>= runReaderT Play.gameSocket
+    liftIO createSystemRandom >>= runReaderT Play.gameSocket
     defaultLayout do
         $(widgetFile "admin/admin")
         $(widgetFile "admin/sockets")
