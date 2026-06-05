@@ -6,6 +6,7 @@ import ClassyPrelude
 
 import Test.QuickCheck (Arbitrary(..), arbitraryBoundedEnum)
 
+import Game.Model.Duration (Duration)
 import Game.Model.Effect (Amount)
 import Game.Model.Attack (Attack)
 
@@ -21,3 +22,7 @@ instance Arbitrary Amount where
 instance Arbitrary Attack where
     arbitrary = arbitraryBoundedEnum
     shrink    = shrinkBoundedEnum
+
+instance Arbitrary Duration where
+    arbitrary = toEnum <$> arbitrary
+    shrink x  = toEnum <$> shrink (fromEnum x)
