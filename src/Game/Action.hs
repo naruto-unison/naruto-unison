@@ -78,7 +78,9 @@ wrap' affected f = void $ runMaybeT do
     nUser   <- P.nUser
     nTarget <- P.nTarget
 
-    guard $ Bypassing ∈ classes || not (nTarget `is` Nullify)
+    let allied    = Parity.allied user target
+
+    guard $ allied || Bypassing ∈ classes || not (nTarget `is` Nullify)
 
     guard $ Targeted ∈ affected -- already checked Requirement.targetable
             || Requirement.targetable skill nUser nTarget
@@ -88,10 +90,8 @@ wrap' affected f = void $ runMaybeT do
             || N.alive nTarget
             || Necromancy ∈ classes
 
-    let harm    = not $ Parity.allied user target
-        allow x = harm && x ∉ affected
-
-    let finish = do
+    let allow x = not allied && x ∉ affected
+        finish  = do
             f
             when (allow Reflected)
                 . P.withTargets (Effects.share nTarget)
