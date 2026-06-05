@@ -66,7 +66,6 @@ spec = parallel do
         it "does not block self"    $ simAt Self  tryTarget
 
     -- describe "Alternate" (redundant)
-    -- describe "AntiChannel" (redundant, more or less)
 
     describe "AntiCounter" do
         it "ignores counters and reflects" $ simAt Enemy do
@@ -91,26 +90,23 @@ spec = parallel do
                 return $ targetHealth === healthBound (1 + hp + i)
 
     describe "Block" do
-        let tryTarget t = do
-                apply Permanent [ Block $ Sim.targetSlot t ]
-                Sim.at XEnemies $ canTargetAs Enemy
+        let tryTarget t = apply Permanent [ Block $ Sim.targetSlot t ]
+                          >> Sim.at XEnemies (canTargetAs Enemy)
 
         it "blocks vs. subject"  . not . simAt Enemy $ tryTarget XEnemies
         it "does not block vs. others" $ simAt Enemy $ tryTarget REnemy
 
     describe "BlockAllies" do
-        let tryTarget = do
-                targeting Self $ apply Permanent [ BlockAllies ]
-                canTarget
+        let tryTarget = targeting Self (apply Permanent [ BlockAllies ])
+                        >> canTarget
 
         it "blocks vs. allies"    . not $ simAt Ally  tryTarget
         it "does not block vs. enemies" $ simAt Enemy tryTarget
         it "does not block vs. self"    $ simAt Self  tryTarget
 
     describe "BlockEnemies" do
-        let tryTarget = do
-                targeting Self $ apply Permanent [BlockEnemies]
-                canTarget
+        let tryTarget = targeting Self (apply Permanent [BlockEnemies])
+                        >> canTarget
 
         it "blocks vs. enemies"  . not $ simAt Enemy tryTarget
         it "does not block vs. allies" $ simAt Ally  tryTarget
@@ -121,8 +117,7 @@ spec = parallel do
             reduce      = 3
 
         it "boosts helpful effects" $ simAt Self do
-            Sim.as Ally $
-                apply Permanent [ Reduce [All] Flat reduce ]
+            Sim.as Ally $ apply Permanent [ Reduce [All] Flat reduce ]
             targeting Self $ apply Permanent [ Boost boostAmount ]
             damaged <- measureDamage $ Sim.as Enemy $ damage dmg
             return $ dmg - damaged `shouldBe` boostAmount * reduce
@@ -155,8 +150,22 @@ spec = parallel do
             canTarget
 
     describe "DamageToDefense" do
-        prop "absorbs damage"        damageToDefense
-        prop "converts into defense" damageFromDefense
+        prop "absorbs damage" \attackType (Positive dmg) ->
+            simEffects [] [DamageToDefense] Enemy do
+                Combat.attack attackType dmg
+                targetHealth <- target health
+                return $ 100 - targetHealth === case attackType of
+                    Attack.Afflict -> healthBound dmg
+                    _              -> 0
+
+        prop "converts into defense" \attackType (Positive dmg) ->
+            simEffects [] [DamageToDefense] Enemy do
+                Combat.attack attackType dmg
+                targetDefense <- target totalDefense
+                return $ targetDefense === case attackType of
+                    Attack.Afflict  -> 0
+                    Attack.Demolish -> 0
+                    _               -> dmg
 
     describe "Disable" do
         it "stuns stuns" $ simAt Enemy do
@@ -181,16 +190,23 @@ spec = parallel do
             canTarget
 
     describe "Duel" do
-        let tryTarget t = do
-                Sim.as XAlly $ apply Permanent [ Duel $ Sim.targetSlot t ]
-                canTarget
+        let tryTarget t = Sim.as XAlly
+                          (apply Permanent [ Duel $ Sim.targetSlot t ])
+                          >> canTarget
 
         it "invulnerable to enemies" . not . simAt Enemy $ tryTarget XEnemies
         it "invulnerable to allies"  . not . simAt Ally  $ tryTarget XEnemies
         it "not invulnerable to subject"   . simAt Ally  $ tryTarget Self
 
     describe "Endure" do
-        prop "constraints health" constrainsHealth
+        prop "constraints health" \endurable (Positive currentHealth) ->
+            let
+                ninja
+                  | endurable = Blank.ninja { effects = [Endure] }
+                  | otherwise = Blank.ninja
+            in
+            health (Ninjas.setHealth currentHealth ninja)
+            === max (fromEnum endurable) (min 100 currentHealth)
 
     describe "Enrage" do
         let tryApply effect = do
@@ -204,8 +220,8 @@ spec = parallel do
 
     describe "Exhaust" do
         prop "increases skill costs" \(Positive exhaust) ->
-            let effects = replicate exhaust $ Exhaust [All] in
-            Skill.cost (getSkill effects) === mempty { Chakras.rand = exhaust }
+            Skill.cost (getSkill $ replicate exhaust $ Exhaust [All])
+            === mempty { Chakras.rand = exhaust }
 
     describe "Expose" do
         it "prevents target from becoming invulnerable" $ simAt Enemy do
@@ -252,7 +268,10 @@ spec = parallel do
         it "ignores affliction" . simAt Enemy $ ignore Affliction afflict
 
     describe "Limit" do
-        prop "limits damage" isLimited
+        prop "limits damage" \attackType amount (Positive dmg) ->
+            attackAmount attackType dmg [] [Limit amount] === case attackType of
+                Attack.Afflict -> dmg
+                _              -> min amount dmg
 
     describe "NoIgnore" do
         it "ignores ignores" $ simAt Enemy do
@@ -359,10 +378,9 @@ spec = parallel do
             `shouldBe` Skill.targets (Skills.swap $ getSkill [])
 
     describe "Taunt" do
-        let tryTarget = do
-                targeting Self $
-                    apply Permanent [ Taunt $ Sim.targetSlot Enemy ]
-                canTarget
+        let tryTarget = targeting Self
+                        (apply Permanent [ Taunt $ Sim.targetSlot Enemy ])
+                        >> canTarget
 
         it "does not block against subject" $ simAt Enemy    tryTarget
         it "does not block against self"    $ simAt Self     tryTarget
@@ -424,7 +442,12 @@ spec = parallel do
             canTarget
 
     describe "Unreduce" do
-        prop "lessens applied Reduce effects" unreduces
+        prop "lessens applied Reduce effects" \(Positive dmg) reduce unreduce ->
+            simAt Enemy do
+                targeting Self $ apply Permanent [ Unreduce unreduce ]
+                apply Permanent [ Reduce [All] Flat reduce ]
+                damaged <- measureDamage $ damage dmg
+                return $ damaged === healthBound (dmg + unreduce - reduce)
 
     describe "Weaken" do
         prop "is additive"            $ isAdditive Weaken
@@ -460,25 +483,6 @@ simEffects userEffects targetEffects = simOf $ Wrapper.new
     , Blank.ninja { effects = targetEffects }, Blank.ninja, Blank.ninja
     ]
 
-damageToDefense :: Attack -> Positive Int -> Property
-damageToDefense attackType (Positive dmg) =
-    simEffects [] [DamageToDefense] Enemy do
-        Combat.attack attackType dmg
-        targetHealth <- target health
-        return $ 100 - targetHealth === case attackType of
-            Attack.Afflict -> healthBound dmg
-            _              -> 0
-
-damageFromDefense :: Attack -> Positive Int -> Property
-damageFromDefense attackType (Positive dmg) =
-    simEffects [] [DamageToDefense] Enemy do
-        Combat.attack attackType dmg
-        targetDefense <- target totalDefense
-        return $ targetDefense === case attackType of
-            Attack.Afflict  -> 0
-            Attack.Demolish -> 0
-            _               -> dmg
-
 attackAmount :: Attack   -- ^ Attack type.
              -> Int      -- ^ Amount.
              -> [Effect] -- ^ Attacker.
@@ -490,22 +494,7 @@ attackAmount attackType dmg attacker defender =
     Blank.ninja { effects = defender }
     dmg
 
-constrainsHealth :: Bool -> Positive Int -> Property
-constrainsHealth endurable (Positive currentHealth) =
-    health (Ninjas.setHealth currentHealth ninja) ===
-    max (fromEnum endurable) (min 100 currentHealth)
-  where
-    ninja
-      | endurable = Blank.ninja { effects = [Endure] }
-      | otherwise = Blank.ninja
-
 type Con = EnumSet Class -> Amount -> Int -> Effect
-
-isLimited :: Attack -> Int -> Positive Int -> Property
-isLimited attackType amount (Positive dmg) =
-    attackAmount attackType dmg [] [Limit amount] === case attackType of
-        Attack.Afflict -> dmg
-        _              -> min amount dmg
 
 isAdditive :: Con -> Amount -> Attack -> Positive Int -> Int -> Int -> Property
 isAdditive effect amount attackType (Positive dmg) size val =
@@ -537,13 +526,6 @@ tryAbsorb t cost = simAt t do
                             , Skill.effects = [ To t $ return () ]
                             }
         }
-
-unreduces :: Positive Int -> Int -> Int -> Property
-unreduces (Positive dmg) reduce unreduce = simAt Enemy do
-    targeting Self $ apply Permanent [ Unreduce unreduce ]
-    apply Permanent [ Reduce [All] Flat reduce ]
-    damaged <- measureDamage $ damage dmg
-    return $ damaged === healthBound (dmg + unreduce - reduce)
 
 getSkill :: [Effect] -> Skill
 getSkill effects = fromJust
