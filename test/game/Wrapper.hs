@@ -55,8 +55,8 @@ ninjasToList :: Ninjas -> [Ninja]
 ninjasToList (Ninjas a b c d e f) = [a, b, c, d, e, f]
 
 data Wrapper = Wrapper
-    { game     :: Game
-    , ninjas   :: Ninjas
+    { game   :: Game
+    , ninjas :: Ninjas
     }
 
 new :: [Ninja] -> Wrapper
