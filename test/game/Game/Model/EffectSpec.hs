@@ -506,9 +506,9 @@ simEffects :: ∀ a. [Effect] -- ^ User.
            -> Target
            -> ReaderT Context WrapperM a
            -> a
-simEffects userEffects targetEffects t =
-    simOf (Wrapper.new $ applyEffects <$> Blank.ninjas) t
+simEffects userEffects targetEffects t = simOf game t
   where
+    game = Wrapper.new $ applyEffects <$> Blank.ninjas
     applyEffects n@Ninja{slot}
       | slot == Sim.targetSlot Self = n { effects = userEffects }
       | slot == Sim.targetSlot t    = n { effects = targetEffects }
