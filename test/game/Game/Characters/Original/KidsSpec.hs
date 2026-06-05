@@ -92,7 +92,7 @@ spec = parallel do
         useOn Enemies "Eight Trigrams Sixty-Four Palms" do
             it "deals bonus damage during Byakugan" do
                 damagedWithout <- measureDamageTo XEnemies Sim.act
-                Sim.at XEnemies $ setHealth 100
+                targeting XEnemies $ setHealth 100
                 Sim.use "Byakugan"
                 damagedWith <- measureDamageTo XEnemies Sim.act
                 damagedWith - damagedWithout `shouldBe` 5

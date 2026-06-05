@@ -34,7 +34,7 @@ spec = parallel do
             it "ends if user uses a skill on a different target" do
                 Sim.act
                 Sim.at XAlly $ Sim.as Enemy $ apply Permanent [ Reveal ]
-                Sim.at XEnemies  $ Sim.use "Sphere of Graves"
+                Sim.at XEnemies $ Sim.use "Sphere of Graves"
                 Sim.at XAlly $ Sim.as Enemy $ apply Permanent [ Reveal ]
                 (`is` Reveal) <$> Sim.targets XAlly
 

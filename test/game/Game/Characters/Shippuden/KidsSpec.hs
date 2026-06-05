@@ -343,8 +343,7 @@ spec = parallel do
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 20 + 20 * testStacks
             it "deals more damage with dead allies" do
-                targeting Allies kill
-                targeting Self $ setHealth 100
+                targeting XAllies kill
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 20 + 2 * 20
 
