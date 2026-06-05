@@ -82,17 +82,15 @@ match pTeam vsTeam (red, blue)
     vsRed  = all (participant red)  vsTeam
     vsBlue = all (participant blue) vsTeam
 
--- TODO Is there a better way of doing this than using System.Random? Again,
--- performance isn't really the concern, but this function is the only reason
--- the project depends on the "random" package, so it could otherwise be taken
--- out.
-fromDay :: LocalTime -> (EnumSet Group, EnumSet Group)
-fromDay (LocalTime (ModifiedJulianDay day) _) = wars !! i
+fromDay :: Day -> (EnumSet Group, EnumSet Group)
+fromDay (ModifiedJulianDay day) = wars !! i
   where
-    (i, _) = Random.randomR (0, length wars) . Random.mkStdGen . (+ 1)
-           $ fromInteger day
+    gen    = Random.mkStdGen $ fromInteger day + 1
+    (i, _) = Random.randomR (0, length wars - 1) gen
 
 -- | Obtains today's war as a pseudorandom choice seeded from the
 -- 'localDay' of the current @LocalTime@.
 today :: IO (EnumSet Group, EnumSet Group)
-today = fromDay <$> (utcToLocalTime <$> getCurrentTimeZone <*> getCurrentTime)
+today = do
+    LocalTime day _ <- utcToLocalTime <$> getCurrentTimeZone <*> getCurrentTime
+    return $ fromDay day

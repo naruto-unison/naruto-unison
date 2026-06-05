@@ -19,6 +19,8 @@ import qualified Yesod.Auth as Auth
 import           Application.App (App(App), liftDB)
 import qualified Application.App as App
 import           Application.Model (EntityField(..), User(..))
+import           Class.Parse (Parse(..))
+import qualified Class.Parse as Parse
 import           Class.Random (MonadRandom)
 import qualified Class.Random as R
 import           Game.Model.Character (Character)
@@ -43,6 +45,10 @@ data Section
     = Quick
     | Private
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
+
+instance Parse Section where
+    parser = Parse.string "private" $> Private
+         <|> Parse.string "quick"   $> Quick
 
 chunkPairs :: ∀ a. [a] -> [(a, a)]
 chunkPairs (x:y:xs) = (x, y) : chunkPairs xs
@@ -141,25 +147,22 @@ makeGame :: ∀ m. (MonadRandom m, MonadIO m)
          => Key User -> User -> [Character]
          -> Key User -> User -> [Character]
          -> m (MVar Wrapper, GameInfo, GameInfo)
-makeGame who user team vsWho vsUser vsTeam = makeGame' <$> R.random
-                                                       <*> Game.newWithChakras
-                                                       <*> liftIO War.today
-                                                       <*> newEmptyMVar
-  where
-    makeGame' player game warPair mvar = (mvar, gameInfoA, gameInfoB)
-      where
-        war = War.match team vsTeam warPair
-        ninjas = fromList $ zipWith N.new Slot.all case player of
-                 Player.A -> team ++ vsTeam
-                 Player.B -> vsTeam ++ team
+makeGame who user team vsWho vsUser vsTeam = do
+    player <- R.random
+    game   <- Game.newWithChakras
+    war    <- liftIO $ War.match team vsTeam <$> War.today
+    mvar   <- newEmptyMVar
+    let ninjas = fromList $ zipWith N.new Slot.all case player of
+            Player.A -> team ++ vsTeam
+            Player.B -> vsTeam ++ team
         gameInfoA = GameInfo
-                { vsWho
-                , vsUser
-                , player
-                , war
-                , game
-                , ninjas
-                }
+            { vsWho
+            , vsUser
+            , player
+            , war
+            , game
+            , ninjas
+            }
         gameInfoB = GameInfo
             { vsWho  = who
             , vsUser = user
@@ -168,3 +171,4 @@ makeGame who user team vsWho vsUser vsTeam = makeGame' <$> R.random
             , game
             , ninjas
             }
+    return (mvar, gameInfoA, gameInfoB)

@@ -241,12 +241,15 @@ instance IsSequence Chakras where
     {-# INLINABLE unsnoc #-}
 
 instance Parse Chakras where
-    parser = Chakras
-        <$> Parse.parser @Int
-        <*> (Parse.char ',' >> Parse.parser @Int)
-        <*> (Parse.char ',' >> Parse.parser @Int)
-        <*> (Parse.char ',' >> Parse.parser @Int)
-        <*> return 0
+    parser = do
+        b <- Parse.parser @Int
+        Parse.char ','
+        g <- Parse.parser @Int
+        Parse.char ','
+        n <- Parse.parser @Int
+        Parse.char ','
+        t <- Parse.parser @Int
+        return $ Chakras b g n t 0
 
 instance PathPiece Chakras where
     toPathPiece (Chakras b g n t _) = intercalate "," $ tshow <$> [b, g, n, t]

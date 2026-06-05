@@ -76,10 +76,11 @@ instance (PrimMonad m, s ~ PrimState m) => MonadHook (ReaderT (STWrapper s) m) w
         >>= Tracker.trackTurn p ns ns'
 
 fromInfo :: ∀ m. PrimMonad m => GameInfo -> m (STWrapper (PrimState m))
-fromInfo info@GameInfo{game, ninjas} = STWrapper
-    <$> Tracker.fromInfo info
-    <*> newRef game
-    <*> Vector.thaw (fromList ninjas)
+fromInfo info@GameInfo{game, ninjas} = do
+    tracker   <- Tracker.fromInfo info
+    gameRef   <- newRef game
+    ninjasRef <- Vector.thaw $ fromList ninjas
+    return STWrapper { tracker, gameRef, ninjasRef }
 
 runGame :: ∀ m. PrimMonad m
         => GameInfo -> ReaderT (STWrapper (PrimState m)) m () -> m Wrapper
@@ -101,19 +102,25 @@ data Wrapper = Wrapper
     }
 
 freeze :: ∀ m. MonadGame m => m Wrapper
-freeze = Wrapper mempty <$> P.game <*> (fromList <$> P.ninjas)
+freeze = do
+    game   <- P.game
+    ninjas <- P.ninjas
+    return Wrapper { progress = mempty, game, ninjas = fromList ninjas }
 
 -- | The STWrapper may not be used after this operation.
 unsafeFreeze :: ∀ m. PrimMonad m => STWrapper (PrimState m) -> m Wrapper
-unsafeFreeze STWrapper{tracker, gameRef, ninjasRef} = Wrapper
-    <$> Tracker.unsafeFreeze tracker
-    <*> readRef gameRef
-    <*> Vector.unsafeFreeze ninjasRef
+unsafeFreeze STWrapper{tracker, gameRef, ninjasRef} = do
+    progress <- Tracker.unsafeFreeze tracker
+    game     <- readRef gameRef
+    ninjas   <- Vector.unsafeFreeze ninjasRef
+    return Wrapper { progress, game, ninjas }
 
 thaw :: ∀ m. PrimMonad m => Wrapper -> m (STWrapper (PrimState m))
-thaw Wrapper{game, ninjas} = STWrapper Tracker.empty
-    <$> newRef game
-    <*> Vector.thaw ninjas
+thaw Wrapper{game, ninjas} = do
+    gameRef <- newRef game
+    ninjasRef <- Vector.thaw ninjas
+    return STWrapper { tracker = Tracker.empty, gameRef, ninjasRef }
+
 --  | Encodes game state into a form suitable for sending to the client.
 toTurn :: Player -> Wrapper -> Turn
 toTurn player Wrapper{ninjas, game} = Turn.new player (toList ninjas) game

@@ -43,11 +43,10 @@ new = Game
     }
 
 newWithChakras :: ∀ m. MonadRandom m => m Game
-newWithChakras = newWith
-    <$> Chakras.random 1
-    <*> Chakras.random Slot.teamSize
-  where
-    newWith randsA randsB = new { chakra = (randsA, randsB) }
+newWithChakras = do
+    randsA <- Chakras.random 1
+    randsB <- Chakras.random Slot.teamSize
+    return new { chakra = (randsA, randsB) }
 
 setChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
 setChakra p x game = game { chakra = Parity.setOf p x $ chakra game }

@@ -68,18 +68,16 @@ separate = Parse.char separator
 data Team = Team Queue.Section [Character]
 
 instance Parse Team where
-    parser = Team <$> parseSection
-                  <*> (separate >> parseCharacters)
+    parser = do
+        section <- Parse.parser @Queue.Section
+        separate
+        chars   <- Parse.sepBy (Parse.parser @Character) separate
+        unless (validTeamLength chars)
+            $ fail "Must have 3 team members"
+        return $ Team section chars
       where
-        parseSection = Parse.string "private" $> Queue.Private
-                    <|> Parse.string "quick" $> Queue.Quick
-
-        parseCharacters = do
-            chars <- Parse.sepBy (Parse.parser @Character) separate
-            case chars of
-                [_, _, _] -> return chars
-                _         -> fail "Must have 3 team members"
-
+        validTeamLength [_, _, _] = True
+        validTeamLength _         = False
 
 data Enact = Enact
     { spend    :: Chakras
@@ -88,16 +86,18 @@ data Enact = Enact
     } deriving (Eq, Show)
 
 instance Parse Enact where
-    parser = Enact
-        <$> Parse.parser @Chakras
-        <*> (separate >> Parse.parser @Chakras)
-        <*> (separate >> parseActs <|> Parse.endOfInput $> [])
+    parser = do
+        spend    <- Parse.parser @Chakras
+        separate
+        exchange <- Parse.parser @Chakras
+        separate
+        actions  <- Parse.sepBy (Parse.parser @Act) separate
+        unless (validActLength actions)
+            $ fail "No more than 3 actions"
+        return Enact { spend, exchange, actions }
       where
-        parseActs = do
-            acts <- Parse.sepBy (Parse.parser @Act) separate
-            case acts of
-                (_:_:_:_:_) -> fail "No more than 3 actions"
-                _           -> return acts
+        validActLength (_:_:_:_:_) = False
+        validActLength _           = True
 
 data ClientMessage
     = Forfeit

@@ -85,11 +85,10 @@ unlocked = cached $ fromMaybe allUnlocked <$> runMaybeT do
     Just who  <- Auth.maybeAuthId
     privilege <- App.getPrivilege
     guard $ privilege < Moderator
-    getUnlocked <$> getsYesod App.characterIDs
-                <*> liftDB (selectList [ UnlockedUser ==. who ] [])
+    ids <- getsYesod App.characterIDs
+    unlocks <- liftDB $ selectList [ UnlockedUser ==. who ] []
+    return $ freeChars `union` setFromList (mapMaybe (look ids) unlocks)
   where
-    getUnlocked ids unlocks = freeChars `union` setFromList
-                              (mapMaybe (look ids) unlocks)
     look ids (Entity _ Unlocked{unlockedCharacter}) =
         Bimap.lookup unlockedCharacter ids
 
@@ -342,9 +341,10 @@ outcomeDNA Queue.Quick Tie     = Settings.quickTie
 
 -- | Returns usage stats about all characters in the database.
 getUsageRates :: App.Handler [UsageRate]
-getUsageRates = mapMaybe . findUsage
-    <$> getsYesod App.characterIDs
-    <*> runDB (selectList [] [])
+getUsageRates = do
+    ids   <- getsYesod App.characterIDs
+    chars <- runDB $ selectList [] []
+    return $ mapMaybe (findUsage ids) chars
 
 -- | Matches a @Usage@ with a 'Character' from 'Characters.map'.
 findUsage :: Bimap CharacterId Text -> Entity Usage -> Maybe UsageRate

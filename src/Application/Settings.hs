@@ -46,14 +46,23 @@ data DNA = DNA
     } deriving (Eq, Ord, Show, Read)
 
 instance FromJSON DNA where
-    parseJSON = Aeson.withObject "DNA" \o -> DNA
-        <$> o .: "daily-game"
-        <*> o .: "daily-win"
-        <*> o .: "quick-win"
-        <*> o .: "quick-lose"
-        <*> o .: "quick-tie"
-        <*> o .: "war-win"
-        <*> o .: "use-streak"
+    parseJSON = Aeson.withObject "DNA" \o -> do
+        dailyGame <- o.: "daily-game"
+        dailyWin  <- o .: "daily-win"
+        quickWin  <- o .: "quick-win"
+        quickLose <- o .: "quick-lose"
+        quickTie  <- o .: "quick-tie"
+        warWin    <- o .: "war-win"
+        useStreak <- o .: "use-streak"
+        return DNA
+            { dailyGame
+            , dailyWin
+            , quickWin
+            , quickLose
+            , quickTie
+            , warWin
+            , useStreak
+            }
 
 data Settings = Settings
     { unlockAll              :: ~Bool
@@ -108,12 +117,6 @@ data Settings = Settings
 
 instance FromJSON Settings where
     parseJSON = Aeson.withObject "Settings" \o -> do
-        let defaultDev =
-#ifdef DEVELOPMENT
-                True
-#else
-                False
-#endif
         staticDir              <- o .: "static-dir"
         databaseConf           <- o .: "database"
         dnaConf                <- o .: "dna"
@@ -162,6 +165,12 @@ instance FromJSON Settings where
             , analytics
             , authDummyLogin
             }
+      where
+#ifdef DEVELOPMENT
+            defaultDev = True
+#else
+            defaultDev = False
+#endif
 
 -- | Settings for 'widgetFile', such as which template languages to support and
 -- default Hamlet settings.

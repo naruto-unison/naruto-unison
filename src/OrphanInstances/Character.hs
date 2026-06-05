@@ -24,12 +24,13 @@ allValidChars = concatMap identChars Characters.list
     identChars Character{ident} = setFromList $ fromEnum <$> unpack ident
 
 instance Parse Character where
-    parser = getCharacter . Parse.toUtf8 =<< Parse.takeWhile isValidChar
-      where
-        isValidChar c = fromEnum c ∈ allValidChars
-        getCharacter ident = case Characters.lookup ident of
+    parser = do
+        ident <- Parse.toUtf8 <$> Parse.takeWhile isValidChar
+        case Characters.lookup ident of
             Just c  -> return c
             Nothing -> fail $ unpack (ident ++ " is not a character")
+      where
+        isValidChar c = fromEnum c ∈ allValidChars
 
 instance PathPiece Character where
     toPathPiece   = Character.ident

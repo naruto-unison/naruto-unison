@@ -72,8 +72,13 @@ getUsageR = do
       | otherwise = printf "%.2f%%" x
 
 getNewsForm :: App.Handler (Html -> App.MForm News)
-getNewsForm = return . renderDivs $ News
-    <$> lift Auth.requireAuthId
-    <*> lift (liftIO getCurrentTime)
-    <*> areq textField "" Nothing
-    <*> (unTextarea <$> areq textareaField "" Nothing)
+getNewsForm = return $ renderDivs do
+    newsAuthor  <- lift Auth.requireAuthId
+    newsTime    <- lift $ liftIO getCurrentTime
+    newsTitle   <- areq textField "" Nothing
+    newsContent <- unTextarea <$> areq textareaField "" Nothing
+    return News { newsAuthor
+                , newsTime
+                , newsTitle
+                , newsContent
+                }

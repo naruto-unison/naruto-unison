@@ -73,7 +73,8 @@ spec = parallel do
             return $ damaged === healthBound (amount * turns)
 
     describe "Alone" do
-        let tryTarget = apply Permanent [Alone] >> canTarget
+        let tryTarget = apply Permanent [Alone]
+                        >> canTarget
 
         it "blocks allies"    . not $ simAt Ally  tryTarget
         it "does not block enemies" $ simAt Enemy tryTarget

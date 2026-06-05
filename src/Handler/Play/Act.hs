@@ -32,10 +32,13 @@ data Act = Act
 instance ToJSON Act
 
 instance Parse Act where
-    parser = Act
-        <$> Parse.parser @Slot
-        <*> (Parse.char ',' >> Parse.parser @Int)
-        <*> (Parse.char ',' >> Parse.parser @Slot)
+    parser = do
+        user   <- Parse.parser @Slot
+        Parse.char ','
+        skill  <- Parse.parser @Int
+        Parse.char ','
+        target <- Parse.parser @Slot
+        return Act { user, skill, target }
 
 instance PathPiece Act where
     toPathPiece (Act user skill target) = intercalate ","

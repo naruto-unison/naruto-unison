@@ -143,12 +143,11 @@ trackTurn1 p ns x@Track{skills, slot, turns} = do
     tracker (n, n') (i, f) = trackStore x i $ f p user n n'
 
 new :: ∀ m. PrimMonad m => Ninja -> m (Track (PrimState m))
-new Ninja{character = character@Character{ident}, slot} = makeTrack
-    <$> newRef mempty
-    <*> MVector.replicate (length objectives) mempty
-    <*> MVector.replicate (length objectives) 0
-  where
-    makeTrack skills store progress = foldl' go Track
+new Ninja{character = character@Character{ident}, slot} = do
+    skills   <- newRef mempty
+    store    <- MVector.replicate (length objectives) mempty
+    progress <- MVector.replicate (length objectives) 0
+    return $ foldl' go Track
         { slot
         , key      = missionKeys ident =<< missions
         , actions  = MultiMap.empty
@@ -163,6 +162,7 @@ new Ninja{character = character@Character{ident}, slot} = makeTrack
         , store
         , progress
         } objectives
+  where
     missions   = Missions.characterMissions character
     goals      = [x | mission <- missions
                     , x       <- toList $ Goal.goals mission
