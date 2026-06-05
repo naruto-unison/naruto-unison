@@ -28,9 +28,8 @@ spec = parallel do
         useOn Self "Teleportation Technique" do
             it "damages harm" do
                 Sim.act
-                Sim.as Enemy $ return ()
-                targetHealth <- health <$> Sim.targets Enemy
-                100 - targetHealth `shouldBe` 15
+                damaged <- measureDamageTo Enemy $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 15
 
         useOn Enemy "Kotoamatsukami" do
             it "depletes on harm" do
@@ -53,9 +52,8 @@ spec = parallel do
                 targetDefense `shouldBe` 20
             it "damages countered" do
                 Sim.act
-                Sim.as Enemy $ return ()
-                targetHealth <- health <$> Sim.targets Enemy
-                100 - targetHealth `shouldBe` 20
+                damaged <- measureDamageTo Enemy $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 20
             it "recharges if countered" do
                 Sim.use "Tenth Edict on Enlightenment"
                 Sim.act
@@ -131,14 +129,12 @@ spec = parallel do
     describeCharacter "Fū Yamanaka" do
         useOn Enemy "Tantō Slash" do
             it "deals bonus damage if target has Mind Transfer" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Mind Transfer"
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 15
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 15
 
         useOn Ally "Mind Transfer Puppet Curse" do
             it "counters on target" do
@@ -168,10 +164,10 @@ spec = parallel do
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
-                Sim.withClass NonMental $ Sim.as Enemies $
-                    apply Permanent [ Reveal ]
-                targetHealth <- health <$> Sim.targets Enemies
-                100 - targetHealth `shouldBe` 10
+                damaged <- measureDamageTo Enemies
+                         $ Sim.withClass NonMental $ Sim.as Enemies
+                         $ apply Permanent [ Reveal ]
+                damaged `shouldBe` 10
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Kusanagi"
@@ -180,9 +176,9 @@ spec = parallel do
             it "damages attackers" do
                 Sim.act
                 setHealth 100
-                Sim.as Enemy $ apply Permanent [ Reveal ]
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 5
+                damaged <- measureDamage
+                         $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                damaged `shouldBe` 5
 
         useOn Enemy "Kirin" do
             it "cannot be used without Dragon Flame" do

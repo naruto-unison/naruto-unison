@@ -55,9 +55,8 @@ spec = parallel do
     describe "Afflict" do
         prop "damages every turn" \amount (Positive turns) -> simAt Enemy do
             apply Permanent [Afflict amount]
-            Sim.turns -turns
-            targetHealth <- target health
-            return $ 100 - targetHealth === healthBound (amount * turns)
+            damaged <- measureDamage $ Sim.turns -turns
+            return $ damaged === healthBound (amount * turns)
 
     describe "Alone" do
         let tryTarget = apply Permanent [Alone] >> canTarget
@@ -125,9 +124,8 @@ spec = parallel do
             Sim.as Ally $
                 apply Permanent [ Reduce [All] Flat reduce ]
             targeting Self $ apply Permanent [ Boost boostAmount ]
-            Sim.as Enemy $ damage dmg
-            userHealth <- user health
-            return $ dmg - (100 - userHealth) `shouldBe` boostAmount * reduce
+            damaged <- measureDamage $ Sim.as Enemy $ damage dmg
+            return $ dmg - damaged `shouldBe` boostAmount * reduce
 
     describe "Build" do
         prop "adds to barrier" \i (Positive hp) ->
@@ -219,9 +217,8 @@ spec = parallel do
             apply Permanent [ Reduce [All] Flat 100
                             , Expose
                             ]
-            damage 1
-            targetHealth <- target health
-            return $ 100 - targetHealth `shouldBe` 1
+            damaged <- measureDamage $ damage 1
+            return $ damaged `shouldBe` 1
 
     -- describe "Face" (nothing to test)
 
@@ -274,9 +271,8 @@ spec = parallel do
         it "ignores damage reduction" $ simAt Enemy do
             targeting Self $ apply Permanent [ Pierce ]
             apply Permanent [ Reduce [All] Flat 100 ]
-            damage 1
-            targetHealth <- target health
-            return $ 100 - targetHealth `shouldBe` 1
+            damaged <- measureDamage $ damage 1
+            return $ damaged `shouldBe` 1
 
     describe "Plague" do
         it "blocks healing" $ simAt Enemy do
@@ -284,9 +280,8 @@ spec = parallel do
             apply Permanent [ Plague
                             , Heal 100
                             ]
-            heal 100
-            targetHealth <- target health
-            return $ targetHealth `shouldBe` 1
+            healed <- measureHealing $ heal 100
+            return $ healed `shouldBe` 0
 
         it "blocks curing" $ simAt Enemy do
             apply Permanent [ Plague ]
@@ -415,9 +410,8 @@ spec = parallel do
         it "ignores own defense" $ simAt Enemy do
             apply Permanent [ Undefend ]
             defend Permanent 100
-            damage 1
-            targetHealth <- target health
-            return $ 100 - targetHealth `shouldBe` 1
+            damaged <- measureDamage $ damage 1
+            return $ damaged `shouldBe` 1
 
     describe "Uncounter" do
         it "ignores own counters and reflects" $ simAt Enemy do
@@ -548,9 +542,8 @@ unreduces :: Positive Int -> Int -> Int -> Property
 unreduces (Positive dmg) reduce unreduce = simAt Enemy do
     targeting Self $ apply Permanent [ Unreduce unreduce ]
     apply Permanent [ Reduce [All] Flat reduce ]
-    damage dmg
-    targetHealth <- target health
-    return $ 100 - targetHealth === healthBound (dmg + unreduce - reduce)
+    damaged <- measureDamage $ damage dmg
+    return $ damaged === healthBound (dmg + unreduce - reduce)
 
 getSkill :: [Effect] -> Skill
 getSkill effects = fromJust

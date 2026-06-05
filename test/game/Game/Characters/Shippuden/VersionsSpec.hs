@@ -27,9 +27,9 @@ spec = parallel do
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 30
+                damaged <- measureDamage
+                         $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                damaged `shouldBe` 30
 
     describeCharacter "Mangekyō Sasuke" do
         useOn Enemy "Susanoo" do
@@ -39,46 +39,45 @@ spec = parallel do
 
         useOn Enemy "Blazing Arrow" do
             it "damages immediately if interrupted" do
-                Sim.act
-                Sim.as Enemy $ apply 1 [ Stun All ]
-                Sim.turns 1
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 3 * 15
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.as Enemy $ apply 1 [ Stun All ]
+                    Sim.turns 1
+                damaged `shouldBe` 3 * 15
             it "does not continue to damage if interrupted" do
-                Sim.act
-                Sim.as Enemy $ apply 1 [ Stun All ]
-                Sim.turns 5
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 3 * 15
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.as Enemy $ apply 1 [ Stun All ]
+                    Sim.turns 5
+                damaged `shouldBe` 3 * 15
 
         useOn Enemy "Amaterasu" do
             it "is cured when target becomes invulnerable" do
-                Sim.act
-                Sim.turns testStacks
-                Sim.as Enemy $ targeting Self $
-                    apply Permanent [ Invulnerable Physical ]
-                Sim.turns 5
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 5 * (testStacks + 1)
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.turns testStacks
+                    Sim.as Enemy $ targeting Self $
+                        apply Permanent [ Invulnerable Physical ]
+                    Sim.turns 5
+                damaged `shouldBe` 5 * (testStacks + 1)
             it "spreads if helped" do
                 Sim.act
-                Sim.as XEnemies $ return ()
-                Sim.turns testStacks
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 5 * (testStacks + 1)
+                damaged <- measureDamageTo XEnemies do
+                    Sim.as XEnemies $ return ()
+                    Sim.turns testStacks
+                damaged `shouldBe` 5 * (testStacks + 1)
             it "spreads back" do
                 Sim.act
                 Sim.as XEnemies $ return ()
                 factory
-                Sim.at XEnemies $ Sim.as Enemy $ return ()
-                Sim.turns testStacks
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 5 * (testStacks + 1)
+                damaged <- measureDamage do
+                    Sim.at XEnemies $ Sim.as Enemy $ return ()
+                    Sim.turns testStacks
+                damaged `shouldBe` 5 * (testStacks + 1)
 
         useOn Enemy "Yasaka Beads" do
             it "increases damage when Amaterasu is cured" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 replicateM_ testStacks do
@@ -90,9 +89,8 @@ spec = parallel do
                 Sim.as Enemy $ targeting Self cureAll
                 Sim.turns 1
                 factory
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 5 * (testStacks + 1)
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 5 * (testStacks + 1)
 
 
     describeCharacter "Regimental Commander Gaara" do
@@ -103,20 +101,17 @@ spec = parallel do
                 stacks `shouldBe` testStacks
             it "deals damage per Sand Bomb" do
                 addStacks "Sand Bomb" testStacks
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10 + 5 * (testStacks + 1)
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 10 + 5 * (testStacks + 1)
             it "deals single-target damage normally" do
                 Sim.use "Mother's Embrace"
                 targeting Self demolishAll
-                Sim.act
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 0
+                damaged <- measureDamageTo XEnemies Sim.act
+                damaged `shouldBe` 0
             it "damages all enemies during Mother's Embrace" do
                 Sim.use "Mother's Embrace"
-                Sim.act
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 10 + 5
+                damaged <- measureDamageTo XEnemies Sim.act
+                damaged `shouldBe` 10 + 5
 
         useOn Self "Mother's Embrace" do
             it "ignores harmful effects" do
@@ -132,9 +127,8 @@ spec = parallel do
         useOn Enemies "Sand Mausoleum Seal" do
             it "damages per Sand Bomb" do
                 addStacks "Sand Bomb" testStacks
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 15 + 5 * testStacks
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 15 + 5 * testStacks
             it "removes Sand Bombs" do
                 addStacks "Sand Bomb" testStacks
                 Sim.act
@@ -169,8 +163,7 @@ spec = parallel do
 
         useOn Enemy "Iron Maiden" do
             it "deals bonus damage if target has Kuroari Ambush" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Sasori Surrogate"
@@ -178,9 +171,8 @@ spec = parallel do
                 Sim.use "Hidden Coil Strike"
                 cancelChannel' "Sasori Surrogate"
                 setHealth 100
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 40
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 40
 
         useOn Allies "Salamander Shield" do
             it "redirects from targets" do
@@ -257,24 +249,20 @@ spec = parallel do
     describeCharacter "Eight-Gates Guy" do
         useOn Enemy "Evening Elephant" do
             it "deals increasing damage" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 replicateM_ testStacks Sim.act
                 factory
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 20 * testStacks
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 20 * testStacks
 
         useOn Enemy "Night Guy" do
             it "deals increasing damage" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 25
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 25
 
     describeCharacter "True Form Sasori" do
         useOn Enemy "Poisonous Chain Skewer" do
@@ -359,9 +347,8 @@ spec = parallel do
         useOn Enemy "Paper Bomb" do
             it "damages target per Paper Shuriken" do
                 addStacks "Paper Shuriken" testStacks
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 15 + 10 * testStacks
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 15 + 10 * testStacks
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Paper Shuriken"
@@ -435,9 +422,9 @@ spec = parallel do
             it "damages stunners" do
                 Sim.act
                 setHealth 100
-                Sim.as Enemy $ apply Permanent [ Stun Mental ]
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 20
+                damaged <- measureDamage
+                         $ Sim.as Enemy $ apply Permanent [ Stun Mental ]
+                damaged `shouldBe` 20
   where
     describeCharacter = describeCategory Shippuden
     dmg = 56

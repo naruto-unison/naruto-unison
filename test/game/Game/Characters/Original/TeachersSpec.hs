@@ -10,61 +10,53 @@ spec = parallel do
     describeCharacter "Iruka Umino" do
         useOn Enemy "Shuriken Throw" do
             it "deals bonus damage per health lost" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 targeting Self . damage $ 25 * testStacks
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 10 * testStacks
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 10 * testStacks
 
         useOn Enemy "Capture and Arrest" do
             it "does not damage normally" do
-                Sim.act
-                Sim.turns 1
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 0
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.turns 1
+                damaged `shouldBe` 0
             it "damages target if they harm" do
-                Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 40
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.as Enemy $ apply Permanent [ Reveal ]
+                damaged `shouldBe` 40
             it "makes target vulnerable if they harm" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 setHealth 100
-                Sim.withClass Physical $ damage dmg
-                targetHealth <- target health
-                (100 - targetHealth) - dmg `shouldBe` 25
+                damaged <- measureDamage $ Sim.withClass Physical $ damage dmg
+                damaged - dmg `shouldBe` 25
 
     describeCharacter "Mizuki" do
         useOn Enemy "Kunai Assault" do
             it "takes turns normally" do
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 15
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 15
             it "damages instantly during Successful Ambush" do
                 targeting Self $ tag' "Successful Ambush" Permanent
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 30
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 30
 
         useOn Enemy "Execution Shuriken" do
             it "damages target" do
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 10
             it "deals bonus damage per target health lost" do
                 damage (20 * 2)
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 20 * 2 + 10 + 2 * 10
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 10 + 2 * 10
             it "deals bonus damage during Successful Ambush" do
                 targeting Self $ tag' "Successful Ambush" Permanent
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10 + 30
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 10 + 30
 
         useOn Self "Genjutsu Ambush Tactics" do
             it "does not make invulnerable instantly" do
@@ -108,9 +100,8 @@ spec = parallel do
     describeCharacter "Kakashi Hatake" do
         useOn Enemy "Lightning Blade" do
             it "damages target" do
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 50
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 50
             it "kills if target has Summoning: Ninja Hounds" do
                 Sim.use "Summoning: Ninja Hounds"
                 Sim.act
@@ -146,10 +137,10 @@ spec = parallel do
                 user $ hasSkill "Flying Kick"
             it "lasts longer per Sharpen Blades" do
                 replicateM_ testStacks $ Sim.use "Sharpen Blades"
-                Sim.act
-                Sim.turns $ 5 + testStacks
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` (2 + testStacks) * 15
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.turns $ 5 + testStacks
+                damaged `shouldBe` (2 + testStacks) * 15
 
         useOn Ally "Self-Sacrifice" do
             it "redirects from ally" do
@@ -174,9 +165,9 @@ spec = parallel do
                 not <$> user (`is` Reveal)
             it "damages countered target" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 30
+                damaged <- measureDamage
+                         $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                damaged `shouldBe` 30
 
     describeCharacter "Baki" do
         useOn Ally "Flak Jacket" do

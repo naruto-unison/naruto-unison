@@ -20,33 +20,32 @@ spec = parallel do
                 targeting Self $ apply Permanent [ Focus ]
                 Sim.as Ally $ targeting Everyone $
                     replicateM_ testStacks $ apply Permanent [ Focus ]
-                Sim.act
-                Sim.turns 5
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 3 * (10 + 5 * testStacks)
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.turns 5
+                damaged `shouldBe` 3 * (10 + 5 * testStacks)
 
         useOn Enemy "Throw a Shuriken" do
             it "damages target per helpful effect from allies" do
                 targeting Self $ apply Permanent [ Focus ]
                 Sim.as Ally $ targeting Everyone $
                     replicateM_ testStacks $ apply Permanent [ Focus ]
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10 + 10 * testStacks
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 10 + 10 * testStacks
 
     describeCharacter "Tsume Inuzuka" do
         useOn Enemy "Call Kuromaru" do
             it "damages attackers" do
                 Sim.act
-                Sim.withClass NonBane $ Sim.as Enemy $ return ()
-                Sim.turns 4
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10
+                damaged <- measureDamage do
+                    Sim.withClass NonBane $ Sim.as Enemy $ return ()
+                    Sim.turns 4
+                damaged `shouldBe` 10
             it "does not damage bane attackers" do
                 Sim.act
-                Sim.withClass Bane $ Sim.as Enemy $ return ()
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 0
+                damaged <- measureDamage
+                         $ Sim.withClass Bane $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 0
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Fierce Bite"
@@ -56,9 +55,8 @@ spec = parallel do
                 Sim.act
                 Sim.as XEnemies kill
                 factory
-                damage dmg
-                targetHealth <- target health
-                (100 - targetHealth) - dmg `shouldBe` 10
+                damaged <- measureDamage $ damage dmg
+                damaged - dmg `shouldBe` 10
             it "ignores stuns if target dies" do
                 Sim.act
                 Sim.as XEnemies kill
@@ -74,16 +72,16 @@ spec = parallel do
 
         useOn Enemy "Tunneling Fang" do
             it "deals bonus damage during Call Kuromaru" do
-                Sim.act
-                Sim.turns 5
-                targetHealth <- target health
+                damageWithout <- measureDamage do
+                    Sim.act
+                    Sim.turns 5
                 factory
                 targeting Self factory
                 Sim.use "Call Kuromaru"
-                Sim.act
-                Sim.turns 5
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 2 * 5
+                damageWith <- measureDamage do
+                    Sim.act
+                    Sim.turns 5
+                damageWith - damageWithout `shouldBe` 2 * 5
 
     describeCharacter "Chōza Akimichi" do
         useOn Enemy "Human Boulder" do
@@ -102,9 +100,9 @@ spec = parallel do
         useOn Enemy "Partial Expansion" do
             it "counters against enemy" do
                 Sim.act
-                Sim.withClass NonMental $ Sim.as Enemy $ return ()
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10
+                damaged <- measureDamage
+                         $ Sim.withClass NonMental $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 10
 
 
     describeCharacter "Shikaku Nara" do
@@ -113,14 +111,12 @@ spec = parallel do
                 Sim.act
                 user $ hasSkill "Shadow Dispersion"
             it "deals bonus damage if target has Black Spider Lily" do
-                Sim.act
-                targetHealth <- target health
+                damageWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Black Spider Lily"
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 10
+                damageWith <- measureDamage Sim.act
+                damageWith - damageWithout `shouldBe` 10
             it "stuns an additional turn if target has Ensnared" do
                 tag' "Ensnared" Permanent
                 Sim.act
@@ -138,20 +134,17 @@ spec = parallel do
                 Sim.use "Shadow Possession"
                 setHealth 100
                 Sim.use "Black Spider Lily"
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 0
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 0
             it "damages others" do
                 Sim.use "Shadow Possession"
                 setHealth 100
-                Sim.act
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 20
+                damaged <- measureDamageTo XEnemies Sim.act
+                damaged `shouldBe` 20
             it "deals bonus damage if target has Black Spider Lily" do
                 Sim.use "Black Spider Lily"
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 30
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 30
             it "stuns an additional turn if target has Ensnared" do
                 tag' "Ensnared" Permanent
                 Sim.act
@@ -179,9 +172,9 @@ spec = parallel do
             it "restores health when enemy acts" do
                 damage dmg
                 Sim.act
-                replicateM_ testStacks $ Sim.as Enemy $ return ()
-                userHealth <- user health
-                dmg - (100 - userHealth) `shouldBe` 10 * testStacks
+                healed <- measureHealing
+                        $ replicateM_ testStacks $ Sim.as Enemy $ return ()
+                healed `shouldBe` 10 * testStacks
             it "adds stacks when enemy acts" do
                 Sim.act
                 replicateM_ testStacks $ Sim.as Enemy $ return ()

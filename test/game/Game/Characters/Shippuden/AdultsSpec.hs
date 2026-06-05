@@ -26,35 +26,29 @@ spec = parallel do
 
         useOn Enemy "Lightning Blade Finisher" do
             it "deals bonus damage if target has Lightning Beast Fang" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Lightning Beast Fang"
                 setHealth 100
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 10
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 10
             it "deals bonus damage if target is stunned" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 apply Permanent [ Stun All ]
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 10
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 10
             it "deals bonus damage if both" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 apply Permanent [ Stun All ]
                 Sim.use "Lightning Beast Fang"
                 setHealth 100
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 10
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 10
 
         useOn Allies "Team Tactics" do
             it "copies skill" do
@@ -77,9 +71,8 @@ spec = parallel do
             it "damages target per Burning Ash" do
                 Sim.use "Burning Ash"
                 Sim.turns testStacks
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10 * (testStacks + 1)
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 10 * (testStacks + 1)
             it "removes Burning Ash" do
                 Sim.use "Burning Ash"
                 Sim.turns testStacks
@@ -100,24 +93,23 @@ spec = parallel do
     describeCharacter "Might Guy" do
         useOn Enemy "Nunchaku" do
             it "damages target per Single Gate Release" do
-                replicateM_ testStacks  $ Sim.use "Single Gate Release"
-                Sim.act
-                Sim.turns 4
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 3 * 10 + 5 * testStacks
+                replicateM_ testStacks $ Sim.use "Single Gate Release"
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.turns 4
+                damaged `shouldBe` 3 * 10 + 5 * testStacks
             it "damages attackers" do
                 Sim.act
                 setHealth 100
-                Sim.withClass Physical $ Sim.as Enemy $ return ()
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10
+                damaged <- measureDamage
+                         $ Sim.withClass Physical $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 10
 
         useOn Enemy "Fiery Kick" do
             it "damages target per Single Gate Release" do
-                replicateM_ testStacks  $ Sim.use "Single Gate Release"
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 35 + 5 * testStacks
+                replicateM_ testStacks $ Sim.use "Single Gate Release"
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 35 + 5 * testStacks
 
         useOn Self "Single Gate Release" do
             it "does not alternate pre 6" do
@@ -155,17 +147,15 @@ spec = parallel do
         useOn XEnemies "Three Treasure Suction Crush" do
             it "deals normal damage normally" do
                 defend Permanent testStacks
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 30 - testStacks
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 30 - testStacks
             it "deals affliction damage if target has Lion Roar Sealing" do
                 Sim.use "Ten Puppets Collection"
                 setHealth 100
                 defend Permanent testStacks
                 Sim.use "Lion Roar Sealing"
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 30
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 30
 
         useOn Ally "Self-Sacrifice Reanimation" do
             it "cures harm on death" do
@@ -188,9 +178,8 @@ spec = parallel do
     describeCharacter "Akatsuchi" do
         useOn Enemy "Chakra Devour" do
             it "damages target" do
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 15
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 15
             it "depletes taijutsu" do
                 gain [Blood, Nin, Tai]
                 Sim.act
@@ -218,9 +207,8 @@ spec = parallel do
     describeCharacter "C" do
         useOn XEnemies "Sensory Technique" do
             it "damages random target" do
-                Sim.act
-                targetHealth <- health <$> Sim.targets REnemy
-                100 - targetHealth `shouldBe` 20
+                damaged <- measureDamageTo REnemy Sim.act
+                damaged `shouldBe` 20
             it "makes user invulnerable if harmed" do
                 Sim.act
                 Sim.as Enemy $ return ()
@@ -231,24 +219,21 @@ spec = parallel do
         useOn Enemy "Burning Blade" do
             it "damages attackers" do
                 Sim.act
-                Sim.as Enemy $ return ()
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10
+                damaged <- measureDamage $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 10
 
         useOn Enemies "Fire Wall" do
             it "harms enemies on action" do
                 Sim.act
-                Sim.as Enemy $ return ()
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 20
+                damaged <- measureDamage $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 20
 
         useOn Enemy "Flame Slice" do
             it "deals bonus damage during Burning Blade" do
                 Sim.use "Burning Blade"
                 setHealth 100
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 25 + 10
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 25 + 10
 
     describeCharacter "Omoi" do
         useOn Enemies "Back Slice" do
@@ -258,9 +243,9 @@ spec = parallel do
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 20
+                damaged <- measureDamage
+                         $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                damaged `shouldBe` 20
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Crescent Moon Slice"
@@ -268,9 +253,8 @@ spec = parallel do
         useOn Ally "Paper Bomb" do
             it "deals stacking damage" do
                 replicateM_ testStacks Sim.act
-                Sim.as Enemy $ return ()
-                targetHealth <- health <$> Sim.targets Enemy
-                100 - targetHealth `shouldBe` 20 * testStacks
+                damaged <- measureDamageTo Enemy $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 20 * testStacks
 
     describeCharacter "Dodai" do
         useOn Enemy "Sensory Technique" do
@@ -299,21 +283,19 @@ spec = parallel do
 
         useOn Enemy "Black Panther" do
             it "deals bonus damage if target has Water Wall" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 Sim.use "Water Wall"
                 targeting Everyone $ setHealth 100
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 5
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 5
 
     describeCharacter "Ao" do
         useOn Enemy "Byakugan" do
             it "damages harmers" do
                 Sim.act
-                Sim.withClass NonMental $ Sim.as Enemy $ return ()
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10
+                damaged <- measureDamage
+                         $ Sim.withClass NonMental $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 10
 
         useOn Enemy "Barrier Talisman" do
             it "counters on user" do
@@ -336,10 +318,10 @@ spec = parallel do
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
-                Sim.withClass Physical $ Sim.as Enemy $
-                    apply Permanent [ Reveal ]
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 20
+                damaged <- measureDamage
+                         $ Sim.withClass Physical $ Sim.as Enemy
+                         $ apply Permanent [ Reveal ]
+                damaged `shouldBe` 20
   where
     describeCharacter = describeCategory Shippuden
     testStacks = 3

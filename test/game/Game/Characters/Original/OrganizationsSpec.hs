@@ -13,9 +13,8 @@ spec = parallel do
         useOn Enemy "Mace Crush" do
             it "deals bonus damage if target has Syrup Trap" do
                 tag' "Syrup Trap" Permanent
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 30 + 10
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 30 + 10
 
         useOn Enemies "Syrup Trap" do
             it "stuns Physical" do
@@ -39,9 +38,8 @@ spec = parallel do
                 target has "Devastate"
             it "deals damage if target has Annihilate" do
                 tag' "Annihilate" Permanent
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 65
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 65
             it "does not tag if target has Annihilate" do
                 tag' "Annihilate" Permanent
                 Sim.act
@@ -53,9 +51,8 @@ spec = parallel do
                 target has "Annihilate"
             it "deals damage if target has Devastate" do
                 tag' "Devastate" Permanent
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 65
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 65
             it "does not tag if target has Devastate" do
                 tag' "Devastate" Permanent
                 Sim.act
@@ -74,28 +71,27 @@ spec = parallel do
                 Sim.as Enemy $ damage dmg
                 Sim.act
                 userHealth <- user health
-                100 - userHealth `shouldBe` 0
+                userHealth `shouldBe` 100
             it "transfers upon death" do
                 Sim.as Enemy $ damage dmg
                 Sim.act
                 Sim.as Enemy $ damage testStacks
                 Sim.as Enemy kill
-                userHealth <- target health
+                userHealth <- user health
                 dmg - (100 - userHealth) `shouldBe` 0
 
     describeCharacter "Aoba Yamashiro" do
         useOn Enemies "Scattering Crow Swarm" do
             it "deals stacking damage" do
-                replicateM_ testStacks Sim.act
-                Sim.as Enemy $ damage dmg
-                Sim.turns 5
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 5 * 4 * testStacks
+                damaged <- measureDamage do
+                    replicateM_ testStacks Sim.act
+                    Sim.as Enemy $ damage dmg
+                    Sim.turns 5
+                damaged `shouldBe` 5 * 4 * testStacks
             it "reduces damage" do
                 replicateM_ testStacks Sim.act
-                Sim.as Enemy $ damage dmg
-                userHealth <- user health
-                dmg - (100 - userHealth) `shouldBe` 5 * testStacks
+                damaged <- measureDamageTo Self $ Sim.as Enemy $ damage dmg
+                dmg - damaged `shouldBe` 5 * testStacks
 
         useOn Ally "Revenge of the Murder" do
             it "resurrects target" do
@@ -128,9 +124,8 @@ spec = parallel do
                 replicateM_ testStacks $ Sim.use "Scattering Crow Swarm"
                 cancelChannel' "Scattering Crow Swarm"
                 setHealth 100
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 45 + 5 * testStacks
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 45 + 5 * testStacks
 
     describeCharacter "Ibiki Morino" do
         useOn Self "Biding Time" do
@@ -147,9 +142,8 @@ spec = parallel do
         useOn Enemy "Payback" do
             it "damages target per Payback" do
                 targeting Self $ addStacks "Payback" testStacks
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 15 + 5 * testStacks
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 15 + 5 * testStacks
             it "spends all Payback" do
                 targeting Self $ addStacks "Payback" testStacks
                 Sim.act
@@ -158,27 +152,26 @@ spec = parallel do
         useOn Enemy "Summoning: Iron Maiden" do
             it "damages target on harm" do
                 Sim.act
-                Sim.as Enemy $ return ()
-                Sim.as Enemy $ return ()
-                Sim.turns 3
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 2 * 25
+                damaged <- measureDamage do
+                    Sim.as Enemy $ return ()
+                    Sim.as Enemy $ return ()
+                    Sim.turns 3
+                damaged `shouldBe` 2 * 25
 
         useOn Enemy "Summoning: Torture Chamber" do
             it "damages target on non-action" do
                 Sim.act
-                Sim.as Enemy $ return ()
-                Sim.turns 5
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 2 * 25
+                damaged <- measureDamage do
+                    Sim.as Enemy $ return ()
+                    Sim.turns 5
+                damaged `shouldBe` 2 * 25
 
     describeCharacter "Yūgao Uzuki"do
         useOn Enemy "Moonlight Night" do
             it "damages target per Moon Haze" do
                 replicateM_ 2  $ Sim.use "Moon Haze"
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 50 + 2 * 25
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 50 + 2 * 25
 
     describeCharacter "Demon Brothers" do
         useOn Enemy "Chain Wrap" do
@@ -194,26 +187,22 @@ spec = parallel do
 
         useOn Enemy "Poison Gauntlet" do
             it "deals bonus damage if target has Chain Wrap" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Chain Wrap"
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 10
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 10
 
     describeCharacter "Haku" do
         useOn Enemy "Thousand Needles of Death" do
             it "is normally single-target" do
-                Sim.act
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 0
+                damaged <- measureDamageTo XEnemies Sim.act
+                damaged `shouldBe` 0
             it "damages all during Crystal Ice Mirrors" do
                 Sim.use "Crystal Ice Mirrors"
-                Sim.act
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 30
+                damaged <- measureDamageTo XEnemies Sim.act
+                damaged `shouldBe` 30
 
         useOn Enemy "Acupuncture" do
             it "is normally single-target" do
@@ -247,33 +236,31 @@ spec = parallel do
     describeCharacter "Zabuza Momochi" do
         useOn Enemy "Silent Killing" do
             it "deals bonus damage during Hidden Mist" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Hidden Mist"
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 15
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 15
 
     describeCharacter "Itachi Uchiha" do
         useOn Enemy "Amaterasu" do
             it "damages target" do
-                Sim.use "Amaterasu"
-                Sim.turns testStacks
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 15 + 5 * testStacks
+                damaged <- measureDamage do
+                    Sim.use "Amaterasu"
+                    Sim.turns testStacks
+                damaged `shouldBe` 15 + 5 * testStacks
             it "is normally single-target" do
-                Sim.use "Amaterasu"
-                Sim.turns testStacks
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 0
+                damaged <- measureDamageTo XEnemies do
+                    Sim.use "Amaterasu"
+                    Sim.turns testStacks
+                damaged `shouldBe` 0
             it "damages all targets and deals double damage during Mangekyō Sharingan" do
                 Sim.use "Mangekyō Sharingan"
-                Sim.use "Amaterasu"
-                Sim.turns testStacks
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 30 + 10 * testStacks
+                damaged <- measureDamageTo XEnemies do
+                    Sim.use "Amaterasu"
+                    Sim.turns testStacks
+                damaged `shouldBe` 30 + 10 * testStacks
 
         useOn Enemy "Tsukuyomi" do
             it "lasts 1 turn normally" do
@@ -291,27 +278,23 @@ spec = parallel do
     describeCharacter "Jirōbō" do
         useOn Enemy "Crushing Palm" do
             it "deals bonus damage during Sphere of Graves" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Sphere of Graves"
                 setHealth 100
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 10
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 10
 
         useOn Enemies "Sphere of Graves" do
             it "deals bonus damage during Crushing Palm" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Crushing Palm"
                 setHealth 100
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 5
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 5
 
         useOn Enemies "Earth Dome Prison" do
             it "steals chakra until broken" do
@@ -326,15 +309,13 @@ spec = parallel do
     describeCharacter "Sakon and Ukon" do
         useOn Enemy "Demon Twin Attack" do
             it "deals less damage during Demon Parasite" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 apply Permanent [ Invulnerable Affliction ]
                 Sim.use "Demon Parasite"
-                Sim.act
-                targetHealth' <- target health
-                targetHealth' - targetHealth `shouldBe` 20
+                damagedWith <- measureDamage Sim.act
+                damagedWithout - damagedWith `shouldBe` 20
 
         useOn Enemy "Demon Parasite" do
             it "ends when target dies" do

@@ -14,27 +14,24 @@ spec = parallel do
             it "deals bonus damage during Tailed Beast Chakra Arms" do
                 Sim.use "Tailed Beast Chakra Arms"
                 setHealth 100
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth - 15 `shouldBe` 35 + 10
+                damaged <- measureDamage Sim.act
+                damaged - 15 `shouldBe` 35 + 10
             it "deals less damage during Inner Chakra Mode" do
                 Sim.use "Inner Chakra Mode"
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 35 - 10
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 35 - 10
 
     describeCharacter "Curse Mark Sasuke" do
         useOn Enemy "Dark Void" do
             it "deals no damage initially" do
-                Sim.act
-                Sim.turns 1
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 0
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.turns 1
+                damaged `shouldBe` 0
             it "deals damage at end" do
                 Sim.act
-                Sim.turns 3
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 55
+                damaged <- measureDamage $ Sim.turns 3
+                damaged `shouldBe` 55
 
         useOn Self "Curse Mark" do
             it "tags user" do
@@ -46,17 +43,15 @@ spec = parallel do
             it "damages target per Unpredictable Assault" do
                 replicateM_ testStacks Sim.act
                 setHealth 100
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 20 + 5 * testStacks
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 20 + 5 * testStacks
 
         useOn Enemy "Unpredictable Assault" do
             it "deals bonus damage during Drunken Fist" do
                 Sim.use "Drunken Fist"
                 setHealth 100
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth - 15 `shouldBe` 20 + 5
+                damaged <- measureDamage Sim.act
+                damaged - 15 `shouldBe` 20 + 5
 
         useOn Enemy "Drunken Counter" do
             it "counters on target" do
@@ -65,9 +60,9 @@ spec = parallel do
                 not <$> user (`is` Reveal)
             it "damages with Unpredictable Assault if countered" do
                 targeting Self Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 20
+                damaged <- measureDamage
+                         $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                damaged `shouldBe` 20
             it "adds Unpredictable Assault if countered" do
                 targeting Self Sim.act
                 Sim.as Enemy $ apply Permanent [ Reveal ]
@@ -80,12 +75,12 @@ spec = parallel do
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages target until target acts" do
-                Sim.act
-                Sim.turns testStacks
-                Sim.as Enemy $ apply Permanent [ Reveal ]
-                Sim.turns 5
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10 * (testStacks + 1)
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.turns testStacks
+                    Sim.as Enemy $ apply Permanent [ Reveal ]
+                    Sim.turns 5
+                damaged `shouldBe` 10 * (testStacks + 1)
 
         useOn Self "Sand Transformation" do
             it "defends user" do
@@ -105,9 +100,8 @@ spec = parallel do
         useOn Enemy "Shukaku Full Release" do
             it "strengthens user" do
                 Sim.act
-                damage testStacks
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 2 * testStacks
+                damaged <- measureDamage $ damage testStacks
+                damaged `shouldBe` 2 * testStacks
 
     describeCharacter "Rehabilitated Gaara" do
         useOn Enemies "Sand Burial Prison" do

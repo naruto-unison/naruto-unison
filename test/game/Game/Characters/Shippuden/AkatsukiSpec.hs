@@ -24,29 +24,26 @@ spec = parallel do
             it "deals damage per stack of Susanoo" do
                 Sim.use "Susanoo"
                 Sim.turns testStacks
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 30 + 5 * (testStacks + 1)
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 30 + 5 * (testStacks + 1)
 
         useOn Enemy "Majestic Destroyer Flame" do
             it "damages on defense" do
                 Sim.act
                 setHealth 100
-                Sim.as Enemy $ defend Permanent 10
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10
+                damaged <- measureDamage $ Sim.as Enemy $ defend Permanent 10
+                damaged `shouldBe` 10
             it "damages on reduce" do
                 Sim.act
                 setHealth 100
-                Sim.as Enemy $ apply Permanent [ Reduce [All] Flat 10 ]
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10
+                damaged <- measureDamage
+                         $ Sim.as Enemy $ apply Permanent [ Reduce [All] Flat 10 ]
+                damaged `shouldBe` 10
             it "does not damage otherwise" do
                 Sim.act
                 setHealth 100
-                Sim.as Enemy $ damage dmg
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 0
+                damaged <- measureDamage $ Sim.as Enemy $ damage dmg
+                damaged `shouldBe` 0
 
     describeCharacter "Deidara" do
         useOn Enemy "C1: Bird Bomb" do
@@ -65,15 +62,14 @@ spec = parallel do
         useOn Enemy "C2: Minefield" do
             it "damages attacker" do
                 Sim.act
-                Sim.withClass NonMental $ Sim.as Enemy $ return ()
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10
+                damaged <- measureDamage
+                         $ Sim.withClass NonMental $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 10
             it "weakens attacker" do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as Enemy $ return ()
-                Sim.as Enemy $ damage dmg
-                userHealth <- user health
-                dmg - (100 - userHealth) `shouldBe` 5
+                damaged <- measureDamageTo Self $ Sim.as Enemy $ damage dmg
+                dmg - damaged `shouldBe` 5
 
         useOn Enemy "C4: Karura" do
             it "alternates" do
@@ -90,24 +86,23 @@ spec = parallel do
             it "damages per Iron Sand" do
                 Sim.use "Kazekage Puppet Summoning"
                 Sim.turns testStacks
-                Sim.act
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 10 + 5 * (testStacks + 1)
+                damaged <- measureDamageTo XEnemies Sim.act
+                damaged `shouldBe` 10 + 5 * (testStacks + 1)
 
         useOn Enemy "Poison Blade Assault" do
             it "damages repeatedly" do
                 Sim.use "Kazekage Puppet Summoning"
-                Sim.act
-                Sim.turns 4
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 20 * 2
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.turns 4
+                damaged `shouldBe` 20 * 2
             it "ends when destroyed" do
                 Sim.use "Kazekage Puppet Summoning"
-                Sim.act
-                Sim.as Enemy demolishAll
-                Sim.turns testStacks
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 20
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.as Enemy demolishAll
+                    Sim.turns testStacks
+                damaged `shouldBe` 20
 
         useOn Enemies "Thousand Arms" do
             it "exposes targets" do
@@ -151,20 +146,17 @@ spec = parallel do
         useOn Enemy "Blood Curse" do
             it "performs the ritual" do
                 ritual
-                Sim.use "Death Blow"
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 50 + 5
+                damaged <- measureDamage $ Sim.use "Death Blow"
+                damaged `shouldBe` 50
             it "negates damage" do
                 ritual
-                Sim.use "Death Blow"
-                userHealth <- user health
-                100 - userHealth `shouldBe` 0
+                damaged <- measureDamageTo Self $ Sim.use "Death Blow"
+                damaged `shouldBe` 0
 
         useOn Enemy "Death Blow" do
             it "damages user without ritual" do
-                Sim.act
-                userHealth <- user health
-                100 - userHealth `shouldBe` 50
+                damaged <- measureDamageTo Self Sim.act
+                damaged `shouldBe` 50
 
         useOn Enemy "Self-Mutilation" do
             it "stuns user normally" do
@@ -202,9 +194,8 @@ spec = parallel do
             it "heals user" do
                 setHealth 20
                 Sim.as Enemy $ damage dmg
-                Sim.act
-                userHealth <- user health
-                dmg - (100 - userHealth) `shouldBe` 35
+                healed <- measureHealingTo Self Sim.act
+                healed `shouldBe` 35
 
     describeCharacter "Kisame Hoshigaki" do
         useOn Enemies "Thousand Hungry Sharks" do
@@ -214,42 +205,42 @@ spec = parallel do
                 totalDamage <- Sim.enemies $ (100 -) . health
                 sum totalDamage `shouldBe` 10 * 5
             it "damages per stack" do
-                Sim.act
-                Sim.turns 10
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 5 * 4
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.turns 10
+                damaged `shouldBe` 5 * 4
             it "marks target" do
-                Sim.act
-                Sim.as Enemy $ return ()
-                Sim.as XEnemies $ return ()
-                Sim.turns 10
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 8 * 5
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.as Enemy $ return ()
+                    Sim.as XEnemies $ return ()
+                    Sim.turns 10
+                damaged `shouldBe` 8 * 5
             it "ignores others once marked" do
-                Sim.act
-                Sim.turns testStacks
-                Sim.as Enemy $ return ()
-                Sim.as XEnemies $ return ()
-                Sim.turns 10
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 5 * testStacks
+                damaged <- measureDamageTo XEnemies do
+                    Sim.act
+                    Sim.turns testStacks
+                    Sim.as Enemy $ return ()
+                    Sim.as XEnemies $ return ()
+                    Sim.turns 10
+                damaged `shouldBe` 5 * testStacks
             it "un-ignores if target dies" do
-                Sim.act
-                Sim.as Enemy $ return ()
-                Sim.as XEnemies $ return ()
-                Sim.turns 2
-                kill
-                Sim.turns 10
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 5 * 3
+                damaged <- measureDamageTo XEnemies do
+                    Sim.act
+                    Sim.as Enemy $ return ()
+                    Sim.as XEnemies $ return ()
+                    Sim.turns 2
+                    kill
+                    Sim.turns 10
+                damaged `shouldBe` 5 * 3
             it "picks a new target if target dies" do
-                Sim.act
-                Sim.as Enemy $ return ()
-                kill
-                Sim.as XEnemies $ return ()
-                Sim.turns 10
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 5 * 5
+                damaged <- measureDamageTo XEnemies do
+                    Sim.act
+                    Sim.as Enemy $ return ()
+                    kill
+                    Sim.as XEnemies $ return ()
+                    Sim.turns 10
+                damaged `shouldBe` 5 * 5
             it "deals bonus damage during Exploding Water Shockwave" do
                 Sim.use "Exploding Water Shockwave"
                 Sim.act
@@ -264,32 +255,30 @@ spec = parallel do
 
         useOn Enemy "Super Shark Bomb" do
             it "deals no damage initially" do
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 0
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 0
             it "damages after 1 turn" do
                 Sim.act
-                Sim.turns 1
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 30
+                damaged <- measureDamage $ Sim.turns 1
+                damaged `shouldBe` 30
             it "counters target" do
                 Sim.act
                 Sim.withClass Chakra $ Sim.as Enemy $ apply Permanent [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
-                Sim.withClass Chakra $ Sim.as Enemy $ return ()
-                Sim.turns 1
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 30 + 20
+                damaged <- measureDamage do
+                    Sim.withClass Chakra $ Sim.as Enemy $ return ()
+                    Sim.turns 1
+                damaged `shouldBe` 30 + 20
 
     describeCharacter "Itachi Uchiha" do
         useOn Self "Susanoo" do
             it "sacrifices health" do
-                Sim.act
-                Sim.turns 4
-                userHealth <- user health
-                100 - userHealth `shouldBe` 10
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.turns 4
+                damaged `shouldBe` 10
             it "defends user" do
                 Sim.act
                 Sim.turns testStacks
@@ -344,15 +333,13 @@ spec = parallel do
     describeCharacter "Konan" do
         useOn Enemy "Paper Cut" do
             it "deals bonus damage if target has Dance of the Shikigami" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Dance of the Shikigami"
                 setHealth 100
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' - 15 `shouldBe` 5
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout - 15 `shouldBe` 5
 
     describeCharacter "Zetsu" do
         useOn Self "White Zetsu" do
@@ -418,17 +405,15 @@ spec = parallel do
 
         useOn Enemy "Kamui Strike" do
             it "deals bonus damge if target has Kamui" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Sharingan"
                 Sim.as Enemy $ return ()
                 Sim.use "Kamui"
                 setHealth 100
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 20
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 20
 
         useOn Self "Izanagi" do
             it "restores condition" do
@@ -548,22 +533,22 @@ spec = parallel do
 
         useOn Enemy "Summoning: Giant Multi-Headed Dog" do
             it "doubles in damage per harm" do
-                Sim.act
-                Sim.as Enemy $ return ()
-                Sim.as Enemy $ return ()
-                Sim.turns 3
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 10 + 10 * 2 + 10 * 2 * 2
+                damaged <- measureDamageTo XEnemies do
+                    Sim.act
+                    Sim.as Enemy $ return ()
+                    Sim.as Enemy $ return ()
+                    Sim.turns 3
+                damaged `shouldBe` 10 + 10 * 2 + 10 * 2 * 2
             it "does not carry over stacks" do
-                Sim.act
-                replicateM_ 4 do
-                    unlessM (channeling "Summoning: Giant Multi-Headed Dog") do
-                        factory
-                        Sim.act
-                    Sim.turns 1
-                Sim.turns 3
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10 * 3
+                damaged <- measureDamage do
+                    Sim.act
+                    replicateM_ 4 do
+                        unlessM (channeling "Summoning: Giant Multi-Headed Dog") do
+                            factory
+                            Sim.act
+                        Sim.turns 1
+                    Sim.turns 3
+                damaged `shouldBe` 10 * 3
 
     describeCharacter "Naraka Path Pain" do
         useOn Enemy "Summoning: King of Hell" do
@@ -602,9 +587,8 @@ spec = parallel do
             it "reduces damage by up to 25" do
                 Sim.use "Summoning: Gedo Statue"
                 replicateM_ 6  $ Sim.use "Control"
-                Sim.as Enemy $ damage dmg
-                userHealth <- user health
-                dmg - (100 - userHealth) `shouldBe` 25
+                damaged <- measureDamage $ Sim.as Enemy $ damage dmg
+                dmg - damaged `shouldBe` 25
   where
     describeCharacter = describeCategory Shippuden
     dmg = 56

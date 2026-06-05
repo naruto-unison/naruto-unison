@@ -54,15 +54,13 @@ spec = parallel do
                 target has "Space-Time Marking"
             it "deals bonus damage with Space-Time Marking" do
                 targeting Everyone $ tag' "Space-Time Marking" Permanent
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 30 + 30
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 30 + 30
             it "damages all with Space-Time Marking" do
                 targeting Everyone $ tag' "Space-Time Marking" Permanent
                 remove "Space-Time Marking"
-                Sim.act
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 30
+                damaged <- measureDamageTo XEnemies Sim.act
+                damaged `shouldBe` 30
         useOn Ally "Flying Raijin" do
             it "tags enemy during Space-Time Marking" do
                 Sim.use "Space-Time Marking"
@@ -136,16 +134,14 @@ spec = parallel do
                 targeting Self $ apply Permanent [ Reduce [All] Flat 5 ]
                 Sim.act
                 Sim.as Enemy $ damage 6
-                damage dmg
-                targetHealth <- target health
-                (100 - targetHealth) - dmg `shouldBe` 10
+                damaged <- measureDamage $ damage dmg
+                damaged - dmg `shouldBe` 10
             it "does not strengthen otherwise" do
                 targeting Self $ apply Permanent [ Reduce [All] Flat 5 ]
                 Sim.act
                 Sim.as Enemy $ damage 5
-                damage dmg
-                targetHealth <- target health
-                (100 - targetHealth) - dmg `shouldBe` 0
+                damaged <- measureDamage $ damage dmg
+                damaged - dmg `shouldBe` 0
             it "stuns if user has Sharingan Stun" do
                 targeting Self $ tag' "Sharingan Stun" Permanent
                 Sim.act
@@ -156,52 +152,45 @@ spec = parallel do
         useOn Enemy "Pit Trap" do
             it "damages target" do
                 Sim.act
-                Sim.turns 2
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 15
+                damaged <- measureDamage $ Sim.turns 2
+                damaged `shouldBe` 15
             it "deals bonus damage if target acts" do
                 Sim.act
-                Sim.as Enemy $ return ()
-                Sim.turns 2
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 15 + 15
+                damaged <- measureDamage do
+                    Sim.as Enemy $ return ()
+                    Sim.turns 2
+                damaged `shouldBe` 15 + 15
 
     describeCharacter "Obito Uchiha" do
         useOn Enemy "Piercing Stab" do
             it "deals bonus damage during Sharingan" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Sharingan"
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 10
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 10
 
         useOn Ally "Sharingan" do
             it "reduces damage if user dies" do
                 Sim.act
                 Sim.as Self $ targeting Self kill
-                Sim.as Enemy $ damage dmg
-                targetHealth <- target health
-                dmg - (100 - targetHealth) `shouldBe` 5
+                damaged <- measureDamage $ Sim.as Enemy $ damage dmg
+                dmg - damaged `shouldBe` 5
             it "does not reduce damage otherwise" do
                 Sim.act
-                Sim.as Enemy $ damage dmg
-                targetHealth <- target health
-                dmg - (100 - targetHealth) `shouldBe` 0
+                damaged <- measureDamage $ Sim.as Enemy $ damage dmg
+                dmg - damaged `shouldBe` 0
 
     describeCharacter "Masked Man" do
         useOn Enemy "Kamui Banishment" do
             it "deals bonus damage if target has Kusari Chains" do
-                Sim.act
-                targetHealth <- target health
+                damageWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Kusari Chains"
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 20
+                damageWith <- measureDamage Sim.act
+                damageWith - damageWithout `shouldBe` 20
             it "lasts an additional turn if target has Kusari Chains" do
                 Sim.use "Kusari Chains"
                 Sim.act

@@ -13,22 +13,19 @@ spec = parallel do
         useOn Self "Body Replacement Substitution" do
             it "does not work above 20 health" do
                 setHealth 21
-                Sim.act
-                userHealth <- user health
-                userHealth `shouldBe` 21
+                healed <- measureHealing Sim.act
+                healed `shouldBe` 0
             it "heals user" do
                 setHealth 10
-                Sim.act
-                userHealth <- user health
-                userHealth `shouldBe` 60
+                healed <- measureHealing Sim.act
+                healed `shouldBe` 50
 
     describeCharacter "Jiraiya" do
         useOn Enemy "Giant Flame Bomb" do
             it "damages target per Toad Oil Bomb" do
                 addStacks "Toad Oil Bomb" testStacks
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 20 + 10 * testStacks
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 20 + 10 * testStacks
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Toad Oil Bomb"
@@ -42,19 +39,22 @@ spec = parallel do
         useOn Ally "Raging Lion's Mane" do
             it "counters Physical Melee" do
                 Sim.act
-                Sim.withClasses [Physical, Melee] $ Sim.as Enemy $ return ()
-                targetHealth <- health <$> Sim.targets Enemy
-                100 - targetHealth `shouldBe` 25
+                damaged <- measureDamageTo Enemy
+                         $ Sim.withClasses [Physical, Melee]
+                         $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 25
             it "counters Physical Ranged" do
                 Sim.act
-                Sim.withClasses [Physical, Ranged] $ Sim.as Enemy $ return ()
-                targetHealth <- health <$> Sim.targets Enemy
-                100 - targetHealth `shouldBe` 15
+                damaged <- measureDamageTo Enemy
+                         $ Sim.withClasses [Physical, Ranged]
+                         $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 15
             it "counters Physical Ranged" do
                 Sim.act
-                Sim.withClasses [Physical, Ranged] $ Sim.as Enemy $ return ()
-                targetHealth <- health <$> Sim.targets Enemy
-                100 - targetHealth `shouldBe` 15
+                damaged <- measureDamageTo Enemy
+                         $ Sim.withClasses [Physical, Ranged]
+                         $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 15
             it "stuns Physical Ranged" do
                 Sim.act
                 Sim.withClasses [Physical, Ranged] $ Sim.as Enemy $ return ()
@@ -62,21 +62,20 @@ spec = parallel do
                 targetStunned `shouldBe` [Physical, Melee]
             it "does nothing otherwise" do
                 Sim.act
-                Sim.withClasses [Physical] $ Sim.as Enemy $ return ()
-                targetHealth <- health <$> Sim.targets Enemy
-                100 - targetHealth `shouldBe` 0
+                damaged <- measureDamageTo Enemy
+                         $ Sim.withClasses [Physical]
+                         $ Sim.as Enemy $ return ()
+                damaged `shouldBe` 0
 
     describeCharacter "Tsunade" do
         useOn Enemy "Heaven Spear Kick" do
             it "deals bonus damage with Seal" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Strength of One Hundred Seal"
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 20
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 20
             it "demolishes with Seal" do
                 Sim.use "Strength of One Hundred Seal"
                 Sim.as Enemy $ defend Permanent 100
@@ -100,17 +99,17 @@ spec = parallel do
         useOn Ally "Healing Wave" do
             it "heals target" do
                 Sim.as Enemy $ damage dmg
-                Sim.act
-                Sim.turns 4
-                targetHealth <- target health
-                dmg - (100 - targetHealth) `shouldBe` 30 + 2 * 10
+                healed <- measureHealing do
+                    Sim.act
+                    Sim.turns 4
+                healed `shouldBe` 30 + 2 * 10
             it "heals more with a Seal" do
                 Sim.use "Strength of One Hundred Seal"
                 setHealth 1
-                Sim.act
-                Sim.turns 4
-                targetHealth <- target health
-                targetHealth `shouldBe` 1 + 40 + 3 * 10
+                healed <- measureHealing do
+                    Sim.act
+                    Sim.turns 4
+                healed `shouldBe` 40 + 3 * 10
             it "spends a Seal" do
                 Sim.use "Strength of One Hundred Seal"
                 Sim.act
@@ -119,25 +118,22 @@ spec = parallel do
         useOn Self "Strength of One Hundred Seal" do
             it "heals more with a Seal" do
                 Sim.as Enemy $ damage dmg
-                Sim.act
-                userHealth <- user health
+                healedWithout <- measureHealing Sim.act
                 targeting Self $ setHealth 100
                 Sim.as Enemy $ damage dmg
-                Sim.use "Strength of One Hundred Seal"
-                userHealth' <- user health
-                userHealth' - userHealth `shouldBe` 25
+                healedWith <- measureHealing
+                            $ Sim.use "Strength of One Hundred Seal"
+                healedWith - healedWithout `shouldBe` 25
 
     describeCharacter "Ōnoki" do
         useOn Enemy "Atomic Dismantling" do
             it "increases in damage" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.at XEnemies $ replicateM_ testStacks $ Sim.act
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 10 * testStacks
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 10 * testStacks
 
     describeCharacter "Fukasaku and Shima" do
         useOn Enemies "Demonic Illusion: Gamarinsho" do

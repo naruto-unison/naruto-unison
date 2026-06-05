@@ -30,15 +30,13 @@ spec = parallel do
             it "reduces damage per Umbrella" do
                 addStacks "Umbrella" testStacks
                 Sim.act
-                Sim.as Enemy $ damage dmg
-                userHealth <- user health
-                dmg - (100 - userHealth) `shouldBe` 10 * testStacks
+                damaged <- measureDamage $ Sim.as Enemy $ damage dmg
+                dmg - damaged `shouldBe` 10 * testStacks
 
         useOn Enemies "Senbon Shower" do
             it "damages enemies" do
-                Sim.act
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 15
+                damaged <- measureDamageTo XEnemies Sim.act
+                damaged `shouldBe` 15
             it "spends an Umbrella" do
                 targeting Self $ addStacks "Umbrella" testStacks
                 Sim.act
@@ -48,9 +46,8 @@ spec = parallel do
         useOn Enemy "Senbon Barrage" do
             it "damages enemy per Umbrella" do
                 targeting Self $ addStacks "Umbrella" testStacks
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 15 * testStacks
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 15 * testStacks
             it "spends all Umbrellas" do
                 targeting Self $ addStacks "Umbrella" testStacks
                 Sim.act
@@ -59,14 +56,12 @@ spec = parallel do
     describeCharacter "Oboro" do
         useOn Enemy "Underground Move" do
             it "is normally single-target" do
-                Sim.act
-                targetHealth <- health <$> Sim.targets XEnemies
-                targetHealth `shouldBe` 100
+                damaged <- measureDamageTo XEnemies Sim.act
+                damaged `shouldBe` 0
             it "affects all enemies during Fog Clone" do
                 Sim.use "Fog Clone"
-                Sim.act
-                targetHealth <- health <$> Sim.targets XEnemies
-                100 - targetHealth `shouldBe` 20
+                damaged <- measureDamageTo XEnemies Sim.act
+                damaged `shouldBe` 20
 
     describeCharacter "Kabuto Yakushi" do
         useOn Enemies "Temple of Nirvana" do
@@ -89,46 +84,39 @@ spec = parallel do
         useOn Enemy "Resonating Echo Drill" do
             it "deals bonus damage during Echo Speaker Tuning" do
                 Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Echo Speaker Tuning"
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 20
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 20
 
         useOn Enemy "Sound Manipulation" do
             it "deals bonus damage if target has Resonating Echo Drill" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Resonating Echo Drill"
                 setHealth 100
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 10
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 10
             it "deals bonus damage during Echo Speaker Tuning" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Echo Speaker Tuning"
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 10
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 10
 
     describeCharacter "Kin Tsuchi" do
         useOn Enemy "Bell Ring Illusion" do
             it "deals bonus damage during Unnerving Bells" do
-                Sim.act
-                targetHealth <- target health
+                damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
                 Sim.use "Unnerving Bells"
-                Sim.act
-                targetHealth' <- target health
-                targetHealth - targetHealth' `shouldBe` 25
+                damagedWith <- measureDamage Sim.act
+                damagedWith - damagedWithout `shouldBe` 25
             it "does not make user invulnerable normally" do
                 Sim.act
                 Sim.as Enemy $ apply Permanent [ Reveal ]
@@ -150,43 +138,38 @@ spec = parallel do
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
             it "does not deal damage normally" do
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 0
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 0
             it "deals damage during Bell Ring Illusion" do
                 Sim.use "Bell Ring Illusion"
                 setHealth 100
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 10
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 10
 
         useOn Enemy "Unnerving Bells" do
             it "does not make target vulnerable normally" do
                 Sim.act
-                Sim.withClass Physical $ Sim.as Self $ damage dmg
-                targetHealth <- target health
-                (100 - targetHealth) - dmg `shouldBe` 0
+                damaged <- measureDamage
+                         $ Sim.withClass Physical $ Sim.as Self $ damage dmg
+                damaged - dmg `shouldBe` 0
             it "makes target vulnerable during Bell Ring Illusion" do
                 Sim.use "Bell Ring Illusion"
                 setHealth 100
                 Sim.act
-                Sim.withClass Chakra $ damage dmg
-                targetHealth <- target health
-                (100 - targetHealth) - dmg `shouldBe` 15
+                damaged <- measureDamage $ Sim.withClass Chakra $ damage dmg
+                damaged - dmg `shouldBe` 15
             it "makes target vulnerable during Shadow Senbon" do
                 Sim.use "Shadow Senbon"
                 Sim.act
-                Sim.withClass Physical $ damage dmg
-                targetHealth <- target health
-                (100 - targetHealth) - dmg `shouldBe` 15
+                damaged <- measureDamage $ Sim.withClass Physical $ damage dmg
+                damaged - dmg `shouldBe` 15
 
     describeCharacter "Yoroi Akadō" do
         useOn Enemy "Energy Drain" do
             it "steals health" do
                 Sim.as Enemy $ damage dmg
-                Sim.act
-                userHealth <- user health
-                dmg - (100 - userHealth) `shouldBe` 20
+                healed <- measureHealingTo Self Sim.act
+                healed `shouldBe` 20
             it "steals chakra during Chakra Focus" do
                 gain [Blood, Gen]
                 Sim.use "Chakra Focus"
@@ -196,11 +179,11 @@ spec = parallel do
 
         useOn Enemy "Draining Assault" do
             it "damages target" do
-                Sim.act
-                targeting Self $ remove "Draining Assault"
-                Sim.turns 5
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 3 * 15 + 5
+                damaged <- measureDamage do
+                    Sim.act
+                    targeting Self $ remove "Draining Assault"
+                    Sim.turns 5
+                damaged `shouldBe` 3 * 15 + 5
             it "steals chakra during Chakra Focus" do
                 gain [Blood, Gen, Nin, Tai]
                 Sim.use "Chakra Focus"
@@ -213,9 +196,8 @@ spec = parallel do
         useOn Enemy "Tighten Joints" do
             it "damages target if target has Soft Physique Modification" do
                 Sim.use "Soft Physique Modification"
-                Sim.act
-                targetHealth <- target health
-                100 - targetHealth `shouldBe` 20
+                damaged <- measureDamage Sim.act
+                damaged `shouldBe` 20
             it "stuns target if target has Soft Physique Modification" do
                 Sim.use "Soft Physique Modification"
                 Sim.act

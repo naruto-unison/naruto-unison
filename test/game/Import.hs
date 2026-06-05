@@ -1,4 +1,9 @@
-module Import (module X, gameChakras, shouldBe, shouldNotBe) where
+module Import
+    ( module X
+    , gameChakras
+    , measureDamage, measureDamageTo, measureHealing, measureHealingTo
+    , shouldBe, shouldNotBe
+    ) where
 
 import Game.Characters.Import as X
 import Game.Engine.Ninjas as X (hasSkill)
@@ -10,6 +15,7 @@ import SkillExample as X
 import qualified Game.Model.Game as Game
 import           Class.Play (MonadPlay(..))
 import qualified Class.Play as P
+import qualified Sim
 
 import qualified Test.Hspec as Hspec
 
@@ -25,3 +31,23 @@ shouldNotBe x y = return $ Hspec.shouldNotBe x y
 
 gameChakras :: ∀ m. MonadPlay m => m (Chakras, Chakras)
 gameChakras = Game.chakra <$> P.game
+
+measureDamage :: ∀ m. MonadPlay m => m () -> m Int
+measureDamage f = do
+    healthBefore <- target health
+    f
+    healthAfter <- target health
+    return $ healthBefore - healthAfter
+
+measureHealing :: ∀ m. MonadPlay m => m () -> m Int
+measureHealing f = negate <$> measureDamage f
+
+measureDamageTo :: ∀ m. MonadPlay m => Target -> m () -> m Int
+measureDamageTo t f = do
+    healthBefore <- health <$> Sim.targets t
+    f
+    healthAfter <- health <$> Sim.targets t
+    return $ healthBefore - healthAfter
+
+measureHealingTo :: ∀ m. MonadPlay m => Target -> m () -> m Int
+measureHealingTo t f = negate <$> measureDamageTo t f
