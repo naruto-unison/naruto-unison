@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -funbox-small-strict-fields #-}
 module Game.Model.Effect
   ( Amount(..)
   , Constructor(..)

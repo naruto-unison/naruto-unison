@@ -164,13 +164,10 @@ flags:
     default: false
 
 ghc-options:
+- -ferror-spans
 - -Wall
 - -Wcompat
 - -Widentities
-- -Wincomplete-uni-patterns
-- -Wincomplete-record-updates
-- -ferror-spans
-- -funbox-small-strict-fields
 
 default-extensions:
 # Manual disabling

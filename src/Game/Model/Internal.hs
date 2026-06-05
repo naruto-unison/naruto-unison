@@ -93,9 +93,9 @@ instance Labeled Channel where
 data Channeling
     = Instant
     | Passive
-    | Action  {-# UNPACK #-} Duration
-    | Control {-# UNPACK #-} Duration
-    | Ongoing {-# UNPACK #-} Duration
+    | Action  Duration
+    | Control Duration
+    | Ongoing Duration
     deriving (Eq, Ord, Show, Read, Generic)
 
 instance ToJSON Channeling
