@@ -10,7 +10,7 @@ import Database.Persist
 import           Control.Monad (fail)
 import           Control.Monad.Error.Class (MonadError(..), modifyError)
 import           Control.Monad.Logger (MonadLogger, logErrorN, logWarnN)
-import           Control.Monad.Loops (untilJust, whileM)
+import           Control.Monad.Loops (untilJust, whileM_)
 import           Control.Monad.Trans.Except (runExceptT, except)
 import           UnliftIO.Concurrent (forkIO, threadDelay)
 import qualified Yesod.Auth as Auth
@@ -50,7 +50,7 @@ import qualified Handler.Play.GameInfo
 import           Handler.Play.Match (Outcome(..))
 import qualified Handler.Play.Match as Match
 import qualified Handler.Play.Rating as Rating
-import           Handler.Play.Wrapper (Wrapper)
+import           Handler.Play.Wrapper (Wrapper(Wrapper))
 import qualified Handler.Play.Wrapper as Wrapper
 import qualified Handler.Queue as Queue
 import           Handler.Queue.Message (Response(Response))
@@ -139,11 +139,11 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
 
     trySocket . Socket.sendJSONData socket $ Message.Info info
 
-    game <- Wrapper.runGame info do
+    wrapper@Wrapper{game, progress} <- Wrapper.runGame info do
         when (player == Player.A)
             $ tryEnact socket settings player mvar {-! BLOCKS !-}
 
-        void $ whileM (Game.inProgress <$> P.game) do
+        whileM_ (Game.inProgress <$> P.game) do
             wrapper <- takeMVar mvar {-! BLOCKS !-}
 
             if Game.inProgress $ Wrapper.game wrapper then do
@@ -160,11 +160,11 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
                 Wrapper.replace wrapper =<< ask
 
     trySocket . Socket.sendJSONData socket
-              . Message.Play $ Wrapper.toTurn player game
+              . Message.Play $ Wrapper.toTurn player wrapper
 
     when (section == Queue.Quick) do -- eventually, || Queue.Ladder
-        let outcome = Match.outcome (Wrapper.game game) player
-        void if outcome == Defeat && Game.forfeit (Wrapper.game game) then
+        let outcome = Match.outcome game player
+        if outcome == Defeat && Game.forfeit game then
             trySocket . Socket.sendJSONData socket
                       $ Message.Rewards [Reward "Forfeit" 0]
         else do
@@ -176,7 +176,7 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
                 Victory -> Mission.processWin team
                 _       -> Mission.processDefeat team
             Mission.processUnpicked team
-            mapM_ (void . Mission.progress) $ Wrapper.progress game
+            mapM_ (void . Mission.progress) progress
 
   `finally`
       Queue.leave

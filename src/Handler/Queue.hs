@@ -68,12 +68,12 @@ quickManager App{quick} = forever do
   where
     runPair rand ( (whoA, UserInfo userA teamA _ chanA)
                  , (whoB, UserInfo userB teamB _ chanB)
-                 ) = void do
+                 ) = do
         (mvar, gameA, gameB) <- runReaderT makeGame' rand
         putMVar chanA $ Message.Response mvar gameA -- this will not block
         putMVar chanB $ Message.Response mvar gameB -- this will not block
-        HashTable.delete quick whoA
-        HashTable.delete quick whoB
+        void $ HashTable.delete quick whoA
+        void $ HashTable.delete quick whoB
       where
         makeGame' = makeGame whoA userA teamA whoB userB teamB
 

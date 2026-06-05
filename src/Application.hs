@@ -115,7 +115,7 @@ makeFoundation settings@Settings { databaseConf
 
     charIDs <- Logger.runLoggingT (Sql.runSqlPool initDB pool) logFunc
     let foundation = mkFoundation charIDs pool
-    void . forkIO $ Queue.quickManager foundation
+    forkIO $ Queue.quickManager foundation
     return foundation
   where
     staticMode
