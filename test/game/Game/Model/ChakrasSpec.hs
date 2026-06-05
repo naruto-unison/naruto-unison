@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedLists #-}
 
-module Game.Model.MechanicsSpec (spec) where
+module Game.Model.ChakrasSpec (spec) where
 
 import Import hiding (it, shouldBe, shouldNotBe)
 
