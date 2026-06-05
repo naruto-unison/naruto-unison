@@ -201,6 +201,27 @@ winners ids team unlocks = do
 newUsage :: CharacterId -> Usage
 newUsage x = Usage x 0 0 0 0
 
+usageUpsert :: Usage -> [Update Usage]
+usageUpsert Usage{ usageWins
+                 , usageLosses
+                 , usagePicked
+                 , usageUnpicked
+                 } = mapMaybe makeUpsert $ [ (UsageWins,     usageWins)
+                                           , (UsageLosses,   usageLosses)
+                                           , (UsagePicked,   usagePicked)
+                                           , (UsageUnpicked, usageUnpicked)
+                                           ]
+  where
+    makeUpsert (_,     0) = Nothing
+    makeUpsert (field, n) = Just $ field +=. n
+
+upsertUsage :: ∀ backend m. ( PersistUniqueWrite backend
+                            , MonadIO m
+                            , PersistRecordBackend Usage backend
+                            )
+            => Usage -> ReaderT backend m (Entity Usage)
+upsertUsage usage = upsert usage $ usageUpsert usage
+
 -- | Updates 'Goal.Win' progress with the user's team.
 -- This function should only be called when the user logged in wins a match.
 processWin :: [Text] -> App.Handler ()
@@ -210,13 +231,12 @@ processWin team = do
     unlocks  <- unlocked
     let chars = mapMaybe (`Bimap.lookupR` ids) team
     runDB do
-        mapM_ ups chars
+        mapM_ (void . updateUsage) chars
         mapM_ (void . updateProgress who 1) $ winners ids team unlocks
   where
-    ups char = void $ upsert (newUsage char){ usagePicked = 1, usageWins = 1 }
-               [ UsagePicked +=. 1
-               , UsageWins   +=. 1
-               ]
+    updateUsage char = upsertUsage (newUsage char) { usagePicked = 1
+                                                   , usageWins   = 1
+                                                   }
 
 -- | Resets all 'Goal.WinConsecutive' win progress to 0.
 -- This function should only be called when the user logged in loses a match or
@@ -227,12 +247,11 @@ processDefeat team = do
     ids <- getsYesod App.characterIDs
     runDB do
         mapM_ (resetGoal ids who) Missions.consecutiveWins
-        mapM_ ups $ mapMaybe (`Bimap.lookupR` ids) team
+        mapM_ (void . updateUsage) $ mapMaybe (`Bimap.lookupR` ids) team
   where
-    ups char = void $ upsert (newUsage char){ usagePicked = 1, usageLosses = 1 }
-               [ UsagePicked +=. 1
-               , UsageLosses +=. 1
-               ]
+    updateUsage char = upsertUsage (newUsage char) { usagePicked = 1
+                                                   , usageLosses = 1
+                                                   }
 
 -- | Updates usage stats after a game.
 -- This function should always be called at the end of a game.
@@ -240,11 +259,10 @@ processUnpicked :: [Text] -> App.Handler ()
 processUnpicked team = do
     ids     <- getsYesod App.characterIDs
     unlocks <- unlocked
-    runDB . mapM_ ups . mapMaybe (`Bimap.lookupR` ids) . toList
+    runDB . mapM_ (void . updateUsage) . mapMaybe (`Bimap.lookupR` ids) . toList
         $ unlocks \\ setFromList team
   where
-    ups char = void $ upsert (newUsage char){ usageUnpicked = 1 }
-               [ UsageUnpicked +=. 1 ]
+    updateUsage char = upsertUsage (newUsage char) { usageUnpicked = 1 }
 
 -- | Resets progress toward a goal to 0.
 resetGoal :: ∀ m. MonadIO m
