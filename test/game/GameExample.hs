@@ -25,7 +25,7 @@ instance (Example a, () ~ Arg a) => Example (GameExample a) where
         ref <- newIORef (Result "" Success)
         action (action' >=> writeIORef ref)
         readIORef ref
-        where
+      where
           action' () = evaluateExample (sim e) params ($ ()) callback
 
 sim :: GameExample a -> a

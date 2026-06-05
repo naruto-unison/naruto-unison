@@ -29,10 +29,10 @@ targetOptions ns n i =
                               ]
   where
     makeOption skill target = Context
-        { new = True
-        , user = N.slot n
+        { new       = True
+        , user      = N.slot n
         , skill
-        , target = N.slot target
+        , target    = N.slot target
         , continues = False
         }
 

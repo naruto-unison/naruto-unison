@@ -49,9 +49,9 @@ toContext (Act user skill target) = do
     return $ createContext sk
   where
     createContext sk = Context
-        { new = True
+        { new       = True
         , user
-        , skill = sk
+        , skill     = sk
         , target
         , continues = False
         }
