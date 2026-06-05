@@ -29,7 +29,6 @@ import qualified Game.Model.Context as Context
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Skill as Skill
-import qualified Game.Model.Slot as Slot
 
 import qualified Blank
 import           OrphanInstances ()
@@ -47,6 +46,21 @@ chunk producer sizeSeed amount = producer r : replicate size (producer q)
 spec :: Spec
 spec = parallel do
     describe "Absorb" do
+        let tryAbsorb t cost = simAt t do
+                apply Permanent [ Absorb ]
+                Action.act Context
+                    { new       = True
+                    , user      = Sim.targetSlot Self
+                    , target    = slot
+                    , continues = False
+                    , skill     = Skill.new
+                        { Skill.cost    = cost
+                        , Skill.effects = [ To t $ return () ]
+                        }
+                    }
+                Parity.getOf slot . Game.chakra <$> P.game
+              where
+                slot = Sim.targetSlot t
         it "gains chakra from enemy skills" $
             tryAbsorb Enemy (Chakras 1 1 1 1 1) `shouldBe` (Chakras 1 1 1 1 1)
         it "does not gain chakra from friendly skills" $
@@ -151,7 +165,7 @@ spec = parallel do
 
     describe "DamageToDefense" do
         prop "absorbs damage" \attackType (Positive dmg) ->
-            simEffects [] [DamageToDefense] Enemy do
+            simEffects [] [ DamageToDefense ] Enemy do
                 Combat.attack attackType dmg
                 targetHealth <- target health
                 return $ 100 - targetHealth === case attackType of
@@ -159,7 +173,7 @@ spec = parallel do
                     _              -> 0
 
         prop "converts into defense" \attackType (Positive dmg) ->
-            simEffects [] [DamageToDefense] Enemy do
+            simEffects [] [ DamageToDefense ] Enemy do
                 Combat.attack attackType dmg
                 targetDefense <- target totalDefense
                 return $ targetDefense === case attackType of
@@ -283,8 +297,8 @@ spec = parallel do
             return $ targetStunned `shouldBe` [All]
 
     describe "Nullify" do
-        it "nullifies harm"  . not $ simEffects [] [Nullify] Enemy canTarget
-        it "does not nullify help" $ simEffects [] [Nullify] Ally  canTarget
+        it "nullifies harm"  . not $ simEffects [] [ Nullify ] Enemy canTarget
+        it "does not nullify help" $ simEffects [] [ Nullify ] Ally  canTarget
 
     describe "Pierce" do
         it "ignores damage reduction" $ simAt Enemy do
@@ -361,10 +375,24 @@ spec = parallel do
 
     describe "Snare" do
         prop "increases cooldowns" \cd snare ->
-            let n  = ninjaWithCooldown cd
-                n' = n { effects = [ Snare snare ] }
+            let
+                skill = Skill.new { Skill.cooldown = cd }
+                simCooldown n@Ninja{slot} = Wrapper.run game do
+                    Action.act ctx
+                    snd . unsafeHead . mapToList . cooldowns <$> P.ninja slot
+                  where
+                    game = Wrapper.new $ n : unsafeTail Blank.ninjas
+                    ctx  = Context
+                        { new       = True
+                        , user      = slot
+                        , target    = slot
+                        , skill     = skill
+                        , continues = False
+                        }
+                nCd     = Blank.ninjaWithSkill skill
+                nSnared = nCd { effects = [ Snare snare ] }
             in
-            simCooldown n' === max 0 (simCooldown n + 2 * snare)
+            simCooldown nSnared === max 0 (simCooldown nCd + 2 * snare)
 
     describe "Strengthen" do
         prop "is additive"        $ isAdditive Strengthen
@@ -478,10 +506,13 @@ simEffects :: ∀ a. [Effect] -- ^ User.
            -> Target
            -> ReaderT Context WrapperM a
            -> a
-simEffects userEffects targetEffects = simOf $ Wrapper.new
-    [ Blank.ninja { effects = userEffects },   Blank.ninja, Blank.ninja
-    , Blank.ninja { effects = targetEffects }, Blank.ninja, Blank.ninja
-    ]
+simEffects userEffects targetEffects t =
+    simOf (Wrapper.new $ applyEffects <$> Blank.ninjas) t
+  where
+    applyEffects n@Ninja{slot}
+      | slot == Sim.targetSlot Self = n { effects = userEffects }
+      | slot == Sim.targetSlot t    = n { effects = targetEffects }
+      | otherwise                   = n
 
 attackAmount :: Attack   -- ^ Attack type.
              -> Int      -- ^ Amount.
@@ -510,43 +541,9 @@ complements effectA effectB amount (Positive dmg) val = atk effects === atk []
     atk efs  = attackAmount Attack.Damage dmg efs efs
     effect x = x [All] amount
 
-tryAbsorb :: Target -> Chakras -> Chakras
-tryAbsorb t cost = simAt t do
-    apply Permanent [ Absorb ]
-    Action.act ctx
-    Parity.getOf slot . Game.chakra <$> P.game
-  where
-    slot = Sim.targetSlot t
-    ctx  = Context
-        { new = True
-        , user = Sim.targetSlot Self
-        , target = slot
-        , continues = False
-        , skill = Skill.new { Skill.cost    = cost
-                            , Skill.effects = [ To t $ return () ]
-                            }
-        }
-
 getSkill :: [Effect] -> Skill
 getSkill effects = fromJust
     $ Ninjas.getSkill 0 ninja { effects = effects }
   where
     targets = (`To` return ()) <$> [minBound..maxBound]
     ninja   = Blank.ninjaWithSkill Skill.new { Skill.effects = targets }
-
-ninjaWithCooldown :: Int -> Ninja
-ninjaWithCooldown cooldown = Blank.ninjaWithSkill
-    Skill.new { Skill.cooldown = fromIntegral cooldown }
-
-simCooldown :: Ninja -> Int
-simCooldown n@Ninja{slot} = simOf game Self do
-    Action.act ctx
-    user $ snd . unsafeHead . mapToList . cooldowns
-  where
-    game = Wrapper.new $ n : (Blank.ninjaWithSlot <$> unsafeTail Slot.all)
-    ctx  = Context { new       = True
-                   , user      = slot
-                   , target    = slot
-                   , skill     = Skill.new
-                   , continues = False
-                   }

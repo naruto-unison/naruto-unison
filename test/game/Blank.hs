@@ -2,6 +2,7 @@ module Blank
   ( context
   , character
   , ninja, ninjaWithSlot, ninjaWithSkill
+  , ninjas
   , game
   ) where
 
@@ -30,18 +31,21 @@ context = Context { skill     = Skill.new
                   , continues = False
                   }
 
-character :: Character
-character = Character
+characterWithSkill :: Skill -> Character
+characterWithSkill skill = Character
     { name     = mempty
     , price    = 0
     , bio      = mempty
-    , skills   = newSkill :| [newSkill, newSkill, newSkill]
+    , skills   = sk :| [sk, sk, sk]
     , category = Original
     , groups   = mempty
     , ident    = mempty
     }
   where
-    newSkill = Skill.new :| []
+    sk = skill :| []
+
+character :: Character
+character = characterWithSkill Skill.new
 
 blankSlot :: Slot
 blankSlot = unsafeHead Slot.all
@@ -53,10 +57,10 @@ ninja :: Ninja
 ninja = ninjaWithSlot blankSlot
 
 ninjaWithSkill :: Skill -> Ninja
-ninjaWithSkill skill = N.new blankSlot character
-                        { Character.skills = sk :| [sk, sk, sk]}
-  where
-    sk = skill :| []
+ninjaWithSkill skill = N.new blankSlot $ characterWithSkill skill
+
+ninjas :: [Ninja]
+ninjas = ninjaWithSlot <$> Slot.all
 
 game :: Wrapper
-game = Wrapper.new $ ninjaWithSlot <$> Slot.all
+game = Wrapper.new ninjas

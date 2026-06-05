@@ -13,7 +13,6 @@ module Sim
 
 import ClassyPrelude
 
-import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Enum.Set (EnumSet)
 import Test.Hspec hiding (context)
 
@@ -49,6 +48,7 @@ import           Util ((!!))
 
 import qualified Blank
 import           Wrapper (Wrapper, WrapperM)
+import qualified Wrapper
 
 describeCategory :: HasCallStack
                  => Category -> Text -> (SpecWith Character) -> SpecWith ()
@@ -148,16 +148,14 @@ createContext simUser f Context{target, user, skill = Skill{classes}} = Context
 
 simOf :: ∀ a. Wrapper -> Target -> ReaderT Context WrapperM a
       -> a
-simOf game target action =
-    runIdentity $ evalStateT (runReaderT action targeted) game
-  where
-    targeted = Blank.context { Context.target = Sim.targetSlot target }
+simOf game target action = Wrapper.run game . runReaderT action
+    $ Blank.context { Context.target = Sim.targetSlot target }
 
 simAt :: ∀ a. Target -> ReaderT Context WrapperM a -> a
 simAt = simOf Blank.game
 
 simGame :: ∀ a. WrapperM a -> a
-simGame simulation = runIdentity $ evalStateT simulation Blank.game
+simGame simulation = Wrapper.run Blank.game simulation
 
 withClass :: ∀ m. MonadPlay m => Class -> m () -> m ()
 withClass cla = withClasses $ singleton cla

@@ -2,11 +2,12 @@ module Wrapper
     ( Wrapper
     , WrapperM
     , new
+    , run
     ) where
 
 import ClassyPrelude
 
-import           Control.Monad.Trans.State.Strict (StateT(..), gets, modify')
+import           Control.Monad.Trans.State.Strict (StateT(..), gets, modify', evalStateT)
 import qualified Data.ByteString.Short as SBS
 import           System.Random.Stateful (StatefulGen(..), Uniform(..))
 
@@ -63,6 +64,9 @@ new [a, b, c, d, e, f] = Wrapper Game.new $ Ninjas a b c d e f
 new _                  = error "wrong number of ninjas"
 
 type WrapperM = StateT Wrapper Identity
+
+run :: ∀ a. Wrapper -> WrapperM a -> a
+run game f = runIdentity $ evalStateT f game
 
 modifyNinjas' :: (Ninjas -> Ninjas) -> WrapperM ()
 modifyNinjas' f = modify' \(Wrapper g ns) -> Wrapper g $ f ns

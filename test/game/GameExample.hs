@@ -2,7 +2,6 @@ module GameExample (sim) where
 
 import ClassyPrelude
 
-import Control.Monad.Trans.State.Strict (evalStateT)
 import Test.Hspec hiding (context, it)
 import Test.Hspec.Core.Spec hiding (context, it)
 
@@ -13,6 +12,7 @@ import Game.Model.Context (Context)
 
 import qualified Blank
 import           Wrapper (WrapperM)
+import qualified Wrapper
 
 newtype GameExample a =
     GameExample { runGame :: ReaderT Context WrapperM a }
@@ -29,4 +29,4 @@ instance (Example a, () ~ Arg a) => Example (GameExample a) where
           action' () = evaluateExample (sim e) params ($ ()) callback
 
 sim :: GameExample a -> a
-sim e = runIdentity $ evalStateT (runReaderT (runGame e) Blank.context) Blank.game
+sim e = Wrapper.run Blank.game $ runReaderT (runGame e) Blank.context

@@ -2,7 +2,6 @@ module SkillExample (SkillExample, it, useOn) where
 
 import ClassyPrelude
 
-import           Control.Monad.Trans.State.Strict (evalStateT)
 import qualified Test.Hspec as Hspec
 import           Test.Hspec hiding (context, it)
 import           Test.Hspec.Core.Spec hiding (context, it)
@@ -20,7 +19,7 @@ import           Game.Model.Skill (Target(..))
 import qualified Game.Model.Slot as Slot
 
 import qualified Blank
-import           Sim (targetSlot)
+import qualified Sim
 import           Wrapper (Wrapper, WrapperM)
 import qualified Wrapper
 
@@ -40,8 +39,7 @@ instance (Example a, () ~ Arg a) => Example (SkillExample a) where
       where
         action' (char, ctx) = evaluateExample inner params ($ ()) callback
           where
-            inner = runIdentity . evalStateT (runReaderT (runGame e) ctx)
-                  $ testGame char
+            inner = Wrapper.run (testGame char) $ runReaderT (runGame e) ctx
 
 useOn :: HasCallStack
       => Target -> Text -> SpecWith SkillArg -> SpecWith Character
@@ -53,8 +51,8 @@ useOn target skillName f =
         Just skill -> return (char, ctx skill)
     findSkill x = find (Labeled.named x) . join . Character.skills
     ctx skill   = Context { skill
-                          , user      = targetSlot Self
-                          , target    = targetSlot target
+                          , user      = Sim.targetSlot Self
+                          , target    = Sim.targetSlot target
                           , new       = True
                           , continues = False
                           }
@@ -66,4 +64,4 @@ it = Hspec.it
 testGame :: Character -> Wrapper
 testGame char = Wrapper.new
                     $ N.new (unsafeHead Slot.all) char
-                    : (Blank.ninjaWithSlot <$> unsafeTail Slot.all)
+                    : unsafeTail Blank.ninjas
