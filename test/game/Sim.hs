@@ -35,7 +35,7 @@ import qualified Game.Model.Context as Context
 import           Game.Model.Duration (Duration(..), sync)
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game
-import           Game.Model.Ninja (Ninja)
+import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable(To), RunConstraint)
 import           Game.Model.Skill (Target(..))
@@ -167,5 +167,5 @@ withClasses classes = P.with ctx
     withSkill sk = sk { Skill.classes = insertSet All classes }
 
 statusDur :: Text -> Ninja -> Duration
-statusDur name n = maybe Permanent Status.dur . find (Labeled.named name)
-    $ N.statuses n
+statusDur name Ninja{statuses} = maybe Permanent Status.dur
+    $ find (Labeled.named name) statuses

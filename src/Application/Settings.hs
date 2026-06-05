@@ -102,7 +102,7 @@ data Settings = Settings
     , analytics              :: ~(Maybe Text)
     -- ^ Google Analytics code.
 
-    , authDummyLogin         :: Bool
+    , authDummyLogin         :: ~Bool
     -- ^ Indicate if auth dummy login should be enabled.
     } deriving (Show, Read)
 

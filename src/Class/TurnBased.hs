@@ -34,7 +34,7 @@ class TurnBased a where
 decr :: ∀ a. TurnBased a => a -> Maybe a
 decr x
   | dur < 1     = Nothing
-  | otherwise   = Just $ setDur (pred dur) x -- @pred Permanent == Permanent@
+  | otherwise   = Just $! setDur (pred dur) x -- @pred Permanent == Permanent@
   where
     dur = getDur x
 
