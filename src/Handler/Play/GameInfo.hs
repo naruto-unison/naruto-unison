@@ -23,7 +23,13 @@ data GameInfo = GameInfo
     }
 
 instance ToJSON GameInfo where
-    toJSON GameInfo{game, player, ninjas, war, vsUser} = object
+    toJSON GameInfo
+        { vsUser
+        , game
+        , ninjas
+        , player
+        , war
+        } = object
         [ "opponent" .= vsUser
         , "player"   .= player
         , "war"      .= war

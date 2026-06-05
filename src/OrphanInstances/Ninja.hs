@@ -37,19 +37,20 @@ statusFace :: Status -> Face
 statusFace Status{name, user} = Face (toLower name) user
 
 instance ToJSON Ninja where
-    toJSON n@Ninja { barrier
-                   , channels
-                   , character = Character{ident}
-                   , charges
-                   , cooldowns
-                   , copies
-                   , defense
-                   , health
-                   , lastSkill
-                   , slot
-                   , statuses
-                   , traps
-                   } = object
+    toJSON n@Ninja
+        { barrier
+        , channels
+        , character = Character{ident}
+        , charges
+        , cooldowns
+        , copies
+        , defense
+        , health
+        , lastSkill
+        , slot
+        , statuses
+        , traps
+        } = object
         [ "slot"      .= slot
         , "character" .= ident
         , "health"    .= health

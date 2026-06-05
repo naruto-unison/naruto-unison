@@ -5,17 +5,15 @@
 -- package, but using "Data.List.NonEmpty" instead of "Data.NonNull".
 module ClassyPrelude
   ( module CP
+  , module Prelude
   , module Data.List.NonEmpty
-  , module Data.Type.Equality
-  , module Data.Foldable
   , module Data.Kind
   , maximum, minimum, maximumBy, minimumBy
   ) where
 
 import "classy-prelude" ClassyPrelude as CP hiding (head, last, group, groupBy, maximum, minimum, maximumBy, minimumBy, init, tail)
+import Prelude (type (~), MonadFail(..), foldl1, foldr1)
 import Data.List.NonEmpty (NonEmpty(..), head, last, init, tail, group, groupBy, groupWith, groupAllWith, group1, groupBy1, groupWith1, groupAllWith1)
-import Data.Type.Equality (type (~), type (~~), (:~:), (:~~:))
-import Data.Foldable (foldl1, foldr1)
 import Data.Kind (Constraint, Type)
 
 import qualified Data.Foldable as F

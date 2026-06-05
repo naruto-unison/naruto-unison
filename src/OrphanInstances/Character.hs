@@ -7,7 +7,6 @@ module OrphanInstances.Character () where
 
 import ClassyPrelude
 
-import Control.Monad (fail)
 import Text.Read
 import Yesod.Core.Dispatch (PathPiece(..))
 
@@ -28,7 +27,7 @@ instance Parse Character where
         ident <- Parse.toUtf8 <$> Parse.takeWhile isValidChar
         case Characters.lookup ident of
             Just c  -> return c
-            Nothing -> fail $ unpack (ident ++ " is not a character")
+            Nothing -> fail . unpack $ ident ++ " is not a character"
       where
         isValidChar c = fromEnum c ∈ allValidChars
 

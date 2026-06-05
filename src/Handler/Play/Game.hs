@@ -7,7 +7,6 @@ module Handler.Play.Game
 import ClassyPrelude
 import Database.Persist
 
-import           Control.Monad (fail)
 import           Control.Monad.Error.Class (MonadError(..), modifyError)
 import           Control.Monad.Logger (MonadLogger, logErrorN, logWarnN)
 import           Control.Monad.Loops (untilJust, whileM_)
