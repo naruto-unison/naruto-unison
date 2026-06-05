@@ -322,7 +322,7 @@ fromBits i n = toEnum (fromEnum $ n .&. 3) `cons` fromBits (i - 1) (n .>>. 2)
 
 random :: ∀ m. MonadRandom m => Int -> m Chakras
 random len
-  | len <= 0  = return mempty
+  | len <=  0 = return mempty
   | len <= 16 = fromBits @Word32 len <$> Random.random
   | len <= 32 = fromBits @Word64 len <$> Random.random
   | otherwise = (++) <$> random 32 <*> random (len - 32)
