@@ -537,7 +537,7 @@ isAdditive effect amount attackType (Positive dmg) size val =
 complements :: Con -> Con -> Amount -> Positive Int -> Int -> Property
 complements effectA effectB amount (Positive dmg) val = atk effects === atk []
   where
-    effects  = [effect effectA val, effect effectB val]
+    effects  = [ effect effectA val, effect effectB val ]
     atk efs  = attackAmount Attack.Damage dmg efs efs
     effect x = x [All] amount
 
