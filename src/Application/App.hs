@@ -380,7 +380,7 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
         $ update uid [ UserVerkey =. Just key ]
 
     verifyAccount uid = liftDB $ runMaybeT do
-        MaybeT $ get uid
+        guard =<< lift (exists [ UserId ==. uid ])
         lift $ update uid [ UserVerified =. True ]
         return uid
 
