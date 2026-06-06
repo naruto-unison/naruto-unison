@@ -21,7 +21,7 @@ import Class.Parity (Parity(..))
 -- Wherever it appears, it should immediately be converted to a @Duration@ via
 -- view pattern.
 data Duration
-    = Duration {-# UNPACK #-} Int
+    = Duration Int
     | Permanent
     deriving (Eq)
 

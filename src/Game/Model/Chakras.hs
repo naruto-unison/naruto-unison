@@ -14,7 +14,7 @@ import           Data.Aeson (ToJSON)
 import           Data.Bits
 import           Data.Enum.Set (AsEnumSet(..), EnumSet)
 import           GHC.Exts (IsList)
-import qualified GHC.Exts as GHC
+import qualified GHC.Exts
 import           System.Random.Stateful (Uniform(..), UniformRange(..))
 import qualified System.Random.Stateful as R
 import           Text.Blaze ((!), ToMarkup(..))
