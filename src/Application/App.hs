@@ -40,7 +40,6 @@ import qualified Network.Mail.Mime as Mail
 import qualified Text.Blaze.Html.Renderer.Utf8 as Blaze
 import           Text.Hamlet (hamletFile)
 import qualified Text.Jasmine as Jasmine
-import           Text.Read (read)
 import           Text.Shakespeare.Text (stext)
 import qualified Yesod
 import           Yesod.Auth (Auth, YesodAuth(..), YesodAuthPersist, AuthenticationResult(..), AuthPlugin)

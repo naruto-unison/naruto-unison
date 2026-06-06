@@ -12,7 +12,7 @@ module ClassyPrelude
   ) where
 
 import "classy-prelude" ClassyPrelude as CP hiding (head, last, group, groupBy, maximum, minimum, maximumBy, minimumBy, init, tail)
-import Prelude (type (~), MonadFail(..), foldl1, foldr1)
+import Prelude (type (~), MonadFail(..), foldl1, foldr1, ShowS, Show(..), shows, showChar, showString, showParen, ReadS, Read(..), reads, readParen, read, lex)
 import Data.List.NonEmpty (NonEmpty(..), head, last, init, tail, group, groupBy, groupWith, groupAllWith, group1, groupBy1, groupWith1, groupAllWith1)
 import Data.Kind (Constraint, Type)
 

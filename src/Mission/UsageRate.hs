@@ -8,12 +8,13 @@ import ClassyPrelude
 import           Application.Model (Usage(Usage))
 import qualified Application.Model
 import           Game.Model.Character (Character)
+import           OrphanInstances.Character ()
 
 data UsageRate = UsageRate
     { pickRate  :: Float
     , winRate   :: Float
     , character :: Character
-} deriving (Eq, Ord)
+} deriving (Eq, Ord, Show, Read)
 
 
 new :: Character -> Usage -> UsageRate

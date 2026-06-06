@@ -22,12 +22,15 @@ allValidChars = concatMap identChars Characters.list
   where
     identChars Character{ident} = setFromList $ fromEnum <$> unpack ident
 
+tryCharacter :: ∀ m. MonadFail m => Text -> m Character
+tryCharacter ident = case Characters.lookup ident of
+    Just c  -> return c
+    Nothing -> fail . unpack $ ident ++ " is not a character"
+
 instance Parse Character where
     parser = do
         ident <- Parse.toUtf8 <$> Parse.takeWhile isValidChar
-        case Characters.lookup ident of
-            Just c  -> return c
-            Nothing -> fail . unpack $ ident ++ " is not a character"
+        tryCharacter ident
       where
         isValidChar c = fromEnum c ∈ allValidChars
 
@@ -36,10 +39,9 @@ instance PathPiece Character where
     fromPathPiece = Characters.lookup
 
 instance Read Character where
-    readPrec = parens $ prec 10 do
-        String s <- lexP
-        Just character <- return $ Characters.lookup (pack s)
-        return character
+    readPrec = do
+        ident <- readPrec
+        tryCharacter $ pack ident
 
 instance Show Character where
     showsPrec i Character{ident} = showsPrec i ident

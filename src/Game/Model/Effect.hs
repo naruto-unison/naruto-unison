@@ -14,6 +14,7 @@ import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), object)
 import Data.Enum.Set (EnumSet)
+import Text.Read
 
 import           Class.Classed (Classed)
 import qualified Class.Classed
@@ -73,7 +74,7 @@ data Effect
     | Uncounter                               -- ^ Cannot counter or reflect
     | Unreduce     Int                        -- ^ Reduces damage reduction 'Game.Model.Skill.Skill's
     | Weaken       (EnumSet Class) Amount Int -- ^ Lessens damage dealt
-    deriving (Eq, Show)
+    deriving (Eq, Show, Read)
 
 instance ToJSON Effect where
     toJSON x = object
@@ -120,12 +121,34 @@ instance Eq Constructor where
     {-# INLINABLE (==) #-}
 
 instance Show Constructor where
-    show (Only x) = show x
-    show (Any xs) = fromMaybe shown $ stripSuffix (' ' : show All) shown
+    showsPrec _ Counters = showString "Counters"
+    showsPrec _ Stuns    = showString "Stuns"
+    showsPrec i (Only x) = showParen (i > 10)
+        $ showString "Only " . showsPrec 11 x
+    showsPrec i (Any xs) = showParen (i > 10)
+        $ showString "Any " . stripSuffixMay allSuffix . shows (xs All)
       where
-        shown = show $ xs All
-    show Counters = "Counters"
-    show Stuns    = "Stuns"
+        allSuffix               = ' ' : show All
+        stripSuffixMay suffix s = fromMaybe s $ stripSuffix suffix s
+
+instance Read Constructor where
+    readPrec = do
+        Ident c <- lexP
+        case c of
+            "Counters" -> return Counters
+            "Stuns"    -> return Stuns
+            "Only"     -> Only <$> readPrec @Effect
+            "Any"      -> Any <$> readAny
+            _          -> empty
+      where
+        readAny = do
+            Ident ef <- lexP
+            case ef of
+                "Invulnerable" -> return Invulnerable
+                "ReflectAll"   -> return ReflectAll
+                "Stun"         -> return Stun
+                _              -> empty
+
 
 instance Display Constructor where
     display Counters       = "counters"

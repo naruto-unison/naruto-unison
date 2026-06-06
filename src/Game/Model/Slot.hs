@@ -9,10 +9,9 @@ module Game.Model.Slot
 
 import ClassyPrelude hiding (all)
 
-import           Data.Aeson (ToJSON)
-import           Text.Read
-import           Text.Read.Lex (numberToInteger)
-import           System.Random.Stateful (Uniform(..), UniformRange(..))
+import Data.Aeson (ToJSON)
+import Text.Read
+import System.Random.Stateful (Uniform(..), UniformRange(..))
 
 import           Class.Display (Display)
 import           Class.Parity (Parity)
@@ -38,9 +37,8 @@ instance Parity Slot where
     {-# INLINE even #-}
 
 instance Read Slot where
-    readPrec = parens $ prec 10 do
-        Number n <- lexP
-        Just i   <- return $ fromInteger <$> numberToInteger n
+    readPrec = do
+        i <- readPrec
         guard $ i >= 0 && i <= maxVal
         return $ Slot i
 

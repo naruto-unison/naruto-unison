@@ -87,14 +87,14 @@ instance Num Duration where
     {-# INLINE fromInteger #-}
 
 instance Show Duration where
-    showsPrec i Permanent = showsPrec i ("Permanent" :: String)
+    showsPrec _ Permanent = showString "Permanent"
     showsPrec i dur       = showsPrec i $ fromEnum dur
 
 instance Read Duration where
     readPrec = parens $ prec 10 do
         lx <- lexP
         case lx of
-            String "Permanent"                 -> return Permanent
+            Ident "Permanent"                  -> return Permanent
             Number (numberToInteger -> Just d) -> return $ fromInteger d
             _                                  -> empty
 

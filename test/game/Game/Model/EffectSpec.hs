@@ -6,6 +6,7 @@ import Import hiding (it, shouldBe, shouldNotBe)
 
 import Data.Enum.Set (EnumSet)
 import Data.Maybe (fromJust)
+import Text.Read
 import Test.QuickCheck
 import Test.Hspec.QuickCheck
 import Test.Hspec (it, shouldBe)
@@ -45,6 +46,30 @@ chunk producer sizeSeed amount = producer r : replicate size (producer q)
 
 spec :: Spec
 spec = parallel do
+    describe "Constructor Show" do
+        it "shows Counters" $
+            show Counters `shouldBe` "Counters"
+        it "shows Stuns" $
+            show Stuns `shouldBe` "Stuns"
+        it "shows Only with single argument" $
+            show (Only Reveal) `shouldBe` "Only Reveal"
+        it "shows Only with multiple arguments" $
+            show (Only (Stun Chakra)) `shouldBe` "Only (Stun Chakra)"
+        it "shows Any" $
+            show (Any Stun) `shouldBe` "Any Stun"
+
+    describe "Constructor Read" do
+        it "reads Counters" $
+            readMaybe "Counters" `shouldBe` Just Counters
+        it "reads Stuns" $
+            readMaybe "Stuns" `shouldBe` Just Stuns
+        it "reads Only with single argument" $
+            readMaybe "Only Reveal" `shouldBe` Just (Only Reveal)
+        it "reads Only with multiple arguments" $
+            readMaybe "Only (Stun Chakra)" `shouldBe` Just (Only $ Stun Chakra)
+        it "reads Any" $
+            readMaybe "Any Stun" `shouldBe` Just (Any Stun)
+
     describe "Absorb" do
         let tryAbsorb t cost = simAt t do
                 apply Permanent [ Absorb ]
