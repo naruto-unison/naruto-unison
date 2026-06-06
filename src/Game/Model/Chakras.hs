@@ -22,7 +22,7 @@ import qualified Text.Blaze.Html5 as HTML
 import qualified Text.Blaze.Html5.Attributes as HTML
 import           Yesod.Core.Dispatch (PathPiece(..))
 
-import           Class.Parse (Parse(..))
+import           Class.Parse (Parse)
 import qualified Class.Parse as Parse
 import           Class.Random (MonadRandom)
 import qualified Class.Random as Random
@@ -242,18 +242,18 @@ instance IsSequence Chakras where
 
 instance Parse Chakras where
     parser = do
-        b <- Parse.parser @Int
+        b <- Parse.parser
         Parse.char ','
-        g <- Parse.parser @Int
+        g <- Parse.parser
         Parse.char ','
-        n <- Parse.parser @Int
+        n <- Parse.parser
         Parse.char ','
-        t <- Parse.parser @Int
+        t <- Parse.parser
         return $ Chakras b g n t 0
 
 instance PathPiece Chakras where
     toPathPiece (Chakras b g n t _) = intercalate "," $ tshow <$> [b, g, n, t]
-    fromPathPiece piece = rightToMaybe $ Parse.parseOnly piece
+    fromPathPiece piece = rightToMaybe $ Parse.parseToEnd piece
 
 -- | Units of @Game.Model.Skill.cost@.
 data Chakra

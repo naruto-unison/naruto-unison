@@ -3,6 +3,7 @@ module Class.Parse
     , Parsed(..)
     , Parser
     , parseOnly
+    , parseToEnd
     , module Data.Attoparsec.Combinator
     ) where
 
@@ -18,7 +19,7 @@ import qualified Data.Attoparsec.Text.Lazy as LT
 import           Data.Bits (Bits)
 import           Data.Scientific (Scientific)
 
-class (Chunk i, IsString i) => Parsed i where
+class (Chunk i, IsString i, IsString (Parser i i)) => Parsed i where
     type Lazy i
     anyChar     :: Parser i Char
     char        :: Char -> Parser i Char
@@ -114,24 +115,29 @@ class Parse a where
 class Parseable i where
     type ParseBacking i
     type ParseBacking i = i
-    gParseOnly :: ∀ a. Parse a => i -> Either String a
+    gParseOnly :: ∀ a. Parser (ParseBacking i) a -> i -> Either String a
 
 instance Parseable ByteString where
-    gParseOnly = BS.parseOnly parser
+    gParseOnly = BS.parseOnly
 
 instance Parseable LByteString where
     type ParseBacking LByteString = ByteString
-    gParseOnly = LBS.parseOnly parser
+    gParseOnly = LBS.parseOnly
 
 instance Parseable Text where
-    gParseOnly = T.parseOnly parser
+    gParseOnly = T.parseOnly
 
 instance Parseable LText where
     type ParseBacking LText = Text
-    gParseOnly = LT.parseOnly parser
+    gParseOnly = LT.parseOnly
 
-parseOnly :: ∀ a i. (Parse a, Parseable i) => i -> Either String a
-parseOnly = gParseOnly
+parseOnly :: ∀ a i. (Parse a, Parseable i, Parsed (ParseBacking i))
+          => i -> Either String a
+parseOnly = gParseOnly $ parser @a @(ParseBacking i)
+
+parseToEnd :: ∀ a i. (Parse a, Parseable i, Parsed (ParseBacking i))
+           => i -> Either String a
+parseToEnd = gParseOnly $ parser <* endOfInput
 
 instance Parse Char where
     parser = anyChar

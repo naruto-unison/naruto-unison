@@ -16,7 +16,7 @@ import System.Random.Stateful (Uniform(..), UniformRange(..))
 import           Class.Display (Display)
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
-import           Class.Parse (Parse(..))
+import           Class.Parse (Parse)
 import qualified Class.Parse as Parse
 
 teamSize :: Int
@@ -32,15 +32,17 @@ maxVal = teamSize * 2 - 1
 newtype Slot = Slot { toInt :: Int }
     deriving (Eq, Ord, Show, Display, Hashable, ToJSON)
 
+trySlot :: ∀ f. Alternative f => Int -> f Slot
+trySlot i
+  | i >= 0 && i <= maxVal = pure $ Slot i
+  | otherwise             = empty
+
 instance Parity Slot where
     even (Slot x) = x < teamSize
     {-# INLINE even #-}
 
 instance Read Slot where
-    readPrec = do
-        i <- readPrec
-        guard $ i >= 0 && i <= maxVal
-        return $ Slot i
+    readPrec = trySlot =<< readPrec
 
 instance Bounded Slot where
     minBound = Slot 0
@@ -71,10 +73,7 @@ enemies x
   | otherwise     = Slot <$> [0..teamSize - 1]
 
 instance Parse Slot where
-    parser = do
-        i <- Parse.parser @Int
-        guard $ i >= 0 && i <= maxVal
-        return $ Slot i
+    parser = trySlot =<< Parse.parser
 
 toChar :: Slot -> Char
 toChar (Slot x) = toEnum $ x + 48

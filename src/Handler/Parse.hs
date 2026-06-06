@@ -16,33 +16,31 @@ import Game.Model.Character (Category(..))
 
 -- | Parses a 'Model.Skill.desc' into HTML.
 desc :: Text -> Html
-desc s = case Parse.parseOnly (Parse.many' parseSegment) s of
+desc s = case Parse.parseOnly parser s of
     Left  _    -> HTML.toMarkup s
     Right html -> mconcat html
+  where
+    parser = Parse.many' parseSegment <* Parse.endOfInput
 
 parseSegment :: Parser Html
 parseSegment = Parse.choice
-    [ " (S)"          $> HTML.toMarkup Shippuden
-    , " (R)"          $> HTML.toMarkup Reanimated
-    , Parse.char '\n' $> HTML.br
-    , Parse.choice    $  parseChakra <$> [minBound..maxBound]
+    [ Parse.char '\n'     $> HTML.br
+    , Parse.string " (S)" $> HTML.toMarkup Shippuden
+    , Parse.string " (R)" $> HTML.toMarkup Reanimated
     , parseName
-    , HTML.toMarkup  <$> Parse.takeWhile1 (Parse.notInClass " [\n")
-    , HTML.toMarkup  <$> Parse.char ' '
+    , Parse.takeWhile1 (== ' ') <&> HTML.toMarkup
+    , Parse.takeWhile1 (Parse.notInClass " [\n") <&> HTML.toMarkup
     ]
-
-parseChakra :: Chakra -> Parser Html
-parseChakra kind = Parse.string (token kind) $> HTML.toMarkup kind
-  where
-    token Blood = "[b]"
-    token Gen   = "[g]"
-    token Nin   = "[n]"
-    token Tai   = "[t]"
-    token Rand  = "[r]"
 
 parseName :: Parser Html
 parseName = do
     Parse.char '['
     name <- Parse.takeWhile (/= ']')
     Parse.char ']'
-    return . HTML.i $ HTML.toMarkup name
+    return case name of
+        "b" -> HTML.toMarkup Blood
+        "g" -> HTML.toMarkup Gen
+        "n" -> HTML.toMarkup Nin
+        "t" -> HTML.toMarkup Tai
+        "r" -> HTML.toMarkup Rand
+        _   -> HTML.i $ HTML.toMarkup name

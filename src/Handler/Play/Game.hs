@@ -22,7 +22,7 @@ import           Application.Settings (Settings(Settings))
 import qualified Application.Settings as Settings
 import           Class.Hook (MonadHook)
 import qualified Class.Parity as Parity
-import           Class.Parse (Parse(..), Parser, Parsed)
+import           Class.Parse (Parse, Parser, Parsed)
 import qualified Class.Parse as Parse
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
@@ -58,19 +58,16 @@ import           Util ((∈), (∉), leftToMaybe, tryFromJust)
 
 -- * INPUT PARSING
 
-separator :: Char
-separator = '/'
-
-separate :: ∀ i. Parsed i => Parser i Char
-separate = Parse.char separator
+separator :: ∀ i. Parsed i => Parser i Char
+separator = Parse.char '/'
 
 data Team = Team Queue.Section [Character]
 
 instance Parse Team where
     parser = do
         section <- Parse.parser @Queue.Section
-        separate
-        chars   <- Parse.sepBy (Parse.parser @Character) separate
+        separator
+        chars   <- Parse.sepBy1' (Parse.parser @Character) separator
         unless (validTeamLength chars)
             $ fail "Must have 3 team members"
         return $ Team section chars
@@ -87,10 +84,10 @@ data Enact = Enact
 instance Parse Enact where
     parser = do
         spend    <- Parse.parser @Chakras
-        separate
+        separator
         exchange <- Parse.parser @Chakras
-        separate
-        actions  <- Parse.sepBy (Parse.parser @Act) separate
+        separator
+        actions  <- Parse.sepBy' (Parse.parser @Act) separator
         unless (validActLength actions)
             $ fail "No more than 3 actions"
         return Enact { spend, exchange, actions }
@@ -104,8 +101,10 @@ data ClientMessage
     deriving (Eq, Show)
 
 instance Parse ClientMessage where
-    parser = Forfeit <$ Parse.string "forfeit"
-        <|> EnactMsg <$> Parse.parser @Enact
+    parser = Parse.choice
+        [ Parse.string "forfeit" $> Forfeit
+        , Parse.parser @Enact   <&> EnactMsg
+        ]
 
 -- * HANDLERS
 
@@ -125,7 +124,7 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
             message <- modifyError (Message.SocketError . displayException)
                      $ except =<< Socket.receiveData socket {-! BLOCKS !-}
             Team section team <- modifyError Message.InvalidTeam . except
-                               $ Parse.parseOnly @Team message
+                               $ Parse.parseToEnd @Team message
 
             let teamNames = Character.ident <$> team
                 locked    = filter (∉ unlocked) teamNames
@@ -272,7 +271,7 @@ tryEnact socket Settings{forfeitAfterSkips, turnLength} player mvar = do
     decodeMessage (Left err) = case fromException err of
         Just err' -> SocketException err'
         Nothing   -> IOException err
-    decodeMessage (Right message) = case Parse.parseOnly message of
+    decodeMessage (Right message) = case Parse.parseToEnd message of
         Left _       -> Malformed $ toStrict message
         Right parsed -> Received parsed
 

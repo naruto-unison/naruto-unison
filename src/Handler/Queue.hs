@@ -19,7 +19,7 @@ import qualified Yesod.Auth as Auth
 import           Application.App (App(App), liftDB)
 import qualified Application.App as App
 import           Application.Model (EntityField(..), User(..))
-import           Class.Parse (Parse(..))
+import           Class.Parse (Parse)
 import qualified Class.Parse as Parse
 import           Class.Random (MonadRandom)
 import qualified Class.Random as R
@@ -47,8 +47,10 @@ data Section
     deriving (Bounded, Enum, Eq, Ord, Show, Read)
 
 instance Parse Section where
-    parser = Parse.string "private" $> Private
-         <|> Parse.string "quick"   $> Quick
+    parser = Parse.choice
+        [ Parse.string "private" $> Private
+        , Parse.string "quick"   $> Quick
+        ]
 
 chunkPairs :: ∀ a. [a] -> [(a, a)]
 chunkPairs (x:y:xs) = (x, y) : chunkPairs xs
