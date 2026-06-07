@@ -15,6 +15,8 @@ import           Data.Time.LocalTime (LocalTime(LocalTime), getCurrentTimeZone, 
 import           Data.List (tails)
 import qualified System.Random as Random
 
+import           Class.Parity (Parity)
+import qualified Class.Parity as Parity
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character
 import           Game.Model.Group (Group(..))
@@ -48,7 +50,6 @@ wars = fromList
     , [Earth .. Yin]
     , [BloodlineUser .. TaijutsuUser]
     , delete AlliedForces [Akatsuki .. SevenSwordsmen]
-    , delete Sage [Rogue .. TeamLeader]
     ]
 {-# NOINLINE wars #-}
 
@@ -58,6 +59,10 @@ participant war Character{groups} = war `intersects` groups
 -- | You ever wonder why we're here?
 data War = Red | Blue
            deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+
+instance Parity War where
+    even Red  = True
+    even Blue = False
 
 instance ToJSON War
 
@@ -70,17 +75,13 @@ opponent Blue = Red
 -- cannnot participate in either side.
 match :: [Character] -> [Character] -> (EnumSet Group, EnumSet Group)
       -> Maybe War
-match pTeam vsTeam (red, blue)
-  | pRed && not pBlue && vsBlue  = Just Red
-  | vsRed && not vsBlue && pBlue = Just Blue
-  | pBlue && not pRed && vsRed   = Just Blue
-  | vsBlue && not vsRed && pBlue = Just Red
-  | otherwise                    = Nothing
+match pTeam vsTeam war
+  | team Red  pTeam && team Blue vsTeam = Just Red
+  | team Blue pTeam && team Red  vsTeam = Just Blue
+  | otherwise                         = Nothing
   where
-    pRed   = all (participant red)  pTeam
-    pBlue  = all (participant blue) pTeam
-    vsRed  = all (participant red)  vsTeam
-    vsBlue = all (participant blue) vsTeam
+    allOn side   = all . participant $ Parity.getOf side war
+    team side xs = allOn side xs && not (allOn (opponent side) xs)
 
 fromDay :: Day -> (EnumSet Group, EnumSet Group)
 fromDay (ModifiedJulianDay day) = wars !! i

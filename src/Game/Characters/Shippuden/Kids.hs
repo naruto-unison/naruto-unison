@@ -925,7 +925,7 @@ characters =
   , Character
     "Temari" 0
     "The Hidden Sand Village's official ambassador, Temari is a formidable jōnin who wields an equally formidable battle fan. She defends her team with chakra-infused whirlwinds that deflect attacks, and uses the metal fan itself to block anything that gets through."
-    [SandVillage, AlliedForces, Jonin, Wind, SandClan, Nara]
+    [SandVillage, AlliedForces, Jonin, Wind, SandClan]
     [ [ Skill.new
         { Skill.name      = "First Moon"
         , Skill.desc      = "Snapping open her fan to reveal the first marking on it, Temari gains 25% damage reduction. Once used, this skill becomes [Second Moon][r]."
