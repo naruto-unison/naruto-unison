@@ -67,10 +67,6 @@ import qualified Handler.Queue.Message as Message
 import           Handler.Queue.UserInfo (UserInfo)
 import           OrphanInstances.Character ()
 
-#ifndef DEVELOPMENT
-import           Class.Display (display')
-#endif
-
 -- | App environment.
 data App = App
     { startup      :: UTCTime
@@ -156,7 +152,7 @@ unchanged304 = return ()
 #else
 unchanged304 = whenM (isNothing <$> getMessage) do
     tag <- maybeAdd <$> getsYesod timestamp <*> maybeAuthId
-    setEtag . toStrict $ display' tag
+    setEtag $ tshow tag
   where
     maybeAdd x (Just key) = fromSqlKey key + x
     maybeAdd x Nothing    = x
