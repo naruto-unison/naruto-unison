@@ -13,6 +13,7 @@ module Game.Characters.Import
 
 import ClassyPrelude as Import hiding (swap)
 
+import Class.Display as Import (Display(..))
 import Class.Play as Import (withTarget)
 import Game.Action.Chakra as Import
 import Game.Action.Channel as Import
@@ -21,8 +22,8 @@ import Game.Action.Skill as Import
 import Game.Action.Status as Import
 import Game.Action.Trap as Import
 import Game.Engine.Effects as Import (stunned)
-import Game.Engine.Skills as Import (targetAll, restrict, also, addClasses, setCooldown, setDur, changeWith, changeWithChannel, changeWithDefense, changePer, setCost)
-import Game.Model.Chakras as Import (Chakra(..), Chakras, chakraDesc)
+import Game.Engine.Skills as Import (targetAll, restrict, also, addClasses, setCooldown, setDur, changeWith, changeWithChannel, changeWithDefense, changePer, setCost, addDesc)
+import Game.Model.Chakras as Import (Chakra(..), Chakras)
 import Game.Model.Channel as Import (Channeling(..))
 import Game.Model.Character as Import (Character(..), Category(..))
 import Game.Model.Class as Import (Class(..))

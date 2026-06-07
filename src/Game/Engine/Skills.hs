@@ -9,12 +9,14 @@ module Game.Engine.Skills
   , changeWith, changeWithChannel, changeWithDefense
   , changePer
   , setCost
+  , addDesc
   ) where
 
 import ClassyPrelude hiding (swap)
 
 import Data.Enum.Set (EnumSet)
 
+import           Class.Display (Display(..))
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Channel (Channeling(..))
@@ -122,3 +124,7 @@ swap = changeEffects (Runnable.retarget f <$>)
     f Enemies  = Allies
     f XEnemies = XAllies
     f Everyone = Everyone
+
+addDesc :: TextBuilder -> Skill -> Skill
+addDesc add sk =
+    sk { Skill.desc = toStrict $ builderToLazy $ display (Skill.desc sk) ++ add }

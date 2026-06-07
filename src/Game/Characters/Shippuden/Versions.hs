@@ -320,10 +320,8 @@ characters =
                         , Invulnerable Bane
                         ]
           ]
-        , Skill.changes   = withMode \m x -> x
-                { Skill.desc = Skill.desc x ++ " Kabuto gains 1 "
-                               ++ chakraDesc m ++ " chakra."
-                }
+        , Skill.changes   = withMode \m ->
+                addDesc $ " Kabuto gains 1 " ++ display m ++ " chakra."
         }
       ]
     , [ Skill.new
@@ -339,10 +337,8 @@ characters =
           , To XAllies $ apply 1 [ Stun All ]
           , To Enemies $ apply 1 [ Stun All ]
           ]
-        , Skill.changes   = withMode \m x ->
-                x { Skill.desc = Skill.desc x ++ " Kabuto gains 2 "
-                              ++ chakraDesc m ++ " chakra."
-                  }
+        , Skill.changes   = withMode \m ->
+                addDesc $ " Kabuto gains 2 " ++ display m ++ " chakras."
         }
       ]
     ]
