@@ -42,16 +42,17 @@ userRank :: User -> Text
 userRank User{userXp, userPrivilege = Normal} = fromMaybe "Hokage"
     $ userRanks !? (userXp `quot` 5000)
   where
-    userRanks = [ "Academy Student"
-                , "Genin"
-                , "Chūnin"
-                , "Missing-Nin"
-                , "Anbu"
-                , "Jōnin"
-                , "Sannin"
-                , "Jinchūriki"
-                , "Akatsuki"
-                , "Kage"
-                , "Hokage"
-                ]
+    userRanks :: Vector Text
+    userRanks = fromList [ "Academy Student"
+                         , "Genin"
+                         , "Chūnin"
+                         , "Missing-Nin"
+                         , "Anbu"
+                         , "Jōnin"
+                         , "Sannin"
+                         , "Jinchūriki"
+                         , "Akatsuki"
+                         , "Kage"
+                         , "Hokage"
+                         ]
 userRank User{userPrivilege} = tshow userPrivilege
