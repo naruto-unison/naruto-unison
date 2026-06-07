@@ -183,7 +183,7 @@ data Key = Key Text Slot
 instance Hashable Key
 
 toText :: Key -> Text
-toText (Key x y) = Slot.toChar y `cons` x
+toText (Key x y) = Slot.toChar y :< x
 {-# INLINABLE toText #-}
 
 instance ToJSON Key where
