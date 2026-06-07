@@ -9,6 +9,7 @@ import Test.QuickCheck (Arbitrary(..), arbitraryBoundedEnum)
 import Game.Model.Duration (Duration)
 import Game.Model.Effect (Amount)
 import Game.Model.Attack (Attack)
+import Game.Model.Chakras (Chakra)
 
 shrinkBoundedEnum :: ∀ a. (Bounded a, Enum a, Eq a) => a -> [a]
 shrinkBoundedEnum x
@@ -26,3 +27,7 @@ instance Arbitrary Attack where
 instance Arbitrary Duration where
     arbitrary = toEnum <$> arbitrary
     shrink x  = toEnum <$> shrink (fromEnum x)
+
+instance Arbitrary Chakra where
+    arbitrary = arbitraryBoundedEnum
+    shrink    = shrinkBoundedEnum

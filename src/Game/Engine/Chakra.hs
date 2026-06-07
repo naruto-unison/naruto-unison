@@ -53,7 +53,7 @@ remove1 permitted = do
     Context{target, user} <- P.context
     P.trigger user [OnChakra]
     Game{chakra} <- P.game
-    let chakras = filter (∈ permitted) . toList $ Parity.getOf target chakra
+    let chakras = filter (∈ permitted) $ Parity.getOf target chakra
     mRemoved <- R.choose chakras
     case mRemoved of
         Just (singleton -> removed) -> do

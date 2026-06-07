@@ -1,5 +1,5 @@
 module Game.Model.Chakras
-  ( Chakra(..), chakraDesc
+  ( Chakra(..)
   , Chakras(..)
   , classes
   , scale
@@ -8,11 +8,12 @@ module Game.Model.Chakras
   , random
   ) where
 
-import ClassyPrelude
+import ClassyPrelude hiding (groupBy, groupAllOn, minimum)
 
 import           Data.Aeson (ToJSON)
 import           Data.Bits
 import           Data.Enum.Set (AsEnumSet(..), EnumSet)
+import           Data.Sequences (groupBy, groupAllOn)
 import           GHC.Exts (IsList)
 import qualified GHC.Exts
 import           System.Random.Stateful (Uniform(..), UniformRange(..))
@@ -22,12 +23,13 @@ import qualified Text.Blaze.Html5 as HTML
 import qualified Text.Blaze.Html5.Attributes as HTML
 import           Yesod.Core.Dispatch (PathPiece(..))
 
+import           Class.Display (Display(..))
 import           Class.Parse (Parse)
 import qualified Class.Parse as Parse
 import           Class.Random (MonadRandom)
 import qualified Class.Random as Random
 import           Game.Model.Class (Class(..))
-import           Util (rightToMaybe)
+import           Util ((∈), rightToMaybe)
 
 -- | Collection of all chakra types.
 data Chakras = Chakras
@@ -38,22 +40,40 @@ data Chakras = Chakras
     , rand  :: {-# UNPACK #-} Int -- ^ Random
     } deriving (Eq, Show, Read, Generic)
 
+getChakra :: Chakra -> Chakras -> Int
+getChakra Blood Chakras{blood} = blood
+getChakra Gen   Chakras{gen}   = gen
+getChakra Nin   Chakras{nin}   = nin
+getChakra Tai   Chakras{tai}   = tai
+getChakra Rand  Chakras{rand}  = rand
+{-# INLINE getChakra #-}
+
+mapAmounts :: (Int -> Int) -> Chakras -> Chakras
+mapAmounts f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
+{-# INLINE mapAmounts #-}
+
 naiveSubtract :: Chakras -> Chakras -> Chakras
 naiveSubtract (Chakras b g n t r) (Chakras b' g' n' t' r') =
     Chakras (b - b') (g - g') (n - n') (t - t') (r - r')
 {-# INLINE naiveSubtract #-}
 
+toNormalizedList :: Chakras -> [Chakra]
+toNormalizedList chakras = filter (∈ chakras) [minBound..maxBound]
+{-# INLINE toNormalizedList #-}
+
 instance IsList Chakras where
     type Item Chakras = Chakra
     toList = otoList
     {-# INLINE toList #-}
-    fromList chakras = concatMap singleton chakras
+
+    fromList = fromList
     {-# INLINE fromList #-}
 
 instance ToJSON Chakras
 
 instance ToMarkup Chakras where
-    toMarkup = concatMap toMarkup . toList
+    toMarkup = concatMap toMarkup
+    {-# INLINABLE toMarkup #-}
 
 instance Semigroup Chakras where
     Chakras b g n t r <> Chakras b' g' n' t' r' =
@@ -66,50 +86,99 @@ instance Monoid Chakras where
 
 type instance Element Chakras = Chakra
 
+instance MonoFunctor Chakras where
+    f `omap` (Chakras b g n t r) = replicate b (f Blood)
+                                ++ replicate g (f Gen)
+                                ++ replicate n (f Nin)
+                                ++ replicate t (f Tai)
+                                ++ replicate r (f Rand)
+    {-# INLINABLE omap #-}
+
 instance MonoFoldable Chakras where
-    otoList (Chakras b g n t r) = replicate b Blood
-                               ++ replicate g Gen
-                               ++ replicate n Nin
-                               ++ replicate t Tai
-                               ++ replicate r Rand
-    {-# INLINABLE otoList #-}
+    ofoldMap f = ofoldr (mappend . f) mempty
+    {-# INLINE ofoldMap #-}
+
+    ofoldr f acc = go
+      where
+        go (x:<xs) = x `f` go xs
+        go _       = acc
+    {-# INLINE ofoldr #-}
+
+    ofoldl' f acc = go acc
+      where
+        go !acc' (x:<xs) = go (acc' `f` x) xs
+        go acc'  _       = acc'
+    {-# INLINE ofoldl' #-}
+
     oall f (Chakras b g n t r) = (b == 0 || f Blood)
                               && (g == 0 || f Gen)
                               && (n == 0 || f Nin)
                               && (t == 0 || f Tai)
                               && (r == 0 || f Rand)
     {-# INLINABLE oall #-}
+
     oany f (Chakras b g n t r) = (b /= 0 && f Blood)
                               || (g /= 0 && f Gen)
                               || (n /= 0 && f Nin)
                               || (t /= 0 && f Tai)
                               || (r /= 0 && f Rand)
     {-# INLINABLE oany #-}
+
     onull (Chakras 0 0 0 0 0) = True
     onull _                   = False
     {-# INLINE onull #-}
+
     olength (Chakras b g n t r) = b + g + n + t + r
     {-# INLINE olength #-}
     olength64 = toEnum . olength
     {-# INLINE olength64 #-}
-    ofoldr1Ex f = ofoldr1Ex f . otoList
-    {-# INLINE ofoldr1Ex #-}
-    ofoldl1Ex' f = ofoldl1Ex' f . otoList
-    {-# INLINE ofoldl1Ex' #-}
-    ofoldMap f = ofoldMap f . otoList
-    {-# INLINE ofoldMap #-}
-    ofoldr f acc = ofoldr f acc . otoList
-    {-# INLINE ofoldr #-}
-    ofoldl' f acc = ofoldl' f acc . otoList
-    {-# INLINE ofoldl' #-}
 
-instance MonoFunctor Chakras where
-    omap f (Chakras b g n t r) = replicate b (f Blood)
-                              ++ replicate g (f Gen)
-                              ++ replicate n (f Nin)
-                              ++ replicate t (f Tai)
-                              ++ replicate r (f Rand)
-    {-# INLINABLE omap #-}
+    ofoldr1Ex f = go
+      where
+        go (x:<Chakras 0 0 0 0 0) = x
+        go (x:<xs) = f x (go xs)
+        go _       = error "Data.MonoTraversable.ofoldr1Ex: empty"
+    {-# INLINE ofoldr1Ex #-}
+
+    ofoldl1Ex' f (x:<xs) = ofoldl' f x xs
+    ofoldl1Ex' _ _       = error "Data.MonoTraversable.foldl1': empty"
+    {-# INLINE ofoldl1Ex' #-}
+
+    headEx (Chakras b g n t r)
+      | b /= 0    = Blood
+      | g /= 0    = Gen
+      | n /= 0    = Nin
+      | t /= 0    = Tai
+      | r /= 0    = Rand
+      | otherwise = error "Data.MonoTraversable.headEx': empty"
+    {-# INLINE headEx #-}
+
+    lastEx (Chakras b g n t r)
+      | r /= 0    = Rand
+      | t /= 0    = Tai
+      | n /= 0    = Nin
+      | g /= 0    = Gen
+      | b /= 0    = Blood
+      | otherwise = error "Data.MonoTraversable.lastEx': empty"
+    {-# INLINE lastEx #-}
+
+    maximumByEx f = maximumByEx f . toNormalizedList
+    {-# INLINABLE maximumByEx #-}
+
+    minimumByEx f = minimumByEx f . toNormalizedList
+    {-# INLINABLE minimumByEx #-}
+
+    x `oelem` xs = getChakra x xs /= 0
+    {-# INLINE oelem #-}
+
+    x `onotElem` xs = getChakra x xs == 0
+    {-# INLINE onotElem #-}
+
+instance MonoTraversable Chakras where
+    otraverse f = foldr cons_f (pure mempty)
+      where
+        cons_f x ys = liftA2 cons (f x) ys
+    {-# INLINE otraverse #-}
 
 instance MonoPointed Chakras where
     opoint Blood = Chakras 1 0 0 0 0
@@ -117,45 +186,117 @@ instance MonoPointed Chakras where
     opoint Nin   = Chakras 0 0 1 0 0
     opoint Tai   = Chakras 0 0 0 1 0
     opoint Rand  = Chakras 0 0 0 0 1
-    {-# INLINABLE opoint #-}
+    {-# INLINE opoint #-}
 
 instance GrowingAppend Chakras
 
 instance SemiSequence Chakras where
     type Index Chakras = Int
-    reverse chakras = chakras
-    {-# INLINE reverse #-}
-    sortBy _ chakras = chakras
-    {-# INLINE sortBy #-}
-    cons chakra chakras = chakras ++ singleton chakra
-    {-# INLINE cons #-}
-    snoc chakras chakra = chakras ++ singleton chakra
-    {-# INLINE snoc #-}
-    intersperse chakra chakras
-        | len < 2   = chakras
-        | otherwise = chakras ++ replicate (len - 1) chakra
+
+    intersperse x xs
+      | len < 2   = xs
+      | otherwise = xs ++ replicate (len - 1) x
       where
-        len = length chakras
+        len = length xs
+    {-# INLINABLE intersperse #-}
+
+    reverse = id
+    {-# INLINE reverse #-}
+
     find f (Chakras b g n t r)
-        | b /= 0 && f Blood = Just Blood
-        | g /= 0 && f Gen   = Just Gen
-        | n /= 0 && f Nin   = Just Nin
-        | t /= 0 && f Tai   = Just Tai
-        | r /= 0 && f Rand  = Just Rand
-        | otherwise         = Nothing
+      | b /= 0 && f Blood = Just Blood
+      | g /= 0 && f Gen   = Just Gen
+      | n /= 0 && f Nin   = Just Nin
+      | t /= 0 && f Tai   = Just Tai
+      | r /= 0 && f Rand  = Just Rand
+      | otherwise         = Nothing
     {-# INLINABLE find #-}
 
-instance MonoTraversable Chakras where
-    otraverse f chakras = fromList <$> otraverse f (toList chakras)
-    {-# INLINABLE otraverse #-}
-    omapM f chakras = fromList <$> omapM f (toList chakras)
-    {-# INLINABLE omapM #-}
+    sortBy _ xs = xs
+    {-# INLINE sortBy #-}
+
+    x `cons` xs = xs ++ singleton x
+    {-# INLINE cons #-}
+
+    xs `snoc` x = xs ++ singleton x
+    {-# INLINE snoc #-}
 
 instance IsSequence Chakras where
-    fromList chakras = concatMap singleton chakras
-    {-# INLINE fromList #-}
-    lengthIndex      = length
+    lengthIndex = length
     {-# INLINE lengthIndex #-}
+
+    break f (Chakras b g n t r)
+      | b /= 0 && f Blood = (Chakras 0 0 0 0 0, Chakras b g n t r)
+      | g /= 0 && f Gen   = (Chakras b 0 0 0 0, Chakras 0 g n t r)
+      | n /= 0 && f Nin   = (Chakras b g 0 0 0, Chakras 0 0 n t r)
+      | t /= 0 && f Tai   = (Chakras b g n 0 0, Chakras 0 0 0 t r)
+      | r /= 0 && f Rand  = (Chakras b g n t 0, Chakras 0 0 0 0 r)
+      | otherwise         = (Chakras b g n t r, Chakras 0 0 0 0 0)
+    {-# INLINABLE break #-}
+
+    span f = break (not . f)
+    {-# INLINABLE span #-}
+
+    dropWhile f = snd . span f
+    {-# INLINABLE dropWhile #-}
+
+    takeWhile f = fst . span f
+    {-# INLINABLE takeWhile #-}
+
+    splitAt i xs@(Chakras b g n t r) = (taken, xs `naiveSubtract` taken)
+      where
+        taken = Chakras (max 0 $ min b i)
+                        (max 0 . min g $ i - b)
+                        (max 0 . min n $ i - b - g)
+                        (max 0 . min t $ i - b - g - n)
+                        (max 0 . min r $ i - b - g - n - t)
+    {-# INLINABLE splitAt #-}
+
+    partition f xs = (yays, xs `naiveSubtract` yays)
+      where
+        yays = filter f xs
+    {-# INLINABLE partition #-}
+
+    uncons (Chakras b g n t r)
+      | b /= 0    = Just (Blood, Chakras (b - 1) g n t r)
+      | g /= 0    = Just (Gen,   Chakras b (g - 1) n t r)
+      | n /= 0    = Just (Nin,   Chakras b g (n - 1) t r)
+      | t /= 0    = Just (Tai,   Chakras b g n (t - 1) r)
+      | r /= 0    = Just (Rand,  Chakras b g n t (r - 1))
+      | otherwise = Nothing
+    {-# INLINABLE uncons #-}
+
+    unsnoc (Chakras b g n t r)
+      | r /= 0    = Just (Chakras b g n t (r - 1), Rand)
+      | t /= 0    = Just (Chakras b g n (t - 1) r, Tai)
+      | n /= 0    = Just (Chakras b g (n - 1) t r, Nin)
+      | g /= 0    = Just (Chakras b (g - 1) n t r, Gen)
+      | b /= 0    = Just (Chakras (b - 1) g n t r, Blood)
+      | otherwise = Nothing
+    {-# INLINABLE unsnoc #-}
+
+    filter f (Chakras b g n t r) = Chakras (filt b Blood)
+                                           (filt g Gen)
+                                           (filt n Nin)
+                                           (filt t Tai)
+                                           (filt r Rand)
+      where
+        filt amount chakra
+          | amount == 0 || f chakra = amount
+          | otherwise               = 0
+    {-# INLINABLE filter #-}
+
+    filterM f (Chakras b g n t r) = Chakras <$> filt b Blood
+                                            <*> filt g Gen
+                                            <*> filt n Nin
+                                            <*> filt t Tai
+                                            <*> filt r Rand
+      where
+        filt 0      _      = return 0
+        filt amount chakra = getFiltered amount <$> f chakra
+        getFiltered amount True  = amount
+        getFiltered _      False = 0
+    {-# INLINABLE filterM #-}
 
     replicate n _
       | n <= 0        = Chakras 0 0 0 0 0
@@ -169,76 +310,40 @@ instance IsSequence Chakras where
     replicateM n f = replicate n <$> f
     {-# INLINABLE replicateM #-}
 
-    span f (Chakras b g n t r)
-        | b /= 0 && f Blood = (Chakras 0 0 0 0 0, Chakras b g n t r)
-        | g /= 0 && f Gen   = (Chakras b 0 0 0 0, Chakras 0 g n t r)
-        | n /= 0 && f Nin   = (Chakras b g 0 0 0, Chakras 0 0 n t r)
-        | t /= 0 && f Tai   = (Chakras b g n 0 0, Chakras 0 0 0 t r)
-        | r /= 0 && f Rand  = (Chakras b g n t 0, Chakras 0 0 0 0 r)
-        | otherwise         = (Chakras b g n t r, Chakras 0 0 0 0 0)
-
-    break f chakras = span (not . f) chakras
-
-    dropWhile f (Chakras b g n t r)
-        | b /= 0 && not (f Blood) = Chakras b g n t r
-        | g /= 0 && not (f Gen)   = Chakras 0 g n t r
-        | n /= 0 && not (f Nin)   = Chakras 0 0 n t r
-        | t /= 0 && not (f Tai)   = Chakras 0 0 0 t r
-        | r /= 0 && not (f Rand)  = Chakras 0 0 0 0 r
-        | otherwise               = Chakras 0 0 0 0 0
-
-    takeWhile f (Chakras b g n t r)
-        | b /= 0 && not (f Blood) = Chakras 0 0 0 0 0
-        | g /= 0 && not (f Gen)   = Chakras b 0 0 0 0
-        | n /= 0 && not (f Nin)   = Chakras b g 0 0 0
-        | t /= 0 && not (f Tai)   = Chakras b g n 0 0
-        | r /= 0 && not (f Rand)  = Chakras b g n t 0
-        | otherwise               = Chakras b g n t r
-
-    filter f (Chakras b g n t r) = Chakras (filt b Blood)
-                                           (filt g Gen)
-                                           (filt n Nin)
-                                           (filt t Tai)
-                                           (filt r Rand)
+    groupBy _  (Chakras 0 0 0 0 0) = []
+    groupBy eq xs                  = ys : groupBy eq zs
       where
-        filt amount chakra
-            | amount /= 0 && f chakra = amount
-            | otherwise               = 0
-    {-# INLINABLE filter #-}
+        x        = headEx xs
+        (ys, zs) = span (eq x) xs
 
-    partition f chakras = (yays, chakras `naiveSubtract` yays)
+    groupAllOn _ (Chakras 0 0 0 0 0) = []
+    groupAllOn f xs                  = ys : groupAllOn f zs
       where
-        yays = filter f chakras
-    {-# INLINABLE partition #-}
+        x        = headEx xs
+        (ys, zs) = partition ((== f x) . f) xs
 
-    filterM f (Chakras b g n t r) = Chakras
-        <$> filterIf Blood b
-        <*> filterIf Gen   g
-        <*> filterIf Nin   n
-        <*> filterIf Tai   t
-        <*> filterIf Rand  r
-      where
-        filterIf _      0      = return 0
-        filterIf chakra amount = getFiltered <$> f chakra
-          where
-            getFiltered True  = amount
-            getFiltered False = 0
+    index (Chakras b g n t r) i
+        | i < 0                 = Nothing
+        | i                 < b = Just Blood
+        | i - b             < g = Just Gen
+        | i - b - g         < n = Just Nin
+        | i - b - g - n     < t = Just Tai
+        | i - b - g - n - t < r = Just Rand
+        | otherwise             = Nothing
+    {-# INLINABLE index #-}
 
-    uncons (Chakras 0 0 0 0 0) = Nothing
-    uncons (Chakras 0 0 0 0 r) = Just (Rand,  Chakras 0 0 0 0 (r - 1))
-    uncons (Chakras 0 0 0 t r) = Just (Tai,   Chakras 0 0 0 (t - 1) r)
-    uncons (Chakras 0 0 n t r) = Just (Nin,   Chakras 0 0 (n - 1) t r)
-    uncons (Chakras 0 g n t r) = Just (Gen,   Chakras 0 (g - 1) n t r)
-    uncons (Chakras b g n t r) = Just (Blood, Chakras (b - 1) g n t r)
-    {-# INLINABLE uncons #-}
-
-    unsnoc (Chakras 0 0 0 0 0) = Nothing
-    unsnoc (Chakras b 0 0 0 0) = Just (Chakras (b - 1) 0 0 0 0, Blood)
-    unsnoc (Chakras b g 0 0 0) = Just (Chakras b (g - 1) 0 0 0, Gen)
-    unsnoc (Chakras b g n 0 0) = Just (Chakras b g (n - 1) 0 0, Nin)
-    unsnoc (Chakras b g n t 0) = Just (Chakras b g n (t - 1) 0, Tai)
-    unsnoc (Chakras b g n t r) = Just (Chakras b g n t (r - 1), Rand)
-    {-# INLINABLE unsnoc #-}
+    splitWhen f (Chakras b g n t r)
+      | b /= 0 && f Blood = Chakras 0 0 0 0 0
+                          : splitWhen f (Chakras (b - 1) g n t r)
+      | g /= 0 && f Gen   = Chakras b 0 0 0 0
+                          : splitWhen f (Chakras 0 (g - 1) n t r)
+      | n /= 0 && f Nin   = Chakras b g 0 0 0
+                          : splitWhen f (Chakras 0 0 (n - 1) t r)
+      | t /= 0 && f Tai   = Chakras b g n 0 0
+                          : splitWhen f (Chakras 0 0 0 (t - 1) r)
+      | r /= 0 && f Rand  = Chakras b g n t 0
+                          : splitWhen f (Chakras 0 0 0 0 (r - 1))
+      | otherwise         = [Chakras b g n t r]
 
 instance Parse Chakras where
     parser = do
@@ -252,7 +357,8 @@ instance Parse Chakras where
         return $ Chakras b g n t 0
 
 instance PathPiece Chakras where
-    toPathPiece (Chakras b g n t _) = intercalate "," $ tshow <$> [b, g, n, t]
+    toPathPiece (Chakras b g n t _) = toStrict . builderToLazy . intercalate ","
+                                    $ display <$> [b, g, n, t]
     fromPathPiece piece = rightToMaybe $ Parse.parseToEnd piece
 
 -- | Units of @Game.Model.Skill.cost@.
@@ -269,7 +375,7 @@ instance AsEnumSet Chakra
 instance Uniform Chakra where
     uniformM g = fromWord <$> R.uniformWord32 g -- excludes Rand
       where
-        fromWord w = toEnum $ fromEnum $ w .&. 3
+        fromWord w = toEnum . fromEnum $ w .&. 3
     {-# INLINE uniformM #-}
 
 instance UniformRange Chakra where
@@ -283,13 +389,12 @@ instance ToMarkup Chakra where
     toMarkup Tai   = HTML.div ! HTML.class_ "chakra tai"   $ mempty
     toMarkup Rand  = HTML.div ! HTML.class_ "chakra rand"  $ mempty
 
--- | Lower-case name of chakra for use in descriptions, etc.
-chakraDesc :: Chakra -> Text
-chakraDesc Blood = "bloodline"
-chakraDesc Gen   = "genjutsu"
-chakraDesc Nin   = "ninjutsu"
-chakraDesc Tai   = "taijutsu"
-chakraDesc Rand  = "random"
+instance Display Chakra where
+    display Blood = "bloodline"
+    display Gen   = "genjutsu"
+    display Nin   = "ninjutsu"
+    display Tai   = "taijutsu"
+    display Rand  = "random"
 
 classes :: Chakras -> EnumSet Class
 classes (Chakras b g n t r) = setFromList $ fst <$> filter snd
@@ -299,10 +404,6 @@ classes (Chakras b g n t r) = setFromList $ fst <$> filter snd
     , (Taijutsu,  t /= 0)
     , (Random,    r /= 0)
     ]
-
-mapAmounts :: (Int -> Int) -> Chakras -> Chakras
-mapAmounts f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
-{-# INLINE mapAmounts #-}
 
 scale :: Int -> Chakras -> Chakras
 scale scalar = mapAmounts (* scalar)
@@ -321,7 +422,7 @@ checkedSpend cost before
 
 fromBits :: ∀ a. (Bits a, Enum a, Num a) => Int -> a -> Chakras
 fromBits 0 _ = mempty
-fromBits i n = toEnum (fromEnum $ n .&. 3) `cons` fromBits (i - 1) (n .>>. 2)
+fromBits i n = toEnum (fromEnum $ n .&. 3) :< fromBits (i - 1) (n .>>. 2)
 
 random :: ∀ m. MonadRandom m => Int -> m Chakras
 random len
