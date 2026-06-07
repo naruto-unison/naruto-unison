@@ -80,7 +80,7 @@ logLabel False New     = "New:"
 logLabel True  Rework  = "Character rework:"
 logLabel False Rework  = "Rework:"
 
-separate :: NonEmpty Skill -> [Skill]
+separate :: NonNull Seq Skill -> [Skill]
 separate skills = nubBy ((==) `on` Text.strip . Skill.name) $ toList skills
 
 getChangelog :: Bool -> LogType -> Text -> Character.Category -> App.Widget

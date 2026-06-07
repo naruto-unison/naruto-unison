@@ -7,43 +7,28 @@
 module ClassyPrelude
   ( module CP
   , module Prelude
-  , module Data.List.NonEmpty
   , module Data.Kind
-  , maximum, minimum, maximumBy, minimumBy
+  , module NonNull
+  , maybeToList
   , pattern Empty, pattern (:<), pattern (:>)
   ) where
 
-import "classy-prelude" ClassyPrelude as CP hiding (head, last, group, groupBy, maximum, minimum, maximumBy, minimumBy, init, tail)
-import Prelude (type (~), MonadFail(..), errorWithoutStackTrace, foldl1, foldr1, ShowS, Show(..), shows, showChar, showString, showParen, ReadS, Read(..), reads, readParen, read, lex)
-import Data.List.NonEmpty (NonEmpty(..), head, last, init, tail, group, groupBy, groupWith, groupAllWith, group1, groupBy1, groupWith1, groupAllWith1)
+import "classy-prelude" ClassyPrelude as CP hiding
+    ( group, groupBy
+    , maybeToList
+    , NonNull(..)
+    , fromNullable
+    , ncons, nuncons
+    , head, tail, last, init
+    , ofoldMap1, ofold1, ofoldr1, ofoldl1'
+    , maximum, minimum, maximumBy, minimumBy)
+import Prelude (type (~), MonadFail(..), errorWithoutStackTrace, ShowS, Show(..), shows, showChar, showString, showParen, ReadS, Read(..), reads, readParen, read, lex)
 import Data.Kind (Constraint, Type)
+import NonNull
 
-import qualified Data.Foldable as F
-
--- This isn't exported; it's a helper function for the following ones.
-foldl1' :: ∀ a. (a -> a -> a) -> NonEmpty a -> a
-foldl1' f (x:|xs) = F.foldl' f x xs
-{-# INLINE foldl1' #-}
-
-maximum :: ∀ a. Ord a => NonEmpty a -> a
-maximum = foldl1' max
-{-# INLINE maximum #-}
-
-minimum :: ∀ a. Ord a => NonEmpty a -> a
-minimum = foldl1' min
-{-# INLINE minimum #-}
-
-maximumBy :: ∀ a. (a -> a -> Ordering) -> NonEmpty a -> a
-maximumBy cmp = foldl1' \x y -> case cmp x y of
-    GT -> x
-    _  -> y
-{-# INLINABLE maximumBy #-}
-
-minimumBy :: ∀ a. (a -> a -> Ordering) -> NonEmpty a -> a
-minimumBy cmp = foldl1' \x y -> case cmp x y of
-    GT -> y
-    _  -> x
-{-# INLINABLE minimumBy #-}
+maybeToList :: ∀ o. (Monoid o, MonoPointed o) => Maybe (Element o) -> o
+maybeToList (Just el) = singleton el
+maybeToList Nothing   = mempty
 
 pattern Empty :: ∀ o. IsSequence o => o
 pattern Empty <- (null -> True) where

@@ -36,13 +36,13 @@ characterWithSkill skill = Character
     { name     = mempty
     , price    = 0
     , bio      = mempty
-    , skills   = sk :| [sk, sk, sk]
+    , skills   = sk :| replicate 3 sk
     , category = Original
     , groups   = mempty
     , ident    = mempty
     }
   where
-    sk = skill :| []
+    sk = singleton skill
 
 character :: Character
 character = characterWithSkill Skill.new

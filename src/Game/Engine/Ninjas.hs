@@ -80,18 +80,18 @@ import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((!?), (∈), (∉), intersects)
 
-alternate :: Ninja -> [Int]
+alternate :: Ninja -> Seq Int
 alternate Ninja{character = Character{skills = sk}, effects} =
-    findAlt <$> toList sk
+    findAlt <$> toNullable sk
   where
     findAlt (base:|alts) = fromMaybe 0 $ headMay
         [i + 1 | Alternate name alt <- effects
                , name == Skill.name base
-               , i <- maybeToList $ findIndex (Labeled.named alt) alts
+               , i <- maybeToList $ findIndex (Labeled.named alt) $ toList alts
                ]
 
 processAlternates :: Ninja -> Ninja
-processAlternates n = n { N.alternates = fromList $ alternate n }
+processAlternates n = n { N.alternates = alternate n }
 
 -- | Cycles a skill through its list of alternates.
 nextAlternate :: Text -> Ninja -> Maybe Text

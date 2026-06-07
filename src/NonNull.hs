@@ -8,10 +8,12 @@ module NonNull
     , ofoldMap1, ofold1, ofoldr1, ofoldl1'
     , foldMap1, fold1, foldr1, foldl1'
     , maximum, minimum, maximumBy, minimumBy
+    , groupBy, group
     ) where
 import Prelude hiding (foldr1, head, tail, last, init, maximum, minimum)
 import Data.MonoTraversable
-import Data.Sequences (IsSequence(..), SemiSequence(..))
+import Data.Sequences hiding (group, groupBy)
+import qualified Data.Sequences as Sequences
 import GHC.Stack (HasCallStack)
 import Control.Monad.Fix (MonadFix)
 import Control.Monad.Zip (MonadZip)
@@ -20,7 +22,13 @@ import GHC.Generics
 import GHC.Exts
 import Data.Aeson (FromJSON, ToJSON)
 
-newtype NonNull f a = NonNull { toNullable :: f a } deriving (Applicative, Functor, Monad, MonadFix, MonadZip, Foldable, Traversable, Semigroup, Eq, Ord, Data, Generic, IsList, Read, Show, FromJSON, ToJSON)
+newtype NonNull f a = NonNull { toNullable :: f a } deriving (Applicative, Functor, Monad, MonadFix, MonadZip, Foldable, Traversable, Semigroup, Eq, Ord, Data, Generic, IsList, Read, Show, GrowingAppend, MonoFoldable, MonoFunctor, MonoPointed, SemiSequence, FromJSON, ToJSON)
+
+type instance Element (NonNull f a) = Element (f a)
+
+instance MonoTraversable (f a) => MonoTraversable (NonNull f a) where
+    otraverse f (NonNull xs) =  NonNull <$> otraverse f xs
+    {-# INLINE otraverse #-}
 
 -- | 'ncons' and 'nuncons'
 pattern (:|) :: ∀ f a. IsSequence (f a) => Element (f a) -> f a -> NonNull f a
@@ -138,3 +146,13 @@ minimumBy :: ∀ f a. (MonoFoldable (f a), a ~ Element (f a))
           => (a -> a -> Ordering) -> NonNull f a -> a
 minimumBy cmp = minimumByEx cmp . toNullable
 {-# INLINE minimumBy #-}
+
+groupBy :: ∀ f a. (IsSequence (f a), a ~ Element (f a))
+        => (a -> a -> Bool) -> f a -> [NonNull f a]
+groupBy f xs = NonNull <$> Sequences.groupBy f xs
+{-# INLINE groupBy #-}
+
+group :: ∀ f a. (IsSequence (f a), a ~ Element (f a), Eq a)
+      => f a -> [NonNull f a]
+group xs = NonNull <$> Sequences.group xs
+{-# INLINE group #-}

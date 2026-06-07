@@ -23,7 +23,8 @@ class Labeled a where
     eq x y = name x == name y && user x == user y
     {-# INLINABLE eq #-}
 
-group :: ∀ o. (IsSequence o, Labeled (Element o)) => o -> [NonEmpty (Element o)]
+group :: ∀ o. (IsSequence o, Labeled (Element o))
+      => o -> [NonNull [] (Element o)]
 group xs = groupBy eq . toList $ sortBy cmp xs
   where
     x `cmp` y = (name x `compare` name y) <> (user x `compare` user y)

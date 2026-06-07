@@ -71,5 +71,5 @@ instance ToJSON Ninja where
         hideHidden = filter $ (Hidden ∉) . Classed.classes
         mFace = find ((Effect.Face ∈) . Status.effects) statuses
         foldStats xs       = foldStat <$> group (sort xs)
-        foldStat   (x:|[]) = x
+        foldStat (x:|[])   = x
         foldStat xs@(x:|_) = x { Status.amount = sum $ Status.amount <$> xs }

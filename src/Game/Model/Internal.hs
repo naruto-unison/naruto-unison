@@ -117,7 +117,7 @@ data Character = Character
     , price    :: Int
     , bio      :: Text
     , groups   :: EnumSet Group
-    , skills   :: NonEmpty (NonEmpty Skill)
+    , skills   :: NonNull Seq (NonNull Seq Skill)
     , category :: Category
     , ident    :: Text
     } deriving (Generic)
@@ -220,7 +220,6 @@ instance Parity Ninja where
 instance Labeled Ninja where
     name Ninja{character = Character{name}} = name
     user Ninja{slot}                        = slot
-
 
 data Requirement
     = Usable

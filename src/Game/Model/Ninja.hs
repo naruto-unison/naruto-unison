@@ -12,8 +12,6 @@ module Game.Model.Ninja
 
 import ClassyPrelude
 
-import qualified  Data.List.NonEmpty as NonEmpty
-
 import           Class.Labeled (Labeled)
 import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
@@ -183,9 +181,6 @@ minHealth n
 -- | Obtains a @Skill@ from 'skills' by slot index, if it exists.
 baseSkill :: Int -> Ninja -> Maybe Skill
 baseSkill s Ninja{alternates, character = Character{skills}} = do
-    skill     <- skills !:? s
+    skill     <- toNullable skills !? s
     alternate <- alternates !? s
-    skill !:? alternate
-  where
-    -- (!?) for NonEmpty
-    xs !:? i = headMay $ NonEmpty.drop i xs
+    toNullable skill !? alternate

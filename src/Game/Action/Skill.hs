@@ -78,17 +78,17 @@ rechargeAll = alterTarget Ninjas.rechargeAll
 alternateClasses :: EnumSet Class
 alternateClasses = setFromList [Hidden, Nonstacking, Unremovable]
 
-userSkills :: ∀ m. MonadPlay m => m (NonEmpty (NonEmpty Skill))
+userSkills :: ∀ m. MonadPlay m => m [NonNull Seq Skill]
 userSkills = getSkills <$> P.nUser
   where
-    getSkills Ninja{character = Character{skills}} = skills
+    getSkills Ninja{character = Character{skills}} = toList skills
 
 -- | Adjusts all 'N.alternates' at once.
 setAlternates :: ∀ m. MonadPlay m
           => [Int] -- ^ Index offsets.
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
 setAlternates loadout = do
-    alternates <- zipWith load loadout . toList <$> userSkills
+    alternates <- zipWith load loadout <$> userSkills
     applyWith' alternateClasses "loadout" Permanent $ catMaybes alternates
   where
     load alt (x:|xs) = Alternate (Skill.name x) . Skill.name <$> xs !? (alt - 1)
@@ -128,7 +128,7 @@ teach :: ∀ m. MonadPlay m
        -> m ()
 teach dur name slots = do
     Context{target} <- P.context
-    mskill <- find (Labeled.named name) . join <$> userSkills
+    mskill <- find (Labeled.named name) . concatMap toList <$> userSkills
     mapM_ (P.modify target . Ninjas.copy dur slots) mskill
 
 -- | Resets a 'N.Ninja' to their initial state.
