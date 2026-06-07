@@ -4,7 +4,6 @@ import ClassyPrelude
 
 import Data.Aeson (ToJSON(..))
 import Data.Enum.Set (AsEnumSet(..))
-import Text.Julius (ToJavascript(..))
 
 import Class.Display (Display(..))
 
@@ -70,9 +69,6 @@ data Group
 
 instance AsEnumSet Group where
     type EnumSetRep Group = Word64
-
-instance ToJavascript Group where
-    toJavascript = toJavascript . display'
 
 instance ToJSON Group where
     toJSON = toJSON . display'

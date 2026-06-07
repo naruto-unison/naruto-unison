@@ -59,10 +59,10 @@ instance AsEnumSet Class where
     type EnumSetRep Class = Word64
 
 instance ToJSON Class where
-    toJSON = A.String . name
+    toJSON = A.String . nameMemo
 
 instance ToMarkup Class where
-    toMarkup = toMarkup . name
+    toMarkup = toMarkup . nameMemo
 
 instance Hashable Class where
     hashWithSalt salt = hashWithSalt salt . fromEnum
@@ -81,6 +81,10 @@ name NonBane        = "Non-bane"
 name NonMental      = "Non-mental"
 name NonRanged      = "Non-ranged"
 name x              = tshow x
+
+nameMemo :: Class -> Text
+nameMemo = Enum.memoize name
+{-# NOINLINE nameMemo #-}
 
 lower :: Class -> TextBuilder
 lower = Enum.memoize $ display . toLower . name
