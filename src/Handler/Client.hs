@@ -14,7 +14,6 @@ import Yesod
 
 import           Data.Aeson.Encoding (encodingToLazyByteString)
 import           System.Random.MWC (createSystemRandom)
-import           Text.Blaze (Markup)
 import qualified Text.Blaze as Markup
 import qualified Yesod.Auth as Auth
 
@@ -120,9 +119,8 @@ getPlayR = do
   where
     getPlayParams (Just user) = userPlayParams user <$> Mission.unlocked
     getPlayParams Nothing     = return guestPlayParams
-    encodeJSON :: ∀ a. ToJSON a => a -> Markup
-    encodeJSON obj = Markup.preEscapedLazyText . decodeUtf8 . encodingToLazyByteString
-                   $ toEncoding obj
+    encodeJSON obj = Markup.preEscapedLazyText . decodeUtf8
+                   . encodingToLazyByteString $ toEncoding obj
 
 data PlayParams = PlayParams
     { bg       :: Text

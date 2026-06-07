@@ -37,6 +37,12 @@ class Display a where
     display' = Builder.toLazyText . display
     {-# INLINE display' #-}
 
+instance Display Builder where
+    display = id
+    {-# INLINE display #-}
+    display' = Builder.toLazyText
+    {-# INLINE display' #-}
+
 instance Display Text where
     display = Builder.fromText
     {-# INLINE display #-}
@@ -68,12 +74,12 @@ instance Display Int64 where
 commas :: Builder -> [Builder] -> Builder
 commas conj = go
   where
-    conj'      = " " <> conj <> " "
+    conj'      = " " ++ conj ++ " "
     go []      = mempty
     go [x]     = x
-    go [x,y]   = x <> conj' <> y
-    go [x,y,z] = x <> ", " <> y <> "," <> conj' <> z
-    go (x:xs)  = x <> ", " <> go xs
+    go [x,y]   = x ++ conj' ++ y
+    go [x,y,z] = x ++ ", " ++ y ++ "," ++ conj' ++ z
+    go (x:xs)  = x ++ ", " ++ go xs
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text

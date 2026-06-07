@@ -9,6 +9,7 @@ import           Control.Monad.Error.Class (MonadError)
 import           Data.Aeson (ToJSON)
 import           Yesod.Core.Dispatch (PathPiece(..))
 
+import           Class.Display (Display(..))
 import           Class.Parse (Parse)
 import qualified Class.Parse as Parse
 import           Class.Play (MonadGame)
@@ -41,8 +42,8 @@ instance Parse Act where
         return Act { user, skill, target }
 
 instance PathPiece Act where
-    toPathPiece (Act user skill target) = intercalate ","
-        [ tshow user, tshow skill, tshow target ]
+    toPathPiece Act{user, skill, target} = toStrict . builderToLazy
+        $ intercalate "," [display user, display skill, display target]
     fromPathPiece piece = rightToMaybe $ Parse.parseToEnd piece
 
 toContext :: ∀ m. (MonadGame m, MonadError Text m) => Act -> m Context
