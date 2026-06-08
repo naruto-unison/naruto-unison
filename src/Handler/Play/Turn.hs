@@ -8,14 +8,13 @@ import ClassyPrelude
 import Data.Aeson (ToJSON)
 
 import qualified Class.Parity as Parity
-import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Channel (Channel(Channel))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game
-import           Game.Model.Ninja (Ninja, is)
+import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
@@ -28,7 +27,6 @@ import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
 import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap
-import           OrphanInstances.Ninja ()
 import           Util ((!!), (∈), (∉))
 
 -- | Intermediate type for marshaling to JSON.
@@ -55,14 +53,14 @@ new player ninjas Game{chakra, inactive, playing, vendetta, victor} = Turn
     , targets  = targets <$> censored
     }
   where
-    censored  = censor vendetta player ninjas <$> ninjas
+    censored = censor vendetta player ninjas <$> ninjas
     swapInactive Player.A = id
     swapInactive Player.B = swap
-    targets n
+    targets n@Ninja{skills}
       | Parity.allied player n = (N.slot <$>)
                                . Requirement.targets censored n
-                               <$> Ninjas.skills n
-      | otherwise              = replicate (N.numSkills n) []
+                                 <$> toList skills
+      | otherwise              = replicate (length skills) []
 
 censor :: (Maybe Slot) -> Player -> [Ninja] -> Ninja -> Ninja
 censor vendetta player ninjas n
@@ -74,7 +72,6 @@ censor vendetta player ninjas n
       { N.channels   = filter filt $ N.channels n'
       , N.charges    = mempty
       , N.cooldowns  = mempty
-      , N.alternates = 0 <$ N.alternates n'
       }
   where
     filt (Channel Skill{classes} _ _ _) = not $ Invisible ∈ classes

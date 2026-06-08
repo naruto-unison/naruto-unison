@@ -21,7 +21,7 @@ import Yesod.Core.Dispatch (PathPiece(..))
 import Yesod.WebSockets (WebSocketsT)
 
 import           Class.Classed (Classed)
-import qualified Class.Classed
+import qualified Class.Classed as Classed
 import           Class.Labeled (Labeled)
 import qualified Class.Labeled
 import           Class.Parity (Parity)
@@ -36,7 +36,7 @@ import           Game.Model.Group (Group)
 import           Game.Model.Slot (Slot(..))
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger(..))
-import           Util (Lift)
+import           Util ((∉), Lift)
 
 -- | Applies actions when a 'Status' ends.
 data Bomb
@@ -175,6 +175,15 @@ data Direction
 instance ToJSON Direction
 
 
+-- | From 'Effect.Face'. Used only as an encoding intermediary.
+data Face = Face
+    { icon :: Text
+    , user :: Slot
+    } deriving (Eq, Show, Read, Generic)
+
+instance ToJSON Face
+
+
 -- Used for 'Game.Ninja.cooldowns' and 'Game.Ninja.charges'.
 -- Generated from a 'Skill'.
 data Key = Key Text Slot
@@ -200,7 +209,6 @@ data Ninja = Ninja
     , health     :: Int              -- ^ Starts at @100@
     , cooldowns  :: HashMap Key Int  -- ^ Starts empty
     , charges    :: HashMap Key Int  -- ^ Starts at @0@s
-    , alternates :: Seq Int          -- ^ Starts at @0@s
     , copies     :: Seq (Maybe Copy) -- ^ Starts at @Nothing@s
     , defense    :: [Destructible]   -- ^ Starts empty
     , barrier    :: [Destructible]   -- ^ Starts empty
@@ -209,9 +217,53 @@ data Ninja = Ninja
     , traps      :: [Trap]           -- ^ Starts empty
     , lastSkill  :: Maybe Skill      -- ^ Starts at @Nothing@
     , triggers   :: HashSet Trigger  -- ^ Empty at the start of each turn
+    , skills     :: ~(Seq Skill)     -- ^ Processed automatically
     , effects    :: ~[Effect]        -- ^ Processed automatically
+    , face       :: ~(Maybe Face)    -- ^ Processed automatically
     , acted      :: Bool             -- ^ False at the start of each turn
-    }
+    } deriving (Generic)
+
+instance ToJSON Ninja where
+    toJSON Ninja
+        { barrier
+        , channels
+        , character = Character{ident}
+        , charges
+        , cooldowns
+        , copies
+        , defense
+        , health
+        , face
+        , skills
+        , lastSkill
+        , slot
+        , statuses
+        , traps
+        } = object
+        [ "slot"      .= slot
+        , "character" .= ident
+        , "health"    .= health
+        , "cooldowns" .= cooldowns
+        , "charges"   .= charges
+        , "defense"   .= defense
+        , "barrier"   .= barrier
+        , "statuses"  .= foldStats (hideHidden statuses)
+        , "copies"    .= copies
+        , "channels"  .= channels
+        , "traps"     .= hideHidden traps
+        , "face"      .= face
+        , "lastSkill" .= lastSkill
+        , "skills"    .= skills
+        ]
+      where
+        hideHidden :: ∀ a. Classed a => [a] -> [a]
+        hideHidden = filter $ (Hidden ∉) . Classed.classes
+        foldStats xs       = foldStat <$> group (sort xs)
+        foldStat (x:|[])   = x
+        foldStat xs@(x:|_) = setAmount (sum $ getAmount <$> xs) x
+        getAmount Status{amount} = amount
+        setAmount i (Status _ a b c d e f g h) = Status i a b c d e f g h
+
 
 instance Parity Ninja where
     even = Parity.even . slot
@@ -220,6 +272,7 @@ instance Parity Ninja where
 instance Labeled Ninja where
     name Ninja{character = Character{name}} = name
     user Ninja{slot}                        = slot
+
 
 data Requirement
     = Usable

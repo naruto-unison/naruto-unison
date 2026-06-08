@@ -11,20 +11,42 @@ module NonNull
     , groupBy, group
     ) where
 import Prelude hiding (foldr1, head, tail, last, init, maximum, minimum)
-import Data.MonoTraversable
-import Data.Sequences hiding (group, groupBy)
-import qualified Data.Sequences as Sequences
-import GHC.Stack (HasCallStack)
+import Control.Applicative (Alternative)
+import Control.DeepSeq (NFData, NFData1)
+import Control.Monad (MonadPlus)
 import Control.Monad.Fix (MonadFix)
 import Control.Monad.Zip (MonadZip)
-import Data.Data
-import GHC.Generics
-import GHC.Exts
 import Data.Aeson (FromJSON, ToJSON)
+import Data.ChunkedZip (Zip, Zip3, Zip4, Zip5, Zip6, Zip7)
+import Data.Data
+import Data.Functor.Classes
+import Data.MonoTraversable
+import Data.Sequences hiding (group, groupBy, fromList)
+import GHC.Exts
+import GHC.Generics
+import GHC.Stack (HasCallStack)
 
-newtype NonNull f a = NonNull { toNullable :: f a } deriving (Applicative, Functor, Monad, MonadFix, MonadZip, Foldable, Traversable, Semigroup, Eq, Ord, Data, Generic, IsList, Read, Show, GrowingAppend, MonoFoldable, MonoFunctor, MonoPointed, SemiSequence, FromJSON, ToJSON)
+import qualified Data.Sequences as Sequences
+
+newtype NonNull f a = NonNull { toNullable :: f a } deriving
+    ( Eq, Ord, Data, Read, Show, NFData, Generic
+    , Eq1, Ord1, Read1, Show1, NFData1
+    , IsString
+    , Semigroup, Monoid
+    , Foldable, Traversable
+    , Functor, Applicative, Alternative, Monad, MonadPlus, MonadFix, MonadZip
+    , Zip, Zip3, Zip4, Zip5, Zip6, Zip7
+    , GrowingAppend, MonoFoldable, MonoFunctor, MonoPointed, SemiSequence
+    , FromJSON, ToJSON
+    )
 
 type instance Element (NonNull f a) = Element (f a)
+
+instance IsList (f a) => IsList (NonNull f a) where
+    type Item (NonNull f a) = Item (f a)
+    fromList [] = error "NonNull.fromList: empty list"
+    fromList xs = NonNull $ fromList xs
+    toList      = toList . toNullable
 
 instance MonoTraversable (f a) => MonoTraversable (NonNull f a) where
     otraverse f (NonNull xs) =  NonNull <$> otraverse f xs

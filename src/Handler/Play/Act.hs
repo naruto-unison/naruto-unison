@@ -14,11 +14,12 @@ import           Class.Parse (Parse)
 import qualified Class.Parse as Parse
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
-import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
+import           Game.Model.Ninja (Ninja(Ninja))
+import qualified Game.Model.Ninja
 import           Game.Model.Slot (Slot)
-import           Util (tryFromJust, rightToMaybe)
+import           Util ((!?), tryFromJust, rightToMaybe)
 
 -- | A single action of a 'Ninja'.
 data Act = Act
@@ -48,8 +49,8 @@ instance PathPiece Act where
 
 toContext :: ∀ m. (MonadGame m, MonadError Text m) => Act -> m Context
 toContext (Act user skill target) = do
-    nUser <- P.ninja user
-    sk    <- tryFromJust "Invalid skill" $ Ninjas.getSkill skill nUser
+    Ninja{skills} <- P.ninja user
+    sk    <- tryFromJust "Invalid skill" $ skills !? skill
     return $ createContext sk
   where
     createContext sk = Context

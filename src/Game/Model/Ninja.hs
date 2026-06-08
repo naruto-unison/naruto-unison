@@ -1,13 +1,11 @@
 module Game.Model.Ninja
   ( Ninja(..), new
-  , numSkills
   , alive, minHealth
   , is, isChanneling
   , has, has', hasBarrier, hasDefense, hasOwn, hasOwn'
   , numStacks, numHelpful, numHarmful
   , barrierAmount, defenseAmount, totalDefense, totalBarrier
   , lastChakraSpent
-  , baseSkill
   ) where
 
 import ClassyPrelude
@@ -25,34 +23,31 @@ import qualified Game.Model.Internal.Character as Character
 import qualified Game.Model.Internal.Destructible as Destructible
 import qualified Game.Model.Internal.Skill as Skill
 import           Game.Model.Slot (Slot)
-import           Util ((∈), (∉), (!?))
-
--- | Number of 'Skill' slots. This number is the boundary on quite a few things,
--- most notably action messages from the client (in 'Game.Action.act').
-numSkills :: Ninja -> Int
-numSkills Ninja{character = Character{skills}} = length skills
+import           Util ((∈), (∉))
 
 -- | Constructs a @Ninja@ with starting values from a character and an index.
 new :: Slot -> Character -> Ninja
 new slot c@Character{skills} = Ninja
     { slot
     , health     = 100
-    , character  = c { Character.skills = (own <$>) <$> skills }
+    , character  = c { Character.skills = skills' }
     , defense    = mempty
     , barrier    = mempty
     , statuses   = mempty
     , charges    = mempty
     , cooldowns  = mempty
-    , alternates = replicate skillSize 0
+    , skills     = toNullable $ head <$> skills'
     , copies     = replicate skillSize Nothing
     , channels   = mempty
     , traps      = mempty
     , lastSkill  = Nothing
     , triggers   = mempty
     , effects    = mempty
+    , face       = Nothing
     , acted      = False
     }
   where
+    skills'   = (own <$>) <$> skills
     own x     = x { Skill.owner = slot }
     skillSize = length skills
 
@@ -177,10 +172,3 @@ minHealth :: Ninja -> Int
 minHealth n
   | n `is` Endure = 1
   | otherwise     = 0
-
--- | Obtains a @Skill@ from 'skills' by slot index, if it exists.
-baseSkill :: Int -> Ninja -> Maybe Skill
-baseSkill s Ninja{alternates, character = Character{skills}} = do
-    skill     <- toNullable skills !? s
-    alternate <- alternates !? s
-    toNullable skill !? alternate

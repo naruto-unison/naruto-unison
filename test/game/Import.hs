@@ -1,19 +1,21 @@
 module Import
     ( module X
     , gameChakras
+    , hasSkill
     , measureDamage, measureDamageTo, measureHealing, measureHealingTo
     , shouldBe, shouldNotBe
     ) where
 
 import Game.Characters.Import as X
-import Game.Engine.Ninjas as X (hasSkill)
 import Game.Model.Ninja as X (Ninja(Ninja, charges, cooldowns, effects), totalBarrier, totalDefense)
 import Test.Hspec as X hiding (context, it, shouldBe, shouldNotBe)
 import Sim as X (simAt, describeCategory, simOf)
 import SkillExample as X
 
+import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Model.Game as Game
 import           Class.Play (MonadPlay(..))
+import qualified Class.Labeled as Labeled
 import qualified Class.Play as P
 import qualified Sim
 
@@ -31,6 +33,11 @@ shouldNotBe x y = return $ Hspec.shouldNotBe x y
 
 gameChakras :: ∀ m. MonadPlay m => m (Chakras, Chakras)
 gameChakras = Game.chakra <$> P.game
+
+-- | Searches 'skills'.
+hasSkill :: Text -- ^ 'Skill.name'.
+         -> Ninja -> Bool
+hasSkill name = any (Labeled.named name) . skills . Ninjas.processSkills
 
 measureDamage :: ∀ m. MonadPlay m => m () -> m Int
 measureDamage f = do

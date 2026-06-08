@@ -235,8 +235,7 @@ act ctx@Context{user, new, target, skill} = void $ runMaybeT do
             contEfs    <- targeted effects
             let bothEfs = startEfs ++ contEfs
 
-            countering  <- Counter.filterCounters bothEfs . toList
-                           <$> P.enemies user
+            countering  <- Counter.filterCounters bothEfs <$> P.enemies user
             forM_ countering \n ->
                 when (n `is` Absorb) $ P.alter $ Game.addChakra n cost
 

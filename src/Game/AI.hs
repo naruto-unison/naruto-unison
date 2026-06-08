@@ -10,21 +10,21 @@ import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Class.Random as R
-import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Player as Player
 import qualified Game.Engine as Engine
-import           Game.Model.Ninja (Ninja)
+import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Slot (Slot)
+import           Util ((!?))
 
 targetOptions :: [Ninja] -> Ninja -> Int -> [Context]
-targetOptions ns n i =
-    [ makeOption skill target | skill  <- maybeToList $ Ninjas.getSkill i n
+targetOptions ns n@Ninja{skills} i =
+    [ makeOption skill target | skill  <- maybeToList $ skills !? i
                               , target <- Requirement.targets ns n skill
                               ]
   where
@@ -37,8 +37,8 @@ targetOptions ns n i =
         }
 
 skillOptions :: [Ninja] -> Ninja -> [[Context]]
-skillOptions ns n = filter (not . null)
-    $ targetOptions ns n <$> [0..N.numSkills n - 1]
+skillOptions ns n@Ninja{skills} = filter (not . null)
+    $ targetOptions ns n <$> [0..length skills - 1]
 
 -- | The higher this is, the more likely AI is to attack. Lower values allow it
 -- to pool mana. At 0, the AI is disabled. This will certainly end up as a

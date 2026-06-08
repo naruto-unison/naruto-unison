@@ -1,6 +1,7 @@
 -- | Calculated totals of 'Effect's on 'Ninja's.
 module Game.Engine.Effects
-  ( bleed
+  ( alternate
+  , bleed
   , bless
   , block
   , boost
@@ -47,6 +48,12 @@ import           Util ((!!), (∈), intersects)
 total :: Amount -> Int -> Float
 total Flat x    = fromIntegral x
 total Percent x = fromIntegral x / 100
+
+-- | First matching 'Alternate'.
+alternate :: Text -> Ninja -> Maybe Text
+alternate name Ninja{effects} = headMay [ alt | Alternate name' alt <- effects
+                                              , name' == name
+                                              ]
 
 -- | 'Bleed' sum.
 bleed :: EnumSet Class -> Ninja -> Amount -> Float

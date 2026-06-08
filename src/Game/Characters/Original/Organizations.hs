@@ -155,7 +155,7 @@ characters =
         , Skill.effects   =
           [ To XAlly $ trap 3 OnRes do
                 setHealth 5
-                targetNumSkills <- target numSkills
+                targetNumSkills <- target (length . skills)
                 teach 1 "Converging Murder" [0..targetNumSkills - 1]
                 bombWith [Bypassing] 1 [ Face
                                        , Invulnerable All

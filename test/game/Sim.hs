@@ -63,9 +63,11 @@ use :: ∀ m. (HasCallStack, MonadHook m, MonadPlay m, MonadRandom m)
     => Text -> m ()
 use name = do
     ninjas <- P.ninjas
-    case find (Labeled.named name) . Ninjas.skills $ unsafeHead ninjas of
+    case getSkill $ unsafeHead ninjas of
         Nothing -> error $ "invalid skill: " ++ unpack name
         Just skill -> actWith skill
+  where
+    getSkill = find (Labeled.named name) . N.skills . Ninjas.processSkills
 
 at :: ∀ m a. MonadPlay m => Target -> m a -> m a
 at target = P.withTarget $ targetSlot target

@@ -1,9 +1,8 @@
 -- | 'Ninja' processing.
 module Game.Engine.Ninjas
-  ( skills, getSkill, hasSkill
-  , modifyStatuses
+  ( modifyStatuses
   , apply
-  , processEffects
+  , processEffects, processSkills
 
   , nextAlternate
 
@@ -46,7 +45,6 @@ module Game.Engine.Ninjas
 
 import ClassyPrelude
 
-import           Data.List (findIndex)
 import qualified Data.Sequence as Seq
 
 import qualified Class.Classed as Classed
@@ -67,6 +65,7 @@ import qualified Game.Model.Destructible as Destructible
 import           Game.Model.Duration (Duration(..), sync)
 import           Game.Model.Effect (Amount(..), Effect(..))
 import qualified Game.Model.Effect as Effect
+import qualified Game.Model.Face as Face
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Requirement (Requirement(..))
@@ -78,52 +77,30 @@ import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((!?), (∈), (∉), intersects)
+import           Util ((∈), (∉), intersects)
 
-alternate :: Ninja -> Seq Int
-alternate Ninja{character = Character{skills = sk}, effects} =
-    findAlt <$> toNullable sk
+processSkills :: Ninja -> Ninja
+processSkills n@Ninja{copies, character = Character{skills}}
+    = n { N.skills = skills' }
   where
-    findAlt (base:|alts) = fromMaybe 0 $ headMay
-        [i + 1 | Alternate name alt <- effects
-               , name == Skill.name base
-               , i <- maybeToList $ findIndex (Labeled.named alt) $ toList alts
-               ]
-
-processAlternates :: Ninja -> Ninja
-processAlternates n = n { N.alternates = alternate n }
+    skills' = zipWith getSkill (toNullable skills) copies
+    getSkill (base:|alts) mcopy = Requirement.usable True n
+        . Skills.change n $ fromMaybe base $ copied <|> alternate
+      where
+        copied    = Copy.skill <$> mcopy
+        alternate = do
+            alt <- Effects.alternate (Skill.name base) n
+            find (Labeled.named alt) alts
 
 -- | Cycles a skill through its list of alternates.
 nextAlternate :: Text -> Ninja -> Maybe Text
-nextAlternate baseName Ninja{character = Character{skills = sk}, effects} = do
-    alts <- find (Labeled.named baseName . head) $ toList sk
-    headMay . dropUntilAlt . tail $ Skill.name <$> alts
+nextAlternate baseName n@Ninja{character = Character{skills}} = do
+    _:|alts <- find (Labeled.named baseName . head) skills
+    headMay . dropUntilAlt $ Skill.name <$> alts
   where
-    altNames = [alt | Alternate name alt <- effects
-                    , name == baseName
-                    ]
-    dropUntilAlt alts = case altNames of
-        (alt:_) -> drop 1 $ dropWhile ((/= alt)) alts
-        []      -> alts
-
--- | Applies 'skill' to a @Skill@ and further modifies it due to 'N.copies'
--- and 'Skill.require'ments.
-getSkill :: Int -> Ninja -> Maybe Skill
-getSkill s n
-  | n `is` Swap = Skills.swap <$> base
-  | otherwise   = base
-  where
-    base = Requirement.usable True n . Skills.change n
-         <$> ((Copy.skill <$> join (N.copies n !? s)) <|> N.baseSkill s n)
-
--- | Searches 'skills'.
-hasSkill :: Text -- ^ 'Skill.name'.
-         -> Ninja -> Bool
-hasSkill name n = any (Labeled.named name) $ skills n
-
--- | All four skill slots of a @Ninja@ modified by 'skill'.
-skills :: Ninja -> [Skill]
-skills n = catMaybes $ flip getSkill n <$> [0..N.numSkills n - 1]
+    dropUntilAlt alts = case Effects.alternate baseName n of
+        Just alt -> drop 1 $ dropWhile ((/= alt)) alts
+        Nothing  -> alts
 
 -- | Modifies @Effect@s when they are first added to a @Ninja@ due to @Effect@s
 -- already added.
@@ -138,7 +115,10 @@ apply n nt fs = adjustEffect <$> filter keepEffects fs
 -- | Fills 'N.effects' with the effects of 'N.statuses', modified by
 -- 'NoIgnore', 'Seal', 'Boost', and so on.
 processEffects :: Ninja -> Ninja
-processEffects n@Ninja{barrier, defense, statuses} = n { N.effects = processed }
+processEffects n@Ninja{barrier, defense, statuses} =
+    n { N.effects = processed
+      , N.face    = Face.new <$> find ((Face ∈) . Status.effects) statuses
+      }
   where
     flattenStatusEffects Status{effects, amount} = replicate amount =<< effects
     allEffects = (flattenStatusEffects =<< statuses)
@@ -202,7 +182,7 @@ sacrifice minhp hp = adjustHealth $ max minhp . (- hp)
 -- | Applies 'Class.TurnBased.decr' to all of a @Ninja@'s 'Class.TurnBased'
 -- types.
 decr :: Ninja -> Ninja
-decr n = processAlternates $ processEffects
+decr n = processSkills $ processEffects
     n { N.defense   = mapMaybe TurnBased.decr $ N.defense n
       , N.statuses  = mapMaybe TurnBased.decr $ N.statuses n
       , N.barrier   = mapMaybe TurnBased.decr $ N.barrier n
@@ -290,7 +270,7 @@ cancelChannel name n =
 copyAll :: Duration -- ^ 'Copy.dur'.
         -> Ninja -- ^ Person whose skills are being copied.
         -> Ninja -> Ninja
-copyAll dur source n = n { N.copies = fromList $ cop <$> skills source }
+copyAll dur Ninja{skills} n = n { N.copies = cop <$> skills }
   where
     dur'
       | Parity.even dur = dur
@@ -299,7 +279,7 @@ copyAll dur source n = n { N.copies = fromList $ cop <$> skills source }
 
 -- | Copies a matching 'Skill' from a source into 'N.copies'.
 copy :: Duration -- ^ 'Copy.dur'.
-      -> [Int] -- ^ Skill slots, in the range @[0, 'N.numSkills')@.
+      -> [Int] -- ^ Skill slots, in the range @[0, length 'N.skills')@.
       -> Skill -- ^ 'Copy.skill'.
       -> Ninja -> Ninja
 copy dur slots skill n = n { N.copies = foldl' go (N.copies n) slots }

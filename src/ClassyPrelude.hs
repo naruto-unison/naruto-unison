@@ -29,6 +29,7 @@ import NonNull
 maybeToList :: ∀ o. (Monoid o, MonoPointed o) => Maybe (Element o) -> o
 maybeToList (Just el) = singleton el
 maybeToList Nothing   = mempty
+{-# SPECIALIZE maybeToList :: Maybe a -> [a] #-}
 
 pattern Empty :: ∀ o. IsSequence o => o
 pattern Empty <- (null -> True) where

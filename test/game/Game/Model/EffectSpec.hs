@@ -5,7 +5,6 @@ module Game.Model.EffectSpec (spec) where
 import Import hiding (it, shouldBe, shouldNotBe)
 
 import Data.Enum.Set (EnumSet)
-import Data.Maybe (fromJust)
 import Text.Read
 import Test.QuickCheck
 import Test.Hspec.QuickCheck
@@ -568,7 +567,8 @@ complements effectA effectB amount (Positive dmg) val = atk effects === atk []
     effect x = x [All] amount
 
 getSkill :: [Effect] -> Skill
-getSkill effects = fromJust $ Ninjas.getSkill 0 ninja { effects = effects }
+getSkill effects = headEx . N.skills
+                          $ Ninjas.processSkills ninja { effects = effects }
   where
     targets = (`To` return ()) <$> [minBound..maxBound]
     ninja   = Blank.ninjaWithSkill Skill.new { Skill.effects = targets }

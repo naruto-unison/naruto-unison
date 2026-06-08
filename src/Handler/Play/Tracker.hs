@@ -42,8 +42,9 @@ import           Util ((!!))
 missionKeys :: Text -> Mission -> [Int -> Progress]
 
 missionKeys name Mission{char, goals} =
-    [Progress char i | (i, goal) <- zip [0..] $ toList goals
-                     , Goal.belongsTo name goal]
+    [ Progress char i | (i, goal) <- zip [0..] $ toList goals
+                      , Goal.belongsTo name goal
+                      ]
 
 data Track s = Track
     { slot     :: Slot

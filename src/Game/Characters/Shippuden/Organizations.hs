@@ -229,7 +229,7 @@ characters =
                 removeTrap
                 apply -4 [ Face ]
                 copyAll 4
-                targetNumSkills <- target numSkills
+                targetNumSkills <- target (length . skills)
                 teach 4 "Puppet Curse: Attack" [0..targetNumSkills - 2]
                 teach 4 "Puppet Curse: Defend" [targetNumSkills - 1]
           ]

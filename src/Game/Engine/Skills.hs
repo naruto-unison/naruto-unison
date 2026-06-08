@@ -28,7 +28,7 @@ import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable(To))
 import qualified Game.Model.Runnable as Runnable
-import           Game.Model.Skill (Skill, Target(..))
+import           Game.Model.Skill (Skill(Skill), Target(..))
 import qualified Game.Model.Skill as Skill
 
 -- | Combines two 'Skill.Transform's.
@@ -82,13 +82,15 @@ changeEffects f skill =
 
 -- | Modifies a 'Skill' by its 'Skill.change' and any other effects on it.
 change :: Skill.Transform
-change n sk =
-    sk' { Skill.cost = Effects.exhaust (Skill.classes sk') n ++ Skill.cost sk' }
+change n skill@Skill{changes, classes, cost} =
+    Skill.chakraClasses
+    . changeIf Swap swap
+    . changeIf Restrict restrict
+    $ changes n skill { Skill.cost = Effects.exhaust classes n ++ cost }
   where
-    prestrict = Skill.chakraClasses $ Skill.changes sk n sk
-    sk'
-      | n `is` Restrict = restrict prestrict
-      | otherwise       = prestrict
+    changeIf ef f
+      | n `is` ef = f
+      | otherwise = id
 
 -- | Turns AoE effects into single-target effects.
 restrict :: Skill -> Skill

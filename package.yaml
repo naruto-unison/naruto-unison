@@ -26,11 +26,13 @@ library:
   - bytestring
   - cache
   - case-insensitive
+  - chunked-data
   - classy-prelude
   - cmark
   - concurrent-hashtable
   - containers
   - data-default
+  - deepseq
   - esqueleto
   - fast-logger
   - file-embed

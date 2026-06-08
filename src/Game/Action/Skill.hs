@@ -14,9 +14,9 @@ module Game.Action.Skill
 
 import ClassyPrelude
 
-import Control.Monad.Trans.Maybe (MaybeT(..))
-import Data.Enum.Set (EnumSet)
-import Data.List (findIndex)
+import           Control.Monad.Trans.Maybe (MaybeT(..))
+import           Data.Enum.Set (EnumSet)
+import qualified Data.Sequence as Seq
 
 import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
@@ -78,18 +78,18 @@ rechargeAll = alterTarget Ninjas.rechargeAll
 alternateClasses :: EnumSet Class
 alternateClasses = setFromList [Hidden, Nonstacking, Unremovable]
 
-userSkills :: ∀ m. MonadPlay m => m [NonNull Seq Skill]
+userSkills :: ∀ m. MonadPlay m => m (NonNull Seq (NonNull Seq Skill))
 userSkills = getSkills <$> P.nUser
   where
-    getSkills Ninja{character = Character{skills}} = toList skills
+    getSkills Ninja{character = Character{skills}} = skills
 
 -- | Adjusts all 'N.alternates' at once.
 setAlternates :: ∀ m. MonadPlay m
-          => [Int] -- ^ Index offsets.
+          => NonNull Seq Int -- ^ Index offsets.
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
-setAlternates loadout = do
-    alternates <- zipWith load loadout <$> userSkills
-    applyWith' alternateClasses "loadout" Permanent $ catMaybes alternates
+setAlternates loadout = applyWith' alternateClasses "loadout" Permanent
+    . catMaybes . toList
+    . zipWith load loadout =<< userSkills
   where
     load alt (x:|xs) = Alternate (Skill.name x) . Skill.name <$> xs !? (alt - 1)
 
@@ -117,8 +117,9 @@ copyAll dur = P.uncopied do
 copyLast :: ∀ m. MonadPlay m => Duration -> m ()
 copyLast (succ -> dur) = P.uncopied . void $ runMaybeT do
     Context{skill = Skill{name}, user} <- P.context
-    Just s     <- findIndex (any $ Labeled.named name) . toList <$> userSkills
     Just skill <- N.lastSkill <$> P.nTarget
+    Just s     <- Seq.findIndexL (any $ Labeled.named name)
+                . toNullable <$> userSkills
     P.modify user $ Ninjas.copy dur [s] skill
 
 teach :: ∀ m. MonadPlay m
@@ -128,7 +129,7 @@ teach :: ∀ m. MonadPlay m
        -> m ()
 teach dur name slots = do
     Context{target} <- P.context
-    mskill <- find (Labeled.named name) . concatMap toList <$> userSkills
+    mskill <- find (Labeled.named name) . join <$> userSkills
     mapM_ (P.modify target . Ninjas.copy dur slots) mskill
 
 -- | Resets a 'N.Ninja' to their initial state.
