@@ -1,12 +1,10 @@
 module Import.Model exposing (..)
 
+import Dict exposing (Dict)
 import Json.Decode
 import Json.Encode exposing (Value)
-import Json.Helpers exposing (ObjectEncoding, encodeObject, encodeValue, decodeSumObjectWithSingleField, encodeSumObjectWithSingleField, decodeSumTwoElemArray, encodeSumTwoElementArray, encodeSumTaggedObject, decodeSumUnaries, decodeSumNullaries, decodeSumNullaryOrSingleField, decodeMap, encodeMap, jsonEncDict, jsonDecDict, encodeSet, decodeSet, maybeEncode, encodeSumUntagged, required, custom, fnullable, tuple2, tuple3)
-import Dict exposing (Dict)
+import Json.Helpers exposing (..)
 import Set exposing (Set)
-
-import Import.Decode exposing (decodeSumTaggedObject)
 
 type Bomb  =
     Done
@@ -389,7 +387,6 @@ type alias Ninja  =
    , channels: (List Channel)
    , traps: (List Trap)
    , face: (Maybe Face)
-   , lastSkill: (Maybe Skill)
    , skills: (List Skill)
    }
 
@@ -408,7 +405,6 @@ jsonDecNinja =
    |> required "channels" (Json.Decode.list (jsonDecChannel))
    |> required "traps" (Json.Decode.list (jsonDecTrap))
    |> fnullable "face" (jsonDecFace)
-   |> fnullable "lastSkill" (jsonDecSkill)
    |> required "skills" (Json.Decode.list (jsonDecSkill))
 
 jsonEncNinja : Ninja -> Value
@@ -426,7 +422,6 @@ jsonEncNinja  val =
    , ("channels", (Json.Encode.list jsonEncChannel) val.channels)
    , ("traps", (Json.Encode.list jsonEncTrap) val.traps)
    , ("face", (maybeEncode (jsonEncFace)) val.face)
-   , ("lastSkill", (maybeEncode (jsonEncSkill)) val.lastSkill)
    , ("skills", (Json.Encode.list jsonEncSkill) val.skills)
    ]
 

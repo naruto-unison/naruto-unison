@@ -3,10 +3,12 @@ module Class.Parity
   , allied
   , getOf, setOf, modifyOf
   , half
+  , swap
   ) where
 
-import ClassyPrelude hiding (even)
+import ClassyPrelude hiding (even, swap)
 import qualified Prelude
+import qualified Data.Tuple as Tuple
 
 -- | Types that are either even or odd.
 --
@@ -52,6 +54,14 @@ modifyOf x
 setOf :: ∀ a b. Parity a => a -> b -> (b, b) -> (b, b)
 setOf x = modifyOf x . const
 {-# INLINE setOf #-}
+
+-- | 'id' if 'even', otherwise 'swap'.
+swap :: ∀ a b. Parity a => a -> (b, b) -> (b, b)
+swap x
+  | even x    = id
+  | otherwise = Tuple.swap
+{-# INLINE swap #-}
+
 
 instance Parity Bool where
     even = id

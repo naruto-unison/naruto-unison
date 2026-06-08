@@ -36,7 +36,7 @@ import           Game.Model.Group (Group)
 import           Game.Model.Slot (Slot(..))
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((∉), Lift)
+import           Util (Lift)
 
 -- | Applies actions when a 'Status' ends.
 data Bomb
@@ -235,7 +235,6 @@ instance ToJSON Ninja where
         , health
         , face
         , skills
-        , lastSkill
         , slot
         , statuses
         , traps
@@ -247,22 +246,13 @@ instance ToJSON Ninja where
         , "charges"   .= charges
         , "defense"   .= defense
         , "barrier"   .= barrier
-        , "statuses"  .= foldStats (hideHidden statuses)
+        , "statuses"  .= statuses
         , "copies"    .= copies
         , "channels"  .= channels
-        , "traps"     .= hideHidden traps
+        , "traps"     .= traps
         , "face"      .= face
-        , "lastSkill" .= lastSkill
         , "skills"    .= skills
         ]
-      where
-        hideHidden :: ∀ a. Classed a => [a] -> [a]
-        hideHidden = filter $ (Hidden ∉) . Classed.classes
-        foldStats xs       = foldStat <$> group (sort xs)
-        foldStat (x:|[])   = x
-        foldStat xs@(x:|_) = setAmount (sum $ getAmount <$> xs) x
-        getAmount Status{amount} = amount
-        setAmount i (Status _ a b c d e f g h) = Status i a b c d e f g h
 
 
 instance Parity Ninja where
@@ -361,14 +351,6 @@ data Status = Status
 
 instance ToJSON Status
 
-instance Eq Status where
-    (==) = (==) `on` \Status{name, user, classes, dur} ->
-        (name, user, classes, dur)
-
-instance Ord Status where
-    compare = comparing \Status{name, user, classes, dur} ->
-        (name, user, classes, dur)
-
 instance Classed Status where
     classes Status{classes} = classes
 
@@ -432,19 +414,12 @@ instance ToJSON Trap where
         , "dur"       .= dur
         ]
 
-instance Eq Trap where
-    (==) = (==) `on` \Trap{direction, trigger, name, user, classes, dur} ->
-        (direction, trigger, name, user, classes, dur)
-
 instance Classed Trap where
     classes Trap{classes} = classes
 
 instance Labeled Trap where
     name Trap{name} = name
     user Trap{user} = user
-    eq = (==) `on` \Trap{direction, trigger, name, user} ->
-        (direction, trigger, name, user)
-
 
 -- | Gameplay context. This promotes a 'MonadGame' to 'MonadPlay'.
 data Context = Context

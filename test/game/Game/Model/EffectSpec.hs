@@ -19,7 +19,6 @@ import qualified Game.Action as Action
 import qualified Game.Engine.Combat as Combat
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
-import qualified Game.Engine.Skills as Skills
 import           Game.Model.Attack (Attack)
 import qualified Game.Model.Attack as Attack
 import           Game.Model.Chakras (Chakras(Chakras))

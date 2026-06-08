@@ -20,9 +20,9 @@ import ClassyPrelude
 
 import Data.Enum.Set (EnumSet)
 
-import           Class.Classed (nonStackAll)
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
+import           Class.Stackable ((.++))
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Statuses as Statuses
 import           Game.Model.Class (Class(..))
@@ -212,7 +212,7 @@ commandeer = P.unsilenced do
 
     P.modify user $ Ninjas.modifyStatuses
         (mapMaybe gainHelpful (N.statuses nTarget) ++) . \n ->
-            n { N.defense = N.defense nTarget `nonStackAll` N.defense n
+            n { N.defense = N.defense nTarget .++ N.defense n
               , N.barrier = []
               }
     P.modify target $ Ninjas.modifyStatuses

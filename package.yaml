@@ -102,10 +102,8 @@ executables:
     - aeson
     - base
     - bitwise-enum
-    - containers
     - elm-bridge
     - template-haskell
-    - text
     when:
     - condition: flag(library-only)
       buildable: false

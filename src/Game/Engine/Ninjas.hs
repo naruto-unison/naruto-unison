@@ -50,10 +50,11 @@ import ClassyPrelude
 
 import qualified Data.Sequence as Seq
 
-import           Class.Classed (Classed, nonStack)
+import           Class.Classed (Classed)
 import           Class.Labeled (Labeled)
 import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
+import           Class.Stackable ((.:))
 import           Class.TurnBased (TurnBased)
 import qualified Class.TurnBased as TurnBased
 import qualified Game.Engine.Effects as Effects
@@ -80,7 +81,7 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
-import           Game.Model.Trap (Trap)
+import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉), intersects)
@@ -213,10 +214,15 @@ decr n = processSkills $ processEffects
     setNotNew chan = chan { Channel.new = False }
 
 addTrap :: Trap -> Ninja -> Ninja
-addTrap trap n = n { N.traps = trap `nonStack` N.traps n }
+addTrap trap n@Ninja{traps}
+  | any (conflicts trap) traps = n
+  | otherwise = n { N.traps = trap : traps }
+  where
+    conflicts = (==) `on` \Trap{user, direction, trigger, classes, dur, name} ->
+        (user, direction, trigger, classes, dur, name)
 
 addStatus :: Status -> Ninja -> Ninja
-addStatus st = modifyStatuses $ nonStack st
+addStatus st = modifyStatuses $ (st .:)
 
 checkEffects :: [Effect] -> Ninja -> Ninja
 checkEffects [] n = n
@@ -232,15 +238,15 @@ checkDestructibleEffects xs n
 
 addBarrier :: Destructible -> Ninja -> Ninja
 addBarrier b@Destructible{amount, effects} n = case amount `compare` 0 of
-    LT -> n { N.defense = Destructible.negate b `nonStack` N.defense n }
+    LT -> n { N.defense = Destructible.negate b .: N.defense n }
     EQ -> n
-    GT -> checkEffects effects n { N.barrier = b `nonStack` N.barrier n }
+    GT -> checkEffects effects n { N.barrier = b .: N.barrier n }
 
 addDefense :: Destructible -> Ninja -> Ninja
 addDefense b@Destructible{amount, effects} n = case amount `compare` 0 of
-    LT -> n { N.barrier = Destructible.negate b `nonStack` N.barrier n }
+    LT -> n { N.barrier = Destructible.negate b .: N.barrier n }
     EQ -> n
-    GT -> checkEffects effects n { N.defense = b `nonStack` N.defense n }
+    GT -> checkEffects effects n { N.defense = b .: N.defense n }
 
 increaseDefense :: Int -- ^ 'Destructible.amount'.
            -> Text -- ^ 'Destructible.name'.

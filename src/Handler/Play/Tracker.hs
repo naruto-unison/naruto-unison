@@ -115,9 +115,7 @@ trackChakra1 :: ∀ m. PrimMonad m
 trackChakra1 skill chaks chaks' x = sequence_ $ tracker <$> chakras x ! skill
   where
     tracker (i, f) = addProgress x i $ f (swapOwned chaks) (swapOwned chaks')
-    swapOwned
-      | Parity.even $ slot x = id
-      | otherwise            = swap
+    swapOwned = Parity.swap $ slot x
 
 trackTrap1 :: ∀ m. PrimMonad m
            => Text -> Slot -> Ninja -> Track (PrimState m) -> m ()

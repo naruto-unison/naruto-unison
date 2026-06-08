@@ -2,21 +2,16 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE TemplateHaskell       #-}
 
-import Prelude
-import Data.Sequence (Seq)
-import Data.List (dropWhileEnd)
-
-import Data.Proxy
-import Elm.Module
-import Elm.TyRep
-
-import Elm.Derive hiding (defaultOptions)
+import ClassyPrelude
 
 import Data.Aeson (defaultOptions)
 import Data.Char (isSpace)
 import Data.Enum.Set (EnumSet)
-import Data.Map.Strict (Map)
-import Data.Text (Text)
+import Data.List (dropWhileEnd)
+import Data.Proxy
+import Elm.Derive hiding (defaultOptions)
+import Elm.Module
+import Elm.TyRep
 
 import Application.Model (Privilege(..))
 import Game.Model.Chakras (Chakras)
@@ -26,6 +21,7 @@ import Game.Model.Class (Class)
 import Game.Model.Copy (Copy)
 import Game.Model.Destructible (Destructible)
 import Game.Model.Duration (Duration)
+import Game.Model.Face (Face)
 import Game.Model.Player (Player(..))
 import Game.Model.Requirement (Requirement)
 import Game.Model.Runnable (Runnable)
@@ -39,7 +35,23 @@ import Handler.Client.Message (Failure(..), Message(..))
 import Handler.Client.Reward (Reward)
 import Handler.Play.Turn (Turn)
 import Handler.Play.War (War(..))
-import OrphanInstances.Ninja (Face)
+
+-- From Game.Model.Internal
+data Ninja = Ninja
+    { slot      :: Slot
+    , character :: Text
+    , health    :: Int
+    , cooldowns :: HashMap Text Int
+    , charges   :: HashMap Text Int
+    , defense   :: [Destructible]
+    , barrier   :: [Destructible]
+    , statuses  :: [Status]
+    , copies    :: Vector (Maybe Copy)
+    , channels  :: [Channel]
+    , traps     :: [Trap]
+    , face      :: Maybe Face
+    , skills    :: [Skill]
+    }
 
 -- From Game.Model.Internal
 data Skill = Skill
@@ -68,24 +80,6 @@ data Trap = Trap
     , classes   :: EnumSet Class
     , tracker   :: Int
     , dur       :: Duration
-    }
-
--- From OrphanInstances
-data Ninja = Ninja
-    { slot      :: Slot
-    , character :: Text
-    , health    :: Int
-    , cooldowns :: Map Text Int
-    , charges   :: Map Text Int
-    , defense   :: [Destructible]
-    , barrier   :: [Destructible]
-    , statuses  :: [Status]
-    , copies    :: Seq (Maybe Copy)
-    , channels  :: [Channel]
-    , traps     :: Seq Trap
-    , face      :: Maybe Face
-    , lastSkill :: Maybe Skill
-    , skills    :: [Skill]
     }
 
 -- From the ToJSON instance of GameInfo in Model.GameInfo
@@ -127,17 +121,15 @@ alterations = recAlterType typeAlterations
 
 typeAlterations :: EType -> EType
 typeAlterations t = case t of
+    ETyApp (ETyCon (ETCon "NonNull"))  x -> typeAlterations x
     ETyApp (ETyCon (ETCon "Runnable")) x -> typeAlterations x
-    ETyApp (ETyCon (ETCon "EnumSet")) x  -> ETyApp (ETyCon (ETCon "Set"))
-                                          $ typeAlterations x
     ETyCon (ETCon "Class")     -> ETyCon (ETCon "String")
     ETyCon (ETCon "Duration")  -> ETyCon (ETCon "Int")
+    ETyCon (ETCon "EnumSet")   -> ETyCon (ETCon "Set")
     ETyCon (ETCon "Group")     -> ETyCon (ETCon "String")
-    ETyCon (ETCon "NonEmpty")  -> ETyCon (ETCon "List")
-    ETyCon (ETCon "Seq")       -> ETyCon (ETCon "List")
     ETyCon (ETCon "Slot")      -> ETyCon (ETCon "Int")
     ETyCon (ETCon "Trigger")   -> ETyCon (ETCon "String")
-    ETyCon (ETCon "Varying")   -> ETyCon (ETCon "Int")
+    ETyCon (ETCon "Vector")    -> ETyCon (ETCon "List")
     _                          -> defaultTypeAlterations t
 
 deriveElmDef defaultOptions ''Message
@@ -173,16 +165,13 @@ trimAll :: String -> String
 trimAll s = unlines $ dropWhileEnd isSpace <$> lines s
 
 main :: IO ()
-main = writeFile "elm/src/Import/Model.elm" . trimAll
-    $ "module Import.Model exposing (..)\n\
+main = writeFile "elm/src/Import/Model.elm" . fromString . trimAll $ "module Import.Model exposing (..)\n\
 \\n\
+\import Dict exposing (Dict)\n\
 \import Json.Decode\n\
 \import Json.Encode exposing (Value)\n\
-\import Json.Helpers exposing (ObjectEncoding, encodeObject, encodeValue, decodeSumObjectWithSingleField, encodeSumObjectWithSingleField, decodeSumTwoElemArray, encodeSumTwoElementArray, encodeSumTaggedObject, decodeSumUnaries, decodeSumNullaries, decodeSumNullaryOrSingleField, decodeMap, encodeMap, jsonEncDict, jsonDecDict, encodeSet, decodeSet, maybeEncode, encodeSumUntagged, required, custom, fnullable, tuple2, tuple3)\n\
-\import Dict exposing (Dict)\n\
-\import Set exposing (Set)\n\
-\\n\
-\import Import.Decode exposing (decodeSumTaggedObject)\n\n" ++
+\import Json.Helpers exposing (..)\n\
+\import Set exposing (Set)\n\n" ++
     makeModuleContentWithAlterations alterations
     [ DefineElm (Proxy :: Proxy Bomb)
     , DefineElm (Proxy :: Proxy Category)

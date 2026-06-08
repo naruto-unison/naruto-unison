@@ -42,7 +42,7 @@ import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger(Trigger(..))
 import qualified Game.Model.Trigger as Trigger
-import           Util ((∈), (∉))
+import           Util ((∈))
 
 launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        => Trap -> Runnable Context -> m ()
@@ -146,14 +146,11 @@ apply :: ∀ m. MonadPlay m
          -> IntRunConstraint () -> m ()
 apply direction classes unthrottled trigger f = void $ runMaybeT do
     context@Context{new, target} <- P.context
-    nUser   <- P.nUser
-    nTarget <- P.nTarget
-    dur     <- if not new then return unthrottled else
-               hoistMaybe $ throttle nUser
-    let tr = makeTrap context direction classes dur trigger f
-    guard $ tr ∉ N.traps nTarget
+    nUser <- P.nUser
     guard . not $ isCounter && nUser `is` Disable Counters
-    P.modify target $ Ninjas.addTrap tr
+    dur   <- if new then hoistMaybe (throttle nUser) else return unthrottled
+    let trap = makeTrap context direction classes dur trigger f
+    P.modify target $ Ninjas.addTrap trap
   where
     isCounter = Trigger.isCounter trigger
     throttle n
