@@ -428,7 +428,7 @@ spec = parallel do
     describe "Swap" do
         it "swaps allies and enemies as targets" $
             Skill.targets (getSkill [ Swap ])
-            `shouldBe` Skill.targets (Skills.swap $ getSkill [])
+            `shouldBe` Skill.targets (Skill.swap $ getSkill [])
 
     describe "Taunt" do
         let tryTarget = targeting Self

@@ -230,7 +230,7 @@ act ctx@Context{user, new, target, skill} = void $ runMaybeT do
             P.modify user \n -> n { N.lastSkill = Just skill, N.acted = True }
             P.trigger user $ OnAction <$> toList classes
             when (charges > 0)
-                . P.modify user $ Cooldown.spendCharge skill
+                . P.modify user $ Ninjas.spendCharge skill
             startEfs   <- targeted start
             contEfs    <- targeted effects
             let bothEfs = startEfs ++ contEfs
@@ -289,12 +289,8 @@ runInterruptions user (Channel skill@Skill{end, name} target _ _) = do
                   }
     removeInterrupted :: Ninja -> Ninja
     removeInterrupted n@Ninja{barrier, defense, statuses, traps}
-      | hasInterrupted = Ninjas.processEffects
-                         n { N.defense  = filter uninterrupted defense
-                           , N.barrier  = filter uninterrupted barrier
-                           , N.statuses = filter uninterrupted statuses
-                           , N.traps    = filter uninterruptedTrap traps
-                           }
+      | hasInterrupted = (Ninjas.modifyAll (filter uninterrupted) n)
+                           { N.traps = filter uninterruptedTrap traps }
       | otherwise      = n
       where
         hasInterrupted = any interrupted statuses
@@ -309,7 +305,6 @@ runInterruptions user (Channel skill@Skill{end, name} target _ _) = do
     uninterruptedTrap :: Trap -> Bool
     uninterruptedTrap Trap{trigger = OnDeath} = True
     uninterruptedTrap x = uninterrupted x
-
 
 -- | True for all targets except 'REnemy', 'RAlly', and 'RXAlly'.
 nonRandom :: Target -> Bool

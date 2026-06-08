@@ -31,9 +31,10 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
 
 build :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> m Destructible
-build dur amount effects = create <$> P.context <*> P.nUser
-  where
-    create Context{skill, user} n = Destructible
+build dur amount effects = do
+    Context{skill, user} <- P.context
+    n <- P.nUser
+    return Destructible
         { user
         , skill
         , dur
@@ -134,14 +135,13 @@ attack atk dmg
                                   $ N.defense nTarget
 
     if atk > Attack.Afflict && nTarget `is` DamageToDefense then
-        let damageDefense = Destructible { user
-                                         , skill
-                                         , amount  = dmgCalc
-                                         , dur     = Permanent
-                                         , effects = []
-                                         }
-        in
-        P.modify target \n -> n { N.defense = damageDefense : N.defense n }
+        P.modify target $ Ninjas.addDefense Destructible
+            { user
+            , skill   = Skill.removeClass Nonstacking skill
+            , amount  = dmgCalc
+            , dur     = Permanent
+            , effects = []
+            }
 
     else if atk == Attack.Afflict then
         P.modify target $ Ninjas.adjustHealth (- dmgCalc)

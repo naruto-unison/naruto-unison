@@ -1,7 +1,7 @@
 module Game.Model.Destructible
-  ( Destructible(..)
-  , negate
-  ) where
+    ( Destructible(..)
+    , negate
+    ) where
 
 import Game.Model.Internal (Destructible(..))
 

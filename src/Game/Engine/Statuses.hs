@@ -42,10 +42,8 @@ apply amount classes bombs name unthrottled effects = void $ runMaybeT do
     let st   = makeStatus context amount nUser nTarget
                classes bombs name dur effects
     if N.has name user nTarget && Extending ∈ Status.classes st then
-        let prolong' = mapMaybe . Ninjas.prolong' (Status.dur st) name
-                     $ Status.user st
-        in
-        P.modify target \n -> n { N.statuses = prolong' $ N.statuses n }
+        P.modify target . Ninjas.modifyStatuses
+            $ mapMaybe $ Ninjas.prolong' (Status.dur st) name (Status.user st)
     else do
         let Status{effects = efs} = st
         guard $ null effects || not (null efs)

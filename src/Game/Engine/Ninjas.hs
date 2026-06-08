@@ -1,6 +1,6 @@
 -- | 'Ninja' processing.
 module Game.Engine.Ninjas
-  ( modifyStatuses
+  ( modifyStatuses, modifyAll
   , apply
   , processEffects, processSkills
 
@@ -15,11 +15,14 @@ module Game.Engine.Ninjas
   , setHealth
   , kill
 
+  , addTrap
   , addStatus
   , addBarrier
   , addDefense
   , increaseDefense
   , removeDefense
+  , clearBarrier
+  , clearDefense
 
   , clear
   , clearTrap
@@ -34,7 +37,7 @@ module Game.Engine.Ninjas
   , cancelChannel
 
   , copy, copyAll
-  , recharge, rechargeAll
+  , recharge, rechargeAll, spendCharge
 
   , prolong
   , prolong'
@@ -47,9 +50,11 @@ import ClassyPrelude
 
 import qualified Data.Sequence as Seq
 
-import qualified Class.Classed as Classed
+import           Class.Classed (Classed, nonStack)
+import           Class.Labeled (Labeled)
 import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
+import           Class.TurnBased (TurnBased)
 import qualified Class.TurnBased as TurnBased
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Skills as Skills
@@ -75,15 +80,15 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
+import           Game.Model.Trap (Trap)
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉), intersects)
 
 processSkills :: Ninja -> Ninja
 processSkills n@Ninja{copies, character = Character{skills}}
-    = n { N.skills = skills' }
+    = n { N.skills = zipWith getSkill (toNullable skills) copies }
   where
-    skills' = zipWith getSkill (toNullable skills) copies
     getSkill (base:|alts) mcopy = Requirement.usable True n
         . Skills.change n $ fromMaybe base $ copied <|> alternate
       where
@@ -162,16 +167,28 @@ processEffects n@Ninja{barrier, defense, statuses} =
 modifyStatuses :: ([Status] -> [Status]) -> Ninja -> Ninja
 modifyStatuses f n = processEffects n { N.statuses = f $ N.statuses n }
 
+modifyAll :: (∀ a. (Classed a, Labeled a, TurnBased a) => [a] -> [a])
+          -> Ninja -> Ninja
+modifyAll f n = processEffects n { N.defense  = f $ N.defense n
+                                 , N.barrier  = f $ N.barrier n
+                                 , N.statuses = f $ N.statuses n
+                                 , N.traps    = f $ N.traps n
+                                 }
+
 -- | Factory resets a @Ninja@ to its starting values.
 factory :: Ninja -> Ninja
 factory n = N.new (N.slot n) $ N.character n
 
--- | Modifies 'health', restricting the value within ['N.minHealth', 100].
+-- | Modifies 'health', restricting the value within [0, 100].
 adjustHealth :: (Int -> Int) -> Ninja -> Ninja
 adjustHealth f n =
-    n { N.health = min 100 . max (N.minHealth n) . f $ N.health n }
+    n { N.health = min 100 . max minHealth . f $ N.health n }
+  where
+    minHealth
+      | n `is` Endure = 1
+      | otherwise     = 0
 
--- | Sets 'health', restricting the value within ['N.minHealth', 100].
+-- | Sets 'health', restricting the value within [0, 100].
 setHealth :: Int -> Ninja -> Ninja
 setHealth = adjustHealth . const
 
@@ -195,24 +212,35 @@ decr n = processSkills $ processEffects
   where
     setNotNew chan = chan { Channel.new = False }
 
+addTrap :: Trap -> Ninja -> Ninja
+addTrap trap n = n { N.traps = trap `nonStack` N.traps n }
+
 addStatus :: Status -> Ninja -> Ninja
-addStatus st = modifyStatuses $ Classed.nonStack st
+addStatus st = modifyStatuses $ nonStack st
 
 checkEffects :: [Effect] -> Ninja -> Ninja
 checkEffects [] n = n
 checkEffects _ n = processEffects n
 
+checkDestructibleEffects :: [Destructible] -> Ninja -> Ninja
+checkDestructibleEffects xs n
+  | any hasEffects xs = processEffects n
+  | otherwise         = n
+  where
+   hasEffects Destructible{effects = []} = True
+   hasEffects _                          = False
+
 addBarrier :: Destructible -> Ninja -> Ninja
 addBarrier b@Destructible{amount, effects} n = case amount `compare` 0 of
-    LT -> n { N.defense = Classed.nonStack (Destructible.negate b) $ N.defense n }
+    LT -> n { N.defense = Destructible.negate b `nonStack` N.defense n }
     EQ -> n
-    GT -> checkEffects effects n { N.barrier = Classed.nonStack b $ N.barrier n }
+    GT -> checkEffects effects n { N.barrier = b `nonStack` N.barrier n }
 
 addDefense :: Destructible -> Ninja -> Ninja
 addDefense b@Destructible{amount, effects} n = case amount `compare` 0 of
-    LT -> n { N.barrier = Classed.nonStack (Destructible.negate b) $ N.barrier n }
+    LT -> n { N.barrier = Destructible.negate b `nonStack` N.barrier n }
     EQ -> n
-    GT -> checkEffects effects n { N.defense = Classed.nonStack b $ N.defense n }
+    GT -> checkEffects effects n { N.defense = b `nonStack` N.defense n }
 
 increaseDefense :: Int -- ^ 'Destructible.amount'.
            -> Text -- ^ 'Destructible.name'.
@@ -228,6 +256,14 @@ removeDefense :: Text -- ^ 'Destructible.name'.
               -> Ninja -> Ninja
 removeDefense name user n = processEffects
     n { N.defense = filter (not . Labeled.match name user) $ N.defense n }
+
+clearBarrier :: Ninja -> Ninja
+clearBarrier n@Ninja{barrier} = checkDestructibleEffects barrier
+    $ n { N.barrier = [] }
+
+clearDefense :: Ninja -> Ninja
+clearDefense n@Ninja{defense} = checkDestructibleEffects defense
+    $ n { N.defense = [] }
 
 -- | Deletes matching 'statuses'.
 clear :: Text -- ^ 'Status.name'.
@@ -407,3 +443,8 @@ recharge :: Text -> Slot -> Ninja -> Ninja
 recharge name owner n = n { N.charges = deleteMap key $ N.charges n }
   where
     key = Skill.Key name owner
+
+-- | 'update's a corresponding @Ninja@ when they use a new @Skill@.
+spendCharge :: Skill -> Ninja -> Ninja
+spendCharge skill n =
+    n { N.charges = insertWith (+) (Skill.key skill) 1 $ N.charges n }

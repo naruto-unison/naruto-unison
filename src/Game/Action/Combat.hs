@@ -62,8 +62,8 @@ demolishAll :: ∀ m. MonadPlay m => m ()
 demolishAll = do
     Ninja{barrier, slot = user}   <- P.nUser
     Ninja{defense, slot = target} <- P.nTarget
-    P.modify user   $ Ninjas.processEffects . \n -> n { N.barrier = [] }
-    P.modify target $ Ninjas.processEffects . \n -> n { N.defense = [] }
+    P.modify user   Ninjas.clearBarrier
+    P.modify target Ninjas.clearDefense
     P.trigger user   $ OnBreak . Labeled.name <$> barrier
     P.trigger target $ OnBreak . Labeled.name <$> defense
 

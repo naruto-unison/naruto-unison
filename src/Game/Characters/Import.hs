@@ -22,7 +22,7 @@ import Game.Action.Skill as Import
 import Game.Action.Status as Import
 import Game.Action.Trap as Import
 import Game.Engine.Effects as Import (stunned)
-import Game.Engine.Skills as Import (targetAll, restrict, also, addClasses, setCooldown, setDur, changeWith, changeWithChannel, changeWithDefense, changePer, setCost, addDesc)
+import Game.Engine.Skills as Import (also, changeWith, changeWithChannel, changeWithDefense, changePer)
 import Game.Model.Chakras as Import (Chakra(..), Chakras)
 import Game.Model.Channel as Import (Channeling(..))
 import Game.Model.Character as Import (Character(Character), Category(..))
@@ -33,7 +33,7 @@ import Game.Model.Group as Import (Group(..))
 import Game.Model.Ninja as Import (Ninja(barrier, defense, health, skills, slot, statuses, traps), alive, barrierAmount, defenseAmount, has, has', is, lastChakraSpent, numHelpful, numStacks)
 import Game.Model.Requirement as Import (Requirement(..))
 import Game.Model.Runnable as Import (IntRunConstraint, RunConstraint, Runnable(To))
-import Game.Model.Skill as Import (Skill, Target(..))
+import Game.Model.Skill as Import (Skill, Target(..), addDesc, targetAll, restrict, addClasses, setCooldown, setDur, setCost)
 import Game.Model.Slot as Import (Slot, toInt, teamSize)
 import Game.Model.Status as Import (Bomb(..))
 import Game.Model.Trap as Import (Direction(..))

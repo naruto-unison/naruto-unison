@@ -1,6 +1,6 @@
 module Game.Model.Ninja
   ( Ninja(..), new
-  , alive, minHealth
+  , alive
   , is, isChanneling
   , has, has', hasBarrier, hasDefense, hasOwn, hasOwn'
   , numStacks, numHelpful, numHarmful
@@ -166,9 +166,3 @@ numHarmful n = sum
             , Hidden ∉ classes
             , ef <- effects
             , not $ Effect.helpful ef]
-
--- | @1@ if affected by 'Endure', otherwise @0@.
-minHealth :: Ninja -> Int
-minHealth n
-  | n `is` Endure = 1
-  | otherwise     = 0

@@ -134,10 +134,14 @@ As an example, all the functions in [Game.Engine.Ninjas](src/Game/Engine/Ninjas.
 
 ```haskell
 adjustHealth :: (Int -> Int) -> Ninja -> Ninja
-adjustHealth f n = n { health = min 100 . max (Ninja.minHealth n) . f $ health n }
+adjustHealth f n = n { health = min 100 . max minHealth . f $ health n }
+  where
+    minHealth
+      | n `is` Endure = 1
+      | otherwise      = 0
 ```
 
-It is a simple transformation of data. Because `adjustHealth` is pure, `Ninja.minHealth` is also guaranteed to be pure. These functions have consistent output and cannot modify shared state, perform network operations, or do anything else that might cause problems in a multi-threaded environment.
+It is a simple transformation of data. These functions have consistent output and cannot modify shared state, perform network operations, or do anything else that might cause problems in a multi-threaded environment.
 
 #### Clear and Concise Math
 
@@ -145,7 +149,7 @@ Haskell's mathematical background lends itself to defining game calculations. Fo
 
 ```haskell
 snare :: Ninja -> Int
-snare n = sum [x | Snare x <- Ninja.effects n]
+snare Ninja{effects} = sum [x | Snare x <- effects]
 ```
 
 This function does exactly what it looks like: sums up all effects with the `Snare Int`  constructor. Haskell makes it easy and legible to pattern match against a union type within a list comprehension, as in the larger domain of all effects. `Snare` happens to be a unary constructor; other constructors in the `Effect` union type have multiple arguments, and they can be matched just as easily.

@@ -17,38 +17,32 @@ import Data.Enum.Set (EnumSet)
 import           Class.Hook (MonadHook)
 import qualified Class.Hook as Hook
 import qualified Class.Parity as Parity
-import           Class.Play (MonadGame)
+import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import           Game.Model.Context (Context)
+import qualified Game.Engine.Effects as Effects
+import qualified Game.Engine.Ninjas as Ninjas
+import           Game.Model.Class (Class(..))
+import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
+import           Game.Model.Duration (Duration(..))
+import qualified Game.Model.Duration as Duration
+import           Game.Model.Effect (Constructor(..), Effect(..))
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game
-import           Game.Model.Ninja (Ninja(Ninja))
+import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
-import           Game.Model.Runnable (Runnable)
+import           Game.Model.Requirement (Requirement(..))
+import           Game.Model.Runnable (Runnable(To), IntRunConstraint)
 import qualified Game.Model.Runnable as Runnable
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger(Trigger(..))
-import           Util ((∈))
-
-import qualified Class.Classed as Classed
-import           Class.Play (MonadPlay)
-import qualified Game.Engine.Effects as Effects
-import           Game.Model.Class (Class(..))
-import           Game.Model.Context (Context(Context))
-import           Game.Model.Duration (Duration(..))
-import qualified Game.Model.Duration as Duration
-import           Game.Model.Effect (Constructor(..), Effect(..))
-import           Game.Model.Ninja (is)
-import           Game.Model.Requirement (Requirement(..))
-import           Game.Model.Runnable (Runnable(To), IntRunConstraint)
-import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Trigger as Trigger
-import           Util ((∉))
+import           Util ((∈), (∉))
 
 launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        => Trap -> Runnable Context -> m ()
@@ -159,7 +153,7 @@ apply direction classes unthrottled trigger f = void $ runMaybeT do
     let tr = makeTrap context direction classes dur trigger f
     guard $ tr ∉ N.traps nTarget
     guard . not $ isCounter && nUser `is` Disable Counters
-    P.modify target \n -> n { N.traps = Classed.nonStack tr $ N.traps n }
+    P.modify target $ Ninjas.addTrap tr
   where
     isCounter = Trigger.isCounter trigger
     throttle n

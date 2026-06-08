@@ -105,9 +105,8 @@ processTurn runner = do
 doBomb :: ∀ m. (MonadGame m, MonadRandom m) => Bomb -> Slot -> Status -> m ()
 doBomb bomb target st@Status{bombs, skill} = mapM_ doEach bombs
   where
-    classes' = insertSet Necromancy $ Skill.classes skill
     st'
-      | bomb == Done = st { Status.skill = skill { Skill.classes = classes' } }
+      | bomb == Done = st { Status.skill = Skill.addClass Necromancy skill }
       | otherwise    = st
     context = (Context.fromStatus st') { Context.target = target }
     doEach (To targ run)
@@ -157,11 +156,8 @@ doDeaths = mapM_ doEach Slot.all
 
 -- | Removes 'Soulbound' effects. Applied when a Ninja dies or is factory-reset.
 unSoulbound :: Slot -> Ninja -> Ninja
-unSoulbound user n@Ninja{copies, statuses, traps} = Ninjas.modifyStatuses
-    (const $ filter notSoulbound statuses)
-    $ n { N.traps  = filter notSoulbound traps
-        , N.copies = filter (maybe True notSoulbound) copies
-        }
+unSoulbound user n = Ninjas.modifyAll (filter notSoulbound)
+    n { N.copies = filter (maybe True notSoulbound) $ N.copies n }
   where
     notSoulbound :: ∀ a. (Classed a, Labeled a) => a -> Bool
     notSoulbound x = Soulbound ∉ Classed.classes x || Labeled.user x /= user
