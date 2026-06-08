@@ -117,7 +117,7 @@ data Character = Character
     , price    :: Int
     , bio      :: Text
     , groups   :: EnumSet Group
-    , skills   :: NonNull Seq (NonNull Seq Skill)
+    , skills   :: NonNull Vector (NonNull Vector Skill)
     , category :: Category
     , ident    :: Text
     } deriving (Generic)
@@ -204,23 +204,23 @@ instance ToJSONKey Key where
 
 -- | In-game character, indexed between 0 and 5.
 data Ninja = Ninja
-    { slot       :: Slot             -- ^ 'Model.Game.Ninjas' index (0-5)
+    { slot       :: Slot            -- ^ 'Model.Game.Ninjas' index (0-5)
     , character  :: Character
-    , health     :: Int              -- ^ Starts at @100@
-    , cooldowns  :: HashMap Key Int  -- ^ Starts empty
-    , charges    :: HashMap Key Int  -- ^ Starts at @0@s
-    , copies     :: Seq (Maybe Copy) -- ^ Starts at @Nothing@s
-    , defense    :: [Destructible]   -- ^ Starts empty
-    , barrier    :: [Destructible]   -- ^ Starts empty
-    , statuses   :: [Status]         -- ^ Starts empty
-    , channels   :: [Channel]        -- ^ Starts empty
-    , traps      :: [Trap]           -- ^ Starts empty
-    , lastSkill  :: Maybe Skill      -- ^ Starts at @Nothing@
-    , triggers   :: HashSet Trigger  -- ^ Empty at the start of each turn
-    , skills     :: ~(Seq Skill)     -- ^ Processed automatically
-    , effects    :: ~[Effect]        -- ^ Processed automatically
-    , face       :: ~(Maybe Face)    -- ^ Processed automatically
-    , acted      :: Bool             -- ^ False at the start of each turn
+    , health     :: Int             -- ^ Starts at @100@
+    , cooldowns  :: HashMap Key Int -- ^ Starts empty
+    , charges    :: HashMap Key Int -- ^ Starts at @0@s
+    , copies     :: Vector (Maybe Copy) -- ^ Starts at @Nothing@s
+    , defense    :: [Destructible]  -- ^ Starts empty
+    , barrier    :: [Destructible]  -- ^ Starts empty
+    , statuses   :: [Status]        -- ^ Starts empty
+    , channels   :: [Channel]       -- ^ Starts empty
+    , traps      :: [Trap]          -- ^ Starts empty
+    , lastSkill  :: Maybe Skill     -- ^ Starts at @Nothing@
+    , triggers   :: HashSet Trigger -- ^ Empty at the start of each turn
+    , skills     :: ~(Vector Skill) -- ^ Processed automatically
+    , effects    :: ~[Effect]       -- ^ Processed automatically
+    , face       :: ~(Maybe Face)   -- ^ Processed automatically
+    , acted      :: Bool            -- ^ False at the start of each turn
     } deriving (Generic)
 
 instance ToJSON Ninja where

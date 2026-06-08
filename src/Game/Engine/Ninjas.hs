@@ -282,8 +282,10 @@ copy :: Duration -- ^ 'Copy.dur'.
       -> [Int] -- ^ Skill slots, in the range @[0, length 'N.skills')@.
       -> Skill -- ^ 'Copy.skill'.
       -> Ninja -> Ninja
-copy dur slots skill n = n { N.copies = foldl' go (N.copies n) slots }
+copy dur slots skill n =
+    n { N.copies = fromList . toList $  foldl' go seqCopies slots }
   where
+    seqCopies = fromList . toList $ N.copies n
     go acc slot = Seq.update slot (Just Copy { skill, dur }) acc
 
 filterEffects :: (Slot -> Effect -> Bool) -> Ninja -> Ninja

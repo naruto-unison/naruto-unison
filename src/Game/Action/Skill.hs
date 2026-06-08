@@ -16,7 +16,7 @@ import ClassyPrelude
 
 import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Data.Enum.Set (EnumSet)
-import qualified Data.Sequence as Seq
+import qualified Data.Vector as Vector
 
 import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
@@ -78,14 +78,14 @@ rechargeAll = alterTarget Ninjas.rechargeAll
 alternateClasses :: EnumSet Class
 alternateClasses = setFromList [Hidden, Nonstacking, Unremovable]
 
-userSkills :: ∀ m. MonadPlay m => m (NonNull Seq (NonNull Seq Skill))
+userSkills :: ∀ m. MonadPlay m => m (NonNull Vector (NonNull Vector Skill))
 userSkills = getSkills <$> P.nUser
   where
     getSkills Ninja{character = Character{skills}} = skills
 
 -- | Adjusts all 'N.alternates' at once.
 setAlternates :: ∀ m. MonadPlay m
-          => NonNull Seq Int -- ^ Index offsets.
+          => NonNull Vector Int -- ^ Index offsets.
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
 setAlternates loadout = applyWith' alternateClasses "loadout" Permanent
     . catMaybes . toList
@@ -118,7 +118,7 @@ copyLast :: ∀ m. MonadPlay m => Duration -> m ()
 copyLast (succ -> dur) = P.uncopied . void $ runMaybeT do
     Context{skill = Skill{name}, user} <- P.context
     Just skill <- N.lastSkill <$> P.nTarget
-    Just s     <- Seq.findIndexL (any $ Labeled.named name)
+    Just s     <- Vector.findIndex (any $ Labeled.named name)
                 . toNullable <$> userSkills
     P.modify user $ Ninjas.copy dur [s] skill
 
