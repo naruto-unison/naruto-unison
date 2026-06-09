@@ -7,7 +7,6 @@ module Game.Engine.Counter
 
 import ClassyPrelude hiding (swap)
 
-import Data.Bits (setBit, testBit)
 import Data.Enum.Set (EnumSet)
 
 import           Class.Hook (MonadHook)
@@ -20,8 +19,7 @@ import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable)
 import qualified Game.Model.Runnable as Runnable
-import           Game.Model.Slot (Slot)
-import qualified Game.Model.Slot as Slot
+import           Game.Model.Slot (Slot, SlotSet)
 import           Game.Model.Trap (Trap)
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
@@ -31,10 +29,10 @@ import           Util ((∈), (∉))
 filterCounters :: ∀ o. (IsSequence o, Ninja ~ Element o)
                => [[Runnable Slot]] -- ^ Effects of the skill to be countered.
                -> o -> o
-filterCounters slots = filter $ testBit targetSet . Slot.toInt . N.slot
+filterCounters slots = filter $ (∈ targetSet) . N.slot
   where
-    targetSet = foldl' go (0 :: Word8) $ join slots
-    go x      = setBit x . Slot.toInt . Runnable.target
+    targetSet :: SlotSet
+    targetSet = setFromList $ Runnable.target <$> join slots
 
 getCounters :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
            => (Trap -> Maybe Class) -> Slot -> EnumSet Class -> Ninja -> [m ()]

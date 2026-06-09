@@ -38,6 +38,7 @@ import qualified Game.Model.Game as Game
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Skill as Skill
+import           Game.Model.Slot (SlotSet)
 import qualified Game.Model.Slot as Slot
 import qualified Handler.Client.Message as Message
 import           Handler.Client.Reward (Reward(Reward))
@@ -304,7 +305,7 @@ enact Enact{spend, exchange, actions}
       | any (Context.illegal player) contexts = throwError "Character out of range"
       | otherwise                             = return ()
 
-    nonUnique = go (mempty :: IntSet)
+    nonUnique = go (mempty :: SlotSet)
       where
-        go set ((Slot.toInt -> x):xs) = x ∈ set || go (insertSet x set) xs
-        go _   []                     = False
+        go set (x:xs) = x ∈ set || go (insertSet x set) xs
+        go _   []     = False

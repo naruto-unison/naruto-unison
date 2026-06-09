@@ -325,7 +325,7 @@ copy :: Duration -- ^ 'Copy.dur'.
       -> Skill -- ^ 'Copy.skill'.
       -> Ninja -> Ninja
 copy dur slots skill n =
-    n { N.copies = fromList . toList $  foldl' go seqCopies slots }
+    n { N.copies = fromList . toList $ foldl' go seqCopies slots }
   where
     seqCopies = fromList . toList $ N.copies n
     go acc slot = Seq.update slot (Just Copy { skill, dur }) acc

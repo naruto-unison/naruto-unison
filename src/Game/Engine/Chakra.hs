@@ -21,7 +21,6 @@ import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Player as Player
-import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈))
 
@@ -34,7 +33,7 @@ remove amount
   | otherwise = do
         Context{user} <- P.context
         P.trigger user [OnChakra]
-        let opponent = 1 + Slot.toInt user
+        let opponent = not $ Parity.even user
         Game{chakra} <- P.game
         let chakras = fromList . toList . removeRandoms
                     $ Parity.getOf opponent chakra

@@ -5,13 +5,19 @@ module Game.Model.Slot
   , teamSize
   , all, allies, enemies
   , toChar
+  , SlotSet
   ) where
 
 import ClassyPrelude hiding (all)
 
-import Data.Aeson (ToJSON)
-import Text.Read
-import System.Random.Stateful (Uniform(..), UniformRange(..))
+import           Data.Aeson (ToJSON)
+import           Data.Bits
+import           Data.Enum.Set.Base (EnumSet)
+import qualified Data.Enum.Set.Base as EnumSet
+import           GHC.Exts (IsList)
+import qualified GHC.Exts
+import           Text.Read
+import           System.Random.Stateful (Uniform(..), UniformRange(..))
 
 import           Class.Display (Display)
 import           Class.Parity (Parity)
@@ -77,3 +83,132 @@ instance Parse Slot where
 
 toChar :: Slot -> Char
 toChar (Slot x) = toEnum $ x + 48
+
+
+newtype SlotSet = SlotSet { toEnumSet :: EnumSet Word Int }
+    deriving (Eq, Ord, Semigroup, Monoid)
+
+type instance Element SlotSet = Slot
+
+instance MonoPointed SlotSet where
+    opoint = SlotSet . opoint . toInt
+    {-# INLINE opoint #-}
+
+instance IsList SlotSet where
+    type Item SlotSet = Slot
+    fromList = fromFoldable
+    toList = otoList
+
+instance MonoFunctor SlotSet where
+    omap = wrapSet . omap . mapSlot
+    {-# INLINE omap #-}
+
+instance MonoFoldable SlotSet where
+    ofoldMap f = ofoldMap (wrapSlot f) . toEnumSet
+    {-# INLINE ofoldMap #-}
+    ofoldr f acc = ofoldr (wrapSlot f) acc . toEnumSet
+    {-# INLINE ofoldr #-}
+    ofoldl' f acc = ofoldl' (\acc' x -> f acc' (Slot x)) acc . toEnumSet
+    {-# INLINE ofoldl' #-}
+    ofoldr1Ex f = Slot . ofoldr1Ex (mapSlot2 f) . toEnumSet
+    {-# INLINE ofoldr1Ex #-}
+    ofoldl1Ex' f = Slot . ofoldl1Ex' (mapSlot2 f) . toEnumSet
+    {-# INLINE ofoldl1Ex' #-}
+    otoList = wrapList otoList
+    {-# INLINE otoList #-}
+    oall f = oall (wrapSlot f) . toEnumSet
+    {-# INLINE oall #-}
+    oany f = oany (wrapSlot f) . toEnumSet
+    {-# INLINE oany #-}
+    onull = onull . toEnumSet
+    {-# INLINE onull #-}
+    olength = olength . toEnumSet
+    {-# INLINE olength #-}
+    olength64 = olength64 . toEnumSet
+    {-# INLINE olength64 #-}
+    headEx = Slot . headEx . toEnumSet
+    {-# INLINE headEx #-}
+    lastEx = Slot . lastEx . toEnumSet
+    {-# INLINE lastEx #-}
+    oelem x = oelem (toInt x) . toEnumSet
+    {-# INLINE oelem #-}
+    onotElem x = onotElem (toInt x) . toEnumSet
+    {-# INLINE onotElem #-}
+
+instance GrowingAppend SlotSet
+
+instance MonoTraversable SlotSet where
+    otraverse f xs = SlotSet <$> otraverse
+                     (\x -> toInt <$> f (Slot x)) (toEnumSet xs)
+    {-# INLINE otraverse #-}
+
+instance SetContainer SlotSet where
+    type ContainerKey SlotSet = Slot
+    member x = member (toInt x) . toEnumSet
+    {-# INLINE member #-}
+    notMember x = notMember (toInt x) . toEnumSet
+    {-# INLINE notMember #-}
+    union = wrapSet2 union
+    {-# INLINE union #-}
+    difference = wrapSet2 difference
+    {-# INLINE difference #-}
+    intersection = wrapSet2 intersection
+    {-# INLINE intersection #-}
+    keys = wrapList keys
+    {-# INLINE keys #-}
+
+instance IsSet SlotSet where
+    insertSet = wrapSet . insertSet . toInt
+    {-# INLINE insertSet #-}
+    deleteSet = wrapSet . deleteSet . toInt
+    {-# INLINE deleteSet #-}
+    singletonSet = SlotSet . singletonSet . toInt
+    {-# INLINE singletonSet #-}
+    setFromList = fromFoldable
+    {-# INLINE setFromList #-}
+    setToList = wrapList setToList
+    {-# INLINE setToList #-}
+    filterSet = wrapSet . filterSet . wrapSlot
+    {-# INLINE filterSet #-}
+
+instance Show SlotSet where
+    showsPrec p xs = showParen (p > 10) $
+        showString "fromList " . shows (toList xs)
+    {-# INLINABLE showsPrec #-}
+
+instance Read SlotSet where
+    readPrec = parens $ prec 10 do
+        Ident "fromList" <- lexP
+        fromFoldable <$> readPrec @[Slot]
+    {-# INLINABLE readPrec #-}
+    readListPrec = readListPrecDefault
+    {-# INLINABLE readListPrec #-}
+
+fromFoldable :: ∀ o. (MonoFoldable o, Slot ~ Element o) => o -> SlotSet
+fromFoldable = SlotSet . EnumSet.fromRaw
+    . foldl' (flip $ (.|.) . bit  . toInt) 0
+{-# INLINE fromFoldable #-}
+
+mapSlot :: (Slot -> Slot) -> Int -> Int
+mapSlot f = toInt . f . Slot
+{-# INLINE mapSlot #-}
+
+mapSlot2 :: (Slot -> Slot -> Slot) -> Int -> Int -> Int
+mapSlot2 f a b = toInt $ f (Slot a) (Slot b)
+{-# INLINE mapSlot2 #-}
+
+wrapSet :: (EnumSet Word Int -> EnumSet Word Int) -> SlotSet -> SlotSet
+wrapSet f = SlotSet . f . toEnumSet
+{-# INLINE wrapSet #-}
+
+wrapSet2 :: (EnumSet Word Int -> EnumSet Word Int -> EnumSet Word Int)
+         -> SlotSet -> SlotSet -> SlotSet
+wrapSet2 f (SlotSet x) (SlotSet y) = SlotSet $ f x y
+
+wrapSlot :: ∀ a. (Slot -> a) -> Int -> a
+wrapSlot f = f . Slot
+{-# INLINE wrapSlot #-}
+
+wrapList :: (EnumSet Word Int -> [Int]) -> SlotSet -> [Slot]
+wrapList f = (Slot <$>) . f . toEnumSet
+{-# INLINE wrapList #-}
