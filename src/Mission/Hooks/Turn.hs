@@ -14,8 +14,8 @@ import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import           Mission.Hooks.Util (hasFrom, toID)
-import           Mission.Store (Store)
-import qualified Mission.Store as Store
+import           Mission.Progress (Store)
+import qualified Mission.Progress as Progress
 import           Util ((∈))
 
 -- | Used in 'HookTurn'.
@@ -48,8 +48,8 @@ killWith name player user target target' store = (store, ) . fromEnum
 maintain :: Text -> TurnHook
 maintain name player user@Ninja{slot} _ target@Ninja{slot = targetSlot} store
   | slot /= targetSlot             = (store, 0)
-  | not $ N.alive target           = (store, Store.resetToZero)
-  | N.numStacks statusID user == 0 = (store, Store.resetToZero)
+  | not $ N.alive target           = (store, Progress.resetToZero)
+  | N.numStacks statusID user == 0 = (store, Progress.resetToZero)
   | allied player user             = (store, 1)
   | otherwise                      = (store, 0)
   where
@@ -64,5 +64,5 @@ maintainOnAlly name player user _ target@Ninja{slot} store
   | otherwise = (insertSet slot store, fromEnum $ allied player user)
   where
     reset
-      | slot ∈ store = Store.resetToZero
-      | otherwise          = 0
+      | slot ∈ store = Progress.resetToZero
+      | otherwise    = 0

@@ -17,7 +17,7 @@ import qualified Game.Engine.Effects as Effects
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import           Mission.Hooks.Util (hasFrom, toID)
-import           Mission.Store (Store)
+import           Mission.Progress (Store)
 import           Util ((∈), (∉))
 
 type StoreHook = Text  -- ^ Skill name.

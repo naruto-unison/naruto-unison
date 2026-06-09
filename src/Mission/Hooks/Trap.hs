@@ -11,7 +11,7 @@ import           Class.Parity (allied)
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja
 import           Game.Model.Slot (Slot)
-import           Mission.Store (Store)
+import           Mission.Progress (Store)
 import           Util ((∉))
 
 type TrapHook = Slot  -- ^ User.
