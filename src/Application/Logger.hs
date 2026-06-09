@@ -5,7 +5,6 @@ module Application.Logger (makeLogWare) where
 import ClassyPrelude
 
 import           Control.Concurrent (forkIO, threadDelay)
-import           Data.Default (def)
 import           Network.HTTP.Types (Status(Status))
 import           Network.Wai (Middleware)
 import qualified Network.Wai as Wai
@@ -33,7 +32,7 @@ getDateGetter flusher = do
 
 makeLogWare :: App -> IO Middleware
 makeLogWare App{logger, settings = Settings{detailedRequestLogging = True}} =
-    RequestLogger.mkRequestLogger def
+    RequestLogger.mkRequestLogger RequestLogger.defaultRequestLoggerSettings
         { RequestLogger.outputFormat = Detailed True
         , RequestLogger.destination  = Logger $ YesodTypes.loggerSet logger
         }
