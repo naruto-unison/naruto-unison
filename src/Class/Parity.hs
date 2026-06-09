@@ -1,6 +1,7 @@
 module Class.Parity
   ( Parity(..)
   , allied
+  , opponent
   , getOf, setOf, modifyOf
   , half
   , swap
@@ -27,6 +28,11 @@ class Parity a where
 allied :: ∀ a b. (Parity a, Parity b) => a -> b -> Bool
 allied x y = even x == even y
 {-# INLINE allied #-}
+
+-- | Returns a value which has the opposite parity as the input.
+opponent :: ∀ a. Parity a => a -> Bool
+opponent = not . even
+{-# INLINE opponent #-}
 
 -- | If 'even', takes the first half. Otherwise, drops the first half.
 half :: ∀ o p. (IsSequence o, Index o ~ Int, Parity p) => p -> o -> o

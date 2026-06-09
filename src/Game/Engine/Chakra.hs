@@ -33,7 +33,7 @@ remove amount
   | otherwise = do
         Context{user} <- P.context
         P.trigger user [OnChakra]
-        let opponent = not $ Parity.even user
+        let opponent = Parity.opponent user
         Game{chakra} <- P.game
         let chakras = fromList . toList . removeRandoms
                     $ Parity.getOf opponent chakra

@@ -62,7 +62,7 @@ allies p = toList . Parity.half p <$> ninjas
 
 -- | Returns the half of 'ninjas' not allied with an argument.
 enemies :: ∀ p m. (MonadGame m, Parity p) => p -> m [Ninja]
-enemies p = allies . not $ Parity.even p
+enemies p = allies $ Parity.opponent p
 
 -- | Runs an action in a localized state where 'target' is replaced.
 withTarget :: ∀ m a. MonadPlay m => Slot -> m a -> m a
