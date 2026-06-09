@@ -20,10 +20,10 @@ import           Application.App (Route(..))
 import qualified Application.App as App
 import           Application.Model (User(..))
 import           Application.Settings (widgetFile)
-import qualified Class.Labeled as Labeled
 import qualified Game.Characters as Characters
 import           Game.Model.Character (Category, Character)
 import qualified Game.Model.Character as Character
+import qualified Game.Model.Skill as Skill
 
 -- | Link to a character's detail page.
 character :: Character -> App.Widget
@@ -39,7 +39,7 @@ skill :: Text -> Category -> Text -> App.Widget
 skill charName category name = case Characters.lookup tagName of
       Nothing -> error
         $ "Link.skill: character " ++ unpack tagName ++ " not found"
-      Just char | any (any $ Labeled.named name) $ Character.skills char ->
+      Just char | any (any $ (==) name . Skill.name) $ Character.skills char ->
         $(widgetFile "widgets/link/skill")
       Just _ -> error
         $ "Link.skill: skill " ++ unpack name ++ " not found for "

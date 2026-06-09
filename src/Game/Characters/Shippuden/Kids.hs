@@ -7,6 +7,8 @@ import Game.Characters.Import
 
 import           Game.Model.Ninja (isChanneling)
 import qualified Game.Model.Skill as Skill
+import           Game.Model.ID (ID(ID))
+import qualified Game.Model.ID as ID
 
 characters :: [Category -> Text -> Character]
 characters =
@@ -529,10 +531,14 @@ characters =
     let
         caloricCost n skill = skill { Skill.cost = baseCost ++ caloric }
           where
+            statusID = ID { user  = slot n
+                          , owner = Skill.owner skill
+                          , name  = "calories"
+                          }
             baseCost = filter (/= Rand) $ Skill.cost skill
             calories
               | not $ isChanneling "Butterfly Mode" n = 2
-              | otherwise = numStacks "calories" (slot n) n
+              | otherwise = numStacks statusID n
             caloric = replicate calories Rand
 
         addCalories i = replicateM_ i $ hide' "calories" Permanent []

@@ -11,6 +11,8 @@ import ClassyPrelude hiding (swap)
 
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Effect (Effect(..))
+import           Game.Model.ID (ID(ID))
+import qualified Game.Model.ID
 import           Game.Model.Ninja (is)
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
@@ -24,15 +26,18 @@ type Transform = (Ninja -> Skill -> Skill)
 also :: Transform -> Transform -> Transform
 (f `also` g) n = g n . f n
 
+toID :: Text -> Ninja -> ID
+toID name Ninja{slot} = ID { user = slot, owner = slot, name }
+
 -- | Applies a 'Transform' conditional upon 'N.has'.
 changeWith :: Text -> (Skill -> Skill) -> Transform
-changeWith name f n@Ninja{slot}
-  | N.has name slot n = f
-  | otherwise         = id
+changeWith name f n
+  | N.has (toID name n) n = f
+  | otherwise             = id
 
 -- | Applies a 'Transform' conditional upon 'N.numStacks'.
 changePer :: Text -> (Int -> Skill -> Skill) -> Transform
-changePer name f n@Ninja{slot} = f $ N.numStacks name slot n
+changePer name f n = f $ N.numStacks (toID name n) n
 
 -- | Applies a 'Transform' conditional upon 'N.isChanneling'.
 changeWithChannel :: Text -> (Skill -> Skill) -> Transform
@@ -42,9 +47,9 @@ changeWithChannel name f n
 
 -- | Applies a 'Transform' conditional upon 'N.hasDefense'.
 changeWithDefense :: Text -> (Skill -> Skill) -> Transform
-changeWithDefense name f n@Ninja{slot}
-  | N.hasDefense name slot n = f
-  | otherwise                = id
+changeWithDefense name f n
+  | N.hasDefense (toID name n) n = f
+  | otherwise                    = id
 
 -- | Modifies a 'Skill' by its 'Skill.change' and any other effects on it.
 change :: Transform

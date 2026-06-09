@@ -42,8 +42,11 @@ import Mission.Goal as Import
 import Mission.Objective as Import
 
 import           Class.Display (Display(..), commas)
+import           Game.Model.ID (ID(ID))
+import qualified Game.Model.ID
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
+import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import           Util ((∈), (∉))
 
@@ -51,9 +54,12 @@ import           Util ((∈), (∉))
 resetToZero :: Int
 resetToZero = minBound
 
+toID :: Text -> Slot -> ID
+toID name user = ID { user, owner = user, name }
+
 --  | True if target has a 'Status' from the user with matching 'Status.name'.
 hasFrom :: Ninja -> Text -> Ninja -> Bool
-hasFrom Ninja{slot} name = N.has name slot
+hasFrom Ninja{slot} name = N.has $ toID name slot
 
 winFull :: WinType -> Int -> [Text] -> Goal
 winFull winType reach chars = Reach Career reach desc $ Win winType chars
@@ -94,7 +100,7 @@ damageDuringStacks :: Text -> ActionHook
 damageDuringStacks name _ user@Ninja{slot} target target'
   | allied user target              = 0
   | health target' >= health target = 0
-  | otherwise = N.numStacks name slot user
+  | otherwise = N.numStacks (toID name slot) user
 
 -- | Damage received by the target after an action while the target has some
 -- number of stacks of a @Status@.
@@ -102,7 +108,7 @@ damageWithStacks :: Text -> ActionHook
 damageWithStacks name _ user@Ninja{slot} target target'
   | allied user target              = 0
   | health target' >= health target = 0
-  | otherwise = N.numStacks name slot target
+  | otherwise = N.numStacks (toID name slot) target
 
 -- | 'N.defense' added to the target after an action.
 defend :: ActionHook
@@ -110,7 +116,7 @@ defend name Ninja{slot} target target'
   | alive target = max 0 addedDefense
   | otherwise    = 0
   where
-    getDefense   = N.defenseAmount name slot
+    getDefense   = N.defenseAmount $ toID name slot
     addedDefense = getDefense target' - getDefense target
 
 -- | 'N.defense' destroyed after an action.
@@ -156,7 +162,7 @@ killDuring name _ user@Ninja{slot} target target' = fromEnum
     $ not (allied user target)
     && alive target
     && not (alive target')
-    && N.numStacks name slot user /= 0
+    && N.numStacks (toID name slot) user /= 0
 
 -- | Number of target's 'N.channels' canceled due to an action.
 interrupt :: ActionHook
@@ -175,11 +181,11 @@ use _ _ _ _ = 1
 -- otherwise 0.
 useDuring :: Text -> ActionHook
 useDuring name _ user@Ninja{slot} _ _ = fromEnum
-                                      $ N.numStacks name slot user /= 0
+                                      $ N.numStacks (toID name slot) user /= 0
 
 -- | Number of user's stacks of a @Status@ after an action.
 useDuringStacks :: Text -> ActionHook
-useDuringStacks name _ user@Ninja{slot} _ _ = N.numStacks name slot user
+useDuringStacks name _ user@Ninja{slot} _ _ = N.numStacks (toID name slot) user
 
 -- CHAKRA HOOKS
 
@@ -234,7 +240,7 @@ killUniqueDuring name = compareUnique \_ user@Ninja{slot} target target' ->
     not (allied user target)
     && alive target
     && not (alive target')
-    && N.numStacks name slot user /= 0
+    && N.numStacks (toID name slot) user /= 0
 
 -- | Stun an enemy.
 stunUnique :: StoreHook
@@ -296,11 +302,13 @@ killWith name player user target target' store = (store, ) . fromEnum
 -- Resets to 0 if they lose the @Status@.
 maintain :: Text -> TurnHook
 maintain name player user@Ninja{slot} _ target@Ninja{slot = targetSlot} store
-  | slot /= targetSlot              = (store, 0)
-  | not $ alive target              = (store, resetToZero)
-  | N.numStacks name slot user == 0 = (store, resetToZero)
-  | allied player user              = (store, 1)
-  | otherwise                       = (store, 0)
+  | slot /= targetSlot             = (store, 0)
+  | not $ alive target             = (store, resetToZero)
+  | N.numStacks statusID user == 0 = (store, resetToZero)
+  | allied player user             = (store, 1)
+  | otherwise                      = (store, 0)
+  where
+    statusID = toID name slot
 
 -- | 'maintain' restricted to the user's team.
 maintainOnAlly :: Text -> TurnHook

@@ -7,7 +7,6 @@ module Game.Action.Channel
   ) where
 
 import ClassyPrelude
-import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
@@ -38,10 +37,10 @@ takeChannels slot f = do
 -- | Cancels 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.cancelChannel' internally.
 cancelChannel' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> m ()
-cancelChannel' name = do
+cancelChannel' name = P.uncopied do
     Context{user, skill} <- P.context
     let name' = Skill.defaultName name skill
-    cancelled <- takeChannels user $ Labeled.named name'
+    cancelled <- takeChannels user $ (== name') . Channel.name
     mapM_ (Action.runInterruptions user) cancelled
 
 -- | Prematurely ends a channeled action.
@@ -54,8 +53,8 @@ interrupt = P.unsilenced do
 -- | Increases the duration of 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.prolongChannel' internally.
 prolongChannel :: ∀ m. MonadPlay m => Duration -> Text -> m ()
-prolongChannel dur name = P.toTarget $ Ninjas.prolongChannel dur name
+prolongChannel dur name = P.uncopied . P.toUser $ Ninjas.prolongChannel dur name
 
 -- | Modify all channel names.
 renameChannels :: ∀ m. MonadPlay m => (Text -> Text) -> m ()
-renameChannels rename = P.toTarget $ Ninjas.renameChannels rename
+renameChannels rename = P.uncopied . P.toUser $ Ninjas.renameChannels rename

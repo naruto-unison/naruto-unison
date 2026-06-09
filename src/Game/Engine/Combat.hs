@@ -9,7 +9,6 @@ import ClassyPrelude
 import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Enum.Set (EnumSet)
 
-import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Engine.Effects as Effects
@@ -160,8 +159,8 @@ attack atk dmg
 
     damaged <- (N.health nTarget -) . N.health <$> P.nTarget
 
-    P.trigger user $ OnBreak . Labeled.name <$> broken fromBarrier
-    P.trigger target $ OnBreak . Labeled.name <$> broken fromDefense
+    P.trigger user $ OnBreak . Destructible.name <$> broken fromBarrier
+    P.trigger target $ OnBreak . Destructible.name <$> broken fromDefense
 
     when (damaged > 0) do
         P.trigger user [OnDamage]

@@ -17,7 +17,6 @@ module Game.Action.Combat
 
 import ClassyPrelude
 
-import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Engine.Combat as Combat
@@ -28,6 +27,7 @@ import qualified Game.Model.Attack as Attack
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
+import qualified Game.Model.Destructible as Destructible
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Ninja (Ninja(Ninja), is)
@@ -64,23 +64,23 @@ demolishAll = do
     Ninja{defense, slot = target} <- P.nTarget
     P.modify user   Ninjas.clearBarrier
     P.modify target Ninjas.clearDefense
-    P.trigger user   $ OnBreak . Labeled.name <$> barrier
-    P.trigger target $ OnBreak . Labeled.name <$> defense
+    P.trigger user   $ OnBreak . Destructible.name <$> barrier
+    P.trigger target $ OnBreak . Destructible.name <$> defense
 
 -- | Adds an amount to a 'Destructible' 'N.defense' that the target already has.
 -- If the target does not have any 'N.defense' with a matching
 -- 'Destructible.name', nothing happens.
 -- Uses 'Ninjas.increaseDefense' internally.
 increaseDefense :: ∀ m. MonadPlay m => Text -> Int -> m ()
-increaseDefense name amount = P.unsilenced . P.fromUser
-    $ Ninjas.increaseDefense amount name
+increaseDefense name amount = P.unsilenced
+    $ (P.fromUser $ Ninjas.increaseDefense amount) name
 
 -- | Clears all 'Destructible' 'N.defense' with matching name and user.
 -- Uses 'Ninjas.removeDefense' internally.
 removeDefense :: ∀ m. MonadPlay m => Text -> m ()
 removeDefense name = P.unsilenced do
-    Context{target, user} <- P.context
-    P.modify target $ Ninjas.removeDefense name user
+    P.fromUser Ninjas.removeDefense name
+    Context{user} <- P.context
     P.trigger user [OnBreak name]
 
 -- | Adds new 'Destructible' 'N.barrier'.

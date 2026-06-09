@@ -17,8 +17,6 @@ import           Class.Classed (Classed)
 import qualified Class.Classed as Classed
 import           Class.Hook (MonadHook)
 import qualified Class.Hook as Hook
-import           Class.Labeled (Labeled)
-import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
@@ -37,6 +35,8 @@ import qualified Game.Model.Context as Context
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
+import           Game.Model.ID (HasID)
+import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
@@ -120,7 +120,7 @@ doDoneBombs ninjas = zipWithM_ doEach ninjas =<< P.ninjas
     doEach n n'
       | null stats = return ()
       | otherwise  = sequence_ $ doBomb Done (N.slot n)
-                             <$> deleteFirstsBy Labeled.eq stats stats'
+                             <$> deleteFirstsBy ((==) `on` ID.from) stats stats'
       where
         stats  = getStatuses n
         stats' = getStatuses n'
@@ -159,8 +159,8 @@ unSoulbound :: Slot -> Ninja -> Ninja
 unSoulbound user n = Ninjas.modifyAll (filter notSoulbound)
     n { N.copies = filter (maybe True notSoulbound) $ N.copies n }
   where
-    notSoulbound :: ∀ a. (Classed a, Labeled a) => a -> Bool
-    notSoulbound x = Soulbound ∉ Classed.classes x || Labeled.user x /= user
+    notSoulbound :: ∀ a. (Classed a, HasID a) => a -> Bool
+    notSoulbound x = Soulbound ∉ Classed.classes x || (ID.user $ ID.from x) /= user
 
 doExpiredBombs :: ∀ m. (MonadGame m, MonadRandom m) => [Ninja] -> m ()
 doExpiredBombs ninjas = mapM_ doEach ninjas

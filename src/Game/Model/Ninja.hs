@@ -10,13 +10,13 @@ module Game.Model.Ninja
 
 import ClassyPrelude
 
-import           Class.Labeled (Labeled)
-import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Effect as Effect
+import           Game.Model.ID (HasID, ID(ID))
+import qualified Game.Model.ID as ID
 import           Game.Model.Internal (Destructible(..), Ninja(..), Channel(Channel), Character(Character), Skill(Skill), Status(Status))
 import qualified Game.Model.Internal
 import qualified Game.Model.Internal.Character as Character
@@ -67,36 +67,34 @@ isChanneling name n = any matches $ channels n
     matches (Channel Skill{name = skillName} _ False _) = name == skillName
     matches _                                           = False
 
-has' :: ∀ a. Labeled a
+has' :: ∀ a. HasID a
      => (Ninja -> [a])
-     -> Text -- ^ 'Status.name'.
-     -> Slot -- ^ 'Status.user'.
+     -> ID -- ^ 'Status.name'.
      -> Ninja -> Bool
-has' getter name user n = any (Labeled.match name user) $ getter n
+has' getter effectID n = any ((== effectID) . ID.from) $ getter n
 
 -- | Searches 'statuses'.
-has :: Text -- ^ 'Status.name'.
-    -> Slot -- ^ 'Status.user'.
+has :: ID -- ^ 'Status.name'.
     -> Ninja -> Bool
 has = has' statuses
 
 -- | Searches 'barrier'.
-hasBarrier :: Text -- ^ 'Destructible.name'.
-           -> Slot -- ^ 'Destructible.user'.
+hasBarrier :: ID -- ^ 'Destructible.name'.
            -> Ninja -> Bool
 hasBarrier = has' barrier
 
 -- | Searches 'defense'.
-hasDefense :: Text -- ^ 'Destructible.name'.
-           -> Slot -- ^ 'Destructible.user'.
+hasDefense :: ID -- ^ 'Destructible.name'.
            -> Ninja -> Bool
 hasDefense = has' defense
 
-hasOwn' :: ∀ a. Labeled a
+hasOwn' :: ∀ a. HasID a
      => (Ninja -> [a])
      -> Text -- ^ 'Status.name'.
      -> Ninja -> Bool
-hasOwn' getter name n@Ninja{slot} = has' getter name slot n
+hasOwn' getter name n@Ninja{slot} = has' getter effectID n
+  where
+    effectID = ID { user = slot, owner = slot, name }
 
 -- | Matches a 'Status.Status'.
 hasOwn :: Text -> Ninja -> Bool
@@ -104,22 +102,20 @@ hasOwn = hasOwn' statuses
 
 -- | Sums 'Destructible.amount' of all matching 'barrier' or 'defense'.
 destructibleAmount :: (Ninja -> [Destructible]) -- ^ Getter.
-                   -> Text -- ^ 'Destructible.name'.
-                   -> Slot -- ^ 'Destructible.user'.
+                   -> ID -- ^ 'Destructible.name'.
                    -> Ninja -> Int
-destructibleAmount getter name user n = sum
-    [amount | d@Destructible{amount} <- getter n
-            , Labeled.match name user d]
+destructibleAmount getter destID n = sum
+    [ amount | d@Destructible{amount} <- getter n
+             , ID.from d == destID
+             ]
 
 -- | Sums 'Destructible.amount' of all matching 'barrier'.
-barrierAmount :: Text -- ^ 'Destructible.name'.
-              -> Slot -- ^ 'Destructible.user'.
+barrierAmount :: ID -- ^ 'Destructible.name'.
               -> Ninja -> Int
 barrierAmount = destructibleAmount barrier
 
 -- | Sums 'Destructible.amount' of all matching 'defense'.
-defenseAmount :: Text -- ^ 'Destructible.name'.
-              -> Slot -- ^ 'Destructible.user'.
+defenseAmount :: ID -- ^ 'Destructible.name'.
               -> Ninja -> Int
 defenseAmount = destructibleAmount defense
 
@@ -137,32 +133,34 @@ totalBarrier :: Ninja -> Int
 totalBarrier Ninja{barrier} = sum $ Destructible.amount <$> barrier
 
 -- | Number of stacks of matching 'statuses'.
-numStacks :: Text -- ^ 'Status.name'.
-          -> Slot -- ^ 'Status.user'.
+numStacks :: ID -- ^ 'Status.name'.
           -> Ninja -> Int
-numStacks name user Ninja{statuses} = sum
-    [amount | st@Status{amount} <- statuses
-            , Labeled.match name user st]
+numStacks statusID Ninja{statuses} = sum
+    [ amount | st@Status{amount} <- statuses
+             , ID.from st == statusID
+             ]
 
 -- | Counts all 'Effect.helpful' effects in 'statuses' from allies.
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.
 -- Each status counts for @(number of helpful effects) * (Status.amount)@.
 numHelpful :: Ninja -> Int
 numHelpful n = sum
-    [amount | Status{amount, classes, effects, user} <- statuses n
-            , slot n /= user
-            , Parity.allied n user
-            , Hidden ∉ classes
-            , ef <- effects
-            , Effect.helpful ef]
+    [ amount | Status{amount, classes, effects, user} <- statuses n
+             , slot n /= user
+             , Parity.allied n user
+             , Hidden ∉ classes
+             , ef <- effects
+             , Effect.helpful ef
+             ]
 
 -- | Counts all non-'Effect.helpful' effects in 'statuses'.
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.
 -- Each status counts for @(number of harmful effects) * (Status.amount)@.
 numHarmful :: Ninja -> Int
 numHarmful n = sum
-    [amount | Status{amount, classes, effects, user} <- statuses n
-            , slot n /= user
-            , Hidden ∉ classes
-            , ef <- effects
-            , not $ Effect.helpful ef]
+    [ amount | Status{amount, classes, effects, user} <- statuses n
+             , slot n /= user
+             , Hidden ∉ classes
+             , ef <- effects
+             , not $ Effect.helpful ef
+             ]

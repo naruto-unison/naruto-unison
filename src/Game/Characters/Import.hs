@@ -46,6 +46,7 @@ import qualified Class.Play as P
 import qualified Game.Action as Action
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Context as Context
+import           Game.Model.ID (ID)
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Skill as Skill
 import           Util ((∈))
@@ -91,9 +92,9 @@ inGroup x n = x ∈ Character.groups (N.character n)
 
 -- | Number of users affected by a 'Model.Game.Status.Status'.
 numAffected :: ∀ m. MonadPlay m => Text -> m Int
-numAffected name = getNumAffected <$> userSlot <*> P.ninjas
+numAffected name = getNumAffected <$> P.createID name <*> P.ninjas
   where
-    getNumAffected slot ninjas = length $ filter (N.has name slot) ninjas
+    getNumAffected statusID ninjas = length $ filter (N.has statusID) ninjas
 
 -- | Number of user's allies who are dead.
 numDeadAllies :: ∀ m. MonadPlay m => m Int
@@ -116,12 +117,12 @@ instance MonadPlay m => NinjaGetter m (Ninja -> a) where
     target f = f <$> P.nTarget
     user   f = f <$> P.nUser
 
-instance MonadPlay m => NinjaGetter m (Text -> Slot -> Ninja -> a) where
-    type Getter m (Text -> Slot -> Ninja -> a) = Text -> m a
-    target f name = f name <$> userSlot <*> P.nTarget
-    user   f name = f name <$> userSlot <*> P.nUser
+instance MonadPlay m => NinjaGetter m (ID -> Ninja -> a) where
+    type Getter m (ID -> Ninja -> a) = Text -> m a
+    target f name = f <$> P.createID name <*> P.nTarget
+    user   f name = f <$> P.createID name <*> P.nUser
 
-instance MonadPlay m => NinjaGetter m ((Ninja -> [b]) -> Text -> Slot -> Ninja -> a) where
-    type Getter m ((Ninja -> [b]) -> Text -> Slot -> Ninja -> a) = (Ninja -> [b]) -> Text -> m a
-    target f getter name = f getter name <$> userSlot <*> P.nTarget
-    user   f getter name = f getter name <$> userSlot <*> P.nUser
+instance MonadPlay m => NinjaGetter m ((Ninja -> [b]) -> ID -> Ninja -> a) where
+    type Getter m ((Ninja -> [b]) -> ID -> Ninja -> a) = (Ninja -> [b]) -> Text -> m a
+    target f getter name = f getter <$> P.createID name <*> P.nTarget
+    user   f getter name = f getter <$> P.createID name <*> P.nUser

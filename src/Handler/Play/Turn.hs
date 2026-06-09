@@ -9,14 +9,14 @@ import Data.Aeson (ToJSON)
 
 import           Class.Classed (Classed)
 import qualified Class.Classed as Classed
-import           Class.Labeled (Labeled)
-import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game
+import           Game.Model.ID (HasID)
+import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
@@ -73,8 +73,8 @@ censor revealed n@Ninja{slot} =
     censorAll
       | reveal slot = id
       | otherwise   = const mempty
-    hide :: ∀ a. (Classed a, Labeled a) => a -> Bool
+    hide :: ∀ a. (Classed a, HasID a) => a -> Bool
     hide x = Hidden ∈ classes || (Invisible ∈ classes && not (reveal user))
       where
         classes = Classed.classes x
-        user    = Labeled.user x
+        user    = ID.user $ ID.from x

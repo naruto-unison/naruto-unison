@@ -17,7 +17,6 @@ import Data.Enum.Set (EnumSet)
 import Test.Hspec hiding (context)
 
 import           Class.Hook (MonadHook)
-import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Play as P
@@ -67,7 +66,7 @@ use name = do
         Nothing -> error $ "invalid skill: " ++ unpack name
         Just skill -> actWith skill
   where
-    getSkill = find (Labeled.named name) . N.skills . Ninjas.processSkills
+    getSkill = find ((== name) . Skill.name) . N.skills . Ninjas.processSkills
 
 at :: ∀ m a. MonadPlay m => Target -> m a -> m a
 at target = P.withTarget $ targetSlot target
@@ -130,6 +129,7 @@ createContext simUser f Context{target, user, skill = Skill{classes}} = Context
     , continues = False
     , skill     = Skill.new { Skill.classes = classes \\ removeClasses
                             , Skill.effects = effects
+                            , Skill.owner   = simUser
                             }
     }
   where
@@ -170,4 +170,4 @@ withClasses classes = P.with ctx
 
 statusDur :: Text -> Ninja -> Duration
 statusDur name Ninja{statuses} = maybe Permanent Status.dur
-    $ find (Labeled.named name) statuses
+    $ find ((== name) . Status.name) statuses

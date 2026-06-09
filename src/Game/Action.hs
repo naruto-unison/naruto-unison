@@ -16,8 +16,6 @@ import           Class.Classed (Classed)
 import qualified Class.Classed as Classed
 import           Class.Hook (MonadHook)
 import qualified Class.Hook as Hook
-import           Class.Labeled (Labeled)
-import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Play as P
@@ -38,6 +36,8 @@ import qualified Game.Model.Context as Context
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
+import           Game.Model.ID (HasID, ID(ID))
+import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Requirement (Requirement(..))
@@ -287,6 +287,7 @@ runInterruptions user (Channel skill@Skill{end, name} target _ _) = do
                   , new = False
                   , continues = False
                   }
+    channelID = ID { user, owner = user, name }
     removeInterrupted :: Ninja -> Ninja
     removeInterrupted n@Ninja{barrier, defense, statuses, traps}
       | hasInterrupted = (Ninjas.modifyAll (filter uninterrupted) n)
@@ -297,10 +298,10 @@ runInterruptions user (Channel skill@Skill{end, name} target _ _) = do
                       || any interrupted traps
                       || any interrupted defense
                       || any interrupted barrier
-    interrupted :: ∀ a. (Classed a, Labeled a, TurnBased a) => a -> Bool
+    interrupted :: ∀ a. (Classed a, HasID a, TurnBased a) => a -> Bool
     interrupted a = Continues ∈ Classed.classes a && TurnBased.getDur a <= 1
-                    && Labeled.match name user a
-    uninterrupted :: ∀ a. (Classed a, Labeled a, TurnBased a) => a -> Bool
+                    && ID.from a == channelID
+    uninterrupted :: ∀ a. (Classed a, HasID a, TurnBased a) => a -> Bool
     uninterrupted = not . interrupted
     uninterruptedTrap :: Trap -> Bool
     uninterruptedTrap Trap{trigger = OnDeath} = True

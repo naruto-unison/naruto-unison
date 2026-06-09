@@ -26,6 +26,8 @@ import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import qualified Game.Model.Game as Game
+import           Game.Model.ID (ID(ID))
+import qualified Game.Model.ID
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Skill as Skill
 
@@ -509,8 +511,9 @@ canTargetAs :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
             => Target -> m Bool
 canTargetAs t = do
     Sim.as t $ addStack' fakeStatus
-    target $ N.has fakeStatus (Sim.targetSlot t)
+    target $ N.has ID { user = slot, owner = slot, name = fakeStatus }
   where
+    slot = Sim.targetSlot t
     fakeStatus = ""
 
 canTarget :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => m Bool

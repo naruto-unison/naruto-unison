@@ -30,7 +30,6 @@ module Game.Engine.Ninjas
   , cure
   , cureBane
   , purge
-  , removeStack
   , removeStacks
 
   , addChannels
@@ -51,8 +50,6 @@ import ClassyPrelude
 import qualified Data.Sequence as Seq
 
 import           Class.Classed (Classed)
-import           Class.Labeled (Labeled)
-import qualified Class.Labeled as Labeled
 import qualified Class.Parity as Parity
 import           Class.Stackable ((.:))
 import           Class.TurnBased (TurnBased)
@@ -72,6 +69,8 @@ import           Game.Model.Duration (Duration(..), sync)
 import           Game.Model.Effect (Amount(..), Effect(..))
 import qualified Game.Model.Effect as Effect
 import qualified Game.Model.Face as Face
+import           Game.Model.ID (HasID, ID)
+import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Requirement (Requirement(..))
@@ -87,21 +86,23 @@ import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉), intersects)
 
 processSkills :: Ninja -> Ninja
-processSkills n@Ninja{copies, character = Character{skills}}
+processSkills n@Ninja{copies, slot, character = Character{skills}}
     = n { N.skills = zipWith getSkill (toNullable skills) copies }
   where
     getSkill (base:|alts) mcopy = Requirement.usable True n
-        . Skills.change n $ fromMaybe base $ copied <|> alternate
+        . Skills.change n
+        $ fromMaybe (own base) $ copied <|> (own <$> alternate)
       where
+        own x     = x { Skill.owner = slot }
         copied    = Copy.skill <$> mcopy
         alternate = do
             alt <- Effects.alternate (Skill.name base) n
-            find (Labeled.named alt) alts
+            find ((== alt) . Skill.name) alts
 
 -- | Cycles a skill through its list of alternates.
 nextAlternate :: Text -> Ninja -> Maybe Text
 nextAlternate baseName n@Ninja{character = Character{skills}} = do
-    _:|alts <- find (Labeled.named baseName . head) skills
+    _:|alts <- find ((== baseName) . Skill.name . head) skills
     headMay . dropUntilAlt $ Skill.name <$> alts
   where
     dropUntilAlt alts = case Effects.alternate baseName n of
@@ -168,7 +169,7 @@ processEffects n@Ninja{barrier, defense, statuses} =
 modifyStatuses :: ([Status] -> [Status]) -> Ninja -> Ninja
 modifyStatuses f n = processEffects n { N.statuses = f $ N.statuses n }
 
-modifyAll :: (∀ a. (Classed a, Labeled a, TurnBased a) => [a] -> [a])
+modifyAll :: (∀ a. (Classed a, HasID a, TurnBased a) => [a] -> [a])
           -> Ninja -> Ninja
 modifyAll f n = processEffects n { N.defense  = f $ N.defense n
                                  , N.barrier  = f $ N.barrier n
@@ -249,19 +250,20 @@ addDefense b@Destructible{amount, effects} n = case amount `compare` 0 of
     GT -> checkEffects effects n { N.defense = b .: N.defense n }
 
 increaseDefense :: Int -- ^ 'Destructible.amount'.
-           -> Text -- ^ 'Destructible.name'.
-           -> Slot -- ^ 'Destructible.user'.
-           -> Ninja -> Ninja
-increaseDefense amount name user n =
-    n { N.defense = Labeled.mapFirst addAmount name user $ N.defense n }
+                -> ID -- ^ 'Destructible.name'.
+                -> Ninja -> Ninja
+increaseDefense amount defenseID n = n { N.defense = addFirst $ N.defense n }
   where
+    addFirst [] = []
+    addFirst (x:xs)
+      | ID.from x == defenseID = addAmount x : xs
+      | otherwise              = x : addFirst xs
     addAmount x = x { Destructible.amount = amount + Destructible.amount x }
 
-removeDefense :: Text -- ^ 'Destructible.name'.
-              -> Slot -- ^ 'Destructible.user'.
+removeDefense :: ID -- ^ 'Destructible.name'.
               -> Ninja -> Ninja
-removeDefense name user n = processEffects
-    n { N.defense = filter (not . Labeled.match name user) $ N.defense n }
+removeDefense defenseID n = processEffects
+    n { N.defense = filter ((/= defenseID) . ID.from) $ N.defense n }
 
 clearBarrier :: Ninja -> Ninja
 clearBarrier n@Ninja{barrier} = checkDestructibleEffects barrier
@@ -272,17 +274,15 @@ clearDefense n@Ninja{defense} = checkDestructibleEffects defense
     $ n { N.defense = [] }
 
 -- | Deletes matching 'statuses'.
-clear :: Text -- ^ 'Status.name'.
-      -> Slot -- ^ 'Status.user'.
+clear :: ID -- ^ 'Status.name'.
       -> Ninja -> Ninja
-clear name user = modifyStatuses . filter $ not . Labeled.match name user
+clear statusID = modifyStatuses . filter $ (/= statusID) . ID.from
 
 -- | Deletes matching 'traps'.
-clearTrap :: Text -- ^ 'Trap.name'.
-          -> Slot -- ^ 'Trap.user'.
+clearTrap :: ID -- ^ 'Trap.name'.
           -> Ninja -> Ninja
-clearTrap name user n =
-    n { N.traps = filter (not . Labeled.match name user) $ N.traps n }
+clearTrap trapID n =
+    n { N.traps = filter ((/= trapID) . ID.from) $ N.traps n }
 
 -- | Deletes 'traps' with matching 'Trap.trigger'.
 clearTraps :: Trigger -> Ninja -> Ninja
@@ -306,7 +306,7 @@ addChannels skill@Skill{classes, dur} target n
 cancelChannel :: Text -- ^ 'Skill.name'.
               -> Ninja -> Ninja
 cancelChannel name n =
-    n { N.channels = filter (not . Labeled.named name) $ N.channels n }
+    n { N.channels = filter ((/= name) . Channel.name) $ N.channels n }
 
 -- | Copies all 'Skill's from a source into 'N.copies'.
 copyAll :: Duration -- ^ 'Copy.dur'.
@@ -370,23 +370,21 @@ kill endurable n
 
 -- | Extends the duration of matching 'statuses'.
 prolong :: Duration -- ^ Added to 'Status.dur'.
-        -> Text -- ^ 'Status.name'.
-        -> Slot -- ^ 'Status.user'.
+        -> ID -- ^ 'Status.name'.
         -> Ninja -> Ninja
-prolong dur name src n =
-    n { N.statuses = mapMaybe (prolong' dur name src) $ N.statuses n }
+prolong dur statusID n =
+    n { N.statuses = mapMaybe (prolong' dur statusID) $ N.statuses n }
 
 -- | Extends the duration of a single 'Status'.
 prolong' :: Duration -- ^ Added to 'Status.dur'.
-         -> Text -- ^ 'Status.name'.
-         -> Slot -- ^ 'Status.user'.
+         -> ID -- ^ 'Status.name'.
          -> Status -> Maybe Status
-prolong' Permanent _ _ st = Just st { Status.dur = Permanent }
-prolong' (Duration dur) name user st
-  | Status.dur st == Permanent       = Just st
-  | not $ Labeled.match name user st = Just st
-  | statusDur' < 0                   = Nothing
-  | otherwise                        = Just
+prolong' Permanent _ st = Just st { Status.dur = Permanent }
+prolong' (Duration dur) statusID st
+  | Status.dur st == Permanent = Just st
+  | ID.from st /= statusID     = Just st
+  | statusDur' < 0             = Nothing
+  | otherwise                  = Just
         st { Status.dur    = statusDur'
            , Status.maxDur = max (Status.maxDur st) statusDur'
            }
@@ -419,26 +417,19 @@ purge = filterEffects keep
     keep _ effect = Effect.sticky effect || not (Effect.helpful effect)
 
 -- | Resets the duration of matching 'statuses' to their 'Status.maxDur'.
-refresh :: Text -- ^ 'Status.name'.
-        -> Slot -- ^ 'Status.user'.
+refresh :: ID -- ^ 'Status.name'.
         -> Ninja -> Ninja
-refresh name user n = n { N.statuses = f <$> N.statuses n }
+refresh statusID n = n { N.statuses = f <$> N.statuses n }
   where
     f st
-      | Labeled.match name user st = st { Status.dur = Status.maxDur st }
-      | otherwise                    = st
-
--- | Deletes one matching 'Status'.
-removeStack :: Text -- ^ 'Status.name'.
-            -> Ninja -> Ninja
-removeStack name n = modifyStatuses (Status.remove 1 name $ N.slot n) n
+      | ID.from st == statusID = st { Status.dur = Status.maxDur st }
+      | otherwise              = st
 
 -- | Replicates 'removeStack'.
-removeStacks :: Text -- ^ 'Status.name'.
-             -> Int -- ^ Subtracted from 'Status.amount'.
-             -> Slot -- ^ 'Status.user'.
+removeStacks :: Int -- ^ Subtracted from 'Status.amount'.
+             -> ID -- ^ 'Status.name'.
              -> Ninja -> Ninja
-removeStacks name i user = modifyStatuses $ Status.remove i name user
+removeStacks i statusID = modifyStatuses $ Status.remove i statusID
 
 -- | Resets 'charges' to @mempty@s.
 rechargeAll :: Ninja -> Ninja

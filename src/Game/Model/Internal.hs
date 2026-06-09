@@ -22,8 +22,6 @@ import Yesod.WebSockets (WebSocketsT)
 
 import           Class.Classed (Classed)
 import qualified Class.Classed as Classed
-import           Class.Labeled (Labeled)
-import qualified Class.Labeled
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
@@ -31,6 +29,8 @@ import           Game.Model.Chakras (Chakras(..))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
+import           Game.Model.ID (HasID, ID(ID))
+import qualified Game.Model.ID
 import           Game.Model.Game (Game)
 import           Game.Model.Group (Group)
 import           Game.Model.Slot (Slot(..))
@@ -83,10 +83,6 @@ instance ToJSON Channel
 
 instance Classed Channel where
     classes (Channel Skill{classes} _ _ _) = classes
-
-instance Labeled Channel where
-    name (Channel Skill{name} _ _ _)  = name
-    user (Channel Skill{owner} _ _ _) = owner
 
 
 -- | Types of channeling for 'Skill's.
@@ -142,9 +138,8 @@ instance ToJSON Copy
 instance Classed Copy where
     classes (Copy Skill{classes} _) = classes
 
-instance Labeled Copy where
-    name (Copy Skill{name} _)  = name
-    user (Copy Skill{owner} _) = owner
+instance HasID Copy where
+    from (Copy Skill{name, owner} _) = ID { user = owner, owner, name }
 
 
 -- | Destructible barrier or defense.
@@ -161,9 +156,11 @@ instance ToJSON Destructible
 instance Classed Destructible where
     classes Destructible{skill = Skill{classes}} = classes
 
-instance Labeled Destructible where
-    name Destructible{skill = Skill{name}} = name
-    user Destructible{user}                = user
+instance HasID Destructible where
+    from Destructible{user, skill = Skill{name, owner}} = ID { user
+                                                             , owner
+                                                             , name
+                                                             }
 
 
 data Direction
@@ -259,10 +256,6 @@ instance Parity Ninja where
     even = Parity.even . slot
     {-# INLINE even #-}
 
-instance Labeled Ninja where
-    name Ninja{character = Character{name}} = name
-    user Ninja{slot}                        = slot
-
 
 data Requirement
     = Usable
@@ -331,10 +324,6 @@ instance ToJSON Skill where
 instance Classed Skill where
     classes Skill{classes} = classes
 
-instance Labeled Skill where
-    name Skill{name}  = name
-    user Skill{owner} = owner
-
 
 -- | A status effect affecting a 'Ninja'.
 data Status = Status
@@ -354,9 +343,8 @@ instance ToJSON Status
 instance Classed Status where
     classes Status{classes} = classes
 
-instance Labeled Status where
-    name Status{name} = name
-    user Status{user} = user
+instance HasID Status where
+    from Status{name, user, skill = Skill{owner}} = ID { user, owner, name }
 
 
 -- | Target destinations of 'Skill's.
@@ -417,9 +405,8 @@ instance ToJSON Trap where
 instance Classed Trap where
     classes Trap{classes} = classes
 
-instance Labeled Trap where
-    name Trap{name} = name
-    user Trap{user} = user
+instance HasID Trap where
+    from Trap{user, name, skill = Skill{owner}} = ID { user, owner, name }
 
 
 -- | Gameplay context. This promotes a 'MonadGame' to 'MonadPlay'.
@@ -443,10 +430,6 @@ instance ToJSON Context
 
 instance Classed Context where
     classes Context{skill = Skill{classes}} = classes
-
-instance Labeled Context where
-    name Context{skill = Skill{name}} = name
-    user Context{user}                = user
 
 
 instance MonadRandom m => MonadRandom (ReaderT Context m)

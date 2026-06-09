@@ -15,8 +15,9 @@ module Class.Play
   , withContinues
   , uncopied, unsilenced
   -- * Lifting
-  , toTarget, fromUser
+  , toTarget, toUser, fromUser
   -- * Other
+  , createID
   , trigger
   ) where
 
@@ -28,6 +29,8 @@ import           Class.Random (MonadRandom)
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Effect (Effect(..))
+import           Game.Model.ID (ID(ID))
+import qualified Game.Model.ID
 import           Game.Model.Internal (MonadGame(..), MonadPlay(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
@@ -94,12 +97,25 @@ toTarget f = do
     Context{target} <- context
     modify target f
 
+-- | Applies a @Ninja@ transformation to the 'user'.
+toUser :: ∀ m. MonadPlay m => (Ninja -> Ninja) -> m ()
+toUser f = do
+    Context{user} <- context
+    modify user f
+
+createID :: ∀ m. MonadPlay m => Text -> m ID
+createID name = create <$> context
+  where
+    create Context{user, skill = Skill{owner, name = skillName}} = ID
+        { user
+        , owner
+        , name = if null name then skillName else name
+        }
+
 -- | Applies a @Ninja@ transformation to the 'target', passing it the 'user' as
 -- an argument.
-fromUser :: ∀ m. MonadPlay m => (Slot -> Ninja -> Ninja) -> m ()
-fromUser f = do
-    Context{target, user} <- context
-    modify target $ f user
+fromUser :: ∀ m. MonadPlay m => (ID -> Ninja -> Ninja) -> Text -> m ()
+fromUser f name = toTarget . f =<< createID name
 
 -- | Adds to 'N.triggers' if 'Context.user' is not 'Context.target' and
 -- 'Context.new' is @True@.

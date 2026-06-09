@@ -44,17 +44,17 @@ import           Util ((∈))
 -- to 'Status.maxDur'.
 -- Uses 'Ninjas.refresh' internally.
 refresh :: ∀ m. MonadPlay m => Text -> m ()
-refresh name = P.unsilenced . P.fromUser $ Ninjas.refresh name
+refresh name = P.unsilenced $ P.fromUser Ninjas.refresh name
 
 -- | Increases the 'Status.dur' of 'N.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 prolong :: ∀ m. MonadPlay m => Duration -> Text -> m ()
-prolong dur name = P.unsilenced . P.fromUser $ Ninjas.prolong dur name
+prolong dur name = P.unsilenced $ P.fromUser (Ninjas.prolong dur) name
 
 -- | Reduces the 'Status.dur' of 'N.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 hasten :: ∀ m. MonadPlay m => Duration -> Text -> m ()
-hasten dur name = P.unsilenced . P.fromUser $ Ninjas.prolong (negate dur) name
+hasten dur name = P.unsilenced $ P.fromUser (Ninjas.prolong $ negate dur) name
 
 -- | Adds a @Status@ to 'N.statuses'.
 apply :: ∀ m. MonadPlay m => Duration -> [Effect] -> m ()
@@ -189,20 +189,20 @@ purge = P.unsilenced $ P.toTarget Ninjas.purge
 -- is the one performing the action.
 -- Uses 'Ninjas.clear' internally.
 remove :: ∀ m. MonadPlay m => Text -> m ()
-remove name = P.fromUser $ Ninjas.clear name
+remove name = P.fromUser Ninjas.clear name
 
 -- | Decreases the 'Status.amount' of a @Status@ with matching 'Status.name' by
 -- 1, removing it if it reaches 0.
--- Uses 'Ninjas.removeStack' internally.
+-- Uses 'Ninjas.removeStacks' internally.
 removeStack :: ∀ m. MonadPlay m => Text -> m ()
-removeStack name = P.toTarget $ Ninjas.removeStack name
+removeStack name = removeStacks name 1
 
 -- | Decreases the 'Status.amount' of a @Status@ with matching 'Status.name' and
 -- whose 'Status.user is the one performing the action by some amount, removing
 -- it if it reaches 0.
 -- Uses 'Ninjas.removeStacks' internally.
 removeStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
-removeStacks name i = P.fromUser $ Ninjas.removeStacks name i
+removeStacks name i = P.fromUser (Ninjas.removeStacks i) name
 
 -- | Steals all of the target's 'Effect.helpful' 'Effect's.
 commandeer :: ∀ m. MonadPlay m => m ()

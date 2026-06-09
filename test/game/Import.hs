@@ -12,11 +12,11 @@ import Test.Hspec as X hiding (context, it, shouldBe, shouldNotBe)
 import Sim as X (simAt, describeCategory, simOf)
 import SkillExample as X
 
-import qualified Game.Engine.Ninjas as Ninjas
-import qualified Game.Model.Game as Game
 import           Class.Play (MonadPlay(..))
-import qualified Class.Labeled as Labeled
 import qualified Class.Play as P
+import qualified Game.Model.Game as Game
+import qualified Game.Engine.Ninjas as Ninjas
+import qualified Game.Model.Skill as Skill
 import qualified Sim
 
 import qualified Test.Hspec as Hspec
@@ -37,7 +37,7 @@ gameChakras = Game.chakra <$> P.game
 -- | Searches 'skills'.
 hasSkill :: Text -- ^ 'Skill.name'.
          -> Ninja -> Bool
-hasSkill name = any (Labeled.named name) . skills . Ninjas.processSkills
+hasSkill name = any ((== name) . Skill.name) . skills . Ninjas.processSkills
 
 measureDamage :: ∀ m. MonadPlay m => m () -> m Int
 measureDamage f = do

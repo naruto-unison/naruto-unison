@@ -18,6 +18,7 @@ import           Game.Model.Duration (Duration(..))
 import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Constructor(..), Effect(..))
 import qualified Game.Model.Effect as Effect
+import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable)
@@ -41,9 +42,10 @@ apply amount classes bombs name unthrottled effects = void $ runMaybeT do
                 (Effects.throttle effects nUser) unthrottled
     let st   = makeStatus context amount nUser nTarget
                classes bombs name dur effects
-    if N.has name user nTarget && Extending ∈ Status.classes st then
+        stID = ID.from st
+    if N.has stID nTarget && Extending ∈ Status.classes st then
         P.modify target . Ninjas.modifyStatuses
-            $ mapMaybe $ Ninjas.prolong' (Status.dur st) name (Status.user st)
+            $ mapMaybe $ Ninjas.prolong' (Status.dur st) stID
     else do
         let Status{effects = efs} = st
         guard $ null effects || not (null efs)

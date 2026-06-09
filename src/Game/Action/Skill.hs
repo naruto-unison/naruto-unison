@@ -18,7 +18,6 @@ import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Data.Enum.Set (EnumSet)
 import qualified Data.Vector as Vector
 
-import qualified Class.Labeled as Labeled
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import           Game.Action.Status (applyWith')
@@ -118,7 +117,7 @@ copyLast :: ∀ m. MonadPlay m => Duration -> m ()
 copyLast (succ -> dur) = P.uncopied . void $ runMaybeT do
     Context{skill = Skill{name}, user} <- P.context
     Just skill <- N.lastSkill <$> P.nTarget
-    Just s     <- Vector.findIndex (any $ Labeled.named name)
+    Just s     <- Vector.findIndex (any $ (== name) . Skill.name)
                 . toNullable <$> userSkills
     P.modify user $ Ninjas.copy dur [s] skill
 
@@ -129,7 +128,7 @@ teach :: ∀ m. MonadPlay m
        -> m ()
 teach dur name slots = do
     Context{target} <- P.context
-    mskill <- find (Labeled.named name) . join <$> userSkills
+    mskill <- find ((== name) . Skill.name) . join <$> userSkills
     mapM_ (P.modify target . Ninjas.copy dur slots) mskill
 
 -- | Resets a 'N.Ninja' to their initial state.

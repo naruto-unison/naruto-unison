@@ -7,9 +7,10 @@ module Game.Model.Status
 
 import ClassyPrelude
 
-import qualified Class.Labeled as Labeled
 import           Game.Model.Duration (Duration)
 import           Game.Model.Effect (Effect)
+import           Game.Model.ID (ID)
+import qualified Game.Model.ID as ID
 import           Game.Model.Internal (Bomb(..), Skill(Skill), Status(..))
 import qualified Game.Model.Internal
 import           Game.Model.Slot (Slot)
@@ -28,15 +29,14 @@ new user dur skill@Skill{classes, name} = Status
     }
 
 remove :: Int -- ^ 'amount'
-       -> Text -- ^ 'name'
-       -> Slot -- ^ 'user'
+       -> ID -- ^ 'name'
        -> [Status] -> [Status]
-remove 0 _ _ xs = xs
-remove _ _ _ [] = []
-remove i name user (x:xs)
-  | not $ Labeled.match name user x = x : remove i name user xs
-  | amt > i                         = x { amount = amt - i } : xs
-  | otherwise                       = remove (i - amt) name user xs
+remove 0 _ xs = xs
+remove _ _ [] = []
+remove i statusID (x:xs)
+  | ID.from x /= statusID = x : remove i statusID xs
+  | amt > i               = x { amount = amt - i } : xs
+  | otherwise             = remove (i - amt) statusID xs
   where
     amt = amount x
 
