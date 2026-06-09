@@ -11,18 +11,18 @@ import Game.Model.Effect (Amount)
 import Game.Model.Attack (Attack)
 import Game.Model.Chakras (Chakra)
 
-shrinkBoundedEnum :: ∀ a. (Bounded a, Enum a, Eq a) => a -> [a]
-shrinkBoundedEnum x
+shrinkEnumSumType :: ∀ a. (Bounded a, Enum a, Eq a) => a -> [a]
+shrinkEnumSumType x
   | x == minBound = []
   | otherwise     = [minBound..pred x]
 
 instance Arbitrary Amount where
     arbitrary = arbitraryBoundedEnum
-    shrink    = shrinkBoundedEnum
+    shrink    = shrinkEnumSumType
 
 instance Arbitrary Attack where
     arbitrary = arbitraryBoundedEnum
-    shrink    = shrinkBoundedEnum
+    shrink    = shrinkEnumSumType
 
 instance Arbitrary Duration where
     arbitrary = toEnum <$> arbitrary
@@ -30,4 +30,4 @@ instance Arbitrary Duration where
 
 instance Arbitrary Chakra where
     arbitrary = arbitraryBoundedEnum
-    shrink    = shrinkBoundedEnum
+    shrink    = shrinkEnumSumType
