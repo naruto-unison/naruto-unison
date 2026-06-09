@@ -48,9 +48,8 @@ import           Util ((!!))
 missionKeys :: Text -> Mission -> [Int -> Progress]
 
 missionKeys name Mission{char, goals} =
-    [ Progress char i | (i, goal) <- zip [0..] $ toList goals
-                      , Goal.belongsTo name goal
-                      ]
+    [ Progress char i | (i, goal) <- zip [0..] $ toList goals,
+                        Goal.belongsTo name goal ]
 
 data Track s = Track
     { slot     :: Slot
@@ -169,9 +168,9 @@ new Ninja{character = character@Character{ident}, slot} = do
         } objectives
   where
     missions   = Missions.characterMissions character
-    goals      = [x | mission <- missions
-                    , x       <- toList $ Goal.goals mission
-                    , Goal.belongsTo ident x]
+    goals      = [ x | mission <- missions,
+                       x       <- toList $ Goal.goals mission,
+                       Goal.belongsTo ident x ]
     objectives = zip [0..] $ Goal.objective <$> goals
 
     go x (i, Consecutive _ skills) =

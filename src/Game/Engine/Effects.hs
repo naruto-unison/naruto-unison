@@ -51,16 +51,15 @@ total Percent x = fromIntegral x / 100
 
 -- | First matching 'Alternate'.
 alternate :: Text -> Ninja -> Maybe Text
-alternate name Ninja{effects} = headMay [ alt | Alternate name' alt <- effects
-                                              , name' == name
-                                              ]
+alternate name Ninja{effects} = headMay [ alt | Alternate name' alt <- effects,
+                                                name' == name ]
 
 -- | 'Bleed' sum.
 bleed :: EnumSet Class -> Ninja -> Amount -> Float
 bleed classes Ninja{effects} amount = total amount $ sum
-    [x | Bleed cla amt x <- effects
-       , amount == amt
-       , cla `intersects` classes]
+    [ x | Bleed cla amt x <- effects,
+          amount == amt,
+          cla `intersects` classes ]
 
 -- | 'Block' collection.
 block :: Ninja -> [Slot]
@@ -111,13 +110,13 @@ redirect Ninja{effects} = headMay [slot | Redirect slot <- effects]
 reduce :: EnumSet Class -> Ninja -> Amount -> Float
 reduce classes Ninja{effects} amount
     | classes == singleton Affliction = total amount $ sum
-        [x | Reduce cla amt x <- effects
-           , amount == amt
-           , Affliction ∈ cla]
+        [ x | Reduce cla amt x <- effects,
+              amount == amt,
+              Affliction ∈ cla ]
     | otherwise = total amount $ sum
-        [x | Reduce cla amt x <- effects
-           , amt == amount
-           , deleteSet Affliction cla `intersects` classes]
+        [ x | Reduce cla amt x <- effects,
+              amt == amount,
+              deleteSet Affliction cla `intersects` classes ]
 
 -- | 'Share' collection.
 share :: Ninja -> [Slot]
@@ -130,9 +129,9 @@ snare Ninja{effects} = sum [x | Snare x <- effects]
 -- | 'Strengthen' sum.
 strengthen :: EnumSet Class -> Ninja -> Amount -> Float
 strengthen classes Ninja{effects} amount = total amount $ sum
-    [x | Strengthen cla amt x <- effects
-       , amt == amount
-       , cla `intersects` classes]
+    [x | Strengthen cla amt x <- effects,
+         amt == amount,
+         cla `intersects` classes]
 
 -- | 'Stun' collection.
 stun :: Ninja -> EnumSet Class
@@ -164,13 +163,14 @@ unreduce Ninja{effects} = sum [x | Unreduce x <- effects]
 -- | 'Weaken' sum.
 weaken :: EnumSet Class -> Ninja -> Amount -> Float
 weaken classes Ninja{effects} amount = total amount $ sum
-    [x | Weaken cla amt x <- effects
-       , amount == amt
-       , cla `intersects` classes]
+    [ x | Weaken cla amt x <- effects,
+          amount == amt,
+          cla `intersects` classes ]
 
 -- | 'Disable' collection.
 disabled :: Ninja -> [Effect]
-disabled Ninja{effects} = [f | Disable con <- effects, f <- Effect.construct con]
+disabled Ninja{effects} = [ f | Disable con <- effects,
+                                f <- Effect.construct con ]
 
 reflect :: EnumSet Class -> Ninja -> Bool
 reflect classes n@Ninja{effects} = n `is` Reflect
@@ -206,8 +206,9 @@ afflictClasses = setFromList [Affliction, All]
 afflict :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
         => o -> Player -> Ninja -> Int
 afflict ninjas player n@Ninja{slot, statuses} = sum
-    [aff st | st@Status{user} <- statuses
-            , user == slot || not (afflictClasses `intersects` invulnerable n)]
+    [ aff st | st@Status{user} <- statuses,
+               user == slot
+               || not (afflictClasses `intersects` invulnerable n) ]
   where
     aff = afflict1 ninjas player slot
 

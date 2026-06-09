@@ -55,8 +55,7 @@ resetAll n@Ninja{character = Character{skills}} =
     isNonInstant Skill{dur = Passive} = False
     isNonInstant _                    = True
     nonInstantSkills :: HashSet Skill.Key
-    nonInstantSkills = setFromList [ Skill.key sk | skill <- toList skills
-                                                  , sk    <- toList skill
-                                                  , isNonInstant sk
-                                                  ]
+    nonInstantSkills = setFromList [ Skill.key sk | skill <- toList skills,
+                                                    sk    <- toList skill,
+                                                    isNonInstant sk ]
     isInstantCooldown key _ = key ∉ nonInstantSkills

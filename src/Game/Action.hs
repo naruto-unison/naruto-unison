@@ -125,10 +125,9 @@ targeted targets = do
     let nUser = ninjas !! Slot.toInt user
     forM targets \(To target runner) -> do
         choices <- chooseTargets target
-        return [ To t runner
-                   | t <- choices
-                   , Requirement.targetable skill nUser $ ninjas !! Slot.toInt t
-                   ]
+        return [ To t runner | t <- choices,
+                               Requirement.targetable skill nUser
+                               $ ninjas !! Slot.toInt t ]
 
 fromContext :: ∀ m a. MonadPlay m => (Context -> a) -> m a
 fromContext f = f <$> P.context

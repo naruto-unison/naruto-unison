@@ -98,9 +98,8 @@ destructibleAmount :: (Ninja -> [Destructible]) -- ^ Getter.
                    -> ID -- ^ 'Destructible.name'.
                    -> Ninja -> Int
 destructibleAmount getter destID n = sum
-    [ amount | d@Destructible{amount} <- getter n
-             , ID.from d == destID
-             ]
+    [ amount | d@Destructible{amount} <- getter n,
+               ID.from d == destID ]
 
 -- | Sums 'Destructible.amount' of all matching 'barrier'.
 barrierAmount :: ID -- ^ 'Destructible.name'.
@@ -129,31 +128,28 @@ totalBarrier Ninja{barrier} = sum $ Destructible.amount <$> barrier
 numStacks :: ID -- ^ 'Status.name'.
           -> Ninja -> Int
 numStacks statusID Ninja{statuses} = sum
-    [ amount | st@Status{amount} <- statuses
-             , ID.from st == statusID
-             ]
+    [ amount | st@Status{amount} <- statuses,
+               ID.from st == statusID ]
 
 -- | Counts all 'Effect.helpful' effects in 'statuses' from allies.
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.
 -- Each status counts for @(number of helpful effects) * (Status.amount)@.
 numHelpful :: Ninja -> Int
 numHelpful n = sum
-    [ amount | Status{amount, classes, effects, user} <- statuses n
-             , slot n /= user
-             , Parity.allied n user
-             , Hidden ∉ classes
-             , ef <- effects
-             , Effect.helpful ef
-             ]
+    [ amount | Status{amount, classes, effects, user} <- statuses n,
+               slot n /= user,
+               Parity.allied n user,
+               Hidden ∉ classes,
+               ef <- effects,
+               Effect.helpful ef ]
 
 -- | Counts all non-'Effect.helpful' effects in 'statuses'.
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.
 -- Each status counts for @(number of harmful effects) * (Status.amount)@.
 numHarmful :: Ninja -> Int
 numHarmful n = sum
-    [ amount | Status{amount, classes, effects, user} <- statuses n
-             , slot n /= user
-             , Hidden ∉ classes
-             , ef <- effects
-             , not $ Effect.helpful ef
-             ]
+    [ amount | Status{amount, classes, effects, user} <- statuses n,
+               slot n /= user,
+               Hidden ∉ classes,
+               ef <- effects,
+               not $ Effect.helpful ef ]

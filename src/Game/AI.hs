@@ -24,9 +24,8 @@ import           Util ((!?))
 
 targetOptions :: [Ninja] -> Ninja -> Int -> [Context]
 targetOptions ns n@Ninja{skills} i =
-    [ makeOption skill target | skill  <- maybeToList $ skills !? i
-                              , target <- Requirement.targets ns n skill
-                              ]
+    [ makeOption skill target | skill  <- maybeToList $ skills !? i,
+                                target <- Requirement.targets ns n skill ]
   where
     makeOption skill target = Context
         { new       = True

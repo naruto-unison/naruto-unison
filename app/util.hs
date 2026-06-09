@@ -9,9 +9,9 @@ import qualified Game.Characters as Characters
 findSkills :: (Skill -> Bool) -> Text
 findSkills f = buildStrict . mconcat $ drop 1 do
     character <- Characters.list
-    let skills = [toBuilder $ Skill.name skill
-                     | skill <- toList . join $ Character.skills character
-                     , f skill]
+    let skills = [ toBuilder $ Skill.name skill
+                     | skill <- toList . join $ Character.skills character,
+                       f skill ]
     guard . not $ null skills
     ["\n", toBuilder $ Character.ident character, ": "]
       ++ intersperse ", " skills

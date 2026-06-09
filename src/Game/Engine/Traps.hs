@@ -95,8 +95,8 @@ getPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        -> [m ()]
 getPer False _  _   _ = mempty
 getPer True  tr amt Ninja{traps} =
-    [launch trap $ effect amt | trap@Trap{effect, trigger} <- traps
-                               , trigger == tr]
+    [ launch trap $ effect amt | trap@Trap{effect, trigger} <- traps
+                               , trigger == tr ]
 
 -- | Tallies 'PerDamaged' traps.
 getTurnPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
