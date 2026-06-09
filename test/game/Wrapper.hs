@@ -51,8 +51,8 @@ modifyNinja _ _ _  = error "out of range"
 mapNinjas :: (Ninja -> Ninja) -> Ninjas -> Ninjas
 mapNinjas m (Ninjas a b c d e f) = Ninjas (m a) (m b) (m c) (m d) (m e) (m f)
 
-ninjasToList :: Ninjas -> [Ninja]
-ninjasToList (Ninjas a b c d e f) = [a, b, c, d, e, f]
+ninjasToVector :: Ninjas -> Vector Ninja
+ninjasToVector (Ninjas a b c d e f) = fromList [a, b, c, d, e, f]
 
 data Wrapper = Wrapper
     { game   :: Game
@@ -74,7 +74,7 @@ modifyNinjas' f = modify' \(Wrapper g ns) -> Wrapper g $ f ns
 instance MonadGame WrapperM where
     game        = gets game
     alter f     = modify' \(Wrapper g ns) -> Wrapper (f g) ns
-    ninjas      = gets $ ninjasToList . ninjas
+    ninjas      = gets $ ninjasToVector . ninjas
     ninja i     = gets $ getNinja (Slot.toInt i) . ninjas
     write i x   = modifyNinjas' $ modifyNinja (Slot.toInt i) (const x)
     modify i f  = modifyNinjas' $ modifyNinja (Slot.toInt i) f

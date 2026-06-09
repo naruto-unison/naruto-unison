@@ -10,8 +10,8 @@ module Game.Engine
 
 import ClassyPrelude
 
-import Control.Monad (zipWithM_)
 import Data.List (deleteFirstsBy)
+import Data.Vector (zipWithM_)
 
 import           Class.Classed (Classed)
 import qualified Class.Classed as Classed
@@ -89,7 +89,7 @@ processTurn runner = do
     P.alter \g -> g { Game.playing = opponent }
     doDeaths
     yieldVictor
-    Hook.turn player initial =<< P.ninjas
+    Hook.turn player (toList initial) . toList =<< P.ninjas
   where
     getChannels n = mapMaybe (fromChannel n) $ N.channels n
     fromChannel n (Channel skill target new dur)
@@ -114,7 +114,7 @@ doBomb bomb target st@Status{bombs, skill} = mapM_ doEach bombs
       | otherwise    = P.withContext context $ Action.wrap run
 
 -- | Executes 'Status.bombs' of all 'Status'es that were removed.
-doDoneBombs :: ∀ m. (MonadGame m, MonadRandom m) => [Ninja] -> m ()
+doDoneBombs :: ∀ m. (MonadGame m, MonadRandom m) => Vector Ninja -> m ()
 doDoneBombs ninjas = zipWithM_ doEach ninjas =<< P.ninjas
   where
     doEach n n'
@@ -162,7 +162,7 @@ unSoulbound user n = Ninjas.modifyAll (filter notSoulbound)
     notSoulbound :: ∀ a. (Classed a, HasID a) => a -> Bool
     notSoulbound x = Soulbound ∉ Classed.classes x || (ID.user $ ID.from x) /= user
 
-doExpiredBombs :: ∀ m. (MonadGame m, MonadRandom m) => [Ninja] -> m ()
+doExpiredBombs :: ∀ m. (MonadGame m, MonadRandom m) => Vector Ninja -> m ()
 doExpiredBombs ninjas = mapM_ doEach ninjas
   where
     doEach Ninja{slot, statuses} = mapM_ (doBomb Expire slot)

@@ -49,7 +49,7 @@ instance (PrimMonad m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) w
     {-# INLINABLE game #-}
     alter f    = asks gameRef >>= flip modifyRef' f
     {-# INLINABLE alter #-}
-    ninjas     = asks ninjasRef >>= Vector.freeze <&> toList
+    ninjas     = asks ninjasRef >>= Vector.freeze
     {-# INLINABLE ninjas #-}
     ninja i    = asks ninjasRef >>= flip MVector.unsafeRead (Slot.toInt i)
     {-# INLINABLE ninja #-}
@@ -105,7 +105,7 @@ freeze :: ∀ m. MonadGame m => m Wrapper
 freeze = do
     game   <- P.game
     ninjas <- P.ninjas
-    return Wrapper { progress = mempty, game, ninjas = fromList ninjas }
+    return Wrapper { progress = mempty, game, ninjas = ninjas }
 
 -- | The STWrapper may not be used after this operation.
 unsafeFreeze :: ∀ m. PrimMonad m => STWrapper (PrimState m) -> m Wrapper

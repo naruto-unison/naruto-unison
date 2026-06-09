@@ -120,9 +120,9 @@ wrap' affected f = void $ runMaybeT do
 targeted :: ∀ m. (MonadPlay m, MonadRandom m)
          => [Runnable Target] -> m [[Runnable Slot]]
 targeted targets = do
-    Context{skill, user} <- P.context
+    Context{skill} <- P.context
+    nUser <- P.nUser
     ninjas <- P.ninjas
-    let nUser = ninjas !! Slot.toInt user
     forM targets \(To target runner) -> do
         choices <- chooseTargets target
         return [ To t runner | t <- choices,
@@ -217,7 +217,7 @@ act ctx@Context{user, new, target, skill} = void $ runMaybeT do
     let Skill{charges, cost, classes, dur, effects, require, start} = skill
     Game{chakra} <- P.game
     nUser   <- P.ninja user
-    initial <- P.ninjas
+    initial <- toList <$> P.ninjas
 
     guard $ N.alive nUser && require /= Unusable
 
@@ -260,7 +260,7 @@ act ctx@Context{user, new, target, skill} = void $ runMaybeT do
                     P.modify user $ Ninjas.addChannels skill target
             P.modify user $ Cooldown.update skill
         P.uncopied do
-            Hook.action skill initial =<< P.ninjas
+            Hook.action skill initial . toList =<< P.ninjas
             Game{chakra = chakra'} <- P.game
             Hook.chakra skill chakra chakra'
 

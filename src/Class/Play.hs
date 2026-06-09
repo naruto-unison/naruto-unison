@@ -58,7 +58,7 @@ nTarget = ninja =<< Context.target <$> context
 
 -- | Returns the half of 'ninjas' allied with an argument.
 allies :: ∀ p m. (MonadGame m, Parity p) => p -> m [Ninja]
-allies p = Parity.half p <$> ninjas
+allies p = toList . Parity.half p <$> ninjas
 
 -- | Returns the half of 'ninjas' not allied with an argument.
 enemies :: ∀ p m. (MonadGame m, Parity p) => p -> m [Ninja]

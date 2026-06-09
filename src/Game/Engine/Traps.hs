@@ -122,7 +122,8 @@ getTurnNot n@Ninja{acted, slot}
   | otherwise = mempty
 
 -- | Processes and runs all 'Trap.Trap's at the end of a turn.
-runTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => [Ninja] -> m ()
+runTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+        => Vector Ninja -> m ()
 runTurn ninjas = do
     Game{playing = player} <- P.game
     ninjas' <- P.ninjas

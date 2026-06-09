@@ -53,13 +53,13 @@ run :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Ninja -> m (Maybe Context)
 run vendetta n = runMaybeT do
     aggression <- R.range (0, aggressionThreshold)
     guard $ aggression /= 0
-    ninjas <- P.ninjas
+    ninjas <- toList <$> P.ninjas
     Just choices <- R.choose $ (>>= focusVendetta) <$> skillOptions ninjas n
     MaybeT $ R.choose choices
   where
-    focusVendetta act
-      | Context.target act == vendetta = replicate vendettaRatio act
-      | otherwise                      = singleton act
+    focusVendetta act@Context{target}
+      | target == vendetta = replicate vendettaRatio act
+      | otherwise          = singleton act
 
 -- | Returns @Nothing@ only if all enemies are dead.
 chooseVendetta :: ∀ m. (MonadGame m, MonadRandom m) => m (Maybe Slot)
@@ -88,6 +88,6 @@ runTurn = do
         Nothing -> Engine.runTurn [] -- All enemies are dead
         Just v  -> do
             ninjas <- P.ninjas
-            acts   <- mapM (run v) . Parity.half Player.B $ fromList ninjas
+            acts   <- mapM (run v) $ Parity.half Player.B ninjas
             contexts <- R.shuffle $ catMaybes acts
             Engine.runTurn contexts

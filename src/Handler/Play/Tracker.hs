@@ -211,7 +211,7 @@ fromInfo GameInfo{ninjas, player} = Tracker
 -- | 'HookAction'.
 trackAction :: ∀ m. PrimMonad m
             => Text -> [Ninja] -> [Ninja] -> Tracker (PrimState m) -> m ()
-trackAction skill ns ns' = trackAll . trackAction1 skill . toList $ zip ns ns'
+trackAction skill ns ns' = trackAll . trackAction1 skill $ zip ns ns'
 
 -- | 'HookChakra'.
 trackChakra :: ∀ m. PrimMonad m

@@ -28,8 +28,9 @@ import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉))
 
 -- | Filters a list of targets to those capable of countering a skill.
-filterCounters :: [[Runnable Slot]] -- ^ Effects of the skill to be countered.
-               -> [Ninja] -> [Ninja]
+filterCounters :: ∀ o. (IsSequence o, Ninja ~ Element o)
+               => [[Runnable Slot]] -- ^ Effects of the skill to be countered.
+               -> o -> o
 filterCounters slots = filter $ testBit targetSet . Slot.toInt . N.slot
   where
     targetSet = foldl' go (0 :: Word8) $ join slots

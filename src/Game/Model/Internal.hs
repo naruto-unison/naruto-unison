@@ -439,7 +439,7 @@ instance MonadRandom m => MonadRandom (ReaderT Context m)
 class Monad m => MonadGame m where
     game      :: m Game
     alter     :: (Game -> Game) -> m ()
-    ninjas    :: m [Ninja]
+    ninjas    :: m (Vector Ninja)
     ninja     :: Slot -> m Ninja
     write     :: Slot -> Ninja -> m ()
     modify    :: Slot -> (Ninja -> Ninja) -> m ()
@@ -454,7 +454,7 @@ class Monad m => MonadGame m where
     alter = lift . alter
     {-# INLINE alter #-}
     default ninjas :: Lift MonadGame m
-                   => m [Ninja]
+                   => m (Vector Ninja)
     ninjas = lift ninjas
     {-# INLINE ninjas #-}
     default ninja :: Lift MonadGame m
