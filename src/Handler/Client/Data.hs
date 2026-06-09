@@ -11,6 +11,7 @@ import           Yesod (addScript)
 import           Yesod.Static (base64md5)
 
 import qualified Application.App as App
+import           Class.Display (buildStrict)
 import qualified Game.Characters as Characters
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character
@@ -19,7 +20,7 @@ import qualified Game.Model.Skill as Skill
 import           Mission (freeChars)
 
 dataJS :: ByteString
-dataJS = toStrict . builderToLazy
+dataJS = buildStrict
     $ "characters=" ++ encodeBytes Characters.list
     ++ ";\nvisibles=" ++ encodeBytes visibles
     ++ ";\navatars=" ++ encodeBytes avatars

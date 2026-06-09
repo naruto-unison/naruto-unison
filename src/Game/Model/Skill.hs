@@ -17,7 +17,7 @@ import ClassyPrelude hiding (swap)
 
 import Data.Enum.Set (EnumSet)
 
-import           Class.Display (Display(..))
+import           Class.Display (Display(..), buildStrict)
 import           Game.Model.Chakras (Chakras)
 import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Class (Class(..))
@@ -91,7 +91,7 @@ removeClass class' skill@Skill{classes} =
 
 addDesc :: TextBuilder -> Skill -> Skill
 addDesc add skill@Skill{desc} =
-    skill { desc = toStrict $ builderToLazy $ display desc ++ add }
+    skill { desc = buildStrict $ display desc ++ add }
 
 setCooldown :: Duration -> Skill -> Skill
 setCooldown cooldown skill = skill { cooldown = cooldown }

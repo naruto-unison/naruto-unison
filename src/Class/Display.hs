@@ -1,15 +1,15 @@
 module Class.Display
   ( Display(..)
+  , buildLazy, buildStrict
   , commas
   , shorten, unaccent
   ) where
 
-import ClassyPrelude hiding (Builder)
+import ClassyPrelude
 
 import           Data.Attoparsec.Text (notInClass)
 import qualified Data.Text.Lazy as Lazy
-import           Data.Text.Lazy.Builder (Builder)
-import qualified Data.Text.Lazy.Builder as Builder
+import qualified Data.Text.Lazy.Builder as TextBuilder
 import qualified Data.Text.Lazy.Builder.Int as IntBuilder
 
 -- | A class for types with textual descriptions.
@@ -27,36 +27,36 @@ import qualified Data.Text.Lazy.Builder.Int as IntBuilder
 --
 -- @display' x == Builder.toLazyText (display x)@
 class Display a where
-    display :: a -> Builder
+    display :: a -> TextBuilder
     -- | Extracts a lazy @Text@ from the value of @display@.
     -- The default implementation simply wraps around 'Builder.toLazyText',
     -- and instances are not expected to provide their own implementation.
     -- The option exists primarily to spare cases such as 'Text' and 'Lazy.Text'
     -- pointless round trips through 'Builder's.
     display' :: a -> Lazy.Text
-    display' = Builder.toLazyText . display
+    display' = TextBuilder.toLazyText . display
     {-# INLINE display' #-}
 
-instance Display Builder where
+instance Display TextBuilder where
     display = id
     {-# INLINE display #-}
-    display' = Builder.toLazyText
+    display' = TextBuilder.toLazyText
     {-# INLINE display' #-}
 
 instance Display Text where
-    display = Builder.fromText
+    display = TextBuilder.fromText
     {-# INLINE display #-}
     display' = Lazy.fromStrict
     {-# INLINE display' #-}
 
 instance Display Lazy.Text where
-    display = Builder.fromLazyText
+    display = TextBuilder.fromLazyText
     {-# INLINE display #-}
     display' = id
     {-# INLINE display' #-}
 
 instance Display String where
-    display = Builder.fromString
+    display = TextBuilder.fromString
     {-# INLINE display #-}
     display' = Lazy.pack
     {-# INLINE display' #-}
@@ -69,9 +69,19 @@ instance Display Int64 where
     display = IntBuilder.decimal
     {-# INLINE display #-}
 
+buildLazy :: ∀ builder lazy. Builder builder lazy => builder -> lazy
+buildLazy = builderToLazy
+{-# INLINE buildLazy #-}
+
+buildStrict :: ∀ builder lazy strict.
+                 (Builder builder lazy, LazySequence lazy strict)
+            => builder -> strict
+buildStrict = toStrict . buildLazy
+{-# INLINE buildStrict #-}
+
 -- | Divides a list of @Text@s into a single, comma-separated @Text@ ended
 -- with a provided conjunction.
-commas :: Builder -> [Builder] -> Builder
+commas :: TextBuilder -> [TextBuilder] -> TextBuilder
 commas conj = go
   where
     conj'      = " " ++ conj ++ " "

@@ -23,7 +23,7 @@ import qualified Text.Blaze.Html5 as HTML
 import qualified Text.Blaze.Html5.Attributes as HTML
 import           Yesod.Core.Dispatch (PathPiece(..))
 
-import           Class.Display (Display(..))
+import           Class.Display (Display(..), buildStrict)
 import           Class.Parse (Parse)
 import qualified Class.Parse as Parse
 import           Class.Random (MonadRandom)
@@ -357,7 +357,7 @@ instance Parse Chakras where
         return $ Chakras b g n t 0
 
 instance PathPiece Chakras where
-    toPathPiece (Chakras b g n t _) = toStrict . builderToLazy . intercalate ","
+    toPathPiece (Chakras b g n t _) = buildStrict . intercalate ","
                                     $ display <$> [b, g, n, t]
     fromPathPiece piece = rightToMaybe $ Parse.parseToEnd piece
 
