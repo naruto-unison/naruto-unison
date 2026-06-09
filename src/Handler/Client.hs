@@ -61,7 +61,7 @@ data ObjectiveProgress = ObjectiveProgress
     , desc      :: Text
     , goal      :: Int
     , progress  :: Int
-    } deriving (Eq, Ord, Show, Read, Generic)
+    } deriving (Eq, Ord, Show, Generic)
 
 instance ToJSON ObjectiveProgress
 

@@ -53,7 +53,7 @@ data Class
     | Ninjutsu
     | Taijutsu
     | Random
-    deriving (Bounded, Enum, Eq, Ord, Show, Read)
+    deriving (Bounded, Enum, Eq, Ord, Show)
 
 instance AsEnumSet Class where
     type EnumSetRep Class = Word64

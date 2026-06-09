@@ -30,7 +30,6 @@ import           Data.HashTable (HashTable)
 import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Lazy.Encoding as LazyEncoding
 import qualified Data.Time.Format as Format
-import qualified Data.Time.LocalTime as LocalTime
 import           Database.Persist.Sql (ConnectionPool, SqlBackend, SqlPersistT, runSqlPool)
 #ifndef DEVELOPMENT
 import           Database.Persist.Sql (fromSqlKey)
@@ -172,10 +171,8 @@ lastModified time = do
     replaceOrAddHeader "Last-Modified" . pack $ formatAsLastModified timestamp
 
 formatAsLastModified :: UTCTime -> String
-formatAsLastModified time = Format.formatTime Format.defaultTimeLocale format
-    $ LocalTime.utcToLocalTime (read "GMT") time
-  where
-    format = "%a, %d %b %Y %H:%M:%S GMT"
+formatAsLastModified = Format.formatTime Format.defaultTimeLocale
+    "%a, %d %b %Y %H:%M:%S GMT"
 
 instance Yesod App where
     approot :: Approot App

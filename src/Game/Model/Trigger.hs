@@ -42,7 +42,7 @@ data Trigger
     | OnStun
     | OnStunned
     | PerDamaged
-    deriving (Eq, Ord, Show, Read, Generic)
+    deriving (Eq, Ord, Show, Generic)
 
 instance Hashable Trigger
 

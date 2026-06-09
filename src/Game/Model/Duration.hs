@@ -8,10 +8,7 @@ import ClassyPrelude hiding (even)
 
 import           Data.Aeson (ToJSON(..))
 import qualified Data.Aeson as A
-
-import Text.Blaze (ToMarkup(..))
-import Text.Read
-import Text.Read.Lex (numberToInteger)
+import           Text.Blaze (ToMarkup(..))
 
 import Class.Display (Display(..))
 import Class.Parity (Parity(..))
@@ -89,14 +86,6 @@ instance Num Duration where
 instance Show Duration where
     showsPrec _ Permanent = showString "Permanent"
     showsPrec i dur       = showsPrec i $ fromEnum dur
-
-instance Read Duration where
-    readPrec = parens $ prec 10 do
-        lx <- lexP
-        case lx of
-            Ident "Permanent"                  -> return Permanent
-            Number (numberToInteger -> Just d) -> return $ fromInteger d
-            _                                  -> empty
 
 instance Display Duration where
     display Permanent = "Permanent"

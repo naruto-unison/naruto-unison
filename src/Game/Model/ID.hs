@@ -11,7 +11,7 @@ data ID = ID
     { user  :: Slot
     , owner :: Slot
     , name  :: Text
-    } deriving (Eq, Ord, Show, Read, Generic)
+    } deriving (Eq, Ord, Show, Generic)
 
 class HasID a where
     from :: a -> ID

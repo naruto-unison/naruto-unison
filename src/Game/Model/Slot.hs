@@ -176,14 +176,6 @@ instance Show SlotSet where
         showString "fromList " . shows (toList xs)
     {-# INLINABLE showsPrec #-}
 
-instance Read SlotSet where
-    readPrec = parens $ prec 10 do
-        Ident "fromList" <- lexP
-        fromFoldable <$> readPrec @[Slot]
-    {-# INLINABLE readPrec #-}
-    readListPrec = readListPrecDefault
-    {-# INLINABLE readListPrec #-}
-
 fromFoldable :: ∀ o. (MonoFoldable o, Slot ~ Element o) => o -> SlotSet
 fromFoldable = SlotSet . EnumSet.fromRaw
     . foldl' (flip $ (.|.) . bit  . toInt) 0

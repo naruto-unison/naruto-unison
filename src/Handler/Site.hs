@@ -70,7 +70,7 @@ data LogType
     = Balance
     | New
     | Rework
-    deriving (Bounded, Enum, Eq, Ord, Show, Read)
+    deriving (Bounded, Enum, Eq, Ord, Show)
 
 logLabel :: Bool -> LogType -> Text
 logLabel True  Balance = "Balance update:"

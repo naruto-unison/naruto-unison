@@ -19,13 +19,13 @@ data Span
     | Turn   -- ^ Resets at the end of a turn.
     | Match  -- ^ Resets at the end of a game.
     | Career -- ^ Never resets.
-    deriving (Bounded, Enum, Eq, Ord, Show, Read)
+    deriving (Bounded, Enum, Eq, Ord, Show)
 
 -- | Whether wins are cumulative or must be uninterrupted by losses or ties.
 data WinType
     = WinConsecutive
     | WinTotal
-    deriving (Bounded, Enum, Eq, Ord, Show, Read)
+    deriving (Bounded, Enum, Eq, Ord, Show)
 
 -- | The core component of @Mission@s.
 data Objective

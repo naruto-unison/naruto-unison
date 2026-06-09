@@ -15,7 +15,7 @@ data Progress = Progress
     { character :: Text
     , objective :: Int
     , amount    :: Int
-    } deriving (Eq, Ord, Show, Read)
+    } deriving (Eq, Ord, Show)
 
 -- | Add this to mission progress in order to reset it to 0.
 resetToZero :: Int

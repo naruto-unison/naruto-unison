@@ -57,8 +57,7 @@ participant :: EnumSet Group -> Character -> Bool
 participant war Character{groups} = war `intersects` groups
 
 -- | You ever wonder why we're here?
-data War = Red | Blue
-           deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+data War = Red | Blue deriving (Bounded, Enum, Eq, Ord, Show, Generic)
 
 instance Parity War where
     even Red  = True

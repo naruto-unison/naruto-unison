@@ -42,7 +42,7 @@ import           Util (Lift)
 data Bomb
     = Done   -- ^ Applied when a 'Status' is removed for any reason.
     | Expire -- ^ Applied when a 'Status' reaches the end of its duration.
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+    deriving (Bounded, Enum, Eq, Ord, Show, Generic)
 
 instance ToJSON Bomb
 
@@ -52,7 +52,7 @@ data Category
     = Original
     | Shippuden
     | Reanimated
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+    deriving (Bounded, Enum, Eq, Ord, Show, Generic)
 
 instance ToJSON Category
 
@@ -92,7 +92,7 @@ data Channeling
     | Action  Duration
     | Control Duration
     | Ongoing Duration
-    deriving (Eq, Ord, Show, Read, Generic)
+    deriving (Eq, Ord, Show, Generic)
 
 instance ToJSON Channeling
 
@@ -167,7 +167,7 @@ data Direction
     = Toward
     | From
     | Per
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+    deriving (Bounded, Enum, Eq, Ord, Show, Generic)
 
 instance ToJSON Direction
 
@@ -176,15 +176,14 @@ instance ToJSON Direction
 data Face = Face
     { icon :: Text
     , user :: Slot
-    } deriving (Eq, Show, Read, Generic)
+    } deriving (Eq, Show, Generic)
 
 instance ToJSON Face
 
 
 -- Used for 'Game.Ninja.cooldowns' and 'Game.Ninja.charges'.
 -- Generated from a 'Skill'.
-data Key = Key Text Slot
-           deriving (Eq, Ord, Show, Read, Generic)
+data Key = Key Text Slot deriving (Eq, Ord, Show, Generic)
 
 instance Hashable Key
 
@@ -267,7 +266,7 @@ data Requirement
     | UserChannel Bool Text
     | UserDefense Int Text
     | UserTrap Bool Text
-    deriving (Eq, Ord, Show, Read, Generic)
+    deriving (Eq, Ord, Show, Generic)
 
 instance ToJSON Requirement
 
@@ -361,7 +360,7 @@ data Target
     | REnemy   -- ^ Random enemy
     | XEnemies -- ^ Enemies excluding 'Enemy'
     | Everyone -- ^ All 'Ninja's
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+    deriving (Bounded, Enum, Eq, Ord, Show, Generic)
 
 instance ToJSON Target
 

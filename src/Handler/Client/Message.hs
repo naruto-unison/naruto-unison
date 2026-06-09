@@ -20,7 +20,7 @@ data Failure
     | Locked [Text]
     | NotFound
     | SocketError String
-    deriving (Eq, Ord, Show, Read, Generic)
+    deriving (Eq, Ord, Show, Generic)
 
 instance ToJSON Failure
 

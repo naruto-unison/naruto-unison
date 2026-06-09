@@ -14,7 +14,7 @@ data UsageRate = UsageRate
     { pickRate  :: Float
     , winRate   :: Float
     , character :: Character
-} deriving (Eq, Ord, Show, Read)
+} deriving (Eq, Ord, Show)
 
 
 new :: Character -> Usage -> UsageRate

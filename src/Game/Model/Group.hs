@@ -65,7 +65,7 @@ data Group
     | GenjutsuUser
     | NinjutsuUser
     | TaijutsuUser
-    deriving (Bounded, Enum, Eq, Ord, Show, Read)
+    deriving (Bounded, Enum, Eq, Ord, Show)
 
 instance AsEnumSet Group where
     type EnumSetRep Group = Word64

@@ -22,7 +22,7 @@ import "classy-prelude" ClassyPrelude as CP hiding
     , head, tail, last, init
     , ofoldMap1, ofold1, ofoldr1, ofoldl1'
     , maximum, minimum, maximumBy, minimumBy)
-import Prelude (type (~), MonadFail(..), errorWithoutStackTrace, ShowS, Show(..), shows, showChar, showString, showParen, ReadS, Read(..), reads, readParen, read, lex)
+import Prelude (type (~), MonadFail(..), errorWithoutStackTrace, ShowS, Show(..), shows, showChar, showString, showParen)
 import Data.Kind (Constraint, Type)
 import NonNull
 

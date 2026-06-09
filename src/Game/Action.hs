@@ -61,7 +61,7 @@ data Affected
     = Redirected
     | Reflected
     | Targeted
-    deriving (Bounded, Enum, Eq, Ord, Show, Read)
+    deriving (Bounded, Enum, Eq, Ord, Show)
 
 instance AsEnumSet Affected
 

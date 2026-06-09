@@ -13,8 +13,7 @@ import qualified System.Random.Stateful as R
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 
-data Player = A | B
-    deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+data Player = A | B deriving (Bounded, Enum, Eq, Ord, Show, Generic)
 
 instance ToJSON Player
 

@@ -43,7 +43,7 @@ data DNA = DNA
     -- ^ Reward for victory in a 'Handler.Play.War.War'.
     , useStreak :: Bool
     -- ^ Add the square root of the user's win streak to the DNA reward
-    } deriving (Eq, Ord, Show, Read)
+    } deriving (Eq, Ord, Show)
 
 instance FromJSON DNA where
     parseJSON = Aeson.withObject "DNA" \o -> do
@@ -113,7 +113,7 @@ data Settings = Settings
 
     , authDummyLogin         :: ~Bool
     -- ^ Indicate if auth dummy login should be enabled.
-    } deriving (Show, Read)
+    } deriving (Show)
 
 instance FromJSON Settings where
     parseJSON = Aeson.withObject "Settings" \o -> do

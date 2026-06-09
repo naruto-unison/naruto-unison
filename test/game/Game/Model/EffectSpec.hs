@@ -5,7 +5,6 @@ module Game.Model.EffectSpec (spec) where
 import Import hiding (it, shouldBe, shouldNotBe)
 
 import Data.Enum.Set (EnumSet)
-import Text.Read
 import Test.QuickCheck
 import Test.Hspec.QuickCheck
 import Test.Hspec (it, shouldBe)
@@ -57,18 +56,6 @@ spec = parallel do
             show (Only (Stun Chakra)) `shouldBe` "Only (Stun Chakra)"
         it "shows Any" $
             show (Any Stun) `shouldBe` "Any Stun"
-
-    describe "Constructor Read" do
-        it "reads Counters" $
-            readMaybe "Counters" `shouldBe` Just Counters
-        it "reads Stuns" $
-            readMaybe "Stuns" `shouldBe` Just Stuns
-        it "reads Only with single argument" $
-            readMaybe "Only Reveal" `shouldBe` Just (Only Reveal)
-        it "reads Only with multiple arguments" $
-            readMaybe "Only (Stun Chakra)" `shouldBe` Just (Only $ Stun Chakra)
-        it "reads Any" $
-            readMaybe "Any Stun" `shouldBe` Just (Any Stun)
 
     describe "Absorb" do
         let tryAbsorb t cost = simAt t do

@@ -8,4 +8,4 @@ data Attack
     | Afflict -- ^ Ignores damage reduction and destructible defense.
     | Pierce -- ^ Ignores damage reduction.
     | Damage -- ^ Deals damage normally.
-    deriving (Bounded, Enum, Eq, Ord, Show, Read)
+    deriving (Bounded, Enum, Eq, Ord, Show)

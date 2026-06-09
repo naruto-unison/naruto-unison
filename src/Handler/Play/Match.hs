@@ -25,7 +25,7 @@ data Outcome
     = Victory
     | Defeat
     | Tie
-    deriving (Bounded, Enum, Eq, Ord, Show, Read)
+    deriving (Bounded, Enum, Eq, Ord, Show)
 
 -- | Result of the game from the opposite player.
 inverse :: Outcome -> Outcome
@@ -39,7 +39,7 @@ data Match a = Match
     { outcomeA :: Outcome
     , playerA  :: a
     , playerB  :: a
-    } deriving (Eq, Show, Read)
+    } deriving (Eq, Show)
 
 victor :: ∀ a. Match a -> Maybe a
 victor (Match Victory a _) = Just a

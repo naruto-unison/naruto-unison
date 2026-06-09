@@ -44,7 +44,7 @@ import Control.Monad.Trans.Maybe (MaybeT(..))
 data Section
     = Quick
     | Private
-    deriving (Bounded, Enum, Eq, Ord, Show, Read)
+    deriving (Bounded, Enum, Eq, Ord, Show)
 
 instance Parse Section where
     parser = Parse.choice

@@ -14,7 +14,6 @@ import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), object)
 import Data.Enum.Set (EnumSet)
-import Text.Read
 
 import           Class.Classed (Classed)
 import qualified Class.Classed
@@ -74,7 +73,7 @@ data Effect
     | Uncounter                               -- ^ Cannot counter or reflect
     | Unreduce     Int                        -- ^ Reduces damage reduction 'Game.Model.Skill.Skill's
     | Weaken       (EnumSet Class) Amount Int -- ^ Lessens damage dealt
-    deriving (Eq, Show, Read)
+    deriving (Eq, Show)
 
 instance ToJSON Effect where
     toJSON x = object
@@ -97,7 +96,7 @@ instance Classed Effect where
     classes (Weaken c _ _)     = c
     classes _                  = mempty
 
-data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show, Read)
+data Amount = Flat | Percent deriving (Bounded, Enum, Eq, Ord, Show)
 
 displayAmt :: Amount -> Int -> TextBuilder
 displayAmt Flat    = display
@@ -130,25 +129,6 @@ instance Show Constructor where
       where
         allSuffix               = ' ' : show All
         stripSuffixMay suffix s = fromMaybe s $ stripSuffix suffix s
-
-instance Read Constructor where
-    readPrec = do
-        Ident c <- lexP
-        case c of
-            "Counters" -> return Counters
-            "Stuns"    -> return Stuns
-            "Only"     -> Only <$> readPrec @Effect
-            "Any"      -> Any <$> readAny
-            _          -> empty
-      where
-        readAny = do
-            Ident ef <- lexP
-            case ef of
-                "Invulnerable" -> return Invulnerable
-                "ReflectAll"   -> return ReflectAll
-                "Stun"         -> return Stun
-                _              -> empty
-
 
 instance Display Constructor where
     display Counters       = "counters"

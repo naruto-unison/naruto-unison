@@ -30,7 +30,7 @@ data Game = Game
     -- ^ Starts at @False@.
     , vendetta  :: Maybe Slot
     -- ^ Used by AI.
-    } deriving (Eq, Show, Read)
+    } deriving (Eq, Show)
 
 new :: Game
 new = Game

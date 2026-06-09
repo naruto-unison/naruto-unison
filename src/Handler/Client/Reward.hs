@@ -7,6 +7,6 @@ import Data.Aeson (ToJSON)
 data Reward = Reward
     { reason :: Text
     , amount :: Int
-    } deriving (Eq, Ord, Show, Read, Generic)
+    } deriving (Eq, Ord, Show, Generic)
 
 instance ToJSON Reward
