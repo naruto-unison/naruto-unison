@@ -4,6 +4,7 @@
 module Mission.Missions.Import
   ( module Import
   , win, winConsecutive
+  , hasOwn
   -- * Action hooks
   , check
   , cure
@@ -35,7 +36,7 @@ module Mission.Missions.Import
 import ClassyPrelude as Import
 import Class.Parity as Import (allied)
 import Data.IntSet as Import (size)
-import Game.Model.Ninja as Import (alive, hasOwn, health)
+import Game.Model.Ninja as Import (alive, health)
 import Game.Model.Trigger as Import (Trigger(..))
 import Game.Engine.Effects as Import (stunned)
 import Mission.Goal as Import
@@ -56,6 +57,10 @@ resetToZero = minBound
 
 toID :: Text -> Slot -> ID
 toID name user = ID { user, owner = user, name }
+
+--  | True if user has a 'Status' from the user with matching 'Status.name'.
+hasOwn :: Text -> Ninja -> Bool
+hasOwn name n@Ninja{slot} = N.has (toID name slot) n
 
 --  | True if target has a 'Status' from the user with matching 'Status.name'.
 hasFrom :: Ninja -> Text -> Ninja -> Bool

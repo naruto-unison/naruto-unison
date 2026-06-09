@@ -80,9 +80,9 @@ succeed owner (UserDefense i name) user n@Ninja{slot = target}
   | user /= target = True
   | i > 0          = N.defenseAmount ID { user, owner, name } n >= i
   | otherwise      = not $ N.hasDefense ID { user, owner, name } n
-succeed _     (UserTrap expected name) user n@Ninja{slot = target}
+succeed owner (UserTrap expected name) user n@Ninja{slot = target}
   | user /= target = True
-  | otherwise      = expected == N.hasOwn' N.traps name n
+  | otherwise      = expected == N.hasTrap ID { user, owner, name } n
 
 -- | Checks whether a @Skill@ can be used on a target.
 targetable :: Skill -- ^ @Skill@ to check.

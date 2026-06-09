@@ -2,7 +2,7 @@ module Game.Model.Ninja
   ( Ninja(..), new
   , alive
   , is, isChanneling
-  , has, has', hasBarrier, hasDefense, hasOwn, hasOwn'
+  , has, has', hasBarrier, hasDefense, hasTrap
   , numStacks, numHelpful, numHarmful
   , barrierAmount, defenseAmount, totalDefense, totalBarrier
   , lastChakraSpent
@@ -15,7 +15,7 @@ import           Game.Model.Chakras (Chakras)
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Effect as Effect
-import           Game.Model.ID (HasID, ID(ID))
+import           Game.Model.ID (HasID, ID)
 import qualified Game.Model.ID as ID
 import           Game.Model.Internal (Destructible(..), Ninja(..), Channel(Channel), Character(Character), Skill(Skill), Status(Status))
 import qualified Game.Model.Internal
@@ -88,17 +88,10 @@ hasDefense :: ID -- ^ 'Destructible.name'.
            -> Ninja -> Bool
 hasDefense = has' defense
 
-hasOwn' :: ∀ a. HasID a
-     => (Ninja -> [a])
-     -> Text -- ^ 'Status.name'.
-     -> Ninja -> Bool
-hasOwn' getter name n@Ninja{slot} = has' getter effectID n
-  where
-    effectID = ID { user = slot, owner = slot, name }
-
--- | Matches a 'Status.Status'.
-hasOwn :: Text -> Ninja -> Bool
-hasOwn = hasOwn' statuses
+-- | Searches 'traps'.
+hasTrap :: ID -- ^ 'Trap.name'.
+           -> Ninja -> Bool
+hasTrap = has' traps
 
 -- | Sums 'Destructible.amount' of all matching 'barrier' or 'defense'.
 destructibleAmount :: (Ninja -> [Destructible]) -- ^ Getter.
