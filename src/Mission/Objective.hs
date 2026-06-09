@@ -2,57 +2,16 @@ module Mission.Objective
   ( Objective(..), ident
   , Span(..)
   , WinType(..)
-  , ActionHook, ChakraHook, StoreHook, TrapHook, TriggerHook, TurnHook, Store
   ) where
 
 import ClassyPrelude
 
-import Game.Model.Chakras (Chakras)
-import Game.Model.Ninja (Ninja)
-import Game.Model.Player (Player)
-import Game.Model.Slot (Slot)
 import Game.Model.Trigger (Trigger)
-
--- | Some mission objectives require a persistent object for tracking progress.
-type Store = IntSet
-
--- | Used in 'HookAction'.
-type ActionHook = Text  -- ^ Skill name.
-               -> Ninja -- ^ User.
-               -> Ninja -- ^ Target before action.
-               -> Ninja -- ^ Target after action.
-               -> Int
-
--- | Used in 'HookChakra'.
-type ChakraHook = (Chakras, Chakras) -- ^ Chakra before action, user's first.
-               -> (Chakras, Chakras) -- ^ Chakra after action, user's first.
-               -> Int
-
--- | Used in 'HookStore'.
-type StoreHook = Text  -- ^ Skill name.
-              -> Ninja -- ^ User.
-              -> Ninja -- ^ Target before action.
-              -> Ninja -- ^ Target after action.
-              -> Store
-              -> (Store, Int)
-
--- | Used in 'HookTrap'.
-type TrapHook = Slot  -- ^ User.
-             -> Ninja -- ^ Target after triggering trap.
-             -> Store
-             -> (Store, Int)
-
--- | Used in 'HookTrigger'.
-type TriggerHook = Ninja -- ^ User.
-                -> Bool
-
--- | Used in 'HookTurn'.
-type TurnHook = Player -- ^ Whose turn it is.
-             -> Ninja  -- User.
-             -> Ninja  -- ^ Target at beginning of turn.
-             -> Ninja  -- ^ Target at end of turn.
-             -> Store
-             -> (Store, Int)
+import Mission.Hooks.Action (ActionHook)
+import Mission.Hooks.Chakra (ChakraHook)
+import Mission.Hooks.Store (StoreHook)
+import Mission.Hooks.Trap (TrapHook, TriggerHook)
+import Mission.Hooks.Turn (TurnHook)
 
 -- | How long an objective goes before being reset.
 data Span

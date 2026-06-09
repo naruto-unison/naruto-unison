@@ -34,9 +34,15 @@ import           Handler.Play.GameInfo (GameInfo(GameInfo))
 import qualified Handler.Play.GameInfo
 import           Mission.Goal (Goal(Reach), Mission(Mission))
 import qualified Mission.Goal as Goal
+import           Mission.Hooks.Action (ActionHook)
+import           Mission.Hooks.Chakra (ChakraHook)
+import           Mission.Hooks.Store (StoreHook)
+import           Mission.Hooks.Trap (TrapHook, TriggerHook)
+import           Mission.Hooks.Turn (TurnHook)
 import qualified Mission.Missions as Missions
-import           Mission.Objective (Objective(..), Span(..), Store, ActionHook, ChakraHook, StoreHook, TrapHook, TriggerHook, TurnHook)
+import           Mission.Objective (Objective(..), Span(..))
 import           Mission.Progress (Progress(Progress))
+import           Mission.Store (Store)
 import           Util ((!!))
 
 missionKeys :: Text -> Mission -> [Int -> Progress]
