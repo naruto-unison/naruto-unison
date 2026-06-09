@@ -421,6 +421,7 @@ instance Labeled Trap where
     name Trap{name} = name
     user Trap{user} = user
 
+
 -- | Gameplay context. This promotes a 'MonadGame' to 'MonadPlay'.
 data Context = Context
     { skill     :: Skill
