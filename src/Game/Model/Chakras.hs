@@ -368,7 +368,7 @@ data Chakra
     | Nin   -- ^ Ninjutsu
     | Tai   -- ^ Taijutsu
     | Rand  -- ^ Random
-    deriving (Bounded, Enum, Eq, Ord, Show, Generic)
+    deriving (Bounded, Enum, Eq, Ord, Show)
 
 instance AsEnumSet Chakra
 

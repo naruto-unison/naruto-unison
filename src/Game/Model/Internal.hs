@@ -217,7 +217,7 @@ data Ninja = Ninja
     , effects    :: ~[Effect]       -- ^ Processed automatically
     , face       :: ~(Maybe Face)   -- ^ Processed automatically
     , acted      :: Bool            -- ^ False at the start of each turn
-    } deriving (Generic)
+    }
 
 instance ToJSON Ninja where
     toJSON Ninja
