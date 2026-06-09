@@ -27,8 +27,6 @@ import           Data.Bimap (Bimap)
 import           Data.Cache (Cache)
 import qualified Data.CaseInsensitive as CaseInsensitive
 import           Data.HashTable (HashTable)
-import qualified Data.Text.Encoding as TextEncoding
-import qualified Data.Text.Lazy.Encoding as LazyEncoding
 import qualified Data.Time.Format as Format
 import           Database.Persist.Sql (ConnectionPool, SqlBackend, SqlPersistT, runSqlPool)
 #ifndef DEVELOPMENT
@@ -207,6 +205,10 @@ instance Yesod App where
             $(widgetFile "default-layout/default-layout")
         withUrlRenderer
           $(hamletFile "templates/default-layout/default-layout-wrapper.hamlet")
+      where
+        cookieName     = decodeUtf8 defaultCsrfCookieName
+        csrfHeaderName = decodeUtf8 $ CaseInsensitive.foldedCase
+            defaultCsrfHeaderName
 
     authRoute :: App -> Maybe (Route App)
     authRoute _ = Just $ AuthR Auth.LoginR
@@ -347,7 +349,7 @@ instance YesodAuthEmail App where
             { partType = "text/plain; charset=utf-8"
             , partEncoding = Mail.None
             , partDisposition = Mail.DefaultDisposition
-            , partContent = Mail.PartContent $ LazyEncoding.encodeUtf8 [stext|
+            , partContent = Mail.PartContent $ encodeUtf8 [stext|
 Welcome to Naruto Unison! To confirm your email address, click on the link below or copy and paste it into your address bar.
 \#{verurl}
 |]

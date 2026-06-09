@@ -33,4 +33,4 @@
         }
 
     <script>
-      var csrfHeaderName="#{TextEncoding.decodeUtf8 $ CaseInsensitive.foldedCase defaultCsrfHeaderName}";var csrfCookieName="#{TextEncoding.decodeUtf8 defaultCsrfCookieName}"
+      var csrfHeaderName="#{csrfHeaderName}";var csrfCookieName="#{cookieName}"
