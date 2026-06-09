@@ -28,7 +28,6 @@ library:
   - case-insensitive
   - chunked-data
   - classy-prelude
-  - cmark
   - concurrent-hashtable
   - containers
   - data-default
@@ -50,7 +49,6 @@ library:
   - persistent
   - persistent-postgresql
   - persistent-template
-  - primitive
   - random
   - scientific
   - shakespeare
