@@ -7,18 +7,19 @@ module Mission.Missions.Import
   ) where
 
 import ClassyPrelude as Import
+
 import Class.Parity as Import (allied)
 import Data.IntSet as Import (size)
+import Game.Engine.Effects as Import (stunned)
 import Game.Model.Ninja as Import (alive, health)
 import Game.Model.Trigger as Import (Trigger(..))
-import Game.Engine.Effects as Import (stunned)
 import Mission.Goal as Import
-import Mission.Objective as Import
 import Mission.Hooks.Action as Import
 import Mission.Hooks.Chakra as Import
 import Mission.Hooks.Store as Import
 import Mission.Hooks.Trap as Import
 import Mission.Hooks.Turn as Import
+import Mission.Objective as Import
 import Mission.Hooks.Util as Import (hasOwn)
 
 import Class.Display (Display(..), buildStrict, commas)

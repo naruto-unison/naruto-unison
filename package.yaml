@@ -113,13 +113,14 @@ executables:
 tests:
   test-game:
     source-dirs: test/game
-    main: Spec.hs
+    main: Main.hs
     dependencies:
     - naruto-unison
     - base
     - bitwise-enum
     - bytestring
     - hspec
+    - hspec-api
     - hspec-core
     - mono-traversable
     - QuickCheck
@@ -127,18 +128,20 @@ tests:
     - transformers
   test-missions:
     source-dirs: test/missions
-    main: Spec.hs
+    main: Main.hs
     dependencies:
     - naruto-unison
     - base
     - hspec
+    - hspec-api
   test-yesod:
     source-dirs: test/yesod
-    main: Spec.hs
+    main: Main.hs
     dependencies:
     - naruto-unison
     - base
     - hspec
+    - hspec-api
     - persistent
     - shakespeare
     - transformers

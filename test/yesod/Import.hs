@@ -1,24 +1,24 @@
 {-# LANGUAGE QuasiQuotes #-}
 module Import
     ( module Import
-    , module X
+    , module Import'
     ) where
 
-import Application.Logger    (makeLogWare)
-import Application           (makeFoundation)
-import ClassyPrelude         as X hiding (delete, deleteBy)
-import Database.Persist      as X hiding (get)
-import Database.Persist.Sql  (SqlPersistM, runSqlPersistMPool, rawExecute, rawSql, unSingle)
-import Application.App       as X hiding (Handler, PersistEntity)
-import Application.Model     as X
-import Test.Hspec            as X
-import Text.Shakespeare.Text (st)
-import Yesod.Default.Config2 (useEnv, loadYamlSettings)
-import Yesod.Auth            as X
-import Yesod.Test            as X
-import Yesod.Core.Unsafe     (fakeHandlerGetLogger)
+import ClassyPrelude as Import' hiding (Handler, delete, deleteBy)
 
-import qualified Application.App as App
+import Application.App as Import'
+import Application.Model as Import'
+import Database.Persist as Import' hiding (PersistEntity, get)
+import Test.Hspec as Import'
+import Yesod.Auth as Import'
+import Yesod.Test as Import'
+
+import Application (makeFoundation)
+import Application.Logger (makeLogWare)
+import Database.Persist.Sql (SqlPersistM, runSqlPersistMPool, rawExecute, rawSql, unSingle)
+import Text.Shakespeare.Text (st)
+import Yesod.Core.Unsafe (fakeHandlerGetLogger)
+import Yesod.Default.Config2 (useEnv, loadYamlSettings)
 
 runDB :: SqlPersistM a -> YesodExample App a
 runDB query = do
@@ -28,7 +28,7 @@ runDB query = do
 runDBWithApp :: App -> SqlPersistM a -> IO a
 runDBWithApp app query = runSqlPersistMPool query (connPool app)
 
-runHandler :: App.Handler a -> YesodExample App a
+runHandler :: Handler a -> YesodExample App a
 runHandler handler = do
     app <- getTestYesod
     fakeHandlerGetLogger logger app handler

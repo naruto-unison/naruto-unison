@@ -1,21 +1,21 @@
 module Import
-    ( module X
+    ( module Import'
     , gameChakras
     , hasSkill
     , measureDamage, measureDamageTo, measureHealing, measureHealingTo
     , shouldBe, shouldNotBe
     ) where
 
-import Game.Characters.Import as X
-import Game.Model.Ninja as X (Ninja(Ninja, charges, cooldowns, effects), totalBarrier, totalDefense)
-import Test.Hspec as X hiding (context, it, shouldBe, shouldNotBe)
-import Sim as X (simAt, describeCategory, simOf)
-import SkillExample as X
+import Game.Characters.Import as Import'
+import Game.Model.Ninja as Import' (Ninja(Ninja, charges, cooldowns, effects), totalBarrier, totalDefense)
+import Test.Hspec as Import' hiding (context, it, shouldBe, shouldNotBe)
+import Sim as Import' (simAt, describeCategory, simOf)
+import SkillExample as Import'
 
 import           Class.Play (MonadPlay(..))
 import qualified Class.Play as P
-import qualified Game.Model.Game as Game
 import qualified Game.Engine.Ninjas as Ninjas
+import qualified Game.Model.Game as Game
 import qualified Game.Model.Skill as Skill
 import qualified Sim
 
