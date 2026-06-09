@@ -8,10 +8,9 @@ module Mission.Hooks.Trap
 import ClassyPrelude
 
 import           Class.Parity (allied)
-import           Game.Model.Ninja (Ninja)
-import qualified Game.Model.Ninja as N
+import           Game.Model.Ninja (Ninja(Ninja))
+import qualified Game.Model.Ninja
 import           Game.Model.Slot (Slot)
-import qualified Game.Model.Slot as Slot
 import           Mission.Store (Store)
 import           Util ((∉))
 
@@ -26,11 +25,9 @@ type TriggerHook = Ninja -- ^ User.
 
 -- | Tallies the number of unique targets who trigger a trap.
 trapUnique :: TrapHook
-trapUnique _ target store = ( insertSet targetSlot store
-                            , fromEnum $ targetSlot ∉ store
-                            )
-  where
-    targetSlot = Slot.toInt $ N.slot target
+trapUnique _ Ninja{slot} store = ( insertSet slot store
+                                 , fromEnum $ slot ∉ store
+                                 )
 
 -- | 'trapUnique' restricted to the user's team.
 trapUniqueAlly :: TrapHook

@@ -204,6 +204,7 @@ wrapSet f = SlotSet . f . toEnumSet
 wrapSet2 :: (EnumSet Word Int -> EnumSet Word Int -> EnumSet Word Int)
          -> SlotSet -> SlotSet -> SlotSet
 wrapSet2 f (SlotSet x) (SlotSet y) = SlotSet $ f x y
+{-# INLINE wrapSet2 #-}
 
 wrapSlot :: ∀ a. (Slot -> a) -> Int -> a
 wrapSlot f = f . Slot

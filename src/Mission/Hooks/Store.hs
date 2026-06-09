@@ -16,7 +16,6 @@ import           Class.Parity (allied)
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
-import qualified Game.Model.Slot as Slot
 import           Mission.Hooks.Util (hasFrom, toID)
 import           Mission.Store (Store)
 import           Util ((∈), (∉))
@@ -30,21 +29,17 @@ type StoreHook = Text  -- ^ Skill name.
 -- | Like 'check', but once it succeeds, it cannot succeed again for that
 -- target.
 checkUnique :: (Text -> Ninja -> Ninja -> Bool) -> StoreHook
-checkUnique f name user _ target' store
-  | targetSlot ∈ store  = (store, 0)
-  | f name user target' = (insertSet targetSlot store, 1)
+checkUnique f name user _ target'@Ninja{slot} store
+  | slot ∈ store        = (store, 0)
+  | f name user target' = (insertSet slot store, 1)
   | otherwise           = (store, 0)
-  where
-    targetSlot = Slot.toInt $ N.slot target'
 
 -- | Like 'checkUnique', but using the target's state before the action as well.
 compareUnique :: (Text -> Ninja -> Ninja -> Ninja -> Bool) -> StoreHook
-compareUnique f name user target target' store
-  | targetSlot ∈ store         = (store, 0)
-  | f name user target target' = (insertSet targetSlot store, 1)
+compareUnique f name user target target'@Ninja{slot} store
+  | slot ∈ store               = (store, 0)
+  | f name user target target' = (insertSet slot store, 1)
   | otherwise                  = (store, 0)
-  where
-    targetSlot = Slot.toInt $ N.slot target'
 
 -- | Apply a @Status@ to an enemy.
 affectUniqueEnemy :: StoreHook
@@ -83,8 +78,6 @@ stunUnique = checkUnique \name user target ->
 
 -- | Use an action on a target.
 useUnique :: StoreHook
-useUnique _ _ target _ store = ( insertSet targetSlot store
-                               , fromEnum $ targetSlot ∉ store
-                               )
-  where
-    targetSlot = Slot.toInt $ N.slot target
+useUnique _ _ Ninja{slot} _ store = ( insertSet slot store
+                                    , fromEnum $ slot ∉ store
+                                    )

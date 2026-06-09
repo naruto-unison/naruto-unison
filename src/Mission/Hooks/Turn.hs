@@ -13,7 +13,6 @@ import Class.Parity (allied)
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
-import qualified Game.Model.Slot as Slot
 import           Mission.Hooks.Util (hasFrom, toID)
 import           Mission.Store (Store)
 import qualified Mission.Store as Store
@@ -58,13 +57,12 @@ maintain name player user@Ninja{slot} _ target@Ninja{slot = targetSlot} store
 
 -- | 'maintain' restricted to the user's team.
 maintainOnAlly :: Text -> TurnHook
-maintainOnAlly name player user _ target store
+maintainOnAlly name player user _ target@Ninja{slot} store
   | not $ allied user target       = (store, 0)
-  | not $ N.alive target           = (deleteSet targetSlot store, reset)
-  | not $ hasFrom user name target = (deleteSet targetSlot store, reset)
-  | otherwise = (insertSet targetSlot store, fromEnum $ allied player user)
+  | not $ N.alive target           = (deleteSet slot store, reset)
+  | not $ hasFrom user name target = (deleteSet slot store, reset)
+  | otherwise = (insertSet slot store, fromEnum $ allied player user)
   where
-    targetSlot = Slot.toInt $ N.slot target
     reset
-      | targetSlot ∈ store = Store.resetToZero
+      | slot ∈ store = Store.resetToZero
       | otherwise          = 0
