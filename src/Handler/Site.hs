@@ -33,7 +33,7 @@ import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Handler.Client.Data (addDataJS)
 import qualified Handler.Link as Link
-import qualified Handler.Parse as Parse
+import           Handler.Parse (richText)
 import qualified Mission
 import           Mission.Goal (Goal(Reach))
 import qualified Mission.Goal as Goal

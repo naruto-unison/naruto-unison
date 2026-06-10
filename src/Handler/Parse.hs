@@ -2,7 +2,7 @@
 -- Words in brackets turn red and italicized.
 -- The letters b, g, n, t, and r in brackets become icons indicating
 -- blood, genjutsu, ninjutsu, taijutsu, and random (a.k.a. arbitrary) chakra.
-module Handler.Parse (desc) where
+module Handler.Parse (richText) where
 
 import ClassyPrelude
 
@@ -15,8 +15,8 @@ import Game.Model.Chakras (Chakra(..))
 import Game.Model.Character (Category(..))
 
 -- | Parses a 'Model.Skill.desc' into HTML.
-desc :: Text -> Html
-desc s = case Parse.parseOnly parser s of
+richText :: Text -> Html
+richText s = case Parse.parseOnly parser s of
     Left  _    -> HTML.toMarkup s
     Right html -> mconcat html
   where

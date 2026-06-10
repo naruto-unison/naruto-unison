@@ -22,4 +22,4 @@ $forall category <- categories
             <a href=@{CharacterR char}>
               #{name}
           <p>
-            #{Parse.desc bio}
+            #{richText bio}

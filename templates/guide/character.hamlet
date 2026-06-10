@@ -2,7 +2,7 @@
 <h1>
   #{name}#{category}
 <p>
-  #{Parse.desc bio}
+  #{richText bio}
 $maybe mission <- mmission
   <h2>
     Mission
@@ -11,7 +11,7 @@ $maybe mission <- mmission
       <li>
         $maybe char <- Goal.character goal
           As ^{Link.character char}: #
-        #{Parse.desc desc} #
+        #{richText desc} #
         $if progress < reach
           <span .incomplete>
             (#{progress}/#{reach})
@@ -28,7 +28,7 @@ $forall skillGroup <- skills
         <div>
           <h3>
             #{name}
-          #{Parse.desc desc}
+          #{richText desc}
           <p .skillClasses>
             #{skillClasses classes}
           <dl>
