@@ -1,2 +1,3 @@
+$newline never
 <a href=@{CharacterR char}>
   <img .char.head src=/img/ninja/#{ident}/icon.jpg title=#{title}>

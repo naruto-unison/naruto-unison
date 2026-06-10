@@ -3,7 +3,7 @@
 <h3 #career>Career
 <ul>
   <li>
-    Reanimated (#{Reanimated}) characters are purchased with DNA, which is obtained from:
+    Reanimated#{Reanimated} characters are purchased with DNA, which is obtained from:
     <ul>
       <li>Winning, with higher bonuses at higher win streaks.
       <li>Losing, although not as much.

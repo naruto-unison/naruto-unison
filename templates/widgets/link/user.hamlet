@@ -1,1 +1,2 @@
+$newline never
 <a href=@{ProfileR name} class=#{privilege}>#{name}

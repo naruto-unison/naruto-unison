@@ -1,2 +1,3 @@
 $newline never
-^{character char}'#{suffix} <em .skill data-name=#{ident}>#{skillName}</em>
+^{character char}'#{suffix} #
+<em .skill data-name=#{ident}>#{skillName}
