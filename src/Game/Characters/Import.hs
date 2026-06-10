@@ -102,8 +102,8 @@ numDeadAllies = do
     slot <- userSlot
     length . filter (not.alive) <$> P.allies slot
 
-class NinjaGetter m a where
-    type Getter m a
+class NinjaGetter (m :: Type -> Type) a where
+    type Getter (m :: Type -> Type) a
     target :: a -> Getter m a
     user   :: a -> Getter m a
 
