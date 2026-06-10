@@ -199,7 +199,10 @@ shutdownApp _ = return ()
 
 -- | Run a handler.
 handler :: App.Handler a -> IO a
-handler h = getAppSettings >>= makeFoundation >>= flip App.unsafeHandler h
+handler h = do
+    settings   <- getAppSettings
+    foundation <- makeFoundation settings
+    App.unsafeHandler foundation h
 
 -- | Run DB queries.
 db :: ReaderT SqlBackend App.Handler a -> IO a
