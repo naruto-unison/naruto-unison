@@ -205,7 +205,7 @@ unsafeFreeze (Tracker xs) = concat <$> mapM freeze xs
 -- | Initializes a @Tracker@.
 fromInfo :: ∀ m. PrimMonad m => GameInfo -> m (Tracker (PrimState m))
 fromInfo GameInfo{ninjas, player} = Tracker
-    <$> mapM new (fromList $ Parity.half player ninjas)
+    <$> mapM new (Parity.half player ninjas)
 
 -- | 'HookAction'.
 trackAction :: ∀ m. PrimMonad m

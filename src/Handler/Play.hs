@@ -39,12 +39,13 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2]
     invalidArgs ["Duplicate characters"]
   | otherwise = do
     ninjas <- case mapM Characters.lookup [c1, b1, a1, a2, b2, c2] of
-        Just chars -> return $ zipWith N.new Slot.all chars
+        Just chars -> return $ fromList $ zipWith N.new Slot.all chars
         Nothing    -> invalidArgs ["Character(s) not found"]
 
     who      <- Auth.requireAuthId
     unlocked <- Mission.unlocked
-    when (any (∉ unlocked) [a1, b1, c1]) $ invalidArgs ["Character(s) locked"]
+    when (any (∉ unlocked) [a1, b1, c1])
+        $ invalidArgs ["Character(s) locked"]
 
     runDB $ update who [ UserTeam     =. Just [a1, b1, c1]
                        , UserPractice =. [a2, b2, c2]
@@ -58,7 +59,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2]
         liftIO do
             -- TODO: Move to a recurring timer?
             Cache.purgeExpired practice
-            Cache.insert practice who . Wrapper mempty game $ fromList ninjas
+            Cache.insert practice who $ Wrapper mempty game ninjas
 
         returnJson GameInfo { vsWho  = who
                             , vsUser = bot

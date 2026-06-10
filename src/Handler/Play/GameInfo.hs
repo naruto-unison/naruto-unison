@@ -17,7 +17,7 @@ data GameInfo = GameInfo
     { vsWho  :: Key User
     , vsUser :: User
     , game   :: Game
-    , ninjas :: [Ninja]
+    , ninjas :: Vector Ninja
     , player :: Player
     , war    :: Maybe War
     }
@@ -33,5 +33,5 @@ instance ToJSON GameInfo where
         [ "opponent" .= vsUser
         , "player"   .= player
         , "war"      .= war
-        , "turn"     .= Turn.new player ninjas game
+        , "turn"     .= Turn.new player (toList ninjas) game
         ]

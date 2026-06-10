@@ -217,7 +217,7 @@ act ctx@Context{user, new, target, skill} = void $ runMaybeT do
     let Skill{charges, cost, classes, dur, effects, require, start} = skill
     Game{chakra} <- P.game
     nUser   <- P.ninja user
-    initial <- toList <$> P.ninjas
+    initial <- P.ninjas
 
     guard $ N.alive nUser && require /= Unusable
 
@@ -260,7 +260,7 @@ act ctx@Context{user, new, target, skill} = void $ runMaybeT do
                     P.modify user $ Ninjas.addChannels skill target
             P.modify user $ Cooldown.update skill
         P.uncopied do
-            Hook.action skill initial . toList =<< P.ninjas
+            Hook.action skill initial =<< P.ninjas
             Game{chakra = chakra'} <- P.game
             Hook.chakra skill chakra chakra'
 

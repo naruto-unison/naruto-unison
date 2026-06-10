@@ -89,7 +89,7 @@ processTurn runner = do
     P.alter \g -> g { Game.playing = opponent }
     doDeaths
     yieldVictor
-    Hook.turn player (toList initial) . toList =<< P.ninjas
+    Hook.turn player initial =<< P.ninjas
   where
     getChannels n = mapMaybe (fromChannel n) $ N.channels n
     fromChannel n (Channel skill target new dur)

@@ -19,14 +19,14 @@ import Util (Lift)
 -- | Event hooks for mission progress.
 
 class Monad m => MonadHook m where
-    action  :: Skill -> [Ninja] -> [Ninja] -> m ()
+    action  :: Skill -> Vector Ninja -> Vector Ninja -> m ()
     chakra  :: Skill -> (Chakras, Chakras) -> (Chakras, Chakras) -> m ()
     trap    :: Trap -> Ninja -> m ()
     trigger :: Trigger -> Ninja -> m ()
-    turn    :: Player -> [Ninja] -> [Ninja] -> m ()
+    turn    :: Player -> Vector Ninja -> Vector Ninja -> m ()
 
     default action :: Lift MonadHook m
-                   => Skill -> [Ninja] -> [Ninja] -> m ()
+                   => Skill -> Vector Ninja -> Vector Ninja -> m ()
     action sk ns = lift . action sk ns
     {-# INLINE action #-}
     default chakra :: Lift MonadHook m
@@ -42,7 +42,7 @@ class Monad m => MonadHook m where
     trigger x = lift . trigger x
     {-# INLINE trigger #-}
     default turn :: Lift MonadHook m
-                 => Player -> [Ninja] -> [Ninja] -> m ()
+                 => Player -> Vector Ninja -> Vector Ninja -> m ()
     turn p ns = lift . turn p ns
     {-# INLINE turn #-}
 

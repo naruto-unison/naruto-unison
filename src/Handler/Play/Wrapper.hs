@@ -65,7 +65,7 @@ instance (PrimMonad m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) w
 
 instance (PrimMonad m, s ~ PrimState m) => MonadHook (ReaderT (STWrapper s) m) where
     action Skill{name} ns ns'  = asks tracker
-        >>= Tracker.trackAction name ns ns'
+        >>= Tracker.trackAction name (toList ns) (toList ns')
     chakra Skill{name} ch ch'  = asks tracker
         >>= Tracker.trackChakra name ch ch'
     trap Trap{name, user} targ = asks tracker
@@ -73,13 +73,13 @@ instance (PrimMonad m, s ~ PrimState m) => MonadHook (ReaderT (STWrapper s) m) w
     trigger tr targ            = asks tracker
         >>= Tracker.trackTrigger tr targ
     turn p ns ns'              = asks tracker
-        >>= Tracker.trackTurn p ns ns'
+        >>= Tracker.trackTurn p (toList ns) (toList ns')
 
 fromInfo :: ∀ m. PrimMonad m => GameInfo -> m (STWrapper (PrimState m))
 fromInfo info@GameInfo{game, ninjas} = do
     tracker   <- Tracker.fromInfo info
     gameRef   <- newRef game
-    ninjasRef <- Vector.thaw $ fromList ninjas
+    ninjasRef <- Vector.thaw ninjas
     return STWrapper { tracker, gameRef, ninjasRef }
 
 runGame :: ∀ m. PrimMonad m
