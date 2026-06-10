@@ -50,7 +50,7 @@ import qualified Handler.Play.GameInfo
 import           Handler.Play.Match (Outcome(..))
 import qualified Handler.Play.Match as Match
 import qualified Handler.Play.Rating as Rating
-import           Handler.Play.Wrapper (Wrapper(Wrapper))
+import           Handler.Play.Wrapper (STWrapper, Wrapper(Wrapper))
 import qualified Handler.Play.Wrapper as Wrapper
 import qualified Handler.Queue as Queue
 import           Handler.Queue.Message (Response(Response))
@@ -201,6 +201,8 @@ tryEnact :: ∀ m. ( MonadGame m
                  , MonadRandom m
                  , MonadIO m
                  , MonadLogger m
+                 , MonadReader (STWrapper (PrimState m)) m
+                 , PrimMonad m
                  )
          => Socket.Connection -> Settings -> Player -> MVar Wrapper -> m ()
 tryEnact socket Settings{forfeitAfterSkips, turnLength} player mvar = do
@@ -259,9 +261,9 @@ tryEnact socket Settings{forfeitAfterSkips, turnLength} player mvar = do
         SocketException (Socket.UnicodeException malformed) ->
             logErrorN $ "Malformed client input: " ++ pack malformed
 
-    wrapper <- Wrapper.freeze
+    wrapper <- Wrapper.freeze =<< ask
     Socket.sendJSONData socket . Message.Play $ Wrapper.toTurn player wrapper
-    putMVar mvar wrapper -- this should never block
+    putMVar mvar wrapper { Wrapper.snapshots = [] } -- this should never block
   where
     decodeMessage (Left err) = case fromException err of
         Just err' -> SocketException err'

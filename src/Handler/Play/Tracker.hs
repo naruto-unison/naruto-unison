@@ -4,7 +4,7 @@ module Handler.Play.Tracker
   , fromInfo
   , empty
   , Progress(..)
-  , unsafeFreeze
+  , freeze, unsafeFreeze
   , trackAction
   , trackChakra
   , trackTrap
@@ -195,12 +195,21 @@ trackAll :: ∀ m. PrimMonad m
          => (Track (PrimState m) -> m ()) -> Tracker (PrimState m) -> m ()
 trackAll f (Tracker xs) = mapM_ f xs
 
+gFreeze :: ∀ m. PrimMonad m
+        => (∀ a. MVector (PrimState m) a -> m (Vector a))
+        -> Tracker (PrimState m) -> m [Progress]
+gFreeze freezer (Tracker xs) = concat <$> mapM freezeTrack xs
+  where
+    freezeTrack Track{key, progress} = (zipWith ($) key) . toList
+                                       <$> freezer progress
+
+-- | The mutable elements of the Tracker may not be used after this operation.
+freeze :: ∀ m. PrimMonad m => Tracker (PrimState m) -> m [Progress]
+freeze = gFreeze Vector.freeze
+
 -- | The mutable elements of the Tracker may not be used after this operation.
 unsafeFreeze :: ∀ m. PrimMonad m => Tracker (PrimState m) -> m [Progress]
-unsafeFreeze (Tracker xs) = concat <$> mapM freeze xs
-  where
-    freeze Track{key, progress} = (zipWith ($) key) . toList
-                                  <$> Vector.unsafeFreeze progress
+unsafeFreeze = gFreeze Vector.unsafeFreeze
 
 -- | Initializes a @Tracker@.
 fromInfo :: ∀ m. PrimMonad m => GameInfo -> m (Tracker (PrimState m))

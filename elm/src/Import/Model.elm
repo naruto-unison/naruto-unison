@@ -607,6 +607,26 @@ jsonEncSkill  val =
 
 
 
+type alias Snapshot  =
+   { chakra: Chakras
+   , ninjas: (List Ninja)
+   }
+
+jsonDecSnapshot : Json.Decode.Decoder ( Snapshot )
+jsonDecSnapshot =
+   Json.Decode.succeed Snapshot
+   |> required "chakra" (jsonDecChakras)
+   |> required "ninjas" (Json.Decode.list (jsonDecNinja))
+
+jsonEncSnapshot : Snapshot -> Value
+jsonEncSnapshot  val =
+   Json.Encode.object
+   [ ("chakra", jsonEncChakras val.chakra)
+   , ("ninjas", (Json.Encode.list jsonEncNinja) val.ninjas)
+   ]
+
+
+
 type alias Status  =
    { amount: Int
    , name: String
@@ -729,7 +749,7 @@ type alias Turn  =
    , victor: (List Player)
    , inactive: (Int, Int)
    , ninjas: (List Ninja)
-   , snapshots: (List (List Ninja))
+   , snapshots: (List Snapshot)
    , targets: (List (List (List Int)))
    }
 
@@ -741,7 +761,7 @@ jsonDecTurn =
    |> required "victor" (Json.Decode.list (jsonDecPlayer))
    |> required "inactive" (Json.Decode.map2 tuple2 (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.int)))
    |> required "ninjas" (Json.Decode.list (jsonDecNinja))
-   |> required "snapshots" (Json.Decode.list (Json.Decode.list (jsonDecNinja)))
+   |> required "snapshots" (Json.Decode.list (jsonDecSnapshot))
    |> required "targets" (Json.Decode.list (Json.Decode.list (Json.Decode.list (Json.Decode.int))))
 
 jsonEncTurn : Turn -> Value
@@ -752,7 +772,7 @@ jsonEncTurn  val =
    , ("victor", (Json.Encode.list jsonEncPlayer) val.victor)
    , ("inactive", (\(t1,t2) -> Json.Encode.list identity [(Json.Encode.int) t1,(Json.Encode.int) t2]) val.inactive)
    , ("ninjas", (Json.Encode.list jsonEncNinja) val.ninjas)
-   , ("snapshots", (Json.Encode.list (Json.Encode.list jsonEncNinja)) val.snapshots)
+   , ("snapshots", (Json.Encode.list jsonEncSnapshot) val.snapshots)
    , ("targets", (Json.Encode.list (Json.Encode.list (Json.Encode.list Json.Encode.int))) val.targets)
    ]
 

@@ -9,17 +9,19 @@ import           Application.Model.User (User)
 import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
 import           Game.Model.Player (Player)
+import           Handler.Play.Snapshot (Snapshot)
 import           Handler.Play.War (War)
 import qualified Handler.Play.Turn as Turn
 
 -- | Game state details. Sent at the start of games and during practice games.
 data GameInfo = GameInfo
-    { vsWho  :: Key User
-    , vsUser :: User
-    , game   :: Game
-    , ninjas :: Vector Ninja
-    , player :: Player
-    , war    :: Maybe War
+    { vsWho     :: Key User
+    , vsUser    :: User
+    , game      :: Game
+    , ninjas    :: Vector Ninja
+    , snapshots :: [Snapshot]
+    , player    :: Player
+    , war       :: Maybe War
     }
 
 instance ToJSON GameInfo where
@@ -27,11 +29,12 @@ instance ToJSON GameInfo where
         { vsUser
         , game
         , ninjas
+        , snapshots
         , player
         , war
         } = object
         [ "opponent" .= vsUser
         , "player"   .= player
         , "war"      .= war
-        , "turn"     .= Turn.new player (toList ninjas) game
+        , "turn"     .= Turn.new player (toList ninjas) snapshots game
         ]

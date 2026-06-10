@@ -166,6 +166,7 @@ makeGame who user team vsWho vsUser vsTeam = do
             , war
             , game
             , ninjas
+            , snapshots = []
             }
         gameInfoB = GameInfo
             { vsWho  = who
@@ -174,5 +175,6 @@ makeGame who user team vsWho vsUser vsTeam = do
             , war    = War.opponent <$> war
             , game
             , ninjas
+            , snapshots = []
             }
     return (mvar, gameInfoA, gameInfoB)

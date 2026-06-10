@@ -10,7 +10,7 @@ import Html.Events as E
 import Html.Lazy exposing (lazy3)
 import Http
 import Import.Flags exposing (Characters, Flags, printFailure)
-import Import.Model as Model exposing (Chakras, Channeling(..), Character, Destructible, Effect, GameInfo, Message(..), Ninja, Player(..), Requirement(..), Reward, Skill, Turn, User, War(..))
+import Import.Model as Model exposing (Chakras, Channeling(..), Character, Destructible, Effect, GameInfo, Message(..), Ninja, Player(..), Requirement(..), Reward, Skill, Snapshot, Turn, User, War(..))
 import Json.Decode as D
 import List.Extra as List
 import Maybe.Extra as Maybe
@@ -73,16 +73,53 @@ type ExchangeMsg
 
 type Msg
     = DoNothing
+    | ApplySnapshot Snapshot
     | Enact ListChange Act
     | Exchange ExchangeMsg
     | Forfeit
     | Ready
     | Receive String
     | ReceivePractice (Result Http.Error (List Turn))
+    | SetGame Int Turn
     | Spend Chakras
     | Toggle Act
     | Unhighlight
     | View Viewable
+
+
+after : Int -> msg -> Cmd msg
+after delay msg =
+    Process.sleep (toFloat delay) |> Task.perform (always msg)
+
+
+snapshotDelay : Int
+snapshotDelay =
+    500
+
+
+practiceDelay : Int
+practiceDelay =
+    1500
+
+
+runSnapshots : Int -> Turn -> List (Cmd Msg)
+runSnapshots progress game =
+    let
+        snapshotsLength =
+            List.length game.snapshots
+
+        fullDelay =
+            (snapshotsLength - 1) * snapshotDelay
+
+        delaySnapshot i snapshot =
+            after ((snapshotsLength - i - 1) * snapshotDelay) <|
+                ApplySnapshot snapshot
+
+        onFinish =
+            after fullDelay <|
+                SetGame (progress - fullDelay) game
+    in
+    onFinish :: List.indexedMap delaySnapshot game.snapshots
 
 
 component :
@@ -202,7 +239,7 @@ component ports =
         setGameAnd : Turn -> Model -> List (Cmd Msg) -> ( Model, Cmd Msg )
         setGameAnd game st cmds =
             ( { st
-                | game = game
+                | game = { game | snapshots = [] }
                 , chakras = game.chakra
                 , randoms = Chakra.none
                 , exchanged = Chakra.none
@@ -211,6 +248,9 @@ component ports =
             , Cmd.batch <|
                 if Game.died st.player st.game game then
                     ports.sound Sound.Death :: cmds
+
+                else if List.isEmpty st.game.snapshots then
+                    cmds
 
                 else
                     cmds
@@ -228,6 +268,18 @@ component ports =
 
                 View viewing ->
                     pure { st | viewing = viewing }
+
+                ApplySnapshot snapshot ->
+                    let
+                        game =
+                            st.game
+                    in
+                    pure
+                        { st
+                            | acts = List.tail st.acts |> Maybe.withDefault []
+                            , chakras = snapshot.chakra
+                            , game = { game | ninjas = snapshot.ninjas }
+                        }
 
                 DoNothing ->
                     pure st
@@ -299,26 +351,9 @@ component ports =
                             pure { st | error = printFailure failure }
 
                         Ok (Play game) ->
-                            setGameAnd game st <|
-                                case game.victor of
-                                    [ victor ] ->
-                                        if victor == st.player then
-                                            [ ports.sound Sound.Win ]
-
-                                        else
-                                            [ ports.sound Sound.Lose ]
-
-                                    [] ->
-                                        [ ports.sound Sound.StartTurn
-                                        , if game.playing == st.player then
-                                            ports.progress 60000 1 0
-
-                                          else
-                                            ports.progress 60000 0 1
-                                        ]
-
-                                    _ ->
-                                        [ ports.sound Sound.Death ]
+                            ( st
+                            , Cmd.batch <| runSnapshots 60000 game
+                            )
 
                         Ok (Rewards dna) ->
                             pure { st | dna = dna }
@@ -350,13 +385,17 @@ component ports =
                         )
 
                 ReceivePractice (Ok [ x, y ]) ->
-                    setGameAnd x
-                        st
-                        [ ports.progress 1500 0 1
-                        , Process.sleep 1500
-                            |> Task.perform
-                                (always << ReceivePractice <| Ok [ y ])
-                        ]
+                    let
+                        fullDelay =
+                            practiceDelay + (List.length x.snapshots - 1) * snapshotDelay
+
+                        afterFinish =
+                            after fullDelay <|
+                                ReceivePractice (Ok [ y ])
+                    in
+                    ( st
+                    , Cmd.batch <| afterFinish :: runSnapshots fullDelay x
+                    )
 
                 ReceivePractice (Ok [ y ]) ->
                     setGameAnd y
@@ -370,6 +409,28 @@ component ports =
 
                 ReceivePractice (Err err) ->
                     pure { st | error = showErr err }
+
+                SetGame progress game ->
+                    setGameAnd game st <|
+                        case game.victor of
+                            [ victor ] ->
+                                if victor == st.player then
+                                    [ ports.sound Sound.Win ]
+
+                                else
+                                    [ ports.sound Sound.Lose ]
+
+                            [] ->
+                                [ ports.sound Sound.StartTurn
+                                , if game.playing == st.player then
+                                    ports.progress progress 1 0
+
+                                  else
+                                    ports.progress progress 0 1
+                                ]
+
+                            _ ->
+                                [ ports.sound Sound.Death ]
     in
     { init = init, view = view, update = update }
 

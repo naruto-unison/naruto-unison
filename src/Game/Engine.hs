@@ -72,7 +72,8 @@ runTurn acts = do
 processTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m () -> m ()
 processTurn runner = do
     initial <- P.ninjas
-    Game{playing = player} <- P.game
+    game@Game{playing = player} <- P.game
+    Hook.turnStart game initial
     let opponent = Player.opponent player
     runner
     channels <- concatMap getChannels . filter N.alive <$> P.allies player
@@ -89,7 +90,7 @@ processTurn runner = do
     P.alter \g -> g { Game.playing = opponent }
     doDeaths
     yieldVictor
-    Hook.turn player initial =<< P.ninjas
+    Hook.turnEnd player initial =<< P.ninjas
   where
     getChannels n = mapMaybe (fromChannel n) $ N.channels n
     fromChannel n (Channel skill target new dur)

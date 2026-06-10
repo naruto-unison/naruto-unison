@@ -6,12 +6,9 @@ import ClassyPrelude
 
 import           Control.Concurrent (forkIO, threadDelay)
 import           Network.HTTP.Types (Status(Status))
-import           Network.Wai (Middleware)
 import qualified Network.Wai as Wai
-import qualified Network.Wai.Header as Header
-import           Network.Wai.Logger (ApacheLoggerActions)
+import qualified Network.Wai.Header as WaiHeader
 import qualified Network.Wai.Logger as WaiLogger
-import           Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource(..), OutputFormat(..))
 import qualified Network.Wai.Middleware.RequestLogger as RequestLogger
 import qualified System.Log.FastLogger as FastLogger
 import qualified Yesod.Core.Types as YesodTypes
@@ -30,29 +27,32 @@ getDateGetter flusher = do
         flusher
     return getter
 
-makeLogWare :: App -> IO Middleware
+makeLogWare :: App -> IO Wai.Middleware
 makeLogWare App{logger, settings = Settings{detailedRequestLogging = True}} =
     RequestLogger.mkRequestLogger RequestLogger.defaultRequestLoggerSettings
-        { RequestLogger.outputFormat = Detailed True
-        , RequestLogger.destination  = Logger $ YesodTypes.loggerSet logger
+        { RequestLogger.outputFormat = RequestLogger.Detailed True
+        , RequestLogger.destination  = RequestLogger.Logger
+                                     $ YesodTypes.loggerSet logger
         }
 
 makeLogWare App{logger, settings = Settings{ipFromHeader}} = do
         dateGetter <- getDateGetter flusher
-        apacheMiddleware <$> WaiLogger.initLogger ipSrc callback dateGetter
+        loggerActions <- WaiLogger.initLogger ipSrc callback dateGetter
+        return $ apacheMiddleware loggerActions
   where
     ipSrc
-      | ipFromHeader = FromFallback
-      | otherwise    = FromSocket
+      | ipFromHeader = WaiLogger.FromFallback
+      | otherwise    = WaiLogger.FromSocket
     logger'   = YesodTypes.loggerSet logger
     flusher  = FastLogger.flushLogStr logger'
     callback = FastLogger.LogCallback (FastLogger.pushLogStr logger') flusher
 
-apacheMiddleware :: ApacheLoggerActions -> Middleware
+apacheMiddleware :: WaiLogger.ApacheLoggerActions -> Wai.Middleware
 apacheMiddleware ala app req sendResponse = app req $ \res -> do
     let headers    = Wai.responseHeaders res
         status     = Wai.responseStatus res
         Status n _ = status
     when (n /= 200 && n /= 304)
-        . WaiLogger.apacheLogger ala req status $ Header.contentLength headers
+        . WaiLogger.apacheLogger ala req status
+        $ WaiHeader.contentLength headers
     sendResponse res

@@ -22,42 +22,54 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Slot (Slot, SlotSet)
+import           Handler.Play.Snapshot (Snapshot(Snapshot))
+import qualified Handler.Play.Snapshot as Snapshot
 import           Util ((∈), (∉))
 
 -- | Intermediate type for marshaling to JSON.
 -- Includes censorship of 'Invisible' 'Status.Status'es, enemy cooldowns, etc.
 data Turn = Turn
-    { chakra   :: Chakras
-    , playing  :: Player
-    , victor   :: [Player]
-    , inactive :: (Int, Int)
-    , ninjas   :: [Ninja]
-    , targets  :: [[[Slot]]]
+    { chakra    :: Chakras
+    , playing   :: Player
+    , victor    :: [Player]
+    , inactive  :: (Int, Int)
+    , ninjas    :: [Ninja]
+    , snapshots :: [Snapshot]
+    , targets   :: [[[Slot]]]
     } deriving (Generic)
 
 instance ToJSON Turn
 
 --  | Encodes game state into a form suitable for sending to the client.
-new :: Player -> [Ninja] -> Game -> Turn
-new player ninjas Game{chakra, inactive, playing, victor} = Turn
+new :: Player -> [Ninja] -> [Snapshot] -> Game -> Turn
+new player ninjas snapshots Game{chakra, inactive, playing, victor} = Turn
     { chakra  = Parity.getOf player chakra
     , playing
     , victor
     , inactive = Parity.swap player inactive
     , ninjas   = censored
-    , targets  = targets <$> censored
+    , snapshots = censorSnapshot player <$> snapshots
+    , targets   = targets <$> censored
     }
   where
-    reveal n = Parity.allied player n || n `is` Reveal
-    revealed = setFromList $ N.slot <$> filter reveal ninjas
-    censored = censor revealed <$> ninjas
+    censored = censorNinjas player ninjas
     skillTargets n skill = N.slot <$> Requirement.targets censored n skill
     targets n@Ninja{skills}
       | Parity.allied player n = skillTargets n <$> toList skills
       | otherwise              = replicate (length skills) []
 
-censor :: SlotSet -> Ninja -> Ninja
-censor revealed n@Ninja{slot} =
+censorSnapshot :: Player -> Snapshot -> Snapshot
+censorSnapshot player snapshot@Snapshot{ninjas} =
+    snapshot { Snapshot.ninjas = censorNinjas player ninjas }
+
+censorNinjas :: Player -> [Ninja] -> [Ninja]
+censorNinjas player ninjas = censorNinja revealed <$> ninjas
+  where
+    reveal n = Parity.allied player n || n `is` Reveal
+    revealed = setFromList $ N.slot <$> filter reveal ninjas
+
+censorNinja :: SlotSet -> Ninja -> Ninja
+censorNinja revealed n@Ninja{slot} =
     n { N.channels  = censorChannels $ N.channels n
       , N.cooldowns = censorAll      $ N.cooldowns n
       , N.charges   = censorAll      $ N.charges n

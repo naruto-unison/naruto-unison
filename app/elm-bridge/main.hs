@@ -33,6 +33,7 @@ import Game.Model.Trigger (Trigger)
 import Handler.Client (ObjectiveProgress)
 import Handler.Client.Message (Failure(..), Message(..))
 import Handler.Client.Reward (Reward)
+import Handler.Play.Snapshot (Snapshot)
 import Handler.Play.Turn (Turn)
 import Handler.Play.War (War(..))
 
@@ -155,6 +156,7 @@ deriveElmDef defaultOptions ''Player
 deriveElmDef defaultOptions ''Requirement
 deriveElmDef defaultOptions ''Reward
 deriveElmDef defaultOptions ''Skill
+deriveElmDef defaultOptions ''Snapshot
 deriveElmDef defaultOptions ''Status
 deriveElmDef defaultOptions ''Target
 deriveElmDef defaultOptions ''Trap
@@ -194,6 +196,7 @@ main = writeFile "elm/src/Import/Model.elm" . fromString . trimAll $ "module Imp
     , DefineElm (Proxy :: Proxy Requirement)
     , DefineElm (Proxy :: Proxy Reward)
     , DefineElm (Proxy :: Proxy Skill)
+    , DefineElm (Proxy :: Proxy Snapshot)
     , DefineElm (Proxy :: Proxy Status)
     , DefineElm (Proxy :: Proxy Target)
     , DefineElm (Proxy :: Proxy Trap)

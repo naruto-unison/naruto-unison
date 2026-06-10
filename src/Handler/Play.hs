@@ -27,7 +27,6 @@ import           Handler.Play.Act (Act)
 import           Handler.Play.Game (Enact(..), enact, gameSocket)
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
 import qualified Handler.Play.GameInfo
-import           Handler.Play.Wrapper (Wrapper(Wrapper))
 import qualified Handler.Play.Wrapper as Wrapper
 import qualified Mission
 import           Util ((∉), leftToMaybe, fromMaybeM)
@@ -59,7 +58,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2]
         liftIO do
             -- TODO: Move to a recurring timer?
             Cache.purgeExpired practice
-            Cache.insert practice who $ Wrapper mempty game ninjas
+            Cache.insert practice who $ Wrapper.new game ninjas
 
         returnJson GameInfo { vsWho  = who
                             , vsUser = bot
@@ -67,6 +66,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2]
                             , war    = Nothing
                             , game
                             , ninjas
+                            , snapshots = []
                             }
   where
     hasDuplicates a b c = a == b || a == c || b == c
@@ -95,12 +95,12 @@ getPracticeActR spend exchange actions = do
     flip runReaderT rand $ flip runReaderT wrapper do
         res <- runExceptT $ enact Enact{spend, exchange, actions}
         forM_ (leftToMaybe res) \errorMsg -> invalidArgs [errorMsg]
-        game'A <- Wrapper.freeze
+        game'A <- Wrapper.freeze =<< ask
         P.alter \g -> g { Game.chakra  = (fst $ Game.chakra g, baseChakra)
                         , Game.playing = Player.B
                         }
         AI.runTurn
-        game'B <- Wrapper.freeze
+        game'B <- Wrapper.freeze =<< ask
         liftIO
             if Game.inProgress $ Wrapper.game game'B then
                 Cache.insert practice who game'B

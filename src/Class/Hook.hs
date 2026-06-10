@@ -11,6 +11,7 @@ import Control.Monad.Trans.Writer (WriterT)
 import Yesod.WebSockets (WebSocketsT)
 
 import Game.Model.Chakras (Chakras)
+import Game.Model.Game (Game)
 import Game.Model.Internal (Context, Ninja, Skill, Trap)
 import Game.Model.Player (Player)
 import Game.Model.Trigger (Trigger)
@@ -19,11 +20,12 @@ import Util (Lift)
 -- | Event hooks for mission progress.
 
 class Monad m => MonadHook m where
-    action  :: Skill -> Vector Ninja -> Vector Ninja -> m ()
-    chakra  :: Skill -> (Chakras, Chakras) -> (Chakras, Chakras) -> m ()
-    trap    :: Trap -> Ninja -> m ()
-    trigger :: Trigger -> Ninja -> m ()
-    turn    :: Player -> Vector Ninja -> Vector Ninja -> m ()
+    action    :: Skill -> Vector Ninja -> Vector Ninja -> m ()
+    chakra    :: Skill -> (Chakras, Chakras) -> (Chakras, Chakras) -> m ()
+    trap      :: Trap -> Ninja -> m ()
+    trigger   :: Trigger -> Ninja -> m ()
+    turnEnd   :: Player -> Vector Ninja -> Vector Ninja -> m ()
+    turnStart :: Game -> Vector Ninja -> m ()
 
     default action :: Lift MonadHook m
                    => Skill -> Vector Ninja -> Vector Ninja -> m ()
@@ -41,10 +43,14 @@ class Monad m => MonadHook m where
                     => Trigger -> Ninja -> m ()
     trigger x = lift . trigger x
     {-# INLINE trigger #-}
-    default turn :: Lift MonadHook m
-                 => Player -> Vector Ninja -> Vector Ninja -> m ()
-    turn p ns = lift . turn p ns
-    {-# INLINE turn #-}
+    default turnEnd :: Lift MonadHook m
+                    => Player -> Vector Ninja -> Vector Ninja -> m ()
+    turnEnd p ns = lift . turnEnd p ns
+    {-# INLINE turnEnd #-}
+    default turnStart :: Lift MonadHook m
+                      => Game -> Vector Ninja -> m ()
+    turnStart g = lift . turnStart g
+    {-# INLINE turnStart #-}
 
 instance MonadHook m => MonadHook (ExceptT e m)
 instance MonadHook m => MonadHook (IdentityT m)
