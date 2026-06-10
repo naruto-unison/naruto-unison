@@ -66,7 +66,7 @@ getPairings load (MkSystemTime time _) assocs = chunkPairs
   where
     ready (_, UserInfo{joined = MkSystemTime joined _}) = joined + delay < time
     rate (_, (UserInfo User{rating} _ _ _)) = rating
-    delay = truncate $ sqrt (fromIntegral load :: Float)
+    delay = truncate $ sqrt @Float $ fromIntegral load
 
 quickManager :: App -> IO ()
 quickManager App{quick} = forever do

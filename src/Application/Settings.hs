@@ -33,7 +33,7 @@ data DNA = DNA
     -- ^ When a player completes their first quick/ranked match of the day
     , dailyWin  :: Int
     -- ^ When a player earns their first quick/ranked victory of the day
-    ,quickWin   :: Int
+    , quickWin  :: Int
     -- ^ Whenever a player wins a quick match
     , quickLose :: Int
     -- ^ Whenever a player loses a quick match
