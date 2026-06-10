@@ -2,9 +2,11 @@ module Util exposing
     ( ListChange(..)
     , elem
     , groupBy
+    , illegal
     , pure
+    , shorten
     , showErr
-    , shorten, unaccent, illegal
+    , unaccent
     )
 
 import Http exposing (Error(..))
@@ -71,9 +73,20 @@ illegal =
 unaccent : Char -> Char
 unaccent c =
     case c of
-        'ō' -> 'o'
-        'Ō' -> 'O'
-        'ū' -> 'u'
-        'Ū' -> 'U'
-        'ä' -> 'a'
-        _   -> c
+        'ō' ->
+            'o'
+
+        'Ō' ->
+            'O'
+
+        'ū' ->
+            'u'
+
+        'Ū' ->
+            'U'
+
+        'ä' ->
+            'a'
+
+        _ ->
+            c

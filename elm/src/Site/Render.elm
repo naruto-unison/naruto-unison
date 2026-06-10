@@ -1,6 +1,6 @@
 module Site.Render exposing
-    ( chakras
-    , chakraTotals
+    ( chakraTotals
+    , chakras
     , class
     , classes
     , desc
@@ -13,25 +13,24 @@ module Site.Render exposing
     , streak
     )
 
+import Game.Game as Game
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
+import Import.Flags exposing (characterName)
+import Import.Model exposing (Category(..), Chakras, Channel, Channeling(..), Character, Effect, User)
 import Parser exposing ((|.), (|=), Parser)
 import Set exposing (Set)
 import String.Extra as String
-
-import Game.Game as Game
-import Import.Flags exposing (characterName)
-import Import.Model exposing (Category(..), Chakras, Channel, Channeling(..), Character, Effect, User)
 import Util exposing (shorten)
 
 
 scroll : String -> String -> msg -> Html msg
 scroll id src cmd =
-    H.button [A.id id, A.class "scroll click"]
-    [ H.div [] []
-    , H.img [A.src <| "/img/ui/scroll/" ++ src ++ ".png", E.onClick cmd] []
-    ]
+    H.button [ A.id id, A.class "scroll click" ]
+        [ H.div [] []
+        , H.img [ A.src <| "/img/ui/scroll/" ++ src ++ ".png", E.onClick cmd ] []
+        ]
 
 
 streak : User -> Html msg
@@ -68,19 +67,19 @@ fromChakras x =
 rands : Int -> Int -> Html msg
 rands amount random =
     H.div [ A.class "randbar" ]
-    [ H.span [ A.class "randT" ]
-      [ H.text "T" ]
-    , H.span []
-      [ H.text <| String.fromInt amount ]
-    , H.a [ A.class "more noclick" ]
-      [ H.text "+" ]
-    , H.a [ A.class "less noclick" ]
-      [ H.text "—" ]
-    , H.div [ A.class "chakra rand" ]
-      []
-    , H.span []
-      [ H.text <| String.fromInt random ]
-    ]
+        [ H.span [ A.class "randT" ]
+            [ H.text "T" ]
+        , H.span []
+            [ H.text <| String.fromInt amount ]
+        , H.a [ A.class "more noclick" ]
+            [ H.text "+" ]
+        , H.a [ A.class "less noclick" ]
+            [ H.text "—" ]
+        , H.div [ A.class "chakra rand" ]
+            []
+        , H.span []
+            [ H.text <| String.fromInt random ]
+        ]
 
 
 chakraTotals : Chakras -> List (Html msg)
@@ -90,10 +89,10 @@ chakraTotals x =
             H.span [] [ chakra chak, H.text <| String.fromInt total ]
     in
     [ named "blood" x.blood
-    , named "gen"   x.gen
-    , named "nin"   x.nin
-    , named "tai"   x.tai
-    , named "rand"  x.rand
+    , named "gen" x.gen
+    , named "nin" x.nin
+    , named "tai" x.tai
+    , named "rand" x.rand
     ]
 
 
@@ -106,6 +105,7 @@ icon char path attrs =
                 ++ "/"
                 ++ shorten path
                 ++ ".jpg"
+
         alt =
             if path == "icon" then
                 char.name
@@ -125,13 +125,13 @@ name char =
         Shippuden ->
             [ H.text char.name
             , H.sup []
-              [ H.text "𝕊" ]
+                [ H.text "𝕊" ]
             ]
 
         Reanimated ->
             [ H.text char.name
             , H.sup []
-              [ H.text "ℝ" ]
+                [ H.text "ℝ" ]
             ]
 
 
@@ -149,19 +149,29 @@ class : Channel -> String -> H.Attribute msg
 class x others =
     A.class <|
         case x.dur of
-            Action _  -> others ++ " action"
-            Control _ -> others ++ " control"
-            _         -> others
+            Action _ ->
+                others ++ " action"
+
+            Control _ ->
+                others ++ " control"
+
+            _ ->
+                others
 
 
 classes : Bool -> Set String -> Html msg
 classes hideMore xs =
-    (if hideMore then Set.diff xs moreHidden else xs)
-    |> Set.toList
-    >> String.join ", "
-    >> H.text
-    >> List.singleton
-    >> H.p [A.class "skillClasses" ]
+    (if hideMore then
+        Set.diff xs moreHidden
+
+     else
+        xs
+    )
+        |> Set.toList
+        >> String.join ", "
+        >> H.text
+        >> List.singleton
+        >> H.p [ A.class "skillClasses" ]
 
 
 effect : List Character -> (Effect -> Bool) -> Effect -> Html msg
@@ -177,18 +187,24 @@ effect characters removable x =
             else
                 []
     in
-    H.li meta << desc <| case x.slot of
-        Nothing   -> x.desc
-        Just slot -> x.desc ++ (Game.get characters slot).name ++ "."
+    H.li meta
+        << desc
+    <|
+        case x.slot of
+            Nothing ->
+                x.desc
+
+            Just slot ->
+                x.desc ++ (Game.get characters slot).name ++ "."
 
 
 moreHidden : Set String
 moreHidden =
     Set.fromList
-            [ "Bypassing"
-            , "Uncounterable"
-            , "Unreflectable"
-            ]
+        [ "Bypassing"
+        , "Uncounterable"
+        , "Unreflectable"
+        ]
 
 
 parseBreak : Parser (Html msg)
@@ -214,14 +230,14 @@ parseChakra kind =
 
 parseShippuden : Parser (Html msg)
 parseShippuden =
-    Parser.succeed (H.sup [] [ H.text "𝕊" ] )
-    |. Parser.symbol "(S)"
+    Parser.succeed (H.sup [] [ H.text "𝕊" ])
+        |. Parser.symbol "(S)"
 
 
 parseReanimated : Parser (Html msg)
 parseReanimated =
-    Parser.succeed (H.sup [] [ H.text "ℝ" ] )
-    |. Parser.symbol "(R)"
+    Parser.succeed (H.sup [] [ H.text "ℝ" ])
+        |. Parser.symbol "(R)"
 
 
 parseName : Parser (Html msg)
@@ -255,6 +271,7 @@ parseSuccess =
         , parseReanimated
         , parseText
         ]
+
 
 parseFail : Parser (Html msg)
 parseFail =

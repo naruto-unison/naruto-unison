@@ -14,19 +14,18 @@ module Game.Game exposing
     )
 
 import Dict
-import List.Extra as List
-import Set
-
 import Import.Flags exposing (Characters)
 import Import.Model as Player exposing (Category(..), Channel, Channeling(..), Character, Effect, Ninja, Player(..), Privilege(..), Skill, Target(..), Turn, User)
+import List.Extra as List
+import Set
 import Util exposing (elem)
 
 
 type alias Act =
-    { user    : Int
-    , button  : Int
-    , target  : Int
-    , skill   : Skill
+    { user : Int
+    , button : Int
+    , target : Int
+    , skill : Skill
     , targets : List Int
     }
 
@@ -57,11 +56,21 @@ targets slot skill =
         possibleTargets =
             skill.start ++ skill.effects
 
-        enemy = Enemy |> elem possibleTargets
-        ally  = Ally  |> elem possibleTargets
-        xally = XAlly |> elem possibleTargets
+        enemy =
+            Enemy |> elem possibleTargets
 
-        rem   = if slot >= teamSize then teamSize else 0
+        ally =
+            Ally |> elem possibleTargets
+
+        xally =
+            XAlly |> elem possibleTargets
+
+        rem =
+            if slot >= teamSize then
+                teamSize
+
+            else
+                0
     in
     if enemy && ally then
         allSlots
@@ -107,14 +116,22 @@ living player game =
 opponent : Player -> Player
 opponent player =
     case player of
-        Player.A -> Player.B
-        Player.B -> Player.A
+        Player.A ->
+            Player.B
+
+        Player.B ->
+            Player.A
 
 
 forfeit : Player -> Turn -> Turn
 forfeit player game =
     let
-        forfeitN n = if allied player n then { n | health = 0 } else n
+        forfeitN n =
+            if allied player n then
+                { n | health = 0 }
+
+            else
+                n
     in
     { game
         | ninjas =
@@ -126,31 +143,40 @@ forfeit player game =
 
 unknown : Character
 unknown =
-    { name     = "unknown"
-    , bio      = ""
-    , skills   = []
+    { name = "unknown"
+    , bio = ""
+    , skills = []
     , category = Original
-    , groups   = Set.empty
-    , price    = 0
-    , ident    = ""
+    , groups = Set.empty
+    , price = 0
+    , ident = ""
     }
 
 
 get : List Character -> Int -> Character
 get xs slot =
     xs
-    |> List.getAt slot
-    >> Maybe.withDefault unknown
+        |> List.getAt slot
+        >> Maybe.withDefault unknown
 
 
 dur : Channel -> Int
 dur chan =
     case chan.dur of
-        Passive   -> 0
-        Instant   -> 1
-        Action  x -> x
-        Control x -> x
-        Ongoing x -> x
+        Passive ->
+            0
+
+        Instant ->
+            1
+
+        Action x ->
+            x
+
+        Control x ->
+            x
+
+        Ongoing x ->
+            x
 
 
 removable : Bool -> Effect -> Bool
@@ -219,7 +245,11 @@ merge chars n =
             cSkills
                 |> List.map
                     (\cSkill ->
-                        if cSkill.name == nSkill.name then nSkill else cSkill
+                        if cSkill.name == nSkill.name then
+                            nSkill
+
+                        else
+                            cSkill
                     )
     in
     { char | skills = List.map2 zip char.skills n.skills }

@@ -3,29 +3,28 @@ module Site.Select exposing (Model, Msg(..), Stage(..), component)
 import Browser.Dom as Dom
 import Browser.Navigation as Navigation
 import Dict
-import Json.Decode as D
+import Game.Chakra as Chakra
+import Game.Game as Game
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Html.Keyed as Keyed
 import Html.Lazy exposing (lazy3)
 import Http
+import Import.Flags exposing (Characters, Flags, characterName)
+import Import.Model as Model exposing (Chakras, Character, GameInfo, ObjectiveProgress, Skill, User)
+import Json.Decode as D
 import List.Extra as List
 import List.Nonempty as Nonempty exposing (Nonempty(..))
 import Maybe.Extra as Maybe
+import Ports exposing (Ports)
 import Process
 import Set exposing (Set)
+import Site.Render as Render exposing (icon)
+import Sound exposing (Sound)
 import Task exposing (Task)
 import Tuple exposing (first, second)
 import Url
-
-import Game.Chakra as Chakra
-import Game.Game as Game
-import Import.Flags exposing (Characters, Flags, characterName)
-import Import.Model as Model exposing (Chakras, Character, GameInfo, ObjectiveProgress, Skill, User)
-import Ports exposing (Ports)
-import Site.Render as Render exposing (icon)
-import Sound exposing (Sound)
 import Util exposing (ListChange(..), elem, pure, showErr)
 
 
@@ -54,10 +53,10 @@ type Previewing
 
 
 type alias Form =
-    { name       : String
+    { name : String
     , background : String
-    , condense   : Bool
-    , avatar     : String
+    , condense : Bool
+    , avatar : String
     }
 
 
@@ -89,7 +88,12 @@ formUrl form =
     "api/update/"
         ++ form.name
         ++ "/"
-        ++ (if form.condense then "True" else "False")
+        ++ (if form.condense then
+                "True"
+
+            else
+                "False"
+           )
         ++ "/b"
         ++ form.background
         ++ "/"
@@ -104,32 +108,32 @@ type Stage
 
 
 type alias Model =
-    { error      : Maybe String
-    , stage      : Stage
-    , url        : String
-    , team       : List Character
-    , costs      : Chakras
-    , vs         : List Character
-    , unlocked   : Set String
-    , user       : Maybe User
-    , avatars    : List String
-    , chars      : Characters
-    , visibles   : Set String
-    , red        : Set String
-    , blue       : Set String
-    , csrf       : String
-    , csrfParam  : String
-    , showLogin  : Bool
-    , index      : Int
-    , cols       : Int
-    , toggled    : Maybe Character
+    { error : Maybe String
+    , stage : Stage
+    , url : String
+    , team : List Character
+    , costs : Chakras
+    , vs : List Character
+    , unlocked : Set String
+    , user : Maybe User
+    , avatars : List String
+    , chars : Characters
+    , visibles : Set String
+    , red : Set String
+    , blue : Set String
+    , csrf : String
+    , csrfParam : String
+    , showLogin : Bool
+    , index : Int
+    , cols : Int
+    , toggled : Maybe Character
     , previewing : Previewing
-    , mission    : List ObjectiveProgress
+    , mission : List ObjectiveProgress
     , alternates : List Int
-    , pageSize   : Int
-    , search     : String
-    , condense   : Bool
-    , form       : Form
+    , pageSize : Int
+    , search : String
+    , condense : Bool
+    , form : Form
     }
 
 
@@ -176,98 +180,103 @@ teamCosts chars team =
 component :
     Ports Msg
     ->
-        { init   : Flags -> Model
+        { init : Flags -> Model
         , update : Msg -> Model -> ( Model, Cmd Msg )
-        , view   : Model -> Html Msg
+        , view : Model -> Html Msg
         }
 component ports =
     let
-
         init : Flags -> Model
         init flags =
             let
-                getCharacter ident = Dict.get ident flags.characters.dict
-                team = List.filterMap getCharacter flags.userTeam
-                vs   = List.filterMap getCharacter flags.userPractice
+                getCharacter ident =
+                    Dict.get ident flags.characters.dict
+
+                team =
+                    List.filterMap getCharacter flags.userTeam
+
+                vs =
+                    List.filterMap getCharacter flags.userPractice
             in
-            { error      = Nothing
-            , stage      = Browsing
-            , url        = flags.url
-            , team       = team
-            , costs      = teamCosts flags.characters team
-            , vs         = vs
-            , user       = flags.user
-            , chars      = flags.characters
-            , avatars    = flags.avatars
-            , visibles   = flags.visibles
-            , red        = flags.red
-            , blue       = flags.blue
-            , csrf       = flags.csrf
-            , csrfParam  = flags.csrfParam
-            , showLogin  = True
-            , index      = 0
-            , cols       = 11
-            , toggled    = Nothing
+            { error = Nothing
+            , stage = Browsing
+            , url = flags.url
+            , team = team
+            , costs = teamCosts flags.characters team
+            , vs = vs
+            , user = flags.user
+            , chars = flags.characters
+            , avatars = flags.avatars
+            , visibles = flags.visibles
+            , red = flags.red
+            , blue = flags.blue
+            , csrf = flags.csrf
+            , csrfParam = flags.csrfParam
+            , showLogin = True
+            , index = 0
+            , cols = 11
+            , toggled = Nothing
             , previewing = PreviewWar
-            , mission    = []
+            , mission = []
             , alternates = [ 0, 0, 0, 0 ]
-            , pageSize   = 36
-            , search     = ""
-            , unlocked   =
+            , pageSize = 36
+            , search = ""
+            , unlocked =
                 if Maybe.isJust flags.user then
                     flags.unlocked
+
                 else
                     Set.empty
-            , condense   =
+            , condense =
                 flags.user
                     |> Maybe.map .condense
                     >> Maybe.withDefault False
-            , form       =
+            , form =
                 case flags.user of
                     Nothing ->
-                        { name       = ""
+                        { name = ""
                         , background = ""
-                        , condense   = False
-                        , avatar     = ""
+                        , condense = False
+                        , avatar = ""
                         }
 
                     Just user ->
-                        { name       = user.name
+                        { name = user.name
                         , background = Maybe.withDefault "" user.background
-                        , condense   = user.condense
-                        , avatar     = user.avatar
+                        , condense = user.condense
+                        , avatar = user.avatar
                         }
             }
 
         view : Model -> Html Msg
         view st =
             H.section [ A.id "charSelect" ] <|
-            lazy3 (userBox st.red st.blue st.user st.csrf st.csrfParam)
-                st.showLogin
-                st.costs
-                st.team
-            :: case st.stage of
-                Queued ->
-                    []
+                lazy3 (userBox st.red st.blue st.user st.csrf st.csrfParam)
+                    st.showLogin
+                    st.costs
+                    st.team
+                    :: (case st.stage of
+                            Queued ->
+                                []
 
-                _ ->
-                    let
-                        topModule =
-                            case st.stage of
-                                Practicing ->
-                                    vsBox
+                            _ ->
+                                let
+                                    topModule =
+                                        case st.stage of
+                                            Practicing ->
+                                                vsBox
 
-                                Searching ->
-                                    searchBox
+                                            Searching ->
+                                                searchBox
 
-                                _ ->
-                                    previewBox
-
-                    in
-                    [ topModule st
-                    , listChars st
-                    , listVs st
-                    ]
+                                            _ ->
+                                                previewBox
+                                in
+                                [ topModule st
+                                , listChars st
+                                , listVs st
+                                ]
+                       )
 
         withSound : Sound -> Model -> ( Model, Cmd Msg )
         withSound sound st =
@@ -304,23 +313,28 @@ component ports =
                             let
                                 rem =
                                     size st |> remainderBy -x
+
                                 remIndex =
-                                    if rem == 0 then -x else rem
+                                    if rem == 0 then
+                                        -x
+
+                                    else
+                                        rem
                             in
                             { st
-                                | index    = size st - remIndex
+                                | index = size st - remIndex
                                 , pageSize = abs x
                             }
 
                         else if index >= size st then
                             { st
-                                | index    = 0
+                                | index = 0
                                 , pageSize = abs x
                             }
 
                         else
                             { st
-                                | index    = x + st.index
+                                | index = x + st.index
                                 , pageSize = abs x
                             }
 
@@ -333,7 +347,7 @@ component ports =
                             { st
                                 | previewing = x
                                 , alternates = [ 0, 0, 0, 0 ]
-                                , mission    = []
+                                , mission = []
                             }
 
                 Alternate slot i ->
@@ -358,30 +372,33 @@ component ports =
 
                                 else if List.length st.team < Game.teamSize then
                                     let
-                                        team = char :: st.team
+                                        team =
+                                            char :: st.team
                                     in
                                     { st
                                         | toggled = Nothing
-                                        , team    = team
-                                        , costs   = teamCosts st.chars team
+                                        , team = team
+                                        , costs = teamCosts st.chars team
                                     }
 
                                 else
                                     { st | toggled = Nothing }
 
-                Team Delete char -> case st.stage of
-                    Practicing ->
-                        pure st
+                Team Delete char ->
+                    case st.stage of
+                        Practicing ->
+                            pure st
 
-                    _ ->
-                        let
-                            team = List.remove char st.team
-                        in
-                        withSound Sound.Cancel
-                            { st
-                                | team  = team
-                                , costs = teamCosts st.chars team
-                            }
+                        _ ->
+                            let
+                                team =
+                                    List.remove char st.team
+                            in
+                            withSound Sound.Cancel
+                                { st
+                                    | team = team
+                                    , costs = teamCosts st.chars team
+                                }
 
                 Vs Add char ->
                     withSound Sound.Click <|
@@ -401,7 +418,7 @@ component ports =
                 TryUpdate ->
                     ( st
                     , Http.get
-                        { url    = st.url ++ formUrl st.form
+                        { url = st.url ++ formUrl st.form
                         , expect = Http.expectWhatever ReceiveUpdate
                         }
                     )
@@ -496,7 +513,7 @@ component ports =
                             st.url ++ "api/mission/" ++ characterName char
                         , expect =
                             Http.expectJson (ReceiveMission char) <|
-                            D.list Model.jsonDecObjectiveProgress
+                                D.list Model.jsonDecObjectiveProgress
                         }
                     )
 
@@ -596,169 +613,204 @@ userBox red blue mUser csrf csrfParam showLogin costs team =
             else
                 [ A.class "parchment playButton" ]
 
-        nav = case mUser of
-            Just _ ->
-                [ H.a [ A.id "mainsite"
-                      , A.class "playButton parchment click blacked"
-                      , A.href "/home"
-                      ]
-                  [ H.text "Main Site" ]
-                , H.a (meta <| Enqueue Quick)
-                  [ H.text "Quick" ]
-                , H.a (meta <| SetStage Searching)
-                  [ H.text "Private" ]
-                , H.a (meta <| SetStage Practicing)
-                  [ H.text "Practice" ]
-                ]
-
-            Nothing ->
-                [ H.a [ A.id "mainsite"
-                      , A.class "playButton parchment click blacked"
-                      , A.href "/home"
-                      ]
-                  [ H.text "Main Site" ]
-                ]
-
-        box = case mUser of
-            Just user ->
-                H.div [ A.id "userBox"
-                      , A.class "parchment loggedin"
-                      , E.onMouseOver << Preview <| PreviewUser user
-                      ]
-                [ H.img [ A.class "userimg"
-                        , A.src user.avatar
-                        , A.alt "User avatar"
-                        ] []
-                , H.h4 []
-                  [ H.aside [ A.class "dna" ]
-                    [ H.text <| String.fromInt user.dna ]
-                  , H.text user.name
-                  ]
-                , H.p []
-                  [ H.text <| Game.rank user ]
-                , H.dt [] [ H.text "Clan" ]
-                , H.dd [] [ H.text <|
-                    Maybe.withDefault "Clanless" user.clan
-                  ]
-                , H.dt [] [ H.text "Level" ]
-                , H.dd [] [ H.text <|
-                      String.fromInt (user.xp // 1000)
-                          ++ " ("
-                          ++ String.fromInt (user.xp |> remainderBy 1000)
-                          ++ " XP)"
-                  ]
-                , H.dt [] [ H.text "Rank" ]
-                , H.dd [] [ H.text "None" ]
-                , H.dt [] [ H.text "Record" ]
-                , H.dd [] [ Render.streak user ]
-                ]
-
-            Nothing ->
-                H.div [ A.id "userBox", A.class "parchment" ]
-                [ H.form
-                  [ A.id <| if showLogin then "loginForm" else "registerForm"
-                  , A.class "userForm"
-                  , A.method "POST"
-                  , A.action <|
-                      "/auth/page/email/"
-                          ++ (if showLogin then "login" else "register")
-                  ] << List.map second <| List.filter first
-                    [ ( True
-                      , H.input [ A.type_ "hidden"
-                                , A.name csrfParam
-                                , A.value csrf
-                                ] []
-                      )
-                    , ( True
-                      , H.div []
-                        [ H.input
-                          [ A.class "email"
-                          , A.name "email"
-                          , A.type_ "email"
-                          , A.required True
-
-                          -- , A.autofocus   True
-                          , A.placeholder "Email"
-                          ] []
+        nav =
+            case mUser of
+                Just _ ->
+                    [ H.a
+                        [ A.id "mainsite"
+                        , A.class "playButton parchment click blacked"
+                        , A.href "/home"
                         ]
-                      )
-                    , ( showLogin
-                      , H.div []
-                        [ H.input
-                          [ A.class "password"
-                          , A.name "password"
-                          , A.type_ "password"
-                          , A.required True
-                          , A.placeholder "Password"
-                          ] []
-                        ]
-                      )
-                    , ( showLogin
-                      , H.div [ A.id "controls" ]
-                        [ H.button
-                          [ A.class "playButton click"
-                          , A.type_ "submit"
-                          ]
-                          [ H.text "Log in" ]
-                        , H.a
-                          [ A.class "click"
-                          , E.onClick SwitchLogin
-                          ]
-                          [ H.text "Register" ]
-                        ]
-                      )
-                    , ( not showLogin
-                      , H.div [ A.id "controls" ]
-                        [ H.a
-                          [ A.class "click"
-                          , E.onClick SwitchLogin
-                          ]
-                          [ H.text "Log in" ]
-                        , H.button
-                          [ A.class "playButton click"
-                          , A.type_ "submit"
-                          ]
-                          [ H.text "Register" ]
-                        ]
-                      )
+                        [ H.text "Main Site" ]
+                    , H.a (meta <| Enqueue Quick)
+                        [ H.text "Quick" ]
+                    , H.a (meta <| SetStage Searching)
+                        [ H.text "Private" ]
+                    , H.a (meta <| SetStage Practicing)
+                        [ H.text "Practice" ]
                     ]
-                ]
+
+                Nothing ->
+                    [ H.a
+                        [ A.id "mainsite"
+                        , A.class "playButton parchment click blacked"
+                        , A.href "/home"
+                        ]
+                        [ H.text "Main Site" ]
+                    ]
+
+        box =
+            case mUser of
+                Just user ->
+                    H.div
+                        [ A.id "userBox"
+                        , A.class "parchment loggedin"
+                        , E.onMouseOver << Preview <| PreviewUser user
+                        ]
+                        [ H.img
+                            [ A.class "userimg"
+                            , A.src user.avatar
+                            , A.alt "User avatar"
+                            ]
+                            []
+                        , H.h4 []
+                            [ H.aside [ A.class "dna" ]
+                                [ H.text <| String.fromInt user.dna ]
+                            , H.text user.name
+                            ]
+                        , H.p []
+                            [ H.text <| Game.rank user ]
+                        , H.dt [] [ H.text "Clan" ]
+                        , H.dd []
+                            [ H.text <|
+                                Maybe.withDefault "Clanless" user.clan
+                            ]
+                        , H.dt [] [ H.text "Level" ]
+                        , H.dd []
+                            [ H.text <|
+                                String.fromInt (user.xp // 1000)
+                                    ++ " ("
+                                    ++ String.fromInt (user.xp |> remainderBy 1000)
+                                    ++ " XP)"
+                            ]
+                        , H.dt [] [ H.text "Rank" ]
+                        , H.dd [] [ H.text "None" ]
+                        , H.dt [] [ H.text "Record" ]
+                        , H.dd [] [ Render.streak user ]
+                        ]
+
+                Nothing ->
+                    H.div [ A.id "userBox", A.class "parchment" ]
+                        [ H.form
+                            [ A.id <|
+                                if showLogin then
+                                    "loginForm"
+
+                                else
+                                    "registerForm"
+                            , A.class "userForm"
+                            , A.method "POST"
+                            , A.action <|
+                                "/auth/page/email/"
+                                    ++ (if showLogin then
+                                            "login"
+
+                                        else
+                                            "register"
+                                       )
+                            ]
+                            << List.map second
+                          <|
+                            List.filter first
+                                [ ( True
+                                  , H.input
+                                        [ A.type_ "hidden"
+                                        , A.name csrfParam
+                                        , A.value csrf
+                                        ]
+                                        []
+                                  )
+                                , ( True
+                                  , H.div []
+                                        [ H.input
+                                            [ A.class "email"
+                                            , A.name "email"
+                                            , A.type_ "email"
+                                            , A.required True
+
+                                            -- , A.autofocus   True
+                                            , A.placeholder "Email"
+                                            ]
+                                            []
+                                        ]
+                                  )
+                                , ( showLogin
+                                  , H.div []
+                                        [ H.input
+                                            [ A.class "password"
+                                            , A.name "password"
+                                            , A.type_ "password"
+                                            , A.required True
+                                            , A.placeholder "Password"
+                                            ]
+                                            []
+                                        ]
+                                  )
+                                , ( showLogin
+                                  , H.div [ A.id "controls" ]
+                                        [ H.button
+                                            [ A.class "playButton click"
+                                            , A.type_ "submit"
+                                            ]
+                                            [ H.text "Log in" ]
+                                        , H.a
+                                            [ A.class "click"
+                                            , E.onClick SwitchLogin
+                                            ]
+                                            [ H.text "Register" ]
+                                        ]
+                                  )
+                                , ( not showLogin
+                                  , H.div [ A.id "controls" ]
+                                        [ H.a
+                                            [ A.class "click"
+                                            , E.onClick SwitchLogin
+                                            ]
+                                            [ H.text "Log in" ]
+                                        , H.button
+                                            [ A.class "playButton click"
+                                            , A.type_ "submit"
+                                            ]
+                                            [ H.text "Register" ]
+                                        ]
+                                  )
+                                ]
+                        ]
     in
     H.header []
-    [ H.nav [ A.id "playButtons" ]
-      nav
-    , H.div [ A.class "space" ] []
-    , H.section [ A.id "teamContainer" ]
-      [ Keyed.node "div"
-        [ A.id "teamButtons", A.class "select" ] << for team <|
-          \char ->
-              let
-                  isRed = char |> belongsTo red
-                  isBlue = char |> belongsTo blue
-              in
-              ( characterName char
-              , H.div [ A.class "charWrapper" ] <|
-                icon char
-                  "icon"
-                  [ A.class "char click"
-                  , E.onMouseOver << Preview <| PreviewChar char
-                  , E.onClick <| Team Delete char
-                  ] ::
-                          if isRed && isBlue then
-                              [ H.div [ A.class "redblue" ] [] ]
-                          else if isRed then
-                              [ H.div [ A.class "red"]  [] ]
-                          else if isBlue then
-                              [ H.div [ A.class "blue" ] [] ]
-                          else
-                              []
-              )
-    , H.div [ A.class "space" ] []
-      , H.div [ A.id "underTeam", A.class "parchment" ] <|
-        Render.chakraTotals costs
-      ]
-    , box
-    ]
+        [ H.nav [ A.id "playButtons" ]
+            nav
+        , H.div [ A.class "space" ] []
+        , H.section [ A.id "teamContainer" ]
+            [ Keyed.node "div"
+                [ A.id "teamButtons", A.class "select" ]
+                << for team
+              <|
+                \char ->
+                    let
+                        isRed =
+                            char |> belongsTo red
+
+                        isBlue =
+                            char |> belongsTo blue
+                    in
+                    ( characterName char
+                    , H.div [ A.class "charWrapper" ] <|
+                        icon char
+                            "icon"
+                            [ A.class "char click"
+                            , E.onMouseOver << Preview <| PreviewChar char
+                            , E.onClick <| Team Delete char
+                            ]
+                            :: (if isRed && isBlue then
+                                    [ H.div [ A.class "redblue" ] [] ]
+
+                                else if isRed then
+                                    [ H.div [ A.class "red" ] [] ]
+
+                                else if isBlue then
+                                    [ H.div [ A.class "blue" ] [] ]
+
+                                else
+                                    []
+                               )
+                    )
+            , H.div [ A.class "space" ] []
+            , H.div [ A.id "underTeam", A.class "parchment" ] <|
+                Render.chakraTotals costs
+            ]
+        , box
+        ]
 
 
 failWarning : Maybe String -> List (Html msg) -> List (Html msg)
@@ -768,10 +820,10 @@ failWarning x xs =
             xs
 
         Just warning ->
-            xs ++
-            [ H.span [ A.id "userfail" ]
-              [ H.text warning ]
-            ]
+            xs
+                ++ [ H.span [ A.id "userfail" ]
+                        [ H.text warning ]
+                   ]
 
 
 vsBox : Model -> Html Msg
@@ -786,55 +838,63 @@ vsBox st =
             else
                 [ A.class "parchment playButton" ]
     in
-    H.section [ A.id "vs"
-              , A.classList
-                [ ("parchment", True)
-                , ("vsPractice", st.stage == Practicing)
-                ]
-              ]
-      [ H.nav []
-        [ H.button meta
-          [ H.text "Ready" ]
-        , H.button [ A.class "parchment playButton click"
-                   , E.onClick <| SetStage Browsing
-                   ]
-          [ H.text "Cancel" ]
+    H.section
+        [ A.id "vs"
+        , A.classList
+            [ ( "parchment", True )
+            , ( "vsPractice", st.stage == Practicing )
+            ]
         ]
-      , H.span []
-        [ H.text "VS: " ]
-      , Keyed.node "div"
-        [ A.id "vsButtons", A.class "select" ] << for st.vs <|
-          \char ->
-              ( characterName char
-              , icon char
-                  "icon"
-                  [ A.class "char click"
-                  , E.onClick <| Vs Delete char
-                  ]
-              )
-      ]
+        [ H.nav []
+            [ H.button meta
+                [ H.text "Ready" ]
+            , H.button
+                [ A.class "parchment playButton click"
+                , E.onClick <| SetStage Browsing
+                ]
+                [ H.text "Cancel" ]
+            ]
+        , H.span []
+            [ H.text "VS: " ]
+        , Keyed.node "div"
+            [ A.id "vsButtons", A.class "select" ]
+            << for st.vs
+          <|
+            \char ->
+                ( characterName char
+                , icon char
+                    "icon"
+                    [ A.class "char click"
+                    , E.onClick <| Vs Delete char
+                    ]
+                )
+        ]
 
 
 searchBox : Model -> Html Msg
 searchBox st =
     H.section [ A.id "vs", A.class "parchment" ] <|
-    failWarning st.error
-    [ H.button [ A.class "parchment playButton click"
-               , E.onClick <| Enqueue Private
-               ]
-      [ H.text "Ready" ]
-    , H.button [ A.class "parchment playButton click"
-               , E.onClick <| SetStage Browsing
-               ]
-      [ H.text "Cancel" ]
-    , H.span []
-      [ H.text "VS: " ]
-    , H.input [ A.type_ "text"
-              , A.name "search"
-              , A.value st.search
-              , E.onInput SetSearch
-              ] []
-    ]
+        failWarning st.error
+            [ H.button
+                [ A.class "parchment playButton click"
+                , E.onClick <| Enqueue Private
+                ]
+                [ H.text "Ready" ]
+            , H.button
+                [ A.class "parchment playButton click"
+                , E.onClick <| SetStage Browsing
+                ]
+                [ H.text "Cancel" ]
+            , H.span []
+                [ H.text "VS: " ]
+            , H.input
+                [ A.type_ "text"
+                , A.name "search"
+                , A.value st.search
+                , E.onInput SetSearch
+                ]
+                []
+            ]
 
 
 listWar : String -> Set String -> Html msg
@@ -850,201 +910,217 @@ previewBox st =
     case st.previewing of
         PreviewWar ->
             H.article [ A.class "parchment war" ]
-            [ H.section []
-              [ listWar "red" st.red
-              , H.h1 [] [ H.text "Today's War" ]
-              , listWar "blue" st.blue
-              ]
-            , H.p []
-              [ H.text "Choose a side! Make a full team from one side and earn bonus DNA for defeating full teams from the other side."]
-            ]
+                [ H.section []
+                    [ listWar "red" st.red
+                    , H.h1 [] [ H.text "Today's War" ]
+                    , listWar "blue" st.blue
+                    ]
+                , H.p []
+                    [ H.text "Choose a side! Make a full team from one side and earn bonus DNA for defeating full teams from the other side." ]
+                ]
 
         PreviewUser _ ->
             H.article [ A.class "parchment" ]
-            [ H.div [ A.id "accountSettings" ]
-              [ H.p [] <|
-                failWarning st.error
-                [ H.label []
-                  [ H.text "Name" ]
-                , H.input [ A.type_ "text"
-                          , A.name "name"
-                          , A.value st.form.name
-                          , E.onInput <| UpdateForm << Name
-                          ] []
-                ]
-              , H.p []
-                [ H.label []
-                  [ H.text "Background" ]
-                , H.input [ A.type_ "text"
-                          , A.name "background"
-                          , A.value st.form.background
-                          , E.onInput <| UpdateForm << Background
-                          ] []
-                ]
-              , H.p []
-                [ H.input [ A.type_ "checkbox"
-                          , A.name "condense"
-                          , A.checked st.form.condense
-                          , E.onInput <|
-                              always <<
-                              UpdateForm <<
-                              Condense <|
-                              not st.form.condense
-                          ] []
-                , H.label []
-                  [ H.text "Show only the first version of each character in the selection grid" ]
-                ]
-              , H.p []
-                [ H.span []
-                  [ H.text "Avatars" ]
-                ]
-              , H.section
-                [ A.id "avatars" ] << for st.avatars <|
-                  \avatar ->
-                      if st.form.avatar == avatar then
-                          H.img [ A.src avatar, A.class "noclick"] []
+                [ H.div [ A.id "accountSettings" ]
+                    [ H.p [] <|
+                        failWarning st.error
+                            [ H.label []
+                                [ H.text "Name" ]
+                            , H.input
+                                [ A.type_ "text"
+                                , A.name "name"
+                                , A.value st.form.name
+                                , E.onInput <| UpdateForm << Name
+                                ]
+                                []
+                            ]
+                    , H.p []
+                        [ H.label []
+                            [ H.text "Background" ]
+                        , H.input
+                            [ A.type_ "text"
+                            , A.name "background"
+                            , A.value st.form.background
+                            , E.onInput <| UpdateForm << Background
+                            ]
+                            []
+                        ]
+                    , H.p []
+                        [ H.input
+                            [ A.type_ "checkbox"
+                            , A.name "condense"
+                            , A.checked st.form.condense
+                            , E.onInput <|
+                                always
+                                    << UpdateForm
+                                    << Condense
+                                <|
+                                    not st.form.condense
+                            ]
+                            []
+                        , H.label []
+                            [ H.text "Show only the first version of each character in the selection grid" ]
+                        ]
+                    , H.p []
+                        [ H.span []
+                            [ H.text "Avatars" ]
+                        ]
+                    , H.section
+                        [ A.id "avatars" ]
+                        << for st.avatars
+                      <|
+                        \avatar ->
+                            if st.form.avatar == avatar then
+                                H.img [ A.src avatar, A.class "noclick" ] []
 
-                      else
-                          H.img [ A.src avatar
-                                , A.class "click"
-                                , E.onClick << UpdateForm <| Avatar avatar
-                                ] []
-              , H.button [ A.id "updateButton"
-                         , A.class "click", E.onClick TryUpdate
-                         ]
-                [ H.text "Update" ]
-              , H.a [ A.href "auth/logout" ]
-                [ H.button [ A.id "logoutButton", A.class "click" ]
-                  [ H.text "Log out" ]
+                            else
+                                H.img
+                                    [ A.src avatar
+                                    , A.class "click"
+                                    , E.onClick << UpdateForm <| Avatar avatar
+                                    ]
+                                    []
+                    , H.button
+                        [ A.id "updateButton"
+                        , A.class "click"
+                        , E.onClick TryUpdate
+                        ]
+                        [ H.text "Update" ]
+                    , H.a [ A.href "auth/logout" ]
+                        [ H.button [ A.id "logoutButton", A.class "click" ]
+                            [ H.text "Log out" ]
+                        ]
+                    ]
                 ]
-              ]
-            ]
 
         PreviewChar char ->
             H.article [ A.class "parchment" ] <|
-            [ Keyed.node "aside"
-              [] <|
-              case Dict.get (st.chars.shortName char) st.chars.groupDict of
-                  Nothing ->
-                      []
+                [ Keyed.node "aside"
+                    []
+                  <|
+                    case Dict.get (st.chars.shortName char) st.chars.groupDict of
+                        Nothing ->
+                            []
 
-                  Just (Nonempty _ []) ->
-                      []
+                        Just (Nonempty _ []) ->
+                            []
 
-                  Just (Nonempty x xs) -> for (x :: xs) <| \char_ ->
-                      ( characterName char_
-                      , icon char_ "icon" <|
-                          if locked st.unlocked char_ then
-                              [ A.classList
-                                [ ( "on", char == char_ )
-                                , ( "noclick locked char", True )
+                        Just (Nonempty x xs) ->
+                            for (x :: xs) <|
+                                \char_ ->
+                                    ( characterName char_
+                                    , icon char_ "icon" <|
+                                        if locked st.unlocked char_ then
+                                            [ A.classList
+                                                [ ( "on", char == char_ )
+                                                , ( "noclick locked char", True )
+                                                ]
+                                            , E.onMouseOver << Preview <| PreviewChar char_
+                                            ]
+
+                                        else if
+                                            List.member char_ <|
+                                                case st.stage of
+                                                    Practicing ->
+                                                        st.vs
+
+                                                    _ ->
+                                                        st.team
+                                        then
+                                            [ A.classList
+                                                [ ( "on", char == char_ )
+                                                , ( "noclick disabled char", True )
+                                                ]
+                                            , E.onMouseOver << Preview <| PreviewChar char_
+                                            ]
+
+                                        else
+                                            [ A.classList
+                                                [ ( "on", char == char_ )
+                                                , ( "click char", True )
+                                                ]
+                                            , E.onMouseOver << Preview <| PreviewChar char_
+                                            , E.onClick <| Team Add char_
+                                            ]
+                                    )
+                , H.h3 [] <|
+                    [ icon char "icon" [ A.class "char" ]
+                    , if not <| locked st.unlocked char then
+                        H.aside [] []
+
+                      else if char.price > 0 then
+                        H.aside [ A.class "dna" ] <|
+                            if affordable st.user char then
+                                [ H.button [ E.onClick <| Reanimate char ]
+                                    [ H.text "Reanimate" ]
+                                , H.text <| String.fromInt char.price
                                 ]
-                              , E.onMouseOver << Preview <| PreviewChar char_
-                              ]
 
-                          else if
-                              List.member char_ <|
-                                  case st.stage of
-                                      Practicing ->
-                                          st.vs
+                            else
+                                [ H.text <| String.fromInt char.price ]
 
-                                      _ ->
-                                          st.team
-                          then
-                              [ A.classList
-                                [ ( "on", char == char_ )
-                                , ( "noclick disabled char", True )
-                                ]
-                              , E.onMouseOver << Preview <| PreviewChar char_
-                              ]
-
-                          else
-                              [ A.classList
-                                [ ( "on", char == char_ )
-                                , ( "click char", True )
-                                ]
-                              , E.onMouseOver << Preview <| PreviewChar char_
-                              , E.onClick <| Team Add char_
-                              ]
-                      )
-          , H.h3 [] <|
-            [ icon char "icon" [ A.class "char" ]
-            , if not <| locked st.unlocked char then
-                H.aside [] []
-
-              else if char.price > 0 then
-                H.aside [ A.class "dna" ] <|
-                    if affordable st.user char then
-                        [ H.button [E.onClick <| Reanimate char]
-                          [H.text "Reanimate"]
-                        , H.text <| String.fromInt char.price
-                        ]
-
-                    else
-                        [ H.text <| String.fromInt char.price ]
-
-              else
+                      else
                         H.aside [ A.class "locked" ] <|
-                        if List.isEmpty st.mission then
-                            [ H.button [ E.onClick <| GetMission char ]
-                              [ H.text "Show Mission" ]
-                            ]
+                            if List.isEmpty st.mission then
+                                [ H.button [ E.onClick <| GetMission char ]
+                                    [ H.text "Show Mission" ]
+                                ]
 
-                        else
-                            [ H.button
-                              [ E.onClick << Preview <| PreviewChar char ]
-                              [ H.text "Hide Mission" ]
-                            ]
+                            else
+                                [ H.button
+                                    [ E.onClick << Preview <| PreviewChar char ]
+                                    [ H.text "Hide Mission" ]
+                                ]
                     ]
                         ++ Render.name char
                 , H.p [] <|
-                  if List.isEmpty st.mission then
-                      Render.desc char.bio
+                    if List.isEmpty st.mission then
+                        Render.desc char.bio
 
-                  else
-                      [ H.section []
-                        [ H.ul [] <| List.map previewObjective st.mission ]
-                      ]
-          ] ++
-          List.map3 (previewSkill st.visibles char)
-          (List.range 0 10) -- doesn't matter, not the limiting factor
-          char.skills
-          st.alternates
+                    else
+                        [ H.section []
+                            [ H.ul [] <| List.map previewObjective st.mission ]
+                        ]
+                ]
+                    ++ List.map3 (previewSkill st.visibles char)
+                        (List.range 0 10)
+                        -- doesn't matter, not the limiting factor
+                        char.skills
+                        st.alternates
 
 
 previewObjective : ObjectiveProgress -> Html Msg
 previewObjective x =
     H.li [] <|
-    List.concat
-        [ case x.character of
-              Nothing ->
-                  []
+        List.concat
+            [ case x.character of
+                Nothing ->
+                    []
 
-              Just char ->
-                  [ H.text <| "As " ++ char ++ ": " ]
-
-        , Render.desc x.desc
-
-        , if x.progress < x.goal then
-              [ H.span [A.class "incomplete"]
-                [ H.text
-                    <| " "
-                    ++ String.fromInt x.progress
-                    ++ "/"
-                    ++ String.fromInt x.goal
+                Just char ->
+                    [ H.text <| "As " ++ char ++ ": " ]
+            , Render.desc x.desc
+            , if x.progress < x.goal then
+                [ H.span [ A.class "incomplete" ]
+                    [ H.text <|
+                        " "
+                            ++ String.fromInt x.progress
+                            ++ "/"
+                            ++ String.fromInt x.goal
+                    ]
                 ]
-              ]
 
-          else
-              [ H.span [A.class "complete"]
-                [ H.text
-                    <| " "
-                    ++ String.fromInt x.goal
-                    ++ "/"
-                    ++ String.fromInt x.goal
+              else
+                [ H.span [ A.class "complete" ]
+                    [ H.text <|
+                        " "
+                            ++ String.fromInt x.goal
+                            ++ "/"
+                            ++ String.fromInt x.goal
+                    ]
                 ]
-              ]
-        ]
+            ]
+
 
 previewSkill : Set String -> Character -> Int -> List Skill -> Int -> Html Msg
 previewSkill visibles char slot skills i =
@@ -1063,7 +1139,8 @@ previewSkill visibles char slot skills i =
                             (List.last << findDifferent (List.take i skills))
                         >> Maybe.map
                             (\v ->
-                                H.a [ A.class "prevSkill click"
+                                H.a
+                                    [ A.class "prevSkill click"
                                     , E.onClick <| Alternate slot v
                                     ]
                                     []
@@ -1075,39 +1152,41 @@ previewSkill visibles char slot skills i =
                             (List.head << findDifferent (List.drop i skills))
                         >> Maybe.map
                             (\v ->
-                                H.a [ A.class "nextSkill click"
+                                H.a
+                                    [ A.class "nextSkill click"
                                     , E.onClick << Alternate slot <| v + i
                                     ]
                                     []
                             )
             in
             H.section []
-            [ H.div [] <|
-              Maybe.values
-              [ Just <| icon char skill.name [ A.class "char" ]
-              , vPrev
-              , vNext
-              ]
-            , H.h4 [] <|
-              H.text skill.name
-              :: Render.chakras skill.cost ++
-              [ Render.classes False <| Set.intersect visibles skill.classes ]
-            , H.p [] <<
-              (++) (Render.desc skill.desc) <<
-              List.map
-              (H.span [ A.class "extra" ] << List.singleton << H.text << second)
-              <| List.filter first
-              [ ( skill.charges > 1
-                , String.fromInt skill.charges ++ " charges."
-                )
-              , ( skill.charges == 1
-                , String.fromInt skill.charges ++ " charge."
-                )
-              , ( skill.cooldown > 0
-                , "CD: " ++ String.fromInt ((skill.cooldown + 1) // 2)
-                )
-              ]
-            ]
+                [ H.div [] <|
+                    Maybe.values
+                        [ Just <| icon char skill.name [ A.class "char" ]
+                        , vPrev
+                        , vNext
+                        ]
+                , H.h4 [] <|
+                    H.text skill.name
+                        :: Render.chakras skill.cost
+                        ++ [ Render.classes False <| Set.intersect visibles skill.classes ]
+                , H.p []
+                    << (++) (Render.desc skill.desc)
+                    << List.map
+                        (H.span [ A.class "extra" ] << List.singleton << H.text << second)
+                  <|
+                    List.filter first
+                        [ ( skill.charges > 1
+                          , String.fromInt skill.charges ++ " charges."
+                          )
+                        , ( skill.charges == 1
+                          , String.fromInt skill.charges ++ " charge."
+                          )
+                        , ( skill.cooldown > 0
+                          , "CD: " ++ String.fromInt ((skill.cooldown + 1) // 2)
+                          )
+                        ]
+                ]
 
 
 listChars : Model -> Html Msg
@@ -1115,6 +1194,7 @@ listChars st =
     let
         wrapping =
             st.index + st.pageSize >= size st
+
         wrap =
             wraparound wrapping st.index
 
@@ -1151,9 +1231,7 @@ listChars st =
                         else
                             "locked"
 
-                    else if
-                        List.member char st.team
-                    then
+                    else if List.member char st.team then
                         "disabled"
 
                     else
@@ -1167,24 +1245,32 @@ listChars st =
 
         displayChar char =
             let
-                isRed = char |> belongsTo st.red
-                isBlue = char |> belongsTo st.blue
+                isRed =
+                    char |> belongsTo st.red
+
+                isBlue =
+                    char |> belongsTo st.blue
             in
             ( characterName char
             , H.div [ A.class "charWrapper" ] <|
-                icon char "icon"
-                [ E.onMouseOver << Preview <| PreviewChar char
-                , E.onClick <| Team Add char
-                , A.class <| charClass char
-                ] ::
-                    if isRed && isBlue then
-                        [ H.div [ A.class "redblue" ] [] ]
-                    else if isRed then
-                        [ H.div [ A.class "red"]  [] ]
-                    else if isBlue then
-                        [ H.div [ A.class "blue" ] [] ]
-                    else
-                        []
+                icon char
+                    "icon"
+                    [ E.onMouseOver << Preview <| PreviewChar char
+                    , E.onClick <| Team Add char
+                    , A.class <| charClass char
+                    ]
+                    :: (if isRed && isBlue then
+                            [ H.div [ A.class "redblue" ] [] ]
+
+                        else if isRed then
+                            [ H.div [ A.class "red" ] [] ]
+
+                        else if isBlue then
+                            [ H.div [ A.class "blue" ] [] ]
+
+                        else
+                            []
+                       )
             )
 
         baseAttrs =
@@ -1193,21 +1279,37 @@ listChars st =
         attrs =
             if st.stage == Practicing then
                 A.style "display" "none" :: baseAttrs
+
             else
                 baseAttrs
-
     in
     H.section attrs
-    [ Render.scroll "prevPage"
-      (if st.index == 0 then "close" else "left") <| Page -1
-    , Render.scroll "nextPage"
-      (if wrapping then "close" else "right") <| Page 1
-    , Keyed.node "div" [ A.id "teamScroll"
-                       , A.class "charScroll"
-                       , E.onMouseLeave Untoggle
-                       ] <|
-      List.map displayChar displays
-    ]
+        [ Render.scroll "prevPage"
+            (if st.index == 0 then
+                "close"
+
+             else
+                "left"
+            )
+          <|
+            Page -1
+        , Render.scroll "nextPage"
+            (if wrapping then
+                "close"
+
+             else
+                "right"
+            )
+          <|
+            Page 1
+        , Keyed.node "div"
+            [ A.id "teamScroll"
+            , A.class "charScroll"
+            , E.onMouseLeave Untoggle
+            ]
+          <|
+            List.map displayChar displays
+        ]
 
 
 listVs : Model -> Html Msg
@@ -1223,10 +1325,11 @@ listVs st =
         displayChar char =
             ( characterName char
             , H.div [ A.class "charWrapper", A.title char.name ]
-                [ icon char "icon"
-                  [ E.onClick <| Vs Add char
-                  , A.class <| charClass char
-                  ]
+                [ icon char
+                    "icon"
+                    [ E.onClick <| Vs Add char
+                    , A.class <| charClass char
+                    ]
                 ]
             )
 
@@ -1236,15 +1339,18 @@ listVs st =
         attrs =
             if st.stage /= Practicing then
                 A.style "display" "none" :: baseAttrs
+
             else
                 baseAttrs
     in
     H.section attrs
-    [ Keyed.node "div" [ A.class "charScroll"
-                       , E.onMouseLeave Untoggle
-                       ] <|
-      List.map displayChar st.chars.list
-    ]
+        [ Keyed.node "div"
+            [ A.class "charScroll"
+            , E.onMouseLeave Untoggle
+            ]
+          <|
+            List.map displayChar st.chars.list
+        ]
 
 
 calcSize : Dom.Viewport -> Int

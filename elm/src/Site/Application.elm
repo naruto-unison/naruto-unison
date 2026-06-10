@@ -7,7 +7,6 @@ import Html.Events as E
 import Import.Flags as Flags exposing (Flags, printFailure)
 import Import.Model as Model exposing (Failure(..), Message(..))
 import Json.Decode as D exposing (Value)
-
 import Ports exposing (Ports)
 import Site.Play as Play
 import Site.Select as Select
@@ -101,9 +100,11 @@ app websocket ports =
                     if st.selectModel.stage == Select.Queued then
                         H.div [ A.id "main", A.class "queueing" ] <|
                             [ H.div [ A.id "searching" ]
-                                [ H.img [ A.src "/img/spin.gif"
-                                        , A.alt "Loading"
-                                        ] []
+                                [ H.img
+                                    [ A.src "/img/spin.gif"
+                                    , A.alt "Loading"
+                                    ]
+                                    []
                                 ]
                             , H.button
                                 [ A.id "cancel"
@@ -126,11 +127,12 @@ app websocket ports =
                 case st.playModel of
                     Just model ->
                         [ H.div
-                          [ A.id "bg"
-                          , A.classList
-                            [ ("over", not <| List.isEmpty model.game.victor) ]
-                          , A.style "background-image" <| "url(" ++ st.flags.bg ++ ")"
-                          ] []
+                            [ A.id "bg"
+                            , A.classList
+                                [ ( "over", not <| List.isEmpty model.game.victor ) ]
+                            , A.style "background-image" <| "url(" ++ st.flags.bg ++ ")"
+                            ]
+                            []
                         , H.map PlayMsg <| play.view model
                         ]
 
