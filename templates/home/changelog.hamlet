@@ -25,10 +25,7 @@
       <li><i>Unreflectable</i>: Cannot be reflected.
       <li><i>Unremovable</i>: Effects cannot be cured or removed in any way.
   <li>
-    The <i>Affliction</i> class has been renamed to <i>Bane</i> in order to avoid confusion with affliction damage.
-    For example,
-    ^{Link.skill "Shino Aburame" Shippuden "Gigantic Beetle Infestation"},
-    which does not deal any affliction damage, was classified as <i>Affliction</i>.
+    The <i>Affliction</i> class has been renamed to <i>Bane</i> in order to avoid confusion with affliction damage. For example, ^{Link.skill "Shino Aburame" Shippuden "Gigantic Beetle Infestation"}, which does not deal any affliction damage, was classified as <i>Affliction</i>.
   <li>
     A few other skills have also been classified as <i>Bane</i>.
   <li>
@@ -42,14 +39,10 @@
   <li>
     Added the <i>Ongoing</i> duration. <i>Ongoing</i> skills continue to apply their effects even if their user is stunned or otherwise disabled. Examples:
     <ul>
-      <li>
-        ^{Link.skill "Orochimaru" Original "Major Summoning: Manda"}
-      <li>
-        ^{Link.skill "Shukaku Gaara" Original "Sand Transformation"}
-      <li>
-        ^{Link.skill "Tobirama Senju" Reanimated "Water Shockwave"}
-      <li>
-        ^{Link.skill "Chōji Akimichi" Shippuden "Butterfly Mode"}
+      <li>^{Link.skill "Orochimaru" Original "Major Summoning: Manda"}
+      <li>^{Link.skill "Shukaku Gaara" Original "Sand Transformation"}
+      <li>^{Link.skill "Tobirama Senju" Reanimated "Water Shockwave"}
+      <li>^{Link.skill "Chōji Akimichi" Shippuden "Butterfly Mode"}
   <li>
     New mechanic: destructible barrier, a counterpart to destructible defense. Destructible barrier is a negative effect that absorbs some amount of outgoing damage. It is represented by a red bar next to the health bar, after the blue destructible defense bar.
 
