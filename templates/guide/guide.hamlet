@@ -4,18 +4,14 @@
   <h3>Game Mechanics
   <p>
     Know the basics! This is everything you need to get started.
-  <a href=@{MechanicsR} .guide>
-    Read guide
+  <a href=@{MechanicsR} .guide>Read guide
   $if loggedin
     <h3>Characters and Missions
   $else
     <h3>Characters
   <p>
     Each of Naruto Unison's #{length Characters.list} playable characters has their own skills and strategies.
-  <a href=@{CharactersR} .guide>
-    Browse all characters
-  <a href=@{GroupsR} .guide>
-    Browse characters by group
-  <a href=@{TeamBuildingR} .guide>
-    Browse characters by team support
+  <a href=@{CharactersR} .guide>Browse all characters
+  <a href=@{GroupsR} .guide>Browse characters by group
+  <a href=@{TeamBuildingR} .guide>Browse characters by team support
 <aside>

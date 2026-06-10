@@ -2,8 +2,7 @@
 
 <aside #changelog>
   <h1>Recent Changes
-  <a .refer href=@{ChangelogR}>
-    View full changelog
+  <a .refer href=@{ChangelogR}>View full changelog
   <h3>Launch
   <ul>
     ^{change New "Minato Namikaze" Reanimated}

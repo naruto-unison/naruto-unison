@@ -6,15 +6,11 @@ module Handler.Link
   ( character
   , head
   , user
-  , makeTimestamp
   , skill
   , staffTag
   ) where
 
 import ClassyPrelude hiding (head)
-
-import qualified Data.Time.Format as Format
-import qualified Data.Time.LocalTime as LocalTime
 
 import           Application.App (Route(..))
 import qualified Application.App as App
@@ -39,17 +35,17 @@ head char@Character{ident} = $(widgetFile "widgets/link/head")
 -- | Link to a character's skill. The character's name links to their detail
 -- page, and the skill name shows skill details when hovered over.
 skill :: Text -> Category -> Text -> App.Widget
-skill charName category skillName = case Characters.lookup tagName of
+skill charName category skillName = case Characters.lookup ident of
       Nothing -> error
-        $ "Link.skill: character " ++ unpack tagName ++ " not found"
+        $ "Link.skill: character " ++ unpack ident ++ " not found"
       Just char@Character{skills}
         | any (any $ (==) skillName . Skill.name) skills ->
           $(widgetFile "widgets/link/skill")
       Just _ -> error
         $ "Link.skill: skill " ++ unpack skillName ++ " not found for "
-          ++ unpack tagName
+          ++ unpack ident
   where
-    tagName = Character.identFrom category charName
+    ident = Character.identFrom category charName
     suffix :: Text
     suffix  = case charName of
         "Demon Brothers" -> "" -- to avoid "Demon Brothers's"
@@ -58,18 +54,6 @@ skill charName category skillName = case Characters.lookup tagName of
 -- | Link to a user's profile.
 user :: User -> App.Widget
 user User{userName, userPrivilege} = $(widgetFile "widgets/link/user")
-
--- | Current time widget.
-makeTimestamp :: IO (UTCTime -> App.Widget)
-makeTimestamp = pureTimestamp <$> LocalTime.getCurrentTimeZone
-
--- | Parses the current time into a widget.
-pureTimestamp :: LocalTime.TimeZone -> UTCTime -> App.Widget
-pureTimestamp zone unzoned = $(widgetFile "widgets/timestamp")
-  where
-    zoned = LocalTime.utcToLocalTime zone unzoned
-    time  = Format.formatTime Format.defaultTimeLocale format zoned
-    format = "%l:%M %p %m/%d/%y"
 
 -- | Appended to titles of posts and threads by staff.
 staffTag :: Char

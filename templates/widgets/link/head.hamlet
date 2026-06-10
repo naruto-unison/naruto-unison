@@ -1,2 +1,2 @@
 <a href=@{CharacterR char}>
-  <img .char.head src=/img/ninja/#{ident}/icon.jpg alt=##{title} title=##{title}>
+  <img .char.head src=/img/ninja/#{ident}/icon.jpg title=#{title}>

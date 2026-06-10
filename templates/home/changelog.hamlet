@@ -5,18 +5,12 @@
   <li>
     Reanimated (#{Reanimated}) characters are purchased with DNA, which is obtained from:
     <ul>
-      <li>
-        Winning, with higher bonuses at higher win streaks.
-      <li>
-        Losing, although not as much.
-      <li>
-        First game of the day.
-      <li>
-        First win of the day.
-      <li>
-        Participating in wars.
-      <li>
-        Defeating A.I. boss challenges. (unimplemented)
+      <li>Winning, with higher bonuses at higher win streaks.
+      <li>Losing, although not as much.
+      <li>First game of the day.
+      <li>First win of the day.
+      <li>Participating in wars.
+      <li>Defeating A.I. boss challenges. (unimplemented)
   <li>
     In addition to requiring victories with specific characters, missions also require completing specific objectives, such as killing some number of enemies with a certain skill. Missions no longer depend on rank.
 <h3 #mechanics>Mechanics
@@ -111,96 +105,60 @@
   ^{change Rework "Fuguki Suikazan" Reanimated}
   ^{change Rework "Nagato" Reanimated}
 
-<h3 #minor-adjustments>
-  Minor Adjustments
+<h3 #minor-adjustments>Minor Adjustments
 <ul>
   <li>
-    Skills that sacrifice the user's health, such as
-    ^{Link.skill "Rock Lee" Original "Fifth Gate Opening"}
-    and
-    ^{Link.skill "Karin" Shippuden "Heal Bite"},
-    are treated as a direct loss of health rather than self-directed affliction damage. The main distinction is that if a character gains a status effect that increases all affliction damage they deal, it will not cause them to sacrifice more health.
+    Skills that sacrifice the user's health, such as ^{Link.skill "Rock Lee" Original "Fifth Gate Opening"} and ^{Link.skill "Karin" Shippuden "Heal Bite"}, are treated as a direct loss of health rather than self-directed affliction damage. The main distinction is that if a character gains a status effect that increases all affliction damage they deal, it will not cause them to sacrifice more health.
   <li>
-    Chakra cost changes are affected by skills that negate harmful effects, such as
-    ^{Link.skill "Sakura Haruno" Original "Inner Sakura"}.
+    Chakra cost changes are affected by skills that negate harmful effects, such as ^{Link.skill "Sakura Haruno" Original "Inner Sakura"}.
   <li>
-    ^{Link.skill "Yoroi Akadō" Original "Draining Assault"}
-    applies its weakening and strengthening status effects for all turns of its duration, rather than for 2 turns at the start of its 3 turn duration.
+    ^{Link.skill "Yoroi Akadō" Original "Draining Assault"} applies its weakening and strengthening status effects for all turns of its duration, rather than for 2 turns at the start of its 3 turn duration.
   <li>
-    ^{Link.skill "Anko Mitarashi" Original "Dragon Flame"}
-    adds 5 to all <i>bane</i> damage that the target receives, rather than only damage from Anko's skills.
+    ^{Link.skill "Anko Mitarashi" Original "Dragon Flame"} adds 5 to all <i>bane</i> damage that the target receives, rather than only damage from Anko's skills.
   <li>
-    ^{Link.skill "Anko Mitarashi" Original "Twin Snake Sacrifice"}
-    bypasses invulnerability.
+    ^{Link.skill "Anko Mitarashi" Original "Twin Snake Sacrifice"} bypasses invulnerability.
   <li>
-    The
-    ^{Link.skill "Demon Brothers" Original "Poison Gauntlet"}
-    applies a weak, slow-acting poison that can easily be cured by stabbing oneself (or getting someone else to do it).
+    The ^{Link.skill "Demon Brothers" Original "Poison Gauntlet"} applies a weak, slow-acting poison that can easily be cured by stabbing oneself (or getting someone else to do it).
   <li>
-    The weak-to-affliction status effect from
-    ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}
-    ends when Jiraiya dies, in order to be consistent with the other Sannin.
+    The weak-to-affliction status effect from ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"} ends when Jiraiya dies, in order to be consistent with the other Sannin.
   <li>
-    ^{Link.skill "Jiraiya" Original "Toad Oil Bomb"}
-    deals affliction damage, in order to be consistent with other damage-over-time fire attacks and to benefit from
-    ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}.
+    ^{Link.skill "Jiraiya" Original "Toad Oil Bomb"} deals affliction damage, in order to be consistent with other damage-over-time fire attacks and to benefit from ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}.
   <li>
-    ^{Link.skill "Hiruzen Sarutobi" Original "Reaper Death Seal"}
-    bypasses invulnerability.
+    ^{Link.skill "Hiruzen Sarutobi" Original "Reaper Death Seal"} bypasses invulnerability.
   <li>
-    ^{Link.skill "Hiashi Hyūga" Original "Eight Trigrams Air Palm Wall"}
-    reflects skills onto their user, rather than a random enemy.
+    ^{Link.skill "Hiashi Hyūga" Original "Eight Trigrams Air Palm Wall"} reflects skills onto their user, rather than a random enemy.
   <li>
-    ^{Link.skill "Naruto Uzumaki" Shippuden "Rasen Shuriken"}
-    and
-    ^{Link.skill "Sage Mode Naruto" Shippuden "Rasen Shuriken"}
-    permanently weaken the target's chakra damage.
+    ^{Link.skill "Naruto Uzumaki" Shippuden "Rasen Shuriken"} and ^{Link.skill "Sage Mode Naruto" Shippuden "Rasen Shuriken"} permanently weaken the target's chakra damage.
   <li>
-    ^{Link.skill "Hinata Hyūga" Shippuden "Gentle Step Twin Lion Fists"}
-    bypasses invulnerability and ends if Hinata dies.
+    ^{Link.skill "Hinata Hyūga" Shippuden "Gentle Step Twin Lion Fists"} bypasses invulnerability and ends if Hinata dies.
   <li>
-    Instead of merely alerting when skills are used,
-    ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"}
-    reveals enemy cooldowns and invisible effects.
+    Instead of merely alerting when skills are used, ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"} reveals enemy cooldowns and invisible effects.
   <li>
     Applying negative destructible defense (which can occur due to ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"} or ^{Link.skill "Rehabilitated Gaara" Original "Sand Tsunami"}) causes destructible barrier rather than negative damage reduction.
   <li>
-    ^{Link.skill "Kabuto Yakushi" Shippuden "Chakra Absorbing Snakes"}
-    no longer stuns healing effects for 1 turn. Instead, if the target heals next turn, all of their skills will be stunned for 2 turns.
+    ^{Link.skill "Kabuto Yakushi" Shippuden "Chakra Absorbing Snakes"} no longer stuns healing effects for 1 turn. Instead, if the target heals next turn, all of their skills will be stunned for 2 turns.
   <li>
-    ^{Link.skill "Maki" Shippuden "Humidified Cloth"}
-    block the target from affecting the user's team at all.
+    ^{Link.skill "Maki" Shippuden "Humidified Cloth"} block the target from affecting the user's team at all.
   <li>
-    ^{Link.skill "C" Shippuden "Flash Pillar"}
-    deals piercing damage, in order to be consistent with other lightning attacks.
+    ^{Link.skill "C" Shippuden "Flash Pillar"} deals piercing damage, in order to be consistent with other lightning attacks.
   <li>
-    The cost of
-    ^{Link.skill "Omoi" Shippuden "Crescent Moon Slice"}
-    has been changed from 1 genjutsu chakra and 1 arbitrary chakra to 1 taijutsu chakra and 1 arbitrary chakra.
+    The cost of ^{Link.skill "Omoi" Shippuden "Crescent Moon Slice"} has been changed from 1 genjutsu chakra and 1 arbitrary chakra to 1 taijutsu chakra and 1 arbitrary chakra.
   <li>
-    ^{Link.skill "Omoi" Shippuden "Thunderbolt"}
-    blocks its target from affecting their allies at all.
+    ^{Link.skill "Omoi" Shippuden "Thunderbolt"} blocks its target from affecting their allies at all.
   <li>
-    ^{Link.skill "Sai" Shippuden "Ink Mist"}
-    bypasses invulnerability.
+    ^{Link.skill "Sai" Shippuden "Ink Mist"} bypasses invulnerability.
   <li>
-    ^{Link.skill "Itachi Uchiha" Shippuden "Amaterasu"}
-    lasts until ^{Link.skill "Itachi Uchiha" Shippuden "Susanoo"} is used.
+    ^{Link.skill "Itachi Uchiha" Shippuden "Amaterasu"} lasts until ^{Link.skill "Itachi Uchiha" Shippuden "Susanoo"} is used.
   <li>
-    ^{Link.skill "Jiraiya" Shippuden "Toad Oil Bomb"}
-    interrupts <i>Action</i> skills as well as <i>Control</i> skills.
+    ^{Link.skill "Jiraiya" Shippuden "Toad Oil Bomb"} interrupts <i>Action</i> skills as well as <i>Control</i> skills.
   <li>
-    ^{Link.skill "Killer B" Shippuden "Lariat"}
-    makes him invulnerable to skills that cost genjutsu chakra for one turn.
+    ^{Link.skill "Killer B" Shippuden "Lariat"} makes him invulnerable to skills that cost genjutsu chakra for one turn.
   <li>
-    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"}
-    increases the cooldown of all skills, not just non-mental skills.
+    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"} increases the cooldown of all skills, not just non-mental skills.
   <li>
-    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"}
-    only resets the cooldowns of [Instant] skills.
+    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"} only resets the cooldowns of [Instant] skills.
   <li>
-    ^{Link.skill "Chukichi" Reanimated "Hidden Frost"}
-    makes Chukichi invulnerable to all ranged skills.
+    ^{Link.skill "Chukichi" Reanimated "Hidden Frost"} makes Chukichi invulnerable to all ranged skills.
 
 <h3 #duration-changes>Duration changes:
 <ul>

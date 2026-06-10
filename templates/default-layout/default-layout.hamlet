@@ -9,34 +9,27 @@ $else
 
   <header #sitenav>
     <aside>
-      <img src=/img/logo.png alt="Naruto Unison logo">
+      <img src=/img/logo.png>
     <nav>
       $maybe currentRoute <- mcurrentRoute
         $forall (dest, name) <- navLinks
           $if currentRoute == dest
-            <span #current>
-              #{name}
+            <span #current>#{name}
           $elseif origin currentRoute == dest
-            <a #current href=@{dest}>
-              #{name}
+            <a #current href=@{dest}>#{name}
           $else
-            <a href=@{dest}>
-              #{name}
+            <a href=@{dest}>#{name}
       $nothing
         $forall (dest, name) <- navLinks
-          <a href=@{dest}>
-            #{name}
+          <a href=@{dest}>#{name}
     <aside>
       <div>
         $maybe User{userName} <- muser
-          <a href=@{ProfileR userName}>
-            Profile
+          <a href=@{ProfileR userName}>Profile
         $nothing
-          <a href=@{AuthR Auth.LoginR}>
-            Login
+          <a href=@{AuthR Auth.LoginR}>Login
       <a href=@{PlayR}>
-        <button>
-          Play Now
+        <button>Play Now
 
   <main>
 
@@ -45,8 +38,7 @@ $else
         <ul>
           $forall (href, text) <- parents
             <li>
-              <a href=@{href}>
-                #{text}
+              <a href=@{href}>#{text}
           <li .active>
             #{title}
 

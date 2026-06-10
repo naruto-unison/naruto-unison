@@ -1,11 +1,9 @@
-<img .char.head src=/img/ninja/#{ident}/icon.jpg alt="Character icon">
-<h1>
-  #{name}#{category}
+<img .char.head src=/img/ninja/#{ident}/icon.jpg>
+<h1>#{name}#{category}
 <p>
   #{richText bio}
 $maybe mission <- mmission
-  <h2>
-    Mission
+  <h2>Mission
   <ul>
     $forall (goal@Reach{desc, reach}, progress) <- mission
       <li>
@@ -13,21 +11,18 @@ $maybe mission <- mmission
           As ^{Link.character char}: #
         #{richText desc} #
         $if progress < reach
-          <span .incomplete>
-            (#{progress}/#{reach})
+          <span .incomplete>(#{progress}/#{reach})
         $else
-          <span .complete>
-            (#{reach}/#{reach})
+          <span .complete>(#{reach}/#{reach})
 
 $forall skillGroup <- skills
   <section>
     $forall Skill{charges, classes, cooldown, cost, desc, dur, name} <- separate skillGroup
       <section>
         <aside>
-          <img .char src=/img/ninja/#{ident}/#{shorten(name)}.jpg alt="Skill icon">
+          <img .char src=/img/ninja/#{ident}/#{shorten(name)}.jpg>
         <div>
-          <h3>
-            #{name}
+          <h3>#{name}
           #{richText desc}
           <p .skillClasses>
             #{skillClasses classes}

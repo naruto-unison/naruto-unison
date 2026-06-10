@@ -2,24 +2,19 @@
 <p>
   Naruto Unison games are played with teams of three different characters. The characters in the Original category are available from the start, but others must be unlocked by completing specific missions.
 <p>
-  <a href=@{PlayR}>
-    Practice games against AI
-  are a great way to try out characters and experiment with skill combinations.
+  <a href=@{PlayR}>Practice games against AI</a> are a great way to try out characters and experiment with skill combinations.
 <nav .jump>
   Jump to:
   $forall category <- categories
-    <a href=##{show category}>
-      #{heading category}
+    <a href=#{show category}>#{heading category}
 $forall category <- categories
   <h2 ##{show category}>#{heading category}
   $forall char@Character{bio, ident, name} <- categoryChars category
     <div>
       <section>
         <aside>
-          <img .char.head src=/img/ninja/#{ident}/icon.jpg alt="Character icon">
+          <img .char.head src=/img/ninja/#{ident}/icon.jpg>
         <div>
-          <h4>
-            <a href=@{CharacterR char}>
-              #{name}
+          <h4><a href=@{CharacterR char}>#{name}
           <p>
             #{richText bio}

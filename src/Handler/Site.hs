@@ -85,21 +85,21 @@ separate :: NonNull Vector Skill -> [Skill]
 separate skills = nubBy ((==) `on` Text.strip . Skill.name) $ toList skills
 
 getChangelog :: Bool -> LogType -> Text -> Character.Category -> App.Widget
-getChangelog long logType name category = case Characters.lookup tagName of
+getChangelog long logType name category = case Characters.lookup ident of
     Just char@Character{skills} -> $(widgetFile "widgets/change")
     Nothing   -> error
-        $ "Site.getChangelog: character " ++ unpack tagName ++ " not found"
+        $ "Site.getChangelog: character " ++ unpack ident ++ " not found"
   where
     change  = logLabel long
-    tagName = Character.identFrom category name
+    ident = Character.identFrom category name
 
 getCharacter :: Text -> Character.Category -> App.Widget
-getCharacter name category = case Characters.lookup tagName of
+getCharacter name category = case Characters.lookup ident of
     Just char@Character{skills} -> $(widgetFile "widgets/character")
     Nothing   -> error
-        $ "Site.getChangelog: character " ++ unpack tagName ++ " not found"
+        $ "Site.getChangelog: character " ++ unpack ident ++ " not found"
   where
-    tagName = Character.identFrom category name
+    ident = Character.identFrom category name
 
 news :: (News, Maybe User) -> App.Widget
 news (News{newsContent, newsTime, newsTitle}, author) =

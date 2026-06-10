@@ -1,4 +1,2 @@
 $newline never
-<a .name data-name=#{tagName} href=@{CharacterR char}>#{charName}#{category}</a>'#{suffix} #
-  <em .skill data-name=#{tagName}>
-    #{skillName}
+^{character char}'#{suffix} <em .skill data-name=#{ident}>#{skillName}</em>

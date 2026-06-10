@@ -1,6 +1,6 @@
 <article>
   <section>
-    <img .char.avatar src=#{userAvatar} alt="User avatar">
+    <img .char.avatar src=#{userAvatar}>
     $if not $ null team
       <div .team>
         $forall char <- team
@@ -16,8 +16,7 @@
     <dt>Level
     <dd>
       <div .levelBg style="width: #{quot xp 5000}%;">
-      <div .levelText>
-        #{level}
+      <div .levelText>#{level}
     <dt>XP
     <dd>#{userXp}
     <dt>Wins

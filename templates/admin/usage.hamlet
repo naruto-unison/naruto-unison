@@ -1,18 +1,12 @@
 <table>
   <thead>
     <tr>
-      <th>
-        Character
-      <th>
-        Win Rate
-      <th>
-        Pick Rate
+      <th>Character
+      <th>Win Rate
+      <th>Pick Rate
   <tbody>
     $forall UsageRate{character, pickRate, winRate} <- usageRates
       <tr>
-        <td>
-          ^{Link.character character}
-        <td>
-          #{showRate winRate}
-        <td>
-          #{showRate pickRate}
+        <td>^{Link.character character}
+        <td>#{showRate winRate}
+        <td>#{showRate pickRate}
