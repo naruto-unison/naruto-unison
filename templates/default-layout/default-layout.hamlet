@@ -28,8 +28,8 @@ $else
             #{name}
     <aside>
       <div>
-        $maybe user <- muser
-          <a href=@{ProfileR $ userName user}>
+        $maybe User{userName} <- muser
+          <a href=@{ProfileR userName}>
             Profile
         $nothing
           <a href=@{AuthR Auth.LoginR}>
@@ -43,10 +43,10 @@ $else
     $if mcurrentRoute /= Just HomeR
       <nav #breadcrumb>
         <ul>
-          $forall bc <- parents
+          $forall (href, text) <- parents
             <li>
-              <a href=@{fst bc}>
-                #{snd bc}
+              <a href=@{href}>
+                #{text}
           <li .active>
             #{title}
 

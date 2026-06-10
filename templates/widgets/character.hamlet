@@ -3,10 +3,10 @@
     <img data-name=#{tagName} .char.head src=/img/ninja/#{tagName}/icon.jpg alt="Character icon">
   <div>
     <a .name data-name=#{tagName} href=@{CharacterR char}>
-      #{name}#{Character.category char}
+      #{name}#{category}
     <ul>
-      $forall skills <- Character.skills char
+      $forall skillGroup <- skills
         <li>
-          $forall skill <- separate skills
+          $forall Skill{name} <- separate skillGroup
             <span .skill data-name=#{tagName}>
-              #{Skill.name skill}
+              #{name}

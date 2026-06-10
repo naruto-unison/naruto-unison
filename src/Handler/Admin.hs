@@ -24,34 +24,33 @@ import qualified Application.Settings as Settings
 import qualified Handler.Link as Link
 import qualified Handler.Play as Play
 import qualified Mission
-import           Mission.UsageRate (UsageRate)
+import           Mission.UsageRate (UsageRate(UsageRate))
 import qualified Mission.UsageRate as UsageRate
 
 -- | Behind-the-scenes utilities for admin accounts. Requires authorization.
-getAdminR :: App.Handler Html
-getAdminR = do
+adminR :: (App.Widget, Enctype) -> App.Handler Html
+adminR (newsForm, enctype) = do
     App.unchanged304
-    app <- getYesod
-    (newsForm, enctype) <- generateFormPost =<< getNewsForm
+    port <- getsYesod $ Settings.port . App.settings
     liftIO createSystemRandom >>= runReaderT Play.gameSocket
     defaultLayout do
         $(widgetFile "admin/admin")
         $(widgetFile "admin/sockets")
+
+-- | Behind-the-scenes utilities for admin accounts. Requires authorization.
+getAdminR :: App.Handler Html
+getAdminR = adminR =<< generateFormPost =<< getNewsForm
 
 -- | 'getAdminR' for creating news posts.
 postAdminR :: App.Handler Html
 postAdminR = do
-    app <- getYesod
     ((result, newsForm), enctype) <- runFormPost =<< getNewsForm
-    case result of
+    void case result of
         FormSuccess news -> do
             runDB $ insert400_ news
             defaultLayout [whamlet|<p>"News posted"|]
         _ -> defaultLayout [whamlet|<p>"Invalid post"|]
-    liftIO createSystemRandom >>= runReaderT Play.gameSocket
-    defaultLayout do
-        $(widgetFile "admin/admin")
-        $(widgetFile "admin/sockets")
+    adminR (newsForm, enctype)
 
 -- | Displays 'Usage' stats of characters.
 getUsageR :: App.Handler Html

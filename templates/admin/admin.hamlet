@@ -1,6 +1,5 @@
 <p>
-  Running on port
-  #{Settings.port $ App.settings app}
+  Running on port #{port}
 <p>
   <a href=@{UsageR}>
     View character usage statistics

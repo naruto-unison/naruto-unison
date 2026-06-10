@@ -21,28 +21,32 @@ import qualified Application.App as App
 import           Application.Model (User(..))
 import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
-import           Game.Model.Character (Category, Character)
+import           Game.Model.Character (Category, Character(Character))
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Skill as Skill
 
 -- | Link to a character's detail page.
 character :: Character -> App.Widget
-character char = $(widgetFile "widgets/link/character")
+character char@Character{category, name, ident} =
+    $(widgetFile "widgets/link/character")
 
 -- | Link to a character's detail page using their icon.
 head :: Character -> App.Widget
-head char = $(widgetFile "widgets/link/head")
+head char@Character{ident} = $(widgetFile "widgets/link/head")
+  where
+    title = Character.format char
 
 -- | Link to a character's skill. The character's name links to their detail
 -- page, and the skill name shows skill details when hovered over.
 skill :: Text -> Category -> Text -> App.Widget
-skill charName category name = case Characters.lookup tagName of
+skill charName category skillName = case Characters.lookup tagName of
       Nothing -> error
         $ "Link.skill: character " ++ unpack tagName ++ " not found"
-      Just char | any (any $ (==) name . Skill.name) $ Character.skills char ->
-        $(widgetFile "widgets/link/skill")
+      Just char@Character{skills}
+        | any (any $ (==) skillName . Skill.name) skills ->
+          $(widgetFile "widgets/link/skill")
       Just _ -> error
-        $ "Link.skill: skill " ++ unpack name ++ " not found for "
+        $ "Link.skill: skill " ++ unpack skillName ++ " not found for "
           ++ unpack tagName
   where
     tagName = Character.identFrom category charName

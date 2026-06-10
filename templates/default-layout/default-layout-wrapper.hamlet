@@ -7,20 +7,20 @@
   <head>
     <meta charset="UTF-8">
 
-    <title>#{pageTitle pc}
-    <meta name="description" content="">
+    <title>#{pageTitle}
+    <meta name="description" content=##{fromMaybe "" pageDescription}>
     <meta name="author" content="">
 
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
-    ^{pageHead pc}
+    ^{pageHead}
 
   <body>
-    ^{pageBody pc}
+    ^{pageBody}
 
-    $maybe analytics <- Settings.analytics $ settings master
+    $maybe analytics <- manalytics
       <script>
         if(!window.location.href.match(/localhost/)){
             (function(wi,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

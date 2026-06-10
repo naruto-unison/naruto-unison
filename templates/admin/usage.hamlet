@@ -8,11 +8,11 @@
       <th>
         Pick Rate
   <tbody>
-    $forall usage <- usageRates
+    $forall UsageRate{character, pickRate, winRate} <- usageRates
       <tr>
         <td>
-          ^{Link.character $ UsageRate.character usage}
+          ^{Link.character character}
         <td>
-          #{showRate $ UsageRate.winRate usage}
+          #{showRate winRate}
         <td>
-          #{showRate $ UsageRate.pickRate usage}
+          #{showRate pickRate}

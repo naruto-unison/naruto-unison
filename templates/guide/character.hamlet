@@ -1,45 +1,45 @@
 <img .char.head src=/img/ninja/#{ident}/icon.jpg alt="Character icon">
 <h1>
-  #{Character.name char}#{Character.category char}
+  #{name}#{category}
 <p>
-  #{Parse.desc $ Character.bio char}
+  #{Parse.desc bio}
 $maybe mission <- mmission
   <h2>
     Mission
   <ul>
-    $forall (goal, progress) <- mission
+    $forall (goal@Reach{desc, reach}, progress) <- mission
       <li>
         $maybe char <- Goal.character goal
           As ^{Link.character char}: #
-        #{Parse.desc $ Goal.desc goal} #
-        $if progress < Goal.reach goal
+        #{Parse.desc desc} #
+        $if progress < reach
           <span .incomplete>
-            (#{progress}/#{Goal.reach goal})
+            (#{progress}/#{reach})
         $else
           <span .complete>
-            (#{Goal.reach goal}/#{Goal.reach goal})
+            (#{reach}/#{reach})
 
-$forall skills <- Character.skills char
+$forall skillGroup <- skills
   <section>
-    $forall skill <- separate skills
+    $forall Skill{charges, classes, cooldown, cost, desc, dur, name} <- separate skillGroup
       <section>
         <aside>
-          <img .char src=/img/ninja/#{ident}/#{shorten(Skill.name skill)}.jpg alt="Skill icon">
+          <img .char src=/img/ninja/#{ident}/#{shorten(name)}.jpg alt="Skill icon">
         <div>
           <h3>
-            #{Skill.name skill}
-          #{Parse.desc $ Skill.desc skill}
+            #{name}
+          #{Parse.desc desc}
           <p .skillClasses>
-            #{skillClasses skill}
+            #{skillClasses classes}
           <dl>
             <dt>Duration
-            <dd>#{Skill.dur skill}
-            $if Skill.cost skill /= mempty
+            <dd>#{dur}
+            $if cost /= mempty
               <dt>Cost
-              <dd>#{Skill.cost skill}
-            $if Skill.cooldown skill /= 0
+              <dd>#{cost}
+            $if cooldown /= 0
               <dt>Cooldown
-              <dd>#{Skill.cooldown skill}
-            $if Skill.charges skill /= 0
+              <dd>#{cooldown}
+            $if charges /= 0
               <dt>Charges
-              <dd>#{Skill.charges skill}
+              <dd>#{charges}

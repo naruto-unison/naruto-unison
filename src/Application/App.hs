@@ -188,7 +188,7 @@ instance Yesod App where
 
     defaultLayout :: Widget -> Handler Html
     defaultLayout widget = do
-        master           <- getYesod
+        manalytics       <- getsYesod $ Settings.analytics . settings
         mmsg             <- getMessage
         mcurrentRoute    <- getCurrentRoute
         (title, parents) <- breadcrumbs
@@ -197,12 +197,13 @@ instance Yesod App where
 
         let muser = snd <$> mauth
 
-        pc <- widgetToPageContent do
-            setTitle . toHtml $ title ++ " - Naruto Unison"
-            $(combineStylesheets 'StaticR [ Static.css_include_main_css
-                                          , Static.css_include_normalize_css
-                                          ])
-            $(widgetFile "default-layout/default-layout")
+        PageContent{pageTitle, pageDescription, pageHead, pageBody} <-
+            widgetToPageContent do
+                setTitle . toHtml $ title ++ " - Naruto Unison"
+                $(combineStylesheets 'StaticR [ Static.css_include_main_css
+                                            , Static.css_include_normalize_css
+                                            ])
+                $(widgetFile "default-layout/default-layout")
         withUrlRenderer
           $(hamletFile "templates/default-layout/default-layout-wrapper.hamlet")
       where

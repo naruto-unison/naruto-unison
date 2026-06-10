@@ -35,6 +35,7 @@ import           Handler.Client.Data (addDataJS)
 import qualified Handler.Link as Link
 import qualified Handler.Parse as Parse
 import qualified Mission
+import           Mission.Goal (Goal(Reach))
 import qualified Mission.Goal as Goal
 import           Util ((∈), epoch)
 
@@ -85,7 +86,7 @@ separate skills = nubBy ((==) `on` Text.strip . Skill.name) $ toList skills
 
 getChangelog :: Bool -> LogType -> Text -> Character.Category -> App.Widget
 getChangelog long logType name category = case Characters.lookup tagName of
-    Just char -> $(widgetFile "widgets/change")
+    Just char@Character{skills} -> $(widgetFile "widgets/change")
     Nothing   -> error
         $ "Site.getChangelog: character " ++ unpack tagName ++ " not found"
   where
@@ -94,7 +95,7 @@ getChangelog long logType name category = case Characters.lookup tagName of
 
 getCharacter :: Text -> Character.Category -> App.Widget
 getCharacter name category = case Characters.lookup tagName of
-    Just char -> $(widgetFile "widgets/character")
+    Just char@Character{skills} -> $(widgetFile "widgets/character")
     Nothing   -> error
         $ "Site.getChangelog: character " ++ unpack tagName ++ " not found"
   where
@@ -130,13 +131,13 @@ getCharactersR = do
 
 -- | Renders a character's details and the user's progress on their mission.
 getCharacterR :: Character -> App.Handler Html
-getCharacterR char@Character{ident} = do
+getCharacterR Character{bio, category, ident, name, skills} = do
     -- due to mission objectives, content does change if logged in
     whenM (isNothing <$> Auth.maybeAuthId) App.unchanged304
     mmission <- Mission.userMission ident
     defaultLayout $(widgetFile "guide/character")
   where
-    skillClasses Skill{classes} = intercalate ", "
+    skillClasses classes = intercalate ", "
         $ display <$> filter Class.visible (toList classes)
 
 -- | Renders character groups.
