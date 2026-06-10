@@ -18,7 +18,9 @@ import qualified Yesod.Auth as Auth
 
 import           Application.App (App(App), liftDB)
 import qualified Application.App as App
-import           Application.Model (EntityField(..), User(..))
+import           Application.Model (EntityField(..))
+import           Application.Model.User (User(User))
+import qualified Application.Model.User
 import           Class.Parse (Parse)
 import qualified Class.Parse as Parse
 import           Class.Random (MonadRandom)
@@ -63,7 +65,7 @@ getPairings load (MkSystemTime time _) assocs = chunkPairs
                                               $ filter ready assocs
   where
     ready (_, UserInfo{joined = MkSystemTime joined _}) = joined + delay < time
-    rate (_, (UserInfo User{userRating} _ _ _)) = userRating
+    rate (_, (UserInfo User{rating} _ _ _)) = rating
     delay = truncate $ sqrt (fromIntegral load :: Float)
 
 quickManager :: App -> IO ()

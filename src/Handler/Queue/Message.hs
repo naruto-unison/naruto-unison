@@ -8,7 +8,7 @@ import ClassyPrelude
 
 import Database.Persist (Key)
 
-import Application.Model (User)
+import Application.Model.User (User)
 import Game.Model.Character (Character)
 import Handler.Play.Wrapper (Wrapper)
 import Handler.Play.GameInfo (GameInfo)

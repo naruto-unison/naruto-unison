@@ -15,7 +15,7 @@ import Database.Persist
 
 import Database.Persist.Sql (SqlPersistT)
 
-import           Application.Model (User)
+import           Application.Model.User (User)
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game
 import           Game.Model.Player (Player)

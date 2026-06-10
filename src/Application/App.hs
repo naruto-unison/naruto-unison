@@ -50,8 +50,10 @@ import qualified Yesod.Default.Util as YesodUtil
 -- Used only when [auth-dummy-login](config/settings.yml) setting is enabled.
 import           Yesod.Static hiding (static)
 
-import           Application.Model (CharacterId, EntityField(..), Privilege(..), Unique(..), User(..), UserId)
-import qualified Application.Model as Model
+import           Application.Model (EntityField(..), Unique(..))
+import           Application.Model.Character (CharacterId)
+import           Application.Model.User (Privilege(..), User(..), UserId)
+import qualified Application.Model.User as User
 import qualified Application.Static as Static
 import           Application.Settings (Settings, widgetFile, combineStylesheets)
 import qualified Application.Settings as Settings
@@ -96,10 +98,10 @@ type MonadHandler m = (Yesod.MonadHandler m, App ~ HandlerSite m)
 type MonadWidget m = (Yesod.MonadWidget m, App ~ HandlerSite m)
 
 getPrivilege :: ∀ m. MonadHandler m => m Privilege
-getPrivilege = liftHandler . cached $ privilege <$> Auth.maybeAuthPair
+getPrivilege = liftHandler . cached $ getter <$> Auth.maybeAuthPair
   where
-    privilege (Just (_, User{userPrivilege})) = userPrivilege
-    privilege Nothing                         = Guest
+    getter (Just (_, User{privilege})) = privilege
+    getter Nothing                     = Guest
 
 type AForm x = Yesod.AForm Handler x
 type MForm x = Yesod.MForm Handler (FormResult x, Widget)
@@ -298,7 +300,7 @@ instance YesodAuth App where
             Just (Entity uid _) -> return uid
             Nothing             -> do
                 time <- liftIO getCurrentTime
-                insert $ Model.newUser ident Nothing (utctDay time)
+                insert $ User.new ident Nothing (utctDay time)
 
     authPlugins :: App -> [AuthPlugin App]
     authPlugins app = AuthEmail.authEmail : extraAuthPlugins
@@ -310,8 +312,8 @@ instance YesodAuth App where
 isAuthenticated :: Privilege -> Handler AuthResult
 isAuthenticated level = authenticated <$> Auth.maybeAuthPair
   where
-    authenticated (Just (_, user))
-        | userPrivilege user >= level = Authorized
+    authenticated (Just (_, User{privilege}))
+        | privilege >= level = Authorized
         | otherwise = Unauthorized "Access to this page is restricted."
     authenticated Nothing = AuthenticationRequired
 
@@ -335,7 +337,7 @@ instance YesodAuthEmail App where
 
     addUnverified email verkey = do
         UTCTime day _ <- liftIO getCurrentTime
-        liftDB . insert $ Model.newUser email (Just verkey) day
+        liftDB . insert $ User.new email (Just verkey) day
 
     sendVerifyEmail email _ verurl = liftIO do
         putStrLn $ "VERIFICATION LINK: " ++ verurl
@@ -368,8 +370,8 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
             , partHeaders = []
             }
     getVerifyKey uid = liftDB $ runMaybeT do
-        User{userVerkey} <- MaybeT $ get uid
-        hoistMaybe userVerkey
+        User{verkey} <- MaybeT $ get uid
+        hoistMaybe verkey
 
     setVerifyKey uid key = liftDB
         $ update uid [ UserVerkey =. Just key ]
@@ -380,8 +382,8 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
         return uid
 
     getPassword uid = liftDB $ runMaybeT do
-        User{userPassword} <- MaybeT $ get uid
-        hoistMaybe userPassword
+        User{password} <- MaybeT $ get uid
+        hoistMaybe password
 
     setPassword uid pass = liftDB
         $ update uid [ UserPassword =. Just pass ]
@@ -390,12 +392,13 @@ Welcome to Naruto Unison! To confirm your email address, click on the link below
         $ makeCreds <$> (getBy . UniqueUser $ toLower email)
       where
         makeCreds Nothing               = Nothing
-        makeCreds (Just (Entity uid u)) = Just AuthEmail.EmailCreds
-            { emailCredsId = uid
-            , emailCredsAuthId = Just uid
-            , emailCredsStatus = isJust $ userPassword u
-            , emailCredsVerkey = userVerkey u
-            , emailCredsEmail = toLower email
-            }
+        makeCreds (Just (Entity uid User{password, verkey})) =
+            Just AuthEmail.EmailCreds
+                { emailCredsId     = uid
+                , emailCredsAuthId = Just uid
+                , emailCredsStatus = isJust password
+                , emailCredsVerkey = verkey
+                , emailCredsEmail  = toLower email
+                }
 
-    getEmail uid = liftDB $ (userIdent <$>) <$> get uid
+    getEmail uid = liftDB $ (User.ident <$>) <$> get uid

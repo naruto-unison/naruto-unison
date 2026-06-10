@@ -14,7 +14,8 @@ import ClassyPrelude hiding (head)
 
 import           Application.App (Route(..))
 import qualified Application.App as App
-import           Application.Model (User(..))
+import           Application.Model.User (User(User))
+import qualified Application.Model.User
 import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
 import           Game.Model.Character (Category, Character(Character))
@@ -53,7 +54,7 @@ skill charName category skillName = case Characters.lookup ident of
 
 -- | Link to a user's profile.
 user :: User -> App.Widget
-user User{userName, userPrivilege} = $(widgetFile "widgets/link/user")
+user User{name, privilege} = $(widgetFile "widgets/link/user")
 
 -- | Appended to titles of posts and threads by staff.
 staffTag :: Char

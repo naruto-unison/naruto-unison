@@ -6,7 +6,8 @@ module Handler.Play.Streak (updatePostMatch) where
 import ClassyPrelude
 import Database.Esqueleto.Experimental
 
-import Application.Model (EntityField(..), User(..))
+import Application.Model (EntityField(..))
+import Application.Model.User (User)
 
 updatePostMatch :: ∀ m. MonadIO m => Key User -> SqlPersistT m ()
 updatePostMatch who = update \row -> do

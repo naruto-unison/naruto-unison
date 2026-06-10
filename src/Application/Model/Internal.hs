@@ -1,0 +1,133 @@
+{-# OPTIONS_HADDOCK hide, not-home #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE NoStrictData          #-}
+{-# LANGUAGE QuasiQuotes           #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE UndecidableInstances  #-}
+
+-- | Types generated from @config/models.persistentmodels@.
+module Application.Model.Internal
+    ( EntityField(..)
+    , Unique(..)
+    , Character(..), CharacterId
+    , Mission(..), MissionId
+    , News(..), NewsId
+    , Unlocked(..), UnlockedId
+    , Usage(..), UsageId
+    , User(..), UserId
+    , Privilege(..)
+    , migrateAll) where
+
+import ClassyPrelude
+import Yesod
+
+import Database.Persist.Sql (fromSqlKey)
+import Text.Blaze (ToMarkup(..))
+
+-- | User privilege. Determines authorization level.
+data Privilege
+    = Guest
+    | Normal
+    | Moderator
+    | Admin
+  deriving (Bounded, Enum, Eq, Ord, Show, Read, Generic)
+instance FromJSON Privilege
+instance ToJSON Privilege
+derivePersistField "Privilege"
+
+instance ToMarkup Privilege where
+    toMarkup = toMarkup . show
+
+share [ mkPersistWith (sqlSettings { mpsFieldLabelModifier = \_entityName fieldName -> fieldName }) []
+      , mkMigrate "migrateAll"
+      ] [persistLowerCase|
+    Character
+        name  Text
+        UniqueName name
+        deriving Eq
+
+    Mission
+        user       UserId
+        character  CharacterId
+        objective  Int
+        UniqueMission user character objective
+        progress   Int
+
+    News
+        author   UserId
+        time     UTCTime
+        title    Text
+        content  Text
+
+    Unlocked
+        user       UserId
+        character  CharacterId
+        UniqueUnlocked user character
+
+    Usage
+        character  CharacterId
+        UniqueUsage character
+        wins      Int
+        losses    Int
+        picked    Int
+        unpicked  Int
+
+    User
+        ident       Text
+        UniqueUser ident
+        password    Text  Maybe
+        verkey      Text  Maybe
+        verified    Bool
+        joined      Day
+        privilege   Privilege
+        name        Text
+        avatar      Text
+        background  Text  Maybe
+        xp          Int
+        wins        Int
+        losses      Int
+        streak      Int
+        record      Int
+        latestWin   Day  Maybe
+        latestGame  Day  Maybe
+        clan        Text  Maybe
+        team        [Text]  Maybe
+        practice    [Text]
+        condense    Bool
+        rating      Double
+        deviation   Double
+        volatility  Double
+        dna         Int
+|]
+
+instance Hashable (Key User) where
+    hashWithSalt salt = hashWithSalt salt . fromEnum . fromSqlKey
+
+instance ToJSON User where
+    toJSON User
+        { avatar
+        , background
+        , clan
+        , condense
+        , dna
+        , losses
+        , name
+        , privilege
+        , record
+        , streak
+        , wins
+        , xp
+        } = object
+        [ "privilege"  .= privilege
+        , "name"       .= name
+        , "avatar"     .= avatar
+        , "background" .= background
+        , "xp"         .= xp
+        , "wins"       .= wins
+        , "losses"     .= losses
+        , "streak"     .= streak
+        , "record"     .= record
+        , "clan"       .= clan
+        , "condense"   .= condense
+        , "dna"        .= dna
+        ]

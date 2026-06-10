@@ -8,7 +8,9 @@ import ClassyPrelude hiding (delete)
 import Yesod
 
 import qualified Application.App as App
-import           Application.Model (EntityField(..),  Privilege(..), User(..))
+import           Application.Model (EntityField(..))
+import           Application.Model.User (Privilege(..), User(User))
+import qualified Application.Model.User
 import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
 import qualified Handler.Link as Link
@@ -19,19 +21,19 @@ getProfileR :: Text -> App.Handler Html
 getProfileR name = do
     Entity _ user  <- fromMaybeM notFound $ runDB
                     $ selectFirst [ UserName ==. name ] []
-    let User { userAvatar
-             , userClan
-             , userJoined
-             , userLosses
-             , userName
-             , userRecord
-             , userStreak
-             , userTeam
-             , userXp
-             , userWins
+    let User { avatar
+             , clan
+             , joined
+             , losses
+             , record
+             , streak
+             , team = teamNames
+             , xp = totalXp
+             , wins
              }      = user
-        team        = getTeam userTeam
-        (level, xp) = quotRem userXp 5000
+        team        = getTeam teamNames
+        (level, xp) = quotRem totalXp 5000
+        rank        = userRank user
     defaultLayout $(widgetFile "profile/profile")
   where
     getTeam (Just names) = Characters.lookupAll names
@@ -39,8 +41,8 @@ getProfileR name = do
 
 -- | Displays a user's rank, or their 'Privilege' level if higher than 'Normal'.
 userRank :: User -> Text
-userRank User{userXp, userPrivilege = Normal} = fromMaybe "Hokage"
-    $ userRanks !? (userXp `quot` 5000)
+userRank User{xp, privilege = Normal} = fromMaybe "Hokage"
+    $ userRanks !? (xp `quot` 5000)
   where
     userRanks :: Vector Text
     userRanks = fromList [ "Academy Student"
@@ -55,4 +57,4 @@ userRank User{userXp, userPrivilege = Normal} = fromMaybe "Hokage"
                          , "Kage"
                          , "Hokage"
                          ]
-userRank User{userPrivilege} = tshow userPrivilege
+userRank User{privilege} = tshow privilege

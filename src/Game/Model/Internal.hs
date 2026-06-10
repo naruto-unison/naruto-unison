@@ -120,6 +120,9 @@ data Character = Character
 
 instance ToJSON Character
 
+instance Show Character where
+    showsPrec i Character{ident} = showsPrec i ident
+
 instance Eq Character where
     (==) = (==) `on` \Character{category, name} -> (category, name)
 

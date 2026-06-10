@@ -1,29 +1,29 @@
 <article>
   <section>
-    <img .char.avatar src=#{userAvatar}>
+    <img .char.avatar src=#{avatar}>
     $if not $ null team
       <div .team>
         $forall char <- team
           ^{Link.head char}
   <dl>
-    <h3>#{userName}
+    <h3>#{name}
     <dt>Rank
-    <dd .#{userRank user}>#{userRank user}
+    <dd .#{rank}>#{rank}
     <dt>Clan
-    <dd>#{fromMaybe "Clanless" userClan}
+    <dd>#{fromMaybe "Clanless" clan}
     <dt>Joined
-    <dd>#{show userJoined}
+    <dd>#{show joined}
     <dt>Level
     <dd>
       <div .levelBg style="width: #{quot xp 5000}%;">
       <div .levelText>#{level}
     <dt>XP
-    <dd>#{userXp}
+    <dd>#{xp}
     <dt>Wins
-    <dd>#{userWins}
+    <dd>#{wins}
     <dt>Losses
-    <dd>#{userLosses}
+    <dd>#{losses}
     <dt>Streak
-    <dd>#{userStreak}
+    <dd>#{streak}
     <dt>Record
-    <dd>#{userRecord}
+    <dd>#{record}

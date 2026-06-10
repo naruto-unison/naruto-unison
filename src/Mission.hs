@@ -2,7 +2,7 @@
 -- unlock new characters.
 module Mission
   ( initDB
-  , progress
+  , updateProgress
   , Unlocks, unlocked, freeChars
   , characterID
   , userMission
@@ -24,8 +24,17 @@ import qualified Yesod.Auth as Auth
 
 import           Application.App (liftDB)
 import qualified Application.App as App
-import           Application.Model (Character(Character), CharacterId, EntityField(..), Mission(Mission), Privilege(..), Unlocked(Unlocked), Usage(..), User(User))
-import qualified Application.Model
+import           Application.Model (EntityField(..))
+import           Application.Model.Character (Character(Character), CharacterId)
+import           Application.Model.Mission (Mission(Mission))
+import qualified Application.Model.Mission
+import           Application.Model.Unlocked (Unlocked(Unlocked))
+import qualified Application.Model.Unlocked
+import           Application.Model.Usage (Usage(Usage))
+import qualified Application.Model.Usage as Usage
+import           Application.Model.User (Privilege(..), User(User))
+import qualified Application.Model.User
+import qualified Application.Model.Character
 import qualified Application.Settings as Settings
 import qualified Game.Characters as Characters
 import qualified Game.Model.Character as Character
@@ -66,8 +75,8 @@ characterID name = Bimap.lookupR name <$> getsYesod App.characterIDs
 makeMap :: [Entity Character] -> Bimap CharacterId Text
 makeMap chars = Bimap.fromList $ mapMaybe maybePair chars
   where
-    maybePair (Entity charId Character{characterName}) =
-        (charId, ) . Character.ident <$> Characters.lookup characterName
+    maybePair (Entity charId Character{name}) =
+        (charId, ) . Character.ident <$> Characters.lookup name
 
 type Unlocks = HashSet Text
 
@@ -89,8 +98,8 @@ unlocked = cached $ fromMaybe allUnlocked <$> runMaybeT do
     unlocks <- liftDB $ selectList [ UnlockedUser ==. who ] []
     return $ freeChars `union` setFromList (mapMaybe (look ids) unlocks)
   where
-    look ids (Entity _ Unlocked{unlockedCharacter}) =
-        Bimap.lookup unlockedCharacter ids
+    look ids (Entity _ Unlocked{character}) =
+        Bimap.lookup character ids
 
 -- | 'Character.ident's of all Characters without missions or DNA
 -- 'Character.price's.
@@ -129,12 +138,12 @@ data GoalIndex = GoalIndex
     }
 
 -- | Inserts progress on a mission into the database.
-updateProgress :: ∀ m. MonadIO m
+insertProgress :: ∀ m. MonadIO m
                => Key User
                -> Int -- ^ Progress to add.
                -> GoalIndex
                -> SqlPersistT m Bool -- ^ Returns True if the character unlocks.
-updateProgress who amount GoalIndex{goals, char, i}
+insertProgress who amount GoalIndex{goals, char, i}
   | not canUpdate = return False
   | otherwise     = do
         alreadyUnlocked <- exists unlockedChar
@@ -163,22 +172,22 @@ updateProgress who amount GoalIndex{goals, char, i}
 -- Fails if the user is not logged in. Also fails in the unlikely circumstances
 -- of the mission not existing, the objective index exceeding the size of the
 -- mission, or the Character not existing in the character ID database.
-progress :: Progress -> App.Handler Bool
-progress Progress{amount = 0} = return False
-progress Progress{character, objective, amount} = fromMaybe False <$> runMaybeT do
+updateProgress :: Progress -> App.Handler Bool
+updateProgress Progress{amount = 0} = return False
+updateProgress Progress{character, objective, amount} = fromMaybe False <$> runMaybeT do
     Just who  <- Auth.maybeAuthId
     goals     <- hoistMaybe $ lookup character Missions.map
     guard $ objective < length goals
     Just char <- characterID character
-    liftDB $ updateProgress who amount GoalIndex { goals, char, i = objective }
+    liftDB $ insertProgress who amount GoalIndex { goals, char, i = objective }
 
 -- | Using a list of database mission entries for a user, maps goals onto the
 -- user's progress toward those goals.
 setObjectives :: Seq Goal -> [Entity Mission] -> Seq Int
 setObjectives xs objectives = foldl' f (0 <$ xs) objectives
   where
-    f acc (Entity _ Mission{missionObjective, missionProgress}) =
-        Seq.update missionObjective missionProgress acc
+    f acc (Entity _ Mission{objective, progress}) =
+        Seq.update objective progress acc
 
 -- | Returns true if a user has completed a given mission.
 completed :: Seq Goal -> [Entity Mission] -> Bool
@@ -201,15 +210,12 @@ newUsage :: CharacterId -> Usage
 newUsage x = Usage x 0 0 0 0
 
 usageUpsert :: Usage -> [Update Usage]
-usageUpsert Usage{ usageWins
-                 , usageLosses
-                 , usagePicked
-                 , usageUnpicked
-                 } = mapMaybe makeUpsert $ [ (UsageWins,     usageWins)
-                                           , (UsageLosses,   usageLosses)
-                                           , (UsagePicked,   usagePicked)
-                                           , (UsageUnpicked, usageUnpicked)
-                                           ]
+usageUpsert Usage{wins, losses, picked, unpicked} = mapMaybe makeUpsert
+    $ [ (UsageWins,     wins)
+      , (UsageLosses,   losses)
+      , (UsagePicked,   picked)
+      , (UsageUnpicked, unpicked)
+      ]
   where
     makeUpsert (_,     0) = Nothing
     makeUpsert (field, n) = Just $ field +=. n
@@ -231,10 +237,10 @@ processWin team = do
     let chars = mapMaybe (`Bimap.lookupR` ids) team
     runDB do
         mapM_ (void . updateUsage) chars
-        mapM_ (void . updateProgress who 1) $ winners ids team unlocks
+        mapM_ (void . insertProgress who 1) $ winners ids team unlocks
   where
-    updateUsage char = upsertUsage (newUsage char) { usagePicked = 1
-                                                   , usageWins   = 1
+    updateUsage char = upsertUsage (newUsage char) { Usage.picked = 1
+                                                   , Usage.wins   = 1
                                                    }
 
 -- | Resets all 'Goal.WinConsecutive' win progress to 0.
@@ -248,8 +254,8 @@ processDefeat team = do
         mapM_ (resetGoal ids who) Missions.consecutiveWins
         mapM_ (void . updateUsage) $ mapMaybe (`Bimap.lookupR` ids) team
   where
-    updateUsage char = upsertUsage (newUsage char) { usagePicked = 1
-                                                   , usageLosses = 1
+    updateUsage char = upsertUsage (newUsage char) { Usage.picked = 1
+                                                   , Usage.losses = 1
                                                    }
 
 -- | Updates usage stats after a game.
@@ -261,7 +267,7 @@ processUnpicked team = do
     runDB . mapM_ (void . updateUsage) . mapMaybe (`Bimap.lookupR` ids) . toList
         $ unlocks \\ setFromList team
   where
-    updateUsage char = upsertUsage (newUsage char) { usageUnpicked = 1 }
+    updateUsage char = upsertUsage (newUsage char) { Usage.unpicked = 1 }
 
 -- | Resets progress toward a goal to 0.
 resetGoal :: ∀ m. MonadIO m
@@ -302,9 +308,9 @@ updateLatestWin _       _   xs = xs
 -- | Processes DNA gains for 'awardDNA'.
 tallyDNA :: Queue.Section -> Outcome -> Maybe War -> Settings.DNA -> Maybe Day
          -> User -> [Reward]
-tallyDNA section outcome war dnaConf day User { userLatestGame
-                                              , userLatestWin
-                                              , userStreak
+tallyDNA section outcome war dnaConf day User { latestGame
+                                              , latestWin
+                                              , streak
                                               } = filter ((> 0) . Reward.amount)
     [ Reward (tshow outcome) $       outcomeDNA section outcome dnaConf
     , Reward "First Game of the Day" dailyGame
@@ -314,22 +320,22 @@ tallyDNA section outcome war dnaConf day User { userLatestGame
     ]
   where
     dailyGame
-      | userLatestGame == day = 0
-      | otherwise             = Settings.dailyGame dnaConf
+      | latestGame == day  = 0
+      | otherwise          = Settings.dailyGame dnaConf
     dailyWin
-      | outcome /= Victory    = 0
-      | userLatestWin == day  = 0
-      | otherwise             = Settings.dailyWin dnaConf
+      | outcome /= Victory = 0
+      | latestWin == day   = 0
+      | otherwise          = Settings.dailyWin dnaConf
     winStreak
-      | outcome /= Victory    = 0
-      | userStreak < 1        = 0
+      | outcome /= Victory = 0
+      | streak < 1         = 0
       | Settings.useStreak dnaConf = floor . sqrt @Float
-                                   . fromIntegral $ userStreak - 1
-      | otherwise             = 0
+                                   . fromIntegral $ streak - 1
+      | otherwise          = 0
     warWin
-      | outcome /= Victory    = 0
-      | isNothing war         = 0
-      | otherwise             = Settings.warWin dnaConf
+      | outcome /= Victory = 0
+      | isNothing war      = 0
+      | otherwise          = Settings.warWin dnaConf
 
 -- | DNA rewards for completing games, as configured in
 --  [config/settings.yml](config.settings.yml).
@@ -348,7 +354,7 @@ getUsageRates = do
 
 -- | Matches a @Usage@ with a 'Character' from 'Characters.map'.
 findUsage :: Bimap CharacterId Text -> Entity Usage -> Maybe UsageRate
-findUsage ids (Entity _ usage@Usage{usageCharacter}) = do
-    ident <- Bimap.lookup usageCharacter ids
+findUsage ids (Entity _ usage@Usage{character}) = do
+    ident <- Bimap.lookup character ids
     char  <- Characters.lookup ident
     return $ UsageRate.new char usage

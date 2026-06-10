@@ -18,7 +18,8 @@ import qualified Yesod.Auth as Auth
 
 import           Application.App (Route(..))
 import qualified Application.App as App
-import           Application.Model (News(..))
+import           Application.Model.News (News(News))
+import qualified Application.Model.News
 import           Application.Settings (widgetFile)
 import qualified Application.Settings as Settings
 import qualified Handler.Link as Link
@@ -72,12 +73,12 @@ getUsageR = do
 
 getNewsForm :: App.Handler (Html -> App.MForm News)
 getNewsForm = return $ renderDivs do
-    newsAuthor  <- lift Auth.requireAuthId
-    newsTime    <- lift $ liftIO getCurrentTime
-    newsTitle   <- areq textField "" Nothing
-    newsContent <- unTextarea <$> areq textareaField "" Nothing
-    return News { newsAuthor
-                , newsTime
-                , newsTitle
-                , newsContent
+    author  <- lift Auth.requireAuthId
+    time    <- lift $ liftIO getCurrentTime
+    title   <- areq textField "" Nothing
+    content <- unTextarea <$> areq textareaField "" Nothing
+    return News { author
+                , time
+                , title
+                , content
                 }

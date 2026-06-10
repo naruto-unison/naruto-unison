@@ -13,8 +13,8 @@ import           System.Random.MWC (createSystemRandom)
 import qualified Yesod.Auth as Auth
 
 import qualified Application.App as App
-import           Application.Model (EntityField(..), User(..))
-import qualified Application.Model as Model
+import           Application.Model (EntityField(..))
+import qualified Application.Model.User as User
 import qualified Class.Play as P
 import qualified Game.AI as AI
 import qualified Game.Characters as Characters
@@ -69,10 +69,10 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2]
                             }
   where
     hasDuplicates a b c = a == b || a == c || b == c
-    bot = (Model.newUser "Bot" Nothing $ ModifiedJulianDay 0)
-          { userName     = "Bot"
-          , userAvatar   = "/img/icon/bot.jpg"
-          , userVerified = True
+    bot = (User.new "Bot" Nothing $ ModifiedJulianDay 0)
+          { User.name     = "Bot"
+          , User.avatar   = "/img/icon/bot.jpg"
+          , User.verified = True
           }
 
 getPracticeQueueR _ = invalidArgs ["Wrong number of characters"]

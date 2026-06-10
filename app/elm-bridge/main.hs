@@ -13,7 +13,7 @@ import Elm.Derive hiding (defaultOptions)
 import Elm.Module
 import Elm.TyRep
 
-import Application.Model (Privilege(..))
+import Application.Model.User (Privilege(..))
 import Game.Model.Chakras (Chakras)
 import Game.Model.Channel (Channel, Channeling)
 import Game.Model.Character (Category, Character)

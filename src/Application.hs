@@ -39,7 +39,7 @@ import qualified Yesod.Static as Static
 import           Application.App (App(..), Route(..))
 import qualified Application.App as App
 import qualified Application.Logger as AppLogger
-import           Application.Model (CharacterId)
+import           Application.Model.Character (CharacterId)
 import qualified Application.Model as Model
 import           Application.Settings (Settings(Settings))
 import qualified Application.Settings as Settings

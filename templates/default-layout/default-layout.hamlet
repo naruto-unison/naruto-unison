@@ -24,8 +24,8 @@ $else
           <a href=@{dest}>#{name}
     <aside>
       <div>
-        $maybe User{userName} <- muser
-          <a href=@{ProfileR userName}>Profile
+        $maybe User{name} <- muser
+          <a href=@{ProfileR name}>Profile
         $nothing
           <a href=@{AuthR Auth.LoginR}>Login
       <a href=@{PlayR}>

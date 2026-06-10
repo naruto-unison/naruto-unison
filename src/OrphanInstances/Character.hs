@@ -39,6 +39,3 @@ instance PathPiece Character where
 
 instance Read Character where
     readPrec = tryCharacter . pack =<< readPrec
-
-instance Show Character where
-    showsPrec i Character{ident} = showsPrec i ident

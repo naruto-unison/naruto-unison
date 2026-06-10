@@ -7,18 +7,21 @@ module Import
 import ClassyPrelude as Import' hiding (Handler, delete, deleteBy)
 
 import Application.App as Import'
-import Application.Model as Import'
+import Application.Model.User as Import' (Privilege(..))
 import Database.Persist as Import' hiding (PersistEntity, get)
 import Test.Hspec as Import'
 import Yesod.Auth as Import'
 import Yesod.Test as Import'
 
-import Application (makeFoundation)
-import Application.Logger (makeLogWare)
 import Database.Persist.Sql (SqlPersistM, runSqlPersistMPool, rawExecute, rawSql, unSingle)
 import Text.Shakespeare.Text (st)
 import Yesod.Core.Unsafe (fakeHandlerGetLogger)
 import Yesod.Default.Config2 (useEnv, loadYamlSettings)
+
+import           Application (makeFoundation)
+import           Application.Logger (makeLogWare)
+import           Application.Model.User (User(User))
+import qualified Application.Model.User as User
 
 runDB :: SqlPersistM a -> YesodExample App a
 runDB query = do
@@ -61,13 +64,13 @@ wipeDB app = runDBWithApp app do
 -- being set in test-settings.yaml, which enables dummy authentication in
 -- Foundation.hs
 authenticateAs :: Entity User -> YesodExample App ()
-authenticateAs (Entity _ u) = do
+authenticateAs (Entity _ User{ident}) = do
     request do
         setMethod "POST"
-        addPostParam "ident" $ userIdent u
+        addPostParam "ident" ident
         setUrl $ AuthR $ PluginR "dummy" []
 
 createUser :: Privilege -> Text -> YesodExample App (Entity User)
-createUser userPrivilege ident = runDB $ insertEntity user { userPrivilege }
-  where
-    user = newUser ident Nothing $ ModifiedJulianDay 0
+createUser privilege ident = runDB . insertEntity
+    $ (User.new ident Nothing $ ModifiedJulianDay 0)
+        { User.privilege = privilege }

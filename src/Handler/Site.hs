@@ -22,7 +22,10 @@ import qualified Yesod.Auth as Auth
 
 import           Application.App (Route(..))
 import qualified Application.App as App
-import           Application.Model (EntityField(..), News(..), User(..))
+import           Application.Model (EntityField(..))
+import           Application.Model.News (News(News))
+import qualified Application.Model.News as News
+import           Application.Model.User (User)
 import           Application.Settings (widgetFile)
 import           Class.Display (Display(..), shorten)
 import qualified Game.Characters as Characters
@@ -57,7 +60,7 @@ getHomeR = do
     newsList <- runDB $ mapM withAuthor =<< selectList [] [ Desc NewsTime
                                                           , LimitTo 5
                                                           ]
-    App.lastModified . maybe epoch (newsTime . fst) $ headMay newsList
+    App.lastModified . maybe epoch (News.time . fst) $ headMay newsList
     defaultLayout do
         setTitle "Naruto Unison"
         addDataJS
@@ -65,7 +68,7 @@ getHomeR = do
         $(widgetFile "home/home")
   where
     change = getChangelog False
-    withAuthor (Entity _ new) = (new, ) <$> get (newsAuthor new)
+    withAuthor (Entity _ new) = (new, ) <$> get (News.author new)
 
 data LogType
     = Balance
@@ -102,7 +105,7 @@ getCharacter name category = case Characters.lookup ident of
     ident = Character.identFrom category name
 
 news :: (News, Maybe User) -> App.Widget
-news (News{newsContent, newsTime, newsTitle}, author) =
+news (News{content, time, title}, author) =
     $(widgetFile "home/news")
 
 -- Renders the game guide, which includes the list of characters as well as

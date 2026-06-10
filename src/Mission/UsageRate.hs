@@ -5,10 +5,9 @@ module Mission.UsageRate
 
 import ClassyPrelude
 
-import           Application.Model (Usage(Usage))
-import qualified Application.Model
+import           Application.Model.Usage (Usage(Usage))
+import qualified Application.Model.Usage
 import           Game.Model.Character (Character)
-import           OrphanInstances.Character ()
 
 data UsageRate = UsageRate
     { pickRate  :: Float
@@ -18,11 +17,11 @@ data UsageRate = UsageRate
 
 
 new :: Character -> Usage -> UsageRate
-new character Usage{usageWins, usageLosses, usagePicked, usageUnpicked} =
+new character Usage{wins, losses, picked, unpicked} =
     UsageRate
     { character
-    , winRate  = toRate usageWins usageLosses
-    , pickRate = toRate usagePicked usageUnpicked
+    , winRate  = toRate wins losses
+    , pickRate = toRate picked unpicked
     }
   where
     toRate x y = 100 * fromIntegral x / (fromIntegral x + fromIntegral y)

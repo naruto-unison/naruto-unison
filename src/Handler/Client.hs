@@ -18,7 +18,10 @@ import qualified Text.Blaze as Markup
 import qualified Yesod.Auth as Auth
 
 import qualified Application.App as App
-import           Application.Model (EntityField(..), Unlocked(..), User(..))
+import           Application.Model (EntityField(..))
+import           Application.Model.Unlocked (Unlocked(Unlocked))
+import           Application.Model.User (User(User))
+import qualified Application.Model.User as User
 import           Application.Settings (combineScripts, widgetFile)
 import qualified Application.Static as Static
 import           Game.Model.Character (Character(Character))
@@ -84,7 +87,7 @@ getMissionR Character{ident} = do
 getReanimateR :: Character -> App.Handler Value
 getReanimateR Character{ident, price} = do
     (who, user) <- Auth.requireAuthPair
-    when (userDna user < price)
+    when (User.dna user < price)
         $ invalidArgs ["Unaffordable"]
     unlocks <- Mission.unlocked
     when (ident ∈ unlocks)
@@ -94,7 +97,7 @@ getReanimateR Character{ident, price} = do
     runDB do
         insertUnique $ Unlocked who charID
         user' <- updateGet who [ UserDna -=. price ]
-        returnJson $ userDna user'
+        returnJson $ User.dna user'
 
 -- | Renders the gameplay client.
 getPlayR :: App.Handler Html
@@ -138,12 +141,12 @@ guestPlayParams = PlayParams
     }
 
 userPlayParams :: User -> Mission.Unlocks -> PlayParams
-userPlayParams User { userBackground
-                    , userPractice
-                    , userTeam
+userPlayParams User { background
+                    , practice
+                    , team
                     } unlocked = PlayParams
-    { bg       = fromMaybe (bg guestPlayParams) userBackground
-    , practice = userPractice
-    , team     = maybe [] (filter (∈ unlocked)) userTeam
+    { bg       = fromMaybe (bg guestPlayParams) background
+    , practice = practice
+    , team     = maybe [] (filter (∈ unlocked)) team
     , unlocked = unlocked \\ Mission.freeChars
     }

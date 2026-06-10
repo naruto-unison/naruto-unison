@@ -8,7 +8,9 @@ import Database.Persist
 
 import Database.Persist.Sql (SqlPersistT)
 
-import           Application.Model (EntityField(..), User(..))
+import           Application.Model (EntityField(..))
+import           Application.Model.User (User)
+import qualified Application.Model.User as User
 import           Handler.Play.Match (Match, Outcome(..))
 import qualified Handler.Play.Match as Match
 import qualified Handler.Play.Streak as Streak
@@ -54,11 +56,11 @@ updateUser player opponent outcome = updateRecord outcome
         Victory -> 1
         Defeat  -> 0
         Tie     -> 0.5
-    µ  = userRating     player
-    φ  = userDeviation  player
-    σ  = userVolatility player
-    µ₁ = userRating     opponent
-    φ₁ = userDeviation  opponent
+    µ  = User.rating     player
+    φ  = User.deviation  player
+    σ  = User.volatility player
+    µ₁ = User.rating     opponent
+    φ₁ = User.deviation  opponent
 
     g = 1 / sqrt (1 + 3 * square φ₁ / square pi)
     e = 1 / (1 + exp (-g * (µ - µ₁)))

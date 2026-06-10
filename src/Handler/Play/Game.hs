@@ -175,7 +175,7 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
                 Victory -> Mission.processWin team
                 _       -> Mission.processDefeat team
             Mission.processUnpicked team
-            mapM_ (void . Mission.progress) progress
+            mapM_ (void . Mission.updateProgress) progress
 
   `finally`
       Queue.leave
