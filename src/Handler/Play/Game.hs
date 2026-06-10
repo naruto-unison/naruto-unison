@@ -69,12 +69,9 @@ instance Parse Team where
         section <- Parse.parser @Queue.Section
         separator
         chars   <- Parse.sepBy1' (Parse.parser @Character) separator
-        unless (validTeamLength chars)
+        when (length chars /= 3)
             $ fail "Must have 3 team members"
         return $ Team section chars
-      where
-        validTeamLength [_, _, _] = True
-        validTeamLength _         = False
 
 data Enact = Enact
     { spend    :: Chakras
@@ -89,12 +86,9 @@ instance Parse Enact where
         exchange <- Parse.parser @Chakras
         separator
         actions  <- Parse.sepBy' (Parse.parser @Act) separator
-        unless (validActLength actions)
+        when (length actions > 3)
             $ fail "No more than 3 actions"
         return Enact { spend, exchange, actions }
-      where
-        validActLength (_:_:_:_:_) = False
-        validActLength _           = True
 
 data ClientMessage
     = Forfeit
