@@ -16,7 +16,8 @@ import Yesod.Static
 
 import qualified Control.Exception as Exception
 import           Data.Aeson ((.!=), (.:), (.:?), FromJSON, Result(..), Value)
-import qualified Data.Aeson as Aeson
+import qualified Data.Aeson as A
+import qualified Data.Char as Char
 import           Data.Default (def)
 import qualified Data.FileEmbed as FileEmbed
 import qualified Data.Yaml as Yaml
@@ -26,6 +27,12 @@ import qualified Network.Wai.Handler.Warp as Warp
 import qualified Yesod.Default.Config2 as DefaultConfig
 import           Yesod.Default.Util (WidgetFileSettings)
 import qualified Yesod.Default.Util as Util
+
+dashCase :: String -> String
+dashCase (x:xs)
+    | Char.isAsciiUpper x = '-' : Char.toLower x : dashCase xs
+    | otherwise           = x : dashCase xs
+dashCase [] = []
 
 -- | DNA rewards.
 data DNA = DNA
@@ -43,26 +50,11 @@ data DNA = DNA
     -- ^ Reward for victory in a 'Handler.Play.War.War'.
     , useStreak :: Bool
     -- ^ Add the square root of the user's win streak to the DNA reward
-    } deriving (Eq, Ord, Show)
+    } deriving (Eq, Ord, Show, Generic)
 
 instance FromJSON DNA where
-    parseJSON = Aeson.withObject "DNA" \o -> do
-        dailyGame <- o.: "daily-game"
-        dailyWin  <- o .: "daily-win"
-        quickWin  <- o .: "quick-win"
-        quickLose <- o .: "quick-lose"
-        quickTie  <- o .: "quick-tie"
-        warWin    <- o .: "war-win"
-        useStreak <- o .: "use-streak"
-        return DNA
-            { dailyGame
-            , dailyWin
-            , quickWin
-            , quickLose
-            , quickTie
-            , warWin
-            , useStreak
-            }
+    parseJSON = A.genericParseJSON
+        A.defaultOptions { A.fieldLabelModifier = dashCase }
 
 data Settings = Settings
     { unlockAll              :: ~Bool
@@ -116,7 +108,7 @@ data Settings = Settings
     } deriving (Show)
 
 instance FromJSON Settings where
-    parseJSON = Aeson.withObject "Settings" \o -> do
+    parseJSON = A.withObject "Settings" \o -> do
         staticDir              <- o .: "static-dir"
         databaseConf           <- o .: "database"
         dnaConf                <- o .: "dna"
@@ -202,7 +194,7 @@ configSettingsYmlValue = case Yaml.decodeEither' configSettingsYmlBS of
 
 -- | A version of @Settings@ parsed at compile time from @config/settings.yml@.
 compileTimeAppSettings :: Settings
-compileTimeAppSettings = case Aeson.fromJSON json of
+compileTimeAppSettings = case A.fromJSON json of
     Error e          -> error e
     Success settings -> settings
   where
