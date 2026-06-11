@@ -307,13 +307,6 @@ runInterruptions user (Channel skill@Skill{end, name} target _ _) = do
     uninterruptedTrap Trap{trigger = OnDeath} = True
     uninterruptedTrap x = uninterrupted x
 
--- | True for all targets except 'REnemy', 'RAlly', and 'RXAlly'.
-nonRandom :: Target -> Bool
-nonRandom RAlly  = False
-nonRandom RXAlly = False
-nonRandom REnemy = False
-nonRandom _      = True
-
 -- | Ends all Control channels without valid targets.
 -- For example, if a Control skill targets an enemy, the channel will end
 -- if the target becomes invulnerable or dies.
@@ -332,7 +325,7 @@ breakControl user stuns chan@Channel { dur   = Control{}
                                                            }
                                      , target
                                      } =
-    P.withContext context $ guardBreak do
+    P.withContext context $ ifBroken do
         P.modify user $ Ninjas.cancelChannel name
         runInterruptions user chan
   where
@@ -343,9 +336,21 @@ breakControl user stuns chan@Channel { dur   = Control{}
         , new = False
         , continues = False
         }
-    targets = filter (nonRandom . Runnable.target) effects
-    guardBreak
+    breakable :: EnumSet Target
+    breakable = setFromList
+        [ Ally
+        , Allies
+        , XAlly
+        , XAllies
+        , Enemy
+        , Enemies
+        , XEnemies
+        , Everyone
+        ]
+    targets = filter ((∈ breakable) . Runnable.target) effects
+    ifBroken
         | stuns `intersects` classes = id
-        | otherwise = whenM $ any null <$> targeted targets
+        | null targets = const $ return ()
+        | otherwise    = whenM $ all null <$> targeted targets
 
 breakControl _ _ _ = return ()
