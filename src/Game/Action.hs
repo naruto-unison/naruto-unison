@@ -214,7 +214,7 @@ runTargeted effects = run =<< targeted effects
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Context -> m ()
-act ctx@Context{user, new, target, skill} = void $ runMaybeT do
+act context@Context{user, new, target, skill} = void $ runMaybeT do
     let Skill{charges, cost, classes, dur, effects, require, start} = skill
     Game{chakra} <- P.game
     nUser   <- P.ninja user
@@ -222,7 +222,7 @@ act ctx@Context{user, new, target, skill} = void $ runMaybeT do
 
     guard $ N.alive nUser && require /= Unusable
 
-    lift $ P.withContext ctx do
+    lift $ P.withContext context do
         if not new then do
             contEfs <- targeted effects
             P.withContinues $ run' (singleton Targeted) contEfs
@@ -278,15 +278,16 @@ act ctx@Context{user, new, target, skill} = void $ runMaybeT do
 -- | Effects to run when a channeled skill is canceled.
 runInterruptions :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Channel -> m ()
 runInterruptions user (Channel skill@Skill{end, name} target _ _) = do
-    P.withContext ctx $ runTargeted end
+    P.withContext context $ runTargeted end
     P.modifyAll removeInterrupted
   where
-    ctx = Context { skill
-                  , user
-                  , target
-                  , new = False
-                  , continues = False
-                  }
+    context = Context
+        { skill
+        , user
+        , target
+        , new = False
+        , continues = False
+        }
     channelID = ID { user, owner = user, name }
     removeInterrupted :: Ninja -> Ninja
     removeInterrupted n@Ninja{barrier, defense, statuses, traps}
