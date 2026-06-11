@@ -237,7 +237,7 @@ act context@Context{user, new, target, skill} = void $ runMaybeT do
 
             countering  <- Counter.filterCounters bothEfs <$> P.enemies user
             forM_ countering \n ->
-                when (n `is` Absorb) $ P.alter $ Game.addChakra n cost
+                when (n `is` Absorb) $ P.alterGame $ Game.addChakra n cost
 
             let counters = Counter.userCounters (not $ null countering)
                            user classes nUser ++

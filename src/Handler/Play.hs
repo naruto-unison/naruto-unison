@@ -96,9 +96,9 @@ getPracticeActR spend exchange actions = do
         res <- runExceptT $ enact Enact{spend, exchange, actions}
         forM_ (leftToMaybe res) \errorMsg -> invalidArgs [errorMsg]
         game'A <- Wrapper.freeze =<< ask
-        P.alter \g -> g { Game.chakra  = (fst $ Game.chakra g, baseChakra)
-                        , Game.playing = Player.B
-                        }
+        P.alterGame \g -> g { Game.chakra  = (fst $ Game.chakra g, baseChakra)
+                            , Game.playing = Player.B
+                            }
         AI.runTurn
         game'B <- Wrapper.freeze =<< ask
         liftIO

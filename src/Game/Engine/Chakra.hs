@@ -38,7 +38,7 @@ remove amount
         let chakras = fromList . toList . removeRandoms
                     $ Parity.getOf opponent chakra
         removed <- fromList . toList . take amount <$> R.shuffle chakras
-        P.alter $ Game.removeChakra opponent removed
+        P.alterGame $ Game.removeChakra opponent removed
         return removed
   where
     removeRandoms x = x { Chakras.rand = 0 }
@@ -56,7 +56,7 @@ remove1 permitted = do
     mRemoved <- R.choose chakras
     case mRemoved of
         Just (singleton -> removed) -> do
-            P.alter $ Game.removeChakra target removed
+            P.alterGame $ Game.removeChakra target removed
             return removed
         Nothing -> return mempty
 
@@ -66,7 +66,7 @@ gain :: ∀ m. (MonadPlay m, MonadRandom m) => Chakras -> m ()
 gain chakras = do
     Context{user, target} <- P.context
     rand <- Chakras.random $ length rands
-    P.alter $ Game.addChakra target $ rand ++ nonrands
+    P.alterGame $ Game.addChakra target $ rand ++ nonrands
     P.trigger user [OnChakra]
   where
     (rands, nonrands) = partition (== Rand) chakras
@@ -80,4 +80,4 @@ gainPerAlive = do
     let player = Player.opponent playing
     living  <- length . filter N.alive <$> P.allies player
     randoms <- Chakras.random living
-    P.alter $ Game.addChakra player randoms
+    P.alterGame $ Game.addChakra player randoms

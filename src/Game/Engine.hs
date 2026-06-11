@@ -87,7 +87,7 @@ processTurn runner = do
     doExpiredBombs expired
     doDoneBombs initial
     doHpsOverTime
-    P.alter \g -> g { Game.playing = opponent }
+    P.alterGame \g -> g { Game.playing = opponent }
     doDeaths
     yieldVictor
     Hook.turnEnd player initial =<< P.ninjas
@@ -203,7 +203,7 @@ yieldVictor :: ∀ m. MonadGame m => m ()
 yieldVictor = whenM (Game.inProgress <$> P.game) do
     ninjas <- P.ninjas
     let splitNs = splitAt (length ninjas `quot` 2) ninjas
-    P.alter \g ->
+    P.alterGame \g ->
         g { Game.victor = filter (victor splitNs) [Player.A, Player.B] }
   where
     victor (_, ninjas) Player.A = not $ any N.alive ninjas
@@ -212,9 +212,9 @@ yieldVictor = whenM (Game.inProgress <$> P.game) do
 forfeit :: ∀ m. MonadGame m => Player -> m ()
 forfeit player = whenM (Game.inProgress <$> P.game) do
     P.modifyAll suicide
-    P.alter \g -> g { Game.victor  = [Player.opponent player]
-                    , Game.forfeit = True
-                    }
+    P.alterGame \g -> g { Game.victor  = [Player.opponent player]
+                        , Game.forfeit = True
+                        }
   where
     suicide n
       | Parity.allied player n = n { N.health = 0 }
@@ -224,7 +224,7 @@ forfeit player = whenM (Game.inProgress <$> P.game) do
 skipTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
          => Int -> Player -> m ()
 skipTurn threshold player = do
-    P.alter \g ->
+    P.alterGame \g ->
         g { Game.inactive = Parity.modifyOf player (+ 1) $ Game.inactive g }
     Game{inactive} <- P.game
     if Parity.getOf player inactive >= threshold then
@@ -234,5 +234,5 @@ skipTurn threshold player = do
 
 -- | Resets 'Game.inactive'.
 resetInactive :: ∀ m. MonadGame m => Player -> m ()
-resetInactive player = P.alter \g ->
+resetInactive player = P.alterGame \g ->
     g { Game.inactive = Parity.setOf player 0 $ Game.inactive g }

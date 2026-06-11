@@ -49,18 +49,18 @@ data STWrapper s = STWrapper
 type IOWrapper = STWrapper RealWorld
 
 instance (PrimMonad m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) where
-    game       = asks gameRef >>= readRef
+    game        = asks gameRef >>= readRef
     {-# INLINABLE game #-}
-    alter f    = asks gameRef >>= flip modifyRef' f
-    {-# INLINABLE alter #-}
-    ninjas     = asks ninjasRef >>= Vector.freeze
+    alterGame f = asks gameRef >>= flip modifyRef' f
+    {-# INLINABLE alterGame #-}
+    ninjas      = asks ninjasRef >>= Vector.freeze
     {-# INLINABLE ninjas #-}
-    ninja i    = asks ninjasRef >>= flip MVector.unsafeRead (Slot.toInt i)
+    ninja i     = asks ninjasRef >>= flip MVector.unsafeRead (Slot.toInt i)
     {-# INLINABLE ninja #-}
-    write i x  = asks ninjasRef >>= \xs ->
+    write i x   = asks ninjasRef >>= \xs ->
         MVector.unsafeWrite xs (Slot.toInt i) x
     {-# INLINABLE write #-}
-    modify i f = asks ninjasRef >>= \xs ->
+    modify i f  = asks ninjasRef >>= \xs ->
         MVector.unsafeModify xs f (Slot.toInt i)
     {-# INLINABLE modify #-}
     modifyAll f = asks ninjasRef >>= \xs ->

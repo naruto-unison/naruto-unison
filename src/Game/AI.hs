@@ -67,7 +67,7 @@ chooseVendetta = do
     ninjas <- P.ninjas
     ninja  <- R.choose . filter N.alive $ Parity.half Player.A ninjas
     let v   = N.slot <$> ninja
-    P.alter \game -> game { Game.vendetta = v }
+    P.alterGame \game -> game { Game.vendetta = v }
     return v
 
 -- | Returns @Nothing@ only if all enemies are dead.

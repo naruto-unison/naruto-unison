@@ -42,4 +42,4 @@ absorb :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m ()
 absorb amount = P.unsilenced do
     Context{user} <- P.context
     chakras <- Chakra.remove amount
-    P.alter $ Game.addChakra user chakras
+    P.alterGame $ Game.addChakra user chakras

@@ -73,7 +73,7 @@ modifyNinjas' f = modify' \(Wrapper g ns) -> Wrapper g $ f ns
 
 instance MonadGame WrapperM where
     game        = gets game
-    alter f     = modify' \(Wrapper g ns) -> Wrapper (f g) ns
+    alterGame f = modify' \(Wrapper g ns) -> Wrapper (f g) ns
     ninjas      = gets $ ninjasToVector . ninjas
     ninja i     = gets $ getNinja (Slot.toInt i) . ninjas
     write i x   = modifyNinjas' $ modifyNinja (Slot.toInt i) (const x)

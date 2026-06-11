@@ -284,7 +284,7 @@ enact Enact{spend, exchange, actions}
 
     newChakra <- tryFromJust "Insufficient chakra"
                $ getRemainingChakra contexts $ Parity.getOf player chakra
-    P.alter $ Game.setChakra player newChakra
+    P.alterGame $ Game.setChakra player newChakra
     Engine.runTurn contexts
   where
     randTotal = length spend - 5 * length exchange
