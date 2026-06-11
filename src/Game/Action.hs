@@ -139,7 +139,8 @@ chooseRandomTarget slots = do
     let nUser = ninjas !! Slot.toInt user
     let isValidSlot slot = Requirement.targetable skill nUser
                          $ ninjas !! Slot.toInt slot
-    maybeToList <$> R.choose (filter isValidSlot slots)
+    target <- R.choose $ filter isValidSlot slots
+    return $ maybeToList target
 
 -- | Transforms a @Target@ into @Slot@s.
 -- 'REnemy', 'RAlly', and 'RXAlly' targets are chosen at random.
@@ -332,8 +333,8 @@ breakControl user stuns chan@Channel { dur   = Control{}
                                      , target
                                      } =
     P.withContext context $ guardBreak $ do
-            P.modify user $ Ninjas.cancelChannel name
-            runInterruptions user chan
+        P.modify user $ Ninjas.cancelChannel name
+        runInterruptions user chan
   where
     context = Context
         { skill

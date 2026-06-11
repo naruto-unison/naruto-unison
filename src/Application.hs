@@ -127,7 +127,8 @@ makeFoundation settings@Settings { databaseConf
 makeApplication :: App -> IO Application
 makeApplication foundation = do
     logWare <- AppLogger.makeLogWare foundation
-    logWare . defaultMiddlewaresNoLogging <$> toWaiAppPlain foundation
+    app <- toWaiAppPlain foundation
+    return $ logWare $ defaultMiddlewaresNoLogging app
 
 -- | Warp settings from app settings.
 warpSettings :: App -> Warp.Settings

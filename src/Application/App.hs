@@ -167,7 +167,8 @@ unchanged304 = whenM (isNothing <$> getMessage) do
 lastModified :: UTCTime -> Handler ()
 lastModified time = do
     timestamp <- max time <$> getsYesod startup
-    whenM (isNothing <$> getMessage) . setEtag $ tshow timestamp
+    whenM (isNothing <$> getMessage)
+        $ setEtag $ tshow timestamp
     replaceOrAddHeader "Last-Modified" . pack $ formatAsLastModified timestamp
 
 formatAsLastModified :: UTCTime -> String
@@ -296,11 +297,12 @@ instance YesodAuth App where
                  => Auth.Creds App -> m (AuthenticationResult App)
     authenticate (Auth.credsIdent -> ident) = liftDB do
         muser <- getBy $ UniqueUser ident
-        Authenticated <$> case muser of
+        uid   <- case muser of
             Just (Entity uid _) -> return uid
             Nothing             -> do
                 time <- liftIO getCurrentTime
                 insert $ User.new ident Nothing (utctDay time)
+        return $ Authenticated uid
 
     authPlugins :: App -> [AuthPlugin App]
     authPlugins app = AuthEmail.authEmail : extraAuthPlugins

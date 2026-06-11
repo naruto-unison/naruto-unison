@@ -58,10 +58,10 @@ import           Util ((!?), (∈), (∉))
 -- 'Character.ident' is used as the key.
 initDB :: ∀ m. MonadIO m => SqlPersistT m (Bimap CharacterId Text)
 initDB = do
-    charEntities <- selectList [] []
-    let chars = entityVal <$> charEntities
+    chars <- (entityVal <$>) <$> selectList [] []
     insertMany_ $ filter (∉ chars) charList
-    makeMap <$> selectList [] []
+    charEntities <- selectList [] []
+    return $ makeMap charEntities
   where
     charList = Character . Character.ident <$> Characters.list
 
@@ -124,10 +124,11 @@ userMission char = runMaybeT do
                                        ] []
         if isJust alreadyUnlocked then
             return $ Goal.reach <$> mission
-        else
-            setObjectives mission <$> selectList [ MissionUser      ==. who
-                                                 , MissionCharacter ==. charID
-                                                 ] []
+        else do
+            missions <- selectList [ MissionUser      ==. who
+                                   , MissionCharacter ==. charID
+                                   ] []
+            return $ setObjectives mission missions
     return $ zip mission objectives
 
 -- | If @i >= length goals@, this will do nothing.
