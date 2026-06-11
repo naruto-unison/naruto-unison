@@ -6,7 +6,7 @@ module Game.Engine.Ninjas
 
   , nextAlternate
 
-  , decr
+  , decrement
 
   , factory
 
@@ -200,14 +200,14 @@ sacrifice minhp hp = adjustHealth $ max minhp . (- hp)
 
 -- | Applies 'Class.TurnBased.decr' to all of a @Ninja@'s 'Class.TurnBased'
 -- types.
-decr :: Ninja -> Ninja
-decr n = processSkills $ processEffects
-    n { N.defense   = mapMaybe TurnBased.decr $ N.defense n
-      , N.statuses  = mapMaybe TurnBased.decr $ N.statuses n
-      , N.barrier   = mapMaybe TurnBased.decr $ N.barrier n
-      , N.channels  = mapMaybe (TurnBased.decr . setNotNew) $ N.channels n
-      , N.traps     = mapMaybe TurnBased.decr $ N.traps n
-      , N.copies    = (TurnBased.decr =<<) <$> N.copies n
+decrement :: Ninja -> Ninja
+decrement n = processSkills $ processEffects
+    n { N.defense   = mapMaybe TurnBased.decrement $ N.defense n
+      , N.statuses  = mapMaybe TurnBased.decrement $ N.statuses n
+      , N.barrier   = mapMaybe TurnBased.decrement $ N.barrier n
+      , N.channels  = mapMaybe (TurnBased.decrement . setNotNew) $ N.channels n
+      , N.traps     = mapMaybe TurnBased.decrement $ N.traps n
+      , N.copies    = (TurnBased.decrement =<<) <$> N.copies n
       , N.cooldowns = (max 0 . subtract 1) <$> N.cooldowns n
       , N.acted     = False
       }

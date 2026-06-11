@@ -2,6 +2,7 @@ module Game.Model.Game
   ( Game(..), new, newWithChakras
   , setChakra, addChakra, removeChakra
   , inProgress
+  , setVendetta
   ) where
 
 import ClassyPrelude
@@ -48,6 +49,10 @@ newWithChakras = do
     randsB <- Chakras.random Slot.teamSize
     return new { chakra = (randsA, randsB) }
 
+-- | The game has not yet ended.
+inProgress :: Game -> Bool
+inProgress x = null $ victor x
+
 setChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
 setChakra p x game = game { chakra = Parity.setOf p x $ chakra game }
 
@@ -60,6 +65,5 @@ addChakra p chakras game = adjustChakra p (++ chakras) game
 removeChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
 removeChakra p chakras game = adjustChakra p (Chakras.spend chakras) game
 
--- | The game has not yet ended.
-inProgress :: Game -> Bool
-inProgress x = null $ victor x
+setVendetta :: Maybe Slot -> Game -> Game
+setVendetta vendetta game = game { vendetta = vendetta }

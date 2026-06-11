@@ -1,6 +1,6 @@
 module Class.TurnBased
   ( TurnBased(..)
-  , decr
+  , decrement
   , expiring
   , incr
   ) where
@@ -31,8 +31,8 @@ class TurnBased a where
 -- | If @'getDur' == 'Permanent'@, has no effect.
 -- If @'getDur' == Duration 1@, deletes the structure; it has expired.
 -- Otherwise, decrements the remaining duration by 1.
-decr :: ∀ a. TurnBased a => a -> Maybe a
-decr x
+decrement :: ∀ a. TurnBased a => a -> Maybe a
+decrement x
   | dur < 1     = Nothing
   | otherwise   = Just $! setDur (pred dur) x -- @pred Permanent == Permanent@
   where

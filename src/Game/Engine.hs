@@ -83,7 +83,7 @@ processTurn runner = do
     doDeaths
     Traps.runExpirations
     expired <- P.ninjas
-    P.modifyAll Ninjas.decr
+    P.modifyAll Ninjas.decrement
     doExpiredBombs expired
     doDoneBombs initial
     doHpsOverTime
