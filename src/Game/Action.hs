@@ -78,7 +78,7 @@ wrap' affected f = void $ runMaybeT do
     nUser   <- P.nUser
     nTarget <- P.nTarget
 
-    let allied    = Parity.allied user target
+    let allied = Parity.allied user target
 
     guard $ allied || Bypassing ∈ classes || not (nTarget `is` Nullify)
 

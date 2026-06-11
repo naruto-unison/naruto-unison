@@ -274,7 +274,7 @@ slot (Share x)    = Just x
 slot (Taunt x)    = Just x
 slot _            = Nothing
 
-list :: ∀ o. (MonoFoldable o, Element o ~ Class) => o -> TextBuilder
+list :: EnumSet Class -> TextBuilder
 list classes = commas "and" $ Class.lower <$> toList classes
 
 instance Display Effect where

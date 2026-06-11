@@ -176,23 +176,22 @@ reflect :: EnumSet Class -> Ninja -> Bool
 reflect classes n@Ninja{effects} = n `is` Reflect
     || classes `intersects` setFromList [x | ReflectAll x <- effects]
 
+type IsNinjaSequence o = (IsSequence o, Ninja ~ Element o, Int ~ Index o)
+
 -- | 'Afflict' sum minus 'Heal' sum.
-hp :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
-   => Player -> Ninja -> o -> Int
+hp :: ∀ o. IsNinjaSequence o => Player -> Ninja -> o -> Int
 hp player n ninjas
   | N.alive n = afflict ninjas player n - heal ninjas player n
   | otherwise = 0
 
 -- | 'Heal' sum.
-heal :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
-     => o -> Player -> Ninja -> Int
+heal :: ∀ o. IsNinjaSequence o => o -> Player -> Ninja -> Int
 heal ninjas player n@Ninja{statuses}
   | n `is` Plague || n `is` Seal = 0
   | otherwise = sum $ heal1 ninjas player n <$> statuses
 
 -- | Calculates the total 'Heal' of a single @Status@.
-heal1 :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
-      => o -> Player -> Ninja -> Status -> Int
+heal1 :: ∀ o. IsNinjaSequence o => o -> Player -> Ninja -> Status -> Int
 heal1 ninjas player n Status{effects, user}
   | summed == 0 || not (Parity.allied player user) = 0
   | otherwise = boost user n * summed + bless (ninjas !! Slot.toInt user)
@@ -203,8 +202,7 @@ afflictClasses :: EnumSet Class
 afflictClasses = setFromList [Affliction, All]
 
 -- | 'Afflict' sum.
-afflict :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
-        => o -> Player -> Ninja -> Int
+afflict :: ∀ o. IsNinjaSequence o => o -> Player -> Ninja -> Int
 afflict ninjas player n@Ninja{slot, statuses} = sum
     [ aff st | st@Status{user} <- statuses,
                user == slot
@@ -213,8 +211,7 @@ afflict ninjas player n@Ninja{slot, statuses} = sum
     aff = afflict1 ninjas player slot
 
 -- | Calculates the total 'Afflict' of a single @Status@.
-afflict1 :: ∀ o. (IsSequence o, Ninja ~ Element o, Int ~ Index o)
-         => o -> Player -> Slot -> Status -> Int
+afflict1 :: ∀ o. IsNinjaSequence o => o -> Player -> Slot -> Status -> Int
 afflict1 ninjas player t Status{classes, effects, user}
   | summed == 0                     = 0
   | not $ Parity.allied player user = 0

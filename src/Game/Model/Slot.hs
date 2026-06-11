@@ -96,7 +96,7 @@ instance MonoPointed SlotSet where
 
 instance IsList SlotSet where
     type Item SlotSet = Slot
-    fromList = fromFoldable
+    fromList = setFromList
     toList = otoList
 
 instance MonoFunctor SlotSet where
@@ -164,7 +164,8 @@ instance IsSet SlotSet where
     {-# INLINE deleteSet #-}
     singletonSet = SlotSet . singletonSet . toInt
     {-# INLINE singletonSet #-}
-    setFromList = fromFoldable
+    setFromList = SlotSet . EnumSet.fromRaw
+        . foldl' (flip $ (.|.) . bit  . toInt) 0
     {-# INLINE setFromList #-}
     setToList = wrapList setToList
     {-# INLINE setToList #-}
@@ -175,11 +176,6 @@ instance Show SlotSet where
     showsPrec p xs = showParen (p > 10) $
         showString "fromList " . shows (toList xs)
     {-# INLINABLE showsPrec #-}
-
-fromFoldable :: ∀ o. (MonoFoldable o, Slot ~ Element o) => o -> SlotSet
-fromFoldable = SlotSet . EnumSet.fromRaw
-    . foldl' (flip $ (.|.) . bit  . toInt) 0
-{-# INLINE fromFoldable #-}
 
 mapSlot :: (Slot -> Slot) -> Int -> Int
 mapSlot f = toInt . f . Slot

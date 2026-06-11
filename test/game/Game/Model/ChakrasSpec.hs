@@ -13,7 +13,7 @@ import OrphanInstances ()
 
 import Sim (simGame)
 
-type ChakraSequence o = (IsSequence o, Chakra ~ Element o, Int ~ Index o)
+type IsChakraSequence o = (IsSequence o, Chakra ~ Element o, Int ~ Index o)
 
 spec :: Spec
 spec = parallel do
@@ -100,29 +100,29 @@ toChakras :: [Chakra] -> Chakras
 toChakras = fromList
 
 oprop :: ∀ a. (Eq a, Show a)
-         => (∀ o. ChakraSequence o => o -> a)
+         => (∀ o. IsChakraSequence o => o -> a)
          -> (SortedList Chakra -> Property)
 oprop f (Sorted xs) = f (toChakras xs) === f xs
 
 opropEx :: ∀ a. (Eq a, Show a)
-        => (∀ o. ChakraSequence o => o -> a)
+        => (∀ o. IsChakraSequence o => o -> a)
         -> (NonEmptyList Chakra -> Property)
 opropEx f (NonEmpty xs) = f (toChakras xs) === f (sort xs)
 
-opropList :: (∀ o. ChakraSequence o => o -> o)
+opropList :: (∀ o. IsChakraSequence o => o -> o)
           -> (SortedList Chakra -> Property)
 opropList f (Sorted xs) = toList (f $ toChakras xs) === sort (f xs)
 
-opropLists :: (∀ o. ChakraSequence o => o -> [o])
+opropLists :: (∀ o. IsChakraSequence o => o -> [o])
            -> (SortedList Chakra -> Property)
 opropLists f (Sorted xs) = (toList <$> f (toChakras xs)) === f xs
 
-opropTuple :: (∀ o. ChakraSequence o => o -> (o, o))
+opropTuple :: (∀ o. IsChakraSequence o => o -> (o, o))
            -> (SortedList Chakra -> Property)
 opropTuple f (Sorted xs) = both toList (f $ toChakras xs) === f xs
   where
     both g (a, b) = (g a, g b)
 
-opropApp :: (∀ o. ChakraSequence o => o)
+opropApp :: (∀ o. IsChakraSequence o => o)
          -> Property
 opropApp f = toList (f @Chakras) === f @[Chakra]
