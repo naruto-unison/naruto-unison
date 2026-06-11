@@ -81,11 +81,12 @@ instance MonadGame WrapperM where
     modifyAll f = modifyNinjas' $ mapNinjas f
 
 instance MonadHook WrapperM where
-    action _ _ _ = return ()
-    chakra _ _ _ = return ()
-    trap _ _     = return ()
-    trigger _ _  = return ()
-    turn _ _ _   = return ()
+    action _ _ _  = return ()
+    chakra _ _ _  = return ()
+    trap _ _      = return ()
+    trigger _ _   = return ()
+    turnEnd _ _ _ = return ()
+    turnStart _ _ = return ()
 
 instance StatefulGen () WrapperM where
     uniformWord32 _ = return 0
