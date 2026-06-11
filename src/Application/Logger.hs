@@ -21,7 +21,7 @@ import qualified Application.Settings as Settings
 getDateGetter :: IO () -> IO (IO ByteString)
 getDateGetter flusher = do
     (getter, updater) <- WaiLogger.clockDateCacher
-    forkIO . forever $ do
+    forkIO $ forever do
         threadDelay 1_000_000
         updater
         flusher

@@ -154,9 +154,9 @@ insertProgress who amount GoalIndex{goals, char, i}
             upsert (Mission who char i amount)
                    [ MissionProgress +=. amount ]
             complete <- completed goals <$> selectList missionChar []
-            when complete $ void do
+            when complete do
                 deleteWhere missionChar
-                insertUnique $ Unlocked who char
+                void $ insertUnique $ Unlocked who char
             return complete
   where
     canUpdate = case goals !? i of

@@ -332,7 +332,7 @@ breakControl user stuns chan@Channel { dur   = Control{}
                                                            }
                                      , target
                                      } =
-    P.withContext context $ guardBreak $ do
+    P.withContext context $ guardBreak do
         P.modify user $ Ninjas.cancelChannel name
         runInterruptions user chan
   where
