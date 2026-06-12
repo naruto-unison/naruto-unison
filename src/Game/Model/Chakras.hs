@@ -41,21 +41,33 @@ data Chakras = Chakras
     } deriving (Eq, Show, Read, Generic)
 
 getChakra :: Chakra -> Chakras -> Int
-getChakra Blood Chakras{blood} = blood
-getChakra Gen   Chakras{gen}   = gen
-getChakra Nin   Chakras{nin}   = nin
-getChakra Tai   Chakras{tai}   = tai
-getChakra Rand  Chakras{rand}  = rand
+getChakra Blood = blood
+getChakra Gen   = gen
+getChakra Nin   = nin
+getChakra Tai   = tai
+getChakra Rand  = rand
 {-# INLINE getChakra #-}
 
-mapAmounts :: (Int -> Int) -> Chakras -> Chakras
-mapAmounts f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
-{-# INLINE mapAmounts #-}
+addChakra :: Int -> Chakra -> Chakras -> Chakras
+addChakra i Blood xs = xs { blood = i + blood xs }
+addChakra i Gen   xs = xs { gen   = i + gen xs }
+addChakra i Nin   xs = xs { nin   = i + nin xs }
+addChakra i Tai   xs = xs { tai   = i + tai xs }
+addChakra i Rand  xs = xs { rand  = i + rand xs }
+{-# INLINE addChakra #-}
+
+naiveDelete :: Chakra -> Chakras -> Chakras
+naiveDelete = addChakra -1
+{-# INLINE naiveDelete #-}
 
 naiveSubtract :: Chakras -> Chakras -> Chakras
 naiveSubtract (Chakras b g n t r) (Chakras b' g' n' t' r') =
     Chakras (b - b') (g - g') (n - n') (t - t') (r - r')
 {-# INLINE naiveSubtract #-}
+
+mapAmounts :: (Int -> Int) -> Chakras -> Chakras
+mapAmounts f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
+{-# INLINE mapAmounts #-}
 
 toNormalizedList :: Chakras -> [Chakra]
 toNormalizedList chakras = filter (∈ chakras) [minBound..maxBound]
@@ -87,11 +99,12 @@ instance Monoid Chakras where
 type instance Element Chakras = Chakra
 
 instance MonoFunctor Chakras where
-    f `omap` (Chakras b g n t r) = replicate b (f Blood)
-                                ++ replicate g (f Gen)
-                                ++ replicate n (f Nin)
-                                ++ replicate t (f Tai)
-                                ++ replicate r (f Rand)
+    f `omap` (Chakras b g n t r) = addChakra b (f Blood)
+                                 . addChakra g (f Gen)
+                                 . addChakra n (f Nin)
+                                 . addChakra t (f Tai)
+                                 . addChakra r (f Rand)
+                                 $ mempty
     {-# INLINABLE omap #-}
 
 instance MonoFoldable Chakras where
@@ -195,7 +208,7 @@ instance SemiSequence Chakras where
 
     intersperse x xs
       | len < 2   = xs
-      | otherwise = xs ++ replicate (len - 1) x
+      | otherwise = addChakra (len - 1) x xs
       where
         len = length xs
     {-# INLINABLE intersperse #-}
@@ -215,10 +228,10 @@ instance SemiSequence Chakras where
     sortBy _ xs = xs
     {-# INLINE sortBy #-}
 
-    x `cons` xs = xs ++ singleton x
+    cons = addChakra 1
     {-# INLINE cons #-}
 
-    xs `snoc` x = xs ++ singleton x
+    xs `snoc` x = x `cons` xs
     {-# INLINE snoc #-}
 
 instance IsSequence Chakras where
