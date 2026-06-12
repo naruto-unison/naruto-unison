@@ -209,6 +209,10 @@ spec = parallel do
                 Sim.withClass Physical $ Sim.as Self $ return ()
                 Sim.as Enemy $ apply Permanent [ Reveal ]
                 user (`is` Reveal)
+            it "does not provide invulnerability from its own effect" do
+                Sim.act
+                Sim.as Enemy $ apply Permanent [ Reveal ]
+                user (`is` Reveal)
   where
     describeCharacter = describeCategory Original
     dmg = 55

@@ -290,8 +290,8 @@ characters =
           [ To Enemy $ addStack' "Illusion" ]
         , Skill.effects   =
           [ To Enemy $ apply 1 [ Stun All ]
-          , To Self $ hide 1 [ Alternate "Demonic Illusion: Sylvan Fetters"
-                                         "Sylvan Fetters Attack" ]
+          , To Self  $ hide 1 [ Alternate "Demonic Illusion: Sylvan Fetters"
+                                          "Sylvan Fetters Attack" ]
           ]
         }
       , Skill.new
