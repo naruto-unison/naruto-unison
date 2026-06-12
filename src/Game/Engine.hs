@@ -137,7 +137,7 @@ doDeaths = mapM_ doEach Slot.all
     doEach slot = do
         n@Ninja{statuses} <- P.ninja slot
         let res
-              | n `is` Plague = mempty
+              | n `is` Plague = []
               | otherwise     = Traps.getOf slot OnRes n
 
         if N.alive n then

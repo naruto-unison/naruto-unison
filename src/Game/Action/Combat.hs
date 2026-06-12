@@ -140,7 +140,7 @@ killFull endure = whenM (N.alive <$> P.nTarget) do
         , name   = "executed"
         , user
         , skill
-        , effects = mempty
+        , effects = []
         , classes = setFromList [Unremovable, Hidden]
         , bombs   = []
         , maxDur  = 1

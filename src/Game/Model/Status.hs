@@ -21,7 +21,7 @@ new user dur skill@Skill{classes, name} = Status
     , name
     , user
     , skill
-    , effects = mempty
+    , effects = []
     , classes
     , bombs   = []
     , maxDur  = succ dur
