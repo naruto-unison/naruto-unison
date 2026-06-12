@@ -25,7 +25,7 @@ import qualified Class.Classed as Classed
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
-import           Game.Model.Chakras (Chakras(..))
+import           Game.Model.Chakras (Chakras)
 import           Game.Model.Class (Class(..))
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
