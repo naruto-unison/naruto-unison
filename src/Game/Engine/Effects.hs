@@ -37,7 +37,7 @@ import qualified Game.Model.Effect as Effect
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
-import           Game.Model.Slot (Slot)
+import           Game.Model.Slot (Slot, SlotSet)
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status
@@ -61,8 +61,8 @@ bleed classes Ninja{effects} amount = total amount $ sum
           cla `intersects` classes ]
 
 -- | 'Block' collection.
-block :: Ninja -> [Slot]
-block Ninja{effects} = [slot | Block slot <- effects]
+block :: Ninja -> SlotSet
+block Ninja{effects} = setFromList [slot | Block slot <- effects]
 
 -- | 'Bless' sum.
 bless :: Ninja -> Int
@@ -80,8 +80,8 @@ build :: Ninja -> Int
 build Ninja{effects} = sum [x | Build x <- effects]
 
 -- | 'Duel' collection.
-duel :: Ninja -> [Slot]
-duel Ninja{effects, slot} = [x | Duel x <- effects, slot /= x]
+duel :: Ninja -> SlotSet
+duel Ninja{effects, slot} = setFromList [x | Duel x <- effects, slot /= x]
 
 -- | 'Exhaust' sum.
 exhaust :: EnumSet Class -> Ninja -> Chakras
@@ -114,8 +114,8 @@ reduce classes Ninja{effects} amount
               deleteSet Affliction cla `intersects` classes ]
 
 -- | 'Share' collection.
-share :: Ninja -> [Slot]
-share Ninja{effects, slot} = [x | Share x <- effects, x /= slot]
+share :: Ninja -> SlotSet
+share Ninja{effects, slot} = setFromList [x | Share x <- effects, x /= slot]
 
 -- | 'Snare' sum.
 snare :: Ninja -> Int
@@ -137,8 +137,8 @@ stunned :: Ninja -> Bool
 stunned n = not . null $ stun n
 
 -- | 'Taunt' collection.
-taunt :: Ninja -> [Slot]
-taunt Ninja{effects, slot} = [x | Taunt x <- effects, x /= slot]
+taunt :: Ninja -> SlotSet
+taunt Ninja{effects, slot} = setFromList [x | Taunt x <- effects, x /= slot]
 
 -- | 'Throttle' sum.
 throttle :: [Effect] -> Ninja -> Int

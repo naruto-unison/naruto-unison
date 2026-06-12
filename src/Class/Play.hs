@@ -69,7 +69,8 @@ withTarget :: ∀ m a. MonadPlay m => Slot -> m a -> m a
 withTarget x = with \ctx -> ctx { Context.target = x }
 
 -- | Runs an action against each 'target'.
-withTargets :: ∀ m. MonadPlay m => [Slot] -> m () -> m ()
+withTargets :: ∀ o m. (MonadPlay m, MonoFoldable o, Slot ~ Element o)
+            => o -> m () -> m ()
 withTargets xs f = mapM_ (`withTarget` f) xs
 
 -- | Sets 'Context.continues' to @True@.

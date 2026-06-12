@@ -108,7 +108,8 @@ targetable Skill{classes, owner, require} n@Ninja{slot = user} nt@Ninja{slot = t
     a `notIn` xs = not (null xs) && a ∉ xs
 
 -- | All targets that a @Skill@ from a a specific 'Ninja' affects.
-targets :: [Ninja] -> Ninja -> Skill -> [Ninja]
+targets :: ∀ o. (IsSequence o, Ninja ~ Element o)
+        => o -> Ninja -> Skill -> o
 targets ns n@Ninja{slot = user} skill = filter filt ns
   where
     filt nt = targetSlot (N.slot nt) && targetable skill n nt
