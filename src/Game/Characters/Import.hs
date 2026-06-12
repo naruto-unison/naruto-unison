@@ -76,7 +76,7 @@ targeting t f = do
     P.withTargets targets f
 
 -- | Returns the bonus if the monadic condition succeeds, otherwise returns 0.
-bonusIf :: ∀ m a. (MonadPlay m, Num a) => a -> m Bool -> m a
+bonusIf :: ∀ a m. (MonadPlay m, Num a) => a -> m Bool -> m a
 bonusIf amount condition = getBonus <$> condition
   where
     getBonus True  = amount

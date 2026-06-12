@@ -83,15 +83,15 @@ mapFromKeyed :: ∀ map a. IsMap map
 mapFromKeyed (toKey, toVal) xs = mapFromList $ (\x -> (toKey x, toVal x)) <$> xs
 {-# INLINABLE mapFromKeyed #-}
 
-tryFromJust :: ∀ m a e. MonadError e m => e -> Maybe a -> m a
+tryFromJust :: ∀ e a m. MonadError e m => e -> Maybe a -> m a
 tryFromJust e = maybe (throwError e) return
 {-# INLINABLE tryFromJust #-}
 
-fromMaybeM :: ∀ m a. Monad m => m a -> m (Maybe a) -> m a
+fromMaybeM :: ∀ a m. Monad m => m a -> m (Maybe a) -> m a
 fromMaybeM e m = maybe e return =<< m
 {-# INLINABLE fromMaybeM #-}
 
-fromMaybeT :: ∀ m a. Monad m => m a -> MaybeT m a -> m a
+fromMaybeT :: ∀ a m. Monad m => m a -> MaybeT m a -> m a
 fromMaybeT e (MaybeT m) = fromMaybeM e m
 {-# INLINABLE fromMaybeT #-}
 

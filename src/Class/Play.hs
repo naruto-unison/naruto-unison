@@ -41,7 +41,7 @@ import           Game.Model.Slot (Slot)
 import           Game.Model.Trigger (Trigger(..))
 
 -- | Alters the focus of the environment to a new @Context@.
-withContext :: ∀ m a. Context -> ReaderT Context m a -> m a
+withContext :: ∀ a m. Context -> ReaderT Context m a -> m a
 withContext ctx f = runReaderT f ctx
 
 -- | Runs a @Runnable@ with its associated @Context@.
@@ -65,7 +65,7 @@ enemies :: ∀ p m. (MonadGame m, Parity p) => p -> m [Ninja]
 enemies p = allies $ Parity.opponent p
 
 -- | Runs an action in a localized state where 'target' is replaced.
-withTarget :: ∀ m a. MonadPlay m => Slot -> m a -> m a
+withTarget :: ∀ a m. MonadPlay m => Slot -> m a -> m a
 withTarget x = with \ctx -> ctx { Context.target = x }
 
 -- | Runs an action against each 'target'.

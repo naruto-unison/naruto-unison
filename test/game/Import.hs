@@ -22,12 +22,12 @@ import qualified Sim
 import qualified Test.Hspec as Hspec
 
 infix 1 `shouldBe`
-shouldBe :: ∀ m a. (HasCallStack, Monad m, Eq a, Show a)
+shouldBe :: ∀ a m. (HasCallStack, Monad m, Eq a, Show a)
          => a -> a -> m Expectation
 shouldBe x y = return $ Hspec.shouldBe x y
 
 infix 1 `shouldNotBe`
-shouldNotBe :: ∀ m a. (HasCallStack, Monad m, Eq a, Show a)
+shouldNotBe :: ∀ a m. (HasCallStack, Monad m, Eq a, Show a)
             => a -> a -> m Expectation
 shouldNotBe x y = return $ Hspec.shouldNotBe x y
 

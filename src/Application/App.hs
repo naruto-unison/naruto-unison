@@ -274,7 +274,7 @@ instance YesodPersist App where
     runDB action = getsYesod connPool >>= runSqlPool action
     {-# INLINABLE runDB #-}
 
-liftDB :: ∀ m a. MonadHandler m => SqlPersistT Handler a -> m a
+liftDB :: ∀ a m. MonadHandler m => SqlPersistT Handler a -> m a
 liftDB = liftHandler . runDB
 {-# INLINABLE liftDB #-}
 

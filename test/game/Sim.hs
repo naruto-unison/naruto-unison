@@ -68,7 +68,7 @@ use name = do
   where
     getSkill = find ((== name) . Skill.name) . N.skills . Ninjas.processSkills
 
-at :: ∀ m a. MonadPlay m => Target -> m a -> m a
+at :: ∀ a m. MonadPlay m => Target -> m a -> m a
 at target = P.withTarget $ targetSlot target
 
 targetSlot :: Target -> Slot
@@ -103,7 +103,7 @@ actWith skill = do
         Context { new = True, user, target, skill, continues = False }
     P.modify user \n -> n { N.cooldowns = mempty }
 
-enemies :: ∀ m a. (MonadPlay m) => (Ninja -> a) -> m [a]
+enemies :: ∀ a m. (MonadPlay m) => (Ninja -> a) -> m [a]
 enemies f = do
     Context{user} <- P.context
     ninjas <- P.enemies user

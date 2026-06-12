@@ -59,7 +59,7 @@ import           Util ((∈), (∉))
 -- decrements all 'TurnBased.TurnBased' data;
 -- and resolves 'Model.Chakra.Chakras' for the next turn.
 -- Uses 'processTurn' internally.
-runTurn :: ∀ m o. ( MonadGame m, MonadHook m, MonadRandom m
+runTurn :: ∀ o m. ( MonadGame m, MonadHook m, MonadRandom m
                   , MonoTraversable o, Context ~ Element o
                   ) => o -> m ()
 runTurn acts = do

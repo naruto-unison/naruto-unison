@@ -129,7 +129,7 @@ targeted targets = do
                                Requirement.targetable skill nUser
                                $ ninjas !! Slot.toInt t ]
 
-fromContext :: ∀ m a. MonadPlay m => (Context -> a) -> m a
+fromContext :: ∀ a m. MonadPlay m => (Context -> a) -> m a
 fromContext f = f <$> P.context
 
 chooseRandomTarget :: ∀ m. (MonadPlay m, MonadRandom m) => [Slot] -> m [Slot]

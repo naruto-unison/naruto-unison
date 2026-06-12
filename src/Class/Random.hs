@@ -68,7 +68,7 @@ instance (MonadRandom m, Monoid w) => MonadRandom (AccumT w m)
 
 -- | Randomly selects an element from a finite list.
 -- Returns @Nothing@ on an empty list.
-choose :: ∀ m o. (MonadRandom m, Int ~ Index o, IsSequence o)
+choose :: ∀ o m. (MonadRandom m, Int ~ Index o, IsSequence o)
        => o -> m (Maybe (Element o))
 choose xs
   | null xs   = return Nothing
