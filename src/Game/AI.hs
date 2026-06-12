@@ -67,7 +67,7 @@ chooseVendetta = do
     ninjas <- P.ninjas
     ninja  <- R.choose . filter N.alive $ Parity.half Player.A ninjas
     let v   = N.slot <$> ninja
-    P.alterGame \game -> game { Game.vendetta = v }
+    P.alterGame $ Game.setVendetta v
     return v
 
 -- | Returns @Nothing@ only if all enemies are dead.
@@ -87,7 +87,7 @@ runTurn = do
     case vendetta of
         Nothing -> Engine.runTurn [] -- All enemies are dead
         Just v  -> do
-            ninjas <- P.ninjas
-            acts   <- mapM (run v) $ Parity.half Player.B ninjas
+            ninjas   <- P.ninjas
+            acts     <- mapM (run v) $ Parity.half Player.B ninjas
             contexts <- R.shuffle $ catMaybes acts
             Engine.runTurn contexts

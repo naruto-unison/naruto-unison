@@ -1,9 +1,13 @@
 module Game.Model.Game
-  ( Game(..), new, newWithChakras
-  , setChakra, addChakra, removeChakra
-  , inProgress
-  , setVendetta
-  ) where
+    ( Game(..), new, newWithChakras
+    , inProgress
+    , setChakra, addChakra, removeChakra
+    , setVendetta
+    , swapPlaying
+    , incrementInactive, resetInactive
+    , forfeit
+    , setVictorBy
+    ) where
 
 import ClassyPrelude
 
@@ -19,15 +23,15 @@ import qualified Game.Model.Slot as Slot
 
 -- | Game state.
 data Game = Game
-    { chakra   :: (Chakras, Chakras)
+    { chakra    :: (Chakras, Chakras)
     -- ^ Starts at @('Chakras' 0 0 0 0 0, 'Chakras' 0 0 0 0 0)@
-    , playing  :: Player
+    , playing   :: Player
     -- ^ Starts at 'Player.A'.
-    , victor   :: [Player]
+    , victor    :: [Player]
     -- ^ Starts empty.
-    , inactive :: (Int, Int)
+    , inactive  :: (Int, Int)
     -- ^ Starts at @(0, 0)@.
-    , forfeit  :: Bool
+    , forfeited :: Bool
     -- ^ Starts at @False@.
     , vendetta  :: Maybe Slot
     -- ^ Used by AI.
@@ -35,12 +39,12 @@ data Game = Game
 
 new :: Game
 new = Game
-    { chakra   = (mempty, mempty)
-    , playing  = Player.A
-    , victor   = []
-    , inactive = (0, 0)
-    , forfeit  = False
-    , vendetta = Nothing
+    { chakra    = (mempty, mempty)
+    , playing   = Player.A
+    , victor    = []
+    , inactive  = (0, 0)
+    , forfeited = False
+    , vendetta  = Nothing
     }
 
 newWithChakras :: ∀ m. MonadRandom m => m Game
@@ -54,10 +58,12 @@ inProgress :: Game -> Bool
 inProgress x = null $ victor x
 
 setChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
-setChakra p x game = game { chakra = Parity.setOf p x $ chakra game }
+setChakra p x game@Game{chakra} =
+    game { chakra = Parity.setOf p x chakra }
 
 adjustChakra :: ∀ a. Parity a => a -> (Chakras -> Chakras) -> Game -> Game
-adjustChakra p f game = game { chakra = Parity.modifyOf p f $ chakra game }
+adjustChakra p f game@Game{chakra} =
+    game { chakra = Parity.modifyOf p f chakra }
 
 addChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
 addChakra p chakras game = adjustChakra p (++ chakras) game
@@ -67,3 +73,23 @@ removeChakra p chakras game = adjustChakra p (Chakras.spend chakras) game
 
 setVendetta :: Maybe Slot -> Game -> Game
 setVendetta vendetta game = game { vendetta = vendetta }
+
+swapPlaying :: Game -> Game
+swapPlaying game@Game{playing} = game { playing = Player.opponent playing }
+
+incrementInactive :: Player -> Game -> Game
+incrementInactive player game@Game{inactive} =
+    game { inactive = Parity.modifyOf player (+1) inactive }
+
+resetInactive :: Player -> Game -> Game
+resetInactive player game@Game{inactive} =
+    game { inactive = Parity.setOf player 0 inactive }
+
+forfeit :: Player -> Game -> Game
+forfeit player game = game { victor    = [Player.opponent player]
+                           , forfeited = True
+                           }
+
+setVictorBy :: (Player -> Bool) -> Game -> Game
+setVictorBy isVictor game =
+    game { victor = filter isVictor [Player.A, Player.B] }

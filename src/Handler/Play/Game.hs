@@ -157,7 +157,7 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
 
     when (section == Queue.Quick) do -- eventually, || Queue.Ladder
         let outcome = Match.outcome game player
-        if outcome == Defeat && Game.forfeit game then
+        if outcome == Defeat && Game.forfeited game then
             trySocket . Socket.sendJSONData socket
                       $ Message.Rewards [Reward "Forfeit" 0]
         else do
