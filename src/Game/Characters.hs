@@ -12,13 +12,12 @@ import qualified Data.HashMap.Strict as HashMap
 
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
-import           Game.Model.Chakras (Chakras(Chakras))
-import qualified Game.Model.Chakras
+import           Game.Model.Chakras (Chakra(..))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Group (Group(..))
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
-import           Util ((∉), mapFromKeyed)
+import           Util ((∈), (∉), mapFromKeyed)
 
 #ifdef DEVELOPMENT
 import qualified Game.Characters.Development
@@ -55,11 +54,11 @@ addGroups :: Character -> Character
 addGroups char@Character{groups, skills} =
     char { Character.groups = added ++ groups }
   where
-    Chakras{blood, gen, nin, tai} = concatMap Skill.cost $ join skills
-    added = setFromList $ fst <$> filter snd [ (BloodlineUser, blood /= 0)
-                                             , (GenjutsuUser,  gen   /= 0)
-                                             , (NinjutsuUser,  nin   /= 0)
-                                             , (TaijutsuUser,  tai   /= 0)
+    chakras = concatMap Skill.cost $ join skills
+    added = setFromList $ fst <$> filter ((∈ chakras) . snd) [ (BloodlineUser, Blood)
+                                             , (GenjutsuUser, Gen)
+                                             , (NinjutsuUser, Nin)
+                                             , (TaijutsuUser,  Tai)
                                              ]
 
 addClasses :: Character -> Character

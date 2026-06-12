@@ -18,7 +18,8 @@ import qualified Application.Model.User as User
 import qualified Class.Play as P
 import qualified Game.AI as AI
 import qualified Game.Characters as Characters
-import           Game.Model.Chakras (Chakras(Chakras))
+import           Game.Model.Chakras (Chakras)
+import qualified Game.Model.Chakras as Chakras
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Player as Player
@@ -106,4 +107,4 @@ getPracticeActR spend exchange actions = do
                 Cache.delete practice who
         returnJson $ Wrapper.toTurn Player.A <$> [game'A, game'B]
   where
-    baseChakra = Chakras 100 100 100 100 100
+    baseChakra = Chakras.scale 100 $ fromList [minBound..maxBound]

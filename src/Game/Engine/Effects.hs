@@ -30,8 +30,7 @@ import ClassyPrelude hiding (link)
 import Data.Enum.Set (EnumSet)
 
 import qualified Class.Parity as Parity
-import           Game.Model.Chakras (Chakras(Chakras))
-import qualified Game.Model.Chakras
+import           Game.Model.Chakras (Chakra(..), Chakras)
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Amount(..), Constructor(..), Effect(..))
 import qualified Game.Model.Effect as Effect
@@ -86,13 +85,9 @@ duel Ninja{effects, slot} = [x | Duel x <- effects, slot /= x]
 
 -- | 'Exhaust' sum.
 exhaust :: EnumSet Class -> Ninja -> Chakras
-exhaust classes Ninja{effects} = Chakras
-    { rand  = length [x | Exhaust x <- effects, x `intersects` classes]
-    , blood = 0
-    , gen   = 0
-    , nin   = 0
-    , tai   = 0
-    }
+exhaust classes Ninja{effects} = replicate exhausted Rand
+  where
+    exhausted = length [x | Exhaust x <- effects, x `intersects` classes]
 
 -- | 'Invulnerable' collection.
 invulnerable :: Ninja -> EnumSet Class

@@ -1,6 +1,6 @@
 module Game.Model.Chakras
   ( Chakra(..)
-  , Chakras(..)
+  , Chakras(blood, gen, nin, tai, rand)
   , classes
   , scale
   , spend
