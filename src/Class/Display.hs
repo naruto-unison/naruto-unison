@@ -11,6 +11,7 @@ import           Data.Attoparsec.Text (notInClass)
 import qualified Data.Text.Lazy as Lazy
 import qualified Data.Text.Lazy.Builder as TextBuilder
 import qualified Data.Text.Lazy.Builder.Int as IntBuilder
+import           Util ((<.$.>))
 
 -- | A class for types with textual descriptions.
 -- Output is given as a @TextBuilder@ so that larger @Display@ instances may be
@@ -93,7 +94,7 @@ commas conj = go
 
 -- | Removes spaces and special characters.
 shorten :: Text -> Text
-shorten xs = unaccent `omap` filter (notInClass "- _:()®'/?") xs
+shorten xs = unaccent <.$.> filter (notInClass "- _:()®'/?") xs
 
 -- | Turns special characters into ordinary characters.
 unaccent :: Char -> Char

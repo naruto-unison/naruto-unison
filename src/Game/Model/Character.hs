@@ -10,10 +10,11 @@ import ClassyPrelude
 
 import Class.Display (unaccent)
 import Game.Model.Internal (Character(..), Category(..))
+import Util ((<.$.>))
 
 -- | Turns 'format' output into 'ident'.
 clean :: Text -> Text
-clean name = f `omap` toLower name
+clean name = f <.$.> toLower name
   where
     f ' ' = '-'
     f x   = unaccent x

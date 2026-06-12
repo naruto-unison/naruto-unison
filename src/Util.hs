@@ -2,6 +2,7 @@
 module Util
   ( (!?), (!!)
   , (∈), (∉)
+  , (<.$.>), (<.$), ($.>), (<.&.>)
   , Lift
   , epoch
   , intersects
@@ -42,6 +43,30 @@ infix 4 ∉
 (∉) :: ∀ o. (MonoFoldable o, Eq (Element o)) => Element o -> o -> Bool
 (∉) = notElem
 {-# INLINE (∉) #-}
+
+-- | Monofunctor '<$>'
+infixl 4 <.$.>
+(<.$.>) :: ∀ o. MonoFunctor o => (Element o -> Element o) -> o -> o
+(<.$.>) = omap
+{-# INLINE (<.$.>) #-}
+
+-- | Monofunctor '<$'
+infixl 4 <.$
+(<.$) :: ∀ o. MonoFunctor o => Element o -> o -> o
+(<.$) = omap . const
+{-# INLINE (<.$) #-}
+
+-- | Monofunctor '$>'
+infixl 4 $.>
+($.>) :: ∀ o. MonoFunctor o => o -> Element o -> o
+($.>) = flip (<.$)
+{-# INLINE ($.>) #-}
+
+-- | Monofunctor '<&>'
+infixl 1 <.&.>
+(<.&.>) :: ∀ o. MonoFunctor o => o -> (Element o -> Element o) -> o
+(<.&.>) = flip (<.$.>)
+{-# INLINE (<.&.>) #-}
 
 -- | @UTCTime 0 0@.
 epoch :: UTCTime
