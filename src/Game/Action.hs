@@ -352,6 +352,6 @@ breakControl user stuns chan@Channel { dur   = Control{}
     ifBroken
         | stuns `intersects` classes = id
         | null targets = const $ return ()
-        | otherwise    = whenM $ any null <$> targeted targets
+        | otherwise    = whenM $ all null <$> targeted targets
 
 breakControl _ _ _ = return ()
