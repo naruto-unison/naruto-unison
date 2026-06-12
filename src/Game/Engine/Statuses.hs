@@ -44,8 +44,7 @@ apply amount classes bombs name unthrottled effects = void $ runMaybeT do
                classes bombs name dur effects
         stID = ID.from st
     if N.has stID nTarget && Extending ∈ Status.classes st then
-        P.modify target . Ninjas.modifyStatuses
-            $ mapMaybe $ Ninjas.prolong' (Status.dur st) stID
+        P.modify target $ Ninjas.prolong (Status.dur st) stID
     else do
         let Status{effects = efs} = st
         guard $ null effects || not (null efs)

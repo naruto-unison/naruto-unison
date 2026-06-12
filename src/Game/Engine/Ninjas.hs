@@ -39,7 +39,6 @@ module Game.Engine.Ninjas
   , recharge, rechargeAll, spendCharge
 
   , prolong
-  , prolong'
   , prolongChannel
   , renameChannels
   , refresh
@@ -222,20 +221,21 @@ addTrap trap n@Ninja{traps}
     conflicts = (==) `on` \Trap{user, direction, trigger, classes, dur, name} ->
         (user, direction, trigger, classes, dur, name)
 
-addStatus :: Status -> Ninja -> Ninja
-addStatus st = modifyStatuses $ (st .:)
-
 checkEffects :: [Effect] -> Ninja -> Ninja
 checkEffects [] n = n
-checkEffects _ n = processEffects n
+checkEffects _  n = processEffects n
+
+addStatus :: Status -> Ninja -> Ninja
+addStatus st@Status{effects} n = checkEffects effects
+    $ n { N.statuses = st .: N.statuses n }
 
 checkDestructibleEffects :: [Destructible] -> Ninja -> Ninja
 checkDestructibleEffects xs n
   | any hasEffects xs = processEffects n
   | otherwise         = n
   where
-   hasEffects Destructible{effects = []} = True
-   hasEffects _                          = False
+   hasEffects Destructible{effects = []} = False
+   hasEffects _                          = True
 
 addBarrier :: Destructible -> Ninja -> Ninja
 addBarrier b@Destructible{amount, effects} n = case amount `compare` 0 of
@@ -372,8 +372,11 @@ kill endurable n
 prolong :: Duration -- ^ Added to 'Status.dur'.
         -> ID -- ^ 'Status.name'.
         -> Ninja -> Ninja
-prolong dur statusID n =
-    n { N.statuses = mapMaybe (prolong' dur statusID) $ N.statuses n }
+prolong dur statusID n
+  | dur < 0   = processEffects n'
+  | otherwise = n'
+  where
+    n' = n { N.statuses = mapMaybe (prolong' dur statusID) $ N.statuses n }
 
 -- | Extends the duration of a single 'Status'.
 prolong' :: Duration -- ^ Added to 'Status.dur'.
