@@ -15,11 +15,9 @@ import qualified Yesod.Auth as Auth
 import qualified Application.App as App
 import           Application.Model (EntityField(..))
 import qualified Application.Model.User as User
-import qualified Class.Play as P
 import qualified Game.AI as AI
 import qualified Game.Characters as Characters
 import           Game.Model.Chakras (Chakras)
-import qualified Game.Model.Chakras as Chakras
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Player as Player
@@ -97,7 +95,6 @@ getPracticeActR spend exchange actions = do
         res <- runExceptT $ enact Enact{spend, exchange, actions}
         forM_ (leftToMaybe res) \errorMsg -> invalidArgs [errorMsg]
         game'A <- Wrapper.freeze =<< ask
-        P.alterGame $ Game.setChakra Player.B baseChakra
         AI.runTurn
         game'B <- Wrapper.freeze =<< ask
         liftIO
@@ -106,5 +103,3 @@ getPracticeActR spend exchange actions = do
             else
                 Cache.delete practice who
         returnJson $ Wrapper.toTurn Player.A <$> [game'A, game'B]
-  where
-    baseChakra = Chakras.scale 100 $ fromList [minBound..maxBound]

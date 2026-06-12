@@ -10,6 +10,8 @@ import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Class.Random as R
+import           Game.Model.Chakras (Chakra(..), Chakras)
+import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Game (Game(Game))
@@ -19,6 +21,8 @@ import qualified Game.Engine as Engine
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Requirement as Requirement
+import           Game.Model.Skill (Skill(Skill))
+import qualified Game.Model.Skill
 import           Game.Model.Slot (Slot)
 import           Util ((!?))
 
@@ -90,4 +94,23 @@ runTurn = do
             ninjas   <- P.ninjas
             acts     <- mapM (run v) $ Parity.half Player.B ninjas
             contexts <- R.shuffle $ catMaybes acts
-            Engine.runTurn contexts
+            Game{chakra = (_, chakras)} <- P.game
+            let (contexts', chakras') = buyActs (toList contexts) chakras
+            P.alterGame $ Game.setChakra Player.B chakras'
+            Engine.runTurn contexts'
+
+buyActs :: [Context] -> Chakras -> ([Context], Chakras)
+buyActs [] gameChakras = ([], gameChakras)
+buyActs (act@Context{skill = Skill{cost}}:acts) gameChakras =
+    case spendWithExchange cost gameChakras of
+        Just gameChakras' -> first (act :) $ buyActs acts gameChakras'
+        Nothing           -> ([], gameChakras)
+
+spendWithExchange :: Chakras -> Chakras -> Maybe Chakras
+spendWithExchange cost gameChakras = do
+    let (rands, nonrands) = partition (== Rand) cost
+    afterNonrand <- Chakras.checkedSpend nonrands gameChakras
+    let exchangeForRandoms = fromList $ take (length rands)
+            $ Chakras.toDescendingList afterNonrand
+    guard $ length exchangeForRandoms == length rands
+    return $ Chakras.spend exchangeForRandoms afterNonrand

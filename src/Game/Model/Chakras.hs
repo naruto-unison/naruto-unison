@@ -3,7 +3,9 @@ module Game.Model.Chakras
   , Chakras
   , each
   , set
+  , mode
   , scale
+  , toDescendingList
   , spend
   , checkedSpend
   , random
@@ -447,6 +449,18 @@ checkedSpend cost before
   where
     after@(Chakras b g n t r) = before `naiveSubtract` cost
     insufficient = b < 0 || g < 0 || n < 0 || t < 0 || r < 0
+
+mode :: Chakras -> Maybe Chakra
+mode (Chakras 0 0 0 0 0) = Nothing
+mode chakras = Just $! maximumByEx (compare `on` chakraAmount) [minBound..Tai]
+  where
+    chakraAmount kind = get kind chakras
+{--# INLINABLE mode #-}
+
+toDescendingList :: Chakras -> [Chakra]
+toDescendingList xs = case mode xs of
+    Just x  -> x : toDescendingList (modify (- 1) x xs)
+    Nothing -> []
 
 fromBits :: ∀ a. (Bits a, Enum a, Num a) => Int -> a -> Chakras
 fromBits 0 _ = mempty
