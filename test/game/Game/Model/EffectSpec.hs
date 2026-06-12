@@ -20,7 +20,6 @@ import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Attack (Attack)
 import qualified Game.Model.Attack as Attack
-import           Game.Model.Chakras (Chakras(Chakras))
 import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -74,9 +73,9 @@ spec = parallel do
               where
                 slot = Sim.targetSlot t
         it "gains chakra from enemy skills" $
-            tryAbsorb Enemy (Chakras 1 1 1 1 1) `shouldBe` (Chakras 1 1 1 1 1)
+            tryAbsorb Enemy (Chakras.each 1) `shouldBe` (Chakras.each 1)
         it "does not gain chakra from friendly skills" $
-            tryAbsorb Ally (Chakras 2 2 2 2 2) `shouldBe` mempty
+            tryAbsorb Ally (Chakras.each 1) `shouldBe` mempty
 
     describe "Afflict" do
         prop "damages every turn" \amount (Positive turns) -> simAt Enemy do
@@ -248,7 +247,7 @@ spec = parallel do
     describe "Exhaust" do
         prop "increases skill costs" \(Positive exhaust) ->
             Skill.cost (getSkill $ replicate exhaust $ Exhaust [All])
-            === mempty { Chakras.rand = exhaust }
+            === replicate exhaust Rand
 
     describe "Expose" do
         it "prevents target from becoming invulnerable" $ simAt Enemy do

@@ -1,7 +1,8 @@
 module Game.Model.Chakras
   ( Chakra(..)
-  , Chakras(blood, gen, nin, tai, rand)
-  , classes
+  , Chakras
+  , each
+  , set
   , scale
   , spend
   , checkedSpend
@@ -12,7 +13,7 @@ import ClassyPrelude hiding (groupBy, groupAllOn, minimum)
 
 import           Data.Aeson (ToJSON)
 import           Data.Bits
-import           Data.Enum.Set (AsEnumSet(..), EnumSet)
+import           Data.Enum.Set (AsEnumSet(..))
 import           Data.Sequences (groupBy, groupAllOn)
 import           GHC.Exts (IsList)
 import qualified GHC.Exts
@@ -23,6 +24,8 @@ import qualified Text.Blaze.Html5 as HTML
 import qualified Text.Blaze.Html5.Attributes as HTML
 import           Yesod.Core.Dispatch (PathPiece(..))
 
+import           Class.Classed (Classed)
+import qualified Class.Classed
 import           Class.Display (Display(..), buildStrict)
 import           Class.Parse (Parse)
 import qualified Class.Parse as Parse
@@ -40,34 +43,45 @@ data Chakras = Chakras
     , rand  :: {-# UNPACK #-} Int -- ^ Random
     } deriving (Eq, Show, Read, Generic)
 
-getChakra :: Chakra -> Chakras -> Int
-getChakra Blood = blood
-getChakra Gen   = gen
-getChakra Nin   = nin
-getChakra Tai   = tai
-getChakra Rand  = rand
-{-# INLINE getChakra #-}
+each :: Int -> Chakras
+each i = Chakras i i i i i
 
-addChakra :: Int -> Chakra -> Chakras -> Chakras
-addChakra i Blood xs = xs { blood = i + blood xs }
-addChakra i Gen   xs = xs { gen   = i + gen xs }
-addChakra i Nin   xs = xs { nin   = i + nin xs }
-addChakra i Tai   xs = xs { tai   = i + tai xs }
-addChakra i Rand  xs = xs { rand  = i + rand xs }
-{-# INLINE addChakra #-}
+get :: Chakra -> Chakras -> Int
+get Blood = blood
+get Gen   = gen
+get Nin   = nin
+get Tai   = tai
+get Rand  = rand
+{-# INLINE get #-}
 
-naiveDelete :: Chakra -> Chakras -> Chakras
-naiveDelete = addChakra -1
-{-# INLINE naiveDelete #-}
+modify :: (Int -> Int) -> Chakra -> Chakras -> Chakras
+modify f Blood xs = xs { blood = f $ blood xs }
+modify f Gen   xs = xs { gen   = f $ gen xs }
+modify f Nin   xs = xs { nin   = f $ nin xs }
+modify f Tai   xs = xs { tai   = f $ tai xs }
+modify f Rand  xs = xs { rand  = f $ rand xs }
+{-# INLINE modify #-}
+
+set :: Chakra -> Int -> Chakras -> Chakras
+set x i = modify (const $ max 0 i) x
+{-# INLINE set #-}
+
+map1 :: (Int -> Int) -> Chakras -> Chakras
+map1 f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
+{-# INLINE map1 #-}
+
+map2 :: (Int -> Int -> Int) -> Chakras -> Chakras -> Chakras
+map2 f (Chakras b g n t r) (Chakras b' g' n' t' r') = Chakras
+    (b `f` b')
+    (g `f` g')
+    (n `f` n')
+    (t `f` t')
+    (r `f` r')
+{-# INLINE map2 #-}
 
 naiveSubtract :: Chakras -> Chakras -> Chakras
-naiveSubtract (Chakras b g n t r) (Chakras b' g' n' t' r') =
-    Chakras (b - b') (g - g') (n - n') (t - t') (r - r')
+naiveSubtract = map2 (-)
 {-# INLINE naiveSubtract #-}
-
-mapAmounts :: (Int -> Int) -> Chakras -> Chakras
-mapAmounts f (Chakras b g n t r) = Chakras (f b) (f g) (f n) (f t) (f r)
-{-# INLINE mapAmounts #-}
 
 toNormalizedList :: Chakras -> [Chakra]
 toNormalizedList chakras = filter (∈ chakras) [minBound..maxBound]
@@ -88,8 +102,7 @@ instance ToMarkup Chakras where
     {-# INLINABLE toMarkup #-}
 
 instance Semigroup Chakras where
-    Chakras b g n t r <> Chakras b' g' n' t' r' =
-        Chakras (b + b') (g + g') (n + n') (t + t') (r + r')
+    (<>) = map2 (+)
     {-# INLINE (<>) #-}
 
 instance Monoid Chakras where
@@ -99,11 +112,11 @@ instance Monoid Chakras where
 type instance Element Chakras = Chakra
 
 instance MonoFunctor Chakras where
-    f `omap` (Chakras b g n t r) = addChakra b (f Blood)
-                                 . addChakra g (f Gen)
-                                 . addChakra n (f Nin)
-                                 . addChakra t (f Tai)
-                                 . addChakra r (f Rand)
+    f `omap` (Chakras b g n t r) = modify (+ b) (f Blood)
+                                 . modify (+ g) (f Gen)
+                                 . modify (+ n) (f Nin)
+                                 . modify (+ t) (f Tai)
+                                 . modify (+ r) (f Rand)
                                  $ mempty
     {-# INLINABLE omap #-}
 
@@ -181,10 +194,10 @@ instance MonoFoldable Chakras where
     minimumByEx f = minimumByEx f . toNormalizedList
     {-# INLINABLE minimumByEx #-}
 
-    x `oelem` xs = getChakra x xs /= 0
+    x `oelem` xs = get x xs /= 0
     {-# INLINE oelem #-}
 
-    x `onotElem` xs = getChakra x xs == 0
+    x `onotElem` xs = get x xs == 0
     {-# INLINE onotElem #-}
 
 instance MonoTraversable Chakras where
@@ -208,7 +221,7 @@ instance SemiSequence Chakras where
 
     intersperse x xs
       | len < 2   = xs
-      | otherwise = addChakra (len - 1) x xs
+      | otherwise = modify (+ (len - 1)) x xs
       where
         len = length xs
     {-# INLINABLE intersperse #-}
@@ -228,7 +241,7 @@ instance SemiSequence Chakras where
     sortBy _ xs = xs
     {-# INLINE sortBy #-}
 
-    cons = addChakra 1
+    cons = modify (+ 1)
     {-# INLINE cons #-}
 
     xs `snoc` x = x `cons` xs
@@ -409,21 +422,23 @@ instance Display Chakra where
     display Tai   = "taijutsu"
     display Rand  = "random"
 
-classes :: Chakras -> EnumSet Class
-classes (Chakras b g n t r) = setFromList $ fst <$> filter snd
-    [ (Bloodline, b /= 0)
-    , (Genjutsu,  g /= 0)
-    , (Ninjutsu,  n /= 0)
-    , (Taijutsu,  t /= 0)
-    , (Random,    r /= 0)
-    ]
+instance Classed Chakras where
+    classes chakras = setFromList $ chakraClass <$> toNormalizedList chakras
+      where
+        chakraClass Blood = Bloodline
+        chakraClass Gen   = Genjutsu
+        chakraClass Nin   = Ninjutsu
+        chakraClass Tai   = Taijutsu
+        chakraClass Rand  = Random
 
 scale :: Int -> Chakras -> Chakras
-scale scalar = mapAmounts (* scalar)
+scale scalar
+  | scalar <= 0 = const mempty
+  | otherwise   = map1 (* scalar)
 {-# INLINABLE scale #-}
 
 spend :: Chakras -> Chakras -> Chakras
-spend cost chakras = mapAmounts (max 0) $ chakras `naiveSubtract` cost
+spend cost chakras = map1 (max 0) $ chakras `naiveSubtract` cost
 
 checkedSpend :: Chakras -> Chakras -> Maybe Chakras
 checkedSpend cost before

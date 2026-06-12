@@ -18,7 +18,7 @@ characters = (\c -> c Original "") <$>
         { Skill.name    = "Nchk-Nchk-Nchk-Nchk"
         , Skill.desc    = "The power of beatboxing grants 50 of each chakra type."
         , Skill.effects =
-          [ To Self $ gain $ Chakras.scale 50 [Blood, Gen, Nin, Tai] ]
+          [ To Self $ gain $ Chakras.each 50 ]
         }
       ]
     , [ Skill.new

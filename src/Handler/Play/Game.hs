@@ -28,7 +28,7 @@ import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Game.Engine as Engine
-import           Game.Model.Chakras (Chakras)
+import           Game.Model.Chakras (Chakra(..), Chakras)
 import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
@@ -291,7 +291,7 @@ enact Enact{spend, exchange, actions}
 
     getRemainingChakra contexts chakra = do
         exchanged <- Chakras.checkedSpend spend $ chakra ++ exchange
-        Chakras.checkedSpend actCosts $ exchanged { Chakras.rand = randTotal }
+        Chakras.checkedSpend actCosts $ Chakras.set Rand randTotal exchanged
       where
         actCosts = concatMap (Skill.cost . Context.skill) contexts
 

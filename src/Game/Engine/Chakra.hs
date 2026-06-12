@@ -13,7 +13,7 @@ import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Class.Random as R
-import           Game.Model.Chakras (Chakra(..), Chakras)
+import           Game.Model.Chakras (Chakra(..), Chakra(..), Chakras)
 import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
@@ -35,13 +35,11 @@ remove amount
         P.trigger user [OnChakra]
         let opponent = Parity.opponent user
         Game{chakra} <- P.game
-        let chakras = fromList . toList . removeRandoms
+        let chakras = fromList . toList . Chakras.set Rand 0
                     $ Parity.getOf opponent chakra
         removed <- fromList . toList . take amount <$> R.shuffle chakras
         P.alterGame $ Game.removeChakra opponent removed
         return removed
-  where
-    removeRandoms x = x { Chakras.rand = 0 }
 
 -- | Removes a single 'Chakra' from the enemy team that is one of several types.
 -- 'Chakra's are chosen randomly from the available pool of 'Game.chakra', but

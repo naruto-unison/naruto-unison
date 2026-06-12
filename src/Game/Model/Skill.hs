@@ -17,9 +17,9 @@ import ClassyPrelude hiding (swap)
 
 import Data.Enum.Set (EnumSet)
 
+import qualified Class.Classed as Classed
 import           Class.Display (Display(..), buildStrict)
 import           Game.Model.Chakras (Chakras)
-import qualified Game.Model.Chakras as Chakras
 import           Game.Model.Class (Class(..))
 import           Game.Model.Duration (Duration)
 import           Game.Model.Internal (Channeling(..), Key(..), Skill(..), Requirement(..), Runnable(To), Target(..))
@@ -51,7 +51,7 @@ new = Skill
 -- to the 'classes' of a @Skill@ if they are included in its 'cost'.
 chakraClasses :: Skill -> Skill
 chakraClasses skill@Skill{classes, cost} =
-    skill { classes = Chakras.classes cost ++ classes }
+    skill { classes = Classed.classes cost ++ classes }
 
 -- | Replaces an empty string with a 'name'.
 defaultName :: Text -> Skill -> Text
