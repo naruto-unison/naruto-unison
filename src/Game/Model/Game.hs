@@ -41,7 +41,7 @@ new :: Game
 new = Game
     { chakra    = (mempty, mempty)
     , playing   = Player.A
-    , victor    = []
+    , victor    = mempty
     , inactive  = (0, 0)
     , forfeited = False
     , vendetta  = Nothing

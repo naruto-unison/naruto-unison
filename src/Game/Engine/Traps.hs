@@ -93,7 +93,7 @@ getPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        -> Int -- ^ Value to pass to 'Trap.effect'.
        -> Ninja -- 'N.traps' owner.
        -> [m ()]
-getPer False _  _   _ = []
+getPer False _  _   _ = mempty
 getPer True  tr amt Ninja{traps} =
     [ launch trap $ effect amt | trap@Trap{effect, trigger} <- traps
                                , trigger == tr ]
@@ -105,9 +105,9 @@ getTurnPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
            -> Ninja -- ^ New.
            -> [m ()]
 getTurnPer player n n'
-  | not $ N.alive n'     = []
+  | not $ N.alive n'     = mempty
   | hp > 0 && not allied = getPer True PerDamaged hp n'
-  | otherwise            = []
+  | otherwise            = mempty
   where
     allied = Parity.allied player n'
     hp   = N.health n - N.health n'
@@ -117,9 +117,9 @@ getTurnNot :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
            => Ninja -- ^ 'N.flags' owner.
            -> [m ()]
 getTurnNot n@Ninja{acted, slot}
-  | acted     = []
+  | acted     = mempty
   | N.alive n = getOf slot OnNoAction n
-  | otherwise = []
+  | otherwise = mempty
 
 -- | Processes and runs all 'Trap.Trap's at the end of a turn.
 runTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)

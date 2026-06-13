@@ -120,10 +120,10 @@ data Wrapper = Wrapper
 
 new :: Game -> Vector Ninja -> Wrapper
 new game ninjas = Wrapper
-    { progress = []
+    { progress  = mempty
     , game
     , ninjas
-    , snapshots = []
+    , snapshots = mempty
     }
 
 freeze :: ∀ m. PrimMonad m => STWrapper (PrimState m) -> m Wrapper

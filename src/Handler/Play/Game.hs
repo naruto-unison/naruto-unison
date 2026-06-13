@@ -263,7 +263,7 @@ tryEnact socket Settings{forfeitAfterSkips, turnLength} player mvar = do
 
     wrapper <- Wrapper.freeze =<< ask
     Socket.sendJSONData socket . Message.Play $ Wrapper.toTurn player wrapper
-    putMVar mvar wrapper { Wrapper.snapshots = [] } -- this should never block
+    putMVar mvar wrapper { Wrapper.snapshots = mempty } -- this should never block
   where
     decodeMessage (Left err) = case fromException err of
         Just err' -> SocketException err'

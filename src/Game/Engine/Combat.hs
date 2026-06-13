@@ -140,7 +140,7 @@ attack atk dmg
             , skill   = Skill.removeClass Nonstacking skill
             , amount  = dmgCalc
             , dur     = Permanent
-            , effects = []
+            , effects = mempty
             }
 
     else if atk == Attack.Afflict then

@@ -45,7 +45,7 @@ usable new n@Ninja{slot} x@Skill{charges, cooldown, classes, owner}
       | Channel.ignoreStun $ Skill.dur x          = required
       | not $ classes `intersects` Effects.stun n = required
       | new                                       = unusable
-      | otherwise = required { Skill.effects = [] }
+      | otherwise = required { Skill.effects = mempty }
     isUsable req@UserHas{}
       | not new                  = Usable
       | succeed owner req slot n = Usable

@@ -65,7 +65,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2]
                             , war    = Nothing
                             , game
                             , ninjas
-                            , snapshots = []
+                            , snapshots = mempty
                             }
   where
     hasDuplicates a b c = a == b || a == c || b == c

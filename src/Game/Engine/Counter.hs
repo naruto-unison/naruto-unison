@@ -64,7 +64,7 @@ userUncounter classes n =
 targetCounters :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
                => Slot -> EnumSet Class -> Ninja -> [m ()]
 targetCounters from classes n
-  | n `is` Uncounter = []
+  | n `is` Uncounter = mempty
   | otherwise        = getCounters (f . Trap.trigger) from classes n
   where
     f (CounterAll cla) = Just cla

@@ -198,11 +198,11 @@ commandeer = P.unsilenced do
     P.modify user $ Ninjas.modifyStatuses
         (mapMaybe gainHelpful (N.statuses nTarget) ++) . \n ->
             n { N.defense = N.defense nTarget .++ N.defense n
-              , N.barrier = []
+              , N.barrier = mempty
               }
     P.modify target $ Ninjas.modifyStatuses
         (mapMaybe loseHelpful) . \n ->
-            n { N.defense = []
+            n { N.defense = mempty
               , N.barrier = N.barrier nUser
               }
   where

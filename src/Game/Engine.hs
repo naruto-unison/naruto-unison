@@ -140,7 +140,7 @@ doDeaths = mapM_ doEach Slot.all
     doEach slot = do
         n@Ninja{statuses} <- P.ninja slot
         let res
-              | n `is` Plague = []
+              | n `is` Plague = mempty
               | otherwise     = Traps.getOf slot OnRes n
 
         if N.alive n then
@@ -192,7 +192,7 @@ getControlled ns = setFromList $ getFromNinja =<< ns
     getFromNinja n@Ninja{slot, statuses, traps}
       | N.alive n = filter ((/= slot) . ID.user)
                   $ getFrom traps ++ getFrom statuses
-      | otherwise = []
+      | otherwise = mempty
     getFrom :: ∀ a. (Classed a, HasID a, TurnBased a) => [a] -> [ID]
     getFrom items = ID.from <$> filter isControlled items
       where

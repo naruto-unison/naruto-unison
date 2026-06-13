@@ -13,4 +13,4 @@ name :: Destructible -> Text
 name Destructible{skill = Skill{name = skillName}} = skillName
 
 negate :: Destructible -> Destructible
-negate b@Destructible{amount} = b { amount = -amount, effects = [] }
+negate b@Destructible{amount} = b { amount = -amount, effects = mempty }

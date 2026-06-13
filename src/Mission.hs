@@ -287,7 +287,7 @@ resetGoal _ _ _ = return ()
 -- | Awards DNA upon completing a match and returns a list of DNA gains,
 -- paired with textual descriptions of why each was awarded.
 awardDNA :: Queue.Section -> Outcome -> Maybe War -> App.Handler [Reward]
-awardDNA Queue.Private _     _   = return []
+awardDNA Queue.Private _     _   = return mempty
 awardDNA Queue.Quick outcome war = do
     (who, user)   <- Auth.requireAuthPair
     dnaConf       <- getsYesod $ Settings.dnaConf . App.settings

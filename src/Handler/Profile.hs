@@ -37,7 +37,7 @@ getProfileR name = do
     defaultLayout $(widgetFile "profile/profile")
   where
     getTeam (Just names) = Characters.lookupAll names
-    getTeam Nothing      = []
+    getTeam Nothing      = mempty
 
 -- | Displays a user's rank, or their 'Privilege' level if higher than 'Normal'.
 userRank :: User -> Text

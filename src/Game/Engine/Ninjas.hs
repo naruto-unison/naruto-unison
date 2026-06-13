@@ -235,8 +235,7 @@ checkDestructibleEffects xs n
   | any hasEffects xs = processEffects n
   | otherwise         = n
   where
-   hasEffects Destructible{effects = []} = False
-   hasEffects _                          = True
+   hasEffects Destructible{effects} = not $ null effects
 
 addBarrier :: Destructible -> Ninja -> Ninja
 addBarrier b@Destructible{amount, effects} n = case amount `compare` 0 of
@@ -268,11 +267,11 @@ removeDefense defenseID n = processEffects
 
 clearBarrier :: Ninja -> Ninja
 clearBarrier n@Ninja{barrier} = checkDestructibleEffects barrier
-    $ n { N.barrier = [] }
+    $ n { N.barrier = mempty }
 
 clearDefense :: Ninja -> Ninja
 clearDefense n@Ninja{defense} = checkDestructibleEffects defense
-    $ n { N.defense = [] }
+    $ n { N.defense = mempty }
 
 -- | Deletes matching 'statuses'.
 clear :: ID -- ^ 'Status.name'.
