@@ -29,6 +29,7 @@ import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
 import           Game.Model.Channel (Channel(Channel))
+import qualified Game.Model.Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -92,7 +93,7 @@ processTurn runner = do
     Hook.turnEnd player initial =<< P.ninjas
   where
     getChannels n = mapMaybe (fromChannel n) $ N.channels n
-    fromChannel n (Channel skill target new dur)
+    fromChannel n Channel{skill, target, new, dur}
       | new || TurnBased.expiring dur = Nothing
       | otherwise = Just Context { new       = False
                                  , user      = N.slot n
@@ -175,7 +176,7 @@ doSkillEnds = mapM_ doEach =<< P.ninjas
                              $ filter TurnBased.expiring channels
 
 runSkillEnd :: ∀ m. (MonadGame m, MonadRandom m) => Ninja -> Channel -> m ()
-runSkillEnd Ninja{slot} (Channel skill@Skill{end} target _ _) = P.launch
+runSkillEnd Ninja{slot} Channel{target, skill = skill@Skill{end}} = P.launch
     $ To context $ Action.runTargeted end
   where
     context = Context { skill

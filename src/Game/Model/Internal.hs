@@ -82,7 +82,7 @@ data Channel = Channel
 instance ToJSON Channel
 
 instance Classed Channel where
-    classes (Channel Skill{classes} _ _ _) = classes
+    classes Channel{skill = Skill{classes}} = classes
 
 
 -- | Types of channeling for 'Skill's.

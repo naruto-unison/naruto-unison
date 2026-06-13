@@ -277,7 +277,7 @@ act context@Context{user, new, target, skill} = void $ runMaybeT do
 
 -- | Effects to run when a channeled skill is canceled.
 runInterruptions :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Channel -> m ()
-runInterruptions user (Channel skill@Skill{end, name} target _ _) = do
+runInterruptions user Channel{target, skill = skill@Skill{end, name}} = do
     P.withContext context $ runTargeted end
     P.modifyAll removeInterrupted
   where

@@ -11,13 +11,13 @@ import           Game.Model.Internal (Channel(..), Channeling(..), Skill(Skill))
 import qualified Game.Model.Internal
 
 name :: Channel -> Text
-name (Channel Skill{name = skillName} _ _ _) = skillName
+name Channel{skill = Skill{name = skillName}} = skillName
 
 -- | 'Control' and 'Action' 'Model.Skill.Skill's can be interrupted.
 -- Others cannot, because they are not considered user actions.
 interruptible :: Channel -> Bool
-interruptible (Channel _ _ _ Control{}) = True
-interruptible (Channel _ _ _ Action{})  = True
+interruptible Channel{dur = Control{}} = True
+interruptible Channel{dur = Action{}}  = True
 interruptible _                       = False
 
 -- | 'Passive' and 'Ongoing' effects are not affected by 'Model.Effect.Stun'.

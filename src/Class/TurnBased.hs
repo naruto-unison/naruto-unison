@@ -51,7 +51,7 @@ instance TurnBased Destructible where
     setDur d x = x { Destructible.dur = d }
 
 instance TurnBased Channel where
-    getDur (Channel _ _ _ dur) = getDur dur
+    getDur Channel{dur} = getDur dur
     setDur d x = x { Channel.dur = setDur d $ Channel.dur x }
 
 instance TurnBased Channeling where

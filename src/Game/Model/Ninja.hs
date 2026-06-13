@@ -64,8 +64,9 @@ isChanneling :: Text -- ^ 'Skill.name'.
              -> Ninja -> Bool
 isChanneling name n = any matches $ channels n
   where
-    matches (Channel Skill{name = skillName} _ False _) = name == skillName
-    matches _                                           = False
+    matches Channel{new = False, skill = Skill{name = skillName}} =
+        name == skillName
+    matches _ = False
 
 has' :: ∀ a. HasID a
      => (Ninja -> [a])
