@@ -35,7 +35,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 bonusA <- 10 `bonusIf` target has "Lightning Beast Fang"
-                bonusB <- 10 `bonusIf` target stunned
+                bonusB <- 10 `bonusIf` target isStunned
                 pierce (35 + max bonusA bonusB)
           ]
         }

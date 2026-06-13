@@ -329,7 +329,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 10 `bonusIf` (not . null <$> target Effects.invulnerable)
+                bonus <- 10 `bonusIf` target isInvulnerable
                 pierce (25 + bonus)
           ]
         , Skill.changes   = changeWith "Fragmentation" $ setCost [Nin]

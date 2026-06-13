@@ -10,7 +10,7 @@ module Game.Engine.Effects
   , duel
   , exhaust
   , hp
-  , invulnerable
+  , invulnerable, isInvulnerable
   , limit
   , redirect
   , reduce
@@ -18,7 +18,7 @@ module Game.Engine.Effects
   , share
   , snare
   , strengthen
-  , stun, stunned
+  , stun, isStunned
   , throttle, throttleCounters
   , taunt
   , unreduce
@@ -93,6 +93,12 @@ exhaust classes Ninja{effects} = replicate exhausted Rand
 invulnerable :: Ninja -> EnumSet Class
 invulnerable Ninja{effects} = setFromList [x | Invulnerable x <- effects]
 
+isInvulnerable :: Ninja -> Bool
+isInvulnerable Ninja{effects} = any isInvulnerability effects
+  where
+    isInvulnerability Invulnerable{} = True
+    isInvulnerability _              = False
+
 -- | 'Limit' minimum.
 limit :: Ninja -> Maybe Int
 limit Ninja{effects} = minimumMay [x | Limit x <- effects]
@@ -133,8 +139,11 @@ stun :: Ninja -> EnumSet Class
 stun Ninja{effects} = setFromList [x | Stun x <- effects]
 
 -- | @not . null . stun@
-stunned :: Ninja -> Bool
-stunned n = not . null $ stun n
+isStunned :: Ninja -> Bool
+isStunned Ninja{effects} = any isStun effects
+  where
+    isStun Stun{} = True
+    isStun _      = False
 
 -- | 'Taunt' collection.
 taunt :: Ninja -> SlotSet

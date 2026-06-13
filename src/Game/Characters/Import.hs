@@ -24,7 +24,7 @@ import Game.Action.Combat as Import
 import Game.Action.Skill as Import
 import Game.Action.Status as Import
 import Game.Action.Trap as Import
-import Game.Engine.Effects as Import (stunned)
+import Game.Engine.Effects as Import (isInvulnerable, isStunned)
 import Game.Engine.Skills as Import (also, changeWith, changeWithChannel, changeWithDefense, changePer)
 import Game.Model.Chakras as Import (Chakra(..), Chakras)
 import Game.Model.Channel as Import (Channeling(..))

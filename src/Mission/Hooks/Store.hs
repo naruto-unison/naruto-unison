@@ -74,7 +74,7 @@ stunUnique :: StoreHook
 stunUnique = checkUnique \name user target ->
     not (allied user target)
     && hasFrom user name target
-    && Effects.stunned target
+    && Effects.isStunned target
 
 -- | Use an action on a target.
 useUnique :: StoreHook
