@@ -65,8 +65,8 @@ data Skill = Skill
     , charges   :: Int
     , dur       :: Channeling
     , start     :: [Runnable Target]
+    , always    :: [Runnable Target]
     , effects   :: [Runnable Target]
-    , stunned   :: [Runnable Target]
     , end       :: [Runnable Target]
     , owner     :: Slot
     }

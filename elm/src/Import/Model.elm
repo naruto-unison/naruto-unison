@@ -564,8 +564,8 @@ type alias Skill  =
    , charges: Int
    , dur: Channeling
    , start: (List Target)
+   , always: (List Target)
    , effects: (List Target)
-   , stunned: (List Target)
    , end: (List Target)
    , owner: Int
    }
@@ -582,8 +582,8 @@ jsonDecSkill =
    |> required "charges" (Json.Decode.int)
    |> required "dur" (jsonDecChanneling)
    |> required "start" (Json.Decode.list (jsonDecTarget))
+   |> required "always" (Json.Decode.list (jsonDecTarget))
    |> required "effects" (Json.Decode.list (jsonDecTarget))
-   |> required "stunned" (Json.Decode.list (jsonDecTarget))
    |> required "end" (Json.Decode.list (jsonDecTarget))
    |> required "owner" (Json.Decode.int)
 
@@ -599,8 +599,8 @@ jsonEncSkill  val =
    , ("charges", Json.Encode.int val.charges)
    , ("dur", jsonEncChanneling val.dur)
    , ("start", (Json.Encode.list jsonEncTarget) val.start)
+   , ("always", (Json.Encode.list jsonEncTarget) val.always)
    , ("effects", (Json.Encode.list jsonEncTarget) val.effects)
-   , ("stunned", (Json.Encode.list jsonEncTarget) val.stunned)
    , ("end", (Json.Encode.list jsonEncTarget) val.end)
    , ("owner", Json.Encode.int val.owner)
    ]
