@@ -25,54 +25,102 @@ import           Util ((∈))
 
 -- | Effects of 'Game.Model.Status.Status'es.
 data Effect
-    = Absorb                                  -- ^ Gain chakra when targeted by skills
-    | Afflict      Int                        -- ^ Deals damage every turn
-    | Alone                                   -- ^ Cannot be targeted by allies
-    | Alternate    Text Text                  -- ^ Modifies a skill to an alternate form
-    | AntiCounter                             -- ^ Cannot be countered or reflected
-    | Bleed        (EnumSet Class) Amount Int -- ^ Adds to damage received
-    | Bless        Int                        -- ^ Adds to healing 'Game.Model.Skill.Skill's
-    | Block        Slot                       -- ^ Treats user as 'Invulnerable'
-    | BlockAllies                             -- ^ Cannot affect allies
-    | BlockEnemies                            -- ^ Cannot affect enemies
-    | Boost        Int                        -- ^ Scales effects from allies
-    | Build        Int                        -- ^ Adds to destructible defense 'Game.Model.Skill.Skill'
-    | Bypass                                  -- ^ All skills are 'Bypassing'
-    | DamageToDefense                         -- ^ Damage received converts to defense
-    | Disable      Constructor                -- ^ Prevents applying an effect
-    | Duel         Slot                       -- ^ 'Invulnerable' to everyone but user
-    | Endure                                  -- ^ Health cannot go below 1
-    | Enrage                                  -- ^ Ignore all harmful status effects
-    | Exhaust      (EnumSet Class)            -- ^ 'Game.Model.Skill.Skill's cost 1 additional random chakra
-    | Expose                                  -- ^ Cannot reduce damage or be 'Invulnerable'
-    | Face                                    -- ^ Changes appearance
-    | Focus                                   -- ^ Immune to 'Stun', 'Disable', and 'Silence'
-    | Heal         Int                        -- ^ Heals every turn
-    | Invulnerable Class                      -- ^ Invulnerable to enemy 'Game.Model.Skill.Skill's
-    | Limit        Int                        -- ^ Limits damage received
-    | NoIgnore                                -- ^ Ignore ignores
-    | Nullify                                 -- ^ Invulnerable but targetable
-    | Pierce                                  -- ^ Damage attacks become piercing
-    | Plague                                  -- ^ Invulnerable to healing and curing
-    | Reduce       (EnumSet Class) Amount Int -- ^ Reduces damage by an amount
-    | Redirect     Slot                       -- ^ Transfers harmful 'Game.Model.Skill.Skill's
-    | Reflect                                 -- ^ Reflects the first 'Game.Model.Skill.Skill'
-    | ReflectAll   Class                      -- ^ 'Reflect' repeatedly
-    | Restrict                                -- ^ Forces AoE attacks to be single-target
-    | Reveal                                  -- ^ Makes 'Invisible' effects visible
-    | Seal                                    -- ^ Ignores helpful status effects
-    | Share        Slot                       -- ^ Harmful skills are also applied to a target
-    | Silence                                 -- ^ Unable to cause non-damage effects
-    | Snare        Int                        -- ^ Increases cooldowns
-    | Strengthen   (EnumSet Class) Amount Int -- ^ Adds to all damage dealt
-    | Stun         Class                      -- ^ Unable to use 'Game.Model.Skill.Skill's
-    | Swap                                    -- ^ Target's skills swap enemies and allies
-    | Taunt        Slot                       -- ^ Forced to attack a target
-    | Throttle     Int Constructor            -- ^ Applying an effect lasts fewer turns
-    | Undefend                                -- ^ Does not benefit from destructible defense
-    | Uncounter                               -- ^ Cannot counter or reflect
-    | Unreduce     Int                        -- ^ Reduces damage reduction 'Game.Model.Skill.Skill's
-    | Weaken       (EnumSet Class) Amount Int -- ^ Lessens damage dealt
+    -- | Gain chakra when targeted by skills
+    = Absorb
+    -- | Deals damage every turn
+    | Afflict Int
+    -- | Cannot be targeted by allies
+    | Alone
+    -- | Modifies a skill to an alternate form
+    | Alternate Text Text
+    -- | Cannot be countered or reflected
+    | AntiCounter
+    -- | Adds to damage received
+    | Bleed (EnumSet Class) Amount Int
+    -- | Adds to healing 'Game.Model.Skill.Skill's
+    | Bless Int
+    -- | Treats user as 'Invulnerable'
+    | Block Slot
+    -- | Cannot affect allies
+    | BlockAllies
+    -- | Cannot affect enemies
+    | BlockEnemies
+    -- | Scales effects from allies
+    | Boost Int
+    -- | Adds to destructible defense 'Game.Model.Skill.Skill'
+    | Build Int
+    -- | All skills are 'Bypassing'
+    | Bypass
+    -- | Damage received converts to defense
+    | DamageToDefense
+    -- | Prevents applying an effect
+    | Disable Constructor
+    -- | 'Invulnerable' to everyone but user
+    | Duel Slot
+    -- | Health cannot go below 1
+    | Endure
+    -- | Ignore all harmful status effects
+    | Enrage
+    -- | 'Game.Model.Skill.Skill's cost 1 additional random chakra
+    | Exhaust (EnumSet Class)
+    -- | Cannot reduce damage or be 'Invulnerable'
+    | Expose
+    -- | Changes appearance
+    | Face
+    -- | Immune to 'Stun', 'Disable', and 'Silence'
+    | Focus
+    -- | Heals every turn
+    | Heal Int
+    -- | Invulnerable to enemy 'Game.Model.Skill.Skill's
+    | Invulnerable Class
+    -- | Limits damage received
+    | Limit Int
+    -- | Ignore ignores
+    | NoIgnore
+    -- | Invulnerable but targetable
+    | Nullify
+    -- | Damage attacks become piercing
+    | Pierce
+    -- | Invulnerable to healing and curing
+    | Plague
+    -- | Reduces damage by an amount
+    | Reduce (EnumSet Class) Amount Int
+    -- | Transfers harmful 'Game.Model.Skill.Skill's
+    | Redirect Slot
+    -- | Reflects the first 'Game.Model.Skill.Skill'
+    | Reflect
+    -- | 'Reflect' repeatedly
+    | ReflectAll Class
+    -- | Forces AoE attacks to be single-target
+    | Restrict
+    -- | Makes 'Invisible' effects visible
+    | Reveal
+    -- | Ignores helpful status effects
+    | Seal
+    -- | Harmful skills are also applied to a target
+    | Share Slot
+    -- | Unable to cause non-damage effects
+    | Silence
+    -- | Increases cooldowns
+    | Snare Int
+    -- | Adds to all damage dealt
+    | Strengthen (EnumSet Class) Amount Int
+    -- | Unable to use 'Game.Model.Skill.Skill's
+    | Stun Class
+    -- | Target's skills swap enemies and allies
+    | Swap
+    -- | Forced to attack a target
+    | Taunt Slot
+    -- | Applying an effect lasts fewer turns
+    | Throttle Int Constructor
+    -- | Does not benefit from destructible defense
+    | Undefend
+    -- | Cannot counter or reflect
+    | Uncounter
+    -- | Reduces damage reduction 'Game.Model.Skill.Skill's
+    | Unreduce Int
+    -- | Lessens damage dealt
+    | Weaken (EnumSet Class) Amount Int
     deriving (Eq, Show)
 
 instance ToJSON Effect where
