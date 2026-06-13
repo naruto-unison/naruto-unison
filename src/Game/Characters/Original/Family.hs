@@ -237,11 +237,14 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.dur       = Control 4
+        , Skill.start     =
+          [ To Self $ hide -1 [] ]
         , Skill.effects   =
           [ To Enemy do
                 apply 1 [ Throttle 1 $ Any Invulnerable ]
                 trapFrom 1 (OnHarmed Mental) $
-                        apply 1 [ Invulnerable All ]
+                        unlessM (target has "mental invasion") $
+                            apply 1 [ Invulnerable All ]
           ]
         }
       ]

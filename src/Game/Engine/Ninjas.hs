@@ -82,7 +82,7 @@ import qualified Game.Model.Status as Status
 import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((∈), (∉), intersects)
+import           Util ((∈), (∉))
 
 processSkills :: Ninja -> Ninja
 processSkills n@Ninja{copies, slot, character = Character{skills}}
@@ -291,9 +291,7 @@ clearTraps tr n = n { N.traps = filter ((/= tr) . Trap.trigger) $ N.traps n }
 -- | Adds channels with a specific target.
 addChannels :: Skill -> Slot -> Ninja -> Ninja
 addChannels Skill{dur = Instant} _ n = n
-addChannels skill@Skill{classes, dur} target n
-  | Effects.stun n `intersects` classes = n
-  | otherwise = n { N.channels = chan : N.channels n }
+addChannels skill@Skill{dur} target n = n { N.channels = chan : N.channels n }
   where
     chan = Channel
         { target
@@ -410,6 +408,7 @@ prolongChannel dur name n = n { N.channels = f <$> N.channels n }
 renameChannels :: (Text -> Text) -> Ninja -> Ninja
 renameChannels rename n = n { N.channels = f <$> N.channels n }
   where
+    f chan@Channel{new = True} = chan
     f chan@Channel{skill} = chan
         { Channel.skill = skill { Skill.name = rename $ Skill.name skill } }
 

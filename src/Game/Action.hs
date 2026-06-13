@@ -257,8 +257,8 @@ act context@Context{user, new, target, skill} = void $ runMaybeT do
                 Instant -> run' (singleton Targeted) bothEfs
                 _       -> do
                     run' (singleton Targeted) startEfs
-                    P.withContinues $ run' (singleton Targeted) contEfs
                     P.modify user $ Ninjas.addChannels skill target
+                    P.withContinues $ run' (singleton Targeted) contEfs
             P.modify user $ Cooldown.update skill
         P.uncopied do
             Hook.action skill initial =<< P.ninjas
